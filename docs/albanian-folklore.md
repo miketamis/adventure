@@ -201,10 +201,13 @@ important events**. To kill it is to court ruin. The name itself is read as "she
 **weaving of fate** as the Fatí.
 
 ### Other spirits
-- **Shtojzovalle** (also *Shtojzorreshtat*) — small, invisible, beautiful woodland
-  fey who **dance under the moonlight** and, by night, **spin the thread of human
-  life** (their name means roughly "may God multiply their dance"); to witness their
-  dance is to be enchanted, sometimes fatally.
+- **Shtojzovalle** (also *Shtojzorreshtat*) — small, beautiful woodland fey of both
+  sexes who **dance under the moonlight** and, by night, **spin the thread of human
+  life** (their name means roughly "may God multiply their dance"). Normally
+  invisible — you can see them only by **lifting an invisible veil from your eyes** —
+  they are dangerous: **step on one and you may be devoured**, build on their ground
+  and they rattle iron chains; a man can keep a shtojzovalle bride only by **giving
+  her his own clothes to wear**.
 - **Perit** — white‑clad mountain spirits who can **punish** trespassers.
 - **Nëna e Vatrës** — the Mother of the Hearth (see §2).
 - **Mëma e Natës** ("Mother of the Night") — a night‑hag and bringer of darkness
@@ -238,12 +241,15 @@ of southern Albania **bullar** is simply another name for the bolla, not a later
 stage.)*
 
 ### Drought‑monsters and guardians
-- **Ljubi (Lubia)** — a **water‑and‑storm she‑demon**, a multi‑headed serpent
-  closely related to the Kulshedra, who **withholds water and demands the
-  sacrifice of young women or children** before the springs return.
-- **Stihí** — a **fire‑breathing guardian demon**, often spawned by or allied
-  with the Kulshedra, **set to guard treasure and hidden places**; "the dragon's
-  enforcer, a furnace with a will."
+- **Ljubi (Lubia)** — a **water‑and‑storm she‑demon** of the **south**, a
+  many‑headed serpent (anywhere from **seven to a hundred heads**, which **regrow
+  when cut**, like the Hydra). She dwells in a vegetable garden, **dries up the
+  springs**, and has a monstrous appetite — especially for **little girls** — so a
+  maiden must be given before the waters return.
+- **Stihí** — a **fire‑breathing guardian demon**, **female** in Tosk and Arbëresh
+  belief, set to **guard treasure and hidden places**. Her name comes from *stuhí*
+  ("storm/gale"), from Greek *stoicheíon* ("element/elemental spirit") — she is "the
+  dragon's enforcer, a furnace with a will."
 - **Baloz / Bajloz** — a **sea‑monster giant**, the antagonist of the legendary
   heroes; it rises from the sea to demand tribute (see Gjergj Elez Alia, §9).
 
@@ -256,15 +262,22 @@ stage.)*
   her: follow her at night; she vomits the blood she drank, and a **silver coin
   soaked in it becomes an amulet** of permanent protection. A **cross of pig‑bone
   at a church threshold on Easter** traps her inside.
-- **Lugat (Liogat)** — a **vampire/revenant** that abides in **shadows and
-  sunless places — wells, ruins, caves**; it can **fly and ride the winds** and
-  attacks sleepers. A *kukudh* is sometimes its hardened, undying form.
-- **Dhampir** — the **offspring of a lugat and a human**; uniquely able to **see
-  and destroy the undead**, and so hired as a vampire‑hunter.
-- **Kukudh** — a **plague‑demon** of disease, death and miserliness; sometimes
-  the restless cursed form of a wicked person who **could not die properly**.
-- **Karkanxholl** — a **goblin** with magic powers, wearing a **chain‑mail
-  shirt**.
+- **Lugat (Liogat)** — a **revenant**: a corpse **not properly mourned, buried or
+  burned in time** rises as one, abiding in **shadows and sunless places — wells,
+  ruins, caves**, flying on the winds to attack sleepers, and **invisible to
+  ordinary people**.
+- **Kukudh** — the **worse, next stage**: a lugat not burned in time hardens (around
+  Mount Tomorr) into a kukudh — also the restless soul of a **miser** haunting his
+  house. Pictured as **short and stocky with a goat's tail**, it is **invulnerable
+  and can only be strangled with a noose of vine**; in the south, instead, a **blind
+  female plague‑demon**.
+- **Karkanxholl** — undead that **roam in January**, dragging **chains**, breathing
+  a deadly breath, sometimes in an **iron‑mail shirt** (cognate of the Greek
+  *kallikantzaros*).
+- **Dhampir** — the half‑living **son of a lugat/karkanxholl**, the only one who can
+  **see and destroy** the otherwise‑invisible undead ("the dhampir knows the
+  lugat"). A dhampir's own grave is found by leading a **virgin boy on a white
+  stallion** through the graveyard, where the horse balks.
 - **Xhindi** (from Arabic *jinn*, absorbed in the Ottoman centuries) — invisible
   spirits that **haunt thresholds, water and lonely places**, easily offended,
   able to help or harm.
@@ -541,6 +554,16 @@ The diaspora that fled to Italy after the Ottoman conquest kept its own old song
   Skanderbeg's victories** — a living memorial, not a reenactment. (It was a
   Sicilian Arbëresh, Giuseppe Schirò, who recorded the sun‑and‑moon‑twins tale that
   became *The Twins*.)
+
+### The Arvanites (Greek‑Albanians)
+The other old diaspora — Albanians settled in **Greece** since the Middle Ages —
+kept a distinct branch, and it gave us the **first Albanian folklore ever
+collected**: the German naval physician **Karl Reinhold** wrote down tales, songs,
+riddles and proverbs from Arvanite sailors of **Poros, Hydra and Spetses** in his
+*Noctes Pelasgicae* (1855) — a generation before von Hahn. Arvanite song leans
+heavily on **weddings, laments (vaje / moirolói), work and table songs** and is
+notably **light on heroic ballads**; the exile lament **Moj e bukura More** is sung
+on both shores, Arvanite and Arbëresh alike.
 
 ### Sons of the Eagle — the national legend
 Why Albanians call themselves *shqiptarë* and their land *Shqipëria*:
@@ -879,14 +902,16 @@ into one volume. Maximilian Lambertz's German anthology ***Die Schöne der Erde*
 ("The Beauty of the Earth," 33 tales + 15 legends) is the richest literary gathering
 of the wonder‑tales.
 
-Beyond Elsie and Wheeler, the foundational collections are **Johann Georg von
-Hahn's *Griechische und albanesische Märchen*** (1864; his earlier *Albanesische
-Studien* is 1854), **Auguste Dozon's *Contes
-albanais*** (1881), **Thimi Mitko's *Bleta shqiptare* / "The Albanian Bee"**
-(1878), **Anastas Kullurioti's "Albanian Spelling Book"** (1882), **Maximilian
-Lambertz's *Albanische Märchen*** (1922), and **Spiro Dine's *Valët e Detit* /
-"Waves of the Sea"** (1908) — plus a vast cycle of **trickster fox (dhelpra)** and
-animal fables.
+Beyond Elsie and Wheeler, the foundational collections are **Karl Reinhold's
+*Noctes Pelasgicae*** (1855 — the very first, from Arvanite sailors), **Johann
+Georg von Hahn's *Griechische und albanesische Märchen*** (1864; his earlier
+*Albanesische Studien* is 1854), **Auguste Dozon's *Contes albanais*** (1881),
+**Thimi Mitko's *Bleta shqiptare* / "The Albanian Bee"** (1878), **Gustav Meyer's
+*Albanische Märchen*** (1884 — a Tosk anthology that re‑gathers Dozon and Reinhold,
+so its tales mostly recur above), **Anastas Kullurioti's "Albanian Spelling Book"**
+(1882), **Maximilian Lambertz's *Albanische Märchen*** (1922), and **Spiro Dine's
+*Valët e Detit* / "Waves of the Sea"** (1908) — plus a vast cycle of **trickster
+fox (dhelpra)** and animal fables.
 
 Sources: [Albanian Folktales and Legends — Robert Elsie](http://books.elsie.de/b073_albanian-folktales-and-legends/) ·
 [Albanian Wonder Tales — Post Wheeler (full text, Internet Archive)](https://archive.org/details/in.ernet.dli.2015.89271) ·
@@ -938,6 +963,13 @@ Sources: [Albanian Folktales and Legends — Robert Elsie](http://books.elsie.de
   fire/ash/embers, **thunderstones** (*kokrra e rrufesë*), wolf‑teeth and the straw
   **dordolec**; and in the north, **tattooing** (suns, moons and crosses, girls
   marked around mid‑March) — the same celestial signs as on the gravestones.
+- **Weddings (dasma).** A multi‑day cycle: the women's **henna night (nata e
+  kanës)**, when henna is put on the bride's hands for luck and protection; the
+  bride's traditionally **red veil (duvak)** (white is a modern import); the
+  **honey smeared on the groom's doorpost** so the new bond is "sweet as honey"; the
+  **krushq** (wedding party) who fetch her with music, a **flag (flamur)** and, in
+  the highlands, celebratory **gunfire**; and the bride's **ritual weeping** as she
+  leaves her father's house for good.
 
 Sources: [Besa](https://en.wikipedia.org/wiki/Besa_(Albanian_culture)) ·
 [Kanun](https://en.wikipedia.org/wiki/Kanun_(Albania)) ·
@@ -966,10 +998,10 @@ Sun and the renewal of the Earth, almost always with **ritual fire**.
 - **Shën Gjini–Shën Gjoni ("Saint John")** — the **midsummer (solstice) fires**,
   lit before sunrise on high places "to give strength to the Sun."
 - **Shën Kolli ("Saint Nicholas," 6 Dec)** — the most venerated saint of the north
-  after the Virgin; the tribes **swear by him**. The household slaughters a pig,
-  lights a **candle and leaves the door open** so the saint and the **departed** may
-  join the midnight feast — the longer the candle burns, the greater the year's
-  luck — and the day is used to **make peace in blood‑feuds**.
+  after the Virgin; the tribes **swear by him**. The household slaughters a pig and
+  lights a **candle** — the longer it burns, the greater the year's luck; in
+  ethnographic accounts the **door is left open** for the saint and the **departed**
+  to join the midnight feast, and the day serves to **make peace in blood‑feuds**.
 - **Nata e Buzmit ("Yule Log's Night," 22 Dec – 6 Jan)** — the **winter
   solstice** log‑burning, the rebirth of the Sun. The **buzmi** log is burned on the
   hearth with **samples of the year's harvest** (corn, beans), **wine and rakia
@@ -1018,12 +1050,28 @@ On **work and life**:
 - **"Sa rron, aq mëson."** — "As long as you live, you learn."
 - **"Molla nuk bie larg mollës."** — "The apple doesn't fall far from the [apple] tree."
 - **"Fillimi i mbarë është gjysma e punës."** — "A good beginning is half the work."
+- **"Fjalë pak e punë shumë."** — "Few words and much work."
+
+On the **tongue and words** (a favourite theme):
+- **"Gjuha eshtra s'ka, eshtra thyen."** — "The tongue has no bones, yet it breaks bones."
+- **"Fjala dhe plumbi kur dalin s'kthehen më."** — "A word and a bullet, once let go, never come back."
+- **"Gjuha e ka rrënjën në zemër."** — "The tongue has its root in the heart."
+
+On **fate, the guest, and kin**:
+- **"Zoti vonon, po nuk harron."** — "God delays, but does not forget."
+- **"Shqiptari për mik asht tret e asht fik."** — "For a guest the Albanian wears himself to nothing."
+- **"Shtëpia pa fëmijë, si nata pa yje."** — "A house without children is like a night without stars."
+- **"Burri është koka, gruaja është qafa."** — "The man is the head, the woman is the neck [that turns it]."
+- **"Shqiponja nuk gjuan miza."** — "The eagle does not hunt flies."
 
 ### Riddles (gjëegjëza)
 - **"Kam samar po s'jam gomar."** — "I have a packsaddle but I'm not a donkey." → the **tortoise (breshka)**.
 - **"Rrumbullak strumbullak, kur e prek të bën me gjak."** — "Round and prickly; touch it and it draws blood." → the **hedgehog (iriqi)**.
 - **"S'është më e madhe se një arrë, por i ngjitet malit pa këmbë."** — "No bigger than a walnut, yet climbs the mountain without feet." → the **snail (kërmilli)**.
 - **"Kur i lidh, ikin; kur i zgjidh, rrinë."** — "Tie them and they go; untie them and they stay." → **shoes (këpucët)**.
+- **"Zu‑zu‑zu, punon ditë e natë, na jep dyllë e na jep mjaltë."** — "Buzz‑buzz, works day and night, gives us wax and honey." → the **bee (bleta)**.
+- **"Një baba ka dymbëdhjetë djem, secili tridhjetë bija."** — "A father has twelve sons, each with thirty daughters." → the **year, months and days**.
+- **"Farë e bardhë, arë e zezë."** — "White seed in a black field." → **writing / the book**.
 
 ### Blessings & curses (bekime e mallkime)
 Albanian wishes use the **optative mood** ("may it be"):
