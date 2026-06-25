@@ -58,7 +58,7 @@ Sources: [Albanian paganism (Wikipedia)](https://en.wikipedia.org/wiki/Albanian_
 | **i Verbti** | fire, wind, thunderstorm | "The Blind One" (also **Shën Verbti**, "the holy blind one," or **Rmoria**); in Zadrima a fire‑and‑wind god who fans flame and moves water, in the northern Alps a thunderstorm god who lives in and rides the storm clouds. A moral god who **punishes uncleanliness and foul speech**; Christianity demonised him (it was said that to invoke him would **blind you with fire**), yet folk belief held him **more powerful than the Christian God**. |
 | **Shurdhi** | storm, hail, thunder | A weather‑and‑storm god of the north who **hurls thunder and lightning and brings hailstorms**, travelling on storm clouds; people drove him off with **noise and gunfire**. Closely parallel to i Verbti. |
 | **Prende** | love, beauty, dawn | "Zoja e Bukurisë," Lady of Beauty; remembered as daughter of the sky‑father. Often identified with **E Bukura e Dheut** as a Persephone‑like figure of love, fertility and the underworld‑spring cycle. (Her day, **e premte**, is Friday.) |
-| **Baba Tomor** | mountain sky‑father | The deified **Mount Tomorr** in central Albania; an old man / father‑god figure, consort of **E Bukura e Dheut**, attended by eagles and storms. |
+| **Baba Tomor** | mountain father‑god | The deified **Mount Tomorr** in central Albania — a white‑bearded **father of gods and men** served by **female eagles** and the winds; consort of **E Bukura e Dheut**. |
 | **Perëndi** | sky / "God" | A sky/weather deity; the modern Albanian word for "God." |
 | **Nëna e Vatrës** | Mother of the Hearth | Household guardian goddess, pictured as an old woman spinning or combing grey hair by the fire; sometimes linked to three **mira** (fates) who fix a child's destiny three days after birth. |
 
@@ -154,6 +154,10 @@ important events**. To kill it is to court ruin.
   to witness their dance is to be enchanted, sometimes fatally.
 - **Perit** — white‑clad mountain spirits who can **punish** trespassers.
 - **Nëna e Vatrës** — the Mother of the Hearth (see §2).
+- **Mëma e Natës** ("Mother of the Night") — a night‑hag and bringer of darkness
+  and nightmares; the hero who outwits her (as in tale #4) wins through the dark.
+- **Floçka** — a female water‑spirit of **springs and whirlpools**, who can pull
+  the unwary under.
 
 Sources: [Zana](https://en.wikipedia.org/wiki/Zana_(mythology)) ·
 [Ora](https://en.wikipedia.org/wiki/Ora_(mythology)) ·
@@ -455,42 +459,97 @@ Kreshnikësh*:
 
 ### The full Elsie canon (quick reference)
 *Robert Elsie, "Albanian Folktales and Legends" — the standard English
-collection. Folk tales 1–22, legends 23–32.*
+collection. Folk tales 1–22, legends 23–32. Every note below was checked against
+Elsie's verbatim text; ATU tale‑types are given where confident.*
 
-| # | Title | Note |
+| # | Title | Verified note |
 |---|---|---|
-| 1 | The Boy and the Earthly Beauty | three magic objects; grapes‑and‑horns (ATU 566) |
-| 2 | The Scurfhead | dragon, underworld, eagle‑ascent (ATU 301) |
-| 3 | The Three Friends and the Earthly Beauty | blood‑brothers; Kulshedra |
-| 4 | The Three Brothers and the Three Sisters | |
-| 5 | The Youth and the Maiden with Stars on their Foreheads and Crescents on their Breasts | the sun‑and‑moon siblings (the basis of "The Twins") |
-| 6 | The Shoes | |
-| 7 | The Girl Who Became a Boy | a heroine in disguise wins through (gender‑disguise type) |
-| 8 | The Maiden in the Box | |
-| 9 | The Youth Who Understood the Language of the Animals | |
-| 10 | The Stirrup Moor | |
-| 11 | The King's Daughter and the Skull | |
-| 12 | The Bear and the Dervish | |
-| 13 | The Snake and the King's Daughter | the **serpent‑bridegroom** (an enchanted prince) |
-| 14 | Gjizar the Nightingale | |
-| 15 | Half Rooster | the **half‑a‑rooster** who marches on the sultan to reclaim his gold (ATU 715) |
-| 16 | The Boy with No Name | |
-| 17 | The Barefaced Man and the Pasha's Brother | a trickster cycle |
-| 18 | The Foolish Youth and the Ring | |
-| 19 | The Princess of China | |
-| 20 | The Jealous Sisters | the slandered wife / wondrous children (ATU 707) |
-| 21 | The Grateful Snake and the Magic Case | kindness to a snake repaid with a wish‑granting object |
-| 22 | The Maiden Who Was Promised to the Sun | a girl pledged to **Dielli**, the Sun — a pagan‑marriage tale |
-| 23 | Mujo's Strength | Zanas grant the hero's strength |
-| 24 | Mujo and the Zanas | |
-| 25 | Halil's Marriage | |
-| 26 | Mujo and Halil Visit the Sultan | |
-| 27 | Mujo Avenges Halil's Death | |
-| 28 | Gjergj Elez Alia | the wounded hero and the Baloz |
-| 29 | Aga Ymer of Ulcinj | the "returning husband" (Odyssey motif) |
-| 30 | Scanderbeg and Ballaban | the national hero outwits an Ottoman general |
-| 31 | Shega and Vllastar | |
+| 1 | The Boy and the Earthly Beauty | three magic objects (invisible cap, warrior‑jug, gold spindle) lost to the Beauty; horns‑and‑fruit (ATU 566) — *full plot above* |
+| 2 | The Scurfhead | the dragon, the three Earthly Beauties, the underworld, the eagle‑ascent; betrayed by his brothers (ATU 301) — *above* |
+| 3 | The Three Friends and the Earthly Beauty | blood‑brothers Kordha/Ylli/Deti; a Kulshedra; the hero's life hidden in his sabre, thrown in the sea (external soul, ATU 302) — *above* |
+| 4 | The Three Brothers and the Three Sisters | sisters wed to the **Sun, Moon & South Wind**; three Kulshedra slain; a half‑iron ogre whose soul hides in a boar → hare → three doves (ATU 302) |
+| 5 | The Youth and the Maiden with Stars on their Foreheads and Crescents on their Breasts | a calumniated wife; star/crescent twins cast in a box on the river; a quest past three Kulshedra for the Earthly Beauty (ATU 707) — the source of "The Twins" |
+| 6 | The Shoes | flight from an **incestuous father**; magic measuring‑shoes; the maiden hides inside a lamp; recognised by a ring baked in a pastry (ATU 510B, "Catskin") |
+| 7 | The Girl Who Became a Boy | a maiden goes to war disguised as a man; slays the yearly Kulshedra; a wise talking horse; a serpent's curse finally makes her truly a man (ATU 514) |
+| 8 | The Maiden in the Box | the box "whoever buys it will regret it, and whoever doesn't will too"; a calumniated wife who, disguised as a man, becomes **King of Egypt** and judges those who wronged her |
+| 9 | The Youth Who Understood the Language of the Animals | the gift of animal‑speech under a death‑secrecy taboo; a rooster's counsel saves him from a nagging wife (ATU 670) |
+| 10 | The Stirrup Moor | an apple births a boy and a **star‑marked foal** together; a jinn bride; the **Earthly Beauty disguised as a black "Moor"**; the blinded hero healed by an overheard cure; the villain burned in an oven |
+| 11 | The King's Daughter and the Skull | a rash oath weds the kind youngest princess to a **skull** (an enchanted man); her gentleness makes the Earthly Beauty restore him (enchanted‑bridegroom, ATU 425) |
+| 12 | The Bear and the Dervish | a weak trickster outwits a strong bear — cheese crushed as "stone," axe‑blows shrugged off as "fleabites," the bear boiled in milk (ATU 1640/1060) |
+| 13 | The Snake and the King's Daughter | an old woman's **snake‑son** wins a bride with a magic ring; the serpent‑bridegroom "Swift" is lost when his secret is told; she wears out **iron shoes** seeking Sun, Moon & Wind and frees him from a Kulshedra (ATU 425) |
+| 14 | Gjizar the Nightingale | a quest for the magical **nightingale** to sing in the king's mosque; three roads inscribed with fates; helper beasts; the bird stolen from the Earthly Beauty; the brothers' well‑betrayal (ATU 550) |
+| 15 | Half Rooster | the half‑a‑rooster swallows frog, fox, wolf and mouse and marches on the king to reclaim his gold (ATU 715, "Half‑Chick") |
+| 16 | The Boy with No Name | a withheld name; a magic talking horse; magic flight (comb→forest, mirror→ice); the "scurfhead" disguise; the unrecognised war‑hero; his name revealed as **Suleyman** (ATU 314, "Goldener") |
+| 17 | The Barefaced Man and the Pasha's Brother | an identity stolen at a well; a Kulshedra slain; grateful helpers (an eagle, the ant‑queen); impossible suitor‑tasks; the **water of life**; the impostor burned (ATU 513) |
+| 18 | The Foolish Youth and the Ring | a kind fool ransoms a dog, cat, donkey and snake; a wish‑granting ring under a snake's tongue; the loyal **dog and cat** recover the stolen ring via a mouse and a fish (ATU 560) |
+| 19 | The Princess of China | lovesickness from a description (blood on snow); a **cross‑dressing companion** infiltrates a girls' school; a bride‑substitution and a double elopement |
+| 20 | The Jealous Sisters | **Fatima**, judged fairest by the Sun, is abandoned by jealous sisters and taken in by **forty thieves**; poisoned gifts and a deadly ring kill her; a king revives her by removing the ring — **Snow White (ATU 709)** |
+| 21 | The Grateful Snake and the Magic Case | a rescued snake gives a wish‑granting case (a magic hair); the stolen talisman is recovered when a mouse makes the sleeper sneeze it out (ATU 560) |
+| 22 | The Maiden Who Was Promised to the Sun | a girl vowed to **Dielli** the Sun before birth and abducted by him; a Kulshedra in his house; a **stag** carries her home; a vigil to revive a marble king; a false bride exposed |
+| 23 | Mujo's Strength | the **Zanas' milk** makes the cowherd Mujo stronger than a Drangue |
+| 24 | Mujo and the Zanas | evil Zanas **petrify** his wedding party; their power is hidden in golden‑horned goats; he frees the warriors by forcing a binding oath |
+| 25 | Halil's Marriage | Halil's bride‑quest for **Tanusha**, daughter of the Christian king; disguise among her maidens; rescue by Mujo's world‑shaking war‑cry |
+| 26 | Mujo and Halil Visit the Sultan | summoned to Istanbul on slander; the giant Mujo overawes the Sultan (and comically drags him off by a snagged hook) |
+| 27 | Mujo Avenges Halil's Death | the dead Halil speaks through a **cuckoo**; Mujo ambushes and kills the grave‑desecrator Kreshto |
+| 28 | Gjergj Elez Alia | the wounded hero and the Sea‑Baloz — *full plot in §8* |
+| 29 | Aga Ymer of Ulcinj | the "returning husband": freed on his **besa**, he interrupts his wife's re‑wedding, is known by a scar, then rides back to captivity (ATU 974) |
+| 30 | Scanderbeg and Ballaban | Skanderbeg defeats the renegade Albanian pasha **Ballaban**, who is then beheaded by his own Sultan |
+| 31 | Shega and Vllastar | a prophetic **black bird** averts a near‑incest: a Janissary knows his captive as his lost sister by her Albanian curse, and turns to fight for his homeland |
 | 32 | Rozafat Castle | the walled‑up wife |
+
+### Four of the lesser tales, in full (verified)
+Read verbatim from Elsie so the plots are accurate, not inferred:
+
+- **The Three Brothers and the Three Sisters (4).** Three brothers marry their
+  sisters to the **Sun, the Moon and the South Wind**, then set out to visit them.
+  Each brother stands night‑watch and kills a **Kulshedra**; the youngest outwits
+  the **Mother of the Night**, lifts a giant twelve‑handled cauldron, and beheads
+  twelve robbers at a king's palace, winning the king's daughter. At the wedding a
+  freed **half‑man, half‑iron** ogre devours the bride, so the hero — carried by a
+  **giant falcon he feeds with his own flesh** — journeys to his Sun/Moon/Wind
+  brothers‑in‑law, learns the ogre's secret, and destroys it by killing the boar
+  whose silver tusk holds a hare that holds **three doves** (the monster's external
+  soul). *(Note: here it really is the falcon that is fed the hero's flesh — the
+  motif the game lends to its eagle.)*
+- **The Snake and the King's Daughter (13).** A childless old woman raises a
+  **snake** as her son; with a magic ring he meets the king's impossible bridal
+  conditions and weds the princess. By night the snake sheds his skin to become a
+  youth named **Swift**, on the vow that she never tell — but her mother goads the
+  secret out of her and he vanishes. She walks the world in **iron shoes**, asking
+  the **Sun, the Moon and the Wind**, until the Wind carries her to where a
+  **Kulshedra** holds Swift; she frees him by his own wit (salt‑water "tears," a
+  half‑swept house) and they burn the monster in a coffin. (ATU 425, the lost
+  serpent‑husband.)
+- **Gjizar the Nightingale (14).** A king razes and rebuilds mosque after mosque
+  because a dervish keeps saying his prayers are in vain — what the mosque needs is
+  **Gjizar the nightingale** to sing in it. His three sons reach a fork of **three
+  roads inscribed "will return," "will return," "will never return."** The youngest
+  takes the last; helped by a savage woman, a tiger, a lion and three **eagle‑
+  maidens**, he steals the caged nightingale from the **Earthly Beauty**. His elder
+  brothers cut his rope at a well, but he survives; the bird sings only for him, and
+  he wins the Earthly Beauty. (ATU 550.)
+- **The Maiden Who Was Promised to the Sun (22).** A childless queen begs
+  **Dielli** the Sun for a daughter and vows the child to him at twelve; the Sun
+  duly **carries her off**. A **Kulshedra** in his house wants to eat her, but the
+  Sun sends a **stag** to bear her safely home. Later she finds a marble garden of
+  petrified people and a marble king whose scroll promises marriage to whoever keeps
+  a three‑week vigil to wake him; a treacherous servant steals her place, until the
+  king hears the true maiden weeping and weds her.
+
+### Further tales from the older collections
+Beyond Elsie's selection, the same motifs recur across von Hahn and Dozon —
+especially the **serpent‑/animal‑bridegroom**:
+- **The Snake‑Child** (*Das Schlangenkind*, von Hahn) — a queen wishes for a child
+  "even if only a snake," bears a serpent‑son who is a man by night; when his bride
+  betrays the secret he vanishes and she must journey through the underworld to win
+  him back (a sister tale to #13).
+- **For the Love of a Dove** — a proud princess loves a **dove** that becomes a man
+  on condition she keep his secret three years; she fails, he vanishes, and she
+  searches the world before they are reunited.
+- **The Gardener's Daughter** — a comic battle‑of‑wits courtship: a youth torments
+  a gardener's clever daughter with a riddle and a stolen kiss; she repays him with
+  escalating pranks (playing Death; a syrup‑filled doll in the marriage bed) before
+  they reconcile and marry.
 
 ### A second canon — Post Wheeler's *Albanian Wonder Tales* (1936)
 The other major English collection (10 retold tales, drawn by Wheeler from Dozon,
