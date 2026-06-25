@@ -68,6 +68,21 @@ Beauties** (see §7). One surviving myth from the **Shala** region preserves the
 old pattern directly: the **highest god strikes down the sea‑storm god *Talas*
 with thunderbolts** — the sky‑father subduing the chaos‑sea.
 
+### Sky lore — Sun, Moon, rainbow, eclipse
+- **The Sun and Moon as a couple.** In many tales **Dielli (Sun)** and **Hëna
+  (Moon)** are **husband and wife** (in others, brother and sister); as a married
+  pair they are the parents of **E Bija e Hënës dhe e Diellit, the "Daughter of the
+  Moon and Sun"** — a **lightning‑maiden** (*pika e qiellit*, "drop of the sky") who
+  descends to strike down pride and evil and helps a hero defeat the **Kulshedra**
+  (recorded by Mitrush Kuteli, 1965). Rayed **suns, moons and crosses** dominate
+  Albanian tattoos and gravestones (Durham).
+- **Eclipses.** The **Kulshedra** can "swallow" the Sun or Moon; people drove the
+  demon off by **firing guns and beating metal** to raise a great noise.
+- **The rainbow (ylberi).** Folk belief calls it **Prende's belt** (also *Brezi i
+  Perëndisë*, "God's girdle"); whoever **jumps over the rainbow changes sex** — a
+  belief that echoes the sex‑change (there worked by a serpent's curse) in *The
+  Girl Who Became a Boy*.
+
 > **A caveat on the pantheon.** No Albanian wrote these gods down in antiquity.
 > The pantheon above is **reconstructed** by scholars (Lambertz, Çabej, Tirta,
 > Mann, and others) from scattered folk fragments — weekday names, oaths, place
@@ -282,7 +297,41 @@ their world is thick with **Zana** and **Ora**.
 > the Zanas grant it (the same superhuman strength otherwise found only in a
 > Drangue). The Zanas become his sworn sisters and protectors.
 
-Sources: [Kângë Kreshnikësh](https://en.wikipedia.org/wiki/Albanian_Songs_of_the_Frontier_Warriors)
+The **Palaj & Kurti collection (1937)** holds 34 songs / ~8,200 verses; in the
+1930s **Milman Parry and Albert Lord** recorded over a hundred more (now at
+Harvard), the fieldwork that founded the modern study of oral epic. The songs are
+chanted to the **lahutë** (a one‑string bowed fiddle) in the Gheg north, or plucked
+on the two‑string **çifteli**.
+
+**The wider cast.** Beyond Mujo and Halil: **Ajkuna**, Mujo's wife and mother of
+**Omer**; Omer is Mujo's son, the next generation, killed defending a fortress. His
+death — and **Vajtimi i Ajkunës, "Ajkuna's Lament" for Omer** — is the cycle's
+emotional summit, and the seam where the heroic epic meets the **funeral‑lament**
+tradition.
+
+### Laments — vajtim and gjëmë
+Albanian mourning is itself a sung art that carries legend:
+- **Vajtim** — women's sung lament, praising the dead "in verse, with a
+  heart‑breaking voice."
+- **Gjëma (e burrave)** — the **men's funeral wailing** of the Dukagjin and Gjakova
+  highlands: a quorum of **ten or more men** strike their chests and scratch their
+  faces, chanting *"O i mjeri unë për ty…"* ("Oh poor me, for you…").
+- **Vajtojca** — **professional female mourners**, hired in the south for a
+  high‑quality lament.
+- **Këngë kurbeti** — **emigration songs**, which borrow the imagery of the
+  death‑lament to mourn those who leave for work abroad.
+
+### More Skanderbeg legend
+Around the historical hero **Skanderbeg** (Gjergj Kastrioti) cluster their own
+tales: at the **siege of Krujë** he is said to have loosed a herd of **goats with
+lit candles tied to their horns** at night to feign a great army; his **sword was
+so heavy only he could wield it**; and after his death (Lezhë, 1468) the Ottomans
+were said to have **made amulets of his bones**, believing they bestowed courage
+(a legend — no remains were ever found).
+
+Sources: [Kângë Kreshnikësh](https://en.wikipedia.org/wiki/Albanian_Songs_of_the_Frontier_Warriors) ·
+[Vajtim and Gjëmë](https://en.wikipedia.org/wiki/Vajtim_and_Gj%C3%ABm%C3%AB) ·
+[Skanderbeg](https://en.wikipedia.org/wiki/Skanderbeg)
 
 ---
 
@@ -339,9 +388,55 @@ published in Tirana in **1937**.
 > and as brother and sister **embrace with joy, both their hearts stop at once and
 > they die together**. They are **buried in a single grave**.
 
+### Sari Salltëk — the dragon‑slaying dervish
+A St George–type legend (recorded by Baron Degrand, 1901), venerated by Bektashis
+and Christians alike.
+> A wandering **Bektashi dervish, Sari Salltëk**, saves a princess from a
+> **seven‑headed Kulshedra** terrorising Krujë. He pursues it into its cave,
+> beheads it with a **wooden sword**, and pockets its **seven tongues** as proof
+> against a false claimant. He refuses the princess's hand and lives on in the
+> dragon's cave; killed by the townsfolk, he departs in giant strides, leaving
+> relics behind. (The same seven‑heads‑and‑tongues proof appears across Albanian
+> dragon‑slayer tales — see *The Twins* and *The Three Friends*.)
+
+### Place and origin legends
+Albanian legend explains the land itself — mountains, springs and lakes are the
+scars of old myths:
+- **Baba Tomor and Mount Shpirag.** The two mountains are **giants who fought over
+  E Bukura e Dheut**: white‑bearded **Baba Tomor** (attended by four she‑eagles)
+  and **Shpirag** wounded each other to death — Shpirag's slashes are the gullies
+  on his slopes — and the **Earthly Beauty drowned in her own tears, which became
+  the river Osum**. Mount Tomorr still hosts a great **August pilgrimage**.
+- **Syri i Kaltër (the Blue Eye).** A man‑eating **serpent/dragon** on Mount Sopot
+  is destroyed when an old man feeds it a **burning straw‑laden donkey**; writhing,
+  the monster's huge **eye falls and gushes water** — the deep‑blue spring near
+  Saranda that "still cries" today.
+- **Bjeshkët e Nemuna (the Accursed Mountains).** A fleeing **mother**, finding no
+  water for her thirsting children on a scorching crossing, **curses the range** to
+  be forever waterless — the name's origin.
+- **Lake Ohrid.** Where the lake now lies were fields fed by a **well that had to be
+  re‑covered** after each use; a girl, distracted by a boy, **forgot the slab**, and
+  the overflowing water **drowned the town** to form the lake.
+- **Bridges beyond Rozafa.** Most Albanian **immurement** songs are about *bridges*,
+  not the castle — chiefly **Ura e Fshajt** near Gjakova and the bridges of **Nartë**
+  — the same "the wall won't stand without a life in it" sacrifice.
+
+### The Arbëresh (Italo‑Albanian) tradition
+The diaspora that fled to Italy after the Ottoman conquest kept its own old songs:
+- **Moj e bukura More** ("Oh, my beautiful Morea") — the **oldest documented
+  Albanian song** (a 1708 manuscript), a lament for the **lost homeland** (the
+  Morea/Peloponnese) sung by the Sicilian Arbëresh.
+- **Konstandini i Vogëlith** ("Little Constantine") — the Arbëresh **"returning
+  husband"** hero (Çabej compared him to **Odysseus**), sung and danced at every
+  wedding. *(Distinct from Constantine & Doruntine above.)*
+
 Sources: [Rozafa Castle](https://en.wikipedia.org/wiki/Rozafa_Castle) ·
 [Constantin and Doruntinë](https://en.wikipedia.org/wiki/Constantin_and_Doruntin%C3%AB) ·
-[Gjergj Elez Alia](https://en.wikipedia.org/wiki/Gjergj_Elez_Alia)
+[Gjergj Elez Alia](https://en.wikipedia.org/wiki/Gjergj_Elez_Alia) ·
+[Tomorr](https://en.wikipedia.org/wiki/Tomorr) ·
+[Accursed Mountains](https://en.wikipedia.org/wiki/Accursed_Mountains) ·
+[Little Constantine](https://en.wikipedia.org/wiki/Little_Constantine) ·
+[Moj e bukura More](https://sq.wikipedia.org/wiki/Moj_e_Bukura_More)
 
 ---
 
@@ -551,6 +646,31 @@ especially the **serpent‑/animal‑bridegroom**:
   escalating pranks (playing Death; a syrup‑filled doll in the marriage bed) before
   they reconcile and marry.
 
+### Ten more from von Hahn (verbatim)
+Von Hahn's *Griechische und albanesische Märchen* (1864) numbers the **Albanian
+tales as Nos. 95–114**. These ten were read from the original German text — a
+different, often older and stranger set than Elsie's:
+
+| No. | Title | Verified note |
+|---|---|---|
+| 95 | The Eye‑Bitch (*Augenhündin*) | a homesick wife is lured by a **four‑eyed ogress** to be roasted; she shoves the ogress's daughter into the oven and flees (ATU 327, Hansel‑&‑Gretel) |
+| 96 | Ljelje Kurwe | a maid seizes her mistress's mare and passes herself off as the sister to seven brothers; the true sister, set to herd geese, is restored (ATU 533, the Goose‑Girl) |
+| 99 | The Robber Nut (*Der Räuber Nuß*) | a walnut‑sized boy who never grows becomes a world‑feared robber, slipping through door‑cracks to steal cattle, until he drowns (ATU 700, Thumbling) |
+| 101 | Silver‑Tooth (*Silberzahn*) | the youngest daughter goes to war as a man, warned of each gender‑test by a helper dog; recognised at last by a tooth the prince silvered with a thrown ring (cf. ATU 514/884) |
+| 103 | Snow White (*Schneewittchen*) | **von Hahn's own Albanian Snow White**: a girl sheltered by **forty dragons**, "killed" by a poisoned ring, hung in a pearl coffin, revived by a king — the Sun plays the "magic mirror" (ATU 709) |
+| 104 | The Origin of the Cuckoo | a sister accidentally kills her brother Gjon with her scissors; in grief he becomes the **Gjon‑bird** ("Gjon! Gjon!") and she the **cuckoo** ("Ku? ku?" — "Where? where?") (etiological) |
+| 105 | The Creation of the Wolf | the Devil moulds a wolf from dough but cannot give it life; God animates it with "**devour your creator**," and it eats the Devil — the origin of the curse "Eat him, wolf!" (etiological) |
+| 110 | Little Hans, Whom a Moor Spat Upon | a spurned servant gains a magic word from the spirit "Ach" and freezes everyone in absurd "stay like that!" poses until he is given the bride (ATU 571, All Stick Together) |
+| 112 | The Clever Maiden | a girl boasts she could bear a child by a glance yet stay a virgin; shut in a stairless tower, she outwits the prince with a fish "baby" and a smuggled infant (ATU 875, the Clever Girl) |
+| 114 | The Marriage‑Shy Princess | a prince wins a **cap of invisibility and a wishing‑stick** by tricking two heirs, then uses them to expose the princess's **secret dragon‑lover** and pass his impossible tasks (ATU 329 + 518) |
+
+> **Two distinctively Albanian myth‑lets** sit among these — Nos. 104 and 105 are
+> not wonder‑tales but tiny **etiological myths**: how the cuckoo got its cry, and
+> why the wolf devours (and why Albanians curse "*Të hângtë ujku!*", "May the wolf
+> eat you!"). Note also that von Hahn (No. 103) and Dozon (Elsie's #20) preserve
+> **two independent Albanian Snow Whites**, both with the **Sun as the all‑seeing
+> "mirror"** and a **ring** (not an apple) as the death‑charm.
+
 ### A second canon — Post Wheeler's *Albanian Wonder Tales* (1936)
 The other major English collection (10 retold tales, drawn by Wheeler from Dozon,
 von Hahn, Lambertz, Pedersen and Mitko, and from versions gathered by schoolgirls
@@ -570,7 +690,8 @@ across Albania at Kavaja). The Albanian word for such a tale is **përrallë**.
 | 10 | The Boy Who Was Brother to the Drague | a mortal **sworn brother to a Drangue** |
 
 Beyond Elsie and Wheeler, the foundational collections are **Johann Georg von
-Hahn's *Griechische und albanesische Märchen*** (1854), **Auguste Dozon's *Contes
+Hahn's *Griechische und albanesische Märchen*** (1864; his earlier *Albanesische
+Studien* is 1854), **Auguste Dozon's *Contes
 albanais*** (1881), **Thimi Mitko's *Bleta shqiptare* / "The Albanian Bee"**
 (1878), **Anastas Kullurioti's "Albanian Spelling Book"** (1882), **Maximilian
 Lambertz's *Albanische Märchen*** (1922), and **Spiro Dine's *Valët e Detit* /
@@ -588,17 +709,45 @@ Sources: [Albanian Folktales and Legends — Robert Elsie](http://books.elsie.de
 ## 10. The worldview — besa, hospitality, the Kanun
 
 - **Besa** — "word of honour": a **sacred pledge of faith** held to be
-  **inviolable and above life itself**. It powers Rozafa, Constantine &
-  Doruntine, and the whole moral universe of the songs.
-- **Hospitality (mikpritja).** The **guest is sent by God**; to receive, feed and
-  protect a traveller — even a stranger, even an enemy under your roof — is a
-  sacred duty. (The game's "Sacred Guest" ending turns on exactly this.)
-- **The Kanun of Lekë Dukagjini** — the oral customary code that preserved this
-  worldview (besa, hospitality, and the harsh law of the **blood‑feud, gjakmarrja**)
-  into modern times in the northern highlands.
+  **inviolable and above life itself**, sworn (the old formula runs) "by sun, by
+  moon, by sky and earth, by fire, by stone and **thunderstone**, by mountain,
+  water and snake." It powers Rozafa, Constantine & Doruntine, and the whole moral
+  universe of the songs. In feud, *besa* also meant a **truce** — a short
+  **24‑hour** besa (so a killer could attend the funeral) or a **30‑day** one to
+  let elders negotiate peace.
+  - *Besa in living memory:* in WWII, Albanians sheltered Jews on their besa and
+    **refused to hand the occupier any lists** — Albania was the only Nazi‑occupied
+    land whose Jewish population **grew** (≈200 to ≈1,800); ~75 Albanians are
+    honoured by Yad Vashem as Righteous Among the Nations, over half of them Muslim.
+- **Hospitality (mikpritja).** *"Shpija e Shqyptarit âsht e Zotit e e mikut"* — "the
+  house of the Albanian belongs to **God and the guest**." The guest is offered
+  *"bukë e krypë e zêmer"* ("**bread, salt and heart**"), fire and a bed at any
+  hour, and even has **his feet washed**; to **shed a guest's blood can never be
+  pardoned**, though a father's killer sometimes can. (The game's "Sacred Guest"
+  ending turns on exactly this.)
+- **The Kanun of Lekë Dukagjini** — the oral customary code (**12 books, 1,262
+  articles**) that preserved this worldview. Attributed by tradition to the
+  15th‑century lord **Lekë Dukagjini** (contemporary of Skanderbeg) — though the
+  text plainly evolved for centuries — it was finally **written down by the
+  Franciscan Shtjefën Gjeçovi** (in print from 1913; the full text posthumously in
+  1933). Its pillars are **nderi** (honour), **besa**, **mikpritja** (hospitality)
+  and **fis** (kin loyalty).
+- **Gjakmarrja (the blood‑feud).** The Kanun **regulated rather than commanded**
+  vengeance — sparing women, children and guests — and those "in blood" shut
+  themselves in the **kulla** (the fortified stone tower‑house; guests are received
+  upstairs in the **oda**). Feuds were ended by a sworn besa of reconciliation
+  brokered by **elders (pleqësia) and priests** — most famously **Anton Çetta's**
+  movement that reconciled thousands of Kosovo feuds in the early 1990s.
+- **Everyday protective magic.** Against the **evil eye (syri i keq)**: garlic,
+  fire/ash/embers, **thunderstones** (*kokrra e rrufesë*), wolf‑teeth and the straw
+  **dordolec**; and in the north, **tattooing** (suns, moons and crosses, girls
+  marked around mid‑March) — the same celestial signs as on the gravestones.
 
-Sources: [Albanian paganism](https://en.wikipedia.org/wiki/Albanian_paganism) ·
-[Kanun (overview)](https://en.wikipedia.org/wiki/Kanun_(Albania))
+Sources: [Besa](https://en.wikipedia.org/wiki/Besa_(Albanian_culture)) ·
+[Kanun](https://en.wikipedia.org/wiki/Kanun_(Albania)) ·
+[Albanian blood feud](https://en.wikipedia.org/wiki/Albanian_blood_feud) ·
+[The Holocaust in Albania](https://en.wikipedia.org/wiki/The_Holocaust_in_Albania) ·
+[Albanian traditional tattooing](https://en.wikipedia.org/wiki/Albanian_traditional_tattooing)
 
 ---
 
@@ -623,8 +772,20 @@ All are tied to the **cult of the Sun** as "god of light, sky and weather… the
 all‑seeing eye," and to bonfires meant to **drive away the dark** and feed the
 returning light.
 
+**Rain‑making — the Dodola.** In a drought, an imitative‑magic rite still survives
+in remote regions: a child (the **dordolec**) is **dressed head to foot in green
+leaves and branches** and led singing and dancing from house to house, where people
+**pour water over them** to call down the rain — an invocation of the Sky and Sun.
+
+**The cult of the dead.** Ancestral souls (**hije**) take on a divine cast and stay
+near the family, tied to the ever‑burning **hearth‑fire (Zjarri i Vatrës)** that
+links the living and the dead; the **household serpent** (Vitore, §4) is itself a
+personification of the ancestors. Graves are sacred and inviolable — and, as
+Constantine & Doruntine shows, the **besa binds even the dead**.
+
 Sources: [Dita e Verës](https://en.wikipedia.org/wiki/Dita_e_Ver%C3%ABs) ·
-[Dielli](https://en.wikipedia.org/wiki/Dielli_(Albanian_paganism))
+[Dielli](https://en.wikipedia.org/wiki/Dielli_(Albanian_paganism)) ·
+[Dodola and Perperuna](https://en.wikipedia.org/wiki/Dodola_and_Perperuna)
 
 ---
 
@@ -657,7 +818,9 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 - Robert Elsie & Janice Mathie‑Heck, *Songs of the Frontier Warriors (Kângë Kreshnikësh)*
 - Robert Elsie, *A Dictionary of Albanian Religion, Mythology and Folk Culture*
 - Post Wheeler, *Albanian Wonder Tales* (1936) — [full text on the Internet Archive](https://archive.org/details/in.ernet.dli.2015.89271)
-- Earlier collections: von Hahn (1854), Dozon (1881), Mitko's *Bleta shqiptare* (1878), Lambertz (1922), Dine's *Valët e Detit* (1908)
+- Johann Georg von Hahn, *Griechische und albanesische Märchen* (1864; Albanian tales = Nos. 95–114) — [German full text on the Internet Archive](https://archive.org/stream/GriechischeUndAlbanesischeMarchenJohannGeorgVonHahn/GriechischeUndAlbanesischeMarchen-JohannGeorgVonHahn_djvu.txt)
+- Earlier collections: Dozon (1881), Mitko's *Bleta shqiptare* (1878), Lambertz (1922), Dine's *Valët e Detit* (1908)
+- Underlying authorities to cite for the mythology: **Mark Tirta**, *Mitologjia ndër shqiptarë*; **Albert Doja**; **Edith Durham**, *High Albania*
 - *Albanian Literature: Folktales* — [albanianliterature.net/folktales](http://www.albanianliterature.net/folktales/)
 
 **Encyclopaedic**
@@ -684,8 +847,19 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 - Legends & tales: [Rozafa Castle](https://en.wikipedia.org/wiki/Rozafa_Castle) ·
   [Constantin and Doruntinë](https://en.wikipedia.org/wiki/Constantin_and_Doruntin%C3%AB) ·
   [Gjergj Elez Alia](https://en.wikipedia.org/wiki/Gjergj_Elez_Alia) ·
-  [The Twins](https://en.wikipedia.org/wiki/The_Twins_(Albanian_tale))
-- Calendar: [Dita e Verës](https://en.wikipedia.org/wiki/Dita_e_Ver%C3%ABs)
+  [The Twins](https://en.wikipedia.org/wiki/The_Twins_(Albanian_tale)) ·
+  [Little Constantine](https://en.wikipedia.org/wiki/Little_Constantine) ·
+  [Tomorr](https://en.wikipedia.org/wiki/Tomorr) ·
+  [Accursed Mountains](https://en.wikipedia.org/wiki/Accursed_Mountains)
+- Cosmology: [E Bija e Hënës dhe e Diellit](https://en.wikipedia.org/wiki/E_Bija_e_H%C3%ABn%C3%ABs_dhe_e_Diellit) ·
+  [Prende](https://en.wikipedia.org/wiki/Prende)
+- Custom & song: [Besa](https://en.wikipedia.org/wiki/Besa_(Albanian_culture)) ·
+  [Kanun](https://en.wikipedia.org/wiki/Kanun_(Albania)) ·
+  [Albanian blood feud](https://en.wikipedia.org/wiki/Albanian_blood_feud) ·
+  [Vajtim and Gjëmë](https://en.wikipedia.org/wiki/Vajtim_and_Gj%C3%ABm%C3%AB) ·
+  [Albanian epic poetry](https://en.wikipedia.org/wiki/Albanian_epic_poetry)
+- Calendar: [Dita e Verës](https://en.wikipedia.org/wiki/Dita_e_Ver%C3%ABs) ·
+  [Dodola and Perperuna](https://en.wikipedia.org/wiki/Dodola_and_Perperuna)
 
 **Popular overviews**
 - [Gods & Monsters — Albanian Mythology](https://godsandmonsters.info/welcome-to-gods-and-monsters/albanian-mythology/)
