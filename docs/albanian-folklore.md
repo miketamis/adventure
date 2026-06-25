@@ -1,0 +1,582 @@
+# Albanian Folklore — a reference for *Aventura Shqip*
+
+A deep dive into the mythology, legends, and folktales of the Albanians, with
+particular attention to the figures and stories that *Aventura Shqip* draws on.
+Sources are linked inline and collected at the end.
+
+> **Why this matters for the game.** *Aventura Shqip* is meant to teach Albanian
+> *and* Albanian folk culture. The hero's quest, the creatures, the items, and
+> every ending are rooted in real tradition. This document is the canon the
+> content is built from — use it when writing new nodes so the lore stays true.
+
+---
+
+## 1. Roots and sources
+
+Albanian mythology is the body of **myths, legends, rituals and beliefs** of the
+Albanian people. It is largely **pagan and pre‑Christian** in origin, transmitted
+**orally** across the centuries and surviving most strongly in the northern
+highlands (the Malësia, Dukagjin, Theth, Nikaj‑Mërtur), where the old code of
+custom kept it alive.
+
+Key features:
+
+- **Paleo‑Balkan / Indo‑European inheritance.** Many figures are linguistic and
+  functional siblings of Greek, Roman and other Indo‑European gods — most
+  strikingly **Zojz**, the sky‑father, whose name is the Albanian reflex of
+  Proto‑Indo‑European *Dyḗus*, making him a true cognate of *Zeus* and *Jupiter*.
+- **Dualism.** The cosmos is read as an eternal struggle between **light and
+  dark, good and evil, order and chaos** — most famously the duel of the
+  **Drangue** (light, the storm‑hero) and the **Kulshedra** (darkness, drought).
+- **The Sun at the centre.** Traditional festivals and oaths revolve around the
+  **Sun (Dielli)**, "the god of light, sky and weather, giver of life… the
+  all‑seeing eye."
+- **The besa.** The whole mythic world is embedded in a code of **sworn honour
+  (besa)** and **sacred hospitality**, preserved in the *Kanun* of Lekë
+  Dukagjini.
+
+Most of what survives in print was collected and translated by scholars such as
+**Johann Georg von Hahn** (19th c.), **Bernardin Palaj & Donat Kurti** (the great
+1937 *Kângë Kreshnikësh* collection), and above all **Robert Elsie**, whose
+*Albanian Folktales and Legends*, *Songs of the Frontier Warriors*, and *A
+Dictionary of Albanian Religion, Mythology and Folk Culture* are the standard
+English references.
+
+Sources: [Albanian paganism (Wikipedia)](https://en.wikipedia.org/wiki/Albanian_paganism) ·
+[Albanian Mythology — Gods & Monsters](https://godsandmonsters.info/welcome-to-gods-and-monsters/albanian-mythology/)
+
+---
+
+## 2. Cosmology and the deities
+
+| Deity | Domain | Notes |
+|---|---|---|
+| **Zojz** | sky‑father, thunder | Supreme sky god; name = PIE *Dyēus* (cognate of Zeus/Jupiter). Dwells on the highest, least‑accessible peaks, hurling lightning. |
+| **Dielli** | the Sun | Male solar deity; the central object of veneration, sworn by in oaths, honoured in tattooing. The "all‑seeing eye." |
+| **Hëna** | the Moon | Female counterpart to the Sun; Sun + Moon form a celestial pair that dominates traditional Albanian body‑marking (tattoos). |
+| **Enji / En** | fire (and thunder) | Old fire‑god; preserved in **e enjte**, the Albanian word for **Thursday**, his dedicated day. |
+| **Prende** | love, beauty, dawn | "Zoja e Bukurisë," Lady of Beauty; remembered as daughter of the sky‑father. Often identified with **E Bukura e Dheut** as a Persephone‑like figure of love, fertility and the underworld‑spring cycle. |
+| **Baba Tomor** | mountain sky‑father | The deified **Mount Tomorr** in central Albania; an old man / father‑god figure, consort of **E Bukura e Dheut**, attended by eagles and storms. |
+| **Perëndi** | sky / "God" | A sky/weather deity; the modern Albanian word for "God." |
+| **Nëna e Vatrës** | Mother of the Hearth | Household guardian goddess, pictured as an old woman spinning or combing grey hair by the fire; sometimes linked to three **mira** (fates) who fix a child's destiny three days after birth. |
+
+The Albanians (like the Greeks) seem to have divided the world into **sky, sea,
+and underworld** — and the deities of those three realms survive as **the three
+Beauties** (see §7).
+
+Sources: [Zojz](https://en.wikipedia.org/wiki/Zojz_(deity)) ·
+[Dielli](https://en.wikipedia.org/wiki/Dielli_(Albanian_paganism)) ·
+[Hëna](https://en.wikipedia.org/wiki/H%C3%ABna_(Albanian_paganism)) ·
+[Enji](https://en.wikipedia.org/wiki/En_(deity))
+
+---
+
+## 3. The eternal duel — Drangue vs Kulshedra
+
+The defining myth of Albanian paganism is the **cyclical war of the storm‑hero
+and the drought‑dragon**, a symbol of the seasonal death and rebirth of the world.
+
+### The Drangue (Drangoni)
+A **semi‑human winged divine hero**, the archetype of light and good.
+- Babies destined to become *drangue* are **born with a caul** (the amniotic
+  membrane over the head) and **two or four wings under the arms**.
+- They wield **thunder and lightning** as weapons, hurling **"thunder‑stones"
+  (kokrra rrufeje)**, uprooted trees and great boulders at the Kulshedra during
+  storms.
+- A Drangue is the protector of the community and the crops; the rumble of a
+  thunderstorm is the Drangue fighting the dragon in the clouds.
+
+### The Kulshedra (Kuçedra)
+A **huge, multi‑headed, fire‑spitting female serpent‑dragon** — the archetype of
+darkness, drought and disaster.
+- She **withholds rain and hoards water**, causing drought; to release the
+  springs she **demands human sacrifice** (often a maiden).
+- She spits fire and causes **storms, floods, hail and earthquakes**.
+- She is the mature form of the **Bolla** (see §6).
+
+Their conflict "symbolises the cyclic return in the watery and chthonian world of
+death, accomplishing the cosmic renewal of rebirth." The Drangue (almost) always
+wins; the rains return.
+
+Sources: [Drangue](https://en.wikipedia.org/wiki/Drangue) ·
+[Kulshedra](https://en.wikipedia.org/wiki/Kulshedra)
+
+---
+
+## 4. Guardian and fairy beings
+
+### Zana (e Malit) — the mountain fairies
+Fierce, beautiful **mountain nymphs** tied to wilderness and the **vital energy of
+human beings** (similar to the Greek nymphs / the Muses).
+- A **Zana e Malit** watches over a particular massif and the warriors and
+  shepherds who move through it.
+- They figure in **rites of passage**: in some traditions a boy becomes a man
+  only after encountering a Zana in the mountains and **receiving her blessing**.
+- They can **bless or curse**; offend them and they may strike you lame or mute.
+- In the epic cycle they **suckle the hero Mujo** and grant him superhuman
+  strength (see §8).
+
+### Ora — the personal fate‑spirit
+Every Albanian is **born with an Ora**, a female fairy‑like **guardian and
+fate‑weaver** assigned for life — a personal *fortuna*.
+- The Orë **convene on the third night** after a child's birth to fix its
+  destiny.
+- They can take any form — **bird, beast, woman, or serpent** — and travel with
+  their person to protect them.
+- The Dukagjin highlands speak of **three Fates**:
+  - **e Bardha** ("the White One") — deals out **good luck**;
+  - **e Verdha** ("the Yellow One") — deals out **bad luck** and evil spells;
+  - **e Zeza** ("the Black One") — **decides death**.
+- Even horses, springs and **treasures have their own protective Ora** (often in
+  serpent form — see the cursed‑gold branch in the game).
+
+### Vitore — the household serpent
+A **household divine serpent** tied to destiny, fortune and the souls of the
+ancestors. When the **Vitorja** dwells in the walls of a house it brings **good
+luck**; the family treats it with great respect, and its **hissing announces
+important events**. To kill it is to court ruin.
+
+### Other spirits
+- **Shtojzovalle** (sylphs) — ethereal beings who **dance under the moonlight**;
+  to witness their dance is to be enchanted, sometimes fatally.
+- **Perit** — white‑clad mountain spirits who can **punish** trespassers.
+- **Nëna e Vatrës** — the Mother of the Hearth (see §2).
+
+Sources: [Zana](https://en.wikipedia.org/wiki/Zana_(mythology)) ·
+[Ora](https://en.wikipedia.org/wiki/Ora_(mythology)) ·
+[Vitore](https://en.wikipedia.org/wiki/Vitore)
+
+---
+
+## 5. Monsters and demons
+
+### The serpent's life cycle — Bolla → Bullar → Ershaj → Kulshedra
+A common snake that lives long enough **unseen by a human** transforms in stages:
+- a snake unseen for years becomes a **Bolla** — a serpentine dragon that
+  **sleeps with its eyes shut all year and opens them only on St George's Day
+  (Shëngjergj)**; anyone it sees is devoured. **Saint George cursed it** to be
+  forever blind except on his feast day. (*Bullar* is the Southern‑Albanian
+  synonym.)
+- after **fifty years unseen** it becomes a **bullar**, which feeds milk to
+  snakes (giving them their venom);
+- after **another fifty** it becomes an **ershaj**, which coils around a victim's
+  neck, punctures the chest and eats the heart;
+- ultimately it matures into the **Kulshedra**, sprouting nine tongues, horns and
+  wings.
+
+### Drought‑monsters and guardians
+- **Ljubi (Lubia)** — a **water‑and‑storm she‑demon**, a multi‑headed serpent
+  closely related to the Kulshedra, who **withholds water and demands the
+  sacrifice of young women or children** before the springs return.
+- **Stihí** — a **fire‑breathing guardian demon**, often spawned by or allied
+  with the Kulshedra, **set to guard treasure and hidden places**; "the dragon's
+  enforcer, a furnace with a will."
+- **Baloz / Bajloz** — a **sea‑monster giant**, the antagonist of the legendary
+  heroes; it rises from the sea to demand tribute (see Gjergj Elez Alia, §9).
+
+### Witches and the undead
+- **Shtriga** — a **vampiric night‑witch**, usually an **old (or childless,
+  envious) woman** with pale eyes and a crooked nose, who **sucks the blood/life
+  of sleepers (especially infants)** and then turns into a **flying insect — a
+  moth, fly or bee**. To repel her: **throw a pinch of salt into the fire** (with
+  the charm "*syt i dalçin, syt i plaçin*"), garlic, and incantations. To catch
+  her: follow her at night; she vomits the blood she drank, and a **silver coin
+  soaked in it becomes an amulet** of permanent protection. A **cross of pig‑bone
+  at a church threshold on Easter** traps her inside.
+- **Lugat (Liogat)** — a **vampire/revenant** that abides in **shadows and
+  sunless places — wells, ruins, caves**; it can **fly and ride the winds** and
+  attacks sleepers. A *kukudh* is sometimes its hardened, undying form.
+- **Kukudh** — a **plague‑demon** of disease, death and miserliness; sometimes
+  the restless cursed form of a wicked person who **could not die properly**.
+- **Karkanxholl** — a **goblin** with magic powers, wearing a **chain‑mail
+  shirt**.
+- **Xhindi** (from Arabic *jinn*, absorbed in the Ottoman centuries) — invisible
+  spirits that **haunt thresholds, water and lonely places**, easily offended,
+  able to help or harm.
+
+### The evil eye (Syri i keq)
+Some people carry the **evil eye**; you avoid their direct gaze. Protection is by
+**salt** (a pinch touched to the eyes/heart and cast into flame), charms, and
+amulets — the same salt‑and‑fire logic that wards the Shtriga.
+
+Sources: [Kulshedra](https://en.wikipedia.org/wiki/Kulshedra) ·
+[Shtriga](https://en.wikipedia.org/wiki/Shtriga) ·
+[Lugat](https://en.wikipedia.org/wiki/Lugat) ·
+[Baloz](https://en.wikipedia.org/wiki/Baloz)
+
+---
+
+## 6. The three Beauties
+
+The Albanians worshipped a **tripartite division of the world** — sky, sea and
+underworld — in the same functions as the Greek Zeus, Poseidon and Hades. Their
+deities survive in folktale as **the three Beauties**:
+
+- **i Bukuri i Qiellit** — "the Beauty of the **Sky**" (the heavens).
+- **e Bukura e Detit** — "the Beauty of the **Sea**" (the waters); she can carry
+  a fallen hero up from the deep.
+- **e Bukura e Dheut** — "the Beauty of the **Earth**," the most important in
+  folktale. She is at once a **crafty otherworld fairy** and a **chthonic
+  goddess of the underworld and of springtime** — an Albanian **Persephone**,
+  often identified with **Prende**. In central Albania she is the **sister of the
+  Beauty of the Sea** and the **consort of Baba Tomor**, living in a mystical
+  underworld palace.
+
+**The quest for E Bukura e Dheut** — the hero searching for or rescuing the
+Earthly Beauty from the underworld — is one of the most frequent motifs in
+Albanian folktale, and the spine of *Aventura Shqip*.
+
+Sources: [E Bukura e Dheut](https://en.wikipedia.org/wiki/E_Bukura_e_Dheut) ·
+[E Bukura e Detit](https://en.wikipedia.org/wiki/E_Bukura_e_Detit)
+
+---
+
+## 7. The heroic epic — Kângë Kreshnikësh
+
+The **Kângë Kreshnikësh** ("Songs of the Frontier Warriors") are Albania's great
+**oral epic cycle** — heroic songs of the **kreshnikë** (frontier warriors):
+duels, sieges, raids, and the defence of a semi‑autonomous borderland. About
+**half a million verses** have been collected; Palaj & Kurti's collection was
+translated by **Robert Elsie & Janice Mathie‑Heck** (*Songs of the Frontier
+Warriors*, 2004).
+
+The heroes are the brothers **Gjeto Basho Muji** (Mujo) and **Sokol Halili**, and
+their world is thick with **Zana** and **Ora**.
+
+> **The making of Mujo.** The young Muji, **lost in a thunderstorm**, finds **two
+> cradles beside a great boulder** and rocks the unseen children to sleep through
+> the night. At dawn the **Zanas** reveal themselves and offer him a choice —
+> **wealth, knowledge, or the strength of a hero**. He chooses **strength**, and
+> the Zanas grant it (the same superhuman strength otherwise found only in a
+> Drangue). The Zanas become his sworn sisters and protectors.
+
+Sources: [Kângë Kreshnikësh](https://en.wikipedia.org/wiki/Albanian_Songs_of_the_Frontier_Warriors)
+
+---
+
+## 8. The great legends
+
+### Rozafa — the walled‑up wife
+Attested as early as **1505** (Marin Barleti, *De obsidione Scodrensi*), the most
+famous Albanian **immurement legend**, attached to **Rozafa Castle at Shkodër**.
+
+> Three brothers try to build a castle, but **the walls fall every night**. A wise
+> man tells them the building will only stand if a life is **walled into the
+> foundation**. They swear a **besa** to say nothing to their wives, and that
+> **whichever wife brings the next day's meal** will be the sacrifice. The two
+> elder brothers break their oath and warn their wives; only the **youngest keeps
+> his besa** and stays silent. So it is **Rozafa**, the youngest brother's wife,
+> who comes with the food. Learning her fate, she does not protest — but, thinking
+> of her **infant son**, asks that the wall leave open her **right breast to nurse
+> him, right eye to see him, right hand to caress him, and right foot to rock his
+> cradle**. The castle stands. Local people say **Rozafa's milk still seeps from
+> the white stones** of the walls.
+
+The breast‑cult and immurement reflect the older worship of an **earth‑mother
+goddess**; the tale is, at heart, a hymn to the **besa**.
+
+### Constantine and Doruntine — the besa beyond death
+Also sung as a ballad, *The Ballad of Constantine and Dhoqina* (**Dhoqina** is a
+common variant of Doruntine's name).
+> Doruntine is the **only daughter among thirteen children** (herself and twelve
+> brothers). When a **prince from a far country** asks for her, the family refuses
+> to send her so far — until the youngest brother, **Kostandin**, gives his mother
+> his **besa**: *"Be I dead or be I living, I'll return to you Doruntine."* On that
+> oath the marriage is allowed. Then **war comes and all twelve brothers die**,
+> Kostandin among them. Years pass; on a feast day the grieving mother, alone,
+> **curses her dead son** for breaking his word. The curse is so terrible that
+> **Kostandin rises from the grave as a *lugat* (revenant)**, rides through the
+> night to the far land, and brings Doruntine home on his horse. She sees he is
+> grey with dust and bone‑weary — he says it is only the road — and does not know
+> she rides with a dead man. He leaves her at the door, says he must "go to
+> church," and **returns to his grave**. When the mother opens the door and the
+> truth is spoken, **both mother and daughter fall dead on the spot**.
+
+The moral: **an Albanian will rise even from the grave to keep his besa.**
+
+### Gjergj Elez Alia — the wounded hero and the Baloz
+Recorded by **Bernardin Palaj and Donat Kurti** in Nikaj (Tropojë district) and
+published in Tirana in **1937**.
+> Gjergj Elez Alia lies bedridden for **nine years with nine wounds**, tended day
+> and night by his devoted **sister**. From the sea rises **Balozi i Zi** (the
+> "Black Baloz"), a giant sea‑monster who kills people and lays waste to villages,
+> lays a heavy **tribute** on the land — in many tellings **a maiden and a roast of
+> mutton from every household** — and at last **demands Gjergj's own sister**.
+> Hearing this, the dying hero rises, arms himself, mounts his warhorse, meets the
+> Baloz, and after their duel **beheads it**, freeing his people. He rides home;
+> and as brother and sister **embrace with joy, both their hearts stop at once and
+> they die together**. They are **buried in a single grave**.
+
+Sources: [Rozafa Castle](https://en.wikipedia.org/wiki/Rozafa_Castle) ·
+[Constantin and Doruntinë](https://en.wikipedia.org/wiki/Constantin_and_Doruntin%C3%AB) ·
+[Gjergj Elez Alia](https://en.wikipedia.org/wiki/Gjergj_Elez_Alia)
+
+---
+
+## 9. The folktales
+
+### The Scurfhead (Qerosi)
+The **dragon‑slaying, underworld‑rescue and eagle‑ascent** tale that gives
+*Aventura Shqip* its climax, its well, its serpent, and its eagle. (This summary
+follows **Elsie's translation** of the actual Albanian tale, verbatim‑checked.)
+> A king has three sons and a garden whose tree bears only **three quinces a
+> year** — and every year a **dragon** eats them. The two elder, cowardly sons
+> fail to guard the fruit; the despised youngest, the **Scurfhead**, wounds the
+> dragon and drives it off. The three brothers chase it into a **hole in the
+> ground**, and only the Scurfhead dares go down — **lowered on two ropes, a white
+> one and a black one** (tug white = all is well, black = danger).
+>
+> Below he finds **three houses, each with one of the three Earthly Beauties** —
+> sisters, each giving a betrothal token (a spindle that makes gold, a bowl, a hen
+> with twelve chicks). The **dragon owns the water** and takes **one maiden a day**
+> as payment to let the springs flow; today's victim, chosen by lot, is the
+> **king's daughter**. The Scurfhead **slays the dragon at the well**, and the
+> water **gushes forth, crimson with the dragon's blood**, running through the
+> villages. He sends the three Beauties up the rope — two for his brothers, the
+> youngest for himself — but his **brothers betray him and leave him below**.
+>
+> The youngest Beauty had warned him: if abandoned, run back to the den and find
+> **two rams, white and black — the white ram carries you up, the black keeps you
+> below**. In his haste he **seizes the black ram** and is trapped underground.
+> Wandering, he finds an **oak with a nest of eaglets** that a **snake** is
+> climbing to devour; he **kills the snake and saves the eaglets**. The grateful
+> **mother eagle** agrees to carry him to the surface — but he must bring **an oven
+> full of bread, two roasts of mutton, and a barrel of water** to feed her on the
+> long flight up. He gets these from the grateful king, loads the eagle, and after
+> great exertion **rises to the earth**, later winning the youngest Earthly Beauty.
+
+> **Note on accuracy.** In the **Albanian** tale the eagle is fed **bread, mutton
+> and water** — it does *not* ask for the hero's flesh. The famous "hero cuts his
+> own thigh when the meat runs out" episode belongs to *other* versions of this
+> international tale type (**ATU 301, "The Three Stolen Princesses"**), not to
+> Elsie's Albanian Qerosi. *Aventura Shqip* borrows that wider motif for its
+> bittersweet **"Flesh for the Eagle"** ending — a deliberate creative liberty, not
+> a claim about the Albanian text.
+
+### The Boy and the Earthly Beauty
+The opening tale of Elsie's collection — a study in **obsessive desire and three
+magic objects** (international type **ATU 566**, the "Fortunatus" / horns‑and‑fruit
+tale).
+> A dying rich man warns his son **never to go to the village of the Earthly
+> Beauty**. The boy disobeys, and her servants **fleece him of his fortune** — for
+> a sack of gold he is allowed only to glimpse her **finger**, then her **hand**,
+> then her **arm**. Ruined, he finds in his father's house three wonders in turn:
+> a **cap of invisibility**, then a **magic jug** that summons a band of warriors,
+> then learns of a **spindle that makes gold**. Each time he uses them to reach the
+> Beauty, and each time, trusting her, he **reveals the secret of his magic** and
+> she steals it and casts him out — at last banishing him to a far land,
+> "Tinglimaimun." Starving there, he eats **red grapes and horns sprout from his
+> face**; he eats **white grapes and the horns fall away**. He carries both back,
+> makes horns grow on the Beauty with the red, and **only heals her with the white
+> once she is truly his**.
+
+This tale's *trap* — a beauty who takes everything and gives nothing until the
+hero stops being naïve — is the seed of *Aventura Shqip*'s confuser mechanic:
+desire alone is punished; comprehension is rewarded.
+
+### The Three Friends and the Earthly Beauty
+A **blood‑brotherhood and Kulshedra‑slaying** quest, and a clear source for the
+game's named companions and its dragon.
+> A poor widow's son digs out his dead father's **rusted sabre**, polishes it
+> bright, and renames himself **Kordha** ("the Sabre"). On the road he swears
+> blood‑brotherhood with two youths of his own age — **Ylli** ("the Star"), whose
+> strength lets him leap a castle moat carrying all three, and **Deti** ("the
+> Sea"). They vow that **if one is in danger, all will know** (Kordha leaves a
+> **feather that drips blood** over a doorway). At a **seven‑way crossroads** an old
+> woman warns that the road to the **Earthly Beauty** has killed armies; Kordha
+> takes it anyway. He slays a **Kulshedra with six young**, then passes the
+> Beauty's tests of whether he is clever and human — he **drinks the spring with
+> his hands, not on his knees**, and **picks the apple with his hand, not his
+> teeth** — enters her palace, and **slits the last Kulshedra in two**, winning
+> her. (Note the names **Kordha, Ylli, Deti** — sabre, star, sea — the kind of
+> meaningful naming the game reuses for its vocabulary.)
+
+### The Twins (Zjerma and Handa)
+> A red magic fish grants a deposed king twin sons — **Zjerma**, with the **Sun on
+> his forehead**, and **Handa**, with the **Moon** — born together with two foals,
+> two pups and two silver swords. Grown, they part at a crossroads under an almond
+> tree, each with a **magic ring that darkens if the other is in danger**.
+> **Zjerma** comes to a city plagued by a **seven‑headed Kulshedra** taking a
+> maiden a day; he saves the princess **Bardhakuqja** and slays the dragon by
+> severing its **central crowned head**, then unmasks a false hero. **Handa** seeks
+> **E Bukura e Dheut** through gardens of **Zana**, fails an old **witch's** tests,
+> and is **turned to stone**. Zjerma tracks him, passes the tests, and revives him
+> with **dew from the cup of a white lily**. Reunited, the twins win back their
+> kingdom; Handa lays his **sword of chastity** between himself and his brother's
+> bride. (Tale types **ATU 300/303**, the dragon‑slayer and the twin/blood
+> brothers.)
+
+### The Mujo and Halil cycle (the legends)
+The back half of Elsie's collection is the prose **legend cycle** — chiefly the
+deeds of the frontier‑warrior brothers **Mujo and Halil** from the *Kângë
+Kreshnikësh*:
+- **Mujo's strength** — the cradles‑by‑the‑boulder tale: the **Zanas** suckle Mujo
+  / grant him a hero's strength after he rocks their children through a storm
+  (see §7).
+- **Mujo and the Zanas** — Mujo's bond with (and trials against) the mountain
+  fairies who are his sworn sisters.
+- **Halil's marriage**, **Mujo and Halil visit the Sultan**, **Mujo avenges
+  Halil's death** — the brotherhood's raids, courtships and blood‑vengeance.
+- **Gjergj Elez Alia** (see §8) and **Aga Ymer of Ulcinj** — the latter an
+  Albanian **"returning husband"** tale (a captive held abroad for years who comes
+  home just as his faithful wife is about to be remarried — the *Odyssey* / *Ago
+  Ymeri* motif of fidelity and the besa).
+- **Scanderbeg and Ballaban** — a legend of the 15th‑century national hero
+  **Skanderbeg** (Gjergj Kastrioti) outwitting the Ottoman commander Ballaban.
+- **Shega and Vllastar**, and **Rozafat Castle** (see §8).
+
+### The full Elsie canon (quick reference)
+*Robert Elsie, "Albanian Folktales and Legends" — the standard English
+collection. Folk tales 1–22, legends 23–32.*
+
+| # | Title | Note |
+|---|---|---|
+| 1 | The Boy and the Earthly Beauty | three magic objects; grapes‑and‑horns (ATU 566) |
+| 2 | The Scurfhead | dragon, underworld, eagle‑ascent (ATU 301) |
+| 3 | The Three Friends and the Earthly Beauty | blood‑brothers; Kulshedra |
+| 4 | The Three Brothers and the Three Sisters | |
+| 5 | The Youth and the Maiden with Stars on their Foreheads and Crescents on their Breasts | the sun‑and‑moon siblings (the basis of "The Twins") |
+| 6 | The Shoes | |
+| 7 | The Girl Who Became a Boy | a heroine in disguise wins through (gender‑disguise type) |
+| 8 | The Maiden in the Box | |
+| 9 | The Youth Who Understood the Language of the Animals | |
+| 10 | The Stirrup Moor | |
+| 11 | The King's Daughter and the Skull | |
+| 12 | The Bear and the Dervish | |
+| 13 | The Snake and the King's Daughter | the **serpent‑bridegroom** (an enchanted prince) |
+| 14 | Gjizar the Nightingale | |
+| 15 | Half Rooster | the **half‑a‑rooster** who marches on the sultan to reclaim his gold (ATU 715) |
+| 16 | The Boy with No Name | |
+| 17 | The Barefaced Man and the Pasha's Brother | a trickster cycle |
+| 18 | The Foolish Youth and the Ring | |
+| 19 | The Princess of China | |
+| 20 | The Jealous Sisters | the slandered wife / wondrous children (ATU 707) |
+| 21 | The Grateful Snake and the Magic Case | kindness to a snake repaid with a wish‑granting object |
+| 22 | The Maiden Who Was Promised to the Sun | a girl pledged to **Dielli**, the Sun — a pagan‑marriage tale |
+| 23 | Mujo's Strength | Zanas grant the hero's strength |
+| 24 | Mujo and the Zanas | |
+| 25 | Halil's Marriage | |
+| 26 | Mujo and Halil Visit the Sultan | |
+| 27 | Mujo Avenges Halil's Death | |
+| 28 | Gjergj Elez Alia | the wounded hero and the Baloz |
+| 29 | Aga Ymer of Ulcinj | the "returning husband" (Odyssey motif) |
+| 30 | Scanderbeg and Ballaban | the national hero outwits an Ottoman general |
+| 31 | Shega and Vllastar | |
+| 32 | Rozafat Castle | the walled‑up wife |
+
+Beyond Elsie, the great early collections are **Johann Georg von Hahn's
+*Griechische und albanesische Märchen*** (1854), **Thimi Mitko's *Bleta
+shqiptare* / "The Albanian Bee"** (1878), **Anastas Kullurioti's "Albanian
+Spelling Book"** (1882), and **Spiro Dine's *Valët e Detit* / "Waves of the Sea"**
+(1908) — plus a vast cycle of **trickster fox (dhelpra)** and animal fables.
+
+Sources: [Albanian Folktales and Legends — Robert Elsie](http://books.elsie.de/b073_albanian-folktales-and-legends/) ·
+[The Twins (Albanian tale)](https://en.wikipedia.org/wiki/The_Twins_(Albanian_tale)) ·
+[The Youth and the Maiden with Stars on their Foreheads…](https://en.wikipedia.org/wiki/The_Youth_and_the_Maiden_with_Stars_on_their_Foreheads_and_Crescents_on_their_Breasts) ·
+[Albanian Literature: Folktales](http://www.albanianliterature.net/folktales/)
+
+---
+
+## 10. The worldview — besa, hospitality, the Kanun
+
+- **Besa** — "word of honour": a **sacred pledge of faith** held to be
+  **inviolable and above life itself**. It powers Rozafa, Constantine &
+  Doruntine, and the whole moral universe of the songs.
+- **Hospitality (mikpritja).** The **guest is sent by God**; to receive, feed and
+  protect a traveller — even a stranger, even an enemy under your roof — is a
+  sacred duty. (The game's "Sacred Guest" ending turns on exactly this.)
+- **The Kanun of Lekë Dukagjini** — the oral customary code that preserved this
+  worldview (besa, hospitality, and the harsh law of the **blood‑feud, gjakmarrja**)
+  into modern times in the northern highlands.
+
+Sources: [Albanian paganism](https://en.wikipedia.org/wiki/Albanian_paganism) ·
+[Kanun (overview)](https://en.wikipedia.org/wiki/Kanun_(Albania))
+
+---
+
+## 11. The calendar and the fire rituals
+
+Albanian festivals are **solar** — they track the strengthening and waning of the
+Sun and the renewal of the Earth, almost always with **ritual fire**.
+
+- **Dita e Verës / Verëza ("Summer Day," 14 March)** — the chief festival, the
+  old **New Year (Kryeviti)** at the spring equinox; the end of winter and the
+  **strengthening of the Sun**. Customs: baking **ballokume** (a corn‑flour
+  cookie), wearing the red‑and‑white **"Verore"** wool bracelet, and **bonfires
+  on high places** that families **jump over** to be cleansed for the new year.
+  A UNESCO‑listed intangible heritage.
+- **Shëngjergji ("Saint George," ~23 April / 6 May)** — spring/summer renewal;
+  the day the **Bolla opens its eyes**.
+- **Shën Gjini–Shën Gjoni** — midsummer (summer solstice) fires.
+- **Nata e Buzmit ("Yule Log's Night," 22 Dec – 6 Jan)** — the **winter
+  solstice** log‑burning, the rebirth of the Sun.
+
+All are tied to the **cult of the Sun** as "god of light, sky and weather… the
+all‑seeing eye," and to bonfires meant to **drive away the dark** and feed the
+returning light.
+
+Sources: [Dita e Verës](https://en.wikipedia.org/wiki/Dita_e_Ver%C3%ABs) ·
+[Dielli](https://en.wikipedia.org/wiki/Dielli_(Albanian_paganism))
+
+---
+
+## 12. How *Aventura Shqip* uses the lore
+
+The game is a single hero's journey assembled from these traditions. Mapping:
+
+| Game element | Folklore source |
+|---|---|
+| The drought; the Kulshedra hoarding the water and the Beauty | Kulshedra as drought‑demon (§3, §5); quest for E Bukura e Dheut (§6) |
+| You are hailed as a **dragua** by the Zana | The caul‑born Drangue (§3); Zana's blessing/rite of passage (§4) |
+| The **Zana** by the dry river — milk, salt, feather | Zana e Malit (§4); Mujo suckled for strength (§7) |
+| **Zana's milk** restores a heart | Mujo gains a hero's strength from the Zanas (§7) |
+| **Mount Tomorr** and the old man who gives the sword | Baba Tomor, sky‑father of the mountain (§2) |
+| The **thunder‑stone** that strikes the Kulshedra → "The Drangue Awakens" | The Drangue's lightning‑stones (§3) |
+| The **well** down to *Bota e Poshtme*; the guardian **serpent**; the chained Beauty | The Scurfhead's descent; underworld of E Bukura e Dheut (§6, §9) |
+| The **eagle** that must be fed meat to fly you up; "Flesh for the Eagle" | The Scurfhead's eagle‑ascent (§9) |
+| **Rozafa** — the wall that won't stand, the mother nursing through it, "Walled in Rozafa" | The Rozafa immurement legend (§8) |
+| The night fire: a cold guest → "The Sacred Guest"; salt in the flames → "Salt in the Flames" | Hospitality/besa (§10); the Shtriga repelled by salt + fire (§5) |
+| Lost in the dark → your **Ora** (White leads home / Black means death) | The Ora and the three Fates (§4) |
+| The long fall → **Bukura e Detit** carries you up | The Beauty of the Sea (§6) |
+| The cursed hoard guarded by a serpent | Treasure‑guarding **Ora** in serpent form; the **Stihí** (§4, §5) |
+
+---
+
+## 13. Sources & further reading
+
+**Standard scholarship**
+- Robert Elsie, *Albanian Folktales and Legends* — [books.elsie.de](http://books.elsie.de/b073_albanian-folktales-and-legends/)
+- Robert Elsie & Janice Mathie‑Heck, *Songs of the Frontier Warriors (Kângë Kreshnikësh)*
+- Robert Elsie, *A Dictionary of Albanian Religion, Mythology and Folk Culture*
+- *Albanian Literature: Folktales* — [albanianliterature.net/folktales](http://www.albanianliterature.net/folktales/)
+
+**Encyclopaedic**
+- [Albanian paganism](https://en.wikipedia.org/wiki/Albanian_paganism) ·
+  [Kângë Kreshnikësh](https://en.wikipedia.org/wiki/Albanian_Songs_of_the_Frontier_Warriors)
+- Deities: [Zojz](https://en.wikipedia.org/wiki/Zojz_(deity)) ·
+  [Dielli](https://en.wikipedia.org/wiki/Dielli_(Albanian_paganism)) ·
+  [Hëna](https://en.wikipedia.org/wiki/H%C3%ABna_(Albanian_paganism)) ·
+  [Enji](https://en.wikipedia.org/wiki/En_(deity))
+- Beings: [Drangue](https://en.wikipedia.org/wiki/Drangue) ·
+  [Zana](https://en.wikipedia.org/wiki/Zana_(mythology)) ·
+  [Ora](https://en.wikipedia.org/wiki/Ora_(mythology)) ·
+  [Vitore](https://en.wikipedia.org/wiki/Vitore)
+- Monsters: [Kulshedra](https://en.wikipedia.org/wiki/Kulshedra) ·
+  [Shtriga](https://en.wikipedia.org/wiki/Shtriga) ·
+  [Lugat](https://en.wikipedia.org/wiki/Lugat) ·
+  [Baloz](https://en.wikipedia.org/wiki/Baloz)
+- Beauties: [E Bukura e Dheut](https://en.wikipedia.org/wiki/E_Bukura_e_Dheut) ·
+  [E Bukura e Detit](https://en.wikipedia.org/wiki/E_Bukura_e_Detit)
+- Legends & tales: [Rozafa Castle](https://en.wikipedia.org/wiki/Rozafa_Castle) ·
+  [Constantin and Doruntinë](https://en.wikipedia.org/wiki/Constantin_and_Doruntin%C3%AB) ·
+  [Gjergj Elez Alia](https://en.wikipedia.org/wiki/Gjergj_Elez_Alia) ·
+  [The Twins](https://en.wikipedia.org/wiki/The_Twins_(Albanian_tale))
+- Calendar: [Dita e Verës](https://en.wikipedia.org/wiki/Dita_e_Ver%C3%ABs)
+
+**Popular overviews**
+- [Gods & Monsters — Albanian Mythology](https://godsandmonsters.info/welcome-to-gods-and-monsters/albanian-mythology/)
+- [Ultimate List of Mythical Creatures from Albanian Folklore](https://budgetpixel.com/blog/ultimate-list-of-mythical-creatures-from-albanian-folklore)
+
+*Spellings vary across dialects and sources (e.g. Kulshedra/Kuçedra,
+Drangue/Drangoni, Zana/Zãnë). Where the game and the scholarship differ, the
+scholarship wins — update the game, not this document.*
