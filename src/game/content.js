@@ -391,6 +391,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ngjit'), w('lart')), to: 'mali2' },
+      { text: L(w('ec'), w('larg')), to: 'diellVajza' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -1078,6 +1079,50 @@ export const STORY = {
     text: [
       L(wf('shqiponje', 'shqiponja', 'the eagle'), w('jep'), w('ti'), w('sy'), w('dhe'), w('fuqi'), p('.')),
       L(w('ti'), w('je'), w('nje'), w('dragua'), w('te_link'), w('forte'), p('!')),
+    ],
+    options: [],
+  },
+
+  // =========================================================================
+  // SIDE-QUEST — the Maiden Promised to the Sun (Dielli)
+  // On the mountain a maiden has been chained to the rock and promised to the Sun
+  // to buy rain. Free her and defy the old bargain, or honour the cruel vow.
+  // =========================================================================
+  diellVajza: {
+    id: 'diellVajza',
+    text: [
+      L(w('ketu'), w('nje'), w('vajze'), w('eshte'), w('ne'), w('nje'), w('gur'), p('.')),
+      L(w('nje'), w('fshat'), w('premto'), wf('vajze', 'vajzën', 'the maiden'), wf('diell', 'diellit', 'to the Sun'), p('.')),
+      L(wf('diell', 'dielli', 'the Sun'), w('do'), wf('vajze', 'vajzën', 'the maiden'), p('.')),
+    ],
+    options: [
+      { text: L(w('shpeto'), wf('vajze', 'vajzën', 'the maiden')), to: 'diellLirim' },
+      { text: L(w('rri'), w('i_art'), w('qete')), to: 'diellVdes' },
+    ],
+  },
+
+  diellLirim: {
+    id: 'diellLirim',
+    end: 'secret',
+    title: 'The Maiden and the Sun',
+    blurb:
+      'The village had chained a maiden to the rock and promised her to Dielli, the Sun, to buy the rain. You broke her chains and defied the old bargain — and when the Kulshedra fell, the rain came anyway, freely. No maiden need be sold to the sky.',
+    text: [
+      L(w('ti'), w('shpeto'), wf('vajze', 'vajzën', 'the maiden'), p('.')),
+      L(wf('vajze', 'vajza', 'the maiden'), w('eshte'), w('e_art'), w('sigurt'), p('.')),
+    ],
+    options: [],
+  },
+
+  diellVdes: {
+    id: 'diellVdes',
+    end: 'bad',
+    title: 'Promised to the Sun',
+    blurb:
+      'You honoured the old vow and left her. Dielli took the maiden, and the rain came — but at a price the songs would not forgive. Some bargains a dragua is meant to break.',
+    text: [
+      L(wf('diell', 'dielli', 'the Sun'), w('merr'), wf('vajze', 'vajzën', 'the maiden'), p('.')),
+      L(w('loja'), w('mbaroi'), p('.')),
     ],
     options: [],
   },
@@ -2015,6 +2060,7 @@ const CONFUSERS = {
   kalaMilk: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
   shqipe1: L(w('zbrit'), w('ne'), w('pus')), //   go down a well — none here
   shqipe2: L(w('kalo'), bridgeAcc()), //          cross a bridge — none here
+  diellVajza: L(w('thirr'), eagleAcc()), //       call the eagle — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -2122,6 +2168,7 @@ const CONFUSERS2 = {
   kalaMilk: L(w('lufto'), wf('qumesht', 'qumështin', 'the milk')), // fight the milk
   shqipe1: L(w('pi'), wf('peme', 'pemën', 'the tree')), // drink the tree
   shqipe2: L(w('pi'), eagleAcc()), //               drink the eagle
+  diellVajza: L(w('pi'), wf('diell', 'diellin', 'the Sun')), // drink the Sun
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
