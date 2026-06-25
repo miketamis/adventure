@@ -217,6 +217,10 @@ export const DICT = {
   djep:      { al: 'djep',      en: 'cradle' },  // Mujo's cradles by the boulder
   dije:      { al: 'dije',      en: 'knowledge' }, // the Zanas' three gifts
   ose:       { al: 'ose',       en: 'or' },
+  // --- Sari Salltëk, the dragon-slaying dervish ---
+  dervish:   { al: 'dervish',   en: 'dervish' },
+  gjuhe:     { al: 'gjuhë',     en: 'tongue' },  // the seven tongues as proof
+  shtate:    { al: 'shtatë',    en: 'seven' },
 }
 
 // ---------------------------------------------------------------------------
@@ -467,6 +471,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('zbrit'), w('ne'), w('pus')), to: 'pusiThelle' },
+      { text: L(w('ec'), w('larg')), to: 'sari1' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -1118,6 +1123,49 @@ export const STORY = {
       { text: L(w('ndihmo'), wf('vajze', 'vajzën', 'the maiden')), to: 'diellLirim' },
       { text: L(w('rri'), w('i_art'), w('qete')), to: 'diellVdes' },
     ],
+  },
+
+  // =========================================================================
+  // SIDE-QUEST — Sari Salltëk, the dragon-slaying dervish (the seven tongues)
+  // A Bektashi dervish slew the seven-headed Kulshedra at Krujë and kept its seven
+  // tongues; when a false hero claims the deed, the tongues prove the truth.
+  // =========================================================================
+  sari1: {
+    id: 'sari1',
+    text: [
+      L(w('ketu'), w('nje'), w('dervish'), w('rri'), p('.')),
+      L(wf('dervish', 'dervishi', 'the dervish'), w('vrit'), w('nje'), w('kulshedra'), p('.')),
+      L(wf('dervish', 'dervishi', 'the dervish'), w('ka'), w('shtate'), w('gjuhe'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('dervish', 'dervishin', 'the dervish')), to: 'sari2' },
+      { text: L(w('ec'), w('larg')), to: 'pylliLoop' },
+    ],
+  },
+
+  sari2: {
+    id: 'sari2',
+    text: [
+      L(w('nje'), w('trim'), w('thote'), p(':'), w('une'), w('vrit'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), p('.')),
+      L(w('por'), wf('dervish', 'dervishi', 'the dervish'), w('ka'), w('shtate'), w('gjuhe'), p('.')),
+      L(wf('trim', 'trimi', 'the hero'), w('nuk'), w('ka'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('dervish', 'dervishin', 'the dervish')), to: 'sariFund' },
+    ],
+  },
+
+  sariFund: {
+    id: 'sariFund',
+    end: 'secret',
+    title: 'Sari Salltëk’s Tongues',
+    blurb:
+      'The dervish Sari Salltëk slew the seven-headed Kulshedra at Krujë with a wooden sword and cut out its seven tongues. When a false hero claimed the deed, the seven tongues proved who had truly done it. Cut the tongues, the old dervishes say, lest another steal your glory.',
+    text: [
+      L(wf('dervish', 'dervishi', 'the dervish'), w('ka'), w('shtate'), w('gjuhe'), p('.')),
+      L(wf('dervish', 'dervishi', 'the dervish'), w('eshte'), w('nje'), w('trim'), p('.')),
+    ],
+    options: [],
   },
 
   // =========================================================================
@@ -2325,6 +2373,8 @@ const CONFUSERS = {
   gjarperBurr1: L(w('thirr'), eagleAcc()), //     call the eagle — none here
   gjarperBurr2: L(w('kalo'), bridgeAcc()), //     cross a bridge — none here
   nastradin1: L(w('zbrit'), w('ne'), w('pus')), // go down a well — none here
+  sari1: L(w('thirr'), eagleAcc()), //            call the eagle — none here
+  sari2: L(w('kalo'), bridgeAcc()), //            cross a bridge — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -2442,6 +2492,8 @@ const CONFUSERS2 = {
   gjarperBurr1: L(w('pi'), serpentAcc()), //        drink the serpent
   gjarperBurr2: L(w('pi'), serpentAcc()), //        drink the serpent
   nastradin1: L(w('pi'), wf('kazan', 'kazanin', 'the cauldron')), // drink the cauldron
+  sari1: L(w('pi'), wf('dervish', 'dervishin', 'the dervish')), // drink the dervish
+  sari2: L(w('pi'), kulshAcc()), //                 drink the kulshedra
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -2844,4 +2896,8 @@ export const DEFS = {
   ose: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), //        a small word
   kembe: L(w('me'), w('kembe'), w('ti'), w('ec')), //             with legs you walk
   jashte: L(w('jo'), w('brenda')), //                            not inside
+  // --- Sari Salltëk ---
+  dervish: L(w('nje'), w('plak'), w('e_art'), w('mire')), //      a good old man (holy man)
+  gjuhe: L(w('nje'), w('gje'), w('ne'), wf('koke', 'kokë', 'the head')), // a thing in the head
+  shtate: L(w('shume')), //                                       many
 }
