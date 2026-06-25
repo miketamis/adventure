@@ -209,6 +209,14 @@ export const DICT = {
   // --- Nastradin Hoxha (the comic interlude) ---
   hoxha:     { al: 'hoxha',     en: 'hodja' },   // Nastradin Hoxha, the trickster-sage
   kazan:     { al: 'kazan',     en: 'cauldron' },
+  // --- lore-review fixes: the caul, Rozafa's body, the cradles, the choice ---
+  lind:      { al: 'lind',      en: 'born' },    // born with the caul (lindur me këmishë)
+  kemishe:   { al: 'këmishë',   en: 'caul' },    // the Drangue's birth-caul (lit. shirt)
+  gji:       { al: 'gji',       en: 'breast' },  // Rozafa nurses through the wall
+  dore:      { al: 'dorë',      en: 'hand' },
+  djep:      { al: 'djep',      en: 'cradle' },  // Mujo's cradles by the boulder
+  dije:      { al: 'dije',      en: 'knowledge' }, // the Zanas' three gifts
+  ose:       { al: 'ose',       en: 'or' },
 }
 
 // ---------------------------------------------------------------------------
@@ -407,7 +415,7 @@ export const STORY = {
   mali2: {
     id: 'mali2',
     text: [
-      L(w('nje'), w('dragua'), wf('lufto', 'lufton', 'fights'), w('nje'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), p('.')),
+      L(w('nje'), w('dragua'), wf('lufto', 'lufton', 'fights'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), p('.')),
       L(w('ti'), w('gjen'), w('nje'), w('gur'), w('te_link'), w('forte'), p('.')),
     ],
     options: [
@@ -884,7 +892,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('hidh'), w('kripe')), requires: 'kripe', consumes: 'kripe', to: 'shtrigaIkur' },
-      { text: L(w('hidh'), w('zjarr')), to: 'shtrigaIkur' },
+      { text: L(w('hidh'), w('zjarr')), to: 'humbur' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
   },
@@ -1102,12 +1110,12 @@ export const STORY = {
   diellVajza: {
     id: 'diellVajza',
     text: [
-      L(w('ketu'), w('nje'), w('vajze'), w('eshte'), w('ne'), w('nje'), w('gur'), p('.')),
-      L(w('nje'), w('fshat'), w('premto'), wf('vajze', 'vajzën', 'the maiden'), wf('diell', 'diellit', 'to the Sun'), p('.')),
-      L(wf('diell', 'dielli', 'the Sun'), w('do'), wf('vajze', 'vajzën', 'the maiden'), p('.')),
+      L(w('ketu'), w('nje'), w('vajze'), w('rri'), w('e_art'), w('qete'), p('.')),
+      L(w('nje'), w('mbret'), w('premto'), wf('vajze', 'vajzën', 'the maiden'), wf('diell', 'diellit', 'to the Sun'), p('.')),
+      L(w('por'), w('nje'), w('kulshedra'), w('do'), wf('vajze', 'vajzën', 'the maiden'), p('!')),
     ],
     options: [
-      { text: L(w('shpeto'), wf('vajze', 'vajzën', 'the maiden')), to: 'diellLirim' },
+      { text: L(w('ndihmo'), wf('vajze', 'vajzën', 'the maiden')), to: 'diellLirim' },
       { text: L(w('rri'), w('i_art'), w('qete')), to: 'diellVdes' },
     ],
   },
@@ -1146,7 +1154,7 @@ export const STORY = {
     end: 'secret',
     title: 'The Serpent Bridegroom',
     blurb:
-      'By night the serpent shed its skin and stood a young man, and begged you never to tell. You kept his secret, and the enchantment broke — the snake‑prince was a man again, for good. (From the tale of the Snake and the King’s Daughter.)',
+      'By night the serpent shed its skin and stood a young man, and begged you never to tell. You kept his secret, and the enchantment broke — the snake‑prince, Swift in the old tale, was a man again, for good. (From the Snake and the King’s Daughter.)',
     text: [
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('behet'), w('nje'), w('njeri'), p('.')),
       L(wf('njeri', 'njeriu', 'the person'), w('eshte'), w('i_art'), w('sigurt'), p('.')),
@@ -1217,7 +1225,7 @@ export const STORY = {
     end: 'secret',
     title: 'The Besa Beyond Death',
     blurb:
-      'Kostandin had sworn his mother a besa to bring her daughter home, and then died in the war. At her grief the dead brother rose from his grave and rode through the night to keep his word — for not even death can stop an Albanian from keeping a besa.',
+      'Kostandin had sworn his mother a besa to bring her daughter home, and then died in the war. At her grief the dead brother rose from his grave as a lugat — a revenant — and rode through the night to keep his word, for not even death can stop an Albanian from keeping a besa.',
     text: [
       L(wf('vella', 'vëllai', 'the brother'), w('vdes'), w('por'), w('vjen'), w('perseri'), p('.')),
       L(wf('motra', 'motra', 'the sister'), w('eshte'), w('ne'), w('shtepi'), p('.')),
@@ -1317,7 +1325,7 @@ export const STORY = {
     end: 'secret',
     title: 'The Golden-Horned Goats',
     blurb:
-      'A wedding party stood frozen to stone — the work of the wild Zanas. Their strength, you learned as Mujo did, was hidden in goats with golden horns. You took the goats, the Zanas’ power drained away, and the stone guests drew breath again.',
+      'A wedding party stood frozen to stone — the work of the wild Zanas. Their strength, as Mujo learned, was hidden in goats with golden horns. You took the goats, the Zanas’ power drained away, and the stone guests drew breath again.',
     text: [
       L(w('ti'), w('merr'), wf('dhi', 'dhinë', 'the goat'), p('.')),
       L(wf('njeri', 'njerëz', 'the people'), w('eshte'), w('i_art'), w('sigurt'), p('.')),
@@ -1331,11 +1339,11 @@ export const STORY = {
   diellLirim: {
     id: 'diellLirim',
     end: 'secret',
-    title: 'The Maiden and the Sun',
+    title: 'The Sun’s Ward',
     blurb:
-      'The village had chained a maiden to the rock and promised her to Dielli, the Sun, to buy the rain. You broke her chains and defied the old bargain — and when the Kulshedra fell, the rain came anyway, freely. No maiden need be sold to the sky.',
+      'A king had promised his daughter to Dielli, the Sun, before she was even born, and the Sun took her into his house. He is no tyrant — when a Kulshedra there meant to devour her, the Sun sent a stag to bear her safely home, and you walked the long road back to the light beside them.',
     text: [
-      L(w('ti'), w('shpeto'), wf('vajze', 'vajzën', 'the maiden'), p('.')),
+      L(w('ti'), w('ndihmo'), wf('vajze', 'vajzën', 'the maiden'), p('.')),
       L(wf('vajze', 'vajza', 'the maiden'), w('eshte'), w('e_art'), w('sigurt'), p('.')),
     ],
     options: [],
@@ -1346,9 +1354,9 @@ export const STORY = {
     end: 'bad',
     title: 'Promised to the Sun',
     blurb:
-      'You honoured the old vow and left her. Dielli took the maiden, and the rain came — but at a price the songs would not forgive. Some bargains a dragua is meant to break.',
+      'You stood by while the Kulshedra in the Sun’s house seized the maiden. Dielli would have sent a stag to carry her safely home — but you did not lift a hand, and the dark thing was the quicker.',
     text: [
-      L(wf('diell', 'dielli', 'the Sun'), w('merr'), wf('vajze', 'vajzën', 'the maiden'), p('.')),
+      L(w('nje'), w('kulshedra'), w('merr'), wf('vajze', 'vajzën', 'the maiden'), p('.')),
       L(w('loja'), w('mbaroi'), p('.')),
     ],
     options: [],
@@ -1509,7 +1517,7 @@ export const STORY = {
   balozKoke: {
     id: 'balozKoke',
     text: [
-      L(w('ti'), w('pre'), wf('koke', 'kokën', 'the head'), w('te_link'), wf('baloz', 'balozit', 'of the sea-monster'), p('.')),
+      L(w('ti'), w('pre'), wf('koke', 'kokën', 'the head'), w('e_art'), wf('baloz', 'balozit', 'of the sea-monster'), p('.')),
       L(wf('baloz', 'balozi', 'the sea-monster'), w('vdes'), p('.')),
       L(wf('det', 'deti', 'the sea'), w('eshte'), w('i_art'), w('sigurt'), p('.')),
     ],
@@ -1569,6 +1577,7 @@ export const STORY = {
     id: 'zanaProva',
     text: [
       L(w('naten'), w('eshte'), w('e_art'), w('erret'), w('dhe'), w('e_art'), w('ftohte'), p('.')),
+      L(w('ne'), w('nje'), w('gur'), w('te_link'), w('madh'), w('eshte'), w('nje'), w('djep'), p('.')),
       L(w('ti'), w('sheh'), w('nje'), w('femije'), w('dhe'), w('nje'), w('femije'), w('tjeter'), p('.')),
       L(wf('femije', 'fëmijët', 'the children'), w('nuk'), w('fle'), p('.')),
     ],
@@ -1583,11 +1592,26 @@ export const STORY = {
     text: [
       L(w('naten'), w('mbaroi'), w('dhe'), w('vjen'), w('dite'), p('.')),
       L(wf('zane', 'zana', 'the fairy'), w('vjen'), w('dhe'), w('thote'), p(':')),
-      L(w('ti'), w('je'), w('nje'), w('dragua'), w('te_link'), w('forte'), p('!')),
+      L(w('merr'), w('ar'), p(','), w('dije'), w('ose'), w('fuqi'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('zane', 'zanën', 'the fairy')), to: 'zanaQumesht' },
+      { text: L(w('merr'), w('fuqi')), to: 'zanaQumesht' },
+      { text: L(w('merr'), w('ar')), to: 'zanaGold' },
+      { text: L(w('merr'), w('dije')), to: 'zanaGold' },
     ],
+  },
+
+  zanaGold: {
+    id: 'zanaGold',
+    end: 'secret',
+    title: 'The Lesser Gifts',
+    blurb:
+      'By the boulder the Zanas offered you what they once offered the young Mujo — wealth, knowledge, or a hero’s strength. You did not choose strength. You went home richer (or wiser), but no dragua — and the Kulshedra kept the water, for strength was the only gift that could have freed it.',
+    text: [
+      L(w('ti'), w('nuk'), w('je'), w('nje'), w('dragua'), p('.')),
+      L(w('loja'), w('mbaroi'), p('.')),
+    ],
+    options: [],
   },
 
   // =========================================================================
@@ -1643,7 +1667,7 @@ export const STORY = {
     id: 'tomorStuhi',
     text: [
       L(w('ere'), w('dhe'), w('rrufe'), w('vjen'), p('.')),
-      L(w('nje'), w('dragua'), wf('lufto', 'lufton', 'fights'), w('nje'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), w('ne'), w('re'), p('.')),
+      L(w('nje'), w('dragua'), wf('lufto', 'lufton', 'fights'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), w('ne'), w('re'), p('.')),
       L(w('ti'), w('nuk'), w('ik'), p('.')),
     ],
     options: [
@@ -1730,6 +1754,7 @@ export const STORY = {
     id: 'fshatiCaul',
     text: [
       L(w('nje'), w('plake'), w('thote'), p(':')),
+      L(w('ti'), wf('lind', 'linde', 'were born'), w('me'), w('kemishe'), p('.')),
       L(w('ti'), w('je'), w('nje'), w('dragua'), p('.')),
       L(w('nje'), w('re'), w('dhe'), w('rrufe'), w('vjen'), p('.')),
     ],
@@ -1766,7 +1791,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ndiz'), w('nje'), w('zjarr')), to: 'udheOra' },
-      { text: L(w('hidh'), w('kripe')), requires: 'kripe', consumes: 'kripe', to: 'udheOra' },
+      { text: L(w('prit'), wf('dite', 'ditën', 'the day')), to: 'udheOra' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
   },
@@ -1905,7 +1930,7 @@ export const STORY = {
     id: 'udhaSyri',
     text: [
       L(w('nje'), w('gjarper'), w('vdes'), w('ketu'), p('.')),
-      L(wf('sy', 'syri', 'the eye'), w('te_link'), wf('gjarper', 'gjarprit', 'of the serpent'), w('behet'), w('uje'), p('.')),
+      L(wf('sy', 'syri', 'the eye'), w('i_art'), wf('gjarper', 'gjarprit', 'of the serpent'), w('bie'), w('dhe'), w('behet'), w('uje'), p('.')),
       L(w('ti'), w('sheh'), w('uje'), w('te_link'), w('bukur'), p('.')),
     ],
     options: [
@@ -1983,7 +2008,7 @@ export const STORY = {
   majaEagle: {
     id: 'majaEagle',
     text: [
-      L(w('nje'), w('shqiponje'), wf('fluturo', 'fluturon', 'flies'), w('lart'), w('ne'), w('mal'), p('.')),
+      L(wf('shqiponje', 'shqiponjat', 'the eagles'), w('e_art'), w('tomor'), wf('fluturo', 'fluturojnë', 'fly'), w('lart'), p('.')),
       L(w('nje'), w('plak'), w('rri'), w('lart'), p('.')),
       L(wf('plak', 'plaku', 'the old man'), w('eshte'), w('tomor'), p('.')),
     ],
@@ -2130,7 +2155,8 @@ export const STORY = {
     text: [
       L(wf('nene', 'nena', 'the mother'), w('thote'), p(':')),
       L(w('une'), w('jam'), w('ne'), w('mur'), p('.')),
-      L(w('por'), w('nje'), w('femije'), w('do'), w('qumesht'), p('.')),
+      L(w('por'), w('gji'), p(','), w('sy'), p(','), w('dore'), w('dhe'), w('kembe'), w('rri'), w('jashte'), p('.')),
+      L(w('gji'), w('jep'), w('qumesht'), wf('femije', 'fëmijës', 'to the child'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'kala2' },
@@ -2808,4 +2834,14 @@ export const DEFS = {
   ar: L(w('nje'), w('gur'), w('e_art'), w('bukur')), //           a beautiful metal (stone)
   hoxha: L(w('nje'), w('plak'), w('e_art'), w('mire')), //        a good old man
   kazan: L(w('nje'), w('gje'), w('te_link'), w('zjarr')), //      a thing of the fire
+  // --- lore-review fixes ---
+  lind: L(w('vjen'), w('ne'), w('bote')), //                      to come into the world
+  kemishe: L(w('nje'), w('gje'), w('te_link'), w('dragua')), //   a thing of the dragua (the caul)
+  gji: L(w('ku'), w('eshte'), w('qumesht')), //                   where the milk is
+  dore: L(w('nje'), w('gje'), w('te_link'), w('njeri')), //       a thing of a person
+  djep: L(w('nje'), w('vend'), w('ku'), w('nje'), w('femije'), w('fle')), // a place where a child sleeps
+  dije: L(w('nje'), w('fuqi'), w('te_link'), w('koke')), //       a power of the head (the mind)
+  ose: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), //        a small word
+  kembe: L(w('me'), w('kembe'), w('ti'), w('ec')), //             with legs you walk
+  jashte: L(w('jo'), w('brenda')), //                            not inside
 }
