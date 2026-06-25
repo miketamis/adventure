@@ -115,8 +115,9 @@ A **semi‑human winged divine hero**, the archetype of light and good.
   thunderstorm is the Drangue fighting the dragon in the clouds.
 
 ### The Kulshedra (Kuçedra)
-A **huge, multi‑headed, fire‑spitting female serpent‑dragon** — the archetype of
-darkness, drought and disaster.
+A **huge, multi‑headed, fire‑spitting female serpent‑dragon** (also **Lemja /
+Lamja**) with red woolly hair and dragging breasts — the archetype of darkness,
+drought and disaster, known across the Albanian lands and among the Arbëresh.
 - She **withholds rain and hoards water**, causing drought; to release the
   springs she **demands human sacrifice** (often a maiden).
 - She spits fire and causes **storms, floods, hail and earthquakes**.
@@ -126,8 +127,27 @@ Their conflict "symbolises the cyclic return in the watery and chthonian world o
 death, accomplishing the cosmic renewal of rebirth." The Drangue (almost) always
 wins; the rains return.
 
+### How the highlands actually told it (Lambertz's belief‑legends)
+The scholarly fieldwork of **Maximilian Lambertz (1922)** caught the living belief,
+not the tidy myth — and it is stranger and sadder:
+- **The Ram That Was a Drangue** (Shllaku). A shepherd's **ram** bolts whenever the
+  sky darkens, **fire flashing from its eyes** — it is secretly a drangue, summoned
+  to fight the weather‑Kulshedra. Warned to feed it its own daughter's milk or the
+  Kulshedra will kill it, the shepherd forgets; the ram is struck dead, and only on
+  skinning it do they find its **heart is gold, with three jewels inside**.
+- **About the Drangue** (Zadrima). A long‑awaited son is born **with a caul** — the
+  secret mark of a drangue; when it thunders he vanishes to fight the Kulshedra
+  beside cradle‑infants, cocks, rams, birds and wolves who are all drangues in
+  disguise. Because **no one may speak of why a person is a drangue**, his father's
+  angry curse dooms him.
+- **The Kulshedra and the Baker** (Monastir). A Kulshedra devours a family's
+  parents and, mistaken by the orphaned children for their mother, plays along — but
+  a **baker** clubs it, commands "**Vomit up what you ate!**", and it disgorges the
+  parents alive, who are revived in a spring.
+
 Sources: [Drangue](https://en.wikipedia.org/wiki/Drangue) ·
-[Kulshedra](https://en.wikipedia.org/wiki/Kulshedra)
+[Kulshedra](https://en.wikipedia.org/wiki/Kulshedra) ·
+[Lambertz, *Albanische Märchen* (1922)](https://archive.org/details/albanischemarchenlambertz)
 
 ---
 
@@ -175,8 +195,10 @@ important events**. To kill it is to court ruin. The name itself is read as "she
 **weaving of fate** as the Fatí.
 
 ### Other spirits
-- **Shtojzovalle** (sylphs) — ethereal beings who **dance under the moonlight**;
-  to witness their dance is to be enchanted, sometimes fatally.
+- **Shtojzovalle** (also *Shtojzorreshtat*) — small, invisible, beautiful woodland
+  fey who **dance under the moonlight** and, by night, **spin the thread of human
+  life** (their name means roughly "may God multiply their dance"); to witness their
+  dance is to be enchanted, sometimes fatally.
 - **Perit** — white‑clad mountain spirits who can **punish** trespassers.
 - **Nëna e Vatrës** — the Mother of the Hearth (see §2).
 - **Mëma e Natës** ("Mother of the Night") — a night‑hag and bringer of darkness
@@ -202,8 +224,8 @@ A common snake that lives long enough **unseen by a human** transforms in stages
   snakes (giving them their venom);
 - after **another fifty** it becomes an **ershaj**, which coils around a victim's
   neck, punctures the chest and eats the heart;
-- ultimately it matures into the **Kulshedra**, sprouting nine tongues, horns and
-  wings.
+- after **a further century** it matures into the **Kulshedra**, sprouting nine
+  tongues, horns and wings.
 
 *(Traditions vary by region: this is the northern step‑by‑step lifecycle; in parts
 of southern Albania **bullar** is simply another name for the bolla, not a later
@@ -334,6 +356,19 @@ emotional summit, and the seam where the heroic epic meets the **funeral‑lamen
 tradition. (The bride **Tanusha**, daughter of the Christian king, drives the
 bride‑raid songs.)
 
+**Two songs in detail.**
+- *Marriage of Halili* — goaded for leaving his brother unwed, Mujo sends Halil to
+  carry off **Tanusha**, daughter of the Krajl of Kotor. Guarded on the road by sun,
+  moon and the Zana, Halil reaches the Danube, **disguises himself among Tanusha's
+  three hundred maidens**, is discovered and seized — and Mujo storms in to free him.
+  Unusually for the cycle, the cross‑line love‑match **ends happily**, not in blood.
+- *The Death of Omer* & *Ajkuna Mourns Omer* — Mujo's son **Omer**, barely thirteen,
+  is cornered in a churchyard and fights to the death; Mujo buries him under a
+  mountain fir beneath a **stone thirty men could not lift**, and hides the death
+  from his mother. In the companion lament, **Ajkuna's** grief for Omer swells into a
+  cry for **all mothers who lose sons to war**, with nature keening back — the
+  cycle's most beloved passage.
+
 ### Laments — vajtim and gjëmë
 Albanian mourning is itself a sung art that carries legend:
 - **Vajtim** — women's sung lament, praising the dead "in verse, with a
@@ -450,6 +485,11 @@ scars of old myths:
 - **Bridges beyond Rozafa.** Most Albanian **immurement** songs are about *bridges*,
   not the castle — chiefly **Ura e Fshajt** near Gjakova and the bridges of **Nartë**
   — the same "the wall won't stand without a life in it" sacrifice.
+- **The mountains and their Zana.** Each great peak has its own guardian fairy:
+  **Mount Pashtrik** (Has) is home to the **Zana e Pashtrikut** and a syncretic
+  August pilgrimage tied to **Sarı Saltık**; in Fishta's epic *Lahuta e Malcís* the
+  **Zana of the Sharr Mountains** watches over the highland chiefs. The fairy‑of‑the‑
+  peak is a Paleo‑Balkan survival, descended from the Illyrian nymph **Thana**.
 
 ### The Arbëresh (Italo‑Albanian) tradition
 The diaspora that fled to Italy after the Ottoman conquest kept its own old songs:
@@ -459,6 +499,15 @@ The diaspora that fled to Italy after the Ottoman conquest kept its own old song
 - **Konstandini i Vogëlith** ("Little Constantine") — the Arbëresh **"returning
   husband"** hero (Çabej compared him to **Odysseus**), sung and danced at every
   wedding. *(Distinct from Constantine & Doruntine above.)*
+- **De Rada's *Rapsodie*** (1866) — the foundational printed corpus of Arbëresh
+  oral epic, **72 songs in three cycles**: Albanians in freedom, Albanians at war
+  with the Turk, and Albanians defeated and in exile. Demetrio **Camarda** gathered
+  a parallel songbook from Sicily and Calabria.
+- **The *vallje* of Skanderbeg** — every **Easter Tuesday**, Arbëresh towns dance a
+  winding, arm‑linked chain through the streets in full costume, **singing
+  Skanderbeg's victories** — a living memorial, not a reenactment. (It was a
+  Sicilian Arbëresh, Giuseppe Schirò, who recorded the sun‑and‑moon‑twins tale that
+  became *The Twins*.)
 
 ### Sons of the Eagle — the national legend
 Why Albanians call themselves *shqiptarë* and their land *Shqipëria*:
@@ -718,6 +767,27 @@ from the original German; an older, often stranger set than Elsie's:
 > the serpent‑ and dove‑bridegroom (cf. Elsie's #13). A non‑von‑Hahn cousin, **The
 > Gardener's Daughter**, is a comic courtship of riddles and pranks ending in marriage.
 
+### Ten more from Dozon (1881)
+**Auguste Dozon's *Contes albanais*** has 24 tales; about half feed straight into
+Elsie. These ten, read from the French, are the ones that **don't** overlap:
+
+| # | Title | Verified note |
+|---|---|---|
+| 4 | The Louse (*Le pou*) | a princess is promised to whoever can name a giant **louse**; the **Devil** guesses and carries her underground; **seven brothers, each with a magic skill**, rescue her (ATU 653) |
+| 8 | The Gold Buckle (*La boucle d'or*) | a prophetic bird; a jealous servant drowns the true bride in a well and takes her place; the king finally recognises and restores her (ATU 533) |
+| 11 | The Wondrous Chest (*Le coffre merveilleux*) | a cheap chest hides a **genie** who serves the buyer and brings him the king's daughter by night; the genie forges a firman and wins her hand (ATU 561, "Aladdin") |
+| 12 | The Lubia and the Earthly Beauty | a false servant forces the true heir to swap identities and sends him on deadly quests — past the **Lubia** ogress, then to win **E Bukura e Dheut** — before being torn apart by bent trees |
+| 16 | The Devils Outwitted (*Les diables dupés*) | a boy out‑learns the devils' sorcery, turns himself into a **horse** to be sold ("never hand over the halter!"), and wins a **transformation‑chase**, devouring his old teachers (ATU 325) |
+| 17 | The Lion with the Gold Coins | a grateful lion gives a poor man a gold coin a day, until the man's **greedy son** wounds its tail and is torn to pieces — a fable on greed and ingratitude |
+| 18 | The Fisherman (*Le pêcheur*) | a netted **leaf outweighs a heap of gold** on the scales until a monk smears it with earth: the greedy eye is filled by nothing but the grave (a wisdom‑riddle) |
+| 19 | The Ungrateful Son | a son casts out his old father, but his own small boy keeps **half a blanket "for you, father, when you are old,"** shaming him into repentance (ATU 980B) |
+| 20 | The Violin Player | a spurned cradle‑betrothed fiddler reclaims his bride with a wedding **riddle** — who owns a slain deer, the killer or the finder? |
+| 21–22 | Mosko and Tosko / The Two Thieves | two **master‑thief** contests — rival rogues prove their cunning by daring robberies of a pasha's palace (ATU 1525) |
+
+Dozon's appendix also preserves **Constantine the Travelling Dead** (a version of
+the *besa*‑beyond‑death ballad) and **The Fox's Bridge at Dibra**, a trickster‑fox
+place legend.
+
 ### A second canon — Post Wheeler's *Albanian Wonder Tales* (1936)
 The other major English collection (10 retold tales, drawn by Wheeler from Dozon,
 von Hahn, Lambertz, Pedersen and Mitko, and from versions gathered by schoolgirls
@@ -936,7 +1006,10 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 - Robert Elsie, *A Dictionary of Albanian Religion, Mythology and Folk Culture*
 - Post Wheeler, *Albanian Wonder Tales* (1936) — [full text on the Internet Archive](https://archive.org/details/in.ernet.dli.2015.89271)
 - Johann Georg von Hahn, *Griechische und albanesische Märchen* (1864; Albanian tales = Nos. 95–114) — [German full text on the Internet Archive](https://archive.org/stream/GriechischeUndAlbanesischeMarchenJohannGeorgVonHahn/GriechischeUndAlbanesischeMarchen-JohannGeorgVonHahn_djvu.txt)
-- Earlier collections: Dozon (1881), Mitko's *Bleta shqiptare* (1878), Lambertz (1922), Dine's *Valët e Detit* (1908)
+- Auguste Dozon, *Contes albanais* (1881) — [French full text on the Internet Archive](https://archive.org/details/contesalbanais00unse_0)
+- Maximilian Lambertz, *Albanische Märchen* (1922) — [German full text on the Internet Archive](https://archive.org/details/albanischemarchenlambertz); and his anthology *Die Schöne der Erde* (33 tales + 15 legends)
+- Mitrush Kuteli, *Tregime të moçme shqiptare* (1965) — the standard modern retelling of the legend/epic cycle
+- Other early collections: Mitko's *Bleta shqiptare* (1878), Pedersen (1895), Dine's *Valët e Detit* (1908); De Rada's & Camarda's Arbëresh song corpora (1866)
 - Underlying authorities to cite for the mythology: **Mark Tirta**, *Mitologjia ndër shqiptarë*; **Albert Doja**; **Edith Durham**, *High Albania*
 - *Albanian Literature: Folktales* — [albanianliterature.net/folktales](http://www.albanianliterature.net/folktales/)
 
