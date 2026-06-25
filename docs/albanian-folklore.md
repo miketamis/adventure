@@ -9,6 +9,12 @@ Sources are linked inline and collected at the end.
 > every ending are rooted in real tradition. This document is the canon the
 > content is built from — use it when writing new nodes so the lore stays true.
 
+**Contents:** [1. Roots & sources](#1-roots-and-sources) · [2. Cosmology & deities](#2-cosmology-and-the-deities) · [3. Drangue vs Kulshedra](#3-the-eternal-duel--drangue-vs-kulshedra) · [4. Guardian & fairy beings](#4-guardian-and-fairy-beings) · [5. Monsters & demons](#5-monsters-and-demons) · [6. The three Beauties](#6-the-three-beauties) · [7. The heroic epic](#7-the-heroic-epic--kângë-kreshnikësh) · [8. The great legends](#8-the-great-legends) · [9. The folktales](#9-the-folktales) · [10. Worldview: besa & Kanun](#10-the-worldview--besa-hospitality-the-kanun) · [11. Calendar & fire rituals](#11-the-calendar-and-the-fire-rituals) · [12. The spoken arts](#12-the-spoken-arts--proverbs-riddles-fables) · [13. How the game uses the lore](#13-how-aventura-shqip-uses-the-lore) · [14. Sources](#14-sources--further-reading)
+
+> **Folktale canons catalogued here** (all read from the source texts): Elsie's 32,
+> von Hahn's 20 (Nos. 95–114), Dozon's 10, Pedersen's 8, Wheeler's 10, plus
+> Lambertz's highland belief‑legends — see §9.
+
 ---
 
 ## 1. Roots and sources
@@ -291,7 +297,8 @@ The Albanians worshipped a **tripartite division of the world** — sky, sea and
 underworld — in the same functions as the Greek Zeus, Poseidon and Hades. Their
 deities survive in folktale as **the three Beauties**:
 
-- **i Bukuri i Qiellit** — "the Beauty of the **Sky**" (the heavens).
+- **i Bukuri i Qiellit** — the **(male)** Beauty of the **Sky**, the heavens (the
+  masculine article *i* is telling — he was later merged with the one God).
 - **e Bukura e Detit** — "the Beauty of the **Sea**" (the waters); she can carry
   a fallen hero up from the deep.
 - **e Bukura e Dheut** — "the Beauty of the **Earth**," the most important in
@@ -391,9 +398,28 @@ his **warhorse's neigh terrified the enemy**; and after his death (Lezhë, 1468)
 Ottomans were said to have **made amulets of his bones**, believing they bestowed
 courage (a legend — no remains were ever found).
 
+### The Highland Lute — Fishta's *Lahuta e Malcís*
+The great **literary** epic of the Albanians: the Franciscan **Gjergj Fishta**
+(1871–1940) built it over thirty years (completed 1937) into **30 cantos /
+~15,600 lines** of Gheg verse — but rooted it in the oral *lahutë* tradition and
+peopled it with the same supernatural cast. It mythologises the **northern
+highlanders' resistance** to Slav/Montenegrin expansion around the **1878 League of
+Prizren**, on to independence (1912).
+- **Oso Kuka**, the opening hero, besieged on the island fort of **Vranina** in
+  Lake Shkodra, **blows himself and the attackers sky‑high with the powder
+  magazine** rather than surrender.
+- **Tringa**, a highland maiden, shoots the Slav warrior who comes for her dying
+  brother and is killed — whereupon the **Great Zana of Mount Vizitor**, enraged,
+  buries her beneath a linden and calls the men to vengeance.
+- Crucially the **Zana, Ora and Kuçedra act as characters**: whole cantos ("The
+  Kulshedra," "The Zana of Mount Vizitor") stage the ancient **drangue‑vs‑kulshedra**
+  dualism as an allegory of the Albanian–Slav struggle, light against dark.
+
 Sources: [Kângë Kreshnikësh](https://en.wikipedia.org/wiki/Albanian_Songs_of_the_Frontier_Warriors) ·
 [Vajtim and Gjëmë](https://en.wikipedia.org/wiki/Vajtim_and_Gj%C3%ABm%C3%AB) ·
-[Skanderbeg](https://en.wikipedia.org/wiki/Skanderbeg)
+[Skanderbeg](https://en.wikipedia.org/wiki/Skanderbeg) ·
+[The Highland Lute](https://en.wikipedia.org/wiki/The_Highland_Lute) ·
+[Oso Kuka](https://en.wikipedia.org/wiki/Oso_Kuka)
 
 ---
 
@@ -476,9 +502,10 @@ scars of old myths:
   is destroyed when an old man feeds it a **burning straw‑laden donkey**; writhing,
   the monster's huge **eye falls and gushes water** — the deep‑blue spring near
   Saranda that "still cries" today.
-- **Bjeshkët e Nemuna (the Accursed Mountains).** A fleeing **mother**, finding no
-  water for her thirsting children on a scorching crossing, **curses the range** to
-  be forever waterless — the name's origin.
+- **Bjeshkët e Nemuna (the Accursed Mountains).** In one telling a fleeing
+  **mother**, finding no water for her thirsting children on a scorching crossing,
+  **curses the range** to be forever waterless; other traditions credit the devil or
+  Slavic soldiers (the Slavic name is *Prokletije*). The true origin is unsettled.
 - **Lake Ohrid.** Where the lake now lies were fields fed by a **well that had to be
   re‑covered** after each use; a girl, distracted by a boy, **forgot the slab**, and
   the overflowing water **drowned the town** to form the lake.
@@ -490,6 +517,12 @@ scars of old myths:
   August pilgrimage tied to **Sarı Saltık**; in Fishta's epic *Lahuta e Malcís* the
   **Zana of the Sharr Mountains** watches over the highland chiefs. The fairy‑of‑the‑
   peak is a Paleo‑Balkan survival, descended from the Illyrian nymph **Thana**.
+- **Stone weddings (krushqit e ngrirë).** When two bridal processions refuse each
+  other the road, a curse — *"O ju krushqi, gur u bafshi!"* ("Wedding‑guests, may
+  you turn to stone!") — petrifies them all. Rock formations like **Guri i Nuses**
+  ("the Bride's Stone") are explained this way: a bride about to be dishonoured cries
+  *"Hapu, o gur!"* ("Open, o stone!") and is swallowed. (A **Zana**'s glance can
+  petrify, too — the mythic mechanism behind these tales.)
 
 ### The Arbëresh (Italo‑Albanian) tradition
 The diaspora that fled to Italy after the Ottoman conquest kept its own old songs:
@@ -767,6 +800,23 @@ from the original German; an older, often stranger set than Elsie's:
 > the serpent‑ and dove‑bridegroom (cf. Elsie's #13). A non‑von‑Hahn cousin, **The
 > Gardener's Daughter**, is a comic courtship of riddles and pranks ending in marriage.
 
+### Little myths of how things came to be
+Beyond von Hahn's cuckoo and wolf, Albanian lore is full of tiny **etiological**
+tales:
+- **The bee, the cicada and the spider.** A dying mother's three daughters: the vain
+  **spider** is cursed to weave a web she can never finish; the frivolous **cicada**
+  to sing and die parched on a stem; the dutiful **bee** is blessed — "you shall be
+  the **light of the ancestors and the food of the living**." So honey feeds the
+  living and beeswax lights the dead — and one must never blaspheme in a house with
+  a hive.
+- **The swallow (dallëndyshja).** When a serpent threatens to sink a ship unless it
+  learns whose blood is sweetest, the swallow **bites out the prying mosquito's
+  tongue** so the answer (man's) is never told — and ever after nests "at the head
+  of man," under his roof, protected.
+- **Why the dog and the cat are enemies.** Sent together to recover a stolen magic
+  ring, the **cat** races ahead and takes all the credit — winning the warm cushion
+  by the fire while the soaked **dog** is sent out into the yard.
+
 ### Ten more from Dozon (1881)
 **Auguste Dozon's *Contes albanais*** has 24 tales; about half feed straight into
 Elsie. These ten, read from the French, are the ones that **don't** overlap:
@@ -787,6 +837,21 @@ Elsie. These ten, read from the French, are the ones that **don't** overlap:
 Dozon's appendix also preserves **Constantine the Travelling Dead** (a version of
 the *besa*‑beyond‑death ballad) and **The Fox's Bridge at Dibra**, a trickster‑fox
 place legend.
+
+### Eight more from Pedersen (1895)
+**Holger Pedersen** collected these from **Çam Albanians near Corfu** in 1893 (read
+from his German translation); none overlap Elsie:
+
+| Title | Verified note |
+|---|---|
+| The Weaver | a weaver engraves "slew 99 heroes and a captain at one blow" (really flies), routs forty robbers, and bumbles through impossible royal tasks to win the princess — all by luck (ATU 1640, the Brave Tailor) |
+| He Who Does Good Gets Evil as Reward | a man saves a **snake** from a burning tree; it then claims the right to eat him, and a clever **fox** rescues him by luring it back up — only to be betrayed in turn (ATU 155, the ungrateful serpent) |
+| The Three Beardless Men and the Peasant | cheated by three beardless swindlers, a peasant repays them with a con‑chain — a "gold‑dropping" donkey, a "resurrecting" knife — that ruins them and drowns them chasing imaginary sheep (ATU 1535, Unibos) |
+| Marie Cinderella | the abused stepdaughter, helped by mill‑elves and a sorceress aunt, is known by a slipper; later turned into a bird by an enchanted needle and restored by the prince (ATU 510A, Cinderella) |
+| You Will Meet Your Fortune on Your Way | a poor man sets off to ask God about his fortune, carries three strangers' questions, **refuses every riches offered** — and the hungry wolf eats him: the fate he chose (ATU 461, ironic) |
+| The Guitar Player | a poor orphan becomes the world's finest player and weds a princess sight unseen; sold into slavery, he finds buried gold and ships it home **hidden under salt** to reunite with her |
+| Letter to the World of the Dead | a youth frees **E Bukura e Dheut** from a demon; a vizier's impossible demands (a gem palace, a letter to the dead king) are all met by her magic, and the vizier dies in his own trap |
+| Women's Cunning | a man who will not marry until he has recorded "all the wiles of women" is undone by a single queen's trick, burns his notes, and marries like everyone else (ATU 1426) |
 
 ### A second canon — Post Wheeler's *Albanian Wonder Tales* (1936)
 The other major English collection (10 retold tales, drawn by Wheeler from Dozon,
@@ -894,9 +959,17 @@ Sun and the renewal of the Earth, almost always with **ritual fire**.
   cookie), wearing the red‑and‑white **"Verore"** wool bracelet, and **bonfires
   on high places** that families **jump over** to be cleansed for the new year.
   A UNESCO‑listed intangible heritage.
-- **Shëngjergji ("Saint George," ~23 April / 6 May)** — spring/summer renewal;
-  the day the **Bolla opens its eyes**.
-- **Shën Gjini–Shën Gjoni** — midsummer (summer solstice) fires.
+- **Shëngjergji ("Saint George," ~23 April / 6 May)** — spring/summer renewal,
+  the day the **Bolla opens its eyes**. At dawn people gather **dew, water and green
+  branches** and hang **greenery and blue flowers** on the doors, for health and the
+  flocks.
+- **Shën Gjini–Shën Gjoni ("Saint John")** — the **midsummer (solstice) fires**,
+  lit before sunrise on high places "to give strength to the Sun."
+- **Shën Kolli ("Saint Nicholas," 6 Dec)** — the most venerated saint of the north
+  after the Virgin; the tribes **swear by him**. The household slaughters a pig,
+  lights a **candle and leaves the door open** so the saint and the **departed** may
+  join the midnight feast — the longer the candle burns, the greater the year's
+  luck — and the day is used to **make peace in blood‑feuds**.
 - **Nata e Buzmit ("Yule Log's Night," 22 Dec – 6 Jan)** — the **winter
   solstice** log‑burning, the rebirth of the Sun. The **buzmi** log is burned on the
   hearth with **samples of the year's harvest** (corn, beans), **wine and rakia
@@ -968,11 +1041,37 @@ bear into terror and boils it in a cauldron of milk. The **fox (dhelpra)** survi
 mainly as the idiom for a sly trickster, and the **hedgehog (iriqi)** as the
 slow‑but‑shrewd foil.
 
+### Nastradin Hoxha — the trickster sage
+The great comic figure of Albanian (and pan‑Balkan) oral tradition is **Nastradin
+Hoxha** — the Albanian **Nasreddin Hodja**, hero of the *anekdota* (anecdote) genre,
+naturalised over the Ottoman centuries. He is the wise‑fool whose absurd logic
+turns out to skewer the powerful and the pompous. A few of the anecdotes told in
+Albanian collections:
+- **The cauldron that gave birth — and died.** He returns a borrowed cauldron with
+  a small pot inside ("it gave birth"); next time he keeps it and reports "the
+  cauldron died" — if it can give birth, it can die.
+- **The quilt and the quarrel.** Rolled in his cloak and thrown downstairs in a
+  marital row, he tells the neighbour the noise was "just my cloak falling" — "well,
+  because I was *inside* it."
+- **The donkey ridden backwards** — "it isn't my fault; the donkey turned the wrong
+  way round."
+- **The sermon dodge.** Asked from the pulpit whether the congregation knows what
+  he'll say, he answers "yes/no" both ways to get out of preaching.
+
+The other native trickster is the **qose** ("the barefaced/beardless man") — the
+sly deceiver of *The Barefaced Man and the Pasha's Brother* (Elsie #17) — alongside
+a broad cycle of **budalla** (lucky‑fool) tales where the simpleton blunders into
+fortune. *(The "eat, my coat, eat", moon‑in‑the‑well, and key‑under‑the‑lamplight
+anecdotes circulate in Albania too, but as part of the shared Nasreddin corpus
+rather than from a specific Albanian collection.)*
+
 *Quoted forms follow Wikiquote, Elsie, and Albanian paremiology; a few colloquial
 blessing/curse formulas are idiomatically standard but lightly attested in print.*
 
 Sources: [Albanian proverbs (Wikiquote)](https://en.wikiquote.org/wiki/Albanian_proverbs) ·
-[Optative mood](https://en.wikipedia.org/wiki/Optative_mood)
+[Optative mood](https://en.wikipedia.org/wiki/Optative_mood) ·
+[Nasreddin](https://en.wikipedia.org/wiki/Nasreddin) ·
+[Albanian folklore](https://en.wikipedia.org/wiki/Albanian_folklore)
 
 ---
 
@@ -1009,7 +1108,9 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 - Auguste Dozon, *Contes albanais* (1881) — [French full text on the Internet Archive](https://archive.org/details/contesalbanais00unse_0)
 - Maximilian Lambertz, *Albanische Märchen* (1922) — [German full text on the Internet Archive](https://archive.org/details/albanischemarchenlambertz); and his anthology *Die Schöne der Erde* (33 tales + 15 legends)
 - Mitrush Kuteli, *Tregime të moçme shqiptare* (1965) — the standard modern retelling of the legend/epic cycle
-- Other early collections: Mitko's *Bleta shqiptare* (1878), Pedersen (1895), Dine's *Valët e Detit* (1908); De Rada's & Camarda's Arbëresh song corpora (1866)
+- Holger Pedersen, *Albanesische Texte* (1895) — German translation *Zur albanesischen Volkskunde* (1898), [full text on e‑rara](https://www.e-rara.ch/download/fulltext/plain/10179198)
+- Other early collections: Mitko's *Bleta shqiptare* (1878), Dine's *Valët e Detit* (1908); De Rada's & Camarda's Arbëresh song corpora (1866)
+- Literary epics rooted in the oral tradition: **Gjergj Fishta**, *Lahuta e Malcís* (1937); **Naim Frashëri**, *Histori e Skënderbeut* (1898)
 - Underlying authorities to cite for the mythology: **Mark Tirta**, *Mitologjia ndër shqiptarë*; **Albert Doja**; **Edith Durham**, *High Albania*
 - *Albanian Literature: Folktales* — [albanianliterature.net/folktales](http://www.albanianliterature.net/folktales/)
 
