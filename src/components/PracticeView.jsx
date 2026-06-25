@@ -5,7 +5,17 @@ import { canChoose } from '../game/gameState.js'
 // the answer rendered in Albanian (every word is discovered when affordable)
 const albanianPhrase = (tokens) => tokens.map((t) => (t.id ? t.al : t.en)).join(' ')
 
-const sample = (arr) => arr[Math.floor(Math.random() * arr.length)]
+// pick an id, weighted so words you already hold more tokens of come up less often
+const weightedPick = (ids, mana) => {
+  const weights = ids.map((id) => 1 / ((mana[id] || 0) + 1))
+  const total = weights.reduce((a, b) => a + b, 0)
+  let r = Math.random() * total
+  for (let i = 0; i < ids.length; i++) {
+    r -= weights[i]
+    if (r <= 0) return ids[i]
+  }
+  return ids[ids.length - 1]
+}
 const shuffle = (arr) => {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -16,8 +26,9 @@ const shuffle = (arr) => {
 }
 
 // Build a multiple-choice question from the discovered senses.
-function buildQuestion(discoveredIds) {
-  const answerId = sample(discoveredIds)
+// The quizzed word is weighted by `mana`: more tokens -> less likely to appear.
+function buildQuestion(discoveredIds, mana) {
+  const answerId = weightedPick(discoveredIds, mana)
   const dir = Math.random() < 0.5 ? 'al2en' : 'en2al' // prompt side
   const field = dir === 'al2en' ? 'en' : 'al' // the option text we show
   const promptField = dir === 'al2en' ? 'al' : 'en'
@@ -56,9 +67,9 @@ export default function PracticeView({ state, dispatch }) {
       return
     }
     setPicked(null)
-    setQ(buildQuestion(discoveredIds))
+    setQ(buildQuestion(discoveredIds, state.mana))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [discoveredIds.length])
+  }, [discoveredIds.length, state.mana])
 
   useEffect(() => {
     if (!q && discoveredIds.length > 0) next()
