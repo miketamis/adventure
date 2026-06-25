@@ -299,7 +299,7 @@ export const STORY = {
       L(w('ti'), w('sheh'), w('nje'), w('lume'), w('te_link'), w('madh'), p('.')),
     ],
     options: [
-      { text: L(w('ec'), w('ne'), w('lume')), to: 'ura' },
+      { text: L(w('ec'), w('ne'), w('lume')), to: 'udhaThate' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
   },
@@ -936,7 +936,7 @@ export const STORY = {
       L(wf('lume', 'lumi', 'the river'), w('poshte'), w('eshte'), w('i_art'), w('thate'), p('.')),
     ],
     options: [
-      { text: L(w('kalo'), wf('ure', 'urën', 'the bridge')), to: 'lumi' },
+      { text: L(w('kalo'), wf('ure', 'urën', 'the bridge')), to: 'uraFshaj' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -1563,6 +1563,50 @@ export const STORY = {
       { text: L(w('ngjit'), w('lart')), to: 'kthimi' },
     ],
   },
+
+  // =========================================================================
+  // ACT II (deepened) — the parched land, the Blue Eye, the immured bridge
+  // The dead riverbed; the deep blue spring that was a slain serpent's eye
+  // (Syri i Kaltër); the bridge that holds because a life was sealed in it.
+  // =========================================================================
+  udhaThate: {
+    id: 'udhaThate',
+    text: [
+      L(wf('toke', 'toka', 'the ground'), w('eshte'), w('i_art'), w('thate'), p('.')),
+      L(w('nje'), w('lume'), w('eshte'), w('i_art'), w('thate'), p('.')),
+      L(w('ti'), w('dhe'), wf('ujk', 'ujku', 'the wolf'), w('ec'), w('larg'), p('.')),
+    ],
+    options: [
+      { text: L(w('ec'), w('larg')), to: 'udhaSyri' },
+      { text: L(w('fle'), w('ketu')), to: 'gjumi' },
+    ],
+  },
+
+  udhaSyri: {
+    id: 'udhaSyri',
+    text: [
+      L(w('nje'), w('gjarper'), w('vdes'), w('ketu'), p('.')),
+      L(wf('sy', 'syri', 'the eye'), w('te_link'), wf('gjarper', 'gjarprit', 'of the serpent'), w('behet'), w('uje'), p('.')),
+      L(w('ti'), w('sheh'), w('uje'), w('te_link'), w('bukur'), p('.')),
+    ],
+    options: [
+      { text: L(w('pi'), w('uje')), to: 'ura' },
+      { text: L(w('ik'), w('shpejt')), to: 'ura' },
+    ],
+  },
+
+  uraFshaj: {
+    id: 'uraFshaj',
+    text: [
+      L(wf('ure', 'ura', 'the bridge'), w('ka'), w('nje'), w('hije'), p('.')),
+      L(w('nje'), w('nene'), w('eshte'), w('ne'), w('mur'), p('.')),
+      L(w('ti'), w('kalo'), wf('ure', 'urën', 'the bridge'), p('.')),
+    ],
+    options: [
+      { text: L(w('kalo'), wf('ure', 'urën', 'the bridge')), to: 'lumi' },
+      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1671,6 +1715,9 @@ const CONFUSERS = {
   kulshLufte2: L(w('thirr'), eagleAcc()), //      call the eagle — none here
   springReturn: L(w('thirr'), eagleAcc()), //     call the eagle — none here
   bukuraKthim: L(w('kalo'), bridgeAcc()), //      cross a bridge — none here
+  udhaThate: L(w('thirr'), eagleAcc()), //        call the eagle — none here
+  udhaSyri: L(w('ngjit'), w('mal')), //           climb a mountain — none here
+  uraFshaj: L(w('thirr'), eagleAcc()), //         call the eagle — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1756,6 +1803,9 @@ const CONFUSERS2 = {
   kulshLufte2: L(w('pi'), wf('koke', 'kokën', 'the head')), // drink the head
   springReturn: L(w('lufto'), wf('uje', 'ujin', 'the water')), // fight the water
   bukuraKthim: L(w('pi'), beautyAcc()), //          drink the Beauty
+  udhaThate: L(w('pi'), wf('toke', 'tokën', 'the ground')), // drink the ground
+  udhaSyri: L(w('pi'), serpentAcc()), //            drink the serpent
+  uraFshaj: L(w('pi'), bridgeAcc()), //             drink the bridge
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
