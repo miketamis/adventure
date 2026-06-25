@@ -55,19 +55,32 @@ Sources: [Albanian paganism (Wikipedia)](https://en.wikipedia.org/wiki/Albanian_
 | **Dielli** | the Sun | Male solar deity; the central object of veneration, sworn by in oaths, honoured in tattooing. The "all‑seeing eye." |
 | **Hëna** | the Moon | Female counterpart to the Sun; Sun + Moon form a celestial pair that dominates traditional Albanian body‑marking (tattoos). |
 | **Enji / En** | fire (and thunder) | Old fire‑god; preserved in **e enjte**, the Albanian word for **Thursday**, his dedicated day. |
-| **Prende** | love, beauty, dawn | "Zoja e Bukurisë," Lady of Beauty; remembered as daughter of the sky‑father. Often identified with **E Bukura e Dheut** as a Persephone‑like figure of love, fertility and the underworld‑spring cycle. |
+| **i Verbti** | fire, wind, thunderstorm | "The Blind One" (also **Shën Verbti**, "the holy blind one," or **Rmoria**); in Zadrima a fire‑and‑wind god who fans flame and moves water, in the northern Alps a thunderstorm god who lives in and rides the storm clouds. A moral god who **punishes uncleanliness and foul speech**; Christianity demonised him (it was said that to invoke him would **blind you with fire**), yet folk belief held him **more powerful than the Christian God**. |
+| **Shurdhi** | storm, hail, thunder | A weather‑and‑storm god of the north who **hurls thunder and lightning and brings hailstorms**, travelling on storm clouds; people drove him off with **noise and gunfire**. Closely parallel to i Verbti. |
+| **Prende** | love, beauty, dawn | "Zoja e Bukurisë," Lady of Beauty; remembered as daughter of the sky‑father. Often identified with **E Bukura e Dheut** as a Persephone‑like figure of love, fertility and the underworld‑spring cycle. (Her day, **e premte**, is Friday.) |
 | **Baba Tomor** | mountain sky‑father | The deified **Mount Tomorr** in central Albania; an old man / father‑god figure, consort of **E Bukura e Dheut**, attended by eagles and storms. |
 | **Perëndi** | sky / "God" | A sky/weather deity; the modern Albanian word for "God." |
 | **Nëna e Vatrës** | Mother of the Hearth | Household guardian goddess, pictured as an old woman spinning or combing grey hair by the fire; sometimes linked to three **mira** (fates) who fix a child's destiny three days after birth. |
 
 The Albanians (like the Greeks) seem to have divided the world into **sky, sea,
 and underworld** — and the deities of those three realms survive as **the three
-Beauties** (see §7).
+Beauties** (see §7). One surviving myth from the **Shala** region preserves the
+old pattern directly: the **highest god strikes down the sea‑storm god *Talas*
+with thunderbolts** — the sky‑father subduing the chaos‑sea.
+
+> **A caveat on the pantheon.** No Albanian wrote these gods down in antiquity.
+> The pantheon above is **reconstructed** by scholars (Lambertz, Çabej, Tirta,
+> Mann, and others) from scattered folk fragments — weekday names, oaths, place
+> names, ritual, and surviving tales. Names, domains and identifications (e.g.
+> Prende ≈ E Bukura e Dheut) are *interpretations*, and regional belief varied
+> widely. Treat them as the best scholarly synthesis, not a fixed canon.
 
 Sources: [Zojz](https://en.wikipedia.org/wiki/Zojz_(deity)) ·
 [Dielli](https://en.wikipedia.org/wiki/Dielli_(Albanian_paganism)) ·
 [Hëna](https://en.wikipedia.org/wiki/H%C3%ABna_(Albanian_paganism)) ·
-[Enji](https://en.wikipedia.org/wiki/En_(deity))
+[Enji](https://en.wikipedia.org/wiki/En_(deity)) ·
+[i Verbti](https://en.wikipedia.org/wiki/Verbt) ·
+[Shurdh](https://en.wikipedia.org/wiki/Shurdh)
 
 ---
 
@@ -155,14 +168,17 @@ A common snake that lives long enough **unseen by a human** transforms in stages
 - a snake unseen for years becomes a **Bolla** — a serpentine dragon that
   **sleeps with its eyes shut all year and opens them only on St George's Day
   (Shëngjergj)**; anyone it sees is devoured. **Saint George cursed it** to be
-  forever blind except on his feast day. (*Bullar* is the Southern‑Albanian
-  synonym.)
+  forever blind except on his feast day.
 - after **fifty years unseen** it becomes a **bullar**, which feeds milk to
   snakes (giving them their venom);
 - after **another fifty** it becomes an **ershaj**, which coils around a victim's
   neck, punctures the chest and eats the heart;
 - ultimately it matures into the **Kulshedra**, sprouting nine tongues, horns and
   wings.
+
+*(Traditions vary by region: this is the northern step‑by‑step lifecycle; in parts
+of southern Albania **bullar** is simply another name for the bolla, not a later
+stage.)*
 
 ### Drought‑monsters and guardians
 - **Ljubi (Lubia)** — a **water‑and‑storm she‑demon**, a multi‑headed serpent
@@ -186,6 +202,8 @@ A common snake that lives long enough **unseen by a human** transforms in stages
 - **Lugat (Liogat)** — a **vampire/revenant** that abides in **shadows and
   sunless places — wells, ruins, caves**; it can **fly and ride the winds** and
   attacks sleepers. A *kukudh* is sometimes its hardened, undying form.
+- **Dhampir** — the **offspring of a lugat and a human**; uniquely able to **see
+  and destroy the undead**, and so hired as a vampire‑hunter.
 - **Kukudh** — a **plague‑demon** of disease, death and miserliness; sometimes
   the restless cursed form of a wicked person who **could not die properly**.
 - **Karkanxholl** — a **goblin** with magic powers, wearing a **chain‑mail
@@ -193,6 +211,15 @@ A common snake that lives long enough **unseen by a human** transforms in stages
 - **Xhindi** (from Arabic *jinn*, absorbed in the Ottoman centuries) — invisible
   spirits that **haunt thresholds, water and lonely places**, easily offended,
   able to help or harm.
+
+### Giants and ogres
+- **Katallani** — a one‑eyed **giant/cyclops** of the heroic tales, a brute who
+  blocks the hero's path (the Albanian counterpart of Homer's Cyclops).
+- **Div / Dif** (from Persian *div*) — a man‑eating **ogre‑demon** of the
+  wonder‑tales; the hero must outwit or slay it (e.g. Wheeler's *The Boy Who
+  Killed the Dif*).
+- **Gogol** — a shapeless **bogeyman** invoked to frighten children into
+  behaving; an embodiment of the dark.
 
 ### The evil eye (Syri i keq)
 Some people carry the **evil eye**; you avoid their direct gaze. Protection is by
@@ -202,7 +229,8 @@ amulets — the same salt‑and‑fire logic that wards the Shtriga.
 Sources: [Kulshedra](https://en.wikipedia.org/wiki/Kulshedra) ·
 [Shtriga](https://en.wikipedia.org/wiki/Shtriga) ·
 [Lugat](https://en.wikipedia.org/wiki/Lugat) ·
-[Baloz](https://en.wikipedia.org/wiki/Baloz)
+[Baloz](https://en.wikipedia.org/wiki/Baloz) ·
+[Albanian legendary creatures](https://en.wikipedia.org/wiki/Category:Albanian_legendary_creatures)
 
 ---
 
@@ -464,13 +492,34 @@ collection. Folk tales 1–22, legends 23–32.*
 | 31 | Shega and Vllastar | |
 | 32 | Rozafat Castle | the walled‑up wife |
 
-Beyond Elsie, the great early collections are **Johann Georg von Hahn's
-*Griechische und albanesische Märchen*** (1854), **Thimi Mitko's *Bleta
-shqiptare* / "The Albanian Bee"** (1878), **Anastas Kullurioti's "Albanian
-Spelling Book"** (1882), and **Spiro Dine's *Valët e Detit* / "Waves of the Sea"**
-(1908) — plus a vast cycle of **trickster fox (dhelpra)** and animal fables.
+### A second canon — Post Wheeler's *Albanian Wonder Tales* (1936)
+The other major English collection (10 retold tales, drawn by Wheeler from Dozon,
+von Hahn, Lambertz, Pedersen and Mitko, and from versions gathered by schoolgirls
+across Albania at Kavaja). The Albanian word for such a tale is **përrallë**.
+
+| # | Title | Note |
+|---|---|---|
+| 1 | The Man Who Went to Find His Angel | a quest to confront one's own fate/Ora |
+| 2 | The Boy Who Killed the Dif | slaying the **Div/Dif** ogre |
+| 3 | The Man Who Understood the Speech of Animals | the gift (and danger) of animal speech |
+| 4 | The Boy Who Took the Letter to the World Where the Dead Live | a **journey to the underworld** and back |
+| 5 | The Boy Who Was Fated to Be a King | prophecy fulfilled against all efforts to thwart it |
+| 6 | The Boy Who Stole the Nightingale That Was Called Gizari | the magical **nightingale Gizar** (cf. Elsie's "Gjizar the Nightingale") |
+| 7 | The Girl Who Took a Snake for Husband | the **serpent‑bridegroom** (an enchanted prince) |
+| 8 | The Boy Who Played the Bousouka | |
+| 9 | The Princess Who Had the Silver Tooth | |
+| 10 | The Boy Who Was Brother to the Drague | a mortal **sworn brother to a Drangue** |
+
+Beyond Elsie and Wheeler, the foundational collections are **Johann Georg von
+Hahn's *Griechische und albanesische Märchen*** (1854), **Auguste Dozon's *Contes
+albanais*** (1881), **Thimi Mitko's *Bleta shqiptare* / "The Albanian Bee"**
+(1878), **Anastas Kullurioti's "Albanian Spelling Book"** (1882), **Maximilian
+Lambertz's *Albanische Märchen*** (1922), and **Spiro Dine's *Valët e Detit* /
+"Waves of the Sea"** (1908) — plus a vast cycle of **trickster fox (dhelpra)** and
+animal fables.
 
 Sources: [Albanian Folktales and Legends — Robert Elsie](http://books.elsie.de/b073_albanian-folktales-and-legends/) ·
+[Albanian Wonder Tales — Post Wheeler (full text, Internet Archive)](https://archive.org/details/in.ernet.dli.2015.89271) ·
 [The Twins (Albanian tale)](https://en.wikipedia.org/wiki/The_Twins_(Albanian_tale)) ·
 [The Youth and the Maiden with Stars on their Foreheads…](https://en.wikipedia.org/wiki/The_Youth_and_the_Maiden_with_Stars_on_their_Foreheads_and_Crescents_on_their_Breasts) ·
 [Albanian Literature: Folktales](http://www.albanianliterature.net/folktales/)
@@ -548,6 +597,8 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 - Robert Elsie, *Albanian Folktales and Legends* — [books.elsie.de](http://books.elsie.de/b073_albanian-folktales-and-legends/)
 - Robert Elsie & Janice Mathie‑Heck, *Songs of the Frontier Warriors (Kângë Kreshnikësh)*
 - Robert Elsie, *A Dictionary of Albanian Religion, Mythology and Folk Culture*
+- Post Wheeler, *Albanian Wonder Tales* (1936) — [full text on the Internet Archive](https://archive.org/details/in.ernet.dli.2015.89271)
+- Earlier collections: von Hahn (1854), Dozon (1881), Mitko's *Bleta shqiptare* (1878), Lambertz (1922), Dine's *Valët e Detit* (1908)
 - *Albanian Literature: Folktales* — [albanianliterature.net/folktales](http://www.albanianliterature.net/folktales/)
 
 **Encyclopaedic**
@@ -556,7 +607,10 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 - Deities: [Zojz](https://en.wikipedia.org/wiki/Zojz_(deity)) ·
   [Dielli](https://en.wikipedia.org/wiki/Dielli_(Albanian_paganism)) ·
   [Hëna](https://en.wikipedia.org/wiki/H%C3%ABna_(Albanian_paganism)) ·
-  [Enji](https://en.wikipedia.org/wiki/En_(deity))
+  [Enji](https://en.wikipedia.org/wiki/En_(deity)) ·
+  [i Verbti](https://en.wikipedia.org/wiki/Verbt) ·
+  [Shurdh](https://en.wikipedia.org/wiki/Shurdh) ·
+  [Perëndi](https://en.wikipedia.org/wiki/Per%C3%ABndi)
 - Beings: [Drangue](https://en.wikipedia.org/wiki/Drangue) ·
   [Zana](https://en.wikipedia.org/wiki/Zana_(mythology)) ·
   [Ora](https://en.wikipedia.org/wiki/Ora_(mythology)) ·
@@ -564,7 +618,8 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 - Monsters: [Kulshedra](https://en.wikipedia.org/wiki/Kulshedra) ·
   [Shtriga](https://en.wikipedia.org/wiki/Shtriga) ·
   [Lugat](https://en.wikipedia.org/wiki/Lugat) ·
-  [Baloz](https://en.wikipedia.org/wiki/Baloz)
+  [Baloz](https://en.wikipedia.org/wiki/Baloz) ·
+  [Albanian legendary creatures (index)](https://en.wikipedia.org/wiki/Category:Albanian_legendary_creatures)
 - Beauties: [E Bukura e Dheut](https://en.wikipedia.org/wiki/E_Bukura_e_Dheut) ·
   [E Bukura e Detit](https://en.wikipedia.org/wiki/E_Bukura_e_Detit)
 - Legends & tales: [Rozafa Castle](https://en.wikipedia.org/wiki/Rozafa_Castle) ·
