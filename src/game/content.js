@@ -1035,8 +1035,51 @@ export const STORY = {
     ],
     options: [
       { text: L(w('shko'), w('ne'), w('kala')), to: 'kalaBuna' },
+      { text: L(w('ec'), w('larg')), to: 'shqipe1' },
       { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
     ],
+  },
+
+  // =========================================================================
+  // SIDE-QUEST — Sons of the Eagle (the national origin legend)
+  // On the road home you find an eaglet a serpent means to devour. Save it, and
+  // the great eagle grants you the gifts that name your people Shqiptar.
+  // =========================================================================
+  shqipe1: {
+    id: 'shqipe1',
+    text: [
+      L(w('ti'), w('sheh'), w('nje'), w('peme'), w('me'), w('nje'), w('fole'), p('.')),
+      L(w('nje'), w('gjarper'), w('ngjit'), w('ne'), wf('fole', 'folenë', 'the nest'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('do'), w('te_subj'), w('ha'), w('nje'), w('zog'), p('!')),
+    ],
+    options: [
+      { text: L(w('lufto'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'shqipe2' },
+      { text: L(w('ec'), w('larg')), to: 'shtepia' },
+    ],
+  },
+
+  shqipe2: {
+    id: 'shqipe2',
+    text: [
+      L(w('ti'), w('vrit'), wf('gjarper', 'gjarprin', 'the serpent'), w('dhe'), w('shpeto'), wf('zog', 'zogun', 'the chick'), p('.')),
+      L(wf('shqiponje', 'shqiponja', 'the eagle'), w('vjen'), w('dhe'), w('jep'), w('ti'), w('fuqi'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('shqiponje', 'shqiponjën', 'the eagle')), to: 'shqipeFund' },
+    ],
+  },
+
+  shqipeFund: {
+    id: 'shqipeFund',
+    end: 'good',
+    title: 'Son of the Eagle',
+    blurb:
+      'You saved the eaglet from the serpent, as the boy did in the oldest story. The great eagle gave you the sharpness of its eyes and the strength of its wings, and your people named you Shqiptar — Son of the Eagle. The water flows, and a dragua-king watches over the land.',
+    text: [
+      L(wf('shqiponje', 'shqiponja', 'the eagle'), w('jep'), w('ti'), w('sy'), w('dhe'), w('fuqi'), p('.')),
+      L(w('ti'), w('je'), w('nje'), w('dragua'), w('te_link'), w('forte'), p('!')),
+    ],
+    options: [],
   },
 
   // =========================================================================
@@ -1970,6 +2013,8 @@ const CONFUSERS = {
   kalaGji: L(w('thirr'), eagleAcc()), //          call the eagle — none here
   kalaRing: L(w('ngjit'), w('mal')), //           climb a mountain — none here
   kalaMilk: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
+  shqipe1: L(w('zbrit'), w('ne'), w('pus')), //   go down a well — none here
+  shqipe2: L(w('kalo'), bridgeAcc()), //          cross a bridge — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -2075,6 +2120,8 @@ const CONFUSERS2 = {
   kalaGji: L(w('fluturo'), w('lart')), //           fly up — you cannot fly
   kalaRing: L(w('pi'), wf('unaze', 'unazën', 'the ring')), // drink the ring
   kalaMilk: L(w('lufto'), wf('qumesht', 'qumështin', 'the milk')), // fight the milk
+  shqipe1: L(w('pi'), wf('peme', 'pemën', 'the tree')), // drink the tree
+  shqipe2: L(w('pi'), eagleAcc()), //               drink the eagle
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
