@@ -1214,6 +1214,7 @@ export const ITEMS = {
     icon: '🧪',
     name: 'Potion',
     al: 'eliksir',
+    word: 'eliksir',
     blurb: 'Refreshes peak for 3 turns — hover a discovered Albanian word to see its English.',
     use: {
       label: 'Drink',
@@ -1236,7 +1237,12 @@ export const ITEMS = {
   // key items — carried, used by choosing the right path in the story
   buke: {
     id: 'buke', icon: '🍞', name: 'Bread', al: 'bukë',
-    blurb: 'A loaf from the old woman. Hunger walks the forest — bread can buy a friend or a passage.',
+    blurb: 'A loaf from the old woman. Hunger walks the forest — bread can buy a friend or a passage. Eat it yourself to recover all your hearts — but then it is gone.',
+    use: {
+      label: 'Eat',
+      phrase: [w('ha'), w('buke')], // "eat bread"
+      effect: { hearts: 3 }, // restores to full (capped at START_HEARTS)
+    },
   },
   shpate: {
     id: 'shpate', icon: '⚔️', name: 'Sword', al: 'shpatë',

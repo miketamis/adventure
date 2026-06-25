@@ -33,7 +33,7 @@ function baseRun() {
     peak: PEAK_START_TURNS, // story turns of "peak" remaining (hover -> English)
     hearts: START_HEARTS, // wrong training answers cost a heart; 0 = game over
     turn: 1,
-    view: 'story', // 'story' | 'practice' | 'dictionary' | 'inventory' | 'endings'
+    view: 'story', // 'story' | 'practice' | 'dictionary' | 'endings'
     ended: null, // null | 'good' | 'bad' | 'secret'
   }
 }
