@@ -158,11 +158,21 @@ fate‑weaver** assigned for life — a personal *fortuna*.
 - Even horses, springs and **treasures have their own protective Ora** (often in
   serpent form — see the cursed‑gold branch in the game).
 
+> **The fates at the cradle.** In the south these destiny‑fairies are the **Fatí**
+> or **Mira**; in the Gheg north, the **Orë** and **Zana**. **Three nights after a
+> birth** they come to fix the child's fate — one **spins** the thread of life, one
+> **measures** it, one **cuts** it (exactly the Greek Moirai). To welcome them,
+> families **tie up the dogs, leave the door ajar, and set out a bowl of honey with
+> three almonds and three slices of bread**, so the fates bless rather than curse
+> the child.
+
 ### Vitore — the household serpent
 A **household divine serpent** tied to destiny, fortune and the souls of the
 ancestors. When the **Vitorja** dwells in the walls of a house it brings **good
 luck**; the family treats it with great respect, and its **hissing announces
-important events**. To kill it is to court ruin.
+important events**. To kill it is to court ruin. The name itself is read as "she who
+**spins**" (from *vegj*, the loom) — tying the house‑serpent to the same
+**weaving of fate** as the Fatí.
 
 ### Other spirits
 - **Shtojzovalle** (sylphs) — ethereal beings who **dance under the moonlight**;
@@ -297,17 +307,32 @@ their world is thick with **Zana** and **Ora**.
 > the Zanas grant it (the same superhuman strength otherwise found only in a
 > Drangue). The Zanas become his sworn sisters and protectors.
 
-The **Palaj & Kurti collection (1937)** holds 34 songs / ~8,200 verses; in the
-1930s **Milman Parry and Albert Lord** recorded over a hundred more (now at
-Harvard), the fieldwork that founded the modern study of oral epic. The songs are
-chanted to the **lahutë** (a one‑string bowed fiddle) in the Gheg north, or plucked
-on the two‑string **çifteli**.
+The **Palaj & Kurti collection (1937)** holds 34 songs / ~8,200 verses (Elsie &
+Mathie‑Heck translated 23); in the 1930s **Milman Parry and Albert Lord** recorded
+over a hundred more (now at Harvard), the fieldwork that founded the modern study of
+oral epic. The songs are in **rhyming decasyllables**, chanted to the **lahutë** (a
+one‑string bowed fiddle) in the Gheg north, or plucked on the two‑string
+**çifteli**.
+
+**Some of the named songs:** *Mujo's Strength* · *Mujo's Oras* · *Mujo's Courser*
+(his steel‑grey warhorse) · *Mujo Visits the Sultan* · *Marriage of Halili* ·
+*Mujo's Wife Kidnapped* · *Young Omeri* · *Zuku Bajraktar* (Zuk the standard‑bearer)
+· *Gjergj Elez Alia* · *Death of Omer* · *Ajkuna Mourns Omer* · *Halili Avenges
+Mujo*.
+
+**The world of the songs.** The heroes are the thirty **agas of Jutbin** (Udbina);
+their standing enemy is the **Krajl** (king) of the Slavs and the Christian
+kingdom — characterised, tellingly, as a people **without besa**. The same heroes
+star in the parallel **Bosniak frontier cycle**, where Mujo is **Mujo Hrnjica** and
+the songs are sung not to the lahutë but to the **gusle** — a shared South‑Slavic /
+Albanian epic world.
 
 **The wider cast.** Beyond Mujo and Halil: **Ajkuna**, Mujo's wife and mother of
 **Omer**; Omer is Mujo's son, the next generation, killed defending a fortress. His
 death — and **Vajtimi i Ajkunës, "Ajkuna's Lament" for Omer** — is the cycle's
 emotional summit, and the seam where the heroic epic meets the **funeral‑lament**
-tradition.
+tradition. (The bride **Tanusha**, daughter of the Christian king, drives the
+bride‑raid songs.)
 
 ### Laments — vajtim and gjëmë
 Albanian mourning is itself a sung art that carries legend:
@@ -322,12 +347,14 @@ Albanian mourning is itself a sung art that carries legend:
   death‑lament to mourn those who leave for work abroad.
 
 ### More Skanderbeg legend
-Around the historical hero **Skanderbeg** (Gjergj Kastrioti) cluster their own
-tales: at the **siege of Krujë** he is said to have loosed a herd of **goats with
-lit candles tied to their horns** at night to feign a great army; his **sword was
-so heavy only he could wield it**; and after his death (Lezhë, 1468) the Ottomans
-were said to have **made amulets of his bones**, believing they bestowed courage
-(a legend — no remains were ever found).
+Around the historical hero **Skanderbeg** (Gjergj Kastrioti, the "**Dragon of
+Albania**") cluster their own tales — first sung, in fact, by the **Arbëresh** of
+Italy before they became the central national myth: at the **siege of Krujë** he is
+said to have loosed a herd of **goats with lit candles tied to their horns** at
+night to feign a great army; his **sword was so heavy only he could wield it** and
+his **warhorse's neigh terrified the enemy**; and after his death (Lezhë, 1468) the
+Ottomans were said to have **made amulets of his bones**, believing they bestowed
+courage (a legend — no remains were ever found).
 
 Sources: [Kângë Kreshnikësh](https://en.wikipedia.org/wiki/Albanian_Songs_of_the_Frontier_Warriors) ·
 [Vajtim and Gjëmë](https://en.wikipedia.org/wiki/Vajtim_and_Gj%C3%ABm%C3%AB) ·
@@ -406,7 +433,10 @@ scars of old myths:
   E Bukura e Dheut**: white‑bearded **Baba Tomor** (attended by four she‑eagles)
   and **Shpirag** wounded each other to death — Shpirag's slashes are the gullies
   on his slopes — and the **Earthly Beauty drowned in her own tears, which became
-  the river Osum**. Mount Tomorr still hosts a great **August pilgrimage**.
+  the river Osum**. The old oath *"për Baba Tomor"* was held stronger than one on
+  Bible or Qur'an; the mountain's pagan cult was absorbed into the Bektashi
+  veneration of **Abaz Aliu**, and Tomorr still draws a great **August pilgrimage**
+  (Bektashis Aug 20–25, Christians for the Assumption on Aug 15).
 - **Syri i Kaltër (the Blue Eye).** A man‑eating **serpent/dragon** on Mount Sopot
   is destroyed when an old man feeds it a **burning straw‑laden donkey**; writhing,
   the monster's huge **eye falls and gushes water** — the deep‑blue spring near
@@ -430,13 +460,33 @@ The diaspora that fled to Italy after the Ottoman conquest kept its own old song
   husband"** hero (Çabej compared him to **Odysseus**), sung and danced at every
   wedding. *(Distinct from Constantine & Doruntine above.)*
 
+### Sons of the Eagle — the national legend
+Why Albanians call themselves *shqiptarë* and their land *Shqipëria*:
+> A youth hunting in the mountains sees a great **eagle** carry a **snake** to its
+> crag. While the eagle is away the boy climbs up and finds the snake — not dead —
+> rearing to strike the **eaglet** in the nest; he kills it and saves the chick. The
+> grateful eagle grants him **"the sharpness of my eyes and the strength of my
+> wings,"** and he grows into a mighty hero‑king. His people call him **Shqiptar**,
+> "Son of the Eagle," and his land **Shqipëria**, "Land of the Eagles."
+
+> **Folklore vs. philology.** This **folk etymology** (*shqipe* = "eagle," proposed
+> by Camarda, 1864, and amplified by 19th‑century nationalists) is poetic, not
+> historical. Scholars derive *shqiptar* instead from *shqipoj/shqip* — "to speak
+> [Albanian] clearly" (von Hahn, 1854; Meyer) — so it means "one who speaks the
+> language." The older self‑name was **Arbën/Arbër** (whence *Albania* and the
+> *Arbëresh*). The **double‑headed eagle**, though, is genuinely the **Kastrioti
+> family arms** that flew over Skanderbeg's **League of Lezhë** (1444) and survives
+> on today's flag — by way of the Byzantine emperors, not the tale.
+
 Sources: [Rozafa Castle](https://en.wikipedia.org/wiki/Rozafa_Castle) ·
 [Constantin and Doruntinë](https://en.wikipedia.org/wiki/Constantin_and_Doruntin%C3%AB) ·
 [Gjergj Elez Alia](https://en.wikipedia.org/wiki/Gjergj_Elez_Alia) ·
 [Tomorr](https://en.wikipedia.org/wiki/Tomorr) ·
 [Accursed Mountains](https://en.wikipedia.org/wiki/Accursed_Mountains) ·
 [Little Constantine](https://en.wikipedia.org/wiki/Little_Constantine) ·
-[Moj e bukura More](https://sq.wikipedia.org/wiki/Moj_e_Bukura_More)
+[Moj e bukura More](https://sq.wikipedia.org/wiki/Moj_e_Bukura_More) ·
+[The Tale of the Eagle](https://en.wikipedia.org/wiki/The_Tale_of_the_Eagle) ·
+[Names of the Albanians](https://en.wikipedia.org/wiki/Names_of_the_Albanians_and_Albania)
 
 ---
 
@@ -631,45 +681,42 @@ Read verbatim from Elsie so the plots are accurate, not inferred:
   a three‑week vigil to wake him; a treacherous servant steals her place, until the
   king hears the true maiden weeping and weds her.
 
-### Further tales from the older collections
-Beyond Elsie's selection, the same motifs recur across von Hahn and Dozon —
-especially the **serpent‑/animal‑bridegroom**:
-- **The Snake‑Child** (*Das Schlangenkind*, von Hahn) — a queen wishes for a child
-  "even if only a snake," bears a serpent‑son who is a man by night; when his bride
-  betrays the secret he vanishes and she must journey through the underworld to win
-  him back (a sister tale to #13).
-- **For the Love of a Dove** — a proud princess loves a **dove** that becomes a man
-  on condition she keep his secret three years; she fails, he vanishes, and she
-  searches the world before they are reunited.
-- **The Gardener's Daughter** — a comic battle‑of‑wits courtship: a youth torments
-  a gardener's clever daughter with a riddle and a stolen kiss; she repays him with
-  escalating pranks (playing Death; a syrup‑filled doll in the marriage bed) before
-  they reconcile and marry.
-
-### Ten more from von Hahn (verbatim)
-Von Hahn's *Griechische und albanesische Märchen* (1864) numbers the **Albanian
-tales as Nos. 95–114**. These ten were read from the original German text — a
-different, often older and stranger set than Elsie's:
+### The complete von Hahn Albanian canon (Nos. 95–114)
+Von Hahn's *Griechische und albanesische Märchen* (1864) groups the Albanian tales
+as **Nos. 95–114** — the foundation of every later collection. All twenty were read
+from the original German; an older, often stranger set than Elsie's:
 
 | No. | Title | Verified note |
 |---|---|---|
 | 95 | The Eye‑Bitch (*Augenhündin*) | a homesick wife is lured by a **four‑eyed ogress** to be roasted; she shoves the ogress's daughter into the oven and flees (ATU 327, Hansel‑&‑Gretel) |
 | 96 | Ljelje Kurwe | a maid seizes her mistress's mare and passes herself off as the sister to seven brothers; the true sister, set to herd geese, is restored (ATU 533, the Goose‑Girl) |
+| 97 | The Hair of the Beauty of the Earth | a youth descends to the underworld past a sleepless **three‑headed dog**, plucks a **golden hair** of E Bukura e Dheut, and is borne back up by **carrion birds** drawn to meat tied on him (ATU 301/531) |
+| 98 | Perseus | an Albanian **Perseus**: a king drowns his grandsons to cheat a prophecy, but the exposed boy lives, kills the **Lubia** that has dried up the waters (using an **invisibility cap**), and at the wedding games his thrown club accidentally kills the king — fulfilling the prophecy (ATU 300 + Perseus) |
 | 99 | The Robber Nut (*Der Räuber Nuß*) | a walnut‑sized boy who never grows becomes a world‑feared robber, slipping through door‑cracks to steal cattle, until he drowns (ATU 700, Thumbling) |
+| 100 | The Snake Child (*Das Schlangenkind*) | a wish‑born **serpent husband** sheds forty skins (his bride sheds forty shirts) to become a youth; she breaks the secrecy taboo, loses him, and wins him back from the **Sisters of the Sun** with magic golden objects (ATU 425/433B) |
 | 101 | Silver‑Tooth (*Silberzahn*) | the youngest daughter goes to war as a man, warned of each gender‑test by a helper dog; recognised at last by a tooth the prince silvered with a thrown ring (cf. ATU 514/884) |
+| 102 | Dove Love (*Taubenliebe*) | a princess loves a **dove** that bathes in milk to become a youth; she betrays his secret, wears out **three pairs of iron shoes** seeking him (her father paints the palace black in grief), and restores him with an embrace (ATU 425) |
 | 103 | Snow White (*Schneewittchen*) | **von Hahn's own Albanian Snow White**: a girl sheltered by **forty dragons**, "killed" by a poisoned ring, hung in a pearl coffin, revived by a king — the Sun plays the "magic mirror" (ATU 709) |
 | 104 | The Origin of the Cuckoo | a sister accidentally kills her brother Gjon with her scissors; in grief he becomes the **Gjon‑bird** ("Gjon! Gjon!") and she the **cuckoo** ("Ku? ku?" — "Where? where?") (etiological) |
 | 105 | The Creation of the Wolf | the Devil moulds a wolf from dough but cannot give it life; God animates it with "**devour your creator**," and it eats the Devil — the origin of the curse "Eat him, wolf!" (etiological) |
+| 106 | The Chained Devil | a short legend: the **Devil gnaws his chain** all year until it hangs by a thread, but each **Easter** the Saviour binds him anew |
+| 107 | The Fall of the Angels | the rebel angels, halted by **Archangel Michael**, froze where they fell — under, on and above the earth; the **tears** of those left hovering fall and kill whomever they strike (etiological — the curse "*may the drop fall on you*") |
+| 108 | Sinzirlis Minizirlis | a lovesick youth, mocked by the proud "Daughter of the Sun," disguises as a woman, enchants her with a charm and carries her off asleep *(in the supplement; partly Greek‑flavoured)* |
+| 109 | The Golden Bowl | a fisherman whose fish hide diamonds keeps one and finds a **golden bowl that refills itself with gold** each time it is emptied (magic‑object tale) |
 | 110 | Little Hans, Whom a Moor Spat Upon | a spurned servant gains a magic word from the spirit "Ach" and freezes everyone in absurd "stay like that!" poses until he is given the bride (ATU 571, All Stick Together) |
+| 111 | The Foolish Boy Who Wins Money | a literal‑minded fool repeats each phrase to exactly the wrong audience and is beaten each time, but ends by **accidentally blackmailing** an adulteress and comes home rich (ATU 1696) |
 | 112 | The Clever Maiden | a girl boasts she could bear a child by a glance yet stay a virgin; shut in a stairless tower, she outwits the prince with a fish "baby" and a smuggled infant (ATU 875, the Clever Girl) |
+| 113 | The Clever Son and the Three Carbuncles | a poor youth, betrothed‑before‑birth then refused, lures the rich girl with three glowing **carbuncles**, wins her with a sleeping‑draught (keeping her hair‑ribbons as proof), and claims her at her wedding to another |
 | 114 | The Marriage‑Shy Princess | a prince wins a **cap of invisibility and a wishing‑stick** by tricking two heirs, then uses them to expose the princess's **secret dragon‑lover** and pass his impossible tasks (ATU 329 + 518) |
 
-> **Two distinctively Albanian myth‑lets** sit among these — Nos. 104 and 105 are
-> not wonder‑tales but tiny **etiological myths**: how the cuckoo got its cry, and
-> why the wolf devours (and why Albanians curse "*Të hângtë ujku!*", "May the wolf
-> eat you!"). Note also that von Hahn (No. 103) and Dozon (Elsie's #20) preserve
-> **two independent Albanian Snow Whites**, both with the **Sun as the all‑seeing
-> "mirror"** and a **ring** (not an apple) as the death‑charm.
+> **Two etiological myth‑lets** sit among these: Nos. **104 and 105** are not
+> wonder‑tales but tiny origin myths — how the cuckoo got its cry, and why the wolf
+> devours (the curse "*Të hângtë ujku!*", "May the wolf eat you!"). Note too that von
+> Hahn (No. 103) and Dozon (Elsie's #20) preserve **two independent Albanian Snow
+> Whites**, both with the **Sun as the all‑seeing "mirror"** and a **ring** (not an
+> apple) as the death‑charm; and that **Nos. 100 and 102 are the source tales** for
+> the serpent‑ and dove‑bridegroom (cf. Elsie's #13). A non‑von‑Hahn cousin, **The
+> Gardener's Daughter**, is a comic courtship of riddles and pranks ending in marriage.
 
 ### A second canon — Post Wheeler's *Albanian Wonder Tales* (1936)
 The other major English collection (10 retold tales, drawn by Wheeler from Dozon,
@@ -688,6 +735,14 @@ across Albania at Kavaja). The Albanian word for such a tale is **përrallë**.
 | 8 | The Boy Who Played the Bousouka | |
 | 9 | The Princess Who Had the Silver Tooth | |
 | 10 | The Boy Who Was Brother to the Drague | a mortal **sworn brother to a Drangue** |
+
+The standard **modern retelling** of the legend/epic cycle is **Mitrush Kuteli's
+*Tregime të moçme shqiptare*** ("Albanian Ancient Tales," 1965) — the book most
+Albanians grow up on, gathering *Fuqia e Mujit*, *Ajkuna qan Omerin*, *E bija e
+Hënës dhe e Diellit*, *Rozafati*, *Gjergj Elez Alia*, *Besa e Kostandinit* and more
+into one volume. Maximilian Lambertz's German anthology ***Die Schöne der Erde***
+("The Beauty of the Earth," 33 tales + 15 legends) is the richest literary gathering
+of the wonder‑tales.
 
 Beyond Elsie and Wheeler, the foundational collections are **Johann Georg von
 Hahn's *Griechische und albanesische Märchen*** (1864; his earlier *Albanesische
@@ -738,6 +793,12 @@ Sources: [Albanian Folktales and Legends — Robert Elsie](http://books.elsie.de
   upstairs in the **oda**). Feuds were ended by a sworn besa of reconciliation
   brokered by **elders (pleqësia) and priests** — most famously **Anton Çetta's**
   movement that reconciled thousands of Kosovo feuds in the early 1990s.
+- **Burrnesha (the sworn virgins).** A striking Kanun institution: a woman could
+  swear **lifelong celibacy before twelve elders** and thereafter live **as a man** —
+  taking a man's name and dress, bearing arms, heading the household, sitting on the
+  village council. It preserved a line that had lost its men, or freed a woman from
+  a forced marriage without dishonour — a real‑life echo of *The Girl Who Became a
+  Boy* (and the rainbow sex‑change belief). The tradition is now nearly extinct.
 - **Everyday protective magic.** Against the **evil eye (syri i keq)**: garlic,
   fire/ash/embers, **thunderstones** (*kokrra e rrufesë*), wolf‑teeth and the straw
   **dordolec**; and in the north, **tattooing** (suns, moons and crosses, girls
@@ -747,7 +808,8 @@ Sources: [Besa](https://en.wikipedia.org/wiki/Besa_(Albanian_culture)) ·
 [Kanun](https://en.wikipedia.org/wiki/Kanun_(Albania)) ·
 [Albanian blood feud](https://en.wikipedia.org/wiki/Albanian_blood_feud) ·
 [The Holocaust in Albania](https://en.wikipedia.org/wiki/The_Holocaust_in_Albania) ·
-[Albanian traditional tattooing](https://en.wikipedia.org/wiki/Albanian_traditional_tattooing)
+[Albanian traditional tattooing](https://en.wikipedia.org/wiki/Albanian_traditional_tattooing) ·
+[Balkan sworn virgins](https://en.wikipedia.org/wiki/Balkan_sworn_virgins)
 
 ---
 
@@ -766,7 +828,11 @@ Sun and the renewal of the Earth, almost always with **ritual fire**.
   the day the **Bolla opens its eyes**.
 - **Shën Gjini–Shën Gjoni** — midsummer (summer solstice) fires.
 - **Nata e Buzmit ("Yule Log's Night," 22 Dec – 6 Jan)** — the **winter
-  solstice** log‑burning, the rebirth of the Sun.
+  solstice** log‑burning, the rebirth of the Sun. The **buzmi** log is burned on the
+  hearth with **samples of the year's harvest** (corn, beans), **wine and rakia
+  poured on the flames** as offerings, the family **divining their luck from the
+  crackling**; the **ash is then scattered on the fields and at the tree‑roots** to
+  make them fruitful.
 
 All are tied to the **cult of the Sun** as "god of light, sky and weather… the
 all‑seeing eye," and to bonfires meant to **drive away the dark** and feed the
@@ -789,7 +855,58 @@ Sources: [Dita e Verës](https://en.wikipedia.org/wiki/Dita_e_Ver%C3%ABs) ·
 
 ---
 
-## 12. How *Aventura Shqip* uses the lore
+## 12. The spoken arts — proverbs, riddles, fables
+
+The same oral culture that carries the epics carries the *small* genres — the ones
+a learner can actually use.
+
+### Proverbs (fjalë të urta)
+On **besa** and honour:
+- **"Besa e shqiptarit nuk shitet."** — "The Albanian's word of honour is not for sale."
+- **"Besa e shqiptarit si purteka e arit."** — "The Albanian's besa is like a rod of gold."
+- **"Shqiptarët vdesin dhe besën nuk e shkelin."** — "Albanians die rather than break their besa."
+
+On the **guest, the eagle and the mountains**:
+- **"Shtëpia e shqiptarit është e Zotit dhe e mikut."** — "The Albanian's house belongs to God and to the guest."
+- **"Mali me mal nuk piqen, njeriu me njeriun piqen."** — "Mountain never meets mountain, but person meets person."
+- **"Rron shqiponja në majë të malit…"** — "The eagle lives on the mountaintop…" (everyone has their station).
+
+On **work and life**:
+- **"Sa rron, aq mëson."** — "As long as you live, you learn."
+- **"Molla nuk bie larg mollës."** — "The apple doesn't fall far from the [apple] tree."
+- **"Fillimi i mbarë është gjysma e punës."** — "A good beginning is half the work."
+
+### Riddles (gjëegjëza)
+- **"Kam samar po s'jam gomar."** — "I have a packsaddle but I'm not a donkey." → the **tortoise (breshka)**.
+- **"Rrumbullak strumbullak, kur e prek të bën me gjak."** — "Round and prickly; touch it and it draws blood." → the **hedgehog (iriqi)**.
+- **"S'është më e madhe se një arrë, por i ngjitet malit pa këmbë."** — "No bigger than a walnut, yet climbs the mountain without feet." → the **snail (kërmilli)**.
+- **"Kur i lidh, ikin; kur i zgjidh, rrinë."** — "Tie them and they go; untie them and they stay." → **shoes (këpucët)**.
+
+### Blessings & curses (bekime e mallkime)
+Albanian wishes use the **optative mood** ("may it be"):
+- **"U bëfsh njëqind vjeç!"** — "May you live to a hundred!"
+- **"Gëzofsh!"** — "May you enjoy it!" (on a gift or good news).
+- **"Të hângtë ujku!"** — "May the wolf eat you!" (the pastoral curse behind tale #105).
+- **"U bëfsh gur!"** — "May you turn to stone!" — the curse behind the land's many petrification legends.
+
+### Animal fables
+A caution worth stating: most "Albanian" fox‑and‑tortoise fables in circulation
+(the Hare and the Tortoise, the Crow and the Fox) are **Aesop in Albanian dress**.
+The genuinely native register is the **human‑outwits‑the‑beast** tale — above all
+**The Bear and the Dervish** (Elsie #12), where a dervish bluffs a sheep‑stealing
+bear into terror and boils it in a cauldron of milk. The **fox (dhelpra)** survives
+mainly as the idiom for a sly trickster, and the **hedgehog (iriqi)** as the
+slow‑but‑shrewd foil.
+
+*Quoted forms follow Wikiquote, Elsie, and Albanian paremiology; a few colloquial
+blessing/curse formulas are idiomatically standard but lightly attested in print.*
+
+Sources: [Albanian proverbs (Wikiquote)](https://en.wikiquote.org/wiki/Albanian_proverbs) ·
+[Optative mood](https://en.wikipedia.org/wiki/Optative_mood)
+
+---
+
+## 13. How *Aventura Shqip* uses the lore
 
 The game is a single hero's journey assembled from these traditions. Mapping:
 
@@ -811,7 +928,7 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 
 ---
 
-## 13. Sources & further reading
+## 14. Sources & further reading
 
 **Standard scholarship**
 - Robert Elsie, *Albanian Folktales and Legends* — [books.elsie.de](http://books.elsie.de/b073_albanian-folktales-and-legends/)
