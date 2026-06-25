@@ -94,6 +94,7 @@ export default function StoryView({ state, dispatch, onNewRun }) {
                         discovered={state.discovered}
                         peak={state.peak}
                         onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
+                        tokenCount={tok.id ? state.mana[tok.id] || 0 : undefined}
                       />
                     ))}
                     <span className="arrow"> →</span>

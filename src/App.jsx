@@ -1,33 +1,9 @@
 import { useReducer, useState } from 'react'
 import { reducer, newRun } from './game/gameState.js'
-import { DICT } from './game/content.js'
 import StoryView from './components/StoryView.jsx'
 import PracticeView from './components/PracticeView.jsx'
 import InventoryView from './components/InventoryView.jsx'
-
-function Wallet({ state }) {
-  const ids = Object.keys(state.discovered).filter((id) => state.discovered[id])
-  if (ids.length === 0) return null
-  // discovered words, those with mana first
-  ids.sort((a, b) => (state.mana[b] || 0) - (state.mana[a] || 0))
-  return (
-    <div className="wallet">
-      <h3>Discovered words &amp; training tokens</h3>
-      <div className="chips">
-        {ids.map((id) => {
-          const count = state.mana[id] || 0
-          return (
-            <span key={id} className={'chip' + (count === 0 ? ' empty-mana' : '')}>
-              <span className="al">{DICT[id].al}</span>
-              <span className="en">{DICT[id].en}</span>
-              <span className="count">◆{count}</span>
-            </span>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
+import DictionaryView from './components/DictionaryView.jsx'
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, newRun)
@@ -75,6 +51,7 @@ export default function App() {
       <div className="tabs">
         {tab('story', '📖 Story')}
         {tab('practice', '🎯 Train')}
+        {tab('dictionary', '📚 Dictionary')}
         {tab('inventory', `🎒 Inventory${itemCount ? ` (${itemCount})` : ''}`)}
       </div>
 
@@ -82,9 +59,8 @@ export default function App() {
         <StoryView state={state} dispatch={dispatch} onNewRun={() => setConfirmReset(true)} />
       )}
       {state.view === 'practice' && <PracticeView state={state} dispatch={dispatch} />}
+      {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
       {state.view === 'inventory' && <InventoryView state={state} dispatch={dispatch} />}
-
-      <Wallet state={state} />
 
       {state.hearts <= 0 && (
         <div className="modal-overlay">

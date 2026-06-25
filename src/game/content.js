@@ -60,6 +60,43 @@ export const DICT = {
   kerko:     { al: 'kërko',     en: 'search' },
   thesar:    { al: 'thesar',    en: 'treasure' },
   gjen:      { al: 'gjen',      en: 'finds' },
+  // genus / qualifier words used to build dictionary definitions
+  njeri:     { al: 'njeri',     en: 'person' },
+  kafshe:    { al: 'kafshë',    en: 'animal' },
+  vend:      { al: 'vend',      en: 'place' },
+  peme:      { al: 'pemë',      en: 'tree' },
+  leng:      { al: 'lëng',      en: 'liquid' },
+  drite:     { al: 'dritë',     en: 'light' },
+  gje:       { al: 'gjë',       en: 'thing' },
+  fjale:     { al: 'fjalë',     en: 'word' },
+  kohe:      { al: 'kohë',      en: 'time' },
+  ushqim:    { al: 'ushqim',    en: 'food' },
+  sy:        { al: 'sy',        en: 'eyes' },
+  kembe:     { al: 'këmbë',     en: 'legs' },
+  fuqi:      { al: 'fuqi',      en: 'power' },
+  rrezik:    { al: 'rrezik',    en: 'danger' },
+  e_art:     { al: 'e',         en: 'the' },   // feminine adjectival article
+  jo:        { al: 'jo',        en: 'not' },
+  pa:        { al: 'pa',        en: 'without' },
+  me:        { al: 'me',        en: 'with' },
+  shume:     { al: 'shumë',     en: 'many' },
+  mire:      { al: 'mirë',      en: 'good' },
+  vogel:     { al: 'vogël',     en: 'small' },
+  vjeter:    { al: 'vjetër',    en: 'old' },
+  ngadale:   { al: 'ngadalë',   en: 'slow' },
+  poshte:    { al: 'poshtë',    en: 'below' },
+  larg:      { al: 'larg',      en: 'far' },
+  jashte:    { al: 'jashtë',    en: 'outside' },
+  ku:        { al: 'ku',        en: 'where' },
+  qe:        { al: 'që',        en: 'that' },
+  do:        { al: 'do',        en: 'wants' },
+  bej:       { al: 'bëj',       en: 'make' },
+  luan:      { al: 'luan',      en: 'plays' },
+  mbyll:     { al: 'mbyll',     en: 'close' },
+  zhurme:    { al: 'zhurmë',    en: 'noise' },
+  tani:      { al: 'tani',      en: 'now' },
+  tjeter:    { al: 'tjetër',    en: 'other' },
+  vazhdon:   { al: 'vazhdon',   en: 'continues' },
 }
 
 // ---------------------------------------------------------------------------
@@ -274,4 +311,75 @@ export function splitStem(id, surface) {
     return [surface.slice(0, stem.length), surface.slice(stem.length)]
   }
   return [surface, '']
+}
+
+// ---------------------------------------------------------------------------
+// DEFS — a short Albanian "definition" (really an illustrative phrase) for each
+// sense. Rendered with the same Token logic as the story, so any word inside a
+// definition that you haven't discovered yet shows as its English gloss.
+// Built from story-validated phrasings to keep the Albanian grammar correct.
+// ---------------------------------------------------------------------------
+export const DEFS = {
+  // pronouns / function words — defined by role or synonym
+  ti: L(w('nje'), w('njeri')), //                      a person
+  je: L(w('eshte')), //                                is
+  eshte: L(w('je')), //                                are
+  ne: L(w('brenda'), w('nje'), w('vend')), //          inside a place
+  nje: L(w('jo'), w('shume')), //                      not many
+  dhe: L(w('me')), //                                  with
+  ka: L(w('ke')), //                                   have
+  ke: L(w('ka')), //                                   has
+  mund: L(w('ti'), w('ke'), w('fuqi')), //             you have power
+  te_link: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), // a small word
+  te_subj: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
+  i_art: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
+  e_art: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
+
+  // nouns — a kind of thing
+  pyll: L(w('nje'), w('vend'), w('me'), w('shume'), w('peme')), //   a place with many trees
+  rruge: L(w('nje'), w('vend'), w('ku'), w('ti'), w('ec')), //       a place where you walk
+  shtepi: L(w('nje'), w('vend'), w('ku'), w('ti'), w('fle')), //     a place where you sleep
+  dere: L(w('nje'), w('gje'), w('qe'), w('ti'), w('hap')), //        a thing that you open
+  ujk: L(w('nje'), w('kafshe'), w('ne'), w('pyll')), //             an animal in the forest
+  uje: L(w('nje'), w('leng'), w('qe'), w('ti'), w('pi')), //         a liquid that you drink
+  zjarr: L(w('nje'), w('gje'), w('me'), w('drite')), //             a thing with light
+  mik: L(w('nje'), w('njeri'), w('i_art'), w('mire')), //           a good person
+  toke: L(w('nje'), w('vend'), w('poshte')), //                     a place below
+  naten: L(w('nje'), w('kohe'), w('pa'), w('drite')), //            a time without light
+  erresire: L(w('nje'), w('vend'), w('pa'), w('drite')), //         a place without light
+  eliksir: L(w('nje'), w('leng'), w('qe'), w('jep'), w('fuqi')), // a liquid that gives power
+  thesar: L(w('nje'), w('gje'), w('e_art'), w('mire')), //          a good thing
+  loja: L(w('nje'), w('gje'), w('qe'), w('ti'), w('luan')), //      a thing that you play
+
+  // adjectives — a quality, often by its opposite
+  madh: L(w('jo'), w('i_art'), w('vogel')), //         not small
+  ri: L(w('jo'), w('i_art'), w('vjeter')), //          not old
+  shpejt: L(w('jo'), w('ngadale')), //                 not slow
+  erret: L(w('pa'), w('drite')), //                    without light
+  sigurt: L(w('pa'), w('rrezik')), //                  without danger
+  qete: L(w('pa'), w('zhurme')), //                    without noise
+  uritur: L(w('do'), w('te_subj'), w('ha')), //        wants to eat
+
+  // verbs — the action, often by its opposite
+  sheh: L(w('me'), w('sy')), //                        with eyes
+  ec: L(w('me'), w('kembe')), //                       with legs
+  fle: L(w('jo'), w('zgjohu')), //                     not wake
+  zgjohu: L(w('jo'), w('fle')), //                     not sleep
+  hap: L(w('jo'), w('mbyll')), //                      not close
+  ik: L(w('ec'), w('larg')), //                        walk far
+  vjen: L(w('jo'), w('ik')), //                        not flee
+  rri: L(w('jo'), w('ik')), //                         not flee
+  brenda: L(w('jo'), w('jashte')), //                  not outside
+  jep: L(w('jo'), w('merr')), //                       not take
+  merr: L(w('jo'), w('jep')), //                       not give
+  pi: L(w('ti'), w('merr'), w('leng')), //             you take liquid
+  ha: L(w('ti'), w('merr'), w('ushqim')), //           you take food
+  behet: L(w('eshte'), w('tani')), //                  is now
+  gjen: L(w('jo'), w('humbet')), //                    not lose
+  humbet: L(w('jo'), w('gjen')), //                    not find
+  ndiz: L(w('bej'), w('drite')), //                    make light
+  kerko: L(w('do'), w('te_subj'), w('gjen')), //       want to find
+  mbaroi: L(w('jo'), w('vazhdon')), //                 not continue
+  perseri: L(w('nje'), w('kohe'), w('tjeter')), //     another time
+  ketu: L(w('jo'), w('larg')), //                      not far
 }

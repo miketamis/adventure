@@ -7,7 +7,9 @@ import { splitStem } from '../game/content.js'
 //                       Hovering shows the Albanian (always, no peak needed).
 //  - discovered word:   Albanian surface. If peak is active, hovering shows the
 //                       English, prefixed with the 👁 peak icon.
-export default function Token({ token, discovered, peak, onDiscover }) {
+// `tokenCount` (a number) shows a little token-tally circle under a discovered
+// word — used in the answer/option rows so you can see your tokens in context.
+export default function Token({ token, discovered, peak, onDiscover, tokenCount }) {
   const [hover, setHover] = useState(false)
 
   if (token.paren) {
@@ -32,15 +34,26 @@ export default function Token({ token, discovered, peak, onDiscover }) {
   }
 
   const peekable = peak > 0
+  const showCount = tokenCount != null
   const [stem, ending] = splitStem(token.id, token.al)
   return (
     <span
-      className={'token known' + (peekable ? ' peekable' : '')}
+      className={'token known' + (peekable ? ' peekable' : '') + (showCount ? ' has-count' : '')}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <span className="stem">{stem}</span>
-      {ending && <span className="ending">{ending}</span>}
+      <span className="known-word">
+        <span className="stem">{stem}</span>
+        {ending && <span className="ending">{ending}</span>}
+      </span>
+      {showCount && (
+        <span
+          className={'token-badge' + (tokenCount > 0 ? '' : ' zero')}
+          title={`${tokenCount} training token${tokenCount === 1 ? '' : 's'}`}
+        >
+          {tokenCount}
+        </span>
+      )}
       {peekable && hover && <span className="tooltip">👁 {token.en}</span>}
     </span>
   )

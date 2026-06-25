@@ -135,6 +135,35 @@ button {
 .token.known.peekable { cursor: help; }
 /* root of the word stands out; inflectional ending is gently faded */
 .token.known .ending { opacity: 0.7; }
+/* per-word token tally shown under answer words */
+.token.known.has-count {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+  line-height: 1.15;
+}
+.token-badge {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  background: #16344a;
+  color: var(--mana);
+  border: 1px solid #2c5f7e;
+}
+.token-badge.zero {
+  background: var(--panel);
+  color: var(--muted);
+  border-color: var(--line);
+}
 
 .tooltip {
   position: absolute;
@@ -338,29 +367,30 @@ button {
 .modal p b { color: var(--ink); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 
-/* ---------- mana wallet ---------- */
-.wallet { margin-top: 22px; }
-.wallet h3 {
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  font-size: 12px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin: 0 0 10px;
+/* ---------- dictionary ---------- */
+.dict-entry {
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--line);
 }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip {
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  font-size: 13px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 4px 9px;
-  display: inline-flex;
-  gap: 7px;
+.dict-entry:last-child { border-bottom: none; }
+.dict-head {
+  display: flex;
   align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
 }
-.chip .al { color: var(--discovered); }
-.chip .en { color: var(--muted); }
-.chip .count { color: var(--mana); font-weight: bold; }
-.chip.empty-mana .count { color: #5a5043; }
+.dict-word {
+  font-size: 22px;
+  color: var(--discovered);
+  font-weight: 600;
+}
+.dict-def {
+  font-size: 18px;
+  line-height: 1.9;
+  color: var(--ink);
+}
+.dict-fallback {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--muted);
+}
