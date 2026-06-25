@@ -194,6 +194,8 @@ export const DICT = {
   jam:       { al: 'jam',       en: 'am' },
   // --- Act I: the village & the besa ---
   premto:    { al: 'premto',    en: 'swear' },   // to swear the besa
+  // --- the road by night: the Vitore & the Lugat ---
+  lugat:     { al: 'lugat',     en: 'revenant' }, // the Lugat, a restless dead thing
 }
 
 // ---------------------------------------------------------------------------
@@ -282,7 +284,7 @@ export const STORY = {
       L(w('ti'), w('ke'), w('nje'), w('mik'), w('te_link'), w('ri'), p('.')),
     ],
     options: [
-      { text: L(w('ec'), w('me'), wf('ujk', 'ujkun', 'the wolf')), to: 'udha' },
+      { text: L(w('ec'), w('me'), wf('ujk', 'ujkun', 'the wolf')), to: 'udheNate' },
     ],
   },
 
@@ -1412,6 +1414,51 @@ export const STORY = {
       { text: L(w('shko'), w('ne'), w('pyll')), to: 'fshatiDil' },
     ],
   },
+
+  // =========================================================================
+  // ACT II (deepened) — the road by night (the Vitore & the Lugat)
+  // You shelter in a ruin where a house-serpent (Vitore) brings luck; at night a
+  // Lugat rises and must be driven off with fire or salt; your Ora sees you to dawn.
+  // =========================================================================
+  udheNate: {
+    id: 'udheNate',
+    text: [
+      L(w('naten'), w('vjen'), p('.')),
+      L(w('ti'), w('dhe'), wf('ujk', 'ujku', 'the wolf'), w('je'), w('ne'), w('nje'), w('shtepi'), w('te_link'), w('vjeter'), p('.')),
+      L(w('nje'), w('gjarper'), w('rri'), w('ne'), w('mur'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('mik'), p('.')),
+    ],
+    options: [
+      { text: L(w('fle'), w('ketu')), to: 'udheLugat' },
+      { text: L(w('ec'), w('larg')), to: 'udha' },
+    ],
+  },
+
+  udheLugat: {
+    id: 'udheLugat',
+    text: [
+      L(w('naten'), w('nje'), w('lugat'), w('vjen'), p('.')),
+      L(wf('lugat', 'lugati', 'the revenant'), w('eshte'), w('nje'), w('hije'), w('e_art'), w('keq'), p('.')),
+      L(wf('lugat', 'lugati', 'the revenant'), w('do'), w('ti'), p('!')),
+    ],
+    options: [
+      { text: L(w('ndiz'), w('nje'), w('zjarr')), to: 'udheOra' },
+      { text: L(w('hidh'), w('kripe')), requires: 'kripe', consumes: 'kripe', to: 'udheOra' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  udheOra: {
+    id: 'udheOra',
+    text: [
+      L(w('dite'), w('vjen'), p('.')),
+      L(w('nje'), w('ora'), w('ec'), w('me'), w('ti'), p('.')),
+      L(w('ti'), w('je'), w('i_art'), w('sigurt'), p('.')),
+    ],
+    options: [
+      { text: L(w('ec'), w('larg')), to: 'udha' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1510,6 +1557,9 @@ const CONFUSERS = {
   fshatiSheshi: L(w('ngjit'), w('mal')), //       climb a mountain — none here
   fshatiBesa: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
   fshatiCaul: L(w('thirr'), eagleAcc()), //       call the eagle — none here
+  udheNate: L(w('thirr'), eagleAcc()), //         call the eagle — none here
+  udheLugat: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
+  udheOra: L(w('ngjit'), w('mal')), //            climb a mountain — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1585,6 +1635,9 @@ const CONFUSERS2 = {
   fshatiSheshi: L(w('pi'), wf('pus', 'pusin', 'the well')), // drink the well (it is dry)
   fshatiBesa: L(w('pi'), kulshAcc()), //            drink the kulshedra
   fshatiCaul: L(w('pi'), wf('rrufe', 'rrufenë', 'the thunderbolt')), // drink the thunderbolt
+  udheNate: L(w('pi'), wolfAcc()), //               drink the wolf
+  udheLugat: L(w('pi'), wf('lugat', 'lugatin', 'the revenant')), // drink the revenant
+  udheOra: L(w('pi'), wf('ora', 'Orën', 'the spirit')), // drink the spirit
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -1965,4 +2018,5 @@ export const DEFS = {
   // --- the village & the besa ---
   premto: L(w('jep'), w('bese')), //                              give an oath
   bese: L(w('nje'), w('fjale'), w('e_art'), w('forte')), //       a strong word (a vow)
+  lugat: L(w('nje'), w('hije'), w('te_link'), w('naten')), //     a shadow of the night
 }
