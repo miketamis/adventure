@@ -577,7 +577,7 @@ export const STORY = {
       L(w('ti'), w('sheh'), w('nje'), w('rruge'), p('.')),
     ],
     options: [
-      { text: L(w('ec'), w('ne'), w('rruge')), to: 'udhaKthimit' },
+      { text: L(w('ec'), w('ne'), w('rruge')), to: 'ktheu1' },
       { text: L(w('shko'), w('ne'), w('det')), to: 'bregu' },
       { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
     ],
@@ -1740,6 +1740,47 @@ export const STORY = {
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
   },
+
+  // =========================================================================
+  // ACT V (deepened) — the long way home (the greening land, the cost, the gates)
+  // The parched world greens again behind you; you pass a mother who lost a child
+  // to the drought; then the castle and the village come into sight.
+  // =========================================================================
+  ktheu1: {
+    id: 'ktheu1',
+    text: [
+      L(wf('bote', 'bota', 'the world'), w('ka'), w('uje'), w('tani'), p('.')),
+      L(wf('toke', 'toka', 'the ground'), w('nuk'), w('eshte'), w('i_art'), w('thate'), p('.')),
+      L(w('ti'), w('ec'), w('larg'), p('.')),
+    ],
+    options: [
+      { text: L(w('ec'), w('larg')), to: 'ktheu2' },
+      { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
+    ],
+  },
+
+  ktheu2: {
+    id: 'ktheu2',
+    text: [
+      L(w('ketu'), w('nje'), w('nene'), w('kerko'), w('nje'), w('femije'), p('.')),
+      L(wf('nene', 'nena', 'the mother'), w('eshte'), w('e_art'), w('keq'), p('.')),
+    ],
+    options: [
+      { text: L(w('ndihmo'), wf('nene', 'nenën', 'the mother')), to: 'ktheu3' },
+      { text: L(w('ec'), w('larg')), to: 'ktheu3' },
+    ],
+  },
+
+  ktheu3: {
+    id: 'ktheu3',
+    text: [
+      L(w('ti'), w('sheh'), w('nje'), w('kala'), w('dhe'), w('nje'), w('fshat'), p('.')),
+      L(w('ti'), w('je'), w('ketu'), w('perseri'), p('.')),
+    ],
+    options: [
+      { text: L(w('ec'), w('larg')), to: 'udhaKthimit' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1860,6 +1901,9 @@ const CONFUSERS = {
   zanaFuqi: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
   pusiThelle: L(w('thirr'), eagleAcc()), //       call the eagle — none here
   ujiShpella: L(w('thirr'), eagleAcc()), //       call the eagle — none here
+  ktheu1: L(w('zbrit'), w('ne'), w('pus')), //     go down a well — none here
+  ktheu2: L(w('thirr'), eagleAcc()), //           call the eagle — none here
+  ktheu3: L(w('ngjit'), w('mal')), //             climb a mountain — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1957,6 +2001,9 @@ const CONFUSERS2 = {
   zanaFuqi: L(w('pi'), wf('gur', 'gurin', 'the stone')), // drink the stone
   pusiThelle: L(w('pi'), wellAcc()), //             drink the well
   ujiShpella: L(w('pi'), beautyAcc()), //           drink the Beauty
+  ktheu1: L(w('pi'), wf('toke', 'tokën', 'the ground')), // drink the ground
+  ktheu2: L(w('fluturo'), w('lart')), //            fly up — you cannot fly
+  ktheu3: L(w('pi'), wf('kala', 'kalanë', 'the castle')), // drink the castle
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
