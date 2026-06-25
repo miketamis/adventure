@@ -1,6 +1,7 @@
 import { START_NODE } from './content.js'
 
 export const PEAK_START_TURNS = 3
+export const START_HEARTS = 3
 
 // A fresh run — roguelike: every new game starts from zero.
 export function newRun() {
@@ -10,6 +11,7 @@ export function newRun() {
     mana: {},         // senseId -> count (spent to choose options / use items)
     inventory: {},    // itemId -> count (you start with nothing)
     peak: PEAK_START_TURNS, // story turns of "peak" remaining (hover -> English)
+    hearts: START_HEARTS,   // wrong training answers cost a heart; 0 = game over
     turn: 1,
     view: 'story',    // 'story' | 'practice' | 'inventory'
     ended: null,      // null | 'good' | 'bad'
@@ -82,11 +84,17 @@ export function reducer(state, action) {
       }
     }
 
+    case 'PRACTICE_WRONG': {
+      return { ...state, hearts: Math.max(0, state.hearts - 1) }
+    }
+
     case 'SET_VIEW':
       return { ...state, view: action.view }
 
     case 'RESET':
-      return newRun()
+      // new run: back to the start, everything undiscovered, but keep your
+      // training tokens (they stay unusable until you rediscover the word)
+      return { ...newRun(), mana: state.mana }
 
     default:
       return state

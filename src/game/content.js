@@ -230,3 +230,48 @@ export const ALL_SENSE_IDS = (() => {
   }
   return [...ids]
 })()
+
+// ---------------------------------------------------------------------------
+// STEMS — the invariant root of each sense, computed as the longest common
+// prefix of every surface form it takes across the content. The remainder of a
+// surface is its inflectional ending, which we render faded.
+//   eliksir / eliksirin -> stem "eliksir", endings ""/"in"
+//   ujk / ujku          -> stem "ujk",     endings ""/"u"
+// ---------------------------------------------------------------------------
+export const STEMS = (() => {
+  const surfaces = {} // id -> Set of surface forms
+  const add = (t) => {
+    if (!t.id) return
+    ;(surfaces[t.id] ||= new Set()).add(t.al)
+  }
+  for (const node of Object.values(STORY)) {
+    for (const line of node.text) for (const t of line) add(t)
+    for (const opt of node.options) for (const t of opt.text) add(t)
+  }
+  for (const item of Object.values(ITEMS)) for (const t of item.use.phrase) add(t)
+  for (const id of Object.keys(DICT)) (surfaces[id] ||= new Set()).add(DICT[id].al)
+
+  const commonPrefix = (words) => {
+    let p = words[0] || ''
+    for (const w of words) {
+      let i = 0
+      while (i < p.length && i < w.length && p[i] === w[i]) i++
+      p = p.slice(0, i)
+      if (!p) break
+    }
+    return p
+  }
+
+  const stems = {}
+  for (const id of Object.keys(surfaces)) stems[id] = commonPrefix([...surfaces[id]])
+  return stems
+})()
+
+// Split an Albanian surface into [stem, ending] for a given sense.
+export function splitStem(id, surface) {
+  const stem = STEMS[id]
+  if (stem && surface.startsWith(stem) && stem.length < surface.length) {
+    return [surface.slice(0, stem.length), surface.slice(stem.length)]
+  }
+  return [surface, '']
+}

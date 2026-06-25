@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { splitStem } from '../game/content.js'
 
 // Renders one token.
 //  - particle:          "(of)"  -> dim, not interactive
@@ -31,13 +32,15 @@ export default function Token({ token, discovered, peak, onDiscover }) {
   }
 
   const peekable = peak > 0
+  const [stem, ending] = splitStem(token.id, token.al)
   return (
     <span
       className={'token known' + (peekable ? ' peekable' : '')}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {token.al}
+      <span className="stem">{stem}</span>
+      {ending && <span className="ending">{ending}</span>}
       {peekable && hover && <span className="tooltip">👁 {token.en}</span>}
     </span>
   )

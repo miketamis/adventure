@@ -2,7 +2,7 @@ import Token from './Token.jsx'
 import { STORY } from '../game/content.js'
 import { canChoose } from '../game/gameState.js'
 
-export default function StoryView({ state, dispatch }) {
+export default function StoryView({ state, dispatch, onNewRun }) {
   const node = STORY[state.nodeId]
 
   // a secret option stays hidden until every word in the passage is discovered
@@ -34,8 +34,8 @@ export default function StoryView({ state, dispatch }) {
             {state.ended === 'good' ? 'Fund i mirë — a good ending' : 'Fund i keq — a bad ending'}
           </div>
           <p className="hint">You reached an ending. Start a fresh run to play again.</p>
-          <button className="btn primary" onClick={() => dispatch({ type: 'RESET' })}>
-            New run
+          <button className="btn primary" onClick={onNewRun}>
+            ⟳ New run
           </button>
         </div>
       ) : (

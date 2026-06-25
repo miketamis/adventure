@@ -133,6 +133,8 @@ button {
   padding: 0 4px;
 }
 .token.known.peekable { cursor: help; }
+/* root of the word stands out; inflectional ending is gently faded */
+.token.known .ending { opacity: 0.7; }
 
 .tooltip {
   position: absolute;
@@ -304,6 +306,37 @@ button {
   color: var(--muted);
   margin: 8px 0 14px;
 }
+
+/* ---------- modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px 26px;
+  max-width: 440px;
+  width: 100%;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.stat.hearts { gap: 3px; padding: 5px 10px; }
+.stat.hearts .heart { color: #4a3438; font-size: 14px; line-height: 1; }
+.stat.hearts .heart.full { color: #e0566b; }
+
+.modal h2 { margin: 0 0 14px; font-size: 20px; color: var(--ink); }
+.modal.gameover { border-color: var(--danger); }
+.modal.gameover h2 { color: var(--danger); }
+.modal p { margin: 0 0 10px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+.modal p b { color: var(--ink); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 
 /* ---------- mana wallet ---------- */
 .wallet { margin-top: 22px; }

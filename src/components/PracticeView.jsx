@@ -92,6 +92,7 @@ export default function PracticeView({ state, dispatch }) {
     if (answered) return
     setPicked(id)
     if (id === q.answerId) dispatch({ type: 'PRACTICE_CORRECT', id: q.answerId })
+    else dispatch({ type: 'PRACTICE_WRONG' })
   }
 
   // story answers you can now afford (all words discovered + a token for each)
@@ -145,13 +146,15 @@ export default function PracticeView({ state, dispatch }) {
         {answered &&
           (wasCorrect
             ? `+1 token for "${DICT[q.answerId].al}"`
-            : `Correct answer: ${DICT[q.answerId][q.field]}`)}
+            : `💔 −1 heart · correct answer: ${DICT[q.answerId][q.field]}`)}
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 8 }}>
-        <button className="btn primary" onClick={next}>
-          {answered ? 'Next question' : 'Skip'}
-        </button>
+        {answered && (
+          <button className="btn primary" onClick={next}>
+            Next question
+          </button>
+        )}
       </div>
       </div>
     </>
