@@ -342,7 +342,7 @@ export const STORY = {
       L(wf('qumesht', 'qumeshti', 'the milk'), w('jep'), w('fuqi'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), w('qumesht')), grant: 'qumesht', to: 'zanaKripe' },
+      { text: L(w('merr'), w('qumesht')), grant: 'qumesht', to: 'zanaFuqi' },
     ],
   },
 
@@ -449,7 +449,7 @@ export const STORY = {
       L(wf('pus', 'pusi', 'the well'), wf('shko', 'shkon', 'goes'), w('poshte'), w('ne'), w('nje'), w('bote'), w('te_link'), w('erret'), p('.')),
     ],
     options: [
-      { text: L(w('zbrit'), w('ne'), w('pus')), to: 'zbritja' },
+      { text: L(w('zbrit'), w('ne'), w('pus')), to: 'pusiThelle' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -1010,7 +1010,7 @@ export const STORY = {
       L(w('kulshedra'), w('ka'), wf('uje', 'ujin', 'the water'), p('.')),
     ],
     options: [
-      { text: L(w('ec'), w('poshte')), to: 'bukura1' },
+      { text: L(w('ec'), w('poshte')), to: 'ujiShpella' },
     ],
   },
 
@@ -1700,6 +1700,46 @@ export const STORY = {
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
+
+  // =========================================================================
+  // ACT II/IV (deepened) — the strength, the well's mouth, the dragon's lair
+  // =========================================================================
+  zanaFuqi: {
+    id: 'zanaFuqi',
+    text: [
+      L(wf('qumesht', 'qumeshti', 'the milk'), w('jep'), w('fuqi'), p('.')),
+      L(w('ti'), w('merr'), w('nje'), w('gur'), w('te_link'), w('madh'), p('.')),
+      L(w('ti'), w('je'), w('i_art'), w('forte'), w('tani'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('zane', 'zanën', 'the fairy')), to: 'zanaKripe' },
+    ],
+  },
+
+  pusiThelle: {
+    id: 'pusiThelle',
+    text: [
+      L(wf('pus', 'pusi', 'the well'), w('eshte'), w('i_art'), w('madh'), w('dhe'), w('i_art'), w('erret'), p('.')),
+      L(w('ti'), w('zbrit'), w('poshte'), w('ngadale'), p('.')),
+    ],
+    options: [
+      { text: L(w('zbrit'), w('ne'), w('pus')), to: 'zbritja' },
+      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+    ],
+  },
+
+  ujiShpella: {
+    id: 'ujiShpella',
+    text: [
+      L(w('ti'), w('ec'), w('ne'), w('nje'), w('shpelle'), p('.')),
+      L(w('brenda'), w('eshte'), w('e_art'), w('erret'), p('.')),
+      L(w('ti'), w('sheh'), wf('bukura', 'Bukurën', 'the Beauty'), w('ne'), w('mur'), p('.')),
+    ],
+    options: [
+      { text: L(w('ec'), w('poshte')), to: 'bukura1' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1817,6 +1857,9 @@ const CONFUSERS = {
   majaEagle: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   tomorBekim: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
   tomorZbritje: L(w('thirr'), eagleAcc()), //     call the eagle — none here
+  zanaFuqi: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
+  pusiThelle: L(w('thirr'), eagleAcc()), //       call the eagle — none here
+  ujiShpella: L(w('thirr'), eagleAcc()), //       call the eagle — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1911,6 +1954,9 @@ const CONFUSERS2 = {
   majaEagle: L(w('pi'), mountainAcc()), //          drink the mountain
   tomorBekim: L(w('pi'), w('tomor')), //            drink Tomorr
   tomorZbritje: L(w('pi'), wellAcc()), //           drink the well
+  zanaFuqi: L(w('pi'), wf('gur', 'gurin', 'the stone')), // drink the stone
+  pusiThelle: L(w('pi'), wellAcc()), //             drink the well
+  ujiShpella: L(w('pi'), beautyAcc()), //           drink the Beauty
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -2297,4 +2343,5 @@ export const DEFS = {
   vogel: L(w('jo'), w('i_art'), w('madh')), //                    not big
   diell: L(w('nje'), w('drite'), w('e_art'), w('madh')), //       a great light
   qen: L(w('nje'), w('kafshe'), w('ne'), w('shtepi')), //         an animal in the house
+  ngadale: L(w('jo'), w('shpejt')), //                            not fast
 }
