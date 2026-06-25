@@ -499,7 +499,7 @@ export const STORY = {
       L(w('bukura'), w('eshte'), w('e_art'), w('bukur'), p('.')),
     ],
     options: [
-      { text: L(w('shpeto'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukuraThellesi' },
+      { text: L(w('shpeto'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukuraLirim' },
     ],
   },
 
@@ -607,7 +607,7 @@ export const STORY = {
       L(w('nje'), w('nene'), w('jep'), w('qumesht'), wf('femije', 'fëmijës', 'to the child')),
     ],
     options: [
-      { text: L(w('jep'), w('unaze')), requires: 'unaze', to: 'mbreti' },
+      { text: L(w('jep'), w('unaze')), requires: 'unaze', to: 'kalaRing' },
       { text: L(w('ndihmo'), wf('mur', 'murin', 'the wall')), to: 'murosur' },
       { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
     ],
@@ -1034,7 +1034,7 @@ export const STORY = {
       L(w('ti'), w('sheh'), w('nje'), w('kala'), p('.')),
     ],
     options: [
-      { text: L(w('shko'), w('ne'), w('kala')), to: 'kala1' },
+      { text: L(w('shko'), w('ne'), w('kala')), to: 'kalaBuna' },
       { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
     ],
   },
@@ -1506,7 +1506,7 @@ export const STORY = {
       L(wf('mur', 'muri', 'the wall'), w('do'), wf('nene', 'nenën', 'the mother'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'kala2' },
+      { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'kalaGji' },
       { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
     ],
   },
@@ -1781,6 +1781,67 @@ export const STORY = {
       { text: L(w('ec'), w('larg')), to: 'udhaKthimit' },
     ],
   },
+
+  // =========================================================================
+  // ACT IV/VI (deepened) — free the Beauty's chains; the full Rozafa finale
+  // =========================================================================
+  bukuraLirim: {
+    id: 'bukuraLirim',
+    text: [
+      L(wf('bukura', 'Bukura', 'the Beauty'), w('eshte'), w('ne'), w('mur'), p('.')),
+      L(w('ti'), w('pre'), w('dhe'), w('shpeto'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukuraThellesi' },
+    ],
+  },
+
+  kalaBuna: {
+    id: 'kalaBuna',
+    text: [
+      L(w('ti'), w('sheh'), w('nje'), w('kala'), w('ne'), w('nje'), w('lume'), p('.')),
+      L(wf('vella', 'vëllezër', 'brothers'), w('bej'), w('nje'), w('mur'), p('.')),
+    ],
+    options: [
+      { text: L(w('shko'), w('ne'), w('kala')), to: 'kala1' },
+      { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
+    ],
+  },
+
+  kalaGji: {
+    id: 'kalaGji',
+    text: [
+      L(wf('nene', 'nena', 'the mother'), w('thote'), p(':')),
+      L(w('une'), w('jam'), w('ne'), w('mur'), p('.')),
+      L(w('por'), w('nje'), w('femije'), w('do'), w('qumesht'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'kala2' },
+    ],
+  },
+
+  kalaRing: {
+    id: 'kalaRing',
+    text: [
+      L(w('ti'), w('jep'), wf('unaze', 'unazën', 'the ring'), wf('mbret', 'mbretit', 'to the king'), p('.')),
+      L(wf('mbret', 'mbreti', 'the king'), w('merr'), wf('unaze', 'unazën', 'the ring'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('mbret', 'mbretin', 'the king')), to: 'kalaMilk' },
+    ],
+  },
+
+  kalaMilk: {
+    id: 'kalaMilk',
+    text: [
+      L(wf('mur', 'muri', 'the wall'), w('rri'), w('lart'), w('tani'), p('.')),
+      L(wf('nene', 'nena', 'the mother'), w('eshte'), w('e_art'), w('sigurt'), p('.')),
+      L(w('nje'), w('femije'), w('ka'), w('qumesht'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'mbreti' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1904,6 +1965,11 @@ const CONFUSERS = {
   ktheu1: L(w('zbrit'), w('ne'), w('pus')), //     go down a well — none here
   ktheu2: L(w('thirr'), eagleAcc()), //           call the eagle — none here
   ktheu3: L(w('ngjit'), w('mal')), //             climb a mountain — none here
+  bukuraLirim: L(w('thirr'), eagleAcc()), //      call the eagle — none here (deep below)
+  kalaBuna: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
+  kalaGji: L(w('thirr'), eagleAcc()), //          call the eagle — none here
+  kalaRing: L(w('ngjit'), w('mal')), //           climb a mountain — none here
+  kalaMilk: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -2004,6 +2070,11 @@ const CONFUSERS2 = {
   ktheu1: L(w('pi'), wf('toke', 'tokën', 'the ground')), // drink the ground
   ktheu2: L(w('fluturo'), w('lart')), //            fly up — you cannot fly
   ktheu3: L(w('pi'), wf('kala', 'kalanë', 'the castle')), // drink the castle
+  bukuraLirim: L(w('pi'), beautyAcc()), //          drink the Beauty
+  kalaBuna: L(w('pi'), wf('mur', 'murin', 'the wall')), // drink the wall
+  kalaGji: L(w('fluturo'), w('lart')), //           fly up — you cannot fly
+  kalaRing: L(w('pi'), wf('unaze', 'unazën', 'the ring')), // drink the ring
+  kalaMilk: L(w('lufto'), wf('qumesht', 'qumështin', 'the milk')), // fight the milk
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
