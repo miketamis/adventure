@@ -187,6 +187,11 @@ export const DICT = {
   rrufe:     { al: 'rrufe',     en: 'thunderbolt' },
   re:        { al: 're',        en: 'cloud' },
   ere:       { al: 'erë',       en: 'wind' },
+  // --- the underworld: the rams & the Beauty's twist ---
+  dash:      { al: 'dash',      en: 'ram' },     // the white & black rams (Scurfhead)
+  bardhe:    { al: 'bardhë',    en: 'white' },
+  zi:        { al: 'zi',        en: 'black' },
+  jam:       { al: 'jam',       en: 'am' },
 }
 
 // ---------------------------------------------------------------------------
@@ -484,7 +489,7 @@ export const STORY = {
       L(w('bukura'), w('eshte'), w('e_art'), w('bukur'), p('.')),
     ],
     options: [
-      { text: L(w('shpeto'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukura2' },
+      { text: L(w('shpeto'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukuraThellesi' },
     ],
   },
 
@@ -1065,8 +1070,57 @@ export const STORY = {
       L(wf('shpate', 'shpata', 'the sword'), wf('vrit', 'vret', 'kills'), wf('kulshedra', 'kulshedrën', 'the kulshedra')),
     ],
     options: [
+      { text: L(w('ec'), w('poshte')), to: 'udhetimi1' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  // =========================================================================
+  // ACT IV (deepened) — the dark road of Bota e Poshtme & the white/black rams
+  // You pass the petrified (the stone wedding-guests), and learn the Scurfhead's
+  // secret: a white ram bears you up, a black ram keeps you below.
+  // =========================================================================
+  udhetimi1: {
+    id: 'udhetimi1',
+    text: [
+      L(w('ti'), w('ec'), w('ne'), w('nje'), w('rruge'), w('te_link'), w('erret'), p('.')),
+      L(w('ketu'), w('rri'), w('shume'), wf('njeri', 'njerëz', 'people'), w('te_link'), wf('gur', 'guri', 'of stone'), p('.')),
+      L(w('por'), w('ti'), w('vazhdon'), p('.')),
+    ],
+    options: [
+      { text: L(w('ec'), w('poshte')), to: 'udhetimi2' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  udhetimi2: {
+    id: 'udhetimi2',
+    text: [
+      L(w('ketu'), w('rri'), w('nje'), w('dash'), w('i_art'), w('bardhe'), w('dhe'), w('nje'), w('dash'), w('i_art'), w('zi'), p('.')),
+      L(wf('dash', 'dashi', 'the ram'), w('i_art'), w('bardhe'), wf('shko', 'shkon', 'goes'), w('lart'), p('.')),
+      L(wf('dash', 'dashi', 'the ram'), w('i_art'), w('zi'), w('rri'), w('poshte'), p('.')),
+    ],
+    options: [
       { text: L(w('ec'), w('poshte')), to: 'uji' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  // =========================================================================
+  // THE TWIST — E Bukura e Dheut (the drought is her imprisonment)
+  // The Beauty is the goddess of the spring; the Kulshedra's drought is her
+  // captivity. Free her, and the water of the whole world returns.
+  // =========================================================================
+  bukuraThellesi: {
+    id: 'bukuraThellesi',
+    text: [
+      L(wf('bukura', 'Bukura', 'the Beauty'), w('thote'), p(':')),
+      L(w('une'), w('jam'), w('bukura'), w('e_art'), wf('toke', 'Dheut', 'of the Earth'), p('.')),
+      L(w('kulshedra'), w('ka'), w('une'), w('dhe'), w('uje'), p('.')),
+      L(w('ti'), w('shpeto'), w('une'), w('dhe'), w('uje'), w('vjen'), w('perseri'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukura2' },
     ],
   },
 
@@ -1404,6 +1458,9 @@ const CONFUSERS = {
   ngjitja1: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
   ngjitja2: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
   ngjitja3: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
+  udhetimi1: L(w('thirr'), eagleAcc()), //        call the eagle — none here (deep below)
+  udhetimi2: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
+  bukuraThellesi: L(w('ngjit'), w('mal')), //     climb a mountain — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1473,6 +1530,9 @@ const CONFUSERS2 = {
   ngjitja1: L(w('pi'), wellAcc()), //               drink the well
   ngjitja2: L(w('pi'), eagleAcc()), //              drink the eagle
   ngjitja3: L(w('pi'), wellAcc()), //               drink the well
+  udhetimi1: L(w('pi'), wf('rruge', 'rrugën', 'the road')), // drink the road
+  udhetimi2: L(w('pi'), wf('dash', 'dashin', 'the ram')), //  drink the ram
+  bukuraThellesi: L(w('pi'), beautyAcc()), //       drink the Beauty
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -1843,4 +1903,11 @@ export const DEFS = {
   rrufe: L(w('drite'), w('ne'), w('re')), //                      light in a cloud
   re: L(w('nje'), w('gje'), w('lart')), //                        a thing up high
   ere: L(w('nje'), w('gje'), w('qe'), w('vjen'), w('larg')), //   a thing that comes from afar
+  // --- the underworld rams & the twist ---
+  dash: L(w('nje'), w('kafshe'), w('ne'), w('mal')), //           an animal on the mountain
+  bardhe: L(w('jo'), w('i_art'), w('zi')), //                     not black
+  zi: L(w('jo'), w('i_art'), w('bardhe')), //                     not white
+  jam: L(w('une'), w('je')), //                                   "I are" (= am)
+  njeri: L(w('jo'), w('nje'), w('kafshe')), //                    not an animal
+  vazhdon: L(w('jo'), w('mbaroi')), //                            not ended
 }
