@@ -198,6 +198,8 @@ export const DICT = {
   lugat:     { al: 'lugat',     en: 'revenant' }, // the Lugat, a restless dead thing
   // --- Rozafa (the walled-up wife) ---
   vella:     { al: 'vëlla',     en: 'brother' },
+  // --- the climax: the eclipse & the freed spring ---
+  diell:     { al: 'diell',     en: 'sun' },     // the Kulshedra swallows it (eclipse)
 }
 
 // ---------------------------------------------------------------------------
@@ -518,9 +520,9 @@ export const STORY = {
       L(w('kulshedra'), w('ka'), w('zjarr'), p('.')),
     ],
     options: [
-      { text: L(w('lufto'), wf('kulshedra', 'kulshedrën', 'the kulshedra')), requires: 'shpate', consumes: 'shpate', to: 'fitorja' },
+      { text: L(w('lufto'), wf('kulshedra', 'kulshedrën', 'the kulshedra')), requires: 'shpate', consumes: 'shpate', to: 'kulshLufte1' },
       { text: L(w('hidh'), w('gur')), requires: 'gur', consumes: 'gur', to: 'dranguasi' },
-      { text: L(w('hidh'), w('kripe')), requires: 'kripe', consumes: 'kripe', to: 'fitorja' },
+      { text: L(w('hidh'), w('kripe')), requires: 'kripe', consumes: 'kripe', to: 'kulshLufte1' },
       { text: L(w('ik'), w('shpejt')), to: 'djegur' },
     ],
   },
@@ -532,7 +534,7 @@ export const STORY = {
       L(w('uje'), w('vjen'), w('perseri'), p('.')),
     ],
     options: [
-      { text: L(w('ik'), w('shpejt')), to: 'kthimi' },
+      { text: L(w('ik'), w('shpejt')), to: 'springReturn' },
     ],
   },
 
@@ -1506,6 +1508,61 @@ export const STORY = {
       { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
     ],
   },
+
+  // =========================================================================
+  // CLIMAX (deepened) — the duel with the Kulshedra (the eclipse)
+  // She swallows the sun and the world goes dark; you fight on and sever her
+  // crowned central head. Then the spring returns — but the Beauty is bound below.
+  // =========================================================================
+  kulshLufte1: {
+    id: 'kulshLufte1',
+    text: [
+      L(w('kulshedra'), w('ha'), wf('diell', 'diellin', 'the sun'), p('.')),
+      L(w('eshte'), w('erret'), p('.')),
+      L(w('ti'), wf('lufto', 'lufton', 'fight'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), w('ne'), w('erresire'), p('.')),
+    ],
+    options: [
+      { text: L(w('lufto'), wf('kulshedra', 'kulshedrën', 'the kulshedra')), to: 'kulshLufte2' },
+      { text: L(w('ik'), w('shpejt')), to: 'djegur' },
+    ],
+  },
+
+  kulshLufte2: {
+    id: 'kulshLufte2',
+    text: [
+      L(w('kulshedra'), w('ka'), w('shume'), w('koke'), p('.')),
+      L(w('ti'), w('pre'), w('nje'), w('koke'), w('e_art'), w('madh'), p('.')),
+      L(w('kulshedra'), w('bie'), p('.')),
+    ],
+    options: [
+      { text: L(w('rri'), w('i_art'), w('qete')), to: 'fitorja' },
+    ],
+  },
+
+  springReturn: {
+    id: 'springReturn',
+    text: [
+      L(wf('kulshedra', 'kulshedra', 'the kulshedra'), w('vdes'), p('.')),
+      L(w('uje'), w('vjen'), w('perseri'), w('ne'), wf('bote', 'botën', 'the world'), p('.')),
+      L(wf('bukura', 'Bukura', 'the Beauty'), w('eshte'), w('e_art'), w('sigurt'), p('.')),
+    ],
+    options: [
+      { text: L(w('ec'), w('me'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukuraKthim' },
+    ],
+  },
+
+  bukuraKthim: {
+    id: 'bukuraKthim',
+    text: [
+      L(wf('bukura', 'Bukura', 'the Beauty'), w('thote'), p(':')),
+      L(w('une'), w('jam'), w('bukura'), w('e_art'), wf('toke', 'Dheut', 'of the Earth'), p('.')),
+      L(w('une'), w('kthehu'), w('poshte'), w('perseri'), p('.')),
+      L(w('por'), w('uje'), w('rri'), w('ne'), wf('bote', 'botën', 'the world'), p('.')),
+    ],
+    options: [
+      { text: L(w('ngjit'), w('lart')), to: 'kthimi' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1610,6 +1667,10 @@ const CONFUSERS = {
   kalaVllezer: L(w('thirr'), eagleAcc()), //      call the eagle — none here
   kalaBesa: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
   kalaRozafa: L(w('thirr'), eagleAcc()), //       call the eagle — none here
+  kulshLufte1: L(w('kalo'), bridgeAcc()), //      cross a bridge — none here
+  kulshLufte2: L(w('thirr'), eagleAcc()), //      call the eagle — none here
+  springReturn: L(w('thirr'), eagleAcc()), //     call the eagle — none here
+  bukuraKthim: L(w('kalo'), bridgeAcc()), //      cross a bridge — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1691,6 +1752,10 @@ const CONFUSERS2 = {
   kalaVllezer: L(w('pi'), wf('mur', 'murin', 'the wall')), // drink the wall
   kalaBesa: L(w('pi'), wf('mur', 'murin', 'the wall')), //   drink the wall
   kalaRozafa: L(w('pi'), wf('buke', 'bukën', 'the bread')), // drink the bread
+  kulshLufte1: L(w('pi'), kulshAcc()), //           drink the kulshedra
+  kulshLufte2: L(w('pi'), wf('koke', 'kokën', 'the head')), // drink the head
+  springReturn: L(w('lufto'), wf('uje', 'ujin', 'the water')), // fight the water
+  bukuraKthim: L(w('pi'), beautyAcc()), //          drink the Beauty
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -2075,4 +2140,5 @@ export const DEFS = {
   vella: L(w('nje'), w('mik'), w('te_link'), w('shtepi')), //     a friend of the house (kin)
   bej: L(w('jo'), w('prit')), //                                  do not wait (act)
   vogel: L(w('jo'), w('i_art'), w('madh')), //                    not big
+  diell: L(w('nje'), w('drite'), w('e_art'), w('madh')), //       a great light
 }
