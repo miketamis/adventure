@@ -933,6 +933,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ec'), w('ne'), w('pyll')), to: 'pylli1' },
+      { text: L(w('ec'), w('larg')), to: 'gjizar1' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
   },
@@ -1105,6 +1106,90 @@ export const STORY = {
       { text: L(w('shpeto'), wf('vajze', 'vajzën', 'the maiden')), to: 'diellLirim' },
       { text: L(w('rri'), w('i_art'), w('qete')), to: 'diellVdes' },
     ],
+  },
+
+  // =========================================================================
+  // SIDE-QUEST — Constantine & Doruntine (the besa beyond death)
+  // A grieving mother whose son swore a besa to bring her daughter home, then died;
+  // at her grief he rises from the grave to keep his word.
+  // =========================================================================
+  kostandin1: {
+    id: 'kostandin1',
+    text: [
+      L(w('nje'), w('nene'), w('eshte'), w('e_art'), w('keq'), p('.')),
+      L(w('nje'), w('vella'), w('premto'), w('nje'), w('bese'), p('.')),
+      L(w('por'), wf('vella', 'vëllai', 'the brother'), w('vdes'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'kostandin2' },
+      { text: L(w('ec'), w('larg')), to: 'fshatiBesa' },
+    ],
+  },
+
+  kostandin2: {
+    id: 'kostandin2',
+    text: [
+      L(w('naten'), wf('vella', 'vëllai', 'the brother'), w('vjen'), w('perseri'), p('.')),
+      L(wf('vella', 'vëllai', 'the brother'), w('dhe'), wf('motra', 'motra', 'the sister'), w('vjen'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('motra', 'motrën', 'the sister')), to: 'kostandinFund' },
+    ],
+  },
+
+  kostandinFund: {
+    id: 'kostandinFund',
+    end: 'secret',
+    title: 'The Besa Beyond Death',
+    blurb:
+      'Kostandin had sworn his mother a besa to bring her daughter home, and then died in the war. At her grief the dead brother rose from his grave and rode through the night to keep his word — for not even death can stop an Albanian from keeping a besa.',
+    text: [
+      L(wf('vella', 'vëllai', 'the brother'), w('vdes'), w('por'), w('vjen'), w('perseri'), p('.')),
+      L(wf('motra', 'motra', 'the sister'), w('eshte'), w('ne'), w('shtepi'), p('.')),
+    ],
+    options: [],
+  },
+
+  // =========================================================================
+  // SIDE-QUEST — Gjizar the nightingale (the three roads)
+  // A fork of three roads — "you will return / you will return / you will not
+  // return" — and the magical nightingale that sings beyond the last.
+  // =========================================================================
+  gjizar1: {
+    id: 'gjizar1',
+    text: [
+      L(w('ketu'), w('shume'), w('rruge'), p('.')),
+      L(w('nje'), w('rruge'), w('thote'), p(':'), w('ti'), w('kthehu'), p('.')),
+      L(w('nje'), w('rruge'), w('thote'), p(':'), w('ti'), w('nuk'), w('kthehu'), p('.')),
+    ],
+    options: [
+      { text: L(w('ec'), w('ne'), w('rruge')), to: 'gjizar2' },
+      { text: L(w('ik'), w('shpejt')), to: 'fshatiDil' },
+    ],
+  },
+
+  gjizar2: {
+    id: 'gjizar2',
+    text: [
+      L(w('nje'), w('zog'), w('ne'), w('nje'), w('peme'), w('flet'), w('bukur'), p('.')),
+      L(wf('zog', 'zogu', 'the bird'), w('eshte'), w('e_art'), w('bukur'), p('.')),
+    ],
+    options: [
+      { text: L(w('merr'), wf('zog', 'zogun', 'the bird')), to: 'gjizarFund' },
+    ],
+  },
+
+  gjizarFund: {
+    id: 'gjizarFund',
+    end: 'secret',
+    title: 'Gjizar the Nightingale',
+    blurb:
+      'Three roads met, and two were marked "you will return" and one "you will not." You took the road of no return, and at its end found Gjizar, the nightingale whose song no mosque nor king could buy. You carried the singing bird home.',
+    text: [
+      L(w('ti'), w('merr'), wf('zog', 'zogun', 'the bird'), p('.')),
+      L(wf('zog', 'zogu', 'the bird'), w('flet'), w('bukur'), p('.')),
+    ],
+    options: [],
   },
 
   // =========================================================================
@@ -1548,6 +1633,7 @@ export const STORY = {
     options: [
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'fshatiBesa' },
       { text: L(w('shko'), w('ne'), w('pyll')), to: 'fshatiDil' },
+      { text: L(w('ec'), w('larg')), to: 'kostandin1' },
     ],
   },
 
@@ -2130,6 +2216,10 @@ const CONFUSERS = {
   diellVajza: L(w('thirr'), eagleAcc()), //       call the eagle — none here
   shpirag1: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
   dhia1: L(w('thirr'), eagleAcc()), //            call the eagle — none here
+  kostandin1: L(w('thirr'), eagleAcc()), //       call the eagle — none here
+  kostandin2: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
+  gjizar1: L(w('zbrit'), w('ne'), w('pus')), //   go down a well — none here
+  gjizar2: L(w('ngjit'), w('mal')), //            climb a mountain — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -2240,6 +2330,10 @@ const CONFUSERS2 = {
   diellVajza: L(w('pi'), wf('diell', 'diellin', 'the Sun')), // drink the Sun
   shpirag1: L(w('pi'), mountainAcc()), //           drink the mountain
   dhia1: L(w('pi'), wf('dhi', 'dhinë', 'the goat')), // drink the goat
+  kostandin1: L(w('fluturo'), w('lart')), //        fly up — you cannot fly
+  kostandin2: L(w('ngjit'), w('mal')), //           climb a mountain — none here
+  gjizar1: L(w('pi'), wf('rruge', 'rrugën', 'the road')), // drink the road
+  gjizar2: L(w('pi'), wf('peme', 'pemën', 'the tree')), //   drink the tree
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
