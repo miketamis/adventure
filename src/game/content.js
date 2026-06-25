@@ -174,6 +174,12 @@ export const DICT = {
   tani:      { al: 'tani',      en: 'now' },
   tjeter:    { al: 'tjetër',    en: 'other' },
   vazhdon:   { al: 'vazhdon',   en: 'continues' },
+  // --- folklore: the Baloz of the sea (Gjergj Elez Alia) ---
+  baloz:     { al: 'baloz',     en: 'sea-monster' }, // the Baloz, a sea-giant
+  motra:     { al: 'motër',     en: 'sister' },
+  plage:     { al: 'plagë',     en: 'wound' },
+  nente:     { al: 'nëntë',     en: 'nine' },
+  vajze:     { al: 'vajzë',     en: 'maiden' },
 }
 
 // ---------------------------------------------------------------------------
@@ -459,8 +465,8 @@ export const STORY = {
       L(w('ketu'), w('eshte'), w('mish'), w('dhe'), w('uje'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), w('mish')), grant: 'mish', to: 'uji' },
-      { text: L(w('ec'), w('poshte')), to: 'uji' },
+      { text: L(w('merr'), w('mish')), grant: 'mish', to: 'tre1' },
+      { text: L(w('ec'), w('poshte')), to: 'tre1' },
     ],
   },
 
@@ -550,6 +556,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ec'), w('ne'), w('rruge')), to: 'udhaKthimit' },
+      { text: L(w('shko'), w('ne'), w('det')), to: 'bregu' },
       { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
     ],
   },
@@ -1009,6 +1016,163 @@ export const STORY = {
       { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
     ],
   },
+
+  // =========================================================================
+  // ACT IV (deepened) — the three Earthly Beauties (the Scurfhead's descent)
+  // Below, the hero passes three houses, each with one of the three Beauties
+  // (sisters); the youngest sets him on the dragon. Threads the underworld spine.
+  // =========================================================================
+  tre1: {
+    id: 'tre1',
+    text: [
+      L(w('ti'), w('ec'), w('poshte'), w('ne'), wf('bote', 'botën', 'the world'), p('.')),
+      L(w('ti'), w('sheh'), w('nje'), w('shtepi'), p('.')),
+      L(w('brenda'), w('eshte'), w('nje'), w('bukura'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'tre2' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  tre2: {
+    id: 'tre2',
+    text: [
+      L(w('ti'), w('sheh'), w('nje'), w('shtepi'), w('tjeter'), p('.')),
+      L(w('nje'), w('bukura'), w('tjeter'), w('eshte'), w('e_art'), w('bukur'), p('.')),
+      L(w('bukura'), w('thote'), p(':')),
+      L(w('kulshedra'), w('ka'), w('uje'), w('dhe'), wf('bukura', 'Bukurën', 'the Beauty')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'tre3' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  tre3: {
+    id: 'tre3',
+    text: [
+      L(w('nje'), w('shtepi'), w('tjeter'), w('eshte'), w('ketu'), p('.')),
+      L(w('nje'), w('bukura'), w('e_art'), w('bukur'), w('rri'), w('ketu'), p('.')),
+      L(w('bukura'), w('thote'), p(':')),
+      L(wf('shpate', 'shpata', 'the sword'), wf('vrit', 'vret', 'kills'), wf('kulshedra', 'kulshedrën', 'the kulshedra')),
+    ],
+    options: [
+      { text: L(w('ec'), w('poshte')), to: 'uji' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  // =========================================================================
+  // SIDE-QUEST — the Baloz of the sea (Gjergj Elez Alia)
+  // Reached from the surface after the ascent. A sea-giant takes a maiden a year;
+  // now it comes for the sister who tends your wounds. You rise to fight it.
+  // =========================================================================
+  bregu: {
+    id: 'bregu',
+    text: [
+      L(w('ti'), w('je'), w('ne'), w('nje'), w('fshat'), w('te_link'), w('det'), p('.')),
+      L(w('ti'), w('ke'), w('nente'), w('plage'), p('.')),
+      L(w('nje'), w('motra'), w('jep'), w('uje'), wf('trim', 'trimit', 'to the hero')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('motra', 'motrën', 'the sister')), to: 'balozTribut' },
+      { text: L(w('fle'), w('ketu')), to: 'bregFle' },
+    ],
+  },
+
+  balozTribut: {
+    id: 'balozTribut',
+    text: [
+      L(wf('motra', 'motra', 'the sister'), w('thote'), p(':')),
+      L(w('nje'), w('baloz'), w('vjen'), w('ne'), wf('det', 'detin', 'the sea')),
+      L(wf('baloz', 'balozi', 'the sea-monster'), w('do'), w('nje'), w('vajze'), p('.')),
+      L(wf('baloz', 'balozi', 'the sea-monster'), w('do'), wf('motra', 'motrën', 'the sister')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('motra', 'motrën', 'the sister')), to: 'balozZgjedh' },
+      { text: L(w('fle'), w('ketu')), to: 'bregFle' },
+    ],
+  },
+
+  balozZgjedh: {
+    id: 'balozZgjedh',
+    text: [
+      L(w('ti'), w('ke'), w('nente'), w('plage'), w('dhe'), w('je'), w('i_art'), w('uritur'), p('.')),
+      L(w('por'), wf('motra', 'motra', 'the sister'), w('eshte'), w('ne'), w('rrezik'), p('.')),
+    ],
+    options: [
+      { text: L(w('zgjohu'), w('dhe'), w('lufto')), to: 'balozLufte' },
+      { text: L(w('fle'), w('ketu')), to: 'bregFle' },
+    ],
+  },
+
+  balozLufte: {
+    id: 'balozLufte',
+    text: [
+      L(w('ti'), w('zgjohu'), w('dhe'), wf('lufto', 'lufton', 'fight'), wf('baloz', 'balozin', 'the sea-monster'), p('.')),
+      L(wf('baloz', 'balozi', 'the sea-monster'), w('eshte'), w('i_art'), w('forte'), p('.')),
+      L(wf('baloz', 'balozi', 'the sea-monster'), w('hidh'), w('nje'), w('gur'), p('!')),
+    ],
+    options: [
+      { text: L(w('hidh'), w('nje'), w('gur')), to: 'balozKoke' },
+      { text: L(w('ik'), w('shpejt')), to: 'bregHumb' },
+    ],
+  },
+
+  balozKoke: {
+    id: 'balozKoke',
+    text: [
+      L(w('ti'), w('pre'), wf('koke', 'kokën', 'the head'), w('te_link'), wf('baloz', 'balozit', 'of the sea-monster'), p('.')),
+      L(wf('baloz', 'balozi', 'the sea-monster'), w('vdes'), p('.')),
+      L(wf('det', 'deti', 'the sea'), w('eshte'), w('i_art'), w('sigurt'), p('.')),
+    ],
+    options: [
+      { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'balozFitore' },
+    ],
+  },
+
+  balozFitore: {
+    id: 'balozFitore',
+    end: 'good',
+    title: 'Gjergj Elez Alia',
+    blurb:
+      'Nine wounds and nine years, and still you rose for your sister. You cut the Black Baloz down and freed the coast — then your wounds took you, and brother and sister were laid in one grave. The hero who dies in victory is the one the lahuta sings.',
+    text: [
+      L(wf('baloz', 'balozi', 'the sea-monster'), w('vdes'), p('.')),
+      L(w('ti'), w('dhe'), wf('motra', 'motra', 'the sister'), w('je'), w('i_art'), w('sigurt'), p('.')),
+      L(w('por'), w('ti'), w('ke'), w('nente'), w('plage'), p('.')),
+    ],
+    options: [],
+  },
+
+  bregFle: {
+    id: 'bregFle',
+    end: 'bad',
+    title: 'The Sea’s Tribute',
+    blurb:
+      'You were too weary to rise, and the Baloz took the maiden it came for. The coast still pays its yearly tribute to the dark water — and no song is sung for the one who slept.',
+    text: [
+      L(w('ti'), w('fle'), p('.')),
+      L(wf('baloz', 'balozi', 'the sea-monster'), w('merr'), w('nje'), w('vajze'), p('.')),
+      L(w('loja'), w('mbaroi'), p('.')),
+    ],
+    options: [],
+  },
+
+  bregHumb: {
+    id: 'bregHumb',
+    end: 'bad',
+    title: 'Lost to the Sea',
+    blurb:
+      'You turned from the duel, and the Baloz caught you at the water’s edge. The sea is older than any hero, and it keeps what it takes.',
+    text: [
+      L(w('ti'), w('ik'), w('ne'), wf('det', 'detin', 'the sea')),
+      L(wf('baloz', 'balozi', 'the sea-monster'), w('ti'), w('ha'), p('.')),
+      L(w('loja'), w('mbaroi'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1084,6 +1248,14 @@ const CONFUSERS = {
   fshehur: L(w('thirr'), eagleAcc()), //          call the eagle — none here
   humbur: L(w('ngjit'), w('mal')), //             climb a mountain — none here
   rene: L(w('ngjit'), w('mal')), //               climb a mountain — none here
+  tre1: L(w('thirr'), eagleAcc()), //             call the eagle — none here (deep below)
+  tre2: L(w('kalo'), bridgeAcc()), //             cross a bridge — none here
+  tre3: L(w('ngjit'), w('mal')), //               climb a mountain — none here
+  bregu: L(w('zbrit'), w('ne'), w('pus')), //     go down a well — none here
+  balozTribut: L(w('thirr'), eagleAcc()), //      call the eagle — none here
+  balozZgjedh: L(w('kalo'), bridgeAcc()), //      cross a bridge — none here
+  balozLufte: L(w('ngjit'), w('mal')), //         climb a mountain — none here
+  balozKoke: L(w('thirr'), eagleAcc()), //        call the eagle — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1136,6 +1308,14 @@ const CONFUSERS2 = {
   fshehur: L(w('pi'), wf('thesar', 'thesarin', 'the treasure')), // drink the treasure
   humbur: L(w('merr'), wf('drite', 'dritën', 'the light')), // take the light
   rene: L(w('pi'), wf('det', 'detin', 'the sea')), //    drink the sea
+  tre1: L(w('pi'), wf('shtepi', 'shtëpinë', 'the house')), // drink the house
+  tre2: L(w('pi'), beautyAcc()), //                 drink the Beauty
+  tre3: L(w('pi'), kulshAcc()), //                  drink the kulshedra
+  bregu: L(w('pi'), wf('det', 'detin', 'the sea')), //   drink the sea
+  balozTribut: L(w('hap'), wf('det', 'detin', 'the sea')), // open the sea
+  balozZgjedh: L(w('pi'), wf('plage', 'plagën', 'the wound')), // drink the wound
+  balozLufte: L(w('pi'), wf('baloz', 'balozin', 'the sea-monster')), // drink the sea-monster
+  balozKoke: L(w('pi'), wf('koke', 'kokën', 'the head')), // drink the head
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -1188,6 +1368,14 @@ const CONFUSERS3 = {
   fshehur: L(w('hap'), serpentAcc()), //            open the serpent
   humbur: L(w('merr'), wf('erresire', 'errësirën', 'the darkness')), // take the darkness
   rene: L(w('merr'), wf('det', 'detin', 'the sea')), //   take the sea
+  tre1: L(w('hap'), beautyAcc()), //                open the Beauty
+  tre2: L(w('fluturo'), w('lart')), //              fly up — you cannot fly
+  tre3: L(w('pi'), wf('shpate', 'shpatën', 'the sword')), // drink the sword
+  bregu: L(w('ngjit'), w('mal')), //                climb a mountain — none here
+  balozTribut: L(w('pi'), wf('baloz', 'balozin', 'the sea-monster')), // drink the sea-monster
+  balozZgjedh: L(w('fluturo'), w('lart')), //       fly up — you cannot fly
+  balozLufte: L(w('hap'), wf('baloz', 'balozin', 'the sea-monster')), // open the sea-monster
+  balozKoke: L(w('pi'), wf('det', 'detin', 'the sea')), // drink the sea
 }
 
 // inject all three distractors into every non-ending node
@@ -1482,4 +1670,12 @@ export const DEFS = {
   det: L(w('nje'), w('lume'), w('i_art'), w('madh')), //           a big water
   ftohte: L(w('pa'), w('zjarr')), //                              without fire (cold)
   prit: L(w('jo'), w('ec')), //                                   do not walk (stay)
+  tjeter: L(w('nje'), w('gje'), w('e_art'), w('ri')), //          a new one
+  rrezik: L(w('ku'), w('ti'), w('mund'), w('te_subj'), w('vdes')), // where you can die
+  // --- the Baloz branch ---
+  baloz: L(w('nje'), w('gjarper'), w('te_link'), w('det')), //     a serpent of the sea
+  motra: L(w('nje'), w('vajze')), //                              a maiden (your sister)
+  plage: L(w('nje'), w('gje'), w('e_art'), w('keq')), //          a bad thing
+  nente: L(w('shume')), //                                        many
+  vajze: L(w('nje'), w('e_art'), w('bukur'), w('njeri')), //      a beautiful person
 }
