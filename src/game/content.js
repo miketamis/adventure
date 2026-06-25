@@ -192,6 +192,8 @@ export const DICT = {
   bardhe:    { al: 'bardhë',    en: 'white' },
   zi:        { al: 'zi',        en: 'black' },
   jam:       { al: 'jam',       en: 'am' },
+  // --- Act I: the village & the besa ---
+  premto:    { al: 'premto',    en: 'swear' },   // to swear the besa
 }
 
 // ---------------------------------------------------------------------------
@@ -228,7 +230,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('plake', 'plakën', 'the old woman')), to: 'plaka' },
-      { text: L(w('ec'), w('ne'), w('pyll')), to: 'pylli1' },
+      { text: L(w('shko'), w('ne'), w('pus')), to: 'fshatiSheshi' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
       { text: L(w('kerko'), w('thesar')), to: 'fshehur', secret: true },
     ],
@@ -243,7 +245,7 @@ export const STORY = {
       L(wf('plake', 'plaka', 'the old woman'), w('jep'), w('buke'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), w('buke')), grant: 'buke', to: 'fshatiDil' },
+      { text: L(w('merr'), w('buke')), grant: 'buke', to: 'fshatiSheshi' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
   },
@@ -1366,6 +1368,50 @@ export const STORY = {
       { text: L(w('ngjit'), w('lart')), to: 'siperfaqja' },
     ],
   },
+
+  // =========================================================================
+  // ACT I (deepened) — the village square: the dry well, the elders' besa
+  // The drought, the legend of the Kulshedra below, and the old woman's reveal
+  // that you were born a dragua. A shared early bottleneck.
+  // =========================================================================
+  fshatiSheshi: {
+    id: 'fshatiSheshi',
+    text: [
+      L(w('ti'), w('je'), w('ne'), wf('fshat', 'fshatin', 'the village'), p('.')),
+      L(w('nje'), w('pus'), w('eshte'), w('i_art'), w('thate'), p('.')),
+      L(wf('njeri', 'njerëz', 'the people'), w('nuk'), w('ka'), w('uje'), p('.')),
+      L(w('nje'), w('plak'), w('flet'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'fshatiBesa' },
+      { text: L(w('shko'), w('ne'), w('pyll')), to: 'fshatiDil' },
+    ],
+  },
+
+  fshatiBesa: {
+    id: 'fshatiBesa',
+    text: [
+      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
+      L(w('kulshedra'), w('poshte'), w('ka'), w('uje'), w('dhe'), wf('bukura', 'Bukurën', 'the Beauty')),
+      L(w('nje'), w('dragua'), w('mund'), w('te_subj'), w('vrit'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), p('.')),
+    ],
+    options: [
+      { text: L(w('premto'), w('bese')), to: 'fshatiCaul' },
+      { text: L(w('shko'), w('ne'), w('pyll')), to: 'fshatiDil' },
+    ],
+  },
+
+  fshatiCaul: {
+    id: 'fshatiCaul',
+    text: [
+      L(w('nje'), w('plake'), w('thote'), p(':')),
+      L(w('ti'), w('je'), w('nje'), w('dragua'), p('.')),
+      L(w('nje'), w('re'), w('dhe'), w('rrufe'), w('vjen'), p('.')),
+    ],
+    options: [
+      { text: L(w('shko'), w('ne'), w('pyll')), to: 'fshatiDil' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1461,6 +1507,9 @@ const CONFUSERS = {
   udhetimi1: L(w('thirr'), eagleAcc()), //        call the eagle — none here (deep below)
   udhetimi2: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   bukuraThellesi: L(w('ngjit'), w('mal')), //     climb a mountain — none here
+  fshatiSheshi: L(w('ngjit'), w('mal')), //       climb a mountain — none here
+  fshatiBesa: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
+  fshatiCaul: L(w('thirr'), eagleAcc()), //       call the eagle — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1533,6 +1582,9 @@ const CONFUSERS2 = {
   udhetimi1: L(w('pi'), wf('rruge', 'rrugën', 'the road')), // drink the road
   udhetimi2: L(w('pi'), wf('dash', 'dashin', 'the ram')), //  drink the ram
   bukuraThellesi: L(w('pi'), beautyAcc()), //       drink the Beauty
+  fshatiSheshi: L(w('pi'), wf('pus', 'pusin', 'the well')), // drink the well (it is dry)
+  fshatiBesa: L(w('pi'), kulshAcc()), //            drink the kulshedra
+  fshatiCaul: L(w('pi'), wf('rrufe', 'rrufenë', 'the thunderbolt')), // drink the thunderbolt
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -1910,4 +1962,7 @@ export const DEFS = {
   jam: L(w('une'), w('je')), //                                   "I are" (= am)
   njeri: L(w('jo'), w('nje'), w('kafshe')), //                    not an animal
   vazhdon: L(w('jo'), w('mbaroi')), //                            not ended
+  // --- the village & the besa ---
+  premto: L(w('jep'), w('bese')), //                              give an oath
+  bese: L(w('nje'), w('fjale'), w('e_art'), w('forte')), //       a strong word (a vow)
 }
