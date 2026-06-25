@@ -200,6 +200,8 @@ export const DICT = {
   vella:     { al: 'vëlla',     en: 'brother' },
   // --- the climax: the eclipse & the freed spring ---
   diell:     { al: 'diell',     en: 'sun' },     // the Kulshedra swallows it (eclipse)
+  // --- the underworld gate ---
+  qen:       { al: 'qen',       en: 'dog' },     // the three-headed sleepless hound
 }
 
 // ---------------------------------------------------------------------------
@@ -412,7 +414,7 @@ export const STORY = {
       L(w('lart'), w('eshte'), w('nje'), w('plak'), w('te_link'), w('vjeter'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'maja' },
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'maliStuhi' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -462,7 +464,7 @@ export const STORY = {
       L(w('ti'), w('je'), w('ne'), w('nje'), w('bote'), w('te_link'), w('erret'), p('.')),
     ],
     options: [
-      { text: L(w('hyr'), w('ne'), wf('bote', 'botën', 'the world')), to: 'bota1' },
+      { text: L(w('hyr'), w('ne'), wf('bote', 'botën', 'the world')), to: 'zbritjaThelle' },
     ],
   },
 
@@ -1607,6 +1609,54 @@ export const STORY = {
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
+
+  // =========================================================================
+  // ACT III (deepened) — the storm on Tomorr (i Verbti & Shurdhi)
+  // =========================================================================
+  maliStuhi: {
+    id: 'maliStuhi',
+    text: [
+      L(w('ere'), w('dhe'), w('rrufe'), w('vjen'), w('ne'), w('mal'), p('.')),
+      L(w('nje'), w('zjarr'), w('i_art'), w('madh'), w('vjen'), p('.')),
+      L(w('ti'), w('ngjit'), w('lart'), p('.')),
+    ],
+    options: [
+      { text: L(w('ngjit'), w('lart')), to: 'maja' },
+      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+    ],
+  },
+
+  // =========================================================================
+  // ACT IV (deepened) — the cold descent & the three-headed gate-hound
+  // Deeper down the great well, among the shades; a sleepless many-headed dog
+  // guards the inner gate — feed it bread, or slip past in the dark.
+  // =========================================================================
+  zbritjaThelle: {
+    id: 'zbritjaThelle',
+    text: [
+      L(w('ti'), w('zbrit'), w('poshte'), w('ne'), w('erresire'), p('.')),
+      L(w('ketu'), w('eshte'), w('i_art'), w('ftohte'), p('.')),
+      L(w('shume'), w('hije'), w('rri'), w('ketu'), p('.')),
+    ],
+    options: [
+      { text: L(w('ec'), w('poshte')), to: 'qeniGate' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  qeniGate: {
+    id: 'qeniGate',
+    text: [
+      L(w('nje'), w('qen'), w('i_art'), w('madh'), w('rri'), w('ketu'), p('.')),
+      L(wf('qen', 'qeni', 'the dog'), w('ka'), w('shume'), w('koke'), p('.')),
+      L(wf('qen', 'qeni', 'the dog'), w('nuk'), w('fle'), p('.')),
+    ],
+    options: [
+      { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', to: 'bota1' },
+      { text: L(w('ec'), w('poshte')), to: 'bota1' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1718,6 +1768,9 @@ const CONFUSERS = {
   udhaThate: L(w('thirr'), eagleAcc()), //        call the eagle — none here
   udhaSyri: L(w('ngjit'), w('mal')), //           climb a mountain — none here
   uraFshaj: L(w('thirr'), eagleAcc()), //         call the eagle — none here
+  maliStuhi: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
+  zbritjaThelle: L(w('thirr'), eagleAcc()), //    call the eagle — none here
+  qeniGate: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1806,6 +1859,9 @@ const CONFUSERS2 = {
   udhaThate: L(w('pi'), wf('toke', 'tokën', 'the ground')), // drink the ground
   udhaSyri: L(w('pi'), serpentAcc()), //            drink the serpent
   uraFshaj: L(w('pi'), bridgeAcc()), //             drink the bridge
+  maliStuhi: L(w('pi'), wf('zjarr', 'zjarrin', 'the fire')), // drink the fire
+  zbritjaThelle: L(w('pi'), wf('erresire', 'errësirën', 'the darkness')), // drink the darkness
+  qeniGate: L(w('pi'), wf('qen', 'qenin', 'the dog')), // drink the dog
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -2191,4 +2247,5 @@ export const DEFS = {
   bej: L(w('jo'), w('prit')), //                                  do not wait (act)
   vogel: L(w('jo'), w('i_art'), w('madh')), //                    not big
   diell: L(w('nje'), w('drite'), w('e_art'), w('madh')), //       a great light
+  qen: L(w('nje'), w('kafshe'), w('ne'), w('shtepi')), //         an animal in the house
 }
