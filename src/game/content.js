@@ -438,7 +438,7 @@ export const STORY = {
       L(wf('shpate', 'shpata', 'the sword'), wf('vrit', 'vret', 'kills'), wf('kulshedra', 'kulshedrën', 'the kulshedra')),
     ],
     options: [
-      { text: L(w('merr'), w('shpate')), grant: 'shpate', to: 'tomor3' },
+      { text: L(w('merr'), w('shpate')), grant: 'shpate', to: 'tomorBekim' },
     ],
   },
 
@@ -950,7 +950,7 @@ export const STORY = {
       L(w('ketu'), w('rri'), w('nje'), w('plak'), w('te_link'), w('vjeter'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'tomor1' },
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'majaEagle' },
     ],
   },
 
@@ -962,7 +962,7 @@ export const STORY = {
       L(w('nje'), w('pus'), w('eshte'), w('poshte'), p('.')),
     ],
     options: [
-      { text: L(w('shko'), w('ne'), w('pus')), to: 'pusi' },
+      { text: L(w('shko'), w('ne'), w('pus')), to: 'tomorZbritje' },
     ],
   },
 
@@ -1657,6 +1657,49 @@ export const STORY = {
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
   },
+
+  // =========================================================================
+  // ACT III (deepened) — Tomorr's peak, the blessing, the descent to the well
+  // The sky-father's she-eagles circle the summit; he blesses the blade and warns
+  // of the white & black rams below; you climb down to the mouth of the great well.
+  // =========================================================================
+  majaEagle: {
+    id: 'majaEagle',
+    text: [
+      L(w('nje'), w('shqiponje'), wf('fluturo', 'fluturon', 'flies'), w('lart'), w('ne'), w('mal'), p('.')),
+      L(w('nje'), w('plak'), w('rri'), w('lart'), p('.')),
+      L(wf('plak', 'plaku', 'the old man'), w('eshte'), w('tomor'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), w('tomor')), to: 'tomor1' },
+      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+    ],
+  },
+
+  tomorBekim: {
+    id: 'tomorBekim',
+    text: [
+      L(w('tomor'), w('thote'), p(':')),
+      L(w('poshte'), w('eshte'), w('nje'), w('dash'), w('i_art'), w('bardhe'), w('dhe'), w('nje'), w('dash'), w('i_art'), w('zi'), p('.')),
+      L(wf('dash', 'dashi', 'the ram'), w('i_art'), w('bardhe'), wf('shko', 'shkon', 'goes'), w('lart'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), w('tomor')), to: 'tomor3' },
+    ],
+  },
+
+  tomorZbritje: {
+    id: 'tomorZbritje',
+    text: [
+      L(w('ti'), w('zbrit'), w('poshte'), w('ne'), w('mal'), p('.')),
+      L(w('poshte'), w('eshte'), w('nje'), w('pus'), p('.')),
+      L(w('ti'), w('ec'), w('ne'), w('pus'), p('.')),
+    ],
+    options: [
+      { text: L(w('shko'), w('ne'), w('pus')), to: 'pusi' },
+      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1771,6 +1814,9 @@ const CONFUSERS = {
   maliStuhi: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   zbritjaThelle: L(w('thirr'), eagleAcc()), //    call the eagle — none here
   qeniGate: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
+  majaEagle: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
+  tomorBekim: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
+  tomorZbritje: L(w('thirr'), eagleAcc()), //     call the eagle — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1862,6 +1908,9 @@ const CONFUSERS2 = {
   maliStuhi: L(w('pi'), wf('zjarr', 'zjarrin', 'the fire')), // drink the fire
   zbritjaThelle: L(w('pi'), wf('erresire', 'errësirën', 'the darkness')), // drink the darkness
   qeniGate: L(w('pi'), wf('qen', 'qenin', 'the dog')), // drink the dog
+  majaEagle: L(w('pi'), mountainAcc()), //          drink the mountain
+  tomorBekim: L(w('pi'), w('tomor')), //            drink Tomorr
+  tomorZbritje: L(w('pi'), wellAcc()), //           drink the well
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
