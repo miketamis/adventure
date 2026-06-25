@@ -183,6 +183,10 @@ export const DICT = {
   // --- the Zana's trial (Mujo) & the eagle's nest ---
   fole:      { al: 'folé',      en: 'nest' },
   zog:       { al: 'zog',       en: 'chick' },
+  // --- the storm of Baba Tomor (the Drangue's lightning) ---
+  rrufe:     { al: 'rrufe',     en: 'thunderbolt' },
+  re:        { al: 're',        en: 'cloud' },
+  ere:       { al: 'erë',       en: 'wind' },
 }
 
 // ---------------------------------------------------------------------------
@@ -408,7 +412,7 @@ export const STORY = {
       L(w('kulshedra'), w('eshte'), w('poshte'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), w('tomor')), to: 'tomor2' },
+      { text: L(w('degjo'), w('tomor')), to: 'tomorProva' },
     ],
   },
 
@@ -543,7 +547,7 @@ export const STORY = {
       L(wf('shqiponje', 'shqiponja', 'the eagle'), w('do'), w('mish'), p('.')),
     ],
     options: [
-      { text: L(w('jep'), w('mish')), requires: 'mish', consumes: 'mish', to: 'siperfaqja' },
+      { text: L(w('jep'), w('mish')), requires: 'mish', consumes: 'mish', to: 'ngjitja1' },
       { text: L(w('pre'), w('mish')), to: 'mishiVetes', secret: true },
       { text: L(w('ik'), w('shpejt')), to: 'rene' },
     ],
@@ -1237,6 +1241,77 @@ export const STORY = {
       { text: L(w('degjo'), wf('shqiponje', 'shqiponjën', 'the eagle')), to: 'rrethi' },
     ],
   },
+
+  // =========================================================================
+  // ACT III (deepened) — Baba Tomor's storm-trial (the Drangue's lightning)
+  // The sky-father shows you the storm where a Drangue fights the Kulshedra;
+  // a true dragua stands in the lightning unafraid before he is given the sword.
+  // =========================================================================
+  tomorProva: {
+    id: 'tomorProva',
+    text: [
+      L(w('tomor'), w('thote'), p(':')),
+      L(w('nje'), w('dragua'), w('ka'), w('fuqi'), w('te_link'), w('rrufe'), p('.')),
+      L(w('nje'), w('re'), w('e_art'), w('madh'), w('vjen'), p('.')),
+    ],
+    options: [
+      { text: L(w('rri'), w('i_art'), w('qete')), to: 'tomorStuhi' },
+      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+    ],
+  },
+
+  tomorStuhi: {
+    id: 'tomorStuhi',
+    text: [
+      L(w('ere'), w('dhe'), w('rrufe'), w('vjen'), p('.')),
+      L(w('nje'), w('dragua'), wf('lufto', 'lufton', 'fights'), w('nje'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), w('ne'), w('re'), p('.')),
+      L(w('ti'), w('nuk'), w('ik'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), w('tomor')), to: 'tomor2' },
+      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+    ],
+  },
+
+  // =========================================================================
+  // ACT V (deepened) — the long ascent (the Scurfhead's eagle climb)
+  // The eagle bears you up the great well by night; do not look down, and feed
+  // it on the long climb, until the dawn shows the rim.
+  // =========================================================================
+  ngjitja1: {
+    id: 'ngjitja1',
+    text: [
+      L(wf('shqiponje', 'shqiponja', 'the eagle'), wf('fluturo', 'fluturon', 'flies'), w('lart'), w('ne'), w('pus'), p('.')),
+      L(wf('pus', 'pusi', 'the well'), w('eshte'), w('i_art'), w('madh'), w('dhe'), w('i_art'), w('erret'), p('.')),
+    ],
+    options: [
+      { text: L(w('rri'), w('i_art'), w('qete')), to: 'ngjitja2' },
+      { text: L(w('sheh'), w('poshte')), to: 'rene' },
+    ],
+  },
+
+  ngjitja2: {
+    id: 'ngjitja2',
+    text: [
+      L(wf('shqiponje', 'shqiponja', 'the eagle'), w('eshte'), w('i_art'), w('uritur'), p('.')),
+      L(wf('shqiponje', 'shqiponja', 'the eagle'), w('do'), w('buke'), p('.')),
+    ],
+    options: [
+      { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', to: 'ngjitja3' },
+      { text: L(w('ngjit'), w('lart')), to: 'ngjitja3' },
+    ],
+  },
+
+  ngjitja3: {
+    id: 'ngjitja3',
+    text: [
+      L(w('naten'), w('mbaroi'), w('dhe'), w('vjen'), w('dite'), p('.')),
+      L(wf('pus', 'pusi', 'the well'), w('eshte'), w('lart'), p('.')),
+    ],
+    options: [
+      { text: L(w('ngjit'), w('lart')), to: 'siperfaqja' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1324,6 +1399,11 @@ const CONFUSERS = {
   zanaProva2: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
   zanaFole: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
   foleShpetuar: L(w('kalo'), bridgeAcc()), //     cross a bridge — none here
+  tomorProva: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
+  tomorStuhi: L(w('zbrit'), w('ne'), w('pus')), // go down a well — none here (on the peak)
+  ngjitja1: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
+  ngjitja2: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
+  ngjitja3: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1388,6 +1468,11 @@ const CONFUSERS2 = {
   zanaProva2: L(w('pi'), wf('dite', 'ditën', 'the day')), //  drink the day
   zanaFole: L(w('pi'), wf('peme', 'pemën', 'the tree')), //   drink the tree
   foleShpetuar: L(w('pi'), eagleAcc()), //          drink the eagle
+  tomorProva: L(w('pi'), wf('re', 'renë', 'the cloud')), // drink the cloud
+  tomorStuhi: L(w('pi'), wf('rrufe', 'rrufenë', 'the thunderbolt')), // drink the thunderbolt
+  ngjitja1: L(w('pi'), wellAcc()), //               drink the well
+  ngjitja2: L(w('pi'), eagleAcc()), //              drink the eagle
+  ngjitja3: L(w('pi'), wellAcc()), //               drink the well
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -1754,4 +1839,8 @@ export const DEFS = {
   zog: L(w('nje'), w('e_art'), w('vogel'), w('shqiponje')), //    a small eagle
   dite: L(w('nje'), w('kohe'), w('me'), w('drite')), //           a time with light
   peme: L(w('nje'), w('gje'), w('ne'), w('pyll')), //             a thing in the forest
+  // --- the storm ---
+  rrufe: L(w('drite'), w('ne'), w('re')), //                      light in a cloud
+  re: L(w('nje'), w('gje'), w('lart')), //                        a thing up high
+  ere: L(w('nje'), w('gje'), w('qe'), w('vjen'), w('larg')), //   a thing that comes from afar
 }
