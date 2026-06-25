@@ -180,6 +180,9 @@ export const DICT = {
   plage:     { al: 'plagë',     en: 'wound' },
   nente:     { al: 'nëntë',     en: 'nine' },
   vajze:     { al: 'vajzë',     en: 'maiden' },
+  // --- the Zana's trial (Mujo) & the eagle's nest ---
+  fole:      { al: 'folé',      en: 'nest' },
+  zog:       { al: 'zog',       en: 'chick' },
 }
 
 // ---------------------------------------------------------------------------
@@ -308,7 +311,7 @@ export const STORY = {
       L(w('ti'), w('je'), w('nje'), w('dragua'), p('.')),
     ],
     options: [
-      { text: L(w('beso'), wf('zane', 'zanën', 'the fairy')), to: 'zanaQumesht' },
+      { text: L(w('beso'), wf('zane', 'zanën', 'the fairy')), to: 'zanaProva' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -342,7 +345,7 @@ export const STORY = {
       L(wf('pende', 'penda', 'the feather'), w('eshte'), w('per'), wf('shqiponje', 'shqiponjën', 'the eagle')),
     ],
     options: [
-      { text: L(w('merr'), w('pende')), grant: 'pende', to: 'rrethi' },
+      { text: L(w('merr'), w('pende')), grant: 'pende', to: 'zanaFole' },
     ],
   },
 
@@ -1173,6 +1176,67 @@ export const STORY = {
     ],
     options: [],
   },
+
+  // =========================================================================
+  // ACT II (deepened) — the Zana's trial (how Mujo won his strength)
+  // Lost in the storm, you rock two unseen children by a boulder; at dawn the
+  // Zanas reward you with a hero's strength — then her milk.
+  // =========================================================================
+  zanaProva: {
+    id: 'zanaProva',
+    text: [
+      L(w('naten'), w('eshte'), w('e_art'), w('erret'), w('dhe'), w('e_art'), w('ftohte'), p('.')),
+      L(w('ti'), w('sheh'), w('nje'), w('femije'), w('dhe'), w('nje'), w('femije'), w('tjeter'), p('.')),
+      L(wf('femije', 'fëmijët', 'the children'), w('nuk'), w('fle'), p('.')),
+    ],
+    options: [
+      { text: L(w('rri'), w('me'), wf('femije', 'fëmijët', 'the children')), to: 'zanaProva2' },
+      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+    ],
+  },
+
+  zanaProva2: {
+    id: 'zanaProva2',
+    text: [
+      L(w('naten'), w('mbaroi'), w('dhe'), w('vjen'), w('dite'), p('.')),
+      L(wf('zane', 'zana', 'the fairy'), w('vjen'), w('dhe'), w('thote'), p(':')),
+      L(w('ti'), w('je'), w('nje'), w('dragua'), w('te_link'), w('forte'), p('!')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('zane', 'zanën', 'the fairy')), to: 'zanaQumesht' },
+    ],
+  },
+
+  // =========================================================================
+  // ACT II (deepened) — the eagle's nest (the debt that brings the eagle)
+  // On the climb you save an eagle's chicks from a serpent; the eagle will come
+  // when you call it from the dark below.
+  // =========================================================================
+  zanaFole: {
+    id: 'zanaFole',
+    text: [
+      L(wf('zane', 'zana', 'the fairy'), w('dhe'), w('ti'), w('ngjit'), w('lart'), p('.')),
+      L(w('ti'), w('sheh'), w('nje'), w('peme'), w('me'), w('nje'), w('fole'), p('.')),
+      L(w('nje'), w('gjarper'), w('ngjit'), w('ne'), wf('fole', 'folenë', 'the nest')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('do'), w('te_subj'), w('ha'), w('nje'), w('zog'), p('!')),
+    ],
+    options: [
+      { text: L(w('lufto'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'foleShpetuar' },
+      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+    ],
+  },
+
+  foleShpetuar: {
+    id: 'foleShpetuar',
+    text: [
+      L(w('ti'), w('vrit'), wf('gjarper', 'gjarprin', 'the serpent'), w('dhe'), w('shpeto'), wf('zog', 'zogun', 'the chick'), p('.')),
+      L(wf('shqiponje', 'shqiponja', 'the eagle'), w('vjen'), w('dhe'), w('thote'), p(':')),
+      L(wf('shqiponje', 'shqiponja', 'the eagle'), w('do'), w('te_subj'), w('ndihmo'), w('ti'), w('perseri'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('shqiponje', 'shqiponjën', 'the eagle')), to: 'rrethi' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1256,6 +1320,10 @@ const CONFUSERS = {
   balozZgjedh: L(w('kalo'), bridgeAcc()), //      cross a bridge — none here
   balozLufte: L(w('ngjit'), w('mal')), //         climb a mountain — none here
   balozKoke: L(w('thirr'), eagleAcc()), //        call the eagle — none here
+  zanaProva: L(w('fluturo'), w('lart')), //       fly up — you cannot fly
+  zanaProva2: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
+  zanaFole: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
+  foleShpetuar: L(w('kalo'), bridgeAcc()), //     cross a bridge — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1316,6 +1384,10 @@ const CONFUSERS2 = {
   balozZgjedh: L(w('pi'), wf('plage', 'plagën', 'the wound')), // drink the wound
   balozLufte: L(w('pi'), wf('baloz', 'balozin', 'the sea-monster')), // drink the sea-monster
   balozKoke: L(w('pi'), wf('koke', 'kokën', 'the head')), // drink the head
+  zanaProva: L(w('pi'), wf('naten', 'natën', 'the night')), // drink the night
+  zanaProva2: L(w('pi'), wf('dite', 'ditën', 'the day')), //  drink the day
+  zanaFole: L(w('pi'), wf('peme', 'pemën', 'the tree')), //   drink the tree
+  foleShpetuar: L(w('pi'), eagleAcc()), //          drink the eagle
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -1678,4 +1750,8 @@ export const DEFS = {
   plage: L(w('nje'), w('gje'), w('e_art'), w('keq')), //          a bad thing
   nente: L(w('shume')), //                                        many
   vajze: L(w('nje'), w('e_art'), w('bukur'), w('njeri')), //      a beautiful person
+  fole: L(w('nje'), w('shtepi'), w('te_link'), w('shqiponje')), // a house of the eagle
+  zog: L(w('nje'), w('e_art'), w('vogel'), w('shqiponje')), //    a small eagle
+  dite: L(w('nje'), w('kohe'), w('me'), w('drite')), //           a time with light
+  peme: L(w('nje'), w('gje'), w('ne'), w('pyll')), //             a thing in the forest
 }
