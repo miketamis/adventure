@@ -102,8 +102,11 @@ export default function PracticeView({ state, dispatch }) {
   const onPick = (id) => {
     if (answered) return
     setPicked(id)
-    if (id === q.answerId) dispatch({ type: 'PRACTICE_CORRECT', id: q.answerId })
+    const correct = id === q.answerId
+    if (correct) dispatch({ type: 'PRACTICE_CORRECT', id: q.answerId })
     else dispatch({ type: 'PRACTICE_WRONG' })
+    // auto-advance to the next question after a short pause
+    setTimeout(next, correct ? 1200 : 2000)
   }
 
   // story answers you can now afford (all words discovered + a token for each)
@@ -160,13 +163,6 @@ export default function PracticeView({ state, dispatch }) {
             : `💔 −1 heart · correct answer: ${DICT[q.answerId][q.field]}`)}
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: 8 }}>
-        {answered && (
-          <button className="btn primary" onClick={next}>
-            Next question
-          </button>
-        )}
-      </div>
       </div>
     </>
   )

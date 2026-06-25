@@ -1,15 +1,23 @@
-import { useReducer, useState } from 'react'
-import { reducer, newRun } from './game/gameState.js'
+import { useReducer, useState, useEffect } from 'react'
+import { reducer, newRun, saveEndings } from './game/gameState.js'
+import { ENDINGS } from './game/content.js'
 import StoryView from './components/StoryView.jsx'
 import PracticeView from './components/PracticeView.jsx'
 import InventoryView from './components/InventoryView.jsx'
 import DictionaryView from './components/DictionaryView.jsx'
+import EndingsView from './components/EndingsView.jsx'
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, newRun)
   const [confirmReset, setConfirmReset] = useState(false)
   const peakOn = state.peak > 0
   const itemCount = Object.values(state.inventory).reduce((a, b) => a + b, 0)
+  const endingsGot = ENDINGS.filter((e) => state.discoveredEndings?.[e.id]).length
+
+  // persist the endings collection across reloads
+  useEffect(() => {
+    saveEndings(state.discoveredEndings)
+  }, [state.discoveredEndings])
 
   const setView = (view) => dispatch({ type: 'SET_VIEW', view })
   const tab = (view, label) => (
@@ -53,14 +61,14 @@ export default function App() {
         {tab('practice', '🎯 Train')}
         {tab('dictionary', '📚 Dictionary')}
         {tab('inventory', `🎒 Inventory${itemCount ? ` (${itemCount})` : ''}`)}
+        {tab('endings', `🏆 Endings (${endingsGot}/${ENDINGS.length})`)}
       </div>
 
-      {state.view === 'story' && (
-        <StoryView state={state} dispatch={dispatch} onNewRun={() => setConfirmReset(true)} />
-      )}
+      {state.view === 'story' && <StoryView state={state} dispatch={dispatch} />}
       {state.view === 'practice' && <PracticeView state={state} dispatch={dispatch} />}
       {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
       {state.view === 'inventory' && <InventoryView state={state} dispatch={dispatch} />}
+      {state.view === 'endings' && <EndingsView state={state} />}
 
       {state.hearts <= 0 && (
         <div className="modal-overlay">
