@@ -196,6 +196,8 @@ export const DICT = {
   premto:    { al: 'premto',    en: 'swear' },   // to swear the besa
   // --- the road by night: the Vitore & the Lugat ---
   lugat:     { al: 'lugat',     en: 'revenant' }, // the Lugat, a restless dead thing
+  // --- Rozafa (the walled-up wife) ---
+  vella:     { al: 'vëlla',     en: 'brother' },
 }
 
 // ---------------------------------------------------------------------------
@@ -589,7 +591,7 @@ export const STORY = {
       L(w('nje'), w('mbret'), w('flet'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('mbret', 'mbretin', 'the king')), to: 'kala2' },
+      { text: L(w('degjo'), wf('mbret', 'mbretin', 'the king')), to: 'kalaVllezer' },
     ],
   },
 
@@ -1459,6 +1461,51 @@ export const STORY = {
       { text: L(w('ec'), w('larg')), to: 'udha' },
     ],
   },
+
+  // =========================================================================
+  // ACT VI (deepened) — Rozafa, the walled-up wife (the besa in stone)
+  // Three brothers build a castle whose wall falls each night; a wise man says a
+  // life must be walled in. They swear a besa; only the youngest keeps it, so his
+  // wife Rozafa comes with the meal — unless you give the Beauty's ring instead.
+  // =========================================================================
+  kalaVllezer: {
+    id: 'kalaVllezer',
+    text: [
+      L(wf('vella', 'vëllezër', 'brothers'), w('bej'), w('nje'), w('kala'), p('.')),
+      L(wf('mur', 'muri', 'the wall'), w('bie'), w('naten'), p('.')),
+      L(w('nje'), w('plak'), w('flet'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'kalaBesa' },
+      { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
+    ],
+  },
+
+  kalaBesa: {
+    id: 'kalaBesa',
+    text: [
+      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
+      L(wf('mur', 'muri', 'the wall'), w('do'), w('nje'), w('nene'), p('.')),
+      L(wf('vella', 'vëllezër', 'the brothers'), w('premto'), w('bese'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'kalaRozafa' },
+      { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
+    ],
+  },
+
+  kalaRozafa: {
+    id: 'kalaRozafa',
+    text: [
+      L(w('nje'), w('nene'), w('vjen'), w('me'), w('buke'), p('.')),
+      L(wf('nene', 'nena', 'the mother'), w('ka'), w('nje'), w('femije'), w('te_link'), w('vogel'), p('.')),
+      L(wf('mur', 'muri', 'the wall'), w('do'), wf('nene', 'nenën', 'the mother'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'kala2' },
+      { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -1560,6 +1607,9 @@ const CONFUSERS = {
   udheNate: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   udheLugat: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   udheOra: L(w('ngjit'), w('mal')), //            climb a mountain — none here
+  kalaVllezer: L(w('thirr'), eagleAcc()), //      call the eagle — none here
+  kalaBesa: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
+  kalaRozafa: L(w('thirr'), eagleAcc()), //       call the eagle — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -1638,6 +1688,9 @@ const CONFUSERS2 = {
   udheNate: L(w('pi'), wolfAcc()), //               drink the wolf
   udheLugat: L(w('pi'), wf('lugat', 'lugatin', 'the revenant')), // drink the revenant
   udheOra: L(w('pi'), wf('ora', 'Orën', 'the spirit')), // drink the spirit
+  kalaVllezer: L(w('pi'), wf('mur', 'murin', 'the wall')), // drink the wall
+  kalaBesa: L(w('pi'), wf('mur', 'murin', 'the wall')), //   drink the wall
+  kalaRozafa: L(w('pi'), wf('buke', 'bukën', 'the bread')), // drink the bread
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -2019,4 +2072,7 @@ export const DEFS = {
   premto: L(w('jep'), w('bese')), //                              give an oath
   bese: L(w('nje'), w('fjale'), w('e_art'), w('forte')), //       a strong word (a vow)
   lugat: L(w('nje'), w('hije'), w('te_link'), w('naten')), //     a shadow of the night
+  vella: L(w('nje'), w('mik'), w('te_link'), w('shtepi')), //     a friend of the house (kin)
+  bej: L(w('jo'), w('prit')), //                                  do not wait (act)
+  vogel: L(w('jo'), w('i_art'), w('madh')), //                    not big
 }
