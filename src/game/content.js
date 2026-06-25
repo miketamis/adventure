@@ -206,6 +206,9 @@ export const DICT = {
   lot:       { al: 'lot',       en: 'tears' },
   dhi:       { al: 'dhi',       en: 'goat' },
   ar:        { al: 'ar',        en: 'gold' },
+  // --- Nastradin Hoxha (the comic interlude) ---
+  hoxha:     { al: 'hoxha',     en: 'hodja' },   // Nastradin Hoxha, the trickster-sage
+  kazan:     { al: 'kazan',     en: 'cauldron' },
 }
 
 // ---------------------------------------------------------------------------
@@ -495,6 +498,7 @@ export const STORY = {
     options: [
       { text: L(w('merr'), w('mish')), grant: 'mish', to: 'tre1' },
       { text: L(w('ec'), w('poshte')), to: 'tre1' },
+      { text: L(w('ec'), w('larg')), to: 'gjarperBurr1' },
     ],
   },
 
@@ -1109,6 +1113,77 @@ export const STORY = {
   },
 
   // =========================================================================
+  // SIDE-QUEST — the serpent bridegroom (the Snake and the King's Daughter)
+  // By night a serpent sheds its skin to stand a young man; keep his secret and
+  // the enchantment breaks — he is a man forever.
+  // =========================================================================
+  gjarperBurr1: {
+    id: 'gjarperBurr1',
+    text: [
+      L(w('naten'), w('nje'), w('gjarper'), w('behet'), w('nje'), w('njeri'), p('.')),
+      L(wf('njeri', 'njeriu', 'the person'), w('thote'), p(':')),
+      L(w('nuk'), w('flet'), w('per'), w('une'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('njeri', 'njeriun', 'the person')), to: 'gjarperBurr2' },
+      { text: L(w('ec'), w('larg')), to: 'tre1' },
+    ],
+  },
+
+  gjarperBurr2: {
+    id: 'gjarperBurr2',
+    text: [
+      L(w('ti'), w('nuk'), w('flet'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('behet'), w('nje'), w('njeri'), w('perseri'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('njeri', 'njeriun', 'the person')), to: 'gjarperBurrFund' },
+    ],
+  },
+
+  gjarperBurrFund: {
+    id: 'gjarperBurrFund',
+    end: 'secret',
+    title: 'The Serpent Bridegroom',
+    blurb:
+      'By night the serpent shed its skin and stood a young man, and begged you never to tell. You kept his secret, and the enchantment broke — the snake‑prince was a man again, for good. (From the tale of the Snake and the King’s Daughter.)',
+    text: [
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('behet'), w('nje'), w('njeri'), p('.')),
+      L(wf('njeri', 'njeriu', 'the person'), w('eshte'), w('i_art'), w('sigurt'), p('.')),
+    ],
+    options: [],
+  },
+
+  // =========================================================================
+  // SIDE-QUEST — Nastradin Hoxha (the cauldron that gave birth)
+  // =========================================================================
+  nastradin1: {
+    id: 'nastradin1',
+    text: [
+      L(w('nje'), w('hoxha'), w('eshte'), w('ketu'), p('.')),
+      L(wf('hoxha', 'hoxha', 'the hodja'), w('merr'), w('nje'), w('kazan'), p('.')),
+      L(wf('kazan', 'kazani', 'the cauldron'), w('ka'), w('nje'), w('femije'), p('!')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('hoxha', 'hoxhën', 'the hodja')), to: 'nastradinFund' },
+      { text: L(w('ec'), w('larg')), to: 'fshatiBesa' },
+    ],
+  },
+
+  nastradinFund: {
+    id: 'nastradinFund',
+    end: 'secret',
+    title: 'Nastradin’s Cauldron',
+    blurb:
+      'You lent Nastradin Hoxha your cauldron, and he returned it with a little pot inside — "your cauldron gave birth." Next time he kept it: "the cauldron died." When you protested, he shrugged: "if a cauldron can give birth, it can die." You laughed, and let the hodja keep it.',
+    text: [
+      L(wf('hoxha', 'hoxha', 'the hodja'), w('merr'), wf('kazan', 'kazanin', 'the cauldron'), p('.')),
+      L(wf('kazan', 'kazani', 'the cauldron'), w('vdes'), p('!')),
+    ],
+    options: [],
+  },
+
+  // =========================================================================
   // SIDE-QUEST — Constantine & Doruntine (the besa beyond death)
   // A grieving mother whose son swore a besa to bring her daughter home, then died;
   // at her grief he rises from the grave to keep his word.
@@ -1647,6 +1722,7 @@ export const STORY = {
     options: [
       { text: L(w('premto'), w('bese')), to: 'fshatiCaul' },
       { text: L(w('shko'), w('ne'), w('pyll')), to: 'fshatiDil' },
+      { text: L(w('ec'), w('larg')), to: 'nastradin1' },
     ],
   },
 
@@ -2220,6 +2296,9 @@ const CONFUSERS = {
   kostandin2: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
   gjizar1: L(w('zbrit'), w('ne'), w('pus')), //   go down a well — none here
   gjizar2: L(w('ngjit'), w('mal')), //            climb a mountain — none here
+  gjarperBurr1: L(w('thirr'), eagleAcc()), //     call the eagle — none here
+  gjarperBurr2: L(w('kalo'), bridgeAcc()), //     cross a bridge — none here
+  nastradin1: L(w('zbrit'), w('ne'), w('pus')), // go down a well — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -2334,6 +2413,9 @@ const CONFUSERS2 = {
   kostandin2: L(w('ngjit'), w('mal')), //           climb a mountain — none here
   gjizar1: L(w('pi'), wf('rruge', 'rrugën', 'the road')), // drink the road
   gjizar2: L(w('pi'), wf('peme', 'pemën', 'the tree')), //   drink the tree
+  gjarperBurr1: L(w('pi'), serpentAcc()), //        drink the serpent
+  gjarperBurr2: L(w('pi'), serpentAcc()), //        drink the serpent
+  nastradin1: L(w('pi'), wf('kazan', 'kazanin', 'the cauldron')), // drink the cauldron
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -2724,4 +2806,6 @@ export const DEFS = {
   lot: L(w('uje'), w('te_link'), w('sy')), //                     water of the eyes
   dhi: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //       a small animal
   ar: L(w('nje'), w('gur'), w('e_art'), w('bukur')), //           a beautiful metal (stone)
+  hoxha: L(w('nje'), w('plak'), w('e_art'), w('mire')), //        a good old man
+  kazan: L(w('nje'), w('gje'), w('te_link'), w('zjarr')), //      a thing of the fire
 }
