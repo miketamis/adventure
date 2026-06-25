@@ -1,14 +1,17 @@
-import { START_NODE } from './content.js'
+import { START_NODE, STORY } from './content.js'
 
 export const PEAK_START_TURNS = 3
 export const START_HEARTS = 3
 
 // ---------------------------------------------------------------------------
-// Persistence: discovered endings survive across runs AND page reloads — they
-// are the player's long-term "collection". Tokens (mana) survive a new run but
-// not a reload (a fresh page is a fresh roguelike attempt).
+// Persistence: the WHOLE game state is saved to localStorage on every change,
+// so reloading the page resumes you exactly where you left off. The discovered-
+// endings collection is also kept under its own key so it survives even if the
+// run state is ever cleared or its shape changes.
 // ---------------------------------------------------------------------------
 const ENDINGS_KEY = 'aventura.endings.v1'
+const STATE_KEY = 'aventura.state.v1'
+
 export function loadEndings() {
   try {
     return JSON.parse(localStorage.getItem(ENDINGS_KEY)) || {}
@@ -22,6 +25,27 @@ export function saveEndings(endings) {
   } catch {
     /* ignore */
   }
+}
+
+export function saveState(state) {
+  try {
+    localStorage.setItem(STATE_KEY, JSON.stringify(state))
+  } catch {
+    /* ignore */
+  }
+}
+// the saved run if it's still valid, otherwise a fresh run
+export function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STATE_KEY))
+    if (saved && saved.nodeId && STORY[saved.nodeId]) {
+      // merge over a fresh run so any newly-added fields get sensible defaults
+      return { ...newRun(), ...saved }
+    }
+  } catch {
+    /* ignore */
+  }
+  return newRun()
 }
 
 // per-run state (everything that resets when you start a new attempt)

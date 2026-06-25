@@ -1,5 +1,5 @@
 import { useReducer, useState, useEffect } from 'react'
-import { reducer, newRun, saveEndings } from './game/gameState.js'
+import { reducer, loadState, saveState, saveEndings } from './game/gameState.js'
 import { ENDINGS } from './game/content.js'
 import StoryView from './components/StoryView.jsx'
 import PracticeView from './components/PracticeView.jsx'
@@ -7,12 +7,17 @@ import DictionaryView from './components/DictionaryView.jsx'
 import EndingsView from './components/EndingsView.jsx'
 
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, undefined, newRun)
+  const [state, dispatch] = useReducer(reducer, undefined, loadState)
   const [confirmReset, setConfirmReset] = useState(false)
   const peakOn = state.peak > 0
   const endingsGot = ENDINGS.filter((e) => state.discoveredEndings?.[e.id]).length
 
-  // persist the endings collection across reloads
+  // persist the whole state every change — reloading resumes exactly where you were
+  useEffect(() => {
+    saveState(state)
+  }, [state])
+
+  // also keep the endings collection under its own durable key
   useEffect(() => {
     saveEndings(state.discoveredEndings)
   }, [state.discoveredEndings])
