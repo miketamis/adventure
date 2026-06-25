@@ -202,6 +202,10 @@ export const DICT = {
   diell:     { al: 'diell',     en: 'sun' },     // the Kulshedra swallows it (eclipse)
   // --- the underworld gate ---
   qen:       { al: 'qen',       en: 'dog' },     // the three-headed sleepless hound
+  // --- Tomorr & Shpirag; Mujo's golden-horned goats ---
+  lot:       { al: 'lot',       en: 'tears' },
+  dhi:       { al: 'dhi',       en: 'goat' },
+  ar:        { al: 'ar',        en: 'gold' },
 }
 
 // ---------------------------------------------------------------------------
@@ -376,6 +380,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('shko'), w('ne'), w('mal')), to: 'mali1' },
+      { text: L(w('ec'), w('larg')), to: 'dhia1' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -952,6 +957,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'majaEagle' },
+      { text: L(w('ec'), w('larg')), to: 'shpirag1' },
     ],
   },
 
@@ -1100,6 +1106,67 @@ export const STORY = {
       { text: L(w('rri'), w('i_art'), w('qete')), to: 'diellVdes' },
     ],
   },
+
+  // =========================================================================
+  // SIDE-QUEST — the giants Tomorr & Shpirag (the river of tears)
+  // =========================================================================
+  shpirag1: {
+    id: 'shpirag1',
+    text: [
+      L(w('ketu'), w('nje'), w('mal'), w('dhe'), w('nje'), w('mal'), w('tjeter'), p('.')),
+      L(w('tomor'), w('dhe'), w('nje'), w('mal'), wf('lufto', 'luftojnë', 'fight'), w('per'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
+      L(wf('bukura', 'Bukura', 'the Beauty'), w('vdes'), w('dhe'), w('lot'), w('behet'), w('nje'), w('lume'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'shpiragFund' },
+      { text: L(w('ec'), w('larg')), to: 'mali1' },
+    ],
+  },
+
+  shpiragFund: {
+    id: 'shpiragFund',
+    end: 'secret',
+    title: 'The Tears of the Earth',
+    blurb:
+      'Two of the great mountains, the people say, were once giants — Tomorr and Shpirag — who fought to the death over E Bukura e Dheut. When she died her tears ran down to become the river Osum, and the land has wept for her ever since.',
+    text: [
+      L(w('tomor'), w('dhe'), w('nje'), w('mal'), w('vdes'), p('.')),
+      L(w('lot'), w('te_link'), wf('bukura', 'Bukurës', 'of the Beauty'), w('behet'), w('nje'), w('lume'), p('.')),
+    ],
+    options: [],
+  },
+
+  // =========================================================================
+  // SIDE-QUEST — Mujo & the golden-horned goats (the petrified wedding)
+  // =========================================================================
+  dhia1: {
+    id: 'dhia1',
+    text: [
+      L(w('ketu'), w('shume'), wf('njeri', 'njerëz', 'people'), w('te_link'), wf('gur', 'guri', 'of stone'), p('.')),
+      L(w('nje'), w('zane'), w('e_art'), w('keq'), w('ka'), w('fuqi'), w('ne'), w('nje'), w('dhi'), p('.')),
+      L(wf('dhi', 'dhia', 'the goat'), w('ka'), w('ar'), p('.')),
+    ],
+    options: [
+      { text: L(w('merr'), wf('dhi', 'dhinë', 'the goat')), to: 'dhiaFund' },
+      { text: L(w('ec'), w('larg')), to: 'mali1' },
+    ],
+  },
+
+  dhiaFund: {
+    id: 'dhiaFund',
+    end: 'secret',
+    title: 'The Golden-Horned Goats',
+    blurb:
+      'A wedding party stood frozen to stone — the work of the wild Zanas. Their strength, you learned as Mujo did, was hidden in goats with golden horns. You took the goats, the Zanas’ power drained away, and the stone guests drew breath again.',
+    text: [
+      L(w('ti'), w('merr'), wf('dhi', 'dhinë', 'the goat'), p('.')),
+      L(wf('njeri', 'njerëz', 'the people'), w('eshte'), w('i_art'), w('sigurt'), p('.')),
+    ],
+    options: [],
+  },
+
+  // =========================================================================
+  // SIDE-QUEST — the Maiden Promised to the Sun (Dielli)
 
   diellLirim: {
     id: 'diellLirim',
@@ -2061,6 +2128,8 @@ const CONFUSERS = {
   shqipe1: L(w('zbrit'), w('ne'), w('pus')), //   go down a well — none here
   shqipe2: L(w('kalo'), bridgeAcc()), //          cross a bridge — none here
   diellVajza: L(w('thirr'), eagleAcc()), //       call the eagle — none here
+  shpirag1: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
+  dhia1: L(w('thirr'), eagleAcc()), //            call the eagle — none here
 }
 
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
@@ -2169,6 +2238,8 @@ const CONFUSERS2 = {
   shqipe1: L(w('pi'), wf('peme', 'pemën', 'the tree')), // drink the tree
   shqipe2: L(w('pi'), eagleAcc()), //               drink the eagle
   diellVajza: L(w('pi'), wf('diell', 'diellin', 'the Sun')), // drink the Sun
+  shpirag1: L(w('pi'), mountainAcc()), //           drink the mountain
+  dhia1: L(w('pi'), wf('dhi', 'dhinë', 'the goat')), // drink the goat
 }
 
 // (3) a third distractor — another impossible action (open/take/fight a present
@@ -2556,4 +2627,7 @@ export const DEFS = {
   diell: L(w('nje'), w('drite'), w('e_art'), w('madh')), //       a great light
   qen: L(w('nje'), w('kafshe'), w('ne'), w('shtepi')), //         an animal in the house
   ngadale: L(w('jo'), w('shpejt')), //                            not fast
+  lot: L(w('uje'), w('te_link'), w('sy')), //                     water of the eyes
+  dhi: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //       a small animal
+  ar: L(w('nje'), w('gur'), w('e_art'), w('bukur')), //           a beautiful metal (stone)
 }
