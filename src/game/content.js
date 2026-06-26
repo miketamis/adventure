@@ -223,6 +223,17 @@ export const DICT = {
   gjuhe:     { al: 'gjuhë',     en: 'tongue' },  // the seven tongues as proof
   shtate:    { al: 'shtatë',    en: 'seven' },
   tund:      { al: 'tund',      en: 'rock' },    // rock the cradle (Mujo & the Zanas)
+  dordolec:  { al: 'dordolec',  en: 'rain-child' }, // the green-clad child of the rain-call
+  shi:       { al: 'shi',       en: 'rain' },
+  vesh:      { al: 'vesh',      en: 'wears' },
+  gjelber:   { al: 'gjelbër',   en: 'green' },
+  kendo:     { al: 'këndo',     en: 'sing' },
+  bolla:     { al: 'bolla',     en: 'bolla-serpent' }, // the serpent that becomes a Kulshedra
+  shengjergj:{ al: 'Shëngjergj',en: 'St George' },// Shëngjergji, when the Bolla opens its eyes
+  kurre:     { al: 'kurrë',     en: 'never' },
+  katallan:  { al: 'katallan',  en: 'one-eyed giant' }, // the Albanian Polyphemus
+  godit:     { al: 'godit',     en: 'strike' },
+  verbo:     { al: 'verbo',     en: 'blind' },   // verbo syrin — put out the eye
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -414,9 +425,11 @@ export const STORY = {
     text: [
       L(wf('lume', 'lumi', 'the river'), w('eshte'), w('i_art'), w('thate'), p('.')),
       L(w('por'), w('ti'), w('sheh'), w('nje'), w('zane'), p('.')),
+      L(w('nje'), w('gjarper'), w('fle'), w('ne'), wf('lume', 'lumë', 'the river'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('zane', 'zanën', 'the fairy')), to: 'zana1', reveal: 'zane' },
+      { text: L(w('kerko'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'bolla1', reveal: 'gjarper' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
       { text: L(w('kerko'), w('thesar')), to: 'fshehur', secret: true },
     ],
@@ -478,9 +491,11 @@ export const STORY = {
     text: [
       L(w('ti'), w('je'), w('ne'), w('mal'), w('tomor'), p('.')),
       L(wf('mal', 'mali', 'the mountain'), w('eshte'), w('i_art'), w('madh'), w('dhe'), w('i_art'), w('erret'), p('.')),
+      L(w('nje'), w('shpelle'), w('eshte'), w('ketu'), p('.')),
     ],
     options: [
       { text: L(w('ngjit'), wf('mal', 'malin', 'the mountain')), to: 'mali2', reveal: 'mal' },
+      { text: L(w('shko'), w('ne'), wf('shpelle', 'shpellën', 'the cave')), to: 'katallan1', reveal: 'shpelle' },
       { text: L(w('ec'), w('larg')), to: 'diellVajza' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
@@ -1855,9 +1870,11 @@ export const STORY = {
       L(w('nje'), w('pus'), w('eshte'), w('i_art'), w('thate'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), w('nuk'), wf('ka', 'kanë', 'have'), w('uje'), p('.')),
       L(w('nje'), w('plak'), w('flet'), p('.')),
+      L(wf('femije', 'fëmijët', 'the children'), wf('bej', 'bëjnë', 'make'), w('nje'), w('dordolec'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'fshatiBesa', reveal: 'plak' },
+      { text: L(w('ndihmo'), wf('femije', 'fëmijët', 'the children')), to: 'dordolec1', reveal: 'dordolec' },
       { text: L(w('ec'), w('larg')), to: 'kostandin1' },
     ],
   },
@@ -2352,6 +2369,140 @@ export const STORY = {
       { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'kala2' },
     ],
   },
+
+  // === SIDE-QUEST: the Dordolec / rain-call (riti i dordolecit; Tirta 2004) ===
+  // Children clad a child head to foot in green branches and lead a singing procession,
+  // sprinkling water, faces turned to Shendelli (the Holy Sun) — imitative rain magic.
+  dordolec1: {
+    id: 'dordolec1',
+    text: [
+      L(wf('femije', 'fëmijët', 'the children'), wf('bej', 'bëjnë', 'make'), w('nje'), w('dordolec'), p('.')),
+      L(w('nje'), w('femije'), w('vesh'), wf('peme', 'pemë', 'plants'), w('te_link'), w('gjelber'), p('.')),
+      L(wf('dordolec', 'dordoleci', 'the rain-child'), wf('kerko', 'kërkon', 'calls for'), w('shi'), p('.')),
+    ],
+    options: [
+      { text: L(w('kendo'), w('me'), wf('femije', 'fëmijët', 'the children')), to: 'dordolec2', reveal: 'dordolec' },
+      { text: L(w('ec'), w('larg')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  dordolec2: {
+    id: 'dordolec2',
+    text: [
+      L(wf('femije', 'fëmijët', 'the children'), wf('kendo', 'këndojnë', 'sing'), w('dhe'), wf('hidh', 'hedhin', 'throw'), w('uje'), p('.')),
+      L(w('ti'), w('sheh'), wf('mal', 'malin', 'the mountain'), w('e_art'), wf('diell', 'diellit', 'of the sun'), p('.')),
+    ],
+    options: [
+      { text: L(w('shko'), w('ne'), w('mal')), to: 'dordolecFund', reveal: 'mal' },
+      { text: L(w('ec'), w('larg')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  dordolecFund: {
+    id: 'dordolecFund',
+    end: 'secret',
+    title: 'The Rain-Caller',
+    blurb:
+      'You did not slay the Kulshedra; you called the rain the old way. The children clad the Dordolec head to foot in green — elder and fern and oak — and led him singing through the parched lanes, sprinkling water as they went, their faces turned to Shendelli, the Holy Sun mountain. Old Perendia heard, as the rite promises, and the first fat drops struck the dust. Sometimes a drought breaks not by a hero’s sword but by the village’s own song.',
+    text: [
+      L(w('shi'), w('vjen'), p('.')),
+      L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('perseri'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === SIDE-QUEST: the Bolla (the dragon's life-cycle; Lambertz/Doja, Elsie 2001) ===
+  // A Bolla keeps its eyes shut all year, opening them only on St George's Eve to devour;
+  // left to live it grows to a bullar, sprouts wings, and becomes a Kulshedra.
+  bolla1: {
+    id: 'bolla1',
+    text: [
+      L(w('nje'), w('gjarper'), w('fle'), w('ne'), wf('lume', 'lumë', 'the river'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('nje'), w('bolla'), p('.')),
+      L(wf('naten', 'natën', 'on the night'), w('e_art'), wf('shengjergj', 'Shëngjergjit', 'of St George'), w('bolla'), w('hap'), wf('sy', 'sytë', 'its eyes'), p('.')),
+    ],
+    options: [
+      { text: L(w('prit'), wf('shengjergj', 'Shëngjergjin', 'St George')), to: 'bolla2', reveal: 'bolla' },
+      { text: L(w('ec'), w('larg')), to: 'lumi' },
+    ],
+  },
+
+  bolla2: {
+    id: 'bolla2',
+    text: [
+      L(w('bolla'), w('hap'), wf('sy', 'sytë', 'its eyes'), p('.')),
+      L(w('bolla'), w('do'), w('te_subj'), w('behet'), w('nje'), wf('kulshedra', 'kulshedër', 'a kulshedra'), p('.')),
+    ],
+    options: [
+      { text: L(w('vrit'), wf('bolla', 'bollën', 'the bolla')), to: 'bollaFund', reveal: 'bolla' },
+      { text: L(w('ik'), w('shpejt')), to: 'lumi' },
+    ],
+  },
+
+  bollaFund: {
+    id: 'bollaFund',
+    end: 'secret',
+    title: 'The Dragon Slain Young',
+    blurb:
+      'You waited for Shëngjergj — Saint George’s Eve, the one night a Bolla unseals its eyes to look on the world and devour — and you struck before it could look on you. The old people say a Bolla left to live grows to a bullar, then sprouts wings, then becomes a Kulshedra to swallow the springs. You killed the dragon while it was still small: a drought that would have come in your grandchildren’s day will now never come at all.',
+    text: [
+      L(w('ti'), wf('vrit', 'vret', 'kill'), wf('bolla', 'bollën', 'the bolla'), p('.')),
+      L(w('nje'), wf('kulshedra', 'kulshedër', 'a kulshedra'), w('nuk'), w('vjen'), w('kurre'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === SIDE-QUEST: the Katallan — the one-eyed, knee-less cannibal giant (Albanian Polyphemus) ===
+  katallan1: {
+    id: 'katallan1',
+    text: [
+      L(w('ne'), wf('shpelle', 'shpellën', 'the cave'), w('rri'), w('nje'), w('katallan'), p('.')),
+      L(wf('katallan', 'katallani', 'the giant'), w('ka'), w('nje'), w('sy'), p('.')),
+    ],
+    options: [
+      { text: L(w('godit'), wf('sy', 'syrin', 'the eye')), to: 'katallan2', reveal: 'sy' },
+      { text: L(w('lufto'), wf('katallan', 'katallanin', 'the giant')), to: 'katallanVdes' },
+      { text: L(w('ik'), w('shpejt')), to: 'mali1' },
+    ],
+  },
+
+  katallan2: {
+    id: 'katallan2',
+    text: [
+      L(wf('katallan', 'katallani', 'the giant'), w('nuk'), w('sheh'), p('.')),
+      L(w('nje'), w('dash'), w('rri'), w('ketu'), p('.')),
+    ],
+    options: [
+      { text: L(w('ik'), w('me'), wf('dash', 'dashin', 'the ram')), to: 'katallanFund', reveal: 'dash' },
+      { text: L(w('lufto'), wf('katallan', 'katallanin', 'the giant')), to: 'katallanVdes' },
+    ],
+  },
+
+  katallanFund: {
+    id: 'katallanFund',
+    end: 'secret',
+    title: 'The One-Eyed Giant',
+    blurb:
+      'The Katallan — the one-eyed, knee-less giant who eats the travellers that stray into his cave — never saw you coming, for you put out his single eye while he slept; and when he groped for you at the cave-mouth you slipped past clinging to the belly of his own ram, the oldest trick in the world. Homer told it of the Cyclops; the Albanians tell it of the Katallan, and on the mountain road they still warn you never to trust a giant with one eye.',
+    text: [
+      L(w('ti'), wf('verbo', 'verbon', 'blind'), wf('katallan', 'katallanin', 'the giant'), p('.')),
+      L(w('ti'), w('ik'), w('me'), wf('dash', 'dashin', 'the ram'), p('.')),
+    ],
+    options: [],
+  },
+
+  katallanVdes: {
+    id: 'katallanVdes',
+    end: 'bad',
+    title: 'Eaten by the Katallan',
+    blurb:
+      'You raised your blade to a giant twice your height, and he simply ate you. The Katallan is never beaten with strength — only the cunning that blinds his one eye and rides out under his ram. Force was the wrong answer, as it always is with the one-eyed giant.',
+    text: [
+      L(wf('katallan', 'katallani', 'the giant'), w('te_obj'), w('ha'), p('.')),
+      L(w('loja'), w('mbaroi'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -2494,6 +2645,12 @@ const CONFUSERS = {
   nastradin1: L(w('zbrit'), w('ne'), w('pus')), // go down a well — none here
   sari1: L(w('thirr'), eagleAcc()), //            call the eagle — none here
   sari2: L(w('kalo'), bridgeAcc()), //            cross a bridge — none here
+  dordolec1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
+  dordolec2: L(w('thirr'), eagleAcc()), //        call the eagle — none here
+  bolla1: L(w('kalo'), bridgeAcc()), //           cross a bridge — none here
+  bolla2: L(w('thirr'), eagleAcc()), //           call the eagle — none here
+  katallan1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
+  katallan2: L(w('thirr'), eagleAcc()), //        call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3029,6 +3186,17 @@ export const DEFS = {
   gjuhe: L(w('nje'), w('gje'), w('ne'), wf('koke', 'kokë', 'the head')), // a thing in the head
   shtate: L(w('shume')), //                                       many
   tund: L(w('luan')), //                                          moves, plays
+  dordolec: L(w('nje'), w('femije'), w('me'), w('peme')), //     a child with plants
+  shi: L(w('uje')), //                                          water (from the sky)
+  vesh: L(w('mban')), //                                        wears, keeps on
+  gjelber: L(w('e_art'), w('peme')), //                         of-plant (green)
+  kendo: L(w('flet')), //                                       speaks/sings
+  bolla: L(w('nje'), w('gjarper')), //                          a serpent
+  shengjergj: L(w('nje'), w('dite')), //                        a day (feast)
+  kurre: L(w('nuk')), //                                        not, never
+  katallan: L(w('nje'), w('baloz')), //                         a giant
+  godit: L(w('lufto')), //                                      strikes, fights
+  verbo: L(w('mbyll'), w('sy')), //                             shut the eye
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
   bije: L(w('nje'), w('vajze'), w('te_link'), w('nene')), //      a maiden of a mother
