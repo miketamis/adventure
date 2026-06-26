@@ -53,11 +53,12 @@ export default function StoryView({ state, dispatch }) {
 
   const isNoun = (id) => id && !NON_NOUNS.has(id)
   const lineDiscovered = (line) => line.every((t) => !t.id || state.discovered[t.id])
-  // An option can be DESIGNED to stay hidden until a chosen sentence is fully read:
-  // author `reveal: '<senseId>'` on the option and it appears only once the text line
-  // that introduces that word is discovered. Hand-picked per option in content.js —
-  // deliberately NOT an automatic rule. No `reveal` field => the option is always shown.
   const sentenceFor = (senseId) => lines.find((line) => line.some((t) => t.id === senseId))
+  // An option stays hidden until you discover the sentence it belongs to — authored
+  // PER OPTION as `reveal: '<senseId>'` in content.js (deliberately NOT an automatic
+  // rule). No `reveal` field => the option is always shown. `scripts/storystats.mjs`
+  // lints the design goals: that most options are gated, and that every node always
+  // keeps at least one ungated, always-visible path.
   const optionRevealed = (opt) => {
     if (!opt.reveal) return true
     const line = sentenceFor(opt.reveal)
