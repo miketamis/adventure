@@ -1930,7 +1930,7 @@ export const STORY = {
       L(wf('femije', 'fëmijët', 'the children'), wf('bej', 'bëjnë', 'make'), w('nje'), w('dordolec'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'fshatiBesa', reveal: 'plak' },
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'oda1', reveal: 'plak' },
       { text: L(w('ndihmo'), wf('femije', 'fëmijët', 'the children')), to: 'dordolec1', reveal: 'dordolec' },
       { text: L(w('ec'), w('larg')), to: 'kostandin1' },
     ],
@@ -2823,6 +2823,35 @@ export const STORY = {
       { text: L(w('fle'), w('ketu')), to: 'besaFire' },
     ],
   },
+
+  // Act-1 buildup bottleneck on the shared spine. The hospitality rite (bukë e krypë; a
+  // guest is sent by God) and the village's grief, before the dragua/besa revelation —
+  // adds forced investment so the central quest is not reached on a single click. (§10)
+  oda1: {
+    id: 'oda1',
+    text: [
+      L(wf('plak', 'plaku', 'the old man'), w('te_obj'), wf('thirr', 'thërret', 'calls'), w('ketu'), p('.')),
+      L(wf('plak', 'plaku', 'the old man'), w('jep'), w('buke'), w('dhe'), w('kripe'), p('.')),
+      L(w('ti'), w('je'), w('nje'), w('mik'), p('.')),
+    ],
+    options: [
+      { text: L(w('ha'), w('buke')), to: 'oda2', reveal: 'mik' },
+      { text: L(w('ec'), w('larg')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  oda2: {
+    id: 'oda2',
+    text: [
+      L(wf('plak', 'plaku', 'the old man'), w('ka'), w('lot'), p('.')),
+      L(wf('fshat', 'fshati', 'the village'), w('eshte'), w('i_art'), w('thate'), p('.')),
+      L(wf('njeri', 'njerëz', 'people'), wf('vdes', 'vdesin', 'die'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'fshatiBesa', reveal: 'lot' },
+      { text: L(w('ec'), w('larg')), to: 'fshatiSheshi' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -2983,6 +3012,8 @@ const CONFUSERS = {
   thesar2: L(w('thirr'), eagleAcc()), //          call the eagle — none here
   nastradin2: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
   besaBekim: L(w('thirr'), eagleAcc()), //        call the eagle — none here
+  oda1: L(w('kalo'), bridgeAcc()), //             cross a bridge — none here
+  oda2: L(w('thirr'), eagleAcc()), //             call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
