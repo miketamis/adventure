@@ -231,6 +231,7 @@ export const DICT = {
   shpirag:   { al: 'Shpirag',   en: 'Shpirag' }, // the rival mountain of Tomorr
   bir:       { al: 'bir',       en: 'son' },     // Son of the Eagle (Shqiptar)
   mban:      { al: 'mban',      en: 'keeps' },   // mban besën — keeps the oath
+  vitore:    { al: 'vitore',    en: 'house-serpent' }, // the Vitore, luck-serpent of the home
 }
 
 // ---------------------------------------------------------------------------
@@ -315,8 +316,22 @@ export const STORY = {
       L(w('por'), wf('trim', 'trimi', 'the hero'), w('ka'), w('nje'), w('plage'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('trim', 'trimin', 'the hero')), to: 'agaYmerFund' },
+      { text: L(w('mban'), wf('bese', 'besën', 'the besa')), to: 'agaYmerFund' },
+      { text: L(w('rri'), w('ne'), w('shtepi')), to: 'agaYmerStay' },
     ],
+  },
+
+  agaYmerStay: {
+    id: 'agaYmerStay',
+    end: 'bad',
+    title: 'The Broken Word',
+    blurb:
+      'You stayed. After nine years in chains, who could blame you for taking your wife’s hand and your own hearth again? But a besa is a besa, and word spread that Aga Ymer had given his sworn word to return and had not — and in the old country a man is only as good as his besa. You lived out your days warm and fed and quietly unforgiven, your name left out of the songs that should have carried it forever. Some prisons have no walls.',
+    text: [
+      L(wf('trim', 'trimi', 'the hero'), w('rri'), w('ne'), w('shtepi'), p('.')),
+      L(w('por'), wf('trim', 'trimi', 'the hero'), w('nuk'), w('mban'), wf('bese', 'besën', 'the besa'), p('.')),
+    ],
+    options: [],
   },
 
   agaYmerFund: {
@@ -1058,6 +1073,7 @@ export const STORY = {
     text: [
       L(wf('hije', 'hija', 'the shadow'), w('eshte'), w('ti'), p('.')),
       L(wf('hije', 'hija', 'the shadow'), w('nuk'), w('flet'), p('.')),
+      L(w('ti'), w('je'), w('nje'), w('dragua'), p('.')),
     ],
     options: [
       { text: L(w('prek'), wf('hije', 'hijen', 'the shadow')), to: 'gjarpri' },
@@ -1189,7 +1205,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('dervish', 'dervishin', 'the dervish')), to: 'sari2' },
-      { text: L(w('ec'), w('larg')), to: 'pylliLoop' },
+      { text: L(w('ec'), w('larg')), to: 'pusi' },
     ],
   },
 
@@ -1282,7 +1298,7 @@ export const STORY = {
     text: [
       L(w('nje'), w('hoxha'), w('eshte'), w('ketu'), p('.')),
       L(wf('hoxha', 'hoxha', 'the hodja'), w('merr'), w('nje'), w('kazan'), p('.')),
-      L(wf('kazan', 'kazani', 'the cauldron'), w('ka'), w('nje'), w('femije'), p('!')),
+      L(wf('hoxha', 'hoxha', 'the hodja'), w('thote'), p(':'), wf('kazan', 'kazani', 'the cauldron'), wf('lind', 'lindi', 'gave birth'), w('nje'), w('femije'), p('!')),
     ],
     options: [
       { text: L(w('degjo'), wf('hoxha', 'hoxhën', 'the hodja')), to: 'nastradinFund' },
@@ -1902,6 +1918,7 @@ export const STORY = {
       L(w('ti'), w('dhe'), wf('ujk', 'ujku', 'the wolf'), w('je'), w('ne'), w('nje'), w('shtepi'), w('te_link'), w('vjeter'), p('.')),
       L(w('nje'), w('gjarper'), w('rri'), w('ne'), w('mur'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('mik'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('nje'), w('vitore'), p('.')),
     ],
     options: [
       { text: L(w('fle'), w('ketu')), to: 'udheLugat' },
@@ -1927,6 +1944,7 @@ export const STORY = {
     text: [
       L(w('dite'), w('vjen'), p('.')),
       L(w('nje'), w('ora'), w('ec'), w('me'), w('ti'), p('.')),
+      L(wf('ora', 'Ora', 'the Ora'), w('eshte'), w('e_art'), w('bardhe'), p('.')),
       L(w('ti'), w('je'), w('i_art'), w('sigurt'), p('.')),
     ],
     options: [
@@ -3062,4 +3080,5 @@ export const DEFS = {
   shpirag: L(w('nje'), w('mal')), //                            a mountain
   bir: L(w('nje'), w('femije')), //                             a child
   mban: L(w('ka')), //                                          has, holds
+  vitore: L(w('nje'), w('gjarper')), //                         a serpent
 }
