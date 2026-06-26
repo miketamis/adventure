@@ -788,12 +788,14 @@ export const STORY = {
     id: 'thesarOra',
     text: [
       L(wf('plak', 'plaku', 'the old man'), w('flet'), p(':')),
-      L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('nje'), w('ora'), p('.')),
-      L(wf('ar', 'ari', 'the gold'), w('eshte'), w('i_art'), w('keq'), p('.')),
-      L(wf('ar', 'ari', 'the gold'), wf('vrit', 'vret', 'kills'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('nje'), w('vitore'), p('.')),
+      L(wf('vitore', 'vitorja', 'the vitore'), wf('lind', 'lindi', 'laid'), w('ar'), p('.')),
+      L(wf('njeri', 'njerëz', 'people'), wf('vrit', 'vranë', 'killed'), wf('vitore', 'vitoren', 'the vitore'), p('.')),
+      L(wf('zjarr', 'zjarri', 'the fire'), wf('ha', 'hëngri', 'ate'), wf('shtepi', 'shtëpinë', 'the house'), p('.')),
+      L(w('tani'), wf('ar', 'ari', 'the gold'), wf('vrit', 'vret', 'kills'), p('.')),
     ],
     options: [
-      { text: L(w('kerko'), wf('ar', 'arin', 'the gold')), to: 'thesar2', reveal: 'ar' },
+      { text: L(w('kerko'), wf('ar', 'arin', 'the gold')), to: 'thesar2', reveal: 'vitore' },
       { text: L(w('ec'), w('larg')), to: 'thesarLeave' },
     ],
   },
@@ -803,6 +805,7 @@ export const STORY = {
     text: [
       L(w('ti'), w('gjen'), wf('ar', 'arin', 'the gold'), p('.')),
       L(w('por'), w('nje'), w('gjarper'), w('i_art'), w('madh'), w('vjen'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('nje'), w('ora'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('do'), wf('ar', 'arin', 'the gold'), p('.')),
     ],
     options: [
@@ -831,7 +834,7 @@ export const STORY = {
     end: 'secret',
     title: 'The Serpent’s Hoard',
     blurb:
-      'You cut down the guardian serpent and the old gold was yours. But that serpent was an Ora in beast-shape, set to watch the hoard, and gold taken over a guardian’s body never comes clean. You dug your hundred wells and the village drank — yet the water ran brackish, the cattle sickened, and at night a cold hiss followed you. Some treasures are guarded for a reason.',
+      'You cut down the guardian serpent and the old gold was yours — but that serpent was a vitore, a golden house-snake, an Ora in beast-shape set to watch the hoard. A greedy family killed it once before, to seize at a stroke the gold it laid them coin by coin; their house burned and their line failed, and now their doom was yours, for gold taken over a guardian’s body never comes clean. You dug your hundred wells and the village drank — yet the water ran brackish, the cattle sickened, and at night a cold hiss followed you. Some treasures are guarded for a reason.',
     text: [
       L(wf('shpate', 'shpata', 'the sword'), wf('vrit', 'vret', 'kills'), wf('gjarper', 'gjarprin', 'the serpent'), p('.')),
       L(w('ti'), w('ke'), w('thesar'), p('.')),
@@ -925,7 +928,8 @@ export const STORY = {
       L(wf('drite', 'drita', 'the light'), w('eshte'), w('nje'), w('ora'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('ora', 'Orën', 'the spirit')), to: 'oraBardhe' },
+      { text: L(w('jep'), w('buke'), wf('ora', 'Orës', 'to the Ora')), requires: 'buke', consumes: 'buke', to: 'oraBardhe' },
+      { text: L(w('degjo'), wf('ora', 'Orën', 'the spirit')), to: 'oraVerdhe' },
       { text: L(w('ik'), w('ne'), w('erresire')), to: 'oraZeze', reveal: 'erresire' },
     ],
   },
@@ -935,7 +939,7 @@ export const STORY = {
     end: 'good',
     title: 'Led Home by your Ora',
     blurb:
-      'You followed the light. Every Albanian is born with an Ora, a fate-spirit that walks beside them; yours was e Bardha, the White, who deals out good fortune. She led you out of the dark and home, alive.',
+      'You did for the fate-spirit what Albanian families do at a cradle — set out bread, so the fates would bless and not curse. She came to you as e Bardha, the White, of the three Fates the one who deals out good fortune; she took your offering, and led you out of the dark and home, alive.',
     text: [
       L(wf('ora', 'Ora', 'the spirit'), w('te_obj'), wf('ndihmo', 'ndihmon', 'helps'), p('.')),
       L(w('ti'), w('je'), w('i_art'), w('sigurt'), p('.')),
@@ -1350,7 +1354,7 @@ export const STORY = {
       L(wf('hoxha', 'hoxha', 'the hodja'), w('thote'), p(':'), wf('kazan', 'kazani', 'the cauldron'), wf('lind', 'lindi', 'gave birth'), w('nje'), w('femije'), p('!')),
     ],
     options: [
-      { text: L(w('degjo'), wf('hoxha', 'hoxhën', 'the hodja')), to: 'nastradinFund', reveal: 'hoxha' },
+      { text: L(w('merr'), wf('kazan', 'kazanin', 'the cauldron')), to: 'nastradin2', reveal: 'hoxha' },
       { text: L(w('ec'), w('larg')), to: 'fshatiBesa' },
     ],
   },
@@ -1382,6 +1386,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'kostandin2', reveal: 'nene' },
+      { text: L(w('ndihmo'), wf('nene', 'nenën', 'the mother')), to: 'kostandinPushim' },
       { text: L(w('ec'), w('larg')), to: 'fshatiBesa' },
     ],
   },
@@ -2748,6 +2753,57 @@ export const STORY = {
     ],
     options: [],
   },
+
+  oraVerdhe: {
+    id: 'oraVerdhe',
+    end: 'bad',
+    title: 'The Yellow Ora',
+    blurb:
+      'You had no offering for her, but you did not flee her either. The Ora who met you in the dark was e Verdha, the Yellow — of the three Fates, the one who deals out bad luck and hard spells. She let you keep your life; but hers is the cold gift, and ill-fortune followed you out of the dark.',
+    text: [
+      L(wf('ora', 'Ora', 'the spirit'), w('te_obj'), wf('ndihmo', 'ndihmon', 'helps'), p('.')),
+      L(w('por'), w('ti'), w('humbet'), w('perseri'), p('.')),
+    ],
+    options: [],
+  },
+
+  nastradin2: {
+    id: 'nastradin2',
+    text: [
+      L(w('perseri'), wf('hoxha', 'hoxha', 'the hodja'), w('merr'), wf('kazan', 'kazanin', 'the cauldron'), p('.')),
+      L(wf('hoxha', 'hoxha', 'the hodja'), w('thote'), p(':'), wf('kazan', 'kazani', 'the cauldron'), w('vdes'), p('!')),
+    ],
+    options: [
+      { text: L(w('ec'), w('larg')), to: 'nastradinFund' },
+      { text: L(w('kerko'), wf('kazan', 'kazanin', 'the cauldron')), to: 'nastradinUrte', reveal: 'kazan' },
+    ],
+  },
+
+  nastradinUrte: {
+    id: 'nastradinUrte',
+    end: 'secret',
+    title: 'If a Cauldron Can Be Born',
+    blurb:
+      'You demanded your cauldron back. Nastradin Hoxha only spread his hands: last time it gave birth, and you pocketed the little pot gladly enough — so if a cauldron can give birth, surely it can also die. You had no answer to that, having kept the child, and you went home one cauldron poorer and one parable wiser.',
+    text: [
+      L(wf('hoxha', 'hoxha', 'the hodja'), w('thote'), p(':'), wf('kazan', 'kazani', 'the cauldron'), w('vdes'), p('.')),
+      L(w('ti'), w('ec'), w('larg'), w('pa'), wf('kazan', 'kazanin', 'the cauldron'), p('.')),
+    ],
+    options: [],
+  },
+
+  kostandinPushim: {
+    id: 'kostandinPushim',
+    end: 'secret',
+    title: 'Let the Dead Rest',
+    blurb:
+      'You did not let the old woman speak the curse that would tear her son from his grave. You sat with her grief until the bitterness passed, and she let Kostandin lie still in the earth. No lugat rode the night roads; Doruntine never came home across the mountains, and the besa went unkept — but no one fell dead upon the threshold, and the dead slept on in peace. Some say a besa unkept is a wound that never heals; some say the living were owed their lives.',
+    text: [
+      L(wf('vella', 'vëllai', 'the brother'), w('fle'), w('ne'), w('toke'), p('.')),
+      L(wf('nene', 'nëna', 'the mother'), w('rri'), w('i_art'), w('qete'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -2906,6 +2962,7 @@ const CONFUSERS = {
   kali1: L(w('thirr'), eagleAcc()), //            call the eagle — none here
   thesarOra: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   thesar2: L(w('thirr'), eagleAcc()), //          call the eagle — none here
+  nastradin2: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3460,6 +3517,7 @@ export const DEFS = {
   hekur: L(w('nje'), w('gur'), w('te_link'), w('forte')), //     a hard stone (metal)
   kale: L(w('nje'), w('kafshe')), //                             an animal
   ruan: L(w('mban')), //                                         keeps
+  pa: L(w('nuk'), w('me')), //                                   not with
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
   bije: L(w('nje'), w('vajze'), w('te_link'), w('nene')), //      a maiden of a mother
