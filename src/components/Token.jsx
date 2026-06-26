@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { splitStem } from '../game/content.js'
+import { playWord } from '../game/audio.js'
 
 // Renders one token.
 //  - particle:          "(of)"  -> dim, not interactive
@@ -24,7 +25,7 @@ export default function Token({ token, discovered, peak, onDiscover, tokenCount 
       <span
         className="token gloss"
         onClick={() => onDiscover(token.id)}
-        onMouseEnter={() => setHover(true)}
+        onMouseEnter={() => { setHover(true); playWord(token.al) }}
         onMouseLeave={() => setHover(false)}
       >
         {token.en}
@@ -39,7 +40,7 @@ export default function Token({ token, discovered, peak, onDiscover, tokenCount 
   return (
     <span
       className={'token known' + (peekable ? ' peekable' : '') + (showCount ? ' has-count' : '')}
-      onMouseEnter={() => setHover(true)}
+      onMouseEnter={() => { setHover(true); playWord(token.al) }}
       onMouseLeave={() => setHover(false)}
     >
       <span className="known-word">
