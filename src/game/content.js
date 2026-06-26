@@ -241,6 +241,7 @@ export const DICT = {
   shurdhi:   { al: 'Shurdhi',   en: 'Shurdhi' }, // the northern storm-god of hail and thunder
   hekur:     { al: 'hekur',     en: 'iron' },   // bang iron to rouse/ward the storm-god
   kale:      { al: 'kalë',      en: 'horse' },  // Mujo's oracular courser
+  ruan:      { al: 'ruan',      en: 'guards' }, // the Ora-serpent guards the hoard
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -765,15 +766,47 @@ export const STORY = {
   },
 
   // === branch: the hidden hoard — the guardian serpent ====================
+  // The buried-hoard branch. A rumor of Ottoman gold; an old man warns the guard is no
+  // snake but an Ora in serpent-shape, and gold taken over a guardian's body is cursed
+  // (folklore §4). Greed vs. heeding the warning -> a costed fork, not an instant prize.
   fshehur: {
     id: 'fshehur',
     text: [
-      L(w('ti'), w('gjen'), w('nje'), w('thesar'), w('te_link'), w('vjeter'), p('.')),
-      L(w('por'), w('nje'), w('gjarper'), w('i_art'), w('madh'), w('vjen'), p('.')),
-      L(wf('gjarper', 'gjarpri', 'the serpent'), w('do'), wf('thesar', 'thesarin', 'the treasure'), p('.')),
+      L(w('ketu'), w('rri'), w('nje'), w('plak'), w('te_link'), w('vjeter'), p('.')),
+      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
+      L(w('ne'), w('nje'), w('kala'), w('e_art'), w('vjeter'), w('eshte'), w('ar'), p('.')),
+      L(w('nje'), w('gjarper'), w('ruan'), wf('ar', 'arin', 'the gold'), p('.')),
     ],
     options: [
-      { text: L(w('jep'), wf('thesar', 'thesarin', 'the treasure')), to: 'thesarKthyer', reveal: 'thesar' },
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'thesarOra', reveal: 'plak' },
+      { text: L(w('kerko'), wf('ar', 'arin', 'the gold')), to: 'thesar2', reveal: 'ar' },
+      { text: L(w('ec'), w('larg')), to: 'start' },
+    ],
+  },
+
+  thesarOra: {
+    id: 'thesarOra',
+    text: [
+      L(wf('plak', 'plaku', 'the old man'), w('flet'), p(':')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('nje'), w('ora'), p('.')),
+      L(wf('ar', 'ari', 'the gold'), w('eshte'), w('i_art'), w('keq'), p('.')),
+      L(wf('ar', 'ari', 'the gold'), wf('vrit', 'vret', 'kills'), p('.')),
+    ],
+    options: [
+      { text: L(w('kerko'), wf('ar', 'arin', 'the gold')), to: 'thesar2', reveal: 'ar' },
+      { text: L(w('ec'), w('larg')), to: 'thesarLeave' },
+    ],
+  },
+
+  thesar2: {
+    id: 'thesar2',
+    text: [
+      L(w('ti'), w('gjen'), wf('ar', 'arin', 'the gold'), p('.')),
+      L(w('por'), w('nje'), w('gjarper'), w('i_art'), w('madh'), w('vjen'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('do'), wf('ar', 'arin', 'the gold'), p('.')),
+    ],
+    options: [
+      { text: L(w('jep'), wf('ar', 'arin', 'the gold')), to: 'thesarKthyer', reveal: 'ar' },
       { text: L(w('lufto'), wf('gjarper', 'gjarprin', 'the serpent')), requires: 'shpate', consumes: 'shpate', to: 'gjarperVrare', reveal: 'gjarper' },
       { text: L(w('ik'), w('shpejt')), to: 'gjarperNgrene' },
     ],
@@ -1013,6 +1046,7 @@ export const STORY = {
       when('ujk', L(wf('ujk', 'ujku', 'the wolf'), w('rri'), w('me'), w('ti'), p('.'))),
     ],
     options: [
+      { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', grant: 'ujk', unless: 'ujk', to: 'shokuUjk', reveal: 'uritur' },
       { text: L(w('zgjohu'), w('dhe'), w('ik')), to: 'pylliLoop' },
       { text: L(w('lufto'), wf('ujk', 'ujkun', 'the wolf')), unless: 'ujk', to: 'eaten', reveal: 'ujk' },
     ],
@@ -2701,6 +2735,19 @@ export const STORY = {
     ],
     options: [],
   },
+
+  thesarLeave: {
+    id: 'thesarLeave',
+    end: 'secret',
+    title: 'The Gold Left Buried',
+    blurb:
+      'You heeded the old man and left the hoard where it lay. The gold of an Ora is not for the taking — cursed is the house raised on a guardian\u2019s gold, and the village that drinks from it sickens. You walked home poor, but clean, your fate-spirit unoffended. In the old tales it is always the wise who leave the serpent\u2019s gold in the dark.',
+    text: [
+      L(w('ti'), w('ec'), w('larg'), p('.')),
+      L(wf('ar', 'ari', 'the gold'), w('rri'), w('ne'), w('kala'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -2857,6 +2904,8 @@ const CONFUSERS = {
   kordha2: L(w('thirr'), eagleAcc()), //          call the eagle — none here
   shurdhi1: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
   kali1: L(w('thirr'), eagleAcc()), //            call the eagle — none here
+  thesarOra: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
+  thesar2: L(w('thirr'), eagleAcc()), //          call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3410,6 +3459,7 @@ export const DEFS = {
   shurdhi: L(w('nje'), w('re'), w('dhe'), w('rrufe')), //         a cloud and thunder
   hekur: L(w('nje'), w('gur'), w('te_link'), w('forte')), //     a hard stone (metal)
   kale: L(w('nje'), w('kafshe')), //                             an animal
+  ruan: L(w('mban')), //                                         keeps
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
   bije: L(w('nje'), w('vajze'), w('te_link'), w('nene')), //      a maiden of a mother
