@@ -1,5 +1,5 @@
 // Story validation + depth stats. Run: node scripts/storystats.mjs
-import { STORY, START_NODE, DICT, DEFS, ITEMS } from '../src/game/content.js'
+import { STORY, START_NODE, DICT, DEFS, ITEMS, lineOf } from '../src/game/content.js'
 
 const nodes = STORY
 const ids = Object.keys(nodes)
@@ -25,7 +25,7 @@ const usedSenses = new Set()
 const missingDict = new Set()
 const collect = (toks) => { for (const t of toks || []) if (t.id) { usedSenses.add(t.id); if (!DICT[t.id]) missingDict.add(t.id) } }
 for (const id of ids) {
-  for (const line of nodes[id].text) collect(line)
+  for (const e of nodes[id].text) collect(lineOf(e))
   for (const o of nodes[id].options) collect(o.text)
 }
 for (const it of Object.values(ITEMS)) if (it.use) collect(it.use.phrase)
@@ -67,7 +67,7 @@ for (const id of nonEnd)
   for (const o of nodes[id].options || []) {
     if (!o.reveal) continue
     revealGates.push(id)
-    if (!nodes[id].text.some((line) => line.some((t) => t.id === o.reveal)))
+    if (!nodes[id].text.some((e) => lineOf(e).some((t) => t.id === o.reveal)))
       brokenGates.push(`${id}: reveal '${o.reveal}' not found in node text`)
   }
 const gatedNodes = [...new Set(revealGates)]

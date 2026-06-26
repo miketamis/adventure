@@ -232,6 +232,7 @@ export const DICT = {
   bir:       { al: 'bir',       en: 'son' },     // Son of the Eagle (Shqiptar)
   mban:      { al: 'mban',      en: 'keeps' },   // mban besën — keeps the oath
   vitore:    { al: 'vitore',    en: 'house-serpent' }, // the Vitore, luck-serpent of the home
+  sulmo:     { al: 'sulmo',     en: 'attack' },   // the wolf attacks a threat
 }
 
 // ---------------------------------------------------------------------------
@@ -246,6 +247,17 @@ export const p = (en) => ({ en, paren: true })
 
 // shorthand: build a token line from a compact spec
 const L = (...tokens) => tokens
+
+// Conditional story lines — a node.text entry is normally a token line (array), but
+// when()/unless() make a line appear only if the player HAS / LACKS a given item or
+// companion. This lets a scene react to what walks with you: e.g. with the wolf, a
+// hostile encounter resolves "the wolf attacks them" instead of the neutral default.
+export const when = (itemId, line) => ({ cond: itemId, line })
+export const unless = (itemId, line) => ({ cond: itemId, negate: true, line })
+export const lineOf = (entry) => (Array.isArray(entry) ? entry : entry.line)
+// the lines actually shown for a node, given has(itemId) -> bool
+export const visibleLines = (node, has) =>
+  node.text.filter((e) => Array.isArray(e) || (e.negate ? !has(e.cond) : has(e.cond))).map(lineOf)
 
 // ---------------------------------------------------------------------------
 // STORY GRAPH
@@ -998,11 +1010,12 @@ export const STORY = {
     id: 'gjumi',
     text: [
       L(w('ti'), w('fle'), w('ne'), w('toke'), p('.')),
-      L(w('naten'), w('vjen'), w('nje'), w('ujk'), w('te_link'), w('uritur'), p('.')),
+      unless('ujk', L(w('naten'), w('vjen'), w('nje'), w('ujk'), w('te_link'), w('uritur'), p('.'))),
+      when('ujk', L(wf('ujk', 'ujku', 'the wolf'), w('rri'), w('me'), w('ti'), p('.'))),
     ],
     options: [
       { text: L(w('zgjohu'), w('dhe'), w('ik')), to: 'pylliLoop' },
-      { text: L(w('lufto'), wf('ujk', 'ujkun', 'the wolf')), to: 'eaten' },
+      { text: L(w('lufto'), wf('ujk', 'ujkun', 'the wolf')), unless: 'ujk', to: 'eaten' },
     ],
   },
 
@@ -2306,9 +2319,12 @@ export const STORY = {
     text: [
       L(w('ketu'), w('nje'), w('nene'), w('kerko'), w('nje'), w('femije'), p('.')),
       L(wf('nene', 'nena', 'the mother'), w('eshte'), w('e_art'), wf('keq', 'keqe', 'bad'), p('.')),
+      when('ora', L(wf('ora', 'Ora', 'the Ora'), w('thote'), p(':'), wf('nene', 'nena', 'the mother'), w('eshte'), w('nje'), w('shtrige'), p('.'))),
+      when('ujk', L(wf('ujk', 'ujku', 'the wolf'), wf('sulmo', 'sulmon', 'attacks'), wf('nene', 'nenën', 'the mother'), p('.'))),
+      when('ujk', L(wf('nene', 'nena', 'the mother'), wf('ik', 'ikën', 'flees'), p('.'))),
     ],
     options: [
-      { text: L(w('ndihmo'), wf('nene', 'nenën', 'the mother')), to: 'nenaShtrige' },
+      { text: L(w('ndihmo'), wf('nene', 'nenën', 'the mother')), unless: 'ujk', to: 'nenaShtrige' },
       { text: L(w('ec'), w('larg')), to: 'ktheu3' },
     ],
   },
@@ -2825,7 +2841,7 @@ export const ITEMS = {
 export const ALL_SENSE_IDS = (() => {
   const ids = new Set()
   for (const node of Object.values(STORY)) {
-    for (const line of node.text) for (const t of line) if (t.id) ids.add(t.id)
+    for (const e of node.text) for (const t of lineOf(e)) if (t.id) ids.add(t.id)
     for (const opt of node.options) for (const t of opt.text) if (t.id) ids.add(t.id)
   }
   return [...ids]
@@ -2845,7 +2861,7 @@ export const STEMS = (() => {
     ;(surfaces[t.id] ||= new Set()).add(t.al)
   }
   for (const node of Object.values(STORY)) {
-    for (const line of node.text) for (const t of line) add(t)
+    for (const e of node.text) for (const t of lineOf(e)) add(t)
     for (const opt of node.options) for (const t of opt.text) add(t)
   }
   for (const item of Object.values(ITEMS)) if (item.use) for (const t of item.use.phrase) add(t)
@@ -3095,4 +3111,5 @@ export const DEFS = {
   bir: L(w('nje'), w('femije')), //                             a child
   mban: L(w('ka')), //                                          has, holds
   vitore: L(w('nje'), w('gjarper')), //                         a serpent
+  sulmo: L(w('lufto')), //                                      fights
 }

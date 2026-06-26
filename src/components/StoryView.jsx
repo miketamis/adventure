@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Token from './Token.jsx'
-import { STORY, ITEMS, w, wf, p } from '../game/content.js'
+import { STORY, ITEMS, w, wf, p, visibleLines } from '../game/content.js'
 import { canSpeak, canUseItem, hasRequiredItem } from '../game/gameState.js'
 
 // sense ids that are NOT nouns (verbs, particles, adjectives, adverbs, numbers).
@@ -46,13 +46,18 @@ export default function StoryView({ state, dispatch }) {
   // A direction stays hidden until you discover every word of the sentence that
   // names its thing. e.g. discovering "ka një lumë" reveals "shko në lumë". The
   // noun a phrase acts on is its last content noun.
+  // the lines actually shown right now — a scene can react to what walks with you
+  // (when()/unless() lines in content.js), so resolve against the current inventory
+  const has = (id) => (state.inventory[id] || 0) > 0
+  const lines = visibleLines(node, has)
+
   const isNoun = (id) => id && !NON_NOUNS.has(id)
   const lineDiscovered = (line) => line.every((t) => !t.id || state.discovered[t.id])
   // An option can be DESIGNED to stay hidden until a chosen sentence is fully read:
   // author `reveal: '<senseId>'` on the option and it appears only once the text line
   // that introduces that word is discovered. Hand-picked per option in content.js —
   // deliberately NOT an automatic rule. No `reveal` field => the option is always shown.
-  const sentenceFor = (senseId) => node.text.find((line) => line.some((t) => t.id === senseId))
+  const sentenceFor = (senseId) => lines.find((line) => line.some((t) => t.id === senseId))
   const optionRevealed = (opt) => {
     if (!opt.reveal) return true
     const line = sentenceFor(opt.reveal)
@@ -90,7 +95,7 @@ export default function StoryView({ state, dispatch }) {
 
   // Distractors built from the item(s) you carry — an impossible action on the
   // item, and sometimes a nonsensical combo of the item with a thing in the scene.
-  const presentNouns = [...new Set(node.text.flat().filter((t) => isNoun(t.id)).map((t) => t.id))]
+  const presentNouns = [...new Set(lines.flat().filter((t) => isNoun(t.id)).map((t) => t.id))]
   const itemConfusers = []
   if (itemIds.length > 0) {
     const hash = [...state.nodeId].reduce((a, c) => a + c.charCodeAt(0), 0)
@@ -112,7 +117,7 @@ export default function StoryView({ state, dispatch }) {
   let hiddenPaths = 0
   node.options.forEach((opt, i) => {
     if (opt.confuser) return // confusers handled below
-    if (opt.requires && !hasRequiredItem(state, opt)) return
+    if (!hasRequiredItem(state, opt)) return // hidden by requires:/unless:
     if (!optionRevealed(opt)) {
       hiddenPaths++
       return
@@ -193,7 +198,7 @@ export default function StoryView({ state, dispatch }) {
       <div className="story-text">
         {!state.ended && companionIds.length > 0 && renderLine(companionLine(), 'companions')}
         {!state.ended && itemIds.length > 0 && renderLine(carryLine(), 'carry')}
-        {node.text.map(renderLine)}
+        {lines.map(renderLine)}
       </div>
 
       {state.ended ? (

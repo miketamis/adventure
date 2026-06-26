@@ -82,9 +82,12 @@ export function canSpeak(state, tokens) {
   return { ids, allDiscovered, enoughMana, ok: allDiscovered && enoughMana }
 }
 
-// an option that needs an item only appears once you hold that item
+// an option can be gated on what you hold: `requires` shows it only once you have that
+// item/companion; `unless` hides it once you have that item/companion (e.g. a trap that
+// no longer exists because your wolf already drove the threat off).
 export const hasRequiredItem = (state, option) =>
-  !option.requires || (state.inventory[option.requires] || 0) > 0
+  (!option.requires || (state.inventory[option.requires] || 0) > 0) &&
+  (!option.unless || (state.inventory[option.unless] || 0) === 0)
 
 export const canChoose = (state, option) =>
   canSpeak(state, option.text).ok && hasRequiredItem(state, option)
