@@ -3,18 +3,20 @@ import Token from './Token.jsx'
 import { STORY, ITEMS, w, p } from '../game/content.js'
 import { canSpeak, canUseItem, hasRequiredItem } from '../game/gameState.js'
 
-// sense ids that are NOT nouns (verbs, particles, adjectives, adverbs) — used to
-// pick a real "thing" from the scene when building item-combo distractors
+// sense ids that are NOT nouns (verbs, particles, adjectives, adverbs, numbers).
+// Used to (a) pick a real "thing" from the scene for item-combo distractors, and
+// (b) find the NOUN a direction acts on, so a sentence can unlock that direction.
 const NON_NOUNS = new Set([
-  'ti', 'je', 'ne', 'nje', 'dhe', 'ka', 'ke', 'mund', 'eshte', 'te_link', 'te_subj', 'i_art',
-  'e_art', 'me', 'por', 'nuk', 'pa', 'ku', 'qe', 'do', 'per', 'une',
+  'ti', 'je', 'ne', 'nje', 'dhe', 'ka', 'ke', 'mund', 'eshte', 'te_link', 'te_subj', 'te_obj',
+  'i_art', 'e_art', 'me', 'por', 'nuk', 'pa', 'ku', 'qe', 'do', 'per', 'une', 'jam', 'ose', 'jo',
   'sheh', 'ec', 'fle', 'hap', 'ik', 'jep', 'pi', 'behet', 'vjen', 'zgjohu', 'rri', 'ndiz', 'ha',
   'mbaroi', 'humbet', 'merr', 'kerko', 'gjen', 'kalo', 'shko', 'prit', 'lufto', 'vrit', 'shpeto',
   'ngjit', 'zbrit', 'fluturo', 'degjo', 'flet', 'thote', 'ndihmo', 'beso', 'hyr', 'dil', 'thirr',
-  'hidh', 'kthehu', 'prek', 'vdes', 'bie', 'pre', 'luan', 'bej', 'mbyll', 'vazhdon',
+  'hidh', 'kthehu', 'prek', 'vdes', 'bie', 'pre', 'luan', 'bej', 'mbyll', 'vazhdon', 'lind', 'fol',
+  'premto',
   'madh', 'vogel', 'erret', 'sigurt', 'ri', 'vjeter', 'uritur', 'shpejt', 'qete', 'perseri',
   'forte', 'bukur', 'keq', 'thate', 'lart', 'mire', 'ngadale', 'poshte', 'larg', 'jashte', 'tani',
-  'ngrohte', 'ftohte', 'ketu', 'brenda',
+  'ngrohte', 'ftohte', 'ketu', 'brenda', 'bardhe', 'zi', 'shume', 'tjeter', 'nente', 'shtate',
 ])
 const LIQUID_ITEMS = new Set(['qumesht', 'potion']) // drinkable — don't "drink the X" them
 
@@ -40,10 +42,27 @@ export default function StoryView({ state, dispatch }) {
   const [confusedKey, setConfusedKey] = useState(null)
   useEffect(() => setConfusedKey(null), [state.nodeId])
 
-  // a secret option stays hidden until every word in the passage is discovered
-  const textSenseIds = [...new Set(node.text.flat().filter((t) => t.id).map((t) => t.id))]
-  const undiscoveredInText = textSenseIds.filter((id) => !state.discovered[id])
-  const passageFullyDiscovered = undiscoveredInText.length === 0
+  // === SENTENCE-GATED DIRECTIONS ============================================
+  // A direction stays hidden until you discover every word of the sentence that
+  // names its thing. e.g. discovering "ka një lumë" reveals "shko në lumë". The
+  // noun a phrase acts on is its last content noun.
+  const isNoun = (id) => id && !NON_NOUNS.has(id)
+  const phraseNoun = (tokens) => {
+    const nouns = tokens.filter((t) => isNoun(t.id)).map((t) => t.id)
+    return nouns.length ? nouns[nouns.length - 1] : null
+  }
+  const lineDiscovered = (line) => line.every((t) => !t.id || state.discovered[t.id])
+  // the first text sentence that introduces a noun (or null if none does)
+  const sentenceFor = (nounId) => node.text.find((line) => line.some((t) => t.id === nounId))
+  // the gating sentence for an option, or null if the option isn't sentence-gated
+  const gateLineFor = (opt) => {
+    const noun = phraseNoun(opt.text)
+    return (noun && sentenceFor(noun)) || null
+  }
+  const optionRevealed = (opt) => {
+    const line = gateLineFor(opt)
+    return line ? lineDiscovered(line) : true
+  }
 
   // what you carry, and which of those can be used (their action becomes a path)
   const ownedIds = Object.keys(state.inventory).filter((id) => state.inventory[id] > 0)
@@ -61,23 +80,18 @@ export default function StoryView({ state, dispatch }) {
   }
 
   // Distractors built from the item(s) you carry — an impossible action on the
-  // item, and sometimes a nonsensical combo of the item with a thing in the
-  // scene (e.g. "jashtë bukë plak"). They appear even where no real item path
-  // exists, so carrying something is never a free pass.
-  const presentNouns = textSenseIds.filter((id) => !NON_NOUNS.has(id))
+  // item, and sometimes a nonsensical combo of the item with a thing in the scene.
+  const presentNouns = [...new Set(node.text.flat().filter((t) => isNoun(t.id)).map((t) => t.id))]
   const itemConfusers = []
   if (ownedIds.length > 0) {
     const hash = [...state.nodeId].reduce((a, c) => a + c.charCodeAt(0), 0)
     const featured = ownedIds[hash % ownedIds.length]
     const fw = ITEMS[featured].word || featured
-    // an impossible action on the item itself (drink a solid; fight a liquid)
     itemConfusers.push([LIQUID_ITEMS.has(featured) ? w('lufto') : w('pi'), w(fw)])
-    // sometimes: the item tangled up with something in the scene — pure nonsense
     if (presentNouns.length > 0 && hash % 2 === 0) {
       itemConfusers.push([w('jashte'), w(fw), w(presentNouns[hash % presentNouns.length])])
     }
   }
-  // don't show one that happens to match a real option or item action
   const seenPhrase = new Set()
   for (const o of node.options) seenPhrase.add(o.text.map((t) => t.id || t.en).join(' '))
   for (const id of usableOwned) seenPhrase.add(ITEMS[id].use.phrase.map((t) => t.id || t.en).join(' '))
@@ -85,13 +99,21 @@ export default function StoryView({ state, dispatch }) {
     (toks) => !seenPhrase.has(toks.map((t) => t.id || t.en).join(' ')),
   )
 
-  // Every choice — story paths, item uses, distractors — is the same kind of
-  // object with no special styling, then shuffled, so position is no tell.
+  // Real directions are sentence-gated. Confusers (and the dynamic item-combo
+  // distractors) only appear once at least one gated direction has been revealed —
+  // so the player decodes the scene before the comprehension trap is offered. If a
+  // node gates nothing, everything shows immediately (as before).
+  const realOpts = node.options.filter((o) => !o.confuser && hasRequiredItem(state, o))
+  const gatedReal = realOpts.filter((o) => gateLineFor(o))
+  const sceneEngaged = gatedReal.length === 0 ? true : gatedReal.some((o) => optionRevealed(o))
+
   const entries = []
+  let hiddenPaths = 0
   node.options.forEach((opt, i) => {
+    if (opt.confuser) return // confusers handled below
     if (opt.requires && !hasRequiredItem(state, opt)) return
-    if (opt.secret && !passageFullyDiscovered) {
-      entries.push({ key: 'opt-' + i, secretLocked: true })
+    if (!optionRevealed(opt)) {
+      hiddenPaths++
       return
     }
     const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
@@ -101,14 +123,10 @@ export default function StoryView({ state, dispatch }) {
       allDiscovered,
       enoughMana,
       ok: allDiscovered && enoughMana && hasRequiredItem(state, opt),
-      onSelect: opt.confuser
-        ? () => {
-            dispatch({ type: 'CONFUSE' })
-            setConfusedKey('opt-' + i)
-          }
-        : () => dispatch({ type: 'CHOOSE', option: opt, targetNode: STORY[opt.to] }),
+      onSelect: () => dispatch({ type: 'CHOOSE', option: opt, targetNode: STORY[opt.to] }),
     })
   })
+  // item uses — always available (you hold the item)
   usableOwned.forEach((id) => {
     const it = ITEMS[id]
     const { allDiscovered, enoughMana, ok } = canUseItem(state, it)
@@ -121,20 +139,38 @@ export default function StoryView({ state, dispatch }) {
       onSelect: () => dispatch({ type: 'USE_ITEM', item: it }),
     })
   })
-  dynamicConfusers.forEach((toks, k) => {
-    const { allDiscovered, enoughMana } = canSpeak(state, toks)
-    entries.push({
-      key: 'dyn-' + k,
-      tokens: toks,
-      allDiscovered,
-      enoughMana,
-      ok: allDiscovered && enoughMana,
-      onSelect: () => {
-        dispatch({ type: 'CONFUSE' })
-        setConfusedKey('dyn-' + k)
-      },
+  // confusers — only once the scene is engaged
+  if (sceneEngaged) {
+    node.options.forEach((opt, i) => {
+      if (!opt.confuser) return
+      const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
+      entries.push({
+        key: 'opt-' + i,
+        tokens: opt.text,
+        allDiscovered,
+        enoughMana,
+        ok: allDiscovered && enoughMana,
+        onSelect: () => {
+          dispatch({ type: 'CONFUSE' })
+          setConfusedKey('opt-' + i)
+        },
+      })
     })
-  })
+    dynamicConfusers.forEach((toks, k) => {
+      const { allDiscovered, enoughMana } = canSpeak(state, toks)
+      entries.push({
+        key: 'dyn-' + k,
+        tokens: toks,
+        allDiscovered,
+        enoughMana,
+        ok: allDiscovered && enoughMana,
+        onSelect: () => {
+          dispatch({ type: 'CONFUSE' })
+          setConfusedKey('dyn-' + k)
+        },
+      })
+    })
+  }
   const shuffledEntries = stableShuffle(entries, state.nodeId + ':' + state.turn)
 
   const renderLine = (line, i) => (
@@ -181,16 +217,6 @@ export default function StoryView({ state, dispatch }) {
         <>
           <div className="options">
             {shuffledEntries.map((e) => {
-              if (e.secretLocked) {
-                return (
-                  <div key={e.key} className="option secret-locked" aria-disabled="true">
-                    <span className="option-text">a hidden path…</span>
-                    <span className="option-cost bad">
-                      discover every word above to reveal · {undiscoveredInText.length} left
-                    </span>
-                  </div>
-                )
-              }
               const wasConfused = confusedKey === e.key
               let cost
               if (wasConfused) {
@@ -241,10 +267,16 @@ export default function StoryView({ state, dispatch }) {
               )
             })}
           </div>
+          {hiddenPaths > 0 && (
+            <p className="hint locked-hint">
+              📜 {hiddenPaths === 1 ? 'A path is' : hiddenPaths + ' paths are'} still hidden in the
+              story — discover every word of a sentence to open the direction it names.
+            </p>
+          )}
           <p className="hint">
-            Click a word to discover it; take a path by holding one token per word. Some choices
-            can&apos;t really happen here — read carefully, because picking one costs a ♥. Items
-            open new paths.
+            Click a word to discover it. Discovering a whole sentence reveals the path it names;
+            then hold one token per word to take it. Some choices can&apos;t really happen here —
+            picking one costs a ♥.
           </p>
         </>
       )}
