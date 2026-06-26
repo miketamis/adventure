@@ -1949,7 +1949,7 @@ export const STORY = {
       L(w('ti'), w('je'), w('i_art'), w('sigurt'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('ora', 'Orën', 'the Ora')), to: 'udha' },
+      { text: L(w('degjo'), wf('ora', 'Orën', 'the Ora')), grant: 'ora', to: 'udha' },
     ],
   },
 
@@ -2203,6 +2203,7 @@ export const STORY = {
       L(wf('qen', 'qeni', 'the dog'), w('nuk'), w('fle'), p('.')),
     ],
     options: [
+      { text: L(wf('ora', 'Ora', 'the Ora'), w('te_obj'), wf('ndihmo', 'ndihmon', 'helps')), requires: 'ora', to: 'bota1' },
       { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', to: 'bota1' },
       { text: L(w('kalo'), wf('qen', 'qenin', 'the dog')), to: 'bota1', reveal: 'fle' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
@@ -2813,6 +2814,10 @@ export const ITEMS = {
   ujk: {
     id: 'ujk', icon: '🐺', name: 'Wolf', al: 'ujku', word: 'ujk', companion: true,
     blurb: 'The wolf you shared your bread with. It walks the road at your side now — a guardian, not a beast. In the old songs the wolf is half-drangue, and the bread you break with it binds a besa deeper than the drought.',
+  },
+  ora: {
+    id: 'ora', icon: '✨', name: 'Ora', al: 'Ora', word: 'ora', companion: true,
+    blurb: 'Your Ora — the fate-spirit born with you, e Bardha, the White One. Unseen, she walks at your side and turns aside what would harm you. Every Albanian is born with an Ora; few ever see their own. You braved the Lugat’s night, and yours stepped into the light to walk with you.',
   },
 }
 
