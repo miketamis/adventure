@@ -443,10 +443,10 @@ export const STORY = {
     id: 'rrethi',
     text: [
       L(wf('zane', 'zana', 'the fairy'), w('thote'), p(':')),
-      L(w('shko'), w('lart'), w('ne'), w('mal'), w('tomor')),
+      L(w('kulshedra'), w('eshte'), w('poshte'), w('ne'), w('nje'), w('pus'), p('.')),
     ],
     options: [
-      { text: L(w('shko'), w('ne'), w('mal')), to: 'mali1' },
+      { text: L(w('shko'), w('ne'), w('pus')), to: 'pusi' },
       { text: L(w('ec'), w('larg')), to: 'dhia1' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
@@ -523,7 +523,7 @@ export const STORY = {
       L(wf('pus', 'pusi', 'the well'), wf('shko', 'shkon', 'goes'), w('poshte'), w('ne'), w('nje'), w('bote'), w('te_link'), w('erret'), p('.')),
     ],
     options: [
-      { text: L(w('zbrit'), w('ne'), w('pus')), to: 'pusiThelle' },
+      { text: L(w('zbrit'), w('ne'), w('pus')), to: 'zbritjaThelle' },
       { text: L(w('ec'), w('larg')), to: 'sari1' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
@@ -532,17 +532,6 @@ export const STORY = {
   // =========================================================================
   // ACT IV — Bota e Poshtme (the underworld)
   // =========================================================================
-  zbritja: {
-    id: 'zbritja',
-    text: [
-      L(w('ti'), w('zbrit'), w('poshte'), w('ne'), w('pus'), p('.')),
-      L(w('ti'), w('je'), w('ne'), w('nje'), w('bote'), w('te_link'), w('erret'), p('.')),
-    ],
-    options: [
-      { text: L(w('hyr'), w('ne'), wf('bote', 'botën', 'the world')), to: 'zbritjaThelle' },
-    ],
-  },
-
   bota1: {
     id: 'bota1',
     text: [
@@ -1849,7 +1838,6 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'fshatiBesa' },
-      { text: L(w('shko'), w('ne'), w('pyll')), to: 'fshatiDil' },
       { text: L(w('ec'), w('larg')), to: 'kostandin1' },
     ],
   },
@@ -1864,7 +1852,6 @@ export const STORY = {
     ],
     options: [
       { text: L(w('premto'), w('bese')), to: 'fshatiCaul' },
-      { text: L(w('shko'), w('ne'), w('pyll')), to: 'fshatiDil' },
       { text: L(w('ec'), w('larg')), to: 'nastradin1' },
     ],
   },
@@ -1875,10 +1862,11 @@ export const STORY = {
       L(w('nje'), w('plake'), w('thote'), p(':')),
       L(w('ti'), wf('lind', 'linde', 'were born'), w('me'), w('kemishe'), p('.')),
       L(w('ti'), w('je'), w('nje'), w('dragua'), p('.')),
-      L(w('nje'), w('re'), w('dhe'), w('rrufe'), w('vjen'), p('.')),
+      L(w('larg'), w('eshte'), w('nje'), w('mal'), w('dhe'), w('nje'), w('pyll'), p('.')),
     ],
     options: [
-      { text: L(w('fluturo'), w('ne'), w('re')), to: 'fshatiDil' },
+      { text: L(w('shko'), w('ne'), w('mal')), to: 'mali1' },
+      { text: L(w('shko'), w('ne'), w('pyll')), to: 'fshatiDil' },
     ],
   },
 
@@ -2026,7 +2014,8 @@ export const STORY = {
     id: 'kulshLufte2',
     text: [
       L(w('kulshedra'), w('ka'), w('shume'), w('koke'), p('.')),
-      L(w('ti'), w('pre'), w('nje'), w('koke'), w('e_art'), w('madh'), p('.')),
+      L(w('ti'), w('pre'), w('nje'), w('koke'), w('por'), w('kulshedra'), wf('ka', 'ka', 'has'), w('koke'), w('perseri'), p('.')),
+      L(w('ti'), w('pre'), w('koke'), w('me'), w('zjarr'), p('.')),
       L(w('kulshedra'), w('bie'), p('.')),
     ],
     options: [
@@ -2223,18 +2212,6 @@ export const STORY = {
     ],
     options: [
       { text: L(w('merr'), wf('gur', 'gurin', 'the stone')), to: 'zanaKripe' },
-    ],
-  },
-
-  pusiThelle: {
-    id: 'pusiThelle',
-    text: [
-      L(wf('pus', 'pusi', 'the well'), w('eshte'), w('i_art'), w('madh'), w('dhe'), w('i_art'), w('erret'), p('.')),
-      L(w('ti'), w('zbrit'), w('poshte'), w('ngadale'), p('.')),
-    ],
-    options: [
-      { text: L(w('zbrit'), w('ne'), w('pus')), to: 'zbritja' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
 
