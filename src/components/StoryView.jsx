@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Token from './Token.jsx'
-import { STORY, ITEMS, w, p } from '../game/content.js'
+import { STORY, ITEMS, w, wf, p } from '../game/content.js'
 import { canSpeak, canUseItem, hasRequiredItem } from '../game/gameState.js'
 
 // sense ids that are NOT nouns (verbs, particles, adjectives, adverbs, numbers).
@@ -59,16 +59,30 @@ export default function StoryView({ state, dispatch }) {
     return !line || lineDiscovered(line)
   }
 
-  // what you carry, and which of those can be used (their action becomes a path)
+  // what you hold. Companions (ITEMS[id].companion) are tracked exactly like items
+  // but they're who walks WITH you, so they render as their own story line instead
+  // of "you have a X", and an option can gate on them with `requires: '<companionId>'`.
   const ownedIds = Object.keys(state.inventory).filter((id) => state.inventory[id] > 0)
+  const itemIds = ownedIds.filter((id) => !ITEMS[id]?.companion)
+  const companionIds = ownedIds.filter((id) => ITEMS[id]?.companion)
   const usableOwned = ownedIds.filter((id) => ITEMS[id]?.use)
 
-  // "ti ke një X dhe një Y ." — rendered as a real story line (discoverable words)
+  // "ti ke një X dhe një Y ." — what you carry, as a real (discoverable) story line
   const carryLine = () => {
     const toks = [w('ti'), w('ke')]
-    ownedIds.forEach((id, i) => {
+    itemIds.forEach((id, i) => {
       if (i > 0) toks.push(w('dhe'))
       toks.push(w('nje'), w(ITEMS[id].word || id))
+    })
+    toks.push(p('.'))
+    return toks
+  }
+
+  // "ti dhe ujku ." — who walks beside you, woven into the story as a real line
+  const companionLine = () => {
+    const toks = [w('ti')]
+    companionIds.forEach((id) => {
+      toks.push(w('dhe'), wf(ITEMS[id].word || id, ITEMS[id].al, 'the ' + ITEMS[id].name.toLowerCase()))
     })
     toks.push(p('.'))
     return toks
@@ -78,9 +92,9 @@ export default function StoryView({ state, dispatch }) {
   // item, and sometimes a nonsensical combo of the item with a thing in the scene.
   const presentNouns = [...new Set(node.text.flat().filter((t) => isNoun(t.id)).map((t) => t.id))]
   const itemConfusers = []
-  if (ownedIds.length > 0) {
+  if (itemIds.length > 0) {
     const hash = [...state.nodeId].reduce((a, c) => a + c.charCodeAt(0), 0)
-    const featured = ownedIds[hash % ownedIds.length]
+    const featured = itemIds[hash % itemIds.length]
     const fw = ITEMS[featured].word || featured
     itemConfusers.push([LIQUID_ITEMS.has(featured) ? w('lufto') : w('pi'), w(fw)])
     if (presentNouns.length > 0 && hash % 2 === 0) {
@@ -177,7 +191,8 @@ export default function StoryView({ state, dispatch }) {
   return (
     <div className="card story">
       <div className="story-text">
-        {!state.ended && ownedIds.length > 0 && renderLine(carryLine(), 'carry')}
+        {!state.ended && companionIds.length > 0 && renderLine(companionLine(), 'companions')}
+        {!state.ended && itemIds.length > 0 && renderLine(carryLine(), 'carry')}
         {node.text.map(renderLine)}
       </div>
 

@@ -379,14 +379,14 @@ export const STORY = {
       L(w('ti'), w('ke'), w('nje'), w('mik'), w('te_link'), w('ri'), p('.')),
     ],
     options: [
-      { text: L(w('ec'), w('me'), wf('ujk', 'ujkun', 'the wolf')), to: 'udheNate' },
+      { text: L(w('ec'), w('me'), wf('ujk', 'ujkun', 'the wolf')), grant: 'ujk', to: 'udheNate' },
     ],
   },
 
   udha: {
     id: 'udha',
     text: [
-      L(w('ti'), w('dhe'), wf('ujk', 'ujku', 'the wolf'), w('ec'), w('larg'), p('.')),
+      L(w('ti'), w('ec'), w('larg'), p('.')),
       L(w('ti'), w('sheh'), w('nje'), w('lume'), w('te_link'), w('madh'), p('.')),
     ],
     options: [
@@ -1934,6 +1934,7 @@ export const STORY = {
       L(wf('lugat', 'lugati', 'the revenant'), w('te_obj'), w('do'), p('!')),
     ],
     options: [
+      { text: L(wf('ujk', 'ujku', 'the wolf'), wf('lufto', 'lufton', 'fights'), wf('lugat', 'lugatin', 'the revenant')), requires: 'ujk', to: 'udheOra' },
       { text: L(w('ndiz'), w('nje'), w('zjarr')), to: 'udheOra' },
       { text: L(w('lufto'), wf('lugat', 'lugatin', 'the revenant')), to: 'humbur' },
     ],
@@ -2011,6 +2012,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('lufto'), wf('kulshedra', 'kulshedrën', 'the kulshedra')), to: 'kulshLufte2' },
+      { text: L(wf('ujk', 'ujku', 'the wolf'), wf('lufto', 'lufton', 'fights'), wf('kulshedra', 'kulshedrën', 'the kulshedra')), requires: 'ujk', to: 'kulshLufte2' },
       { text: L(w('degjo'), wf('vajze', 'vajzën', 'the maiden')), to: 'bijaHene1' },
       { text: L(w('ik'), w('shpejt')), to: 'djegur' },
     ],
@@ -2095,11 +2097,11 @@ export const STORY = {
     text: [
       L(wf('toke', 'toka', 'the ground'), w('eshte'), w('e_art'), w('thate'), p('.')),
       L(w('nje'), w('lume'), w('eshte'), w('i_art'), w('thate'), p('.')),
-      L(w('ti'), w('dhe'), wf('ujk', 'ujku', 'the wolf'), w('ec'), w('larg'), p('.')),
+      L(w('ti'), w('ec'), w('larg'), p('.')),
     ],
     options: [
       { text: L(w('shko'), w('ne'), wf('lume', 'lumën', 'the river')), to: 'udhaSyri', reveal: 'lume' },
-      { text: L(w('degjo'), wf('ujk', 'ujkun', 'the wolf')), to: 'ujkuUje' },
+      { text: L(w('degjo'), wf('ujk', 'ujkun', 'the wolf')), requires: 'ujk', to: 'ujkuUje' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
   },
@@ -2804,6 +2806,13 @@ export const ITEMS = {
   unaze: {
     id: 'unaze', icon: '💍', name: "Beauty's ring", al: 'unazë',
     blurb: 'E Bukura e Dheut’s ring. Proof of who you saved — and the key to the best of endings.',
+  },
+  // companions — tracked like items, but they walk WITH you: they render as their own
+  // story line ("ti dhe ujku") instead of "you have a X", and an option can gate on
+  // them with requires:'<id>'. No `use` — you never spend a companion.
+  ujk: {
+    id: 'ujk', icon: '🐺', name: 'Wolf', al: 'ujku', word: 'ujk', companion: true,
+    blurb: 'The wolf you shared your bread with. It walks the road at your side now — a guardian, not a beast. In the old songs the wolf is half-drangue, and the bread you break with it binds a besa deeper than the drought.',
   },
 }
 
