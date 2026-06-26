@@ -263,6 +263,11 @@ export const DICT = {
   arushe:    { al: 'arushë',    en: 'bear' },
   mashtro:   { al: 'mashtro',   en: 'trick' },
   dhampir:   { al: 'dhampir',   en: 'dhampir' }, // half-living son of a lugat
+  bleta:     { al: 'bleta',     en: 'bee' },
+  merimanga: { al: 'merimangë', en: 'spider' },
+  dallendyshe:{ al: 'dallëndyshe', en: 'swallow' },
+  kukudh:    { al: 'kukudh',    en: 'kukudh' },  // a lugat hardened — a miser's revenant
+  hardhi:    { al: 'hardhi',    en: 'vine' },
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -1460,9 +1465,11 @@ export const STORY = {
       L(w('ketu'), w('shume'), w('rruge'), p('.')),
       L(w('nje'), w('rruge'), w('thote'), p(':'), w('ti'), w('kthehu'), p('.')),
       L(w('nje'), w('rruge'), w('thote'), p(':'), w('ti'), w('nuk'), w('kthehu'), p('.')),
+      L(w('nje'), wf('nene', 'nënë', 'a mother'), w('vdes'), w('ketu'), p('.')),
     ],
     options: [
       { text: L(w('kthehu')), to: 'fshatiDil' },
+      { text: L(w('ndihmo'), wf('nene', 'nenën', 'the mother')), to: 'bleta1', reveal: 'nene' },
       { text: L(w('ec'), w('larg')), to: 'gjizar2' },
     ],
   },
@@ -1473,10 +1480,12 @@ export const STORY = {
       L(w('nje'), w('zog'), w('ne'), w('nje'), w('peme'), w('flet'), w('bukur'), p('.')),
       L(wf('zog', 'zogu', 'the bird'), w('eshte'), w('i_art'), w('bukur'), p('.')),
       L(wf('zog', 'zogu', 'the bird'), w('thote'), p(':'), w('gjon'), p('!')),
+      L(w('nje'), w('dallendyshe'), wf('lufto', 'lufton', 'fights'), w('nje'), w('gjarper'), p('.')),
     ],
     options: [
       { text: L(w('merr'), wf('zog', 'zogun', 'the bird')), to: 'gjizarFund' },
       { text: L(w('degjo'), wf('zog', 'zogun', 'the bird')), to: 'cuckoo1', reveal: 'gjon' },
+      { text: L(w('ndihmo'), wf('dallendyshe', 'dallëndyshen', 'the swallow')), to: 'dallendyshe1', reveal: 'dallendyshe' },
     ],
   },
 
@@ -2009,10 +2018,12 @@ export const STORY = {
       L(w('nje'), w('gjarper'), w('rri'), w('ne'), w('mur'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('mik'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('nje'), w('vitore'), p('.')),
+      L(w('nje'), w('kukudh'), w('rri'), w('ketu'), p('.')),
     ],
     options: [
       { text: L(w('fle'), w('ketu')), to: 'udheLugat' },
       { text: L(w('degjo'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'udha', reveal: 'mik' },
+      { text: L(w('kerko'), wf('kukudh', 'kukudhin', 'the kukudh')), to: 'kukudh1', reveal: 'kukudh' },
     ],
   },
 
@@ -3221,6 +3232,100 @@ export const STORY = {
     ],
     options: [],
   },
+
+  // === FABLE: the bee, the cicada and the spider (a dying mother's three daughters) ===
+  bleta1: {
+    id: 'bleta1',
+    text: [
+      L(w('nje'), w('nene'), w('vdes'), p('.')),
+      L(wf('nene', 'nëna', 'the mother'), w('ka'), w('tre'), wf('vajze', 'vajza', 'daughters'), p('.')),
+    ],
+    options: [
+      { text: L(w('ndihmo'), wf('nene', 'nenën', 'the mother')), to: 'bletaFund', reveal: 'nene' },
+      { text: L(w('fle'), w('ketu')), to: 'merimangaFund' },
+      { text: L(w('ec'), w('larg')), to: 'gjizar1' },
+    ],
+  },
+
+  bletaFund: {
+    id: 'bletaFund',
+    end: 'secret',
+    title: 'The Bee',
+    blurb:
+      'A dying mother left three daughters. The vain one she cursed to be the spider, weaving a web she can never finish; the idle one to be the cicada, who sings one bright summer and dies parched on a stem; but the dutiful daughter she blessed: "you shall be the light of the ancestors and the food of the living." So the bee makes honey to feed the living and wax to light the dead — and you must never blaspheme in a house that keeps a hive.',
+    text: [
+      L(wf('vajze', 'vajza', 'the daughter'), wf('behet', 'bëhet', 'becomes'), w('nje'), w('bleta'), p('.')),
+      L(w('bleta'), w('jep'), w('drite'), p('.')),
+    ],
+    options: [],
+  },
+
+  merimangaFund: {
+    id: 'merimangaFund',
+    end: 'secret',
+    title: 'The Spider',
+    blurb:
+      'The vain and the idle sisters earned the mother\u2019s other word: one became the spider, condemned to spin a web she can never finish, the other the cicada, to sing her one summer and die parched on a stem. Only the dutiful sister was blessed as the bee. Idleness earns a thankless thread.',
+    text: [
+      L(wf('vajze', 'vajza', 'the daughter'), wf('behet', 'bëhet', 'becomes'), w('nje'), w('merimanga'), p('.')),
+      L(w('merimanga'), w('kurre'), w('mbaroi'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === FABLE: the swallow (dallëndyshja), the friend of man ===
+  dallendyshe1: {
+    id: 'dallendyshe1',
+    text: [
+      L(w('nje'), w('gjarper'), w('do'), w('gjak'), p('.')),
+      L(w('nje'), w('dallendyshe'), w('ndihmo'), w('njeri'), p('.')),
+    ],
+    options: [
+      { text: L(w('ndihmo'), wf('dallendyshe', 'dallëndyshen', 'the swallow')), to: 'dallendysheFund', reveal: 'dallendyshe' },
+      { text: L(w('ec'), w('larg')), to: 'gjizar2' },
+    ],
+  },
+
+  dallendysheFund: {
+    id: 'dallendysheFund',
+    end: 'secret',
+    title: 'The Swallow',
+    blurb:
+      'A serpent meant to learn whose blood was sweetest, so it could feed on the best of them — and the answer was man\u2019s. But the swallow bit out the prying mosquito\u2019s tongue before it could tell, so the serpent never learned, and mankind was spared. Ever after the swallow nests at the head of the house, the friend of man, and it is a sin to do her harm.',
+    text: [
+      L(w('dallendyshe'), w('ndihmo'), w('njeri'), p('.')),
+      L(w('dallendyshe'), w('rri'), w('ne'), w('shtepi'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === BEING: the kukudh — a lugat hardened, killed only with a noose of vine ===
+  kukudh1: {
+    id: 'kukudh1',
+    text: [
+      L(w('nje'), w('kukudh'), w('vjen'), p('.')),
+      L(w('kukudh'), w('eshte'), w('i_art'), w('forte'), p('.')),
+      L(w('hardhi'), wf('vrit', 'vret', 'kills'), wf('kukudh', 'kukudhin', 'the kukudh'), p('.')),
+    ],
+    options: [
+      { text: L(w('hidh'), w('hardhi')), to: 'kukudhFund', reveal: 'hardhi' },
+      { text: L(w('lufto'), wf('kukudh', 'kukudhin', 'the kukudh')), to: 'humbur', reveal: 'kukudh' },
+      { text: L(w('ik'), w('shpejt')), to: 'udheNate' },
+    ],
+  },
+
+  kukudhFund: {
+    id: 'kukudhFund',
+    end: 'secret',
+    title: 'The Kukudh Strangled',
+    blurb:
+      'When a lugat is left too long unburned it hardens — around Mount Tomorr above all — into a kukudh: the restless soul of a miser, squat and goat-tailed and proof against any blade. Steel is wasted on it; the old people knew it could be killed only one way, strangled with a noose of green vine. You looped the vine about its neck and choked the miser\u2019s ghost still.',
+    text: [
+      L(w('ti'), w('hidh'), w('hardhi'), p('.')),
+      L(w('kukudh'), w('vdes'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -3396,6 +3501,9 @@ const CONFUSERS = {
   cuckoo1: L(w('kalo'), bridgeAcc()), //          cross a bridge — none here
   arushe1: L(w('thirr'), eagleAcc()), //          call the eagle — none here
   dhampir1: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
+  bleta1: L(w('thirr'), eagleAcc()), //           call the eagle — none here
+  dallendyshe1: L(w('kalo'), bridgeAcc()), //     cross a bridge — none here
+  kukudh1: L(w('thirr'), eagleAcc()), //          call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3979,6 +4087,11 @@ export const DEFS = {
   arushe: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //     a big animal
   mashtro: L(w('thote'), w('fjale'), w('e_art'), w('keq')), //    speaks false words
   dhampir: L(w('nje'), w('bir'), w('te_link'), w('lugat')), //    a son of a revenant
+  bleta: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //     a small animal
+  merimanga: L(w('nje'), w('kafshe'), w('ne'), w('pyll')), //     an animal in the forest
+  dallendyshe: L(w('nje'), w('zog')), //                          a bird
+  kukudh: L(w('nje'), w('lugat'), w('e_art'), wf('keq', 'keqe', 'bad')), // a bad revenant
+  hardhi: L(w('nje'), w('peme')), //                              a plant
   pa: L(w('nuk'), w('me')), //                                   not with
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
