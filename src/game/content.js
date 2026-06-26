@@ -496,6 +496,7 @@ export const STORY = {
     id: 'tomor1',
     text: [
       L(wf('plak', 'plaku', 'the old man'), w('eshte'), w('tomor'), p('.')),
+      L(wf('shqiponje', 'shqiponjat', 'the eagles'), wf('rri', 'rrinë', 'stay'), w('me'), wf('tomor', 'Tomorin', 'Tomor'), p('.')),
       L(w('tomor'), w('thote'), p(':')),
       L(w('kulshedra'), w('eshte'), w('poshte'), p('.')),
     ],
@@ -696,7 +697,7 @@ export const STORY = {
     end: 'good',
     title: 'Hero of Rozafa',
     blurb:
-      'You gave the Beauty’s ring to the king. The water flows, the castle stands without a sacrifice, and you are honoured as a true Drangue.',
+      'The walls fell every night, and the masons’ besa demanded what it demanded at Rozafa: a life mortared into the stone. A young wife was already chosen. But you gave the king the Beauty’s ring — a gift worthy of the foundation — and the walls held without a soul walled inside them. This once, the castle stood and no mother was sealed weeping into the dark. They honour you as a true Drangue.',
     text: [
       L(w('ti'), w('jep'), wf('unaze', 'unazën', 'the ring'), wf('mbret', 'mbretit', 'to the king'), p('.')),
       L(w('bukura'), w('eshte'), w('e_art'), w('sigurt'), p('.')),
@@ -775,7 +776,7 @@ export const STORY = {
     end: 'secret',
     title: 'The Serpent’s Hoard',
     blurb:
-      'You cut down the guardian serpent and the old gold was yours — enough to dig a hundred wells. The village will drink after all, and your name will be sung beside the water.',
+      'You cut down the guardian serpent and the old gold was yours. But that serpent was an Ora in beast-shape, set to watch the hoard, and gold taken over a guardian’s body never comes clean. You dug your hundred wells and the village drank — yet the water ran brackish, the cattle sickened, and at night a cold hiss followed you. Some treasures are guarded for a reason.',
     text: [
       L(wf('shpate', 'shpata', 'the sword'), wf('vrit', 'vret', 'kills'), wf('gjarper', 'gjarprin', 'the serpent'), p('.')),
       L(w('ti'), w('ke'), w('thesar'), p('.')),
@@ -1314,7 +1315,7 @@ export const STORY = {
   kostandin1: {
     id: 'kostandin1',
     text: [
-      L(w('nje'), w('nene'), w('eshte'), w('e_art'), wf('keq', 'keqe', 'bad'), p('.')),
+      L(w('nje'), w('nene'), w('ka'), w('lot'), p('.')),
       L(w('nje'), w('vella'), wf('premto', 'premton', 'swears'), w('nje'), w('bese'), p('.')),
       L(w('por'), wf('vella', 'vëllai', 'the brother'), w('vdes'), p('.')),
     ],
@@ -1340,10 +1341,11 @@ export const STORY = {
     end: 'secret',
     title: 'The Besa Beyond Death',
     blurb:
-      'Kostandin had sworn his mother a besa to bring her daughter home, and then died in the war. At her grief the dead brother rose from his grave as a lugat — a revenant — and rode through the night to keep his word, for not even death can stop an Albanian from keeping a besa.',
+      'Kostandin had sworn his mother a besa to bring her daughter home, and then died in the war. At her grieving curse the dead brother rose from his grave as a lugat — a revenant — and rode through the night to keep his word. But when Doruntine reached the threshold and the truth was finally spoken, mother and daughter fell dead in the same breath: the besa kept, and its terrible price paid in full.',
     text: [
       L(wf('vella', 'vëllai', 'the brother'), w('vdes'), w('por'), w('vjen'), w('perseri'), p('.')),
       L(wf('motra', 'motra', 'the sister'), w('eshte'), w('ne'), w('shtepi'), p('.')),
+      L(wf('nene', 'nëna', 'the mother'), w('dhe'), wf('motra', 'motra', 'the sister'), wf('vdes', 'vdesin', 'die'), p('.')),
     ],
     options: [],
   },
@@ -1440,9 +1442,10 @@ export const STORY = {
     end: 'secret',
     title: 'The Golden-Horned Goats',
     blurb:
-      'A wedding party stood frozen to stone — the work of the wild Zanas. Their strength, as Mujo learned, was hidden in goats with golden horns. You took the goats, the Zanas’ power drained away, and the stone guests drew breath again.',
+      'A wedding party stood frozen to stone — the work of the wild Zanas. Their strength, as Mujo learned, was hidden in goats with golden horns. Seizing the goats, you held the Zanas’ very power in your hands and forced them to swear a binding besa: free the guests and never harm them again. Bound by the oath no Zana dares break, the stone wedding drew breath once more. It was never the gold that saved them — it was the oath.',
     text: [
       L(w('ti'), w('merr'), wf('dhi', 'dhinë', 'the goat'), p('.')),
+      L(w('nje'), w('zane'), wf('premto', 'premton', 'swears'), w('nje'), w('bese'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('zgjohu', 'zgjohen', 'wake'), w('perseri'), p('.')),
     ],
     options: [],
@@ -1487,7 +1490,7 @@ export const STORY = {
     text: [
       L(w('ti'), w('ec'), w('poshte'), w('ne'), wf('bote', 'botën', 'the world'), p('.')),
       L(w('ti'), w('sheh'), w('nje'), w('shtepi'), p('.')),
-      L(w('brenda'), w('eshte'), w('nje'), w('bukura'), p('.')),
+      L(w('brenda'), w('nje'), w('bukura'), wf('bej', 'bën', 'makes'), w('ar'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'tre2' },
@@ -2070,8 +2073,25 @@ export const STORY = {
     ],
     options: [
       { text: L(w('shko'), w('ne'), wf('lume', 'lumën', 'the river')), to: 'udhaSyri' },
+      { text: L(w('degjo'), wf('ujk', 'ujkun', 'the wolf')), to: 'ujkuUje' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
+  },
+
+  // Companion payoff — the wolf you fed bread (shokuUjk) repays the besa of shared
+  // bread: on the dry road it scents and digs out a hidden spring. The wolf in
+  // Albanian lore is a guardian, not mere prey ("Të hângtë ujku!" is its dark side).
+  ujkuUje: {
+    id: 'ujkuUje',
+    end: 'secret',
+    title: 'Brother Wolf',
+    blurb:
+      'The bread you broke with a starving wolf bought a loyalty older than the drought. On the cracked, waterless road your wolf-brother lifted his nose, dug at the dead earth, and laid bare a cold hidden spring — and the whole village drank because once, when it cost you, you chose to share. In the old songs the wolf is no mere beast but a guardian, and yours had kept faith.',
+    text: [
+      L(wf('ujk', 'ujku', 'the wolf'), w('gjen'), w('uje'), p('.')),
+      L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('perseri'), p('.')),
+    ],
+    options: [],
   },
 
   udhaSyri: {
@@ -2256,9 +2276,25 @@ export const STORY = {
       L(wf('nene', 'nena', 'the mother'), w('eshte'), w('e_art'), wf('keq', 'keqe', 'bad'), p('.')),
     ],
     options: [
-      { text: L(w('ndihmo'), wf('nene', 'nenën', 'the mother')), to: 'ktheu3' },
+      { text: L(w('ndihmo'), wf('nene', 'nenën', 'the mother')), to: 'nenaShtrige' },
       { text: L(w('ec'), w('larg')), to: 'ktheu3' },
     ],
+  },
+
+  // Real, telegraphed choice — the text says plainly she "is bad"; the weeping
+  // mother is a Shtriga (the child-stealing night-witch), the lost child her bait.
+  nenaShtrige: {
+    id: 'nenaShtrige',
+    end: 'bad',
+    title: 'The Shtriga’s Lure',
+    blurb:
+      'She was no grieving mother but a shtriga — the child-stealing witch of the night — and the "lost child" was only the bait. The moment you drew near she showed her true face. Kindness is a virtue, but the old people warned of exactly this: on the night road, you do not follow a weeping woman into the dark.',
+    text: [
+      L(wf('nene', 'nena', 'the mother'), wf('behet', 'bëhet', 'becomes'), w('nje'), w('shtrige'), p('.')),
+      L(wf('shtrige', 'shtriga', 'the witch'), w('te_obj'), w('ha'), p('.')),
+      L(w('loja'), w('mbaroi'), p('.')),
+    ],
+    options: [],
   },
 
   ktheu3: {
