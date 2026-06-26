@@ -254,6 +254,11 @@ export const DICT = {
   omer:      { al: 'Omer',      en: 'Omer' },    // Mujo's son, killed young
   vajto:     { al: 'vajto',     en: 'mourn' },   // vajtim — the sung lament
   lubia:     { al: 'Lubia',     en: 'Lubia' },   // the southern hydra she-demon
+  prende:    { al: 'Prende',    en: 'Prende' },  // Zoja e Bukurisë, Lady of Beauty (Friday)
+  ylber:     { al: 'ylber',     en: 'rainbow' },// Prende's belt
+  gjegjeza:  { al: 'gjëegjëzë', en: 'riddle' },
+  samar:     { al: 'samar',     en: 'packsaddle' },
+  breshka:   { al: 'breshka',   en: 'tortoise' },
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -1091,9 +1096,11 @@ export const STORY = {
     text: [
       L(w('ti'), w('je'), w('ne'), w('nje'), w('ure'), p('.')),
       L(wf('lume', 'lumi', 'the river'), w('poshte'), w('eshte'), w('i_art'), w('thate'), p('.')),
+      L(w('nje'), w('plak'), w('thote'), w('nje'), w('gjegjeza'), p('.')),
     ],
     options: [
       { text: L(w('kalo'), wf('ure', 'urën', 'the bridge')), to: 'uraFshaj', reveal: 'ure' },
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'riddle1', reveal: 'gjegjeza' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -1169,9 +1176,12 @@ export const STORY = {
     text: [
       L(w('ketu'), w('eshte'), w('shume'), w('uje'), p('.')),
       L(w('kulshedra'), w('ka'), wf('uje', 'ujin', 'the water'), p('.')),
+      L(w('ketu'), w('rri'), w('prende'), p('.')),
+      L(w('nje'), w('ylber'), w('vjen'), p('.')),
     ],
     options: [
       { text: L(w('shko'), w('ne'), w('uje')), to: 'ujiShpella' },
+      { text: L(w('degjo'), w('prende')), to: 'prende1', reveal: 'prende' },
     ],
   },
 
@@ -3064,6 +3074,62 @@ export const STORY = {
     ],
     options: [],
   },
+
+  // === DEITY: Prende, Zoja e Bukurisë — Lady of love, beauty and the spring (Friday;
+  // her belt is the rainbow). Often named as a face of E Bukura e Dheut herself. ===
+  prende1: {
+    id: 'prende1',
+    text: [
+      L(w('ketu'), w('rri'), w('prende'), p('.')),
+      L(w('prende'), w('eshte'), w('e_art'), w('bukur'), p('.')),
+      L(w('nje'), w('ylber'), w('vjen'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), w('prende')), to: 'prendeFund', reveal: 'prende' },
+      { text: L(w('ec'), w('larg')), to: 'uji' },
+    ],
+  },
+
+  prendeFund: {
+    id: 'prendeFund',
+    end: 'secret',
+    title: 'The Lady of Beauty',
+    blurb:
+      'Prende — Zoja e Bukurisë, the Lady of Beauty, daughter of the sky-father; goddess of love and of the green that returns, whose day is Friday (e premte) and whose belt is the rainbow (ylberi). The old people name her as one face of E Bukura e Dheut herself, a Persephone of the underworld-and-spring cycle. You did her honour, and where she sets her foot the earth flowers and the springs remember how to run; she blessed your road and the freeing of the Beauty both.',
+    text: [
+      L(w('prende'), w('te_obj'), w('jep'), w('nje'), w('bekim'), p('.')),
+      L(w('uje'), w('vjen'), w('perseri'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === RIDDLE-GATE: the bridge elder's gjëegjëzë (the doc's tortoise riddle). Reading the
+  // clue word 'samar' unlocks the right answer; wrong guesses send you off the path. ===
+  riddle1: {
+    id: 'riddle1',
+    text: [
+      L(w('nje'), w('plak'), w('thote'), w('nje'), w('gjegjeza'), p(':')),
+      L(w('ka'), w('samar'), w('por'), w('nuk'), w('eshte'), w('gomar'), p('.')),
+    ],
+    options: [
+      { text: L(w('breshka')), to: 'riddleFund', reveal: 'samar' },
+      { text: L(w('gomar')), to: 'humbur' },
+      { text: L(w('gjarper')), to: 'humbur' },
+    ],
+  },
+
+  riddleFund: {
+    id: 'riddleFund',
+    end: 'secret',
+    title: 'The Tortoise\u2019s Answer',
+    blurb:
+      'The old man\u2019s riddle — "it has a packsaddle, but it is no donkey" — is the tortoise (breshka), who carries her own house-saddle on her back wherever she goes. You read the clue and answered, and the elder, well pleased, blessed your road across the bridge. In the mountains a quick wit is prized as highly as a strong arm.',
+    text: [
+      L(w('breshka'), w('ka'), w('samar'), p('.')),
+      L(wf('plak', 'plaku', 'the old man'), w('eshte'), w('nje'), w('mik'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -3234,6 +3300,8 @@ const CONFUSERS = {
   omer1: L(w('thirr'), eagleAcc()), //            call the eagle — none here
   lubia1: L(w('kalo'), bridgeAcc()), //           cross a bridge — none here
   lubiaKoke: L(w('thirr'), eagleAcc()), //        call the eagle — none here
+  prende1: L(w('kalo'), bridgeAcc()), //          cross a bridge — none here
+  riddle1: L(w('thirr'), eagleAcc()), //          call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3808,6 +3876,11 @@ export const DEFS = {
   omer: L(w('nje'), w('bir'), w('te_link'), w('mujo')), //         a son of Mujo
   vajto: L(w('flet'), w('me'), w('lot')), //                       speaks with tears
   lubia: L(w('nje'), w('gjarper'), w('me'), w('shume'), w('koke')), // a serpent of many heads
+  prende: L(w('nje'), w('vajze'), w('e_art'), w('bukur')), //     a beautiful maiden
+  ylber: L(w('nje'), w('drite'), w('e_art'), w('bukur')), //      a beautiful light
+  gjegjeza: L(w('nje'), w('fjale'), w('e_art'), w('vjeter')), //  an old saying
+  samar: L(w('nje'), w('gje'), w('te_link'), w('gomar')), //      a thing of a donkey
+  breshka: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //   a small animal
   pa: L(w('nuk'), w('me')), //                                   not with
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
