@@ -222,6 +222,7 @@ export const DICT = {
   dervish:   { al: 'dervish',   en: 'dervish' },
   gjuhe:     { al: 'gjuhë',     en: 'tongue' },  // the seven tongues as proof
   shtate:    { al: 'shtatë',    en: 'seven' },
+  tund:      { al: 'tund',      en: 'rock' },    // rock the cradle (Mujo & the Zanas)
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -449,21 +450,10 @@ export const STORY = {
     id: 'zanaKripe',
     text: [
       L(wf('zane', 'zana', 'the fairy'), w('jep'), w('kripe'), p('.')),
-      L(wf('kripe', 'kripa', 'the salt'), w('eshte'), w('per'), wf('kulshedra', 'kulshedrën', 'the kulshedra')),
+      L(wf('kripe', 'kripa', 'the salt'), w('eshte'), w('per'), wf('shtrige', 'shtrigën', 'the witch')),
     ],
     options: [
-      { text: L(w('merr'), w('kripe')), grant: 'kripe', to: 'zanaPende' },
-    ],
-  },
-
-  zanaPende: {
-    id: 'zanaPende',
-    text: [
-      L(wf('zane', 'zana', 'the fairy'), w('jep'), w('nje'), w('pende'), p('.')),
-      L(wf('pende', 'penda', 'the feather'), w('eshte'), w('per'), wf('shqiponje', 'shqiponjën', 'the eagle')),
-    ],
-    options: [
-      { text: L(w('merr'), w('pende')), grant: 'pende', to: 'zanaFole' },
+      { text: L(w('merr'), w('kripe')), grant: 'kripe', to: 'zanaFole' },
     ],
   },
 
@@ -599,12 +589,12 @@ export const STORY = {
   bukura2: {
     id: 'bukura2',
     text: [
-      L(w('bukura'), w('jep'), w('nje'), w('unaze'), p('.')),
       L(w('bukura'), w('thote'), p(':')),
       L(w('kulshedra'), w('vjen'), p('!')),
+      L(w('ti'), w('je'), w('nje'), w('dragua'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), w('unaze')), grant: 'unaze', to: 'kulshedra1' },
+      { text: L(w('lufto'), wf('kulshedra', 'kulshedrën', 'the kulshedra')), to: 'kulshedra1' },
     ],
   },
 
@@ -617,7 +607,7 @@ export const STORY = {
     options: [
       { text: L(w('lufto'), wf('kulshedra', 'kulshedrën', 'the kulshedra')), requires: 'shpate', consumes: 'shpate', to: 'kulshLufte1', reveal: 'kulshedra' },
       { text: L(w('hidh'), w('gur')), requires: 'gur', consumes: 'gur', to: 'dranguasi' },
-      { text: L(w('hidh'), w('kripe')), requires: 'kripe', consumes: 'kripe', to: 'kulshLufte1' },
+      { text: L(w('lufto'), w('me'), w('fuqi')), requires: 'qumesht', to: 'kulshLufte1' },
       { text: L(w('ik'), w('shpejt')), to: 'djegur' },
     ],
   },
@@ -643,7 +633,7 @@ export const STORY = {
       L(wf('pus', 'pusi', 'the well'), w('eshte'), w('i_art'), w('madh'), w('ti'), w('nuk'), w('mund'), w('te_subj'), w('ngjit'), p('.')),
     ],
     options: [
-      { text: L(w('thirr'), wf('shqiponje', 'shqiponjën', 'the eagle')), requires: 'pende', consumes: 'pende', to: 'shqiponja1' },
+      { text: L(w('thirr'), wf('shqiponje', 'shqiponjën', 'the eagle')), requires: 'shqiponja', to: 'shqiponja1' },
       { text: L(w('ngjit'), wf('pus', 'pusin', 'the well')), to: 'rene', reveal: 'pus' },
     ],
   },
@@ -700,7 +690,6 @@ export const STORY = {
       L(w('nje'), w('nene'), w('jep'), w('qumesht'), wf('femije', 'fëmijës', 'to the child')),
     ],
     options: [
-      { text: L(w('jep'), w('unaze')), requires: 'unaze', to: 'kalaRing' },
       { text: L(w('ndihmo'), wf('mur', 'murin', 'the wall')), to: 'murosur', reveal: 'mur' },
       { text: L(w('kthehu'), w('ne'), w('fshat')), to: 'shtepia' },
     ],
@@ -709,20 +698,6 @@ export const STORY = {
   // =========================================================================
   // ENDINGS
   // =========================================================================
-  mbreti: {
-    id: 'mbreti',
-    end: 'good',
-    title: 'Hero of Rozafa',
-    blurb:
-      'The walls fell every night, and the masons’ besa demanded what it demanded at Rozafa: a life mortared into the stone. A young wife was already chosen. But you gave the king the Beauty’s ring — a gift worthy of the foundation — and the walls held without a soul walled inside them. This once, the castle stood and no mother was sealed weeping into the dark. They honour you as a true Drangue.',
-    text: [
-      L(w('ti'), w('jep'), wf('unaze', 'unazën', 'the ring'), wf('mbret', 'mbretit', 'to the king'), p('.')),
-      L(w('bukura'), w('eshte'), w('e_art'), w('sigurt'), p('.')),
-      L(w('ti'), w('je'), w('nje'), w('dragua'), p('!')),
-    ],
-    options: [],
-  },
-
   shtepia: {
     id: 'shtepia',
     end: 'good',
@@ -1099,7 +1074,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('lufto'), wf('gjarper', 'gjarprin', 'the serpent')), requires: 'shpate', to: 'bota2', reveal: 'gjarper' },
-      { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', to: 'bota2' },
+      { text: L(w('lufto'), w('me'), w('fuqi')), requires: 'qumesht', to: 'bota2' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
   },
@@ -1570,8 +1545,7 @@ export const STORY = {
     id: 'udhetimi2',
     text: [
       L(w('ketu'), w('rri'), w('nje'), w('dash'), w('i_art'), w('bardhe'), w('dhe'), w('nje'), w('dash'), w('i_art'), w('zi'), p('.')),
-      L(wf('dash', 'dashi', 'the ram'), w('i_art'), w('bardhe'), wf('shko', 'shkon', 'goes'), w('lart'), p('.')),
-      L(wf('dash', 'dashi', 'the ram'), w('i_art'), w('zi'), w('rri'), w('poshte'), p('.')),
+      L(wf('dash', 'dashi', 'the ram'), w('i_art'), w('bardhe'), w('eshte'), w('mik'), p('.')),
     ],
     options: [
       { text: L(w('merr'), wf('dash', 'dashin', 'the ram'), w('e_art'), w('bardhe')), to: 'uji' },
@@ -1722,7 +1696,7 @@ export const STORY = {
       L(wf('femije', 'fëmijët', 'the children'), w('nuk'), wf('fle', 'flenë', 'sleep'), p('.')),
     ],
     options: [
-      { text: L(w('rri'), w('me'), wf('femije', 'fëmijët', 'the children')), to: 'zanaProva2', reveal: 'femije' },
+      { text: L(w('tund'), wf('djep', 'djepin', 'the cradle')), to: 'zanaProva2', reveal: 'femije' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -1794,7 +1768,7 @@ export const STORY = {
       L(wf('shqiponje', 'shqiponja', 'the eagle'), w('do'), w('te_subj'), w('ndihmo'), w('ti'), w('perseri'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('shqiponje', 'shqiponjën', 'the eagle')), to: 'rrethi' },
+      { text: L(w('degjo'), wf('shqiponje', 'shqiponjën', 'the eagle')), grant: 'shqiponja', to: 'rrethi' },
     ],
   },
 
@@ -2214,7 +2188,6 @@ export const STORY = {
     ],
     options: [
       { text: L(wf('ora', 'Ora', 'the Ora'), w('te_obj'), wf('ndihmo', 'ndihmon', 'helps')), requires: 'ora', to: 'bota1' },
-      { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', to: 'bota1' },
       { text: L(w('kalo'), wf('qen', 'qenin', 'the dog')), to: 'bota1', reveal: 'fle' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
@@ -2304,7 +2277,7 @@ export const STORY = {
     text: [
       L(w('ketu'), w('nje'), w('nene'), w('kerko'), w('nje'), w('femije'), p('.')),
       L(wf('nene', 'nena', 'the mother'), w('eshte'), w('e_art'), wf('keq', 'keqe', 'bad'), p('.')),
-      when('ora', L(wf('ora', 'Ora', 'the Ora'), w('thote'), p(':'), wf('nene', 'nena', 'the mother'), w('eshte'), w('nje'), w('shtrige'), p('.'))),
+      when('ora', L(wf('ora', 'Ora', 'the Ora'), w('thote'), p(':'), wf('nene', 'nena', 'the mother'), w('eshte'), wf('nene', 'nëna', 'the mother'), w('e_art'), wf('naten', 'natës', 'of the night'), p('.'))),
       when('ujk', L(wf('ujk', 'ujku', 'the wolf'), wf('sulmo', 'sulmon', 'attacks'), wf('nene', 'nenën', 'the mother'), p('.'))),
       when('ujk', L(wf('nene', 'nena', 'the mother'), wf('ik', 'ikën', 'flees'), p('.'))),
     ],
@@ -2319,12 +2292,12 @@ export const STORY = {
   nenaShtrige: {
     id: 'nenaShtrige',
     end: 'bad',
-    title: 'The Shtriga’s Lure',
+    title: 'The Night-Mother’s Lure',
     blurb:
-      'She was no grieving mother but a shtriga — the child-stealing witch of the night — and the "lost child" was only the bait. The moment you drew near she showed her true face. Kindness is a virtue, but the old people warned of exactly this: on the night road, you do not follow a weeping woman into the dark.',
+      'She was no grieving mother but Mëma e Natës — the Mother of the Night, the hag who walks the dark roads bringing nightmare and worse. The "lost child" was only her lure. Kindness is a virtue, but the old people warned of exactly this: on the night road, you do not follow a weeping woman into the dark.',
     text: [
-      L(wf('nene', 'nena', 'the mother'), wf('behet', 'bëhet', 'becomes'), w('nje'), w('shtrige'), p('.')),
-      L(wf('shtrige', 'shtriga', 'the witch'), w('te_obj'), w('ha'), p('.')),
+      L(wf('nene', 'nena', 'the mother'), w('eshte'), wf('nene', 'nëna', 'the mother'), w('e_art'), wf('naten', 'natës', 'of the night'), p('.')),
+      L(wf('naten', 'nata', 'the night'), w('te_obj'), w('merr'), p('.')),
       L(w('loja'), w('mbaroi'), p('.')),
     ],
     options: [],
@@ -2377,29 +2350,6 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'kala2' },
-    ],
-  },
-
-  kalaRing: {
-    id: 'kalaRing',
-    text: [
-      L(w('ti'), w('jep'), wf('unaze', 'unazën', 'the ring'), wf('mbret', 'mbretit', 'to the king'), p('.')),
-      L(wf('mbret', 'mbreti', 'the king'), w('merr'), wf('unaze', 'unazën', 'the ring'), p('.')),
-    ],
-    options: [
-      { text: L(w('degjo'), wf('mbret', 'mbretin', 'the king')), to: 'kalaMilk' },
-    ],
-  },
-
-  kalaMilk: {
-    id: 'kalaMilk',
-    text: [
-      L(wf('mur', 'muri', 'the wall'), w('rri'), w('lart'), w('tani'), p('.')),
-      L(wf('nene', 'nena', 'the mother'), w('eshte'), w('e_art'), w('sigurt'), p('.')),
-      L(w('nje'), w('femije'), w('ka'), w('qumesht'), p('.')),
-    ],
-    options: [
-      { text: L(w('degjo'), wf('nene', 'nenën', 'the mother')), to: 'mbreti' },
     ],
   },
 }
@@ -2768,12 +2718,7 @@ export const ITEMS = {
     icon: '🥛',
     name: "Zana's milk",
     al: 'qumësht',
-    blurb: 'The mountain fairy’s milk — drink it to recover a heart. (As the Zana suckled the hero Mujo to give him strength.)',
-    use: {
-      label: 'Drink',
-      phrase: [w('pi'), w('qumesht')], // "drink milk"
-      effect: { hearts: 1 },
-    },
+    blurb: 'The mountain fairy’s milk. As the Zanas suckled the hero Mujo to make him stronger than a drangue, it has put a hero’s strength in you — enough to grapple even the Kulshedra bare-handed.',
   },
   // key items — carried, used by choosing the right path in the story
   buke: {
@@ -2797,17 +2742,9 @@ export const ITEMS = {
     id: 'kripe', icon: '🧂', name: 'Salt', al: 'kripë',
     blurb: 'The Zana’s salt. Thrown in the Kulshedra’s many eyes, it blinds the she-dragon.',
   },
-  pende: {
-    id: 'pende', icon: '🪶', name: 'Feather', al: 'pendë',
-    blurb: 'An eagle’s feather. Hold it up at the bottom of the well and the great eagle will come.',
-  },
   mish: {
     id: 'mish', icon: '🍖', name: 'Meat', al: 'mish',
     blurb: 'Meat from the Kulshedra’s larder. The eagle will only carry you up if it is fed.',
-  },
-  unaze: {
-    id: 'unaze', icon: '💍', name: "Beauty's ring", al: 'unazë',
-    blurb: 'E Bukura e Dheut’s ring. Proof of who you saved — and the key to the best of endings.',
   },
   // companions — tracked like items, but they walk WITH you: they render as their own
   // story line ("ti dhe ujku") instead of "you have a X", and an option can gate on
@@ -2815,6 +2752,10 @@ export const ITEMS = {
   ujk: {
     id: 'ujk', icon: '🐺', name: 'Wolf', al: 'ujku', word: 'ujk', companion: true,
     blurb: 'The wolf you shared your bread with — but the old people say a wolf may be a drangue in disguise, one of the storm-heroes hidden in beast-shape. It walks at your side now, and the bread you broke with it binds a besa deeper than the drought.',
+  },
+  shqiponja: {
+    id: 'shqiponja', icon: '🦅', name: 'Eagle', al: 'shqiponja', word: 'shqiponje', companion: true,
+    blurb: 'The great eagle whose chicks you saved from the nest-serpent. By the old law of the grateful beast it owes you its wings — trapped at the bottom of the world, call and it will come, as it bore the Scurfhead up out of the underworld.',
   },
   ora: {
     id: 'ora', icon: '✨', name: 'Ora', al: 'Ora', word: 'ora', companion: true,
@@ -3087,6 +3028,7 @@ export const DEFS = {
   dervish: L(w('nje'), w('plak'), w('e_art'), w('mire')), //      a good old man (holy man)
   gjuhe: L(w('nje'), w('gje'), w('ne'), wf('koke', 'kokë', 'the head')), // a thing in the head
   shtate: L(w('shume')), //                                       many
+  tund: L(w('luan')), //                                          moves, plays
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
   bije: L(w('nje'), w('vajze'), w('te_link'), w('nene')), //      a maiden of a mother
