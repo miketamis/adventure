@@ -242,6 +242,7 @@ export const DICT = {
   hekur:     { al: 'hekur',     en: 'iron' },   // bang iron to rouse/ward the storm-god
   kale:      { al: 'kalë',      en: 'horse' },  // Mujo's oracular courser
   ruan:      { al: 'ruan',      en: 'guards' }, // the Ora-serpent guards the hoard
+  bekim:     { al: 'bekim',     en: 'blessing' }, // the Ora's blessing for the hospitable
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -635,6 +636,7 @@ export const STORY = {
       { text: L(w('lufto'), wf('kulshedra', 'kulshedrën', 'the kulshedra')), requires: 'shpate', consumes: 'shpate', to: 'kulshLufte1', reveal: 'kulshedra' },
       { text: L(w('hidh'), w('gur')), requires: 'gur', consumes: 'gur', to: 'dranguasi' },
       { text: L(w('lufto'), w('me'), w('fuqi')), requires: 'qumesht', to: 'kulshLufte1' },
+      { text: L(w('lufto'), w('me'), w('bekim')), requires: 'bekim', unless: 'qumesht', to: 'kulshLufte1' },
       { text: L(w('ik'), w('shpejt')), to: 'djegur' },
     ],
   },
@@ -996,7 +998,7 @@ export const STORY = {
       L(wf('plake', 'plaka', 'the old woman'), w('do'), w('buke'), p('.')),
     ],
     options: [
-      { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', to: 'besaFire', reveal: 'buke' },
+      { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', to: 'besaBekim', reveal: 'buke' },
       { text: L(w('prit'), w('ketu')), to: 'shtrigaNate' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
@@ -1020,7 +1022,7 @@ export const STORY = {
     end: 'good',
     title: 'The Sacred Guest',
     blurb:
-      'You shared your bread with the cold stranger at your night-fire. In the old country a guest is sent by God, and the besa to feed a traveller is sacred above all — so the stranger blessed you, and you woke at dawn safe and strong, your hospitality repaid the way the songs promise.',
+      'The cold stranger at your night-fire was an Ora in an old woman’s shape — for in the old country a guest is sent by God, and to feed a traveller is a besa sacred above all. She blessed you; and rather than carry her blessing on into the dark, you chose to rest by her fire, and woke at dawn safe and strong, your hospitality repaid the way the songs promise.',
     text: [
       L(w('ti'), w('jep'), w('buke'), p('.')),
       L(wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), w('mik'), p('.')),
@@ -1143,6 +1145,7 @@ export const STORY = {
     options: [
       { text: L(w('lufto'), wf('gjarper', 'gjarprin', 'the serpent')), requires: 'shpate', to: 'bota2', reveal: 'gjarper' },
       { text: L(w('lufto'), w('me'), w('fuqi')), requires: 'qumesht', to: 'bota2' },
+      { text: L(w('lufto'), w('me'), w('bekim')), requires: 'bekim', unless: 'qumesht', to: 'bota2' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
   },
@@ -2804,6 +2807,22 @@ export const STORY = {
     ],
     options: [],
   },
+
+  // The guest you FED reveals herself an Ora and blesses you (mirror of shtrigaNate, where
+  // the guest you turn away becomes a Shtriga). The Ora takes an old woman's form (doc §4)
+  // and her blessing strengthens the hero, as a Zana's does (§4). A real trade-off: carry
+  // the boon onward, or take the peaceful good ending now.
+  besaBekim: {
+    id: 'besaBekim',
+    text: [
+      L(w('naten'), wf('plake', 'plaka', 'the old woman'), w('behet'), w('nje'), w('ora'), p('.')),
+      L(wf('ora', 'Ora', 'the spirit'), w('te_obj'), w('jep'), w('nje'), w('bekim'), p('.')),
+    ],
+    options: [
+      { text: L(w('merr'), wf('bekim', 'bekimin', 'the blessing')), grant: 'bekim', to: 'pylliLoop', reveal: 'bekim' },
+      { text: L(w('fle'), w('ketu')), to: 'besaFire' },
+    ],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -2963,6 +2982,7 @@ const CONFUSERS = {
   thesarOra: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   thesar2: L(w('thirr'), eagleAcc()), //          call the eagle — none here
   nastradin2: L(w('kalo'), bridgeAcc()), //       cross a bridge — none here
+  besaBekim: L(w('thirr'), eagleAcc()), //        call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3188,6 +3208,13 @@ export const ITEMS = {
     name: "Zana's milk",
     al: 'qumësht',
     blurb: 'The mountain fairy’s milk. As the Zanas suckled the hero Mujo to make him stronger than a drangue, it has put a hero’s strength in you — enough to grapple even the Kulshedra bare-handed.',
+  },
+  bekim: {
+    id: 'bekim',
+    icon: '✨',
+    name: "the Ora's blessing",
+    al: 'bekim',
+    blurb: 'The blessing of the Ora you fed at your night-fire. A guest is sent by God, and the besa to feed a stranger is sacred above all — so the fate-spirit put her own strength in you, enough to meet even the Kulshedra bare-handed.',
   },
   // key items — carried, used by choosing the right path in the story
   buke: {
@@ -3517,6 +3544,7 @@ export const DEFS = {
   hekur: L(w('nje'), w('gur'), w('te_link'), w('forte')), //     a hard stone (metal)
   kale: L(w('nje'), w('kafshe')), //                             an animal
   ruan: L(w('mban')), //                                         keeps
+  bekim: L(w('nje'), w('fuqi'), w('te_link'), w('ora')), //       a power of the Ora
   pa: L(w('nuk'), w('me')), //                                   not with
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
