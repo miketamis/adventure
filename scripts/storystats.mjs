@@ -60,11 +60,17 @@ dfs(START_NODE, 1, new Set([START_NODE]))
 const NON_NOUNS = new Set(['ti','je','ne','nje','dhe','ka','ke','mund','eshte','te_link','te_subj','te_obj','i_art','e_art','me','por','nuk','pa','ku','qe','do','per','une','jam','ose','jo','sheh','ec','fle','hap','ik','jep','pi','behet','vjen','zgjohu','rri','ndiz','ha','mbaroi','humbet','merr','kerko','gjen','kalo','shko','prit','lufto','vrit','shpeto','ngjit','zbrit','fluturo','degjo','flet','thote','ndihmo','beso','hyr','dil','thirr','hidh','kthehu','prek','vdes','bie','pre','luan','bej','mbyll','vazhdon','lind','fol','premto','madh','vogel','erret','sigurt','ri','vjeter','uritur','shpejt','qete','perseri','forte','bukur','keq','thate','lart','mire','ngadale','poshte','larg','jashte','tani','ngrohte','ftohte','ketu','brenda','bardhe','zi','shume','tjeter','nente','shtate'])
 const phraseNoun = (toks) => { const n = toks.filter((t) => t.id && !NON_NOUNS.has(t.id)).map((t) => t.id); return n.length ? n[n.length - 1] : null }
 const nonEnd = ids.filter((id) => !nodes[id].end)
-const gatedNodes = nonEnd.filter((id) => (nodes[id].options || []).some((o) => {
-  if (o.confuser) return false
-  const noun = phraseNoun(o.text); return noun && nodes[id].text.some((line) => line.some((t) => t.id === noun))
-}))
-const ungated = nonEnd.filter((id) => !gatedNodes.includes(id))
+// authored reveal gates: options that carry an explicit reveal:'<senseId>'
+const revealGates = []
+const brokenGates = []
+for (const id of nonEnd)
+  for (const o of nodes[id].options || []) {
+    if (!o.reveal) continue
+    revealGates.push(id)
+    if (!nodes[id].text.some((line) => line.some((t) => t.id === o.reveal)))
+      brokenGates.push(`${id}: reveal '${o.reveal}' not found in node text`)
+  }
+const gatedNodes = [...new Set(revealGates)]
 
 // ---- report -----------------------------------------------------------------
 const ok = (b) => (b ? '✅' : '❌')
@@ -88,6 +94,6 @@ console.log(`  average ending:  ${avg.toFixed(1)}   (target ~30)`)
 console.log(`  deepest ending:  ${endingDepths[endingDepths.length - 1]}`)
 console.log(`longest acyclic chain: ${longest}  -> ${longestEnd}   (target ~89)`)
 console.log('')
-console.log('--- SENTENCE-GATED DIRECTIONS ---')
-console.log(`${ok(ungated.length <= nonEnd.length * 0.15)} nodes with a sentence-gated direction: ${gatedNodes.length}/${nonEnd.length}`)
-console.log(`  nodes with NONE (${ungated.length}): ${ungated.join(', ')}`)
+console.log('--- DESIGNED REVEAL GATES (authored sentence-unlocks) ---')
+console.log(`${ok(!brokenGates.length)} authored reveal gates: ${revealGates.length} on ${gatedNodes.length} nodes`)
+if (brokenGates.length) console.log('   BROKEN:\n   ' + brokenGates.join('\n   '))

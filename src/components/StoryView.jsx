@@ -47,21 +47,16 @@ export default function StoryView({ state, dispatch }) {
   // names its thing. e.g. discovering "ka një lumë" reveals "shko në lumë". The
   // noun a phrase acts on is its last content noun.
   const isNoun = (id) => id && !NON_NOUNS.has(id)
-  const phraseNoun = (tokens) => {
-    const nouns = tokens.filter((t) => isNoun(t.id)).map((t) => t.id)
-    return nouns.length ? nouns[nouns.length - 1] : null
-  }
   const lineDiscovered = (line) => line.every((t) => !t.id || state.discovered[t.id])
-  // the first text sentence that introduces a noun (or null if none does)
-  const sentenceFor = (nounId) => node.text.find((line) => line.some((t) => t.id === nounId))
-  // the gating sentence for an option, or null if the option isn't sentence-gated
-  const gateLineFor = (opt) => {
-    const noun = phraseNoun(opt.text)
-    return (noun && sentenceFor(noun)) || null
-  }
+  // An option can be DESIGNED to stay hidden until a chosen sentence is fully read:
+  // author `reveal: '<senseId>'` on the option and it appears only once the text line
+  // that introduces that word is discovered. Hand-picked per option in content.js —
+  // deliberately NOT an automatic rule. No `reveal` field => the option is always shown.
+  const sentenceFor = (senseId) => node.text.find((line) => line.some((t) => t.id === senseId))
   const optionRevealed = (opt) => {
-    const line = gateLineFor(opt)
-    return line ? lineDiscovered(line) : true
+    if (!opt.reveal) return true
+    const line = sentenceFor(opt.reveal)
+    return !line || lineDiscovered(line)
   }
 
   // what you carry, and which of those can be used (their action becomes a path)
@@ -99,20 +94,12 @@ export default function StoryView({ state, dispatch }) {
     (toks) => !seenPhrase.has(toks.map((t) => t.id || t.en).join(' ')),
   )
 
-  // Sentence-gated directions: hide AT MOST ONE path behind a sentence, and never the
-  // only available path — so there's always a visible way forward and the gated one is
-  // a bonus the matching sentence reveals (e.g. "ka një lumë" reveals "shko në lumë",
-  // while "flee fast" and the other choices stay visible).
-  const realOpts = node.options.filter((o) => !o.confuser && hasRequiredItem(state, o))
-  const gateableReal = realOpts.filter((o) => gateLineFor(o))
-  const gatedOpt = realOpts.length >= 2 && gateableReal.length > 0 ? gateableReal[0] : null
-
   const entries = []
   let hiddenPaths = 0
   node.options.forEach((opt, i) => {
     if (opt.confuser) return // confusers handled below
     if (opt.requires && !hasRequiredItem(state, opt)) return
-    if (opt === gatedOpt && !optionRevealed(opt)) {
+    if (!optionRevealed(opt)) {
       hiddenPaths++
       return
     }
