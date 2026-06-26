@@ -228,6 +228,9 @@ export const DICT = {
   bije:      { al: 'bijë',      en: 'daughter' },// E Bija e Hënës dhe e Diellit
   vit:       { al: 'vit',       en: 'year' },    // Aga Ymer's nine years
   fol:       { al: 'fol',       en: 'speak' },   // the broken-silence taboo
+  shpirag:   { al: 'Shpirag',   en: 'Shpirag' }, // the rival mountain of Tomorr
+  bir:       { al: 'bir',       en: 'son' },     // Son of the Eagle (Shqiptar)
+  mban:      { al: 'mban',      en: 'keeps' },   // mban besën — keeps the oath
 }
 
 // ---------------------------------------------------------------------------
@@ -324,7 +327,7 @@ export const STORY = {
       'Held captive nine years and nine days, Aga Ymer of Ulcinj was freed only on his besa to return. He reached home as his faithful wife was about to be wed to another, and an old scar on his arm proved who he was — and then, his word unbroken, he mounted and rode all the way back to his chains. Not even a homecoming outweighs a sworn besa.',
     text: [
       L(w('nje'), w('vajze'), w('sheh'), wf('trim', 'trimin', 'the hero'), w('perseri'), p('.')),
-      L(wf('trim', 'trimi', 'the hero'), w('kthehu'), w('larg'), w('perseri'), p('.')),
+      L(wf('trim', 'trimi', 'the hero'), wf('mban', 'mban', 'keeps'), wf('bese', 'besën', 'the besa'), w('dhe'), w('kthehu'), w('larg'), p('.')),
     ],
     options: [],
   },
@@ -476,7 +479,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('merr'), w('gur')), grant: 'gur', to: 'mali3' },
-      { text: L(w('ngjit'), w('lart')), to: 'mali3' },
+      { text: L(w('ngjit'), w('lart')), to: 'maliStuhi' },
     ],
   },
 
@@ -495,7 +498,7 @@ export const STORY = {
   tomor1: {
     id: 'tomor1',
     text: [
-      L(wf('plak', 'plaku', 'the old man'), w('eshte'), w('tomor'), p('.')),
+      L(w('tomor'), w('te_obj'), wf('prit', 'pret', 'waits'), p('.')),
       L(wf('shqiponje', 'shqiponjat', 'the eagles'), wf('rri', 'rrinë', 'stay'), w('me'), wf('tomor', 'Tomorin', 'Tomor'), p('.')),
       L(w('tomor'), w('thote'), p(':')),
       L(w('kulshedra'), w('eshte'), w('poshte'), p('.')),
@@ -699,8 +702,10 @@ export const STORY = {
     id: 'shtepia',
     end: 'good',
     title: 'Home Again',
-    blurb: 'You carried the water back and went home to the village. No crown — but the wells are full and the people sing your name.',
+    blurb:
+      'You went down into the world below, where the Kulshedra had coiled around the springs and held E Bukura e Dheut in the dark — and you did what the old songs promise of a dragua: you broke the drought. The water ran red, then clean, up through every well to the dying villages above, and you climbed back into the light. There is no crown and no king’s daughter waiting — only your own fshat, its wells brimming and its children alive. But that is the whole of it, and it is enough: for a hundred years they will sing your name at the spring.',
     text: [
+      L(w('ti'), wf('vrit', 'vrate', 'killed'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), w('dhe'), wf('shpeto', 'shpëtove', 'saved'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
       L(w('ti'), w('kthehu'), w('ne'), w('fshat'), p('.')),
       L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('tani'), p('.')),
     ],
@@ -711,7 +716,8 @@ export const STORY = {
     id: 'dranguasi',
     end: 'secret',
     title: 'The Drangue Awakens',
-    blurb: 'You hurled the thunder-stone the way the Drangue strike the Kulshedra in the storms. Lightning answered your hand — you were born for this.',
+    blurb:
+      'You hurled the thunder-stone — the kokerr rrufeje — the way the Drangue strike the Kulshedra in the storm-clouds, and lightning answered your open hand. The crowned head fell, and below you the springs the dragon had hoarded broke loose and ran red, then clear, up through the well-shafts to the parched villages above. You were born with the caul; you were born for exactly this. The rains will come now, and come again every year the dragon’s brood crawls back — for there will always be a Drangue, and now the land knows your name.',
     text: [
       L(wf('gur', 'guri', 'the stone'), wf('vrit', 'vret', 'kills'), wf('kulshedra', 'kulshedrën', 'the kulshedra'), p('.')),
       L(w('ti'), w('je'), w('nje'), w('dragua'), w('te_link'), w('forte'), p('!')),
@@ -723,7 +729,8 @@ export const STORY = {
     id: 'mishiVetes',
     end: 'secret',
     title: 'Flesh for the Eagle',
-    blurb: 'You had no meat, so you cut your own and fed the eagle, as the old hero did. You rise to the light — alive, scarred, unforgotten.',
+    blurb:
+      'There was no meat left, and the eagle would not fly without it — so you drew your knife across your own thigh and fed the great bird your own flesh, the way the old hero did when the long climb out was not yet done. Wing-beat by wing-beat it bore you up the black shaft toward the daylight. You reach the living world torn and limping, but you reach it — alive, scarred, and not forgotten. Some buy their way out of the underworld with gold; you bought yours with your body.',
     text: [
       L(w('ti'), w('pre'), w('mish'), p('.')),
       L(wf('shqiponje', 'shqiponja', 'the eagle'), wf('fluturo', 'fluturon', 'flies'), w('lart'), p('.')),
@@ -829,7 +836,7 @@ export const STORY = {
     end: 'good',
     title: 'The Beauty of the Sea',
     blurb:
-      'At the bottom of the black water you found Bukura e Detit, the Beauty of the Sea. She bore you up through the dark to the light and set you again upon the living earth.',
+      'At the bottom of the black water you found Bukura e Detit, the Beauty of the Sea, and she bore you up through the dark to the light and set you again upon the living earth. You did not climb out a conqueror — the eagle’s road was never yours — but you came up alive, and the springs the Kulshedra once hoarded were already running green through the valleys above. Some heroes are carried home by the deep itself; the sea, this once, was merciful.',
     text: [
       L(w('bukura'), w('te_obj'), wf('ndihmo', 'ndihmon', 'helps'), p('.')),
       L(w('ti'), w('je'), w('lart'), w('perseri'), p('.')),
@@ -1142,10 +1149,10 @@ export const STORY = {
     end: 'good',
     title: 'Son of the Eagle',
     blurb:
-      'You saved the eaglet from the serpent, as the boy did in the oldest story. The great eagle gave you the sharpness of its eyes and the strength of its wings, and your people named you Shqiptar — Son of the Eagle. The water flows, and a dragua-king watches over the land.',
+      'On the long road home you came upon an eaglet in a serpent’s coils and cut it free, as the boy did in the oldest story of all. The great eagle gave you the sharpness of its eyes and the strength of its wings, and your people took its name for their own: Shqiptaret, the Sons of the Eagle. You had already broken the drought — but this was the blessing that made you more than a hero, and the eagle’s shadow has watched over the land ever since.',
     text: [
       L(wf('shqiponje', 'shqiponja', 'the eagle'), w('te_obj'), w('jep'), w('sy'), w('dhe'), w('fuqi'), p('.')),
-      L(w('ti'), w('je'), w('nje'), w('dragua'), w('te_link'), w('forte'), p('!')),
+      L(w('ti'), w('je'), wf('bir', 'biri', 'the son'), w('i_art'), wf('shqiponje', 'shqiponjës', 'of the eagle'), p('.')),
     ],
     options: [],
   },
@@ -1352,8 +1359,8 @@ export const STORY = {
       L(w('nje'), w('rruge'), w('thote'), p(':'), w('ti'), w('nuk'), w('kthehu'), p('.')),
     ],
     options: [
-      { text: L(w('ec'), w('ne'), w('rruge')), to: 'gjizar2' },
-      { text: L(w('ik'), w('shpejt')), to: 'fshatiDil' },
+      { text: L(w('kthehu')), to: 'fshatiDil' },
+      { text: L(w('ec'), w('larg')), to: 'gjizar2' },
     ],
   },
 
@@ -1388,7 +1395,7 @@ export const STORY = {
     id: 'shpirag1',
     text: [
       L(w('ketu'), w('nje'), w('mal'), w('dhe'), w('nje'), w('mal'), w('tjeter'), p('.')),
-      L(w('tomor'), w('dhe'), w('nje'), w('mal'), wf('lufto', 'luftojnë', 'fight'), w('per'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
+      L(w('tomor'), w('dhe'), w('shpirag'), wf('lufto', 'luftojnë', 'fight'), w('per'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
       L(wf('bukura', 'Bukura', 'the Beauty'), w('vdes'), w('dhe'), wf('lot', 'lotët', 'the tears'), wf('behet', 'bëhen', 'become'), w('nje'), w('lume'), p('.')),
     ],
     options: [
@@ -1417,7 +1424,7 @@ export const STORY = {
     id: 'dhia1',
     text: [
       L(w('ketu'), w('shume'), wf('njeri', 'njerëz', 'people'), wf('gur', 'guri', 'of stone'), p('.')),
-      L(w('nje'), w('zane'), w('e_art'), wf('keq', 'keqe', 'bad'), w('ka'), w('fuqi'), w('ne'), w('nje'), w('dhi'), p('.')),
+      L(wf('zane', 'zanat', 'the fairies'), w('e_art'), wf('keq', 'këqija', 'bad'), wf('ka', 'kanë', 'have'), w('fuqi'), w('ne'), w('nje'), w('dhi'), p('.')),
       L(wf('dhi', 'dhia', 'the goat'), w('ka'), w('ar'), p('.')),
     ],
     options: [
@@ -1541,8 +1548,8 @@ export const STORY = {
       L(wf('dash', 'dashi', 'the ram'), w('i_art'), w('zi'), w('rri'), w('poshte'), p('.')),
     ],
     options: [
-      { text: L(w('prek'), wf('dash', 'dashin', 'the ram')), to: 'uji' },
-      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+      { text: L(w('merr'), wf('dash', 'dashin', 'the ram'), w('e_art'), w('bardhe')), to: 'uji' },
+      { text: L(w('merr'), wf('dash', 'dashin', 'the ram'), w('e_art'), w('zi')), to: 'humbur' },
     ],
   },
 
@@ -1704,7 +1711,7 @@ export const STORY = {
     options: [
       { text: L(w('merr'), w('fuqi')), to: 'zanaQumesht' },
       { text: L(w('merr'), w('ar')), to: 'zanaGold' },
-      { text: L(w('merr'), w('dije')), to: 'zanaGold' },
+      { text: L(w('merr'), w('dije')), to: 'zanaDije' },
     ],
   },
 
@@ -1713,10 +1720,23 @@ export const STORY = {
     end: 'secret',
     title: 'The Lesser Gifts',
     blurb:
-      'By the boulder the Zanas offered you what they once offered the young Mujo — wealth, knowledge, or a hero’s strength. You did not choose strength. You went home richer (or wiser), but no dragua — and the Kulshedra kept the water, for strength was the only gift that could have freed it.',
+      'By the boulder the Zanas offered you what they once offered the young Mujo — wealth, knowledge, or a hero’s strength. You reached for the gold. You went home the richest man in the valley, but no dragua — and the Kulshedra kept the water, for only a hero’s strength could ever have freed it.',
     text: [
       L(w('ti'), w('nuk'), w('je'), w('nje'), w('dragua'), p('.')),
       L(w('loja'), w('mbaroi'), p('.')),
+    ],
+    options: [],
+  },
+
+  zanaDije: {
+    id: 'zanaDije',
+    end: 'secret',
+    title: 'The Zanas’ Wisdom',
+    blurb:
+      'By the boulder the Zanas offered you wealth, knowledge, or a hero’s strength, and you chose knowledge. You went home the wisest man in the valley — wise enough, at last, to understand exactly why only a dragua’s strength could have broken the drought, and that you had held that very choice in your hand and let it pass. Some gifts are a quiet kind of grief.',
+    text: [
+      L(w('ti'), w('ke'), w('dije'), p('.')),
+      L(w('por'), w('ti'), w('nuk'), w('je'), w('nje'), w('dragua'), p('.')),
     ],
     options: [],
   },
@@ -1808,7 +1828,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', to: 'ngjitja3' },
-      { text: L(w('ngjit'), w('lart')), to: 'ngjitja3' },
+      { text: L(w('ngjit'), w('lart')), to: 'rene' },
     ],
   },
 
@@ -1898,7 +1918,6 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ndiz'), w('nje'), w('zjarr')), to: 'udheOra' },
-      { text: L(w('prit'), wf('dite', 'ditën', 'the day')), to: 'udheOra' },
       { text: L(w('lufto'), wf('lugat', 'lugatin', 'the revenant')), to: 'humbur' },
     ],
   },
@@ -2091,9 +2110,22 @@ export const STORY = {
       L(wf('sy', 'syri', 'the eye'), w('i_art'), wf('gjarper', 'gjarprit', 'of the serpent'), w('bie'), w('dhe'), w('behet'), w('uje'), p('.')),
     ],
     options: [
-      { text: L(w('pi'), w('uje')), to: 'ura' },
+      { text: L(w('pi'), w('uje')), to: 'syriFund' },
       { text: L(w('ik'), w('shpejt')), to: 'ura' },
     ],
+  },
+
+  syriFund: {
+    id: 'syriFund',
+    end: 'secret',
+    title: 'Syri i Kalter',
+    blurb:
+      'You knelt and drank where the serpent’s eye had fallen, and the water ran sweeter and colder than any well — an endless deep-blue spring welling out of the earth, the Syri i Kalter the old people say still weeps near Saranda. You never slew the Kulshedra nor freed the Beauty; you simply found water that would never run dry, and cut a channel to lead it home to your village. Sometimes the drought breaks not by the hero’s sword but by the patient miracle of a spring that does not stop.',
+    text: [
+      L(w('ti'), w('pi'), w('uje'), wf('sy', 'syri', 'the eye'), p('.')),
+      L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('perseri'), p('.')),
+    ],
+    options: [],
   },
 
   uraFshaj: {
@@ -2181,6 +2213,8 @@ export const STORY = {
       L(w('tomor'), w('thote'), p(':')),
       L(w('poshte'), w('eshte'), w('nje'), w('dash'), w('i_art'), w('bardhe'), w('dhe'), w('nje'), w('dash'), w('i_art'), w('zi'), p('.')),
       L(wf('dash', 'dashi', 'the ram'), w('i_art'), w('bardhe'), wf('shko', 'shkon', 'goes'), w('lart'), p('.')),
+      L(wf('dash', 'dashi', 'the ram'), w('i_art'), w('zi'), wf('shko', 'shkon', 'goes'), w('poshte'), p('.')),
+      L(w('merr'), wf('dash', 'dashin', 'the ram'), w('e_art'), w('bardhe'), p('!')),
     ],
     options: [
       { text: L(w('degjo'), w('tomor')), to: 'tomor3' },
@@ -3025,4 +3059,7 @@ export const DEFS = {
   bije: L(w('nje'), w('vajze'), w('te_link'), w('nene')), //      a maiden of a mother
   vit: L(w('shume'), w('dite')), //                              many days
   fol: L(w('thote'), w('fjale')), //                             says words
+  shpirag: L(w('nje'), w('mal')), //                            a mountain
+  bir: L(w('nje'), w('femije')), //                             a child
+  mban: L(w('ka')), //                                          has, holds
 }
