@@ -99,20 +99,20 @@ export default function StoryView({ state, dispatch }) {
     (toks) => !seenPhrase.has(toks.map((t) => t.id || t.en).join(' ')),
   )
 
-  // Real directions are sentence-gated. Confusers (and the dynamic item-combo
-  // distractors) only appear once at least one gated direction has been revealed —
-  // so the player decodes the scene before the comprehension trap is offered. If a
-  // node gates nothing, everything shows immediately (as before).
+  // Sentence-gated directions: hide AT MOST ONE path behind a sentence, and never the
+  // only available path — so there's always a visible way forward and the gated one is
+  // a bonus the matching sentence reveals (e.g. "ka një lumë" reveals "shko në lumë",
+  // while "flee fast" and the other choices stay visible).
   const realOpts = node.options.filter((o) => !o.confuser && hasRequiredItem(state, o))
-  const gatedReal = realOpts.filter((o) => gateLineFor(o))
-  const sceneEngaged = gatedReal.length === 0 ? true : gatedReal.some((o) => optionRevealed(o))
+  const gateableReal = realOpts.filter((o) => gateLineFor(o))
+  const gatedOpt = realOpts.length >= 2 && gateableReal.length > 0 ? gateableReal[0] : null
 
   const entries = []
   let hiddenPaths = 0
   node.options.forEach((opt, i) => {
     if (opt.confuser) return // confusers handled below
     if (opt.requires && !hasRequiredItem(state, opt)) return
-    if (!optionRevealed(opt)) {
+    if (opt === gatedOpt && !optionRevealed(opt)) {
       hiddenPaths++
       return
     }
@@ -139,8 +139,8 @@ export default function StoryView({ state, dispatch }) {
       onSelect: () => dispatch({ type: 'USE_ITEM', item: it }),
     })
   })
-  // confusers — only once the scene is engaged
-  if (sceneEngaged) {
+  // confusers — always shown (the comprehension trap)
+  {
     node.options.forEach((opt, i) => {
       if (!opt.confuser) return
       const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
