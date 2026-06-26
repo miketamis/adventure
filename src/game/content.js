@@ -237,6 +237,10 @@ export const DICT = {
   gjak:      { al: 'gjak',      en: 'blood' },   // gjakmarrja / falja e gjakut
   dy:        { al: 'dy',        en: 'two' },
   bar:       { al: 'bar',       en: 'herb' },    // the Ora's healing mountain herb
+  tre:       { al: 'tre',       en: 'three' },
+  shurdhi:   { al: 'Shurdhi',   en: 'Shurdhi' }, // the northern storm-god of hail and thunder
+  hekur:     { al: 'hekur',     en: 'iron' },   // bang iron to rouse/ward the storm-god
+  kale:      { al: 'kalë',      en: 'horse' },  // Mujo's oracular courser
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -378,9 +382,11 @@ export const STORY = {
     text: [
       L(w('ti'), w('ec'), w('ne'), w('nje'), w('pyll'), w('te_link'), w('madh'), p('.')),
       L(w('eshte'), w('erret'), w('dhe'), w('thate'), p('.')),
+      L(w('tre'), wf('vella', 'vëllezër', 'brothers'), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.')),
     ],
     options: [
       { text: L(w('ec'), w('ne'), w('pyll')), to: 'pylliThelle', reveal: 'pyll' },
+      { text: L(w('ndihmo'), wf('vella', 'vëllezërit', 'the brothers')), to: 'kordha1', reveal: 'vella' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -521,9 +527,11 @@ export const STORY = {
     text: [
       L(w('ti'), w('ngjit'), w('lart'), p('.')),
       L(w('lart'), w('eshte'), w('nje'), w('plak'), w('te_link'), w('vjeter'), p('.')),
+      L(w('nje'), w('kale'), w('rri'), w('ketu'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'maliStuhi', reveal: 'plak' },
+      { text: L(w('degjo'), wf('kale', 'kalin', 'the horse')), to: 'kali1', reveal: 'kale' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -2178,9 +2186,11 @@ export const STORY = {
       L(w('ere'), w('dhe'), w('rrufe'), w('vjen'), w('ne'), w('mal'), p('.')),
       L(w('nje'), w('zjarr'), w('i_art'), w('madh'), w('vjen'), p('.')),
       L(w('ti'), w('ngjit'), w('lart'), p('.')),
+      L(w('ne'), w('re'), w('rri'), w('shurdhi'), p('.')),
     ],
     options: [
       { text: L(w('ngjit'), wf('mal', 'malin', 'the mountain')), to: 'maja', reveal: 'mal' },
+      { text: L(w('godit'), w('hekur')), to: 'shurdhi1', reveal: 'shurdhi' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -2584,6 +2594,113 @@ export const STORY = {
     ],
     options: [],
   },
+
+  // === SIDE-QUEST: Kordha & the Three Sworn Brothers — the external soul (Elsie no. 3) ===
+  // Kordha ("Sword"), Ylli ("Star," who leaps), Deti ("Sea," who dives); Kordha's life is
+  // hidden in his sabre. A treacherous crone learns the secret and steals it; Deti dives
+  // to the deep to recover it. The lesson: never tell where your soul is kept.
+  kordha1: {
+    id: 'kordha1',
+    text: [
+      L(w('ketu'), w('tre'), wf('vella', 'vëllezër', 'brothers'), p('.')),
+      L(w('nje'), w('vella'), w('ka'), w('nje'), wf('shpate', 'shpatë', 'a sword'), p('.')),
+      L(wf('fuqi', 'fuqia', 'the power'), w('e_art'), wf('vella', 'vëllait', 'of the brother'), w('eshte'), w('ne'), wf('shpate', 'shpatë', 'the sword'), p('.')),
+    ],
+    options: [
+      { text: L(w('premto'), w('nje'), w('bese')), to: 'kordha2', reveal: 'tre' },
+      { text: L(w('ec'), w('larg')), to: 'pylli1' },
+    ],
+  },
+
+  kordha2: {
+    id: 'kordha2',
+    text: [
+      L(w('nje'), w('plake'), w('do'), wf('fuqi', 'fuqinë', 'the power'), p('.')),
+    ],
+    options: [
+      { text: L(w('fol'), w('per'), w('fuqi')), to: 'kordhaDeti', reveal: 'fuqi' },
+      { text: L(w('rri'), w('i_art'), w('qete')), to: 'kordhaFund' },
+    ],
+  },
+
+  kordhaFund: {
+    id: 'kordhaFund',
+    end: 'secret',
+    title: 'The Three Sworn Brothers',
+    blurb:
+      'You held your tongue. The crone never learned that, like Kordha of the old tale, a hero may keep his very life hidden in his blade — so no one could steal your strength and cast it in the sea. Kordha the Sword, Ylli the Star who leaps the nine mountains, and Deti the Sea who dives to its floor swore you brotherhood, and four such men go down against the Kulshedra as one.',
+    text: [
+      L(w('ti'), w('rri'), w('i_art'), w('qete'), p('.')),
+      L(w('tre'), wf('vella', 'vëllezër', 'brothers'), wf('lufto', 'luftojnë', 'fight'), w('me'), w('ti'), p('.')),
+    ],
+    options: [],
+  },
+
+  kordhaDeti: {
+    id: 'kordhaDeti',
+    end: 'secret',
+    title: 'Deti’s Dive',
+    blurb:
+      'You told the crone where your strength was kept — as Kordha once let the Beauty learn his secret — and she stole the blade and flung it into the sea, and you sickened unto death. But Deti, the brother who can dive to the floor of any water, went down into the dark and brought your soul back to you. You live, barely, and you have learned the oldest rule of the heroes: never tell a living soul where your own is hidden.',
+    text: [
+      L(wf('plake', 'plaka', 'the crone'), w('merr'), wf('shpate', 'shpatën', 'the sword'), p('.')),
+      L(wf('det', 'deti', 'the sea-brother'), wf('shpeto', 'shpëton', 'saves'), wf('shpate', 'shpatën', 'the sword'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === SIDE-QUEST: Shurdhi — the storm-god of hail and thunder (Lambertz; Tirta; Elsie) ===
+  shurdhi1: {
+    id: 'shurdhi1',
+    text: [
+      L(w('ne'), w('re'), w('rri'), w('shurdhi'), p('.')),
+      L(w('shurdhi'), w('ka'), w('rrufe'), w('dhe'), w('shi'), p('.')),
+    ],
+    options: [
+      { text: L(w('godit'), w('hekur')), to: 'shurdhiFund', reveal: 'shurdhi' },
+      { text: L(w('ik'), w('shpejt')), to: 'maliStuhi' },
+    ],
+  },
+
+  shurdhiFund: {
+    id: 'shurdhiFund',
+    end: 'secret',
+    title: 'Shurdhi’s Storm',
+    blurb:
+      'High in the hail-clouds rides Shurdhi, the northern storm-god who hurls the thunder and the lightning; the old people drove him off — or roused him — by banging on iron and firing their guns into the sky. You struck the iron until he woke and turned his black clouds on the parched land, and the rain he loosed was not a curse this time but a mercy. Sometimes you do not slay the drought; you call down the god who ends it.',
+    text: [
+      L(w('shurdhi'), w('jep'), w('shi'), p('.')),
+      L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('perseri'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === SIDE-QUEST: Mujo's oracular horse (Kângë Kreshnikësh; Palaj-Kurti) ===
+  kali1: {
+    id: 'kali1',
+    text: [
+      L(w('ketu'), w('nje'), wf('kale', 'kalë', 'a horse'), p('.')),
+      L(wf('kale', 'kali', 'the horse'), w('flet'), w('dhe'), w('sheh'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('kale', 'kalin', 'the horse')), to: 'kaliFund', reveal: 'kale' },
+      { text: L(w('merr'), wf('kale', 'kalin', 'the horse')), to: 'humbur' },
+      { text: L(w('ec'), w('larg')), to: 'mali3' },
+    ],
+  },
+
+  kaliFund: {
+    id: 'kaliFund',
+    end: 'secret',
+    title: 'Mujo’s Horse',
+    blurb:
+      'You did not seize the horse by force — for Mujo’s courser throws any rider who is not worthy — but spoke to it gently and earned its trust. Now the oracular horse that foretells the future, weeps human tears for fallen riders, and carries heroes across nine mountains in a night, bears you toward the Kulshedra, and warns you of every danger before it comes.',
+    text: [
+      L(wf('kale', 'kali', 'the horse'), w('ec'), w('me'), w('ti'), p('.')),
+      L(wf('kale', 'kali', 'the horse'), w('sheh'), w('rrezik'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -2736,6 +2853,10 @@ const CONFUSERS = {
   gjak2: L(w('thirr'), eagleAcc()), //            call the eagle — none here
   zuku1: L(w('kalo'), bridgeAcc()), //            cross a bridge — none here
   zuku2: L(w('thirr'), eagleAcc()), //            call the eagle — none here
+  kordha1: L(w('kalo'), bridgeAcc()), //          cross a bridge — none here
+  kordha2: L(w('thirr'), eagleAcc()), //          call the eagle — none here
+  shurdhi1: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
+  kali1: L(w('thirr'), eagleAcc()), //            call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3285,6 +3406,10 @@ export const DEFS = {
   gjak: L(w('vdes')), //                                          death (a blood-feud)
   dy: L(w('nje'), w('dhe'), w('nje')), //                         one and one
   bar: L(w('nje'), w('peme')), //                                a plant
+  tre: L(w('dy'), w('dhe'), w('nje')), //                         two and one
+  shurdhi: L(w('nje'), w('re'), w('dhe'), w('rrufe')), //         a cloud and thunder
+  hekur: L(w('nje'), w('gur'), w('te_link'), w('forte')), //     a hard stone (metal)
+  kale: L(w('nje'), w('kafshe')), //                             an animal
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
   bije: L(w('nje'), w('vajze'), w('te_link'), w('nene')), //      a maiden of a mother
