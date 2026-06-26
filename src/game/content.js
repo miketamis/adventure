@@ -259,6 +259,10 @@ export const DICT = {
   gjegjeza:  { al: 'gjëegjëzë', en: 'riddle' },
   samar:     { al: 'samar',     en: 'packsaddle' },
   breshka:   { al: 'breshka',   en: 'tortoise' },
+  gjon:      { al: 'Gjon',      en: 'Gjon' },    // the boy who became the Gjon-bird
+  arushe:    { al: 'arushë',    en: 'bear' },
+  mashtro:   { al: 'mashtro',   en: 'trick' },
+  dhampir:   { al: 'dhampir',   en: 'dhampir' }, // half-living son of a lugat
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -401,10 +405,12 @@ export const STORY = {
       L(w('ti'), w('ec'), w('ne'), w('nje'), w('pyll'), w('te_link'), w('madh'), p('.')),
       L(w('eshte'), w('erret'), w('dhe'), w('thate'), p('.')),
       L(w('tre'), wf('vella', 'vëllezër', 'brothers'), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.')),
+      L(w('nje'), w('dervish'), w('dhe'), w('nje'), w('arushe'), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.')),
     ],
     options: [
       { text: L(w('ec'), w('ne'), w('pyll')), to: 'pylliThelle', reveal: 'pyll' },
       { text: L(w('ndihmo'), wf('vella', 'vëllezërit', 'the brothers')), to: 'kordha1', reveal: 'vella' },
+      { text: L(w('ndihmo'), wf('dervish', 'dervishin', 'the dervish')), to: 'arushe1', reveal: 'arushe' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -1466,9 +1472,11 @@ export const STORY = {
     text: [
       L(w('nje'), w('zog'), w('ne'), w('nje'), w('peme'), w('flet'), w('bukur'), p('.')),
       L(wf('zog', 'zogu', 'the bird'), w('eshte'), w('i_art'), w('bukur'), p('.')),
+      L(wf('zog', 'zogu', 'the bird'), w('thote'), p(':'), w('gjon'), p('!')),
     ],
     options: [
       { text: L(w('merr'), wf('zog', 'zogun', 'the bird')), to: 'gjizarFund' },
+      { text: L(w('degjo'), wf('zog', 'zogun', 'the bird')), to: 'cuckoo1', reveal: 'gjon' },
     ],
   },
 
@@ -2014,10 +2022,12 @@ export const STORY = {
       L(w('naten'), w('nje'), w('lugat'), w('vjen'), p('.')),
       L(wf('lugat', 'lugati', 'the revenant'), w('eshte'), w('nje'), w('hije'), w('e_art'), wf('keq', 'keqe', 'bad'), p('.')),
       L(wf('lugat', 'lugati', 'the revenant'), w('te_obj'), w('do'), p('!')),
+      L(w('nje'), w('dhampir'), w('sheh'), wf('lugat', 'lugatin', 'the revenant'), p('.')),
     ],
     options: [
       { text: L(wf('ujk', 'ujku', 'the wolf'), wf('lufto', 'lufton', 'fights'), wf('lugat', 'lugatin', 'the revenant')), requires: 'ujk', to: 'udheOra', reveal: 'lugat' },
       { text: L(w('ndiz'), w('nje'), w('zjarr')), to: 'udheOra' },
+      { text: L(w('kerko'), wf('dhampir', 'dhampirin', 'the dhampir')), to: 'dhampir1', reveal: 'dhampir' },
       { text: L(w('lufto'), wf('lugat', 'lugatin', 'the revenant')), to: 'humbur', reveal: 'lugat' },
     ],
   },
@@ -3130,6 +3140,87 @@ export const STORY = {
     ],
     options: [],
   },
+
+  // === FABLE: the origin of the cuckoo (von Hahn 104) ===
+  cuckoo1: {
+    id: 'cuckoo1',
+    text: [
+      L(wf('zog', 'zogu', 'the bird'), w('eshte'), w('gjon'), p('.')),
+      L(w('nje'), w('motra'), wf('vrit', 'vrau', 'killed'), w('gjon'), p('.')),
+      L(w('motra'), w('kerko'), w('gjon'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('zog', 'zogun', 'the bird')), to: 'cuckooFund', reveal: 'gjon' },
+      { text: L(w('ec'), w('larg')), to: 'gjizar2' },
+    ],
+  },
+
+  cuckooFund: {
+    id: 'cuckooFund',
+    end: 'secret',
+    title: 'Gjon and the Cuckoo',
+    blurb:
+      'A sister at her sewing struck her brother Gjon dead with her scissors, by a terrible accident; and in her grief she became the cuckoo, who cries "Ku? Ku?" — "Where? Where?" — searching for him down all the years, while he became the little Gjon-bird who answers only "Gjon! Gjon!", his own name. So the two of them call across the woods, and never once meet. (von Hahn 104)',
+    text: [
+      L(w('motra'), wf('behet', 'bëhet', 'becomes'), w('nje'), w('zog'), p('.')),
+      L(w('gjon'), w('eshte'), w('nje'), w('zog'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === FABLE: the Bear and the Dervish — the weak trickster beats the strong (Elsie 12) ===
+  arushe1: {
+    id: 'arushe1',
+    text: [
+      L(w('nje'), w('dervish'), w('dhe'), w('nje'), w('arushe'), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.')),
+      L(w('arushe'), w('eshte'), w('i_art'), w('forte'), p('.')),
+    ],
+    options: [
+      { text: L(w('ndihmo'), wf('dervish', 'dervishin', 'the dervish')), to: 'arusheFund', reveal: 'arushe' },
+      { text: L(w('lufto'), wf('arushe', 'arushën', 'the bear')), to: 'humbur', reveal: 'arushe' },
+      { text: L(w('ec'), w('larg')), to: 'pylli1' },
+    ],
+  },
+
+  arusheFund: {
+    id: 'arusheFund',
+    end: 'secret',
+    title: 'The Bear and the Dervish',
+    blurb:
+      'The little dervish could never beat the bear by strength, so he beat it by wit: he crushed a white cheese in his fist and swore it was a stone he had squeezed the water from; he shrugged off the bear\u2019s mightiest cuffs as mere fleabites; and at the last he coaxed the great beast into a cauldron and boiled it in milk. In the mountains the cunning man outlives the strong one. (Elsie 12)',
+    text: [
+      L(w('dervish'), w('mashtro'), wf('arushe', 'arushën', 'the bear'), p('.')),
+      L(w('arushe'), w('vdes'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === BEING: the dhampir, the only one who can see and unmake the invisible undead ===
+  dhampir1: {
+    id: 'dhampir1',
+    text: [
+      L(w('nje'), w('dhampir'), w('vjen'), p('.')),
+      L(w('dhampir'), w('sheh'), wf('lugat', 'lugatin', 'the revenant'), p('.')),
+      L(w('dhampir'), wf('lufto', 'lufton', 'fights'), wf('lugat', 'lugatin', 'the revenant'), p('.')),
+    ],
+    options: [
+      { text: L(w('ndihmo'), wf('dhampir', 'dhampirin', 'the dhampir')), to: 'dhampirFund', reveal: 'dhampir' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  dhampirFund: {
+    id: 'dhampirFund',
+    end: 'secret',
+    title: 'The Dhampir',
+    blurb:
+      'The lugat walks invisible, and only the dhampir can see it — the half-living son a revenant fathered on a widow, "the dhampir knows the lugat." (His own grave is found by leading a virgin boy on a white stallion through the churchyard, where the horse will balk.) He knew the undead thing by sight, wrestled it down in the dark, and unmade it; and the night road was clean again.',
+    text: [
+      L(w('dhampir'), wf('lufto', 'lufton', 'fights'), wf('lugat', 'lugatin', 'the revenant'), p('.')),
+      L(wf('lugat', 'lugati', 'the revenant'), w('vdes'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -3302,6 +3393,9 @@ const CONFUSERS = {
   lubiaKoke: L(w('thirr'), eagleAcc()), //        call the eagle — none here
   prende1: L(w('kalo'), bridgeAcc()), //          cross a bridge — none here
   riddle1: L(w('thirr'), eagleAcc()), //          call the eagle — none here
+  cuckoo1: L(w('kalo'), bridgeAcc()), //          cross a bridge — none here
+  arushe1: L(w('thirr'), eagleAcc()), //          call the eagle — none here
+  dhampir1: L(w('kalo'), bridgeAcc()), //         cross a bridge — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3881,6 +3975,10 @@ export const DEFS = {
   gjegjeza: L(w('nje'), w('fjale'), w('e_art'), w('vjeter')), //  an old saying
   samar: L(w('nje'), w('gje'), w('te_link'), w('gomar')), //      a thing of a donkey
   breshka: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //   a small animal
+  gjon: L(w('nje'), w('zog')), //                                a bird
+  arushe: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //     a big animal
+  mashtro: L(w('thote'), w('fjale'), w('e_art'), w('keq')), //    speaks false words
+  dhampir: L(w('nje'), w('bir'), w('te_link'), w('lugat')), //    a son of a revenant
   pa: L(w('nuk'), w('me')), //                                   not with
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
