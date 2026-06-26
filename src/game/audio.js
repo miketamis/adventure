@@ -24,10 +24,42 @@ export function audioUrl(al) {
   return `${base}audio/${audioSlug(al)}.mp3`
 }
 
+// --- mute toggle (persisted) ----------------------------------------------
+const MUTE_KEY = 'aventura.muted.v1'
+let muted = (() => {
+  try {
+    return localStorage.getItem(MUTE_KEY) === '1'
+  } catch {
+    return false
+  }
+})()
+const listeners = new Set()
+
+export function isMuted() {
+  return muted
+}
+export function setMuted(value) {
+  muted = !!value
+  try {
+    localStorage.setItem(MUTE_KEY, muted ? '1' : '0')
+  } catch {
+    /* ignore */
+  }
+  listeners.forEach((fn) => fn())
+}
+export function toggleMute() {
+  setMuted(!muted)
+}
+// subscribe for React's useSyncExternalStore
+export function subscribeMute(fn) {
+  listeners.add(fn)
+  return () => listeners.delete(fn)
+}
+
 // Play a surface's clip. Caches <audio> elements so repeated hovers are cheap.
 const cache = new Map()
 export function playWord(al) {
-  if (!al) return
+  if (!al || muted) return
   let a = cache.get(al)
   if (!a) {
     a = new Audio(audioUrl(al))

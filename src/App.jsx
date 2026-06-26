@@ -1,5 +1,6 @@
-import { useReducer, useState, useEffect } from 'react'
+import { useReducer, useState, useEffect, useSyncExternalStore } from 'react'
 import { reducer, loadState, saveState, saveEndings } from './game/gameState.js'
+import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
 import { ENDINGS } from './game/content.js'
 import StoryView from './components/StoryView.jsx'
 import PracticeView from './components/PracticeView.jsx'
@@ -10,6 +11,7 @@ export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, loadState)
   const [confirmReset, setConfirmReset] = useState(false)
   const peakOn = state.peak > 0
+  const muted = useSyncExternalStore(subscribeMute, isMuted)
   const endingsGot = ENDINGS.filter((e) => state.discoveredEndings?.[e.id]).length
 
   // persist the whole state every change — reloading resumes exactly where you were
@@ -54,6 +56,14 @@ export default function App() {
             </span>
           ))}
         </span>
+        <button
+          className={'btn' + (muted ? ' active' : '')}
+          onClick={toggleMute}
+          title={muted ? 'Word audio off — click to unmute' : 'Word audio on — click to mute'}
+          aria-pressed={muted}
+        >
+          {muted ? '🔇 muted' : '🔊 sound'}
+        </button>
         <button className="btn" onClick={() => setConfirmReset(true)}>
           ⟳ new run
         </button>
