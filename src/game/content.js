@@ -250,6 +250,10 @@ export const DICT = {
   fsheh:     { al: 'fsheh',     en: 'hide' },
   djall:     { al: 'djall',     en: 'devil' },
   perendi:   { al: 'Perëndi',   en: 'God' },     // the supreme power
+  verbti:    { al: 'i Verbti',  en: 'the Blind One' }, // the blind fire-and-wind god
+  omer:      { al: 'Omer',      en: 'Omer' },    // Mujo's son, killed young
+  vajto:     { al: 'vajto',     en: 'mourn' },   // vajtim — the sung lament
+  lubia:     { al: 'Lubia',     en: 'Lubia' },   // the southern hydra she-demon
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -2166,9 +2170,11 @@ export const STORY = {
       L(wf('toke', 'toka', 'the ground'), w('eshte'), w('e_art'), w('thate'), p('.')),
       L(w('nje'), w('lume'), w('eshte'), w('i_art'), w('thate'), p('.')),
       L(w('ti'), w('ec'), w('larg'), p('.')),
+      L(w('nje'), w('lubia'), w('mban'), w('uje'), p('.')),
     ],
     options: [
       { text: L(w('shko'), w('ne'), wf('lume', 'lumën', 'the river')), to: 'udhaSyri', reveal: 'lume' },
+      { text: L(w('kerko'), wf('lubia', 'lubinë', 'the Lubia')), to: 'lubia1', reveal: 'lubia' },
       { text: L(w('degjo'), wf('ujk', 'ujkun', 'the wolf')), requires: 'ujk', to: 'ujkuUje' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
@@ -2239,10 +2245,12 @@ export const STORY = {
       L(w('nje'), w('zjarr'), w('i_art'), w('madh'), w('vjen'), p('.')),
       L(w('ti'), w('ngjit'), w('lart'), p('.')),
       L(w('ne'), w('re'), w('rri'), w('shurdhi'), p('.')),
+      L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('verbti'), p('.')),
     ],
     options: [
       { text: L(w('ngjit'), wf('mal', 'malin', 'the mountain')), to: 'maja', reveal: 'mal' },
       { text: L(w('godit'), w('hekur')), to: 'shurdhi1', reveal: 'shurdhi' },
+      { text: L(w('degjo'), w('verbti')), to: 'verbti1', reveal: 'verbti' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -2875,9 +2883,11 @@ export const STORY = {
       L(w('nje'), w('eshte'), w('mujo'), p('.')),
       L(w('nje'), w('eshte'), w('halil'), p('.')),
       L(w('halil'), w('do'), w('nje'), w('nuse'), p('.')),
+      L(w('omer'), w('eshte'), wf('bir', 'biri', 'the son'), w('e_art'), w('mujo'), p('.')),
     ],
     options: [
       { text: L(w('ndihmo'), w('halil')), to: 'mujo2', reveal: 'halil' },
+      { text: L(w('degjo'), w('omer')), to: 'omer1', reveal: 'omer' },
       { text: L(w('ec'), w('larg')), to: 'maja' },
     ],
   },
@@ -2940,6 +2950,117 @@ export const STORY = {
       'The old people tell it so: the Devil moulded a wolf out of dough but could not give it life, and begged God to. God breathed it alive with the words "devour your creator" — and the wolf turned at once and ate the Devil. That is why the wolf devours, and why the worst curse a mouth can carry is still "Të hângtë ujku!" — may the wolf eat you.',
     text: [
       L(wf('ujk', 'ujku', 'the wolf'), w('ha'), wf('djall', 'djallin', 'the devil'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === DEITY: i Verbti, the blind fire-and-wind god (Tirta; Lambertz). Punishes foul
+  // speech and uncleanliness; held more powerful than the Christian God; to invoke him
+  // wrongly is to be blinded with fire. ===
+  verbti1: {
+    id: 'verbti1',
+    text: [
+      L(w('nje'), w('zjarr'), w('vjen'), p('.')),
+      L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('verbti'), p('.')),
+      L(w('verbti'), w('nuk'), w('sheh'), p('.')),
+    ],
+    options: [
+      { text: L(w('fol'), w('mire')), to: 'verbtiFund', reveal: 'verbti' },
+      { text: L(w('fol'), w('keq')), to: 'verbtiVdes', reveal: 'verbti' },
+      { text: L(w('ik'), w('shpejt')), to: 'maliStuhi' },
+    ],
+  },
+
+  verbtiFund: {
+    id: 'verbtiFund',
+    end: 'secret',
+    title: 'The Blind Fire-God',
+    blurb:
+      'High in the storm rides i Verbti, the Blind One — the fire-and-wind god the old people held more powerful even than the Christian God, who punishes a foul mouth and an unclean hand. You kept a clean tongue before his flame, and he blessed you: he fanned the fire on the dead hearths and turned the storm\u2019s water back onto the thirsting fields.',
+    text: [
+      L(w('verbti'), w('te_obj'), w('jep'), w('zjarr'), p('.')),
+      L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('perseri'), p('.')),
+    ],
+    options: [],
+  },
+
+  verbtiVdes: {
+    id: 'verbtiVdes',
+    end: 'bad',
+    title: 'Blinded by Fire',
+    blurb:
+      'i Verbti punishes foul speech above all, and the old fear was plain: to invoke the Blind One wrongly is to be blinded with fire. You cursed before his flame, and the flame answered — it took your eyes, and you wander the mountain sightless as the god himself.',
+    text: [
+      L(w('verbti'), w('te_obj'), w('verbo'), p('.')),
+      L(w('ti'), w('nuk'), w('sheh'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === EPIC: Ajkuna's Lament — the death of Omer (the cycle's emotional summit) ===
+  omer1: {
+    id: 'omer1',
+    text: [
+      L(w('omer'), w('eshte'), w('nje'), w('bir'), w('te_link'), w('mujo'), p('.')),
+      L(w('omer'), w('eshte'), w('i_art'), w('ri'), p('.')),
+      L(w('omer'), w('vdes'), p('.')),
+    ],
+    options: [
+      { text: L(w('vajto'), wf('omer', 'omerin', 'Omer')), to: 'omerFund', reveal: 'omer' },
+      { text: L(w('ec'), w('larg')), to: 'mujo1' },
+    ],
+  },
+
+  omerFund: {
+    id: 'omerFund',
+    end: 'secret',
+    title: 'Ajkuna\u2019s Lament',
+    blurb:
+      'Omer, Mujo\u2019s son, barely thirteen, was cornered in a churchyard and fought to the death; Mujo buried him under a mountain fir, beneath a stone thirty men could not lift, and hid the death from the boy\u2019s mother. But Ajkuna learned of it, and her lament for Omer swelled into a cry for every mother who loses a son to war, and the mountains keened it back to her. It is the most beloved passage of the whole epic — the seam where the songs of war become the songs of grief.',
+    text: [
+      L(wf('nene', 'nëna', 'the mother'), w('ka'), w('lot'), p('.')),
+      L(wf('nene', 'nëna', 'the mother'), wf('vajto', 'vajton', 'mourns'), wf('omer', 'omerin', 'Omer'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === MONSTER: the Lubia, the southern hydra she-demon (heads regrow when cut) ===
+  lubia1: {
+    id: 'lubia1',
+    text: [
+      L(w('ketu'), w('rri'), w('lubia'), p('.')),
+      L(w('lubia'), w('ka'), w('shume'), w('koke'), p('.')),
+      L(w('lubia'), w('mban'), w('uje'), p('.')),
+    ],
+    options: [
+      { text: L(w('lufto'), wf('lubia', 'lubinë', 'the Lubia')), to: 'lubiaKoke', reveal: 'lubia' },
+      { text: L(w('hidh'), w('zjarr')), to: 'lubiaFund', reveal: 'koke' },
+      { text: L(w('ik'), w('shpejt')), to: 'udhaThate' },
+    ],
+  },
+
+  lubiaKoke: {
+    id: 'lubiaKoke',
+    text: [
+      L(w('ti'), w('pre'), w('nje'), w('koke'), p('.')),
+      L(w('por'), w('dy'), w('koke'), wf('vjen', 'vijnë', 'come'), p('.')),
+    ],
+    options: [
+      { text: L(w('hidh'), w('zjarr')), to: 'lubiaFund', reveal: 'koke' },
+      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+    ],
+  },
+
+  lubiaFund: {
+    id: 'lubiaFund',
+    end: 'secret',
+    title: 'The Lubia Burned',
+    blurb:
+      'The Lubia is the southern sister of the Kulshedra — a she-demon of seven, of seventy, of a hundred heads that grow back the instant they are cut, who dries the springs and devours little girls until a maiden is given to her. Steel alone only multiplies her; but you burned each neck as you struck it, so no head could grow again, and with the last of them the southern springs ran free.',
+    text: [
+      L(w('ti'), w('hidh'), w('zjarr'), p('.')),
+      L(w('lubia'), w('vdes'), p('.')),
+      L(w('uje'), w('vjen'), w('perseri'), p('.')),
     ],
     options: [],
   },
@@ -3109,6 +3230,10 @@ const CONFUSERS = {
   mujo2: L(w('thirr'), eagleAcc()), //            call the eagle — none here
   mujo3: L(w('kalo'), bridgeAcc()), //            cross a bridge — none here
   ujkuLind1: L(w('thirr'), eagleAcc()), //        call the eagle — none here
+  verbti1: L(w('kalo'), bridgeAcc()), //          cross a bridge — none here
+  omer1: L(w('thirr'), eagleAcc()), //            call the eagle — none here
+  lubia1: L(w('kalo'), bridgeAcc()), //           cross a bridge — none here
+  lubiaKoke: L(w('thirr'), eagleAcc()), //        call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3577,6 +3702,7 @@ export const DEFS = {
   forte: L(w('me'), w('fuqi')), //                                 with power
   bukur: L(w('shume'), w('mire')), //                              very good
   keq: L(w('jo'), w('mire')), //                                   not good
+  mire: L(w('jo'), w('keq')), //                                   not bad
   thate: L(w('pa'), w('uje')), //                                  without water
   lart: L(w('jo'), w('poshte')), //                               not below
   larg: L(w('jo'), w('ketu')), //                                 not here
@@ -3678,6 +3804,10 @@ export const DEFS = {
   fsheh: L(w('nuk'), w('sheh')), //                              is not seen
   djall: L(w('nje'), w('hije'), w('e_art'), w('keq')), //        a bad spirit
   perendi: L(w('nje'), w('fuqi'), w('e_art'), w('madh')), //     a great power
+  verbti: L(w('nje'), w('perendi'), w('te_link'), w('zjarr')), //  a god of fire
+  omer: L(w('nje'), w('bir'), w('te_link'), w('mujo')), //         a son of Mujo
+  vajto: L(w('flet'), w('me'), w('lot')), //                       speaks with tears
+  lubia: L(w('nje'), w('gjarper'), w('me'), w('shume'), w('koke')), // a serpent of many heads
   pa: L(w('nuk'), w('me')), //                                   not with
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
