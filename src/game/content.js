@@ -275,7 +275,6 @@ export const STORY = {
     text: [
       L(w('ti'), w('je'), w('ne'), w('nje'), w('fshat'), w('te_link'), w('vjeter'), p('.')),
       L(wf('fshat', 'fshati', 'the village'), w('nuk'), w('ka'), w('uje'), p('.')),
-      L(w('larg'), w('eshte'), w('nje'), w('pyll'), p('.')),
       L(w('nje'), w('plake'), w('flet'), p('.')),
     ],
     options: [
@@ -756,7 +755,7 @@ export const STORY = {
     end: 'secret',
     title: 'Flesh for the Eagle',
     blurb:
-      'There was no meat left, and the eagle would not fly without it — so you drew your knife across your own thigh and fed the great bird your own flesh, the way the old hero did when the long climb out was not yet done. Wing-beat by wing-beat it bore you up the black shaft toward the daylight. You reach the living world torn and limping, but you reach it — alive, scarred, and not forgotten. Some buy their way out of the underworld with gold; you bought yours with your body.',
+      'There was no meat left, and the eagle would not fly without it — so you drew your knife across your own thigh and fed the great bird your own flesh, as the youngest brother does in the old tale, borne up by a falcon he feeds piece by piece from his own leg. Wing-beat by wing-beat it bore you up the black shaft toward the daylight. You reach the living world torn and limping, but you reach it — alive, scarred, and not forgotten. Some buy their way out of the underworld with gold; you bought yours with your body.',
     text: [
       L(w('ti'), w('pre'), w('mish'), p('.')),
       L(wf('shqiponje', 'shqiponja', 'the eagle'), wf('fluturo', 'fluturon', 'flies'), w('lart'), p('.')),
@@ -983,10 +982,10 @@ export const STORY = {
     end: 'good',
     title: 'The Sacred Guest',
     blurb:
-      'You shared your bread with the cold stranger. She was your Ora in an old woman’s shape — she blessed you, and you woke at dawn safe and strong. To an Albanian, a guest is sent by God, and the besa to feed a traveller is sacred.',
+      'You shared your bread with the cold stranger at your night-fire. In the old country a guest is sent by God, and the besa to feed a traveller is sacred above all — so the stranger blessed you, and you woke at dawn safe and strong, your hospitality repaid the way the songs promise.',
     text: [
       L(w('ti'), w('jep'), w('buke'), p('.')),
-      L(wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), w('ora'), p('.')),
+      L(wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), w('mik'), p('.')),
       L(w('ti'), w('je'), w('i_art'), w('sigurt'), p('.')),
     ],
     options: [],
@@ -1083,9 +1082,8 @@ export const STORY = {
   sprova: {
     id: 'sprova',
     text: [
-      L(wf('hije', 'hija', 'the shadow'), w('eshte'), w('ti'), p('.')),
-      L(wf('hije', 'hija', 'the shadow'), w('nuk'), w('flet'), p('.')),
-      L(w('ti'), w('je'), w('nje'), w('dragua'), p('.')),
+      L(w('shume'), w('hije'), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.')),
+      L(wf('hije', 'hijet', 'the shadows'), w('nuk'), wf('flet', 'flasin', 'speak'), p('.')),
     ],
     options: [
       { text: L(w('prek'), wf('hije', 'hijen', 'the shadow')), to: 'gjarpri', reveal: 'hije' },
@@ -2126,9 +2124,9 @@ export const STORY = {
     end: 'secret',
     title: 'Brother Wolf',
     blurb:
-      'The bread you broke with a starving wolf bought a loyalty older than the drought. On the cracked, waterless road your wolf-brother lifted his nose, dug at the dead earth, and laid bare a cold hidden spring — and the whole village drank because once, when it cost you, you chose to share. In the old songs the wolf is no mere beast but a guardian, and yours had kept faith.',
+      'The starving wolf you fed was no wolf at all — it was a drangue in a wolf’s hide, one of the storm-heroes who walk the earth disguised as cradle-infants, rams and wolves until their hour comes. When the drought bit cruellest it shed its shape, rose into the black clouds and gave battle, and the rain it loosed there ran down to every parched village. You never knew the hero whose bread you shared — the old people only say a guest is sent by God, and the bread you break is never wasted.',
     text: [
-      L(wf('ujk', 'ujku', 'the wolf'), w('gjen'), w('uje'), p('.')),
+      L(wf('ujk', 'ujku', 'the wolf'), w('eshte'), w('nje'), w('dragua'), p('.')),
       L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('perseri'), p('.')),
     ],
     options: [],
@@ -2554,7 +2552,7 @@ const CONFUSERS = {
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
 // with the scene, so you can't dodge it by scanning for the noun.
 const CONFUSERS2 = {
-  start: L(w('hap'), forestAcc()), //                open the forest
+  start: L(w('fluturo'), w('lart')), //              fly up — you are no dragua yet
   plaka: L(w('pi'), wf('buke', 'bukën', 'the bread')), //   drink the bread
   fshatiDil: L(w('pi'), forestAcc()), //            drink the forest
   pylli1: L(w('pi'), forestAcc()), //               drink the forest
@@ -2816,7 +2814,7 @@ export const ITEMS = {
   // them with requires:'<id>'. No `use` — you never spend a companion.
   ujk: {
     id: 'ujk', icon: '🐺', name: 'Wolf', al: 'ujku', word: 'ujk', companion: true,
-    blurb: 'The wolf you shared your bread with. It walks the road at your side now — a guardian, not a beast. In the old songs the wolf is half-drangue, and the bread you break with it binds a besa deeper than the drought.',
+    blurb: 'The wolf you shared your bread with — but the old people say a wolf may be a drangue in disguise, one of the storm-heroes hidden in beast-shape. It walks at your side now, and the bread you broke with it binds a besa deeper than the drought.',
   },
   ora: {
     id: 'ora', icon: '✨', name: 'Ora', al: 'Ora', word: 'ora', companion: true,
