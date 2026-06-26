@@ -268,6 +268,7 @@ export const DICT = {
   dallendyshe:{ al: 'dallëndyshe', en: 'swallow' },
   kukudh:    { al: 'kukudh',    en: 'kukudh' },  // a lugat hardened — a miser's revenant
   hardhi:    { al: 'hardhi',    en: 'vine' },
+  bresher:   { al: 'breshër',   en: 'hail' },
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -355,7 +356,7 @@ export const STORY = {
   agaYmer1: {
     id: 'agaYmer1',
     text: [
-      L(w('nje'), w('trim'), w('eshte'), w('larg'), w('nente'), w('vit'), p('.')),
+      L(w('nje'), w('trim'), w('eshte'), w('larg'), w('nente'), wf('vit', 'vjet', 'years'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), wf('premto', 'premton', 'swears'), w('te_subj'), w('kthehu'), p('.')),
       L(w('nje'), w('vajze'), wf('ndihmo', 'ndihmon', 'helps'), wf('trim', 'trimin', 'the hero'), p('.')),
     ],
@@ -396,7 +397,7 @@ export const STORY = {
     end: 'secret',
     title: 'Aga Ymer’s Besa',
     blurb:
-      'Held captive nine years and nine days, Aga Ymer of Ulcinj was freed only on his besa to return. He reached home as his faithful wife was about to be wed to another, and an old scar on his arm proved who he was — and then, his word unbroken, he mounted and rode all the way back to his chains. Not even a homecoming outweighs a sworn besa.',
+      'His wife had sworn to wait for him nine years and nine days; held captive far from home, Aga Ymer of Ulcinj was freed at last only on his besa to return. He reached his door as that vow ran out and she was about to be wed to another, and an old scar on his arm proved who he was — and then, his word unbroken, he mounted and rode all the way back to his chains. Not even a homecoming outweighs a sworn besa.',
     text: [
       L(w('nje'), w('vajze'), w('sheh'), wf('trim', 'trimin', 'the hero'), w('perseri'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), wf('mban', 'mban', 'keeps'), wf('bese', 'besën', 'the besa'), w('dhe'), w('kthehu'), w('larg'), p('.')),
@@ -2308,7 +2309,7 @@ export const STORY = {
     id: 'qeniGate',
     text: [
       L(w('nje'), w('qen'), w('i_art'), w('madh'), w('rri'), w('ketu'), p('.')),
-      L(wf('qen', 'qeni', 'the dog'), w('ka'), w('shume'), w('koke'), p('.')),
+      L(wf('qen', 'qeni', 'the dog'), w('ka'), w('tre'), w('koke'), p('.')),
       L(wf('qen', 'qeni', 'the dog'), w('nuk'), w('fle'), p('.')),
     ],
     options: [
@@ -2719,7 +2720,7 @@ export const STORY = {
     end: 'secret',
     title: 'The Three Sworn Brothers',
     blurb:
-      'You held your tongue. The crone never learned that, like Kordha of the old tale, a hero may keep his very life hidden in his blade — so no one could steal your strength and cast it in the sea. Kordha the Sword, Ylli the Star who leaps the nine mountains, and Deti the Sea who dives to its floor swore you brotherhood, and four such men go down against the Kulshedra as one.',
+      'You held your tongue. The crone never learned that, like Kordha of the old tale, a hero may keep his very life hidden in his blade — so no one could steal your strength and cast it in the sea. Kordha the Sword, Ylli the Star who clears the castle moat with all three on his back, and Deti the Sea who dives to its floor swore you brotherhood, and four such men go down against the Kulshedra as one.',
     text: [
       L(w('ti'), w('rri'), w('i_art'), w('qete'), p('.')),
       L(w('tre'), wf('vella', 'vëllezër', 'brothers'), wf('lufto', 'luftojnë', 'fight'), w('me'), w('ti'), p('.')),
@@ -2732,7 +2733,7 @@ export const STORY = {
     end: 'secret',
     title: 'Deti’s Dive',
     blurb:
-      'You told the crone where your strength was kept — as Kordha once let the Beauty learn his secret — and she stole the blade and flung it into the sea, and you sickened unto death. But Deti, the brother who can dive to the floor of any water, went down into the dark and brought your soul back to you. You live, barely, and you have learned the oldest rule of the heroes: never tell a living soul where your own is hidden.',
+      'You told the crone where your strength was kept — as Kordha, in the old tale, once let his own secret slip — and she stole the blade and flung it into the sea, and you sickened unto death. But Deti, the brother who can dive to the floor of any water, went down into the dark and brought your soul back to you. You live, barely, and you have learned the oldest rule of the heroes: never tell a living soul where your own is hidden.',
     text: [
       L(wf('plake', 'plaka', 'the crone'), w('merr'), wf('shpate', 'shpatën', 'the sword'), p('.')),
       L(wf('det', 'deti', 'the sea-brother'), wf('shpeto', 'shpëton', 'saves'), wf('shpate', 'shpatën', 'the sword'), p('.')),
@@ -2745,7 +2746,7 @@ export const STORY = {
     id: 'shurdhi1',
     text: [
       L(w('ne'), w('re'), w('rri'), w('shurdhi'), p('.')),
-      L(w('shurdhi'), w('ka'), w('rrufe'), w('dhe'), w('shi'), p('.')),
+      L(w('shurdhi'), w('ka'), w('rrufe'), w('dhe'), w('bresher'), p('.')),
     ],
     options: [
       { text: L(w('godit'), w('hekur')), to: 'shurdhiFund', reveal: 'shurdhi' },
@@ -2758,10 +2759,10 @@ export const STORY = {
     end: 'secret',
     title: 'Shurdhi’s Storm',
     blurb:
-      'High in the hail-clouds rides Shurdhi, the northern storm-god who hurls the thunder and the lightning; the old people drove him off — or roused him — by banging on iron and firing their guns into the sky. You struck the iron until he woke and turned his black clouds on the parched land, and the rain he loosed was not a curse this time but a mercy. Sometimes you do not slay the drought; you call down the god who ends it.',
+      'High in the hail-clouds rides Shurdhi, the northern storm-god who hurls thunder and lightning and looses the crops-killing hail; he is no giver of gentle rain. The old people knew only one answer to him — to bang on iron and fire their guns into the sky and drive him away — and so you beat the iron until he turned his black storm aside, and the village was spared the hail. Some storms you do not pray to; you drive them off.',
     text: [
-      L(w('shurdhi'), w('jep'), w('shi'), p('.')),
-      L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('perseri'), p('.')),
+      L(w('shurdhi'), wf('ik', 'ikën', 'flees'), p('.')),
+      L(wf('fshat', 'fshati', 'the village'), w('eshte'), w('i_art'), w('sigurt'), p('.')),
     ],
     options: [],
   },
@@ -3047,7 +3048,7 @@ export const STORY = {
     end: 'secret',
     title: 'Ajkuna\u2019s Lament',
     blurb:
-      'Omer, Mujo\u2019s son, barely thirteen, was cornered in a churchyard and fought to the death; Mujo buried him under a mountain fir, beneath a stone thirty men could not lift, and hid the death from the boy\u2019s mother. But Ajkuna learned of it, and her lament for Omer swelled into a cry for every mother who loses a son to war, and the mountains keened it back to her. It is the most beloved passage of the whole epic — the seam where the songs of war become the songs of grief.',
+      'Omer, Mujo\u2019s son, barely thirteen, rode against a church, was surrounded there, and fought to the death; Mujo buried him under a mountain fir, beneath a stone thirty men could not lift, and hid the death from the boy\u2019s mother. But Ajkuna learned of it, and her lament for Omer swelled into a cry for every mother who loses a son to war, and the mountains keened it back to her. It is the most beloved passage of the whole epic — the seam where the songs of war become the songs of grief.',
     text: [
       L(wf('nene', 'nëna', 'the mother'), w('ka'), w('lot'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), wf('vajto', 'vajton', 'mourns'), wf('omer', 'omerin', 'Omer'), p('.')),
@@ -3087,7 +3088,7 @@ export const STORY = {
     end: 'secret',
     title: 'The Lubia Burned',
     blurb:
-      'The Lubia is the southern sister of the Kulshedra — a she-demon of seven, of seventy, of a hundred heads that grow back the instant they are cut, who dries the springs and devours little girls until a maiden is given to her. Steel alone only multiplies her; but you burned each neck as you struck it, so no head could grow again, and with the last of them the southern springs ran free.',
+      'The Lubia is the southern sister of the Kulshedra — a she-demon of seven, of seventy, of a hundred heads, who dries the springs and devours little girls until a maiden is given to her. The old people told that her heads grow back the instant they are cut, just as the Greeks across the water told of their Lernaean Hydra; and so, as Herakles did to that beast, you seared each neck with fire as you struck, until no head could grow again and the southern springs ran free.',
     text: [
       L(w('ti'), w('hidh'), w('zjarr'), p('.')),
       L(w('lubia'), w('vdes'), p('.')),
@@ -4092,6 +4093,7 @@ export const DEFS = {
   dallendyshe: L(w('nje'), w('zog')), //                          a bird
   kukudh: L(w('nje'), w('lugat'), w('e_art'), wf('keq', 'keqe', 'bad')), // a bad revenant
   hardhi: L(w('nje'), w('peme')), //                              a plant
+  bresher: L(w('gur'), w('te_link'), w('re')), //                stones from the cloud
   pa: L(w('nuk'), w('me')), //                                   not with
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
