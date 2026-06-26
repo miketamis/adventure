@@ -234,6 +234,9 @@ export const DICT = {
   katallan:  { al: 'katallan',  en: 'one-eyed giant' }, // the Albanian Polyphemus
   godit:     { al: 'godit',     en: 'strike' },
   verbo:     { al: 'verbo',     en: 'blind' },   // verbo syrin — put out the eye
+  gjak:      { al: 'gjak',      en: 'blood' },   // gjakmarrja / falja e gjakut
+  dy:        { al: 'dy',        en: 'two' },
+  bar:       { al: 'bar',       en: 'herb' },    // the Ora's healing mountain herb
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -1013,9 +1016,11 @@ export const STORY = {
     text: [
       L(w('ti'), w('ec'), w('larg'), p('.')),
       L(w('ti'), w('sheh'), w('nje'), w('pyll'), w('te_link'), w('madh'), p('.')),
+      L(w('dy'), wf('njeri', 'njerëz', 'people'), wf('lufto', 'luftojnë', 'fight'), w('per'), w('gjak'), p('.')),
     ],
     options: [
       { text: L(w('ec'), w('ne'), w('pyll')), to: 'pylli1', reveal: 'pyll' },
+      { text: L(w('ndihmo'), wf('njeri', 'njerëzit', 'the people')), to: 'gjak1', reveal: 'gjak' },
       { text: L(w('ec'), w('larg')), to: 'gjizar1' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
@@ -1038,9 +1043,11 @@ export const STORY = {
     text: [
       L(w('ti'), w('je'), w('lart'), w('ne'), w('mal'), p('.')),
       L(w('ketu'), w('rri'), w('nje'), w('plak'), w('te_link'), w('vjeter'), p('.')),
+      L(w('nje'), w('trim'), w('nuk'), w('sheh'), w('ketu'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'majaEagle', reveal: 'plak' },
+      { text: L(w('ndihmo'), wf('trim', 'trimin', 'the hero')), to: 'zuku1', reveal: 'trim' },
       { text: L(w('ec'), w('larg')), to: 'shpirag1' },
     ],
   },
@@ -2503,6 +2510,80 @@ export const STORY = {
     ],
     options: [],
   },
+
+  // === SIDE-QUEST: Falja e Gjakut — ending a blood-feud (Kanun §988; Anton Çetta) ===
+  gjak1: {
+    id: 'gjak1',
+    text: [
+      L(w('ketu'), w('dy'), wf('njeri', 'njerëz', 'people'), wf('lufto', 'luftojnë', 'fight'), p('.')),
+      L(w('nje'), w('njeri'), wf('vrit', 'vrau', 'killed'), w('nje'), w('vella'), p('.')),
+      L(wf('njeri', 'njerëzit', 'the people'), wf('do', 'duan', 'want'), w('gjak'), p('.')),
+    ],
+    options: [
+      { text: L(w('premto'), w('nje'), w('bese')), to: 'gjak2', reveal: 'gjak' },
+      { text: L(w('ec'), w('larg')), to: 'fshatiDil' },
+    ],
+  },
+
+  gjak2: {
+    id: 'gjak2',
+    text: [
+      L(w('ti'), wf('premto', 'premton', 'swear'), w('nje'), w('bese'), p('.')),
+      L(wf('njeri', 'njerëzit', 'the people'), wf('behet', 'bëhen', 'become'), wf('vella', 'vëllezër', 'brothers'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('njeri', 'njerëzit', 'the people')), to: 'gjakFund' },
+    ],
+  },
+
+  gjakFund: {
+    id: 'gjakFund',
+    end: 'secret',
+    title: 'The Peacemaker',
+    blurb:
+      'Two houses were locked in gjakmarrja — blood for blood, koka për kokë, head for head — and the road would not open until it ended. You did what the pleqësia of elders do under the Kanun: you brokered the besa, and pleaded the pardon, the falja e gjakut, until the killer and the avenger drank together and became, by the old blood-brother rite, new brothers. At Verrat e Llukës in 1990 a thousand such feuds were forgiven in a day. A besa kept is worth more than a head taken.',
+    text: [
+      L(wf('gjak', 'gjaku', 'the blood-feud'), w('mbaroi'), p('.')),
+      L(wf('njeri', 'njerëzit', 'the people'), wf('behet', 'bëhen', 'become'), wf('vella', 'vëllezër', 'brothers'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === SIDE-QUEST: Zuku Bajraktar — the blinded kreshnik (Palaj-Kurti, Song 11) ===
+  zuku1: {
+    id: 'zuku1',
+    text: [
+      L(w('ketu'), w('nje'), w('trim'), w('nuk'), w('sheh'), p('.')),
+      L(w('nje'), w('ora'), w('jep'), w('bar'), p('.')),
+    ],
+    options: [
+      { text: L(w('jep'), w('bar'), wf('trim', 'trimit', 'to the hero')), to: 'zuku2', reveal: 'bar' },
+      { text: L(w('ec'), w('larg')), to: 'maja' },
+    ],
+  },
+
+  zuku2: {
+    id: 'zuku2',
+    text: [
+      L(wf('trim', 'trimi', 'the hero'), w('sheh'), w('perseri'), p('.')),
+      L(wf('trim', 'trimi', 'the hero'), wf('premto', 'premton', 'swears'), w('nje'), w('bese'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('trim', 'trimin', 'the hero')), to: 'zukuFund' },
+    ],
+  },
+
+  zukuFund: {
+    id: 'zukuFund',
+    end: 'secret',
+    title: 'Zuku Bajraktar',
+    blurb:
+      'You found Zuku Bajraktar — the kreshnik so strong his own mother, in terror, had him blinded — stumbling sightless on the drought-cracked mountain. As an Ora once did in the old song, you healed his eyes with her mountain herb; and seeing again, he swore you his besa. Now the blinded hero rides at your side, and there is no Baloz nor Kulshedra that two such men cannot bring down.',
+    text: [
+      L(wf('trim', 'trimi', 'the hero'), wf('lufto', 'lufton', 'fights'), w('me'), w('ti'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -2651,6 +2732,10 @@ const CONFUSERS = {
   bolla2: L(w('thirr'), eagleAcc()), //           call the eagle — none here
   katallan1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   katallan2: L(w('thirr'), eagleAcc()), //        call the eagle — none here
+  gjak1: L(w('kalo'), bridgeAcc()), //            cross a bridge — none here
+  gjak2: L(w('thirr'), eagleAcc()), //            call the eagle — none here
+  zuku1: L(w('kalo'), bridgeAcc()), //            cross a bridge — none here
+  zuku2: L(w('thirr'), eagleAcc()), //            call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3197,6 +3282,9 @@ export const DEFS = {
   katallan: L(w('nje'), w('baloz')), //                         a giant
   godit: L(w('lufto')), //                                      strikes, fights
   verbo: L(w('mbyll'), w('sy')), //                             shut the eye
+  gjak: L(w('vdes')), //                                          death (a blood-feud)
+  dy: L(w('nje'), w('dhe'), w('nje')), //                         one and one
+  bar: L(w('nje'), w('peme')), //                                a plant
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
   bije: L(w('nje'), w('vajze'), w('te_link'), w('nene')), //      a maiden of a mother
