@@ -243,6 +243,13 @@ export const DICT = {
   kale:      { al: 'kalë',      en: 'horse' },  // Mujo's oracular courser
   ruan:      { al: 'ruan',      en: 'guards' }, // the Ora-serpent guards the hoard
   bekim:     { al: 'bekim',     en: 'blessing' }, // the Ora's blessing for the hospitable
+  mujo:      { al: 'Mujo',      en: 'Mujo' },    // Gjeto Basho Muji, elder kreshnik of Jutbina
+  halil:     { al: 'Halili',    en: 'Halili' },  // Sokol Halili, his young brother
+  tanusha:   { al: 'Tanusha',   en: 'Tanusha' },// daughter of the Krajl, Halili's bride
+  nuse:      { al: 'nuse',      en: 'bride' },
+  fsheh:     { al: 'fsheh',     en: 'hide' },
+  djall:     { al: 'djall',     en: 'devil' },
+  perendi:   { al: 'Perëndi',   en: 'God' },     // the supreme power
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
@@ -414,6 +421,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ec'), w('me'), wf('ujk', 'ujkun', 'the wolf')), grant: 'ujk', to: 'udheNate' },
+      { text: L(w('degjo'), wf('ujk', 'ujkun', 'the wolf')), to: 'ujkuLind1', reveal: 'mik' },
     ],
   },
 
@@ -1092,10 +1100,12 @@ export const STORY = {
       L(w('ti'), w('je'), w('lart'), w('ne'), w('mal'), p('.')),
       L(w('ketu'), w('rri'), w('nje'), w('plak'), w('te_link'), w('vjeter'), p('.')),
       L(w('nje'), w('trim'), w('nuk'), w('sheh'), w('ketu'), p('.')),
+      L(w('mujo'), w('dhe'), w('halil'), wf('rri', 'rrinë', 'stay'), w('larg'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'majaEagle', reveal: 'plak' },
       { text: L(w('ndihmo'), wf('trim', 'trimin', 'the hero')), to: 'zuku1', reveal: 'trim' },
+      { text: L(w('ndihmo'), w('mujo')), to: 'mujo1', reveal: 'mujo' },
       { text: L(w('ec'), w('larg')), to: 'shpirag1' },
     ],
   },
@@ -2852,6 +2862,87 @@ export const STORY = {
       { text: L(w('ec'), w('larg')), to: 'fshatiSheshi' },
     ],
   },
+
+  // === EPIC: The Marriage of Halili (Kângë Kreshnikësh) ===
+  // Mujo, taunted that his young brother Halil is still unwed, sends him to carry off
+  // Tanusha, daughter of the Krajl of Kotor. Halil disguises among her 300 maidens, is
+  // seized, and Mujo and the agas of Jutbina storm in to free him — a rare song that ends
+  // in a wedding, not a grave.
+  mujo1: {
+    id: 'mujo1',
+    text: [
+      L(w('ketu'), wf('rri', 'rrinë', 'stay'), w('dy'), wf('trim', 'trima', 'heroes'), p('.')),
+      L(w('nje'), w('eshte'), w('mujo'), p('.')),
+      L(w('nje'), w('eshte'), w('halil'), p('.')),
+      L(w('halil'), w('do'), w('nje'), w('nuse'), p('.')),
+    ],
+    options: [
+      { text: L(w('ndihmo'), w('halil')), to: 'mujo2', reveal: 'halil' },
+      { text: L(w('ec'), w('larg')), to: 'maja' },
+    ],
+  },
+
+  mujo2: {
+    id: 'mujo2',
+    text: [
+      L(w('larg'), wf('rri', 'rri', 'stays'), w('tanusha'), p('.')),
+      L(w('tanusha'), w('eshte'), wf('bije', 'bija', 'the daughter'), w('e_art'), wf('mbret', 'mbretit', 'of the king'), p('.')),
+      L(w('halil'), wf('fsheh', 'fshihet', 'hides'), w('me'), wf('vajze', 'vajzat', 'the maidens'), p('.')),
+    ],
+    options: [
+      { text: L(w('merr'), wf('tanusha', 'tanushën', 'Tanusha')), to: 'mujo3', reveal: 'tanusha' },
+      { text: L(w('ec'), w('larg')), to: 'maja' },
+    ],
+  },
+
+  mujo3: {
+    id: 'mujo3',
+    text: [
+      L(wf('mbret', 'mbreti', 'the king'), w('merr'), wf('halil', 'halilin', 'Halili'), p('.')),
+      L(w('mujo'), w('vjen'), p('.')),
+    ],
+    options: [
+      { text: L(w('lufto'), w('me'), w('mujo')), to: 'mujoFund', reveal: 'mujo' },
+      { text: L(w('ec'), w('larg')), to: 'maja' },
+    ],
+  },
+
+  mujoFund: {
+    id: 'mujoFund',
+    end: 'secret',
+    title: 'The Marriage of Halili',
+    blurb:
+      'From the songs of the frontier warriors: Mujo, taunted that his young brother Halil was still unwed, sent him to carry off Tanusha, daughter of the Krajl of Kotor — guarded on the road by the Sun, the Moon and the Zana. Halil reached the Danube and slipped in among her three hundred maidens, but was found out and seized; so Mujo and the thirty agas of Jutbina stormed the king\u2019s hall and carried home both Halil and his bride. One of the rare frontier songs that ends not in a grave but a wedding.',
+    text: [
+      L(w('halil'), w('merr'), wf('tanusha', 'tanushën', 'Tanusha'), p('.')),
+      L(w('ti'), w('je'), w('nje'), w('trim'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === FABLE: why the wolf devours (von Hahn 105 — the curse "Të hângtë ujku!") ===
+  ujkuLind1: {
+    id: 'ujkuLind1',
+    text: [
+      L(wf('djall', 'djalli', 'the devil'), wf('bej', 'bën', 'makes'), w('nje'), w('ujk'), p('.')),
+      L(w('perendi'), w('thote'), p(':'), w('ha'), wf('djall', 'djallin', 'the devil'), p('!')),
+    ],
+    options: [
+      { text: L(w('degjo')), to: 'ujkuFund' },
+    ],
+  },
+
+  ujkuFund: {
+    id: 'ujkuFund',
+    end: 'secret',
+    title: 'Why the Wolf Devours',
+    blurb:
+      'The old people tell it so: the Devil moulded a wolf out of dough but could not give it life, and begged God to. God breathed it alive with the words "devour your creator" — and the wolf turned at once and ate the Devil. That is why the wolf devours, and why the worst curse a mouth can carry is still "Të hângtë ujku!" — may the wolf eat you.',
+    text: [
+      L(wf('ujk', 'ujku', 'the wolf'), w('ha'), wf('djall', 'djallin', 'the devil'), p('.')),
+    ],
+    options: [],
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -3014,6 +3105,10 @@ const CONFUSERS = {
   besaBekim: L(w('thirr'), eagleAcc()), //        call the eagle — none here
   oda1: L(w('kalo'), bridgeAcc()), //             cross a bridge — none here
   oda2: L(w('thirr'), eagleAcc()), //             call the eagle — none here
+  mujo1: L(w('kalo'), bridgeAcc()), //            cross a bridge — none here
+  mujo2: L(w('thirr'), eagleAcc()), //            call the eagle — none here
+  mujo3: L(w('kalo'), bridgeAcc()), //            cross a bridge — none here
+  ujkuLind1: L(w('thirr'), eagleAcc()), //        call the eagle — none here
   bijaHene1: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   agaYmer1: L(w('thirr'), eagleAcc()), //         call the eagle — none here
   agaYmer2: L(w('zbrit'), w('ne'), w('pus')), //  go down a well — none here
@@ -3576,6 +3671,13 @@ export const DEFS = {
   kale: L(w('nje'), w('kafshe')), //                             an animal
   ruan: L(w('mban')), //                                         keeps
   bekim: L(w('nje'), w('fuqi'), w('te_link'), w('ora')), //       a power of the Ora
+  mujo: L(w('nje'), w('trim')), //                               a hero
+  halil: L(w('nje'), w('trim')), //                              a hero
+  tanusha: L(w('nje'), w('vajze')), //                           a maiden
+  nuse: L(w('nje'), w('vajze')), //                              a bride
+  fsheh: L(w('nuk'), w('sheh')), //                              is not seen
+  djall: L(w('nje'), w('hije'), w('e_art'), w('keq')), //        a bad spirit
+  perendi: L(w('nje'), w('fuqi'), w('e_art'), w('madh')), //     a great power
   pa: L(w('nuk'), w('me')), //                                   not with
   gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
   hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
