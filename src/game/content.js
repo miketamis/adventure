@@ -295,7 +295,7 @@ export const STORY = {
       L(wf('plake', 'plaka', 'the old woman'), w('jep'), w('buke'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), w('buke')), grant: 'buke', to: 'fshatiSheshi' },
+      { text: L(w('merr'), w('buke')), grant: 'buke', to: 'fshatiSheshi', reveal: 'buke' },
       { text: L(w('ec'), w('larg')), to: 'agaYmer1' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
@@ -443,7 +443,7 @@ export const STORY = {
       L(wf('qumesht', 'qumeshti', 'the milk'), w('jep'), w('fuqi'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), w('qumesht')), grant: 'qumesht', to: 'zanaFuqi' },
+      { text: L(w('merr'), w('qumesht')), grant: 'qumesht', to: 'zanaFuqi', reveal: 'qumesht' },
     ],
   },
 
@@ -454,7 +454,7 @@ export const STORY = {
       L(wf('kripe', 'kripa', 'the salt'), w('eshte'), w('per'), wf('kulshedra', 'kulshedrën', 'the kulshedra')),
     ],
     options: [
-      { text: L(w('merr'), w('kripe')), grant: 'kripe', to: 'zanaPende' },
+      { text: L(w('merr'), w('kripe')), grant: 'kripe', to: 'zanaPende', reveal: 'kripe' },
     ],
   },
 
@@ -465,7 +465,7 @@ export const STORY = {
       L(wf('pende', 'penda', 'the feather'), w('eshte'), w('per'), wf('shqiponje', 'shqiponjën', 'the eagle')),
     ],
     options: [
-      { text: L(w('merr'), w('pende')), grant: 'pende', to: 'zanaFole' },
+      { text: L(w('merr'), w('pende')), grant: 'pende', to: 'zanaFole', reveal: 'pende' },
     ],
   },
 
@@ -505,7 +505,7 @@ export const STORY = {
       L(w('ti'), w('gjen'), w('nje'), w('gur'), w('te_link'), w('forte'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), w('gur')), grant: 'gur', to: 'mali3' },
+      { text: L(w('merr'), w('gur')), grant: 'gur', to: 'mali3', reveal: 'gur' },
       { text: L(w('ngjit'), w('lart')), to: 'maliStuhi' },
     ],
   },
@@ -542,7 +542,7 @@ export const STORY = {
       L(wf('shpate', 'shpata', 'the sword'), wf('vrit', 'vret', 'kills'), wf('kulshedra', 'kulshedrën', 'the kulshedra')),
     ],
     options: [
-      { text: L(w('merr'), w('shpate')), grant: 'shpate', to: 'tomorBekim' },
+      { text: L(w('merr'), w('shpate')), grant: 'shpate', to: 'tomorBekim', reveal: 'shpate' },
     ],
   },
 
@@ -581,7 +581,7 @@ export const STORY = {
       L(w('ketu'), w('eshte'), w('mish'), w('dhe'), w('uje'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), w('mish')), grant: 'mish', to: 'tre1' },
+      { text: L(w('merr'), w('mish')), grant: 'mish', to: 'tre1', reveal: 'mish' },
       { text: L(w('ec'), w('poshte')), to: 'tre1' },
       { text: L(w('ec'), w('larg')), to: 'gjarperBurr1' },
     ],
@@ -594,7 +594,7 @@ export const STORY = {
       L(w('bukura'), w('eshte'), w('e_art'), w('bukur'), p('.')),
     ],
     options: [
-      { text: L(w('shpeto'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukuraLirim' },
+      { text: L(w('shpeto'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukuraLirim', reveal: 'bukura' },
     ],
   },
 
@@ -606,7 +606,7 @@ export const STORY = {
       L(w('kulshedra'), w('vjen'), p('!')),
     ],
     options: [
-      { text: L(w('merr'), w('unaze')), grant: 'unaze', to: 'kulshedra1' },
+      { text: L(w('merr'), w('unaze')), grant: 'unaze', to: 'kulshedra1', reveal: 'unaze' },
     ],
   },
 
@@ -1199,7 +1199,7 @@ export const STORY = {
       L(w('por'), w('nje'), wf('kulshedra', 'kulshedër', 'a kulshedra'), w('do'), wf('vajze', 'vajzën', 'the maiden'), p('!')),
     ],
     options: [
-      { text: L(w('ndihmo'), wf('vajze', 'vajzën', 'the maiden')), to: 'diellLirim' },
+      { text: L(w('ndihmo'), wf('vajze', 'vajzën', 'the maiden')), to: 'diellLirim', reveal: 'vajze' },
       { text: L(w('rri'), w('i_art'), w('qete')), to: 'diellVdes' },
     ],
   },
@@ -1217,7 +1217,7 @@ export const STORY = {
       L(wf('dervish', 'dervishi', 'the dervish'), w('ka'), w('shtate'), w('gjuhe'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('dervish', 'dervishin', 'the dervish')), to: 'sari2' },
+      { text: L(w('degjo'), wf('dervish', 'dervishin', 'the dervish')), to: 'sari2', reveal: 'dervish' },
       { text: L(w('ec'), w('larg')), to: 'pusi' },
     ],
   },
@@ -1314,7 +1314,7 @@ export const STORY = {
       L(wf('hoxha', 'hoxha', 'the hodja'), w('thote'), p(':'), wf('kazan', 'kazani', 'the cauldron'), wf('lind', 'lindi', 'gave birth'), w('nje'), w('femije'), p('!')),
     ],
     options: [
-      { text: L(w('degjo'), wf('hoxha', 'hoxhën', 'the hodja')), to: 'nastradinFund' },
+      { text: L(w('degjo'), wf('hoxha', 'hoxhën', 'the hodja')), to: 'nastradinFund', reveal: 'hoxha' },
       { text: L(w('ec'), w('larg')), to: 'fshatiBesa' },
     ],
   },
@@ -1357,7 +1357,7 @@ export const STORY = {
       L(wf('vella', 'vëllai', 'the brother'), w('dhe'), wf('motra', 'motra', 'the sister'), wf('vjen', 'vijnë', 'come'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('motra', 'motrën', 'the sister')), to: 'kostandinFund' },
+      { text: L(w('degjo'), wf('motra', 'motrën', 'the sister')), to: 'kostandinFund', reveal: 'motra' },
     ],
   },
 
@@ -1457,7 +1457,7 @@ export const STORY = {
       L(wf('dhi', 'dhia', 'the goat'), w('ka'), w('ar'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), wf('dhi', 'dhinë', 'the goat')), to: 'dhiaFund' },
+      { text: L(w('merr'), wf('dhi', 'dhinë', 'the goat')), to: 'dhiaFund', reveal: 'dhi' },
       { text: L(w('ec'), w('larg')), to: 'mali1' },
     ],
   },
@@ -1518,7 +1518,7 @@ export const STORY = {
       L(w('brenda'), w('nje'), w('bukura'), wf('bej', 'bën', 'makes'), w('ar'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'tre2' },
+      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'tre2', reveal: 'bukura' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
   },
@@ -1532,7 +1532,7 @@ export const STORY = {
       L(w('kulshedra'), w('ka'), w('uje'), w('dhe'), wf('bukura', 'Bukurën', 'the Beauty')),
     ],
     options: [
-      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'tre3' },
+      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'tre3', reveal: 'bukura' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
   },
@@ -1546,7 +1546,7 @@ export const STORY = {
       L(wf('shpate', 'shpata', 'the sword'), wf('vrit', 'vret', 'kills'), wf('kulshedra', 'kulshedrën', 'the kulshedra')),
     ],
     options: [
-      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'udhetimi1' },
+      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'udhetimi1', reveal: 'bukura' },
       { text: L(w('ik'), w('shpejt')), to: 'humbur' },
     ],
   },
@@ -1596,7 +1596,7 @@ export const STORY = {
       L(w('ti'), w('shpeto'), w('une'), w('dhe'), w('uje'), w('vjen'), w('perseri'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukura2' },
+      { text: L(w('degjo'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukura2', reveal: 'bukura' },
     ],
   },
 
