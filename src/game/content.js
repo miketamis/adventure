@@ -322,13 +322,13 @@ export const STORY = {
     text: [
       L(w('ti'), w('je'), w('ne'), w('nje'), w('fshat'), w('te_link'), w('vjeter'), p('.')),
       L(wf('fshat', 'fshati', 'the village'), w('nuk'), w('ka'), w('uje'), p('.')),
+      L(w('nje'), w('pus'), w('eshte'), w('i_art'), w('thate'), p('.')),
       L(w('nje'), w('plake'), w('flet'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('plake', 'plakën', 'the old woman')), to: 'plaka', reveal: 'plake' },
       { text: L(w('shko'), w('ne'), w('pus')), to: 'fshatiSheshi' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
-      { text: L(w('kerko'), w('thesar')), to: 'fshehur', secret: true },
     ],
   },
 
@@ -466,12 +466,13 @@ export const STORY = {
       L(wf('lume', 'lumi', 'the river'), w('eshte'), w('i_art'), w('thate'), p('.')),
       L(w('por'), w('ti'), w('sheh'), w('nje'), w('zane'), p('.')),
       L(w('nje'), w('gjarper'), w('fle'), w('ne'), wf('lume', 'lumë', 'the river'), p('.')),
+      L(w('larg'), w('nje'), w('plak'), w('flet'), w('per'), w('ar'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('zane', 'zanën', 'the fairy')), to: 'zana1', reveal: 'zane' },
       { text: L(w('kerko'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'bolla1', reveal: 'gjarper' },
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'fshehur', reveal: 'ar' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
-      { text: L(w('kerko'), w('thesar')), to: 'fshehur', secret: true },
     ],
   },
 
@@ -596,10 +597,11 @@ export const STORY = {
     text: [
       L(w('ti'), w('sheh'), w('nje'), w('pus'), w('te_link'), w('madh'), p('.')),
       L(wf('pus', 'pusi', 'the well'), wf('shko', 'shkon', 'goes'), w('poshte'), w('ne'), w('nje'), w('bote'), w('te_link'), w('erret'), p('.')),
+      L(w('larg'), w('rri'), w('nje'), w('dervish'), p('.')),
     ],
     options: [
       { text: L(w('zbrit'), w('ne'), w('pus')), to: 'zbritjaThelle', reveal: 'bote' },
-      { text: L(w('ec'), w('larg')), to: 'sari1' },
+      { text: L(w('degjo'), wf('dervish', 'dervishin', 'the dervish')), to: 'sari1', reveal: 'dervish' },
       { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
     ],
   },
@@ -624,11 +626,12 @@ export const STORY = {
     text: [
       L(w('ti'), w('je'), w('ne'), w('nje'), w('shpelle'), w('te_link'), wf('madh', 'madhe', 'big'), p('.')),
       unless('mish', L(w('ketu'), w('eshte'), w('mish'), w('dhe'), w('uje'), p('.'))),
+      L(w('larg'), w('rri'), w('nje'), w('gjarper'), p('.')),
     ],
     options: [
       { text: L(w('merr'), w('mish')), grant: 'mish', to: 'bota2', unless: 'mish', reveal: 'mish' },
       { text: L(w('ec'), w('poshte')), to: 'tre1' },
-      { text: L(w('ec'), w('larg')), to: 'gjarperBurr1' },
+      { text: L(w('kerko'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'gjarperBurr1', reveal: 'gjarper' },
     ],
   },
 
@@ -692,7 +695,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('thirr'), wf('shqiponje', 'shqiponjën', 'the eagle')), requires: 'shqiponja', to: 'shqiponja1' },
-      { text: L(w('ngjit'), wf('pus', 'pusin', 'the well')), to: 'rene', reveal: 'pus' },
+      { text: L(w('bie'), w('poshte')), to: 'rene' },
     ],
   },
 
@@ -1122,7 +1125,7 @@ export const STORY = {
     text: [
       L(w('ti'), w('je'), w('lart'), w('ne'), w('mal'), p('.')),
       L(w('ketu'), w('rri'), w('nje'), w('plak'), w('te_link'), w('vjeter'), p('.')),
-      L(w('nje'), w('trim'), w('nuk'), w('sheh'), w('ketu'), p('.')),
+      L(w('nje'), w('trim'), w('rri'), w('ketu'), w('por'), w('nuk'), w('sheh'), p('.')),
       L(w('mujo'), w('dhe'), w('halil'), wf('rri', 'rrinë', 'stay'), w('larg'), p('.')),
     ],
     options: [
@@ -1393,7 +1396,7 @@ export const STORY = {
       L(wf('hoxha', 'hoxha', 'the hodja'), w('thote'), p(':'), wf('kazan', 'kazani', 'the cauldron'), wf('lind', 'lindi', 'gave birth'), w('nje'), w('femije'), p('!')),
     ],
     options: [
-      { text: L(w('merr'), wf('kazan', 'kazanin', 'the cauldron')), to: 'nastradin2', reveal: 'hoxha' },
+      { text: L(w('merr'), wf('femije', 'fëmijën', 'the child')), to: 'nastradin2', reveal: 'femije' },
       { text: L(w('ec'), w('larg')), to: 'fshatiBesa' },
     ],
   },
@@ -1514,7 +1517,7 @@ export const STORY = {
       L(wf('bukura', 'Bukura', 'the Beauty'), w('vdes'), w('dhe'), wf('lot', 'lotët', 'the tears'), wf('behet', 'bëhen', 'become'), w('nje'), w('lume'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'shpiragFund' },
+      { text: L(w('sheh'), wf('mal', 'malet', 'the mountains')), to: 'shpiragFund', reveal: 'mal' },
       { text: L(w('shko'), w('ne'), w('mal')), to: 'mali1', reveal: 'mal' },
     ],
   },
@@ -2039,7 +2042,7 @@ export const STORY = {
     options: [
       { text: L(wf('ujk', 'ujku', 'the wolf'), wf('lufto', 'lufton', 'fights'), wf('lugat', 'lugatin', 'the revenant')), requires: 'ujk', to: 'udheOra', reveal: 'lugat' },
       { text: L(w('ndiz'), w('nje'), w('zjarr')), to: 'udheOra' },
-      { text: L(w('kerko'), wf('dhampir', 'dhampirin', 'the dhampir')), to: 'dhampir1', reveal: 'dhampir' },
+      { text: L(w('ndihmo'), wf('dhampir', 'dhampirin', 'the dhampir')), to: 'dhampir1', reveal: 'dhampir' },
       { text: L(w('lufto'), wf('lugat', 'lugatin', 'the revenant')), to: 'humbur', reveal: 'lugat' },
     ],
   },
@@ -2314,8 +2317,8 @@ export const STORY = {
     ],
     options: [
       { text: L(wf('ora', 'Ora', 'the Ora'), w('te_obj'), wf('ndihmo', 'ndihmon', 'helps')), requires: 'ora', to: 'bota1' },
-      { text: L(w('kalo'), wf('qen', 'qenin', 'the dog')), to: 'bota1', reveal: 'fle' },
-      { text: L(w('ik'), w('shpejt')), to: 'humbur' },
+      { text: L(w('jep'), w('buke'), wf('qen', 'qenit', 'to the dog')), requires: 'buke', consumes: 'buke', to: 'bota1' },
+      { text: L(w('kalo'), wf('qen', 'qenin', 'the dog')), to: 'humbur' },
     ],
   },
 
@@ -2697,6 +2700,7 @@ export const STORY = {
       L(w('ketu'), w('tre'), wf('vella', 'vëllezër', 'brothers'), p('.')),
       L(w('nje'), w('vella'), w('ka'), w('nje'), wf('shpate', 'shpatë', 'a sword'), p('.')),
       L(wf('fuqi', 'fuqia', 'the power'), w('e_art'), wf('vella', 'vëllait', 'of the brother'), w('eshte'), w('ne'), wf('shpate', 'shpatë', 'the sword'), p('.')),
+      L(wf('vella', 'vëllezërit', 'the brothers'), wf('do', 'duan', 'want'), w('nje'), w('vella'), w('tjeter'), p('.')),
     ],
     options: [
       { text: L(w('premto'), w('nje'), w('bese')), to: 'kordha2', reveal: 'tre' },
