@@ -160,7 +160,7 @@ export default function PracticeView({ state, dispatch }) {
         {answered &&
           (wasCorrect
             ? `+1 token for "${DICT[q.answerId].al}"`
-            : `💔 −1 heart · correct answer: ${DICT[q.answerId][q.field]}`)}
+            : `💔 −1 heart · correct answer: ${DICT[q.answerId].al} — ${DICT[q.answerId].en}`)}
       </div>
 
       </div>

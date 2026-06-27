@@ -326,7 +326,7 @@ export const STORY = {
       L(w('nje'), w('plake'), w('flet'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('plake', 'plakën', 'the old woman')), to: 'plaka', reveal: 'plake' },
+      { text: L(w('degjo'), wf('plake', 'plakën', 'the old woman')), to: 'plaka' },
       { text: L(w('shko'), w('ne'), w('pus')), to: 'fshatiSheshi' },
       { text: L(w('fle'), w('ketu')), to: 'gjumi' },
     ],
@@ -3359,7 +3359,6 @@ const shadowAcc = () => wf('hije', 'hijen', 'the shadow')
 
 // (1) an action on something NOT present in the scene
 const CONFUSERS = {
-  start: L(w('merr'), w('shpate')), //            take a sword — none here
   plaka: L(w('ngjit'), w('mal')), //              climb a mountain — none here
   fshatiDil: L(w('kalo'), bridgeAcc()), //        cross a bridge — none here
   pylli1: L(w('thirr'), eagleAcc()), //           call the eagle — none here
@@ -3639,7 +3638,6 @@ const CONFUSERS2 = {
 // (3) a third distractor — another impossible action (open/take/fight a present
 // thing, or fly), distinct from the other two for that node.
 const CONFUSERS3 = {
-  start: L(w('pi'), wf('fshat', 'fshatin', 'the village')), // drink the village
   plaka: L(w('hap'), oldWomanAcc()), //             open the old woman
   fshatiDil: L(w('merr'), forestAcc()), //          take the forest
   pylli1: L(w('hap'), forestAcc()), //              open the forest
