@@ -1,8 +1,13 @@
+// Story coverage of the most frequent Albanian words.
+//   node scripts/freqcoverage.mjs [N]   (default 150)
+// Collects every Albanian surface used in STORY text+options and reports which of
+// the top-N OpenSubtitles frequency words are/aren't used. De-accents to fold
+// spelling dupes (eshte/është). Complements freqrank.mjs (which ranks DICT words).
 import { readFileSync } from 'node:fs'
 import { STORY, DICT, ITEMS, lineOf } from '../src/game/content.js'
 
 const freqLines = readFileSync('scripts/data/sq_frequency_50k.txt','utf8').trim().split('\n')
-const TOP = 150
+const TOP = Number(process.argv[2]) || 150   // node scripts/freqcoverage.mjs [N]
 const top = freqLines.slice(0, TOP).map((ln,i)=>({ w: ln.split(' ')[0], rank: i+1, count: Number(ln.split(' ')[1])||0 }))
 
 const norm = (s) => (s||'').toLowerCase().replace(/[.,!?;:"'“”‘’()]/g,'').trim()
