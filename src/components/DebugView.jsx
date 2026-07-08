@@ -390,6 +390,39 @@ const VILLAGE_LANES = (() => {
   return out
 })()
 
+// An organic, gently-WINDING lane between two points — village streets are
+// walked into being, not surveyed, so nothing inside the town runs straight.
+// Returns the svg path AND its polyline points (the roof generator keeps the
+// houses off the ACTUAL drawn bends, so the streets stay open).
+function lanePath(x1, y1, x2, y2, seed) {
+  const rnd = mulberry32(seed >>> 0 || 1)
+  const len = Math.hypot(x2 - x1, y2 - y1)
+  const n = Math.max(2, Math.round(len / 44))
+  const nx = -(y2 - y1) / (len || 1), ny = (x2 - x1) / (len || 1)
+  const amp = Math.min(16, len * 0.11)
+  const pts = [[x1, y1]]
+  for (let i = 1; i < n; i++) {
+    const t = i / n
+    const off = (Math.sin(t * Math.PI * (1.7 + (seed % 3) * 0.6) + seed % 7) * 0.7 + (rnd() - 0.5) * 1.1) * amp * Math.sin(t * Math.PI)
+    pts.push([x1 + (x2 - x1) * t + nx * off, y1 + (y2 - y1) * t + ny * off])
+  }
+  pts.push([x2, y2])
+  let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)]
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`
+  }
+  return { d, pts }
+}
+// every story-lane pre-bent; the ones that touch the square are the HIGH STREETS
+// (wider), the rest are narrow crooked side-lanes.
+const VILLAGE_LANE_PATHS = VILLAGE_LANES.map(([x1, y1, x2, y2]) => ({
+  ...lanePath(x1, y1, x2, y2, hashStr(`${x1},${y1},${x2},${y2}`)),
+  main: Math.hypot(x1 - 499, y1 - 432) < 125 || Math.hypot(x2 - 499, y2 - 432) < 125,
+}))
+
 // the packed old-town footprint (a tight cluster inside the wider green clearing);
 // dense terracotta rooftops fill this, fields + meadow ring the outside.
 const TOWN = { cx: 512, cy: 430, rx: 430, ry: 352 }
@@ -927,22 +960,40 @@ function gBridgeDeck() {
 }
 
 function gSquare(x, y) {
-  // a real cobbled plaza, and the life ON it — the great plane tree with its
-  // bench-ring, two market stalls at the west edge, villagers about their day.
+  // a REAL piazza: an irregular stone-kerbed plaza (village squares are never
+  // rectangles), visibly lighter than the packed earth around it, cobbled in
+  // worn rows, framed by the facade ring the roof generator lays around it —
+  // with the great plane tree, two market stalls and villagers about their day.
+  const P = `M ${x - 105} ${y - 62} Q ${x - 40} ${y - 78} ${x + 38} ${y - 74} Q ${x + 106} ${y - 70} ${x + 112} ${y - 20}
+             Q ${x + 116} ${y + 30} ${x + 96} ${y + 68} Q ${x + 30} ${y + 84} ${x - 44} ${y + 80}
+             Q ${x - 100} ${y + 76} ${x - 108} ${y + 28} Q ${x - 113} ${y - 18} ${x - 105} ${y - 62} Z`
+  const rnd = mulberry32(432001)
+  const cobbles = []
+  for (let ry = -58; ry <= 66; ry += 13) {
+    for (let rx = -96 + (Math.abs(ry) % 2) * 7; rx <= 100; rx += 15) {
+      if (rnd() < 0.28) continue
+      if (Math.abs(rx) > 108 - Math.abs(ry) * 0.3) continue
+      cobbles.push([x + rx + (rnd() - 0.5) * 5, y + ry + (rnd() - 0.5) * 4, 3.4 + rnd() * 2.2, rnd() * 24])
+    }
+  }
   return (
     <g>
-      <rect x={x - 110} y={y - 80} width={220} height={160} rx={30} fill="#c4b389" stroke="#a2926c" strokeWidth={2.5} />
-      <rect x={x - 100} y={y - 70} width={200} height={140} rx={24} fill="none" stroke="#b3a17a" strokeWidth={1.4} opacity={0.7} />
-      {[[-60, -40], [40, -50], [-30, 30], [70, 20], [10, 55], [-80, 10], [88, -22], [-42, 62], [62, 58]].map(([dx, dy], i) => (
-        <ellipse key={i} cx={x + dx} cy={y + dy} rx={9} ry={5} fill="#b09c73" opacity={0.4} />
+      <path d={P} fill="#8f7c55" opacity={0.5} transform="translate(3,4)" />
+      <path d={P} fill="#d6c69a" stroke="#8f7c55" strokeWidth={3.2} strokeLinejoin="round" />
+      <path d={P} fill="none" stroke="#efe3bf" strokeWidth={1.2} opacity={0.8} transform="translate(-1.5,-2)" />
+      {cobbles.map(([px, py, r, rot], i) => (
+        <ellipse key={i} cx={px} cy={py} rx={r} ry={r * 0.62} fill="#c3b184" stroke="#a8956a" strokeWidth={0.5} opacity={0.75} transform={`rotate(${rot - 12} ${px} ${py})`} />
       ))}
+      {/* worn pale patch where feet cross toward the well */}
+      <ellipse cx={x - 8} cy={y + 4} rx={62} ry={34} fill="#e3d4a6" opacity={0.5} />
       <PlaneTree x={x + 62} y={y + 8} />
-      <Stall x={x - 74} y={y - 20} rot={-4} />
-      <Stall x={x - 67} y={y + 27} rot={3} />
+      <Stall x={x - 74} y={y - 26} rot={-5} />
+      <Stall x={x - 64} y={y + 30} rot={4} />
       <Villager x={x - 28} y={y - 12} c="#8a5a6a" />
       <Villager x={x + 22} y={y + 24} c="#5e7f92" />
       <Villager x={x - 9} y={y + 39} c="#7a6a3f" />
       <Villager x={x + 33} y={y - 34} c="#6a4a3a" />
+      <Villager x={x - 46} y={y + 8} c="#4a5a6a" />
     </g>
   )
 }
@@ -950,7 +1001,7 @@ function gSquare(x, y) {
 const GLYPH = (pl) => {
   const { x, y, type, roof } = pl
   switch (type) {
-    case 'square': return gSquare(x, y)
+    case 'square': return null // the piazza is TERRAIN — drawn un-dimmed before the pins
     case 'well': return gWell(x, y)
     case 'oda': return gOda(x, y)
     case 'hearth': return gHearth(x, y)
@@ -1604,11 +1655,13 @@ const WORLD_SCATTER = (() => {
 // Mount Tomorr; the village high-street runs SOUTH down the river's east bank to
 // Rozafa at the mouth; the HERO BRIDGE road crosses the river WEST to the great
 // forest; and a coast road runs EAST from the river-mouth to the sea.
+// mountain tracks and country roads WIND — every road is a chain of S-bends
+// hugging the terrain, never one surveyed sweep.
 const VILLAGE_ROADS = [
-  'M 458 66 C 396 -96 344 -196 300 -282',                          // crossroads → Mount Tomorr (north)
-  'M 458 78 C 478 260 452 560 384 828 C 344 1024 316 1200 300 1320', // high-street S → Zana's reach → Rozafa
-  'M 214 476 C 70 492 -150 476 -430 452',                           // HERO BRIDGE road → west over the river to the forest
-  'M 322 1372 C 460 1290 560 1180 640 1090',                       // coast road: river-mouth → the Gulf of Drin shore
+  'M 458 66 C 442 6 462 -46 434 -98 C 410 -142 370 -158 356 -196 C 344 -230 326 -258 300 -282', // crossroads → Tomorr: a climbing switchback track
+  'M 458 78 C 486 190 448 300 466 420 C 480 520 430 620 396 720 C 366 812 372 910 342 1010 C 318 1092 322 1210 300 1320', // high-street S, weaving with the land down to Rozafa
+  'M 214 476 C 160 494 118 470 60 484 C -20 502 -90 470 -170 478 C -270 488 -350 462 -430 452', // hero-bridge road W, wandering into the forest
+  'M 322 1372 C 380 1348 420 1298 474 1264 C 520 1234 548 1180 590 1146 C 612 1128 630 1106 640 1090', // coast road: river-mouth → the bay shore
 ]
 // ONE river: springs from Mount Tomorr (top-centre), bows down the village's WEST
 // edge past the bridge/mill/spring, through the Zana's reach, to Rozafa at the mouth.
@@ -1682,14 +1735,25 @@ function VillageMap({ g, current, goGraph }) {
       { id: 'church', cx: 388, cy: 202, rx: 122, ry: 96 },
       { id: 'upnorth', cx: 600, cy: 250, rx: 132, ry: 100 },
       { id: 'squareN', cx: 512, cy: 356, rx: 116, ry: 84 },
-      { id: 'lifeW', cx: 306, cy: 476, rx: 134, ry: 132 },   // village life — now the WEST quarter
-      { id: 'lanesE', cx: 890, cy: 476, rx: 56, ry: 150 },   // back lanes — a strip BEHIND the palace walls (east)
+      { id: 'lifeW', cx: 306, cy: 476, rx: 134, ry: 132 },   // village life — the WEST quarter
       { id: 'southe', cx: 464, cy: 632, rx: 150, ry: 118 },
       { id: 'southw', cx: 700, cy: 660, rx: 128, ry: 104 },
       { id: 'river', cx: 260, cy: 566, rx: 100, ry: 100 },
     ]
     // the walled palace compound (east) — no packed roofs inside the curtain wall
     const inPalaceWall = (x, y) => x > 616 && x < 828 && y > 384 && y < 558
+    // the PLAZA BAND: the square itself plus the facade ring that will front it —
+    // the free generator stays out; facades are placed by hand below.
+    const inPlazaBand = (x, y) => x > 370 && x < 634 && y > 334 && y < 532
+    // keep a house off the ACTUAL drawn bends of every winding lane
+    const nearLane = (x, y, r) => {
+      for (const L of VILLAGE_LANE_PATHS) {
+        for (let s = 0; s < L.pts.length - 1; s++) {
+          if (segDist(x, y, L.pts[s][0], L.pts[s][1], L.pts[s + 1][0], L.pts[s + 1][1]) < r) return true
+        }
+      }
+      return false
+    }
     const roofs = [], occ = new Set()
     for (const Q of QUARTERS) {
       const qr = mulberry32(hashStr('q:' + Q.id))
@@ -1706,15 +1770,13 @@ function VillageMap({ g, current, goGraph }) {
           const tx = (x - TOWN.cx) / TOWN.rx, ty = (y - TOWN.cy) / TOWN.ry
           if (tx * tx + ty * ty > 1.02) continue                     // safety: inside the town
           if (x < riverRightX(y)) continue                           // east of the river
-          if (Math.hypot(x - 499, y - 432) < 70) continue            // leave the square open
-          if (inPalaceWall(x, y)) continue                           // inside the palace walls
+          if (inPlazaBand(x, y)) continue                            // the square + its facade ring
+          if (inPalaceWall(x, y) || x > 826) continue                // palace walls; east strip is the hand-laid back lanes
           const cell = Math.round(x / 12) + ':' + Math.round(y / 12)
           if (occ.has(cell)) continue                                // one roof per ~12px cell (no piling at quarter seams)
           let blocked = false
           for (let c = 0; c < yards.length && !blocked; c++) if (Math.hypot(x - yards[c][0], y - yards[c][1]) < yards[c][2]) blocked = true // courtyard
-          for (let li = 0; li < VILLAGE_LANES.length && !blocked; li++) {
-            const L = VILLAGE_LANES[li]; if (segDist(x, y, L[0], L[1], L[2], L[3]) < 13) blocked = true
-          }
+          if (!blocked && nearLane(x, y, 13)) blocked = true
           for (let ni = 0; ni < named.length && !blocked; ni++) {
             const p = named[ni]; if (Math.hypot(x - p.x, y - p.y) < namedR(p)) blocked = true
           }
@@ -1723,6 +1785,50 @@ function VillageMap({ g, current, goGraph }) {
           occ.add(cell)
           roofs.push({ x, y, w: 14 + qr() * 10, h: 12 + qr() * 7, rot: (qr() - 0.5) * 46, tone: ROOF_TONES[Math.floor(qr() * ROOF_TONES.length)] })
         }
+      }
+    }
+
+    // ── the BACK LANES: houses squeezed shoulder-to-shoulder in tight rows
+    // right against the palace's east wall (x≈824), with three narrow alleys
+    // threading between the rows. Aligned, near-touching — a warren, not a blob. ──
+    const alleys = []
+    {
+      const br = mulberry32(hashStr('backlanes'))
+      const ROWS = [834, 858, 882, 906]
+      ROWS.forEach((rx0, ri) => {
+        for (let y = 386; y <= 568; y += 15) {
+          const x = rx0 + (br() - 0.5) * 3, yy = y + (br() - 0.5) * 4
+          const tx = (x - TOWN.cx) / TOWN.rx, ty = (yy - TOWN.cy) / TOWN.ry
+          if (tx * tx + ty * ty > 1.0) continue
+          let blocked = false
+          for (const p of named) if (Math.hypot(x - p.x, yy - p.y) < namedR(p)) { blocked = true; break }
+          if (blocked || (ri === 3 && br() < 0.25)) continue // outermost row is raggedy
+          roofs.push({ x, y: yy, w: 17.5 + br() * 3, h: 12.5 + br() * 2, rot: (br() - 0.5) * 7, tone: ROOF_TONES[Math.floor(br() * ROOF_TONES.length)] })
+        }
+      })
+      // the alleys between the rows (slightly wobbled), plus two cross-cuts
+      for (const ax of [846, 870, 894]) {
+        alleys.push(lanePath(ax, 384, ax + (br() - 0.5) * 6, 570, hashStr('alley' + ax)).d)
+      }
+      alleys.push(lanePath(830, 452, 912, 448, hashStr('cross1')).d)
+      alleys.push(lanePath(830, 520, 908, 526, hashStr('cross2')).d)
+    }
+
+    // ── the FACADE RING: houses fronting the square, aligned to its edges,
+    // with gaps only where the streets enter. This is what makes the plaza
+    // read as a real bounded piazza. ──
+    {
+      const fr = mulberry32(hashStr('facades'))
+      const F = []
+      ;[414, 442, 496, 524, 552, 580].forEach((fx) => F.push([fx, 340, 0]))       // north front (gap at ~468: the church/crossroads street)
+      ;[420, 448, 504, 532, 586].forEach((fx) => F.push([fx, 522, 0]))            // south front (gaps for the two south lanes)
+      ;[380, 408, 462, 490].forEach((fy) => F.push([382, fy, 90]))                // west front (gap toward the oda / village life)
+      ;[372, 400, 484, 512].forEach((fy) => F.push([622, fy, 90]))                // east front (gap for the palace road)
+      for (const [fx, fy, rot] of F) {
+        let blocked = false
+        for (const p of named) if (Math.hypot(fx - p.x, fy - p.y) < namedR(p) + 4) { blocked = true; break }
+        if (blocked) continue
+        roofs.push({ x: fx, y: fy, w: 22 + fr() * 4, h: 14.5 + fr() * 2, rot: rot + (fr() - 0.5) * 6, tone: ROOF_TONES[Math.floor(fr() * ROOF_TONES.length)] })
       }
     }
     roofs.sort((a, b) => a.y - b.y)
@@ -1742,7 +1848,7 @@ function VillageMap({ g, current, goGraph }) {
     // a few hearth-fires: thin smoke wisps over scattered rooftops (deterministic picks)
     const smokes = roofs.filter((_, i) => i % 43 === 7).slice(0, 10)
       .map((r) => ({ x: r.x + 3, y: r.y - 4, s: 0.8 + ((r.x * 7 + r.y) % 5) * 0.09 }))
-    return { trees, roofs, decor, smokes }
+    return { trees, roofs, decor, smokes, alleys }
   }, [])
 
   // place every OTHER node as a dot in its region, keep a position + region for
@@ -2034,16 +2140,19 @@ function VillageMap({ g, current, goGraph }) {
               <Field x={532} y={816} w={318} h={110} rot={0} tone="#6f5744" />
               <Field x={694} y={772} w={150} h={98} rot={4} tone="#7a664a" />
               {gBridgeDeck()}
-              {VILLAGE_LANES.map(([x1, y1, x2, y2], i) => {
-                const mx = (x1 + x2) / 2 + (y2 - y1) * 0.06, my = (y1 + y2) / 2 + (x1 - x2) * 0.06
-                const d = `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`
-                return (
-                  <g key={i}>
-                    <path d={d} fill="none" stroke="#e7dcbe" strokeWidth={9} opacity={0.85} strokeLinecap="round" />
-                    <path d={d} fill="none" stroke="#b6a373" strokeWidth={2} strokeDasharray="2 9" strokeLinecap="round" opacity={0.7} />
-                  </g>
-                )
-              })}
+              {VILLAGE_LANE_PATHS.map((L, i) => (
+                <g key={i}>
+                  <path d={L.d} fill="none" stroke="#a8946a" strokeWidth={L.main ? 12.5 : 8.5} opacity={0.5} strokeLinecap="round" />
+                  <path d={L.d} fill="none" stroke={L.main ? '#e9dfc2' : '#ded2b0'} strokeWidth={L.main ? 9 : 5.8} strokeLinecap="round" />
+                  <path d={L.d} fill="none" stroke="#b6a373" strokeWidth={1.7} strokeDasharray="2 9" strokeLinecap="round" opacity={0.65} />
+                </g>
+              ))}
+              {/* the tight back-alleys threading between the rows behind the palace */}
+              {scatter.alleys.map((d, i) => (
+                <path key={'al' + i} d={d} fill="none" stroke="#d6c8a2" strokeWidth={3.6} strokeLinecap="round" opacity={0.9} />
+              ))}
+              {/* the piazza — terrain, always crisp (never dimmed with a pin) */}
+              {gSquare(499, 432)}
               {scatter.roofs.map((h, i) => <RoofBlock key={i} x={h.x} y={h.y} w={h.w} h={h.h} rot={h.rot} tone={h.tone} />)}
               {scatter.trees.map((t, i) => <Tree key={i} x={t.x} y={t.y} s={t.s} />)}
               {scatter.decor.map((d, i) => (
@@ -2069,9 +2178,9 @@ function VillageMap({ g, current, goGraph }) {
                   and the marble garden (gate on the WEST), back lanes behind it ── */}
               <g>
                 {/* the grand approach road: square → the palace gate */}
-                <path d="M 516 440 L 618 470" fill="none" stroke="#9e885b" strokeWidth={32} opacity={0.4} strokeLinecap="round" />
-                <path d="M 516 440 L 618 470" fill="none" stroke="#cbb98d" strokeWidth={25} strokeLinecap="round" />
-                <path d="M 516 440 L 618 470" fill="none" stroke="#efe5c8" strokeWidth={4} strokeDasharray="2 12" opacity={0.85} strokeLinecap="round" />
+                <path d="M 516 440 C 546 454 576 452 618 470" fill="none" stroke="#9e885b" strokeWidth={32} opacity={0.4} strokeLinecap="round" />
+                <path d="M 516 440 C 546 454 576 452 618 470" fill="none" stroke="#cbb98d" strokeWidth={25} strokeLinecap="round" />
+                <path d="M 516 440 C 546 454 576 452 618 470" fill="none" stroke="#efe5c8" strokeWidth={4} strokeDasharray="2 12" opacity={0.85} strokeLinecap="round" />
                 {/* the courtyard ground inside the walls */}
                 <rect x={626} y={394} width={192} height={152} rx={8} fill="#bda876" opacity={0.55} />
                 {/* the curtain wall — four runs, with a GATE gap on the west side */}

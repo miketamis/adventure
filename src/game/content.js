@@ -32,6 +32,7 @@ export const DICT = {
     { al: 'shtëpi',   tag: 'indefNom', gloss: 'a house' },
     { al: 'shtëpia',  tag: 'defNom',   gloss: 'the house' },
     { al: 'shtëpinë', tag: 'defAcc',   gloss: 'the house (object)' },
+    { al: 'shtëpisë', tag: 'defDat',   gloss: 'to/of the house' },
     { al: 'shtëpitë', tag: 'plDef',    gloss: 'the houses' },
   ] },
   ka:        { al: 'ka',        en: 'has' },
@@ -787,6 +788,10 @@ export const DICT = {
   zuku:       { al: 'Zuku',        en: 'Zuku' },         // Zuku Bajraktar
   mashallah:  { al: 'mashallah',   en: 'mashallah' },    // the praise-safely word
   teqe:       { al: 'teqe',        en: 'teqe' },         // the Bektashi lodge
+  kurban:     { al: 'kurban',      en: 'sacrifice' },    // the shared votive lamb
+  ymer:       { al: 'Ymer',        en: 'Ymer' },         // Aga Ymer of Ulcinj
+  premte:     { al: 'e premte',    en: 'Friday' },       // Prende's day
+  kalter:     { al: 'kaltër',      en: 'blue' },
 }
 
 // Declension tables for every noun the story inflects (see the wf() forms guard
@@ -877,6 +882,7 @@ const NOUN_FORMS = {
   ],
   dite: [ /* day */
     { al: 'ditë', tag: 'indefNom', gloss: "a day" },
+    { al: 'dita', tag: 'defNom', gloss: "the day" },
     { al: 'ditën', tag: 'defAcc', gloss: "the day (object)" },
   ],
   djale: [ /* boy */
@@ -1060,6 +1066,7 @@ const NOUN_FORMS = {
   kulle: [ /* tower */
     { al: 'kullë', tag: 'indefNom', gloss: "a tower" },
     { al: 'kullën', tag: 'defAcc', gloss: "the tower (object)" },
+    { al: 'kullës', tag: 'defDat', gloss: "to/of the tower" },
     { al: 'kullat', tag: 'plDef', gloss: "the towers" },
   ],
   kuzhinier: [ /* cook */
@@ -1302,6 +1309,7 @@ const NOUN_FORMS = {
   varr: [ /* grave */
     { al: 'varr', tag: 'indefNom', gloss: "a grave" },
     { al: 'varrin', tag: 'defAcc', gloss: "the grave (object)" },
+    { al: 'varrit', tag: 'defDat', gloss: "to/of the grave" },
     { al: 'varret', tag: 'plDef', gloss: "the graves" },
   ],
   vella: [ /* brother — hand */
@@ -1501,6 +1509,7 @@ export const STORY = {
     text: [
       L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':')),
       L(w('nje'), w('trim'), w('eshte'), w('larg'), w('nente'), wf('vit', 'vjet', 'years'), w('dhe'), w('nente'), wf('dite', 'ditë', 'days'), p('.')),
+      L(wf('trim', 'trimi', 'the hero'), wf('quhem', 'quhet', 'is called'), w('aga'), w('ymer'), p('.')),
       L(w('nje'), w('grua'), w('prit'), wf('trim', 'trimin', 'the hero'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), w('eshte'), wf('ne', 'në', 'in'), w('burg'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), wf('ka', 'kishte', 'had'), w('nje'), w('bese'), p('.')),
@@ -1555,6 +1564,8 @@ export const STORY = {
       L(wf('mik', 'miku', 'guest'), w('thote'), p(':'), w('ke'), w('ndonje'), w('buke'), p('?')),
       L(wf('mik', 'miku', 'guest'), w('do'), wf('buke', 'bukën', 'the bread'), wf('yt', 'tënde', 'your'), p('.')),
       L(wf('mik', 'miku', 'guest'), w('thote'), p(':'), w('ma'), w('jep'), p('!')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('mik'), w('vjen'), w('nga'), w('perendi'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('grua'), wf('fsheh', 'fshehu', 'hid'), w('buke'), w('nga'), w('nje'), w('mik'), w('dhe'), wf('behet', 'u bë', 'became'), w('breshka'), p('.')),
     ],
     options: [
       { text: L(w('jep'), w('buke'), wf('mik', 'mikut', 'guest')), to: 'breshkaMire', reveal: 'mik' },
@@ -1599,6 +1610,8 @@ export const STORY = {
       L(w('une'), wf('kthehu', 'kthehem', 'return'), wf('ne', 'në', 'to'), w('shtepi'), p('.')),
       L(w('por'), w('nje'), w('grua'), w('do'), w('nje'), w('trim'), w('tjeter'), p('.')),
       L(w('dhe'), w('une'), wf('ka', 'kam', 'have'), w('nje'), w('plage'), p('.')),
+      L(wf('grua', 'gruaja', 'the woman'), w('sheh'), wf('plage', 'plagën', 'the wound'), w('dhe'), w('di'), p(':'), w('ky'), w('eshte'), wf('trim', 'trimi', 'the hero'), p('.')),
+      L(w('une'), wf('kthehu', 'kthehem', 'return'), wf('ne', 'në', 'to'), w('burg'), p(','), w('se'), w('une'), wf('premto', 'premtova', 'swore'), p('.')),
     ],
     options: [
       { text: L(w('mban'), wf('bese', 'besën', 'the besa')), to: 'agaYmerFund' },
@@ -1696,6 +1709,7 @@ export const STORY = {
       L(w('nje'), w('stihi'), w('eshte'), wf('ne', 'në', 'in'), wf('shpelle', 'shpellën', 'the cave'), p('.')),
       L(wf('stihi', 'stihia', 'the fire-dragon'), w('ruan'), w('ar'), p('.')),
       L(wf('stihi', 'stihia', 'the fire-dragon'), w('nxjerr'), wf('flake', 'flakë', 'flame'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('kush'), w('merr'), wf('ar', 'arin', 'the gold'), p(','), w('nuk'), wf('dil', 'del', 'comes out'), p('.'), w('kush'), wf('le', 'lë', 'leaves'), wf('ar', 'arin', 'the gold'), p(','), wf('jeto', 'jeton', 'lives'), p('.')),
     ],
     options: [
       { text: L(w('merr'), wf('ar', 'arin', 'the gold')), to: 'stihiDjeg', reveal: 'ar' },
@@ -1918,6 +1932,7 @@ export const STORY = {
       L(wf('femije', 'fëmijët', 'the children'), wf('ndiz', 'ndezin', 'light'), w('nje'), w('zjarr'), p('.')),
       L(wf('femije', 'fëmijët', 'the children'), wf('kerce', 'kërcejnë', 'leap'), w('mbi'), w('zjarr'), p('.')),
       L(wf('femije', 'fëmijët', 'the children'), wf('ha', 'hanë', 'eat'), w('ballokume'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('sot'), wf('zane', 'zana', 'the fairy'), w('e_link'), wf('mal', 'malit', 'the mountain'), wf('dil', 'del', 'comes out'), p('.')),
     ],
     options: [
       { text: L(wf('bej', 'bëj', 'make'), w('nje'), w('feste')), to: 'veraDiteFund', reveal: 'feste' },
@@ -1947,6 +1962,7 @@ export const STORY = {
       L(wf('ne', 'në', 'in'), w('liqen'), w('eshte'), w('nje'), w('flocka'), p('.')),
       L(wf('flocka', 'floçka', 'the water-maiden'), w('ka'), w('flok'), p('.')),
       L(wf('flocka', 'floçka', 'the water-maiden'), w('nuk'), w('ka'), w('fjale'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('burre'), w('merr'), w('nje'), w('flocka'), wf('ne', 'në', 'to'), w('shtepi'), p('.'), w('kur'), wf('bese', 'besa', 'the oath'), wf('vdes', 'vdes', 'dies'), p(','), wf('flocka', 'floçka', 'the water-maiden'), wf('kthehu', 'kthehet', 'returns'), wf('ne', 'në', 'to'), w('uje'), p('.')),
       when('night', L(w('naten'), wf('hene', 'hëna', 'the moon'), w('eshte'), wf('ne', 'në', 'in'), w('uje'), p('.'))),
       when('dawn', L(w('eshte'), w('agim'), p(','), wf('liqen', 'liqeni', 'the lake'), w('eshte'), w('i_art'), w('qete'), p('.'))),
     ],
@@ -1980,6 +1996,7 @@ export const STORY = {
       L(wf('lume', 'lumi', 'the river'), w('vjen'), wf('ne', 'në', 'to'), w('det'), p('.')),
       L(wf('det', 'deti', 'the sea'), w('eshte'), w('i_art'), w('madh'), w('dhe'), w('i_art'), w('thelle'), p('.')),
       L(w('poshte'), wf('thote', 'thonë', 'they say'), w('rri'), w('bukura'), w('e_link'), wf('det', 'detit', 'the sea'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('bukura'), w('ka'), w('dy'), w('motra'), p(','), wf('ne', 'në', 'in'), w('toke'), w('dhe'), wf('ne', 'në', 'in'), w('qiell'), p('.')),
       L(w('nje'), w('fshat'), w('eshte'), w('ketu'), p('.')),
       // the open sky over the coast tells the hour — the moon-road at night, the sun by day
       when('night', L(w('eshte'), w('naten'), p(','), wf('hene', 'hëna', 'the moon'), w('eshte'), w('mbi'), wf('det', 'detin', 'the sea'), p('.'))),
@@ -2125,6 +2142,7 @@ export const STORY = {
       when('night', L(w('naten'), wf('mal', 'mali', 'the mountain'), w('eshte'), w('i_art'), w('ftohte'), p('.'))),
       when('day', L(wf('diell', 'dielli', 'the sun'), w('eshte'), w('mbi'), w('maja'), p('.'))),
       L(wf('lart', 'lart', 'high'), w('eshte'), w('maja'), w('e_art'), w('shenjte'), p('.')),
+      L(wf('ne', 'në', 'on'), w('nje'), w('gur'), w('rri'), wf('shenje', 'shenja', 'the sign'), w('e_link'), w('nje'), w('kale'), w('te_link'), w('bardhe'), p('.')),
       L(w('nje'), w('shpelle'), w('eshte'), w('ketu'), p('.')),
       L(w('nje'), w('peri'), w('rri'), w('ketu'), p('.')),
     ],
@@ -2266,6 +2284,7 @@ export const STORY = {
       L(w('ti'), w('sheh'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
       L(w('bukura'), w('eshte'), w('e_art'), w('bukur'), p('.')),
       L(w('kulshedra'), w('mban'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('kush'), w('prit'), p(','), w('merr'), w('bekim'), p('.'), w('kush'), w('merr'), w('shpejt'), p(','), w('merr'), w('gur'), p('.')),
     ],
     options: [
       { text: L(w('shpeto'), wf('bukura', 'Bukurën', 'the Beauty')), to: 'bukuraLirim' },
@@ -2930,6 +2949,8 @@ export const STORY = {
       L(w('ketu'), w('eshte'), w('ar'), p('.')),
       L(w('nje'), w('gjarper'), w('i_art'), w('madh'), w('ruan'), wf('ar', 'arin', 'the gold'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('nje'), w('ora'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('kush'), w('prek'), wf('ar', 'arin', 'the gold'), p(','), wf('drite', 'drita', 'the light'), wf('vdes', 'vdes', 'dies'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('kush'), wf('vrit', 'vret', 'kills'), w('nje'), w('gjarper'), w('e_link'), wf('shtepi', 'shtëpisë', 'of the house'), p(','), w('nuk'), w('ka'), w('fat'), p('.')),
     ],
     options: [
       { text: L(w('prek'), wf('ar', 'arin', 'the gold')), to: 'gjarperNgrene', reveal: 'ar' },
@@ -3052,6 +3073,7 @@ export const STORY = {
       L(w('por'), w('nje'), w('drite'), w('vjen'), p('.')),
       L(wf('drite', 'drita', 'the light'), w('eshte'), w('nje'), w('ora'), p('.')),
       L(wf('ora', 'Ora', 'the spirit'), w('eshte'), w('nje'), w('nga'), w('tre'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('njeri'), w('ka'), w('nje'), w('ora'), w('per'), w('gjithe'), wf('jete', 'jetën', 'the life'), p('.')),
     ],
     options: [
       { text: L(w('jep'), w('buke'), wf('ora', 'Orës', 'to the Ora')), requires: 'buke', consumes: 'buke', to: 'oraBardhe' },
@@ -3114,6 +3136,8 @@ export const STORY = {
       L(wf('lart', 'lart', 'high'), w('larg'), w('eshte'), w('maja'), w('e_art'), w('shenjte'), p('.')),
       // the moon-dancers' ring turns only in the dark
       when('night', L(w('naten'), wf('degjo', 'dëgjon', 'you hear'), w('nje'), w('valle'), p('.'))),
+      when('night', L(wf('thote', 'thonë', 'they say'), p(':'), w('kush'), wf('hyr', 'hyn', 'enters'), wf('ne', 'në', 'in'), w('valle'), p(','), w('nuk'), wf('dil', 'del', 'comes out'), p('.'))),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('ora'), w('ec'), wf('ne', 'në', 'in'), w('pyll'), p(','), wf('si', 'si', 'as'), w('zog'), p(','), wf('si', 'si', 'as'), w('kafshe'), p(','), w('ose'), wf('si', 'si', 'as'), w('plake'), p('.')),
       L(w('larg'), w('nje'), wf('shpelle', 'shpellë', 'cave'), w('nxjerr'), w('zjarr'), p('.')),
       L(w('nje'), w('dhelpra'), w('dhe'), w('nje'), w('ujk'), wf('ka', 'kanë', 'have'), w('gjalpe'), p('.')),
     ],
@@ -3141,6 +3165,7 @@ export const STORY = {
       L(w('ketu'), wf('shtojzovalle', 'shtojzovallet', 'the moon-dancers'), wf('bej', 'bëjnë', 'make'), w('nje'), w('valle'), p('.')),
       L(wf('shtojzovalle', 'shtojzovallet', 'the moon-dancers'), wf('kendo', 'këndojnë', 'sing'), p('.')),
       L(w('valle'), w('eshte'), w('e_art'), w('bukur'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), wf('shtojzovalle', 'shtojzovallet', 'the moon-dancers'), wf('mban', 'mbajnë', 'hold'), w('fat'), w('e_link'), wf('njeri', 'njeriut', 'a man'), p('.')),
     ],
     options: [
       { text: L(w('sheh'), w('valle')), to: 'shtojzovalle2', reveal: 'shtojzovalle' },
@@ -3156,6 +3181,7 @@ export const STORY = {
       L(w('nje'), w('vajze'), w('eshte'), w('e_art'), w('bukur'), p('.')),
       L(w('vajze'), w('ka'), w('lot'), p('.')),
       L(wf('lot', 'lotët', 'the tears'), wf('vrit', 'vrasin', 'kill'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('jep'), wf('kemishe', 'këmishën', 'shirt'), wf('yt', 'tënde', 'your'), p(','), w('dhe'), wf('vajze', 'vajza', 'the maiden'), w('rri'), w('me'), w('ti'), p('.')),
     ],
     options: [
       { text: L(w('jep'), wf('kemishe', 'këmishën', 'shirt')), to: 'shtojzovalleNuse', reveal: 'vajze' },
@@ -3437,6 +3463,8 @@ export const STORY = {
       L(w('dy'), w('zane'), w('vjen'), p('.')),
       L(wf('zane', 'zanat', 'the Zanas'), wf('je', 'janë', 'are'), w('nene'), p('.')),
       L(wf('zane', 'zanat', 'the Zanas'), w('thote'), p(':')),
+      L(w('mujo'), w('tund'), wf('djep', 'djepet', 'the cradles'), w('ketu'), p('.'), w('mujo'), wf('pi', 'piu', 'drank'), w('qumesht'), w('dhe'), w('merr'), w('fuqi'), p('.')),
+      L(w('kush'), w('ka'), w('dije'), p(','), wf('degjo', 'dëgjon', 'hears'), wf('zog', 'zogun', 'the bird'), p('.')),
       L(w('zgjedh'), p(':'), w('fuqi'), p(','), w('pasuri'), p(','), w('ose'), w('dije'), p('.')),
     ],
     options: [
@@ -3592,6 +3620,7 @@ export const STORY = {
       L(wf('shqiponje', 'shqiponja', 'the eagle'), w('hidh'), wf('gjarper', 'gjarprin', 'the serpent'), wf('ne', 'në', 'in'), w('fole'), w('dhe'), wf('fluturo', 'fluturon', 'flies'), w('larg'), p('.')),
       L(w('nje'), w('zog'), wf('luan', 'luan', 'plays'), w('me'), wf('gjarper', 'gjarprin', 'the serpent'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('fle'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), wf('shqiponje', 'shqiponja', 'the eagle'), wf('bej', 'bën', 'makes'), w('nje'), w('mbret'), p('.')),
     ],
     options: [
       { text: L(w('ngjit'), wf('ne', 'në', 'to'), w('fole')), to: 'shqipe2', reveal: 'fole' },
@@ -3756,6 +3785,7 @@ export const STORY = {
       L(w('nje'), w('plake'), w('ka'), w('nje'), w('gjarper'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('do'), w('nje'), w('vajze'), w('e_link'), wf('mbret', 'mbretit', 'the king'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), wf('bej', 'bën', 'makes'), w('nje'), w('pallat'), p('.')),
+      L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('naten'), p(','), wf('thote', 'thonë', 'they say'), p(','), wf('gjarper', 'gjarpri', 'the serpent'), wf('behet', 'bëhet', 'becomes'), w('nje'), w('djale'), p('.')),
     ],
     options: [
       { text: L(w('marto'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'gjarperBurr1', reveal: 'gjarper' },
@@ -3863,7 +3893,9 @@ export const STORY = {
       L(w('nje'), w('bir'), wf('premto', 'premton', 'swears'), w('nje'), w('bese'), p('.')),
       L(w('i_art'), w('gjalle'), w('ose'), w('i_art'), wf('vdes', 'i vdekur', 'dead'), p(','), w('une'), w('sjell'), wf('bije', 'bijën', 'the daughter'), p('.')),
       L(wf('bije', 'bija', 'the daughter'), w('marto'), w('larg'), p('.')),
+      L(wf('bir', 'biri', 'the son'), wf('quhem', 'quhet', 'is called'), w('kostandin'), p('.'), wf('bije', 'bija', 'the daughter'), wf('quhem', 'quhet', 'is called'), w('doruntine'), p('.')),
       L(w('por'), wf('bir', 'bijtë', 'the sons'), wf('vdes', 'vdesin', 'die'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('kur'), w('nje'), w('nene'), w('mallko'), p(','), w('varr'), w('hap'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('nene', 'nënën', 'the mother')), to: 'kostandin2', reveal: 'nene' },
@@ -3878,6 +3910,7 @@ export const STORY = {
       L(wf('nene', 'nëna', 'the mother'), w('mallko'), wf('bir', 'birin', 'the son'), p('.')),
       L(wf('bir', 'biri', 'the son'), wf('zgjohu', 'zgjohet', 'wakes'), p('.')),
       L(wf('bir', 'biri', 'the son'), w('vjen'), w('nga'), w('varr'), p('!')),
+      L(wf('vdes', 'i vdekuri', 'dead'), w('qe'), w('ec'), w('eshte'), w('nje'), w('lugat'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('nene', 'nënën', 'the mother')), to: 'kostandin3', reveal: 'nene' },
@@ -3970,6 +4003,7 @@ export const STORY = {
       L(wf('shqiponje', 'shqiponja', 'an eagle'), wf('fluturo', 'fluturon', 'flies'), w('me'), w('ti'), p('.')),
       L(w('ti'), w('je'), wf('ne', 'në', 'in'), wf('pallat', 'pallatin', 'the palace'), w('e_link'), wf('bukura', 'Bukurës', 'the Beauty'), p('.')),
       L(wf('zog', 'zogu', 'the bird'), w('eshte'), wf('ne', 'në', 'in'), w('nje'), w('kafaz'), p('.')),
+      L(wf('zog', 'zogu', 'the bird'), wf('quhem', 'quhet', 'is called'), w('gjizar'), p('.')),
       L(w('nje'), w('qiri'), w('ka'), w('zjarr'), p('.')),
       L(wf('bukura', 'Bukura', 'the Beauty'), w('fle'), p('.')),
     ],
@@ -4044,10 +4078,12 @@ export const STORY = {
     id: 'shpirag1',
     text: [
       L(w('ketu'), w('nje'), w('mal'), w('dhe'), w('nje'), w('mal'), w('tjeter'), p('.')),
+      L(w('tomor'), w('dhe'), w('shpirag'), wf('jam', 'ishin', 'were'), w('dy'), w('burra'), w('te_link'), wf('madh', 'mëdhenj', 'big'), p('.')),
       L(w('tomor'), w('dhe'), w('shpirag'), wf('lufto', 'luftojnë', 'fight'), w('per'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
       L(w('tomor'), w('ka'), w('nje'), w('kose'), p('.')),
       L(w('shpirag'), w('ka'), w('nje'), w('shkop'), p('.')),
       L(wf('bukura', 'Bukura', 'the Beauty'), w('vdes'), w('dhe'), wf('lot', 'lotët', 'the tears'), wf('behet', 'bëhen', 'become'), w('nje'), w('lume'), p('.')),
+      L(wf('lume', 'lumi', 'the river'), wf('quhem', 'quhet', 'is called'), w('osum'), p('.')),
     ],
     options: [
       { text: L(w('sheh'), wf('mal', 'malet', 'the mountains')), to: 'shpiragFund', reveal: 'mal' },
@@ -4226,10 +4262,12 @@ export const STORY = {
     id: 'balozMotra',
     text: [
       L(wf('motra', 'motra', 'the sister'), w('thote'), p(':')),
+      L(wf('trim', 'trimi', 'the hero'), wf('quhem', 'quhet', 'is called'), w('gjergj'), p('.')),
       L(w('nente'), wf('vit', 'vjet', 'years'), wf('trim', 'trimi', 'the hero'), w('rri'), wf('ne', 'në', 'in'), w('kulle'), p('.')),
       L(w('une'), w('jam'), wf('vetem', 'vetëm', 'alone'), w('me'), wf('trim', 'trimin', 'the hero'), p('.')),
       L(w('nente'), wf('vit', 'vjet', 'years'), w('une'), w('jep'), w('uje'), w('dhe'), w('buke'), wf('trim', 'trimit', 'to the hero'), p('.')),
       L(w('une'), wf('vajto', 'vajtoj', 'mourn'), wf('trim', 'trimin', 'the hero'), p('.')),
+      L(w('zemer'), wf('im', 'ime', 'my'), w('dhe'), w('zemer'), w('e_link'), wf('trim', 'trimit', 'the hero'), wf('jam', 'janë', 'are'), w('nje'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('motra', 'motrën', 'the sister')), to: 'balozTribut', reveal: 'motra' },
@@ -4242,6 +4280,7 @@ export const STORY = {
     text: [
       L(wf('motra', 'motra', 'the sister'), w('thote'), p(':')),
       L(w('nje'), w('baloz'), w('vjen'), wf('ne', 'në', 'to'), wf('det', 'detin', 'the sea'), p('.')),
+      L(w('perpara'), wf('baloz', 'balozi', 'the sea-monster'), wf('do', 'donte', 'wanted'), w('ar'), p(','), w('pas'), wf('dhi', 'dhitë', 'the goats'), p('.')),
       L(wf('fshat', 'fshati', 'the village'), w('jep'), w('nje'), w('vajze'), wf('baloz', 'balozit', 'to the sea-monster'), p('.')),
       L(w('tani'), wf('baloz', 'balozi', 'the sea-monster'), w('do'), w('mua'), p('!')),
     ],
@@ -4361,6 +4400,7 @@ export const STORY = {
     text: [
       L(w('naten'), w('mbaroi'), w('dhe'), w('vjen'), w('dite'), p('.')),
       L(wf('zane', 'zana', 'the fairy'), w('vjen'), w('dhe'), w('thote'), p(':')),
+      L(w('qumesht'), wf('im', 'im', 'my'), wf('bej', 'bën', 'makes'), wf('trim', 'trima', 'heroes'), p('.'), w('mujo'), wf('pi', 'piu', 'drank'), w('ketu'), p('.')),
       L(w('merr'), w('ar'), p(','), w('dije'), w('ose'), w('fuqi'), p('.')),
     ],
     options: [
@@ -4631,6 +4671,7 @@ export const STORY = {
       L(w('ketu'), w('rri'), w('nje'), w('peri'), p('.')),
       L(wf('peri', 'Peria', 'the fairy'), w('eshte'), w('e_art'), w('uritur'), p('.')),
       L(w('ketu'), w('eshte'), w('buke'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('buke'), w('eshte'), w('e_art'), w('shenjte'), p('.'), wf('zane', 'zanat', 'the fairies'), wf('sheh', 'shohin', 'watch'), wf('buke', 'bukën', 'the bread'), p('.')),
     ],
     options: [
       { text: L(w('jep'), w('buke'), wf('peri', 'Perisë', 'to the fairy')), to: 'periFund', reveal: 'peri' },
@@ -4719,6 +4760,7 @@ export const STORY = {
       L(wf('vajze', 'vajzat', 'the girls'), wf('bej', 'bëjnë', 'make'), w('nje'), w('kukull'), w('balte'), p('.')),
       L(wf('kukull', 'kukulla', 'the doll'), w('eshte'), wf('nene', 'Nëna', 'Mother'), w('e_link'), wf('diell', 'Diellit', 'the Sun'), p('.')),
       L(wf('vajze', 'vajzat', 'the girls'), wf('kendo', 'këndojnë', 'sing'), w('dhe'), wf('vajto', 'vajtojnë', 'weep'), p('.')),
+      L(wf('vajze', 'vajzat', 'the girls'), wf('kendo', 'këndojnë', 'sing'), p(':'), w('nene'), p(','), wf('diell', 'dielli', 'the sun'), w('vjen'), w('dhe'), w('nuk'), w('te_obj'), w('sheh'), p('.')),
     ],
     options: [
       { text: L(w('varros'), wf('nene', 'Nënën', 'the Mother'), w('e_link'), wf('diell', 'Diellit', 'the Sun')), to: 'nenaDiellFund', reveal: 'kukull' },
@@ -4747,6 +4789,7 @@ export const STORY = {
       L(w('naten'), w('nje'), w('karkanxholl'), w('troket'), p('.')),
       L(wf('karkanxholl', 'karkanxholli', 'the revenant'), w('ka'), w('nje'), wf('kemishe', 'këmishë', 'shirt'), wf('hekur', 'hekuri', 'of iron'), p('.')),
       L(wf('karkanxholl', 'karkanxholli', 'the revenant'), wf('thirr', 'thërret', 'calls'), wf('emer', 'emrin', 'the name'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('mos'), w('hap'), wf('dere', 'derën', 'the door'), p('.'), w('mos'), w('fol'), p('.'), w('kush'), w('flet'), p(','), wf('ik', 'ikën', 'is taken'), p('.')),
     ],
     options: [
       { text: L(w('rri'), w('i_art'), w('qete')), to: 'karkanxhollFund' },
@@ -4789,6 +4832,7 @@ export const STORY = {
       L(w('nje'), w('dhelpra'), w('dhe'), w('nje'), w('ujk'), wf('ka', 'kanë', 'have'), w('gjalpe'), p('.')),
       L(wf('dhelpra', 'dhelpra', 'the fox'), w('thote'), p(':'), w('une'), wf('shko', 'shkoj', 'go'), wf('ne', 'në', 'to'), w('pagezim'), p('.')),
       L(wf('dhelpra', 'dhelpra', 'the fox'), w('ha'), wf('gjalpe', 'gjalpën', 'the butter'), p('.')),
+      L(wf('dhelpra', 'dhelpra', 'the fox'), wf('quhem', 'quhet', 'is called'), w('kumaLisa'), p('.')),
     ],
     options: [
       { text: L(w('sheh'), wf('dhelpra', 'dhelprën', 'the fox')), to: 'dhelpra2', reveal: 'dhelpra' },
@@ -4845,6 +4889,7 @@ export const STORY = {
       L(w('nje'), w('njeri'), w('ha'), wf('ere', 'erën', 'smell'), w('e_link'), wf('ushqim', 'ushqimit', 'the food'), p('.')),
       L(wf('kuzhinier', 'kuzhinieri', 'the cook'), w('do'), w('ar'), p('.')),
       L(wf('hoxha', 'hoxha', 'the hodja'), w('merr'), w('ar'), p('.')),
+      L(wf('hoxha', 'hoxha', 'the hodja'), w('thote'), p(':'), w('ti'), w('ha'), wf('ere', 'erën', 'smell'), p(','), w('ti'), wf('degjo', 'dëgjon', 'hear'), wf('ar', 'arin', 'the gold'), p('.')),
     ],
     options: [
       { text: L(wf('tund', 'tund', 'shake'), wf('ar', 'arin', 'the gold')), to: 'nastradinGjyqFund', reveal: 'kuzhinier' },
@@ -4887,6 +4932,7 @@ export const STORY = {
       L(w('rusha'), w('eshte'), wf('bije', 'bija', 'the daughter'), w('e_link'), wf('krajl', 'krajlit', 'the Krajl'), p('.')),
       L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'in'), wf('kulle', 'kullën', 'the tower'), w('e_link'), wf('krajl', 'krajlit', 'the Krajl'), p('.')),
       L(w('rusha'), w('jep'), w('kafe'), p('.')),
+      L(w('une'), wf('thote', 'them', 'say'), p(':'), wf('premto', 'premto', 'swear'), w('nje'), w('bese'), p(':'), w('ti'), w('vjen'), w('me'), w('zemer'), p(','), w('ose'), w('ti'), w('rri'), p('.')),
     ],
     options: [
       { text: L(w('kerko'), w('bese')), to: 'rushaFund', reveal: 'rusha' },
@@ -5231,7 +5277,7 @@ export const STORY = {
       L(w('ti'), w('je'), w('brenda'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('je', 'janë', 'are'), w('mermer'), p('.')),
       L(w('nje'), w('mbret'), w('mermer'), w('rri'), w('ketu'), p('.')),
-      L(wf('liber', 'libri', 'the book'), w('thote'), p(':'), w('rri'), w('zgjuar'), w('tre'), wf('naten', 'net', 'nights'), p('.')),
+      L(wf('liber', 'libri', 'the book'), w('thote'), p(':'), w('rri'), w('zgjuar'), w('tre'), wf('naten', 'net', 'nights'), p(','), w('dhe'), wf('mbret', 'mbreti', 'the king'), wf('zgjohu', 'zgjohet', 'wakes'), p('.')),
     ],
     options: [
       { text: L(w('rri'), w('zgjuar')), to: 'mermerZgjim', reveal: 'zgjuar' },
@@ -5373,6 +5419,7 @@ export const STORY = {
     text: [
       L(w('tre'), wf('ora', 'Ora', 'Fates'), wf('vjen', 'vijnë', 'come'), wf('ne', 'në', 'to'), w('djep'), p('.')),
       L(w('nje'), w('eshte'), w('e_art'), wf('bardhe', 'Bardhë', 'White'), p(','), w('nje'), w('e_art'), wf('verdhe', 'Verdhë', 'Yellow'), p(','), w('nje'), w('e_art'), wf('zi', 'Zezë', 'Black'), p('.')),
+      L(w('e_art'), wf('bardhe', 'Bardha', 'White'), w('jep'), w('mire'), p('.'), w('e_art'), wf('verdhe', 'Verdha', 'Yellow'), w('jep'), w('keq'), p('.'), w('e_art'), wf('zi', 'Zeza', 'Black'), w('jep'), w('fund'), p('.')),
       L(w('e_art'), wf('bardhe', 'Bardha', 'White'), w('jep'), w('bekim'), p('.')),
     ],
     options: [
@@ -5578,6 +5625,7 @@ export const STORY = {
     id: 'gjysmegjel1',
     text: [
       L(w('nje'), w('gjysmegjel'), w('rri'), w('ketu'), p('.')),
+      L(wf('gjysmegjel', 'gjysmëgjeli', 'the half-rooster'), w('ka'), w('nje'), w('krah'), w('dhe'), w('nje'), wf('kembe', 'këmbë', 'leg'), p('.')),
       L(wf('gjysmegjel', 'gjysmëgjeli', 'the half-rooster'), w('gjen'), w('ar'), p('.')),
       L(wf('mbret', 'mbreti', 'the king'), w('merr'), wf('ar', 'arin', 'the gold'), p('.')),
       L(wf('gjysmegjel', 'gjysmëgjeli', 'the half-rooster'), w('do'), wf('ar', 'arin', 'the gold'), w('perseri'), p('.')),
@@ -5593,6 +5641,7 @@ export const STORY = {
     text: [
       L(wf('gjysmegjel', 'gjysmëgjeli', 'the half-rooster'), w('ec'), wf('ne', 'në', 'to'), wf('mbret', 'mbretin', 'the king'), p('.')),
       L(wf('gjysmegjel', 'gjysmëgjeli', 'the half-rooster'), w('ha'), w('nje'), w('bretkose'), p(','), w('nje'), wf('dhelpra', 'dhelpër', 'fox'), p(','), w('nje'), w('ujk'), w('dhe'), w('nje'), w('mi'), p('.')),
+      L(wf('mbret', 'mbreti', 'the king'), w('ka'), w('nje'), w('zjarr'), p(','), wf('kale', 'kalë', 'horses'), p(','), wf('pate', 'patat', 'geese'), w('dhe'), w('ar'), p('.')),
       L(wf('mbret', 'mbreti', 'the king'), w('eshte'), w('ne'), w('rrezik'), p('.')),
     ],
     options: [
@@ -5627,6 +5676,7 @@ export const STORY = {
       L(w('nje'), w('njeri'), w('rri'), w('brenda'), p('.')),
       L(wf('njeri', 'njeriu', 'the man'), w('ka'), w('gjak'), w('me'), wf('njeri', 'njerëz', 'people'), w('tjeter'), p('.')),
       L(wf('njeri', 'njeriu', 'the man'), w('nuk'), w('dil'), w('jashte'), p('.')),
+      L(w('brenda'), wf('kulle', 'kullës', 'the tower'), wf('njeri', 'njeriu', 'the man'), w('eshte'), w('i_art'), w('sigurt'), p('.'), w('jashte'), wf('njeri', 'njerëz', 'people'), wf('do', 'duan', 'want'), w('gjak'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('njeri', 'njeriun', 'the man')), to: 'kulle2', reveal: 'gjak' },
@@ -5640,6 +5690,7 @@ export const STORY = {
       L(wf('njeri', 'njeriu', 'the man'), w('thote'), p(':'), w('une'), w('vrit'), w('nje'), w('njeri'), p('.')),
       L(w('tani'), wf('njeri', 'njerëz', 'people'), wf('do', 'duan', 'want'), w('gjak'), p('.')),
       L(w('nje'), w('bese'), w('mund'), w('te_subj'), w('mbyll'), w('gjak'), p('.')),
+      L(w('kur'), w('nje'), w('bese'), w('mbyll'), w('gjak'), p(','), w('burra'), wf('pi', 'pinë', 'drink'), w('kafe'), p('.')),
     ],
     options: [
       { text: L(w('fal'), w('gjak')), to: 'kulleFal', reveal: 'bese' },
@@ -5801,8 +5852,10 @@ export const STORY = {
       L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
       L(wf('kala', 'kalaja', 'the castle'), w('bie'), p('.')),
       L(w('nje'), w('nene'), w('vjen'), w('me'), w('buke'), p('.')),
+      L(wf('nene', 'nëna', 'the mother'), wf('quhem', 'quhet', 'is called'), w('rozafa'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), w('ka'), w('nje'), w('femije'), w('te_link'), w('vogel'), p('.')),
       L(wf('mur', 'muri', 'the wall'), w('merr'), wf('nene', 'nënën', 'the mother'), wf('ne', 'në', 'in'), w('gur'), p('.')),
+      L(w('sot'), w('qumesht'), w('i_art'), w('bardhe'), wf('dil', 'del', 'comes out'), w('nga'), wf('mur', 'muri', 'the wall'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('nene', 'nënën', 'the mother')), to: 'kalaGji', reveal: 'nene' },
@@ -5983,6 +6036,8 @@ export const STORY = {
       'The starving wolf you fed was no wolf at all — it was a drangue in a wolf’s hide, one of the storm-heroes born among men to do battle with the kulshedra. When the drought bit cruellest it shed its shape, rose into the black clouds and gave battle, and the rain it loosed there ran down to every parched village. You never knew the hero whose bread you shared — the old people only say a guest is sent by God, and the bread you break is never wasted.',
     text: [
       L(wf('ujk', 'ujku', 'the wolf'), w('eshte'), w('nje'), w('dragua'), p('.')),
+      L(wf('ujk', 'ujku', 'the wolf'), wf('shko', 'shkon', 'goes'), wf('lart', 'lart', 'up'), wf('ne', 'në', 'in'), w('re'), p('.')),
+      L(wf('ujk', 'ujku', 'the wolf'), wf('lufto', 'lufton', 'fights'), w('atje'), p(','), w('dhe'), w('shi'), w('vjen'), p('.')),
       L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('perseri'), p('.')),
     ],
     options: [],
@@ -5991,9 +6046,11 @@ export const STORY = {
   udhaSyri: {
     id: 'udhaSyri',
     text: [
+      L(wf('lume', 'lumi', 'the riverbed'), w('eshte'), w('i_art'), w('thate'), w('ketu'), p('.')),
       L(w('nje'), w('plak'), w('jep'), w('nje'), w('gomar'), w('me'), w('zjarr'), wf('gjarper', 'gjarprit', 'to the serpent'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('ha'), w('gomar'), w('dhe'), w('vdes'), p('.')),
       L(wf('sy', 'syri', 'the eye'), w('i_link'), wf('gjarper', 'gjarprit', 'the serpent'), w('bie'), w('dhe'), w('behet'), w('uje'), p('.')),
+      L(wf('njeri', 'njerëzit', 'the people'), wf('quhem', 'e quajnë', 'call'), wf('uje', 'ujin', 'the water'), p(':'), wf('sy', 'Syri', 'the Eye'), w('i_art'), w('kalter'), p('.')),
     ],
     options: [
       { text: L(w('pi'), w('uje')), to: 'syriFund', reveal: 'uje' },
@@ -6259,6 +6316,7 @@ export const STORY = {
       L(w('nje'), w('femije'), w('vesh'), wf('peme', 'pemë', 'tree'), w('te_link'), w('gjelber'), p('.')),
       L(wf('dordolec', 'dordoleci', 'the rain-child'), wf('kerko', 'kërkon', 'calls for'), w('shi'), p('.')),
       L(w('nje'), w('shtepi'), w('e_art'), wf('ri', 're', 'new'), w('ka'), w('nje'), w('dordolec'), w('dhe'), w('nje'), w('hudher'), p('.')),
+      L(w('nje'), w('njeri'), w('thote'), p(':'), wf('sy', 'syri', 'the eye'), w('i_art'), w('keq'), w('sheh'), wf('dordolec', 'dordolecin', 'the scarecrow'), p(','), w('jo'), wf('shtepi', 'shtëpinë', 'the house'), p('.')),
     ],
     options: [
       { text: L(w('kendo'), w('me'), wf('femije', 'fëmijët', 'the children')), to: 'dordolec2', reveal: 'dordolec' },
@@ -6330,7 +6388,7 @@ export const STORY = {
       L(w('ti'), w('sheh'), wf('mal', 'malin', 'the mountain'), w('e_link'), wf('diell', 'diellit', 'the sun'), p('.')),
     ],
     options: [
-      { text: L(w('shko'), wf('ne', 'në', 'to'), w('mal')), to: 'dordolecFund', reveal: 'mal' },
+      { text: L(w('shko'), w('me'), wf('femije', 'fëmijët', 'the children')), to: 'dordolecFund', reveal: 'femije' },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
     ],
   },
@@ -6358,6 +6416,7 @@ export const STORY = {
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('nje'), w('bolla'), p('.')),
       L(wf('naten', 'nata', 'the night'), w('e_link'), wf('shengjergj', 'Shëngjergjit', 'St George'), w('eshte'), w('e_art'), w('shenjte'), p('.')),
       L(wf('naten', 'atë natë', 'that night'), w('bolla'), w('hap'), wf('sy', 'sytë', 'its eyes'), p('.')),
+      L(w('kur'), w('bolla'), w('sheh'), w('nje'), w('njeri'), p(','), w('bolla'), w('ha'), wf('njeri', 'njeriun', 'the person'), p('.')),
     ],
     options: [
       { text: L(w('prit'), wf('shengjergj', 'Shëngjergjin', 'St George')), to: 'bolla2', reveal: 'bolla' },
@@ -6397,6 +6456,7 @@ export const STORY = {
       L(w('ne'), wf('shpelle', 'shpellën', 'the cave'), w('rri'), w('nje'), w('katallan'), p('.')),
       L(wf('katallan', 'katallani', 'the giant'), w('ka'), w('nje'), w('sy'), p('.')),
       L(wf('katallan', 'katallani', 'the giant'), w('nuk'), w('ka'), w('gju'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), wf('katallan', 'katallani', 'the giant'), w('ha'), wf('udhetar', 'udhëtarë', 'travellers'), p('.')),
       L(w('nje'), w('udhetar'), w('rri'), w('ketu'), p('.')),
       L(w('nje'), w('zjarr'), w('rri'), w('ketu'), p('.')),
       L(w('nje'), w('gur'), w('e_art'), w('madh'), w('mbyll'), wf('dere', 'derën', 'the door'), p('.')),
@@ -6544,6 +6604,8 @@ export const STORY = {
       L(w('ketu'), w('nje'), w('trim'), w('nuk'), w('sheh'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), w('eshte'), w('i_art'), w('forte'), p('.')),
       L(w('nje'), w('nene'), wf('verbo', 'verboi', 'blinded'), wf('trim', 'trimin', 'the hero'), p('.')),
+      L(wf('trim', 'trimi', 'the hero'), wf('quhem', 'quhet', 'is called'), w('zuku'), p('.')),
+      L(wf('nene', 'nëna', 'the mother'), wf('ka', 'kishte', 'had'), w('nje'), w('mik'), p(':'), w('nje'), w('baloz'), p('.'), wf('nene', 'nëna', 'the mother'), wf('verbo', 'verboi', 'blinded'), wf('bir', 'birin', 'the son'), w('per'), wf('baloz', 'balozin', 'the sea-monster'), p('.')),
       L(w('nje'), w('ora'), w('jep'), w('bar'), p('.')),
     ],
     options: [
@@ -6599,6 +6661,9 @@ export const STORY = {
     id: 'kordha2',
     text: [
       L(w('ti'), w('merr'), wf('bukura', 'Bukurën', 'the Beauty'), w('e_link'), wf('toke', 'Dheut', 'the Earth'), p('.')),
+      L(w('ti'), wf('ka', 'ke', 'have'), w('dy'), wf('vella', 'vëllezër', 'brothers'), p(':'), wf('yll', 'Ylli', 'the Star'), w('dhe'), wf('det', 'Deti', 'the Sea'), p('.')),
+      L(wf('vella', 'vëllezërit', 'the brothers'), wf('mban', 'mbajnë', 'keep'), w('nje'), w('pende'), p('.'), w('kur'), w('ti'), wf('vdes', 'vdes', 'die'), p(','), wf('pende', 'penda', 'the feather'), w('ka'), w('gjak'), p('.')),
+      L(wf('jete', 'jeta', 'the life'), wf('yt', 'jote', 'your'), w('rri'), wf('ne', 'në', 'in'), wf('shpate', 'shpatën', 'the sword'), p('.')),
       L(w('nje'), w('plake'), w('do'), wf('fuqi', 'fuqinë', 'the power'), p('.')),
     ],
     options: [
@@ -6768,6 +6833,8 @@ export const STORY = {
     text: [
       L(w('ketu'), w('nje'), wf('kale', 'kalë', 'horse'), p('.')),
       L(wf('kale', 'kali', 'the horse'), w('flet'), w('dhe'), w('sheh'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('ky'), w('eshte'), wf('kale', 'kali', 'the horse'), w('i_link'), w('mujo'), p('.')),
+      L(wf('kale', 'kali', 'the horse'), wf('ik', 'ikën', 'flees'), w('nga'), w('nje'), w('dore'), w('e_art'), wf('keq', 'keqe', 'bad'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('kale', 'kalin', 'the horse')), to: 'kaliFund', reveal: 'kale' },
@@ -7099,6 +7166,7 @@ export const STORY = {
       L(w('ai'), w('thote'), p(':'), w('skender'), wf('jam', 'ishte', 'was'), wf('trim', 'trimi', 'the hero'), w('i_art'), w('madh'), p('.')),
       L(w('nje'), w('armik'), w('i_art'), w('madh'), w('vjen'), w('me'), w('mije'), w('burra'), p('.')),
       L(wf('armik', 'armiku', 'the enemy'), w('do'), wf('kala', 'kalanë', 'the castle'), w('e_link'), wf('skender', 'Skënderbeut', 'Skanderbeg'), p('.')),
+      L(wf('kala', 'kalaja', 'the castle'), wf('quhem', 'quhet', 'is called'), w('kruje'), p('.')),
       L(w('burra'), wf('ne', 'në', 'in'), wf('kala', 'kalanë', 'the castle'), wf('jam', 'janë', 'are'), w('pak'), p('.')),
     ],
     options: [
@@ -7117,6 +7185,7 @@ export const STORY = {
       L(wf('armik', 'armiku', 'the enemy'), w('sheh'), w('zjarr'), wf('ne', 'në', 'on'), wf('kala', 'kalanë', 'the castle'), p('.')),
       L(wf('armik', 'armiku', 'the enemy'), wf('mendoj', 'mendon', 'thinks'), p(':'), wf('kala', 'kalaja', 'the castle'), w('ka'), w('mije'), wf('trim', 'trima', 'heroes'), p('!')),
       L(wf('armik', 'armiku', 'the enemy'), w('ka'), w('frike'), w('dhe'), wf('ik', 'ikën', 'flees'), p('.')),
+      L(wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('nje'), w('dite'), w('skender'), wf('vdes', 'vdes', 'dies'), wf('ne', 'në', 'in'), w('lezhe'), p('.'), w('kur'), w('skender'), wf('vdes', 'vdes', 'dies'), p(','), wf('vend', 'vendi', 'the country'), w('bie'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'skenderFund', reveal: 'dhi' },
@@ -7295,7 +7364,9 @@ export const STORY = {
   ujkuLind1: {
     id: 'ujkuLind1',
     text: [
-      L(wf('djall', 'djalli', 'the devil'), wf('bej', 'bën', 'makes'), w('nje'), w('ujk'), p('.')),
+      L(wf('djall', 'djalli', 'the devil'), wf('bej', 'bën', 'makes'), w('nje'), w('ujk'), w('nga'), w('balte'), p('.')),
+      L(w('por'), wf('ujk', 'ujku', 'the wolf'), w('nuk'), wf('jeto', 'jeton', 'lives'), p('.')),
+      L(wf('djall', 'djalli', 'the devil'), w('thote'), p(':'), w('perendi'), p(','), w('jep'), wf('jete', 'jetë', 'life'), p('!')),
       L(w('perendi'), w('thote'), p(':'), w('ha'), wf('djall', 'djallin', 'the devil'), p('!')),
     ],
     options: [
@@ -7323,7 +7394,9 @@ export const STORY = {
     text: [
       L(w('nje'), w('zjarr'), w('vjen'), p('.')),
       L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('verbti'), p('.')),
-      L(w('verbti'), w('nuk'), w('sheh'), p('.')),
+      L(w('verbti'), w('nuk'), w('sheh'), p(','), w('por'), wf('degjo', 'dëgjon', 'hears'), w('gjithe'), p('.')),
+      L(w('verbti'), w('nuk'), w('do'), w('nje'), w('fjale'), w('te_link'), wf('keq', 'keqe', 'bad'), p('.')),
+      L(w('poshte'), wf('fshat', 'fshati', 'the village'), w('eshte'), w('i_art'), w('thate'), p('.')),
     ],
     options: [
       { text: L(w('fol'), w('mire')), to: 'verbtiFund', reveal: 'verbti' },
@@ -7380,6 +7453,7 @@ export const STORY = {
       L(w('mujo'), wf('bej', 'bën', 'makes'), w('nje'), w('varr'), wf('ne', 'në', 'in'), w('mal'), p('.')),
       L(w('nje'), w('gur'), w('mbi'), wf('varr', 'varrin', 'the grave'), p('.')),
       L(w('mujo'), w('fsheh'), wf('omer', 'omerin', 'Omer'), w('nga'), wf('nene', 'nënën', 'the mother'), p('.')),
+      L(w('por'), wf('nene', 'nëna', 'the mother'), wf('degjo', 'dëgjon', 'hears'), p('.'), wf('hene', 'hëna', 'the moon'), w('di'), w('dhe'), w('nuk'), w('flet'), p('.')),
     ],
     options: [
       { text: L(w('vazhdon')), to: 'omerFund', reveal: 'varr' },
@@ -7400,6 +7474,7 @@ export const STORY = {
       L(wf('yll', 'yjet', 'the stars'), w('rri'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), wf('vajto', 'vajton', 'mourns'), wf('omer', 'omerin', 'Omer'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), wf('vajto', 'vajton', 'mourns'), wf('bir', 'bijtë', 'the sons'), p('.')),
+      L(wf('nene', 'nëna', 'the mother'), w('fle'), w('afer'), wf('varr', 'varrit', 'the grave'), p('.')),
     ],
     options: [],
   },
@@ -7512,6 +7587,7 @@ export const STORY = {
       L(w('nje'), w('motra'), wf('qep', 'qep', 'sews'), p('.')),
       L(wf('gershere', 'gërshëra', 'the scissors'), wf('vrit', 'vrasin', 'kill'), w('gjon'), p('.')),
       L(w('motra'), w('kerko'), w('gjon'), p('.')),
+      L(w('motra'), wf('vajto', 'vajton', 'weeps'), p(':'), w('ku'), p('?'), w('ku'), p('?')),
     ],
     options: [
       { text: L(w('degjo'), wf('zog', 'zogun', 'the bird')), to: 'cuckooFund', reveal: 'gjon' },
@@ -7568,6 +7644,7 @@ export const STORY = {
     text: [
       L(w('naten'), w('arushe'), w('do'), w('gjak'), p('.')),
       L(w('arushe'), w('godit'), w('ketu'), p('.')),
+      L(w('ketu'), w('rri'), w('nje'), w('kazan'), w('i_art'), w('madh'), w('me'), w('qumesht'), p('.')),
     ],
     options: [
       { text: L(w('fsheh')), to: 'arusheFund', reveal: 'gjak' },
@@ -7629,6 +7706,8 @@ export const STORY = {
       L(w('nje'), w('vajze'), wf('bej', 'bën', 'makes'), w('nje'), w('qilim'), p('.')),
       L(w('nje'), w('vajze'), w('kendo'), p('.')),
       L(w('nje'), w('vajze'), wf('ndihmo', 'ndihmon', 'helps'), wf('nene', 'nënën', 'the mother'), p('.')),
+      L(wf('nene', 'nëna', 'the mother'), w('thote'), p(':'), w('ti'), w('qe'), wf('ndihmo', 'ndihmon', 'help'), p(','), w('ti'), w('jep'), w('drite'), w('per'), wf('vdes', 'të vdekurit', 'dead'), w('dhe'), w('buke'), w('per'), wf('njeri', 'njerëzit', 'the living'), p('.')),
+      L(wf('nene', 'nëna', 'the mother'), w('thote'), p(':'), w('ti'), wf('behet', 'bëhesh', 'become'), w('merimanga'), p(','), w('dhe'), w('ti'), wf('behet', 'bëhesh', 'become'), w('gjinkalla'), p('.')),
     ],
     options: [
       { text: L(w('ndihmo'), wf('nene', 'nënën', 'the mother')), to: 'bletaFund', reveal: 'nene' },
@@ -7672,6 +7751,7 @@ export const STORY = {
       L(w('nje'), w('gjarper'), w('do'), wf('gjak', 'gjakun', 'the blood'), w('e_link'), wf('njeri', 'njeriut', 'the person'), p('.')),
       L(w('nje'), w('mushkonje'), wf('ndihmo', 'ndihmon', 'helps'), wf('gjarper', 'gjarprin', 'the serpent'), p('.')),
       L(w('por'), w('nje'), w('dallendyshe'), w('pre'), wf('gjuhe', 'gjuhën', 'the tongue'), w('e_link'), wf('mushkonje', 'mushkonjës', 'the mosquito'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('i_art'), w('keq'), w('me'), wf('dallendyshe', 'dallëndyshen', 'the swallow'), p('.')),
     ],
     options: [
       { text: L(w('ndihmo'), wf('dallendyshe', 'dallëndyshen', 'the swallow')), to: 'dallendysheFund', reveal: 'dallendyshe' },
@@ -7699,6 +7779,8 @@ export const STORY = {
     text: [
       L(w('nje'), w('kukudh'), w('vjen'), p('.')),
       L(w('kukudh'), w('eshte'), w('i_art'), w('forte'), p('.')),
+      L(w('nje'), w('lugat'), w('i_art'), w('vjeter'), wf('behet', 'bëhet', 'becomes'), w('kukudh'), p('.')),
+      L(wf('arme', 'arma', 'the weapon'), w('nuk'), wf('vrit', 'vret', 'kills'), wf('kukudh', 'kukudhin', 'the miser-ghost'), p('.')),
       L(w('disa'), wf('thote', 'thonë', 'say'), p(':'), wf('kukudh', 'kukudhi', 'the miser-ghost'), w('eshte'), w('nje'), w('dreq'), p('.')),
       L(w('hardhi'), wf('vrit', 'vret', 'kills'), wf('kukudh', 'kukudhin', 'the miser-ghost'), p(','), wf('dreq', 'dreqin', 'the devil'), p('.')),
     ],
@@ -7768,6 +7850,8 @@ export const STORY = {
       unless('night', L(wf('lart', 'lart', 'high'), wf('shqiponje', 'shqiponjat', 'eagles'), wf('fluturo', 'fluturojnë', 'fly'), p('.'))),
       when('night', L(w('naten'), wf('yll', 'yjet', 'the stars'), wf('je', 'janë', 'are'), wf('lart', 'lart', 'high'), p('.'))),
       L(wf('lart', 'lart', 'high'), w('vjen'), w('ere'), w('dhe'), w('bresher'), p('.')),
+      L(wf('njeri', 'njerëzit', 'the people'), wf('premto', 'premtojnë', 'swear'), p(':'), w('per'), w('qiell'), p('!')),
+      L(w('qiell'), w('dhe'), w('perendi'), wf('ka', 'kanë', 'have'), w('nje'), w('emer'), p(':'), w('perendi'), p('.')),
       L(w('nje'), w('bari'), wf('rri', 'rri', 'sits'), w('me'), w('nje'), w('dem'), w('te_link'), w('bardhe'), p('.')),
     ],
     options: [
@@ -7833,6 +7917,7 @@ export const STORY = {
       L(wf('plak', 'plaku', 'the old man'), w('eshte'), w('zojz'), p('.')),
       L(w('nje'), w('rrufe'), w('godit'), w('nje'), w('peme'), w('te_link'), wf('lart', 'lart', 'high'), p('.')),
       L(wf('diell', 'dielli', 'the sun'), w('sheh'), w('gjak'), p('.')),
+      L(wf('njeri', 'njerëzit', 'the people'), wf('premto', 'premtojnë', 'swear'), p(':'), w('per'), wf('ky', 'këtë', 'this'), w('diell'), p('!'), wf('diell', 'dielli', 'the sun'), w('sheh'), w('gjithe'), p('.')),
       L(w('zojz'), w('do'), w('nje'), w('dem'), w('te_link'), w('bardhe'), p('.')),
     ],
     options: [
@@ -7894,7 +7979,10 @@ export const STORY = {
       L(w('prende'), w('eshte'), wf('bije', 'bija', 'the daughter'), w('e_link'), w('zojz'), p('.')),
       L(w('prende'), w('eshte'), w('e_art'), w('bukur'), p('.')),
       L(w('prende'), w('jep'), w('nje'), w('bekim'), p('.')),
+      L(wf('premte', 'e premtja', 'Friday'), w('eshte'), wf('dite', 'dita', 'the day'), w('e_link'), w('prende'), p('.')),
+      L(w('prende'), w('jep'), w('zemer'), w('dhe'), w('bekim'), w('per'), w('gra'), p('.')),
       L(w('nje'), w('ylber'), w('rri'), wf('lart', 'lart', 'high'), p('.')),
+      L(wf('ylber', 'ylberi', 'the rainbow'), w('eshte'), w('e_link'), w('prende'), p('.'), wf('thote', 'thonë', 'they say'), p(':'), w('kush'), w('kalo'), wf('ylber', 'ylberin', 'the rainbow'), p(','), w('burre'), wf('behet', 'bëhet', 'becomes'), w('grua'), p('.')),
       // Prende is the dawn-goddess; her light is strongest as day breaks
       when('dawn', L(w('eshte'), w('agim'), p(','), w('prende'), w('eshte'), w('e_art'), w('forte'), p('.'))),
     ],
@@ -7915,6 +8003,7 @@ export const STORY = {
       unless('night', L(wf('diell', 'dielli', 'the sun'), w('sheh'), w('ti'), p('.'))),
       unless('night', L(wf('diell', 'dielli', 'the sun'), w('jep'), w('drite'), w('dhe'), w('fuqi'), p('.'))),
       unless('night', L(wf('diell', 'dielli', 'the sun'), w('sheh'), wf('bote', 'botën', 'the world'), p('.'))),
+      unless('night', L(wf('thote', 'thonë', 'they say'), p(':'), wf('diell', 'dielli', 'the sun'), w('eshte'), w('bukura'), w('e_link'), wf('qiell', 'qiellit', 'the sky'), p('.'), wf('toke', 'toka', 'the earth'), w('dhe'), wf('det', 'deti', 'the sea'), wf('ka', 'kanë', 'have'), w('nje'), w('bukura'), p('.'))),
       when('night', L(w('naten'), wf('diell', 'dielli', 'the sun'), wf('ik', 'ikën', 'is gone'), p('.'))),
       when('night', L(wf('hene', 'hëna', 'the moon'), w('eshte'), wf('lart', 'lart', 'high'), p('.'))),
       when('night', L(wf('hene', 'hëna', 'the moon'), w('jep'), w('drite'), w('e_art'), w('qete'), p('.'))),
@@ -8184,6 +8273,7 @@ export const STORY = {
       L(wf('uje', 'uji', 'the water'), w('punon'), w('dhe'), wf('mulli', 'mulliri', 'the mill'), wf('bej', 'bën', 'makes'), w('miell'), p('.')),
       L(w('nje'), w('plak'), wf('bej', 'bën', 'grinds'), w('miell'), w('per'), wf('fshat', 'fshatin', 'the village'), p('.')),
       L(w('ketu'), w('eshte'), w('shume'), w('miell'), p('.')),
+      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('mulli', 'mulliri', 'the mill'), w('ka'), w('nje'), w('fjale'), w('te_link'), w('vjeter'), p(':'), w('merr'), w('pak'), p(','), w('jo'), w('shume'), p('.')),
     ],
     options: [
       { text: L(w('merr'), w('pak'), w('miell')), to: 'mulliFund', reveal: 'miell' },
@@ -8227,6 +8317,7 @@ export const STORY = {
       L(wf('uje', 'uji', 'the water'), w('eshte'), w('i_art'), w('ftohte'), p('.')),
       L(w('nje'), w('vajze'), w('merr'), w('uje'), w('ketu'), p('.')),
       L(wf('vajze', 'vajza', 'the girl'), w('te_obj'), w('jep'), w('uje'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('mik'), w('vjen'), w('nga'), w('perendi'), p(','), w('dhe'), w('nje'), w('ora'), w('mund'), w('te_subj'), w('ec'), wf('si', 'si', 'as'), w('vajze'), p('.')),
     ],
     options: [
       { text: L(w('pi'), w('uje')), to: 'kroiFund', reveal: 'uje' },
@@ -8262,6 +8353,8 @@ export const STORY = {
       L(wf('kishe', 'kisha', 'the church'), w('rri'), wf('lart', 'lart', 'high'), w('mbi'), wf('fshat', 'fshatin', 'the village'), p('.')),
       L(w('nje'), w('prift'), w('rri'), wf('tek', 'te', 'at'), w('dere'), p('.')),
       L(wf('prift', 'prifti', 'the priest'), w('jep'), w('nje'), w('bekim'), p('.')),
+      L(w('afer'), w('rri'), w('nje'), w('teqe'), p('.'), wf('njeri', 'njerëzit', 'the people'), wf('shko', 'shkojnë', 'go'), wf('ne', 'në', 'to'), wf('kishe', 'kisha', 'the church'), w('dhe'), wf('ne', 'në', 'to'), w('teqe'), p('.')),
+      L(w('bekim'), w('eshte'), w('nje'), p('.')),
       L(w('larg'), wf('je', 'janë', 'are'), wf('varr', 'varret', 'the graves'), p('.')),
     ],
     options: [
@@ -9653,6 +9746,10 @@ export const DEFS = {
   zuku: L(w('nje'), w('trim')), //                               a hero (Zuku)
   mashallah: L(w('nje'), w('fjale'), w('per'), w('bekim')), //   a word for blessing (mashallah)
   teqe: L(w('nje'), w('shtepi'), w('per'), w('perendi')), //     a house for god (teqe)
+  kurban: L(w('mish'), w('per'), w('perendi')), //               meat for god (sacrifice)
+  ymer: L(w('nje'), w('trim')), //                               a hero (Ymer)
+  premte: L(w('nje'), w('dite')), //                             a day (Friday)
+  kalter: L(wf('si', 'si', 'as'), w('qiell')), //                as the sky (blue)
   halil: L(w('nje'), w('trim')), //                              a hero
   tanusha: L(w('nje'), w('vajze')), //                           a maiden
   nuse: L(w('nje'), w('vajze')), //                              a bride

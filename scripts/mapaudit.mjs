@@ -262,9 +262,7 @@ const DEST_REGION = {
 }
 // Verified journey-legs where the goal lies BEYOND the flagged stop:
 const DEST_ALLOW = new Set([
-  'udhaThate->udhaSyri',     // "shko në lumin" — the Blue Eye wells out of the dry riverbed itself
   'ktheu3->udhaKthimit',     // "shko në fshat" — the last leg of the road home; the village is past the castle
-  'dordolec2->dordolecFund', // "shko në mal" — the rain-procession faces Shendelli; the rite ends in the lanes
 ])
 const MOVE = new Set(['shko', 'ec', 'kthehu', 'zbrit', 'ngjit', 'kalo', 'hyr', 'vrapo', 'hip', 'ndiq'])
 const nodeWords = (id) => new Set((STORY[id].text || []).flatMap((e) => idsOf(Array.isArray(e) ? e : e.line)))
@@ -368,5 +366,35 @@ for (const id of ids) {
 }
 section(!lureBad.length, '"larg" lures point somewhere actually far (>= 120)', lureBad)
 
-console.log(failures ? `\n❌ ${failures} map check(s) failing` : '\n✅ all 18 map checks pass — also run: node scripts/audit.mjs')
+// ---- 18. "ti je në X" prose stands where it says -----------------------------------
+// A scene line asserting WHERE YOU ARE ("ti je … në <landmark>") must be drawn
+// in (or on the fringe of) that landmark's region. POSITION-based, deliberately
+// NOT assignment-based: prose describes where you STAND; a node's region
+// assignment may legitimately differ (factoid semantics — see CONTAIN_ALLOW).
+// A line naming several landmarks passes if ANY of them fits ("një fshat të
+// det" — a sea-village — passes at the coast).
+const PLACE_REGION = { ...DEST_REGION, bote: ['underworld'] }
+// fshatiLumi — the village RIVER-QUARTER: the river as drawn runs through town
+// (the start bridge crosses it); the 'river' REGION ellipse only covers the
+// Zana stretch downstream, so the ellipse test can't see the in-town bank.
+const PROSE_ALLOW = new Set(['fshatiLumi'])
+const proseBad = []
+for (const id of ids) {
+  const p = NODE_POS[id]
+  if (!p || PROSE_ALLOW.has(id)) continue
+  for (const e of STORY[id].text || []) {
+    const t = idsOf(Array.isArray(e) ? e : e.line)
+    if (t[0] !== 'ti' || t[1] !== 'je') continue
+    const nouns = t.filter((w) => PLACE_REGION[w])
+    if (!nouns.length) continue
+    const ok = nouns.some((n) => PLACE_REGION[n].some((key) => {
+      const r = RG[key]
+      return r && r.rx && Math.hypot((p[0] - r.cx) / r.rx, (p[1] - r.cy) / r.ry) <= 1.35
+    }))
+    if (!ok) proseBad.push(`${id} @ [${p}]: says "ti je … ${nouns.join('/')}" but stands nowhere near ${nouns.map((n) => PLACE_REGION[n].join('/')).join(', ')}`)
+  }
+}
+section(!proseBad.length, '"ti je në X" prose stands where it says', proseBad)
+
+console.log(failures ? `\n❌ ${failures} map check(s) failing` : '\n✅ all 19 map checks pass — also run: node scripts/audit.mjs')
 process.exitCode = failures ? 1 : 0
