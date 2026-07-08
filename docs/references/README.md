@@ -30,6 +30,25 @@ Machine-readable metadata for each source lives in `CORPUS` in
 | `garnett-women-of-turkey.en.txt` | The Women of Turkey and their Folk-lore | Lucy Garnett | 1890 | en | folklore |
 | `wheeler-albanian-wonder-tales.en.txt` | Albanian Wonder Tales | Post Wheeler | 1936 | en | ⚠ retelling; 1936 — copyright uncertain, freely readable on IA |
 
+## Downloaded — research pass 2 (law, history, travelogues)
+
+| File | Work | Author | Year | Lang | Note |
+|---|---|---|---|---|---|
+| `kanuni-leke-dukagjinit.sq.txt` | Kanuni i Lekë Dukagjinit (customary law) | coll. Gjeçovi | 1913–33 | sq | ⭐ the law behind the whole custom layer |
+| `noli-scanderbeg.en.txt` | George Castrioti Scanderbeg | Fan S. Noli | 1947 | en | best free English Skanderbeg history |
+| `durham-struggle-for-scutari.en.txt` | The Struggle for Scutari | Edith Durham | 1914 | en | 1912–13 siege of Shkodra |
+| `nopcsa-aus-shala-und-klementi.de.txt` | Aus Šala und Klementi (tribal ethnography) | Franz Nopcsa | 1910 | de | Shala & Kelmendi highland tribes |
+| `hobhouse-journey-through-albania.en.txt` | A Journey through Albania | J. C. Hobhouse | 1813 | en | Byron's companion at Ali Pasha's court |
+| `hecquard-haute-albanie.fr.txt` | Histoire … de la Haute Albanie | H. Hecquard | 1858 | fr | Gheg north: tribes, Kanun, legends |
+| `brailsford-macedonia.en.txt` | Macedonia: Its Races and Their Future | H. N. Brailsford | 1906 | en | late-Ottoman Balkans / the feud |
+| `leake-travels-northern-greece-1.en.txt` | Travels in Northern Greece, vol. I | W. M. Leake | 1835 | en | Epirus & the southern coast |
+| `meyer-albanische-marchen-1884.de.txt` | Albanische Märchen (tale collection) | Gustav Meyer | 1884 | de | Tosk fairy tales |
+
+These back the new **📜 History** layer and the expanded custom cluster. Two prestige
+Albanian originals proved partly digitized after all: **Dine's *Valët e detit*** is a full
+894-page page-image scan at the National Library IIIF viewer (linked, no plain-text), and the
+**Kanun** above is the keystone Albanian-language law text.
+
 ## Not downloadable (link-only) — recorded in `CORPUS` with landing pages
 Prestige Albanian originals that are **not** cleanly digitized as free full text:
 Mitko *Bleta shqiptare* (1878), Dine *Valët e Detit* (1908), Palaj & Kurti
