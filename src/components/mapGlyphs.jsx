@@ -942,7 +942,6 @@ export const WORLD_LANDMARKS = [
   { id: 'diellShtepi1', glyph: 'gDiellShtepi', label: 'Shtëpia e Diellit', x: 300, y: -1150 },
   { id: 'diellOda', glyph: 'gSunOda', label: "the Sun's oda", x: 385, y: -1125 },
   { id: 'rrugaDielli1', glyph: 'gStag', label: 'the road of the Sun', x: 300, y: -985 },
-  { id: 'bijaHene1', glyph: 'gBijaHene', label: 'E Bija e Hënës e Diellit', x: 520, y: -1130 },
   { id: 'qiellPrende', glyph: 'gPrende', label: 'Prende', x: -260, y: -1080 },
   { id: 'pemaDielli', glyph: 'gPemaDielli', label: 'Pema e Diellit', x: 382, y: -935 },
   { id: 'qiellErera1', glyph: 'gErera', label: 'Erërat (the winds)', x: 760, y: -1030 },
@@ -958,6 +957,7 @@ export const WORLD_LANDMARKS = [
   { id: 'humbur', glyph: 'gFates', label: 'the three Fates', x: 560, y: 2340 },
   { id: 'bukura1', glyph: 'gBukuraDheut', label: 'E Bukura e Dheut', x: 640, y: 2120 },
   { id: 'kulshedra1', glyph: 'gKulshedra', label: 'the Kulshedra', x: 620, y: 2340 },
+  { id: 'bijaHene1', glyph: 'gBijaHene', label: 'E Bija e Hënës e Diellit', x: 500, y: 2400 },
   // the river & the Zana (down the centre, below the village)
   { id: 'lumi', glyph: 'gBolla', label: 'the Bolla', x: 200, y: 820 },
   { id: 'zana1', glyph: 'gZana', label: 'the Zana', x: 300, y: 960 },
@@ -970,7 +970,6 @@ export const WORLD_LANDMARKS = [
   { id: 'deti1', glyph: 'gFishingCoast', label: 'the coast', x: 1010, y: 800 },
   { id: 'bregu', glyph: 'gFishingCoast', label: 'the shore village', x: 780, y: 1080 },
   { id: 'balozMotra', glyph: 'gSister', label: 'the devoted sister', x: 720, y: 1040 },
-  { id: 'balozTribut', glyph: 'gShoreKulla', label: "the sister's kulla", x: 1180, y: 1160 },
   { id: 'balozLufte', glyph: 'gBaloz', label: 'the Baloz', x: 880, y: 1130 },
   { id: 'balozKoke', glyph: 'gGjergj', label: 'Gjergj Elez Alia', x: 960, y: 1200 },
   { id: 'balozFitore', glyph: 'gGraveLahuta', label: 'the single grave', x: 640, y: 1100 },

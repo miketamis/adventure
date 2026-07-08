@@ -1785,7 +1785,7 @@ export const ENDING_LORE = {
   besaThyer: 'besa',
   vajtimFund: 'gjama-e-burrave',
   veraDiteFund: 'dita-e-veres',
-  kulleFal: 'kanun-blood-feud',
+  kulleFal: 'kulla',
   kulleGjak: 'kanun-blood-feud',
   gjakFund: 'kanun-blood-feud',
   diellShenjt: 'dielli',
@@ -1813,7 +1813,7 @@ export const ENDING_LORE = {
   zanaDije: 'zana-e-malit',
   dhiaFund: 'mujo-zanas',
   kaliFund: 'mujo-courser',
-  halilFund: 'kreshnik-epic',
+  halilFund: 'sokol-halili',
   halilKeq: 'kreshnik-epic',
   mujoFund: 'halil-marriage',
   rushaFund: 'zuku-bajraktar',
@@ -1970,6 +1970,18 @@ export const ENDING_LORE = {
   skenderFund: 'skanderbeg-legjenda',
   lahutaFund: 'lahuta-cifteli',
   burrneshaFund: 'burrnesha',
+
+  // Living customs (the city quarter, the wedding, the omens)
+  kafejaFund: 'kafeja',
+  fallFund: 'fall-kafeja',
+  gezuarFund: 'rakia-gezuar',
+  plisiFund: 'plisi',
+  xhubletaFund: 'xhubleta',
+  kurbetiFund: 'kurbeti',
+  besimeFund: 'besime-popullore',
+  dasmaFund: 'dasma',
+  valleFund: 'valle',
+  dordolecSyriFund: 'syri-apparati',
 }
 
 // ── AREA FACTOIDS ────────────────────────────────────────────────────────────

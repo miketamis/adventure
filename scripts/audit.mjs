@@ -3,6 +3,10 @@
 // unreachable, dead-ends, missing DICT/DEFS, confuser coverage, >=1 ungated option,
 // reveal-gate validity). This script covers the QUALITATIVE-but-scriptable standards.
 //   Run: node scripts/audit.mjs
+// Ends by running scripts/mapaudit.mjs (the map ↔ story accuracy rule).
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 import { STORY, DICT, DEFS } from '../src/game/content.js'
 
 const gl = (t) => (t || []).filter((x) => x && x.id).map((x) => x.en).join(' ')
@@ -283,4 +287,10 @@ for (const c of checks) {
   else console.log(`✅ ${c.name}`)
 }
 console.log(`\n${failed ? '❌ ' + failed + ' check(s) failed' : '✅ all ' + checks.length + ' deep checks pass'} — also run: node scripts/storystats.mjs`)
-process.exit(failed ? 1 : 0)
+
+// THE MAP RULE — the world map must stay accurate to the story (and vice versa),
+// with everything explorable drawn on it. Enforced by scripts/mapaudit.mjs, run
+// here automatically so a story edit can never silently drift off the map.
+console.log('')
+const map = spawnSync(process.execPath, [join(dirname(fileURLToPath(import.meta.url)), 'mapaudit.mjs')], { stdio: 'inherit' })
+process.exit(failed || map.status ? 1 : 0)

@@ -54,7 +54,13 @@ section(!unplaced.length, `every story node has a map position (${ids.length - u
 //   start — the bridgehead before the city, seeded as a forest anchor.
 //   balozMotra/Tribut/Zgjedh/Fitore — Gjergj Elez Alia's tower stands on the
 //     SHORE of the Drin bay (west of the sea ellipse) but the arc is a sea tale.
-const CONTAIN_ALLOW = new Set(['humbur', 'oraBardhe', 'oraZeze', 'oraVerdhe', 'botaHumbur', 'kthimi', 'rrugaDielli2', 'start', 'balozMotra', 'balozTribut', 'balozZgjedh', 'balozFitore'])
+//   shtepia — "Home Again" is drawn at your village hearth; its region stays
+//     castle (it's reached down the castle road) — do NOT anchor it village, or
+//     its BFS wave would drag the ktheu walk-home chain out of the sea.
+//   gjarperKulshedra/KulVdes/BurrFund — "ti je në detin": the snake-husband
+//     search ends BEYOND the sea; the tale's region stays underworld (where it
+//     is told) — anchoring them sea would pull gjarperKerkim off the dark road.
+const CONTAIN_ALLOW = new Set(['humbur', 'oraBardhe', 'oraZeze', 'oraVerdhe', 'botaHumbur', 'kthimi', 'rrugaDielli2', 'start', 'balozMotra', 'balozTribut', 'balozZgjedh', 'balozFitore', 'shtepia', 'gjarperKulshedra', 'gjarperKulVdes', 'gjarperBurrFund'])
 const outliers = []
 for (const id of ids) {
   const p = NODE_POS[id], r = RG[reg(id)]
@@ -159,6 +165,8 @@ const JOURNEY_ALLOW = new Set([
   'rrugaDielli2->fshatiLanes', // the stag's run ends at the back lanes
   'mali1->udhekryq',         // mountain road back to the crossroads
   'udhekryq->mali1',         // and out again
+  'gjarperKerkim->gjarperKulshedra', // the wife's search for her snake-husband, beyond the sea
+  'shqipe1->shtepia',        // walking on home from the eagle's tree (an "ec larg" keeper)
 ])
 const oddNew = []
 for (const e of edges) {
@@ -231,5 +239,134 @@ if (bigStacks.length) {
   for (const [k, v] of bigStacks) console.log(`⚠ ${v.length} scenes share [${k}] — a whole area may be hiding in one dot; draw it out into sub-places (or allowlist in BIG_STACK_OK with a reason): ${v.join(', ')}`)
 }
 
-console.log(failures ? `\n❌ ${failures} map check(s) failing` : '\n✅ all 12 map checks pass — also run: node scripts/audit.mjs')
+// ---- 12. "ketu" (here) options stay put -----------------------------------------
+// "prit ketu" / "fle ketu" / "rri ketu" happen AT this spot — the edge must be
+// (near-)zero length. Sharper than check 3: the word itself asserts locality.
+const ketuBad = []
+for (const e of edges) {
+  if (e.wander) continue
+  if (idsOf(e.o.text).includes('ketu') && e.len > 150) ketuBad.push(`${Math.round(e.len)} ${e.from} -> ${e.to} ("${idsOf(e.o.text).join(' ')}")`)
+}
+section(!ketuBad.length, '"ketu" options stay put (<= 150)', ketuBad)
+
+// ---- 13. named destinations land in the named region ------------------------------
+// A movement/return option that NAMES a landmark noun must arrive in that noun's
+// region — OR at a scene whose own text SHOWS the named thing (the village's
+// river-quarter IS the lume; the drowned palace IS a kala in the sea). Only
+// unambiguous nouns are mapped (qytet/pus/shpelle name two places each —
+// skipped). Wander edges included: a named return still lands somewhere.
+const DEST_REGION = {
+  det: ['sea'], mal: ['mountain', 'sky'], lume: ['river'], pyll: ['forest'],
+  qiell: ['sky'], kala: ['castle'], fshat: ['village'], liqen: ['river'],
+  jutbina: ['mountain'], maja: ['mountain', 'sky'], tomor: ['mountain', 'sky'],
+}
+// Verified journey-legs where the goal lies BEYOND the flagged stop:
+const DEST_ALLOW = new Set([
+  'udhaThate->udhaSyri',     // "shko në lumin" — the Blue Eye wells out of the dry riverbed itself
+  'ktheu3->udhaKthimit',     // "shko në fshat" — the last leg of the road home; the village is past the castle
+  'dordolec2->dordolecFund', // "shko në mal" — the rain-procession faces Shendelli; the rite ends in the lanes
+])
+const MOVE = new Set(['shko', 'ec', 'kthehu', 'zbrit', 'ngjit', 'kalo', 'hyr', 'vrapo', 'hip', 'ndiq'])
+const nodeWords = (id) => new Set((STORY[id].text || []).flatMap((e) => idsOf(Array.isArray(e) ? e : e.line)))
+const destBad = []
+for (const e of edges) {
+  if (DEST_ALLOW.has(`${e.from}->${e.to}`)) continue
+  const toks = idsOf(e.o.text)
+  if (!MOVE.has(toks[0])) continue
+  const shown = nodeWords(e.to)
+  for (const t of toks.slice(1)) {
+    const want = DEST_REGION[t]
+    if (want && !want.includes(reg(e.to)) && !shown.has(t)) destBad.push(`"${toks.join(' ')}": ${e.from} -> ${e.to} lands in ${reg(e.to)}, not ${want.join('/')}, and the scene doesn't show a ${t}`)
+  }
+}
+section(!destBad.length, 'named destinations land in the named region (or the scene shows the thing)', destBad)
+
+// ---- 14. journeys don't cut through impassable realms ------------------------------
+// A walking edge between two SURFACE nodes must not pass through the core of the
+// sea, the world below, or the sky — you cannot stroll through open water, solid
+// rock, or the air. (Edges touching the realm itself are that realm's business.)
+const IMPASSABLE = ['sea', 'underworld', 'sky']
+// kthimi->pusi2: the climb OUT of the world below, up the well shaft to the coast.
+const CROSS_ALLOW = new Set(['kthimi->pusi2'])
+const segDistToOrigin = (ax, ay, bx, by) => {
+  const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1
+  const t = Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2))
+  return Math.hypot(ax + t * dx, ay + t * dy)
+}
+const crossBad = []
+for (const e of edges) {
+  if (e.wander || CROSS_ALLOW.has(`${e.from}->${e.to}`)) continue
+  const a = NODE_POS[e.from], b = NODE_POS[e.to]
+  for (const key of IMPASSABLE) {
+    if (reg(e.from) === key || reg(e.to) === key) continue
+    const r = RG[key]
+    const d = segDistToOrigin((a[0] - r.cx) / r.rx, (a[1] - r.cy) / r.ry, (b[0] - r.cx) / r.rx, (b[1] - r.cy) / r.ry)
+    if (d < 0.6) crossBad.push(`${e.from} -> ${e.to} cuts through the ${key} core (${d.toFixed(2)})`)
+  }
+}
+section(!crossBad.length, 'journeys avoid impassable realm cores (sea/underworld/sky)', crossBad)
+
+// ---- 15. land stays on land (the drawn coastline is authoritative) -----------------
+// seaCoastX is EXTRACTED from DebugView.jsx at run time, so this check can never
+// drift from the drawn coast. Any non-sea node east of the waterline is a land
+// scene drawn in open water; a sea node far inland is the reverse.
+const coastSrc = debugSrc.match(/const seaCoastX = \(y\) => \{([\s\S]*?)\n\}/)
+const seaCoastX = coastSrc && new Function('y', coastSrc[1])
+const coastBad = []
+if (seaCoastX) {
+  for (const id of ids) {
+    const p = NODE_POS[id]
+    if (!p) continue
+    const coast = seaCoastX(p[1])
+    if (CONTAIN_ALLOW.has(id)) continue // documented coast/realm exceptions above
+    if (reg(id) !== 'sea' && p[0] > coast + 40) coastBad.push(`${id} @ [${p}] (${reg(id)}) is ${Math.round(p[0] - coast)} into open water`)
+    if (reg(id) === 'sea' && p[0] < coast - 150) coastBad.push(`${id} @ [${p}] (sea) is ${Math.round(coast - p[0])} inland of the coast`)
+  }
+}
+section(!!seaCoastX && !coastBad.length, 'land nodes on land, sea nodes at sea (drawn coastline)', seaCoastX ? coastBad : ['could not extract seaCoastX from DebugView.jsx'])
+
+// ---- 16. no duplicate ungated paths -------------------------------------------------
+// Two options from one node to the SAME target with identical gating AND identical
+// effects (grant/consume/reveal) are one choice wearing two labels (the old
+// jutbina 'kerko zanat'/'kerko fuqi' bug). Differing effects = a real choice.
+// riddle1: both WRONG riddle answers stray off the path together — intended.
+const DUP_ALLOW = new Set(['riddle1'])
+const dupBad = []
+for (const id of ids) {
+  if (DUP_ALLOW.has(id)) continue
+  const seen = {}
+  for (const o of STORY[id].options || []) {
+    if (o.confuser || !o.to || !STORY[o.to]) continue
+    const key = o.to + '|' + JSON.stringify([o.requires ?? null, o.unless ?? null, o.time ?? null, o.grant ?? null, o.consumes ?? null, o.reveal ?? null])
+    if (seen[key]) dupBad.push(`${id}: "${idsOf(seen[key].text).join(' ')}" and "${idsOf(o.text).join(' ')}" both -> ${o.to} with identical gates+effects`)
+    else seen[key] = o
+  }
+}
+section(!dupBad.length, 'no duplicate ungated paths to one destination', dupBad)
+
+// ---- 17. "larg" (far) lures actually point far --------------------------------------
+// A scene line opening with "larg është/rri X" promises a JOURNEY; if the option
+// that follows X lands within arm's reach, the lure lies about the map.
+const lureBad = []
+for (const id of ids) {
+  const lines = (STORY[id].text || []).map((e) => (Array.isArray(e) ? e : e.line))
+  const farNouns = new Set()
+  for (const l of lines) {
+    const t = idsOf(l)
+    if (t[0] === 'larg') for (const w of t.slice(1)) if (DEST_REGION[w] || STORY[w]) farNouns.add(w)
+  }
+  if (!farNouns.size) continue
+  for (const o of STORY[id].options || []) {
+    if (o.confuser || !o.to || !STORY[o.to] || !NODE_POS[id] || !NODE_POS[o.to]) continue
+    const toks = idsOf(o.text)
+    if (!MOVE.has(toks[0])) continue
+    const named = toks.find((t) => farNouns.has(t))
+    if (!named) continue
+    const len = Math.hypot(NODE_POS[o.to][0] - NODE_POS[id][0], NODE_POS[o.to][1] - NODE_POS[id][1])
+    if (len < 120) lureBad.push(`${id}: says "larg … ${named}" but "${toks.join(' ')}" -> ${o.to} is only ${Math.round(len)} away`)
+  }
+}
+section(!lureBad.length, '"larg" lures point somewhere actually far (>= 120)', lureBad)
+
+console.log(failures ? `\n❌ ${failures} map check(s) failing` : '\n✅ all 18 map checks pass — also run: node scripts/audit.mjs')
 process.exitCode = failures ? 1 : 0

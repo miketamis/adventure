@@ -512,6 +512,139 @@ function GardenPlot({ x, y, s }) {
   )
 }
 
+// ── village life & dressing — the small touches that make the town feel lived-in ──
+function Cypress({ x, y, s = 1 }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={1} cy={11 * s} rx={4.5 * s} ry={1.8 * s} fill="rgba(0,0,0,.2)" />
+      <rect x={-1 * s} y={7 * s} width={2 * s} height={4 * s} fill="#5c4230" />
+      <path d={`M 0 ${-13 * s} C ${3.6 * s} ${-8 * s} ${3.2 * s} ${3 * s} 0 ${8 * s} C ${-3.2 * s} ${3 * s} ${-3.6 * s} ${-8 * s} 0 ${-13 * s} Z`}
+            fill="#3d5232" stroke="#263721" strokeWidth={1.1} />
+      <path d={`M 0 ${-10 * s} C ${1.6 * s} ${-6 * s} ${1.4 * s} ${1 * s} 0 ${5 * s}`} fill="none" stroke="#54704a" strokeWidth={0.9} opacity={0.8} />
+    </g>
+  )
+}
+function Stall({ x, y, rot = 0 }) {
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot})`}>
+      <ellipse cx={1} cy={9} rx={11} ry={3} fill="rgba(0,0,0,.18)" />
+      <rect x={-9} y={-1} width={18} height={8} fill="#8a6a45" stroke="#5c4230" strokeWidth={1.1} />
+      {[-8, -1, 6].map((bx, i) => <rect key={i} x={bx} y={1} width={4} height={2.6} fill={i % 2 ? '#d9b24e' : '#c96b2e'} />)}
+      {[-10, 10].map((px, i) => <line key={i} x1={px} y1={-10} x2={px} y2={7} stroke="#5c4230" strokeWidth={1.4} />)}
+      <path d="M -12 -8 L 12 -8 L 10 -3 L -10 -3 Z" fill="#c14d3f" stroke="#7a2f26" strokeWidth={1} />
+      {[-8, -2, 4].map((sx, i) => <rect key={'s' + i} x={sx} y={-7.6} width={3} height={4.2} fill="#efe7d5" opacity={0.9} />)}
+    </g>
+  )
+}
+function PlaneTree({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={2} cy={13} rx={17} ry={5} fill="rgba(0,0,0,.2)" />
+      <circle cx={0} cy={11} r={13} fill="none" stroke="#b6a373" strokeWidth={2.6} opacity={0.8} />
+      <rect x={-2} y={2} width={4} height={9} fill="#7a5c3a" stroke="#4f3a2a" strokeWidth={1} />
+      {[[0, -6, 12], [-9, -1, 8.5], [9, -1, 8.5], [-4, -12, 7], [5, -11, 7]].map(([dx, dy, r], i) => (
+        <circle key={i} cx={dx} cy={dy} r={r} fill={i % 2 ? '#6f9150' : '#7d9e58'} stroke="#46603a" strokeWidth={1.1} />
+      ))}
+      <circle cx={-4} cy={-9} r={3} fill="#96b46c" opacity={0.7} />
+    </g>
+  )
+}
+function Villager({ x, y, c = '#8a5a6a' }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0.5} cy={5} rx={3} ry={1.2} fill="rgba(0,0,0,.2)" />
+      <path d="M -2.4 4.6 L -1.7 -0.6 A 2 2 0 0 1 1.9 -0.6 L 2.6 4.6 Z" fill={c} stroke="rgba(0,0,0,.35)" strokeWidth={0.6} />
+      <circle cy={-2.6} r={1.8} fill="#e6c39a" stroke="#a97e52" strokeWidth={0.5} />
+    </g>
+  )
+}
+function Chicken({ x, y, flip = false }) {
+  return (
+    <g transform={`translate(${x},${y})${flip ? ' scale(-1,1)' : ''}`}>
+      <ellipse cx={0} cy={0} rx={2.8} ry={2} fill="#efe9dc" stroke="#8a7d63" strokeWidth={0.6} />
+      <circle cx={2.6} cy={-2} r={1.3} fill="#efe9dc" stroke="#8a7d63" strokeWidth={0.6} />
+      <path d="M 2.4 -3.4 l 0.7 -1 l 0.7 1 z" fill="#d3382f" />
+      <path d="M 3.8 -1.9 l 1.6 0.5 l -1.6 0.6 z" fill="#e8b53c" />
+      <line x1={-0.6} y1={2} x2={-0.6} y2={3.6} stroke="#b8912f" strokeWidth={0.7} />
+      <line x1={0.9} y1={2} x2={0.9} y2={3.6} stroke="#b8912f" strokeWidth={0.7} />
+    </g>
+  )
+}
+function RowBoat({ x, y, rot = 0 }) {
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot})`}>
+      <path d="M -11 0 Q 0 6 11 0 L 8 -3 L -8 -3 Z" fill="#8a6a45" stroke="#4f3a2a" strokeWidth={1.2} />
+      <line x1={-5} y1={-3} x2={-5} y2={1.4} stroke="#4f3a2a" strokeWidth={1} />
+      <line x1={4} y1={-3} x2={4} y2={1.4} stroke="#4f3a2a" strokeWidth={1} />
+      <line x1={7} y1={-5} x2={14} y2={2} stroke="#5c4230" strokeWidth={1} />
+    </g>
+  )
+}
+function WashLine({ x1, y1, x2, y2 }) {
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 + 3
+  return (
+    <g>
+      {[[x1, y1], [x2, y2]].map(([px, py], i) => <line key={i} x1={px} y1={py} x2={px} y2={py + 10} stroke="#5c4230" strokeWidth={1.6} />)}
+      <path d={`M ${x1} ${y1} Q ${mx} ${my + 2} ${x2} ${y2}`} fill="none" stroke="#d8d2c4" strokeWidth={0.9} />
+      {[0.25, 0.5, 0.75].map((t, i) => {
+        const cx = x1 + (x2 - x1) * t, cy = y1 + (y2 - y1) * t + 2.4
+        return <rect key={i} x={cx - 2} y={cy} width={4} height={5} rx={0.6} fill={['#b8534a', '#eae3d0', '#5e7f92'][i]} opacity={0.95} />
+      })}
+    </g>
+  )
+}
+function Smoke({ x, y, s = 1 }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`} style={{ pointerEvents: 'none' }}>
+      <path d="M 0 0 C -2.6 -4 2.4 -7 0.4 -12 C -2 -16 1.6 -19 0.6 -23" fill="none" stroke="#ece8dd" strokeWidth={2.2} strokeLinecap="round" opacity={0.55} />
+      <circle cx={0.4} cy={-25} r={2.4} fill="#ece8dd" opacity={0.4} />
+    </g>
+  )
+}
+function Orchard({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={4} rx={52} ry={26} fill="#8fae5c" opacity={0.45} />
+      {[-36, -12, 12, 36].map((ox, i) => (
+        <g key={i}>{[-9, 9].map((oy, j) => (
+          <g key={j} transform={`translate(${ox + (j % 2 ? 5 : 0)},${oy})`}>
+            <ellipse cx={1} cy={5} rx={5.5} ry={2} fill="rgba(0,0,0,.16)" />
+            <rect x={-0.8} y={1} width={1.6} height={4} fill="#6f4f34" />
+            <circle cy={-2} r={5} fill={(i + j) % 2 ? '#7d9e58' : '#8cae62'} stroke="#4e6837" strokeWidth={1} />
+          </g>
+        ))}</g>
+      ))}
+    </g>
+  )
+}
+function Vineyard({ x, y, rot = 0 }) {
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot})`}>
+      <rect x={-40} y={-24} width={80} height={48} rx={5} fill="#a8955f" opacity={0.55} />
+      {[-16, -5.5, 5.5, 16].map((vy, i) => (
+        <g key={i}>
+          <line x1={-34} y1={vy} x2={34} y2={vy} stroke="#6f5433" strokeWidth={1.2} opacity={0.8} />
+          {[-30, -18, -6, 6, 18, 30].map((vx, j) => <circle key={j} cx={vx} cy={vy - 1.6} r={2.6} fill={(i + j) % 2 ? '#5c7a3f' : '#6b8a4a'} />)}
+        </g>
+      ))}
+    </g>
+  )
+}
+function OliveGrove({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {[[-26, 2], [-4, -8], [16, 4], [30, -6], [4, 12]].map(([ox, oy], i) => (
+        <g key={i} transform={`translate(${ox},${oy})`}>
+          <ellipse cx={1} cy={5} rx={6} ry={2.2} fill="rgba(0,0,0,.15)" />
+          <path d="M -1 5 Q -2.5 1 0 -1 Q 2.5 1 1 5 Z" fill="#8a7248" stroke="#5c4a30" strokeWidth={0.8} />
+          <circle cy={-4} r={5.4} fill="#8a9a6e" stroke="#5f7050" strokeWidth={1} />
+          <circle cx={-2} cy={-5.5} r={2} fill="#a7b489" opacity={0.7} />
+        </g>
+      ))}
+    </g>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // LANDMARK GLYPHS — each village scene drawn as the thing the story describes.
 // All are drawn centred on (x,y). Kept bold/simple so they read small.
@@ -794,14 +927,22 @@ function gBridgeDeck() {
 }
 
 function gSquare(x, y) {
-  // a real cobbled plaza — the buildings are placed around it
+  // a real cobbled plaza, and the life ON it — the great plane tree with its
+  // bench-ring, two market stalls at the west edge, villagers about their day.
   return (
     <g>
       <rect x={x - 110} y={y - 80} width={220} height={160} rx={30} fill="#c4b389" stroke="#a2926c" strokeWidth={2.5} />
       <rect x={x - 100} y={y - 70} width={200} height={140} rx={24} fill="none" stroke="#b3a17a" strokeWidth={1.4} opacity={0.7} />
-      {[[-60, -40], [40, -50], [-30, 30], [70, 20], [10, 55], [-80, 10]].map(([dx, dy], i) => (
+      {[[-60, -40], [40, -50], [-30, 30], [70, 20], [10, 55], [-80, 10], [88, -22], [-42, 62], [62, 58]].map(([dx, dy], i) => (
         <ellipse key={i} cx={x + dx} cy={y + dy} rx={9} ry={5} fill="#b09c73" opacity={0.4} />
       ))}
+      <PlaneTree x={x + 62} y={y + 8} />
+      <Stall x={x - 74} y={y - 20} rot={-4} />
+      <Stall x={x - 67} y={y + 27} rot={3} />
+      <Villager x={x - 28} y={y - 12} c="#8a5a6a" />
+      <Villager x={x + 22} y={y + 24} c="#5e7f92" />
+      <Villager x={x - 9} y={y + 39} c="#7a6a3f" />
+      <Villager x={x + 33} y={y - 34} c="#6a4a3a" />
     </g>
   )
 }
@@ -948,12 +1089,6 @@ function terrSky(rg) {
           <circle key={i} cx={sx} cy={sy} r={1.8} fill="#fff" opacity={0.8} />
         ))}
       </g>
-      {/* the Moon & Sun's daughter — her own small silver-gold puff between them */}
-      <g>
-        <CloudPuff x={520} y={-1112} w={104} top="#e9ebf6" under="#c0c9e2" />
-        <ellipse cx={520} cy={-1108} rx={34} ry={9} fill="#e6d9a8" opacity={0.5} />
-      </g>
-
       {/* ── PRENDE'S rosy terrace (west) ── */}
       <g>
         <CloudPuff x={-260} y={-1062} w={120} top="#f4e4ea" under="#d3bcc9" />
@@ -1048,8 +1183,9 @@ function terrMountains(rg) {
   )
   return (
     <g>
-      {/* haze band blending the range up into the sky */}
-      <ellipse cx={cx} cy={base - ry * 0.55} rx={rx * 1.3} ry={ry * 0.85} fill="#9fb0c0" opacity={0.16} />
+      {/* haze band blending the range up into the sky (kept clear of the
+          foothills so it doesn't grey out the village's north approach) */}
+      <ellipse cx={cx} cy={base - ry * 0.78} rx={rx * 1.3} ry={ry * 0.6} fill="#9fb0c0" opacity={0.14} />
       {ridge(far, '#a9b6c2', '#93a2b0', '#9aa8b5', false)}
       {ridge(back, '#9aa9b6', '#7d8d9c', '#8493a2', false)}
       {ridge(mid, '#84928b', '#616e66', '#5b6656', false)}
@@ -1206,6 +1342,40 @@ function terrSea() {
         <path d={blobPath(1560, 1654, 68, 30, 711, 0.18, 12)} fill="#d8c79c" stroke="#b09a6a" strokeWidth={2} />
         <path d={blobPath(1542, 1648, 30, 14, 712, 0.2, 8)} fill="#9a938a" opacity={0.85} />
         <path d="M 1508 1668 q 12 -5 24 0 M 1588 1672 q 10 -4 20 0" stroke="#eaf5f8" strokeWidth={1.6} fill="none" opacity={0.6} />
+      </g>
+      {/* ── old-chart dressing ── a compass rose out on the open water. The map
+          is SOUTH-UP (rotated Albania), so jugu sits at the top: J up, V down,
+          L (lindje/east) left, P (perëndimi/west) right. */}
+      <g transform="translate(1400,-210)" opacity={0.75} style={{ pointerEvents: 'none' }}>
+        <circle r={52} fill="#eaf5f8" opacity={0.09} />
+        <circle r={46} fill="none" stroke="#eaf5f8" strokeWidth={1.6} opacity={0.65} />
+        <circle r={34} fill="none" stroke="#eaf5f8" strokeWidth={0.8} opacity={0.45} strokeDasharray="3 5" />
+        {[45, 135, 225, 315].map((a, i) => (
+          <polygon key={'d' + i} points="0,-30 5,-7 -5,-7" transform={`rotate(${a})`} fill="#bfdde8" opacity={0.7} />
+        ))}
+        {[0, 90, 180, 270].map((a, i) => (
+          <g key={'c' + i} transform={`rotate(${a})`}>
+            <polygon points="0,-44 6,-9 -6,-9" fill="#f4efe0" stroke="#7fa9bc" strokeWidth={1} />
+            <polygon points="0,-44 0,-9 -6,-9" fill="#9fc4d4" opacity={0.8} />
+          </g>
+        ))}
+        <circle r={5.5} fill="#f4efe0" stroke="#7fa9bc" strokeWidth={1.4} />
+        <text y={-54} textAnchor="middle" fontSize={17} fontStyle="italic" fontFamily="Georgia, serif" fill="#f4f9fb" opacity={0.9}>J</text>
+        <text y={70} textAnchor="middle" fontSize={15} fontStyle="italic" fontFamily="Georgia, serif" fill="#eaf3f7" opacity={0.8}>V</text>
+        <text x={-60} y={5} textAnchor="middle" fontSize={15} fontStyle="italic" fontFamily="Georgia, serif" fill="#eaf3f7" opacity={0.8}>L</text>
+        <text x={60} y={5} textAnchor="middle" fontSize={15} fontStyle="italic" fontFamily="Georgia, serif" fill="#eaf3f7" opacity={0.8}>P</text>
+      </g>
+      {/* …and a sea-serpent doodle far out, as every honest old chart must have */}
+      <g opacity={0.7} style={{ pointerEvents: 'none' }}>
+        {[[1700, 620, 26], [1760, 628, 20], [1812, 622, 14]].map(([hx, hy, r], i) => (
+          <path key={'hump' + i} d={`M ${hx - r} ${hy} A ${r} ${r * 0.72} 0 0 1 ${hx + r} ${hy}`} fill="#3f7f96" stroke="#2b586a" strokeWidth={2} />
+        ))}
+        <path d="M 1660 626 C 1648 616 1644 600 1652 588 C 1662 576 1678 578 1682 590 C 1685 599 1679 606 1672 606" fill="none" stroke="#3f7f96" strokeWidth={7} strokeLinecap="round" />
+        <circle cx={1652} cy={589} r={6.5} fill="#3f7f96" stroke="#2b586a" strokeWidth={1.6} />
+        <circle cx={1650} cy={587} r={1.4} fill="#f4f9fb" />
+        <path d="M 1646 584 l -6 -7 l 8 2 z" fill="#3f7f96" />
+        <path d="M 1840 622 l 14 -12 l -2 16 z" fill="#3f7f96" stroke="#2b586a" strokeWidth={1.4} />
+        <path d="M 1652 574 q 2 -8 8 -10 M 1700 606 q 8 -6 16 -4" stroke="#7fb0c2" strokeWidth={1.4} fill="none" opacity={0.7} />
       </g>
     </g>
   )
@@ -1568,7 +1738,11 @@ function VillageMap({ g, current, goGraph }) {
       decor.push({ kind: KIND[Math.floor(rnd() * KIND.length)], x, y, s: 0.8 + rnd() * 0.7 })
     }
     decor.sort((a, b) => a.y - b.y)
-    return { trees, roofs, decor }
+
+    // a few hearth-fires: thin smoke wisps over scattered rooftops (deterministic picks)
+    const smokes = roofs.filter((_, i) => i % 43 === 7).slice(0, 10)
+      .map((r) => ({ x: r.x + 3, y: r.y - 4, s: 0.8 + ((r.x * 7 + r.y) % 5) * 0.09 }))
+    return { trees, roofs, decor, smokes }
   }, [])
 
   // place every OTHER node as a dot in its region, keep a position + region for
@@ -1878,6 +2052,18 @@ function VillageMap({ g, current, goGraph }) {
                   : d.kind === 'haystack' ? <Haystack key={i} x={d.x} y={d.y} s={d.s} />
                   : <GardenPlot key={i} x={d.x} y={d.y} s={d.s} />
               ))}
+              {/* ── the lived-in village: hearth-smoke over the rooftops, cypresses
+                  by the graves, working land (orchard / vineyard / olives), hens in
+                  the yards, washing by the river, a rowboat on the water ── */}
+              {scatter.smokes.map((s, i) => <Smoke key={'sm' + i} x={s.x} y={s.y} s={s.s} />)}
+              <Cypress x={265} y={112} s={1.1} /><Cypress x={330} y={100} s={0.9} />
+              <Cypress x={262} y={158} s={0.85} /><Cypress x={416} y={140} s={1} />
+              <Orchard x={672} y={62} />
+              <Vineyard x={46} y={210} rot={-8} />
+              <OliveGrove x={950} y={610} />
+              <Chicken x={318} y={506} /><Chicken x={327} y={513} flip /><Chicken x={310} y={514} />
+              <WashLine x1={214} y1={548} x2={252} y2={556} />
+              <RowBoat x={168} y={708} rot={-8} />
               {/* ── the walled PALACE compound (east): a WIDE ROAD from the square to
                   the front gate, a grey stone curtain wall enclosing the black palace
                   and the marble garden (gate on the WEST), back lanes behind it ── */}
@@ -1907,6 +2093,17 @@ function VillageMap({ g, current, goGraph }) {
                 ))}
                 {/* the front gatehouse posts flanking the road */}
                 {[444, 490].map((gy, i) => <rect key={'g' + i} x={612} y={gy} width={16} height={16} rx={1.5} fill="#736b60" stroke="#3f382f" strokeWidth={1.8} />)}
+                {/* the king's ceremonial carpet: gate → the palace door */}
+                <path d="M 632 470 C 680 470 716 466 746 462" fill="none" stroke="#7a2f2f" strokeWidth={9} opacity={0.6} strokeLinecap="round" />
+                <path d="M 632 470 C 680 470 716 466 746 462" fill="none" stroke="#c9a24a" strokeWidth={1.4} strokeDasharray="4 6" opacity={0.8} />
+                {/* black banners of the black king on the gatehouse posts */}
+                {[441, 487].map((gy, i) => (
+                  <g key={'bn' + i}>
+                    <line x1={620} y1={gy} x2={620} y2={gy - 15} stroke="#3f382f" strokeWidth={1.6} />
+                    <path d={`M 620 ${gy - 15} L 634 ${gy - 12} L 620 ${gy - 8} Z`} fill="#2a2432" stroke="#141019" strokeWidth={0.9} />
+                    <circle cx={624.5} cy={gy - 11.5} r={1.3} fill="#e6b84e" />
+                  </g>
+                ))}
               </g>
               {VILLAGE_DISTRICTS.map((d, i) => (
                 <text key={i} x={d.x} y={d.y} textAnchor="middle" className="dbg-vdistrict">{d.t}</text>
