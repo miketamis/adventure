@@ -1504,6 +1504,271 @@ export const FOLKLORE = [
     ],
     related: ['kreshnik-epic', 'gjeto-basho-muji', 'besa'],
   },
+
+  // ══ Living customs & superstitions (2026-07-08) ══
+  {
+    id: 'sunet',
+    title: 'Synetia — the circumcision feast',
+    category: 'Custom',
+    summary:
+      'The circumcision of a boy (usually about 5–10) is one of the biggest rites of Muslim Albanian family life — the majority community in Albania and Kosovo. Beyond the act itself (today usually done at a clinic), it is the occasion for a large feast: the boy is dressed up and celebrated and receives money and gifts from every guest; in conservative pockets whole villages still hold mass circumcisions with multi-day feasts.',
+    sources: [
+      { label: 'Albanian circumcision tradition (albanianblogger)', url: 'https://albanianblogger.com/albanian-circumcision-tradition/' },
+      { label: 'Kosovo hamlet clings to mass circumcision (AFP/Yahoo)', url: 'https://sg.news.yahoo.com/kosovo-hamlet-clings-tradition-mass-circumcision-052348750.html' },
+    ],
+    related: ['dasma', 'fejesa', 'sulltan-nevruzi', 'mikpritja-oda'],
+  },
+  {
+    id: 'bajrami',
+    title: 'Bajrami — Fitër & Kurban Bajram (Eid)',
+    category: 'Custom',
+    summary:
+      'The two Eids are the central Muslim feasts and, in practice, national celebrations. Fitër Bajram ("the Big Bajram") ends Ramadan with sweets and door-to-door family visiting, starting with the eldest and met everywhere with coffee and hospitality; Kurban Bajram centres on a sacrificed sheep whose meat is shared with neighbours and the poor. Children are given money at both, and non-Muslim neighbours routinely exchange greetings and visit.',
+    sources: [
+      { label: 'What is Bajram? (albaniannight)', url: 'https://albaniannight.com/what-is-bajram-7-facts-about-the-famous-albanian-holiday/' },
+      { label: 'Eid among Albanians (Votra Magazine)', url: 'https://www.votramagazine.com/eid-among-albanians-a-tapestry-of-tradition-and-unity/' },
+    ],
+    related: ['kurbani', 'ramazani', 'harmonia-fetare', 'sulltan-nevruzi'],
+  },
+  {
+    id: 'ramazani',
+    title: 'Ramazani — the fast, syfyr & iftar',
+    category: 'Custom',
+    summary:
+      'During the holy month observant Muslims fast dawn-to-dusk, taking syfyr (the pre-dawn meal) and breaking the fast at sunset with iftar, usually shared with family and friends; mosques host communal iftars and charity (sadaka) to the poor increases. Reflecting Albania’s interfaith character, Christians both host iftars for fasting friends and attend them as social gatherings.',
+    sources: [
+      { label: 'The Holy Month of Ramazan in Albania (Visit Tirana)', url: 'https://www.visit-tirana.com/news/the-holy-month-of-ramazan-in-albania/' },
+      { label: 'Ramadan in Kosovo (Eurasia Review)', url: 'https://www.eurasiareview.com/14082011-ramadan-in-kosovo/' },
+    ],
+    related: ['bajrami', 'harmonia-fetare', 'kurbani'],
+  },
+  {
+    id: 'pashket',
+    title: 'Pashkët — Easter and the red eggs',
+    category: 'Custom',
+    summary:
+      'Easter is the central Christian feast, kept on two dates — Catholic (Gregorian) and Orthodox (Julian), Albania’s "two Easters". Its most recognisable custom is the red-dyed egg, its shell the tomb and its red the blood and victory of Christ; families crack eggs against each other, share Easter bread and lamb, and greetings and visits cross confessional lines so Easter is partly a shared social occasion.',
+    sources: [
+      { label: 'Albania has "two Easters" (Visit Tirana)', url: 'https://www.visit-tirana.com/news/albania-has-two-easters-here-is-how-we-celebrate-them/' },
+      { label: 'Easter in Albania (RTSH)', url: 'https://rtsh.al/rti/en/easter-in-albania-a-celebration-of-faith-family-and-interfaith-harmony/' },
+    ],
+    related: ['krishtlindjet', 'harmonia-fetare', 'shen-kolli'],
+  },
+  {
+    id: 'krishtlindjet',
+    title: 'Krishtlindjet — Christmas',
+    category: 'Custom',
+    summary:
+      'Christian families keep Christmas with Midnight Mass, a meatless (often fish) Christmas-Eve fast breaking into a large Christmas-Day meal, and bakllava as a signature dessert; Catholics keep the tree from the Immaculate Conception (8 Dec) to Epiphany (6 Jan). Children receive gifts and carolling occurs, and — as with the other feasts — Christmas has become a broadly shared festive season marked across confessions.',
+    sources: [
+      { label: 'Christmas in Albania (Tirana Times)', url: 'https://www.tiranatimes.com/christmas-in-albania_101083/' },
+      { label: 'How Christmas is celebrated in Albania (Illyria)', url: 'https://www.illyria.com/how-christmas-is-celebrated-in-my-homeland-albania/' },
+    ],
+    related: ['pashket', 'shen-kolli', 'nata-e-buzmit', 'harmonia-fetare'],
+  },
+  {
+    id: 'harmonia-fetare',
+    title: 'Harmonia fetare — interfaith visiting',
+    category: 'Custom',
+    summary:
+      'Albanians are famous for a lived religious tolerance: neighbours, friends and even mixed families mark each other’s holidays — Muslims wishing Christians well and visiting at Easter and Christmas, Christians reciprocating at Bajram and attending iftars, mixed households keeping both calendars. The guiding sentiment, "the religion of the Albanian is Albanianism" (Pashko Vasa), treats faith as a private matter that does not divide social life — a point of national self-identity praised internationally.',
+    sources: [
+      { label: 'Religion in Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Religion_in_Albania' },
+      { label: 'Interfaith harmony at Easter (RTSH)', url: 'https://rtsh.al/rti/en/easter-in-albania-a-celebration-of-faith-family-and-interfaith-harmony/' },
+    ],
+    related: ['bajrami', 'pashket', 'krishtlindjet', 'besa', 'mikpritja-oda'],
+  },
+  {
+    id: 'kafeja',
+    title: 'Kafeja turke — coffee culture and the café',
+    category: 'Custom',
+    summary:
+      'Coffee is the everyday social ritual of Albanian life. At home it is kafe turke, ground fine and boiled in a small copper xhezve; out, the café (kafe) is the central social institution where friends, business and gossip unfold over hours in the avash-avash ("slowly, slowly") style — a single cup can anchor a whole afternoon. Offering coffee to a guest is inseparable from hospitality.',
+    sources: [
+      { label: 'Albanian coffee (albaniaturism)', url: 'https://albaniaturism.com/albanian-coffee/' },
+      { label: 'Coffee culture in Albania (lostinalbania)', url: 'https://lostinalbania.com/coffee-culture-in-albania/' },
+    ],
+    related: ['mikpritja-oda', 'hospitality', 'sofra', 'fall-kafeja', 'rakia-gezuar'],
+  },
+  {
+    id: 'rakia-gezuar',
+    title: 'Rakia & "Gëzuar!" — the toast of welcome',
+    category: 'Custom',
+    summary:
+      'Home-distilled grape (or plum) spirit, raki, is the drink of welcome, celebration and mourning alike; offering it signals trust and open-hearted hospitality, and declining without reason can read as a mild slight. Toasts are made with eye contact and "Gëzuar!" ("cheers"), often extended — për familjen (to the family), për ata që mungojnë (to those who are absent). In the north and centre coffee and raki are taken together.',
+    sources: [
+      { label: 'Albanian raki (albaniaturism)', url: 'https://albaniaturism.com/albanian-raki/' },
+      { label: 'Albanian drinks (albanianregistry)', url: 'https://albanianregistry.org/blog/albania-drink' },
+    ],
+    related: ['mikpritja-oda', 'hospitality', 'kafeja', 'sofra'],
+  },
+  {
+    id: 'fejesa',
+    title: 'Fejesa — the betrothal',
+    category: 'Custom',
+    summary:
+      'The formal engagement, held weeks or months before the wedding, is a public commitment binding two families, not just the couple. The groom’s father leads a delegation to the bride’s home with gifts and a formal request for her hand; sweets are standard and in the north raki is exchanged between the fathers to seal it. Engagement rings are worn on the right hand and moved to the left at the wedding; the bride receives gold, and the two families become krushqit (in-laws), a bond of real weight.',
+    sources: [
+      { label: 'Albanian weddings — traditions (albanianregistry)', url: 'https://albanianregistry.org/blog/albanian-wedding' },
+      { label: 'Albanian wedding traditions (albanianblogger)', url: 'https://albanianblogger.com/albanian-weddings-traditions-guide/' },
+    ],
+    related: ['dasma', 'paja', 'nata-e-kenases', 'besa'],
+  },
+  {
+    id: 'nata-e-kenases',
+    title: 'Nata e kënasë — the henna night',
+    category: 'Custom',
+    summary:
+      'Held the night before the wedding at the bride’s home, this women-only gathering has an older woman from the groom’s side apply henna to the bride’s hands (and sometimes feet), symbolising fertility, protection and the passage between households. Women sing traditional songs — some joyful, some mournful — and the bride’s female relatives often weep openly. It is called the wedding ritual that has survived most intact, in homeland and diaspora alike.',
+    sources: [
+      { label: 'Albanian wedding henna night (albanianblogger)', url: 'https://albanianblogger.com/albanian-weddings-traditions-guide/' },
+      { label: 'The Kosovar henna night (J. of Kosovo Music & Culture 2025)', url: 'https://kosovomusicculture.com/index.php/jkmc/article/download/20/10' },
+    ],
+    related: ['dasma', 'fejesa', 'vajtim', 'paja'],
+  },
+  {
+    id: 'te-dyzetat',
+    title: 'Të dyzetat — the forty days & death commemoration',
+    category: 'Custom',
+    summary:
+      'Distinct from the death laments, this is the cycle of commemoration after burial. Mourners come to të pamet (condolence visits) where the household serves Turkish coffee continuously; memorial meals are held at the 7th day, the 40th (të dyzetat — the largest), six months, one year (të përvjetmit) and sometimes three. A candle and glass of water may be kept forty days for the soul’s journey, close family wear black for a year or longer, and sweets — halva above all — are shared "për shpirt" (for the soul).',
+    sources: [
+      { label: 'Albanian funeral traditions (Frazer)', url: 'https://web.frazerconsultants.com/cultural-spotlight-albanian-funeral-traditions/' },
+      { label: 'The funeral ceremony — Albanian ICH registry', url: 'https://regjistritkj.al/en/riti-i-ceremonise-mortore/' },
+    ],
+    related: ['vajtim', 'gjama-e-burrave', 'mikpritja-oda', 'kurbani'],
+  },
+  {
+    id: 'kurbeti',
+    title: 'Kurbeti — labour migration and the return',
+    category: 'Custom',
+    summary:
+      'Kurbet (from Turkish gurbet, "out in the world") is the centuries-old pattern of going abroad to earn while the family stays "here," steeped in themes of sacrifice, longing and eventual return, and sung in whole cycles of kurbet songs. Today it means mass emigration to Greece, Italy, Germany and beyond, remittances forming a large share of GDP, and the ritual summer return of the diaspora — packed villages, weddings timed to the holidays, houses built with money sent home.',
+    sources: [
+      { label: 'Albanian diaspora (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_diaspora' },
+      { label: 'The Balkan Gurbet (Springer)', url: 'https://link.springer.com/chapter/10.1007/978-3-319-13719-3_2' },
+    ],
+    related: ['besa', 'mikpritja-oda', 'vajtim'],
+  },
+  {
+    id: 'pagezimi',
+    title: 'Pagëzimi & kumbaria — baptism and godparenthood',
+    category: 'Custom',
+    summary:
+      'For Christian Albanians infant baptism is the central early-life rite, and the godparent (kumbar) bond it creates is lifelong and near-familial — a real social obligation between two families, historically deep in Albanian Catholicism (which even kept a lay baptismal formula for when no priest could be reached). The baptism doubles as the naming of the child and the gathering of the extended family.',
+    sources: [
+      { label: 'Baptism — Orthodox Church of Albania', url: 'https://orthodoxalbania.org/2026/en/2015/05/13/baptism/' },
+      { label: 'Catholic Church in Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Catholic_Church_in_Albania' },
+    ],
+    related: ['lindja-besiku', 'vellameri', 'shen-kolli'],
+  },
+  {
+    id: 'syri-apparati',
+    title: 'Dordoleci & syni — the evil-eye apparatus',
+    category: 'Custom',
+    summary:
+      'The most visibly practiced Albanian superstition today. To deflect syri i keq (envy that spoils what it looks at), Albanians hang a dordolec — a scarecrow or stuffed figure, and increasingly a teddy bear, doll or inflatable animal — on new and unfinished buildings, cranes and luxury blocks, alongside garlic, horseshoes, red cloth and the blue nazar bead in cars and on babies. The envious gaze is meant to fixate on the odd object instead of the property; explicitly a practice that has come back into fashion with post-communist wealth, not a fading one.',
+    sources: [
+      { label: 'The dordolec & the evil eye (Michael Harrison)', url: 'https://michaelharrison.org.uk/2013/05/the-dordolec-the-evil-eye-and-superstition-in-albania/' },
+      { label: 'Teddy bears ward off the evil eye (Matador)', url: 'https://matadornetwork.com/abroad/teddy-bears-and-talismans-warding-off-the-evil-eye-in-albania/' },
+    ],
+    related: ['evil-eye', 'emri-tabu', 'lindja-besiku', 'kurbani', 'besime-popullore'],
+  },
+  {
+    id: 'mashallah-ptu',
+    title: 'Mashallah & pështyj — praising safely',
+    category: 'Custom',
+    summary:
+      'Because a compliment can carry the evil eye, Albanians neutralise praise — of babies, brides and possessions above all — by saying "mashallah" ("God has willed it") straight after admiring, and by spitting three times without saliva ("ptu ptu ptu") so the admiration cannot "stick". It is the everyday verbal-and-gestural layer of the evil-eye belief, performed reflexively even by the non-religious and by Christians, across Albania and Kosovo.',
+    sources: [
+      { label: 'Nazar (amulet) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Nazar_(amulet)' },
+      { label: '21 superstitions in Albania (Magic Towns)', url: 'https://magictowns.al/21-interesting-superstitions-in-albania/' },
+    ],
+    related: ['evil-eye', 'syri-apparati', 'lindja-besiku'],
+  },
+  {
+    id: 'plumbi-frika',
+    title: 'Të prishunit e plumbit — lead-pouring against fright',
+    category: 'Custom',
+    summary:
+      'A folk-healing divination (molybdomancy) still performed by older women on children and pregnant women thought to suffer frika (a fright-induced malaise) or the evil eye: molten lead is poured into cold water over the afflicted person’s head, and the hardened shapes both diagnose the cause and are believed to draw the fear out. It is argued to have Illyrian roots; still practiced but fading, and now flagged by doctors as a lead-poisoning risk.',
+    sources: [
+      { label: 'Molybdomancy (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Molybdomancy' },
+      { label: 'Albanian paganism (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' },
+    ],
+    related: ['evil-eye', 'syri-apparati', 'shtriga'],
+  },
+  {
+    id: 'fall-kafeja',
+    title: 'Fall me kafe — reading the coffee grounds',
+    category: 'Custom',
+    summary:
+      'Reading the future in the sediment of Turkish coffee (fall / të parit e filxhanit) is a routine, sociable ritual: the cup is inverted onto the saucer to cool, then turned and "read" by the shapes of the grounds relative to the handle (love in one quadrant, the far future in another). Tuesday and Friday are the auspicious reading days; Sunday is avoided. Done casually and half-jokingly by women across all backgrounds, it survives even where belief is loose.',
+    sources: [
+      { label: 'Albanian art of coffee-ground reading (Orange Tours)', url: 'https://orangetours.pl/en/albanian-art-of-coffee-ground-reading-magic-hidden-in-a-coffee-cup/' },
+      { label: 'Tasseography (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tasseography' },
+    ],
+    related: ['kafeja', 'fatia-mira', 'ora', 'e-marta'],
+  },
+  {
+    id: 'e-marta',
+    title: 'E marta, dita ters — unlucky Tuesday',
+    category: 'Custom',
+    summary:
+      'Tuesday (e martë) is widely held unlucky — a bad day to start anything important: to set out on a journey, marry, sign, or begin serious work — the folk reasoning being that Tuesday holds a sahat ters, an "unlucky hour". Many older women will not do housework or laundry on a Tuesday (though it is, paradoxically, a favoured day for coffee and lead divination). Still invoked, if lightly, and softening in the cities.',
+    sources: [
+      { label: 'Best of Albanian superstitions (Albania360)', url: 'https://albania360.com/things-to-do/best-of-albanian-superstitions-for-relationships-marriage-and-money/' },
+    ],
+    related: ['fall-kafeja', 'besime-popullore', 'dita-e-veres'],
+  },
+  {
+    id: 'nusja-omens',
+    title: 'Nusja e re — the bride’s luck-rites',
+    category: 'Custom',
+    summary:
+      'Wedding-arrival rituals still enacted when a bride enters her husband’s home: the mother-in-law waits with honey and smears it on the doorframe (or feeds the bride a spoonful) so the household will be "sweet"; leaving her own home the bride discreetly throws an egg behind her; and some brides carry a charm against the evil eye on their exposed, envied wedding day. The groom’s family should not glimpse the bride prematurely, lest her radiance fade.',
+    sources: [
+      { label: 'Best of Albanian superstitions (Albania360)', url: 'https://albania360.com/things-to-do/best-of-albanian-superstitions-for-relationships-marriage-and-money/' },
+      { label: 'Superstitions in Albania (Go As Local)', url: 'https://goaslocal.com/superstitions-in-albania/' },
+    ],
+    related: ['dasma', 'nata-e-kenases', 'evil-eye', 'paja'],
+  },
+  {
+    id: 'barra-besime',
+    title: 'Barra — pregnancy beliefs',
+    category: 'Custom',
+    summary:
+      'Two strongly-held, still-current pregnancy beliefs. An unsatisfied craving marks the baby with a birthmark shaped like the craved food — so a pregnant woman’s cravings are indulged at all costs. And there is a reluctance to prepare for or celebrate the baby before it is safely born: gifts and purchases wait until after the birth, and older women resist bringing baby things into the house — part superstition, part refusal to "assume a good outcome". Both are near-universal in Albania and Kosovo.',
+    sources: [
+      { label: '13 Albanian superstitions (Health for Albania)', url: 'https://healthforalbania.wordpress.com/2014/06/14/13-albanian-superstitions/' },
+      { label: 'Albanian gifts: a diaspora guide (albanianregistry)', url: 'https://albanianregistry.org/blog/albania-gifts' },
+    ],
+    related: ['lindja-besiku', 'evil-eye', 'fatia-mira'],
+  },
+  {
+    id: 'pragu',
+    title: 'Pragu — the threshold taboos',
+    category: 'Custom',
+    summary:
+      'The doorway/threshold (pragu) is a charged boundary: you must not shake hands, greet, hug or pass any object across it — do it inside or outside, never on the line — or you invite a quarrel, sever a friendship, or let spirits in. A related returning-taboo: if you leave the house and must turn back for something, sit down briefly before setting out again, or the trip is jinxed. It is genuinely observed in daily etiquette, especially with older hosts.',
+    sources: [
+      { label: 'Albanian social etiquette (AlbaniaVisit)', url: 'https://albaniavisit.com/travel-guide/albanian-social-etiquette-guide/' },
+      { label: 'Best of Albanian superstitions (Albania360)', url: 'https://albania360.com/things-to-do/best-of-albanian-superstitions-for-relationships-marriage-and-money/' },
+    ],
+    related: ['mikpritja-oda', 'hospitality', 'besime-popullore', 'vitore'],
+  },
+  {
+    id: 'besime-popullore',
+    title: 'Besime popullore — everyday omens & taboos',
+    category: 'Custom',
+    summary:
+      'The living layer of small omens said reflexively: an itchy palm means money is on the move, a random sneeze that someone is talking of you, hiccups that someone is saying your name, hot/ringing ears that you are being discussed, a dropped knife that a male guest is coming (a spoon a female one). And the household taboos still kept: no whistling indoors (it whistles money away and calls the devil), no cutting nails at night, no umbrella opened inside, hand a knife by laying it down not passing it, no handbag on the floor (money "flies"), no sweeping after dark. An owl or a howling dog by the house foretells a death, and a broken mirror brings seven years’ bad luck — while, in an Albanian inversion, spilled sugar or coffee is good luck. Most are pan-Balkan, but all are genuinely still said.',
+    sources: [
+      { label: '21 superstitions in Albania (Magic Towns)', url: 'https://magictowns.al/21-interesting-superstitions-in-albania/' },
+      { label: '13 Albanian superstitions (Health for Albania)', url: 'https://healthforalbania.wordpress.com/2014/06/14/13-albanian-superstitions/' },
+    ],
+    related: ['evil-eye', 'emri-tabu', 'syri-apparati', 'pragu', 'e-marta'],
+  },
 ]
 
 // Map every ending node id (from content.js) to the FOLKLORE entry id it draws from.
@@ -2889,6 +3154,28 @@ export const RANK = {
   'bajram-curri': [4, 3, 3],
   'prenk-bibe-doda': [4, 2, 3],
   'italian-invasion-wwii': [3, 5, 4],
+  'sunet': [3, 5, 4],
+  'bajrami': [3, 5, 4],
+  'ramazani': [2, 5, 3],
+  'pashket': [2, 5, 3],
+  'krishtlindjet': [2, 5, 3],
+  'harmonia-fetare': [5, 5, 5],
+  'kafeja': [3, 5, 4],
+  'rakia-gezuar': [3, 5, 3],
+  'fejesa': [3, 5, 3],
+  'nata-e-kenases': [3, 4, 3],
+  'te-dyzetat': [3, 5, 4],
+  'kurbeti': [4, 5, 4],
+  'pagezimi': [3, 4, 3],
+  'syri-apparati': [5, 5, 3],
+  'mashallah-ptu': [3, 5, 3],
+  'plumbi-frika': [4, 3, 2],
+  'fall-kafeja': [3, 5, 3],
+  'e-marta': [4, 4, 2],
+  'nusja-omens': [4, 3, 2],
+  'barra-besime': [3, 5, 3],
+  'pragu': [3, 4, 2],
+  'besime-popullore': [3, 5, 3],
 }
 
 // Additional reference sources gathered in the ranking/verification pass,
