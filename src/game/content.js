@@ -3080,7 +3080,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('tomor', 'Tomorin', 'Tomor')), to: 'tomorStuhi', reveal: 'tomor' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'maliHumbur' },
     ],
   },
 
@@ -3093,7 +3093,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('lufto'), wf('kulshedra', 'kulshedrën', 'the she-dragon')), to: 'tomor2', reveal: 'kulshedra' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'maliHumbur' },
     ],
   },
 
@@ -4423,6 +4423,24 @@ export const STORY = {
     ],
   },
 
+  // Lost on Mount Tomorr — the region-local "flee" node. Fleeing a trial high on
+  // the mountain no longer teleports you to the forest loop; instead you lose the
+  // path in the cloud and must retreat down to the crossroads you climbed from
+  // (which keeps the mountain's word-discovery — and its distractors — intact).
+  maliHumbur: {
+    id: 'maliHumbur',
+    text: [
+      L(w('ti'), w('je'), wf('lart', 'lart', 'high'), wf('ne', 'në', 'on'), w('mal'), p('.')),
+      L(w('eshte'), w('ftohte'), w('dhe'), w('erret'), p('.')),
+      L(w('nje'), w('re'), w('e_art'), w('madh'), w('vjen'), p('.')),
+      L(w('ti'), w('nuk'), w('sheh'), wf('rruge', 'rrugën', 'the path'), p('.')),
+      L(w('larg'), w('poshte'), w('eshte'), w('udhekryq'), p('.')),
+    ],
+    options: [
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('udhekryq')), to: 'udhekryq' },
+    ],
+  },
+
   // Companion payoff — the wolf you fed bread (shokuUjk) repays the besa of shared
   // bread: on the dry road it scents and digs out a hidden spring. The wolf in
   // Albanian lore is a guardian, not mere prey ("Të hângtë ujku!" is its dark side).
@@ -4495,7 +4513,7 @@ export const STORY = {
       { text: L(w('ngjit'), wf('mal', 'malin', 'the mountain')), to: 'maja', reveal: 'mal' },
       { text: L(w('godit'), w('hekur')), to: 'shurdhi1', reveal: 'shurdhi' },
       { text: L(w('degjo'), w('verbti')), to: 'verbti1', reveal: 'verbti' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'maliHumbur' },
     ],
   },
 
@@ -4545,7 +4563,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), w('tomor')), to: 'tomor1', reveal: 'tomor' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'maliHumbur' },
     ],
   },
 
@@ -4572,7 +4590,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('pus')), to: 'pusi', reveal: 'pus' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'maliHumbur' },
     ],
   },
 
@@ -5974,7 +5992,7 @@ export const STORY = {
     options: [
       { text: L(w('fol'), w('me'), wf('bari', 'barin', 'the shepherd')), to: 'qiellDem1', reveal: 'bari' },
       { text: L(w('ngjit'), w('lart')), to: 'qiellErera1', reveal: 'ere' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'maliHumbur' },
     ],
   },
 
@@ -6470,6 +6488,7 @@ const shadowAcc = () => wf('hije', 'hijen', 'the shadow')
 
 // (1) an action on something NOT present in the scene
 const CONFUSERS = {
+  maliHumbur: L(w('ngjit'), wf('re', 'renë', 'the cloud')), // climb the cloud — you cannot
   // village river & church quarters
   fshatiLumi: L(w('merr'), wf('lume', 'lumin', 'the river')), // take the river — you cannot
   uraArtes1: L(w('degjo'), wf('ure', 'urën', 'the bridge')), // listen to the bridge — it cannot answer
@@ -6728,6 +6747,7 @@ const CONFUSERS = {
 // (2) a categorically-impossible action on a PRESENT thing — shares a noun
 // with the scene, so you can't dodge it by scanning for the noun.
 const CONFUSERS2 = {
+  maliHumbur: L(w('ngjit'), wf('udhekryq', 'udhëkryqin', 'the crossroads')), // climb the crossroads — you cannot
   // village river & church quarters
   fshatiLumi: L(w('merr'), wf('mal', 'malin', 'the mountain')), // take the mountain — you cannot
   uraArtes1: L(w('degjo'), wf('lume', 'lumin', 'the river')), // listen to the river — it cannot answer
@@ -6877,6 +6897,7 @@ const CONFUSERS2 = {
 // (3) a third distractor — another impossible action (open/take/fight a present
 // thing, or fly), distinct from the other two for that node.
 const CONFUSERS3 = {
+  maliHumbur: L(w('kthehu'), wf('re', 'renë', 'the cloud')), // return to the cloud — you cannot
   // village river & church quarters
   fshatiLumi: L(w('merr'), wf('fushe', 'fushat', 'the fields')), // take the fields — you cannot
   uraArtes2: L(w('degjo'), wf('buke', 'bukën', 'the bread')), // listen to the bread — it has nothing to say
