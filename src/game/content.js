@@ -1818,7 +1818,7 @@ export const STORY = {
     end: 'secret',
     title: 'The Besa Between Warriors',
     blurb:
-      'You beat the Krajl’s champion in fair single combat, and when he fell and asked your besa you gave it — and the man who rode out to kill you rode home alive under your word. That is the besa at its working widest: not only a lifelong oath but a truce that makes life livable — a family in blood grants its enemy a besa so he can reap his harvest or stand at a wedding unafraid; a whole village swears the besa e katundit so blood-foes can meet as friends at the feast; even a killer, under the day-long besa, walks safe to the funeral of the man he shot, and breaks bread there. To strike inside a besa is the blackest dishonour there is — and a foe spared under one is halfway to a friend.',
+      'You beat the Krajl’s champion in fair single combat — a mejdan, the sacred one-against-one — and when he fell and asked your besa you gave it, and the man who rode out to kill you rode home alive under your word. That is the besa: the pledge sworn "by sun, moon, sky and earth, by fire, stone and thunderstone," held above life itself — the word that powers Rozafa and Constantine and the whole moral universe of the songs — and it binds even across the battle-line, turning a beaten foe into a friend. In the lived world it worked as a truce too: a village would swear a besa so blood-foes could meet as friends at a festival, and even a killer walked safe, under a day’s besa, to his victim’s funeral. To break a given word — or to win by numbers what your own arm could not — is the one thing the songs leave a name out for.',
     text: [
       L(w('ti'), w('jep'), wf('bese', 'besën', 'the besa'), p('.')),
       L(wf('kapidan', 'kapidani', 'the captain'), wf('behet', 'bëhet', 'becomes'), w('nje'), w('mik'), p('.')),
@@ -7689,6 +7689,8 @@ export const STORY = {
       L(w('prende'), w('eshte'), w('e_art'), w('bukur'), p('.')),
       L(w('prende'), w('jep'), w('nje'), w('bekim'), p('.')),
       L(w('nje'), w('ylber'), w('rri'), wf('lart', 'lart', 'high'), p('.')),
+      // Prende is the dawn-goddess; her light is strongest as day breaks
+      when('dawn', L(w('eshte'), w('agim'), p(','), w('prende'), w('eshte'), w('e_art'), w('forte'), p('.'))),
     ],
     options: [
       { text: L(w('merr'), w('bekim')), to: 'prendeBekim', reveal: 'prende' },
@@ -7697,18 +7699,29 @@ export const STORY = {
     ],
   },
 
+  // The height of heaven: by DAY the Sun rides here (stand in his light → his
+  // blessing); by NIGHT he is gone and the Moon holds the sky (seek her quiet).
+  // The two are mutually exclusive by the hour — wait out the sky to reach either.
   qiellDiell: {
     id: 'qiellDiell',
     text: [
-      L(wf('lart', 'lart', 'high'), w('eshte'), wf('diell', 'dielli', 'the sun'), p('.')),
-      L(wf('diell', 'dielli', 'the sun'), w('sheh'), w('ti'), p('.')),
-      L(wf('diell', 'dielli', 'the sun'), w('jep'), w('drite'), w('dhe'), w('fuqi'), p('.')),
-      L(wf('diell', 'dielli', 'the sun'), w('sheh'), wf('bote', 'botën', 'the world'), p('.')),
-      L(w('naten'), w('vjen'), wf('hene', 'hëna', 'the moon'), p('.')),
+      unless('night', L(wf('lart', 'lart', 'high'), w('eshte'), wf('diell', 'dielli', 'the sun'), p('.'))),
+      unless('night', L(wf('diell', 'dielli', 'the sun'), w('sheh'), w('ti'), p('.'))),
+      unless('night', L(wf('diell', 'dielli', 'the sun'), w('jep'), w('drite'), w('dhe'), w('fuqi'), p('.'))),
+      unless('night', L(wf('diell', 'dielli', 'the sun'), w('sheh'), wf('bote', 'botën', 'the world'), p('.'))),
+      when('night', L(w('naten'), wf('diell', 'dielli', 'the sun'), wf('ik', 'ikën', 'is gone'), p('.'))),
+      when('night', L(wf('hene', 'hëna', 'the moon'), w('eshte'), wf('lart', 'lart', 'high'), p('.'))),
+      when('night', L(wf('hene', 'hëna', 'the moon'), w('jep'), w('drite'), w('e_art'), w('qete'), p('.'))),
     ],
     options: [
-      { text: L(w('rri'), w('ne'), w('drite')), to: 'diellApex', reveal: 'drite' },
-      { text: L(w('kerko'), w('hene')), to: 'henaPaqe', reveal: 'hene' },
+      // stand in the Sun's full light — only while he is in the sky
+      { text: L(w('rri'), w('ne'), w('drite')), unless: 'night', to: 'diellApex', reveal: 'drite' },
+      // seek the Moon — only when she has risen
+      { text: L(w('kerko'), w('hene')), requires: 'night', to: 'henaPaqe', reveal: 'hene' },
+      // linger in the sky until the Sun sets and the Moon comes
+      { text: L(w('prit'), wf('naten', 'natën', 'night')), unless: 'night', to: 'qiellDiell', time: 'night' },
+      // linger until the Sun climbs again
+      { text: L(w('prit'), w('agim')), requires: 'night', to: 'qiellDiell', time: 'dawn' },
       { text: L(w('ik'), w('shpejt')), to: 'udhekryq' },
     ],
   },
