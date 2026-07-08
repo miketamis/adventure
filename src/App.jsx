@@ -1,4 +1,4 @@
-import { useReducer, useState, useEffect, useSyncExternalStore } from 'react'
+import { useReducer, useState, useEffect, useRef, useSyncExternalStore } from 'react'
 import { reducer, loadState, saveState, saveEndings } from './game/gameState.js'
 import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
 import { ENDINGS } from './game/content.js'
@@ -6,11 +6,25 @@ import StoryView from './components/StoryView.jsx'
 import PracticeView from './components/PracticeView.jsx'
 import DictionaryView from './components/DictionaryView.jsx'
 import EndingsView from './components/EndingsView.jsx'
+import DebugView from './components/DebugView.jsx'
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, loadState)
   const [confirmReset, setConfirmReset] = useState(false)
-  const peakOn = state.peak > 0
+  // debug mode is unlocked by clicking the title 5× in quick succession
+  const titleClicks = useRef(0)
+  const titleTimer = useRef(null)
+  const onTitleClick = () => {
+    titleClicks.current += 1
+    clearTimeout(titleTimer.current)
+    if (titleClicks.current >= 5) {
+      titleClicks.current = 0
+      dispatch({ type: 'TOGGLE_DEBUG' })
+    } else {
+      titleTimer.current = setTimeout(() => { titleClicks.current = 0 }, 1500)
+    }
+  }
+  const peakOn = state.peak > 0 || state.debug
   const muted = useSyncExternalStore(subscribeMute, isMuted)
   const endingsGot = ENDINGS.filter((e) => state.discoveredEndings?.[e.id]).length
 
@@ -37,11 +51,12 @@ export default function App() {
   return (
     <div className="app">
       <div className="topbar">
-        <h1 className="title">
+        <h1 className="title" onClick={onTitleClick} title="Aventura Shqip">
           Aventura Shqip <small>· learn Albanian</small>
         </h1>
+        {state.debug && <span className="stat debug-badge" title="Debug mode is on — click the title 5× to turn it off">🛠 debug</span>}
         <span className={'stat tip-host' + (peakOn ? ' peak-on' : '')}>
-          👁 peak <b>{state.peak}</b>
+          👁 peak <b>{state.debug ? '∞' : state.peak}</b>
           <span className="tooltip stat-tip">
             <b>👁 Peak</b> — while active, hover a discovered Albanian word to reveal its
             English. It lasts a number of turns; each path you take uses one. Drink a 🧪
@@ -74,12 +89,14 @@ export default function App() {
         {tab('practice', '🎯 Train')}
         {tab('dictionary', '📚 Dictionary')}
         {tab('endings', `🏆 Endings (${endingsGot}/${ENDINGS.length})`)}
+        {state.debug && tab('debug', '🛠 Debug')}
       </div>
 
       {state.view === 'story' && <StoryView state={state} dispatch={dispatch} />}
       {state.view === 'practice' && <PracticeView state={state} dispatch={dispatch} />}
       {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
       {state.view === 'endings' && <EndingsView state={state} />}
+      {state.view === 'debug' && <DebugView state={state} dispatch={dispatch} />}
 
       {state.hearts <= 0 && (
         <div className="modal-overlay">

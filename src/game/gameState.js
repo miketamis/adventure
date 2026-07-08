@@ -1,4 +1,4 @@
-import { START_NODE, STORY } from './content.js'
+import { START_NODE, STORY, WORLD_HUB } from './content.js'
 
 export const PEAK_START_TURNS = 3
 export const START_HEARTS = 3
@@ -64,7 +64,7 @@ function baseRun() {
 
 // the initial state when the app boots
 export function newRun() {
-  return { ...baseRun(), mana: {}, discoveredEndings: loadEndings() }
+  return { ...baseRun(), mana: {}, discoveredEndings: loadEndings(), debug: false, loreFocus: null }
 }
 
 // distinct sense ids used by a phrase (an option's answer or an item's use phrase)
@@ -158,6 +158,26 @@ export function reducer(state, action) {
     case 'SET_VIEW':
       return { ...state, view: action.view }
 
+    // --- DEBUG MODE (unlocked by clicking the title 5×) ---------------------
+    case 'TOGGLE_DEBUG':
+      return { ...state, debug: !state.debug }
+
+    // Instantly make an option/phrase takeable: discover all its words and give
+    // one training token for each. Used by the ⚡ button on a locked option.
+    case 'DEBUG_GRANT': {
+      const discovered = { ...state.discovered }
+      const mana = { ...state.mana }
+      for (const id of action.ids || []) {
+        discovered[id] = true
+        if ((mana[id] || 0) < 1) mana[id] = 1
+      }
+      return { ...state, discovered, mana }
+    }
+
+    // Jump to the folklore library focused on a tale (from an ending's link).
+    case 'OPEN_LORE':
+      return { ...state, view: 'debug', loreFocus: action.lore }
+
     case 'CONTINUE':
       // finished an ending: play again, but KEEP what you've learned — your
       // discovered words AND tokens carry over (only the run itself restarts)
@@ -166,12 +186,23 @@ export function reducer(state, action) {
         mana: state.mana,
         discovered: state.discovered,
         discoveredEndings: state.discoveredEndings,
+        debug: state.debug,
+      }
+
+    case 'RETURN_TO_WORLD':
+      // finished a GOOD ending: don't restart — drop straight back into the open
+      // world and keep the whole run going (words, tokens, items, hearts). The
+      // arc you just closed is done; you carry on exploring from the hub.
+      return {
+        ...state,
+        nodeId: STORY[action.to] ? action.to : WORLD_HUB,
+        ended: null,
       }
 
     case 'RESET':
       // hard new run (top-right button or game over): back to the start with
       // everything undiscovered; keep only your tokens and endings collection
-      return { ...baseRun(), mana: state.mana, discoveredEndings: state.discoveredEndings }
+      return { ...baseRun(), mana: state.mana, discoveredEndings: state.discoveredEndings, debug: state.debug }
 
     default:
       return state

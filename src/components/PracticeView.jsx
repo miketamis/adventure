@@ -1,9 +1,15 @@
 import { useState, useCallback, useEffect } from 'react'
 import { DICT, STORY } from '../game/content.js'
 import { canChoose } from '../game/gameState.js'
+import { playWord } from '../game/audio.js'
 
 // the answer rendered in Albanian (every word is discovered when affordable)
 const albanianPhrase = (tokens) => tokens.map((t) => (t.id ? t.al : t.en)).join(' ')
+
+// The text shown for a sense on a given side. Training shows *all* English
+// senses (enAll, e.g. "on / in") where the story only shows the contextual one.
+const senseText = (id, field) =>
+  field === 'en' ? DICT[id].enAll ?? DICT[id].en : DICT[id][field]
 
 // pick an id, weighted so words you already hold more tokens of come up less often
 const weightedPick = (ids, mana) => {
@@ -25,10 +31,35 @@ const shuffle = (arr) => {
   return a
 }
 
+// Homonym particles (e, të, i, do, po) carry a `ctx` example phrase: the same
+// surface has several senses, so the bare word is ambiguous and MUST be quizzed
+// in context. Such senses are routed to a dedicated context question.
+const siblingsOf = (id) => Object.keys(DICT).filter((x) => x !== id && DICT[x].al === DICT[id].al)
+
+// A context question: show the word inside its phrase (target highlighted) and
+// ask for THAT sense. Distractors are the rival senses of the same surface first
+// (the whole point — only context separates them), then any other gloss.
+function buildContextQuestion(answerId, discoveredIds) {
+  const pool = [...siblingsOf(answerId), ...shuffle(discoveredIds), ...shuffle(Object.keys(DICT))]
+  const distractors = []
+  const usedText = new Set([senseText(answerId, 'en')])
+  for (const id of pool) {
+    if (id === answerId || distractors.includes(id)) continue
+    const text = senseText(id, 'en')
+    if (usedText.has(text)) continue
+    usedText.add(text)
+    distractors.push(id)
+    if (distractors.length === 3) break
+  }
+  return { kind: 'ctx', answerId, field: 'en', ctx: DICT[answerId].ctx, options: shuffle([answerId, ...distractors]) }
+}
+
 // Build a multiple-choice question from the discovered senses.
 // The quizzed word is weighted by `mana`: more tokens -> less likely to appear.
 function buildQuestion(discoveredIds, mana) {
   const answerId = weightedPick(discoveredIds, mana)
+  if (DICT[answerId].ctx) return buildContextQuestion(answerId, discoveredIds)
+
   const dir = Math.random() < 0.5 ? 'al2en' : 'en2al' // prompt side
   const field = dir === 'al2en' ? 'en' : 'al' // the option text we show
   const promptField = dir === 'al2en' ? 'al' : 'en'
@@ -36,10 +67,13 @@ function buildQuestion(discoveredIds, mana) {
   // distractors: prefer other discovered senses, fall back to whole dictionary
   const pool = discoveredIds.length >= 4 ? discoveredIds : Object.keys(DICT)
   const distractors = []
-  const usedText = new Set([DICT[answerId][field]])
+  const usedText = new Set([senseText(answerId, field)])
   for (const id of shuffle(pool)) {
     if (id === answerId) continue
-    const text = DICT[id][field]
+    // skip an option that would ALSO be correct: same prompt-side text means it
+    // shares the answer's word (al2en) or its meaning (en2al) — a second answer.
+    if (DICT[id][promptField] === DICT[answerId][promptField]) continue
+    const text = senseText(id, field)
     if (usedText.has(text)) continue
     usedText.add(text)
     distractors.push(id)
@@ -48,13 +82,26 @@ function buildQuestion(discoveredIds, mana) {
 
   const options = shuffle([answerId, ...distractors])
   return {
+    kind: 'normal',
     answerId,
     dir,
     field,
-    promptText: DICT[answerId][promptField],
+    promptText: senseText(answerId, promptField),
     options,
   }
 }
+
+// Render an Albanian phrase with the target word highlighted.
+const FocusPhrase = ({ al, focus }) => (
+  <>
+    {al.split(' ').map((w, i) => (
+      <span key={i}>
+        {i > 0 ? ' ' : ''}
+        {w === focus ? <b className="ctx-focus">{w}</b> : w}
+      </span>
+    ))}
+  </>
+)
 
 export default function PracticeView({ state, dispatch }) {
   const discoveredIds = Object.keys(state.discovered).filter((id) => state.discovered[id])
@@ -103,6 +150,8 @@ export default function PracticeView({ state, dispatch }) {
     if (answered) return
     setPicked(id)
     const correct = id === q.answerId
+    // speak the correct Albanian word aloud, whether right or wrong (respects mute)
+    playWord(DICT[q.answerId].al)
     if (correct) dispatch({ type: 'PRACTICE_CORRECT', id: q.answerId })
     else dispatch({ type: 'PRACTICE_WRONG' })
     // auto-advance to the next question after a short pause
@@ -137,11 +186,22 @@ export default function PracticeView({ state, dispatch }) {
 
       <div className="card practice">
       <div className="prompt">
-        {q.dir === 'al2en'
+        {q.kind === 'ctx'
+          ? 'What does the highlighted word mean here?'
+          : q.dir === 'al2en'
           ? 'What does this Albanian word mean?'
           : 'Which Albanian word means this?'}
       </div>
-      <div className="question">{q.promptText}</div>
+      {q.kind === 'ctx' ? (
+        <div className="question ctx">
+          <div className="ctx-al">
+            <FocusPhrase al={q.ctx.al} focus={q.ctx.focus} />
+          </div>
+          <div className="ctx-en">{q.ctx.en}</div>
+        </div>
+      ) : (
+        <div className="question">{q.promptText}</div>
+      )}
 
       <div className="answers">
         {q.options.map((id) => {
@@ -150,7 +210,7 @@ export default function PracticeView({ state, dispatch }) {
           else if (answered && id === picked) cls += ' wrong'
           return (
             <button key={id} className={cls} disabled={answered} onClick={() => onPick(id)}>
-              {DICT[id][q.field]}
+              {senseText(id, q.field)}
             </button>
           )
         })}
@@ -160,7 +220,7 @@ export default function PracticeView({ state, dispatch }) {
         {answered &&
           (wasCorrect
             ? `+1 token for "${DICT[q.answerId].al}"`
-            : `💔 −1 heart · correct answer: ${DICT[q.answerId].al} — ${DICT[q.answerId].en}`)}
+            : `💔 −1 heart · correct answer: ${senseText(q.answerId, q.field)}`)}
       </div>
 
       </div>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import Token from './Token.jsx'
-import { STORY, ITEMS, w, wf, p, visibleLines } from '../game/content.js'
-import { canSpeak, canUseItem, hasRequiredItem } from '../game/gameState.js'
+import { STORY, ITEMS, w, wf, p, visibleLines, lineOf } from '../game/content.js'
+import { FOLKLORE, ENDING_LORE } from '../game/folklore.js'
+import { canSpeak, canUseItem, hasRequiredItem, phraseSenses } from '../game/gameState.js'
 
 // sense ids that are NOT nouns (verbs, particles, adjectives, adverbs, numbers).
 // Used to (a) pick a real "thing" from the scene for item-combo distractors, and
@@ -36,11 +37,90 @@ function stableShuffle(arr, seedStr) {
   return a
 }
 
+// === COMPREHENSION QUIZ (shown at an ending, BEFORE the lore blurb) ==========
+// You earn the tale by proving you understood the Albanian you just played.
+const lineEnglish = (line) =>
+  line.filter((t) => t.id && !t.paren).map((t) => t.en).join(' ').replace(/\s+([.!?:,;])/g, '$1').trim()
+const lineAlbanian = (line) =>
+  line.map((t) => (t.paren ? t.en : t.al)).join(' ').replace(/\s+([.!?:,;])/g, '$1').trim()
+const isContent = (line) => line.filter((t) => t.id).length >= 2 // >=2 real words
+const richness = (line) => line.filter((t) => t.id && !NON_NOUNS.has(t.id)).length // nouns/verbs
+// pool of every ending's content lines (English), for plausible distractors — built once
+let _answerPool = null
+const answerPool = () => {
+  if (!_answerPool) {
+    const set = new Set()
+    for (const n of Object.values(STORY)) {
+      if (!n.end) continue
+      for (const l of n.text.map(lineOf).filter(isContent)) set.add(lineEnglish(l))
+    }
+    _answerPool = [...set]
+  }
+  return _answerPool
+}
+// reverse adjacency: which nodes lead INTO each node (to draw path questions) — built once
+let _preds = null
+const predsOf = (id) => {
+  if (!_preds) {
+    _preds = {}
+    for (const n of Object.values(STORY))
+      for (const o of n.options || []) if (o.to) (_preds[o.to] = _preds[o.to] || []).push(n.id)
+  }
+  return _preds[id] || []
+}
+// a SET of comprehension questions: the ending's lines first (the climax), then a
+// scene or two from the path that led here — so it tests the journey, not one line.
+function buildComprehension(node, resolvedLines) {
+  const seen = new Set()
+  const pick = []
+  const add = (lines) => {
+    for (const l of [...lines].sort((a, b) => richness(b) - richness(a))) {
+      if (!isContent(l)) continue
+      const k = lineAlbanian(l)
+      if (seen.has(k) || !k) continue
+      seen.add(k)
+      pick.push(l)
+    }
+  }
+  add(resolvedLines)
+  for (const pid of predsOf(node.id)) {
+    if (pick.length >= 3) break
+    add(STORY[pid].text.map(lineOf))
+  }
+  const chosen = pick.slice(0, 3)
+  if (!chosen.length) return null
+  const pool = answerPool()
+  const qs = chosen
+    .map((line, i) => {
+      const correct = lineEnglish(line)
+      const wc = correct.split(' ').length
+      let p = pool.filter((s) => s !== correct)
+      const near = p.filter((s) => Math.abs(s.split(' ').length - wc) <= 2)
+      if (near.length >= 2) p = near
+      const distractors = stableShuffle(p, node.id + correct + i).slice(0, 2)
+      if (distractors.length < 2) return null
+      return { albanian: lineAlbanian(line), correct, options: stableShuffle([correct, ...distractors], node.id + i) }
+    })
+    .filter(Boolean)
+  return qs.length ? qs : null
+}
+
 export default function StoryView({ state, dispatch }) {
   const node = STORY[state.nodeId]
+  // in debug mode peak never runs out, so hovering always reveals the English
+  const peak = state.debug ? 999 : state.peak
   // which confuser option was just picked (to flash feedback); reset per node
   const [confusedKey, setConfusedKey] = useState(null)
-  useEffect(() => setConfusedKey(null), [state.nodeId])
+  // comprehension test at an ending: which question, the pick for it, running score
+  const [compStep, setCompStep] = useState(0)
+  const [compPick, setCompPick] = useState(null)
+  const [compScore, setCompScore] = useState(0)
+  useEffect(() => {
+    setConfusedKey(null)
+    setCompStep(0)
+    setCompPick(null)
+    setCompScore(0)
+  }, [state.nodeId])
 
   // === SENTENCE-GATED DIRECTIONS ============================================
   // A direction stays hidden until you discover every word of the sentence that
@@ -50,6 +130,10 @@ export default function StoryView({ state, dispatch }) {
   // (when()/unless() lines in content.js), so resolve against the current inventory
   const has = (id) => (state.inventory[id] || 0) > 0
   const lines = visibleLines(node, has)
+  // comprehension test that gates the lore blurb at an ending
+  const comp = state.ended ? buildComprehension(node, lines) : null
+  const compDone = !comp || compStep >= comp.length
+  const compQ = compDone ? null : comp[compStep]
 
   const isNoun = (id) => id && !NON_NOUNS.has(id)
   const lineDiscovered = (line) => line.every((t) => !t.id || state.discovered[t.id])
@@ -127,6 +211,7 @@ export default function StoryView({ state, dispatch }) {
     entries.push({
       key: 'opt-' + i,
       tokens: opt.text,
+      real: true,
       allDiscovered,
       enoughMana,
       ok: allDiscovered && enoughMana && hasRequiredItem(state, opt),
@@ -140,6 +225,7 @@ export default function StoryView({ state, dispatch }) {
     entries.push({
       key: 'use-' + id,
       tokens: it.use.phrase,
+      real: true,
       allDiscovered,
       enoughMana,
       ok,
@@ -180,19 +266,42 @@ export default function StoryView({ state, dispatch }) {
   }
   const shuffledEntries = stableShuffle(entries, state.nodeId + ':' + state.turn)
 
-  const renderLine = (line, i) => (
-    <p className="story-line" key={i}>
-      {line.map((tok, j) => (
-        <Token
-          key={j}
-          token={tok}
-          discovered={state.discovered}
-          peak={state.peak}
-          onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
-        />
-      ))}
-    </p>
-  )
+  // Telegraph the load-bearing sentences: a line whose full discovery will OPEN a
+  // currently-hidden path gets a 📜 cue, so the player knows where discovery pays off.
+  // Only while still hidden — once the path is open, the cue has done its job and drops.
+  const revealLineIdx = new Set()
+  node.options.forEach((opt) => {
+    if (opt.confuser || !opt.reveal) return
+    if (!hasRequiredItem(state, opt)) return // path not available at all → don't tease it
+    if (optionRevealed(opt)) return // already opened
+    const line = sentenceFor(opt.reveal)
+    if (line) revealLineIdx.add(lines.indexOf(line))
+  })
+
+  const renderLine = (line, i) => {
+    const revealsPath = revealLineIdx.has(i)
+    return (
+      <p className={'story-line' + (revealsPath ? ' reveals-path' : '')} key={i}>
+        {line.map((tok, j) => (
+          <Token
+            key={j}
+            token={tok}
+            discovered={state.discovered}
+            peak={peak}
+            onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
+          />
+        ))}
+        {revealsPath && (
+          <span
+            className="reveal-cue"
+            title="Discover every word in this line to open the path it names"
+          >
+            📜
+          </span>
+        )}
+      </p>
+    )
+  }
 
   return (
     <div className="card story">
@@ -212,14 +321,98 @@ export default function StoryView({ state, dispatch }) {
                 : '💀 Fund i keq'}
           </div>
           {node.title && <div className="ending-name">{node.title}</div>}
-          {node.blurb && <p className="ending-desc">{node.blurb}</p>}
-          <p className="hint">
-            Added to your endings collection. Play again to find another ending — your discovered
-            words and tokens carry over.
-          </p>
-          <button className="btn primary" onClick={() => dispatch({ type: 'CONTINUE' })}>
-            ⟳ Play again
-          </button>
+          {!compDone ? (
+            <div className="comp-quiz">
+              <p className="comp-q">
+                📖 A e kuptove? — comprehension {compStep + 1} / {comp.length}
+              </p>
+              <div className="comp-al">{compQ.albanian}</div>
+              <div className="answers">
+                {compQ.options.map((opt) => {
+                  let cls = 'answer'
+                  if (compPick !== null && opt === compQ.correct) cls += ' correct'
+                  else if (compPick === opt && opt !== compQ.correct) cls += ' wrong'
+                  return (
+                    <button
+                      key={opt}
+                      className={cls}
+                      disabled={compPick !== null}
+                      onClick={() => {
+                        setCompPick(opt)
+                        if (opt === compQ.correct) setCompScore((s) => s + 1)
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  )
+                })}
+              </div>
+              {compPick === null ? (
+                <p className="hint">Answer to unlock the tale.</p>
+              ) : (
+                <>
+                  <div className={'feedback ' + (compPick === compQ.correct ? 'good' : 'bad')}>
+                    {compPick === compQ.correct ? '✓ Saktë! ' : '✗ '}
+                    <em>{compQ.albanian}</em> = {compQ.correct}
+                  </div>
+                  <button
+                    className="btn primary"
+                    onClick={() => {
+                      setCompStep(compStep + 1)
+                      setCompPick(null)
+                    }}
+                  >
+                    {compStep < comp.length - 1 ? 'Next question →' : 'Reveal the tale →'}
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <>
+              {comp && (
+                <div className={'feedback ' + (compScore === comp.length ? 'good' : 'bad')}>
+                  You understood {compScore} / {comp.length}.
+                </div>
+              )}
+              {node.blurb && <p className="ending-desc">{node.blurb}</p>}
+              {state.debug && ENDING_LORE[node.id] && (() => {
+                const lore = FOLKLORE.find((f) => f.id === ENDING_LORE[node.id])
+                if (!lore) return null
+                return (
+                  <button
+                    className="btn lore-link"
+                    onClick={() => dispatch({ type: 'OPEN_LORE', lore: lore.id })}
+                  >
+                    📖 The folktale: <b>{lore.title}</b> — open in the library →
+                  </button>
+                )
+              })()}
+              {state.ended === 'good' ? (
+                <>
+                  <p className="hint">
+                    Added to your endings collection. This tale is done — step back into the world and
+                    keep exploring. Everything you&apos;ve gathered comes with you.
+                  </p>
+                  <button
+                    className="btn primary"
+                    onClick={() => dispatch({ type: 'RETURN_TO_WORLD', to: node.returnTo })}
+                  >
+                    🚶 Back to the world →
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="hint">
+                    Added to your endings collection. Play again to find another ending — your
+                    discovered words and tokens carry over.
+                  </p>
+                  <button className="btn primary" onClick={() => dispatch({ type: 'CONTINUE' })}>
+                    ⟳ Play again
+                  </button>
+                </>
+              )}
+            </>
+          )}
         </div>
       ) : (
         <>
@@ -263,7 +456,7 @@ export default function StoryView({ state, dispatch }) {
                         key={j}
                         token={tok}
                         discovered={state.discovered}
-                        peak={state.peak}
+                        peak={peak}
                         onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
                         tokenCount={tok.id ? state.mana[tok.id] || 0 : undefined}
                       />
@@ -271,6 +464,18 @@ export default function StoryView({ state, dispatch }) {
                     <span className="arrow"> →</span>
                   </span>
                   {cost}
+                  {state.debug && e.real && !e.ok && (
+                    <button
+                      className="btn debug-mini"
+                      title="Debug: discover these words and grant the tokens to take this path"
+                      onClick={(ev) => {
+                        ev.stopPropagation()
+                        dispatch({ type: 'DEBUG_GRANT', ids: phraseSenses(e.tokens) })
+                      }}
+                    >
+                      ⚡ tokens
+                    </button>
+                  )}
                 </div>
               )
             })}
@@ -278,7 +483,7 @@ export default function StoryView({ state, dispatch }) {
           {hiddenPaths > 0 && (
             <p className="hint locked-hint">
               📜 {hiddenPaths === 1 ? 'A path is' : hiddenPaths + ' paths are'} still hidden in the
-              story — discover every word of a sentence to open the direction it names.
+              story — discover every word of a 📜-marked sentence to open the direction it names.
             </p>
           )}
           <p className="hint">
