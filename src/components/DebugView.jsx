@@ -698,13 +698,13 @@ const GLYPH = (pl) => {
 // ---------------------------------------------------------------------------
 const VILLAGE_IDS = new Set(VILLAGE_PLACES.map((p) => p.id))
 const REGIONS = [
-  { key: 'sky', label: 'the sky realm', cx: 900, cy: -1180, rx: 700, ry: 280, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende'] },
-  { key: 'mountain', label: 'Mount Tomorr', cx: 860, cy: -560, rx: 660, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'shpirag1', 'maliStuhi', 'tomorProva'] },
+  { key: 'sky', label: 'the sky realm', cx: 900, cy: -1180, rx: 700, ry: 280, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende', 'diellShtepi1', 'rrugaDielli1', 'pemaDielli', 'diellThirrKul'] },
+  { key: 'mountain', label: 'Mount Tomorr', cx: 860, cy: -560, rx: 660, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'tomor3', 'shpirag1', 'maliStuhi', 'tomorProva', 'tomorZbritje'] },
   { key: 'forest', label: 'the great forest', cx: -300, cy: 640, rx: 380, ry: 440, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
   { key: 'river', label: 'the river & the Zana', cx: 1800, cy: 210, rx: 360, ry: 500, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
   { key: 'castle', label: 'Rozafa castle', cx: 1820, cy: 760, rx: 220, ry: 200, terrain: 'castle', anchors: ['kalaRozafa'] },
   { key: 'sea', label: 'the sea', cx: 2280, cy: 1160, rx: 540, ry: 420, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
-  { key: 'underworld', label: 'the world below', cx: 560, cy: 1680, rx: 700, ry: 400, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti'] },
+  { key: 'underworld', label: 'the world below', cx: 560, cy: 1680, rx: 700, ry: 400, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti', 'tre1', 'tre2', 'tre3', 'rrethi', 'shpellaHyrje'] },
   { key: 'village', label: '', cx: 560, cy: 440, rx: 430, ry: 340, terrain: null, anchors: [...VILLAGE_IDS, 'fshatiDil', 'fshatiBesa', 'fshatiCaul', 'udhetimi1', 'udhetimi2', 'gjizar1'] },
 ]
 
