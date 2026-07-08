@@ -484,6 +484,32 @@ export const DICT = {
   prift:     { al: 'prift',     en: 'priest' },    // #3152
   mulli:     { al: 'mulli',     en: 'mill' },      // the water-mill (concrete village institution)
   miell:     { al: 'miell',     en: 'flour' },     // what the mill makes
+  // --- top-150 spoken-frequency fill: the commonest everyday words a learner
+  //     meets constantly (pronouns, quantifiers, deixis). Ranks from the
+  //     OpenSubtitles sq_50k list; see scripts/freqrank.mjs.
+  ne_we:     { al: 'ne',        en: 'we' },        // #29  (distinct from ne='në'=in)
+  me_more:   { al: 'më',        en: 'more' },      // #8   (comparative "më i madh")
+  disa:      { al: 'disa',      en: 'some' },       // #116
+  ndonje:    { al: 'ndonjë',    en: 'any' },        // #114
+  gjitha:    { al: 'gjitha',    en: 'all' },        // #115 (të gjitha)
+  pas:       { al: 'pas',       en: 'after' },      // #118
+  ndoshta:   { al: 'ndoshta',   en: 'maybe' },      // #119
+  shiko:     { al: 'shiko',     en: 'look' },       // #120 (distinct from shko='go')
+  cdo:       { al: 'çdo',       en: 'every' },      // #123
+  zoteri:    { al: 'zotëri',    en: 'sir' },        // #124
+  keto:      { al: 'këto',      en: 'these' },      // #125
+  ashtu:     { al: 'ashtu',     en: 'so' },         // #127 (ashtu është = so it is)
+  qene:      { al: 'qenë',      en: 'been' },       // #128 (participle of jam)
+  tuaj:      { al: 'tuaj',      en: 'your' },       // #142 (plural/formal possessive)
+  tyre:      { al: 'tyre',      en: 'their' },      // #144
+  saj:       { al: 'saj',       en: 'her' },        // #146
+  kaq:       { al: 'kaq',       en: 'so much' },    // #148
+  atehere:   { al: 'atëherë',   en: 'then' },       // #137
+  aty:       { al: 'aty',       en: 'there' },      // #143
+  zot:       { al: 'zot',       en: 'lord' },       // #139 (Zoti = the Lord)
+  dreq:      { al: 'dreq',      en: 'devil' },      // #130 (dreqin)
+  yt:        { al: 'yt',        en: 'your' },       // #131 (tënde = your, fem.)
+  ma:        { al: 'ma',        en: 'to me' },      // #133 (ma jep = give it to me)
 }
 
 // ---------------------------------------------------------------------------
@@ -591,6 +617,7 @@ export const STORY = {
       L(w('nje'), w('trim'), w('eshte'), w('larg'), w('nente'), wf('vit', 'vjet', 'years'), w('dhe'), w('nente'), wf('dite', 'ditë', 'days'), p('.')),
       L(w('nje'), w('grua'), w('prit'), wf('trim', 'trimin', 'the hero'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), w('eshte'), wf('ne', 'në', 'in'), w('burg'), p('.')),
+      L(wf('trim', 'trimi', 'the hero'), wf('ka', 'kishte', 'had'), w('nje'), w('bese'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), w('kendo'), w('me'), wf('lahute', 'lahutën', 'the lute'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), wf('premto', 'premton', 'swears'), w('te_subj'), w('kthehu'), p('.')),
       L(wf('bije', 'bija', 'the daughter'), w('e_link'), wf('mbret', 'mbretit', 'the king'), w('fal'), wf('trim', 'trimin', 'the hero'), p('.')),
@@ -638,6 +665,9 @@ export const STORY = {
       L(w('nje'), w('mik'), w('vjen'), p('.')),
       L(wf('mik', 'miku', 'guest'), w('eshte'), w('uritur'), p('.')),
       L(wf('mik', 'miku', 'guest'), w('do'), w('buke'), p('.')),
+      L(wf('mik', 'miku', 'guest'), w('thote'), p(':'), w('ke'), w('ndonje'), w('buke'), p('?')),
+      L(wf('mik', 'miku', 'guest'), w('do'), wf('buke', 'bukën', 'the bread'), wf('yt', 'tënde', 'your'), p('.')),
+      L(wf('mik', 'miku', 'guest'), w('thote'), p(':'), w('ma'), w('jep'), p('!')),
     ],
     options: [
       { text: L(w('jep'), w('buke'), wf('mik', 'mikut', 'guest')), to: 'breshkaMire', reveal: 'mik' },
@@ -3128,8 +3158,10 @@ export const STORY = {
       L(w('sot'), wf('fshat', 'fshati', 'the village'), wf('bej', 'bën', 'makes'), w('nje'), w('feste'), p('.')),
       L(wf('vajze', 'vajzat', 'the girls'), wf('bej', 'bëjnë', 'make'), w('nje'), w('kukull'), w('balte'), p('.')),
       L(w('nje'), w('rruge'), wf('zbrit', 'zbret', 'goes down'), wf('poshte', 'poshtë', 'down'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river'), p('.')),
+      L(w('nje'), w('plak'), w('rri'), w('ketu'), w('dhe'), wf('shiko', 'shikon', 'looks'), w('ti'), p('.')),
     ],
     options: [
+      { text: L(w('fol'), w('me'), wf('plak', 'plakun', 'the old man')), to: 'sheshiPlak', reveal: 'plak' },
       { text: L(w('hyr'), wf('ne', 'në', 'to'), w('shtepi')), to: 'plaka', reveal: 'shtepi' },
       { text: L(w('hyr'), wf('ne', 'në', 'to'), w('oda')), to: 'oda1', reveal: 'oda' },
       { text: L(w('ndihmo'), wf('femije', 'fëmijët', 'the children')), to: 'dordolec1', reveal: 'dordolec' },
@@ -3138,6 +3170,45 @@ export const STORY = {
       { text: L(w('ndihmo'), wf('vajze', 'vajzat', 'the girls')), to: 'nenaDiell1', reveal: 'kukull' },
       { text: L(w('zbrit'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river')), to: 'fshatiLumi', reveal: 'lume' },
       { text: L(w('ec'), wf('rruge', 'rrugës', 'the lane')), to: 'fshatiLanes' },
+    ],
+  },
+
+  // An old man at the square — a flavour vignette that voices Act I's thirsting
+  // village from a human mouth (the dry well is right there in front of you), and
+  // carries a cluster of the commonest everyday words. Talk-and-return: no ending,
+  // no folktale weight — just the village speaking to the stranger.
+  sheshiPlak: {
+    id: 'sheshiPlak',
+    text: [
+      L(w('nje'), w('plak'), w('thote'), p(':')),
+      L(w('shiko'), p(','), w('zoteri'), p('!')),
+      L(w('ne'), wf('shko', 'shkojmë', 'go'), wf('tek', 'te', 'to'), w('pus'), w('cdo'), wf('dite', 'ditë', 'day'), p('.')),
+      L(w('po_but'), wf('pus', 'pusi', 'the well'), w('eshte'), w('i_art'), w('thate'), w('kaq'), w('kohe'), p('.')),
+      L(w('disa'), wf('njeri', 'njerëz', 'people'), wf('ik', 'ikën', 'leave'), p('.')),
+      L(w('ndoshta'), w('ti'), wf('ndihmo', 'ndihmon', 'help'), w('ne'), p('.')),
+      L(w('atehere'), wf('fshat', 'fshati', 'the village'), w('eshte'), w('i_art'), w('mire'), w('perseri'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'sheshiPlak2' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  sheshiPlak2: {
+    id: 'sheshiPlak2',
+    text: [
+      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
+      L(wf('bir', 'biri', 'the son'), wf('im', 'tim', 'my'), w('eshte'), w('larg'), p(','), w('nente'), wf('vit', 'vjet', 'years'), p('.')),
+      L(wf('ata', 'ato', 'they'), p(','), wf('motra', 'motrat', 'the sisters'), w('e_link'), w('saj'), p(','), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.')),
+      L(wf('shtepi', 'shtëpitë', 'the houses'), w('tyre'), w('qene'), w('me'), w('zjarr'), p('.')),
+      L(w('gjitha'), w('keto'), w('vatra'), w('tani'), wf('eshte', 'janë', 'are'), w('ftohte'), p('.')),
+      L(w('ne'), w('nuk'), wf('lufto', 'luftojmë', 'fight'), p('.')),
+      L(w('ndoshta'), wf('zot', 'zoti', 'the Lord'), w('sheh'), p('.')),
+      L(w('ti'), w('ke'), w('me_more'), w('shume'), w('fuqi'), p('.')),
+      L(w('ashtu'), w('eshte'), p('.')),
+    ],
+    options: [
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
     ],
   },
 
@@ -4826,6 +4897,7 @@ export const STORY = {
     text: [
       L(w('ti'), wf('premto', 'premton', 'swear'), w('nje'), w('bese'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('behet', 'bëhen', 'become'), wf('vella', 'vëllezër', 'brothers'), p('.')),
+      L(w('nje'), w('plak'), w('thote'), p(':'), w('ata'), wf('eshte', 'janë', 'are'), wf('vella', 'vëllezërit', 'the brothers'), w('tuaj'), w('tani'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('njeri', 'njerëzit', 'the people')), to: 'gjakFund' },
@@ -5833,7 +5905,8 @@ export const STORY = {
     text: [
       L(w('nje'), w('kukudh'), w('vjen'), p('.')),
       L(w('kukudh'), w('eshte'), w('i_art'), w('forte'), p('.')),
-      L(w('hardhi'), wf('vrit', 'vret', 'kills'), wf('kukudh', 'kukudhin', 'the miser-ghost'), p('.')),
+      L(w('disa'), wf('thote', 'thonë', 'say'), p(':'), wf('kukudh', 'kukudhi', 'the miser-ghost'), w('eshte'), w('nje'), w('dreq'), p('.')),
+      L(w('hardhi'), wf('vrit', 'vret', 'kills'), wf('kukudh', 'kukudhin', 'the miser-ghost'), p(','), wf('dreq', 'dreqin', 'the devil'), p('.')),
     ],
     options: [
       { text: L(w('hidh'), w('hardhi')), to: 'kukudhFund', reveal: 'hardhi' },
@@ -5868,6 +5941,8 @@ export const STORY = {
       L(w('larg'), w('eshte'), w('nje'), w('fshat'), p('.')),
       L(wf('lart', 'lart', 'high'), w('eshte'), w('nje'), w('mal'), w('te_link'), w('shenjte'), p('.')),
       L(w('ketu'), w('eshte'), w('nje'), w('pyll'), w('dhe'), w('nje'), w('lume'), p('.')),
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('pas'), wf('mal', 'malit', 'the mountain'), p(','), w('aty'), w('larg'), p(','), w('eshte'), wf('det', 'deti', 'the sea'), p('.')),
+      L(w('ti'), wf('mendoj', 'mendon', 'think'), p(':'), w('ku'), w('te_subj'), wf('shko', 'shkosh', 'go'), p('?')),
     ],
     options: [
       { text: L(w('ec'), wf('ne', 'në', 'to'), w('fshat')), to: 'fshatiSheshi' },
@@ -6505,6 +6580,8 @@ const CONFUSERS = {
   udhetimi2: L(w('hap'), wf('dere', 'derën', 'the door')), // open the door — none here
   bukuraThellesi: L(w('zbrit'), wf('ne', 'në', 'to'), wf('pus', 'pusin', 'the well')), // descend into the well — none here
   fshatiSheshi: L(w('bej'), wf('pus', 'pusin', 'the well')), // make the well — you cannot
+  sheshiPlak: L(w('ndihmo'), wf('pus', 'pusin', 'the well')), // help the well — it is not a person
+  sheshiPlak2: L(w('lufto'), wf('vatra', 'vatrat', 'the hearths')), // fight the hearths — nonsense
   nenaDiell1: L(wf('bej', 'bëj', 'make'), wf('diell', 'diellin', 'the sun')), // make the sun — you cannot
   karkanxholl1: L(wf('thirr', 'thërret', 'call'), wf('hekur', 'hekurin', 'the iron')), // call the iron — nonsense
   dhelpra1: L(w('ha'), wf('ujk', 'ujkun', 'the wolf')), // eat the wolf — you cannot
@@ -7082,6 +7159,31 @@ export const DEFS = {
   e_obj: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
   e_conj: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
   do_fut: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
+
+  // top-150 frequency fill — defined by role or simple synonym
+  ne_we: L(w('une'), w('dhe'), w('ti')), //            I and you
+  me_more: L(w('shume')), //                           much
+  disa: L(w('jo'), w('shume')), //                     not many
+  ndonje: L(w('ndoshta'), w('nje')), //                maybe one
+  gjitha: L(w('gjithe')), //                           all
+  cdo: L(w('gjithe')), //                              all
+  pas: L(w('jo'), w('para')), //                       not before
+  atehere: L(w('pas')), //                             after
+  ndoshta: L(w('mund')), //                            can (be)
+  shiko: L(w('sheh')), //                              see
+  zoteri: L(w('nje'), w('burre')), //                  a man
+  keto: L(w('gje'), w('ketu')), //                     things here
+  ashtu: L(w('keshtu')), //                            thus
+  qene: L(w('eshte')), //                              is
+  tuaj: L(w('e_link'), w('ju')), //                    of you
+  tyre: L(w('e_link'), w('ata')), //                   of them
+  saj: L(w('e_link'), w('ajo')), //                    of her
+  yt: L(w('e_link'), w('ti')), //                      of you
+  kaq: L(w('shume')), //                               much
+  aty: L(w('jo'), w('ketu')), //                       not here
+  zot: L(w('nje'), w('perendi')), //                   a god
+  dreq: L(w('jo'), w('mire')), //                      not good
+  ma: L(w('mua')), //                                  me
 
   // nouns — a kind of thing
   pyll: L(w('nje'), w('vend'), w('me'), w('shume'), w('peme')), //   a place with many trees
