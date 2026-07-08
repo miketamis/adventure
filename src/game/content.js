@@ -536,6 +536,23 @@ export const DICT = {
   dashur:    { al: 'dashur',    en: 'dear' },       // #194 (i dashur = beloved)
   ndodh:     { al: 'ndodh',     en: 'happens' },    // #196
   nevoje:    { al: 'nevojë',    en: 'need' },       // #197 (kam nevojë = I need)
+  // --- top 201-250 spoken-frequency fill ---
+  juaj:      { al: 'juaj',      en: 'your' },       // #201 (plural/formal possessive)
+  pelqen:    { al: 'pëlqen',    en: 'likes' },      // #202 (më pëlqen = I like it)
+  gjithmone: { al: 'gjithmonë', en: 'always' },     // #206
+  mjaft:     { al: 'mjaft',     en: 'enough' },     // #211
+  o:         { al: 'o',         en: 'oh' },         // #212 (vocative: o zot!)
+  tone:      { al: 'tonë',      en: 'our' },        // #213
+  perse:     { al: 'përse',     en: 'why' },        // #216
+  gjate:     { al: 'gjatë',     en: 'long' },       // #217 (gjatë natës = during the night)
+  vete:      { al: 'vetë',      en: 'self' },       // #223 (veten = oneself)
+  baba:      { al: 'baba',      en: 'father' },     // #225/#243 (babi, babai)
+  shok:      { al: 'shok',      en: 'comrade' },    // #235 (shoku)
+  ende:      { al: 'ende',      en: 'yet' },        // #236
+  djale:     { al: 'djalë',     en: 'boy' },        // #239 (djema = boys)
+  vone:      { al: 'vonë',      en: 'late' },       // #240
+  sapo:      { al: 'sapo',      en: 'just' },       // #249 (just now / as soon as)
+  askush:    { al: 'askush',    en: 'nobody' },     // #250
 }
 
 // ---------------------------------------------------------------------------
@@ -1652,6 +1669,9 @@ export const STORY = {
       L(w('une'), wf('vjen', 'vij', 'come'), w('prej'), w('nje'), w('vend'), w('larg'), p('.')),
       L(w('cka'), wf('kerko', 'kerkon', 'seek'), w('ti'), p('?')),
       L(w('une'), wf('ka', 'kam', 'have'), w('nevoje'), w('per'), w('pune'), p('.')),
+      L(w('mua'), w('pelqen'), wf('vend', 'vendi', 'the place'), p('.')),
+      L(w('une'), wf('merr', 'marr', 'take'), wf('rruge', 'rrugën', 'the road'), p('.')),
+      L(w('ti'), w('duhet'), w('te_subj'), wf('jam', 'jesh', 'be'), w('gati'), p('.')),
       L(w('epo'), p(','), w('ti'), w('je'), w('gati'), p('?')),
       L(w('une'), wf('sheh', 'shoh', 'see'), w('mire'), p(','), w('vertet'), p('.')),
       L(w('thjesht'), w('ec'), w('me'), w('mua'), p('.')),
@@ -4095,9 +4115,11 @@ export const STORY = {
       L(w('nje'), w('gjysmegjel'), w('rri'), w('ketu'), p('.')),
       L(w('nje'), w('femije'), w('eshte'), w('i_art'), w('bukur'), p('.')),
       L(w('nje'), w('grua'), wf('bej', 'bën', 'bakes'), w('buke'), p('.')),
+      L(w('nje'), w('baba'), w('rri'), w('me'), wf('djale', 'djemtë', 'the boys'), p('.')),
       L(wf('poshte', 'poshtë', 'below'), wf('shko', 'shkon', 'goes'), w('nje'), w('rruge'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river'), p('.')),
     ],
     options: [
+      { text: L(w('fol'), w('me'), wf('baba', 'baban', 'the father')), to: 'jetaBaba', reveal: 'baba' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('vatra')), to: 'vatra', reveal: 'vatra' },
       { text: L(w('degjo'), wf('nene', 'nënën', 'the woman')), to: 'qilim', reveal: 'qilim' },
       { text: L(w('ndihmo'), w('bari')), to: 'bariu', reveal: 'bari' },
@@ -4106,6 +4128,51 @@ export const STORY = {
       { text: L(wf('bej', 'bëj', 'bake'), w('buke')), to: 'breshka1', reveal: 'buke' },
       { text: L(w('zbrit'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river')), to: 'fshatiLumi', reveal: 'lume' },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  // A father with his boys in the village-life quarter — a flavour vignette
+  // (talk-and-return) carrying the family/everyday 201-250 words.
+  jetaBaba: {
+    id: 'jetaBaba',
+    text: [
+      L(w('nje'), w('baba'), w('thote'), p(':')),
+      L(w('une'), wf('ka', 'kam', 'have'), wf('djale', 'djema', 'boys'), p('.')),
+      L(wf('djale', 'djema', 'boys'), wf('thote', 'thonë', 'say'), p(':'), wf('baba', 'babi', 'dad'), p('!')),
+      L(w('ku'), wf('eshte', 'janë', 'are'), wf('djale', 'djemtë', 'the boys'), w('e_link'), wf('yt', 'tu', 'your'), p('?')),
+      L(w('ai'), w('eshte'), wf('shok', 'shoku', 'the comrade'), w('im'), p('.')),
+      L(wf('baba', 'babai', 'the father'), w('im'), wf('jam', 'ishte', 'was'), w('nje'), w('bari'), p('.')),
+      L(wf('vend', 'vendi', 'the place'), w('tone'), w('eshte'), w('ketu'), p('.')),
+      L(wf('shtepi', 'shtëpia', 'the house'), w('juaj'), w('eshte'), w('larg'), p('?')),
+      L(w('une'), wf('beso', 'besoj', 'believe'), w('gjithmone'), p('.')),
+      L(w('njeri'), w('do'), wf('vete', 'veten', 'oneself'), p('.')),
+      L(w('une'), wf('ka', 'kam', 'have'), wf('gje', 'gjëra', 'things'), w('i_art'), w('mire'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('baba', 'baban', 'the father')), to: 'jetaBaba2' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiJeta' },
+    ],
+  },
+
+  jetaBaba2: {
+    id: 'jetaBaba2',
+    text: [
+      L(w('baba'), w('thote'), p(':')),
+      L(w('o'), wf('djale', 'djema', 'boys'), p('!')),
+      L(w('une'), wf('thote', 'thashë', 'said'), p(':'), wf('rri', 'rrini', 'stay'), p('.')),
+      L(w('por'), w('ti'), wf('thote', 'the', 'said'), p(':'), w('jo'), p('.')),
+      L(w('perse'), p('?')),
+      L(w('une'), wf('do', 'doja', 'wanted'), w('vetem'), w('uje'), p('.')),
+      L(w('une'), wf('ka', 'kam', 'have'), wf('thote', 'thënë', 'said'), w('mjaft'), p('.')),
+      L(w('cfare'), w('te_subj'), wf('bej', 'bëjë', 'do'), p('?')),
+      L(w('gjate'), w('naten'), p(','), w('askush'), w('nuk'), w('vjen'), w('ende'), p('.')),
+      L(w('tani'), w('eshte'), w('vone'), p('.')),
+      L(w('ti'), wf('jam', 'ishe', 'were'), w('larg'), p('?')),
+      L(w('sapo'), w('ti'), wf('ka', 'ke', 'have'), wf('vjen', 'ardhur', 'come'), p('.')),
+      L(w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('?')),
+    ],
+    options: [
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiJeta' },
     ],
   },
 
@@ -6721,6 +6788,8 @@ const CONFUSERS = {
   sheshiPlak2: L(w('lufto'), wf('vatra', 'vatrat', 'the hearths')), // fight the hearths — nonsense
   sheshiPlak3: L(w('ik'), wf('fund', 'fundin', 'the end')), // flee the end — you cannot
   qytetiUdhetar: L(w('ec'), wf('det', 'detin', 'the sea')), // walk the sea — you cannot
+  jetaBaba: L(w('degjo'), wf('vend', 'vendin', 'the place')), // listen to the place — it cannot answer
+  jetaBaba2: L(wf('bej', 'bëj', 'make'), wf('naten', 'natën', 'the night')), // make the night — you cannot
   nenaDiell1: L(wf('bej', 'bëj', 'make'), wf('diell', 'diellin', 'the sun')), // make the sun — you cannot
   karkanxholl1: L(wf('thirr', 'thërret', 'call'), wf('hekur', 'hekurin', 'the iron')), // call the iron — nonsense
   dhelpra1: L(w('ha'), wf('ujk', 'ujkun', 'the wolf')), // eat the wolf — you cannot
@@ -7357,6 +7426,23 @@ export const DEFS = {
   dashur: L(w('mik')), //                              friend (dear)
   ndodh: L(w('behet')), //                             becomes (happens)
   nevoje: L(w('do')), //                               wants (need)
+  // top 201-250 frequency fill
+  juaj: L(w('e_link'), w('ju')), //                    of you
+  pelqen: L(w('do')), //                               wants (likes)
+  gjithmone: L(w('cdo'), w('here')), //                every time
+  mjaft: L(w('shume')), //                             much (enough)
+  o: L(w('hej')), //                                   hey (o!)
+  tone: L(w('e_link'), w('ne_we')), //                 of us
+  perse: L(w('per'), w('se')), //                      for what
+  gjate: L(w('shume'), w('kohe')), //                  much time (long)
+  vete: L(w('nje'), w('njeri')), //                    a person (self)
+  baba: L(w('nje'), w('burre')), //                    a man (father)
+  shok: L(w('nje'), w('mik')), //                      a friend
+  ende: L(w('akoma')), //                              still (yet)
+  djale: L(w('nje'), w('femije')), //                  a child (boy)
+  vone: L(w('pas')), //                                after (late)
+  sapo: L(w('tani')), //                               now (just)
+  askush: L(w('jo'), w('njeri')), //                   no person
 
   // nouns — a kind of thing
   pyll: L(w('nje'), w('vend'), w('me'), w('shume'), w('peme')), //   a place with many trees
