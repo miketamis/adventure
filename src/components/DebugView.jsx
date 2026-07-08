@@ -405,6 +405,24 @@ function RoofBlock({ x, y, w, h, rot, tone }) {
   )
 }
 
+// several scenes sharing one spot on the map → a "story stack": a little pile of
+// story pages with a count badge. Click it and the scenes fan out (see VillageMap).
+function StoryStack({ x, y, n, hot }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0.5} cy={9} rx={11} ry={3.2} fill="rgba(0,0,0,.22)" />
+      <rect x={-8} y={-4} width={16} height={13} rx={2.4} transform="rotate(-9)" fill="#e5d6b2" stroke="#5a4632" strokeWidth={1.1} />
+      <rect x={-8} y={-5.5} width={16} height={13} rx={2.4} transform="rotate(6)" fill="#efe4c8" stroke="#5a4632" strokeWidth={1.1} />
+      <rect x={-8} y={-7} width={16} height={13} rx={2.4} fill="#fbf4df" stroke={hot ? '#3ad0c0' : '#3f3020'} strokeWidth={hot ? 1.8 : 1.3} />
+      <line x1={-4.5} y1={-3.4} x2={4.5} y2={-3.4} stroke="#8a6f4c" strokeWidth={1} />
+      <line x1={-4.5} y1={-0.8} x2={2.6} y2={-0.8} stroke="#a88f68" strokeWidth={1} />
+      <line x1={-4.5} y1={1.8} x2={3.6} y2={1.8} stroke="#a88f68" strokeWidth={1} />
+      <circle cx={8.5} cy={-8.5} r={6.6} fill={hot ? '#3ad0c0' : '#2b3550'} stroke="#fff" strokeWidth={1.1} />
+      <text x={8.5} y={-5.9} textAnchor="middle" fontSize={9} fontWeight="700" fill="#fff" fontFamily="system-ui, sans-serif">{n}</text>
+    </g>
+  )
+}
+
 function Field({ x, y, w, h, rot, tone }) {
   const furrows = []
   for (let i = 1; i < h / 11; i++) furrows.push(-h / 2 + i * 11)
@@ -1098,7 +1116,7 @@ function VillageMap({ g, current, goGraph }) {
   // place every OTHER node as a dot in its region, keep a position + region for
   // EVERY node, build the story edges, and score "teleport" edges (long + cross-
   // region + passing over many other nodes' dots).
-  const { dots, edges, oddEdges } = useMemo(() => {
+  const { dots, edges, oddEdges, clusters, singles, memberOf } = useMemo(() => {
     const byRegion = assignRegions(g)
     const out = [], pos = {}, regOf = {}
     for (const pl of VILLAGE_PLACES) if (STORY[pl.id]) { pos[pl.id] = [pl.x, pl.y]; regOf[pl.id] = 'village' }
@@ -1154,7 +1172,29 @@ function VillageMap({ g, current, goGraph }) {
     })
     const oddEdges = scored.filter((s) => s.cross && s.len > 500)
       .sort((a, b) => b.crossings - a.crossings || b.len - a.len).slice(0, 24)
-    return { dots: out, edges, oddEdges }
+
+    // group scene-dots that land on (nearly) the same spot into one clickable
+    // "story stack" — landmarks + village buildings are hand-placed, so excluded.
+    const CR = 26 // world radius under which two dots count as "the same spot"
+    const clusterable = out.filter((d) => !LANDMARK_IDS.has(d.id))
+    const used = new Set(), clusters = [], memberOf = {}
+    for (let i = 0; i < clusterable.length; i++) {
+      const a = clusterable[i]; if (used.has(a.id)) continue
+      const grp = [a]
+      for (let j = i + 1; j < clusterable.length; j++) {
+        const b = clusterable[j]
+        if (!used.has(b.id) && Math.hypot(a.x - b.x, a.y - b.y) < CR) grp.push(b)
+      }
+      if (grp.length < 2) continue
+      grp.forEach((m) => used.add(m.id))
+      const cx = grp.reduce((s, m) => s + m.x, 0) / grp.length
+      const cy = grp.reduce((s, m) => s + m.y, 0) / grp.length
+      const key = 'stack:' + grp.map((m) => m.id).sort()[0]
+      grp.forEach((m) => { memberOf[m.id] = key })
+      clusters.push({ key, x: cx, y: cy, members: grp.map((m) => ({ id: m.id, kind: m.kind, region: m.region })) })
+    }
+    const singles = out.filter((d) => !LANDMARK_IDS.has(d.id) && !used.has(d.id))
+    return { dots: out, edges, oddEdges, clusters, singles, memberOf }
   }, [g])
 
   // selection = the node you're auditing: light up its edges, dim the rest.
@@ -1173,6 +1213,27 @@ function VillageMap({ g, current, goGraph }) {
     incoming: g.ids.filter((id) => (g.adj[id] || []).includes(sel)),
     firstLine: STORY[sel].text && STORY[sel].text.length ? englishOf(lineOf(STORY[sel].text[0])) : '',
   } : null
+  // a "story stack" fans open when you click it, or when it holds the focused node
+  const [expanded, setExpanded] = useState(null)
+  const openKeys = useMemo(() => {
+    const s = new Set()
+    if (expanded) s.add(expanded)
+    if (focus && memberOf[focus]) s.add(memberOf[focus])
+    return s
+  }, [expanded, focus, memberOf])
+  // fanned-out position of every member of an open stack (also re-anchors its edges)
+  const fanPos = useMemo(() => {
+    const m = {}
+    for (const c of clusters) {
+      if (!openKeys.has(c.key)) continue
+      const n = c.members.length, R = Math.min(66, 28 + n * 3.4)
+      c.members.forEach((mem, i) => {
+        const ang = (i / n) * Math.PI * 2 - Math.PI / 2
+        m[mem.id] = [c.x + Math.cos(ang) * R, c.y + Math.sin(ang) * R]
+      })
+    }
+    return m
+  }, [clusters, openKeys])
 
   const [view, setView] = useState(MAP_VIEWS.village)
   const [showOdd, setShowOdd] = useState(false)
@@ -1203,7 +1264,7 @@ function VillageMap({ g, current, goGraph }) {
     setView((v) => ({ ...v, x: drag.current.vx + dx, y: drag.current.vy + dy }))
   }
   const onUp = () => { drag.current = null }
-  const onBackdrop = () => { if (!drag.current || !drag.current.moved) setSel(null) }
+  const onBackdrop = () => { if (!drag.current || !drag.current.moved) { setSel(null); setExpanded(null) } }
   const zoomBy = (f) => setView((v) => { const k = Math.min(3.4, Math.max(0.16, v.k * f)); return { x: 580 - (580 - v.x) * (k / v.k), y: 380 - (380 - v.y) * (k / v.k), k } })
   const dr = 5.4 / view.k, ds = 1 / view.k
 
@@ -1350,6 +1411,9 @@ function VillageMap({ g, current, goGraph }) {
                 when a node is selected: its OUT edges glow teal, its IN edges amber. */}
             <g>
               {edges.map(([x1, y1, x2, y2, u, v, wander], i) => {
+                const pu = fanPos[u], pv = fanPos[v]
+                if (pu) { x1 = pu[0]; y1 = pu[1] }
+                if (pv) { x2 = pv[0]; y2 = pv[1] }
                 const out = u === focus, inc = v === focus, hot = out || inc
                 const stroke = out ? '#3ad0c0' : inc ? '#f0a53c' : (wander ? '#6a5a44' : '#43526a')
                 return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke}
@@ -1371,13 +1435,11 @@ function VillageMap({ g, current, goGraph }) {
               )
             })}
 
-            {/* every other node, as a clickable dot in its region.
-                click a dot to SELECT it (highlight its edges); dim the rest. */}
-            {dots.map((d) => {
+            {/* lone scene-dots — click to SELECT (highlight its edges); dim the rest. */}
+            {singles.map((d) => {
               if (LANDMARK_IDS.has(d.id)) return null // drawn as a bespoke landmark glyph below
               const isSel = d.id === sel, isCur = d.id === current
               const dim = focus && nbr && !nbr.has(d.id)
-              const big = isSel || (isCur && !sel)
               const label = isSel || (nbr && nbr.has(d.id)) || hubSet.has(d.id)
               return (
                 <g key={d.id} className="dbg-wdot" opacity={dim ? 0.22 : 1} onClick={() => setSel(d.id)} style={{ cursor: 'pointer' }}>
@@ -1388,6 +1450,52 @@ function VillageMap({ g, current, goGraph }) {
                   <circle cx={d.x} cy={d.y} r={dr * 2.4} fill="transparent" />
                   {(isSel || isCur) && <circle cx={d.x} cy={d.y} r={12} fill="none" stroke={isSel ? '#3ad0c0' : '#fff'} strokeWidth={2} opacity={0.8} />}
                   {genericGlyph(d.x, d.y, d.kind, d.region)}
+                </g>
+              )
+            })}
+
+            {/* co-located scenes → one "story stack"; click to fan the scenes out. */}
+            {clusters.map((c) => {
+              const open = openKeys.has(c.key)
+              const dimAll = focus && nbr && !c.members.some((m) => nbr.has(m.id))
+              if (!open) {
+                const hot = c.members.some((m) => m.id === sel || m.id === current)
+                return (
+                  <g key={c.key} className="dbg-wdot" opacity={dimAll ? 0.28 : 1}
+                     onClick={() => setExpanded(c.key)} style={{ cursor: 'pointer' }}>
+                    <title>{c.members.length} scenes here — click to open: {c.members.map((m) => m.id).join(', ')}</title>
+                    <circle cx={c.x} cy={c.y} r={dr * 2.4} fill="transparent" />
+                    <StoryStack x={c.x} y={c.y} n={c.members.length} hot={hot} />
+                  </g>
+                )
+              }
+              return (
+                <g key={c.key}>
+                  {c.members.map((m) => {
+                    const p = fanPos[m.id]; if (!p) return null
+                    return <line key={'leg' + m.id} x1={c.x} y1={c.y} x2={p[0]} y2={p[1]} stroke="#6a5a44" strokeWidth={1 * ds} opacity={0.55} />
+                  })}
+                  {/* the open stack's centre — click to collapse it again */}
+                  <g onClick={() => { setExpanded(null); setSel(null) }} style={{ cursor: 'pointer' }}>
+                    <circle cx={c.x} cy={c.y} r={dr * 1.6} fill="transparent" />
+                    <circle cx={c.x} cy={c.y} r={4.6} fill="#2b3550" stroke="#fff" strokeWidth={1.2} />
+                    <line x1={c.x - 2.2} y1={c.y} x2={c.x + 2.2} y2={c.y} stroke="#fff" strokeWidth={1.3} />
+                  </g>
+                  {c.members.map((m) => {
+                    const p = fanPos[m.id]; if (!p) return null
+                    const isSel = m.id === sel, isCur = m.id === current
+                    const dim = focus && nbr && !nbr.has(m.id)
+                    return (
+                      <g key={m.id} className="dbg-wdot" opacity={dim ? 0.3 : 1} onClick={() => setSel(m.id)} style={{ cursor: 'pointer' }}>
+                        <title>{m.id}{STORY[m.id].end ? ` (${STORY[m.id].end})` : ''}</title>
+                        <text x={p[0]} y={p[1] - 10 * ds} textAnchor="middle" className="dbg-wdotlabel"
+                              style={{ fontSize: 10.5 * ds, strokeWidth: 3 * ds }}>{m.id}</text>
+                        <circle cx={p[0]} cy={p[1]} r={dr * 2} fill="transparent" />
+                        {(isSel || isCur) && <circle cx={p[0]} cy={p[1]} r={12} fill="none" stroke={isSel ? '#3ad0c0' : '#fff'} strokeWidth={2} opacity={0.8} />}
+                        {genericGlyph(p[0], p[1], m.kind, m.region)}
+                      </g>
+                    )
+                  })}
                 </g>
               )
             })}
