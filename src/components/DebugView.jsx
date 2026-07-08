@@ -972,16 +972,19 @@ const WORLD_BLOTCHES = (() => {
   return b
 })()
 
+// Roads connect the settled places on LAND (the river handles the water route to
+// the Zana / castle / sea, so no road duplicates it).
 const VILLAGE_ROADS = [
-  'M 566 66 C 660 -60 780 -160 866 -300',   // crossroads → Mount Tomorr
-  'M 566 66 C 1020 30 1440 110 1720 190',    // crossroads → the river
-  'M 150 500 C 10 522 -140 540 -260 556',    // village → the great forest
-  'M 980 640 C 1300 900 1600 1000 1900 1080', // village edge → the sea coast
+  'M 566 96 C 660 -60 780 -170 866 -300',    // crossroads → Mount Tomorr
+  'M 100 560 C -40 600 -180 620 -320 636',   // village west → the great forest
+  'M 1050 900 C 1300 980 1520 1020 1720 1060', // riverside → Rozafa castle (towpath)
 ]
 // ONE river: springs from Mount Tomorr, runs down the village's east edge (past
 // the bridge/mill/spring), through the Zana's stretch, and out into the sea.
 const WORLD_RIVER = 'M 900 -300 C 1000 -60 946 210 896 486 C 858 726 1070 856 1330 972 C 1584 1086 1866 1196 2060 1336'
-const WELL_SHAFT = 'M 544 470 C 556 820 560 1120 560 1340'
+// the descent from the village well down to the world below — a ravine that
+// curves east of the lower field rather than cutting straight through it.
+const WELL_SHAFT = 'M 544 466 C 578 620 700 700 704 884 C 710 1074 626 1256 576 1440'
 const MAP_VIEWS = {
   village: { x: 199, y: 90, k: 0.72 },
   world: { x: 384, y: 312, k: 0.2 },
@@ -1056,6 +1059,12 @@ function VillageMap({ g, current, goGraph }) {
         }
       }
     })
+    // pin START at the forest's edge nearest the village, so the opening walk to
+    // the crossroads reads as a short step out of the trees (not a cross-map haul).
+    if (pos[START_NODE]) {
+      const sp = out.find((d) => d.id === START_NODE)
+      if (sp) { sp.x = 150; sp.y = 250; pos[START_NODE] = [150, 250] }
+    }
     // edges drawn faint+dashed for wander links, solid for progression, so the
     // solid edges show the real, local structure of the story.
     const edges = []
@@ -1136,7 +1145,7 @@ function VillageMap({ g, current, goGraph }) {
   const onUp = () => { drag.current = null }
   const onBackdrop = () => { if (!drag.current || !drag.current.moved) setSel(null) }
   const zoomBy = (f) => setView((v) => { const k = Math.min(3.4, Math.max(0.16, v.k * f)); return { x: 580 - (580 - v.x) * (k / v.k), y: 380 - (380 - v.y) * (k / v.k), k } })
-  const dr = 3.6 / view.k, ds = 1 / view.k
+  const dr = 5.4 / view.k, ds = 1 / view.k
 
   return (
     <div className="dbg-map">
@@ -1199,8 +1208,10 @@ function VillageMap({ g, current, goGraph }) {
             <path d={WORLD_RIVER} fill="none" stroke="#cdbf94" strokeWidth={92} strokeLinecap="round" />
             <path d={WORLD_RIVER} fill="none" stroke="url(#wSea)" strokeWidth={60} strokeLinecap="round" />
             <path d={WORLD_RIVER} fill="none" stroke="#bfe0ea" strokeWidth={16} strokeLinecap="round" opacity={0.5} />
-            <path d={WELL_SHAFT} fill="none" stroke="#241f1b" strokeWidth={18} strokeLinecap="round" opacity={0.75} />
-            <path d={WELL_SHAFT} fill="none" stroke="#5a4e42" strokeWidth={4} strokeDasharray="2 12" strokeLinecap="round" />
+            <path d={WELL_SHAFT} fill="none" stroke="#6f5f45" strokeWidth={30} strokeLinecap="round" opacity={0.55} />
+            <path d={WELL_SHAFT} fill="none" stroke="#2b241d" strokeWidth={20} strokeLinecap="round" />
+            <path d={WELL_SHAFT} fill="none" stroke="#120f0b" strokeWidth={9} strokeLinecap="round" />
+            <path d={WELL_SHAFT} fill="none" stroke="#e8892b" strokeWidth={3} strokeLinecap="round" opacity={0.28} strokeDasharray="1 26" />
 
             {/* region terrains (the mountain and the sea cover the river's source and mouth) */}
             {REGIONS.map((rg) => (rg.terrain ? <g key={rg.key}>{TERRAIN[rg.terrain](rg)}</g> : null))}
@@ -1286,12 +1297,14 @@ function VillageMap({ g, current, goGraph }) {
               const big = isSel || (isCur && !sel)
               const label = isSel || (nbr && nbr.has(d.id)) || hubSet.has(d.id)
               return (
-                <g key={d.id} opacity={dim ? 0.22 : 1}>
-                  {label && <text x={d.x} y={d.y - 6.5 * ds} textAnchor="middle" className="dbg-wdotlabel"
+                <g key={d.id} opacity={dim ? 0.22 : 1} onClick={() => setSel(d.id)} style={{ cursor: 'pointer' }}>
+                  {label && <text x={d.x} y={d.y - 8.5 * ds} textAnchor="middle" className="dbg-wdotlabel"
                                   style={{ fontSize: 10.5 * ds, strokeWidth: 3 * ds }}>{d.id}</text>}
+                  {/* generous invisible hit target so tiny dots are easy to click */}
+                  <circle cx={d.x} cy={d.y} r={dr * 2.6} fill="transparent" />
                   <circle className="dbg-wdot" cx={d.x} cy={d.y} r={big ? dr * 1.9 : dr}
                           fill={KIND_COLOR[d.kind]} stroke={isSel ? '#3ad0c0' : isCur ? '#fff' : '#101820'}
-                          strokeWidth={ds * (big ? 2.4 : 1)} onClick={() => setSel(d.id)}>
+                          strokeWidth={ds * (big ? 2.4 : 1.4)}>
                     <title>{d.id}{STORY[d.id].end ? ` (${STORY[d.id].end})` : ''}</title>
                   </circle>
                 </g>
