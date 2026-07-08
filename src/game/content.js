@@ -97,6 +97,7 @@ export const DICT = {
     { al: 'plak',   tag: 'indefNom', gloss: 'an old man' },
     { al: 'plaku',  tag: 'defNom',   gloss: 'the old man' },
     { al: 'plakun', tag: 'defAcc',   gloss: 'the old man (object)' },
+    { al: 'plako',  tag: 'voc',      gloss: 'old man (buddy)' },
   ] },
   kalo:      { al: 'kalo',      en: 'cross' },
   // --- folklore: characters & creatures ---
@@ -665,6 +666,22 @@ export const DICT = {
   teper:     { al: 'tepër',     en: 'too much' },   // #438
   he:        { al: 'hë',        en: 'well' },       // #446 (interjection)
   prapa:     { al: 'prapa',     en: 'behind' },     // #449
+  // --- top 451-500 spoken-frequency fill ---
+  arme:      { al: 'armë',      en: 'weapon' },     // #451
+  muaj:      { al: 'muaj',      en: 'month' },      // #464
+  tung:      { al: 'tung',      en: 'hi' },         // #465 (greeting)
+  lloj:      { al: 'lloj',      en: 'kind' },       // #466
+  ketej:     { al: 'këtej',     en: 'this way' },   // #473
+  dashuri:   { al: 'dashuri',   en: 'love' },       // #475
+  rendesi:   { al: 'rëndësi',   en: 'importance' }, // #483
+  kunder:    { al: 'kundër',    en: 'against' },    // #484
+  kater:     { al: 'katër',     en: 'four' },       // #486
+  pari:      { al: 'pari',      en: 'first' },      // #487 (i pari)
+  jave:      { al: 'javë',      en: 'week' },       // #488
+  vazhdo:    { al: 'vazhdo',    en: 'continue' },   // #491
+  shpirt:    { al: 'shpirt',    en: 'soul' },       // #497
+  ulu:       { al: 'ulu',       en: 'sit down' },   // #498
+  arsye:     { al: 'arsye',     en: 'reason' },     // #499
 }
 
 // Declension tables for every noun the story inflects (see the wf() forms guard
@@ -2425,6 +2442,32 @@ export const STORY = {
       L(w('ne_we'), wf('ka', 'kemi', 'have'), w('nje'), w('lidhje'), p('.')),
       L(w('une'), wf('bej', 'bëra', 'made'), w('nje'), w('gje'), w('mire'), p('.')),
       L(w('ti'), w('duhet'), w('te_subj'), wf('ka', 'kesh', 'have'), w('fat'), p('.')),
+    ],
+    options: [
+      { text: L(w('degjo'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'qytetiUdhetar4' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+    ],
+  },
+
+  qytetiUdhetar4: {
+    id: 'qytetiUdhetar4',
+    text: [
+      L(wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':')),
+      L(w('tung'), p('!')),
+      L(wf('vjen', 'ejani', 'come'), p('!')),
+      L(w('ulu'), p('!')),
+      L(wf('prit', 'prisni', 'wait'), p('!')),
+      L(w('vazhdo'), p('!')),
+      L(w('ec'), w('ketej'), p('.')),
+      L(w('cfare'), wf('mendoj', 'mendoni', 'think'), w('ju'), p('?')),
+      L(wf('cili', 'cili', 'which'), w('lloj'), p('?')),
+      L(wf('jete', 'jeta', 'life'), w('eshte'), w('e_link'), w('mire'), p('.')),
+      L(w('nje'), w('muaj'), wf('ka', 'ka', 'has'), wf('kalo', 'kaluar', 'passed'), p('.')),
+      L(w('nje'), w('jave'), p(','), w('kater'), wf('dite', 'ditë', 'days'), p('.')),
+      L(w('une'), w('jam'), w('i_art'), w('pari'), p('.')),
+      L(w('dashuri'), w('eshte'), w('e_link'), w('madh'), p('.')),
+      L(wf('ka', 'ka', 'has'), w('rendesi'), p('?')),
+      L(wf('cili', 'cila', 'which'), w('eshte'), w('arsye'), p('?')),
     ],
     options: [
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
@@ -6377,6 +6420,36 @@ export const STORY = {
       L(w('tere'), wf('fshat', 'fshati', 'the village'), w('vjen'), p('.')),
     ],
     options: [
+      { text: L(w('degjo'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'udhetaretBisede2' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('udhetar', 'udhëtarët', 'the travellers')), to: 'udhetaret' },
+    ],
+  },
+
+  // A traveller who was a soldier recounts a fight — a flavour vignette carrying
+  // the warrior/heroic words of the 451-500 band.
+  udhetaretBisede2: {
+    id: 'udhetaretBisede2',
+    text: [
+      L(w('nje'), w('udhetar'), w('thote'), p(':')),
+      L(w('o'), wf('plak', 'plako', 'old man'), p('!')),
+      L(w('une'), wf('ka', 'kam', 'have'), w('nje'), w('arme'), p('.')),
+      L(w('une'), wf('lufto', 'luftova', 'fought'), w('kunder'), w('nje'), w('baloz'), p('.')),
+      L(w('shpirt'), w('im'), w('eshte'), w('i_art'), w('forte'), p('.')),
+      L(wf('mal', 'mali', 'the mountain'), w('eshte'), wf('lart', 'lartë', 'high'), p('.')),
+      L(w('une'), wf('ka', 'kam', 'have'), wf('fol', 'folur', 'spoken'), p('.')),
+      L(w('une'), wf('ka', 'kam', 'have'), wf('jep', 'dhënë', 'given'), w('buke'), p('.')),
+      L(w('ata'), w('duhet'), w('te_subj'), wf('jam', 'jenë', 'be'), wf('trim', 'trima', 'heroes'), p('.')),
+      L(w('nje'), w('trim'), w('duhet'), w('te_subj'), wf('vjen', 'vijë', 'come'), p('.')),
+      L(w('ti'), w('duhet'), w('te_subj'), wf('merr', 'marrësh', 'take'), w('nje'), w('arme'), p('.')),
+      L(w('ai'), w('duhet'), w('te_subj'), wf('shko', 'shkojë', 'go'), p('.')),
+      L(wf('shiko', 'shikoje', 'look'), p('!')),
+      L(w('ne_we'), wf('di', 'dimë', 'know'), wf('rruge', 'rrugën', 'the road'), p('.')),
+      L(w('ai'), wf('njoh', 'njeh', 'knows'), w('mua'), p('.')),
+      L(w('une'), wf('jep', 'jap', 'give'), wf('ata', 'atyre', 'to them'), w('buke'), p('.')),
+      L(w('une'), wf('bej', 'bëja', 'was doing'), w('nje'), w('gje'), p('.')),
+      L(w('ne_we'), wf('jam', 'ishim', 'were'), wf('trim', 'trima', 'heroes'), p('.')),
+    ],
+    options: [
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('udhetar', 'udhëtarët', 'the travellers')), to: 'udhetaret' },
     ],
   },
@@ -7703,6 +7776,8 @@ const CONFUSERS = {
   udhetaretBisede: L(wf('shko', 'shko', 'go'), wf('ide', 'idenë', 'the idea')), // go the idea — it is not a place
   jetaGrua2: L(w('ndalo'), wf('mengjes', 'mëngjesin', 'the morning')), // stop the morning — you cannot
   lumiMjeshter2: L(w('merr'), wf('vit', 'vite', 'years')), // take the years — you cannot carry time
+  qytetiUdhetar4: L(w('ec'), wf('arsye', 'arsyen', 'the reason')), // walk the reason — it is not a place
+  udhetaretBisede2: L(w('lufto'), wf('rruge', 'rrugën', 'the road')), // fight the road — nonsense
   nenaDiell1: L(wf('bej', 'bëj', 'make'), wf('diell', 'diellin', 'the sun')), // make the sun — you cannot
   karkanxholl1: L(wf('thirr', 'thërret', 'call'), wf('hekur', 'hekurin', 'the iron')), // call the iron — nonsense
   dhelpra1: L(w('ha'), wf('ujk', 'ujkun', 'the wolf')), // eat the wolf — you cannot
@@ -8484,6 +8559,22 @@ export const DEFS = {
   teper: L(w('shume')), //                             much (too much)
   he: L(w('hej')), //                                  hey (well?)
   prapa: L(w('mbrapa')), //                            behind
+  // top 451-500 frequency fill
+  arme: L(w('nje'), w('gje'), w('per'), w('lufto')), // a thing for fighting (weapon)
+  muaj: L(w('nje'), w('kohe')), //                     a time (month)
+  tung: L(w('hej')), //                                hey (hi)
+  lloj: L(w('nje'), w('gje')), //                      a thing (kind)
+  ketej: L(w('ketu')), //                              here (this way)
+  dashuri: L(w('dashur')), //                          dear (love)
+  rendesi: L(w('nje'), w('gje'), w('e_art'), w('madh')), // a big thing (importance)
+  kunder: L(w('jo'), w('me')), //                      not with (against)
+  kater: L(w('disa')), //                              several (four)
+  pari: L(w('nje')), //                                one (first)
+  jave: L(w('nje'), w('kohe')), //                     a time (week)
+  vazhdo: L(w('ec')), //                               walk (continue)
+  shpirt: L(w('nje'), w('gje'), w('brenda')), //       a thing inside (soul)
+  ulu: L(w('rri')), //                                 stay (sit)
+  arsye: L(w('per'), w('se')), //                      for what (reason)
 
   // nouns — a kind of thing
   pyll: L(w('nje'), w('vend'), w('me'), w('shume'), w('peme')), //   a place with many trees
