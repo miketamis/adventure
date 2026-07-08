@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
 import { FOLKLORE, ENDING_LORE } from '../game/folklore.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
+import { NODE_POS } from './nodePositions.js'
 
 // nodes that get a bespoke landmark glyph in an outer region (not a plain dot)
 const LANDMARK_IDS = new Set(WORLD_LANDMARKS.map((l) => l.id))
@@ -1163,34 +1164,37 @@ function VillageMap({ g, current, goGraph }) {
   // EVERY node, build the story edges, and score "teleport" edges (long + cross-
   // region + passing over many other nodes' dots).
   const { dots, edges, oddEdges, clusters, singles, memberOf } = useMemo(() => {
+    // region label per node (positions no longer come from here — only regOf,
+    // used for the region caption of generic glyphs + the odd-link detector).
     const byRegion = assignRegions(g)
-    const out = [], pos = {}, regOf = {}
-    for (const pl of VILLAGE_PLACES) if (STORY[pl.id]) { pos[pl.id] = [pl.x, pl.y]; regOf[pl.id] = 'village' }
-    REGIONS.forEach((rg, ri) => {
-      if (rg.key === 'village') {
-        // supplementary village-adjacent nodes ring the meadow
-        byRegion[ri].forEach((id) => {
-          const rnd = mulberry32(hashStr(id))
-          const a = rnd() * Math.PI * 2, rr = Math.sqrt(0.64 + rnd() * 0.36) * 0.96
-          const x = rg.cx + Math.cos(a) * rg.rx * rr, y = rg.cy + Math.sin(a) * rg.ry * rr
-          out.push({ id, x, y, kind: g.kindOf(id), region: rg.key }); pos[id] = [x, y]; regOf[id] = rg.key
-        })
-      } else {
-        for (const p of layoutRegion(byRegion[ri], rg)) {
-          out.push({ id: p.id, x: p.x, y: p.y, kind: g.kindOf(p.id), region: rg.key }); pos[p.id] = [p.x, p.y]; regOf[p.id] = rg.key
-        }
-      }
-    })
-    // landmark nodes are hand-placed at their glyph position (also moves the dot
-    // + edge endpoints there). START is a forest landmark, so this pins it too.
-    for (const lm of WORLD_LANDMARKS) {
-      if (!pos[lm.id]) continue
-      pos[lm.id] = [lm.x, lm.y]
-      const d = out.find((o) => o.id === lm.id)
-      if (d) { d.x = lm.x; d.y = lm.y }
+    const regOf = {}
+    byRegion.forEach((list, ri) => list.forEach((id) => { regOf[id] = REGIONS[ri].key }))
+    for (const pl of VILLAGE_PLACES) if (STORY[pl.id]) regOf[pl.id] = 'village'
+    // EVERY node's position is hand-authored in NODE_POS. Nodes sharing a
+    // coordinate are the SAME physical spot (the story continues there).
+    const pos = {}, out = []
+    for (const id of g.ids) {
+      const p = NODE_POS[id]; if (!p) continue
+      pos[id] = p
+      if (!regOf[id]) regOf[id] = 'village'
+      if (!VILLAGE_IDS.has(id) && !LANDMARK_IDS.has(id)) out.push({ id, x: p[0], y: p[1], kind: g.kindOf(id), region: regOf[id] })
     }
-    // edges drawn faint+dashed for wander links, solid for progression, so the
-    // solid edges show the real, local structure of the story.
+    // Nodes added to the story AFTER NODE_POS was hand-authored get a graceful
+    // fallback near their placed neighbours (or their region centre), so the map
+    // stays complete. Re-run scripts/nodeplace*.mjs to hand-place them for real.
+    const unplaced = g.ids.filter((id) => !pos[id])
+    for (const id of unplaced) {
+      const nb = []
+      for (const o of (STORY[id].options || [])) if (o.to && NODE_POS[o.to]) nb.push(NODE_POS[o.to])
+      if (!nb.length) for (const u of g.ids) for (const o of (STORY[u].options || [])) if (o.to === id && NODE_POS[u]) nb.push(NODE_POS[u])
+      const rg = REGIONS.find((r) => r.key === regOf[id]) || REGIONS.find((r) => r.key === 'village')
+      const j = mulberry32(hashStr(id))
+      let x = rg.cx, y = rg.cy
+      if (nb.length) { x = nb.reduce((s, p) => s + p[0], 0) / nb.length; y = nb.reduce((s, p) => s + p[1], 0) / nb.length }
+      x = Math.round(x + (j() - 0.5) * 44); y = Math.round(y + (j() - 0.5) * 44)
+      pos[id] = [x, y]; if (!regOf[id]) regOf[id] = 'village'
+      if (!VILLAGE_IDS.has(id) && !LANDMARK_IDS.has(id)) out.push({ id, x, y, kind: g.kindOf(id), region: regOf[id] })
+    }
     const edges = []
     for (const u of g.ids) {
       const a = pos[u]; if (!a) continue
@@ -1219,27 +1223,23 @@ function VillageMap({ g, current, goGraph }) {
     const oddEdges = scored.filter((s) => s.cross && s.len > 500)
       .sort((a, b) => b.crossings - a.crossings || b.len - a.len).slice(0, 24)
 
-    // group scene-dots that land on (nearly) the same spot into one clickable
-    // "story stack" — landmarks + village buildings are hand-placed, so excluded.
-    const CR = 26 // world radius under which two dots count as "the same spot"
-    const clusterable = out.filter((d) => !LANDMARK_IDS.has(d.id))
-    const used = new Set(), clusters = [], memberOf = {}
-    for (let i = 0; i < clusterable.length; i++) {
-      const a = clusterable[i]; if (used.has(a.id)) continue
-      const grp = [a]
-      for (let j = i + 1; j < clusterable.length; j++) {
-        const b = clusterable[j]
-        if (!used.has(b.id) && Math.hypot(a.x - b.x, a.y - b.y) < CR) grp.push(b)
-      }
-      if (grp.length < 2) continue
-      grp.forEach((m) => used.add(m.id))
-      const cx = grp.reduce((s, m) => s + m.x, 0) / grp.length
-      const cy = grp.reduce((s, m) => s + m.y, 0) / grp.length
-      const key = 'stack:' + grp.map((m) => m.id).sort()[0]
-      grp.forEach((m) => { memberOf[m.id] = key })
-      clusters.push({ key, x: cx, y: cy, members: grp.map((m) => ({ id: m.id, kind: m.kind, region: m.region })) })
+    // SAME SPOT = same exact coordinate. Nodes that share a coordinate are one
+    // location where the story continues in place → one clickable marker that
+    // fans the scenes out. A village building or landmark at that coord HOSTS
+    // the marker (its glyph is drawn by its own loop); otherwise it's a stack.
+    const byCoord = {}
+    for (const id of g.ids) { const p = pos[id]; if (!p) continue; const k = p[0] + ',' + p[1]; (byCoord[k] || (byCoord[k] = [])).push(id) }
+    const clusters = [], memberOf = {}
+    for (const [k, list] of Object.entries(byCoord)) {
+      if (list.length < 2) continue
+      const [x, y] = k.split(',').map(Number)
+      const hostVp = list.find((id) => VILLAGE_IDS.has(id)) || null
+      const hostLm = list.find((id) => LANDMARK_IDS.has(id)) || null
+      const key = 'loc:' + k
+      list.forEach((id) => { memberOf[id] = key })
+      clusters.push({ key, x, y, hostVp, hostLm, members: list.map((id) => ({ id, kind: g.kindOf(id), region: regOf[id] || 'village' })) })
     }
-    const singles = out.filter((d) => !LANDMARK_IDS.has(d.id) && !used.has(d.id))
+    const singles = out.filter((d) => byCoord[d.x + ',' + d.y].length === 1)
     return { dots: out, edges, oddEdges, clusters, singles, memberOf }
   }, [g])
 
@@ -1267,13 +1267,16 @@ function VillageMap({ g, current, goGraph }) {
     if (focus && memberOf[focus]) s.add(memberOf[focus])
     return s
   }, [expanded, focus, memberOf])
-  // fanned-out position of every member of an open stack (also re-anchors its edges)
+  // fanned-out position of every non-host member of an open stack (a village
+  // building / landmark keeps its own glyph at the centre). Re-anchors edges too.
   const fanPos = useMemo(() => {
     const m = {}
     for (const c of clusters) {
       if (!openKeys.has(c.key)) continue
-      const n = c.members.length, R = Math.min(66, 28 + n * 3.4)
-      c.members.forEach((mem, i) => {
+      const host = c.hostVp || c.hostLm
+      const fm = host ? c.members.filter((x) => x.id !== host) : c.members
+      const n = fm.length, R = Math.min(140, 22 + n * 4.4)
+      fm.forEach((mem, i) => {
         const ang = (i / n) * Math.PI * 2 - Math.PI / 2
         m[mem.id] = [c.x + Math.cos(ang) * R, c.y + Math.sin(ang) * R]
       })
@@ -1501,34 +1504,42 @@ function VillageMap({ g, current, goGraph }) {
               )
             })}
 
-            {/* co-located scenes → one "story stack"; click to fan the scenes out. */}
+            {/* SAME-SPOT locations — where the story continues in one place. A count
+                badge marks them; click to fan the scenes out. When a village
+                building / landmark hosts the spot, its own glyph stays put. */}
             {clusters.map((c) => {
               const open = openKeys.has(c.key)
+              const host = c.hostVp || c.hostLm
               const dimAll = focus && nbr && !c.members.some((m) => nbr.has(m.id))
+              const hot = c.members.some((m) => m.id === sel || m.id === current)
+              const ctrl = host ? [c.x + 13, c.y - 15] : [c.x, c.y]
               if (!open) {
-                const hot = c.members.some((m) => m.id === sel || m.id === current)
                 return (
-                  <g key={c.key} className="dbg-wdot" opacity={dimAll ? 0.28 : 1}
+                  <g key={c.key} className="dbg-wdot" opacity={dimAll ? 0.4 : 1}
                      onClick={() => setExpanded(c.key)} style={{ cursor: 'pointer' }}>
-                    <title>{c.members.length} scenes here — click to open: {c.members.map((m) => m.id).join(', ')}</title>
-                    <circle cx={c.x} cy={c.y} r={dr * 2.4} fill="transparent" />
-                    <StoryStack x={c.x} y={c.y} n={c.members.length} hot={hot} />
+                    <title>{c.members.length} scenes happen here — click to open: {c.members.map((m) => m.id).join(', ')}</title>
+                    {host
+                      ? <><circle cx={ctrl[0]} cy={ctrl[1]} r={7} fill={hot ? '#3ad0c0' : '#2b3550'} stroke="#fff" strokeWidth={1.2} />
+                          <text x={ctrl[0]} y={ctrl[1] + 3} textAnchor="middle" fontSize={9} fontWeight="700" fill="#fff" fontFamily="system-ui, sans-serif">{c.members.length}</text></>
+                      : <><circle cx={c.x} cy={c.y} r={dr * 2.4} fill="transparent" />
+                          <StoryStack x={c.x} y={c.y} n={c.members.length} hot={hot} /></>}
                   </g>
                 )
               }
+              const fm = host ? c.members.filter((m) => m.id !== host) : c.members
               return (
                 <g key={c.key}>
-                  {c.members.map((m) => {
+                  {fm.map((m) => {
                     const p = fanPos[m.id]; if (!p) return null
                     return <line key={'leg' + m.id} x1={c.x} y1={c.y} x2={p[0]} y2={p[1]} stroke="#6a5a44" strokeWidth={1 * ds} opacity={0.55} />
                   })}
-                  {/* the open stack's centre — click to collapse it again */}
+                  {/* collapse control (offset when a building/landmark sits at the centre) */}
                   <g onClick={() => { setExpanded(null); setSel(null) }} style={{ cursor: 'pointer' }}>
-                    <circle cx={c.x} cy={c.y} r={dr * 1.6} fill="transparent" />
-                    <circle cx={c.x} cy={c.y} r={4.6} fill="#2b3550" stroke="#fff" strokeWidth={1.2} />
-                    <line x1={c.x - 2.2} y1={c.y} x2={c.x + 2.2} y2={c.y} stroke="#fff" strokeWidth={1.3} />
+                    <circle cx={ctrl[0]} cy={ctrl[1]} r={dr * 1.6} fill="transparent" />
+                    <circle cx={ctrl[0]} cy={ctrl[1]} r={4.6} fill="#2b3550" stroke="#fff" strokeWidth={1.2} />
+                    <line x1={ctrl[0] - 2.2} y1={ctrl[1]} x2={ctrl[0] + 2.2} y2={ctrl[1]} stroke="#fff" strokeWidth={1.3} />
                   </g>
-                  {c.members.map((m) => {
+                  {fm.map((m) => {
                     const p = fanPos[m.id]; if (!p) return null
                     const isSel = m.id === sel, isCur = m.id === current
                     const dim = focus && nbr && !nbr.has(m.id)
