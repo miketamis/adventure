@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
-import { FOLKLORE, ENDING_LORE } from '../game/folklore.js'
+import { FOLKLORE, ENDING_LORE, CORPUS, REPO_BLOB } from '../game/folklore.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
 import { NODE_POS } from './nodePositions.js'
 
@@ -291,51 +291,53 @@ function mulberry32(a) {
 
 // Each place is a real node id in STORY. x/y are map coordinates (viewBox 1160×820).
 // Each place is a real STORY node id, drawn as the landmark the scene describes.
+// Mirrored horizontally (x → 1024 − x) so the town faces its river & bridge WEST,
+// toward the central river and the great forest beyond it.
 const VILLAGE_PLACES = [
   // the road out (top)
-  { id: 'udhekryq', x: 566, y: 66, type: 'crossroads', label: 'crossroads', lh: 22 },
+  { id: 'udhekryq', x: 458, y: 66, type: 'crossroads', label: 'crossroads', lh: 22 },
   // church quarter (a rise, top-centre, graves behind)
-  { id: 'kisha1', x: 646, y: 176, type: 'church', label: 'church', lh: 40 },
-  { id: 'varret1', x: 726, y: 132, type: 'graves', label: 'graves', lh: 18 },
-  { id: 'kostandin1', x: 688, y: 256, type: 'roadmark', label: 'road past graves', lh: 15 },
+  { id: 'kisha1', x: 378, y: 176, type: 'church', label: 'church', lh: 40 },
+  { id: 'varret1', x: 298, y: 132, type: 'graves', label: 'graves', lh: 18 },
+  { id: 'kostandin1', x: 336, y: 256, type: 'roadmark', label: 'road past graves', lh: 15 },
   // the square (the heart) — a real cobbled plaza with the buildings around it
-  { id: 'fshatiSheshi', x: 525, y: 432, type: 'square', label: 'the square', lh: 92 },
-  { id: 'pusiThate', x: 544, y: 444, type: 'well', label: 'the dry well', lh: 24 },
-  { id: 'nenaDiell1', x: 508, y: 400, type: 'claydoll', label: 'the girls', lh: 12 },
-  { id: 'veraDite1', x: 566, y: 484, type: 'bonfire', label: 'the festival', lh: 16 },
-  { id: 'dordolec1', x: 470, y: 480, type: 'scarecrow', label: 'the children', lh: 20 },
-  { id: 'plaka', x: 448, y: 388, type: 'house', label: 'old woman’s house', lh: 18 },
-  { id: 'oda1', x: 606, y: 392, type: 'oda', label: 'the oda', lh: 18 },
+  { id: 'fshatiSheshi', x: 499, y: 432, type: 'square', label: 'the square', lh: 92 },
+  { id: 'pusiThate', x: 480, y: 444, type: 'well', label: 'the dry well', lh: 24 },
+  { id: 'nenaDiell1', x: 516, y: 400, type: 'claydoll', label: 'the girls', lh: 12 },
+  { id: 'veraDite1', x: 458, y: 484, type: 'bonfire', label: 'the festival', lh: 16 },
+  { id: 'dordolec1', x: 554, y: 480, type: 'scarecrow', label: 'the children', lh: 20 },
+  { id: 'plaka', x: 576, y: 388, type: 'house', label: 'old woman’s house', lh: 18 },
+  { id: 'oda1', x: 418, y: 392, type: 'oda', label: 'the oda', lh: 18 },
   // back lanes (east)
-  { id: 'fshatiLanes', x: 690, y: 404, type: 'signpost', label: 'back lanes', lh: 20 },
-  { id: 'kulle1', x: 712, y: 320, type: 'tower', label: 'stone tower', lh: 26 },
-  { id: 'djepi1', x: 776, y: 366, type: 'house', label: 'the cradle', lh: 18, roof: '#9a7250' },
-  { id: 'pallatiZi', x: 794, y: 456, type: 'palace', label: 'black palace', lh: 24 },
-  { id: 'kopshtMermer1', x: 730, y: 522, type: 'garden', label: 'marble garden', lh: 22 },
+  { id: 'fshatiLanes', x: 334, y: 404, type: 'signpost', label: 'back lanes', lh: 20 },
+  { id: 'kulle1', x: 312, y: 320, type: 'tower', label: 'stone tower', lh: 26 },
+  { id: 'djepi1', x: 248, y: 366, type: 'house', label: 'the cradle', lh: 18, roof: '#9a7250' },
+  { id: 'pallatiZi', x: 230, y: 456, type: 'palace', label: 'black palace', lh: 24 },
+  { id: 'kopshtMermer1', x: 294, y: 522, type: 'garden', label: 'marble garden', lh: 22 },
   // village life (west)
-  { id: 'fshatiJeta', x: 298, y: 434, type: 'signpost', label: 'village life', lh: 20 },
-  { id: 'vatra', x: 222, y: 392, type: 'hearth', label: 'the hearth', lh: 20 },
-  { id: 'qilim', x: 198, y: 474, type: 'house', label: 'the loom', lh: 18 },
-  { id: 'bariu', x: 150, y: 542, type: 'pasture', label: 'shepherd & goats', lh: 18 },
-  { id: 'gjysmegjel1', x: 302, y: 558, type: 'rooster', label: 'half-rooster', lh: 14 },
-  { id: 'syriKeq1', x: 374, y: 502, type: 'house', label: 'the child', lh: 18 },
-  { id: 'breshka1', x: 240, y: 582, type: 'house', label: 'the guest', lh: 18 },
-  // river quarter (lower-east, along the water)
-  { id: 'fshatiLumi', x: 792, y: 616, type: 'signpost', label: 'down at the river', lh: 20 },
-  { id: 'uraArtes1', x: 892, y: 500, type: 'dot', label: 'the bridge', lh: 13 },
-  { id: 'mulli1', x: 858, y: 602, type: 'mill', label: 'water-mill', lh: 18 },
-  { id: 'kroi1', x: 846, y: 674, type: 'spring', label: 'the spring', lh: 18 },
+  { id: 'fshatiJeta', x: 726, y: 434, type: 'signpost', label: 'village life', lh: 20 },
+  { id: 'vatra', x: 802, y: 392, type: 'hearth', label: 'the hearth', lh: 20 },
+  { id: 'qilim', x: 826, y: 474, type: 'house', label: 'the loom', lh: 18 },
+  { id: 'bariu', x: 874, y: 542, type: 'pasture', label: 'shepherd & goats', lh: 18 },
+  { id: 'gjysmegjel1', x: 722, y: 558, type: 'rooster', label: 'half-rooster', lh: 14 },
+  { id: 'syriKeq1', x: 650, y: 502, type: 'house', label: 'the child', lh: 18 },
+  { id: 'breshka1', x: 784, y: 582, type: 'house', label: 'the guest', lh: 18 },
+  // river quarter (lower-west, along the water)
+  { id: 'fshatiLumi', x: 232, y: 616, type: 'signpost', label: 'down at the river', lh: 20 },
+  { id: 'uraArtes1', x: 132, y: 500, type: 'dot', label: 'the bridge', lh: 13 },
+  { id: 'mulli1', x: 166, y: 602, type: 'mill', label: 'water-mill', lh: 18 },
+  { id: 'kroi1', x: 178, y: 674, type: 'spring', label: 'the spring', lh: 18 },
 ]
 
 const VILLAGE_DISTRICTS = [
-  { t: 'to the mountain', x: 566, y: 30 },
-  { t: 'church', x: 690, y: 92 },
+  { t: 'to the mountain', x: 458, y: 30 },
+  { t: 'church', x: 334, y: 92 },
   { t: 'the square', x: 512, y: 330 },
-  { t: 'back lanes', x: 758, y: 300 },
-  { t: 'village life', x: 250, y: 356 },
-  { t: 'the river', x: 940, y: 700 },
-  { t: 'fields', x: 150, y: 70 },
-  { t: 'fields', x: 520, y: 800 },
+  { t: 'back lanes', x: 266, y: 300 },
+  { t: 'village life', x: 774, y: 356 },
+  { t: 'the river', x: 84, y: 700 },
+  { t: 'fields', x: 874, y: 70 },
+  { t: 'fields', x: 504, y: 800 },
 ]
 
 // dirt lanes between district anchors [x1,y1,x2,y2]
@@ -749,13 +751,13 @@ function gRoadmark(x, y) {
 }
 
 function gBridgeDeck() {
-  // the wooden footbridge over the river (drawn in place, spans the water)
+  // the wooden footbridge over the river (drawn in place, spans the water on the WEST edge)
   return (
     <g>
-      <line x1={812} y1={512} x2={968} y2={476} stroke="#6f4f34" strokeWidth={22} strokeLinecap="round" />
-      <line x1={812} y1={512} x2={968} y2={476} stroke="#a9825f" strokeWidth={16} strokeLinecap="round" />
+      <line x1={212} y1={512} x2={56} y2={476} stroke="#6f4f34" strokeWidth={22} strokeLinecap="round" />
+      <line x1={212} y1={512} x2={56} y2={476} stroke="#a9825f" strokeWidth={16} strokeLinecap="round" />
       {Array.from({ length: 10 }, (_, i) => {
-        const t = i / 9, x = 812 + (968 - 812) * t, y = 512 + (476 - 512) * t
+        const t = i / 9, x = 212 + (56 - 212) * t, y = 512 + (476 - 512) * t
         return <line key={i} x1={x - 7} y1={y - 9} x2={x + 7} y2={y + 9} stroke="#5c4230" strokeWidth={2} />
       })}
     </g>
@@ -809,15 +811,22 @@ const GLYPH = (pl) => {
 // river & castle & sea east, the underworld below (down through the well).
 // ---------------------------------------------------------------------------
 const VILLAGE_IDS = new Set(VILLAGE_PLACES.map((p) => p.id))
+// ── THE WORLD, re-rigged to the real (rotated) map of Albania ──────────────
+// The village (≈ Tirana) stays centred; the ONE river runs down its WEST side
+// from Mount Tomorr (top-centre, south-up) to Rozafa castle at the river-mouth
+// (bottom-centre), with Lake Shkodra beside it. The great forest lies west
+// across the river (the hero bridge crosses to it); the Adriatic fills the east.
+// The world below hangs deepest, down through the village well.
 const REGIONS = [
-  { key: 'sky', label: 'the sky realm', cx: 900, cy: -1180, rx: 700, ry: 280, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende', 'diellShtepi1', 'rrugaDielli1', 'pemaDielli', 'diellThirrKul'] },
-  { key: 'mountain', label: 'Mount Tomorr', cx: 860, cy: -560, rx: 660, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'tomor3', 'shpirag1', 'maliStuhi', 'tomorProva', 'tomorZbritje'] },
-  { key: 'forest', label: 'the great forest', cx: -300, cy: 640, rx: 380, ry: 440, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
-  { key: 'river', label: 'the river & the Zana', cx: 1420, cy: 740, rx: 340, ry: 420, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
-  { key: 'castle', label: 'Rozafa castle', cx: 1800, cy: 1060, rx: 220, ry: 200, terrain: 'castle', anchors: ['kalaRozafa'] },
-  { key: 'sea', label: 'the sea', cx: 2060, cy: 1400, rx: 520, ry: 400, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
-  { key: 'underworld', label: 'the world below', cx: 560, cy: 1680, rx: 700, ry: 400, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti', 'tre1', 'tre2', 'tre3', 'rrethi', 'shpellaHyrje'] },
-  { key: 'village', label: '', cx: 560, cy: 440, rx: 430, ry: 340, terrain: null, anchors: [...VILLAGE_IDS, 'fshatiDil', 'fshatiBesa', 'fshatiCaul', 'udhetimi1', 'udhetimi2', 'gjizar1'] },
+  { key: 'sky', label: 'the sky realm', cx: 300, cy: -1200, rx: 780, ry: 300, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende', 'diellShtepi1', 'rrugaDielli1', 'pemaDielli', 'diellThirrKul'] },
+  { key: 'mountain', label: 'Mount Tomorr', cx: 300, cy: -520, rx: 640, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'tomor3', 'shpirag1', 'maliStuhi', 'tomorProva', 'tomorZbritje'] },
+  { key: 'forest', label: 'the great forest', cx: -520, cy: 430, rx: 380, ry: 470, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
+  { key: 'river', label: 'the river & the Zana', cx: 230, cy: 940, rx: 300, ry: 360, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
+  { key: 'castle', label: 'Rozafa castle', cx: 300, cy: 1360, rx: 260, ry: 230, terrain: 'castle', anchors: ['kalaRozafa'] },
+  { key: 'lake', label: 'Lake Shkodra', cx: 60, cy: 1660, rx: 360, ry: 240, terrain: 'lake', anchors: [] },
+  { key: 'sea', label: 'the sea', cx: 1360, cy: 1000, rx: 560, ry: 600, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
+  { key: 'underworld', label: 'the world below', cx: 680, cy: 2140, rx: 640, ry: 380, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti', 'tre1', 'tre2', 'tre3', 'rrethi', 'shpellaHyrje'] },
+  { key: 'village', label: '', cx: 512, cy: 430, rx: 430, ry: 340, terrain: null, anchors: [...VILLAGE_IDS, 'fshatiDil', 'fshatiBesa', 'fshatiCaul', 'udhetimi1', 'udhetimi2', 'gjizar1'] },
 ]
 
 function hashStr(s) {
@@ -1025,9 +1034,24 @@ function terrCastle(rg) {
   )
 }
 
-const TERRAIN = { sky: terrSky, mountain: terrMountains, forest: terrForest, river: terrRiver, sea: terrSea, cavern: terrCavern, castle: terrCastle }
+function terrLake(rg) {
+  // Lake Shkodra beside Rozafa — a broad reed-fringed water body, still and pale,
+  // its outlet (the Buna) draining east toward the sea.
+  const { cx, cy, rx, ry } = rg, rnd = mulberry32(53), reeds = []
+  for (let k = 0; k < 40; k++) { const a = rnd() * Math.PI * 2, r = 0.82 + rnd() * 0.3; reeds.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r]) }
+  return (
+    <g>
+      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#6ba3ba" stroke="#4d7f92" strokeWidth={3} />
+      <ellipse cx={cx} cy={cy - ry * 0.08} rx={rx * 0.9} ry={ry * 0.82} fill="#8fc3d3" opacity={0.5} />
+      <ellipse cx={cx - rx * 0.28} cy={cy - ry * 0.3} rx={rx * 0.42} ry={ry * 0.22} fill="#d0e8ef" opacity={0.5} />
+      {Array.from({ length: 6 }, (_, i) => { const y = cy - ry * 0.5 + i / 6 * ry, w = rx * (0.7 - Math.abs(i - 3) * 0.06); return <path key={i} d={`M ${cx - w} ${y} q ${w * 0.5} -8 ${w} 0 q ${w * 0.5} 8 ${w} 0`} fill="none" stroke="#eef7f9" strokeWidth={1.4} opacity={0.55} /> })}
+      {reeds.map(([x, y], i) => <line key={i} x1={x} y1={y} x2={x + (i % 2 ? 3 : -3)} y2={y - 16} stroke="#6f8a3f" strokeWidth={1.8} opacity={0.65} />)}
+    </g>
+  )
+}
+const TERRAIN = { sky: terrSky, mountain: terrMountains, forest: terrForest, river: terrRiver, sea: terrSea, lake: terrLake, cavern: terrCavern, castle: terrCastle }
 // soft outer tone per region so each blends into the land instead of floating
-const HALO = { mountain: '#7e9a54', forest: '#5f7a3f', river: '#c7b78a', castle: '#8f9a72', sea: '#dcc99d', cavern: '#37302b' }
+const HALO = { mountain: '#7e9a54', forest: '#5f7a3f', river: '#c7b78a', castle: '#8f9a72', lake: '#a9c6a0', sea: '#dcc99d', cavern: '#37302b' }
 // faint darker-green blotches over the land band (not the sky) for texture
 const WORLD_BLOTCHES = (() => {
   const rnd = mulberry32(99), b = []
@@ -1035,27 +1059,27 @@ const WORLD_BLOTCHES = (() => {
   return b
 })()
 
-// Roads connect the settled places on LAND (the river handles the water route to
-// the Zana / castle / sea, so no road duplicates it).
-// The road network: a main road comes down from the mountain crossroads and wraps
-// AROUND the town (down the east edge, around the south, out west to the forest);
-// the mountain spur climbs to Tomorr, and a towpath crosses the bridge to the castle.
+// Roads connect the settled places on LAND (the river handles the water route
+// down to Rozafa; the coast road handles the reach out to the sea).
+// The network: from the crossroads (top of the village) a road climbs NORTH to
+// Mount Tomorr; the village high-street runs SOUTH down the river's east bank to
+// Rozafa at the mouth; the HERO BRIDGE road crosses the river WEST to the great
+// forest; and a coast road runs EAST from the river-mouth to the sea.
 const VILLAGE_ROADS = [
-  'M 566 96 C 640 -70 770 -180 866 -300',                          // crossroads → Mount Tomorr (up)
-  'M 566 96 C 652 250 800 412 884 598',                            // crossroads → down the town's east edge
-  'M 884 598 C 822 760 662 834 512 836 C 366 834 206 754 128 566', // → around the southern outskirts
-  'M 128 566 C -30 602 -178 622 -320 636',                         // → out west to the great forest
-  'M 900 520 C 1120 760 1420 1000 1720 1060',                      // bridge → towpath to Rozafa castle
+  'M 458 66 C 396 -96 344 -196 300 -282',                          // crossroads → Mount Tomorr (north)
+  'M 458 78 C 478 260 452 560 384 828 C 344 1024 316 1200 300 1320', // high-street S → Zana's reach → Rozafa
+  'M 214 476 C 70 492 -150 476 -430 452',                           // HERO BRIDGE road → west over the river to the forest
+  'M 322 1372 C 640 1316 1000 1180 1300 1032',                     // coast road: river-mouth → the sea (the Buna)
 ]
-// ONE river: springs from Mount Tomorr, runs down the village's east edge (past
-// the bridge/mill/spring), through the Zana's stretch, and out into the sea.
-const WORLD_RIVER = 'M 900 -300 C 1000 -60 946 210 896 486 C 858 726 1070 856 1330 972 C 1584 1086 1866 1196 2060 1336'
-// the descent from the village well down to the world below — a ravine that
-// curves east of the lower field rather than cutting straight through it.
-const WELL_SHAFT = 'M 544 466 C 578 620 700 700 704 884 C 710 1074 626 1256 576 1440'
+// ONE river: springs from Mount Tomorr (top-centre), bows down the village's WEST
+// edge past the bridge/mill/spring, through the Zana's reach, to Rozafa at the mouth.
+const WORLD_RIVER = 'M 300 -262 C 250 -40 150 180 158 442 C 165 704 208 860 240 980 C 268 1128 292 1236 300 1344'
+// the descent from the village well down to the world below — a shaft that drops
+// east of the river and Rozafa, deep beneath the land.
+const WELL_SHAFT = 'M 480 466 C 524 760 636 1080 660 1420 C 676 1720 680 1960 680 2120'
 const MAP_VIEWS = {
-  village: { x: 199, y: 90, k: 0.72 },
-  world: { x: 384, y: 312, k: 0.2 },
+  village: { x: 211, y: 80, k: 0.72 },
+  world: { x: 520, y: 296, k: 0.18 },
 }
 
 function VillageMap({ g, current, goGraph }) {
@@ -1064,22 +1088,22 @@ function VillageMap({ g, current, goGraph }) {
     const trees = []
     const push = (x, y, s) => trees.push({ x, y, s })
     // an ORGANIC tree-ring hugging the village clearing's ellipse (not a box).
-    // Skip the east arc (~ -0.5..0.9 rad) where the river runs, so the bank stays open.
+    // Skip the WEST arc (~2.3..3.7 rad) where the river runs, so the bank stays open.
     const CX = 512, CY = 432, RX = 590, RY = 452
     for (let a = 0; a < Math.PI * 2; a += 0.045) {
-      if (a > -0.55 && a < 0.85) continue // leave the river's east bank clear
+      if (a > 2.29 && a < 3.69) continue // leave the river's west bank clear
       const wob = 1 + Math.sin(a * 3 + 1) * 0.05 + (rnd() - 0.5) * 0.1
       for (let k = 0; k < (rnd() < 0.5 ? 2 : 1); k++) {
         const rr = wob + (rnd() - 0.5) * 0.14
         push(CX + Math.cos(a) * RX * rr, CY + Math.sin(a) * RY * rr, 0.66 + rnd() * 0.62)
       }
     }
-    // a thin line of trees along the river's far (east) bank
+    // a thin line of trees along the river's far (west) bank
     for (let t = 0.12; t < 0.92; t += 0.03) {
-      const y = -20 + t * 900, x = 895 + Math.sin(t * 7) * 40 + 60
-      push(x + rnd() * 20, y + rnd() * 16 - 8, 0.7 + rnd() * 0.6)
+      const y = -20 + t * 900, x = 69 - Math.sin(t * 7) * 40
+      push(x - rnd() * 20, y + rnd() * 16 - 8, 0.7 + rnd() * 0.6)
     }
-    ;[[470, 138], [602, 110], [180, 430], [430, 720]].forEach(([cx, cy]) => {
+    ;[[554, 138], [422, 110], [844, 430], [594, 720]].forEach(([cx, cy]) => {
       for (let k = 0; k < 3; k++) push(cx + rnd() * 60 - 30, cy + rnd() * 46 - 23, 0.56 + rnd() * 0.5)
     })
     trees.sort((a, b) => a.y - b.y)
@@ -1093,22 +1117,22 @@ function VillageMap({ g, current, goGraph }) {
       : p.type === 'palace' ? 50
       : (p.type === 'church' || p.type === 'tower') ? 32
       : (p.type === 'oda' || p.type === 'mill' || p.type === 'garden' || p.type === 'hearth' || p.type === 'pasture') ? 26 : 20
-    // river's west bank at a given y — keep roofs out of the water
-    const riverLeftX = (y) => (y < 486 ? 896 : 896 + (y - 486) * 0.893) - 60
+    // river's east bank at a given y — keep roofs out of the water (river now runs WEST)
+    const riverRightX = (y) => (y < 486 ? 188 : 188 - (y - 486) * 0.893)
     const segDist = (px, py, x1, y1, x2, y2) => {
       const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy || 1
       let t = ((px - x1) * dx + (py - y1) * dy) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t
       return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy))
     }
     const QUARTERS = [
-      { id: 'church', cx: 636, cy: 202, rx: 122, ry: 96 },
-      { id: 'upnorth', cx: 424, cy: 250, rx: 132, ry: 100 },
+      { id: 'church', cx: 388, cy: 202, rx: 122, ry: 96 },
+      { id: 'upnorth', cx: 600, cy: 250, rx: 132, ry: 100 },
       { id: 'squareN', cx: 512, cy: 356, rx: 116, ry: 84 },
-      { id: 'lanes', cx: 704, cy: 400, rx: 128, ry: 118 },
-      { id: 'life', cx: 250, cy: 452, rx: 142, ry: 130 },
-      { id: 'southe', cx: 560, cy: 632, rx: 150, ry: 118 },
-      { id: 'southw', cx: 288, cy: 648, rx: 132, ry: 112 },
-      { id: 'river', cx: 764, cy: 566, rx: 100, ry: 100 },
+      { id: 'lanes', cx: 320, cy: 400, rx: 128, ry: 118 },
+      { id: 'life', cx: 774, cy: 452, rx: 142, ry: 130 },
+      { id: 'southe', cx: 464, cy: 632, rx: 150, ry: 118 },
+      { id: 'southw', cx: 736, cy: 648, rx: 132, ry: 112 },
+      { id: 'river', cx: 260, cy: 566, rx: 100, ry: 100 },
     ]
     const roofs = [], occ = new Set()
     for (const Q of QUARTERS) {
@@ -1125,8 +1149,8 @@ function VillageMap({ g, current, goGraph }) {
           if (qrad > 1) continue                                     // inside the quarter blob
           const tx = (x - TOWN.cx) / TOWN.rx, ty = (y - TOWN.cy) / TOWN.ry
           if (tx * tx + ty * ty > 1.02) continue                     // safety: inside the town
-          if (x > riverLeftX(y)) continue                            // west of the river
-          if (Math.hypot(x - 525, y - 432) < 70) continue            // leave the square open
+          if (x < riverRightX(y)) continue                           // east of the river
+          if (Math.hypot(x - 499, y - 432) < 70) continue            // leave the square open
           const cell = Math.round(x / 12) + ':' + Math.round(y / 12)
           if (occ.has(cell)) continue                                // one roof per ~12px cell (no piling at quarter seams)
           let blocked = false
@@ -1359,7 +1383,7 @@ function VillageMap({ g, current, goGraph }) {
               <stop offset="1" stopColor="#88a559" />
             </linearGradient>
             {/* the ray of light from Tomorr's summit up to the Sun's house */}
-            <linearGradient id="rayGrad" gradientUnits="userSpaceOnUse" x1="800" y1="-880" x2="980" y2="-1140">
+            <linearGradient id="rayGrad" gradientUnits="userSpaceOnUse" x1="300" y1="-830" x2="300" y2="-1140">
               <stop offset="0" stopColor="#fff3c0" stopOpacity="0.1" />
               <stop offset="0.5" stopColor="#ffe79a" stopOpacity="0.55" />
               <stop offset="1" stopColor="#fff6d8" stopOpacity="0.9" />
@@ -1380,10 +1404,10 @@ function VillageMap({ g, current, goGraph }) {
 
             {/* the village clearing — an organic meadow that blends into the land, not a box */}
             <ellipse cx={512} cy={432} rx={590} ry={452} fill="url(#vGrass)" onClick={onBackdrop} />
-            {[[300, 620, 120, 40], [180, 640, 90, 30], [430, 300, 90, 30], [770, 560, 90, 34]].map(([x, y, rx, ry], i) => (
+            {[[724, 620, 120, 40], [844, 640, 90, 30], [594, 300, 90, 30], [254, 560, 90, 34]].map(([x, y, rx, ry], i) => (
               <ellipse key={'vb' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7f9a54" opacity="0.3" />
             ))}
-            <ellipse cx={654} cy={188} rx={96} ry={44} fill="#a7bd75" opacity="0.55" />
+            <ellipse cx={370} cy={188} rx={96} ry={44} fill="#a7bd75" opacity="0.55" />
 
             {/* connector roads, the ONE river (mountain -> village -> Zana -> sea), and the well-shaft */}
             {VILLAGE_ROADS.map((d, i) => (
@@ -1411,10 +1435,10 @@ function VillageMap({ g, current, goGraph }) {
               <ellipse cx={TOWN.cx} cy={TOWN.cy} rx={TOWN.rx + 24} ry={TOWN.ry + 24} fill="#b6a473" opacity={0.5} onClick={onBackdrop} />
               <ellipse cx={TOWN.cx} cy={TOWN.cy} rx={TOWN.rx} ry={TOWN.ry} fill="#cdba8b" onClick={onBackdrop} />
               {/* fields ring the town out in the meadow, not inside the packed core */}
-              <Field x={158} y={126} w={214} h={140} rot={-7} tone="#6f5744" />
-              <Field x={150} y={696} w={176} h={120} rot={6} tone="#7a664a" />
-              <Field x={492} y={816} w={318} h={110} rot={0} tone="#6f5744" />
-              <Field x={330} y={772} w={150} h={98} rot={-4} tone="#7a664a" />
+              <Field x={866} y={126} w={214} h={140} rot={7} tone="#6f5744" />
+              <Field x={874} y={696} w={176} h={120} rot={-6} tone="#7a664a" />
+              <Field x={532} y={816} w={318} h={110} rot={0} tone="#6f5744" />
+              <Field x={694} y={772} w={150} h={98} rot={4} tone="#7a664a" />
               {gBridgeDeck()}
               {VILLAGE_LANES.map(([x1, y1, x2, y2], i) => {
                 const mx = (x1 + x2) / 2 + (y2 - y1) * 0.06, my = (y1 + y2) / 2 + (x1 - x2) * 0.06
@@ -1560,9 +1584,9 @@ function VillageMap({ g, current, goGraph }) {
 
             {/* the ray of light from Tomorr's summit (maja) to the Sun's house */}
             <g style={{ pointerEvents: 'none' }}>
-              <polygon points="790,-874 810,-870 992,-1128 964,-1152" fill="url(#rayGrad)" />
-              <line x1={800} y1={-878} x2={980} y2={-1140} stroke="#fff6d8" strokeWidth={2.4} opacity={0.75} />
-              {[[858, -1018], [908, -1088], [828, -960]].map(([sx, sy], i) => (
+              <polygon points="288,-832 312,-832 320,-1116 280,-1116" fill="url(#rayGrad)" />
+              <line x1={300} y1={-834} x2={300} y2={-1120} stroke="#fff6d8" strokeWidth={2.4} opacity={0.75} />
+              {[[296, -980], [306, -1052], [300, -908]].map(([sx, sy], i) => (
                 <g key={i} transform={`translate(${sx},${sy})`} opacity={0.8}>
                   <path d="M0 -6 L1.3 -1.3 L6 0 L1.3 1.3 L0 6 L-1.3 1.3 L-6 0 L-1.3 -1.3 Z" fill="#fff6d8" />
                 </g>
@@ -1625,7 +1649,7 @@ function VillageMap({ g, current, goGraph }) {
   )
 }
 
-function Library({ focus, goGraph, goLore }) {
+function Library({ focus, goGraph, goLore, goSource }) {
   const [filter, setFilter] = useState('')
   const refs = useRef({})
   const byId = useMemo(() => Object.fromEntries(FOLKLORE.map((f) => [f.id, f])), [])
@@ -1633,6 +1657,12 @@ function Library({ focus, goGraph, goLore }) {
   const byLore = useMemo(() => {
     const m = {}
     for (const [endId, loreId] of Object.entries(ENDING_LORE)) (m[loreId] ||= []).push(endId)
+    return m
+  }, [])
+  // reverse map: folklore id -> [corpus sources that document it]
+  const bySrc = useMemo(() => {
+    const m = {}
+    for (const c of CORPUS) for (const id of (c.covers || [])) (m[id] ||= []).push(c)
     return m
   }, [])
   const endTitle = useMemo(() => Object.fromEntries(ENDINGS.map((e) => [e.id, e])), [])
@@ -1651,7 +1681,8 @@ function Library({ focus, goGraph, goLore }) {
              onChange={(e) => setFilter(e.target.value)} />
       <p className="dbg-note">
         Every figure, tale and custom the game draws on, with the source links it was built from —
-        use these to check the story against the real lore. {FOLKLORE.length} entries.
+        use these to check the story against the real lore. {FOLKLORE.length} entries · 📄 = a
+        downloadable full text · see the <b>📚 Sources</b> tab for the {CORPUS.length} primary-source works.
       </p>
       {cats.map((cat) => (
         <div key={cat} className="dbg-lib-cat">
@@ -1670,6 +1701,30 @@ function Library({ focus, goGraph, goLore }) {
                   <div className="dbg-sources">
                     {f.sources.map((s, i) => (
                       <a key={i} href={s.url} target="_blank" rel="noreferrer">🔗 {s.label}</a>
+                    ))}
+                  </div>
+                )}
+                {f.texts?.length > 0 && (
+                  <div className="dbg-sources dbg-texts">
+                    {f.texts.map((t, i) => (
+                      <span key={i} className="dbg-textline">
+                        <a href={t.url} target="_blank" rel="noreferrer">📄 {t.label}</a>
+                        <span className="dbg-lang">{t.lang}</span>
+                        {t.local && (
+                          <a href={REPO_BLOB + t.local} target="_blank" rel="noreferrer" title={t.local}>⬇ local</a>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {bySrc[f.id]?.length > 0 && (
+                  <div className="dbg-lore-ends dbg-related">
+                    <span className="dbg-lore-ends-label">in sources:</span>
+                    {bySrc[f.id].map((c) => (
+                      <button className="dbg-tag dbg-tag-btn start" key={c.id}
+                              title={c.title + ' — ' + c.author} onClick={() => goSource(c.id)}>
+                        📚 {c.author.split(/[&(]/)[0].trim()} {c.year} →
+                      </button>
                     ))}
                   </div>
                 )}
@@ -1711,11 +1766,96 @@ function Library({ focus, goGraph, goLore }) {
   )
 }
 
+// The primary-source corpus — the real books behind the library.
+const LANG_LABEL = { sq: 'Albanian', de: 'German', fr: 'French', en: 'English',
+  'de+sq': 'German + Albanian', 'fr+sq': 'French + Albanian', 'sq+de': 'Albanian + German' }
+const LIC_GROUP = (c) =>
+  c.local ? '① Downloaded — held locally'
+  : /in copyright/i.test(c.license) ? '③ In copyright — linked, not ingested'
+  : '② Link-only (no free full text / portal)'
+
+function Sources({ focus, goLore }) {
+  const [filter, setFilter] = useState('')
+  const refs = useRef({})
+  const byId = useMemo(() => Object.fromEntries(FOLKLORE.map((f) => [f.id, f])), [])
+  useEffect(() => {
+    if (focus && refs.current[focus]) refs.current[focus].scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [focus])
+
+  const q = filter.trim().toLowerCase()
+  const shown = CORPUS.filter((c) => !q ||
+    (c.title + ' ' + c.author + ' ' + c.summary + ' ' + c.lang).toLowerCase().includes(q))
+  const groups = ['① Downloaded — held locally', '② Link-only (no free full text / portal)', '③ In copyright — linked, not ingested']
+  const local = CORPUS.filter((c) => c.local).length
+
+  return (
+    <div className="dbg-lib">
+      <input className="dbg-filter" placeholder="filter sources…" value={filter}
+             onChange={(e) => setFilter(e.target.value)} />
+      <p className="dbg-note">
+        The real books and collections the library is built from. {CORPUS.length} sources,
+        of which <b>{local}</b> are downloaded as plain text into <code>docs/references/</code>
+        (the ⬇ links open the local copy on GitHub). Every 🔗 is a verified reference link.
+      </p>
+      {groups.map((grp) => {
+        const list = shown.filter((c) => LIC_GROUP(c) === grp)
+        if (!list.length) return null
+        return (
+          <div key={grp} className="dbg-lib-cat">
+            <h4>{grp}</h4>
+            {list.map((c) => (
+              <div className={'dbg-card' + (focus === c.id ? ' focus' : '')} key={c.id}
+                   ref={(el) => { refs.current[c.id] = el }}>
+                <div className="dbg-card-head">
+                  <b>{c.title}</b>
+                  <span className="dbg-tag start">{c.local ? '⬇ local' : '🔗 link'}</span>
+                </div>
+                <div className="dbg-src-meta">
+                  {c.author} · {c.year} · {LANG_LABEL[c.lang] || c.lang} · <i>{c.license}</i>
+                </div>
+                <p className="dbg-summary">{c.summary}</p>
+                <div className="dbg-sources">
+                  {c.local && (
+                    <a href={REPO_BLOB + c.local} target="_blank" rel="noreferrer" title={c.local}>
+                      ⬇ local copy ({c.lang})
+                    </a>
+                  )}
+                  {c.online?.map((o, i) => (
+                    <a key={i} href={o.url} target="_blank" rel="noreferrer">
+                      {o.fmt === 'txt' ? '📄' : o.fmt === 'pdf' ? '📕' : o.fmt === 'catalog' ? '🗂' : '🔗'} {o.label}
+                    </a>
+                  ))}
+                </div>
+                {c.covers?.length > 0 && (
+                  <div className="dbg-lore-ends dbg-related">
+                    <span className="dbg-lore-ends-label">documents:</span>
+                    {c.covers.map((id) => {
+                      const rf = byId[id]
+                      if (!rf) return null
+                      return (
+                        <button className="dbg-tag dbg-tag-btn node" key={id}
+                                title={rf.title} onClick={() => goLore(id)}>
+                          {rf.title.split('—')[0].trim()} →
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function DebugView({ state, dispatch }) {
   const g = useMemo(buildGraph, [])
   const [sub, setSub] = useState(state.loreFocus ? 'library' : 'graph')
   const [sel, setSel] = useState(state.nodeId)
   const [libFocus, setLibFocus] = useState(state.loreFocus)
+  const [srcFocus, setSrcFocus] = useState(null)
 
   // arriving here via an ending's "open in library" link
   useEffect(() => {
@@ -1724,6 +1864,7 @@ export default function DebugView({ state, dispatch }) {
 
   const goGraph = (id) => { setSel(id); setSub('graph') }
   const goLore = (loreId) => { setLibFocus(loreId); setSub('library') }
+  const goSource = (srcId) => { setSrcFocus(srcId); setSub('sources') }
   const endCounts = ENDINGS.reduce((a, e) => ((a[e.kind] = (a[e.kind] || 0) + 1), a), {})
 
   return (
@@ -1741,6 +1882,7 @@ export default function DebugView({ state, dispatch }) {
         <button className={'btn' + (sub === 'village' ? ' active' : '')} onClick={() => setSub('village')}>🗺 World</button>
         <button className={'btn' + (sub === 'map' ? ' active' : '')} onClick={() => setSub('map')}>🧭 Hubs</button>
         <button className={'btn' + (sub === 'library' ? ' active' : '')} onClick={() => setSub('library')}>📖 Folklore</button>
+        <button className={'btn' + (sub === 'sources' ? ' active' : '')} onClick={() => setSub('sources')}>📚 Sources</button>
       </div>
       <div className="dbg-legend">
         {Object.entries(KIND_LABEL).map(([k, label]) => (
@@ -1750,7 +1892,8 @@ export default function DebugView({ state, dispatch }) {
       {sub === 'graph' && <StoryGraph g={g} sel={sel} setSel={setSel} goLore={goLore} />}
       {sub === 'village' && <VillageMap g={g} current={state.nodeId} goGraph={goGraph} />}
       {sub === 'map' && <WorldMap g={g} current={state.nodeId} setSel={setSel} goGraph={goGraph} />}
-      {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} />}
+      {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} goSource={goSource} />}
+      {sub === 'sources' && <Sources focus={srcFocus} goLore={goLore} />}
     </div>
   )
 }
