@@ -334,12 +334,25 @@ const VILLAGE_DISTRICTS = [
 ]
 
 // dirt lanes between district anchors [x1,y1,x2,y2]
-const VILLAGE_LANES = [
-  [525, 432, 566, 110], [525, 432, 646, 190], [525, 432, 300, 448],
-  [525, 432, 690, 410], [525, 432, 792, 604], [690, 410, 688, 250],
-  [688, 250, 646, 196], [792, 616, 858, 604], [792, 616, 846, 674],
-  [792, 616, 888, 508], [298, 440, 200, 490], [298, 440, 160, 542],
-]
+// The village dirt lanes are DERIVED from the real story links between village
+// landmarks — every path drawn on the map is an actual "you can walk here" edge
+// in the story (so the map graphically matches the world).
+const VILLAGE_LANES = (() => {
+  const pos = {}
+  for (const pl of VILLAGE_PLACES) if (STORY[pl.id]) pos[pl.id] = pl
+  const seen = new Set(), out = []
+  for (const pl of VILLAGE_PLACES) {
+    if (!pos[pl.id]) continue
+    for (const o of (STORY[pl.id].options || [])) {
+      if (o.confuser || !o.to || !pos[o.to]) continue
+      const key = pl.id < o.to ? pl.id + '|' + o.to : o.to + '|' + pl.id
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push([pl.x, pl.y, pos[o.to].x, pos[o.to].y])
+    }
+  }
+  return out
+})()
 
 const RIVER_D = 'M 1010 -20 C 984 120 942 210 952 322 C 960 414 878 470 900 566 C 920 662 970 742 940 848'
 const TREE_PAL = ['#4c6743', '#3f5838', '#587a49']
@@ -377,7 +390,51 @@ function Field({ x, y, w, h, rot, tone }) {
     <g transform={`translate(${x},${y}) rotate(${rot})`}>
       <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={5} fill={tone} stroke="#48372a" strokeWidth={1.6} />
       {furrows.map((fy, i) => (
-        <line key={i} x1={-w / 2 + 5} y1={fy} x2={w / 2 - 5} y2={fy} stroke="rgba(0,0,0,.16)" strokeWidth={2.4} />
+        <g key={i}>
+          <line x1={-w / 2 + 5} y1={fy} x2={w / 2 - 5} y2={fy} stroke="rgba(0,0,0,.16)" strokeWidth={2.4} />
+          <line x1={-w / 2 + 5} y1={fy - 3} x2={w / 2 - 5} y2={fy - 3} stroke="#8a9a55" strokeWidth={1.4} opacity={0.55} />
+        </g>
+      ))}
+    </g>
+  )
+}
+
+// --- small decorative iconography scattered through the village ---
+function Rock({ x, y, s }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={1} cy={3 * s} rx={7 * s} ry={2.5 * s} fill="rgba(0,0,0,.18)" />
+      <ellipse cx={-2 * s} cy={0} rx={5 * s} ry={4 * s} fill="#9a938a" stroke="#6a6156" strokeWidth={1} />
+      <ellipse cx={3 * s} cy={1 * s} rx={4 * s} ry={3 * s} fill="#8b857b" stroke="#6a6156" strokeWidth={1} />
+      <ellipse cx={-3 * s} cy={-1.5 * s} rx={2 * s} ry={1.4 * s} fill="#b3ada4" opacity={0.6} />
+    </g>
+  )
+}
+function Bush({ x, y, s }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={1} cy={4 * s} rx={9 * s} ry={3 * s} fill="rgba(0,0,0,.15)" />
+      {[[0, 0, 1], [-6, 1, 0.7], [6, 1, 0.7], [0, -4, 0.6]].map(([dx, dy, r], i) => (
+        <circle key={i} cx={dx * s} cy={dy * s} r={6 * s * r} fill={i % 2 ? '#6b8a4a' : '#7c9a55'} stroke="#4e6837" strokeWidth={0.9} />
+      ))}
+    </g>
+  )
+}
+function Haystack({ x, y, s }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={1} cy={6 * s} rx={9 * s} ry={3 * s} fill="rgba(0,0,0,.18)" />
+      <path d={`M ${-9 * s} ${6 * s} Q 0 ${-11 * s} ${9 * s} ${6 * s} Z`} fill="#d9b24e" stroke="#a67f2c" strokeWidth={1.2} />
+      {[-4, 0, 4].map((hx, i) => <path key={i} d={`M ${hx * s} ${5 * s} Q ${(hx + 1) * s} ${-4 * s} ${(hx + 2) * s} ${5 * s}`} fill="none" stroke="#b8912f" strokeWidth={0.8} opacity={0.6} />)}
+    </g>
+  )
+}
+function GardenPlot({ x, y, s }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x={-11 * s} y={-8 * s} width={22 * s} height={16 * s} rx={2} fill="#6f5744" stroke="#4a3a2c" strokeWidth={1.2} />
+      {[-5, 0, 5].map((cx, i) => (
+        <g key={i}>{[-4, 0, 4].map((cy, j) => <circle key={j} cx={cx * s} cy={cy * s} r={1.5 * s} fill="#7fa356" />)}</g>
       ))}
     </g>
   )
@@ -951,7 +1008,18 @@ function VillageMap({ g, current, goGraph }) {
     ;[[752, 474], [262, 526], [648, 330]].forEach(([cx, cy]) => {
       for (let k = 0; k < 3; k++) houses.push({ x: cx + rnd() * 52 - 26, y: cy + rnd() * 42 - 21, w: 12 + rnd() * 7, rot: rnd() * 36 - 18 })
     })
-    return { trees, houses }
+    // decorative iconography — rocks, bushes, haystacks, garden plots — scattered
+    // in the meadow but kept off the central plaza.
+    const decor = []
+    const KIND = ['rock', 'bush', 'bush', 'haystack', 'garden', 'bush', 'rock']
+    for (let k = 0; k < 34; k++) {
+      const x = 60 + rnd() * 1040, y = 120 + rnd() * 700
+      const dx = x - 525, dy = (y - 432) * 1.25
+      if (dx * dx + dy * dy < 135 * 135) continue // keep the plaza clear
+      decor.push({ kind: KIND[Math.floor(rnd() * KIND.length)], x, y, s: 0.8 + rnd() * 0.7 })
+    }
+    decor.sort((a, b) => a.y - b.y)
+    return { trees, houses, decor }
   }, [])
 
   // place every OTHER node as a dot in its region, keep a position + region for
@@ -1144,6 +1212,12 @@ function VillageMap({ g, current, goGraph }) {
               })}
               {scatter.trees.map((t, i) => <Tree key={i} x={t.x} y={t.y} s={t.s} />)}
               {scatter.houses.map((h, i) => <House key={i} x={h.x} y={h.y} w={h.w} rot={h.rot} />)}
+              {scatter.decor.map((d, i) => (
+                d.kind === 'rock' ? <Rock key={i} x={d.x} y={d.y} s={d.s} />
+                  : d.kind === 'bush' ? <Bush key={i} x={d.x} y={d.y} s={d.s} />
+                  : d.kind === 'haystack' ? <Haystack key={i} x={d.x} y={d.y} s={d.s} />
+                  : <GardenPlot key={i} x={d.x} y={d.y} s={d.s} />
+              ))}
               {VILLAGE_DISTRICTS.map((d, i) => (
                 <text key={i} x={d.x} y={d.y} textAnchor="middle" className="dbg-vdistrict">{d.t}</text>
               ))}
