@@ -552,15 +552,29 @@ function gTower(x, y) {
 }
 
 function gPalace(x, y) {
+  // the black palace — drawn as a dark citadel: an angular curtain wall with
+  // battlements, corner towers and a tall keep, like a fortress seen from above.
+  const merlon = (x0, y0, n, step) => Array.from({ length: n }, (_, i) => (
+    <rect key={i} x={x0 + i * step} y={y0} width={step * 0.62} height={5.5} fill="#3a3242" stroke="#141019" strokeWidth={1} />
+  ))
   return (
     <g transform={`translate(${x},${y})`}>
-      {shadow(3, 22, 36, 9)}
-      <rect x={-34} y={-10} width={12} height={28} rx={2} fill="#2e2836" stroke="#161320" strokeWidth={1.6} />
-      <rect x={22} y={-10} width={12} height={28} rx={2} fill="#2e2836" stroke="#161320" strokeWidth={1.6} />
-      <rect x={-30} y={-19} width={60} height={38} rx={3} fill="#3a3342" stroke="#161320" strokeWidth={2.2} />
-      <rect x={-30} y={-19} width={60} height={11} fill="#4a4252" />
-      {[-19, -7, 7, 19].map((wx, i) => <rect key={i} x={wx - 2} y={-3} width={4.5} height={6} fill="#c9a24a" />)}
-      <rect x={-4} y={7} width={8} height={12} fill="#1c1826" />
+      {shadow(4, 26, 48, 12)}
+      {/* corner towers behind the wall */}
+      <rect x={-48} y={-14} width={15} height={34} rx={1.5} fill="#2a2432" stroke="#120f18" strokeWidth={2} />
+      <rect x={33} y={-16} width={15} height={36} rx={1.5} fill="#2a2432" stroke="#120f18" strokeWidth={2} />
+      {merlon(-48, -19, 3, 5)}{merlon(33, -21, 3, 5)}
+      {/* the curtain wall — an irregular dark keep */}
+      <path d="M -40 20 L -40 -4 L -22 -4 L -22 -16 L -2 -16 L -2 -4 L 40 -4 L 40 20 Z"
+            fill="#322b3c" stroke="#141019" strokeWidth={2.4} strokeLinejoin="round" />
+      {merlon(-40, -9, 4, 5)}{merlon(6, -9, 6, 5.5)}
+      {/* the tall central keep */}
+      <rect x={-16} y={-40} width={22} height={26} fill="#3c3446" stroke="#141019" strokeWidth={2.2} />
+      {merlon(-16, -44, 4, 5.5)}
+      <rect x={-16} y={-40} width={22} height={6} fill="#4a4152" />
+      {/* lit windows + the gate */}
+      {[[-11, -30], [-33, 2], [22, 2], [-6, -8]].map(([wx, wy], i) => <rect key={i} x={wx} y={wy} width={4.4} height={6} fill="#e6b84e" />)}
+      <path d="M -7 20 L -7 7 A 7 7 0 0 1 7 7 L 7 20 Z" fill="#0e0b14" />
     </g>
   )
 }
@@ -1022,10 +1036,15 @@ const WORLD_BLOTCHES = (() => {
 
 // Roads connect the settled places on LAND (the river handles the water route to
 // the Zana / castle / sea, so no road duplicates it).
+// The road network: a main road comes down from the mountain crossroads and wraps
+// AROUND the town (down the east edge, around the south, out west to the forest);
+// the mountain spur climbs to Tomorr, and a towpath crosses the bridge to the castle.
 const VILLAGE_ROADS = [
-  'M 566 96 C 660 -60 780 -170 866 -300',    // crossroads → Mount Tomorr
-  'M 100 560 C -40 600 -180 620 -320 636',   // village west → the great forest
-  'M 1050 900 C 1300 980 1520 1020 1720 1060', // riverside → Rozafa castle (towpath)
+  'M 566 96 C 640 -70 770 -180 866 -300',                          // crossroads → Mount Tomorr (up)
+  'M 566 96 C 652 250 800 412 884 598',                            // crossroads → down the town's east edge
+  'M 884 598 C 822 760 662 834 512 836 C 366 834 206 754 128 566', // → around the southern outskirts
+  'M 128 566 C -30 602 -178 622 -320 636',                         // → out west to the great forest
+  'M 900 520 C 1120 760 1420 1000 1720 1060',                      // bridge → towpath to Rozafa castle
 ]
 // ONE river: springs from Mount Tomorr, runs down the village's east edge (past
 // the bridge/mill/spring), through the Zana's stretch, and out into the sea.
@@ -1064,12 +1083,15 @@ function VillageMap({ g, current, goGraph }) {
     })
     trees.sort((a, b) => a.y - b.y)
 
-    // ── the DENSE old town: terracotta rooftops packed into the TOWN footprint,
-    // carved into blocks by the real story-lanes (which read as the streets), left
-    // open at the central square, and kept off the named landmarks + the river. ──
+    // ── the DENSE old town: terracotta rooftops packed into distinct QUARTERS
+    // (mahalla) — one blob per district, each with a small open courtyard. The
+    // gaps between quarters + the real story-lanes read as the streets; roofs
+    // stay off the named landmarks, the central square and the river. ──
     const named = VILLAGE_PLACES.filter((p) => STORY[p.id])
     const namedR = (p) => p.type === 'square' ? 0
-      : (p.type === 'palace' || p.type === 'church' || p.type === 'tower' || p.type === 'oda' || p.type === 'mill' || p.type === 'garden') ? 30 : 21
+      : p.type === 'palace' ? 50
+      : (p.type === 'church' || p.type === 'tower') ? 32
+      : (p.type === 'oda' || p.type === 'mill' || p.type === 'garden' || p.type === 'hearth' || p.type === 'pasture') ? 26 : 20
     // river's west bank at a given y — keep roofs out of the water
     const riverLeftX = (y) => (y < 486 ? 896 : 896 + (y - 486) * 0.893) - 60
     const segDist = (px, py, x1, y1, x2, y2) => {
@@ -1077,24 +1099,48 @@ function VillageMap({ g, current, goGraph }) {
       let t = ((px - x1) * dx + (py - y1) * dy) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t
       return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy))
     }
-    const roofs = []
-    for (let gx = TOWN.cx - TOWN.rx; gx <= TOWN.cx + TOWN.rx; gx += 21) {
-      for (let gy = TOWN.cy - TOWN.ry; gy <= TOWN.cy + TOWN.ry; gy += 19) {
-        const x = gx + (rnd() - 0.5) * 15, y = gy + (rnd() - 0.5) * 15
-        const nx = (x - TOWN.cx) / TOWN.rx, ny = (y - TOWN.cy) / TOWN.ry, rad = nx * nx + ny * ny
-        if (rad > 1) continue                                       // inside the town oval
-        if (x > riverLeftX(y)) continue                             // west of the river
-        if (Math.hypot(x - 525, y - 432) < 72) continue             // leave the square open
-        let blocked = false
-        for (let li = 0; li < VILLAGE_LANES.length && !blocked; li++) {
-          const L = VILLAGE_LANES[li]; if (segDist(x, y, L[0], L[1], L[2], L[3]) < 14) blocked = true
+    const QUARTERS = [
+      { id: 'church', cx: 636, cy: 202, rx: 122, ry: 96 },
+      { id: 'upnorth', cx: 424, cy: 250, rx: 132, ry: 100 },
+      { id: 'squareN', cx: 512, cy: 356, rx: 116, ry: 84 },
+      { id: 'lanes', cx: 704, cy: 400, rx: 128, ry: 118 },
+      { id: 'life', cx: 250, cy: 452, rx: 142, ry: 130 },
+      { id: 'southe', cx: 560, cy: 632, rx: 150, ry: 118 },
+      { id: 'southw', cx: 288, cy: 648, rx: 132, ry: 112 },
+      { id: 'river', cx: 764, cy: 566, rx: 100, ry: 100 },
+    ]
+    const roofs = [], occ = new Set()
+    for (const Q of QUARTERS) {
+      const qr = mulberry32(hashStr('q:' + Q.id))
+      const yards = []
+      for (let c = 0, n = 1 + (qr() < 0.55 ? 0 : 1); c < n; c++) {
+        const a = qr() * Math.PI * 2, rr = qr() * 0.5
+        yards.push([Q.cx + Math.cos(a) * Q.rx * rr, Q.cy + Math.sin(a) * Q.ry * rr, 15 + qr() * 11])
+      }
+      for (let gx = Q.cx - Q.rx; gx <= Q.cx + Q.rx; gx += 18) {
+        for (let gy = Q.cy - Q.ry; gy <= Q.cy + Q.ry; gy += 17) {
+          const x = gx + (qr() - 0.5) * 12, y = gy + (qr() - 0.5) * 12
+          const qx = (x - Q.cx) / Q.rx, qy = (y - Q.cy) / Q.ry, qrad = qx * qx + qy * qy
+          if (qrad > 1) continue                                     // inside the quarter blob
+          const tx = (x - TOWN.cx) / TOWN.rx, ty = (y - TOWN.cy) / TOWN.ry
+          if (tx * tx + ty * ty > 1.02) continue                     // safety: inside the town
+          if (x > riverLeftX(y)) continue                            // west of the river
+          if (Math.hypot(x - 525, y - 432) < 70) continue            // leave the square open
+          const cell = Math.round(x / 12) + ':' + Math.round(y / 12)
+          if (occ.has(cell)) continue                                // one roof per ~12px cell (no piling at quarter seams)
+          let blocked = false
+          for (let c = 0; c < yards.length && !blocked; c++) if (Math.hypot(x - yards[c][0], y - yards[c][1]) < yards[c][2]) blocked = true // courtyard
+          for (let li = 0; li < VILLAGE_LANES.length && !blocked; li++) {
+            const L = VILLAGE_LANES[li]; if (segDist(x, y, L[0], L[1], L[2], L[3]) < 13) blocked = true
+          }
+          for (let ni = 0; ni < named.length && !blocked; ni++) {
+            const p = named[ni]; if (Math.hypot(x - p.x, y - p.y) < namedR(p)) blocked = true
+          }
+          if (blocked) continue
+          if (qrad > 0.62 && qr() < (qrad - 0.62) / 0.38 * 0.85) continue // thinning quarter edge
+          occ.add(cell)
+          roofs.push({ x, y, w: 14 + qr() * 10, h: 12 + qr() * 7, rot: (qr() - 0.5) * 46, tone: ROOF_TONES[Math.floor(qr() * ROOF_TONES.length)] })
         }
-        for (let ni = 0; ni < named.length && !blocked; ni++) {
-          const p = named[ni]; if (Math.hypot(x - p.x, y - p.y) < namedR(p)) blocked = true
-        }
-        if (blocked) continue
-        if (rad > 0.66 && rnd() < (rad - 0.66) / 0.34) continue     // looser, thinning fringe
-        roofs.push({ x, y, w: 15 + rnd() * 11, h: 13 + rnd() * 8, rot: (rnd() - 0.5) * 46, tone: ROOF_TONES[Math.floor(rnd() * ROOF_TONES.length)] })
       }
     }
     roofs.sort((a, b) => a.y - b.y)
@@ -1339,8 +1385,9 @@ function VillageMap({ g, current, goGraph }) {
             {/* connector roads, the ONE river (mountain -> village -> Zana -> sea), and the well-shaft */}
             {VILLAGE_ROADS.map((d, i) => (
               <g key={i}>
-                <path d={d} fill="none" stroke="#cabd92" strokeWidth={12} opacity={0.6} strokeLinecap="round" />
-                <path d={d} fill="none" stroke="#a89468" strokeWidth={3} strokeDasharray="3 12" strokeLinecap="round" />
+                <path d={d} fill="none" stroke="#9e885b" strokeWidth={16} opacity={0.38} strokeLinecap="round" />
+                <path d={d} fill="none" stroke="#cbb98d" strokeWidth={12} strokeLinecap="round" />
+                <path d={d} fill="none" stroke="#efe5c8" strokeWidth={3} strokeDasharray="2 11" opacity={0.85} strokeLinecap="round" />
               </g>
             ))}
             <path d={WORLD_RIVER} fill="none" stroke="#cdbf94" strokeWidth={92} strokeLinecap="round" />
