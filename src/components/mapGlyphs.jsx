@@ -694,6 +694,99 @@ function gShtojzovalle(x, y) {
   )
 }
 
+// ── GENERIC glyphs — every OTHER node (no bespoke landmark) still gets a small
+// thematic icon instead of a plain dot: endings by kind, hubs a signpost-ring,
+// and ordinary scenes a little region token. Kept tiny (2–4 shapes) for speed.
+function gEndGood(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <path d="M-5 4 Q-8 -3 -4 -7" fill="none" stroke="#3ec46d" strokeWidth={1.8} strokeLinecap="round" />
+      <path d="M5 4 Q8 -3 4 -7" fill="none" stroke="#3ec46d" strokeWidth={1.8} strokeLinecap="round" />
+      <circle cx={0} cy={-1} r={2.6} fill="#e7b53c" stroke="#3ec46d" strokeWidth={1} />
+    </g>
+  )
+}
+function gEndBad(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <path d="M-6 5 Q0 1 6 5 Z" fill="#6c6152" />
+      <path d="M-3.2 5 L-3.2 -3 A3.2 3.2 0 0 1 3.2 -3 L3.2 5 Z" fill="#c3bcae" stroke="#e5544b" strokeWidth={1.2} />
+      <line x1={-1.6} y1={-2} x2={1.6} y2={-2} stroke="#8a8172" strokeWidth={1} />
+    </g>
+  )
+}
+function gEndSecret(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <path d="M0 -7 l1.7 4.5 l4.8 0.3 l-3.7 3 l1.2 4.7 l-4 -2.7 l-4 2.7 l1.2 -4.7 l-3.7 -3 l4.8 -0.3 Z"
+            fill="#e7b53c" stroke="#a8790f" strokeWidth={0.9} />
+    </g>
+  )
+}
+function gHubMark(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <circle cx={0} cy={0} r={5.5} fill="none" stroke="#b07bff" strokeWidth={1.8} opacity={0.85} />
+      <circle cx={0} cy={0} r={2} fill="#b07bff" />
+    </g>
+  )
+}
+const SCENE = {
+  forest: (x, y) => (
+    <g transform={`translate(${x},${y})`}>
+      <rect x={-1} y={2} width={2} height={4} fill="#6f4f34" />
+      <polygon points="0,-7 -5,3 5,3" fill="#4c6743" stroke="#28351f" strokeWidth={0.8} />
+      <polygon points="0,-3 -4,4 4,4" fill="#587a49" stroke="#28351f" strokeWidth={0.7} />
+    </g>
+  ),
+  mountain: (x, y) => (
+    <g transform={`translate(${x},${y})`}>
+      <polygon points="0,-6 -6,5 6,5" fill="#8b9781" stroke="#5b6653" strokeWidth={1} />
+      <polygon points="0,-6 -2.2,-1.2 2.2,-1.2" fill="#eef2ee" />
+    </g>
+  ),
+  sky: (x, y) => (
+    <g transform={`translate(${x},${y})`}>
+      <circle cx={-3} cy={1} r={3.4} fill="#eef3fb" opacity={0.9} />
+      <circle cx={3} cy={1} r={3} fill="#eef3fb" opacity={0.9} />
+      <circle cx={0} cy={-2} r={3.2} fill="#f4f8ff" opacity={0.95} />
+    </g>
+  ),
+  river: (x, y) => (
+    <g transform={`translate(${x},${y})`}>
+      <path d="M-6 1 q3 -3 6 0 q3 3 6 0" fill="none" stroke="#6fa7bc" strokeWidth={1.8} strokeLinecap="round" />
+      <path d="M-6 4 q3 -3 6 0 q3 3 6 0" fill="none" stroke="#9fcdda" strokeWidth={1.4} strokeLinecap="round" />
+    </g>
+  ),
+  sea: (x, y) => (
+    <g transform={`translate(${x},${y})`}>
+      <path d="M-6 2 q3 -3.5 6 0 q3 3.5 6 0" fill="none" stroke="#5f9ab2" strokeWidth={2} strokeLinecap="round" />
+      <path d="M-4 -2 q2 -2.5 4 0" fill="none" stroke="#bfe0ea" strokeWidth={1.3} strokeLinecap="round" />
+    </g>
+  ),
+  underworld: (x, y) => (
+    <g transform={`translate(${x},${y})`}>
+      <polygon points="0,6 -3.5,-4 3.5,-4" fill="#3a3342" stroke="#161320" strokeWidth={0.8} />
+      <circle cx={0} cy={-4} r={1.3} fill="#e8892b" opacity={0.85} />
+    </g>
+  ),
+  village: (x, y) => (
+    <g transform={`translate(${x},${y})`}>
+      <rect x={-4} y={-3} width={8} height={7} rx={1} fill="#a9825f" stroke="#573f2d" strokeWidth={1} />
+      <line x1={-4} y1={0.5} x2={4} y2={0.5} stroke="#573f2d" strokeWidth={0.8} />
+    </g>
+  ),
+}
+// draw the right small glyph for a plain node — endings by kind, hubs a ring,
+// everything else a region token (falls back to a scene dot).
+export function genericGlyph(x, y, kind, region) {
+  if (kind === 'good') return gEndGood(x, y)
+  if (kind === 'bad') return gEndBad(x, y)
+  if (kind === 'secret') return gEndSecret(x, y)
+  if (kind === 'hub') return gHubMark(x, y)
+  return (SCENE[region] || SCENE.village)(x, y)
+}
+
 // ── dispatcher + placements ────────────────────────────────────────────────
 export const WORLD_GLYPH = {
   gBabaTomor, gEagle, gJutbina, gShurdhi, gVerbti, gPeri, gKatallan, gKreshnik,

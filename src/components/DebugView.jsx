@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
 import { FOLKLORE, ENDING_LORE } from '../game/folklore.js'
-import { WORLD_GLYPH, WORLD_LANDMARKS } from './mapGlyphs.jsx'
+import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
 
 // nodes that get a bespoke landmark glyph in an outer region (not a plain dot)
 const LANDMARK_IDS = new Set(WORLD_LANDMARKS.map((l) => l.id))
@@ -1055,11 +1055,11 @@ function VillageMap({ g, current, goGraph }) {
           const rnd = mulberry32(hashStr(id))
           const a = rnd() * Math.PI * 2, rr = Math.sqrt(0.64 + rnd() * 0.36) * 0.96
           const x = rg.cx + Math.cos(a) * rg.rx * rr, y = rg.cy + Math.sin(a) * rg.ry * rr
-          out.push({ id, x, y, kind: g.kindOf(id) }); pos[id] = [x, y]; regOf[id] = rg.key
+          out.push({ id, x, y, kind: g.kindOf(id), region: rg.key }); pos[id] = [x, y]; regOf[id] = rg.key
         })
       } else {
         for (const p of layoutRegion(byRegion[ri], rg)) {
-          out.push({ id: p.id, x: p.x, y: p.y, kind: g.kindOf(p.id) }); pos[p.id] = [p.x, p.y]; regOf[p.id] = rg.key
+          out.push({ id: p.id, x: p.x, y: p.y, kind: g.kindOf(p.id), region: rg.key }); pos[p.id] = [p.x, p.y]; regOf[p.id] = rg.key
         }
       }
     })
@@ -1304,16 +1304,14 @@ function VillageMap({ g, current, goGraph }) {
               const big = isSel || (isCur && !sel)
               const label = isSel || (nbr && nbr.has(d.id)) || hubSet.has(d.id)
               return (
-                <g key={d.id} opacity={dim ? 0.22 : 1} onClick={() => setSel(d.id)} style={{ cursor: 'pointer' }}>
-                  {label && <text x={d.x} y={d.y - 8.5 * ds} textAnchor="middle" className="dbg-wdotlabel"
+                <g key={d.id} className="dbg-wdot" opacity={dim ? 0.22 : 1} onClick={() => setSel(d.id)} style={{ cursor: 'pointer' }}>
+                  <title>{d.id}{STORY[d.id].end ? ` (${STORY[d.id].end})` : ''}</title>
+                  {label && <text x={d.x} y={d.y - 10 * ds} textAnchor="middle" className="dbg-wdotlabel"
                                   style={{ fontSize: 10.5 * ds, strokeWidth: 3 * ds }}>{d.id}</text>}
-                  {/* generous invisible hit target so tiny dots are easy to click */}
-                  <circle cx={d.x} cy={d.y} r={dr * 2.6} fill="transparent" />
-                  <circle className="dbg-wdot" cx={d.x} cy={d.y} r={big ? dr * 1.9 : dr}
-                          fill={KIND_COLOR[d.kind]} stroke={isSel ? '#3ad0c0' : isCur ? '#fff' : '#101820'}
-                          strokeWidth={ds * (big ? 2.4 : 1.4)}>
-                    <title>{d.id}{STORY[d.id].end ? ` (${STORY[d.id].end})` : ''}</title>
-                  </circle>
+                  {/* generous invisible hit target so tiny glyphs are easy to click */}
+                  <circle cx={d.x} cy={d.y} r={dr * 2.4} fill="transparent" />
+                  {(isSel || isCur) && <circle cx={d.x} cy={d.y} r={12} fill="none" stroke={isSel ? '#3ad0c0' : '#fff'} strokeWidth={2} opacity={0.8} />}
+                  {genericGlyph(d.x, d.y, d.kind, d.region)}
                 </g>
               )
             })}
