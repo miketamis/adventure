@@ -381,6 +381,9 @@ button {
   margin-bottom: 22px;
 }
 .practice .question.ctx { margin-bottom: 18px; }
+/* an inflected word in "endings" mode: root solid, ending gently faded */
+.practice .q-inflected .stem { color: var(--ink); }
+.practice .q-inflected .ending { opacity: 0.55; color: var(--accent); }
 .practice .ctx-al { font-size: 30px; }
 .practice .ctx-al .ctx-focus {
   color: var(--accent);

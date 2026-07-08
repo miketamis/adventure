@@ -17,14 +17,29 @@ export const DICT = {
   pyll:      { al: 'pyll',      en: 'forest' },
   madh:      { al: 'madh',      en: 'big' },
   sheh:      { al: 'sheh',      en: 'see' },
-  rruge:     { al: 'rrugë',     en: 'road' },
+  rruge:     { al: 'rrugë',     en: 'road', forms: [
+    { al: 'rrugë',  tag: 'indefNom', gloss: 'a road' },
+    { al: 'rruga',  tag: 'defNom',   gloss: 'the road' },
+    { al: 'rrugën', tag: 'defAcc',   gloss: 'the road (object)' },
+    { al: 'rrugës', tag: 'defDat',   gloss: 'to/of the road' },
+    { al: 'rrugët', tag: 'plDef',    gloss: 'the roads' },
+  ] },
   ec:        { al: 'ec',        en: 'walk' },
   fle:       { al: 'fle',       en: 'sleep' },
   ketu:      { al: 'këtu',      en: 'here' },
   dhe:       { al: 'dhe',       en: 'and' },
-  shtepi:    { al: 'shtëpi',    en: 'house' },
+  shtepi:    { al: 'shtëpi',    en: 'house', forms: [
+    { al: 'shtëpi',   tag: 'indefNom', gloss: 'a house' },
+    { al: 'shtëpia',  tag: 'defNom',   gloss: 'the house' },
+    { al: 'shtëpinë', tag: 'defAcc',   gloss: 'the house (object)' },
+    { al: 'shtëpitë', tag: 'plDef',    gloss: 'the houses' },
+  ] },
   ka:        { al: 'ka',        en: 'has' },
-  dere:      { al: 'derë',      en: 'door' },
+  dere:      { al: 'derë',      en: 'door', forms: [
+    { al: 'derë',  tag: 'indefNom', gloss: 'a door' },
+    { al: 'dera',  tag: 'defNom',   gloss: 'the door' },
+    { al: 'derën', tag: 'defAcc',   gloss: 'the door (object)' },
+  ] },
   hap:       { al: 'hap',       en: 'open' },
   ik:        { al: 'ik',        en: 'flee' },
   brenda:    { al: 'brenda',    en: 'inside' },
@@ -70,21 +85,46 @@ export const DICT = {
   // places & things along the journey
   lume:      { al: 'lumë',      en: 'river' },
   ure:       { al: 'urë',       en: 'bridge' },
-  mal:       { al: 'mal',       en: 'mountain' },
+  mal:       { al: 'mal',       en: 'mountain', forms: [
+    { al: 'mal',   tag: 'indefNom', gloss: 'a mountain' },
+    { al: 'mali',  tag: 'defNom',   gloss: 'the mountain' },
+    { al: 'malin', tag: 'defAcc',   gloss: 'the mountain (object)' },
+    { al: 'malit', tag: 'defDat',   gloss: 'to/of the mountain' },
+    { al: 'malet', tag: 'plDef',    gloss: 'the mountains' },
+  ] },
   shpelle:   { al: 'shpellë',   en: 'cave' },
-  plak:      { al: 'plak',      en: 'old man' },
+  plak:      { al: 'plak',      en: 'old man', forms: [
+    { al: 'plak',   tag: 'indefNom', gloss: 'an old man' },
+    { al: 'plaku',  tag: 'defNom',   gloss: 'the old man' },
+    { al: 'plakun', tag: 'defAcc',   gloss: 'the old man (object)' },
+  ] },
   kalo:      { al: 'kalo',      en: 'cross' },
   // --- folklore: characters & creatures ---
-  fshat:     { al: 'fshat',     en: 'village' },
+  fshat:     { al: 'fshat',     en: 'village', forms: [
+    { al: 'fshat',   tag: 'indefNom', gloss: 'a village' },
+    { al: 'fshati',  tag: 'defNom',   gloss: 'the village' },
+    { al: 'fshatin', tag: 'defAcc',   gloss: 'the village (object)' },
+  ] },
   plake:     { al: 'plakë',     en: 'old woman' },
   kulshedra: { al: 'kulshedra', en: 'she-dragon' }, // the Kulshedra: multi-headed, fire-spitting
   zane:      { al: 'zanë',      en: 'fairy' },     // mountain fairy (Zana)
   bukura:    { al: 'Bukura',    en: 'the Beauty' },// E Bukura e Dheut
   dragua:    { al: 'dragua',    en: 'dragon-hero' },// the Drangue
-  trim:      { al: 'trim',      en: 'hero' },
+  trim:      { al: 'trim',      en: 'hero', forms: [
+    { al: 'trim',   tag: 'indefNom', gloss: 'a hero' },
+    { al: 'trimi',  tag: 'defNom',   gloss: 'the hero' },
+    { al: 'trimin', tag: 'defAcc',   gloss: 'the hero (object)' },
+    { al: 'trimit', tag: 'defDat',   gloss: 'to/of the hero' },
+    { al: 'trima',  tag: 'plIndef',  gloss: 'heroes' },
+  ] },
   shqiponje: { al: 'shqiponjë', en: 'eagle' },
   gjarper:   { al: 'gjarpër',   en: 'serpent' },
-  mbret:     { al: 'mbret',     en: 'king' },
+  mbret:     { al: 'mbret',     en: 'king', forms: [
+    { al: 'mbret',   tag: 'indefNom', gloss: 'a king' },
+    { al: 'mbreti',  tag: 'defNom',   gloss: 'the king' },
+    { al: 'mbretin', tag: 'defAcc',   gloss: 'the king (object)' },
+    { al: 'mbretit', tag: 'defDat',   gloss: 'to/of the king' },
+  ] },
   nene:      { al: 'nënë',      en: 'mother' },
   femije:    { al: 'fëmijë',    en: 'child' },
   tomor:     { al: 'Tomor',     en: 'Tomorr' },    // the sky-father mountain
@@ -396,7 +436,11 @@ export const DICT = {
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
-  bije:      { al: 'bijë',      en: 'daughter' },// E Bija e Hënës dhe e Diellit
+  bije:      { al: 'bijë',      en: 'daughter', forms: [
+    { al: 'bijë',  tag: 'indefNom', gloss: 'a daughter' },
+    { al: 'bija',  tag: 'defNom',   gloss: 'the daughter' },
+    { al: 'bijën', tag: 'defAcc',   gloss: 'the daughter (object)' },
+  ] },// E Bija e Hënës dhe e Diellit
   vit:       { al: 'vit',       en: 'year' },    // Aga Ymer's nine years
   fol:       { al: 'fol',       en: 'speak' },   // the broken-silence taboo
   shpirag:   { al: 'Shpirag',   en: 'Shpirag' }, // the rival mountain of Tomorr
@@ -613,6 +657,12 @@ export const w = (id) => ({ id, al: DICT[id].al, en: DICT[id].en })
 // The declared English senses of a word: enAll ("on / in") split into a set, or
 // just [en] for single-sense words.
 const sensesOf = (id) => (DICT[id].enAll ?? DICT[id].en).split('/').map((s) => s.trim())
+// The inflected surfaces a word's forms table declares (lower-cased). Used by wf()
+// to guarantee every surface the STORY shows is also a known form — so the forms
+// table (the single source of truth for a word's declension) can never fall out of
+// sync with the story. Case-folded so sentence-initial Capitals match; diacritics
+// stay significant so a missing ë is caught as the real typo it is.
+const formSurfaces = (id) => (DICT[id].forms ?? []).map((f) => f.al.toLowerCase())
 export const wf = (id, al, en) => {
   // If a word declares multiple senses (enAll), a per-token gloss override must
   // pick one of them — guards against typos and senses drifting out of enAll.
@@ -621,6 +671,16 @@ export const wf = (id, al, en) => {
     throw new Error(
       `wf('${id}', '${al}', '${en}'): '${en}' is not a declared sense of '${id}'. ` +
         `Add it to enAll ("${DICT[id].enAll}") or use one of: ${sensesOf(id).join(', ')}`,
+    )
+  }
+  // If a word has a forms table (nouns we drill in "endings mode"), every inflected
+  // surface used in the story MUST be a declared form — this is the completeness
+  // guard: an unlisted surface throws at import so the table stays exhaustive.
+  if (DICT[id].forms && !formSurfaces(id).includes(al.toLowerCase())) {
+    throw new Error(
+      `wf('${id}', '${al}'): '${al}' is not a declared form of '${id}'. ` +
+        `Add { al: '${al}', tag: '…', gloss: '…' } to its forms table, or fix the surface. ` +
+        `Declared: ${formSurfaces(id).join(', ')}`,
     )
   }
   return { id, al, en: en ?? DICT[id].en }
@@ -7530,6 +7590,66 @@ export function splitStem(id, surface) {
     return [surface.slice(0, stem.length), surface.slice(stem.length)]
   }
   return [surface, '']
+}
+
+// ---------------------------------------------------------------------------
+// FORMS ("endings" drill) — a word's declension is authored once as DICT[id].forms
+// (see `wf` guard above). Each form is { al, tag, gloss }: the inflected surface, a
+// grammatical role from FORM_TAGS, and a PRECISE English gloss (finer than the
+// story's smoothed one) used as an answer option when the player drills what the
+// ending does. The lemma (indefNom) row is always present.
+// ---------------------------------------------------------------------------
+export const FORM_TAGS = {
+  indefNom: 'a … (subject)',
+  indefAcc: 'a … (object)',
+  defNom: 'the … (subject)',
+  defAcc: 'the … (object)',
+  defDat: 'to/of the …',
+  plIndef: 'plural',
+  plDef: 'the … (plural)',
+}
+
+// FORM_FREQ[id] -> Map<surface(lower), count>: how often each surface of a sense
+// actually appears across the same corpus STEMS walks (story text/options + item
+// use-phrases). Endings mode uses this to drill the forms a word takes OFTEN,
+// rather than a full paradigm the story never uses.
+export const FORM_FREQ = (() => {
+  const counts = {}
+  const add = (t) => {
+    if (!t.id) return
+    ;(counts[t.id] ||= new Map())
+    const k = t.al.toLowerCase()
+    counts[t.id].set(k, (counts[t.id].get(k) || 0) + 1)
+  }
+  for (const node of Object.values(STORY)) {
+    for (const e of node.text) for (const t of lineOf(e)) add(t)
+    for (const opt of node.options) for (const t of opt.text) add(t)
+  }
+  for (const item of Object.values(ITEMS)) if (item.use) for (const t of item.use.phrase) add(t)
+  return counts
+})()
+
+// The forms of `id` worth drilling: every inflected form that actually appears in
+// the story (count ≥ min), richest-first, capped — PLUS the lemma (indefNom) row,
+// which is always included so the core "a X" vs "the X" contrast is always teachable
+// even though the story leans almost entirely on definite forms. Returns [] if the
+// word has no forms table.
+export function frequentForms(id, { min = 1, cap = 5 } = {}) {
+  const forms = DICT[id]?.forms
+  if (!forms) return []
+  const freq = FORM_FREQ[id]
+  const lemma = DICT[id].al.toLowerCase()
+  const isLemma = (f) => f.al.toLowerCase() === lemma
+  const inflected = forms
+    .filter((f) => !isLemma(f))
+    .map((f) => ({ ...f, count: freq?.get(f.al.toLowerCase()) || 0 }))
+    .filter((f) => f.count >= min)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, cap)
+  const lemmaRow = forms.find(isLemma)
+  return lemmaRow
+    ? [{ ...lemmaRow, count: freq?.get(lemma) || 0 }, ...inflected]
+    : inflected
 }
 
 // ---------------------------------------------------------------------------

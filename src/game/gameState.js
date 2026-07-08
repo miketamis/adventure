@@ -1,7 +1,16 @@
-import { START_NODE, STORY, WORLD_HUB } from './content.js'
+import { START_NODE, STORY, WORLD_HUB, frequentForms } from './content.js'
 
 export const PEAK_START_TURNS = 3
 export const START_HEARTS = 3
+
+// How many correct practices of a word before its "endings" drill unlocks. `mana`
+// is spent on story choices, so a separate monotonic `practiced` counter tracks it.
+export const FORMS_UNLOCK_THRESHOLD = 3
+// A word enters endings mode once it's been practiced enough AND it has a forms
+// table with at least two frequently-used forms (so step 2 is never a one-option
+// question). The lemma row always counts, so ≥2 means ≥1 real inflected form.
+export const formsUnlocked = (state, id) =>
+  (state.practiced?.[id] || 0) >= FORMS_UNLOCK_THRESHOLD && frequentForms(id).length >= 2
 
 // ---------------------------------------------------------------------------
 // Persistence: the WHOLE game state is saved to localStorage on every change,
@@ -64,7 +73,9 @@ function baseRun() {
 
 // the initial state when the app boots
 export function newRun() {
-  return { ...baseRun(), mana: {}, discoveredEndings: loadEndings(), debug: false, loreFocus: null }
+  // `mana` and `practiced` live OUTSIDE baseRun(): they are long-term learning
+  // progress that carries across runs (unlike per-run state, which resets).
+  return { ...baseRun(), mana: {}, practiced: {}, discoveredEndings: loadEndings(), debug: false, loreFocus: null }
 }
 
 // distinct sense ids used by a phrase (an option's answer or an item's use phrase)
@@ -146,6 +157,8 @@ export function reducer(state, action) {
       return {
         ...state,
         mana: { ...state.mana, [action.id]: (state.mana[action.id] || 0) + 1 },
+        // monotonic (never spent) — this is what unlocks a word's endings drill
+        practiced: { ...state.practiced, [action.id]: (state.practiced?.[action.id] || 0) + 1 },
       }
 
     case 'PRACTICE_WRONG':
@@ -167,11 +180,14 @@ export function reducer(state, action) {
     case 'DEBUG_GRANT': {
       const discovered = { ...state.discovered }
       const mana = { ...state.mana }
+      const practiced = { ...state.practiced }
       for (const id of action.ids || []) {
         discovered[id] = true
         if ((mana[id] || 0) < 1) mana[id] = 1
+        // also cross the endings-drill threshold so granted words are testable
+        if ((practiced[id] || 0) < FORMS_UNLOCK_THRESHOLD) practiced[id] = FORMS_UNLOCK_THRESHOLD
       }
-      return { ...state, discovered, mana }
+      return { ...state, discovered, mana, practiced }
     }
 
     // Jump to the folklore library focused on a tale (from an ending's link).
@@ -184,6 +200,7 @@ export function reducer(state, action) {
       return {
         ...baseRun(),
         mana: state.mana,
+        practiced: state.practiced,
         discovered: state.discovered,
         discoveredEndings: state.discoveredEndings,
         debug: state.debug,
@@ -203,7 +220,7 @@ export function reducer(state, action) {
     case 'RESET':
       // hard new run (top-right button or game over): back to the start with
       // everything undiscovered; keep only your tokens and endings collection
-      return { ...baseRun(), mana: state.mana, discoveredEndings: state.discoveredEndings, debug: state.debug }
+      return { ...baseRun(), mana: state.mana, practiced: state.practiced, discoveredEndings: state.discoveredEndings, debug: state.debug }
 
     default:
       return state
