@@ -370,7 +370,11 @@ export const FOLKLORE = [
     sources: [
       { label: 'Rozafa Castle (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Rozafa_Castle' },
     ],
-    related: ['besa', 'tomor-shpirag', 'constantine-doruntine'],
+    related: ['besa', 'tomor-shpirag', 'constantine-doruntine', 'ura-e-artes'],
+    texts: [
+      { label: 'Legjenda e Rozafës (Mitrush Kuteli) — full prose', lang: 'sq',
+        url: 'https://www.voal.ch/legjenda-e-rozafes-nga-mitrush-kuteli/kulture/letersi/' },
+    ],
   },
   {
     id: 'constantine-doruntine',
@@ -384,7 +388,11 @@ export const FOLKLORE = [
         url: 'https://en.wikipedia.org/wiki/Constantin_and_Doruntin%C3%AB',
       },
     ],
-    related: ['besa', 'rozafa', 'aga-ymer', 'dhampir', 'karkanxholl', 'vajtim'],
+    related: ['besa', 'rozafa', 'aga-ymer', 'dhampir', 'karkanxholl', 'vajtim', 'kostandini-i-vogel'],
+    texts: [
+      { label: 'Besa e Kostandinit — full ballad/prose', lang: 'sq',
+        url: 'https://www.voal.ch/besa-e-kostandinit-balade-popullore-shqiptare/kulture/letersi/' },
+    ],
   },
   {
     id: 'gjergj-elez-alia',
@@ -543,6 +551,11 @@ export const FOLKLORE = [
       { label: 'Vajtim and Gjëmë (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Vajtim_and_Gj%C3%ABm%C3%AB' },
     ],
     related: ['kreshnik-epic', 'vajtim', 'halil-marriage', 'mujo-avenges-halil'],
+    texts: [
+      { label: 'Vajtimi i Ajkunës — full verse (Wikibooks, CC-BY-SA)', lang: 'sq',
+        url: 'https://sq.wikibooks.org/wiki/Vajtimi_i_Ajkun%C3%ABs',
+        local: 'docs/references/vajtimi-i-ajkunes.sq.txt' },
+    ],
   },
   {
     id: 'aga-ymer',
@@ -556,7 +569,12 @@ export const FOLKLORE = [
         url: 'https://en.wikipedia.org/wiki/Albanian_Songs_of_the_Frontier_Warriors',
       },
     ],
-    related: ['besa', 'constantine-doruntine', 'zuku-bajraktar'],
+    related: ['besa', 'constantine-doruntine', 'zuku-bajraktar', 'kostandini-i-vogel'],
+    texts: [
+      { label: 'Ymer Agë Ulqini — full song (Wikibooks, CC-BY-SA)', lang: 'sq',
+        url: 'https://sq.wikibooks.org/wiki/Ymer_Ag%C3%AB_Ulqini',
+        local: 'docs/references/ymer-age-ulqini.sq.txt' },
+    ],
   },
 
   // ── The folktales ────────────────────────────────────────────────────────
@@ -849,6 +867,315 @@ export const FOLKLORE = [
     ],
     related: ['ora', 'vitore', 'stihi'],
   },
+
+  // ══ ADDED 2026-07-08 (research pass — gap analysis + corpus build) ══════════
+  // Deities / spirits
+  {
+    id: 'enji',
+    title: 'Enji / En — the fire-god',
+    category: 'Deity',
+    summary:
+      'The Illyrian-Albanian god of fire, whose name is preserved in the weekday e enjte ("Thursday") — from Proto-Indo-European *h₁n̥gʷnis, a cognate of Sanskrit Agni and Latin ignis. Reconstructed as the supreme fire deity of pagan Albania, worshipped at the hearth and in the ritual fires; under Christianity his cult was demonised and largely absorbed into i Verbti. The living fire was never to be cursed, spat on, or put out with water.',
+    sources: [
+      { label: 'Enji (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Enji_(deity)' },
+      { label: 'Fire worship (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Fire_worship' },
+    ],
+    related: ['i-verbti', 'dielli', 'shurdhi', 'nena-e-vatres', 'nata-e-buzmit'],
+  },
+  {
+    id: 'perendi',
+    title: 'Perëndi — the sky-god / God',
+    category: 'Deity',
+    summary:
+      'The ordinary Albanian word for "God" and "the heavens/sky," reconstructed as the memory of a pagan sky-and-thunder father of the Illyrians (per-en-, "he who strikes"). Distinct from Zojz as the abstracted supreme being; the sky itself was sworn by (për qiell) and the weather read as his mood. The word survives every day while the pagan person behind it faded.',
+    sources: [
+      { label: 'Perëndi (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Per%C3%ABndi' },
+      { label: 'perëndi (Wiktionary)', url: 'https://en.wiktionary.org/wiki/per%C3%ABndi' },
+    ],
+    related: ['zojz', 'dielli', 'hena'],
+  },
+  {
+    id: 'nena-e-vatres',
+    title: 'Nëna e Vatrës — the Mother of the Hearth',
+    category: 'Deity',
+    summary:
+      'The beneficent protector-spirit of the domestic hearth-fire, the ancestor cult and the life of the family — the Albanian Hestia/Vesta. The hearth (vatra) was the sacred centre of the house; if left cold or unclean at night she grew angry, and food and drink were offered into the flames for her. To keep the fire alive was to keep the family alive.',
+    sources: [
+      { label: 'Nëna e Vatrës (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' },
+      { label: 'Vatër / hearth cult (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Vat%C3%ABr' },
+    ],
+    related: ['vitore', 'gjarpri-i-shtepise', 'enji', 'nata-e-buzmit', 'dielli'],
+  },
+  {
+    id: 'fatia-mira',
+    title: 'Fatia & Mira — the Fates of the south',
+    category: 'Fairy',
+    summary:
+      'The three fate-women of Tosk southern Albania — the Albanian Moirai/Parcae. On the third night after a child is born they come riding butterflies to the cradle and fix its destiny once and for all, for good (Mira) or ill (Fatia). What they decree cannot be undone; the southern counterpart to the northern Ora.',
+    sources: [
+      { label: 'Fatia (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Fatia' },
+    ],
+    related: ['ora', 'vitore', 'bija-hene-diell'],
+  },
+  {
+    id: 'zana-e-malit',
+    title: 'Zana e Malit — the mountain fairy',
+    category: 'Fairy',
+    summary:
+      'The nymph of the highland peaks — cognate with the Illyrian goddess Thana / Roman Diana. Every mountain has its own zana who guards its springs, game and forest; her strength lives in three golden-horned wild goats, and her gaze can turn the intruder to stone. She grants the kreshnik heroes (Mujo) their more-than-human strength — but woe to whoever spies on her bathing.',
+    sources: [
+      { label: 'Zana e malit (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Zana_e_malit' },
+    ],
+    related: ['ora', 'shtojzovalle', 'mujo-strength', 'mujo-zanas', 'bukura-e-dheut'],
+  },
+  {
+    id: 'gjarpri-i-shtepise',
+    title: 'Gjarpri i Shtëpisë — the house serpent',
+    category: 'Creature',
+    summary:
+      'The guardian-serpent believed to live in the foundations or wall of every house, embodying the ancestral souls and the luck of the lineage. To kill it is to kill the household; it is fed milk and never harmed. Close kin to the Vitore, but where the Vitore is the personal fortune-genius, the house serpent is the ancestor keeping watch over the hearth.',
+    sources: [
+      { label: 'Vitore / house serpent (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Vitore' },
+      { label: 'Albanian folk beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' },
+    ],
+    related: ['vitore', 'nena-e-vatres', 'bolla'],
+  },
+  {
+    id: 'djalli',
+    title: 'Djalli / Dreqi — the Devil',
+    category: 'Creature',
+    summary:
+      'The personification of evil and a fire-demon of the folk-Christian imagination — the name from Latin diabolus. The trickster-antagonist of a thousand tales, forever tempting and bargaining, and forever bested not by force but by wit, faith or a pure heart. To name him at night was to summon him; the wise said "the far-off one" instead.',
+    sources: [
+      { label: 'Djall (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Djall' },
+    ],
+    related: ['xhindi', 'karkanxholl', 'kulshedra'],
+  },
+
+  // Creatures the STORY leans on heavily (baloz, lugat) but had no card
+  {
+    id: 'baloz',
+    title: 'Balozi i Zi — the Black Baloz of the sea',
+    category: 'Creature',
+    summary:
+      'The armoured sea-monster the colour of soot who rises from the deep to demand tribute — gold, then flocks, then the maidens of the land — and whom no ordinary man can face. He is the standing enemy of the frontier heroes: Gjergj Elez Alia rises from nine years of wounds to cut him down, and Mujo and Halili meet him on the shore. The sea gives him up and the sea takes him back.',
+    sources: [
+      { label: 'Baloz (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Baloz' },
+    ],
+    related: ['gjergj-elez-alia', 'kreshnik-epic', 'kulshedra', 'bukura-e-detit'],
+  },
+  {
+    id: 'lugat',
+    title: 'Lugati — the restless undead',
+    category: 'Creature',
+    summary:
+      'A revenant made when someone dies badly — suddenly, unshriven, or steeped in sin — who rises wrapped in his own grave-skin and rides the night wind to smother the sleeping. Left thirty years he "graduates" into a bodiless kukudh that no longer needs its grave. Iron, salt and the crowing cock hold him off; the wolf is his one true predator, and to be told "may the wolf eat you" is to be promised you will never walk after death.',
+    sources: [
+      { label: 'Lugat (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Lugat' },
+    ],
+    related: ['wolf', 'shtriga', 'dhampir', 'kukudh'],
+  },
+
+  // Legends
+  {
+    id: 'skanderbeg-legjenda',
+    title: 'Legjendat e Skënderbeut — the legends of Skanderbeg',
+    category: 'Legend',
+    summary:
+      'The folk cycle around Gjergj Kastrioti Skënderbeu (1405–1468), the national hero who held the Ottomans off for a quarter-century. In legend he breaks the siege of Krujë by tying lit candles to a herd of goats so the enemy sees a great host on the ramparts — hence the goat-horned helmet; and at his death at Lezhë the Turks dig up his bones for talismans of his courage. When he died, they say, Albania fell.',
+    sources: [
+      { label: 'Skanderbeg (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Skanderbeg' },
+      { label: 'Scanderbeg & Ballaban (Elsie, legend)', url: 'http://albanianliterature.net/legends/legend_07.html' },
+    ],
+    related: ['sons-of-eagle', 'rozafa', 'kanuni', 'besa'],
+    texts: [
+      { label: 'Naim Frashëri, Historia e Skënderbeut (1898) — full verse epic', lang: 'sq',
+        url: 'https://wikisource.org/wiki/Historia_e_Sk%C3%ABnderbeut',
+        local: 'docs/references/naim-historia-e-skenderbeut.sq.txt' },
+    ],
+  },
+  {
+    id: 'ura-e-artes',
+    title: 'Ura e Artës — the Bridge of Arta',
+    category: 'Legend',
+    summary:
+      'The bridge-form of the walled-up-wife ballad: however high the master-builders raise the great bridge, by night it falls, until a voice tells them it will only stand once a living wife is immured in its pier. The youngest, most-loved bride is tricked into the wall; she asks that one breast be left free to suckle her infant, and curses then blesses the bridge so it will "tremble as my heart trembles" yet never fall again. The Balkan-wide sister of Rozafa — castle there, bridge here.',
+    sources: [
+      { label: 'The Walled-Up Wife / Bridge (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Three-Arched_Bridge' },
+      { label: 'Ballad of the Walled-Up Wife (ArchiWik)', url: 'https://www.archiwik.org/index.php/Ballad_of_The_Walled-Up_Wife' },
+    ],
+    related: ['rozafa', 'besa', 'constantine-doruntine'],
+    texts: [
+      { label: 'Balada e murimit — two full Çam variants', lang: 'sq',
+        url: 'https://fatmirt.blogspot.com/2019/09/balada-e-murimit.html' },
+    ],
+  },
+  {
+    id: 'kostandini-i-vogel',
+    title: 'Kostandini i Vogël — Little Constantine, the returning captive',
+    category: 'Legend',
+    summary:
+      'The ballad of the husband carried off to long war-captivity who comes home after years — grey, unrecognised, testing his faithful wife at her own re-wedding before he reveals himself by a hidden token. The Albanian Odysseus, sung in the north as Aga Ymeri and among the Arbëreshë as Kostandini i Vogëlith; a besa-tale of the word kept across impossible distance and time. Distinct from Constantine & Doruntine (brother, not husband).',
+    sources: [
+      { label: 'Little Constantine (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Little_Constantine' },
+    ],
+    related: ['aga-ymer', 'constantine-doruntine', 'besa'],
+    texts: [
+      { label: 'Ymer Agë Ulqini — full song (Wikibooks, CC-BY-SA)', lang: 'sq',
+        url: 'https://sq.wikibooks.org/wiki/Ymer_Ag%C3%AB_Ulqini',
+        local: 'docs/references/ymer-age-ulqini.sq.txt' },
+    ],
+  },
+  {
+    id: 'ali-pashe-tepelena',
+    title: 'Ali Pashë Tepelena — the Lion of Ioannina',
+    category: 'Legend',
+    summary:
+      'The Albanian pasha (1740–1822) who carved a near-independent state out of the Ottoman Empire from his court at Ioannina and became a Balkan legend in his own lifetime — the "Muslim Bonaparte," ruthless, cunning and magnetic, courted by Byron and the Great Powers. Folk memory keeps both the tyrant and the state-builder: the blood-feuds, the bravi, and the old lion finally run down and killed on the island of his lake.',
+    sources: [
+      { label: 'Ali Pasha of Ioannina (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Ali_Pasha_of_Ioannina' },
+    ],
+    related: ['kanuni', 'kanun-blood-feud', 'besa'],
+  },
+  {
+    id: 'tomorri-pilgrimage',
+    title: 'Mali i Tomorrit — the sacred mountain & pilgrimage',
+    category: 'Legend',
+    summary:
+      'Baba Tomor is not only the giant of the myth but a living holy mountain: each August (20–25) thousands climb to the Kulmak tekke on Tomorr for the great Bektashi pilgrimage, tracing the hoofprint left in the rock by the white horse of Abaz Ali and sharing the kurban — the sacrificed lamb — among all comers. Pagan mountain-cult, Christian saint and Muslim dervish are layered on one peak; the oldest surviving folk-pilgrimage of the Albanians.',
+    sources: [
+      { label: 'Tomorr (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tomorr' },
+    ],
+    related: ['tomor-shpirag', 'kurbani', 'sari-salltek', 'prende'],
+  },
+  {
+    id: 'rrapi',
+    title: 'Rrapi — the plane tree of assembly',
+    category: 'Custom',
+    summary:
+      'The great plane tree (rrapi) under which the men of a district gathered to hold the assembly, judge disputes by the Kanun, swear the besa and hear the epic sung — the open-air oda of the whole tribe. The most famous, the Plane Tree of Mashkullorë, is fixed in oral verse as the seat of communal justice and gathering; to speak "beneath the plane tree" was to speak in the presence of the whole community.',
+    sources: [
+      { label: 'At the Plane Tree of Mashkullorë (Elsie, oral verse)', url: 'http://albanianliterature.net/oralverse/verse_01.html' },
+    ],
+    related: ['oda-e-burrave', 'besa', 'kanuni', 'hospitality'],
+  },
+
+  // Folktales
+  {
+    id: 'binoshet',
+    title: 'Binoshët — the Twins (Zjerma & Handa)',
+    category: 'Folktale',
+    summary:
+      'The Arbëresh wonder-tale (Schirò, 1923) of twin brothers born with the sun and the moon on their brows, who set out with silver swords and drangue-fighting hounds. One slays the Kulshedra and frees the waters; the other wins the Earthly Beauty. When one is turned to stone, the twin so alike that even the wife is fooled brings him back — the ATU 303 "Two Brothers" fused with the dragon-slayer.',
+    sources: [
+      { label: 'The Twins (Albanian tale) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Twins_(Albanian_tale)' },
+    ],
+    related: ['bukura-e-dheut', 'kulshedra', 'drangue', 'bija-hene-diell'],
+  },
+
+  // Epic — kreshnik songs not previously carded
+  {
+    id: 'arnaut-osmani',
+    title: 'Arnaut Osmani — the coals of besa',
+    category: 'Epic',
+    summary:
+      'A song of the Kângë Kreshnikësh: to free his comrades held by the king, Arnaut Osmani lets burning coals be heaped on his bare chest and does not flinch — proving the more-than-human endurance of the frontier warrior and the price of the sworn word. The body may burn; the besa does not break.',
+    sources: [
+      { label: 'Kângë Kreshnikësh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kang%C3%AB_Kreshnik%C3%ABsh' },
+    ],
+    related: ['kreshnik-epic', 'zuku-bajraktar', 'besa'],
+  },
+  {
+    id: 'muji-e-behuri',
+    title: 'Mujo e Behuri — the duel over the pact',
+    category: 'Epic',
+    summary:
+      'A core Mujo song (Palaj–Kurti, Visaret e Kombit II): Mujo faces the rival lord Behur over a broken agreement, and the quarrel of honour becomes a single combat that only one will leave. Domestic pact and martial law of the border collide, as they always do in the kreshnik world.',
+    sources: [
+      { label: 'Kângë Kreshnikësh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kang%C3%AB_Kreshnik%C3%ABsh' },
+    ],
+    related: ['mujo-strength', 'mujo-courser', 'kreshnik-epic'],
+  },
+  {
+    id: 'halil-garria',
+    title: 'Kënga e Halil Garrisë — the oath beyond death',
+    category: 'Epic',
+    summary:
+      'A besa-ballad recorded by Gjergj Fishta at Gomsiqe (published in Hylli i Dritës, 1924): a sworn word must be honoured even from the grave, the northern highland cousin of Constantine & Doruntine. The dead keep their promises; only the living forget.',
+    sources: [
+      { label: 'Kënga e Halil Garrisë (analysis)', url: 'https://www.fjalaelire.com/post/k%C3%ABnga-e-halil-garris%C3%AB-dhe-disa-probleme' },
+    ],
+    related: ['constantine-doruntine', 'kostandini-i-vogel', 'besa'],
+  },
+
+  // Customs / calendar
+  {
+    id: 'nata-e-buzmit',
+    title: 'Nata e Buzmit — the night of the Yule log',
+    category: 'Custom',
+    summary:
+      'On the eve of the winter solstice / Christmas the great oak log — the buzmi — is carried in, blessed, and set to burn on the hearth through the longest night, its sparks struck up "so many lambs, so many kids, so much wheat" for the year to come. A Sun-cult and hearth-cult rite kept by highland Christians, Muslims, Arbëreshë and Arvanites alike; the fire that helps the weakened Sun be reborn.',
+    sources: [
+      { label: 'Nata e Buzmit / Albanian paganism (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' },
+    ],
+    related: ['dita-e-veres', 'dielli', 'enji', 'nena-e-vatres'],
+  },
+  {
+    id: 'kanuni',
+    title: 'Kanuni i Lekë Dukagjinit — the code of the mountains',
+    category: 'Custom',
+    summary:
+      'The oral customary law of the northern highlands, ascribed to the 15th-century chief Lekë Dukagjini and written down at last by the priest Shtjefën Gjeçovi (published 1933) in 1,262 articles. It governs the whole of highland life — besa, hospitality, marriage, property, the church, and the blood-feud — on the principle that a man\'s honour and his given word outweigh his life. The umbrella under which besa, mikpritja and gjakmarrja all sit.',
+    sources: [
+      { label: 'Kanun (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kanun_(Albania)' },
+      { label: 'Code of Lekë Dukagjini (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Code_of_Lek%C3%AB_Dukagjini' },
+    ],
+    related: ['besa', 'hospitality', 'kanun-blood-feud', 'oda-e-burrave'],
+  },
+  {
+    id: 'oda-e-burrave',
+    title: 'Oda e Burrave — the men\'s guest-room',
+    category: 'Custom',
+    summary:
+      'The great guest-room of the tower-house (kulla) where the men of the house receive travellers and where, through the long nights, law, history and the epic are handed down — the physical institution of Albanian hospitality and oral tradition. A guest in the oda is sacred and untouchable; under its roof the lahutar sings the kreshnik songs and the old settle disputes by the Kanun.',
+    sources: [
+      { label: 'Oda (Albania) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Oda_(Albania)' },
+    ],
+    related: ['hospitality', 'besa', 'kanuni', 'kreshnik-epic', 'rrapi'],
+  },
+  {
+    id: 'gjama-e-burrave',
+    title: 'Gjama e Burrave — the men\'s lament',
+    category: 'Custom',
+    summary:
+      'The men-only funeral rite of the Dukagjin and Gjakovë highlands: a gathering of men beat their breasts, rake their faces with their nails and cry out the dead man\'s name in a slow synchronised wail — the male counterpart to the women\'s vajtim. Held to be of Illyrian antiquity and now safeguarded as intangible heritage; the loudest grief a mountain man is ever allowed.',
+    sources: [
+      { label: 'Vajtim and Gjëmë (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Vajtim_and_Gj%C3%ABm%C3%AB' },
+    ],
+    related: ['vajtim', 'kanuni'],
+  },
+  {
+    id: 'dita-e-shen-gjergjit',
+    title: 'Dita e Shën Gjergjit — St George\'s Day',
+    category: 'Custom',
+    summary:
+      'Shëngjergji (6 May), the pastoral spring feast that opens the herding year: fires are lit, house and byre and field are blessed with green branches and running water, the flocks go up to the summer pastures, and sweethearts exchange greenery. A pre-Christian rite of renewal wearing a saint\'s name — distinct from the equinoctial Dita e Verës that begins the season.',
+    sources: [
+      { label: 'St George\'s Day / Shëngjergji', url: 'https://en.wikipedia.org/wiki/Saint_George%27s_Day' },
+    ],
+    related: ['dita-e-veres', 'dielli', 'dodola'],
+  },
+  {
+    id: 'kurbani',
+    title: 'Kurbani — the votive sacrifice',
+    category: 'Custom',
+    summary:
+      'The vow-offering of a lamb or ram, killed for a saint or a holy place and shared out among kin, neighbours and the poor — never sold. Older than either faith that later claimed it, it survives at the Tomorr pilgrimage, at Eid, and at any threshold of the year or the family where thanks or a plea must be made flesh. To give the kurban is to bind the family\'s luck to the giving.',
+    sources: [
+      { label: 'Albanian paganism — kurban (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' },
+    ],
+    related: ['tomorri-pilgrimage', 'hospitality', 'nata-e-buzmit'],
+  },
 ]
 
 // Map every ending node id (from content.js) to the FOLKLORE entry id it draws from.
@@ -1039,3 +1366,325 @@ export const ENDING_LORE = {
   kordhaFund: 'three-friends',
   kordhaDeti: 'three-friends',
 }
+
+// ── The primary-source CORPUS ────────────────────────────────────────────────
+// The real books and collections behind the library. Downloaded public-domain
+// full texts live in docs/references/ (see that folder's README); `local` is the
+// repo-relative path, opened via GitHub in the Debug → 📚 Sources panel.
+//   lang:    'sq' Albanian · 'de'/'fr'/'en' · combos e.g. 'de+sq' bilingual
+//   kind:    'epic' | 'anthology' | 'tales' | 'grammar' | 'ethnography' | 'portal'
+//   license: 'Public domain' | 'CC-BY-SA' | 'Copyright uncertain' | '© in copyright'
+//   online:  [{label,url,fmt}]  fmt: 'txt'|'pdf'|'html'|'catalog'
+//   local:   downloaded plain-text copy (repo path) or null
+//   covers:  FOLKLORE ids this source documents
+export const REPO_BLOB = 'https://github.com/miketamis/adventure/blob/main/'
+
+export const CORPUS = [
+  // ── Albanian-language full texts we hold locally ──
+  {
+    id: 'src-fishta-lahuta',
+    title: 'Lahuta e Malcís',
+    author: 'Gjergj Fishta', year: '1937 (Rome 1958)', lang: 'sq', kind: 'epic',
+    license: 'Public domain',
+    summary:
+      'The Albanian national epic — 30 songs, 17,000+ Gheg verses of the highland wars, shot through with the zana, the ora, the besa and the Kanun. The single cleanest Albanian-language full text in the corpus.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/lahuta-e-malcis-rome-1958-hr-150', fmt: 'html' },
+      { label: 'plain text (_djvu.txt)', url: 'https://archive.org/download/lahuta-e-malcis-rome-1958-hr-150/lahuta-e-malcis-rome-1958-hr-150_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/fishta-lahuta-e-malcis.sq.txt',
+    covers: ['kreshnik-epic', 'zana-e-malit', 'ora', 'besa', 'kanuni', 'kanun-blood-feud'],
+  },
+  {
+    id: 'src-naim-skenderbeu',
+    title: 'Historia e Skënderbeut',
+    author: 'Naim Frashëri', year: '1898', lang: 'sq', kind: 'epic',
+    license: 'Public domain',
+    summary:
+      'The Rilindja verse-epic of Skanderbeg in ~11,500 lines — the closest thing to a canonical Albanian Skanderbeg text, and a touchstone of the national legend.',
+    online: [
+      { label: 'Wikisource — full text', url: 'https://wikisource.org/wiki/Historia_e_Sk%C3%ABnderbeut', fmt: 'html' },
+    ],
+    local: 'docs/references/naim-historia-e-skenderbeut.sq.txt',
+    covers: ['skanderbeg-legjenda', 'sons-of-eagle'],
+  },
+  {
+    id: 'src-ymer-ulqini',
+    title: 'Ymer Agë Ulqini (këngë)',
+    author: 'oral tradition (Krajë)', year: 'trad.', lang: 'sq', kind: 'epic',
+    license: 'CC-BY-SA',
+    summary:
+      'The full highland song of the husband home from nine years\' captivity, reaching his door on the eve of his wife\'s re-wedding — the northern "returning captive" ballad.',
+    online: [
+      { label: 'sq.wikibooks — full song', url: 'https://sq.wikibooks.org/wiki/Ymer_Ag%C3%AB_Ulqini', fmt: 'html' },
+    ],
+    local: 'docs/references/ymer-age-ulqini.sq.txt',
+    covers: ['aga-ymer', 'kostandini-i-vogel', 'besa'],
+  },
+  {
+    id: 'src-vajtimi-ajkunes',
+    title: 'Vajtimi i Ajkunës',
+    author: 'oral tradition', year: 'trad.', lang: 'sq', kind: 'epic',
+    license: 'CC-BY-SA',
+    summary:
+      'Ajkuna\'s lament for her son Omer from the kreshnik cycle — the mother\'s grief that "the sun rose and gave no warmth." A rare clean Albanian full text of a frontier-warrior song.',
+    online: [
+      { label: 'sq.wikibooks — full verse', url: 'https://sq.wikibooks.org/wiki/Vajtimi_i_Ajkun%C3%ABs', fmt: 'html' },
+    ],
+    local: 'docs/references/vajtimi-i-ajkunes.sq.txt',
+    covers: ['death-of-omer', 'mujo-strength', 'kreshnik-epic', 'vajtim'],
+  },
+  // ── Bilingual (Albanian originals + scholarly translation), held locally ──
+  {
+    id: 'src-dozon-manuel',
+    title: 'Manuel de la langue chkipe ou albanaise',
+    author: 'Auguste Dozon', year: '1878', lang: 'fr+sq', kind: 'grammar',
+    license: 'Public domain',
+    summary:
+      'Dozon\'s chrestomathy carries the ALBANIAN ORIGINALS of the tales he translated in Contes albanais — the Tosk source texts of "The Snake and the King\'s Daughter," the Earthly Beauty tales and more.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/manueldelalangue00dozouoft', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/manueldelalangue00dozouoft/manueldelalangue00dozouoft_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/dozon-manuel-langue-chkipe.fr-sq.txt',
+    covers: ['bukura-e-dheut', 'snake-bridegroom', 'three-friends', 'half-rooster'],
+  },
+  {
+    id: 'src-hahn-studien',
+    title: 'Albanesische Studien',
+    author: 'Johann Georg von Hahn', year: '1854', lang: 'de+sq', kind: 'grammar',
+    license: 'Public domain',
+    summary:
+      'The founding work of Albanology — grammar, Albanian language-samples ("Sprachproben") and an Albanian–German lexicon. The earliest scholarly window on the living tradition.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/bub_gb_IPIGAAAAQAAJ', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/bub_gb_IPIGAAAAQAAJ/bub_gb_IPIGAAAAQAAJ_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/hahn-albanesische-studien.de-sq.txt',
+    covers: ['creation-wolf', 'cuckoo', 'scurfhead'],
+  },
+  {
+    id: 'src-jarnik',
+    title: 'Zur albanischen Sprachenkunde',
+    author: 'Jan Urban Jarník', year: '1881', lang: 'de+sq', kind: 'grammar',
+    license: 'Public domain',
+    summary:
+      'Gheg tales and language material from the Shkodër region with interlinear German glosses — a bilingual field record of northern folk narrative.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/zuralbanischens00jarngoog', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/zuralbanischens00jarngoog/zuralbanischens00jarngoog_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/jarnik-zur-albanischen-sprachenkunde.de-sq.txt',
+    covers: ['bukura-e-dheut', 'katallan'],
+  },
+  {
+    id: 'src-lambertz',
+    title: 'Albanische Märchen',
+    author: 'Maximilian Lambertz', year: '1922', lang: 'de+sq', kind: 'tales',
+    license: 'Public domain',
+    summary:
+      'A bilingual folktale collection with the Albanian source texts — Lambertz also gathered the highland Drangue-vs-Kulshedra belief-legends that anchor the eternal duel.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/albanischemarchenlambertz', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/albanischemarchenlambertz/albanischemarchenlambertz_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/lambertz-albanische-marchen.de-sq.txt',
+    covers: ['kulshedra', 'drangue', 'bukura-e-dheut', 'binoshet'],
+  },
+  {
+    id: 'src-meyer-grammatik',
+    title: 'Kurzgefasste albanesische Grammatik mit Lesestücken',
+    author: 'Gustav Meyer', year: '1888', lang: 'de+sq', kind: 'grammar',
+    license: 'Public domain',
+    summary:
+      'Meyer\'s reader carries three Tosk fairy tales from Korça, the Prodigal Son in six Albanian dialects (incl. two Arbëresh), wedding songs, and a full glossary — a dialect cross-section of the folk voice.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/kurzgefasstealb00meyegoog', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/kurzgefasstealb00meyegoog/kurzgefasstealb00meyegoog_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/meyer-kurzgefasste-grammatik.de-sq.txt',
+    covers: ['bukura-e-dheut'],
+  },
+  // ── Translation-only, public domain, held locally ──
+  {
+    id: 'src-hahn-marchen',
+    title: 'Griechische und albanesische Märchen',
+    author: 'Johann Georg von Hahn', year: '1864', lang: 'de', kind: 'tales',
+    license: 'Public domain',
+    summary:
+      'Von Hahn\'s German translations — the Albanian tales are Nos. 95–114, the reference numbering scholars still cite (e.g. No. 104 the Cuckoo, No. 105 Why the Wolf Devours).',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/griechischeunda00hahngoog', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/griechischeunda00hahngoog/griechischeunda00hahngoog_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/hahn-griechische-albanesische-marchen.de.txt',
+    covers: ['creation-wolf', 'cuckoo', 'three-friends', 'bukura-e-dheut'],
+  },
+  {
+    id: 'src-dozon-contes',
+    title: 'Contes albanais',
+    author: 'Auguste Dozon', year: '1881', lang: 'fr', kind: 'tales',
+    license: 'Public domain',
+    summary:
+      'The first Western folktale collection devoted to Albania — French translations of tales gathered around Janina/Epirus. Its Albanian originals are in Dozon\'s Manuel (above).',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/contesalbanais00unse_0', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/contesalbanais00unse_0/contesalbanais00unse_0_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/dozon-contes-albanais.fr.txt',
+    covers: ['half-rooster', 'snake-bridegroom', 'three-friends', 'gjizar'],
+  },
+  {
+    id: 'src-durham',
+    title: 'High Albania and its Customs in 1908',
+    author: 'M. Edith Durham', year: '1910', lang: 'en', kind: 'ethnography',
+    license: 'Public domain',
+    summary:
+      'Durham\'s eyewitness ethnography of the northern highlands — the Kanun, besa and blood-feud, the ora and zana, and the Gjakova dead-city cavern all come to us partly through her. The single richest English source for the custom-lore.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/highalbaniaitscu00durh', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/highalbaniaitscu00durh/highalbaniaitscu00durh_djvu.txt', fmt: 'txt' },
+      { label: 'UPenn — free HTML (1909 ed.)', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html', fmt: 'html' },
+    ],
+    local: 'docs/references/durham-high-albania-1908.en.txt',
+    covers: ['gjakova-cavern', 'kanun-blood-feud', 'kanuni', 'besa', 'hospitality', 'ora', 'zana-e-malit', 'rozafa'],
+  },
+  {
+    id: 'src-garnett',
+    title: 'The Women of Turkey and their Folk-lore',
+    author: 'Lucy M. J. Garnett', year: '1890', lang: 'en', kind: 'ethnography',
+    license: 'Public domain',
+    summary:
+      'A Victorian folklorist\'s survey with a dedicated section on Albanian women\'s folk-poesy, laments, witchcraft and the evil eye — an early English record of the shtriga and syri i keq.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/womenofturkeythe01garn', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/womenofturkeythe01garn/womenofturkeythe01garn_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/garnett-women-of-turkey.en.txt',
+    covers: ['shtriga', 'evil-eye', 'vajtim'],
+  },
+  {
+    id: 'src-wheeler',
+    title: 'Albanian Wonder Tales',
+    author: 'Post Wheeler', year: '1936', lang: 'en', kind: 'tales',
+    license: 'Copyright uncertain (freely readable on archive.org)',
+    summary:
+      'Ten English retellings incl. "The Boy who was Brother to the Drague," "The Girl who took a Snake for Husband" and "Gizari the Nightingale." 1936 falls in the US renewal window — treat copyright as uncertain; linked and mirrored, not asserted as public domain.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/in.ernet.dli.2015.89271', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/stream/in.ernet.dli.2015.89271/2015.89271.Albanian-Wonder-Tales_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/wheeler-albanian-wonder-tales.en.txt',
+    covers: ['gjizar', 'snake-bridegroom', 'drangue', 'scurfhead'],
+  },
+  // ── Prestige Albanian originals NOT cleanly digitized — link only ──
+  {
+    id: 'src-mitko-bleta',
+    title: 'Bleta shqiptare (Αλβανικη μελισσα)',
+    author: 'Thimi Mitko', year: '1878', lang: 'sq', kind: 'anthology',
+    license: 'Public domain (no free full text located)',
+    summary:
+      '505 folk songs and 39 tales/sayings of the Tosk south — the first great Albanian folklore anthology. No clean free scan exists online; recorded here as a catalog pointer.',
+    online: [
+      { label: 'Google Books (metadata)', url: 'https://books.google.com/books/about/Bleta_shqiptare.html?id=thhj0AEACAAJ', fmt: 'catalog' },
+    ],
+    local: null,
+    covers: ['bukura-e-dheut', 'kuma-lisa', 'nastradin'],
+  },
+  {
+    id: 'src-dine-valet',
+    title: 'Valët e Detit',
+    author: 'Spiro Dine', year: '1908', lang: 'sq', kind: 'anthology',
+    license: 'Public domain (no free full text located)',
+    summary:
+      'The longest Albanian book of its day (865 pp); its second half is a vast folklore collection of songs and tales. Not digitized as free full text — catalog pointer only.',
+    online: [
+      { label: 'exlibris.al (study)', url: 'https://exlibris.al/emil-lafe-valet-e-detit-nje-permendore-e-folklorit-shqiptar/', fmt: 'catalog' },
+    ],
+    local: null,
+    covers: ['bukura-e-dheut', 'dielli', 'hena'],
+  },
+  {
+    id: 'src-visaret-kombit',
+    title: 'Visaret e Kombit II — Kângë kreshnikësh dhe legjenda',
+    author: 'Bernardin Palaj & Donat Kurti', year: '1937', lang: 'sq', kind: 'epic',
+    license: 'Public domain (catalog only)',
+    summary:
+      'THE canonical printed corpus of the frontier-warrior epic — 34 songs / 8,199 Gheg verses of the Mujo–Halil cycle. Digitized only as an image catalog at Shkodra University (no PDF exposed); the source behind Gjergj Elez Alia, Arnaut Osmani, Mujo e Behuri and the rest.',
+    online: [
+      { label: 'Shkodra digital archive (catalog)', url: 'https://adsh.unishk.edu.al/index.php/items/show/526', fmt: 'catalog' },
+    ],
+    local: null,
+    covers: ['kreshnik-epic', 'gjergj-elez-alia', 'arnaut-osmani', 'muji-e-behuri', 'mujo-strength', 'halil-marriage', 'death-of-omer'],
+  },
+  {
+    id: 'src-pedersen',
+    title: 'Albanesische Texte mit Glossar',
+    author: 'Holger Pedersen', year: '1895', lang: 'sq+de', kind: 'anthology',
+    license: 'Public domain (no free full text located)',
+    summary:
+      'Albanian folk-narrative texts with a German glossary — a key linguistic-folkloric record. No verified free download; BnF catalog pointer.',
+    online: [
+      { label: 'BnF catalogue', url: 'https://catalogue.bnf.fr/ark:/12148/cb31072424j', fmt: 'catalog' },
+    ],
+    local: null,
+    covers: ['bukura-e-dheut', 'kulshedra'],
+  },
+  // ── Modern / in-copyright — linked, never ingested ──
+  {
+    id: 'src-elsie-folktales',
+    title: 'Albanian Folktales and Legends + albanianliterature.net',
+    author: 'Robert Elsie (ed./tr.)', year: '2001', lang: 'en', kind: 'tales',
+    license: '© in copyright (freely readable)',
+    summary:
+      'Elsie\'s English translations and his vast albanianliterature.net archive are the go-to modern reference — "Gjizar the Nightingale," the frontier-warrior songs, the legends. In copyright; linked, not ingested.',
+    online: [
+      { label: 'Folktales index (Elsie)', url: 'http://www.albanianliterature.net/folktales/', fmt: 'html' },
+      { label: 'Songs of the Frontier Warriors / oral verse', url: 'http://www.albanianliterature.net/oralverse/', fmt: 'html' },
+      { label: 'archive.org mirror (free)', url: 'https://archive.org/details/albfolk', fmt: 'html' },
+    ],
+    local: null,
+    covers: ['gjizar', 'kreshnik-epic', 'scurfhead', 'three-friends', 'rrapi', 'skanderbeg-legjenda'],
+  },
+  {
+    id: 'src-kuteli',
+    title: 'Tregime të moçme shqiptare',
+    author: 'Mitrush Kuteli', year: '1965', lang: 'sq', kind: 'tales',
+    license: '© in copyright (until ~2037)',
+    summary:
+      'The standard modern literary retelling of the legend/epic cycle (Rozafa, Muji e Halili, the Beauty of the Earth) — the version most Albanians know. In copyright; the Rozafa and Kostandin full texts linked on the entries are Kuteli\'s.',
+    online: [
+      { label: 'Open Library (catalog)', url: 'https://openlibrary.org/works/OL603209W/', fmt: 'catalog' },
+    ],
+    local: null,
+    covers: ['rozafa', 'constantine-doruntine', 'tomor-shpirag', 'kreshnik-epic'],
+  },
+  {
+    id: 'src-tirta',
+    title: 'Mitologjia ndër shqiptarë',
+    author: 'Mark Tirta', year: '2004', lang: 'sq', kind: 'anthology',
+    license: '© in copyright',
+    summary:
+      'The authoritative modern encyclopedia of Albanian mythology and folk belief — the scholarly arbiter for the deities, spirits and calendar customs. In copyright; catalog pointer.',
+    online: [
+      { label: 'WorldCat (catalog)', url: 'https://search.worldcat.org/search?q=Mitologjia+nd%C3%ABr+shqiptar%C3%AB+Tirta', fmt: 'catalog' },
+    ],
+    local: null,
+    covers: ['zojz', 'enji', 'perendi', 'nena-e-vatres', 'dielli', 'hena', 'ora', 'zana-e-malit'],
+  },
+  // ── Digital portals ──
+  {
+    id: 'src-wikisource-sq',
+    title: 'Wikisource — Albanian texts',
+    author: 'Wikimedia', year: '—', lang: 'sq', kind: 'portal',
+    license: 'CC-BY-SA / Public domain',
+    summary:
+      'There is no sq.wikisource; Albanian public-domain texts live under the multilingual wikisource "Sq Shqip (Albanian)" category, and folk songs under sq.wikibooks / sq.wikipedia. Thin and scattered, but the home of Naim\'s Skanderbeu and the two kreshnik songs above.',
+    online: [
+      { label: 'wikisource — Sq Shqip (Albanian)', url: 'https://wikisource.org/wiki/Category:Sq_Shqip_(Albanian)', fmt: 'portal' },
+      { label: 'sq.wikipedia — këngë popullore', url: 'https://sq.wikipedia.org/wiki/Kategoria:K%C3%ABng%C3%AB_popullore_shqiptare', fmt: 'portal' },
+    ],
+    local: null,
+    covers: ['skanderbeg-legjenda', 'aga-ymer', 'death-of-omer'],
+  },
+]
