@@ -1,6 +1,10 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
 import { FOLKLORE, ENDING_LORE } from '../game/folklore.js'
+import { WORLD_GLYPH, WORLD_LANDMARKS } from './mapGlyphs.jsx'
+
+// nodes that get a bespoke landmark glyph in an outer region (not a plain dot)
+const LANDMARK_IDS = new Set(WORLD_LANDMARKS.map((l) => l.id))
 
 // ===========================================================================
 // DEBUG VIEW — a review console, only reachable in debug mode (click the title
@@ -1059,11 +1063,13 @@ function VillageMap({ g, current, goGraph }) {
         }
       }
     })
-    // pin START at the forest's edge nearest the village, so the opening walk to
-    // the crossroads reads as a short step out of the trees (not a cross-map haul).
-    if (pos[START_NODE]) {
-      const sp = out.find((d) => d.id === START_NODE)
-      if (sp) { sp.x = 150; sp.y = 250; pos[START_NODE] = [150, 250] }
+    // landmark nodes are hand-placed at their glyph position (also moves the dot
+    // + edge endpoints there). START is a forest landmark, so this pins it too.
+    for (const lm of WORLD_LANDMARKS) {
+      if (!pos[lm.id]) continue
+      pos[lm.id] = [lm.x, lm.y]
+      const d = out.find((o) => o.id === lm.id)
+      if (d) { d.x = lm.x; d.y = lm.y }
     }
     // edges drawn faint+dashed for wander links, solid for progression, so the
     // solid edges show the real, local structure of the story.
@@ -1292,6 +1298,7 @@ function VillageMap({ g, current, goGraph }) {
             {/* every other node, as a clickable dot in its region.
                 click a dot to SELECT it (highlight its edges); dim the rest. */}
             {dots.map((d) => {
+              if (LANDMARK_IDS.has(d.id)) return null // drawn as a bespoke landmark glyph below
               const isSel = d.id === sel, isCur = d.id === current
               const dim = focus && nbr && !nbr.has(d.id)
               const big = isSel || (isCur && !sel)
@@ -1307,6 +1314,24 @@ function VillageMap({ g, current, goGraph }) {
                           strokeWidth={ds * (big ? 2.4 : 1.4)}>
                     <title>{d.id}{STORY[d.id].end ? ` (${STORY[d.id].end})` : ''}</title>
                   </circle>
+                </g>
+              )
+            })}
+
+            {/* outer-region landmark glyphs — each key folklore scene drawn as
+                the thing the story describes (like the village buildings) */}
+            {WORLD_LANDMARKS.map((lm, i) => {
+              if (!STORY[lm.id] || !WORLD_GLYPH[lm.glyph]) return null
+              const isSel = lm.id === sel, isCur = lm.id === current
+              const dim = focus && nbr && !nbr.has(lm.id)
+              return (
+                <g key={'lm' + i} className="dbg-vpin" opacity={dim ? 0.28 : 1}
+                   onClick={() => setSel(lm.id)} style={{ cursor: 'pointer' }}>
+                  <title>{lm.id}{STORY[lm.id].end ? ` (${STORY[lm.id].end})` : ''}</title>
+                  {(isSel || isCur) && <circle cx={lm.x} cy={lm.y} r={30} fill="none" stroke={isSel ? '#3ad0c0' : '#fff'} strokeWidth={2.6} opacity={0.85} />}
+                  {WORLD_GLYPH[lm.glyph](lm.x, lm.y)}
+                  <circle cx={lm.x} cy={lm.y + 16} r={3.2} fill={KIND_COLOR[g.kindOf(lm.id)]} stroke="#101820" strokeWidth={1.1} />
+                  <text x={lm.x} y={lm.y - 30} textAnchor="middle" className="dbg-vlabel">{lm.label}</text>
                 </g>
               )
             })}
