@@ -411,16 +411,26 @@ function gRiddleElder(x, y) {
   )
 }
 function gLake(x, y) {
+  // the Floçka's still tarn — a real body of water, sized to read as a lake
   return (
     <g transform={`translate(${x},${y})`}>
-      {shadow(0, 9, 17, 5)}
-      <ellipse cx={0} cy={0} rx={19} ry={11} fill="#7fb4c6" stroke="#5e8f9f" strokeWidth={2} />
-      <ellipse cx={0} cy={0} rx={19} ry={11} fill="#bfe0e8" opacity={0.35} />
-      <line x1={-11} y1={-3} x2={0} y2={-3} stroke="#e8f4f6" strokeWidth={1.2} opacity={0.8} />
-      <line x1={4} y1={2} x2={13} y2={2} stroke="#e8f4f6" strokeWidth={1} opacity={0.7} />
-      <line x1={-7} y1={4} x2={2} y2={4} stroke="#ffffff" strokeWidth={0.8} opacity={0.5} />
-      <line x1={-16} y1={-2} x2={-15} y2={-12} stroke="#6f8a3f" strokeWidth={1.4} />
-      <line x1={15} y1={-1} x2={16} y2={-10} stroke="#6f8a3f" strokeWidth={1.4} />
+      {shadow(0, 24, 46, 9)}
+      {/* reed fringe around the shore */}
+      {[[-44, -4], [-30, 18], [40, 12], [46, -8], [10, 24], [-14, -22]].map(([rx, ry], i) => (
+        <line key={i} x1={rx} y1={ry} x2={rx + (i % 2 ? 3 : -3)} y2={ry - 15} stroke="#6f8a3f" strokeWidth={1.8} opacity={0.7} />
+      ))}
+      {/* the tarn */}
+      <ellipse cx={0} cy={0} rx={49} ry={31} fill="#6ba3ba" stroke="#4d7f92" strokeWidth={2.6} />
+      <ellipse cx={0} cy={-2} rx={45} ry={27} fill="#8fc3d3" opacity={0.5} />
+      <ellipse cx={-12} cy={-10} rx={22} ry={9} fill="#d0e8ef" opacity={0.5} />
+      {/* still-water ripples */}
+      <path d="M-28 7 q 9 -4 18 0 q 9 4 18 0" fill="none" stroke="#eef7f9" strokeWidth={1.4} opacity={0.7} />
+      <path d="M-16 16 q 7 -3 14 0 q 7 3 14 0" fill="none" stroke="#eef7f9" strokeWidth={1.1} opacity={0.6} />
+      {/* the water-maiden — a swirl of hair and a fair head just above the water */}
+      <g transform="translate(15,-4)">
+        <path d="M0 4 q -8 -2 -7 -10 q 1 -7 7 -7 q 6 0 7 7 q 1 8 -7 10 Z" fill="#40707f" opacity={0.75} />
+        <circle cx={0} cy={-6} r={3.2} fill="#f0d8bf" stroke="#c9a883" strokeWidth={0.6} />
+      </g>
     </g>
   )
 }
@@ -831,7 +841,7 @@ export const WORLD_LANDMARKS = [
   { id: 'zanaProva', glyph: 'gCradleRock', label: "the Zana's trial", x: 1640, y: 620 },
   { id: 'zanaQumesht', glyph: 'gZanaGift', label: "the Zana's gifts", x: 1500, y: 790 },
   { id: 'zanaFole', glyph: 'gEagleNest', label: "the eagle's nest", x: 1250, y: 720 },
-  { id: 'flocka1', glyph: 'gLake', label: 'the still lake', x: 1320, y: 960 },
+  { id: 'flocka1', glyph: 'gLake', label: 'the still lake', x: 1440, y: 900 },
   { id: 'ura', glyph: 'gRiddleElder', label: 'the bridge riddle', x: 1580, y: 1000 },
   // the sea
   { id: 'bregu', glyph: 'gFishingCoast', label: 'the shore village', x: 1660, y: 1120 },
