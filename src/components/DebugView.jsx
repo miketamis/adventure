@@ -699,13 +699,13 @@ const GLYPH = (pl) => {
 const VILLAGE_IDS = new Set(VILLAGE_PLACES.map((p) => p.id))
 const REGIONS = [
   { key: 'sky', label: 'the sky realm', cx: 900, cy: -1180, rx: 700, ry: 280, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende'] },
-  { key: 'mountain', label: 'Mount Tomorr', cx: 860, cy: -560, rx: 660, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1'] },
+  { key: 'mountain', label: 'Mount Tomorr', cx: 860, cy: -560, rx: 660, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'shpirag1', 'maliStuhi', 'tomorProva'] },
   { key: 'forest', label: 'the great forest', cx: -480, cy: 560, rx: 380, ry: 440, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
-  { key: 'river', label: 'the river & the Zana', cx: 1800, cy: 210, rx: 360, ry: 500, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1'] },
+  { key: 'river', label: 'the river & the Zana', cx: 1800, cy: 210, rx: 360, ry: 500, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
   { key: 'castle', label: 'Rozafa castle', cx: 1820, cy: 760, rx: 220, ry: 200, terrain: 'castle', anchors: ['kalaRozafa'] },
   { key: 'sea', label: 'the sea', cx: 2280, cy: 1160, rx: 540, ry: 420, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
   { key: 'underworld', label: 'the world below', cx: 560, cy: 1680, rx: 700, ry: 400, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti'] },
-  { key: 'village', label: '', cx: 560, cy: 440, rx: 430, ry: 340, terrain: null, anchors: [...VILLAGE_IDS] },
+  { key: 'village', label: '', cx: 560, cy: 440, rx: 430, ry: 340, terrain: null, anchors: [...VILLAGE_IDS, 'fshatiDil', 'fshatiBesa', 'fshatiCaul', 'udhetimi1', 'udhetimi2', 'gjizar1'] },
 ]
 
 function hashStr(s) {
@@ -714,11 +714,22 @@ function hashStr(s) {
   return h >>> 0
 }
 
-// multi-source BFS over the undirected real graph: every node → nearest region.
+// "wander" links = flee / return / get-lost fallbacks, NOT spatial journeys.
+const WANDER_VERB = new Set(['ik', 'kthehu', 'zgjohu', 'dil'])
+const WANDER_TO = new Set(['pylliLoop', 'humbur', 'gjumi'])
+const isWander = (o) => WANDER_VERB.has((o.text || []).find((t) => t && t.id)?.id) || WANDER_TO.has(o.to)
+
+// multi-source BFS over PROGRESSION edges only (ignore wander), so a node isn't
+// dragged into the forest just because it can flee there → the map region a node
+// lands in reflects where the story actually takes you.
 function assignRegions(g) {
   const und = {}
-  for (const id of g.ids) und[id] = new Set(g.adj[id] || [])
-  for (const id of g.ids) for (const to of g.adj[id] || []) (und[to] || (und[to] = new Set())).add(id)
+  for (const id of g.ids) und[id] = und[id] || new Set()
+  for (const id of g.ids) for (const o of (STORY[id].options || [])) {
+    if (o.confuser || !o.to || !STORY[o.to] || isWander(o)) continue
+    ;(und[id] || (und[id] = new Set())).add(o.to)
+    ;(und[o.to] || (und[o.to] = new Set())).add(id)
+  }
   const reg = {}, dist = {}, q = []
   REGIONS.forEach((rg, ri) => rg.anchors.forEach((a) => {
     if (STORY[a] && dist[a] == null) { reg[a] = ri; dist[a] = 0; q.push(a) }
@@ -934,13 +945,19 @@ function VillageMap({ g, current, goGraph }) {
         pos[id] = [x, y]; regOf[id] = rg.key
       })
     })
+    // edges drawn faint+dashed for wander links, solid for progression, so the
+    // solid edges show the real, local structure of the story.
     const edges = []
     for (const u of g.ids) {
       const a = pos[u]; if (!a) continue
-      for (const v of g.adj[u]) { const b = pos[v]; if (!b) continue; edges.push([a[0], a[1], b[0], b[1], u, v]) }
+      for (const o of (STORY[u].options || [])) {
+        if (o.confuser || !o.to || !pos[o.to]) continue
+        const b = pos[o.to]
+        edges.push([a[0], a[1], b[0], b[1], u, o.to, isWander(o)])
+      }
     }
     const allPos = Object.entries(pos).map(([id, p]) => ({ id, x: p[0], y: p[1] }))
-    const scored = edges.map((e) => {
+    const scored = edges.filter((e) => !e[6]).map((e) => {
       const [x1, y1, x2, y2, u, v] = e
       const len = Math.hypot(x2 - x1, y2 - y1), cross = regOf[u] !== regOf[v]
       let crossings = 0
@@ -1122,12 +1139,13 @@ function VillageMap({ g, current, goGraph }) {
             {/* story edges — a line between every linked pair of scenes, as in the graph.
                 when a node is selected: its OUT edges glow teal, its IN edges amber. */}
             <g>
-              {edges.map(([x1, y1, x2, y2, u, v], i) => {
-                const out = u === focus, inc = v === focus
-                const stroke = out ? '#3ad0c0' : inc ? '#f0a53c' : '#4a3f30'
-                const hot = out || inc
+              {edges.map(([x1, y1, x2, y2, u, v, wander], i) => {
+                const out = u === focus, inc = v === focus, hot = out || inc
+                const stroke = out ? '#3ad0c0' : inc ? '#f0a53c' : (wander ? '#6a5a44' : '#43526a')
                 return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke}
-                             strokeWidth={(hot ? 1.9 : 0.5) * ds} opacity={hot ? 0.95 : (focus ? 0.05 : (showOdd ? 0.07 : 0.18))} />
+                             strokeWidth={(hot ? 1.9 : wander ? 0.5 : 0.8) * ds}
+                             strokeDasharray={wander && !hot ? `${4 * ds} ${5 * ds}` : undefined}
+                             opacity={hot ? 0.95 : (focus ? 0.05 : (showOdd ? 0.06 : (wander ? 0.13 : 0.3)))} />
               })}
             </g>
 
