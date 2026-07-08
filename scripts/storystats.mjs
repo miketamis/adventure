@@ -1,5 +1,6 @@
 // Story validation + depth stats. Run: node scripts/storystats.mjs
 import { STORY, START_NODE, DICT, DEFS, ITEMS, lineOf } from '../src/game/content.js'
+import { analyzeDiscovery, sensesOf } from './lib/discovery.mjs'
 
 const nodes = STORY
 const ids = Object.keys(nodes)
@@ -91,6 +92,40 @@ for (const id of nonEnd) {
   for (const o of real) { const n = phraseNoun(o.text); if (n && textIds.has(n)) { gateableTotal++; if (o.reveal) gateableGated++ } }
 }
 
+// ---- distractor legibility ---------------------------------------------------
+// A confuser (distractor) should only use words the player can already read when
+// they reach the node: force-discovered on the way in (guaranteed-on-arrival) or
+// visible right now in the scene / real options. A word seen nowhere but inside the
+// distractor itself can't tempt anyone — it's just noise. See scripts/lib/discovery.mjs.
+const { reachable: legReach, legible } = analyzeDiscovery(STORY, START_NODE)
+const illegibleConfusers = []
+for (const id of ids) {
+  if (nodes[id].end || !legReach.has(id)) continue
+  for (const o of (nodes[id].options || []).filter((o) => o.confuser)) {
+    const bad = sensesOf(o.text).filter((s) => !legible[id].has(s))
+    if (bad.length) illegibleConfusers.push(`${id}: "${o.text.map((t) => t.al || t.en).join(' ')}" — not yet legible: ${bad.join(', ')}`)
+  }
+}
+
+// ---- distractor plausibility -------------------------------------------------
+// A good distractor is legible but CLEARLY impossible. "ngjit" (climb) on a
+// climbable thing (mountain/tree/well/tower/wall/nest/house/summit/horse/...) reads
+// as a plausible near-answer, not an absurdity — so it's banned. Use a clearly-
+// impossible verb instead (give/take/listen-to/fight/speak-with the X).
+const CLIMBABLE = new Set(['peme', 'mal', 'maja', 'pus', 'fole', 'kulle', 'shtepi', 'mur', 'kale', 'dhi', 'dash', 'gur'])
+const leadId = (toks) => {
+  for (const t of toks || []) if (t.id && !['ne', 'me', 'i_art', 'e_art', 'te_link', 'nje', 'dhe', 'per', 'ti', 'je'].includes(t.id)) return t.id
+  return null
+}
+const climbDistractors = []
+for (const id of ids) {
+  if (nodes[id].end) continue
+  for (const o of (nodes[id].options || []).filter((o) => o.confuser)) {
+    if (leadId(o.text) === 'ngjit' && o.text.some((t) => t.id && CLIMBABLE.has(t.id)))
+      climbDistractors.push(`${id}: "${o.text.map((t) => t.al || t.en).join(' ')}" — climb a climbable thing reads as a real answer`)
+  }
+}
+
 // ---- report -----------------------------------------------------------------
 const ok = (b) => (b ? '✅' : '❌')
 console.log('=== Aventura Shqip — story stats ===')
@@ -118,3 +153,7 @@ console.log(`${ok(!brokenGates.length)} authored reveal gates: ${revealGates.len
 if (brokenGates.length) console.log('   BROKEN:\n   ' + brokenGates.join('\n   '))
 console.log(`${ok(!noUngated.length)} every node keeps >=1 ungated option:${noUngated.length ? ' VIOLATIONS -> ' + noUngated.join(', ') : ' yes'}`)
 console.log(`   options gated: ${gatedReal}/${totalReal} (${(100*gatedReal/totalReal).toFixed(0)}% of all); of options that act on something described in the scene, ${gateableGated}/${gateableTotal} (${(100*gateableGated/gateableTotal).toFixed(0)}%) gated` + (ungatedOnly.length ? `\n   multi-option nodes gating nothing yet (${ungatedOnly.length}): ${ungatedOnly.join(', ')}` : ''))
+console.log('')
+console.log('--- DISTRACTOR LEGIBILITY (confusers built from already-discovered words) ---')
+console.log(`${ok(!illegibleConfusers.length)} every confuser uses only legible words:${illegibleConfusers.length ? ' VIOLATIONS -> ' + illegibleConfusers.length + '\n   ' + illegibleConfusers.slice(0, 30).join('\n   ') + (illegibleConfusers.length > 30 ? `\n   ... and ${illegibleConfusers.length - 30} more` : '') : ' yes'}`)
+console.log(`${ok(!climbDistractors.length)} no "climb a climbable thing" distractor:${climbDistractors.length ? ' VIOLATIONS -> ' + climbDistractors.length + '\n   ' + climbDistractors.join('\n   ') : ' yes'}`)
