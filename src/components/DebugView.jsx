@@ -700,7 +700,7 @@ const VILLAGE_IDS = new Set(VILLAGE_PLACES.map((p) => p.id))
 const REGIONS = [
   { key: 'sky', label: 'the sky realm', cx: 900, cy: -1180, rx: 700, ry: 280, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende'] },
   { key: 'mountain', label: 'Mount Tomorr', cx: 860, cy: -560, rx: 660, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'shpirag1', 'maliStuhi', 'tomorProva'] },
-  { key: 'forest', label: 'the great forest', cx: -480, cy: 560, rx: 380, ry: 440, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
+  { key: 'forest', label: 'the great forest', cx: -300, cy: 640, rx: 380, ry: 440, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
   { key: 'river', label: 'the river & the Zana', cx: 1800, cy: 210, rx: 360, ry: 500, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
   { key: 'castle', label: 'Rozafa castle', cx: 1820, cy: 760, rx: 220, ry: 200, terrain: 'castle', anchors: ['kalaRozafa'] },
   { key: 'sea', label: 'the sea', cx: 2280, cy: 1160, rx: 540, ry: 420, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
@@ -723,36 +723,62 @@ const isWander = (o) => WANDER_VERB.has((o.text || []).find((t) => t && t.id)?.i
 // dragged into the forest just because it can flee there → the map region a node
 // lands in reflects where the story actually takes you.
 function assignRegions(g) {
-  const und = {}
-  for (const id of g.ids) und[id] = und[id] || new Set()
+  const prog = {}, full = {}
+  for (const id of g.ids) { prog[id] = new Set(); full[id] = new Set() }
   for (const id of g.ids) for (const o of (STORY[id].options || [])) {
-    if (o.confuser || !o.to || !STORY[o.to] || isWander(o)) continue
-    ;(und[id] || (und[id] = new Set())).add(o.to)
-    ;(und[o.to] || (und[o.to] = new Set())).add(id)
+    if (o.confuser || !o.to || !STORY[o.to]) continue
+    full[id].add(o.to); full[o.to].add(id)
+    if (!isWander(o)) { prog[id].add(o.to); prog[o.to].add(id) }
   }
   const reg = {}, dist = {}, q = []
   REGIONS.forEach((rg, ri) => rg.anchors.forEach((a) => {
     if (STORY[a] && dist[a] == null) { reg[a] = ri; dist[a] = 0; q.push(a) }
   }))
-  for (let h = 0; h < q.length; h++) {
-    const u = q[h]
-    for (const v of und[u] || []) if (dist[v] == null) { dist[v] = dist[u] + 1; reg[v] = reg[u]; q.push(v) }
-  }
+  // primary: follow PROGRESSION edges (where the story takes you)
+  for (let h = 0; h < q.length; h++) for (const v of prog[q[h]]) if (dist[v] == null) { dist[v] = dist[q[h]] + 1; reg[v] = reg[q[h]]; q.push(v) }
+  // fallback: reach nodes only linked in by a flee/return via the full graph
+  for (let h = 0; h < q.length; h++) for (const v of full[q[h]]) if (dist[v] == null) { dist[v] = dist[q[h]] + 1; reg[v] = reg[q[h]]; q.push(v) }
+  const villageIdx = REGIONS.findIndex((r) => r.key === 'village')
   const byRegion = REGIONS.map(() => [])
   for (const id of g.ids) {
     if (VILLAGE_IDS.has(id)) continue
-    const ri = reg[id]
-    if (ri != null) byRegion[ri].push(id)
+    byRegion[reg[id] != null ? reg[id] : villageIdx].push(id)
   }
   return byRegion
 }
 
-function scatterInRegion(ids, rg) {
-  return ids.map((id) => {
-    const rnd = mulberry32(hashStr(id))
-    const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * 0.94
-    return { id, x: rg.cx + Math.cos(a) * rg.rx * rr, y: rg.cy + Math.sin(a) * rg.ry * rr }
-  })
+// Lay a region's nodes out by STORY ORDER: BFS depth over intra-region
+// progression edges from the region's entry nodes, placed in rings that grow
+// outward — the region's entrance sits near the centre, its deep scenes/endings
+// ring the edge, so each region reads as its own little quest fanning out.
+function layoutRegion(ids, rg) {
+  if (!ids.length) return []
+  const set = new Set(ids)
+  const adj = {}, indeg = {}
+  for (const id of ids) { adj[id] = []; indeg[id] = 0 }
+  for (const id of ids) for (const o of (STORY[id].options || [])) {
+    if (o.confuser || !o.to || isWander(o) || !set.has(o.to)) continue
+    adj[id].push(o.to); indeg[o.to]++
+  }
+  let entries = ids.filter((id) => indeg[id] === 0)
+  if (!entries.length) entries = [[...ids].sort()[0]]
+  const depth = {}, q = []
+  for (const e of entries.sort()) { depth[e] = 0; q.push(e) }
+  for (let h = 0; h < q.length; h++) for (const v of [...adj[q[h]]].sort()) if (depth[v] == null) { depth[v] = depth[q[h]] + 1; q.push(v) }
+  let maxD = 0
+  for (const id of ids) { if (depth[id] == null) depth[id] = 1; maxD = Math.max(maxD, depth[id]) }
+  const byDepth = {}
+  for (const id of ids) (byDepth[depth[id]] || (byDepth[depth[id]] = [])).push(id)
+  const out = []
+  for (const d of Object.keys(byDepth)) {
+    const layer = byDepth[d].sort()
+    const frac = maxD ? 0.16 + 0.82 * (Number(d) / maxD) : 0.4
+    layer.forEach((id, i) => {
+      const a = ((i + 0.5) / layer.length) * Math.PI * 2 + Number(d) * 0.7
+      out.push({ id, x: rg.cx + Math.cos(a) * rg.rx * frac, y: rg.cy + Math.sin(a) * rg.ry * frac })
+    })
+  }
+  return out
 }
 
 // ---- region terrain ---------------------------------------------------------
@@ -936,14 +962,19 @@ function VillageMap({ g, current, goGraph }) {
     const out = [], pos = {}, regOf = {}
     for (const pl of VILLAGE_PLACES) if (STORY[pl.id]) { pos[pl.id] = [pl.x, pl.y]; regOf[pl.id] = 'village' }
     REGIONS.forEach((rg, ri) => {
-      const inner = rg.key === 'village' ? 0.8 : 0
-      byRegion[ri].forEach((id) => {
-        const rnd = mulberry32(hashStr(id))
-        const a = rnd() * Math.PI * 2, rr = Math.sqrt(inner * inner + rnd() * (1 - inner * inner)) * 0.96
-        const x = rg.cx + Math.cos(a) * rg.rx * rr, y = rg.cy + Math.sin(a) * rg.ry * rr
-        out.push({ id, x, y, kind: g.kindOf(id) })
-        pos[id] = [x, y]; regOf[id] = rg.key
-      })
+      if (rg.key === 'village') {
+        // supplementary village-adjacent nodes ring the meadow
+        byRegion[ri].forEach((id) => {
+          const rnd = mulberry32(hashStr(id))
+          const a = rnd() * Math.PI * 2, rr = Math.sqrt(0.64 + rnd() * 0.36) * 0.96
+          const x = rg.cx + Math.cos(a) * rg.rx * rr, y = rg.cy + Math.sin(a) * rg.ry * rr
+          out.push({ id, x, y, kind: g.kindOf(id) }); pos[id] = [x, y]; regOf[id] = rg.key
+        })
+      } else {
+        for (const p of layoutRegion(byRegion[ri], rg)) {
+          out.push({ id: p.id, x: p.x, y: p.y, kind: g.kindOf(p.id) }); pos[p.id] = [p.x, p.y]; regOf[p.id] = rg.key
+        }
+      }
     })
     // edges drawn faint+dashed for wander links, solid for progression, so the
     // solid edges show the real, local structure of the story.
