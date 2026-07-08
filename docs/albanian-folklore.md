@@ -1141,7 +1141,7 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 | The night fire: a cold guest → "The Sacred Guest"; salt in the flames → "Salt in the Flames" | Hospitality/besa (§10); the Shtriga repelled by salt + fire (§5) |
 | Lost in the dark → your **Ora** (White leads home / Black means death) | The Ora and the three Fates (§4) |
 | The long fall → **Bukura e Detit** carries you up | The Beauty of the Sea (§6) |
-| The cursed hoard guarded by a serpent | Treasure‑guarding **Ora** in serpent form; the **Stihí** (§4, §5) |
+| The cavern‑city hoard: bring a **torch** into the dark, then resist the bazaar → "The Untouched Bazaar" (good) / "Greed in the Dark" (touch it → torch out → devoured) / "The Serpent's Hoard" (cut the guardian down → Vitore curse) / "The Gold Left Buried" (never enter) | **Edith Durham, _High Albania_ (Edward Arnold, 1909), p.264, ch. "The Debatable Lands — Djakova"** — a magic cavern on the road to Prizren, running miles underground "even beneath the Drin", holding a dead city whose bazaar is stocked with "fruit, flesh, fish, jewels, and fair raiment", guarded by **oras in serpent‑shape**: touch one thing and "his torch at once goes out, serpents spring up and devour him in the darkness… No man has ventured in for many years." The cavern is pitch dark — you must bring a torch (made at the forest fire) to see the bazaar at all, mirroring Durham's detail. The kill‑ending folds in the **Vitore** belief (the gold‑laying house‑serpent killed by greed → the line fails). Treasure‑guarding **Ora** in serpent form; the **Stihí** (§4, §5). _(The widely‑cited "p.152" is a later print‑on‑demand reprint's pagination, not the 1909 first edition.)_ |
 
 ---
 

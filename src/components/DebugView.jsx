@@ -1,0 +1,1332 @@
+import { useMemo, useState, useEffect, useRef } from 'react'
+import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
+import { FOLKLORE, ENDING_LORE } from '../game/folklore.js'
+
+// ===========================================================================
+// DEBUG VIEW — a review console, only reachable in debug mode (click the title
+// 5×). Three tools to make the story easy to review and fact-check:
+//   • Story Graph   — the whole node graph, laid out by depth, click for detail
+//   • World Map     — the open-world hubs and how the districts connect
+//   • Folklore      — every real legend the game draws on, with source links
+//                     and which endings reference it (cross-check accuracy)
+// ===========================================================================
+
+// --- render a token line as plain Albanian / English (no discovery state) ---
+const tidy = (s) => s.replace(/\s+([.!?:,;])/g, '$1').replace(/\s+/g, ' ').trim()
+const albanianOf = (line) => tidy(line.map((t) => (t.paren ? t.en : t.al)).join(' '))
+const englishOf = (line) => tidy(line.map((t) => t.en).join(' '))
+
+const KIND_COLOR = {
+  start: '#4aa3ff',
+  hub: '#b07bff',
+  good: '#3ec46d',
+  secret: '#e7b53c',
+  bad: '#e5544b',
+  node: '#7b8794',
+}
+const KIND_LABEL = {
+  start: 'start', hub: 'hub', good: 'good ending', secret: 'secret ending', bad: 'bad ending', node: 'scene',
+}
+
+// BFS depth from START_NODE over the real (non-confuser) navigation edges.
+function buildGraph() {
+  const ids = Object.keys(STORY)
+  const adj = {}
+  for (const id of ids) {
+    adj[id] = []
+    for (const o of STORY[id].options || []) {
+      if (!o.confuser && o.to && STORY[o.to]) adj[id].push(o.to)
+    }
+  }
+  const depth = { [START_NODE]: 0 }
+  const q = [START_NODE]
+  while (q.length) {
+    const u = q.shift()
+    for (const v of adj[u]) if (depth[v] == null) { depth[v] = depth[u] + 1; q.push(v) }
+  }
+  const reached = Object.keys(depth).length
+  let maxD = 0
+  for (const d of Object.values(depth)) maxD = Math.max(maxD, d)
+  for (const id of ids) if (depth[id] == null) depth[id] = maxD + 1 // unreachable bucket
+  const kindOf = (id) => {
+    const n = STORY[id]
+    if (id === START_NODE) return 'start'
+    if (n.end) return n.end
+    if (adj[id].length >= 4) return 'hub'
+    return 'node'
+  }
+  return { ids, adj, depth, maxD, reached, kindOf, hubs: ids.filter((id) => adj[id].length >= 4) }
+}
+
+function NodeDetail({ id, onPick, goLore }) {
+  const n = STORY[id]
+  const lore = n.end && ENDING_LORE[id] ? FOLKLORE.find((f) => f.id === ENDING_LORE[id]) : null
+  return (
+    <div className="dbg-detail">
+      <div className="dbg-detail-head">
+        <code>{id}</code>
+        {n.end && <span className={'dbg-tag ' + n.end}>{n.end} ending</span>}
+        {n.title && <b>{n.title}</b>}
+        {lore && (
+          <button className="dbg-tag dbg-tag-btn node" title={'open ' + lore.title + ' in the Folklore library'}
+                  onClick={() => goLore(lore.id)}>
+            📖 {lore.title} →
+          </button>
+        )}
+      </div>
+      <div className="dbg-lines">
+        {n.text.map(lineOf).map((line, i) => (
+          <div className="dbg-line" key={i}>
+            <span className="dbg-al">{albanianOf(line)}</span>
+            <span className="dbg-en">{englishOf(line)}</span>
+          </div>
+        ))}
+      </div>
+      {n.blurb && <p className="dbg-blurb">{n.blurb}</p>}
+      {n.options?.length > 0 && (
+        <div className="dbg-opts">
+          {n.options.map((o, i) => {
+            const tgt = o.to && STORY[o.to]
+            return (
+              <div className={'dbg-opt' + (o.confuser ? ' confuser' : '')} key={i}>
+                <span className="dbg-opt-al">{albanianOf(o.text)}</span>
+                <span className="dbg-opt-en">{englishOf(o.text)}</span>
+                <span className="dbg-opt-flags">
+                  {o.confuser && <span className="dbg-flag bad">confuser</span>}
+                  {o.reveal && <span className="dbg-flag">reveal:{o.reveal}</span>}
+                  {o.requires && <span className="dbg-flag">needs:{o.requires}</span>}
+                  {o.unless && <span className="dbg-flag">hidden-if:{o.unless}</span>}
+                  {o.grant && <span className="dbg-flag good">+{o.grant}</span>}
+                  {o.consumes && <span className="dbg-flag">−{o.consumes}</span>}
+                  {tgt ? (
+                    <button className="dbg-jump" onClick={() => onPick(o.to)}>
+                      → {o.to}{tgt.end ? ` (${tgt.end})` : ''}
+                    </button>
+                  ) : !o.confuser ? <span className="dbg-flag bad">dead link: {o.to}</span> : null}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function StoryGraph({ g, sel, setSel, goLore }) {
+  const COL = 168
+  const ROW = 22
+  const PAD = 24
+  const scrollRef = useRef(null)
+  const layout = useMemo(() => {
+    const byDepth = {}
+    for (const id of g.ids) (byDepth[g.depth[id]] ||= []).push(id)
+    for (const d of Object.keys(byDepth)) byDepth[d].sort()
+    const pos = {}
+    let maxRows = 0
+    for (const d of Object.keys(byDepth)) {
+      byDepth[d].forEach((id, i) => { pos[id] = { x: PAD + d * COL, y: PAD + i * ROW } })
+      maxRows = Math.max(maxRows, byDepth[d].length)
+    }
+    const width = PAD * 2 + (g.maxD + 1) * COL + 60
+    const height = PAD * 2 + maxRows * ROW + 10
+    return { pos, width, height }
+  }, [g])
+
+  // when a node is selected (e.g. from a folklore ending link), bring it into view.
+  // Deferred a frame so it also works on the first mount (the scroll container
+  // needs to be laid out before scrollTo will take).
+  useEffect(() => {
+    const p = sel && layout.pos[sel]
+    if (!p) return
+    const id = setTimeout(() => {
+      const el = scrollRef.current
+      if (!el || !el.clientWidth) return
+      el.scrollLeft = Math.max(0, p.x - el.clientWidth / 2)
+      el.scrollTop = Math.max(0, p.y - el.clientHeight / 2)
+    }, 60)
+    return () => clearTimeout(id)
+  }, [sel, layout])
+
+  return (
+    <div className="dbg-graph-wrap">
+      <div className="dbg-scroll" ref={scrollRef}>
+        <svg width={layout.width} height={layout.height} className="dbg-graph">
+          {g.ids.map((id) =>
+            g.adj[id].map((to, k) => {
+              const a = layout.pos[id], b = layout.pos[to]
+              if (!a || !b) return null
+              const hot = sel === id || sel === to
+              return (
+                <line
+                  key={id + '-' + k}
+                  x1={a.x + 54} y1={a.y + 6} x2={b.x} y2={b.y + 6}
+                  stroke={hot ? '#fff' : '#3a4250'} strokeWidth={hot ? 1.4 : 0.6}
+                  opacity={hot ? 0.9 : 0.4}
+                />
+              )
+            }),
+          )}
+          {g.ids.map((id) => {
+            const p = layout.pos[id]
+            const kind = g.kindOf(id)
+            return (
+              <g key={id} transform={`translate(${p.x},${p.y})`} className="dbg-gnode"
+                 onClick={() => setSel(id)} style={{ cursor: 'pointer' }}>
+                <title>{id} — {KIND_LABEL[kind]}</title>
+                <rect width={54} height={12} rx={3}
+                  fill={KIND_COLOR[kind]} opacity={sel === id ? 1 : 0.85}
+                  stroke={sel === id ? '#fff' : 'none'} strokeWidth={sel === id ? 1.4 : 0} />
+                <text x={58} y={10} className="dbg-glabel" fill={sel === id ? '#fff' : '#aeb6c2'}>{id}</text>
+              </g>
+            )
+          })}
+        </svg>
+      </div>
+      {sel && <NodeDetail id={sel} onPick={setSel} goLore={goLore} />}
+    </div>
+  )
+}
+
+function WorldMap({ g, current, setSel, goGraph }) {
+  const hubSet = useMemo(() => new Set(g.hubs), [g])
+  // neighbouring hubs: BFS from a hub, stop when another hub is reached
+  const hubNeighbours = (hub) => {
+    const res = new Set(), seen = new Set([hub]), stack = [...g.adj[hub]]
+    while (stack.length) {
+      const u = stack.pop()
+      if (seen.has(u)) continue
+      seen.add(u)
+      if (hubSet.has(u)) { res.add(u); continue }
+      for (const v of g.adj[u]) stack.push(v)
+    }
+    return [...res]
+  }
+  const hubs = [...g.hubs].sort((a, b) => g.depth[a] - g.depth[b] || a.localeCompare(b))
+  // simple layered placement for the constellation
+  const COL = 150, ROW = 64, PAD = 30
+  const byDepth = {}
+  for (const h of hubs) (byDepth[g.depth[h]] ||= []).push(h)
+  const pos = {}
+  for (const d of Object.keys(byDepth)) byDepth[d].forEach((h, i) => { pos[h] = { x: PAD + d * COL, y: PAD + i * ROW } })
+  const width = PAD * 2 + (Math.max(0, ...hubs.map((h) => g.depth[h])) + 1) * COL
+  const height = PAD * 2 + Math.max(1, ...Object.values(byDepth).map((a) => a.length)) * ROW
+  const oneLiner = (id) => englishOf(STORY[id].text.map(lineOf).find((l) => l.filter((t) => t.id).length >= 2) || STORY[id].text.map(lineOf)[0] || [])
+
+  return (
+    <div className="dbg-map">
+      <p className="dbg-note">
+        The open world is a web of <b>hubs</b> (scenes with 4+ exits) wired together by reversible
+        travel. Below: how the districts connect, then each hub's exits. Click any destination to
+        inspect it in the Story Graph.
+      </p>
+      <div className="dbg-scroll">
+        <svg width={width} height={height} className="dbg-constellation">
+          {hubs.map((h) => hubNeighbours(h).map((nb, k) => {
+            const a = pos[h], b = pos[nb]
+            if (!a || !b) return null
+            return <line key={h + nb + k} x1={a.x + 50} y1={a.y + 9} x2={b.x + 50} y2={b.y + 9}
+              stroke="#5a6675" strokeWidth={1} opacity={0.6} />
+          }))}
+          {hubs.map((h) => (
+            <g key={h} transform={`translate(${pos[h].x},${pos[h].y})`} style={{ cursor: 'pointer' }}
+               onClick={() => goGraph(h)}>
+              <title>{h}</title>
+              <rect width={100} height={18} rx={4} fill={h === current ? '#4aa3ff' : '#b07bff'} opacity={0.9} />
+              <text x={50} y={13} textAnchor="middle" className="dbg-hlabel">{h}</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+      <div className="dbg-hub-cards">
+        {hubs.map((h) => {
+          const exits = (STORY[h].options || []).filter((o) => !o.confuser && o.to && STORY[o.to])
+          return (
+            <div className={'dbg-hub-card' + (h === current ? ' here' : '')} key={h}>
+              <div className="dbg-hub-head">
+                <code>{h}</code>
+                {h === current && <span className="dbg-tag start">you are here</span>}
+                <span className="dbg-hub-line">{oneLiner(h)}</span>
+              </div>
+              <div className="dbg-exits">
+                {exits.map((o, i) => {
+                  const t = STORY[o.to]
+                  const kind = t.end || (g.adj[o.to].length >= 4 ? 'hub' : 'node')
+                  return (
+                    <button className="dbg-exit" key={i} onClick={() => goGraph(o.to)}>
+                      <span className="dbg-exit-al">{albanianOf(o.text)}</span>
+                      <span className={'dbg-tag ' + kind}>{o.to}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ===========================================================================
+// VILLAGE MAP — a hand-drawn top-down map of the village (battlemap style):
+// a green clearing ringed with forest, plowed fields, a river winding down the
+// east with a wooden bridge, wooden-roofed houses, and dirt lanes. Every real
+// STORY node of the village sits on it as a labelled dot you can click to open
+// in the Story Graph. The decorative scatter (trees/houses) is deterministic.
+// ===========================================================================
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+// Each place is a real node id in STORY. x/y are map coordinates (viewBox 1160×820).
+// Each place is a real STORY node id, drawn as the landmark the scene describes.
+const VILLAGE_PLACES = [
+  // the road out (top)
+  { id: 'udhekryq', x: 566, y: 66, type: 'crossroads', label: 'crossroads', lh: 22 },
+  // church quarter (a rise, top-centre, graves behind)
+  { id: 'kisha1', x: 646, y: 176, type: 'church', label: 'church', lh: 40 },
+  { id: 'varret1', x: 726, y: 132, type: 'graves', label: 'graves', lh: 18 },
+  { id: 'kostandin1', x: 688, y: 256, type: 'roadmark', label: 'road past graves', lh: 15 },
+  // the square (the heart) — a real cobbled plaza with the buildings around it
+  { id: 'fshatiSheshi', x: 525, y: 432, type: 'square', label: 'the square', lh: 92 },
+  { id: 'pusiThate', x: 544, y: 444, type: 'well', label: 'the dry well', lh: 24 },
+  { id: 'nenaDiell1', x: 508, y: 400, type: 'claydoll', label: 'the girls', lh: 12 },
+  { id: 'veraDite1', x: 566, y: 484, type: 'bonfire', label: 'the festival', lh: 16 },
+  { id: 'dordolec1', x: 470, y: 480, type: 'scarecrow', label: 'the children', lh: 20 },
+  { id: 'plaka', x: 448, y: 388, type: 'house', label: 'old woman’s house', lh: 18 },
+  { id: 'oda1', x: 606, y: 392, type: 'oda', label: 'the oda', lh: 18 },
+  // back lanes (east)
+  { id: 'fshatiLanes', x: 690, y: 404, type: 'signpost', label: 'back lanes', lh: 20 },
+  { id: 'kulle1', x: 712, y: 320, type: 'tower', label: 'stone tower', lh: 26 },
+  { id: 'djepi1', x: 776, y: 366, type: 'house', label: 'the cradle', lh: 18, roof: '#9a7250' },
+  { id: 'pallatiZi', x: 794, y: 456, type: 'palace', label: 'black palace', lh: 24 },
+  { id: 'kopshtMermer1', x: 730, y: 522, type: 'garden', label: 'marble garden', lh: 22 },
+  // village life (west)
+  { id: 'fshatiJeta', x: 298, y: 434, type: 'signpost', label: 'village life', lh: 20 },
+  { id: 'vatra', x: 222, y: 392, type: 'hearth', label: 'the hearth', lh: 20 },
+  { id: 'qilim', x: 198, y: 474, type: 'house', label: 'the loom', lh: 18 },
+  { id: 'bariu', x: 150, y: 542, type: 'pasture', label: 'shepherd & goats', lh: 18 },
+  { id: 'gjysmegjel1', x: 302, y: 558, type: 'rooster', label: 'half-rooster', lh: 14 },
+  { id: 'syriKeq1', x: 374, y: 502, type: 'house', label: 'the child', lh: 18 },
+  { id: 'breshka1', x: 240, y: 582, type: 'house', label: 'the guest', lh: 18 },
+  // river quarter (lower-east, along the water)
+  { id: 'fshatiLumi', x: 792, y: 616, type: 'signpost', label: 'down at the river', lh: 20 },
+  { id: 'uraArtes1', x: 892, y: 500, type: 'dot', label: 'the bridge', lh: 13 },
+  { id: 'mulli1', x: 858, y: 602, type: 'mill', label: 'water-mill', lh: 18 },
+  { id: 'kroi1', x: 846, y: 674, type: 'spring', label: 'the spring', lh: 18 },
+]
+
+const VILLAGE_DISTRICTS = [
+  { t: 'to the mountain', x: 566, y: 30 },
+  { t: 'church', x: 690, y: 92 },
+  { t: 'the square', x: 512, y: 330 },
+  { t: 'back lanes', x: 758, y: 300 },
+  { t: 'village life', x: 250, y: 356 },
+  { t: 'the river', x: 940, y: 700 },
+  { t: 'fields', x: 150, y: 70 },
+  { t: 'fields', x: 520, y: 800 },
+]
+
+// dirt lanes between district anchors [x1,y1,x2,y2]
+const VILLAGE_LANES = [
+  [525, 432, 566, 110], [525, 432, 646, 190], [525, 432, 300, 448],
+  [525, 432, 690, 410], [525, 432, 792, 604], [690, 410, 688, 250],
+  [688, 250, 646, 196], [792, 616, 858, 604], [792, 616, 846, 674],
+  [792, 616, 888, 508], [298, 440, 200, 490], [298, 440, 160, 542],
+]
+
+const RIVER_D = 'M 1010 -20 C 984 120 942 210 952 322 C 960 414 878 470 900 566 C 920 662 970 742 940 848'
+const TREE_PAL = ['#4c6743', '#3f5838', '#587a49']
+
+function Tree({ x, y, s }) {
+  const lobes = [[0, 2, 1], [-8, -1, 0.82], [8, -1, 0.82], [-4, -8, 0.72], [4, -8, 0.72]]
+  return (
+    <g>
+      <ellipse cx={x + 2} cy={y + 7 * s} rx={12 * s} ry={4 * s} fill="rgba(0,0,0,.18)" />
+      {lobes.map(([dx, dy, r], i) => (
+        <circle key={i} cx={x + dx * s} cy={y + dy * s} r={10 * s * r} fill={TREE_PAL[i % 3]} stroke="#28351f" strokeWidth={1.1} />
+      ))}
+      <circle cx={x - 3 * s} cy={y - 5 * s} r={3.2 * s} fill="#7b9760" opacity={0.55} />
+    </g>
+  )
+}
+
+function House({ x, y, w, rot }) {
+  const h = w * 0.72
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot})`}>
+      <rect x={-w / 2 + 2.5} y={-h / 2 + 3} width={w} height={h} rx={1.5} fill="rgba(0,0,0,.25)" />
+      <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={1.5} fill="#a9825f" stroke="#573f2d" strokeWidth={1.4} />
+      <line x1={-w / 2} y1={0} x2={w / 2} y2={0} stroke="#573f2d" strokeWidth={1.1} />
+      <line x1={-w / 2} y1={-h / 4} x2={w / 2} y2={-h / 4} stroke="#c39d78" strokeWidth={0.7} />
+      <line x1={-w / 2} y1={h / 4} x2={w / 2} y2={h / 4} stroke="#8a6a4a" strokeWidth={0.7} />
+    </g>
+  )
+}
+
+function Field({ x, y, w, h, rot, tone }) {
+  const furrows = []
+  for (let i = 1; i < h / 11; i++) furrows.push(-h / 2 + i * 11)
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot})`}>
+      <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={5} fill={tone} stroke="#48372a" strokeWidth={1.6} />
+      {furrows.map((fy, i) => (
+        <line key={i} x1={-w / 2 + 5} y1={fy} x2={w / 2 - 5} y2={fy} stroke="rgba(0,0,0,.16)" strokeWidth={2.4} />
+      ))}
+    </g>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// LANDMARK GLYPHS — each village scene drawn as the thing the story describes.
+// All are drawn centred on (x,y). Kept bold/simple so they read small.
+// ---------------------------------------------------------------------------
+const shadow = (cx, cy, rx, ry) => <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="rgba(0,0,0,.22)" />
+
+function gHouse(x, y, roof = '#a9825f') {
+  const w = 30, h = 23
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(3, h / 2 + 3, w * 0.55, 5)}
+      <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={2} fill={roof} stroke="#4f3a2a" strokeWidth={1.8} />
+      <line x1={-w / 2} y1={0} x2={w / 2} y2={0} stroke="#4f3a2a" strokeWidth={1.6} />
+      <line x1={-w / 2} y1={-h / 4} x2={w / 2} y2={-h / 4} stroke="rgba(255,255,255,.22)" strokeWidth={0.8} />
+      <line x1={-w / 2} y1={h / 4} x2={w / 2} y2={h / 4} stroke="rgba(0,0,0,.22)" strokeWidth={0.8} />
+    </g>
+  )
+}
+
+function gOda(x, y) {
+  const w = 46, h = 26
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(4, h / 2 + 3, w * 0.55, 6)}
+      <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={2} fill="#b58a5c" stroke="#4f3a2a" strokeWidth={1.8} />
+      <line x1={-w / 2} y1={0} x2={w / 2} y2={0} stroke="#4f3a2a" strokeWidth={1.6} />
+      {[-h / 4, h / 4].map((ly, i) => <line key={i} x1={-w / 2} y1={ly} x2={w / 2} y2={ly} stroke="rgba(0,0,0,.18)" strokeWidth={0.7} />)}
+      <rect x={-6} y={h / 2 - 1} width={12} height={7} rx={1} fill="#7a5c3a" stroke="#4f3a2a" strokeWidth={1} />
+    </g>
+  )
+}
+
+function gHearth(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {gHouse(0, 0, '#a9825f')}
+      <rect x={7} y={-16} width={5} height={9} fill="#6f4f34" stroke="#4f3a2a" strokeWidth={1} />
+      <circle cx={9.5} cy={-19} r={3.5} fill="#c9c2b6" opacity={0.7} />
+      <circle cx={12} cy={-24} r={4.5} fill="#c9c2b6" opacity={0.45} />
+      <circle cx={0} cy={0} r={4} fill="#e8892b" opacity={0.9} />
+    </g>
+  )
+}
+
+function gWell(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(2, 8, 12, 4)}
+      <circle r={11} fill="#9a938a" stroke="#5b5348" strokeWidth={2.4} />
+      <circle r={6.4} fill="#6b5a44" />
+      <path d="M -6 -1 A 6 6 0 0 1 6 -1 Z" fill="#7d6a4f" />
+      <rect x={-13} y={-17} width={3} height={17} rx={1} fill="#6f4f34" />
+      <rect x={10} y={-17} width={3} height={17} rx={1} fill="#6f4f34" />
+      <rect x={-15} y={-19} width={30} height={4} rx={1} fill="#7c5a3c" />
+    </g>
+  )
+}
+
+function gTower(x, y) {
+  const s = 13
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(9, s + 4, s * 1.2, 5)}
+      <rect x={-s} y={-s} width={2 * s} height={2 * s} fill="#8f8d84" stroke="#4b463d" strokeWidth={2.2} />
+      <rect x={-s + 3} y={-s + 3} width={2 * s - 6} height={2 * s - 6} fill="#a6a39b" stroke="#6a6459" strokeWidth={1} />
+      {[-s, -s + 6.5, -s + 13, -s + 19.5].map((bx, i) => <rect key={i} x={bx} y={-s - 3} width={4} height={4} fill="#8f8d84" stroke="#4b463d" strokeWidth={1} />)}
+      <rect x={-2} y={-3} width={4} height={7} fill="#2f2b24" />
+    </g>
+  )
+}
+
+function gPalace(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(3, 22, 36, 9)}
+      <rect x={-34} y={-10} width={12} height={28} rx={2} fill="#2e2836" stroke="#161320" strokeWidth={1.6} />
+      <rect x={22} y={-10} width={12} height={28} rx={2} fill="#2e2836" stroke="#161320" strokeWidth={1.6} />
+      <rect x={-30} y={-19} width={60} height={38} rx={3} fill="#3a3342" stroke="#161320" strokeWidth={2.2} />
+      <rect x={-30} y={-19} width={60} height={11} fill="#4a4252" />
+      {[-19, -7, 7, 19].map((wx, i) => <rect key={i} x={wx - 2} y={-3} width={4.5} height={6} fill="#c9a24a" />)}
+      <rect x={-4} y={7} width={8} height={12} fill="#1c1826" />
+    </g>
+  )
+}
+
+function gGarden(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(3, 19, 26, 7)}
+      <rect x={-24} y={-18} width={48} height={37} rx={4} fill="#e8e3d8" stroke="#b9b2a2" strokeWidth={2.2} />
+      <rect x={-19} y={-13} width={38} height={27} rx={3} fill="#7fa356" />
+      <line x1={-19} y1={0} x2={19} y2={0} stroke="#dcd6c7" strokeWidth={3} />
+      <line x1={0} y1={-13} x2={0} y2={14} stroke="#dcd6c7" strokeWidth={3} />
+      <circle r={4} fill="#7fb4c6" stroke="#e8e3d8" strokeWidth={1.6} />
+      {[[-13, -8], [13, -8], [-13, 9], [13, 9]].map(([sx, sy], i) => <circle key={i} cx={sx} cy={sy} r={2.3} fill="#f4f0e6" />)}
+    </g>
+  )
+}
+
+function gMill(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {gHouse(-8, -2, '#9c7a58')}
+      <g transform="translate(15,7)">
+        <circle r={12} fill="none" stroke="#5c4230" strokeWidth={3} />
+        <circle r={12} fill="#00000018" />
+        {[0, 45, 90, 135].map((a, i) => <line key={i} x1={-12 * Math.cos(a * Math.PI / 180)} y1={-12 * Math.sin(a * Math.PI / 180)} x2={12 * Math.cos(a * Math.PI / 180)} y2={12 * Math.sin(a * Math.PI / 180)} stroke="#6f4f34" strokeWidth={2} />)}
+        <circle r={2.6} fill="#4f3a2a" />
+      </g>
+    </g>
+  )
+}
+
+function gSpring(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(2, 9, 13, 4)}
+      <ellipse cx={0} cy={5} rx={11} ry={4.5} fill="#84bacb" stroke="#6fa7bc" strokeWidth={1.3} />
+      <path d="M -11 3 A 11 7 0 0 1 11 3 Z" fill="#9a938a" stroke="#5b5348" strokeWidth={1.4} />
+      <rect x={-3} y={-15} width={6} height={13} rx={1} fill="#8d8b83" stroke="#5b5348" strokeWidth={1.2} />
+      <rect x={-1.2} y={-6} width={2.4} height={9} fill="#7fb4c6" />
+    </g>
+  )
+}
+
+function gChurch(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(4, 18, 28, 8)}
+      <rect x={-22} y={-8} width={38} height={26} rx={2} fill="#b0704f" stroke="#5c3a28" strokeWidth={1.9} />
+      <line x1={-22} y1={5} x2={16} y2={5} stroke="#5c3a28" strokeWidth={1.5} />
+      <rect x={12} y={-22} width={15} height={40} rx={2} fill="#9c6142" stroke="#5c3a28" strokeWidth={1.9} />
+      <rect x={16.5} y={-15} width={6} height={7} fill="#3a2a20" />
+      <rect x={18.2} y={-33} width={2.6} height={12} fill="#eae3d0" />
+      <rect x={15} y={-30} width={9} height={2.6} fill="#eae3d0" />
+    </g>
+  )
+}
+
+function gGraves(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x={-19} y={-12} width={38} height={24} rx={3} fill="#8aa35a" stroke="#6c6152" strokeWidth={1.6} opacity={0.92} />
+      {[[-12, -3], [-3, 3], [6, -4], [12, 5], [-8, 6], [2, -6]].map(([gx, gy], i) => (
+        <g key={i} transform={`translate(${gx},${gy})`}>
+          <rect x={-0.9} y={-7} width={1.9} height={9} fill="#d8d2c4" />
+          <rect x={-3} y={-4.5} width={6} height={1.9} fill="#d8d2c4" />
+        </g>
+      ))}
+    </g>
+  )
+}
+
+function gPasture(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x={-25} y={-15} width={50} height={30} rx={5} fill="#8fae5c" stroke="#7a6a3f" strokeWidth={1.5} strokeDasharray="5 3" />
+      {[[-13, -3], [4, 5], [13, -5]].map(([gx, gy], i) => (
+        <g key={i} transform={`translate(${gx},${gy})`}>
+          <ellipse cx={0} cy={0} rx={4.6} ry={2.7} fill="#efe9dc" stroke="#8a7d63" strokeWidth={0.8} />
+          <circle cx={4.2} cy={-1.4} r={2} fill="#efe9dc" stroke="#8a7d63" strokeWidth={0.8} />
+          <line x1={-2} y1={2} x2={-2} y2={4.6} stroke="#8a7d63" strokeWidth={0.8} />
+          <line x1={2} y1={2} x2={2} y2={4.6} stroke="#8a7d63" strokeWidth={0.8} />
+        </g>
+      ))}
+    </g>
+  )
+}
+
+function gScarecrow(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(2, 11, 7, 3)}
+      <rect x={-1} y={-13} width={2} height={24} fill="#7a5c3a" />
+      <rect x={-10} y={-6} width={20} height={2} fill="#7a5c3a" />
+      <path d="M -6 -4 L 6 -4 L 3 8 L -3 8 Z" fill="#8a9b56" stroke="#5f6d3b" strokeWidth={0.8} />
+      <circle cx={0} cy={-15} r={4} fill="#cdb06e" stroke="#8a7038" strokeWidth={0.8} />
+    </g>
+  )
+}
+
+function gBonfire(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(0, 8, 10, 3)}
+      <line x1={-8} y1={8} x2={7} y2={-1} stroke="#7a5c3a" strokeWidth={2.6} />
+      <line x1={8} y1={8} x2={-7} y2={-1} stroke="#7a5c3a" strokeWidth={2.6} />
+      <path d="M0 7 C -7 0 -3 -7 0 -14 C 3 -7 7 0 0 7 Z" fill="#e8892b" />
+      <path d="M0 6 C -3 1 -1.5 -4 0 -9 C 1.5 -4 3 1 0 6 Z" fill="#f6cf49" />
+    </g>
+  )
+}
+
+function gRooster(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(0, 8, 6, 2.5)}
+      <path d="M-6 0 l-4 -4 l1 6 z" fill="#a85f2a" />
+      <ellipse cx={0} cy={2} rx={5.5} ry={4.2} fill="#c47a3a" />
+      <circle cx={4.5} cy={-2.5} r={2.8} fill="#c47a3a" />
+      <path d="M5 -6 l1.5 -3 l1.5 3 z" fill="#d3382f" />
+      <path d="M7 -1 l3.5 1.2 l-3.5 1.2 z" fill="#e8b53c" />
+      <line x1={-1} y1={6} x2={-1} y2={9.5} stroke="#e8b53c" strokeWidth={1.1} />
+      <line x1={2.5} y1={6} x2={2.5} y2={9.5} stroke="#e8b53c" strokeWidth={1.1} />
+    </g>
+  )
+}
+
+function gClayDoll(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(0, 8, 5, 2)}
+      <circle cx={0} cy={-4} r={3} fill="#b98a5a" stroke="#8a6238" strokeWidth={0.7} />
+      <path d="M-4 -1 L4 -1 L3 8 L-3 8 Z" fill="#b98a5a" stroke="#8a6238" strokeWidth={0.7} />
+      <line x1={-4} y1={1.5} x2={-8} y2={4} stroke="#b98a5a" strokeWidth={1.6} strokeLinecap="round" />
+      <line x1={4} y1={1.5} x2={8} y2={4} stroke="#b98a5a" strokeWidth={1.6} strokeLinecap="round" />
+    </g>
+  )
+}
+
+function gSignpost(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(1, 8, 6, 2.5)}
+      <rect x={-1.4} y={-14} width={2.8} height={22} fill="#6f4f34" />
+      <path d="M-2 -13 h-11 l-3 2.5 l3 2.5 h11 z" fill="#8a6a45" stroke="#5c4230" strokeWidth={0.8} />
+      <path d="M2 -8 h11 l3 2.5 l-3 2.5 h-11 z" fill="#8a6a45" stroke="#5c4230" strokeWidth={0.8} />
+    </g>
+  )
+}
+
+function gCrossroads(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(1, 9, 7, 3)}
+      <rect x={-1.6} y={-16} width={3.2} height={25} fill="#6f4f34" />
+      <path d="M-2 -15 h-12 l-3.5 3 l3.5 3 h12 z" fill="#8a6a45" stroke="#5c4230" strokeWidth={0.9} />
+      <path d="M2 -15 h12 l3.5 3 l-3.5 3 h-12 z" fill="#8a6a45" stroke="#5c4230" strokeWidth={0.9} />
+      <path d="M2 -7 h11 l3 2.6 l-3 2.6 h-11 z" fill="#7a5c3a" stroke="#5c4230" strokeWidth={0.8} />
+    </g>
+  )
+}
+
+function gRoadmark(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(1, 6, 6, 2.4)}
+      <path d="M-5 5 L-4 -6 A 4 4 0 0 1 4 -6 L5 5 Z" fill="#9a938a" stroke="#5b5348" strokeWidth={1.2} />
+      <line x1={-3} y1={-1} x2={3} y2={-1} stroke="#5b5348" strokeWidth={0.8} />
+    </g>
+  )
+}
+
+function gBridgeDeck() {
+  // the wooden footbridge over the river (drawn in place, spans the water)
+  return (
+    <g>
+      <line x1={812} y1={512} x2={968} y2={476} stroke="#6f4f34" strokeWidth={22} strokeLinecap="round" />
+      <line x1={812} y1={512} x2={968} y2={476} stroke="#a9825f" strokeWidth={16} strokeLinecap="round" />
+      {Array.from({ length: 10 }, (_, i) => {
+        const t = i / 9, x = 812 + (968 - 812) * t, y = 512 + (476 - 512) * t
+        return <line key={i} x1={x - 7} y1={y - 9} x2={x + 7} y2={y + 9} stroke="#5c4230" strokeWidth={2} />
+      })}
+    </g>
+  )
+}
+
+function gSquare(x, y) {
+  // a real cobbled plaza — the buildings are placed around it
+  return (
+    <g>
+      <rect x={x - 110} y={y - 80} width={220} height={160} rx={30} fill="#c4b389" stroke="#a2926c" strokeWidth={2.5} />
+      <rect x={x - 100} y={y - 70} width={200} height={140} rx={24} fill="none" stroke="#b3a17a" strokeWidth={1.4} opacity={0.7} />
+      {[[-60, -40], [40, -50], [-30, 30], [70, 20], [10, 55], [-80, 10]].map(([dx, dy], i) => (
+        <ellipse key={i} cx={x + dx} cy={y + dy} rx={9} ry={5} fill="#b09c73" opacity={0.4} />
+      ))}
+    </g>
+  )
+}
+
+const GLYPH = (pl) => {
+  const { x, y, type, roof } = pl
+  switch (type) {
+    case 'square': return gSquare(x, y)
+    case 'well': return gWell(x, y)
+    case 'oda': return gOda(x, y)
+    case 'hearth': return gHearth(x, y)
+    case 'tower': return gTower(x, y)
+    case 'palace': return gPalace(x, y)
+    case 'garden': return gGarden(x, y)
+    case 'mill': return gMill(x, y)
+    case 'spring': return gSpring(x, y)
+    case 'church': return gChurch(x, y)
+    case 'graves': return gGraves(x, y)
+    case 'pasture': return gPasture(x, y)
+    case 'scarecrow': return gScarecrow(x, y)
+    case 'bonfire': return gBonfire(x, y)
+    case 'rooster': return gRooster(x, y)
+    case 'claydoll': return gClayDoll(x, y)
+    case 'signpost': return gSignpost(x, y)
+    case 'crossroads': return gCrossroads(x, y)
+    case 'roadmark': return gRoadmark(x, y)
+    case 'house': return gHouse(x, y, roof)
+    default: return null
+  }
+}
+
+// ---------------------------------------------------------------------------
+// THE WORLD beyond the village — every OTHER node placed in a terrain region by
+// its graph-distance to that region's anchors, so the whole 380-node world is on
+// one pan/zoom map. Regions ring the village: sky & mountain above, forest west,
+// river & castle & sea east, the underworld below (down through the well).
+// ---------------------------------------------------------------------------
+const VILLAGE_IDS = new Set(VILLAGE_PLACES.map((p) => p.id))
+const REGIONS = [
+  { key: 'sky', label: 'the sky realm', cx: 900, cy: -1180, rx: 700, ry: 280, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende'] },
+  { key: 'mountain', label: 'Mount Tomorr', cx: 860, cy: -560, rx: 660, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1'] },
+  { key: 'forest', label: 'the great forest', cx: -480, cy: 560, rx: 380, ry: 440, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
+  { key: 'river', label: 'the river & the Zana', cx: 1800, cy: 210, rx: 360, ry: 500, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1'] },
+  { key: 'castle', label: 'Rozafa castle', cx: 1820, cy: 760, rx: 220, ry: 200, terrain: 'castle', anchors: ['kalaRozafa'] },
+  { key: 'sea', label: 'the sea', cx: 2280, cy: 1160, rx: 540, ry: 420, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
+  { key: 'underworld', label: 'the world below', cx: 560, cy: 1680, rx: 700, ry: 400, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti'] },
+  { key: 'village', label: '', cx: 560, cy: 440, rx: 430, ry: 340, terrain: null, anchors: [...VILLAGE_IDS] },
+]
+
+function hashStr(s) {
+  let h = 2166136261
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) }
+  return h >>> 0
+}
+
+// multi-source BFS over the undirected real graph: every node → nearest region.
+function assignRegions(g) {
+  const und = {}
+  for (const id of g.ids) und[id] = new Set(g.adj[id] || [])
+  for (const id of g.ids) for (const to of g.adj[id] || []) (und[to] || (und[to] = new Set())).add(id)
+  const reg = {}, dist = {}, q = []
+  REGIONS.forEach((rg, ri) => rg.anchors.forEach((a) => {
+    if (STORY[a] && dist[a] == null) { reg[a] = ri; dist[a] = 0; q.push(a) }
+  }))
+  for (let h = 0; h < q.length; h++) {
+    const u = q[h]
+    for (const v of und[u] || []) if (dist[v] == null) { dist[v] = dist[u] + 1; reg[v] = reg[u]; q.push(v) }
+  }
+  const byRegion = REGIONS.map(() => [])
+  for (const id of g.ids) {
+    if (VILLAGE_IDS.has(id)) continue
+    const ri = reg[id]
+    if (ri != null) byRegion[ri].push(id)
+  }
+  return byRegion
+}
+
+function scatterInRegion(ids, rg) {
+  return ids.map((id) => {
+    const rnd = mulberry32(hashStr(id))
+    const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd()) * 0.94
+    return { id, x: rg.cx + Math.cos(a) * rg.rx * rr, y: rg.cy + Math.sin(a) * rg.ry * rr }
+  })
+}
+
+// ---- region terrain ---------------------------------------------------------
+function terrSky(rg) {
+  const { cx, cy, rx, ry } = rg, rnd = mulberry32(7)
+  return (
+    <g>
+      <rect x={cx - rx} y={cy - ry} width={rx * 2} height={ry * 2} rx={90} fill="url(#wSky)" />
+      {Array.from({ length: 44 }, (_, i) => <circle key={i} cx={cx - rx + rnd() * rx * 2} cy={cy - ry + rnd() * ry * 2} r={rnd() * 1.6 + 0.6} fill="#fff" opacity={0.7} />)}
+      <g transform={`translate(${cx - rx * 0.55},${cy - ry * 0.15})`}>
+        {Array.from({ length: 12 }, (_, i) => { const a = (i / 12) * Math.PI * 2; return <line key={i} x1={Math.cos(a) * 48} y1={Math.sin(a) * 48} x2={Math.cos(a) * 70} y2={Math.sin(a) * 70} stroke="#f4c430" strokeWidth={6} strokeLinecap="round" /> })}
+        <circle r={42} fill="#f6cf49" stroke="#e0a92e" strokeWidth={3} />
+      </g>
+      <g transform={`translate(${cx + rx * 0.5},${cy - ry * 0.4})`}>
+        <circle r={28} fill="#e4ebf3" />
+        <circle cx={11} r={24} fill="url(#wSky)" />
+      </g>
+      {[[cx - rx * 0.12, cy + ry * 0.45], [cx + rx * 0.22, cy + ry * 0.1], [cx - rx * 0.42, cy - ry * 0.35]].map(([x, y], i) => (
+        <g key={i}>{[[0, 0, 24], [22, 5, 19], [-22, 5, 19], [9, -9, 16]].map(([dx, dy, r], j) => <circle key={j} cx={x + dx} cy={y + dy} r={r} fill="#fff" opacity={0.85} />)}</g>
+      ))}
+    </g>
+  )
+}
+
+function terrMountains(rg) {
+  const { cx, cy, rx, ry } = rg
+  const n = 7, base = cy + ry * 0.5, peaks = []
+  for (let i = 0; i < n; i++) peaks.push([cx - rx * 0.92 + (i + 0.5) / n * rx * 1.84, ry * (0.5 + (i % 2 ? 0.32 : 0.55))])
+  return (
+    <g>
+      <ellipse cx={cx} cy={cy + ry * 0.35} rx={rx} ry={ry * 0.72} fill="#6f7d66" opacity={0.55} />
+      {peaks.map(([px, ph], i) => (
+        <g key={i}>
+          <polygon points={`${px},${base - ph} ${px - ph * 0.92},${base} ${px + ph * 0.92},${base}`} fill={i % 2 ? '#7d8a72' : '#8b9781'} stroke="#5b6653" strokeWidth={2.5} />
+          <polygon points={`${px},${base - ph} ${px - ph * 0.28},${base - ph * 0.66} ${px + ph * 0.28},${base - ph * 0.66}`} fill="#eef2ee" />
+        </g>
+      ))}
+      {/* foothills at the base, blending the range into the land below */}
+      {Array.from({ length: 9 }, (_, i) => { const hx = cx - rx * 0.95 + (i + 0.5) / 9 * rx * 1.9; return <ellipse key={'f' + i} cx={hx} cy={base + ry * 0.08} rx={rx * 0.15} ry={ry * 0.13} fill="#7c9169" opacity={0.8} /> })}
+    </g>
+  )
+}
+
+function terrForest(rg) {
+  const { cx, cy, rx, ry } = rg, rnd = mulberry32(23), trees = []
+  for (let k = 0; k < 70; k++) { const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()); trees.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r, 0.7 + rnd() * 0.7]) }
+  trees.sort((a, b) => a[1] - b[1])
+  return (
+    <g>
+      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#43603c" opacity={0.5} />
+      {trees.map(([x, y, s], i) => <Tree key={i} x={x} y={y} s={s} />)}
+    </g>
+  )
+}
+
+function terrRiver(rg) {
+  const { cx, cy, rx, ry } = rg
+  const d = `M ${cx - rx * 0.2} ${cy - ry} C ${cx + rx * 0.5} ${cy - ry * 0.4} ${cx - rx * 0.5} ${cy + ry * 0.3} ${cx + rx * 0.2} ${cy + ry}`
+  return (
+    <g>
+      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#8fae5c" opacity={0.4} />
+      <path d={d} fill="none" stroke="#cdbf94" strokeWidth={64} strokeLinecap="round" />
+      <path d={d} fill="none" stroke="url(#wSea)" strokeWidth={42} strokeLinecap="round" />
+      <path d={d} fill="none" stroke="#bfe0ea" strokeWidth={12} strokeLinecap="round" opacity={0.5} />
+    </g>
+  )
+}
+
+function terrSea(rg) {
+  const { cx, cy, rx, ry } = rg
+  return (
+    <g>
+      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="url(#wSea)" />
+      {Array.from({ length: 15 }, (_, i) => {
+        const y = cy - ry + (i + 1) / 16 * ry * 2, t = (y - cy) / ry
+        const w = Math.sqrt(Math.max(0, 1 - t * t)) * rx
+        return <g key={i}>{Array.from({ length: 5 }, (_, j) => { const x = cx - w + (j + 0.5) / 5 * w * 2 + (i % 2 ? 18 : 0); return <path key={j} d={`M ${x - 12} ${y} q 6 -6 12 0 q 6 6 12 0`} fill="none" stroke="#c8e6ef" strokeWidth={1.6} opacity={0.5} /> })}</g>
+      })}
+      <g transform={`translate(${cx - rx * 0.2},${cy - ry * 0.1})`}>
+        <path d="M-17 4 L17 4 L11 13 L-11 13 Z" fill="#7a5c3a" stroke="#4f3a2a" strokeWidth={1.6} />
+        <rect x={-1} y={-19} width={2.4} height={23} fill="#4f3a2a" />
+        <path d="M1 -17 L15 -3 L1 -3 Z" fill="#efe7d5" />
+      </g>
+    </g>
+  )
+}
+
+function terrCavern(rg) {
+  const { cx, cy, rx, ry } = rg, rnd = mulberry32(11)
+  return (
+    <g>
+      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#2b2622" stroke="#171310" strokeWidth={5} />
+      <ellipse cx={cx} cy={cy} rx={rx * 0.92} ry={ry * 0.88} fill="#342c26" />
+      {Array.from({ length: 15 }, (_, i) => { const x = cx - rx * 0.86 + (i / 14) * rx * 1.72, h = 16 + rnd() * 28, y = cy - ry * 0.84; return <polygon key={i} points={`${x - 8},${y} ${x + 8},${y} ${x},${y + h}`} fill="#241f1b" /> })}
+      {[[-0.3, 0.12], [0.02, -0.04], [0.3, 0.14], [0.52, 0], [-0.56, 0.22]].map(([fx, fy], i) => (
+        <g key={i} transform={`translate(${cx + fx * rx},${cy + fy * ry})`}>
+          <rect x={-10} y={-34} width={20} height={44} fill="#4a4038" stroke="#1f1a16" strokeWidth={1.6} />
+          <rect x={-10} y={-34} width={20} height={8} fill="#5a4e42" />
+          <rect x={-4} y={-18} width={8} height={11} fill="#c9a24a" opacity={0.5} />
+        </g>
+      ))}
+      <circle cx={cx - rx * 0.1} cy={cy} r={48} fill="#e8892b" opacity={0.12} />
+    </g>
+  )
+}
+
+function terrCastle(rg) {
+  const { cx, cy } = rg
+  return (
+    <g transform={`translate(${cx},${cy})`}>
+      <ellipse cx={4} cy={46} rx={74} ry={16} fill="rgba(0,0,0,.2)" />
+      <ellipse cx={0} cy={32} rx={82} ry={30} fill="#8b9781" opacity={0.6} />
+      <rect x={-62} y={-10} width={124} height={46} fill="#bcb5a5" stroke="#726a5b" strokeWidth={3} />
+      {Array.from({ length: 10 }, (_, i) => <rect key={i} x={-62 + i * 13.5} y={-19} width={9} height={10} fill="#bcb5a5" stroke="#726a5b" strokeWidth={1.5} />)}
+      {[-62, -4, 58].map((tx, i) => (
+        <g key={i}>
+          <rect x={tx - 12} y={-36} width={24} height={72} fill="#c6bfaf" stroke="#726a5b" strokeWidth={2.6} />
+          {[0, 1, 2].map((j) => <rect key={j} x={tx - 12 + j * 9} y={-45} width={6} height={9} fill="#c6bfaf" stroke="#726a5b" strokeWidth={1.2} />)}
+          <rect x={tx - 3} y={-14} width={6} height={10} fill="#2f2b24" />
+        </g>
+      ))}
+      <path d="M-9 36 L-9 13 A9 9 0 0 1 9 13 L9 36 Z" fill="#3a2e22" />
+    </g>
+  )
+}
+
+const TERRAIN = { sky: terrSky, mountain: terrMountains, forest: terrForest, river: terrRiver, sea: terrSea, cavern: terrCavern, castle: terrCastle }
+// soft outer tone per region so each blends into the land instead of floating
+const HALO = { mountain: '#7e9a54', forest: '#5f7a3f', river: '#c7b78a', castle: '#8f9a72', sea: '#dcc99d', cavern: '#37302b' }
+// faint darker-green blotches over the land band (not the sky) for texture
+const WORLD_BLOTCHES = (() => {
+  const rnd = mulberry32(99), b = []
+  for (let i = 0; i < 22; i++) b.push([-880 + rnd() * 3680, -680 + rnd() * 2820, 60 + rnd() * 150, 24 + rnd() * 60])
+  return b
+})()
+
+const VILLAGE_ROADS = [
+  'M 566 66 C 660 -60 780 -160 866 -300',   // crossroads → Mount Tomorr
+  'M 566 66 C 1020 30 1440 110 1720 190',    // crossroads → the river
+  'M 150 500 C 10 522 -140 540 -260 556',    // village → the great forest
+  'M 980 640 C 1300 900 1600 1000 1900 1080', // village edge → the sea coast
+]
+const WORLD_RIVER = 'M 900 -320 C 1140 40 1740 110 1840 400 C 1950 680 2140 980 2280 1160'
+const WELL_SHAFT = 'M 544 470 C 556 820 560 1120 560 1340'
+const MAP_VIEWS = {
+  village: { x: 199, y: 90, k: 0.72 },
+  world: { x: 372, y: 316, k: 0.2 },
+}
+
+function VillageMap({ g, current, goGraph }) {
+  const scatter = useMemo(() => {
+    const rnd = mulberry32(20260708)
+    const trees = []
+    const push = (x, y, s) => trees.push({ x, y, s })
+    for (let x = -12; x < 1176; x += 24) {
+      push(x + rnd() * 14 - 7, 8 + rnd() * 58, 0.68 + rnd() * 0.6)
+      push(x + rnd() * 14 - 7, 812 - rnd() * 50, 0.66 + rnd() * 0.5)
+    }
+    for (let y = 30; y < 800; y += 26) push(6 + rnd() * 40, y + rnd() * 12 - 6, 0.66 + rnd() * 0.5)
+    for (let y = -14; y < 850; y += 17) for (let k = 0; k < 3; k++) push(1015 + k * 44 + rnd() * 26, y + rnd() * 16 - 8, 0.7 + rnd() * 0.6)
+    ;[[470, 138], [602, 110], [108, 410], [430, 710], [614, 762], [986, 540]].forEach(([cx, cy]) => {
+      for (let k = 0; k < 4; k++) push(cx + rnd() * 64 - 32, cy + rnd() * 50 - 25, 0.58 + rnd() * 0.5)
+    })
+    trees.sort((a, b) => a.y - b.y)
+    const houses = []
+    for (let k = 0; k < 11; k++) {
+      const a = (k / 11) * Math.PI * 2 + 0.3, r = 126 + rnd() * 44
+      houses.push({ x: 525 + Math.cos(a) * r * 1.18, y: 432 + Math.sin(a) * r * 0.9, w: 13 + rnd() * 7, rot: rnd() * 36 - 18 })
+    }
+    ;[[752, 474], [262, 526], [648, 330]].forEach(([cx, cy]) => {
+      for (let k = 0; k < 3; k++) houses.push({ x: cx + rnd() * 52 - 26, y: cy + rnd() * 42 - 21, w: 12 + rnd() * 7, rot: rnd() * 36 - 18 })
+    })
+    return { trees, houses }
+  }, [])
+
+  // place every OTHER node as a dot in its region, keep a position + region for
+  // EVERY node, build the story edges, and score "teleport" edges (long + cross-
+  // region + passing over many other nodes' dots).
+  const { dots, edges, oddEdges } = useMemo(() => {
+    const byRegion = assignRegions(g)
+    const out = [], pos = {}, regOf = {}
+    for (const pl of VILLAGE_PLACES) if (STORY[pl.id]) { pos[pl.id] = [pl.x, pl.y]; regOf[pl.id] = 'village' }
+    REGIONS.forEach((rg, ri) => {
+      const inner = rg.key === 'village' ? 0.8 : 0
+      byRegion[ri].forEach((id) => {
+        const rnd = mulberry32(hashStr(id))
+        const a = rnd() * Math.PI * 2, rr = Math.sqrt(inner * inner + rnd() * (1 - inner * inner)) * 0.96
+        const x = rg.cx + Math.cos(a) * rg.rx * rr, y = rg.cy + Math.sin(a) * rg.ry * rr
+        out.push({ id, x, y, kind: g.kindOf(id) })
+        pos[id] = [x, y]; regOf[id] = rg.key
+      })
+    })
+    const edges = []
+    for (const u of g.ids) {
+      const a = pos[u]; if (!a) continue
+      for (const v of g.adj[u]) { const b = pos[v]; if (!b) continue; edges.push([a[0], a[1], b[0], b[1], u, v]) }
+    }
+    const allPos = Object.entries(pos).map(([id, p]) => ({ id, x: p[0], y: p[1] }))
+    const scored = edges.map((e) => {
+      const [x1, y1, x2, y2, u, v] = e
+      const len = Math.hypot(x2 - x1, y2 - y1), cross = regOf[u] !== regOf[v]
+      let crossings = 0
+      if (cross && len > 500) {
+        const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy || 1
+        for (const n of allPos) {
+          if (n.id === u || n.id === v) continue
+          const t = ((n.x - x1) * dx + (n.y - y1) * dy) / L2
+          if (t < 0.03 || t > 0.97) continue
+          if (Math.hypot(n.x - (x1 + t * dx), n.y - (y1 + t * dy)) < 30) crossings++
+        }
+      }
+      return { e, len, cross, crossings, u, v, ru: regOf[u], rv: regOf[v] }
+    })
+    const oddEdges = scored.filter((s) => s.cross && s.len > 500)
+      .sort((a, b) => b.crossings - a.crossings || b.len - a.len).slice(0, 24)
+    return { dots: out, edges, oddEdges }
+  }, [g])
+
+  // selection = the node you're auditing: light up its edges, dim the rest.
+  const [sel, setSel] = useState(null)
+  const hubSet = useMemo(() => new Set(g.hubs), [g])
+  const focus = sel || current
+  const nbr = useMemo(() => {
+    if (!focus) return null
+    const s = new Set([focus])
+    for (const e of edges) { if (e[4] === focus) s.add(e[5]); if (e[5] === focus) s.add(e[4]) }
+    return s
+  }, [focus, edges])
+  const info = sel && STORY[sel] ? {
+    n: STORY[sel],
+    exits: (STORY[sel].options || []).filter((o) => !o.confuser && o.to && STORY[o.to]).map((o) => ({ t: englishOf(lineOf(o.text)), to: o.to })),
+    incoming: g.ids.filter((id) => (g.adj[id] || []).includes(sel)),
+    firstLine: STORY[sel].text && STORY[sel].text.length ? englishOf(lineOf(STORY[sel].text[0])) : '',
+  } : null
+
+  const [view, setView] = useState(MAP_VIEWS.village)
+  const [showOdd, setShowOdd] = useState(false)
+  const svgRef = useRef(null)
+  const drag = useRef(null)
+  useEffect(() => {
+    const el = svgRef.current
+    if (!el) return
+    const onWheel = (e) => {
+      e.preventDefault()
+      const r = el.getBoundingClientRect()
+      const vx = ((e.clientX - r.left) / r.width) * 1160, vy = ((e.clientY - r.top) / r.height) * 760
+      const f = e.deltaY < 0 ? 1.13 : 1 / 1.13
+      setView((v) => {
+        const k = Math.min(3.4, Math.max(0.16, v.k * f))
+        return { x: vx - (vx - v.x) * (k / v.k), y: vy - (vy - v.y) * (k / v.k), k }
+      })
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
+  const onDown = (e) => { drag.current = { sx: e.clientX, sy: e.clientY, vx: view.x, vy: view.y, moved: false } }
+  const onMove = (e) => {
+    if (!drag.current) return
+    if (Math.abs(e.clientX - drag.current.sx) + Math.abs(e.clientY - drag.current.sy) > 3) drag.current.moved = true
+    const r = svgRef.current.getBoundingClientRect()
+    const dx = ((e.clientX - drag.current.sx) / r.width) * 1160, dy = ((e.clientY - drag.current.sy) / r.height) * 760
+    setView((v) => ({ ...v, x: drag.current.vx + dx, y: drag.current.vy + dy }))
+  }
+  const onUp = () => { drag.current = null }
+  const onBackdrop = () => { if (!drag.current || !drag.current.moved) setSel(null) }
+  const zoomBy = (f) => setView((v) => { const k = Math.min(3.4, Math.max(0.16, v.k * f)); return { x: 580 - (580 - v.x) * (k / v.k), y: 380 - (380 - v.y) * (k / v.k), k } })
+  const dr = 3.6 / view.k, ds = 1 / view.k
+
+  return (
+    <div className="dbg-map">
+      <p className="dbg-note">
+        The whole world on one map — <b>drag</b> to pan, <b>scroll</b> to zoom. The detailed
+        <b> village</b> sits at the centre; around it lie the great forest, Mount Tomorr and the sky realm,
+        the river down to the sea and Rozafa castle, and — down through the well — the world below.
+        Every <b>dot</b> is a scene; click any dot or building to open it in the Story Graph.
+      </p>
+      <div className="dbg-worldwrap">
+        <div className="dbg-worldtools">
+          <button className="btn" title="zoom in" onClick={() => zoomBy(1.3)}>＋</button>
+          <button className="btn" title="zoom out" onClick={() => zoomBy(1 / 1.3)}>−</button>
+          <button className="btn" title="centre on the village" onClick={() => setView(MAP_VIEWS.village)}>⌂ village</button>
+          <button className="btn" title="fit the whole world" onClick={() => setView(MAP_VIEWS.world)}>⤢ world</button>
+          <button className={'btn' + (showOdd ? ' active' : '')}
+                  title="highlight geographically long 'teleport' links that cross over many other scenes"
+                  onClick={() => setShowOdd((o) => !o)}>⚡ odd links {oddEdges.length}</button>
+        </div>
+        <svg ref={svgRef} viewBox="0 0 1160 760" className="dbg-world" preserveAspectRatio="xMidYMid meet"
+             onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={onUp}>
+          <defs>
+            <linearGradient id="vGrass" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#9fb56f" /><stop offset="1" stopColor="#89a55c" />
+            </linearGradient>
+            <linearGradient id="vWater" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor="#6fa7bc" /><stop offset="1" stopColor="#84bacb" />
+            </linearGradient>
+            <linearGradient id="wSky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#3a4a74" /><stop offset="1" stopColor="#6a7fae" />
+            </linearGradient>
+            <linearGradient id="wSea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#5f9ab2" /><stop offset="1" stopColor="#7fb4c6" />
+            </linearGradient>
+          </defs>
+
+          <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
+            {/* world ground */}
+            <rect x={-960} y={-1560} width={4080} height={3900} fill="#88a559" onClick={onBackdrop} />
+            {WORLD_BLOTCHES.map(([x, y, rx, ry], i) => <ellipse key={'bl' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7c9450" opacity={0.32} />)}
+            {/* soft region halos so the regions read as one continuous land */}
+            {REGIONS.map((rg) => (rg.terrain && HALO[rg.terrain]
+              ? <ellipse key={'ha' + rg.key} cx={rg.cx} cy={rg.cy} rx={rg.rx * 1.2} ry={rg.ry * 1.2} fill={HALO[rg.terrain]} opacity={0.5} />
+              : null))}
+
+            {/* connector roads, the world river, and the well-shaft down to the underworld */}
+            {VILLAGE_ROADS.map((d, i) => (
+              <g key={i}>
+                <path d={d} fill="none" stroke="#cabd92" strokeWidth={12} opacity={0.6} strokeLinecap="round" />
+                <path d={d} fill="none" stroke="#a89468" strokeWidth={3} strokeDasharray="3 12" strokeLinecap="round" />
+              </g>
+            ))}
+            <path d={WORLD_RIVER} fill="none" stroke="#cdbf94" strokeWidth={70} strokeLinecap="round" />
+            <path d={WORLD_RIVER} fill="none" stroke="url(#wSea)" strokeWidth={46} strokeLinecap="round" />
+            <path d={WELL_SHAFT} fill="none" stroke="#241f1b" strokeWidth={18} strokeLinecap="round" opacity={0.75} />
+            <path d={WELL_SHAFT} fill="none" stroke="#5a4e42" strokeWidth={4} strokeDasharray="2 12" strokeLinecap="round" />
+
+            {/* region terrains */}
+            {REGIONS.map((rg) => (rg.terrain ? <g key={rg.key}>{TERRAIN[rg.terrain](rg)}</g> : null))}
+
+            {/* ===== the village (detailed) ===== */}
+            <g>
+              <rect x="0" y="0" width="1160" height="820" rx={40} fill="url(#vGrass)" />
+              {[[300, 620, 120, 40], [180, 640, 90, 30], [430, 300, 90, 30]].map(([x, y, rx, ry], i) => (
+                <ellipse key={i} cx={x} cy={y} rx={rx} ry={ry} fill="#7f9a54" opacity="0.35" />
+              ))}
+              <ellipse cx={654} cy={188} rx={96} ry={44} fill="#a7bd75" opacity="0.6" />
+              <Field x={148} y={150} w={252} h={168} rot={-6} tone="#6f5744" />
+              <Field x={120} y={344} w={168} h={150} rot={7} tone="#7a664a" />
+              <Field x={470} y={772} w={330} h={120} rot={0} tone="#6f5744" />
+              <Field x={214} y={724} w={168} h={118} rot={-4} tone="#7a664a" />
+              <path d={RIVER_D} fill="none" stroke="#cdbf94" strokeWidth={98} strokeLinecap="round" />
+              <path d={RIVER_D} fill="none" stroke="url(#vWater)" strokeWidth={66} strokeLinecap="round" />
+              <path d={RIVER_D} fill="none" stroke="#b7dae6" strokeWidth={16} strokeLinecap="round" opacity={0.55} />
+              {gBridgeDeck()}
+              {VILLAGE_LANES.map(([x1, y1, x2, y2], i) => {
+                const mx = (x1 + x2) / 2 + (y2 - y1) * 0.06, my = (y1 + y2) / 2 + (x1 - x2) * 0.06
+                const d = `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`
+                return (
+                  <g key={i}>
+                    <path d={d} fill="none" stroke="#cabd92" strokeWidth={7} opacity={0.6} strokeLinecap="round" />
+                    <path d={d} fill="none" stroke="#a89468" strokeWidth={2} strokeDasharray="2 8" strokeLinecap="round" />
+                  </g>
+                )
+              })}
+              {scatter.trees.map((t, i) => <Tree key={i} x={t.x} y={t.y} s={t.s} />)}
+              {scatter.houses.map((h, i) => <House key={i} x={h.x} y={h.y} w={h.w} rot={h.rot} />)}
+              {VILLAGE_DISTRICTS.map((d, i) => (
+                <text key={i} x={d.x} y={d.y} textAnchor="middle" className="dbg-vdistrict">{d.t}</text>
+              ))}
+              {VILLAGE_PLACES.map((pl) => {
+                if (!STORY[pl.id]) return null
+                const kind = g.kindOf(pl.id)
+                const isSel = pl.id === sel, isCur = pl.id === current
+                const dim = focus && nbr && !nbr.has(pl.id)
+                return (
+                  <g key={pl.id} className="dbg-vpin" opacity={dim ? 0.3 : 1}
+                     onClick={() => setSel(pl.id)} style={{ cursor: 'pointer' }}>
+                    <title>{pl.id}{STORY[pl.id].end ? ` (${STORY[pl.id].end})` : ''}</title>
+                    {(isSel || isCur) && <circle cx={pl.x} cy={pl.y} r={24} fill="none" stroke={isSel ? '#3ad0c0' : '#fff'} strokeWidth={2.4} opacity={0.85} />}
+                    {GLYPH(pl)}
+                    {pl.type === 'dot'
+                      ? <circle cx={pl.x} cy={pl.y} r={isSel || isCur ? 7 : 5.5} fill={KIND_COLOR[kind]} stroke={isSel ? '#3ad0c0' : isCur ? '#fff' : '#121a24'} strokeWidth={1.6} />
+                      : pl.type !== 'square' && <circle cx={pl.x} cy={pl.y + (pl.lh > 22 ? 2 : 0)} r={3.4} fill={KIND_COLOR[kind]} stroke="#121a24" strokeWidth={1.1} />}
+                    <text x={pl.x} y={pl.y - (pl.lh || 18)} textAnchor="middle" className="dbg-vlabel">{pl.label}</text>
+                  </g>
+                )
+              })}
+            </g>
+
+            {/* story edges — a line between every linked pair of scenes, as in the graph.
+                when a node is selected: its OUT edges glow teal, its IN edges amber. */}
+            <g>
+              {edges.map(([x1, y1, x2, y2, u, v], i) => {
+                const out = u === focus, inc = v === focus
+                const stroke = out ? '#3ad0c0' : inc ? '#f0a53c' : '#4a3f30'
+                const hot = out || inc
+                return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke}
+                             strokeWidth={(hot ? 1.9 : 0.5) * ds} opacity={hot ? 0.95 : (focus ? 0.05 : (showOdd ? 0.07 : 0.18))} />
+              })}
+            </g>
+
+            {/* "teleport" links — long, cross-region, passing over many scenes */}
+            {showOdd && oddEdges.map((s, i) => {
+              const [x1, y1, x2, y2, u, v] = s.e
+              return (
+                <line key={'odd' + i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#e0459b"
+                      strokeWidth={2.6 * ds} opacity={0.92} style={{ cursor: 'pointer' }}
+                      onClick={() => setSel(u)}>
+                  <title>{u} → {v}  ·  crosses ~{s.crossings} scenes  ·  {Math.round(s.len)}px  ({s.ru}→{s.rv})</title>
+                </line>
+              )
+            })}
+
+            {/* every other node, as a clickable dot in its region.
+                click a dot to SELECT it (highlight its edges); dim the rest. */}
+            {dots.map((d) => {
+              const isSel = d.id === sel, isCur = d.id === current
+              const dim = focus && nbr && !nbr.has(d.id)
+              const big = isSel || (isCur && !sel)
+              const label = isSel || (nbr && nbr.has(d.id)) || hubSet.has(d.id)
+              return (
+                <g key={d.id} opacity={dim ? 0.22 : 1}>
+                  {label && <text x={d.x} y={d.y - 6.5 * ds} textAnchor="middle" className="dbg-wdotlabel"
+                                  style={{ fontSize: 10.5 * ds, strokeWidth: 3 * ds }}>{d.id}</text>}
+                  <circle className="dbg-wdot" cx={d.x} cy={d.y} r={big ? dr * 1.9 : dr}
+                          fill={KIND_COLOR[d.kind]} stroke={isSel ? '#3ad0c0' : isCur ? '#fff' : '#101820'}
+                          strokeWidth={ds * (big ? 2.4 : 1)} onClick={() => setSel(d.id)}>
+                    <title>{d.id}{STORY[d.id].end ? ` (${STORY[d.id].end})` : ''}</title>
+                  </circle>
+                </g>
+              )
+            })}
+
+            {/* region captions */}
+            {REGIONS.map((rg) => (rg.label ? (
+              <text key={rg.key} x={rg.cx} y={rg.cy - rg.ry - 12} textAnchor="middle" className="dbg-wregion">{rg.label}</text>
+            ) : null))}
+          </g>
+        </svg>
+
+        {info && (
+          <div className="dbg-worldinfo">
+            <div className="dbg-wi-head">
+              <code>{sel}</code>
+              {info.n.end && <span className={'dbg-tag ' + info.n.end}>{info.n.end}</span>}
+              {info.n.title && <b>{info.n.title}</b>}
+              <button className="dbg-wi-x" title="clear selection" onClick={() => setSel(null)}>✕</button>
+            </div>
+            {info.firstLine && <p className="dbg-wi-line">“{info.firstLine}”</p>}
+            <div className="dbg-wi-sec">
+              <span className="dbg-wi-lbl teal">exits · {info.exits.length}</span>
+              {info.exits.length === 0 && <em>none (ending)</em>}
+              {info.exits.map((e, i) => (
+                <button key={i} className="dbg-wi-jump" onClick={() => setSel(e.to)}>{e.t} <code>→ {e.to}</code></button>
+              ))}
+            </div>
+            <div className="dbg-wi-sec">
+              <span className="dbg-wi-lbl amber">entered from · {info.incoming.length}</span>
+              {info.incoming.length === 0 && <em>{sel === START_NODE ? 'the start' : 'unreachable!'}</em>}
+              {info.incoming.map((id) => (
+                <button key={id} className="dbg-wi-jump" onClick={() => setSel(id)}><code>{id}</code></button>
+              ))}
+            </div>
+            <button className="btn dbg-wi-open" onClick={() => goGraph(sel)}>open in Story Graph →</button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Library({ focus, goGraph, goLore }) {
+  const [filter, setFilter] = useState('')
+  const refs = useRef({})
+  const byId = useMemo(() => Object.fromEntries(FOLKLORE.map((f) => [f.id, f])), [])
+  // reverse map: folklore id -> [ending ids]
+  const byLore = useMemo(() => {
+    const m = {}
+    for (const [endId, loreId] of Object.entries(ENDING_LORE)) (m[loreId] ||= []).push(endId)
+    return m
+  }, [])
+  const endTitle = useMemo(() => Object.fromEntries(ENDINGS.map((e) => [e.id, e])), [])
+  useEffect(() => {
+    if (focus && refs.current[focus]) refs.current[focus].scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [focus])
+
+  const q = filter.trim().toLowerCase()
+  const shown = FOLKLORE.filter((f) =>
+    !q || f.title.toLowerCase().includes(q) || f.summary.toLowerCase().includes(q) || f.category.toLowerCase().includes(q))
+  const cats = [...new Set(shown.map((f) => f.category))]
+
+  return (
+    <div className="dbg-lib">
+      <input className="dbg-filter" placeholder="filter folklore…" value={filter}
+             onChange={(e) => setFilter(e.target.value)} />
+      <p className="dbg-note">
+        Every figure, tale and custom the game draws on, with the source links it was built from —
+        use these to check the story against the real lore. {FOLKLORE.length} entries.
+      </p>
+      {cats.map((cat) => (
+        <div key={cat} className="dbg-lib-cat">
+          <h4>{cat}</h4>
+          {shown.filter((f) => f.category === cat).map((f) => {
+            const ends = byLore[f.id] || []
+            return (
+              <div className={'dbg-card' + (focus === f.id ? ' focus' : '')} key={f.id}
+                   ref={(el) => { refs.current[f.id] = el }}>
+                <div className="dbg-card-head">
+                  <b>{f.title}</b>
+                  <span className="dbg-tag node">{f.category}</span>
+                </div>
+                <p className="dbg-summary">{f.summary}</p>
+                {f.sources?.length > 0 && (
+                  <div className="dbg-sources">
+                    {f.sources.map((s, i) => (
+                      <a key={i} href={s.url} target="_blank" rel="noreferrer">🔗 {s.label}</a>
+                    ))}
+                  </div>
+                )}
+                {f.related?.length > 0 && (
+                  <div className="dbg-lore-ends dbg-related">
+                    <span className="dbg-lore-ends-label">related:</span>
+                    {f.related.map((rid) => {
+                      const rf = byId[rid]
+                      if (!rf) return null
+                      return (
+                        <button className="dbg-tag dbg-tag-btn node" key={rid}
+                                title={rf.title} onClick={() => goLore(rid)}>
+                          {rf.title.split('—')[0].trim()} →
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+                {ends.length > 0 && (
+                  <div className="dbg-lore-ends">
+                    <span className="dbg-lore-ends-label">endings:</span>
+                    {ends.map((id) => {
+                      const e = endTitle[id]
+                      return (
+                        <button className={'dbg-tag dbg-tag-btn ' + (e?.kind || 'node')} key={id}
+                                title={'open ' + id + ' in the Story Graph'} onClick={() => goGraph(id)}>
+                          {e?.kind === 'good' ? '🏆' : e?.kind === 'secret' ? '✨' : '💀'} {e?.title || id} →
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default function DebugView({ state, dispatch }) {
+  const g = useMemo(buildGraph, [])
+  const [sub, setSub] = useState(state.loreFocus ? 'library' : 'graph')
+  const [sel, setSel] = useState(state.nodeId)
+  const [libFocus, setLibFocus] = useState(state.loreFocus)
+
+  // arriving here via an ending's "open in library" link
+  useEffect(() => {
+    if (state.loreFocus) { setSub('library'); setLibFocus(state.loreFocus) }
+  }, [state.loreFocus])
+
+  const goGraph = (id) => { setSel(id); setSub('graph') }
+  const goLore = (loreId) => { setLibFocus(loreId); setSub('library') }
+  const endCounts = ENDINGS.reduce((a, e) => ((a[e.kind] = (a[e.kind] || 0) + 1), a), {})
+
+  return (
+    <div className="card dbg">
+      <div className="dbg-stats">
+        <span><b>{g.ids.length}</b> nodes</span>
+        <span><b>{g.reached}</b> reachable</span>
+        {g.reached < g.ids.length && <span className="warn"><b>{g.ids.length - g.reached}</b> unreachable</span>}
+        <span><b>{g.hubs.length}</b> hubs</span>
+        <span>🏆 {endCounts.good || 0} · ✨ {endCounts.secret || 0} · 💀 {endCounts.bad || 0}</span>
+        <span><b>{FOLKLORE.length}</b> folktales</span>
+      </div>
+      <div className="dbg-subtabs">
+        <button className={'btn' + (sub === 'graph' ? ' active' : '')} onClick={() => setSub('graph')}>🕸 Story Graph</button>
+        <button className={'btn' + (sub === 'village' ? ' active' : '')} onClick={() => setSub('village')}>🗺 World</button>
+        <button className={'btn' + (sub === 'map' ? ' active' : '')} onClick={() => setSub('map')}>🧭 Hubs</button>
+        <button className={'btn' + (sub === 'library' ? ' active' : '')} onClick={() => setSub('library')}>📖 Folklore</button>
+      </div>
+      <div className="dbg-legend">
+        {Object.entries(KIND_LABEL).map(([k, label]) => (
+          <span key={k}><i style={{ background: KIND_COLOR[k] }} /> {label}</span>
+        ))}
+      </div>
+      {sub === 'graph' && <StoryGraph g={g} sel={sel} setSel={setSel} goLore={goLore} />}
+      {sub === 'village' && <VillageMap g={g} current={state.nodeId} goGraph={goGraph} />}
+      {sub === 'map' && <WorldMap g={g} current={state.nodeId} setSel={setSel} goGraph={goGraph} />}
+      {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} />}
+    </div>
+  )
+}
