@@ -688,3 +688,17 @@ button {
   border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
 .dbg-src-meta { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
 .dbg-src-meta i { color: #cdb6f0; font-style: normal; }
+/* 3-axis rank meters (shqip / njohje / rëndësi) */
+.dbg-rank { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 8px; }
+.dbg-rank-ax { display: inline-flex; align-items: center; gap: 5px; cursor: help; }
+.dbg-rank-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.dbg-dots { display: inline-flex; gap: 2px; }
+.dbg-dots i { width: 7px; height: 7px; border-radius: 50%; background: #2f2a25; border: 1px solid var(--line); }
+.dbg-dots i.on { background: #b07bff; border-color: #b07bff; }
+/* sort controls on the Folklore & History panels */
+.dbg-sortrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; }
+.dbg-sortlbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.dbg-sortbtn { font-size: 12px; font-family: inherit; padding: 3px 9px; border-radius: 6px; cursor: pointer;
+  background: #14110d; border: 1px solid var(--line); color: var(--muted); }
+.dbg-sortbtn:hover { color: var(--ink); border-color: #6b5a86; }
+.dbg-sortbtn.active { background: #3a2f4a; border-color: #b07bff; color: #e8dcff; }

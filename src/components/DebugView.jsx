@@ -1746,8 +1746,57 @@ function VillageMap({ g, current, goGraph }) {
   )
 }
 
+// ── the 3-axis ranking: how Albanian / how known / how culturally important ──
+const RANK_AXES = [
+  { i: 0, label: 'shqip', tip: 'How distinctively Albanian: endemic (5) → Balkan-shared → borrowed/generic (1)' },
+  { i: 1, label: 'njohje', tip: 'How many Albanians would recognise it today: everyone (5) → scholars only (1)' },
+  { i: 2, label: 'rëndësi', tip: 'Cultural importance / centrality: a pillar (5) → a curiosity (1)' },
+]
+function Dots({ n }) {
+  return (
+    <span className="dbg-dots" aria-label={n + '/5'}>
+      {[1, 2, 3, 4, 5].map((i) => <i key={i} className={i <= n ? 'on' : ''} />)}
+    </span>
+  )
+}
+function RankBar({ id }) {
+  const r = RANK[id]
+  if (!r) return null
+  return (
+    <div className="dbg-rank">
+      {RANK_AXES.map((a) => (
+        <span key={a.i} className="dbg-rank-ax" title={a.tip}>
+          <span className="dbg-rank-lbl">{a.label}</span><Dots n={r[a.i]} />
+        </span>
+      ))}
+    </div>
+  )
+}
+// an entry's own sources + the extra ones gathered in the ranking pass (deduped)
+function mergedSources(entry) {
+  const seen = new Set(); const out = []
+  for (const s of [...(entry.sources || []), ...(EXTRA_SOURCES[entry.id] || [])]) {
+    if (s && s.url && !seen.has(s.url)) { seen.add(s.url); out.push(s) }
+  }
+  return out
+}
+const RANK_SORTS = [
+  { key: 'cat', label: 'category' },
+  { key: 'alb', label: '🇦🇱 most Albanian', i: 0 },
+  { key: 'know', label: 'best known', i: 1 },
+  { key: 'imp', label: 'most important', i: 2 },
+  { key: 'sum', label: '★ overall' },
+]
+const rankVal = (id, key) => {
+  const r = RANK[id]; if (!r) return -1
+  if (key === 'sum') return r[0] + r[1] + r[2]
+  const s = RANK_SORTS.find((x) => x.key === key)
+  return s && s.i != null ? r[s.i] : 0
+}
+
 function Library({ focus, goGraph, goLore, goSource, goHistory }) {
   const [filter, setFilter] = useState('')
+  const [sort, setSort] = useState('cat')
   const refs = useRef({})
   const byId = useMemo(() => Object.fromEntries(FOLKLORE.map((f) => [f.id, f])), [])
   // reverse map: folklore id -> [ending ids]
@@ -1777,20 +1826,31 @@ function Library({ focus, goGraph, goLore, goSource, goHistory }) {
   const shown = FOLKLORE.filter((f) =>
     !q || f.title.toLowerCase().includes(q) || f.summary.toLowerCase().includes(q) || f.category.toLowerCase().includes(q))
   const cats = [...new Set(shown.map((f) => f.category))]
+  const groups = sort === 'cat'
+    ? cats.map((c) => ({ head: c, items: shown.filter((f) => f.category === c) }))
+    : [{ head: null, items: [...shown].sort((a, b) => rankVal(b.id, sort) - rankVal(a.id, sort) || a.title.localeCompare(b.title)) }]
 
   return (
     <div className="dbg-lib">
       <input className="dbg-filter" placeholder="filter folklore…" value={filter}
              onChange={(e) => setFilter(e.target.value)} />
+      <div className="dbg-sortrow">
+        <span className="dbg-sortlbl">sort</span>
+        {RANK_SORTS.map((s) => (
+          <button key={s.key} className={'dbg-sortbtn' + (sort === s.key ? ' active' : '')}
+                  onClick={() => setSort(s.key)}>{s.label}</button>
+        ))}
+      </div>
       <p className="dbg-note">
-        Every figure, tale and custom the game draws on, with the source links it was built from —
-        use these to check the story against the real lore. {FOLKLORE.length} entries · 📄 = a
-        downloadable full text · see the <b>📚 Sources</b> tab for the {CORPUS.length} primary-source works.
+        Every figure, tale and custom the game draws on. Each card is scored 1–5 on three axes —
+        <b> shqip</b> (how distinctively Albanian), <b> njohje</b> (how widely known today) and
+        <b> rëndësi</b> (cultural weight); hover a meter for the scale. {FOLKLORE.length} entries ·
+        📄 = a downloadable full text · see <b>📚 Sources</b> for the {CORPUS.length} source works.
       </p>
-      {cats.map((cat) => (
-        <div key={cat} className="dbg-lib-cat">
-          <h4>{cat}</h4>
-          {shown.filter((f) => f.category === cat).map((f) => {
+      {groups.map((grp, gi) => (
+        <div key={gi} className="dbg-lib-cat">
+          {grp.head && <h4>{grp.head}</h4>}
+          {grp.items.map((f) => {
             const ends = byLore[f.id] || []
             return (
               <div className={'dbg-card' + (focus === f.id ? ' focus' : '')} key={f.id}
@@ -1799,10 +1859,11 @@ function Library({ focus, goGraph, goLore, goSource, goHistory }) {
                   <b>{f.title}</b>
                   <span className="dbg-tag node">{f.category}</span>
                 </div>
+                <RankBar id={f.id} />
                 <p className="dbg-summary">{f.summary}</p>
-                {f.sources?.length > 0 && (
+                {mergedSources(f).length > 0 && (
                   <div className="dbg-sources">
-                    {f.sources.map((s, i) => (
+                    {mergedSources(f).map((s, i) => (
                       <a key={i} href={s.url} target="_blank" rel="noreferrer">🔗 {s.label}</a>
                     ))}
                   </div>
@@ -1978,6 +2039,7 @@ function Sources({ focus, goLore, goHistory }) {
 // The History / Chronicle layer — real, datable, place-anchored events.
 function History({ focus, goLore, goSource }) {
   const [filter, setFilter] = useState('')
+  const [sort, setSort] = useState('time')
   const refs = useRef({})
   const byId = useMemo(() => Object.fromEntries(FOLKLORE.map((f) => [f.id, f])), [])
   // reverse map: history id -> [corpus sources that document it]
@@ -1991,16 +2053,24 @@ function History({ focus, goLore, goSource }) {
   }, [focus])
 
   const q = filter.trim().toLowerCase()
-  const shown = HISTORY.filter((h) => !q ||
+  const filtered = HISTORY.filter((h) => !q ||
     (h.title + ' ' + h.era + ' ' + h.place + ' ' + h.summary).toLowerCase().includes(q))
+  const shown = sort === 'time' ? filtered
+    : [...filtered].sort((a, b) => rankVal(b.id, sort) - rankVal(a.id, sort) || a.title.localeCompare(b.title))
 
   return (
     <div className="dbg-lib">
       <input className="dbg-filter" placeholder="filter history…" value={filter}
              onChange={(e) => setFilter(e.target.value)} />
+      <div className="dbg-sortrow">
+        <span className="dbg-sortlbl">sort</span>
+        {[['time', 'timeline'], ['alb', '🇦🇱 most Albanian'], ['know', 'best known'], ['imp', 'most important'], ['sum', '★ overall']].map(([k, l]) => (
+          <button key={k} className={'dbg-sortbtn' + (sort === k ? ' active' : '')} onClick={() => setSort(k)}>{l}</button>
+        ))}
+      </div>
       <p className="dbg-note">
         Real, datable events tied to the world&rsquo;s places — kept separate from the myth in 📖 Folklore.
-        Illyria to independence, plus the blood-feud as lived law. {HISTORY.length} entries, in time order.
+        Scored 1–5 on the same three axes (shqip / njohje / rëndësi). {HISTORY.length} entries; default in time order.
       </p>
       {shown.map((h) => (
         <div className={'dbg-card' + (focus === h.id ? ' focus' : '')} key={h.id}
@@ -2010,10 +2080,11 @@ function History({ focus, goLore, goSource }) {
             <span className="dbg-tag secret">📜 {h.era}</span>
           </div>
           <div className="dbg-src-meta">📍 {h.place}</div>
+          <RankBar id={h.id} />
           <p className="dbg-summary">{h.summary}</p>
-          {h.sources?.length > 0 && (
+          {mergedSources(h).length > 0 && (
             <div className="dbg-sources">
-              {h.sources.map((s, i) => (
+              {mergedSources(h).map((s, i) => (
                 <a key={i} href={s.url} target="_blank" rel="noreferrer">🔗 {s.label}</a>
               ))}
             </div>
