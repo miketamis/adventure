@@ -3182,10 +3182,10 @@ export const STORY = {
     text: [
       L(w('nje'), w('plak'), w('thote'), p(':')),
       L(w('shiko'), p(','), w('zoteri'), p('!')),
-      L(w('ne'), wf('shko', 'shkojmë', 'go'), wf('tek', 'te', 'to'), w('pus'), w('cdo'), wf('dite', 'ditë', 'day'), p('.')),
+      L(w('ne_we'), wf('shko', 'shkojmë', 'go'), wf('tek', 'te', 'to'), w('pus'), w('cdo'), wf('dite', 'ditë', 'day'), p('.')),
       L(w('po_but'), wf('pus', 'pusi', 'the well'), w('eshte'), w('i_art'), w('thate'), w('kaq'), w('kohe'), p('.')),
       L(w('disa'), wf('njeri', 'njerëz', 'people'), wf('ik', 'ikën', 'leave'), p('.')),
-      L(w('ndoshta'), w('ti'), wf('ndihmo', 'ndihmon', 'help'), w('ne'), p('.')),
+      L(w('ndoshta'), w('ti'), wf('ndihmo', 'ndihmon', 'help'), w('ne_we'), p('.')),
       L(w('atehere'), wf('fshat', 'fshati', 'the village'), w('eshte'), w('i_art'), w('mire'), w('perseri'), p('.')),
     ],
     options: [
@@ -3202,9 +3202,10 @@ export const STORY = {
       L(wf('ata', 'ato', 'they'), p(','), wf('motra', 'motrat', 'the sisters'), w('e_link'), w('saj'), p(','), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.')),
       L(wf('shtepi', 'shtëpitë', 'the houses'), w('tyre'), w('qene'), w('me'), w('zjarr'), p('.')),
       L(w('gjitha'), w('keto'), w('vatra'), w('tani'), wf('eshte', 'janë', 'are'), w('ftohte'), p('.')),
-      L(w('ne'), w('nuk'), wf('lufto', 'luftojmë', 'fight'), p('.')),
+      L(w('ne_we'), w('nuk'), wf('lufto', 'luftojmë', 'fight'), p('.')),
+      L(w('oh'), p(','), w('zot'), p('!')),
+      L(w('ne_we'), wf('do', 'duam', 'want'), w('me_more'), w('shume'), w('uje'), p('.')),
       L(w('ndoshta'), wf('zot', 'zoti', 'the Lord'), w('sheh'), p('.')),
-      L(w('ti'), w('ke'), w('me_more'), w('shume'), w('fuqi'), p('.')),
       L(w('ashtu'), w('eshte'), p('.')),
     ],
     options: [
@@ -7161,6 +7162,7 @@ export const DEFS = {
   do_fut: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
 
   // top-150 frequency fill — defined by role or simple synonym
+  kohe: L(w('dite'), w('dhe'), w('naten')), //         day and night
   ne_we: L(w('une'), w('dhe'), w('ti')), //            I and you
   me_more: L(w('shume')), //                           much
   disa: L(w('jo'), w('shume')), //                     not many
