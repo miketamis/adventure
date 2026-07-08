@@ -20,15 +20,17 @@ const OUT = process.argv[2] || '.'
 mkdirSync(OUT, { recursive: true })
 
 // ---- region anchors + bounds (copied from DebugView REGIONS) ----------------
+// KEEP IN SYNC with REGIONS in src/components/DebugView.jsx (re-rigged geography).
 const REGIONS = [
-  { key: 'sky', cx: 900, cy: -1180, rx: 700, ry: 280, anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende', 'diellShtepi1', 'rrugaDielli1', 'pemaDielli', 'diellThirrKul'] },
-  { key: 'mountain', cx: 860, cy: -560, rx: 660, ry: 400, anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'tomor3', 'shpirag1', 'maliStuhi', 'tomorProva', 'tomorZbritje'] },
-  { key: 'forest', cx: -300, cy: 640, rx: 380, ry: 440, anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
-  { key: 'river', cx: 1420, cy: 740, rx: 340, ry: 420, anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
-  { key: 'castle', cx: 1800, cy: 1060, rx: 220, ry: 200, anchors: ['kalaRozafa'] },
-  { key: 'sea', cx: 2060, cy: 1400, rx: 520, ry: 400, anchors: ['deti1', 'bregu', 'detiThelle1'] },
-  { key: 'underworld', cx: 560, cy: 1680, rx: 700, ry: 400, anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti', 'tre1', 'tre2', 'tre3', 'rrethi', 'shpellaHyrje'] },
-  { key: 'village', cx: 560, cy: 440, rx: 430, ry: 340, anchors: ['fshatiDil', 'fshatiBesa', 'fshatiCaul', 'udhetimi1', 'udhetimi2', 'gjizar1'] },
+  { key: 'sky', cx: 300, cy: -1200, rx: 780, ry: 300, anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende', 'diellShtepi1', 'rrugaDielli1', 'pemaDielli', 'diellThirrKul'] },
+  { key: 'mountain', cx: 300, cy: -520, rx: 640, ry: 400, anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'tomor3', 'shpirag1', 'maliStuhi', 'tomorProva', 'tomorZbritje'] },
+  { key: 'forest', cx: -520, cy: 430, rx: 380, ry: 470, anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
+  { key: 'river', cx: 250, cy: 1070, rx: 300, ry: 300, anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1', 'rrethi', 'shpellaHyrje'] },
+  { key: 'castle', cx: 300, cy: 1360, rx: 260, ry: 230, anchors: ['kalaRozafa'] },
+  { key: 'lake', cx: 60, cy: 1660, rx: 360, ry: 240, anchors: [] },
+  { key: 'sea', cx: 1560, cy: 1050, rx: 620, ry: 1180, anchors: ['deti1', 'bregu', 'detiThelle1'] },
+  { key: 'underworld', cx: 360, cy: 2180, rx: 440, ry: 350, anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti', 'tre1', 'tre2', 'tre3'] },
+  { key: 'village', cx: 512, cy: 430, rx: 430, ry: 340, anchors: ['fshatiDil', 'fshatiBesa', 'fshatiCaul', 'gjizar1'] },
 ]
 const VILLAGE_IDS = ['udhekryq', 'kisha1', 'varret1', 'kostandin1', 'fshatiSheshi', 'pusiThate', 'nenaDiell1', 'veraDite1', 'dordolec1', 'plaka', 'oda1', 'fshatiLanes', 'kulle1', 'djepi1', 'pallatiZi', 'kopshtMermer1', 'fshatiJeta', 'vatra', 'qilim', 'bariu', 'gjysmegjel1', 'syriKeq1', 'breshka1', 'fshatiLumi', 'uraArtes1', 'mulli1', 'kroi1']
 REGIONS.find((r) => r.key === 'village').anchors = [...VILLAGE_IDS, ...REGIONS.find((r) => r.key === 'village').anchors]

@@ -1,12 +1,21 @@
 import { useReducer, useState, useEffect, useRef, useSyncExternalStore } from 'react'
-import { reducer, loadState, saveState, saveEndings } from './game/gameState.js'
+import { reducer, loadState, saveState, saveEndings, timeOfDay } from './game/gameState.js'
 import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
 import { ENDINGS } from './game/content.js'
+import { AREA_FACTOIDS } from './game/folklore.js'
 import StoryView from './components/StoryView.jsx'
 import PracticeView from './components/PracticeView.jsx'
 import DictionaryView from './components/DictionaryView.jsx'
-import EndingsView from './components/EndingsView.jsx'
+import LoreView from './components/EndingsView.jsx'
 import DebugView from './components/DebugView.jsx'
+
+// the four phases of the world-day, named in Albanian (they're vocabulary too)
+const TIME_UI = {
+  dawn: { icon: '🌅', al: 'agim', en: 'dawn' },
+  day: { icon: '☀️', al: 'ditë', en: 'day' },
+  dusk: { icon: '🌆', al: 'muzg', en: 'dusk' },
+  night: { icon: '🌙', al: 'natë', en: 'night' },
+}
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, loadState)
@@ -26,7 +35,18 @@ export default function App() {
   }
   const peakOn = state.peak > 0 || state.debug
   const muted = useSyncExternalStore(subscribeMute, isMuted)
-  const endingsGot = ENDINGS.filter((e) => state.discoveredEndings?.[e.id]).length
+  const phase = timeOfDay(state)
+  const timeUi = TIME_UI[phase]
+  // tint the whole sky (the page background) to the hour
+  useEffect(() => {
+    for (const p of Object.keys(TIME_UI)) document.body.classList.remove('time-' + p)
+    document.body.classList.add('time-' + phase)
+  }, [phase])
+  // The lore codex counts FACTOIDS (good/secret endings + area factoids — the
+  // lore achievements), not the bad "fates".
+  const factoidDefs = [...ENDINGS.filter((e) => e.kind !== 'bad'), ...AREA_FACTOIDS]
+  const factoidTotal = factoidDefs.length
+  const factoidsGot = factoidDefs.filter((e) => state.discoveredEndings?.[e.id]).length
 
   // persist the whole state every change — reloading resumes exactly where you were
   useEffect(() => {
@@ -64,6 +84,18 @@ export default function App() {
           </span>
         </span>
         <span className="stat">turn <b>{state.turn}</b></span>
+        <span
+          className={'stat tip-host time-stat time-' + phase + (state.debug ? ' clickable' : '')}
+          onClick={state.debug ? () => dispatch({ type: 'DEBUG_TIME' }) : undefined}
+          role={state.debug ? 'button' : undefined}
+        >
+          {timeUi.icon} <b>{timeUi.al}</b>
+          <span className="tooltip stat-tip">
+            <b>{timeUi.icon} Koha</b> — it is <b>{timeUi.en}</b> ({timeUi.al}). The hour drifts
+            as you take turns; sleeping or waiting jumps it. Some paths and scenes only exist
+            at certain hours.{state.debug ? ' Debug: click to skip to the next phase.' : ''}
+          </span>
+        </span>
         <span className="stat hearts" title="Hearts — a wrong training answer costs one; lose all 3 and it's game over">
           {Array.from({ length: 3 }, (_, i) => (
             <span key={i} className={'heart' + (i < state.hearts ? ' full' : '')}>
@@ -88,14 +120,14 @@ export default function App() {
         {tab('story', '📖 Story')}
         {tab('practice', '🎯 Train')}
         {tab('dictionary', '📚 Dictionary')}
-        {tab('endings', `🏆 Endings (${endingsGot}/${ENDINGS.length})`)}
+        {tab('endings', `📜 Lore (${factoidsGot}/${factoidTotal})`)}
         {state.debug && tab('debug', '🛠 Debug')}
       </div>
 
       {state.view === 'story' && <StoryView state={state} dispatch={dispatch} />}
       {state.view === 'practice' && <PracticeView state={state} dispatch={dispatch} />}
       {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
-      {state.view === 'endings' && <EndingsView state={state} />}
+      {state.view === 'endings' && <LoreView state={state} dispatch={dispatch} />}
       {state.view === 'debug' && <DebugView state={state} dispatch={dispatch} />}
 
       {state.hearts <= 0 && (

@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import Token from './Token.jsx'
 import { STORY, ITEMS, w, wf, p, visibleLines, lineOf } from '../game/content.js'
-import { FOLKLORE, ENDING_LORE } from '../game/folklore.js'
-import { canSpeak, canUseItem, hasRequiredItem, phraseSenses } from '../game/gameState.js'
+import { ENDING_LORE, AREA_FACTOIDS } from '../game/folklore.js'
+import { canSpeak, canUseItem, hasRequiredItem, hasCond, phraseSenses } from '../game/gameState.js'
+import FactoidLore from './FactoidLore.jsx'
 
 // sense ids that are NOT nouns (verbs, particles, adjectives, adverbs, numbers).
 // Used to (a) pick a real "thing" from the scene for item-combo distractors, and
 // (b) find the NOUN a direction acts on, so a sentence can unlock that direction.
 const NON_NOUNS = new Set([
-  'ti', 'je', 'ne', 'nje', 'dhe', 'ka', 'ke', 'mund', 'eshte', 'te_link', 'te_subj', 'te_obj',
+  'ti', 'je', 'ne', 'nje', 'dhe', 'ka', 'ke', 'mund', 'eshte', 'te_link', 'te_subj', 'te_obj', 'deri',
   'i_art', 'e_art', 'me', 'por', 'nuk', 'pa', 'ku', 'qe', 'do', 'per', 'une', 'jam', 'ose', 'jo',
   'sheh', 'ec', 'fle', 'hap', 'ik', 'jep', 'pi', 'behet', 'vjen', 'zgjohu', 'rri', 'ndiz', 'ha',
   'mbaroi', 'humbet', 'merr', 'kerko', 'gjen', 'kalo', 'shko', 'prit', 'lufto', 'vrit', 'shpeto',
@@ -68,26 +69,21 @@ const predsOf = (id) => {
   }
   return _preds[id] || []
 }
-// a SET of comprehension questions: the ending's lines first (the climax), then a
-// scene or two from the path that led here — so it tests the journey, not one line.
-function buildComprehension(node, resolvedLines) {
+// Turn an ORDERED list of story lines (richest-first) into up to 3 comprehension
+// questions: dedup, take the first 3 content lines, and give each two plausible
+// distractors drawn from the pool of every ending's lines. `seedKey` keeps the
+// option order stable per topic. Shared by ending factoids and area factoids.
+function comprehensionFromLines(orderedLines, seedKey) {
   const seen = new Set()
-  const pick = []
-  const add = (lines) => {
-    for (const l of [...lines].sort((a, b) => richness(b) - richness(a))) {
-      if (!isContent(l)) continue
-      const k = lineAlbanian(l)
-      if (seen.has(k) || !k) continue
-      seen.add(k)
-      pick.push(l)
-    }
+  const chosen = []
+  for (const l of orderedLines) {
+    if (chosen.length >= 3) break
+    if (!isContent(l)) continue
+    const k = lineAlbanian(l)
+    if (seen.has(k) || !k) continue
+    seen.add(k)
+    chosen.push(l)
   }
-  add(resolvedLines)
-  for (const pid of predsOf(node.id)) {
-    if (pick.length >= 3) break
-    add(STORY[pid].text.map(lineOf))
-  }
-  const chosen = pick.slice(0, 3)
   if (!chosen.length) return null
   const pool = answerPool()
   const qs = chosen
@@ -97,12 +93,30 @@ function buildComprehension(node, resolvedLines) {
       let p = pool.filter((s) => s !== correct)
       const near = p.filter((s) => Math.abs(s.split(' ').length - wc) <= 2)
       if (near.length >= 2) p = near
-      const distractors = stableShuffle(p, node.id + correct + i).slice(0, 2)
+      const distractors = stableShuffle(p, seedKey + correct + i).slice(0, 2)
       if (distractors.length < 2) return null
-      return { albanian: lineAlbanian(line), correct, options: stableShuffle([correct, ...distractors], node.id + i) }
+      return { albanian: lineAlbanian(line), correct, options: stableShuffle([correct, ...distractors], seedKey + i) }
     })
     .filter(Boolean)
   return qs.length ? qs : null
+}
+// a SET of comprehension questions: the ending's lines first (the climax), then a
+// scene or two from the path that led here — so it tests the journey, not one line.
+function buildComprehension(node, resolvedLines) {
+  const ordered = [...resolvedLines].sort((a, b) => richness(b) - richness(a))
+  for (const pid of predsOf(node.id)) {
+    for (const l of STORY[pid].text.map(lineOf).sort((a, b) => richness(b) - richness(a))) ordered.push(l)
+  }
+  return comprehensionFromLines(ordered, node.id)
+}
+// comprehension for an AREA factoid: drawn from the region's key scenes (quizNodes).
+function areaComprehension(factoid) {
+  const lines = []
+  for (const id of factoid.quizNodes || []) {
+    if (STORY[id]) for (const l of STORY[id].text.map(lineOf)) lines.push(l)
+  }
+  lines.sort((a, b) => richness(b) - richness(a))
+  return comprehensionFromLines(lines, factoid.id)
 }
 
 export default function StoryView({ state, dispatch }) {
@@ -115,25 +129,46 @@ export default function StoryView({ state, dispatch }) {
   const [compStep, setCompStep] = useState(0)
   const [compPick, setCompPick] = useState(null)
   const [compScore, setCompScore] = useState(0)
+  // AREA-FACTOID comprehension test (opened from the "take the test" banner):
+  // whether it's open, and its own step/pick/score.
+  const [factoidOpen, setFactoidOpen] = useState(false)
+  const [fStep, setFStep] = useState(0)
+  const [fPick, setFPick] = useState(null)
+  const [fScore, setFScore] = useState(0)
+  const resetFactoidQuiz = () => { setFStep(0); setFPick(null); setFScore(0) }
   useEffect(() => {
     setConfusedKey(null)
     setCompStep(0)
     setCompPick(null)
     setCompScore(0)
   }, [state.nodeId])
+  useEffect(() => {
+    setFactoidOpen(false)
+    resetFactoidQuiz()
+  }, [state.pendingFactoid])
 
   // === SENTENCE-GATED DIRECTIONS ============================================
   // A direction stays hidden until you discover every word of the sentence that
   // names its thing. e.g. discovering "ka një lumë" reveals "shko në lumë". The
   // noun a phrase acts on is its last content noun.
   // the lines actually shown right now — a scene can react to what walks with you
-  // (when()/unless() lines in content.js), so resolve against the current inventory
-  const has = (id) => (state.inventory[id] || 0) > 0
+  // AND to the hour (when()/unless() lines in content.js take item ids or a
+  // time-of-day phase id), so resolve against inventory + the world clock
+  const has = (id) => hasCond(state, id)
   const lines = visibleLines(node, has)
   // comprehension test that gates the lore blurb at an ending
   const comp = state.ended ? buildComprehension(node, lines) : null
   const compDone = !comp || compStep >= comp.length
   const compQ = compDone ? null : comp[compStep]
+
+  // an AREA factoid the world is offering right now (only while free-roaming)
+  const pendingFactoid = !state.ended && state.pendingFactoid
+    ? AREA_FACTOIDS.find((f) => f.id === state.pendingFactoid)
+    : null
+  const areaComp = pendingFactoid ? areaComprehension(pendingFactoid) : null
+  const areaDone = areaComp && fStep >= areaComp.length
+  const areaQ = areaComp && !areaDone ? areaComp[fStep] : null
+  const areaPassed = areaComp && fScore === areaComp.length
 
   const isNoun = (id) => id && !NON_NOUNS.has(id)
   const lineDiscovered = (line) => line.every((t) => !t.id || state.discovered[t.id])
@@ -315,9 +350,9 @@ export default function StoryView({ state, dispatch }) {
         <div className={'ending ' + state.ended}>
           <div className="verdict">
             {state.ended === 'good'
-              ? '🏆 Fund i mirë'
+              ? '🏆 Factoid unlocked'
               : state.ended === 'secret'
-                ? '✨ Fund i fshehtë'
+                ? '✨ Secret factoid'
                 : '💀 Fund i keq'}
           </div>
           {node.title && <div className="ending-name">{node.title}</div>}
@@ -375,22 +410,12 @@ export default function StoryView({ state, dispatch }) {
                 </div>
               )}
               {node.blurb && <p className="ending-desc">{node.blurb}</p>}
-              {state.debug && ENDING_LORE[node.id] && (() => {
-                const lore = FOLKLORE.find((f) => f.id === ENDING_LORE[node.id])
-                if (!lore) return null
-                return (
-                  <button
-                    className="btn lore-link"
-                    onClick={() => dispatch({ type: 'OPEN_LORE', lore: lore.id })}
-                  >
-                    📖 The folktale: <b>{lore.title}</b> — open in the library →
-                  </button>
-                )
-              })()}
+              {state.ended !== 'bad' && <FactoidLore loreId={ENDING_LORE[node.id]} dispatch={dispatch} />}
               {state.ended !== 'bad' ? (
                 <>
+                  <p className="hearts-restored">❤️ Hearts restored to full.</p>
                   <p className="hint">
-                    Added to your endings collection. This tale is done — step back into the world and
+                    Added to your lore codex. This tale is done — step back into the world and
                     keep exploring. Everything you&apos;ve gathered comes with you.
                   </p>
                   <button
@@ -403,7 +428,7 @@ export default function StoryView({ state, dispatch }) {
               ) : (
                 <>
                   <p className="hint">
-                    Added to your endings collection. Play again to find another ending — your
+                    Recorded in your codex as a fate. Play again to seek out a factoid — your
                     discovered words and tokens carry over.
                   </p>
                   <button className="btn primary" onClick={() => dispatch({ type: 'CONTINUE' })}>
@@ -414,8 +439,103 @@ export default function StoryView({ state, dispatch }) {
             </>
           )}
         </div>
+      ) : factoidOpen && pendingFactoid ? (
+        <div className="ending secret">
+          <div className="verdict">📜 A e kuptove?</div>
+          <div className="ending-name">{pendingFactoid.title}</div>
+          {areaComp && !areaDone ? (
+            <div className="comp-quiz">
+              <p className="comp-q">📖 comprehension {fStep + 1} / {areaComp.length}</p>
+              <div className="comp-al">{areaQ.albanian}</div>
+              <div className="answers">
+                {areaQ.options.map((opt) => {
+                  let cls = 'answer'
+                  if (fPick !== null && opt === areaQ.correct) cls += ' correct'
+                  else if (fPick === opt && opt !== areaQ.correct) cls += ' wrong'
+                  return (
+                    <button
+                      key={opt}
+                      className={cls}
+                      disabled={fPick !== null}
+                      onClick={() => {
+                        setFPick(opt)
+                        if (opt === areaQ.correct) setFScore((s) => s + 1)
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  )
+                })}
+              </div>
+              {fPick === null ? (
+                <p className="hint">Answer correctly to earn the factoid.</p>
+              ) : (
+                <>
+                  <div className={'feedback ' + (fPick === areaQ.correct ? 'good' : 'bad')}>
+                    {fPick === areaQ.correct ? '✓ Saktë! ' : '✗ '}
+                    <em>{areaQ.albanian}</em> = {areaQ.correct}
+                  </div>
+                  <button
+                    className="btn primary"
+                    onClick={() => {
+                      setFStep(fStep + 1)
+                      setFPick(null)
+                    }}
+                  >
+                    {fStep < areaComp.length - 1 ? 'Next question →' : 'See the result →'}
+                  </button>
+                </>
+              )}
+            </div>
+          ) : !areaComp || areaPassed ? (
+            <>
+              {areaComp && (
+                <div className="feedback good">
+                  You understood {fScore} / {areaComp.length}.
+                </div>
+              )}
+              {pendingFactoid.blurb && <p className="ending-desc">{pendingFactoid.blurb}</p>}
+              <FactoidLore loreId={pendingFactoid.lore} dispatch={dispatch} />
+              <p className="hearts-restored">❤️ Hearts restored to full.</p>
+              <p className="hint">Added to your lore codex — step back into the world and keep exploring.</p>
+              <button
+                className="btn primary"
+                onClick={() => dispatch({ type: 'EARN_FACTOID', id: pendingFactoid.id })}
+              >
+                🏆 Claim factoid →
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="feedback bad">
+                You understood {fScore} / {areaComp.length}. Not quite — revisit the tale and try again.
+              </div>
+              <button className="btn primary" onClick={resetFactoidQuiz}>
+                ↺ Try again
+              </button>
+              <button className="btn" onClick={() => { setFactoidOpen(false); resetFactoidQuiz() }}>
+                Later
+              </button>
+            </>
+          )}
+        </div>
       ) : (
         <>
+          {pendingFactoid && (
+            <div className="factoid-banner">
+              <span className="factoid-banner-text">
+                📜 You&apos;ve come to know <b>{pendingFactoid.title}</b> — prove it to earn a factoid.
+              </span>
+              <span className="factoid-banner-actions">
+                <button className="btn primary" onClick={() => { resetFactoidQuiz(); setFactoidOpen(true) }}>
+                  Take the test →
+                </button>
+                <button className="btn factoid-dismiss" title="Dismiss for now" onClick={() => dispatch({ type: 'DISMISS_FACTOID' })}>
+                  ✕
+                </button>
+              </span>
+            </div>
+          )}
           <div className="options">
             {shuffledEntries.map((e) => {
               const wasConfused = confusedKey === e.key

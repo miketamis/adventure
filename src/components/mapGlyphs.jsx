@@ -704,6 +704,117 @@ function gShtojzovalle(x, y) {
   )
 }
 
+// ── THE SUN'S COMPOUND (sky) ──────────────────────────────────────────────
+function gSunOda(x, y) {
+  // the Sun's golden oda — an open columned pavilion where you plead your case
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(2, 16, 20, 5)}
+      <rect x={-18} y={10} width={36} height={5} rx={1.5} fill="#e6b53a" stroke="#a8710f" strokeWidth={1.6} />
+      {[-14, -5, 5, 14].map((cx, i) => <rect key={i} x={cx - 1.8} y={-6} width={3.6} height={16} fill="#f4c634" stroke="#a8710f" strokeWidth={1} />)}
+      <polygon points="-20,-6 0,-20 20,-6" fill="#f6cf49" stroke="#a8710f" strokeWidth={2} strokeLinejoin="round" />
+      <polygon points="-13,-8 0,-17 13,-8" fill="#fce38a" opacity={0.7} />
+      <circle cx={0} cy={-11} r={2.6} fill="#fff3c4" stroke="#a8710f" strokeWidth={0.8} />
+      <rect x={-6} y={2} width={12} height={8} rx={1} fill="#c9871e" opacity={0.5} />
+    </g>
+  )
+}
+function gStag(x, y) {
+  // the stag of the Sun's road, the maiden carried in its antlers
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(0, 12, 15, 4)}
+      {[-8, -3, 4, 9].map((lx, i) => <line key={i} x1={lx} y1={5} x2={lx + (i % 2 ? 1.5 : -1.5)} y2={12} stroke="#8a6238" strokeWidth={2} strokeLinecap="round" />)}
+      <ellipse cx={0} cy={1} rx={11} ry={5.5} fill="#c9a05c" stroke="#7a5230" strokeWidth={1.4} />
+      <path d="M9 -2 Q 14 -6 14 -10" fill="none" stroke="#c9a05c" strokeWidth={4} strokeLinecap="round" />
+      <circle cx={14.5} cy={-11} r={3} fill="#d8b478" stroke="#7a5230" strokeWidth={1} />
+      <path d="M13 -13 C 9 -19 10 -23 8 -26 M13 -13 C 13 -20 16 -22 15 -27 M14 -13 C 17 -19 21 -20 22 -24"
+            fill="none" stroke="#8a6238" strokeWidth={1.6} strokeLinecap="round" />
+      {/* the maiden, riding among the antlers */}
+      <g transform="translate(13,-22)">
+        <path d="M-3 6 L-2 -1 A2.4 2.4 0 0 1 2.8 -1 L3 6 Z" fill="#efe0c4" stroke="#b8945e" strokeWidth={0.7} />
+        <circle cx={0} cy={-3.4} r={2} fill="#f0d8bf" stroke="#c9a883" strokeWidth={0.6} />
+      </g>
+    </g>
+  )
+}
+
+// ── THE LIVING QUARTER OF THE DEAD CITY (underworld) ──────────────────────
+function gGhostInn(x, y) {
+  // the bujtina — a tall dark inn, hearth-lit windows, a lantern at the door
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(2, 15, 15, 4)}
+      <rect x={-12} y={-12} width={24} height={26} rx={1.5} fill="#2a2330" stroke="#120e1a" strokeWidth={1.8} />
+      <path d="M-15 -12 L0 -22 L15 -12 Z" fill="#463748" stroke="#120e1a" strokeWidth={1.4} />
+      {[[-7, -6], [3, -6], [-7, 3]].map(([wx, wy], i) => <rect key={i} x={wx} y={wy} width={4.6} height={5.6} rx={0.8} fill="#e8b53c" opacity={0.9} />)}
+      <rect x={3} y={2} width={7} height={12} rx={1} fill="#0e0b14" />
+      <line x1={-15} y1={-16} x2={-15} y2={-9} stroke="#4a4152" strokeWidth={1.4} />
+      <circle cx={-15} cy={-7.5} r={2.4} fill="#f6cf49" stroke="#a8710f" strokeWidth={0.8} />
+    </g>
+  )
+}
+function gHealer(x, y) {
+  // the healer of the quarter — an awning, a steaming kettle of herbs
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(1, 12, 14, 4)}
+      <path d="M-13 -4 L0 -14 L13 -4 Z" fill="#4a5b3f" stroke="#242b1c" strokeWidth={1.6} />
+      <line x1={-11} y1={-4} x2={-11} y2={10} stroke="#5c4230" strokeWidth={1.8} />
+      <line x1={11} y1={-4} x2={11} y2={10} stroke="#5c4230" strokeWidth={1.8} />
+      <path d="M-6 6 A 6 4.5 0 0 0 6 6 L5 1 L-5 1 Z" fill="#6b5a44" stroke="#3a2e20" strokeWidth={1.2} />
+      <path d="M-2 -1 C -3 -5 1 -5 0 -9 M3 -1 C 2 -4 5 -5 4 -8" fill="none" stroke="#c9d2da" strokeWidth={1.1} opacity={0.75} strokeLinecap="round" />
+      {[[-8, 8], [8, 7]].map(([hx, hy], i) => <line key={i} x1={hx} y1={hy} x2={hx + (i % 2 ? 2 : -2)} y2={hy - 6} stroke="#7fa356" strokeWidth={1.4} />)}
+    </g>
+  )
+}
+function gWaySign(x, y) {
+  // the way-signs at the quarter's edge — dark post, pale rune-boards
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(1, 10, 7, 3)}
+      <rect x={-1.5} y={-16} width={3} height={26} fill="#3a322c" stroke="#1a1512" strokeWidth={0.8} />
+      <path d="M-2 -15 h-12 l-3 2.6 l3 2.6 h12 z" fill="#4a4038" stroke="#1f1a16" strokeWidth={0.9} />
+      <path d="M2 -8 h12 l3 2.6 l-3 2.6 h-12 z" fill="#4a4038" stroke="#1f1a16" strokeWidth={0.9} />
+      <line x1={-11} y1={-12.4} x2={-5} y2={-12.4} stroke="#c9d2da" strokeWidth={1.1} opacity={0.8} />
+      <line x1={5} y1={-5.4} x2={11} y2={-5.4} stroke="#c9d2da" strokeWidth={1.1} opacity={0.8} />
+      <circle cx={0} cy={-19} r={1.8} fill="#e8b53c" opacity={0.8} />
+    </g>
+  )
+}
+
+// ── THE KRESHNIK HAMLET (Jutbina) ─────────────────────────────────────────
+function gKullaSmall(x, y) {
+  // a single stone kulla — the fortified tower-house of one kreshnik tale
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(2, 15, 11, 4)}
+      <rect x={-9} y={-14} width={18} height={28} fill="#a6a39b" stroke="#4b463d" strokeWidth={2} />
+      <rect x={-9} y={-14} width={18} height={7} fill="#b8b5ad" />
+      {[-9, -2.5, 4].map((bx, i) => <rect key={i} x={bx} y={-18} width={4.5} height={5} fill="#a6a39b" stroke="#4b463d" strokeWidth={1} />)}
+      <rect x={-2} y={-8} width={4} height={5} fill="#2f2b24" />
+      <rect x={-3.5} y={6} width={7} height={8} fill="#2f2b24" />
+    </g>
+  )
+}
+function gMejdan(x, y) {
+  // the mejdan — the bare duelling ground, two crossed swords in the earth
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={4} rx={19} ry={10} fill="#c9b382" stroke="#8a7a52" strokeWidth={1.6} />
+      <ellipse cx={0} cy={4} rx={13} ry={6.4} fill="none" stroke="#a8946a" strokeWidth={1} opacity={0.8} />
+      <g strokeLinecap="round">
+        <line x1={-9} y1={9} x2={7} y2={-9} stroke="#5b5348" strokeWidth={2.6} />
+        <line x1={-9} y1={9} x2={7} y2={-9} stroke="#e2e6ea" strokeWidth={1.2} />
+        <line x1={9} y1={9} x2={-7} y2={-9} stroke="#5b5348" strokeWidth={2.6} />
+        <line x1={9} y1={9} x2={-7} y2={-9} stroke="#e2e6ea" strokeWidth={1.2} />
+        <line x1={-7.5} y1={5} x2={-3.5} y2={9.5} stroke="#7a5c3a" strokeWidth={2} />
+        <line x1={7.5} y1={5} x2={3.5} y2={9.5} stroke="#7a5c3a" strokeWidth={2} />
+      </g>
+    </g>
+  )
+}
+
 // ── GENERIC glyphs — every OTHER node (no bespoke landmark) still gets a small
 // thematic icon instead of a plain dot: endings by kind, hubs a signpost-ring,
 // and ordinary scenes a little region token. Kept tiny (2–4 shapes) for speed.
@@ -805,61 +916,74 @@ export const WORLD_GLYPH = {
   gZana, gBolla, gRiddleElder, gLake, gEagleNest, gZanaGift, gCradleRock,
   gBaloz, gGjergj, gSister, gBukuraDetit, gShoreKulla, gGraveLahuta, gFishingCoast,
   gTraveller, gCampfire, gWolf, gBear, gFox, gWitch, gRevenant, gDhampir, gShtojzovalle,
+  gSunOda, gStag, gGhostInn, gHealer, gWaySign, gKullaSmall, gMejdan,
 }
 
+// Re-rigged to the new (rotated real-Albania) map — see REGIONS in DebugView.jsx.
 export const WORLD_LANDMARKS = [
-  // Mount Tomorr — placed up the ridges: summit figures high, approach low
-  { id: 'maja', glyph: 'gBabaTomor', label: 'Baba Tomor', x: 800, y: -890 },
-  { id: 'majaEagle', glyph: 'gEagle', label: 'Eagle of Tomorr', x: 1060, y: -770 },
-  { id: 'shurdhi1', glyph: 'gShurdhi', label: 'Shurdhi', x: 540, y: -730 },
-  { id: 'verbti1', glyph: 'gVerbti', label: 'i Verbti', x: 1150, y: -560 },
-  { id: 'peri1', glyph: 'gPeri', label: 'Peri', x: 700, y: -560 },
-  { id: 'katallan1', glyph: 'gKatallan', label: 'Katallan', x: 440, y: -400 },
-  { id: 'jutbina', glyph: 'gJutbina', label: 'Jutbina', x: 1080, y: -380 },
-  { id: 'mujoHak1', glyph: 'gKreshnik', label: 'Mujo', x: 820, y: -350 },
-  // the sky realm — Dielli the Sun upper-left, Hëna the Moon upper-right
-  { id: 'qiellDiell', glyph: 'gDielli', label: 'Dielli (the Sun)', x: 470, y: -1230 },
-  { id: 'henaPaqe', glyph: 'gHena', label: 'Hëna (the Moon)', x: 1310, y: -1330 },
-  { id: 'qiellDem1', glyph: 'gDemQiell', label: 'Demi (white bull)', x: 730, y: -1400 },
-  { id: 'diellShtepi1', glyph: 'gDiellShtepi', label: 'Shtëpia e Diellit', x: 980, y: -1140 },
-  { id: 'bijaHene1', glyph: 'gBijaHene', label: 'E Bija e Hënës e Diellit', x: 1200, y: -1130 },
-  { id: 'qiellPrende', glyph: 'gPrende', label: 'Prende', x: 340, y: -1050 },
-  { id: 'pemaDielli', glyph: 'gPemaDielli', label: 'Pema e Diellit', x: 660, y: -1055 },
-  { id: 'qiellErera1', glyph: 'gErera', label: 'Erërat (the winds)', x: 1370, y: -1010 },
-  // the world below
-  { id: 'pusi', glyph: 'gShaft', label: 'the well descent', x: -20, y: 1440 },
-  { id: 'sprova', glyph: 'gShadowTrial', label: 'the shadow trial', x: 200, y: 1640 },
-  { id: 'gjarpri', glyph: 'gGuardianSerpent', label: 'the guardian serpent', x: 240, y: 1880 },
-  { id: 'qyteti', glyph: 'gDeadCity', label: 'the dead city', x: 560, y: 1480 },
-  { id: 'treg', glyph: 'gBazaar', label: 'the ghostly market', x: 560, y: 1720 },
-  { id: 'humbur', glyph: 'gFates', label: 'the three Fates', x: 780, y: 1950 },
-  { id: 'bukura1', glyph: 'gBukuraDheut', label: 'E Bukura e Dheut', x: 900, y: 1600 },
-  { id: 'kulshedra1', glyph: 'gKulshedra', label: 'the Kulshedra', x: 1080, y: 1800 },
-  // the river & the Zana
-  { id: 'lumi', glyph: 'gBolla', label: 'the Bolla', x: 1200, y: 460 },
-  { id: 'zana1', glyph: 'gZana', label: 'the Zana', x: 1420, y: 560 },
-  { id: 'zanaProva', glyph: 'gCradleRock', label: "the Zana's trial", x: 1640, y: 620 },
-  { id: 'zanaQumesht', glyph: 'gZanaGift', label: "the Zana's gifts", x: 1500, y: 790 },
-  { id: 'zanaFole', glyph: 'gEagleNest', label: "the eagle's nest", x: 1250, y: 720 },
-  { id: 'flocka1', glyph: 'gLake', label: 'the still lake', x: 1440, y: 900 },
-  { id: 'ura', glyph: 'gRiddleElder', label: 'the bridge riddle', x: 1580, y: 1000 },
-  // the sea
-  { id: 'bregu', glyph: 'gFishingCoast', label: 'the shore village', x: 1660, y: 1120 },
-  { id: 'balozMotra', glyph: 'gSister', label: 'the devoted sister', x: 1860, y: 1160 },
-  { id: 'balozTribut', glyph: 'gShoreKulla', label: "the sister's kulla", x: 1720, y: 1330 },
-  { id: 'balozLufte', glyph: 'gBaloz', label: 'the Baloz', x: 2080, y: 1300 },
-  { id: 'balozKoke', glyph: 'gGjergj', label: 'Gjergj Elez Alia', x: 1940, y: 1420 },
-  { id: 'balozFitore', glyph: 'gGraveLahuta', label: 'the single grave', x: 1780, y: 1560 },
-  { id: 'detiThelle2', glyph: 'gBukuraDetit', label: 'E Bukura e Detit', x: 2300, y: 1500 },
-  { id: 'deti1', glyph: 'gFishingCoast', label: 'the coast', x: 2260, y: 1180 },
-  // the great forest
-  { id: 'start', glyph: 'gTraveller', label: 'the benighted traveller', x: 150, y: 250 },
-  { id: 'zjarriPyll', glyph: 'gCampfire', label: 'the fire in the forest', x: -120, y: 380 },
-  { id: 'pylli1', glyph: 'gBear', label: 'the bear & the dervish', x: -330, y: 400 },
-  { id: 'ujk', glyph: 'gWolf', label: 'the hungry wolf', x: -510, y: 560 },
-  { id: 'dhelpra1', glyph: 'gFox', label: 'the sly fox', x: -150, y: 600 },
-  { id: 'shtrigaNate', glyph: 'gWitch', label: 'the night-witch', x: -400, y: 640 },
-  { id: 'shtojzovalle1', glyph: 'gShtojzovalle', label: 'the moon-dancers', x: -220, y: 820 },
-  { id: 'karkanxholl1', glyph: 'gRevenant', label: 'the iron-clad revenant', x: -470, y: 850 },
-  { id: 'dhampir1', glyph: 'gDhampir', label: 'the dhampir & the lugat', x: -140, y: 940 },
+  // Mount Tomorr (top-centre) — summit figures high, the approach low
+  { id: 'maja', glyph: 'gBabaTomor', label: 'Baba Tomor', x: 300, y: -820 },
+  { id: 'majaEagle', glyph: 'gEagle', label: 'Eagle of Tomorr', x: 470, y: -720 },
+  { id: 'shurdhi1', glyph: 'gShurdhi', label: 'Shurdhi', x: 60, y: -680 },
+  { id: 'verbti1', glyph: 'gVerbti', label: 'i Verbti', x: 560, y: -540 },
+  { id: 'peri1', glyph: 'gPeri', label: 'Peri', x: 180, y: -520 },
+  { id: 'katallan1', glyph: 'gKatallan', label: 'Katallan', x: -40, y: -360 },
+  { id: 'jutbina', glyph: 'gJutbina', label: 'Jutbina', x: 540, y: -360 },
+  { id: 'mujoHak1', glyph: 'gKreshnik', label: 'Mujo', x: 300, y: -320 },
+  // the kreshnik hamlet spots around Jutbina
+  { id: 'mujo1', glyph: 'gKullaSmall', label: "Mujo's kulla", x: 604, y: -330 },
+  { id: 'mujiZana1', glyph: 'gShtojzovalle', label: "the zanas' meadow", x: 505, y: -432 },
+  { id: 'vajtim1', glyph: 'gGraveLahuta', label: 'the lament', x: 478, y: -390 },
+  { id: 'mejdan1', glyph: 'gMejdan', label: 'the mejdan', x: 470, y: -260 },
+  // the sky realm (above Tomorr) — the Sun's house top-centre, Sun left, Moon right
+  { id: 'qiellDiell', glyph: 'gDielli', label: 'Dielli (the Sun)', x: -120, y: -1230 },
+  { id: 'henaPaqe', glyph: 'gHena', label: 'Hëna (the Moon)', x: 720, y: -1290 },
+  { id: 'qiellDem1', glyph: 'gDemQiell', label: 'Demi (white bull)', x: 120, y: -1390 },
+  { id: 'diellShtepi1', glyph: 'gDiellShtepi', label: 'Shtëpia e Diellit', x: 300, y: -1150 },
+  { id: 'diellOda', glyph: 'gSunOda', label: "the Sun's oda", x: 385, y: -1125 },
+  { id: 'rrugaDielli1', glyph: 'gStag', label: 'the road of the Sun', x: 300, y: -985 },
+  { id: 'bijaHene1', glyph: 'gBijaHene', label: 'E Bija e Hënës e Diellit', x: 520, y: -1130 },
+  { id: 'qiellPrende', glyph: 'gPrende', label: 'Prende', x: -260, y: -1080 },
+  { id: 'pemaDielli', glyph: 'gPemaDielli', label: 'Pema e Diellit', x: 382, y: -935 },
+  { id: 'qiellErera1', glyph: 'gErera', label: 'Erërat (the winds)', x: 760, y: -1030 },
+  // the world below (deepest, down the well shaft)
+  { id: 'pusi', glyph: 'gShaft', label: 'the well descent', x: 420, y: 1960 },
+  { id: 'sprova', glyph: 'gShadowTrial', label: 'the shadow trial', x: 140, y: 2130 },
+  { id: 'gjarpri', glyph: 'gGuardianSerpent', label: 'the guardian serpent', x: 200, y: 2320 },
+  { id: 'qyteti', glyph: 'gDeadCity', label: 'the dead city', x: 300, y: 2060 },
+  { id: 'tregtari', glyph: 'gBazaar', label: 'the ghostly market', x: 447, y: 2122 },
+  { id: 'bujtina', glyph: 'gGhostInn', label: 'the bujtina (inn)', x: 434, y: 2181 },
+  { id: 'sheruesi', glyph: 'gHealer', label: 'the healer', x: 352, y: 2172 },
+  { id: 'udhaShenja', glyph: 'gWaySign', label: 'the way-signs', x: 415, y: 2216 },
+  { id: 'humbur', glyph: 'gFates', label: 'the three Fates', x: 560, y: 2340 },
+  { id: 'bukura1', glyph: 'gBukuraDheut', label: 'E Bukura e Dheut', x: 640, y: 2120 },
+  { id: 'kulshedra1', glyph: 'gKulshedra', label: 'the Kulshedra', x: 620, y: 2340 },
+  // the river & the Zana (down the centre, below the village)
+  { id: 'lumi', glyph: 'gBolla', label: 'the Bolla', x: 200, y: 820 },
+  { id: 'zana1', glyph: 'gZana', label: 'the Zana', x: 300, y: 960 },
+  { id: 'zanaProva', glyph: 'gCradleRock', label: "the Zana's trial", x: 410, y: 1040 },
+  { id: 'zanaQumesht', glyph: 'gZanaGift', label: "the Zana's gifts", x: 260, y: 1140 },
+  { id: 'zanaFole', glyph: 'gEagleNest', label: "the eagle's nest", x: 80, y: 1000 },
+  { id: 'flocka1', glyph: 'gLake', label: 'the still lake', x: 130, y: 1220 },
+  { id: 'ura', glyph: 'gRiddleElder', label: 'the bridge riddle', x: 380, y: 1240 },
+  // the sea (the whole eastern coast; the Adriatic, reached from the river-mouth)
+  { id: 'deti1', glyph: 'gFishingCoast', label: 'the coast', x: 1010, y: 800 },
+  { id: 'bregu', glyph: 'gFishingCoast', label: 'the shore village', x: 780, y: 1080 },
+  { id: 'balozMotra', glyph: 'gSister', label: 'the devoted sister', x: 1320, y: 900 },
+  { id: 'balozTribut', glyph: 'gShoreKulla', label: "the sister's kulla", x: 1180, y: 1160 },
+  { id: 'balozLufte', glyph: 'gBaloz', label: 'the Baloz', x: 1600, y: 1080 },
+  { id: 'balozKoke', glyph: 'gGjergj', label: 'Gjergj Elez Alia', x: 1420, y: 1280 },
+  { id: 'balozFitore', glyph: 'gGraveLahuta', label: 'the single grave', x: 1240, y: 1440 },
+  { id: 'detiThelle2', glyph: 'gBukuraDetit', label: 'E Bukura e Detit', x: 1680, y: 1420 },
+  { id: 'shqiponja1', glyph: 'gEagleNest', label: 'the eagle of the deep', x: 1560, y: 1640 },
+  // the great forest (west, across the river)
+  { id: 'start', glyph: 'gTraveller', label: 'before the bridge', x: 70, y: 500 },
+  { id: 'zjarriPyll', glyph: 'gCampfire', label: 'the fire in the forest', x: -210, y: 565 },
+  { id: 'pylli1', glyph: 'gBear', label: 'the bear & the dervish', x: -560, y: 400 },
+  { id: 'shokuUjk', glyph: 'gWolf', label: 'the hungry wolf', x: -700, y: 480 },
+  { id: 'dhelpra1', glyph: 'gFox', label: 'the sly fox', x: -360, y: 600 },
+  { id: 'shtrigaNate', glyph: 'gWitch', label: 'the night-witch', x: -620, y: 660 },
+  { id: 'shtojzovalle1', glyph: 'gShtojzovalle', label: 'the moon-dancers', x: -460, y: 800 },
+  { id: 'karkanxholl1', glyph: 'gRevenant', label: 'the iron-clad revenant', x: -720, y: 820 },
+  { id: 'dhampir1', glyph: 'gDhampir', label: 'the dhampir & the lugat', x: -360, y: 900 },
 ]

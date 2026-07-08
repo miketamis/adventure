@@ -16,8 +16,8 @@ const realOpts = (n) => (n.options || []).filter((o) => !o.confuser)
 // Words that DON'T name a present scene-thing (function words, directions/qualities, action verbs).
 const WL = new Set(
   'ti je jam eshte ne tek nje te_link te_subj te_obj e_art i_art dhe por nuk une per me pa ose qe ku pse si kush do jo tani perseri shume pak mire keq tjeter mund mos mbi'.split(' ')
-    .concat('lart larg poshte jashte brenda ketu shpejt ngadale naten dite vetem vogel madh forte ri vjeter bardhe zi gjelber qete sigurt thate erret ftohte uritur bukur krenar shenjte thelle nente dy tre shtate'.split(' '))
-    .concat('ec shko ngjit zbrit kthehu ik fle prit dil hyr bie vazhdon degjo ndihmo merr jep lufto vrit shpeto sheh beso thirr hidh prek kalo kerko ndiz premto fal fol mban godit mbyll sulmo tund kendo vesh vajto mashtro lind ha pi bej fluturo zgjohu rri behet vjen flet thote gjen luan ruan verbo humbet vdes pre mbaroi hap meso ngre zgjedh sjell marto mallko le fsheh nxjerr varros'.split(' '))
+    .concat('lart larg poshte jashte brenda ketu shpejt ngadale naten dite agim muzg deri vetem vogel madh forte ri vjeter bardhe zi gjelber qete sigurt thate erret ftohte uritur bukur krenar shenjte thelle nente dy tre shtate'.split(' '))
+    .concat('ec shko ngjit zbrit kthehu ik fle prit dil hyr bie vazhdon degjo ndihmo merr jep lufto vrit shpeto sheh shiko beso thirr hidh prek kalo kerko ndiz premto fal fol mban godit mbyll sulmo tund kendo vesh vajto mashtro lind ha pi bej fluturo zgjohu rri behet vjen flet thote gjen luan ruan verbo humbet vdes pre mbaroi hap meso ngre zgjedh sjell marto mallko le fsheh nxjerr varros shes blej shtyj terheq'.split(' '))
 )
 // Things legitimately absent from the scene: carried ITEMS, COMPANIONS, DESTINATIONS, riddle answers, created.
 // (Extend as new items/places are added.)
@@ -106,9 +106,13 @@ add('meaningful choice (no damned-if-you-do)', Object.entries(STORY).flatMap(([i
 }))
 
 // 7. STATE-MISMATCH — ending text that asserts an item-action must be reached ONLY via a requires-gated option.
+// `requires`/`unless` may be a single id or an array; a time-of-day phase id is a
+// virtual item (gates on the world clock), never a carried thing.
+const TIME_PHASES = new Set(['dawn', 'day', 'dusk', 'night'])
+const reqIds = (o) => (o.requires == null ? [] : [].concat(o.requires))
 const incomingGatedByItem = {}
 for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.to) {
-  (incomingGatedByItem[o.to] = incomingGatedByItem[o.to] || []).push(!!(o.requires && ITEMS.has(o.requires)))
+  (incomingGatedByItem[o.to] = incomingGatedByItem[o.to] || []).push(reqIds(o).some((i) => ITEMS.has(i)))
 }
 add('state-match (item-asserting endings are item-gated)', Object.entries(STORY).flatMap(([id, n]) => {
   if (!n.end || STATE_OK.has(id)) return []
@@ -144,7 +148,7 @@ add('confuser validity (distractors impossible)', Object.entries(STORY).flatMap(
 // 10. ITEM REACHABILITY — every item required by an option must be grantable somewhere.
 add('item reachability (required items grantable)', (() => {
   const reqd = new Set(), granted = new Set()
-  for (const n of Object.values(STORY)) for (const o of n.options || []) { if (o.requires) reqd.add(o.requires); if (o.grant) granted.add(o.grant) }
+  for (const n of Object.values(STORY)) for (const o of n.options || []) { for (const i of reqIds(o)) if (!TIME_PHASES.has(i)) reqd.add(i); if (o.grant) granted.add(o.grant) }
   return [...reqd].filter((i) => !granted.has(i)).map((i) => `required but never granted: ${i}`)
 })())
 

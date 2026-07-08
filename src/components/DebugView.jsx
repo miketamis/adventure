@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
 import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB } from '../game/folklore.js'
+import { REGIONS, isWander, assignRegions } from '../game/regions.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
 import { NODE_POS } from './nodePositions.js'
 
@@ -332,20 +333,23 @@ const VILLAGE_PLACES = [
   { id: 'dordolec1', x: 554, y: 480, type: 'scarecrow', label: 'the children', lh: 20 },
   { id: 'plaka', x: 576, y: 388, type: 'house', label: 'old woman’s house', lh: 18 },
   { id: 'oda1', x: 418, y: 392, type: 'oda', label: 'the oda', lh: 18 },
-  // back lanes (east)
-  { id: 'fshatiLanes', x: 334, y: 404, type: 'signpost', label: 'back lanes', lh: 20 },
-  { id: 'kulle1', x: 312, y: 320, type: 'tower', label: 'stone tower', lh: 26 },
-  { id: 'djepi1', x: 248, y: 366, type: 'house', label: 'the cradle', lh: 18, roof: '#9a7250' },
-  { id: 'pallatiZi', x: 230, y: 456, type: 'palace', label: 'black palace', lh: 24 },
-  { id: 'kopshtMermer1', x: 294, y: 522, type: 'garden', label: 'marble garden', lh: 22 },
+  // the walled PALACE compound (east) — the black-king's citadel set BEHIND its
+  // marble garden inside a curtain wall; a wide road runs from the front gate to
+  // the square, past the garden, to the palace at the back.
+  { id: 'kopshtMermer1', x: 690, y: 470, type: 'garden', label: 'marble garden', lh: 22 },
+  { id: 'pallatiZi', x: 768, y: 448, type: 'palace', label: 'black palace', lh: 24 },
+  // the back lanes — tucked BEHIND the palace walls (far east)
+  { id: 'fshatiLanes', x: 878, y: 468, type: 'signpost', label: 'back lanes', lh: 20 },
+  { id: 'kulle1', x: 868, y: 392, type: 'tower', label: 'stone tower', lh: 26 },
+  { id: 'djepi1', x: 884, y: 542, type: 'house', label: 'the cradle', lh: 18, roof: '#9a7250' },
   // village life (west)
-  { id: 'fshatiJeta', x: 726, y: 434, type: 'signpost', label: 'village life', lh: 20 },
-  { id: 'vatra', x: 802, y: 392, type: 'hearth', label: 'the hearth', lh: 20 },
-  { id: 'qilim', x: 826, y: 474, type: 'house', label: 'the loom', lh: 18 },
-  { id: 'bariu', x: 874, y: 542, type: 'pasture', label: 'shepherd & goats', lh: 18 },
-  { id: 'gjysmegjel1', x: 722, y: 558, type: 'rooster', label: 'half-rooster', lh: 14 },
-  { id: 'syriKeq1', x: 650, y: 502, type: 'house', label: 'the child', lh: 18 },
-  { id: 'breshka1', x: 784, y: 582, type: 'house', label: 'the guest', lh: 18 },
+  { id: 'fshatiJeta', x: 322, y: 430, type: 'signpost', label: 'village life', lh: 20 },
+  { id: 'vatra', x: 300, y: 378, type: 'hearth', label: 'the hearth', lh: 20 },
+  { id: 'qilim', x: 288, y: 468, type: 'house', label: 'the loom', lh: 18 },
+  { id: 'bariu', x: 300, y: 560, type: 'pasture', label: 'shepherd & goats', lh: 18 },
+  { id: 'gjysmegjel1', x: 392, y: 566, type: 'rooster', label: 'half-rooster', lh: 14 },
+  { id: 'syriKeq1', x: 404, y: 496, type: 'house', label: 'the child', lh: 18 },
+  { id: 'breshka1', x: 348, y: 614, type: 'house', label: 'the guest', lh: 18 },
   // river quarter (lower-west, along the water)
   { id: 'fshatiLumi', x: 232, y: 616, type: 'signpost', label: 'down at the river', lh: 20 },
   { id: 'uraArtes1', x: 132, y: 500, type: 'dot', label: 'the bridge', lh: 13 },
@@ -357,8 +361,9 @@ const VILLAGE_DISTRICTS = [
   { t: 'to the mountain', x: 458, y: 30 },
   { t: 'church', x: 334, y: 92 },
   { t: 'the square', x: 512, y: 330 },
-  { t: 'back lanes', x: 266, y: 300 },
-  { t: 'village life', x: 774, y: 356 },
+  { t: 'the palace', x: 700, y: 372 },
+  { t: 'back lanes', x: 892, y: 606 },
+  { t: 'village life', x: 300, y: 322 },
   { t: 'the river', x: 84, y: 700 },
   { t: 'fields', x: 874, y: 70 },
   { t: 'fields', x: 504, y: 800 },
@@ -841,55 +846,10 @@ const VILLAGE_IDS = new Set(VILLAGE_PLACES.map((p) => p.id))
 // (bottom-centre), with Lake Shkodra beside it. The great forest lies west
 // across the river (the hero bridge crosses to it); the Adriatic fills the east.
 // The world below hangs deepest, down through the village well.
-const REGIONS = [
-  { key: 'sky', label: 'the sky realm', cx: 300, cy: -1200, rx: 780, ry: 300, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende', 'diellShtepi1', 'rrugaDielli1', 'pemaDielli', 'diellThirrKul'] },
-  { key: 'mountain', label: 'Mount Tomorr', cx: 300, cy: -520, rx: 640, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'tomor3', 'shpirag1', 'maliStuhi', 'tomorProva', 'tomorZbritje'] },
-  { key: 'forest', label: 'the great forest', cx: -520, cy: 430, rx: 380, ry: 470, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
-  { key: 'river', label: 'the river & the Zana', cx: 230, cy: 940, rx: 300, ry: 360, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
-  { key: 'castle', label: 'Rozafa castle', cx: 300, cy: 1360, rx: 260, ry: 230, terrain: 'castle', anchors: ['kalaRozafa'] },
-  { key: 'lake', label: 'Lake Shkodra', cx: 60, cy: 1660, rx: 360, ry: 240, terrain: 'lake', anchors: [] },
-  { key: 'sea', label: 'the sea', cx: 1560, cy: 1050, rx: 620, ry: 1180, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
-  { key: 'underworld', label: 'the world below', cx: 360, cy: 2180, rx: 440, ry: 350, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti', 'tre1', 'tre2', 'tre3', 'rrethi', 'shpellaHyrje'] },
-  { key: 'village', label: '', cx: 512, cy: 430, rx: 430, ry: 340, terrain: null, anchors: [...VILLAGE_IDS, 'fshatiDil', 'fshatiBesa', 'fshatiCaul', 'udhetimi1', 'udhetimi2', 'gjizar1'] },
-]
-
 function hashStr(s) {
   let h = 2166136261
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) }
   return h >>> 0
-}
-
-// "wander" links = flee / return / get-lost fallbacks, NOT spatial journeys.
-const WANDER_VERB = new Set(['ik', 'kthehu', 'zgjohu', 'dil'])
-const WANDER_TO = new Set(['pylliLoop', 'humbur', 'gjumi'])
-const isWander = (o) => WANDER_VERB.has((o.text || []).find((t) => t && t.id)?.id) || WANDER_TO.has(o.to)
-
-// multi-source BFS over PROGRESSION edges only (ignore wander), so a node isn't
-// dragged into the forest just because it can flee there → the map region a node
-// lands in reflects where the story actually takes you.
-function assignRegions(g) {
-  const prog = {}, full = {}
-  for (const id of g.ids) { prog[id] = new Set(); full[id] = new Set() }
-  for (const id of g.ids) for (const o of (STORY[id].options || [])) {
-    if (o.confuser || !o.to || !STORY[o.to]) continue
-    full[id].add(o.to); full[o.to].add(id)
-    if (!isWander(o)) { prog[id].add(o.to); prog[o.to].add(id) }
-  }
-  const reg = {}, dist = {}, q = []
-  REGIONS.forEach((rg, ri) => rg.anchors.forEach((a) => {
-    if (STORY[a] && dist[a] == null) { reg[a] = ri; dist[a] = 0; q.push(a) }
-  }))
-  // primary: follow PROGRESSION edges (where the story takes you)
-  for (let h = 0; h < q.length; h++) for (const v of prog[q[h]]) if (dist[v] == null) { dist[v] = dist[q[h]] + 1; reg[v] = reg[q[h]]; q.push(v) }
-  // fallback: reach nodes only linked in by a flee/return via the full graph
-  for (let h = 0; h < q.length; h++) for (const v of full[q[h]]) if (dist[v] == null) { dist[v] = dist[q[h]] + 1; reg[v] = reg[q[h]]; q.push(v) }
-  const villageIdx = REGIONS.findIndex((r) => r.key === 'village')
-  const byRegion = REGIONS.map(() => [])
-  for (const id of g.ids) {
-    if (VILLAGE_IDS.has(id)) continue
-    byRegion[reg[id] != null ? reg[id] : villageIdx].push(id)
-  }
-  return byRegion
 }
 
 // Lay a region's nodes out by STORY ORDER: BFS depth over intra-region
@@ -927,18 +887,133 @@ function layoutRegion(ids, rg) {
 }
 
 // ---- region terrain ---------------------------------------------------------
-function terrSky(rg) {
-  // the blue sky is a world-wide backdrop (drawn before the regions); here we
-  // only add the celestial bodies + stars + clouds that live in it.
-  const { cx, cy, rx, ry } = rg, rnd = mulberry32(7)
+// a small cumulus terrace — a puffy cloud island a sky-scene can stand on.
+function CloudPuff({ x, y, w = 90, top = '#eef2fa', under = '#c9d3e8' }) {
   return (
     <g>
-      {/* stars fade out toward the bottom of the sky (Dielli & Hëna are drawn as
-          clickable landmark glyphs, so no decorative sun/moon here) */}
+      <circle cx={x - w * 0.3} cy={y + w * 0.1} r={w * 0.22} fill={under} />
+      <circle cx={x + w * 0.28} cy={y + w * 0.1} r={w * 0.2} fill={under} />
+      <circle cx={x} cy={y + w * 0.14} r={w * 0.26} fill={under} />
+      <circle cx={x - w * 0.22} cy={y} r={w * 0.2} fill={top} />
+      <circle cx={x + w * 0.2} cy={y} r={w * 0.18} fill={top} />
+      <ellipse cx={x} cy={y} rx={w * 0.42} ry={w * 0.14} fill={top} />
+    </g>
+  )
+}
+
+function terrSky(rg) {
+  // the sky realm is a real explorable place: the SUN'S COMPOUND on its great
+  // cloud-plateau (golden court + garden + oda + the forecourt gate where the
+  // beasts are summoned + the road of the Sun down the light-ray), the Moon's
+  // silver terrace, Zojz's storm court, Prende's rosy terrace, the winds'
+  // swirling hollow and the white bull's cloud-pasture — plus stars and clouds.
+  const { cx, cy, rx, ry } = rg, rnd = mulberry32(7)
+  const isle = (x, y, w, h, top, under, seed) => (
+    <g>
+      <path d={blobPath(x - w * 0.26, y + h * 0.34, w * 0.28, h * 0.52, seed + 1, 0.22, 10)} fill={under} />
+      <path d={blobPath(x + w * 0.28, y + h * 0.3, w * 0.26, h * 0.48, seed + 2, 0.22, 10)} fill={under} />
+      <path d={blobPath(x, y + h * 0.26, w * 0.5, h * 0.62, seed, 0.16, 12)} fill={under} />
+      <path d={blobPath(x, y, w * 0.6, h * 0.3, seed + 3, 0.09, 16)} fill={top} />
+    </g>
+  )
+  return (
+    <g>
+      {/* stars fade out toward the bottom of the sky */}
       {Array.from({ length: 80 }, (_, i) => { const sy = cy - ry * 1.15 + rnd() * ry * 2.1; return <circle key={i} cx={cx - rx * 1.5 + rnd() * rx * 3} cy={sy} r={rnd() * 1.5 + 0.5} fill="#fff" opacity={(0.5 + rnd() * 0.4) * Math.max(0, Math.min(1, (cy + ry * 0.4 - sy) / (ry * 1.3)))} /> })}
-      {[[cx - rx * 0.15, cy + ry * 0.55], [cx + rx * 0.3, cy + ry * 0.2], [cx - rx * 0.55, cy - ry * 0.25], [cx + rx * 0.7, cy + ry * 0.5], [cx + rx * 0.05, cy - ry * 0.4]].map(([x, y], i) => (
-        <g key={i} opacity={0.88}>{[[0, 0, 26], [24, 6, 20], [-24, 6, 20], [10, -10, 17]].map(([dx, dy, r], j) => <circle key={j} cx={x + dx} cy={y + dy} r={r} fill="#f2f6fc" />)}</g>
+      {/* far decorative clouds, kept clear of the homes */}
+      {[[-560, -1310], [40, -1450], [1080, -1180], [-420, -1440], [1140, -1390], [-620, -1120]].map(([x, y], i) => (
+        <g key={i} opacity={0.8}>{[[0, 0, 26], [24, 6, 20], [-24, 6, 20], [10, -10, 17]].map(([dx, dy, r], j) => <circle key={j} cx={x + dx} cy={y + dy} r={r} fill="#f2f6fc" />)}</g>
       ))}
+
+      {/* ── ZOJZ'S STORM COURT (highest, top-centre) ── */}
+      <g>
+        {isle(470, -1395, 340, 120, '#cfd8ea', '#8f9cb8', 771)}
+        <ellipse cx={445} cy={-1408} rx={74} ry={22} fill="#bac6de" opacity={0.75} />
+        <path d="M 388 -1442 L 372 -1414 L 384 -1414 L 368 -1382" fill="none" stroke="#f4c430" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" opacity={0.9} />
+        <CloudPuff x={430} y={-1292} w={84} top="#dfe6f2" under="#a9b6d0" />
+      </g>
+
+      {/* ── the white bull's cloud-pasture ── */}
+      <g>
+        <CloudPuff x={120} y={-1372} w={130} top="#eef3fa" under="#c3cede" />
+        {[[80, -1392], [128, -1400], [162, -1386]].map(([fx, fy], i) => <circle key={i} cx={fx} cy={fy} r={2.2} fill="#e8c24a" opacity={0.85} />)}
+      </g>
+
+      {/* ── the MOON'S silver terrace (top-east) ── */}
+      <g>
+        {isle(720, -1268, 300, 110, '#e9edf7', '#bfc9e0', 881)}
+        <ellipse cx={720} cy={-1282} rx={92} ry={30} fill="#dfe7f2" stroke="#a9b6cc" strokeWidth={1.6} />
+        <path d="M 748 -1304 A 30 30 0 1 0 748 -1260 A 23 23 0 1 1 748 -1304 Z" fill="#f2f6fc" opacity={0.85} />
+        {[[652, -1296], [688, -1266], [774, -1268]].map(([sx, sy], i) => (
+          <circle key={i} cx={sx} cy={sy} r={1.8} fill="#fff" opacity={0.8} />
+        ))}
+      </g>
+      {/* the Moon & Sun's daughter — her own small silver-gold puff between them */}
+      <g>
+        <CloudPuff x={520} y={-1112} w={104} top="#e9ebf6" under="#c0c9e2" />
+        <ellipse cx={520} cy={-1108} rx={34} ry={9} fill="#e6d9a8" opacity={0.5} />
+      </g>
+
+      {/* ── PRENDE'S rosy terrace (west) ── */}
+      <g>
+        <CloudPuff x={-260} y={-1062} w={120} top="#f4e4ea" under="#d3bcc9" />
+        {[[-306, -1092], [-215, -1096], [-258, -1108]].map(([sx, sy], i) => (
+          <path key={i} d={`M ${sx} ${sy - 4} l 1.2 3.2 l 3.4 0.2 l -2.6 2.2 l 0.8 3.3 l -2.8 -1.9 l -2.8 1.9 l 0.8 -3.3 l -2.6 -2.2 l 3.4 -0.2 Z`} fill="#fce38a" opacity={0.9} />
+        ))}
+      </g>
+      {/* the rainbow arc off Prende's terrace (ylberi) */}
+      <path d="M -370 -1010 A 150 130 0 0 1 -150 -1046" fill="none" stroke="#c98fb0" strokeWidth={5} opacity={0.5} strokeLinecap="round" />
+      <path d="M -370 -1016 A 150 130 0 0 1 -152 -1052" fill="none" stroke="#e8c24a" strokeWidth={4} opacity={0.5} strokeLinecap="round" />
+      <path d="M -371 -1022 A 150 130 0 0 1 -154 -1058" fill="none" stroke="#8fb9c4" strokeWidth={4} opacity={0.5} strokeLinecap="round" />
+
+      {/* ── the WINDS' swirling hollow (east) ── */}
+      <g>
+        <CloudPuff x={760} y={-1012} w={130} top="#ccd6e6" under="#9fb0ca" />
+        <path d="M 700 -1046 C 726 -1062 762 -1062 776 -1048 C 788 -1036 776 -1026 764 -1032" fill="none" stroke="#eef3fb" strokeWidth={3} strokeLinecap="round" opacity={0.8} />
+        <path d="M 806 -1030 C 830 -1042 848 -1030 842 -1016" fill="none" stroke="#dfe7f2" strokeWidth={2.4} strokeLinecap="round" opacity={0.7} />
+      </g>
+
+      {/* ── the radiance behind Dielli himself ── */}
+      <circle cx={-120} cy={-1230} r={56} fill="#f6cf49" opacity={0.14} />
+      <circle cx={-120} cy={-1230} r={34} fill="#fce38a" opacity={0.16} />
+
+      {/* ══ the SUN'S COMPOUND — the great cloud-plateau you explore ══ */}
+      <g>
+        {/* the cloud island itself */}
+        {isle(295, -1085, 620, 200, '#f6f1df', '#d9dcec', 991)}
+        <path d={blobPath(295, -1102, 350, 72, 995, 0.08, 16)} fill="#f2e8c8" />
+        {/* the golden court with its sun-ray paving */}
+        <ellipse cx={300} cy={-1105} rx={152} ry={54} fill="#f2dfa8" stroke="#d8b25c" strokeWidth={2.2} />
+        <ellipse cx={300} cy={-1105} rx={160} ry={60} fill="none" stroke="#d8b25c" strokeWidth={1.8} strokeDasharray="7 6" opacity={0.8} />
+        {Array.from({ length: 12 }, (_, i) => {
+          const a = (i / 12) * Math.PI * 2
+          return <line key={i} x1={300 + Math.cos(a) * 24} y1={-1105 + Math.sin(a) * 9} x2={300 + Math.cos(a) * 140} y2={-1105 + Math.sin(a) * 48} stroke="#e0bc6a" strokeWidth={1.6} opacity={0.7} />
+        })}
+        <circle cx={300} cy={-1105} r={13} fill="#f6cf49" stroke="#c9871e" strokeWidth={1.6} />
+        {/* the garden of the Sun (west wing) — beds of golden cabbages */}
+        <g transform="translate(205,-1085)">
+          <rect x={-34} y={-24} width={68} height={46} rx={5} fill="#8fae5c" stroke="#6f8a3f" strokeWidth={1.8} />
+          <rect x={-34} y={-24} width={68} height={46} rx={5} fill="none" stroke="#e0bc6a" strokeWidth={1.4} strokeDasharray="4 4" opacity={0.9} />
+          {[-22, -6, 10, 26].map((gx, i) => (
+            <g key={i}>{[-14, -1, 12].map((gy, j) => (
+              <circle key={j} cx={gx} cy={gy} r={4.2} fill={(i + j) % 2 ? '#b9cf74' : '#a9c66a'} stroke="#7a9448" strokeWidth={0.9} />
+            ))}</g>
+          ))}
+        </g>
+        {/* the forecourt gate (south) where the beasts are summoned */}
+        <ellipse cx={300} cy={-1058} rx={30} ry={11} fill="#efe0b4" stroke="#d8b25c" strokeWidth={1.4} />
+        <rect x={272} y={-1076} width={5} height={14} rx={1} fill="#e6b53a" stroke="#a8710f" strokeWidth={1} />
+        <rect x={323} y={-1076} width={5} height={14} rx={1} fill="#e6b53a" stroke="#a8710f" strokeWidth={1} />
+        <circle cx={274.5} cy={-1078} r={3} fill="#f6cf49" stroke="#a8710f" strokeWidth={0.8} />
+        <circle cx={325.5} cy={-1078} r={3} fill="#f6cf49" stroke="#a8710f" strokeWidth={0.8} />
+        {/* the road of the Sun — golden, out the gate and down onto the ray */}
+        <path d="M 300 -1100 L 300 -1028" fill="none" stroke="#e6b53a" strokeWidth={11} strokeLinecap="round" opacity={0.85} />
+        <path d="M 300 -1100 L 300 -1028" fill="none" stroke="#fff3c4" strokeWidth={2.4} strokeDasharray="3 8" strokeLinecap="round" />
+      </g>
+      {/* stepping-clouds down the ray: the stag's road home + the sun-tree's perch */}
+      <path d="M 300 -1030 C 302 -996 336 -958 380 -938" fill="none" stroke="#e6b53a" strokeWidth={6} strokeLinecap="round" opacity={0.45} strokeDasharray="10 8" />
+      <CloudPuff x={300} y={-972} w={86} top="#f2eeda" under="#d5d5e6" />
+      <CloudPuff x={384} y={-920} w={96} top="#f2eeda" under="#d5d5e6" />
     </g>
   )
 }
@@ -958,19 +1033,58 @@ function terrMountains(rg) {
         {snow && <polygon points={`${px},${base - ph} ${px + ph * 0.22},${base - ph * 0.7} ${px + ph * 0.12},${base - ph * 0.76} ${px},${base - ph * 0.66}`} fill="#c6d4dc" opacity={0.7} />}
       </g>
     ))
+  const far = [[cx - rx * 1.02, ry * 0.6], [cx - rx * 0.88, ry * 0.78], [cx + rx * 0.9, ry * 0.72], [cx + rx * 1.04, ry * 0.55]]
   const back = [[cx - rx * 0.72, ry * 0.95], [cx - rx * 0.22, ry * 1.2], [cx + rx * 0.32, ry * 1.15], [cx + rx * 0.74, ry * 0.9]]
   const mid = [[cx - rx * 0.48, ry * 1.1], [cx - rx * 0.02, ry * 1.35], [cx + rx * 0.44, ry * 1.12]]
   const front = [[cx - rx * 0.66, ry * 0.82], [cx - rx * 0.3, ry * 1.18], [cx, ry * 1.55], [cx + rx * 0.36, ry * 1.12], [cx + rx * 0.68, ry * 0.8]]
+  // one sheep of the highland pastures
+  const sheep = (sx, sy) => (
+    <g transform={`translate(${sx},${sy})`}>
+      <ellipse cx={0} cy={0} rx={4.6} ry={2.7} fill="#efe9dc" stroke="#8a7d63" strokeWidth={0.8} />
+      <circle cx={4.2} cy={-1.4} r={2} fill="#efe9dc" stroke="#8a7d63" strokeWidth={0.8} />
+      <line x1={-2} y1={2} x2={-2} y2={4.6} stroke="#8a7d63" strokeWidth={0.8} />
+      <line x1={2} y1={2} x2={2} y2={4.6} stroke="#8a7d63" strokeWidth={0.8} />
+    </g>
+  )
   return (
     <g>
       {/* haze band blending the range up into the sky */}
-      <ellipse cx={cx} cy={base - ry * 0.55} rx={rx * 1.15} ry={ry * 0.85} fill="#9fb0c0" opacity={0.16} />
+      <ellipse cx={cx} cy={base - ry * 0.55} rx={rx * 1.3} ry={ry * 0.85} fill="#9fb0c0" opacity={0.16} />
+      {ridge(far, '#a9b6c2', '#93a2b0', '#9aa8b5', false)}
       {ridge(back, '#9aa9b6', '#7d8d9c', '#8493a2', false)}
       {ridge(mid, '#84928b', '#616e66', '#5b6656', false)}
       {ridge(front, '#7f8c74', '#57634c', '#454f38', true)}
       {/* pine tree-line + foothills, blending the base into the land */}
-      <ellipse cx={cx} cy={base + ry * 0.03} rx={rx * 1.06} ry={ry * 0.15} fill="#6f8557" opacity={0.5} />
-      {Array.from({ length: 11 }, (_, i) => { const hx = cx - rx * 0.98 + (i + 0.5) / 11 * rx * 1.96; return <ellipse key={'f' + i} cx={hx} cy={base + ry * 0.09} rx={rx * 0.12} ry={ry * 0.11} fill="#748a56" opacity={0.7} /> })}
+      <ellipse cx={cx} cy={base + ry * 0.03} rx={rx * 1.14} ry={ry * 0.15} fill="#6f8557" opacity={0.5} />
+      {Array.from({ length: 13 }, (_, i) => { const hx = cx - rx * 1.1 + (i + 0.5) / 13 * rx * 2.2; return <ellipse key={'f' + i} cx={hx} cy={base + ry * 0.09} rx={rx * 0.12} ry={ry * 0.11} fill="#748a56" opacity={0.7} /> })}
+
+      {/* ── JUTBINA — the kreshnik hamlet on its highland shelf: a stone-walled
+          mountain terrace where every kreshnik tale keeps its own kulla; the
+          zanas' meadow above it, the bare mejdan duelling ground below. ── */}
+      <g>
+        {/* the shelf: a rocky terrace with a green meadow top */}
+        <path d={blobPath(566, -352, 178, 108, 641, 0.14, 14)} fill="#8b8b7e" opacity={0.85} />
+        <path d={blobPath(566, -360, 160, 92, 642, 0.13, 14)} fill="#96ab68" />
+        <path d={blobPath(600, -336, 84, 48, 643, 0.2, 10)} fill="#88a05c" opacity={0.8} />
+        {/* dry-stone field walls */}
+        <path d="M 448 -334 C 500 -312 560 -306 648 -318" fill="none" stroke="#8f8d84" strokeWidth={3} strokeDasharray="6 4" opacity={0.8} />
+        <path d="M 522 -424 C 560 -404 606 -400 656 -410" fill="none" stroke="#8f8d84" strokeWidth={3} strokeDasharray="6 4" opacity={0.8} />
+        <path d="M 662 -404 C 676 -372 678 -348 668 -324" fill="none" stroke="#8f8d84" strokeWidth={3} strokeDasharray="6 4" opacity={0.7} />
+        {/* the lane down from the hamlet gate to the mejdan */}
+        <path d="M 536 -352 C 512 -322 490 -294 472 -266" fill="none" stroke="#b3a377" strokeWidth={7} strokeLinecap="round" opacity={0.85} />
+        <path d="M 536 -352 C 512 -322 490 -294 472 -266" fill="none" stroke="#e2d6b2" strokeWidth={2} strokeDasharray="2 8" strokeLinecap="round" />
+        {/* the zanas' moonlit meadow above the hamlet */}
+        <ellipse cx={505} cy={-428} rx={52} ry={26} fill="#a9c66a" opacity={0.65} />
+        <ellipse cx={505} cy={-428} rx={52} ry={26} fill="none" stroke="#eef2fa" strokeWidth={1.6} strokeDasharray="3 6" opacity={0.75} />
+        {/* pasture life */}
+        {sheep(614, -300)}{sheep(646, -352)}{sheep(500, -318)}
+        {[[470, -406], [652, -294], [430, -350]].map(([bx, by], i) => (
+          <g key={i} transform={`translate(${bx},${by})`}>
+            <ellipse cx={-2} cy={0} rx={5} ry={4} fill="#9a938a" stroke="#6a6156" strokeWidth={1} />
+            <ellipse cx={3} cy={1} rx={4} ry={3} fill="#8b857b" stroke="#6a6156" strokeWidth={1} />
+          </g>
+        ))}
+      </g>
     </g>
   )
 }
@@ -1016,11 +1130,21 @@ function terrRiver(rg) {
 
 // the horizon where sky meets the open sea (hard line), and the far edge the sea
 // runs off past (map cuts it off on the right & bottom).
-const SEA_HORIZON = -520
+const SEA_HORIZON = -560
 const SEA_FAR = 4800
-// the landward coastline x at a given y — diagonal at the top (east of Tomorr),
-// coming west to a steady shore, with wave-bitten bays. Everything west is land.
-const seaCoastX = (y) => 820 + Math.max(0, 300 - y) * 0.44 + Math.sin(y * 0.006) * 46 + Math.sin(y * 0.017 + 2) * 24
+// the landward coastline x at a given y — the ACTUAL shape of the Albanian Adriatic
+// coast (map is south-up, so y increases going NORTH): a diagonal near the horizon,
+// the Cape of Rodon / Durrës HEADLAND jutting east (~Tirana's latitude), the broad
+// concave GULF OF DRIN receding west (~Lezhë), narrowing to the Buna / Shkodra
+// delta at the river-mouth. Everything west of this line is land.
+const seaCoastX = (y) => {
+  const base = 980 + Math.max(0, 160 - y) * 0.18                       // shore sits east of the town, a touch further east up top
+  const rodon = 66 * Math.exp(-Math.pow((y - 560) / 300, 2))          // Durrës–Cape of Rodon coast, bulging gently east
+  const drin = -320 * Math.exp(-Math.pow((y - 1180) / 250, 2))        // the GULF OF DRIN — a deep concave bay (Lezhë), below the town
+  const buna = -150 * Math.exp(-Math.pow((y - 1620) / 190, 2))        // the Buna / Shkodra delta
+  const cove = Math.sin(y * 0.021) * 12 + Math.sin(y * 0.0075 + 2) * 18 + Math.sin(y * 0.05) * 5 // small coves & inlets
+  return base + rodon + drin + buna + cove
+}
 function terrSea() {
   // the open Adriatic — bounded ONLY by the coastline (west) and the hard horizon
   // (top); it runs off the map to the right and bottom. Sandy beach at the shore,
@@ -1050,18 +1174,81 @@ function terrSea() {
         <rect x={-1} y={-19} width={2.4} height={23} fill="#4f3a2a" />
         <path d="M1 -17 L15 -3 L1 -3 Z" fill="#efe7d5" />
       </g>
+      {/* a second sail, out in the deep on the long way home */}
+      <g transform={`translate(${seaCoastX(1900) + 520},1900) rotate(5)`}>
+        <path d="M-13 3 L13 3 L8 10 L-8 10 Z" fill="#7a5c3a" stroke="#4f3a2a" strokeWidth={1.4} />
+        <rect x={-0.8} y={-15} width={2} height={18} fill="#4f3a2a" />
+        <path d="M1 -13 L12 -2 L1 -2 Z" fill="#efe7d5" />
+      </g>
+      {/* gulls over the coast */}
+      {[[1130, 420], [1260, 290], [940, 150]].map(([gx, gy], i) => (
+        <path key={'gl' + i} d={`M ${gx - 8} ${gy} Q ${gx - 3} ${gy - 6} ${gx} ${gy} Q ${gx + 3} ${gy - 6} ${gx + 8} ${gy}`} fill="none" stroke="#eef5f8" strokeWidth={2} opacity={0.7} />
+      ))}
+      {/* ── the DROWNED PALACE of E Bukura e Detit, glimmering under the deep ── */}
+      <g opacity={0.6}>
+        <ellipse cx={1680} cy={1448} rx={92} ry={27} fill="#3f7f96" opacity={0.8} />
+        {[[1642, 1444, 26], [1680, 1436, 36], [1718, 1446, 24]].map(([px, py, ph], i) => (
+          <g key={'pal' + i}>
+            <rect x={px - 9} y={py - ph * 0.5} width={18} height={ph * 0.5 + 10} rx={2} fill="#5e93a8" stroke="#2f6478" strokeWidth={1.4} />
+            <path d={`M ${px - 9} ${py - ph * 0.5} Q ${px} ${py - ph * 0.95} ${px + 9} ${py - ph * 0.5}`} fill="#7fb0c2" stroke="#2f6478" strokeWidth={1.2} />
+            <circle cx={px} cy={py - ph * 0.95 - 2} r={2} fill="#eaf5f8" />
+          </g>
+        ))}
+        {[[1612, 1452], [1700, 1470], [1752, 1440]].map(([bx, by], i) => (
+          <g key={'bub' + i}>
+            <circle cx={bx} cy={by - 26} r={2.2} fill="#d8eef5" opacity={0.7} />
+            <circle cx={bx + 5} cy={by - 14} r={3} fill="#d8eef5" opacity={0.5} />
+          </g>
+        ))}
+      </g>
+      {/* the eagle's islet — where the long climb back to the surface begins */}
+      <g>
+        <path d={blobPath(1560, 1654, 68, 30, 711, 0.18, 12)} fill="#d8c79c" stroke="#b09a6a" strokeWidth={2} />
+        <path d={blobPath(1542, 1648, 30, 14, 712, 0.2, 8)} fill="#9a938a" opacity={0.85} />
+        <path d="M 1508 1668 q 12 -5 24 0 M 1588 1672 q 10 -4 20 0" stroke="#eaf5f8" strokeWidth={1.6} fill="none" opacity={0.6} />
+      </g>
     </g>
   )
 }
 
 function terrCavern(rg) {
-  // the world below — a jagged cavern mouth, a ring of stalactites, the dead city's
-  // ruined towers on the far shore, a cold river of the dead, and torch-glow.
+  // the world below — a great cavern under a rocky crust, with the DEAD CITY's
+  // ruined towers inside the gate, a ghost-lit street down to the LIVING
+  // QUARTER's torch-lit plaza (square, bazaar, inn, healer, way-signs), the
+  // Beauty of the Earth's silver grove, the Kulshedra's ember pit, and a cold
+  // river of the dead threading the floor.
   const { cx, cy, rx, ry } = rg, rnd = mulberry32(11)
   const outer = blobPath(cx, cy, rx, ry, 111, 0.09, 22)
+  const torch = (tx, ty) => (
+    <g transform={`translate(${tx},${ty})`}>
+      <circle r={13} fill="#e8892b" opacity={0.18} />
+      <rect x={-1.2} y={-8} width={2.4} height={10} fill="#3a2e22" />
+      <circle cy={-10} r={2.8} fill="#e8892b" />
+      <circle cy={-11} r={1.4} fill="#f6cf49" />
+    </g>
+  )
+  const stall = (sx, sy) => (
+    <g transform={`translate(${sx},${sy})`}>
+      <rect x={-8} y={-3} width={16} height={9} fill="#2a2330" stroke="#120e1a" strokeWidth={1.2} />
+      <path d="M-10 -3 L0 -10 L10 -3 Z" fill="#5a3a3a" stroke="#2a1616" strokeWidth={1} />
+      <circle cx={-3} cy={1} r={1.4} fill="#f6cf49" />
+      <rect x={1} y={0} width={4} height={2} fill="#c9a24a" />
+    </g>
+  )
   return (
     <g>
+      {/* the rocky crust the cavern is sunk into */}
+      <path d={blobPath(cx, cy, rx * 1.12, ry * 1.14, 114, 0.13, 20)} fill="#57504a" opacity={0.55} />
       <path d={blobPath(cx, cy, rx * 1.04, ry * 1.06, 113, 0.11, 20)} fill="#1a1613" opacity={0.7} />
+      {Array.from({ length: 18 }, (_, i) => {
+        const a = (i / 18) * Math.PI * 2 + 0.2, bx = cx + Math.cos(a) * rx * 1.06, by = cy + Math.sin(a) * ry * 1.08
+        return (
+          <g key={'rk' + i} transform={`translate(${bx},${by}) rotate(${(i * 47) % 360})`}>
+            <ellipse rx={13 + (i % 3) * 4} ry={8 + (i % 2) * 3} fill="#6a6156" stroke="#3f382f" strokeWidth={1.4} />
+            <ellipse cx={-3} cy={-2} rx={5} ry={3} fill="#847a6d" opacity={0.7} />
+          </g>
+        )
+      })}
       <path d={outer} fill="#2b2622" stroke="#141010" strokeWidth={5} />
       <path d={blobPath(cx, cy, rx * 0.9, ry * 0.86, 112, 0.1, 20)} fill="#342c26" />
       {/* stalactites hanging from the roof */}
@@ -1069,16 +1256,54 @@ function terrCavern(rg) {
       {/* a cold river of the dead threading the floor */}
       <path d={`M ${cx - rx * 0.8} ${cy + ry * 0.34} C ${cx - rx * 0.2} ${cy + ry * 0.2} ${cx + rx * 0.2} ${cy + ry * 0.5} ${cx + rx * 0.82} ${cy + ry * 0.3}`} fill="none" stroke="#2f4a52" strokeWidth={16} opacity={0.6} strokeLinecap="round" />
       <path d={`M ${cx - rx * 0.8} ${cy + ry * 0.34} C ${cx - rx * 0.2} ${cy + ry * 0.2} ${cx + rx * 0.2} ${cy + ry * 0.5} ${cx + rx * 0.82} ${cy + ry * 0.3}`} fill="none" stroke="#4a6f78" strokeWidth={6} opacity={0.5} strokeLinecap="round" />
-      {/* ruined towers of the dead city on the far shore */}
-      {[[-0.34, 0.1, 46], [-0.14, -0.02, 60], [0.08, 0.08, 40], [0.3, -0.04, 54], [0.5, 0.12, 38]].map(([fx, fy, th], i) => (
-        <g key={i} transform={`translate(${cx + fx * rx},${cy + fy * ry})`}>
+
+      {/* ── the DEAD CITY — ruined towers west of the gate, where the shadow
+          trial waits; cold blue-lit windows, not hearth-light ── */}
+      {[[168, 2042, 46], [232, 2068, 58], [108, 2108, 40], [62, 2178, 34], [152, 2202, 44], [252, 2006, 36]].map(([tx, ty, th], i) => (
+        <g key={'dc' + i} transform={`translate(${tx},${ty})`}>
           <rect x={-11} y={-th} width={22} height={th + 6} fill="#3a322c" stroke="#1a1512" strokeWidth={1.6} />
           <rect x={-11} y={-th - 3} width={7} height={4} fill="#3a322c" stroke="#1a1512" strokeWidth={0.8} />
           <rect x={4} y={-th - 3} width={7} height={4} fill="#3a322c" stroke="#1a1512" strokeWidth={0.8} />
-          <rect x={-4} y={-th * 0.6} width={8} height={10} fill="#c9a24a" opacity={0.45} />
+          <rect x={-4} y={-th * 0.6} width={8} height={10} fill="#7fa9b5" opacity={0.4} />
         </g>
       ))}
-      <ellipse cx={cx - rx * 0.1} cy={cy - ry * 0.1} rx={64} ry={40} fill="#e8892b" opacity={0.1} />
+      {/* the ghost-lit street: in from the gate, through the city, down to the plaza */}
+      <path d="M 380 2070 C 350 2062 322 2058 300 2062 C 330 2088 366 2114 396 2136 C 404 2162 410 2190 415 2212"
+            fill="none" stroke="#4a4038" strokeWidth={13} strokeLinecap="round" opacity={0.9} />
+      <path d="M 380 2070 C 350 2062 322 2058 300 2062 C 330 2088 366 2114 396 2136 C 404 2162 410 2190 415 2212"
+            fill="none" stroke="#6a5f50" strokeWidth={3} strokeDasharray="2 9" strokeLinecap="round" opacity={0.8} />
+
+      {/* ── the LIVING QUARTER — the one warm-lit plaza of the world below ── */}
+      <g>
+        <ellipse cx={400} cy={2150} rx={110} ry={62} fill="#e8892b" opacity={0.1} />
+        <path d={blobPath(400, 2150, 92, 54, 313, 0.1, 12)} fill="#4a4038" stroke="#5f564a" strokeWidth={2} />
+        <path d={blobPath(400, 2150, 74, 42, 314, 0.12, 10)} fill="#57504a" opacity={0.8} />
+        {[[352, 2124], [452, 2130], [366, 2186], [442, 2178]].map(([fx, fy], i) => (
+          <ellipse key={'fs' + i} cx={fx} cy={fy} rx={8} ry={4.4} fill="#6a6156" opacity={0.5} />
+        ))}
+        {torch(372, 2130)}{torch(430, 2154)}{torch(388, 2196)}{torch(448, 2202)}
+        {stall(462, 2136)}{stall(432, 2114)}
+      </g>
+
+      {/* the Beauty of the Earth's silver grove */}
+      <g>
+        <circle cx={640} cy={2124} r={34} fill="#c9d8e8" opacity={0.1} />
+        <ellipse cx={640} cy={2138} rx={40} ry={16} fill="none" stroke="#8fa9c4" strokeWidth={1.6} strokeDasharray="4 6" opacity={0.7} />
+        {[[610, 2130], [668, 2126], [640, 2148]].map(([px, py], i) => (
+          <g key={'bg' + i} transform={`translate(${px},${py})`}>
+            <rect x={-1} y={-2} width={2} height={6} fill="#5c5a66" />
+            <circle cy={-6} r={4.4} fill="#aebfd6" opacity={0.85} />
+          </g>
+        ))}
+      </g>
+
+      {/* the Kulshedra's ember pit */}
+      <g>
+        <circle cx={620} cy={2344} r={30} fill="#e8542b" opacity={0.14} />
+        <path d={blobPath(620, 2344, 26, 15, 611, 0.2, 10)} fill="#1a1210" stroke="#3a1c12" strokeWidth={2} />
+        {[[606, 2340], [624, 2350], [634, 2338]].map(([ex, ey], i) => <circle key={'em' + i} cx={ex} cy={ey} r={2.2} fill={i % 2 ? '#e8892b' : '#e8542b'} opacity={0.9} />)}
+      </g>
+      <ellipse cx={cx - rx * 0.1} cy={cy - ry * 0.1} rx={64} ry={40} fill="#e8892b" opacity={0.08} />
     </g>
   )
 }
@@ -1145,11 +1370,62 @@ const TERRAIN = { sky: terrSky, mountain: terrMountains, forest: terrForest, riv
 // soft outer tone per region so each blends into the land instead of floating
 // (the sea draws its own beach/coastline off-map, so it has no region halo)
 const HALO = { mountain: '#7e9a54', forest: '#5f7a3f', river: '#c7b78a', castle: '#8f9a72', lake: '#a9c6a0', cavern: '#37302b' }
-// faint darker-green blotches over the land band (not the sky) for texture
-const WORLD_BLOTCHES = (() => {
-  const rnd = mulberry32(99), b = []
-  for (let i = 0; i < 22; i++) b.push([-880 + rnd() * 3680, -680 + rnd() * 2820, 60 + rnd() * 150, 24 + rnd() * 60])
-  return b
+// scattered land-detail — meadow blotches, soft hills, little woods and lone
+// bushes/rocks over the open country, so the land between regions isn't empty
+// flat green. Deterministic; every piece is tested against the village, the
+// regions, the river, the well-shaft and the sea so it only lands on open meadow.
+const WORLD_SCATTER = (() => {
+  const rnd = mulberry32(99)
+  // rough centre-line of the world river by y (piecewise linear approximation)
+  const riverX = (y) => y < -262 || y > 1344 ? null
+    : y < 442 ? 300 + (158 - 300) * (y + 262) / 704
+    : y < 980 ? 158 + (240 - 158) * (y - 442) / 538
+    : 240 + (300 - 240) * (y - 980) / 364
+  const SHAFT = [[480, 466], [560, 800], [640, 1140], [590, 1400], [500, 1700], [430, 1900]]
+  const clear = (x, y, pad = 0) => {
+    if (y < -190 || x > seaCoastX(y) - 120 - pad) return false
+    const vx = (x - 512) / (620 + pad), vy = (y - 432) / (480 + pad)
+    if (vx * vx + vy * vy < 1) return false
+    for (const rg of REGIONS) {
+      if (!rg.terrain) continue
+      const f = rg.terrain === 'cavern' ? 1.32 : 1.18
+      const dx = (x - rg.cx) / (rg.rx * f + pad), dy = (y - rg.cy) / (rg.ry * f + pad)
+      if (dx * dx + dy * dy < 1) return false
+    }
+    const rx0 = riverX(y)
+    if (rx0 != null && Math.abs(x - rx0) < 95 + pad) return false
+    for (const [sx, sy] of SHAFT) if (Math.hypot(x - sx, y - sy) < 120 + pad) return false
+    return true
+  }
+  const blotches = [], hills = [], woods = [], decor = []
+  let guard = 0
+  while (blotches.length < 26 && guard++ < 4000) {
+    const x = -880 + rnd() * 1900, y = -190 + rnd() * 2750
+    if (!clear(x, y, 30)) continue
+    blotches.push([x, y, 70 + rnd() * 150, 26 + rnd() * 60])
+  }
+  guard = 0
+  while (hills.length < 11 && guard++ < 4000) {
+    const x = -880 + rnd() * 1900, y = -190 + rnd() * 2750
+    if (!clear(x, y, 60)) continue
+    hills.push([x, y, 90 + rnd() * 90, 26 + rnd() * 22, (rnd() - 0.5) * 24])
+  }
+  guard = 0
+  while (woods.length < 24 && guard++ < 6000) {
+    const x = -880 + rnd() * 1900, y = -190 + rnd() * 2750
+    if (!clear(x, y, 50)) continue
+    const n = 2 + Math.floor(rnd() * 5), trees = []
+    for (let k = 0; k < n; k++) trees.push([x + (rnd() - 0.5) * 90, y + (rnd() - 0.5) * 56, 0.7 + rnd() * 0.8])
+    trees.sort((a, b) => a[1] - b[1])
+    woods.push(trees)
+  }
+  guard = 0
+  while (decor.length < 22 && guard++ < 4000) {
+    const x = -880 + rnd() * 1900, y = -190 + rnd() * 2750
+    if (!clear(x, y, 10)) continue
+    decor.push([x, y, rnd() < 0.5 ? 1 : 0, 0.8 + rnd() * 0.6]) // 1 = bush, 0 = rock
+  }
+  return { blotches, hills, woods, decor }
 })()
 
 // Roads connect the settled places on LAND (the river handles the water route
@@ -1162,7 +1438,7 @@ const VILLAGE_ROADS = [
   'M 458 66 C 396 -96 344 -196 300 -282',                          // crossroads → Mount Tomorr (north)
   'M 458 78 C 478 260 452 560 384 828 C 344 1024 316 1200 300 1320', // high-street S → Zana's reach → Rozafa
   'M 214 476 C 70 492 -150 476 -430 452',                           // HERO BRIDGE road → west over the river to the forest
-  'M 322 1372 C 640 1316 1000 1180 1300 1032',                     // coast road: river-mouth → the sea (the Buna)
+  'M 322 1372 C 460 1290 560 1180 640 1090',                       // coast road: river-mouth → the Gulf of Drin shore
 ]
 // ONE river: springs from Mount Tomorr (top-centre), bows down the village's WEST
 // edge past the bridge/mill/spring, through the Zana's reach, to Rozafa at the mouth.
@@ -1173,6 +1449,18 @@ const WELL_SHAFT = 'M 480 466 C 540 780 648 1140 566 1520 C 500 1780 440 1930 40
 const MAP_VIEWS = {
   village: { x: 211, y: 80, k: 0.72 },
   world: { x: 520, y: 296, k: 0.18 },
+  sky: { x: 388, y: 1300, k: 0.8 },      // the sky realm & the Sun's compound
+  mountain: { x: 354, y: 814, k: 0.82 }, // Mount Tomorr & Jutbina
+  below: { x: 220, y: -1578, k: 0.9 },   // the world below
+}
+// where each region's caption sits when the default (above the region) would
+// collide with drawn terrain or another region's content.
+const REGION_LABEL_POS = {
+  mountain: [-30, -906],
+  river: [-140, 920],
+  castle: [566, 1306],
+  lake: [-310, 1560],
+  underworld: [360, 1774],
 }
 
 function VillageMap({ g, current, goGraph }) {
@@ -1185,7 +1473,8 @@ function VillageMap({ g, current, goGraph }) {
     const CX = 512, CY = 432, RX = 590, RY = 452
     for (let a = 0; a < Math.PI * 2; a += 0.045) {
       if (a > 2.29 && a < 3.69) continue // leave the river's west bank clear
-      const wob = 1 + Math.sin(a * 3 + 1) * 0.05 + (rnd() - 0.5) * 0.1
+      if (rnd() < 0.12) continue // ragged gaps so the ring doesn't read as an ellipse
+      const wob = 1 + Math.sin(a * 3 + 1) * 0.09 + (rnd() - 0.5) * 0.17
       for (let k = 0; k < (rnd() < 0.5 ? 2 : 1); k++) {
         const rr = wob + (rnd() - 0.5) * 0.14
         push(CX + Math.cos(a) * RX * rr, CY + Math.sin(a) * RY * rr, 0.66 + rnd() * 0.62)
@@ -1210,8 +1499,10 @@ function VillageMap({ g, current, goGraph }) {
       : p.type === 'palace' ? 50
       : (p.type === 'church' || p.type === 'tower') ? 32
       : (p.type === 'oda' || p.type === 'mill' || p.type === 'garden' || p.type === 'hearth' || p.type === 'pasture') ? 26 : 20
-    // river's east bank at a given y — keep roofs out of the water (river now runs WEST)
-    const riverRightX = (y) => (y < 486 ? 188 : 188 - (y - 486) * 0.893)
+    // river's east bank at a given y — keep roofs out of the water. The world river
+    // bows down the town's WEST edge (~x158 at the top, drifting a little east as it
+    // descends), so the east bank sits ~34px east of that centre-line.
+    const riverRightX = (y) => 192 + Math.max(0, y - 442) * 0.124
     const segDist = (px, py, x1, y1, x2, y2) => {
       const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy || 1
       let t = ((px - x1) * dx + (py - y1) * dy) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t
@@ -1221,12 +1512,14 @@ function VillageMap({ g, current, goGraph }) {
       { id: 'church', cx: 388, cy: 202, rx: 122, ry: 96 },
       { id: 'upnorth', cx: 600, cy: 250, rx: 132, ry: 100 },
       { id: 'squareN', cx: 512, cy: 356, rx: 116, ry: 84 },
-      { id: 'lanes', cx: 320, cy: 400, rx: 128, ry: 118 },
-      { id: 'life', cx: 774, cy: 452, rx: 142, ry: 130 },
+      { id: 'lifeW', cx: 306, cy: 476, rx: 134, ry: 132 },   // village life — now the WEST quarter
+      { id: 'lanesE', cx: 890, cy: 476, rx: 56, ry: 150 },   // back lanes — a strip BEHIND the palace walls (east)
       { id: 'southe', cx: 464, cy: 632, rx: 150, ry: 118 },
-      { id: 'southw', cx: 736, cy: 648, rx: 132, ry: 112 },
+      { id: 'southw', cx: 700, cy: 660, rx: 128, ry: 104 },
       { id: 'river', cx: 260, cy: 566, rx: 100, ry: 100 },
     ]
+    // the walled palace compound (east) — no packed roofs inside the curtain wall
+    const inPalaceWall = (x, y) => x > 616 && x < 828 && y > 384 && y < 558
     const roofs = [], occ = new Set()
     for (const Q of QUARTERS) {
       const qr = mulberry32(hashStr('q:' + Q.id))
@@ -1244,6 +1537,7 @@ function VillageMap({ g, current, goGraph }) {
           if (tx * tx + ty * ty > 1.02) continue                     // safety: inside the town
           if (x < riverRightX(y)) continue                           // east of the river
           if (Math.hypot(x - 499, y - 432) < 70) continue            // leave the square open
+          if (inPalaceWall(x, y)) continue                           // inside the palace walls
           const cell = Math.round(x / 12) + ':' + Math.round(y / 12)
           if (occ.has(cell)) continue                                // one roof per ~12px cell (no piling at quarter seams)
           let blocked = false
@@ -1283,7 +1577,7 @@ function VillageMap({ g, current, goGraph }) {
   const { dots, edges, oddEdges, clusters, singles, memberOf } = useMemo(() => {
     // region label per node (positions no longer come from here — only regOf,
     // used for the region caption of generic glyphs + the odd-link detector).
-    const byRegion = assignRegions(g)
+    const byRegion = assignRegions(g.ids)
     const regOf = {}
     byRegion.forEach((list, ri) => list.forEach((id) => { regOf[id] = REGIONS[ri].key }))
     for (const pl of VILLAGE_PLACES) if (STORY[pl.id]) regOf[pl.id] = 'village'
@@ -1437,9 +1731,11 @@ function VillageMap({ g, current, goGraph }) {
   return (
     <div className="dbg-map">
       <p className="dbg-note">
-        The whole world on one map — <b>drag</b> to pan, <b>scroll</b> to zoom. The detailed
-        <b> village</b> sits at the centre; around it lie the great forest, Mount Tomorr and the sky realm,
-        the river down to the sea and Rozafa castle, and — down through the well — the world below.
+        The whole world on one map — <b>drag</b> to pan, <b>scroll</b> to zoom. Laid over the real
+        (rotated) map of Albania: <b>Mount Tomorr</b> and the sky crown the top; the <b>river</b> runs
+        down the centre past the <b>village</b> (you begin at the bridge that crosses to it) to <b>Rozafa
+        castle</b> at the river-mouth beside <b>Lake Shkodra</b>; the <b>great forest</b> lies west across
+        the river; the <b>Adriatic</b> fills the east; and — down through the well — the world below.
         Every <b>dot</b> is a scene; click any dot or building to open it in the Story Graph.
       </p>
       <div className="dbg-worldwrap">
@@ -1447,6 +1743,9 @@ function VillageMap({ g, current, goGraph }) {
           <button className="btn" title="zoom in" onClick={() => zoomBy(1.3)}>＋</button>
           <button className="btn" title="zoom out" onClick={() => zoomBy(1 / 1.3)}>−</button>
           <button className="btn" title="centre on the village" onClick={() => setView(MAP_VIEWS.village)}>⌂ village</button>
+          <button className="btn" title="the sky realm & the Sun's compound" onClick={() => setView(MAP_VIEWS.sky)}>☀ sky</button>
+          <button className="btn" title="Mount Tomorr & Jutbina" onClick={() => setView(MAP_VIEWS.mountain)}>⛰ mountain</button>
+          <button className="btn" title="the world below" onClick={() => setView(MAP_VIEWS.below)}>🕳 below</button>
           <button className="btn" title="fit the whole world" onClick={() => setView(MAP_VIEWS.world)}>⤢ world</button>
           <button className={'btn' + (showOdd ? ' active' : '')}
                   title="highlight geographically long 'teleport' links that cross over many other scenes"
@@ -1476,7 +1775,7 @@ function VillageMap({ g, current, goGraph }) {
               <stop offset="1" stopColor="#88a559" />
             </linearGradient>
             {/* the ray of light from Tomorr's summit up to the Sun's house */}
-            <linearGradient id="rayGrad" gradientUnits="userSpaceOnUse" x1="300" y1="-830" x2="300" y2="-1140">
+            <linearGradient id="rayGrad" gradientUnits="userSpaceOnUse" x1="300" y1="-830" x2="300" y2="-1032">
               <stop offset="0" stopColor="#fff3c0" stopOpacity="0.1" />
               <stop offset="0.5" stopColor="#ffe79a" stopOpacity="0.55" />
               <stop offset="1" stopColor="#fff6d8" stopOpacity="0.9" />
@@ -1489,7 +1788,14 @@ function VillageMap({ g, current, goGraph }) {
             {/* the SKY — a world-wide backdrop across the top that the mountains rise
                 into, fading down into the land so there's no seam */}
             <rect x={-2400} y={-1560} width={8000} height={1320} fill="url(#wSkyBg)" onClick={onBackdrop} />
-            {WORLD_BLOTCHES.filter(([, y]) => y > -300).map(([x, y, rx, ry], i) => <ellipse key={'bl' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7c9450" opacity={0.32} />)}
+            {WORLD_SCATTER.blotches.map(([x, y, rx, ry], i) => <ellipse key={'bl' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7c9450" opacity={0.32} />)}
+            {WORLD_SCATTER.hills.map(([x, y, rx, ry, rot], i) => (
+              <g key={'hl' + i} transform={`rotate(${rot} ${x} ${y})`}>
+                <ellipse cx={x} cy={y} rx={rx} ry={ry} fill="#7f9a54" opacity={0.55} />
+                <ellipse cx={x - rx * 0.16} cy={y - ry * 0.3} rx={rx * 0.62} ry={ry * 0.5} fill="#a7bd75" opacity={0.5} />
+                <path d={`M ${x - rx * 0.7} ${y + ry * 0.5} Q ${x} ${y + ry * 0.95} ${x + rx * 0.7} ${y + ry * 0.5}`} fill="none" stroke="#6f8a4a" strokeWidth={2} opacity={0.4} />
+              </g>
+            ))}
             {/* soft ORGANIC region halos (two feathered blob rings) so each region
                 dissolves into the land instead of floating as an oval */}
             {REGIONS.map((rg) => (rg.terrain && HALO[rg.terrain]
@@ -1499,6 +1805,14 @@ function VillageMap({ g, current, goGraph }) {
                 </g>
               : null))}
 
+            {/* little woods + lone bushes/rocks over the open country */}
+            {WORLD_SCATTER.woods.map((trees, i) => (
+              <g key={'wd' + i}>{trees.map(([x, y, s], j) => <Tree key={j} x={x} y={y} s={s} />)}</g>
+            ))}
+            {WORLD_SCATTER.decor.map(([x, y, kind, s], i) => (
+              kind ? <Bush key={'dc' + i} x={x} y={y} s={s} /> : <Rock key={'dc' + i} x={x} y={y} s={s} />
+            ))}
+
             {/* the village clearing — an organic meadow that blends into the land, not a box */}
             <ellipse cx={512} cy={432} rx={590} ry={452} fill="url(#vGrass)" onClick={onBackdrop} />
             {[[724, 620, 120, 40], [844, 640, 90, 30], [594, 300, 90, 30], [254, 560, 90, 34]].map(([x, y, rx, ry], i) => (
@@ -1506,7 +1820,8 @@ function VillageMap({ g, current, goGraph }) {
             ))}
             <ellipse cx={370} cy={188} rx={96} ry={44} fill="#a7bd75" opacity="0.55" />
 
-            {/* connector roads, the ONE river (mountain -> village -> Zana -> sea), and the well-shaft */}
+            {/* connector roads and the well-shaft (the river is drawn OVER the town
+                ground below, so it stays visible where it threads the village) */}
             {VILLAGE_ROADS.map((d, i) => (
               <g key={i}>
                 <path d={d} fill="none" stroke="#9e885b" strokeWidth={16} opacity={0.38} strokeLinecap="round" />
@@ -1514,13 +1829,14 @@ function VillageMap({ g, current, goGraph }) {
                 <path d={d} fill="none" stroke="#efe5c8" strokeWidth={3} strokeDasharray="2 11" opacity={0.85} strokeLinecap="round" />
               </g>
             ))}
-            <path d={WORLD_RIVER} fill="none" stroke="#cdbf94" strokeWidth={92} strokeLinecap="round" />
-            <path d={WORLD_RIVER} fill="none" stroke="url(#wSea)" strokeWidth={60} strokeLinecap="round" />
-            <path d={WORLD_RIVER} fill="none" stroke="#bfe0ea" strokeWidth={16} strokeLinecap="round" opacity={0.5} />
-            <path d={WELL_SHAFT} fill="none" stroke="#6f5f45" strokeWidth={30} strokeLinecap="round" opacity={0.55} />
-            <path d={WELL_SHAFT} fill="none" stroke="#2b241d" strokeWidth={20} strokeLinecap="round" />
-            <path d={WELL_SHAFT} fill="none" stroke="#120f0b" strokeWidth={9} strokeLinecap="round" />
-            <path d={WELL_SHAFT} fill="none" stroke="#e8892b" strokeWidth={3} strokeLinecap="round" opacity={0.28} strokeDasharray="1 26" />
+            {/* the well shaft — stone-lined, a rope dropping into the dark, torch
+                sparks fading with depth */}
+            <path d={WELL_SHAFT} fill="none" stroke="#8f8271" strokeWidth={34} strokeLinecap="round" opacity={0.4} />
+            <path d={WELL_SHAFT} fill="none" stroke="#5c5344" strokeWidth={24} strokeLinecap="round" strokeDasharray="14 7" opacity={0.75} />
+            <path d={WELL_SHAFT} fill="none" stroke="#2b241d" strokeWidth={18} strokeLinecap="round" />
+            <path d={WELL_SHAFT} fill="none" stroke="#120f0b" strokeWidth={8} strokeLinecap="round" />
+            <path d={WELL_SHAFT} fill="none" stroke="#c9b48a" strokeWidth={1.6} strokeDasharray="9 14" opacity={0.5} />
+            <path d={WELL_SHAFT} fill="none" stroke="#e8892b" strokeWidth={3} strokeLinecap="round" opacity={0.25} strokeDasharray="1 32" />
 
             {/* region terrains (the mountain and the sea cover the river's source and mouth) */}
             {REGIONS.map((rg) => (rg.terrain ? <g key={rg.key}>{TERRAIN[rg.terrain](rg)}</g> : null))}
@@ -1531,6 +1847,11 @@ function VillageMap({ g, current, goGraph }) {
                   read against it and the lanes show as pale streets between blocks */}
               <ellipse cx={TOWN.cx} cy={TOWN.cy} rx={TOWN.rx + 24} ry={TOWN.ry + 24} fill="#b6a473" opacity={0.5} onClick={onBackdrop} />
               <ellipse cx={TOWN.cx} cy={TOWN.cy} rx={TOWN.rx} ry={TOWN.ry} fill="#cdba8b" onClick={onBackdrop} />
+              {/* the ONE river (Tomorr → town's west edge → Zana's reach → Rozafa),
+                  drawn OVER the town ground so it threads visibly through the village */}
+              <path d={WORLD_RIVER} fill="none" stroke="#cdbf94" strokeWidth={92} strokeLinecap="round" />
+              <path d={WORLD_RIVER} fill="none" stroke="url(#wSea)" strokeWidth={60} strokeLinecap="round" />
+              <path d={WORLD_RIVER} fill="none" stroke="#bfe0ea" strokeWidth={16} strokeLinecap="round" opacity={0.5} />
               {/* fields ring the town out in the meadow, not inside the packed core */}
               <Field x={866} y={126} w={214} h={140} rot={7} tone="#6f5744" />
               <Field x={874} y={696} w={176} h={120} rot={-6} tone="#7a664a" />
@@ -1555,6 +1876,36 @@ function VillageMap({ g, current, goGraph }) {
                   : d.kind === 'haystack' ? <Haystack key={i} x={d.x} y={d.y} s={d.s} />
                   : <GardenPlot key={i} x={d.x} y={d.y} s={d.s} />
               ))}
+              {/* ── the walled PALACE compound (east): a WIDE ROAD from the square to
+                  the front gate, a grey stone curtain wall enclosing the black palace
+                  and the marble garden (gate on the WEST), back lanes behind it ── */}
+              <g>
+                {/* the grand approach road: square → the palace gate */}
+                <path d="M 516 440 L 618 470" fill="none" stroke="#9e885b" strokeWidth={32} opacity={0.4} strokeLinecap="round" />
+                <path d="M 516 440 L 618 470" fill="none" stroke="#cbb98d" strokeWidth={25} strokeLinecap="round" />
+                <path d="M 516 440 L 618 470" fill="none" stroke="#efe5c8" strokeWidth={4} strokeDasharray="2 12" opacity={0.85} strokeLinecap="round" />
+                {/* the courtyard ground inside the walls */}
+                <rect x={626} y={394} width={192} height={152} rx={8} fill="#bda876" opacity={0.55} />
+                {/* the curtain wall — four runs, with a GATE gap on the west side */}
+                <g fill="#8b8378" stroke="#585047" strokeWidth={2.4}>
+                  <rect x={620} y={386} width={204} height={9} />
+                  <rect x={620} y={545} width={204} height={9} />
+                  <rect x={815} y={386} width={9} height={168} />
+                  <rect x={620} y={386} width={9} height={66} />
+                  <rect x={620} y={496} width={9} height={58} />
+                </g>
+                {/* battlements along the north wall */}
+                {Array.from({ length: 12 }, (_, i) => <rect key={'m' + i} x={624 + i * 16.4} y={381} width={9} height={6} fill="#8b8378" stroke="#585047" strokeWidth={1} />)}
+                {/* corner towers */}
+                {[[620, 386], [813, 386], [620, 545], [813, 545]].map(([tx, ty], i) => (
+                  <g key={'t' + i}>
+                    <rect x={tx - 6} y={ty - 7} width={20} height={20} rx={1.5} fill="#9a938a" stroke="#585047" strokeWidth={2} />
+                    {[0, 1, 2].map((j) => <rect key={j} x={tx - 6 + j * 7} y={ty - 11} width={4.5} height={5} fill="#9a938a" stroke="#585047" strokeWidth={1} />)}
+                  </g>
+                ))}
+                {/* the front gatehouse posts flanking the road */}
+                {[444, 490].map((gy, i) => <rect key={'g' + i} x={612} y={gy} width={16} height={16} rx={1.5} fill="#736b60" stroke="#3f382f" strokeWidth={1.8} />)}
+              </g>
               {VILLAGE_DISTRICTS.map((d, i) => (
                 <text key={i} x={d.x} y={d.y} textAnchor="middle" className="dbg-vdistrict">{d.t}</text>
               ))}
@@ -1679,11 +2030,11 @@ function VillageMap({ g, current, goGraph }) {
               )
             })}
 
-            {/* the ray of light from Tomorr's summit (maja) to the Sun's house */}
+            {/* the ray of light from Tomorr's summit (maja) up to the plateau's gate */}
             <g style={{ pointerEvents: 'none' }}>
-              <polygon points="288,-832 312,-832 320,-1116 280,-1116" fill="url(#rayGrad)" />
-              <line x1={300} y1={-834} x2={300} y2={-1120} stroke="#fff6d8" strokeWidth={2.4} opacity={0.75} />
-              {[[296, -980], [306, -1052], [300, -908]].map(([sx, sy], i) => (
+              <polygon points="288,-832 312,-832 318,-1030 282,-1030" fill="url(#rayGrad)" />
+              <line x1={300} y1={-834} x2={300} y2={-1032} stroke="#fff6d8" strokeWidth={2.4} opacity={0.75} />
+              {[[294, -942], [307, -1002], [300, -882]].map(([sx, sy], i) => (
                 <g key={i} transform={`translate(${sx},${sy})`} opacity={0.8}>
                   <path d="M0 -6 L1.3 -1.3 L6 0 L1.3 1.3 L0 6 L-1.3 1.3 L-6 0 L-1.3 -1.3 Z" fill="#fff6d8" />
                 </g>
@@ -1709,9 +2060,11 @@ function VillageMap({ g, current, goGraph }) {
             })}
 
             {/* region captions */}
-            {REGIONS.map((rg) => (rg.label ? (
-              <text key={rg.key} x={rg.cx} y={rg.cy - rg.ry - 12} textAnchor="middle" className="dbg-wregion">{rg.label}</text>
-            ) : null))}
+            {REGIONS.map((rg) => {
+              if (!rg.label) return null
+              const [lx, ly] = REGION_LABEL_POS[rg.key] || [rg.cx, rg.cy - rg.ry - 12]
+              return <text key={rg.key} x={lx} y={ly} textAnchor="middle" className="dbg-wregion">{rg.label}</text>
+            })}
           </g>
         </svg>
 

@@ -300,7 +300,7 @@ export const FOLKLORE = [
     title: 'Dhampir — the one who sees the undead',
     category: 'Creature',
     summary:
-      'The half-living son a lugat or karkanxholl fathers on a widow — the only one who can see and destroy the otherwise-invisible undead ("the dhampir knows the lugat"). He knows the undead thing by sight, wrestles it down in the dark, and unmakes it. A dhampir\'s own grave is found by leading a virgin boy on a white stallion through the graveyard, where the horse balks.',
+      'The half-living son a lugat or karkanxholl fathers on a widow — the only one who can see and destroy the otherwise-invisible undead ("the dhampir knows the lugat"). He knows the undead thing by sight, wrestles it down in the dark, and unmakes it. Where no dhampir is at hand, the lugat\'s grave is found by leading a virgin boy on a white stallion through the graveyard: the horse balks at the unquiet grave.',
     sources: [
       { label: 'Lugat (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Lugat' },
     ],
@@ -1781,9 +1781,9 @@ export const ENDING_LORE = {
   breshkaFund: 'tortoise',
   riddleFund: 'tortoise',
   mejdanKeq: 'besa',
-  besaVella: 'besa',
+  besaVella: 'besa-truce',
   besaThyer: 'besa',
-  vajtimFund: 'vajtim',
+  vajtimFund: 'gjama-e-burrave',
   veraDiteFund: 'dita-e-veres',
   kulleFal: 'kanun-blood-feud',
   kulleGjak: 'kanun-blood-feud',
@@ -1806,11 +1806,11 @@ export const ENDING_LORE = {
   // Mujo / Halil / kreshnik epic
   mujoHakFund: 'mujo-avenges-halil',
   mujoHakKeq: 'mujo-avenges-halil',
-  mujiFund: 'mujo-strength',
+  mujiFund: 'gjeto-basho-muji',
   mujiPasuri: 'mujo-strength',
   mujiDije: 'mujo-strength',
-  zanaGold: 'mujo-strength',
-  zanaDije: 'mujo-strength',
+  zanaGold: 'zana-e-malit',
+  zanaDije: 'zana-e-malit',
   dhiaFund: 'mujo-zanas',
   kaliFund: 'mujo-courser',
   halilFund: 'kreshnik-epic',
@@ -1831,7 +1831,7 @@ export const ENDING_LORE = {
   henaPaqe: 'hena',
 
   // The main spine: drought, Kulshedra, dragua, underworld, eagle
-  shtepia: 'scurfhead',
+  shtepia: 'kulshedra',
   mishiVetes: 'scurfhead',
   dranguasi: 'drangue',
   ujkuUje: 'drangue',
@@ -1958,6 +1958,18 @@ export const ENDING_LORE = {
   kordhaProvaVdes: 'three-friends',
   kordhaFund: 'three-friends',
   kordhaDeti: 'three-friends',
+
+  // Village vignettes (the bridge of Arta / mill / spring / church / graves)
+  uraArtesShpetim: 'ura-e-artes',
+  mulliFund: 'kanuni',
+  kroiFund: 'hospitality',
+  kishaFund: 'harmonia-fetare',
+  varretFund: 'te-dyzetat',
+
+  // Oda told-tales (Skanderbeg / the lahuta / the burrnesha)
+  skenderFund: 'skanderbeg-legjenda',
+  lahutaFund: 'lahuta-cifteli',
+  burrneshaFund: 'burrnesha',
 }
 
 // ── AREA FACTOIDS ────────────────────────────────────────────────────────────
@@ -1974,32 +1986,82 @@ export const AREA_FACTOIDS = [
   {
     id: 'area-tomorr',
     region: 'mountain',
-    title: 'Mount Tomorr — the sky-father’s mountain',
+    title: 'Mount Tomorr — the living pilgrimage',
     blurb:
-      'You have walked Mount Tomorr end to end — the trailhead, the storm on its shoulders, the white-bull offering carried to the summit where Zojz the sky-father sits, white-bearded, the she-eagles wheeling about him and the winds for his servants. The highlanders still climb it on pilgrimage; the thunderbolt still seeks the proud and the tall. You have come to know the holy mountain.',
+      'You have walked Mount Tomorr end to end — the trailhead, the storm on its shoulders, the summit where the old sky-father holds his court. And the mountain is not a memory: to this day, every August, thousands climb to the Kulmak tekke on its ridge — the oldest folk-pilgrimage of the Albanians — tracing the hoofprint the white horse of Abaz Ali left in the rock, and sharing the kurban, the sacrificed lamb, among all comers. Pagan mountain, Christian saint and Bektashi dervish are layered on one peak, and none of them crowds the others out.',
     threshold: 0.6,
     quizNodes: ['mali1', 'tomor1', 'maja'],
-    lore: 'zojz',
+    lore: 'tomorri-pilgrimage',
   },
   {
     id: 'area-river',
     region: 'river',
     title: 'The river & the Zana',
     blurb:
-      'You have followed the river through its whole quarter — the dry bed running down from Tomorr, the bridge, the pools where the Zana keep their vigil. The Zana are the fierce mountain-fairies who suckled the hero Mujo to a strength greater than a drangue’s, who bless the one who honours them and blind the one who does not. You have come to know the river and its fairies.',
+      'You have followed the river through its whole quarter — the dry bed running down from Tomorr, the bridge, the pools where the Zana keep their vigil. The Zana of the mountain is the fierce fairy of the highland peaks — heir of the old goddess Diana — and every mountain has its own: she guards its springs, its game and its forest, her strength lives in three golden-horned wild goats, and her gaze can turn an intruder to stone. It was zana-milk that suckled the hero Mujo to a strength matched only by a drangue’s. She blesses the one who honours her waters, and woe to the one who does not.',
     threshold: 0.6,
     quizNodes: ['lumi', 'zana1', 'ura'],
-    lore: 'peri',
+    lore: 'zana-e-malit',
   },
   {
     id: 'area-forest',
     region: 'forest',
     title: 'The great forest',
     blurb:
-      'You have wandered the great forest from edge to edge — the trees, the night-fire, the sleep and the waking. It is here, at a stranger’s fire, that the Ora comes: the fate-spirit who guards a life and rewards the sacred besa of hospitality, for a guest is sent by God. You have come to know the wild wood and what walks in it.',
+      'You have wandered the great forest from edge to edge — the trees, the night-fire, the sleep and the waking. Whatever you met among the trunks may have been more than it seemed, for every Albanian is born with an Ora, a fate-spirit who walks beside a life from cradle to grave — and an Ora takes any form she pleases: a bird, a beast, an old woman at a fire, a serpent in the leaves. The wise treat every stranger of the wood accordingly. You have come to know the wild wood and what walks in it.',
     threshold: 0.6,
     quizNodes: ['pylli1', 'zjarriPyll', 'pylliLoop'],
     lore: 'ora',
+  },
+  {
+    id: 'area-castle',
+    region: 'castle',
+    title: 'Rozafa — the castle fed on milk',
+    blurb:
+      'You have climbed every stone of the castle on its rock above the two rivers, where the old man tells the oldest tale: three brothers built by day and the wall fell by night, until it asked for a life. They swore a besa to tell their wives nothing — whichever came with tomorrow’s bread would be walled in. Only the youngest kept his word, so it was his wife, Rozafa, who came. She accepted the stone on one condition: that the wall leave free her right breast to nurse her infant son, her right eye to see him, her right hand to caress him, her right foot to rock his cradle. The castle stands to this day, and people say her milk still seeps, white, from between the stones.',
+    threshold: 0.6,
+    quizNodes: ['kalaRozafa', 'kalaVllezer', 'kalaBesa'],
+    lore: 'rozafa',
+  },
+  {
+    id: 'area-underworld',
+    region: 'underworld',
+    title: 'The world below — her kingdom',
+    blurb:
+      'You have walked the world below from the well-mouth to the buried city — the serpent roads, the dark springs, the palace at the bottom of everything. That palace has a mistress: E Bukura e Dheut, the Beauty of the Earth, at once a crafty otherworld fairy and the underworld’s own springtime queen — the figure the Albanian tales seek more often than any other. Hero after hero goes down into the dark to find her, and the tales agree on one law: her hand is won by the one who heeds her trials, never by the one who grabs.',
+    threshold: 0.6,
+    quizNodes: ['bota1', 'bukura1', 'qyteti'],
+    lore: 'bukura-e-dheut',
+  },
+  {
+    id: 'area-sea',
+    region: 'sea',
+    title: 'The sea & the Baloz',
+    blurb:
+      'You have known the whole shore — the strand, the deep water, the graves of the drowned. And you have learned what the coast folk never forget: from time to time the sea gives up a Baloz, an armoured sea-monster the colour of soot, who demands tribute of the land — gold first, then flocks, then its maidens — and whom no ordinary man can face. It was to cut a Baloz down that Gjergj Elez Alia rose from his nine years of wounds. The sea gives him up, and the sea takes him back.',
+    threshold: 0.6,
+    quizNodes: ['bregu', 'balozMotra', 'balozTribut'],
+    lore: 'baloz',
+  },
+  {
+    id: 'area-sky',
+    region: 'sky',
+    title: 'The sky realm — the word that outlived its god',
+    blurb:
+      'You have travelled the realm above the clouds — the Sun’s road, the Moon’s peace, the houses of the winds. The Albanians’ everyday word for God is Perëndi, and it is older than any of the faiths that use it: scholars still argue whether it first meant “the one who commands,” or a striker of thunder in the sky, or simply the going-down of the sun. Under any reading, the sky itself was sworn by — për qiell — and the weather was read as the divine mood. The gods changed; the word for them did not.',
+    threshold: 0.6,
+    quizNodes: ['qiell1', 'qiellDiell', 'qiellPrende'],
+    lore: 'perendi',
+  },
+  {
+    id: 'area-village',
+    region: 'village',
+    title: 'The village — the guest at the head of the room',
+    blurb:
+      'You have lived the village end to end — the square, the well, the tower-houses, the men’s oda. And you have sat where the welcome has kept its fixed shape for centuries: the guest is led to the kryet e vendit, the seat of honour at the head of the oda, and served coffee and raki in strict order of seniority, then bread, salt and heart. Lodged overnight he is konak — untouchable; the Kanun binds the host to defend him with his own life, even if the guest proves to be his blood-enemy. At leaving, the host walks him to the edge of his ground and no further, for there the road, and God, take over.',
+    threshold: 0.5,
+    quizNodes: ['fshatiSheshi', 'oda1', 'plaka'],
+    lore: 'mikpritja-oda',
   },
 ]
 

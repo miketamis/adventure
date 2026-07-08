@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync, existsSync } from 'fs'
 
 const DIR = process.argv[2]
 const WRITE = process.argv.includes('--write')
-const REGIONS = ['sky', 'mountain', 'forest', 'river', 'castle', 'sea', 'underworld', 'village']
+const REGIONS = ['sky', 'mountain', 'forest', 'river', 'castle', 'lake', 'sea', 'underworld', 'village']
 
 const pos = {}
 const dup = []
