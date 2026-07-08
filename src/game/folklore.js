@@ -1176,6 +1176,116 @@ export const FOLKLORE = [
     ],
     related: ['tomorri-pilgrimage', 'hospitality', 'nata-e-buzmit'],
   },
+
+  // ══ Living customs (research pass 2, 2026-07-08) ═════════════════════════════
+  {
+    id: 'burrnesha',
+    title: 'Burrnesha — the sworn virgin (vajza e betuar)',
+    category: 'Custom',
+    summary:
+      'Under the Kanun a woman could swear a lifelong oath of celibacy before the village elders and thereafter live socially as a man — heading the household, carrying a rifle, sitting in the men\'s oda, taking a man\'s name and dress. The vow was sworn most often when a family had no male heir to carry its name, to let a daughter escape a betrothal she had not chosen without dishonouring either house, or to take a dead father\'s or brother\'s place and so hold or end a feud. It was irreversible and never about desire — it was the one legitimate door out of a woman\'s fixed role, and a burrneshë was addressed and buried as a man.',
+    sources: [
+      { label: 'Sworn virgin (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Sworn_virgin' },
+      { label: 'Antonia Young, Women Who Become Men (2000)', url: 'https://www.google.com/books/edition/Women_Who_Become_Men/9tR8SmO1G_gC' },
+    ],
+    related: ['kanuni', 'kanun-blood-feud', 'besa', 'oda-e-burrave', 'hospitality'],
+  },
+  {
+    id: 'stani',
+    title: 'Stani & bjeshka — the sheepfold and the summer pasture',
+    category: 'Custom',
+    summary:
+      'Highland life ran on transhumance: at the opening of the herding year the flocks were driven up from the winter lowland grazing (vërri) to the cool summer pastures (bjeshkët) of the Alps and brought down again in autumn. Up on the bjeshkë the shepherds lived at the stan — a stone-and-wood dairy hut and fold where the day\'s milk was turned into white cheese (djathë), curd (gjizë) and butter. The drive up opens on Dita e Shën Gjergjit, the feast that begins the shepherd\'s year; Balkan transhumance is inscribed on UNESCO\'s heritage list.',
+    sources: [
+      { label: 'Transhumance — UNESCO ICH', url: 'https://ich.unesco.org/en/RL/transhumance-the-seasonal-droving-of-livestock-01470' },
+      { label: 'Transhumance (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Transhumance' },
+    ],
+    related: ['dita-e-shen-gjergjit', 'kurbani', 'ora'],
+  },
+  {
+    id: 'dasma',
+    title: 'Dasma — the wedding and the bride\'s journey',
+    category: 'Custom',
+    summary:
+      'The traditional dasma ran three days or more, ending when the krushqit — the groom\'s wedding party — rode to the bride\'s father\'s house to fetch her and bring her back veiled, a flag (flamuri) carried at the head of the procession. The bride left with her pajë (dowry) and departed in ritual sorrow, wept and wept over, for she was passing forever out of her father\'s household; in the highlands she sat veiled, silent and still for days among her new kin. Styles differ sharply — the Gheg highlands mark the leave-taking with laments close to funeral vajtim, while Labëria in the south sings the wedding in UNESCO-listed iso-polyphony.',
+    sources: [
+      { label: 'Albanian folk iso-polyphony — UNESCO ICH', url: 'https://ich.unesco.org/en/RL/albanian-folk-iso-polyphony-00155' },
+      { label: 'Marriage customs / Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Culture_of_Albania' },
+    ],
+    related: ['paja', 'kanuni', 'vajtim', 'besa'],
+  },
+  {
+    id: 'paja',
+    title: 'Paja — the bride\'s dowry and trousseau',
+    category: 'Custom',
+    summary:
+      'The pajë (in the south prikë) was everything the bride brought into the marriage — woven and embroidered cloth, bedding, stockings and shirts she had made herself over years, packed in a carved wooden chest (sënduku i pajës). Its display before the groom\'s kin was a public reckoning of the bride\'s industry and her family\'s standing. In many regions a symbolic bride-gift also passed the other way; the pajë was hers, the one property a woman carried in her own right across the threshold.',
+    sources: [
+      { label: 'Margaret Hasluck, The Unwritten Law in Albania (1954)', url: 'https://archive.org/details/unwrittenlawinal0000marg' },
+      { label: 'Culture of Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Culture_of_Albania' },
+    ],
+    related: ['dasma', 'kanuni'],
+  },
+  {
+    id: 'mikpritja-oda',
+    title: 'Konaku & kafeja — receiving the guest in the oda',
+    category: 'Custom',
+    summary:
+      'Beyond the principle that "the house belongs to God and the guest," the welcome had a fixed shape: the guest was led to the kryet e vendit, the seat of honour at the head of the oda, and served coffee and a glass of raki, then a meal and tobacco, always in order of seniority. Lodged overnight (konak) he received "bread, salt and heart," and at leaving was escorted to the edge of the host\'s ground (përcjellja). The Kanun binds the host to defend a guest with his own life even if the guest proves to be his blood-enemy — under that roof the guest is untouchable, and a host who lets him come to harm is dishonoured forever.',
+    sources: [
+      { label: 'Besa (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Besa_(Albanian_culture)' },
+      { label: 'The Code of Lekë Dukagjini (Fox tr., archive.org)', url: 'https://archive.org/details/the-code-of-leke-dukagjini' },
+    ],
+    related: ['hospitality', 'oda-e-burrave', 'besa', 'kanuni', 'kanun-blood-feud'],
+  },
+  {
+    id: 'vellameri',
+    title: 'Vëllamëria & probatimi — sworn blood-brotherhood',
+    category: 'Custom',
+    summary:
+      'Two unrelated men could make themselves lifelong kin as sworn brothers (vëllam, native; probatin, from Slavic pobratim). In the rite Durham recorded, each tied a string tight round his little finger till it swelled, pricked it, and let a drop of blood fall on a lump of sugar which the other then ate — among Christians the drops went instead into a shared glass of raki, drunk together — swearing "jemi një gjak," we are one blood. Thereafter they owed each other a brother\'s defence and a brother\'s share in a feud, and their descendants could never intermarry, the union counting as incest "for more than a hundred years." It was used to seal an alliance or turn an enmity into kinship; women had a thinner-attested parallel, motërzimi.',
+    sources: [
+      { label: 'Durham, High Albania (1909) — ch. II', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' },
+      { label: 'Pobratim / blood brother (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Pobratim' },
+    ],
+    related: ['besa', 'kanuni', 'kanun-blood-feud', 'hospitality'],
+  },
+  {
+    id: 'lindja-besiku',
+    title: 'Lindja & besiku — birth, the Fates, and the cradle',
+    category: 'Custom',
+    summary:
+      'On the third night after a birth the Fatia/Mira — the three Fates, close kin to the Ora — were believed to come and fix the child\'s whole destiny, so the house was kept quiet and welcoming to please them. Mother and newborn were most open to the evil eye and the child-eating Shtriga through the vulnerable first forty days, so a blue bead, garlic, a red thread or a coin was pinned to the cradle and no one praised the baby aloud without adding "mashallah." The child was laid in the besik, a wooden rocking cradle, and lulled with a nina-nana; naming often waited, and plain or "ugly" names were sometimes given to make the child worthless in envious eyes.',
+    sources: [
+      { label: 'Albanian folk beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' },
+      { label: 'Ora (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Ora_(mythology)' },
+    ],
+    related: ['ora', 'fatia-mira', 'evil-eye', 'vitore', 'shtriga'],
+  },
+  {
+    id: 'besa-truce',
+    title: 'Besa-besë — the truce of the given word',
+    category: 'Custom',
+    summary:
+      'In everyday practice the besa was not only a lifelong oath but a working truce: a family "in blood" could grant an enemy a besa — a guaranteed span of safety — so he could reap his harvest, go to market, or attend a wedding or funeral without fear of the gun. The narrowest is the short truce right after a killing (often a 24-hour besa, under which the killer is even bound to attend the funeral and break bread); a longer besa, usually about a month and renewable, is brokered through the elders. Widest is the besa e katundit, sworn by a whole village so foes can meet in peace at a festival — Durham in 1908 heard "a week\'s besa had been sworn for the festival, so that all blood foes could meet as friends." To strike inside a besa was the blackest dishonour; it is what made a feud livable.',
+    sources: [
+      { label: 'Durham, High Albania (1909)', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' },
+      { label: 'Besa (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Besa_(Albanian_culture)' },
+    ],
+    related: ['besa', 'kanun-blood-feud', 'kanuni', 'hospitality'],
+  },
+  {
+    id: 'emri-tabu',
+    title: 'Tabuja e emrit — the taboo on names',
+    category: 'Custom',
+    summary:
+      'Albanian custom hedged dangerous names with avoidance. A highland wife did not speak her husband\'s name or his close kin\'s aloud, calling him only "i zoti i shtëpisë," the man of the house. The wolf was not named directly after dark for fear of summoning it — the old wished instead "mbylltë Zoti gojën," may God shut its mouth — and the same logic gave children plain or "ugly" protective names, since a child not worth envying is one the evil eye and the child-eating spirits pass over. (The apotropaic wolf-name Ujk/Ujkan exists in Albanian as a plausible parallel to the well-documented Serbian Vuk, though its protective use is more thinly attested.)',
+    sources: [
+      { label: 'Durham, High Albania (1909)', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' },
+      { label: 'Vuk (name) — apotropaic naming (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Vuk_(name)' },
+    ],
+    related: ['evil-eye', 'lindja-besiku', 'ora', 'wolf'],
+  },
 ]
 
 // Map every ending node id (from content.js) to the FOLKLORE entry id it draws from.
@@ -1595,10 +1705,11 @@ export const CORPUS = [
     id: 'src-dine-valet',
     title: 'Valët e Detit',
     author: 'Spiro Dine', year: '1908', lang: 'sq', kind: 'anthology',
-    license: 'Public domain (no free full text located)',
+    license: 'Public domain (page-image scan)',
     summary:
-      'The longest Albanian book of its day (865 pp); its second half is a vast folklore collection of songs and tales. Not digitized as free full text — catalog pointer only.',
+      'The longest Albanian book of its day (~894 pp); its second half is a vast folklore collection of songs and tales. The full scan is online at the National Library of Albania as page images (IIIF viewer, no plain-text/PDF), so it is linked rather than held as text.',
     online: [
+      { label: 'BKSH digital library — full 894-page scan', url: 'https://bibliotekadigjitale.bksh.al/?manifest=https://bibliotekadigjitale.bksh.al/iiif/Manifester/IIIF/libra1!HASHd86a.dir', fmt: 'html' },
       { label: 'exlibris.al (study)', url: 'https://exlibris.al/emil-lafe-valet-e-detit-nje-permendore-e-folklorit-shqiptar/', fmt: 'catalog' },
     ],
     local: null,
@@ -1686,5 +1797,517 @@ export const CORPUS = [
     ],
     local: null,
     covers: ['skanderbeg-legjenda', 'aga-ymer', 'death-of-omer'],
+  },
+
+  // ══ Research pass 2 — law, history & travelogues (2026-07-08) ════════════════
+  {
+    id: 'src-kanun-leke',
+    title: 'Kanuni i Lekë Dukagjinit',
+    author: 'coll. Shtjefën Gjeçovi', year: '1913–1933', lang: 'sq', kind: 'customary law',
+    license: 'Public domain',
+    summary:
+      'The customary law of the northern highlands — ~1,262 articles on besa, hospitality, the household, marriage and the blood-feud — collected by the Franciscan Gjeçovi and published in full in 1933. The single most important Albanian-language source for the whole law/custom layer; held locally.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/kanuniilekedukagjinit', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/kanuniilekedukagjinit/Kanuni%20i%20Leke%20Dukagjinit_djvu.txt', fmt: 'txt' },
+      { label: 'PDF', url: 'https://archive.org/download/kanuniilekedukagjinit/Kanuni%20i%20Leke%20Dukagjinit.pdf', fmt: 'pdf' },
+    ],
+    local: 'docs/references/kanuni-leke-dukagjinit.sq.txt',
+    covers: ['kanuni', 'kanun-blood-feud', 'besa', 'hospitality', 'oda-e-burrave', 'vellameri', 'burrnesha', 'mikpritja-oda', 'besa-truce'],
+    coversHist: ['gjakmarrja'],
+  },
+  {
+    id: 'src-code-leke-fox',
+    title: 'The Code of Lekë Dukagjini (English translation)',
+    author: 'tr. Leonard Fox', year: '1989', lang: 'en', kind: 'customary law',
+    license: '© in copyright (freely readable scan)',
+    summary:
+      'Leonard Fox\'s facing-page English translation of Gjeçovi\'s Kanun — the standard way into the code for non-Albanian readers. Linked, not ingested.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/the-code-of-leke-dukagjini', fmt: 'html' },
+    ],
+    local: null,
+    covers: ['kanuni', 'kanun-blood-feud', 'besa', 'hospitality'],
+    coversHist: ['gjakmarrja'],
+  },
+  {
+    id: 'src-noli-scanderbeg',
+    title: 'George Castrioti Scanderbeg (1405–1468)',
+    author: 'Fan S. Noli', year: '1947', lang: 'en', kind: 'history',
+    license: 'Public domain',
+    summary:
+      'Bishop Fan Noli\'s English biography of Skanderbeg — a full narrative of the revolt, the League of Lezhë and the sieges of Krujë. The best free English source for the historical Skanderbeg; held locally.',
+    online: [
+      { label: 'archive.org — plain text', url: 'https://archive.org/stream/georgecastriotis00noli/georgecastriotis00noli_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/noli-scanderbeg.en.txt',
+    covers: ['skanderbeg-legjenda', 'sons-of-eagle'],
+    coversHist: ['skanderbeg-revolt-kruje', 'league-of-lezhe', 'sieges-of-kruje', 'death-of-skanderbeg'],
+  },
+  {
+    id: 'src-durham-scutari',
+    title: 'The Struggle for Scutari',
+    author: 'M. Edith Durham', year: '1914', lang: 'en', kind: 'history',
+    license: 'Public domain',
+    summary:
+      'Durham\'s eyewitness account of the 1912–13 siege of Shkodra and the birth of the Albanian state — the northern counterpart to her High Albania, rich on the Bushati city and the fortress of Rozafa. Held locally.',
+    online: [
+      { label: 'archive.org — details', url: 'https://archive.org/details/struggleforscuta00durhuoft', fmt: 'html' },
+      { label: 'plain text', url: 'https://archive.org/download/struggleforscuta00durhuoft/struggleforscuta00durhuoft_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/durham-struggle-for-scutari.en.txt',
+    covers: ['rozafa'],
+    coversHist: ['bushati-pashalik-shkodra', 'independence-1912'],
+  },
+  {
+    id: 'src-nopcsa',
+    title: 'Aus Šala und Klementi (North Albanian highland ethnography)',
+    author: 'Baron Franz Nopcsa', year: '1910', lang: 'de', kind: 'ethnography',
+    license: 'Public domain',
+    summary:
+      'The geologist-explorer Nopcsa\'s close ethnography of the Shala and Kelmendi tribes — kulla, feud, besa, dress and daily highland life recorded first-hand before 1914. Held locally.',
+    online: [
+      { label: 'archive.org — plain text', url: 'https://archive.org/download/ausalaundklement00nopc/ausalaundklement00nopc_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/nopcsa-aus-shala-und-klementi.de.txt',
+    covers: ['kanuni', 'kanun-blood-feud', 'burrnesha', 'vellameri', 'gjama-e-burrave'],
+    coversHist: ['nora-of-kelmendi', 'gjakmarrja'],
+  },
+  {
+    id: 'src-hobhouse',
+    title: 'A Journey through Albania (with Lord Byron)',
+    author: 'John Cam Hobhouse', year: '1813', lang: 'en', kind: 'travelogue',
+    license: 'Public domain',
+    summary:
+      'Byron\'s travelling companion on their 1809 visit to the court of Ali Pasha at Tepelena and Ioannina — the fullest first-hand English picture of the "Lion" and the southern Albanian world. Held locally.',
+    online: [
+      { label: 'archive.org — plain text', url: 'https://archive.org/download/journeythroughal01brou/journeythroughal01brou_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/hobhouse-journey-through-albania.en.txt',
+    covers: ['ali-pashe-tepelena'],
+    coversHist: ['ali-pasha-ioannina'],
+  },
+  {
+    id: 'src-hecquard',
+    title: 'Histoire et description de la Haute Albanie ou Guégarie',
+    author: 'Hyacinthe Hecquard', year: '1858', lang: 'fr', kind: 'ethnography',
+    license: 'Public domain',
+    summary:
+      'The French consul\'s history and description of Gheg northern Albania — tribes, the Kanun, customs and legends of the Malësia, a mid-19th-century counterpart to Durham. Held locally.',
+    online: [
+      { label: 'archive.org — plain text', url: 'https://archive.org/download/bnf-bpt6k6535472n/bnf-bpt6k6535472n_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/hecquard-haute-albanie.fr.txt',
+    covers: ['kanuni', 'kanun-blood-feud', 'besa', 'gjama-e-burrave'],
+    coversHist: ['gjakmarrja'],
+  },
+  {
+    id: 'src-brailsford',
+    title: 'Macedonia: Its Races and Their Future',
+    author: 'Henry Noel Brailsford', year: '1906', lang: 'en', kind: 'ethnography',
+    license: 'Public domain',
+    summary:
+      'A sharp journalist\'s survey of the late-Ottoman Balkans including the Albanians — the League-of-Prizren aftermath, the tribes and the feud, on the eve of independence. Held locally.',
+    online: [
+      { label: 'archive.org — plain text', url: 'https://archive.org/download/bub_gb_nsbQAAAAMAAJ/bub_gb_nsbQAAAAMAAJ_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/brailsford-macedonia.en.txt',
+    covers: ['kanun-blood-feud'],
+    coversHist: ['league-of-prizren', 'ottoman-order'],
+  },
+  {
+    id: 'src-leake',
+    title: 'Travels in Northern Greece, vol. I',
+    author: 'William Martin Leake', year: '1835', lang: 'en', kind: 'travelogue',
+    license: 'Public domain',
+    summary:
+      'The antiquarian-soldier\'s detailed travels through Epirus and southern Albania in Ali Pasha\'s day — topography, antiquities (Apollonia, Butrint) and the peoples of the coast. Held locally.',
+    online: [
+      { label: 'archive.org — plain text', url: 'https://archive.org/download/travelsinnorthe01leak/travelsinnorthe01leak_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/leake-travels-northern-greece-1.en.txt',
+    covers: ['syri-kalter'],
+    coversHist: ['apollonia-butrint', 'ali-pasha-ioannina', 'via-egnatia'],
+  },
+  {
+    id: 'src-meyer-marchen',
+    title: 'Albanische Märchen (tale collection)',
+    author: 'Gustav Meyer', year: '1884', lang: 'de', kind: 'tales',
+    license: 'Public domain',
+    summary:
+      'Meyer\'s dedicated collection of Tosk fairy tales in German translation — a scholarly folktale corpus distinct from his 1888 grammar-reader. Held locally.',
+    online: [
+      { label: 'archive.org — plain text', url: 'https://archive.org/download/albanischemarchen/albanischemarchen_djvu.txt', fmt: 'txt' },
+    ],
+    local: 'docs/references/meyer-albanische-marchen-1884.de.txt',
+    covers: ['bukura-e-dheut', 'kulshedra', 'snake-bridegroom'],
+  },
+  {
+    id: 'src-durham-tribal',
+    title: 'Some Tribal Origins, Laws and Customs of the Balkans',
+    author: 'M. Edith Durham', year: '1928', lang: 'en', kind: 'ethnography',
+    license: 'Public domain (archive.org borrow-only)',
+    summary:
+      'Durham\'s comparative study of Balkan tribal law — blood-brotherhood, the feud and sworn custom. Borrow-only on archive.org, so linked rather than held.',
+    online: [
+      { label: 'archive.org (borrow)', url: 'https://archive.org/details/sometribalorigin0000durh', fmt: 'html' },
+    ],
+    local: null,
+    covers: ['vellameri', 'kanuni', 'kanun-blood-feud'],
+  },
+  {
+    id: 'src-milman-parry',
+    title: 'Milman Parry Collection — Lord Albanian Collection (1937)',
+    author: 'Albert B. Lord (fieldwork)', year: '1937', lang: 'sq', kind: 'audio archive',
+    license: 'Access-gated (Harvard)',
+    summary:
+      'Albert Lord\'s 1937 Albanian field recordings of sung oral epic — the actual VOICE of the lahutar tradition behind the Kângë Kreshnikësh. Catalog/audio access via Harvard; the one place to hear, not just read, the epic.',
+    online: [
+      { label: 'Milman Parry Collection portal', url: 'https://mpc.chs.harvard.edu/', fmt: 'portal' },
+    ],
+    local: null,
+    covers: ['kreshnik-epic', 'mujo-strength', 'death-of-omer'],
+  },
+  {
+    id: 'src-konica-albania',
+    title: 'Albania (the review of Faik Konica)',
+    author: 'Faik Konica (ed.)', year: '1897–1909', lang: 'sq+fr', kind: 'periodical',
+    license: 'Public domain (scan on Scribd)',
+    summary:
+      'Konica\'s influential Rilindja review, printed in Brussels and London — a central organ of the national awakening. Digitized run (1898–99) available online; linked.',
+    online: [
+      { label: 'Scribd — bound run 1898–99', url: 'https://www.scribd.com/doc/76036511/', fmt: 'pdf' },
+    ],
+    local: null,
+    covers: ['sons-of-eagle'],
+    coversHist: ['rilindja-awakening'],
+  },
+  {
+    id: 'src-hylli-drites',
+    title: 'Hylli i Dritës (the Franciscan review)',
+    author: 'Shkodra Franciscans (Fishta et al.)', year: '1913–1944', lang: 'sq', kind: 'periodical',
+    license: 'Public domain (catalog)',
+    summary:
+      'The Shkodra Franciscan journal where Palaj, Fishta and Gjeçovi FIRST printed the Kângë Kreshnikësh and the Kanun. Fully digitized at the Marin Barleti library (Cloudflare-gated; browse, don\'t machine-fetch).',
+    online: [
+      { label: 'Biblioteka Marin Barleti, Shkodra', url: 'https://www.bibliotekashkoder.com/', fmt: 'portal' },
+      { label: 'BKSH e-Albanica (1921–1944)', url: 'https://www.bksh.al/', fmt: 'portal' },
+    ],
+    local: null,
+    covers: ['kreshnik-epic', 'kanuni'],
+  },
+  {
+    id: 'src-adriatic-review',
+    title: 'The Adriatic Review',
+    author: 'Vatra / Fan Noli (ed.)', year: '1918–1919', lang: 'en', kind: 'periodical',
+    license: 'Public domain',
+    summary:
+      'The Boston Vatra federation\'s English-language review under Fan Noli — Albanian history, folklore and the independence cause for a diaspora audience. Complete run free on HathiTrust.',
+    online: [
+      { label: 'HathiTrust — full run', url: 'https://catalog.hathitrust.org/Record/000506617', fmt: 'html' },
+      { label: 'Online Books Page (Penn)', url: 'https://onlinebooks.library.upenn.edu/webbin/serial?id=adriaticrev', fmt: 'html' },
+    ],
+    local: null,
+    covers: ['sons-of-eagle', 'skanderbeg-legjenda'],
+    coversHist: ['rilindja-awakening', 'independence-1912'],
+  },
+]
+
+// ── The HISTORY / Chronicle layer ────────────────────────────────────────────
+// Real, datable, place-anchored events — kept SEPARATE from the mythology in
+// FOLKLORE. Rendered in Debug → 📜 History. `related` points at FOLKLORE ids;
+// CORPUS entries point back here via `coversHist`.
+//   era:   the date/period (specific where possible)
+//   place: a map-anchorable location (Krujë / Shkodra / Vlora / the highlands …)
+export const HISTORY = [
+  {
+    id: 'illyrian-kingdom-teuta',
+    title: 'Queen Teuta and the Illyrian Kingdom',
+    era: 'c. 231–228 BC',
+    place: 'Rhizon & the Adriatic coast',
+    summary:
+      'After King Agron died in 231 BC, Teuta ruled the Ardiaean kingdom as regent, pressing an aggressive Adriatic expansion backed by Illyrian sea-raiding. When Illyrians killed a Roman envoy, Rome declared war in 229 BC and sent some 200 ships and 20,000 men across the sea. Teuta withdrew to the fortress of Rhizon and surrendered in 228 BC, keeping a reduced realm north of Lissus. She is the archetypal warrior-queen of Illyrian antiquity.',
+    sources: [
+      { label: 'Teuta (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Teuta' },
+      { label: 'Illyrian Wars (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Illyrian_Wars' },
+    ],
+    related: ['sons-of-eagle'],
+  },
+  {
+    id: 'apollonia-butrint',
+    title: 'The Greek-Illyrian cities: Apollonia and Butrint',
+    era: 'c. 600 BC onward',
+    place: 'Apollonia (Fier) & Butrint (Sarandë)',
+    summary:
+      'Apollonia, a Corinthian-Corcyraean colony on the Illyrian coast, grew into a wealthy port and seat of learning where the young Octavian studied. Butrint, a sanctuary of Asclepius and later a Roman colony, controlled the strait facing Corfu and left a theatre and baptistery still standing. Both were hinges between the Greek, Illyrian and Roman worlds; Butrint is today a UNESCO World Heritage site.',
+    sources: [
+      { label: 'Apollonia (Illyria) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Apollonia_(Illyria)' },
+      { label: 'Butrint (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Butrint' },
+    ],
+    related: ['bukura-e-detit', 'syri-kalter'],
+  },
+  {
+    id: 'roman-conquest-illyria',
+    title: 'The Roman conquest of Illyria',
+    era: '168 BC',
+    place: 'Scodra (Shkodra)',
+    summary:
+      'The last Ardiaean king, Gentius, allied with Macedon against Rome and was defeated in 168 BC when a Roman army under Lucius Anicius Gallus took his capital Scodra in a swift campaign. Gentius was paraded in a Roman triumph and Illyrian lands were absorbed toward the province of Illyricum, ending native statehood for over a millennium. Shkodra remained a key stronghold city ever after.',
+    sources: [
+      { label: 'Gentius (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Gentius' },
+      { label: 'Illyria (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Illyria' },
+    ],
+    related: ['rozafa', 'sons-of-eagle'],
+  },
+  {
+    id: 'via-egnatia',
+    title: 'The Via Egnatia',
+    era: 'c. 2nd century BC',
+    place: 'Durrës → Apollonia → Ohrid → Byzantium',
+    summary:
+      'Ordered by the proconsul Gnaeus Egnatius, the Via Egnatia was the great Roman highway linking the Adriatic to Byzantium, beginning at the twin ports of Dyrrachium and Apollonia. It climbed the Shkumbin valley over the Candavian mountains to Ohrid and ran on some 1,120 km, carrying armies, pilgrims and emperors between West and East and making the Albanian lowlands a permanent corridor between worlds.',
+    sources: [
+      { label: 'Via Egnatia (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Via_Egnatia' },
+    ],
+    related: [],
+  },
+  {
+    id: 'principality-arbanon',
+    title: 'The Principality of Arbanon',
+    era: '1190 – c. 1216',
+    place: 'Krujë',
+    summary:
+      'Established in 1190 by the archon Progon around Krujë, Arbanon was the first Albanian state recorded in history, ruled by the native Progoni family. Under Progon\'s sons it stretched from the Shkumbin to the Drin and won wide autonomy from Byzantium — full autonomy after 1204 — before Krujë fell to Epirus around 1216. It is the medieval ancestor-state to which later Albanian nationhood looks back.',
+    sources: [
+      { label: 'Principality of Arbanon (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Principality_of_Arbanon' },
+    ],
+    related: ['sons-of-eagle'],
+  },
+  {
+    id: 'skanderbeg-revolt-kruje',
+    title: 'Skanderbeg\'s revolt and the seizure of Krujë',
+    era: '28 November 1443',
+    place: 'Krujë',
+    summary:
+      'Gjergj Kastrioti "Skanderbeg," a former Ottoman commander, deserted Sultan Murad II\'s army during the Battle of Niš and rode for his ancestral Krujë. Using a forged sultanic order he took the citadel on 28 November 1443 and raised the red flag with the black double-headed eagle, opening 25 years of resistance. Krujë became the heart of that resistance and the emblematic eagle\'s-nest fortress of Albanian history.',
+    sources: [
+      { label: 'Skanderbeg (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Skanderbeg' },
+      { label: 'Noli, Scanderbeg (full text, PD)', url: 'https://archive.org/stream/georgecastriotis00noli/georgecastriotis00noli_djvu.txt' },
+    ],
+    related: ['skanderbeg-legjenda', 'sons-of-eagle', 'besa'],
+  },
+  {
+    id: 'league-of-lezhe',
+    title: 'The League of Lezhë',
+    era: '2 March 1444',
+    place: 'Lezhë',
+    summary:
+      'At Lezhë the Albanian chieftains bound themselves into a united front against the Ottomans and proclaimed Skanderbeg commander of their combined army of some 8,000 warriors — the first time the fractious highland lords set aside their rivalries under one leader, an act sealed in the telling by besa. The League gave the revolt a coalition army and a political centre, in the same town where Skanderbeg would die.',
+    sources: [
+      { label: 'League of Lezhë (Wikipedia)', url: 'https://en.wikipedia.org/wiki/League_of_Lezh%C3%AB' },
+    ],
+    related: ['skanderbeg-legjenda', 'besa', 'sons-of-eagle'],
+  },
+  {
+    id: 'sieges-of-kruje',
+    title: 'The sieges of Krujë',
+    era: '1450; 1466–67',
+    place: 'Krujë',
+    summary:
+      'Krujë withstood repeated Ottoman assaults that made its walls legendary. The great siege of 1450 failed after months of costly attacks; in 1466–67 Mehmed II — the conqueror of Constantinople — led a huge army in person and built the fortress of Elbasan to cut supply lines, yet the siege collapsed amid winter, disease and Albanian raids that killed his commander Ballaban. A small mountain citadel had twice defied the empire\'s full might.',
+    sources: [
+      { label: 'Albanian–Ottoman Wars (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian%E2%80%93Ottoman_Wars_(1432%E2%80%931479)' },
+    ],
+    related: ['skanderbeg-legjenda', 'sons-of-eagle'],
+  },
+  {
+    id: 'death-of-skanderbeg',
+    title: 'The death of Skanderbeg',
+    era: '17 January 1468',
+    place: 'Lezhë',
+    summary:
+      'Skanderbeg died of malaria at Lezhë while preparing further resistance, ending a quarter-century that had kept the Ottomans out of the Albanian highlands. His death exposed how much the coalition had depended on one man: within a decade the strongholds fell. Legend holds that Ottoman soldiers later dug up his bones to wear as talismans of his courage. He is Albania\'s supreme national hero.',
+    sources: [
+      { label: 'Skanderbeg (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Skanderbeg' },
+      { label: 'Noli, Scanderbeg (PD)', url: 'https://archive.org/stream/georgecastriotis00noli/georgecastriotis00noli_djvu.txt' },
+    ],
+    related: ['skanderbeg-legjenda', 'sons-of-eagle', 'besa'],
+  },
+  {
+    id: 'arberesh-exodus',
+    title: 'The Arbëresh exodus and the Arvanites',
+    era: 'from 1468',
+    place: 'Albania & Morea → Italy & Greece',
+    summary:
+      'After Skanderbeg\'s death and the fall of the strongholds, tens of thousands of Albanians fled the Ottoman advance by sea. Naples granted Skanderbeg\'s kin and other refugees the right to found villages in Calabria, Sicily and Apulia, where the Arbëresh still speak an archaic Albanian and keep Byzantine-rite churches. In parallel, Albanian Arvanites migrated across central Greece under Venetian service. This diaspora is the "kin across the sea."',
+    sources: [
+      { label: 'Arbëreshë people (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Arb%C3%ABresh%C3%AB_people' },
+      { label: 'Arvanites (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Arvanites' },
+    ],
+    related: ['skanderbeg-legjenda', 'besa', 'sons-of-eagle'],
+  },
+  {
+    id: 'ottoman-order',
+    title: 'The Ottoman order: timar and sanjak',
+    era: 'late 15th – 19th c.',
+    place: 'the sanjaks of Shkodra, Vlora, Elbasan …',
+    summary:
+      'Once resistance collapsed, Albanian lands were reorganized into Ottoman sanjaks governed under the timar system, in which sipahi cavalrymen held land-grants for military service. Because a timar was far easier to secure as a Muslim, the system quietly pressured the landholding elite toward Islam. Recorded in detailed defter tax registers, this grid set the framework for four centuries of rule and the frontier world the kreshnik songs remember.',
+    sources: [
+      { label: 'Ottoman Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Ottoman_Albania' },
+    ],
+    related: ['kanun-blood-feud', 'kreshnik-epic'],
+  },
+  {
+    id: 'devshirme-boy-levy',
+    title: 'The devshirme and the Janissaries',
+    era: '15th–17th c.',
+    place: 'the Christian highlands → Istanbul',
+    summary:
+      'Under the devshirme the Ottomans periodically levied Christian boys from Balkan villages — Albanians prominent among them — converting them to Islam and training them for the sultan\'s service, above all the elite Janissary infantry. Some rose to the empire\'s highest offices; many families maimed or married off sons early to escape it, and in 1565 Albanians revolted and killed the recruiting officials. The levy tore boys from the frontier into the imperial machine — the soil the kreshnik border-world grew from.',
+    sources: [
+      { label: 'Devshirme (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Devshirme' },
+    ],
+    related: ['kreshnik-epic', 'mujo-strength', 'besa'],
+  },
+  {
+    id: 'conversion-and-bektashi',
+    title: 'Conversion, crypto-Christians and the Bektashi',
+    era: '17th–19th c.',
+    place: 'central & southern Albania',
+    summary:
+      'Over the Ottoman centuries much of Albania converted to Islam — sometimes openly for tax and status, sometimes as laramanë "crypto-Christians" who kept two faiths in secret. The tolerant, syncretic Bektashi order spread widely, became the faith of the Janissaries until their abolition in 1826, and grew into the largest current in the south, its leaders later voices of the national awakening. This layered religious world underlies the map\'s shrines and pilgrimages.',
+    sources: [
+      { label: 'Bektashi Order (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Bektashi_Order' },
+      { label: 'Islam in Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Islam_in_Albania' },
+    ],
+    related: ['tomorri-pilgrimage', 'sari-salltek', 'kurbani'],
+  },
+  {
+    id: 'nora-of-kelmendi',
+    title: 'Nora of Kelmendi and the highland revolts',
+    era: 'c. 1637–1639',
+    place: 'Kelmend, the Malësia',
+    summary:
+      'The Catholic Kelmendi tribe of the far north fought a long struggle against the Ottomans, allied with Montenegro and famed as the most stubborn of the mountain clans. From this conflict comes the semi-legendary Nora of Kelmendi — "the Helen of Albania" — a noblewoman said to have led women in arms and slain the Bosnian commander in single combat. The fierce highland resistance is history; Nora herself is the legend it spawned.',
+    sources: [
+      { label: 'Nora of Kelmendi (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Nora_of_Kelmendi' },
+      { label: 'Durham, High Albania (PD)', url: 'https://archive.org/details/highalbania0000durh' },
+    ],
+    related: ['kreshnik-epic', 'kanun-blood-feud', 'besa'],
+  },
+  {
+    id: 'voskopoje-enlightenment',
+    title: 'Voskopojë (Moschopolis): the Enlightenment city',
+    era: 'peak mid-18th c.; ruined 1769',
+    place: 'Voskopojë, west of Korçë',
+    summary:
+      'At its height the Aromanian town of Voskopojë was one of the great cultural centres of the Ottoman Balkans — home to the New Academy (1744), scores of churches, and the first printing press in the Balkans outside Istanbul, a cosmopolitan hub of Greek, Aromanian and Albanian learning. Raids devastated it in 1769 and it was largely abandoned by 1788. Its ruin marks the loss of a homegrown Balkan Enlightenment.',
+    sources: [
+      { label: 'Moscopole (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Moscopole' },
+    ],
+    related: [],
+  },
+  {
+    id: 'bushati-pashalik-shkodra',
+    title: 'The Bushati pashalik of Shkodra',
+    era: 'c. 1757 – 1831',
+    place: 'Shkodra',
+    summary:
+      'The Bushatlli family built a near-independent hereditary pashalik in the north, ruling from the great fortress above Shkodra for three generations. Kara Mahmud Bushati defied Istanbul and beat back Montenegrin and Austrian pressure before dying on campaign in 1796; the dynasty\'s autonomy ended in 1831 when the reforming sultan reasserted control. Shkodra under the Bushatis is the northern counterpart to Ali Pasha\'s southern realm.',
+    sources: [
+      { label: 'Pashalik of Scutari (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Pashalik_of_Scutari' },
+      { label: 'Durham, Struggle for Scutari (PD)', url: 'https://archive.org/details/struggleforscuta00durhuoft' },
+    ],
+    related: ['rozafa', 'sons-of-eagle'],
+  },
+  {
+    id: 'ali-pasha-ioannina',
+    title: 'Ali Pasha of Tepelena and Ioannina',
+    era: 'c. 1743 – 24 January 1822',
+    place: 'Tepelena & Ioannina',
+    summary:
+      'Ali Pasha, the "Lion of Ioannina," rose from a Tepelena chieftain\'s son to rule a near-sovereign pashalik across southern Albania and much of mainland Greece. From his lakeside court he played the great powers against one another, receiving envoys and travellers — Byron among them — while ruling with cunning and terror. Declared a rebel in 1820, he was besieged, lured out with a false pardon, and shot and beheaded on the island in Lake Pamvotis in 1822.',
+    sources: [
+      { label: 'Ali Pasha of Yanina (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Ali_Pasha_of_Yanina' },
+      { label: 'Hobhouse, Journey through Albania (PD)', url: 'https://archive.org/details/journeythroughal01brou' },
+    ],
+    related: ['ali-pashe-tepelena', 'sons-of-eagle', 'besa'],
+  },
+  {
+    id: 'rilindja-awakening',
+    title: 'The Rilindja: the national awakening',
+    era: 'c. 1830s – 1912',
+    place: 'Korçë, Manastir & the émigré presses',
+    summary:
+      'The Rilindja ("Rebirth") was the 19th-century cultural and political awakening that forged a modern Albanian identity across religious lines. Writers such as Naim and Sami Frashëri, the Arbëresh Jeronim de Rada and Pashko Vasa promoted a shared language and history, culminating in the 1908 Congress of Manastir which fixed a single Latin alphabet. Korçë opened the first Albanian-language school in 1887; scattered clans and creeds became a nation-in-waiting.',
+    sources: [
+      { label: 'Albanian National Awakening (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_National_Awakening' },
+      { label: 'Congress of Manastir (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Congress_of_Manastir' },
+    ],
+    related: ['sons-of-eagle', 'skanderbeg-legjenda'],
+  },
+  {
+    id: 'league-of-prizren',
+    title: 'The League of Prizren',
+    era: '1878 – 1881',
+    place: 'Prizren (Kosovo)',
+    summary:
+      'Founded at Prizren in June 1878 as the Treaty of San Stefano threatened to partition Albanian lands among neighbouring states, the League demanded that all Albanian-inhabited territories be united in a single autonomous province. It briefly fielded armed forces and became the first pan-Albanian political body, welding tribal and religious factions into a national movement before the Ottomans suppressed it in 1881. Defeated, it still made "Albania" a political claim.',
+    sources: [
+      { label: 'League of Prizren (Wikipedia)', url: 'https://en.wikipedia.org/wiki/League_of_Prizren' },
+    ],
+    related: ['sons-of-eagle', 'besa'],
+  },
+  {
+    id: 'mic-sokoli',
+    title: 'Mic Sokoli and the Battle of Slivova',
+    era: '1881',
+    place: 'Slivova, near Prishtina',
+    summary:
+      'Mic Sokoli (1839–1881) was a highland fighter of the League of Prizren era, remembered for a single legendary act: at the Battle of Slivova, as his comrades were pinned down by an Ottoman cannon, he is said to have thrown his own chest against its muzzle to silence it, dying so the attack could succeed. The battle is history; the chest-on-the-cannon deed is the commemorated legend.',
+    sources: [
+      { label: 'Mic Sokoli (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Mic_Sokoli' },
+    ],
+    related: ['besa', 'sons-of-eagle', 'kreshnik-epic'],
+  },
+  {
+    id: 'independence-1912',
+    title: 'Independence at Vlora',
+    era: '28 November 1912',
+    place: 'Vlora',
+    summary:
+      'With the Balkan Wars dismembering Ottoman Rumelia, a national assembly gathered at Vlora and, led by Ismail Qemali, proclaimed Albania\'s independence on 28 November 1912. Qemali and Luigj Gurakuqi raised the red-and-black flag from the balcony of the assembly house, and a provisional government followed. The Great Powers recognized Albania at the London Conference; Vlora\'s declaration is the foundation date of the modern state.',
+    sources: [
+      { label: 'Albanian Declaration of Independence (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_Declaration_of_Independence' },
+    ],
+    related: ['sons-of-eagle', 'dita-e-veres'],
+  },
+  {
+    id: 'shote-azem-galica',
+    title: 'Shote and Azem Galica and the Kaçak resistance',
+    era: 'c. 1919–1927',
+    place: 'Drenica (Kosovo)',
+    summary:
+      'After 1912 left much Albanian land outside the new state, the Kaçak guerrilla movement fought Serbian and Yugoslav rule in Kosovo. Azem Galica led the rising from 1919 until he was mortally wounded in 1924; his wife Shote Galica fought beside him in men\'s dress, led bands after his death, and became a rare celebrated woman-warrior of the modern era before dying in 1927. Together they carry the highland warrior tradition into the 20th century.',
+    sources: [
+      { label: 'Azem Galica (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Azem_Galica' },
+      { label: 'Shote Galica (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Shote_Galica' },
+    ],
+    related: ['kreshnik-epic', 'besa', 'sons-of-eagle'],
+  },
+  {
+    id: 'gjakmarrja',
+    title: 'Gjakmarrja — the blood feud as a lived law',
+    era: '15th-c. custom, written 1913–1933; resurgent 1990s',
+    place: 'the northern highlands & Kosovo',
+    summary:
+      'The Kanun did not command vengeance but bound and slowed it: a killing left blood "owed" by the whole male line of the killer (koka për kokë, head for head), while women, children, guests and priests stayed untouchable. A man in blood shut himself in the fortified kullë, and only women and priests could cross the feud line to carry word and fetch the pleqësia, the council of elders. A besa — a truce of a day, or the besë e madhe of a season — let him harvest, travel or bury his dead in safety. Higher than any revenge the code set the falja e gjakut, the forgiveness of blood, brokered by elders and a guarantor until the two houses became sworn brothers. When the feud revived after communism, Kosovo answered with the great reconciliation campaign of 1990–92 under the folklorist Anton Çetta, ending over a thousand feuds, most famously before a vast crowd at Verrat e Llukës.',
+    sources: [
+      { label: 'Kanuni i Lekë Dukagjinit (Albanian full text, PD)', url: 'https://archive.org/details/kanuniilekedukagjinit' },
+      { label: 'Durham, High Albania — "The Land and the Law"', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' },
+      { label: 'Reconciliation Movement of 1990 (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Reconciliation_Movement_in_1990' },
+    ],
+    related: ['kanun-blood-feud', 'kanuni', 'besa', 'besa-truce', 'vajtim', 'oda-e-burrave'],
   },
 ]

@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
-import { FOLKLORE, ENDING_LORE, CORPUS, REPO_BLOB } from '../game/folklore.js'
+import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB } from '../game/folklore.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
 import { NODE_POS } from './nodePositions.js'
 
@@ -287,6 +287,30 @@ function mulberry32(a) {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
+}
+
+// An ORGANIC closed blob around (cx,cy) with radii rx,ry — a seeded wobble on each
+// spoke, smoothed into a Catmull-Rom→bézier loop. Replaces plain ellipse region
+// footprints so terrain reads as coastline / canopy / shore, not a floating oval.
+// `bias` (optional) nudges each spoke's radius by direction: bias(angle) → factor.
+function blobPath(cx, cy, rx, ry, seed = 1, wob = 0.12, n = 16, bias = null) {
+  const rnd = mulberry32(seed >>> 0 || 1)
+  const pts = []
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2
+    let r = 1 + (rnd() - 0.5) * 2 * wob + Math.sin(a * 3 + seed) * wob * 0.4
+    if (bias) r *= bias(a)
+    pts.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r])
+  }
+  const N = pts.length
+  let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`
+  for (let i = 0; i < N; i++) {
+    const p0 = pts[(i - 1 + N) % N], p1 = pts[i], p2 = pts[(i + 1) % N], p3 = pts[(i + 2) % N]
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`
+  }
+  return d + ' Z'
 }
 
 // Each place is a real node id in STORY. x/y are map coordinates (viewBox 1160×820).
@@ -824,8 +848,8 @@ const REGIONS = [
   { key: 'river', label: 'the river & the Zana', cx: 230, cy: 940, rx: 300, ry: 360, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
   { key: 'castle', label: 'Rozafa castle', cx: 300, cy: 1360, rx: 260, ry: 230, terrain: 'castle', anchors: ['kalaRozafa'] },
   { key: 'lake', label: 'Lake Shkodra', cx: 60, cy: 1660, rx: 360, ry: 240, terrain: 'lake', anchors: [] },
-  { key: 'sea', label: 'the sea', cx: 1360, cy: 1000, rx: 560, ry: 600, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
-  { key: 'underworld', label: 'the world below', cx: 680, cy: 2140, rx: 640, ry: 380, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti', 'tre1', 'tre2', 'tre3', 'rrethi', 'shpellaHyrje'] },
+  { key: 'sea', label: 'the sea', cx: 1560, cy: 1050, rx: 620, ry: 1180, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
+  { key: 'underworld', label: 'the world below', cx: 360, cy: 2180, rx: 440, ry: 350, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti', 'tre1', 'tre2', 'tre3', 'rrethi', 'shpellaHyrje'] },
   { key: 'village', label: '', cx: 512, cy: 430, rx: 430, ry: 340, terrain: null, anchors: [...VILLAGE_IDS, 'fshatiDil', 'fshatiBesa', 'fshatiCaul', 'udhetimi1', 'udhetimi2', 'gjizar1'] },
 ]
 
@@ -952,41 +976,76 @@ function terrMountains(rg) {
 }
 
 function terrForest(rg) {
+  // an irregular canopy MASS with a density gradient — dense dark heart thinning
+  // to scattered trees at the rim where it dissolves into meadow; a mossy floor
+  // and a small clearing read through the gaps.
   const { cx, cy, rx, ry } = rg, rnd = mulberry32(23), trees = []
-  for (let k = 0; k < 70; k++) { const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()); trees.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r, 0.7 + rnd() * 0.7]) }
+  const clearing = [cx + rx * 0.34, cy - ry * 0.1] // a glade the canopy parts around
+  for (let k = 0; k < 150; k++) {
+    const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd())
+    const x = cx + Math.cos(a) * rx * rr, y = cy + Math.sin(a) * ry * rr
+    if (rr > 0.66 && rnd() < (rr - 0.66) / 0.34 * 0.72) continue          // thin the rim
+    if (Math.hypot(x - clearing[0], y - clearing[1]) < 60) continue        // keep the glade open
+    trees.push([x, y, 0.58 + rnd() * 0.82])
+  }
   trees.sort((a, b) => a[1] - b[1])
   return (
     <g>
-      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#43603c" opacity={0.5} />
+      <path d={blobPath(cx, cy, rx * 1.04, ry * 1.04, 231, 0.16, 18)} fill="#3b5535" opacity={0.6} />
+      <path d={blobPath(cx, cy, rx * 0.82, ry * 0.82, 232, 0.18, 16)} fill="#47623e" opacity={0.6} />
+      {Array.from({ length: 6 }, (_, i) => { const a = i / 6 * Math.PI * 2 + 0.5, x = cx + Math.cos(a) * rx * 0.5, y = cy + Math.sin(a) * ry * 0.52; return <ellipse key={'m' + i} cx={x} cy={y} rx={30} ry={15} fill="#5c7844" opacity={0.4} /> })}
+      <ellipse cx={clearing[0]} cy={clearing[1]} rx={44} ry={26} fill="#7f9a54" opacity={0.55} />
       {trees.map(([x, y, s], i) => <Tree key={i} x={x} y={y} s={s} />)}
     </g>
   )
 }
 
 function terrRiver(rg) {
-  // just the green water-meadow banks — the ONE world river flows through here,
-  // drawn once at the world level, so this region no longer draws its own river.
+  // the green water-meadow floodplain the river threads through (the river itself
+  // is drawn once at the world level); organic banks + reed beds.
   const { cx, cy, rx, ry } = rg, rnd = mulberry32(41), reeds = []
-  for (let k = 0; k < 26; k++) { const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()); reeds.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r]) }
+  for (let k = 0; k < 44; k++) { const a = rnd() * Math.PI * 2, r = 0.4 + rnd() * 0.6; reeds.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r]) }
   return (
     <g>
-      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#8fae5c" opacity={0.45} />
-      {reeds.map(([x, y], i) => <line key={i} x1={x} y1={y} x2={x + 1} y2={y - 10} stroke="#6f8a3f" strokeWidth={1.6} opacity={0.6} />)}
+      <path d={blobPath(cx, cy, rx, ry, 411, 0.19, 16)} fill="#8fae5c" opacity={0.4} />
+      <path d={blobPath(cx, cy, rx * 0.68, ry * 0.72, 412, 0.22, 14)} fill="#7c9a4a" opacity={0.34} />
+      {reeds.map(([x, y], i) => <line key={i} x1={x} y1={y} x2={x + (i % 2 ? 2 : -2)} y2={y - 11} stroke="#6f8a3f" strokeWidth={1.6} opacity={0.55} />)}
     </g>
   )
 }
 
-function terrSea(rg) {
-  const { cx, cy, rx, ry } = rg
+// the horizon where sky meets the open sea (hard line), and the far edge the sea
+// runs off past (map cuts it off on the right & bottom).
+const SEA_HORIZON = -520
+const SEA_FAR = 4800
+// the landward coastline x at a given y — diagonal at the top (east of Tomorr),
+// coming west to a steady shore, with wave-bitten bays. Everything west is land.
+const seaCoastX = (y) => 820 + Math.max(0, 300 - y) * 0.44 + Math.sin(y * 0.006) * 46 + Math.sin(y * 0.017 + 2) * 24
+function terrSea() {
+  // the open Adriatic — bounded ONLY by the coastline (west) and the hard horizon
+  // (top); it runs off the map to the right and bottom. Sandy beach at the shore,
+  // a foam line, near-shore waves, a boat.
+  const ys = []
+  for (let y = SEA_HORIZON; y <= SEA_FAR; y += 130) ys.push(y)
+  if (ys[ys.length - 1] !== SEA_FAR) ys.push(SEA_FAR)
+  const coast = ys.map((y) => [seaCoastX(y), y])
+  const fx = (n) => n.toFixed(1)
+  let sea = `M ${fx(coast[0][0])} ${SEA_HORIZON} L ${SEA_FAR} ${SEA_HORIZON} L ${SEA_FAR} ${SEA_FAR} L ${fx(coast[coast.length - 1][0])} ${SEA_FAR}`
+  for (let i = coast.length - 1; i >= 0; i--) sea += ` L ${fx(coast[i][0])} ${fx(coast[i][1])}`
+  sea += ' Z'
+  let beach = `M ${fx(coast[0][0] + 8)} ${SEA_HORIZON}`
+  for (let i = 0; i < coast.length; i++) beach += ` L ${fx(coast[i][0] + 8)} ${fx(coast[i][1])}`
+  for (let i = coast.length - 1; i >= 0; i--) beach += ` L ${fx(coast[i][0] - 54 - Math.sin(coast[i][1] * 0.02) * 12)} ${fx(coast[i][1])}`
+  beach += ' Z'
   return (
     <g>
-      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="url(#wSea)" />
-      {Array.from({ length: 15 }, (_, i) => {
-        const y = cy - ry + (i + 1) / 16 * ry * 2, t = (y - cy) / ry
-        const w = Math.sqrt(Math.max(0, 1 - t * t)) * rx
-        return <g key={i}>{Array.from({ length: 5 }, (_, j) => { const x = cx - w + (j + 0.5) / 5 * w * 2 + (i % 2 ? 18 : 0); return <path key={j} d={`M ${x - 12} ${y} q 6 -6 12 0 q 6 6 12 0`} fill="none" stroke="#c8e6ef" strokeWidth={1.6} opacity={0.5} /> })}</g>
-      })}
-      <g transform={`translate(${cx - rx * 0.2},${cy - ry * 0.1})`}>
+      <path d={beach} fill="#e3d2a6" opacity={0.5} />
+      <path d={sea} fill="url(#wSea)" />
+      <path d={`M ${coast.map((p) => `${fx(p[0])} ${fx(p[1])}`).join(' L ')}`} fill="none" stroke="#eaf5f8" strokeWidth={4} opacity={0.5} />
+      {ys.map((y, i) => (i % 2 || y > 2600 ? null : (
+        <g key={i}>{Array.from({ length: 9 }, (_, j) => { const x = seaCoastX(y) + 90 + j * 150 + (i % 4 ? 40 : 0); return <path key={j} d={`M ${x - 14} ${y} q 7 -6 14 0 q 7 6 14 0`} fill="none" stroke="#c8e6ef" strokeWidth={1.6} opacity={0.38} /> })}</g>
+      )))}
+      <g transform={`translate(${seaCoastX(760) + 300},760) rotate(-6)`}>
         <path d="M-17 4 L17 4 L11 13 L-11 13 Z" fill="#7a5c3a" stroke="#4f3a2a" strokeWidth={1.6} />
         <rect x={-1} y={-19} width={2.4} height={23} fill="#4f3a2a" />
         <path d="M1 -17 L15 -3 L1 -3 Z" fill="#efe7d5" />
@@ -996,62 +1055,96 @@ function terrSea(rg) {
 }
 
 function terrCavern(rg) {
+  // the world below — a jagged cavern mouth, a ring of stalactites, the dead city's
+  // ruined towers on the far shore, a cold river of the dead, and torch-glow.
   const { cx, cy, rx, ry } = rg, rnd = mulberry32(11)
+  const outer = blobPath(cx, cy, rx, ry, 111, 0.09, 22)
   return (
     <g>
-      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#2b2622" stroke="#171310" strokeWidth={5} />
-      <ellipse cx={cx} cy={cy} rx={rx * 0.92} ry={ry * 0.88} fill="#342c26" />
-      {Array.from({ length: 15 }, (_, i) => { const x = cx - rx * 0.86 + (i / 14) * rx * 1.72, h = 16 + rnd() * 28, y = cy - ry * 0.84; return <polygon key={i} points={`${x - 8},${y} ${x + 8},${y} ${x},${y + h}`} fill="#241f1b" /> })}
-      {[[-0.3, 0.12], [0.02, -0.04], [0.3, 0.14], [0.52, 0], [-0.56, 0.22]].map(([fx, fy], i) => (
+      <path d={blobPath(cx, cy, rx * 1.04, ry * 1.06, 113, 0.11, 20)} fill="#1a1613" opacity={0.7} />
+      <path d={outer} fill="#2b2622" stroke="#141010" strokeWidth={5} />
+      <path d={blobPath(cx, cy, rx * 0.9, ry * 0.86, 112, 0.1, 20)} fill="#342c26" />
+      {/* stalactites hanging from the roof */}
+      {Array.from({ length: 22 }, (_, i) => { const x = cx - rx * 0.9 + (i / 21) * rx * 1.8, h = 14 + rnd() * 34, y = cy - ry * 0.82 - Math.sin(i / 21 * Math.PI) * ry * 0.06; return <polygon key={i} points={`${x - 7},${y} ${x + 7},${y} ${x},${y + h}`} fill="#231e1a" /> })}
+      {/* a cold river of the dead threading the floor */}
+      <path d={`M ${cx - rx * 0.8} ${cy + ry * 0.34} C ${cx - rx * 0.2} ${cy + ry * 0.2} ${cx + rx * 0.2} ${cy + ry * 0.5} ${cx + rx * 0.82} ${cy + ry * 0.3}`} fill="none" stroke="#2f4a52" strokeWidth={16} opacity={0.6} strokeLinecap="round" />
+      <path d={`M ${cx - rx * 0.8} ${cy + ry * 0.34} C ${cx - rx * 0.2} ${cy + ry * 0.2} ${cx + rx * 0.2} ${cy + ry * 0.5} ${cx + rx * 0.82} ${cy + ry * 0.3}`} fill="none" stroke="#4a6f78" strokeWidth={6} opacity={0.5} strokeLinecap="round" />
+      {/* ruined towers of the dead city on the far shore */}
+      {[[-0.34, 0.1, 46], [-0.14, -0.02, 60], [0.08, 0.08, 40], [0.3, -0.04, 54], [0.5, 0.12, 38]].map(([fx, fy, th], i) => (
         <g key={i} transform={`translate(${cx + fx * rx},${cy + fy * ry})`}>
-          <rect x={-10} y={-34} width={20} height={44} fill="#4a4038" stroke="#1f1a16" strokeWidth={1.6} />
-          <rect x={-10} y={-34} width={20} height={8} fill="#5a4e42" />
-          <rect x={-4} y={-18} width={8} height={11} fill="#c9a24a" opacity={0.5} />
+          <rect x={-11} y={-th} width={22} height={th + 6} fill="#3a322c" stroke="#1a1512" strokeWidth={1.6} />
+          <rect x={-11} y={-th - 3} width={7} height={4} fill="#3a322c" stroke="#1a1512" strokeWidth={0.8} />
+          <rect x={4} y={-th - 3} width={7} height={4} fill="#3a322c" stroke="#1a1512" strokeWidth={0.8} />
+          <rect x={-4} y={-th * 0.6} width={8} height={10} fill="#c9a24a" opacity={0.45} />
         </g>
       ))}
-      <circle cx={cx - rx * 0.1} cy={cy} r={48} fill="#e8892b" opacity={0.12} />
+      <ellipse cx={cx - rx * 0.1} cy={cy - ry * 0.1} rx={64} ry={40} fill="#e8892b" opacity={0.1} />
     </g>
   )
 }
 
 function terrCastle(rg) {
-  const { cx, cy } = rg
+  // Rozafa — grey ramparts on a rocky crag above the river-mouth. In the wall, the
+  // immured bride: a pale figure sealed in the stone, one breast left free to nurse.
+  const { cx, cy, rx, ry } = rg
   return (
-    <g transform={`translate(${cx},${cy})`}>
-      <ellipse cx={4} cy={46} rx={74} ry={16} fill="rgba(0,0,0,.2)" />
-      <ellipse cx={0} cy={32} rx={82} ry={30} fill="#8b9781" opacity={0.6} />
-      <rect x={-62} y={-10} width={124} height={46} fill="#bcb5a5" stroke="#726a5b" strokeWidth={3} />
-      {Array.from({ length: 10 }, (_, i) => <rect key={i} x={-62 + i * 13.5} y={-19} width={9} height={10} fill="#bcb5a5" stroke="#726a5b" strokeWidth={1.5} />)}
-      {[-62, -4, 58].map((tx, i) => (
-        <g key={i}>
-          <rect x={tx - 12} y={-36} width={24} height={72} fill="#c6bfaf" stroke="#726a5b" strokeWidth={2.6} />
-          {[0, 1, 2].map((j) => <rect key={j} x={tx - 12 + j * 9} y={-45} width={6} height={9} fill="#c6bfaf" stroke="#726a5b" strokeWidth={1.2} />)}
-          <rect x={tx - 3} y={-14} width={6} height={10} fill="#2f2b24" />
+    <g>
+      {/* the rocky crag the castle stands on, rising from the river-mouth */}
+      <path d={blobPath(cx, cy + ry * 0.4, rx * 0.92, ry * 0.7, 611, 0.16, 14)} fill="#8b8b7e" opacity={0.7} />
+      <path d={blobPath(cx, cy + ry * 0.5, rx * 0.7, ry * 0.5, 612, 0.18, 12)} fill="#736f63" opacity={0.6} />
+      <g transform={`translate(${cx},${cy - ry * 0.1})`}>
+        <ellipse cx={4} cy={48} rx={82} ry={16} fill="rgba(0,0,0,.22)" />
+        {/* curtain wall */}
+        <rect x={-66} y={-10} width={132} height={48} fill="#bcb5a5" stroke="#6f6759" strokeWidth={3} />
+        <rect x={-66} y={-10} width={132} height={10} fill="#cfc8ba" opacity={0.7} />
+        {Array.from({ length: 11 }, (_, i) => <rect key={i} x={-66 + i * 13} y={-20} width={9} height={11} fill="#bcb5a5" stroke="#6f6759" strokeWidth={1.5} />)}
+        {/* three towers */}
+        {[-66, -6, 62].map((tx, i) => (
+          <g key={i}>
+            <rect x={tx - 13} y={-40} width={26} height={78} fill="#c6bfaf" stroke="#6f6759" strokeWidth={2.6} />
+            <rect x={tx - 13} y={-40} width={26} height={9} fill="#d4cdbf" opacity={0.7} />
+            {[0, 1, 2].map((j) => <rect key={j} x={tx - 13 + j * 9.5} y={-49} width={6} height={9} fill="#c6bfaf" stroke="#6f6759" strokeWidth={1.2} />)}
+            <rect x={tx - 3} y={-16} width={6} height={11} fill="#2f2b24" />
+          </g>
+        ))}
+        {/* the gate */}
+        <path d="M-9 38 L-9 15 A9 9 0 0 1 9 15 L9 38 Z" fill="#3a2e22" />
+        {/* the immured bride, sealed in the curtain wall */}
+        <g transform="translate(30,10)">
+          <rect x={-8} y={-16} width={16} height={30} fill="#a89f8d" stroke="#6f6759" strokeWidth={1} opacity={0.9} />
+          <path d="M-6 14 L-6 -3 A6 6 0 0 1 6 -3 L6 14 Z" fill="#efe7d6" opacity={0.92} />
+          <circle cx={0} cy={-7} r={4} fill="#f0dcc0" stroke="#c9a883" strokeWidth={0.8} />
+          <circle cx={5} cy={2} r={2.1} fill="#f0dcc0" />
         </g>
-      ))}
-      <path d="M-9 36 L-9 13 A9 9 0 0 1 9 13 L9 36 Z" fill="#3a2e22" />
+      </g>
     </g>
   )
 }
 
 function terrLake(rg) {
-  // Lake Shkodra beside Rozafa — a broad reed-fringed water body, still and pale,
-  // its outlet (the Buna) draining east toward the sea.
+  // Lake Shkodra beside Rozafa — a broad organic reed-fringed water body, still and
+  // pale, with a marshy shore blending to land and its outlet (the Buna) draining
+  // toward the sea in the east.
   const { cx, cy, rx, ry } = rg, rnd = mulberry32(53), reeds = []
-  for (let k = 0; k < 40; k++) { const a = rnd() * Math.PI * 2, r = 0.82 + rnd() * 0.3; reeds.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r]) }
+  for (let k = 0; k < 46; k++) { const a = rnd() * Math.PI * 2, r = 0.88 + rnd() * 0.22; reeds.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r]) }
+  const lakeD = blobPath(cx, cy, rx, ry, 531, 0.1, 18)
   return (
     <g>
-      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#6ba3ba" stroke="#4d7f92" strokeWidth={3} />
-      <ellipse cx={cx} cy={cy - ry * 0.08} rx={rx * 0.9} ry={ry * 0.82} fill="#8fc3d3" opacity={0.5} />
-      <ellipse cx={cx - rx * 0.28} cy={cy - ry * 0.3} rx={rx * 0.42} ry={ry * 0.22} fill="#d0e8ef" opacity={0.5} />
-      {Array.from({ length: 6 }, (_, i) => { const y = cy - ry * 0.5 + i / 6 * ry, w = rx * (0.7 - Math.abs(i - 3) * 0.06); return <path key={i} d={`M ${cx - w} ${y} q ${w * 0.5} -8 ${w} 0 q ${w * 0.5} 8 ${w} 0`} fill="none" stroke="#eef7f9" strokeWidth={1.4} opacity={0.55} /> })}
-      {reeds.map(([x, y], i) => <line key={i} x1={x} y1={y} x2={x + (i % 2 ? 3 : -3)} y2={y - 16} stroke="#6f8a3f" strokeWidth={1.8} opacity={0.65} />)}
+      {/* the Buna outlet channel — a ribbon of water leaving the east shore */}
+      <path d={`M ${cx + rx * 0.7} ${cy} C ${cx + rx * 1.3} ${cy - ry * 0.2} ${cx + rx * 2.1} ${cy - ry * 0.9} ${cx + rx * 2.9} ${cy - ry * 1.5}`} fill="none" stroke="#7db0c2" strokeWidth={26} opacity={0.5} strokeLinecap="round" />
+      <path d={blobPath(cx, cy, rx * 1.15, ry * 1.18, 533, 0.15, 16)} fill="#7f9a5a" opacity={0.42} />
+      <path d={lakeD} fill="#6ba3ba" stroke="#4d7f92" strokeWidth={2.6} />
+      <path d={blobPath(cx, cy - ry * 0.06, rx * 0.86, ry * 0.8, 534, 0.12, 16)} fill="#8fc3d3" opacity={0.5} />
+      <ellipse cx={cx - rx * 0.3} cy={cy - ry * 0.34} rx={rx * 0.4} ry={ry * 0.2} fill="#d0e8ef" opacity={0.5} />
+      {Array.from({ length: 6 }, (_, i) => { const y = cy - ry * 0.46 + i / 6 * ry * 0.92, w = rx * (0.66 - Math.abs(i - 3) * 0.06); return <path key={i} d={`M ${cx - w} ${y} q ${w * 0.5} -8 ${w} 0 q ${w * 0.5} 8 ${w} 0`} fill="none" stroke="#eef7f9" strokeWidth={1.4} opacity={0.5} /> })}
+      {reeds.map(([x, y], i) => <line key={i} x1={x} y1={y} x2={x + (i % 2 ? 3 : -3)} y2={y - 15} stroke="#6f8a3f" strokeWidth={1.7} opacity={0.6} />)}
     </g>
   )
 }
 const TERRAIN = { sky: terrSky, mountain: terrMountains, forest: terrForest, river: terrRiver, sea: terrSea, lake: terrLake, cavern: terrCavern, castle: terrCastle }
 // soft outer tone per region so each blends into the land instead of floating
-const HALO = { mountain: '#7e9a54', forest: '#5f7a3f', river: '#c7b78a', castle: '#8f9a72', lake: '#a9c6a0', sea: '#dcc99d', cavern: '#37302b' }
+// (the sea draws its own beach/coastline off-map, so it has no region halo)
+const HALO = { mountain: '#7e9a54', forest: '#5f7a3f', river: '#c7b78a', castle: '#8f9a72', lake: '#a9c6a0', cavern: '#37302b' }
 // faint darker-green blotches over the land band (not the sky) for texture
 const WORLD_BLOTCHES = (() => {
   const rnd = mulberry32(99), b = []
@@ -1076,7 +1169,7 @@ const VILLAGE_ROADS = [
 const WORLD_RIVER = 'M 300 -262 C 250 -40 150 180 158 442 C 165 704 208 860 240 980 C 268 1128 292 1236 300 1344'
 // the descent from the village well down to the world below — a shaft that drops
 // east of the river and Rozafa, deep beneath the land.
-const WELL_SHAFT = 'M 480 466 C 524 760 636 1080 660 1420 C 676 1720 680 1960 680 2120'
+const WELL_SHAFT = 'M 480 466 C 540 780 648 1140 566 1520 C 500 1780 440 1930 400 2020'
 const MAP_VIEWS = {
   village: { x: 211, y: 80, k: 0.72 },
   world: { x: 520, y: 296, k: 0.18 },
@@ -1392,14 +1485,18 @@ function VillageMap({ g, current, goGraph }) {
 
           <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
             {/* world ground */}
-            <rect x={-960} y={-1560} width={4080} height={3900} fill="#88a559" onClick={onBackdrop} />
+            <rect x={-2400} y={-1560} width={8000} height={5200} fill="#88a559" onClick={onBackdrop} />
             {/* the SKY — a world-wide backdrop across the top that the mountains rise
                 into, fading down into the land so there's no seam */}
-            <rect x={-960} y={-1560} width={4080} height={1320} fill="url(#wSkyBg)" onClick={onBackdrop} />
+            <rect x={-2400} y={-1560} width={8000} height={1320} fill="url(#wSkyBg)" onClick={onBackdrop} />
             {WORLD_BLOTCHES.filter(([, y]) => y > -300).map(([x, y, rx, ry], i) => <ellipse key={'bl' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7c9450" opacity={0.32} />)}
-            {/* soft region halos so the regions read as one continuous land */}
+            {/* soft ORGANIC region halos (two feathered blob rings) so each region
+                dissolves into the land instead of floating as an oval */}
             {REGIONS.map((rg) => (rg.terrain && HALO[rg.terrain]
-              ? <ellipse key={'ha' + rg.key} cx={rg.cx} cy={rg.cy} rx={rg.rx * 1.2} ry={rg.ry * 1.2} fill={HALO[rg.terrain]} opacity={0.5} />
+              ? <g key={'ha' + rg.key}>
+                  <path d={blobPath(rg.cx, rg.cy, rg.rx * 1.34, rg.ry * 1.34, hashStr(rg.key + 'h2'), 0.16, 16)} fill={HALO[rg.terrain]} opacity={0.22} />
+                  <path d={blobPath(rg.cx, rg.cy, rg.rx * 1.16, rg.ry * 1.16, hashStr(rg.key + 'h1'), 0.13, 16)} fill={HALO[rg.terrain]} opacity={0.5} />
+                </g>
               : null))}
 
             {/* the village clearing — an organic meadow that blends into the land, not a box */}
@@ -1649,7 +1746,7 @@ function VillageMap({ g, current, goGraph }) {
   )
 }
 
-function Library({ focus, goGraph, goLore, goSource }) {
+function Library({ focus, goGraph, goLore, goSource, goHistory }) {
   const [filter, setFilter] = useState('')
   const refs = useRef({})
   const byId = useMemo(() => Object.fromEntries(FOLKLORE.map((f) => [f.id, f])), [])
@@ -1663,6 +1760,12 @@ function Library({ focus, goGraph, goLore, goSource }) {
   const bySrc = useMemo(() => {
     const m = {}
     for (const c of CORPUS) for (const id of (c.covers || [])) (m[id] ||= []).push(c)
+    return m
+  }, [])
+  // reverse map: folklore id -> [history events that connect to it]
+  const byHist = useMemo(() => {
+    const m = {}
+    for (const h of HISTORY) for (const id of (h.related || [])) (m[id] ||= []).push(h)
     return m
   }, [])
   const endTitle = useMemo(() => Object.fromEntries(ENDINGS.map((e) => [e.id, e])), [])
@@ -1728,6 +1831,17 @@ function Library({ focus, goGraph, goLore, goSource }) {
                     ))}
                   </div>
                 )}
+                {byHist[f.id]?.length > 0 && (
+                  <div className="dbg-lore-ends dbg-related">
+                    <span className="dbg-lore-ends-label">in history:</span>
+                    {byHist[f.id].map((h) => (
+                      <button className="dbg-tag dbg-tag-btn secret" key={h.id}
+                              title={h.title + ' · ' + h.era} onClick={() => goHistory(h.id)}>
+                        📜 {h.title.split(/[—:(]/)[0].trim()} →
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {f.related?.length > 0 && (
                   <div className="dbg-lore-ends dbg-related">
                     <span className="dbg-lore-ends-label">related:</span>
@@ -1774,10 +1888,11 @@ const LIC_GROUP = (c) =>
   : /in copyright/i.test(c.license) ? '③ In copyright — linked, not ingested'
   : '② Link-only (no free full text / portal)'
 
-function Sources({ focus, goLore }) {
+function Sources({ focus, goLore, goHistory }) {
   const [filter, setFilter] = useState('')
   const refs = useRef({})
   const byId = useMemo(() => Object.fromEntries(FOLKLORE.map((f) => [f.id, f])), [])
+  const histById = useMemo(() => Object.fromEntries(HISTORY.map((h) => [h.id, h])), [])
   useEffect(() => {
     if (focus && refs.current[focus]) refs.current[focus].scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [focus])
@@ -1839,6 +1954,16 @@ function Sources({ focus, goLore }) {
                         </button>
                       )
                     })}
+                    {(c.coversHist || []).map((id) => {
+                      const h = histById[id]
+                      if (!h) return null
+                      return (
+                        <button className="dbg-tag dbg-tag-btn secret" key={id}
+                                title={h.title + ' · ' + h.era} onClick={() => goHistory(id)}>
+                          📜 {h.title.split(/[—:(]/)[0].trim()} →
+                        </button>
+                      )
+                    })}
                   </div>
                 )}
               </div>
@@ -1850,12 +1975,88 @@ function Sources({ focus, goLore }) {
   )
 }
 
+// The History / Chronicle layer — real, datable, place-anchored events.
+function History({ focus, goLore, goSource }) {
+  const [filter, setFilter] = useState('')
+  const refs = useRef({})
+  const byId = useMemo(() => Object.fromEntries(FOLKLORE.map((f) => [f.id, f])), [])
+  // reverse map: history id -> [corpus sources that document it]
+  const bySrc = useMemo(() => {
+    const m = {}
+    for (const c of CORPUS) for (const id of (c.coversHist || [])) (m[id] ||= []).push(c)
+    return m
+  }, [])
+  useEffect(() => {
+    if (focus && refs.current[focus]) refs.current[focus].scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [focus])
+
+  const q = filter.trim().toLowerCase()
+  const shown = HISTORY.filter((h) => !q ||
+    (h.title + ' ' + h.era + ' ' + h.place + ' ' + h.summary).toLowerCase().includes(q))
+
+  return (
+    <div className="dbg-lib">
+      <input className="dbg-filter" placeholder="filter history…" value={filter}
+             onChange={(e) => setFilter(e.target.value)} />
+      <p className="dbg-note">
+        Real, datable events tied to the world&rsquo;s places — kept separate from the myth in 📖 Folklore.
+        Illyria to independence, plus the blood-feud as lived law. {HISTORY.length} entries, in time order.
+      </p>
+      {shown.map((h) => (
+        <div className={'dbg-card' + (focus === h.id ? ' focus' : '')} key={h.id}
+             ref={(el) => { refs.current[h.id] = el }}>
+          <div className="dbg-card-head">
+            <b>{h.title}</b>
+            <span className="dbg-tag secret">📜 {h.era}</span>
+          </div>
+          <div className="dbg-src-meta">📍 {h.place}</div>
+          <p className="dbg-summary">{h.summary}</p>
+          {h.sources?.length > 0 && (
+            <div className="dbg-sources">
+              {h.sources.map((s, i) => (
+                <a key={i} href={s.url} target="_blank" rel="noreferrer">🔗 {s.label}</a>
+              ))}
+            </div>
+          )}
+          {h.related?.length > 0 && (
+            <div className="dbg-lore-ends dbg-related">
+              <span className="dbg-lore-ends-label">in lore:</span>
+              {h.related.map((id) => {
+                const rf = byId[id]
+                if (!rf) return null
+                return (
+                  <button className="dbg-tag dbg-tag-btn node" key={id}
+                          title={rf.title} onClick={() => goLore(id)}>
+                    {rf.title.split('—')[0].trim()} →
+                  </button>
+                )
+              })}
+            </div>
+          )}
+          {bySrc[h.id]?.length > 0 && (
+            <div className="dbg-lore-ends dbg-related">
+              <span className="dbg-lore-ends-label">in sources:</span>
+              {bySrc[h.id].map((c) => (
+                <button className="dbg-tag dbg-tag-btn start" key={c.id}
+                        title={c.title + ' — ' + c.author} onClick={() => goSource(c.id)}>
+                  📚 {c.author.split(/[&(]/)[0].trim()} {c.year} →
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function DebugView({ state, dispatch }) {
   const g = useMemo(buildGraph, [])
   const [sub, setSub] = useState(state.loreFocus ? 'library' : 'graph')
   const [sel, setSel] = useState(state.nodeId)
   const [libFocus, setLibFocus] = useState(state.loreFocus)
   const [srcFocus, setSrcFocus] = useState(null)
+  const [histFocus, setHistFocus] = useState(null)
 
   // arriving here via an ending's "open in library" link
   useEffect(() => {
@@ -1865,6 +2066,7 @@ export default function DebugView({ state, dispatch }) {
   const goGraph = (id) => { setSel(id); setSub('graph') }
   const goLore = (loreId) => { setLibFocus(loreId); setSub('library') }
   const goSource = (srcId) => { setSrcFocus(srcId); setSub('sources') }
+  const goHistory = (histId) => { setHistFocus(histId); setSub('history') }
   const endCounts = ENDINGS.reduce((a, e) => ((a[e.kind] = (a[e.kind] || 0) + 1), a), {})
 
   return (
@@ -1875,13 +2077,14 @@ export default function DebugView({ state, dispatch }) {
         {g.reached < g.ids.length && <span className="warn"><b>{g.ids.length - g.reached}</b> unreachable</span>}
         <span><b>{g.hubs.length}</b> hubs</span>
         <span>🏆 {endCounts.good || 0} · ✨ {endCounts.secret || 0} · 💀 {endCounts.bad || 0}</span>
-        <span><b>{FOLKLORE.length}</b> folktales</span>
+        <span><b>{FOLKLORE.length}</b> folklore · <b>{HISTORY.length}</b> history · <b>{CORPUS.length}</b> sources</span>
       </div>
       <div className="dbg-subtabs">
         <button className={'btn' + (sub === 'graph' ? ' active' : '')} onClick={() => setSub('graph')}>🕸 Story Graph</button>
         <button className={'btn' + (sub === 'village' ? ' active' : '')} onClick={() => setSub('village')}>🗺 World</button>
         <button className={'btn' + (sub === 'map' ? ' active' : '')} onClick={() => setSub('map')}>🧭 Hubs</button>
         <button className={'btn' + (sub === 'library' ? ' active' : '')} onClick={() => setSub('library')}>📖 Folklore</button>
+        <button className={'btn' + (sub === 'history' ? ' active' : '')} onClick={() => setSub('history')}>📜 History</button>
         <button className={'btn' + (sub === 'sources' ? ' active' : '')} onClick={() => setSub('sources')}>📚 Sources</button>
       </div>
       <div className="dbg-legend">
@@ -1892,8 +2095,9 @@ export default function DebugView({ state, dispatch }) {
       {sub === 'graph' && <StoryGraph g={g} sel={sel} setSel={setSel} goLore={goLore} />}
       {sub === 'village' && <VillageMap g={g} current={state.nodeId} goGraph={goGraph} />}
       {sub === 'map' && <WorldMap g={g} current={state.nodeId} setSel={setSel} goGraph={goGraph} />}
-      {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} goSource={goSource} />}
-      {sub === 'sources' && <Sources focus={srcFocus} goLore={goLore} />}
+      {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} goSource={goSource} goHistory={goHistory} />}
+      {sub === 'history' && <History focus={histFocus} goLore={goLore} goSource={goSource} />}
+      {sub === 'sources' && <Sources focus={srcFocus} goLore={goLore} goHistory={goHistory} />}
     </div>
   )
 }
