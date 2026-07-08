@@ -844,41 +844,49 @@ function layoutRegion(ids, rg) {
 
 // ---- region terrain ---------------------------------------------------------
 function terrSky(rg) {
+  // the blue sky is a world-wide backdrop (drawn before the regions); here we
+  // only add the celestial bodies + stars + clouds that live in it.
   const { cx, cy, rx, ry } = rg, rnd = mulberry32(7)
   return (
     <g>
-      <rect x={cx - rx} y={cy - ry} width={rx * 2} height={ry * 2} rx={90} fill="url(#wSky)" />
-      {Array.from({ length: 44 }, (_, i) => <circle key={i} cx={cx - rx + rnd() * rx * 2} cy={cy - ry + rnd() * ry * 2} r={rnd() * 1.6 + 0.6} fill="#fff" opacity={0.7} />)}
-      <g transform={`translate(${cx - rx * 0.55},${cy - ry * 0.15})`}>
-        {Array.from({ length: 12 }, (_, i) => { const a = (i / 12) * Math.PI * 2; return <line key={i} x1={Math.cos(a) * 48} y1={Math.sin(a) * 48} x2={Math.cos(a) * 70} y2={Math.sin(a) * 70} stroke="#f4c430" strokeWidth={6} strokeLinecap="round" /> })}
-        <circle r={42} fill="#f6cf49" stroke="#e0a92e" strokeWidth={3} />
-      </g>
-      <g transform={`translate(${cx + rx * 0.5},${cy - ry * 0.4})`}>
-        <circle r={28} fill="#e4ebf3" />
-        <circle cx={11} r={24} fill="url(#wSky)" />
-      </g>
-      {[[cx - rx * 0.12, cy + ry * 0.45], [cx + rx * 0.22, cy + ry * 0.1], [cx - rx * 0.42, cy - ry * 0.35]].map(([x, y], i) => (
-        <g key={i}>{[[0, 0, 24], [22, 5, 19], [-22, 5, 19], [9, -9, 16]].map(([dx, dy, r], j) => <circle key={j} cx={x + dx} cy={y + dy} r={r} fill="#fff" opacity={0.85} />)}</g>
+      {/* stars fade out toward the bottom of the sky (Dielli & Hëna are drawn as
+          clickable landmark glyphs, so no decorative sun/moon here) */}
+      {Array.from({ length: 80 }, (_, i) => { const sy = cy - ry * 1.15 + rnd() * ry * 2.1; return <circle key={i} cx={cx - rx * 1.5 + rnd() * rx * 3} cy={sy} r={rnd() * 1.5 + 0.5} fill="#fff" opacity={(0.5 + rnd() * 0.4) * Math.max(0, Math.min(1, (cy + ry * 0.4 - sy) / (ry * 1.3)))} /> })}
+      {[[cx - rx * 0.15, cy + ry * 0.55], [cx + rx * 0.3, cy + ry * 0.2], [cx - rx * 0.55, cy - ry * 0.25], [cx + rx * 0.7, cy + ry * 0.5], [cx + rx * 0.05, cy - ry * 0.4]].map(([x, y], i) => (
+        <g key={i} opacity={0.88}>{[[0, 0, 26], [24, 6, 20], [-24, 6, 20], [10, -10, 17]].map(([dx, dy, r], j) => <circle key={j} cx={x + dx} cy={y + dy} r={r} fill="#f2f6fc" />)}</g>
       ))}
     </g>
   )
 }
 
 function terrMountains(rg) {
+  // a layered range with atmospheric depth: hazy blue back ridges, a sharp
+  // snow-capped front ridge (Tomorr the tallest), a lit face + a shaded face,
+  // hazing into the sky above and the land below.
   const { cx, cy, rx, ry } = rg
-  const n = 7, base = cy + ry * 0.5, peaks = []
-  for (let i = 0; i < n; i++) peaks.push([cx - rx * 0.92 + (i + 0.5) / n * rx * 1.84, ry * (0.5 + (i % 2 ? 0.32 : 0.55))])
+  const base = cy + ry * 0.62
+  const ridge = (peaks, fill, shade, strk, snow) =>
+    peaks.map(([px, ph], i) => (
+      <g key={i}>
+        <polygon points={`${px},${base - ph} ${px - ph * 0.8},${base} ${px + ph * 0.8},${base}`} fill={fill} stroke={strk} strokeWidth={1.6} strokeLinejoin="round" />
+        <polygon points={`${px},${base - ph} ${px + ph * 0.8},${base} ${px},${base}`} fill={shade} opacity={0.45} />
+        {snow && <polygon points={`${px},${base - ph} ${px - ph * 0.2},${base - ph * 0.72} ${px - ph * 0.02},${base - ph * 0.66} ${px + ph * 0.12},${base - ph * 0.76} ${px + ph * 0.22},${base - ph * 0.7}`} fill="#eff4f6" />}
+        {snow && <polygon points={`${px},${base - ph} ${px + ph * 0.22},${base - ph * 0.7} ${px + ph * 0.12},${base - ph * 0.76} ${px},${base - ph * 0.66}`} fill="#c6d4dc" opacity={0.7} />}
+      </g>
+    ))
+  const back = [[cx - rx * 0.72, ry * 0.95], [cx - rx * 0.22, ry * 1.2], [cx + rx * 0.32, ry * 1.15], [cx + rx * 0.74, ry * 0.9]]
+  const mid = [[cx - rx * 0.48, ry * 1.1], [cx - rx * 0.02, ry * 1.35], [cx + rx * 0.44, ry * 1.12]]
+  const front = [[cx - rx * 0.66, ry * 0.82], [cx - rx * 0.3, ry * 1.18], [cx, ry * 1.55], [cx + rx * 0.36, ry * 1.12], [cx + rx * 0.68, ry * 0.8]]
   return (
     <g>
-      <ellipse cx={cx} cy={cy + ry * 0.35} rx={rx} ry={ry * 0.72} fill="#6f7d66" opacity={0.55} />
-      {peaks.map(([px, ph], i) => (
-        <g key={i}>
-          <polygon points={`${px},${base - ph} ${px - ph * 0.92},${base} ${px + ph * 0.92},${base}`} fill={i % 2 ? '#7d8a72' : '#8b9781'} stroke="#5b6653" strokeWidth={2.5} />
-          <polygon points={`${px},${base - ph} ${px - ph * 0.28},${base - ph * 0.66} ${px + ph * 0.28},${base - ph * 0.66}`} fill="#eef2ee" />
-        </g>
-      ))}
-      {/* foothills at the base, blending the range into the land below */}
-      {Array.from({ length: 9 }, (_, i) => { const hx = cx - rx * 0.95 + (i + 0.5) / 9 * rx * 1.9; return <ellipse key={'f' + i} cx={hx} cy={base + ry * 0.08} rx={rx * 0.15} ry={ry * 0.13} fill="#7c9169" opacity={0.8} /> })}
+      {/* haze band blending the range up into the sky */}
+      <ellipse cx={cx} cy={base - ry * 0.55} rx={rx * 1.15} ry={ry * 0.85} fill="#9fb0c0" opacity={0.16} />
+      {ridge(back, '#9aa9b6', '#7d8d9c', '#8493a2', false)}
+      {ridge(mid, '#84928b', '#616e66', '#5b6656', false)}
+      {ridge(front, '#7f8c74', '#57634c', '#454f38', true)}
+      {/* pine tree-line + foothills, blending the base into the land */}
+      <ellipse cx={cx} cy={base + ry * 0.03} rx={rx * 1.06} ry={ry * 0.15} fill="#6f8557" opacity={0.5} />
+      {Array.from({ length: 11 }, (_, i) => { const hx = cx - rx * 0.98 + (i + 0.5) / 11 * rx * 1.96; return <ellipse key={'f' + i} cx={hx} cy={base + ry * 0.09} rx={rx * 0.12} ry={ry * 0.11} fill="#748a56" opacity={0.7} /> })}
     </g>
   )
 }
@@ -1186,12 +1194,29 @@ function VillageMap({ g, current, goGraph }) {
             <linearGradient id="wSea" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor="#5f9ab2" /><stop offset="1" stopColor="#7fb4c6" />
             </linearGradient>
+            {/* the sky is the backdrop the mountains rise into; it fades to the land */}
+            <linearGradient id="wSkyBg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#2c3b64" />
+              <stop offset="0.42" stopColor="#4a5d8c" />
+              <stop offset="0.72" stopColor="#7d90ac" />
+              <stop offset="0.9" stopColor="#9fb08e" />
+              <stop offset="1" stopColor="#88a559" />
+            </linearGradient>
+            {/* the ray of light from Tomorr's summit up to the Sun's house */}
+            <linearGradient id="rayGrad" gradientUnits="userSpaceOnUse" x1="800" y1="-880" x2="980" y2="-1140">
+              <stop offset="0" stopColor="#fff3c0" stopOpacity="0.1" />
+              <stop offset="0.5" stopColor="#ffe79a" stopOpacity="0.55" />
+              <stop offset="1" stopColor="#fff6d8" stopOpacity="0.9" />
+            </linearGradient>
           </defs>
 
           <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
             {/* world ground */}
             <rect x={-960} y={-1560} width={4080} height={3900} fill="#88a559" onClick={onBackdrop} />
-            {WORLD_BLOTCHES.map(([x, y, rx, ry], i) => <ellipse key={'bl' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7c9450" opacity={0.32} />)}
+            {/* the SKY — a world-wide backdrop across the top that the mountains rise
+                into, fading down into the land so there's no seam */}
+            <rect x={-960} y={-1560} width={4080} height={1320} fill="url(#wSkyBg)" onClick={onBackdrop} />
+            {WORLD_BLOTCHES.filter(([, y]) => y > -300).map(([x, y, rx, ry], i) => <ellipse key={'bl' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7c9450" opacity={0.32} />)}
             {/* soft region halos so the regions read as one continuous land */}
             {REGIONS.map((rg) => (rg.terrain && HALO[rg.terrain]
               ? <ellipse key={'ha' + rg.key} cx={rg.cx} cy={rg.cy} rx={rg.rx * 1.2} ry={rg.ry * 1.2} fill={HALO[rg.terrain]} opacity={0.5} />
@@ -1315,6 +1340,17 @@ function VillageMap({ g, current, goGraph }) {
                 </g>
               )
             })}
+
+            {/* the ray of light from Tomorr's summit (maja) to the Sun's house */}
+            <g style={{ pointerEvents: 'none' }}>
+              <polygon points="790,-874 810,-870 992,-1128 964,-1152" fill="url(#rayGrad)" />
+              <line x1={800} y1={-878} x2={980} y2={-1140} stroke="#fff6d8" strokeWidth={2.4} opacity={0.75} />
+              {[[858, -1018], [908, -1088], [828, -960]].map(([sx, sy], i) => (
+                <g key={i} transform={`translate(${sx},${sy})`} opacity={0.8}>
+                  <path d="M0 -6 L1.3 -1.3 L6 0 L1.3 1.3 L0 6 L-1.3 1.3 L-6 0 L-1.3 -1.3 Z" fill="#fff6d8" />
+                </g>
+              ))}
+            </g>
 
             {/* outer-region landmark glyphs — each key folklore scene drawn as
                 the thing the story describes (like the village buildings) */}

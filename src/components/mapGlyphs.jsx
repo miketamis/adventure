@@ -798,24 +798,24 @@ export const WORLD_GLYPH = {
 }
 
 export const WORLD_LANDMARKS = [
-  // Mount Tomorr
-  { id: 'maja', glyph: 'gBabaTomor', label: 'Baba Tomor', x: 780, y: -880 },
-  { id: 'majaEagle', glyph: 'gEagle', label: 'Eagle of Tomorr', x: 1010, y: -820 },
-  { id: 'shurdhi1', glyph: 'gShurdhi', label: 'Shurdhi', x: 560, y: -690 },
-  { id: 'verbti1', glyph: 'gVerbti', label: 'i Verbti', x: 1170, y: -640 },
-  { id: 'peri1', glyph: 'gPeri', label: 'Peri', x: 830, y: -560 },
-  { id: 'katallan1', glyph: 'gKatallan', label: 'Katallan', x: 470, y: -430 },
-  { id: 'jutbina', glyph: 'gJutbina', label: 'Jutbina', x: 1080, y: -400 },
-  { id: 'mujoHak1', glyph: 'gKreshnik', label: 'Mujo', x: 790, y: -320 },
-  // the sky realm
-  { id: 'qiellDiell', glyph: 'gDielli', label: 'Dielli (the Sun)', x: 760, y: -1360 },
-  { id: 'henaPaqe', glyph: 'gHena', label: 'Hëna (the Moon)', x: 1180, y: -1370 },
-  { id: 'qiellPrende', glyph: 'gPrende', label: 'Prende', x: 420, y: -1170 },
-  { id: 'bijaHene1', glyph: 'gBijaHene', label: 'E Bija e Hënës e Diellit', x: 1450, y: -1150 },
+  // Mount Tomorr — placed up the ridges: summit figures high, approach low
+  { id: 'maja', glyph: 'gBabaTomor', label: 'Baba Tomor', x: 800, y: -890 },
+  { id: 'majaEagle', glyph: 'gEagle', label: 'Eagle of Tomorr', x: 1060, y: -770 },
+  { id: 'shurdhi1', glyph: 'gShurdhi', label: 'Shurdhi', x: 540, y: -730 },
+  { id: 'verbti1', glyph: 'gVerbti', label: 'i Verbti', x: 1150, y: -560 },
+  { id: 'peri1', glyph: 'gPeri', label: 'Peri', x: 700, y: -560 },
+  { id: 'katallan1', glyph: 'gKatallan', label: 'Katallan', x: 440, y: -400 },
+  { id: 'jutbina', glyph: 'gJutbina', label: 'Jutbina', x: 1080, y: -380 },
+  { id: 'mujoHak1', glyph: 'gKreshnik', label: 'Mujo', x: 820, y: -350 },
+  // the sky realm — Dielli the Sun upper-left, Hëna the Moon upper-right
+  { id: 'qiellDiell', glyph: 'gDielli', label: 'Dielli (the Sun)', x: 470, y: -1230 },
+  { id: 'henaPaqe', glyph: 'gHena', label: 'Hëna (the Moon)', x: 1310, y: -1330 },
+  { id: 'qiellDem1', glyph: 'gDemQiell', label: 'Demi (white bull)', x: 730, y: -1400 },
   { id: 'diellShtepi1', glyph: 'gDiellShtepi', label: 'Shtëpia e Diellit', x: 980, y: -1140 },
-  { id: 'pemaDielli', glyph: 'gPemaDielli', label: 'Pema e Diellit', x: 640, y: -1000 },
-  { id: 'qiellErera1', glyph: 'gErera', label: 'Erërat (the winds)', x: 1300, y: -1000 },
-  { id: 'qiellDem1', glyph: 'gDemQiell', label: 'Demi (white bull)', x: 300, y: -1400 },
+  { id: 'bijaHene1', glyph: 'gBijaHene', label: 'E Bija e Hënës e Diellit', x: 1200, y: -1130 },
+  { id: 'qiellPrende', glyph: 'gPrende', label: 'Prende', x: 340, y: -1050 },
+  { id: 'pemaDielli', glyph: 'gPemaDielli', label: 'Pema e Diellit', x: 660, y: -1055 },
+  { id: 'qiellErera1', glyph: 'gErera', label: 'Erërat (the winds)', x: 1370, y: -1010 },
   // the world below
   { id: 'pusi', glyph: 'gShaft', label: 'the well descent', x: -20, y: 1440 },
   { id: 'sprova', glyph: 'gShadowTrial', label: 'the shadow trial', x: 200, y: 1640 },
