@@ -1286,6 +1286,224 @@ export const FOLKLORE = [
     ],
     related: ['evil-eye', 'lindja-besiku', 'ora', 'wolf'],
   },
+
+  // ══ Completeness pass additions (2026-07-08) ══
+  {
+    id: 'xhubleta',
+    title: 'Xhubleta — the highland bell-dress',
+    category: 'Custom',
+    summary:
+      'The undulating, bell-shaped felt-and-wool skirt-dress of the northern Alps, built from strips of woven shajak and embroidered with sun, moon, star, eagle and serpent motifs of pagan origin; predominantly black, worn from puberty as a mark of a woman’s status. In 2022 UNESCO inscribed it on the List of Intangible Cultural Heritage in Need of Urgent Safeguarding, its craft now endangered.',
+    sources: [
+      { label: 'Xhubleta — UNESCO ICH', url: 'https://ich.unesco.org/en/USL/xhubleta-skills-craftsmanship-and-forms-of-usage-01880' },
+      { label: 'Xhubleta (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Xhubleta' },
+    ],
+    related: ['dielli', 'hena', 'vitore', 'dasma', 'burrnesha'],
+  },
+  {
+    id: 'lahuta-cifteli',
+    title: 'Lahuta & çifteli — the epic and folk lutes',
+    category: 'Custom',
+    summary:
+      'The lahutë is the single-stringed bowed lute over which the lahutar chants the Këngë Kreshnike — the memorized oral epic of Muji and Halili, the same living tradition Parry and Lord recorded to illuminate Homer. In 2025 UNESCO inscribed the art of the lahuta on the Urgent-Safeguarding list. Its plucked two-string cousin the çifteli is the everyday voice of Gheg song at weddings across Albania and Kosovo.',
+    sources: [
+      { label: 'Art of the lahuta — UNESCO ICH (2025)', url: 'https://ich.unesco.org/en/USL/art-of-playing-singing-and-making-the-lahuta-02310' },
+      { label: 'Çifteli (Wikipedia)', url: 'https://en.wikipedia.org/wiki/%C3%87ifteli' },
+    ],
+    related: ['kreshnik-epic', 'gjeto-basho-muji', 'oda-e-burrave', 'gjergj-elez-alia'],
+  },
+  {
+    id: 'kulla',
+    title: 'Kulla — the highland tower-house',
+    category: 'Custom',
+    summary:
+      'The fortified stone tower-house of the northern and Kosovar highlands, above all Dukagjin — thick masonry, small high windows, a single guarded door, a windowless ground floor for livestock and a top-floor men’s oda. Under the Kanun it was home and inviolable refuge alike: a man “in blood” could shut himself inside for years, untouchable within its walls.',
+    sources: [
+      { label: 'Kulla / tower houses (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kulla' },
+      { label: 'Elsie, The Tribes of Albania', url: 'https://archive.org/details/tribesofalbaniah0000elsi' },
+    ],
+    related: ['oda-e-burrave', 'kanuni', 'kanun-blood-feud', 'mikpritja-oda'],
+  },
+  {
+    id: 'valle',
+    title: 'Vallja — the chain dance',
+    category: 'Custom',
+    summary:
+      'The communal open- or closed-circle chain dance of weddings and festivals, led by a first dancer who improvises while the line follows. “K’cimi dancing of Tropojë” — a springtime men’s drum-dance evoking the mountains and the eagle — was inscribed on UNESCO’s Representative List in 2024; the martial sword-and-musket vallja e Rugovës of Kosovo is under state protection but is not itself UNESCO-listed.',
+    sources: [
+      { label: 'K’cimi dancing of Tropojë — UNESCO ICH (2024)', url: 'https://ich.unesco.org/en/RL/k-cimi-dancing-of-tropoje-01881' },
+      { label: 'Rugova (sword dance) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Rugova_(sword_dance)' },
+    ],
+    related: ['dasma', 'dita-e-veres', 'lahuta-cifteli'],
+  },
+  {
+    id: 'sulltan-nevruzi',
+    title: 'Sulltan Nevruzi — the Bektashi New Year',
+    category: 'Custom',
+    summary:
+      'Held on 22 March, the holiest day of the Bektashi order (whose world headquarters, the Kryegjyshata, stands in Tirana), commemorating the birth of Imam Ali and the coming of spring. Bektashis bake a pie of twelve wild spring herbs with a coin hidden inside; declared a public holiday in 1996, it ties Albania into the wider Nowruz world and complements the pagan Dita e Verës.',
+    sources: [
+      { label: 'Nevruz in Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Nevruz_in_Albania' },
+      { label: 'Bektashism in Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Bektashism_in_Albania' },
+    ],
+    related: ['dita-e-veres', 'tomorri-pilgrimage', 'kurbani', 'nata-e-buzmit'],
+  },
+  {
+    id: 'shen-kolli',
+    title: 'Shën Kolli — the feast of St Nicholas',
+    category: 'Custom',
+    summary:
+      'After the Virgin, St Nicholas (Shën Kolli) was the most venerated saint of Albanian tradition — honoured by Catholics, Orthodox and even Muslims, patron of many northern tribes. His winter feast on the eve of 6 December is a great folk night: candles lit, lamb or pork roasted after midnight, blessed bread shared, raki toasted. Catholics swore by him: “Pasha Shejnti Shën’Kollin!”',
+    sources: [
+      { label: 'St Nicholas Center — Albania', url: 'https://www.stnicholascenter.org/around-the-world/customs/albania' },
+      { label: 'Nata e Buzmit / midwinter (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' },
+    ],
+    related: ['nata-e-buzmit', 'mikpritja-oda', 'kurbani'],
+  },
+  {
+    id: 'tatuazhi',
+    title: 'Tatuazhi tradicional — the highland tattoos',
+    category: 'Custom',
+    summary:
+      'The old body-marking of Catholic highland women (and some men) of northern Albania and Kosovo, pricked into hands, forearms and brow with soot mixed in milk or honey. Its motifs are suns and stars (Dielli), crescent moons (Hëna) and crosses — protective celestial marks in the old light-against-dark dualism, later fused with Christian faith and read as a badge against assimilation. It reaches back to Illyrian antiquity and was recorded by Edith Durham.',
+    sources: [
+      { label: 'Albanian traditional tattooing (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_traditional_tattooing' },
+      { label: 'Durham, High Albania (PD)', url: 'https://archive.org/details/highalbania00durhuoft' },
+    ],
+    related: ['dielli', 'hena', 'evil-eye', 'xhubleta'],
+  },
+  {
+    id: 'plisi',
+    title: 'Plisi / qeleshja — the white felt cap',
+    category: 'Custom',
+    summary:
+      'The brimless white felt skullcap hand-felted from sheep’s wool (its name from lesh, wool) — the most iconic piece of Albanian men’s dress, worn across Albania, Kosovo, North Macedonia and Montenegro and traced by scholars to a like Illyrian cap. Its profile marks the region: hemispherical in the northern Alps, truncated around Kukës, taller toward Gjirokastër. It is not UNESCO-listed despite campaigns.',
+    sources: [
+      { label: 'Qeleshe (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Qeleshe' },
+      { label: 'Albanian traditional clothing (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_traditional_clothing' },
+    ],
+    related: ['xhubleta', 'oda-e-burrave', 'burrnesha'],
+  },
+  {
+    id: 'sofra',
+    title: 'Sofra — the round meal-table',
+    category: 'Custom',
+    summary:
+      'The low round communal table (and the meal ritual around it) at which the household and its guests gather seated on the floor to eat from shared dishes. It is the physical stage of Albanian hospitality — governed by besa and the Kanun’s “the house belongs to God and the guest” — where refusing offered food is an insult and raki toasts open the meal. To be welcomed to a family’s sofra is to be taken under its protection.',
+    sources: [
+      { label: 'Sofra (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Sofra' },
+      { label: 'Elsie, The Tribes of Albania', url: 'https://archive.org/details/tribesofalbaniah0000elsi' },
+    ],
+    related: ['mikpritja-oda', 'hospitality', 'oda-e-burrave', 'besa'],
+  },
+  {
+    id: 'plakat-e-marsit',
+    title: 'Plakat e Marsit — the old woman’s days of March',
+    category: 'Custom',
+    summary:
+      'A weather legend distinct from Dita e Verës: an old woman driving her flock up in an early warm spell mocks and curses winter, and March “borrows” three cold days to freeze her and her animals to stone (a weeping rock is shown on Tomorr). It explains the violent late-winter cold snaps — “po shkunden plakat,” the old women are shaking things up — around the March turn; keep separate from the solar festival Dita e Verës, with which it is often conflated.',
+    sources: [
+      { label: 'Plakat e Marsit — göjedhëna (Radi & Radi)', url: 'https://www.radiandradi.com/plakat-e-marsit-nje-gojedhena-e-bukur-e-malit-pse-moti-terbohet-keq/' },
+      { label: 'Dita e Verës — for the contrast (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Dita_e_Ver%C3%ABs' },
+    ],
+    related: ['dita-e-veres', 'tomor-shpirag', 'dielli'],
+  },
+  {
+    id: 'xhuxhmaxhuxhe',
+    title: 'Xhuxhmaxhuxët — the dwarves',
+    category: 'Creature',
+    summary:
+      'The diminutive earth-spirits or dwarves of Albanian folktale — sometimes helpful, sometimes malicious — dwelling underground or in the wild and appearing as tiny magical folk who set tasks or reward the kind. They stand among the “little people” of the tradition beside the airy shtojzovalle and the mountain zana.',
+    sources: [
+      { label: 'Albanian mythology (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_mythology' },
+      { label: 'Elsie, Albanian Folktales and Legends', url: 'http://www.albanianliterature.net/folktales/index.html' },
+    ],
+    related: ['shtojzovalle', 'zana-e-malit', 'ora', 'peri'],
+  },
+  {
+    id: 'rmora',
+    title: 'Rëmora — the ship-stopping sea power',
+    category: 'Creature',
+    summary:
+      'In Albanian coastal belief the rëmora is a mysterious force or sea-creature that halts a ship dead in the water, its name and motif shared with the classical remora legend. It belongs to the sparse but real body of Albanian sea-lore alongside e Bukura e Detit and the Baloz.',
+    sources: [
+      { label: 'Albanian mythology (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_mythology' },
+      { label: 'Tirta, Mitologjia ndër shqiptarë (catalog)', url: 'https://search.worldcat.org/search?q=Tirta+Mitologjia+nder+shqiptare' },
+    ],
+    related: ['bukura-e-detit', 'baloz', 'kulshedra'],
+  },
+  {
+    id: 'e-verdha-e-dheut',
+    title: 'E Verdha e Dheut — the Yellow One of the Earth',
+    category: 'Creature',
+    summary:
+      'A sickness-demon or malign earth-force of folk belief, “the Yellow/Sallow One of the Earth,” blamed for jaundice-like wasting illness and warded off with charms and ritual. She sits among the disease-personifications beside the shtriga and the evil eye.',
+    sources: [
+      { label: 'Albanian mythology (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_mythology' },
+      { label: 'Tirta, Mitologjia ndër shqiptarë (catalog)', url: 'https://search.worldcat.org/search?q=Tirta+Mitologjia+nder+shqiptare' },
+    ],
+    related: ['shtriga', 'syri-kalter', 'kukudh'],
+  },
+  {
+    id: 'argjiro-gjirokastra',
+    title: 'Legjenda e Argjiros — Princess Argjiro of Gjirokastër',
+    category: 'Legend',
+    summary:
+      'In Gjirokastër’s most famous legend, the noblewoman Argjiro, defending the castle in its last siege, leaps from the walls clutching her infant son rather than fall alive into enemy hands; folk tradition says the city was named for her. Historians note the name predates the Ottoman era (more plausibly Greek “silver castle”), so the naming is legend — immortalized in Ismail Kadare’s poem Princesha Argjiro and his Chronicle in Stone.',
+    sources: [
+      { label: 'Princess Argjiro (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Princess_Argjiro' },
+      { label: 'Gjirokastra Foundation — history', url: 'https://gjirokastra.org/gjirokastra/?page_id=2249' },
+    ],
+    related: ['rozafa', 'ali-pashe-tepelena', 'ura-e-artes'],
+  },
+  {
+    id: 'legjenda-e-prespes',
+    title: 'Legjenda e Prespës — the drowned city of Prespa',
+    category: 'Legend',
+    summary:
+      'The Albanian legend of Lake Prespa: a prince falls for a water-nymph (zanë) and, seizing and forcing her to marry against her warnings, brings a catastrophic downpour that floods the whole town and drowns every soul, leaving the lake behind. It is the strongest genuinely Albanian “drowned settlement” legend, paralleled by an Ohrid tradition of a sunken Illyrian city.',
+    sources: [
+      { label: 'Legjenda e Prespës dhe Ohrit (Lake Ohrid blog)', url: 'http://lakeohrid.blogspot.com/2017/08/legjenda-e-prespes-dhe-ohritthe-legend.html' },
+      { label: 'Lake Prespa (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Lake_Prespa' },
+    ],
+    related: ['tomor-shpirag', 'maiden-promised-sun', 'flocka'],
+  },
+  {
+    id: 'gjeto-basho-muji',
+    title: 'Gjeto Basho Muji — the founding hero',
+    category: 'Epic',
+    summary:
+      'Gjeto Basho Muji (Muji of Jutbina/Udbina) is the pre-eminent hero of the Këngë Kreshnike — a herdsman granted more-than-human strength by the zana whose milk he suckled, who leads the thirty agas of the frontier stronghold. The whole cycle is built around him: his making, marriage, feats, wounding and death. He personifies the epic’s faith, manliness and endurance.',
+    sources: [
+      { label: 'Muji (Albanian mythology) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Muji_(Albanian_mythology)' },
+      { label: 'Kângë Kreshnikësh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/K%C3%A2ng%C3%AB_Kreshnik%C3%ABsh' },
+    ],
+    related: ['mujo-strength', 'mujo-zanas', 'mujo-courser', 'muji-e-behuri', 'kreshnik-epic', 'sokol-halili'],
+  },
+  {
+    id: 'sokol-halili',
+    title: 'Sokol Halili — Muji’s brother',
+    category: 'Epic',
+    summary:
+      'Sokol Halili is Muji’s younger brother and inseparable comrade — youthful, dashing and impetuous to Muji’s brute strength, the pair likened by scholars to the Dioscuri for their loyalty. He rescues and later avenges Muji across the cycle (the Marriage of Halili, his strength, his death). He is the second of the two protagonists around whom the whole epic turns.',
+    sources: [
+      { label: 'Kângë Kreshnikësh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/K%C3%A2ng%C3%AB_Kreshnik%C3%ABsh' },
+      { label: 'Muji (Albanian mythology) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Muji_(Albanian_mythology)' },
+    ],
+    related: ['halil-marriage', 'halil-garria', 'mujo-avenges-halil', 'gjeto-basho-muji'],
+  },
+  {
+    id: 'ali-bajraktari',
+    title: 'Ali Bajraktari (Besa) — the oath kept',
+    category: 'Epic',
+    summary:
+      'Ali Bajraktar is the hero of two Palaj–Kurti songs, “Ali Bajraktari / Besa” (no. 13) and “The Wedding of Ali Bajraktari” (no. 14), whose marriage plot hinges on a besa sworn and kept even at the cost of one’s life. They are among the clearest expressions of the besa code within the frontier epic.',
+    sources: [
+      { label: 'Kângë Kreshnikësh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/K%C3%A2ng%C3%AB_Kreshnik%C3%ABsh' },
+      { label: 'Besa (Albanian culture) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Besa_(Albanian_culture)' },
+    ],
+    related: ['kreshnik-epic', 'gjeto-basho-muji', 'besa'],
+  },
 ]
 
 // Map every ending node id (from content.js) to the FOLKLORE entry id it draws from.
@@ -2353,6 +2571,162 @@ export const HISTORY = [
     ],
     related: ['kanun-blood-feud', 'kanuni', 'besa', 'besa-truce', 'vajtim', 'oda-e-burrave'],
   },
+  {
+    id: 'meshari-buzuku',
+    title: 'Meshari i Gjon Buzukut — Buzuku’s Missal',
+    era: '1555',
+    place: 'northern Albania',
+    summary:
+      'Printed in 1555 by the priest Gjon Buzuku, the Meshari (Missal) is the oldest known book written in Albanian — a partial translation of the Catholic liturgy that anchors the recorded history of the language. It heads the early canon later joined by Frang Bardhi’s dictionary and Pjetër Bogdani’s Cuneus Prophetarum.',
+    sources: [
+      { label: 'Meshari (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Meshari' },
+      { label: 'Gjon Buzuku (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Gjon_Buzuku' },
+    ],
+    related: ['voskopoje-enlightenment', 'rilindja-awakening'],
+  },
+  {
+    id: 'frasheri-brothers',
+    title: 'Vëllezërit Frashëri — the Frashëri brothers',
+    era: '19th c.',
+    place: 'Frashër & Istanbul',
+    summary:
+      'Naim, Sami and Abdyl Frashëri were the intellectual engine of the Rilindja: Naim the national poet (Históri e Skënderbeut, Bagëti e Bujqësia), Sami the encyclopaedist and theorist of independence (Shqipëria — çka qenë, ç’është e çdo të bëhetë), and Abdyl a leader of the League of Prizren. Bektashi by background, they fused folklore, language and nationhood.',
+    sources: [
+      { label: 'Naim Frashëri (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Naim_Frash%C3%ABri' },
+      { label: 'Sami Frashëri (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Sami_Frash%C3%ABri' },
+    ],
+    related: ['rilindja-awakening', 'league-of-prizren', 'conversion-and-bektashi', 'skanderbeg-legjenda'],
+  },
+  {
+    id: 'gjergj-fishta',
+    title: 'Gjergj Fishta — the Highland Lute poet',
+    era: '1871–1940',
+    place: 'Shkodër',
+    summary:
+      'Franciscan friar and poet whose epic Lahuta e Malcís (“The Highland Lute,” 1937) wove the northern highlanders’ struggles into a national epic in the voice of the lahutar. Called the “Albanian Homer,” he first printed the Këngë Kreshnike in Hylli i Dritës; suppressed under communism, he was rehabilitated after 1990.',
+    sources: [
+      { label: 'Gjergj Fishta (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Gjergj_Fishta' },
+      { label: 'The Highland Lute (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Highland_Lute' },
+    ],
+    related: ['rilindja-awakening', 'kreshnik-epic', 'lahuta-cifteli', 'kanuni'],
+  },
+  {
+    id: 'congress-of-manastir',
+    title: 'Kongresi i Manastirit — the Congress of Monastir',
+    era: '1908',
+    place: 'Manastir (Bitola)',
+    summary:
+      'Convened in Manastir in November 1908, this congress of delegates from across the Albanian lands standardised a single Latin-based alphabet, replacing the competing Ottoman-Arabic, Greek and rival Latin scripts. It unified the written language and became a cornerstone of the national movement, commemorated each 22 November.',
+    sources: [
+      { label: 'Congress of Manastir (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Congress_of_Manastir' },
+      { label: 'Skendi, The Albanian National Awakening', url: 'https://archive.org/details/albaniannational0000sken' },
+    ],
+    related: ['rilindja-awakening', 'league-of-prizren', 'independence-1912', 'frasheri-brothers'],
+  },
+  {
+    id: 'ded-gjo-luli',
+    title: 'Ded Gjo Luli dhe Kryengritja e Malësisë — the Highland Revolt',
+    era: '1911',
+    place: 'Malësia e Madhe',
+    summary:
+      'In April 1911 the Catholic highlander Ded Gjo Luli led the Malësia e Madhe uprising against the Ottomans and raised the Albanian flag over Deçiç — the first time it had flown in battle in over 400 years. The revolt and its Greçë Memorandum of demands fed directly into the general Albanian Revolt of 1912.',
+    sources: [
+      { label: 'Ded Gjo Luli (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Ded_Gjo_Luli' },
+      { label: 'Malësori uprising 1911 (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Mal%C3%ABsori_uprising' },
+    ],
+    related: ['independence-1912', 'league-of-prizren', 'mic-sokoli', 'nora-of-kelmendi'],
+  },
+  {
+    id: 'isa-boletini',
+    title: 'Isa Boletini — the Kosovo guerrilla leader',
+    era: '1911–1912',
+    place: 'Kosovo & Vlora',
+    summary:
+      'A Kosovar Albanian guerrilla commander who led the 1910–12 uprisings against the Ottomans and stood at Vlora in November 1912 among those who declared independence. He later fell defending the nation’s borders, becoming an enduring symbol of the Kosovo Albanian national struggle.',
+    sources: [
+      { label: 'Isa Boletini (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Isa_Boletini' },
+      { label: 'Elsie, Biographical Dictionary of Albanian History', url: 'https://archive.org/details/biographicaldict0000elsi' },
+    ],
+    related: ['independence-1912', 'league-of-prizren', 'shote-azem-galica'],
+  },
+  {
+    id: 'kongresi-i-lushnjes',
+    title: 'Kongresi i Lushnjës — the Congress of Lushnjë',
+    era: '1920',
+    place: 'Lushnjë',
+    summary:
+      'Meeting in January 1920 as post-WWI great powers debated partitioning Albania, this congress rejected all partition plans, reaffirmed independence, formed a national government and moved the capital to Tirana. It stabilised the state at its most vulnerable moment and fixed Tirana as the permanent capital.',
+    sources: [
+      { label: 'Congress of Lushnjë (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Congress_of_Lushnj%C3%AB' },
+      { label: 'Britannica — Albania: history', url: 'https://www.britannica.com/place/Albania' },
+    ],
+    related: ['independence-1912', 'lufta-e-vlores'],
+  },
+  {
+    id: 'lufta-e-vlores',
+    title: 'Lufta e Vlorës — the Vlora War',
+    era: '1920',
+    place: 'Vlora',
+    summary:
+      'In the summer of 1920 Albanian irregulars besieged and expelled the Italian occupation force from Vlora, which Italy had held since WWI and meant to annex. The victory secured Albania’s southern port and sovereignty, coming weeks after the Congress of Lushnjë reaffirmed independence — a foundational event of the modern state.',
+    sources: [
+      { label: 'Vlora War (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Vlora_War' },
+      { label: 'Congress of Lushnjë (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Congress_of_Lushnj%C3%AB' },
+    ],
+    related: ['independence-1912', 'kongresi-i-lushnjes', 'shote-azem-galica'],
+  },
+  {
+    id: 'king-zog',
+    title: 'Ahmet Zogu — President and King Zog I',
+    era: '1925–1939',
+    place: 'Tirana',
+    summary:
+      'After the turmoil of the early 1920s and the ousting of Fan Noli’s June 1924 revolution, Ahmet Zogu made Albania a republic in 1925 and proclaimed himself King Zog I in 1928. His centralising monarchy drew the country ever deeper into Italian dependence, which ended when Mussolini invaded in April 1939 and Zog fled into exile.',
+    sources: [
+      { label: 'Zog I (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Zog_I' },
+      { label: 'Fan Noli (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Fan_Noli' },
+    ],
+    related: ['lufta-e-vlores', 'kongresi-i-lushnjes', 'independence-1912', 'italian-invasion-wwii'],
+  },
+  {
+    id: 'bajram-curri',
+    title: 'Bajram Curri — the northern nationalist commander',
+    era: '1862–1925',
+    place: 'Gjakovë highlands',
+    summary:
+      'A guerrilla and political leader of the Gjakovë highlands who fought in the 1910–12 uprisings, defended Albanian and Kosovar interests at independence, and backed Fan Noli’s 1924 revolution. Hunted by Zog’s forces, he died besieged in a cave near Dragobia in 1925; a town now bears his name.',
+    sources: [
+      { label: 'Bajram Curri (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Bajram_Curri' },
+      { label: 'Elsie, Biographical Dictionary of Albanian History', url: 'https://archive.org/details/biographicaldict0000elsi' },
+    ],
+    related: ['independence-1912', 'shote-azem-galica', 'king-zog', 'mic-sokoli'],
+  },
+  {
+    id: 'prenk-bibe-doda',
+    title: 'Prenk Bibë Doda dhe Mirdita — the Mirdita principality',
+    era: '19th–20th c.',
+    place: 'Mirdita',
+    summary:
+      'Hereditary Kapedan of the Catholic tribal region of Mirdita, Prenk Bibë Doda led its semi-autonomous Ottoman-era statelet, joined the national movement around independence, and was assassinated in 1919 amid the struggles over Albania’s shape. Mirdita’s self-governing, Kanun-ruled polity is a distinctive strand of the northern story.',
+    sources: [
+      { label: 'Prënk Bibë Doda (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Pr%C3%ABnk_Bib%C3%AB_Doda' },
+      { label: 'Mirdita (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Mirdita' },
+    ],
+    related: ['kanuni', 'independence-1912', 'bushati-pashalik-shkodra'],
+  },
+  {
+    id: 'italian-invasion-wwii',
+    title: 'Pushtimi italian dhe Lufta — the Italian invasion & WWII',
+    era: '1939–1944',
+    place: 'all Albania',
+    summary:
+      'Italy invaded on 7 April 1939, driving out King Zog; after 1943 the Germans took over. Albanian partisan and nationalist bands (Balli Kombëtar and the communist-led LANÇ) fought the occupiers, and the country was liberated in November 1944 — the outcome of which was the communist takeover under Enver Hoxha.',
+    sources: [
+      { label: 'Italian invasion of Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Italian_invasion_of_Albania' },
+      { label: 'Albanian resistance in WWII (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_resistance_during_World_War_II' },
+    ],
+    related: ['king-zog', 'lufta-e-vlores', 'shote-azem-galica'],
+  },
 ]
 
 // ── RANK: how Albanian / how well-known / how culturally important ───────────
@@ -2485,6 +2859,36 @@ export const RANK = {
   'independence-1912': [5, 5, 5],
   'shote-azem-galica': [4, 4, 3],
   'gjakmarrja': [5, 4, 4],
+  'xhubleta': [5, 4, 4],
+  'lahuta-cifteli': [5, 4, 5],
+  'kulla': [5, 3, 4],
+  'valle': [4, 4, 3],
+  'sulltan-nevruzi': [3, 3, 3],
+  'shen-kolli': [3, 3, 3],
+  'tatuazhi': [4, 3, 3],
+  'plisi': [5, 4, 4],
+  'sofra': [3, 4, 3],
+  'plakat-e-marsit': [4, 3, 2],
+  'xhuxhmaxhuxhe': [2, 3, 2],
+  'rmora': [3, 1, 1],
+  'e-verdha-e-dheut': [3, 1, 2],
+  'argjiro-gjirokastra': [4, 4, 3],
+  'legjenda-e-prespes': [3, 2, 2],
+  'gjeto-basho-muji': [5, 4, 5],
+  'sokol-halili': [5, 4, 4],
+  'ali-bajraktari': [4, 2, 3],
+  'meshari-buzuku': [5, 4, 4],
+  'frasheri-brothers': [5, 5, 5],
+  'gjergj-fishta': [5, 4, 5],
+  'congress-of-manastir': [5, 4, 5],
+  'ded-gjo-luli': [4, 3, 3],
+  'isa-boletini': [4, 4, 4],
+  'kongresi-i-lushnjes': [4, 3, 4],
+  'lufta-e-vlores': [4, 4, 4],
+  'king-zog': [4, 5, 4],
+  'bajram-curri': [4, 3, 3],
+  'prenk-bibe-doda': [4, 2, 3],
+  'italian-invasion-wwii': [3, 5, 4],
 }
 
 // Additional reference sources gathered in the ranking/verification pass,
