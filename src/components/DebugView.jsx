@@ -358,6 +358,10 @@ const VILLAGE_LANES = (() => {
   return out
 })()
 
+// the packed old-town footprint (a tight cluster inside the wider green clearing);
+// dense terracotta rooftops fill this, fields + meadow ring the outside.
+const TOWN = { cx: 512, cy: 430, rx: 430, ry: 352 }
+
 const RIVER_D = 'M 1010 -20 C 984 120 942 210 952 322 C 960 414 878 470 900 566 C 920 662 970 742 940 848'
 const TREE_PAL = ['#4c6743', '#3f5838', '#587a49']
 
@@ -383,6 +387,20 @@ function House({ x, y, w, rot }) {
       <line x1={-w / 2} y1={0} x2={w / 2} y2={0} stroke="#573f2d" strokeWidth={1.1} />
       <line x1={-w / 2} y1={-h / 4} x2={w / 2} y2={-h / 4} stroke="#c39d78" strokeWidth={0.7} />
       <line x1={-w / 2} y1={h / 4} x2={w / 2} y2={h / 4} stroke="#8a6a4a" strokeWidth={0.7} />
+    </g>
+  )
+}
+
+// one packed rooftop of the old town — a small terracotta block seen from above,
+// dark-outlined with a ridge line, like the roofs of Berat's hillside quarters.
+const ROOF_TONES = ['#c76f4c', '#cf8a5d', '#c1794e', '#b9663f', '#d59a6b', '#c98450', '#bd7346', '#d1935f', '#cfa568', '#c39a5b', '#d8b075']
+function RoofBlock({ x, y, w, h, rot, tone }) {
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot})`}>
+      <rect x={-w / 2 + 1.5} y={-h / 2 + 2} width={w} height={h} rx={1.6} fill="rgba(74,40,22,.30)" />
+      <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={1.6} fill={tone} stroke="#5a3826" strokeWidth={1.2} />
+      <rect x={-w / 2} y={-h / 2} width={w} height={h * 0.34} rx={1.6} fill="#fff" opacity={0.13} />
+      <line x1={-w / 2 + 2} y1={0} x2={w / 2 - 2} y2={0} stroke="rgba(84,42,24,.5)" strokeWidth={0.9} />
     </g>
   )
 }
@@ -1027,26 +1045,54 @@ function VillageMap({ g, current, goGraph }) {
       for (let k = 0; k < 3; k++) push(cx + rnd() * 60 - 30, cy + rnd() * 46 - 23, 0.56 + rnd() * 0.5)
     })
     trees.sort((a, b) => a.y - b.y)
-    const houses = []
-    for (let k = 0; k < 11; k++) {
-      const a = (k / 11) * Math.PI * 2 + 0.3, r = 126 + rnd() * 44
-      houses.push({ x: 525 + Math.cos(a) * r * 1.18, y: 432 + Math.sin(a) * r * 0.9, w: 13 + rnd() * 7, rot: rnd() * 36 - 18 })
+
+    // ── the DENSE old town: terracotta rooftops packed into the TOWN footprint,
+    // carved into blocks by the real story-lanes (which read as the streets), left
+    // open at the central square, and kept off the named landmarks + the river. ──
+    const named = VILLAGE_PLACES.filter((p) => STORY[p.id])
+    const namedR = (p) => p.type === 'square' ? 0
+      : (p.type === 'palace' || p.type === 'church' || p.type === 'tower' || p.type === 'oda' || p.type === 'mill' || p.type === 'garden') ? 30 : 21
+    // river's west bank at a given y — keep roofs out of the water
+    const riverLeftX = (y) => (y < 486 ? 896 : 896 + (y - 486) * 0.893) - 60
+    const segDist = (px, py, x1, y1, x2, y2) => {
+      const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy || 1
+      let t = ((px - x1) * dx + (py - y1) * dy) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t
+      return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy))
     }
-    ;[[752, 474], [262, 526], [648, 330]].forEach(([cx, cy]) => {
-      for (let k = 0; k < 3; k++) houses.push({ x: cx + rnd() * 52 - 26, y: cy + rnd() * 42 - 21, w: 12 + rnd() * 7, rot: rnd() * 36 - 18 })
-    })
+    const roofs = []
+    for (let gx = TOWN.cx - TOWN.rx; gx <= TOWN.cx + TOWN.rx; gx += 21) {
+      for (let gy = TOWN.cy - TOWN.ry; gy <= TOWN.cy + TOWN.ry; gy += 19) {
+        const x = gx + (rnd() - 0.5) * 15, y = gy + (rnd() - 0.5) * 15
+        const nx = (x - TOWN.cx) / TOWN.rx, ny = (y - TOWN.cy) / TOWN.ry, rad = nx * nx + ny * ny
+        if (rad > 1) continue                                       // inside the town oval
+        if (x > riverLeftX(y)) continue                             // west of the river
+        if (Math.hypot(x - 525, y - 432) < 72) continue             // leave the square open
+        let blocked = false
+        for (let li = 0; li < VILLAGE_LANES.length && !blocked; li++) {
+          const L = VILLAGE_LANES[li]; if (segDist(x, y, L[0], L[1], L[2], L[3]) < 14) blocked = true
+        }
+        for (let ni = 0; ni < named.length && !blocked; ni++) {
+          const p = named[ni]; if (Math.hypot(x - p.x, y - p.y) < namedR(p)) blocked = true
+        }
+        if (blocked) continue
+        if (rad > 0.66 && rnd() < (rad - 0.66) / 0.34) continue     // looser, thinning fringe
+        roofs.push({ x, y, w: 15 + rnd() * 11, h: 13 + rnd() * 8, rot: (rnd() - 0.5) * 46, tone: ROOF_TONES[Math.floor(rnd() * ROOF_TONES.length)] })
+      }
+    }
+    roofs.sort((a, b) => a.y - b.y)
+
     // decorative iconography — rocks, bushes, haystacks, garden plots — scattered
-    // in the meadow but kept off the central plaza.
+    // in the meadow OUTSIDE the packed town (the town is roofs, not gardens).
     const decor = []
     const KIND = ['rock', 'bush', 'bush', 'haystack', 'garden', 'bush', 'rock']
-    for (let k = 0; k < 34; k++) {
-      const x = 60 + rnd() * 1040, y = 120 + rnd() * 700
-      const dx = x - 525, dy = (y - 432) * 1.25
-      if (dx * dx + dy * dy < 135 * 135) continue // keep the plaza clear
+    for (let k = 0; k < 40; k++) {
+      const x = 40 + rnd() * 1060, y = 90 + rnd() * 760
+      const nx = (x - TOWN.cx) / (TOWN.rx + 26), ny = (y - TOWN.cy) / (TOWN.ry + 26)
+      if (nx * nx + ny * ny < 1) continue // keep decor in the surrounding meadow, off the roofs
       decor.push({ kind: KIND[Math.floor(rnd() * KIND.length)], x, y, s: 0.8 + rnd() * 0.7 })
     }
     decor.sort((a, b) => a.y - b.y)
-    return { trees, houses, decor }
+    return { trees, roofs, decor }
   }, [])
 
   // place every OTHER node as a dot in its region, keep a position + region for
@@ -1249,23 +1295,28 @@ function VillageMap({ g, current, goGraph }) {
 
             {/* ===== the village (detailed) — content only; ground + river drawn above ===== */}
             <g>
-              <Field x={148} y={150} w={252} h={168} rot={-6} tone="#6f5744" />
-              <Field x={120} y={344} w={168} h={150} rot={7} tone="#7a664a" />
-              <Field x={470} y={772} w={330} h={120} rot={0} tone="#6f5744" />
-              <Field x={214} y={724} w={168} h={118} rot={-4} tone="#7a664a" />
+              {/* warm packed-earth ground of the old town, so the terracotta roofs
+                  read against it and the lanes show as pale streets between blocks */}
+              <ellipse cx={TOWN.cx} cy={TOWN.cy} rx={TOWN.rx + 24} ry={TOWN.ry + 24} fill="#b6a473" opacity={0.5} onClick={onBackdrop} />
+              <ellipse cx={TOWN.cx} cy={TOWN.cy} rx={TOWN.rx} ry={TOWN.ry} fill="#cdba8b" onClick={onBackdrop} />
+              {/* fields ring the town out in the meadow, not inside the packed core */}
+              <Field x={158} y={126} w={214} h={140} rot={-7} tone="#6f5744" />
+              <Field x={150} y={696} w={176} h={120} rot={6} tone="#7a664a" />
+              <Field x={492} y={816} w={318} h={110} rot={0} tone="#6f5744" />
+              <Field x={330} y={772} w={150} h={98} rot={-4} tone="#7a664a" />
               {gBridgeDeck()}
               {VILLAGE_LANES.map(([x1, y1, x2, y2], i) => {
                 const mx = (x1 + x2) / 2 + (y2 - y1) * 0.06, my = (y1 + y2) / 2 + (x1 - x2) * 0.06
                 const d = `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`
                 return (
                   <g key={i}>
-                    <path d={d} fill="none" stroke="#cabd92" strokeWidth={7} opacity={0.6} strokeLinecap="round" />
-                    <path d={d} fill="none" stroke="#a89468" strokeWidth={2} strokeDasharray="2 8" strokeLinecap="round" />
+                    <path d={d} fill="none" stroke="#e7dcbe" strokeWidth={9} opacity={0.85} strokeLinecap="round" />
+                    <path d={d} fill="none" stroke="#b6a373" strokeWidth={2} strokeDasharray="2 9" strokeLinecap="round" opacity={0.7} />
                   </g>
                 )
               })}
+              {scatter.roofs.map((h, i) => <RoofBlock key={i} x={h.x} y={h.y} w={h.w} h={h.h} rot={h.rot} tone={h.tone} />)}
               {scatter.trees.map((t, i) => <Tree key={i} x={t.x} y={t.y} s={t.s} />)}
-              {scatter.houses.map((h, i) => <House key={i} x={h.x} y={h.y} w={h.w} rot={h.rot} />)}
               {scatter.decor.map((d, i) => (
                 d.kind === 'rock' ? <Rock key={i} x={d.x} y={d.y} s={d.s} />
                   : d.kind === 'bush' ? <Bush key={i} x={d.x} y={d.y} s={d.s} />
