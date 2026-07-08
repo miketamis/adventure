@@ -758,9 +758,9 @@ const REGIONS = [
   { key: 'sky', label: 'the sky realm', cx: 900, cy: -1180, rx: 700, ry: 280, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende', 'diellShtepi1', 'rrugaDielli1', 'pemaDielli', 'diellThirrKul'] },
   { key: 'mountain', label: 'Mount Tomorr', cx: 860, cy: -560, rx: 660, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'tomor3', 'shpirag1', 'maliStuhi', 'tomorProva', 'tomorZbritje'] },
   { key: 'forest', label: 'the great forest', cx: -300, cy: 640, rx: 380, ry: 440, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
-  { key: 'river', label: 'the river & the Zana', cx: 1800, cy: 210, rx: 360, ry: 500, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
-  { key: 'castle', label: 'Rozafa castle', cx: 1820, cy: 760, rx: 220, ry: 200, terrain: 'castle', anchors: ['kalaRozafa'] },
-  { key: 'sea', label: 'the sea', cx: 2280, cy: 1160, rx: 540, ry: 420, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
+  { key: 'river', label: 'the river & the Zana', cx: 1420, cy: 740, rx: 340, ry: 420, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1'] },
+  { key: 'castle', label: 'Rozafa castle', cx: 1800, cy: 1060, rx: 220, ry: 200, terrain: 'castle', anchors: ['kalaRozafa'] },
+  { key: 'sea', label: 'the sea', cx: 2060, cy: 1400, rx: 520, ry: 400, terrain: 'sea', anchors: ['deti1', 'bregu', 'detiThelle1'] },
   { key: 'underworld', label: 'the world below', cx: 560, cy: 1680, rx: 700, ry: 400, terrain: 'cavern', anchors: ['bota1', 'pusi', 'gjarpri', 'kulshedra1', 'qyteti', 'tre1', 'tre2', 'tre3', 'rrethi', 'shpellaHyrje'] },
   { key: 'village', label: '', cx: 560, cy: 440, rx: 430, ry: 340, terrain: null, anchors: [...VILLAGE_IDS, 'fshatiDil', 'fshatiBesa', 'fshatiCaul', 'udhetimi1', 'udhetimi2', 'gjizar1'] },
 ]
@@ -892,14 +892,14 @@ function terrForest(rg) {
 }
 
 function terrRiver(rg) {
-  const { cx, cy, rx, ry } = rg
-  const d = `M ${cx - rx * 0.2} ${cy - ry} C ${cx + rx * 0.5} ${cy - ry * 0.4} ${cx - rx * 0.5} ${cy + ry * 0.3} ${cx + rx * 0.2} ${cy + ry}`
+  // just the green water-meadow banks — the ONE world river flows through here,
+  // drawn once at the world level, so this region no longer draws its own river.
+  const { cx, cy, rx, ry } = rg, rnd = mulberry32(41), reeds = []
+  for (let k = 0; k < 26; k++) { const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()); reeds.push([cx + Math.cos(a) * rx * r, cy + Math.sin(a) * ry * r]) }
   return (
     <g>
-      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#8fae5c" opacity={0.4} />
-      <path d={d} fill="none" stroke="#cdbf94" strokeWidth={64} strokeLinecap="round" />
-      <path d={d} fill="none" stroke="url(#wSea)" strokeWidth={42} strokeLinecap="round" />
-      <path d={d} fill="none" stroke="#bfe0ea" strokeWidth={12} strokeLinecap="round" opacity={0.5} />
+      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#8fae5c" opacity={0.45} />
+      {reeds.map(([x, y], i) => <line key={i} x1={x} y1={y} x2={x + 1} y2={y - 10} stroke="#6f8a3f" strokeWidth={1.6} opacity={0.6} />)}
     </g>
   )
 }
@@ -978,11 +978,13 @@ const VILLAGE_ROADS = [
   'M 150 500 C 10 522 -140 540 -260 556',    // village → the great forest
   'M 980 640 C 1300 900 1600 1000 1900 1080', // village edge → the sea coast
 ]
-const WORLD_RIVER = 'M 900 -320 C 1140 40 1740 110 1840 400 C 1950 680 2140 980 2280 1160'
+// ONE river: springs from Mount Tomorr, runs down the village's east edge (past
+// the bridge/mill/spring), through the Zana's stretch, and out into the sea.
+const WORLD_RIVER = 'M 900 -300 C 1000 -60 946 210 896 486 C 858 726 1070 856 1330 972 C 1584 1086 1866 1196 2060 1336'
 const WELL_SHAFT = 'M 544 470 C 556 820 560 1120 560 1340'
 const MAP_VIEWS = {
   village: { x: 199, y: 90, k: 0.72 },
-  world: { x: 372, y: 316, k: 0.2 },
+  world: { x: 384, y: 312, k: 0.2 },
 }
 
 function VillageMap({ g, current, goGraph }) {
@@ -990,14 +992,24 @@ function VillageMap({ g, current, goGraph }) {
     const rnd = mulberry32(20260708)
     const trees = []
     const push = (x, y, s) => trees.push({ x, y, s })
-    for (let x = -12; x < 1176; x += 24) {
-      push(x + rnd() * 14 - 7, 8 + rnd() * 58, 0.68 + rnd() * 0.6)
-      push(x + rnd() * 14 - 7, 812 - rnd() * 50, 0.66 + rnd() * 0.5)
+    // an ORGANIC tree-ring hugging the village clearing's ellipse (not a box).
+    // Skip the east arc (~ -0.5..0.9 rad) where the river runs, so the bank stays open.
+    const CX = 512, CY = 432, RX = 590, RY = 452
+    for (let a = 0; a < Math.PI * 2; a += 0.045) {
+      if (a > -0.55 && a < 0.85) continue // leave the river's east bank clear
+      const wob = 1 + Math.sin(a * 3 + 1) * 0.05 + (rnd() - 0.5) * 0.1
+      for (let k = 0; k < (rnd() < 0.5 ? 2 : 1); k++) {
+        const rr = wob + (rnd() - 0.5) * 0.14
+        push(CX + Math.cos(a) * RX * rr, CY + Math.sin(a) * RY * rr, 0.66 + rnd() * 0.62)
+      }
     }
-    for (let y = 30; y < 800; y += 26) push(6 + rnd() * 40, y + rnd() * 12 - 6, 0.66 + rnd() * 0.5)
-    for (let y = -14; y < 850; y += 17) for (let k = 0; k < 3; k++) push(1015 + k * 44 + rnd() * 26, y + rnd() * 16 - 8, 0.7 + rnd() * 0.6)
-    ;[[470, 138], [602, 110], [108, 410], [430, 710], [614, 762], [986, 540]].forEach(([cx, cy]) => {
-      for (let k = 0; k < 4; k++) push(cx + rnd() * 64 - 32, cy + rnd() * 50 - 25, 0.58 + rnd() * 0.5)
+    // a thin line of trees along the river's far (east) bank
+    for (let t = 0.12; t < 0.92; t += 0.03) {
+      const y = -20 + t * 900, x = 895 + Math.sin(t * 7) * 40 + 60
+      push(x + rnd() * 20, y + rnd() * 16 - 8, 0.7 + rnd() * 0.6)
+    }
+    ;[[470, 138], [602, 110], [180, 430], [430, 720]].forEach(([cx, cy]) => {
+      for (let k = 0; k < 3; k++) push(cx + rnd() * 60 - 30, cy + rnd() * 46 - 23, 0.56 + rnd() * 0.5)
     })
     trees.sort((a, b) => a.y - b.y)
     const houses = []
@@ -1170,35 +1182,35 @@ function VillageMap({ g, current, goGraph }) {
               ? <ellipse key={'ha' + rg.key} cx={rg.cx} cy={rg.cy} rx={rg.rx * 1.2} ry={rg.ry * 1.2} fill={HALO[rg.terrain]} opacity={0.5} />
               : null))}
 
-            {/* connector roads, the world river, and the well-shaft down to the underworld */}
+            {/* the village clearing — an organic meadow that blends into the land, not a box */}
+            <ellipse cx={512} cy={432} rx={590} ry={452} fill="url(#vGrass)" onClick={onBackdrop} />
+            {[[300, 620, 120, 40], [180, 640, 90, 30], [430, 300, 90, 30], [770, 560, 90, 34]].map(([x, y, rx, ry], i) => (
+              <ellipse key={'vb' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7f9a54" opacity="0.3" />
+            ))}
+            <ellipse cx={654} cy={188} rx={96} ry={44} fill="#a7bd75" opacity="0.55" />
+
+            {/* connector roads, the ONE river (mountain -> village -> Zana -> sea), and the well-shaft */}
             {VILLAGE_ROADS.map((d, i) => (
               <g key={i}>
                 <path d={d} fill="none" stroke="#cabd92" strokeWidth={12} opacity={0.6} strokeLinecap="round" />
                 <path d={d} fill="none" stroke="#a89468" strokeWidth={3} strokeDasharray="3 12" strokeLinecap="round" />
               </g>
             ))}
-            <path d={WORLD_RIVER} fill="none" stroke="#cdbf94" strokeWidth={70} strokeLinecap="round" />
-            <path d={WORLD_RIVER} fill="none" stroke="url(#wSea)" strokeWidth={46} strokeLinecap="round" />
+            <path d={WORLD_RIVER} fill="none" stroke="#cdbf94" strokeWidth={92} strokeLinecap="round" />
+            <path d={WORLD_RIVER} fill="none" stroke="url(#wSea)" strokeWidth={60} strokeLinecap="round" />
+            <path d={WORLD_RIVER} fill="none" stroke="#bfe0ea" strokeWidth={16} strokeLinecap="round" opacity={0.5} />
             <path d={WELL_SHAFT} fill="none" stroke="#241f1b" strokeWidth={18} strokeLinecap="round" opacity={0.75} />
             <path d={WELL_SHAFT} fill="none" stroke="#5a4e42" strokeWidth={4} strokeDasharray="2 12" strokeLinecap="round" />
 
-            {/* region terrains */}
+            {/* region terrains (the mountain and the sea cover the river's source and mouth) */}
             {REGIONS.map((rg) => (rg.terrain ? <g key={rg.key}>{TERRAIN[rg.terrain](rg)}</g> : null))}
 
-            {/* ===== the village (detailed) ===== */}
+            {/* ===== the village (detailed) — content only; ground + river drawn above ===== */}
             <g>
-              <rect x="0" y="0" width="1160" height="820" rx={40} fill="url(#vGrass)" />
-              {[[300, 620, 120, 40], [180, 640, 90, 30], [430, 300, 90, 30]].map(([x, y, rx, ry], i) => (
-                <ellipse key={i} cx={x} cy={y} rx={rx} ry={ry} fill="#7f9a54" opacity="0.35" />
-              ))}
-              <ellipse cx={654} cy={188} rx={96} ry={44} fill="#a7bd75" opacity="0.6" />
               <Field x={148} y={150} w={252} h={168} rot={-6} tone="#6f5744" />
               <Field x={120} y={344} w={168} h={150} rot={7} tone="#7a664a" />
               <Field x={470} y={772} w={330} h={120} rot={0} tone="#6f5744" />
               <Field x={214} y={724} w={168} h={118} rot={-4} tone="#7a664a" />
-              <path d={RIVER_D} fill="none" stroke="#cdbf94" strokeWidth={98} strokeLinecap="round" />
-              <path d={RIVER_D} fill="none" stroke="url(#vWater)" strokeWidth={66} strokeLinecap="round" />
-              <path d={RIVER_D} fill="none" stroke="#b7dae6" strokeWidth={16} strokeLinecap="round" opacity={0.55} />
               {gBridgeDeck()}
               {VILLAGE_LANES.map(([x1, y1, x2, y2], i) => {
                 const mx = (x1 + x2) / 2 + (y2 - y1) * 0.06, my = (y1 + y2) / 2 + (x1 - x2) * 0.06
