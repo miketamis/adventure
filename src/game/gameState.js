@@ -190,9 +190,10 @@ export function reducer(state, action) {
       }
 
     case 'RETURN_TO_WORLD':
-      // finished a GOOD ending: don't restart — drop straight back into the open
-      // world and keep the whole run going (words, tokens, items, hearts). The
-      // arc you just closed is done; you carry on exploring from the hub.
+      // finished a good OR secret ending: don't restart — drop straight back into
+      // the open world and keep the whole run going (words, tokens, items, hearts).
+      // Only a BAD ending restarts from the beginning. The arc you just closed is
+      // done; you carry on exploring from the hub.
       return {
         ...state,
         nodeId: STORY[action.to] ? action.to : WORLD_HUB,

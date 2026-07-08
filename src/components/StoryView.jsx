@@ -387,7 +387,7 @@ export default function StoryView({ state, dispatch }) {
                   </button>
                 )
               })()}
-              {state.ended === 'good' ? (
+              {state.ended !== 'bad' ? (
                 <>
                   <p className="hint">
                     Added to your endings collection. This tale is done — step back into the world and
