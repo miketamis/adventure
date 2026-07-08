@@ -1781,7 +1781,7 @@ export const ENDING_LORE = {
   breshkaFund: 'tortoise',
   riddleFund: 'tortoise',
   mejdanKeq: 'besa',
-  besaVella: 'besa-truce',
+  besaVella: 'besa',
   besaThyer: 'besa',
   vajtimFund: 'gjama-e-burrave',
   veraDiteFund: 'dita-e-veres',

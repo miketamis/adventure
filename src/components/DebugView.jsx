@@ -1783,11 +1783,13 @@ function VillageMap({ g, current, goGraph }) {
           </defs>
 
           <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
-            {/* world ground */}
-            <rect x={-2400} y={-1560} width={8000} height={5200} fill="#88a559" onClick={onBackdrop} />
+            {/* world ground — oversized so panning/letterboxing never shows bare void */}
+            <rect x={-4400} y={-3000} width={12000} height={8400} fill="#88a559" onClick={onBackdrop} />
             {/* the SKY — a world-wide backdrop across the top that the mountains rise
-                into, fading down into the land so there's no seam */}
-            <rect x={-2400} y={-1560} width={8000} height={1320} fill="url(#wSkyBg)" onClick={onBackdrop} />
+                into, fading down into the land so there's no seam (plus a deep-space
+                cap above, so zooming out never shows a hard edge) */}
+            <rect x={-4400} y={-3000} width={12000} height={1440} fill="#2c3b64" onClick={onBackdrop} />
+            <rect x={-4400} y={-1560} width={12000} height={1320} fill="url(#wSkyBg)" onClick={onBackdrop} />
             {WORLD_SCATTER.blotches.map(([x, y, rx, ry], i) => <ellipse key={'bl' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7c9450" opacity={0.32} />)}
             {WORLD_SCATTER.hills.map(([x, y, rx, ry, rot], i) => (
               <g key={'hl' + i} transform={`rotate(${rot} ${x} ${y})`}>
@@ -1831,11 +1833,11 @@ function VillageMap({ g, current, goGraph }) {
             ))}
             {/* the well shaft — stone-lined, a rope dropping into the dark, torch
                 sparks fading with depth */}
-            <path d={WELL_SHAFT} fill="none" stroke="#8f8271" strokeWidth={34} strokeLinecap="round" opacity={0.4} />
-            <path d={WELL_SHAFT} fill="none" stroke="#5c5344" strokeWidth={24} strokeLinecap="round" strokeDasharray="14 7" opacity={0.75} />
-            <path d={WELL_SHAFT} fill="none" stroke="#2b241d" strokeWidth={18} strokeLinecap="round" />
-            <path d={WELL_SHAFT} fill="none" stroke="#120f0b" strokeWidth={8} strokeLinecap="round" />
-            <path d={WELL_SHAFT} fill="none" stroke="#c9b48a" strokeWidth={1.6} strokeDasharray="9 14" opacity={0.5} />
+            <path d={WELL_SHAFT} fill="none" stroke="#8f8271" strokeWidth={30} strokeLinecap="round" opacity={0.3} />
+            <path d={WELL_SHAFT} fill="none" stroke="#5c5344" strokeWidth={20} strokeLinecap="round" strokeDasharray="14 7" opacity={0.55} />
+            <path d={WELL_SHAFT} fill="none" stroke="#2b241d" strokeWidth={13} strokeLinecap="round" opacity={0.85} />
+            <path d={WELL_SHAFT} fill="none" stroke="#120f0b" strokeWidth={6} strokeLinecap="round" />
+            <path d={WELL_SHAFT} fill="none" stroke="#c9b48a" strokeWidth={1.4} strokeDasharray="9 14" opacity={0.45} />
             <path d={WELL_SHAFT} fill="none" stroke="#e8892b" strokeWidth={3} strokeLinecap="round" opacity={0.25} strokeDasharray="1 32" />
 
             {/* region terrains (the mountain and the sea cover the river's source and mouth) */}
