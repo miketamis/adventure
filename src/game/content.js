@@ -1170,7 +1170,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('beso'), wf('zane', 'zanën', 'the fairy')), to: 'zanaProva', reveal: 'dragua' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'lumiHumbur' },
     ],
   },
 
@@ -1205,7 +1205,7 @@ export const STORY = {
     options: [
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('pus')), to: 'pusi', reveal: 'pus' },
       { text: L(w('ec'), w('lart')), to: 'dhia1' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'botaHumbur' },
     ],
   },
 
@@ -1295,7 +1295,7 @@ export const STORY = {
     options: [
       { text: L(w('zbrit'), wf('ne', 'në', 'to'), w('pus')), to: 'zbritjaThelle', reveal: 'bote' },
       { text: L(w('degjo'), wf('dervish', 'dervishin', 'the dervish')), to: 'sari1', reveal: 'dervish' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'botaHumbur' },
     ],
   },
 
@@ -2010,7 +2010,7 @@ export const STORY = {
     options: [
       { text: L(w('kalo'), wf('ure', 'urën', 'the bridge')), to: 'uraFshaj', reveal: 'ure' },
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'riddle1', reveal: 'gjegjeza' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'lumiHumbur' },
     ],
   },
 
@@ -2991,7 +2991,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('tund'), wf('djep', 'djepin', 'the cradle')), to: 'zanaProva2', reveal: 'femije' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'lumiHumbur' },
     ],
   },
 
@@ -3050,7 +3050,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('lufto'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'foleShpetuar', reveal: 'gjarper' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'lumiHumbur' },
     ],
   },
 
@@ -4441,6 +4441,37 @@ export const STORY = {
     ],
   },
 
+  // Lost by the river — the river quarter's region-local "flee" node (same shape
+  // as maliHumbur): fleeing a river trial leads here, then back to the crossroads.
+  lumiHumbur: {
+    id: 'lumiHumbur',
+    text: [
+      L(w('ti'), w('je'), wf('ne', 'në', 'on'), w('lume'), p('.')),
+      L(w('eshte'), w('erret'), p('.')),
+      L(wf('uje', 'uji', 'the water'), w('vjen'), w('shpejt'), p('.')),
+      L(w('ti'), w('nuk'), w('sheh'), wf('rruge', 'rrugën', 'the path'), p('.')),
+      L(w('larg'), w('eshte'), w('udhekryq'), p('.')),
+    ],
+    options: [
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('udhekryq')), to: 'udhekryq' },
+    ],
+  },
+
+  // Lost in the world below — the underworld's region-local "flee" node: you lose
+  // your way in the dark and climb back up to the crossroads.
+  botaHumbur: {
+    id: 'botaHumbur',
+    text: [
+      L(w('ti'), w('je'), wf('poshte', 'poshtë', 'below'), wf('ne', 'në', 'in'), w('bote'), p('.')),
+      L(w('eshte'), w('erret'), p('.')),
+      L(w('ti'), w('nuk'), w('sheh'), wf('rruge', 'rrugën', 'the path'), p('.')),
+      L(wf('lart', 'lart', 'high'), w('larg'), w('eshte'), w('udhekryq'), p('.')),
+    ],
+    options: [
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('udhekryq')), to: 'udhekryq' },
+    ],
+  },
+
   // Companion payoff — the wolf you fed bread (shokuUjk) repays the besa of shared
   // bread: on the dry road it scents and digs out a hidden spring. The wolf in
   // Albanian lore is a guardian, not mere prey ("Të hângtë ujku!" is its dark side).
@@ -4492,7 +4523,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('kalo'), wf('ure', 'urën', 'the bridge')), to: 'lumi', reveal: 'ure' },
-      { text: L(w('ik'), w('shpejt')), to: 'pylliLoop' },
+      { text: L(w('ik'), w('shpejt')), to: 'lumiHumbur' },
     ],
   },
 
@@ -6489,6 +6520,8 @@ const shadowAcc = () => wf('hije', 'hijen', 'the shadow')
 // (1) an action on something NOT present in the scene
 const CONFUSERS = {
   maliHumbur: L(w('ngjit'), wf('re', 'renë', 'the cloud')), // climb the cloud — you cannot
+  lumiHumbur: L(w('degjo'), wf('lume', 'lumin', 'the river')), // listen to the river — it cannot answer
+  botaHumbur: L(w('merr'), wf('bote', 'botën', 'the world')), // take the world — you cannot
   // village river & church quarters
   fshatiLumi: L(w('merr'), wf('lume', 'lumin', 'the river')), // take the river — you cannot
   uraArtes1: L(w('degjo'), wf('ure', 'urën', 'the bridge')), // listen to the bridge — it cannot answer
@@ -6748,6 +6781,8 @@ const CONFUSERS = {
 // with the scene, so you can't dodge it by scanning for the noun.
 const CONFUSERS2 = {
   maliHumbur: L(w('ngjit'), wf('udhekryq', 'udhëkryqin', 'the crossroads')), // climb the crossroads — you cannot
+  lumiHumbur: L(w('degjo'), wf('uje', 'ujin', 'the water')), // listen to the water — it cannot answer
+  botaHumbur: L(w('ngjit'), wf('udhekryq', 'udhëkryqin', 'the crossroads')), // climb the crossroads — you cannot
   // village river & church quarters
   fshatiLumi: L(w('merr'), wf('mal', 'malin', 'the mountain')), // take the mountain — you cannot
   uraArtes1: L(w('degjo'), wf('lume', 'lumin', 'the river')), // listen to the river — it cannot answer
@@ -6898,6 +6933,8 @@ const CONFUSERS2 = {
 // thing, or fly), distinct from the other two for that node.
 const CONFUSERS3 = {
   maliHumbur: L(w('kthehu'), wf('re', 'renë', 'the cloud')), // return to the cloud — you cannot
+  lumiHumbur: L(w('kthehu'), wf('uje', 'ujin', 'the water')), // return to the water — you cannot
+  botaHumbur: L(w('degjo'), wf('bote', 'botën', 'the world')), // listen to the world — it cannot answer
   // village river & church quarters
   fshatiLumi: L(w('merr'), wf('fushe', 'fushat', 'the fields')), // take the fields — you cannot
   uraArtes2: L(w('degjo'), wf('buke', 'bukën', 'the bread')), // listen to the bread — it has nothing to say
