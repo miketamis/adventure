@@ -24,7 +24,7 @@ mkdirSync(OUT, { recursive: true })
 const REGIONS = [
   { key: 'sky', cx: 300, cy: -1200, rx: 780, ry: 300, anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende', 'diellShtepi1', 'rrugaDielli1', 'pemaDielli', 'diellThirrKul'] },
   { key: 'mountain', cx: 300, cy: -520, rx: 640, ry: 400, anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'tomor3', 'shpirag1', 'maliStuhi', 'tomorProva', 'tomorZbritje'] },
-  { key: 'forest', cx: -520, cy: 430, rx: 380, ry: 470, anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
+  { key: 'forest', cx: -520, cy: 430, rx: 380, ry: 470, anchors: ['pylli1', 'start', 'lendina', 'gjumi', 'pylliLoop'] },
   { key: 'river', cx: 250, cy: 1070, rx: 300, ry: 300, anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'flocka1', 'rrethi', 'shpellaHyrje'] },
   { key: 'castle', cx: 300, cy: 1360, rx: 260, ry: 230, anchors: ['kalaRozafa'] },
   { key: 'lake', cx: 60, cy: 1660, rx: 360, ry: 240, anchors: [] },

@@ -1606,7 +1606,7 @@ function terrForest(rg) {
   // to scattered trees at the rim where it dissolves into meadow; a mossy floor
   // and a small clearing read through the gaps.
   const { cx, cy, rx, ry } = rg, rnd = mulberry32(23), trees = []
-  const clearing = [cx + rx * 0.34, cy - ry * 0.1] // a glade the canopy parts around
+  const clearing = [-430, 452] // the camp glade — at the END of the hero-bridge road (VILLAGE_ROADS), where lendina stands
   for (let k = 0; k < 150; k++) {
     const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd())
     const x = cx + Math.cos(a) * rx * rr, y = cy + Math.sin(a) * ry * rr

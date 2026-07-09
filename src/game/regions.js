@@ -17,13 +17,13 @@ export const VILLAGE_ANCHOR_IDS = [
   'nenaDiell1', 'veraDite1', 'dordolec1', 'plaka', 'oda1', 'fshatiLanes',
   'kulle1', 'djepi1', 'pallatiZi', 'kopshtMermer1', 'fshatiJeta', 'vatra',
   'qilim', 'bariu', 'gjysmegjel1', 'syriKeq1', 'breshka1', 'fshatiLumi',
-  'uraArtes1', 'mulli1', 'kroi1',
+  'uraArtes1', 'mulli1', 'kroi1', 'tabaket1',
 ]
 
 export const REGIONS = [
   { key: 'sky', label: 'the sky realm', cx: 300, cy: -1200, rx: 780, ry: 300, terrain: 'sky', anchors: ['qiell1', 'qiellDiell', 'henaPaqe', 'qiellPrende', 'diellShtepi1', 'rrugaDielli1', 'pemaDielli', 'diellThirrKul'] },
   { key: 'mountain', label: 'Mount Tomorr', cx: 300, cy: -520, rx: 640, ry: 400, terrain: 'mountain', anchors: ['maja', 'mali1', 'tomor1', 'jutbina', 'peri1', 'tomorBekim', 'tomor2', 'tomor3', 'shpirag1', 'maliStuhi', 'tomorProva', 'tomorZbritje'] },
-  { key: 'forest', label: 'the great forest', cx: -520, cy: 430, rx: 380, ry: 470, terrain: 'forest', anchors: ['pylli1', 'start', 'zjarriPyll', 'gjumi', 'pylliLoop'] },
+  { key: 'forest', label: 'the great forest', cx: -520, cy: 430, rx: 380, ry: 470, terrain: 'forest', anchors: ['pylli1', 'start', 'lendina', 'gjumi', 'pylliLoop'] },
   { key: 'river', label: 'the river & the Zana', cx: 250, cy: 1070, rx: 300, ry: 300, terrain: 'river', anchors: ['lumi', 'zana1', 'bolla1', 'ura', 'uraFshaj', 'riddle1', 'zanaProva', 'zanaFole', 'rrethi', 'shpellaHyrje'] },
   { key: 'castle', label: 'Rozafa castle', cx: 300, cy: 1360, rx: 260, ry: 230, terrain: 'castle', anchors: ['kalaRozafa'] },
   { key: 'lake', label: 'Lake Shkodra', cx: 60, cy: 1660, rx: 360, ry: 240, terrain: 'lake', anchors: ['flocka1'] },

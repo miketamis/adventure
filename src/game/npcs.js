@@ -61,6 +61,21 @@ export const NPCS = {
     activePhases: ['dawn', 'day', 'dusk'],
   },
 
+  // The cold old woman of the forest — the guest at the night fire (an Ora in
+  // an old woman's shape, the tales hold; wait beside her too long and she may
+  // prove a Shtriga instead). Her night, every night (8 × 3h timetable): at
+  // nightfall she comes out of the deep wood to the road-end clearing and stays
+  // through the evening — if a fire burns there the light draws her to sit, and
+  // the guest arc opens (lendina gates it on npc: + fireLive). In the dead of
+  // night she walks back into the dark trees.
+  plakaPyllit: {
+    name: 'plaka e ftohtë',
+    glyph: '👵',
+    route: ['pylliLoop', 'pylliLoop', 'pylliLoop', 'pylliLoop', 'pylliLoop', 'lendina', 'lendina', 'pylliLoop'],
+    stepHours: 3,
+    activePhases: ['night'],
+  },
+
   // The Xhindët: the unseen ones keep to the dark hours — out of the dry well's
   // mouth, across the sleeping square, down the lanes and back. The village
   // never sees them; a night-walking stranger might.

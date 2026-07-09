@@ -1009,11 +1009,11 @@ export const WORLD_LANDMARKS = [
   { id: 'shqiponja1', glyph: 'gEagleNest', label: 'the eagle of the deep', x: 1560, y: 1640 },
   // the great forest (west, across the river)
   { id: 'start', glyph: 'gTraveller', label: 'before the bridge', x: 70, y: 500 },
-  { id: 'zjarriPyll', glyph: 'gCampfire', label: 'the fire in the forest', x: -210, y: 565 },
+  { id: 'lendina', glyph: 'gCampfire', label: 'the camp clearing', x: -430, y: 452 },
   { id: 'pylli1', glyph: 'gBear', label: 'the bear & the dervish', x: -560, y: 400 },
   { id: 'shokuUjk', glyph: 'gWolf', label: 'the hungry wolf', x: -700, y: 480 },
   { id: 'dhelpra1', glyph: 'gFox', label: 'the sly fox', x: -360, y: 600 },
-  { id: 'shtrigaNate', glyph: 'gWitch', label: 'the night-witch', x: -260, y: 610 },
+  { id: 'shtrigaNate', glyph: 'gWitch', label: 'the night-witch', x: -410, y: 480 },
   { id: 'shtojzovalle1', glyph: 'gShtojzovalle', label: 'the moon-dancers', x: -460, y: 800 },
   { id: 'karkanxholl1', glyph: 'gRevenant', label: 'the iron-clad revenant', x: -720, y: 820 },
   { id: 'dhampir1', glyph: 'gDhampir', label: 'the dhampir & the lugat', x: -360, y: 900 },

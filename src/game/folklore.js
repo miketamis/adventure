@@ -1961,6 +1961,7 @@ export const ENDING_LORE = {
 
   // Village vignettes (the bridge of Arta / mill / spring / church / graves)
   uraArtesShpetim: 'ura-e-artes',
+  tabakFund: 'ura-e-tabakeve',
   mulliFund: 'kanuni',
   kroiFund: 'hospitality',
   kishaFund: 'harmonia-fetare',
@@ -2022,7 +2023,7 @@ export const AREA_FACTOIDS = [
     blurb:
       'You have wandered the great forest from edge to edge — the trees, the night-fire, the sleep and the waking. Whatever you met among the trunks may have been more than it seemed, for every Albanian is born with an Ora, a fate-spirit who walks beside a life from cradle to grave — and an Ora takes any form she pleases: a bird, a beast, an old woman at a fire, a serpent in the leaves. The wise treat every stranger of the wood accordingly. You have come to know the wild wood and what walks in it.',
     threshold: 0.6,
-    quizNodes: ['pylli1', 'zjarriPyll', 'pylliLoop'],
+    quizNodes: ['pylli1', 'lendina', 'pylliLoop'],
     lore: 'ora',
   },
   {
@@ -2819,6 +2820,19 @@ export const HISTORY = [
     related: [],
   },
   {
+    id: 'ura-e-tabakeve',
+    title: 'Ura e Tabakëve — the Tanners’ Bridge of Tirana',
+    era: '18th century',
+    place: 'Tirana, the Lana stream',
+    summary:
+      'An Ottoman-era humpbacked stone footbridge over the Lana, on the old road that brought livestock and produce into Tirana from the eastern highlands. It takes its name from the tabakët — the guild of tanners and leather-workers whose workshops and slaughterhouses stood on the bank beside it, close to the Tabak mosque the guild also raised. When the Lana was rerouted in the twentieth century the bridge was left standing dry among the traffic, until it was restored as a pedestrian crossing; it survives today in the middle of the capital, a few steps of worn stone from the guild city Tirana once was. The game’s first bridge — ura e vjetër, the tanners’ bridge by the river quarter — is this one.',
+    sources: [
+      { label: 'Tanners’ Bridge, Tirana (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tanners%27_Bridge' },
+      { label: 'The Tanners’ Bridge (Into Albania)', url: 'https://www.intoalbania.com/attraction/the-tanners-bridge/' },
+    ],
+    related: ['ura-e-artes', 'kanuni'],
+  },
+  {
     id: 'bushati-pashalik-shkodra',
     title: 'The Bushati pashalik of Shkodra',
     era: 'c. 1757 – 1831',
@@ -3159,6 +3173,7 @@ export const RANK = {
   'gjakova-cavern': [3, 1, 2],
   'skanderbeg-legjenda': [5, 5, 5],
   'ura-e-artes': [3, 3, 3],
+  'ura-e-tabakeve': [5, 3, 2],
   'kostandini-i-vogel': [3, 3, 3],
   'ali-pashe-tepelena': [4, 4, 4],
   'tomorri-pilgrimage': [5, 4, 4],
@@ -3342,6 +3357,7 @@ export const EXTRA_SOURCES = {
   'lugat': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }],
   'skanderbeg-legjenda': [{ label: 'Scanderbeg and Ballaban (Elsie, legend 07)', url: 'http://www.albanianliterature.net/legends/legend_07.html' }, { label: 'Barleti, Historia de vita et gestis Scanderbegi — source of the legends (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Marin_Barleti' }],
   'ura-e-artes': [{ label: 'Dundes (ed.), The Walled-Up Wife: A Casebook', url: 'https://www.google.com/books/edition/The_Walled_Up_Wife/nq0aVj2Qff8C' }, { label: 'Bridge of Arta — the Greek walled-wife ballad (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Bridge_of_Arta' }],
+  'ura-e-tabakeve': [{ label: 'Tanners\' Bridge, Tirana (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tanners%27_Bridge' }, { label: 'The Tanners\' Bridge (Into Albania)', url: 'https://www.intoalbania.com/attraction/the-tanners-bridge/' }, { label: 'Tirana — Ottoman-era monuments incl. the Tabak bridge & mosque (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tirana' }],
   'ali-pashe-tepelena': [{ label: 'Byron, Childe Harold\'s Pilgrimage, Canto II (Ali Pasha) — Gutenberg', url: 'https://www.gutenberg.org/files/5131/5131-h/5131-h.htm' }, { label: 'K. E. Fleming, The Muslim Bonaparte (Princeton)', url: 'https://press.princeton.edu/books/paperback/9780691001944/the-muslim-bonaparte' }],
   'tomorri-pilgrimage': [{ label: 'Elsie, The Albanian Bektashi — Abbas Ali cult on Tomorr', url: 'https://catalog.libraries.psu.edu/catalog/27978534' }, { label: 'Bektashism in Albania — the mountain cult of Tomorr (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Bektashism_in_Albania' }],
   'rrapi': [{ label: 'Durham, High Albania — open-air assemblies and judgment under the tree (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],

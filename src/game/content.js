@@ -1338,6 +1338,8 @@ const NOUN_FORMS = {
   ],
   tabak: [ /* tanner */
     { al: 'tabak', tag: 'indefNom', gloss: "a tanner" },
+    { al: 'tabaku', tag: 'defNom', gloss: "the tanner" },
+    { al: 'tabakun', tag: 'defAcc', gloss: "the tanner (object)" },
     { al: 'tabakët', tag: 'plDef', gloss: "the tanners" },
     { al: 'tabakëve', tag: 'defDat', gloss: "to/of the tanners" },
   ],
@@ -1454,6 +1456,9 @@ export const Q = (source, ...tokens) => Object.assign(tokens, { quote: source })
 // when()/unless() make a line appear only if the player HAS / LACKS a given item or
 // companion. This lets a scene react to what walks with you: e.g. with the wolf, a
 // hostile encounter resolves "the wolf attacks them" instead of the neutral default.
+// Either accepts an array of ids as an AND ("all of these"): when(['night',
+// 'fireLive'], …) shows the line only at night AND while the fire burns; unless()
+// with an array hides it only when ALL are present.
 export const when = (itemId, line) => ({ cond: itemId, line })
 export const unless = (itemId, line) => ({ cond: itemId, negate: true, line })
 // from()/notFrom() react to the WAY you entered the scene: gameState tracks the
@@ -1476,9 +1481,14 @@ const becameCond = (phases) => 'became:' + [].concat(phases).join('|')
 export const became = (phases, line) => ({ cond: becameCond(phases), line })
 export const notBecame = (phases, line) => ({ cond: becameCond(phases), negate: true, line })
 export const lineOf = (entry) => (Array.isArray(entry) ? entry : entry.line)
-// the lines actually shown for a node, given has(itemId) -> bool
+// the lines actually shown for a node, given has(itemId) -> bool; a cond may be
+// an array of ids meaning ALL of them (see when()/unless() above)
 export const visibleLines = (node, has) =>
-  node.text.filter((e) => Array.isArray(e) || (e.negate ? !has(e.cond) : has(e.cond))).map(lineOf)
+  node.text.filter((e) => {
+    if (Array.isArray(e)) return true
+    const all = [].concat(e.cond).every(has)
+    return e.negate ? !all : all
+  }).map(lineOf)
 
 // ---------------------------------------------------------------------------
 // STORY GRAPH
@@ -1498,7 +1508,7 @@ export const STORY = {
   // the forest edge, the village a far glimmer of light — and the clock starts
   // exactly two choices shy of nightfall (gameState's START_CLOCK), so the
   // natural opening (into the forest, light a fire) has night fall AS the fire
-  // catches (zjarriPyll's became('night') line). Rest here, light a fire against
+  // catches (lendina's became('night') line). Rest here, light a fire against
   // the coming dark, or make for the lamps — each a real choice that follows from
   // the scene, and sleeping in the woods (not in a town) now leads coherently to
   // the wolf in the night. You carry no bread yet; that is earned at the village.
@@ -1516,8 +1526,10 @@ export const STORY = {
       L(w('nje'), w('lume'), w('eshte'), w('poshte'), p('.')),
       L(wf('ure', 'ura', 'the bridge'), wf('shko', 'shkon', 'goes'), wf('ne', 'në', 'to'), w('nje'), w('fshat'), p('.')),
       L(w('mbrapa'), w('eshte'), w('nje'), w('pyll'), w('me'), w('nje'), w('rruge'), p('.')),
-      // the hour of the world — one line per phase of the day/night cycle
-      when('night', L(w('eshte'), w('naten'), p(','), w('erret'), w('dhe'), w('ftohte'), p('.'))),
+      // the hour of the world — one line per phase of the day/night cycle; when
+      // the walk itself crossed into the dark, nightfall is announced as an event
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
+      when('night', L(w('eshte'), w('erret'), w('dhe'), w('ftohte'), p('.'))),
       when('dawn', L(w('eshte'), w('agim'), p(','), wf('diell', 'dielli', 'the sun'), w('vjen'), p('.'))),
       when('day', L(w('eshte'), w('dite'), p(','), wf('diell', 'dielli', 'the sun'), w('eshte'), wf('lart', 'lart', 'high'), p('.'))),
       when('dusk', L(w('eshte'), w('muzg'), p(','), wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
@@ -1529,10 +1541,12 @@ export const STORY = {
     ],
   },
 
-  // The forest CLEARING — the forest's front door. The path from the bridge ends
-  // here: camp in the cold night (light a fire — the Ora at the fire; sleep — the
-  // wolf), follow the road back out, or walk on deeper into the wild (pylliLoop).
-  // The campfire and the sleeping-ground both belong to THIS clearing and return here.
+  // The forest CLEARING — the forest's front door AND the camp: lendina IS the
+  // fireplace. The path from the bridge ends here; the campfire is lit HERE and
+  // lives here between visits (big, dying, cold ash — relight it). At the night
+  // fire the whole guest arc plays out in place: the cold old woman drawn to the
+  // light (feed her — the Ora's blessing; wait — the Shtriga). Sleep on the
+  // ground (the wolf), follow the road back out, or walk deeper (pylliLoop).
   lendina: {
     id: 'lendina',
     text: [
@@ -1543,19 +1557,35 @@ export const STORY = {
       L(wf('pyll', 'pylli', 'the forest'), wf('shko', 'shkon', 'goes'), w('thelle'), p('.')),
       // the campfire is a PHYSICAL fact of the clearing — it burns, dies, goes cold
       when('fireBig', L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('madh'), p('.'))),
-      when('fireLow', L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('vogel'), p('.'))),
+      when('fireLow', L(wf('zjarr', 'zjarri', 'the fire'), w('vdes'), p('.'))),
       when('fireOut', L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('ftohte'), p('.'))),
-      when('night', L(w('eshte'), w('naten'), p(','), w('erret'), w('dhe'), w('ftohte'), p('.'))),
+      // if THIS visit crossed into the dark (lighting the fire at dusk, waiting),
+      // nightfall is narrated as it happens…
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
+      when('night', L(w('eshte'), w('erret'), w('dhe'), w('ftohte'), p('.'))),
+      // …and the sleep on the ground ("fle deri në agim") breaks HERE at sunrise
+      became('dawn', L(wf('diell', 'dielli', 'the sun'), w('vjen'), p('.'))),
       when('dawn', L(w('eshte'), w('agim'), w('dhe'), w('ftohte'), p('.'))),
       when('day', L(w('eshte'), w('dite'), p('.'))),
       when('dusk', L(w('eshte'), w('muzg'), p(','), wf('naten', 'nata', 'the night'), w('vjen'), p(','), w('behet'), w('ftohte'), p('.'))),
+      // …and the cold old woman of the wood WALKS here (npcs.js plakaPyllit):
+      // at nightfall she comes out of the trees to the clearing; if a fire
+      // burns, the light draws her to sit and the guest arc opens — a dark or
+      // dead fireplace draws no one to it
+      when('npc:plakaPyllit', L(w('nje'), w('plake'), w('e_art'), w('ftohte'), w('vjen'), w('nga'), wf('pyll', 'pylli', 'the forest'), p('.'))),
+      when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('rri'), wf('tek', 'te', 'at'), wf('zjarr', 'zjarri', 'the fire'), p('.'))),
+      when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), wf('mik', 'mik', 'guest'), w('i_art'), w('shenjte'), p('.'))),
+      when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('do'), w('buke'), p('.'))),
       L(w('ti'), w('je'), w('i_art'), w('uritur'), p('.')),
     ],
     options: [
-      // a fire wants the cold hours — by day it has no cause (standards §2);
-      // while one burns you don't light another, you go to it
-      { text: L(w('ndiz'), w('nje'), w('zjarr')), unless: ['day', 'fireLive'], fire: true, to: 'zjarriPyll' },
-      { text: L(w('shko'), w('tek'), wf('zjarr', 'zjarri', 'the fire')), requires: 'fireLive', to: 'zjarriPyll' },
+      // a fire wants the cold hours — by day it has no cause (standards §2)
+      { text: L(w('ndiz'), w('nje'), w('zjarr')), unless: ['day', 'fireLive'], fire: true, to: 'lendina' },
+      // the guest arc — only while SHE sits at a live fire (npc + fireLive)
+      { text: L(w('jep'), w('buke')), requires: ['buke', 'npc:plakaPyllit', 'fireLive'], consumes: 'buke', to: 'besaBekim', reveal: 'buke' },
+      // making the torch is the PLAYER's act (no narration) — it wants the big flame
+      { text: L(w('bej'), w('pishtar')), requires: 'fireBig', grant: 'pishtar', unless: 'pishtar', to: 'lendina' },
+      { text: L(w('prit'), w('ketu')), requires: ['npc:plakaPyllit', 'fireLive'], to: 'shtrigaNate' },
       // sleeping carries you into the night (the wolf finds you there)
       { text: L(w('fle'), w('ketu')), to: 'gjumi', time: 'night' },
       // rest in the clearing until dark — the big "wait" time-jump
@@ -2039,8 +2069,12 @@ export const STORY = {
       L(w('larg'), w('nje'), w('plak'), w('flet'), wf('per', 'për', 'about'), w('ar'), p('.')),
       L(w('larg'), w('eshte'), w('nje'), w('liqen'), p('.')),
       L(w('poshte'), w('eshte'), w('nje'), w('ure'), w('e_art'), w('vjeter'), p('.')),
-      when('night', L(w('naten'), wf('lume', 'lumi', 'the river'), w('eshte'), w('i_art'), w('erret'), w('dhe'), w('i_art'), w('qete'), p('.'))),
-      when('dawn', L(w('eshte'), w('agim'), p(','), w('nje'), w('drite'), w('bie'), wf('ne', 'në', 'on'), wf('lume', 'lumin', 'the river'), p('.'))),
+      // the "prit natën" wait pays off as an EVENT (became), then the standing
+      // night line carries the hour on later visits — same for dawn
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
+      when('night', L(wf('lume', 'lumi', 'the river'), w('eshte'), w('i_art'), w('erret'), w('dhe'), w('i_art'), w('qete'), p('.'))),
+      became('dawn', L(wf('diell', 'dielli', 'the sun'), w('vjen'), p('.'))),
+      when('dawn', L(w('nje'), w('drite'), w('bie'), wf('ne', 'në', 'on'), wf('lume', 'lumin', 'the river'), p('.'))),
     ],
     options: [
       { text: L(w('degjo'), wf('zane', 'zanën', 'the fairy')), to: 'zana1', reveal: 'zane' },
@@ -2133,8 +2167,10 @@ export const STORY = {
       L(w('poshte'), wf('thote', 'thonë', 'they say'), w('rri'), w('bukura'), w('e_link'), wf('det', 'detit', 'the sea'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), w('bukura'), w('ka'), w('dy'), w('motra'), p(','), wf('ne', 'në', 'in'), w('toke'), w('dhe'), wf('ne', 'në', 'in'), w('qiell'), p('.')),
       L(w('nje'), w('fshat'), w('eshte'), w('ketu'), p('.')),
-      // the open sky over the coast tells the hour — the moon-road at night, the sun by day
-      when('night', L(w('eshte'), w('naten'), p(','), wf('hene', 'hëna', 'the moon'), w('eshte'), w('mbi'), wf('det', 'detin', 'the sea'), p('.'))),
+      // the open sky over the coast tells the hour — the moon-road at night, the
+      // sun by day; nightfall itself is an event when the wait carries you into it
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
+      when('night', L(wf('hene', 'hëna', 'the moon'), w('eshte'), w('mbi'), wf('det', 'detin', 'the sea'), p('.'))),
       when('day', L(wf('diell', 'dielli', 'the sun'), w('eshte'), w('mbi'), wf('det', 'detin', 'the sea'), p('.'))),
     ],
     options: [
@@ -2637,7 +2673,7 @@ export const STORY = {
   // An old man tells the tale; the deeper warning (thesarOra) folds in the Vitore belief
   // (a gold-laying house-serpent killed by a greedy family -> the line fails).
   // MECHANIC (Durham, faithful): the cavern is pitch dark. You must bring a TORCH (pishtar,
-  // made at the forest fire, zjarriPyll) or shpellaHyrje shows only blackness and the sole
+  // made at the forest campfire, lendina) or shpellaHyrje shows only blackness and the sole
   // way on is back out. With a torch you reach the lit bazaar (thesar2): TOUCH the gold and
   // "his torch at once goes out, serpents spring up and devour him in the darkness" (bad);
   // LEAVE it untouched and walk out alive (good); cut the guardian down -> the Vitore curse
@@ -2678,7 +2714,7 @@ export const STORY = {
   },
 
   // The cave mouth — pitch dark. Durham: you go down with a torch or you see nothing.
-  // No torch -> the only way on is back out. The torch is made at the forest fire (zjarriPyll).
+  // No torch -> the only way on is back out. The torch is made at the forest campfire (lendina).
   shpellaHyrje: {
     id: 'shpellaHyrje',
     text: [
@@ -3466,18 +3502,21 @@ export const STORY = {
       when('night', L(w('naten'), wf('degjo', 'dëgjon', 'you hear'), w('nje'), w('valle'), p('.'))),
       when('night', L(wf('thote', 'thonë', 'they say'), p(':'), w('kush'), wf('hyr', 'hyn', 'enters'), wf('ne', 'në', 'in'), w('valle'), p(','), w('nuk'), wf('dil', 'del', 'comes out'), p('.'))),
       L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('ora'), w('ec'), wf('ne', 'në', 'in'), w('pyll'), p(','), wf('si', 'si', 'as'), w('zog'), p(','), wf('si', 'si', 'as'), w('kafshe'), p(','), w('ose'), wf('si', 'si', 'as'), w('plake'), p('.')),
+      // …and in the dead of night you may SEE her: the cold old woman of the
+      // wood (npcs.js plakaPyllit) walking back from the road-end fire
+      when('npc:plakaPyllit', L(w('nje'), w('plake'), w('e_art'), w('ftohte'), w('ec'), w('ne'), w('erresire'), p('.'))),
       L(w('larg'), w('nje'), wf('shpelle', 'shpellë', 'cave'), w('nxjerr'), w('zjarr'), p('.')),
       L(w('nje'), w('dhelpra'), w('dhe'), w('nje'), w('ujk'), wf('ka', 'kanë', 'have'), w('gjalpe'), p('.')),
       L(w('larg'), wf('rri', 'rrinë', 'stay'), w('tre'), wf('vella', 'vëllezër', 'brothers'), p('.')),
     ],
     options: [
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('udhekryq')), to: 'udhekryq' },
-      // back to the road-end clearing — the camp: fires are lit and beds made THERE
-      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), to: 'lendina' },
+      // back to the road-end clearing — the camp: while your fire burns there it
+      // calls you home by name, otherwise you walk back to the road
+      { text: L(w('kthehu'), w('tek'), wf('zjarr', 'zjarri', 'the fire')), requires: 'fireLive', to: 'lendina' },
+      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), unless: 'fireLive', to: 'lendina' },
       // across the clearings to the brothers' camp — the forest circle runs both ways
       { text: L(w('shko'), wf('tek', 'te', 'to'), wf('vella', 'vëllezërit', 'the brothers')), to: 'pylli1', reveal: 'vella' },
-      // your campfire persists at the clearing — while it burns you can walk back to it
-      { text: L(w('kthehu'), w('tek'), wf('zjarr', 'zjarri', 'the fire')), requires: 'fireLive', to: 'zjarriPyll' },
       { text: L(w('ec'), w('ne'), w('valle')), requires: 'night', to: 'shtojzovalle1', reveal: 'valle' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('shpelle')), to: 'stihi1', reveal: 'shpelle' },
       { text: L(w('sheh'), wf('dhelpra', 'dhelprën', 'the fox')), to: 'dhelpra1', reveal: 'dhelpra' },
@@ -3578,35 +3617,8 @@ export const STORY = {
   },
 
   // === branch: the night fire — the guest, the Ora, the Shtriga ===========
-  zjarriPyll: {
-    id: 'zjarriPyll',
-    text: [
-      // the fire LIVES here between visits: big, then dying, then cold ash (relight it)
-      when('fireBig', L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('madh'), p('.'))),
-      when('fireLow', L(wf('zjarr', 'zjarri', 'the fire'), w('vdes'), p('.'))),
-      when('fireOut', L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('ftohte'), p('.'))),
-      // if THIS visit crossed into the dark (lighting the fire at dusk, waiting),
-      // nightfall is narrated as it happens…
-      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
-      // …and the cold stranger is drawn to the light — it is the FIRE that brings
-      // her, whatever hour of the dark you sit down at it; by day/dawn/dusk the
-      // fire is yours alone
-      when('night', L(w('nje'), w('plake'), w('e_art'), w('ftohte'), w('vjen'), wf('tek', 'te', 'to'), wf('zjarr', 'zjarri', 'the fire'), p('.'))),
-      when('night', L(wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), wf('mik', 'mik', 'guest'), w('i_art'), w('shenjte'), p('.'))),
-      when('night', L(wf('plake', 'plaka', 'the old woman'), w('do'), w('buke'), p('.'))),
-    ],
-    options: [
-      { text: L(w('jep'), w('buke')), requires: ['buke', 'night'], consumes: 'buke', to: 'besaBekim', reveal: 'buke' },
-      // making the torch is the PLAYER's act (no narration) — it wants the big flame
-      { text: L(w('bej'), w('pishtar')), requires: 'fireBig', grant: 'pishtar', unless: 'pishtar', to: 'zjarriPyll' },
-      { text: L(w('ndiz'), wf('zjarr', 'zjarrin', 'the fire')), unless: 'fireLive', fire: true, to: 'zjarriPyll' },
-      { text: L(w('prit'), w('ketu')), requires: 'night', to: 'shtrigaNate' },
-      { text: L(w('fle'), w('ketu')), to: 'gjumi', time: 'night' },
-      // the fire burns at the edge of the road-end clearing — step back to it
-      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), to: 'lendina' },
-    ],
-  },
-
+  // (the fire and its guest arc live AT the clearing, lendina — the shtriga
+  // confrontation is the one scene that leaves it)
   shtrigaNate: {
     id: 'shtrigaNate',
     text: [
@@ -3745,9 +3757,13 @@ export const STORY = {
       L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('ne', 'në', 'in'), w('vere'), wf('njeri', 'njerëzit', 'the people'), wf('ngjit', 'ngjiten', 'climb'), w('ketu'), w('dhe'), wf('ha', 'hanë', 'eat'), w('nje'), w('kurban'), p('.')),
       L(w('larg'), wf('rri', 'rrinë', 'stand'), wf('kulle', 'kullat', 'the towers'), w('e_link'), w('jutbina'), p('.')),
       L(w('larg'), w('eshte'), w('nje'), w('mal'), w('tjeter'), p('.')),
+      // waiting out the night on the peak: sunrise arrives as an EVENT, and the
+      // rays return with it; nightfall likewise if you linger into the dark
+      became('dawn', L(wf('diell', 'dielli', 'the sun'), w('vjen'), p('.'))),
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
       // the Sun's rays touch the peak only while he rides the sky
       unless('night', L(wf('rreze', 'rrezet', 'the rays'), w('e_link'), wf('diell', 'diellit', 'the Sun'), wf('bie', 'bien', 'fall'), wf('ne', 'në', 'on'), w('maja'), p('.'))),
-      when('night', L(w('naten'), wf('yll', 'yjet', 'the stars'), wf('je', 'janë', 'are'), w('lart'), p('.'))),
+      when('night', L(wf('yll', 'yjet', 'the stars'), wf('je', 'janë', 'are'), w('lart'), p('.'))),
     ],
     options: [
       { text: L(w('ec'), w('mbi'), wf('rreze', 'rrezet', 'the rays')), to: 'diellShtepi1', reveal: 'rreze', unless: 'night' },
@@ -3775,7 +3791,10 @@ export const STORY = {
       L(w('nje'), w('trim'), w('nuk'), w('sheh'), p('.')),
       L(wf('zane', 'zanat', 'the Zanas'), wf('jep', 'japin', 'give'), w('fuqi'), p('.')),
       L(w('nje'), w('lahute'), wf('kendo', 'këndon', 'sings'), p('.')),
-      when('night', L(w('naten'), wf('burre', 'burrat', 'the men'), wf('rri', 'rrinë', 'stay'), w('me'), w('zjarr'), p('.'))),
+      // the "prit agim" vigil among the towers breaks as an event
+      became('dawn', L(wf('diell', 'dielli', 'the sun'), w('vjen'), p('.'))),
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
+      when('night', L(wf('burre', 'burrat', 'the men'), wf('rri', 'rrinë', 'stay'), w('me'), w('zjarr'), p('.'))),
       L(wf('burre', 'burrat', 'the men'), wf('bej', 'bëjnë', 'make'), wf('gjeme', 'gjëmën', 'the death-wail'), w('per'), w('nje'), w('trim'), p('.')),
       L(w('rusha'), w('rri'), wf('ne', 'në', 'in'), wf('kulle', 'kullën', 'the tower'), w('e_link'), wf('krajl', 'krajlit', 'the Krajl'), p('.')),
       L(wf('krajl', 'krajli', 'a Krajl'), w('merr'), wf('mujo', 'Mujon', 'Mujo'), p('.')),
@@ -4958,7 +4977,11 @@ export const STORY = {
       unless('night', L(w('sot'), w('ka'), w('nje'), w('dasme'), p('.'))),
       when('npc:krushqit', L(w('nje'), w('nuse'), w('vjen'), w('me'), w('kale'), p('.'))),
       unless('night', L(wf('vajze', 'vajzat', 'the girls'), wf('bej', 'bëjnë', 'make'), w('nje'), w('kukull'), w('balte'), p('.'))),
-      when('night', L(w('naten'), wf('fshat', 'fshati', 'the village'), w('fle'), p('.'))),
+      // the day FADES over the square if the hour turned while you stood here:
+      // dusk and nightfall arrive as events, then the standing lines take over
+      became('dusk', L(wf('diell', 'dielli', 'the sun'), w('bie'), p('.'))),
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
+      when('night', L(wf('fshat', 'fshati', 'the village'), w('fle'), p('.'))),
       when('night', L(w('nje'), w('gjinkalla'), wf('kendo', 'këndon', 'sings'), wf('ne', 'në', 'in'), w('erresire'), p('.'))),
       // the Xhindët's night walk crosses the sleeping square (npcs.js xhindet)
       when('npc:xhindet', L(w('dikush'), wf('ec', 'ecën', 'walks'), wf('ne', 'në', 'in'), w('erresire'), p('.'))),
@@ -6237,7 +6260,9 @@ export const STORY = {
   udheNate: {
     id: 'udheNate',
     text: [
-      L(w('naten'), w('vjen'), p('.')),
+      // "night comes" only if it actually fell on the walk in — arriving deep
+      // in the night (fleeing the kukudh) skips the announcement
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
       L(w('ti'), w('dhe'), wf('ujk', 'ujku', 'the wolf'), w('je'), w('ne'), w('nje'), w('shtepi'), w('te_link'), w('vjeter'), p('.')),
       L(w('nje'), w('gjarper'), w('rri'), wf('ne', 'në', 'on'), w('mur'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('eshte'), w('mik'), p('.')),
@@ -6943,7 +6968,9 @@ export const STORY = {
       L(w('nje'), w('udhetar'), w('rri'), w('ketu'), p('.')),
       L(w('nje'), w('zjarr'), w('rri'), w('ketu'), p('.')),
       L(w('nje'), w('gur'), w('e_art'), w('madh'), w('mbyll'), wf('dere', 'derën', 'the door'), p('.')),
-      when('night', L(w('naten'), wf('katallan', 'katallani', 'the giant'), w('fle'), p('.'))),
+      // biding in the shadows pays off as an event: night falls, the giant sleeps
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
+      when('night', L(wf('katallan', 'katallani', 'the giant'), w('fle'), p('.'))),
       unless('night', L(wf('katallan', 'katallani', 'the giant'), w('nuk'), w('fle'), p('.'))),
     ],
     options: [
@@ -7442,6 +7469,8 @@ export const STORY = {
       Q('përgjigjja e mikut — urim i moçëm',
         w('ti'), wf('thote', 'thua', 'say'), p(':'), w('mire'), w('se'), w('ju'), wf('gjen', 'gjeta', 'found'), p('!')),
       notFrom('fshatiSheshi', L(w('ti'), w('je'), w('perseri'), wf('ne', 'në', 'in'), w('oda'), p('.'))),
+      // the night's sleep among the men ends with the light at the windows
+      became('dawn', L(w('tani'), w('eshte'), w('agim'), p('.'))),
       L(wf('plak', 'plaku', 'the old man'), w('jep'), w('buke'), w('dhe'), w('kripe'), p('.')),
       L(w('ti'), w('je'), w('nje'), w('mik'), p('.')),
       L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('si'), w('je'), p('?'), w('kush'), w('je'), w('ti'), p('?')),
@@ -8571,7 +8600,11 @@ export const STORY = {
       unless('night', L(wf('diell', 'dielli', 'the sun'), w('jep'), w('drite'), w('dhe'), w('fuqi'), p('.'))),
       unless('night', L(wf('diell', 'dielli', 'the sun'), w('sheh'), wf('bote', 'botën', 'the world'), p('.'))),
       unless('night', L(wf('thote', 'thonë', 'they say'), p(':'), wf('diell', 'dielli', 'the sun'), w('eshte'), w('bukura'), w('e_link'), wf('qiell', 'qiellit', 'the sky'), p('.'), wf('toke', 'toka', 'the earth'), w('dhe'), wf('det', 'deti', 'the sea'), wf('ka', 'kanë', 'have'), w('nje'), w('bukura'), p('.'))),
-      when('night', L(w('naten'), wf('diell', 'dielli', 'the sun'), wf('ik', 'ikën', 'is gone'), p('.'))),
+      // waiting in the height of heaven, you WATCH the changeover happen: the
+      // Sun leaves as night falls, and returns with the dawn
+      became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
+      became('dawn', L(wf('diell', 'dielli', 'the sun'), w('vjen'), p('.'))),
+      when('night', L(wf('diell', 'dielli', 'the sun'), wf('ik', 'ikën', 'is gone'), p('.'))),
       when('night', L(wf('hene', 'hëna', 'the moon'), w('eshte'), wf('lart', 'lart', 'high'), p('.'))),
       when('night', L(wf('hene', 'hëna', 'the moon'), w('jep'), w('drite'), w('e_art'), w('qete'), p('.'))),
     ],
@@ -8687,12 +8720,14 @@ export const STORY = {
   // ACT I — THE RIVER QUARTER (te lumi) — the lower village, down the slope.
   // THE FIRST SCENE of the game: the bridge you cross from `start` IS the old
   // stone bridge of the tanners (Ura e Tabakëve), and it lands you here. The
-  // quarter holds the water-MILL (the fair measure), the living SPRING, and —
-  // kept clearly APART from the crossed bridge — the men building ANOTHER
-  // bridge (the Bridge of Arta, the walled bride). Also reached by "zbrit te
-  // lumin" from the square. "kalo urën" retreats to the bridgehead for free
-  // (a `free:` option — the way you came is never token-locked).
-  // Deliberately SLIM: this is the player's first wall of Albanian.
+  // quarter holds the water-MILL (the fair measure), the living SPRING, the
+  // TANNERS' BANK under the old bridge (tabaket1 — the bridge's own story),
+  // and — kept clearly APART from the crossed bridge — the men building
+  // ANOTHER bridge (the Bridge of Arta, the walled bride). Also reached by
+  // "zbrit te lumin" from the square. "kalo urën" retreats to the bridgehead
+  // for free (a `free:` option — the way you came is never token-locked).
+  // Deliberately SLIM: this is the player's first wall of Albanian — every
+  // line here is an arrival, a gated signpost, or live NPC/time state.
   // =========================================================================
   fshatiLumi: {
     id: 'fshatiLumi',
@@ -8704,7 +8739,6 @@ export const STORY = {
       from(['fshatiSheshi', 'fshatiJeta', 'fshatiLanes'], L(w('ti'), wf('zbrit', 'zbret', 'go down'), w('nga'), wf('fshat', 'fshati', 'the village'), wf('tek', 'te', 'to'), wf('lume', 'lumi', 'the river'), p('.'))),
       notFrom(['start', 'fshatiSheshi', 'fshatiJeta', 'fshatiLanes'], L(w('ti'), w('je'), wf('tek', 'te', 'at'), wf('lume', 'lumi', 'the river'), p('.'))),
       L(wf('ure', 'ura', 'the bridge'), w('e_art'), w('vjeter'), w('eshte'), w('e_link'), wf('tabak', 'tabakëve', 'the tanners'), p('.')),
-      L(w('nje'), w('tabak'), w('punon'), w('lekure'), wf('tek', 'te', 'at'), wf('ure', 'ura', 'the bridge'), p('.')),
       L(wf('burre', 'burrat', 'the men'), wf('bej', 'bëjnë', 'build'), w('nje'), w('ure'), w('tjeter'), p('.')),
       L(w('nje'), w('mulli'), w('punon'), w('me'), w('uje'), p('.')),
       // the water-carrier (npcs.js gruaUji) walks her daylight loop past here:
@@ -8715,7 +8749,6 @@ export const STORY = {
       // above you, or met on this bank as the bride rides off it
       when('npcAt:krushqit:start', L(wf('tek', 'te', 'at'), wf('ure', 'ura', 'the bridge'), w('e_art'), w('vjeter'), w('nje'), w('nuse'), w('vjen'), w('me'), w('kale'), p('.'))),
       when('npc:krushqit', L(w('nje'), w('nuse'), w('me'), w('kale'), wf('kalo', 'kalon', 'crosses'), wf('ure', 'urën', 'the bridge'), p('.'))),
-      when('night', L(w('naten'), wf('krua', 'kroi', 'the spring'), w('eshte'), w('i_art'), w('qete'), p('.'))),
       L(wf('lart', 'lart', 'up'), wf('shko', 'shkon', 'goes'), w('nje'), w('rruge'), wf('tek', 'te', 'to'), wf('fshat', 'fshati', 'the village'), p('.')),
     ],
     options: [
@@ -8724,6 +8757,7 @@ export const STORY = {
       // only offered while she actually stands on this bank (npc route)
       { text: L(w('fol'), w('me'), wf('grua', 'gruan', 'the woman')), requires: 'npc:gruaUji', to: 'gruaUji1', reveal: 'grua' },
       { text: L(w('shko'), wf('tek', 'te', 'to'), wf('ure', 'ura', 'the bridge'), w('tjeter')), to: 'uraArtes1', reveal: 'tjeter' },
+      { text: L(w('shko'), wf('tek', 'te', 'to'), wf('tabak', 'tabakët', 'the tanners')), to: 'tabaket1', reveal: 'tabak' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('mulli')), to: 'mulli1', reveal: 'mulli' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('krua')), to: 'kroi1', reveal: 'krua' },
       { text: L(w('ngjit'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpitë', 'the homes')), to: 'fshatiJeta', reveal: 'rruge' },
@@ -8946,6 +8980,8 @@ export const STORY = {
     text: [
       L(w('ti'), w('je'), wf('tek', 'te', 'at'), wf('krua', 'kroi', 'the spring'), p('.')),
       L(wf('uje', 'uji', 'the water'), w('eshte'), w('i_art'), w('ftohte'), p('.')),
+      // the spring's own night: the quiet the river scene used to narrate from afar
+      when('night', L(w('naten'), wf('krua', 'kroi', 'the spring'), w('eshte'), w('i_art'), w('qete'), p('.'))),
       L(w('nje'), w('vajze'), w('merr'), w('uje'), w('ketu'), p('.')),
       // the water-carrier's loop passes through the spring itself
       when('npc:gruaUji', L(w('nje'), w('grua'), w('merr'), w('uje'), w('dhe'), wf('shko', 'shkon', 'goes'), w('lart'), p('.'))),
@@ -8968,6 +9004,59 @@ export const STORY = {
       L(w('ti'), w('pi'), w('uje'), p('.')),
       L(w('ti'), wf('thote', 'thua', 'say'), p(':'), w('faleminderit'), p('.')),
       L(w('ti'), w('je'), w('i_art'), w('sigurt'), p('.')),
+    ],
+    options: [],
+  },
+
+  // === THE TANNERS' BANK — the leather-workers under the old bridge. Their
+  // craft is what names the game's first crossing: ura e vjetër IS Ura e
+  // Tabakëve (the real one stands in Tirana over the Lana — the factoid
+  // ending finally pays that off for the player). Work here pays lek by day
+  // (the second wage of the quarter, beside the mill's).
+  tabaket1: {
+    id: 'tabaket1',
+    text: [
+      from('fshatiLumi', L(w('ti'), wf('shko', 'shkon', 'walk'), wf('tek', 'te', 'to'), wf('ure', 'ura', 'the bridge'), w('e_art'), w('vjeter'), p('.'))),
+      notFrom('fshatiLumi', L(w('ti'), w('je'), wf('tek', 'te', 'at'), wf('ure', 'ura', 'the bridge'), w('e_art'), w('vjeter'), p('.'))),
+      L(wf('tabak', 'tabakët', 'the tanners'), wf('punon', 'punojnë', 'work'), w('lekure'), w('ketu'), p('.')),
+      when('day', L(wf('lekure', 'lëkura', 'the leather'), w('rri'), wf('ne', 'në', 'in'), w('diell'), p('.'))),
+      // the offer that gates "bej pune" (same shape as the miller's)
+      when('day', L(w('nje'), w('tabak'), w('thote'), p(':'), w('ka'), w('pune'), w('per'), w('ti'), p('.'))),
+      when('night', L(w('naten'), w('askush'), w('nuk'), w('punon'), p('.'))),
+      when('night', L(wf('lekure', 'lëkura', 'the leather'), w('rri'), wf('tek', 'te', 'at'), wf('ure', 'ura', 'the bridge'), p('.'))),
+    ],
+    options: [
+      { text: L(w('fol'), w('me'), wf('tabak', 'tabakun', 'the tanner')), requires: 'day', to: 'tabakFund', reveal: 'tabak' },
+      // honest work on the bank — hides hauled from the cold water, four lek
+      { text: L(w('bej'), w('pune')), requires: 'day', lek: 4, to: 'punaTabak', reveal: 'pune' },
+      { text: L(w('kthehu'), wf('tek', 'te', 'to'), wf('lume', 'lumi', 'the river')), to: 'fshatiLumi' },
+    ],
+  },
+
+  // A day's work among the hides — the quarter's second wage, beside the mill's.
+  punaTabak: {
+    id: 'punaTabak',
+    text: [
+      L(w('ti'), w('punon'), w('lekure'), w('me'), wf('tabak', 'tabakët', 'the tanners'), p('.')),
+      L(wf('uje', 'uji', 'the water'), w('eshte'), w('i_art'), w('ftohte'), w('dhe'), wf('pune', 'puna', 'the work'), w('e_link'), wf('madh', 'madhe', 'big'), p('.')),
+      L(wf('tabak', 'tabaku', 'the tanner'), w('jep'), w('kater'), w('lek'), w('dhe'), w('thote'), p(':'), w('faleminderit'), p('!')),
+    ],
+    options: [
+      { text: L(w('kthehu'), wf('tek', 'te', 'to'), wf('tabak', 'tabakët', 'the tanners')), to: 'tabaket1' },
+    ],
+  },
+
+  tabakFund: {
+    id: 'tabakFund',
+    end: 'good',
+    title: 'The Tanners’ Bridge',
+    blurb:
+      'The tanner told you plainly what the whole quarter lives by: the herds come in over the old stone bridge, the hides are worked on the bank below it, and the bridge keeps the tanners’ name. That bridge is real. Ura e Tabakëve — the Tanners’ Bridge — still stands in the middle of Tirana: an eighteenth-century Ottoman stone footbridge over the Lana stream, on the old road that brought livestock and produce in from the eastern highlands, named for the guild of tanners whose workshops and slaughterhouses lined the bank beside it. When the Lana was rerouted the bridge was left dry and half-forgotten among the traffic, until it was restored as a footbridge; today you can walk the game’s first crossing yourself — a few steps of humpbacked stone between the ministries and the mosques of the capital.',
+    text: [
+      L(wf('tabak', 'tabaku', 'the tanner'), w('thote'), p(':')),
+      L(wf('kafshe', 'kafshët', 'the animals'), wf('vjen', 'vijnë', 'come'), w('mbi'), w('ure'), p('.')),
+      L(w('ne_we'), wf('punon', 'punojmë', 'work'), wf('lekure', 'lëkurën', 'the leather'), wf('tek', 'te', 'at'), wf('lume', 'lumi', 'the river'), p('.')),
+      L(wf('ure', 'ura', 'the bridge'), w('mban'), wf('emer', 'emrin', 'the name'), w('e_link'), wf('tabak', 'tabakëve', 'the tanners'), p('.')),
     ],
     options: [],
   },
@@ -9078,6 +9167,8 @@ const CONFUSERS = {
   uraArtes2: L(w('degjo'), wf('gur', 'gurin', 'the stone')), // listen to the stone — it cannot speak
   mulli1: L(w('merr'), wf('mulli', 'mullirin', 'the mill')), // take the mill — you cannot
   kroi1: L(w('merr'), wf('krua', 'kroin', 'the spring')), // take the spring — you cannot
+  tabaket1: L(w('fol'), w('me'), wf('ure', 'urën', 'the bridge')), // speak with the bridge — it cannot answer
+  punaTabak: L(w('jep'), wf('pune', 'punën', 'the work')), // give the work (away) — you cannot
   gruaUji1: L(w('jep'), wf('pus', 'pusin', 'the well')), // give the well — you cannot
   kisha1: L(w('degjo'), wf('varr', 'varret', 'the graves')), // listen to the graves — they cannot answer
   varret1: L(w('ndiz'), wf('bese', 'besën', 'the oath')), // light the oath — you cannot
@@ -9155,7 +9246,7 @@ const CONFUSERS = {
   stihi1: L(w('merr'), wf('flake', 'flakën', 'the flame')), // take the flame — you cannot
   vajtim1: L(wf('bej', 'bëj', 'make'), wf('burre', 'burrin', 'the man')), // make the man — you cannot
   gjumi: L(w('lufto'), wf('toke', 'tokën', 'the ground')), // fight the ground — you cannot
-  zjarriPyll: L(w('jep'), wf('zjarr', 'zjarrin', 'the fire')), // give the fire — you cannot
+  lendina: L(w('jep'), wf('zjarr', 'zjarrin', 'the fire')), // give the fire — you cannot
   shtrigaNate: L(w('prit'), wf('plake', 'plakën', 'the old woman')), // wait for the old woman — she is already a witch now
   fshehur: L(w('degjo'), wf('ar', 'arin', 'the gold')), // listen to the gold — it cannot answer
   shpellaHyrje: L(w('degjo'), wf('shpelle', 'shpellën', 'the cave')), // listen to the cave — it cannot answer
@@ -9373,6 +9464,8 @@ const CONFUSERS2 = {
   uraArtes2: L(w('merr'), wf('ure', 'urën', 'the bridge')), // take the bridge — you cannot
   mulli1: L(w('merr'), wf('lume', 'lumin', 'the river')), // take the river — you cannot
   kroi1: L(w('merr'), wf('lume', 'lumin', 'the river')), // take the river — you cannot
+  tabaket1: L(w('bej'), w('nje'), w('lume')), // make a river — you cannot
+  punaTabak: L(w('jep'), wf('tabak', 'tabakun', 'the tanner')), // give the tanner (away) — you cannot
   kisha1: L(w('jep'), wf('kishe', 'kishën', 'the church')), // give the church — you cannot
   varret1: L(w('rri'), wf('ne', 'në', 'in'), wf('qiri', 'qiriun', 'the candle')), // stay in the candle — you cannot
   udhekryq: L(w('ngjit'), wf('udhekryq', 'udhëkryqin', 'the crossroads')), // climb the crossroads — you stand on it
@@ -9429,7 +9522,6 @@ const CONFUSERS2 = {
   uji: L(w('merr'), wf('ar', 'arin', 'the gold')), // take the gold — none here
   kthimi: L(w('merr'), wf('ar', 'arin', 'the gold')), // take the gold — none here
   udhaKthimit: L(w('merr'), wf('ar', 'arin', 'the gold')), // take the gold — none here
-  zjarriPyll: L(w('prit'), wf('buke', 'bukën', 'the bread')), // wait for the bread — you cannot
   shtrigaNate: L(w('lufto'), wf('zjarr', 'zjarrin', 'the fire')), // fight the fire — you cannot
   fshehur: L(w('degjo'), wf('treg', 'tregun', 'the market')), // listen to the market — it cannot answer
   shpellaHyrje: L(w('zbrit'), wf('ne', 'në', 'to'), wf('lume', 'lumin', 'the river')), // go down to the river — none here
@@ -9540,6 +9632,7 @@ const CONFUSERS3 = {
   botaHumbur: L(w('degjo'), wf('bote', 'botën', 'the world')), // listen to the world — it cannot answer
   // village river & church quarters
   fshatiLumi: L(w('merr'), wf('mulli', 'mullirin', 'the mill')), // take the mill — you cannot
+  tabaket1: L(w('fol'), w('me'), wf('lekure', 'lëkurën', 'the leather')), // speak with the leather — it cannot answer
   uraArtes2: L(w('degjo'), wf('buke', 'bukën', 'the bread')), // listen to the bread — it has nothing to say
   kisha1: L(w('jep'), wf('dere', 'derën', 'the door')), // give the door — you cannot
   udhekryq: L(w('ngjit'), wf('fshat', 'fshatin', 'the village')), // climb the village — you cannot
