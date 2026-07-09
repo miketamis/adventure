@@ -216,6 +216,33 @@ button {
   border-color: var(--line);
 }
 
+/* Full-viewport shield shown while a passage is being read aloud. It sits above
+   everything except the game-over modal, so it swallows every click and hover
+   (blocking the hover sounds tokens would otherwise play) until narration ends
+   or the player clicks to stop. Kept nearly transparent so the word-by-word
+   highlight underneath stays visible. */
+.narration-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 28px;
+}
+.narration-hint {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  background: rgba(12, 10, 8, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
 /* the word being read aloud as a passage is narrated word-by-word */
 .token.speaking {
   color: var(--ink);

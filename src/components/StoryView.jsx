@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Token from './Token.jsx'
 import { STORY, ITEMS, w, wf, p, visibleLines, lineOf } from '../game/content.js'
 import { ENDING_LORE, AREA_FACTOIDS } from '../game/folklore.js'
@@ -189,6 +189,16 @@ export default function StoryView({ state, dispatch }) {
   // the story token currently being read aloud ("<lineIdx>:<tokIdx>"), so it can
   // be highlighted as the passage is narrated word-by-word on entering a node
   const [speakingKey, setSpeakingKey] = useState(null)
+  // whether narration is in progress — while it is, an overlay blocks all input
+  // (and the hover sounds it would trigger) until it finishes or you click to stop
+  const [narrating, setNarrating] = useState(false)
+  const cancelSpeakRef = useRef(null)
+  const stopNarration = () => {
+    if (cancelSpeakRef.current) cancelSpeakRef.current()
+    cancelSpeakRef.current = null
+    setNarrating(false)
+    setSpeakingKey(null)
+  }
   // comprehension test at an ending: which question, the pick for it, running score
   const [compStep, setCompStep] = useState(0)
   const [compPick, setCompPick] = useState(null)
@@ -239,11 +249,24 @@ export default function StoryView({ state, dispatch }) {
     })
     if (!order.length) return
     setSpeakingKey(null)
+    setNarrating(true)
     const cancel = speakSequence(
       order.map((o) => o.al),
-      (idx) => setSpeakingKey(idx >= 0 ? order[idx].key : null),
+      (idx) => {
+        if (idx >= 0) {
+          setSpeakingKey(order[idx].key)
+        } else {
+          // -1: the line finished (or was cancelled) — drop the overlay
+          setSpeakingKey(null)
+          setNarrating(false)
+        }
+      },
     )
-    return cancel
+    cancelSpeakRef.current = cancel
+    return () => {
+      cancel()
+      cancelSpeakRef.current = null
+    }
     // narration is keyed to the node itself — see comment above
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.nodeId, state.ended])
@@ -460,6 +483,16 @@ export default function StoryView({ state, dispatch }) {
 
   return (
     <div className="card story">
+      {narrating && (
+        <div
+          className="narration-overlay"
+          role="button"
+          title="Click anywhere to stop"
+          onClick={stopNarration}
+        >
+          <span className="narration-hint">🔊 Reading aloud… click anywhere to stop</span>
+        </div>
+      )}
       <div className="story-text">
         {!state.ended && companionIds.length > 0 && renderLine(companionLine(), 'companions')}
         {!state.ended && itemIds.length > 0 && renderLine(carryLine(), 'carry')}
