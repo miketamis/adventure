@@ -56,7 +56,7 @@ export const NPCS = {
   krushqit: {
     name: 'krushqit me nusen',
     glyph: '🐎',
-    route: ['start', 'fshatiLumi', 'fshatiSheshi', 'dasma1', 'dasma1', 'fshatiSheshi', 'fshatiLumi'],
+    route: ['start', 'fshatiLumi', 'fshatiSheshi', 'sheshiKisha', 'dasma1', 'dasma1', 'sheshiKisha', 'fshatiSheshi', 'fshatiLumi'],
     stepHours: 2,
     activePhases: ['dawn', 'day', 'dusk'],
   },

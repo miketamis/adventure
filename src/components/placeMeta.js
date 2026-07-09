@@ -62,7 +62,7 @@ export const PLACE_META = {
   fshatiSheshi: {
     name: 'sheshi i fshatit — the square',
     happenings: [
-      { title: 'the village square', nodes: ['fshatiSheshi'] },
+      { title: 'the village square', nodes: ['fshatiSheshi', 'sheshiKisha'] },
       { title: 'the wedding and the round-dance', nodes: ['dasma1', 'dasmaFund', 'valleFund'] },
       { title: "the old man's bench", nodes: ['sheshiPlak', 'sheshiPlak2', 'sheshiPlak3'] },
     ],
