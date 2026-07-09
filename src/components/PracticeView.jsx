@@ -338,7 +338,7 @@ export default function PracticeView({ state, dispatch }) {
               ? `✨ nuance! “${q.surface}” = ${q.step2.answer}`
               : `“${q.surface}” = ${q.step2.answer}`
             : wasCorrect
-            ? `+1 token for "${DICT[q.answerId].al}"`
+            ? `Të lumtë! +1 token for "${DICT[q.answerId].al}"` // the folk blessing for a good answer
             : `💔 −1 heart · correct answer: ${senseText(q.answerId, q.field)}`)}
       </div>
 

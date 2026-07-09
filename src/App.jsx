@@ -8,6 +8,7 @@ import PracticeView from './components/PracticeView.jsx'
 import DictionaryView from './components/DictionaryView.jsx'
 import LoreView from './components/EndingsView.jsx'
 import DebugView from './components/DebugView.jsx'
+import MiniMap from './components/MiniMap.jsx'
 
 // the four phases of the world-day, named in Albanian (they're vocabulary too)
 const TIME_UI = {
@@ -85,6 +86,18 @@ export default function App() {
         </span>
         <span className="stat">turn <b>{state.turn}</b></span>
         <span
+          className={'stat tip-host' + (state.debug ? ' clickable' : '')}
+          onClick={state.debug ? () => dispatch({ type: 'DEBUG_LEK' }) : undefined}
+          role={state.debug ? 'button' : undefined}
+        >
+          🪙 <b>{state.inventory.lek || 0}</b>
+          <span className="tooltip stat-tip">
+            <b>🪙 Lek</b> — the money in your purse. Earn it with work: the mill, the flock,
+            mountain tea, a song on the lahuta. Spend it at the market, the inn and the
+            healer.{state.debug ? ' Debug: click to add 20.' : ''}
+          </span>
+        </span>
+        <span
           className={'stat tip-host time-stat time-' + phase + (state.debug ? ' clickable' : '')}
           onClick={state.debug ? () => dispatch({ type: 'DEBUG_TIME' }) : undefined}
           role={state.debug ? 'button' : undefined}
@@ -129,6 +142,10 @@ export default function App() {
       {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
       {state.view === 'endings' && <LoreView state={state} dispatch={dispatch} />}
       {state.view === 'debug' && <DebugView state={state} dispatch={dispatch} />}
+
+      {/* debug minimap: the world map docked right, expandable to full screen.
+          Hidden on the Debug tab, where the same map already fills the page. */}
+      {state.debug && state.view !== 'debug' && <MiniMap state={state} dispatch={dispatch} />}
 
       {state.hearts <= 0 && (
         <div className="modal-overlay">

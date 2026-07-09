@@ -139,6 +139,31 @@ button {
   cursor: help;
   user-select: none;
 }
+/* a Q() line — quoted word-for-word from the folk sources (ballad, Kanun, tale
+   formula): set apart like an inscription, with its attribution trailing */
+.story-line.quote-line {
+  font-style: italic;
+  border-left: 3px double var(--discovered);
+  background: var(--discovered-bg);
+  border-radius: 0 8px 8px 0;
+  padding: 4px 8px 4px 10px;
+  margin: 8px 0 8px -12px;
+}
+.quote-src {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 11px;
+  font-style: normal;
+  color: var(--muted);
+  white-space: nowrap;
+  cursor: help;
+}
+/* the same quote, flagged in the debug story review */
+.dbg-quote-src {
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 8px;
+}
 
 .token {
   position: relative;
@@ -673,7 +698,63 @@ button {
 }
 .dbg-wi-jump:hover { background: #2b2c24; }
 .dbg-wi-jump code { color: #8aa0b5; }
+/* the LOCATION CARD — "what can happen here" for a clicked shared place */
+.dbg-placecard .dbg-wi-head b { font-size: 13px; color: #efe6d4; }
+.dbg-pc-count { font-size: 10px; color: #99a; white-space: nowrap; }
+.dbg-pc-rows { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.dbg-pc-row { display: flex; flex-direction: column; gap: 3px; }
+.dbg-pc-title { font-size: 12px; color: #d8cdb8; line-height: 1.3; }
+.dbg-pc-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.dbg-pc-chip {
+  display: inline-flex; align-items: center; gap: 5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px; color: #b8c0cc; background: #182230; border: 1px solid #2b3550;
+  border-radius: 999px; padding: 2px 8px; cursor: pointer; line-height: 1.4;
+}
+.dbg-pc-chip:hover { color: #fff; border-color: #3ad0c0; }
+.dbg-pc-chip.cur { border-color: #fff; color: #fff; }
+.dbg-pc-chip i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex: none; }
 .dbg-wi-open { margin-top: 10px; width: 100%; }
+
+/* ── debug minimap: the World map docked to the right, expandable to full screen ── */
+.minimap {
+  position: fixed; top: 76px; right: 16px; z-index: 40;
+  width: min(340px, 42vw); height: min(300px, 44vh);
+  display: flex; flex-direction: column;
+  background: #0e0c0a; border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5); overflow: hidden;
+}
+.minimap.expanded {
+  top: 12px; right: 12px; bottom: 12px; left: 12px;
+  width: auto; height: auto;
+}
+.minimap-bar {
+  display: flex; align-items: center; gap: 6px; padding: 5px 8px;
+  background: #171310; border-bottom: 1px solid var(--line);
+}
+.minimap-title { font-size: 12px; color: #cdb6f0; font-weight: 600; margin-right: auto; }
+.minimap-btn {
+  background: none; border: 1px solid var(--line); border-radius: 5px; color: #b8c0cc;
+  cursor: pointer; font-size: 12px; line-height: 1; padding: 3px 7px; font-family: inherit;
+}
+.minimap-btn:hover { border-color: #b07bff; color: #e8dcff; }
+.minimap-body { flex: 1; min-height: 0; display: flex; }
+.minimap-body .dbg-map { flex: 1; min-height: 0; display: flex; }
+.minimap-body .dbg-worldwrap { flex: 1; min-height: 0; border: none; border-radius: 0; }
+.minimap-body .dbg-world { height: 100%; }
+/* in the small docked map, hide the busy toolbar + info panel (drag & scroll still work) */
+.minimap:not(.expanded) .dbg-worldtools,
+.minimap:not(.expanded) .dbg-worldinfo { display: none; }
+/* the docked map is shrunk to fit — enlarge the place-name & district labels so
+   they read at this size (the edge-lines + scene ids scale via uiScale in JS) */
+.minimap:not(.expanded) .dbg-vlabel { font-size: 21px; stroke-width: 5px; }
+.minimap:not(.expanded) .dbg-vdistrict { font-size: 26px; }
+.minimap-launch {
+  position: fixed; top: 76px; right: 16px; z-index: 40;
+  background: #171310; border: 1px solid var(--line); border-radius: 8px;
+  color: #cdb6f0; cursor: pointer; font-size: 18px; line-height: 1; padding: 7px 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+.minimap-launch:hover { border-color: #b07bff; }
 
 /* node detail panel under the graph */
 .dbg-detail { margin-top: 12px; padding: 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; }

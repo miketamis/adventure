@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Token from './Token.jsx'
 import { STORY, ITEMS, w, wf, p, visibleLines, lineOf } from '../game/content.js'
 import { ENDING_LORE, AREA_FACTOIDS } from '../game/folklore.js'
-import { canSpeak, canUseItem, hasRequiredItem, hasCond, phraseSenses } from '../game/gameState.js'
+import { canSpeak, canUseItem, hasRequiredItem, hasCond, canAfford, phraseSenses } from '../game/gameState.js'
 import FactoidLore from './FactoidLore.jsx'
 
 // sense ids that are NOT nouns (verbs, particles, adjectives, adverbs, numbers).
@@ -15,12 +15,14 @@ const NON_NOUNS = new Set([
   'mbaroi', 'humbet', 'merr', 'kerko', 'gjen', 'kalo', 'shko', 'prit', 'lufto', 'vrit', 'shpeto',
   'ngjit', 'zbrit', 'fluturo', 'degjo', 'flet', 'thote', 'ndihmo', 'beso', 'hyr', 'dil', 'thirr',
   'hidh', 'kthehu', 'prek', 'vdes', 'bie', 'pre', 'luan', 'bej', 'mbyll', 'vazhdon', 'lind', 'fol',
-  'premto',
+  'premto', 'shkimet', 'mplaket', 'trashegohet', 'e_conj', 'o',
+  'lan', 'thyen', 'leh', 'kafshon', 'vonon', 'harron', 'mbare', 'me_obj', 'piqet', 'rron',
+  'tona', 'djathte', 'lumte',
   'madh', 'vogel', 'erret', 'sigurt', 'ri', 'vjeter', 'uritur', 'shpejt', 'qete', 'perseri',
   'forte', 'bukur', 'keq', 'thate', 'lart', 'mire', 'ngadale', 'poshte', 'larg', 'jashte', 'tani',
   'ngrohte', 'ftohte', 'ketu', 'brenda', 'bardhe', 'zi', 'shume', 'tjeter', 'nente', 'shtate',
 ])
-const LIQUID_ITEMS = new Set(['qumesht', 'potion']) // drinkable — don't "drink the X" them
+const LIQUID_ITEMS = new Set(['qumesht', 'potion', 'cajMali']) // drinkable — don't "drink the X" them
 
 // shuffle deterministically from a seed so the order is stable while you're on a
 // node but scrambled (real answers are never simply first)
@@ -69,15 +71,45 @@ const predsOf = (id) => {
   }
   return _preds[id] || []
 }
-// Turn an ORDERED list of story lines (richest-first) into up to 3 comprehension
-// questions: dedup, take the first 3 content lines, and give each two plausible
-// distractors drawn from the pool of every ending's lines. `seedKey` keeps the
+// NEAR-MISS distractors — the test should be genuinely failable. Two makers:
+// (1) SWAP two content words of the correct answer ("the wolf eats the man" →
+//     "the man eats the wolf") — grammatical, plausible, and only real
+//     comprehension of the Albanian word order tells them apart;
+// (2) a TOPICAL pool line that shares a content word with the answer, so the
+//     odd option can't be eliminated by topic alone.
+const STOPWORDS = new Set(['the', 'a', 'an', 'is', 'are', 'was', 'were', 'of', 'to', 'in', 'on', 'at', 'and', 'or', 'with', 'for', 'you', 'your', 'it', 'its', 'i', 'my', 'me', 'he', 'she', 'they', 'this', 'that', 'not', 'no'])
+const stripPunct = (w) => w.replace(/[.,!?:;]+$/, '')
+const contentWords = (s) => s.split(' ').map(stripPunct).filter((w) => w && !STOPWORDS.has(w.toLowerCase()))
+function swapWordsDistractor(correct, seed) {
+  const toks = correct.split(' ')
+  const idx = []
+  for (let i = 0; i < toks.length; i++) {
+    const w = stripPunct(toks[i])
+    if (w && !STOPWORDS.has(w.toLowerCase())) idx.push(i)
+  }
+  const pairs = []
+  for (let a = 0; a < idx.length; a++)
+    for (let b = a + 1; b < idx.length; b++)
+      if (stripPunct(toks[idx[a]]).toLowerCase() !== stripPunct(toks[idx[b]]).toLowerCase()) pairs.push([idx[a], idx[b]])
+  if (!pairs.length) return null
+  const [i1, i2] = stableShuffle(pairs, seed)[0]
+  const tail = (w) => (w.match(/[.,!?:;]+$/) || [''])[0]
+  const out = [...toks]
+  const w1 = stripPunct(out[i1])
+  const w2 = stripPunct(out[i2])
+  out[i1] = w2 + tail(toks[i1])
+  out[i2] = w1 + tail(toks[i2])
+  const swapped = out.join(' ')
+  return swapped === correct ? null : swapped
+}
+// Turn an ORDERED list of story lines (richest-first) into up to `count`
+// comprehension questions with near-miss distractors. `seedKey` keeps the
 // option order stable per topic. Shared by ending factoids and area factoids.
-function comprehensionFromLines(orderedLines, seedKey) {
+function comprehensionFromLines(orderedLines, seedKey, count = 3) {
   const seen = new Set()
   const chosen = []
   for (const l of orderedLines) {
-    if (chosen.length >= 3) break
+    if (chosen.length >= count) break
     if (!isContent(l)) continue
     const k = lineAlbanian(l)
     if (seen.has(k) || !k) continue
@@ -90,24 +122,52 @@ function comprehensionFromLines(orderedLines, seedKey) {
     .map((line, i) => {
       const correct = lineEnglish(line)
       const wc = correct.split(' ').length
-      let p = pool.filter((s) => s !== correct)
+      const cw = new Set(contentWords(correct).map((w) => w.toLowerCase()))
+      const distractors = []
+      // 1: the word-order flip of the answer itself
+      const swapped = swapWordsDistractor(correct, seedKey + correct + i)
+      if (swapped) distractors.push(swapped)
+      // 2: a same-topic line (shares a content word), else a near-length line
+      let p = pool.filter((s) => s !== correct && !distractors.includes(s))
+      const topical = p.filter((s) => contentWords(s).some((w) => cw.has(w.toLowerCase())))
       const near = p.filter((s) => Math.abs(s.split(' ').length - wc) <= 2)
-      if (near.length >= 2) p = near
-      const distractors = stableShuffle(p, seedKey + correct + i).slice(0, 2)
+      for (const src of [topical, near, p]) {
+        if (distractors.length >= 2) break
+        for (const s of stableShuffle(src, seedKey + correct + i)) {
+          if (distractors.length >= 2) break
+          if (s !== correct && !distractors.includes(s)) distractors.push(s)
+        }
+      }
       if (distractors.length < 2) return null
       return { albanian: lineAlbanian(line), correct, options: stableShuffle([correct, ...distractors], seedKey + i) }
     })
     .filter(Boolean)
   return qs.length ? qs : null
 }
-// a SET of comprehension questions: the ending's lines first (the climax), then a
-// scene or two from the path that led here — so it tests the journey, not one line.
+// a SET of comprehension questions for an ENDING factoid. THE JOURNEY IS THE
+// TEST: questions come from the path that led here (up to three hops back),
+// not from the ending text — which stays HIDDEN until the test is passed, so
+// understanding can't be cribbed off the page. Four questions, all must be
+// answered correctly to earn the factoid.
 function buildComprehension(node, resolvedLines) {
-  const ordered = [...resolvedLines].sort((a, b) => richness(b) - richness(a))
-  for (const pid of predsOf(node.id)) {
-    for (const l of STORY[pid].text.map(lineOf).sort((a, b) => richness(b) - richness(a))) ordered.push(l)
+  const ordered = []
+  const visited = new Set([node.id])
+  let frontier = [node.id]
+  for (let hop = 0; hop < 3; hop++) {
+    const next = []
+    for (const id of frontier) {
+      for (const pid of predsOf(id)) {
+        if (visited.has(pid)) continue
+        visited.add(pid)
+        next.push(pid)
+        for (const l of STORY[pid].text.map(lineOf).sort((a, b) => richness(b) - richness(a))) ordered.push(l)
+      }
+    }
+    frontier = next
   }
-  return comprehensionFromLines(ordered, node.id)
+  // fallback for endings with a thin path: the ending's own lines
+  for (const l of [...resolvedLines].sort((a, b) => richness(b) - richness(a))) ordered.push(l)
+  return comprehensionFromLines(ordered, node.id, 4)
 }
 // comprehension for an AREA factoid: drawn from the region's key scenes (quizNodes).
 function areaComprehension(factoid) {
@@ -116,7 +176,7 @@ function areaComprehension(factoid) {
     if (STORY[id]) for (const l of STORY[id].text.map(lineOf)) lines.push(l)
   }
   lines.sort((a, b) => richness(b) - richness(a))
-  return comprehensionFromLines(lines, factoid.id)
+  return comprehensionFromLines(lines, factoid.id, 4)
 }
 
 export default function StoryView({ state, dispatch }) {
@@ -129,6 +189,9 @@ export default function StoryView({ state, dispatch }) {
   const [compStep, setCompStep] = useState(0)
   const [compPick, setCompPick] = useState(null)
   const [compScore, setCompScore] = useState(0)
+  // set when THIS visit passed the test (the earn flips alreadyEarned, so the
+  // fresh-earn feedback needs its own flag)
+  const [justEarned, setJustEarned] = useState(false)
   // AREA-FACTOID comprehension test (opened from the "take the test" banner):
   // whether it's open, and its own step/pick/score.
   const [factoidOpen, setFactoidOpen] = useState(false)
@@ -141,6 +204,7 @@ export default function StoryView({ state, dispatch }) {
     setCompStep(0)
     setCompPick(null)
     setCompScore(0)
+    setJustEarned(false)
   }, [state.nodeId])
   useEffect(() => {
     setFactoidOpen(false)
@@ -156,10 +220,21 @@ export default function StoryView({ state, dispatch }) {
   // time-of-day phase id), so resolve against inventory + the world clock
   const has = (id) => hasCond(state, id)
   const lines = visibleLines(node, has)
-  // comprehension test that gates the lore blurb at an ending
-  const comp = state.ended ? buildComprehension(node, lines) : null
+  // comprehension test that GATES a good/secret factoid: only unearned factoid
+  // endings are tested (a fate needs no proof; a factoid already earned on an
+  // earlier run is yours). ALL questions must be answered correctly to earn.
+  const alreadyEarned = !!state.discoveredEndings?.[state.nodeId]
+  const isFactoidEnd = state.ended === 'good' || state.ended === 'secret'
+  // build the test for an unearned factoid ending. Keep it alive through the very
+  // render where it's earned (justEarned) so the result screen can still show the
+  // score before `alreadyEarned` flips it off on the next visit.
+  const comp = isFactoidEnd && (!alreadyEarned || justEarned) ? buildComprehension(node, lines) : null
   const compDone = !comp || compStep >= comp.length
   const compQ = compDone ? null : comp[compStep]
+  // you EARN the tale by SURVIVING the test — each wrong answer costs a heart,
+  // run out and the run is over (the global game-over modal takes over). So a
+  // lone misclick just stings; you still get the tale as long as a heart remains.
+  const compPassed = !comp || state.hearts > 0
 
   // an AREA factoid the world is offering right now (only while free-roaming)
   const pendingFactoid = !state.ended && state.pendingFactoid
@@ -168,7 +243,8 @@ export default function StoryView({ state, dispatch }) {
   const areaComp = pendingFactoid ? areaComprehension(pendingFactoid) : null
   const areaDone = areaComp && fStep >= areaComp.length
   const areaQ = areaComp && !areaDone ? areaComp[fStep] : null
-  const areaPassed = areaComp && fScore === areaComp.length
+  // same rule as the ending test: you EARN by SURVIVING — each wrong answer
+  // costs a heart, and emptying them ends the run (game-over modal takes over).
 
   const isNoun = (id) => id && !NON_NOUNS.has(id)
   const lineDiscovered = (line) => line.every((t) => !t.id || state.discovered[t.id])
@@ -188,7 +264,9 @@ export default function StoryView({ state, dispatch }) {
   // but they're who walks WITH you, so they render as their own story line instead
   // of "you have a X", and an option can gate on them with `requires: '<companionId>'`.
   const ownedIds = Object.keys(state.inventory).filter((id) => state.inventory[id] > 0)
-  const itemIds = ownedIds.filter((id) => !ITEMS[id]?.companion)
+  // currency (lek) is a COUNT shown in the topbar purse, not a thing in the
+  // "ti ke një X" carry-line
+  const itemIds = ownedIds.filter((id) => !ITEMS[id]?.companion && !ITEMS[id]?.currency)
   const companionIds = ownedIds.filter((id) => ITEMS[id]?.companion)
   const usableOwned = ownedIds.filter((id) => ITEMS[id]?.use)
 
@@ -243,13 +321,17 @@ export default function StoryView({ state, dispatch }) {
       return
     }
     const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
+    const affordable = canAfford(state, opt)
     entries.push({
       key: 'opt-' + i,
       tokens: opt.text,
       real: true,
       allDiscovered,
       enoughMana,
-      ok: allDiscovered && enoughMana && hasRequiredItem(state, opt),
+      free: !!opt.free,
+      lek: opt.lek || 0,
+      affordable,
+      ok: allDiscovered && (enoughMana || opt.free) && hasRequiredItem(state, opt) && affordable,
       onSelect: () => dispatch({ type: 'CHOOSE', option: opt, targetNode: STORY[opt.to] }),
     })
   })
@@ -315,8 +397,13 @@ export default function StoryView({ state, dispatch }) {
 
   const renderLine = (line, i) => {
     const revealsPath = revealLineIdx.has(i)
+    // a Q() line — quoted word-for-word from the folk sources; set apart, attributed
+    const quoteSrc = line.quote
     return (
-      <p className={'story-line' + (revealsPath ? ' reveals-path' : '')} key={i}>
+      <p
+        className={'story-line' + (revealsPath ? ' reveals-path' : '') + (quoteSrc ? ' quote-line' : '')}
+        key={i}
+      >
         {line.map((tok, j) => (
           <Token
             key={j}
@@ -334,6 +421,11 @@ export default function StoryView({ state, dispatch }) {
             📜
           </span>
         )}
+        {quoteSrc && (
+          <span className="quote-src" title="Quoted word-for-word from the folk sources">
+            — {quoteSrc}
+          </span>
+        )}
       </p>
     )
   }
@@ -343,17 +435,21 @@ export default function StoryView({ state, dispatch }) {
       <div className="story-text">
         {!state.ended && companionIds.length > 0 && renderLine(companionLine(), 'companions')}
         {!state.ended && itemIds.length > 0 && renderLine(carryLine(), 'carry')}
-        {lines.map(renderLine)}
+        {/* a factoid ending's tale stays HIDDEN until the test is passed — no
+            cribbing the answers off the page, and failing means no tale at all */}
+        {(!state.ended || (compDone && compPassed)) && lines.map(renderLine)}
       </div>
 
       {state.ended ? (
         <div className={'ending ' + state.ended}>
           <div className="verdict">
-            {state.ended === 'good'
-              ? '🏆 Factoid unlocked'
-              : state.ended === 'secret'
-                ? '✨ Secret factoid'
-                : '💀 Fund i keq'}
+            {state.ended === 'bad'
+              ? '💀 Fund i keq'
+              : !compDone
+                ? '📜 A e kuptove? — prove the tale'
+                : state.ended === 'good'
+                  ? '🏆 Factoid unlocked'
+                  : '✨ Secret factoid'}
           </div>
           {node.title && <div className="ending-name">{node.title}</div>}
           {!compDone ? (
@@ -374,7 +470,9 @@ export default function StoryView({ state, dispatch }) {
                       disabled={compPick !== null}
                       onClick={() => {
                         setCompPick(opt)
+                        // right → score up; wrong → lose a heart (0 = game over)
                         if (opt === compQ.correct) setCompScore((s) => s + 1)
+                        else dispatch({ type: 'COMP_WRONG' })
                       }}
                     >
                       {opt}
@@ -383,7 +481,7 @@ export default function StoryView({ state, dispatch }) {
                 })}
               </div>
               {compPick === null ? (
-                <p className="hint">Answer to unlock the tale.</p>
+                <p className="hint">A wrong answer costs a ♥ — lose all and the run ends.</p>
               ) : (
                 <>
                   <div className={'feedback ' + (compPick === compQ.correct ? 'good' : 'bad')}>
@@ -393,6 +491,13 @@ export default function StoryView({ state, dispatch }) {
                   <button
                     className="btn primary"
                     onClick={() => {
+                      // survive the last question with a heart left → EARN the tale
+                      // (a wrong final answer that emptied your hearts never reaches
+                      // here — the game-over modal has already taken the screen)
+                      if (compStep >= comp.length - 1 && state.hearts > 0) {
+                        setJustEarned(true)
+                        dispatch({ type: 'EARN_FACTOID', id: node.id })
+                      }
                       setCompStep(compStep + 1)
                       setCompPick(null)
                     }}
@@ -404,16 +509,20 @@ export default function StoryView({ state, dispatch }) {
             </div>
           ) : (
             <>
-              {comp && (
-                <div className={'feedback ' + (compScore === comp.length ? 'good' : 'bad')}>
-                  You understood {compScore} / {comp.length}.
+              {/* you SURVIVED the test (a heart still burns) — the tale is yours,
+                  whether you aced it or bled a heart or two on the way */}
+              {justEarned && comp && (
+                <div className="feedback good">
+                  {compScore >= comp.length
+                    ? '✓ Every answer right — the tale is yours.'
+                    : `✓ The tale is yours — ${compScore} / ${comp.length} understood.`}
                 </div>
               )}
               {node.blurb && <p className="ending-desc">{node.blurb}</p>}
               {state.ended !== 'bad' && <FactoidLore loreId={ENDING_LORE[node.id]} dispatch={dispatch} />}
               {state.ended !== 'bad' ? (
                 <>
-                  <p className="hearts-restored">❤️ Hearts restored to full.</p>
+                  {justEarned && <p className="hearts-restored">❤️ Hearts restored to full.</p>}
                   <p className="hint">
                     Added to your lore codex. This tale is done — step back into the world and
                     keep exploring. Everything you&apos;ve gathered comes with you.
@@ -460,6 +569,7 @@ export default function StoryView({ state, dispatch }) {
                       onClick={() => {
                         setFPick(opt)
                         if (opt === areaQ.correct) setFScore((s) => s + 1)
+                        else dispatch({ type: 'COMP_WRONG' })
                       }}
                     >
                       {opt}
@@ -468,7 +578,7 @@ export default function StoryView({ state, dispatch }) {
                 })}
               </div>
               {fPick === null ? (
-                <p className="hint">Answer correctly to earn the factoid.</p>
+                <p className="hint">A wrong answer costs a ♥ — lose all and the run ends.</p>
               ) : (
                 <>
                   <div className={'feedback ' + (fPick === areaQ.correct ? 'good' : 'bad')}>
@@ -487,11 +597,15 @@ export default function StoryView({ state, dispatch }) {
                 </>
               )}
             </div>
-          ) : !areaComp || areaPassed ? (
+          ) : (
             <>
+              {/* survived the test (a heart still burns) → the factoid is yours,
+                  aced or bled a heart or two; a run-out is caught by game-over */}
               {areaComp && (
                 <div className="feedback good">
-                  You understood {fScore} / {areaComp.length}.
+                  {fScore >= areaComp.length
+                    ? `✓ Every answer right — ${fScore} / ${areaComp.length}.`
+                    : `✓ The factoid is yours — ${fScore} / ${areaComp.length} understood.`}
                 </div>
               )}
               {pendingFactoid.blurb && <p className="ending-desc">{pendingFactoid.blurb}</p>}
@@ -503,18 +617,6 @@ export default function StoryView({ state, dispatch }) {
                 onClick={() => dispatch({ type: 'EARN_FACTOID', id: pendingFactoid.id })}
               >
                 🏆 Claim factoid →
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="feedback bad">
-                You understood {fScore} / {areaComp.length}. Not quite — revisit the tale and try again.
-              </div>
-              <button className="btn primary" onClick={resetFactoidQuiz}>
-                ↺ Try again
-              </button>
-              <button className="btn" onClick={() => { setFactoidOpen(false); resetFactoidQuiz() }}>
-                Later
               </button>
             </>
           )}
@@ -544,6 +646,9 @@ export default function StoryView({ state, dispatch }) {
                 cost = <span className="option-cost bad">✗ can&apos;t happen here · −1 ♥</span>
               } else if (!e.allDiscovered) {
                 cost = <span className="option-cost bad">discover all words first</span>
+              } else if (e.free) {
+                // walking back the way you came — no tokens needed or spent
+                cost = <span className="option-cost ok">free — spends no tokens</span>
               } else if (!e.enoughMana) {
                 cost = (
                   <span className="option-cost bad">
@@ -557,6 +662,15 @@ export default function StoryView({ state, dispatch }) {
                     >
                       🎯 Train
                     </button>
+                  </span>
+                )
+              } else if (e.affordable === false) {
+                // priced path you can't pay for yet — the price tag is the lesson
+                cost = <span className="option-cost bad">need 🪙 {-e.lek} lek</span>
+              } else if (e.lek) {
+                cost = (
+                  <span className="option-cost ok">
+                    {e.lek > 0 ? `earns 🪙 ${e.lek}` : `costs 🪙 ${-e.lek}`} · spends tokens
                   </span>
                 )
               } else {

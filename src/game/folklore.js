@@ -2000,7 +2000,7 @@ export const AREA_FACTOIDS = [
     region: 'mountain',
     title: 'Mount Tomorr — the living pilgrimage',
     blurb:
-      'You have walked Mount Tomorr end to end — the trailhead, the storm on its shoulders, the summit where the old sky-father holds his court. And the mountain is not a memory: to this day, every August, thousands climb to the Kulmak tekke on its ridge — the oldest folk-pilgrimage of the Albanians — tracing the hoofprint the white horse of Abaz Ali left in the rock, and sharing the kurban, the sacrificed lamb, among all comers. Pagan mountain, Christian saint and Bektashi dervish are layered on one peak, and none of them crowds the others out.',
+      'You have walked Mount Tomorr end to end — the trailhead, the storm on its shoulders, the summit where the old sky-father holds his court. And the mountain is not a memory: to this day, every summer, the people climb to the tekke on its ridge, past the print a white horse left in the living rock, and share the kurban among all comers. Pagan mountain, Christian saint and Bektashi dervish are layered on one peak, and none of them crowds the others out.',
     threshold: 0.6,
     quizNodes: ['mali1', 'tomor1', 'maja'],
     lore: 'tomorri-pilgrimage',
@@ -2010,7 +2010,7 @@ export const AREA_FACTOIDS = [
     region: 'river',
     title: 'The river & the Zana',
     blurb:
-      'You have followed the river through its whole quarter — the dry bed running down from Tomorr, the bridge, the pools where the Zana keep their vigil. The Zana of the mountain is the fierce fairy of the highland peaks — heir of the old goddess Diana — and every mountain has its own: she guards its springs, its game and its forest, her strength lives in three golden-horned wild goats, and her gaze can turn an intruder to stone. It was zana-milk that suckled the hero Mujo to a strength matched only by a drangue’s. She blesses the one who honours her waters, and woe to the one who does not.',
+      'You have followed the river through its whole quarter — the dry bed running down from Tomorr, the bridge, the pools where the Zana keep their vigil. The Zana of the mountain is the fierce fairy of the highland peaks, and every mountain has its own: she guards its springs, its game and its forest, her strength lives in three wild goats, and woe to the one who wrongs her. It was zana-milk that suckled the hero Mujo to a strength matched only by a drangue’s. She blesses the one who honours her waters, and woe to the one who does not.',
     threshold: 0.6,
     quizNodes: ['lumi', 'zana1', 'ura'],
     lore: 'zana-e-malit',
@@ -2036,11 +2036,21 @@ export const AREA_FACTOIDS = [
     lore: 'rozafa',
   },
   {
+    id: 'area-lake',
+    region: 'lake',
+    title: 'Lake Shkodra — the Floçka\'s water',
+    blurb:
+      'You have stood on the shore of Liqeni i Shkodrës, the wide water below Rozafa\'s castle — the largest lake of the Balkans, shared today between Albania and Montenegro, its bed dipping in places below the level of the sea, its overflow wandering out through the Buna to the Adriatic. Pelicans nest in its floating meadows, fishermen have worked it from dugout boats since before anyone wrote anything down, and in the Shkodër country it is exactly this kind of water the old people gave to the Floçka — the long-haired maidens of the lakes who cannot speak until a mortal teaches them.',
+    threshold: 0.5,
+    quizNodes: ['flocka1'],
+    lore: 'flocka',
+  },
+  {
     id: 'area-underworld',
     region: 'underworld',
     title: 'The world below — her kingdom',
     blurb:
-      'You have walked the world below from the well-mouth to the buried city — the serpent roads, the dark springs, the palace at the bottom of everything. That palace has a mistress: E Bukura e Dheut, the Beauty of the Earth, at once a crafty otherworld fairy and the underworld’s own springtime queen — the figure the Albanian tales seek more often than any other. Hero after hero goes down into the dark to find her, and the tales agree on one law: her hand is won by the one who heeds her trials, never by the one who grabs.',
+      'You have walked the world below from the well-mouth to the buried city — the serpent roads, the dark springs, the palace at the bottom of everything. That palace has a mistress: E Bukura e Dheut, the Beauty of the Earth, at once a crafty otherworld fairy and the underworld’s own springtime queen — the figure the tales seek again and again. Hero after hero goes down into the dark to find her, and the tales agree on one law: her hand is won by the one who heeds her trials, never by the one who grabs.',
     threshold: 0.6,
     quizNodes: ['bota1', 'bukura1', 'qyteti'],
     lore: 'bukura-e-dheut',
@@ -2060,7 +2070,7 @@ export const AREA_FACTOIDS = [
     region: 'sky',
     title: 'The sky realm — the word that outlived its god',
     blurb:
-      'You have travelled the realm above the clouds — the Sun’s road, the Moon’s peace, the houses of the winds. The Albanians’ everyday word for God is Perëndi, and it is older than any of the faiths that use it: scholars still argue whether it first meant “the one who commands,” or a striker of thunder in the sky, or simply the going-down of the sun. Under any reading, the sky itself was sworn by — për qiell — and the weather was read as the divine mood. The gods changed; the word for them did not.',
+      'You have travelled the realm above the clouds — the Sun’s road, the Moon’s peace, the houses of the winds. The Albanians’ everyday word for God is Perëndi, and it is older than any of the faiths that use it. The sky itself was sworn by — për qiell — and the weather was read as the divine mood. The gods changed; the word for them did not.',
     threshold: 0.6,
     quizNodes: ['qiell1', 'qiellDiell', 'qiellPrende'],
     lore: 'perendi',
@@ -2070,7 +2080,7 @@ export const AREA_FACTOIDS = [
     region: 'village',
     title: 'The village — the guest at the head of the room',
     blurb:
-      'You have lived the village end to end — the square, the well, the tower-houses, the men’s oda. And you have sat where the welcome has kept its fixed shape for centuries: the guest is led to the kryet e vendit, the seat of honour at the head of the oda, and served coffee and raki in strict order of seniority, then bread, salt and heart. Lodged overnight he is konak — untouchable; the Kanun binds the host to defend him with his own life, even if the guest proves to be his blood-enemy. At leaving, the host walks him to the edge of his ground and no further, for there the road, and God, take over.',
+      'You have lived the village end to end — the square, the well, the tower-houses, the men’s oda. And you have sat where the welcome has kept its fixed shape for centuries: the house, as the old man says, belongs to God and the guest. The guest is served coffee and raki, then bread, salt and heart; lodged overnight he is untouchable, and the host must defend him with his own life, even if the guest proves to be his blood-enemy. The welcome has kept that shape for centuries.',
     threshold: 0.5,
     quizNodes: ['fshatiSheshi', 'oda1', 'plaka'],
     lore: 'mikpritja-oda',

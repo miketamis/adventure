@@ -1,6 +1,7 @@
 import { START_NODE, STORY, WORLD_HUB, frequentForms } from './content.js'
 import { AREA_FACTOIDS } from './folklore.js'
 import { REGION_NODES } from './regions.js'
+import { NPCS } from './npcs.js'
 
 // An AREA FACTOID becomes available once you've VISITED at least `threshold` of
 // its region's nodes and haven't earned it yet — returns the first such id (to
@@ -29,16 +30,111 @@ export const START_HEARTS = 3
 // same has() machinery as real items.
 // ---------------------------------------------------------------------------
 export const TIME_PHASES = ['dawn', 'day', 'dusk', 'night']
-export const NIGHT_START = 15 // every run begins benighted (the authored opening)
+// Every run begins at DUSK, exactly two choices shy of nightfall — so the
+// natural opening (into the forest, light a fire) has night FALL as the fire
+// catches, and the became('night') arrival lines get their showcase.
+export const START_CLOCK = 13
 export function phaseAtClock(clock) {
   const h = ((clock % 24) + 24) % 24
   return h < 3 ? 'dawn' : h < 12 ? 'day' : h < 15 ? 'dusk' : 'night'
 }
-export const timeOfDay = (state) => phaseAtClock(state.clock ?? NIGHT_START)
+export const timeOfDay = (state) => phaseAtClock(state.clock ?? START_CLOCK)
 export const isTimeId = (id) => TIME_PHASES.includes(id)
-// one truth for "does the player have X right now" — item, companion, or hour
-export const hasCond = (state, id) =>
-  isTimeId(id) ? timeOfDay(state) === id : (state.inventory[id] || 0) > 0
+
+// ---------------------------------------------------------------------------
+// THE CAMPFIRE — persistent WORLD state, not an item: the clearing keeps its
+// fire between visits. An option with `fire: true` lights it, stamping the
+// hour; it then burns down as the clock walks on — big for FIRE_BIG_HOURS,
+// dying until FIRE_OUT_HOURS, then out (cold ash) until relit. The fire states
+// are VIRTUAL ITEMS like the time phases: 'fireBig', 'fireLow', 'fireOut' and
+// 'fireLive' (big or dying) all work in requires/unless/when().
+// ---------------------------------------------------------------------------
+export const FIRE_BIG_HOURS = 4
+export const FIRE_OUT_HOURS = 8
+const FIRE_IDS = new Set(['fireBig', 'fireLow', 'fireOut', 'fireLive'])
+export const isFireId = (id) => FIRE_IDS.has(id)
+// null = never lit (no fire, no ash); otherwise the current phase of the burn
+export function fireStateOf(state) {
+  if (state.fireLit == null) return null
+  const age = (state.clock ?? START_CLOCK) - state.fireLit
+  return age < FIRE_BIG_HOURS ? 'fireBig' : age < FIRE_OUT_HOURS ? 'fireLow' : 'fireOut'
+}
+// ---------------------------------------------------------------------------
+// NPC ROUTES — walking people (see npcs.js). Position is DERIVED from the
+// clock, campfire-style, never stored: a looping NPC is at
+// route[floor(clock / stepHours) % length] whenever the hour falls in their
+// activePhases; a `once` NPC starts when a node with `startsNpc` stamps
+// state.npcStarted[id] and is gone past the route's end. Presence feeds two
+// virtual items: `npc:<id>` (standing where you stand) and `npcAt:<id>:<node>`
+// (visible at a named node — off-scene sightlines, accepts a|b alternatives).
+// ---------------------------------------------------------------------------
+export const isNpcId = (id) =>
+  typeof id === 'string' && (id.startsWith('npc:') || id.startsWith('npcAt:'))
+// the node an NPC stands at right now, or null (offstage / not started / gone)
+export function npcNodeOf(state, npcId) {
+  const npc = NPCS[npcId]
+  if (!npc) return null
+  const clock = state.clock ?? START_CLOCK
+  if (npc.activePhases && !npc.activePhases.includes(phaseAtClock(clock))) return null
+  const step = npc.stepHours || 2
+  if (npc.once) {
+    const started = state.npcStarted?.[npcId]
+    if (started == null || clock < started) return null
+    const i = Math.floor((clock - started) / step)
+    return i < npc.route.length ? npc.route[i] : null
+  }
+  return npc.route[Math.floor(clock / step) % npc.route.length]
+}
+// the NPCs currently on stage, with their derived positions (the map draws them)
+export const liveNpcs = (state) =>
+  Object.entries(NPCS)
+    .map(([id, n]) => ({ id, name: n.name, glyph: n.glyph, node: npcNodeOf(state, id) }))
+    .filter((n) => n.node)
+const npcCond = (state, id) => {
+  if (id.startsWith('npcAt:')) {
+    const [, npcId, nodes] = id.split(':')
+    const at = npcNodeOf(state, npcId)
+    return at != null && nodes.split('|').includes(at)
+  }
+  return npcNodeOf(state, id.slice(4)) === state.nodeId
+}
+
+// ---------------------------------------------------------------------------
+// ARRIVAL — where you just walked in from. `state.cameFrom` holds the node you
+// stood at when you chose the option that brought you here, exposed as the
+// virtual item `from:<nodeId>` (or `from:a|b|c` for several ways in) so a scene
+// can open with the crossing itself ("you cross the tanners' bridge…") instead
+// of the plain establishing shot. A wait/rest option that loops back to the
+// same node makes cameFrom the node itself, so arrival lines fade as you
+// linger; returning from an ending screen clears it (that is no walk).
+//
+// `state.cameFromPhase` is the same idea for the WORLD CLOCK: the time-of-day
+// phase when you chose that option. When the choice itself carried you across
+// a phase boundary — one more hour of walking, a wait, a `time:` rest-jump —
+// the virtual item `became:<phase>` (or `became:a|b`) is true, so a scene can
+// narrate the turning of the hour as an event ("night falls…") instead of a
+// standing fact. Like from:, it fades once you act again inside the phase.
+// ---------------------------------------------------------------------------
+export const isFromId = (id) => typeof id === 'string' && id.startsWith('from:')
+export const isBecameId = (id) => typeof id === 'string' && id.startsWith('became:')
+// one truth for "does the player have X right now" — item, companion, hour,
+// fire, or the way they came in
+export const hasCond = (state, id) => {
+  if (isTimeId(id)) return timeOfDay(state) === id
+  if (isFireId(id)) {
+    const f = fireStateOf(state)
+    return id === 'fireLive' ? f === 'fireBig' || f === 'fireLow' : f === id
+  }
+  if (isFromId(id)) return id.slice(5).split('|').includes(state.cameFrom)
+  if (isBecameId(id))
+    return (
+      state.cameFromPhase != null &&
+      state.cameFromPhase !== timeOfDay(state) &&
+      id.slice(7).split('|').includes(timeOfDay(state))
+    )
+  if (isNpcId(id)) return npcCond(state, id)
+  return (state.inventory[id] || 0) > 0
+}
 // the next hour (at or after `clock`) that falls inside `phase`
 export function advanceToPhase(clock, phase) {
   if (!isTimeId(phase)) return clock
@@ -104,12 +200,16 @@ export function loadState() {
 function baseRun() {
   return {
     nodeId: START_NODE,
+    cameFrom: null, // the node you walked in from (see ARRIVAL above)
+    cameFromPhase: null, // the time-of-day phase when you chose your last option (see ARRIVAL)
     discovered: {}, // senseId -> true
     inventory: {}, // itemId -> count (you start with nothing)
     peak: PEAK_START_TURNS, // story turns of "peak" remaining (hover -> English)
     hearts: START_HEARTS, // wrong training answers cost a heart; 0 = game over
     turn: 1,
-    clock: NIGHT_START, // hour of the world-day (see TIME OF DAY above)
+    clock: START_CLOCK, // hour of the world-day (see TIME OF DAY above)
+    fireLit: null, // hour the clearing's campfire was last lit (see THE CAMPFIRE above)
+    npcStarted: {}, // npcId -> hour a one-shot NPC route was triggered (see NPC ROUTES above)
     view: 'story', // 'story' | 'practice' | 'dictionary' | 'endings'
     ended: null, // null | 'good' | 'bad' | 'secret'
     pendingFactoid: null, // id of an area factoid ready for its comprehension test
@@ -148,8 +248,22 @@ export const hasRequiredItem = (state, option) =>
   condList(option.requires).every((id) => hasCond(state, id)) &&
   condList(option.unless).every((id) => !hasCond(state, id))
 
-export const canChoose = (state, option) =>
-  canSpeak(state, option.text).ok && hasRequiredItem(state, option)
+// ---------------------------------------------------------------------------
+// LEK — the in-world money (the 🪙 count in `inventory.lek`). An option carries
+// `lek: <n>`: positive is a payment TO you (work, a sale), negative a price you
+// pay. A priced option stays VISIBLE when you can't afford it (the price is part
+// of learning the scene) but can't be taken — see canChoose/StoryView.
+// ---------------------------------------------------------------------------
+export const lekOf = (state) => state.inventory.lek || 0
+export const canAfford = (state, option) => (option.lek ?? 0) >= 0 || lekOf(state) >= -option.lek
+
+// a `free: true` option (walking back the way you came) needs its words
+// DISCOVERED but neither requires nor spends tokens — retreat is never
+// token-locked (see the fshatiLumi -> start bridge crossing)
+export const canChoose = (state, option) => {
+  const sp = canSpeak(state, option.text)
+  return (option.free ? sp.allDiscovered : sp.ok) && hasRequiredItem(state, option) && canAfford(state, option)
+}
 
 export const canUseItem = (state, item) => canSpeak(state, item.use.phrase)
 
@@ -173,12 +287,16 @@ export function reducer(state, action) {
       const inventory = { ...state.inventory }
       if (option.consumes) inventory[option.consumes] = (inventory[option.consumes] || 0) - 1
       if (option.grant) inventory[option.grant] = (inventory[option.grant] || 0) + 1
-      const discoveredEndings = targetNode?.end
+      // money changes hands: earn (+n) or pay (−n, never below zero)
+      if (option.lek) inventory.lek = Math.max(0, (inventory.lek || 0) + option.lek)
+      // A BAD ending is recorded at once (a fate met is met). A good/secret
+      // ending is a FACTOID: reaching it only OFFERS the comprehension test —
+      // the codex entry and the heart-restore come from EARN_FACTOID, dispatched
+      // by StoryView only when EVERY question is answered correctly. Fail the
+      // test and the tale slips away: nothing recorded, walk the path again.
+      const discoveredEndings = targetNode?.end === 'bad'
         ? { ...state.discoveredEndings, [option.to]: true }
         : state.discoveredEndings
-      // Earning a FACTOID (a good/secret "ending" — now a lore achievement)
-      // restores all hearts. A bad ending (game over) does NOT.
-      const isFactoid = targetNode?.end === 'good' || targetNode?.end === 'secret'
       // Track where you've been (persistent) and, unless you've just hit an
       // ending screen, see if exploring a region has made an area factoid ready.
       const visited = { ...state.visited, [option.to]: true }
@@ -186,20 +304,35 @@ export function reducer(state, action) {
         ? state.pendingFactoid
         : state.pendingFactoid || readyAreaFactoid(visited, discoveredEndings)
       // the hour drifts with every choice; resting/waiting jumps it forward
-      let clock = (state.clock ?? NIGHT_START) + 1
+      let clock = (state.clock ?? START_CLOCK) + 1
       if (option.time) clock = advanceToPhase(clock, option.time)
+      // lighting the campfire stamps the hour — from here it burns down on its own
+      const fireLit = option.fire ? clock : state.fireLit ?? null
+      // entering a node with `startsNpc` sets a one-shot NPC walking (once per
+      // run — a procession that already passed does not pass again)
+      const npcStarted = targetNode?.startsNpc && state.npcStarted?.[targetNode.startsNpc] == null
+        ? { ...state.npcStarted, [targetNode.startsNpc]: clock }
+        : state.npcStarted
+      // an option may restore hearts (a paid bed, the healer's herbs); a factoid
+      // ending restores to full only via EARN_FACTOID (the passed test)
+      let hearts = state.hearts
+      if (option.hearts) hearts = Math.min(START_HEARTS, hearts + option.hearts)
       return {
         ...state,
-        mana: spend(state.mana, ids),
+        mana: option.free ? state.mana : spend(state.mana, ids),
         inventory,
         discoveredEndings,
         visited,
         pendingFactoid,
-        hearts: isFactoid ? START_HEARTS : state.hearts,
+        hearts,
         nodeId: option.to,
+        cameFrom: state.nodeId,
+        cameFromPhase: timeOfDay(state),
         peak: Math.max(0, state.peak - 1),
         turn: state.turn + 1,
         clock,
+        fireLit,
+        npcStarted,
         ended: targetNode?.end || null,
       }
     }
@@ -232,6 +365,12 @@ export function reducer(state, action) {
       // picked an option that can't happen in this part of the story
       return { ...state, hearts: Math.max(0, state.hearts - 1) }
 
+    case 'COMP_WRONG':
+      // missed a comprehension question at a factoid test — costs a heart, and
+      // run out (hearts→0) and the run is over. You still EARN the tale if you
+      // survive the test, so a single misclick just stings; guessing kills.
+      return { ...state, hearts: Math.max(0, state.hearts - 1) }
+
     case 'SET_VIEW':
       return { ...state, view: action.view }
 
@@ -254,11 +393,17 @@ export function reducer(state, action) {
       return { ...state, discovered, mana, practiced }
     }
 
+    // Drop 20 lek in the purse (the 🛠 🪙 chip) so priced paths are testable.
+    case 'DEBUG_LEK':
+      return { ...state, inventory: { ...state.inventory, lek: (state.inventory.lek || 0) + 20 } }
+
     // Skip to the start of the next time-of-day phase (the 🛠 time chip).
+    // Stamps cameFromPhase like a real choice would, so became() transition
+    // lines are previewable from the debug chip.
     case 'DEBUG_TIME': {
-      let clock = (state.clock ?? NIGHT_START) + 1
+      let clock = (state.clock ?? START_CLOCK) + 1
       while (phaseAtClock(clock) === timeOfDay(state)) clock++
-      return { ...state, clock }
+      return { ...state, clock, cameFromPhase: timeOfDay(state) }
     }
 
     // Jump to the folklore library focused on a tale (from an ending's link).
@@ -300,6 +445,8 @@ export function reducer(state, action) {
       return {
         ...state,
         nodeId: STORY[action.to] ? action.to : WORLD_HUB,
+        cameFrom: null,
+        cameFromPhase: null,
         ended: null,
       }
 

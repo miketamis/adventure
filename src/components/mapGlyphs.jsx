@@ -589,16 +589,48 @@ function gTraveller(x, y) {
     </g>
   )
 }
-function gCampfire(x, y) {
+// The campfire is WORLD STATE drawn live — `ctx.fire` is gameState's
+// fireStateOf(): null (never lit) shows the bare stone ring of the clearing;
+// 'fireBig' the full blaze; 'fireLow' a small dying flame in the embers;
+// 'fireOut' blackened logs, ash and a last wisp of smoke.
+function gCampfire(x, y, ctx) {
+  const fire = ctx?.fire ?? null
+  const charred = fire === 'fireOut'
   return (
     <g transform={`translate(${x},${y})`}>
       {shadow(0, 10, 12, 4)}
-      <line x1={-9} y1={10} x2={8} y2={0} stroke="#7a5c3a" strokeWidth={3} strokeLinecap="round" />
-      <line x1={9} y1={10} x2={-8} y2={0} stroke="#6f4f34" strokeWidth={3} strokeLinecap="round" />
-      <path d="M0 8 C -8 0 -3 -8 0 -16 C 3 -8 8 0 0 8 Z" fill="#e8892b" />
-      <path d="M0 7 C -4 1 -1.5 -5 0 -11 C 1.5 -5 4 1 0 7 Z" fill="#f6cf49" />
-      <circle cx={-6} cy={-10} r={1.2} fill="#f6cf49" opacity={0.8} />
-      <circle cx={7} cy={-12} r={1} fill="#e8892b" opacity={0.8} />
+      {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+        const a = (i / 8) * Math.PI * 2
+        return <circle key={i} cx={Math.cos(a) * 11} cy={9 + Math.sin(a) * 4.2} r={2.1} fill="#9a948a" stroke="#4b463d" strokeWidth={0.9} />
+      })}
+      {fire && (
+        <>
+          <line x1={-8} y1={9} x2={7} y2={1} stroke={charred ? '#3f3a33' : '#7a5c3a'} strokeWidth={3} strokeLinecap="round" />
+          <line x1={8} y1={9} x2={-7} y2={1} stroke={charred ? '#332f29' : '#6f4f34'} strokeWidth={3} strokeLinecap="round" />
+        </>
+      )}
+      {fire === 'fireBig' && (
+        <>
+          <path d="M0 8 C -8 0 -3 -8 0 -16 C 3 -8 8 0 0 8 Z" fill="#e8892b" />
+          <path d="M0 7 C -4 1 -1.5 -5 0 -11 C 1.5 -5 4 1 0 7 Z" fill="#f6cf49" />
+          <circle cx={-6} cy={-10} r={1.2} fill="#f6cf49" opacity={0.8} />
+          <circle cx={7} cy={-12} r={1} fill="#e8892b" opacity={0.8} />
+        </>
+      )}
+      {fire === 'fireLow' && (
+        <>
+          <path d="M0 8 C -4.5 2.5 -2 -2 0 -7 C 2 -2 4.5 2.5 0 8 Z" fill="#e8892b" />
+          <path d="M0 7 C -2 3.5 -1 0.5 0 -3 C 1 0.5 2 3.5 0 7 Z" fill="#f6cf49" />
+          <circle cx={-3.5} cy={7} r={1.1} fill="#e8892b" opacity={0.9} />
+          <circle cx={4} cy={7.5} r={1} fill="#f6cf49" opacity={0.7} />
+        </>
+      )}
+      {charred && (
+        <>
+          <ellipse cx={0} cy={7.5} rx={5.5} ry={2.2} fill="#8d8a84" stroke="#4b463d" strokeWidth={0.8} />
+          <path d="M 1 3 C -2 -1 2 -4 0 -8" fill="none" stroke="#b9b4ab" strokeWidth={1.6} strokeLinecap="round" opacity={0.75} />
+        </>
+      )}
     </g>
   )
 }
@@ -964,7 +996,7 @@ export const WORLD_LANDMARKS = [
   { id: 'zanaProva', glyph: 'gCradleRock', label: "the Zana's trial", x: 410, y: 1040 },
   { id: 'zanaQumesht', glyph: 'gZanaGift', label: "the Zana's gifts", x: 260, y: 1140 },
   { id: 'zanaFole', glyph: 'gEagleNest', label: "the eagle's nest", x: 80, y: 1000 },
-  { id: 'flocka1', glyph: 'gLake', label: 'the still lake', x: 130, y: 1220 },
+  { id: 'flocka1', glyph: 'gLake', label: 'the still lake', x: 140, y: 1560 },
   { id: 'ura', glyph: 'gRiddleElder', label: 'the bridge riddle', x: 380, y: 1240 },
   // the sea (the whole eastern coast; the Adriatic, reached from the river-mouth)
   { id: 'deti1', glyph: 'gFishingCoast', label: 'the coast', x: 1010, y: 800 },

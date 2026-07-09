@@ -25,7 +25,7 @@ const WL = new Set(
 )
 // Things legitimately absent from the scene: carried ITEMS, COMPANIONS, DESTINATIONS, riddle answers, created.
 // (Extend as new items/places are added.)
-const ALLOW = new Set('buke kripe gur fuqi bekim shqiponje ujk ora zjarr fshat udhekryq mal lume jutbina maja pyll det breshka gjarper toke bese dem flok vatra qilim bari oda kulle rruge shtepi pus lubia kemishe valle pallat kopsht vella kufi shpelle pishtar treg qytet'.split(' '))
+const ALLOW = new Set('buke kripe gur fuqi bekim shqiponje ujk ora zjarr fshat udhekryq mal lume jutbina maja pyll det breshka gjarper toke bese dem flok vatra qilim bari oda kulle rruge shtepi pus lubia kemishe valle pallat kopsht vella kufi shpelle pishtar treg qytet lek lahute'.split(' '))
 
 const ITEMS = new Set('buke kripe gur qumesht bekim dem mish shpate flok pishtar'.split(' '))
 const ECLARG_KEEPERS = new Set(['thesarLeave', 'shtepia', 'nastradinFund']) // leaving IS the beat
@@ -111,8 +111,12 @@ add('meaningful choice (no damned-if-you-do)', Object.entries(STORY).flatMap(([i
 
 // 7. STATE-MISMATCH — ending text that asserts an item-action must be reached ONLY via a requires-gated option.
 // `requires`/`unless` may be a single id or an array; a time-of-day phase id is a
-// virtual item (gates on the world clock), never a carried thing.
+// virtual item (gates on the world clock), never a carried thing. The campfire
+// states (gameState's fireStateOf) and NPC presence (npc:/npcAt:, gameState's
+// npcNodeOf — validated by mapaudit's NPC-routes check) are virtual the same way.
 const TIME_PHASES = new Set(['dawn', 'day', 'dusk', 'night'])
+const FIRE_STATES = new Set(['fireBig', 'fireLow', 'fireOut', 'fireLive'])
+const isVirtual = (i) => TIME_PHASES.has(i) || FIRE_STATES.has(i) || /^(npc|npcAt|from|became):/.test(i)
 const reqIds = (o) => (o.requires == null ? [] : [].concat(o.requires))
 const incomingGatedByItem = {}
 for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.to) {
@@ -152,7 +156,7 @@ add('confuser validity (distractors impossible)', Object.entries(STORY).flatMap(
 // 10. ITEM REACHABILITY — every item required by an option must be grantable somewhere.
 add('item reachability (required items grantable)', (() => {
   const reqd = new Set(), granted = new Set()
-  for (const n of Object.values(STORY)) for (const o of n.options || []) { for (const i of reqIds(o)) if (!TIME_PHASES.has(i)) reqd.add(i); if (o.grant) granted.add(o.grant) }
+  for (const n of Object.values(STORY)) for (const o of n.options || []) { for (const i of reqIds(o)) if (!isVirtual(i)) reqd.add(i); if (o.grant) granted.add(o.grant) }
   return [...reqd].filter((i) => !granted.has(i)).map((i) => `required but never granted: ${i}`)
 })())
 

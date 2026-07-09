@@ -13,8 +13,10 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { STORY } from '../src/game/content.js'
-import { NODE_POS } from '../src/components/nodePositions.js'
+import { NODE_AT, NODE_POS, PLACE_OF, PLACE_NODES } from '../src/components/nodePositions.js'
+import { PLACE_META } from '../src/components/placeMeta.js'
 import { REGIONS, NODE_REGION, VILLAGE_ANCHOR_IDS, isWander } from '../src/game/regions.js'
+import { NPCS } from '../src/game/npcs.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -22,10 +24,11 @@ const RG = Object.fromEntries(REGIONS.map((r) => [r.key, r]))
 const reg = (id) => NODE_REGION[id] || 'village'
 const ids = Object.keys(STORY)
 const idsOf = (toks) => (toks || []).filter((t) => t && t.id).map((t) => t.id)
-let failures = 0
+let failures = 0, checks = 0
 const section = (ok, title, lines = []) => {
   console.log(`${ok ? '✅' : '❌'} ${title}`)
   for (const l of lines) console.log('   ' + l)
+  checks++
   if (!ok) failures++
 }
 
@@ -109,25 +112,57 @@ for (const e of edges) {
 }
 section(!farInteract.length, `interaction verbs stay local (<= ${INTERACT_MAX})`, farInteract)
 
+// ---- 4a. same spot is AUTHORED, never accidental -------------------------------
+// One physical place = ONE coordinate, written once (its anchor node); everyone
+// else standing there says `id: 'anchor'`. Two different anchors sharing exact
+// numbers = a collision that should be either an alias or a nudge apart.
+const anchorAt = {}
+const collide = []
+for (const [a, v] of Object.entries(NODE_AT)) {
+  if (!Array.isArray(v)) continue
+  const k = v[0] + ',' + v[1]
+  if (anchorAt[k]) collide.push(`[${k}] '${a}' + '${anchorAt[k]}' — same spot must be authored (${a}: '${anchorAt[k]}') or nudged apart`)
+  else anchorAt[k] = a
+}
+section(!collide.length, 'same spot is hand-authored (no accidental coordinate collisions)', collide)
+
+// ---- 4b. location cards match the world -----------------------------------------
+// PLACE_META (the hand-authored "what can happen here" card) must reference real
+// places and real scenes: every key is a place ANCHOR, every happening node
+// belongs to that place, and no node is claimed by two happenings.
+const metaBad = []
+for (const [anchor, meta] of Object.entries(PLACE_META)) {
+  const members = PLACE_NODES[anchor]
+  if (!members) { metaBad.push(`'${anchor}' is not a place anchor (see NODE_AT)`); continue }
+  const set = new Set(members), seen = new Set()
+  for (const h of meta.happenings || []) for (const id of h.nodes) {
+    if (!STORY[id]) metaBad.push(`'${anchor}' → "${h.title}": '${id}' is not a story node`)
+    else if (!set.has(id)) metaBad.push(`'${anchor}' → "${h.title}": '${id}' does not stand at this place (it's at '${PLACE_OF[id] || '?'}')`)
+    if (seen.has(id)) metaBad.push(`'${anchor}': '${id}' appears in two happenings`)
+    seen.add(id)
+  }
+}
+section(!metaBad.length, `location cards reference real places & scenes (${Object.keys(PLACE_META).length} authored)`, metaBad)
+
 // ---- 4. same-spot groups are story-connected ----------------------------------
-// Sharing an exact coordinate MEANS "the story continues at this physical place",
+// Standing at one place MEANS "the story continues at this physical place",
 // so the group must hang together through story edges — directly, or through a
 // COMMON NEIGHBOUR one hop outside (siblings fanned out from a parent scene).
-// A pair with no such path = an accidental coordinate collision.
-const byCoord = {}
-for (const id of ids) { const p = NODE_POS[id]; if (!p) continue; (byCoord[p[0] + ',' + p[1]] ||= []).push(id) }
+// A pair with no such path = nodes wrongly declared to share a spot.
+const byPlace = {}
+for (const id of ids) { if (!NODE_POS[id]) continue; (byPlace[PLACE_OF[id] || id] ||= []).push(id) }
 const adj = {}
 for (const id of ids) adj[id] = new Set()
 for (const e of edges) { adj[e.from].add(e.to); adj[e.to].add(e.from) }
 const splitGroups = []
-for (const [k, group] of Object.entries(byCoord)) {
+for (const [k, group] of Object.entries(byPlace)) {
   if (group.length < 2) continue
   const halo = new Set(group)
   for (const id of group) for (const n of adj[id]) halo.add(n)
   const seen = new Set([group[0]]), q = [group[0]]
   while (q.length) for (const n of adj[q.pop()]) if (halo.has(n) && !seen.has(n)) { seen.add(n); q.push(n) }
   const missing = group.filter((id) => !seen.has(id))
-  if (missing.length) splitGroups.push(`@ ${k}: [${group.join(', ')}] — unlinked: ${missing.join(', ')}`)
+  if (missing.length) splitGroups.push(`@ '${k}' [${NODE_POS[k]}]: [${group.join(', ')}] — unlinked: ${missing.join(', ')}`)
 }
 section(!splitGroups.length, 'same-spot groups are story-connected', splitGroups)
 
@@ -157,16 +192,19 @@ const JOURNEY_ALLOW = new Set([
   'ktheu3->udhaKthimit',     // the long way home from the coast
   'fshatiDil->pylli1',       // leaving the village into the great forest
   'mali1->qiell1',           // the ascent into the sky realm
+  'qiell1->mali1',           // and the climb back down to Tomorr (the sky is not a trap)
   'rrethi->pusi',            // down to the well the zana pointed out
   'lumi->deti1',             // following the dry river down to the sea
   'udhekryq->lumi',          // crossroads down to the river
   'shpellaHyrje->qyteti',    // Durham's cavern "runs miles underground" to the dead city
+  'shpellaRruget->qyteti',   // the middle road of the cavern fork — same miles-long passage
   'fshatiCaul->mali1',       // village up the mountain road
   'rrugaDielli2->fshatiLanes', // the stag's run ends at the back lanes
   'mali1->udhekryq',         // mountain road back to the crossroads
   'udhekryq->mali1',         // and out again
   'gjarperKerkim->gjarperKulshedra', // the wife's search for her snake-husband, beyond the sea
   'shqipe1->shtepia',        // walking on home from the eagle's tree (an "ec larg" keeper)
+  'lumi->flocka1',           // "larg është një liqen" — the far walk down to Lake Shkodra
 ])
 const oddNew = []
 for (const e of edges) {
@@ -177,9 +215,9 @@ for (const e of edges) {
 section(!oddNew.length, `odd links: every cross-region edge >500 is a verified journey (${JOURNEY_ALLOW.size} known)`, oddNew)
 
 // ---- 7. no near-collisions -----------------------------------------------------
-// Two DISTINCT spots closer than 16px render as an unreadable smudge — either
-// merge them into one same-spot group or pull them apart.
-const locs = Object.entries(byCoord).map(([k, v]) => { const [x, y] = k.split(',').map(Number); return { x, y, v } })
+// Two DISTINCT places closer than 16px render as an unreadable smudge — either
+// declare them the same spot (alias) or pull them apart.
+const locs = Object.entries(byPlace).map(([k, v]) => { const [x, y] = NODE_POS[k]; return { x, y, v } })
 const nearHits = []
 for (let i = 0; i < locs.length; i++) for (let j = i + 1; j < locs.length; j++) {
   const d = Math.hypot(locs[i].x - locs[j].x, locs[i].y - locs[j].y)
@@ -230,13 +268,13 @@ section(!Object.keys(NODE_POS).some((id) => !STORY[id]) && !REGIONS.some((rg) =>
 // the map — spread it into drawn sub-places (like the Sun's compound, Jutbina,
 // or the underworld living quarter), unless it truly is ONE room.
 const BIG_STACK_OK = {
-  '418,392': 'the oda — one guest-room, a whole evening of talk (oda scenes + the travellers\' tales)',
-  '720,164': 'gjizar\'s tale — told as one thread at the back-lane spot (candidate for a future drawn spread)',
+  libriDiell: 'the oda — one guest-room, a whole evening of talk (oda scenes + the travellers\' tales)',
+  gjizar2: 'gjizar\'s tale — told as one thread at the back-lane spot (candidate for a future drawn spread)',
 }
-const bigStacks = Object.entries(byCoord).filter(([k, v]) => v.length > 8 && !BIG_STACK_OK[k])
+const bigStacks = Object.entries(byPlace).filter(([k, v]) => v.length > 8 && !BIG_STACK_OK[k])
 if (bigStacks.length) {
   console.log('')
-  for (const [k, v] of bigStacks) console.log(`⚠ ${v.length} scenes share [${k}] — a whole area may be hiding in one dot; draw it out into sub-places (or allowlist in BIG_STACK_OK with a reason): ${v.join(', ')}`)
+  for (const [k, v] of bigStacks) console.log(`⚠ ${v.length} scenes share '${k}' [${NODE_POS[k]}] — a whole area may be hiding in one dot; draw it out into sub-places (or allowlist in BIG_STACK_OK with a reason): ${v.join(', ')}`)
 }
 
 // ---- 12. "ketu" (here) options stay put -----------------------------------------
@@ -257,7 +295,7 @@ section(!ketuBad.length, '"ketu" options stay put (<= 150)', ketuBad)
 // skipped). Wander edges included: a named return still lands somewhere.
 const DEST_REGION = {
   det: ['sea'], mal: ['mountain', 'sky'], lume: ['river'], pyll: ['forest'],
-  qiell: ['sky'], kala: ['castle'], fshat: ['village'], liqen: ['river'],
+  qiell: ['sky'], kala: ['castle'], fshat: ['village'], liqen: ['lake'],
   jutbina: ['mountain'], maja: ['mountain', 'sky'], tomor: ['mountain', 'sky'],
 }
 // Verified journey-legs where the goal lies BEYOND the flagged stop:
@@ -396,5 +434,45 @@ for (const id of ids) {
 }
 section(!proseBad.length, '"ti je në X" prose stands where it says', proseBad)
 
-console.log(failures ? `\n❌ ${failures} map check(s) failing` : '\n✅ all 19 map checks pass — also run: node scripts/audit.mjs')
+// ---- 19. NPC routes walk real roads --------------------------------------------
+// A walking NPC (npcs.js) moves scene to scene like the player: every route step
+// (and a looping route's wrap-around) must be a real, non-confuser story edge,
+// and no route node may be an ending screen. The story side is held to the same
+// truth: an npc:/npcAt: condition must name a defined NPC; `npc:<id>` only fires
+// where the NPC actually walks, and `npcAt:<id>:<node>` only at route nodes.
+const hasEdge = (a, b) => (STORY[a]?.options || []).some((o) => !o.confuser && o.to === b)
+const npcBad = []
+for (const [nid, npc] of Object.entries(NPCS)) {
+  for (const r of npc.route) {
+    if (!STORY[r]) npcBad.push(`${nid}: route node '${r}' is not a STORY node`)
+    else if (STORY[r].end) npcBad.push(`${nid}: route node '${r}' is an ending screen`)
+  }
+  const steps = npc.once ? npc.route.length - 1 : npc.route.length
+  for (let i = 0; i < steps; i++) {
+    const a = npc.route[i], b = npc.route[(i + 1) % npc.route.length]
+    if (STORY[a] && STORY[b] && a !== b && !hasEdge(a, b))
+      npcBad.push(`${nid}: ${a} -> ${b} is not a story edge — NPCs walk the real roads`)
+  }
+}
+const npcConds = []
+for (const id of ids) {
+  for (const e of STORY[id].text || []) if (!Array.isArray(e) && typeof e.cond === 'string') npcConds.push([id, e.cond])
+  for (const o of STORY[id].options || [])
+    for (const c of [o.requires, o.unless].flatMap((v) => (v == null ? [] : [].concat(v)))) npcConds.push([id, c])
+}
+for (const [id, c] of npcConds) {
+  if (typeof c !== 'string' || !(c.startsWith('npc:') || c.startsWith('npcAt:'))) continue
+  const [kind, nid, nodes] = c.split(':')
+  const npc = NPCS[nid]
+  if (!npc) { npcBad.push(`${id}: '${c}' names an undefined NPC '${nid}' (npcs.js)`); continue }
+  if (kind === 'npc' && !npc.route.includes(id))
+    npcBad.push(`${id}: '${c}' can never fire — ${nid} never walks through '${id}'`)
+  if (kind === 'npcAt') for (const nd of (nodes || '').split('|')) {
+    if (!STORY[nd]) npcBad.push(`${id}: '${c}' names missing node '${nd}'`)
+    else if (!npc.route.includes(nd)) npcBad.push(`${id}: '${c}' — ${nid} never visits '${nd}'`)
+  }
+}
+section(!npcBad.length, `NPC routes walk real roads & npc conditions can fire (${Object.keys(NPCS).length} NPCs)`, npcBad)
+
+console.log(failures ? `\n❌ ${failures} map check(s) failing` : `\n✅ all ${checks} map checks pass — also run: node scripts/audit.mjs`)
 process.exitCode = failures ? 1 : 0

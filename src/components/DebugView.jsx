@@ -3,7 +3,9 @@ import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
 import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB } from '../game/folklore.js'
 import { REGIONS, isWander, assignRegions } from '../game/regions.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
-import { NODE_POS } from './nodePositions.js'
+import { NODE_POS, PLACE_OF } from './nodePositions.js'
+import { PLACE_META } from './placeMeta.js'
+import { fireStateOf, liveNpcs } from '../game/gameState.js'
 
 // nodes that get a bespoke landmark glyph in an outer region (not a plain dot)
 const LANDMARK_IDS = new Set(WORLD_LANDMARKS.map((l) => l.id))
@@ -35,7 +37,7 @@ const KIND_LABEL = {
 }
 
 // BFS depth from START_NODE over the real (non-confuser) navigation edges.
-function buildGraph() {
+export function buildGraph() {
   const ids = Object.keys(STORY)
   const adj = {}
   for (const id of ids) {
@@ -82,9 +84,10 @@ function NodeDetail({ id, onPick, goLore }) {
       </div>
       <div className="dbg-lines">
         {n.text.map(lineOf).map((line, i) => (
-          <div className="dbg-line" key={i}>
+          <div className={'dbg-line' + (line.quote ? ' dbg-quote' : '')} key={i}>
             <span className="dbg-al">{albanianOf(line)}</span>
             <span className="dbg-en">{englishOf(line)}</span>
+            {line.quote && <span className="dbg-quote-src">📜 {line.quote}</span>}
           </div>
         ))}
       </div>
@@ -351,8 +354,8 @@ const VILLAGE_PLACES = [
   { id: 'syriKeq1', x: 404, y: 496, type: 'house', label: 'the child', lh: 18 },
   { id: 'breshka1', x: 348, y: 614, type: 'house', label: 'the guest', lh: 18 },
   // river quarter (lower-west, along the water)
-  { id: 'fshatiLumi', x: 232, y: 616, type: 'signpost', label: 'down at the river', lh: 20 },
-  { id: 'uraArtes1', x: 132, y: 500, type: 'dot', label: 'the bridge', lh: 13 },
+  { id: 'fshatiLumi', x: 232, y: 616, type: 'stonebridge', label: 'ura e tabakëve', lh: 20 },
+  { id: 'uraArtes1', x: 132, y: 500, type: 'dot', label: 'the new bridge', lh: 13 },
   { id: 'mulli1', x: 166, y: 602, type: 'mill', label: 'water-mill', lh: 18 },
   { id: 'kroi1', x: 178, y: 674, type: 'spring', label: 'the spring', lh: 18 },
 ]
@@ -360,11 +363,14 @@ const VILLAGE_PLACES = [
 const VILLAGE_DISTRICTS = [
   { t: 'to the mountain', x: 458, y: 30 },
   { t: 'church', x: 334, y: 92 },
-  { t: 'the square', x: 512, y: 330 },
+  { t: 'the square', x: 512, y: 292 },
   { t: 'the palace', x: 700, y: 372 },
   { t: 'back lanes', x: 892, y: 606 },
   { t: 'village life', x: 300, y: 322 },
-  { t: 'the river', x: 84, y: 700 },
+  { t: 'ura e tabakëve', x: 110, y: 706 },
+  { t: 'pazari', x: 566, y: 618 },
+  { t: 'skela', x: 1042, y: 668 },
+  { t: 'kripore', x: 902, y: 912 },
   { t: 'fields', x: 874, y: 70 },
   { t: 'fields', x: 504, y: 800 },
 ]
@@ -416,12 +422,85 @@ function lanePath(x1, y1, x2, y2, seed) {
   }
   return { d, pts }
 }
-// every story-lane pre-bent; the ones that touch the square are the HIGH STREETS
-// (wider), the rest are narrow crooked side-lanes.
-const VILLAGE_LANE_PATHS = VILLAGE_LANES.map(([x1, y1, x2, y2]) => ({
-  ...lanePath(x1, y1, x2, y2, hashStr(`${x1},${y1},${x2},${y2}`)),
-  main: Math.hypot(x1 - 499, y1 - 432) < 125 || Math.hypot(x2 - 499, y2 - 432) < 125,
-}))
+// a smooth street through hand-set waypoints (Catmull-Rom, light jitter) — for
+// the town's THROUGH-ROADS, which follow the terrain and the traffic, not a ruler.
+function waypointPath(way, seed) {
+  const rnd = mulberry32(seed >>> 0 || 1)
+  const pts = way.map(([x, y], i) => (i === 0 || i === way.length - 1) ? [x, y] : [x + (rnd() - 0.5) * 7, y + (rnd() - 0.5) * 7])
+  let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)]
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`
+  }
+  return { d, pts }
+}
+// ── the TOWN'S STREET PLAN — the roads a real town actually has: the high
+// street in from the crossroads to the square, the market street south past
+// the pazar to the fields, the river road down to the tanners' bridge, and the
+// bank road linking the two bridgeheads. The bridge decks and the palace road
+// join the network INVISIBLY (their art is drawn elsewhere) so footpaths know
+// they exist. Everything else is a footpath. Houses ALIGN to these.
+const TOWN_STREETS = [
+  { id: 'highN', way: [[458, 72], [452, 150], [468, 238], [486, 310], [492, 350]] },              // crossroads → the square's north gate
+  { id: 'market', way: [[505, 518], [508, 560], [498, 606], [472, 662], [438, 716], [400, 762], [372, 790]] }, // the square → pazari → fields, joining the south road
+  { id: 'riverRd', way: [[398, 474], [352, 512], [300, 556], [258, 592], [236, 612]] },           // the square's west corner → down to the tanners' bridge
+  { id: 'bank', way: [[214, 514], [224, 562], [236, 612]] },                                       // the river-bank road: hero bridgehead → the tanners' bridge
+  { id: 'southRing', way: [[510, 522], [566, 542], [630, 564], [710, 582], [790, 578], [846, 550], [872, 508], [878, 468]] }, // around the palace's south wall to the back lanes
+  { id: 'kishaLn', way: [[453, 154], [414, 166], [378, 176]], minor: true },                       // the church lane off the high street
+  { id: 'jetaLn', way: [[390, 452], [340, 442], [318, 420], [302, 392]], minor: true },            // the village-life lane: plaza west gate → the hearth
+  { id: 'deck', way: [[212, 512], [132, 496], [56, 476]], hidden: true },                          // the hero bridge deck (gBridgeDeck draws it)
+  { id: 'tanDeck', way: [[236, 614], [186, 634], [140, 622]], hidden: true },                      // the tanners' bridge crossing (gStoneBridge draws it)
+  { id: 'palaceRd', way: [[516, 440], [576, 452], [618, 470]], hidden: true },                     // the palace approach (drawn in the palace block)
+]
+const TOWN_STREET_PATHS = TOWN_STREETS.map((s) => ({ ...waypointPath(s.way, hashStr('st:' + s.id)), hidden: !!s.hidden, minor: !!s.minor }))
+// nearest point on the street network; the PLAZA counts as network (streets meet there)
+function netNearest(x, y) {
+  if (Math.hypot(x - 499, y - 432) < 116) return { d: 0, px: x, py: y }
+  let best = { d: Infinity, px: x, py: y }
+  for (const S of TOWN_STREET_PATHS) for (let i = 0; i < S.pts.length - 1; i++) {
+    const [x1, y1] = S.pts[i], [x2, y2] = S.pts[i + 1]
+    const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy || 1
+    let t = ((x - x1) * dx + (y - y1) * dy) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t
+    const px = x1 + t * dx, py = y1 + t * dy, d = Math.hypot(x - px, y - py)
+    if (d < best.d) best = { d, px, py }
+  }
+  return best
+}
+// ── HOW ROADS WORK NOW (the town model): the street network carries ALL
+// traffic. Every off-network place gets exactly ONE short spur — its doorway
+// path to the nearest street — and story-walks between places are carried by
+// spur + streets + spur, with NO independent point-to-point paths (that was
+// the old spider-web). The only direct footpaths left are short local walks
+// between two off-network neighbours (a yard-to-yard cut inside a quarter).
+const VILLAGE_LANE_PATHS = (() => {
+  const NEAR = 26, SPUR_MAX = 210
+  const inPalace = (x, y) => x > 616 && x < 828 && y > 384 && y < 558 // its own drawn road
+  const out = [], spurred = new Set()
+  const addSpur = (x, y) => {
+    const key = x + ',' + y
+    if (spurred.has(key) || inPalace(x, y)) return
+    spurred.add(key)
+    const n = netNearest(x, y)
+    if (n.d < NEAR || n.d > SPUR_MAX) return
+    out.push({ ...lanePath(x, y, n.px, n.py, hashStr('spur:' + key)), main: false })
+  }
+  for (const [x1, y1, x2, y2] of VILLAGE_LANES) {
+    const far1 = netNearest(x1, y1).d >= NEAR, far2 = netNearest(x2, y2).d >= NEAR
+    if (far1 && far2 && Math.hypot(x2 - x1, y2 - y1) < 150 && !inPalace(x1, y1) && !inPalace(x2, y2)) {
+      out.push({ ...lanePath(x1, y1, x2, y2, hashStr(`${x1},${y1},${x2},${y2}`)), main: false })
+      continue
+    }
+    if (far1) addSpur(x1, y1)
+    if (far2) addSpur(x2, y2)
+  }
+  return out
+})()
+// the LANA — the little brook of Tirana, threading in from the east meadows to
+// meet the river at the tanners' bridge (pure scenery; the great river carries
+// the story). Houses keep off it like they keep off the streets.
+const LANA_BROOK = waypointPath([[952, 688], [860, 668], [762, 682], [664, 664], [566, 676], [468, 664], [372, 668], [296, 658], [242, 648]], hashStr('lana'))
 
 // the packed old-town footprint (a tight cluster inside the wider green clearing);
 // dense terracotta rooftops fill this, fields + meadow ring the outside.
@@ -471,7 +550,8 @@ function RoofBlock({ x, y, w, h, rot, tone }) {
 }
 
 // several scenes sharing one spot on the map → a "story stack": a little pile of
-// story pages with a count badge. Click it and the scenes fan out (see VillageMap).
+// story pages with a count badge. Click it and the LOCATION CARD opens — the
+// hand-authored "what can happen here" list (see VillageMap / placeMeta.js).
 function StoryStack({ x, y, n, hot }) {
   return (
     <g transform={`translate(${x},${y})`}>
@@ -959,6 +1039,250 @@ function gBridgeDeck() {
   )
 }
 
+// ── URA E TABAKËVE — the Tanners' Bridge: an Ottoman stone humpback footbridge
+// over the river at the tanners' quarter, straight out of old Tirana. Drawn
+// west of the quarter's anchor point so it actually spans the water. ──
+function gStoneBridge(x, y) {
+  const bx = x - 44, by = y + 26 // the bridge's centre, out over the river
+  return (
+    <g>
+      {/* humpback deck with stone parapets */}
+      <path d={`M ${bx - 46} ${by + 8} Q ${bx} ${by - 22} ${bx + 46} ${by + 8}`} fill="none" stroke="#6f6759" strokeWidth={16} strokeLinecap="round" />
+      <path d={`M ${bx - 46} ${by + 8} Q ${bx} ${by - 22} ${bx + 46} ${by + 8}`} fill="none" stroke="#cfc8ba" strokeWidth={11} strokeLinecap="round" />
+      <path d={`M ${bx - 44} ${by + 4} Q ${bx} ${by - 25} ${bx + 44} ${by + 4}`} fill="none" stroke="#8b8378" strokeWidth={2} />
+      <path d={`M ${bx - 44} ${by + 12} Q ${bx} ${by - 17} ${bx + 44} ${by + 12}`} fill="none" stroke="#8b8378" strokeWidth={2} />
+      {/* stone joints along the hump */}
+      {Array.from({ length: 7 }, (_, i) => {
+        const t = (i + 1) / 8, px = bx - 46 + t * 92, py = by + 8 - Math.sin(t * Math.PI) * 26
+        return <line key={i} x1={px} y1={py - 4} x2={px} y2={py + 5} stroke="#9a938a" strokeWidth={1.4} />
+      })}
+      {/* the pointed arch and its dark reflection in the water */}
+      <path d={`M ${bx - 15} ${by + 15} Q ${bx} ${by - 4} ${bx + 15} ${by + 15} L ${bx + 15} ${by + 17} L ${bx - 15} ${by + 17} Z`} fill="#3f4a52" opacity={0.85} />
+      <path d={`M ${bx - 12} ${by + 20} Q ${bx} ${by + 32} ${bx + 12} ${by + 20}`} fill="none" stroke="#2f4a52" strokeWidth={2.4} opacity={0.5} />
+    </g>
+  )
+}
+
+// ── KULLA E SAHATIT — the clock tower on the square (Tirana's Sahat-Kulla) ──
+function gSahatKulla(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(3, 22, 12, 4)}
+      <rect x={-8} y={-24} width={16} height={45} fill="#e2dbc9" stroke="#6f6759" strokeWidth={1.8} />
+      <rect x={-8} y={-24} width={16} height={45} fill="none" stroke="#b8b0a0" strokeWidth={0.8} strokeDasharray="1.5 6" opacity={0.8} />
+      <polygon points="-10,-24 0,-38 10,-24" fill="#8a5d3a" stroke="#4f3a2a" strokeWidth={1.6} />
+      <circle cx={0} cy={-14} r={5.4} fill="#f4efe0" stroke="#6f6759" strokeWidth={1.4} />
+      <line x1={0} y1={-14} x2={0} y2={-18} stroke="#3f382f" strokeWidth={1.2} strokeLinecap="round" />
+      <line x1={0} y1={-14} x2={3} y2={-13} stroke="#3f382f" strokeWidth={1.2} strokeLinecap="round" />
+      <rect x={-3.5} y={12} width={7} height={9} fill="#4f463c" />
+      <rect x={-5.5} y={-2} width={11} height={4} fill="#d4cdbb" stroke="#8b8378" strokeWidth={0.8} />
+    </g>
+  )
+}
+
+// ── XHAMIA — the little mosque beside the square (Et'hem Bey's kin): dome,
+// porch and a slender minaret with its balcony and crescent ──
+function gMosque(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(3, 16, 18, 5)}
+      <rect x={-16} y={-4} width={30} height={20} rx={1.5} fill="#e8e0cc" stroke="#6f6759" strokeWidth={1.8} />
+      <path d="M -14 -4 A 13 13 0 0 1 12 -4 Z" fill="#7a8a8f" stroke="#4a565c" strokeWidth={1.6} />
+      <circle cx={-1} cy={-16} r={2} fill="#c9a24a" />
+      <rect x={-13} y={4} width={5} height={7} fill="#8a6a45" />
+      <rect x={4} y={2} width={5} height={6} fill="#3a3229" opacity={0.7} />
+      {/* the minaret */}
+      <rect x={17} y={-26} width={4.6} height={42} fill="#ece5d2" stroke="#6f6759" strokeWidth={1.4} />
+      <rect x={15.6} y={-13} width={7.4} height={3} fill="#d4cdbb" stroke="#8b8378" strokeWidth={0.8} />
+      <polygon points="15.5,-26 19.3,-37 23.1,-26" fill="#7a8a8f" stroke="#4a565c" strokeWidth={1.2} />
+      <path d="M 21.5 -40 a 3 3 0 1 0 0.2 4.6 a 2.4 2.4 0 1 1 -0.2 -4.6" fill="#c9a24a" />
+    </g>
+  )
+}
+
+// ── tanners' yard dressing: hides drying on a rack, and the round tanning pits ──
+function HideRack({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <line x1={-13} y1={-9} x2={-13} y2={8} stroke="#5c4230" strokeWidth={1.8} />
+      <line x1={13} y1={-9} x2={13} y2={8} stroke="#5c4230" strokeWidth={1.8} />
+      <line x1={-14} y1={-8} x2={14} y2={-8} stroke="#5c4230" strokeWidth={1.6} />
+      {[-9, -1, 7].map((hx, i) => (
+        <path key={i} d={`M ${hx - 3} -8 L ${hx + 3} -8 L ${hx + 2.4} -1 Q ${hx} 1.5 ${hx - 2.4} -1 Z`} fill={i % 2 ? '#c9a05c' : '#b98a4a'} stroke="#8a6238" strokeWidth={0.8} />
+      ))}
+    </g>
+  )
+}
+function TanPits({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {[[-8, 0, '#8a6a3f'], [4, 5, '#6f5433'], [10, -4, '#9a7a48']].map(([px, py, tone], i) => (
+        <g key={i}>
+          <circle cx={px} cy={py} r={5.6} fill="#9a938a" stroke="#5b5348" strokeWidth={1.2} />
+          <circle cx={px} cy={py} r={3.8} fill={tone} />
+        </g>
+      ))}
+    </g>
+  )
+}
+
+// ── LËMI — the round stone threshing floor by the fields ──
+function ThreshingFloor({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={1} cy={2} rx={24} ry={13} fill="rgba(0,0,0,.14)" />
+      <ellipse cx={0} cy={0} rx={23} ry={12.5} fill="#cbb98a" stroke="#8f7c55" strokeWidth={2} />
+      <ellipse cx={0} cy={0} rx={16} ry={8.4} fill="none" stroke="#b3a173" strokeWidth={1} opacity={0.8} />
+      {Array.from({ length: 8 }, (_, i) => {
+        const a = (i / 8) * Math.PI * 2
+        return <line key={i} x1={Math.cos(a) * 5} y1={Math.sin(a) * 2.6} x2={Math.cos(a) * 21} y2={Math.sin(a) * 11.2} stroke="#d9c99a" strokeWidth={1.6} opacity={0.8} />
+      })}
+      <line x1={0} y1={0} x2={0} y2={-9} stroke="#6f4f34" strokeWidth={2.2} />
+      <path d="M 12 -6 q 5 -4 10 -2" stroke="#d9b24e" strokeWidth={2.4} fill="none" strokeLinecap="round" />
+    </g>
+  )
+}
+
+// ── beehives (bletët) — three dome skeps on a bench ──
+function Beehives({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x={-16} y={3} width={32} height={3.4} rx={1} fill="#7a5c3a" stroke="#4f3a2a" strokeWidth={1} />
+      {[-10, 0, 10].map((hx, i) => (
+        <g key={i} transform={`translate(${hx},0)`}>
+          <path d="M -4.4 3 Q -4.8 -4.5 0 -5.5 Q 4.8 -4.5 4.4 3 Z" fill="#d9b24e" stroke="#a67f2c" strokeWidth={1} />
+          <line x1={-4.2} y1={-0.5} x2={4.2} y2={-0.5} stroke="#a67f2c" strokeWidth={0.7} />
+          <line x1={-4.5} y1={1.6} x2={4.5} y2={1.6} stroke="#a67f2c" strokeWidth={0.7} />
+          <circle cx={0} cy={2} r={0.9} fill="#4f3a2a" />
+        </g>
+      ))}
+      {[[-14, -8], [8, -11], [16, -5]].map(([bx, by], i) => <circle key={'b' + i} cx={bx} cy={by} r={1} fill="#e8b53c" />)}
+    </g>
+  )
+}
+
+// ── the ox-cart (qerrja) on the high street ──
+function OxCart({ x, y, rot = 0 }) {
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot})`}>
+      <ellipse cx={2} cy={6} rx={16} ry={3.4} fill="rgba(0,0,0,.16)" />
+      <rect x={-10} y={-4} width={16} height={8} rx={1} fill="#8a6a45" stroke="#5c4230" strokeWidth={1.2} />
+      {[-6, 2].map((wx, i) => (
+        <g key={i}>
+          <circle cx={wx} cy={5} r={4} fill="none" stroke="#5c4230" strokeWidth={1.8} />
+          <line x1={wx - 3} y1={5} x2={wx + 3} y2={5} stroke="#5c4230" strokeWidth={1} />
+          <line x1={wx} y1={2} x2={wx} y2={8} stroke="#5c4230" strokeWidth={1} />
+        </g>
+      ))}
+      <line x1={6} y1={0} x2={17} y2={1} stroke="#5c4230" strokeWidth={1.6} />
+      <path d="M 6 -4 q 4 -3 8 -2" stroke="#d9b24e" strokeWidth={2.2} fill="none" strokeLinecap="round" />
+      {/* the ox */}
+      <ellipse cx={23} cy={1} rx={6.4} ry={4} fill="#c9b9a5" stroke="#8a7a63" strokeWidth={1.1} />
+      <circle cx={29} cy={-1.5} r={2.6} fill="#c9b9a5" stroke="#8a7a63" strokeWidth={1} />
+      <path d="M 27.5 -3.5 q -1.5 -2.5 0.5 -3.5 M 30.5 -3.5 q 1.5 -2.5 -0.5 -3.5" stroke="#8a7a63" strokeWidth={1} fill="none" />
+    </g>
+  )
+}
+
+// ── HAMAMI — the little Ottoman bath-house by the pazar: two lead domes and
+// a curl of steam from the flue ──
+function Hammam({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={2} cy={12} rx={17} ry={4.6} fill="rgba(0,0,0,.2)" />
+      <rect x={-15} y={-2} width={30} height={13} rx={1.5} fill="#d8d0be" stroke="#6f6759" strokeWidth={1.6} />
+      <path d="M -14 -2 A 8.5 8.5 0 0 1 3 -2 Z" fill="#7a8a8f" stroke="#4a565c" strokeWidth={1.4} />
+      <path d="M 4 -2 A 5.5 5.5 0 0 1 15 -2 Z" fill="#8a9aa0" stroke="#4a565c" strokeWidth={1.2} />
+      <circle cx={-5.5} cy={-8} r={1.4} fill="#c9a24a" />
+      <rect x={-4} y={5} width={6} height={6} fill="#4f463c" />
+      <path d="M 11 -8 C 9.5 -11 12 -13 10.8 -16" fill="none" stroke="#e8e4da" strokeWidth={1.8} strokeLinecap="round" opacity={0.65} />
+    </g>
+  )
+}
+
+// ── THE COAST KIT — what an old Albanian shore actually has ─────────────────
+// SKELA — the wooden jetty running out into the shallows, a boat tied at its head
+function Jetty({ x, y, rot = 0 }) {
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot})`}>
+      <line x1={0} y1={0} x2={66} y2={0} stroke="#5c4230" strokeWidth={11} strokeLinecap="round" />
+      <line x1={0} y1={0} x2={66} y2={0} stroke="#8a6a45" strokeWidth={7.5} strokeLinecap="round" />
+      {Array.from({ length: 8 }, (_, i) => {
+        const px = 4 + i * 8.4
+        return <line key={i} x1={px} y1={-4.5} x2={px} y2={4.5} stroke="#5c4230" strokeWidth={1.4} />
+      })}
+      {[14, 34, 54].map((px, i) => (
+        <g key={'p' + i}>
+          <circle cx={px} cy={-5.5} r={1.6} fill="#4f3a2a" />
+          <circle cx={px} cy={5.5} r={1.6} fill="#4f3a2a" />
+        </g>
+      ))}
+      <path d="M 66 0 q 6 3 9 8" fill="none" stroke="#8a7a63" strokeWidth={1} />
+    </g>
+  )
+}
+// nets drying on poles by the boats
+function NetRack({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <line x1={-14} y1={-10} x2={-14} y2={8} stroke="#5c4230" strokeWidth={1.8} />
+      <line x1={14} y1={-11} x2={14} y2={8} stroke="#5c4230" strokeWidth={1.8} />
+      <path d="M -14 -9 Q 0 -5 14 -10" fill="none" stroke="#7a6a50" strokeWidth={1.2} />
+      <path d="M -13 -8 Q -6 3 -2 6 M -7 -7 Q 0 2 5 5 M 0 -7 Q 6 0 10 3 M 7 -8 Q 11 -3 13 -1
+               M -12 -2 Q 0 2 12 -3 M -10 2 Q 0 6 10 1" fill="none" stroke="#9a8a68" strokeWidth={0.7} opacity={0.85} />
+    </g>
+  )
+}
+// KRIPORE — the salt pans: shallow ponds, white salt rims, the raked cone
+function SaltPans({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {[[-24, -6, 30, 16, -4], [8, 2, 34, 17, 3], [-14, 14, 26, 13, -2]].map(([px, py, w, h, r], i) => (
+        <g key={i} transform={`rotate(${r} ${px} ${py})`}>
+          <rect x={px - w / 2} y={py - h / 2} width={w} height={h} rx={3} fill="#eef2ee" stroke="#b8b0a0" strokeWidth={1.6} />
+          <rect x={px - w / 2 + 2.5} y={py - h / 2 + 2.5} width={w - 5} height={h - 5} rx={2} fill="#b9d4d4" opacity={0.9} />
+          <path d={`M ${px - w / 2 + 4} ${py} h ${w - 8}`} stroke="#d8e6e4" strokeWidth={0.8} opacity={0.8} />
+        </g>
+      ))}
+      <path d="M 28 -8 L 33 -16 L 38 -8 Z" fill="#f4f6f2" stroke="#c9c2b6" strokeWidth={0.9} />
+      <line x1={24} y1={-6} x2={14} y2={0} stroke="#7a5c3a" strokeWidth={1.4} />
+    </g>
+  )
+}
+// the stone WATCHTOWER on the headland (every Albanian coast kept one against
+// what came over the water; Cape Rodon keeps Skanderbeg's own)
+function CoastTower({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={2} cy={17} rx={12} ry={4} fill="rgba(0,0,0,.2)" />
+      <path d={`M -10 16 L -7 -12 L 7 -12 L 10 16 Z`} fill="#a6a39b" stroke="#4b463d" strokeWidth={2} />
+      <path d={`M -8 6 h 16 M -7 -3 h 14`} stroke="#8b8378" strokeWidth={0.9} opacity={0.9} />
+      {[-7, -1.5, 4].map((bx, i) => <rect key={i} x={bx} y={-16} width={3.5} height={4.5} fill="#a6a39b" stroke="#4b463d" strokeWidth={1} />)}
+      <rect x={-1.8} y={-6} width={3.6} height={5} fill="#2f2b24" />
+      <path d="M 0 -18 C -2.6 -22 -0.8 -25 0 -28 C 0.8 -25 2.6 -22 0 -18 Z" fill="#e8892b" />
+      <path d="M 0 -19 C -1.2 -22 -0.4 -24 0 -26 C 0.4 -24 1.2 -22 0 -19 Z" fill="#f6cf49" />
+    </g>
+  )
+}
+
+// ── KALAJA — the broken fragment of the old fortress wall (Tirana keeps one
+// too): two weathered stubs and the stones that tumbled from them ──
+function KalaWall({ x, y, rot = 0 }) {
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rot})`}>
+      <ellipse cx={2} cy={7} rx={24} ry={4.6} fill="rgba(0,0,0,.15)" />
+      <rect x={-24} y={-6} width={20} height={12} rx={1} fill="#a6a39b" stroke="#5b5348" strokeWidth={1.6} />
+      <path d="M -24 -6 L -20 -9 L -14 -6 M -12 -6 L -8 -8 L -4 -6" fill="none" stroke="#5b5348" strokeWidth={1.2} />
+      <rect x={6} y={-4} width={14} height={10} rx={1} fill="#9a978e" stroke="#5b5348" strokeWidth={1.6} />
+      <line x1={-22} y1={0} x2={-6} y2={0} stroke="#8b887f" strokeWidth={0.9} opacity={0.9} />
+      <line x1={8} y1={1} x2={18} y2={1} stroke="#8b887f" strokeWidth={0.9} opacity={0.9} />
+      {[[-1, 4], [2, 6.5], [24, 3]].map(([sx, sy], i) => (
+        <ellipse key={i} cx={sx} cy={sy} rx={2.6} ry={1.7} fill="#9a938a" stroke="#6a6156" strokeWidth={0.8} />
+      ))}
+    </g>
+  )
+}
+
 function gSquare(x, y) {
   // a REAL piazza: an irregular stone-kerbed plaza (village squares are never
   // rectangles), visibly lighter than the packed earth around it, cobbled in
@@ -1018,6 +1342,7 @@ const GLYPH = (pl) => {
     case 'rooster': return gRooster(x, y)
     case 'claydoll': return gClayDoll(x, y)
     case 'signpost': return gSignpost(x, y)
+    case 'stonebridge': return gStoneBridge(x, y)
     case 'crossroads': return gCrossroads(x, y)
     case 'roadmark': return gRoadmark(x, y)
     case 'house': return gHouse(x, y, roof)
@@ -1332,6 +1657,33 @@ const seaCoastX = (y) => {
   const cove = Math.sin(y * 0.021) * 12 + Math.sin(y * 0.0075 + 2) * 18 + Math.sin(y * 0.05) * 5 // small coves & inlets
   return base + rodon + drin + buna + cove
 }
+
+// ── the VILLAGE CLEARING as an ORGANIC shape, not an oval: a wobbled radius
+// per angle, and the whole east side held short of the drawn coastline so the
+// meadow (and the tree ring traced along the same edge) never wades into the
+// Adriatic. Shared by the drawn grass and the tree-ring generator.
+const CLEARING = { cx: 512, cy: 432, rx: 590, ry: 452 }
+function clearingPoint(a, wobble) {
+  const r = 1 + Math.sin(a * 3 + 1) * 0.07 + Math.sin(a * 5 + 3) * 0.045 + wobble
+  let x = CLEARING.cx + Math.cos(a) * CLEARING.rx * r
+  const y = CLEARING.cy + Math.sin(a) * CLEARING.ry * r
+  const lim = seaCoastX(y) - 92
+  if (x > lim) x = lim
+  return [x, y]
+}
+const VILLAGE_CLEARING_D = (() => {
+  const rnd = mulberry32(9401), pts = []
+  const N = 30
+  for (let i = 0; i < N; i++) pts.push(clearingPoint((i / N) * Math.PI * 2, (rnd() - 0.5) * 0.07))
+  let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`
+  for (let i = 0; i < N; i++) {
+    const p0 = pts[(i - 1 + N) % N], p1 = pts[i], p2 = pts[(i + 1) % N], p3 = pts[(i + 2) % N]
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`
+  }
+  return d + ' Z'
+})()
 function terrSea() {
   // the open Adriatic — bounded ONLY by the coastline (west) and the hard horizon
   // (top); it runs off the map to the right and bottom. Sandy beach at the shore,
@@ -1686,21 +2038,22 @@ const REGION_LABEL_POS = {
   underworld: [360, 1774],
 }
 
-function VillageMap({ g, current, goGraph }) {
+// `world` carries live world-state for state-drawn glyphs (world.fire = fireStateOf)
+export function VillageMap({ g, current, goGraph, compact, follow, world, npcs }) {
   const scatter = useMemo(() => {
     const rnd = mulberry32(20260708)
     const trees = []
     const push = (x, y, s) => trees.push({ x, y, s })
-    // an ORGANIC tree-ring hugging the village clearing's ellipse (not a box).
+    // an ORGANIC tree-ring traced along the ACTUAL clearing edge (clearingPoint
+    // wobbles the radius AND clamps at the coastline, so the east arc becomes a
+    // windbreak lining the shore instead of trees standing in the sea).
     // Skip the WEST arc (~2.3..3.7 rad) where the river runs, so the bank stays open.
-    const CX = 512, CY = 432, RX = 590, RY = 452
     for (let a = 0; a < Math.PI * 2; a += 0.045) {
       if (a > 2.29 && a < 3.69) continue // leave the river's west bank clear
-      if (rnd() < 0.12) continue // ragged gaps so the ring doesn't read as an ellipse
-      const wob = 1 + Math.sin(a * 3 + 1) * 0.09 + (rnd() - 0.5) * 0.17
+      if (rnd() < 0.12) continue // ragged gaps so the ring doesn't read as a stamped ring
       for (let k = 0; k < (rnd() < 0.5 ? 2 : 1); k++) {
-        const rr = wob + (rnd() - 0.5) * 0.14
-        push(CX + Math.cos(a) * RX * rr, CY + Math.sin(a) * RY * rr, 0.66 + rnd() * 0.62)
+        const [x, y] = clearingPoint(a, (rnd() - 0.5) * 0.15)
+        push(x - rnd() * 14, y + rnd() * 14 - 7, 0.66 + rnd() * 0.62)
       }
     }
     // a thin line of trees along the river's far (west) bank
@@ -1745,14 +2098,39 @@ function VillageMap({ g, current, goGraph }) {
     // the PLAZA BAND: the square itself plus the facade ring that will front it —
     // the free generator stays out; facades are placed by hand below.
     const inPlazaBand = (x, y) => x > 370 && x < 634 && y > 334 && y < 532
-    // keep a house off the ACTUAL drawn bends of every winding lane
+    // keep a house off the ACTUAL drawn bends of every winding lane, off the
+    // wide through-streets (with market verges), and out of the Lana brook.
     const nearLane = (x, y, r) => {
       for (const L of VILLAGE_LANE_PATHS) {
         for (let s = 0; s < L.pts.length - 1; s++) {
           if (segDist(x, y, L.pts[s][0], L.pts[s][1], L.pts[s + 1][0], L.pts[s + 1][1]) < r) return true
         }
       }
+      for (const S of TOWN_STREET_PATHS) {
+        for (let s = 0; s < S.pts.length - 1; s++) {
+          if (segDist(x, y, S.pts[s][0], S.pts[s][1], S.pts[s + 1][0], S.pts[s + 1][1]) < r + 13) return true
+        }
+      }
+      for (let s = 0; s < LANA_BROOK.pts.length - 1; s++) {
+        if (segDist(x, y, LANA_BROOK.pts[s][0], LANA_BROOK.pts[s][1], LANA_BROOK.pts[s + 1][0], LANA_BROOK.pts[s + 1][1]) < r) return true
+      }
       return false
+    }
+    // a house FRONTS the street it stands on: the roof-ridge of any house within
+    // reach of a street or lane runs parallel to it (small jitter); only houses
+    // deep inside a block keep a free angle. This is what makes it read as a
+    // real town rather than scattered boxes.
+    const streetAngle = (x, y, maxD) => {
+      let best = maxD, ang = null
+      const scan = (pts) => {
+        for (let s = 0; s < pts.length - 1; s++) {
+          const d = segDist(x, y, pts[s][0], pts[s][1], pts[s + 1][0], pts[s + 1][1])
+          if (d < best) { best = d; ang = Math.atan2(pts[s + 1][1] - pts[s][1], pts[s + 1][0] - pts[s][0]) * 180 / Math.PI }
+        }
+      }
+      for (const S of TOWN_STREET_PATHS) scan(S.pts)
+      for (const L of VILLAGE_LANE_PATHS) scan(L.pts)
+      return ang
     }
     const roofs = [], occ = new Set()
     for (const Q of QUARTERS) {
@@ -1783,7 +2161,8 @@ function VillageMap({ g, current, goGraph }) {
           if (blocked) continue
           if (qrad > 0.62 && qr() < (qrad - 0.62) / 0.38 * 0.85) continue // thinning quarter edge
           occ.add(cell)
-          roofs.push({ x, y, w: 14 + qr() * 10, h: 12 + qr() * 7, rot: (qr() - 0.5) * 46, tone: ROOF_TONES[Math.floor(qr() * ROOF_TONES.length)] })
+          const sa = streetAngle(x, y, 46)
+          roofs.push({ x, y, w: 14 + qr() * 10, h: 12 + qr() * 7, rot: sa != null ? sa + (qr() - 0.5) * 9 : (qr() - 0.5) * 46, tone: ROOF_TONES[Math.floor(qr() * ROOF_TONES.length)] })
         }
       }
     }
@@ -1802,6 +2181,7 @@ function VillageMap({ g, current, goGraph }) {
           if (tx * tx + ty * ty > 1.0) continue
           let blocked = false
           for (const p of named) if (Math.hypot(x - p.x, yy - p.y) < namedR(p)) { blocked = true; break }
+          if (!blocked && nearLane(x, yy, 4)) blocked = true // the ring road's end carves through the warren
           if (blocked || (ri === 3 && br() < 0.25)) continue // outermost row is raggedy
           roofs.push({ x, y: yy, w: 17.5 + br() * 3, h: 12.5 + br() * 2, rot: (br() - 0.5) * 7, tone: ROOF_TONES[Math.floor(br() * ROOF_TONES.length)] })
         }
@@ -1820,7 +2200,7 @@ function VillageMap({ g, current, goGraph }) {
     {
       const fr = mulberry32(hashStr('facades'))
       const F = []
-      ;[414, 442, 496, 524, 552, 580].forEach((fx) => F.push([fx, 340, 0]))       // north front (gap at ~468: the church/crossroads street)
+      ;[414, 442, 580].forEach((fx) => F.push([fx, 340, 0]))                      // north front (gaps: the church street ~468; the mosque & sahat-kulla at 494/528)
       ;[420, 448, 504, 532, 586].forEach((fx) => F.push([fx, 522, 0]))            // south front (gaps for the two south lanes)
       ;[380, 408, 462, 490].forEach((fy) => F.push([382, fy, 90]))                // west front (gap toward the oda / village life)
       ;[372, 400, 484, 512].forEach((fy) => F.push([622, fy, 90]))                // east front (gap for the palace road)
@@ -1854,7 +2234,7 @@ function VillageMap({ g, current, goGraph }) {
   // place every OTHER node as a dot in its region, keep a position + region for
   // EVERY node, build the story edges, and score "teleport" edges (long + cross-
   // region + passing over many other nodes' dots).
-  const { dots, edges, oddEdges, clusters, singles, memberOf } = useMemo(() => {
+  const { dots, edges, oddEdges, clusters, singles, pos } = useMemo(() => {
     // region label per node (positions no longer come from here — only regOf,
     // used for the region caption of generic glyphs + the odd-link detector).
     const byRegion = assignRegions(g.ids)
@@ -1914,24 +2294,25 @@ function VillageMap({ g, current, goGraph }) {
     const oddEdges = scored.filter((s) => s.cross && s.len > 500)
       .sort((a, b) => b.crossings - a.crossings || b.len - a.len).slice(0, 24)
 
-    // SAME SPOT = same exact coordinate. Nodes that share a coordinate are one
-    // location where the story continues in place → one clickable marker that
-    // fans the scenes out. A village building or landmark at that coord HOSTS
-    // the marker (its glyph is drawn by its own loop); otherwise it's a stack.
-    const byCoord = {}
-    for (const id of g.ids) { const p = pos[id]; if (!p) continue; const k = p[0] + ',' + p[1]; (byCoord[k] || (byCoord[k] = [])).push(id) }
-    const clusters = [], memberOf = {}
-    for (const [k, list] of Object.entries(byCoord)) {
+    // SAME SPOT = hand-authored in nodePositions.js: a node either owns its
+    // coordinate or stands AT another node's spot (PLACE_OF). Each shared place
+    // is one clickable marker that fans the scenes out. A village building or
+    // landmark standing there HOSTS the marker (its glyph is drawn by its own
+    // loop); otherwise it's a stack. (Fallback-placed nodes have no PLACE_OF
+    // entry yet — each stands alone at its provisional spot.)
+    const byPlace = {}
+    for (const id of g.ids) { if (!pos[id]) continue; const a = PLACE_OF[id] || id; (byPlace[a] || (byPlace[a] = [])).push(id) }
+    const clusters = []
+    for (const [anchor, list] of Object.entries(byPlace)) {
       if (list.length < 2) continue
-      const [x, y] = k.split(',').map(Number)
+      const [x, y] = pos[anchor]
       const hostVp = list.find((id) => VILLAGE_IDS.has(id)) || null
       const hostLm = list.find((id) => LANDMARK_IDS.has(id)) || null
-      const key = 'loc:' + k
-      list.forEach((id) => { memberOf[id] = key })
+      const key = 'loc:' + anchor
       clusters.push({ key, x, y, hostVp, hostLm, members: list.map((id) => ({ id, kind: g.kindOf(id), region: regOf[id] || 'village' })) })
     }
-    const singles = out.filter((d) => byCoord[d.x + ',' + d.y].length === 1)
-    return { dots: out, edges, oddEdges, clusters, singles, memberOf }
+    const singles = out.filter((d) => (byPlace[PLACE_OF[d.id] || d.id] || []).length === 1)
+    return { dots: out, edges, oddEdges, clusters, singles, pos }
   }, [g])
 
   // selection = the node you're auditing: light up its edges, dim the rest.
@@ -1950,33 +2331,45 @@ function VillageMap({ g, current, goGraph }) {
     incoming: g.ids.filter((id) => (g.adj[id] || []).includes(sel)),
     firstLine: STORY[sel].text && STORY[sel].text.length ? englishOf(lineOf(STORY[sel].text[0])) : '',
   } : null
-  // a "story stack" fans open when you click it, or when it holds the focused node
-  const [expanded, setExpanded] = useState(null)
-  const openKeys = useMemo(() => {
-    const s = new Set()
-    if (expanded) s.add(expanded)
-    if (focus && memberOf[focus]) s.add(memberOf[focus])
-    return s
-  }, [expanded, focus, memberOf])
-  // fanned-out position of every non-host member of an open stack (a village
-  // building / landmark keeps its own glyph at the centre). Re-anchors edges too.
-  const fanPos = useMemo(() => {
-    const m = {}
-    for (const c of clusters) {
-      if (!openKeys.has(c.key)) continue
-      const host = c.hostVp || c.hostLm
-      const fm = host ? c.members.filter((x) => x.id !== host) : c.members
-      const n = fm.length, R = Math.min(140, 22 + n * 4.4)
-      fm.forEach((mem, i) => {
-        const ang = (i / n) * Math.PI * 2 - Math.PI / 2
-        m[mem.id] = [c.x + Math.cos(ang) * R, c.y + Math.sin(ang) * R]
-      })
+  // the LOCATION CARD — click a shared place and see what can happen there.
+  // Hand-authored happenings (placeMeta.js), with a derived one-row-per-scene
+  // fallback. This replaced the old fan-out ring: scenes never leave their spot.
+  const [openPlace, setOpenPlace] = useState(null)
+  const placeCard = useMemo(() => {
+    const c = openPlace && clusters.find((x) => x.key === openPlace)
+    if (!c) return null
+    const anchor = c.key.slice(4)
+    const meta = PLACE_META[anchor]
+    const vp = VILLAGE_PLACES.find((p) => p.id === c.hostVp)
+    const lm = WORLD_LANDMARKS.find((l) => l.id === c.hostLm)
+    const name = (meta && meta.name) || (vp && vp.label) || (lm && lm.label) || anchor
+    const line = (id) => englishOf((STORY[id].text || []).map(lineOf).find((l) => l.filter((t) => t.id).length >= 2) || (STORY[id].text || []).map(lineOf)[0] || [])
+    let rows
+    if (meta) {
+      const covered = new Set(meta.happenings.flatMap((h) => h.nodes))
+      rows = [
+        ...meta.happenings.map((h) => ({ title: h.title, nodes: h.nodes })),
+        ...c.members.filter((m) => !covered.has(m.id)).map((m) => ({ title: line(m.id), nodes: [m.id] })),
+      ]
+    } else {
+      rows = c.members.map((m) => ({ title: line(m.id), nodes: [m.id] }))
     }
-    return m
-  }, [clusters, openKeys])
+    return { anchor, name, count: c.members.length, rows }
+  }, [openPlace, clusters])
 
   const [view, setView] = useState(MAP_VIEWS.village)
   const [showOdd, setShowOdd] = useState(false)
+  // FOLLOW MODE (the minimap): when the player moves to a new scene — a chosen
+  // option, or a fresh run — select that node and recentre the map on it, so
+  // the map always shows where you are. (viewBox is 1160×760, centre 580×380.)
+  useEffect(() => {
+    if (!follow || !current) return
+    const p = pos[current]
+    if (!p) return
+    setSel(current)
+    const k = 1.4 // zoom in close on the current scene (the minimap follows the player)
+    setView({ x: 580 - p[0] * k, y: 380 - p[1] * k, k })
+  }, [follow, current, pos])
   const svgRef = useRef(null)
   const drag = useRef(null)
   useEffect(() => {
@@ -2004,20 +2397,25 @@ function VillageMap({ g, current, goGraph }) {
     setView((v) => ({ ...v, x: drag.current.vx + dx, y: drag.current.vy + dy }))
   }
   const onUp = () => { drag.current = null }
-  const onBackdrop = () => { if (!drag.current || !drag.current.moved) { setSel(null); setExpanded(null) } }
+  const onBackdrop = () => { if (!drag.current || !drag.current.moved) { setSel(null); setOpenPlace(null) } }
   const zoomBy = (f) => setView((v) => { const k = Math.min(3.4, Math.max(0.16, v.k * f)); return { x: 580 - (580 - v.x) * (k / v.k), y: 380 - (380 - v.y) * (k / v.k), k } })
-  const dr = 5.4 / view.k, ds = 1 / view.k
+  // in the small docked minimap, enlarge the ds-driven detail (the "where to
+  // next" edge-lines + scene labels) so they stay legible at the shrunk size.
+  const uiScale = compact ? 2.6 : 1
+  const dr = 5.4 / view.k, ds = (1 / view.k) * uiScale
 
   return (
     <div className="dbg-map">
-      <p className="dbg-note">
-        The whole world on one map — <b>drag</b> to pan, <b>scroll</b> to zoom. Laid over the real
-        (rotated) map of Albania: <b>Mount Tomorr</b> and the sky crown the top; the <b>river</b> runs
-        down the centre past the <b>village</b> (you begin at the bridge that crosses to it) to <b>Rozafa
-        castle</b> at the river-mouth beside <b>Lake Shkodra</b>; the <b>great forest</b> lies west across
-        the river; the <b>Adriatic</b> fills the east; and — down through the well — the world below.
-        Every <b>dot</b> is a scene; click any dot or building to open it in the Story Graph.
-      </p>
+      {!compact && (
+        <p className="dbg-note">
+          The whole world on one map — <b>drag</b> to pan, <b>scroll</b> to zoom. Laid over the real
+          (rotated) map of Albania: <b>Mount Tomorr</b> and the sky crown the top; the <b>river</b> runs
+          down the centre past the <b>village</b> (you begin at the bridge that crosses to it) to <b>Rozafa
+          castle</b> at the river-mouth beside <b>Lake Shkodra</b>; the <b>great forest</b> lies west across
+          the river; the <b>Adriatic</b> fills the east; and — down through the well — the world below.
+          Every <b>dot</b> is a scene; click any dot or building to open it in the Story Graph.
+        </p>
+      )}
       <div className="dbg-worldwrap">
         <div className="dbg-worldtools">
           <button className="btn" title="zoom in" onClick={() => zoomBy(1.3)}>＋</button>
@@ -2095,8 +2493,9 @@ function VillageMap({ g, current, goGraph }) {
               kind ? <Bush key={'dc' + i} x={x} y={y} s={s} /> : <Rock key={'dc' + i} x={x} y={y} s={s} />
             ))}
 
-            {/* the village clearing — an organic meadow that blends into the land, not a box */}
-            <ellipse cx={512} cy={432} rx={590} ry={452} fill="url(#vGrass)" onClick={onBackdrop} />
+            {/* the village clearing — an organic meadow, its east edge held back
+                from the coastline so the grass never wades into the sea */}
+            <path d={VILLAGE_CLEARING_D} fill="url(#vGrass)" onClick={onBackdrop} />
             {[[724, 620, 120, 40], [844, 640, 90, 30], [594, 300, 90, 30], [254, 560, 90, 34]].map(([x, y, rx, ry], i) => (
               <ellipse key={'vb' + i} cx={x} cy={y} rx={rx} ry={ry} fill="#7f9a54" opacity="0.3" />
             ))}
@@ -2125,21 +2524,41 @@ function VillageMap({ g, current, goGraph }) {
 
             {/* ===== the village (detailed) — content only; ground + river drawn above ===== */}
             <g>
-              {/* warm packed-earth ground of the old town, so the terracotta roofs
-                  read against it and the lanes show as pale streets between blocks */}
-              <ellipse cx={TOWN.cx} cy={TOWN.cy} rx={TOWN.rx + 24} ry={TOWN.ry + 24} fill="#b6a473" opacity={0.5} onClick={onBackdrop} />
-              <ellipse cx={TOWN.cx} cy={TOWN.cy} rx={TOWN.rx} ry={TOWN.ry} fill="#cdba8b" onClick={onBackdrop} />
+              {/* warm packed-earth ground of the old town — an organic footprint
+                  (blob, not an oval) the terracotta roofs read against, with the
+                  lanes showing as pale streets between blocks */}
+              <path d={blobPath(TOWN.cx, TOWN.cy, TOWN.rx + 24, TOWN.ry + 24, 7301, 0.07, 22)} fill="#b6a473" opacity={0.5} onClick={onBackdrop} />
+              <path d={blobPath(TOWN.cx, TOWN.cy, TOWN.rx, TOWN.ry, 7302, 0.055, 22)} fill="#cdba8b" onClick={onBackdrop} />
               {/* the ONE river (Tomorr → town's west edge → Zana's reach → Rozafa),
                   drawn OVER the town ground so it threads visibly through the village */}
               <path d={WORLD_RIVER} fill="none" stroke="#cdbf94" strokeWidth={92} strokeLinecap="round" />
               <path d={WORLD_RIVER} fill="none" stroke="url(#wSea)" strokeWidth={60} strokeLinecap="round" />
               <path d={WORLD_RIVER} fill="none" stroke="#bfe0ea" strokeWidth={16} strokeLinecap="round" opacity={0.5} />
+              {/* the LANA — Tirana's little brook, in from the east meadows to
+                  meet the river at the tanners' bridge */}
+              <path d={LANA_BROOK.d} fill="none" stroke="#cdbf94" strokeWidth={17} strokeLinecap="round" opacity={0.9} />
+              <path d={LANA_BROOK.d} fill="none" stroke="#84bacb" strokeWidth={10} strokeLinecap="round" />
+              <path d={LANA_BROOK.d} fill="none" stroke="#bfe0ea" strokeWidth={3.4} strokeLinecap="round" opacity={0.7} />
+              <text x={806} y={654} textAnchor="middle" fontSize={13} fontStyle="italic" fontFamily="Georgia, serif" fill="#5e93a8" opacity={0.9}>lana</text>
               {/* fields ring the town out in the meadow, not inside the packed core */}
-              <Field x={866} y={126} w={214} h={140} rot={7} tone="#6f5744" />
+              <Field x={806} y={126} w={214} h={140} rot={7} tone="#6f5744" />
               <Field x={874} y={696} w={176} h={120} rot={-6} tone="#7a664a" />
               <Field x={532} y={816} w={318} h={110} rot={0} tone="#6f5744" />
               <Field x={694} y={772} w={150} h={98} rot={4} tone="#7a664a" />
               {gBridgeDeck()}
+              {/* ── the THROUGH-STREETS: the high street in from the crossroads,
+                  the market street south past the pazar to the fields, the river
+                  road down to the tanners' bridge. Wide, cobble-edged — the town's
+                  skeleton that every footpath hangs off. ── */}
+              {TOWN_STREET_PATHS.map((S, i) => (S.hidden ? null :
+                <g key={'ts' + i}>
+                  <path d={S.d} fill="none" stroke="#9e885b" strokeWidth={S.minor ? 13 : 19} opacity={0.5} strokeLinecap="round" />
+                  <path d={S.d} fill="none" stroke="#e9dfc2" strokeWidth={S.minor ? 9 : 13.5} strokeLinecap="round" />
+                  {!S.minor && <path d={S.d} fill="none" stroke="#c9b88a" strokeWidth={1.4} strokeLinecap="round" opacity={0.8} transform="translate(0,-4.6)" />}
+                  {!S.minor && <path d={S.d} fill="none" stroke="#c9b88a" strokeWidth={1.4} strokeLinecap="round" opacity={0.8} transform="translate(0,4.6)" />}
+                  <path d={S.d} fill="none" stroke="#b6a373" strokeWidth={S.minor ? 1.6 : 2.2} strokeDasharray="2 11" strokeLinecap="round" opacity={0.75} />
+                </g>
+              ))}
               {VILLAGE_LANE_PATHS.map((L, i) => (
                 <g key={i}>
                   <path d={L.d} fill="none" stroke="#a8946a" strokeWidth={L.main ? 12.5 : 8.5} opacity={0.5} strokeLinecap="round" />
@@ -2173,6 +2592,59 @@ function VillageMap({ g, current, goGraph }) {
               <Chicken x={318} y={506} /><Chicken x={327} y={513} flip /><Chicken x={310} y={514} />
               <WashLine x1={214} y1={548} x2={252} y2={556} />
               <RowBoat x={168} y={708} rot={-8} />
+              {/* ── the TIRANA landmarks, woven into the story scenes that name them:
+                  the mosque & the sahat-kulla fronting the square beside the church
+                  road (a church and a mosque stand together — fshatiSheshi), the
+                  tanners' yard by their stone bridge (fshatiLumi), the threshing
+                  floor by the fields, the beehives of the bee tale, an ox-cart on
+                  the high street ── */}
+              {gMosque(492, 336)}
+              {gSahatKulla(532, 330)}
+              {/* PAZARI — the old bazaar: awninged shops flanking the market
+                  street south of the square, the hammam steaming beside them,
+                  and the broken fragment of the old fortress wall further out */}
+              <Stall x={527} y={548} rot={-6} />
+              <Stall x={524} y={594} rot={-10} />
+              <Stall x={509} y={638} rot={-16} />
+              <Stall x={487} y={554} rot={-4} />
+              <Stall x={481} y={600} rot={-12} />
+              <Hammam x={556} y={572} />
+              <KalaWall x={594} y={648} rot={-8} />
+              {/* the little stone culvert where the market street crosses the Lana */}
+              <g transform="translate(468,666) rotate(58)">
+                <rect x={-13} y={-8} width={26} height={16} rx={2} fill="#cfc8ba" stroke="#6f6759" strokeWidth={1.8} />
+                <line x1={-13} y1={-8} x2={13} y2={-8} stroke="#8b8378" strokeWidth={2.4} />
+                <line x1={-13} y1={8} x2={13} y2={8} stroke="#8b8378" strokeWidth={2.4} />
+              </g>
+              <ThreshingFloor x={608} y={764} />
+              <Beehives x={692} y={232} />
+              <OxCart x={470} y={288} rot={74} />
+              <HideRack x={238} y={654} />
+              <TanPits x={262} y={676} />
+              {/* the SEA TRACK (udha e detit) — the worn path the fisherfolk and
+                  salt-carriers take from the town's east edge out through the
+                  windbreak to the jetty, forking down to the salt-pans. Drawn
+                  here (over the trees) so it reads as the gap in the shore wood. */}
+              {['M 878 588 C 924 614 962 652 984 700 C 994 726 990 750 980 770',
+                'M 966 704 C 946 756 922 808 902 850'].map((d, i) => (
+                <g key={'sea' + i}>
+                  <path d={d} fill="none" stroke="#9e885b" strokeWidth={i ? 11 : 15} opacity={0.4} strokeLinecap="round" />
+                  <path d={d} fill="none" stroke="#d8c79c" strokeWidth={i ? 7.5 : 11} strokeLinecap="round" />
+                  <path d={d} fill="none" stroke="#efe5c8" strokeWidth={2.4} strokeDasharray="2 10" opacity={0.85} strokeLinecap="round" />
+                </g>
+              ))}
+              <text x={946} y={636} textAnchor="middle" transform="rotate(52 946 636)" className="dbg-vdistrict" style={{ fontSize: 13 }}>udha e detit</text>
+              {/* ── the COAST, dressed the way an old Albanian shore is: the
+                  wooden skela running into the shallows by the fishing coast,
+                  boats drawn up on the sand, nets drying, the kripore salt pans
+                  on the flat, and the watchtower out on the Rodon headland ── */}
+              <Jetty x={992} y={794} rot={14} />
+              <RowBoat x={1002} y={716} rot={24} />
+              <RowBoat x={976} y={748} rot={-12} />
+              <NetRack x={952} y={766} />
+              <NetRack x={984} y={690} />
+              <SaltPans x={894} y={866} />
+              <CoastTower x={1004} y={566} />
               {/* ── the walled PALACE compound (east): a WIDE ROAD from the square to
                   the front gate, a grey stone curtain wall enclosing the black palace
                   and the marble garden (gate on the WEST), back lanes behind it ── */}
@@ -2241,9 +2713,7 @@ function VillageMap({ g, current, goGraph }) {
                 when a node is selected: its OUT edges glow teal, its IN edges amber. */}
             <g>
               {edges.map(([x1, y1, x2, y2, u, v, wander], i) => {
-                const pu = fanPos[u], pv = fanPos[v]
-                if (pu) { x1 = pu[0]; y1 = pu[1] }
-                if (pv) { x2 = pv[0]; y2 = pv[1] }
+                if (x1 === x2 && y1 === y2) return null // same-place edge — it lives inside the location card
                 const out = u === focus, inc = v === focus, hot = out || inc
                 const stroke = out ? '#3ad0c0' : inc ? '#f0a53c' : (wander ? '#6a5a44' : '#43526a')
                 return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke}
@@ -2284,56 +2754,26 @@ function VillageMap({ g, current, goGraph }) {
               )
             })}
 
-            {/* SAME-SPOT locations — where the story continues in one place. A count
-                badge marks them; click to fan the scenes out. When a village
-                building / landmark hosts the spot, its own glyph stays put. */}
+            {/* SHARED PLACES — one marker per spot where several scenes happen.
+                A count badge marks them; click for the LOCATION CARD ("what can
+                happen here"). When a village building / landmark hosts the spot,
+                its own glyph stays put and only the badge is added. */}
             {clusters.map((c) => {
-              const open = openKeys.has(c.key)
               const host = c.hostVp || c.hostLm
               const dimAll = focus && nbr && !c.members.some((m) => nbr.has(m.id))
-              const hot = c.members.some((m) => m.id === sel || m.id === current)
+              const holds = c.members.some((m) => m.id === sel || m.id === current)
+              const hot = holds || openPlace === c.key
               const ctrl = host ? [c.x + 13, c.y - 15] : [c.x, c.y]
-              if (!open) {
-                return (
-                  <g key={c.key} className="dbg-wdot" opacity={dimAll ? 0.4 : 1}
-                     onClick={() => setExpanded(c.key)} style={{ cursor: 'pointer' }}>
-                    <title>{c.members.length} scenes happen here — click to open: {c.members.map((m) => m.id).join(', ')}</title>
-                    {host
-                      ? <><circle cx={ctrl[0]} cy={ctrl[1]} r={7} fill={hot ? '#3ad0c0' : '#2b3550'} stroke="#fff" strokeWidth={1.2} />
-                          <text x={ctrl[0]} y={ctrl[1] + 3} textAnchor="middle" fontSize={9} fontWeight="700" fill="#fff" fontFamily="system-ui, sans-serif">{c.members.length}</text></>
-                      : <><circle cx={c.x} cy={c.y} r={dr * 2.4} fill="transparent" />
-                          <StoryStack x={c.x} y={c.y} n={c.members.length} hot={hot} /></>}
-                  </g>
-                )
-              }
-              const fm = host ? c.members.filter((m) => m.id !== host) : c.members
               return (
-                <g key={c.key}>
-                  {fm.map((m) => {
-                    const p = fanPos[m.id]; if (!p) return null
-                    return <line key={'leg' + m.id} x1={c.x} y1={c.y} x2={p[0]} y2={p[1]} stroke="#6a5a44" strokeWidth={1 * ds} opacity={0.55} />
-                  })}
-                  {/* collapse control (offset when a building/landmark sits at the centre) */}
-                  <g onClick={() => { setExpanded(null); setSel(null) }} style={{ cursor: 'pointer' }}>
-                    <circle cx={ctrl[0]} cy={ctrl[1]} r={dr * 1.6} fill="transparent" />
-                    <circle cx={ctrl[0]} cy={ctrl[1]} r={4.6} fill="#2b3550" stroke="#fff" strokeWidth={1.2} />
-                    <line x1={ctrl[0] - 2.2} y1={ctrl[1]} x2={ctrl[0] + 2.2} y2={ctrl[1]} stroke="#fff" strokeWidth={1.3} />
-                  </g>
-                  {fm.map((m) => {
-                    const p = fanPos[m.id]; if (!p) return null
-                    const isSel = m.id === sel, isCur = m.id === current
-                    const dim = focus && nbr && !nbr.has(m.id)
-                    return (
-                      <g key={m.id} className="dbg-wdot" opacity={dim ? 0.3 : 1} onClick={() => setSel(m.id)} style={{ cursor: 'pointer' }}>
-                        <title>{m.id}{STORY[m.id].end ? ` (${STORY[m.id].end})` : ''}</title>
-                        <text x={p[0]} y={p[1] - 10 * ds} textAnchor="middle" className="dbg-wdotlabel"
-                              style={{ fontSize: 10.5 * ds, strokeWidth: 3 * ds }}>{m.id}</text>
-                        <circle cx={p[0]} cy={p[1]} r={dr * 2} fill="transparent" />
-                        {(isSel || isCur) && <circle cx={p[0]} cy={p[1]} r={12} fill="none" stroke={isSel ? '#3ad0c0' : '#fff'} strokeWidth={2} opacity={0.8} />}
-                        {genericGlyph(p[0], p[1], m.kind, m.region)}
-                      </g>
-                    )
-                  })}
+                <g key={c.key} className="dbg-wdot" opacity={dimAll ? 0.4 : 1}
+                   onClick={() => setOpenPlace(openPlace === c.key ? null : c.key)} style={{ cursor: 'pointer' }}>
+                  <title>{c.members.length} scenes happen here — click for the location card</title>
+                  {!host && holds && <circle cx={c.x} cy={c.y} r={13} fill="none" stroke={c.members.some((m) => m.id === sel) ? '#3ad0c0' : '#fff'} strokeWidth={2} opacity={0.8} />}
+                  {host
+                    ? <><circle cx={ctrl[0]} cy={ctrl[1]} r={7} fill={hot ? '#3ad0c0' : '#2b3550'} stroke="#fff" strokeWidth={1.2} />
+                        <text x={ctrl[0]} y={ctrl[1] + 3} textAnchor="middle" fontSize={9} fontWeight="700" fill="#fff" fontFamily="system-ui, sans-serif">{c.members.length}</text></>
+                    : <><circle cx={c.x} cy={c.y} r={dr * 2.4} fill="transparent" />
+                        <StoryStack x={c.x} y={c.y} n={c.members.length} hot={hot} /></>}
                 </g>
               )
             })}
@@ -2360,9 +2800,23 @@ function VillageMap({ g, current, goGraph }) {
                    onClick={() => setSel(lm.id)} style={{ cursor: 'pointer' }}>
                   <title>{lm.id}{STORY[lm.id].end ? ` (${STORY[lm.id].end})` : ''}</title>
                   {(isSel || isCur) && <circle cx={lm.x} cy={lm.y} r={30} fill="none" stroke={isSel ? '#3ad0c0' : '#fff'} strokeWidth={2.6} opacity={0.85} />}
-                  {WORLD_GLYPH[lm.glyph](lm.x, lm.y)}
+                  {WORLD_GLYPH[lm.glyph](lm.x, lm.y, world)}
                   <circle cx={lm.x} cy={lm.y + 16} r={3.2} fill={KIND_COLOR[g.kindOf(lm.id)]} stroke="#101820" strokeWidth={1.1} />
                   <text x={lm.x} y={lm.y - 30} textAnchor="middle" className="dbg-vlabel">{lm.label}</text>
+                </g>
+              )
+            })}
+
+            {/* walking NPCs — live positions derived from the world clock
+                (npcs.js routes); the badge stands beside the scene marker */}
+            {(npcs || []).map((n) => {
+              const p = pos[n.node]
+              if (!p) return null
+              return (
+                <g key={'npc' + n.id} className="dbg-npc">
+                  <title>{n.name} — {n.node}</title>
+                  <circle cx={p[0] + 12} cy={p[1] - 10} r={8.5} fill="#1c2433" stroke="#e6b84e" strokeWidth={1.2} opacity={0.92} />
+                  <text x={p[0] + 12} y={p[1] - 6.4} textAnchor="middle" fontSize={10.5}>{n.glyph}</text>
                 </g>
               )
             })}
@@ -2376,7 +2830,34 @@ function VillageMap({ g, current, goGraph }) {
           </g>
         </svg>
 
-        {info && (
+        {placeCard && (
+          <div className="dbg-worldinfo dbg-placecard">
+            <div className="dbg-wi-head">
+              <b>{placeCard.name}</b>
+              <span className="dbg-pc-count">{placeCard.count} scenes</span>
+              <button className="dbg-wi-x" title="close" onClick={() => setOpenPlace(null)}>✕</button>
+            </div>
+            <div className="dbg-pc-rows">
+              {placeCard.rows.map((r, i) => (
+                <div key={i} className="dbg-pc-row">
+                  <span className="dbg-pc-title">{r.title}</span>
+                  <span className="dbg-pc-chips">
+                    {r.nodes.map((id) => (
+                      <button key={id} className={'dbg-pc-chip' + (id === current ? ' cur' : '')}
+                              title={(STORY[id] && STORY[id].end ? `(${STORY[id].end}) ` : '') + 'select on the map'}
+                              onClick={() => { setSel(id); setOpenPlace(null) }}>
+                        <i style={{ background: KIND_COLOR[g.kindOf(id)] }} />{id}{id === current ? ' ◉' : ''}
+                      </button>
+                    ))}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <button className="btn dbg-wi-open" onClick={() => goGraph(placeCard.anchor)}>open in Story Graph →</button>
+          </div>
+        )}
+
+        {!placeCard && info && (
           <div className="dbg-worldinfo">
             <div className="dbg-wi-head">
               <code>{sel}</code>
@@ -2825,7 +3306,7 @@ export default function DebugView({ state, dispatch }) {
         ))}
       </div>
       {sub === 'graph' && <StoryGraph g={g} sel={sel} setSel={setSel} goLore={goLore} />}
-      {sub === 'village' && <VillageMap g={g} current={state.nodeId} goGraph={goGraph} />}
+      {sub === 'village' && <VillageMap g={g} current={state.nodeId} goGraph={goGraph} world={{ fire: fireStateOf(state) }} npcs={liveNpcs(state)} />}
       {sub === 'map' && <WorldMap g={g} current={state.nodeId} setSel={setSel} goGraph={goGraph} />}
       {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} goSource={goSource} goHistory={goHistory} />}
       {sub === 'history' && <History focus={histFocus} goLore={goLore} goSource={goSource} />}
