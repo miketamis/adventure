@@ -4991,6 +4991,9 @@ export const STORY = {
       // the Xhindët's night walk crosses the sleeping square (npcs.js xhindet)
       when('npc:xhindet', L(w('dikush'), wf('ec', 'ecën', 'walks'), wf('ne', 'në', 'in'), w('erresire'), p('.'))),
       L(w('nje'), w('rruge'), wf('zbrit', 'zbret', 'goes down'), wf('poshte', 'poshtë', 'down'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river'), p('.')),
+      // the small market is a real place now (→ pazari1); its stalls pack up
+      // at dusk, so the line and the option below sleep through the night
+      unless('night', L(w('nje'), w('treg'), w('i_art'), w('vogel'), w('eshte'), w('ketu'), p('.'))),
       // the old man keeps his timetable (npcs.js plakuSheshit): mornings here,
       // evenings in the oda among the men
       when('npc:plakuSheshit', L(w('nje'), w('plak'), w('rri'), w('ketu'), w('dhe'), wf('shiko', 'shikon', 'looks'), w('ti'), p('.'))),
@@ -5002,6 +5005,7 @@ export const STORY = {
       { text: L(w('ndihmo'), wf('femije', 'fëmijët', 'the children')), requires: 'npc:femijet', to: 'dordolec1', reveal: 'dordolec' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('pus')), to: 'pusiThate', reveal: 'thate' },
       { text: L(wf('bej', 'bëj', 'make'), w('nje'), w('feste')), requires: 'day', to: 'veraDite1', reveal: 'feste' },
+      { text: L(w('shko'), wf('ne', 'në', 'to'), w('treg')), unless: 'night', to: 'pazari1', reveal: 'treg' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('dasme')), unless: 'night', to: 'dasma1', reveal: 'dasme' },
       { text: L(w('zbrit'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river')), to: 'fshatiLumi', reveal: 'lume' },
       { text: L(w('shko'), wf('tek', 'te', 'to'), w('udhekryq')), to: 'udhekryq' },
@@ -5065,6 +5069,30 @@ export const STORY = {
       L(wf('dite', 'ditën', 'the day'), w('e_link'), wf('fund', 'fundit', 'last'), p(','), w('deri'), wf('ne', 'në', 'to'), w('fund'), p(','), w('une'), w('rri'), w('ketu'), p('.')),
     ],
     options: [
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  // The PAZAR — the small market down the street from the square, with the
+  // sahat-kulla (the tower of the hour) above it. The square used to carry the
+  // market and clock-tower as flavour lines nothing acted on; re-homed here as
+  // a place you can walk to, with the two-lek loaf as the everyday economy
+  // lesson. The stalls pack up at dusk (the way in is unless: 'night').
+  pazari1: {
+    id: 'pazari1',
+    text: [
+      from('fshatiSheshi', L(w('ti'), wf('shko', 'shkon', 'go'), wf('ne', 'në', 'to'), w('treg'), p('.'))),
+      L(wf('treg', 'tregu', 'the market'), w('eshte'), w('i_art'), w('vogel'), p('.')),
+      L(w('nje'), w('kulle'), w('e_link'), wf('ore', 'orës', 'the hour'), w('rri'), wf('lart', 'lart', 'high'), p('.')),
+      L(wf('ore', 'ora', 'the hour'), wf('bie', 'bie', 'strikes'), w('cdo'), w('ore'), p('.')),
+      unless('night', L(wf('njeri', 'njerëzit', 'the people'), wf('blej', 'blejnë', 'buy'), w('dhe'), wf('shes', 'shesin', 'sell'), p('.'))),
+      unless('night', L(w('nje'), w('grua'), wf('shes', 'shet', 'sells'), w('buke'), w('dhe'), w('djathe'), p('.'))),
+      when('night', L(w('naten'), wf('treg', 'tregu', 'the market'), w('fle'), p('.'))),
+    ],
+    options: [
+      // two lek buys the loaf — a priced option stays visible when you can't
+      // pay (the price tag is part of the lesson), and bread has its uses
+      { text: L(w('blej'), w('buke')), unless: 'night', lek: -2, grant: 'buke', to: 'pazari1', reveal: 'buke' },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
     ],
   },
@@ -9280,6 +9308,7 @@ const CONFUSERS = {
   udhetimi2: L(w('hap'), wf('dere', 'derën', 'the door')), // open the door — none here
   bukuraThellesi: L(w('zbrit'), wf('ne', 'në', 'to'), wf('pus', 'pusin', 'the well')), // descend into the well — none here
   fshatiSheshi: L(w('bej'), wf('pus', 'pusin', 'the well')), // make the well — you cannot
+  pazari1: L(w('blej'), wf('ore', 'orën', 'the hour')), // buy the hour — you cannot buy time
   sheshiPlak: L(w('ndihmo'), wf('pus', 'pusin', 'the well')), // help the well — it is not a person
   sheshiPlak2: L(w('lufto'), wf('vatra', 'vatrat', 'the hearths')), // fight the hearths — nonsense
   sheshiPlak3: L(w('ik'), wf('fund', 'fundin', 'the end')), // flee the end — you cannot
