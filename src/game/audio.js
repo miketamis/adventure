@@ -86,7 +86,11 @@ export function playWord(al) {
 // Returns a cancel function that stops playback immediately.
 // If a clip is missing or the browser blocks autoplay (no user gesture yet), the
 // step still advances after a short beat so the highlight keeps moving in sync.
-const FALLBACK_MS = 320
+const FALLBACK_MS = 130
+// Trailing silence (seconds) to skip at the end of each clip — the next word
+// starts as soon as the audible part is done, so words follow close together
+// instead of leaving the baked-in tail silence as a gap.
+const TAIL_TRIM = 0.18
 export function speakSequence(words, onWord) {
   let cancelled = false
   let current = null
@@ -116,10 +120,17 @@ export function speakSequence(words, onWord) {
         if (settled) return
         settled = true
         a.removeEventListener('ended', finish)
+        a.removeEventListener('timeupdate', onTime)
         if (timer) clearTimeout(timer)
         resolve()
       }
+      // advance as soon as the spoken part is over, skipping the trailing silence
+      const onTime = () => {
+        const d = a.duration
+        if (d && isFinite(d) && a.currentTime >= d - TAIL_TRIM) finish()
+      }
       a.addEventListener('ended', finish)
+      a.addEventListener('timeupdate', onTime)
       try {
         a.currentTime = 0
         const pr = a.play()
