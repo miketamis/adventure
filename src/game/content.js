@@ -1550,12 +1550,16 @@ export const STORY = {
   lendina: {
     id: 'lendina',
     text: [
-      L(w('ti'), w('ec'), wf('ne', 'në', 'in'), wf('pyll', 'pyllin', 'the forest'), p('.')),
+      // "you walk in the forest" is the ARRIVAL crossing — only the walk in from
+      // the road (start), not the wait/light-fire/torch self-loops back to here
+      from('start', L(w('ti'), w('ec'), wf('ne', 'në', 'in'), wf('pyll', 'pyllin', 'the forest'), p('.'))),
       L(w('ketu'), w('eshte'), w('nje'), w('vend'), w('i_art'), w('qete'), p('.')),
       // the path ends at the clearing — behind you the road, ahead only trees
       L(w('nje'), w('rruge'), wf('shko', 'shkon', 'goes'), w('mbrapa'), p('.')),
       L(wf('pyll', 'pylli', 'the forest'), wf('shko', 'shkon', 'goes'), w('thelle'), p('.')),
-      // the campfire is a PHYSICAL fact of the clearing — it burns, dies, goes cold
+      // striking the fire is narrated as it happens (the turn you light it)…
+      when('litFire', L(w('ti'), wf('ndiz', 'ndez', 'light'), wf('zjarr', 'zjarrin', 'the fire'), p('.'))),
+      // …then the campfire is a PHYSICAL fact of the clearing — it burns, dies, goes cold
       when('fireBig', L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('madh'), p('.'))),
       when('fireLow', L(wf('zjarr', 'zjarri', 'the fire'), w('vdes'), p('.'))),
       when('fireOut', L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('ftohte'), p('.'))),

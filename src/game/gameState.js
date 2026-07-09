@@ -125,6 +125,11 @@ export const hasCond = (state, id) => {
     const f = fireStateOf(state)
     return id === 'fireLive' ? f === 'fireBig' || f === 'fireLow' : f === id
   }
+  // `litFire` is the fire-lighting counterpart of became(): true only on the
+  // turn the campfire was struck — the fire option stamps `fireLit` to the new
+  // clock, so it equals `clock` this turn only and drifts behind on the next,
+  // making the "you light the fire" line an event that fades once you act again.
+  if (id === 'litFire') return state.fireLit != null && state.fireLit === (state.clock ?? START_CLOCK)
   if (isFromId(id)) return id.slice(5).split('|').includes(state.cameFrom)
   if (isBecameId(id))
     return (
