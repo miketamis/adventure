@@ -87,10 +87,14 @@ export function playWord(al) {
 // If a clip is missing or the browser blocks autoplay (no user gesture yet), the
 // step still advances after a short beat so the highlight keeps moving in sync.
 const FALLBACK_MS = 130
-// Trailing silence (seconds) to skip at the end of each clip — the next word
-// starts as soon as the audible part is done, so words follow close together
-// instead of leaving the baked-in tail silence as a gap.
-const TAIL_TRIM = 0.18
+// Every generated clip is padded with a long, constant silence: ~0.22s before
+// the word and ~0.8s after it (a single word only occupies ~0.3-0.5s of a
+// ~1.4s file). Left alone that padding is almost the entire gap between words.
+// So we START each clip just past its leading silence, and ADVANCE to the next
+// word as soon as the spoken part is over (duration minus the trailing pad),
+// rather than waiting out the file. The result is a brisk, even cadence.
+const LEAD_SKIP = 0.14 // seconds of leading silence to skip into each clip
+const TAIL_TRIM = 0.78 // seconds of trailing silence to cut from each clip
 export function speakSequence(words, onWord) {
   let cancelled = false
   let current = null
@@ -120,21 +124,27 @@ export function speakSequence(words, onWord) {
         if (settled) return
         settled = true
         a.removeEventListener('ended', finish)
-        a.removeEventListener('timeupdate', onTime)
+        a.removeEventListener('loadedmetadata', schedule)
         if (timer) clearTimeout(timer)
         resolve()
       }
-      // advance as soon as the spoken part is over, skipping the trailing silence
-      const onTime = () => {
+      // Once the clip's length is known, advance right after the spoken word
+      // ends — d - TAIL_TRIM is roughly when the voice stops; we've already
+      // skipped LEAD_SKIP into playback, so the real wait is the difference.
+      const schedule = () => {
+        if (timer) return
         const d = a.duration
-        if (d && isFinite(d) && a.currentTime >= d - TAIL_TRIM) finish()
+        if (!d || !isFinite(d)) return
+        const wait = Math.max(90, (d - TAIL_TRIM - LEAD_SKIP) * 1000)
+        timer = setTimeout(finish, wait)
       }
-      a.addEventListener('ended', finish)
-      a.addEventListener('timeupdate', onTime)
+      a.addEventListener('ended', finish) // safety net if duration is unknown
+      a.addEventListener('loadedmetadata', schedule)
       try {
-        a.currentTime = 0
         const pr = a.play()
-        if (pr && pr.catch) pr.catch(() => { timer = setTimeout(finish, FALLBACK_MS) })
+        try { a.currentTime = LEAD_SKIP } catch { /* not seekable yet */ }
+        if (pr && pr.catch) pr.catch(() => { if (!timer) timer = setTimeout(finish, FALLBACK_MS) })
+        schedule() // duration is already known for cached clips
       } catch {
         timer = setTimeout(finish, FALLBACK_MS)
       }
