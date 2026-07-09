@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
-import { DICT, STORY, frequentForms, splitStem } from '../game/content.js'
-import { canChoose, formsUnlocked } from '../game/gameState.js'
+import { DICT, DEFS, STORY, frequentForms, splitStem } from '../game/content.js'
+import { canChoose, formsUnlocked, defUnlocked } from '../game/gameState.js'
 import { playWord } from '../game/audio.js'
 
 // the answer rendered in Albanian (every word is discovered when affordable)
@@ -146,6 +146,52 @@ function buildFormsQuestion(answerId, discoveredIds) {
   }
 }
 
+// --- the DEFINITION game (see defUnlocked in gameState.js) ------------------
+// A definition renders "half-translated": each of its words shows in Albanian
+// once YOU have discovered it, in English otherwise — the same rule as the
+// story text, so a definition drifts into Albanian as you learn.
+const defTokenText = (t, discovered) => (t.paren || !discovered[t.id] ? t.en : t.al)
+// the rendered text (used to spot two definitions the player can't tell apart)
+const defText = (id, discovered) => DEFS[id].map((t) => defTokenText(t, discovered)).join(' ')
+
+const HalfDef = ({ id, discovered }) => (
+  <span className="half-def">
+    {DEFS[id].map((t, i) => (
+      <span key={i}>
+        {i > 0 ? ' ' : ''}
+        <span className={t.paren || !discovered[t.id] ? 'def-en' : 'def-al'}>
+          {defTokenText(t, discovered)}
+        </span>
+      </span>
+    ))}
+  </span>
+)
+
+// Two directions, like the plain word quiz:
+//   al2def — the word in Albanian; pick the definition that fits it
+//   def2al — a half-translated definition; pick the word it defines
+function buildDefQuestion(answerId, discoveredIds, discovered) {
+  const dir = Math.random() < 0.5 ? 'al2def' : 'def2al'
+  // distractors: other words WITH definitions, preferring discovered ones. Skip
+  // any whose definition RENDERS the same as the answer's (several particles
+  // share the "a small word" definition — that would be a second right answer)
+  // and any sharing the answer's Albanian surface (homonym senses look identical).
+  const pool = [...shuffle(discoveredIds), ...shuffle(Object.keys(DEFS))]
+  const distractors = []
+  const usedDef = new Set([defText(answerId, discovered)])
+  const usedAl = new Set([DICT[answerId].al])
+  for (const id of pool) {
+    if (id === answerId || !DEFS[id]) continue
+    const text = defText(id, discovered)
+    if (usedDef.has(text) || usedAl.has(DICT[id].al)) continue
+    usedDef.add(text)
+    usedAl.add(DICT[id].al)
+    distractors.push(id)
+    if (distractors.length === 3) break
+  }
+  return { kind: 'def', answerId, dir, options: shuffle([answerId, ...distractors]) }
+}
+
 // Render an Albanian phrase with the target word highlighted.
 const FocusPhrase = ({ al, focus }) => (
   <>
@@ -171,9 +217,13 @@ export default function PracticeView({ state, dispatch }) {
     }
     setPicked(null)
     setStep(1)
-    // words whose "endings" drill has unlocked; occasionally quiz one of them
+    // words whose "definition" game has unlocked (practiced enough); words whose
+    // "endings" drill has unlocked — occasionally quiz one of those instead
+    const defEligible = discoveredIds.filter((id) => defUnlocked(state, id))
     const eligible = discoveredIds.filter((id) => formsUnlocked(state, id))
-    if (eligible.length && Math.random() < 0.35) {
+    if (defEligible.length && Math.random() < 0.3) {
+      setQ(buildDefQuestion(weightedPick(defEligible, state.mana), discoveredIds, state.discovered))
+    } else if (eligible.length && Math.random() < 0.35) {
       setQ(buildFormsQuestion(weightedPick(eligible, state.mana), discoveredIds))
     } else {
       setQ(buildQuestion(discoveredIds, state.mana))
@@ -272,11 +322,20 @@ export default function PracticeView({ state, dispatch }) {
       )}
 
       <div className="card practice">
+      {q.kind === 'def' && (
+        <div className="mode-chip" title="Unlocked by practicing this word — its definition is written in Albanian, half-translated by what you know">
+          ✦ fjalori — the definition game
+        </div>
+      )}
       <div className="prompt">
         {isForms
           ? step === 1
             ? 'What does this word mean?'
             : 'What does the ending do here?'
+          : q.kind === 'def'
+          ? q.dir === 'al2def'
+            ? 'Which definition fits this word?'
+            : 'Which word does this definition describe?'
           : q.kind === 'ctx'
           ? 'What does the highlighted word mean here?'
           : q.dir === 'al2en'
@@ -289,6 +348,14 @@ export default function PracticeView({ state, dispatch }) {
             <span className="stem">{formStem}</span>
             {formEnding && <span className="ending">{formEnding}</span>}
           </span>
+        </div>
+      ) : q.kind === 'def' ? (
+        <div className={'question' + (q.dir === 'def2al' ? ' def-q' : '')}>
+          {q.dir === 'al2def' ? (
+            <span className="def-word">{DICT[q.answerId].al}</span>
+          ) : (
+            <HalfDef id={q.answerId} discovered={state.discovered} />
+          )}
         </div>
       ) : q.kind === 'ctx' ? (
         <div className="question ctx">
@@ -319,9 +386,18 @@ export default function PracticeView({ state, dispatch }) {
               let cls = 'answer'
               if (answered && id === q.answerId) cls += ' correct'
               else if (answered && id === picked) cls += ' wrong'
+              if (q.kind === 'def') cls += ' def-answer'
               return (
                 <button key={id} className={cls} disabled={answered} onClick={() => onPick(id)}>
-                  {senseText(id, q.field)}
+                  {q.kind === 'def' ? (
+                    q.dir === 'al2def' ? (
+                      <HalfDef id={id} discovered={state.discovered} />
+                    ) : (
+                      <span className="def-al">{DICT[id].al}</span>
+                    )
+                  ) : (
+                    senseText(id, q.field)
+                  )}
                 </button>
               )
             })}
@@ -337,6 +413,15 @@ export default function PracticeView({ state, dispatch }) {
               : wasCorrect
               ? `✨ nuance! “${q.surface}” = ${q.step2.answer}`
               : `“${q.surface}” = ${q.step2.answer}`
+            : q.kind === 'def'
+            ? wasCorrect
+              ? `Të lumtë! +1 token for "${DICT[q.answerId].al}"`
+              : (
+                  <>
+                    💔 −1 heart · “{DICT[q.answerId].al}” ={' '}
+                    <HalfDef id={q.answerId} discovered={state.discovered} />
+                  </>
+                )
             : wasCorrect
             ? `Të lumtë! +1 token for "${DICT[q.answerId].al}"` // the folk blessing for a good answer
             : `💔 −1 heart · correct answer: ${senseText(q.answerId, q.field)}`)}

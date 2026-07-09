@@ -29,6 +29,13 @@ npm run build    # production build into dist/
 - **Train** (`🎯`): multiple-choice on your discovered words (Albanian→English or
   English→Albanian). Each correct answer mints a **training token** (◆, your mana)
   for that word.
+- **Definition game** (`✦ fjalori`): once you've answered a word correctly a few
+  times (3), it unlocks a second drill. The word is shown in **Albanian** and you
+  pick its **definition** — a short phrase written in Albanian but rendered
+  *half-translated*: every word of it you've discovered shows in Albanian, the
+  rest in English, so definitions drift into pure Albanian as you learn. It also
+  runs the other way around: a half-translated definition is the question and you
+  pick the Albanian word it describes.
 - **Continue the story**: to take a path, you must have discovered *every* word in
   that answer **and** hold ≥1 token for each. Choosing it spends one token per word.
 - **Hidden path**: some passages have a secret option (`secret: true`). It's obscured

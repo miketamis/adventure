@@ -1,4 +1,4 @@
-import { START_NODE, STORY, WORLD_HUB, frequentForms } from './content.js'
+import { START_NODE, STORY, WORLD_HUB, frequentForms, DEFS } from './content.js'
 import { AREA_FACTOIDS } from './folklore.js'
 import { REGION_NODES } from './regions.js'
 import { NPCS } from './npcs.js'
@@ -155,6 +155,14 @@ export const FORMS_UNLOCK_THRESHOLD = 3
 // question). The lemma row always counts, so ≥2 means ≥1 real inflected form.
 export const formsUnlocked = (state, id) =>
   (state.practiced?.[id] || 0) >= FORMS_UNLOCK_THRESHOLD && frequentForms(id).length >= 2
+
+// How many correct practices before a word's DEFINITION game unlocks: the word is
+// then also quizzed against its Albanian definition (rendered half-translated —
+// words you've discovered show in Albanian, the rest still in English), in both
+// directions (word → definition and definition → word).
+export const DEF_UNLOCK_THRESHOLD = 3
+export const defUnlocked = (state, id) =>
+  (state.practiced?.[id] || 0) >= DEF_UNLOCK_THRESHOLD && !!DEFS[id]
 
 // ---------------------------------------------------------------------------
 // Persistence: the WHOLE game state is saved to localStorage on every change,
