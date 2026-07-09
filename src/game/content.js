@@ -12,7 +12,7 @@
 export const DICT = {
   ti:        { al: 'ti',        en: 'you' },
   je:        { al: 'je',        en: 'are' },
-  ne:        { al: 'në',        en: 'in', enAll: 'in / on / to' },
+  ne:        { al: 'në',        en: 'in', enAll: 'in / on / to / at' },
   nje:       { al: 'një',       en: 'a' },
   pyll:      { al: 'pyll',      en: 'forest' },
   madh:      { al: 'madh',      en: 'big' },
@@ -40,6 +40,7 @@ export const DICT = {
     { al: 'derë',  tag: 'indefNom', gloss: 'a door' },
     { al: 'dera',  tag: 'defNom',   gloss: 'the door' },
     { al: 'derën', tag: 'defAcc',   gloss: 'the door (object)' },
+    { al: 'derës', tag: 'defDat', gloss: "to/of the door" },
   ] },
   hap:       { al: 'hap',       en: 'open' },
   ik:        { al: 'ik',        en: 'flee' },
@@ -119,6 +120,7 @@ export const DICT = {
     { al: 'trimin', tag: 'defAcc',   gloss: 'the hero (object)' },
     { al: 'trimit', tag: 'defDat',   gloss: 'to/of the hero' },
     { al: 'trima',  tag: 'plIndef',  gloss: 'heroes' },
+    { al: 'trimave', tag: 'plDat', gloss: "to/of the heroes" },
   ] },
   shqiponje: { al: 'shqiponjë', en: 'eagle' },
   gjarper:   { al: 'gjarpër',   en: 'serpent' },
@@ -508,7 +510,7 @@ export const DICT = {
   sepse:     { al: 'sepse',     en: 'because' },
   edhe:      { al: 'edhe',      en: 'also' },
   apo:       { al: 'apo',       en: 'or' },
-  si:        { al: 'si',        en: 'how', enAll: 'how / as' },
+  si:        { al: 'si',        en: 'how', enAll: 'how / as / like' },
   pra:       { al: 'pra',       en: 'so' },
   keshtu:    { al: 'kështu',    en: 'thus' },
   gjithe:    { al: 'gjithë',    en: 'all' },
@@ -864,6 +866,7 @@ const NOUN_FORMS = {
     { al: 'botë', tag: 'indefNom', gloss: "a world" },
     { al: 'bota', tag: 'defNom', gloss: "the world" },
     { al: 'botën', tag: 'defAcc', gloss: "the world (object)" },
+    { al: 'botës', tag: 'defDat', gloss: "to/of the world" },
   ],
   burre: [ /* man */
     { al: 'burrë', tag: 'indefNom', gloss: "a man" },
@@ -880,6 +883,7 @@ const NOUN_FORMS = {
     { al: 'dash', tag: 'indefNom', gloss: "a ram" },
     { al: 'dashi', tag: 'defNom', gloss: "the ram" },
     { al: 'dashin', tag: 'defAcc', gloss: "the ram (object)" },
+    { al: 'dashit', tag: 'defDat', gloss: "to/of the ram" },
   ],
   dem: [ /* bull */
     { al: 'dem', tag: 'indefNom', gloss: "a bull" },
@@ -918,6 +922,7 @@ const NOUN_FORMS = {
     { al: 'ditë', tag: 'indefNom', gloss: "a day" },
     { al: 'dita', tag: 'defNom', gloss: "the day" },
     { al: 'ditën', tag: 'defAcc', gloss: "the day (object)" },
+    { al: 'ditës', tag: 'defDat', gloss: "to/of the day" },
   ],
   djale: [ /* boy */
     { al: 'djalë', tag: 'indefNom', gloss: "a boy" },
@@ -1003,6 +1008,7 @@ const NOUN_FORMS = {
     { al: 'gjë', tag: 'indefNom', gloss: "a thing" },
     { al: 'gjëra', tag: 'plIndef', gloss: "things" },
     { al: 'gjërat', tag: 'plDef', gloss: "the things" },
+    { al: 'gjëja', tag: 'defNom', gloss: "the thing" },
   ],
   grua: [ /* woman */
     { al: 'grua', tag: 'indefNom', gloss: "a woman" },
@@ -1068,6 +1074,7 @@ const NOUN_FORMS = {
   kembe: [ /* legs — hand */
     { al: 'këmbë', tag: 'indefNom', gloss: "a leg" },
     { al: 'këmbën', tag: 'defAcc', gloss: "the leg (object)" },
+    { al: 'këmbës', tag: 'defDat', gloss: "to/of the leg" },
   ],
   kemishe: [ /* caul */
     { al: 'këmishë', tag: 'indefNom', gloss: "a caul" },
@@ -1082,6 +1089,7 @@ const NOUN_FORMS = {
     { al: 'kokë', tag: 'indefNom', gloss: "a head" },
     { al: 'kokën', tag: 'defAcc', gloss: "the head (object)" },
     { al: 'koka', tag: 'plIndef', gloss: "heads" },
+    { al: 'kokës', tag: 'defDat', gloss: "to/of the head" },
   ],
   krajl: [ /* Slav king */
     { al: 'krajl', tag: 'indefNom', gloss: "a Slav king" },
@@ -1130,6 +1138,7 @@ const NOUN_FORMS = {
     { al: 'lugat', tag: 'indefNom', gloss: "a revenant" },
     { al: 'lugati', tag: 'defNom', gloss: "the revenant" },
     { al: 'lugatin', tag: 'defAcc', gloss: "the revenant (object)" },
+    { al: 'lugatit', tag: 'defDat', gloss: "to/of the revenant" },
   ],
   lume: [ /* river — hand */
     { al: 'lumë', tag: 'indefNom', gloss: "a river" },
@@ -1148,6 +1157,7 @@ const NOUN_FORMS = {
     { al: 'miku', tag: 'defNom', gloss: "the friend" },
     { al: 'mikun', tag: 'defAcc', gloss: "the friend (object)" },
     { al: 'mikut', tag: 'defDat', gloss: "to/of the friend" },
+    { al: 'miq', tag: 'plIndef', gloss: "friends" },
   ],
   mjeshter: [ /* master */
     { al: 'mjeshtër', tag: 'indefNom', gloss: "a master" },
@@ -1170,6 +1180,7 @@ const NOUN_FORMS = {
     { al: 'mur', tag: 'indefNom', gloss: "a wall" },
     { al: 'muri', tag: 'defNom', gloss: "the wall" },
     { al: 'murin', tag: 'defAcc', gloss: "the wall (object)" },
+    { al: 'mure', tag: 'plIndef', gloss: "walls" },
   ],
   nene: [ /* mother — hand */
     { al: 'nënë', tag: 'indefNom', gloss: "a mother" },
@@ -1249,7 +1260,7 @@ const NOUN_FORMS = {
   ],
   qumesht: [ /* milk */
     { al: 'qumësht', tag: 'indefNom', gloss: "a milk" },
-    { al: 'qumeshti', tag: 'defNom', gloss: "the milk" },
+    { al: 'qumështi', tag: 'defNom', gloss: "the milk" },
     { al: 'qumështin', tag: 'defAcc', gloss: "the milk (object)" },
   ],
   qytet: [ /* city */
@@ -1300,6 +1311,7 @@ const NOUN_FORMS = {
     { al: 'syri', tag: 'defNom', gloss: "the eye" },
     { al: 'syrin', tag: 'defAcc', gloss: "the eye (object)" },
     { al: 'sytë', tag: 'plDef', gloss: "the eyes" },
+    { al: 'syve', tag: 'plDat', gloss: "to/of the eyes" },
   ],
   toke: [ /* ground */
     { al: 'tokë', tag: 'indefNom', gloss: "a ground" },
@@ -1355,6 +1367,7 @@ const NOUN_FORMS = {
     { al: 'varrin', tag: 'defAcc', gloss: "the grave (object)" },
     { al: 'varrit', tag: 'defDat', gloss: "to/of the grave" },
     { al: 'varret', tag: 'plDef', gloss: "the graves" },
+    { al: 'varri', tag: 'defNom', gloss: "the grave" },
   ],
   vella: [ /* brother — hand */
     { al: 'vëlla', tag: 'indefNom', gloss: "a brother" },
@@ -1391,12 +1404,14 @@ const NOUN_FORMS = {
     { al: 'zjarr', tag: 'indefNom', gloss: "a fire" },
     { al: 'zjarri', tag: 'defNom', gloss: "the fire" },
     { al: 'zjarrin', tag: 'defAcc', gloss: "the fire (object)" },
+    { al: 'zjarrit', tag: 'defDat', gloss: "to/of the fire" },
   ],
   zog: [ /* chick */
     { al: 'zog', tag: 'indefNom', gloss: "a chick" },
     { al: 'zogu', tag: 'defNom', gloss: "the chick" },
     { al: 'zogun', tag: 'defAcc', gloss: "the chick (object)" },
     { al: 'zogjtë', tag: 'plDef', gloss: "the birds" },
+    { al: 'zogut', tag: 'defDat', gloss: "to/of the chick" },
   ],
 }
 for (const [id, forms] of Object.entries(NOUN_FORMS)) DICT[id].forms = forms
@@ -2273,7 +2288,7 @@ export const STORY = {
     id: 'zanaQumesht',
     text: [
       L(wf('zane', 'zana', 'the fairy'), w('jep'), w('qumesht'), p('.')),
-      L(wf('qumesht', 'qumeshti', 'the milk'), w('jep'), w('fuqi'), p('.')),
+      L(wf('qumesht', 'qumështi', 'the milk'), w('jep'), w('fuqi'), p('.')),
     ],
     options: [
       { text: L(w('merr'), w('qumesht')), grant: 'qumesht', to: 'zanaKripe' },
@@ -9917,6 +9932,7 @@ export const FORM_TAGS = {
   defDat: 'to/of the …',
   plIndef: 'plural',
   plDef: 'the … (plural)',
+  plDat: 'to/of the … (plural)',
 }
 
 // FORM_FREQ[id] -> Map<surface(lower), count>: how often each surface of a sense
@@ -9973,257 +9989,257 @@ export const DEFS = {
   shqiptar: L(w('nje'), w('njeri'), w('nga'), w('ky'), w('vend')), // a person from this land
   shkimet: L(w('nje'), w('drite'), w('vdes')), //       a light dies (Gheg: = shuhet)
   mplaket: L(w('behet'), w('plak')), //                 becomes an old man
-  trashegohet: L(w('ka'), w('femije')), //              has children (heirs who carry on)
-  lan: L(w('bej'), w('mire'), w('me'), w('uje')), //    makes good with water (washes)
-  dem_harm: L(w('nje'), w('gje'), w('i_art'), w('keq')), // a bad thing (harm)
-  eshtra: L(w('gur'), w('ne'), w('njeri')), //          the stones in a person (bones)
-  thyen: L(w('bej'), w('dy'), w('nga'), w('nje')), //   makes two from one (breaks)
+  trashegohet: L(wf('familje', 'familja', 'the family'), w('vazhdon'), w('me'), wf('femije', 'fëmijë', 'children')), // the family continues with children
+  lan: L(wf('merr', 'merr', 'takes'), wf('pluhur', 'pluhurin', 'the dust'), w('me'), w('uje')), // takes the dust with water
+  dem_harm: L(w('nje'), w('gje'), w('e_art'), wf('keq', 'keqe', 'bad')), // a thing the bad
+  eshtra: L(wf('si', 'si', 'as'), wf('gur', 'gurë', 'stones'), w('brenda'), wf('njeri', 'njeriut', 'the person')), // as stones inside the person
+  thyen: L(wf('bej', 'bën', 'makes'), w('dy'), w('nga'), wf('nje', 'një', 'one')), // makes two from one
   leh: L(wf('qen', 'qeni', 'the dog'), w('flet')), //   the dog speaks (barks)
-  kafshon: L(w('merr'), w('me'), w('goje')), //         takes with the mouth (bites)
-  durim: L(w('mund'), w('te_subj'), w('prit'), w('shume')), // being able to wait long
-  vonon: L(w('vjen'), w('ngadale')), //                 comes slowly (delays)
-  harron: L(w('nuk'), w('mban'), w('ne'), w('koke')), // does not keep in the head (forgets)
+  kafshon: L(wf('merr', 'merr', 'takes'), wf('forte', 'fort', 'hard'), w('me'), w('goje')), // takes hard with mouth
+  durim: L(w('kur'), wf('prit', 'pret', 'waits'), wf('shume', 'shumë', 'much'), w('dhe'), wf('rri', 'rri', 'stays'), w('qete')), // when waits much and stays calm
+  vonon: L(w('vjen'), w('vone')),                       // comes late
+  harron: L(w('nuk'), w('e_obj'), w('mban'), w('ne'), w('koke')), // not it keeps in head
   udhe: L(w('nje'), w('rruge')), //                     a road (= rrugë)
-  mbare: L(w('shume'), w('mire')), //                   very good (fortunate, of a road/journey)
-  me_obj: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), // a small word (clitic "me")
-  plumb: L(w('nje'), w('gje'), w('nga'), w('arme')), // a thing from a weapon
+  mbare: L(w('kur'), wf('pune', 'puna', 'the work'), wf('shko', 'shkon', 'goes'), wf('mire', 'mirë', 'well')), // when the work goes well
+  me_obj: L(w('nje'), w('fjale'), w('e_art'), w('vogel'), w('per'), w('mua')), // a word the small for me
+  plumb: L(wf('dil', 'del', 'comes out'), w('nga'), wf('arme', 'arma', 'the weapon'), w('dhe'), wf('vrit', 'vret', 'kills')), // comes out from the weapon and kills
   piqet: L(w('nje'), w('njeri'), w('gjen'), w('nje'), w('njeri')), // one person finds another (meets)
   dylle: L(w('nje'), w('gje'), w('nga'), w('bleta'), w('per'), w('drite')), // a bee-thing for light (candle wax)
-  mjalte: L(w('nje'), w('gje'), w('nga'), w('bleta'), w('qe'), w('ti'), w('ha')), // a bee-thing you eat
-  rron: L(w('jeto')), //                                lives (= jeton)
+  mjalte: L(w('nje'), w('gje'), w('nga'), w('bleta'), w('qe'), w('ti'), wf('ha', 'ha', 'eat')), // a thing from bee that you eat
+  rron: L(wf('jeto', 'jeton', 'lives')),                // lives
   pluhur: L(w('toke'), wf('ne', 'në', 'in'), w('ere')), // earth in the wind (dust)
-  are: L(w('toke'), w('me'), w('buke')), //             land with bread (a grain-field)
-  tona: L(w('e_link'), w('ne_we')), //                  of us (= our)
+  are: L(w('toke'), w('qe'), wf('jep', 'jep', 'gives'), w('buke')), // ground that gives bread
+  tona: L(w('tone')),                                   // our
   perralle: L(w('nje'), w('gje'), w('qe'), wf('plake', 'plaka', 'the old woman'), wf('tregoj', 'tregon', 'tells')), // a thing the old woman tells
-  shendet: L(w('ti'), w('nuk'), w('je'), w('semur')), // you are not sick (health)
-  djathte: L(w('nje'), w('krah')), //                   one side (the right one)
-  lumte: L(w('shume'), w('mire')), //                   very good (a blessing)
-  tabak: L(w('nje'), w('njeri'), w('me'), w('lekure')), // a man with leather (the tanner of the bridge quarter)
-  lekure: L(w('nje'), w('gje'), w('nga'), w('kafshe')), // a thing from an animal
-  udhekryq: L(w('ku'), wf('rruge', 'rrugët', 'roads')), // where the roads meet (restored)
-  vatra: L(w('nje'), w('zjarr'), w('ne'), w('shtepi')), // a fire in a house (restored)
-  qilim: L(w('nje'), w('gje'), w('ne'), w('shtepi')), // a thing in a house (restored)
-  jutbina: L(w('nje'), w('vend')), // a place (restored)
-  qytet: L(w('nje'), w('vend'), w('me'), w('shtepi')), // a place with houses
-  treg: L(w('nje'), w('vend'), w('me'), w('ar')), //     a place with gold (the bazaar)
-  pishtar: L(w('nje'), w('gje'), w('me'), w('drite')), // a thing with light (a torch)
+  shendet: L(w('kur'), w('nuk'), w('je'), w('i_art'), w('semur')), // when not are the sick
+  djathte: L(wf('krah', 'krahu', 'arm'), w('qe'), w('nuk'), w('eshte'), w('majtas')), // arm that not is left
+  lumte: L(wf('thote', 'thua', 'you say'), w('kur'), w('dikush'), wf('bej', 'bën', 'does'), wf('shume', 'shumë', 'very'), wf('mire', 'mirë', 'well')), // you say when someone does very well
+  tabak: L(w('nje'), w('njeri'), w('qe'), w('punon'), w('me'), w('lekure')), // a person that works with leather
+  lekure: L(w('nje'), w('gje'), w('nga'), wf('nje', 'një', 'an'), w('kafshe'), w('per'), wf('rrobe', 'rroba', 'clothes')), // a thing from an animal for clothes
+  udhekryq: L(w('ku'), wf('piqet', 'piqen', 'meet'), wf('rruge', 'rrugët', 'the roads')), // where meet the roads
+  vatra: L(wf('vend', 'vendi', 'the place'), w('i_link'), wf('zjarr', 'zjarrit', 'the fire'), w('ne'), w('shtepi')), // the place of the fire in house
+  qilim: L(w('nje'), w('gje'), w('e_art'), w('bukur'), w('mbi'), w('toke'), w('ne'), w('shtepi')), // a thing the beautiful over ground in house
+  jutbina: L(w('nje'), w('vend'), w('ku'), wf('rri', 'rri', 'stays'), w('mujo')), // a place where stays Mujo
+  qytet: L(w('nje'), w('vend'), w('i_art'), w('madh'), w('me'), w('shume'), wf('shtepi', 'shtëpi', 'houses')), // a place the big with many houses
+  treg: L(w('nje'), w('vend'), w('ku'), wf('njeri', 'njerëzit', 'the people'), wf('blej', 'blejnë', 'buy'), w('dhe'), wf('shes', 'shesin', 'sell')), // a place where the people buy and sell
+  pishtar: L(w('zjarr'), w('mbi'), w('dru'), w('per'), w('drite')), // fire over wood for light
   // --- the Sky realm ---
-  qiell: L(w('ku'), w('rri'), w('diell')), //          where the sun stays
+  qiell: L(w('ku'), wf('rri', 'rri', 'stays'), wf('diell', 'dielli', 'the sun')), // where stays the sun
   zojz: L(w('nje'), w('perendi'), w('e_link'), wf('qiell', 'qiellit', 'the sky')), // a god of the sky
-  dem: L(w('nje'), w('kafshe')), //                    an animal
-  mekat: L(w('jo'), w('mire')), //                     not good
-  shenjte: L(w('per'), w('perendi')), //               for god
-  mjeker: L(wf('ne', 'në', 'on'), w('koke')), //                    on the head
-  fal: L(w('jo'), w('lufto')), //                      not fight
-  krenar: L(w('shume'), wf('lart', 'lart', 'high')), //                 very high
-  bari: L(w('nje'), w('njeri')), //                    a person
-  maja: L(wf('lart', 'lart', 'high'), wf('ne', 'në', 'on'), w('mal')), //            up on a mountain
+  dem: L(w('nje'), w('kafshe'), w('e_art'), w('forte'), w('me'), w('bri')), // a animal the strong with horn
+  mekat: L(w('nje'), w('pune'), w('e_art'), wf('keq', 'keqe', 'bad'), w('para'), wf('perendi', 'Perëndisë', 'God')), // a work the bad before God
+  shenjte: L(w('i_link'), wf('perendi', 'Perëndisë', 'God')), // of God
+  mjeker: L(w('flok'), wf('ne', 'në', 'on'), w('fytyre')), // hair on face
+  fal: L(w('harron'), wf('te_link', 'të', 'the'), wf('keq', 'keqen', 'bad')), // forgets the bad
+  krenar: L(w('me'), w('koke'), w('lart')),             // with head up
+  bari: L(w('nje'), w('njeri'), w('qe'), w('ruan'), wf('dhi', 'dhitë', 'the goats')), // a person that guards the goats
+  maja: L(wf('vend', 'vendi', 'the place'), wf('me_more', 'më', 'most'), w('i_art'), wf('lart', 'lartë', 'high'), wf('ne', 'në', 'on'), w('mal')), // the place most the high on mountain
   mbyll: L(w('jo'), w('hap')), //                      not open
-  oda: L(w('brenda'), w('nje'), w('shtepi')), //       inside a house
-  kulle: L(w('nje'), w('shtepi'), w('te_link'), wf('lart', 'lart', 'high')), // a tall house
-  thelle: L(w('poshte'), w('larg')), //                far below
-  flok: L(wf('ne', 'në', 'on'), w('koke')), //                      on the head
-  shtojzovalle: L(w('nje'), w('zane'), w('te_link'), w('naten')), // a fairy of the night
-  valle: L(w('nje'), w('gje'), w('me'), w('kendo')), //          a thing with singing
-  udhetar: L(w('nje'), w('njeri'), w('qe'), w('ec')), //  a person who walks (from afar)
-  gjysmegjel: L(w('nje'), w('zog'), w('te_link'), w('vogel')), // a small bird
-  lahute: L(w('kendo'), w('per'), wf('trim', 'trima', 'heroes')), // sings for heroes
+  oda: L(w('nje'), w('dhome'), w('per'), wf('mik', 'miq', 'guest')), // a room for guest
+  kulle: L(w('nje'), w('shtepi'), w('e_art'), wf('lart', 'lartë', 'high'), w('me'), wf('gur', 'gurë', 'stones')), // a house the high with stones
+  thelle: L(wf('shume', 'shumë', 'very'), wf('poshte', 'poshtë', 'down')), // very down
+  flok: L(wf('si', 'si', 'as'), wf('pende', 'pendë', 'feathers'), w('mbi'), w('koke')), // as feathers over head
+  shtojzovalle: L(w('nje'), w('zane'), w('qe'), wf('bej', 'bën', 'makes'), w('valle'), wf('naten', 'natën', 'at night')), // a fairy that makes round-dance at night
+  valle: L(w('kur'), wf('njeri', 'njerëzit', 'the people'), wf('leviz', 'lëvizin', 'move'), w('bashke'), w('me'), w('kenge')), // when the people move together with song
+  udhetar: L(w('nje'), w('njeri'), w('qe'), wf('ec', 'ecën', 'walks'), w('larg')), // a person that walks far
+  gjysmegjel: L(w('nje'), wf('zog', 'zog', 'bird'), w('me'), wf('nje', 'një', 'one'), wf('kembe', 'këmbë', 'leg')), // a bird with one leg
+  lahute: L(w('nje'), w('gje'), w('qe'), wf('bej', 'bën', 'makes'), wf('kenge', 'këngë', 'songs'), wf('per', 'për', 'about'), wf('trim', 'trima', 'heroes')), // a thing that makes songs about heroes
   // --- the village quarters (river & church) ---
   kishe: L(w('nje'), w('shtepi'), w('per'), w('perendi')), //   a house for god
-  prift: L(w('nje'), w('njeri'), w('per'), w('perendi')), //    a person for god
-  mjeshter: L(w('nje'), w('njeri'), w('qe'), wf('bej', 'bën', 'builds')), // a person who builds
-  mulli: L(w('nje'), w('gje'), w('me'), w('uje')), //          a thing with water
-  miell: L(w('nje'), w('gje'), w('per'), w('buke')), //        a thing for bread
-  fushe: L(w('nje'), w('vend'), w('i_art'), w('madh')), //     a big place
-  punon: L(w('bej'), w('nje'), w('gje')), //                   does a thing
+  prift: L(w('nje'), w('njeri'), w('i_link'), wf('perendi', 'Perëndisë', 'God'), w('ne'), w('kishe')), // a person of God in church
+  mjeshter: L(w('nje'), w('njeri'), w('qe'), wf('bej', 'bën', 'does'), w('pune'), wf('shume', 'shumë', 'very'), wf('mire', 'mirë', 'well')), // a person that does work very well
+  mulli: L(w('nje'), w('shtepi'), w('qe'), wf('bej', 'bën', 'makes'), w('miell')), // a house that makes flour
+  miell: L(w('nje'), w('gje'), w('e_art'), w('bardhe'), w('per'), w('buke')), // a thing the white for bread
+  fushe: L(w('nje'), w('vend'), w('i_art'), w('madh'), w('me'), wf('bar', 'bar', 'grass')), // a place the big with grass
+  punon: L(wf('bej', 'bën', 'does'), w('nje'), w('pune')), // does a work
   // pronouns / function words — defined by role or synonym
-  ti: L(w('nje'), w('njeri')), //                      a person
-  je: L(w('eshte')), //                                is
+  ti: L(w('jo'), w('une'), w('por'), wf('njeri', 'njeriu', 'the person'), w('qe'), wf('degjo', 'dëgjon', 'listens')), // not I but the person that listens
+  je: L(wf('si', 'si', 'as'), w('eshte'), w('por'), w('per'), wf('ti', 'ty', 'you')), // as is but for you
   eshte: L(w('je')), //                                are
-  ne: L(w('brenda'), w('nje'), w('vend')), //          inside a place
-  nje: L(w('jo'), w('shume')), //                      not many
-  dhe: L(w('me')), //                                  with
+  ne: L(w('brenda'), w('nje'), wf('vend', 'vendi', 'place')), // inside a place
+  nje: L(w('jo'), w('dy'), w('jo'), w('tre')),          // not two not three
+  dhe: L(w('bashke'), w('me')),                         // together with
   ka: L(w('ke')), //                                   have
   ke: L(w('ka')), //                                   has
-  mund: L(w('ti'), w('ke'), w('fuqi')), //             you have power
-  te_link: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), // a small word
-  te_subj: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
-  i_art: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
-  i_link: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
-  e_art: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
-  e_link: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
-  e_obj: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
-  e_conj: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
-  do_fut: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
+  mund: L(w('ti'), w('ke'), w('fuqi'), w('per'), w('dicka')), // you have power for something
+  te_link: L(w('nje'), w('fjale'), w('e_art'), w('vogel'), w('para'), w('bukur')), // a word the small before beautiful
+  te_subj: L(w('nje'), w('fjale'), w('e_art'), w('vogel'), w('pas'), w('do_fut')), // a word the small after will
+  i_art: L(w('nje'), w('fjale'), w('e_art'), w('vogel'), w('per'), w('nje'), w('burre')), // a word the small for a man
+  i_link: L(w('fjale'), w('e_art'), w('vogel'), w('qe'), w('thote'), w('kush'), w('e_obj'), w('ka')), // word the small that says who it has
+  e_art: L(wf('fjale', 'fjala', 'the word'), w('para'), w('bukur')), // the word before beautiful
+  e_link: L(w('nje'), w('fjale'), w('si'), w('i_link')), // a word how of
+  e_obj: L(w('nje'), w('fjale'), w('si'), w('ta')),     // a word how it
+  e_conj: L(w('dhe')),                                  // and
+  do_fut: L(w('nje'), w('fjale'), w('per'), wf('kohe', 'kohën', 'the time'), w('qe'), w('vjen')), // a word for the time that comes
 
   // top-150 frequency fill — defined by role or simple synonym
-  kohe: L(w('dite'), w('dhe'), w('naten')), //         day and night
+  kohe: L(wf('dite', 'dita', 'the day'), w('dhe'), wf('naten', 'nata', 'the night')), // the day and the night
   ne_we: L(w('une'), w('dhe'), w('ti')), //            I and you
-  me_more: L(w('shume')), //                           much
-  disa: L(w('jo'), w('shume')), //                     not many
+  me_more: L(wf('edhe', 'edhe', 'even'), w('shume')),   // even many
+  disa: L(w('dy'), w('ose'), w('tre')),                 // two or three
   ndonje: L(w('ndoshta'), w('nje')), //                maybe one
-  gjitha: L(w('gjithe')), //                           all
-  cdo: L(w('gjithe')), //                              all
+  gjitha: L(wf('fjale', 'fjalë', 'a word'), w('per'), w('cdo'), w('gje'), w('bashke')), // a word for every thing together
+  cdo: L(w('gjithe'), wf('nje', 'një', 'one'), wf('nga', 'nga', 'by'), wf('nje', 'një', 'one')), // all one by one
   pas: L(w('jo'), w('para')), //                       not before
-  atehere: L(w('pas')), //                             after
-  ndoshta: L(w('mund')), //                            can (be)
+  atehere: L(w('ne'), wf('ajo', 'atë', 'that'), w('kohe')), // in that time
+  ndoshta: L(w('mbase')),                               // maybe
   shiko: L(w('sheh')), //                              see
-  zoteri: L(w('nje'), w('burre')), //                  a man
-  keto: L(w('gje'), w('ketu')), //                     things here
-  ashtu: L(w('keshtu')), //                            thus
-  qene: L(w('eshte')), //                              is
-  tuaj: L(w('e_link'), w('ju')), //                    of you
+  zoteri: L(w('fjale'), w('per'), w('nje'), w('burre')), // word for a man
+  keto: L(wf('gje', 'gjërat', 'the things'), w('ketu')), // the things here
+  ashtu: L(w('ne'), wf('ajo', 'atë', 'that'), w('menyre')), // in that way
+  qene: L(w('eshte'), w('qe'), w('vjen'), w('pas'), w('ka')), // is that comes after has
+  tuaj: L(w('te_link'), w('ju')),                       // of you
   tyre: L(w('e_link'), w('ata')), //                   of them
   saj: L(w('e_link'), w('ajo')), //                    of her
   yt: L(w('e_link'), w('ti')), //                      of you
-  kaq: L(w('shume')), //                               much
+  kaq: L(wf('sa', 'sa', 'as much as'), w('keto')),      // as much as these
   aty: L(w('jo'), w('ketu')), //                       not here
   zot: L(w('nje'), w('perendi')), //                   a god
-  dreq: L(w('jo'), w('mire')), //                      not good
-  ma: L(w('mua')), //                                  me
-  vend: L(w('ku'), w('ti'), w('rri')), //              where you stay
+  dreq: L(w('nje'), w('djall')),                        // a devil
+  ma: L(w('per'), w('mua')),                            // for me
+  vend: L(w('atje'), w('ku'), w('je'), w('ti')),        // there where are you
   // top 151-200 frequency fill
-  deri: L(w('ne'), w('fund')), //                      to the end
-  hajde: L(w('vjen')), //                              come (comes)
+  deri: L(w('nga'), w('tani'), wf('ne', 'në', 'to'), w('nje'), w('kohe'), w('tjeter')), // from now to a time other
+  hajde: L(wf('vjen', 'eja', 'come'), w('ketu')),       // come here
   prej: L(w('nga')), //                                from
-  ia: L(w('ta')), //                                   it (to him)
-  aq: L(w('shume')), //                                much
-  sikur: L(w('si')), //                                like
-  gati: L(w('tani'), w('mire')), //                    now good (ready)
-  gjithcka: L(w('gjithe'), w('gje')), //               all things
-  pune: L(w('nje'), w('gje')), //                      a thing (one does)
-  as: L(w('jo'), w('dhe')), //                         not and (nor)
+  ia: L(w('per'), wf('ai', 'atë', 'him')),              // for him
+  aq: L(wf('sa', 'sa', 'as much as'), wf('ata', 'ata', 'them')), // as much as them
+  sikur: L(wf('si', 'si', 'as'), w('kur')),             // as when
+  gati: L(w('gjithcka'), w('eshte'), w('ne'), w('rregull')), // everything is in order
+  gjithcka: L(w('cdo'), w('gje')),                      // every thing
+  pune: L(w('gje'), w('qe'), wf('njeri', 'njeriu', 'the person'), wf('bej', 'bën', 'does')), // thing that the person does
+  as: L(w('edhe'), w('jo')),                            // also not
   cka: L(w('cfare')), //                               what
-  pastaj: L(w('pas')), //                              after
-  fund: L(w('jo'), w('me_more')), //                   no more
+  pastaj: L(w('pas'), w('kesaj')),                      // after this
+  fund: L(w('ku'), w('dicka'), w('mbaroi')),            // where something ended
   thjesht: L(w('vetem')), //                           only
-  akoma: L(w('perseri')), //                           again (still)
-  here: L(w('nje'), w('kohe')), //                     a time
-  vertet: L(w('sigurt')), //                           sure (truly)
+  akoma: L(w('ende')),                                  // yet
+  here: L(w('kur'), w('dicka'), w('ndodh')),            // when something happens
+  vertet: L(w('vertete')),                              // truly
   dikush: L(w('nje'), w('njeri')), //                  a person
   sigurisht: L(w('sigurt')), //                        sure(ly)
-  epo: L(w('po_yes')), //                              well (yes)
-  drejte: L(w('mire')), //                             good (right)
-  asnje: L(w('jo'), w('nje')), //                      not one
-  dashur: L(w('mik')), //                              friend (dear)
+  epo: L(w('po_yes'), w('mire')),                       // yes good
+  drejte: L(w('jo'), wf('gabim', 'gabim', 'a mistake')), // not a mistake
+  asnje: L(w('jo'), wf('nje', 'një', 'one')),           // not one
+  dashur: L(w('me'), w('dashuri')),                     // with love
   ndodh: L(w('behet')), //                             becomes (happens)
-  nevoje: L(w('do')), //                               wants (need)
+  nevoje: L(w('gje'), w('qe'), wf('duhet', 'duhet', 'is needed')), // thing that is needed
   // top 201-250 frequency fill
   juaj: L(w('e_link'), w('ju')), //                    of you
-  pelqen: L(w('do')), //                               wants (likes)
+  pelqen: L(w('dicka'), w('eshte'), w('mire'), w('per'), wf('ti', 'ty', 'you')), // something is good for you
   gjithmone: L(w('cdo'), w('here')), //                every time
-  mjaft: L(w('shume')), //                             much (enough)
+  mjaft: L(w('sa'), wf('duhet', 'duhet', 'is needed')), // how much is needed
   o: L(w('hej')), //                                   hey (o!)
-  tone: L(w('e_link'), w('ne_we')), //                 of us
-  perse: L(w('per'), w('se')), //                      for what
-  gjate: L(w('shume'), w('kohe')), //                  much time (long)
-  vete: L(w('nje'), w('njeri')), //                    a person (self)
-  baba: L(w('nje'), w('burre')), //                    a man (father)
+  tone: L(w('nje'), w('fjale'), w('per'), wf('gje', 'gjërat', 'the things'), w('tona')), // a word for the things our
+  perse: L(w('pse')),                                   // why
+  gjate: L(w('per'), wf('shume', 'shumë', 'much'), w('kohe')), // for much time
+  vete: L(w('jo'), w('dikush'), w('tjeter')),           // not someone other
+  baba: L(w('nje'), w('burre'), w('qe'), w('ka'), w('femije')), // a man that has child
   shok: L(w('nje'), w('mik')), //                      a friend
   ende: L(w('akoma')), //                              still (yet)
-  djale: L(w('nje'), w('femije')), //                  a child (boy)
-  vone: L(w('pas')), //                                after (late)
-  sapo: L(w('tani')), //                               now (just)
-  askush: L(w('jo'), w('njeri')), //                   no person
+  djale: L(w('nje'), w('femije'), w('qe'), w('behet'), w('burre')), // a child that becomes man
+  vone: L(w('vjen'), w('pas'), wf('kohe', 'kohës', 'the time')), // comes after the time
+  sapo: L(w('para'), w('pak'), wf('kohe', 'kohe', 'time')), // before a little time
+  askush: L(w('asnje'), w('njeri')),                    // none person
   // top 251-300 frequency fill
   deshiron: L(w('do')), //                             wants (wishes)
-  kujdes: L(w('mendoj')), //                           think (care)
-  kuptoj: L(w('di')), //                               know (understand)
-  problem: L(w('nje'), w('gje'), w('keq')), //         a bad thing
+  kujdes: L(w('shiko'), wf('mire', 'mirë', 'well'), wf('se', 'se', 'because'), w('ka'), w('rrezik')), // look well because has danger
+  kuptoj: L(w('di'), w('cfare'), w('do'), w('te_subj'), wf('thote', 'thotë', 'say')), // know what wants to say
+  problem: L(w('nje'), w('gje'), w('qe'), w('nuk'), wf('shko', 'shkon', 'goes'), wf('mire', 'mirë', 'well')), // a thing that not goes well
   ok: L(w('mire')), //                                 good (okay)
-  fare: L(w('jo'), w('gje')), //                       nothing (at all)
-  menyre: L(w('nje'), w('rruge')), //                  a way (road)
+  fare: L(w('as'), w('pak')),                           // nor a little
+  menyre: L(w('si'), w('behet'), w('nje'), w('gje')),   // how becomes a thing
   ndonjehere: L(w('ndonje'), w('here')), //            some time
-  cili: L(w('kush')), //                               who (which)
-  pershendetje: L(w('hej')), //                        hey (hello)
+  cili: L(w('kush'), w('nga'), w('keta')),              // who from these
+  pershendetje: L(w('tung')),                           // hi
   mama: L(w('nje'), w('nene')), //                     a mother
   kesaj: L(w('ky')), //                                this
-  rreth: L(w('ketu')), //                              here (around)
-  sonte: L(w('ky'), w('naten')), //                    this night
-  minuta: L(w('nje'), w('kohe')), //                   a time
-  neser: L(w('pas'), w('naten')), //                   after the night
-  fat: L(w('nje'), w('gje'), w('mire')), //            a good thing
-  keta: L(w('gje'), w('ketu')), //                     things here
+  rreth: L(w('ne'), w('cdo'), w('vend'), w('afer')),    // in every place near
+  sonte: L(wf('ky', 'këtë', 'this'), wf('naten', 'natë', 'night')), // this night
+  minuta: L(w('nje'), w('pjese'), w('e_art'), w('vogel'), w('e_link'), wf('ore', 'orës', 'the hour')), // a part the small of the hour
+  neser: L(wf('dite', 'dita', 'the day'), w('tjeter'), w('pas'), wf('naten', 'natës', 'night')), // the day other after night
+  fat: L(w('dicka'), w('e_art'), w('mire'), w('qe'), w('vjen')), // something the good that comes
+  keta: L(w('shume'), wf('gje', 'gjëra', 'things'), w('ketu')), // many things here
   // top 301-350 frequency fill
   ca: L(w('disa')), //                                 some
-  mend: L(w('koke')), //                               head (mind)
-  dot: L(w('jo')), //                                  not (at all)
-  sic: L(w('si')), //                                  like (as)
+  mend: L(w('brenda'), wf('koke', 'kokës', 'the head'), w('ku'), wf('mendoj', 'mendoj', 'I think')), // inside the head where I think
+  dot: L(w('nuk'), w('mund')),                          // not can
+  sic: L(w('ashtu'), wf('si', 'si', 'like')),           // so like
   dakord: L(w('po_yes')), //                           yes (agreed)
-  lidhje: L(w('bashke')), //                           together (a bond)
-  veshtire: L(w('problem')), //                        a problem (difficult)
-  gjithashtu: L(w('dhe')), //                          and (also)
-  tille: L(w('ky')), //                                this (such)
-  frike: L(w('nje'), w('gje'), w('keq')), //           a bad thing (fear)
-  pjese: L(w('jo'), w('gjithe')), //                   not all (a part)
+  lidhje: L(wf('ajo', 'ajo', 'that one'), w('qe'), w('mban'), w('dy'), wf('gje', 'gjëra', 'things'), w('bashke')), // that one that keeps two things together
+  veshtire: L(w('jo'), w('lehte')),                     // not easy
+  gjithashtu: L(w('edhe')),                             // also
+  tille: L(wf('si', 'si', 'like'), w('ky')),            // like this
+  frike: L(w('kur'), w('ka'), w('rrezik'), w('do'), w('te_subj'), wf('ik', 'ikësh', 'flee')), // when has danger wants to flee
+  pjese: L(w('pak'), w('nga'), w('nje'), w('gje')),     // a little from a thing
   perpara: L(w('para')), //                            before (ahead)
-  ore: L(w('nje'), w('kohe')), //                      a time (hour)
+  ore: L(w('nje'), w('pjese'), w('e_art'), w('vogel'), w('e_link'), wf('dite', 'ditës', 'the day')), // a part the small of the day
   // top 351-400 frequency fill
-  tregoj: L(w('thote')), //                            says (tell)
-  mes: L(w('ne')), //                                  in (among)
-  lumtur: L(w('mire')), //                             good (happy)
-  tere: L(w('gjithe')), //                             all (whole)
-  menjehere: L(w('shpejt')), //                        fast (at once)
-  fakt: L(w('vertet')), //                             truly (a fact)
-  cmendur: L(w('jo'), w('mend')), //                   no mind (crazy)
-  leviz: L(w('ec')), //                                walk (move)
-  pyetje: L(w('cka')), //                              what (a question)
-  ide: L(w('nje'), w('mend')), //                      a thought (idea)
-  mundesi: L(w('mund')), //                            can (a chance)
+  tregoj: L(w('thote'), w('cfare'), w('ndodh')),        // says what happens
+  mes: L(w('kur'), w('je'), w('me'), w('shume'), wf('njeri', 'njerëz', 'people')), // when are with many people
+  lumtur: L(w('kur'), w('je'), wf('shume', 'shumë', 'very'), w('mire'), w('ne'), w('zemer')), // when are very good in heart
+  tere: L(w('gjithe'), w('pa'), wf('asnje', 'asnjë', 'any'), w('pjese'), w('jashte')), // all without any part outside
+  menjehere: L(w('tani'), w('pa'), wf('prit', 'pritur', 'waiting')), // now without waiting
+  fakt: L(w('nje'), w('gje'), w('qe'), w('eshte'), w('e_art'), wf('vertete', 'vërtetë', 'true')), // a thing that is the true
+  cmendur: L(w('pa'), w('mend'), w('ne'), w('koke')),   // without mind in head
+  leviz: L(w('nuk'), w('rri'), w('ne'), wf('nje', 'një', 'one'), w('vend')), // not stay in one place
+  pyetje: L(w('fjale'), w('kur'), wf('do', 'do', 'want'), w('te_subj'), wf('di', 'dish', 'know'), w('dicka')), // word when want to know something
+  ide: L(w('nje'), w('gje'), w('e_art'), wf('ri', 're', 'new'), w('ne'), w('mend')), // a thing the new in mind
+  mundesi: L(w('kur'), w('dicka'), w('mund'), w('te_subj'), wf('ndodh', 'ndodhë', 'happen')), // when something can to happen
   afer: L(w('jo'), w('larg')), //                      not far (near)
-  derisa: L(w('deri')), //                             until
-  mbrapa: L(w('pas')), //                              after (behind)
+  derisa: L(w('deri'), w('ne'), wf('kohe', 'kohën', 'the time'), w('qe')), // until in the time that
+  mbrapa: L(wf('pas', 'pas', 'behind'), w('jo'), w('perpara')), // behind not forward
   // top 401-450 frequency fill
-  prandaj: L(w('per'), w('se')), //                    for that (therefore)
-  kujtoj: L(w('mendoj')), //                           think (remember)
-  shpresoj: L(w('do')), //                             want (hope)
+  prandaj: L(w('pra')),                                 // so
+  kujtoj: L(w('nuk'), wf('harron', 'harroj', 'forget')), // not forget
+  shpresoj: L(w('dua'), w('qe'), w('dicka'), w('e_art'), w('mire'), w('te_subj'), wf('ndodh', 'ndodhë', 'happen')), // want that something the good to happen
   mbase: L(w('ndoshta')), //                           maybe
   nen: L(w('poshte')), //                              below (under)
-  zonje: L(w('nje'), w('grua')), //                    a woman (lady)
-  ndalo: L(w('jo'), w('ec')), //                       not walk (stop)
+  zonje: L(w('fjale'), w('e_art'), w('mire'), w('per'), w('nje'), w('grua')), // word the good for a woman
+  ndalo: L(w('mos'), w('leviz')),                       // do not move
   lehte: L(w('jo'), w('veshtire')), //                 not difficult (easy)
-  njoh: L(w('di')), //                                 know
-  duket: L(w('eshte')), //                             is (seems)
-  pasi: L(w('pas')), //                                after
-  mengjes: L(w('pas'), w('naten')), //                 after the night (morning)
-  pese: L(w('disa')), //                               several (five)
+  njoh: L(w('di'), w('kush'), w('eshte'), w('nje'), w('njeri')), // know who is a person
+  duket: L(wf('sy', 'syri', 'the eye'), w('e_obj'), wf('sheh', 'sheh', 'sees'), w('keshtu')), // the eye it sees thus
+  pasi: L(w('pas'), wf('kohe', 'kohës', 'the time'), w('qe'), w('dicka'), w('ndodh')), // after the time that something happens
+  mengjes: L(wf('kohe', 'koha', 'the time'), w('pas'), wf('naten', 'natës', 'the night'), w('kur'), w('vjen'), wf('dite', 'dita', 'the day')), // the time after the night when comes the day
+  pese: L(w('kater'), w('dhe'), wf('nje', 'një', 'one')), // four and one
   qetesohu: L(w('rri'), w('qete')), //                 stay calm
-  drejt: L(w('perpara')), //                           forward (straight)
-  gabim: L(w('jo'), w('mire')), //                     not good (mistake)
-  teper: L(w('shume')), //                             much (too much)
-  he: L(w('hej')), //                                  hey (well?)
+  drejt: L(w('perpara'), wf('as', 'as', 'neither'), w('majtas'), w('as'), w('djathtas')), // forward neither left nor right
+  gabim: L(w('dicka'), w('qe'), w('nuk'), w('eshte'), w('e_art'), w('drejte')), // something that not is the right
+  teper: L(w('me_more'), wf('shume', 'shumë', 'much'), wf('se', 'se', 'than'), w('mjaft')), // more much than enough
+  he: L(w('epo')),                                      // well
   prapa: L(w('mbrapa')), //                            behind
   // top 451-500 frequency fill
-  arme: L(w('nje'), w('gje'), w('per'), w('lufto')), // a thing for fighting (weapon)
-  muaj: L(w('nje'), w('kohe')), //                     a time (month)
-  tung: L(w('hej')), //                                hey (hi)
-  lloj: L(w('nje'), w('gje')), //                      a thing (kind)
-  ketej: L(w('ketu')), //                              here (this way)
-  dashuri: L(w('dashur')), //                          dear (love)
-  rendesi: L(w('nje'), w('gje'), w('e_art'), w('madh')), // a big thing (importance)
-  kunder: L(w('jo'), w('me')), //                      not with (against)
-  kater: L(w('disa')), //                              several (four)
-  pari: L(w('nje')), //                                one (first)
-  jave: L(w('nje'), w('kohe')), //                     a time (week)
-  vazhdo: L(w('ec')), //                               walk (continue)
-  shpirt: L(w('nje'), w('gje'), w('brenda')), //       a thing inside (soul)
-  ulu: L(w('rri')), //                                 stay (sit)
-  arsye: L(w('per'), w('se')), //                      for what (reason)
+  arme: L(w('nje'), w('gje'), w('per'), w('te_subj'), wf('lufto', 'luftuar', 'fight'), wf('si', 'si', 'like'), wf('shpate', 'shpata', 'the sword')), // a thing for to fight like the sword
+  muaj: L(w('kater'), wf('jave', 'javë', 'weeks')),     // four weeks
+  tung: L(w('pershendetje')),                           // hello
+  lloj: L(w('si'), w('eshte'), w('nje'), w('gje')),     // how is a thing
+  ketej: L(w('nga'), w('ketu')),                        // from here
+  dashuri: L(w('kur'), wf('do', 'do', 'loves'), wf('shume', 'shumë', 'much'), w('nje'), w('njeri')), // when loves much a person
+  rendesi: L(w('kur'), w('dicka'), w('eshte'), w('e_art'), wf('madh', 'madhe', 'big'), w('per'), wf('ne_we', 'ne', 'us')), // when something is the big for us
+  kunder: L(wf('si', 'si', 'as'), w('armik'), w('jo'), wf('si', 'si', 'as'), w('mik')), // as enemy not as friend
+  kater: L(w('tre'), w('dhe'), wf('nje', 'një', 'one')), // three and one
+  pari: L(w('ai'), w('qe'), w('vjen'), w('para')),      // he that comes before
+  jave: L(w('shtate'), wf('dite', 'ditë', 'days')),     // seven days
+  vazhdo: L(w('mos'), w('ndalo')),                      // do not stop
+  shpirt: L(wf('gje', 'gjëja', 'the thing'), w('brenda'), w('qe'), w('nuk'), w('vdes')), // the thing inside that not dies
+  ulu: L(w('rri'), wf('poshte', 'poshtë', 'down')),     // stay down
+  arsye: L(w('pse'), w('ndodh'), w('nje'), w('gje')),   // why happens a thing
 
   // nouns — a kind of thing
   pyll: L(w('nje'), w('vend'), w('me'), w('shume'), w('peme')), //   a place with many trees
-  rruge: L(w('nje'), w('vend'), w('ku'), w('ti'), w('ec')), //       a place where you walk
-  shtepi: L(w('nje'), w('vend'), w('ku'), w('ti'), w('fle')), //     a place where you sleep
-  dere: L(w('nje'), w('gje'), w('qe'), w('ti'), w('hap')), //        a thing that you open
-  ujk: L(w('nje'), w('kafshe'), w('ne'), w('pyll')), //             an animal in the forest
-  uje: L(w('nje'), w('leng'), w('qe'), w('ti'), w('pi')), //         a liquid that you drink
-  zjarr: L(w('nje'), w('gje'), w('me'), w('drite')), //             a thing with light
-  mik: L(w('nje'), w('njeri'), w('i_art'), w('mire')), //           a good person
-  toke: L(w('nje'), w('vend'), w('poshte')), //                     a place below
-  naten: L(w('nje'), w('kohe'), w('pa'), w('drite')), //            a time without light
+  rruge: L(w('nje'), w('vend'), w('ku'), w('ti'), wf('ec', 'ecën', 'walk')), // a place where you walk
+  shtepi: L(w('nje'), w('vend'), w('ku'), w('ti'), w('fle'), w('dhe'), wf('ha', 'ha', 'eat')), // a place where you sleep and eat
+  dere: L(w('nje'), w('gje'), w('ne'), w('mur'), w('qe'), w('ti'), w('hap')), // a thing in wall that you open
+  ujk: L(w('nje'), w('kafshe'), wf('si', 'si', 'like'), w('qen'), w('i_art'), w('madh'), w('ne'), w('pyll')), // a animal like dog the big in forest
+  uje: L(w('nje'), w('leng'), w('ne'), w('lume'), w('dhe'), w('ne'), w('det')), // a liquid in river and in sea
+  zjarr: L(w('nje'), w('gje'), w('e_art'), w('nxehte'), w('me'), w('flake'), w('dhe'), w('drite')), // a thing the hot with flame and light
+  mik: L(w('nje'), w('njeri'), w('i_art'), w('mire'), w('jo'), w('armik')), // a person the good not enemy
+  toke: L(w('nje'), w('vend'), w('nen'), wf('kembe', 'këmbë', 'feet')), // a place under feet
+  naten: L(w('nje'), w('kohe'), w('pa'), w('diell'), w('kur'), w('ti'), w('fle')), // a time without sun when you sleep
   erresire: L(w('nje'), w('vend'), w('pa'), w('drite')), //         a place without light
   eliksir: L(w('nje'), w('leng'), w('qe'), w('jep'), w('fuqi')), // a liquid that gives power
-  thesar: L(w('nje'), w('gje'), w('e_art'), w('mire')), //          a good thing
+  thesar: L(wf('shume', 'shumë', 'much'), w('ar'), w('dhe'), w('pasuri')), // much gold and wealth
   loja: L(w('nje'), w('gje'), w('qe'), w('ti'), w('luan')), //      a thing that you play
 
   // adjectives — a quality, often by its opposite
@@ -10233,482 +10249,485 @@ export const DEFS = {
   erret: L(w('pa'), w('drite')), //                    without light
   sigurt: L(w('pa'), w('rrezik')), //                  without danger
   qete: L(w('pa'), w('zhurme')), //                    without noise
-  uritur: L(w('do'), w('te_subj'), w('ha')), //        wants to eat
+  uritur: L(w('do'), w('te_subj'), wf('ha', 'ha', 'eat'), w('ushqim')), // wants to eat food
 
   // verbs — the action, often by its opposite
-  sheh: L(w('me'), w('sy')), //                        with eyes
-  ec: L(w('me'), w('kembe')), //                       with legs
-  fle: L(w('jo'), w('zgjohu')), //                     not wake
-  zgjohu: L(w('jo'), w('fle')), //                     not sleep
+  sheh: L(w('ti'), wf('gjen', 'gjen', 'find'), wf('gje', 'gjëra', 'things'), w('me'), w('sy')), // you find things with eyes
+  ec: L(w('shko'), w('me'), w('kembe')),                // go with legs
+  fle: L(w('rri'), w('ne'), w('shtrat'), wf('naten', 'natën', 'at night'), w('jo'), w('zgjuar')), // stay in bed at night not awake
+  zgjohu: L(w('hap'), wf('sy', 'sytë', 'the eyes'), w('mos'), w('fle')), // open the eyes do not sleep
   hap: L(w('jo'), w('mbyll')), //                      not close
-  ik: L(w('ec'), w('larg')), //                        walk far
-  vjen: L(w('jo'), w('ik')), //                        not flee
-  rri: L(w('jo'), w('ik')), //                         not flee
+  ik: L(w('shko'), w('larg'), w('shpejt')),             // go far fast
+  vjen: L(wf('ec', 'ecën', 'walks'), w('ketu'), w('nga'), w('larg')), // walks here from far
+  rri: L(w('mos'), w('ik'), w('prit'), w('ketu')),      // do not flee wait here
   brenda: L(w('jo'), w('jashte')), //                  not outside
   jep: L(w('jo'), w('merr')), //                       not take
-  merr: L(w('jo'), w('jep')), //                       not give
-  pi: L(w('ti'), w('merr'), w('leng')), //             you take liquid
-  ha: L(w('ti'), w('merr'), w('ushqim')), //           you take food
-  behet: L(w('eshte'), w('tani')), //                  is now
-  gjen: L(w('jo'), w('humbet')), //                    not lose
-  humbet: L(w('jo'), w('gjen')), //                    not find
+  merr: L(w('nuk'), w('jep'), w('por'), w('e_obj'), w('mban'), w('ne'), w('dore')), // not give but it keeps in hand
+  pi: L(w('merr'), w('uje'), w('me'), w('goje')),       // take water with mouth
+  ha: L(w('merr'), w('ushqim'), w('me'), w('goje')),    // take food with mouth
+  behet: L(w('tani'), w('eshte'), w('dicka'), w('tjeter')), // now is something other
+  gjen: L(wf('kerko', 'kërkon', 'searches'), w('dhe'), w('pastaj'), w('e_obj'), wf('sheh', 'sheh', 'sees')), // searches and then it sees
+  humbet: L(w('nuk'), w('gjen'), wf('rruge', 'rrugën', 'the road')), // not finds the road
   ndiz: L(w('bej'), w('drite')), //                    make light
-  kerko: L(w('do'), w('te_subj'), w('gjen')), //       want to find
-  mbaroi: L(w('jo'), w('vazhdon')), //                 not continue
-  perseri: L(w('nje'), w('kohe'), w('tjeter')), //     another time
-  ketu: L(w('jo'), w('larg')), //                      not far
+  kerko: L(w('shiko'), w('ketu'), w('dhe'), w('atje'), w('per'), w('dicka')), // look here and there for something
+  mbaroi: L(w('nuk'), w('vazhdon'), w('me_more')),      // not continues more
+  perseri: L(w('edhe'), wf('nje', 'një', 'one'), w('here')), // also one time
+  ketu: L(w('ne'), wf('vend', 'vendin', 'the place'), w('ku'), w('ti'), w('je')), // in the place where you are
 
   // qualities used in the story
   vjeter: L(w('jo'), w('i_art'), w('ri')), //          not new
-  drite: L(w('jo'), w('erret')), //                    not dark
-  sy: L(w('me'), w('sy'), w('ti'), w('sheh')), //      with eyes you see
+  drite: L(w('vjen'), w('nga'), wf('diell', 'dielli', 'the sun'), w('dhe'), w('nga'), wf('zjarr', 'zjarri', 'the fire')), // comes from the sun and from the fire
+  sy: L(w('ti'), w('sheh'), w('me'), w('keta')),        // you see with these
 
   // journey places & actions
-  lume: L(w('shume'), w('uje')), //                    much water
-  ure: L(w('nje'), w('vend'), w('ku'), w('ti'), w('kalo')), // a place where you cross
-  mal: L(w('nje'), w('vend'), w('i_art'), w('madh')), //       a big place
-  shpelle: L(w('nje'), w('vend'), w('ne'), w('mal')), //       a place in a mountain
-  plak: L(w('nje'), w('njeri'), w('i_art'), w('vjeter')), //   an old person
-  kalo: L(w('ec'), wf('ne', 'në', 'on'), w('ure')), //              walk on a bridge
+  lume: L(w('uje'), w('qe'), wf('shko', 'shkon', 'goes'), wf('ne', 'në', 'to'), w('det')), // water that goes to sea
+  ure: L(w('nje'), w('rruge'), w('mbi'), w('nje'), w('lume')), // a road over a river
+  mal: L(w('nje'), w('vend'), w('qe'), wf('shko', 'shkon', 'goes'), w('lart'), w('ne'), w('qiell')), // a place that goes up in sky
+  shpelle: L(w('nje'), w('vend'), w('i_art'), w('erret'), w('brenda'), wf('mal', 'malit', 'the mountain')), // a place the dark inside the mountain
+  plak: L(w('nje'), w('burre'), w('i_art'), w('vjeter')), // a man the old
+  kalo: L(w('ec'), w('mbi'), w('nje'), w('ure')),       // walk over a bridge
 
   // === folklore vocabulary ===
   // characters & creatures
-  fshat: L(w('nje'), w('vend'), w('me'), w('shtepi')), //          a place with houses
-  plake: L(w('nje'), w('nene'), w('e_art'), w('vjeter')), //       an old mother
-  kulshedra: L(w('nje'), w('gjarper'), w('i_art'), w('madh'), w('me'), w('zjarr')), // a big serpent with fire
-  zane: L(w('nje'), w('e_art'), w('bukur'), w('te_link'), w('mal')), // a beautiful one of the mountain
-  bukura: L(w('nje'), w('nene'), w('e_art'), w('bukur')), //       a beautiful woman
-  dragua: L(w('nje'), w('trim'), w('i_art'), w('forte')), //       a strong hero
-  trim: L(w('nje'), w('njeri'), w('i_art'), w('forte')), //        a strong person
-  shqiponje: L(w('nje'), w('kafshe'), w('qe'), w('fluturo')), //   an animal that flies
+  fshat: L(w('nje'), w('vend'), w('i_art'), w('vogel'), w('me'), wf('pak', 'pak', 'few'), wf('shtepi', 'shtëpi', 'houses')), // a place the small with few houses
+  plake: L(w('nje'), w('grua'), w('e_art'), w('vjeter')), // a woman the old
+  kulshedra: L(w('nje'), w('gjarper'), w('i_art'), w('madh'), w('me'), w('shume'), wf('koke', 'koka', 'heads')), // a serpent the big with many heads
+  zane: L(w('nje'), w('vajze'), w('e_art'), w('bukur'), w('e_link'), wf('mal', 'malit', 'the mountain')), // a maiden the beautiful of the mountain
+  bukura: L(wf('vajze', 'vajza', 'the maiden'), wf('me_more', 'më', 'most'), w('e_art'), w('bukur'), w('e_link'), wf('bote', 'botës', 'the world')), // the maiden most the beautiful of the world
+  dragua: L(w('nje'), w('trim'), w('me'), wf('krah', 'krahë', 'wings'), w('qe'), wf('lufto', 'lufton', 'fights'), wf('kulshedra', 'kulshedrën', 'the she-dragon')), // a hero with wings that fights the she-dragon
+  trim: L(w('nje'), w('njeri'), w('pa'), w('frike'), w('qe'), wf('lufto', 'lufton', 'fights')), // a person without fear that fights
+  shqiponje: L(w('nje'), wf('zog', 'zog', 'bird'), w('i_art'), w('madh'), w('qe'), wf('fluturo', 'fluturon', 'flies'), w('lart')), // a bird the big that flies up
   gjarper: L(w('nje'), w('kafshe'), w('pa'), w('kembe')), //       an animal without legs
-  mbret: L(w('nje'), w('njeri'), w('te_link'), w('kala')), //      a person of the castle
-  nene: L(w('nje'), w('njeri'), w('me'), w('femije')), //          a person with a child
+  mbret: L(w('nje'), w('burre'), w('qe'), w('ka'), w('gjithe'), wf('vend', 'vendin', 'the land')), // a man that has all the land
+  nene: L(w('nje'), w('grua'), w('me'), wf('femije', 'fëmijë', 'children')), // a woman with children
   femije: L(w('nje'), w('njeri'), w('i_art'), w('vogel')), //      a small person
-  tomor: L(w('nje'), w('mal'), w('i_art'), w('madh')), //          a big mountain
+  tomor: L(w('nje'), w('mal'), w('i_art'), w('madh'), w('dhe'), w('i_art'), w('shenjte')), // a mountain the big and the holy
   // places & things
-  pus: L(w('nje'), w('vend'), w('me'), w('uje'), w('poshte')), //  a place with water below
-  bote: L(w('nje'), w('vend'), w('i_art'), w('madh')), //          a big place
-  kala: L(w('nje'), w('vend'), w('me'), w('mur')), //              a place with walls
-  mur: L(w('nje'), w('gje'), w('te_link'), w('kala')), //          a thing of a castle
-  koke: L(w('ku'), w('rri'), w('sy')), //                          where the eyes are
-  buke: L(w('nje'), w('ushqim')), //                               a food
-  mish: L(w('ushqim'), w('te_link'), w('kafshe')), //              food from an animal
-  peshk: L(w('nje'), w('kafshe'), wf('ne', 'në', 'in'), w('uje')), // an animal in water (= fish)
-  qengj: L(w('nje'), w('kafshe'), w('e_art'), w('vogel'), w('e_art'), wf('bardhe', 'bardhë', 'white')), // small white animal (= lamb)
-  kashte: L(w('ushqim'), w('e_link'), w('dhi')), //               food of goats (= hay)
-  kukull: L(w('nje'), w('femije'), w('e_link'), w('balte')), //   a child of clay (= a doll)
-  varros: L(w('jep'), wf('dhe', 'dheut', 'to the earth')), //     give to the earth (= bury)
-  balte: L(w('dhe'), w('me'), w('uje')), //                       earth with water (= clay)
-  gjalpe: L(w('nje'), w('ushqim'), w('e_link'), w('qumesht')), // a food of milk (= butter)
+  pus: L(w('nje'), w('vend'), w('i_art'), w('thelle'), w('me'), w('uje'), w('poshte')), // a place the deep with water below
+  bote: L(w('gjithe'), wf('vend', 'vendet', 'the places'), w('dhe'), w('gjithe'), wf('njeri', 'njerëzit', 'the people')), // all the places and all the people
+  kala: L(wf('shtepi', 'shtëpia', 'the house'), w('e_art'), wf('madh', 'madhe', 'big'), w('e_link'), wf('mbret', 'mbretit', 'the king'), w('me'), wf('mur', 'mure', 'walls')), // the house the big of the king with walls
+  mur: L(w('nje'), w('gje'), w('me'), wf('gur', 'gurë', 'stones'), w('qe'), wf('mbyll', 'mbyll', 'closes'), w('nje'), w('vend')), // a thing with stones that closes a place
+  koke: L(wf('pjese', 'pjesa', 'the part'), w('ku'), wf('rri', 'rrinë', 'stay'), wf('sy', 'sytë', 'the eyes'), w('dhe'), wf('goje', 'goja', 'the mouth')), // the part where stay the eyes and the mouth
+  buke: L(w('ushqim'), w('qe'), wf('njeri', 'njeriu', 'the person'), w('ha'), w('cdo'), w('dite')), // food that the person eats every day
+  mish: L(w('ushqim'), w('nga'), w('nje'), w('kafshe')), // food from a animal
+  peshk: L(w('kafshe'), w('e_link'), wf('uje', 'ujit', 'the water'), w('pa'), w('kembe')), // animal of the water without legs
+  qengj: L(wf('femije', 'fëmija', 'the child'), w('i_link'), wf('dash', 'dashit', 'the ram')), // the child of the ram
+  kashte: L(w('bar'), w('i_art'), w('thate'), w('per'), wf('kafshe', 'kafshët', 'the animals')), // herb the dry for the animals
+  kukull: L(w('nje'), w('gje'), wf('si', 'si', 'like'), w('njeri'), w('i_art'), w('vogel')), // a thing like person the small
+  varros: L(w('e_obj'), w('le'), w('nen'), w('toke')),  // it leaves under ground
+  balte: L(w('toke'), w('me'), w('uje')),               // ground with water
+  gjalpe: L(w('ushqim'), w('i_art'), w('verdhe'), w('nga'), wf('qumesht', 'qumështi', 'the milk')), // food the yellow from the milk
   karkanxholl: L(w('nje'), w('lugat'), w('me'), w('hekur')), //   a revenant with iron
-  troket: L(w('bie'), wf('ne', 'në', 'on'), w('dere')), //        strikes on the door (= knocks)
-  kuzhinier: L(w('nje'), w('njeri'), w('e_link'), w('ushqim')), // a man of food (= a cook)
-  mos: L(w('nuk')), //                                            not (= do not)
+  troket: L(wf('godit', 'godet', 'strikes'), wf('dere', 'derën', 'the door'), w('me'), w('dore')), // strikes the door with hand
+  kuzhinier: L(w('nje'), w('njeri'), w('qe'), wf('bej', 'bën', 'makes'), w('ushqim')), // a person that makes food
+  mos: L(w('fjale'), w('qe'), w('thote'), w('ndalo')),  // word that says stop
   jo: L(w('nuk')), //                                             not (= no)
-  ushqim: L(w('nje'), w('gje'), w('qe'), w('ti'), w('ha')), //     a thing that you eat (= food)
-  ze: L(w('nje'), w('gje'), w('qe'), wf('degjo', 'degjon', 'you hear')), // a thing you hear (= sound)
-  pagezim: L(w('nje'), w('feste'), w('e_link'), w('femije')), //   a feast of a child (= a christening)
-  goje: L(w('ti'), w('ha'), w('dhe'), w('flet')), //              you eat and speak (= the mouth)
-  djathe: L(w('nje'), w('ushqim'), w('e_link'), w('qumesht')), // a food of milk (= cheese)
-  shtrydh: L(w('mban'), w('me'), w('fuqi')), //                  holds with force (= squeezes)
-  plesht: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //   a small animal (= a flea)
-  kerce: L(w('shko'), wf('lart', 'lart', 'up')), //               goes up (= leaps)
-  ballokume: L(w('nje'), w('ushqim'), w('e_link'), w('feste')), // a food of the feast (= cake)
-  flutur: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //    a small animal (= a moth)
-  dre: L(w('nje'), w('kafshe'), w('e_link'), w('pyll')), //       an animal of the forest (= a stag)
-  kose: L(w('nje'), w('gje'), w('qe'), wf('pre', 'pret', 'cuts')), // a thing that cuts (= a scythe)
-  shkop: L(w('nje'), w('dru')), //                                a wood (= a cudgel)
-  gershere: L(w('nje'), w('gje'), w('e_link'), w('qep')), //      a thing of sewing (= scissors)
-  qep: L(wf('bej', 'bën', 'makes'), w('rrobe')), //              makes clothes (= sews)
-  rreze: L(w('nje'), w('gje'), w('e_link'), w('diell')), //       a thing of the Sun (= a ray)
-  pallat: L(w('nje'), w('shtepi'), w('e_art'), w('madh')), //     a big house (= a palace)
-  mbreteresha: L(w('grua'), w('e_link'), w('mbret')), //          woman of the king (= the queen)
-  liber: L(w('nje'), w('gje'), w('me'), w('fjale')), //           a thing with words (= a book)
-  laker: L(w('nje'), w('ushqim'), w('e_link'), w('kopsht')), //   a food of the garden (= cabbage)
-  kopsht: L(w('nje'), w('toke'), w('e_link'), w('peme')), //      a land of plants (= a garden)
-  shkolle: L(w('ku'), w('femije'), wf('meso', 'mësojnë', 'learn')), // where children learn (= a school)
-  lut: L(w('kerko'), w('me'), w('zemer')), //                    asks with the heart (= prays)
-  dymbedhjete: L(w('nente'), w('dhe'), w('tre')), //             nine and three (= twelve)
-  thyhet: L(w('behet'), w('keq')), //                            comes apart (= breaks)
+  ushqim: L(w('nje'), w('gje'), w('qe'), w('ti'), wf('ha', 'ha', 'eat')), // a thing that you eat
+  ze: L(w('nje'), w('gje'), w('qe'), wf('degjo', 'dëgjon', 'you hear')), // a thing that you hear
+  pagezim: L(w('nje'), w('feste'), w('ku'), wf('femije', 'fëmija', 'the child'), wf('merr', 'merr', 'takes'), w('emer')), // a festival where the child takes name
+  goje: L(w('ku'), wf('njeri', 'njeriu', 'the person'), w('ha'), w('dhe'), w('flet')), // where the person eats and speaks
+  djathe: L(w('ushqim'), w('i_art'), w('bardhe'), w('nga'), wf('qumesht', 'qumështi', 'the milk')), // food the white from the milk
+  shtrydh: L(wf('merr', 'merr', 'takes'), wf('leng', 'lëngun', 'the liquid'), w('me'), w('fuqi')), // takes the liquid with power
+  plesht: L(w('nje'), w('kafshe'), w('e_art'), w('vogel'), w('qe'), w('kerce'), w('dhe'), w('kafshon')), // a animal the small that leaps and bites
+  kerce: L(wf('hidh', 'hidhet', 'throws itself'), w('lart')), // throws itself up
+  ballokume: L(w('nje'), w('ushqim'), w('per'), wf('feste', 'festën', 'the festival'), w('e_link'), wf('vere', 'verës', 'the summer')), // a food for the festival of the summer
+  flutur: L(w('nje'), w('kafshe'), w('e_art'), w('vogel'), w('me'), wf('krah', 'krahë', 'wings')), // a animal the small with wings
+  dre: L(w('kafshe'), w('e_link'), wf('pyll', 'pyllit', 'the forest'), w('me'), wf('bri', 'brirë', 'horns')), // animal of the forest with horns
+  kose: L(w('nje'), w('gje'), w('qe'), wf('pre', 'pret', 'cuts'), wf('bar', 'barin', 'the herb')), // a thing that cuts the herb
+  shkop: L(w('nje'), w('dru'), w('i_art'), w('gjate'), w('per'), w('te_subj'), wf('godit', 'goditur', 'strike')), // a wood the long for to strike
+  gershere: L(w('nje'), w('gje'), w('qe'), wf('pre', 'pret', 'cuts'), wf('rrobe', 'rroba', 'clothes'), w('dhe'), w('flok')), // a thing that cuts clothes and hair
+  qep: L(wf('bej', 'bën', 'makes'), wf('rrobe', 'rroba', 'clothes'), w('me'), w('dore')), // makes clothes with hand
+  rreze: L(w('drite'), w('nga'), wf('diell', 'dielli', 'the sun')), // light from the sun
+  pallat: L(wf('shtepi', 'shtëpia', 'the house'), w('e_art'), wf('madh', 'madhe', 'big'), w('e_link'), wf('mbret', 'mbretit', 'the king')), // the house the big of the king
+  mbreteresha: L(wf('grua', 'gruaja', 'the woman'), w('e_link'), wf('mbret', 'mbretit', 'the king')), // the woman of the king
+  liber: L(w('nje'), w('gje'), w('me'), w('shume'), wf('fjale', 'fjalë', 'words'), w('per'), w('dije')), // a thing with many words for knowledge
+  laker: L(w('ushqim'), w('i_art'), w('gjelber'), w('nga'), wf('kopsht', 'kopshti', 'the garden')), // food the green from the garden
+  kopsht: L(w('toke'), w('me'), w('peme'), w('afer'), wf('shtepi', 'shtëpisë', 'the house')), // ground with tree near the house
+  shkolle: L(w('vend'), w('ku'), wf('femije', 'fëmijët', 'the children'), wf('meso', 'mësojnë', 'learn')), // place where the children learn
+  lut: L(w('flet'), w('me'), wf('perendi', 'Perëndinë', 'God')), // speaks with God
+  dymbedhjete: L(w('dhjete'), w('dhe'), w('dy')),       // ten and two
+  thyhet: L(w('behet'), w('shume'), wf('pjese', 'pjesë', 'parts')), // becomes many parts
   etur: L(w('do'), w('uje')), //                                 wants water (= thirsty)
-  atje: L(w('jo'), w('ketu')), //                                not here (= there)
-  hip: L(w('shko'), wf('lart', 'lart', 'up')), //               goes up (= climbs)
-  kafshe: L(w('nje'), w('gje'), w('e_art'), wf('gjalle', 'gjallë', 'living')), // a living thing (= an animal)
-  mermer: L(w('nje'), w('gur'), w('e_art'), wf('bardhe', 'bardhë', 'white')), // a white stone (= marble)
-  sherbetore: L(w('nje'), w('grua'), wf('qe', 'që', 'who'), wf('ndihmo', 'ndihmon', 'helps')), // a woman who helps (= a servant)
-  pate: L(w('nje'), w('zog'), w('e_link'), wf('uje', 'ujit', 'water')), // a bird of water (= a goose)
+  atje: L(w('jo'), w('ketu'), w('por'), w('larg')),     // not here but far
+  hip: L(wf('shko', 'shkon', 'goes'), w('lart'), w('mbi'), w('dicka')), // goes up over something
+  kafshe: L(w('nje'), w('gje'), w('e_art'), wf('gjalle', 'gjallë', 'living'), w('si'), wf('ujk', 'ujku', 'the wolf')), // a thing the living how the wolf
+  mermer: L(w('nje'), w('gur'), w('i_art'), w('bardhe'), w('per'), wf('pallat', 'pallatin', 'the palace')), // a stone the white for the palace
+  sherbetore: L(w('grua'), w('qe'), w('punon'), w('ne'), wf('shtepi', 'shtëpinë', 'the house'), w('e_link'), wf('mbret', 'mbretit', 'the king')), // woman that works in the house of the king
+  pate: L(w('nje'), wf('zog', 'zog', 'bird'), w('i_link'), wf('uje', 'ujit', 'water')), // a bird of water
   zgjuar: L(w('nuk'), w('fle')), //                              not asleep (= awake)
-  zhytet: L(w('shko'), wf('poshte', 'poshtë', 'down'), wf('ne', 'në', 'in'), w('uje')), // goes down in water (= dives)
-  aga: L(w('nje'), w('trim'), w('e_link'), w('jutbina')), //      a hero of Jutbina (= an aga)
-  xhami: L(w('nje'), w('shtepi'), w('e_art'), w('shenjte')), //   a holy house (= a mosque)
-  kafe: L(w('nje'), w('uje'), w('e_link'), w('zi')), //           a water of black (= coffee)
-  krajl: L(w('nje'), w('mbret'), w('e_link'), w('toke')), //      a king of a land (the Slav king)
-  rusha: L(w('nje'), w('vajze'), w('e_link'), w('krajl')), //     a girl of the Krajl
-  kripe: L(w('per'), w('ushqim')), //                              for food
-  pende: L(w('nje'), w('gje'), w('te_link'), w('shqiponje')), //   a thing of an eagle
-  qumesht: L(w('nje'), w('leng'), w('te_link'), w('nene')), //     a liquid of a mother
-  shpate: L(w('nje'), w('gje'), w('qe'), w('pre')), //             a thing that cuts
-  gur: L(w('nje'), w('gje'), w('e_art'), w('forte')), //           a hard thing
+  zhytet: L(wf('shko', 'shkon', 'goes'), wf('poshte', 'poshtë', 'down'), w('ne'), w('uje')), // goes down in water
+  aga: L(w('nje'), w('trim'), w('i_link'), wf('jutbina', 'Jutbinës', 'Jutbina')), // a hero of Jutbina
+  xhami: L(w('nje'), w('shtepi'), w('e_art'), w('shenjte'), w('e_link'), wf('hoxha', 'hoxhës', 'the hodja')), // a house the holy of the hodja
+  kafe: L(w('nje'), w('uje'), w('i_art'), w('zi'), w('per'), w('mengjes')), // a water the black for morning
+  krajl: L(w('nje'), w('mbret'), w('armik')),           // a king enemy
+  rusha: L(wf('vajze', 'vajza', 'the maiden'), w('e_link'), wf('krajl', 'krajlit', 'the Slav king'), w('qe'), w('vjen'), w('me'), wf('zuku', 'Zukun', 'Zuku')), // the maiden of the Slav king that comes with Zuku
+  kripe: L(w('nje'), w('gje'), w('e_art'), w('bardhe'), w('nga'), wf('det', 'deti', 'the sea'), w('per'), w('ushqim')), // a thing the white from the sea for food
+  pende: L(w('nje'), w('gje'), w('nga'), wf('krah', 'krahu', 'wing'), w('i_link'), wf('zog', 'zogut', 'the bird')), // a thing from wing of the bird
+  qumesht: L(w('nje'), w('leng'), w('i_art'), w('bardhe'), w('nga'), wf('nene', 'nëna', 'the mother')), // a liquid the white from the mother
+  shpate: L(w('nje'), w('arme'), w('e_art'), w('gjate'), w('qe'), wf('pre', 'pret', 'cuts')), // a weapon the long that cuts
+  gur: L(w('nje'), w('gje'), w('e_art'), w('forte'), w('nga'), wf('toke', 'toka', 'the ground')), // a thing the strong from the ground
   // verbs
   shko: L(w('ec'), w('larg')), //                                  walk far
-  lufto: L(w('ti'), w('vrit')), //                                 you kill
-  vrit: L(w('bej'), w('vdes')), //                                 make die
-  shpeto: L(w('ndihmo')), //                                       help
-  ngjit: L(w('shko'), w('lart')), //                               go up
+  lufto: L(w('shko'), w('kunder'), wf('armik', 'armikut', 'the enemy')), // go against the enemy
+  vrit: L(w('bej'), w('qe'), w('te_subj'), wf('vdes', 'vdesë', 'die')), // make that to die
+  shpeto: L(w('ndihmo'), w('ne'), w('rrezik')),         // help in danger
+  ngjit: L(w('shko'), w('lart'), w('me'), w('kembe')),  // go up with legs
   zbrit: L(w('shko'), wf('poshte', 'poshtë', 'down')), //                             go down
-  fluturo: L(w('shko'), w('lart')), //                             go up (through air)
-  degjo: L(w('ti'), w('merr'), w('fjale')), //                     you take in words
+  fluturo: L(w('shko'), w('ne'), w('qiell'), w('me'), wf('krah', 'krahë', 'wings')), // go in sky with wings
+  degjo: L(w('merr'), wf('fjale', 'fjalët', 'the words'), w('e_link'), wf('tjeter', 'tjetrit', 'the other')), // take the words of the other
   flet: L(w('thote'), w('fjale')), //                              says words
   thote: L(w('jep'), w('fjale')), //                              gives a word
   ndihmo: L(w('jep'), w('fuqi')), //                               give power
-  beso: L(w('je'), w('mik')), //                                   be a friend
+  beso: L(w('di'), w('se'), w('eshte'), w('mik')),      // know that is friend
   hyr: L(w('shko'), w('brenda')), //                               go inside
   dil: L(w('shko'), w('jashte')), //                               go outside
-  thirr: L(w('flet'), w('larg')), //                               speak afar
-  hidh: L(w('jep'), w('larg')), //                                 send far
-  kthehu: L(w('vjen'), w('perseri')), //                           come again
-  vdes: L(w('nuk'), w('je')), //                                   you are no more
-  varr: L(w('nje'), w('vend'), w('per'), wf('vdes', 'i vdekur', 'dead')), // a place for the dead
-  emer: L(w('nje'), w('fjale'), w('per'), wf('njeri', 'njeri', 'someone')), // a word for someone
-  luan: L(w('nje'), w('femije'), wf('bej', 'bën', 'makes'), wf('loja', 'lojë', 'a game')), // a child plays
-  vetem: L(w('pa'), w('tjeter')), //                               without another (= only / alone)
-  zemer: L(w('eshte'), wf('ne', 'në', 'in'), w('gji')), //          [it] is in the breast
+  thirr: L(w('fol'), w('me'), w('ze'), wf('te_link', 'të', 'the'), w('madh')), // speak with sound the big
+  hidh: L(w('bej'), w('qe'), w('te_subj'), wf('fluturo', 'fluturojë', 'fly'), w('larg')), // make that to fly far
+  kthehu: L(wf('hajde', 'hajde', 'come'), w('perseri')), // come again
+  vdes: L(w('nuk'), w('eshte'), wf('me_more', 'më', 'anymore'), w('gjalle')), // not is anymore alive
+  varr: L(w('nje'), w('vend'), w('nen'), w('toke'), w('per'), wf('vdes', 'të vdekurin', 'dead')), // a place under ground for dead
+  emer: L(w('nje'), w('fjale'), w('per'), w('nje'), w('njeri')), // a word for a person
+  luan: L(wf('femije', 'fëmija', 'the child'), wf('bej', 'bën', 'makes'), w('nje'), wf('loja', 'lojë', 'game')), // the child makes a game
+  vetem: L(w('pa'), w('njeri'), w('tjeter')),           // without person other
+  zemer: L(w('brenda'), wf('njeri', 'njeriut', 'the person'), wf('jep', 'jep', 'gives'), w('jete'), w('dhe'), w('dashuri')), // inside the person gives life and love
   bashke: L(w('jo'), wf('vetem', 'vetëm', 'alone')), //             not alone (= together)
-  gjalle: L(w('nuk'), wf('vdes', 'i vdekur', 'dead')), //           not dead (= alive)
-  nga: L(w('ku'), w('vjen')), //                                   where [it] comes (= from)
+  gjalle: L(w('jo'), wf('vdes', 'i vdekur', 'dead')),   // not dead
+  nga: L(w('fjale'), w('qe'), wf('tregoj', 'tregon', 'tells'), w('ku'), w('vjen')), // word that tells where comes
   sjell: L(w('vjen'), w('me'), w('nje'), w('gje')), // comes with a thing (= brings)
   marto: L(w('merr'), wf('nuse', 'nuse', 'a bride')), //            takes a bride (= marries)
-  mallko: L(wf('thote', 'thotë', 'says'), w('fjale'), w('keq')), // says a bad word (= curses)
+  mallko: L(w('thote'), wf('fjale', 'fjalë', 'words'), w('per'), w('dem_harm')), // says words for harm
   le: L(w('nuk'), w('mban')), //                                  does not keep (= leaves behind)
   grua: L(w('nje'), w('nene'), w('ose'), w('vajze')), //          a mother or a maiden (= a woman)
   unaze: L(w('ar'), wf('ne', 'në', 'on'), w('dore')), //          gold on the hand (= a ring)
-  fytyre: L(wf('ne', 'në', 'on'), w('koke')), //                  on the head (= the face)
-  dru: L(w('nga'), w('peme')), //                                 from a tree (= wood)
-  ku: L(wf('ne', 'në', 'in'), w('vend')), //                      in [what] place (= where?)
-  mushkonje: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), // a small animal (an insect)
-  bisht: L(w('nje'), w('gje'), w('e_link'), w('kafshe')), //      a thing of an animal (its tail)
-  bretkose: L(w('nje'), w('kafshe'), wf('ne', 'në', 'in'), w('uje')), // an animal in the water (frog)
-  dhelpra: L(w('nje'), w('kafshe'), w('e_art'), w('kuq')), //          a red animal (fox)
-  mi: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //         a small animal (mouse)
+  fytyre: L(wf('ne', 'në', 'on'), w('koke'), w('me'), w('sy'), w('dhe'), w('goje')), // on head with eyes and mouth
+  dru: L(w('nga'), w('nje'), w('peme'), w('per'), w('zjarr')), // from a tree for fire
+  ku: L(w('ne'), w('cfare'), wf('vend', 'vendi', 'place')), // in what place
+  mushkonje: L(w('nje'), w('kafshe'), w('e_art'), w('vogel'), w('qe'), wf('pi', 'pi', 'drinks'), w('gjak')), // a animal the small that drinks blood
+  bisht: L(wf('kafshe', 'kafsha', 'the animal'), w('e_obj'), w('ka'), w('mbrapa')), // the animal it has behind
+  bretkose: L(w('nje'), w('kafshe'), w('ne'), w('uje'), w('qe'), w('kerce')), // a animal in water that leaps
+  dhelpra: L(w('nje'), w('kafshe'), w('qe'), wf('mashtro', 'mashtron', 'tricks')), // a animal that tricks
+  mi: L(w('nje'), w('kafshe'), w('e_art'), w('vogel'), w('qe'), w('ha'), w('djathe')), // a animal the small that eats cheese
   rrobe: L(w('nje'), w('gje'), w('per'), wf('vesh', 'të veshur', 'to wear')), // a thing to wear (dress)
-  krah: L(w('nje'), w('gje'), w('e_link'), w('shqiponje')), //     a thing of an eagle (wing)
-  kuq: L(w('e_link'), w('gjak')), //                              of-blood (red)
-  bri: L(w('nje'), w('gje'), w('e_link'), w('dash')), //          a thing of a ram (horn)
-  gju: L(wf('ne', 'në', 'in'), w('kembe')), //                    in the leg (knee)
-  zgjedh: L(w('merr'), w('nje')), //                              takes one (chooses)
+  krah: L(w('nje'), w('gje'), w('e_link'), wf('shqiponje', 'shqiponjës', 'the eagle'), w('per'), wf('fluturo', 'të fluturuar', 'to fly')), // a thing of the eagle for to fly
+  kuq: L(wf('si', 'si', 'as'), wf('gjak', 'gjaku', 'the blood')), // as the blood
+  bri: L(wf('dash', 'dashi', 'the ram'), w('e_obj'), w('ka'), wf('ne', 'në', 'on'), w('koke')), // the ram it has on head
+  gju: L(w('pjese'), w('e_link'), wf('kembe', 'këmbës', 'the leg'), w('ne'), wf('mes', 'mes', 'middle')), // part of the leg in middle
+  zgjedh: L(w('merr'), wf('nje', 'një', 'one'), w('nga'), w('shume')), // take one from many
   pasuri: L(w('shume'), w('ar')), //                              much gold (wealth)
   ngre: L(w('merr'), wf('lart', 'lart', 'high')), //              takes up high (= lifts)
-  sot: L(w('dite'), w('tani')), //                                a day now (= today)
-  vere: L(w('jo'), wf('ftohte', 'e ftohtë', 'cold')), //          not cold (= summer)
-  feste: L(wf('njeri', 'njerëz', 'people'), wf('kendo', 'këndojnë', 'sing')), // people sing (= a festival)
-  liqen: L(w('nje'), w('uje'), w('i_art'), w('madh')), //         a big water (= a lake)
+  sot: L(wf('dite', 'dita', 'the day'), w('tani'), w('jo'), w('dje'), w('jo'), w('neser')), // the day now not yesterday not tomorrow
+  vere: L(w('kohe'), w('e_art'), w('ngrohte'), w('me'), w('diell')), // time the warm with sun
+  feste: L(w('dite'), w('kur'), wf('njeri', 'njerëzit', 'the people'), wf('kendo', 'këndojnë', 'sing')), // day when the people sing
+  liqen: L(w('nje'), w('uje'), w('i_art'), w('madh'), w('ne'), w('toke')), // a water the big in ground
   flocka: L(w('nje'), w('zane'), wf('ne', 'në', 'in'), w('liqen')), // a fairy in a lake
   meso: L(w('jep'), w('dije')), //                                gives knowledge (= teaches)
-  burre: L(w('jo'), wf('grua', 'grua', 'a woman')), //            not a woman (= a man)
+  burre: L(w('njeri'), w('jo'), w('grua')),             // person not woman
   gjeme: L(wf('burre', 'burrat', 'men'), wf('vajto', 'vajtojnë', 'mourn')), // men mourn (the wail)
   vajtim: L(wf('grua', 'gratë', 'women'), wf('vajto', 'vajtojnë', 'mourn')), // women mourn (the lament)
   stihi: L(w('nje'), wf('kulshedra', 'kulshedër', 'she-dragon'), w('me'), w('zjarr')), // a she-dragon with fire
-  flake: L(w('e_link'), w('zjarr')), //                          of fire (= a flame)
-  nxjerr: L(w('jep'), wf('jashte', 'jashtë', 'out')), //         gives out (= breathes)
-  semure: L(w('behet'), w('keq')), //                            becomes bad (= falls sick)
-  hudher: L(w('nje'), w('ushqim'), w('te_link'), wf('forte', 'fortë', 'strong')), //   a strong food (= garlic)
+  flake: L(wf('drite', 'drita', 'the light'), w('e_link'), wf('zjarr', 'zjarrit', 'the fire')), // the light of the fire
+  nxjerr: L(wf('hidh', 'hedh', 'throws'), wf('jashte', 'jashtë', 'out')), // throws out
+  semure: L(w('behet'), w('i_art'), w('semur')),        // becomes the sick
+  hudher: L(w('nje'), w('ushqim'), w('i_art'), w('forte'), w('kunder'), wf('lugat', 'lugatit', 'the revenant')), // a food the strong against the revenant
   peri: L(w('nje'), w('zane'), w('e_art'), wf('bardhe', 'bardhë', 'white')), //  a white fairy
-  krua: L(w('uje'), wf('ne', 'në', 'in'), wf('mal', 'mal', 'a mountain')), // water in a mountain (= a spring)
-  xhind: L(w('nje'), w('hije'), w('te_link'), w('naten')), //      a shadow of the night (= a jinn)
-  prag: L(wf('ne', 'në', 'on'), w('dere')), //                    at the door (= the threshold)
-  fjale: L(w('nje'), w('gje'), w('e_link'), w('gjuhe')), //        a thing of language (= a word)
-  mbi: L(w('lart'), wf('ne', 'në', 'on')), //                       high on (= over)
-  bie: L(w('shko'), wf('poshte', 'poshtë', 'down')), //                               go down
-  pre: L(w('me'), w('shpate')), //                                 with a sword
+  krua: L(w('uje'), w('qe'), w('vjen'), w('nga'), wf('gur', 'guri', 'the stone')), // water that comes from the stone
+  xhind: L(w('nje'), w('hije'), w('e_link'), wf('naten', 'natës', 'the night')), // a shadow of the night
+  prag: L(wf('vend', 'vendi', 'the place'), w('poshte'), wf('dere', 'derës', 'the door')), // the place below the door
+  fjale: L(w('dicka'), w('qe'), w('ti'), wf('thote', 'thua', 'say')), // something that you say
+  mbi: L(w('nje'), w('fjale'), w('e_art'), w('vogel'), w('per'), w('lart')), // a word the small for up
+  bie: L(wf('shko', 'shkon', 'goes'), wf('poshte', 'poshtë', 'down'), wf('ne', 'në', 'to'), w('toke')), // goes down to ground
+  pre: L(wf('bej', 'bën', 'makes'), w('dy'), wf('pjese', 'pjesë', 'parts'), w('me'), w('thike')), // makes two parts with knife
   // qualities & connectors
   forte: L(w('me'), w('fuqi')), //                                 with power
-  bukur: L(w('shume'), w('mire')), //                              very good
-  keq: L(w('jo'), w('mire')), //                                   not good
+  bukur: L(w('mire'), w('per'), wf('sy', 'sytë', 'the eyes')), // good for the eyes
+  keq: L(w('qe'), wf('bej', 'bën', 'makes'), w('dem_harm')), // that makes harm
   mire: L(w('jo'), w('keq')), //                                   not bad
   thate: L(w('pa'), w('uje')), //                                  without water
-  lart: L(w('jo'), w('poshte')), //                               not below
-  larg: L(w('jo'), w('ketu')), //                                 not here
-  por: L(w('dhe'), w('jo')), //                                   and not
-  po_yes: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), //      a small word
-  po_prog: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
-  po_but: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
+  lart: L(w('atje'), w('ku'), w('eshte'), wf('qiell', 'qielli', 'the sky')), // there where is the sky
+  larg: L(w('jo'), w('afer')),                          // not near
+  por: L(w('dhe'), w('dicka'), w('kunder')),            // and something against
+  po_yes: L(w('vertete'), w('ashtu'), w('eshte')),      // truly so is
+  po_prog: L(w('dicka'), w('ndodh'), w('tani')),        // something happens now
+  po_but: L(w('por')),                                  // but
   nuk: L(w('jo')), //                                              not
-  per: L(w('te_subj')), //                                         to / for
-  une: L(w('jo'), w('ti')), //                                    not you (= me)
+  per: L(w('nje'), w('fjale'), w('e_art'), w('vogel'), w('si'), w('te_subj')), // a word the small how to
+  une: L(wf('njeri', 'njeriu', 'the person'), w('qe'), w('flet')), // the person that speaks
   mua: L(w('une')), //                                            me (= I)
-  do: L(w('kerko')), //                                            to seek
-  fuqi: L(w('ti'), w('je'), w('i_art'), w('madh')), //             you are great
-  hije: L(w('nje'), w('gje'), w('e_art'), w('erret')), //          a dark thing
-  me: L(w('jo'), w('pa')), //                                      not without
-  poshte: L(w('jo'), wf('lart', 'lart', 'high')), //                               not up
-  prek: L(w('jo'), w('larg')), //                                 not far (right up close)
-  shume: L(w('jo'), w('vogel')), //                               not small (in number)
-  tani: L(w('kohe')), //                                           this time
+  do: L(w('ai'), w('deshiron')),                        // he wishes
+  fuqi: L(w('ti'), wf('ngre', 'ngre', 'lift'), wf('gur', 'gurë', 'stones')), // you lift stones
+  hije: L(w('nje'), w('gje'), w('e_art'), w('erret'), wf('ne', 'në', 'on'), w('toke'), w('nga'), wf('drite', 'drita', 'the light')), // a thing the dark on ground from the light
+  me: L(w('bashke')),                                   // together
+  poshte: L(w('atje'), w('ku'), w('eshte'), wf('toke', 'toka', 'the ground')), // there where is the ground
+  prek: L(w('godit'), wf('lehte', 'lehtë', 'lightly'), w('me'), w('dore')), // strike lightly with hand
+  shume: L(w('jo'), w('pak')),                          // not a little
+  tani: L(w('ne'), wf('ky', 'këtë', 'this'), w('kohe')), // in this time
   shtrige: L(w('nje'), w('plake'), w('e_art'), wf('keq', 'keqe', 'bad')), //       a bad old woman
-  ora: L(w('nje'), w('hije'), w('e_art'), w('mire')), //           a good spirit
-  det: L(w('nje'), w('lume'), w('i_art'), w('madh')), //           a big water
-  ftohte: L(w('pa'), w('zjarr')), //                              without fire (cold)
+  ora: L(w('nje'), w('hije'), w('e_art'), w('mire'), w('qe'), w('ruan'), wf('njeri', 'njeriun', 'the person')), // a shadow the good that guards the person
+  det: L(w('nje'), w('uje'), w('i_art'), w('madh'), w('pa'), w('fund')), // a water the big without end
+  ftohte: L(w('jo'), w('ngrohte')),                     // not warm
   ngrohte: L(w('me'), w('zjarr')), //                             with fire (warm)
-  te_obj: L(w('nje'), w('fjale'), w('e_art'), w('vogel')),
-  prit: L(w('jo'), w('ec')), //                                   do not walk (stay)
-  tjeter: L(w('nje'), w('gje'), w('e_art'), w('ri')), //          a new one
-  rrezik: L(w('ku'), w('ti'), w('mund'), w('te_subj'), w('vdes')), // where you can die
+  te_obj: L(w('nje'), w('fjale'), w('e_art'), w('vogel'), w('qe'), w('thote'), w('ti')), // a word the small that says you
+  prit: L(w('rri'), w('dhe'), w('mos'), w('ik')),       // stay and do not flee
+  tjeter: L(w('jo'), w('ky')),                          // not this
+  rrezik: L(w('dicka'), w('e_art'), wf('keq', 'keqe', 'bad'), w('eshte'), w('afer')), // something the bad is near
   // --- the Baloz branch ---
-  baloz: L(w('nje'), w('gjarper'), w('te_link'), w('det')), //     a serpent of the sea
-  motra: L(w('nje'), w('vajze')), //                              a maiden (your sister)
-  plage: L(w('nje'), w('gje'), w('e_art'), wf('keq', 'keqe', 'bad')), //          a bad thing
-  nente: L(w('shume')), //                                        many
-  vajze: L(w('nje'), w('e_art'), w('bukur'), w('njeri')), //      a beautiful person
-  fole: L(w('nje'), w('shtepi'), w('te_link'), w('shqiponje')), // a house of the eagle
-  zog: L(w('nje'), w('e_art'), w('vogel'), w('shqiponje')), //    a small eagle
+  baloz: L(w('nje'), w('gjarper'), w('i_art'), w('madh'), w('nga'), wf('det', 'deti', 'the sea')), // a serpent the big from the sea
+  motra: L(w('nje'), w('vajze'), w('nga'), wf('nene', 'nëna', 'the mother'), wf('im', 'ime', 'my')), // a maiden from the mother my
+  plage: L(w('nje'), w('vend'), w('i_art'), w('keq'), w('me'), w('gjak')), // a place the bad with blood
+  nente: L(w('tete'), w('dhe'), wf('nje', 'një', 'one')), // eight and one
+  vajze: L(w('nje'), w('grua'), w('e_art'), wf('ri', 're', 'young')), // a woman the young
+  fole: L(w('nje'), w('shtepi'), w('e_link'), wf('shqiponje', 'shqiponjës', 'the eagle')), // a house of the eagle
+  zog: L(w('nje'), w('shqiponje'), w('e_art'), w('vogel')), // a eagle the small
   dite: L(w('nje'), w('kohe'), w('me'), w('drite')), //           a time with light
   agim: L(wf('diell', 'dielli', 'the sun'), w('vjen')), //        the sun comes
   muzg: L(wf('naten', 'nata', 'the night'), w('vjen')), //        the night comes
-  deri: L(wf('ne', 'në', 'to'), w('nje'), w('kohe')), //          to a (later) time
-  yll: L(w('nje'), wf('drite', 'dritë', 'light'), wf('ne', 'në', 'in'), w('qiell')), // a light in the sky
-  pleq: L(wf('njeri', 'njerëz', 'people'), w('vjeter')), //       old people (= elders)
-  gjinkalla: L(w('nje'), wf('gje', 'gjë', 'thing'), wf('qe', 'që', 'that'), w('kendo')), // a thing that sings
-  burg: L(wf('njeri', 'njeriu', 'the person'), w('nuk'), w('dil'), w('jashte')), // cannot go out
-  kafaz: L(w('nje'), wf('shtepi', 'shtëpi', 'house'), w('e_link'), w('zog')), // a house for a bird
-  qiri: L(w('nje'), wf('gje', 'gjë', 'thing'), w('me'), wf('drite', 'dritë', 'light')), // a thing with light
-  kapidan: L(w('nje'), w('trim'), w('e_link'), wf('krajl', 'krajlit', 'the Krajl')), // a warrior of the Krajl
-  mejdan: L(w('nje'), wf('lufto', 'luftë', 'fight'), w('per'), w('nje'), w('trim')), // a fight for one hero (= a duel)
-  hendek: L(w('uje'), wf('te_link', 'të', 'of'), w('nje'), w('pallat')), // the water of a palace (= a moat)
-  hu: L(w('nje'), w('dru'), w('e_art'), w('forte')), // a hard stick (= a stake)
-  peme: L(w('nje'), w('gje'), w('ne'), w('pyll')), //             a thing in the forest
+  deri: L(w('nga'), w('tani'), wf('ne', 'në', 'to'), w('nje'), w('kohe'), w('tjeter')), // from now to a time other
+  yll: L(w('nje'), w('drite'), w('e_art'), w('vogel'), w('ne'), w('qiell'), wf('naten', 'natën', 'at night')), // a light the small in sky at night
+  pleq: L(w('burra'), wf('te_link', 'të', 'the'), w('vjeter')), // men the old
+  gjinkalla: L(w('nje'), w('kafshe'), w('e_art'), w('vogel'), w('qe'), wf('kendo', 'këndon', 'sings'), w('ne'), w('vere')), // a animal the small that sings in summer
+  burg: L(w('nje'), w('vend'), w('ku'), wf('njeri', 'njeriu', 'the person'), w('nuk'), wf('dil', 'del', 'goes out'), w('dot')), // a place where the person not goes out at all
+  kafaz: L(w('nje'), w('burg'), w('i_art'), w('vogel'), w('per'), wf('zog', 'zogun', 'the bird')), // a prison the small for the bird
+  qiri: L(w('nje'), w('drite'), w('e_art'), w('vogel'), w('me'), w('dylle')), // a light the small with wax
+  kapidan: L(w('nje'), w('trim'), w('i_link'), wf('krajl', 'krajlit', 'the Slav king')), // a hero of the Slav king
+  mejdan: L(w('nje'), wf('lufto', 'luftë', 'fight'), w('mes'), w('dy'), wf('trim', 'trimave', 'heroes')), // a fight among two heroes
+  hendek: L(w('uje'), w('rreth'), wf('kala', 'kalasë', 'the castle')), // water around the castle
+  hu: L(w('nje'), w('dru'), w('i_art'), w('gjate'), w('ne'), w('toke')), // a wood the long in ground
+  peme: L(w('nje'), w('dru'), w('i_art'), w('gjalle'), w('ne'), w('pyll')), // a wood the alive in forest
   // --- the storm ---
-  rrufe: L(w('drite'), w('ne'), w('re')), //                      light in a cloud
-  re: L(w('nje'), w('gje'), wf('lart', 'lart', 'high')), //                        a thing up high
-  ere: L(w('nje'), w('gje'), w('qe'), w('vjen'), w('larg')), //   a thing that comes from afar
+  rrufe: L(w('drite'), w('qe'), w('bie'), w('nga'), wf('re', 'retë', 'the clouds')), // light that falls from the clouds
+  re: L(w('nje'), w('gje'), w('ne'), w('qiell'), w('qe'), w('sjell'), w('shi')), // a thing in sky that brings rain
+  ere: L(w('dicka'), w('qe'), wf('leviz', 'lëviz', 'moves'), wf('re', 'retë', 'the clouds')), // something that moves the clouds
   // --- the underworld rams & the twist ---
-  dash: L(w('nje'), w('kafshe'), wf('ne', 'në', 'on'), w('mal')), //           an animal on the mountain
-  bardhe: L(w('jo'), w('i_art'), w('zi')), //                     not black
-  zi: L(w('jo'), w('i_art'), w('bardhe')), //                     not white
-  jam: L(w('une'), w('je')), //                                   "I are" (= am)
-  njeri: L(w('jo'), w('nje'), w('kafshe')), //                    not an animal
-  vazhdon: L(w('jo'), w('mbaroi')), //                            not ended
+  dash: L(wf('baba', 'babai', 'the father'), w('i_link'), wf('qengj', 'qengjit', 'the lamb')), // the father of the lamb
+  bardhe: L(wf('si', 'si', 'like'), wf('qumesht', 'qumështi', 'the milk')), // like the milk
+  zi: L(wf('si', 'si', 'like'), wf('erresire', 'errësira', 'the darkness')), // like the darkness
+  jam: L(w('je'), w('por'), w('per'), w('mua')),        // are but for me
+  njeri: L(w('nje'), w('burre'), w('ose'), w('nje'), w('grua')), // a man or a woman
+  vazhdon: L(w('nuk'), wf('ndalo', 'ndalon', 'stops')), // not stops
   // --- the village & the besa ---
   premto: L(w('jep'), w('bese')), //                              give an oath
-  bese: L(w('nje'), w('fjale'), w('e_art'), w('forte')), //       a strong word (a vow)
-  lugat: L(w('nje'), w('hije'), w('te_link'), w('naten')), //     a shadow of the night
-  vella: L(w('nje'), w('mik'), w('te_link'), w('shtepi')), //     a friend of the house (kin)
-  bej: L(w('jo'), w('prit')), //                                  do not wait (act)
+  bese: L(w('nje'), w('fjale'), w('qe'), w('nuk'), w('thyhet'), w('kurre')), // a word that not breaks never
+  lugat: L(w('nje'), w('i_art'), wf('vdes', 'vdekur', 'dead'), w('qe'), wf('ec', 'ecën', 'walks'), wf('naten', 'natën', 'at night')), // a the dead that walks at night
+  vella: L(w('nje'), w('djale'), w('nga'), wf('nene', 'nëna', 'the mother'), wf('im', 'ime', 'my')), // a boy from the mother my
+  bej: L(w('une'), wf('punon', 'punoj', 'work'), w('dhe'), w('dicka'), w('e_art'), wf('ri', 're', 'new'), w('vjen')), // I work and something the new comes
   vogel: L(w('jo'), w('i_art'), w('madh')), //                    not big
-  diell: L(w('nje'), w('drite'), w('e_art'), w('madh')), //       a great light
-  qen: L(w('nje'), w('kafshe'), w('ne'), w('shtepi')), //         an animal in the house
+  diell: L(wf('drite', 'drita', 'the light'), w('e_art'), wf('madh', 'madhe', 'big'), w('e_link'), wf('dite', 'ditës', 'the day')), // the light the big of the day
+  qen: L(w('nje'), w('kafshe'), w('qe'), w('leh')),     // a animal that barks
   ngadale: L(w('jo'), w('shpejt')), //                            not fast
-  lot: L(w('uje'), w('te_link'), w('sy')), //                     water of the eyes
-  dhi: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //       a small animal
-  ar: L(w('nje'), w('gur'), w('e_art'), w('bukur')), //           a beautiful metal (stone)
-  hoxha: L(w('nje'), w('plak'), w('e_art'), w('mire')), //        a good old man
-  kazan: L(w('nje'), w('gje'), w('te_link'), w('zjarr')), //      a thing of the fire
+  lot: L(w('uje'), w('nga'), wf('sy', 'sytë', 'the eyes')), // water from the eyes
+  dhi: L(w('nje'), w('kafshe'), w('qe'), w('hip'), w('ne'), w('mal')), // a animal that climbs in mountain
+  ar: L(w('nje'), w('gje'), w('e_art'), w('verdhe'), w('qe'), w('kushton'), wf('shume', 'shumë', 'much')), // a thing the yellow that costs much
+  hoxha: L(w('nje'), w('plak'), w('qe'), w('flet'), w('ne'), w('xhami')), // a old man that speaks in mosque
+  kazan: L(w('nje'), w('gje'), w('per'), w('ushqim'), w('mbi'), w('zjarr')), // a thing for food over fire
   // --- lore-review fixes ---
   lind: L(w('vjen'), wf('ne', 'në', 'to'), w('bote')), //                      to come into the world
-  kemishe: L(w('nje'), w('gje'), w('te_link'), w('dragua')), //   a thing of the dragua (the caul)
-  gji: L(w('ku'), w('eshte'), w('qumesht')), //                   where the milk is
-  dore: L(w('nje'), w('gje'), w('te_link'), w('njeri')), //       a thing of a person
-  djep: L(w('nje'), w('vend'), w('ku'), w('nje'), w('femije'), w('fle')), // a place where a child sleeps
-  dije: L(w('nje'), w('fuqi'), w('te_link'), w('koke')), //       a power of the head (the mind)
-  ose: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), //        a small word
-  kembe: L(w('me'), w('kembe'), w('ti'), w('ec')), //             with legs you walk
+  kemishe: L(w('nje'), w('rrobe'), w('qe'), wf('femije', 'fëmija', 'the child'), w('ka'), w('kur'), wf('lind', 'lind', 'is born')), // a dress that the child has when is born
+  gji: L(w('ku'), wf('nene', 'nëna', 'the mother'), wf('jep', 'jep', 'gives'), w('qumesht')), // where the mother gives milk
+  dore: L(wf('pjese', 'pjesa', 'the part'), w('qe'), wf('merr', 'merr', 'takes'), wf('gje', 'gjëra', 'things')), // the part that takes things
+  djep: L(w('nje'), w('shtrat'), w('i_art'), w('vogel'), w('per'), wf('femije', 'fëmijën', 'the child')), // a bed the small for the child
+  dije: L(w('gjithcka'), w('qe'), wf('di', 'di', 'you know')), // everything that you know
+  ose: L(w('ky'), w('apo'), wf('ai', 'ai', 'that')),    // this or that
+  kembe: L(w('ec'), w('me'), w('keto')),                // walk with these
   jashte: L(w('jo'), w('brenda')), //                            not inside
   // --- Sari Salltëk ---
-  dervish: L(w('nje'), w('plak'), w('e_art'), w('mire')), //      a good old man (holy man)
-  gjuhe: L(w('nje'), w('gje'), w('ne'), wf('koke', 'kokë', 'the head')), // a thing in the head
-  shtate: L(w('shume')), //                                       many
-  tund: L(w('luan')), //                                          moves, plays
-  dordolec: L(w('nje'), w('femije'), w('me'), w('gjelber'), w('qe'), wf('thirr', 'thërret', 'calls'), w('shi')), // a child dressed in green who calls the rain
-  shi: L(w('uje')), //                                          water (from the sky)
-  vesh: L(w('mban')), //                                        wears, keeps on
-  gjelber: L(w('e_link'), w('peme')), //                         of-plant (green)
-  verdhe: L(w('e_link'), w('ar')), //                            of-gold (yellow)
-  kendo: L(w('flet')), //                                       speaks/sings
-  bolla: L(w('nje'), w('gjarper')), //                          a serpent
-  shengjergj: L(w('nje'), w('dite')), //                        a day (feast)
-  kurre: L(w('nuk')), //                                        not, never
-  katallan: L(w('nje'), w('baloz')), //                         a giant
-  godit: L(w('lufto')), //                                      strikes, fights
-  verbo: L(w('mbyll'), w('sy')), //                             shut the eye
-  gjak: L(w('vdes')), //                                          death (a blood-feud)
-  dy: L(w('nje'), w('dhe'), w('nje')), //                         one and one
-  bar: L(w('nje'), w('peme')), //                                a plant
-  tre: L(w('dy'), w('dhe'), w('nje')), //                         two and one
-  shurdhi: L(w('nje'), w('re'), w('dhe'), w('rrufe')), //         a cloud and thunder
-  hekur: L(w('nje'), w('gur'), w('te_link'), w('forte')), //     a hard stone (metal)
-  kale: L(w('nje'), w('kafshe')), //                             an animal
-  ruan: L(w('mban')), //                                         keeps
+  dervish: L(w('nje'), w('burre'), w('i_art'), w('shenjte'), w('ne'), w('teqe')), // a man the holy in teqe
+  gjuhe: L(w('nje'), w('gje'), w('ne'), wf('goje', 'gojë', 'the mouth'), w('qe'), w('flet')), // a thing in the mouth that speaks
+  shtate: L(w('gjashte'), w('dhe'), wf('nje', 'një', 'one')), // six and one
+  tund: L(wf('leviz', 'lëviz', 'moves'), wf('djep', 'djepin', 'the cradle'), w('ose'), wf('peme', 'pemën', 'tree')), // moves the cradle or tree
+  dordolec: L(w('nje'), w('femije'), w('qe'), wf('thirr', 'thërret', 'calls'), wf('shi', 'shiun', 'the rain')), // a child that calls the rain
+  shi: L(w('uje'), w('qe'), w('bie'), w('nga'), wf('qiell', 'qielli', 'the sky')), // water that falls from the sky
+  vesh: L(w('mban'), wf('rrobe', 'rroba', 'clothes'), wf('mbi', 'mbi', 'on'), w('vete')), // keeps clothes on self
+  gjelber: L(wf('si', 'si', 'like'), w('nje'), w('peme'), w('ne'), w('vere')), // like a tree in summer
+  verdhe: L(wf('si', 'si', 'like'), wf('ar', 'ari', 'the gold'), w('dhe'), wf('diell', 'dielli', 'the sun')), // like the gold and the sun
+  kendo: L(w('bej'), w('nje'), w('kenge'), w('me'), wf('ze', 'zë', 'voice')), // make a song with voice
+  bolla: L(w('nje'), w('gjarper'), w('qe'), w('behet'), wf('kulshedra', 'kulshedra', 'the she-dragon')), // a serpent that becomes the she-dragon
+  shengjergj: L(w('nje'), w('feste'), w('kur'), w('vjen'), wf('vere', 'vera', 'the summer')), // a festival when comes the summer
+  kurre: L(w('jo'), w('sot'), w('jo'), w('neser'), wf('asnje', 'asnjë', 'no'), w('dite')), // not today not tomorrow no day
+  katallan: L(w('nje'), w('njeri'), w('i_art'), w('madh'), w('me'), wf('nje', 'një', 'one'), wf('sy', 'sy', 'eye')), // a person the big with one eye
+  godit: L(w('prek'), wf('forte', 'fort', 'hard'), w('me'), w('dore'), w('ose'), w('arme')), // touch hard with hand or weapon
+  verbo: L(w('merr'), wf('drite', 'dritën', 'the light'), w('e_link'), wf('sy', 'syve', 'the eyes')), // take the light of the eyes
+  gjak: L(w('nje'), w('leng'), w('i_art'), w('kuq'), w('brenda'), wf('njeri', 'njeriut', 'the person')), // a liquid the red inside the person
+  dy: L(wf('nje', 'një', 'one'), w('dhe'), wf('nje', 'një', 'one')), // one and one
+  bar: L(w('nje'), w('gje'), w('e_art'), w('gjelber'), w('qe'), wf('ndihmo', 'ndihmon', 'helps')), // a thing the green that helps
+  tre: L(w('dy'), w('dhe'), wf('nje', 'një', 'one')),   // two and one
+  shurdhi: L(w('nje'), w('perendi'), w('qe'), w('sjell'), wf('re', 're', 'clouds'), w('dhe'), w('rrufe')), // a God that brings clouds and thunderbolt
+  hekur: L(w('nje'), w('gur'), w('i_art'), w('forte'), w('per'), wf('shpate', 'shpata', 'swords')), // a stone the strong for swords
+  kale: L(w('nje'), w('kafshe'), w('e_art'), wf('madh', 'madhe', 'big'), w('ku'), w('hip'), wf('trim', 'trimi', 'the hero')), // a animal the big where climbs the hero
+  ruan: L(w('mban'), wf('larg', 'larg', 'away'), wf('rrezik', 'rrezikun', 'the danger')), // keeps away the danger
   roje: L(w('nje'), w('njeri'), w('qe'), w('ruan')), //          a person who guards
-  bekim: L(w('nje'), w('fuqi'), w('te_link'), w('ora')), //       a power of the Ora
-  mujo: L(w('nje'), w('trim')), //                               a hero
-  skender: L(w('nje'), w('trim'), w('te_link'), w('madh')), //   a great hero (Skanderbeg)
+  bekim: L(w('nje'), w('fjale'), w('e_art'), w('mire'), w('qe'), wf('jep', 'jep', 'gives'), w('fat')), // a word the good that gives luck
+  mujo: L(w('nje'), w('trim'), w('i_art'), w('madh'), w('nga'), w('jutbina')), // a hero the big from Jutbina
+  skender: L(w('nje'), w('trim'), w('i_link'), w('madh'), w('nga'), wf('kruje', 'Kruja', 'Krujë')), // a hero of big from Krujë
   armik: L(w('jo'), w('nje'), w('mik')), //                      not a friend (enemy)
-  kenge: L(w('nje'), w('gje'), w('qe'), w('ti'), w('kendo')), // a thing that you sing (song)
-  jeto: L(w('jo'), w('vdes')), //                                not die (live)
-  burrneshe: L(w('nje'), w('grua'), w('me'), w('bese')), //      a woman with an oath (sworn virgin)
-  raki: L(w('nje'), w('gje'), w('qe'), w('ti'), w('pi')), //     a thing you drink (raki)
-  gezuar: L(w('nje'), w('fjale'), w('per'), w('mire')), //       a word for good (cheers)
-  dasme: L(w('nje'), w('nuse'), w('dhe'), w('nje'), w('burre')), // a bride and a man (wedding)
-  shenje: L(w('nje'), w('gje'), w('qe'), w('ti'), w('sheh')), // a thing you see (sign)
-  thike: L(w('nje'), w('gje'), w('qe'), w('pre')), //            a thing that cuts (knife)
-  luge: L(w('nje'), w('gje'), w('per'), w('ha')), //             a thing for eating (spoon)
-  plis: L(wf('ne', 'në', 'on'), w('koke')), //                   on the head (felt cap)
+  kenge: L(w('nje'), w('gje'), w('qe'), w('ti'), wf('kendo', 'këndon', 'sing')), // a thing that you sing
+  jeto: L(w('rri'), w('gjalle')),                       // stay alive
+  burrneshe: L(w('nje'), w('grua'), w('qe'), wf('jeto', 'jeton', 'lives'), wf('si', 'si', 'like'), w('burre')), // a woman that lives like man
+  raki: L(w('nje'), w('gje'), w('e_link'), w('forte'), w('qe'), w('ti'), w('pi')), // a thing of strong that you drink
+  gezuar: L(w('nje'), w('fjale'), w('kur'), w('ti'), w('pi')), // a word when you drink
+  dasme: L(w('nje'), w('feste'), w('me'), w('nuse')),   // a festival with bride
+  shenje: L(w('nje'), w('gje'), w('qe'), w('thote'), w('dicka')), // a thing that says something
+  thike: L(w('nje'), w('gje'), w('qe'), wf('pre', 'pret', 'cuts'), w('buke'), w('e_conj'), w('mish')), // a thing that cuts bread and meat
+  luge: L(w('nje'), w('gje'), w('qe'), w('sjell'), w('leng'), w('ne'), w('goje')), // a thing that brings liquid in mouth
+  plis: L(w('nje'), w('gje'), w('e_link'), w('bardhe'), w('per'), wf('koke', 'kokën', 'the head')), // a thing of white for the head
   xhublete: L(w('nje'), w('rrobe'), w('per'), w('grua')), //     a dress for a woman (bell-dress)
-  kurbet: L(w('pune'), w('larg')), //                            work far away (kurbet)
-  rozafa: L(w('nje'), w('nene')), //                             a mother (Rozafa)
-  gjergj: L(w('nje'), w('trim')), //                             a hero (Gjergj Elez Alia)
-  kumaLisa: L(w('nje'), w('dhelpra')), //                        a fox (Kuma Lisa)
-  sariSalltek: L(w('nje'), w('dervish')), //                     a dervish (Sari Salltëk)
-  gjizar: L(w('nje'), w('zog')), //                              a bird (Gjizar)
-  kostandin: L(w('nje'), w('djale')), //                         a boy (Kostandin)
-  doruntine: L(w('nje'), w('bije')), //                          a daughter (Doruntine)
-  kruje: L(w('nje'), w('vend')), //                              a place (Krujë)
-  lezhe: L(w('nje'), w('vend')), //                              a place (Lezhë)
-  osum: L(w('nje'), w('lume')), //                               a river (Osum)
-  zuku: L(w('nje'), w('trim')), //                               a hero (Zuku)
+  kurbet: L(w('pune'), w('larg'), w('nga'), wf('shtepi', 'shtëpia', 'the home')), // work far from the home
+  rozafa: L(w('nje'), w('nene'), w('brenda'), w('nje'), wf('mur', 'muri', 'wall')), // a mother inside a wall
+  gjergj: L(w('nje'), w('trim'), w('me'), w('nente'), wf('plage', 'plagë', 'wounds')), // a hero with nine wounds
+  kumaLisa: L(w('nje'), w('dhelpra'), w('qe'), wf('mashtro', 'mashtron', 'tricks')), // a fox that tricks
+  sariSalltek: L(w('nje'), w('dervish'), w('i_link'), w('shenjte'), w('ne'), w('nje'), w('shpelle')), // a dervish of holy in a cave
+  gjizar: L(w('nje'), w('zog'), w('nga'), w('nje'), w('perralle')), // a chick from a tale
+  kostandin: L(w('nje'), w('vella'), w('qe'), wf('kthehu', 'kthehet', 'returns'), w('nga'), wf('varr', 'varri', 'the grave')), // a brother that returns from the grave
+  doruntine: L(wf('motra', 'motra', 'the sister'), w('e_link'), wf('kostandin', 'Kostandinit', 'Kostandin')), // the sister of Kostandin
+  kruje: L(w('nje'), w('qytet'), w('i_link'), w('vjeter'), w('me'), w('kala')), // a city of old with castle
+  lezhe: L(wf('qytet', 'qyteti', 'the city'), w('me'), wf('varr', 'varrin', 'the grave'), w('e_link'), wf('skender', 'Skënderbeut', 'Skanderbeg')), // the city with the grave of Skanderbeg
+  osum: L(wf('lume', 'lumi', 'the river'), w('nen'), w('tomor')), // the river under Tomorr
+  zuku: L(w('nje'), w('trim'), w('dhe'), w('mik'), w('i_link'), wf('mujo', 'Mujos', 'Mujo')), // a hero and friend of Mujo
   mashallah: L(w('nje'), w('fjale'), w('per'), w('bekim')), //   a word for blessing (mashallah)
-  teqe: L(w('nje'), w('shtepi'), w('per'), w('perendi')), //     a house for god (teqe)
+  teqe: L(w('nje'), w('shtepi'), w('e_link'), w('shenjte'), w('per'), w('dervish')), // a house of holy for dervish
   kurban: L(w('mish'), w('per'), w('perendi')), //               meat for god (sacrifice)
-  ymer: L(w('nje'), w('trim')), //                               a hero (Ymer)
-  premte: L(w('nje'), w('dite')), //                             a day (Friday)
-  kalter: L(wf('si', 'si', 'as'), w('qiell')), //                as the sky (blue)
+  ymer: L(w('nje'), w('trim'), w('qe'), wf('kthehu', 'kthehet', 'returns'), w('nga'), wf('burg', 'burgu', 'the prison')), // a hero that returns from the prison
+  premte: L(w('nje'), w('dite'), w('e_link'), wf('jave', 'javës', 'the week')), // a day of the week
+  kalter: L(wf('si', 'si', 'like'), wf('qiell', 'qielli', 'the sky')), // like the sky
   dyzet: L(w('kater'), wf('here', 'herë', 'times'), wf('dhjete', 'dhjetë', 'ten')), // four times ten (forty)
-  edyta: L(w('pas'), w('nje')), //                               after one (the second)
-  halil: L(w('nje'), w('trim')), //                              a hero
-  tanusha: L(w('nje'), w('vajze')), //                           a maiden
-  nuse: L(w('nje'), w('vajze')), //                              a bride
-  fsheh: L(w('nuk'), w('sheh')), //                              is not seen
-  djall: L(w('nje'), w('hije'), w('e_art'), w('keq')), //        a bad spirit
-  perendi: L(w('nje'), w('fuqi'), w('e_art'), w('madh')), //     a great power
-  verbti: L(w('nje'), w('perendi'), w('te_link'), w('zjarr')), //  a god of fire
-  omer: L(w('nje'), w('bir'), w('te_link'), w('mujo')), //         a son of Mujo
-  vajto: L(w('flet'), w('me'), w('lot')), //                       speaks with tears
-  lubia: L(w('nje'), w('gjarper'), w('me'), w('shume'), w('koke')), // a serpent of many heads
-  prende: L(w('nje'), w('perendi'), w('e_art'), w('bukur')), //     a beautiful goddess
-  ylber: L(w('nje'), w('drite'), w('e_art'), w('bukur')), //      a beautiful light
-  gjegjeza: L(w('nje'), w('fjale'), w('e_art'), w('vjeter')), //  an old saying
-  samar: L(w('nje'), w('gje'), w('te_link'), w('gomar')), //      a thing of a donkey
-  breshka: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //   a small animal
-  gjon: L(w('nje'), w('zog')), //                                a bird
-  arushe: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //     a big animal
-  mashtro: L(w('thote'), w('fjale'), w('e_art'), w('keq')), //    speaks false words
-  dhampir: L(w('nje'), w('bir'), w('te_link'), w('lugat')), //    a son of a revenant
-  bleta: L(w('nje'), w('kafshe'), w('e_art'), w('vogel')), //     a small animal
-  merimanga: L(w('nje'), w('kafshe'), w('ne'), w('pyll')), //     an animal in the forest
-  dallendyshe: L(w('nje'), w('zog')), //                          a bird
-  kukudh: L(w('nje'), w('lugat'), w('e_art'), wf('keq', 'keqe', 'bad')), // a bad revenant
-  hardhi: L(w('nje'), w('peme')), //                              a plant
-  bresher: L(w('gur'), w('te_link'), w('re')), //                stones from the cloud
-  pa: L(w('nuk'), w('me')), //                                   not with
-  gomar: L(w('nje'), w('kafshe'), w('e_art'), w('madh')), //      a big animal
-  hene: L(w('nje'), w('drite'), w('naten')), //                  a light at night
-  bije: L(w('nje'), w('vajze'), w('te_link'), w('nene')), //      a maiden of a mother
-  vit: L(w('shume'), w('dite')), //                              many days
-  fol: L(w('thote'), w('fjale')), //                             says words
-  shpirag: L(w('nje'), w('mal')), //                            a mountain
-  bir: L(w('nje'), w('femije')), //                             a child
-  mban: L(w('ka')), //                                          has, holds
-  vitore: L(w('nje'), w('gjarper')), //                         a serpent
-  sulmo: L(w('lufto')), //                                      fights
+  edyta: L(w('vjen'), w('pas'), wf('te_link', 'të', 'the'), wf('pari', 'parit', 'first')), // comes after the first
+  halil: L(wf('vella', 'vëllai', 'the brother'), w('i_link'), wf('trim', 'trimit', 'the hero'), w('mujo')), // the brother of the hero Mujo
+  tanusha: L(wf('vajze', 'vajza', 'the maiden'), w('e_link'), wf('krajl', 'krajlit', 'the Slav king'), w('qe'), w('halil'), wf('do', 'do', 'loves')), // the maiden of the Slav king that Halili loves
+  nuse: L(w('nje'), w('vajze'), w('qe'), w('marto')),   // a maiden that marries
+  fsheh: L(w('mban'), wf('larg', 'larg', 'far from'), wf('sy', 'syve', 'the eyes')), // keeps far from the eyes
+  djall: L(w('nje'), w('shpirt'), w('i_art'), w('keq'), w('nga'), wf('zjarr', 'zjarri', 'the fire')), // a soul the bad from the fire
+  perendi: L(w('nje'), w('fuqi'), w('e_art'), wf('madh', 'madhe', 'big'), w('ne'), w('qiell')), // a power the big in sky
+  verbti: L(w('nje'), w('perendi'), w('e_link'), wf('zjarr', 'zjarrit', 'the fire'), w('qe'), w('nuk'), wf('sheh', 'sheh', 'sees')), // a God of the fire that not sees
+  omer: L(wf('bir', 'biri', 'the son'), w('i_link'), wf('trim', 'trimit', 'the hero'), w('mujo')), // the son of the hero Mujo
+  vajto: L(w('flet'), w('me'), w('lot'), w('kur'), w('dikush'), w('vdes')), // speaks with tears when someone dies
+  lubia: L(w('nje'), w('gjarper'), w('me'), w('shume'), wf('koke', 'koka', 'heads')), // a serpent with many heads
+  prende: L(w('nje'), w('perendi'), w('e_link'), wf('dashuri', 'dashurisë', 'the love')), // a God of the love
+  ylber: L(w('nje'), w('drite'), w('e_art'), w('bukur'), w('ne'), w('qiell'), w('pas'), wf('shi', 'shiut', 'the rain')), // a light the beautiful in sky after the rain
+  gjegjeza: L(w('nje'), w('pyetje'), w('qe'), wf('fsheh', 'fsheh', 'hides'), w('nje'), w('fjale')), // a question that hides a word
+  samar: L(w('nje'), w('gje'), wf('mbi', 'mbi', 'on'), wf('gomar', 'gomarin', 'the donkey'), w('ku'), wf('rri', 'rri', 'sits'), wf('njeri', 'njeriu', 'the person')), // a thing on the donkey where sits the person
+  breshka: L(w('nje'), w('kafshe'), w('qe'), w('mban'), wf('shtepi', 'shtëpinë', 'the house'), wf('mbi', 'mbi', 'on'), w('vete')), // a animal that keeps the house on self
+  gjon: L(w('nje'), wf('zog', 'zog', 'bird'), w('qe'), wf('kendo', 'këndon', 'sings'), wf('naten', 'natën', 'at night')), // a bird that sings at night
+  arushe: L(w('nje'), w('kafshe'), w('e_art'), wf('madh', 'madhe', 'big'), w('qe'), w('ha'), w('mjalte')), // a animal the big that eats honey
+  mashtro: L(w('thote'), w('nje'), w('gje'), w('qe'), w('nuk'), w('eshte')), // says a thing that not is
+  dhampir: L(w('nje'), w('bir'), w('i_link'), wf('lugat', 'lugatit', 'the revenant')), // a son of the revenant
+  bleta: L(w('nje'), w('kafshe'), w('e_art'), w('vogel'), w('qe'), wf('bej', 'bën', 'makes'), w('mjalte')), // a animal the small that makes honey
+  merimanga: L(w('nje'), w('kafshe'), w('e_art'), w('vogel'), w('me'), w('tete'), w('kembe')), // a animal the small with eight legs
+  dallendyshe: L(w('nje'), wf('zog', 'zog', 'bird'), w('qe'), w('vjen'), w('ne'), w('vere')), // a bird that comes in summer
+  kukudh: L(w('nje'), w('lugat'), w('qe'), w('mban'), wf('ar', 'arin', 'the gold')), // a revenant that keeps the gold
+  hardhi: L(w('nje'), w('peme'), w('qe'), wf('ngjit', 'ngjitet', 'climbs'), w('mbi'), w('mur')), // a tree that climbs over wall
+  bresher: L(w('shi'), wf('si', 'si', 'as'), wf('gur', 'gurë', 'stones'), w('nga'), wf('re', 'retë', 'the clouds')), // rain as stones from the clouds
+  pa: L(w('jo'), w('me')),                              // not with
+  gomar: L(w('nje'), w('kafshe'), w('qe'), wf('mban', 'mban', 'carries'), w('samar')), // a animal that carries packsaddle
+  hene: L(w('nje'), w('drite'), w('e_art'), wf('madh', 'madhe', 'big'), wf('naten', 'natën', 'at night')), // a light the big at night
+  bije: L(wf('vajze', 'vajza', 'the maiden'), w('e_link'), wf('nene', 'nënës', 'the mother')), // the maiden of the mother
+  vit: L(w('dymbedhjete'), wf('muaj', 'muaj', 'months')), // twelve months
+  fol: L(w('thote'), wf('fjale', 'fjalë', 'words')),    // says words
+  shpirag: L(w('nje'), w('mal'), w('qe'), wf('lufto', 'lufton', 'fights'), w('me'), wf('tomor', 'Tomorin', 'Tomorr')), // a mountain that fights with Tomorr
+  bir: L(wf('djale', 'djali', 'the boy'), w('i_link'), wf('nene', 'nënës', 'the mother')), // the boy of the mother
+  mban: L(w('ka'), w('dhe'), w('nuk'), w('e_obj'), w('le')), // has and not it leaves
+  vitore: L(w('nje'), w('gjarper'), w('qe'), w('sjell'), w('fat'), w('ne'), w('shtepi')), // a serpent that brings luck in house
+  sulmo: L(w('shko'), w('dhe'), w('godit')),            // go and strike
   // --- high-frequency spoken words (top-100 coverage) ---
   di: L(w('ke'), w('dije')), //                                 have knowledge (= know)
-  duhet: L(w('mos'), w('prit')), //                             do not wait (= must)
-  mendoj: L(wf('bej', 'bëj', 'make'), wf('ne', 'në', 'in'), w('koke')), // make in the head (= think)
-  duket: L(w('ti'), w('sheh')), //                              you see (= seems)
-  ai: L(w('nje'), w('burre')), //                              a man (= he)
-  ajo: L(w('nje'), w('grua')), //                              a woman (= she)
-  ata: L(wf('njeri', 'njerëz', 'people')), //                  people (= they)
-  tij: L(w('e_link'), w('ai')), //                             of him (= his)
-  ky: L(w('ketu')), //                                         here (= this)
+  duhet: L(w('eshte'), w('nevoje')),                    // is need
+  mendoj: L(wf('punon', 'punoj', 'work'), w('me'), w('koke')), // work with head
+  duket: L(wf('sy', 'syri', 'the eye'), w('e_obj'), wf('sheh', 'sheh', 'sees'), w('keshtu')), // the eye it sees thus
+  ai: L(wf('fjale', 'fjala', 'the word'), w('per'), w('nje'), w('burre')), // the word for a man
+  ajo: L(wf('fjale', 'fjala', 'the word'), w('per'), w('nje'), w('grua')), // the word for a woman
+  ata: L(w('ai'), w('dhe'), w('ajo')),                  // he and she
+  tij: L(w('e_link'), wf('ai', 'atij', 'him')),         // of him
+  ky: L(w('ai'), w('qe'), w('eshte'), w('ketu')),       // he that is here
   ju: L(w('ti'), w('dhe'), w('ti')), //                        you and you (= you plural)
-  na: L(w('une'), w('dhe'), w('ti')), //                       me and you (= us)
-  kush: L(w('cfare'), w('njeri')), //                          what person (= who)
-  cfare: L(w('nje'), w('gje')), //                             a thing (= what)
+  na: L(w('nje'), w('fjale'), w('e_art'), w('vogel'), w('per'), wf('ne_we', 'ne', 'us')), // a word the small for us
+  kush: L(w('cili'), w('njeri')),                       // which person
+  cfare: L(wf('cili', 'cila', 'which'), w('gje')),      // which thing
   pse: L(w('per'), w('cfare')), //                             for what (= why)
   sa: L(w('shume'), w('ose'), w('pak')), //                    many or few (= how much)
-  kur: L(wf('ne', 'në', 'in'), w('cfare'), w('kohe')), //      in what time (= when)
-  nese: L(w('mund')), //                                       maybe (= if)
-  sepse: L(w('per'), wf('ky', 'këtë', 'this')), //             for this (= because)
-  edhe: L(w('dhe')), //                                        and (= also)
+  kur: L(w('ne'), w('cfare'), wf('kohe', 'kohe', 'time')), // in what time
+  nese: L(w('ndoshta'), w('po_yes'), w('ndoshta'), wf('jo', 'jo', 'no')), // maybe yes maybe no
+  sepse: L(w('per'), wf('ky', 'këtë', 'this'), w('arsye')), // for this reason
+  edhe: L(w('dhe'), w('gjithashtu')),                   // and also
   apo: L(w('ose')), //                                         or
-  si: L(w('sa'), w('mire')), //                                how well (= how)
+  si: L(w('ne'), w('cfare'), wf('menyre', 'mënyre', 'way')), // in what way
   pra: L(w('keshtu')), //                                      thus (= so)
-  keshtu: L(w('si'), w('ky')), //                              like this (= thus)
-  gjithe: L(w('jo'), w('pak')), //                             not a little (= all)
+  keshtu: L(wf('si', 'si', 'as'), w('ky')),             // as this
+  gjithe: L(w('cdo'), w('gje'), w('dhe'), w('cdo'), w('njeri')), // every thing and every person
   pak: L(w('jo'), w('shume')), //                             not many (= a little)
-  para: L(w('jo'), w('tani')), //                             not now (= before)
+  para: L(w('jo'), w('tani'), w('jo'), w('pas')),       // not now not after
   tek: L(wf('ne', 'në', 'in')), //                            in (= at)
-  vertete: L(w('shume'), w('sigurt')), //                     very sure (= truly)
+  vertete: L(wf('shume', 'shumë', 'very'), wf('sigurt', 'sigurt', 'sure')), // very sure
   dicka: L(w('nje'), w('gje')), //                            a thing (= something)
-  asgje: L(w('nuk'), w('nje'), w('gje')), //                  not a thing (= nothing)
-  ja: L(w('sheh'), w('ketu')), //                            see here (= behold)
-  oh: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), //     a small word
-  hej: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), //    a small word
-  duke: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), //   a small word
-  jete: L(w('jo'), wf('vdes', 'vdekur', 'dead')), //          not dead (= life)
-  rregull: L(w('gjithe'), w('mire')), //                     all good (= order)
-  faleminderit: L(w('nje'), w('fjale'), w('e_art'), w('mire')), // a good word (= thanks)
+  asgje: L(wf('asnje', 'asnjë', 'not any'), w('gje')),  // not any thing
+  ja: L(w('shiko'), w('ketu')),                         // look here
+  oh: L(w('nje'), w('fjale'), w('per'), w('dhimbje')),  // a word for pain
+  hej: L(w('degjo'), w('ti')),                          // listen you
+  duke: L(w('ne'), wf('kohe', 'kohën', 'the time'), w('qe')), // in the time that
+  jete: L(wf('kohe', 'koha', 'the time'), w('kur'), wf('je', 'je', 'you are'), w('gjalle')), // the time when you are alive
+  rregull: L(w('kur'), w('cdo'), w('gje'), w('eshte'), w('mire')), // when every thing is good
+  faleminderit: L(w('nje'), w('fjale'), w('e_art'), w('mire'), w('kur'), w('dikush'), wf('jep', 'jep', 'gives'), w('dicka')), // a word the good when someone gives something
   se: L(w('qe')), //                                         that
   qe: L(w('se')), //                                         that (relative)
   gje: L(w('dicka')), //                                     something (= a thing)
-  ta: L(w('nje'), w('fjale'), w('e_art'), w('vogel')), //    a small word
-  im: L(w('e_link'), w('une')), //                          of me (= my)
+  ta: L(w('nje'), w('fjale'), w('per'), w('te_subj'), w('dhe'), w('e_obj')), // a word for to and it
+  im: L(w('qe'), wf('ke', 'kam', 'I have')),            // that I have
   // ===== SURVIVAL CORE definitions (in-language, built from simpler words) =====
-  lutem: L(w('nje'), w('fjale'), w('mire')), //             a kind word (please)
+  lutem: L(w('nje'), w('fjale'), w('kur'), wf('do', 'do', 'you want'), w('dicka')), // a word when you want something
   mirmengjes: L(w('mire'), w('mengjes')), //                good morning
   mirdita: L(w('mire'), w('dite')), //                      good day
   mirembrema: L(w('mire'), w('mbremje')), //                good evening
-  natenmire: L(w('mire'), w('naten')), //                   good night
-  mirupafshim: L(w('kur'), w('ti'), w('ik')), //            when you leave (goodbye)
-  gjashte: L(w('pese'), w('dhe'), w('nje')), //             five and one
-  tete: L(w('shtate'), w('dhe'), w('nje')), //              seven and one
-  dhjete: L(w('nente'), w('dhe'), w('nje')), //             nine and one
+  natenmire: L(w('fjale'), w('kur'), wf('shko', 'shkon', 'you go'), w('te_subj'), wf('fle', 'flesh', 'sleep')), // word when you go to sleep
+  mirupafshim: L(w('nje'), w('fjale'), w('kur'), wf('shko', 'shkon', 'you go')), // a word when you go
+  gjashte: L(w('pese'), w('dhe'), wf('nje', 'një', 'one')), // five and one
+  tete: L(w('shtate'), w('dhe'), wf('nje', 'një', 'one')), // seven and one
+  dhjete: L(w('nente'), w('dhe'), wf('nje', 'një', 'one')), // nine and one
   njezet: L(w('dhjete'), w('dhe'), w('dhjete')), //         ten and ten
-  njeqind: L(w('shume'), w('dhjete')), //                   many tens (hundred)
-  mije: L(w('shume'), w('njeqind')), //                     many hundreds (thousand)
-  zero: L(w('jo'), w('gje')), //                            no thing
-  tregtar: L(w('njeri'), w('ne'), w('treg')), //            a person in the market
-  dua: L(w('kur'), w('kerko'), w('nje'), w('gje')), //      when you seek a thing (want)
-  blej: L(w('jep'), w('para'), w('per'), w('nje'), w('gje')), // give money for a thing
-  shes: L(w('jep'), w('nje'), w('gje'), w('per'), w('para')), // give a thing for money
-  kushton: L(w('sa'), w('para')), //                        how much money
-  lek: L(w('nje'), w('lloj'), w('para')), //                a kind of money
-  shtrenjte: L(w('shume'), w('para')), //                   much money (expensive)
-  lire: L(w('pak'), w('para')), //                          little money (cheap)
-  dyqan: L(w('vend'), w('ku'), w('blej')), //               a place where you buy
-  kusur: L(w('para'), w('prapa')), //                       money back (change)
-  fatura: L(w('sa'), w('para'), w('per'), w('ha')), //      how much money for food (the bill)
-  caj: L(w('uje'), w('i_art'), w('nxehte')), //             hot water (tea)
-  birre: L(w('nje'), w('gje'), w('per'), w('pi')), //       a thing to drink (beer)
-  perime: L(w('gje'), w('per'), w('ha'), w('nga'), w('toke')), // things to eat from the earth
-  bujtine: L(w('nje'), w('shtepi'), w('per'), w('udhetar')), // a house for travellers (inn)
-  dhome: L(w('nje'), w('vend'), w('ne'), w('shtepi')), //   a place in a house (room)
-  shtrat: L(w('ku'), w('fle')), //                          where you sleep (bed)
-  celes: L(w('nje'), w('gje'), w('per'), w('dere')), //     a thing for a door (key)
-  sherues: L(w('njeri'), w('me'), w('bar')), //             a person with herbs (healer)
+  njeqind: L(w('dhjete'), wf('here', 'herë', 'times'), w('dhjete')), // ten times ten
+  mije: L(w('dhjete'), wf('here', 'herë', 'times'), w('njeqind')), // ten times hundred
+  zero: L(w('kur'), w('nuk'), wf('ka', 'ka', 'there is'), wf('asgje', 'asgjë', 'anything')), // when not there is anything
+  tregtar: L(w('njeri'), w('qe'), wf('shes', 'shet', 'sells'), w('ne'), w('treg')), // person that sells in market
+  dua: L(wf('deshiron', 'dëshiroj', 'I wish'), w('dicka')), // I wish something
+  blej: L(w('jep'), wf('para', 'para', 'money'), w('per'), w('nje'), w('gje')), // give money for a thing
+  shes: L(w('jep'), w('nje'), w('gje'), w('per'), wf('para', 'para', 'money')), // give a thing for money
+  kushton: L(w('sa'), wf('para', 'para', 'money'), w('do'), w('nje'), w('gje')), // how much money wants a thing
+  lek: L(wf('para', 'paraja', 'money'), w('e_link'), wf('shqiptar', 'shqiptarëve', 'the Albanians')), // money of the Albanians
+  shtrenjte: L(w('kushton'), wf('shume', 'shumë', 'much'), wf('para', 'para', 'money')), // costs much money
+  lire: L(w('kushton'), w('pak'), wf('para', 'para', 'money')), // costs a little money
+  dyqan: L(w('vend'), w('ku'), wf('blej', 'blej', 'I buy'), wf('gje', 'gjëra', 'things')), // place where I buy things
+  kusur: L(wf('para', 'para', 'money'), w('qe'), wf('merr', 'merr', 'you take'), wf('prapa', 'prapa', 'back')), // money that you take back
+  fatura: L(wf('tregoj', 'tregon', 'shows'), w('sa'), wf('para', 'para', 'money'), wf('duhet', 'duhet', 'is needed')), // shows how much money is needed
+  caj: L(w('uje'), w('i_art'), w('nxehte'), w('me'), w('bar')), // water the hot with herb
+  birre: L(w('nje'), w('leng'), w('i_art'), w('verdhe'), w('qe'), wf('pi', 'pi', 'you drink'), wf('ne', 'në', 'at'), w('feste')), // a liquid the yellow that you drink at festival
+  perime: L(w('ushqim'), w('nga'), wf('toke', 'toka', 'the ground')), // food from the ground
+  bujtine: L(w('shtepi'), w('ku'), wf('fle', 'fle', 'sleeps'), wf('udhetar', 'udhëtari', 'the traveller')), // house where sleeps the traveller
+  dhome: L(w('vend'), w('brenda'), wf('shtepi', 'shtëpisë', 'the house'), w('me'), w('dere')), // place inside the house with door
+  shtrat: L(w('gje'), w('ne'), w('dhome'), w('ku'), wf('fle', 'fle', 'you sleep')), // thing in room where you sleep
+  celes: L(w('gje'), w('qe'), wf('hap', 'hap', 'opens'), wf('dere', 'derën', 'the door')), // thing that opens the door
+  sherues: L(w('njeri'), w('qe'), wf('ndihmo', 'ndihmon', 'helps'), w('kur'), wf('je', 'je', 'you are'), w('semur')), // person that helps when you are sick
   mjek: L(w('nje'), w('sherues')), //                       a healer (doctor)
-  semur: L(w('jo'), w('mire')), //                          not well (sick)
-  dhimbje: L(w('nje'), w('gje'), w('e_link'), w('keq')), // a bad thing (pain)
-  quhem: L(w('emer'), w('im')), //                          my name (am called)
-  familje: L(w('baba'), w('dhe'), w('femije')), //          father and child (family)
-  vjec: L(w('sa'), w('vit')), //                            how many years (years old)
+  semur: L(w('kur'), wf('ke', 'ke', 'you have'), w('dhimbje')), // when you have pain
+  dhimbje: L(w('gje'), w('e_link'), wf('keq', 'keqe', 'bad'), w('nga'), w('nje'), w('plage')), // thing of bad from a wound
+  quhem: L(wf('emer', 'emri', 'name'), w('im'), w('eshte')), // name my is
+  familje: L(w('nene'), w('e_conj'), w('baba'), w('dhe'), wf('femije', 'fëmijë', 'children')), // mother and father and children
+  vjec: L(wf('sa', 'sa', 'how many'), wf('vit', 'vjet', 'years'), wf('ke', 'ke', 'you have')), // how many years you have
   perserit: L(w('thote'), w('perseri')), //                say again (repeat)
-  majtas: L(w('dore'), w('e_link'), w('zemer')), //         the hand of the heart (left)
-  djathtas: L(w('dore'), w('tjeter')), //                   the other hand (right)
-  harte: L(w('nje'), w('gje'), w('me'), w('rruge')), //     a thing with roads (map)
-  hyrje: L(w('dere'), w('per'), w('brenda')), //            a door for inside (entrance)
+  majtas: L(w('nga'), wf('dore', 'dora', 'the hand'), w('e_link'), wf('zemer', 'zemrës', 'the heart')), // from the hand of the heart
+  djathtas: L(w('nga'), wf('dore', 'dora', 'the hand'), w('tjeter')), // from the hand other
+  harte: L(wf('tregoj', 'tregon', 'shows'), wf('rruge', 'rrugët', 'the roads'), w('dhe'), wf('vend', 'vendet', 'the places')), // shows the roads and the places
+  hyrje: L(w('dere'), w('ku'), wf('hyr', 'hyn', 'you enter')), // door where you enter
   dalje: L(w('dere'), w('per'), w('jashte')), //            a door for outside (exit)
-  shtyj: L(w('dere'), w('larg'), w('nga'), w('ti')), //     door away from you (push)
-  terheq: L(w('dere'), w('afer'), w('ti')), //              door near you (pull)
-  mbremje: L(w('kohe'), w('e_link'), w('naten')), //        the time of night (evening)
-  dje: L(w('dite'), w('e_link'), w('para')), //             a day before (yesterday)
-  nxehte: L(w('jo'), w('ftohte')), //                       not cold (hot)
-  mbyllur: L(w('jo'), w('hap')), //                         not open (closed)
+  shtyj: L(w('leviz'), w('nje'), w('gje'), w('larg'), w('nga'), w('ti')), // move a thing far from you
+  terheq: L(w('leviz'), w('nje'), w('gje'), w('afer'), wf('ti', 'teje', 'you')), // move a thing near you
+  mbremje: L(w('kohe'), w('para'), wf('naten', 'natës', 'the night')), // time before the night
+  dje: L(w('nje'), w('dite'), w('me_more'), wf('para', 'parë', 'before')), // a day more before
+  nxehte: L(wf('shume', 'shumë', 'very'), w('ngrohte'), wf('si', 'si', 'like'), wf('zjarr', 'zjarri', 'the fire')), // very warm like the fire
+  mbyllur: L(w('jo'), wf('hap', 'hapur', 'open')),      // not open
   ndalohet: L(w('mos'), w('bej')), //                       do not do it (forbidden)
   burra: L(w('shume'), w('burre')), //                      many men
   gra: L(w('shume'), w('grua')), //                         many women
-  bilete: L(w('para'), w('per'), w('nje'), w('rruge')), //  money for a passage (fare)
-  polici: L(w('nje'), w('roje')), //                        a guard
-  hotel: L(w('nje'), w('bujtine'), w('e_link'), w('madh')), // a big inn (hotel)
-  restorant: L(w('nje'), w('shtepi'), w('ku'), w('ha')), // a house where you eat
+  bilete: L(wf('para', 'para', 'money'), w('per'), w('nje'), w('rruge')), // money for a road
+  polici: L(w('nje'), w('roje'), w('ne'), w('qytet')),  // a guard in city
+  hotel: L(w('nje'), w('bujtine'), w('e_link'), wf('madh', 'madhe', 'big'), w('ne'), w('qytet')), // a inn of big in city
+  restorant: L(w('nje'), w('shtepi'), w('ku'), w('ti'), wf('ha', 'ha', 'eat')), // a house where you eat
+  // ===== added by dictionary overhaul =====
+  leng: L(w('dicka'), w('si'), wf('uje', 'uji', 'the water'), w('ose'), w('si'), wf('qumesht', 'qumështi', 'the milk')), // something how the water or how the milk
+  zhurme: L(w('nje'), w('ze'), w('i_art'), w('madh')),  // a sound the big
 }
