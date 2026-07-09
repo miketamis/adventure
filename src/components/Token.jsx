@@ -10,7 +10,7 @@ import { playWord } from '../game/audio.js'
 //                       English, prefixed with the 👁 peak icon.
 // `tokenCount` (a number) shows a little token-tally circle under a discovered
 // word — used in the answer/option rows so you can see your tokens in context.
-export default function Token({ token, discovered, peak, onDiscover, tokenCount }) {
+export default function Token({ token, discovered, peak, onDiscover, tokenCount, speaking }) {
   const [hover, setHover] = useState(false)
 
   if (token.paren) {
@@ -19,11 +19,12 @@ export default function Token({ token, discovered, peak, onDiscover, tokenCount 
   }
 
   const isKnown = discovered[token.id]
+  const speak = speaking ? ' speaking' : ''
 
   if (!isKnown) {
     return (
       <span
-        className="token gloss"
+        className={'token gloss' + speak}
         onClick={() => onDiscover(token.id)}
         onMouseEnter={() => { setHover(true); playWord(token.al) }}
         onMouseLeave={() => setHover(false)}
@@ -39,7 +40,7 @@ export default function Token({ token, discovered, peak, onDiscover, tokenCount 
   const [stem, ending] = splitStem(token.id, token.al)
   return (
     <span
-      className={'token known' + (peekable ? ' peekable' : '') + (showCount ? ' has-count' : '')}
+      className={'token known' + (peekable ? ' peekable' : '') + (showCount ? ' has-count' : '') + speak}
       onMouseEnter={() => { setHover(true); playWord(token.al) }}
       onMouseLeave={() => setHover(false)}
     >
