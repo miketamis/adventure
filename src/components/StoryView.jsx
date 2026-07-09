@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Token from './Token.jsx'
 import { STORY, ITEMS, w, wf, p, visibleLines, lineOf } from '../game/content.js'
 import { ENDING_LORE, AREA_FACTOIDS } from '../game/folklore.js'
-import { canSpeak, canUseItem, hasRequiredItem, hasCond, canAfford, phraseSenses } from '../game/gameState.js'
+import { canSpeak, canUseItem, hasRequiredItem, hasCond, canAfford, phraseSenses, isRetreat } from '../game/gameState.js'
 import { speakSequence } from '../game/audio.js'
 import FactoidLore from './FactoidLore.jsx'
 
@@ -282,6 +282,8 @@ export default function StoryView({ state, dispatch }) {
   // lints the design goals: that most options are gated, and that every node always
   // keeps at least one ungated, always-visible path.
   const optionRevealed = (opt) => {
+    // the way you just came is never hidden — you can always see your retreat
+    if (isRetreat(state, opt)) return true
     if (!opt.reveal) return true
     const line = sentenceFor(opt.reveal)
     return !line || lineDiscovered(line)
@@ -349,16 +351,18 @@ export default function StoryView({ state, dispatch }) {
     }
     const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
     const affordable = canAfford(state, opt)
+    const retreat = isRetreat(state, opt) // backtracking spends no tokens
     entries.push({
       key: 'opt-' + i,
       tokens: opt.text,
       real: true,
       allDiscovered,
       enoughMana,
-      free: !!opt.free,
+      free: !!opt.free || retreat,
+      retreat,
       lek: opt.lek || 0,
       affordable,
-      ok: allDiscovered && (enoughMana || opt.free) && hasRequiredItem(state, opt) && affordable,
+      ok: allDiscovered && (enoughMana || opt.free || retreat) && hasRequiredItem(state, opt) && affordable,
       onSelect: () => dispatch({ type: 'CHOOSE', option: opt, targetNode: STORY[opt.to] }),
     })
   })
@@ -676,7 +680,11 @@ export default function StoryView({ state, dispatch }) {
                 cost = <span className="option-cost bad">discover all words first</span>
               } else if (e.free) {
                 // walking back the way you came — no tokens needed or spent
-                cost = <span className="option-cost ok">free — spends no tokens</span>
+                cost = (
+                  <span className="option-cost ok">
+                    {e.retreat ? 'the way you came — free' : 'free — spends no tokens'}
+                  </span>
+                )
               } else if (!e.enoughMana) {
                 cost = (
                   <span className="option-cost bad">

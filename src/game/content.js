@@ -2103,10 +2103,13 @@ export const STORY = {
       L(wf('femije', 'fëmijët', 'the children'), wf('ndiz', 'ndezin', 'light'), w('nje'), w('zjarr'), p('.')),
       L(wf('femije', 'fëmijët', 'the children'), wf('kerce', 'kërcejnë', 'leap'), w('mbi'), w('zjarr'), p('.')),
       L(wf('femije', 'fëmijët', 'the children'), wf('ha', 'hanë', 'eat'), w('ballokume'), p('.')),
+      // the girls' spring rite keeps to the feast day too (→ nenaDiell1)
+      L(wf('vajze', 'vajzat', 'the girls'), wf('bej', 'bëjnë', 'make'), w('nje'), w('kukull'), w('balte'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), w('sot'), wf('zane', 'zana', 'the fairy'), w('e_link'), wf('mal', 'malit', 'the mountain'), wf('dil', 'del', 'comes out'), p('.')),
     ],
     options: [
       { text: L(wf('bej', 'bëj', 'make'), w('nje'), w('feste')), to: 'veraDiteFund', reveal: 'feste' },
+      { text: L(w('ndihmo'), wf('vajze', 'vajzat', 'the girls')), to: 'nenaDiell1', reveal: 'kukull' },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
     ],
   },
@@ -4973,14 +4976,12 @@ export const STORY = {
       when('npc:femijet', L(wf('femije', 'fëmijët', 'the children'), wf('bej', 'bëjnë', 'make'), w('nje'), w('dordolec'), p('.'))),
       L(w('ketu'), w('rri'), w('nje'), w('shtepi'), w('dhe'), w('nje'), w('oda'), p('.')),
       L(w('nje'), w('kishe'), w('dhe'), w('nje'), w('xhami'), wf('rri', 'rrinë', 'stand'), w('bashke'), p('.')),
-      L(w('nje'), w('kulle'), w('e_link'), wf('ore', 'orës', 'the hour'), w('rri'), w('ketu'), p('.')),
       L(w('nje'), w('rruge'), wf('shko', 'shkon', 'goes'), w('larg'), p('.')),
       when('day', L(w('sot'), wf('fshat', 'fshati', 'the village'), wf('bej', 'bën', 'makes'), w('nje'), w('feste'), p('.'))),
       // the wedding runs all day; the bride herself only rides in when the
       // krushqit procession (npcs.js) actually reaches the square
       unless('night', L(w('sot'), w('ka'), w('nje'), w('dasme'), p('.'))),
       when('npc:krushqit', L(w('nje'), w('nuse'), w('vjen'), w('me'), w('kale'), p('.'))),
-      unless('night', L(wf('vajze', 'vajzat', 'the girls'), wf('bej', 'bëjnë', 'make'), w('nje'), w('kukull'), w('balte'), p('.'))),
       // the day FADES over the square if the hour turned while you stood here:
       // dusk and nightfall arrive as events, then the standing lines take over
       became('dusk', L(wf('diell', 'dielli', 'the sun'), w('bie'), p('.'))),
@@ -4990,7 +4991,6 @@ export const STORY = {
       // the Xhindët's night walk crosses the sleeping square (npcs.js xhindet)
       when('npc:xhindet', L(w('dikush'), wf('ec', 'ecën', 'walks'), wf('ne', 'në', 'in'), w('erresire'), p('.'))),
       L(w('nje'), w('rruge'), wf('zbrit', 'zbret', 'goes down'), wf('poshte', 'poshtë', 'down'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river'), p('.')),
-      L(w('nje'), w('treg'), w('i_art'), w('vogel'), w('eshte'), w('ketu'), p('.')),
       // the old man keeps his timetable (npcs.js plakuSheshit): mornings here,
       // evenings in the oda among the men
       when('npc:plakuSheshit', L(w('nje'), w('plak'), w('rri'), w('ketu'), w('dhe'), wf('shiko', 'shikon', 'looks'), w('ti'), p('.'))),
@@ -5003,7 +5003,6 @@ export const STORY = {
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('pus')), to: 'pusiThate', reveal: 'thate' },
       { text: L(wf('bej', 'bëj', 'make'), w('nje'), w('feste')), requires: 'day', to: 'veraDite1', reveal: 'feste' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('dasme')), unless: 'night', to: 'dasma1', reveal: 'dasme' },
-      { text: L(w('ndihmo'), wf('vajze', 'vajzat', 'the girls')), unless: 'night', to: 'nenaDiell1', reveal: 'kukull' },
       { text: L(w('zbrit'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river')), to: 'fshatiLumi', reveal: 'lume' },
       { text: L(w('shko'), wf('tek', 'te', 'to'), w('udhekryq')), to: 'udhekryq' },
       { text: L(w('ec'), wf('rruge', 'rrugës', 'the lane')), to: 'fshatiLanes' },
@@ -5183,7 +5182,9 @@ export const STORY = {
     options: [],
   },
 
-  // === NËNA E DIELLIT — the funeral of the Sun's Mother (spring renewal) ======
+  // === NËNA E DIELLIT — the funeral of the Sun's Mother (spring renewal).
+  // Reached from veraDite1: the Day-of-Summer feast gathers the spring rites,
+  // so the square itself stays uncluttered. ======
   nenaDiell1: {
     id: 'nenaDiell1',
     text: [
@@ -5194,7 +5195,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('varros'), wf('nene', 'Nënën', 'the Mother'), w('e_link'), wf('diell', 'Diellit', 'the Sun')), to: 'nenaDiellFund', reveal: 'kukull' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('feste')), to: 'veraDite1' },
     ],
   },
 
