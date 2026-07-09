@@ -8745,6 +8745,10 @@ export const STORY = {
       L(wf('ure', 'ura', 'the bridge'), w('e_art'), w('vjeter'), w('eshte'), w('e_link'), wf('tabak', 'tabakëve', 'the tanners'), p('.')),
       L(wf('burre', 'burrat', 'the men'), wf('bej', 'bëjnë', 'build'), w('nje'), w('ure'), w('tjeter'), p('.')),
       L(w('nje'), w('mulli'), w('punon'), w('me'), w('uje'), p('.')),
+      // the spring is a permanent feature of the river-quarter — name it in the
+      // scene unconditionally so "shko në krua" always has a signpost to gate on,
+      // not only while the water-carrier NPC happens to be walking past
+      L(w('poshte'), w('nje'), w('krua'), w('jep'), w('uje'), p('.')),
       // the water-carrier (npcs.js gruaUji) walks her daylight loop past here:
       // seen ACROSS the water at the spring, or met HERE with the full jugs
       when('npcAt:gruaUji:kroi1', L(wf('tek', 'te', 'at'), wf('krua', 'kroi', 'the spring'), w('nje'), w('grua'), w('merr'), w('uje'), p('.'))),
