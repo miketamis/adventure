@@ -3,6 +3,7 @@ import Token from './Token.jsx'
 import { STORY, ITEMS, w, wf, p, visibleLines, lineOf } from '../game/content.js'
 import { ENDING_LORE, AREA_FACTOIDS } from '../game/folklore.js'
 import { canSpeak, canUseItem, hasRequiredItem, hasCond, canAfford, phraseSenses } from '../game/gameState.js'
+import { speakSequence } from '../game/audio.js'
 import FactoidLore from './FactoidLore.jsx'
 
 // sense ids that are NOT nouns (verbs, particles, adjectives, adverbs, numbers).
@@ -185,6 +186,9 @@ export default function StoryView({ state, dispatch }) {
   const peak = state.debug ? 999 : state.peak
   // which confuser option was just picked (to flash feedback); reset per node
   const [confusedKey, setConfusedKey] = useState(null)
+  // the story token currently being read aloud ("<lineIdx>:<tokIdx>"), so it can
+  // be highlighted as the passage is narrated word-by-word on entering a node
+  const [speakingKey, setSpeakingKey] = useState(null)
   // comprehension test at an ending: which question, the pick for it, running score
   const [compStep, setCompStep] = useState(0)
   const [compPick, setCompPick] = useState(null)
@@ -220,6 +224,29 @@ export default function StoryView({ state, dispatch }) {
   // time-of-day phase id), so resolve against inventory + the world clock
   const has = (id) => hasCond(state, id)
   const lines = visibleLines(node, has)
+
+  // Narrate the passage on first entering a node: read every word aloud in
+  // Albanian, one after another, and highlight the word being spoken. Re-runs
+  // only when the node changes (not on every discovery/hover re-render).
+  useEffect(() => {
+    if (state.ended) return
+    const order = []
+    lines.forEach((line, i) => {
+      line.forEach((tok, j) => {
+        if (tok.paren || !tok.al) return
+        order.push({ key: i + ':' + j, al: tok.al })
+      })
+    })
+    if (!order.length) return
+    setSpeakingKey(null)
+    const cancel = speakSequence(
+      order.map((o) => o.al),
+      (idx) => setSpeakingKey(idx >= 0 ? order[idx].key : null),
+    )
+    return cancel
+    // narration is keyed to the node itself — see comment above
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.nodeId, state.ended])
   // comprehension test that GATES a good/secret factoid: only unearned factoid
   // endings are tested (a fate needs no proof; a factoid already earned on an
   // earlier run is yours). ALL questions must be answered correctly to earn.
@@ -411,6 +438,7 @@ export default function StoryView({ state, dispatch }) {
             discovered={state.discovered}
             peak={peak}
             onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
+            speaking={speakingKey === i + ':' + j}
           />
         ))}
         {revealsPath && (

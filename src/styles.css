@@ -216,6 +216,16 @@ button {
   border-color: var(--line);
 }
 
+/* the word being read aloud as a passage is narrated word-by-word */
+.token.speaking {
+  color: var(--ink);
+  background: #f5c15a;
+  border-radius: 5px;
+  box-shadow: 0 0 0 2px #f5c15a, 0 0 10px 2px rgba(245, 193, 90, 0.55);
+  transition: background 0.08s ease, box-shadow 0.08s ease;
+}
+.token.gloss.speaking { border-bottom-color: transparent; }
+
 .tooltip {
   position: absolute;
   bottom: 130%;

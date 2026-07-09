@@ -56,20 +56,93 @@ export function subscribeMute(fn) {
   return () => listeners.delete(fn)
 }
 
-// Play a surface's clip. Caches <audio> elements so repeated hovers are cheap.
+// Get (and cache) the <audio> element for a surface so repeated plays are cheap.
 const cache = new Map()
-export function playWord(al) {
-  if (!al || muted) return
+function loadWord(al) {
   let a = cache.get(al)
   if (!a) {
     a = new Audio(audioUrl(al))
     a.preload = 'auto'
     cache.set(al, a)
   }
+  return a
+}
+
+// Play a surface's clip. Caches <audio> elements so repeated hovers are cheap.
+export function playWord(al) {
+  if (!al || muted) return
+  const a = loadWord(al)
   try {
     a.currentTime = 0
     a.play().catch(() => {})
   } catch {
     /* ignore */
+  }
+}
+
+// Read a list of surfaces aloud, one after another, calling onWord(index) as each
+// one begins (and onWord(-1) when the whole line is finished). Used to narrate a
+// story passage word-by-word so the UI can highlight the word being spoken.
+// Returns a cancel function that stops playback immediately.
+// If a clip is missing or the browser blocks autoplay (no user gesture yet), the
+// step still advances after a short beat so the highlight keeps moving in sync.
+const FALLBACK_MS = 320
+export function speakSequence(words, onWord) {
+  let cancelled = false
+  let current = null
+
+  const stopCurrent = () => {
+    if (current) {
+      try {
+        current.pause()
+      } catch {
+        /* ignore */
+      }
+      current = null
+    }
+  }
+
+  const playOne = (al) =>
+    new Promise((resolve) => {
+      if (cancelled || muted || !al) {
+        resolve()
+        return
+      }
+      const a = loadWord(al)
+      current = a
+      let settled = false
+      let timer = null
+      const finish = () => {
+        if (settled) return
+        settled = true
+        a.removeEventListener('ended', finish)
+        if (timer) clearTimeout(timer)
+        resolve()
+      }
+      a.addEventListener('ended', finish)
+      try {
+        a.currentTime = 0
+        const pr = a.play()
+        if (pr && pr.catch) pr.catch(() => { timer = setTimeout(finish, FALLBACK_MS) })
+      } catch {
+        timer = setTimeout(finish, FALLBACK_MS)
+      }
+    })
+
+  ;(async () => {
+    for (let i = 0; i < words.length; i++) {
+      if (cancelled || muted) break
+      onWord && onWord(i)
+      await playOne(words[i])
+      if (cancelled) return
+    }
+    if (!cancelled) onWord && onWord(-1)
+  })()
+
+  return () => {
+    if (cancelled) return
+    cancelled = true
+    stopCurrent()
+    onWord && onWord(-1)
   }
 }
