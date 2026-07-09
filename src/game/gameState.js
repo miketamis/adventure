@@ -270,12 +270,20 @@ export const hasRequiredItem = (state, option) =>
 export const lekOf = (state) => state.inventory.lek || 0
 export const canAfford = (state, option) => (option.lek ?? 0) >= 0 || lekOf(state) >= -option.lek
 
-// a `free: true` option (walking back the way you came) needs its words
-// DISCOVERED but neither requires nor spends tokens — retreat is never
-// token-locked (see the fshatiLumi -> start bridge crossing)
+// RETREAT — an option that walks you back where you just came from (its `to`
+// is state.cameFrom). The way you came is never gated: StoryView skips its
+// reveal-hiding, and it costs no tokens here. `free: true` hand-authors the
+// same treatment for a path that should be a free retreat whichever way you
+// arrived (the fshatiLumi -> start bridge crossing).
+export const isRetreat = (state, option) => option.to != null && option.to === state.cameFrom
+
+// a token-free option (`free: true`, or backtracking to cameFrom) needs its
+// words DISCOVERED but neither requires nor spends tokens — retreat is never
+// token-locked
 export const canChoose = (state, option) => {
   const sp = canSpeak(state, option.text)
-  return (option.free ? sp.allDiscovered : sp.ok) && hasRequiredItem(state, option) && canAfford(state, option)
+  const noTokens = option.free || isRetreat(state, option)
+  return (noTokens ? sp.allDiscovered : sp.ok) && hasRequiredItem(state, option) && canAfford(state, option)
 }
 
 export const canUseItem = (state, item) => canSpeak(state, item.use.phrase)
@@ -332,7 +340,7 @@ export function reducer(state, action) {
       if (option.hearts) hearts = Math.min(START_HEARTS, hearts + option.hearts)
       return {
         ...state,
-        mana: option.free ? state.mana : spend(state.mana, ids),
+        mana: option.free || isRetreat(state, option) ? state.mana : spend(state.mana, ids),
         inventory,
         discoveredEndings,
         visited,

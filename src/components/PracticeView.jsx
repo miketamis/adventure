@@ -297,7 +297,7 @@ export default function PracticeView({ state, dispatch }) {
 
   // story answers you can now afford (all words discovered + a token for each)
   const node = STORY[state.nodeId]
-  const affordable = (node?.options || []).filter((opt) => canChoose(state, opt).ok)
+  const affordable = (node?.options || []).filter((opt) => !opt.confuser && canChoose(state, opt))
 
   return (
     <>

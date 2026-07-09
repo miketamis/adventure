@@ -139,6 +139,7 @@ export const DICT = {
   kala:      { al: 'kala',      en: 'castle' },
   qytet:     { al: 'qytet',     en: 'city' },   // the dead cavern-city of the hoard (Durham, High Albania)
   treg:      { al: 'treg',      en: 'market' }, // its ghostly bazaar of fine wares
+  shesh:     { al: 'shesh',     en: 'square' }, // the village square, crossed side to side
   pishtar:   { al: 'pishtar',   en: 'torch' },  // made from the forest fire; light for the dark cavern
   mur:       { al: 'mur',       en: 'wall' },
   hije:      { al: 'hije',      en: 'shadow' },
@@ -1324,6 +1325,11 @@ const NOUN_FORMS = {
     { al: 'tregu', tag: 'defNom', gloss: "the market" },
     { al: 'tregun', tag: 'defAcc', gloss: "the market (object)" },
   ],
+  shesh: [ /* square */
+    { al: 'shesh', tag: 'indefNom', gloss: "a square" },
+    { al: 'sheshi', tag: 'defNom', gloss: "the square" },
+    { al: 'sheshin', tag: 'defAcc', gloss: "the square (object)" },
+  ],
   udhetar: [ /* traveller */
     { al: 'udhëtar', tag: 'indefNom', gloss: "a traveller" },
     { al: 'udhëtari', tag: 'defNom', gloss: "the traveller" },
@@ -2118,11 +2124,14 @@ export const STORY = {
       L(wf('femije', 'fëmijët', 'the children'), wf('ndiz', 'ndezin', 'light'), w('nje'), w('zjarr'), p('.')),
       L(wf('femije', 'fëmijët', 'the children'), wf('kerce', 'kërcejnë', 'leap'), w('mbi'), w('zjarr'), p('.')),
       L(wf('femije', 'fëmijët', 'the children'), wf('ha', 'hanë', 'eat'), w('ballokume'), p('.')),
+      // the girls' spring rite keeps to the feast day too (→ nenaDiell1)
+      L(wf('vajze', 'vajzat', 'the girls'), wf('bej', 'bëjnë', 'make'), w('nje'), w('kukull'), w('balte'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), w('sot'), wf('zane', 'zana', 'the fairy'), w('e_link'), wf('mal', 'malit', 'the mountain'), wf('dil', 'del', 'comes out'), p('.')),
     ],
     options: [
       { text: L(wf('bej', 'bëj', 'make'), w('nje'), w('feste')), to: 'veraDiteFund', reveal: 'feste' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
+      { text: L(w('ndihmo'), wf('vajze', 'vajzat', 'the girls')), to: 'nenaDiell1', reveal: 'kukull' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('shesh')), to: 'sheshiKisha' },
     ],
   },
 
@@ -4987,15 +4996,12 @@ export const STORY = {
       // are only HERE (and helpable) while their walk brings them here
       when('npc:femijet', L(wf('femije', 'fëmijët', 'the children'), wf('bej', 'bëjnë', 'make'), w('nje'), w('dordolec'), p('.'))),
       L(w('ketu'), w('rri'), w('nje'), w('shtepi'), w('dhe'), w('nje'), w('oda'), p('.')),
-      L(w('nje'), w('kishe'), w('dhe'), w('nje'), w('xhami'), wf('rri', 'rrinë', 'stand'), w('bashke'), p('.')),
-      L(w('nje'), w('kulle'), w('e_link'), wf('ore', 'orës', 'the hour'), w('rri'), w('ketu'), p('.')),
+      // the far side of the square, SEEN from here: crossing over is its own
+      // scene (sheshiKisha) — this sight-line is what reveals the way across
+      L(w('ti'), w('sheh'), w('nje'), w('kishe'), w('dhe'), w('nje'), w('xhami'), p('.')),
       L(w('nje'), w('rruge'), wf('shko', 'shkon', 'goes'), w('larg'), p('.')),
-      when('day', L(w('sot'), wf('fshat', 'fshati', 'the village'), wf('bej', 'bën', 'makes'), w('nje'), w('feste'), p('.'))),
-      // the wedding runs all day; the bride herself only rides in when the
-      // krushqit procession (npcs.js) actually reaches the square
-      unless('night', L(w('sot'), w('ka'), w('nje'), w('dasme'), p('.'))),
+      // the bride's procession (npcs.js krushqit) rides through this side too
       when('npc:krushqit', L(w('nje'), w('nuse'), w('vjen'), w('me'), w('kale'), p('.'))),
-      unless('night', L(wf('vajze', 'vajzat', 'the girls'), wf('bej', 'bëjnë', 'make'), w('nje'), w('kukull'), w('balte'), p('.'))),
       // the day FADES over the square if the hour turned while you stood here:
       // dusk and nightfall arrive as events, then the standing lines take over
       became('dusk', L(wf('diell', 'dielli', 'the sun'), w('bie'), p('.'))),
@@ -5005,7 +5011,6 @@ export const STORY = {
       // the Xhindët's night walk crosses the sleeping square (npcs.js xhindet)
       when('npc:xhindet', L(w('dikush'), wf('ec', 'ecën', 'walks'), wf('ne', 'në', 'in'), w('erresire'), p('.'))),
       L(w('nje'), w('rruge'), wf('zbrit', 'zbret', 'goes down'), wf('poshte', 'poshtë', 'down'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river'), p('.')),
-      L(w('nje'), w('treg'), w('i_art'), w('vogel'), w('eshte'), w('ketu'), p('.')),
       // the old man keeps his timetable (npcs.js plakuSheshit): mornings here,
       // evenings in the oda among the men
       when('npc:plakuSheshit', L(w('nje'), w('plak'), w('rri'), w('ketu'), w('dhe'), wf('shiko', 'shikon', 'looks'), w('ti'), p('.'))),
@@ -5016,12 +5021,41 @@ export const STORY = {
       { text: L(w('hyr'), wf('ne', 'në', 'to'), w('oda')), to: 'oda1', reveal: 'oda' },
       { text: L(w('ndihmo'), wf('femije', 'fëmijët', 'the children')), requires: 'npc:femijet', to: 'dordolec1', reveal: 'dordolec' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('pus')), to: 'pusiThate', reveal: 'thate' },
-      { text: L(wf('bej', 'bëj', 'make'), w('nje'), w('feste')), requires: 'day', to: 'veraDite1', reveal: 'feste' },
-      { text: L(w('shko'), wf('ne', 'në', 'to'), w('dasme')), unless: 'night', to: 'dasma1', reveal: 'dasme' },
-      { text: L(w('ndihmo'), wf('vajze', 'vajzat', 'the girls')), unless: 'night', to: 'nenaDiell1', reveal: 'kukull' },
+      // cross to the church side — the festival, the wedding and the market
+      // gather over there, so each half of the square stays readable
+      { text: L(w('kalo'), wf('shesh', 'sheshin', 'the square')), to: 'sheshiKisha', reveal: 'kishe' },
       { text: L(w('zbrit'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river')), to: 'fshatiLumi', reveal: 'lume' },
       { text: L(w('shko'), wf('tek', 'te', 'to'), w('udhekryq')), to: 'udhekryq' },
       { text: L(w('ec'), wf('rruge', 'rrugës', 'the lane')), to: 'fshatiLanes' },
+    ],
+  },
+
+  // The CHURCH SIDE of the square — the far half, across from the well. The
+  // square was one crowded node; split in two, each side describes its own
+  // buildings and SEES the other's ("ti sheh…"), and the day-life cluster
+  // (the festival, the wedding, the market street) gathers over here.
+  sheshiKisha: {
+    id: 'sheshiKisha',
+    text: [
+      from('fshatiSheshi', L(w('ti'), wf('kalo', 'kalon', 'cross'), wf('shesh', 'sheshin', 'the square'), p('.'))),
+      L(w('nje'), w('kishe'), w('dhe'), w('nje'), w('xhami'), wf('rri', 'rrinë', 'stand'), w('bashke'), w('ketu'), p('.')),
+      // looking back across the square at the well side
+      L(w('ti'), w('sheh'), wf('pus', 'pusin', 'the well'), w('dhe'), wf('shtepi', 'shtëpitë', 'the homes'), p('.')),
+      when('day', L(w('sot'), wf('fshat', 'fshati', 'the village'), wf('bej', 'bën', 'makes'), w('nje'), w('feste'), p('.'))),
+      // the wedding runs all day; the bride herself only rides in when the
+      // krushqit procession (npcs.js) actually reaches this side
+      unless('night', L(w('sot'), w('ka'), w('nje'), w('dasme'), p('.'))),
+      when('npc:krushqit', L(w('nje'), w('nuse'), w('vjen'), w('me'), w('kale'), p('.'))),
+      // the market street opens off this side (→ pazari1); stalls pack up at dusk
+      unless('night', L(w('nje'), w('treg'), w('i_art'), w('vogel'), w('eshte'), w('ketu'), p('.'))),
+      when('night', L(w('naten'), w('ketu'), w('eshte'), w('qete'), p('.'))),
+    ],
+    options: [
+      { text: L(wf('bej', 'bëj', 'make'), w('nje'), w('feste')), requires: 'day', to: 'veraDite1', reveal: 'feste' },
+      { text: L(w('shko'), wf('ne', 'në', 'to'), w('dasme')), unless: 'night', to: 'dasma1', reveal: 'dasme' },
+      { text: L(w('shko'), wf('ne', 'në', 'to'), w('treg')), unless: 'night', to: 'pazari1', reveal: 'treg' },
+      // back across to the well side — always open (the ungated path)
+      { text: L(w('kalo'), wf('shesh', 'sheshin', 'the square')), to: 'fshatiSheshi' },
     ],
   },
 
@@ -5082,6 +5116,30 @@ export const STORY = {
     ],
     options: [
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  // The PAZAR — the small market down the street from the square, with the
+  // sahat-kulla (the tower of the hour) above it. The square used to carry the
+  // market and clock-tower as flavour lines nothing acted on; re-homed here as
+  // a place you can walk to, with the two-lek loaf as the everyday economy
+  // lesson. The stalls pack up at dusk (the way in is unless: 'night').
+  pazari1: {
+    id: 'pazari1',
+    text: [
+      from('sheshiKisha', L(w('ti'), wf('shko', 'shkon', 'go'), wf('ne', 'në', 'to'), w('treg'), p('.'))),
+      L(wf('treg', 'tregu', 'the market'), w('eshte'), w('i_art'), w('vogel'), p('.')),
+      L(w('nje'), w('kulle'), w('e_link'), wf('ore', 'orës', 'the hour'), w('rri'), wf('lart', 'lart', 'high'), p('.')),
+      L(wf('ore', 'ora', 'the hour'), wf('bie', 'bie', 'strikes'), w('cdo'), w('ore'), p('.')),
+      unless('night', L(wf('njeri', 'njerëzit', 'the people'), wf('blej', 'blejnë', 'buy'), w('dhe'), wf('shes', 'shesin', 'sell'), p('.'))),
+      unless('night', L(w('nje'), w('grua'), wf('shes', 'shet', 'sells'), w('buke'), w('dhe'), w('djathe'), p('.'))),
+      when('night', L(w('naten'), wf('treg', 'tregu', 'the market'), w('fle'), p('.'))),
+    ],
+    options: [
+      // two lek buys the loaf — a priced option stays visible when you can't
+      // pay (the price tag is part of the lesson), and bread has its uses
+      { text: L(w('blej'), w('buke')), unless: 'night', lek: -2, grant: 'buke', to: 'pazari1', reveal: 'buke' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('shesh')), to: 'sheshiKisha' },
     ],
   },
 
@@ -5198,7 +5256,9 @@ export const STORY = {
     options: [],
   },
 
-  // === NËNA E DIELLIT — the funeral of the Sun's Mother (spring renewal) ======
+  // === NËNA E DIELLIT — the funeral of the Sun's Mother (spring renewal).
+  // Reached from veraDite1: the Day-of-Summer feast gathers the spring rites,
+  // so the square itself stays uncluttered. ======
   nenaDiell1: {
     id: 'nenaDiell1',
     text: [
@@ -5209,7 +5269,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('varros'), wf('nene', 'Nënën', 'the Mother'), w('e_link'), wf('diell', 'Diellit', 'the Sun')), to: 'nenaDiellFund', reveal: 'kukull' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('feste')), to: 'veraDite1' },
     ],
   },
 
@@ -6859,7 +6919,7 @@ export const STORY = {
     options: [
       { text: L(w('hyr'), wf('ne', 'në', 'in'), w('valle')), to: 'valleFund', reveal: 'valle' },
       { text: L(w('shiko'), wf('nuse', 'nusen', 'the bride')), to: 'dasmaFund', reveal: 'nuse' },
-      { text: L(w('kthehu')), to: 'fshatiSheshi' },
+      { text: L(w('kthehu')), to: 'sheshiKisha' },
     ],
   },
 
@@ -9294,6 +9354,8 @@ const CONFUSERS = {
   udhetimi2: L(w('hap'), wf('dere', 'derën', 'the door')), // open the door — none here
   bukuraThellesi: L(w('zbrit'), wf('ne', 'në', 'to'), wf('pus', 'pusin', 'the well')), // descend into the well — none here
   fshatiSheshi: L(w('bej'), wf('pus', 'pusin', 'the well')), // make the well — you cannot
+  sheshiKisha: L(wf('bej', 'bëj', 'make'), w('nje'), w('xhami')), // make a mosque — you cannot
+  pazari1: L(w('blej'), wf('ore', 'orën', 'the hour')), // buy the hour — you cannot buy time
   sheshiPlak: L(w('ndihmo'), wf('pus', 'pusin', 'the well')), // help the well — it is not a person
   sheshiPlak2: L(w('lufto'), wf('vatra', 'vatrat', 'the hearths')), // fight the hearths — nonsense
   sheshiPlak3: L(w('ik'), wf('fund', 'fundin', 'the end')), // flee the end — you cannot
@@ -10098,6 +10160,7 @@ export const DEFS = {
   dreq: L(w('nje'), w('djall')),                        // a devil
   ma: L(w('per'), w('mua')),                            // for me
   vend: L(w('atje'), w('ku'), w('je'), w('ti')),        // there where are you
+  shesh: L(w('nje'), w('vend'), wf('ne', 'në', 'in'), w('fshat')), // a place in the village (= the square)
   // top 151-200 frequency fill
   deri: L(w('nga'), w('tani'), wf('ne', 'në', 'to'), w('nje'), w('kohe'), w('tjeter')), // from now to a time other
   hajde: L(wf('vjen', 'eja', 'come'), w('ketu')),       // come here

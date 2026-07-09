@@ -213,9 +213,11 @@ export const NODE_AT = {
   ngjitja2: 'pusi2',
   ngjitja3: 'pusi2',
   fshatiSheshi: [499, 432],
-  dasma1: 'fshatiSheshi',
-  dasmaFund: 'fshatiSheshi',
-  valleFund: 'fshatiSheshi',
+  sheshiKisha: [498, 380], // the church side of the square, by the mosque and church road
+  pazari1: [505, 575], // the pazar stalls on the market street south of the square
+  dasma1: 'sheshiKisha',
+  dasmaFund: 'sheshiKisha',
+  valleFund: 'sheshiKisha',
   sheshiPlak: 'fshatiSheshi',
   sheshiPlak2: 'fshatiSheshi',
   sheshiPlak3: 'fshatiSheshi',
