@@ -418,6 +418,7 @@ export const DICT = {
   ruan:      { al: 'ruan',      en: 'guards' }, // the Ora-serpent guards the hoard
   roje:      { al: 'roje',      en: 'guard' },  // the guard at the queen's black palace
   bekim:     { al: 'bekim',     en: 'blessing' }, // the Ora's blessing for the hospitable
+  mallkim:   { al: 'mallkim',   en: 'curse' },    // the beggar's curse for the miser (lëmosha refused)
   mujo:      { al: 'Mujo',      en: 'Mujo' },    // Gjeto Basho Muji, elder kreshnik of Jutbina
   halil:     { al: 'Halili',    en: 'Halili' },  // Sokol Halili, his young brother
   tanusha:   { al: 'Tanusha',   en: 'Tanusha' },// daughter of the Krajl, Halili's bride
@@ -2937,6 +2938,9 @@ export const STORY = {
       { text: L(w('fol'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'udhetariHuaj' },
       { text: L(w('shiko'), wf('dere', 'derën', 'the door')), to: 'udhaShenja' },
       { text: L(w('jep'), w('lek')), lek: -5, to: 'lemoshaFund', reveal: 'njeri' },
+      // ...or refuse him — he speaks the old curse after you (lemoshaMohuar).
+      // Once cursed you stay cursed; the option folds away (a curse isn't twice-spoken).
+      { text: L(w('mos'), w('jep'), w('lek')), grant: 'mallkim', unless: 'mallkim', to: 'lemoshaMohuar', reveal: 'njeri' },
       { text: L(w('kthehu'), w('ne'), w('qytet')), to: 'qyteti' },
     ],
   },
@@ -2952,6 +2956,26 @@ export const STORY = {
       L(wf('njeri', 'njeriu', 'the man'), w('thote'), p(':'), w('faleminderit'), p('!'), w('ti'), w('je'), w('nje'), w('mik'), p('.')),
     ],
     options: [],
+  },
+
+  // Lëmosha refused — the wolf factoid's beggar-curse made playable: the man at
+  // the great door, turned away, speaks the oldest curse in the tradition over
+  // you (the fable at ujkuFund explains it; the hungry wolf in the dark collects
+  // it). The 'mallkim' you carry away walks with the run — `eaten` reacts to it.
+  lemoshaMohuar: {
+    id: 'lemoshaMohuar',
+    text: [
+      L(w('ti'), w('nuk'), w('jep'), w('lek'), p('.')),
+      L(wf('njeri', 'njeriu', 'the man'), w('te_obj'), w('sheh'), p('.')),
+      L(wf('njeri', 'njeriu', 'the man'), w('thote'), p(':')),
+      // the curse itself, word for word — the same Gheg formula tale 105 explains
+      Q('mallkimi i moçëm', w('te_obj'), wf('ha', 'hëngtë', 'may eat'), wf('ujk', 'ujku', 'the wolf'), p('!')),
+      L(wf('njeri', 'njeriu', 'the man'), w('te_obj'), w('mallko'), p('.')),
+      L(wf('mallkim', 'mallkimi', 'the curse'), wf('ec', 'ecën', 'walks'), w('me'), w('ti'), p('.')),
+    ],
+    options: [
+      { text: L(w('kthehu')), to: 'sheshi' },
+    ],
   },
 
   // The market stall — buying, selling, prices, please/thanks.
@@ -3498,10 +3522,12 @@ export const STORY = {
     end: 'bad',
     title: 'Eaten by the Wolf',
     blurb:
-      'A starving wolf is all teeth, and the only thing that gentles it is bread — shared, not withheld. With a loaf in hand you might have won a companion instead of a grave; with empty hands, your legs would have served you better than your fists. You chose to fight, and a hungry wolf does not lose. The songs are older and crueller than the village tells.',
+      'A starving wolf is all teeth, and the only thing that gentles it is food — bread or meat, shared, not withheld. With a loaf in hand you might have won a companion instead of a grave; with empty hands, your legs would have served you better than your fists. You chose to fight, and a hungry wolf does not lose. The worst curse the villages know is "Të hângtë ujku!" — may the wolf eat you — and tonight, whether or not anyone ever spat it after you, it came true. Yet the old people allow the eaten one cruel mercy: the wolf\'s belly is the one grave nothing rises from, and what it takes will never walk the night as a lugat. The songs are older and crueller than the village tells.',
     text: [
       unless('buke', L(w('ti'), w('lufto'), wf('ujk', 'ujkun', 'the wolf'), p('.'))),
       when('buke', L(w('ti'), w('nuk'), w('jep'), w('buke'), wf('ujk', 'ujkut', 'to the wolf'), p('.'))),
+      // the beggar's curse, collected — planted at lemoshaMohuar, fulfilled here
+      when('mallkim', L(wf('njeri', 'njeriu', 'the man'), w('pa'), w('lek'), wf('thote', 'tha', 'said'), p(':'), w('te_obj'), wf('ha', 'hëngtë', 'may eat'), wf('ujk', 'ujku', 'the wolf'), p('!'))),
       L(wf('ujk', 'ujku', 'the wolf'), w('te_obj'), w('ha'), p('.')),
       L(w('loja'), w('mbaroi'), p('.')),
     ],
@@ -9789,6 +9815,7 @@ const CONFUSERS3 = {
   balozKoke: L(w('jep'), wf('baloz', 'balozin', 'the sea-monster')), // give the sea-monster — it is dead
   // --- survival-core vignettes (listen-to X: X cannot answer) ---
   sheshi: L(w('degjo'), wf('dere', 'derën', 'the door')), // listen to the door — it cannot answer
+  lemoshaMohuar: L(w('ha'), wf('dere', 'derën', 'the door')), // eat the door — teeth are the wolf's part
   tregtari: L(w('degjo'), w('lek')), // listen to the lek (coin) — it cannot answer
   tregtari2: L(w('degjo'), w('problem')), // listen to the problem — it cannot answer
   bujtina: L(w('degjo'), wf('celes', 'çelësin', 'the key')), // listen to the key — it cannot answer
@@ -9902,6 +9929,10 @@ export const ITEMS = {
   mish: {
     id: 'mish', icon: '🍖', name: 'Meat', al: 'mish',
     blurb: 'Meat from the Kulshedra’s larder. The eagle will only carry you up if it is fed.',
+  },
+  mallkim: {
+    id: 'mallkim', icon: '🌑', name: 'Curse', al: 'mallkim',
+    blurb: 'The man at the great door, refused, spoke the old words after you: "Të hângtë ujku!" — may the wolf eat you. A curse is not undone by walking away from it; it walks too, and it knows where the forest is.',
   },
   // companions — tracked like items, but they walk WITH you: they render as their own
   // story line ("ti dhe ujku") instead of "you have a X", and an option can gate on
@@ -10459,6 +10490,7 @@ export const DEFS = {
   sjell: L(w('vjen'), w('me'), w('nje'), w('gje')), // comes with a thing (= brings)
   marto: L(w('merr'), wf('nuse', 'nuse', 'a bride')), //            takes a bride (= marries)
   mallko: L(w('thote'), wf('fjale', 'fjalë', 'words'), w('per'), w('dem_harm')), // says words for harm
+  mallkim: L(wf('fjale', 'fjalë', 'words'), w('per'), w('dem_harm')), // words for harm
   le: L(w('nuk'), w('mban')), //                                  does not keep (= leaves behind)
   grua: L(w('nje'), w('nene'), w('ose'), w('vajze')), //          a mother or a maiden (= a woman)
   unaze: L(w('ar'), wf('ne', 'në', 'on'), w('dore')), //          gold on the hand (= a ring)
