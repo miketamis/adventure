@@ -19,7 +19,7 @@ export const PLACE_META = {
       { title: 'the book of the Sun', nodes: ['libriDiell'] },
       { title: "the old man's welcome", nodes: ['oda1', 'odaPlak', 'oda2'] },
       { title: 'a song for the lord of the house', nodes: ['kengaLahute'] },
-      { title: "the travellers' tales", nodes: ['udhetaret', 'udhetaretBisede', 'udhetaretBisede2', 'tregMal', 'tregDet', 'tregMujo', 'tregDragua'] },
+      { title: "the travellers' tales", nodes: ['udhetaret', 'udhetaretBisede', 'udhetaretBisede2', 'udhetaretBisede3', 'udhetaretBisede4', 'tregMal', 'tregDet', 'tregMujo', 'tregDragua'] },
       { title: 'the sworn virgin', nodes: ['burrnesha1', 'burrneshaFund'] },
       { title: "Skanderbeg's goats", nodes: ['skender1', 'skender2', 'skenderFund'] },
       { title: 'the lute plays all night', nodes: ['lahuta1', 'lahutaFund'] },
