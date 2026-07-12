@@ -85,6 +85,7 @@ export const NODE_AT = {
   qytetiUdhetar2: 'qyteti',
   qytetiUdhetar3: 'qyteti',
   qytetiUdhetar4: 'qyteti',
+  qytetiUdhetar5: 'qyteti',
   // ── the living quarter of the dead city — a real drawn plaza: the square at
   // its heart, the bazaar NE, the inn SE, the healer SW, the traveller by the
   // street in from the gate, the way-signs at the far edge.
@@ -95,6 +96,7 @@ export const NODE_AT = {
   blerjaKripe: 'tregtari',
   shitjaCaj: 'tregtari',
   tregtari2: 'tregtari',
+  tregtari3: 'tregtari',
   blerjaLahuta: 'tregtari',
   plisiFund: 'tregtari',
   xhubletaFund: 'tregtari',

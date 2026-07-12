@@ -36,7 +36,7 @@ export const PLACE_META = {
   tregtari: {
     name: "pazari — the trader's stall",
     happenings: [
-      { title: 'trade with the merchant', nodes: ['tregtari', 'tregtari2'] },
+      { title: 'trade with the merchant', nodes: ['tregtari', 'tregtari2', 'tregtari3'] },
       { title: 'buy bread and salt', nodes: ['blerjaBuke', 'blerjaKripe'] },
       { title: 'sell mountain tea', nodes: ['shitjaCaj'] },
       { title: 'the lahuta on the wall', nodes: ['blerjaLahuta'] },
