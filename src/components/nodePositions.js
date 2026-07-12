@@ -46,6 +46,7 @@ export const NODE_AT = {
   veraDite1: [458, 484],
   veraDiteFund: 'veraDite1',
   flocka1: [140, 1560],
+  flocka2: 'flocka1',
   flockaFund: 'flocka1',
   deti1: [1010, 800],
   detiThelle1: [1360, 1200],

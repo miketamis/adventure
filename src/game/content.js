@@ -849,6 +849,7 @@ export const DICT = {
   ] },
   xhan:       { al: 'xhan',        en: 'dear' },         // të kam xhan — "you are dear to me" (family & friends alike)
   tungjatjeta:{ al: 'tungjatjeta', en: 'may you live long' }, // the deep greeting — the greyer the head it meets, the fuller it lands
+  shqip:      { al: 'shqip',       en: 'Albanian' },     // po mësoj shqip — the sentence that turns a room of speakers into teachers
 }
 
 // Declension tables for every noun the story inflects (see the wf() forms guard
@@ -2252,7 +2253,34 @@ export const STORY = {
       when('dawn', L(w('eshte'), w('agim'), p(','), wf('liqen', 'liqeni', 'the lake'), w('eshte'), w('i_art'), w('qete'), p('.'))),
     ],
     options: [
-      { text: L(w('meso'), wf('flocka', 'floçkën', 'the water-maiden'), w('fjale')), to: 'flockaFund', reveal: 'flocka' },
+      { text: L(w('meso'), wf('flocka', 'floçkën', 'the water-maiden'), w('fjale')), to: 'flocka2', reveal: 'flocka' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+    ],
+  },
+
+  // THE LESSON — the Floçka has no speech until a mortal teaches her, so she
+  // asks, in order, the learner's whole steering-kit (docs/immersion-exposure.md
+  // tier 1): point-and-ask (si thuhet kjo?), what does X mean (çfarë do të
+  // thotë...?), slower please, once more — and closes with the sentence that
+  // makes any room of speakers into teachers: po mësoj shqip. The player
+  // hears their own questions from the outside.
+  flocka2: {
+    id: 'flocka2',
+    text: [
+      L(w('ti'), w('rri'), wf('tek', 'te', 'at'), wf('liqen', 'liqeni', 'the lake'), w('dhe'), wf('meso', 'mëson', 'teach'), wf('flocka', 'floçkën', 'the water-maiden'), p('.')),
+      L(wf('flocka', 'floçka', 'the water-maiden'), wf('prek', 'prek', 'touches'), wf('uje', 'ujin', 'the water'), w('dhe'), w('thote'), p(':'), w('si'), wf('thote', 'thuhet', 'is-said'), wf('ky', 'kjo', 'this'), p('?')),
+      L(w('ti'), wf('thote', 'thua', 'say'), p(':'), w('uje'), p('.')),
+      L(wf('flocka', 'floçka', 'the water-maiden'), w('thote'), p(':'), w('cfare'), w('do_fut'), w('te_subj'), w('thote'), w('mik'), p('?')),
+      L(w('ti'), wf('thote', 'thua', 'say'), p(':'), w('nje'), w('njeri'), w('qe'), w('ti'), w('do'), p('.')),
+      L(wf('flocka', 'floçka', 'the water-maiden'), w('thote'), p(':'), w('fol'), w('ngadale'), p(','), w('lutem'), p('!')),
+      L(w('ti'), w('flet'), w('ngadale'), p('.')),
+      L(wf('flocka', 'floçka', 'the water-maiden'), w('thote'), p(':'), w('perserit'), p(','), w('edhe'), w('nje'), w('here'), p('!')),
+      L(w('ti'), w('perserit'), p('.')),
+      L(wf('flocka', 'floçka', 'the water-maiden'), wf('meso', 'mëson', 'learns'), w('fjale'), w('shpejt'), p('.')),
+      L(wf('flocka', 'floçka', 'the water-maiden'), w('thote'), p(':'), w('une'), w('po_prog'), wf('meso', 'mësoj', 'learn'), w('shqip'), p('!')),
+    ],
+    options: [
+      { text: L(w('meso'), w('edhe'), wf('shume', 'shumë', 'more'), w('fjale')), to: 'flockaFund', reveal: 'shqip' },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
     ],
   },
@@ -9385,6 +9413,7 @@ const CONFUSERS = {
   lumi: L(w('sheh'), wf('ar', 'arin', 'the gold')), // see the gold — none here (the old man only speaks of it)
   veraDite1: L(w('ndiz'), wf('diell', 'diellin', 'the sun')), // light the sun — you cannot
   flocka1: L(w('meso'), wf('liqen', 'liqenin', 'the lake')), // teach the lake — you cannot
+  flocka2: L(w('meso'), wf('uje', 'ujin', 'the water')), // teach the water — it cannot learn
   ura: L(w('degjo'), wf('lume', 'lumin', 'the river')), // listen to the river — it is dry and cannot answer
   zanaQumesht: L(w('tund'), wf('djep', 'djepin', 'the cradle')), // rock the cradle — none here
   zanaKripe: L(w('sheh'), wf('buke', 'bukën', 'the bread')), // see the bread — the salt is "for bread", no loaf is here
@@ -10844,6 +10873,7 @@ export const DEFS = {
   gjyshe: L(wf('nene', 'nëna', 'the mother'), w('e_link'), wf('nene', 'nënës', 'the mother')), // the mother of the mother
   xhan: L(w('nje'), w('fjale'), w('per'), w('nje'), w('njeri'), w('qe'), w('ti'), w('do')), // a word for a person that you love
   tungjatjeta: L(wf('thote', 'thua', 'you say'), w('kur'), w('ti'), w('gjen'), w('nje'), w('plak')), // you say when you meet an old man
+  shqip: L(wf('gjuhe', 'gjuha', 'the tongue'), w('nga'), w('ky'), w('vend')), // the tongue from this land (cf. shqiptar)
   gjashte: L(w('pese'), w('dhe'), wf('nje', 'një', 'one')), // five and one
   tete: L(w('shtate'), w('dhe'), wf('nje', 'një', 'one')), // seven and one
   dhjete: L(w('nente'), w('dhe'), wf('nje', 'një', 'one')), // nine and one
