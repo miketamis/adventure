@@ -156,6 +156,12 @@ not words.
 
 ## 4. Gap audit vs `DICT` (as of this doc)
 
+> **Status:** the first slice is now in-game — the supper scene at the old
+> woman's house (`sofra1–3`) teaches `urdhëro`, `të bëftë mirë`, `s'ka gjë`,
+> the `ha edhe pak / jam ngopur` insistence ritual, `shumë e shijshme`,
+> `të lumtë`, `gjyshe`, `të dua` and `të kam xhan`, and the old man in the
+> square now returns a `tungjatjeta`.
+
 Coverage is genuinely strong: top-200 frequency = 0 real gaps, survival core =
 151/151. What's missing is precisely the household register:
 

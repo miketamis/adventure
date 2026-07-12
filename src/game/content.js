@@ -829,6 +829,26 @@ export const DICT = {
   shendet:    { al: 'shëndet',     en: 'health' },       // …shëndeti këtej!
   djathte:    { al: 'djathtë',     en: 'right (side)' }, // Rozafa: gjirin e djathtë ma lini jashtë
   lumte:      { al: 'lumtë',       en: 'blessed be' },   // të lumtë krahu / të lumtë goja
+  // ===== THE SOFRA — household & hospitality register (docs/immersion-exposure.md) =====
+  // The fixed formulas an Albanian table runs on. They recur daily with identical
+  // wording and are invariant across dialect and generation — the highest-value
+  // production targets for a learner who lives among speakers. Taught as a full
+  // guest-script in the supper scene at the old woman's house (sofra1-3).
+  sofer:      { al: 'sofër',       en: 'low table', forms: [
+    { al: 'sofër',  tag: 'indefNom', gloss: 'a low table' },
+    { al: 'sofra',  tag: 'defNom',   gloss: 'the low table' },
+    { al: 'sofrën', tag: 'defAcc',   gloss: 'the low table (object)' },
+  ] }, // the low round table the whole house eats around
+  urdhero:    { al: 'urdhëro',     en: 'help yourself' }, // THE hospitality word — also "here you are" / "go ahead": food, a handed thing, an opened door
+  ngopur:     { al: 'ngopur',      en: 'full' },         // jam ngopur — the polite refusal (by custom, ignored once)
+  shijshme:   { al: 'shijshme',    en: 'tasty' },        // shumë e shijshme — the cook's compliment
+  gjyshe:     { al: 'gjyshe',      en: 'grandmother', forms: [
+    { al: 'gjyshe',  tag: 'indefNom', gloss: 'a grandmother' },
+    { al: 'gjyshja', tag: 'defNom',   gloss: 'the grandmother' },
+    { al: 'gjyshen', tag: 'defAcc',   gloss: 'the grandmother (object)' },
+  ] },
+  xhan:       { al: 'xhan',        en: 'dear' },         // të kam xhan — "you are dear to me" (family & friends alike)
+  tungjatjeta:{ al: 'tungjatjeta', en: 'may you live long' }, // the deep greeting — the greyer the head it meets, the fuller it lands
 }
 
 // Declension tables for every noun the story inflects (see the wf() forms guard
@@ -1635,10 +1655,14 @@ export const STORY = {
       // §608: "Buka e kryp' e zêmra" (what the guest is owed: bread, salt and heart)
       Q('Kanuni i Lekë Dukagjinit, §608',
         wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('buke'), w('e_conj'), w('kripe'), w('e_conj'), w('zemer'), p('.')),
+      // the supper invitation — the sofra is set, and a guest is not let past it
+      L(w('ketu'), w('rri'), w('nje'), w('sofer'), p('.')),
+      L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), wf('vjen', 'eja', 'come'), p(','), w('ulu'), p('!')),
       L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('kulshedra'), w('ka'), w('uje'), w('dhe'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
     ],
     options: [
       { text: L(w('merr'), w('buke')), grant: 'buke', to: 'fshatiSheshi', reveal: 'buke' },
+      { text: L(w('ulu'), wf('tek', 'te', 'at'), wf('sofer', 'sofra', 'the low table')), to: 'sofra1', reveal: 'sofer' },
       { text: L(w('degjo'), wf('plake', 'plakën', 'the old woman')), to: 'agaYmer1', reveal: 'brenda' },
       { text: L(w('dil'), w('jashte')), to: 'fshatiSheshi' },
     ],
@@ -1810,6 +1834,72 @@ export const STORY = {
         w('ata'), wf('mplaket', 'u mplakën', 'grew old'), w('e_conj'), wf('trashegohet', 'u trashëguan', 'had heirs'), p('.')),
     ],
     options: [],
+  },
+
+  // -------------------------------------------------------------------------
+  // THE SOFRA — supper at the old woman's house. The complete Albanian
+  // guest-script, in the order it runs at every table in the country: the call
+  // to sit; urdhëro as the food is set down; the table blessing and its fixed
+  // replies (të bëftë mirë → faleminderit → s'ka gjë); the insistence ritual
+  // (ha edhe pak! — jam ngopur — and she serves you anyway: by custom the
+  // first refusal is part of the script and is never taken); the cook's
+  // compliment (shumë e shijshme) answered with të lumtë; and the household's
+  // own tenderness (gjyshe, të dua, të kam xhan). docs/immersion-exposure.md.
+  // -------------------------------------------------------------------------
+  sofra1: {
+    id: 'sofra1',
+    text: [
+      L(w('ti'), wf('ulu', 'ulesh', 'sit'), wf('tek', 'te', 'at'), wf('sofer', 'sofra', 'the low table'), p('.')),
+      L(w('nje'), w('femije'), w('rri'), w('ketu'), p('.')),
+      L(wf('femije', 'fëmija', 'the child'), w('thote'), p(':'), w('gjyshe'), p(','), w('une'), w('jam'), w('i_art'), w('uritur'), p('!')),
+      L(wf('plake', 'plaka', 'the old woman'), w('jep'), w('buke'), p(','), w('djathe'), w('dhe'), w('mish'), p('.')),
+      L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('urdhero'), p('!')),
+      // the smallest complete politeness loop in the language — blessing,
+      // thanks, and the it-was-nothing that closes it
+      L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('te_obj'), wf('bej', 'bëftë', 'may-it-do'), w('mire'), p('!')),
+      L(w('ti'), wf('thote', 'thua', 'say'), p(':'), w('faleminderit'), p('!')),
+      L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), wf('ka', "s'ka", 'has no'), w('gje'), p('.')),
+    ],
+    options: [
+      { text: L(w('ha'), w('buke'), w('dhe'), w('djathe')), to: 'sofra2', reveal: 'djathe' },
+      { text: L(w('dil'), w('jashte')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  sofra2: {
+    id: 'sofra2',
+    text: [
+      L(w('ti'), w('ha'), wf('tek', 'te', 'at'), wf('sofer', 'sofra', 'the low table'), p('.')),
+      L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('ha'), w('edhe'), w('pak'), p('!')),
+      L(w('ti'), wf('thote', 'thua', 'say'), p(':'), w('faleminderit'), p(','), w('une'), w('jam'), w('ngopur'), p('.')),
+      // decline–insist–decline: the first "I'm full" is never taken. She is not
+      // ignoring you — the refusal and the second helping are both in the script.
+      L(wf('plake', 'plaka', 'the old woman'), w('nuk'), wf('degjo', 'dëgjon', 'listens'), p('.')),
+      L(wf('plake', 'plaka', 'the old woman'), w('jep'), w('edhe'), w('pak'), w('mish'), p('.')),
+    ],
+    options: [
+      // the supper fills you — hearts back, like the healer's herbs or a paid bed
+      { text: L(w('ha'), w('edhe'), w('pak')), to: 'sofra3', reveal: 'ngopur', hearts: 3 },
+      { text: L(w('dil'), w('jashte')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  sofra3: {
+    id: 'sofra3',
+    text: [
+      L(w('tani'), w('ti'), w('je'), w('ngopur'), p('.')),
+      L(w('ti'), wf('thote', 'thua', 'say'), p(':'), wf('shume', 'shumë', 'very'), w('e_art'), w('shijshme'), p('!')),
+      L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('te_obj'), w('lumte'), p('!')),
+      // the child's goodnight — the endearments a household actually runs on
+      L(wf('femije', 'fëmija', 'the child'), w('thote'), p(':'), w('gjyshe'), p(','), w('te_obj'), wf('dua', 'dua', 'love'), p('!')),
+      L(wf('gjyshe', 'gjyshja', 'the grandmother'), w('thote'), p(':'), w('te_obj'), wf('ka', 'kam', 'have'), w('xhan'), p('.')),
+      L(w('ti'), w('je'), w('nje'), w('mik'), w('ketu'), p('.')),
+    ],
+    options: [
+      // after supper, the tale — the same fireside thread as "degjo plakën"
+      { text: L(w('fol'), w('me'), wf('plake', 'plakën', 'the old woman')), to: 'agaYmer1', reveal: 'plake' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
+    ],
   },
 
   pylli1: {
@@ -5066,7 +5156,11 @@ export const STORY = {
   sheshiPlak: {
     id: 'sheshiPlak',
     text: [
-      L(w('nje'), w('plak'), w('thote'), p(':')),
+      // the deep greeting for an elder — tungjatjeta, "may your life lengthen";
+      // answered with the same word (docs/immersion-exposure.md)
+      L(w('ti'), wf('thote', 'thua', 'say'), p(':'), w('tungjatjeta'), p('!')),
+      L(w('nje'), w('plak'), w('thote'), p(':'), w('tungjatjeta'), p(','), w('zoteri'), p('!')),
+      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
       L(w('shiko'), p(','), w('zoteri'), p('!')),
       L(w('ne_we'), wf('shko', 'shkojmë', 'go'), wf('tek', 'te', 'to'), w('pus'), w('cdo'), wf('dite', 'ditë', 'day'), p('.')),
       L(w('po_but'), wf('pus', 'pusi', 'the well'), w('eshte'), w('i_art'), w('thate'), w('kaq'), w('kohe'), p('.')),
@@ -9281,6 +9375,9 @@ const CONFUSERS = {
   qiellPrende: L(w('merr'), wf('ylber', 'ylberin', 'the rainbow')), // take the rainbow — you cannot grasp it
   qiellDiell: L(w('jep'), wf('mal', 'malin', 'the mountain')), // jep the mountain — you cannot
   plaka: L(w('merr'), wf('bukura', 'Bukurën', 'the Beauty')), // take the Beauty — none here (far, with the kulshedra)
+  sofra1: L(w('ha'), wf('sofer', 'sofrën', 'the low table')), // eat the table — absurd
+  sofra2: L(w('degjo'), w('mish')), // listen to the meat — it cannot speak
+  sofra3: L(w('fol'), w('me'), w('xhan')), // speak with the "dear" — a word, not a person
   fshatiDil: L(w('fol'), w('me'), wf('pyll', 'pyllin', 'the forest')), // speak with the forest — it cannot answer
   pylli1: L(w('kthehu'), wf('ne', 'në', 'to'), w('pyll')), // return into the forest — you are already in it
   pylliThelle: L(w('jep'), wf('ujk', 'ujkun', 'the wolf')), // give the wolf — you cannot
@@ -10739,6 +10836,14 @@ export const DEFS = {
   mirembrema: L(w('mire'), w('mbremje')), //                good evening
   natenmire: L(w('fjale'), w('kur'), wf('shko', 'shkon', 'you go'), w('te_subj'), wf('fle', 'flesh', 'sleep')), // word when you go to sleep
   mirupafshim: L(w('nje'), w('fjale'), w('kur'), wf('shko', 'shkon', 'you go')), // a word when you go
+  // --- the sofra (household hospitality) ---
+  sofer: L(w('ku'), wf('familje', 'familja', 'the family'), w('ha'), w('buke')), // where the family eats bread
+  urdhero: L(wf('thote', 'thua', 'you say'), w('kur'), w('ti'), w('jep'), w('dicka')), // you say when you give something
+  ngopur: L(w('kur'), w('ti'), w('ha'), wf('shume', 'shumë', 'much')), // when you have eaten much
+  shijshme: L(w('kur'), wf('buke', 'buka', 'the bread'), w('eshte'), wf('shume', 'shumë', 'very'), w('e_art'), wf('mire', 'mirë', 'good')), // when the bread is very good
+  gjyshe: L(wf('nene', 'nëna', 'the mother'), w('e_link'), wf('nene', 'nënës', 'the mother')), // the mother of the mother
+  xhan: L(w('nje'), w('fjale'), w('per'), w('nje'), w('njeri'), w('qe'), w('ti'), w('do')), // a word for a person that you love
+  tungjatjeta: L(wf('thote', 'thua', 'you say'), w('kur'), w('ti'), w('gjen'), w('nje'), w('plak')), // you say when you meet an old man
   gjashte: L(w('pese'), w('dhe'), wf('nje', 'një', 'one')), // five and one
   tete: L(w('shtate'), w('dhe'), wf('nje', 'një', 'one')), // seven and one
   dhjete: L(w('nente'), w('dhe'), wf('nje', 'një', 'one')), // nine and one
