@@ -831,6 +831,14 @@ export const DICT = {
   shendet:    { al: 'shëndet',     en: 'health' },       // …shëndeti këtej!
   djathte:    { al: 'djathtë',     en: 'right (side)' }, // Rozafa: gjirin e djathtë ma lini jashtë
   lumte:      { al: 'lumtë',       en: 'blessed be' },   // të lumtë krahu / të lumtë goja
+  hasm:       { al: 'hasm',        en: 'foe' },          // lumi fle, hasmi s'fle — the Kanun's feud-enemy
+  trung:      { al: 'trung',       en: 'log' },          // Kanun §609: zjarmi e trungu gati për mik
+  duron:      { al: 'duron',       en: 'endures' },      // kush duron, trashëgon (the verb beside durim)
+  pyet:       { al: 'pyet',        en: 'ask' },          // duke pyetur gjen Stambollë
+  stamboll:   { al: 'Stambollë',   en: 'Istanbul' },     // …the far city the asking road reaches
+  nder:       { al: 'nder',        en: 'honour' },       // Kanun §598: ndera nuk shpërblehet me gjë…
+  shperblehet:{ al: 'shpërblehet', en: 'is repaid' },
+  fisnikisht: { al: 'fisnikisht',  en: 'nobly' },        // …por me gjak ose me të falur fisnikisht
 }
 
 // Declension tables for every noun the story inflects (see the wf() forms guard
@@ -1567,6 +1575,10 @@ export const STORY = {
       // the walk itself crossed into the dark, nightfall is announced as an event
       became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
       when('night', L(w('eshte'), w('erret'), w('dhe'), w('ftohte'), p('.'))),
+      // the dark river's proverb (Dozon no. 32: "Lyoûmi flyé, hásmi s'flyé") —
+      // spoken over the water only at night, when it is true
+      when('night', Q('lumi-fle',
+        wf('thote', 'thonë', 'they say'), p(':'), wf('lume', 'lumi', 'the river'), w('fle'), p(','), wf('hasm', 'hasmi', 'the foe'), wf('fle', "s'fle", 'does not sleep'), p('.'))),
       when('dawn', L(w('eshte'), w('agim'), p(','), wf('diell', 'dielli', 'the sun'), w('vjen'), p('.'))),
       when('day', L(w('eshte'), w('dite'), p(','), wf('diell', 'dielli', 'the sun'), w('eshte'), wf('lart', 'lart', 'high'), p('.'))),
       when('dusk', L(w('eshte'), w('muzg'), p(','), wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
@@ -1616,6 +1628,11 @@ export const STORY = {
       when('npc:plakaPyllit', L(w('nje'), w('plake'), w('e_art'), w('ftohte'), w('vjen'), w('nga'), wf('pyll', 'pylli', 'the forest'), p('.'))),
       when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('rri'), wf('tek', 'te', 'at'), wf('zjarr', 'zjarri', 'the fire'), p('.'))),
       when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), wf('mik', 'mik', 'guest'), w('i_art'), w('shenjte'), p('.'))),
+      // the Kanun's law of this very fire — §609: the fire and the log stand
+      // ready for the guest at any hour of the night and of the day
+      when(['npc:plakaPyllit', 'fireLive'], Q('kanun-609',
+        wf('thote', 'thonë', 'they say'), p(':'), wf('zjarr', 'zjarri', 'the fire'), w('e_conj'), wf('trung', 'trungu', 'the log'), w('gati'), w('per'), w('mik'),
+        wf('ne', 'në', 'at'), w('cdo'), w('kohe'), wf('te_link', 'të', 'of'), wf('naten', 'natës', 'the night'), w('e_conj'), wf('te_link', 'të', 'of'), wf('dite', 'ditës', 'the day'), p('.'))),
       when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('do'), w('buke'), p('.'))),
       L(w('ti'), w('je'), w('i_art'), w('uritur'), p('.')),
     ],
@@ -7168,6 +7185,11 @@ export const STORY = {
       L(w('ketu'), w('dy'), wf('njeri', 'njerëz', 'people'), wf('lufto', 'luftojnë', 'fight'), p('.')),
       L(w('nje'), w('njeri'), wf('vrit', 'vrau', 'killed'), w('nje'), w('vella'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('do', 'duan', 'want'), w('gjak'), p('.')),
+      // the Kanun article this whole choice enacts — §598: honour is repaid
+      // either with spilled blood, or with noble forgiveness
+      Q('kanun-598',
+        wf('thote', 'thonë', 'they say'), p(':'), wf('nder', 'ndera', 'the honour'), w('nuk'), w('shperblehet'), w('me'), w('gje'), p(','),
+        w('por'), w('me'), w('gjak'), w('ose'), w('me'), wf('te_link', 'të', 'the'), wf('fal', 'falur', 'forgiving'), w('fisnikisht'), p('.')),
       L(w('nje'), w('bese'), w('mund'), w('te_subj'), w('mbyll'), w('gjak'), p('.')),
     ],
     options: [
@@ -7186,6 +7208,10 @@ export const STORY = {
       Q('kanun-631',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('buke', 'buka', 'the bread'), w('e_obj'), w('lan'), wf('dem_harm', 'dëmin', 'the harm'), p('.')),
       L(wf('gjak', 'gjaku', 'the blood'), wf('yt', 'tënd', 'your'), w('dhe'), wf('gjak', 'gjaku', 'the blood'), w('i_link'), w('tij'), wf('eshte', 'janë', 'are'), w('nje'), p('.')),
+      // the proverb over the new brotherhood (Hahn's Tosk proverb no. 1):
+      // blood does not become water — what is bound in blood holds
+      Q('gjaku-s-behet-uje',
+        wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('gjak', 'gjaku', 'the blood'), wf('behet', "s'bëhet", 'does not become'), w('uje'), p('.')),
     ],
     options: [
       { text: L(w('degjo'), wf('njeri', 'njerëzit', 'the people')), to: 'gjakFund' },
@@ -7201,6 +7227,10 @@ export const STORY = {
     text: [
       L(wf('gjak', 'gjaku', 'the blood-feud'), w('mbaroi'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('behet', 'bëhen', 'become'), wf('vella', 'vëllezër', 'brothers'), p('.')),
+      // the elder's last word over the settled feud (Dozon no. 7): time
+      // brings out the truth
+      Q('koha-drejten',
+        wf('thote', 'thonë', 'they say'), p(':'), wf('kohe', 'koha', 'the time'), w('e_obj'), wf('nxjerr', 'nxjerr', 'brings out'), wf('te_link', 'të', 'the'), wf('drejte', 'drejtën', 'right'), p('.')),
     ],
     options: [],
   },
@@ -8128,6 +8158,10 @@ export const STORY = {
     blurb:
       'Omer, Mujo\u2019s son, barely thirteen, was cornered in a churchyard and fought there to the death; Mujo buried him under a mountain fir, beneath a stone thirty men could not lift, and hid the death from the boy\u2019s mother. But Ajkuna — Omer’s mother, Mujo’s wife — learned of it, and her lament for Omer swelled into a cry for every mother who loses a son to war, and the mountains keened it back to her, until her own heart broke at the graveside and she lay down beside her son.',
     text: [
+      // the lament's opening line, word for word: "Drita a dale e drite s'po
+      // ben" — the dawn has come and gives no light
+      Q('ajkuna-agimi',
+        wf('drite', 'drita', 'the light'), w('ka'), wf('dil', 'dalë', 'come out'), w('e_conj'), w('drite'), wf('po_prog', "s'po", 'is not'), wf('bej', 'bën', 'making'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), w('ka'), w('lot'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), w('shko'), wf('ne', 'në', 'to'), w('varr'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), w('mallko'), wf('hene', 'hënën', 'the moon'), p('.')),
@@ -8138,7 +8172,15 @@ export const STORY = {
         wf('shkimet', "t'u shkimtë", 'may it go out'), wf('drite', 'drita', 'the light'), p(','), w('o'), w('hene'), p('!')),
       L(wf('yll', 'yjet', 'the stars'), w('rri'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), wf('vajto', 'vajton', 'mourns'), wf('omer', 'omerin', 'Omer'), p('.')),
+      // her plea into the grave itself: "dil nji here ksi burgut t'erret" —
+      // come out once from this dark prison
+      Q('ajkuna-burgu',
+        wf('nene', 'nëna', 'the mother'), w('thote'), p(':'), w('dil'), w('nje'), w('here'), w('nga'), w('ky'), w('burg'), w('i_art'), w('erret'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), wf('vajto', 'vajton', 'mourns'), wf('bir', 'bijtë', 'the sons'), p('.')),
+      // and her last comfort, word for word: "se ty varrin ta ruen nana" —
+      // your mother guards your grave
+      Q('ajkuna-varri',
+        wf('nene', 'nëna', 'the mother'), w('thote'), p(':'), wf('varr', 'varrin', 'the grave'), w('ta'), w('ruan'), wf('nene', 'nëna', 'the mother'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), w('fle'), w('afer'), wf('varr', 'varrit', 'the grave'), p('.')),
     ],
     options: [],
@@ -8224,7 +8266,10 @@ export const STORY = {
     id: 'riddle1',
     text: [
       L(w('nje'), w('plak'), w('thote'), w('nje'), w('gjegjeza'), p(':')),
-      L(w('ka'), w('samar'), w('por'), w('nuk'), w('eshte'), w('gomar'), p('.')),
+      // the tortoise riddle as the anthologies keep it ("Kam samar, po s'jam
+      // gomar"), bent to the third person because the elder poses it
+      Q('breshka-samar',
+        w('ka'), w('samar'), w('por'), w('nuk'), w('eshte'), w('gomar'), p('.')),
     ],
     options: [
       { text: L(w('breshka')), to: 'riddleFund', reveal: 'samar' },
@@ -8888,6 +8933,10 @@ export const STORY = {
       L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
       L(w('une'), w('tregoj'), w('ti'), w('nje'), w('gje'), p('.')),
       L(w('ti'), wf('ka', 'ke', 'have'), w('nje'), w('pyetje'), p('?')),
+      // the asker's proverb (Dozon no. 20): by asking you find Istanbul —
+      // the whole game's method, in one old sentence
+      Q('stambolle',
+        wf('duke', 'duke', 'by'), wf('pyet', 'pyetur', 'asking'), w('gjen'), w('stamboll'), p('.')),
       L(w('eshte'), w('nje'), w('fakt'), p('.')),
       // the proverb the game itself lives by: as long as you live, you learn
       Q('sa-rron',
@@ -9036,6 +9085,9 @@ export const STORY = {
       // the worker's motto: few words and much work
       Q('fjale-pak',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('fjale'), w('pak'), w('e_conj'), w('pune'), w('shume'), p('!')),
+      // and its pair over the long haul (Dozon no. 54): who endures, inherits
+      Q('kush-duron',
+        w('kush'), w('duron'), p(','), wf('trashegohet', 'trashëgon', 'inherits'), p('.')),
     ],
     options: [
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('mulli')), to: 'mulli1' },
@@ -10092,6 +10144,14 @@ export const DEFS = {
   shendet: L(w('kur'), w('nuk'), w('je'), w('i_art'), w('semur')), // when not are the sick
   djathte: L(wf('krah', 'krahu', 'arm'), w('qe'), w('nuk'), w('eshte'), w('majtas')), // arm that not is left
   lumte: L(wf('thote', 'thua', 'you say'), w('kur'), w('dikush'), wf('bej', 'bën', 'does'), wf('shume', 'shumë', 'very'), wf('mire', 'mirë', 'well')), // you say when someone does very well
+  hasm: L(w('nje'), w('armik'), wf('ne', 'në', 'in'), w('gjak')), // an enemy in blood (the feud-foe)
+  trung: L(w('dru'), w('i_art'), w('madh'), w('per'), wf('zjarr', 'zjarrin', 'the fire')), // wood the big for the fire
+  duron: L(w('mban'), w('nje'), w('gje'), w('te_link'), w('veshtire'), w('dhe'), wf('prit', 'pret', 'waits')), // holds a thing the hard and waits
+  pyet: L(wf('bej', 'bën', 'makes'), w('nje'), w('pyetje')), // makes a question
+  stamboll: L(w('nje'), w('qytet'), w('i_art'), w('madh'), w('shume'), w('larg')), // a city the big very far
+  nder: L(wf('fjale', 'fjala', 'the word'), w('e_art'), w('mire'), w('per'), w('ti'), wf('ne', 'në', 'in'), w('fshat')), // the good word for you in the village
+  shperblehet: L(wf('kthehu', 'kthehet', 'returns'), w('me'), w('nje'), w('gje'), w('tjeter')), // returns with another thing
+  fisnikisht: L(wf('si', 'si', 'like'), w('nje'), w('njeri'), w('i_art'), w('madh'), w('me'), w('zemer'), w('te_link'), w('mire')), // like a person the great with heart the good
   tabak: L(w('nje'), w('njeri'), w('qe'), w('punon'), w('me'), w('lekure')), // a person that works with leather
   lekure: L(w('nje'), w('gje'), w('nga'), wf('nje', 'një', 'an'), w('kafshe'), w('per'), wf('rrobe', 'rroba', 'clothes')), // a thing from an animal for clothes
   udhekryq: L(w('ku'), wf('piqet', 'piqen', 'meet'), wf('rruge', 'rrugët', 'the roads')), // where meet the roads

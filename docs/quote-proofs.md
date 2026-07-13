@@ -8,7 +8,7 @@ and verified by [`scripts/quotecheck.mjs`](../scripts/quotecheck.mjs). This ledg
 generated, human-readable form of that register: what the game says, what the
 source says, and where to check it.
 
-**34 quoted lines** (33 distinct quotes): 16 corpus · 3 variant · 11 external · 3 oral.
+**45 quoted lines** (44 distinct quotes): 25 corpus · 4 variant · 11 external · 4 oral.
 
 ## `kanun-602` — Kanuni i Lekë Dukagjinit, §602
 
@@ -42,6 +42,28 @@ source says, and where to check it.
 - **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
   - [`docs/references/kanuni-leke-dukagjinit.sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/kanuni-leke-dukagjinit.sq.txt#L4212) line 4212: `"Mirë së erdhe!"`
 - **Story node:** `oda1`
+
+## `kanun-598` — Kanuni i Lekë Dukagjinit, §598
+
+> **ndera nuk shpërblehet me gjë, por me gjak ose me të falur fisnikisht**
+
+- **Original:** "Ndera e marrun nuk shperblehet me gja, por a me të derdhun të gjakut, a me të falun fisnikisht."
+- **Translation:** Honour taken is not repaid with goods, but either with spilled blood or with noble forgiveness.
+- **Fidelity:** adapted
+- **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
+  - [`docs/references/kanuni-leke-dukagjinit.sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/kanuni-leke-dukagjinit.sq.txt#L4104) line 4104: `"Ndera e marrun nuk shperblehet me gja, por a me të derdhun të gjakut, a` — The game drops "e marrun" (taken), simplifies "a me të derdhun të gjakut" (with the shedding of blood) to "me gjak", and renders the a…a disjunction with ose.
+- **Story node:** `gjak1`
+
+## `kanun-609` — Kanuni i Lekë Dukagjinit, §609
+
+> **zjarri e trungu gati për mik në çdo kohë të natës e të ditës**
+
+- **Original:** Buka e krypa e zëmra, zjarmi e trungu e do firi per shtrojë do të gjindet gadi per mik në çdo kohë të natës e të ditës.
+- **Translation:** Bread, salt and heart, the fire and the log and some straw for bedding shall stand ready for the guest at any hour of the night and of the day.
+- **Fidelity:** adapted
+- **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
+  - [`docs/references/kanuni-leke-dukagjinit.sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/kanuni-leke-dukagjinit.sq.txt#L4167) line 4167: `zjarmi e trungu e do firi per shtrojë do të gjindet` — The game trims the bread-salt-heart opening (quoted separately as kanun-608) and the bedding-straw clause; Gheg zjarmi/gadi rendered zjarri/gati.
+- **Story node:** `lendina`
 
 ## `kanun-631` — Kanuni i Lekë Dukagjinit, §631
 
@@ -109,6 +131,39 @@ source says, and where to check it.
   - [`docs/references/vajtimi-i-ajkunes.sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/vajtimi-i-ajkunes.sq.txt#L16) line 16: `T’u shkimte (shoftë) drita ty, o mori hane` — The Wikibooks text glosses shkimte with (shoftë) inline; the game trims the vocative filler "ty, o mori" to "o" and spells hanë → hënë.
 - **Story node:** `omerFund`
 
+## `ajkuna-agimi` — Vajtimi i Ajkunës — këngë kreshnike
+
+> **drita ka dalë e dritë s'po bën**
+
+- **Original:** Drita a dale e drite s'po ben,
+- **Translation:** The dawn has come and gives no light — the lament's opening line.
+- **Fidelity:** verbatim
+- **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
+  - [`docs/references/vajtimi-i-ajkunes.sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/vajtimi-i-ajkunes.sq.txt#L3) line 3: `Drita a dale e drite s’po ben` — Gheg "a dale" is standard "ka dalë"; the next verse ("ka le dielli e nuk po nxeh" — the sun has risen and gives no warmth) completes the couplet.
+- **Story node:** `omerFund`
+
+## `ajkuna-varri` — Vajtimi i Ajkunës — këngë kreshnike
+
+> **varrin ta ruan nëna**
+
+- **Original:** se ty varrin ta ruen nana,
+- **Translation:** for your mother guards your grave,
+- **Fidelity:** verbatim
+- **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
+  - [`docs/references/vajtimi-i-ajkunes.sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/vajtimi-i-ajkunes.sq.txt#L42) line 42: `se ty varrin ta ruen nana` — Gheg ruen/nana rendered ruan/nëna; the game trims the opening "se ty" (for you).
+- **Story node:** `omerFund`
+
+## `ajkuna-burgu` — Vajtimi i Ajkunës — këngë kreshnike
+
+> **dil një herë nga ky burg i errët**
+
+- **Original:** dil nji here ksi burgut t'erret,
+- **Translation:** come out once from this dark prison — Ajkuna's plea at the grave.
+- **Fidelity:** verbatim
+- **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
+  - [`docs/references/vajtimi-i-ajkunes.sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/vajtimi-i-ajkunes.sq.txt#L33) line 33: `dil nji here ksi burgut t’erret` — Gheg "ksi burgut t'erret" (from this dark prison) rendered "nga ky burg i errët".
+- **Story node:** `omerFund`
+
 ## `fishta-invocation` — Lahuta e Malcís — Gjergj Fishta
 
 > **ndihmo, zot, si më ke ndihmuar**
@@ -163,6 +218,61 @@ source says, and where to check it.
 - **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
   - [`docs/references/dozon-manuel-langue-chkipe.fr-sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/dozon-manuel-langue-chkipe.fr-sq.txt#L5716) line 5716: `Me dourim tœ tœra bœkenœ` — The game re-orders të tëra bëhen to bëhen të gjitha (tëra → gjitha is the standard-Albanian synonym).
 - **Story node:** `mulli1`
+
+## `koha-drejten` — fjalë e urtë (Dozon, 1879)
+
+> **koha e nxjerr të drejtën**
+
+- **Original:** Kôha e nxjer të dréjtënë ("le temps fait connaître la vérité" — Dozon's proverb no. 7)
+- **Translation:** Time brings out the truth.
+- **Fidelity:** verbatim
+- **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
+  - [`docs/references/dozon-manuel-langue-chkipe.fr-sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/dozon-manuel-langue-chkipe.fr-sq.txt#L5725) line 5725: `Kôha e nef en dréylœnœ, le temps fait connaître la vérité` — The OCR mangles the Albanian ("e nxjer të dréjtënë" reads "e nef en dréylœnœ"); Dozon's French gloss on the same line identifies the proverb beyond doubt.
+- **Story node:** `gjakFund`
+
+## `kush-duron` — fjalë e urtë (Dozon, 1879)
+
+> **kush duron, trashëgon**
+
+- **Original:** Koûç dourôn traçœgén ("Kush duron trashëgon" — Dozon's proverb no. 54, from Korça)
+- **Translation:** Who endures, inherits (who perseveres, prospers).
+- **Fidelity:** verbatim
+- **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
+  - [`docs/references/dozon-manuel-langue-chkipe.fr-sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/dozon-manuel-langue-chkipe.fr-sq.txt#L5902) line 5902: `Koûç dourôn traçœgén`
+- **Story node:** `punaMulli`
+
+## `lumi-fle` — fjalë e urtë (Dozon, 1879)
+
+> **lumi fle, hasmi s'fle**
+
+- **Original:** Lyoûmi flyé, hásmi s'flyé ("le fleuve dort, l'ennemi ne dort pas" — Dozon's proverb no. 32, marked as shared with Turkish)
+- **Translation:** The river sleeps, the foe does not sleep.
+- **Fidelity:** verbatim
+- **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
+  - [`docs/references/dozon-manuel-langue-chkipe.fr-sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/dozon-manuel-langue-chkipe.fr-sq.txt#L5816) line 5816: `Lyoûmi flyé, hdsmi` — The OCR misreads á as d ("hdsmi") and the second flyé as "(lyé"; the French gloss "le fleuve dort, l'ennemi ne dort pas" on the same line is legible.
+- **Story node:** `start`
+
+## `stambolle` — fjalë e urtë (Dozon, 1879)
+
+> **duke pyetur gjen Stambollë**
+
+- **Original:** Douke puétour gye'n Stambôlhœ ("à force de demander on trouve Stamboul" — Dozon's proverb no. 20)
+- **Translation:** By asking, you find your way to Istanbul.
+- **Fidelity:** verbatim
+- **Proof:** **✓ corpus-verified** — the original is machine-checked against the downloaded primary source below
+  - [`docs/references/dozon-manuel-langue-chkipe.fr-sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/dozon-manuel-langue-chkipe.fr-sq.txt#L5776) line 5776: `Douke puétour gye'n Stambôlhœ`
+- **Story node:** `lumiMjeshter`
+
+## `gjaku-s-behet-uje` — fjalë e urtë (Hahn, 1854)
+
+> **gjaku s'bëhet ujë**
+
+- **Original:** Gjaku nuk bënetë ujë ("das Blut wird nicht zu Wasser" — Hahn's Tosk proverb no. 1)
+- **Translation:** Blood does not become water — kinship cannot be dissolved.
+- **Fidelity:** verbatim
+- **Proof:** **≈ formula-verified** — the corpus attests the formula; the exact wording rests on the linked source
+  - [`docs/references/hahn-albanesische-studien.de-sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/hahn-albanesische-studien.de-sq.txt#L41443) line 41443 *(formula variant)*: `das Blut wird nicht zu Wasser` — First entry of Hahn's "Toskische Sprichwörter, Redensarten und Sentenzen"; the Albanian is printed in Hahn's own alphabet, which the OCR destroys, but his German gloss ("wörtl.: das Blut wird nicht zu Wasser") is legible. The proverb lives on in exactly the game's standard form.
+- **Story node:** `gjak2`
 
 ## `trashegofshin` — urimi i dasmës
 
@@ -365,6 +475,17 @@ source says, and where to check it.
 - **Proof:** **~ oral tradition** — a formula of the living language, not located in print (the weakest tier)
   - *oral:* The universal reply-half of the Albanian greeting pair whose first half the Kanun fixes in §620 (see kanun-620); the pair is standard from the highlands to the south.
 - **Story node:** `oda1`
+
+## `breshka-samar` — gjëegjëzë e moçme
+
+> **ka samar por nuk është gomar**
+
+- **Original:** Kam samar, po s'jam gomar. (answer: breshka, the tortoise)
+- **Translation:** I have a packsaddle, but I am no donkey.
+- **Fidelity:** inflected
+- **Proof:** **~ oral tradition** — a formula of the living language, not located in print (the weakest tier)
+  - *oral:* A standard children's gjëegjëzë from the riddle anthologies (the tortoise carries her house-saddle); the game bends the riddle's first person ("kam… s'jam") to the third ("ka… nuk është") because the old man poses it about the creature. Not located in the public-domain corpus.
+- **Story node:** `riddle1`
 
 ## `bleta-riddle` — gjëegjëzë e moçme
 

@@ -93,6 +93,38 @@ export const QUOTES = {
       },
     ],
   },
+  'kanun-598': {
+    label: 'Kanuni i Lekë Dukagjinit, §598',
+    game: 'ndera nuk shpërblehet me gjë, por me gjak ose me të falur fisnikisht',
+    original: '"Ndera e marrun nuk shperblehet me gja, por a me të derdhun të gjakut, a me të falun fisnikisht."',
+    translation: 'Honour taken is not repaid with goods, but either with spilled blood or with noble forgiveness.',
+    fidelity: 'adapted',
+    source: 'src-kanun-leke',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/kanuni-leke-dukagjinit.sq.txt',
+        match: '"Ndera e marrun nuk shperblehet me gja, por a me të derdhun të gjakut, a',
+        note: 'The game drops "e marrun" (taken), simplifies "a me të derdhun të gjakut" (with the shedding of blood) to "me gjak", and renders the a…a disjunction with ose.',
+      },
+    ],
+  },
+  'kanun-609': {
+    label: 'Kanuni i Lekë Dukagjinit, §609',
+    game: 'zjarri e trungu gati për mik në çdo kohë të natës e të ditës',
+    original: 'Buka e krypa e zëmra, zjarmi e trungu e do firi per shtrojë do të gjindet gadi per mik në çdo kohë të natës e të ditës.',
+    translation: 'Bread, salt and heart, the fire and the log and some straw for bedding shall stand ready for the guest at any hour of the night and of the day.',
+    fidelity: 'adapted',
+    source: 'src-kanun-leke',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/kanuni-leke-dukagjinit.sq.txt',
+        match: 'zjarmi e trungu e do firi per shtrojë do të gjindet',
+        note: 'The game trims the bread-salt-heart opening (quoted separately as kanun-608) and the bedding-straw clause; Gheg zjarmi/gadi rendered zjarri/gati.',
+      },
+    ],
+  },
   'kanun-631': {
     label: 'Kanuni i Lekë Dukagjinit, §631',
     game: 'buka e lan dëmin',
@@ -194,6 +226,55 @@ export const QUOTES = {
     ],
   },
 
+  'ajkuna-agimi': {
+    label: 'Vajtimi i Ajkunës — këngë kreshnike',
+    game: "drita ka dalë e dritë s'po bën",
+    original: "Drita a dale e drite s'po ben,",
+    translation: 'The dawn has come and gives no light — the lament\'s opening line.',
+    fidelity: 'verbatim',
+    source: 'src-vajtimi-ajkunes',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/vajtimi-i-ajkunes.sq.txt',
+        match: 'Drita a dale e drite s’po ben',
+        note: 'Gheg "a dale" is standard "ka dalë"; the next verse ("ka le dielli e nuk po nxeh" — the sun has risen and gives no warmth) completes the couplet.',
+      },
+    ],
+  },
+  'ajkuna-varri': {
+    label: 'Vajtimi i Ajkunës — këngë kreshnike',
+    game: 'varrin ta ruan nëna',
+    original: 'se ty varrin ta ruen nana,',
+    translation: 'for your mother guards your grave,',
+    fidelity: 'verbatim',
+    source: 'src-vajtimi-ajkunes',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/vajtimi-i-ajkunes.sq.txt',
+        match: 'se ty varrin ta ruen nana',
+        note: 'Gheg ruen/nana rendered ruan/nëna; the game trims the opening "se ty" (for you).',
+      },
+    ],
+  },
+  'ajkuna-burgu': {
+    label: 'Vajtimi i Ajkunës — këngë kreshnike',
+    game: 'dil një herë nga ky burg i errët',
+    original: "dil nji here ksi burgut t'erret,",
+    translation: 'come out once from this dark prison — Ajkuna\'s plea at the grave.',
+    fidelity: 'verbatim',
+    source: 'src-vajtimi-ajkunes',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/vajtimi-i-ajkunes.sq.txt',
+        match: 'dil nji here ksi burgut t’erret',
+        note: 'Gheg "ksi burgut t\'erret" (from this dark prison) rendered "nga ky burg i errët".',
+      },
+    ],
+  },
+
   // ── Lahuta e Malcís — Gjergj Fishta (Rome 1958 text) ─────────────────────
   'fishta-invocation': {
     label: 'Lahuta e Malcís — Gjergj Fishta',
@@ -274,6 +355,85 @@ export const QUOTES = {
         file: 'docs/references/dozon-manuel-langue-chkipe.fr-sq.txt',
         match: 'Me dourim tœ tœra bœkenœ',
         note: 'The game re-orders të tëra bëhen to bëhen të gjitha (tëra → gjitha is the standard-Albanian synonym).',
+      },
+    ],
+  },
+  'koha-drejten': {
+    label: 'fjalë e urtë (Dozon, 1879)',
+    game: 'koha e nxjerr të drejtën',
+    original: 'Kôha e nxjer të dréjtënë ("le temps fait connaître la vérité" — Dozon\'s proverb no. 7)',
+    translation: 'Time brings out the truth.',
+    fidelity: 'verbatim',
+    source: 'src-dozon-manuel',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/dozon-manuel-langue-chkipe.fr-sq.txt',
+        match: 'Kôha e nef en dréylœnœ, le temps fait connaître la vérité',
+        note: 'The OCR mangles the Albanian ("e nxjer të dréjtënë" reads "e nef en dréylœnœ"); Dozon\'s French gloss on the same line identifies the proverb beyond doubt.',
+      },
+    ],
+  },
+  'kush-duron': {
+    label: 'fjalë e urtë (Dozon, 1879)',
+    game: 'kush duron, trashëgon',
+    original: 'Koûç dourôn traçœgén ("Kush duron trashëgon" — Dozon\'s proverb no. 54, from Korça)',
+    translation: 'Who endures, inherits (who perseveres, prospers).',
+    fidelity: 'verbatim',
+    source: 'src-dozon-manuel',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/dozon-manuel-langue-chkipe.fr-sq.txt',
+        match: 'Koûç dourôn traçœgén',
+      },
+    ],
+  },
+  'lumi-fle': {
+    label: 'fjalë e urtë (Dozon, 1879)',
+    game: "lumi fle, hasmi s'fle",
+    original: 'Lyoûmi flyé, hásmi s\'flyé ("le fleuve dort, l\'ennemi ne dort pas" — Dozon\'s proverb no. 32, marked as shared with Turkish)',
+    translation: 'The river sleeps, the foe does not sleep.',
+    fidelity: 'verbatim',
+    source: 'src-dozon-manuel',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/dozon-manuel-langue-chkipe.fr-sq.txt',
+        match: 'Lyoûmi flyé, hdsmi',
+        note: 'The OCR misreads á as d ("hdsmi") and the second flyé as "(lyé"; the French gloss "le fleuve dort, l\'ennemi ne dort pas" on the same line is legible.',
+      },
+    ],
+  },
+  'stambolle': {
+    label: 'fjalë e urtë (Dozon, 1879)',
+    game: 'duke pyetur gjen Stambollë',
+    original: "Douke puétour gye'n Stambôlhœ (\"à force de demander on trouve Stamboul\" — Dozon's proverb no. 20)",
+    translation: 'By asking, you find your way to Istanbul.',
+    fidelity: 'verbatim',
+    source: 'src-dozon-manuel',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/dozon-manuel-langue-chkipe.fr-sq.txt',
+        match: "Douke puétour gye'n Stambôlhœ",
+      },
+    ],
+  },
+  'gjaku-s-behet-uje': {
+    label: 'fjalë e urtë (Hahn, 1854)',
+    game: "gjaku s'bëhet ujë",
+    original: 'Gjaku nuk bënetë ujë ("das Blut wird nicht zu Wasser" — Hahn\'s Tosk proverb no. 1)',
+    translation: 'Blood does not become water — kinship cannot be dissolved.',
+    fidelity: 'verbatim',
+    source: 'src-hahn-studien',
+    evidence: [
+      {
+        kind: 'corpus',
+        file: 'docs/references/hahn-albanesische-studien.de-sq.txt',
+        match: 'das Blut wird nicht zu Wasser',
+        variant: true,
+        note: 'First entry of Hahn\'s "Toskische Sprichwörter, Redensarten und Sentenzen"; the Albanian is printed in Hahn\'s own alphabet, which the OCR destroys, but his German gloss ("wörtl.: das Blut wird nicht zu Wasser") is legible. The proverb lives on in exactly the game\'s standard form.',
       },
     ],
   },
@@ -589,6 +749,20 @@ export const QUOTES = {
       {
         kind: 'oral',
         note: 'The universal reply-half of the Albanian greeting pair whose first half the Kanun fixes in §620 (see kanun-620); the pair is standard from the highlands to the south.',
+      },
+    ],
+  },
+  'breshka-samar': {
+    label: 'gjëegjëzë e moçme',
+    game: 'ka samar por nuk është gomar',
+    original: "Kam samar, po s'jam gomar. (answer: breshka, the tortoise)",
+    translation: 'I have a packsaddle, but I am no donkey.',
+    fidelity: 'inflected',
+    source: null,
+    evidence: [
+      {
+        kind: 'oral',
+        note: 'A standard children\'s gjëegjëzë from the riddle anthologies (the tortoise carries her house-saddle); the game bends the riddle\'s first person ("kam… s\'jam") to the third ("ka… nuk është") because the old man poses it about the creature. Not located in the public-domain corpus.',
       },
     ],
   },
