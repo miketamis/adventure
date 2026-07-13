@@ -209,7 +209,6 @@ const JOURNEY_ALLOW = new Set([
   'mali1->udhekryq',         // mountain road back to the crossroads
   'udhekryq->mali1',         // and out again
   'gjarperKerkim->gjarperKulshedra', // the wife's search for her snake-husband, beyond the sea
-  'shqipe1->shtepia',        // walking on home from the eagle's tree (an "ec larg" keeper)
   'lumi->flocka1',           // "larg është një liqen" — the far walk down to Lake Shkodra
   // return legs — the same verified roads, walked back the way you came:
   'pylli1->fshatiDil',       // out of the great forest, down the road to the village gate
@@ -229,9 +228,9 @@ const JOURNEY_ALLOW = new Set([
   'maliHumbur->udhekryq',    // down out of the cloud on Tomorr
   'lumiHumbur->udhekryq',    // up from the flooding riverbank
   'botaHumbur->udhekryq',    // the long climb up out of the dark below
-  // compressed walk-home ENDINGS ("kthehu në fshat" closes the game at the hearth):
-  'siperfaqja->shtepia',     // home from the well's mouth at the coast
-  'ktheu1->shtepia',         // home from the world-road (skipping its dangers)
+  // NOTE: there are deliberately NO "compressed walk home" entries — the only
+  // road into the Home Again ending is the walk-home chain's own last leg
+  // (udhaKthimit -> shtepia); a shortcut into an ending holds no narrative.
 ])
 const oddNew = []
 for (const e of edges) {

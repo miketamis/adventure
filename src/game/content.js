@@ -2609,9 +2609,10 @@ export const STORY = {
       L(w('ti'), w('sheh'), w('nje'), w('rruge'), p('.')),
     ],
     options: [
+      // no bare "go home" jump: the road home IS the world-road (ktheu1..3,
+      // with its night-mother lure) — the homecoming is earned leg by leg
       { text: L(w('ec'), wf('ne', 'në', 'on'), w('rruge')), to: 'ktheu1', reveal: 'rruge' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('det')), to: 'bregu' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('fshat')), to: 'shtepia' },
     ],
   },
 
@@ -2641,7 +2642,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ndihmo'), wf('mur', 'murin', 'the wall')), to: 'murosur', reveal: 'mur' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('fshat')), to: 'shtepia' },
+      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), to: 'udhaKthimit' },
     ],
   },
 
@@ -4049,7 +4050,9 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ngjit'), wf('ne', 'në', 'to'), w('fole')), to: 'shqipe2', reveal: 'fole' },
-      { text: L(w('ec'), w('larg')), to: 'shtepia' },
+      // passing the tree by returns you to the road it stands beside — home
+      // still comes only by the road's own last leg (udhaKthimit)
+      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), to: 'udhaKthimit' },
     ],
   },
 
@@ -6413,8 +6416,10 @@ export const STORY = {
       L(w('nje'), w('plak'), w('flet'), p('.')),
     ],
     options: [
+      // leaving the tale mid-telling walks you back down to the road below the
+      // walls — the homecoming stays the road's own last leg (udhaKthimit)
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'kalaBesa', reveal: 'plak' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('fshat')), to: 'shtepia' },
+      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), to: 'udhaKthimit' },
     ],
   },
 
@@ -6429,7 +6434,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'kalaRozafa', reveal: 'plak' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('fshat')), to: 'shtepia' },
+      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), to: 'udhaKthimit' },
     ],
   },
 
@@ -6446,7 +6451,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('nene', 'nënën', 'the mother')), to: 'kalaGji', reveal: 'nene' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('fshat')), to: 'shtepia' },
+      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), to: 'udhaKthimit' },
     ],
   },
 
@@ -6814,7 +6819,6 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ec'), w('ne'), wf('bote', 'botën', 'the world')), to: 'ktheu2', reveal: 'bote' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('fshat')), to: 'shtepia' },
     ],
   },
 
@@ -6875,7 +6879,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('kala')), to: 'kala1', reveal: 'kala' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('fshat')), to: 'shtepia' },
+      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), to: 'udhaKthimit' },
     ],
   },
 
