@@ -290,6 +290,27 @@ for (const e of edges) {
 }
 section(!vorBad.length, `roads connect Voronoi-neighbouring places (<= ${VOR_MAX}px through a third territory)`, vorBad)
 
+// ---- 6c. endings happen where you stand -------------------------------------------
+// An option that lands on an ENDING screen is the tale's own closing beat — a
+// consequence (flee the duel, sleep through the tribute), a manner (leave
+// slowly, stay silent) or a closure (return to the tower) — and those all
+// happen AT the scene: every legitimate ending edge fires within ~335px.
+// A LONG edge into an ending is a "silent success" teleport (the old
+// "ec larg -> Home Again" class: skip the story AND win). Only the two
+// deliberate long closings below are allowed.
+const END_MAX = 400
+const END_ALLOW = new Set([
+  'udhaKthimit->shtepia',    // THE homecoming — the walk-home chain's earned last leg
+  'qiellDiell->henaPaqe',    // the night trek across the cloud-plateau to the Moon's terrace
+])
+const endBad = []
+for (const e of edges) {
+  if (!STORY[e.to].end || e.len <= END_MAX) continue
+  const key = `${e.from}->${e.to}`
+  if (!END_ALLOW.has(key)) endBad.push(`${Math.round(e.len)} ${key} ("${idsOf(e.o.text).join(' ')}" -> [${STORY[e.to].end}] "${STORY[e.to].title}")`)
+}
+section(!endBad.length, `endings happen where you stand (<= ${END_MAX}px, ${END_ALLOW.size} verified long closings)`, endBad)
+
 // ---- 7. no near-collisions -----------------------------------------------------
 // Two DISTINCT places closer than 16px render as an unreadable smudge — either
 // declare them the same spot (alias) or pull them apart.
