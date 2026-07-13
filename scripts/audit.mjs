@@ -25,7 +25,7 @@ const WL = new Set(
 )
 // Things legitimately absent from the scene: carried ITEMS, COMPANIONS, DESTINATIONS, riddle answers, created.
 // (Extend as new items/places are added.)
-const ALLOW = new Set('buke kripe gur fuqi bekim shqiponje ujk ora zjarr fshat udhekryq mal lume jutbina maja pyll det breshka gjarper toke bese dem flok vatra qilim bari oda kulle rruge shtepi pus lubia kemishe valle pallat kopsht vella kufi shpelle pishtar treg qytet lek lahute'.split(' '))
+const ALLOW = new Set('buke kripe gur fuqi bekim shqiponje ujk ora zjarr fshat udhekryq mal lume jutbina maja pyll det breshka gjarper toke bese dem flok vatra qilim bari oda kulle rruge shtepi pus lubia kemishe valle pallat kopsht vella kufi shpelle pishtar treg qytet lek lahute shesh feste'.split(' '))
 
 const ITEMS = new Set('buke kripe gur qumesht bekim dem mish shpate flok pishtar'.split(' '))
 const ECLARG_KEEPERS = new Set(['thesarLeave', 'shtepia', 'nastradinFund']) // leaving IS the beat

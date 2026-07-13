@@ -3537,7 +3537,8 @@ export const STORY = {
       // the moon-dancers' ring turns only in the dark
       when('night', L(w('naten'), wf('degjo', 'dëgjon', 'you hear'), w('nje'), w('valle'), p('.'))),
       when('night', L(wf('thote', 'thonë', 'they say'), p(':'), w('kush'), wf('hyr', 'hyn', 'enters'), wf('ne', 'në', 'in'), w('valle'), p(','), w('nuk'), wf('dil', 'del', 'comes out'), p('.'))),
-      L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('ora'), w('ec'), wf('ne', 'në', 'in'), w('pyll'), p(','), wf('si', 'si', 'as'), w('zog'), p(','), wf('si', 'si', 'as'), w('kafshe'), p(','), w('ose'), wf('si', 'si', 'as'), w('plake'), p('.')),
+      // "like a bird, like a beast" — the story lines rendering si's "like" sense
+      L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('ora'), w('ec'), wf('ne', 'në', 'in'), w('pyll'), p(','), wf('si', 'si', 'like'), w('zog'), p(','), wf('si', 'si', 'like'), w('kafshe'), p(','), w('ose'), wf('si', 'si', 'like'), w('plake'), p('.')),
       // …and in the dead of night you may SEE her: the cold old woman of the
       // wood (npcs.js plakaPyllit) walking back from the road-end fire
       when('npc:plakaPyllit', L(w('nje'), w('plake'), w('e_art'), w('ftohte'), w('ec'), w('ne'), w('erresire'), p('.'))),
@@ -8491,7 +8492,8 @@ export const STORY = {
   udhekryq: {
     id: 'udhekryq',
     text: [
-      L(w('ti'), w('je'), w('ne'), w('nje'), w('udhekryq'), p('.')),
+      // "at a crossroads" — the one story line rendering në's "at" sense
+      L(w('ti'), w('je'), wf('ne', 'në', 'at'), w('nje'), w('udhekryq'), p('.')),
       // the crossroads knows which road brought you in — and finding it again
       // after being lost is a small homecoming
       from('mali1', L(w('ti'), w('zbrit'), w('nga'), wf('mal', 'mali', 'the mountain'), p('.'))),
