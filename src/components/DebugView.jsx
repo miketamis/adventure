@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
-import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB } from '../game/folklore.js'
+import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB, RANK, EXTRA_SOURCES } from '../game/folklore.js'
 import { QUOTES, quoteTier, quoteProofUrl } from '../game/quotes.js'
 import { REGIONS, isWander, assignRegions } from '../game/regions.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
