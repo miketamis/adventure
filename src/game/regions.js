@@ -37,6 +37,15 @@ const WANDER_VERB = new Set(['ik', 'kthehu', 'zgjohu', 'dil'])
 const WANDER_TO = new Set(['pylliLoop', 'humbur', 'gjumi'])
 export const isWander = (o) => WANDER_VERB.has((o.text || []).find((t) => t && t.id)?.id) || WANDER_TO.has(o.to)
 
+// LOST/SLEEP SINKS — the only edges the map geometry checks exempt: getting
+// lost (humbur and the region-local *Humbur nodes) or falling asleep (gjumi,
+// the forest sleeping-ground) is narrative, not a walk, so an edge INTO a sink
+// carries no distance promise. Everything else — including every "ik"/"kthehu"
+// road — must hold up against the drawn map (see scripts/mapaudit.mjs). This
+// is deliberately NARROWER than isWander: wander-ness only shapes the region
+// BFS above; it must never hide a teleporting road from the audit again.
+export const LOST_SINKS = new Set(['humbur', 'maliHumbur', 'lumiHumbur', 'botaHumbur', 'gjumi'])
+
 // multi-source BFS over PROGRESSION edges only (ignore wander), so a node isn't
 // dragged into the forest just because it can flee there → the region a node
 // lands in reflects where the story actually takes you. Returns byRegion: an

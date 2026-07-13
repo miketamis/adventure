@@ -1815,6 +1815,9 @@ export const STORY = {
   pylli1: {
     id: 'pylli1',
     text: [
+      // the forest's EDGE — both village roads (the gate road and the
+      // crossroads road) arrive here before the wood deepens
+      from('udhekryq', L(w('ti'), w('vjen'), w('nga'), wf('udhekryq', 'udhëkryqi', 'crossroads'), p('.'))),
       L(w('ti'), w('ec'), w('ne'), w('nje'), w('pyll'), w('te_link'), w('madh'), p('.')),
       L(w('eshte'), w('erret'), w('dhe'), w('thate'), p('.')),
       L(w('tre'), wf('vella', 'vëllezër', 'brothers'), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.')),
@@ -2746,9 +2749,12 @@ export const STORY = {
   shpellaHyrje: {
     id: 'shpellaHyrje',
     text: [
-      // the wrong (right-hand) road of the cavern riddle loops you back here
-      notFrom('shpellaRruget', L(w('ti'), w('zbrit'), wf('ne', 'në', 'to'), wf('shpelle', 'shpellën', 'the cave'), p('.'))),
+      // the wrong (right-hand) road of the cavern riddle loops you back here;
+      // walking back from the dead city, the passage delivers you out of the
+      // dark at this same mouth (the only hole the cavern has to the river)
+      notFrom(['shpellaRruget', 'qyteti', 'qytetiUdhetar', 'qytetiUdhetar2', 'qytetiUdhetar3', 'qytetiUdhetar4'], L(w('ti'), w('zbrit'), wf('ne', 'në', 'to'), wf('shpelle', 'shpellën', 'the cave'), p('.'))),
       from('shpellaRruget', L(wf('rruge', 'rruga', 'the road'), w('djathtas'), w('vjen'), w('mbrapa'), wf('tek', 'te', 'to'), wf('hyrje', 'hyrja', 'entrance'), p('.'))),
+      from(['qyteti', 'qytetiUdhetar', 'qytetiUdhetar2', 'qytetiUdhetar3', 'qytetiUdhetar4'], L(w('ti'), wf('dil', 'del', 'come out'), w('nga'), wf('erresire', 'errësira', 'the darkness'), p('.'))),
       unless('pishtar', L(w('brenda'), w('eshte'), w('erret'), p('.'))),
       unless('pishtar', L(w('ti'), w('nuk'), w('sheh'), p('.'))),
       when('pishtar', L(wf('pishtar', 'pishtari', 'the torch'), w('jep'), w('drite'), p('.'))),
@@ -2793,7 +2799,9 @@ export const STORY = {
       { text: L(w('fol'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'qytetiUdhetar', reveal: 'udhetar' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), wf('treg', 'tregun', 'the market')), to: 'thesar2', reveal: 'treg' },
       { text: L(w('ec'), w('ne'), w('qytet')), to: 'sheshi' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+      // the way back to the river is the miles-long passage you came in by —
+      // you emerge at the cave MOUTH on the bank (shpellaHyrje), not upstream
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'shpellaHyrje' },
     ],
   },
 
@@ -2824,7 +2832,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'qytetiUdhetar2' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'shpellaHyrje' },
     ],
   },
 
@@ -2852,7 +2860,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'qytetiUdhetar3' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'shpellaHyrje' },
     ],
   },
 
@@ -2881,7 +2889,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'qytetiUdhetar4' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'shpellaHyrje' },
     ],
   },
 
@@ -2907,7 +2915,7 @@ export const STORY = {
       L(wf('cili', 'cila', 'which'), w('eshte'), w('arsye'), p('?')),
     ],
     options: [
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'shpellaHyrje' },
     ],
   },
 
@@ -3514,15 +3522,14 @@ export const STORY = {
   // landmark, glimpsed from many districts). Wander deeper and get lost, seek the
   // cave / the fox / the dance / the brothers — or walk back to the road-end
   // clearing (your camp: the fire and the sleeping-ground live THERE, not here)
-  // or out the far side to the crossroads.
+  // or across to the brothers' glade (pylli1). The deep wood touches no road:
+  // the crossroads is a whole forest away (its road ends at pylli1, the edge).
   pylliLoop: {
     id: 'pylliLoop',
     text: [
-      // "again in the forest" is for forest-walkers; from the crossroads you ENTER,
       // from the clearing you push past the road's end into the deep wood
-      from('udhekryq', L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'in'), w('pyll'), p('.'))),
       from('lendina', L(w('ti'), w('ec'), w('thelle'), wf('ne', 'në', 'in'), w('pyll'), p('.'))),
-      notFrom(['udhekryq', 'lendina'], L(w('ti'), w('je'), w('perseri'), w('ne'), w('pyll'), p('.'))),
+      notFrom('lendina', L(w('ti'), w('je'), w('perseri'), w('ne'), w('pyll'), p('.'))),
       when('night', L(w('eshte'), w('erret'), w('dhe'), w('ftohte'), p('.'))),
       unless('night', L(wf('pyll', 'pylli', 'the forest'), w('eshte'), w('i_art'), w('qete'), p('.'))),
       L(wf('lart', 'lart', 'high'), w('larg'), w('eshte'), w('maja'), w('e_art'), w('shenjte'), p('.')),
@@ -3538,7 +3545,6 @@ export const STORY = {
       L(w('larg'), wf('rri', 'rrinë', 'stay'), w('tre'), wf('vella', 'vëllezër', 'brothers'), p('.')),
     ],
     options: [
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('udhekryq')), to: 'udhekryq' },
       // back to the road-end clearing — the camp: while your fire burns there it
       // calls you home by name, otherwise you walk back to the road
       { text: L(w('kthehu'), w('tek'), wf('zjarr', 'zjarri', 'the fire')), requires: 'fireLive', to: 'lendina' },
@@ -3724,8 +3730,9 @@ export const STORY = {
       { text: L(w('ndihmo'), wf('njeri', 'njerëzit', 'the people')), to: 'gjak1', reveal: 'gjak' },
       { text: L(w('ec'), wf('rruge', 'rrugës', 'the road')), to: 'gjizar1' },
       // back into the village — closes the outskirts loop (lanes -> ... -> gate -> crossroads)
+      // (no sleeping here: gjumi is the FOREST sleeping-ground by the clearing,
+      // a thousand paces west — "fle ketu" at the gate would teleport)
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('udhekryq')), to: 'udhekryq' },
-      { text: L(w('fle'), w('ketu')), to: 'gjumi', time: 'night' },
     ],
   },
 
@@ -6631,7 +6638,9 @@ export const STORY = {
     ],
     options: [
       { text: L(w('pi'), w('uje')), to: 'syriFund', reveal: 'uje' },
-      { text: L(w('ik'), w('shpejt')), to: 'ura' },
+      // fleeing backs you up the dry riverbed you came down (udhaThate is a
+      // short walk upstream) — the living river's bridge is a realm away
+      { text: L(w('ik'), w('shpejt')), to: 'udhaThate' },
     ],
   },
 
@@ -8485,9 +8494,11 @@ export const STORY = {
       when('day', L(wf('diell', 'dielli', 'the sun'), w('eshte'), wf('lart', 'lart', 'high'), p('.'))),
       when('dusk', L(w('eshte'), w('muzg'), p(','), wf('diell', 'dielli', 'the sun'), wf('shko', 'shkon', 'goes'), wf('poshte', 'poshtë', 'down'), p('.'))),
       when('night', L(w('eshte'), w('naten'), p(','), wf('hene', 'hëna', 'the moon'), w('eshte'), wf('lart', 'lart', 'high'), p('.'))),
-      L(w('larg'), w('eshte'), w('nje'), w('fshat'), p('.')),
+      // the map is authoritative: the village square is a short walk from here,
+      // while the great forest and the river lie a real journey away
+      L(w('ketu'), w('eshte'), w('nje'), w('fshat'), p('.')),
       L(wf('lart', 'lart', 'high'), w('eshte'), w('nje'), w('mal'), w('te_link'), w('shenjte'), p('.')),
-      L(w('ketu'), w('eshte'), w('nje'), w('pyll'), w('dhe'), w('nje'), w('lume'), p('.')),
+      L(w('larg'), w('eshte'), w('nje'), w('pyll'), w('dhe'), w('nje'), w('lume'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), wf('lume', 'lumi', 'the river'), wf('shko', 'shkon', 'goes'), w('poshte'), p(','), w('aty'), w('larg'), p(','), wf('tek', 'te', 'to'), wf('det', 'deti', 'the sea'), p('.')),
       // the crossroads' own proverb — mountains never meet, but people do
       Q('fjalë e urtë',
@@ -8497,7 +8508,9 @@ export const STORY = {
     options: [
       { text: L(w('ec'), wf('ne', 'në', 'to'), w('fshat')), to: 'fshatiSheshi' },
       { text: L(w('ngjit'), wf('ne', 'në', 'to'), w('mal')), to: 'mali1', reveal: 'shenjte' },
-      { text: L(w('ik'), wf('ne', 'në', 'to'), w('pyll')), to: 'pylliLoop', reveal: 'pyll' },
+      // the forest road arrives at the wood's EDGE (pylli1, where the village
+      // gate road also lands) — never straight into the deep forest hub
+      { text: L(w('shko'), wf('ne', 'në', 'to'), w('pyll')), to: 'pylli1', reveal: 'pyll' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('lume')), to: 'lumi', reveal: 'lume' },
       // the gate road — makes the outskirts circuit walkable in BOTH directions
       { text: L(w('ec'), wf('rruge', 'rrugës', 'the road')), to: 'fshatiDil' },
@@ -8696,7 +8709,9 @@ export const STORY = {
       { text: L(w('prit'), wf('naten', 'natën', 'night')), unless: 'night', to: 'qiellDiell', time: 'night' },
       // linger until the Sun climbs again
       { text: L(w('prit'), w('agim')), requires: 'night', to: 'qiellDiell', time: 'dawn' },
-      { text: L(w('ik'), w('shpejt')), to: 'udhekryq' },
+      // fleeing the height of heaven loses you in the cloud on the mountainside
+      // (maliHumbur), the same as fleeing qiell1 — never straight to the village
+      { text: L(w('ik'), w('shpejt')), to: 'maliHumbur' },
     ],
   },
 

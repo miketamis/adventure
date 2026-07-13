@@ -15,7 +15,7 @@ import { dirname, join } from 'node:path'
 import { STORY } from '../src/game/content.js'
 import { NODE_AT, NODE_POS, PLACE_OF, PLACE_NODES } from '../src/components/nodePositions.js'
 import { PLACE_META } from '../src/components/placeMeta.js'
-import { REGIONS, NODE_REGION, VILLAGE_ANCHOR_IDS, isWander } from '../src/game/regions.js'
+import { REGIONS, NODE_REGION, VILLAGE_ANCHOR_IDS, isWander, LOST_SINKS } from '../src/game/regions.js'
 import { NPCS } from '../src/game/npcs.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -32,13 +32,17 @@ const section = (ok, title, lines = []) => {
   if (!ok) failures++
 }
 
-// every real (non-confuser) edge, with geometry
+// every real (non-confuser) edge, with geometry. `sink` (edge INTO a lost/sleep
+// sink — see LOST_SINKS in regions.js) is the ONLY geometry exemption: getting
+// lost or falling asleep is narrative, not a walk. Flee ("ik") and return
+// ("kthehu") roads are held to the map like any other — the old blanket wander
+// exemption let pylliLoop<->udhekryq teleport across the world unseen.
 const edges = []
 for (const id of ids) for (const o of STORY[id].options || []) {
   if (o.confuser || !o.to || !STORY[o.to]) continue
   const a = NODE_POS[id], b = NODE_POS[o.to]
   if (!a || !b) continue
-  edges.push({ from: id, to: o.to, o, dx: b[0] - a[0], dy: b[1] - a[1], len: Math.hypot(b[0] - a[0], b[1] - a[1]), wander: isWander(o) })
+  edges.push({ from: id, to: o.to, o, dx: b[0] - a[0], dy: b[1] - a[1], len: Math.hypot(b[0] - a[0], b[1] - a[1]), wander: isWander(o), sink: LOST_SINKS.has(o.to) })
 }
 
 // ---- 0. every node is placed --------------------------------------------------
@@ -83,7 +87,7 @@ const DOWN = new Set(['poshte', 'zbrit', 'zbres', 'zbrite'])
 const VERT_ALLOW = new Set(['qiell1->qiellErera1'])
 const vertBad = []
 for (const e of edges) {
-  if (e.wander || VERT_ALLOW.has(`${e.from}->${e.to}`)) continue
+  if (e.sink || VERT_ALLOW.has(`${e.from}->${e.to}`)) continue
   const toks = idsOf(e.o.text)
   const up = toks.some((t) => UP.has(t)), down = toks.some((t) => DOWN.has(t))
   if (up === down || Math.abs(e.dy) <= 100) continue // no/conflicting direction, or local
@@ -106,7 +110,7 @@ const INTERACT_MAX = 400
 const INTERACT_ALLOW = new Set(['gjumi->shokuUjk', 'gjumi->eaten', 'pemaDielli->rrugaDielli2'])
 const farInteract = []
 for (const e of edges) {
-  if (e.wander || INTERACT_ALLOW.has(`${e.from}->${e.to}`)) continue
+  if (e.sink || INTERACT_ALLOW.has(`${e.from}->${e.to}`)) continue
   const v = idsOf(e.o.text)[0]
   if (INTERACT.has(v) && e.len > INTERACT_MAX) farInteract.push(`${Math.round(e.len)} ${e.from} -> ${e.to} ("${idsOf(e.o.text).join(' ')}")`)
 }
@@ -186,6 +190,8 @@ section(!stranded.length, `no stranded nodes (some neighbour within ${STRAND_MAX
 // Mirror of the debug map's ⚡ detector. Every entry here was walked through the
 // story and verified to be a real journey — a NEW one appearing means either a
 // new teleport bug or a new journey to verify (then add it below).
+// This check covers flee/return ("ik"/"kthehu") edges too — only edges INTO a
+// lost/sleep sink are exempt. A road is a road whichever way you walk it.
 const JOURNEY_ALLOW = new Set([
   'tomorZbritje->pusi',      // the descent from Tomorr to the well's mouth
   'rrethi->dhia1',           // "ec lart" — up the mountainside to the stone wedding
@@ -205,10 +211,31 @@ const JOURNEY_ALLOW = new Set([
   'gjarperKerkim->gjarperKulshedra', // the wife's search for her snake-husband, beyond the sea
   'shqipe1->shtepia',        // walking on home from the eagle's tree (an "ec larg" keeper)
   'lumi->flocka1',           // "larg është një liqen" — the far walk down to Lake Shkodra
+  // return legs — the same verified roads, walked back the way you came:
+  'pylli1->fshatiDil',       // out of the great forest, down the road to the village gate
+  'lumi->udhekryq',          // back up from the river to the crossroads
+  'flocka1->lumi',           // back up the lakeshore walk from Lake Shkodra
+  'deti1->lumi',             // back up the dry river from the sea
+  'qyteti->shpellaHyrje',    // the miles-long cavern passage, walked back to its river mouth
+  'qytetiUdhetar->shpellaHyrje',  // (the traveller scenes stand in the same dead city)
+  'qytetiUdhetar2->shpellaHyrje',
+  'qytetiUdhetar3->shpellaHyrje',
+  'qytetiUdhetar4->shpellaHyrje',
+  // the forest road from the crossroads — ends at the wood's EDGE (pylli1),
+  // never inside the deep forest (the old pylliLoop teleport):
+  'udhekryq->pylli1',
+  // recoveries — the lost walker's long trek back to the road (each *Humbur
+  // scene says "larg është udhëkryq" and udhekryq greets them by name):
+  'maliHumbur->udhekryq',    // down out of the cloud on Tomorr
+  'lumiHumbur->udhekryq',    // up from the flooding riverbank
+  'botaHumbur->udhekryq',    // the long climb up out of the dark below
+  // compressed walk-home ENDINGS ("kthehu në fshat" closes the game at the hearth):
+  'siperfaqja->shtepia',     // home from the well's mouth at the coast
+  'ktheu1->shtepia',         // home from the world-road (skipping its dangers)
 ])
 const oddNew = []
 for (const e of edges) {
-  if (e.wander || e.len <= 500 || reg(e.from) === reg(e.to)) continue
+  if (e.sink || e.len <= 500 || reg(e.from) === reg(e.to)) continue
   const key = `${e.from}->${e.to}`
   if (!JOURNEY_ALLOW.has(key)) oddNew.push(`${Math.round(e.len)} ${key} (${reg(e.from)} -> ${reg(e.to)})`)
 }
@@ -282,7 +309,7 @@ if (bigStacks.length) {
 // (near-)zero length. Sharper than check 3: the word itself asserts locality.
 const ketuBad = []
 for (const e of edges) {
-  if (e.wander) continue
+  if (e.sink) continue // "fle ketu" -> gjumi: sleep happens here, the DREAM stands at the sleeping-ground
   if (idsOf(e.o.text).includes('ketu') && e.len > 150) ketuBad.push(`${Math.round(e.len)} ${e.from} -> ${e.to} ("${idsOf(e.o.text).join(' ')}")`)
 }
 section(!ketuBad.length, '"ketu" options stay put (<= 150)', ketuBad)
@@ -331,7 +358,7 @@ const segDistToOrigin = (ax, ay, bx, by) => {
 }
 const crossBad = []
 for (const e of edges) {
-  if (e.wander || CROSS_ALLOW.has(`${e.from}->${e.to}`)) continue
+  if (e.sink || CROSS_ALLOW.has(`${e.from}->${e.to}`)) continue
   const a = NODE_POS[e.from], b = NODE_POS[e.to]
   for (const key of IMPASSABLE) {
     if (reg(e.from) === key || reg(e.to) === key) continue

@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
 import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB } from '../game/folklore.js'
-import { REGIONS, isWander, assignRegions } from '../game/regions.js'
+import { REGIONS, isWander, assignRegions, LOST_SINKS } from '../game/regions.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
 import { NODE_POS, PLACE_OF } from './nodePositions.js'
 import { PLACE_META } from './placeMeta.js'
@@ -358,6 +358,7 @@ const VILLAGE_PLACES = [
   { id: 'uraArtes1', x: 132, y: 500, type: 'dot', label: 'the new bridge', lh: 13 },
   { id: 'mulli1', x: 166, y: 602, type: 'mill', label: 'water-mill', lh: 18 },
   { id: 'kroi1', x: 178, y: 674, type: 'spring', label: 'the spring', lh: 18 },
+  { id: 'tabaket1', x: 220, y: 662, type: 'dot', label: 'the tanners', lh: 13 },
 ]
 
 const VILLAGE_DISTRICTS = [
@@ -2272,11 +2273,15 @@ export function VillageMap({ g, current, goGraph, compact, follow, world, npcs }
       for (const o of (STORY[u].options || [])) {
         if (o.confuser || !o.to || !pos[o.to]) continue
         const b = pos[o.to]
-        edges.push([a[0], a[1], b[0], b[1], u, o.to, isWander(o)])
+        edges.push([a[0], a[1], b[0], b[1], u, o.to, isWander(o), LOST_SINKS.has(o.to)])
       }
     }
     const allPos = Object.entries(pos).map(([id, p]) => ({ id, x: p[0], y: p[1] }))
-    const scored = edges.filter((e) => !e[6]).map((e) => {
+    // ⚡ odd-link detector: only edges INTO a lost/sleep sink are exempt (getting
+    // lost is not a walk) — flee/return roads are geometry like any other, so a
+    // teleporting "kthehu" shows up here instead of hiding as wander (e[6] stays
+    // purely visual: wander edges draw dashed).
+    const scored = edges.filter((e) => !e[7]).map((e) => {
       const [x1, y1, x2, y2, u, v] = e
       const len = Math.hypot(x2 - x1, y2 - y1), cross = regOf[u] !== regOf[v]
       let crossings = 0
