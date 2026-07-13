@@ -89,6 +89,7 @@ export const NODE_AT = {
   qytetiUdhetar2: 'qyteti',
   qytetiUdhetar3: 'qyteti',
   qytetiUdhetar4: 'qyteti',
+  qytetiUdhetar5: 'qyteti',
   // ── the living quarter of the dead city — a real drawn plaza: the square at
   // its heart, the bazaar NE, the inn SE, the healer SW, the traveller by the
   // street in from the gate, the way-signs at the far edge.
@@ -100,6 +101,7 @@ export const NODE_AT = {
   blerjaKripe: 'tregtari',
   shitjaCaj: 'tregtari',
   tregtari2: 'tregtari',
+  tregtari3: 'tregtari',
   blerjaLahuta: 'tregtari',
   plisiFund: 'tregtari',
   xhubletaFund: 'tregtari',
@@ -144,6 +146,8 @@ export const NODE_AT = {
   ura: [380, 1240],
   maja: [300, -820],
   jutbina: [540, -360],
+  // Mujo's tower — the war-house of the hamlet, its own kulla beside the centre
+  kullaMujit: [578, -352],
   mujiZana1: [505, -432],
   mujiZana2: 'mujiZana1',
   mujiFund: 'mujiZana1',
@@ -287,10 +291,12 @@ export const NODE_AT = {
   djepi2: 'djepi1',
   djepiFund: 'djepi1',
   fshatiJeta: [322, 430],
-  jetaBaba: 'fshatiJeta',
-  jetaBaba2: 'fshatiJeta',
-  jetaGrua: 'fshatiJeta',
-  jetaGrua2: 'fshatiJeta',
+  // the courtyard behind the homes — the family vignettes stand in it
+  oborri: [344, 500],
+  jetaBaba: 'oborri',
+  jetaBaba2: 'oborri',
+  jetaGrua: 'oborri',
+  jetaGrua2: 'oborri',
   vatra: [300, 378],
   qilim: [288, 468],
   bariu: [300, 560],
@@ -386,6 +392,8 @@ export const NODE_AT = {
   kengaLahute: 'libriDiell',
   udhetaretBisede: 'libriDiell',
   udhetaretBisede2: 'libriDiell',
+  udhetaretBisede3: 'libriDiell',
+  udhetaretBisede4: 'libriDiell',
   tregMal: 'libriDiell',
   tregDet: 'libriDiell',
   tregMujo: 'libriDiell',

@@ -39,12 +39,14 @@
 
 export const NPCS = {
   // The water-carrier: the dry well made her. Every daylight hour she walks
-  // spring → river bank → up to the square with the full jugs, and back down
-  // with the empty ones. At night she is home — "natën kroi është i qetë".
+  // spring → past the mill → river bank → up to the square with the full jugs,
+  // and back down with the empty ones (the spring is reached through the mill,
+  // so her road runs the same way the player's does). At night she is home —
+  // "natën kroi është i qetë".
   gruaUji: {
     name: 'gruaja me ujë',
     glyph: '🏺',
-    route: ['kroi1', 'fshatiLumi', 'fshatiSheshi', 'fshatiLumi'],
+    route: ['kroi1', 'mulli1', 'fshatiLumi', 'fshatiSheshi', 'fshatiLumi', 'mulli1'],
     stepHours: 2,
     activePhases: ['dawn', 'day', 'dusk'],
   },
