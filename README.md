@@ -63,6 +63,12 @@ All vocabulary and the branching story are data, in
 - Token helpers: `w(id)` (dictionary word), `wf(id, al, en)` (an inflected surface
   of the same sense, e.g. `shtëpi` → `shtëpia`), `p(en)` (a non-learnable structural
   token — used only for punctuation).
+- `Q(quoteId, …tokens)` — a line quoted word-for-word from the folk sources
+  (a ballad, the Kanun, a tale formula). Every quote id must be registered in
+  [`src/game/quotes.js`](src/game/quotes.js) with its original wording, source and
+  verifiable proof; `npm run quotecheck` machine-verifies each proof against the
+  primary texts in `docs/references/` and `npm run quotereport` regenerates the
+  human-readable ledger [`docs/quote-proofs.md`](docs/quote-proofs.md).
 
 Keep answers short and reuse story vocabulary — that reuse is what makes the words
 stick.
@@ -70,6 +76,7 @@ stick.
 ## Code map
 
 - `src/game/content.js` — dictionary + story data
+- `src/game/quotes.js` — the folk-quote proof register (see `docs/quote-proofs.md`)
 - `src/game/gameState.js` — run state, reducer, choose/spend rules
 - `src/components/Token.jsx` — one word (gloss / discovered / particle + peek)
 - `src/components/StoryView.jsx` — passage + selectable paths

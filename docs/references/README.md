@@ -11,6 +11,10 @@ English (multi = bilingual, e.g. `.de-sq`).
 Machine-readable metadata for each source lives in `CORPUS` in
 `src/game/folklore.js`; this README is the human index.
 
+The story lines quoted verbatim from these texts are tracked in the quote proof
+register (`src/game/quotes.js`) and verified against these files by
+`npm run quotecheck`; the generated ledger is [`../quote-proofs.md`](../quote-proofs.md).
+
 ## Downloaded — public domain
 
 | File | Work | Author | Year | Lang | Albanian text? |

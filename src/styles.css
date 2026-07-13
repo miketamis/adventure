@@ -164,6 +164,19 @@ button {
   color: var(--muted);
   margin-left: 8px;
 }
+/* attribution rendered as a proof link (to the primary source) keeps the quiet
+   annotation look — a dotted underline is the only tell that it opens the source */
+a.quote-src,
+a.dbg-quote-src {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--muted);
+}
+a.quote-src:hover,
+a.dbg-quote-src:hover {
+  color: var(--fg);
+  border-bottom-color: var(--fg);
+}
 
 .token {
   position: relative;

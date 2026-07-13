@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
 import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB } from '../game/folklore.js'
+import { QUOTES, quoteTier, quoteProofUrl } from '../game/quotes.js'
 import { REGIONS, isWander, assignRegions } from '../game/regions.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
 import { NODE_POS, PLACE_OF } from './nodePositions.js'
@@ -87,7 +88,21 @@ function NodeDetail({ id, onPick, goLore }) {
           <div className={'dbg-line' + (line.quote ? ' dbg-quote' : '')} key={i}>
             <span className="dbg-al">{albanianOf(line)}</span>
             <span className="dbg-en">{englishOf(line)}</span>
-            {line.quote && <span className="dbg-quote-src">📜 {line.quote}</span>}
+            {line.quote && (() => {
+              // reviewer view: attribution links straight to the registered proof
+              const q = line.quoteId ? QUOTES[line.quoteId] : null
+              const href = q ? quoteProofUrl(q, REPO_BLOB) : null
+              const tip = q ? `${q.original}\n— ${q.translation}\n[proof tier: ${quoteTier(q)}]` : null
+              return href ? (
+                <a className="dbg-quote-src" href={href} target="_blank" rel="noreferrer" title={tip}>
+                  📜 {line.quote} ({quoteTier(q)})
+                </a>
+              ) : (
+                <span className="dbg-quote-src" title={tip}>
+                  📜 {line.quote}{q ? ` (${quoteTier(q)})` : ''}
+                </span>
+              )
+            })()}
           </div>
         ))}
       </div>
