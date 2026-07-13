@@ -10,6 +10,7 @@ export const PLACE_META = {
     name: 'kulla e Aga Ymerit',
     happenings: [
       { title: 'the old woman at the gate', nodes: ['plaka'] },
+      { title: 'supper at the sofra', nodes: ['sofra1', 'sofra2', 'sofra3'] },
       { title: "Aga Ymer's seven years", nodes: ['agaYmer1', 'agaYmer2', 'agaYmerStay', 'agaYmerFund'] },
     ],
   },
