@@ -302,6 +302,47 @@ for (let i = 0; i < locs.length; i++) for (let j = i + 1; j < locs.length; j++) 
 }
 section(!nearHits.length, 'no near-collisions (distinct spots >= 16px apart)', nearHits)
 
+// ---- 7b. linked near-pairs are one location or VERIFIED distinct -----------------
+// Two places joined by a story edge and standing under 60px apart are usually
+// ONE location wearing two dots (a scene that drifted off its parent's spot) —
+// the fix is an alias in nodePositions ('id: anchor'), like gjumi -> lendina
+// (the sleeping-ground IS the clearing) and thesarOra -> fshehur (the same old
+// man's telling). A pair that really is two places (a drawn building beside a
+// square, a march's separate beats) is verified by hand below, with its reason.
+const PAIR_MAX = 60
+const PAIR_ALLOW = new Set([ // 'a|b' with a < b
+  'lendina|shtrigaNate',     // the witch rises from the fire and steps into the dark — her own drawn landmark
+  'fshatiSheshi|sheshiKisha', // the church SIDE of the one big plaza (dasma scenes) — same square, named corner
+  'fshatiSheshi|pusiThate',  // the dry well is its own drawn glyph beside the square
+  'dordolec1|dordolecFund',  // the rain procession SETS OFF from the scarecrow through the lanes
+  'sheshi|tregtari',         // the dead city's plaza is a real drawn spread: the bazaar…
+  'bujtina|sheshi',          // …the inn…
+  'sheruesi|sheshi',         // …the healer…
+  'sheshi|udhetariHuaj',     // …and the traveller by the street in from the gate
+  'bota1|zbritjaThelle',     // the last step of the long descent, arriving at the gate of the world below
+  'halil1|jutbina',          // Halil's kulla stands beside the hamlet square (each tale its own tower)
+  'fshatiJeta|vatra',        // the hearth is its own drawn house of the village-life quarter…
+  'fshatiJeta|qilim',        // …as is the loom
+  'kordha2|kordhaUdha',      // the sword-brothers' march: the road before the palace gate…
+  'kordhaMoat|kordhaUdha',   // …and the moat leap behind it — separate beats of the approach
+  'fshatiLumi|tabaket1',     // the stone bridge and the tanners' bank below it, both drawn
+])
+const pairBad = []
+{
+  const ks = Object.keys(byPlace)
+  for (let i = 0; i < ks.length; i++) for (let j = i + 1; j < ks.length; j++) {
+    const A = ks[i], B = ks[j]
+    const d = Math.hypot(NODE_POS[A][0] - NODE_POS[B][0], NODE_POS[A][1] - NODE_POS[B][1])
+    if (d <= 0 || d >= PAIR_MAX) continue
+    const linked = byPlace[A].some((x) => adj[x] && [...adj[x]].some((n) => (PLACE_OF[n] || n) === B))
+      || byPlace[B].some((x) => adj[x] && [...adj[x]].some((n) => (PLACE_OF[n] || n) === A))
+    if (!linked) continue
+    const key = A < B ? `${A}|${B}` : `${B}|${A}`
+    if (!PAIR_ALLOW.has(key)) pairBad.push(`${d.toFixed(0)}px ${A} <-> ${B} — alias them to one spot, or verify as distinct in PAIR_ALLOW`)
+  }
+}
+section(!pairBad.length, `linked near-pairs (<${PAIR_MAX}px) are one location or verified distinct (${PAIR_ALLOW.size} verified)`, pairBad)
+
 // ---- 8-10. the DRAWN map matches the story (landmarks & village places) --------
 // The JSX layers can't be imported under node — parse the bits we audit.
 const glyphsSrc = readFileSync(join(ROOT, 'src/components/mapGlyphs.jsx'), 'utf8')

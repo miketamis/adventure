@@ -77,7 +77,8 @@ export const NODE_AT = {
   dranguasi: 'kulshedra1',
   mishiVetes: 'pusi2',
   fshehur: [95, 900],
-  thesarOra: [120, 950],
+  // the same old man, the same telling — "dëgjo plakun" continues in place
+  thesarOra: 'fshehur',
   shpellaHyrje: [180, 1290],
   shpellaRruget: [235, 1430],
   qyteti: [300, 2060],
@@ -133,7 +134,9 @@ export const NODE_AT = {
   shtrigaNate: [-410, 480],
   besaFire: 'lendina',
   shtrigaIkur: 'shtrigaNate',
-  gjumi: [-450, 425],
+  // the sleeping-ground IS the road-end clearing — you lie down at the camp
+  // and wake where you lay (see gjumi's own comment in content.js)
+  gjumi: 'lendina',
   fshatiDil: [604, 180],
   dilFrike: 'fshatiDil',
   ura: [380, 1240],

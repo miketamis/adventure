@@ -4063,7 +4063,9 @@ export const STORY = {
     ],
     options: [
       { text: L(w('vrit'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'shqipe3', reveal: 'gjarper' },
-      { text: L(w('ik'), w('shpejt')), to: 'shtepia' },
+      // fleeing scrambles you back DOWN the tree — the walk home ("ec larg",
+      // the shqipe1 keeper) is a choice made on the ground, not a teleport
+      { text: L(w('ik'), w('shpejt')), to: 'shqipe1' },
     ],
   },
 
