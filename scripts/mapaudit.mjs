@@ -220,6 +220,7 @@ const JOURNEY_ALLOW = new Set([
   'qytetiUdhetar2->shpellaHyrje',
   'qytetiUdhetar3->shpellaHyrje',
   'qytetiUdhetar4->shpellaHyrje',
+  'qytetiUdhetar5->shpellaHyrje',
   // the forest road from the crossroads — ends at the wood's EDGE (pylli1),
   // never inside the deep forest (the old pylliLoop teleport):
   'udhekryq->pylli1',
@@ -341,6 +342,8 @@ const PAIR_ALLOW = new Set([ // 'a|b' with a < b
   'sheshi|udhetariHuaj',     // …and the traveller by the street in from the gate
   'bota1|zbritjaThelle',     // the last step of the long descent, arriving at the gate of the world below
   'halil1|jutbina',          // Halil's kulla stands beside the hamlet square (each tale its own tower)
+  'jutbina|kullaMujit',      // Mujo's war-kulla, likewise its own tower beside the centre…
+  'halil1|kullaMujit',       // …neighbouring his brother Halil's
   'fshatiJeta|vatra',        // the hearth is its own drawn house of the village-life quarter…
   'fshatiJeta|qilim',        // …as is the loom
   'kordha2|kordhaUdha',      // the sword-brothers' march: the road before the palace gate…

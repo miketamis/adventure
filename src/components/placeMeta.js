@@ -10,6 +10,7 @@ export const PLACE_META = {
     name: 'kulla e Aga Ymerit',
     happenings: [
       { title: 'the old woman at the gate', nodes: ['plaka'] },
+      { title: 'supper at the sofra', nodes: ['sofra1', 'sofra2', 'sofra3'] },
       { title: "Aga Ymer's seven years", nodes: ['agaYmer1', 'agaYmer2', 'agaYmerStay', 'agaYmerFund'] },
     ],
   },
@@ -19,7 +20,7 @@ export const PLACE_META = {
       { title: 'the book of the Sun', nodes: ['libriDiell'] },
       { title: "the old man's welcome", nodes: ['oda1', 'odaPlak', 'oda2'] },
       { title: 'a song for the lord of the house', nodes: ['kengaLahute'] },
-      { title: "the travellers' tales", nodes: ['udhetaret', 'udhetaretBisede', 'udhetaretBisede2', 'tregMal', 'tregDet', 'tregMujo', 'tregDragua'] },
+      { title: "the travellers' tales", nodes: ['udhetaret', 'udhetaretBisede', 'udhetaretBisede2', 'udhetaretBisede3', 'udhetaretBisede4', 'tregMal', 'tregDet', 'tregMujo', 'tregDragua'] },
       { title: 'the sworn virgin', nodes: ['burrnesha1', 'burrneshaFund'] },
       { title: "Skanderbeg's goats", nodes: ['skender1', 'skender2', 'skenderFund'] },
       { title: 'the lute plays all night', nodes: ['lahuta1', 'lahutaFund'] },
@@ -36,7 +37,7 @@ export const PLACE_META = {
   tregtari: {
     name: "pazari — the trader's stall",
     happenings: [
-      { title: 'trade with the merchant', nodes: ['tregtari', 'tregtari2'] },
+      { title: 'trade with the merchant', nodes: ['tregtari', 'tregtari2', 'tregtari3'] },
       { title: 'buy bread and salt', nodes: ['blerjaBuke', 'blerjaKripe'] },
       { title: 'sell mountain tea', nodes: ['shitjaCaj'] },
       { title: 'the lahuta on the wall', nodes: ['blerjaLahuta'] },

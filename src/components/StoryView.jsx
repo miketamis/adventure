@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import Token from './Token.jsx'
 import { STORY, ITEMS, w, wf, p, visibleLines, lineOf } from '../game/content.js'
-import { ENDING_LORE, AREA_FACTOIDS } from '../game/folklore.js'
+import { ENDING_LORE, AREA_FACTOIDS, REPO_BLOB } from '../game/folklore.js'
+import { QUOTES, quoteTier, quoteProofUrl } from '../game/quotes.js'
 import { canSpeak, canUseItem, hasRequiredItem, hasCond, canAfford, phraseSenses, isRetreat } from '../game/gameState.js'
 import { speakSequence } from '../game/audio.js'
 import FactoidLore from './FactoidLore.jsx'
@@ -451,8 +452,10 @@ export default function StoryView({ state, dispatch }) {
 
   const renderLine = (line, i) => {
     const revealsPath = revealLineIdx.has(i)
-    // a Q() line — quoted word-for-word from the folk sources; set apart, attributed
+    // a Q() line — quoted word-for-word from the folk sources; set apart, attributed,
+    // and linked to its proof (the primary-source text registered in quotes.js)
     const quoteSrc = line.quote
+    const quoteEntry = line.quoteId ? QUOTES[line.quoteId] : null
     return (
       <p
         className={'story-line' + (revealsPath ? ' reveals-path' : '') + (quoteSrc ? ' quote-line' : '')}
@@ -476,11 +479,31 @@ export default function StoryView({ state, dispatch }) {
             📜
           </span>
         )}
-        {quoteSrc && (
-          <span className="quote-src" title="Quoted word-for-word from the folk sources">
-            — {quoteSrc}
-          </span>
-        )}
+        {quoteSrc &&
+          (() => {
+            // tooltip shows the original wording + translation; the link opens the
+            // primary source itself (local corpus file on GitHub, or the printed
+            // source online). Purely-oral formulas stay a plain annotated span.
+            const tierNote = {
+              corpus: 'original verified in the downloaded primary source',
+              variant: 'formula attested in the corpus; wording from the linked source',
+              external: 'quoted from the linked printed source',
+              oral: 'a formula of the living oral tradition',
+            }
+            const tip = quoteEntry
+              ? `${quoteEntry.original}\n— ${quoteEntry.translation}\n(${tierNote[quoteTier(quoteEntry)]})`
+              : 'Quoted word-for-word from the folk sources'
+            const href = quoteEntry ? quoteProofUrl(quoteEntry, REPO_BLOB) : null
+            return href ? (
+              <a className="quote-src" href={href} target="_blank" rel="noreferrer" title={tip}>
+                — {quoteSrc}
+              </a>
+            ) : (
+              <span className="quote-src" title={tip}>
+                — {quoteSrc}
+              </span>
+            )
+          })()}
       </p>
     )
   }

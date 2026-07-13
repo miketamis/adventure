@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
-import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB } from '../game/folklore.js'
+import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB, RANK, EXTRA_SOURCES } from '../game/folklore.js'
+import { QUOTES, quoteTier, quoteProofUrl } from '../game/quotes.js'
 import { REGIONS, isWander, assignRegions, LOST_SINKS } from '../game/regions.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
 import { NODE_POS, PLACE_OF } from './nodePositions.js'
@@ -87,7 +88,21 @@ function NodeDetail({ id, onPick, goLore }) {
           <div className={'dbg-line' + (line.quote ? ' dbg-quote' : '')} key={i}>
             <span className="dbg-al">{albanianOf(line)}</span>
             <span className="dbg-en">{englishOf(line)}</span>
-            {line.quote && <span className="dbg-quote-src">📜 {line.quote}</span>}
+            {line.quote && (() => {
+              // reviewer view: attribution links straight to the registered proof
+              const q = line.quoteId ? QUOTES[line.quoteId] : null
+              const href = q ? quoteProofUrl(q, REPO_BLOB) : null
+              const tip = q ? `${q.original}\n— ${q.translation}\n[proof tier: ${quoteTier(q)}]` : null
+              return href ? (
+                <a className="dbg-quote-src" href={href} target="_blank" rel="noreferrer" title={tip}>
+                  📜 {line.quote} ({quoteTier(q)})
+                </a>
+              ) : (
+                <span className="dbg-quote-src" title={tip}>
+                  📜 {line.quote}{q ? ` (${quoteTier(q)})` : ''}
+                </span>
+              )
+            })()}
           </div>
         ))}
       </div>
@@ -355,6 +370,7 @@ const VILLAGE_PLACES = [
   { id: 'breshka1', x: 348, y: 614, type: 'house', label: 'the guest', lh: 18 },
   // river quarter (lower-west, along the water)
   { id: 'fshatiLumi', x: 232, y: 616, type: 'stonebridge', label: 'ura e tabakëve', lh: 20 },
+  { id: 'tabaket1', x: 220, y: 662, type: 'dot', label: 'the tanners', lh: 13 },
   { id: 'uraArtes1', x: 132, y: 500, type: 'dot', label: 'the new bridge', lh: 13 },
   { id: 'mulli1', x: 166, y: 602, type: 'mill', label: 'water-mill', lh: 18 },
   { id: 'kroi1', x: 178, y: 674, type: 'spring', label: 'the spring', lh: 18 },
