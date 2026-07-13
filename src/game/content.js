@@ -5492,7 +5492,9 @@ export const STORY = {
     options: [
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('burg')), to: 'halilFund', reveal: 'burg' },
       { text: L(w('rri'), wf('ne', 'në', 'in'), w('jutbina')), to: 'halilKeq' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('maja')), to: 'maja' },
+      // Halil's kulla stands IN the hamlet — walking away returns you to the
+      // Jutbina square a few steps off, not to the summit half a mountain away
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('jutbina')), to: 'jutbina' },
     ],
   },
 

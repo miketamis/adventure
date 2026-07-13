@@ -241,6 +241,56 @@ for (const e of edges) {
 }
 section(!oddNew.length, `odd links: every cross-region edge >500 is a verified journey (${JOURNEY_ALLOW.size} known)`, oddNew)
 
+// ---- 6b. roads connect Voronoi-NEIGHBOURING places -------------------------------
+// A road from A to B should step straight from A's ground onto B's. Carve the
+// map into territories (the Voronoi cell of every place anchor; lost/sleep
+// sinks excluded — their spots are narrative, not land) and walk the straight
+// path: if a THIRD place owns a substantial stretch of it, the road marches
+// through that place's territory without stopping there — a teleport past a
+// real stop. Route it via the intermediate place, or verify it below. Verified
+// journeys (JOURNEY_ALLOW) compress real distance by design and are exempt.
+// Catches what check 6 cannot: same-region hops and sub-500 skips.
+const VOR_MAX = 180 // px of one foreign territory a road may brush through
+const VOR_LOCAL = 60 // a place this close to either endpoint is the same locality, not a skipped stop
+const VORONOI_ALLOW = new Set([
+  'kthimi->pusi2',           // the dark walk under the world to the far well (also CROSS_ALLOW)
+  'pemaDielli->rrugaDielli2', // the stag CARRIES the maiden home in one ride (also INTERACT_ALLOW)
+  'siperfaqja->bregu',       // the shore walk south passes the baloz battle-ground (sea-arc moments, not way-stops)
+  'maja->jutbina',           // the highland path crosses the zanas' night-meadow above the hamlet…
+  'jutbina->maja',           // …a quest glade (mujiZana1), not a road-stop, in both directions
+  'qiell2->qiellPrende',     // "bie në tokë" — a FALL from the storm peak; you drop over the sky, no stops
+  'qiellDiell->henaPaqe',    // the deliberate Moon trek across the cloud-plateau (see STRAND_ALLOW henaPaqe)
+])
+const vorSites = Object.keys(byPlace).filter((k) => !LOST_SINKS.has(k)).map((k) => ({ k, x: NODE_POS[k][0], y: NODE_POS[k][1] }))
+const vorBad = []
+for (const e of edges) {
+  if (e.sink) continue
+  const A = PLACE_OF[e.from] || e.from, B = PLACE_OF[e.to] || e.to
+  if (A === B) continue
+  const key = `${e.from}->${e.to}`
+  if (JOURNEY_ALLOW.has(key) || VORONOI_ALLOW.has(key)) continue
+  const [ax, ay] = NODE_POS[e.from], [bx, by] = NODE_POS[e.to]
+  const n = Math.max(2, Math.round(e.len / 6))
+  const own = {}
+  for (let i = 1; i < n; i++) {
+    const x = ax + ((bx - ax) * i) / n, y = ay + ((by - ay) * i) / n
+    let c = null, bd = Infinity
+    for (const s of vorSites) {
+      const d = (s.x - x) ** 2 + (s.y - y) ** 2
+      if (d < bd) { bd = d; c = s.k }
+    }
+    if (c !== A && c !== B) own[c] = (own[c] || 0) + 1
+  }
+  const worst = Object.entries(own)
+    .filter(([k]) => { // a scene standing at the road's end is the same locality
+      const [sx, sy] = NODE_POS[k]
+      return Math.hypot(sx - ax, sy - ay) >= VOR_LOCAL && Math.hypot(sx - bx, sy - by) >= VOR_LOCAL
+    })
+    .map(([k, c]) => [k, (c / (n - 1)) * e.len]).sort((p, q) => q[1] - p[1])[0]
+  if (worst && worst[1] > VOR_MAX) vorBad.push(`${Math.round(worst[1])}px through '${worst[0]}': ${key} (${Math.round(e.len)} total, "${idsOf(e.o.text).join(' ')}")`)
+}
+section(!vorBad.length, `roads connect Voronoi-neighbouring places (<= ${VOR_MAX}px through a third territory)`, vorBad)
+
 // ---- 7. no near-collisions -----------------------------------------------------
 // Two DISTINCT places closer than 16px render as an unreadable smudge — either
 // declare them the same spot (alias) or pull them apart.
