@@ -1,3 +1,5 @@
+import { QUOTES } from './quotes.js'
+
 // ---------------------------------------------------------------------------
 // DICTIONARY
 // Each entry is one word/sense. `id` is the sense id (discovery + mana are keyed
@@ -1469,9 +1471,23 @@ const L = (...tokens) => tokens
 // formula). It is a normal token line — every word discoverable and trainable —
 // but carries its attribution, and the game sets it apart visually so the player
 // knows they are reading the real thing, not game prose. Spelling is normalized
-// to the game's standard Albanian (the Gheg original stays in the code comment).
+// to the game's standard Albanian (the original stays in src/game/quotes.js).
 // Composes with when()/unless(): the return value IS the token array.
-export const Q = (source, ...tokens) => Object.assign(tokens, { quote: source })
+//
+// The first argument is an id into QUOTES (src/game/quotes.js) — the proof
+// register that records each quote's original wording, source, and verifiable
+// evidence. An unregistered id throws at import, so no line can claim to be a
+// folk quote without documented proof; `node scripts/quotecheck.mjs` then
+// machine-verifies every registered proof against docs/references/.
+export const Q = (quoteId, ...tokens) => {
+  const q = QUOTES[quoteId]
+  if (!q)
+    throw new Error(
+      `Q('${quoteId}'): not in the quote register. Every folk-quote line needs an ` +
+        `entry in src/game/quotes.js documenting its original wording and proof.`,
+    )
+  return Object.assign(tokens, { quote: q.label, quoteId })
+}
 
 // Conditional story lines — a node.text entry is normally a token line (array), but
 // when()/unless() make a line appear only if the player HAS / LACKS a given item or
@@ -1633,7 +1649,7 @@ export const STORY = {
       L(wf('plake', 'plaka', 'the old woman'), w('jep'), w('buke'), p('.')),
       // the Kanun's hospitality formula, spoken as she sets the bread down —
       // §608: "Buka e kryp' e zêmra" (what the guest is owed: bread, salt and heart)
-      Q('Kanuni i Lekë Dukagjinit, §608',
+      Q('kanun-608',
         wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('buke'), w('e_conj'), w('kripe'), w('e_conj'), w('zemer'), p('.')),
       L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('kulshedra'), w('ka'), w('uje'), w('dhe'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
     ],
@@ -1656,7 +1672,7 @@ export const STORY = {
       L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':')),
       // the classic Tosk tale-opener, exactly as the tellers begin (Dozon prints
       // it "Iç mos iç" and calls it the initial formula of the tales)
-      Q('formula e përrallës (Dozon, 1879)',
+      Q('dozon-tale-opener',
         wf('eshte', 'ish', 'was'), w('e_conj'), wf('mos', 'mos', 'not'), wf('eshte', 'ish', 'was'), p('…')),
       L(w('nje'), w('trim'), w('eshte'), w('larg'), w('nente'), wf('vit', 'vjet', 'years'), w('dhe'), w('nente'), wf('dite', 'ditë', 'days'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), wf('quhem', 'quhet', 'is called'), w('aga'), w('ymer'), p('.')),
@@ -1718,7 +1734,7 @@ export const STORY = {
       L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('mik'), w('vjen'), w('nga'), w('perendi'), p('.')),
       // the most famous sentence of the Kanun, word for word — §602:
       // "Shpija e Shqyptarit âsht e Zotit dhe e mikut" (Gheg original)
-      Q('Kanuni i Lekë Dukagjinit, §602',
+      Q('kanun-602',
         wf('shtepi', 'shtëpia', 'the house'), w('e_link'), wf('shqiptar', 'shqiptarit', 'Albanian'), w('eshte'),
         w('e_link'), wf('zot', 'Zotit', 'lord'), w('dhe'), w('e_link'), wf('mik', 'mikut', 'guest'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('grua'), wf('fsheh', 'fshehu', 'hid'), w('buke'), w('nga'), w('nje'), w('mik'), w('dhe'), wf('behet', 'u bë', 'became'), w('breshka'), p('.')),
@@ -1797,16 +1813,16 @@ export const STORY = {
     text: [
       L(wf('grua', 'gruaja', 'the woman'), w('sheh'), wf('trim', 'trimin', 'the hero'), w('perseri'), p('.')),
       // the ballad's welcome, word for word: "Mirë se erdhe, Imer Aga!"
-      Q('Ymer Aga — këngë popullore',
+      Q('ymer-welcome',
         wf('thote', 'thonë', 'they say'), p(':'), w('mire'), w('se'), wf('vjen', 'erdhe', 'came'), p(','), w('aga'), w('ymer'), p('!')),
       // and the crowd's praise: "majte besën qi ke dhanë!" (Gheg original)
-      Q('Ymer Aga — këngë popullore',
+      Q('ymer-besa-kept',
         wf('mban', 'mbajte', 'kept'), wf('bese', 'besën', 'the besa'), w('qe'), w('ke'), wf('jep', 'dhënë', 'given'), p('!')),
       L(wf('trim', 'trimi', 'the hero'), wf('mban', 'mban', 'keeps'), wf('bese', 'besën', 'the besa'), w('dhe'), w('kthehu'), w('larg'), p('.')),
       L(wf('mbret', 'mbreti', 'the king'), w('fal'), wf('trim', 'trimin', 'the hero'), p('.')),
       // the tale closes as the tellers close: "U mplak e u trashëgua" (Dozon's
       // printed closing formula, the pair of "Iç mos iç")
-      Q('formula e mbylljes (Dozon, 1879)',
+      Q('dozon-tale-closing',
         w('ata'), wf('mplaket', 'u mplakën', 'grew old'), w('e_conj'), wf('trashegohet', 'u trashëguan', 'had heirs'), p('.')),
     ],
     options: [],
@@ -1882,7 +1898,7 @@ export const STORY = {
       L(wf('stihi', 'stihia', 'the fire-dragon'), w('nxjerr'), wf('flake', 'flakë', 'flame'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), w('kush'), w('merr'), wf('ar', 'arin', 'the gold'), p(','), w('nuk'), wf('dil', 'del', 'comes out'), p('.'), w('kush'), wf('le', 'lë', 'leaves'), wf('ar', 'arin', 'the gold'), p(','), wf('jeto', 'jeton', 'lives'), p('.')),
       // the proverb over every hoard and every debt: God delays, but does not forget
-      Q('fjalë e urtë',
+      Q('zoti-vonon',
         wf('thote', 'thonë', 'they say'), p(':'), wf('zot', 'Zoti', 'lord'), w('vonon'), p(','), w('por'), w('nuk'), w('harron'), p('.')),
     ],
     options: [
@@ -1993,7 +2009,7 @@ export const STORY = {
       L(w('nje'), w('mejdan'), w('eshte'), wf('vetem', 'vetëm', 'alone'), p('.')),
       // the proverb of every parley before a fight: word and bullet, once out,
       // never come back
-      Q('fjalë e urtë',
+      Q('fjala-plumbi',
         wf('thote', 'thonë', 'they say'), p(':'), wf('fjale', 'fjala', 'the word'), w('dhe'), wf('plumb', 'plumbi', 'the bullet'), w('kur'), wf('dil', 'dalin', 'go out'), wf('kthehu', "s'kthehen", 'do not return'), w('me_more'), p('.')),
       L(wf('aga', 'agat', 'the agas'), wf('rri', 'rrinë', 'stand'), w('larg'), p('.')),
       when('day', L(wf('diell', 'dielli', 'the sun'), w('eshte'), w('lart'), p('.'))),
@@ -2011,7 +2027,7 @@ export const STORY = {
       L(wf('kapidan', 'kapidani', 'the captain'), w('bie'), p('.')),
       L(wf('kapidan', 'kapidani', 'the captain'), w('kerko'), wf('bese', 'besën', 'the besa'), p('.')),
       // the proverb the moment turns on: the Albanian's besa is not for sale
-      Q('fjalë e urtë',
+      Q('besa-nuk-shitet',
         wf('thote', 'thonë', 'they say'), p(':'), wf('bese', 'besa', 'the besa'), w('e_link'), wf('shqiptar', 'shqiptarit', 'Albanian'), w('nuk'), wf('shes', 'shitet', 'is sold'), p('.')),
       L(wf('kapidan', 'kapidani', 'the captain'), w('thote'), p(':'), w('une'), wf('premto', 'premtoj', 'swear'), w('per'), w('diell'), p(','), w('per'), w('hene'), p(','), w('per'), w('gur'), p('.')),
     ],
@@ -2656,7 +2672,7 @@ export const STORY = {
       L(w('ti'), w('kthehu'), wf('ne', 'në', 'to'), w('fshat'), p('.')),
       L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('tani'), p('.')),
       // the praise called after every feat of arms: blessed be your arm!
-      Q('urimi i trimit',
+      Q('te-lumte-krahu',
         wf('thote', 'thonë', 'they say'), p(':'), wf('te_subj', 'të', 'may'), w('lumte'), wf('krah', 'krahu', 'arm'), p('!')),
     ],
     options: [],
@@ -3109,7 +3125,7 @@ export const STORY = {
       L(w('natenmire'), p('!')),
       // the traveller's blessing, exactly as the ballad has it ("Udha e marë, o
       // krushqellarë!" — Ymer Aga) — the inn-keeper's farewell to every guest
-      Q('Ymer Aga — këngë popullore',
+      Q('ymer-udha-mbare',
         wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('udhe', 'udha', 'the road'), w('e_art'), w('mbare'), p('!')),
       L(wf('grua', 'gruaja', 'the woman'), wf('bej', 'bën', 'makes'), w('kafe'), w('dhe'), w('ka'), w('raki'), p('.')),
       L(wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('raki'), w('eshte'), w('per'), w('mik'), p('.')),
@@ -3208,7 +3224,7 @@ export const STORY = {
       L(w('une'), wf('ndihmo', 'ndihmoj', 'help'), w('ti'), p('.')),
       L(w('ti'), wf('behet', 'bëhesh', 'become'), w('mire'), p('!')),
       // the healer's blessing over every cure: may you live to a hundred!
-      Q('urim i moçëm',
+      Q('njeqind-vjec',
         wf('sherues', 'shëruesi', 'the healer'), w('thote'), p(':'), wf('behet', 'u bëfsh', 'may you become'), w('njeqind'), w('vjec'), p('!')),
       L(wf('sherues', 'shëruesi', 'the healer'), w('di'), wf('shenje', 'shenja', 'signs'), p('.')),
       L(w('kur'), wf('dore', 'dora', 'the hand'), w('te_obj'), w('ha'), p(','), w('vjen'), wf('para', 'para', 'money'), p('.')),
@@ -3388,7 +3404,7 @@ export const STORY = {
       L(wf('mur', 'muri', 'the wall'), w('merr'), w('nje'), w('nene'), p('.')),
       // the walled mother's plea, as the song of Rozafa keeps it: leave my right
       // breast out (to nurse the child)
-      Q('kënga e Rozafës',
+      Q('rozafa-gjiri',
         wf('nene', 'nëna', 'the mother'), w('thote'), p(':'), wf('gji', 'gjirin', 'the breast'), w('e_art'), w('djathte'), w('ma'), wf('le', 'lini', 'leave'), w('jashte'), p('.')),
       L(w('loja'), w('mbaroi'), p('.')),
     ],
@@ -4349,9 +4365,9 @@ export const STORY = {
       L(wf('bije', 'bija', 'the daughter'), w('sheh'), w('toke'), w('mbi'), wf('bir', 'birin', 'the son'), p('.')),
       // the legend's most famous exchange, on the horse in the dark: "why do you
       // smell of earth?" — "it is the dust of the road"
-      Q('Kostandini e Doruntina — legjendë',
+      Q('doruntina-era',
         wf('bije', 'bija', 'the daughter'), w('thote'), p(':'), w('pse'), wf('me_obj', 'më', 'me'), w('vjen'), wf('ere', 'erë', 'smell'), w('e_link'), wf('toke', 'dheut', 'the ground'), p('?')),
-      Q('Kostandini e Doruntina — legjendë',
+      Q('doruntina-pluhuri',
         wf('bir', 'biri', 'the son'), w('thote'), p(':'), w('eshte'), wf('pluhur', 'pluhuri', 'the dust'), w('i_link'), wf('udhe', 'udhës', 'the road'), p('.')),
     ],
     options: [
@@ -5924,7 +5940,7 @@ export const STORY = {
     text: [
       L(w('ketu'), w('nje'), w('femije'), w('lind'), p('.')),
       // the proverb of the full house: a house without children is a night without stars
-      Q('fjalë e urtë',
+      Q('shtepia-pa-femije',
         wf('thote', 'thonë', 'they say'), p(':'), wf('shtepi', 'shtëpia', 'the house'), w('pa'), w('femije'), wf('si', 'si', 'as'), wf('naten', 'nata', 'the night'), w('pa'), wf('yll', 'yje', 'stars'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), w('jep'), w('buke'), w('per'), wf('ora', 'Orat', 'the Fates'), p('.')),
       L(w('naten'), wf('vjen', 'vijnë', 'come'), w('tre'), wf('ora', 'Ora', 'Fates'), p('.')),
@@ -6713,7 +6729,7 @@ export const STORY = {
       L(wf('qen', 'qeni', 'the dog'), w('nuk'), w('fle'), p('.')),
       // the proverb (Dozon prints it: "Kyéni kyœ lyéh noûkœ kafçón") — cold
       // comfort here: THIS dog does not bark either
-      Q('fjalë e urtë (Dozon, 1879)',
+      Q('qeni-leh',
         wf('thote', 'thonë', 'they say'), p(':'), wf('qen', 'qeni', 'the dog'), w('qe'), w('leh'), w('nuk'), w('kafshon'), p('.')),
       L(w('por'), wf('qen', 'qeni', 'the dog'), w('nuk'), w('leh'), p('.')),
     ],
@@ -6912,7 +6928,7 @@ export const STORY = {
       L(wf('nene', 'nëna', 'the mother'), w('e_link'), wf('nuse', 'nuses', 'of the bride'), w('ka'), w('lot'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('kendo', 'këndojnë', 'sing'), w('dhe'), wf('hyr', 'hyjnë', 'enter'), wf('ne', 'në', 'in'), w('nje'), w('valle'), p('.')),
       // the wedding blessing, called to every new pair: may they have heirs!
-      Q('urimi i dasmës',
+      Q('trashegofshin',
         wf('njeri', 'njerëzit', 'the people'), wf('thote', 'thonë', 'say'), p(':'), wf('trashegohet', 'u trashëgofshin', 'may they have heirs'), p('!')),
       L(w('nje'), w('njeri'), wf('shko', 'shkon', 'goes'), w('perpara'), p(','), wf('njeri', 'njerëzit', 'the people'), wf('shko', 'shkojnë', 'go'), w('pas'), p('.')),
     ],
@@ -6968,7 +6984,7 @@ export const STORY = {
       L(wf('femije', 'fëmijët', 'the children'), wf('kendo', 'këndojnë', 'sing'), w('dhe'), wf('hidh', 'hedhin', 'throw'), w('uje'), p('.')),
       // the rain-chant itself, as the children sing it: rona, rona, peperona,
       // fall, rain, on our fields!
-      Q('kënga e shiut',
+      Q('rona-peperona',
         p('rona, rona, peperona,'), wf('bie', 'bjerë', 'fall'), w('shi'), wf('ne', 'në', 'on'), wf('are', 'arat', 'the fields'), w('tona'), p('!')),
       L(w('ti'), w('sheh'), wf('mal', 'malin', 'the mountain'), w('e_link'), wf('diell', 'diellit', 'the sun'), p('.')),
     ],
@@ -7167,7 +7183,7 @@ export const STORY = {
       L(wf('njeri', 'njerëzit', 'the people'), wf('behet', 'bëhen', 'become'), wf('vella', 'vëllezër', 'brothers'), p('.')),
       L(w('nje'), w('plak'), w('thote'), p(':'), w('ata'), wf('eshte', 'janë', 'are'), wf('vella', 'vëllezërit', 'the brothers'), w('tuaj'), w('tani'), p('.')),
       // the Kanun on the reconciliation meal — §631: "Buka e lan dâmin" (Gheg)
-      Q('Kanuni i Lekë Dukagjinit, §631',
+      Q('kanun-631',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('buke', 'buka', 'the bread'), w('e_obj'), w('lan'), wf('dem_harm', 'dëmin', 'the harm'), p('.')),
       L(wf('gjak', 'gjaku', 'the blood'), wf('yt', 'tënd', 'your'), w('dhe'), wf('gjak', 'gjaku', 'the blood'), w('i_link'), w('tij'), wf('eshte', 'janë', 'are'), w('nje'), p('.')),
     ],
@@ -7543,9 +7559,9 @@ export const STORY = {
       from('fshatiSheshi', L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'to'), w('nje'), w('oda'), p('.'))),
       // the canonical greeting-pair of the threshold — the Kanun (§620) commands
       // the first; the second is the guest's set reply
-      Q('Kanuni i Lekë Dukagjinit, §620',
+      Q('kanun-620',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('mire'), w('se'), wf('vjen', 'erdhe', 'came'), p('!')),
-      Q('përgjigjja e mikut — urim i moçëm',
+      Q('mire-se-ju-gjeta',
         w('ti'), wf('thote', 'thua', 'say'), p(':'), w('mire'), w('se'), w('ju'), wf('gjen', 'gjeta', 'found'), p('!')),
       notFrom('fshatiSheshi', L(w('ti'), w('je'), w('perseri'), wf('ne', 'në', 'in'), w('oda'), p('.'))),
       // the night's sleep among the men ends with the light at the windows
@@ -7585,7 +7601,7 @@ export const STORY = {
       L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
       // Dozon's Tale IX — "La fille promise au soleil", the very tale the old man
       // tells — opens in print with exactly this formula
-      Q('formula e përrallës (Dozon, 1879)',
+      Q('dozon-tale-opener',
         wf('eshte', 'ish', 'was'), w('e_conj'), wf('mos', 'mos', 'not'), wf('eshte', 'ish', 'was'), p('…')),
       L(wf('mbreteresha', 'mbretëresha', 'the queen'), w('nuk'), w('ka'), w('femije'), p('.')),
       L(wf('mbreteresha', 'mbretëresha', 'the queen'), w('lut'), wf('diell', 'diellin', 'the Sun'), p('.')),
@@ -7594,7 +7610,7 @@ export const STORY = {
       L(w('diell'), w('merr'), wf('bije', 'bijën', 'the daughter'), p('.')),
       // the teller's sign-off (Lambertz records it in Tirana): the tale there,
       // health here!
-      Q('mbyllja e tregimtarit (Lambertz)',
+      Q('lambertz-closing',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('perralle', 'përralla', 'the tale'), w('atje'), p(','), wf('shendet', 'shëndeti', 'the health'), w('ketej'), p('!')),
     ],
     options: [
@@ -7650,7 +7666,7 @@ export const STORY = {
     text: [
       // the singer's invocation before the song, exactly as Fishta opens the
       // epic: "Ndihmo', Zot, si m'ké ndihmue!" (Gheg)
-      Q('Lahuta e Malcís — Gjergj Fishta',
+      Q('fishta-invocation',
         w('ti'), wf('thote', 'thua', 'say'), p(':'), w('ndihmo'), p(','), w('zot'), p(','), wf('si', 'si', 'as'), wf('me_obj', 'më', 'me'), w('ke'), wf('ndihmo', 'ndihmuar', 'helped'), p('!')),
       L(w('ti'), wf('kendo', 'këndon', 'sing'), w('me'), wf('lahute', 'lahutën', 'the lute'), wf('per', 'për', 'about'), w('mujo'), p('.')),
       L(w('burra'), wf('rri', 'rrinë', 'sit'), w('dhe'), wf('degjo', 'dëgjojnë', 'listen'), p('.')),
@@ -8020,7 +8036,7 @@ export const STORY = {
     text: [
       L(wf('ujk', 'ujku', 'the wolf'), w('ha'), wf('djall', 'djallin', 'the devil'), p('.')),
       // the curse the fable explains, word for word: "Të hângtë ujku!" (Gheg)
-      Q('mallkimi i moçëm (von Hahn, përralla 105)',
+      Q('te-hengte-ujku',
         wf('thote', 'thonë', 'they say'), p(':'), w('te_obj'), wf('ha', 'hëngtë', 'may eat'), wf('ujk', 'ujku', 'the wolf'), p('!')),
     ],
     options: [],
@@ -8094,7 +8110,7 @@ export const STORY = {
       L(w('nje'), w('gur'), w('mbi'), wf('varr', 'varrin', 'the grave'), p('.')),
       // the ballad's line at the grave, word for word: "Kanë lanë kangen zogjtë
       // e malit" — the mountain birds have left their song
-      Q('Vajtimi i Ajkunës — këngë kreshnike',
+      Q('ajkuna-zogjte',
         wf('ka', 'kanë', 'have'), wf('le', 'lënë', 'left'), wf('kenge', 'këngën', 'the song'), wf('zog', 'zogjtë', 'the birds'), w('e_link'), wf('mal', 'malit', 'the mountain'), p('.')),
       L(w('mujo'), w('fsheh'), wf('omer', 'omerin', 'Omer'), w('nga'), wf('nene', 'nënën', 'the mother'), p('.')),
       L(w('por'), wf('nene', 'nëna', 'the mother'), wf('degjo', 'dëgjon', 'hears'), p('.'), wf('hene', 'hëna', 'the moon'), w('di'), w('dhe'), w('nuk'), w('flet'), p('.')),
@@ -8117,7 +8133,7 @@ export const STORY = {
       L(wf('nene', 'nëna', 'the mother'), w('mallko'), wf('hene', 'hënën', 'the moon'), p('.')),
       // the curse itself, word for word from the ballad: "T'u shkimtë drita ty,
       // o mori hanë" (Gheg; trimmed of the vocative filler, hanë → hënë)
-      Q('Vajtimi i Ajkunës — këngë kreshnike',
+      Q('ajkuna-drita',
         wf('nene', 'nëna', 'the mother'), w('thote'), p(':'),
         wf('shkimet', "t'u shkimtë", 'may it go out'), wf('drite', 'drita', 'the light'), p(','), w('o'), w('hene'), p('!')),
       L(wf('yll', 'yjet', 'the stars'), w('rri'), p('.')),
@@ -8228,7 +8244,7 @@ export const STORY = {
       L(wf('plak', 'plaku', 'the old man'), w('eshte'), w('nje'), w('mik'), p('.')),
       // the elder's parting proverb on wit and words: the tongue has no bones,
       // yet bones it breaks
-      Q('fjalë e urtë',
+      Q('gjuha-eshtra',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('gjuhe', 'gjuha', 'the tongue'), w('eshtra'), wf('ka', "s'ka", 'has not'), p(','), w('eshtra'), w('thyen'), p('.')),
     ],
     options: [],
@@ -8384,7 +8400,7 @@ export const STORY = {
       L(w('bleta'), w('jep'), w('drite'), p('.')),
       // the riddle the children still ask about her (docs §12): buzz-buzz, works
       // day and night, gives us wax and gives us honey
-      Q('gjëegjëzë e moçme',
+      Q('bleta-riddle',
         p('zu-zu-zu,'), w('punon'), w('dite'), w('e_conj'), wf('naten', 'natë', 'night'), p(','), w('na'), w('jep'), w('dylle'), w('e_conj'), w('na'), w('jep'), w('mjalte'), p('.')),
     ],
     options: [],
@@ -8490,7 +8506,7 @@ export const STORY = {
       L(w('ketu'), w('eshte'), w('nje'), w('pyll'), w('dhe'), w('nje'), w('lume'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), wf('lume', 'lumi', 'the river'), wf('shko', 'shkon', 'goes'), w('poshte'), p(','), w('aty'), w('larg'), p(','), wf('tek', 'te', 'to'), wf('det', 'deti', 'the sea'), p('.')),
       // the crossroads' own proverb — mountains never meet, but people do
-      Q('fjalë e urtë',
+      Q('mali-me-mal',
         wf('thote', 'thonë', 'they say'), p(':'), wf('mal', 'mali', 'the mountain'), w('me'), w('mal'), w('nuk'), w('piqet'), p(','), wf('njeri', 'njeriu', 'the person'), w('me'), wf('njeri', 'njeriun', 'the person'), w('piqet'), p('.')),
       L(w('ti'), wf('mendoj', 'mendon', 'think'), p(':'), w('ku'), w('te_subj'), wf('shko', 'shkosh', 'go'), p('?')),
     ],
@@ -8874,7 +8890,7 @@ export const STORY = {
       L(w('ti'), wf('ka', 'ke', 'have'), w('nje'), w('pyetje'), p('?')),
       L(w('eshte'), w('nje'), w('fakt'), p('.')),
       // the proverb the game itself lives by: as long as you live, you learn
-      Q('fjalë e urtë',
+      Q('sa-rron',
         w('sa'), w('rron'), p(','), w('aq'), wf('meso', 'mëson', 'you learn'), p('.')),
       L(w('une'), wf('sheh', 'pashë', 'saw'), wf('uje', 'ujin', 'the water'), p('.')),
       L(w('ne_we'), wf('sheh', 'shohim', 'see'), wf('mulli', 'mullirin', 'the mill'), p('.')),
@@ -8996,7 +9012,7 @@ export const STORY = {
       L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('mulli', 'mulliri', 'the mill'), w('ka'), w('nje'), w('fjale'), w('te_link'), w('vjeter'), p(':'), w('merr'), w('pak'), p(','), w('jo'), w('shume'), p('.')),
       // the miller's proverb over the slow stone (Dozon prints it:
       // "Me dourim tœ tœra bœkenœ")
-      Q('fjalë e urtë (Dozon, 1879)',
+      Q('me-durim',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('me'), w('durim'), wf('behet', 'bëhen', 'become'), wf('te_link', 'të', 'the'), w('gjitha'), p('.')),
       when('day', L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('ka'), w('pune'), w('per'), w('ti'), p(':'), w('merr'), w('miell'), w('per'), wf('fshat', 'fshatin', 'the village'), p('.'))),
     ],
@@ -9018,7 +9034,7 @@ export const STORY = {
       L(w('ti'), w('punon'), w('shume'), wf('ne', 'në', 'in'), w('mulli'), p('.')),
       L(wf('plak', 'plaku', 'the old man'), w('jep'), w('pese'), w('lek'), w('dhe'), w('thote'), p(':'), w('faleminderit'), p('!')),
       // the worker's motto: few words and much work
-      Q('fjalë e urtë',
+      Q('fjale-pak',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('fjale'), w('pak'), w('e_conj'), w('pune'), w('shume'), p('!')),
     ],
     options: [
