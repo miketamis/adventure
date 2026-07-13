@@ -90,6 +90,7 @@ export const NODE_AT = {
   // street in from the gate, the way-signs at the far edge.
   sheshi: [400, 2140],
   lemoshaFund: 'sheshi',
+  lemoshaMohuar: 'sheshi',
   tregtari: [447, 2122],
   blerjaBuke: 'tregtari',
   blerjaKripe: 'tregtari',

@@ -339,9 +339,10 @@ export const FOLKLORE = [
     title: 'The wolf — companion or grave (Të hângtë ujku!)',
     category: 'Creature',
     summary:
-      'The wolf (ujku) is both a protective totem and a creature of the grave. It is the one beast that can force a lugat back into its grave — so the curse "Të hângtë ujku!" ("May the wolf eat you!") wishes a man an eaten corpse that can never rise as undead — while children were named Ujk/Ujkan and wolf-parts worn as apotropaic charms. A beggar in a wolf\'s skin, refused alms, could curse a miser\'s herds.',
+      'The wolf (ujku) is both a protective totem and a creature of the grave. It is the one beast that can force a lugat back into its grave — so the old people reason that the curse "Të hângtë ujku!" ("May the wolf eat you!") wishes a man an eaten corpse that can never rise as undead — while children were named Ujk/Ujkan and wolf-parts worn as apotropaic charms. A beggar in a wolf\'s skin, refused alms, could curse a miser\'s herds.',
     sources: [
-      { label: 'Lugat — the wolf drives the lugat back into its grave (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Lugat' },
+      { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (s.v. Lugat, p. 153)', url: 'https://archive.org/details/dictionaryofalba0000elsi' },
+      { label: 'Bane, Encyclopedia of Vampire Mythology — kukudhi, the wolf its only enemy (cites Elsie)', url: 'https://vampire_mythology.en-academic.com/371/Kukudhi' },
     ],
     related: ['creation-wolf', 'lugat', 'kuma-lisa'],
   },
@@ -3307,7 +3308,7 @@ export const EXTRA_SOURCES = {
   'dhampir': [{ label: 'Dhampir (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Dhampir' }],
   'xhindi': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Jinn — Islamic origin, Ottoman transmission (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Jinn' }],
   'katallan': [{ label: 'List of Albanian mythological figures (Wikipedia)', url: 'https://en.wikipedia.org/wiki/List_of_Albanian_mythological_figures' }, { label: 'Elsie, Albanian Folktales and Legends', url: 'http://www.albanianliterature.net/folktales/index.html' }, { label: 'Polyphemus — ATU 1137 blinded-ogre motif (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Polyphemus' }, { label: 'Almogavars — \'Katallani\' the one-eyed monster; \'Daedalus dhe Katallani\' (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Almogavars' }],
-  'wolf': [{ label: 'Albanian paganism — wolf totem (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Lugat — the wolf drives the lugat back into its grave (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Lugat' }],
+  'wolf': [{ label: 'Albanian paganism — wolf totem (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology (s.v. Lugat, p. 153)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Bane, Encyclopedia of Vampire Mythology — kukudhi, the wolf its only enemy (cites Elsie)', url: 'https://vampire_mythology.en-academic.com/371/Kukudhi' }],
   'creation-wolf': [{ label: 'von Hahn 105 \'Erschaffung des Wolfes\' — full text (Zeno.org)', url: 'http://www.zeno.org/M%C3%A4rchen/M/Albanien/Johann+Georg+von+Hahn:+Griechische+und+Albanesische+M%C3%A4rchen/105.+Erschaffung+des+Wolfes' }, { label: 'von Hahn 105 \'Erschaffung des Wolfes\' — full text (Märchenbasar)', url: 'https://maerchenbasar.de/erschaffung-des-wolfes/' }],
   'rozafa': [{ label: 'The Legend of Rozafat Castle (Elsie, legend 06)', url: 'http://www.albanianliterature.net/legends/legend_06.html' }, { label: 'Dundes (ed.), The Walled-Up Wife: A Casebook', url: 'https://www.google.com/books/edition/The_Walled_Up_Wife/nq0aVj2Qff8C' }],
   'constantine-doruntine': [{ label: 'The Ballad of Constantine and Dhoqina (Elsie/Mathie-Heck, oralverse)', url: 'http://www.albanianliterature.net/oralverse/verse_04.html' }, { label: 'The Dead Brother\'s Song — Balkan type of which this is the Albanian form (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Dead_Brother%27s_Song' }],
