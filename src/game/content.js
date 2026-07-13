@@ -3137,7 +3137,7 @@ export const STORY = {
       L(wf('njeri', 'njeriu', 'the man'), w('te_obj'), w('sheh'), p('.')),
       L(wf('njeri', 'njeriu', 'the man'), w('thote'), p(':')),
       // the curse itself, word for word — the same Gheg formula tale 105 explains
-      Q('mallkimi i moçëm', w('te_obj'), wf('ha', 'hëngtë', 'may eat'), wf('ujk', 'ujku', 'the wolf'), p('!')),
+      Q('te-hengte-ujku', w('te_obj'), wf('ha', 'hëngtë', 'may eat'), wf('ujk', 'ujku', 'the wolf'), p('!')),
       L(wf('njeri', 'njeriu', 'the man'), w('te_obj'), w('mallko'), p('.')),
       L(wf('mallkim', 'mallkimi', 'the curse'), wf('ec', 'ecën', 'walks'), w('me'), w('ti'), p('.')),
     ],
@@ -6162,7 +6162,7 @@ export const STORY = {
       L(w('ketu'), w('nje'), w('femije'), w('lind'), p('.')),
       // the proverb of the full house: a house without children is a night without stars
       Q('shtepia-pa-femije',
-        wf('thote', 'thonë', 'they say'), p(':'), wf('shtepi', 'shtëpia', 'the house'), w('pa'), w('femije'), wf('si', 'si', 'as'), wf('naten', 'nata', 'the night'), w('pa'), wf('yll', 'yje', 'stars'), p('.')),
+        wf('thote', 'thonë', 'they say'), p(':'), wf('shtepi', 'shtëpia', 'the house'), w('pa'), w('femije'), wf('si', 'si', 'like'), wf('naten', 'nata', 'the night'), w('pa'), wf('yll', 'yje', 'stars'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), w('jep'), w('buke'), w('per'), wf('ora', 'Orat', 'the Fates'), p('.')),
       L(w('naten'), wf('vjen', 'vijnë', 'come'), w('tre'), wf('ora', 'Ora', 'Fates'), p('.')),
     ],
@@ -10131,7 +10131,7 @@ const CONFUSERS3 = {
   balozKoke: L(w('jep'), wf('baloz', 'balozin', 'the sea-monster')), // give the sea-monster — it is dead
   // --- survival-core vignettes (listen-to X: X cannot answer) ---
   sheshi: L(w('degjo'), wf('dere', 'derën', 'the door')), // listen to the door — it cannot answer
-  lemoshaMohuar: L(w('ha'), wf('dere', 'derën', 'the door')), // eat the door — teeth are the wolf's part
+  lemoshaMohuar: L(w('ha'), w('lek')), // eat the lek (coin) — it is not bread
   tregtari: L(w('degjo'), w('lek')), // listen to the lek (coin) — it cannot answer
   tregtari2: L(w('degjo'), w('problem')), // listen to the problem — it cannot answer
   tregtari3: L(w('vesh'), wf('lahute', 'lahutën', 'the lute')), // wear the lute — it is not clothing
