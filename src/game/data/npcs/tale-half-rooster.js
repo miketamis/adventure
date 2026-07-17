@@ -1,0 +1,86 @@
+// NPCs: the Half-Rooster tale (half-rooster) cast — see ../npcs/_SCHEMA.md for
+// the format contract. One file per area/tale so parallel agents never collide.
+
+export default {
+  // ── the Half-Rooster tale (half-rooster) ──────────────────────────────────
+  gjysmagjeli: {
+    name: 'Gjysmagjeli', glyph: '🐓', kind: 'creature',
+    role: 'the Half-Rooster — one leg, one wing, half a bird and all cunning',
+    backstory: 'The living half of the rooster his starving master ate the other half of. He set out to make money hopping on his one leg, carried a frog, a fox, a wolf and a mouse in his belly, and outlasted the king\'s four deaths — oven, hooves, beaks and the strong chest — walking out gold-heavy through a mouse-hole. He is beaten across the back once a day, by contract, and pays a coin a stroke. The game already keeps his yard in the village-life quarter (gjysmegjel1): the smallest and half-made who outwits the mighty.',
+    folklore: ['half-rooster'],
+    location: { status: 'placed', node: 'gjysmegjel1' },
+    tales: { 'half-rooster': 'gjysmagjeli' },
+  },
+  plakuGjelit: {
+    name: 'plaku i gjysmagjelit', glyph: '👨‍🦳', kind: 'human',
+    role: 'the old man of the divided homestead — the Half-Rooster\'s master',
+    backstory: 'His half of the quarrel-split yard came with one rooster and no dinner; hunger made him apologize to the bird and eat half of it. He kept the living half\'s strange bargain to the letter — full trough, soft bed, one rod-stroke a day — and the rod paid him a gold piece a stroke. NOT the plaku i sheshit (the square\'s clockwork old man) and no kin to the vitore hearth-house: his hovel stands in the Half-Rooster\'s yard.',
+    folklore: ['half-rooster'],
+    location: { status: 'planning', plan: 'his hut is the near half of the Half-Rooster\'s yard (gjysmegjel1) — to appear in that vignette when the NPC overhaul stages the homestead' },
+    tales: { 'half-rooster': 'plaku' },
+  },
+  plakaMaces: {
+    name: 'plaka e maces', glyph: '👵', kind: 'human',
+    role: 'the old woman of the divided homestead — the cat\'s mistress',
+    backstory: 'Her half of the split took the cat, and the cat\'s daily birds kept her the better-fed half of the quarrel — until the rooster came home paying gold and envy turned her green. She screamed her cat onto the road, plied the rod on its return, got one coin and then vermin, killed the beast in her rage and died of the rage herself. A tale-era figure, dead by her own story\'s end. NOT the crossroads crone (plakaUdhekryqit), the cold forest one (plakaPyllit) or the gate-keeper (plaka).',
+    folklore: ['half-rooster'],
+    location: { status: 'planning', plan: 'her hut is the far half of the Half-Rooster\'s yard (gjysmegjel1) — stood empty since the tale\'s end; to be staged as the yard\'s dark half when the vignette grows' },
+    tales: { 'half-rooster': 'plaka' },
+  },
+  macjaPlakes: {
+    name: 'macja e plakës', glyph: '🐈', kind: 'creature',
+    role: 'the old woman\'s cat — the loyal hunter killed for succeeding wrongly',
+    backstory: 'It caught birds every day and kept its mistress alive, and when she demanded a fortune it did its honest best: found the rooster\'s one lost coin on the road, filled up on insects, salamanders, snakes and mice, and came home quoting the rooster\'s bargain. The rod found one coin and then only vermin, and the mistress killed it. A tale-era creature, dead before the player\'s arc. NOT the trickster she-fox\'s world: this cat never cheated anyone.',
+    folklore: ['half-rooster'],
+    location: { status: 'planning', plan: 'tale-era only — remembered in the Half-Rooster\'s yard (gjysmegjel1); never to be staged alive' },
+    tales: { 'half-rooster': 'macja' },
+  },
+  bretkosaPellgut: {
+    name: 'bretkosa e pellgut', glyph: '🐸', kind: 'creature',
+    role: 'the pond-frog — a swallowed pondful against the king\'s oven',
+    backstory: 'She drank every drop she could hold, leapt into the Half-Rooster\'s belly at the pond\'s edge, and when the oven-call came she spewed her whole pond and drowned the fire dead. Work done, she hopped back to her own water and out of the tale. Her pond is the still backwater by the tanners\' bridge.',
+    folklore: ['half-rooster'],
+    location: { status: 'planning', plan: 'the reed-margin backwater at the river quarter (fshatiLumi) — to croak in that scene when the vignette grows' },
+    tales: { 'half-rooster': 'bretkosa' },
+  },
+  dhelpraUdhes: {
+    name: 'dhelpra e udhës', glyph: '🦊', kind: 'creature',
+    role: 'the road-fox — the belly-companion loosed among the king\'s geese',
+    backstory: 'She took the Half-Rooster\'s friendship on the open road, rode in his belly, and when the goose-pen was meant to peck him to death she ate the king\'s geese to the last feather and slipped off to the thickets. A loyal companion fox, faithful to a friend — NOT Kuma Lisa, the trickster she-fox of the planted-butter lie; two foxes, two natures.',
+    folklore: ['half-rooster'],
+    location: { status: 'planning', plan: 'the roadside thickets off the road out of the village (start) — tale-era; unstaged' },
+    tales: { 'half-rooster': 'dhelpra' },
+  },
+  ujkuUdhes: {
+    name: 'ujku i udhës', glyph: '🐺', kind: 'creature',
+    role: 'the road-wolf — the belly-companion loosed in the king\'s stable',
+    backstory: 'He joined the money-journey on the road and rode in the belly until the stable, where the horses were to trample his friend — and bit every horse dead instead, then went over the wall to the open country. A wolf who kept faith with half a rooster; NOT the sheep-stealing bear-register beast of the dervish tale, and no kin to any named wolf of the winter lore.',
+    folklore: ['half-rooster'],
+    location: { status: 'planning', plan: 'the far stretches of the road out of the village (start) — tale-era; unstaged' },
+    tales: { 'half-rooster': 'ujku' },
+  },
+  miuArkes: {
+    name: 'miu i arkës', glyph: '🐭', kind: 'creature',
+    role: 'the mouse who gnawed the king\'s strongest chest open',
+    backstory: 'It laughed at the one-legged hopper, heard the plan, and jumped in last — into a belly near bursting. In the treasury it earned its passage: teeth through the king\'s strongest gold-chest, a hole big enough for two, and freedom at the rim of it. It parted ways at the hole and the tale loses sight of it.',
+    folklore: ['half-rooster'],
+    location: { status: 'planning', plan: 'the wheel-ruts of the road out of the village (start) — tale-era; unstaged' },
+    tales: { 'half-rooster': 'miu' },
+  },
+  mbretiSarajit: {
+    name: 'mbreti i sarajit', glyph: '👑', kind: 'human',
+    role: 'the petty king of the plain\'s saraj — beaten four times by half a rooster',
+    backstory: 'A king mighty enough to be worth outwitting and small enough to be outwitted by half a bird: one crow in his cabbages and he ordered a death, then three more — oven, hooves, beaks, the strong chest — and paid for them with a drowned fire, a stable of dead horses, a goose-yard of feathers and a treasury lighter by a bellyful. His saraj (with kitchen-garden) is to be drawn up the plain road from the crossroads. NOT the southern moat-king of the three-friends tale, NOT the marble king of the black palace: this is the plain\'s own petty court, and the tale\'s whole point is how small it looks beside half a rooster.',
+    folklore: ['half-rooster'],
+    location: { status: 'planning', plan: 'rules the proposed saraj up the plain road from udhekryq — court, oven, stable, goose-yard and treasury' },
+    tales: { 'half-rooster': 'mbreti' },
+  },
+  sherbetoretSarajit: {
+    name: 'shërbëtorët e sarajit', glyph: '🧹', kind: 'collective',
+    role: 'the king\'s servants — the hands of the four deaths',
+    backstory: 'They ringed the garden and beheaded every cabbage to find one crowing trespasser, then worked their king\'s four deaths and cleaned up after each failure: raked a drowned oven, dragged out dead horses, swept a pen of goose-feathers, and found the strongest chest holed by a mouse. Loyal, thorough, and useless against cunning.',
+    folklore: ['half-rooster'],
+    location: { status: 'planning', plan: 'staff the proposed saraj up the plain road from udhekryq' },
+    tales: { 'half-rooster': 'sherbetoret' },
+  },
+}

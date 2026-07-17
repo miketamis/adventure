@@ -1,12 +1,12 @@
 import { useReducer, useState, useEffect, useRef, useSyncExternalStore } from 'react'
-import { reducer, loadState, saveState, saveEndings, timeOfDay } from './game/gameState.js'
+import { reducer, loadState, saveState, saveAchievements, timeOfDay } from './game/gameState.js'
+import { TALES, playOf } from './game/taleBeats.js'
 import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
-import { ENDINGS } from './game/content.js'
-import { AREA_FACTOIDS } from './game/folklore.js'
+import { ACHIEVEMENTS } from './game/achievements.js'
 import StoryView from './components/StoryView.jsx'
 import PracticeView from './components/PracticeView.jsx'
 import DictionaryView from './components/DictionaryView.jsx'
-import LoreView from './components/EndingsView.jsx'
+import AchievementsView from './components/AchievementsView.jsx'
 import DebugView from './components/DebugView.jsx'
 import MiniMap from './components/MiniMap.jsx'
 
@@ -43,21 +43,18 @@ export default function App() {
     for (const p of Object.keys(TIME_UI)) document.body.classList.remove('time-' + p)
     document.body.classList.add('time-' + phase)
   }, [phase])
-  // The lore codex counts FACTOIDS (good/secret endings + area factoids — the
-  // lore achievements), not the bad "fates".
-  const factoidDefs = [...ENDINGS.filter((e) => e.kind !== 'bad'), ...AREA_FACTOIDS]
-  const factoidTotal = factoidDefs.length
-  const factoidsGot = factoidDefs.filter((e) => state.discoveredEndings?.[e.id]).length
+  // the tab badge counts UNLOCKED achievements (gate passed), not the bad "fates"
+  const achievementsGot = ACHIEVEMENTS.filter((a) => state.earned?.[a.id]).length
 
   // persist the whole state every change — reloading resumes exactly where you were
   useEffect(() => {
     saveState(state)
   }, [state])
 
-  // also keep the endings collection under its own durable key
+  // also keep the achievement collection under its own durable key
   useEffect(() => {
-    saveEndings(state.discoveredEndings)
-  }, [state.discoveredEndings])
+    saveAchievements(state)
+  }, [state.earned, state.eligible, state.attempts])
 
   const setView = (view) => dispatch({ type: 'SET_VIEW', view })
   const tab = (view, label) => (
@@ -76,6 +73,17 @@ export default function App() {
           Aventura Shqip <small>· learn Albanian</small>
         </h1>
         {state.debug && <span className="stat debug-badge" title="Debug mode is on — click the title 5× to turn it off">🛠 debug</span>}
+        {state.embodying && TALES[state.embodying] && (() => {
+          const t = TALES[state.embodying]
+          const pl = playOf(t)
+          const asName = pl?.avatar ? t.cast.find((c) => c.id === pl.avatar)?.name : null
+          const prefix = pl?.stance === 'companion' ? 'with ' : pl?.stance === 'witness' ? 'watching ' : 'as '
+          return (
+            <span className="stat embody-badge" title={(pl?.role || t.title) + ' — you are bound to this tale until an ending or death (the embodiment framework)'}>
+              🎭 {asName ? prefix + asName : t.title}
+            </span>
+          )
+        })()}
         <span className={'stat tip-host' + (peakOn ? ' peak-on' : '')}>
           👁 peak <b>{state.debug ? '∞' : state.peak}</b>
           <span className="tooltip stat-tip">
@@ -97,25 +105,39 @@ export default function App() {
             healer.{state.debug ? ' Debug: click to add 20.' : ''}
           </span>
         </span>
-        <span
-          className={'stat tip-host time-stat time-' + phase + (state.debug ? ' clickable' : '')}
-          onClick={state.debug ? () => dispatch({ type: 'DEBUG_TIME' }) : undefined}
-          role={state.debug ? 'button' : undefined}
-        >
-          {timeUi.icon} <b>{timeUi.al}</b>
-          <span className="tooltip stat-tip">
-            <b>{timeUi.icon} Koha</b> — it is <b>{timeUi.en}</b> ({timeUi.al}). The hour drifts
-            as you take turns; sleeping or waiting jumps it. Some paths and scenes only exist
-            at certain hours.{state.debug ? ' Debug: click to skip to the next phase.' : ''}
-          </span>
-        </span>
-        <span className="stat hearts" title="Hearts — a wrong training answer costs one; lose all 3 and it's game over">
-          {Array.from({ length: 3 }, (_, i) => (
-            <span key={i} className={'heart' + (i < state.hearts ? ' full' : '')}>
-              ♥
+        {/* the hour is told IN the story (phase lines + sky tint), not by a chip;
+            debug keeps the chip because clicking it is the time-skip tool */}
+        {state.debug && (
+          <span
+            className={'stat tip-host time-stat time-' + phase + ' clickable'}
+            onClick={() => dispatch({ type: 'DEBUG_TIME' })}
+            role="button"
+          >
+            {timeUi.icon} <b>{timeUi.al}</b>
+            <span className="tooltip stat-tip">
+              <b>{timeUi.icon} Koha</b> — it is <b>{timeUi.en}</b> ({timeUi.al}). The hour drifts
+              as you take turns; sleeping or waiting jumps it. Some paths and scenes only exist
+              at certain hours. Debug: click to skip to the next phase.
             </span>
-          ))}
-        </span>
+          </span>
+        )}
+        {/* your health is told IN the story (the hearts line + its once-per-level
+            self-heal live in StoryView), not by a chip; debug keeps the chip
+            because clicking it is the take-a-hit testing tool */}
+        {state.debug && (
+          <span
+            className="stat hearts clickable"
+            onClick={() => dispatch({ type: 'DEBUG_HURT' })}
+            role="button"
+            title="Hearts — the story tells your health now. Debug: click to lose one."
+          >
+            {Array.from({ length: 3 }, (_, i) => (
+              <span key={i} className={'heart' + (i < state.hearts ? ' full' : '')}>
+                ♥
+              </span>
+            ))}
+          </span>
+        )}
         <button
           className={'btn' + (muted ? ' active' : '')}
           onClick={toggleMute}
@@ -133,14 +155,14 @@ export default function App() {
         {tab('story', '📖 Story')}
         {tab('practice', '🎯 Train')}
         {tab('dictionary', '📚 Dictionary')}
-        {tab('endings', `📜 Lore (${factoidsGot}/${factoidTotal})`)}
+        {tab('endings', `🏆 Achievements (${achievementsGot}/${ACHIEVEMENTS.length})`)}
         {state.debug && tab('debug', '🛠 Debug')}
       </div>
 
       {state.view === 'story' && <StoryView state={state} dispatch={dispatch} />}
       {state.view === 'practice' && <PracticeView state={state} dispatch={dispatch} />}
       {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
-      {state.view === 'endings' && <LoreView state={state} dispatch={dispatch} />}
+      {state.view === 'endings' && <AchievementsView state={state} dispatch={dispatch} />}
       {state.view === 'debug' && <DebugView state={state} dispatch={dispatch} />}
 
       {/* debug minimap: the world map docked right, expandable to full screen.

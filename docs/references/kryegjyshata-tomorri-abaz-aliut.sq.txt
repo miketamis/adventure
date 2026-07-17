@@ -1,0 +1,81 @@
+# ============================================================================
+# Mali i Tomorrit dhe gjurmët e Abaz Aliut — raw Albanian extract
+# Tale: tomorri-pilgrimage ("Mali i Tomorrit — the sacred mountain &
+# pilgrimage"). Extracted 2026-07-15.
+#
+# SOURCE: Kryegjyshata Botërore Bektashiane (World Headquarters of the
+# Bektashi Order), the Bektashi Order's own official website — the primary
+# living authority for this exact pilgrimage. Page "MALI TOMORR DHE GJURMËT E
+# ABAZ ALIUT" ("Mount Tomorr and the footprint of Abbas Ali"), published as a
+# bilingual page (Albanian original + the Order's own English translation):
+#   Albanian: https://kryegjyshataboterorebektashiane.org/mali-tomorrit-dhe-gjurmet-e-abaz-aliut/
+#   English:  https://kryegjyshataboterorebektashiane.org/en/the-tomorr-mountain-and-the-footprint-of-abbas-ali/
+# Fetched via curl (browser User-Agent; WordPress site) 2026-07-15. The raw
+# HTML <article> content was stripped of markup and is reproduced below
+# essentially verbatim (only stray double-letter OCR-style typos of the kind
+# already normal on this site, e.g. "ndëërsa", are left untouched — nothing
+# has been reworded). No transliteration was needed; the page is already in
+# standard modern Albanian orthography.
+#
+# The tale's beat lines quote SENTENCES from this text verbatim as the
+# Albanian third element; the English lines in the tale file are the agent's
+# OWN paraphrase, not a copy of the Order's official English translation
+# (which is itself further along the copyright chain and is not reproduced
+# here or in the tale file).
+#
+# A SECOND, SHORTER extract (for the kurban/sacrifice detail, not covered by
+# the page above) comes from the same organization's news site, an article
+# on the 2023 pilgrimage ceremony:
+#   https://kryegjyshataboterorebektashiane.org/ceremonia-tradicionale-ne-malin-e-tomorrit/
+# — Albanian only, no official translation exists for this one; the tale's
+# English line for it is the agent's own paraphrase of the Albanian below.
+# ============================================================================
+
+MALI TOMORR DHE GJURMËT E ABAZ ALIUT
+
+Hëna u zhduk duke zbuluar Tomorrin e gjërë që nga larg. Udhëtimi po bëhej interesant, sepse Tomorri është një mal i mrekullueshëm... Fusha bëhej gjithnjë më e bukur, ndëërsa dielli po zhytej tej në horizont dhe monarku i madh, mali i Tomorrit, qe vrejtur mes madhështisë së kuqëreme... s'kisha parë panoramë më të mrekullueshme se sa të asj fushëtire, ndërsa Tomorri madhështor zymtësohej, në fikatjen e dritës.
+— Edward Lear (epigraph; not used in the tale — see discrepancies)
+
+Gjatë Rilindjes Kombëtare, Tomorri u bë simbol i bashkimit dhe vëllazërimit të shqiptarëve.
+
+Në vitin 1908 - 1909 ka patur një Dervishije, e cila u dogj nga andartët grekë më 1914.
+
+Teqenë e re të Kulmakut e ringriti në vitet 1915 - 1916 Dervish Iliazi.
+
+Në datat 20 deri 25 gusht të çdo viti në malin e Tomorrit vijnë mijëra pelegrinë nga Shqipëria, Kosova, Maqedonia, Italia, Greqia e deri nga SHBA.
+
+[Baba Ali Tomorri, caption]
+Këtu, në këtë mal, në kraharorin e Zotit njeriu, duke u lutur, mbrojtje merr prej Tij, ndjen dhe beson të vërtetën, shuan etjen e dashurisë, merr flladin pranveror në shpirt.
+— Haxhi Dede Reshat Bardhi
+
+Ai gjatë gjithë jetës së Tij ishte dera e mëshirës dhe ndihma e nevojtarëve. Sytë e Tij ishin të ëmbël e të dashur dhe madje, edhe nëse dikush kishte ndonjë punë me Hesejnin(a.s.), duhej të kalonte nga rruga e Abaz Aliut(a.s.).
+— Baba Edmond Brahimaj
+
+ABAZ ALIU DHE GJURMËT E TIJ
+
+Në shek. XV erdhi në malin e Tomorrit Haxhi Babai, nga Teqeja e Haxhi Bektashit (Turqi), që ngriti varrin kenotaf, simbolik, të Abaz Aliut në lartësinë 2417 m dhe ku më pas u ngrit mekali i tij.
+
+Abaz Aliu zu Tomorrë,
+Erdhi afër nesh,
+Shqipëria s'mbet e gjorë,
+Se Zoti e desh...
+— Naim Frashëri
+
+Abaz Aliu lindi në 4 tetor të vitit 648 dhe u rrit në një familje, që ishte vatër e dijes dhe shkencës. Ai mori dije nga Imam Aliu(a.s.), Imam Hasani(a.s.) dhe Imam Hysejni(a.s.). Abaz Aliu përfaqeson drejtësinë, pastërtinë hyjnore të Allahut për të gjithë njerëzimin. Vepra e Tij dëshmoi luftën ndaj së keqes, së ligës, mashtrimit, Jezidit, Mavijes, Sufjanit e Djallit. Dëshmorët e Qerbelasë dhanë shpresë për të ardhmen dhe mundësitë e pakufishme të shpresës. Ky ishte mesazhi i tyre dhe i Abaz Aliut, i cili ra dëshmor në moshën 35 vjeçare, në betejën e Qerbelasë.
+
+...Në të gjithë vendin tek njerëzit e të dyja besimeve është përhapur beja "Për Baba Tomor". Siç është i përhapur edhe mendimi, se këtu ka qënë vend kulti që nga Lashtësia. Poeti ynë i madh Naim bej Frashëri, në një poezi që e trajron historinë e vendit i ka dhënë një formulim poetik këtij mendimi: "Thotë Herodoti / Qe një kohë/ Kish në Tomor/ Shtëpi Zoti". Poeti mendon se Dodona e famshme që banohej rrëzë një mali që quhej gjithashtu Tomaros apo Tamaros, ka qëndruar edhe në majën tonë. Dhe vërtet kjo majë madhështore sikur është krijuar enkas për shënjtëri.
+— Eqerem Bej Vlora
+
+Gjurmët e Abaz Aliut:
+Gjurma e Abaz Aliut (dora në shkëmb) afër Bargullasit, Skrapar.
+Gjurma e Abaz Aliut në Dërrasën e Novajt, Skrapar.
+Gjurma e Abaz Aliut, Dërrasa e Kajcës, afër Prishtës, Skrapar.
+Gjurma e Abaz Aliut, Rodhes, Skrapar.
+Gjurma e Abaz Aliut, Taroninë, mali i Çepanit, Skrapar.
+
+# ----------------------------------------------------------------------------
+# Second extract — the kurban detail (from "CEREMONIA TRADICIONALE NË MALIN E
+# TOMORRIT", kryegjyshataboterorebektashiane.org, 22 August 2023):
+# ----------------------------------------------------------------------------
+
+Festa që njihet edhe si festa e Abaz Aliut në Malin e Tomorit shoqërohet me therjen e kurbaneve, që i sjellin besimtarët dhe me aktivitete të ndryshme artistike.

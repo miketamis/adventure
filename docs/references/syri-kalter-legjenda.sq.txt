@@ -1,0 +1,106 @@
+================================================================================
+LEGJENDA E SYRIT TË KALTËR — the Albanian original(s) of "Syri i Kaltër —
+the Blue Eye spring" (FOLKLORE id: syri-kalter)
+================================================================================
+
+This is NOT an Elsie folktale — Robert Elsie's Albanian Literature site has no
+page for it (checked index_legends.html: legend_01..legend_15 are Baba Tomor,
+Sari Salltëk, Aga Ymeri, Gjergj Elez Alia, Mujo/Halili, Rozafa, Scanderbeg,
+Shega/Vllastar, The Lover's Grave, Ali Dost Dede, Jabal-i Alhama, the
+Hoti/Triepshi/Kastrati/Kelmendi tribe foundings, Kastrati revenge — no Blue
+Eye). The FOLKLORE card cites only Wikipedia, and the English Wikipedia
+article ("Blue Eye, Albania") is pure geography/tourism with zero legend
+content. The legend text below was recovered from Albanian-language regional
+web publications, all telling the same core etiological story (a man-eating
+serpent destroyed by an old man's burning straw-laden donkey; its fallen eye
+becomes the spring) with differing surface detail. No 19th/20th-century
+folklorist corpus on disk (pralla-popullore-shqiptare-1954, Dozon, Hahn,
+Jarnik, Meyer, Lambertz) contains it — grepped for "Sopot", "Syri i Kalt(ë)r",
+"Delvin(ë)", "Vrisi", "Muzin(ë)": zero hits in any local .sq.txt/.de-sq.txt/
+.fr-sq.txt file. This is a real place-legend attested only in modern
+(2010-2023) regional-press retellings of village oral tradition, not in the
+19th-century academic collections.
+
+--------------------------------------------------------------------------------
+VARIANT A — "the informant version" (PRIMARY — used for the tale's beat lines)
+--------------------------------------------------------------------------------
+Source:  Kuriozitete.net, "Legjenda e Syrit të Kaltër", posted 06-10-2010
+         (https://kuriozitete.net/legjenda-e-syrit-te-kalter/); reprinted
+         verbatim as "Gjarpëri i Syrit te Kalter" at Shqipëria.com, ~2010
+         (https://www.shqiperia.com/Gjarperi-i-Syrit-te-Kalter.8841/).
+         Both explicitly frame it as oral tradition: "E trashëguar brez pas
+         brezi, prej mijëra vjetësh, ajo vjen disi e ndryshuar në gojën e një
+         banori të fshatit Mesopotam, 20 kilometër larg Sarandës." (Handed
+         down generation to generation, for thousands of years, it comes
+         somewhat altered in the mouth of a resident of Mesopotam village,
+         20 km from Sarandë.)
+Extract: fetched 2026-07-15 via curl (kuriozitete.net) and WebFetch summary
+         cross-check (shqiperia.com); HTML stripped, text below is the
+         legend paragraph verbatim as printed (only the em-dashes/quote marks
+         are typographic, not altered).
+
+Legjenda e Syrit të Kaltër. E trashëguar brez pas brezi, prej mijëra vjetësh,
+ajo vjen disi e ndryshuar në gojën e një banori të fshatit Mesopotam, 20
+kilometër larg Sarandës.
+
+"Flitet se ka qenë një gjarpër që ka dalë nga Saranda në Delvinë. Tek ura e
+Vrisit ishte një burim i vogël, kishte gra dhe fëmijë që mbushinin ujë për në
+shtëpi. Në atë moment vjen gjarpri dhe i ha ata njerëzit. Më pas u nis për në
+Sopot ku rrugës hëngri kope të tëra me bagëti. Pastaj vajti në Sopot ku hëngri
+dhe dy çobanë. Një plak i mençur tha të ngarkonin dy gomerë me eshkë dhe e
+ndezën. Kur vajti gjarpëri për të ngrënë personin që ndezi eshkën, fati ndodhi
+që hëngri gomarët. Pastaj gjarpëri u ndez për ujë dhe në këtë moment tha: Dil
+mama det, dil motër Bistricë. Më pas u nis drejt Syrit të Kaltër. Sa arriti
+atje doli Syri i Kaltër dhe gjarpëri ngordhi pasi shpërtheu uji."
+
+--------------------------------------------------------------------------------
+VARIANT B — "the wind version" (secondary — divergences recorded in the tale
+file's `discrepancies`, not separately line-covered)
+--------------------------------------------------------------------------------
+Source:  Saranda Web, "Syri i Kalter, legjenda e gjarprit gjigant", first
+         posted 06/04/17, republished as "Legjenda e Syrit te Kalter" on
+         14/01/23 (https://sarandaweb.net/syri-i-kalter-legjenda-e-gjarprit-
+         gjigant-qe-krijoi-mrekulline-e-natyres/ and .../legjenda-e-syrit-te-
+         kalter-syri-i-kalter/); word-for-word reprint at Busull/bordo.al,
+         27 June 2019 (http://bordo.al/2019/06/27/te-njohim-shqiperine-syri-i-
+         kalter-legjenda-e-gjarprit-gjigant-qe-krijoi-mrekulline-e-natyres/).
+Extract: fetched 2026-07-15 via curl; identical wording across all three
+         postings (a single stable retelling reproduced by three outlets over
+         six years).
+
+"Një herë e në një kohë, fryu një erë kaq e fortë… Sa tundi detin nga fundi
+dhe deti nxori një gjarpër… Ra një re dhe gjarprin e hodhi në malin e
+Sopotit… Gjarpri gjigant hante kafshët e njerëzit dhe të mbjellat i
+prishte… U ngrit një plak, ngarkoi një gomar me thasë me eshkë dhe vajti afër
+lubisë e i vuri zjarrin eshkës. Kur gjarpri hëngri gomarin, zjarri i eshkës
+përbrenda e dogj. Bisha briti, 'Ku je ti det, që më bëre kokën dhe ti lumë,
+vëllai im…!'. E u shtri për vdekje. U nis deti nga Vivari dhe lumi nga
+Sopoti, por s'e proftasën dot. Në agoninë e ngordhjes gjarpri përplaste
+bishtin në faqen e malit, ku mbetën shenjat që duken. Qysh nga ajo kohë deti
+me malin janë të lidhur me njëri-tjetrin si baba e bir."
+
+--------------------------------------------------------------------------------
+Notes on the two variants (see the tale file's `discrepancies` for how these
+are handled):
+- Variant A has the serpent travel overland (Saranda → Delvinë → Sopot);
+  Variant B has a storm-wind stir the sea, which casts the serpent onto
+  Mount Sopot from a cloud — a sea-born arrival.
+- Variant A: TWO donkeys loaded with eshkë (tinder/kindling-straw); the
+  serpent is tricked into eating them instead of the man who lit the fire.
+  Variant B: ONE donkey, loaded with sacks of eshkë, set alight beside "the
+  lubia['s lair]" (lubia used here as a common noun for a monster's den, not
+  a claim the serpent IS the Lubia — see the tale file's place/cast notes).
+- Variant A's dying serpent cries "Dil mama det, dil motër Bistricë" (come
+  out, mother sea — come out, sister Bistrica [river]) and the tale ends the
+  instant the Blue Eye bursts forth where it arrives. Variant B's dying
+  serpent cries "Ku je ti det, që më bëre kokën dhe ti lumë, vëllai im…!"
+  (where are you, sea, that broke my head, and you, river, my brother) and
+  adds an etiology Variant A lacks: the sea (from Vivar) and the river (from
+  Sopot) set out but arrive too late; the serpent's death-thrash beats its
+  tail against the mountainside, leaving the still-visible bare scar; ever
+  since, the sea and the mountain are bound to each other "like father and
+  son."
+- Both variants agree on the frame (a giant man-eating serpent; livestock,
+  shepherds/villagers eaten; an old man's fire-donkey trick; the spring
+  bursting from where the serpent falls) and both are told, in Albanian, as
+  living oral legend rather than journalism about the legend.

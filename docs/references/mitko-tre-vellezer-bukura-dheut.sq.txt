@@ -1,0 +1,242 @@
+Tre vëllezër me të bukurën e dheut
+====================================
+The complete Albanian text of the tale (= Elsie's "The Three Friends and the
+Earthly Beauty", Albanian Folktales and Legends tale 3).
+
+Source: Thimi Mitko, Bleta shqypëtare (Alexandria 1878), as reprinted in
+"Pralla popullore shqiptare", Instituti i Shkencave, Tiranë 1954 (red. Komisjoni
+i folklorit, drejt. Zihni Sako), pp. 7–13. Folk text, public domain.
+
+Extracted 2026-07-14 from the text layer of the scan circulating online
+(doczz.net/doc/2729503, mirroring the Scribd copy of the 1954 book). RAW OCR —
+uncorrected: broken words ("d<ejt" = drejt, "rnësëfundi" = mësëfundi), stray
+page numbers (7–13), and mangled quote marks («…», "(<", "<(") appear as in the
+scan. A lightly-cleaned per-sentence version lives in src/game/taleBeats.js
+(beat lines, third element), aligned ¶.sentence to Elsie's translation.
+
+------------------------------------------------------------------------------
+
+Tre vëllezër me të bukurën e dheut
+l
+Një burrë pas vdekjes tij la të shoqen mbarsë, e cila pas
+gjasht muajsh lindi një djalë, edhe me gjithë varfëri të saj e rriti
+djalin gjersa u bë pesëmbëdhjetë vjeç. Pasi erdhi në mënt djali
+pyeti t ëmën se mos kish ndonjë send pe të t'et, me qënë i kish
+thënë ajo, se ay kish baba. E ëma iu përgjegj, se i jati kish lënë
+shumë plaçka, po ajo i shiti që rriti atë gjer m'atë moshë. Po ay
+7
+gjithënjë po e grindënte t' ënnen duke iypur ndonjë send. ç'farëdo,
+nga të t'et. Edh' ajo i tha rnësëfundi: (<më bëhet sikur është një
+kordhë në hatullë të shtëpisë ak-se-ku". E djali i tha: <(ngremë më
+krahë që t'a arrinj, e t'a marr». Pasi mori këtë kordhë djali, të palarë
+që motit, e të ndryshkur, e lau e e shkëlqeu, edhe e mvari më
+qafë; pa i tha s'ëmës: «unë, o nëne, do të vete në dhe të huaj». E
+ëma zu të qanj' e të bubutisnjë, e t i lutet atij për të mos i k u ,
+aqë sa të pastajmen i tha: "premë kryet mua me pallën e t'ytet,
+pastaj ikë, o bir». Po djali i tha ; "Cili bir ka preië kryet e s'ëmës
+ndonjëherë ? Unë të lutem, i tha, të mos mshosh më mua, as të
+thyesh zemrën, po të më urosh, e të më duash, se unë do të kthehem për së shpejti».
+Pas këtyre fjalësh ndërroi edhe emrin e tij, e e vurri. «Kordhë"
+edhe mori pallën e shkruajti emërin e tij përsipër. Të fundmen i hodhi duart e tija më qafë
+s'ëmës për të puthur njëriatërin përse do të ndaheshin, e nuk ndaheshin dot një copë herë të madhe nga të qarët. E pasi u ndan ,
+puthi kordhën djali, që t'i vejë mbarë, edhe duke dalë jashtë ; shtëpisë, i tha s'ëmës : «rri me shëndet e të lutem, të mos vesh sy të
+keq më mua, përse përmbi gjashtë muaj nuk do të rnënon)"
+E pasi iu largua fshatit pes, a gjashtë orë djali, arriu në një
+mal, i vetëmi filli, edhe ndenji më një shesh, e nxorri kordhën e
+e puthi edhe e lëshoi në prëhërt. Nukë shkoi gjysm' ore, edhe i
+erth një djalë më moshë të tij, e i tha ; "mirë dita, o mik». Edhe
+ky iu përgjeq: "mirë, erdhe, o vëlla". E pyet ay këtë: «ngaha vjen
+e ku vete» ? Ky i tha : «kam dalë për kësmet", Edhe' unë kështu,
+i thot ay, edhe në do, haj të bëhemi vëllezër, e të vemi për
+kësmet mbënjë". Ky i shtiu duart më qafël e e puthi, e pyeti edhe
+për emrin, ç'e quanin. A y i tha, se, quhet «YII» i rrëfeu edhe ky të
+tijnë «Kordhë».
+U nisën pra këta të dy, e muarrën udhën d<ejt gjirsa i zurt
+nata. Ndejtin atje më një vend, e pasi folën pak, ranë të flenë
+Da ngrën e pa pirë. Të < esërmen muarrën përsëri udhën drejt, e
+pas ndo gjymës' ore u poqën më më djalë mbë moshë të tyre e i
+thon' ati: <(udhë e mbar o fshatar» ? Edh' ay u përgjegj: (<mbarë pa:i,
+o vëllezërit e mij". E këta i thonë : «e ng* na ke ti vëllezër
+neve ?» E ay u përgjeq; «nuk ju kishnja vëllezër po tani e tutje
+do t'ju kem». (<Po që ti do të na kesh vëllezër, i thcnë këta, të
+kemi edhe ne ty për vëila». E pyesën edhe për emrin e tij, e u
+tha se e quanjin «Det». I rrëfyen edhë këta të tyret. e u pushtuan të
+8
+tre. e u puthën si tre vëllezër të vërtetë, edhe lidhën besë që sido
+t'u ngjanjë puna, të vdesin bashkë.
+Kështu pra muarën udhën të tre, e duke ecur vajtën pranë një
+qyteti' teku kishte edhe mbret, i cili ato dit kishte çarë një hendek
+të gjërë, edhe kish leçitur e përhapur fjalë që, ay që të kapërxeijë
+këtë hendek, do të marrë çupën e mbretit për grua, e atij që të
+mos e kapërxenjë dot, do t'i pritet kryet, Shumë veta kërcyen atje
+me shpresë të kapërxenin, e ranë brenda, edhe me të parët u dërquan te the'ësi, i cili u preu krerët të gjithvet. N atë ças u sosën*
+edhe këta atje, e kur panë atë shumicë e atë xhgan njerz'sh, thanë:
+«haj të afrohemi, e të shohim se ç bëhet atje».
+Pasi u afruan atje, edhe ndegjuan se, ishte pun' e hendekut
+për të kapërxyer, u mentuan këta të tre së bashku, e thanë, a bëjmë
+zemër t' i hidhemi këtij hendeku, e mbase e kapërxejmë. E nëmos e
+kapërxefshim, le të vdesim edhe ne. Deii tha se është fort giërë e nukë
+do t'i kërcejmë dot përtej. E Kordha mori një gur prej dheut, e ja dha
+Detit, edhe i tha t'a hedhë përtej, e pasi e hodhi, e pyeti atë: "a
+ish shum' i rëndë guri ?» Deti i tha se, nuk ishte më shumë se pesë
+drëhemash. «Kaqë të rëndë është edhe të këcyerit tënë», tha Kordha. E pa pritur, më. u shti ay në mes të të dyvet të Yllit dhe
+të Detit, e i pushtoi mirë të dv, me të dy krahët, edh' u hoth me
+gj th' ata mbatanë pa ndonjë rëndësirë, aqë sa, kur i panë gjith' ay
+popull, që ish atje, u manitën. Edhe mbreti urdhëroi në çast, e i
+muarrën me karocë ata i shpunë në pallas, e i qitën përpara tij
+edh' ay i pyeti : Kcili nga ju do të marrë çu^ën tirne për grua ?»,
+I tha Kordha, se do t a marrë Ylli. Edhe mbreti dha porosi të behet dasma. Ani pyeti ay për Kordhën edhe për Detin çfarë bukë
+duan, që t' i verë në punë? E kordha i tha: le t'i apë Detit, se
+ay për vetëhen e tijë, s'do g|ë. E ca dit pas dasmës Kordha lypi
+ndjesë prej Yllit, e prej Detit, që të niset për të shkuar, Po ata
+me pikiiim të math i thanë: «kaqe e pakë qënka vëllazërija jonë, sa
+t a jep zemra t'ikësh. e të na lesh neve?» E Kordha u iha se "vëlla
+zërija jonë është' e pasosur. edhe unë, ja se ku ju lë një pendë më
+derë tuaj, që, po të shikoni se kjo zu të pikonjë gjak. të delni
+sakaqë e të më kërkoni, giersa të më gjeni, përse do të ndodhem
+më ditë të keqe». E u puth pra me ata, edhe u nis e shkoi.
+Duke ecur ky tani tri, katër diç udhë i vetmi, arriu në një vënd
+që ndaheshin shtatë udhë. Atje ishte një kullë tek rrinte një plakë.
+Kësaj plake i u lut Kordha që t' i dëftejë se ku venë ato udhë, e
+9
+pasi morri vesh, zuri udhën e së Bukurës së dheut. Atëhere plaka i
+tha këtij: «mos, o bir, hump kryet tat, e djalërinë tënde më kot
+përse m'atë udhë kanë shkuar mbretër me ushtëri të forta, edhe
+s' kanë vajtur dot atje, tek kërkon të vesh ti një fill i vetmi". Edhe'
+ay mori e shkroi në mur të kullës, porositi edhe plakën që, në arçin
+dy trima të të pyesin për mua, t' u dëftosh këto të shkruara, edhe
+•udhën që unë po marr. Edhe mori pameta atë udhe, që kish zënë
+<në parë, e shkoi.
+Vajti pak më tej, e gjeti kuçedrën me gjashtë këlyshë mb'
+udhë, e cila i u derth ta hajë, po ay xhveshi kordhën edhe e preu
+me gjithë këlyshë. Duke pritur më tej. i u duk a i j pallasi i së bukurës dheut' e tek ecënte udhën për në pallas, gjeti një krua mb'
+udhë edhe qëndroi pakëzë te kroji. E pa e bukur e dheut atë, edhe
+i tha kuçedrës: Kpo vjen një trim i mveshur në rroba të bardha". E
+&\o i u përgjeq : "pa vështro që nqa dritoret, vallë qysh do të
+pijë ujë. M e dor apo mbë gjunjazi» ? Djali ra mbë gjunjë, kalli kryet
+në luk të krojit, edhe piu ujë. Atëhere i tha kuçedra asaj: ftNga ky
+njeri mua m' u trëmp syri". Atje jashtë pallasit ishte një dru molle që
+kish edhe pemë, e kur djali u afërua pranë.ajo po e vështronte,
+a do të kërcente ay të mirrte atë mollën më të madhe. E djali
+kërceu edhe e zuri mollën me dhëmbë, jo me dorë. Posa pa kështu
+kuçedra, «popo! tha, nga ky njeri s' kam shpëtim unë».
+Arriu ay në derS të pallasit, edhe hyri drejt' e brënda e u
+tha: mirë dita». Po kuçedra me të hakëruar i tha atij: (<qysh kuxove
+ti te vish këtu»? E ay i përgjeq me tërsëllëm, e i tha asaj: «ashtu
+si ç ke kuxuar t'». E ajo u ndes nga zsmërimi edhe po shikonte t'
+hidheshe Kordhës. Po ky arriu e xveshi kordhën në çast, edhe ja
+noqi asaj, e e bëri dy gjymësa. E kështu zaptoi të bukurën e dheut.
+Pasi shkoi ndonjë javë, e u vate në vesht mbretërve se një trim
+vrau kuçedrën, edhe mori të bukurën e dheut për grua, u ngrejtin
+•ata me të çpejt, e me nje cudi, e vajtin në te shtatë udhët, edhe
+po pyesnin plakën: *ç njeri shkoi këtu për te e bukur e dheut ?
+Edh' ajo u thosh : «një djalosh nja gjashtëmbëdhjet vjeç>>. Ata pra e
+kuvënduan t' i venë përsipër atij. Dhe u nisën, e ja mbajtin penë drejt •}
+e përmbi atë, e e luftuan njëzet e katër dit, e me gjith^atë s'panë
+se ç' ti bëjnë. po u këthyen prapë më kot. Ata mbretër pasi
+nuk mundën ta mposhtin Kordhën, duke ikur prapë, ardhën te
+plaka, e e porositën atë të vejë tek' e bukur' e dheut, e t ' e pyesë
+atë se, me çfarë trirnërije, a fuqije e zaptoi atë ay djalë: E e bukur'
+10
+e dheut i tha plakës se: <(ay posa erth, me n;ë tërsëllëm të math,
+preu kuçedrën fare kollaj, edhe më zaptoi mua» Pastaj plaka i tha
+asaj, qs t a PY ese djelën ajo vetë se. ku e ka ay gjithë tnmërinë.
+Edhe ajo pas ca diç e pyeti Kordhën: (<ku e ke tërë këtë trimëris ?
+E ay i g j ° r ' ' n 9 a dashurija, që kish për të, i rrëfeu tuke thënë se,
+qjithë trinërija e tij, ish*e kordha e tij, e se, po t ' i mirrte kush kor,
+dhën, ishte fare i bjerrë e i humbur. Ashtu pra plaka në krye pak
+diç ia gjeti volinë djalit, ia vodhi kordhën, edhe \a hodhi në det.
+Posa ja hodhën kordhën në det, Kordhës, që m atë ças ay
+ra në lëngim, e u bë për vdekje. Plaka u kihye në kullë të
+saj e gëzuar, edh' u dha zë mbretërvet se: kush të dojë të marrë të
+bukurën e dheut praoë pa ushtëri, e pa luftë, la të vejë, se i arth
+dita. Edhe mbretërit posa n Jëgiuan, u nisën të venë përmbi Kordhën.
+Po, sa pa vajtur këta, të vëllezrit e Kordhës kishin parë pendën e
+tij, që po pikonte gjak edhe kishin dalë me të shpejt për të gjetur
+vëllan e tyre. Ylli mori Detin më krahë edhe sakaqëherë i a
+arritin Kordhës më pa'ë shumë se mbretërit, e me të vajtur e pyetën të bukurën e dheut: «ku e ka kordhën vëllaj i ynë»? A j o u tha se, ia
+muarën, edhe i a flakën në det Prandaj u ngre Deti në çast, hyri
+në det, edhe e gjeti kordhën, e ja suall të vëllajt, i cili, posa i erth
+kordha, sa të fshish synë, u squa, e-lhe u ngrit sikur ish i shëndoshë.
+E duke fshirë sytë, u tha atyre: « O j i ! ç' paskam fjetur shumë», po kur
+pa të vëllezrit pranë, pikasi që e kish gjetur e keqja.
+Nameta \a arritin edhe mbretërit për të luftuar, edhe i ranë
+burrërisht, po pasi ishte pra shëndoshur Kordha, edhe këtë herë u
+mposhtën ata, edhe ikën të prishur. E Kordha, pasi fitoi edhe këtë
+luftë, mori të bukurën e dheut me gjith gjën' e saj që kish, edh' u
+nis të vejë ne e ëma në dhe të tij, bashkë me të dy vëllezrit.
+Muarrën pra udhën <? tyre, e me të vaturit në shtat' udhët daroviti
+atje plakën darova (dhurëti) të mëdha, duke i thënë asai: (<;ë darovita
+për të mirët që më bëre e më flake kordhën në det. Tani të lutem
+t u dërgosh fjalë atyre mbretërve, që erdhën e më luftuan se, unë
+që zaptova të bukurën e dheut, po ikënj s'andejmi, e po vete në
+vënt tem, në daçin, e në kan mall më mua, le të vinë përsëri
+të më luftojnë, se do t' i pres me një mijë të mira". Ani i tha plakës
+të falem, e mbeç me shëndet. Edhe u ndanë.
+Duke hequr erdhën te mbreti, i vjehrr' i Yllit, i cili, i kish marrë
+të bijën e i lypën ndjesë për të vajtur në dhe të tyre, me gjithë
+të bijën e tij, po mbreti u përgjeq atyreve ; wju ecni kudo, që të,
+11
+doni, po i 11 dhëndër' edh' ime bijë do të jesën këlu*. I thotë Kordha
+mbretit, se <(po të jenë të dy palët më një mëndje, le të jesën këtu,
+po ne do të shkojmë" E Ylli u tha në syt' e mbretit «unë për gjë edhe
+pë vajzën e mbretit nuk ndahem p>ej jush, o vëllezër». Hidhet mbreti e i
+thotë : <(do s' do, do të ndahesh". Hidhet Kordha, e i thotë mbretit : «kjo
+do s' do çdo me thënë? Yllë, vëllanë tënë do të mbash ti këtu me
+pahir ? A y njeri, që të dojë të mbanjë pahir një nga ne të tre,
+s' është lindur». Atëhere i thotë mbreti portarit t i j : «merr këta njerëz, edhe
+futi mbrenda në burg1'. I u përgjeq Kordha mbretit: «urdhëro, e thërrit
+t'ët bijë të vinje këtu, sa të shohi >> se ç' thotë edhe ajo». Edh' ay urdhëroi
+e e suallën vashën këtu. Atëhernaj i thotë Kordha Yllit: "rnerr mbë njërin
+krah tët shoqe, e rnbë tjetrin Detin, edhe ike, duke thënë rrbretit:
+ri me shëndet". Mbreti dëgjon këto fjalë e po çuditet. Ani thërret
+portarët e tij, e i po osit që, në portë më pak se katër portaië të
+të mcs jenë. E Ylli u ngrit, e qëndroi në mes të odës, e i thotë
+mbretit : «'ë falem, o im vjehërr, e rr.beç me shëndeb, edhe u hothë
+nëpër penxheret me gjith të shoqen, edhe me Detin, edhe duallnë
+të tre, e Kordha mbeti i vëtëm Mbreti duke parë këto, u sul ne
+penxherja sa të shohë, se mos u copëtuan ata që u hodhën aqë së
+lartmi e kur i pa se s' kishin pësuar as gjë të keqe u mërye dhe
+s'dint^ më as ay ç'të bënte, Pastaj urdh'roj të vrasin K o d t ë n . Po
+Kordha i u përgjeq: «e përse të më vraç mua» ? (<Përse ti ja shkaku
+që më iku ime bi)ë». E kordha i tha! «Urdhëro edhe kthej prapë, se
+mua s' më ha malli për ta". Pasandaj u ngrit edhe Kordha, muar të
+bukurën e dheut për të ikur, e kur portarët s' deshën ta lënë të dalë,
+nxorri pallën ay e i preu që të katër, edhe iku, ja arriu të vëliezërvet.
+Kur mbreti pa gjith keto, sa i vranë edhe portarët e tij urdhërojti të mblidhet me të shuejfë ushtrija, e t' u bjenë pas, pa ecthe
+në mos u zënçin të gjallë, le t u bien, e le t'i vrasën. E vëllazërija, posa panë ushtrinë që po u vin'.e prapa, qëndruan, e i pritën
+gjersa u afruan. Atëherë ata u dërguan një njeri (laJTiës) këtyreve, i
+cili u tha : «ja të kthehi prapë me të mirë te mbreti, ja do t' ju
+bjerë ushtnja, e t ' j u prishnjë». E kë'a u përgjegjën; <(,u të bëni siç ju
+ka urdhëruar zoti juaj, se ne nuk kthehemi prapë», U përua i dërguari në ordhit, edhe u tha që ata nuk kthehen me të mirë. Të
+pastajmen u vste përsipër ushtrija këtyreve, e këta po rinë të pa
+trembur. Po pasi panë që ata gjithë po tureshin përmi këta, u ngrit
+Kordha e u thirri: «pa pushoni pakëzë luftën. E ^ k e n i ndër mënd ju,
+more ! E ç' ju pandehet ? A doni t' ju sh'rinj të gjithë këtu, apo ikni
+12
+prape» ? E ata, ndonse këto fjalë u ranë mu si plumba, nuk u bindën, po kërkonin t' u vërviten përsipër. Atëhere Kordha pa ç' pa, u
+tha të vtllezërvet: «merri gratë ju, edhe shkoni përpara". E ay, i vetëm, xveshi pallën e tij, e u derth mbi ata, e preu shtatë qind veta
+prej syresh, edhe të parin e tyre bashkë. Ushtri e ngratë, thyer e
+prishur " ë dite të keqe, duke parë që u \/ra e i h e i pari i tyre, pa
+parë më i pari të dyrin, ikën prapë me lebe i të madhe. Ashtu pra
+u n!s edhe Kordha e mori udhën e tij dhe JS arriu të vëllezërve
+atje tek po e prisnin atë.
+Tani këra të gjithë bashkë muarrën udhën e tyre. edhe pas tri
+diç arrinë në shtëpi të Kordhës. Duke përshëndoshur t' ëmën e ati' i
+thanë: «rrirse të gjeimë o rrëma jonë» ! E ajo me çudi të madhe u
+përgjeq: "cilëc jeni ju, që më thoni mua mëmë»? Ata i thanë se:
+«kështu na ka porositur yt bir, i cili munt 'ë vinjë edhe ay këto dit.
+N e kemi vënë edhe bast më djalin tënd, se kur të vinjë ay nukë
+do ta njohësh». E ajo u tha atyreve: «djalëthin tim unë, edhe ndër
+pesëqind veta të më vinjë, do ta njoh", (po ndër këto fjalë e mori
+të keqtë edhe qau). Atëhere i thotë Y l l i : «nga ne te tre cili është
+djali yt"? Ajo zu të verë re mirë, e pasi e mblodhi vetëhen e saj,
+shëmbëllen të birë, edhe e njohu. E me të parët ra më gjunjë
+duke qarë, edhe s' pushonte dot. Ju hoth djalit e e puthi me mall të
+math. Ani puthi ed'he të tjerët, edhe të dy gratë e atyre.
+Si u ver.dosën këta atje, pas ca moti, thanë ndër njëriatërin: <(a
+tre vëllezër jemi ne, a po dy"? Ylli u përgjeq: «jemi tri». "E po kur ne
+jemi tre, përse të kemi vetëm dy gra ? U hoth Deti, e u tha atyre:
+«pasiçë, s' prish punë». Atëhere tha Kordha : Ktynë do të të bëjmë mbret
+mbi gjithë vëndin tënë». EJhe e bënë mbret, e mbretëroi giithë jetën e
+tij. Edhe sa rojtën ata që të tre, ishin tërë jetftn vëllezër të dashur.

@@ -1,0 +1,112 @@
+// NPCs: the Gjizar tale (gjizar) cast — see ../npcs/_SCHEMA.md for the format
+// contract. One file per area/tale so parallel agents never collide.
+// The Earthly Beauty is NOT here — she is the core bukuraDheut entry, linked
+// from the tale file's cast (the sharing rule: she is SERIAL, this tale is
+// one of her eras).
+
+export default {
+  mbretiXhamive: {
+    name: 'mbreti i xhamive', glyph: '🕌', kind: 'human',
+    role: 'the pious king who spent a kingdom on three mosques',
+    backstory: 'He cared for nothing but prayer, and razed and raised three mosques on one dervish\'s sentence until the treasury was bare and the kingdom poor. He believed the slander against his youngest son once, and paid for it in cannon-fire — half a palace for a silent bird. NOT the moat-king of Berat (an oath-breaker) and NOT the black-palace king of the Sun-promised maiden: this father\'s whole story is a mosque waiting for its singer.',
+    folklore: ['gjizar'],
+    location: { status: 'placed', node: 'gjizar2' },
+    tales: { gjizar: 'king' },
+  },
+  dervishiXhamive: {
+    name: 'dervishi i xhamive', glyph: '📿', kind: 'human',
+    role: 'the dervish with the one sentence: beautiful mosque, vain prayers',
+    backstory: 'He walked in on every royal prayer with the same verdict and no advice, until the princes seized him at the door — then he named the one lack he knew of: Gjizar the nightingale, whose whereabouts he honestly did not know. A truth-teller with an empty map: he starts the quest and never appears in it again.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'appears at the mosque door in the king\'s-town staging (gjizar2); if ever walked, his route is mosque door to mosque door' },
+    tales: { gjizar: 'dervish' },
+  },
+  vellaiBerber: {
+    name: 'vëllai berber', glyph: '💈', kind: 'human',
+    role: 'the eldest prince — a barber down a return road, then a liar at a cane\'s end',
+    backstory: 'He took a road a man comes back from and shelved the quest for a barber\'s chair. He cut his youngest brother\'s rope at the well, claimed the theft of Gjizar before the robbed queen — and died on the one detail a false thief cannot know, naming a cypress tree instead of a candle-lit chamber. The tale\'s only death.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'his barber-town is the proposal down one return lane off the gjizar1 fork' },
+    tales: { gjizar: 'eldest' },
+  },
+  vellaiKafexhi: {
+    name: 'vëllai kafexhi', glyph: '☕', kind: 'human',
+    role: 'the middle prince — a coffee-house keeper, and the confessor too late',
+    backstory: 'He took the other return road and opened a kafene. He stood behind the rope-cutting and the slander — until his brother died under the Beauty\'s canes and the cannons opened; then fear did what conscience had not, and he told their father the truth of the well. He ends the tale alive and unpunished, which is its own sentence.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'his coffee-house town is the proposal down the other return lane off the gjizar1 fork' },
+    tales: { gjizar: 'middle' },
+  },
+  djaliGjizar: {
+    name: 'djali i vogël i mbretit', glyph: '🕯️', kind: 'human',
+    role: 'the youngest prince — the quiet thief who truly won the nightingale',
+    backstory: 'He chose the stone that promised no return and paid kindness down the whole road: a comb for the savage woman, leaves for the tiger\'s oven, a son\'s mouth for the lioness, lifted eyelids for the blind lion, three months for three eagle-brides. In the Beauty\'s chamber he renewed the dying candles before he took the cage — the signature of a thief with manners. The bird fell silent when his rope was cut and sang again at his first word; the Beauty married him for the true telling. His staged arc is the village\'s back-lane vignette (gjizar2 → gjizarUdha → gjizarPallat → gjizarTradheti → gjizarFund).',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'rides the built vignette; on the world map his road runs gjizar1 fork → wilderness (gjizarUdha) → the dark road (udhetimi1/2 proposals) → bukura1' },
+    tales: { gjizar: 'youngest' },
+  },
+  egershania: {
+    name: 'e egra e maleve', glyph: '🌿', kind: 'mythic',
+    role: 'the savage woman of the wilderness, combing her hair with a gorse branch',
+    backstory: 'A wild woman of the empty country past the settled roads — no village, no inn, no people. The youth combed the lice from her hair with a proper comb, and the only payment she had was a warning: past these mountains even she has never gone. The game\'s gjizarUdha scene stages her as the hungry woman of the far road who is fed bread — the telling folds her and the eagle-mother into one figure; in Pedersen they are two. NOT the crossroads crone (plakaUdhekryqit) and NOT the cold old woman of the night forest (plakaPyllit).',
+    folklore: ['gjizar'],
+    location: { status: 'placed', node: 'gjizarUdha' },
+    tales: { gjizar: 'wildWoman' },
+  },
+  tigresha: {
+    name: 'tigresha e furrës', glyph: '🫓', kind: 'creature',
+    role: 'the tiger\'s wife, who baked with her own burning',
+    backstory: 'Every baking day she fanned the oven embers with her breasts and lay sick ten days after. The stranger who showed her the leaf-fan bought his life with it: she fed him, hid him in the trunk, and staged the question that turned her husband\'s hunger into friendship. The cleverest bargainer in the tale, and nobody notices.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'keeps the tiger\'s hearth-house proposed up a side path of the dark road (udhetimi1)' },
+    tales: { gjizar: 'tigerWife' },
+  },
+  tigriMalit: {
+    name: 'tigri i malit', glyph: '🐅', kind: 'creature',
+    role: 'the mountain tiger — devourer of strangers, friend of benefactors',
+    backstory: 'He would have eaten the youth on sight; instead his wife\'s staged question made him swear friendship first and meet the man second. He kissed the youth as a friend, could not place the bird, and handed him the door-etiquette for his old blind brother the lion — word for word, down to the backwards approach. NOT the tiger at the Earthly Beauty\'s second door: that one stands a palace post; this one keeps his own hearth.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'the tiger\'s hearth-house proposal off udhetimi1; he ranges the high wild by day' },
+    tales: { gjizar: 'tiger' },
+  },
+  luaniVerber: {
+    name: 'luani i verbër', glyph: '🦁', kind: 'creature',
+    role: 'the blind old lion — king of the wild animals, the last door before the jinns',
+    backstory: 'So old his eyelids have fallen over his eyes, he rules the wild beasts blind. The youth lifted his eyelids and gave him back his sight, and got in return the tale\'s last honest warning: beyond live the savage creatures of the jinns\' realm, where even the king of beasts does not go. NOT the hungry lion of the world-below gate (porta1) — that one eats the unproven at a door; this king keeps a hearth and warns men back. NOT the lion at the Beauty\'s chamber door either.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'the blind lion\'s house proposed farther down the dark road (udhetimi2)' },
+    tales: { gjizar: 'lion' },
+  },
+  luanesha: {
+    name: 'luanesha plakë', glyph: '🥛', kind: 'creature',
+    role: 'the old lioness whose breast makes sons of strangers',
+    backstory: 'She sits turned toward the house, and the only safe approach is backwards, mouth to her breast: whoever suckles and says "I am your son" she must take for a son. The tiger\'s etiquette hangs entirely on her old law of milk-kinship — the wild\'s own version of the guest-right.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'before the door of the blind lion\'s house proposal (udhetimi2)' },
+    tales: { gjizar: 'lionWife' },
+  },
+  plakaShqiponjave: {
+    name: 'plaka e shqiponjave', glyph: '🪺', kind: 'human',
+    role: 'the eagle-mother — the old woman of the house in the wide field',
+    backstory: 'She bakes for three daughters who fly home as eagles and bathe back into maidens at the water-bowl on her table. She fed the doomed stranger first, hid him in the spy-hole closet, and drew the no-harm oath out of her daughters with one careful question before she opened the door. The village telling folds her into the hungry woman of the road (gjizarUdha); in Pedersen she is her own figure. NOT the crossroads crone and NOT the gate-keeper plaka.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'keeps the eagle-house proposed in the wide field off udhetimi2' },
+    tales: { gjizar: 'eagleMother' },
+  },
+  motratShqiponja: {
+    name: 'tri motrat shqiponja', glyph: '🦅', kind: 'mythic',
+    role: 'the three eagle-maidens — eagles by air, maidens by the water-bowl',
+    backstory: 'Three sisters who fly the jinns\' country as eagles and become maidens again bathing in the bowl on their mother\'s table. The stranger\'s sabre cost them a wing, a leg and a beak — and each then swore no harm by the soul of the very man who wounded her. Their price for an hour\'s flight to the Beauty\'s land: three months, a month as husband to each. They set him down in the sleeping courtyard and snatched him back out a breath ahead of five hundred guards. The eldest is the eagle that ferries the player in the gjizarPallat scene. NOT the flesh-fed eagle of the world below (shqiponja1) — that bird takes meat, not months.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'the eagle-house proposal off udhetimi2; their flight-line runs from it to bukura1' },
+    tales: { gjizar: 'eagleSisters' },
+  },
+  rojetBukures: {
+    name: 'rojet e së Bukurës', glyph: '🛡️', kind: 'collective',
+    role: 'the Earthly Beauty\'s watch: five hundred guardsmen and three beast-kept doors',
+    backstory: 'In the era of this tale the Beauty reigned as a queen in her court below, with five hundred guardsmen and a wolf, a tiger and a lion at her three doors. All of them slept through the candle-swap and woke one breath too late. Era-bound to this tale: the palace at bukura1 wears other guards in other eras (a kulshedra in Kordha\'s, none in the player\'s), and none of that clashes — the Beauty is serial, and so are her watches.',
+    folklore: ['gjizar'],
+    location: { status: 'planning', plan: 'era-bound: if ever staged, they belong to a theft-night re-dress of bukura1 (the gjizarPallat scene)' },
+    tales: { gjizar: 'guards' },
+  },
+}

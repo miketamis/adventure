@@ -1,0 +1,176 @@
+================================================================================
+ARIU EDHE DERVISHI — the Albanian original of "The Bear and the Dervish"
+(Elsie's folktale 12; FOLKLORE id: bear-dervish)
+
+Source:  Auguste Dozon, Manuel de la langue chkipe ou albanaise. Grammaire,
+         vocabulaire, chrestomathie (Paris: Ernest Leroux, 1879),
+         chrestomathie tale III, "L'ours et le derviche", pp. 25-28.
+         (Reprinted in Folklor shqiptar 1, Proza popullore, Tirana 1963 —
+         the text Elsie translated.)
+Extract: raw OCR lines 1001-1151 of the local file
+         docs/references/dozon-manuel-langue-chkipe.fr-sq.txt, 2026-07-14.
+Notes:   Dozon prints no Albanian title (French title only). His transcription
+         is French-based: oe-ligature=ë, ou=u, u=y, y=j (gy=gj, ky=q, ny=nj),
+         ç=sh, tç=ç, lh=ll, rh=rr, ts=c, dj=xh, dz=z/x. The beat lines in
+         src/game/data/tales/bear-dervish.js transliterate this text to modern
+         orthography with light OCR repair (e.g. "Kvè"=Qe, "Hrét"=Pret,
+         "nag"=nga, "iï/ñ"=nj as in "n'a du plyéçta"=nja dy pleshta,
+         "odzler"=nxjerrë, "Wanisnœ"=llanisnë, "clôt"=dot, "(16"=dô=do;
+         one OCR sentence break re-seated: "edhé vâte pœr droû. Ariou me te
+         vâtour mœ nœ ergelyé rhœmbéou nœ kâ" — the dervish goes for wood,
+         the bear seizes the ox, as Elsie also reads it).
+         "çékouy"=shekuj: Dozon's own vocabulary glosses "Çékye, seau à
+         traire" (milking pail) — «tre shekuj me gjizë» = three pails of curd.
+RAW OCR TEXT FOLLOWS (page markers "— NN —" kept as printed):
+================================================================================
+III 
+l'ours  et  le  derviche. 
+
+Kvè  nœ  tçobân  kyœ  hiç  nœ  kopé  me  dhœn  ;  kûy  kiç  ndézour 
+me  nœ  ari  kyœ  i  vinte  dita  nga  dit'  edhé  i  mérhte  nga  pésœ  nga 
+gyâçtœ  dhœn.  Nœ  dit'  na  çkôn  nœ  derviç  nga  ayô  kopé;  kœtiy 
+(si  oupœrçœndôç  me  tçobânœ)  i  thôtœ  tçobâni  kyœ,  «  nœ  ari  s  na 
+Ivœ  nœ  hâlh  tœnœ,  po  dita  nag  dit'  na  vyén  edhé  to  na  màrhœ,  s 
+œçtœ  tçaré,  nga  pésœ  nga  gyâçtœ  dhœn.  »  Derviçi  i  thôtœ  kyœ, 
+«  fét  pœr  fét  oûnœ  t'a  vrâs,  edhé  gy  œ-kâfçœ  pa  vrârœ  s  doua  po 
+vétçme  tre  çékouy  me  gyizœ;  »  edhé  tçobâni  i  dhâ  çékouytœ  kyœ 
+kœrkôi  derviçi. 
+
+Ariou  pas  zakônit  kyœ  kiç  érdhi  kyœ  tœ  mérhtey  dhœn.  Me 
+tœ  ârdhour  i  dély  pœrpâra  ariout  derviçi  edhé  si  e  pôkyi  zoûri 
+tœ  hâhey  me  arinœ .  tsilyi  œçtœ  m'i  çœndôçœ.  Ariou  thôçtœ  véten' 
+e  tiy  mœ  tœ  çœndôçœ.  Derviçi  gyéne  i  thôtœ  kyœ,  «  oûnœtrœ  trét 
+si  edhé  kœtœ  goûrin',  »  edhé  atœ  tçast  ndzôri  nga  tôrb'  e  tiy  (me 
+nœ  tertip  kyœ  môs  t'a  çinte  ariou)  nœ  tôp  gyizœ,  pastây  edhé 
+tyétœrin'  edhé  tyétœrin'  edhé  kyœ  tœ  tré  ibœri  si  mielh.  Outçoudit 
+ariou  çoûmœ  edhé  môri  dhé  au  nœ  goûr  tœ  bârdhœ,  po  noûk'  e 
+bœri  dôt  therime  si  edhé  derviçi.  Aère  oubœnœ  vœlhâmœkyœtœ 
+dû.  Pas  nœ  tçikœ  e  môri  ouria  arinœ  edhé  i  thôtœ  derviçit  tœ 
+inérhte  ndôiïœ  kâ  tœ  hânin'  edhé  kûy  tœ  vinte  nœ  pûlh  tœ  prite 
+droû.  Derviçi  i  thôtœ  kyœ,  «  hiky  ti  pœr  kâ,  se  oûnœ  s  e  bœn 
+kaboûlh  tœ  mérh  nœ  kâ,  se  oûnœ  doua  si  ndôiïœ  aslân.  »  Me  kœtà 
+tertipe  çpœtôi  derviçi  nga  zaméti  kyœ  to  tœ  hikyte  me  kâ,  edhé 
+vâte  pœr  droû  ariou.  Me  te  vâtour  mœ  nœ  ergelyé  rhœmbéou  nœ 
+kâ  edhé  e  hôdhi  nœ  krâ'.  Po  derviçi  posakyœ  vâte  pœr  droû,  tç 
+bœri,  mérh  nœ  pe  edhé  Ij'ith  gyithœ  lyizat'  edhé  bœney  sikoûr 
+dônte  t'i  tçkoûlyte  me  nœ  héreç  (me  nœ  tœ  hékyour).  Hrét  ariou 
+derviçin',  po  mœ  s  doûkey.  Oungrit  e  vâte  vétœ  nœ  pûlh  edhé  e 
+gyén  derviçin'  kyœ  bœney  hazœr  gyôga  tœ  tçkoûlytey  me  nœ 
+hérœ  lyizat'.  Tcouditey  ariou  me  vétœ  tœ  tiy  edhé  thôçtœ  kyœ, 
+
+
+—  26  — 
+
+kûv  kyœnga  iï"1  miyœ  hérœm'i  mirœ  nga  oûnœ.  I  thôtœ  pastây 
+derviçit,  «  tç  dô  gyithœ  kœtô  droû  kyœ  ko  niet  t'itçkoûlytç? 
+mérh  5'a  dû  déga  edhé  hâyde.  »  Po  au  i  thôtœ  kyœ,  «oûnœ  s  yâm 
+i  tilhi  tœmârh  dû  droû,po  nœ  (16  mérh  ti,  »  edhé  atœ  tçast  tçkoûlyi 
+ariou  du  déga  nga  Bœ  lyis,  edhé  kthénon'  tek  kiçin'  kânœ,  ezoûri 
+ariou  edhé  e  préou  kânœ. 
+
+Po  pastây  lyipsey  kyœ  t'apikyin'.  I  thôtœ  àriout  derviçi  kyœ, 
+«  oûnœ  tœ  vête  pœr  oûyœ  edhé  ti  drith  miç  tœ  kyœ  tœ  môs  tœ  lyô- 
+dhetç,  »  (i  thé  kœtœ,  se  s  moûnte  tœ  dritlite  nœ  kâ  kâkyœ  tœ 
+mâth),  mérh  nœ  lyekoûrœ  edhévâte  mœ  nœ  goûrhœ  (ayô  goûrhœ 
+kyé  mœ  nœ  çkœmb),  mboûç  lyekoûrœn',  po  me  tœ  hédhour  nœ 
+krâhœ,  noûkœ  moûntey  t'a  mbântey  é  lyeçôn  lyekoûrœn'  nga 
+krâhatœedhé  e  mbân  sa  tœ  mos  tœ  tçpôn'ey.  Priti  ariou  nœ  sahât, 
+tœ  dûtœn',  mœ  sœ  foûndmi  ounis  vétœ  edhé  vête  nœ  atœ  goûrhœn' 
+kiç  vâtour  edhé  derviçi.  Me  tœ  vâtour  i  thôtœ,  «  psé  oumbo- 
+dhise  kâkyœ  çoûmœ?  »  Derviçi  i  thôtœ  kyœ,  «  meytônem  kyœ 
+ngré  goûrhœn'  me  gyithœ  çkœmb,  po  s'e  sielh  dot  mirœ,  se  tœ 
+vin  vétœm  me  lyekoûrœn'  mœ  vyén  toûrp,  po  ngri-e  tî  mâkar 
+lyekoûrœn',  »  edhé  ariou  e  héth  nœ  krâhœ  edhé  nisen'  kyœ  tœ 
+dû.  Tek  étsin'  i  thôtœ  ariou  derviçit,  «  hâ}Tde  tœ  zihemi,  »  po  der- 
+viçi i  thôtœ  kyœ,  «  ikœkœtéy,  se  s  e  hâ  clôt  me  moûa,  »  po  mœ  sœ 
+foûndi  zihen'.  E  çtrœngôn  ariou  derviçinœ  nœ  hérœ  me  kâkyœ 
+foukyi  sa  i  kœtsûen'  sûtœ,  e  çé  ariou  derviçin'  ga  sourâti  k}'œ 
+kyé  i  koûkjr  posi  gyâk  edhé  sût'-e  tiy  i  kiçin'  kœtsûer.  E  pûet  é  i 
+thôtœ,  «  psé  oubœre  kœçtoû?  »  I  thôtœ  derviçi  kyœ,  «  edhé  oûnœ 
+s  di  setç  tœ  bœn,  tœ  tœ  héth  nga  k'yô  ânœ,  bœnè  tsôpœra,  tœ 
+tœ  héth  nga  tyétœra  tsâ  mœ  kéky.  »  I  thôtœ  aère  arion,  «  aman 
+l}rér-mœ,  »  edhé  e  lyâ.  Pas  pâk  vânœ  tek  kiçin  kânœ  edhé 
+çtroûan'  é  hânœ.  Me  tœ  ngrœnœ  dû  kâfçitœ  derviçi  oungôp,  é 
+e  pûet  ariou  kyœ,  «  psé  noûkœ  hâ?  »  Pœrgyigyet  kyœ'  «  tani  s 
+kâm  iïœ  tçikœ  kyœ  hœngra  kâkyœ  dhœn  kour  vâita  pœr  oûyœ 
+(pa  lyé  tœ  môs  tœ  kiç  ngrœnœ  as  iïœ).  Si  sôsnœ  nga  boûka,  i 
+thôtœ  derviçit  ariou,  «  hâyde  tœ  vémi  nœ  çtœpi  time  si  mîky  kyœ 
+}-émi,  »  edhé  e  rnôri  nœ  çtœpi.  Me  tœ  vâtour  porositi  arion  nœnen' 
+edhé  môtrœn'  kyœ  kiç  tœ  mbréinœ  sœpâtœn',  se  to  tœ  vrinte 
+miknœ  k}-œ  sôlhi,  k}-œ  tœ  çpœtônte  nga  au  kyœ  içtey  m'i  çœndô- 
+çœ  nga  vétœ  e  tiy,  edhé  môtr'  e  ariout  me  tœ  dœgyoûar  vét'  e  i 
+thôtœ  derviçit  kœçtoû  dhé  kœçtoû. 
+
+Si  oungris  porositi  ariou  éçtroûanœ  soûfrœn'  edhé  si  hœngrœ 
+
+
+—  27  — 
+
+mfrœ  inirœ  rânœ  e  fléytnœ.  Derviçi  bœri  sikoûr  vàte  atyé  koû 
+kîçin1  çtroûar,  pokûy  vât'  e  oupçé  nœ  iiœ  samâr  t<:'  fiœ  gomâri 
+kyœkfçin'.  Oungrit  ariou  nœ  mes  tœ  nâtœs',  edhé  me  tœ  mârhœ 
+sœpâtœn'  i  ép  tri  kâtœr  sœpâta  edhé  pandéou  see  préou  edhé  vàte 
+prâp'e  rà. 
+
+Pa  ngdMrœ  mirœ  ngrihet'  ariou  edhé  vâte  pœr  droù.  Me  tœ 
+kthùer  çé  derviçin'  kyœ  i  dôlhi  pœrpâra.  Posakyœ  e  pâ  hâpi  sûtœ 
+edhé  outçoudft  me  foûnt.  E  piiel  kyûç  çkôi  atœ  nâtœ;  i  thôtœ 
+kytr,«  fort  mfrœ  çkôva,  po  vétçme  n'a  du  plyéçta  nœ  mes  tœ  nâtœs' 
+mœ  gyœmboûan'.  »  Outçoudlt  me  vétœ  tœ  tiy  çoûmœ  ariou,  k}'œ 
+sœpâtat'  i  doûkeçin'  si  plyéçta,  edhé  mœ  s  dourôi  po  i  trœgôn  mœ 
+sœ  foùndi  atâ  kyœ  i  bœri  ariou  atiy  nâtœn'  kyœ  çkôi,  edhé  i  bœn 
+ridjâ  derviçit  kyœ  t'a  bœnte  dhé  atœ  tœ  çœndôçœ  si  véten'.  Edhé 
+derviçi  i  thôtœ  kyœ,  «  kyô  poûnœ  œçtœ  kolaytçime,  po  vétçme 
+nœ  lyekoûrœ  me  kyoùmeçt  tœ  doua.  »  Niset  ariou  edhé  vête  ga 
+kopé  e  tçobânit.  Me  ta}  vâtour  atyé  ouhelymoùa  çoûmœ  tçobàni 
+kyœ  s  e  kiç  ngôrdhour  akôma.  Kthénet'  ariou  nde  derviçi  me  Lye- 
+koûrœ me  kyoùmeçt  edhé  pasporosisœ  derviçit  ndézi  zyârh edhé 
+voûripœrmbi  zyârh  nœ  kazân  mboûçour  me  kyoùmeçt.  Si  zieou 
+kyoùmeçt  i  mirœ  mirœ,  i  thôtœ  derviçi  kyœ,  «  vœrœ  kôkœn' 
+brœnda  kyœtœ  çœndôçetç,  »  e  voùri  hérœn'  e  pârœ  kôkœn',  po 
+e  dôgyi,  e  voûri  dhé  tœ  dùtœn',  po  me  tœ  vœnœ  dhé  tœ  trétœn'  i 
+ép  derviçi  nœ  tœ  çtûtour,  edhé  kœçtoû  oudôky  brœnda  nœ  kazân. 
+
+Pastây  kthénet'  nde  tçobâni  derviçi  e  i  trœgôn  kyœ  e  vrâou 
+arinœ;  aère  tçobâni  s  dinte  sétç  t'i  bœnte  (i  s  diy  se  koû  t'a  viy"), 
+edhé  i  thôtœ  tç  dôyœ.  Po  derviçi  gy œ-kâfçœ  tyétœr  s  i  môri  po 
+vétçme  nœ  kéts,  edhé  çkôn  sœ  andéysmi  me  gyithœ  kéts,  edhé  e 
+zoûri  nâta  mœ  iïœ  grûkœ  oûykou.  Oûykou  nâtœn',  si  fléyti  der- 
+viçi irhœmbéou  kétsin'  edhé  e  hâ.  Derviçi  ngâ  inâti  dzbâth  bré- 
+kœt'  edhé  zcé  vrimœn'  e  çpélhœs'  oùykout.  Me  tœ  dâlyœ  oûykou  e 
+lyith  nœ  brékœ  edhé  çkôn  me  gyitkœ'tœ.  Çkôn  edhé  degdiset  mœ 
+nœ  fçât  ditœn'  e  dielyœ.  Me  tœ  dâlyœ  kiça  e  çé  prifti  kœtœ  tœ 
+hoûay  edhé  e  pûet  nga  érdhi  edhé  pse  érdhi.  Kùy  i  thôtœ  kyœ, 
+«  érdha  pœr  tœ  çitour  nœ  tçobân,  edhé  kûy  tçohân  œçtœ  çoûm'  i 
+mirœ  edhé  vétç  hamies'  s  dô  gyœ-kâfçœ.  »  Prifti  e  pûet,  «  koû  e 
+ké  tçobânœ?»  I  thôtœ  kyœ,  «  e  kâm  brœnda  nœ  brékœ,  »  edhé  e 
+dhâ  priftit  (tçobânœ),  edhé  prifti  me  tœ  pârœ  e  mérh  é  e  çpie  nœ 
+vœnt  tœ  tiy.  Kûy  derviçi  çkôn  nga  au  fçâti  edhé  i  lyâ  priftit 
+tçobânœ. 
+
+
+—  28  — 
+
+Tœ  nésœrmen'  prifti  hâp  kanâtet'  kyœ  tœ  çfnte  tçobânœ  e  ri, 
+se  a  i  ki<;  odzler  dhœntœ  pœr  tœ  koulhôsour,  po  me  tœ  hâpour 
+kanâtet'  noûkœ  çé  gyœ-kâfçœ,  se  tçobâni  si  oûyk  kyœ  kyé,  s  kiç 
+lyc&nœ  ndônœ  dhœn.  Vête  n'atcé  vœnt  kyœ  kiç  bagetinœ,  po 
+noûkœ  çé  as  nœ  dhœn.  Atœ  tçast  mérh  nœ  dufék  nœ  krâhœ  edhé 
+niset'  tœ  gyénte  derviçin'.  Po  derviçi  nœ  mes  tœ  oûdhœsœ  na 
+gyéti  tsâ  haydoûtœ  k\œ  s  dinin'  se-kyûç  tœ  ndânin'  tsâ  para  kyœ 
+kiçin'  vyédhour.  Me  tœ  pârœ  derviçin'  i  âpin'  parâtœ  kyœ  t'i 
+ndânte  au  si  derviçi  kyœ  kyé.  Po  derviçi  ou  thâ  kyœ,  «  oûnœ  s 
+doua  çérh.  po  œçtœ  mœ  mirœ  kyœ  t'  ou  lyith  yoûve  kyœ  yini  mœ 
+nœ  bûthœ  lyizi.  »  Si  i  lyidhi  mérh  isénœ  e  nérit  edhé  e  héth  nœ 
+djép  tœtiy,mérh  dhé  isénœ  tyétœrit,  dhé  kœçtoû  si  môri  isénœ  e 
+gyithœve,  e  héth  nœ  djép  edhé  kœrtsét. 
+
+Prifti  si  çkôn  andéy  kœtéy  na  degdiset  tek  kyénœ  atâ  hay- 
+doûtœ kyœ  i  kiç  lyidhour  derviçi.  I  pûet  prifti  atâ  kyœ,  «  a  çkôi 
+nœ  derviç  nga  kœyô  oûdha?  se  kûy  mœ  dhâ  nœ  tçobân  kyœ  mœ 
+hœngri  gyithœ  dhoéntœ.  »  Kœtâ  i  thônœ  kyœ,  «  çkôi  edhé  au  na 
+lyidhi  edhé  néve,  po  dzgyith-na  kyœ  tœ  vémi  t'a  zœmœ  gjœ- 
+koûnt.  »  Nisen'  kœtâ  me  gyithœ  priftin'  edhé  si  e  kœrkoûan'  pœr- 
+pâra  s'e  gyétnœ,  vénœ  edhé  plyakôsin'  nœ  çtœpi  tœ  derviçit. 
+Derviçi  posakycé  i  pâ  i  thœrét  fçâtit,  edhé  fçâti  me  tœ  dœgyouâr 
+plyakôs  nœ  çtœpi  tœ  derviçit  edhé  i  zoûnœ  atâ  edhé  i  Wanisnœ. 

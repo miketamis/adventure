@@ -1,0 +1,97 @@
+# ============================================================================
+# Erschaffung des Wolfes (von Hahn No. 105) — raw source extracts
+# The Albanian creation-myth of the wolf ("Why the Wolf Devours").
+#
+# PROVENANCE
+#   [A] Johann Georg von Hahn, Griechische und Albanesische Maerchen 1-2,
+#       Muenchen/Berlin: Georg Mueller, 1918 (repr. of Leipzig 1864), S. 168-169,
+#       No. 105 "Erschaffung des Wolfes". Text as digitised at
+#       http://www.zeno.org/nid/20007819471 (public domain), extracted 2026-07-14.
+#   [B] Johann Georg von Hahn, Albanesische Studien, Jena 1854 — the FIRST
+#       printing, in the mythological notes; raw OCR from the local extract
+#       docs/references/hahn-albanesische-studien.de-sq.txt (lines ~12580-12596).
+#   [C] Maximilian Lambertz, Albanische Maerchen, Wien 1922, pp. 89-90 —
+#       German summary of Hahn 105 with the Albanian curse; raw OCR from
+#       docs/references/lambertz-albanische-marchen.de-sq.txt (lines ~6151-6160).
+#
+# LANGUAGE NOTE — NO ALBANIAN NARRATIVE ORIGINAL EXISTS. Von Hahn recorded the
+# myth in German only. The ONE Albanian sentence preserved verbatim in the
+# sources is the curse itself:
+#   1854/1864/1918 von Hahn:  "Haj e, uk, e pljass e, sche Mehil!"
+#                             (1864 Fraktur prints "pljaß"; OCR shows "uf" for "uk")
+#   1922 Lambertz:            "Haje uk e plase Shemhil!" (OCR "pTase")
+#   modern orthography:       "Haje, ujk, e plase, Shën Mëhill!"
+#   gloss:                    "Eat him, wolf, and make him burst, Saint Michael!"
+# (Transliteration per von Hahn's system: sch->sh, j-glide kept, Mehil->Mëhill.)
+#
+# Searched for an Albanian text and found none: pralla-popullore-shqiptare-1954
+# (no devil-dough-wolf tale), Dozon Manuel, Jarnik, Meyer Grammatik, Lambertz
+# (summary only, German); archive.org full-text 2026-07-14 for "krijimi i
+# ujkut", "haje ujk", "ha krijuesin", "djalli gatoi", "ujku hengri djallin" —
+# zero hits.
+# ============================================================================
+
+── [A] von Hahn 1918 (= 1864), No. 105 ─────────────────────────────────────
+
+105. Erschaffung des Wolfes.
+
+Haj e, uk, e pljaß e, sche Mehil! – Friß ihn, Wolf, und mach ihn bersten,
+heiliger Michael. Dieser Wunsch gilt dem Teufel und damit verhält es sich so.
+
+Als unser Herrgott das erste Menschenpaar schuf, war der Teufel zugegen und
+meinte, daß es mit diesem Kunststück nicht viel auf sich habe und er wohl
+auch zu schaffen verstehe. Unser Herrgott war gerade guter Laune und gab ihm
+also die Erlaubnis, seine Kunst zu probieren. Da machte sich der Teufel einen
+Teig an, wie er es von unserem Herrgott gesehen, knetete daraus eine
+Wolfsgestalt und behauptete, daß so ein Geschöpf weit vollkommener sei als
+unseres Herrgotts Machwerk. –
+
+»Du mußt deinem Geschöpfe aber auch Leben geben,« sprach der Herr, »wie ich
+es bei den meinen getan.« Da machte sich der Teufel daran und blies in sein
+Geschöpf, bis ihm der Atem verging und sein schwarzer Kopf rot und blau wurde
+von der Anstrengung. Doch alles war umsonst.
+
+Endlich ward der Herr dieses vergeblichen Beginnens überdrüssig. Er schlug
+mit einer Gerte dem Wolfsbilde in die Seite – und darum ist der Wolf in der
+Mitte wie eingeknickt – und sprach: »Geschöpf, friß deinen Schöpfer.« Und der
+Wolf lebte, und der erste, den er verschlang, war derjenige, der ihn gebildet
+hatte.
+
+So kommt es, daß der Albanese die Worte des Herrn wiederholt, wenn er dem
+Teufel oder einem andern, den er ebenso lieb hat, Böses wünscht. Was es aber
+mit dem Erzengel Michael für eine Bewandtnis gehabt, das wußte uns niemand zu
+sagen.
+
+── [B] von Hahn 1854, Albanesische Studien (raw OCR, first printing) ───────
+
+WoltMinythe.  Xaj  t  oux  c  nkjao  t  tff  MfiX,—  Friss  ihn  Wolf  und  mach  ihn  bersten,
+h»  Michael!  Dieser  Wunsch  gilt  dem  Teufel,  und  damit  verhfilt  es  sich  also  :  Als  unser  Herr-
+gott das  erste  Menschenpaar  schuf,  war  der  Teufel  zugegen ,  und  meinte,  dass  es  mit  diesem
+Kunststück  nicht  viel  auf  sich  habe,  und  er  wohl  auch  zu  schaffen  verstehe.  Unser  Herrgott
+war  gerade  guter  Laune,  und  gab  ihm  also  Erlaubnis«,  seine  Kunst  zu  probiren.  Da  machte
+sich  der  Teufel  einen  Teig  an,  wie  er  es  von  unserm  Herrgott  gesehen ,  und  knetete  eine
+Wolfsgestalt,  indem  er  behauptete,  dass  so  ein  Geschöpf  weit  vollkommener  sei,  als  unsere
+Herrgotts  Machwerk.  „Du  musst  Deinem  Geschöpfe  auch  Leben  geben;*  sagte  der  Herr,  „wie
+ich  es  bei  den  meine»  gethan."  Da  machte  sich  der  Teufel  daran,  und  blies  in  sein  Geschöpf,
+bis  ihm  der  Athem  verging,  und  sein  schwarzer  Kopf  roth  und  blau  wurde  von  der  Anstren-
+gung. —  Doch  alles  war  umsonst.  Endlich  ward  der  Herr  dieses  vergeblichen  Beginnens  über-
+drüssig. Er  schlug  mit  einer  Gerte  dem  Wolfsmodell  in  die  Seite,  und  darum  ist  der  Wolf
+ia  der  Mitte  wie  eingeknickt,  und  sprach:  „Geschöpf,  friss  Deinen  Schöpfer,"  und  der  Wolf  lebte,
+uad  den  Ersten,  den  er  verschlang ,  war  derjenige,  der  ihn  gebildet  hatte.  So  kommt  es,  dass
+beut  zu  Tage  der  Albanese  die  Worte  des  Herrn  repetirt,  wenn  er  dem  Teufel  Böses  wünscht;
+was  es  aber  mit  dem  Erzengel  Michael  dabei  für  eine  Bewundtm'ss  gehabt,  wusst«  Niemand
+
+── [C] Lambertz 1922, pp. 89-90 (raw OCR, corroborating summary + curse) ───
+
+Hahn  105  (Erschaffung  des
+Wolfes:  Der  Teufel  will  mit  dem  Herrgott  als  Schöpfer
+konkurrieren  und  knetet  einen  Teig,  aus  dem  er  eine
+Wolfsgestalt  bildet.  Er  bringt  es  aber  nicht  zustande,
+dieser  Wolfsgestalt  Leben  einzuflößen.  Da  schlägt  Gott
+der  Wolfsgestalt  mit  einer  Gerte  in  die  Flanke;  da
+wird  sie  lebendig,  ist  aber  seitdem  in  der  Mitte  geknickt.
+Dann  ruft  er  dem  Wolf  zu:  „Geschöpf,  friß  deinen
+Schöpfer!“  Und  der  Wolf  frißt  den  Teufel  auf.  Seitdem
+ist  es  ein  geflügeltes  Wort,  wenn  der  Albaner  jemandem
+Böses  wünscht:  „ Haje  uk  e pTase  Semhil !“  „Friß  ihn,
+Wolf,  und  mach  ihn  platzen,  heiliger  Michael!“

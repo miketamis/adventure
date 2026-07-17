@@ -1,0 +1,86 @@
+// NPCs: the Bridge of Arta cast (ura-e-artes) — see ../npcs/_SCHEMA.md for the
+// format contract. This file is owned by its tale: agents editing other tales
+// must not touch it.
+
+export default {
+  mihalGuri: {
+    name: 'Mihal Guri', glyph: '🔨', kind: 'human',
+    role: 'eldest of the three brother-masons raising the bridge of Arta',
+    backstory: 'Eldest of three brothers from the village of Lluri, near Filiates in Çamëria. When an old wayfarer named the bridge\'s true price, Mihal Guri broke the sworn besa and warned his own wife to stay clear of the errand — so it was his youngest brother Kiço\'s wife, left unwarned, who walked into the trap instead of his. NOT Rozafa\'s three building brothers of Shkodra — a different bridge, a different family, the south\'s own telling, not the north\'s.',
+    folklore: ['ura-e-artes', 'besa'],
+    location: { status: 'planning', plan: 'would stand at the bridge worksite (uraArtes1) once the fuller three-brother telling is staged there — today the compressed scene\'s single "mjeshtër" stands in for all three brothers' },
+    tales: { 'ura-e-artes': 'mihalGuri' },
+  },
+  pano: {
+    name: 'Pano', glyph: '🧱', kind: 'human',
+    role: 'the middle of the three brother-masons',
+    backstory: 'Middle brother of the three raising the bridge of Arta. Like his elder brother Mihal Guri, he broke the sworn silence and warned his own wife away from the bread-errand, leaving only youngest brother Kiço\'s wife unwarned and exposed.',
+    folklore: ['ura-e-artes', 'besa'],
+    location: { status: 'planning', plan: 'would stand at the bridge worksite (uraArtes1) alongside his brothers once staged; folded today into the compressed scene\'s single "mjeshtër"' },
+    tales: { 'ura-e-artes': 'pano' },
+  },
+  kico: {
+    name: 'Kiço', glyph: '⚒️', kind: 'human',
+    role: 'youngest of the three brother-masons; the walled bride\'s husband',
+    backstory: 'Youngest of the three brothers, and the only one who kept the besa of silence — he told his wife nothing of the old wayfarer\'s price. That very faithfulness doomed her: unwarned, she was the first to bring the midday bread, and it was Kiço himself who lured her down into the foundation with the lie of a dropped ring, weeping even as he did it. NOT Kordha or any other lone hero of the game\'s world — this bridge belongs to three brothers together, not to one.',
+    folklore: ['ura-e-artes', 'besa'],
+    location: { status: 'planning', plan: 'would stand at the pier of the bridge worksite (uraArtes1), long after his brothers leave it, once the fuller telling is staged' },
+    tales: { 'ura-e-artes': 'kico' },
+  },
+  nusaVogel: {
+    name: 'nusja e vogël', glyph: '👰', kind: 'human',
+    role: 'the youngest bride, walled alive into the bridge\'s pier',
+    backstory: 'Kiço\'s wife and the mother of his infant son. Unwarned by her own husband, she was the first to bring the masters their midday bread, and was tricked down into the foundation on the pretext of a dropped ring. As the stones rose over her she cried out against her husband\'s cruelty, then asked only that her breast be left free outside the wall to nurse her son, and that a white fig tree grow there for him. Where her breast was left bare a silver spring began to flow, raising the boy and healing the sick ever after. NOT Rozafa — the walled bride of Shkodra\'s castle, sealed by a vila\'s demand and three OTHER brothers entirely: the same ballad-family, a different bridge, a different family, the south\'s own telling.',
+    folklore: ['ura-e-artes', 'rozafa'],
+    location: { status: 'planning', plan: 'would stand walled into the pier at the bridge worksite (uraArtes1) — today the compressed scene\'s single "nusja" already carries her role and both of its endings (uraArtesShpëtim/uraArtesMur)' },
+    tales: { 'ura-e-artes': 'bride' },
+  },
+  vjehrra: {
+    name: 'vjehrra', glyph: '🧕', kind: 'human',
+    role: 'the three brothers\' mother, who sends the daughters-in-law out with the bread',
+    backstory: 'Every morning she calls on one daughter-in-law to carry the masters\' midday bread down to the worksite. Two make their excuses in turn — a child burning with fever, hands still deep in the dough — and it falls to the youngest, unwarned by her husband, to go in their place.',
+    folklore: ['ura-e-artes'],
+    location: { status: 'planning', plan: 'would keep the brothers\' household among the mëhalla\'s many homes (fshatiJeta), once built' },
+    tales: { 'ura-e-artes': 'motherInLaw' },
+  },
+  nusaMadhe: {
+    name: 'nusja e madhe', glyph: '🫓', kind: 'human',
+    role: 'Mihal Guri\'s wife, eldest of the three brides',
+    backstory: 'Warned in secret by her husband, she puts off the mother-in-law\'s errand by pleading a child sick with fever, and the bread passes to the middle bride instead.',
+    folklore: ['ura-e-artes'],
+    location: { status: 'planning', plan: 'would keep the brothers\' household among the mëhalla\'s many homes (fshatiJeta), once built' },
+    tales: { 'ura-e-artes': 'eldestBride' },
+  },
+  nusaMesme: {
+    name: 'nusja e mesme', glyph: '🍞', kind: 'human',
+    role: 'Pano\'s wife, middle of the three brides',
+    backstory: 'Warned in secret by her husband like the eldest bride before her, she too puts off the errand — her hands are deep in the dough — and it falls at last to the youngest, unwarned, bride to go.',
+    folklore: ['ura-e-artes'],
+    location: { status: 'planning', plan: 'would keep the brothers\' household among the mëhalla\'s many homes (fshatiJeta), once built' },
+    tales: { 'ura-e-artes': 'middleBride' },
+  },
+  plakuUdhes: {
+    name: 'plaku i udhës', glyph: '🧙', kind: 'mythic',
+    role: 'the wayfarer who names the bridge\'s price',
+    backstory: 'A stranger who passes the failing worksite once, tells the three brothers what the bridge truly demands — a living soul, a black bull, a black ram, laid in the foundation, and the silence of a sworn besa — and is never seen again. Whether he is a plain old man, as the Çam ballads themselves call him, or the talking bird of the Greek and essay tradition, the wider ballad family never quite settles; only that his price, once named, is paid. NOT plaku i sheshit (a living villager with a fixed daily round in the square) and NOT plaka e ftohtë (the forest\'s cold old woman) — this is a nameless, one-time wayfarer, gone as soon as his word is spoken.',
+    folklore: ['ura-e-artes'],
+    location: { status: 'planning', plan: 'met once on the open road (near start) on the way to the bridge, then gone — no fixed home to draw' },
+    tales: { 'ura-e-artes': 'oldMan' },
+  },
+  pentoretArtes: {
+    name: 'dizet pëntorët', glyph: '👷', kind: 'collective',
+    role: 'the forty apprentices under the three brother-masons',
+    backstory: 'Forty workmen labor by day at the three brothers\' order and watch what they build fall again every night, until the bridge finally holds for good.',
+    folklore: ['ura-e-artes'],
+    location: { status: 'planning', plan: 'would labor at the bridge worksite (uraArtes1) once the fuller telling is staged; folded today into the compressed scene\'s generic "burrat"' },
+    tales: { 'ura-e-artes': 'apprentices' },
+  },
+  djaliKicos: {
+    name: 'djali i Kiços', glyph: '👶', kind: 'human',
+    role: 'Kiço and the youngest bride\'s infant son',
+    backstory: 'Too small to be left alone while his mother carries the bread, he is settled to sleep by his father\'s own promise — and is raised afterward on the milk of the silver spring that flows from his mother\'s wall.',
+    folklore: ['ura-e-artes'],
+    location: { status: 'planning', plan: 'would stay at the brothers\' household (fshatiJeta) until brought to the bridge\'s spring, once staged' },
+    tales: { 'ura-e-artes': 'infant' },
+  },
+}

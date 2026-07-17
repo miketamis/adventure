@@ -1,0 +1,336 @@
+Provenance: two epic songs of the Kângë Kreshnikësh (Songs of the Frontier Warriors)
+cycle — "Deka e Omerit" ("The Death of Omer"), sung by Lulash Zefi of Curraj i
+Epërm (District of Tropoja), and "Ajkuna kjan Omerin" ("Ajkuna Mourns Omer"),
+sung by Mirash Gjoni of the same village. First published in Visaret e Kombit,
+vol. II, ed. Bernardin Palaj and Donat Kurti (Tirana, 1937), pp. 218-223 and
+224-226; reprinted in Folklor shqiptar II, Epika legjendare (Cikli i
+kreshnikëve), Vëllimi i parë, ed. Qemal Haxhihasani (Tirana, 1966), pp. 242-246
+and 247-249. The Albanian text below is transcribed verbatim from the two
+bilingual PDFs published alongside Robert Elsie & Janice Mathie-Heck's English
+translation in Songs of the Frontier Warriors (Këngë Kreshnikësh): Albanian
+Epic Verse in a Bilingual English-Albanian Edition (Wauconda, Illinois:
+Bolchazy-Carducci Publishers, 2004) — retrieved directly from
+albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_19.pdf and
+verse_09_AL_20.pdf (the Wayback-archived copy of AL_19 does not exist; AL_20
+does, at http://web.archive.org/web/2023id_/..., but both were fetched from
+the live site directly, which serves plain HTTP despite the broken HTTPS cert)
+on 2026-07-15.
+
+Orthography note: Gheg highland dialect (Tropoja) as printed by Elsie &
+Mathie-Heck — already modern Albanian orthography, kept as printed; NOT
+transliterated. One suspected OCR/typesetting slip corrected in the tale file
+only (not here): "Ajkuna kjan Omerin" line 78 prints "Mor Homeri i nanës-ooo!"
+where every other refrain in the same lament reads "Omeri" (lines 64, 84) —
+almost certainly a scan artifact, not a second name. Kept as printed below;
+the tale file quotes it corrected to "Omeri" per the schema's OCR-fix allowance.
+
+=============================================================================
+Deka e Omerit
+=============================================================================
+
+Grues s'vet Muji m'i kishte thanë:
+- Çou tri shujtë gadi me na i ba!
+Njat temen me uj prej bunarit,
+Njat t'Halilit me lang prej sheqerit
+5  E njat t'Omerit me tamël prej gjiut.
+Grueja Mujit ka qitë e i ka thanë:
+- Pash at zot, Mujo, qi t'ka dhanë,
+Mos Omerin shpijet me ma tretë,
+Se shtatë Omera t'mirë si i pata,
+10  Shtatë Omera jam kah kjaj e ngrata
+E s'po dij as vorret ku po i kanë,
+Se t'shtatët dekun n'bjeshkë ti m'i ke lanë.
+Muji grues çka qitë e i ka thanë?
+- Mos kjaj djelmt qi n'luftë kanë dekë,
+15  Mos kjaj t'gjallët, qi n'bjeshkë duen me çetue,
+Se dekë ma e amël, s'asht se n'luftë m'u pre,
+N'luftë m'u pre pa i lanë marre vedit.
+Tri shujtë gadi prandej me na i ba,
+Se n'bjeshkë sot un po due me dalë,
+20  Ndoshta e kam exhelin me dekë
+E pa zanat Omeri po m'jet.
+Kur t'i bijë huj djalit gji me pi,
+Lang sheqerit i ap sa t'duej m'u ngi;
+Kur t'i bijë huj djalit për me fjetë,
+25  N'petë t'sylahit e vndoj me fjetë.
+Qatherë grueja tri shujtë i ka gatue.
+N'shpinë gjogave trimat m'u kanë kcye,
+Tim e mjegull gjogat m'i kanë ba,
+N'maje t'bjeshkës fort shpejt kanë dalë,
+30  Tri dit rresht npër bjeshkë janë ndalë,
+Kurrkund çetë me sy s'kanë pa.
+Dikur vonë Muji ka thanë:
+- Ti, Halil, n'Maje t'rreptë me dalë!
+Si n'mujsh kund çetë shkjaut me pa,
+35  Sa ma parë ti ktu me ardhë!
+Shpejt Halili asht çue n'kambë,
+Në shpinë gjogut i ka hipë,
+Ka marrë rrugën nëpër kreshtë,
+Nëpër kreshtë drejtë Majes s'rreptë.
+40  - Ti Omer, Omer Aga i ri,
+A thue tutesh për me ra n'Krajli?
+N'Fushë t'Krajlisë â 'i kullë e bardhë,
+Kulla e bardhë asht kisha e shkjaut;
+N'kjoftë se dera e çilun ka qillue,
+45  Mos guxo kishës me iu afrue;
+N'kjoftë se dera mbyllun ka me kenë,
+Shpërthe derën e mbrendë ngujoju
+E ruej se t'rrejnë shkjetë për me dalë,
+Ruej se t'rrejnë shkjetë për me t'gri;
+50  Se, kur t'dalë nesër drita, daltë e bardhë,
+Shkje t'pafarë tu kisha kanë me ardhë,
+Pse ditë e dielle nesër ka qillue,
+Pushkën shkjeve prej kishet me ua fillue,
+N'tri rrugë kryq un due m'u shtërngue,
+55  Nuk la kend asajt me kalue.
+Si sokol Omeri n'kambë asht çue,
+M'i ka kcye gjogut në shpinë,
+Tim e mjegull gjogun e ka ba.
+Kundruell kishës djali kur ka dalë,
+60  M'ja ka ndalë vrapin gjogut t'bardhë,
+Dorën ballit ja ka vndue,
+Pse turbi me vedi s'i ka qillue,
+Derën e kishës mbyllun e ka gjetë.
+Sa trimnisht tu kisha ka vojtë,
+65  Me nji shtjelm derën e ka thye
+Edhe mbrendë Omeri asht ngujue
+E përmbrapa derën e ka ndry
+E gjithë natën vetun ka ndejë.
+Kur ka nisë drita për me dalë,
+70  Ka pa popin n'kishë kah don me ardhë.
+Djali popin n'pushkë e paska gjue,
+Dekun n'tokë popin e paska lshue.
+N'tanë Krajlninë u qit meiherë kushtrimi,
+Gjithë rreth kishën shkjetë ma kanë rrethue,
+75  S'po pushojnë trimat tue luftue;
+Por kush mbrendë s'ka mujtë me hi,
+Por kush mbrendë s'ka mujtë me pa.
+Nja nandë plumbe Omerit m'i kanë ra,
+Shpirti t'mjerit gadi i ka dalë.
+80  Ç'ish kujtue nji shkinë, e vrafti zoti!
+Ja ka shkrue syretin n'Mujin,
+Ja ka qitë me e pa n'prezore.
+- Del, Omer, me pa i gjallë në je,
+Se na Mujin sot-o ta kem' pre!
+85  Ka qitë Omeri e i ka thanë:
+- Ik, mori shkinë, shkina e palame,
+Se un për Mujin nuk kam dert.
+Ja ka qitë syretin n'Halilin,
+Syretin me konop në fyt.
+90  - Del, Omer, zoti të vraftë,
+Se vra e furë Halilin të kena.
+Shndosh e mirë Muji e Halili ishin,
+Nji sahat pushueshëm trimat s'rrijshin
+Edhe mjaft shkje vra qi kishin;
+95  Por Omerin dojshin për me rre,
+As jasht t'dale për me e vra.
+Kur ja qiten syretin e Halilit,
+Atherë drita iu turbullue
+E kujtoi se â dekë e shkue.
+100  Nji gjamë përdhe Omeri e ka lshue,
+Fill në vesh Halilit te i ka shkue.
+Për tposhtë trimi shpejt asht fillue.
+N'tri rrugë kryq Mujin e ka gjetë.
+- Zo', nji gjamë, Mujo, çka do t'jetë?
+105  Gjamët e Omerit përdhe mue m'kanë ardhë.
+Be në zotin Halili i ka ba,
+Fort ngusht Omeri po asht.
+Halla, n'kambë trimat kankan çue,
+Në shpinë gjogave u kanë hipë,
+110  E kanë marrë rrugën e janë nisë.
+Kundruell fushës së Krajlisë kur kanë ra,
+Sa t'madhe Muj i asht hallakatë,
+Gjethi i ahit, thonë, për tokë ka ra,
+Mnera e madhe shkjetë i ka marre,
+115  Ika e madhe shkjevet u asht dhanë.
+Kanë fillue trimat tue luftue,
+Po don zoti vllaznet me u ndimue,
+Po don zoti e u asht dhanë e mbara,
+Shum kanë vra, ma shum kanë vu përpara,
+120  Larg prej kishet si i kanë largue,
+Kanë kthye prap e kishës iu kanë afrue.
+T'madhe Muji ka bërtitë:
+- A je gjallë, Omer Aga i ri?
+Çou ti derën neve me na çilë!
+125  Be në zotin Omeri ka ba,
+Qi kurrkuj un derën nuk ja çili,
+Për pa ardhë Muji, ndo Halili.
+Atherë Muji i ka thanë:
+- Çou, Omer, derën me na e çilë,
+130  Se ktu asht Muji me Halilin!
+Kqyr çka ka thanë Omeri i ri!
+- Nandë varrë pushket n'shtat i kam,
+Nuk po muj derën me jau çilë,
+Po, si n'kjoshi ju Muji e Halili,
+135  Shtjelm derës ju për me i ra,
+Copë e grimë derën ju po e bani;
+Por n'mos kjoshi Muji e Halili,
+Gjallë s'u la derën për me e çilë.
+Me idhnim Muji derës shtjelm i ka ra,
+140  Copë e grimë derën e ka ba.
+Atherë trimat mbrendë kanë hi,
+Ja kanë ba për hajr varrët Omerit,
+N'vithe t'gjogut Muji e ka vu
+E për vedi me kollana e ka njeshë
+145  E kanë marrë bjeshkën përpjetë.
+Nalt në bjeshkë trimat kur kanë dalë,
+Ma ka folë Omeri nji fjalë:
+- Pash 'i zot, Mujo, qi t'ka dhanë,
+Vend me xanë e ktu m'u ndalë,
+150  Se kah don shpirti për me dalë
+E 'i amanet due me ta lanë,
+Nji fjalë nanës me m'ja thanë,
+Nji fjalë nanës me m'ja çue,
+Thuej "Omerin tu daja e kam çue",
+155  Se jam dekë mos me i diftue,
+Se m'ka dashtë e nis me vajtue,
+Se m'ka dashtë e nis me mjerue,
+Me mjerue e vorrin tuj ma lypë.
+Atherë shpirti Omerit i ka dalë
+160  Edhe n'bjeshkë vorrin ja kanë ba
+E e kanë shkepë nji gur prej malit
+E e kanë lshue mbi vorr të djalit,
+Tri mijë burra mos me mujtë me e luejtë.
+E ç'ka qitë Muji e ka thanë?
+165  - Hej medet, tha, mori bjeshkë,
+Se tetë Omera t'mirë si i paç
+E tetë Omera ndër ju t'dekun i laç.
+Ju u thaçin Bjeshkët e thata,
+Dushk as bar ndër ju kurr mos daltë,
+170  As uj ndër ju kurr mos u piftë!
+Amanet, maje, jau paça lanë:
+Ortek boret ksajt mos me rrxue,
+As ktij vorrit mos t'i afrohet,
+Omeri i ri m'merohet.
+175  Amanet, zogj, jau paça lanë:
+Kurr ksajt, mos me kndue,
+Omeri i ri e m'merohet.
+Amanet, çobaj, jau paça lanë:
+Kurr gjanë ksajt mos me e pru,
+180  Ndien Omeri kumbonët tuj tingllue,
+Ndien baritë fejve kah u binë,
+Asht i ri e përmallohet.
+Amanet, mor llavë, jau paça lanë:
+Kur t'u qesin rruga ksajt me ra,
+185  Mos me britë, as dajre mos me ba,
+Pse kam Omerin ktu djalë të ri,
+M'përmallohet e malli e merr për shpi.
+U kanë hypë gjogave në shpinë
+E n'shpi trimat kur kanë shkue,
+190  Ka fillue grueja e i ka pvetë:
+- Po Omerin, zo', ç'e ka gjetë?
+A thue n'bjeshkë edhe ai si tjerët ka dekë?
+Ka marrë Muji e grues i ka thanë:
+- Na te dajat Omerin e kem' lanë.
+195  Be në zotin prap grueja te u ka ba:
+- Se pa mue Omeri n'daja s'â kanë,
+Por në bjeshkë dekun si e keni lanë.
+- Mori nuse, Halili i ka thanë:
+Na Omerin n'bjeshkë dekun si e kem' lanë
+200  Edhe vorrin n'bjeshkë ja kem' punue,
+Ti veç shndosh me gjithë kta robt tu!
+
+[Sung by Lulash Zefi of Curraj i Epërm (District of Tropoja). Published in:
+Visaret e Kombit, vol. II, ed. Bernardin Palaj and Donat Kurti (Tirana 1937),
+p. 218-223; and Folklor shqiptar II, Epika legjendare (Cikli i kreshnikëve),
+Vellimi i parë, ed. Qemal Haxhihasani (Tirana 1966), p. 242-246.]
+
+=============================================================================
+Ajkuna kjan Omerin
+=============================================================================
+
+Lum për ty, o i madhi zot,
+Qi s'jem' kanë e zoti na ka dhanë!
+Drita â dalë e dritë s'po ban,
+Ka le dielli e nu' po xe!
+5  Ça ka ba, zot, Gjeto Basho Muji?
+Dymbdhetë shokë trimi i ka marrë,
+N'Lugje t'verdha kur ka dalë,
+Djalin shkjetë ja paskan vra.
+Djalin n'dhe Muja e ka shti,
+10  Kurrkush ngjat nuk ka qillue.
+Muji vorrin tue e rmue,
+Veçse zanat tue lotue,
+Veçse shokët qi po e gjamojnë,
+Veçse gurt qi po e mbulojnë
+15  Edhe ahat qi e rrethojnë.
+Mirë bylbylat djalin po e vajtojnë!
+Â dredhë Muja e n'shpi ka shkue,
+Nana e djalit p'e pëvetë:
+- Mujo djalin ç'ma ka gjetë,
+20  N'Lugje t'verdha a thue ka mbetë?
+- N'Lugje t'verdha nuk t'ka mbetë,
+Por ka shkue me bujtë tu dajat.
+Be në zotin Mujit m'i ka ba:
+- Aman, Mujo, djalin ç'ma ke ba?
+25  Atherë trimi ka qitë e i ka thanë:
+- Me e vajtue kur t'shkojsh për dru,
+Zhurmë n'konak nuk due me m'ba,
+Se shkjetë djalin ta kanë vra!
+N'Lugje t'verdha n'daç me e pa,
+30  Aty djalin n'dhe ta kena shti.
+- Qyqja nana e padjalë!
+Ka nisë grueja me bërtitë,
+Sa shpejt jashta Muji e paska qitë.
+Qyqe vetëm rrugën ma paska marrë,
+35  Kanë xanë vend hyjt vajin për me e ndie.
+Kur ka dalë ndër Lugje t'verdha,
+Atherë hanën nana ka mallkue:
+- T'u shkimtë drita ty, o mori han-e,
+Qi s'ma çove at natë nji fjalë,
+40  N'Lugje t'verdha shpejt me dalë,
+Bashkë me hi n'nji vorr me djalë!
+Ndoshta vorri t'dyve s'na kish xanë,
+Ndoshta djali ngjat nuk m'kishte lanë,
+Nji vorr t'ri, por kishe çilë për bri,
+45  Ahit t'malit rixha i kishe ba,
+Gurit t'malit rixha i kishe ba,
+Rrahit t'zi ndër kambë i kishe ra.
+"Ka qillue bjeshka e gjanë
+Gjith ku t'dueni vend me xanë,
+50  Por mue gropën me ma lanë",
+Se aqe vend ma kishin falë.
+Mallkue kjosh, o mori hanë,
+Qysh me e lanë nanën t'padjalë?
+Kur ka shkue te vorri i djalit,
+55  Ka pa ahin treqind vjeç,
+Ahi ishte rrema-rrema,
+Nja ma t'bukrin mbi vorr qi p'e shtri,
+Mirë po pshtetet për degë t'ahit,
+Pikon lodja mbi vorr t'djalit,
+60  Kanë lanë kangën zogjt e malit,
+Kanë lanë kangën me veshtrue!
+Po a s'e din se kush ka ardhë,
+Qi nuk çohesh për m'u falë,
+More i miri i nanës-ooo?!
+65  Amanet, o more bir,
+Del nji herë ksi burgut t'errët,
+Fol me nanën qi t'ka rritë,
+S'm'ke lanë kurr kaq shumë me pritë!
+Ka lshue hana rrezet n'pyllë,
+70  Kanë shkrepë hyjzit nëpër qiellë,
+Pvesin diellin: "A e ke pa?"
+"Nuk po m'len nji ah m'e pa."
+Amanet, pse i lae m'u djerrë?
+Thuej m'kanë mblue me dhe të zi,
+75  Drita e juej mbrendë mos me hi,
+Vaji i nanës-o mos m'u ndie,
+Lodja e nanës-o veç me m'rri,
+Mor Homeri i nanës-ooo!
+A thue gjogun me ta pru?
+80  Del ndoiherë për me lodrue,
+Bjen ndër gurra me u freskue,
+Kërkon majet bashkë me zana,
+Se ty vorrin ta rue nana,
+More i miri i nanës-ooo!
+85  Orët e bjeshkës ma s'und p'e ndiejnë,
+Fjalën n'gojë po ja këthejnë dalë,
+Zemrën s'rrahmi ja kanë ndalë,
+Lott ndër sy mirë po ja krijnë,
+Ftyrën lotsh mirë po ja shijnë,
+90  Vetë e bajnë e e çojnë n'Jutbinë.
+
+[Sung by Mirash Gjoni of Curraj i Epërm (District of Tropoja). Published in:
+Visaret e Kombit, vol. II, ed. Bernardin Palaj and Donat Kurti (Tirana 1937),
+p. 224-226; and Folklor shqiptar II, Epika legjendare (Cikli i kreshnikëve),
+Vellimi i parë, ed. Qemal Haxhihasani (Tirana 1966), p. 247-249.]

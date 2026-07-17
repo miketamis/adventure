@@ -1,0 +1,154 @@
+SOURCE: "Deka e Halilit" (The Death of Halili), a Kângë Kreshnikësh (Song of
+the Frontier Warriors). Sung by Shan Zefi of Curraj i Epërm, District of
+Tropoja. Published in: Visaret e Kombit, vol. II, ed. Bernardin Palaj &
+Donat Kurti (Tirana, 1937), pp. 227-230; reprinted in Folklor shqiptar II,
+Epika legjendare (Cikli i kreshnikëve), Vëllimi i parë, ed. Qemal
+Haxhihasani (Tirana, 1966), pp. 250-252.
+
+EXTRACTION: fetched live (Wayback holds no snapshot of this facsimile) from
+http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_21.pdf
+on 2026-07-15, as a scanned-facsimile PDF reproduced on Robert Elsie's
+albanianliterature.net alongside his and Janice Mathie-Heck's English
+translation (verse_09_21.html, "Death of Halili", in Songs of the Frontier
+Warriors / Kângë Kreshnikësh: Albanian Epic Verse in a Bilingual
+English-Albanian Edition, Bolchazy-Carducci, 2004). Text below is
+pdftotext's own extraction of that facsimile, Gheg spelling and elisions
+kept as printed and curly quote/apostrophe glyphs folded to straight ones
+(a typographic substitution only, no words added or removed); the
+source's own every-fifth-line typesetting numerals are omitted here (kept
+in the beat file's line comments via the verse count instead).
+
+ONE KNOWN PRINTING ANOMALY (verse 28, line below marked [sic]): the
+facsimile gives only a closing quotation mark around Zadrani's oath, with
+no matching opening mark anywhere in the line — apparently a typesetting
+slip in the 1937/1966 print, not an OCR artifact (both quote marks read
+clearly in the scan). Reproduced below exactly as printed. The beat
+file's own Albanian quote (sokol-halili.js, ¶3.3) silently supplies the
+missing opening guillemet for legibility and says so in its
+`albanian.source` note; this raw file keeps the anomaly unresolved.
+
+=============================================================================
+
+Deka e Halilit
+
+In mbledhë treqind agët e Jutbinës.
+Gjumi i randë Halilin ma ka marrë
+Edhe Muji shokve m'u ka thanë:
+- Gjumi Halilit kur t'i dalë,
+Ku â vojtë Muji mos i kallxoni;
+Due me dalë në bjeshkë e me shikjue.
+Prit shka ban Arnaut Osmani!
+Fort me shkelm Halilit qi po i bjen:
+- Çou, Halil, kryet mos e çosh,
+Se Muji â ra në Lugje t'verdha,
+Kaherë Muji luftën e ka nisë
+Edhe Mujin shkjetë ta kanë pre.
+Halla, në kambë Halili asht çue
+E në shpinë gjogut i ka ra,
+Në Lugje të verdha trimi kenka ra,
+E ka ngrehë luftën e po lufton,
+Treqind shkjeve rrethin jau ka qitë,
+Treqind shkje djali i ka pre,
+Gjogu not në gjak po i shkon.
+Pak ma andejna kur â shkue,
+Asht ndeshë në Zadranin e Tetovës.
+Qai Zadrani Halilit po i thotë:
+- Dredh, Halil, zoti të vraftë,
+Dy kushrij në ket luftë qi i ke pre.
+Halili Zadranit po i thotë:
+- Ma ke pre Gjeto Basho Mujin.
+Në të madhin zot be i ka ba,
+Se"në Lugje t'verdha Muji sod s'â kenë." [sic — no opening quotation mark is printed before "në"; only the two closing marks shown here appear in the facsimile]
+Prapu Halil, ma kndej mos hajde,
+E kam pushkën habertare,
+Shtrembët ta mbaj, Halil, ndrejtë të bjen!
+Hiç Halili gjogun s'e ka ndalë.
+E ka dredhë pushkën habertare,
+Në qafë të sylahit Halilit po i bjen,
+Dekun në tokë djali kenka ra.
+Prit çka ban Zadrani i Tetovës!
+Ja ka vndue nji rubë të bardhë,
+Nën nji hije djalin ma ka qitë,
+Ja ka vu tu kambët e tu kryet,
+E ka marrë vajin e po bërtet:
+- Mjeri un, mjeri, Sokole Halili!
+Zot, ku i pshtoj Gjeto Basho Mujit?
+Tu shokët Muji kenka ra.
+Prit çka i thotë Arnaut Osmani,
+Inatçuer Mujin e ki' pasë:
+- Ku je, Muj, zoti të vraftë,
+Se kaherë Halili në Lugje t'verdha â ra.
+Në Lugje t'verdha Muji â ra,
+Gjogu not për gjak po i shkon,
+Me Halilin Muji asht ndeshë.
+- Hajt, Halil, zoti të vraftë,
+Zanat të keq, bir, më ke msue,
+Tanë ket luftë gjumi për me t'marrë.
+Ja ka çue dorën në krahnuer,
+Rrash me gjak dora iu ka mbushë.
+Ma ka vu turbinë në sy,
+Mirë po e sheh Zadran e Tetovës,
+Ja ka lshue nji za fort t'idhtë:
+- Kollaj, thotë, me fmi me luftue,
+Prit 'i herë Gjeto Basho Mujin!
+Tim e mjegull gjogun e ka ba,
+Ngjet Zadranit Muji iu ka avitë.
+Prit shka i thotë Zadrani i Tetovës!
+- Prapu, Muj, bre zoti të vraftë,
+Se Halilin çartë nuk ta kam.
+- Pasha 'i zot, Zadran, qi më ka dhanë,
+Kurr për të gjallë un ty nuk t'lshoj.
+- Pasha 'i zot, Muj, qi më ka dhanë,
+Ti ma kndejna, Muj, për me m'ardhë,
+E kam pushkën, Muj, habertare,
+Shtrembët ta mbaj e ndrejtë të bjen.
+Hiç Muja gjogun s'e ka ndalë.
+E ka dredhë pushkën habertare,
+Në qafë të sylahit Mujos i ka ra,
+Hiç Muji prej gjogut nuk rrxohet.
+E ka dredhë Muji pushkën habertare
+Në qafë të sylahit, tha, Muja i ka ra,
+Të dy gjallë aty kenkan mbetë,
+Të dy fytas qaty kenkan kapë.
+Janë kapë tri dit e tri net.
+Rrezik Muja e ki' pasë,
+Zadrani Mujin e ka rrxue
+Edhe Muja Zadranit po i thotë:
+- Tri fjalë turçe a po m'len me i thanë?
+- Fol shka t'duesh, Gjeto Basho Muja!
+Zanave në shkamb Muja m'u ka britë:
+- Ju ku jeni të lumet e natës,
+Qi probatesha juve u ko' pa' xanë,
+Gjithë tu të bij ma ngusht e ma
+Edhe ndimë kini me m'dhane,
+Se Zadrani shpirtin po ma merr?
+Tha, i ka britë zana prej shkambit:
+- Shtjere dorën në xhep të dollamës,
+Se aty gjen thikën e helmatisun!
+Sall në bri Zadranit t'ja vndosh,
+Se edhe shpirti Zadranin e lshon,
+Ma ka shti dorën në xhep,
+Ma ka gjetë thikën e helmatisun
+E në bri Zadranit ja vndon.
+Përmbi Mujin shpirtin po e lshon.
+Tha, nuk po mund Muji me e rrotullue,
+Sa burrë i madh qi ki' qillue!
+Zanave Muja në shkamb u ka britë:
+- Zadranin, zanë, e kam mbytë,
+Po nuk po muj me e rrotullue
+E nën te shpirti po më lshon.
+Tri zanët fluturim janë çue
+E Zadranin e kanë rrotullue.
+Ma merr Muji Zadranin e ma çilë,
+Tre gjarpij në bark ja ka gjetë,
+Dy in kanë fjetë e nji veç çue.
+- Mjeri, mjeri, Muja tek ka ba,
+Ta kish dijtë, se ksi burri je
+E Halilin ty ta kishe falë,
+Kim sundue turk edhe kaurr.
+
+[Sung by Shan Zefi of Curraj i Epërm (District of Tropoja). Published in:
+Visaret e Kombit, vol. II. ed. Bernardin Palaj and Donat Kurti (Tirana
+1937), p. 227-230; and Folklor shqiptar II, Epika legjendare (Cikli i
+kreshnikëve), Vellimi i parë. ed. Qemal Haxhihasani (Tirana 1966), p.
+250-252.]

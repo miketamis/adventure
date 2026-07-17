@@ -1,0 +1,109 @@
+Plaka me nëntë djelm
+====================================
+An Albanian PROSE recording of the Constantine & Doruntine ballad-tale
+(= the legend Elsie translates in VERSE as "The Ballad of Constantine and
+Dhoqina" — Robert Elsie, Albanian Literature, Oral Verse 4, from Balada
+shqiptare, ed. Vladimir Zoto, Tiranë: Dasara 2006, pp. 57-59, recorded in
+Arpica near Margëlliç/Margariti, Chameria). This is a DIFFERENT textual
+recording of the same ballad type — same core figures and besa-curse, but
+a plainer prose telling with its own details (see discrepancies in the
+tale file). No closer match to Elsie's specific verse text was found in
+the local corpora searched (hahn/jarnik/lambertz/dozon/meyer/fishta — no
+hits for kostandin/konstandin/dhoqin/doruntin outside this one passage).
+
+Source: "Pralla popullore shqiptare", Instituti i Shkencave, Tiranë 1954
+(red. Komisjoni i folklorit, drejt. Zihni Sako), p. 137, tale titled
+"Plaka me nëntë djelm" ("The old woman with nine sons"). Folk text,
+public domain.
+
+Extracted 2026-07-15 from the text layer of the scan circulating online
+(the same 1954-book scan used for mitko-tre-vellezer-bukura-dheut.sq.txt).
+RAW OCR — uncorrected: broken words ("Kcstandinit" = Kostandinit, "s ëmës"
+= s'ëmës), a stray page number (137), and mangled quote marks appear as in
+the scan. A lightly-cleaned per-sentence version lives in
+src/game/data/tales/constantine-doruntine.js (beat lines, third element).
+
+------------------------------------------------------------------------------
+
+Plaka me nëntë djelm
+
+Q e nji plakë që kish nëndë djelm edhe një çupë. Këtë çupë
+martuan ata djelm së largu në një fshat të huaj, thuaj se pa
+dashuri të s ëmës e më tepër nga të gjithë Konstandini vuri ngulmm<
+Pef ta martuar etje.
+e
+137
+Pas ca kohe ngjanë luftëra të mëdha, edhe ata djem vajtën në
+luftë, si gjithë trimat e tjerë, e u vranë të nëndë asij viti. E zeza
+e ëma, helmuarë kaqë tepër, duke mos pasur pranë as çupëzën ndobare që t' i rëkonej asaj, vente mbi varr të djemvet saj, e më tepër
+të Kcstandinit, e thërriste duke qarë mbi të: « 0 Kostandin biri im ! Ku ke
+besën që më dhe? Siellmë çupën që m'e martove sëlargu, se m' u
+doq zemra, e dua t' a shoh, që të shuanj këtë zjarr që kam, edhe
+të halladitem me atë ndopak. Po H vdiqe edhe shkove, o bir !» E
+Kostandini, pasi s' pushonte e ëma së vajtuari, e së ulëryeri, nga të
+keqtë, që i arth, u ngrejt nga varri, e vate tek e motra, edhe e
+mori atë, t' ia shpjerë s' ëmës. Udhës tek ecnin të dy Kostandini me
+të motrën, namëta u kënduan gaiat : Kga, ga, ga, ecën i gjalli me
+të vdekurin". Atëherë i thot' e motra te vëllat: "Kostandin vëllaj im,
+ç' thonë kështu këto gala ?» E ay iu përgjegj : «Nuk' është gjë moj
+motër, se ata si shpesa që janë po këndojnë". Vanë më tej, e u
+kënduan arrabelat: «ciu, ciu, ecën i gjalli me të vdedurin*. E pyet
+prapë e motra Kostandinë, po ai u përgjegj përsëri ashtu, si edhe
+më parë. Duke hequr udhë, u afruan te fshat' i tyre e atje pameta
+u kënduan kën lezet: «ki, ki, ki, shkon i gjalli me të vdekurin". Të
+pastejmen kur ata u nqasën te shtëpija e tyre Kostandini gënjeu të
+motrën duke thën asaj: «Shko ti përpara, pa edh' un po vinj pas teje"
+edhe vate prapë në varr. Ajo hoqi e vate ne der' e shtëpiës,
+edhe trokiti mbë derët, «tak, tak». E ëma thirri; kush është ? «Unë
+jam, jot bijë, po hape", (i tha çupa). E ajo i tha: "nuk je ti, ime bijë»
+Çupa i tha përsëri: unë jam. Pasandaj i tha plaka: «(ut glishtin e
+vogël të dorës nëpër derët, sa të t'a shoh më parë, pa të të
+hap» Edhe çupa e futi glishtin e saj ndëpër derët, papo e ëma posa e pa atë vdiq në çast edhe ajo për brenda, edhe e bija për•jashta derës. As përrallë s' ju rrëfeva, po desha ju gënjeva.
+
+------------------------------------------------------------------------------
+
+LIGHTLY CLEANED (OCR fixes only — broken words repaired, stray page number
+and scan artifacts dropped, apostrophes restored; period-appropriate forms
+like "nji", "ay", "gjersa"-type spellings kept as printed):
+
+Qe një plakë që kish nëntë djelm edhe një çupë. Këtë çupë martuan
+ata djelm së largu në një fshat të huaj, thuajse pa dashuri të s'ëmës,
+e më tepër nga të gjithë Konstandini vuri ngulm për t'a martuar atje.
+
+Pas ca kohe ngjanë luftëra të mëdha, edhe ata djem vajtën në luftë,
+si gjithë trimat e tjerë, e u vranë të nëntë atij viti.
+
+E zeza e ëma, helmuar kaqë tepër, duke mos pasur pranë as çupëzën
+ndonjë që t'i rëkonej asaj, vente mbi varr të djemvet saj, e më tepër
+të Kostandinit, e thërriste duke qarë mbi të: «O Kostandin, biri im!
+Ku e ke besën që më dhe? Sillmë çupën që m'e martove së largu, se
+m'u dogj zemra, e dua t'a shoh, që të shuanj këtë zjarr që kam, edhe
+të halladitem me atë ndopak. Po hy vdiqe edhe shkove, o bir!»
+
+E Kostandini, pasi s'pushonte e ëma së vajtuari, e së ulëryeri, nga
+të keqtë që i erdh, u ngrit nga varri, e vate tek e motra, edhe e
+mori atë, t'ia shpjerë s'ëmës.
+
+Udhës tek ecnin të dy, Kostandini me të motrën, namëta u kënduan
+gajat: «ga, ga, ga, ecën i gjalli me të vdekurin». Atëherë i thotë e
+motra të vëllait: «Kostandin, vëllai im, ç'thonë kështu këto gala?»
+E ai iu përgjegj: «Nuk është gjë, moj motër, se ata si shpesa që
+janë po këndojnë». Vanë më tej, e u kënduan arrabelat: «ciu, ciu,
+ecën i gjalli me të vdekurin». E pyet prapë e motra Kostandinin, po
+ai u përgjegj përsëri ashtu si edhe më parë. Duke hequr udhë, u
+afruan te fshati i tyre, e atje pameta u kënduan kën-lezet: «ki, ki,
+ki, shkon i gjalli me të vdekurin».
+
+Të pastajmen, kur ata u ngasën te shtëpia e tyre, Kostandini gënjeu
+të motrën duke i thënë: «Shko ti përpara, pa edhe unë po vij pas
+teje», edhe vate prapë në varr.
+
+Ajo hoqi e vate në derë të shtëpisë, edhe trokiti mbë derët: «tak,
+tak». E ëma thirri: «Kush është?» «Unë jam, jot bijë, po hape», i
+tha çupa. E ajo i tha: «Nuk je ti, ime bijë». Çupa i tha përsëri:
+«Unë jam». Pasandaj i tha plaka: «Fut gishtin e vogël të dorës nëpër
+derë, sa të t'a shoh më parë, pa të të hap». Edhe çupa e futi gishtin
+e saj nëpër derë. Po e ëma, posa e pa atë, vdiq në çast, edhe ajo
+për brenda, edhe e bija për jashta derës.
+
+As përrallë s'ju rrëfeva, po desha t'ju gënjeva.

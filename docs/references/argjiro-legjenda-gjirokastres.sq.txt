@@ -1,0 +1,141 @@
+Legjenda e Argjirosë — raw extraction for tale-file "argjiro-gjirokastra"
+==========================================================================
+No Elsie translation and no text in any of the local folk-tale corpora exists
+for this legend (checked pralla-popullore-shqiptare-1954.sq.txt and all other
+docs/references/*.sq.txt / *.de-sq.txt / *.fr-sq.txt — a single incidental
+mention of the place-name "Gjirokastër" in an unrelated editorial footnote,
+nothing else). The Albanian text below was extracted directly from the open
+web on 2026-07-15 (curl + WebSearch). Two independent kinds of source:
+
+  (A) THE FOLK LEGEND ITSELF — a short, stable prose telling that circulates
+      almost word-for-word across several independent Albanian sites. Earliest
+      dated copy found: the Gjirokastër Castle heritage/tourism blog run out
+      of Rruga Evlia Çelebi 1, Gjirokastër (elisabetamosho.wordpress.com,
+      post "Legjenda e Argjirosë", 14 Dhjetor 2016). The same text (minus its
+      closing two sentences about the poet) was later syndicated by bordo.al
+      ("Busull" section, "Të njohim Shqipërinë: Legjenda e Kalasë së
+      Gjirokastrës!", 26 Qershor 2019) and reprinted crediting bordo.al by
+      actvusa.com (30 Aug 2023) and observerkult.com (26 Jan 2025). All four
+      copies agree almost verbatim, which is why this file treats it as one
+      stable popular text rather than four different variants.
+
+  (B) THE ETYMOLOGY / HISTORIANS' DEBATE — a separate document: "Një histori
+      e shkurtër e Gjirokastrës" ["A short history of Gjirokastra"], the
+      Albanian-language history page of the Organizata për Ruajtjen dhe
+      Zhvillimin e Gjirokastrës [Gjirokastra Conservation and Development
+      Organization / "Gjirokastra Foundation"] (gjirokastra.org/albanian/
+      al_sublinks/per_gjirokastren/mbi_gjirokastren_historia.html, accessed
+      2026-07-15). This is the SAME organization Wikipedia's own "Princess
+      Argjiro" article footnotes for the leap story, so it is a direct,
+      citable link back to the FOLKLORE card's own source list.
+
+Only very light cleanup applied (silently): missing diacritics restored
+("keshtjella"→"kështjella", "gjalle"→"gjallë", "pikoj"→"pikojë",
+"princeshen"→"princeshën"), one OCR-style typo fixed ("morrën"→"morën" in the
+duplicate copies only — the ORIGINAL bordo.al text already has "morën"
+correctly and is quoted below unedited). Nothing was reworded, reordered, or
+invented. Punctuation and word choice are otherwise exactly as printed.
+
+--------------------------------------------------------------------------
+(A) "Legjenda e Argjirosë" — elisabetamosho.wordpress.com, 14 Dhjetor 2016
+    (fullest copy — includes the closing two sentences about the poet that
+    the bordo.al/actvusa/observerkult reprints all drop)
+--------------------------------------------------------------------------
+
+Kështjella njihet dhe me emrin kalaja e Argjirosë. Princesha Argjiro mendohet
+të ketë qenë sundimtarja e qytetit të Gjirokastrës gjatë shekullit XIV. Ajo
+ishte e martuar me princin e këtij qyteti.
+
+Princesha Argjiro luftoi me turqit kur ata rrethuan kalanë e Gjirokastrës.
+Megjithatë, turqit e morën Gjirokastrën me tradhëti. Prandaj princesha
+Argjiro për të mos rënë e gjallë në duart e turqve, u hodh nga kulla më e
+lartë e kalasë bashkë me djalin e saj foshnjë. Në fakt kjo ishte rruga e
+parë që ajo e bënte me djalin e saj.
+
+Ajo ra drejt te një shkëmb dhe u coptua, por djali i saj mbeti gjallë, dhe
+për ta bekuar filloi të pikojë qumësht. Sipas legjendës thuhet se foshnja
+mbeti gjallë nga guri që pikonte qumësht.
+
+Legjenda thotë që emri i Gjirokastrës vjen pikërisht nga emri i princeshës.
+Prej princeshës trime poeti e këndon shumë atë. Shkrimtari e krahason
+princeshën Argjiro me yllin dhe me diellin.
+
+--------------------------------------------------------------------------
+    cross-check copy — bordo.al/Busull, 26 Qershor 2019 (the version
+    actvusa.com and observerkult.com both reprint, crediting "bordo.al")
+--------------------------------------------------------------------------
+
+Legjendat e kalave tona ndonjëherë janë shumë të ngjashme pasi në bazë të
+tyre kanë një sakrificë të madhe dhe nuk kishte si të ndodhte ndryshe, me të
+njëjtën bazë do ta kishte edhe ajo e Argjiros prej nga mendohet se ka marrë
+edhe emrin kalaja po edhe qyteti, po kjo mbetet hipotezë.
+
+Legjenda e Argjirosë
+
+Kështjella e qytetit të Gjirokastrës, njihet dhe me emrin kalaja e
+Argjirosë. Princesha Argjiro mendohet të ketë qenë sundimtarja e qytetit të
+Gjirokastrës gjatë shekullit XIV. Ajo ishte e martuar me princin e këtij
+qyteti.
+
+Princesha Argjiro luftoi me turqit kur ata rrethuan kalanë e Gjirokastrës.
+Megjithatë, turqit e morën Gjirokastrën me tradhëti. Prandaj princesha
+Argjiro për të mos rënë e gjallë në duart e turqve, u hodh nga kulla më e
+lartë e kalasë bashkë me djalin e saj foshnje.
+
+Ajo ra drejt tek një shkëmb dhe u coptua por djali i saj mbeti gjallë, dhe
+për ta bekuar filloi të pikojë qumësht. Sipas legjendes thuhet se foshnja
+mbeti gjallë nga guri që pikonte qumësht.
+
+Legjenda thotë që emri i Gjirokastrës vjen pikërisht nga emri i princeshës.
+
+--------------------------------------------------------------------------
+(B) "Një histori e shkurtër e Gjirokastrës" — Organizata për Ruajtjen dhe
+    Zhvillimin e Gjirokastrës (gjirokastra.org), accessed 2026-07-15
+    (excerpt — the opening "name" section only; the page continues with a
+    full civic history from antiquity to the present that is out of scope
+    for this tale)
+--------------------------------------------------------------------------
+
+Një histori e shkurtër e Gjirokastrës
+
+Prejardhja e emrit të Gjirokastrës ka një shpjegim mitik dhe dy të tjerë me
+natyrë më historike. Sipas legjendës, gjatë rrethimit përfundimtar të
+qytetit nga turqit, Princesha Argjiro, motra e zotit të qytetit, u hodh nga
+muret e kalasë bashkë me djalin e saj për të mos rënë e gjallë në duart e
+armikut. Që këtu rrodhi edhe emri "kalaja e Argjirosë". (Por kjo duket e
+pamundur mbasi emri i qytetit përmendet që në kohën e Bizantit, pra para
+pushtimit osman). Sipas një shpjegimi tjetër më pak poetik, qyteti e ka
+marrë emrin sipas fjalës greke argjend, argjirokastron, që lidhet me
+ngjyrën e përhime të mureve, rrugëve dhe çative prej guri, të cilat
+vezullojnë si argjend kur lagen nga shiu. Një shpjegim tjetër lidhet me
+emrin e një fisi vendas që jetonte pranë Gjirokastrës: Argjirët.
+
+[...several paragraphs of general civic history omitted...]
+
+Për herë të parë burimet historike e përmendin qytetin me 1336, kur
+kronisti bizantin Johan Kantakuzeni shkruan për Argjirokastron. Nën
+Despotatin e Epirit, qyteti dhe rrethinat ishin nën sundimin e familjes
+feudale Zenebishi.
+
+--------------------------------------------------------------------------
+NOT USED (recorded here, and in the tale file's `discrepancies`, but not
+mined for beat lines — see _SCHEMA.md's rule on diverging variants):
+--------------------------------------------------------------------------
+
+- English Wikipedia ("Princess Argjiro") also carries a wholly separate
+  GREEK literary variant: Kostas Krystallis's 1893 short novel "Argyro the
+  Single-Breasted" (Αργυρώ η Μονοβύζα) — there the castle falls, but the
+  son escapes to Sofratikë and then Kastaniani, is murdered by traitors, and
+  Argyro (who does NOT die) retakes her city in revenge. No leap, no death.
+  This is a 19th-century Greek author's own literary elaboration, not
+  Albanian oral tradition; no Albanian original of it exists to quote.
+- The same Wikipedia article also carries an antiquarian Greek "three royal
+  sisters" founding-myth (Alexandros Georgitsis, 1885): Gianno, Leno and
+  Argyro, each the eponymous founder of a different town. This is a RIVAL
+  etiological myth, not a variant of the leap-legend, and is likewise not
+  Albanian-sourced.
+- The Gjirokastra Foundation's English-language visitor page (gjirokastra.
+  org/gjirokastra/?page_id=2249 — the FOLKLORE card's own second citation)
+  dates the Ottoman capture "by 1420" and adds a third etymology (the
+  "Argyers," an ancient tribe of the Drino valley) — consistent with, but
+  a different document from, the Albanian history page quoted above.

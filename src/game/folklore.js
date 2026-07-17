@@ -308,10 +308,10 @@ export const FOLKLORE = [
   },
   {
     id: 'xhindi',
-    title: 'Xhindi — the jinn of the threshold',
+    title: 'Xhindi — the unseen ones of the threshold',
     category: 'Creature',
     summary:
-      'Invisible spirits (from Arabic jinn, absorbed in the Ottoman centuries) that haunt thresholds, the hearth-ash, water and lonely places in the dead of night. Easily offended, able to help or harm: an unclean or careless foot among them — pouring water out at a threshold after dark, treading where you cannot see — brings sickness, fever or a wasting on the house. The wise move gently at the threshold and the water after dark.',
+      'Invisible spirits (from the Arabic jinn — the genies of the eastern tales — absorbed in the Ottoman centuries) that haunt thresholds, the hearth-ash, water and lonely places in the dead of night. Easily offended, able to help or harm: an unclean or careless foot among them — pouring water out at a threshold after dark, treading where you cannot see — brings sickness, fever or a wasting on the house. The wise move gently at the threshold and the water after dark.',
     sources: [
       {
         label: 'Albanian legendary creatures (Wikipedia)',
@@ -597,11 +597,19 @@ export const FOLKLORE = [
     title: 'The Three Friends and the Earthly Beauty (Kordha, Ylli, Deti)',
     category: 'Folktale',
     summary:
-      'Elsie\'s tale 3: a blood-brotherhood and Kulshedra-slaying quest. A widow\'s son polishes his dead father\'s rusted sabre and renames himself Kordha ("the Sabre"); he swears brotherhood with Ylli ("the Star," whose strength leaps a castle moat carrying all three) and Deti ("the Sea," who dives to any floor). They vow that if one is in danger all will know. Kordha takes the deadly road to the Earthly Beauty, slays Kulshedra, and passes her tests by being clever — drinking the spring with his hands not his knees, picking the apple by hand not teeth. His own life is hidden in his blade (an "external soul"); should he tell where, an enemy could steal it and cast it in the sea.',
+      'Elsie\'s tale 3, from Thimi Mitko\'s Bleta shqypëtare (1878): a blood-brotherhood and Kulshedra-slaying quest. A widow\'s son polishes his dead father\'s rusted sabre and renames himself Kordha ("the Sabre"); he swears brotherhood with Ylli ("the Star," whose strength leaps a castle moat carrying all three) and Deti ("the Sea," who dives to any floor). They vow that if one is in danger all will know. Kordha takes the deadly road to the Earthly Beauty and the watching Kulshedra reads the hero-signs in him — he kneels to drink the spring without using his hands, plucks the apple with his teeth not his hands — before he cuts it in two at the gate. His own life is hidden in his blade (an "external soul"); should he tell where, an enemy could steal it and cast it in the sea.',
     sources: [
       {
         label: 'Albanian Folktales and Legends — Robert Elsie',
         url: 'http://books.elsie.de/b073_albanian-folktales-and-legends/',
+      },
+    ],
+    texts: [
+      {
+        label: '«Tre vëllezër me të bukurën e dheut» — the Albanian original (Mitko 1878, via Pralla popullore shqiptare 1954)',
+        lang: 'sq',
+        url: 'https://doczz.net/doc/2729503/pralla-popullore-shqiptare',
+        local: 'docs/references/mitko-tre-vellezer-bukura-dheut.sq.txt',
       },
     ],
     related: ['bukura-e-dheut', 'lubia', 'scurfhead'],
@@ -1864,8 +1872,14 @@ export const ENDING_LORE = {
   flockaFund: 'flocka',
   periFund: 'peri',
   periKeq: 'peri',
-  xhindFund: 'xhindi',
-  xhindKeq: 'xhindi',
+  // Maro Përhitura — the xhindet's night mill + the full four-act tale
+  maroNataHumbur: 'xhindi',
+  maroDoraShtember: 'xhindi',
+  maroDoraFalje: 'xhindi',
+  maroShtrember: 'xhindi',
+  maroPrincesha: 'xhindi',
+  maroFundi: 'xhindi',
+  maroCiuCiu: 'xhindi',
 
   // Shtriga
   shtrigaIkur: 'shtriga',
@@ -1873,6 +1887,7 @@ export const ENDING_LORE = {
 
   // Sons of the Eagle / Sari Salltëk
   shqipeFund: 'sons-of-eagle',
+  shqipeKapur: 'sons-of-eagle',
   sariFund: 'sari-salltek',
 
   // Snake bridegroom
@@ -1898,6 +1913,7 @@ export const ENDING_LORE = {
 
   // Tomor & Shpirag
   shpiragFund: 'tomor-shpirag',
+  tsFundTomor: 'tomor-shpirag',
 
   // Gjergj Elez Alia / the Baloz
   balozFitore: 'gjergj-elez-alia',
@@ -1931,9 +1947,12 @@ export const ENDING_LORE = {
   // Bear & Dervish / Cuckoo / Bee-Spider / Swallow
   arusheFund: 'bear-dervish',
   cuckooFund: 'cuckoo',
+  cuckooLule: 'cuckoo',
   bletaFund: 'bee-spider-cicada',
   merimangaFund: 'bee-spider-cicada',
+  gjinkallaFund: 'bee-spider-cicada',
   dallendysheFund: 'swallow',
+  dallendysheGjak: 'swallow',
 
   // Katallan
   katallanFund: 'katallan',
@@ -1957,10 +1976,31 @@ export const ENDING_LORE = {
   kordhaZjarr: 'three-friends',
   kordhaProvaVdes: 'three-friends',
   kordhaFund: 'three-friends',
+  prespaLiri: 'legjenda-e-prespes',
+  prespaFund: 'legjenda-e-prespes',
+  argjiroFund: 'argjiro-gjirokastra',
+  argjiroRob: 'argjiro-gjirokastra',
+  aliPashaVdes: 'ali-pashe-tepelena',
+  aliPashaRob: 'ali-pashe-tepelena',
+  binoshetFund: 'binoshet',
+  binoshetHije: 'binoshet',
+  haliliMejdan: 'sokol-halili',
+  haliliJeton: 'sokol-halili',
+  gbMujiFund: 'gjeto-basho-muji',
+  gbMujiVdes: 'gjeto-basho-muji',
+  osmaniLiri: 'arnaut-osmani',
+  osmaniRob: 'arnaut-osmani',
+  halilGarriaFund: 'halil-garria',
+  halilGarriaKeq: 'halil-garria',
+  mujoKaleFund: 'mujo-courser',
+  mujoKaleLarg: 'mujo-courser',
+  aliBajrFund: 'ali-bajraktari',
+  aliBajrKeq: 'ali-bajraktari',
   kordhaDeti: 'three-friends',
 
   // Village vignettes (the bridge of Arta / mill / spring / church / graves)
   uraArtesShpetim: 'ura-e-artes',
+  uraArtesMur: 'ura-e-artes',
   tabakFund: 'ura-e-tabakeve',
   mulliFund: 'kanuni',
   kroiFund: 'hospitality',
@@ -1969,6 +2009,7 @@ export const ENDING_LORE = {
 
   // Oda told-tales (Skanderbeg / the lahuta / the burrnesha)
   skenderFund: 'skanderbeg-legjenda',
+  skenderKeq: 'skanderbeg-legjenda',
   lahutaFund: 'lahuta-cifteli',
   burrneshaFund: 'burrnesha',
 
@@ -1985,17 +2026,18 @@ export const ENDING_LORE = {
   dordolecSyriFund: 'syri-apparati',
 }
 
-// ── AREA FACTOIDS ────────────────────────────────────────────────────────────
-// A factoid you earn NOT by reaching one story node, but by exploring a whole
-// region of the world (see src/game/regions.js). Once you've visited `threshold`
-// of a region's nodes, a banner offers a comprehension test drawn from `quizNodes`;
-// pass it and you earn the factoid (all hearts restored) — the deeper folklore
-// summary + reference links come from the FOLKLORE card `lore`.
+// ── AREA ACHIEVEMENTS ────────────────────────────────────────────────────────
+// An achievement whose DEED is not reaching one story node but exploring a
+// whole region of the world (see src/game/regions.js). Visiting `threshold` of
+// a region's nodes makes it eligible; unlocking it still takes the hard
+// comprehension test drawn from `quizNodes` (see src/game/achievements.js) —
+// the deeper folklore summary + reference links come from the FOLKLORE card
+// `lore`.
 //   region:    a region key from REGIONS in src/game/regions.js
 //   threshold: fraction (0–1) of that region's nodes you must have visited
-//   quizNodes: story nodes whose lines seed the comprehension quiz
+//   quizNodes: story nodes whose lines seed the comprehension test
 //   lore:      FOLKLORE id supplying the summary + source links
-export const AREA_FACTOIDS = [
+export const AREA_ACHIEVEMENTS = [
   {
     id: 'area-tomorr',
     region: 'mountain',
@@ -2033,7 +2075,7 @@ export const AREA_FACTOIDS = [
     blurb:
       'You have climbed every stone of the castle on its rock above the two rivers, where the old man tells the oldest tale: three brothers built by day and the wall fell by night, until it asked for a life. They swore a besa to tell their wives nothing — whichever came with tomorrow’s bread would be walled in. Only the youngest kept his word, so it was his wife, Rozafa, who came. She accepted the stone on one condition: that the wall leave free her right breast to nurse her infant son, her right eye to see him, her right hand to caress him, her right foot to rock his cradle. The castle stands to this day, and people say her milk still seeps, white, from between the stones.',
     threshold: 0.6,
-    quizNodes: ['kalaRozafa', 'kalaVllezer', 'kalaBesa'],
+    quizNodes: ['kalaMur', 'kalaMjegull', 'kalaPlak'],
     lore: 'rozafa',
   },
   {
@@ -3305,7 +3347,7 @@ export const EXTRA_SOURCES = {
   'karkanxholl': [{ label: 'Karkanxholl (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Karkanxholl' }, { label: 'Kallikantzaros — Albanian karkanxholl, the twelve days (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kallikantzaros' }],
   'kukudh': [{ label: 'Kukudh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kukudh' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }],
   'dhampir': [{ label: 'Dhampir (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Dhampir' }],
-  'xhindi': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Jinn — Islamic origin, Ottoman transmission (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Jinn' }],
+  'xhindi': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Jinn (genies) — Islamic origin, Ottoman transmission (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Jinn' }],
   'katallan': [{ label: 'List of Albanian mythological figures (Wikipedia)', url: 'https://en.wikipedia.org/wiki/List_of_Albanian_mythological_figures' }, { label: 'Elsie, Albanian Folktales and Legends', url: 'http://www.albanianliterature.net/folktales/index.html' }, { label: 'Polyphemus — ATU 1137 blinded-ogre motif (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Polyphemus' }, { label: 'Almogavars — \'Katallani\' the one-eyed monster; \'Daedalus dhe Katallani\' (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Almogavars' }],
   'wolf': [{ label: 'Albanian paganism — wolf totem (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Lugat — the wolf drives the lugat back into its grave (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Lugat' }],
   'creation-wolf': [{ label: 'von Hahn 105 \'Erschaffung des Wolfes\' — full text (Zeno.org)', url: 'http://www.zeno.org/M%C3%A4rchen/M/Albanien/Johann+Georg+von+Hahn:+Griechische+und+Albanesische+M%C3%A4rchen/105.+Erschaffung+des+Wolfes' }, { label: 'von Hahn 105 \'Erschaffung des Wolfes\' — full text (Märchenbasar)', url: 'https://maerchenbasar.de/erschaffung-des-wolfes/' }],

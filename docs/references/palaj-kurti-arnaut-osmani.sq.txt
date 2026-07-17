@@ -1,0 +1,207 @@
+Source: "Arnaut Osmani", song no. 13 of the Kângë Kreshnikësh (Songs of the
+Frontier Warriors) cycle. Recorded in Shala (District of Shkodra). Published in:
+Visaret e Kombit, vol. II, ed. Bernardin Palaj & Donat Kurti (Tirana, 1937),
+pp. 130-135; and Folklor shqiptar II, Epika legjendare (Cikli i kreshnikëve),
+Vëllimi i parë, ed. Qemal Haxhihasani (Tirana, 1966), pp. 161-165. Albanian
+original PDF published alongside Robert Elsie & Janice Mathie-Heck's English
+translation at
+http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_13.pdf
+(fetched directly over plain HTTP — the live site's HTTPS is broken but HTTP
+still serves the file; extracted with pdftotext 2026-07-15). Gheg dialect,
+already in modern Albanian orthography as printed by Elsie/Mathie-Heck — no
+transliteration performed; apostrophes mark the source's own elisions (n', m',
+t', etc.); the source PDF's curly apostrophes (' / ') were normalized to
+straight ' to match this project's other Palaj-Kurti transcriptions.
+
+Arnaut Osmani
+
+Lum për ty, o i lumi zot!
+Ça ka ba Arnaut Osmani?
+Dymbdhetë shokë i ka bashkue,
+N'bjeshkë të nalta trimi ka dalë,
+5  Dymbdhetë agët shkjetë ja kanë xanë,
+Jau kanë shti burgagijtë n'kambë,
+N'burg nandë vjet i paskan lanë.
+Shka ka qitë krajli e i ki' pvetë:
+- I cili jush sarajet m'i dojtë?
+10  Atherë foli Sokole Halili:
+- Un n'at çetë, krajl, vetë s'jo' kenë.
+Qysh ka folë ai Osman Aga i ri?
+- Pash nji zot, krajl, qi t'ka dhanë,
+Kurrkand n'qafë ti mos me marrë,
+15  Vetë sarajet t'i kam djegë,
+Vetë un kullat t'i kam shembë
+Edhe landët un t'i kam pre.
+Kqyr ça tha Krajle Kapitani!
+- Mirë se kullat ti m'i dogje,
+20  Gjanë e mallin ku ma çove?
+- Tanë n'Jutbinë, krajl, ta kam çue.
+- Mirë se mallin ti ma more,
+Babë e nanë ti ç'm'i bane?
+- Tha, n'Jutbinë të dy i kam çue,
+25  N'dorë t'tallallit i kam qitë,
+Kurr 'i grosh s'kam mujtë me i shitë;
+Çajren vedit për ta s'dijta,
+N'zyft e n'pezhkve, krajl, t'i ljeva,
+Nuri krajl, un të dy i dogja,
+30  Si zanat qi lufta e ka pasë.
+Ç'kish qitë krajli e kish thanë?
+- Shum hejdi, agaj, due me u ba,
+Thellë në burg un due me u shti,
+Dritë as diell mos t'shofë me sy.
+35  Jau ka shti burgagijtë n'kambë,
+Sall gjashtë vjet tek kenkan ba
+Edhe mbushen dymbdhetë ditë e net,
+Flet Osmani me shokë të vet:
+- I madhi zot, shokë, u vraftë,
+40  Mot tuj shkue e forca tuj u lshue,
+Tuj u plakë e mendja tue u lanë,
+Tuj u plakë e mnera tue u hi,
+Si s'ma msuet mue nji kopili,
+Si të dalim prej ktij burgut të zi.
+45  Sa mirë shokët Osmanit i kanë thanë!
+- Se shko moti, forca s'na ka lshue,
+Se jem' plakë, mendja s'na ka lanë,
+Se jem' plakë, mnera s'na ka hi,
+Por s'po ka kush nesh ban ndoi kopili;
+50  Provë të mdha krajli ka me ba,
+N'qafë vedin kanë me e marrë.
+Be n'zotin Arnauti ka ba:
+- N'shtatë furra t'kuquna me m'shti,
+Qërpiku i synit nji herë s'ka me m'u dridhë,
+55  Por a di shka, more shokët e mij,
+Po provoj sonte m'u shtirë,
+Kesh se deka mue m'ka ardhë,
+Se ishalla n'dhe mue gjallë po m'shtinë;
+Sa t'vijë koha për mjesnatë,
+60  Merrni brimën tuj piskatë;
+Kur t'vijë koha nëpër dritë,
+Merrni brimën tue bërtitë,
+Nisni brimë e nisni gjamë,
+Qi me e ndie krajli n'saraj.
+65  Kambët Arnauti m'i ka shtri,
+M'i ka mbledhë ai duerët mbi parzëm,
+M'u kanë mbledhë shokët për rreth tij,
+Po rreshtohen tanë për 'i rresht,
+Kanë marrë brimë edhe piskamë,
+70  Kanë nisë gjamën tuj gjamue:
+- Mjeri u për ty, vllau i em o vlla!
+Kur kanë lshue gjamën e tretë,
+I ndien krajli n'odë të vet,
+I ndien krajli e po pëvetë:
+75  - Ç'kini ju, more rob të tretun?
+A ju ka ra malli i shpisë,
+A ju ka ra malli i robnisë,
+A u ra n'mend për babë e nanë,
+A u ra n'mend për motër e vlla,
+80  A u ra n'mend për shnjërgja t'bardhë,
+A jau ka mërzitë balta deri n'gju,
+A jau ka merzitë mjekrra për pa u rrue,
+A jau kanë mërzitë kmishat për pa u ndrrue,
+A jau ka merzitë drita për pa dalë?
+85  Ça kanë thanë agët e ngujuem?
+- Asnji asosh, krajl, nuk asht,
+Por nji shoq ne na ka dekë
+E s'po dijmë ku me e shti n'dhe,
+Se hapsanen po na e qelbson.
+90  Besë s'e xen krajli, se ka dekë,
+Por ma thrret çikën e vet,
+Çilcat n'dorë çikës ja ka dhanë
+Edhe t'vogël te i ka thanë:
+- Ulu 'i herë te ai burg i zi
+95  Edhe kqyr se ça ka ndodhë!
+Ka marrë çilcat çika, n'derë ka shkue,
+Dy herë çilc edhe e ka zhdry.
+Kur ka nisë n'at burg me hi,
+Arnautin ma shef shtri;
+100  Bash jaran ma kish pasë at djalë,
+Para krajlit çika ka dalë,
+Ka qitë krajlit e i ka thanë:
+- Kurrnja asqil ndër agaj nuk janë,
+Vig ma kin trimin Osman,
+105  Vig ma kin Osman Agën e ri,
+A ma fal qi n'dhe ta shti,
+Se n'ma dhaç n'dhe me e mblue,
+Si t'më thuejsh kam me t'ndigjue.
+Aspak besë krajli s'e ka xanë,
+110  Njiqind vetë n'derë t'burgut i ka çue,
+Dhetë ma t'fortit mbrendë n'burg i ka shti.
+Krejt i dekun Arnauti ishte gja,
+Jashtë e qitën, krajli ma ka pa.
+Por sa kopil krajli ishte kanë,
+115  Ka nisë provë e provë po ban:
+I ka mbledhë nandë gjarpij shullanit,
+N'gjyks gjarpijt trimit ja ka vu,
+Se sa fort gjarpnat e kanë qokatë,
+Se sa gjallë ish kanë, për t'gjallë s'â ndie.
+120  I ka ndezë dy zjarma t'mdhaj
+E ndërmjet Osmanin ma shtjen,
+Para e mbrapa lkura m'i pelset,
+Gjallë ish kanë, për t'gjallë s'â ndie.
+Aspak besë krajli s'ki' xanë.
+125  M'i ka marrë njizet maje gozhdash,
+Për nën thoj fell ja ka shti,
+Der qi gjaku m'i ka dalë,
+Gjallë ish kanë, për t'gjallë s'â ndie.
+As hiç krajli besë s'kish xanë,
+130  Se i pabesë fort ish kanë!
+Po don krajli edhe 'i provë me e ba:
+M'i ka zgjedhë tridhetë çika t'mira,
+Mirë po i veshë e mirë po i mbathë.
+Te kryet t'deknit ja ka çue,
+135  Për rreth t'deknit bashkë po kcejnë,
+Për rreth t'deknit po lodrojnë,
+Për rreth t'deknit mirë po kndojnë.
+Çika e krajlit tu kryet i ka qillue,
+Mirë Osmani e ka hetue,
+140  Me njen' sy ma ka shikjue,
+Buzën gaz m'iu ka ba.
+Mirë po i qeshë njana anë mustakut.
+Çika e krajlit asht kujtue,
+Përmbi ftyrë rubën ka lshue.
+145  Ç'kanë qitë shoqet e i kanë thanë?
+- Pasha at zot qi na ka dhanë,
+Njetash qeshi Osman Aga i ri.
+- Zoti u vraftë, çika, u ka thanë,
+Se ky djalë 'i herë ka dekë,
+150  Krejt gjynahet zoti ja ka falë,
+Shpirti n'gaz, shoqe, i ka dalë.
+Ça i ka thanë çika babës s'vet?
+- Pash at zot, krajl, qi t'ka dhanë.
+Po gjynah ty si s'asht tue t'ardhë,
+155  Për t'dekun njerin me e mundue
+E gjithëfarë provësh n'te me i provue.
+Paj ka dekë e ka mbarue,
+Era e keqe ktij â tuj ardhë,
+Se tash tri dit ka ndejë mbi tokë,
+160  A thue t'deknit, krajl, po i tutesh?
+Hiqja prangat prej kambet
+Edhe duerët me ja shpengue!
+As hiç krajli s'ka besue,
+Ma ka thirrë balozin me shpatë,
+165  Ndër sy t'tij Osmanin e ka lirue,
+Ja ka hjekë bylegitë prej kambësh,
+Ja ka hjekë prangat prej duerësh,
+Përmbi kryet shpatën ja ka lshue!
+Sa mirë Osmani shpatën e ka hetue,
+170  Fluturim në kambë asht çue,
+Shpatën n'dorë ai po ma merr,
+Si i tërbuem balozin e pret.
+Kurrkuj n'mend s'po i bjen me qindrue,
+Gjithë kujtojnë se i dekni u ngjall,
+175  Mnerë e madhe t'gjithve u ka hi.
+Të tanë dekun i ka ba,
+Synin krajlit ja verboi,
+Krahin krajlit ja shkurtoi,
+Rrash me tokë kullat i rrenoi,
+180  Dymbdhetë agët trimi i pshtoi!
+Tridhetë çikat po i bashkon,
+N'at Jutbinë t'tana po i çon,
+Tridhetë djelm po m'i marton,
+Çikën e krajlit për vedi e ndalon,
+185  Ban denam e ban dyzen,
+Darsëm ban nandë ditë e net!
+Se atje un nuk jam kenë,
+Si kam ndie e si m'kanë thanë;
+Se kto janë prralla prej motit,
+190  Ndimën paçim na prej zotit!

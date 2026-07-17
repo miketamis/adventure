@@ -1,6 +1,9 @@
-import { useMemo, useState, useEffect, useRef } from 'react'
+import { useMemo, useState, useEffect, useRef, Fragment } from 'react'
+import { createPortal } from 'react-dom'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
-import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB } from '../game/folklore.js'
+import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB, EXTRA_SOURCES, RANK } from '../game/folklore.js'
+import { TALES, framesOf, coverageOf, playOf } from '../game/taleBeats.js'
+import { NPC_REGISTRY, NPC_OF_CAST } from '../game/npcRegistry.js'
 import { REGIONS, isWander, assignRegions } from '../game/regions.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
 import { NODE_POS, PLACE_OF } from './nodePositions.js'
@@ -34,6 +37,247 @@ const KIND_COLOR = {
 }
 const KIND_LABEL = {
   start: 'start', hub: 'hub', good: 'good ending', secret: 'secret ending', bad: 'bad ending', node: 'scene',
+}
+
+// node -> the tale-place MOLD it is cast in (the shared "shape" any story reusing
+// this spot must satisfy — the sharing rule). Keyed by the place's ANCHOR node;
+// a sub-scene resolves to its anchor through PLACE_OF. Lets a world-jump chip
+// explain the mold the scene is modelled after.
+const MOLD_BY_NODE = {}
+for (const [tid, t] of Object.entries(TALES)) {
+  for (const pl of t.places || []) {
+    const node = pl.anchor?.node
+    if (!node || pl.anchor.status === 'offstage' || MOLD_BY_NODE[node]) continue
+    MOLD_BY_NODE[node] = { mold: pl.anchor.mold, place: pl.name, emoji: pl.emoji, taleId: tid, taleTitle: t.title }
+  }
+}
+const moldOf = (node) => MOLD_BY_NODE[node] || MOLD_BY_NODE[PLACE_OF[node]] || null
+
+// ===========================================================================
+// RICH HOVER-CARDS — most badges in this console point at another entity (a
+// scene, a figure, a tale, a source, a real event). Hovering any of them pops
+// a portal-rendered preview of that entity so you can read it without leaving
+// the page. One generic <Badge> owns the hover state + click; a per-entity
+// *Body renders the preview inside the shared <HoverCardShell>.
+// ===========================================================================
+// by-id lookups for the preview bodies (the views build their own; these are
+// the module-level ones the shared cards use).
+const FOLKLORE_BY_ID = Object.fromEntries(FOLKLORE.map((f) => [f.id, f]))
+const HISTORY_BY_ID = Object.fromEntries(HISTORY.map((h) => [h.id, h]))
+const CORPUS_BY_ID = Object.fromEntries(CORPUS.map((c) => [c.id, c]))
+// what each node/ending KIND means — for the little colored kind tags
+const KIND_INFO = {
+  start: ['start', 'Where a run begins — the first scene the player sees.'],
+  hub: ['hub', 'An open-world crossroads: a scene with 4+ exits you can leave several ways and always come back to.'],
+  good: ['good ending', 'A winning finish. Completing it makes its achievement eligible and drops you back into the open world.'],
+  secret: ['secret ending', 'A hidden finish reached only by an out-of-the-way path.'],
+  bad: ['bad ending', 'A losing finish — a fate. It costs a heart, but is still recorded.'],
+  node: ['scene', 'An ordinary story scene (fewer than four exits).'],
+}
+// what each play STANCE means — for the role tags in the Beats view
+const STANCE_INFO = {
+  embodied: ['🎮 embodied', 'The player IS this character — their choices are that character\'s actions.'],
+  companion: ['🧍 companion', 'The player rides along with a character and can act on their behalf — a presence not in the source tale.'],
+  witness: ['👁 witness', 'The player only experiences the legend and changes nothing (a cosmological or petrification myth).'],
+}
+
+// The shared card box: a fixed, viewport-clamped panel pinned above/below the
+// badge, non-interactive (pointer-events off) so it never fights the click.
+function HoverCardShell({ rect, width = 380, children }) {
+  const openDown = rect.bottom < window.innerHeight * 0.55
+  const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8))
+  const style = {
+    width, left,
+    ...(openDown
+      ? { top: rect.bottom + 8, maxHeight: window.innerHeight - rect.bottom - 20 }
+      : { bottom: window.innerHeight - rect.top + 8, maxHeight: rect.top - 20 }),
+  }
+  return createPortal(<div className="dbg-hovercard" style={style}>{children}</div>, document.body)
+}
+
+// A badge that reveals a rich preview on hover. `renderBody` (a thunk, called
+// only while hovered) supplies the card contents; omit it for a plain badge.
+// Renders as a <button>/<span>/<a> per `tag`; click/href/etc. pass through.
+function Badge({ tag = 'button', className, title, renderBody, width, children, ...rest }) {
+  const [rect, setRect] = useState(null)
+  const ref = useRef(null)
+  const show = () => ref.current && setRect(ref.current.getBoundingClientRect())
+  const hide = () => setRect(null)
+  const Tag = tag
+  return (
+    <Tag ref={ref} className={className} title={renderBody ? undefined : title}
+         onMouseEnter={show} onMouseLeave={hide} onFocus={show} onBlur={hide} {...rest}>
+      {children}
+      {rect && renderBody && <HoverCardShell rect={rect} width={width}>{renderBody()}</HoverCardShell>}
+    </Tag>
+  )
+}
+
+// --- per-entity preview bodies (rendered inside HoverCardShell) -------------
+// A STORY scene: its place + mold, the whole scene text, and its exits.
+function NodeBody({ node, intro }) {
+  const n = STORY[node]
+  if (!n) return <div className="dbg-hc-miss">unknown scene: {node}</div>
+  const anchor = PLACE_OF[node]
+  const placeName = PLACE_META[anchor]?.name
+  const mold = moldOf(node)
+  const lore = n.end && ENDING_LORE[node] ? FOLKLORE_BY_ID[ENDING_LORE[node]] : null
+  return (
+    <>
+      <div className="dbg-nodecard-head">
+        <code>{node}</code>
+        {n.end && <span className={'dbg-tag ' + n.end}>{n.end} ending</span>}
+        {n.title && <b>{n.title}</b>}
+        {lore && <span className="dbg-nodecard-lore">📖 {lore.title}</span>}
+      </div>
+      {intro && <p className="dbg-nodecard-intro">{intro}</p>}
+      {(placeName || mold) && (
+        <div className="dbg-nodecard-mold">
+          {placeName && <div className="dbg-nodecard-place">📍 {placeName}</div>}
+          {mold && (
+            <div className="dbg-nodecard-moldtext">
+              <b>{mold.emoji} mold — {mold.place}</b> <span className="dbg-nodecard-moldtale">({mold.taleTitle})</span>
+              <span className="dbg-nodecard-moldbody">{mold.mold}</span>
+            </div>
+          )}
+        </div>
+      )}
+      <div className="dbg-lines">
+        {n.text.map(lineOf).map((line, i) => (
+          <div className={'dbg-line' + (line.quote ? ' dbg-quote' : '')} key={i}>
+            <span className="dbg-al">{albanianOf(line)}</span>
+            <span className="dbg-en">{englishOf(line)}</span>
+          </div>
+        ))}
+      </div>
+      {n.blurb && <p className="dbg-blurb">{n.blurb}</p>}
+      {n.options?.some((o) => !o.confuser) && (
+        <div className="dbg-nodecard-exits">
+          {n.options.filter((o) => !o.confuser).map((o, i) => (
+            <div className="dbg-nodecard-exit" key={i}>
+              <span className="dbg-opt-al">{albanianOf(o.text)}</span>
+              <span className="dbg-opt-en">{englishOf(o.text)}</span>
+              {o.to && <span className="dbg-nodecard-to">→ {o.to}</span>}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
+// A folklore entry: title, category, the 3-axis rank, and its summary.
+function LoreBody({ id }) {
+  const f = FOLKLORE_BY_ID[id]
+  if (!f) return <div className="dbg-hc-miss">unknown lore: {id}</div>
+  const nSrc = mergedSources(f).length
+  return (
+    <>
+      <div className="dbg-nodecard-head"><b>{f.title}</b><span className="dbg-tag node">{f.category}</span></div>
+      <RankBar id={id} />
+      <p className="dbg-hc-summary">{f.summary}</p>
+      <div className="dbg-hc-foot">📖 in the Folklore library{nSrc ? ` · ${nSrc} source${nSrc > 1 ? 's' : ''}` : ''}</div>
+    </>
+  )
+}
+// A character: glyph, kind, role, backstory (canon), and where they live.
+function NpcBody({ id }) {
+  const n = NPC_REGISTRY[id]
+  if (!n) return <div className="dbg-hc-miss">unknown NPC: {id}</div>
+  const loc = n.location
+  const where = loc.status === 'placed' ? '🗺 ' + loc.node
+    : loc.status === 'walking' ? '🚶 ' + (loc.route || []).join(' → ')
+    : '📋 ' + loc.plan
+  return (
+    <>
+      <div className="dbg-nodecard-head">
+        <b>{n.glyph} {n.name}</b>
+        <span className={'dbg-tag ' + (NPC_KIND_TAG[n.kind] || 'node')}>{n.kind}</span>
+      </div>
+      <p className="dbg-nodecard-intro">{n.role}</p>
+      <p className="dbg-hc-summary">{n.backstory}</p>
+      <div className="dbg-hc-foot">📍 {where}</div>
+    </>
+  )
+}
+// A tale: title, line-coverage, source, and its shape (beats/cast/places).
+function TaleBody({ id }) {
+  const t = TALES[id]
+  if (!t) return <div className="dbg-hc-miss">unknown tale: {id}</div>
+  const cov = coverageOf(t)
+  return (
+    <>
+      <div className="dbg-nodecard-head">
+        <b>🎬 {t.title}</b>
+        <span className={'dbg-tag ' + (cov.ok ? 'good' : 'bad')}>{cov.covered}/{cov.total} lines</span>
+      </div>
+      <p className="dbg-hc-src">{t.source}</p>
+      <div className="dbg-hc-foot">{t.beats.length} beats · {t.cast.length} cast · {t.places.length} places · click for the timeline</div>
+    </>
+  )
+}
+// A source work: title, provenance line, and its summary.
+function SourceBody({ id }) {
+  const c = CORPUS_BY_ID[id]
+  if (!c) return <div className="dbg-hc-miss">unknown source: {id}</div>
+  return (
+    <>
+      <div className="dbg-nodecard-head">
+        <b>{c.title}</b>
+        <span className="dbg-tag start">{c.local ? '⬇ local' : '🔗 link'}</span>
+      </div>
+      <p className="dbg-hc-src">{c.author} · {c.year} · {LANG_LABEL[c.lang] || c.lang} · <i>{c.license}</i></p>
+      <p className="dbg-hc-summary">{c.summary}</p>
+    </>
+  )
+}
+// A real, datable event: title, era, place, rank, and its summary.
+function HistoryBody({ id }) {
+  const h = HISTORY_BY_ID[id]
+  if (!h) return <div className="dbg-hc-miss">unknown event: {id}</div>
+  return (
+    <>
+      <div className="dbg-nodecard-head"><b>{h.title}</b><span className="dbg-tag secret">📜 {h.era}</span></div>
+      <div className="dbg-hc-src">📍 {h.place}</div>
+      <RankBar id={id} />
+      <p className="dbg-hc-summary">{h.summary}</p>
+    </>
+  )
+}
+// A map place (tale anchor): the mold and every note about the shared spot.
+function AnchorBody({ pl }) {
+  const a = pl.anchor
+  return (
+    <>
+      <div className="dbg-nodecard-head"><b>{pl.emoji} {pl.name}</b><span className="dbg-tag node">{a.status}</span></div>
+      <div className="dbg-nodecard-mold">
+        <div className="dbg-nodecard-moldtext"><b>🧱 mold</b><span className="dbg-nodecard-moldbody">{a.mold}</span></div>
+      </div>
+      {a.mirror && <p className="dbg-hc-line"><b>mirrors:</b> {a.mirror}</p>}
+      {a.proposal && <p className="dbg-hc-line"><b>to build:</b> {a.proposal}</p>}
+      {a.conflicts && <p className="dbg-hc-line"><b>rejected:</b> {a.conflicts}</p>}
+      {a.sharedWith?.length > 0 && <p className="dbg-hc-line"><b>shares the spot with:</b> {a.sharedWith.join(', ')}</p>}
+      {a.node && <div className="dbg-hc-foot">🗺 {a.node}{a.status === 'existing' ? ' · click to open on the World map' : a.status === 'proposed' ? ' · jumps to the nearest built spot' : ''}</div>}
+    </>
+  )
+}
+// A short titled explanation — for kind/status/role tags with no entity behind them.
+function InfoBody({ title, text }) {
+  return (<><div className="dbg-nodecard-head"><b>{title}</b></div><p className="dbg-hc-summary">{text}</p></>)
+}
+function KindBody({ kind }) {
+  const [label, text] = KIND_INFO[kind] || [kind, '']
+  return <InfoBody title={label} text={text} />
+}
+
+// A world-jump chip (the 🗺 blue chips) that reveals the scene card on hover.
+// Same click behaviour as before (goWorld); the card just enriches the old title.
+function NodeChip({ node, label, goWorld, intro, title, className = 'dbg-beat-world', width = 400 }) {
+  return (
+    <Badge tag="button" className={className} title={title} width={width} onClick={() => goWorld(node)}
+           renderBody={STORY[node] ? () => <NodeBody node={node} intro={intro} /> : undefined}>
+      {label ?? node}
+    </Badge>
+  )
 }
 
 // BFS depth from START_NODE over the real (non-confuser) navigation edges.
@@ -73,13 +317,14 @@ function NodeDetail({ id, onPick, goLore }) {
     <div className="dbg-detail">
       <div className="dbg-detail-head">
         <code>{id}</code>
-        {n.end && <span className={'dbg-tag ' + n.end}>{n.end} ending</span>}
+        {n.end && <Badge tag="span" className={'dbg-tag ' + n.end} width={260}
+                         renderBody={() => <KindBody kind={n.end} />}>{n.end} ending</Badge>}
         {n.title && <b>{n.title}</b>}
         {lore && (
-          <button className="dbg-tag dbg-tag-btn node" title={'open ' + lore.title + ' in the Folklore library'}
-                  onClick={() => goLore(lore.id)}>
+          <Badge className="dbg-tag dbg-tag-btn node" onClick={() => goLore(lore.id)}
+                 renderBody={() => <LoreBody id={lore.id} />}>
             📖 {lore.title} →
-          </button>
+          </Badge>
         )}
       </div>
       <div className="dbg-lines">
@@ -108,9 +353,10 @@ function NodeDetail({ id, onPick, goLore }) {
                   {o.grant && <span className="dbg-flag good">+{o.grant}</span>}
                   {o.consumes && <span className="dbg-flag">−{o.consumes}</span>}
                   {tgt ? (
-                    <button className="dbg-jump" onClick={() => onPick(o.to)}>
+                    <Badge className="dbg-jump" onClick={() => onPick(o.to)}
+                           renderBody={() => <NodeBody node={o.to} />}>
                       → {o.to}{tgt.end ? ` (${tgt.end})` : ''}
-                    </button>
+                    </Badge>
                   ) : !o.confuser ? <span className="dbg-flag bad">dead link: {o.to}</span> : null}
                 </span>
               </div>
@@ -253,8 +499,9 @@ function WorldMap({ g, current, setSel, goGraph }) {
           return (
             <div className={'dbg-hub-card' + (h === current ? ' here' : '')} key={h}>
               <div className="dbg-hub-head">
-                <code>{h}</code>
-                {h === current && <span className="dbg-tag start">you are here</span>}
+                <Badge tag="code" renderBody={() => <NodeBody node={h} />}>{h}</Badge>
+                {h === current && <Badge tag="span" className="dbg-tag start" width={260}
+                                         renderBody={() => <InfoBody title="you are here" text="The scene the live game is currently on — where the player would resume." />}>you are here</Badge>}
                 <span className="dbg-hub-line">{oneLiner(h)}</span>
               </div>
               <div className="dbg-exits">
@@ -264,7 +511,7 @@ function WorldMap({ g, current, setSel, goGraph }) {
                   return (
                     <button className="dbg-exit" key={i} onClick={() => goGraph(o.to)}>
                       <span className="dbg-exit-al">{albanianOf(o.text)}</span>
-                      <span className={'dbg-tag ' + kind}>{o.to}</span>
+                      <Badge tag="span" className={'dbg-tag ' + kind} renderBody={() => <NodeBody node={o.to} />}>{o.to}</Badge>
                     </button>
                   )
                 })}
@@ -348,6 +595,9 @@ const VILLAGE_PLACES = [
   // village life (west)
   { id: 'fshatiJeta', x: 322, y: 430, type: 'signpost', label: 'village life', lh: 20 },
   { id: 'vatra', x: 300, y: 378, type: 'hearth', label: 'the hearth', lh: 20 },
+  { id: 'maroShtepi', x: 252, y: 410, type: 'house', label: 'the njerka’s house', lh: 18, roof: '#8d857a' },
+  { id: 'maroTetua', x: 934, y: 512, type: 'house', label: 'the auntie’s house', lh: 18, roof: '#7a6a8d' },
+  { id: 'maroHani', x: 540, y: 84, type: 'house', label: 'the prince’s han', lh: 22, roof: '#a8842f' },
   { id: 'qilim', x: 288, y: 468, type: 'house', label: 'the loom', lh: 18 },
   { id: 'bariu', x: 300, y: 560, type: 'pasture', label: 'shepherd & goats', lh: 18 },
   { id: 'gjysmegjel1', x: 392, y: 566, type: 'rooster', label: 'half-rooster', lh: 14 },
@@ -355,9 +605,10 @@ const VILLAGE_PLACES = [
   { id: 'breshka1', x: 348, y: 614, type: 'house', label: 'the guest', lh: 18 },
   // river quarter (lower-west, along the water)
   { id: 'fshatiLumi', x: 232, y: 616, type: 'stonebridge', label: 'ura e tabakëve', lh: 20 },
-  { id: 'uraArtes1', x: 132, y: 500, type: 'dot', label: 'the new bridge', lh: 13 },
+  { id: 'uraArtes1', x: 196, y: 508, type: 'dot', label: 'the new bridge', lh: 13 },
   { id: 'mulli1', x: 166, y: 602, type: 'mill', label: 'water-mill', lh: 18 },
   { id: 'kroi1', x: 178, y: 674, type: 'spring', label: 'the spring', lh: 18 },
+  { id: 'tabaket1', x: 220, y: 662, type: 'tannery', label: 'the tanners', lh: 18 },
 ]
 
 const VILLAGE_DISTRICTS = [
@@ -446,12 +697,12 @@ const TOWN_STREETS = [
   { id: 'highN', way: [[458, 72], [452, 150], [468, 238], [486, 310], [492, 350]] },              // crossroads → the square's north gate
   { id: 'market', way: [[505, 518], [508, 560], [498, 606], [472, 662], [438, 716], [400, 762], [372, 790]] }, // the square → pazari → fields, joining the south road
   { id: 'riverRd', way: [[398, 474], [352, 512], [300, 556], [258, 592], [236, 612]] },           // the square's west corner → down to the tanners' bridge
-  { id: 'bank', way: [[214, 514], [224, 562], [236, 612]] },                                       // the river-bank road: hero bridgehead → the tanners' bridge
+  { id: 'bank', way: [[214, 514], [224, 562], [236, 612]] },                                       // the river-bank road: the new-bridge worksite → the tanners' bridge
   { id: 'southRing', way: [[510, 522], [566, 542], [630, 564], [710, 582], [790, 578], [846, 550], [872, 508], [878, 468]] }, // around the palace's south wall to the back lanes
   { id: 'kishaLn', way: [[453, 154], [414, 166], [378, 176]], minor: true },                       // the church lane off the high street
   { id: 'jetaLn', way: [[390, 452], [340, 442], [318, 420], [302, 392]], minor: true },            // the village-life lane: plaza west gate → the hearth
-  { id: 'deck', way: [[212, 512], [132, 496], [56, 476]], hidden: true },                          // the hero bridge deck (gBridgeDeck draws it)
-  { id: 'tanDeck', way: [[236, 614], [186, 634], [140, 622]], hidden: true },                      // the tanners' bridge crossing (gStoneBridge draws it)
+  { id: 'deck', way: [[212, 512], [132, 496], [56, 476]], hidden: true },                          // the NEW bridge's line — half-built, no crossing yet (gUraArtes draws it); kept in the network so the worksite needs no spur
+  { id: 'tanDeck', way: [[236, 614], [186, 634], [140, 622]], hidden: true },                      // the tanners' bridge crossing — the town's ONE real crossing (gStoneBridge draws it)
   { id: 'palaceRd', way: [[516, 440], [576, 452], [618, 470]], hidden: true },                     // the palace approach (drawn in the palace block)
 ]
 const TOWN_STREET_PATHS = TOWN_STREETS.map((s) => ({ ...waypointPath(s.way, hashStr('st:' + s.id)), hidden: !!s.hidden, minor: !!s.minor }))
@@ -897,6 +1148,27 @@ function gSpring(x, y) {
   )
 }
 
+// the tanners' bank — a hide stretched on its drying frame beside the tanning vat
+function gTannery(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(2, 10, 14, 4)}
+      {/* drying frame: two posts and a crossbar */}
+      <line x1={-11} y1={8} x2={-11} y2={-12} stroke="#6f4f34" strokeWidth={2.2} />
+      <line x1={7} y1={8} x2={7} y2={-12} stroke="#6f4f34" strokeWidth={2.2} />
+      <line x1={-13} y1={-12} x2={9} y2={-12} stroke="#6f4f34" strokeWidth={2.2} />
+      {/* the stretched hide, hung from the bar */}
+      <path d="M -9 -10 L 5 -10 L 6 -3 Q 4 4 1 3 L -2 6 L -4 1 Q -8 2 -8 -3 Z"
+        fill="#c9955c" stroke="#8a5d3a" strokeWidth={1.3} strokeLinejoin="round" />
+      <line x1={-6} y1={-10} x2={-6} y2={-12} stroke="#4f3a2a" strokeWidth={1} />
+      <line x1={2} y1={-10} x2={2} y2={-12} stroke="#4f3a2a" strokeWidth={1} />
+      {/* the tanning vat, its liquor dark with oak-bark */}
+      <ellipse cx={14} cy={9} rx={6.5} ry={3} fill="#7a5a3a" stroke="#4f3a2a" strokeWidth={1.3} />
+      <ellipse cx={14} cy={8} rx={4.6} ry={1.8} fill="#5a4028" />
+    </g>
+  )
+}
+
 function gChurch(x, y) {
   return (
     <g transform={`translate(${x},${y})`}>
@@ -1025,15 +1297,46 @@ function gRoadmark(x, y) {
   )
 }
 
-function gBridgeDeck() {
-  // the wooden footbridge over the river (drawn in place, spans the water on the WEST edge)
+// ── URA E ARTËS — the NEW bridge, HALF-BUILT (the walled-bride ballad: what the
+// brothers raise by day falls in the night). Stone deck reaches from the EAST
+// bankside worksite (uraArtes1) out past mid-river, ends ragged at open wooden
+// scaffolding; fallen stones lie in the water below the gap. It never touches
+// the west bank — the only true crossing stays the old tanners' stone bridge. ──
+function gUraArtes() {
+  // the span's line: east bridgehead [204,510] toward the west bank [56,476];
+  // the river channel lies under t ≈ 0.10..0.51 of this line, so the works
+  // stop at mid-channel (t=0.30) and the scaffolding stands IN the water
+  const P = (t) => [204 + (56 - 204) * t, 510 + (476 - 510) * t]
+  const [ex, ey] = P(0), [mx, my] = P(0.3) // built portion stops mid-river
   return (
     <g>
-      <line x1={212} y1={512} x2={56} y2={476} stroke="#6f4f34" strokeWidth={22} strokeLinecap="round" />
-      <line x1={212} y1={512} x2={56} y2={476} stroke="#a9825f" strokeWidth={16} strokeLinecap="round" />
-      {Array.from({ length: 10 }, (_, i) => {
-        const t = i / 9, x = 212 + (56 - 212) * t, y = 512 + (476 - 512) * t
-        return <line key={i} x1={x - 7} y1={y - 9} x2={x + 7} y2={y + 9} stroke="#5c4230" strokeWidth={2} />
+      {/* the built stone deck, out from the east bank */}
+      <line x1={ex} y1={ey} x2={mx} y2={my} stroke="#6f6759" strokeWidth={17} strokeLinecap="butt" />
+      <line x1={ex} y1={ey} x2={mx} y2={my} stroke="#cfc8ba" strokeWidth={12} strokeLinecap="butt" />
+      {Array.from({ length: 3 }, (_, i) => {
+        const [px, py] = P(0.3 * (i + 1) / 4)
+        return <line key={i} x1={px} y1={py - 5} x2={px} y2={py + 6} stroke="#9a938a" strokeWidth={1.4} />
+      })}
+      {/* the ragged working end: raw blocks waiting to be laid */}
+      <rect x={mx - 4} y={my - 7} width={8} height={6} fill="#b8b0a0" stroke="#6f6759" strokeWidth={1.2} transform={`rotate(-13 ${mx} ${my})`} />
+      <rect x={mx - 1} y={my + 2} width={7} height={5} fill="#cfc8ba" stroke="#6f6759" strokeWidth={1.2} transform={`rotate(9 ${mx} ${my})`} />
+      {/* wooden scaffolding staked on over the open water — poles, cross-brace,
+          one loose plank walkway running off the built edge */}
+      {[0.37, 0.45].map((t, i) => {
+        const [px, py] = P(t)
+        return (
+          <g key={'sc' + i}>
+            <line x1={px - 4} y1={py + 9} x2={px - 3} y2={py - 11} stroke="#6f4f34" strokeWidth={2.4} strokeLinecap="round" />
+            <line x1={px + 4} y1={py + 9} x2={px + 3} y2={py - 11} stroke="#6f4f34" strokeWidth={2.4} strokeLinecap="round" />
+            <line x1={px - 6} y1={py - 2} x2={px + 6} y2={py - 5} stroke="#8a6845" strokeWidth={1.8} />
+          </g>
+        )
+      })}
+      <line x1={mx} y1={my - 6} x2={P(0.45)[0]} y2={P(0.45)[1] - 8} stroke="#a9825f" strokeWidth={3.4} strokeLinecap="round" />
+      {/* the night's toll: fallen stones in the water downstream of the gap */}
+      {[[0.32, 12], [0.38, 17], [0.44, 11], [0.5, 14]].map(([t, dy], i) => {
+        const [px, py] = P(t)
+        return <ellipse key={'fs' + i} cx={px + 2} cy={py + dy} rx={3.4} ry={2.4} fill="#8b8378" stroke="#5b5348" strokeWidth={0.9} opacity={0.85} />
       })}
     </g>
   )
@@ -1334,6 +1637,7 @@ const GLYPH = (pl) => {
     case 'garden': return gGarden(x, y)
     case 'mill': return gMill(x, y)
     case 'spring': return gSpring(x, y)
+    case 'tannery': return gTannery(x, y)
     case 'church': return gChurch(x, y)
     case 'graves': return gGraves(x, y)
     case 'pasture': return gPasture(x, y)
@@ -1361,7 +1665,7 @@ const VILLAGE_IDS = new Set(VILLAGE_PLACES.map((p) => p.id))
 // The village (≈ Tirana) stays centred; the ONE river runs down its WEST side
 // from Mount Tomorr (top-centre, south-up) to Rozafa castle at the river-mouth
 // (bottom-centre), with Lake Shkodra beside it. The great forest lies west
-// across the river (the hero bridge crosses to it); the Adriatic fills the east.
+// across the river (the tanners' stone bridge crosses to it); the Adriatic fills the east.
 // The world below hangs deepest, down through the village well.
 function hashStr(s) {
   let h = 2166136261
@@ -1606,7 +1910,7 @@ function terrForest(rg) {
   // to scattered trees at the rim where it dissolves into meadow; a mossy floor
   // and a small clearing read through the gaps.
   const { cx, cy, rx, ry } = rg, rnd = mulberry32(23), trees = []
-  const clearing = [-430, 452] // the camp glade — at the END of the hero-bridge road (VILLAGE_ROADS), where lendina stands
+  const clearing = [-430, 452] // the camp glade — at the END of the forest road (VILLAGE_ROADS), where lendina stands
   for (let k = 0; k < 150; k++) {
     const a = rnd() * Math.PI * 2, rr = Math.sqrt(rnd())
     const x = cx + Math.cos(a) * rx * rr, y = cy + Math.sin(a) * ry * rr
@@ -2005,14 +2309,15 @@ const WORLD_SCATTER = (() => {
 // down to Rozafa; the coast road handles the reach out to the sea).
 // The network: from the crossroads (top of the village) a road climbs NORTH to
 // Mount Tomorr; the village high-street runs SOUTH down the river's east bank to
-// Rozafa at the mouth; the HERO BRIDGE road crosses the river WEST to the great
+// Rozafa at the mouth; the FOREST road crosses the river WEST over the tanners'
+// stone bridge (the town's one finished crossing) and wanders to the great
 // forest; and a coast road runs EAST from the river-mouth to the sea.
 // mountain tracks and country roads WIND — every road is a chain of S-bends
 // hugging the terrain, never one surveyed sweep.
 const VILLAGE_ROADS = [
   'M 458 66 C 442 6 462 -46 434 -98 C 410 -142 370 -158 356 -196 C 344 -230 326 -258 300 -282', // crossroads → Tomorr: a climbing switchback track
   'M 458 78 C 486 190 448 300 466 420 C 480 520 430 620 396 720 C 366 812 372 910 342 1010 C 318 1092 322 1210 300 1320', // high-street S, weaving with the land down to Rozafa
-  'M 214 476 C 160 494 118 470 60 484 C -20 502 -90 470 -170 478 C -270 488 -350 462 -430 452', // hero-bridge road W, wandering into the forest
+  'M 140 622 C 122 612 106 604 92 598 C 20 568 -80 500 -170 478 C -270 488 -350 462 -430 452', // forest road W: from the tanners' west bridgehead past the traveller's camp (start), wandering into the forest
   'M 322 1372 C 380 1348 420 1298 474 1264 C 520 1234 548 1180 590 1146 C 612 1128 630 1106 640 1090', // coast road: river-mouth → the bay shore
 ]
 // ONE river: springs from Mount Tomorr (top-centre), bows down the village's WEST
@@ -2039,7 +2344,7 @@ const REGION_LABEL_POS = {
 }
 
 // `world` carries live world-state for state-drawn glyphs (world.fire = fireStateOf)
-export function VillageMap({ g, current, goGraph, compact, follow, world, npcs }) {
+export function VillageMap({ g, current, goGraph, compact, follow, world, npcs, jumpTo }) {
   const scatter = useMemo(() => {
     const rnd = mulberry32(20260708)
     const trees = []
@@ -2370,6 +2675,16 @@ export function VillageMap({ g, current, goGraph, compact, follow, world, npcs }
     const k = 1.4 // zoom in close on the current scene (the minimap follows the player)
     setView({ x: 580 - p[0] * k, y: 380 - p[1] * k, k })
   }, [follow, current, pos])
+  // EXTERNAL JUMP (e.g. a 🎬 Beats place link): select the node and centre on
+  // it. jumpTo is an {id} object so re-clicking the same link recentres again.
+  useEffect(() => {
+    if (!jumpTo?.id) return
+    const p = pos[jumpTo.id]
+    if (!p) return
+    setSel(jumpTo.id)
+    const k = 1.4
+    setView({ x: 580 - p[0] * k, y: 380 - p[1] * k, k })
+  }, [jumpTo, pos])
   const svgRef = useRef(null)
   const drag = useRef(null)
   useEffect(() => {
@@ -2388,16 +2703,42 @@ export function VillageMap({ g, current, goGraph, compact, follow, world, npcs }
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => el.removeEventListener('wheel', onWheel)
   }, [])
-  const onDown = (e) => { drag.current = { sx: e.clientX, sy: e.clientY, vx: view.x, vy: view.y, moved: false } }
-  const onMove = (e) => {
-    if (!drag.current) return
-    if (Math.abs(e.clientX - drag.current.sx) + Math.abs(e.clientY - drag.current.sy) > 3) drag.current.moved = true
-    const r = svgRef.current.getBoundingClientRect()
-    const dx = ((e.clientX - drag.current.sx) / r.width) * 1160, dy = ((e.clientY - drag.current.sy) / r.height) * 760
-    setView((v) => ({ ...v, x: drag.current.vx + dx, y: drag.current.vy + dy }))
+  // PANNING bypasses React: a setView per pointermove re-renders the whole
+  // map (thousands of SVG elements) at touch-event rate, and mobile Safari
+  // kills the tab. During a drag the transform is written straight onto the
+  // <g> (rAF-throttled); state commits once, when the pointer lifts.
+  const panGRef = useRef(null)
+  const panRaf = useRef(0)
+  const justDragged = useRef(false)
+  const onDown = (e) => {
+    if (drag.current) return
+    try { e.currentTarget.setPointerCapture(e.pointerId) } catch { /* synthetic or already-released pointer */ }
+    drag.current = { id: e.pointerId, sx: e.clientX, sy: e.clientY, vx: view.x, vy: view.y, x: view.x, y: view.y, k: view.k, moved: false }
+    justDragged.current = false
   }
-  const onUp = () => { drag.current = null }
-  const onBackdrop = () => { if (!drag.current || !drag.current.moved) { setSel(null); setOpenPlace(null) } }
+  const onMove = (e) => {
+    const d = drag.current
+    if (!d || e.pointerId !== d.id) return
+    if (Math.abs(e.clientX - d.sx) + Math.abs(e.clientY - d.sy) > 3) d.moved = true
+    const r = svgRef.current.getBoundingClientRect()
+    if (!r.width || !r.height) return // mid-layout; a 0-size rect would divide to Infinity
+    d.x = d.vx + ((e.clientX - d.sx) / r.width) * 1160
+    d.y = d.vy + ((e.clientY - d.sy) / r.height) * 760
+    if (!panRaf.current) panRaf.current = requestAnimationFrame(() => {
+      panRaf.current = 0
+      const dd = drag.current
+      if (dd && panGRef.current) panGRef.current.setAttribute('transform', `translate(${dd.x} ${dd.y}) scale(${dd.k})`)
+    })
+  }
+  const onUp = (e) => {
+    const d = drag.current
+    if (!d || (e.pointerId !== undefined && e.pointerId !== d.id)) return
+    drag.current = null
+    if (panRaf.current) { cancelAnimationFrame(panRaf.current); panRaf.current = 0 }
+    justDragged.current = d.moved
+    if (d.moved) setView((v) => ({ ...v, x: d.x, y: d.y }))
+  }
+  const onBackdrop = () => { if (!justDragged.current) { setSel(null); setOpenPlace(null) } }
   const zoomBy = (f) => setView((v) => { const k = Math.min(3.4, Math.max(0.16, v.k * f)); return { x: 580 - (580 - v.x) * (k / v.k), y: 380 - (380 - v.y) * (k / v.k), k } })
   // in the small docked minimap, enlarge the ds-driven detail (the "where to
   // next" edge-lines + scene labels) so they stay legible at the shrunk size.
@@ -2460,7 +2801,7 @@ export function VillageMap({ g, current, goGraph, compact, follow, world, npcs }
             </linearGradient>
           </defs>
 
-          <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
+          <g ref={panGRef} transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
             {/* world ground — oversized so panning/letterboxing never shows bare void */}
             <rect x={-4400} y={-3000} width={12000} height={8400} fill="#88a559" onClick={onBackdrop} />
             {/* the SKY — a world-wide backdrop across the top that the mountains rise
@@ -2545,7 +2886,7 @@ export function VillageMap({ g, current, goGraph, compact, follow, world, npcs }
               <Field x={874} y={696} w={176} h={120} rot={-6} tone="#7a664a" />
               <Field x={532} y={816} w={318} h={110} rot={0} tone="#6f5744" />
               <Field x={694} y={772} w={150} h={98} rot={4} tone="#7a664a" />
-              {gBridgeDeck()}
+              {gUraArtes()}
               {/* ── the THROUGH-STREETS: the high street in from the crossroads,
                   the market street south past the pazar to the fields, the river
                   road down to the tanners' bridge. Wide, cobble-edged — the town's
@@ -2936,7 +3277,593 @@ const rankVal = (id, key) => {
   return s && s.i != null ? r[s.i] : 0
 }
 
-function Library({ focus, goGraph, goLore, goSource, goHistory }) {
+// ===========================================================================
+// BEATS — a source folktale as a beat-by-beat timeline (data: taleBeats.js).
+// Every beat shows the full world board: which location everyone is in and
+// what they are doing there, with ↷ arrows on whoever moved since last beat.
+// Grid mode is the same data pivoted: one row per character/item, one column
+// per beat, colored by location — the whole tale's choreography at a glance.
+// ===========================================================================
+// One chip per tale place, honest about its anchor's status: existing spots
+// link 🗺 to the World map; proposed ones (📋, amber) jump to the NEAREST
+// existing spot and carry the build-plan in the tooltip; offstage ones (⬚)
+// are unlinked by design. The tooltip always leads with the MOLD — the shared
+// truth every story on this spot must satisfy (the sharing rule).
+function AnchorChip({ pl, goWorld, full }) {
+  const a = pl.anchor
+  const label = full ? `${pl.emoji} ${pl.name} → ` : ''
+  const body = () => <AnchorBody pl={pl} />
+  if (a.status === 'offstage') {
+    return <Badge tag="span" className="dbg-beat-world offstage" width={360} renderBody={body}>{label}⬚ offstage</Badge>
+  }
+  if (a.status === 'proposed') {
+    return <Badge className="dbg-beat-world proposed" width={360} onClick={() => goWorld(a.node)} renderBody={body}>{label}📋 planned · near {a.node}</Badge>
+  }
+  return <Badge className="dbg-beat-world" width={360} onClick={() => goWorld(a.node)} renderBody={body}>{label}🗺 {a.node}</Badge>
+}
+
+// Every item any option can grant — so a `requires` on a grantable item (e.g.
+// the maiden companion) is enforced by the path search, while a `requires` on a
+// virtual/time item (never granted anywhere: a phase, from:X, npc:X) is assumed
+// satisfiable and does not block. Computed once over STORY.
+const GRANTABLE_ITEMS = (() => {
+  const s = new Set()
+  for (const n of Object.values(STORY)) for (const o of (n.options || [])) {
+    const g = o.grant
+    if (g) (Array.isArray(g) ? g : [g]).forEach((x) => s.add(x))
+  }
+  return s
+})()
+// Shortest PLAYABLE path between two story nodes over the option edges: BFS over
+// (node, held-items) so an option's `requires` on a grantable item is honoured
+// (you cannot open the maiden's door without having rescued her). Powers the 🎭
+// playthrough view. null if unreachable.
+function shortestStoryPath(from, to) {
+  if (!STORY[from] || !STORY[to]) return null
+  const key = (n, held) => n + '|' + [...held].sort().join(',')
+  const start = { n: from, held: new Set(), path: [from] }
+  const q = [start], seen = new Set([key(from, start.held)])
+  while (q.length) {
+    const cur = q.shift()
+    if (cur.n === to) return cur.path
+    for (const o of (STORY[cur.n]?.options || [])) {
+      if (!o.to || !STORY[o.to]) continue
+      const req = o.requires ? (Array.isArray(o.requires) ? o.requires : [o.requires]) : []
+      if (req.some((r) => GRANTABLE_ITEMS.has(r) && !cur.held.has(r))) continue
+      const held = new Set(cur.held)
+      const g = o.grant
+      if (g) (Array.isArray(g) ? g : [g]).forEach((x) => held.add(x))
+      const k = key(o.to, held)
+      if (!seen.has(k)) { seen.add(k); q.push({ n: o.to, held, path: [...cur.path, o.to] }) }
+    }
+  }
+  return null
+}
+// A story node's text as readable line strings (each token carries .en/.al;
+// lineOf unwraps conditional wrappers). key = 'en' | 'al'.
+function nodeProse(nodeId, key) {
+  return (STORY[nodeId]?.text || []).map((entry) =>
+    lineOf(entry).map((t) => t[key] ?? '').join(' ')
+      .replace(/\s+([.,!?:;»])/g, '$1').replace(/«\s+/g, '«').replace(/\s+/g, ' ').trim()
+  ).filter(Boolean)
+}
+
+function Beats({ focus, goLore, goWorld, goNpc }) {
+  const taleIds = Object.keys(TALES)
+  const [taleId, setTaleId] = useState(focus && TALES[focus] ? focus : taleIds[0])
+  const [mode, setMode] = useState('beats')
+  useEffect(() => { if (focus && TALES[focus]) setTaleId(focus) }, [focus])
+  // group the tales by their folklore category for the picker
+  const catOf = useMemo(() => Object.fromEntries(FOLKLORE.map((f) => [f.id, f.category])), [])
+  const groups = useMemo(() => {
+    const g = {}
+    for (const id of taleIds) (g[catOf[id] || 'Tale'] ||= []).push(id)
+    for (const k of Object.keys(g)) g[k].sort((a, b) => TALES[a].title.localeCompare(TALES[b].title))
+    return g
+  }, [taleIds, catOf])
+  const tale = TALES[taleId]
+  const frames = useMemo(() => framesOf(tale), [tale])
+  const cov = useMemo(() => coverageOf(tale), [tale])
+  const placeOf = useMemo(() => Object.fromEntries(tale.places.map((p) => [p.id, p])), [tale])
+  const castOf = useMemo(() => Object.fromEntries(tale.cast.map((c) => [c.id, c])), [tale])
+  const itemOf = useMemo(() => Object.fromEntries(tale.items.map((it) => [it.id, it])), [tale])
+  // an item can sit in a place OR be carried by a cast member — resolve both
+  const itemSpot = (frame, it) => {
+    const pos = frame.items[it.id]
+    if (!pos) return null
+    const carrier = castOf[pos.at]
+    const place = carrier ? placeOf[frame.cast[pos.at]?.at] : placeOf[pos.at]
+    return { ...pos, carrier, place }
+  }
+
+  // THE GAME PROJECTION — where our world enters this tale and who the player is
+  // inside it (data: tale.play, derived by playOf). null for tales not yet mapped.
+  const play = useMemo(() => playOf(tale, frames), [tale, frames])
+  const avatarName = play?.avatar ? castOf[play.avatar]?.name : null
+  const avatarNpc = play?.avatar ? NPC_OF_CAST[taleId]?.[play.avatar] : null
+  // the "🎮 you are here" pill that rides the avatar's line/row on played beats
+  const youPill = play && (play.stance === 'embodied' ? '🎮 you'
+    : play.stance === 'companion' ? '🎮 with you' : '👁 you')
+  const entryTitle = play ? frames[play.entryIndex]?.beat.title : null
+  // grid column class: a blue seam on the entry column, muted for prologue columns
+  const colClass = (i) => !play ? ''
+    : (i === play.entryIndex && play.entryIndex > 0) ? 'entry-col'
+    : i < play.entryIndex ? 'pro' : ''
+
+  return (
+    <div className="dbg-lib">
+      <div className="dbg-beats-head">
+        {taleIds.length > 1 && (
+          <select className="dbg-beats-picker" value={taleId} onChange={(e) => setTaleId(e.target.value)}
+                  title={`${taleIds.length} folktales — pick one`}>
+            {Object.entries(groups).map(([cat, ids]) => (
+              <optgroup key={cat} label={`${cat} (${ids.length})`}>
+                {ids.map((id) => (
+                  <option key={id} value={id}>
+                    {TALES[id].albanian?.status === 'missing' ? '○ ' : '● '}{TALES[id].title}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        )}
+        <b>🎬 {tale.title}</b>
+        {FOLKLORE.some((f) => f.id === taleId) && (
+          <Badge className="dbg-tag dbg-tag-btn node" onClick={() => goLore(taleId)}
+                 renderBody={() => <LoreBody id={taleId} />}>📖 lore →</Badge>
+        )}
+        <Badge tag="span" className={'dbg-tag ' + (cov.ok ? 'good' : 'bad')} width={300}
+               renderBody={() => <InfoBody title={cov.ok ? 'line coverage complete' : 'line coverage BROKEN'}
+                 text={cov.ok
+                   ? `All ${cov.total} sentences of the original are each assigned to exactly one beat (checked by scripts/beatscoverage.mjs).`
+                   : ['missing: ' + (cov.missing.join(', ') || '—'), 'duplicated: ' + (cov.dupes.join(', ') || '—'),
+                      cov.unknown.length ? 'out of range: ' + cov.unknown.join(', ') : '', cov.bad.join('; ')].filter(Boolean).join(' · ')} />}>
+          {cov.ok ? `📜 all ${cov.total} original lines covered` : `📜 line coverage BROKEN (${cov.covered}/${cov.total})`}
+        </Badge>
+        <span className="dbg-beats-src">{tale.source}</span>
+        {tale.origin && (
+          <Badge tag="span" className="dbg-tag secret" width={300}
+                 renderBody={() => <InfoBody title={`🧭 origin — ${tale.origin.region}`}
+                   text={`Collected by ${tale.origin.collector}, published ${tale.origin.published}. An anchor placing this tale should prefer a spot that mirrors this region.`} />}>
+            🧭 {tale.origin.region} · {tale.origin.collector} · {tale.origin.published}
+          </Badge>
+        )}
+        {tale.albanian && (
+          <Badge tag="a" className="dbg-tag dbg-tag-btn good" href={REPO_BLOB + tale.albanian.local} target="_blank" rel="noreferrer"
+                 renderBody={() => <InfoBody title={`🇦🇱 «${tale.albanian.title}»`}
+                   text={`${tale.albanian.source}. Full raw text in ${tale.albanian.local}; each beat line below carries its verbatim Albanian sentence. Click to open the source ⬇`} />}>
+            🇦🇱 «{tale.albanian.title}» — original ⬇
+          </Badge>
+        )}
+        {play && (
+          <Badge tag="span" className="dbg-tag start" width={300}
+                 renderBody={() => <InfoBody title={play.entryIndex > 0 ? `▶ enters at beat ${play.entryIndex + 1}` : '▶ played from the start'}
+                   text={play.entryIndex > 0
+                     ? `The playable arc begins at beat ${play.entryIndex + 1} · ${entryTitle}. Beats 1–${play.entryIndex} are prologue you learn as lore, never play.`
+                     : 'Played from the very first beat — this tale has no prologue.'} />}>
+            ▶ {play.entryIndex > 0 ? `enters at beat ${play.entryIndex + 1}` : 'played from the start'}
+          </Badge>
+        )}
+        {play && (avatarNpc ? (
+          <Badge className="dbg-tag hub dbg-tag-btn" onClick={() => goNpc(avatarNpc)}
+                 renderBody={() => <NpcBody id={avatarNpc} />}>
+            🎮 {play.stance === 'embodied' ? 'you are' : 'you ride with'} {avatarName} →
+          </Badge>
+        ) : (
+          <Badge tag="span" className="dbg-tag hub" width={300}
+                 renderBody={() => <InfoBody title={play.stance === 'witness' ? '👁 you only watch' : '🎮 you'} text={play.role} />}>
+            {play.stance === 'witness' ? '👁 you only watch' : '🎮 you'}
+          </Badge>
+        ))}
+      </div>
+      {tale.discrepancies?.length > 0 && (
+        <div className="dbg-beat-disc">
+          <b>⚖️ translation vs original — open calls for the rewrite:</b>
+          <ul>
+            {tale.discrepancies.map((d, i) => <li key={i}>{d}</li>)}
+          </ul>
+        </div>
+      )}
+      <p className="dbg-note">
+        The original tale as <b>{tale.beats.length} beats</b> over a persistent world — every beat records where each
+        of the <b>{tale.cast.length} characters</b> is and what they are doing there (↷ = moved since the last beat).
+        Under each beat, <b>every sentence of the original</b> it covers, paraphrased, with its ¶paragraph.sentence ref.
+      </p>
+      <div className="dbg-beat-anchors">
+        <span className="dbg-lore-ends-label">where in our world:</span>
+        {tale.places.map((pl) => <AnchorChip key={pl.id} pl={pl} goWorld={goWorld} full />)}
+      </div>
+      {play && (
+        <div className={'dbg-beat-role ' + play.stance}>
+          <div className="dbg-beat-role-head">
+            <span className="dbg-lore-ends-label">how you play it</span>
+            <Badge tag="span" width={300}
+                   className={'dbg-tag ' + (play.stance === 'embodied' ? 'hub' : play.stance === 'companion' ? 'secret' : 'node')}
+                   renderBody={() => <InfoBody title={STANCE_INFO[play.stance][0]} text={STANCE_INFO[play.stance][1]} />}>
+              {play.stance === 'embodied' ? '🎮 embodied' : play.stance === 'companion' ? '🧍 companion' : '👁 witness'}
+            </Badge>
+            {avatarName && (avatarNpc ? (
+              <Badge className="dbg-beat-npc" onClick={() => goNpc(avatarNpc)} renderBody={() => <NpcBody id={avatarNpc} />}>
+                {play.stance === 'embodied' ? 'you are → ' : 'you ride with → '}{avatarName}
+              </Badge>
+            ) : (
+              <b>{play.stance === 'embodied' ? 'you are ' : 'you ride with '}{avatarName}</b>
+            ))}
+          </div>
+          <p className="dbg-beat-role-prose">{play.role}</p>
+          <p className="dbg-beat-role-entry">
+            ▶ our world enters at <b>beat {play.entryIndex + 1} · {entryTitle}</b>
+            {play.entryIndex > 0
+              ? ` — beats 1–${play.entryIndex} are prologue you learn as lore, never play.`
+              : ' — no prologue; you play the whole tale.'}
+          </p>
+        </div>
+      )}
+      {play?.divergences?.length > 0 && (
+        <div className="dbg-beat-diverge">
+          <b>🎮 how the game retells it — where it departs from the folktale (not translation, but adaptation):</b>
+          <ul>
+            {play.divergences.map((d, i) => {
+              const bi = d.beat ? frames.findIndex((f) => f.beat.id === d.beat) : -1
+              return (
+                <li key={i}>
+                  {bi >= 0 && <span className="dbg-beat-diverge-beat" title={frames[bi].beat.title}>beat {bi + 1}</span>}
+                  {d.note}
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
+      <div className="dbg-sortrow">
+        <span className="dbg-sortlbl">view</span>
+        <button className={'dbg-sortbtn' + (mode === 'beats' ? ' active' : '')} onClick={() => setMode('beats')}>📋 beats</button>
+        <button className={'dbg-sortbtn' + (mode === 'grid' ? ' active' : '')} onClick={() => setMode('grid')}>🗓 who-is-where grid</button>
+        {play?.scenes && <button className={'dbg-sortbtn' + (mode === 'play' ? ' active' : '')} onClick={() => setMode('play')}>🎭 playthrough ↔ beats</button>}
+      </div>
+
+      {mode === 'beats' && frames.map((fr, i) => {
+        const prologue = play && i < play.entryIndex
+        const epilogue = play && i > play.finaleIndex
+        const isEntry = play && i === play.entryIndex && play.entryIndex > 0
+        return (
+        <Fragment key={fr.beat.id}>
+          {isEntry && (
+            <div className="dbg-beat-enter" title={play.role}>
+              <span className="dbg-beat-enter-lbl">▶ the game starts here</span>
+              {' — '}{play.enter || `you ${play.stance === 'embodied' ? 'take up ' + avatarName
+                : play.stance === 'companion' ? 'fall in with ' + avatarName : 'begin to watch'}`}
+            </div>
+          )}
+          <div className={'dbg-beat' + (prologue || epilogue ? ' prologue' : '')}>
+          <div className="dbg-beat-head">
+            <span className={'dbg-beat-num' + (prologue || epilogue ? ' muted' : '') + (play && i === play.entryIndex ? ' entry' : '')}>{i + 1}</span>
+            <b>{fr.beat.title}</b>
+            {prologue && <Badge tag="span" className="dbg-tag node" width={280}
+                                renderBody={() => <InfoBody title="prologue" text="Backstory the player learns as lore — never played. The 🔎 chips below show where it surfaces in-world." />}>prologue</Badge>}
+            {epilogue && <Badge tag="span" className="dbg-tag node" width={280}
+                                renderBody={() => <InfoBody title="epilogue" text="The tale finishes as lore after the played arc — the player doesn't act it out." />}>epilogue</Badge>}
+          </div>
+          <p className="dbg-beat-note">{fr.beat.note}</p>
+          {play?.learn?.[fr.beat.id]?.length > 0 && (
+            <div className="dbg-beat-learn">
+              <span className="dbg-beat-learn-lbl">🔎 {prologue ? 'discovered in-world' : 'also told in-world'}:</span>
+              {play.learn[fr.beat.id].map(([node, label]) => (
+                <NodeChip key={node} node={node} label={`🗺 ${label || node}`} goWorld={goWorld}
+                          title={`where the player learns this by playing — jump to «${node}» on the 🗺 World map`}
+                          intro={label ? `🔎 the player learns this here — ${label}` : `🔎 the player learns this at «${node}»`} />
+              ))}
+            </div>
+          )}
+          {play?.learn && prologue && !play.learn[fr.beat.id] && (
+            <div className="dbg-beat-learn">
+              <span className="dbg-beat-learn-lbl gap" title="no played scene reveals this backstory — a candidate to write into the world">
+                ⚠ not told in-world yet
+              </span>
+            </div>
+          )}
+          {fr.beat.lines?.length > 0 && (
+            <ul className="dbg-beat-lines">
+              {fr.beat.lines.map(([ref, txt, al]) => (
+                <li key={ref}>
+                  <i>¶{ref}</i>
+                  {al && <span className="dbg-beat-line-al">{al}</span>}
+                  <span className="dbg-beat-line-en">{txt}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="dbg-beat-board">
+            {tale.places.map((pl) => {
+              const here = Object.entries(fr.cast).filter(([, pos]) => pos.at === pl.id)
+              const itemsHere = tale.items.map((it) => ({ it, spot: itemSpot(fr, it) }))
+                .filter(({ spot }) => spot && spot.place?.id === pl.id)
+              if (!here.length && !itemsHere.length) return null
+              return (
+                <div className="dbg-beat-place" key={pl.id}>
+                  <span className="dbg-beat-place-name" title={pl.note}>
+                    {pl.emoji} {pl.name}
+                    <AnchorChip pl={pl} goWorld={goWorld} />
+                  </span>
+                  <ul>
+                    {here.map(([cid, pos]) => (
+                      <li key={cid} className={play && !prologue && !epilogue && cid === play.avatar ? 'you-here' : ''}>
+                        {NPC_OF_CAST[taleId]?.[cid] ? (
+                          <Badge className="dbg-beat-npc" onClick={() => goNpc(NPC_OF_CAST[taleId][cid])}
+                                 renderBody={() => <NpcBody id={NPC_OF_CAST[taleId][cid]} />}>{castOf[cid].name}</Badge>
+                        ) : (
+                          <b title={castOf[cid].note}>{castOf[cid].name}</b>
+                        )}
+                        {play && !prologue && !epilogue && cid === play.avatar && (
+                          <span className="dbg-beat-you" title={play.role}>{youPill}</span>
+                        )}
+                        {fr.from[cid] && (
+                          <span className="dbg-beat-moved" title={'was at ' + (placeOf[fr.from[cid]]?.name || fr.from[cid])}>
+                            ↷ {placeOf[fr.from[cid]]?.emoji}
+                          </span>
+                        )}
+                        <span className="dbg-beat-doing"> — {pos.doing}</span>
+                      </li>
+                    ))}
+                    {itemsHere.map(({ it, spot }) => (
+                      <li key={it.id} className="dbg-beat-item">
+                        <b title={it.note}>{it.emoji} {it.name}</b>
+                        <span className="dbg-beat-doing"> — {spot.carrier ? `carried by ${spot.carrier.name} · ` : ''}{spot.doing}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}
+          </div>
+          </div>
+        </Fragment>
+        )
+      })}
+
+      {mode === 'grid' && (
+        <div className="dbg-beat-gridwrap">
+          <table className="dbg-beat-grid">
+            <thead>
+              <tr>
+                <th />
+                {frames.map((fr, i) => (
+                  <th key={fr.beat.id} className={colClass(i)}
+                      title={fr.beat.title + (play && i === play.entryIndex && play.entryIndex > 0 ? ' — the game starts here' : play && i < play.entryIndex ? ' — prologue (lore, not played)' : '')}>
+                    {play && i === play.entryIndex && play.entryIndex > 0 ? '▶' : ''}{i + 1}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {play && play.stance === 'companion' && play.avatar && (
+                <tr className="you-row">
+                  <th title={play.role}>🎮 you<span className="you-row-sub"> · with {avatarName}</span></th>
+                  {frames.map((fr, i) => {
+                    const pos = i >= play.entryIndex ? fr.cast[play.avatar] : null
+                    const pl = pos && placeOf[pos.at]
+                    return <td key={fr.beat.id} className={[pl ? '' : 'gone', colClass(i)].filter(Boolean).join(' ')}
+                               title={pl ? `${fr.beat.title} · you ride along with ${avatarName} at ${pl.name}` : ''}>{pl?.emoji || ''}</td>
+                  })}
+                </tr>
+              )}
+              {tale.cast.map((c) => {
+                const isYou = play && play.stance === 'embodied' && c.id === play.avatar
+                return (
+                <tr key={c.id} className={isYou ? 'you-row' : ''}>
+                  <th title={c.note}>
+                    {isYou && <span className="you-badge">🎮 </span>}
+                    {NPC_OF_CAST[taleId]?.[c.id]
+                      ? <Badge className="dbg-beat-npc" onClick={() => goNpc(NPC_OF_CAST[taleId][c.id])}
+                               renderBody={() => <NpcBody id={NPC_OF_CAST[taleId][c.id]} />}>{c.name}</Badge>
+                      : c.name}
+                  </th>
+                  {frames.map((fr, i) => {
+                    const pos = fr.cast[c.id]
+                    if (!pos) return <td key={fr.beat.id} className={['gone', colClass(i)].filter(Boolean).join(' ')} />
+                    const pl = placeOf[pos.at]
+                    return (
+                      <td key={fr.beat.id} className={[fr.from[c.id] ? 'moved' : '', colClass(i)].filter(Boolean).join(' ')}
+                          title={`${fr.beat.title} · ${pl?.name} — ${pos.doing}`}>
+                        {pl?.emoji}
+                      </td>
+                    )
+                  })}
+                </tr>
+                )
+              })}
+              {tale.items.map((it) => (
+                <tr key={it.id} className="dbg-beat-item">
+                  <th title={it.note}>{it.emoji} {it.name}</th>
+                  {frames.map((fr, i) => {
+                    const spot = itemSpot(fr, it)
+                    if (!spot) return <td key={fr.beat.id} className={['gone', colClass(i)].filter(Boolean).join(' ')} />
+                    return (
+                      <td key={fr.beat.id} className={colClass(i)}
+                          title={`${fr.beat.title} · ${spot.carrier ? 'carried by ' + spot.carrier.name + ' · ' : ''}${spot.place?.name || ''} — ${spot.doing}`}>
+                        {spot.carrier ? '🫱' : spot.place?.emoji}
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="dbg-legend">
+            {tale.places.map((pl) => <AnchorChip key={pl.id} pl={pl} goWorld={goWorld} full />)}
+            <span>🫱 carried</span>
+            {play && (
+              <span className="dbg-legend-you">🎮 you{avatarName ? (play.stance === 'embodied' ? ' = ' + avatarName : ' ride with ' + avatarName) : ''}</span>
+            )}
+            {play && play.entryIndex > 0 && <span className="dbg-legend-entry">▶ played from here · faint = prologue</span>}
+          </div>
+        </div>
+      )}
+
+      {mode === 'play' && play?.scenes && (() => {
+        const scenes = play.scenes
+        const fromNode = play.from || START_NODE
+        const endNode = play.ending || Object.keys(ENDING_LORE).find((n) => ENDING_LORE[n] === taleId && STORY[n]?.end === 'good')
+        const path = endNode ? shortestStoryPath(fromNode, endNode) : null
+        const pathSet = new Set(path || [])
+        const pathIdx = Object.fromEntries((path || []).map((n, i) => [n, i]))
+        const nodesOfBeat = (beatId) => Object.entries(scenes).filter(([, b]) => b === beatId).map(([n]) => n)
+        const onPathOf = (beatId) => nodesOfBeat(beatId).filter((n) => pathSet.has(n)).sort((a, b) => pathIdx[a] - pathIdx[b])
+        // beats that HAVE a game scene but whose scene sits off the shortest route
+        const skipped = frames.filter((fr) => nodesOfBeat(fr.beat.id).length && !onPathOf(fr.beat.id).length)
+        return (
+          <div className="dbg-play">
+            <p className="dbg-note">
+              The <b>shortest route</b> through the game to this tale&rsquo;s good ending, laid beside the folktale it retells —
+              read the played story (left) against the source beats (right).{' '}
+              {path
+                ? <><b>{path.length} scenes</b> from <button className="dbg-beat-world" onClick={() => goWorld(fromNode)}>🗺 {fromNode}</button> to <button className="dbg-beat-world" onClick={() => goWorld(endNode)}>🗺 {endNode}</button>; shortest playable route (honours item gates).{' '}
+                    {skipped.length > 0 && <b className="dbg-play-skipwarn">The route SKIPS beat{skipped.length > 1 ? 's' : ''} {skipped.map((fr) => frames.indexOf(fr) + 1).join(', ')} — {skipped.map((fr) => fr.beat.title).join('; ')}.</b>}</>
+                : <> no route found from {fromNode} to {endNode || '(no good ending detected)'}.</>}
+            </p>
+            <div className="dbg-play-grid">
+              <div className="dbg-play-head game">▶ the shortest playthrough (the game)</div>
+              <div className="dbg-play-head tale">📖 the folktale beat</div>
+              {frames.map((fr, i) => {
+                const beatNodes = nodesOfBeat(fr.beat.id)
+                const onPath = onPathOf(fr.beat.id)
+                const offRoute = !onPath.length
+                return (
+                  <Fragment key={fr.beat.id}>
+                    <div className={'dbg-play-cell game' + (offRoute ? ' offroute' : '')}>
+                      {onPath.length ? onPath.map((node) => (
+                        <div className="dbg-play-scene" key={node}>
+                          <button className="dbg-beat-world" onClick={() => goWorld(node)}>🗺 {node}{STORY[node]?.end ? ' · ending' : ''}</button>
+                          <ul className="dbg-play-lines">{nodeProse(node, 'en').map((ln, j) => <li key={j}>{ln}</li>)}</ul>
+                        </div>
+                      )) : play.learn?.[fr.beat.id]?.length ? (
+                        <div className="dbg-play-scene">
+                          <span className="dbg-play-tag">discovered in-world · not on the route</span>
+                          <div className="dbg-play-learn">{play.learn[fr.beat.id].map(([node, label]) => (
+                            <button key={node} className="dbg-beat-world" onClick={() => goWorld(node)}>🗺 {label || node}</button>
+                          ))}</div>
+                        </div>
+                      ) : beatNodes.length ? (
+                        <div className="dbg-play-scene">
+                          <span className="dbg-play-tag skip">⤼ off the shortest route — playable at</span>
+                          {beatNodes.map((node) => <button key={node} className="dbg-beat-world" onClick={() => goWorld(node)}>🗺 {node}</button>)}
+                          <ul className="dbg-play-lines faded">{nodeProse(beatNodes[0], 'en').map((ln, j) => <li key={j}>{ln}</li>)}</ul>
+                        </div>
+                      ) : <span className="dbg-play-none">prologue — not played{play.learn ? ' · not told in-world' : ''}</span>}
+                    </div>
+                    <div className={'dbg-play-cell tale' + (offRoute ? ' offroute' : '')}>
+                      <div className="dbg-play-beat">
+                        <span className={'dbg-beat-num' + (offRoute ? ' muted' : '')}>{i + 1}</span>
+                        <b>{fr.beat.title}</b>
+                      </div>
+                      <p className="dbg-play-note">{fr.beat.note}</p>
+                    </div>
+                  </Fragment>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
+    </div>
+  )
+}
+
+// ===========================================================================
+// NPCS — the character ledger (data: npcRegistry.js). Every figure in the
+// world on one page: backstory (the canon any reusing story must agree with),
+// where they live (placed on the map / walking a clock route / still in
+// planning), which lore cards and beat-timelines they appear in. This is the
+// people-side of the sharing rule: two tales may use one figure only if both
+// can be talking about the entry written here.
+// ===========================================================================
+const NPC_STATUS = [
+  { key: 'placed', label: '🗺 on the map', tip: 'lives at a fixed node' },
+  { key: 'walking', label: '🚶 walking a route', tip: 'moves on a world-clock route (src/game/npcs.js)' },
+  { key: 'planning', label: '📋 in planning', tip: 'not on the map yet — the plan says where they will live' },
+]
+const NPC_KIND_TAG = { human: 'node', mythic: 'hub', creature: 'bad', collective: 'start' }
+const NPC_KIND_INFO = {
+  human: 'A mortal person — a villager, lord, hero or historical figure.',
+  mythic: 'A god, spirit or supernatural being from Albanian myth (a zana, an ora, the Sun…).',
+  creature: 'A beast or monster — a kulshedra, a wolf, a talking animal.',
+  collective: 'A group treated as one figure — the wedding-guests, the road-folk, the xhindet.',
+}
+
+function Npcs({ focus, goWorld, goLore, goBeats }) {
+  const [filter, setFilter] = useState('')
+  const refs = useRef({})
+  const loreIds = useMemo(() => new Set(FOLKLORE.map((f) => f.id)), [])
+  useEffect(() => {
+    if (focus && refs.current[focus]) refs.current[focus].scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [focus])
+  const q = filter.trim().toLowerCase()
+  const all = Object.entries(NPC_REGISTRY).filter(([id, n]) =>
+    !q || id.toLowerCase().includes(q) || n.name.toLowerCase().includes(q)
+      || n.role.toLowerCase().includes(q) || n.backstory.toLowerCase().includes(q))
+  const counts = Object.values(NPC_REGISTRY).reduce((a, n) => ((a[n.location.status] = (a[n.location.status] || 0) + 1), a), {})
+
+  return (
+    <div className="dbg-lib">
+      <input className="dbg-filter" placeholder="filter NPCs…" value={filter} onChange={(e) => setFilter(e.target.value)} />
+      <p className="dbg-note">
+        Every character in the world — <b>{Object.keys(NPC_REGISTRY).length} entries</b>
+        {' '}({NPC_STATUS.map((s) => `${counts[s.key] || 0} ${s.label.slice(2).trim()}`).join(' · ')}).
+        The backstory is the figure&rsquo;s CANON: a story may reuse them only if nothing it says contradicts it
+        (the same sharing rule as map spots). Beat-timeline cast names link here.
+      </p>
+      {NPC_STATUS.map((st) => {
+        const group = all.filter(([, n]) => n.location.status === st.key)
+        if (!group.length) return null
+        return (
+          <div key={st.key} className="dbg-lib-cat">
+            <h4 title={st.tip}>{st.label}</h4>
+            {group.map(([id, n]) => (
+              <div className={'dbg-card' + (focus === id ? ' focus' : '')} key={id} ref={(el) => { refs.current[id] = el }}>
+                <div className="dbg-card-head">
+                  <b>{n.glyph} {n.name}</b>
+                  <Badge tag="span" width={260} className={'dbg-tag ' + (NPC_KIND_TAG[n.kind] || 'node')}
+                         renderBody={() => <InfoBody title={n.kind} text={NPC_KIND_INFO[n.kind] || 'A figure in the world.'} />}>{n.kind}</Badge>
+                  <span className="dbg-npc-role">{n.role}</span>
+                </div>
+                <p className="dbg-summary">{n.backstory}</p>
+                <div className="dbg-lore-ends dbg-related">
+                  <span className="dbg-lore-ends-label">where:</span>
+                  {n.location.status === 'placed' && (
+                    <NodeChip node={n.location.node} label={`🗺 ${n.location.node}`} goWorld={goWorld}
+                              title="open on the World map" intro={`🏠 where ${n.name} lives`} />
+                  )}
+                  {n.location.status === 'walking' && n.location.route.map((r) => (
+                    <NodeChip key={r} node={r} label={`🗺 ${r}`} goWorld={goWorld}
+                              title="a stop on their clock route" intro={`🚶 ${n.name} — a stop on their clock route`} />
+                  ))}
+                  {n.location.status === 'planning' && (
+                    <span className="dbg-npc-plan">📋 {n.location.plan}</span>
+                  )}
+                </div>
+                {(n.folklore?.length > 0 || n.tales) && (
+                  <div className="dbg-lore-ends dbg-related">
+                    <span className="dbg-lore-ends-label">appears in:</span>
+                    {(n.folklore || []).filter((fid) => loreIds.has(fid)).map((fid) => (
+                      <Badge key={fid} className="dbg-tag dbg-tag-btn node" onClick={() => goLore(fid)}
+                             renderBody={() => <LoreBody id={fid} />}>📖 {fid} →</Badge>
+                    ))}
+                    {Object.entries(n.tales || {}).map(([taleId, castId]) => (
+                      <Badge key={taleId} className="dbg-tag dbg-tag-btn hub"
+                             onClick={() => goBeats(taleId)} renderBody={() => <TaleBody id={taleId} />}>🎬 {TALES[taleId]?.title || taleId} →</Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function Library({ focus, goGraph, goLore, goSource, goHistory, goBeats }) {
   const [filter, setFilter] = useState('')
   const [sort, setSort] = useState('cat')
   const refs = useRef({})
@@ -3023,14 +3950,23 @@ function Library({ focus, goGraph, goLore, goSource, goHistory }) {
                     ))}
                   </div>
                 )}
+                {TALES[f.id] && (
+                  <div className="dbg-lore-ends dbg-related">
+                    <span className="dbg-lore-ends-label">timeline:</span>
+                    <Badge className="dbg-tag dbg-tag-btn hub" onClick={() => goBeats(f.id)}
+                           renderBody={() => <TaleBody id={f.id} />}>
+                      🎬 beat-by-beat timeline →
+                    </Badge>
+                  </div>
+                )}
                 {bySrc[f.id]?.length > 0 && (
                   <div className="dbg-lore-ends dbg-related">
                     <span className="dbg-lore-ends-label">in sources:</span>
                     {bySrc[f.id].map((c) => (
-                      <button className="dbg-tag dbg-tag-btn start" key={c.id}
-                              title={c.title + ' — ' + c.author} onClick={() => goSource(c.id)}>
+                      <Badge className="dbg-tag dbg-tag-btn start" key={c.id}
+                             onClick={() => goSource(c.id)} renderBody={() => <SourceBody id={c.id} />}>
                         📚 {c.author.split(/[&(]/)[0].trim()} {c.year} →
-                      </button>
+                      </Badge>
                     ))}
                   </div>
                 )}
@@ -3038,10 +3974,10 @@ function Library({ focus, goGraph, goLore, goSource, goHistory }) {
                   <div className="dbg-lore-ends dbg-related">
                     <span className="dbg-lore-ends-label">in history:</span>
                     {byHist[f.id].map((h) => (
-                      <button className="dbg-tag dbg-tag-btn secret" key={h.id}
-                              title={h.title + ' · ' + h.era} onClick={() => goHistory(h.id)}>
+                      <Badge className="dbg-tag dbg-tag-btn secret" key={h.id}
+                             onClick={() => goHistory(h.id)} renderBody={() => <HistoryBody id={h.id} />}>
                         📜 {h.title.split(/[—:(]/)[0].trim()} →
-                      </button>
+                      </Badge>
                     ))}
                   </div>
                 )}
@@ -3052,10 +3988,10 @@ function Library({ focus, goGraph, goLore, goSource, goHistory }) {
                       const rf = byId[rid]
                       if (!rf) return null
                       return (
-                        <button className="dbg-tag dbg-tag-btn node" key={rid}
-                                title={rf.title} onClick={() => goLore(rid)}>
+                        <Badge className="dbg-tag dbg-tag-btn node" key={rid}
+                               onClick={() => goLore(rid)} renderBody={() => <LoreBody id={rid} />}>
                           {rf.title.split('—')[0].trim()} →
-                        </button>
+                        </Badge>
                       )
                     })}
                   </div>
@@ -3066,10 +4002,10 @@ function Library({ focus, goGraph, goLore, goSource, goHistory }) {
                     {ends.map((id) => {
                       const e = endTitle[id]
                       return (
-                        <button className={'dbg-tag dbg-tag-btn ' + (e?.kind || 'node')} key={id}
-                                title={'open ' + id + ' in the Story Graph'} onClick={() => goGraph(id)}>
+                        <Badge className={'dbg-tag dbg-tag-btn ' + (e?.kind || 'node')} key={id}
+                               onClick={() => goGraph(id)} renderBody={() => <NodeBody node={id} />}>
                           {e?.kind === 'good' ? '🏆' : e?.kind === 'secret' ? '✨' : '💀'} {e?.title || id} →
-                        </button>
+                        </Badge>
                       )
                     })}
                   </div>
@@ -3151,20 +4087,20 @@ function Sources({ focus, goLore, goHistory }) {
                       const rf = byId[id]
                       if (!rf) return null
                       return (
-                        <button className="dbg-tag dbg-tag-btn node" key={id}
-                                title={rf.title} onClick={() => goLore(id)}>
+                        <Badge className="dbg-tag dbg-tag-btn node" key={id}
+                               onClick={() => goLore(id)} renderBody={() => <LoreBody id={id} />}>
                           {rf.title.split('—')[0].trim()} →
-                        </button>
+                        </Badge>
                       )
                     })}
                     {(c.coversHist || []).map((id) => {
                       const h = histById[id]
                       if (!h) return null
                       return (
-                        <button className="dbg-tag dbg-tag-btn secret" key={id}
-                                title={h.title + ' · ' + h.era} onClick={() => goHistory(id)}>
+                        <Badge className="dbg-tag dbg-tag-btn secret" key={id}
+                               onClick={() => goHistory(id)} renderBody={() => <HistoryBody id={id} />}>
                           📜 {h.title.split(/[—:(]/)[0].trim()} →
-                        </button>
+                        </Badge>
                       )
                     })}
                   </div>
@@ -3238,10 +4174,10 @@ function History({ focus, goLore, goSource }) {
                 const rf = byId[id]
                 if (!rf) return null
                 return (
-                  <button className="dbg-tag dbg-tag-btn node" key={id}
-                          title={rf.title} onClick={() => goLore(id)}>
+                  <Badge className="dbg-tag dbg-tag-btn node" key={id}
+                         onClick={() => goLore(id)} renderBody={() => <LoreBody id={id} />}>
                     {rf.title.split('—')[0].trim()} →
-                  </button>
+                  </Badge>
                 )
               })}
             </div>
@@ -3250,10 +4186,10 @@ function History({ focus, goLore, goSource }) {
             <div className="dbg-lore-ends dbg-related">
               <span className="dbg-lore-ends-label">in sources:</span>
               {bySrc[h.id].map((c) => (
-                <button className="dbg-tag dbg-tag-btn start" key={c.id}
-                        title={c.title + ' — ' + c.author} onClick={() => goSource(c.id)}>
+                <Badge className="dbg-tag dbg-tag-btn start" key={c.id}
+                       onClick={() => goSource(c.id)} renderBody={() => <SourceBody id={c.id} />}>
                   📚 {c.author.split(/[&(]/)[0].trim()} {c.year} →
-                </button>
+                </Badge>
               ))}
             </div>
           )}
@@ -3270,6 +4206,9 @@ export default function DebugView({ state, dispatch }) {
   const [libFocus, setLibFocus] = useState(state.loreFocus)
   const [srcFocus, setSrcFocus] = useState(null)
   const [histFocus, setHistFocus] = useState(null)
+  const [beatFocus, setBeatFocus] = useState(null)
+  const [worldFocus, setWorldFocus] = useState(null)
+  const [npcFocus, setNpcFocus] = useState(null)
 
   // arriving here via an ending's "open in library" link
   useEffect(() => {
@@ -3278,6 +4217,9 @@ export default function DebugView({ state, dispatch }) {
 
   const goGraph = (id) => { setSel(id); setSub('graph') }
   const goLore = (loreId) => { setLibFocus(loreId); setSub('library') }
+  const goBeats = (taleId) => { setBeatFocus(taleId); setSub('beats') }
+  const goWorld = (nodeId) => { setWorldFocus({ id: nodeId }); setSub('village') }
+  const goNpc = (npcId) => { setNpcFocus(npcId); setSub('npcs') }
   const goSource = (srcId) => { setSrcFocus(srcId); setSub('sources') }
   const goHistory = (histId) => { setHistFocus(histId); setSub('history') }
   const endCounts = ENDINGS.reduce((a, e) => ((a[e.kind] = (a[e.kind] || 0) + 1), a), {})
@@ -3290,13 +4232,15 @@ export default function DebugView({ state, dispatch }) {
         {g.reached < g.ids.length && <span className="warn"><b>{g.ids.length - g.reached}</b> unreachable</span>}
         <span><b>{g.hubs.length}</b> hubs</span>
         <span>🏆 {endCounts.good || 0} · ✨ {endCounts.secret || 0} · 💀 {endCounts.bad || 0}</span>
-        <span><b>{FOLKLORE.length}</b> folklore · <b>{HISTORY.length}</b> history · <b>{CORPUS.length}</b> sources</span>
+        <span><b>{FOLKLORE.length}</b> folklore · <b>{HISTORY.length}</b> history · <b>{CORPUS.length}</b> sources · <b>{Object.keys(NPC_REGISTRY).length}</b> NPCs</span>
       </div>
       <div className="dbg-subtabs">
         <button className={'btn' + (sub === 'graph' ? ' active' : '')} onClick={() => setSub('graph')}>🕸 Story Graph</button>
         <button className={'btn' + (sub === 'village' ? ' active' : '')} onClick={() => setSub('village')}>🗺 World</button>
         <button className={'btn' + (sub === 'map' ? ' active' : '')} onClick={() => setSub('map')}>🧭 Hubs</button>
         <button className={'btn' + (sub === 'library' ? ' active' : '')} onClick={() => setSub('library')}>📖 Folklore</button>
+        <button className={'btn' + (sub === 'beats' ? ' active' : '')} onClick={() => setSub('beats')}>🎬 Beats</button>
+        <button className={'btn' + (sub === 'npcs' ? ' active' : '')} onClick={() => setSub('npcs')}>🎭 NPCs</button>
         <button className={'btn' + (sub === 'history' ? ' active' : '')} onClick={() => setSub('history')}>📜 History</button>
         <button className={'btn' + (sub === 'sources' ? ' active' : '')} onClick={() => setSub('sources')}>📚 Sources</button>
       </div>
@@ -3306,9 +4250,11 @@ export default function DebugView({ state, dispatch }) {
         ))}
       </div>
       {sub === 'graph' && <StoryGraph g={g} sel={sel} setSel={setSel} goLore={goLore} />}
-      {sub === 'village' && <VillageMap g={g} current={state.nodeId} goGraph={goGraph} world={{ fire: fireStateOf(state) }} npcs={liveNpcs(state)} />}
+      {sub === 'village' && <VillageMap g={g} current={state.nodeId} goGraph={goGraph} world={{ fire: fireStateOf(state) }} npcs={liveNpcs(state)} jumpTo={worldFocus} />}
       {sub === 'map' && <WorldMap g={g} current={state.nodeId} setSel={setSel} goGraph={goGraph} />}
-      {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} goSource={goSource} goHistory={goHistory} />}
+      {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} goSource={goSource} goHistory={goHistory} goBeats={goBeats} />}
+      {sub === 'beats' && <Beats focus={beatFocus} goLore={goLore} goWorld={goWorld} goNpc={goNpc} />}
+      {sub === 'npcs' && <Npcs focus={npcFocus} goWorld={goWorld} goLore={goLore} goBeats={goBeats} />}
       {sub === 'history' && <History focus={histFocus} goLore={goLore} goSource={goSource} />}
       {sub === 'sources' && <Sources focus={srcFocus} goLore={goLore} goHistory={goHistory} />}
     </div>

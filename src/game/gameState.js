@@ -1,22 +1,6 @@
-import { START_NODE, STORY, WORLD_HUB, frequentForms } from './content.js'
-import { AREA_FACTOIDS } from './folklore.js'
-import { REGION_NODES } from './regions.js'
+import { START_NODE, STORY, WORLD_HUB, HEART_LEVELS, frequentForms } from './content.js'
+import { newlyEligibleAreas, offerableTest } from './achievements.js'
 import { NPCS } from './npcs.js'
-
-// An AREA FACTOID becomes available once you've VISITED at least `threshold` of
-// its region's nodes and haven't earned it yet — returns the first such id (to
-// offer its comprehension test), or null.
-function readyAreaFactoid(visited, earned) {
-  for (const f of AREA_FACTOIDS) {
-    if (earned[f.id]) continue
-    const nodes = REGION_NODES[f.region] || []
-    if (!nodes.length) continue
-    let seen = 0
-    for (const id of nodes) if (visited[id]) seen++
-    if (seen / nodes.length >= (f.threshold ?? 0.6)) return f.id
-  }
-  return null
-}
 
 export const PEAK_START_TURNS = 3
 export const START_HEARTS = 3
@@ -115,8 +99,31 @@ const npcCond = (state, id) => {
 // narrate the turning of the hour as an event ("night falls…") instead of a
 // standing fact. Like from:, it fades once you act again inside the phase.
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// BACKTRACK — you can always step back to where you've just been. `state.trail`
+// holds the last TRAIL_LEN DISTINCT nodes you occupied before the current one
+// (most-recent first). An option whose destination is in the trail is a walk
+// BACK to a recently-visited place: it always shows and is never reveal-gated
+// or ringed (you already read those rooms to reach them — no re-earning the
+// words to retreat). Forward progress into a NEW place still gates normally.
+// This generalises the old single-step retreat to the last few locations.
+// (Token cost is unchanged — backtracking still spends tokens unless `free:`.)
+// ---------------------------------------------------------------------------
+export const TRAIL_LEN = 6
+// a step BACK to a recently-occupied place: the node you just came from, or any of
+// the last TRAIL_LEN distinct nodes on the trail. cameFrom is checked explicitly so
+// the rule holds even for a save written before the trail existed (migration-safe).
+export const isBacktrack = (state, to) =>
+  !!to && (to === state.cameFrom || (state.trail || []).includes(to))
+
 export const isFromId = (id) => typeof id === 'string' && id.startsWith('from:')
 export const isBecameId = (id) => typeof id === 'string' && id.startsWith('became:')
+// the embodiment framework: `embodying` (bare) = bound to ANY tale; `embodying:<tale>`
+// = bound to that one. Virtual items, resolved against state.embodying (set by a
+// `become:` threshold option, cleared at any ending). See hasRequiredItem for how a
+// `become:` option is itself gated so you can't cross into a tale while bound elsewhere.
+export const isEmbodyingId = (id) => typeof id === 'string' && id.startsWith('embodying:')
 // one truth for "does the player have X right now" — item, companion, hour,
 // fire, or the way they came in
 export const hasCond = (state, id) => {
@@ -133,6 +140,8 @@ export const hasCond = (state, id) => {
       id.slice(7).split('|').includes(timeOfDay(state))
     )
   if (isNpcId(id)) return npcCond(state, id)
+  if (id === 'embodying') return state.embodying != null
+  if (isEmbodyingId(id)) return state.embodying === id.slice(10)
   return (state.inventory[id] || 0) > 0
 }
 // the next hour (at or after `clock`) that falls inside `phase`
@@ -153,23 +162,37 @@ export const formsUnlocked = (state, id) =>
 
 // ---------------------------------------------------------------------------
 // Persistence: the WHOLE game state is saved to localStorage on every change,
-// so reloading the page resumes you exactly where you left off. The discovered-
-// endings collection is also kept under its own key so it survives even if the
-// run state is ever cleared or its shape changes.
+// so reloading the page resumes you exactly where you left off. The achievement
+// collection — earned (gate passed), eligible (deed done) and failed-attempt
+// counts (they salt the next test's questions) — is also kept under its own
+// key so it survives even if the run state is ever cleared or changes shape.
 // ---------------------------------------------------------------------------
-const ENDINGS_KEY = 'aventura.endings.v1'
+const ACHIEVEMENTS_KEY = 'aventura.achievements.v1'
+const LEGACY_ENDINGS_KEY = 'aventura.endings.v1' // pre-achievement collection
 const STATE_KEY = 'aventura.state.v1'
 
-export function loadEndings() {
+export function loadAchievements() {
   try {
-    return JSON.parse(localStorage.getItem(ENDINGS_KEY)) || {}
+    const saved = JSON.parse(localStorage.getItem(ACHIEVEMENTS_KEY))
+    if (saved) {
+      return { earned: saved.earned || {}, eligible: saved.eligible || {}, attempts: saved.attempts || {} }
+    }
   } catch {
-    return {}
+    /* ignore */
   }
-}
-export function saveEndings(endings) {
+  // migrate the old flat endings collection: everything already discovered
+  // under the survive-the-test rules stays earned (and so eligible)
   try {
-    localStorage.setItem(ENDINGS_KEY, JSON.stringify(endings))
+    const old = JSON.parse(localStorage.getItem(LEGACY_ENDINGS_KEY))
+    if (old) return { earned: { ...old }, eligible: { ...old }, attempts: {} }
+  } catch {
+    /* ignore */
+  }
+  return { earned: {}, eligible: {}, attempts: {} }
+}
+export function saveAchievements({ earned, eligible, attempts }) {
+  try {
+    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify({ earned, eligible, attempts }))
   } catch {
     /* ignore */
   }
@@ -202,25 +225,31 @@ function baseRun() {
     nodeId: START_NODE,
     cameFrom: null, // the node you walked in from (see ARRIVAL above)
     cameFromPhase: null, // the time-of-day phase when you chose your last option (see ARRIVAL)
+    trail: [], // the last few DISTINCT nodes you occupied before this one, most-recent first
+    // (see BACKTRACK below). An option whose destination is in the trail is a step BACK to a
+    // place you were just at — it always shows (never reveal-gated, never ringed).
     discovered: {}, // senseId -> true
     inventory: {}, // itemId -> count (you start with nothing)
     peak: PEAK_START_TURNS, // story turns of "peak" remaining (hover -> English)
     hearts: START_HEARTS, // wrong training answers cost a heart; 0 = game over
+    healedAt: {}, // heart level -> true once that level's once-per-run self-heal is spent (see HEART_LEVELS)
     turn: 1,
     clock: START_CLOCK, // hour of the world-day (see TIME OF DAY above)
     fireLit: null, // hour the clearing's campfire was last lit (see THE CAMPFIRE above)
     npcStarted: {}, // npcId -> hour a one-shot NPC route was triggered (see NPC ROUTES above)
     view: 'story', // 'story' | 'practice' | 'dictionary' | 'endings'
     ended: null, // null | 'good' | 'bad' | 'secret'
-    pendingFactoid: null, // id of an area factoid ready for its comprehension test
+    embodying: null, // the tale you're bound to (embodiment framework): set by a `become:` threshold, cleared at any ending
+    pendingTest: null, // achievement id whose test the in-story banner is offering
+    dismissedTests: {}, // achievement ids whose banner was waved off this run
   }
 }
 
 // the initial state when the app boots
 export function newRun() {
-  // `mana` and `practiced` live OUTSIDE baseRun(): they are long-term learning
-  // progress that carries across runs (unlike per-run state, which resets).
-  return { ...baseRun(), mana: {}, practiced: {}, visited: {}, discoveredEndings: loadEndings(), debug: false, loreFocus: null }
+  // `mana`, `practiced` and the achievement maps live OUTSIDE baseRun(): they
+  // are long-term progress that carries across runs (unlike per-run state).
+  return { ...baseRun(), mana: {}, practiced: {}, visited: {}, ...loadAchievements(), debug: false, loreFocus: null }
 }
 
 // distinct sense ids used by a phrase (an option's answer or an item's use phrase)
@@ -246,7 +275,11 @@ export function canSpeak(state, tokens) {
 const condList = (v) => (v == null ? [] : Array.isArray(v) ? v : [v])
 export const hasRequiredItem = (state, option) =>
   condList(option.requires).every((id) => hasCond(state, id)) &&
-  condList(option.unless).every((id) => !hasCond(state, id))
+  condList(option.unless).every((id) => !hasCond(state, id)) &&
+  // the soft mold-lock: a `become:X` threshold is hidden while you're bound to a
+  // DIFFERENT tale — you can't step into another story as someone else until an
+  // ending (or death) looses you. Unbound, or already this tale, it shows.
+  (!option.become || !state.embodying || state.embodying === option.become)
 
 // ---------------------------------------------------------------------------
 // LEK — the in-world money (the 🪙 count in `inventory.lek`). An option carries
@@ -257,12 +290,9 @@ export const hasRequiredItem = (state, option) =>
 export const lekOf = (state) => state.inventory.lek || 0
 export const canAfford = (state, option) => (option.lek ?? 0) >= 0 || lekOf(state) >= -option.lek
 
-// a `free: true` option (walking back the way you came) needs its words
-// DISCOVERED but neither requires nor spends tokens — retreat is never
-// token-locked (see the fshatiLumi -> start bridge crossing)
 export const canChoose = (state, option) => {
   const sp = canSpeak(state, option.text)
-  return (option.free ? sp.allDiscovered : sp.ok) && hasRequiredItem(state, option) && canAfford(state, option)
+  return sp.ok && hasRequiredItem(state, option) && canAfford(state, option)
 }
 
 export const canUseItem = (state, item) => canSpeak(state, item.use.phrase)
@@ -290,19 +320,30 @@ export function reducer(state, action) {
       // money changes hands: earn (+n) or pay (−n, never below zero)
       if (option.lek) inventory.lek = Math.max(0, (inventory.lek || 0) + option.lek)
       // A BAD ending is recorded at once (a fate met is met). A good/secret
-      // ending is a FACTOID: reaching it only OFFERS the comprehension test —
-      // the codex entry and the heart-restore come from EARN_FACTOID, dispatched
-      // by StoryView only when EVERY question is answered correctly. Fail the
-      // test and the tale slips away: nothing recorded, walk the path again.
-      const discoveredEndings = targetNode?.end === 'bad'
-        ? { ...state.discoveredEndings, [option.to]: true }
-        : state.discoveredEndings
-      // Track where you've been (persistent) and, unless you've just hit an
-      // ending screen, see if exploring a region has made an area factoid ready.
+      // ending is an ACHIEVEMENT DEED: reaching it marks the achievement
+      // ELIGIBLE (permanently — a failed test never loses the deed). The codex
+      // entry and heart-restore come from EARN_ACHIEVEMENT, dispatched only
+      // when EVERY comprehension question is answered correctly.
+      const earned = targetNode?.end === 'bad'
+        ? { ...state.earned, [option.to]: true }
+        : state.earned
+      let eligible = state.eligible
+      if ((targetNode?.end === 'good' || targetNode?.end === 'secret') && !eligible[option.to]) {
+        eligible = { ...eligible, [option.to]: true }
+      }
+      // Track where you've been (persistent); exploring a region past its
+      // threshold is the DEED of its area achievement.
       const visited = { ...state.visited, [option.to]: true }
-      const pendingFactoid = targetNode?.end
-        ? state.pendingFactoid
-        : state.pendingFactoid || readyAreaFactoid(visited, discoveredEndings)
+      const newAreas = newlyEligibleAreas(visited, eligible)
+      if (newAreas.length) {
+        eligible = { ...eligible }
+        for (const id of newAreas) eligible[id] = true
+      }
+      // unless you've just hit an ending screen, the banner may offer an
+      // eligible-but-unpassed area test (the codex always has the retake too)
+      const pendingTest = targetNode?.end
+        ? state.pendingTest
+        : state.pendingTest || offerableTest(eligible, earned, state.dismissedTests)
       // the hour drifts with every choice; resting/waiting jumps it forward
       let clock = (state.clock ?? START_CLOCK) + 1
       if (option.time) clock = advanceToPhase(clock, option.time)
@@ -313,26 +354,37 @@ export function reducer(state, action) {
       const npcStarted = targetNode?.startsNpc && state.npcStarted?.[targetNode.startsNpc] == null
         ? { ...state.npcStarted, [targetNode.startsNpc]: clock }
         : state.npcStarted
-      // an option may restore hearts (a paid bed, the healer's herbs); a factoid
-      // ending restores to full only via EARN_FACTOID (the passed test)
+      // an option may restore hearts (a paid bed, the healer's herbs); an
+      // achievement restores to full only via EARN_ACHIEVEMENT (the passed gate)
       let hearts = state.hearts
       if (option.hearts) hearts = Math.min(START_HEARTS, hearts + option.hearts)
+      // the embodiment framework: crossing a `become:` threshold binds you to a
+      // tale; reaching ANY ending looses you (a fresh run then starts unbound too).
+      let embodying = state.embodying ?? null
+      if (option.become) embodying = option.become
+      if (targetNode?.end) embodying = null
       return {
         ...state,
-        mana: option.free ? state.mana : spend(state.mana, ids),
+        mana: spend(state.mana, ids),
         inventory,
-        discoveredEndings,
+        earned,
+        eligible,
         visited,
-        pendingFactoid,
+        pendingTest,
         hearts,
         nodeId: option.to,
         cameFrom: state.nodeId,
         cameFromPhase: timeOfDay(state),
+        // breadcrumb the node you're leaving onto the trail (most-recent first, kept
+        // DISTINCT and capped at TRAIL_LEN). Drop the destination if it's already in
+        // there so a place is never in its own backtrack set. See BACKTRACK below.
+        trail: [state.nodeId, ...(state.trail || [])].filter((n, i, a) => a.indexOf(n) === i && n !== option.to).slice(0, TRAIL_LEN),
         peak: Math.max(0, state.peak - 1),
         turn: state.turn + 1,
         clock,
         fireLit,
         npcStarted,
+        embodying,
         ended: targetNode?.end || null,
       }
     }
@@ -348,6 +400,25 @@ export function reducer(state, action) {
       if (item.use.effect?.peakTurns) peak += item.use.effect.peakTurns
       if (item.use.effect?.hearts) hearts = Math.min(START_HEARTS, hearts + item.use.effect.hearts)
       return { ...state, mana: spend(state.mana, ids), inventory, peak, hearts }
+    }
+
+    case 'HEAL': {
+      // The hearts-ladder self-mend (see content's HEART_LEVELS): only while AT
+      // a below-full level, only once per level per run, only after the level's
+      // health line is fully discovered — then it's a normal token spend.
+      const lvl = state.hearts
+      const spec = HEART_LEVELS[lvl]
+      if (!spec?.heal || lvl >= START_HEARTS || lvl <= 0) return state
+      if (state.healedAt?.[lvl]) return state
+      if (!spec.line.every((t) => !t.id || state.discovered[t.id])) return state
+      const sp = canSpeak(state, spec.heal.phrase)
+      if (!sp.ok) return state
+      return {
+        ...state,
+        mana: spend(state.mana, sp.ids),
+        hearts: lvl + 1,
+        healedAt: { ...state.healedAt, [lvl]: true },
+      }
     }
 
     case 'PRACTICE_CORRECT':
@@ -366,9 +437,9 @@ export function reducer(state, action) {
       return { ...state, hearts: Math.max(0, state.hearts - 1) }
 
     case 'COMP_WRONG':
-      // missed a comprehension question at a factoid test — costs a heart, and
-      // run out (hearts→0) and the run is over. You still EARN the tale if you
-      // survive the test, so a single misclick just stings; guessing kills.
+      // missed a comprehension question — costs a heart (run out and the run
+      // is over). The gate is HARD: the wrong answer also ends the attempt
+      // (see FAIL_TEST), but the deed stays eligible for a retake.
       return { ...state, hearts: Math.max(0, state.hearts - 1) }
 
     case 'SET_VIEW':
@@ -397,6 +468,11 @@ export function reducer(state, action) {
     case 'DEBUG_LEK':
       return { ...state, inventory: { ...state.inventory, lek: (state.inventory.lek || 0) + 20 } }
 
+    // Take a hit (the 🛠 ♥ chip) so the hearts ladder and its once-per-level
+    // self-heals are testable without failing training answers on purpose.
+    case 'DEBUG_HURT':
+      return { ...state, hearts: Math.max(0, state.hearts - 1) }
+
     // Skip to the start of the next time-of-day phase (the 🛠 time chip).
     // Stamps cameFromPhase like a real choice would, so became() transition
     // lines are previewable from the debug chip.
@@ -410,19 +486,36 @@ export function reducer(state, action) {
     case 'OPEN_LORE':
       return { ...state, view: 'debug', loreFocus: action.lore }
 
-    // Passed an AREA factoid's comprehension test: earn it (recorded alongside
-    // the ending factoids), restore all hearts, and clear the pending offer.
-    case 'EARN_FACTOID':
+    // Passed an achievement's comprehension gate — every question right:
+    // unlock it, restore all hearts, and clear any pending banner offer.
+    case 'EARN_ACHIEVEMENT':
       return {
         ...state,
-        discoveredEndings: { ...state.discoveredEndings, [action.id]: true },
+        earned: { ...state.earned, [action.id]: true },
         hearts: START_HEARTS,
-        pendingFactoid: null,
+        pendingTest: state.pendingTest === action.id ? null : state.pendingTest,
       }
 
-    // Dismissed the "take the test" banner for now (it may re-offer as you explore).
-    case 'DISMISS_FACTOID':
-      return { ...state, pendingFactoid: null }
+    // Failed the gate (one wrong answer ends the attempt). The deed stays
+    // eligible; the attempt count salts the NEXT test's questions so the gate
+    // can't be beaten by memorising this one. The banner stands down for the
+    // rest of the run — the codex keeps the retake.
+    case 'FAIL_TEST':
+      return {
+        ...state,
+        attempts: { ...state.attempts, [action.id]: (state.attempts[action.id] || 0) + 1 },
+        pendingTest: state.pendingTest === action.id ? null : state.pendingTest,
+        dismissedTests: { ...state.dismissedTests, [action.id]: true },
+      }
+
+    // Waved off the "take the test" banner — quiet for the rest of the run
+    // (the Achievements tab still offers the test any time).
+    case 'DISMISS_TEST':
+      return {
+        ...state,
+        pendingTest: null,
+        dismissedTests: { ...state.dismissedTests, [action.id]: true },
+      }
 
     case 'CONTINUE':
       // finished an ending: play again, but KEEP what you've learned — your
@@ -433,7 +526,9 @@ export function reducer(state, action) {
         practiced: state.practiced,
         visited: state.visited,
         discovered: state.discovered,
-        discoveredEndings: state.discoveredEndings,
+        earned: state.earned,
+        eligible: state.eligible,
+        attempts: state.attempts,
         debug: state.debug,
       }
 
@@ -447,13 +542,14 @@ export function reducer(state, action) {
         nodeId: STORY[action.to] ? action.to : WORLD_HUB,
         cameFrom: null,
         cameFromPhase: null,
+        trail: [], // fresh footing on re-entry — nowhere is "just behind you" (see BACKTRACK)
         ended: null,
       }
 
     case 'RESET':
       // hard new run (top-right button or game over): back to the start with
-      // everything undiscovered; keep only your tokens and endings collection
-      return { ...baseRun(), mana: state.mana, practiced: state.practiced, visited: state.visited, discoveredEndings: state.discoveredEndings, debug: state.debug }
+      // everything undiscovered; keep only your tokens and achievements
+      return { ...baseRun(), mana: state.mana, practiced: state.practiced, visited: state.visited, earned: state.earned, eligible: state.eligible, attempts: state.attempts, debug: state.debug }
 
     default:
       return state

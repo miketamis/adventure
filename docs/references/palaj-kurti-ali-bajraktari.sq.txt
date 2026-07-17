@@ -1,0 +1,365 @@
+Source: "Ali Bajraktari (Besa)" — song no. 13/14 combined ("Ali Bajraktari or
+the Word of Honour" in Robert Elsie & Janice Mathie-Heck's English
+translation), of the Kângë Kreshnikësh (Songs of the Frontier Warriors)
+cycle. Sung by Palok Ujka of Kastrat (District of Malësia e Madhe).
+Published in: Visaret e Kombit, vol. II, ed. Bernardin Palaj & Donat Kurti
+(Tirana 1937), pp. 108-117; and Folklor shqiptar II, Epika legjendare (Cikli
+i kreshnikëve), Vëllimi i parë, ed. Qemal Haxhihasani (Tirana 1966), pp.
+142-149. Folk text, public domain.
+
+Retrieved directly over PLAIN HTTP (the live site's HTTPS is broken, but
+plain http:// works fine — do not trust a prior claim that the site refuses
+the connection):
+  curl -sL -m 30 -o verse_09_AL_12.pdf "http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_12.pdf"
+Returned a 7-page, 63094-byte PDF (HTTP 200) on the first try, no Wayback
+Machine needed. Extracted with `pdftotext verse_09_AL_12.pdf -`, then
+cleaned of page-break form-feed characters and the PDF's own running
+marginal line-counters (5, 10, 15, …) — the counters below are re-derived
+from the cleaned line count, not copied from the scan's own numbers, but
+land on the same multiples of 5 the source itself used. Extracted and
+cleaned 2026-07-15. Gheg dialect, already in modern Albanian orthography as
+printed by Elsie/Mathie-Heck — no transliteration performed; apostrophes
+mark the source's own elisions (n', m', t', etc.); "’" (curly apostrophe)
+appears as printed in the PDF's text layer.
+
+Ali Bajraktari (Besa)
+
+
+       Ishte kenë njajo grueja e vejë,
+       Nji jetim zoti ja kish lanë,
+       Emën t’bukur nana i kish njitë,
+       Për emën i thojshin Ali Bajraktari.
+5      Me gazep nana e kishte rritë,
+       E kish rritë me lypë të dyervet,
+       E kish veshë me floqe mbledhë ndër ferra.
+       Dymbdhetë vjeç djali ishte ba,
+       Gja e mall zoti i kishte dhanë,
+10     Nji nuse t’bukur nana ja fejon,
+       Për tri javë orokun ja kish da.
+       Kur ishin mbushë plot tri javë,
+       Ka çue nana krushqit e nusen ja kish marrë,
+       Kurrkund shoqja nuses s’i kish dalë!
+15     Por nji gabim djali e kish ba.
+       Për tri vjet jashtë deret nuk kish dalë
+       Nana e vet ka qitë e i ka thanë:
+       - Ç’se t’martova, bir, të burgtova,
+       Kurr ndër shokë, ti bir, nuk shkove,
+20     As te dajat, bir, nuk dole,
+       Miqt e babës ti i harrove.
+       I biri nanës ka qitë e i ka thanë:
+       - Lene zanin, nanë, zoti t’vraftë!
+       Sherret tueja, nanë, të tana janë,
+25     Se tepër t’re nusen ma ke marrë
+       E n’kufi shpinë un e kam
+       E sarajin vetëm un me e lanë,
+       Drue sarajin shkjau ka me ma djegë
+       Edhe nusen ka me ma grabitë,
+30     E n’rrugë t’madhe t’mjerin ka me m’qitë.
+       Besën e zotit në daç me ma dhanë,
+       Qi kurrkuj derën nuk ja çilë,
+       Për pa ardhë Alija, yt bir,
+       Due me dalë miqt, due me i shetitë.
+35     Besën e zotit nana ja ka dhanë,
+       Qi kurrkuj derën nuk ja çili
+       Për pa ardhë Alija em bir.
+       Ishte veshë Alija, ishte mbathë.
+       Në shpinë gjogut i kish ra
+40     E ish nisë rrugën e e kish marrë.
+       Ishte kthye sarajin e e kish kqyrë,
+       Ka fillue sarajin e ma nemë:
+       - Ty saraj, thotë, hajri mos t’u pat,
+       Me qyski krajli të rrenoftë,
+45     Qeremijat në Krajlni t’i çoftë,
+       Ishte nisë djali, rrugës ka shkue.
+       Nelt në bjeshkë kur ka dalë,
+       Ka ndeshë nji mriz e nji krue,
+       Ka xanë vend Alija me pushue,
+50     Uj në gurrë asht ulë e ka pi;
+       Uji prej boret në zemër i ka ra,
+       Gjumi i randë tu gurra e ka marrë.
+       Në bjeshkë krajli tuj gjue ishte kenë,
+       Sa mirë Alinë e kish pa!
+55     Ç’ka qitë maxharvet e u ka thanë?
+       - Kqyrnie turkun, tu gurra ka ardhë,
+       Aspak beh ne nuk asht tuj na ba.
+       Ka ardhë koha turkun rob me e xanë,
+       Ka ardhë koha nusen me ja marrë.
+60     Përpjetë bjeshkës maxhart kishin dalë,
+       Kambësh e duerësh Alinë fjetun e kin lidhë,
+       Thellë në burg Alinë e kin shti,
+       Për gjithmonë burgun ja kin pre.
+       Kqyr çka bani krajli për me ba!
+65     Të tanë popullin aty e ka mbledhë
+       E nji djalë si Alinë e ka gjetë,
+       Ja ka pre petkat si t’Alisë,
+       Ja ka dhanë gjog e shpatë të tijat
+       E ç’ka qitë djalit e i ka thanë?
+70     - Se në mujsh nusen me ja marrë,
+       Për gjithmonë zenjin kam me t’ba!
+       Ishte nisë djali e kishte shkue.
+       Në derë nanës s’Alisë i ka trokllue.
+       - Ulu, nanë, thotë, derën me m’ja çilë,
+75     Se ka ardhë Alija, yt bir,
+       - Lumja nana, t’madhe ka britë,
+       Ulu, nuse, derën, thotë, me e çilë,
+       Se ka ardhë Alija, em bir.
+       Bi sojnike nusja kish qillue,
+80     Në pinxhere kryet e ka qitë,
+       Sa mirë shkjanë e ka pa,
+       Be në zotin nanës i kish ba:
+       - Djali i yt, burri i em nuk asht,
+       Por po asht shkjau, i biri i shkinës,
+85     Qi ka ardhë mue me m’grabitë!
+       Atherë nusja shkjaut i ka thanë:
+       - Ik andej, shkjau, i biri i shkinës,
+       Se nuk je Alija i ynë,
+       Por je shkjau, i biri i shkinës,
+90     Qi kë ardhë mue me m’grabitë,
+       Se ma t’trashë zanin ma ke,
+       Ma i zbërdhuktë gjogu tek asht.
+       Prap ç’ka qitë shkjau e i ka thanë:
+       - Ulu, nuse, derën me ma çilë,
+95     Se uji i borës zanin ma ka çartë,
+       Gjethi i ahit gjogun e ka zbardhë,
+       Se, në basha un mbrendë me hi,
+       Copë me grimë un ty kam me t’gri.
+       Tuta nusen pak e kish marrë.
+100    Ç’ka qitë djalit prep e i ka thanë?
+       - Po dal n’beden t’sarajit,
+       Po e shprazi pushkën habertare,
+       Të marrin vesht Jutbinë e Krahinë,
+       Ata ktu kanë me ardhë,
+105    Atherë derën kam me ta çilë.
+       Prep ç’ka qitë djali e i ka thanë?
+       - Sa herë jashtë un qi kam me dalë,
+       Nuk kanë vakt agajt ktu me ardhë;
+       T’tanë Jutbina jashtë tek ka dalë,
+110    T’tanë me ne janë tuj qeshë,
+       Kah s’ja çilni derën djalit t’vetëm.
+       Atherë nusja ishte trathtue,
+       Ishte ulë, derën e e kish çilë,
+       N’vrap për shkallë nelt ka hipë,
+115    Për mbas saj shkjau asht njitë,
+       Në çardak nusen e ka xanë,
+       - Ju, kushtrim, nusja ka bërtitë.
+       Mera e madhe shkjaut i ka hi,
+       Dorën mbas grushti nuses ja ka kapë,
+120    Ishte dredhë pa nuse e ka ikë.
+       Fill te krajli shkjau ka dalë,
+       Be në zotin shkjau i ka ba,
+       Qi dorën n’dorë ja kam pasë kapë,
+       Por”kushtrim” nusja ka britë,
+125    Mera e madhe më ka hi,
+       M’asht dhanë ika e kam ikë.
+       Be në zotin prap krajlit i ka ba:
+       - Ç’se kam le, ma t’bukur nuk kam pa!
+       Atherë krajli ç’ka qitë e i ka thanë:
+130    - Aspak merak, djalë, mos u ban,
+       Dalëkadalë e jona ka me kenë.
+       Atherë krajli nji letër e shkruen,
+       Fill n’dorë t’nuses ja ka çue.
+       Ç’ka qitë n’letër e po i shkruen:
+135    - Ti qi je nusja e Alisë,
+       Merre ‘i burrë ku t’duesh vetë,
+       Se Alinë në burg e ke
+       E për gjithmonë burgun ja kam pre.
+       Letra nuses në dorë i ka ra,
+140    T’tanë me lot e mjera e ka kja.
+       Nana e vet ka qitë e e ka pvetë:
+       - Ajo letër, nuse, zot, ç’do t’jetë?
+       Shum letra, nuse, ti ke marrë,
+       Por asnji me lot nuk e ke kja.
+145    Atherë nusja nanës i ka thanë:
+       - Po thonë, se Alinë e kanë xanë
+       Edhe n’burg e kanë shti,
+       Për gjithmonë burgun ja kanë pre;
+       Por tri vjet, nanë, un due me e pritë,
+150    Tri vjet, nanë, me letra due me e lypë,
+       Si në mujsha kudo të gjallë me e gjetë,
+       Me ty, nanë, kam me dekë;
+       Si n’mos mujsha me e gjetë për tri vjet,
+       Atherë nji burrë tash e zgiedh.
+155    Tri vjet rresht me letra e ka lypë,
+       Kurr xhevap nusja nuk kish marrë.
+       Atherë nusja asht fejue,
+       Fejue e ka Sokol Halili.
+       Por prep nusja nji letër e ka shkrue.
+160    Ç’ka qitë n’letër e i ka thanë?
+       - Si në kjosh, Ali, kund gjallë.
+       Sa ma parë xhevap mue me m’dhanë,
+       Se gjithmonë me nanën kam me t’ndejë,
+       Se un nji burrë e kam xanë,
+165    Para tri javve krushqit vijnë me m’marrë.
+       Ajo letër Alisë në dorë i ka ra.
+       Ka fillue letrën e e ka kndue,
+       Sa t’madhe Alija ka britë,
+       Sa tjegullat krajlit i janë dridhë.
+170    Atherë krajli ka qitë e ka pvetë:
+       - Ç’ke, Ali, kaq t’madhe si bërtet?
+       A t’ka mërzitë mjekra për pa u rrue,
+       A balta deri n’gju,
+       A kmishat pa i ndrrue?
+175    Ç’ka qitë Alija e i ka thanë?
+       - Asnji asosh, krajl, nuk janë.
+       S’ma ka mërzitë mjekrra pa u rrue,
+       S’ma ka mërzitë balta der n’gju,
+       S’ma ka mërzitë vesha pa u ndrrue;
+180    Por kam pasë lanë nanën baxhi,
+       E kam lanë vetun në shpi.
+       Mora vesht se nana më ka dekë,
+       S’ka kush nanën ma shtje n’dhe,
+       Zogj e sorra nanën kanë me ma ngranë.
+185    Në daç besë mue me m’xanë,
+       Njimend qefil s’kam ku me t’marrë,
+       Por nji qefil po ta nap të madh,
+       Se po t’nap zotin, qi m’ka dhanë,
+       Qi sot gjashtë ditë ktu prep kam me kanë.
+190    Aspak krajli besë nuk i ka xanë.
+       E bija e krajlit babës i ka thanë:
+       - Për Alinë qefil jam vetë,
+       T’tanë gazepet un kam me i hjekë,
+       N’kjoftë se Alija sot gjashtë dit nuk vjen.
+195    Atherë krajli e ka lshue,
+       Për shpi Alija asht fillue.
+       Kur te shpija Alija ka shkue,
+       Ka ndeshë n’Bylykbashe Mujin.
+       - Mirë se të gjej, i thotë, burri dai!
+200    - Mirë së vjen, lypsi fukara!
+       Ka qitë Muji e ma pvetë:
+       - Për kah shkon, ti lyps, a prej kah vjen?
+       Qet Alija Mujit e i ka thane:
+       - Fill prej burgut sot kam dalë.
+205    - Po a din gja mue me m’kuvendë,
+       Për Ali Bajraktarin?
+       Tesh tri vjet krajli na e ka xanë.
+       Atherë Alija ka qitë e i ka thanë:
+       - N’nji burg me Alinë kam ndejë,
+210    N’burg Alija ka dekë,
+       Për pinxhere eshtnit ja kam tretë,
+       Se pat nisë hapsanen me ma qelbë;
+       Por nji fjalë Alija amanet ma ka lanë,
+       Vetëm nuses me ja thanë.
+215    Lott për faqe Mujit po i bijnë
+       E e ka shti dorën në xhep,
+       Ja ka falë njiqind orum të verdhë,
+       Për shpirt t’Alisë po ja nep.
+       Prep Muji i ka thanë:
+220    - Tridhetë dada nusen janë tu e veshë,
+       Si në bashin derën mos me e çilë,
+       T’madhe,”Mujo” ke me thirrë.
+       Kur n’oborr Alija ka vojtë,
+       Kishte ndeshë n’Sokole Halilin.
+225    - Mirë se të gjej, burri dai!
+       - Mirë se vjen, lypsi fukara!
+       Ka fillue Halili e e pvetë:
+       - Për kah shkon, ti lyps, a prej kah vjen?
+       Atherë Alija i ka thanë:
+230    - Prej Krajlnijet jam tue ardhë,
+       Sot prej burgut un kam dalë.
+       - A din gja, lyps, me na kuvendë
+       Për Ali Bajraktarin?
+       Tesh tri vjet krajli na e ka xanë.
+235    - Bashkë n’nji burg me Alinë kam kanë,
+       Alija n’burg ka dekë,
+       Për pinxhere eshtnit ja kam tretë,
+       Se pat nisë hapsanen me ma qelbë.
+       Lott për faqe Halilit i bijnë
+240    E e ka shti dorën në xhep,
+       Ja ka falë pesdhetë orum të verdhë,
+       Për shpirt t’Alisë po ja nep.
+       N’derë t’çardakut kur ka hi,
+       Na ka ndeshë nanën baxhi.
+245    - Mirë se të gjej, mori baxhi!
+       - Mirë se vjen, lypsi fukara!
+       Atherë nana ka nisë e e ka pvetë:
+       - Për kah shkon, ti lyps, a prej kah vjen?
+       - Fill prej krajlit jam tue erdhë,
+250    Sot prej burgut un kam dalë.
+       - Pash zotin, lyps, qi të ka dhanë,
+       A din gja mue me m’kuvendë
+       Për Ali Bajraktarin, djalin tem?
+       - Ti, mori baxhi, kjosh vetë,
+255    Se Alija në burg t’ka dekë.
+       Për pinxhere eshtnit ja kam tretë,
+       Se pat nisë hapsanen me ma qelbë.
+       Lott për faqe nanës po i bijnë
+       E e ka shti dorën në xhep,
+260    Ja ka falë paret pa njehë,
+       Për shpirt t’birit po ja nep.
+       Në derë t’odës Alija ka shkue,
+       Derën e odës dadat s’ja kin çilë.
+       Sa t’madhe Alija ka thirrë!
+265    Atherë Muji nelt ka hipë,
+       Tridhetë dadat jashtë i ka qitë,
+       Mbrendë Alinë e ka shti.
+       Atherë nusja ka qitë e e ka pvetë:
+       - Për kah shkon, ti lyps, a prej kah vjen?
+270    - Fill prej Krajlnijet jam tue ardhë
+       E tesh prej burgut un kam dalë,
+       - Po a din gja, ti, mue me m’kuvendë
+       Për Ali Bajraktarin, burrin tem,
+       Qe tash tri vjet rob krajli e ka xanë.
+275    - Bashkë n’nji burg me te kam ndejë
+       Edhe Alija n’burg ka dekë,
+       Për pinxhere eshtnit ja kam tretë.
+       Lott për faqe nuses po m’i bijnë.
+       Nji shej n’ballë Alija e kish,
+280    Flokët e mdhaj shejin ja kin xanë,
+       Përpjetë flokvet u ka dhanë.
+       Sa mirë nusja shejin ja ka pa
+       Edhe nusja atherë ish kujtue,
+       N’hamanxhik e ka çue,
+285    Asht la Alija e ndrrue,
+       Për kapanxhjet me nuse janë ulë,
+       Në shpinë gjogut t’Mujit i kanë hipë
+       E janë nisë të dy me ikë,
+       Halili atherë i ka pa,
+290    Ka qitë Mujit e i ka thanë:
+       - Ky s’kje lypsi fukara,
+       Por kenka kenë shkjau i biri i shkinës.
+       Mirë për nuse dert s’po kam,
+       Gjogun tand ku kem’ me e marrë?
+295    Atherë Muji Halilit i ka thanë:
+       - Largou, more budalla i marrë,
+       Se i zoti gjanë e vet m’duket se ka marrë.
+       Në shpinë t’mazit t’Halilit Muji ka hipë,
+       Vrap mazit i ka dhanë,
+300    Nalt në bjeshkë Muji e ka xanë.
+       Atherë Alija i ka thanë:
+       - Pasha zotin, Mujo, qi m’ka dhanë,
+       Gjanë teme un kam marrë.
+       Atherë Muji prëp i ka thanë:
+305    - Na dy darsma, Ali, duem me ba,
+       Nji për nuse qi ke marrë
+       E tjetrën pse po e dijmë se je gjallë.
+       Gjashtë dit darsëm kanë ba,
+       Kur janë mbushë plot gjashtë dit,
+310    Alija nuses i ka thanë:
+       - Prep n’Krajli m’duhet me dalë,
+       Pse besën e zotit krajlit ja kam dhanë,
+       Sot gjashtë dit aty prep me kanë.
+       Aspak besë krajli s’më ka xanë,
+315    E bija e krajlit qefil m’asht ba.
+       Atherë krajli m’ka lanë me ardhë
+       E s’mundi në rrenë çikën me ë lanë,
+       me e dijtë se ma n’Jutbinë s’kam me ardhë.
+       Në shpinë gjogut i ka ra,
+320    Në Krajli Alija prep ka dalë,
+       Tevabija përpara i ka dalë,
+       Duen gjogun Alisë me ja marrë,
+       Se kujtojnë, se mysafir asht.
+       Atherë Alija ka thanë:
+325    - Mysafir un nuk jam,
+       Diftoni krajlit, se kam ardhë,
+       Atherë krajli në derë ka dalë
+       E Alinë aty e ka pa,
+       Ka qitë Alisë e i ka thanë:
+330    - Hajt, Ali, t’kjoftë rruga e mbarë,
+       Se besnik ti kenke kanë.
+       E në shpi Alija prep ka dalë.
+
+
+[Sung by Palok Ujka of Kastrat (District of Malësia e Madhe). Published in: Visaret e
+Kombit, vol. II. ed. Bernardin Palaj and Donat Kurti (Tirana 1937), p. 108-117; and Folklor
+shqiptar II, Epika legjendare (Cikli i kreshnikëve), Vëllimi i parë. ed. Qemal Haxhihasani
+(Tirana 1966), p. 142-149.]

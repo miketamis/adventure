@@ -1,0 +1,723 @@
+Provenance: "Martesa e Halilit" ("The Marriage of Halili"), song no. 5 of the
+Kângë Kreshnikësh (Songs of the Frontier Warriors) cycle. Sung by Mëhill Prêka
+of Curraj i Epërm (District of Tropoja) — the same singer as "Fuqija e Mujit".
+First published in Visaret e Kombit, vol. II, ed. Bernardin Palaj & Donat
+Kurti (Tirana, 1937), pp. 23-41; reprinted in Folklor shqiptar II, Epika
+legjendare (Cikli i kreshnikëve), Vëllimi i parë, ed. Qemal Haxhihasani
+(Tirana, 1966), pp. 71-86.
+
+Extraction: fetched 2026-07-15 directly from albanianliterature.net's live
+site over PLAIN HTTP (its HTTPS certificate is broken, but the plain-HTTP
+vhost serves the file fine) —
+  curl -sL -m 25 -o v05.pdf "http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_05.pdf"
+  pdftotext -layout v05.pdf -
+— then pdftotext -layout, 14-page bilingual-facsimile PDF Robert Elsie
+published beside his and Janice Mathie-Heck's English translation
+(verse_09_05.html, "Marriage of Halili", in Songs of the Frontier Warriors
+(Këngë Kreshnikësh): Albanian Epic Verse in a Bilingual English-Albanian
+Edition, Bolchazy-Carducci, 2004).
+
+CORRECTING A PRIOR SESSION'S "missing" VERDICT: an earlier pass on this tale
+concluded no Albanian original could be recovered, citing (a) no Wayback
+snapshot of verse_09_AL_05.pdf and (b) a supposedly-failed direct fetch. On
+inspection, that "failed fetch" (cached in this session's scratchpad as
+verse_09_AL_05_test.pdf) is actually an HTML error page saved with a .pdf
+extension, not a real attempt at the live PDF — the plain-HTTP recipe in the
+schema, tried directly against the live site rather than through Wayback,
+returns the genuine 14-page facsimile without any trouble (HTTP 200, 83956
+bytes). No Wayback snapshot is needed; the live site is sufficient.
+
+Orthography note: Gheg highland dialect (Tropoja) as printed by Elsie &
+Mathie-Heck — already modern Albanian orthography, kept as printed; NOT
+transliterated. Curly elision-apostrophes (’ and ‘) are the source's own
+elision marks (contractions like "'i" for "një", "m'u" for "më u", etc.), kept
+verbatim. TWO light fixes applied only in the tale file's beat-line quotes
+(kept as printed here, unfixed):
+  - lines 32, 40, 41 print "In" ("In ngri trimat...", "In bucelat...", "In
+    fuçijat...") where every surrounding clause uses the dative/accusative
+    clitic "Ia" ("[he/she/it did it] to them/for them") — almost certainly a
+    PDF text-layer extraction glitch in the embedded font (a ligature for
+    "Ia" mapped to "In"), not a real dialect word. The tale file's quotes
+    correct these three to "Ia", per the schema's OCR-fix allowance (compare
+    palaj-kurti-vdekja-e-omerit-ajkuna-kjan.sq.txt's "Omeri" precedent).
+  - the straight/curly double quotation marks the extraction produced around
+    direct speech (lines 139, 179-182, 191-193, 239, 552, 606, 620, 671) are
+    normalized to Albanian guillemets «» in the tale file's quotes only.
+
+=============================================================================
+Martesa e Halilit
+=============================================================================
+Lum për ty, o i lumi zot!
+Fort po shndritë njaj diell e pak po xe’!
+Ç’p’e merr frima rrapin e Jutbinës!
+Borë e madhe qi ka ra,
+Randojnë ahat për me u thye,
+Kin çetinat vetëm kreshtat,
+Ushtojnë lugjet prej ortiqesh,
+Prej ortiqesh, kah po bijnë ndër gropa.
+Janë ra vashat me gja n’lumë,
+Kanë gjetë lumën tanë ngri akull;
+Kanë nisë vashat me lypë krojet,
+Kanë gjetë krojet tanë ngri hej.
+Ça kanë qitun e kanë thanë?
+- Kur t’bajë zoti me e lirue,
+Gjaja e gjallë, druem, ka mbarue!
+Po, zot, ç’janë njata shtegtarë,
+Veshë e mbathë porsi zotnij?
+Mos janë nisë trimat për me çetue,
+Qi ata qafat kurr s’mund i kalojnë!
+Ka qitë Jera edhe u ka thanë:
+- O nuk janë, jo, krushq darsmorë,
+Se ata paresh ranë n’lumë;
+Ka dalë Muji me kreshnikë,
+A thue ndeshet m’ndoi gja malit!
+T’kjoshim falë, o i madhi zot,
+Sa shpejt diellin ma xu reja!
+Shpejt ma endi ‘i pëlhurë t’gjanë e t’gjatë!
+E i ka veshun majet rreth e rrokull,
+Qi, kur janë kapë trimat tu lumi,
+Kaq përzi i ka frima plajm e re,
+Askurrnja shoshojnë trimat s’p’e njofin.
+Ia ngri trimat me sharrue,
+Por n’breg t’lumit - kulla e Mujit,
+T’tanë për darkë Muji i ka ndalë.
+Kqyr shka bani Gjeto Basho Muji!
+E ka vu nji barrë dru t’vogël n’zjarm,
+Treqind vetë priherë m’u xe,
+Atherë trimi u ka avit bucelat,
+Atherë trimi u ka avitë fuçijat.
+Ia bucelat plot raki,
+Ia fuçijat plot me venë.
+Sa shpejt frima burrave u ka ardhë!
+Sa shpejt gjaku trimave po u xehet!
+Kanë marrë llafin e po llafiten,
+Kanë marrë gazin e po gazmojnë,
+Kanë nisë trimat Mujin p’e pëvetin:
+- N’votër tande kem’ qillue,
+Mos na ki randë për nji fjalë!
+Pash nji zot, Mujë, qi t’ka dhanë,
+Qysh Halilin s’e martove?
+Janë martue krejt moca e tij,
+Djelm e çika zotynë u ka falë,
+Djelt e tyne n’lojë t’tanë janë dalë.
+A t’u dhimtën paret për me i dhanë?
+A t’u dhimten darsmat për me i ba?
+Tutna djalin dikush po na rre.
+Shpesh e shpesh po bje’ n’Kotorre t’reja,
+Rob të gjallë djalin p’e xanë.
+Le’ konakun, Mujë, qi s’po ta fikin,
+Ma zi fisin, Mujë, po na koritin.
+As be m’zotin trimi nuk ka ba.
+- Faqebardhë, more shokë, ju kjoshi,
+Se mirë hallin po ma diki, burra!
+Mana paret s’m’u kanë dhimët me i dhanun!
+Mana, darsmat s’m’u kanë dhimët me i bamun!
+Ju t’pavllazën, shokë, s’kini qillue,
+Kuj po i dhimen darsmat për vlla t’vet?
+Ky edhe s’asht, or burra, cub flligshtish,
+Mirë e njihni, se â daji trimnish.
+Qi për n’dashtë me m’pru marren te shpija,
+He, ktij zoti i shkimët hisen e diellit!
+E n’pastë menden me na koritë fisin,
+Gjujma, re, qetash me kokërr rrfeje!
+Zirma tokë, përjashta n’natë të vorrit!
+At be m’zotin djali por ka ba:
+- Kah kam vlla e kah kam motër,
+Deksha para, n’u martosha!
+Se gjithë grat e Krahinës, ku janë,
+Se gjithë vashat e Jutbinës, ku janë,
+Bash si motra qi po m’duken.
+Dheu m’ka mlue e fat s’i qita vedit,
+Po s’e mora Tanushën e krajlit.
+E un Tanushën vetë e ko’ pa,
+Kur kem’ pasë besë me Krajli.
+Gja ma t’mirë s’shef njeri nën ket diell!
+Vetulla e saj ndrejt si fiskaja,
+Shteku i ballit si shteku i malit,
+Kur merr hana me pranue,
+Syni i saj si kokrra e qershisë,
+E ka qerpikun si krahi dallndyshës,
+Ftyra e saj si kuqet molla n’degë,
+Hunda ndrejt si kalemi i Tushës,
+Goja e vogël si lula qi shpërthen,
+Dhamët e bardhë si gurzit e lumit,
+Fill mbas shiut kur po i shndritë dielli,
+Qafa e saj si qafa e pllumbit,
+Shtati i saj si ‘i shtat çetinet,
+Misht e dorës porsi rremi i shemshirit.
+Atherë djali ma s’â pritë pa folë.
+Dorën gojës Muji ja ka vndue,
+Aq ma tepër djali â pezmatue.
+- Prapou, Mujë, se m’ka ardhë dita e dekës!
+- Rend me rend, Mujo, po flasim,
+Ka britë t’madhe plaku Basho Jona.
+- S’e kam lanë, or shokë, për mik, pse s’gjeta,
+S’e kam lanë për pare, pse nuk pata,
+S’e kam lanë për vashë, pse nu’ mund hasa,
+Veç s’kam dashtë vetë m’u martue!
+- Pa ndigjo, more ti djalë,
+Ka folë plaku Osman Aga,
+Ditë e madhe nesër ka qillue,
+Tridhetë agë kanë me u bashkue,
+Tridhetë vasha t’i kanë pru,
+Njat ma t’mirën ke me e zgjedhë,
+Tridhetë agë për hajr ta bajmë!
+S’p’e len djali plakun ma me folë.
+- Zoti u vraftë, more agët e Jutbinës!
+Po ku â ndie n’mjet tokës e t’qiellës,
+Se muer vllau motrën e vet?
+Qi tanë bijat e Krahinës ku janë,
+Tanë si motra qi po m’duken.
+Nji be t’madhe qi kam ba,
+Nji be t’madhe n’emën t’zotit,
+Njatij t’lumit qi vran e kthiell,
+Rendon tokë e rendon qiell,
+Qi, ja martohem me gur e dhe,
+Ja e kam marrë Tanushën e Krajlit.
+E a ndigjuet, ju agët e Jutbinës?
+Ndeja kuk si natën e vorrit
+E n’Krahinë cok s’u martova!
+Por n’qafë m’paçi, mori bjeshkët e nalta,
+Kurrku’ ‘i shtek qi nuk ma lat,
+Për me dalun deri n’at Krajli!
+Kjeçë tuj e ba nji hjeksi t’vogël,
+T’mujshe detit me i pri der’ ndër qafa,
+Me ma dejë krejt ata borë,
+Sall sa t’dal me qitë kunorë,
+Qaq fort gazin shokët qi po ma vndojnë,
+Ma kanë ngjitë»taraku i Kotorrit»
+E frima e gjallë s’u lanka peng për log!
+Sa mirë nama bjeshkët m’i paska gjue!
+Sa shpejt deti djalin ka ndigjue!
+E e ka çue nji frimë të fortë,
+E e ka çue nji frimë të xetë,
+E e ka lëshue krejt ren e zezë.
+Binë ortiqet nëpër gropa,
+Ushtojnë malet si prej motit.
+Por tri dit e ma s’ka ngjatë,
+Â shkri bora e ka ra n’lume.
+Por tri javë e ma s’ka ngjatë,
+Shka e ka ba luma ata t’bardhë?
+T’bardhët e bjeshkëve krejt e ka mbytë n’det!
+Lum për ty, o i madhi zot,
+Ç’po këndojnë bylbylat n’mal!
+Ç’po lodrojnë fmija npër fushë!
+- Shpejt me dalë te tbani,
+Se ka shpërthye ahi!
+Atherë djali Mujit i ka thanë:
+- Qetash gjogun, Mujë, ti me ma dhanë!
+Aspak gjogun Muji s’ja ka dhanë.
+Gjogut t’vet në shpinë i ka ra
+Edhe â nisë Tanushën për me marrë.
+Kur ka ba Muji m’u dredhë,
+Mirë po i flet nana e motnueme:
+- Po ti ç’bane, more bir,
+Gjogun djalit qi s’ja dhae?
+Rrezik djali me ba me e pasë
+E n’Krajli gja me ta gjetë,
+Sa t’jesh gjallë djalit ja kujton!
+Sa shpejt Muji kenka dredhë!
+- Ndal, Halil, djalit i ka thanë.
+Gjogun e vet Muji ja ka dhanë
+E ‘i msim t’mirë qi ja ka dhanë:
+- Udha e mbarë të kjoftë tash, more vlla!
+N’megje t’krajlive kur t’bajsh për me dalë,
+Kurrkund kryet gjogut mos me ja ndalë,
+Gjogu t’çon te Vuke Harambashi.
+Probatin Vukën vetë e kam pas,
+«Falëmeshndet Muji, thuej, t’ka çue;
+Për nji punë, ti vllath, sot me m’ndimue,
+Me m’ndimue me grosh e me shpatë,
+Me m’ndimue Tanushën për me e marrë!»
+Atherë djali i ka kcye gjogut n’shpinë.
+- T’mirë u pashim, Muji i ka thanë.
+Ka marrë dromin për Krajli,
+Dy herë djalin kurrkush s’e ka pa.
+Kalojnë male e kalojnë lugje,
+Kalojnë breshtë e kalojnë ashtë,
+Kalojnë dit e kalojnë net,
+N’rob t’zotit kurrkund s’hasin.
+Po thotë dielli:»Â ndorja e eme!»
+Ka thanë hana:»Â ndorja e eme!»
+Kanë thanë orët:»Â ndorja e jonë!»
+Zot, a flet dhija në mal?
+Paska folë dhija në mal!
+Ça ka qitun e ka thanë?
+- Sa t’bajë dritë ka ndoren dielli,
+T’errmen natë, ka ndoren hana,
+Armët e brezit ja rue zana!
+Fort Halili m’asht frigue.
+- Ç’asht ky za, - zot, nëpër çeta?
+P’a thue flasin dhitë e malit?
+- Mos gabo, se s’jem’ dhi malit,
+Se na jem’ tri dhi prej shkamit,
+Qi rrijmë bashkë me zana!
+Sa mirë djali u ka përgjegjë:
+- Mirë p’e di se â logu i zanave
+E fjalës suej un nuk i luej!
+Syni i jem me ndore t’diellit,
+Kamba e eme ndorja e hanës,
+Erzi i armve ndorja e zanës,
+Deka e eme me orë çue!
+Kur ka dalë n’bjeshkën ma t’naltën,
+Na e ka pa ‘i lum t’gjanë e t’gjatë,
+I gjatë ishte det e n’det,
+Andej lumet veç e lpe.
+Ka ba gjogut me i dhanë uj,
+Tre pash gjogu â dredhë përmbrapa.
+Paka ‘i njeri për buzë shkami.
+Sa mirë ora p’e pëvetë:
+- Kah je nisë, djalo, me shkue?
+Ndejshëm djali fort qi po i përgjegjë:
+- Për Krajli ‘i herë jam drejtue,
+Der tu Vuku i Harambashit!
+Fort ka qeshë ajo ora e malit!
+Kërkund djali s’po kujtohet,
+Ç’asht aj njeri, qi po i flet.
+Sa mirë ora e paska msue!
+- Pa mba vesh, or djalë i ri,
+P’e di mirë, pse kah je dalë,
+Se t’kam pa ndër Lugje t’verdha,
+Se t’kam dashtë si sytë e ballit,
+T’kam ruejtë natën, t’kam ruejtë ditën,
+M’ke pas hije për mbas trupit.
+Aty Vukën ti s’e gje’,
+Aj kah mat â dyndë Krajlijet;
+Por avitu ‘i herë prej mejet!
+A p’e shef qat lumë të gjanë?
+Atje i thonë»Te lumi i Tunës».
+Ndale synin n’at breg lumit,
+Merr teposhtën der’ tu hijet!
+A po i shef do çadra t’bardha?
+N’mejdis t’tyne ‘i shatorr t’kuq?
+Frenin gjogut mos m’ja ndalë,
+Fill t’ka çue te e bija e krajlit!
+Ora â shdukë e hupë në mal,
+Djali â shdukë e ra në fushë.
+A varë dielli me pranue.
+Qatherë dita m’konka errë.
+Lum për ty, o i lumi zot,
+Ke falë ditën me punue,
+Ka falë natën me pushue!
+- Ça ka hana, qi s’po del?
+Kanë pëvetë bylbylat malit.
+- Pritni pak, more zojt e malit,
+Ju me kndue, tjetër punë s’keni,
+Hana sande ka ndollë xanë,
+Ka nji ndore me përcjellë!
+Ka përgjegjë dhija në shkam.
+Qatherë djali sa kish ra n’breg t’lumit.
+Ka lidhë gjogun mbrendë n’nji imshtë,
+Imshta ishte tanë ahishtë,
+Vetë shatorret npër muzg t’natës po i lypë.
+Kur ka mrrijtë te çadra e kuqe,
+Qatherë djali por ka ngulë,
+Ka xanë vend përmbas nji lisit;
+Rrajët e lisit shpërda n’lumë.
+Sa fort djali po mërzitet!
+Ça ka qitun e ka thanë?
+- Po si s’erdh kurr kjo mesnatë?
+Kur ka falë zotyn mesnatën,
+Sa urtisht djali qi p’e mësyn!
+Ma ka xjerrë thikën ma t’preftën,
+Kambadoras asht avitë
+Edhe e pritka nji copë shatorr.
+Ka ba dorë mbrendë me shti,
+Aty djali ka gabue,
+Se aty dora ndeshë n’ball t’njerit,
+Njeri ishte e bija e krajlit.
+Ka lshue vasha nji brimë t’keqe
+Edhe ndejë a çue prej tremet.
+Treqind çika pr ‘i fjalë janë mbledhë.
+Ç’kje kjo britmë Tanushës po i thonë,
+Qi kso vigme kurr s’ke ba?
+Sa butë vasha u ka përgjegjun çikavet!
+Shkoni e bini, mori shoqe,
+Si lugat dishka m’u shti
+E prej tremet gjumi m’duel!
+Meiherë çikat kenkan shkepë,
+Meiherë vasha â ulë me ra
+E ‘i unazë n’tokë rrotullohet.
+Shpejt e çon Tanusha toket.
+Kur ka pa ftyrën e djalit:
+- Po ket ftyrë, zot, ku e kam pa,
+Qi po m’giet me t’Halilit?!
+Tjetër djali s’asht durue:
+- Zoti t’vraftë, Tanushës po i thotë,
+Po a je nieri qi ke besë?
+- T’thashin krahët, more djalë i ri,
+Sa fort fell qi paske hi
+Treqind shpirtna n’trup me i pasë,
+Kurrnja drita s’ta ka xanë.
+Hajde mbrendë, kopil, po i thotë,
+Se ja desim t’dy përnjiherë,
+Ja kem’ pshtue t’dy përnjiherë.
+Sa mirë djali nuk po ngutet!
+- Ndal nji herë, çikës i ka thanë.
+E t’m’ka nxjerrë shpatën prej millit.
+Ka xënë priten n’shtek t’shatorrit,
+Ka lshue synin rreth oborrit,
+Rob i gjallë asajt nuk shifet.
+Atherë djali mbrendë ka hi.
+E ka marrë vasha për doret,
+Shpejt e shpejt te ‘i odë i prin.
+Oda ishte mbushë me pajë.
+Tu ‘i kanë zgiedhë ‘i parë petka ma t’mirat.
+T’gjithë ngri n’ari si kokan kanë
+E Halilit para ja ka shtrue.
+- Çou, Halil, shpejto m’u veshë,
+Se me t’xanë drita qysh je,
+T’dyvet krajli veç na pret!
+Krejt si çikë djali po dan.
+Ka nisë drita me lbardhë terrin,
+Marrtas dielli kenka çue.
+Zot, ç’po bajnë çikat e krajlit,
+Qi kaq heret kenkan çue?
+Po ngarkojnë lesh sa ku munden,
+Për me ra deri n’at lumë;
+Po shpërndahen gurve t’lumit,
+Gurve t’lumit, kah po lajnë,
+Herë po lajnë, herë po këndojnë.
+Del Tanusha n’at breg lumit,
+Vetë e dyta gisht për gisht,
+Vend po xanë te gurt e lumit.
+Kanë qitë çikat e e kanë pvetë:
+- Amanet, mori e bukra e dheut,
+Po kjo vashë n’dorë qysh t’ka ra,
+Qi ne pahin krejt na paska marrë?!
+Syni i saj si syni i zanës,
+Balli i saj si balli i hanës,
+Shtati i saj porsi hala n’bjeshkë,
+Kurrkund shoqen nën ket diell s’e paska!
+- Zoti u vraftë, mori treqind çika,
+Gja e pashoqe s’asht n’ket jetë.
+Fukare, e mjera ka qillue,
+E ka xanë Pasha i Dumlikës,
+Por kjo pajë s’ka ku me marrë,
+Baba dekë e kalbë nën dhe,
+Nana mbetë rrugash mbi dhe,
+Ja ka msy kullën tatës krajl,
+A s’â send ndoi pare me ja falë.
+Por ju lani, u pastë Tanusha,
+Lani lesh e mos u tallni!
+Askurrnja ma s’po e pëvetë,
+Por po lajnë lesh gurve t’lumit,
+Kush po lan e kush po kjan prej dhimet.
+Lum për ty, o i lumi zot,
+Se ç’do t’bajë krajlica n’at Kotorr!
+‘I andërr t’vshtirë e paska pa,
+Paka n’andërr nji tufë berresh,
+Tufa ishte treqind delesh,
+N’mjedis t’tufës nji uk të zi,
+Uk i zi si ‘i dash galan.
+Tremshem grueja konka çue,
+Fill tu krajli konka shkue:
+- Çou, bre krajl, ty zoti të vraftë,
+Se nji çikë zoti t’ka falë,
+Tjetër djalë n’votër nuk ke
+E qe ‘i motmot me sy nuk e ke pa.
+Hypi gjogut, ku t’jet ma i shpejti,
+Se ‘i andër t’vshtirë sonte kam pa.
+- Hajre kjoftë, i britka krajli.
+- Se ishte çue nji uk Jutbinet
+E treqind çikat i kish përda.
+Meiherë krajli asht mërthye,
+Mirë e shtërngon dorinë e mejdanit,
+Mirë shtërngohet me hekurat e shtatit.
+Ka marrë rrugën, qi çon te bregu i Tunës.
+Treqind çika qi po i njehë,
+Nji ma tepër qi po i del,
+Ajo ma e bukura qi m’ishte ndër shoqe.
+- Oj Tanushë, lum baba, i ka thanë,
+Po kjo çikë n’dorë kah t’ka ra,
+Qi n’dynje shoqen s’e paska?
+- Fukare e ngrata ka qillue,
+Tata dekë e nana mbetë rrugash,
+E ka xanë Pasha i Dumlikës
+E pa pajë, qyqja ka ndodhë,
+Fill ka ardhë e ka msy ty,
+A s’â send ndoi pare me ja falë!
+Sa mirë krajli asht pshtjellue!
+Tash po nisna për Kotorre t’reja,
+Ti me vedi çikën ke me e marrë!
+Ka dhanë emër krajli me bujri:
+- Treqind çikat me u shtërngue!
+Shpejt meqaret i kanë ngarkue,
+Për Kotorr tek janë fillue.
+Asht Tanusha n’t’mramin rresht
+Me Halilin gisht për gisht,
+Djali m’gjog, vasha n’dori,
+Mirë ushtrija qi po i rue.
+Kërkund giasë s’po i shofin për me hikun.
+Mbas tri ditsh e mbas tri netsh,
+Â kapë çeta te Kotorret e reja,
+Treqind çika janë shkepë ndër koniqe,
+E ka zgjedhë Tanusha ‘i kullë ma t’mirën,
+N’breg të detit, përmbi ‘i shkam,
+Dymdhetë ketesh kulla e naltë,
+Kërkund shoqen nuk e kishte.
+Treqind hapash kulla e gjanë,
+Të tana ballet guri s’lmue,
+Anash krejt guri s’latue,
+Latue shkami prej mermerit.
+Aty gurrat me u flladitë,
+Aty kopshti me u mahitë,
+Aty velat me velzue,
+Me velzue për shpinë të detit.
+Kur po hin njeri n’at kullë,
+Me kujtue se ka ndrrue jetë.
+Me Halilin mrendë kanë hi,
+Paskan ndejë tri dit e net,
+As kanë hangër, as kanë pi.
+- Qysh ja bajmë me kthye n’Jutbinë?
+Sa mirë vasha asht kujtue!
+- Me i dhanë gjogut shpinë e detit.
+Na po himë m’nji barkë me rrema,
+Na po himë m’nji barkë me vela;
+Ti vozit, un drejto velat!
+Na çon zoti ‘i freski t’hollë,
+Na i shtyn velat për Krahinë,
+Aty n’breg gjogu na pret,
+Se un drue nanës me i kallxue!
+I kanë dhanë gjogut shpinën e detit.
+Por ç’ka ba shkina e Kotorrit?
+Kish pa gjogun mjedis valës detit,
+Fill te krajli kenka shkue.
+- Zoti t’vraftë, krajlit i ka thanë,
+Tash tri dit çika n’Kotorr â ardhë
+E as un as ti me sy s’e kemi pa!
+- Hajt sa t’duesh, për n’daç me e pa,
+Se mue ngaeja kurkund sot s’ma qet!
+Sa fort shpejt krajlica gadi â ba!
+E ka marrë rrugën e bregut t’detit
+Për me shkue te kulla e bukur,
+Aty m’gjeka kullën xanë.
+Sa mirë zanin, shkina, e ka t’hollue!
+- Oj Tanushë, lum nana, m’i ka thirrë,
+Çilma derën ‘i herë synin ta shof,
+Se malli i yt â kah m’çon n’tjetër jetë!
+Â dridhë çika për mbas deret.
+- Po si m’thue, Halil, me ba?
+- Çilja derën, n’bafti t’zotit!
+Kurkund zemra s’i ban me shdry derën.
+Sa shpejt n’mend i ra çikës edhe ‘i fjalë!
+Pa ndigjo, lum nana, i thotë,
+Po qysh t’dal, e mjera, derën me ta çilë,
+Me ket dergjë, qi shtatin ma ka kputë!
+- Hajt, moj bi, lum nana, i thotë,
+Vetë, t’pastë lokja, e re qi kam kanë
+E qaso dergje shumherë qi m’ka ra;
+Por po t’ap besën e zotit,
+Se ty dergjen nana ta ka shndoshë.
+Por çilm derën e mos m’len me pritë,
+Se ti nanën nanë ke për ta pasë!
+Â rrejtë bija e zemra hiç s’po i rre,
+N’bahti t’zotit, tek ka ra për shkallësh,
+Aspak penin doret s’e ka hjekun,
+Aspak velin m’anesh s’e ka tretun
+Edhe derën nanës ja paska çilun.
+Po, por nana s’ish kenë nanë,
+Ish kenë bishë qi hate drangujt.
+Kur ka pa shkina Sokol Halilin,
+Â dredhë mrapësht si dredhet gjarpni.
+- Zoti t’vraftë, moj bi, si t’paska vra!
+P’a me cuba kullen e ke mbushë?
+Edhe derën e ka shkrepë,
+Fill tu krajli tek â shkue.
+- Ke mbame, Krajl Kapedane!
+T’kanë ardhë cubat e Jutbinës
+E ty kullat t’i kanë zaptue,
+Erzin marrë, çikat shnjerzue!
+- T’u thaftë goja! Ç’je kah thue?
+Ka britë t’madhe Shkjau i Kotorrit
+Edhe ftyra zjarm i paska marrun.
+Shpejt konka shterngue
+E e rrethueka krejt bregun e detit
+E e ka msye kullën e shkamit.
+- Hiç s’po i nepet djalit me qindrue.
+T’dy për krahit krajli i ka kapun.
+- Si m’shnjerzove kshtu, Tanushë, mjerë baba!
+Qysh me ndejë me cuba të Jutbinës?
+N’burgje t’fella Haliln e ka ndry,
+Rrugën e madhe Tanushës ja ka dhanë.
+Qetash udha e marë t’kjoftë, mori bi,
+Se kto janë rrugat, qi ke dashtë me marrë!
+E ruej se e msy tjetër derën e shpisë,
+Se babës e vedit ja ke mbyllë me ferrë!
+Qatherë vajin ka marrë çika e rrugën,
+Ka matrë gjamën e fort po gjamon,
+Krejt e mjeron rrugën, kah po shkon.
+Kanë dalë gjindja me veshtrue ata vaj,
+As me iu avitë kurrkush nuk po guxon,
+Kaq rojë t’madhe krajli i kishte vu.
+Kur ka mrrijtë te kryet e Kotorrit,
+Mirë p’e ndalë Jovani e p’e pvetë.
+- Ç’â kta vaj, Tanushë, lum motra, i thotë,
+Se kso britmet kurr nuk kemi ndi!
+Ktheu njiherë e t’himë mbrendë në shpi,
+Ty dishka po deshtka sot me t’gjetë!
+- S’ke pse mton, Jovan, për me dredhue,
+Rob kanë xanë Halilin e Mujit
+E mue rrugat tata m’i ka dhanë,
+Ma për t’gjallë te shpija mos me kthye!
+- Po ty, bi, hjeksinë kush ta ka ba?
+- At mos pritsha, Jovan, me kanë!
+Nana qi m’paditi.
+Por amanet, Jovan, ta paça lanë,
+Nji fjalë Mujit tu dera me ja çue,
+Qi me i ra mbrapa Halilit sa ma parë,
+Ndryshej djali n’burgje t’u ka kalbë!
+Mirë Jovani e ka drejtue:
+- Unë Mujit shtek as gjurmë s’i di,
+Por e ka ksajt nji bij Krahinet,
+E ka kullën shi në krye t’Kotorrit,
+Derën e re, t’ndreqme sivjet.
+Fill tu dera Jovani e ka përcjellë
+E tu dera gruen e paskan hasë,
+Kah po kthete me bulirë prej kronit.
+- Shka t’ka gjetë, Tanushë-motra?
+- Mue m’ka gjetë shka mos t’gjetët kushi:
+Tata rrugat m’i ka dhanë,
+Derën e shpisë ma mos me e msye,
+Rob m’kanë xanë at Halilin e Mujit;
+Tutem, djali ka sharrue,
+Po s’erdh Muji për me e pshtue.
+Grue prej fisit qi kish kanë.
+Sa meiherë ja shndoshka zemrën:
+- Qi n’kjoftë Muji i gjallë e për të gjallë,
+Sot tri dit t’ka pri me qitë kunorë.
+E ka gjetë nji njeri beset,
+Meiherë Mujit natën ja ka nisun.
+N’nesret nadje djali â kapë tu kulla,
+Nji kah nji krejt punët ja kallxon Mujit.
+T’madhe burri paska nisë me qeshë:
+- A t’kam thanë, taraku i Kotorrit,
+Se Kotorret kanë me ta hangër kryet!
+Mos me m’ardhë marrja e Jutbinës,
+Tybe n’zotin kambën nuk e luejta!
+Â dalë trimi në beden t’kullës,
+Me ‘i kushtrim ka thirrë Jutbinë e Krahinë:
+- Për nji punë, qi sot ka ndodhë,
+«Kushtrim, djalë, për me çetue!»
+Meiherë trimat kenkan mbledhë.
+- Hajre, Mujë, kanë qitë agët e kanë thanë.
+- S’kam shka u thom, more agët e mij,
+Veç m’koriti Sokole Halili!
+E kanë xanë mbrendë në Kotorre t’reja,
+Qi tybe n’zotin mbrapa n’i bie,
+Mos me m’ardhë marrja e Jutbinës!
+Me u shtërngue, burra, si t’mundi,
+Se dita e dekës ma e vshtirë ndryshej nuk vjen!
+Treqind agët mirë janë shtërngue,
+Kanë ba ashtat trimat me ushtue,
+Kanë ba lumet trimat m’u turbllue,
+Kanë ba gjogat trimat me flurue
+E t’janë kapë te Kotorret e reja.
+N’shevarinë t’detit kur kanë ra,
+Npër ranë t’detit Muji i ka shpërda:
+- Ver me gojë mos guxo kush me ba!
+Sa mirë agët janë mshehë e t’gjith pa za po rrijnë.
+Të lumët na për zotin t’lumin,
+Se shum njeri kenka mbledhë
+Ndër ato Kotorre t’reja!
+Me kushtrim krajli i ka thirrë,
+Tanë Kotorri tu kisha janë ra.
+Ditë e dielle si m’kish qillue,
+N’mjedis t’logut nji djalë i ri,
+Hekrat duersh, bugagitë kambësh,
+Aj asht Halil Aga i zi,
+Mbarë Kotorret me ta qi po qeshen.
+Mbet e i foli Krajle Kapedani:
+- A p’e shef, Halil, dekën me sy?
+Kurr ma ngusht, Halil, a thue, je kanë?
+Sa kuvend burrash djali paska shtrue:
+- Pa nigjo, more Krajle Kapedane!
+S’â ngusht njeri deri n’ditë të dekës,
+Deka vjen mbas mikut t’pre,
+Deka vjen mbas besës s’thyeme,
+A ‘i kue bukë mos t’kesh për mik.
+Sa ma ngusht, krajli, qi ka kanë,
+Qaq ma lirë zoti ma ka ba!
+- Fjaln e mbrame, n’e paç, për me folë,
+Se ty jeta m’njat hu t’u ka sosë!
+- Zoti t’vraftë, bre Krajle Kapedani,
+Se zoti e di, per kâ e ke ngulë at hu!
+Pesë dekika liri për me m’dhanë!
+Tjetër t’mirë ne t’parët nu’ na kanë lanë,
+Kurrnja nesh veç mos me dekë në t’shtrueme,
+Por me shpata m’u pre tuj këndue.
+Sa burrnisht krajli e ka çue!
+- Gjithë sa t’duesh, Halil, me kndue!
+Edhe duert mirë ja shpengojnë,
+Ja kanë dhanë lahutën n’dorë.
+Kurkush djalin vesht s’und e ka marrë,
+Krejt p’e kndon kangën n’gjuhë të parve:
+«E kshtu drita e mbrame m’paska ardhun - o!
+Dielli xanë e majet xanë!
+Ku e latë ndoren, more diell?
+Ku e ke ndoren, mori zanë?
+P’a kjo â besa, qi m’patët dhanë?
+A po m’gjegjesh, more diell?
+Pash njat dritë, qi t’flakron n’ballë,
+Amanet ta paça lanë,
+Amanet për t’mramen herë!
+Kërkoe bjeshkën krep e m’krep,
+Kërkoi mrizet gjithku janë,
+Ndezi ashtat anemanë,
+Zirjau gjumin orve n’mal,
+Zanës s’madhe falëmeshndet,
+Thuej:»Halili qetash mbet!»
+Ka flurue nji zog prej malit,
+U ndal Zogu n’degë të nji ahit.
+- Amanet, more zogu i malit,
+A ke flatra me flutrue?
+Pash njat degë, ku rri pushue,
+Falëmeshndet Gjeto Basho Mujit!
+E ate gjumi n’e pastë xanë,
+Kurr kryet shndosh-o mos e çoftë!
+Për n’kjoftë bjeshkve kah çeton,
+Kurr te shpija shndosh mos voftë!
+E për n’kjoftë kund ksajt tuj ndi,
+Kurr ma ngusht vedin s’e di!
+Qaty Muji për fushë â dalë
+E e ka ha nji piskamë t’madhe,
+Janë shemë kullat der’ n’themele!
+E t’â trandun deti me hi mbrendë,
+Kanë gjimue malet, si për mot t’lig,
+Kurrnja trimat nuk p’e lanë me hikë.
+Luftë e rrebtë aty qi po bahet,
+Me dhambë trimat duen shoshojnë me shkye,
+Me dhambë gjogat duen shoshojnë me marrë.
+Notojnë kurmat fellë në det,
+Notojnë trupat nëpër gjak,
+Hiç s’po lodhet Gjeto Basho Muji.
+Sa fellë trimi m’paska hi!
+- Ruej, bre Mujë, se krajlin po ma çartë,
+Fort ka britun Sokole Halili,
+Zgidhmi kush prangat prej dore,
+Se kam ba be n’t’lumin zot,
+Qe ky hu shpirtin me ja marrë!
+Muji djalin e ka shpengue.
+Â turrë djali si i tërbue,
+Gjallë me dorë krajlin ka xanë,
+Me shpinë n’hu ditt i mbaroi.
+Qatherë burrat kanë rrokë unat,
+Shpejt qyteti ka marrë zjarr,
+Ka marrë zjarr krejt n’fund e n’maje.
+Sa fort Muji m’asht tërbue!
+Aspak dhimbë trimi s’po ka,
+As për kulla qi rrenohen,
+As për t’dekun qi shkrumbohen,
+As për fmij mbrendë kah po digjen.
+Tri herë dielli ka pranue,
+Tri herë hana ka ague,
+Kurkund zjarmi me pushue.
+Kur ka ba trimi me dredhë,
+Kenka sjellë prej Kotorresh t’reja:
+- A po ndieni, mori troje të rrenueme?
+Drumi i juej për tokë ë det.
+Kushdo t’pvesë për tokë e det:
+«Po pse krajli u ka lanë shkret?»
+Trathtoi binë, thoni, nana e vet!
+Ka nxjerrë Mujin vllan e vet!
+Muer Halili ‘i vashë mbetë shkret!

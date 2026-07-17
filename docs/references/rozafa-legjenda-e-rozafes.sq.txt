@@ -1,0 +1,241 @@
+PROVENANCE
+==========
+Tale: rozafa — "Rozafa, the walled-up wife" (Legend; Rozafa Castle, Shkodra)
+First extracted: 2026-07-14 (verse only, filed as "variant, not pinned")
+Re-hunted and extended: 2026-07-15 — a PROSE telling of the same legend was
+found on the same source page as the verse (see below), close enough in
+content and paragraph order to Elsie's translation to be pinned line-for-line
+to src/game/data/tales/rozafa.js. `albanian.status` is no longer 'missing'.
+
+Elsie's English page ("The Legend of Rozafat Castle") translates Mitrush
+Kuteli's 1965 literary retelling («Legjenda e Rozafës», in Tregime të moçme
+shqiptare, Tiranë: Naim Frashëri 1965, repr. 1987/1998) — Kuteli's own Albanian
+wording is still in copyright (he died 1967) and is NOT what is transcribed
+below; the full Kuteli text is online at
+https://www.voal.ch/legjenda-e-rozafes-nga-mitrush-kuteli/kulture/letersi/
+(the FOLKLORE card's own `texts` link).
+
+Still not found digitized anywhere reachable (searched 2026-07-14 and again
+2026-07-15):
+- Thimi Mitko, Bleta shqypëtare (Alexandria 1878) — per Elsie the FIRST record
+  of the Albanian version. Zero full-text hits for «Valdanuz» on archive.org
+  (advancedsearch.php, checked again 2026-07-15); not in the 604-page Mitko
+  conference volume (Univ. of Thessaloniki ikee.lib.auth.gr record 312073); not
+  among the Mitko tales in the local 1954 Tirana corpus
+  (docs/references/pralla-popullore-shqiptare-1954.sq.txt — that corpus DOES
+  contain a DIFFERENT immurement tale, at lines 5941-5964, about a BRIDGE built
+  by three unnamed brothers whose unnamed wife is walled in — a genuinely
+  different local variant (no castle, no Rozafa name, set apparently near
+  Dibër per the damaged running title above it), not used here — see
+  discrepancies in rozafa.js) or the Dozon/Hahn/Jarnik/Meyer/Lambertz files.
+- Kasem Taipi, Zâna popullore (Shkodër 1933) — the specific collection Hamdi
+  Bushati (Shkodra dhe motet I, 1998, pp. 210–225) credits with first writing
+  down "Kanga e kalasë së Shkodrës" as sung. Not digitized.
+- Visaret e Kombit; Epika legjendare (Instituti i Folklorit) — not digitized.
+- Hecquard, Histoire et description de la Haute Albanie (1858) — FRENCH prose
+  summary only, of a DIFFERENT variant (Rosa the builder, his nursing sister
+  Pha immured). Local: docs/references/hecquard-haute-albanie.fr.txt (≈ lines
+  1595–1646).
+- Cetatea Rozafat — folclor albanez (Bucureşti 1974) — ROMANIAN verse
+  translation of a further variant (Podgorica; brother named Gheorghe/Gjergj;
+  God, not an old man, names the price).
+
+TEXT BELOW, PART 1: a PROSE telling of the legend — verbatim from
+vogelushet.blogspot.com ("Për vogëlushët, për fëmijët tanë", a children's-
+folklore blog run by a poster signed "Arta"), post "Rozafat" (dated Wednesday,
+June 18, 2008; fetched plain HTTP 2026-07-15,
+http://vogelushet.blogspot.com/2008/06/rozafat.html — https is broken, http
+works). The post itself labels this same material with the alternate titles
+"Balada e Murimit, Legjenda e Murimit, Legjenda e Rozafës, Rozafa..." — i.e.
+the compiler treats this prose and the verse below (posted together, on the
+same page) as the SAME legend under its common names. This is NOT confirmed to
+be Kuteli's own 1965 wording — it differs from Elsie's translation in several
+concrete particulars (see rozafa.js discrepancies: the fog covers "the town",
+not "the river"; the two elder brothers' besa-breaking is narrated as one
+shared sentence, not told twice; the middle wife's excuse is going to tend
+cattle, not visiting her parents; the tool that falls from the husband's hand
+is a "çekan" — a hammer — not an axe; the ending names tears AND milk/breast in
+one clause, reconciling the two endings this game had already staged
+separately). It is best treated as an independent, widely-circulated
+Albanian-language telling of the same named legend, not a scan of any one
+scholarly edition — which is why every pinned line in rozafa.js keeps its own
+discrepancy note wherever the wording diverges from Elsie's English.
+
+================================================================
+ROZAFAT (prose telling, as posted)
+================================================================
+
+Krenare ngrihet mbi Bunën e gjerë e mbi qytetin e Shkodrës kështjella e lashtë
+e Rozafatit.
+
+Ndërtimi i kësaj kështjelle ka një gojëdhënë të bukur dhe të hidhur. Ajo pak a
+shumë vijon...
+
+I ra mjegulla Bunës dhe e mbuloi të tërë qytetin. Kjo mjegull mbeti aty tri
+ditë e tri netë. Pas tri ditësh e tri netësh fryu një erë e hollë dhe e ngriti
+mjegullën. Aty majë kodrës punonin tre vëllezër e ndërtonin një kështjellë.
+Por, muri që ndërtonin ditën, u shembej natën... Na shkon aty një plak i mirë
+dhe u thotë:
+-Puna e mbarë o tre vëllezër!
+-Të mbarë paç o plak i mirë. Po ku e sheh ti të mbarën tonë? Ditën punojmë e
+natën shembet. A di ta thuash ndonjë fjalë të mirë: c'të bëjmë që ti mbajmë
+muret në këmbë?
+
+-Unë e di- thotë plaku, -por duhet ta mbani në fshehtësi dhe të mos i tregoni
+askujt as edhe vashave tuaja në shtëpi.
+Vëllezërit i dhanë besën plakut se asnjëri nuk do të tregonte.
+-Atëherë, tha plaku, dëgjoni. Nesër cila vashë të vijë për të sjellë ushqimin,
+nga tre kunatat, duhet ta merrni dhe ta murosni të gjallë në muret e
+kështjellës. Atëherë do ta shihni se muri do të ngrihet dhe do të qëndrojë
+përgjithmonë.
+Kaq tha plaku dhe u zhduk.
+
+Vëllezërit të mërzitur kthehen në shtëpi. Dy vëllezërit e mëdhenj e shkelën
+besën dhe u treguan grave të veta. Ata u thanë vashave të mos vinin për të
+sjellë ushqimin të nesërmen. Vetëm vëllai i vogël e mbajti besën. Ai nuk i
+tregoi vashës së vet.
+
+Në mëngjes, si gjithmonë vëllezërit shkuan në punë dhe filluan të prisnin...
+
+Nëna e djemve në shtëpi nuk dinte gjë. Ajo i kërkon nuses së madhe t'u shpjerë
+trimave ushqimin. Nusja e madhe ankohet se ishte e sëmurë dhe kështu nuk shkon.
+I tha dhe të dytës. E reja e dytë i thotë:
+-Jo zonja nënë, sot unë duhet të shkoj për buajtje.
+I vjen rradha nuses së vogël.
+-O nusja e vogël, trimat duan bukë, ujë dhe kungullin me verë.
+-Po zonja nënë, përgjigjet nusja e vogël, por kam djalin e vogël që po qan.
+Dy kunatat e mëdha i premtuan se do të kujdesen për djalin.
+
+Ajo e mori bukën, ujin dhe kungullin me verë, puthi djalin në të dy faqet, dhe
+niset. Kur arrin tek vendi i punës, përshëndet trimat.
+-Puna e mbarë o trima!
+
+Vëllezërit kur e panë, ndalën punën. Fytyrat iu zbehen dhe burrit të saj i ra
+cekani nga dora. Nusja e vogël i thotë:
+-C'ke ti, im zot? Pse e mallkon gurin dhe murin?
+Hidhet kunati i madh dhe i thotë:
+-Ti paske lindur në ditë të zezë, moj kunata e vogël. Ne duhet të murojmë të
+gjallë vajzën qe do na sillte sot për të ngrënë, vetëm në këtë mënyrë
+kështjella do të qëndrojë e nuk do të shembet më.
+
+-Shëndosh ju o tim' kunetër, por unë po ju lë një porosi: Kur të më muroni,
+syrin e djathtë të ma lini jashtë që të shikoj tim bir, dorën e djathtë të ma
+lini jashtë që ta ledhatoj, këmbën e djathtë të ma lini jashtë që ti përkund
+djepin, dhe gjirin e djathtë të ma lini jashtë që ta mëkoj kur të qajë. Gjiri
+im u nguroftë, kështjella jonë gjithmonë qëndroftë, djali im trimëroftë, u
+bëftë mbret e mbretëroftë!
+
+Vëllezërit e morën nusen e vogël dhe e muruan në themel të kështjellës. Muret u
+ngritën e u lartuan e nuk u shembën më as natë e as ditë. Por, rrëzë mureve të
+kështjellës edhe sot e kësaj dite, gurët janë të lagur dhe plot myk nga lotët e
+gjiri i nuses së vogël që vazhdon të pikojë për birin e saj.
+
+Dhe biri i saj, u rrit, luftoi dhe trimëroi!
+
+================================================================
+TEXT BELOW, PART 2: the sung Geg ballad («Kanga e kalasë së Shkodrës» / «Balada
+e murimit»), same page, section «Në vargje (nje nga versionet)» — kept from
+the first (2026-07-14) extraction. A few rozafa.js beat lines pin THIS verse
+instead of the prose above, specifically where the prose compresses past a
+beat the verse still carries whole (the "shame"/"are you married" exchange;
+the aunts' promise that the boy "won't touch the ground").
+================================================================
+
+"Ç’i ka ra mjeglla Bujen’s-ë,
+Edhe fushës Shkodaras-ë,
+Fryni erë, frashni e hollë,
+E nalcoj-ë mjegullan-ë
+
+Ku punojnë e tre vllazni,
+Gjidh ditën e po punojnë,
+Gjidh natën po jau rrënojnë,
+Shkon nji shenjt i gjallë asajna,
+
+-Puna marë, o ustallarë.
+-Ta marë paç, o shenjt i gjallë,
+Ku e sheh ta marën tonë,
+Na gjidh ditën po punojmë,
+Gjidh natën po na rrenojnë,
+
+A di gja me na kalxue?
+-Unë e di, por kam gjynah-ë.
+-At gjynah-ë le’mi ne.
+-A jini të tre t’martuem,
+A i kini të trija vashat?
+-Na të tre vashat i kena.
+-Cilla vashë t’u bjere bukë,
+At muroni n’murë t’Kalasë,
+Lidhni besë, e lidhni fe,
+Në konak e kur të shkoni,
+Vashave mos u kalxoni.
+
+Aj ma i madhi zanë vëlla,
+Prishi besë, e prishi fe,
+Në konak-ë bjesedoj-ë,
+Vashës ti-ë i kalxoj-ë.
+
+Aj i dyti zanë vëlla,
+Prishi besë, e prishi fe,
+Në konak-ë bjesedoj-ë,
+Vashës ti-ë i kalxoj-ë.
+
+Aj i treti zanë vëlla,
+Majti besë, e majti fe,
+Në konak nuk bjesedoj-ë,
+Vashës ti-ë s’i kalxoj-ë.
+
+Po thërret nana gjelinë:
+-Gjelinë, e para gjelinë.
+-Lepe nanë, e brraf në kamë.
+-Ustallart-ë duen bukë,
+Duen bukë e duen ujë.
+-Besa nanë po m’dhem kryet.
+
+-Gjelinë, e dyta gjelinë.
+-Lepe nanë, e brraf në kamë.
+-Ustallart-ë duen bukë,
+Duen bukë e duen ujë.
+-Besa nanë s’po vojt atjene,
+Due me shkue në gjini.
+
+-Gjelinë, e treta gjelinë.
+-Lepe nanë, e brraf në kamë.
+-Ustallart-ë duen bukë,
+Duen bukë e duen ujë.
+-Besa nanë s’po vojt atjene,
+Kam djaloçin t’vogël-o.
+-Na djaloçin ta shikojmë,
+Kurr na tokë s’ta lëshojmë.
+
+Muer bukë, muer ujë,
+Muer kungullin me venë.
+Tek e pa-ë i shoqi saj-ë,
+Tek e pa i lshoj bela,
+Do t’murojmë në Kala.
+
+-Synin djathtë ma lini jasht-ë,
+Kamën djathë ma lini jasht-ë,
+Dorën djathtë ma lini jasht-ë,
+Gjinin djathtë ma lini jasht-ë.
+
+Kur t’vinje djali kësajna,
+
+Unë me sy-ë ta shikonjë,
+E me kamë-ë ta afronjë,
+E me dorë-ë ta lurtonjë,
+E me gji-ë ta nërgonjë. "
+
+Emërtime të tjera (as given on the same page): Balada e Murimit, Legjenda e
+Murimit, Legjenda e Rozafës, Rozafa...
+
+================================================================
+APPENDIX — the fourfold request as quoted in Shkodra tradition
+================================================================
+A Shkodra local-history essay (detyrakursitmeporosi.blogspot.com, 2014,
+"SHKODRA - KALAJA E ROZAFES", drawing on Vili Kamsi's study of the Hecquard
+variant) quotes the bride's request in Geg thus, and names the youngest
+brother «baca Gjergj», with the toponyms Kazenë, Valdanuz (Maldunus) and
+Zarufe still alive around the castle:
+
+«sýnin e djathtë qi t'shoh birin t'em, krahun e djathtë qi ta mbâj, gjinin e
+djathtë qi ta ushqej, kâmben e djathtë qi me përkûnd djepin»

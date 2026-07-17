@@ -19,9 +19,9 @@ const realOpts = (n) => (n.options || []).filter((o) => !o.confuser)
 
 // Words that DON'T name a present scene-thing (function words, directions/qualities, action verbs).
 const WL = new Set(
-  'ti je jam eshte ne tek nje te_link te_subj te_obj e_art i_art dhe por nuk une per me pa ose qe ku pse si kush do jo tani perseri shume pak mire keq tjeter mund mos mbi'.split(' ')
+  'ti je jam eshte ne tek nga nje te_link te_subj te_obj e_art i_art dhe por nuk une per me pa ose qe ku pse si kush do jo tani perseri shume pak mire keq tjeter mund mos mbi'.split(' ')
     .concat('lart larg poshte jashte brenda ketu shpejt ngadale naten dite agim muzg deri vetem vogel madh forte ri vjeter bardhe zi gjelber qete sigurt thate erret ftohte uritur bukur krenar shenjte thelle nente dy tre shtate'.split(' '))
-    .concat('ec shko ngjit zbrit kthehu ik fle prit dil hyr bie vazhdon degjo ndihmo merr jep lufto vrit shpeto sheh shiko beso thirr hidh prek kalo kerko ndiz premto fal fol mban godit mbyll sulmo tund kendo vesh vajto mashtro lind ha pi bej fluturo zgjohu rri behet vjen flet thote gjen luan ruan verbo humbet vdes pre mbaroi hap meso ngre zgjedh sjell marto mallko le fsheh nxjerr varros shes blej shtyj terheq'.split(' '))
+    .concat('ec shko ngjit zbrit kthehu ik fle prit dil hyr bie vazhdon degjo ndihmo merr jep lufto vrit shpeto sheh shiko beso thirr hidh prek kalo kerko ndiz premto fal fol pyet mban godit mbyll sulmo tund kendo vesh vajto mashtro lind ha pi bej fluturo zgjohu rri behet vjen flet thote gjen luan ruan verbo humbet vdes pre mbaroi hap meso ngre zgjedh sjell marto mallko le fsheh nxjerr varros shes blej shtyj terheq'.split(' '))
 )
 // Things legitimately absent from the scene: carried ITEMS, COMPANIONS, DESTINATIONS, riddle answers, created.
 // (Extend as new items/places are added.)
@@ -116,7 +116,7 @@ add('meaningful choice (no damned-if-you-do)', Object.entries(STORY).flatMap(([i
 // npcNodeOf — validated by mapaudit's NPC-routes check) are virtual the same way.
 const TIME_PHASES = new Set(['dawn', 'day', 'dusk', 'night'])
 const FIRE_STATES = new Set(['fireBig', 'fireLow', 'fireOut', 'fireLive'])
-const isVirtual = (i) => TIME_PHASES.has(i) || FIRE_STATES.has(i) || /^(npc|npcAt|from|became):/.test(i)
+const isVirtual = (i) => i === 'embodying' || TIME_PHASES.has(i) || FIRE_STATES.has(i) || /^(npc|npcAt|from|became|embodying):/.test(i)
 const reqIds = (o) => (o.requires == null ? [] : [].concat(o.requires))
 const incomingGatedByItem = {}
 for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.to) {
@@ -165,7 +165,8 @@ const HUBS = ['mali1', 'lumi', 'pylliLoop', 'deti1', 'jutbina', 'fshatiJeta', 'f
 add('symmetric travel (hubs have a return)', HUBS.flatMap((h) => {
   const n = STORY[h]; if (!n) return [`hub missing: ${h}`]
   const outs = realOpts(n).map((o) => (o.text || []).filter((t) => t.id).map((t) => t.id))
-  const back = outs.some((t) => t.includes('kthehu') || t.includes('zbrit') || (t.includes('ec') && (t.includes('fshat') || t.includes('pyll'))))
+  // out-verbs: kthehu/zbrit, dil (step out), le (lër X — the truthful departure from a moment)
+  const back = outs.some((t) => t.includes('kthehu') || t.includes('zbrit') || t.includes('dil') || t.includes('le') || (t.includes('ec') && (t.includes('fshat') || t.includes('pyll'))))
   return back ? [] : [`hub ${h} has no return/out option`]
 }))
 

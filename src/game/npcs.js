@@ -77,12 +77,13 @@ export const NPCS = {
   },
 
   // The Xhindët: the unseen ones keep to the dark hours — out of the dry well's
-  // mouth, across the sleeping square, down the lanes and back. The village
-  // never sees them; a night-walking stranger might.
+  // mouth, across the sleeping square, then down to THE MILL, their gathering
+  // place in the tale (Maro Përhitura): the millers flee at dusk and leave the
+  // door open for them. The village never sees them; a night-walker might.
   xhindet: {
     name: 'Xhindët',
     glyph: '👣',
-    route: ['pusiThate', 'fshatiSheshi', 'fshatiLanes', 'fshatiSheshi'],
+    route: ['pusiThate', 'fshatiSheshi', 'fshatiLumi', 'mulli1', 'mulli1', 'mulli1', 'mulli1', 'mulli1', 'mulli1', 'fshatiLumi', 'fshatiSheshi', 'pusiThate'],
     stepHours: 2,
     activePhases: ['night'],
   },

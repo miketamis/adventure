@@ -1,0 +1,188 @@
+# ============================================================================
+# Entstehung des Kuckucks (von Hahn No. 104) — raw source extracts
+# The Albanian origin-myth of the cuckoo ("Gjon and the Cuckoo").
+#
+# PROVENANCE
+#   [A] Johann Georg von Hahn, Griechische und Albanesische Maerchen 1-2,
+#       Muenchen/Berlin: Georg Mueller, 1918 (repr. of Leipzig 1864), S. 167,
+#       No. 104 "Entstehung des Kuckucks". Text as digitised at
+#       http://www.zeno.org/nid/20007819463 (public domain), extracted 2026-07-14.
+#   [B] Johann Georg von Hahn, Albanesische Studien, Jena 1854, Heft I,
+#       S. 165, myth-note 15 "Die Mythe vom Kukuk (Elbassan)" — the FIRST
+#       printing, with the cuckoo-flower song in von Hahn's Greek-alphabet
+#       Albanian. Raw OCR from two archive.org scans (albanesischestu00hahngoog
+#       and bub_gb_IPIGAAAAQAAJ — the latter is the same OCR as the local
+#       docs/references/hahn-albanesische-studien.de-sq.txt lines ~12545-12570),
+#       both extracted 2026-07-14.
+#   [C] the 1864/1918 Maerchen volume's own Anmerkung to No. 104 (Notes,
+#       p. 316 of the local hahn-griechische-albanesische-marchen.de.txt OCR):
+#       provenance line "Aus Ljabowo in der Rica und Elbassan. — Siehe des
+#       Verf. albanesische Studien I, S. 165." plus the remark that the song
+#       the women of Elbasan sing "plainly alludes to an old legend".
+#   [D] Maximilian Lambertz, Albanische Maerchen, Wien 1922, p. 89, cites
+#       "Hahn 104 (Wie der Kuckuck entstand; vgl. meine Gjon- und
+#       Kjükjatexte!)" — Lambertz's own Albanian Gjon/Qyqja texts are only
+#       CITED there; per his introduction (p. ~30) the saga "Gjokthi und
+#       Qyqja" was printed in the Shkodra Jesuit calendar of 1914, which is
+#       not digitised anywhere findable.
+#
+# LANGUAGE NOTE — NO ALBANIAN NARRATIVE ORIGINAL EXISTS. Von Hahn recorded
+# the tale in German only. The verbatim Albanian that DOES survive inside it:
+#
+#   1. THE TWO BIRD-CRIES, printed as Albanian inside the German text:
+#        "Gjon! Gjon!"  — the gjon-bird, by night (the shared brothers' name)
+#        "Ku? ku?"      — the cuckoo, by day; von Hahn glosses "wo bist du?"
+#      Kept (as «Gjon! Gjon!» «Ku? Ku?») on beat line 1.4.
+#
+#   2. THE CUCKOO-FLOWER SONG (8 verse lines), printed in [B] in von Hahn's
+#      Greek-alphabet Albanian with line-by-line German glosses. Transliterated
+#      to modern orthography for beat lines 3.1-3.5 (per the same convention
+#      as the Dozon transliterations); raw OCR of both scans and the
+#      reconstruction, token by token:
+#
+#      scan 1 (bub_gb/local):        scan 2 (00hahngoog):      German gloss:
+#      Kjvxjt xjoxjt itapaxjoxjt'    Kjüxj9 xjoxje itapaxjüi^s Kukuk, Kukuk, Aberkukuk!
+#      m poul                        /7e fioo7                 Sahst du mich?
+#      J7e tw/?                      De T6tj7                  Sahst du dich?
+#      Z7e rjdvtr tut ßtXd,          De FjövtT rirr ßiXd,      Sahst du deinen Bruder Gjon,
+#      Ae c 0t/Mv xoei «ja?          Ke e i^iptv noiri xjat    Als sie ihn schlachteten, gleich dem Ochsen?
+#      rjax vt kjovfsr,              rjoLx Vi Xjovfgr,         Blut im Löffel,
+#      MiB xoüntr,                   MiB xoüntr,               Fleisch im Becher,
+#      Nifi du dB d6par^             Nifi dü eto dtipar.       Gib mir deine beiden Hände.
+#
+#      Greek-letter reading -> modern orthography (kj -> q, ou -> u etc.):
+#        Κjύκjε, κjύκjε, παρακjύκjε!   -> Qyqe, qyqe, paraqyqe!
+#        Πὲ μοῦ;                      -> Pe mu?          (mu = mua, Elbasan)
+#        Πὲ τύ;                       -> Pe ty?
+#        Πὲ Γjόνιν τυτ βελά,          -> Pe Gjonin, tyt vëlla,
+#        κὲ ε θέριν ποσὶ κjά;         -> kë e therin posi ka?
+#        Γjὰκ νὲ λjουγέ,              -> Gjak në lugë,
+#        μὶσ νὲ κούπε,                -> mish në kupë,
+#        νέμι δὺ ἐτὸ ντούαρ.          -> nemi dy ato duar.
+#
+#      UNCERTAINTIES (flagged, not silently smoothed):
+#        - the trailing "r" the OCR shows on λjουγέ/κούπε is almost certainly
+#          a final sigma or comma misread; "lugë"/"kupë" follow the German
+#          glosses Löffel/Becher and von Hahn's own lexicon (lugë, kupë).
+#        - θέριν could be therin (present) — von Hahn's gloss is past tense
+#          ("schlachteten"); kept as "therin" per the letters on the page.
+#        - the last line's tokens [Nifi]=nemi (Geg nem- "give me"), [dy],
+#          [eto]=ato, [dtipar]=duar(t); the German "deine beiden Hände"
+#          would rather be "të dyja duart" — kept letter-true as
+#          "nemi dy ato duar".
+#        - κjά "ka" (ox): the palatal is the transcription's, not the word's.
+#
+#   3. NAMES, from [B]'s footnotes: the cuckoo is FEMININE in Albanian —
+#      qyqja or kukoja ("xjöxjt-ja oder xoüxo-ja"); the blue flower is
+#      λοῦλ' ε κjύκjες = "lul' e qyqes" (the cuckoo's flower); its Tosk name
+#      is "buk' e qyqe" ("Kukuksbrot", cuckoo's bread).
+#
+# Searched for an Albanian narrative text and found none: local corpora —
+# pralla-popullore-shqiptare-1954 (no Gjon/qyqe transformation tale; «qyqja»
+# appears only as a grief-interjection), Dozon Manuel (dictionary entry
+# "kyùkye, coucou" only), Jarnik, Meyer Grammatik, Lambertz 1922 (citation
+# only, see [D]), Fishta's Lahuta (uses «qyqja»/«qyqe» richly as the
+# grief-idiom for the bereft — his editor's note "qyqja... asht zog i truem,
+# persë gjithmonë vajton", the cuckoo is a cursed bird, forever mourning —
+# but no tale text); archive.org search 2026-07-14 for «qyqja dhe gjoni»,
+# «gjoni dhe qyqja», «u be qyqe», «motra u be qyqe» — zero hits.
+# ============================================================================
+
+── [A] von Hahn 1918 (= 1864), No. 104 ─────────────────────────────────────
+
+104. Entstehung des Kuckucks.
+
+Der Gjon und die Kjükje waren Bruder und Schwester und hatten noch einen
+Bruder, der gleichfalls Gjon hieß. Einst trat dieser zu seiner Schwester, als
+diese gerade mit ihrer Schere hantierte; sie war aber so in ihre Arbeit
+vertieft, daß sie ihn nicht bemerkte. Da fuhr sie plötzlich mit ihrer Schere
+aus, und diese traf den Gjon gerade ins Herz, sodaß er daran sterben mußte.
+Über seinen Tod betrübten sich aber seine Geschwister so sehr, daß der Gjon
+in den Vogel gleichen Namens, die Kjükje aber in den Kuckuck verwandelt
+wurde; und von da an ruft der Gjon des Nachts seinen Bruder beim Namen:
+»Gjon! Gjon!« Der Kuckuck aber bei Tage: »Ku? ku?« Das heißt auf deutsch:
+»Wo bist du?«
+
+Es heißt aber auch, daß die Schwester in keinen Kuckuck, sondern in die blaue
+Blume verwandelt worden ist, welche Kuckucksblume heißt. Wenn nun die Weiber
+eine solche Blume im Felden finden, dann singen sie also:
+
+    Kuckuck, Kuckuck. Aberkuckuck!
+    Sahst du mich?
+    Sahst du dich?
+    Sahst du deinen Bruder Gjon,
+    Als sie ihn schlachteten wie den Ochsen?
+    Blut im Löffel,
+    Fleisch im Becher,
+    Gib mir deine beiden Hände.
+
+Darauf hält die Frau die beiden flachen Hände an die Blume, und diese legt
+von selbst ihr Köpfchen auf sie.
+
+── [B] von Hahn 1854, Albanesische Studien I, S. 165 (raw OCR, both scans) ──
+
+(scan bub_gb_IPIGAAAAQAAJ = local hahn-albanesische-studien.de-sq.txt)
+
+15.  Die  Hjthe  vom  Kukuk  (Elbassan).  —  Der  Gjon  und  die  Kjükje  ••)  waren  Bruder
+nod  Schwester,  und  hatten  noch  einen  Bruder,  der  auch  Gjon  hiess  und  ermordet  wurde.  Die
+•iheren  Ums linde  des  Mordes  waren  hier  nicht  zu  ermitteln;  in  der  Rica  aber  heisst  es,  die
+Kjükje  h«be  ihn  aus  Versehen  mit  der  Schere  erstochen.  Aus  Trauer  um  den  Verstorbenen
+wurde  der  überlebende  Bruder  zum  Vogel  Gjon,  die  Schwester  aber  zum  Kukuk,  und  darum
+ruft  der  Gjon  des  Nachts  seinen  Bruder  beim  Namen  Gjon!  Gjon!,  der  Kukuk  aber  am  Tage
+xool  xou\  d.  h.  wo  bist  du?
+
+Doch  sagt  man  auch  in  Elbassan,  die  Schwester  sei  in  eine  blaue  Blume  AouXf  s  xjoxjt  »)
+rerwondelt  worden.  Wenn  nun  die  Weiber  eine  solche  Blume  im  Freien  6nden,  dann  singen
+sie  also:
+
+Kjvxjt  xjoxjt  itapaxjoxjt'.  Kukuk,  Kukuk,  Aberkukuk!
+m  poul                       Sahst  du  mich?
+J7e  tw/?                     Sahst  du  dich?
+Z7e  rjdvtr  tut  ßtXd,       Sahst  du  deinen  Bruder  Gjon,
+Ae  c  0t/Mv  xoei  «ja?      Als  sie  ihn  schlachteten,  gleich  dem  Ochsen?
+rjax  vt  kjovfsr,            Blut  im  Löffel,
+MiB      xoüntr,              Fleisch  im  Becher,
+Nifi  dü  eto  dtipar.        Gib  mir  deine  beiden  Künde.
+
+Darauf  halt  die  Frau  die  beiden  flachen  HSnde  an  die  Blume  und  diese  legt  Ton  selbst  ihr
+Köpfchen  auf  dieselben.
+
+(scan albanesischestu00hahngoog, same passage — variant OCR of the song)
+
+Kjüxj9  xjoxje  itapaxjüi^sl  Kukuk,  Kukuk,  Aberkukuk!
+/7e  fioo7                    Sahst  du  mich?
+De  T6tj7                     Sahst  du  dich?
+De  FjövtT  rirr  ßiXd,       Sahst  du  deinen  Bruder  Gjon,
+Ke  e  i^iptv  noiri  xjat    Als  sie  ihn  schlachteten,  gleich  dem  Ochsen?
+rjoLx  Vi  Xjovfgr,           Blut  im  Ldffel,
+Mtä  yf  xountrf              Fleisch  im  Becher,
+Nifi  du  dB  d6par^          Gib  mir  deine  beiden  Hftnde.
+
+Footnotes on the same page:
+••)  Der  Kukuk  ist  im  Albanesischen  weiblich,  xjöxjt-ja  oder  xoüxo-ja.
+     [= the cuckoo is feminine in Albanian: qyqja or kukoja]
+*°)  Tosk.  boox  e  xjüxje,  Kukuksbrot  genannt.
+     [= the flower is called in Tosk "buk' e qyqe", cuckoo's bread]
+
+── [C] Maerchen 1864/1918, Anmerkung to No. 104 (p. 316, raw OCR) ──────────
+
+104, Entftehung ded Kukuks.
+
+Aus Ljabowo in der Rica und Elbaffan. — Siehe des Berf. albanefifche
+Stwien I, ©. 165.
+
+Das Lied, welches die Weiber von Elbaffan fingen, fpielt offenbar auf eine
+alte Sage an. Wir laffen hier aus demfelben Werke I, S. 141 einige nordalba-
+nefifche Kinderlieder folgen. in welchen gleichfalls alte Sagzüge erhalten zu fein
+feinen.
+[three north Albanian children's songs follow — not part of the tale]
+
+── [D] Lambertz 1922, p. 89 (raw OCR, the citation) ─────────────────────────
+
+Hahn  104  (Wie  der  Kuckuck  entstand;  vgl.  meine
+Gjon-  und  Kjükjatexte!)
+
+(and from Lambertz's introduction, p. ~30 of the same volume: the Shkodra
+Jesuitenkalender "hat gelegentlich derartige folkloristische Texte gebracht,
+so die Sage von Gjokthi und Qyqja (1914)" — that 1914 calendar printing is
+the one known published Albanian text of the saga; not digitised.)

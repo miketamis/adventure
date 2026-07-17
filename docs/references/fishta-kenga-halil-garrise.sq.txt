@@ -1,0 +1,177 @@
+# Kënga e Halil Garrisë — raw Albanian extraction
+#
+# Source: recorded by At Gjergj Fishta at Gomsiqe (a village near Pukë) from
+# an unnamed lahutar of Pukë; first published in the review "Hylli i Dritës",
+# 1924. 152 verses. Reproduced here from Timo Mërkuri, "Kënga e Halil Garrisë
+# dhe disa probleme" (fjalaelire.com, Sarandë, November 2020), which states it
+# publishes Fishta's text "pa ndërhyrje në tekst" (without altering the text).
+# This appears to be the only place the full 152-verse text is available
+# online; no other local corpus (pralla-popullore-shqiptare-1954, Dozon, Hahn,
+# Jarnik, Meyer, Lambertz, Fishta's own Lahuta e Malcís) or archive.org search
+# turned up this ballad under this title.
+#
+# Formatting: the rhapsode's/editor's every-fifth-verse line-count numerals
+# (5-, 10-, 15- … 150-, 152-) have been stripped in the tale file's verbatim
+# quotations (they are typesetting apparatus, not sung text) but are kept
+# here, inline, exactly as printed, for reference. Gheg spelling, elisions
+# and the source's own (sometimes unpaired) quotation marks are kept as
+# printed — no modernization, no OCR cleanup was needed (clean web transcript,
+# not a scan).
+#
+# Extracted: 2026-07-15, via curl of https://www.fjalaelire.com/post/k%C3%ABnga-e-halil-garris%C3%AB-dhe-disa-probleme
+# (a Wix-hosted page; the article text is present in the server-rendered HTML).
+#
+# ---------------------------------------------------------------------------
+
+I--Zot ç’ka than Halil Garrija?
+Be mbi zotin trimi bani
+“Pse nant vllezën ne q’i jemi
+Veç nji motër, tjetër s’kemi
+5-Nand dit udh larg do ta apim?
+A çue djali fill prej shpijet
+Shteg të largët tek paska marë
+Paska vojt ke nji zotni ma i randi;
+“Mbramja mirë more  Zotni”
+10-“Mirë se vjen ti djalë i ri!
+A s’na rin sonde për darkë”?
+I a dhanë djalit mbrendë me hi
+Fjalë burrnie paskan folë.
+Kur ka ardh koha e mbas darkës
+15-Plaku i shpisë po pëvet Garrinë
+“Amanet more djal i ri
+Ja a se ke ndoj çik në votër?
+“Un e kam nji t’eme motër;
+Be mbi zotin por kam ba
+20-Sa t’jem gjallë mos me e martue!”
+“Paj fisnik more djal po m’duke
+Pesdhetë qese për ta kjeshë tuj dhanë”
+Sa shpejt djalit mendja ju ka kthye
+Fjalën mikut m’i ka dhanë
+25-Edhe paret m’ia ka marrë.
+Kur a dridhë djali në shpi
+Se fort niska m’u pendue
+Edhe motra vesht ka marrë;
+“Pash nji zot që ty t’ka dhanë
+30-Pse bre vlla me m’marrë kaq rrandë
+Nand dit udhë larg q’i don me m’dhanë?”
+“Hajt moj motër” i ka thanë
+Se për kët bes q’i ta kam dhanë
+Kur t’i mbushi plot nand ditë
+35-Vjen Halili e t’shef me sy
+Kur t’i mbushish plot nand javë
+Vjen Halili e t’mer në t’pam”.
+Nënd-dhet krushq tek paskan ardhë
+Kan ardhë nusen për me marrë
+40-Me da motrën prej vllaznijet.
+Nand-dhet vet të tan kalori
+Paskan pas të bardhën li
+Se të nandë vllaznit lija i mbyti.
+As kurrgja motra me dijtë.
+45-Kur janë mbushur plot nandë ditë
+Kundron motra rrugën  s’largut
+Por kurkend s’po dan me sy.
+At-herë pshetet buz nji ahit
+Ban kuvend me nji zog malit:
+50-“Amanet more zogu i malit
+M’i  thuej vllaut Halilit të ri
+Se jot motër mue më ka thanë:
+-“Ku e lae bësën q’i m’ke dhanë?”
+Por n’at natë qi ki’n ardh krushqit
+55-Shtat sahat motrën e ki’n përcjell
+Kur ki’n kthye n’obor t’sarajit
+Të nand vllaznit vran shosho’jn.
+Shtat vjet motra ndej tuj kja
+Shtat vjet zogu tue fluturue
+60-Shtat vjet vorrin tue kërkue:
+“T’ka xan vori me besë të dhanë
+T’pret nji motër, t’pret nji nanë”
+Dhimët te zoti i paska ra:
+“Çohu Halil ti! Hajt e mere!”
+65-Qat-herë djali a dalë prej vorrit
+Në shpin të gjogut si kish pas ra
+Nand ditë udhë larg tue shtegtue
+Po i del para tue nga e motra:
+“Mirëse vjen Halil i motrës”
+70-“Mirë se të gjej moj motra e eme”
+“Hajde mrendë me pi nji kafe”
+“S’ke pse m’ton moj motra e eme
+Bukë kam ngranë, kafe kam pi
+Po shtrëngohu e t’shkojmë në shpi”
+75-“Po lum motra” i paska thanë
+Edhe veshet e shtrëngohet
+Marin rrugën dalë-kadalë.
+Kur kan shkue der m’nji shej vendit
+Na i tha motra t’vllat Halilit:
+80-“Era dhe bre vlla po t’vjen?!”
+“Hec moj motër zoti t’vraftë
+Se nandë vllazën qi kemi kanë
+Nandë saraje kemi m’kambë
+Tuj bajtë gur tuj bajtë gëlqere
+85-Prandaj era dhe mue më vjen”.
+Kur kan shkue pak më përtej
+“Bjeri fyellit vlla” i ka thanë
+“Hec moj motër” djali i ka thanë
+“Se nand vllazën qi kem kan
+90-Se nandë fej që kemi pasë
+Të nandëve s’bashku na u kem ra
+Të gjithve gjuha cop a ba”
+Ç’po kuvendin dy zogj malit
+Me nji çudë që sot po shofin!
+95-“Shkon i gjalli udhës me të dekin”
+“Ndiej mor vëlla” motra po thotë
+“Shka kuvendin zojt e malit?”
+“Hec moj motër zoti t’vrafët
+Q’i u mba vesh ti zojve t’malit
+100-Për në marsh vesht ti zojt e malit
+Për tri vjet ke shpija s’mbrijmë”
+Qe po dalin m’ nji lak kodre
+Na i ka pa sarajet e veta
+Të gjitha zi dhe vrugue.
+105-“Te fort koniqe kankan rrxue”
+Po i thot vllaut o motra e vet.
+“Hec  bre motër zoti t’vraftë!
+Prej nand vllazën ne kem kanë
+E nandë nuse kemi marrë
+110-Nandqind krushq ne kena pasë
+Tan tuj kcye e tuj lodrue
+Derë koniqet na i kanë rrxue
+E timi i pushkëve na i ka vrugue”.
+Paskan hipur prapë m’nji kodër
+115-Paskan pa nandë vorre t’bardha
+Sa trishtim motra ka marrë!
+“Po kto vorre zot’ çka janë?
+Un’ qetu si paskam lanë”!
+“Po ti hec mori motër zeza
+120-Pse nand vllazën kemi kanë
+Nandë dibranë ne kemi pasë
+Të tan kan dekë, ne i kem varrue”.
+Kur kan vojtë pak ma përtej
+I vëllaj s’motrës i ka thanë;
+125-“Mbajm’a kalin mori motër
+Se po kam nji fjal me ‘i njeri”!
+Kur ka vojtë vajza ke shpija
+Ka gjetë t’amën mbas caranit;
+“Çke qi kjan moj nana e eme?
+130-Ti nandë reja i ke marrë”!
+“Shuej bre bi, ty Zoti t’vraftë
+Se qysh ditën qi ke shkue ti
+Djemt e mi kan vra shojsh’jnë
+Vllaznit tue jan mblue me dhe!”
+135-Po e pvet plaka të bin;
+“Me ka erdhe mo’j bi?”-i ka thanë
+“Besa erdha me Halilin”
+“Mos fol ma, he zoti t’vraftë!
+Se Halili gjindet dekun”.
+140-Prapë kuvend nana me t’bin;
+“Kesh t’a shof me sy Halilin
+E t’i shndroj me ta dy fjalë”
+Kankan marrun dora doras
+E n’fund t’shkallëve kankan ra
+145-Kurkund djalin s’e kan pa.
+Paskan vojt tu vorri i djalit
+Na i kan thirrë “Halil Garri”
+Djali gjall ma nuk u ndie
+Veç se krahin jashtë ka shti
+150-Nanë e bi janë çue në kambë
+Ngryka-ngrykas kankan marrë
+152-N’vorr të Halilit dekun ran.

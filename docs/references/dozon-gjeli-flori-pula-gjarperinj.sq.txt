@@ -1,0 +1,72 @@
+================================================================================
+GJELI QË PIELL FLORI, PULA QË PIELL GJARPËRINJ — "The Rooster who Lays Gold,
+the Hen who Lays Serpents" (Dozon 1879, chrestomathie tale VIII). NOT the
+original of Elsie's "Half Rooster" (FOLKLORE id: half-rooster, Elsie folktale
+15) — logged here only as a related variant found while re-hunting that tale's
+Albanian original; see half-rooster.js's albanian.variants for how it differs.
+
+Source:  Auguste Dozon, Manuel de la langue chkipe ou albanaise. Grammaire,
+         vocabulaire, chrestomathie (Paris: Ernest Leroux, 1879),
+         chrestomathie tale VIII, "Le coq qui pond de l'or et la poule qui
+         pond des serpents", pp. 38-39.
+Extract: raw OCR lines 1581-1618 of the local file
+         docs/references/dozon-manuel-langue-chkipe.fr-sq.txt, 2026-07-15.
+Notes:   Dozon prints no Albanian title (French title only, given above in
+         his own orthography). His transcription is French-based: oe-ligature
+         (œ)=ë, ou=u, y=j (gy=gj, ky=q), ç=sh, tç=ç, lh=ll. This is a FULL
+         running Albanian narrative, not a table-of-contents line or a bare
+         dictionary example — a poor man's rooster gorges on the king's gold,
+         feigns death to be thrown out, then tells the old man to hang it
+         head-down and beat it with a stick so gold pours from its beak; the
+         envious old woman's hen, coached by the rooster to eat a serpent
+         instead of learning the real trick, is hung up the same way and
+         disgorges live serpents that devour the old woman. It shares the
+         SHAPE of Elsie's ending (a bird that yields gold under a daily
+         beating; an envious neighbour's copy-cat animal that ends in
+         disaster) but none of the specifics: no half-a-bird split, no
+         belly-swallowed companions (frog/fox/wolf/mouse), no cabbage-garden
+         capture, no oven/stable/geese/chest trials, and the punishment
+         itself differs (hung head-down and beaten vs. beaten across the
+         back; the old woman is devoured by serpents vs. she kills the cat
+         and dies of her own rage). Because the specific events diverge, this
+         text cannot be spliced in as the verbatim Albanian for half-rooster's
+         beats 8-10 without misrepresenting what it actually says.
+RAW OCR TEXT FOLLOWS (page markers "— NN —" kept as printed):
+================================================================================
+VIII
+
+LE  COQ  QUI  POND  DE  l'oR
+ET  LA  POULE  QUI  POND  DES  SERPENTS.
+
+ïç  nœ  plyâk  kyœ  kiç  nœ  kœndés  edhé  nœ  plyâkœ  kyœ  kiç  fiœ
+poûlyœ,  kœsây  plyâkœsœ  poûlya  i  pilhte  ditœ  nga  dit  nga  nœ
+kôkye  vé.  Vinte  plyâkou  edhé  i  kœrkônte  plyâkœsœ  nga  nœ
+kôkye  vé,  po  kœyô  noûkœ  i  épte  edhé  plyâkou  i  tint,  «  to  tœ
+vinœ  kôhœ  kyœ  tœ  raœ  kœrkônte  edhé  moûa  gyœ-kâfçœ.  »
+
+Edhé  plyâkou  i  thâ  kœndésit,  «  psé  noûkœ  pielh  dhé  ti?  »
+Edhé  kœndési  vâte  mœ  hœ  bâtçœ  tœ  hœ  mbréti  edhé  thiri  kiki-
+koû!  Mbréti  si  digyôi  kœndésinœ  porositi  husmekyarœtœ  t'a
+hédhinœ  nœ  aziné  tœ  parâvet,  edhé  kœndési,  si  hcêngri  çoûmœ
+flyorin  oubœ  si  i  ngôrdhourœ,  edhé  husmekyarœtœ  si  e  pânœ  tœ
+ngôrdhour,  e  hôdhœ  pôçtœ.  Kœndési  oungrit  edhé  douke  tçâpou-
+rœ  érdhi  te  plyâkou  edhé  i  thâ  :  «  0  plyâk,  tœ  mœ  vârtç  kôkœ
+tatœpyétœ  edhé  tœ  mœ  toûntç  edhé  tœ  mœ  bietç  me  nœ  çtâp.  »
+Aère  plyâkou  e  vâri  edhé  i  binte,  edhé  kœndési  ndzirte  nga  gôya
+flyorin.  Aère  plyâkout  i  érdhi  çoûmœ  mirœ.
+
+Vâite  plyâka  edhé  kœrkôi  nœ  flyori,  si  psôi  kyœ  kendési
+pilhte  florin  edhé  plyâkou  i  thâ,  «  kour  tœ  kœrkône  oûnœ  vé  tœ
+poûlyœsœ,  noûkœ  m'  i  épne,  edhé  oûnœ  tani  noûkœ  tœ  yâp.  »
+Çkôi  plyâka  edhé  si  vâte  nœ  çtœpi  tœ  sây,  i  thâ  poûlyœsœ,  «  psé
+noûkœ  mœ  pielh  edhé  moûa  flyorin  ?  »  Aère  vate  poûlya  edhé
+pûetî  kœndésin,  «  kyûç  pielh  flyorin?  »  I  thâ  kœndési,  «  nœ  dô
+tœ  pielhtç  flyorin,  tœ  hâte  gyerpin.  »Vâte  poûlya,  hœngri  gyerpin
+
+edhé  oukthé   te  plyâka  edhé  i  thâ  :  «  tœ  mœ  vârtç *.  »  Si  e
+
+vâri  poûlyœnœ,  doûalhœ  nga  gôya  gyerpiiïtœ  edhé  oudérdhœn
+plyâkœsœ  edhé  e  hœngrœnœ.
+
+1.  Comme  plus  haut.
+================================================================================

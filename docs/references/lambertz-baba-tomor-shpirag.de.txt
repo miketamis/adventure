@@ -1,0 +1,130 @@
+# ============================================================================
+# Baba Tomor & Shpirag — raw source extracts (NO ALBANIAN ORIGINAL FOUND)
+# Tale: tomor-shpirag ("Baba Tomor and Shpirag — the giants who fought over
+# the Beauty"). Extracted 2026-07-14/15.
+#
+# THE TALE'S ACTUAL SOURCE (Elsie's translation, legend_01.html) is:
+#   Maximilian Lambertz, "Die Mythologie der Albaner", in Wörterbuch der
+#   Mythologie (Stuttgart 1973), pp. 504-505. This 1973 encyclopedia entry
+#   is NOT the text below — it is not digitized anywhere reachable (checked
+#   archive.org, HathiTrust, Google Books: no scan of this Klett/Wörterbuch-
+#   der-Mythologie volume; it remains in copyright). Only Elsie's own English
+#   translation of it survives online (the tale's [English] source), and per
+#   the schema that English is copyrighted and is not reproduced here either.
+#
+# WHAT IS BELOW instead is the closest thing this repo can reach: a DIFFERENT,
+# EARLIER Lambertz publication that happens to tell a close cousin of the same
+# story, in German, citing an Albanian-language source that itself is not
+# recoverable. It is kept here only as background/provenance, NOT as the
+# tale's Albanian original (there isn't one to quote).
+#
+# [A] Fishta & Lambertz, Albanische Märchen (und andere Texte zur
+#     albanischen Volkskunde), Schriften der Balkankommission, Akademie der
+#     Wissenschaften in Wien, Bd. XII (1958) — THE SAME WORK English
+#     Wikipedia's "Baba Tomor" article cites as "Fishta & Lambertz (1958)".
+#     Already in this repo's corpus as docs/references/lambertz-albanische-
+#     marchen.de-sq.txt (confirmed by its own title page, lines 1-10).
+#     Two passages concern this legend:
+#       (i)  p. XVI (index/intro), our local line ~902 — a forward-reference:
+#            Lambertz says he will elsewhere discuss "die einschlägigen
+#            Kunstdichtungen des Elbassaners Lip Papajanni (Berater
+#            Volkssage vom Kampfe des Tomor mit dem Spiraku)" — i.e. an
+#            Elbasan poet's ARTISTIC VERSE based on "the Berat folk-legend of
+#            Tomor's fight with Spiraku." That verse is never printed in this
+#            volume and has not been located anywhere else (see why below).
+#       (ii) pp. 42-43, footnote, our local lines ~3057-3145 — Lambertz's own
+#            German prose retelling of the legend AS HE HEARD IT IN BERAT,
+#            reproduced raw below.
+#
+# ── [A.ii] Lambertz, Albanische Märchen (1958), footnote, pp. 42-43 ────────
+# (raw OCR from docs/references/lambertz-albanische-marchen.de-sq.txt,
+#  lines 3059-3145; long ſ/ligature OCR artifacts kept as scanned)
+#
+# *)  Die  Sage  wurde  mir  in  Berat  erzählt.  Sie  ist  von  dem
+# Elbassaner  Dichter  Lip  Papajanni  in  Verse  gebracht  worden.  Sie
+# berichtet:  Baba  Tomor,  der  Alte,  der  Vater  der  Götter  und
+# Menschen,  ist  ein  großer  Gott.  Bei  seinem  Namen  schwören  die
+# Bauern  der  Gegenden  rund  um  den  Tomor  die  heiligsten  Schwüre.
+# "Per  baba  Tomor!"  sagen  sie  oft.  Er  ist  der  größte  Gott  unserer
+# Ahnen,  der  alten  Illyrier.  Weiß  wallt  dem  Alten  der  Bart  bis  zum
+# Gürtel.  Vier  langschnäblige  Adlerweibchen  umkreisen  ihn  oder
+# sitzen  ihm  zu  beiden  Seiten.  Die  Bukura  e  Deut  ist  seine  Geliebte
+# und  verschönt  ihm  die  Nächte.  Weiß  wie  Schnee  leuchtet  ihr
+# Leib,  schwarz  wie  die  Olive  ihr  Auge  unter  den  Brauen.  Bei  Tag
+# weilt  sie  bei  ihrer  Schwester,  der  schilfbekränzten  Bukura  e  detit,
+# der  Schönen  des  Meeres.  Am  Abend  jedoch  tragen  die  Winde,
+# Tomors  Diener,  sie  empor  zum  Lager  ihres  Geliebten.  Berat  ist
+# Baba  Tomors  Lieblingsstadt.  Auf  ihren  Besitz  ist  er  eifersüchtig
+# und  ihretwegen  hat  er  den  grimmigen  Kampf  mit  Shpiraku  ausge-
+# fochten.  Der  Shpiraku  wollte  nämlich  einmal  dem  Vater  Tomor
+# den  Besitz  von  Berat  streitig  machen.  [NB! der  Shpiraku  oder
+# Shpiragri  ist  der  weithin  sichtbare  grüne  Höhenzug  westlich  von
+# Berat,  dessen  Hänge  vom  Kamm  bis  zum  Fuße  von  zahlreichen
+# Rinnen  durchfurcht  sind.  Sein  Name  ist  griechischer  Herkunft
+# und  daher  gilt  er  dem  nationalen  Albaner  als  der  Grieche,  der
+# hier  vorzudringen  und  in  Berat  Fuß  zu  fassen  wünscht.]  Und  so
+# benützte  Shpiraku  einmal  die  günstige  Gelegenheit,  als  der  Berg-
+# könig  Tomor  mit  seiner  Bukura  e  Deut  auf  dem  Lager  der  Liebe
+# ruhte,  und  rückte  näher  an  Berat  heran,  um  sich  der  Stadt  zu
+# bemächtigen.  Da  rissen  die  vier  Stimmen  der  vier  Adler  den  baba
+# Tomor  aus  seinen  Träumen  und  brachten  ihm  Kunde  von  dem
+# hinterlistigen  Treiben  Shpirakus.  Aber  Tomors  erste  Sorge  galt
+# seiner  Schönen.  Er  sprach  ein  Wort  und  der  Ostwind  trug  eine
+# Wolke  an  die  Stufen  des  Liebeslagers,  die  Bukura  e  Deut  bestieg
+# die  Wolke  und  fort  ging  es  auf  den  Fittichen  des  Ostwindes  dem
+# Meere  zu.  Dort  senkte  sich  die  Wolke  zum  Wasserspiegel  und
+# die  Schöne  der  Erde  betrat  das  Haus  ihrer  Schwester,  der  Meer-
+# schönen,  wo  sie  herzliche  Aufnahme  fand.  Tomor  aber  rüstete
+# sich  zum  Kampf  gegen  Shpiraku.  Er  ergriff  eine  gewaltige  Sense
+# und  bestieg  sein  Maultier.  Himmel  und  Erde  erdröhnten  unter
+# dem  Hufschlag  des  Maultieres  und  Blitze  zuckten  vom  Himmel
+# zur  Erde,  so  oft  ein  Eisenhuf  des  eilenden  Tieres  auf  eine  Wolke
+# aufschlug.  [...]  Endlich  stießen  die  beiden  Gegner  aufeinander.
+# Shpiraku  war  mit  einer  großen  Keule  bewaffnet,  mit  der  er  auf
+# den  Tomor  loszudreschen  begann,  der  Vater  Tomor  aber  brachte
+# dem  Gegner  mit  seiner  Sense  Wunden  bei.  So  kommt  es,  daß  noch
+# heute  der  Shpiraku  eine  Unzahl  von  Furchen  zeigt,  als  ob  ein
+# Riesenmäher  ihn  mit  der  Sense  bearbeitet  hätte.  Der  Tomor  aber
+# ist,  von  Berat  aus  gesehn,  verbeult  und  eingedrückt.  Tomors
+# Maultier  aber  hatte  den  Shpiraku  mit  Hufschlägen  bekämpft.
+# Daher  kann  man  noch  heute  beim  Bade  Sinja  am  Hang  des
+# Shpiraku  im  Gestein  die  Spur  des  Maultierhufes  erkennen.
+# Außerdem  half  ein  großer  Nußbaum,  der  dem  Kampfe  zusah,
+# schließlich  auch  dem  Vater  Tomor,  indem  er  voll  Grimm  seinen
+# Wipfel  schüttelte  und  Nüsse  und  Nußblätter  auf  das  Haupt  des
+# Shpiraku  herunterhageln  ließ.  Die  Narben  der  Wunden  sind  ihm
+# geblieben.  Nicht  weit  von  jener  Hufspur  sieht  man  bei  Sinja  ver-
+# steinerte  Abdrücke  von  Nüssen  und  Nußblättern.  Shpiraku  ergriff
+# die  Flucht  und  Tomor  war  Sieger.
+#
+# ── HOW THIS DIFFERS FROM ELSIE'S TELLING (the tale's actual source) ──────
+# This 1958 footnote's ending DIVERGES from the 1973 Wörterbuch-der-
+# Mythologie telling Elsie translated: here Shpiraku FLEES and Tomor ALONE
+# survives as victor (no mutual death); a great WALNUT TREE helps by pelting
+# Shpirag with nuts (stone nut/leaf-prints also shown at Sinja, beside the
+# mule's hoofprint); there is no drowning of the Beauty and no Osum river.
+# Elsie's 1973 text (fuller, and what the tale-tomor-shpirag.js beats follow)
+# has both giants slay each other and the Beauty drown in her tears to make
+# the Osum. The walnut tree does not appear in Elsie's English at all and is
+# NOT used in any beat line.
+#
+# ── THE UNRECOVERED ALBANIAN VERSE ─────────────────────────────────────────
+# Lip Papajanni's Albanian verse retelling (per [A.i] above) is referenced
+# but never quoted by Lambertz, and no separate publication of it has been
+# found: not in this repo's corpora (pralla-popullore-shqiptare-1954, Dozon,
+# Hahn, Jarník, Meyer — all checked, 0 hits for tomor/tomorr/shpirag as a
+# narrative), not on archive.org full-text, not on Google Books/HathiTrust.
+# (Andon Zako Çajupi's own famous "Baba Tomori", Cairo 1902, is a DIFFERENT,
+# later composition — a patriotic dialogue-poem with Baba Tomor as national
+# oracle, not a narration of the Tomor/Shpirag fight — and is not this verse
+# either.)
+#
+# ── A DIFFERENT MODERN ORAL VARIANT (web search, 2026-07-15) ───────────────
+# Contemporary Albanian journalism (standard.al 2015; rrugapress.al;
+# forum-al.com) tells a further DIFFERENT local legend for the same two
+# mountains: Tomorr and Shpirag as BROTHERS rivalling over one Zana (named
+# "Kala" in this telling); no eagles, wind, mule, scythe or cudgel by name;
+# God turns all three — both brothers and the girl — to stone as punishment
+# for the fratricide. This is a distinct oral tradition, not a variant of
+# Elsie/Lambertz's telling, and is not used for any beat line either.
+# ============================================================================

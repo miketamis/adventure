@@ -11,9 +11,15 @@ const albanianPhrase = (tokens) => tokens.map((t) => (t.id ? t.al : t.en)).join(
 const senseText = (id, field) =>
   field === 'en' ? DICT[id].enAll ?? DICT[id].en : DICT[id][field]
 
-// pick an id, weighted so words you already hold more tokens of come up less often
+// pick an id, weighted so words you already hold more tokens of come up less
+// often — and words you hold NONE of are heavily favoured, so training fills the
+// gaps in what you can afford rather than re-drilling words you're already flush in.
+const ZERO_TOKEN_BOOST = 8 // a 0-token word is ~16× as likely as a 1-token one
 const weightedPick = (ids, mana) => {
-  const weights = ids.map((id) => 1 / ((mana[id] || 0) + 1))
+  const weights = ids.map((id) => {
+    const n = mana[id] || 0
+    return n === 0 ? ZERO_TOKEN_BOOST : 1 / (n + 1)
+  })
   const total = weights.reduce((a, b) => a + b, 0)
   let r = Math.random() * total
   for (let i = 0; i < ids.length; i++) {

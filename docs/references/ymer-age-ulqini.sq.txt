@@ -1,3 +1,50 @@
+Ymer Agë Ulqini
+================
+The sung ballad (kângë) of Aga Ymer of Ulqin/Ulcinj — the "returning husband"
+epic behind the FOLKLORE entry `aga-ymer`. Wikibooks source template read as
+{{libri|title|place recorded|collector|year}}: title "Ymer Agë Ulqini",
+recorded in Arbnesh/Krajë (the Albanian-speaking coast around Ulcinj,
+Montenegro), collector Hipi Zhdripi, 2006.
+
+Source: sq.wikibooks.org/wiki/Ymer_Agë_Ulqini (CC-BY-SA); raw wikitext incl.
+a <pre> verse block, extracted 2026-07-15. This is NOT the same Albanian text
+Mitrush Kuteli's prose (the one Robert Elsie translated into English as the
+"Aga Ymeri of Ulqin" legend) was drawn from — Kuteli's own Albanian original
+is not present in any local corpus — but it is a genuine, independently
+collected Albanian telling of the SAME tale-type and title figure (captured
+at war, a wife's sworn nine-years'-and-nine-days' wait, a disguised
+homecoming, recognition by a bodily mark, and a kept besa that rides back to
+prison and wins final freedom). See aga-ymer.js's `discrepancies` for exactly
+where the two tellings diverge (years counted, ransom price, the recognition
+token, the missing mother-at-the-fountain scene, the new groom's name).
+
+The OCR/wikitext source is noisy (stray hyphens, "0"→"o", "T"/"l" glyph
+confusion, e.g. "lmer"→"Imer", "rnreti"→"mretit"). Beat lines quote a
+LIGHTLY CLEANED version (obvious scan-noise fixed only). The ballad's own
+distinctive Gheg words — "agja", "erdh", "izën", "mret/mreti/mretit" (its
+word for king; never "mbret"), "burk" (its word for prison; "burg" only in
+the loanword "burgaxhi"), "rabazan" (its word for a captive; never "rob"),
+the Gheg "-ue"/apocopated participles (shkue, martue, dek, hi, pa — never
+the Tosk shkuar/martuar/dekur/hyrë/parë), the vocative "-o" — are kept
+verbatim, not standardized to Tosk.
+
+CORRECTION (2026-07-15): the hero's name is spelled "Ymer" only in the
+collector's own title line and in this file's own header; inside the sung
+verses themselves it is spelled "Imer"/"Imeri" almost without exception
+(30+ times, incl. the corrupted first line "Aga Tmeri", resolved here to
+"Imeri" for consistency with every other spelling in the verse body, not
+to the title's "Ymeri"). An earlier pass through the beat lines in
+../../src/game/data/tales/kostandini-i-vogel.js quietly standardized this
+name AND dozens of other Gheg forms (mret→mbret, burk→burg, and the whole
+Gheg "-ue" participle family →Tosk "-uar": shkue→shkuar, martue→martuar,
+qerrue→qerruar, rranue→rrënuar, dek→dekur, hi→hyrë, etc.) to standard/Tosk
+Albanian without disclosing it, so the quoted "Albanian original" did not
+actually match this saved text. The beat lines have been corrected back to
+this file's own Gheg spelling throughout (see that file's `albanian.source`
+note); a handful of genuinely illegible OCR spans are now quoted as printed
+with a bracketed [sic] rather than smoothed into confident modern Albanian.
+The raw wikitext follows unedited below.
+
 {{libri|Ymer Agë Ulqini|Arbnesh, Krajë|Hipi Zhdripi|2006}}
 <center>
 {|align=center style="border: 1px solid #CCCC99; background-color:#F1F1DE; padding: 2ex; text-align: center; width: 30em; margin: auto">

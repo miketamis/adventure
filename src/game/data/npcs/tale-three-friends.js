@@ -1,0 +1,86 @@
+// NPCs: the Kordha tale (three-friends) cast — see ../npcs/_SCHEMA.md for the format contract.
+// One file per area/tale so parallel agents never collide.
+
+export default {
+  // ── the Kordha tale (three-friends) — cast being (re)built ───────────────
+  kordha: {
+    name: 'Kordha', glyph: '🗡️', kind: 'human',
+    role: '"the Sabre" — the widow\'s son whose life lives in his blade',
+    backstory: 'Born six months after his father died; raised on nothing; at fifteen he pulled the rusted sabre from under the roof, cut his new name into it, and walked out. His strength is the blade\'s (an external soul): lose it and he is lost. He passed the spring and apple tests without knowing they were tests, slew two kulshedras, won the Earthly Beauty, and cut down seven hundred men alone on the road home.',
+    folklore: ['three-friends'],
+    location: { status: 'planning', plan: 'his arc will be rebuilt across the beat anchors (widow\'s cottage → Tomorr → Berat → crossroads → the world below); the old forest vignette (kordha1…kordhaDeti) migrates onto them' },
+    tales: { 'three-friends': 'kordha' },
+  },
+  vejusha: {
+    name: 'vejusha, nëna e Kordhës', glyph: '🕯️', kind: 'human',
+    role: 'the widow who raised Kordha on nothing',
+    backstory: 'She sold the household bare to raise her son, kept the sabre under the roof without saying so, and blessed his road only after begging him to stay ("take my head before you go" — her grief gone black). She knew him again among three at a glance: "among five hundred men."',
+    folklore: ['three-friends'],
+    location: { status: 'planning', plan: 'lives at the proposed bare cottage in the village-life quarter (NOT the vitore hearth-house — see the home anchor\'s mold)' },
+    tales: { 'three-friends': 'mother' },
+  },
+  ylli: {
+    name: 'Ylli', glyph: '⭐', kind: 'human',
+    role: '"the Star" — sworn brother; leaps any distance carrying anyone',
+    backstory: 'Met Kordha on Tomorr\'s bare flank in search of his fortune. His leap cleared the moat carrying both brothers, won him the princess, crossed a country in a breath when the feather bled, and took his wife and Deti out a high window of the city of a thousand windows.',
+    folklore: ['three-friends'],
+    location: { status: 'planning', plan: 'settles at the proposed Berat castle as the king\'s son-in-law until the escape' },
+    tales: { 'three-friends': 'ylli' },
+  },
+  deti: {
+    name: 'Deti', glyph: '🌊', kind: 'human',
+    role: '"the Sea" — sworn brother; dives to any depth',
+    backstory: 'The third oath on the road. He threw the stone that measured the moat, dove to the sea-floor for the stolen sabre in E Bukura e Detit\'s deep, and — three friends, two wives — was made king of the whole country at the tale\'s end.',
+    folklore: ['three-friends'],
+    location: { status: 'planning', plan: 'dives at the deep-sea anchor; crowned at the homecoming' },
+    tales: { 'three-friends': 'deti' },
+  },
+  mbretiHendekut: {
+    name: 'mbreti i hendekut', glyph: '👑', kind: 'human',
+    role: 'the moat-king of the walled city — Ylli\'s father-in-law',
+    backstory: 'He dug a wide moat and wagered his daughter on the jump — the axe for the short. He kept the wager, hosted the wedding, gifted Deti at Kordha\'s word — then refused to let his daughter go, ordered arrests, then a death, and lost daughter, son-in-law, watchmen and army for it. A king of his word only while the word costs him nothing. MUST NOT be conflated with any just-king story sharing his castle.',
+    folklore: ['three-friends'],
+    location: { status: 'planning', plan: 'rules the proposed Kalaja e Beratit (city of a thousand windows) at Tomorr\'s foot' },
+    tales: { 'three-friends': 'king' },
+  },
+  princesha: {
+    name: 'e bija e mbretit', glyph: '👰', kind: 'human',
+    role: 'the moat-king\'s daughter, Ylli\'s wife',
+    backstory: 'Promised to whoever cleared the moat; married to Ylli; and when her father posted watchmen at every door she answered with her feet — out the high window on her husband\'s arm, choosing him over the crown that raised her.',
+    folklore: ['three-friends'],
+    location: { status: 'planning', plan: 'the proposed Berat castle, then the road home with the company' },
+    tales: { 'three-friends': 'princess' },
+  },
+  plakaUdhekryqit: {
+    name: 'plaka e udhëkryqit', glyph: '🪧', kind: 'human',
+    role: 'the crone of the seven-way crossroads — guide, spy, thief',
+    backstory: 'She keeps the cottage where the roads part and knows where each one goes. She warned Kordha off the road of no return, kept his wall-message for the brothers, then took the kings\' errand: coached the fatal question, stole the sabre, drowned it — and took Kordha\'s taunting "payment for the good deed" home, dumbfounded. Distinct from the forest\'s cold old woman (plakaPyllit) and the gate-keeper (plaka).',
+    folklore: ['three-friends'],
+    location: { status: 'planning', plan: 'her cottage is to be added at udhekryq (the crossroads anchor)' },
+    tales: { 'three-friends': 'oldWoman' },
+  },
+  kulshedraRruges: {
+    name: 'kulshedra e rrugës', glyph: '🐍', kind: 'creature',
+    role: 'the road Kulshedra with six young',
+    backstory: 'Nested on the dark road toward the Beauty with her brood of six; charged the lone traveller and died with all her young on one blade. A lesser kulshedra — NOT the many-headed one of the player\'s duel (kulshedraMadhe).',
+    folklore: ['three-friends', 'kulshedra'],
+    location: { status: 'planning', plan: 'nests on the dark-road anchor (udhetimi1) in the world below' },
+    tales: { 'three-friends': 'kulshedraBrood' },
+  },
+  kulshedraPortes: {
+    name: 'kulshedra e portës', glyph: '🔥', kind: 'creature',
+    role: 'the gate Kulshedra that kept the Earthly Beauty',
+    backstory: 'It watched the road from the Beauty\'s window and read the omens right — the kneeling drink, the apple by teeth — and despaired before the fight it lost: split in two in its own gate. Also a lesser kulshedra, of the same kind but not the same beast as the duel\'s.',
+    folklore: ['three-friends', 'kulshedra'],
+    location: { status: 'planning', plan: 'kept the gate at bukura1 in the era of the tale (dead before the player\'s own arc begins)' },
+    tales: { 'three-friends': 'kulshedraGate' },
+  },
+  mbreterKureshtare: {
+    name: 'mbretërit lakmitarë', glyph: '👑', kind: 'collective',
+    role: 'the rival kings who coveted the Earthly Beauty',
+    backstory: 'They heard a sixteen-year-old held the Beauty and came with armies down the seven roads — twenty-four days for nothing, then craft instead of force, then one last rout. Their realms stay offstage down the roads never taken; the Baloz is the nearest staged archetype of their kind.',
+    folklore: ['three-friends'],
+    location: { status: 'planning', plan: 'offstage by design — never staged; they appear only at the crossroads, the field and the rout' },
+    tales: { 'three-friends': 'kings' },
+  },
+}

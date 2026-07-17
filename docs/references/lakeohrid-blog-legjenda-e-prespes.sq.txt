@@ -1,0 +1,99 @@
+PROVENANCE
+==========
+Source:     "Legjenda e Prespës dhe Ohrit / The legend of Prespa and Ohrid"
+Blog:       Protecting Lake Ohrid, Albania and Macedonia (lakeohrid.blogspot.com)
+            — a project by DMO Albania; text first published in the Newsletter
+            "Protecting Lake Ohrid", 5th edition, in the framework of a project
+            financed by the EU and the Albanian Ministry of Environment,
+            implemented by UNESCO (see http://whc.unesco.org/en/lake-ohrid-region/).
+Post date:  2017-08-14T03:09:00-07:00
+URL:        http://lakeohrid.blogspot.com/2017/08/legjenda-e-prespes-dhe-ohritthe-legend.html
+Illustration credit given on the page: "@Anastas Konstandini Taso"
+Extracted:  2026-07-15, via curl (page fetched live; not a Wayback capture —
+            the live blog served the page directly, HTTP 200).
+Note:       The page is bilingual — the author(s) present the Albanian text
+            and an English rendering of the SAME legend side by side (not an
+            Elsie/albanianliterature.net page; this legend has no Elsie
+            translation — folklore.js's own source list cites this exact
+            blog post, not Elsie, for "legjenda-e-prespes"). Both language
+            blocks are reproduced below verbatim as extracted (only the
+            OCR-noise double-spacing and the HTML backtick-for-apostrophe in
+            "t`u martuar" are left exactly as printed on the page — no
+            transliteration was needed, the Albanian is already in modern
+            standard orthography). The legend of Ohrid/Struga/the Enkelejd
+            Illyrian city that follows on the same page is a DIFFERENT lake's
+            tradition (kept here for completeness of the extract, and cited
+            in folklore.js's summary only as a parallel, not narrated in this
+            tale's own beats).
+
+ALBANIAN — as printed on the page (Prespa paragraph; this is the paragraph
+the tale file's line-by-line coverage is built from)
+=====================================================
+Legjenda për Prespën ka të bëjë me një histori dashurie. Një herë e një kohë
+Prespa ka qenë një qytet shumë i madh.  Duke ecur një ditë nëpër pyll,  djali
+i mbretit takon një zanë me emrin Nereida, bukuria e së cilës e mahniti
+shumë. Menjëherë princi  ra në dashuri dhe i kërkon dorën për t`u martuar me
+të  duke i ofruar të gjitha pasuritë e tij dhe të bëhej  mbretëresha e
+ardhshme e mbretërisë. Por Nereida refuzon, duke i thënë djalit të mbretit
+se, nëse ata martoheshin, do të ndodhte një fatkeqësi shumë e madhe dhe do
+të kishte pasoja të rënda për vendin e tij. I verbuar nga dashuria e zanës,
+princi e rrëmben dhe  e mbajti atë mbyllur deri sa ajo pranoi kërkesën e
+martesës.  Por shumë shpejt pas martesës ra një shi shumë i madh dhe i
+rrëmbyer, që mbyti të gjithë qytetin, duke krijuar një liqen, aty ku
+ndodhet sot liqeni i Prespës.
+
+ALBANIAN — the following paragraphs (Ohrid / Struga / Enkelejd), same page,
+NOT used for this tale's line coverage (a different lake's legends — kept
+here only for provenance completeness)
+=====================================================
+Ndërsa legjenda e Ohrit, nga gojëdhënat maqedonase, flet për një dragua që
+qëndronte në mes të liqenit, duke gëlltitur  të gjitha anijet e vogla që
+kalonin aty. Vetëm një anije e madhe prej katër ose pesë tonë mund të
+kalonte liqenin, të tjerat zhdukeshin. Veç kësaj shumë njerëz janë mbytur
+në Liqenin e Ohrit. Ka një grackë brenda tij. Për një moment liqeni duket
+shumë i qetë dhe paqësor, teksa një varkë lundron  për peshkim.  Por
+papritmas varka zhduket dhe askush nuk mbijeton. Por, pavarësisht zhdukjes
+së çuditshme dhe vdekjes së shumë njerëzve në liqenin e Ohrit, liqeni
+gjithmonë e kthen trupin e vdekur disa ditë më vonë. Askush prej trupave
+nuk ka mbetur pa u gjetur. Kur ndodh diçka e keqe, njerëzit e vjetër që
+jetojnë pranë liqenit thonë: "Mos u shqetësoni, se  liqeni do ta risjell
+trupin në breg".
+
+Ekziston edhe një legjendë e ngjashme për Strugën. Kur Zoti krijoi Liqenin
+e Ohrit, ai tha: "Kam krijuar vendin më të bukur në botë, por njerëzit janë
+shumë mëkatarë për të jetuar në paqe në brigjet e këtij liqeni. Pra, unë do
+të dërgoj një përbindësh. Askush nuk e dinte se çfarë përbindëshi ishte, po
+të gjithë ishin të frikësuar dhe askush nuk kishte guximin të jetonte pranë
+liqenit. Një ditë, një djalë i quajtur 'Strugë' shkoi drejt liqenit dhe u
+zhyt në ujë për t'u përleshur me përbindëshin. Ishte një luftë deri në
+vdekje. Në fund të saj, përbindëshi e fitoi betejën dhe e përpiu të riun.
+Pas kësaj ngjarje njerëzit e zonës vendosën të sfidojnë përbindëshin. Ata
+gjetën guximin të ndërtuar një fshat në bregun e liqenit, duke e quajtur
+atë në nder të heroit, Strugë.
+
+Ekziston edhe një histori e vërtetë nga pala shqiptare. Ajo flet për një
+qytet të varrosur nën Liqenin e Ohrit që i përket fisit Enkelejd të
+Ilirisë. Mbetjet e këtij qyteti gjenden nën ujë. Legjenda thotë se një
+tërmet, shkaktoi zhytjen e qytetit nën ujë. Legjendat e bëjnë këtë liqen të
+vjetër edhe më interesant.
+
+ENGLISH — as printed on the same page (for cross-reference only; the tale
+file's English paraphrase is written independently, in the game's own
+words, never copied from this or any other translation)
+=====================================================
+The legend for Prespa concerns a love story. Once there was a town that
+stood in place of the great Lake Prespa. While walking through the local
+woods one day, the son of the king chanced upon a wood nymph whose beauty
+surpassed that of any girl he had laid eyes upon. On asking her name, she
+replied in an enchanting voice "Nereida". The prince immediately fell in
+love with the nymph and came back to the woods many times to woo her and
+take her hand in marriage, offering her all of the riches of his father's
+land and a place by his side as the future queen of the kingdom. But the
+nymph rejected his generous offer, saying that she could not marry a
+mortal without dire consequences befalling the groom and his homeland.
+Unable to imagine a deed so awful and unable to contain his love for the
+nymph, he chose one night to have her kidnapped and kept her confined
+until she accepted his offer of marriage. Upon their marriage as husband
+and wife, the heavens opened and a downpour ensued, not stopping until the
+whole town was under water and every citizen had drowned. The result is
+the present-day Lake Prespa.

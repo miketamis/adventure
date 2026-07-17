@@ -1,0 +1,322 @@
+Qerozi — Albanian original recovered from Gustav Meyer's chrestomathy text
+================================================================================
+Source: Gustav Meyer, Kurzgefasste albanesische Grammatik mit Lesestücken und
+Glossar (Leipzig: Karl J. Trübner, 1888), Lesestücke §3 "Qerozi", pp. 60(61)–67.
+Same underlying folk tale as Thimi Mitko's Bleta shqypëtare (Alexandria, 1878)
+collection that also gave Elsie's tale 3 (three-friends) — see scurfhead.js's
+`albanian` field for the full provenance note and discrepancies.
+
+RECOVERY METHOD (2026-07-15): the digitised full-text at archive.org
+(kurzgefasstealb00meyegoog / bub_gb_brfk0NiwGZMC, the same Google Books scan
+under two identifiers) has OCR so corrupted it is unusable letter-for-letter
+(see meyer-qerozi-scurfhead.de-sq.txt for that raw, unusable extract — kept for
+the record). This file instead was produced by downloading the scan's own PDF
+page images (archive.org serves kurzgefasstealb00meyegoog.pdf directly) and
+reading the actual printed page scans for pp. 60(61)–67 (PDF pages 78–85 in
+that file) directly, sentence by sentence, cross-checking every clause against
+Elsie's parallel English translation (already in scurfhead.js's beat lines) so
+that no sentence was transcribed without a semantic anchor confirming it says
+what it should. Meyer's book states its own phonetic alphabet explicitly on
+pp. 3–5 ("Laute", §§1–12), which resolves the special sorts used here without
+guesswork:
+  ε (lunate epsilon) = ë ("der unbestimmte Vocal", §3)      δ = dh   θ = th
+  ǩ ǵ = q, gj (palatalised k, g)                              ń = nj (mouilliert n, §10)
+  ł = ll     l' = l (a finer distinction modern spelling does not keep)
+  r̄ = rr     š ž = sh zh     ts dz tš dž = c x ç xh
+  macron (ā ē ī ō ū) marks vowel length only — dropped in this modern-spelling
+  rendering, as modern Albanian does not mark it
+  diphthongs ai ei oi ui üi resolve to modern -aj -ej -oj -uj -yj (Meyer §5);
+  ie → je, üe → ye (Meyer §§6, 8)
+This is therefore a TRANSLITERATION into modern Albanian orthography of a
+pre-standard 1888 phonetic transcription — exactly the Dozon-1879 case the
+tale schema anticipates — not a modernisation of the wording itself. A small
+number of individual words remain genuinely uncertain even on the clean page
+image (cursive italic type, unfamiliar 1880s Tosk items); these are marked
+[sic] at their one or two occurrences below and in scurfhead.js.
+
+Meyer's own text is a shorter, chrestomathy-trimmed retelling of the same
+Mitko tale Elsie translated (its own paragraph/sentence breaks do not match
+Elsie's one-for-one — see scurfhead.js's `discrepancies` for the specific
+places content differs or is condensed). The numbering below (¶1–¶18) matches
+the beat/paragraph numbering already used for Elsie's English in scurfhead.js.
+
+--------------------------------------------------------------------------------
+
+¶1
+Qe një mbret që kishte tre djem, kishte edhe një kopshtë të bukur fort, i cili
+përmbi të gjitha kishte edhe një dru ftonjësh në mes që nga mot pillte tre
+ftonj vetëm, po edhe këta të tre i kishte mësuar lamja e vinte gjithënjë e i a
+hante. Mbreti ish i dëshëruar për të ngrënë një ftua nga ata, tek i a kish
+zaptuar lamja, e ishin fort të mira.
+
+¶2
+I u tek djalit të parë të vejë e të ruajë ftonjtë nga lamja, edhe vate e u
+faneps tek i ati që të marrë leje prej tij, [farë] rrjetë [sic — "harme",
+unclear exactly what device] edhe tri lambadhe për të ndritur natën. I dha
+edhe gjithë atë që lypi i ati, edhe djali vate në kopshtin e zuri vend mbi
+një lis që të ruhej, e po përiste lamien. E lamja, pas zakonit saj, erdhi në
+mes të natës, e posa pa dritë, e kujtoi se i kanë bërë pritë, edhe u dërdh
+mbi të duke pëllitur me një zë të shëmtuar, rëmbeu një ftua, edhe iku si
+rrufe. E djali, i ngrirë nga frika, s'bëri dot as çikë, po të nesërmen i vate
+t'et i pikëlluar, i mbetur nga frika e lamies, edhe i rrëfeu ç'i kishte
+ndodhur. Po t'et i erdhi keq shumë, përse i biri i doli kaq frikacak.
+
+¶3
+Pasandaj u hodh djali i dytë e tha: "Do të vete unë të mbroj ftonjtë." Edhe
+vate tek i ati të marrë [leje], rrjetë e të tjera; po i ati e la, edhe pse e
+kish për frikacak si të parin. Mori gjithë sa i lypi edhe vate të ruante
+ftonjtë. Po edhe ai e pësoi si edhe i pari, sepse i erdhi lamja, rrëmbeu
+ftuan e dytë, e ai s'e mbrojti dot, po u kthye i turpëruar tek i ati.
+
+¶4
+Vëllezërit, sepse ai ish edhe qeros, e kishin të përbuzur; tuke [duke] parë
+këtë turp mbi ata, u gëzua tepër, edhe doli përpara t'et e i mori fjalën
+edhe [kërkoi] të tjera gjithë sa i duheshin për të mbrojtur ftonjtë, edhe
+vate e u fsheh mu përpara drurit të tij. Kur erdhi lamja, në çast i u lëshua
+ky me zemër e me trimëri edhe i ra [sic — "tšore", weapon or manner unclear]
+e e plagosi rëndë kaq [sic] sa iku prap ajo në ditë të keqe. Të vëllezërit
+kur panë trimërinë e Qerozit, lëshuan hundët [u turpëruan], e u erdhi zili,
+sepse ata mbetën në turp mbi luftën e lamies. Po me gjithë këto, posa
+dëgjuan ata thirrjet e tij edhe të pëlliturit e lamies, u sulën edhe ata për
+të ndihmuar, edhe e ndoqën egërsisht deri sa ajo hyri në një vrimë, të tre
+së bashku. Por kur ata po rrinin e mendoheshin atje pranë vrimës, edhe
+asnjë nga ata s'kuxonte të hynte në vrimë për të gjetur strofkën e asaj,
+vetë i patrembshmi Qerozi kuturisi të hynte. E kur hyri, lidhi një fjalë me
+vëllezërit sa të kenë një shenjë për t'u ndeguar ndër ta, edhe u la atyre
+anët e të dy litarëve — të zi e të bardhë — me të cilat u lidh ai për t'u
+lëshuar poshtë nën dhé, me këtë porosi: kur ai të tundë litarin e bardhë,
+do të thotë se ai gjendet mirë e paq; e kur të tundë të zi(n), atëherë do
+të tregojë se është në rrezik, e duhet ta tërheqin atë me të shpejtë për ta
+shpëtuar.
+
+¶5
+U zbrit poshtë nëpër [një] vrimë Qerozi, posa shkeli dhe, zu të vështronte
+e të kërkonte gjurmat e strofkën e lamies. E tuke [duke] endur andej e
+këndej, gjeti për terr një pllakë të hekurt vënë mbi një vrimë, e pasi mezi
+e hoqi atë nga vendi, zbriti nëpër tri shkallëza poshtë edhe shkeli dhe të
+fortë. Atje gjeti një shtëpi të vogël, e posa trokiti mbë derë t'asaj, i
+doli një çupë e bukur, një nga tri të bukurat e dheut, e cila pasi e
+përshëndosh, e pyeti atë për ç'ka ardhur. E Qerozi i u përgjigj se ka
+ardhur për të vrarë lamjen, përse gjithë bota s'ka qendër prej droje. E
+çupa i tha: sa për të vrarë lamjen aq të fuqishmen duhet të mendojë më
+parë a është i zoti, edhe se ka për të shtrirë kryet e tij ndër dhé [do t'i
+shkojë koka kot]. Pastaj i tha: në e vrafshin egërsirën ai, do të quhet një
+shpëtues i këtij vendi, edhe ajo e ka për ta marrë për burrë. Edhe i dha
+atij për shenjë të virgjërisë saj një furkë që tirte [endte] vetë ar, të
+cilën ai e vuri për dhé, edhe e bëri një mollë t'artë.
+
+¶6
+[Ai vate më tej, gjeti] një tjetër shtëpi edhe trokiti gjithashtu mbë derë,
+tek i doli një çupëz më e bukur edhe më e hijshme se e para, e cila edhe
+kjo i bëri gjithato fjalë, e pastaj i u zotua që në e vrafshin lamien, do
+t'a marrë për burrë. I dha edhe për vlerë një enë [sic — "stagua", a bowl,
+apparently pictured/engraved with a scene of dogs chasing hares — Meyer
+gives a decorative detail Elsie's translation simplifies away] mbi të
+cilën ish e shkruar një gjueti që ndiqte lepura, të cilën e vuri edhe atë
+duke përpjekur pas dheu e bëri mollë t'artë. U nda ai prej çupës, gjeti më
+tutje të tretën shtëpi, e posa i trokiti derës, i u fanep një vajzë më e
+bukur e më madhështore se të parat, e cila ish motra e atyre. E pasi u
+përshëndoshën e folën njëri me tjetrin disa fjalë të lehta e të pakta, pas
+zakonit, i dha edhe kjo atij një kotece me dymbëdhjetë zogj për vlerë, se
+do t'a marrë për burrë, po ai [nëse] të vrasë lamien. Pastaj kjo e shpuri e
+i tregoi strofkën e bishës, e cila s'u ndodh atje atë çast.
+
+¶7
+Ai pra, tek u soll pak atje, duke menduar se si të vrasë me kollaj atë
+bishë, papritmas sheh se larg një turmë njerëzish që po vinin duke qarë e
+ulërit, të bijën e mbretit atij vendi, të cilën i a shpinin lamies për ta
+ngrënë, përse kishin detyrim nd'atë vend t'i apin lamies nga dita një
+çupë për ta ngrënë, pas shortesh që hidhnin përmbi gjithë çupat, si një
+detyrim për ujin që i lëshonte vendit, tek e kishte ajo nën pushtet të
+saj. E kështu atë ditë i kishte rënë shorti së bijës [së] mbretit, së
+zezes, të cilën e sollën me qarje e me dhimë, edhe e lanë atje edhe u
+ikën. Qerozi duke parë çupën të tronditur se trupi i po dridhej e po
+gulçonte, u malëngjye, edhe iu afrua e e pyeti: "Ç'ke, moj çupëz?" Edhe ajo
+i tregoi të tërë këtë histori, siç thamë më parë. Atëherë i tha ai që të
+mos trembet, se ai do t'a shpëtojë.
+
+¶8
+Më së fundi erdhi lamja e përgjakur keq nga plagat që kishte marrë [sic —
+exact word for where/how unclear] në kopshtet, e çupa duke mbajtur
+Qerozin, i cili po flinte mbështetur kryet mbi prehrin e asaj, posa e pa, u
+drodh nga frika, edhe lëshoi nga sytë e saj mbi kryet e Qerozit një lot aq
+të nxehtë, sa ai u zgjua në çast edhe u hodh drejt e në këmbë i trembur,
+edhe pyeti çupën: "Ç'është?" E ajo nga frika e madhe nuk foli dot me gojë,
+po i tregoi me sy lamien atij. Atëherë ai iu dredh posi një gjarpër asaj,
+edhe e goditi për ngordhje: aq sa ajo nuk mundi as t'i qëndronte, as
+t'ikte, po vajti e u fut në burimin e ujit. Tek u hodh ajo në burim,
+[shpërtheu] uji që lypsej, edhe mbuloi [rrjedhi nëpër] fshat, përveç se
+vinte i turbullt prej gjakut të plagëve të lamies, e cila mb'atë çast edhe
+ngordhi. E çupa, kjo bijë mbreti, iu afrua Qerozit, e pasi iu fal atij me
+përunjë e me nder të madh duke thënë atij se s'ka për ta harruar këtë të
+mirë tek i shpëtoi kryet asaj, mbushi enët e saja me ujë edhe u kthye nde
+pallati.
+
+¶9
+Kur e panë atë prindet edhe farë e asaj, i a dhanë gazit, e me një dëshirë
+të madhe zunë t'a pyesin se si shpëtoi nga bisha. E ajo u tregoi me radhë
+të gjitha, se kush e shpëtoi trimi, duke shtuar se ai s'kish edhe ikur nga
+strofka e lamies. Andaj mbreti urdhëroi në çast të nxitonin e t'a sillnin
+përpara trimin, i papritshëm pa ta shohë të tillë burrë që ka qenë i zoti
+të vrasë lamien, edhe t'i shpëtojë të bijën. Pas urdhërit mbretit e morën
+edhe e sollën përpara tij, e kur posa e pa, i u ngrit në këmbë, e e priti
+me nder të madh, e vu edhe të rrijë pranë tij. Pasandaj duke lëvduar
+trimërinë e tij, edhe duke rrëfyer detyrën e dashurinë e madhe që mori mbi
+te, i tha: "Dua të më thuash e të më lypesh pa droje ç'të dojë zemra,
+makar edhe gjysmën e mbretërisë sime, se dëshëroj t'a jap, sa të
+shpërblej këtë të madhe të mirë që më shpëtove bijën edhe pushtetin tim
+prej lamies." Përveç kësaj ka edhe dëshirë t'i japë edhe çupëzën që
+shpëtove për grua ndë të pëlqyer. E trimi i u përgjigj se u kënaq tepër
+për nderin e dashurinë e madhe që ai i solli, e se tashti nuk ka për të
+lypur gjë, po pas kësaj po t'i vijë ndonjë nevojë, do t'i lypë me zemër
+krahun edhe ndihmën e atij, edhe iku mjaft i kënaqur nga ana e mbretit.
+
+¶10
+Nga atje trimi shkoi drejt te tri të bukurat e dheut, të cilat e pritën
+me gaz e me dashuri të madhe, edhe i thanë se ishin gati me besë, pas
+fjalës që kishin lidhur, për martesë. Edhe ai u foli me gjithë zemër, e
+pastaj u tha se përandaj erdhi që t'i marrë me vete të tria, përse të dy
+më të mëdhatë i ka për t'i martuar me të dy të vëllezërit e mëdhenj, e të
+vogëlën fare do t'a ketë për vete. Kështu ato u bënë gati edhe u nisën
+[bashkë] për të vajtur në botën përmbi dhé, çupat kishin marrë me vete
+gjithë [sendet] më të vyeshme, edhe erdhën deri te vrima. Atje Qerozi dha
+zë vëllezërve që po prisnin përmbi dhé edhe i lëshuan në çast litarat.
+Edhe ai lidhi me litar më parë të madhen, edhe u tha atyre t'a heqin,
+duke thënë se kjo vajzë e ka [caktuar] për vëllanë e madh. Kur ngritën
+edhe të dytën, u tha se kjo është për vëllanë e dytë. Po nd'atë kohë kur
+ata po ngrinin të dy çupat e para, i flet e vogla fare (e cila ish më e
+hijshme se të tjerat) djalit e i thotë: "Mua më duket se ti ke për të
+pësuar ndonjë çudi këtu, përse të vëllezërit kanë ndër mend të liga për
+ty, e po mendojnë të të lenë mbë vend këtu të humbësh ti, e mua më të
+hijshmen të më trashëgojnë ata. Ama ti mos u tremb, po nd'e mbetesh këtu,
+ti vetë vrapo ndë folenë e bishtrës e atje do të gjesh dy desh, [një] të
+zi e [një] të bardhë, edhe kape të bardhin, se ai do të çojë [ty] mbi
+dhé. Vetëm ki mend e shih mirë mos zësh dashin e zi, se atëherë do të
+mbetesh këtu edhe je i humbur përfare. Pa unë nuk dot i epem tët vëllezër
+as edhe deri mbë vdekje, ndonëse ata janë me atë mendje të keqe, po do të
+pres derisa të vish." Të vëllezërit lëshuan për së treti litarin e
+tërhoqën edhe të tretën vajzë, po posa e panë kaq të bukur, ndonëse
+Qerozi u ka thënë se kjo është e tija, u pajtuan të dy të lenë Qerozin
+poshtë,
+
+¶11
+e ai prapë i lidhur nën dhé, kujtoi porosinë e çupës edhe vajti me vrap
+ndë folenë e lamies, teku gjeti vërtetë dy desh, [një] të zi e [një] të
+bardhë, po nga fatkeqësia e tij zuri të zinte vendin e së bardhit, e
+kështu i qe dhënë të mbetet poshtë nën dhé.
+
+¶12
+I menduar ai nga i madhi pikëllim i tij, vajti nën hijen e një lisi edhe
+ndehi. Atje ndien zëra shpezësh, e tek ngre sytë përpjetë, sheh mbi atë
+lis një folenë me zogj shqiponje edhe një gjarpër që po ngjitej pas
+lisit sa të vejë ndë folenë e t'i hajë zogjtë, e zogjtë duke cicëritur
+sikur i luteshin atij t'i shpëtojë nga gjarpri. Andaj u malëngjye ai,
+edhe u ngrit me vrap, nxori kobure [thikë] edhe vrau gjarprin e i
+shpëtoi zogjtë, pastaj vajti prapë nde vendit e u fjeti. Kur erdhi
+shqiponja, ëma e zogjve, e pa atje të flinte nën hijen e lisit, pandehu
+se ai ishte që i vriste asaj ngahera zogjtë, edhe u sul përmbi te, po
+zogjtë e saj me zëra e me hijesha i thanë t'a shpëtohej se ai është
+shpëtuas i atyre, jo vrasës, atëherë ajo vajti nde det e uli pendat e
+saja, edhe i ardhi e i rrinte me krahët hapur përmbi krye atij tek
+flinte për ta ajëditur atë [për t'i ruajtur gjumin]. Qerozi zgjohet, e
+kur sheh befas shqiponjën krahë-hapur përmbi krye të tij, mendohet t'i
+biejë e t'a vrasë atë, po kjo me fjalë fort të embla e të buta e zbuti
+duke i thënë ai se ai i shpëtoi asaj fëmijët e për këtë detyrë e ka
+[falenderim] me një gëzim aq të madh sa shtiu vetën e saja kopile
+përpara atij, edhe i lutet me gjithë zemër t'a urdhërojë lirisht mbë
+ndonjë nevojë që të ketë ai, përsi ka dëshirim t'i shërbejë, për të
+shpërblyer të mirën që i ka bërë. E trimi i u përgjigj e i tha asaj:
+"Pa çfarë shërbimi mundesh të më bëhesh ti, tek je një shpesë [zog]?"
+
+¶13
+"Çdo gjë që të duash mundem t'a bëj," i u përgjigj shqiponja. — "Fort
+mirë," i tha ai; "ada [atëherë] dua, në të mundet, të më hipësh sipër
+mbi dhé, këtë të mirë dua prej teje." Edh' ajo i u përgjigj e i tha:
+"Fare kollaj mund të të shpie sipër mbi dhé, po të duhet të kesh me vete
+një furrë bukë, dy [copë] mish të pjekur edhe një enë me ujë. Të gjitha
+këto ngarkon ti mbi kurriz tim, hipën edhe vetë përmbi to, edhe kështu
+fluturojmë sipër."
+
+¶14
+Atëherë Qerozi u mendua për detyrën që i kish mbreti, të cilit i shpëtoi
+bijën, edhe vajti ndek ai, e i lypi gjithë ato që i porositi shqiponja,
+e mbreti hapi sytë kur dëgjoi se ai lypën një gjë të vogël shpërblim
+për atë aq të madhe të mirë, edh' urdhëroi t'i a japin. Mori Qerozi të
+gjitha këto të nevojshme, i a ngarkoi shqiponjes, i hipi edhe vet ai
+përsipër, edhe i a dha fluturimit mbë të lartat shkolla [qiejt], duke
+udhëtuar këtë udhë të gjatë gjithë nëpër erë, mes me mundime shumë
+zbriten më së fundi përmbi dhét, e djali u gëzua pa anë që shpëtoi nga
+hauzi.
+
+¶15
+Posa hipnë sipër, e para e punës e atij ka [ish] të pyeste a janë
+gjallë prindërit e tij e ku gjenden, edhe kur mori vesh se janë mirë, u
+mendua se i duhet të zërë punë sa të ketë harxhin e tij e të rrojnë me
+nder. Të pastajmen, tek endej poshtë e lart me këtë mendim, gjeti tri
+pendët, e për njërën, i mbajti. Pasandaj dogji pakëz majen e njërës,
+papo nd'çast i u fanepsen tri pela, edhe i thanë: "Ç'urdhëron, zot, se
+jemi gati të të shërbejmë." E ai, ndonëse u gëzua pa anë për këtë të
+mirë, ama sa të mos e tregojë, u përgjigj ngadalë e u tha atyre: "Shkoni
+në udhën tuaj tashti, po kur të më duhen, ju do t'i thërres përsëri."
+
+¶16
+Duke kërkuar ai të gjejë ndonjë punë, vajti te një argjendar edh' i
+lutet t'a marrë për çirak pa pagesë, po vetëm sa për bukën edhe ndonjë
+rrobë të vjetër. Edh' argjendari kur pa atë djalë të veshur si fisnik,
+e mori edhe e vuri mbë punë. Një ditë papritmas vjen nga pallati një
+lajmëtar, edhe i thotë argjendarit: "Eja, se të do mbreti." E ai, pa
+ditur shkakun e dërgesës, vajti fort i trembur. Mbreti porositi atij,
+që t'i bëjë një furkë e çka vetë fli ar, tuke i thënë atij: "Meqenëse
+martoj tim bir të parin, e nusja do t'i kthyer furkën e vajzërisë së
+saj; furkën që [i thashë] — se pa atë s'martohet, përandaj të thërres
+të parin e mjeshtërisë sate të më ndërtoni mbi tri ditë e sipër këto
+sende, që janë për të bërë dasmat, se pastaj të pritet kryet."
+
+¶16-17
+E argjendari, ndonëse u përpoq me shumë mënyra e dredhi, të hiqej nga
+kjo punë kaq e rëndë, po pasi i tha fjalën, u kthye i frikësuar edhe i
+dëshpëruar për rrezikun e kryesë tij, që po i vinte kur ajo furkë s'bëhej
+dot. Po Qerozi mbi punë e sipër, kur pa të zotin nd'atë gjendje pa
+rrugëdalje edhe të hutuar, e pyeti atë: "Ç'ke, që rri i turbulluar?" Po
+ky i u përgjigj me të ashpra: "Hesht; s'ke ç'të më pyetësh për çfarë
+punëra." Po pasi e pyeti përsëri e përsëri, i rrëfeu ai për të
+nevojshmen furkë. Atëherë Qerozi e zbuti atë e trimëroi duke i thën me
+fjalë të vërteta se mund ai vetë t'i bëjë një natë atë furkë që i
+kërkonin pa asnjë ndryshim, edhe se nuk deshte fare gjë përveç pesë okë
+arra, edhe [ca] verë të mirë. Fatkeqi argjendar, sado që s'i besonte,
+mori zemrim pak edhe sakaq vajti e bleu atij ato edhe ia solli Qerozit.
+
+¶17
+Ky pra mbyllur brenda nd'[dh]omën, zuri të hante arra e të pinte verë.
+I zoti me frikë e shqetësim të zemrës po vinte nga jashtë nd'derë e
+[dh]omës edhe vështronte nëpër të çarat e saj: "Vaj, ç'thua bën
+çiraku!" Po ky, djalë i keq, që [donte] t'a frikësonte edhe më fort, i
+thoshte: "Ik andej, se mos më prishet puna." Të pastajmen ai i dorëzoi
+të zotit furkën e ndërtuar fare ashtu siç e dëshëronte mbreti, (kjo
+furkë ish ajo të cilën Qerozi kishte marrë për vlerë prej çupës nën
+dhé, siç thamë më sipër.) Po kur e pa argjendari aq mirë të bërë, u
+habit edhe u gëzua pa anë, edhe me vrap i a çoi mbretit. Gjithashtu
+edhe mbreti, pasi e vështroi mirë-mirë, e e gjeti të mbaruar deri në
+fund, me të madhe kënaqësi urdhëroi e i dhanë pesë qerre të ngarkuara
+me flori(nj) për ta shpërblyer furkën, edh' argjendari posa i mori, i
+solli gjysmën çirakut, po ky s'ia pranoi duke thën: "Më mjafton mua që
+e ka dashuri të tim zoti."
+
+¶18
+Atë ditë u bë edhe dasma, tek ishte ftuar edhe argjendari, i cili
+deshi të merrte me vete edhe Qerozin, po ky as mbë dasmë s'vajti.
+Jashtë qytetit mbi një kodrinë të lartë kishin ngritur një shtyllë
+fort të lartë, e përmbi atë kishin vënë një mollë t'artë edhe një qese
+flori(nj). Përandaj kishte përhapur fjalë mbreti që ai që të mundej të
+hidhej sa të merrte mollën e artë, do të shpërblehet prej mbretit
+dhurata mbretërie, erdhën atje trima nga gjithë anët e dheut, po asnjë
+s'mundi të hidhej kaq lart. E Qerozi, posa e dëgjoi këtë, dogji pak
+anën e njërës pendë, nga ato që kish nd'gjirin, edhe sakaq i erdhi
+njëra nga të tri pelat me gjithë një palë rroba t'arta për atë (këto
+pela ecnin mbë erë posi kur kishin fletë). I hipi ai pelës i veshur nd'
+rrobat e arta edhe vajti nd'vendin e shtyllës, atje tek ish mbledhur
+gjithë ajo grumbull njerëzish [sic — "gendejeh", exact word unclear].
+Papo posa iu afrua shtyllës, me një hidhje të çuditshme nd'çast rëmbeu
+mollën edhe humbi, as u pa më. E gjithë bota, sa ishin atje, u
+çuditën duke parë këto trimëri. Kështu pra mori fund edhe belek [sic —
+"beleku", apparently "the happy end/fate"] i dasmës.

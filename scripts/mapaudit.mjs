@@ -182,10 +182,17 @@ for (const id of ids) {
 }
 section(!stranded.length, `no stranded nodes (some neighbour within ${STRAND_MAX})`, stranded)
 
-// ---- 6. odd links (cross-region long edges) are all KNOWN journeys ------------
-// Mirror of the debug map's ⚡ detector. Every entry here was walked through the
+// ---- 6. odd links (long edges) are all KNOWN journeys --------------------------
+// Mirror of the debug map's ⚡ detector, REGION-BLIND: a long hop is a journey
+// (or a teleport bug) whether or not it crosses a region border — the 2026-07
+// village teleports (fshatiLumi->fshatiLanes, 663px across the whole town) hid
+// behind an old same-region exemption. Every entry here was walked through the
 // story and verified to be a real journey — a NEW one appearing means either a
 // new teleport bug or a new journey to verify (then add it below).
+// Inside the town walls the bar is tighter: village streets are all short, so a
+// village↔village edge over 400 is a mislaid street — and there even
+// wander/return edges count (walking home across town is still walking; only
+// outside town does "wander" mean a narrative you-got-lost teleport).
 const JOURNEY_ALLOW = new Set([
   'tomorZbritje->pusi',      // the descent from Tomorr to the well's mouth
   'rrethi->dhia1',           // "ec lart" — up the mountainside to the stone wedding
@@ -199,20 +206,41 @@ const JOURNEY_ALLOW = new Set([
   'shpellaHyrje->qyteti',    // Durham's cavern "runs miles underground" to the dead city
   'shpellaRruget->qyteti',   // the middle road of the cavern fork — same miles-long passage
   'fshatiCaul->mali1',       // village up the mountain road
+  'maroLajmi->maroTetua',    // across the whole village to the aunt's house in the far lanes
+  'maroTetua->maroLajmi',    // and back (leaving the aunt without the coach)
+  'maroTetua->maroHani',     // the pumpkin coach's night ride out to the crossroads han
+  'maroHani->maroIkja',      // the midnight flight home, riders behind
+  'maroMesnata->maroKrushqit', // the on-foot walk home after the stroke, and the waiting days
+  'maroKrushqit->maroPallati', // the bridal journey to the prince's own land
   'rrugaDielli2->fshatiLanes', // the stag's run ends at the back lanes
   'mali1->udhekryq',         // mountain road back to the crossroads
   'udhekryq->mali1',         // and out again
   'gjarperKerkim->gjarperKulshedra', // the wife's search for her snake-husband, beyond the sea
   'shqipe1->shtepia',        // walking on home from the eagle's tree (an "ec larg" keeper)
   'lumi->flocka1',           // "larg është një liqen" — the far walk down to Lake Shkodra
+  // same-region journeys (invisible before check 6 went region-blind):
+  'kthimi->pusi2',           // the climb out of the world below, up the well shaft (see CROSS_ALLOW)
+  'pemaDielli->rrugaDielli2', // the stag carries the maiden the whole road home (see INTERACT_ALLOW)
+  'qiellDiell->henaPaqe',    // "kerko hene" — the deliberate search across the sky (see STRAND_ALLOW)
+  'qiell2->qiellPrende',     // "bie ne toke" — the FALL from Zojz's storm-peak, not a stroll
+  'qiellErera2->qiell2',     // "mbyll sy" — you shut your eyes and the winds carry you
+  'siperfaqja->bregu',       // surfaced from the world below, the walk down to the shore
+  'tomor3->tomorZbritje',    // the narrated descent of Tomorr ("ti zbret poshtë në mal")
+  'start->lendina',          // "hyr ne pyll" — the forest road from the bridgehead to the glade
+  'lendina->start',          // and back out the same road
+  'deti1->detiThelle1',      // the dive from the surface to the deep
+  'detiThelle1->deti1',      // and the swim back up
+  'maja->jutbina',           // from the bare peak down to the kreshnik hamlet
 ])
 const oddNew = []
 for (const e of edges) {
-  if (e.wander || e.len <= 500 || reg(e.from) === reg(e.to)) continue
+  const town = reg(e.from) === 'village' && reg(e.to) === 'village'
+  if (e.wander && !town) continue
+  if (e.len <= (town ? 400 : 500)) continue
   const key = `${e.from}->${e.to}`
-  if (!JOURNEY_ALLOW.has(key)) oddNew.push(`${Math.round(e.len)} ${key} (${reg(e.from)} -> ${reg(e.to)})`)
+  if (!JOURNEY_ALLOW.has(key)) oddNew.push(`${Math.round(e.len)} ${key} (${reg(e.from)} -> ${reg(e.to)}${town ? ', in-town limit 400' : ''})`)
 }
-section(!oddNew.length, `odd links: every cross-region edge >500 is a verified journey (${JOURNEY_ALLOW.size} known)`, oddNew)
+section(!oddNew.length, `odd links: every long edge (>500, in-town >400) is a verified journey (${JOURNEY_ALLOW.size} known)`, oddNew)
 
 // ---- 7. no near-collisions -----------------------------------------------------
 // Two DISTINCT places closer than 16px render as an unreadable smudge — either
@@ -473,6 +501,36 @@ for (const [id, c] of npcConds) {
   }
 }
 section(!npcBad.length, `NPC routes walk real roads & npc conditions can fire (${Object.keys(NPCS).length} NPCs)`, npcBad)
+
+// ---- DEPARTURE TRUTHFULNESS (story-design-taste rule 17) ----------------------
+// A moment-scene AT a place must not exit with «kthehu në/te <place>» when the
+// edge lands at the SAME map spot — "return to X" is a lie when you never left X.
+// Relabel with the gesture that ends the moment (lër <person> / dil nga <thing> /
+// shiko <the danger> / pyet përsëri / thuaj: faleminderit|mirupafshim / rri / zbrit)
+// and SHOW the gesture's premise in the scene text (pusiGuri narrates the
+// down-stare "ti shikon poshtë në pus" so «shiko lart» isn't sky-gazing).
+// Bare «kthehu» (turn back — names no place) is honest and allowed.
+const RETURN_OK = {
+  'kafeneja->fshatiSheshi': 'stepping OUT of the coffee-house interior onto the square is a real crossing',
+  'kafeneja2->fshatiSheshi': 'same interior->square crossing',
+  'jutbina->aliBajr1': "the tale's homecoming beat — as Ali you RETURN to the house after years away",
+  'aliBajr1->aliBajrFund': "«kthehu dhe vrit krajlin» — the ballad's return-and-strike beat, not a travel label",
+}
+const retBad = []
+for (const e of edges) {
+  const t = idsOf(e.o.text)
+  if (t[0] !== 'kthehu' || t.length === 1) continue
+  if (PLACE_OF[e.from] !== PLACE_OF[e.to]) continue
+  if (RETURN_OK[`${e.from}->${e.to}`]) continue
+  retBad.push(`${e.from} -> ${e.to}: «kthehu …» but both stand at '${PLACE_OF[e.from]}' — you never left; relabel with the moment-ending gesture (or RETURN_OK with a reason)`)
+}
+for (const key of Object.keys(RETURN_OK)) {
+  const [a, b] = key.split('->')
+  const edge = edges.find((e) => e.from === a && e.to === b)
+  if (!edge) retBad.push(`RETURN_OK stale: ${key} is no longer a story edge`)
+  else if (idsOf(edge.o.text)[0] !== 'kthehu' || PLACE_OF[a] !== PLACE_OF[b]) retBad.push(`RETURN_OK stale: ${key} no longer needs sanctioning`)
+}
+section(!retBad.length, `departure truthfulness: no same-spot «kthehu <place>» exits (${Object.keys(RETURN_OK).length} sanctioned)`, retBad)
 
 console.log(failures ? `\n❌ ${failures} map check(s) failing` : `\n✅ all ${checks} map checks pass — also run: node scripts/audit.mjs`)
 process.exitCode = failures ? 1 : 0

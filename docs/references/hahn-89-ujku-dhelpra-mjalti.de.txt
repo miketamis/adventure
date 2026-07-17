@@ -1,0 +1,153 @@
+PROVENANCE
+==========
+Tale:      "Vom Wolf, der Füchsin und dem Honigtopfe" — J. G. von Hahn,
+           Griechische und albanesische Märchen, Leipzig: Engelmann, 1864,
+           vol. II, Nr. 89, pp. 99–101 (the ATU 15 "Theft of Butter/Honey
+           by Playing Godfather" tale behind the game's 'kuma-lisa' lore
+           card, which cites "von Hahn 89").
+Extracted: 2026-07-14, from the OCR already on disk in this repo at
+           docs/references/hahn-griechische-albanesische-marchen.de.txt
+           (around lines 18905–19010). Fraktur OCR lightly repaired by hand
+           (f→s, v→d, ſ ligatures, broken words); no wording changed.
+Numbering: the ¶.sentence numbers below are THE numbering used by
+           src/game/data/tales/kuma-lisa.js (paragraphs: [3, 5, 7, 9, 4, 2, 6]).
+           Hahn prints most dialogue turns as their own tiny paragraphs;
+           they are grouped here into seven scene-paragraphs.
+Albanian:  NO Albanian original of this text exists — Hahn 89 sits in his
+           Greek animal-tale section. The Albanian-soil variant of ATU 15
+           is Gustav Weigand, Albanesische Grammatik im südgegischen
+           Dialekt (Durazzo, Elbassan, Tirana), Leipzig: Barth, 1913,
+           text Nr. 52 from Elbasan — known to this repo only through
+           Maximilian Lambertz's German plot summary (see appendix below).
+           The Weigand volume is digitized only at HathiTrust
+           (hdl.handle.net/2027/mdp.39015027525214), which refuses
+           programmatic retrieval; it is not on archive.org, Google Books
+           full view, MDZ or Wikimedia Commons (searched 2026-07-14).
+
+TEXT (von Hahn, Nr. 89)
+=======================
+
+¶1
+[1.1] Es war einmal ein Wolf, der hieß Herr Nicola, und eine Füchsin, die
+hieß Frau Marja.
+[1.2] Die kauften zusammen einen Acker und machten sich auf, um ihn zu
+bestellen; zur Nahrung nahmen sie einen Bottich voll Honig und einen Korb
+Weißbrote mit, versteckten ihren Mundvorrath in einen Busch und fingen an
+zu graben.
+[1.3] Als sie ein gutes Stück gegraben hatten, begann es die Füchsin zu
+hungern, sie schämte sich aber, das dem Herrn Nicola zu sagen, und sann
+daher auf eine List, stellte sich, als ob man sie zu einer Taufe riefe, und
+schrie: „Ja wohl, ja wohl, ich komme schon!“
+
+¶2
+[2.1] Da fragte Herr Nicola: „wer ruft dich denn?“ und sie erwiderte: „man
+ruft mich, um ein Kind aus der Taufe zu heben; ich will also hingehen, aber
+bald wiederkommen.“
+[2.2] „So geh’,“ sagte der Herr Nicola, „aber mache, daß du bald wieder
+zurück bist.“
+[2.3] Da ging die Frau Marja fort, schlich sich an den Ort, wo der
+Honigbottich und die Weißbrote versteckt waren, und fraß, bis sie nicht
+mehr konnte.
+[2.4] Drauf ging sie zum Herrn Nicola zurück, und der sprach zu ihr:
+„Willkommen, Frau Gevatterin, was hast du dem Kind für einen Namen
+gegeben?“
+[2.5] „Anfanginchen,“ erwiderte sie.
+
+¶3
+[3.1] Sie machten sich nun wieder an die Arbeit, und nach einer Weile
+begann es Frau Marja wieder nach dem Honig zu lüsten, und sie rief: „Ja
+wohl, ja wohl, ich komme schon!“
+[3.2] Da fragte Herr Nicola: „Aber wer ruft dich denn schon wieder?“
+[3.3] „Ach, ich soll nochmal zu Gevatter stehen.“
+[3.4] „So geh, aber mache daß du bald zurückkommst.“
+[3.5] Da schlich die Frau Marja zum Honig, fraß, bis sie nicht mehr konnte,
+und kam dann wieder auf den Acker.
+[3.6] Herr Nicola fragte sie: „Was für einen Namen hast du diesmal dem
+Kinde gegeben?“
+[3.7] Und sie antwortete: „Mittinchen!“
+
+¶4
+[4.1] Als sie nun abermals eine Weile gearbeitet hatten, stellte sich Frau
+Marja wiederum, als ob sie rufen hörte, und schrie: „Ja wohl, ja wohl, ich
+komme schon!“
+[4.2] „Wer ruft dich denn schon wieder?“ fragte Herr Nicola.
+[4.3] „Ach, ich soll noch einmal zu Gevatter stehen.“
+[4.4] „Das ist doch merkwürdig, man ruft dich ja in Einem fort!“
+[4.5] „Das kommt daher, daß man mich lieb hat, Herr Nicola!“
+[4.6] „Nun so geh, mach’ aber, daß du bald wiederkommst.“
+[4.7] Da schlich sich Frau Marja noch einmal zum Honig, fraß ihn und die
+Weißbrote rein auf, stülpte den Bottich um, und kam dann wieder zu Herrn
+Nicola.
+[4.8] Der fragte sie: „Was hast du denn dem Kind für einen Namen gegeben?“
+[4.9] „Stülpinchen,“ antwortete Frau Marja.
+
+¶5
+[5.1] Nun gruben sie noch eine Weile; da sagte endlich Herr Nicola: „Wollen
+wir jetzt essen oder später?“
+[5.2] „Essen wir jetzt!“ sagte Frau Marja.
+[5.3] Herr Nicola ging also zum Busche, wo der Honig und die Weißbrote
+versteckt waren, und fand den Bottich umgestülpt.
+[5.4] Da wurde er sehr zornig, lief zur Frau Marja und schrie: „Du hast die
+Weißbrote und den Honig aufgefressen, und dafür will ich dich nun selbst
+fressen.“
+
+¶6
+[6.1] „Ich hab’ sie gewiß nicht gefressen, Herr Nicola! Du hast wohl nicht
+recht zugesehen; geh’ doch noch mal hin und such’ besser nach.“
+[6.2] „Nun, ich will’s thun,“ sagte er; „wenn ich aber nichts finde, so
+weißt du, was dir blüht.“
+
+¶7
+[7.1] Während nun Herr Nicola noch mal suchte, machte sich Frau Marja weg
+und versteckte sich in ein Loch.
+[7.2] Und als der Wolf zurückkam, sah er sie, wie sie gerade
+hineinschlüpfte.
+[7.3] Da nahm er einen Häkelstab, um sie damit heraus zu holen.
+[7.4] Wenn dieser sich nun in eine Wurzel hakte, so schrie die Füchsin:
+„Au, au, mein Beinchen! au, au, mein Beinchen!“
+[7.5] Wenn er aber ihren Fuß packte, dann höhnte sie: „Zieh’ nur an der
+Wurzel, du Esel! Zieh’ nur an der Wurzel, du Esel!“
+[7.6] Und so ging’s lange Zeit fort, bis der Wolf endlich müde wurde und
+wegging, und so kam die Frau Marja vom Herrn Nicola los.
+
+
+APPENDIX — the Albanian-soil variant (Weigand Nr. 52, Elbasan)
+==============================================================
+Maximilian Lambertz's plot summary of Weigand's Elbasan text, from
+docs/references/lambertz-albanische-marchen.de-sq.txt (around lines
+6164–6201; Lambertz, Albanische Märchen, Wien 1922, pp. 89–90), verbatim
+except OCR line-joins:
+
+  Weigands Märchen Nr. 52 aus Elbassan (Fuchs und Wolf) behandelt das
+  beliebte Thema der Übertölpelung des Wolfes durch den Fuchs. Der Wolf
+  sammelt als Hausherr Vorräte für den Winter. Er versteckt drei Töpfe
+  Honig. Seine Nachbarin, die Frau Füchsin, erzählt eines Morgens dem
+  Gevatter Wolf, sie müsse ein Kind aus der Taufe heben. Die Frau Füchsin
+  hatte das Versteck der Honigtöpfe entdeckt und naschte von den drei
+  Honigtöpfen. Zuhause fragt der Wolf sie dann: „Wie heißt denn nun das
+  Kind?“ „Zanafilla“ entgegnet die Füchsin, d. h. „Anfangsmädchen“, weil
+  sie nämlich, die Frau Füchsin, diesmal zu naschen angefangen hatte. Am
+  zweiten Tage geht Frau Füchsin wieder auf Kindstaufe aus und frißt den
+  ganzen Honig auf. Wieder fragt der Wolf die Heimgekehrte, wie denn das
+  neugetaufte Kind heiße. „Maroscha“, entgegnet Frau Füchsin, d. h.
+  „Endmädchen“, weil vom Honig nichts mehr da war. Zu Wintersanfang findet
+  der Wolf keinen Honig mehr und prügelt die Frau Füchsin halbtot. Den
+  ohnmächtigen Fuchs findet der Priester und steckt ihn in den Sack mit
+  den Kirchenbroten. Der Fuchs lebt in dem Sack wieder auf, frißt ein Loch
+  durch den Sack und wirft die Meßbrote heraus. Er selbst flieht mit den
+  Broten nachhause. Der Wolf fragt ihn: „Wo hast du die Brote her?“ Die
+  Frau Füchsin darauf: „Ich habe in der Kirche ministriert (alb.: „ich
+  habe ,Amin!‘ gesagt“) und dafür je ein Meßbrot bekommen.“ Der Gevatter
+  Wolf wills auch so machen und bekommt Prügel. „Ja, du hast eine zu rauhe
+  Stimme“, erklärt die Frau Füchsin dem Herrn Gevatter, „du mußt dir vom
+  Barbier die Zähne ausziehn lassen!“ Und die Frau Füchsin zieht dem Wolf
+  mit der Zange des Barbiers sämtliche Zähne aus. Der Wolf geht nun wieder
+  in die Kirche, um zu ministrieren. Da prügeln ihn die Priester wieder
+  halbtot. Frau Füchsin aber lacht schadenfroh: „Das ist die Rache für
+  damals!“
+
+The two attested Albanian christening-names in this variant — Zanafilla
+("beginning-girl") and Marosha ("end-girl") — are the only Albanian words
+of the tale that reached us; they are quoted in the tale file's
+discrepancies but NOT used as beat-line Albanian (no verbatim Albanian
+sentence exists to quote).

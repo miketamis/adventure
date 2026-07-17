@@ -1,0 +1,127 @@
+// NPCs: the wider world (mythic figures, creatures, heroes) — see ../npcs/_SCHEMA.md for the format contract.
+// One file per area/tale so parallel agents never collide.
+
+export default {
+  // ── the wider world: placed figures ───────────────────────────────────────
+  zana: {
+    name: 'Zana e lumit', glyph: '🌙', kind: 'mythic',
+    role: 'the Zana of the river stretch',
+    backstory: 'The mountain-fairy of the game\'s river: her trials, her fole, her gifts. Cross her fairly and she arms you; cross her wrongly and the river remembers.',
+    folklore: ['zana', 'zana-e-malit'],
+    location: { status: 'placed', node: 'zana1' },
+  },
+  bolla: {
+    name: 'Bolla', glyph: '🐍', kind: 'creature',
+    role: 'the river-serpent that opens one eye a year',
+    backstory: 'Coiled in the river\'s deep bend. On Saint George\'s Day she opens her eyes, and whoever she sees, she takes — the rest of the year she sleeps, and can be passed.',
+    folklore: ['bolla'],
+    location: { status: 'placed', node: 'bolla1' },
+  },
+  gjarpri: {
+    name: 'gjarpri i portës së botës', glyph: '🐉', kind: 'creature',
+    role: 'the great serpent of the world below\'s threshold',
+    backstory: 'The guardian coiled where the dark road narrows — the world below tests its visitors before the dead city, and the serpent is the test.',
+    folklore: ['gjarpri-vitore'],
+    location: { status: 'placed', node: 'gjarpri' },
+  },
+  kulshedraMadhe: {
+    name: 'Kulshedra e botës së poshtme', glyph: '🔥', kind: 'creature',
+    role: 'the many-headed Kulshedra of the world below — the main quest\'s duel',
+    backstory: 'THE Kulshedra of the player\'s own arc: many heads, the waters held, the duel that ends with the Beauty saved and the "shtëpia" homecoming. A kulshedra is a KIND, not a name — the road-brood mother and the gate-guardian of the Kordha tale are other, lesser kulshedras; slaying them contradicts nothing here.',
+    folklore: ['kulshedra'],
+    location: { status: 'placed', node: 'kulshedra1' },
+  },
+  bukuraDheut: {
+    name: 'E Bukura e Dheut', glyph: '✨', kind: 'mythic',
+    role: 'the Earthly Beauty, in her court below',
+    backstory: 'The lore itself hands her to hero after hero — Kordha won her, others before and since — and she outlasts every winning and returns to her palace under the earth. No tale may claim her permanently gone; each winning is its own era. In the Kordha tale she is the won bride whose one question (asked for the old woman) nearly kills him.',
+    folklore: ['bukura-e-dheut', 'three-friends'],
+    location: { status: 'placed', node: 'bukura1' },
+    tales: { 'three-friends': 'beauty' },
+  },
+  bukuraDetit: {
+    name: 'E Bukura e Detit', glyph: '🌊', kind: 'mythic',
+    role: 'the Beauty of the Sea, in the deep',
+    backstory: 'Her realm is the deep water and the drowned palace. What sinks, sinks into her keeping — the sabre lay on her floor until Deti dove for it.',
+    folklore: ['bukura-e-detit'],
+    location: { status: 'placed', node: 'detiThelle1' },
+  },
+  balozi: {
+    name: 'Balozi i Detit', glyph: '⚓', kind: 'mythic',
+    role: 'the sea-champion who comes demanding tribute',
+    backstory: 'The foreign force made flesh: he rises from over the horizon at dawn, demands what is not his, and is answered by a wounded hero. The nearest staged archetype of "coveting powers from beyond" — the Kordha tale\'s rival kings rhyme with him but stay offstage.',
+    folklore: ['gjergj-elez-alia', 'baloz'],
+    location: { status: 'placed', node: 'balozLufte' },
+  },
+  gjergjElez: {
+    name: 'Gjergj Elez Alia', glyph: '🛡️', kind: 'human',
+    role: 'the hero of the nine wounds in the shore tower',
+    backstory: 'Nine years, nine wounds, his sister\'s water at his lips — and when the Baloz named her tribute he stood up out of the ninth year and took the monster\'s head in the shallows.',
+    folklore: ['gjergj-elez-alia'],
+    location: { status: 'placed', node: 'bregu' },
+  },
+  motraGjergjit: {
+    name: 'motra e Gjergjit', glyph: '💧', kind: 'human',
+    role: 'the sister who kept the tower',
+    backstory: 'Nine years she gave her brother water and bound his wounds, and never once spoke of leaving. The tribute demanded her; the demand died with the Baloz.',
+    folklore: ['gjergj-elez-alia'],
+    location: { status: 'placed', node: 'balozMotra' },
+  },
+  mujo: {
+    name: 'Muji', glyph: '⚔️', kind: 'human',
+    role: 'kreshnik of Jutbina',
+    backstory: 'The oxherd the zanas gave strength — first of the frontier warriors of the Jutbina hamlet on the mountain shelf. His songs, his mejdan, his brothers\' cycle live on the mountain.',
+    folklore: ['muji-halili'],
+    location: { status: 'placed', node: 'mujo1' },
+  },
+  fatet: {
+    name: 'të tria Fatitë', glyph: '🕯️', kind: 'mythic',
+    role: 'the three Fates of the world below',
+    backstory: 'Third night after a birth they speak a life; in the world below they weigh the lost. The "humbur" wanderers stand before them.',
+    folklore: ['fatia', 'ora'],
+    location: { status: 'placed', node: 'tre1' },
+  },
+  shtriga: {
+    name: 'shtriga e natës', glyph: '🌑', kind: 'mythic',
+    role: 'the night witch of the forest fire',
+    backstory: 'She hunts the small hours by the forest fire. Whether she and the cold old woman of the clearing are ever the same shape on the same night, no tale has settled — treat them as two until one story proves them one.',
+    folklore: ['shtriga'],
+    location: { status: 'placed', node: 'shtrigaNate' },
+  },
+  dielli: {
+    name: 'Dielli', glyph: '☀️', kind: 'mythic',
+    role: 'the Sun, in his compound above',
+    backstory: 'The all-seeing eye sworn by in oaths; his house, his tree, his stag-road stand on the cloud-plateau. The maiden promised to him waits in his story\'s arc.',
+    folklore: ['dielli'],
+    location: { status: 'placed', node: 'diellShtepi1' },
+  },
+  hena: {
+    name: 'Hëna', glyph: '🌙', kind: 'mythic',
+    role: 'the Moon, on her terrace',
+    backstory: 'The Sun\'s counterpart keeps her own light and her own counsel on the plateau\'s far terrace.',
+    folklore: ['hena'],
+    location: { status: 'placed', node: 'henaPaqe' },
+  },
+  prende: {
+    name: 'Zoja Prende', glyph: '🌸', kind: 'mythic',
+    role: 'the lady of beauty and love, met at the water',
+    backstory: 'Prende appears at the water on the dark road — her spring is the same watched water where the Beauty\'s approaches are tested: both are trials of love\'s road, and they share the spot without clashing.',
+    folklore: ['prende'],
+    location: { status: 'placed', node: 'prende1' },
+  },
+  mbretiMermer: {
+    name: 'mbreti i mermertë', glyph: '🗿', kind: 'human',
+    role: 'the marble king of the black palace garden',
+    backstory: 'The king of the marble garden behind the black palace — his stone court, his night watch, his justice for the goose-girl. Act II of the Sun quest will wake his story fully.',
+    folklore: ['maiden-promised-sun'],
+    location: { status: 'placed', node: 'kopshtMermer1' },
+  },
+  rozafa: {
+    name: 'Rozafa', glyph: '🧱', kind: 'human',
+    role: 'the walled-in bride of the castle at the river-mouth',
+    backstory: 'Three brothers built by day what fell by night, and the wall asked for a life. Rozafa asked only that one breast stay free to nurse her son. Her castle is HERS — the northern citadel and its walling legend must not be borrowed for other castles or other trios of brothers.',
+    folklore: ['rozafa'],
+    location: { status: 'placed', node: 'kalaMur' },
+  },
+
+}

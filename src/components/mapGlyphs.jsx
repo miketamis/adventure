@@ -194,6 +194,25 @@ function gDiellShtepi(x, y) {
     </g>
   )
 }
+function gPrincePalace(x, y) {
+  // the foreign prince's court past the crossroads road — pale walls, two
+  // slate towers, a banner: another land's colours (Maro Përhitura, Act IV)
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(3, 24, 36, 8)}
+      <rect x={-32} y={-8} width={12} height={30} rx={2} fill="#dfe3ea" stroke="#5d6675" strokeWidth={1.8} />
+      <rect x={20} y={-8} width={12} height={30} rx={2} fill="#dfe3ea" stroke="#5d6675" strokeWidth={1.8} />
+      <polygon points="-26,-8 -32,-20 -20,-20" fill="#8b95a8" stroke="#5d6675" strokeWidth={1.6} />
+      <polygon points="26,-8 20,-20 32,-20" fill="#8b95a8" stroke="#5d6675" strokeWidth={1.6} />
+      <rect x={-20} y={-2} width={40} height={24} rx={2} fill="#eef1f6" stroke="#5d6675" strokeWidth={2.2} />
+      <polygon points="-20,-2 0,-14 20,-2" fill="#aab3c2" stroke="#5d6675" strokeWidth={2} />
+      <line x1={0} y1={-14} x2={0} y2={-26} stroke="#5d6675" strokeWidth={1.6} />
+      <polygon points="0,-26 10,-23 0,-20" fill="#b03a48" />
+      {[-11, 11].map((wx, i) => <rect key={i} x={wx - 2.5} y={3} width={5} height={7} rx={1} fill="#8fa0b8" />)}
+      <rect x={-4} y={11} width={8} height={11} rx={1} fill="#5d6675" />
+    </g>
+  )
+}
 function gPemaDielli(x, y) {
   return (
     <g transform={`translate(${x},${y})`}>
@@ -948,7 +967,7 @@ export const WORLD_GLYPH = {
   gZana, gBolla, gRiddleElder, gLake, gEagleNest, gZanaGift, gCradleRock,
   gBaloz, gGjergj, gSister, gBukuraDetit, gShoreKulla, gGraveLahuta, gFishingCoast,
   gTraveller, gCampfire, gWolf, gBear, gFox, gWitch, gRevenant, gDhampir, gShtojzovalle,
-  gSunOda, gStag, gGhostInn, gHealer, gWaySign, gKullaSmall, gMejdan,
+  gSunOda, gStag, gGhostInn, gHealer, gWaySign, gKullaSmall, gMejdan, gPrincePalace,
 }
 
 // Re-rigged to the new (rotated real-Albania) map — see REGIONS in DebugView.jsx.
@@ -961,6 +980,8 @@ export const WORLD_LANDMARKS = [
   { id: 'peri1', glyph: 'gPeri', label: 'Peri', x: 180, y: -520 },
   { id: 'katallan1', glyph: 'gKatallan', label: 'Katallan', x: -40, y: -360 },
   { id: 'jutbina', glyph: 'gJutbina', label: 'Jutbina', x: 540, y: -360 },
+  // the foreign prince's land, out the north-east road past the crossroads
+  { id: 'maroPallati', glyph: 'gPrincePalace', label: "the prince's palace", x: 1050, y: -40 },
   { id: 'mujoHak1', glyph: 'gKreshnik', label: 'Mujo', x: 300, y: -320 },
   // the kreshnik hamlet spots around Jutbina
   { id: 'mujo1', glyph: 'gKullaSmall', label: "Mujo's kulla", x: 604, y: -330 },
@@ -1008,7 +1029,7 @@ export const WORLD_LANDMARKS = [
   { id: 'detiThelle2', glyph: 'gBukuraDetit', label: 'E Bukura e Detit', x: 1680, y: 1420 },
   { id: 'shqiponja1', glyph: 'gEagleNest', label: 'the eagle of the deep', x: 1560, y: 1640 },
   // the great forest (west, across the river)
-  { id: 'start', glyph: 'gTraveller', label: 'before the bridge', x: 70, y: 500 },
+  { id: 'start', glyph: 'gTraveller', label: 'before the bridge', x: 92, y: 598 },
   { id: 'lendina', glyph: 'gCampfire', label: 'the camp clearing', x: -430, y: 452 },
   { id: 'pylli1', glyph: 'gBear', label: 'the bear & the dervish', x: -560, y: 400 },
   { id: 'shokuUjk', glyph: 'gWolf', label: 'the hungry wolf', x: -700, y: 480 },

@@ -1,0 +1,162 @@
+================================================================================
+«Dätlsadäeli» (= Gjysagjeli, "Half-Rooster") — Shkodra text, no. 60 of
+Maximilian Lambertz, Albanische Märchen (Wien/Leipzig, 1922), pp. 252–254.
+Central-Gheg oral text, Shkodra dialect, in Lambertz's own 1922 phonetic
+transcription (not modern orthography).
+
+PROVENANCE: raw OCR lines 17042–17088 of docs/references/
+lambertz-albanische-marchen.de-sq.txt (the master OCR text-layer extraction of
+the full 1922 book), re-extracted unchanged 2026-07-14 for the half-rooster
+tale's variant record. Lambertz prints the Albanian original immediately
+followed by his own German translation ("60. Der Halbhahn.", same file lines
+17091–17167); that German is reproduced below the Albanian for cross-check
+convenience — it is Lambertz's translation, not a separate source.
+
+OCR QUALITY WARNING: this scan's text layer is badly degraded — Lambertz's
+1922 diacritics (ë, ü, ö, the barred phonetic letters) are inconsistently
+rendered, words are broken across double-spaced runs, and several letters are
+misread letter-for-letter (e.g. "dzüsadieli"/"diüsadieli" for what the German
+translation confirms is Gjysagjeli/Half-Rooster; "mitsa" = matsa/maca, "the
+cat"; "gomqri" = gomari, "the donkey"; "daSi"/"dasi" = dashi, "the ram"; "uku"
+= ujku, "the wolf"; "mini" = miu/miu-, "the mouse"; "kopSt laknas" = kopsht
+laknash, "cabbage garden"). NOT transliterated to modern orthography here —
+kept exactly as OCR'd, per the schema's OCR-fix (not full transliteration)
+policy for a text this garbled; any word quoted from this file into the tale's
+discrepancies is marked [sic] there.
+
+IMPORTANT — THIS IS A VARIANT, NOT THE ORIGINAL OF ELSIE'S TRANSLATION.
+R. Elsie's "Half Rooster" (Albanian Folktales and Legends, tale 15) is
+translated from Pralla popullore shqiptare (Tiranë 1954), not from Lambertz.
+This Shkodra text shares with Elsie's telling only the cabbage-garden capture,
+the money-chest, and the mouse gnawing an escape hole; its companions section
+is a completely different tale (cat, donkey, ram and wolf outwit a den of
+wolves — the international "Bremen Town Musicians" pattern, per Lambertz's own
+comparative note at the same file's lines 17168–17170), and it has no
+frog/oven, no stable/horses, no fox/geese, and ends with the old man alone
+astonished at a dish of gold — no rod-beating, no envious old woman, no cat,
+no deaths. Kept here for the tale's discrepancies record and for any future
+re-basing; half-rooster.js declares albanian: { status: 'missing' } rather
+than force a false alignment to Elsie's fuller beats.
+
+================================================================================
+
+60.  Dätlsadäeli.
+
+(Shkodra.)
+
+U  nis  diüsadieli  per  selamet.  I  Jot  mitsa:  „Po
+v(  eö  un  me  til!u  I  Jot  dzüsadieli:  „Ti  je  me  katr
+kam  e  nne  me  ni  kqm.  Dru  se  lode  e  8  muneS  me  hets
+sa  un!“  Por  mitsa  i  priti:  „Jo!  Kam  me  arö  me  tü!“
+K  sku  ne  bask  dzüsadieli  eöe  mitsa.  Nesne  m  ni  gomqr
+e  v  Jot  gomqri:  „Po  vf  eö  un  me  til !“  Tü  Sku  diüsadieli
+neSi  m  ni  das  e  i  Jot  daSi:  „Po  vj  eö  un  me  til!“
+„Mir!“  i  Jot  diüsadieli.  Xesi  m  uk  e  i  Jot  uku:  „Po
+i  vi  eö  un  me  tü!“  U  baskuen  t  tan  tiii  Skue  me  ni
+livaö  e  i  Jot  uku  dasit:  „Sa  i  bukur  je!“  Se  e  kste
+mar  qja  ukun  me  e  hqngr  das  in.  Masanei  i  Jot  dasi:
+„Miili  süt  e  hape  gojen ,  se  po  t  h{  diql  n  bark!“  Kur
+uku  möli  süt  eöe  hapi  gojen ,  mur  tu P  daSi  e  ra  nes
+nkut,  e  miltij  e  ja  bqn  mukajet  tatjert  e  e  repen  ukun
+e  e  muSen  lakuren  me  sqn.
+
+Tüi  skue  i  zu  nqta  e  Skune  e  hin  n  spei  uk'ret.
+E  Jon  uitSt:  „Lumts  na!  Hi  u  bqm  me  dark!“  E  mitsa
+u  Jot:  „Delni  e  8ihni  sok'  in  tui  mas  der  et!“  Del  ni  uk
+prei  spei  e  e  Seh  lekuren  ukut  mas  deret ,  mefet  vrep  e
+ik.  Kur  e  Sohin  Sokt  e  vet,  se  iku  Sok’i  i  tüne,  te  tqn
+ikne  na  mas  nait.  E  met  uku ,  gomqri,  dzüsadieli  e
+mitsa  e  daSi.  Kur  te  vona  kta  uitst,  tsi  iksn,  i  Jon  ni
+uku:  „Sko  e  SiPo  n  spei  ton,  a  Jue  kan  skue  ata  pana-
+fak,  tsi  na  bqne  me  ik!“  Por  mitsa  kste  Sku  e  ka  hj
+n  hi  e  Jca  nei  m  ter  e  i  kan  tSitSilu  süt,  kur  uku,  tsi
+ka  Sku  me  Sik'ue,  e  ka  pa  mitses  süt,  ka  kuitue,  se
+aSt  gats  ziermit,  ka  rinne,  me  nez  ziermin,  ka  ktsiie
+mitsa  e  ja  ka  kap  ner  sii.  Masannei  gomqri  e  ka  rah
+m  Sk'elm,  dasi  i  ka  ra  neS  e  e  miisin.
+
+Por  dzüsadieli  masannei  a  da  e  ka  skue  e  ka  hj
+me  kopSt  laknas  e  atil  ka  knue  diüsadieli  prei  gzimit.
+Kur  e  kan  diet  diina,  kan  Jqn:  „Tsa  do  t  jet  k'o  san
+kStuf!“  E  e  kan  mar  e  e  kan  fut  me  ni  ark  pares.
+Por  diüsadieli  ka  hqngr  pare  e  e  kafrii  barkun  e  vet .
+Kur  ka  arö  e  ka  ermu  mini ,  i  ka  Jqn  diüsadieli:
+„More  m{!  Ma  bau  ni  bir,  sa  dal!“  Mini  ja  bqni  biren
+diüsadielit  e  dul  diüsadieli  e  Skoi  n  Spi.  E  ban  zq
+babs  vet  masannei.  Baba  e  vet  i  stron  ni  tepsi  e  ja
+mnsi  diüsadieli  me  flori.  'Tüi  e  pa  pare,  tSi  kiste  prue
+!  dzüsadieli ,  plaku  u  habit  e  i  Jot  plaks:  „Pse  e  hqngre
+!  diiisen  e  dielit ,  se  a  seh  ket  dziisen  teme ,  si  m  pr uni  pare!  t“
+
+--------------------------------------------------------------------------------
+Lambertz's own German translation, printed immediately after (same source,
+pp. 253–254), reproduced here only for cross-check — NOT an Albanian text:
+--------------------------------------------------------------------------------
+
+60.  Der  Halbhahn.
+
+Der  llalbhahn  machte  sich  auf  die  Wanderschaft.
+Da  sagt  ihm  die  Katze:  ..Ich  komm'  auch  mit  dir!"  Der
+llalbhahn  sagt  ihr:  „Du  bist  vierbeinig  und  ich  einbeinig.
+Ich  fürchte,  daß  du  ermüdest  und  nicht  so  schnell  gehn
+kannst  wie  ich."  Aber  die  Katze  erwiderte  ihm:  „O  nein!
+Ich  werde  mit  dir  kommen!"  Und  der  Halbhahn  und  die
+Katze  gingen  zusammen.  Sie  stießen  auf  einen  Esel  und  der
+Esel  sagt  ihnen:  „Ich  komm'  auch  mit  dir!"  Während  der
+llalbhahn  weiterzog,  stieß  er  auf  einen  Widder  und  der
+Widder  sagt  ihm:  „Ich  komm'  auch  mit  dir!"  „Gut!"
+sagt  ihm  der  Halbhahn.  Er  stieß  auf  einen  Wolf  und
+der  Wolf  sagt  ihm:  „Ich  komm'  auch  mit  dir!"  Alle  gingen
+zusammen  auf  eine  Wiese  und  der  Wolf  sagt  zum
+Widder:  „Wie  schön  bist  du!"  Denn  den  Wolf  hatte  Hunger
+erfaßt  und  er  wollte  den  Widder  fressen.  Hernach
+sagt  ihm  der  Widder:  „Mach  deine  Augen  zu  und  deinen
+Mund  auf!  Denn  ich  will  dir  lebendig  in  deinen  Bauch
+hineinspazieren."  Als  der  Wolf  die  Augen  geschlossen
+und  den  Mund  aufgemacht  hatte,  nahm  der  Widder  einen
+Anlauf  und  stürzte  sich  auf  den  Wolf  los  und  tötete  ihn;
+und  die  anderen  bemühten  sich  um  ihn  und  zogen  dem
+Wolf  die  Haut  ab  und  füllten  die  Haut  mit  Heu.
+
+Während  sie  weitergingen,  überraschte  sie  die  Nacht
+und  sie  gingen  und  traten  in  eine  Wolfshöhle  ein.  Und
+die  Wölfe  sagen:  „Heil  uns!  Jetzt  sind  wir  mit  einem
+Nachtmahl  versehen!  Denn  wir  waren  ohne  Nachtmahl!"
+Und  die  Katze  sagt  ihnen:  „Geht  hinaus  und  seht  euch
+euren  Genossen  hinter  der  Tür  an!"  Da  geht  ein  Wolf
+hinaus  aus  der  Höhle  und  sieht  die  Wolfshaut  hinter  der
+Tür,  nimmt  Reißaus  und  flieht!  Wie  seine  Genossen
+sehen,  daß  ihr  Gefährte  floh,  liefen  sie  alle  davon,  einer
+nach  dem  andern.  Und  es  blieben  der  Wolf,  der  Esel,  der
+Halbhahn  und  die  Katze  und  der  Widder  zurück.  Schließlich
+sagen  diese  Wölfe,  die  davongelaufen  waren,  zu  einem
+Wolfe:  „Geh  und  schau  in  unsere  Höhle,  ob  diese  Unheilsbrüder
+schon  weg  sind,  die  uns  in  die  Flucht  gejagt
+haben!"  Aber  die  Katze  hatte  sich  davongemacht  und  war
+in  die  Asche  gekrochen  und  saß  im  Dunkeln  und  ihre
+Augen  funkelten;  da  sah  der  Wolf,  der  gekommen  war,
+um  zu  schauen,  die  Augen  der  Katze  und  dachte,  das  seien
+glühende  Kohlen,  und  stierte  herum,  um  das  Feuer  zu
+entfachen;  da  sprang  aber  die  Katze  auf  ihn  los  und  fuhr
+ihm  in  die  Augen.  Hernach  verbeulte  ihn  der  Esel  noch
+durch  Huftritte,  der  Widder  stürmte  mit  den  Hörnern
+auf  ihn  los  und  sie  töteten  ihn.
+
+Aber  der  Halbhahn  trennte  sich  dann  von  ihnen  und
+ging  weg  und  drang  in  einen  Gemüsegarten  ein  und  dort
+krähte  der  Halbhahn  vor  Vergnügen.  Wie  ihn  die  Leute
+fanden,  sagten  sie:  „Was  soll  denn  das  da  für  ein  Geschöpf
+sein?!"  Und  sie  nahmen  ihn  und  steckten  ihn  in  eine
+Geldkiste.  Aber  der  Halbhahn  fraß  das  Geld  auf  und
+blähte  sich  seinen  Bauch  damit  auf.  Da  kam  die  Maus
+und  grub  dort  herum  und  der  Halbhahn  sagte  ihr:  „Liebe
+Maus!  Mach  mir  ein  Loch,  so  groß,  daß  ich  heraus  kann."
+Die  Maus  machte  dem  Halbhahn  das  Loch  und  der  Halbhahn
+kam  heraus  und  ging  nach  Hause.  Und  er  ruft  hierauf
+seinen  Vater.  Sein  Vater  stellt  ihm  eine  flache  Speiseschüssel
+hin  und  der  Halbhahn  füllte  sie  ihm  mit  Goldgulden.
+Als  der  Alte  das  Geld  sah,  das  der  Halbhahn  gebracht
+hatte,  geriet  er  in  Bewunderung  und  sagte  der
+Alten:  „Warum  hast  du  die  Hälfte  des  Hahnes  aufgegessen,
+siehst  du,  wie  mir  diese  meine  Hälfte  Geld  gebracht
+hat!?"

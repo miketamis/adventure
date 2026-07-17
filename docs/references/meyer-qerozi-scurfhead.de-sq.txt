@@ -1,0 +1,372 @@
+Qerozi (Meyer's "The Scurfhead" parallel) — RAW, UNUSABLE OCR
+================================================================
+Candidate Albanian original for scurfhead (= Elsie's "The Scurfhead",
+Albanian Folktales and Legends tale 2). This is the file src/game/data/
+tales/scurfhead.js's `albanian.local` points to, per the tale schema's
+"keep the RAW text in the local reference file" rule — but no beat
+line's Albanian third element is quoted FROM this raw OCR (it is
+unrecoverable letter-for-letter, see below); those lines were checked
+word-for-word against the CLEAN page-image reconstruction instead, at
+the sibling file docs/references/meyer-qerozi-scurfhead.sq.txt. This
+raw file exists as the evidence trail for that reconstruction and for
+a future pass by anyone with the original page images in hand.
+
+Source: Gustav Meyer, Kurzgefasste albanesische Grammatik mit Lesestücken
+und Glossar (Leipzig: Karl J. Trübner, 1888), Lesestücke §3 "Qerozi",
+pp. 60–67. Same underlying folk tale as Thimi Mitko's Bleta shqypëtare
+(Alexandria, 1878) collection that also gave Elsie tale 3 (three-friends);
+Meyer's chrestomathy transcribes it in his own ad-hoc 1880s phonetic
+alphabet for language learners, NOT standard Albanian orthography.
+
+Digitisation: Google Books scan, mirrored at archive.org under TWO
+identifiers that are the same underlying scan (confirmed identical OCR
+text, checked 2026-07-14/15):
+  - https://archive.org/details/kurzgefasstealb00meyegoog
+  - https://archive.org/details/bub_gb_brfk0NiwGZMC
+No cleaner alternate scan or transcription was found.
+
+RAW OCR — uncorrected, exactly as extracted from the djvu.txt fulltext
+(the local copy already on disk at
+docs/references/meyer-kurzgefasste-grammatik.de-sq.txt, lines 4984-5309).
+Extracted 2026-07-15.
+
+WHY THIS ISN'T QUOTED IN THE GAME: Meyer's phonetic alphabet plus the
+scan's OCR corruption compound into wording that cannot be recovered
+letter-for-letter with confidence — e.g. line 7 below, "^e he mberet ke
+kis tre diema, kih eöe he köpehte te bükure fort", almost certainly
+renders "e një mbret që kishte tre djemë, kishte edhe një kopsht të
+bukur fort" ("and a king who had three sons, he also had a very
+beautiful garden") given the parallel English, but a full sentence-by-
+sentence reconstruction at this confidence level across ~90 lines would
+mean composing modern Albanian wording from plot-context guesses, not
+quoting the original — which the tale schema explicitly forbids
+("never invent, paraphrase, or back-translate Albanian").
+
+------------------------------------------------------------------------------
+
+3. 
+
+:erozi. 35 
+
+
+
+^e he mberet ke kis tre diema, kih eöe he köpehte te bükure 
+fort, i tsiti permbi te gid^a kis eöe he drüftüaje nde mest ke nga 
+mot piite treftohe tSteme, pö eöe ketd te tre is mesüare lämia 
+
+
+
+g2 Lesestacke. 
+
+e vlnte gi&eAi d i a hanie, mbereii ü % dihruars per te ngrens 
+ike ftua nga ata, teh i a kü zapetüars Idmia, d isine fort te 
+mlre, tuke Kene keitti, i uUh diälite pare te teje h te rüaAe 
+ftuan nga lämia, ede vate ufanepe teh % ati Ue te mafe izen 
+
+5 prej atlje, härme eöi tri lambcide per te ndriture naten. i da 
+jeen i ati eäe gid' atö Ue füpi, ede diali vate nde kopehtet e zäri 
+vent mbi ite tis Ke te rühete, epo periste Idmien. e Idmia, pas 
+zakonite sä/e, erd- nde mes te nates, e poJce pä drite^ ukuitua 
+se i kane bere perite, eS' uderd' tne sutme tuke pHure me Ae ze 
+
+10 te Semetüare, rembeu lie fttM, eS* iku st rufe, d diaU % dreöure 
+frike s beri dot as thak, po te nesermen i vate tet i pikelüare i 
+i mberdure nga frika e Idmies, eö i refeu sed % gau. pö tet i 
+eröi klme keke perse btri i üje kinekej kakefrikamani. pa&an- 
+ddj uhöd' diali düte e d'ü : dote vete üne te mbroii ftüane. edi 
+
+15 i^ate tek i äti te mare jee, härme etr, pö % ati me-zt e lä me 
+pdsure paseküren e te pärite frikamänite. ani mori edi au giS' 
+atö sä rupi ede vate te rüa'he ftuan. po eöS au e pesöi st eäe i 
+pari, se i erd- Idmia, rembeu ftuan e düte, e aü s e mbroiti dot, 
+po unkedile i turperuare tek i äti. e dial i trete te tsilin te 
+
+20 veiezerit, sepse il ede kerös, e kihnin te merziture, tuke pare 
+
+ketd turpe mbe ata, ugezua tepere, ede doii perpara tet e i mori 
+
+fjalen ede te tiera gid-e sä i dühehin per te mbroiture ftuan, ede 
+
+vate d umfheh mün perpara drürite säje, kur erd- lämia, nde 
+
+tiast i uFeSua kü me zemer e me trimerie ede i rä me tiöre ^ e 
+
+25 plagosi rende kepä mare ftua, ake sä ikuprap ajö mbe dite te 
+keke. te veiezerit kur päne trimerin e kerozit hkcane kündete, 
+e u ardi ziÜ, sepse atä mbetne ndene twrp mbe lüften e Idmies. 
+pö me gid-e ketö posa deguan atä sokelimat e athj ede te päiurit 
+e lämies usuTen ed^ atä per te ndihure, ed^ e ndoken egersiren 
+
+30 geresä ajo hüri nde Ae vere, te tre sebakku. amä kur atä po 
+rlnin k mendöhesin atie perane virete ed^ a^M nga atä kud&onte 
+te hüAe nde veret per te geture htrofken e asaj, vete papä i 
+patrimbehmi kerozi kuturisi te hüAe. d kepa hüre tidi iie fjaXe 
+me te veiezerit sä te kene ne heAe per te undegüare nder ta, ed^ 
+
+35 u lä atüre anet e te du Titärevet — te ziut e te bardit — me te 
+tsilet unges aä per te uTehuar poste ndene det, me kete porosi: 
+kur aü te tündene litärin e bar de, do te d-ote se aü g endet mlre 
+epak; e kur te tuntne te zine, atehere deften se ehte mbe rezik, 
+e dühet t a terhekin atä me te thpeite per te hpetuare. dzbriture 
+
+40 poste ndeper veret kerozi, posa hketi de, zu te vehtrone e te ker- 
+koAe gurmat ede htrofken e lämies. d tuke trapitur andej e 
+kendej, geti per deAeploth te hekurte venembiAe vere, epassi 
+
+
+
+Lesestücke. 63 
+
+mezi e hoM ati nga vera, dzbriti ndeper te tri hkäleza poHe ede 
+skeli de te forte, atie geti ne htejA te vögele e posa trokiti mbe 
+der et t cisäj, % doli ^ tsup e bükure^ M nga te tri te bukurat e 
+deut, e tsiiapassi e periendoH, epüeti ati per Üe kä dröure, e 
+Serozi i upergih se kä aröur per te vrare Idmien , perse gid-e 5 
+bota s kane kendreprej droe. d tkcpa i '9'ä: sä per te vrare Idmien 
+ak te fukisimen duhet te mendöne me pare a eit zoti, eäe se kä 
+per te iure krüet e üj ne torbet. pastäj i da: nde vräfte dot 
+egerstren aüy dote kuhaet lie spetuas i ketij vendi^ eS* ajö e kä 
+per te mafe per bure, eöS i öä ati per vTese ede per ieAe te lo 
+virgeriese säj iie furke ke tirte vetiu är, te tsilen au e perpoki 
+per öeUy eS' e beri Ae moie t arte, tuke vditure nie tej au^ pä ne 
+tjeter Hepie eöi trokiti gid-aitü mbe deret tek i doli ike Üüpeze 
+me e bukwre ede me e hiesime se e para, e tHla ede kejo i beri 
+gidutö fjaXa^ k te pastajmen i v/zotua ke nde vräfte Idmien j do 1^ 
+t a mare per bure. i da ede per vtese Ae stagua mbi te tsilin is 
+skrüaiture i^e langtM, ke po ndiek lepura, te tsilin stagua eS 
+ati tuke perpiekure pas deu e beri mole t arte, ipertsiSlaü 
+prej tiupes geti me brenda te tretene itepie , e posa i trokiti 
+derese, i ufaneps ne vdjeze me e bukur ^ me madestore se te 20 
+parat e tsila is moter e atürevet e passi uperhndosin e folen 
+nerimefdterin disa laika k paika^ pas zakönite, i da ede kejo afi 
+Ae kovatske me dümbediete zoga per vlese, se dot a mare per 
+bure, po au te vrase Idmien. pastdj kejo e spüri ^ i defteu 
+strofken e bistres e tsila s undöd atie ate tias. au prä , tek 25 
+usual pakez atienaj tuke mendüare sekus te vrase me koldj ate 
+bistre, ndmeta seh se largu iie küm i^erezis ke pertsilnin tuke 
+kär d uleriture te bijen e mbretit ati vendi te tsilen i a spinine 
+lämiese per te ngrene. perse kihnin detüre nd ate vent t i apin 
+lämiese nga dite ne tsupe per te ngrene pas hkürteze ke Hinin 30 
+permbi gi&e tMpate, st ne pores per ujet ke i lesonte vendit, tek 
+e kis ajö nden urder te säj. e kestü ati dite i kiSte rene (rare) 
+hkurta se bijese mbretit, se zezese, te tsilen e süalen me kdreja e 
+dirma, ede e län atie e iken. kerozi tuke päre tsupen te mekure 
+se kärit te po dridej e po gultsöntej, umaleitüe, ede i unkds e 35 
+epüeti: tie ke, moj tsüpeze. ed^ ajö i tregoiti te ttre keti isiorie, 
+sindekür d-äme me pare. atehere i •d'ä au te mos trembet se au 
+dot t a spetöifie. mbesefundi erdi Idmia e pergdkure kek nga pla- 
+gat ke kiste mafe prej si nde köpeitet, d tSupa tuke moritur 
+kerozin, i tsili po flinte mbehteture krüet mbi pekinet e asäf, 40 
+posa e pä, tidröd' frike ede leSoi nga süt e säje mbi keren e 
+Kerozit ne lot ake te ndzehete, sä au udzgua nde tsast d uhöd 
+
+
+
+64 Lesestücke. 
+
+dereit e mbe kemhe i trembure^ eöe püeti tsupen: ti ehte? e (yo 
+nga laftarta e made nuk foXi doi me goje, po i defteu me 8ü 
+lämien att. atekerencyf aü i tedSrS- posi lie garper asäj, eS* e 
+goditi per ngöröeje: ake sä ajo nuke mundi as t i kendroike^ as 
+5 t ikeüe. po vaiti ^ ufüt nde mburim te üjite, te hürit aj6 nde 
+mburimt tsfrüri ujet ke Tüpsej, ede mbtöiU virerat tuke ftedure 
+ndeper fkat^ perveUe se mute te türbule prej gäkute plägavete 
+lämies e tsiTa mb ati isast ede ngoröi, d tSupa, kejo hije 
+mbereti, i uaferua kerozit, d passi i trfal nderejes atij me te 
+
+10 perunet e me nder te mad- tuke d-en att se se i a kä per te harii^ 
+are kete te mtre tek i spetoiti krüet asäjj mbToi enet e säja me 
+uje ed unked'üe nde peläsL kur e pän ati perindet eöe far e 
+asäj\ i a öäne gazitj e me fie d-agme te made zune t a püesin 
+sekus spetoiti nga bistra. e ajo u tregoiti me rade te gid-a, 
+
+15 sekiis e spetoi trimij tuke Huare se aü s kii eöe ikure nga strofka 
+e lämiese. andäj mbereti uröeroiti nde täast te vrapoiien h t e 
+sieie^en perpara trimin, ipadüarHm pä te iohe te ketiiin bure 
+ke ke i zoti te vrase lämien^ eöe t i Spetöj^e te bijen, pas üröe- 
+rite mberetit baitin eö6 e süaien perpara tl, e kü posa epä, i 
+
+20 ungrit mbe kembe, e e periti me nder te mad-, e vu eöe te rije 
+perane tl. pasandäj tuke levduar trimerien e atij\ e tuke refüere 
+detüren e daSurien e maöe ke mori mbe te, i-^ä: dtia te me Stiai 
+e te me tüpes pä droe t§e te dö zemera, makär eöS gümesen e 
+mbreteriese sime^ se deseroik te t a jap, sä te tiperb fen keti te 
+
+25 maöe temtre keme spetöve bijen eöe puitetin tim prej lämiese^ 
+perveti kesajme kä enda tetap eöe tSüpezen ke spetöve per grua 
+nde te peTken. e trimi i upergek se ukenäk tepere per ndert d 
+dahcrien e maöe ke aü i soii, e se tasi nuke kä per te lüpure ge^ 
+po pasketäj po t i viike ndöni nevole, dot i tüpene me zembre 
+
+30 krahun eöe hien e alkj, eöe iku mejäft i kenäkure nga an e 
+mberStite. se andejmi trimi hkoiti dereit nde te tri te bükurat e 
+öeut te tsitat e periten me gas e me dahuri te maöe, eS' i däne 
+se ihnin gati h me bese, pas fjales ke kihnin Tiöur, per martese. 
+eS aü u foXi me gid'e zembre, me pastäj u d'ä se peranddj er-S- 
+
+35 ke t i mare me vekte te trla, perse te du me te meöäte i käper 
+
+te martüare nde te du te veiezerit me te meöeMe, d te vögehn 
+
+fare dot e kete per vehte, keHü aöä ubine gaü eö^ unisen te 
+
+kater mbeM per te väiture nde böte permbi öe, tMpate kihiin 
+
+märe me vehte gi&e me te vejeiturate platika eö' i vditine veres. 
+
+40 atie kerozi öä ze te veiSzervet ke po perisnin permbi öet eö^ i 
+Vehuan nde tsast litärat, eS* aü Uöi me litar mepare te mdöene 
+eö6 u difi atüre t a hekine, tuke d^ene se keti vajez e kä hAüare 
+
+
+
+Lesestücke. 65 
+
+per veiän e maS^. hur ngriUn ede te düten u d^a se keie e ha per 
+veiän e düte. pö nd ati hop hur atäpo ngrinin te du thcpat e 
+para, i flet e vogeTa fare (e tsiTa ih me e hühura se te tjerat) 
+djalit e i d'ote : ^mua me fefehet se ti he per te pestiare Ae g' 
+hetüperse tet veiezere hane mindeje te Itge per tüj e po men- 5 
+ddnen te te lere'hen mbe hove hetü he te humbeS ti, e mua me te 
+hühuren te me trasegöiken ata. ama ti mos utrim, po nde mbeth 
+hetü, te veti vrapo ndefole te bistres e atie do te gejü du deHA, 
+iie te zi d iie te barde, ede te fernbejih te bäröine, se aü dote te 
+ngitike mbi öet. veteme hi ment e heio mlre mos zes da^in e zi, 10 
+se atehere do te mbetes hetü ede Je i hümbure päfJaTe. pa une 
+nuku dot ipem nde tet veiezere as eöe gere mbe vdekeje, ndönese 
+ata jane pandehure mb ati mendeje te geüüersime, po dote per es 
+tu geresa te vMes. ' te veiezerit lesuan persetreti Utarin e terho- 
+hin ede te tretene vdjeze, papö posa e pane hete ahe te bükure, 15 
+ndönese herozi u da ze se hej'ö eht e tlja, paituan te du te lere'hen 
+herozin pohte, e hü prä i hrüere neue öet, kuitoiti porosien e 
+tsupes eöe vaiti me-vrape nde foXe te lämies, teku geti vertet 
+du desih, he te zl e he te baröe, po nga sulm i mad- per fathe- 
+herie te tlj zuri te zine, nde vent te se bärdite, e hehtü i Jce d-ene 20 
+te mbetet poste nde hon, i menduar aü nga i madi pikelim i tij, 
+per te maden te hehe h e get, vaiti nene hie te he Usi ede ndehi. 
+atie ndien ze &pesa& e teh ngre süte perpiete, seh mb ati Tis he 
+foTe me zoh Shüpöhe ede he gdrpere he po ngitejpas Fisit sä te 
+veje nde f ölet e te haje zöhete, e zöhete tuhe tsetseriture sihür i 25 
+lütesin ad he t i hpetöhe nga gdrperi. andäj umalehüe au, eS* 
+ungre me-vräp, ndzdfi huburen eöe vrau gärperin e i spetoi zö^ 
+hete, pastäj vaiti perape nde vendit edefjeti, hur arSi hküpoha, 
+e emm e zöJcevet, e pa ati tehfllnte ndene hie te lisite, pandehu 
+se hü iste aü he i vriste asäj ngahere zöhete, eS* usul permbi 30 
+te, po zohet e säj me zirera e me heha i däne te hupetöhe se aü 
+eSte hpetuas i atüre, d j'o vräresi, atehere ajo vaiti nde det e 
+huli pendat e säja, eS* i ardi e i rinte me hrahet häpure permbi 
+hrüe ati tehfllnte per te haiaditur ati. ^ herozi dzgöhete, e hur 
+seh befas hhüpohen hrahe-häpure permbi hrüe te tlj, mendohet t i 35 
+bier e t a was ati, po hejö me fjala fort t imbela k te buta e 
+zbuti tuhe d-en aÜ se aü i hpetoi asaJ femijen e per heti detüre 
+e hä galkaar me he bare ahe te made sä ctföpashetäj htian vehten 
+e säj hopile perpara ati, ede i lutet me gid-e zembre t a urderöhe 
+lirüarhm mbe thdö nevole he te het aü, persi hä deherim t i 40 
+hopilohe, per te thperblüer te mtren h i hä bire. ^ trimi i 
+upergöh d i d-ä dsaj: ,pa ts-fare hopilerie mundei te me behes 
+
+Meyer, kl. alban. Grammatik. 5 
+
+
+
+56 Lesestücke. 
+
+ti tek Je M spe$?' — ,tsedö lis te ditah mundem te t a mhardia^ i 
+upergeJc sMpdna. — ^for^ nitre, i d^ä aü; aöä dua, nde te mun- 
+det, te me hüpnes siper mbi det, keti te mlre duaprej tejeJ' eS 
+ajo % upergek d i d-ä: ,fare koläj me mundet te te spie siper mbi 
+5 de, po te dühaet te kes me-vehte iiefufe büke, du Jceh mis te 
+piekure eöe ne boze me uje. te giS'a ketö ngdlkön ti mbi kufis 
+tim, hupen eöe vete permbi to, eöe kestü häpeAem siper. ^ atehere 
+Jcerozi umendua per detüren ke i kih mbereti, te tsitit i spetoi 
+bijene, ede vaiti ndek aü, e i tüpi gid- atö keternia k e porositi 
+
+10 sküpöna, e mbereti hapi süte kur degoi se aü lüpen ne kake te 
+vögele tsperbUm per ati ake te made te mlre, eS* uröeroiti d i a 
+öäne. mori'kerozi te gid-a ketö te nevolsime, i a ngarkoiti skü- 
+pönes, i hüpi eöe vet aü persiper, ede i a da ftütürimit mbe te 
+lartat hküpoiia, tuke udetüare kete uöe te gate gi&e ndeper ere, mesA 
+
+Ib me mundime sume düaien mbesefundi permbi det» e djaHi ugezua 
+pä ane ke spetoiti nga hauzi. posa hüpene siper, e par e punes 
+e atij ke, te püese ajane gai perindet e tij e küs g enden, ede a 
+mbaiti fjalen e dahir e tij, e passi ndzüper atä sejane mlre, 
+umendua se i duhaet te zere ne pune sä te kitne hardzin e tlj e 
+
+20 te föne me nder. te pastajmen tek trapitte post e Tart me keti 
+
+mendim, geti tri penda, e per 'he tsuS, i mbaiti. pasandaj dogi 
+
+päkeze majen e tsihsdö, papö nde tsast i ufanepsen tri pela tri 
+
+fütüras, ed i d-äne : , ts urderSn, zot, se jemi gaü te te kopilo^ 
+
+heme.^ e aü, ndonese ugezua pa ane per kete keVepir, ama sä 
+
+25 te mos tsfaket, upergek pavräpedi e u ^ä atüre: ,etseninde 
+pune tuaj taJkti, pa kur te me duhij, ju d-efes perapeJ tuke 
+rahur aü te gehe ndohe pune, vaiti te he argendär ed i Tutet t a 
+märe per kopil pä foge, po vetem sä per buken ede ndoM robe 
+te vietere. ed' argendäri teke pä ate he djaSe te vesete edejarän, 
+
+30 e mori ede e vuri mbe pune. he dite nämeta vien nga petasi he 
+d^erites, ed^ i d-ot argendärit: eja se te dö mbreti. e aü, pä 
+ditur mehanen e ^eritejese, vaiti fort i trimbure. mbereti poro- 
+siti atiy ke t i godishe he furke e tsüa ürtej vetiu fli äri, tuke 
+^ri alt ,mekene martöh tim blr te pärine, e nuseja do pähir 
+
+35 Todren e tsuperlse sä; — furken ke ^äme — se pa ati s marto- 
+hete, perandäj te d-efes tu te parin e miesterlse säte te me nder- 
+tojeh mbi tri dit e siper he te ketite lodre, ke Jane per te bere 
+däsemat, se pastaj te pritet krüet.^ d argendäri, ndonese rahu 
+me sume bütera e mehana, te hikej nga kejö pune ak e renda, 
+
+40 pö passi t i skoi fjata, unke&üe i frikesuar d i disperüere per 
+rezikun e krüese tij, ke po i tirej kur e tiia furke s behej dot. 
+papo kerozimbipun e siper, kurpä te zotin nde t atite pamehanie 
+
+
+
+Lesestücke. 67 
+
+ede sastie, e püet ate : tse kä Ke rl i turbuiuar ? pö kü i uperge/c 
+me te üfrüre: ,heste; $ fe kä hie te me püetS per ts kettia 
+pünsra. ^ po passi e püetiperss düti e perse ireti kerozi, i fefeu 
+au per te nimuren furke. atehere Kerozi e zbuti ati ^ trimeroi 
+tuke d'ene me fjaüa te verteta se mundet au vete t i godisifie mhe 5 
+ike nate ate furke k i kerkoiien pa ndöni ndriUim, ede se nuke 
+duante faregi pervetse pes okeS ara, ede kake vere te mtre. ^ 
+fatkeki argendär, sadö ke s mhesdnte, mori tsapdk früme eäe 
+sakake vaiti d bleu atöj ede i a soft kerozit. kü prä mbüiture 
+brenda nde dornet, zuri te diie^ afa e te plje vere. ^ i zoti me 10 
+laftarie e lüfte te zembres po vente nga däleze nde der e 
+dömese ede veströnte ndeper te pldsurat e säj: vaie th ben 
+kopHi! pö kü, dindk i kek, ke t efrikeson ede mefort, i d-efi- 
+ste : ik andejza, se mos me persUset puna, te pastajmen aü % 
+tesöj te zotit fArkene te ndertüare fare astü sttS e deserönte 15 
+mbreti, (kejö furke is ajö te tsilen kerozi kiste mafe per vlese 
+prej tSüpese nene det, sttS -S'äme persipere.) papo kur e pä 
+argendäri ake mire goditure, upatäks eS' ugezua pa ane, ede 
+vrapo i a spuri mbretit. gi&astü ede mbereti, passi e vehtroi 
+mlre mtre, e e geti te sösure me funt , me te made kenaki 20 
+urderoiti e i däne pese kere te ngarktiara meflorhiiper te tiper- 
+bluere fürkene, eS' argendäri posa i mori, i soii gümesat kopi- 
+lete, pö kü s i a nkasi tuke d-ene ,nma mejäft m ehe dasurla e 
+tim zoti, ^ atö dit übe ede dasema tek iSte ftuar ede argendäri 
+i tsili desi te mirte me vehte ede kerozin, po kü as mbe ddseme 25 
+s vaiti, jaste kütetite mbi iie brek te larte kiSnin ngrehur iie 
+flambur fort te larte, e permbi te kisnin vene ike moie t arte 
+ede florin. perandq/ kiste perhapur fjdle mbereti ke aü ke te 
+muntfie te kartseiie sä te mafe moien e arte, do te darovitet prej 
+mberetit darova mbereterie, roden atie trima nga gid- anat e 30 
+deut, po ashe s mundi te kartsene kake larL e kerozi, posa e 
+degoi keti, dogipak anen e 'herese pende, nga atö kekih nde glt, 
+ede sakdk i erdi 'he nga te tri pelate me-gid-e ne pale robaä t 
+ärta per ati (keto pela etsenin mbe ere posikür kisnine fleta), 
+i hüpi add pelese mbesur nde robat e ärta ede vaiti nde vendi i 35 
+flämburit atie tek ilnin mbeledure giS- ajö geme gendejeh, papo 
+posa i d-ifi asäj, me Ae kartsim te tsuditsime nde tsast rembeu 
+moien edS humbi, as upä me. e gid^e bota, sä isnin atie, 
+upataksen tuke pare keto trimerie. kestü prä mori funt ede 
+beleku i däsemes. 40 
+

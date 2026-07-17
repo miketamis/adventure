@@ -1,0 +1,145 @@
+Çupa e taksur Diellit — mbreti i mermertë dhe pataruajtësja
+===========================================================
+The complete Albanian text of Dozon's tale IX «La fille promise au soleil»
+(= Elsie's "The Maiden who was Promised to the Sun", Albanian Folktales and
+Legends tale 22). The game splits it into two lore cards: the rescue arc
+(maiden-promised-sun) and its SECOND MOVEMENT — the marble-king vigil, the
+substituted bride and the goose-girl (goose-girl) — which begins below at
+"Tçoûpat' e mâ'Jhœs, si digyoûanœ kyœ érdhi tçoûpa e mbretœréçœs'..."
+
+Source: Auguste Dozon, Manuel de la langue chkipe ou albanaise (Paris:
+Ernest Leroux, 1879), chrestomathie, tale IX, pp. 39-41; reprinted in
+Folklor shqiptar 1, Proza popullore (Tirana 1963). Folk text taken down by
+Dozon (French consul at Janina) from Tosk speakers; public domain.
+
+Extracted 2026-07-14 from the OCR text layer already on disk
+(docs/references/dozon-manuel-langue-chkipe.fr-sq.txt, lines 1619-1734).
+RAW OCR of Dozon's French-based transcription, uncorrected. His system:
+œ=ë, ou=u, y=j, ç=sh, tç=ç, ky=q, gy=gj, lh=ll, ly=l, ts=c, û=y, dh/th as
+in English; his Tosk future particle "to të" = "do të". OCR garbles left
+as scanned: "mâ'Jhœs" = mëhallës (per Dozon's own French rendering "les
+filles du quartier", Contes albanais p. 52), "rûri" = hûri = hyri,
+"-i digyôi" = si digyôi, "e mûri" = e môri, page numbers and hyphen
+line-breaks as printed. The per-sentence transliteration to modern
+orthography lives in src/game/data/tales/goose-girl.js (beat lines, third
+element), aligned ¶.sentence to the goose-girl half's renumbered
+paragraphs (Elsie's ¶8-12 = ¶1-5).
+
+------------------------------------------------------------------------------
+
+IX 
+
+
+LA    FILLE    PROMISE    AU    SOLEIL. 
+
+
+Iç  mos  iç,  fç  îïœ  mbretœréçœ  kyœ  noûkœ  kiçfœmiyœ,  délyte 
+edhé  i  bcênte  ridjâ  Perœndisœ  edhé  dielhit  edhé  fâlyey  edhé 
+lyoûtey  t"i  yâpœ  nœ  diâlyœ  mâkar  nœ  tçoûpœ,  edhé  kour  tœ 
+bœnetœ  dûmbœdhyétœ  vyétç  (vyét),  t'a  mârhœ  pœrsœri  dielhi. 
+Pôlhi  mbretœréça  nœ  tçoûpœ,  kyœ  vinte  nœ  çkolyô  gyithinœ. 
+Nœ  dit  tek  vinte  nœ  çkolyô,  i  thâ  dielhi,  «  thoûay  nœnesœ  tœ 
+mœ  yâpœ  atœ  kyœ  mœ  ka  tâksour.  »  Vâte  tek  e  éma  edhé  i  thâ 
+kyœ,  «  kçoû  mœ  thâ  dielhi.  »  Edhé  ayô  i  thâ,  «  thoûay  dielhit 
+kyœ  œçtœ  e  vôgely;  »  edhé  kyô,  kour  vâte  nœ  çkolyô,  i  thâ 
+dielhit.  Nœ  dit  kour  mhoûçi  tœ  dûmbœdhyétœ  vyét,  tek  vinte 
+nœ  çkolyô,  dôlhi  dielhi  edhé  e  rhœmbéou  edhé  e  çpoûri  nœ  çtœpi 
+tœ  tiy.  Prêt  e  éma  tçoûpœnœ,  po  si  noûkœ  érdhi,  koupœtôi  kyœ 
+e  môri  dielhi,  pas  fyâlyœsœ  kyœ  kiç  thœnœ.  Ngyéou  nœ  tœ  zéza 
+tœ  tœrœ  çtœpinœ  edhé  mbûlhi  pôrtœnœ,  edhé  noûk'  e  hâpte 
+koiirhœ,  po  kyânte  edhé  oulyœrinte  brœnda  vétœmœ. 
+
+Dielhi  kiç  dhé  nœ  koutçédrœ  nœ  çtœpi.  Ayô  koutçédra,  si 
+koupœtôi  tçoûpœnœ,  thâ,  «  mœ  bie  érœ  sôy  mbrét,  »  edhé  dielhi 
+i  thâ,  «  œçtœ  tçoûpa  ime,  po  môs  e  ngf.  »  Dœrgôi  nœ  dit  dielhi 
+tçoûpœnœ  nœ  bâtçœ  tœ  mârhœ  nœ  lyâkœr,  edhé  ayô  vâte.  Kour 
+préou  lj'âkœrnœ  thâ,  «  kyûç  kyô  h'âkra,  kçoû  kœrtsét  edhé  thrét 
+zœmœra  e  nœnes'  sime,  »edhé  kyânte.  Dielhi,  si  e  pâ  kyœ  k}rânte, 
+e  pûeti  edhé  i  thâ,  «  psé  kyân?  môs  tœ  môri  mâlhi  pœr  nœnenœ?  » 
+Edhé  ayô  i  thâ,  «  mœ  môri  çoûmœ  ;  »  edhé  au  i  thâ,  «  nœ  dô  tœ 
+vétç  nœ  çtœpi  tœnde,  tœ  thrétç  çpésatœ  tœ  tœ  çpienœ  nœ  çtœpi.  » 
+Si  thiri  dhé  ayô  tsâ  çpésœra  thiri  edhé  koutçédrœn  dielhi  edhé 
+i  thâ,  «  nœ  tœ  mârhtœ  ouria,  ç  to  tœ  hâtç?  »  —  «  Kœtoé  to  tœ 
+hâ.  »  —  «  Nœ  tœ  mârhtœ  étia,  ç  to  tœ  pitç?  »  —  «  Gyâknœ  e 
+kœsây  to  tœ  pi.  »  Edhé  dielhi,  si  pâ  kyœ  noûk'  to  t'a  çpinte  nœ 
+çtœpi,  i  thâ  asây,  «  thirœ  tyétœr  çpésœ,  »  edhé  ayô  thiri  drédhi- 
+nœ,  edhé  e  pûeti  dielhi,  «  çpie  kœtœ  tçoûpœ  nœ  çtœpi?  »  — 
+«  E  çpie,  »  thâ.  —  Kour  tœ  tœ  mârhœ  ouria,  e  to  tœ  hâtç?  »  — 
+«  Bâr  tœ  nômœ.  »  —  «  Kour  tœ  tœ  mârhœ  étia,  ç  to  tœ  pitç  ?»  — 
+
+
+—  40  — 
+
+«  Oûyœ  tœ  ftô'  tœ,  po  kour  t'a  çpie  nœ  çtœpi,  tœ  mœ  yâpœ  e  éma 
+tri  ôkœ  bâr.  » 
+
+Môri  drédhi  tçoûpœnœ  edhé  e  ngarkôi  nœ  brirœ.  Atyé  tek 
+tçâpœnte,  e  môri  ourla  edhë  i  thâ  teoûpœsœ,  «  hipœ  nœ  atœ 
+lyisedhé  nœ  ârtœ  neri  edhé  tœ  thôtœ,  »  zbritpœrpôç,  «  ti  mos 
+tœ  zbrétç,  gyersâ  tœ  vin  oûnœ;  »  hipi  dhé  ayô  nœ  lyis.  Aère 
+çkôi  nœ  koutçédrœ  edhé  si  vœçtôi  andéy  kœtéy,  pâ  troûpœnœ  nœ 
+lyls  edhé  i  thâ,  «  zbrit  pœrpôç,  tœ  kouvœndôimœ,  »  edhé  ayô  i 
+thâ,  «  noûkœ  xbrés,  se  mœ  vyén  frikœ  se  mos  mœ  hâte.  »  Edhé 
+kontçédra  i  thâ,  «  noûkœ  tœ  hâ.  «  Edhé  tçoûpa  i  thâ,  «  tçâp  nœ 
+çtœpi  edhé  kthéou  tœ  mœ  mârhtç.  »  Çkôi  koutçédra,  aère  vinte 
+drédhi,  edhé  i  thiri,  se  pâ  koutçédrœnœ  kyœ  vinte,  «  hâyde  çpéyt 
+tœ  mœ  mârhtç,  se  vyén  nœ  koutçédrœ  tœ  mœ  hâyœ.  »  E  môri 
+drédhi  edhé  ndzitôn,  edhé  çdoneri  pikyte  nœ  oûdhœ  i  thônte, 
+«  nœ  çkôftœ  nônœ  koutçédrœ,  môs  tœ  rœfénœ  oûdhœnœ,  po  t'i 
+thôtœ  kyœ  tçoûpa  edhé  drédhi  çkoûanœ  nga  tyétœr  oûdhœ.  » 
+Arhitnœ  nœ  pôrtœ  tœ  nœnes  edhé  trœngœlhitnœ,  po  kœyô  noûkœ 
+hâpte  pôrtœnœ.  Aère  trœngœlhit  edhé  i  thâ  tçoûpa,   «  hâp,  o 
+nœne,  se  yâm  tçoûpa  tœnde.  »  Hâpi  pôrtœnœ  aj'ô  edhé  ougœ- 
+zoûa  si  pâ  tçoûpœnœ  e  sây.  Tçoûpat'  e  mâ'Jhœs,  si  digyoûanœ 
+kyœ  érdhi  tçoûpa  e  mbretœréçœs',  érdhœ  edhé  i  thânœ  sœmœsœ, 
+«  lyœ-na  tçoûpœnœ  t'a  gœzôimœ  kœtoû  e  atyé,  »  edhé  ayô  ou  a 
+dhâ.  Atô,  si  e  moûarœ  e  çpoûnœ  mœ  nœ  bâtçœ,  n'  atœ  bâtçœ  iç 
+nœ  pôrtœ  e  mâclhe,  kyœ  noûkœ  hâpey.  Zoûnœ  tœ  tœra  tçoûpat 
+edhé  çtûtnin  pôrtœnœ,  po  noûkœ  moûndnin  t'a  hâpinœ.  Aère 
+vâte  dhé  kœyô  edhé  si  çtûti  pôrtœnœ  ouhâp,  edhé,  posa  rûri  ayô 
+brœnda,  se  kiç  mârhœ  çoûmœ  talâs  kyœ  tœ  hâptœ  pôrtœnœ, 
+oumbûlh  (porta),  edhé  kœtô  tçoûpat  si  pânœ  kyœ  noûkœ  hâpey 
+porta  kyœ  tœ  mârhinœ  tçoûpœnœ,  iknœ  douk  helymoûar  edhé 
+vânœ  nœ  çtœpi  tœ  sây  edhé  i  thânœ  sœmœsœ,  kyœ  kçoû  kçoû 
+gyâou.  Edhé  e  éma,  si  digyôi  kœtœ  fyâlyœ,  kyânte  pa  pou- 
+çim. 
+
+Atyé  brœnda  tek  rûri  tçoûpa  gyéti  nérœz  edhé  çpésœra  kyœ 
+için  bœrœ  si  mérmer,  gyéti  akôma  edhé  nœ  mbrét  kyœ  iç  bœrœ 
+si  mérmer  edhé  mbânte  nœ  dôrhœ  iïœ  kârtœ  tœ  çkroûar  edhé  tœ 
+hâpour  edhé  kœyô  e  kœndôn,  edhé  thônte  (kârta)  kçoû,  «  tsilya 
+œçtœ  e  zona  môs  tœ  flyérœ  tri  dit  e  tri  net  edhé  tri  yâvœ,  atœ  to 
+t'a  mârh  groûa,  se  to  tœ  ngyâlhem.  »  Edhé  ayô  rhinte  pa  gyoûmœ 
+(pa    flyéytour)    edhé    mérhte   kârtœra    edhé   kœndônte.   Kour 
+
+
+—  41    — 
+
+çkoûanœ  tœ  tri  nétet  edhé  tœ  tri  ditat  edhé  du  yâvœ,  aère  çkôi 
+nœ  neri  kyœ  cite  husmekyàrka.  Dôlhi  dhé  ayô  nœ  parathire 
+edhé  e  pùeti,  v>  «  se  paré  kœrkôn  pœr  nœ  husmekyârkœ?  »  Edhé 
+au  i  thà.«  se  tœ  doùatç.  »  Edhé  kœyô  ndzôri  nœ  lyopâtœ  me 
+flyorifi  edhé  i  a  hôdhi  edhé  zbriti  iïœ  tœrkoùzœ  edhé  ouvâr  hus- 
+mekyàrka edhé  e  ngriti.  Pastây  i  thâ  kœsây,  «  môs  tœ  flyétç  dû 
+a  tri  dit.  po  tœ  flyé  oûnœ  nœ  tçikœ,  se  kâm  çoûmœ  kôhœ  pa 
+gyoùmœ,  pas  kœsây  kârtœs  kyœ  mbân  mbréti  nœ  dôrhœ,  edhé 
+kour  tœ  ngyâlhet  mbréti,  tœ  mœ  zgyôntçedhé  moûa;  »  edhé  i 
+rœféou  tœ  tœra  atô  kyœ  thônte  kârta  e  mbrétit  edhé  râ  e  flyéyti. 
+Edhé  kœyô  husmekyàrka  zoûri  edhé  i  ndzôri  rôbatœ  asay  edhé 
+i  voiiri  vétœ,  kyœ  kour  tœ  ngyâlhet  mbréti  tœ  mârhœ  atœ  groûa. 
+Si  çkoûanœ  tœ  tri  yâvœtœ,  oungyâlh  mbréti.  «  Tç  yé  ti?  »  i  thâ. 
+—  «  Oûnœ  yâm,  »  i  thâ,  «  kyœ  kâm  tri  dit  e  tri  net  e  tri  yâvœ 
+pa  gyoûmœ,  »  edhé  au  e  mûri  groûa.  Pastây  e  pûeti,  «  kœyô  kyœ 
+flyé,  tç  œçtœ?»  Edhé  ayô  i  thâ,  «  œçtœ  nœ  husmekyârkœ  kyœ 
+e  nuira,  se  mœ  viute  frikœ.  »  Aère  ouzgyoûa  dhé  kœyô.  I  thôtœ 
+mbréti  groûasœ,  «  kœtœ  husmekyârkœ,  ç  t'a  bœimœ?  »  Edhé 
+ayô  -i  digyôi,  i  thâ,«  tœ  mœ  vœtç  tœ  roûaiï  pâtet,  »  edhé  mbréti 
+e  voûri  edhé  i  bœri  nœ  kalhlve  pœr  tœ  ndcéntour. 
+
+Atyé  tek  rhinte  kyânte  pa  pouçfm  edhé  nœmœrônte  ncê  nga 
+nœ  hâlhœtœ  e  sây.  Mbréti,  si  digyôi  dû  tri  hérœ  atœ  kyœ  kyânte, 
+vâte  edhé  i  thâ,  «  psé  kyân?  »  Edhé  ayô  i  thâ  kyœ,  «  kçoû  kçoû 
+mœ  gyânœ.  »  Pastây  mbréti  môri  atœ  groûa  edhé  husmekyàr- 
+kœnœ  e  vràou  edhé  e  bœri  tsôpœra,  m'e  mâdhya  tsôpœ  iç  kâ- 
+kyœ  (ou  :  e  bœri  tsingra  mingra). 
+

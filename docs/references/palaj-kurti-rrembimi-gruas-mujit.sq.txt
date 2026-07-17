@@ -1,0 +1,459 @@
+Source: "Rrëmbimi i së shoqes së Mujit" ("The Kidnapping of Mujo's Wife" / Elsie's
+English title "Mujo's Wife is Kidnapped"), song no. 21 of Palaj-Kurti's collection
+(no. 15 of Robert Elsie & Janice Mathie-Heck's English selection/ordering) of the
+Kângë Kreshnikësh (Songs of the Frontier Warriors) cycle. Sung by Mëhill Prêka of
+Curraj i Epërm (District of Tropoja). Published in: Hylli i dritës, Shkodra, 7
+(1931), pp. 621-634; Visaret e Kombit, vol. II, ed. Bernardin Palaj & Donat Kurti
+(Tirana, 1937), pp. 159-169; and Folklor shqiptar II, Epika legjendare (Cikli i
+kreshnikëve), Vëllimi i parë, ed. Qemal Haxhihasani (Tirana, 1966), pp. 188-198.
+Albanian original PDF published alongside Robert Elsie & Janice Mathie-Heck's
+English translation at
+http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_15.pdf
+— NOT present in the Wayback Machine under this exact path (CDX search of the
+whole albanianliterature.net domain, 2026-07-15, returned no capture for
+verse_09_AL_15.pdf, though sibling files 01/02/03/06/08/09/17/20 are archived).
+Retrieved instead from the live site directly over plain HTTP (the site's HTTPS
+certificate/TLS handshake fails; http:// works), extracted 2026-07-15. Gheg
+dialect, already in modern Albanian orthography as printed by Elsie/Mathie-Heck
+— no transliteration performed; straight apostrophes mark the source's own
+elisions (n', m', t', etc.), converted from the PDF's curly quotes. English and
+Albanian run line-for-line (429 Albanian verse-lines to 428 English lines — the
+source's last two lines, "Kshtu m'kanë thanë, / Se atje nuk jam kanë!", are
+merged into Elsie's closing English line "So they say, I was not present.").
+
+Rrëmbimi i së shoqes së Mujit
+
+T'lumit zot, more, i kjoshim falë,
+Si s'jem' kanë e jetën na e ka dhanë!
+Kqyr çka bani Krajle Kapidani!
+Burrë të mirë zoti e ka falë,
+5    Kullë të mirë paj krajli kishte nisë,
+Dymbdhetë mjeshtra vndue m'ta i ka,
+Dymbdhetë vjet m'ta lanë i ka,
+Sa të gjanë kullën qi e ka nisë,
+Treqind oda m'ta si i ka da,
+10   Po i mbaron odat prej florinit,
+Dyerët e mblojën po ja vndon çelikut,
+Dymbdhetë ketesh përpjetë e ka çue,
+Bukuri prej krajli e ka punue!
+Në sobë t'epër krajli ka pushue,
+15   Me minder krajlit ja kanë shtrue,
+E ka shti xhezmen në zjarm,
+Nuses s'vet t'madhe te i ka thirrë:
+- Shpejt në sobë, moj nuse, mue me m'ardhë!
+Shpejt në sobë nusja te i ka ardhë.
+20   Kqyre krajli atherë çka i ka thanë!
+- Kurrkund shoqin për burrë nuk e kam,
+Kurrkund shoqen për grue ti s'ma ke,
+Kullës seme shoqja nuk i bahet
+E s'ma ka shoqen shpata e mejdanit,
+25   Gjogu shoqin kurrkund-o nuk ma ka.
+Kqyr e shoqja atherë çka i ka thanë!
+- A m'ep izën, krajl-o, për me folë?
+Edhe krajli izë i ka dhanë,
+Ja ka nisë grueja te i ka thanë:
+30   - Kurrkund shoq i pashoq nuk â,
+Por, me pa ti Gjeto Basho Mujin,
+Rrogtar lopësh ti gja nuk i duhesh,
+I ka musteqet sa dy deshë galana,
+I ka krahët sa dy lisa me rrema;
+35   Me ja pa njat Meremet Turkinë,
+Për dadë t'ditës kurrgja nuk i duhem;
+Me ja pa paj shpatën e mejdanit,
+Brigjak bukësh e jotja qi po të duket;
+Me ja pa gjogun e mejdanit,
+40   Magar drush i yti qi po t'duket;
+Me ja pa kullat e sarajet,
+Çerranik paj tuat qi po t'duken;
+Paj për s'kundërt me e pa m'ndoi kodër,
+Ja m'then kambën, ja m'then dorën.
+45   Sa keq krajlit m'i ka ardhë,
+Nji sahat krajli nuk ka folë!
+Kur ka qitë krajli e ka folë,
+Ma ka ba nji be fort t'madhe:
+- Pasha 'i zot mue qi m'ka dhanë,
+50   Marrja e hallkut po m'len pa t'pre;
+Veç kur t'dalë vera, kjoftë e bardhë,
+N'tri krahinë s'e la për pa dalë,
+Me i bashkue treqind deberdera,
+T'tanë pa tokë e t'tanë pa vrri,
+55   Të pananë, të tanë të pababë,
+Të pamotër, të tanë të pavlla,
+Te panipa, të tanë të padajë,
+Të pafejuem, të tanë të pamartuem,
+Mos t'u dhimben turkut as kaurrit,
+60   Mos të kenë kurrkend shokësh mbrapa
+E t'i veshi të tanë e t'i mbathi
+E t'i rruej të tanë e t'i ndrroj,
+Njiqind dit të treqindt si t'i mbajë,
+Mish tarokut të tanë të hanë
+65   E tu kullat Mujos për me i ramë
+A t'ja djegu kullat e sarajet,
+Rrash me tokë kullat qi t'ja baj
+E ja la si cung të thatë,
+Me kndue qyqja ditë e natë
+70   E t'i marr Meremet Turkinë
+T'ja marr motrën e të binë;
+T'ja marr shpatën e mejdanit,
+T'ja marr selinë prej dukatit,
+T'ja marr remet ka t'i kenë!
+75   Mbrapan grueja kenka dredhë.
+Kenka dalë vera, kjoftë e bardhë,
+Ju ka ngi gjogu dushk e bar,
+M'tri krahina krajli kenka dalë,
+Krejt miletin krajli e ka bashkue,
+80   I ka zgjedhë treqind deberdera,
+Të pananë, të tanë të pababë,
+Të pamotër, të tanë të pavlla,
+Të panipa, të tanë të padajë,
+Të pafejuem, të tanë t'pamartuem,
+85   Qi s'po kanë kurkand për mbrapa,
+Qi s'po i dhimben turkut as kaurrit.
+Tha, tu kullat krajli i ka bashkue,
+I ka la krajli e i ka ndrrue,
+Sa mirë krajli n'armë i ka shtërngue,
+90   Njiqind dit krajli i ka mbajtë,
+Mish tarokut krajli u ka qitë,
+Mish e venë po për gjithë ditë.
+Kanë nisë djelmt-o m'u qeftue!
+Te i ka veshë krajli, te i ka mbathë,
+95   Fort ma mirë krajli i ka armatisë,
+I ka kcye gjogut në shpinë,
+Treqind vetve u ka pri,
+Në Jutbinë krajli kenka ra,
+Taksirat paj Muji e ki' pasë,
+100   Ai te dajat na ka qillue,
+Kullën vetëm e ka lanë.
+Edhe djegë kullat si ja ka,
+Rrash me tokë kullat ja ka ba
+E e ka lanë si cung të thatë,
+105   Me kndue qyqja ditë e natë;
+Ja ka marrë Meremet Turkinë,
+Ja ka marrë t'motrën e të binë,
+Ja ka marrë selinë prej dukatit,
+Ja ka marrë remet te i ki' pasë.
+110   Ka marrë rrugën prej krajlive,
+Shndosh e mirë tu shpija â vojtë.
+Shum denam krajli kish' ba,
+Gjith miletin bashkue ma ka,
+M'i ka pritë, m'i ka gostitë,
+115   Për shyqyr qi shndosh ka ardhë,
+Qi edhe gruen Mujos ja ka marrë.
+Burrë i fort Krajle Kapidani!
+Çka qitë krajli e ka ba?
+N'saraj t'vet krajli kenka hi,
+120   Nuses s'vet të madhe te i ka thirrë:
+- Shpejt në sobë, moj nuse, për me m'ardhë!
+A din, nuse, vjet se çka m'ke thanë?
+Fjala e eme sa mirë m'ka dalë!
+Qe un jam Krajle Kapidani!
+125   Se burrë t'fortë zoti mue m'ka falë,
+A din Mujos un se shka i kam ba?
+Për dadë t'ditës me t'lanë kam da
+Edhe kambët shpejt me m'i la,
+Ujët e kambve për me e pi.
+130   Sa herë darkë t'kena me ngranë,
+Ke me mbajtë pishën me dhambë
+Edhe dritë, ke me na ba.
+Gruen e Mujos krajli marrë e ka,
+Hysmeqare t'ven e ka ba.
+135   Taksirat Muja e ki' pasë,
+Paj te dajat ka qillue.
+N'nadjet Muja kenka çue,
+Sa mahmurrshëm Muja qi ka ndjehë,
+Ai Halilit t'madhe i ka thirrë:
+140   - Çou, Halil, e kryet ti mos e çosh!
+'I andërr t'zezë, Halil, qi e kam pa,
+'I llavë e madhe prej bjeshket â ra,
+Të dy gjogat hangër qi na i ka.
+Kullat vetëm, djalë, i kem' lanë,
+145   Drue se krajli djegë na i ka.
+Çka ka qitë Halili e ka thanë?
+- Shum e ftoftë bjeshka po m'asht,
+Qetash asht gjethi tue ra,
+Ndoshta andrra s'kallxon gja.
+150   Ka qitë Muji e ka thanë:
+- Gja kjo andërr mos me kallxue,
+Kurr ma andrret s'kam me u besue.
+Duerët e faqet kreshnikët i kanë la
+E u kanë kcye gjogave n'shpinë
+155   E e kanë marrë rrugën për Jutbinë.
+N'at gjysë rruget kur kanë marrë,
+Erën kullës ja ka ndie.
+Kqyr Halilit trimi çka i ka thanë!
+- Era shkrum m'gitet se â tue ardhë.
+160   Çka i ka thanë Halili Mujit?
+- Fort kaherë erën e kam ndie,
+Por s'kam guxue me ta xanë me gojë.
+Tym me mjegull gjogat i kanë ba,
+Bash me plasë gjogat ishin ba,
+165   Shkumë për gojet, qi kanë qitë,
+Bytym djers u kullon shtati.
+Hyqmet zoti e ka ba,
+Me gojë gjogu kishte folë:
+- S'ke bre, Muj, pse m'ban me plasë,
+170   Sot dobi vrapi s'po t'ban,
+Se ndër kulla shkjau na ka ra
+Edhe kullat djegë na i ka
+Edhe gruen ty ta ka marrë.
+Kundra shpijave dalë te m'u kanë,
+175   Rrash me tokë kullat pa i kanë,
+Sa fort Muja kenka lodhë!
+Tridhet agë iu kanë bashkue,
+Para Mujos i kanë dalë:
+- Ti hoshgjelden, Gjeto Basho Muja!
+180   Edhe kryet Mujës ja kanë shndoshë:
+- Ti shndosh, Mujo me Halilin!
+E m'u lodhë, Muj, mos u lodh,
+Se edhe kullat t'i bajmë ma t'mira
+Edhe gruen ta marrim ma t'mirë
+185   E selinë ta gjejmë ma t'mirë
+Edhe remet t'i blejmë ma t'mira,
+Gja e mall me t'falë, na t'falim.
+Kqyr çka foli Gjeto Basho Muja!
+- U rritët ndera, agve u ka thanë,
+190   Njimend kullat m'i bani ma t'mira,
+Edhe martesën ma bini ma t'mirë,
+E selinë ma gjeni ma t'mirë,
+Po m'i ngrehni kullat e sarajet,
+Po m'i bini remet ka i kam pasë,
+195   Marren teme ku delni me e marrë?
+Atherë agët kryet e kanë ugjë,
+Kurrnja gojën çilë nuk e ka,
+Kaq nen marre agët ishin ra,
+Si luftue agët mos t'kin pasë.
+200   Fort inat Mujos ja kin pase,
+Në Jutbinë agët t'gjith kanë dredhë.
+Kqyre Muja Halilit çka i ka thanë!
+- Zoti t'vraftë, Halil Aga i ri,
+Paj tu shpija un ty due me t'lanë.
+205   E tu shpija Halilin e ka lanë.
+Ka nisë burri e kenka prishë,
+Me vra vehten kreshniku â lodhë,
+Me pi zehrin kreshniku ka nisë.
+Marre vedit nuk po don me i lanë!
+210   E ka marrë at gjogun e mejdanit
+E sa mirë kenka armatisë!
+E ka marrë shpatën e mejdanit,
+E ka marrë top e xhiverdare,
+Kqyre gjogut atherë çka i ka thanë!
+215   - T'kjoftë haram maja, qi t'kam ba,
+T'kjoftë haram tagjija, qi t'kam dhanë,
+Në Krajlni ti n'kjosh qi me m'lanë!
+I ka kcye gjogut në shpinë,
+Tim e mjegull gjogun e ka ba,
+220   Në Krajlni Muja kenka hi,
+Kenka vojtë tu Krajle Kapidani.
+Paj, krajli në bjeshkë qi m'ish kanë,
+Me gjatue krajli m'kishte dalë,
+Treqind shkje me vedi i kish pasë,
+225   Shum harusha t'gjalla i kishte kapë,
+Shum gje t'egra krajli kishte vra.
+Tuk sarajet Muja i ka ra,
+E shoqja e Mujës, paj, Mujën e ka pa
+E sa fort e shoqja iu ka gzue!
+230   Kqyre Mujin sa fort e ka tradhtue!
+Muhabet, paj, Mujos i ka ba,
+Lott për faqe grues qi po i shkojnë,
+Paj, po do Mujin kesh po e rre,
+Ja ka qitë rakinë e nandë vjete,
+235   Gjumi i randë, tha, Mujin e ka marrë,
+Aspak gjumi Mujos nuk po i del.
+Sa herë burri frymë po ep,
+Flakë e prush për gojet qi po qet
+E sarajet sa fort qi po i dridhë.
+240   Sa herë burri frymë po ngrehë,
+Tana dyertë meiheri po çilen.
+Kqyr e shoqja atherë çka ka ba!
+Ja ka shti hekurat në dorë,
+Ja ka shti prangat në kambë,
+245   Paj, sa mirë Mujin e ka lidhë,
+Ja ka vndue drynat prej çelikut,
+E ka marrë turbinë në sy,
+Po i shikjon bjeshkët për s'gjanit,
+Mirë po e shef krajlin tue ardhë.
+250   N'derë t'sarajit krajli kur asht ra,
+- Ti hoshgjelden, krajl-o, i ka thanë,
+Ti çfarë gjeje, krajlo, na ke xanë?
+- Pesë harusha t'gjalla i kam xanë,
+Tridhetë dhi t'egra i kam vra,
+255   Dhetë kaproj t'egjer i kam kapë.
+Shum gje krajli, tha, e ka xanë.
+Sa t'madhe grueja kish pa' keshë!
+- Gje ma t'madhe un qi kam xanë!
+Kqyre krajli atherë çka i ka thanë?
+260   - Zoti t'vraftë, Meremet Turkinë,
+Fort në krye fjala, qi m'ka ra,
+Marrja e hallkut po m'len për pa t'pre,
+Gratë mbrendë gje kur kanë xanë?
+Kqyr çka foli Meremet Turkina!
+265   - Kam xanë rob Gjeto Basho Mujin!
+- Zoti t'vraftë, grue, te i ka thanë,
+A di ç'asht Gjeto Basho Muja?
+Kurrkund burrë ma t'fortë qi nuk ka,
+Kurr nuk muj un për me e xanë,
+270   Për pa muajtë ti për me e rre,
+S'mundesh Mujin për me e lidhë.
+- Paj, në sobë, Krajlo, për me ardhë,
+Kambësh e duerësh Mujin ta kam lidhë,
+Si të duesh me te për me ba.
+275   Atherë krajli mbrenda kenka hi,
+Paj, në sobë krajli kenka vojtë,
+Në sobë Mujin e ka gjetë,
+Kambësh e durësh Mujin ta kam lidhë,
+Gjumë i randë Mujin e ki' marrë
+280   Edhe thirrë Mujos fort i ka.
+Aspak burrit gjumi s'i ka dalë!
+Kqyre krajli atherë çka ka ba!
+Sa fort shkelm, paj, Mujos i ka ra,
+Mujos gjumi na i ka dalë.
+285   Ka marrë Mujos e i ka thanë:
+- A din, Mujo, çka t'ka gjetë?
+A po njef, se kush jam vetë?
+Un, po, jam Krajle Kapidani,
+Kullat tua t'i kam djegë,
+290   Rrash me tokë kullat t'i kam ba,
+Ta kam marrë Meremet Turkinë,
+T'kam marrë motrën edhe binë,
+Ta kam marrë selinë prej dukatit,
+T'i kam marrë remet kah i ke pasë.
+295   Grues s'Mujës krajli i ka thirrë:
+- Shpejt në sobë, grue, për me m'ardhë.
+Edhe ngrykë, paj, gruen ja ka marrë,
+Të dy sytë, tha, krajli ja puthë,
+Ja ka nisë lodërs e po luen.
+300   Dhambët për dhambë Muja i ka shtërngue,
+Gjithë sarajet meiherë janë dridhë.
+Kqyre krajli atherë çka i ka thanë!
+- A po don, bre Mujo, për me t'pre,
+A po don, bre Mujo, për me t'vjerrë?
+305   N'krye kto fjalë Mujos i kanë ra,
+Idhtë si gjarpni burri asht ba,
+Ka marrë burri m'u çue n'kambë,
+Veçse prangat s'e kanë lanë.
+Atherë foli Gjeto Basho Muji:
+310   - Zoti t'vraftë, krajlit i ka thanë.
+Lopë e vjedhun qillue s'kam,
+Se mue m'thonë Gjeto Basho Muja,
+Due m'u pre në fushë t'mejdanit,
+Tu përpiqen shtatë krajlnitë e mbreti,
+315   Se burrë t'mirë zoti m'ka pasë falë,
+T'gjithë dylnjeja zanin ma ka ndie.
+Qysh m'u pre kurrkush për pa m'pa?!
+Ka nisë krajli me turfllue,
+Rreth e rrokull synin e ka sjellë,
+320   Fjalve të Mujit ndesh veç s'u ka ra.
+Kqyre Muja atherë çka ka thanë?
+Nji rixha krajlit ja ka lypë,
+Fort qefli për lahutë, qi m'ish kanë,
+Milet krajli i ka dhanë,
+325   Edhe duerët krajli ja ka zgidhë,
+Ja ka çue lahutën prej palmje,
+Ma kish pasë zhargun prej magari,
+Ma kish pasë dorcën prej thane,
+M'i kish pasë qymet kali shale.
+330   Merr lahutës Muja për me i ra,
+N'dyzen Muja e ka vndue.
+Mirë ai gishtat na i shtërnon,
+Por ma mirë me za i ndimon,
+Tre sahat zani po i shkon.
+335   Sa piskame, tha, burri qi ka kndue,
+E kanë ndie zanat në shkamb.
+Kqyre zanave Muja çka u ka thanë!
+- Probatesha, zana, xanë u kam,
+Kurr ma ngusht kanë edhe nuk jam,
+340   Kambë e dorë lidhë si m'i kanë,
+Nesër pritem n'fushë t'mejdanit,
+Tu t'përpiqen shtatë krajlnitë e mbreti
+E xhevapë Halilit për me i dhanë.
+Kqyre zanat atherë çka kanë ba!
+345   Te Halili atherë te janë shkue
+N'pikë të natës zanat kanë trokllue
+Edhe thirrë Halilit i kanë
+E përgjegjë Halili nuk ka.
+E sa fort thirrë qi m'i kanë,
+350   Kanë nisë nakël për m'u ba.
+Kqyre zanat atherë çka kanë thanë!
+- A thue Halili ktu s'ka qillue?
+N'kjoftë qillue Halili tue kurvnue,
+Zoti t'mbarën kurr mos ja dhashtë;
+355   N'kjoftë qillue Halili tue vjedhë,
+Zoti t'mbarën kurr mos ja dhashtë;
+Për në kjoftë zotit tuj i u lutë,
+Zoti t'mbarën Halilit ja dhashtë!
+Sa mirë Halili qi po i ndie!
+360   Paj, Halili lutën kur po e krye,
+Shpejt e shpejt në derë ka dalë,
+Xhevapë Halilit zanat te i kanë dhanë:
+- Nesër pritet Gjeto Basho Muja,
+Te t'përpiqen shtatë krajlnitë e mbreti.
+365   Kqyr Halili atherë çka ka ba!
+Kenka veshë djali, kenka mbathë,
+Ma ka marrë shpatën e mejdanit,
+E ka marrë top e xhiverdare,
+E ka marrë gjogun të Mujës,
+370   E ka marrë rrugën për Krajli.
+Tim e mjegull gjokun e ka ba,
+Kenka dalë në bjeshkë t'krajlive,
+Ish kenë ndeshë n'Krajle Kapidanin.
+Sa shpejt lufta aty kenka ngrehë!
+375   Shum potera aty kenka ba!
+Mirë Halili aty po na lufton,
+Gjogu i Mujës Halilit po i ndimon.
+Gjogu i Mujës, kqyre, çka ka ba!
+Krejt asqerin në dhambë po e han
+380   E sa shkelma mbrapan qi po qet,
+Aq të dekun krajlit ja ka ba.
+Gjithë asqerin Halili po e pret.
+Paj, tha, krajli sa turr kenka ikë!
+Kqyr çka bani Meremet Turkina!
+385   Kenka dalë n'beden të kullës,
+Ma ka marrë turbinë në sy,
+Grues s'krajlit ajo çka i ka thanë?
+- Zoti t'vraftë, mori ortake e ndry,
+Për me e pa nji pllumb me sy,
+390    Se ç'po e ndjekë nji korb i zi.
+Atherë grueja m'i ka thanë:
+- Zoti t'vraftë, Meremet Turkinë,
+A s'po don ti, a s'po din?
+Ai nuk asht, jo, pllumb i bardhë,
+395    Ai nuk asht, jo, korb i zi,
+Ai asht Sokole Halili,
+Â kah ndjekë Krajle Kapidanin
+E po don kryet me ja marrë.
+Sa vetimë zoti e ka ba!
+400    N'bahçe t'krajlit t'dy tek janë ra
+E në krah krajlit ja ka ngjitë,
+Kryet për tokë me shpatë ja ka qitë.
+Kqyre Muja aherë çka ka ba!
+N'derë t'sarajit gjogu kur ka vojtë,
+405    T'madhe gjogut i ka britë.
+Sa mirë n'za gjogu ma ka njoftë,
+Me dy shkelma derës qi po i bjen,
+Krejt çelikut dera ka qillue,
+Kollaj derën e ka thye.
+410    Prej gjogut Halili ka zdrypë,
+Te Muja Halili â shkue,
+Lidhun Mujën e ka gjetë,
+Sa shpejt Mujën e ka zgidhë!
+Kqyre gjogu i Mujës çka ka ba!
+415    Sa fort gjogu Mujës po i hingllon,
+Për Mujën gjogu ish mërzitë.
+Kqyre Muja atherë çka ka ba!
+E ka pre at Meremet Turkinë,
+E ka pre t'motrën e të binë,
+420    Gruen e krajlit Muja e ka marrë,
+Ja ka marrë selinë prej dukatit,
+Ja ka marrë shpatën e mejdanit,
+Ja ka djegë kullat e sarajet,
+Rrash me tokë kullat ja ka ba,
+425    Shndosh e mirë n'Jutbinë kanë ra,
+Mbarë Jutbina për ta denam ka ba.
+Kush ndigjoftë, zoti e ndimoftë!
+Kshtu m'kanë thanë,
+Se atje nuk jam kanë!
+
+[Sung by Mëhill Prêka of Curraj i Epërm (District of Tropoja). Published in: Hylli i
+dritës, Shkodra, 7 (1931), p. 621-634; Visaret e Kombit, vol. II, ed. Bernardin Palaj
+and Donat Kurti (Tirana 1937), p. 159-169; and Folklor shqiptar II, Epika legjendare
+(Cikli i kreshnikëve), Vellimi i parë, ed. Qemal Haxhihasani (Tirana 1966), p. 188-198.]

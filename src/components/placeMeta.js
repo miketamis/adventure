@@ -52,11 +52,26 @@ export const PLACE_META = {
       { title: 'raki and a toast', nodes: ['gezuarFund'] },
     ],
   },
-  kala1: {
+  kalaMur: {
     name: 'kalaja e Rozafës',
     happenings: [
-      { title: 'the castle at the river-mouth', nodes: ['kala1', 'kala2'] },
-      { title: 'the walling of Rozafa', nodes: ['kalaVllezer', 'kalaBesa', 'kalaRozafa', 'kalaGji', 'murosur'] },
+      { title: 'the wall that will not hold', nodes: ['kalaMjegull', 'kalaPlak'] },
+      { title: 'the climb, the plea, the walling of Rozafa', nodes: ['kalaNgjitje', 'kalaLutje', 'kalaMur'] },
+    ],
+  },
+  uraArtes1: {
+    name: 'ura e Artës — the masons\' yard',
+    happenings: [
+      { title: 'the bridge that falls each night', nodes: ['uraTjeter1', 'uraVellezerit', 'uraArtes1'] },
+      { title: 'the old wayfarer names the price', nodes: ['uraArtes2'] },
+      { title: 'the ring in the pit, the walling of the bride', nodes: ['uraGropa', 'uraMurim'] },
+    ],
+  },
+  uraNata: {
+    name: 'shtëpia e tre vëllezërve — the brothers\' house',
+    happenings: [
+      { title: 'the besa of silence, kept or broken', nodes: ['uraNata'] },
+      { title: 'the bread and the three brides', nodes: ['uraMengjes'] },
     ],
   },
   fshatiSheshi: {
@@ -81,6 +96,14 @@ export const PLACE_META = {
       { title: "the mountain-father's trials", nodes: ['tomor1', 'tomor2', 'tomor3', 'tomorProva', 'tomorStuhi'] },
       { title: 'the eagles of the summit', nodes: ['majaEagle'] },
       { title: 'the blessing', nodes: ['tomorBekim'] },
+      { title: 'the giant and the Beauty', nodes: ['tsHyrje', 'tsNuse', 'tsRoje', 'tsZgjim', 'tsShpeto', 'tsFundTomor'] },
+    ],
+  },
+  shpirag1: {
+    name: 'Mount Shpirag — Berat in the gorge',
+    happenings: [
+      { title: 'the rival giant', nodes: ['shpirag1', 'tsRast'] },
+      { title: 'the duel of the mountains', nodes: ['tsBeteje', 'shpiragFund'] },
     ],
   },
   bota2: {
@@ -146,6 +169,33 @@ export const PLACE_META = {
     happenings: [
       { title: 'the master of the mill', nodes: ['lumiMjeshter', 'lumiMjeshter2'] },
       { title: 'work at the millstones', nodes: ['mulli1', 'punaMulli', 'mulliFund', 'mulliKeq'] },
+      { title: "the xhindet's night mill (Maro Përhitura)", nodes: ['maroMulli1', 'maroXhindet1', 'maroLitani1', 'maroLitani2', 'maroLitani3', 'maroShtremberDore', 'maroNataHumbur', 'maroDoraShtember', 'maroDoraFalje', 'maroShtrember'] },
+    ],
+  },
+  maroShtepi: {
+    name: 'shtëpia e njerkës — the poor house',
+    happenings: [
+      { title: 'the njerka and her daughters', nodes: ['maroShtepi', 'maroNjerka'] },
+      { title: 'answering to the name (Maro Përhitura)', nodes: ['maroNisja', 'maroLiloNis', 'maroLiloKthim'] },
+      { title: 'the news, the wedding train, the fork', nodes: ['maroLajmi', 'maroIkja', 'maroKrushqit', 'maroPrincesha'] },
+    ],
+  },
+  maroTetua: {
+    name: 'shtëpia e tetos — the auntie\'s house',
+    happenings: [
+      { title: 'the magjistare and the pumpkin coach (Maro Përhitura)', nodes: ['maroTetua'] },
+    ],
+  },
+  maroHani: {
+    name: 'hani i princit — the feast-inn',
+    happenings: [
+      { title: 'the shoe cut to a dream (Maro Përhitura)', nodes: ['maroHani', 'maroMesnata'] },
+    ],
+  },
+  maroPallati: {
+    name: 'pallati i princit — another land',
+    happenings: [
+      { title: 'the needle and the bird (Maro Përhitura)', nodes: ['maroPallati', 'maroLindja', 'maroZogu', 'maroKopshti', 'maroFundi', 'maroCiuCiu'] },
     ],
   },
   mejdan1: {

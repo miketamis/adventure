@@ -1,0 +1,212 @@
+PROVENANCE
+==========
+Tale: ura-e-artes — "Ura e Artës — the Bridge of Arta" (Legend)
+Extracted: 2026-07-15
+
+Source page: Timo Mërkuri, "Balada e murimit" (…fragment studimi…),
+fatmirt.blogspot.com, 4 September 2019 —
+https://fatmirt.blogspot.com/2019/09/balada-e-murimit.html
+(fetched directly by curl; the live page returned HTTP 200).
+
+The blog post reproduces TWO full Çam Albanian variants of the walled-bride
+ballad set at the bridge of Arta, gathered by folklorists in 1954 and printed
+in "Këngë popullore nga Çamëria" (Instituti i Kulturës Popullore, Tiranë 1983,
+p. 401 — the editor's footnote also points to the text on sq.wikipedia,
+"Ura e Nartës"). The post's own framing prose (in Albanian, but modern
+copyrighted journalism/scholarship, not folk text) is summarized in English
+only in src/game/data/tales/ura-e-artes.js's place notes — it is NOT quoted
+verbatim anywhere and carries no line of the beat file's Albanian column.
+
+Cleanup applied to the verse text below: the blog's own editorial verse-count
+markers (a bare "5-", "10-", "15-" … prefixed to every fifth line) are STRIPPED
+as a transcription artifact, not part of the sung text. Curly apostrophes (’)
+are kept as printed. No other wording is altered — this is Çam dialect
+(kaha for nga, pëntorë for punëtorë, pëshojmë for pushojmë, mbëloj for murosin,
+sumurë for sëmurë, jamanet/emanet, kunetë for kunetër, etc.), not pre-standard
+orthography, so no character-level transliteration was needed.
+
+The FIRST variant below (Mazrek — Margëlliç, Vlorë 1954) is the one printed
+first on the page; the editor's own footnotes state the SECOND variant
+(Rokë - Llur, Filipjadhë, Fier 1954) is the one "closer to standard Albanian"
+and is the fuller of the two — it is PRIMARY for src/game/data/tales/
+ura-e-artes.js's quoted beat lines. The first variant is kept here for
+cross-checking (see the tale file's `discrepancies`, esp. the explicit
+eldest/middle/youngest birth-order it alone states outright).
+
+================================================================
+VARIANT 1 — "URA E ARTËS KUR ISHTE BËNË"
+Mazrek — Margëlliç, Vlorë 1954.
+================================================================
+
+Ju t'e dini, mre, shokë e sahi,
+Ura e Artës mre, kur ishtë bënë,
+tre vëllezër kaha Lluri klenë.
+Të tre emrat na i kanë pasë.
+Mihë Guri të madhit ia thoshin,
+dhe të mesmit Pani mre, ia thoshin,
+dhe i vogli Kiçi e kish ëmrin.
+Tre, vëllezrit atje që penojnë.
+Dizet djema pënëtore i kanë.
+Punë natë bëjnë e punë ditë,
+puna fare nuk u del për dritë.
+Atje shkon një plak edhe u thotë:
+«Ustallarë, ju mre ustallarë,
+kurrë puna s'do t'u vejë mbarë!
+Si mundet puna mre t'u vejë mbarë,
+si mundet ura juve t'u qëndrojë,
+pa u bënë një njeri kurban,
+pa një dem që ta keni bëluar,
+pa një dash që ta keni bëluar,
+nënë këmbët e Urës së Artës?
+Kështu puna do t'ju vejë mbarë
+Ura e Artës kështu do ndërtohet».
+Si t'ia binin mre e çish t'ia binin?
+Kollaj kle mre për demin e dashin.
+Berri i shkretë edhe theret me zor,
+po çish njeriu mre ati të sellin?
+Tre vëllezënit na janë mëjtuar:
+- Më saba bukën - thanë - kush t'e sellë,
+çil kunatë këtu të vijë e para,
+në themel të gjallë do t'e vënë.
+Edhe një dem atje do t'e vënë,
+edhe një dash atje do t'e vënë,
+kushtu ura do rrijë më këmbë.
+Po i pari s'na kle gënjeshtiar,
+s'na gënjente mre i pari inë:
+se «vëllai ta xerr sirin më thellë».
+Pani e Miha, të pabesë klenë,
+grave tire ata u treguan.
+Fushës Artës, mre kur ura sabahu,
+nusa e Kiços mre nek ura shkon,
+gosur torvat mre me bukë e gjellë:
+- Mbarë u vaftë, o ju ustallarë!
+- Mbarë paç, o moj kunata jonë!
+Thanë Pani dhe ai Mihë Guri.
+Kiçit vogël, po i thotë e shoqa:
+- Çish ke, o ti imzot, që po klan?
+- Në themele sa më ra ognaza,
+më ra thellë e do ma marrë lumi.
+- Atë ognazë imzot - do t'a xerr unë.
+Kur ka zdrikur nusa atje poshtë,
+bët e bët ata, i huadh gurë.
+- O ti burrë, mre i ziu burrë,
+pse me botë gjallë me bëlon?
+Nonjë fal në jetë s'bëra kurrë:
+Edhe ti e zezë Urë e Artës,
+të më dridhesh kùshtù si dhe unë;
+gjithë njerzit të dridhen bi urë,
+hoj shëndoshë, mre hoj të sumurë!
+Dëgjo burrë edhe ju kunetë,
+do t'u lë mre sot-o një amanet,
+një amanet të rëndë gur mulliri,
+djalin tim ju amanet t'e kini:
+Do të mbijë kutù një fik i bardhë,
+kur të pjekë aj kokrrën e parë,
+ju t'ia ipni djalit tim t'e hajë,
+edhe gjoksin jashta të m'e lini!
+Gjoksin jashta mre, ia kanë lenë,
+rrodhi ati një krua i ergjëndë,
+vij e pij mre, djali e madhohej,
+vij e pij i sumuri e shërohej.
+Ura e Artës mre, qëndron dhe sot.
+Dhe nga njerzit bi të kur kalojnë:
+po dëgjohet demi që pëllet,
+po dëgjohet dashi që bërtet,
+zeri i nuses që thotë «oh, medet!»
+
+================================================================
+VARIANT 2 — "URËN E ARTËS NDËRTOJMË"  ★ PRIMARY (quoted in the beat file)
+Rokë - Llur (Filipjadhë), Fier 1954.
+================================================================
+
+Tre vëllezer kaha Lluri:
+ki Panua, ki Mihal Guri,
+Kiçua i vogël si nuri,
+- Të tre vëllezer që jemi,
+dizet pëntorë i kemi,
+urën e Artës ndërtojmë,
+natë e ditë nuk pëshojmë,
+dot në këmbë s'e qëndrojmë.
+Urë, moj urë e mallkuar,
+ç'fal të kemi, ja na thuaj?
+Ati shkon një plak e u thotë:
+- Pënofshi sot edhe mot,
+po ura s'u qëndron dot,
+pa vënë një shpirt në botë,
+e një dem të zi t'e vini,
+e një dash të zi t'e vini,
+atje nek bëni themelin,
+Kushtu ndreqetë kjo urë,
+të shkojnë gjithë në urë,
+ujt' e lumit - mos t'i njumë
+të shendosh' e të sumurë.
+Në kloft' se plakun dëgjoni,
+nuseve mos u rrëftoni,
+t'a bëni me besa-besë,
+kush t'e sellë bukën nestër,
+ne themeli ta mbëloni,
+edhe demin t'e mbëloni,
+edhe dashin t'e mbëloni.
+Kiçua i vogël ish me besë,
+Panua e Mihua të pabesë.
+Thotë vjehrra nuses madhe:
+- Ngreu ti, oj nusa e madhe,
+shperu bukën ustallarve.
+- Vjehrrë, o vjehrrë, ku ma gjete,
+le ta shperë nusa e mesme,
+se e kam djalin me ethe.
+Thotë vjehrra nuses mesme:
+- Ngreu ti, oj nusa e mesme,
+shperu bukën ustallarëve,
+Dale, nanë, se kam pak punë,
+se kam duartë me brumë.
+I thotë vjehrra nuses vogël:
+- Ngrehu ti, oj nusa e vogël,
+shperu bukën ustallarëve.
+Dale nanë, se kam pak punë,
+sa të vë djalin në gjumë.
+- Ikë ti, se e vë unë.
+- Mirë nane, vete unë.
+U nis nusa për në urë:
+Puna e mbarë, o ustallarë!
+- Mbarë paç kunata jonë, -
+i tha Panua me Mihalë.
+Thotë Kiçua i vogëli:
+- Grua, kur të paçë me si,
+i tërë dheu m'u nxi.
+Kemi tre vjet që pënojnë,
+e dot urën s'e mbarojmë:
+gjithë ditënë pënojmë,
+gjithë natën n'e rrëzojmë.
+Sh'ke, imzot, që klan me lot,
+pse vëzhdrin ashtu në gropë?
+- Më ra ognaza në gropë
+më ra ognaza në lumë.
+- Atë ognazë ta marrte unë!
+Po nusa sa ishte ulë
+nisin që t'i hedhin gurë.
+Nusa u thotë: Pse, o burrë
+përsiper me hidhni gurë,
+pa u bënë sumurë kurrë,
+pa thertur as këmbë, as dorë,
+pa thertur as këmbë, as kokë,
+më vë të gjallë në botë?
+Po ata të këmba n'urë
+po e bëlojnë me gurë.
+More burrë, a i ziu burrë,
+po më bën direk në urë.
+O moj urë, e zeza urë,
+kur të shkojnë të sëmurë,
+të dridhesh si dridhem unë.
+Burrë, do të them një fjalë:
+jamanet të zinë djalë,
+kutu nek do vihem unë,
+do bijë një fik i bardhë,
+kur të bijë kokrrën e parë,
+t'ia ipni djalit t'e hajë.
+Jamanet dhe ju kunetë,
+gjoksin të m'e lini jashtë.
+Gjoksin jashtë ja kanë lënë,
+rrodhi një krua i ergjëndë,
+djalin e rritte e madhonte,
+të sumurët i shëronte.

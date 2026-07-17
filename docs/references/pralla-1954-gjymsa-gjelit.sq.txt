@@ -1,0 +1,89 @@
+================================================================================
+«Gjymsa gjelit» — the half-rooster tale of Pralla popullore shqiptare
+(Instituti i Shkencave, red. Komisjoni i folklorit / Zihni Sako, Tiranë 1954),
+tale 37, pp. 175–176. Central-Geg oral text.
+
+PROVENANCE: raw OCR lines 7483–7548 of docs/references/
+pralla-popullore-shqiptare-1954.sq.txt (the doczz.net transcription of the 1954
+book), extracted unchanged 2026-07-14 for the half-rooster beat timeline.
+
+IMPORTANT — THIS IS A VARIANT, NOT THE ORIGINAL OF ELSIE'S TRANSLATION.
+R. Elsie's "Half Rooster" (Albanian Folktales and Legends, tale 15) cites this
+book as its source, but this — the book's only half-rooster text — is a far
+shorter telling with a different cast of helpers (fox, wolf and the whirlwind
+dyrdyli, swallowed as millet grains; no frog, no mouse) and a different close
+(sieve and satac, no rod-beating, no deaths). Elsie's fuller telling could not
+be matched sentence-for-sentence to any located Albanian text (this corpus;
+Lambertz 1922 nos. 60 [Shkodra, Albanian in phonetic transcription] + Zadrima
+[German only]; archive.org and Google Books full-text), so the tale file
+half-rooster.js declares albanian: { status: 'missing' } rather than force a
+false alignment. Kept here as the closest Albanian variant for any future
+re-basing, and for the variant record in the tale's discrepancies.
+================================================================================
+
+«Gjymsa gjelit»
+Kishte qenë nji plak e nji plakë. A t o kishin pas nji dac e nji
+gjel. Plaku kishte thanë : unë do ta ha gjysmën teme; plaka kishte
+thanë: jo, unë do ta çoj për fitim. Masanaj kishte shku gjeli ene plaku kishte çue dacin. Ishte pjek gieli me skilen.
+— Ku po shkon gjymsa gjel ?
+— Po shkoj për fitim.
+— A m mer ne mu?
+— Po, eja, — kishte thanë — po ke për t' u lodhë.
+— Ti me nji kam-kishte thanë — unë me katër do të lodhem ?
+£ muer gjymsa-gjeli,
+— U lodhsh, o gjymsa-gjel.
+— Eja banu koqe mel e eja se t' mar unë,
+Masanaj a pjek me ukun. Ka thanë uku:
+— Ku po shkon, gjymsa gjel ?
+— Po shkoj për fitim.
+Kishte thanë uku;
+— Të vi ne unë me ty ?
+— Jo, se lodhe.
+— Jo — kishte thanë, — ti me nji kamë, unë me katër të lodhem ?
+E muer gjeli.
+— U lodhsh o gjymsa-giel! Banu koqe mel e eja se t' mar unë.
+Masanej merr, merr, merr ishte pjek me dyrdylin. I kishte thanë:
+— A t' vi ne un me ty ?
+— Jo, — kishte thanë — se lodhesh.
+— Si, kishte thanë, unë t' lodhem ? Ti me nji kamë, une jam
+ayrdyl që të ngre m' kre.
+E muer ne kte. Hajt, hajt, hajt.
+— U lodhsh, o gjymsa gjel.
+157
+— Banu koqe mel e eja se të marr unë.
+Masanej kishte hyp n' majë t' binasë mretit:
+Kikiko!
+T' bin e mretit me g j o !
+Kikiki !
+T'bin e mretit n'gjo!
+— Qyqja — kishin thanë dadat — ça ky me ? Hudheni ke
+pulat njiherë ta hanë e ta qukin, se na myti kështu tu kënu. A i hudhi skilen; i kishte stais pulat. Masanej kishte shku përsit :
+Kikiko!
+T' bin e mretit me g j o !
+Kikiki !
+T' bin e mretit n' gjo!
+E kishin thanë: merreni njiherë e hudhni ke ata atllarë se na
+myti. — A i kishte hudh ukun ke atllarët, i staisi ma. Kishte hyp përsëri rrië tjegullat:
+Kikiko i
+T' bin e mretit me g j o !
+Kikiki!
+T' bin e mretit n' gji !
+— Merreni, hudhnje njiherë ke ata flori, se ishalla mytet.
+— Ky ha ha, ishte mush me flori. Kishte marrë nji flori të madfi
+në sqep sikur me i ngel në fyt, e ne e kishin qit prej floris
+— U shyqyr që pshtum.
+Ene e kishin hudh. Daci tue hangër zorrë.
+—
+U nisa, i kishte thanë dacit gjymsa gjeli.
+E u nis gjymsa gjeli me dacin. Shkun ke plaka.
+Gjeli ka thanë:
+Kikiki!
+Ba shosh'e
+satac gati !
+Kikiko!
+Mora moll' e mora gjo !
+— Daci:
+Ra ra ra reu !
+Ba shosh' e satac gati !
+Plaku mur shoshën, plaka mur satacin, plakës i hudhi gjeli
+daci i hudhi zorrë plakut.

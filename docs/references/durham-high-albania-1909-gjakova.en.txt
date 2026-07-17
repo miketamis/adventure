@@ -1,0 +1,63 @@
+PROVENANCE
+==========
+Source: M. Edith Durham, "High Albania" (Edward Arnold, London, 1909),
+        chapter "The Debatable Lands" (the Djakova/Gjakova section).
+Fetched from: archive.org item "highalbania" (full OCR text),
+        https://archive.org/download/highalbania/highalbania_djvu.txt
+Extracted: 2026-07-14, for src/game/data/tales/gjakova-cavern.js
+        (folklore.js id 'gjakova-cavern').
+Note: the repo's other Durham file, docs/references/durham-high-albania-1908.en.txt,
+        is a SHORTER, DIFFERENT source — her 1909 Journal of the Royal
+        Anthropological Institute paper "High Albania and its Customs in
+        1908" — and does NOT contain this cavern passage. This file holds
+        the actual book chapter. No Albanian-language original of this
+        specific legend is known to survive (see gjakova-cavern.js
+        `albanian.why` for the corpora actually searched); this file is
+        the ENGLISH primary source the tale's beat lines paraphrase from —
+        every beat line is the tale author's OWN WORDS, never a copy of
+        this text (see src/game/data/tales/_SCHEMA.md).
+Numbering below (¶.sentence) matches the tale file's `paragraphs` array
+and each beat line's `lines[i][0]` ref.
+
+===========================================================================
+
+¶1
+[1.1] As might be expected, Djakova revels in the supernatural, and
+miraculous happenings are frequent.
+[1.2] In a mountain-side hard by, on the left of the road to Prizren, is
+a magic cavern.
+[1.3] For miles does it go underground; none knows how far, some say
+even beneath the Drin.
+[1.4] In it is a large and ancient city where no man now lives; but the
+bazar, to this very day, is stocked with all that is finest and best —
+fruit, flesh, fish, jewels, and fair raiment.
+[1.5] But should any man venture to touch one single thing, his torch at
+once goes out, serpents spring up and devour him in the darkness.
+[1.6] And these are no serpents; they are oras (spirits) that guard the
+cavern.
+[1.7] No man has ventured in for many years.
+
+¶2
+[2.1] I said I would, and asked to be guided to the spot, but none dared
+take me.
+[2.2] Nor is this the sole spot that is miraculously guarded.
+
+¶3
+[3.1] Not far from Dyjakova, on a hill, are the ruins of a chapel.
+[3.2] A Moslem tried to dig there for treasure, but was at once struck
+dead by lightning out of a cloudless sky.
+[3.3] Not sufficiently warned, some men went to remove stones for
+building purposes, but a crowd of serpents at once leapt from the
+ground, and the intruders only just escaped.
+[3.4] For oras can take what form they please — birds, beasts, women, or
+serpents.
+
+¶4
+[4.1] Quite recently a man was driving past with an oxcart, when both the
+oxen fell on their knees before the ruins; and the holiness of the spot
+being now proved beyond all doubt, none dare meddle with it in future.
+
+===========================================================================
+(The chapter continues immediately with an unrelated anecdote, "THE TALE
+OF THE UGLY BRIDE" — a wedding story, not part of this legend — which is
+where this extract stops.)

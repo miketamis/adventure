@@ -1,0 +1,249 @@
+Skënderbeu dhe Ballabani
+====================================
+The complete Albanian text of the tale (= Elsie's "Scanderbeg and Ballaban",
+Albanian Literature legends page legend_07).
+
+Source: Mitrush Kuteli (ed. & reteller), "Tregime të moçme shqiptare" (Tirana:
+Naim Frashëri, 1965; repr. 1987, 1998) — the same collection Elsie's English
+translation is drawn from. Folk/legend prose, public domain (author d. 1967 +
+70; the retelling itself draws on 19th–20th c. oral legend).
+
+Extracted 2026-07-15 from the bilingual Albanian–German school edition
+"Shqip-Gjermanisht - Tregime të moçme shqiptare" (Qendra e Botimeve për
+Diasporën, Tirana, free student/teacher edition reprinting 10 of Kuteli's
+tales), OCR'd DjVu text layer of the archive.org copy
+(archive.org/details/shqip-gjermanisht-tregime-te-mocme-shqiptare), pp. 114–125
+("Skanderbeg und Ballaban"). RAW OCR — uncorrected: stray page numbers,
+occasional ligature/diacritic slips typical of Tesseract on Albanian ë/ç.
+Only the Albanian half is kept below (the parallel German paragraphs are
+dropped); a lightly-cleaned per-sentence version, aligned ¶.sentence to
+Elsie's English translation, lives in src/game/data/tales/skanderbeg-legjenda.js
+(beat lines, third element).
+
+----------------------------------------------------------------------------
+
+Ra një shkulm i madh turqërie mbi Arbërinë: u thye. Ra edhe një tjetër, më i
+madh e më i fortë: prapë u thye. Edhe i treti, i katërti, i pesti... U thyen
+shumë shkulme, shumë vjet me radhë. Gjithë këto shkulme i thyen arbërit
+krenarë e gjithmonë të pashtruar, që kishin kryezot Gjergj Kastriot
+Skënderbenë. Sepse arbërit luftonin me trimëri, me që mbronin truallin e
+tyre, nderin e tyre, jetën e fëmijëve të tyre.
+
+Shumë vjet e në shumë luftra Arbëria e vogël u bë varr i madh për turqërinë.
+Ushtritë vinin e s'ktheheshin prapë. I përpintedheu.
+
+Pastaj u ngrit e ardhi vetë mbreti i madh i turkut, Murati, me një ushtri si
+rëra e detit. Edhe ky u thye. Shkoi e mblodhi një ushtri të re, më të madhe
+se sa të parën, vuri në krye jeniçerët dhe u hodh në luftë, po prapë u thye.
+Dhe mbreti i madh i turkut, Murati, vdiq tërë helm. «Ah! — tha në çastin e
+sprasmë — sa keq më vjen që më shkoi jeta kot! Shtrova gjithë botën:
+pushtova Bullgarinë e Sërbinë, zbrita poshtë në Greqi, hodha Tunën e gjërë,
+shkela tejmatanë fushat e gjëra të Vllahisë e të Maxharisë e s'munda të
+mposht Arbërinë e vogël... E shtira një herë në dorë, copa-copa, po ma
+shkuli Skënderbeu...»
+
+Këmbën e Muratit e zuri i biri, mbreti i madh Mehmeti, që ishte edhe më i
+vrazhdë se sa i ati. Ky u hodh e pushtoi Kostandinopojën e fortë të
+rrethuar me tri palë mure e me shumë pirgje të larta. Si e pushtoi këtë
+qytet, më të bukurin e më të begatin e botës, Mehmeti ngriti e vuri aty
+fronin e tij të artë dhe e quajti veten «Ngadhnjimtar». Pas kësaj bëme të
+madhe që tronditi tërë Europën, vendosi të shkelë e të pushtojë Arbërinë,
+siç e kish porositur i ati në çastin e sprasmë. Pra, mbreti i madh Mehmeti
+mblodhi një ushtri të re shumë të madhe, dhe kalorëse dhe këmbësore, nga
+të gjitha skotat, u vu në krye të saj dhe u nis për në Arbëri. Tundej dheu
+ku shkelte kjo ushtri e rëndë e ngarkuar me hekur e çelik. Prapa saj
+shteronin lumenjtë, që i pinin kuajt e njerëzit, në tokë nuk mbinte më bar.
+
+Mbreti i madh i turkut kish marrë me vete edhe Ballaban Badherin, atë
+arbërin atdhemohonjës dhe e kish vënë të printe përpara. Ballabani ishte
+trim, sepse ishte arbër bir arbëri, po e kish mohuar gjakun dhe fisin e
+vet dhe luftonte për turkun, që të fitonte ofiqe, lavd, pasuri, ai kish
+bërë shumë luftra, ish ngjitur i pari në muret e larta të Kostandinopojës
+dhe kish ngulur atje flamurin me gjysmë hënëzë. Mbret Mehmeti e kish bërë
+pasha Ballabanin dhe e mbante në pekule të madhe, nder për nder. Po nderi i
+turqërisë ishte helm për Arbërinë, sepse Ballabanit nuk i dhimbsej asgjë që
+ish arbërore: as toka që shkelte, as plëngu që digjte, as gjaku që
+derdhte. Me këtë ushtri të fortë mbreti i madh Mehmeti e kish mendjen të
+fjetur: do ta shtronte Arbërinë. Po Arbëria kish Skënderbenë.
+
+Kur dëgjoi se turku ish hedhur të shkelte përsëri dheun e Arbërit,
+Skënderbeu kish mbledhur njerëzit e tij — oh, sa të paktë ishin këta njerëz
+përpara rrëmetit të turqve e të skotave të tjera! — dhe ish nisur që t'i
+dalë përpara: ai kish ngritur tendat në një hie shumë të madhe. Arbërit
+ishin ulur e rrinin buzë një lumi të kulluar, aty hanin, pinin, qeshnin,
+sikur nuk shkonin në luftë, ku mund të linin kryet, po në dasmë e
+ngazëllime. Dhe ja, tek hanin e pinin bashkë buzë lumit të kulluar, panë
+një turk që vinte kaluar me flamur të bardhë në dorë. Bënë përpara e i
+prenë udhën.
+
+— Ç'je ti e ç'kërkon këtej?
+— Jam lajmëtar i mbretit të madh të turkut e dua të flas me kryezotin e
+Arbërit, Skënderbenë.
+— Zbriti kalit dhe eja me ne.
+
+E muar e ia shpunë Skënderbeut. Lajmëtari iu fal e i tha:
+— O kryezot i Arbërit, mua më dërgon mbreti i madh i turqërisë, që është
+më i forti në botë, të të pyes: ku do ti të luftosh me mbretin tonë?
+Skënderbeu iu përgjigj shkurt:
+— Ecë i thuaj le të vijë.
+Si u kthye lajmëtari, mbreti i madh Mehmeti e pyeti:
+— Më thuaj, o lajmëtar besnik, a e pe ti Skënderbenë?
+— E pashë, o mbret i madh.
+— Po ushtrinë e tij e pe?
+— E pashë.
+— Kish shumë ushtri Skënderbeu?
+— Ushtri s'kish shumë, po të gjithë ata që ishin e kishin synë pishë:
+këndonin e hidhnin vallen e shpatave, prisnin pa durim të merrnin urdhër
+që të turreshin në luftë.
+— Ç'është kjo valle e shpatave, o lajmëtar besnik?
+— Një valle arbërore, o mbret i tokës dhe i detit. Të dridhen mishrat kur
+i sheh ata burra si lisa që hidhen e vijnë rrotull shpatëzveshur, i
+përpjekin shpatat njëri me tjetrin si në luftë të vërtetë. Më vunë në mes
+e zunë të hedhin vallen e shpatave, t'i kryqëzonin mbi kryet time, po nuk
+më prekën fare.
+— Pastaj?
+— Arbërit s'e kanë për gjë vdekjen, o mbret i madh: aq më fort vdekjen në
+luftë. Thonë se vdekja në luftë, me shpatë, është më e ëmbël se mjalti...
+
+Mbreti i madh Mehmeti psherëtiu e tha me vete: «Eh, t'i kisha këta njerëz
+nën urdhërat e mia, që të luftonin për fronin tim». U kthye përsëri
+lajmëtarit:
+— Ashtu?
+— Po, o mbret i madh.
+— Përse thonë se vdekja në luftë qënka më e ëmbël se mjalti?
+— Sepse, thonë, ne luftojmë për truallin tonë, për lirinë tonë. Ata, o
+mbret i madh, betohen për shpatën.
+— Vetëm për shpatën?
+— Jo, edhe për tokën, për ujët, për gurët. Edhe për bukën e krypën. S'dinë
+parajsë e skëterrë, po vetëm nder e turp. Nderi, thonë, është parajsë:
+turpi është skëterrë.
+— Po Skënderbeu si t'u duk? A ishte i trembur?
+— Jo, o mbreti i madh: nuk ishte i trembur. Kur vajta unë, e gjeta tek
+hante e pinte me ushtarët e tij. U ngrit e më priti më këmbë, me të dy
+duart të mbështetura në dorezën e shpatës, si një perëndi lufte. Më tha
+shkurt: «Ecë e thuaj le të vijë!»
+
+Mbreti i madh Mehmeti u nxeh e thirri:
+— Unë do t'iu tregoj arbërve se ç'është vdekja: do të lëshoj ushtrinë time
+që t'i kositin si bar. Të shohim pastaj në do të jenë të zotë të ngrihen e
+të hedhin vallen e shpatave.
+— Si të urdhërosh, o mbret i madh.
+
+Mbret Mehmeti kërceu më këmbë edhe bëri urdhër t'u bien daulleve. Ashtu si
+tha u bë, u ranë daulleve. Bubulloi tërë fusha, gjëmuan grykat sikur të
+paskej ardhur dita e pastajme.
+— Të mblidhen këtu gjithë shqytëtarët e mi!
+U mblodhën shqytëtarët e mbretit të madh të turkut e i thanë me një zë:
+— T'u shtofshin vjetët, o mbret i madh! Ditët tona në të tuat! Presim
+urdhër.
+— O ju shqytëtarët e mi — u tha mbreti i madh i turqve Mehmeti, i biri i
+mbretit të madh Muratit — më thoni kujt nga ju i bën zemra të ma sjellë
+këtu Skënderbenë o të gjallë o të vdekur.
+
+Të gjithë e dëgjuan, asnjë s'u përgjigj, sepse u drodhën kur dëgjuan
+emrin e kryetrimit arbër. Atëhere, në mes të heshtjes, bëri përpara
+Ballaban Badheri, ai tradhëtari që kish mohuar gjakun e vet dhe luftonte
+për flamurin e turkut.
+— Ç'dhuratë do të më falësh ti mua, o mbret i madh, po të ta sjell
+Skënderbenë të gjallë a të vdekur?
+— Do të të fal nëntëqindmijë dukatë të artë dhe do të të blatoj të gjitha
+vendet e Arbërit, që t'i sundosh nën hien time, si pashallëk, sa të jesh
+gjallë. Do të kesh dorë të lirë të vrasësh e të presësh kë të duash e sa
+të duash.
+— Sonte e ke të lidhur a të vrarë.
+
+Mbreti i madh i turqve u gëzua shumë: ai e dinte se vetëm hekuri mund ta
+thyejë hekurin, pra vetëm arbëri mund ta thyente arbërin. Ngriti dorën e
+bëri shenjë të fillojë lufta.
+
+Ranë të nëntë buritë e ortasë së madhe të jeniçerëve: pastaj ranë të
+nëntëdhjetë e nëntë buritë e tjera të ushtrisë. Bubulluan daullet prej
+lëkure bualli të egër e prej lëkure kau të egër. Turqit nxuar shpatat,
+lëshuan një vikamë të madhe si suvalë deti dhe u hodhën me mburrje të
+madhe në luftë, nën sytë e mbretit të madh Mehmetit, ngadhmonjësit të
+Kostandinopojës. Ky rrinte përpara tendës së mëndafshtë majë një
+bregoreje dhe shikonte: shikonte e priste që Ballaban Badheri t'i shpinte
+Skënderbenë të lidhur a të vrarë.
+
+Harkëtarët tatarë shkrehën harqet trishigjetëshe që errësuan qiellin.
+Ushtria e turqve dukej si një det valë-valë që sulej ta përpinte ushtrinë
+e vogël të Skënderbeut. Krisi lufta. Lumi i kulluar tek kishin qëndruar
+arbërit u skuq me gjak. Turqit bënin ta kalonin e nuk e kalonin dot. Binin
+kalorësit megjithë kuaj. Skënderbeu priste t'i vinin ushtarë të tjerë nga
+malet, po këta s'di përse, vononin... Lufta gjëmonte.
+
+Ndërkaq Ballabani gjeti një vend dhe e kaloi lumin në krye të ushtarëve të
+tij. Atëhere Skënderbeu i preu udhën atij qenit tradhëtar dhe i thirri
+arbërisht:
+— Hajde, hajde, o Ballaban Badheri! Për një lugë çorbe turku tradhëtove
+fisin tënd. Të lumtë, o burrë i dheu!
+Ballabani u verdh, u drodh, po nuk u praps.
+Atëhere Skënderbeu i thirri së dyti:
+— Ti dashke nëntëqind mijë dukatë të artë dhe Vendin e Arbërit pashallëk
+Turqie. Ja tek i ke nën tehun e shpatës sime. Merri!
+Ballabani ngurroi.
+Skënderbeu i thirri së treti:
+— O qen tradhëtar: ja qëllo, ja të të qëlloj!
+Qeni tradhëtar bëri përpara me të tijtë dhe qëlloi i pari: hodhi një
+heshtë.
+Skënderbeu bëri t'ia kthejë, po i ra freri nga dora: Ballabani i kish
+plagosur krahun edhe kalin. Skënderbeu ra poshtë, më gjunjë, pastaj aty
+për aty brofi më këmbë. Qentë turq lëshuan një thirrmë ngazëllimi, u
+turrën ta qarkojnë. Ballabanit i xixëlluan afër e afër të nëntëqind mijë
+dukatët e turkut dhe pashallëku i Arbërisë, po ndërkaq Skënderbeu kish
+mbështetur shpatullat tek një lis i madh dhe kish nisur të loste shpatën.
+Ata që guxuan t'i afrohen ranë përdhe kapule. Të tjerët u prapsën një
+çast, pastaj u turrën përsëri, me Ballabanin në krye.
+
+Po ja, ndërsa Skënderbeu po luftonte fill i vetëm në mes të armiqve,
+zbritën rrëmbyer nga malet e Arbërisë dymijë malësorë që kishin në krye
+Dukagjinin e Livetën. Të dymijët vinin shpatëzveshur, si valishte mali që
+përlan çdo gjë që gjen përpara. Valishte, sepse arbërit ishin veshur tërë
+me të bardha. Kur i pa trimat malësorë, Skënderbeu bëri buzën më gaz e
+thirri:
+— Mirsardhe, o Dukagjin! Pa bëj këtej e më ruaj krahët sa të luftoj me
+këtë qen tradhëtar, të më shohë se si e luaj me njërën dorë shpatën e se
+si e bëj flamurin të valojë për nderin e Arbërisë.
+Tha kështu e u lëshua mbi armikun si ai zjarri flakëmadh që u bie
+kallamëve të thatë. Hendeqet u mbushën me krerë pa trungje e trungje pa
+krerë. Të gjithë ranë e u prapsën, vetëm njëri qëndroi gjer në fund:
+Ballaban Badheri. Tani luftonin një me një, arbër me arbër: njëri për
+nderin e vendit të tij, tjetri për nëntëqind mijë dukatë të artë e për
+pashallëkun e Arbërisë. Skënderbeu nuk donte ta vriste tradhëtarin, po ta
+zinte të gjallë. Përnjëmend shpata arbëre e theu shpatën turke dhe
+Ballabani mbeti duarvarur, kryeulur. Skënderbeu zgjati shpatën, i çiku
+lehtë veshin e djathtë, ia preu e i tha:
+— Shko tani tek yt zot, si qeni te qeni!
+
+Ndërkaq ushtritë e turkut kishin marrë arratinë. Arbërit ua prisnin udhën
+valtheve e përrenjve, i grinin. Daullet ishin shqyer e rrukullisur
+tejetutje, flamurët me gjysmëhënë kishin mbetur drizave.
+
+Ballabani u kthye i gjakosur e kryevarur te tenda e të zot, mbretit të
+madh të turkut. Ky e pyeti:
+— Ballaban kryeplagosur, ç'u bë lëvdata jote? A nuk më the ti se do të ma
+sillje sot Skënderbenë ja të vrarë, ja të lidhur?
+Ballabani ra mbë gjunjë, iu fal mbretit të madh dhe pastaj iu përgjigj:
+— O mbret i mbretërve, që sundon mbi gjithë dherat e mbi gjithë deten!
+Dëgjo pak, mos dëgjo shumë. Skënderbenë nuk e solla dot as të lidhur, as
+të vrarë, sepse atij nuk i ndihmon vetëm krahu, po i ndihmon gjithë
+vendi, lisi ku mbështeti krahët, shkëmbi, rrahu, mali, gjithë Arbëria. Unë
+kam luftuar shumë luftra nën hien tate, kam ndeshur e mundur shumë burra,
+po burrë të këtillë, si Skënderbenë, s'kam parë kurrë.
+Mbreti i madh i turkut ia ktheu ashpër:
+— Ballaban, qasmë kryet e tu që fsheh brenda pabesinë tënde, se dua ta
+pres, që të shuaj zjarrin e zemrës për tërë këtë ushtri që m'u vra në
+Arbëri. Ti më pate dhënë fjalën se kësaj here do t'i shtroje arbërit e tu
+nën këmbët e mia, dhe e shkele këtë fjalë.
+Atëhere u bëri shenjë jeniçerëve të tij, dhe ata e rrëmbyen qenin
+atdhemohonjës, Ballaban Badherin, e shtrinë në një trung e i prenë kryet.
+
+Ndërkaq po afrohej valishta e bardhë e arbërve shpatë-zveshur. Mbreti i
+madh Mehmeti e pa këtë valishte, i hypi kalit e iku vrap, duke lënë majë
+kodrës shatoren e tij të mëndafshtë dhe, rreth e rrotull, në fushën e
+luftës, lulen e ushtrisë së tij të vrarë. Arbërit e ndoqën gjer tej, po
+mbreti ikte me vrapin e frikës, ndërsa kumbonin brirët që lajmëronin
+fitoren e Skënderbeut.
+
+Skënderbeu me shokë kish thyer edhe një herë valomën e madhe të
+turqërisë, që ish derdhur në Arbëri.

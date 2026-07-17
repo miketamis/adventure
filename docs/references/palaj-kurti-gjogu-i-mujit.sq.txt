@@ -1,0 +1,433 @@
+Gjogu i Mujit
+=============
+The complete Albanian text of the kreshnik song (= Elsie & Mathie-Heck's
+"Mujo's Courser", Songs of the Frontier Warriors no. 8). 412 verse lines;
+the English translation is line-aligned 1:1 (spot-checked at lines 1, 98-101,
+300-301, 405-412 — holds throughout).
+
+Source: recorded in Shala (District of Shkodra). Published in: Visaret e
+Kombit, vol. II, ed. Bernardin Palaj and Donat Kurti (Tirana 1937), pp. 70-80;
+and Folklor shqiptar II, Epika legjendare (Cikli i kreshnikëve), vol. 1, ed.
+Qemal Haxhihasani (Tirana 1966), pp. 109-118. Folk text, public domain.
+
+Extracted 2026-07-15 from the embedded text layer (NOT OCR) of the Albanian
+PDF Robert Elsie published alongside his translation:
+web.archive.org/web/2023id_/http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_08.pdf
+Verbatim as printed (Gheg orthography of the edition: â, ki', kenka, kenkan,
+tuj, m'i, po m'jau ep, s'po...), including oddities kept as printed ("kn thanë"
+for "ka thanë" at l.250, "krajlj" at l.137, "giet"/"gia" for "kërkonte"/"gjë",
+"kn" for "ka"). Leading margin line-numbers (5, 10, 15...) removed; nothing
+else touched. Lines numbered 1-412 below for the beat-file's ¶.sentence refs.
+
+1 Nata â shkue, hana s'ka dalë,
+2 Muji 'i andërr e ki' andrrue,
+3 Andërr paka hargelen tuj pjellë:
+4 Ki' ba mazin bardhë si bora,
+5 Hyllin n'ballë zoti i ki' fale.
+6 Qafa e tij si kreshta e bjeshkve.
+7 Kambët e holla si t'kaprrollit,
+8 Qymja e tij si leshi i fjollit.
+9 Çka ka qitë Ajkunes e i ka thanë?
+10 - Çou, Ajkunë, shpejt n'burg me ra
+11 Se un 'i andërr e kam andrrue.
+12 Andërr pa kam hargelen tuj pjellë.
+13 Bardhë si bora mazin e ki' ba.
+14 Hyllin n'ballë zoti m'ja ka dhanë.
+15 Shpejt Ajkuna n'kambë asht çue,
+16 Po ma merr pishën në dorë,
+17 M'ish kenë nata natë me orë,
+18 Kur ka ra grueja n'derë të burgut,
+19 Hinglloi mazi mbrenda burgut,
+20 M'i ra drita qymes s'shtatit,
+21 Ndriti qymja si bora e malit,
+22 Hyllin bardh shkrue n'shtek te ballit.
+23 "Marshalla!" Ajkuna foli
+24 E prej burgut edhe doli,
+25 Për mbas vedit derën e ndryni,
+26 Fill tu Muja n'odë i hini.
+27 - Zoti t'vraftë, Mujo, i ka thanë,
+28 Si e ke pa, andrra ka dalë,
+29 Çou e shif seri me sy!
+30 Brraf në kambë Muji asht çue,
+31 Tu hargelja kenka shkue,
+32 Sa mirë mazin e ka shikjue,
+33 Sa fort mazin e ka lmue!
+34 Mbas për mbrapa derën e ka ndry.
+35 Te Ajkuna kenka dalë.
+36 Ça ka qitë grues i ka thanë?
+37 - Hysmet t'mirë mazit me m'i ba,
+38 N'vend t'elbit, grunë ke me m'i dhanë
+39 E n'vend t'ujit venë ke me m'i qitë,
+40 Tri herë në ditë me ma kashagitë,
+41 Për tri vjet jashtë mos me e qitë,
+42 Për tri vjet mos të shofë kund dritë!
+43 Hysmet t'mirë Ajkuna i ban,
+44 Fort ma don e mirë ma mban,
+45 Sa mirë mazi qi po han,
+46 Sa shpejt mazi na asht rritë,
+47 Fort po niska m'u mërzitë.
+48 Kur janë mbushë plot tri vjet,
+49 Në kambë Muji kenka çue,
+50 Po don mazin me e shilue,
+51 Llaf po ban n'at burg të zi:
+52 - A don, maz, me ardhë me mue,
+53 Me t'shetitë der tu nji krue,
+54 Me matë fusha e me matë bjeshka,
+55 Për me dalë n'shefi t'Krajlisë,
+56 Për me u pri agve t'Jutbinës?
+57 Po merr frenin e gjogatit,
+58 Gja për krye freni s'po i bjen,
+59 Shkurt e ngusht freni po i bjen;
+60 Po ma merr shalën e gjogatit,
+61 Aspak shala s'm'i ka ra,
+62 Shkurt e ngusht shala i ki' ra.
+63 Pak rrin Muji e po mendon,
+64 Por fort shum nuk po vonon
+65 E për dore mazin ma merr.
+66 N'pazar Muji me te bjen
+67 E për krye frenin ja pret,
+68 Sa t'mirë shalën n'shpinë ja qet,
+69 Ishte freni telatinit.
+70 Ishte shala prej brishimit,
+71 Krejt me gurë prej xhevahirit,
+72 Nandë kollanë mademesh ltinit,
+73 Tanë patkojt-o prej florinit,
+74 Mbërthye thundrash prej çelikut,
+75 Po as timar gjogun po ma ban.
+76 "Ndimo, zot" e n'shpinë m'i kcen;
+77 Nuk po mundet mazin me e zaptue,
+78 Gur e pluhun mazi shkon tuj çue,
+79 Përmjet shehrit po m'i bjen,
+80 Mera shehrit m'i ka hi,
+81 Tanë ndër shpija kenkan ndry,
+82 Dikur mazin zapt e ka ba;
+83 Përpjetë dromin ma ka marrë,
+84 Tanë kalldramin po e thermon,
+85 Fill kah fusha po ma çon
+86 E me te mirë po lodron,
+87 Tash e ulë ai urë për tokë,
+88 Tash ma ngreh ai thikë përpjetë,
+89 Pes konopë kcen përiherë;
+90 Tre sahat lojën s'ma dan.
+91 Kur ka dashtë lojën me e ndalë,
+92 Pak dallash mazi ka marrë,
+93 Në fushë t'krajlive ma ka çue.
+94 Kanë ndie shkjetë e fort na janë frigue,
+95 Se lojë të madhe qi ka marrë,
+96 Kcete gardhet dy tre supe,
+97 Kcete lumin n'dy tri pupa.
+98 Ka marrë vesht Krajlo Kapedani,
+99 Me kushtrim popullin ma mbledhë.
+100 Ç'ka qitë krajli e ka thanë?
+101 - 'I mejdanxhi n'at fushë ka dalë,
+102 N'gjog të trentë e me pashi,
+103 A ka n'ju kund djalë të ri,
+104 Qi m'i del atij mejdanxhi?
+105 Aty foli Galiqe Galani:
+106 - Mejdanxhi, krajl, s'ka qillue.
+107 Rishtas mazin Muji â tuj ma msue,
+108 Kollaj rob na tash kem' me e xanë.
+109 Ç'mendoi krajli atherë me ba?
+110 Rreth e rreth ushtrinë ma qet
+111 Edhe n'rreth Mujin ma shtjen,
+112 Thotë "me dorë un gjallë po e kapi."
+113 Porse Muji m'asht kujtue,
+114 Ka nisë gjogun me e pajtue,
+115 Me lanë lojën e me pushue.
+116 Porsa lojën gjogu e ka ndalë,
+117 Prej Jutbinet kryet ja ka dredhë,
+118 Të fortin vrap mazit ja ka dhanë,
+119 Tym e mjegull gjogun ma ka ba;
+120 Mnera shkjevet m'u ka hi,
+121 T'tana pritat na i kanë lshue,
+122 Shndoshë e mirë n'Jutbinë ka shkue.
+123 Se ç'ka qitë, tha, krajli e ka thanë:
+124 - A del djalë kush mazn me ja marrë?
+125 Treqin qese për maz i kjoshin dhanë!
+126 Vrae zot at Arnaut Osmanin.
+127 Njato fjalë, tha, trimi kur m'i ndie,
+128 Npër mjesnatë n'Krajli ka hi,
+129 N'derë të krajlit paska shkue,
+130 Deri n'tokë i kenka falë.
+131 Ç'ka qitë krajlit e i ka thanë?
+132 - Nam të madh për ty kam ndie,
+133 Pare t'madhe thonë ke folë,
+134 Për njate qi ja merr mazin Mujit.
+135 Si në daç ti paret me m'i dhanë,
+136 T'kam msue mazin si me e marrë.
+137 Ç'ka qitë krajlj e ka thanë?
+138 - Treqin qese t'i paça dhanë,
+139 Në dalsh Mujit mazin me ja marrë!
+140 Kqyr ça tha Arnaut Osmani!
+141 - Sot nji javë flokët ja marr djalit,
+142 Kumar Mujin, qi p'e kam,
+143 N'avlli Muji qi po m'vjen,
+144 Kam me dalë Mujin, kam me e ndeshë,
+145 Mirë për frenit mazin kam me e kapë,
+146 Kthellë në burg vetë mazin kam m'e shti,
+147 Fre as shalë nuk po ja hjeki,
+148 Dern e burgut nuk po e mbylli,
+149 N'baçe teme, krajl, ti ke me ardhë;
+150 Kqyr veç mshehun ke me ndejë.
+151 Sa t'marrë Muji famllin n'dorë.
+152 T'madhe vet-o kam me qeshë,
+153 Atherë, krajl, ti n'kambë m'u çue,
+154 Mbrenda burgut ke me hi,
+155 Me ma kapë mazin për frenit,
+156 Me ma qitë jashtë avullijet.
+157 Me m'ja dredhë kryet prej Krajlijet,
+158 T'madhin vrap mazit me ja dhanë.
+159 Shnosh n'Krajli ti ke me kthye,
+160 Pse tanë Jutbina mbrapa me t'u vu,
+161 Kurr ç'me t'ba s'po kane.
+162 - Tu mirë mbetsh, Krajl-o Kapidani!
+163 - Tu mirë vosh, Arnaut Osmani!
+164 Kenka mbushë, tha, plot nji javë,
+165 Kenka veshë krajli, kenka mbathë,
+166 Për Jutbinë rrugën e ka marrë,
+167 Tu Arnauti, tha, kenka mshehë.
+168 Dritë ka dalë, dielli s'ka ra.
+169 N'sabah Muji kenka çue,
+170 Ka marrë mazin e ma ka shilue,
+171 M'i ka kcye, tha, mazit n'shpinë,
+172 Fill tu Arnauti paska shkue.
+173 Para Arnauti m'i ka dalë,
+174 Për frenit mazin po ja kapë,
+175 Mirë po e don e fort po e lmon,
+176 Mbrenda burgut po ma çon,
+177 Fre as shalë nuk ja ka hjekë,
+178 Dern e burgut nuk po e mbyllë.
+179 Përmbi shilte vend kanë xanë,
+180 Po pinë kafe, po pinë duhan.
+181 Çka ka folë Arnaut Osmani?
+182 - A ndigjove, Bylykbashe Muji,
+183 A s'po e merr ket famull n'dorë?
+184 Ç'ka qitë Muji e ka thanë?
+185 - Gjithkur t'dueni me ma dhanë.
+186 Ma ka marrë at famull n'dorë.
+187 T'madhe qeshi Arnaut Osmani,
+188 Mirë ma ndjeu Krajlo Kapidani.
+189 Asht çue n'kambë e n'burg ka shkue,
+190 Ma ka gjetë mazin t'shilue,
+191 N'avlli mazin ma ka qitë,
+192 M'shpinë, tha, krajli m'i ka hipë,
+193 Prej Krajlnisë kryet m'ja ka dredhë,
+194 Tym e mjegull fushën ma ka ba,
+195 Vrap të madh gjogu m'ka marrë.
+196 Â kujtue Muji ç'fjerë e ka xanë,
+197 Ma ka ndie, tha, Muji n'odë,
+198 Ma ka lshue famllin për tokë,
+199 N'at dritore kryet ma qet.
+200 Gja me sy ai nuk po shef,
+201 Pse përpara mazi kcen
+202 E përmbrapa mjegull len,
+203 Tim e mjegull bjeshkë e fushë i bani,
+204 Si me kenë smet me borë.
+205 Mera i hini Arnaut Osmanit.
+206 Shpejt në aher Muji ka ra,
+207 Shum po e lyp mazin me e pa,
+208 Fort po i dhimbet mazi qi s'e ka.
+209 Për mbrapan mazit i â vu,
+210 Ma ka ndjellë fushë në fushë,
+211 Ma ka ndjellë mal në mal,
+212 E ka marrë bjeshkën përpjetë,
+213 Nji çoban aty m'ka gjetë,
+214 Ma ka gjetë at Çoban Raspodinin.
+215 - Mirë se rrin, Muji i ka thanë.
+216 - Mirë se vjen, Raspoja i ka thanë.
+217 Kenkan ulë trimat e po rrinë.
+218 Ç'ka qitë Muji e ka folë?
+219 - Kah dit, Raspo, zanin ta kam ndie,
+220 Se edhe n'mue fort je tu m'u gia,
+221 Njat shishak o me ma dhanë.
+222 At shishakun shkjau ja ka dhanë
+223 Edhe shapkën ja ka marrë.
+224 Fort po i giet Raspodinit Muji,
+225 Aty shpatën Muji e hjek
+226 Edhe kryet shkjaut po m'ja pret
+227 Edhe petkat po m'ja zdeshë,
+228 Mirë për shtat Muji po i veshë;
+229 Sa mirë Mujit m'i kanë ra,
+230 Sa mirë Raspos i ka përgia,
+231 Shkop e krrabë n'dorë i ka marrë,
+232 Fill te krajli paska dalë,
+233 Deri n'tokë krajlit i â falë.
+234 Ç'ka ka qitë krajli e m'i ka thanë?
+235 - Vetëm gjanë, Raspo, si e ke lanë?
+236 Ç'ka qitë Muji e i ka thanë?
+237 - 'I nam për ty, krajl, e kam ndie,
+238 Mazin Mujit ja kishe marrë,
+239 Kam ardhë mazin për hajr me t'ba.
+240 Ça ka qitë krajli e ka thanë?
+241 - Kurrgja mazi nuk po m'vijë,
+242 Veç pa te Muja si të rrijë.
+243 Qysh at dit-o qi e kam marrë,
+244 Thellë në burg-o qi e kam shti,
+245 Kush tu ai s'mundet me hi.
+246 Idhnim mazi qi ka marrë
+247 E me shtjelma qi na vret
+248 E me dhambë qi po na han,
+249 Për prezorjet tagjinë po ja qesim.
+250 Ç'ka qitë Muji e kn thanë?
+251 - Izën, krajl, ti me ma dhanë,
+252 Sa m'u ulë mazin me e pa,
+253 Hanë e hyll me pa si i ka.
+254 Izën krajli ja ka dhanë,
+255 Dern e burgut Muji e çil,
+256 Shplakë n'vithe Muji i bjen.
+257 - Duro, gjog, bisha të preftë!
+258 N'kike mazit po ja njet,
+259 N'avlli mazin po ma qet.
+260 Ç'ka qitë krajlit e i ka thanë?
+261 - Pash 'i zot, krajl, qi t'ka dhanë,
+262 Fre e shalë ti me m'i dhanë,
+263 Terbjet gjogun si ta baj.
+264 Edhe krajli ka ndigjue,
+265 Mirë, tha, mazin ma ka shilue;
+266 M'i kcen Muja mazit n'shpinë,
+267 Po dron krajli se e çon n'Jutbinë,
+268 M'ja ka mbyllë dyert avullisë,
+269 M'ja ka vu, tha, rojën shpisë,
+270 Por ç'dobi se Muji meiherë,
+271 Me dezgina gjogun ma ther,
+272 Për maje avllisë e n'fushë po del;
+273 Ma ka marrë fushën e gjanë,
+274 Vrap të madh gjogut i ka dhanë,
+275 Tim e mjegull mbrapa ka lanë.
+276 Ç'ka qitë krajli edhe ka ba?
+277 N'beden t'kullës, tha, paska hypë,
+278 Ma ka marrë turbinë në dorë,
+279 Për t'gjatë fushën ma ka shikjue,
+280 Sa mirë Mujin e ka hetue,
+281 Fort me vedi qi asht pendue:
+282 "Mazin un qysh me ja lshue?"
+283 Ç'ka qitë Muji edhe ka ba?
+284 Kur ka vojtë n'shefi t'Jutbinës,
+285 I â dukë vetja për kori.
+286 - Paburrnisht, tha, mazin e kam marrë.
+287 Prap kryet gjogut ja ka dredhë,
+288 Prap krajlit po m'ja bjen,
+289 Ka qitë krajlit e i ka thanë:
+290 - Ma t'mirë mazin s'ke pse e lyp,
+291 Për hajr t'kjoftë e mirë e gzosh,
+292 Se te gjaja vetë po dal.
+293 Ka qite krajli e i ka thanë:
+294 - Bisha, Raspo, i preftë të tana,
+295 Jo te gjaja ti me shkue;
+296 Mirë e din se binë un do t'martoj
+297 E si zakonin qi e kem' pasë,
+298 Nji ma t'mirin burrë për krushk me e gjetë,
+299 Gjetë unë kam Raspodinin Çoban,
+300 T'zon për shpatë edhe për fjalë.
+301 Çobât krajlit m'i kanë shkrue,
+302 N'dorë të Mujit letra ka shkue,
+303 Ka marrë Muji e e ka kndue.
+304 Ç'ka qitë letra e ka thanë:
+305 - T'fala me shndet, Krajle Kapidan,
+306 Qysh ta ruejsh at Gjeto Basho Mujin,
+307 Se tevdil Muji t'asht veshë,
+308 Veshë m'i ka petkat e Raspodinit,
+309 Se edhe Raspon na ka pre
+310 Edhe gjogun po ta merr,
+311 Se edhe kryet drue po ta pret.
+312 Sa mirë letrën po ma kndon,
+313 Mirë po e kndon e n'zjarm e lshon.
+314 Prap shum letra çobâjt shkruen,
+315 T'tana Mujit n'dorë i shkuen,
+316 T'tana i kndon e n'zjarm i lshon.
+317 Oroku nuses po m'i vjen,
+318 Me tallall popllin ma mbledh,
+319 Treqind krushq me dorë po i zgjedh,
+320 Po m'jau ep treqind kval shalet,
+321 Po m'jau ep treqind shpata mejdanit,
+322 Të tana gati m'i ka ba.
+323 Ç'ka qitë krajli Mujit e i ka thanë?
+324 - Ngrehu 'i herë, Çoban Raspodini,
+325 Mirë me u mbledhë e m'u shtërngue,
+326 Ato petka me i ternue,
+327 Gjogun t'Mujit me e shilue.
+328 Sa shpejt Mujë kenka çue,
+329 Sa mirë gjogun e kishte shilue,
+330 Armët e shpatën krajli ja ka dhanë,
+331 M'i merr Muji me at dorë t'djathtë,
+332 Mirë për shtat ai m'i ka njeshë,
+333 N'mjedis t'shkjeve edhe ka dalë.
+334 Ça i ka thanë krajli s'bisë?
+335 - Çou, moj Rushe, ndera e shpisë,
+336 Çou, m'i vesh petkat e nusisë
+337 E ndër krushq ti shpejt me m'dalë.
+338 Rusha babën e ka ndigjue,
+339 Ka hi mbrendë e âsht ternue
+340 E ndër krushq ajo ka dalë.
+341 Njatherë krushqit ma s'janë ndalë,
+342 M'u ka pri Gjeto Bashe Muji,
+343 Krah për krah me t'binë e krajlit,
+344 Fill te miku kenkan shkue,
+345 T'tana ndër shilte kanë pushue.
+346 Mirë i presin edhe i nderin.
+347 Sa e gjerb kafen Muji dalëkadalë,
+348 Sa mirë shkina e ka hetue!
+349 Shkina shkjetë rreth i ka kqyrë
+350 Edhe krushqvet u ka thanë:
+351 - Pa u vra zoti, burra, mos u lashtë!
+352 Si s'po e njifni Gjeto Bashe Mujin,
+353 Se shum sherrin burrit ja kem' pa,
+354 Me te hani krushq e me te pini,
+355 Gju për gju, krushq me te po rrini!
+356 Çka kanë qitë krushqit e kanë thanë?
+357 - Hajt andej, mori shkina e marrë,
+358 Ti shkjanë turk-o si po e ban,
+359 Se ky s'asht turk i turkinës,
+360 Por asht shkjau, i biri i shkinës,
+361 Se ky asht Çoban Raspodini,
+362 Qi binë tande nesër merr për grue.
+363 Qatherë shkina fjalën e ka lanë.
+364 Paskan hangër e paskan pi,
+365 Kanë nisë kangën e po kndojnë,
+366 Kanë marrë vallen e po vallzojnë,
+367 Kanë marrë lojën e po lodrojnë,
+368 Derqi drita terrin ka da.
+369 Sa mirë krushqit janë shtërngue,
+370 Qaj ma i pari Bylykbashe Muji,
+371 Krah për krah me t'binë e krajlit,
+372 Kur kanë shkue n'nji log të gjanë,
+373 M'i ka ndalë Muja të tanë,
+374 M'ka therë mazin në dezgina;
+375 Para shkjeve trimi ka dalë
+376 E ka qitë e u ka thanë:
+377 - Po ndigjoni, more treqind shkje,
+378 Ka ardhë dita për m'u pre,
+379 Ja n'mejdan njitash me m'dalë,
+380 Ja n'Jutbinë të tanë me ardhë,
+381 Se nuk jam un Raspoja i dhivet,
+382 Por un jam Gjeto Basho Muji.
+383 Tanë, tha, shkjetë kryet e kanë ulë,
+384 As kurrkush me gojë nuk ka folë,
+385 As kurrnjâ n'mejdan s'ka dalë,
+386 Kurrnjâ luftë me te s'ka ngrehë.
+387 Tanë përpara Muji m'i ven,
+388 Treqind krushq rob m'i xen
+389 E dy nuse m'i ka marrë,
+390 T'binë e mbretit për vedi e ndalon,
+391 Nusen Halilit po m'ja çon,
+392 Me te n'Jutbinë po shkon.
+393 Po pret krajli n'at saraj,
+394 Toj se krushqit për me ardhë.
+395 Ishte errë ajo nata e bardhë,
+396 Kurrnja krushqsh s'i kite ardhë.
+397 N'at Jutbinë darsma po bahet,
+398 Mbarë Jutbinën n'darsëm e ki' thirrë,
+399 Banë danam nandë dit e net.
+400 Mbas nandë ditsh e mbas nandë netsh,
+401 Çka qitë Muji e ka ba?
+402 Hollë e imë nji letër e ki' shkrue,
+403 N'dorë krajlit ja ka çue.
+404 Ka marrë krajli e e ka kndue.
+405 Ç'ka qitë letra e ki' kallxue?
+406 - T'falë me shndet, ti Krajle Kapedan,
+407 Treqind shkje rob t'i kam xanë
+408 E dy nuse t'i kam marrë,
+409 Se s'jam kenë Raspoja i Krajlisë,
+410 Por jam kenë Muji i Jutbinës.
+411 Ka qitë krajli e ka thanë:
+412 - Ma t'mirë mikun s'kam ç'e baj.

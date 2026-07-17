@@ -1,0 +1,104 @@
+SOURCE: Gjergj Fishta, Lahuta e Malcis (Shkodër, 1937; the 30-canto national
+epic). Kangë e Gjashtëmbëdhetët ("Në Shpi t'Osman Ballit"), the sung episode
+titled "KULSHEDRA" within it — two Orë (mountain-fairy singers) of Shala and
+Dukagjin trade ballads through the night; this is the ballad the second one
+sings, about a girl of Janina named Eufrozina and Ali Pashë Tepelena.
+EXTRACTED FROM: docs/references/fishta-lahuta-e-malcis.sq.txt, lines
+~15150-15300 (page references 269-270 of the printed edition; verse numbers
+505-568 per the text's own margin numbering).
+EXTRACTION DATE: 2026-07-15.
+NOTE: text reproduced as OCR'd in the local corpus (already modern-ish Gheg
+literary orthography — no transliteration needed); only stray double-spacing
+and a few obvious OCR splices are cleaned up. The editorial footnotes Fishta's
+own edition prints under the verse (glossing dialect words) are kept below
+each block for reference; they are not part of the sung verse itself.
+IMPORTANT — WHO THIS IS: the footnote at verse 520-530 reads "Janinë : qyteti
+i Ali Pashës-Tepelena" ("Janina: the city of Ali Pashë Tepelena") — Fishta's
+own gloss confirms this is OUR Ali Pasha (of Tepelenë, d. 1822), not the
+unrelated 19th-c. northern chieftain "Ali Pashë Gucia" who appears elsewhere
+in the same epic (Kangë e Tetët). Two different men, one shared name.
+USE IN THE GAME: this is a LITERARY (1937) verse elaboration of the
+historical "Kyra Frosini" drowning-legend attached to Ali Pasha at Lake
+Pamvotis — not a folk tale collected from oral testimony, and not a
+line-by-line source for the tale's wider English biography (drawn from
+Wikipedia). Used in ali-pashe-tepelena.js as verbatim Albanian on ONE beat's
+lines only (the "lakeIsland" Eufrozina beat); the tale's overall
+`albanian.status` stays 'missing' because no comparable Albanian original
+covers the rest of the biographical arc — see that file's `discrepancies`.
+
+============================================================================
+
+Por, si ka nji vajzë n'Janinë,
+Kurkund shoqen s'i a kë pa,
+Kah bje diell e serotinë:
+synin diell, ballin si hana,
+Ardhun shtatit si silvija.
+
+[520-530 kaleçë : lehtas, ambël. — Janinë : qyteti i Ali Pashës-Tepelena. — seritinë : K. V, 428.]
+
+Eufrozinë e quejti nana,
+Augur t'mirë m'e pasë Shqypnija.
+Atë e patka aj Ali Pasha,
+Dalë si vida në balkue,
+Edhë fort pelqye i asht vasha:
+Çon Harapin m'e kerkue.
+
+Vjen Harapi e i thotë te dera:
+Shpejt tash, vashë, ti ktu me zdrypun
+E me mue me ardhë nji hera;
+Persë Pasha të ka lypun.
+
+T'u thafët goja! shka po thue?
+I a kthen vasha fjalen marë;
+Se un nji vajz—o kam qillue:
+S'diej me folë me Pashallarë,
+Jo, po, Ali pashë Tepelena
+Mundet kryet aj me m'a prë,
+si i ka prë kushdi sa krena;
+Gjallë por s'lëshoj un erz as fé.
+
+[530-535 Dalë si vida: si pëllumbi.]
+
+Asht mushë Pasha me mëni,
+Prap harapin çon e e thrret:
+Pa ndigjo harap i zi,
+Se dy herë Pasha nuk flet:
+A se vjen ktu sande goca,
+A se ndryshe n'fund t'liqënit
+T'a baj gjumin me bretkoca.
+
+More vesht, bre qën i qënit?
+I shkon naten vashës harapi,
+
+[550-555 T'a bajë gjumin me bretkoca : të mbyti në fund, ku rrijnë bretkocat.]
+
+— KULSHEDRA —
+
+Edhë e mërr e e çon m'liqë,
+Ku tue pritun ishte trapi,
+Per me i bartë neper kurrnë.
+N'mes të liqënit si kan dalë,
+Aty trapi vend ka zanun,
+Edhë nisë harapi fjalë,
+Nisë aj vashës kështu me i thanun:
+Nuk ka tjeter, tash, lum vasha:
+E s'jam nieri fjalës qi i luej:
+A me shkue sande te Pasha:
+A shi ktu me t'mytë ty n'ujë.
+
+Jo, po, i thotë vasha tue qeshë,
+Se un te Pasha due me shkue;
+Por due t'shkoj nji herë me u veshë,
+Pse sido ktu kam qillue.
+
+E kështu tue i thanë harapit,
+Atij qënit, t'birit t'qënit,
+Mërr e hidhet n'ujë prej trapit,
+Edhë zhduket n'fund t'liqënit.
+
+Doli fjala neper dhë:
+Njekso varzash ka n'Shqypni,
+Qi per erz edhe per fë
+T'rijt e jeten i bajn fli.
+
+[575-580 Edhë zhduket n'fund t'liqenit : mbytë vedin tuj u kaperdi në valët e liqenit.]
