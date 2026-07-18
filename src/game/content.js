@@ -1,3 +1,4 @@
+import { QUOTES } from './quotes.js'
 // ---------------------------------------------------------------------------
 // DICTIONARY
 // Each entry is one word/sense. `id` is the sense id (discovery + mana are keyed
@@ -1589,7 +1590,15 @@ const L = (...tokens) => tokens
 // knows they are reading the real thing, not game prose. Spelling is normalized
 // to the game's standard Albanian (the Gheg original stays in the code comment).
 // Composes with when()/unless(): the return value IS the token array.
-export const Q = (source, ...tokens) => Object.assign(tokens, { quote: source })
+export const Q = (quoteId, ...tokens) => {
+  const q = QUOTES[quoteId]
+  if (!q)
+    throw new Error(
+      `Q('${quoteId}'): not in the quote register. Every folk-quote line needs an ` +
+        `entry in src/game/quotes.js documenting its original wording and proof.`,
+    )
+  return Object.assign(tokens, { quote: q.label, quoteId })
+}
 
 // Conditional story lines — a node.text entry is normally a token line (array), but
 // when()/unless() make a line appear only if the player HAS / LACKS a given item or
@@ -1916,7 +1925,7 @@ export const STORY = {
       Q('Ymer Aga — këngë popullore',
         wf('thote', 'thonë', 'they say'), p(':'), w('mire'), w('se'), wf('vjen', 'erdhe', 'came'), p(','), w('aga'), w('ymer'), p('!')),
       // and the crowd's praise: "majte besën qi ke dhanë!" (Gheg original)
-      Q('Ymer Aga — këngë popullore',
+      Q('ymer-besa-kept',
         wf('mban', 'mbajte', 'kept'), wf('bese', 'besën', 'the besa'), w('qe'), w('ke'), wf('jep', 'dhënë', 'given'), p('!')),
       L(wf('trim', 'trimi', 'the hero'), wf('mban', 'mban', 'keeps'), wf('bese', 'besën', 'the besa'), w('dhe'), wf('kthehu', 'kthehet', 'returns'), w('larg'), p('.')),
       L(wf('mbret', 'mbreti', 'the king'), w('fal'), wf('trim', 'trimin', 'the hero'), p('.')),
@@ -1994,7 +2003,7 @@ export const STORY = {
       L(w('ti'), w('merr'), w('nereida'), p('.'), w('ti'), wf('marto', 'marton', 'marry'), w('nereida'), p('.')),
       L(w('shi'), w('bie'), p('.'), wf('uje', 'uji', 'the water'), w('vjen'), wf('ne', 'në', 'on'), wf('qytet', 'qytetin', 'the town'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('vdes', 'vdesin', 'die'), p('.'), wf('uje', 'uji', 'the water'), wf('quhem', 'quhet', 'is called'), w('prespa'), p('.')),
-      Q('Legjenda e Prespës — lakeohrid.blogspot.com', w('qe'), wf('mbyt', 'mbyti', 'drowned'), w('te_link'), w('gjithe'), wf('qytet', 'qytetin', 'the city'), w('duke'), wf('krijoj', 'krijuar', 'creating'), w('nje'), w('liqen'), p('.')),
+      Q('prespa-mbytja', w('qe'), wf('mbyt', 'mbyti', 'drowned'), w('te_link'), w('gjithe'), wf('qytet', 'qytetin', 'the city'), w('duke'), wf('krijoj', 'krijuar', 'creating'), w('nje'), w('liqen'), p('.')),
     ],
     options: [],
   },
@@ -2238,7 +2247,7 @@ export const STORY = {
       L(w('ti'), wf('kthehu', 'kthehesh', 'return'), p('.'), w('ti'), wf('vrit', 'vret', 'kill'), wf('krajl', 'krajlin', 'the Slav'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('sheh', 'shohin', 'see'), p(':'), w('ti'), w('je'), w('ali'), p('.')),
       L(w('ti'), w('hap'), wf('dere', 'derën', 'the door'), p('.'), w('ti'), w('rri'), wf('ne', 'në', 'in'), wf('shtepi', 'shtëpinë', 'the house'), p('.')),
-      Q('Ali Bajraktari — këngë kreshnike', wf('se','se','for'), w('besnik'), w('ti'), w('qenke'), wf('qene','qenë','been'), p('.')),  // Se besnik ti kenke kanë
+      Q('ali-bajr-besnik', wf('se','se','for'), w('besnik'), w('ti'), w('qenke'), wf('qene','qenë','been'), p('.')),  // Se besnik ti kenke kanë
     ],
     options: [],
   },
@@ -2639,7 +2648,7 @@ export const STORY = {
       L(w('nje'), w('mejdan'), w('eshte'), wf('vetem', 'vetëm', 'alone'), p(':'), w('ti'), w('dhe'), w('ai'), p(','), w('askush'), w('tjeter'), p('.')),
       // the proverb of every parley before a fight: word and bullet, once out,
       // never come back
-      Q('fjalë e urtë',
+      Q('fjala-plumbi',
         wf('thote', 'thonë', 'they say'), p(':'), wf('fjale', 'fjala', 'the word'), w('dhe'), wf('plumb', 'plumbi', 'the bullet'), w('kur'), wf('dil', 'dalin', 'go out'), wf('kthehu', "s'kthehen", 'do not return'), w('me_more'), p('.')),
       L(wf('aga', 'agat', 'the agas'), wf('rri', 'rrinë', 'stand'), w('larg'), p('.')),
       // high noon on the dueling-ground — nowhere to hide
@@ -2658,7 +2667,7 @@ export const STORY = {
       L(wf('kapidan', 'kapidani', 'the captain'), w('bie'), p('.')),
       L(wf('kapidan', 'kapidani', 'the captain'), wf('kerko', 'kërkon', 'seeks'), wf('bese', 'besën', 'the besa'), p('.')),
       // the proverb the moment turns on: the Albanian's besa is not for sale
-      Q('fjalë e urtë',
+      Q('besa-nuk-shitet',
         wf('thote', 'thonë', 'they say'), p(':'), wf('bese', 'besa', 'the besa'), w('e_link'), wf('shqiptar', 'shqiptarit', 'Albanian'), w('nuk'), wf('shes', 'shitet', 'is sold'), p('.')),
       L(wf('kapidan', 'kapidani', 'the captain'), w('thote'), p(':'), w('une'), wf('premto', 'premtoj', 'swear'), w('per'), w('diell'), p(','), w('per'), w('hene'), p(','), w('per'), w('gur'), p('.')),
     ],
@@ -3438,7 +3447,7 @@ export const STORY = {
       L(w('ti'), w('thyen'), wf('bese', 'besën', 'the oath'), p('.')),
       L(wf('mur', 'muri', 'the wall'), w('merr'), wf('rozafa', 'Rozafën', 'Rozafa'), p('.')),
       L(wf('kala', 'kalaja', 'the castle'), w('ka'), wf('emer', 'emrin', 'the name'), w('e_link'), wf('rozafa', 'Rozafës', 'of Rozafa'), p('.')),
-      Q('Kanga e kalasë së Shkodrës', wf('prish', 'Prishi', 'broke'), w('bese'), w('e_conj'), wf('prish', 'prishi', 'broke'), w('fe'), p('.')),
+      Q('kala-prishi-bese', wf('prish', 'Prishi', 'broke'), w('bese'), w('e_conj'), wf('prish', 'prishi', 'broke'), w('fe'), p('.')),
     ],
     options: [],
   },
@@ -3937,7 +3946,7 @@ export const STORY = {
       L(w('natenmire'), p('!')),
       // the traveller's blessing, exactly as the ballad has it ("Udha e marë, o
       // krushqellarë!" — Ymer Aga) — the inn-keeper's farewell to every guest
-      Q('Ymer Aga — këngë popullore',
+      Q('ymer-udha-mbare',
         wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('udhe', 'udha', 'the road'), w('e_art'), w('mbare'), p('!')),
       L(wf('grua', 'gruaja', 'the woman'), wf('bej', 'bën', 'makes'), w('kafe'), w('dhe'), w('ka'), w('raki'), p('.')),
       L(wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('raki'), w('eshte'), w('per'), w('mik'), p('.')),
@@ -5257,9 +5266,9 @@ export const STORY = {
       L(wf('bije', 'bija', 'the daughter'), w('sheh'), w('toke'), w('mbi'), wf('bir', 'birin', 'the son'), p('.')),
       // the legend's most famous exchange, on the horse in the dark: "why do you
       // smell of earth?" — "it is the dust of the road"
-      Q('Kostandini e Doruntina — legjendë',
+      Q('doruntina-era',
         wf('bije', 'bija', 'the daughter'), w('thote'), p(':'), w('pse'), wf('me_obj', 'më', 'me'), w('vjen'), wf('ere', 'erë', 'smell'), w('e_link'), wf('toke', 'dheut', 'the ground'), p('?')),
-      Q('Kostandini e Doruntina — legjendë',
+      Q('doruntina-pluhuri',
         wf('bir', 'biri', 'the son'), w('thote'), p(':'), w('eshte'), wf('pluhur', 'pluhuri', 'the dust'), w('i_link'), wf('udhe', 'udhës', 'the road'), p('.')),
     ],
     options: [
@@ -5278,7 +5287,7 @@ export const STORY = {
       L(wf('bir', 'biri', 'the son'), wf('shko', 'shkon', 'goes'), w('nga'), w('varr'), p('.')),
       L(wf('bije', 'bija', 'the daughter'), w('thote'), p(':'), w('hap'), p(','), wf('nene', 'nënë', 'mother'), p('!')),
       L(wf('nene', 'nëna', 'the mother'), w('dhe'), wf('bije', 'bija', 'the daughter'), wf('vdes', 'vdesin', 'die'), w('me'), w('nje'), w('fryme'), p('.')),
-      Q('Kostandini e Doruntina — legjendë',
+      Q('doruntina-nuk-je-ti',
         w('nuk'), w('je'), w('ti'), p(','), wf('im', 'ime', 'my'), wf('bije', 'bijë', 'daughter'), p('.')),
     ],
     options: [],
@@ -5807,7 +5816,7 @@ export const STORY = {
       L(wf('zemer', 'zemra', 'the heart'), w('e_link'), wf('trim', 'trimit', 'the hero'), w('dhe'), wf('zemer', 'zemra', 'the heart'), w('e_link'), wf('motra', 'motrës', 'the sister'), wf('vdes', 'vdesin', 'die'), w('bashke'), p('.')),
       L(w('nje'), w('varr'), w('per'), wf('dy', 'dy', 'two'), p('.')),
       L(wf('lahute', 'lahuta', 'the lute'), wf('kendo', 'këndon', 'sings'), wf('trim', 'trimin', 'the hero'), w('dhe'), wf('motra', 'motrën', 'the sister'), p('.')),
-      Q('Gjergj Elez Alia — këngë kreshnike', wf('trim', 'Trim', 'hero'), w('mbi'), wf('trim', 'trima', 'heroes'), w('ai'), w('gjergj'), p('!')), // Gheg: "Trim mbi trima ay Gjergj Elez Alija!"
+      Q('gjergj-trim-mbi-trima', wf('trim', 'Trim', 'hero'), w('mbi'), wf('trim', 'trima', 'heroes'), w('ai'), w('gjergj'), p('!')), // Gheg: "Trim mbi trima ay Gjergj Elez Alija!"
     ],
     options: [],
   },
@@ -6916,7 +6925,7 @@ export const STORY = {
     text: [
       L(w('ketu'), w('nje'), w('femije'), w('lind'), p('.')),
       // the proverb of the full house: a house without children is a night without stars
-      Q('fjalë e urtë',
+      Q('shtepia-pa-femije',
         wf('thote', 'thonë', 'they say'), p(':'), wf('shtepi', 'shtëpia', 'the house'), w('pa'), w('femije'), wf('si', 'si', 'as'), wf('naten', 'nata', 'the night'), w('pa'), wf('yll', 'yje', 'stars'), p('.')),
       L(wf('nene', 'nëna', 'the mother'), w('jep'), w('buke'), w('per'), wf('ora', 'Orat', 'the Fates'), p('.')),
       L(w('naten'), wf('vjen', 'vijnë', 'come'), wf('tre', 'tri', 'three'), wf('ora', 'Ora', 'Fates'), p('.')),
@@ -8174,7 +8183,7 @@ export const STORY = {
       L(w('ti'), w('jep'), wf('bar', 'barin', 'the herb'), p(','), w('dhe'), wf('sy', 'sytë', 'the eyes'), w('e_link'), wf('trim', 'trimit', 'the hero'), wf('hap', 'hapen', 'open'), p('.')),
       L(wf('trim', 'trimi', 'the hero'), w('sheh'), w('perseri'), p(':'), w('sheh'), wf('mal', 'malin', 'the mountain'), p(','), wf('diell', 'diellin', 'the sun'), p(','), w('dhe'), wf('ti', 'ty', 'you'), p('.')),
       L(wf('lot', 'lotët', 'the tears'), wf('bie', 'bien', 'fall'), p('.'), wf('trim', 'trimi', 'the hero'), wf('premto', 'premton', 'swears'), w('nje'), w('bese'), p('.')),
-      Q('Zuku Bajraktar — këngë kreshnike', wf('bese', 'besën', 'the besa'), w('e_link'), wf('zot', 'zotit', 'the Lord'), wf('djale', 'djali', 'the boy'), w('ua'), wf('ka', 'kishte', 'had'), wf('jep', 'dhënë', 'given'), p('.')), // Besën e zotit djali jau ki' dhanë
+      Q('zuku-besa-zotit', wf('bese', 'besën', 'the besa'), w('e_link'), wf('zot', 'zotit', 'the Lord'), wf('djale', 'djali', 'the boy'), w('ua'), wf('ka', 'kishte', 'had'), wf('jep', 'dhënë', 'given'), p('.')), // Besën e zotit djali jau ki' dhanë
     ],
     options: [
       { text: L(w('degjo'), wf('trim', 'trimin', 'the hero')), to: 'zukuFund' },
@@ -9104,7 +9113,7 @@ export const STORY = {
       L(wf('nene', 'nëna', 'the mother'), w('mallko'), wf('hene', 'hënën', 'the moon'), p('.')),
       // the curse itself, word for word from the ballad: "T'u shkimtë drita ty,
       // o mori hanë" (Gheg; trimmed of the vocative filler, hanë → hënë)
-      Q('Vajtimi i Ajkunës — këngë kreshnike',
+      Q('ajkuna-shkimte-drita',
         wf('nene', 'nëna', 'the mother'), w('thote'), p(':'),
         wf('shkimet', "t'u shkimtë", 'may it go out'), wf('drite', 'drita', 'the light'), p(','), w('o'), w('hene'), p('!')),
       L(wf('yll', 'yjet', 'the stars'), wf('rri', 'rrinë', 'stay'), wf('ftohte', 'ftohtë', 'cold'), w('mbi'), w('varr'), p('.')),
@@ -9215,7 +9224,7 @@ export const STORY = {
       L(wf('plak', 'plaku', 'the old man'), w('eshte'), w('nje'), w('mik'), p('.')),
       // the elder's parting proverb on wit and words: the tongue has no bones,
       // yet bones it breaks
-      Q('fjalë e urtë',
+      Q('gjuha-eshtra',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('gjuhe', 'gjuha', 'the tongue'), w('eshtra'), wf('ka', "s'ka", 'has not'), p(','), w('eshtra'), w('thyen'), p('.')),
     ],
     options: [],
@@ -9533,7 +9542,7 @@ export const STORY = {
       L(w('ketu'), w('eshte'), w('nje'), w('pyll'), w('dhe'), w('nje'), w('lume'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), wf('lume', 'lumi', 'the river'), wf('shko', 'shkon', 'goes'), w('poshte'), p(','), w('aty'), w('larg'), p(','), wf('tek', 'te', 'to'), wf('det', 'deti', 'the sea'), p('.')),
       // the crossroads' own proverb — mountains never meet, but people do
-      Q('fjalë e urtë',
+      Q('mali-me-mal',
         wf('thote', 'thonë', 'they say'), p(':'), wf('mal', 'mali', 'the mountain'), w('me'), w('mal'), w('nuk'), w('piqet'), p(','), wf('njeri', 'njeriu', 'the person'), w('me'), wf('njeri', 'njeriun', 'the person'), w('piqet'), p('.')),
       L(w('ti'), wf('mendoj', 'mendon', 'think'), p(':'), w('ku'), w('te_subj'), wf('shko', 'shkosh', 'go'), p('?')),
     ],
@@ -9930,7 +9939,7 @@ export const STORY = {
       L(w('ti'), wf('ka', 'ke', 'have'), w('nje'), w('pyetje'), wf('ne', 'në', 'in'), w('sy'), p('?')),
       L(w('eshte'), w('nje'), w('fakt'), p(','), w('jo'), w('perralle'), p('.')),
       // the proverb the game itself lives by: as long as you live, you learn
-      Q('fjalë e urtë',
+      Q('sa-rron',
         w('sa'), w('rron'), p(','), w('aq'), wf('meso', 'mëson', 'you learn'), p('.')),
       L(w('une'), wf('sheh', 'pashë', 'saw'), wf('uje', 'ujin', 'the water'), w('gjithe'), wf('jete', 'jetën', 'life'), p('.')),
       L(w('ne_we'), wf('sheh', 'shohim', 'see'), wf('mulli', 'mullirin', 'the mill'), p(':'), w('ai'), w('punon'), w('vete'), p('.')),
@@ -10202,7 +10211,7 @@ export const STORY = {
       unless('night', L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('mulli', 'mulliri', 'the mill'), w('ka'), w('nje'), w('fjale'), w('te_link'), w('vjeter'), p(':'), w('merr'), w('pak'), p(','), w('jo'), w('shume'), p('.'))),
       // the miller's proverb over the slow stone (Dozon prints it:
       // "Me dourim tœ tœra bœkenœ")
-      unless('night', Q('fjalë e urtë (Dozon, 1879)',
+      unless('night', Q('me-durim',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('me'), w('durim'), wf('behet', 'bëhen', 'become'), wf('te_link', 'të', 'the'), w('gjitha'), p('.'))),
       when('day', L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('ka'), w('pune'), w('per'), wf('ti', 'ty', 'you'), p(':'), w('merr'), w('miell'), w('per'), wf('fshat', 'fshatin', 'the village'), p('.'))),
     ],
@@ -10229,7 +10238,7 @@ export const STORY = {
       L(w('ti'), w('punon'), w('shume'), wf('ne', 'në', 'in'), w('mulli'), p('.')),
       L(wf('plak', 'plaku', 'the old man'), w('jep'), w('pese'), w('lek'), w('dhe'), w('thote'), p(':'), w('faleminderit'), p('!')),
       // the worker's motto: few words and much work
-      Q('fjalë e urtë',
+      Q('fjale-pak',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('fjale'), w('pak'), w('e_conj'), w('pune'), w('shume'), p('!')),
     ],
     options: [
@@ -10382,7 +10391,7 @@ export const STORY = {
       L(w('ti'), wf('thote', 'thua', 'say'), p(':'), w('une'), w('jam'), w('maro'), p('.')),
       L(wf('njerke', 'njerka', 'the stepmother'), w('te_obj'), w('jep'), wf('thes', 'thesin', 'the sack'), w('me'), w('drithe'), p('.')),
       L(wf('vajze', 'vajzat', 'the girls'), wf('qesh', 'qeshin', 'laugh'), wf('tek', 'te', 'at'), wf('dere', 'dera', 'the door'), p('.')),
-      Q('Pralla popullore shqiptare (1954)',
+      Q('pralla-maro-kukudhi',
         wf('njerke', 'njerka', 'the stepmother'), w('thote'), p(':'), w('mos'), wf('tremb', 'u tremb', 'be afraid'), p(','), w('se'), wf('nuk', "s'", 'not'), w('te_obj'), w('ha'), w('as'), wf('kukudh', 'kukudhi', 'the miser-ghost'), p('.')),
       unless('furke', L(wf('tek', 'te', 'at'), wf('dere', 'dera', 'the door'), w('rri'), wf('furke', 'furka', 'the distaff'), w('me'), w('li'), p('.'))),
       L(wf('rruge', 'rruga', 'the road'), wf('ne', 'në', 'to'), w('mulli'), wf('zbrit', 'zbret', 'descends'), wf('ne', 'në', 'in'), w('erresire'), p('.')),
@@ -10427,7 +10436,7 @@ export const STORY = {
       L(wf('ze', 'zëra', 'sounds'), wf('vjen', 'vijnë', 'come'), w('nga'), wf('erresire', 'errësira', 'the darkness'), p('.')),
       L(wf('xhind', 'xhindët', 'the night-spirits'), wf('kendo', 'këndojnë', 'sing'), w('dhe'), wf('qesh', 'qeshin', 'laugh'), wf('ne', 'në', 'in'), w('erresire'), p(','), w('po_but'), w('ti'), w('nuk'), w('sheh'), w('njeri'), p('.')),
       L(w('ata'), w('te_obj'), wf('ve', 'vënë', 'put'), wf('ne', 'në', 'in'), w('mes'), p(','), w('po_but'), w('nuk'), w('te_obj'), wf('bej', 'bëjnë', 'do'), w('gje'), p('.')),
-      when('furke', Q('Pralla popullore shqiptare (1954)',
+      when('furke', Q('pralla-maro-tjerr',
         wf('xhind', 'xhindët', 'the night-spirits'), wf('pyet', 'pyesin', 'ask'), p(':'), wf('cfare', "ç'", 'what'), w('eshte'), w('ajo'), p(','), w('qe'), w('tjerr'), p('?'))),
       unless('furke', L(wf('xhind', 'xhindët', 'the night-spirits'), wf('pyet', 'pyesin', 'ask'), p(':'), wf('cfare', "ç'", 'what'), wf('bej', 'bën', 'do'), w('ti'), w('ketu'), w('naten'), p('?'))),
       unless('furke', L(w('ti'), w('nuk'), wf('ka', 'ke', 'have'), w('as'), w('furke'), p(','), w('as'), w('li'), p('.'))),
@@ -10445,7 +10454,7 @@ export const STORY = {
     id: 'maroLitani1',
     text: [
       L(w('ti'), wf('thote', 'thua', 'say'), p(':'), w('kjo'), w('eshte'), w('gje'), p(','), w('qe'), w('ka'), w('shume'), w('mundim'), p('.')),
-      Q('Pralla popullore shqiptare (1954)',
+      Q('pralla-maro-mundim',
         wf('xhind', 'xhindët', 'the night-spirits'), wf('thote', 'thonë', 'say'), p(':'), w('te_subj'), wf('thote', 'thuash', 'say'), p(','), w('se'), wf('cfare', "ç'", 'what'), w('mundim'), w('ka'), p('.')),
       L(w('ti'), wf('tregoj', 'tregon', 'tell'), w('nga'), wf('fushe', 'fusha', 'the field'), p(':')),
       Q('mundimi i lirit — Pralla popullore shqiptare (1954)',
@@ -10465,7 +10474,7 @@ export const STORY = {
     id: 'maroLitani2',
     text: [
       L(w('ti'), wf('tregoj', 'tregon', 'tell'), w('per'), wf('furke', 'furkën', 'the distaff'), p(':')),
-      Q('mundimi i lirit — Pralla popullore shqiptare (1954)',
+      Q('lirit-vemefurke',
         wf('pa', 'pa', 'and then'), w('e_obj'), wf('ve', 'vëmë', 'put'), wf('ne', 'në', 'on'), w('furke'), p(','), wf('pa', 'pa', 'and then'), w('e_obj'), wf('tjerr', 'tjerrim', 'spin'), p('.')),
       L(wf('xhind', 'xhindët', 'the night-spirits'), wf('ve', 'vënë', 'put'), w('flori'), w('mbi'), w('flori'), w('mbi'), wf('ti', 'ty', 'you'), p('.')),
       L(wf('naten', 'nata', 'night'), wf('shko', 'shkon', 'goes'), p(';'), w('ti'), w('flet'), w('dhe'), w('flet'), p('.')),
@@ -10482,7 +10491,7 @@ export const STORY = {
   maroLitani3: {
     id: 'maroLitani3',
     text: [
-      Q('mundimi i lirit — Pralla popullore shqiptare (1954)',
+      Q('lirit-veshim',
         wf('pa', 'pa', 'and then'), w('e_obj'), wf('laj', 'lajmë', 'wash'), p(','), wf('pa', 'pa', 'and then'), w('e_obj'), wf('pres', 'presim', 'cut'), p(','), wf('pa', 'pa', 'and then'), w('e_obj'), wf('qep', 'qepim', 'sew'), p(','), wf('pa', 'pa', 'and then'), w('e_obj'), wf('vesh', 'veshim', 'wear'), p('.')),
       L(wf('gjel', 'gjeli', 'the rooster'), wf('kendo', 'këndon', 'sings'), p('.'), wf('xhind', 'xhindët', 'the night-spirits'), wf('ik', 'ikin', 'flee'), w('si'), wf('ere', 'era', 'wind'), p('.')),
       L(w('ti'), w('je'), wf('vesh', 'veshur', 'dressed'), wf('ne', 'në', 'in'), w('flori'), p(','), w('nga'), wf('koke', 'koka', 'the head'), wf('tek', 'te', 'to'), wf('kembe', 'këmbët', 'the feet'), p('.')),
@@ -10571,7 +10580,7 @@ export const STORY = {
       L(wf('princ', 'princi', 'the prince'), w('sheh'), w('nje'), w('vajze'), wf('ne', 'në', 'in'), w('enderr'), p('.'), w('tani'), w('ai'), wf('kerko', 'kërkon', 'seek'), wf('nuse', 'nusen', 'the bride'), w('me'), w('nje'), w('kepuce'), p('.')),
       L(w('cdo'), wf('naten', 'natë', 'night'), wf('ne', 'në', 'in'), w('han'), w('eshte'), w('feste'), p(':'), w('cdo'), w('vajze'), w('e_art'), wf('ri', 're', 'young'), w('mund'), w('te_subj'), wf('vjen', 'vijë', 'come'), p('.')),
       L(wf('njerke', 'njerka', 'the stepmother'), w('dhe'), wf('vajze', 'vajzat', 'the girls'), wf('vesh', 'vishen', 'dress'), w('me'), w('rroba'), wf('te_link', 'të', 'the'), wf('mire', 'mira', 'good'), w('dhe'), wf('qesh', 'qeshin', 'laugh'), w('me'), wf('ti', 'ty', 'you'), p('.')),
-      Q('Pralla popullore shqiptare (1954)',
+      Q('pralla-maro-lajmi',
         w('ti'), wf('thote', 'thua', 'say'), p(':'), w('une'), wf('nuk', "s'", 'not'), w('jam'), w('per'), w('atje'), p('.')),
       L(w('ata'), wf('ik', 'ikin', 'leave'), p('.'), w('ti'), w('rri'), w('vetem'), wf('ne', 'në', 'in'), w('shtepi'), p('.')),
       L(wf('teto', 'tetua', 'the auntie'), wf('yt', 'jote', 'your'), p(','), wf('motra', 'motra', 'the sister'), w('e_link'), wf('nene', 'nënës', 'the mother'), p(','), w('rri'), w('afer'), p(','), wf('ne', 'në', 'in'), wf('rruge', 'rrugët', 'the lanes'), w('e_link'), wf('fund', 'fundit', 'last'), p('.')),
@@ -10664,7 +10673,7 @@ export const STORY = {
     text: [
       L(w('pas'), w('shume'), wf('dite', 'ditësh', 'days'), p(','), w('nje'), w('zhurme'), w('e_art'), wf('madh', 'madhe', 'big'), w('vjen'), wf('rruge', 'rrugës', 'the road'), p(':'), wf('princ', 'princi', 'the prince'), w('vjen'), w('me'), w('kenge'), w('dhe'), w('me'), w('shume'), wf('njeri', 'njerëz', 'people'), p('.')),
       L(w('ata'), wf('rri', 'rrinë', 'stand'), w('rreth'), wf('shtepi', 'shtëpisë', 'the house'), p('.'), wf('kepuce', 'këpucët', 'the shoes'), wf('je', 'janë', 'are'), w('per'), wf('kembe', 'këmbën', 'the foot'), wf('yt', 'tënde', 'your'), p('.'), w('rroba'), wf('te_link', 'të', 'the'), wf('ar', 'arta', 'golden'), wf('je', 'janë', 'are'), w('per'), wf('ti', 'ty', 'you'), p('.')),
-      Q('Pralla popullore shqiptare (1954)',
+      Q('pralla-maro-krushqit',
         wf('princ', 'princi', 'the prince'), w('thote'), p(':'), w('ti'), w('je'), wf('grua', 'gruaja', 'the woman'), wf('im', 'ime', 'my'), p('.')),
       L(wf('njerke', 'njerka', 'the stepmother'), w('rri'), w('pa'), w('fjale'), w('prapa'), p('.'), wf('vajze', 'vajzat', 'the girls'), wf('qaj', 'qajnë', 'weep'), w('me'), w('lot'), wf('te_link', 'të'), wf('madh', 'mëdhenj', 'big'), p('—'), w('po_but'), wf('sy', 'sytë', 'the eyes'), w('e_link'), w('tyre'), wf('je', 'janë', 'are'), wf('te_link', 'të'), wf('thate', 'thatë', 'dry'), p('.')),
       L(wf('motra', 'motrat', 'the sisters'), wf('thote', 'thonë', 'say'), p(':'), wf('premto', 'premto', 'promise'), p('!'), w('na'), w('merr'), w('edhe'), w('ne_we'), w('afer'), wf('ti', 'teje', 'you'), p('!')),
@@ -10730,7 +10739,7 @@ export const STORY = {
     id: 'maroZogu',
     text: [
       L(w('ti'), w('je'), w('zog'), w('tani'), p('.'), w('cdo'), w('dite'), w('ti'), w('vjen'), wf('tek', 'te', 'at'), wf('dritare', 'dritarja', 'the window'), w('e_link'), wf('djale', 'djalit', 'the boy'), p('.')),
-      Q('Pralla popullore shqiptare (1954)',
+      Q('pralla-maro-ciuciu',
         w('ti'), wf('thote', 'thua', 'say'), p(':'), w('ciu'), w('ciu'), p(','), wf('djale', "djal'", 'boy'), w('i_art'), wf('nene', 'mëmës', 'mother'), p('.')),
       L(w('brenda'), wf('djale', 'djali', 'the boy'), wf('qaj', 'qan', 'weeps'), p(':'), w('lena'), w('nuk'), w('ka'), w('qumesht'), w('per'), wf('djale', 'djalin', 'the boy'), p('.')),
       L(wf('njerke', 'njerka', 'the stepmother'), w('thote'), p(':'), w('ky'), w('zog'), w('eshte'), w('nje'), w('hije'), w('e_art'), wf('keq', 'keqe', 'bad'), p('!')),
@@ -10771,7 +10780,7 @@ export const STORY = {
     text: [
       L(w('ti'), wf('fluturo', 'fluturon', 'fly'), wf('ne', 'në', 'in'), wf('dore', 'duart', 'the hands'), w('e_link'), w('tij'), p('.')),
       L(w('ai'), w('te_obj'), w('prek'), wf('ne', 'në', 'on'), w('koke'), p(','), w('gjen'), wf('gjilpere', 'gjilpërën', 'the needle'), w('dhe'), w('e_obj'), w('heq'), p('.')),
-      Q('Pralla popullore shqiptare (1954)',
+      Q('pralla-maro-fundi',
         w('ti'), wf('thote', 'thua', 'say'), p(':'), w('une'), w('jam'), wf('grua', 'gruaja', 'the woman'), wf('yt', 'jote', 'your'), p('.')),
       L(w('ti'), wf('tregoj', 'tregon', 'tell'), w('gjithcka'), p('.'), wf('njerke', 'njerka', 'the stepmother'), p(','), w('lena'), p(','), wf('magjistare', 'magjistarja', 'the sorceress'), w('dhe'), w('mami'), wf('merr', 'marrin', 'get'), w('cfare'), wf('jep', 'dhanë', 'gave'), p('.')),
       Q('mbyllja e përrallës — Pralla popullore shqiptare (1954)',
