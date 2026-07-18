@@ -142,6 +142,18 @@ export const hasCond = (state, id) => {
   if (isNpcId(id)) return npcCond(state, id)
   if (id === 'embodying') return state.embodying != null
   if (isEmbodyingId(id)) return state.embodying === id.slice(10)
+  // FAMILIARITY — `again` is true when the node you stand at was already visited
+  // when you arrived (this run or an earlier one: state.visited persists, the way
+  // your discovered words do — the LEARNER's familiarity, not the run's).
+  // `visited:<nodeId>` (or `visited:a|b`, any match) is true once a place has
+  // ever been explored — a signpost line can retire once its road is known.
+  if (id === 'again') return !!state.familiar
+  if (id.startsWith('visited:')) return id.slice(8).split('|').some((n) => !!state.visited?.[n])
+  // HEARSAY — `rumor` is true only on an arrival at a place you had heard of but
+  // never seen (the payoff of a fire-circle tale); `heard:<nodeId>` is true once
+  // any scene has told you of the place (node.tells), seen or not.
+  if (id === 'rumor') return !!state.rumor
+  if (id.startsWith('heard:')) return !!state.heard?.[id.slice(6)]
   return (state.inventory[id] || 0) > 0
 }
 // the next hour (at or after `clock`) that falls inside `phase`
@@ -225,6 +237,9 @@ function baseRun() {
     nodeId: START_NODE,
     cameFrom: null, // the node you walked in from (see ARRIVAL above)
     cameFromPhase: null, // the time-of-day phase when you chose your last option (see ARRIVAL)
+    familiar: false, // was THIS node already visited when you arrived? (see FAMILIARITY below)
+    heard: {}, // nodeId -> true once a scene TOLD you of the place (see HEARSAY below)
+    rumor: false, // does THIS arrival fulfil a rumor — heard of, never seen? (see HEARSAY)
     trail: [], // the last few DISTINCT nodes you occupied before this one, most-recent first
     // (see BACKTRACK below). An option whose destination is in the trail is a step BACK to a
     // place you were just at — it always shows (never reveal-gated, never ringed).
@@ -333,6 +348,27 @@ export function reducer(state, action) {
       }
       // Track where you've been (persistent); exploring a region past its
       // threshold is the DEED of its area achievement.
+      // FAMILIARITY: was the destination already visited when you set out?
+      // Exposed as the virtual item `again` so a scene can tell its rich
+      // first-visit prose once and stay slim-but-alive on every return
+      // (first()/again() lines in content.js). A self-loop (wait, light the
+      // fire, take the salt) does not restart the standing, so it keeps the
+      // arrival's familiarity rather than ageing the scene mid-conversation.
+      const familiar = option.to === state.nodeId ? !!state.familiar : !!state.visited[option.to]
+      // HEARSAY: arriving somewhere you had only HEARD OF fulfils the rumor —
+      // the one-shot virtual item `rumor` lets the scene close the loop the
+      // fire-circle opened ("ti ke dëgjuar fjalët: ja deti."). And the scene
+      // you arrive at may itself TELL of far places (node.tells: [...ids]) —
+      // they enter your head (state.heard, persistent) and the world map marks
+      // them as rumors until you stand there. See the FAMILIARITY notes.
+      const rumor = option.to === state.nodeId
+        ? !!state.rumor
+        : !state.visited[option.to] && !!state.heard?.[option.to]
+      let heard = state.heard || {}
+      if (targetNode?.tells) {
+        heard = { ...heard }
+        for (const t of targetNode.tells) heard[t] = true
+      }
       const visited = { ...state.visited, [option.to]: true }
       const newAreas = newlyEligibleAreas(visited, eligible)
       if (newAreas.length) {
@@ -375,6 +411,9 @@ export function reducer(state, action) {
         nodeId: option.to,
         cameFrom: state.nodeId,
         cameFromPhase: timeOfDay(state),
+        familiar,
+        heard,
+        rumor,
         // breadcrumb the node you're leaving onto the trail (most-recent first, kept
         // DISTINCT and capped at TRAIL_LEN). Drop the destination if it's already in
         // there so a place is never in its own backtrack set. See BACKTRACK below.
@@ -525,6 +564,7 @@ export function reducer(state, action) {
         mana: state.mana,
         practiced: state.practiced,
         visited: state.visited,
+        heard: state.heard || {},
         discovered: state.discovered,
         earned: state.earned,
         eligible: state.eligible,
@@ -542,6 +582,8 @@ export function reducer(state, action) {
         nodeId: STORY[action.to] ? action.to : WORLD_HUB,
         cameFrom: null,
         cameFromPhase: null,
+        familiar: !!state.visited[STORY[action.to] ? action.to : WORLD_HUB],
+        rumor: false,
         trail: [], // fresh footing on re-entry — nowhere is "just behind you" (see BACKTRACK)
         ended: null,
       }
@@ -549,7 +591,7 @@ export function reducer(state, action) {
     case 'RESET':
       // hard new run (top-right button or game over): back to the start with
       // everything undiscovered; keep only your tokens and achievements
-      return { ...baseRun(), mana: state.mana, practiced: state.practiced, visited: state.visited, earned: state.earned, eligible: state.eligible, attempts: state.attempts, debug: state.debug }
+      return { ...baseRun(), mana: state.mana, practiced: state.practiced, visited: state.visited, heard: state.heard || {}, earned: state.earned, eligible: state.eligible, attempts: state.attempts, debug: state.debug }
 
     default:
       return state

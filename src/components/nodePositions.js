@@ -34,6 +34,7 @@ export const NODE_AT = {
   binoshetLumi: 'lumi',
   binoshetFund: 'lumi',
   binoshetHije: 'lumi',
+  odaJutbina: [590, -282], // the men's room of the great kulla — the border-news oda
   haliliDeka: 'jutbina',
   haliliMejdan: 'jutbina',
   haliliJeton: 'jutbina',
@@ -77,6 +78,8 @@ export const NODE_AT = {
   flocka1: [140, 1560],
   flockaFund: 'flocka1',
   deti1: [1010, 800],
+  kripore1: [902, 912], // the salt pans — anchored on the drawn kripore art (DebugView)
+  punaKripe: 'kripore1',
   detiThelle1: [1360, 1200],
   detiThelle2: [1680, 1420],
   detiNuse: 'detiThelle2',
@@ -119,9 +122,6 @@ export const NODE_AT = {
   shpellaRruget: [235, 1430],
   qyteti: [300, 2060],
   qytetiUdhetar: 'qyteti',
-  qytetiUdhetar2: 'qyteti',
-  qytetiUdhetar3: 'qyteti',
-  qytetiUdhetar4: 'qyteti',
   // ── the living quarter of the dead city — a real drawn plaza: the square at
   // its heart, the bazaar NE, the inn SE, the healer SW, the traveller by the
   // street in from the gate, the way-signs at the far edge.
@@ -132,10 +132,10 @@ export const NODE_AT = {
   blerjaBuke: 'tregtari',
   blerjaKripe: 'tregtari',
   shitjaCaj: 'tregtari',
-  tregtari2: 'tregtari',
-  blerjaLahuta: 'tregtari',
-  plisiFund: 'tregtari',
-  xhubletaFund: 'tregtari',
+  tregtari2: [478, 2148], // the trader's dyqan — its own doorway beside the stall
+  blerjaLahuta: 'tregtari2',
+  plisiFund: 'tregtari2',
+  xhubletaFund: 'tregtari2',
   bujtina: [434, 2181],
   gjumiBujtina: 'bujtina',
   kafeja1: 'bujtina',
@@ -143,11 +143,18 @@ export const NODE_AT = {
   fallFund: 'bujtina',
   gezuarFund: 'bujtina',
   sheruesi: [352, 2172],
+  kopshtiBar: [310, 2210], // the healer's herb garden behind the house
   sherimiBar: 'sheruesi',
   besimeFund: 'sheruesi',
   udhetariHuaj: [362, 2106],
   kurbetiFund: 'udhetariHuaj',
   udhaShenja: [415, 2216],
+  udhaUdhetari: 'udhaShenja', // the traveller's leaving — the same old door as an event
+  // ── the sea-road beyond the old door: the toll-road's first stretch, then the
+  // waystone where it bends down toward the far coast (the traveller's parting)
+  rrugaDetit: [560, 2285],
+  guriUdhes: [700, 2330],
+  lamtumira: 'guriUdhes', // the farewell at the waystone — same spot as the standing stone
   thesar2: [430, 2210],
   thesarKthyer: [500, 2250],
   gjarperVrare: 'thesar2',
@@ -264,9 +271,9 @@ export const NODE_AT = {
   ngjitja2: 'pusi2',
   ngjitja3: 'pusi2',
   fshatiSheshi: [499, 432],
-  dasma1: 'fshatiSheshi',
-  dasmaFund: 'fshatiSheshi',
-  valleFund: 'fshatiSheshi',
+  dasma1: [598, 448], // the wedding yard — the feast-house ground east of the square (krushqit ride here)
+  dasmaFund: 'dasma1',
+  valleFund: 'dasma1',
   sheshiPlak: 'fshatiSheshi',
   sheshiPlak2: 'fshatiSheshi',
   sheshiPlak3: 'fshatiSheshi',
@@ -520,7 +527,8 @@ export const NODE_AT = {
   fshatiLumi: [232, 616],
   gruaUji1: 'fshatiLumi', // the water-carrier stopped on the bank — same spot as the river scene
   lumiMjeshter: [166, 602],
-  lumiMjeshter2: 'lumiMjeshter',
+  fushaMulli: [200, 545], // the fields behind the mill — the miller's world, walked
+
   // the NEW bridge (Ura e Artës) worksite — the masons' yard at the EAST
   // bridgehead, upstream of the old bridge; the half-built span reaches out
   // over the water from here (gUraArtes draws it)

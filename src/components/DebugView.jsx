@@ -2344,7 +2344,7 @@ const REGION_LABEL_POS = {
 }
 
 // `world` carries live world-state for state-drawn glyphs (world.fire = fireStateOf)
-export function VillageMap({ g, current, goGraph, compact, follow, world, npcs, jumpTo }) {
+export function VillageMap({ g, current, goGraph, compact, follow, world, npcs, rumors, jumpTo }) {
   const scatter = useMemo(() => {
     const rnd = mulberry32(20260708)
     const trees = []
@@ -3158,6 +3158,21 @@ export function VillageMap({ g, current, goGraph, compact, follow, world, npcs, 
                   <title>{n.name} — {n.node}</title>
                   <circle cx={p[0] + 12} cy={p[1] - 10} r={8.5} fill="#1c2433" stroke="#e6b84e" strokeWidth={1.2} opacity={0.92} />
                   <text x={p[0] + 12} y={p[1] - 6.4} textAnchor="middle" fontSize={10.5}>{n.glyph}</text>
+                </g>
+              )
+            })}
+
+            {/* RUMORS — places you have only HEARD OF (node.tells → state.heard):
+                a dashed question-mark until you stand there, so the map grows
+                first in your head and then underfoot. See HEARSAY in gameState. */}
+            {(rumors || []).map((id) => {
+              const p = pos[id]
+              if (!p) return null
+              return (
+                <g key={'rum' + id} className="dbg-rumor" opacity={0.6}>
+                  <title>a place you have only heard of…</title>
+                  <circle cx={p[0]} cy={p[1]} r={9} fill="none" stroke="#d9c56a" strokeWidth={1.6} strokeDasharray="3 3" />
+                  <text x={p[0]} y={p[1] + 3.8} textAnchor="middle" fontSize={11} fill="#d9c56a">?</text>
                 </g>
               )
             })}

@@ -99,6 +99,10 @@ export default function StoryView({ state, dispatch }) {
     // (because it counts as revealed) never rings its sentence. See BACKTRACK in
     // gameState.js. Forward progress into a NEW place still gates normally.
     if (isBacktrack(state, opt.to)) return true
+    // KNOWN ROADS — a destination you have ever explored needs no signpost
+    // sentence re-earned: the option shows outright (and its until()-retired
+    // signpost line may be gone from the scene). See FAMILIARITY in gameState.js.
+    if (state.visited?.[opt.to]) return true
     const line = sentenceFor(opt.reveal)
     return !line || lineDiscovered(line)
   }

@@ -34,7 +34,8 @@ export default function MiniMap({ state, dispatch }) {
                 onClick={() => { setExpanded(false); setOpen(false) }}>✕</button>
       </div>
       <div className="minimap-body">
-        <VillageMap g={g} current={state.nodeId} goGraph={goGraph} compact follow world={{ fire: fireStateOf(state) }} npcs={liveNpcs(state)} />
+        <VillageMap g={g} current={state.nodeId} goGraph={goGraph} compact follow world={{ fire: fireStateOf(state) }} npcs={liveNpcs(state)}
+          rumors={Object.keys(state.heard || {}).filter((id) => !state.visited?.[id])} />
       </div>
     </div>
   )

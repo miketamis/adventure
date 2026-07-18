@@ -1628,6 +1628,23 @@ export const notFrom = (nodeIds, line) => ({ cond: fromCond(nodeIds), negate: tr
 const becameCond = (phases) => 'became:' + [].concat(phases).join('|')
 export const became = (phases, line) => ({ cond: becameCond(phases), line })
 export const notBecame = (phases, line) => ({ cond: becameCond(phases), negate: true, line })
+// FAMILIARITY — scenes that know they've been read (gameState tracks the
+// persistent `state.visited` map and exposes it as the virtual items `again`
+// and `visited:<nodeId>`). Three wrappers:
+//   first(line)       — only while the place is NEW to you: the rich establishing
+//                       prose of a first arrival, retired on every later visit so
+//                       returns stay slim and the LIVE lines (NPCs, the hour,
+//                       your changes) stand out instead of drowning in furniture.
+//   again(line)       — only on a RETURN: the world remembers you ("mirë se
+//                       erdhe përsëri!"), the scene acknowledges your history.
+//   until(dests, line) — a SIGNPOST that retires once every named destination
+//                       has been explored: a road you have walked needs no
+//                       sentence to sell it (its option auto-reveals — see
+//                       optionRevealed in StoryView). Pass one node id or an
+//                       array (retires only when ALL are known).
+export const first = (line) => ({ cond: 'again', negate: true, line })
+export const again = (line) => ({ cond: 'again', line })
+export const until = (nodeIds, line) => ({ cond: [].concat(nodeIds).map((n) => 'visited:' + n), negate: true, line })
 export const lineOf = (entry) => (Array.isArray(entry) ? entry : entry.line)
 // the lines actually shown for a node, given has(itemId) -> bool; a cond may be
 // an array of ids meaning ALL of them (see when()/unless() above)
@@ -1701,11 +1718,9 @@ export const STORY = {
   lendina: {
     id: 'lendina',
     text: [
-      L(w('ti'), w('ec'), wf('ne', 'në', 'in'), wf('pyll', 'pyllin', 'the forest'), p('.')),
-      L(w('ketu'), w('eshte'), w('nje'), w('vend'), w('i_art'), w('qete'), p('.')),
+      L(w('ti'), wf('ec', 'ecën', 'walk'), wf('ne', 'në', 'in'), wf('pyll', 'pyllin', 'the forest'), p('.')),
       // the path ends at the clearing — behind you the road, ahead only trees
-      L(w('nje'), w('rruge'), wf('shko', 'shkon', 'goes'), w('mbrapa'), p('.')),
-      L(wf('pyll', 'pylli', 'the forest'), wf('shko', 'shkon', 'goes'), w('thelle'), p('.')),
+      L(w('ketu'), w('eshte'), w('nje'), w('vend'), w('i_art'), w('qete'), p(':'), w('nje'), w('rruge'), wf('shko', 'shkon', 'goes'), w('mbrapa'), w('dhe'), wf('pyll', 'pylli', 'the forest'), wf('shko', 'shkon', 'goes'), w('thelle'), p('.')),
       // the campfire is a PHYSICAL fact of the clearing — it burns, dies, goes cold
       when('fireBig', L(wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('madh'), p('.'))),
       when('fireLow', L(wf('zjarr', 'zjarri', 'the fire'), w('vdes'), p('.'))),
@@ -1725,8 +1740,7 @@ export const STORY = {
       // dead fireplace draws no one to it
       when('npc:plakaPyllit', L(w('nje'), w('plake'), w('e_art'), w('ftohte'), w('vjen'), w('nga'), wf('pyll', 'pylli', 'the forest'), p('.'))),
       when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('rri'), wf('tek', 'te', 'at'), wf('zjarr', 'zjarri', 'the fire'), p('.'))),
-      when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), wf('mik', 'mik', 'guest'), w('i_art'), w('shenjte'), p('.'))),
-      when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('do'), w('buke'), p('.'))),
+      when(['npc:plakaPyllit', 'fireLive'], L(wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), wf('mik', 'mik', 'guest'), w('i_art'), w('shenjte'), p(','), w('dhe'), w('do'), w('buke'), p('.'))),
       L(w('ti'), w('je'), w('i_art'), w('uritur'), p('.')),
     ],
     options: [
@@ -2785,6 +2799,9 @@ export const STORY = {
       L(wf('femije', 'fëmijët', 'the children'), wf('ndiz', 'ndezin', 'light'), w('nje'), w('zjarr'), p('.')),
       L(wf('femije', 'fëmijët', 'the children'), wf('kerce', 'kërcejnë', 'leap'), w('mbi'), w('zjarr'), p('.')),
       L(wf('femije', 'fëmijët', 'the children'), wf('ha', 'hanë', 'eat'), w('ballokume'), p('.')),
+      // the feast-day stalls — the little market moved here from the square's
+      // standing prose: it exists ON the festival, where it belongs
+      L(w('ketu'), w('eshte'), w('nje'), w('treg'), w('i_art'), w('vogel'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), w('sot'), wf('zane', 'zana', 'the mountain-fairy'), w('e_link'), wf('mal', 'malit', 'the mountain'), wf('dil', 'del', 'comes out'), p('.')),
     ],
     options: [
@@ -2849,11 +2866,15 @@ export const STORY = {
     text: [
       // surfacing from the deep is its own arrival
       from('detiThelle1', L(w('ti'), wf('ngjit', 'ngjitesh', 'climb'), w('lart'), w('nga'), wf('uje', 'uji', 'the water'), p('.'))),
+      // the rumor fulfilled — the sea you only knew from a fire-circle tale
+      when('rumor', L(w('ti'), wf('ka', 'ke', 'have'), wf('degjo', 'dëgjuar', 'heard'), wf('fjale', 'fjalët', 'the words'), p(':'), w('ja'), wf('det', 'deti', 'the sea'), p('.'))),
       L(wf('lume', 'lumi', 'the river'), w('vjen'), wf('ne', 'në', 'to'), w('det'), p('.')),
       L(wf('det', 'deti', 'the sea'), w('eshte'), w('i_art'), w('madh'), w('dhe'), w('i_art'), w('thelle'), p('.')),
       L(w('poshte'), wf('thote', 'thonë', 'they say'), w('rri'), w('bukura'), w('e_link'), wf('det', 'detit', 'the sea'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), w('bukura'), w('ka'), w('dy'), w('motra'), p(','), wf('ne', 'në', 'in'), w('toke'), w('dhe'), wf('ne', 'në', 'in'), w('qiell'), p('.')),
       L(w('nje'), w('fshat'), w('i_art'), w('vogel'), w('rri'), w('ketu'), p(','), w('afer'), wf('uje', 'ujit', 'the water'), p('.')),
+      // the shore-village's living: the salt pans south along the strand
+      until('kripore1', L(w('afer'), p(','), wf('njeri', 'njerëzit', 'the people'), wf('bej', 'bëjnë', 'make'), w('kripe'), w('nga'), wf('uje', 'uji', 'the water'), p('.'))),
       // the besieged old Lion, Ali Pashë Tepelena, is holed up on the lake island
       L(w('aliPasha'), w('rri'), wf('ne', 'në', 'on'), w('liqen'), p('.'), w('aliPasha'), wf('lufto', 'lufton', 'fights'), w('nje'), w('mbret'), p('.')),
       // the open sky over the coast tells the hour — the moon-road at night, the
@@ -2872,6 +2893,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('fshat')), to: 'bregu', reveal: 'det' },
+      { text: L(w('ec'), w('tek'), wf('kripe', 'kripa', 'the salt')), to: 'kripore1', reveal: 'kripe' },
       { text: L(w('zbrit'), wf('ne', 'në', 'to'), w('det')), to: 'detiThelle1', reveal: 'thelle' },
       // step into the old Lion's last stand on the lake island — embody Ali Pasha
       { text: L(w('sheh'), w('aliPasha')), to: 'aliPashaLiqen', become: 'ali-pashe-tepelena' },
@@ -3012,10 +3034,47 @@ export const STORY = {
   // Baba Tomor & the kreshnik peak) and the pilgrim path to the holy peak (Zojz).
   // The Sun-maiden is chained on a high rock; a cave holds the Katallan; and you
   // can always descend to the crossroads. This is what ties the mountain together.
+  // === KRIPORET — the salt pans on the strand below the shore village =======
+  // The drawn map has always painted them (DebugView's kripore art at the same
+  // spot); now they are a real place: the village's salt is MADE here — sun,
+  // sea-water and rakes — and the pans live by the clock: workers by day, home
+  // at dusk under a red sky, the moon's white road across the water by night.
+  kripore1: {
+    id: 'kripore1',
+    text: [
+      L(w('ti'), w('je'), w('afer'), wf('det', 'detit', 'the sea'), p(':'), w('ketu'), wf('njeri', 'njerëzit', 'the people'), wf('bej', 'bëjnë', 'make'), w('kripe'), p('.')),
+      L(wf('diell', 'dielli', 'the sun'), w('merr'), wf('uje', 'ujin', 'the water'), w('dhe'), wf('kripe', 'kripa', 'the salt'), w('rri'), w('e_art'), w('bardhe'), p('.')),
+      when('day', L(wf('dite', 'ditën', 'by day'), wf('burre', 'burrat', 'the men'), wf('punon', 'punojnë', 'work'), w('me'), w('kripe'), w('nen'), w('diell'), p(':'), w('ka'), w('pune'), w('per'), wf('ti', 'ty', 'you'), p('.'))),
+      when('dusk', L(w('eshte'), w('muzg'), p(':'), wf('burre', 'burrat', 'the men'), wf('shko', 'shkojnë', 'go'), wf('ne', 'në', 'to'), w('shtepi'), w('dhe'), wf('qiell', 'qielli', 'the sky'), w('i_art'), w('kuq'), w('bie'), w('mbi'), wf('uje', 'ujin', 'the water'), p('.'))),
+      when('night', L(w('naten'), wf('hene', 'hëna', 'the moon'), wf('bej', 'bën', 'makes'), w('nje'), w('rruge'), w('te_link'), w('bardhe'), w('mbi'), wf('uje', 'ujin', 'the water'), p('.'))),
+      when('dawn', L(w('eshte'), w('agim'), p(':'), wf('drite', 'drita', 'the light'), w('e_art'), wf('pari', 'parë', 'first'), w('bie'), w('mbi'), w('kripe'), w('te_link'), w('bardhe'), p('.'))),
+    ],
+    options: [
+      // honest work at the pans — the coast's answer to the mill's five lek
+      { text: L(wf('bej', 'bëj', 'do'), w('pune')), requires: 'day', lek: 5, to: 'punaKripe', reveal: 'pune' },
+      // the heaped white cones — a pinch for the road (the trader sells more)
+      { text: L(w('merr'), w('pak'), w('kripe')), grant: 'kripe', unless: 'kripe', to: 'kripore1', reveal: 'kripe' },
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('fshat')), to: 'deti1' },
+    ],
+  },
+
+  // A day's raking beside the salt-men — five lek, like the mill pays.
+  punaKripe: {
+    id: 'punaKripe',
+    text: [
+      L(w('ti'), wf('bej', 'bën', 'do'), w('pune'), w('me'), wf('burre', 'burrat', 'the men'), w('nen'), w('diell'), p('.')),
+      L(wf('burre', 'burrat', 'the men'), wf('jep', 'japin', 'give'), w('pese'), w('lek'), w('dhe'), wf('thote', 'thonë', 'say'), p(':'), w('faleminderit'), p('!')),
+    ],
+    options: [
+      { text: L(wf('le', 'lër', 'leave'), wf('pune', 'punën', 'the work')), to: 'kripore1' },
+    ],
+  },
+
   mali1: {
     id: 'mali1',
     text: [
       L(w('ti'), w('je'), wf('ne', 'në', 'on'), w('mal'), w('tomor'), p('.')),
+      when('rumor', L(w('ti'), wf('ka', 'ke', 'have'), wf('degjo', 'dëgjuar', 'heard'), wf('fjale', 'fjalët', 'the words'), p(':'), w('ja'), wf('mal', 'mali', 'the mountain'), p('.'))),
       // the way in colours the scene: the climb up, the walk down, the flight out
       from('udhekryq', L(w('ti'), w('ngjit'), w('nga'), wf('udhekryq', 'udhëkryqi', 'crossroads'), p('.'))),
       from(['mali3', 'dhia1', 'qiell1'], L(w('ti'), w('zbrit'), w('nga'), w('lart'), p('.'))),
@@ -3052,6 +3111,8 @@ export const STORY = {
     id: 'cajMali1',
     text: [
       L(w('ti'), w('merr'), w('caj'), wf('ne', 'në', 'on'), w('mal'), p('.')),
+      // the healer's praise fulfilled — the tea of the high slopes, found
+      when('rumor', L(w('ti'), wf('ka', 'ke', 'have'), wf('degjo', 'dëgjuar', 'heard'), wf('fjale', 'fjalët', 'the words'), p(':'), w('ja'), w('caj'), w('i_art'), w('mire'), w('i_art'), wf('mal', 'malit', 'the mountain'), p('.'))),
       L(w('caj'), w('eshte'), w('bar'), w('i_art'), w('mire'), w('per'), wf('dite', 'ditë', 'days'), w('te_link'), wf('ftohte', 'ftohta', 'cold'), p('.')),
       L(wf('tregtar', 'tregtari', 'the trader'), wf('ne', 'në', 'in'), w('qytet'), wf('blej', 'blen', 'buys'), w('caj'), p('.')),
       // the tea-slopes at the day's turnings
@@ -3607,118 +3668,123 @@ export const STORY = {
     ],
   },
 
-  // A traveller passing through the dead city — a flavour vignette (talk-and-
-  // return) carrying the everyday 151-200 words: greeting, asking your errand,
-  // offering to guide you on toward the sea. No ending, no folktale weight.
+  // === THE TRAVELLER'S ROAD — a WALK, not a wall of talk =====================
+  // The fast-talking traveller of the dead city, rebuilt (2026-07-18) from a
+  // four-node monologue chain into a real guided journey: meet him in the
+  // street, walk with him to the old door, watch him pay the road-toll (and pay
+  // your own), walk the first stretch of the sea-road, and see him off at the
+  // waystone where the road bends down toward the coast. Each PLACE carries the
+  // slice of the everyday talk that belongs there (survival syllabus, taste
+  // rule 15): greeting and errands at the meeting, money and tickets at the
+  // door, road-talk on the road, farewells at the parting stone.
   qytetiUdhetar: {
     id: 'qytetiUdhetar',
+    tells: ['deti1'], // "aq larg është deti" — the sea enters your head here
     text: [
       L(wf('udhetar', 'udhëtari', 'the traveller'), w('flet'), w('shpejt'), p(':'), wf('fjale', 'fjalët', 'the words'), wf('vjen', 'vijnë', 'come'), w('si'), w('shi'), p('.')),
       L(wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':')),
-      L(w('hajde'), p('!')),
+      L(w('tung'), p('!'), w('hajde'), p('!')),
       L(w('une'), wf('vjen', 'vij', 'come'), w('prej'), w('nje'), wf('vend', 'vendi', 'a place'), w('larg'), p('.')),
-      L(w('cka'), wf('kerko', 'kerkon', 'seek'), w('ti'), p('?')),
-      L(w('une'), wf('ka', 'kam', 'have'), w('nevoje'), w('per'), w('pune'), p('.')),
-      L(w('mua'), w('me_obj'), w('pelqen'), wf('vend', 'vendi', 'the place'), p('.')),
-      L(w('une'), wf('merr', 'marr', 'take'), wf('rruge', 'rrugën', 'the road'), p('.')),
-      L(w('ti'), w('duhet'), w('te_subj'), wf('jam', 'jesh', 'be'), w('gati'), p('.')),
+      L(w('cka'), wf('kerko', 'kerkon', 'seek'), w('ti'), p('?'), w('ti'), wf('ka', 'ke', 'have'), w('nevoje'), w('per'), w('pune'), p('?')),
+      L(w('cka'), w('eshte'), wf('pune', 'puna', 'the work'), wf('yt', 'jote', 'your'), p('?'), w('cili'), w('lloj'), p('?')),
+      L(w('mua'), w('me_obj'), w('pelqen'), wf('vend', 'vendi', 'the place'), p(','), w('por'), w('une'), wf('merr', 'marr', 'take'), wf('rruge', 'rrugën', 'the road'), p('.')),
+      L(w('aq'), w('larg'), w('eshte'), wf('det', 'deti', 'the sea'), p(':'), w('nje'), w('gje'), w('e_link'), w('tille'), p('!')),
       L(w('epo'), p(','), w('ti'), w('je'), w('gati'), p('?')),
-      L(w('une'), wf('sheh', 'shoh', 'see'), w('mire'), p(','), w('vertet'), p('.')),
-      L(w('thjesht'), w('ec'), w('me'), w('mua'), p('.')),
-      L(w('aq'), w('larg'), w('eshte'), wf('det', 'deti', 'the sea'), p('.')),
-      L(w('sigurisht'), p(','), wf('rruge', 'rruga', 'the road'), w('eshte'), w('e_link'), w('drejte'), p('.')),
-      L(wf('vend', 'vendi', 'the place'), w('yt'), w('eshte'), w('larg'), p('?')),
-      L(w('cka'), w('eshte'), wf('pune', 'puna', 'the work'), wf('yt', 'jote', 'your'), p('?')),
-      L(w('atehere'), p(','), w('cka'), wf('bej', 'bëjmë', 'do'), w('ne_we'), p('?')),
-      L(w('cfare'), w('do_fut'), w('te_subj'), wf('bej', 'bësh', 'do'), p('?')),
-      L(w('mik'), w('i_art'), w('dashur'), p('!')),
+      L(w('thjesht'), w('ec'), w('me'), w('mua'), p(','), wf('tek', 'te', 'to'), wf('dere', 'dera', 'the door'), w('e_art'), w('vjeter'), p('.')),
     ],
     options: [
-      { text: L(w('degjo'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'qytetiUdhetar2', reveal: 'udhetar' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+      { text: L(w('ec'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'udhaUdhetari', reveal: 'udhetar' },
+      { text: L(wf('le', 'lër', 'leave'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'qyteti' },
     ],
   },
 
-  qytetiUdhetar2: {
-    id: 'qytetiUdhetar2',
+  // The old door as an EVENT: the traveller pays the road-toll the guard's sign
+  // demands, and for five lek of your own you can walk out with him. Same spot
+  // as udhaShenja (the standing door scene) — see nodePositions.
+  udhaUdhetari: {
+    id: 'udhaUdhetari',
     text: [
+      L(w('ti'), wf('ec', 'ecën', 'walk'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller'), w('tek'), wf('dere', 'dera', 'the door'), w('e_art'), w('vjeter'), p('.')),
+      L(w('nje'), w('polici'), w('ruan'), wf('dere', 'derën', 'the door'), p('.')),
+      L(wf('polici', 'policia', 'the guard'), w('thote'), p(':'), w('per'), wf('rruge', 'rrugën', 'the road'), p(','), w('jep'), w('nje'), w('bilete'), p('.')),
+      L(w('nje'), w('bilete'), w('kushton'), w('pese'), w('lek'), p('.')),
+      L(wf('udhetar', 'udhëtari', 'the traveller'), w('jep'), w('pese'), w('lek'), w('dhe'), w('merr'), w('nje'), w('bilete'), p('.')),
       L(wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':')),
-      L(w('une'), wf('fol', 'flas', 'speak'), w('mire'), p('.')),
-      L(w('une'), w('te_obj'), w('kuptoj'), p('.')),
-      L(w('cili'), w('vend'), p('?')),
-      L(w('nuk'), w('eshte'), w('problem'), p('.')),
-      L(w('une'), w('di'), w('nje'), w('menyre'), p('.')),
-      L(w('ndonjehere'), w('une'), wf('vjen', 'vij', 'come'), w('ketu'), p('.')),
-      L(w('rreth'), wf('det', 'detit', 'the sea'), w('fare'), w('nuk'), wf('ka', 'ka', 'has'), w('njeri'), p('.')),
-      L(w('ju'), wf('di', 'dini', 'know'), wf('rruge', 'rrugën', 'the road'), p('?')),
-      L(w('ti'), w('deshiron'), w('te_subj'), wf('shko', 'shkosh', 'go'), p('?')),
-      L(w('une'), wf('gjen', 'gjej', 'find'), wf('rruge', 'rrugën', 'the road'), p('.')),
-      L(w('une'), w('vete'), w('kuptoj'), p('.')),
-      L(w('ti'), wf('ka', 'ke', 'have'), wf('para', 'paratë', 'money'), p('?')),
-      L(w('pas'), wf('minuta', 'minutash', 'minutes'), p(','), w('ne_we'), wf('ik', 'ikim', 'leave'), p('.')),
-      L(w('cfare'), w('do_fut'), w('te_subj'), wf('thote', 'thuash', 'say'), p('?')),
-      L(w('une'), wf('mund', 'mundem', 'can'), p('.')),
-      L(wf('do', 'doni', 'want'), w('uje'), p('?')),
-      L(wf('bej', 'bëni', 'do'), w('mire'), p('!')),
+      L(w('nuk'), w('eshte'), w('problem'), p(':'), w('une'), w('di'), w('nje'), w('menyre'), p('.')),
+      L(w('ti'), wf('ka', 'ke', 'have'), wf('para', 'para', 'money'), p('?'), w('ti'), w('deshiron'), w('te_subj'), wf('shko', 'shkosh', 'go'), p('?')),
+      L(w('gjithashtu'), w('une'), wf('ka', 'kam', 'have'), w('buke'), w('per'), wf('rruge', 'rrugën', 'the road'), p('.')),
+      L(w('sic'), wf('thote', 'thashë', 'said'), p(':'), w('pas'), wf('minuta', 'minutash', 'minutes'), p(','), w('ne_we'), wf('ik', 'ikim', 'leave'), p('.'), w('dakord'), p('?')),
     ],
     options: [
-      { text: L(w('degjo'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'qytetiUdhetar3', reveal: 'udhetar' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+      { text: L(wf('dil', 'dil', 'go out'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), lek: -5, to: 'rrugaDetit', reveal: 'bilete' },
+      { text: L(wf('le', 'lër', 'leave'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'sheshi' },
     ],
   },
 
-  qytetiUdhetar3: {
-    id: 'qytetiUdhetar3',
+  // The old SEA-ROAD outside the door — the first stretch of the long way the
+  // traveller goes. The door's direction-signs live out here as geography: a
+  // waystone that reads like a map. His road-talk happens WHERE the road is,
+  // and only while you walk it with him (from:-gated).
+  rrugaDetit: {
+    id: 'rrugaDetit',
+    tells: ['deti1', 'mali1'], // the waystone's map: left the mountain, right the sea
     text: [
-      L(wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':')),
-      L(w('ti'), wf('kuptoj', 'kupton', 'understand'), p('?')),
-      L(w('sic'), wf('thote', 'thashë', 'said'), p(':'), w('ne_we'), wf('ik', 'ikim', 'leave'), p('.')),
-      L(w('dakord'), p('?')),
-      L(w('une'), w('te_obj'), wf('jep', 'jap', 'give'), w('ca'), w('uje'), p('.')),
-      L(wf('merr', 'merre', 'take'), p('!')),
-      L(w('gjithashtu'), w('une'), wf('ka', 'kam', 'have'), w('buke'), p('.')),
-      L(w('pas'), w('nje'), w('ore'), w('ne_we'), wf('shko', 'shkojmë', 'go'), p('.')),
-      L(w('ne_we'), wf('fol', 'flasim', 'speak'), p('.')),
-      L(wf('shiko', 'shikoni', 'look'), p('!')),
-      L(w('nje'), w('gje'), w('e_link'), w('tille'), p('.')),
+      from(['udhaShenja', 'udhaUdhetari'], L(wf('polici', 'policia', 'the guard'), w('hap'), wf('dere', 'derën', 'the door'), w('dhe'), w('ti'), wf('dil', 'del', 'go out'), w('jashte'), p('.'))),
+      notFrom(['udhaShenja', 'udhaUdhetari'], L(w('ti'), w('je'), w('jashte'), p(','), wf('ne', 'në', 'on'), wf('rruge', 'rrugën', 'the road'), w('e_art'), w('vjeter'), p('.'))),
       L(wf('rruge', 'rruga', 'the road'), w('eshte'), w('e_link'), w('veshtire'), p('.')),
-      L(w('une'), wf('ka', 'kam', 'have'), w('mend'), p('.')),
-      L(w('nuk'), wf('mund', 'mund', 'can'), w('dot'), p('.')),
-      L(w('une'), w('do'), w('nje'), w('pjese'), p('.')),
-      L(w('ec'), w('perpara'), p('!')),
-      L(w('ne_we'), wf('ka', 'kemi', 'have'), w('nje'), w('lidhje'), p('.')),
-      L(w('une'), wf('bej', 'bëra', 'made'), w('nje'), w('gje'), w('te_link'), w('mire'), p('.')),
-      L(w('ti'), w('duhet'), w('te_subj'), wf('ka', 'kesh', 'have'), w('fat'), p('.')),
+      L(w('nje'), w('gur'), w('i_art'), w('madh'), w('eshte'), w('nje'), w('harte'), p(':'), w('majtas'), w('eshte'), w('mal'), p(','), w('djathtas'), w('eshte'), w('det'), p('.')),
+      when('day', L(wf('dite', 'ditën', 'by day'), wf('rruge', 'rruga', 'the road'), w('e_art'), w('bardhe'), wf('shko', 'shkon', 'goes'), w('larg'), w('nen'), w('diell'), p('.'))),
+      when('night', L(w('naten'), w('ti'), wf('degjo', 'dëgjon', 'hear'), wf('det', 'detin', 'the sea'), w('larg'), p('.'))),
+      from('udhaUdhetari', L(wf('udhetar', 'udhëtari', 'the traveller'), wf('ec', 'ecën', 'walks'), w('perpara'), w('dhe'), w('flet'), p(':'))),
+      from('udhaUdhetari', L(w('sigurisht'), p(','), wf('rruge', 'rruga', 'the road'), w('eshte'), w('e_link'), w('drejte'), p('.'))),
+      from('udhaUdhetari', L(w('ndonjehere'), w('une'), wf('vjen', 'vij', 'come'), w('ketu'), p('.'))),
+      from('udhaUdhetari', L(w('rreth'), wf('det', 'detit', 'the sea'), w('fare'), w('nuk'), wf('ka', 'ka', 'has'), w('njeri'), p('.'))),
     ],
     options: [
-      { text: L(w('degjo'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'qytetiUdhetar4', reveal: 'udhetar' },
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+      { text: L(w('ec'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), requires: 'from:udhaUdhetari', to: 'lamtumira', reveal: 'udhetar' },
+      { text: L(w('ec'), w('perpara')), unless: 'from:udhaUdhetari', to: 'guriUdhes', reveal: 'det' },
+      { text: L(w('kthehu'), wf('tek', 'te', 'to'), wf('dere', 'dera', 'the door')), to: 'udhaShenja' },
     ],
   },
 
-  qytetiUdhetar4: {
-    id: 'qytetiUdhetar4',
+  // The parting at the waystone — bread and water shared the road-companion's
+  // way, the fast farewell, and he is gone down the sea-road: a month and a
+  // week of walking you cannot follow. Same spot as guriUdhes.
+  lamtumira: {
+    id: 'lamtumira',
     text: [
+      L(w('ti'), w('vjen'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller'), w('tek'), wf('gur', 'guri', 'the stone'), w('i_art'), w('madh'), p(':'), w('larg'), p(','), w('poshte'), p(','), w('ti'), w('sheh'), wf('det', 'detin', 'the sea'), p('.')),
       L(wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':')),
-      L(w('tung'), p('!')),
-      L(wf('vjen', 'ejani', 'come'), p('!')),
-      L(w('ulu'), p('!')),
-      L(wf('prit', 'prisni', 'wait'), p('!')),
-      L(w('vazhdo'), p('!')),
-      L(w('ec'), w('ketej'), p('.')),
-      L(w('cfare'), wf('mendoj', 'mendoni', 'think'), w('ju'), p('?')),
-      L(wf('cili', 'cili', 'which'), w('lloj'), p('?')),
-      L(wf('jete', 'jeta', 'life'), w('eshte'), w('e_link'), w('mire'), p('.')),
-      L(w('nje'), w('muaj'), wf('ka', 'ka', 'has'), wf('kalo', 'kaluar', 'passed'), p('.')),
-      L(w('nje'), w('jave'), p(','), w('kater'), wf('dite', 'ditë', 'days'), p('.')),
-      L(w('une'), w('jam'), w('i_art'), w('pari'), p('.')),
-      L(wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('kafe'), w('vjen'), w('perpara'), p(','), w('pas'), wf('vjen', 'vijnë', 'come'), wf('fjale', 'fjalët', 'the words'), p('.')),
-      L(wf('dashuri', 'dashuria', 'love'), w('eshte'), w('e_link'), wf('madh', 'madhe', 'big'), p('.')),
-      L(wf('ka', 'ka', 'has'), w('rendesi'), p('?')),
-      L(wf('cili', 'cila', 'which'), w('eshte'), w('arsye'), p('?')),
+      L(w('ulu'), p(','), w('mik'), p('!'), w('une'), w('te_obj'), wf('jep', 'jap', 'give'), w('ca'), w('uje'), p('.'), wf('merr', 'merre', 'take'), p('!')),
+      L(w('une'), w('te_obj'), wf('jep', 'jap', 'give'), w('nje'), w('pjese'), w('buke'), p('.')),
+      L(wf('rruge', 'rruga', 'the road'), w('do'), w('nje'), w('muaj'), w('dhe'), w('nje'), w('jave'), p('.')),
+      L(w('ti'), w('nuk'), w('vjen'), w('dot'), w('me'), w('mua'), p('.')),
+      L(wf('cili', 'cila', 'which'), w('eshte'), w('arsye'), p('?'), w('nuk'), w('ka'), w('rendesi'), p('.')),
+      L(w('vertet'), p(','), w('ne_we'), wf('ka', 'kemi', 'have'), w('nje'), w('lidhje'), p(':'), w('ti'), w('je'), w('mik'), w('i_art'), w('dashur'), p('.')),
+      L(w('ti'), w('duhet'), w('te_subj'), wf('ka', 'kesh', 'have'), w('fat'), p('.'), w('mirupafshim'), p('!')),
+      L(wf('udhetar', 'udhëtari', 'the traveller'), wf('ec', 'ecën', 'walks'), w('poshte'), p(','), wf('ne', 'në', 'on'), wf('rruge', 'rrugën', 'the road'), w('e_link'), wf('det', 'detit', 'the sea'), p('.')),
     ],
     options: [
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumë', 'the river')), to: 'lumi' },
+      { text: L(w('merr'), wf('buke', 'bukën', 'the bread')), grant: 'buke', unless: 'buke', to: 'lamtumira', reveal: 'buke' },
+      { text: L(w('shiko'), wf('gur', 'gurin', 'the stone')), to: 'guriUdhes' },
+    ],
+  },
+
+  // The waystone where the sea-road bends down — the standing scene, for every
+  // later walk out here: the stone reads as a map, and the far sea is a light
+  // by day, a sound by night.
+  guriUdhes: {
+    id: 'guriUdhes',
+    tells: ['deti1'],
+    text: [
+      L(w('ti'), w('je'), w('tek'), wf('gur', 'guri', 'the stone'), w('i_art'), w('madh'), p('.')),
+      L(w('shume'), wf('shenje', 'shenja', 'signs'), wf('rri', 'rrinë', 'stay'), w('mbi'), w('gur'), p('.')),
+      L(wf('rruge', 'rruga', 'the road'), wf('shko', 'shkon', 'goes'), w('djathtas'), p(','), w('poshte'), p(','), w('larg'), p(':'), w('djathtas'), w('eshte'), w('det'), p('.')),
+      when('day', L(wf('dite', 'ditën', 'by day'), wf('det', 'deti', 'the sea'), w('larg'), w('eshte'), w('nje'), w('drite'), w('nen'), w('diell'), p('.'))),
+      when('night', L(w('naten'), w('ti'), wf('degjo', 'dëgjon', 'hear'), wf('det', 'detin', 'the sea'), w('larg'), p('.'))),
+    ],
+    options: [
+      { text: L(w('kthehu'), wf('rruge', 'rrugës', 'the road')), to: 'rrugaDetit' },
     ],
   },
 
@@ -3787,34 +3853,29 @@ export const STORY = {
     options: [],
   },
 
-  // The market stall — buying, selling, prices, please/thanks.
+  // The market stall — buying, selling, prices, please/thanks. The haggling and
+  // the wares live next door: the trader's own DYQAN is a real doorway off the
+  // square now (tregtari2), so the stall keeps only the food trade.
   tregtari: {
     id: 'tregtari',
     text: [
       L(wf('tregtar', 'tregtari', 'the trader'), w('thote'), p(':')),
-      L(w('mirmengjes'), p('!')),
-      L(w('si'), w('je'), w('ti'), p('?')),
-      L(w('cka'), w('do'), w('ti'), p('?')),
-      L(w('une'), w('shes'), w('mish'), p(','), w('peshk'), p(','), w('perime'), p('.')),
+      L(w('mirmengjes'), p('!'), w('si'), w('je'), w('ti'), p('?'), w('cka'), w('do'), w('ti'), p('?')),
+      L(w('une'), w('shes'), w('mish'), p(','), w('peshk'), p(','), w('perime'), p(':'), wf('mish', 'mishi', 'the meat'), w('eshte'), w('i_art'), w('shtrenjte'), p(','), wf('perime', 'perimet', 'the vegetables'), wf('jam', 'janë', 'are'), w('te_link'), wf('lire', 'lira', 'cheap'), p('.')),
       L(w('nje'), w('buke'), w('kushton'), w('pese'), w('lek'), p('.')),
-      L(wf('mish', 'mishi', 'the meat'), w('eshte'), w('i_art'), w('shtrenjte'), p('.')),
-      L(wf('perime', 'perimet', 'the vegetables'), wf('jam', 'janë', 'are'), w('te_link'), wf('lire', 'lira', 'cheap'), p('.')),
-      L(w('sa'), w('kushton'), w('nje'), w('caj'), p('?')),
-      L(w('nje'), w('caj'), p(','), w('gjashte'), w('lek'), p('.')),
-      L(w('nje'), w('birre'), p(','), w('tete'), w('lek'), p('.')),
-      L(w('kripe'), p(','), w('tre'), w('lek'), p('.')),
-      L(w('ti'), wf('blej', 'blen', 'buy'), p('?')),
-      L(w('une'), w('dua'), wf('para', 'para', 'money'), p('.')),
-      L(w('jep'), w('dhjete'), w('lek'), p('.')),
-      L(w('une'), wf('jep', 'jap', 'give'), w('kusur'), p('.')),
-      L(w('faleminderit'), p('!')),
-      L(w('lutem'), p(','), wf('vjen', 'eja', 'come'), w('perseri'), p('!')),
+      L(w('sa'), w('kushton'), w('nje'), w('caj'), p('?'), w('nje'), w('caj'), p(','), w('gjashte'), w('lek'), p('.')),
+      L(w('nje'), w('birre'), p(','), w('tete'), w('lek'), p('.'), w('kripe'), p(','), w('tre'), w('lek'), p('.')),
+      // the how-to-buy demo is a first-meeting lesson; the stall stays a stall
+      first(L(w('ti'), wf('blej', 'blen', 'buy'), p('?'), w('une'), w('dua'), wf('para', 'para', 'money'), p('.'))),
+      first(L(w('jep'), w('dhjete'), w('lek'), p('.'), w('une'), wf('jep', 'jap', 'give'), w('kusur'), p('.'))),
+      until('tregtari2', L(w('ai'), w('ka'), w('edhe'), w('nje'), w('dyqan'), w('me'), wf('rrobe', 'rroba', 'clothes'), p('.'))),
+      L(w('faleminderit'), p('!'), w('lutem'), p(','), wf('vjen', 'eja', 'come'), w('perseri'), p('!')),
     ],
     options: [
       { text: L(w('blej'), w('buke')), lek: -5, grant: 'buke', to: 'blerjaBuke', reveal: 'buke' },
       { text: L(w('blej'), w('kripe')), lek: -3, grant: 'kripe', to: 'blerjaKripe', reveal: 'kripe' },
       { text: L(w('shes'), w('caj')), requires: 'cajMali', consumes: 'cajMali', lek: 10, to: 'shitjaCaj', reveal: 'caj' },
-      { text: L(w('degjo'), wf('tregtar', 'tregtarin', 'the trader')), to: 'tregtari2', reveal: 'tregtar' },
+      { text: L(w('hyr'), wf('ne', 'në', 'in'), w('dyqan')), to: 'tregtari2', reveal: 'dyqan' },
       { text: L(w('kthehu')), to: 'sheshi' },
     ],
   },
@@ -3858,22 +3919,21 @@ export const STORY = {
     ],
   },
 
-  // The trader haggles — the bigger numbers.
+  // The trader's DYQAN — a real doorway beside the stall (own map spot): the
+  // haggling, the bigger numbers, and the wares (plis, xhubleta, lahuta).
   tregtari2: {
     id: 'tregtari2',
     text: [
-      L(wf('tregtar', 'tregtari', 'the trader'), w('thote'), p(':')),
-      L(w('sa'), w('do'), w('ti'), p('?')),
-      L(w('njezet'), w('lek'), p('?')),
-      L(w('nje'), w('gje'), w('e_link'), w('mire'), w('kushton'), w('njeqind'), w('lek'), p('.')),
-      L(w('nje'), w('kale'), w('kushton'), w('mije'), w('lek'), p('.')),
-      L(w('por'), w('per'), wf('ti', 'ty', 'you'), p(','), w('lire'), p('!')),
-      L(w('zero'), w('problem'), p('.')),
+      L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'in'), w('dyqan'), p('.'), wf('tregtar', 'tregtari', 'the trader'), w('thote'), p(':')),
+      L(w('sa'), w('do'), w('ti'), p('?'), w('njezet'), w('lek'), p('?')),
+      L(w('nje'), w('gje'), w('e_link'), w('mire'), w('kushton'), w('njeqind'), w('lek'), p('.'), w('nje'), w('kale'), w('kushton'), w('mije'), w('lek'), p('.')),
+      L(w('por'), w('per'), wf('ti', 'ty', 'you'), p(','), w('lire'), p('!'), w('zero'), w('problem'), p('.')),
       L(wf('dyqan', 'dyqani', 'the shop'), w('im'), w('eshte'), w('mire'), p('.')),
       L(w('une'), w('shes'), w('edhe'), wf('rrobe', 'rroba', 'clothes'), p(':'), w('nje'), w('plis'), w('i_art'), w('bardhe'), p(','), w('nje'), w('xhublete'), p('.')),
-      L(wf('dore', 'duart', 'the hands'), wf('bej', 'bëjnë', 'make'), wf('plis', 'plisin', 'the felt cap'), p('.')),
-      L(wf('xhublete', 'xhubleta', 'the bell-dress'), w('eshte'), w('e_art'), wf('zi', 'zezë', 'black'), w('dhe'), w('ka'), w('diell'), p(','), w('hene'), w('dhe'), w('yll'), p('.'), w('nje'), w('vajze'), w('e_obj'), w('vesh'), w('kur'), w('behet'), w('grua'), p('.')),
-      L(w('une'), w('shes'), w('edhe'), w('nje'), w('lahute'), p(':'), w('dyzet'), w('lek'), p('.')),
+      // the wares' stories retire once each has been handled/heard (until)
+      until('plisiFund', L(wf('dore', 'duart', 'the hands'), wf('bej', 'bëjnë', 'make'), wf('plis', 'plisin', 'the felt cap'), p('.'))),
+      until('xhubletaFund', L(wf('xhublete', 'xhubleta', 'the bell-dress'), w('eshte'), w('e_art'), wf('zi', 'zezë', 'black'), w('dhe'), w('ka'), w('diell'), p(','), w('hene'), w('dhe'), w('yll'), p('.'), w('nje'), w('vajze'), w('e_obj'), w('vesh'), w('kur'), w('behet'), w('grua'), p('.'))),
+      until('blerjaLahuta', L(w('une'), w('shes'), w('edhe'), w('nje'), w('lahute'), p(':'), w('dyzet'), w('lek'), p('.'))),
       L(w('faleminderit'), w('dhe'), w('mirupafshim'), p('!')),
     ],
     options: [
@@ -3938,12 +3998,9 @@ export const STORY = {
       when('dusk', L(w('mirembrema'), p('!'))),
       when('night', L(w('mirembrema'), p('!'))),
       L(w('nje'), w('bujtine'), w('e_link'), wf('madh', 'madhe', 'big'), w('eshte'), w('nje'), w('hotel'), p('.')),
-      L(w('ketu'), w('eshte'), w('nje'), w('dhome'), p('.')),
-      L(wf('dhome', 'dhoma', 'the room'), w('ka'), w('nje'), w('shtrat'), p('.')),
-      L(wf('naten', 'nata', 'the night'), w('kushton'), w('njezet'), w('lek'), p('.')),
-      L(w('ketu'), w('eshte'), w('celes'), p('.')),
-      L(w('fle'), w('mire'), p('!')),
-      L(w('natenmire'), p('!')),
+      L(w('ketu'), w('eshte'), w('nje'), w('dhome'), p(':'), wf('dhome', 'dhoma', 'the room'), w('ka'), w('nje'), w('shtrat'), p('.')),
+      L(wf('naten', 'nata', 'the night'), w('kushton'), w('njezet'), w('lek'), p('.'), w('ketu'), w('eshte'), w('celes'), p('.')),
+      L(w('fle'), w('mire'), p('!'), w('natenmire'), p('!')),
       // the traveller's blessing, exactly as the ballad has it ("Udha e marë, o
       // krushqellarë!" — Ymer Aga) — the inn-keeper's farewell to every guest
       Q('ymer-udha-mbare',
@@ -3982,6 +4039,8 @@ export const STORY = {
       L(wf('grua', 'gruaja', 'the woman'), wf('bej', 'bën', 'makes'), w('nje'), w('kafe'), w('e_art'), wf('vogel', 'vogël', 'small'), p('.')),
       L(wf('kafe', 'kafeja', 'the coffee'), w('vjen'), w('me'), w('uje'), p('.')),
       L(wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('pi'), w('ngadale'), p('.')),
+      // the coffee-house wisdom, told where the coffee actually is
+      L(w('kafe'), w('vjen'), w('perpara'), p(','), w('pas'), wf('vjen', 'vijnë', 'come'), wf('fjale', 'fjalët', 'the words'), p('.')),
       L(w('une'), wf('sheh', 'shoh', 'see'), w('fat'), wf('ne', 'në', 'in'), w('kafe'), p('.')),
     ],
     options: [
@@ -4030,17 +4089,15 @@ export const STORY = {
     options: [],
   },
 
-  // The healer — sick, pain, herbs, help. No modern hospital in a folktale world.
+  // The healer — sick, pain, help, the signs. The herbs themselves grow out
+  // back: the buying happens in the GARDEN behind the house (kopshtiBar), a
+  // real drawn place — and the garden knows where the best tea comes from.
   sheruesi: {
     id: 'sheruesi',
     text: [
       L(wf('sherues', 'shëruesi', 'the healer'), w('thote'), p(':')),
-      L(w('mirdita'), p('!')),
-      L(w('ti'), w('je'), w('semur'), p('?')),
-      L(w('ku'), w('eshte'), w('dhimbje'), p('?')),
-      L(w('ketu'), w('eshte'), w('bar'), p('.')),
-      L(w('bar'), w('eshte'), w('mire'), w('per'), wf('ti', 'ty', 'you'), p('.')),
-      L(w('bar'), w('kushton'), w('dhjete'), w('lek'), p('.')),
+      L(w('mirdita'), p('!'), w('ti'), w('je'), w('semur'), p('?'), w('ku'), w('eshte'), w('dhimbje'), p('?')),
+      L(w('pas'), wf('shtepi', 'shtëpisë', 'the house'), w('eshte'), w('nje'), w('kopsht'), w('me'), w('bar'), p('.')),
       L(wf('ne', 'në', 'in'), w('qytet'), w('nuk'), w('ka'), w('mjek'), p(':'), w('vetem'), w('une'), w('dhe'), w('bar'), p('.')),
       L(w('une'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')),
       L(w('ti'), wf('behet', 'bëhesh', 'become'), w('mire'), p('!')),
@@ -4048,14 +4105,32 @@ export const STORY = {
       Q('urim i moçëm',
         wf('sherues', 'shëruesi', 'the healer'), w('thote'), p(':'), wf('behet', 'u bëfsh', 'may you become'), w('njeqind'), w('vjec'), p('!')),
       L(wf('sherues', 'shëruesi', 'the healer'), w('di'), wf('shenje', 'shenja', 'signs'), p('.')),
-      L(w('kur'), wf('dore', 'dora', 'the hand'), w('te_obj'), w('ha'), p(','), w('vjen'), wf('para', 'para', 'money'), p('.')),
       L(w('kur'), wf('thike', 'thika', 'the knife'), w('bie'), p(','), w('vjen'), w('nje'), w('burre'), p('.')),
-      L(w('kur'), wf('luge', 'luga', 'the spoon'), w('bie'), p(','), w('vjen'), w('nje'), w('grua'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), w('bar')), lek: -10, hearts: 3, to: 'sherimiBar' },
+      { text: L(w('shko'), wf('ne', 'në', 'in'), w('kopsht')), to: 'kopshtiBar', reveal: 'kopsht' },
       { text: L(w('degjo'), wf('sherues', 'shëruesin', 'the healer')), to: 'besimeFund', reveal: 'shenje' },
       { text: L(w('kthehu')), to: 'sheshi' },
+    ],
+  },
+
+  // The healer's herb garden behind the house — the cure grows here, and is
+  // bought here, fresh off the plot. The best of it is only a rumor at first:
+  // the tea of the high slopes, planted on your map by the healer's own praise.
+  kopshtiBar: {
+    id: 'kopshtiBar',
+    tells: ['cajMali1'],
+    text: [
+      L(w('ti'), w('je'), wf('ne', 'në', 'in'), w('kopsht'), p(','), w('pas'), wf('shtepi', 'shtëpisë', 'the house'), p('.')),
+      L(w('ketu'), w('eshte'), w('bar'), p('.')),
+      L(w('bar'), w('eshte'), w('mire'), w('per'), wf('ti', 'ty', 'you'), p('.')),
+      L(w('bar'), w('kushton'), w('dhjete'), w('lek'), p('.')),
+      L(wf('sherues', 'shëruesi', 'the healer'), w('thote'), p(':'), w('caj'), w('i_art'), w('mire'), w('vjen'), w('nga'), wf('mal', 'mali', 'the mountain'), p('.')),
+      when('night', L(w('naten'), wf('hene', 'hëna', 'the moon'), w('bie'), w('mbi'), wf('kopsht', 'kopshtin', 'the garden'), w('dhe'), wf('ere', 'era', 'wind'), w('vjen'), w('nga'), wf('mal', 'mali', 'the mountain'), p('.'))),
+    ],
+    options: [
+      { text: L(w('merr'), w('bar')), lek: -10, hearts: 3, to: 'sherimiBar', reveal: 'bar' },
+      { text: L(w('kthehu')), to: 'sheruesi' },
     ],
   },
 
@@ -4066,6 +4141,9 @@ export const STORY = {
     text: [
       L(w('ti'), w('jep'), w('dhjete'), w('lek'), p('.')),
       L(wf('sherues', 'shëruesi', 'the healer'), w('jep'), w('bar'), w('dhe'), w('caj'), p('.')),
+      // the signs are told over the steeping brew (see besimeFund's blurb)
+      L(w('kur'), wf('dore', 'dora', 'the hand'), w('te_obj'), w('ha'), p(','), w('vjen'), wf('para', 'para', 'money'), p('.')),
+      L(w('kur'), wf('luge', 'luga', 'the spoon'), w('bie'), p(','), w('vjen'), w('nje'), w('grua'), p('.')),
       L(w('ti'), w('pi'), w('dhe'), wf('behet', 'bëhesh', 'become'), w('mire'), p('.')),
     ],
     options: [
@@ -4093,15 +4171,10 @@ export const STORY = {
     text: [
       L(wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':')),
       L(w('mirmengjes'), p('!')),
-      L(w('une'), w('nuk'), w('kuptoj'), p('.')),
-      L(w('fol'), w('ngadale'), p(','), w('lutem'), p('.')),
-      L(w('perserit'), p(','), w('lutem'), p('.')),
-      L(w('si'), wf('thote', 'thuhet', 'is said'), p('?')),
-      L(w('cfare'), w('do_fut'), w('te_subj'), wf('thote', 'thotë', 'means'), p('?')),
-      L(w('une'), w('nuk'), w('di'), p('.')),
-      L(w('une'), w('quhem'), w('udhetar'), p('.')),
+      L(w('une'), w('nuk'), w('kuptoj'), p(':'), w('fol'), w('ngadale'), p(','), w('lutem'), p('.'), w('perserit'), p(','), w('lutem'), p('.')),
+      L(w('si'), wf('thote', 'thuhet', 'is said'), p('?'), w('cfare'), w('do_fut'), w('te_subj'), wf('thote', 'thotë', 'means'), p('?'), w('une'), w('nuk'), w('di'), p('.')),
+      L(w('une'), w('quhem'), w('udhetar'), p(':'), w('une'), w('jam'), w('njezet'), w('vjec'), p('.')),
       L(w('une'), wf('ka', 'kam', 'have'), w('nje'), w('familje'), p('.')),
-      L(w('une'), w('jam'), w('njezet'), w('vjec'), p('.')),
       L(w('une'), wf('shko', 'shkoj', 'go'), wf('ne', 'në', 'to'), w('kurbet'), p(':'), w('pune'), w('larg'), p('.')),
       L(w('nje'), w('dite'), w('une'), wf('kthehu', 'kthehem', 'return'), p('.')),
       L(w('faleminderit'), p('!')),
@@ -4125,7 +4198,10 @@ export const STORY = {
     options: [],
   },
 
-  // The old gate — directions and the signs on the door.
+  // The old gate — the door's own signs (push/pull/forbidden/ticket), and a
+  // REAL passage now: five lek buys the road beyond it (rrugaDetit). The
+  // direction-signs moved OUT to the waystone on the road itself, where a
+  // walker actually consults them (guriUdhes/rrugaDetit).
   udhaShenja: {
     id: 'udhaShenja',
     text: [
@@ -4133,21 +4209,15 @@ export const STORY = {
       L(w('ti'), wf('shiko', 'shikon', 'look'), wf('dere', 'derën', 'the door'), p(':'), w('shume'), wf('shenje', 'shenja', 'signs'), wf('rri', 'rrinë', 'stay'), w('mbi'), w('dru'), p('.')),
       L(w('nje'), w('polici'), w('ruan'), wf('dere', 'derën', 'the door'), p('.')),
       L(wf('polici', 'policia', 'the guard'), w('thote'), p(':')),
-      L(w('ketu'), w('eshte'), w('hyrje'), p('.')),
-      L(w('atje'), w('eshte'), w('dalje'), p('.')),
-      L(wf('dere', 'dera', 'the door'), w('eshte'), w('mbyllur'), p('.')),
-      L(w('ndalohet'), p('!')),
-      L(w('per'), w('brenda'), p(','), w('shtyj'), p('.')),
-      L(w('per'), w('jashte'), p(','), w('terheq'), p('.')),
+      // reading the door's signs is a first-time act — the door itself remains
+      first(L(w('ketu'), w('eshte'), w('hyrje'), p('.'), w('atje'), w('eshte'), w('dalje'), p('.'))),
+      L(wf('dere', 'dera', 'the door'), w('eshte'), w('mbyllur'), p('.'), w('ndalohet'), p('!')),
+      L(w('per'), w('brenda'), p(','), w('shtyj'), p(':'), w('per'), w('jashte'), p(','), w('terheq'), p('.')),
       L(w('per'), wf('rruge', 'rrugën', 'the road'), p(','), w('jep'), w('nje'), w('bilete'), p('.')),
-      L(w('ti'), wf('pyet', 'pyet', 'ask'), p(':'), w('ku'), w('eshte'), w('det'), p('?')),
-      L(w('majtas'), w('eshte'), w('mal'), p('.')),
-      L(w('djathtas'), w('eshte'), w('det'), p('.')),
-      L(w('nje'), w('harte'), w('ka'), wf('rruge', 'rrugët', 'the roads'), p('.')),
-      L(w('afer'), w('eshte'), wf('bujtine', 'bujtina', 'the inn'), p('.')),
-      L(w('faleminderit'), p('!')),
+      L(w('nje'), w('bilete'), w('kushton'), w('pese'), w('lek'), p('.')),
     ],
     options: [
+      { text: L(w('terheq'), wf('dere', 'derën', 'the door')), lek: -5, to: 'rrugaDetit', reveal: 'bilete' },
       { text: L(w('kthehu')), to: 'sheshi' },
     ],
   },
@@ -4564,18 +4634,13 @@ export const STORY = {
     id: 'dilFrike',
     text: [
       L(w('nje'), w('grua'), w('thote'), p(':')),
-      L(w('une'), wf('ka', 'kam', 'have'), w('frike'), p('!')),
-      L(w('nje'), w('gje'), w('e_link'), wf('keq', 'keqe', 'bad'), wf('ndodh', 'ndodhi', 'happened'), p('.')),
-      L(wf('djale', 'djali', 'the boy'), w('im'), w('ka'), wf('humbet', 'humbur', 'lost'), p('.')),
-      L(w('ku'), wf('ka', 'ka', 'has'), wf('shko', 'shkuar', 'gone'), p('?')),
-      L(w('une'), w('nuk'), wf('di', 'dija', 'knew'), p('.')),
+      L(w('une'), wf('ka', 'kam', 'have'), w('frike'), p('!'), w('nje'), w('gje'), w('e_link'), wf('keq', 'keqe', 'bad'), wf('ndodh', 'ndodhi', 'happened'), p('.')),
+      L(wf('djale', 'djali', 'the boy'), w('im'), w('ka'), wf('humbet', 'humbur', 'lost'), p('.'), w('ku'), wf('ka', 'ka', 'has'), wf('shko', 'shkuar', 'gone'), p('?')),
       L(w('une'), wf('ka', 'kam', 'have'), wf('degjo', 'dëgjuar', 'heard'), p(':'), w('nje'), w('njeri'), w('eshte'), wf('vrit', 'vrarë', 'killed'), p('.')),
-      L(w('dikush'), w('e_obj'), wf('merr', 'mori', 'took'), p('?')),
-      L(w('une'), w('nuk'), wf('ka', 'kam', 'have'), wf('gjen', 'gjetur', 'found'), wf('ai', 'atë', 'him'), p('.')),
-      L(w('une'), wf('duhet', 'duhej', 'had to'), w('te_subj'), wf('shiko', 'shikoja', 'look'), p('.')),
+      L(w('dikush'), w('e_obj'), wf('merr', 'mori', 'took'), p('?'), w('une'), w('nuk'), wf('di', 'dija', 'knew'), p('.')),
+      L(w('une'), wf('duhet', 'duhej', 'had to'), w('te_subj'), wf('shiko', 'shikoja', 'look'), p(':'), w('une'), w('nuk'), wf('ka', 'kam', 'have'), wf('gjen', 'gjetur', 'found'), wf('ai', 'atë', 'him'), p('.')),
       L(wf('dore', 'duart', 'the hands'), w('e_link'), wf('im', 'mia', 'my'), wf('eshte', 'janë', 'are'), wf('te_link', 'të', 'the'), wf('ftohte', 'ftohta', 'cold'), p('.')),
-      L(w('kush'), w('jep'), wf('ndihmo', 'ndihmë', 'help'), p('?')),
-      L(w('ai'), w('eshte'), w('nje'), wf('djale', 'djalë', 'boy'), w('i_art'), w('mire'), p('.')),
+      L(w('kush'), w('jep'), wf('ndihmo', 'ndihmë', 'help'), p('?'), w('ai'), w('eshte'), w('nje'), wf('djale', 'djalë', 'boy'), w('i_art'), w('mire'), p('.')),
       L(w('une'), wf('ka', 'kam', 'have'), wf('mendoj', 'menduar', 'thought'), w('shume'), p('.')),
     ],
     options: [
@@ -4653,26 +4718,26 @@ export const STORY = {
   jutbina: {
     id: 'jutbina',
     text: [
-      L(w('ketu'), w('eshte'), w('jutbina'), p('.')),
-      L(w('mujo'), w('dhe'), w('halil'), wf('rri', 'rrinë', 'dwell'), w('ketu'), p('.')),
-      L(w('mujo'), w('do'), wf('kale', 'kalin', 'a horse'), p('.'), w('nje'), w('armik'), wf('ruan', 'ruan', 'guards'), wf('kale', 'kalin', 'the horse'), w('larg'), p('.')),
-      L(w('nje'), w('trim'), w('nuk'), w('sheh'), p(':'), wf('sy', 'sytë', 'the eyes'), w('e_link'), w('tij'), wf('je', 'janë', 'are'), w('te_link'), w('erret'), p('.')),
-      L(wf('zane', 'zanat', 'the Zanas'), wf('jep', 'japin', 'give'), w('fuqi'), p('.')),
+      L(w('ketu'), w('eshte'), w('jutbina'), p(':'), w('mujo'), w('dhe'), w('halil'), wf('rri', 'rrinë', 'dwell'), w('ketu'), p('.')),
+      // the rumor fulfilled — the Jutbina of the lahuta songs, real underfoot
+      when('rumor', L(w('ti'), wf('ka', 'ke', 'have'), wf('degjo', 'dëgjuar', 'heard'), wf('fjale', 'fjalët', 'the words'), p(':'), w('ja'), w('jutbina'), p('.'))),
+      // the hamlet's tale-lures retire one by one as their arcs are entered —
+      // what remains on a return is what you have NOT yet lived
+      until('mujoKale', L(w('mujo'), w('do'), wf('kale', 'kalin', 'a horse'), p('.'), w('nje'), w('armik'), wf('ruan', 'ruan', 'guards'), wf('kale', 'kalin', 'the horse'), w('larg'), p('.'))),
+      until('zuku1', L(w('nje'), w('trim'), w('nuk'), w('sheh'), p(':'), wf('sy', 'sytë', 'the eyes'), w('e_link'), w('tij'), wf('je', 'janë', 'are'), w('te_link'), w('erret'), p('.'))),
+      until('mujiZana1', L(wf('zane', 'zanat', 'the Zanas'), wf('jep', 'japin', 'give'), w('fuqi'), p('.'))),
       L(w('nje'), w('lahute'), wf('kendo', 'këndon', 'sings'), p('.')),
       // the "prit agim" vigil among the towers breaks as an event: the sun
       // comes up over the kullas
       became('dawn', L(wf('diell', 'dielli', 'the sun'), wf('dil', 'del', 'comes up'), w('mbi'), wf('kulle', 'kullat', 'the towers'), p('.'))),
       became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
       when('night', L(w('naten'), wf('kulle', 'kullat', 'the towers'), wf('je', 'janë', 'are'), w('hije'), wf('te_link', 'të', 'the'), wf('zi', 'zeza', 'black'), w('nen'), w('hene'), p('.'))),
-      when('night', L(wf('burre', 'burrat', 'the men'), wf('rri', 'rrinë', 'stay'), w('me'), w('zjarr'), p('.'))),
       when('dawn', L(w('eshte'), w('agim'), p(':'), w('nje'), w('drite'), w('e_art'), wf('ar', 'artë', 'golden'), w('bie'), w('mbi'), wf('kulle', 'kullat', 'the towers'), p('.'))),
       when('dusk', L(w('eshte'), w('muzg'), p(':'), wf('qiell', 'qielli', 'the sky'), w('mbi'), wf('kulle', 'kullat', 'the towers'), w('behet'), w('i_art'), w('kuq'), p('.'))),
-      L(wf('burre', 'burrat', 'the men'), wf('bej', 'bëjnë', 'make'), wf('gjeme', 'gjëmën', 'the death-wail'), w('per'), w('nje'), w('trim'), p('.')),
-      L(w('rusha'), w('rri'), wf('ne', 'në', 'in'), wf('kulle', 'kullën', 'the tower'), w('e_link'), wf('krajl', 'krajlit', 'the Krajl'), p('.')),
-      L(wf('krajl', 'krajli', 'the Krajl'), w('merr'), wf('mujo', 'Mujon', 'Mujo'), p('.')),
-      L(w('osmani'), w('rri'), wf('ne', 'në', 'in'), wf('burg', 'burgun', 'the prison'), w('e_link'), wf('krajl', 'krajlit', 'the Krajl'), w('me'), w('hekur'), p('.')),
-      L(w('ali'), w('rri'), w('larg'), p('.'), w('nje'), w('krajl'), w('mban'), wf('dere', 'derën', 'the door'), w('e_link'), wf('shtepi', 'shtëpisë', 'the house'), p('.')),
-      L(w('nje'), w('kapidan'), w('do'), w('nje'), w('mejdan'), p('.')),
+      until(['vajtim1', 'mejdan1'], L(wf('burre', 'burrat', 'the men'), wf('bej', 'bëjnë', 'make'), wf('gjeme', 'gjëmën', 'the death-wail'), w('per'), w('nje'), w('trim'), p(','), w('dhe'), w('nje'), w('kapidan'), w('do'), w('nje'), w('mejdan'), p('.'))),
+      // the news of the Krajl's captives is HEARD, not seen — it lives in the
+      // oda of the great kulla (odaJutbina), where the men talk the border
+      until('odaJutbina', L(wf('ne', 'në', 'in'), wf('kulle', 'kullën', 'the tower'), w('e_art'), wf('madh', 'madhe', 'great'), w('eshte'), w('nje'), w('oda'), p(':'), wf('burre', 'burrat', 'the men'), wf('flet', 'flasin', 'talk'), w('atje'), p('.'))),
     ],
     options: [
       { text: L(w('ndihmo'), w('mujo')), to: 'mujo1', reveal: 'mujo' },
@@ -4680,19 +4745,12 @@ export const STORY = {
       // the Zana are met in the dark — seeking them walks you into the night
       { text: L(w('kerko'), wf('zane', 'zanat', 'the Zanas')), to: 'mujiZana1', reveal: 'zane', time: 'night' },
       { text: L(wf('bej', 'bëj', 'make'), wf('gjeme', 'gjëmën', 'the death-wail')), to: 'vajtim1', reveal: 'gjeme' },
-      { text: L(w('merr'), wf('rusha', 'Rushën', 'Rusha')), to: 'rusha1', reveal: 'rusha' },
-      { text: L(w('ndihmo'), w('halil')), to: 'halil1', reveal: 'krajl' },
       // embody young Halili at the fatal choice of «Deka e Halilit»
       { text: L(w('rri'), w('me'), w('halil')), to: 'haliliDeka', become: 'sokol-halili' },
-      // embody Arnaut Osmani, chained in the Krajl's dungeon
-      { text: L(w('rri'), w('me'), w('osmani')), to: 'osmaniBurg', become: 'arnaut-osmani' },
-      // embody Halil Garria, bound by a besa to free a sworn brother from the Krajl's burg
-      { text: L(w('shpeto'), wf('vella', 'vëllai', 'the brother')), to: 'halilGarria1', become: 'halil-garria' },
       // embody Mujo, questing for his dream-born courser held far under an enemy's guard
       { text: L(w('merr'), wf('kale', 'kalin', 'the horse')), to: 'mujoKale', become: 'mujo-courser' },
-      // embody Ali Bajraktari, held far off while a Slav double stands as a false Ali at his own door
-      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('shtepi', 'shtëpinë', 'the house')), to: 'aliBajr1', become: 'ali-bajraktari' },
-      { text: L(w('rri'), w('me'), w('mujo')), to: 'gbMuji1', become: 'gjeto-basho-muji' },
+      // the men's room of the great kulla — the border-news and its rescues
+      { text: L(w('hyr'), wf('ne', 'në', 'in'), w('oda')), to: 'odaJutbina', reveal: 'oda' },
       // a mejdan is fought by day, before witnesses — no duel in the dark
       { text: L(w('dil'), wf('ne', 'në', 'to'), w('mejdan')), to: 'mejdan1', reveal: 'mejdan', unless: 'night' },
       // "një lahutë këndon" — own a lahuta and the singing is YOURS: the epic
@@ -4701,6 +4759,41 @@ export const STORY = {
       // sit out the dark among the towers — the frontier wakes at first light
       { text: L(w('prit'), w('agim')), requires: 'night', to: 'jutbina', time: 'dawn' },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('maja')), to: 'maja' },
+    ],
+  },
+
+  // The ODA of the great kulla — the men's room where Jutbina hears the border:
+  // every Krajl-captive lure (Rusha, Mujo taken, Osmani in irons, the sworn
+  // brother, the false Ali) is NEWS talked by the fire, so it is told — and
+  // answered — in here, not on the open ground between the towers.
+  odaJutbina: {
+    id: 'odaJutbina',
+    text: [
+      L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'in'), wf('oda', 'odën', 'the oda'), w('e_link'), wf('kulle', 'kullës', 'the tower'), p('.')),
+      L(wf('burre', 'burrat', 'the men'), wf('rri', 'rrinë', 'stay'), w('me'), w('zjarr'), p('.')),
+      // the room lives by the clock: day empties it to the elders, night packs
+      // it and the fire throws the talkers' shadows up the wall
+      when('day', L(wf('dite', 'ditën', 'by day'), w('shume'), w('burra'), wf('jam', 'janë', 'are'), w('jashte'), p(':'), w('vetem'), wf('pleq', 'pleqtë', 'the elders'), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.'))),
+      when('night', L(w('naten'), wf('zjarr', 'zjarri', 'the fire'), wf('bej', 'bën', 'makes'), w('hije'), w('te_link'), wf('gjate', 'gjata', 'long'), w('mbi'), wf('mur', 'murin', 'the wall'), p('.'))),
+      L(wf('burre', 'burrat', 'the men'), wf('flet', 'flasin', 'talk'), w('per'), wf('krajl', 'krajlin', 'the Krajl'), p(':')),
+      // each piece of border-news retires once its rescue has been walked —
+      // the fire keeps only the wrongs still standing
+      until('rusha1', L(w('rusha'), w('rri'), wf('ne', 'në', 'in'), wf('kulle', 'kullën', 'the tower'), w('e_link'), wf('krajl', 'krajlit', 'the Krajl'), p('.'))),
+      until(['gbMuji1', 'halil1'], L(wf('krajl', 'krajli', 'the Krajl'), w('merr'), wf('mujo', 'Mujon', 'Mujo'), p(':'), w('halil'), w('do'), wf('ndihmo', 'ndihmë', 'help'), p('.'))),
+      until('osmaniBurg', L(w('osmani'), w('rri'), wf('ne', 'në', 'in'), wf('burg', 'burgun', 'the prison'), w('e_link'), wf('krajl', 'krajlit', 'the Krajl'), w('me'), w('hekur'), p('.'))),
+      until('aliBajr1', L(w('ali'), w('rri'), w('larg'), p('.'), w('nje'), w('krajl'), w('mban'), wf('dere', 'derën', 'the door'), w('e_link'), wf('shtepi', 'shtëpisë', 'the house'), p('.'))),
+    ],
+    options: [
+      { text: L(w('merr'), wf('rusha', 'Rushën', 'Rusha')), to: 'rusha1', reveal: 'rusha' },
+      { text: L(w('ndihmo'), w('halil')), to: 'halil1', reveal: 'krajl' },
+      // embody Arnaut Osmani, chained in the Krajl's dungeon
+      { text: L(w('rri'), w('me'), w('osmani')), to: 'osmaniBurg', become: 'arnaut-osmani' },
+      // embody Halil Garria, bound by a besa to free a sworn brother from the Krajl's burg
+      { text: L(w('shpeto'), wf('vella', 'vëllai', 'the brother')), to: 'halilGarria1', become: 'halil-garria' },
+      // embody Ali Bajraktari, held far off while a Slav double stands as a false Ali at his own door
+      { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('shtepi', 'shtëpinë', 'the house')), to: 'aliBajr1', become: 'ali-bajraktari' },
+      { text: L(w('rri'), w('me'), w('mujo')), to: 'gbMuji1', become: 'gjeto-basho-muji' },
+      { text: L(w('dil'), w('jashte')), to: 'jutbina' },
     ],
   },
 
@@ -6028,27 +6121,29 @@ export const STORY = {
   fshatiSheshi: {
     id: 'fshatiSheshi',
     text: [
-      L(w('ti'), w('je'), wf('ne', 'në', 'in'), w('shesh'), p(':'), wf('fshat', 'fshati', 'the village'), w('rri'), w('rreth'), wf('ti', 'teje', 'you'), p('.')),
+      L(w('ti'), w('je'), wf('ne', 'në', 'in'), w('shesh'), p(':'), wf('fshat', 'fshati', 'the village'), w('rri'), w('rreth'), wf('ti', 'teje', 'you'), p(','), w('dhe'), w('nje'), w('pus'), w('eshte'), w('i_art'), w('thate'), p('.')),
       // arrivals: up the road from the crossroads, or the climb from the river-quarter
       from('udhekryq', L(w('ti'), w('vjen'), w('nga'), wf('udhekryq', 'udhëkryqi', 'crossroads'), p('.'))),
       from('fshatiLumi', L(w('ti'), w('ngjit'), w('nga'), wf('lume', 'lumi', 'the river'), p('.'))),
-      L(w('nje'), w('pus'), w('eshte'), w('i_art'), w('thate'), p('.')),
       // the water-carrier arrives up the river road with the spring's water —
       // the dry well's answer, walked in on foot (npcs.js gruaUji)
       when('npc:gruaUji', L(w('nje'), w('grua'), w('sjell'), w('uje'), w('nga'), wf('krua', 'kroi', 'the spring'), p('.'))),
       // the dordolec gang (npcs.js femijet) roams square ↔ lanes — the children
       // are only HERE (and helpable) while their walk brings them here
       when('npc:femijet', L(wf('femije', 'fëmijët', 'the children'), wf('bej', 'bëjnë', 'make'), w('nje'), w('dordolec'), p('.'))),
-      L(w('ketu'), w('rri'), w('nje'), w('shtepi'), w('dhe'), w('nje'), w('oda'), p('.')),
-      L(w('nje'), w('kishe'), w('dhe'), w('nje'), w('xhami'), wf('rri', 'rrinë', 'stand'), w('bashke'), p('.')),
-      L(w('nje'), w('kulle'), w('e_link'), wf('ore', 'orës', 'the hour'), w('rri'), w('ketu'), p('.')),
-      L(w('nje'), w('rruge'), wf('shko', 'shkon', 'goes'), w('larg'), p('.')),
-      when('day', L(w('sot'), wf('fshat', 'fshati', 'the village'), wf('bej', 'bën', 'makes'), w('nje'), w('feste'), p('.'))),
+      // FAMILIARITY: the square's furniture is told while it is NEW — signposts
+      // retire as their roads are walked (until), pure scene-setting after the
+      // first look (first). The LIVE lines — NPCs, the hour, the feast — always
+      // show, and they stand out better for it on every return.
+      // ONE directory sentence for the square's four doors — decode it once and
+      // every road it names opens together; it retires as they are all walked
+      until(['plaka', 'oda1', 'fshatiLumi', 'fshatiJeta'], L(w('ketu'), w('rri'), w('nje'), w('shtepi'), w('dhe'), w('nje'), w('oda'), p(':'), w('nje'), w('rruge'), wf('zbrit', 'zbret', 'goes down'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river'), w('dhe'), w('nje'), w('rruge'), wf('shko', 'shkon', 'goes'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpitë', 'the homes'), p('.'))),
+      // the square's skyline in one look: church, mosque and clock-tower together
+      first(L(w('nje'), w('kishe'), p(','), w('nje'), w('xhami'), w('dhe'), w('nje'), w('kulle'), w('e_link'), wf('ore', 'orës', 'the hour'), wf('rri', 'rrinë', 'stand'), w('bashke'), p('.'))),
       // the wedding runs all day; the bride herself only rides in when the
       // krushqit procession (npcs.js) actually reaches the square
-      unless('night', L(w('sot'), w('ka'), w('nje'), w('dasme'), p('.'))),
+      unless('night', L(w('sot'), wf('fshat', 'fshati', 'the village'), wf('bej', 'bën', 'makes'), w('nje'), w('feste'), p(':'), w('sot'), w('ka'), w('nje'), w('dasme'), p(','), w('dhe'), wf('vajze', 'vajzat', 'the girls'), wf('bej', 'bëjnë', 'make'), w('nje'), w('kukull'), w('balte'), p('.'))),
       when('npc:krushqit', L(w('nje'), w('nuse'), w('vjen'), w('me'), w('kale'), p('.'))),
-      unless('night', L(wf('vajze', 'vajzat', 'the girls'), wf('bej', 'bëjnë', 'make'), w('nje'), w('kukull'), w('balte'), p('.'))),
       // the day FADES over the square if the hour turned while you stood here:
       // dusk and nightfall arrive as events, then the standing lines take over
       became('dusk', L(wf('diell', 'dielli', 'the sun'), w('bie'), p(':'), wf('qiell', 'qielli', 'the sky'), w('behet'), w('i_art'), w('kuq'), w('mbi'), wf('fshat', 'fshatin', 'the village'), p('.'))),
@@ -6061,9 +6156,7 @@ export const STORY = {
       when('night', L(w('nje'), w('gjinkalla'), wf('kendo', 'këndon', 'sings'), wf('ne', 'në', 'in'), w('erresire'), p('.'))),
       // the Xhindët's night walk crosses the sleeping square (npcs.js xhindet)
       when('npc:xhindet', L(w('dikush'), wf('ec', 'ecën', 'walks'), wf('ne', 'në', 'in'), w('erresire'), p('.'))),
-      L(w('nje'), w('rruge'), wf('zbrit', 'zbret', 'goes down'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river'), p('.')),
-      L(w('nje'), w('rruge'), wf('shko', 'shkon', 'goes'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpitë', 'the homes'), p('.')),
-      unless('night', L(w('nje'), w('treg'), w('i_art'), w('vogel'), w('eshte'), w('ketu'), p('.'))),
+      until(['fshatiLumi', 'fshatiJeta'], L(w('nje'), w('rruge'), wf('zbrit', 'zbret', 'goes down'), wf('tek', 'te', 'to'), wf('lume', 'lumin', 'the river'), w('dhe'), w('nje'), w('rruge'), wf('shko', 'shkon', 'goes'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpitë', 'the homes'), p('.'))),
       // the kafene by the oda — full of talk while the day stands
       unless('night', L(w('afer'), wf('rri', 'rri', 'stands'), w('nje'), w('kafene'), p(':'), w('burra'), p(','), w('kafe'), w('dhe'), w('shume'), wf('fjale', 'fjalë', 'words'), p('.'))),
       // the old man keeps his timetable (npcs.js plakuSheshit): mornings here,
@@ -7045,13 +7138,10 @@ export const STORY = {
     id: 'kafeneja',
     text: [
       L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'in'), w('kafene'), p(','), w('afer'), wf('shesh', 'sheshit', 'the square'), p('.')),
-      L(w('burra'), wf('rri', 'rrinë', 'sit'), w('me'), w('kafe'), w('dhe'), wf('flet', 'flasin', 'talk'), p('.')),
-      L(w('ti'), wf('degjo', 'dëgjon', 'hear'), p(':')),
-      L(w('nje'), w('baba'), w('thote'), p(':'), w('une'), wf('ka', 'kam', 'have'), wf('djale', 'djema', 'boys'), p('.'), w('keta'), wf('djale', 'djema', 'boys'), wf('eshte', 'janë', 'are'), wf('te_link', 'të', 'the'), w('mire'), p('.')),
-      L(wf('bir', 'biri', 'the son'), wf('im', 'im', 'my'), w('rri'), w('ketu'), p(','), w('me'), w('mua'), p('.')),
+      L(w('burra'), wf('rri', 'rrinë', 'sit'), w('me'), w('kafe'), w('dhe'), wf('flet', 'flasin', 'talk'), p('.'), w('ti'), wf('degjo', 'dëgjon', 'hear'), p(':')),
+      L(w('nje'), w('baba'), w('thote'), p(':'), w('une'), wf('ka', 'kam', 'have'), wf('djale', 'djema', 'boys'), p('.'), w('keta'), wf('djale', 'djema', 'boys'), wf('eshte', 'janë', 'are'), wf('te_link', 'të', 'the'), w('mire'), p('.'), wf('bir', 'biri', 'the son'), wf('im', 'im', 'my'), w('rri'), w('ketu'), p(','), w('me'), w('mua'), p('.')),
       L(w('nje'), w('plak'), w('pyet'), p(':'), w('ku'), wf('eshte', 'janë', 'are'), wf('djale', 'djemtë', 'the boys'), w('e_link'), wf('yt', 'tu', 'your'), p('?')),
-      L(wf('baba', 'babai', 'the father'), w('thote'), p(':'), w('ai'), w('eshte'), wf('shok', 'shoku', 'the comrade'), w('im'), p('.'), wf('baba', 'babai', 'the father'), w('im'), wf('jam', 'ishte', 'was'), w('nje'), w('bari'), p('.')),
-      L(wf('vend', 'vendi', 'the place'), wf('tone', 'ynë', 'our'), w('eshte'), w('ketu'), p('.')),
+      L(wf('baba', 'babai', 'the father'), w('thote'), p(':'), w('ai'), w('eshte'), wf('shok', 'shoku', 'the comrade'), w('im'), p('.'), wf('baba', 'babai', 'the father'), w('im'), wf('jam', 'ishte', 'was'), w('nje'), w('bari'), p('.'), wf('vend', 'vendi', 'the place'), wf('tone', 'ynë', 'our'), w('eshte'), w('ketu'), p('.')),
       L(wf('plak', 'plaku', 'the old man'), w('te_obj'), w('pyet'), wf('ti', 'ty', 'you'), p(':'), wf('shtepi', 'shtëpia', 'the house'), w('juaj'), w('eshte'), w('larg'), p('?')),
       L(w('nje'), w('tregtar'), w('thote'), p(':'), w('une'), wf('ka', 'kam', 'have'), wf('gje', 'gjëra', 'things'), wf('te_link', 'të', 'the'), wf('mire', 'mira', 'good'), p('.')),
       L(wf('plak', 'plaku', 'the old man'), wf('qesh', 'qesh', 'laughs'), p(':'), wf('njeri', 'njeriu', 'the man'), w('do'), wf('vete', 'veten', 'oneself'), p('.'), w('por'), w('une'), wf('beso', 'besoj', 'believe'), w('gjithmone'), p('.')),
@@ -7874,6 +7964,7 @@ export const STORY = {
       // the wedding blessing, called to every new pair: may they have heirs!
       Q('urimi i dasmës',
         wf('njeri', 'njerëzit', 'the people'), wf('thote', 'thonë', 'say'), p(':'), wf('trashegohet', 'u trashëgofshin', 'may they have heirs'), p('!')),
+      L(wf('njeri', 'njerëzit', 'the people'), wf('thote', 'thonë', 'say'), p(':'), wf('dashuri', 'dashuria', 'love'), w('eshte'), w('e_link'), wf('madh', 'madhe', 'big'), p('.')),
       L(w('nje'), w('njeri'), wf('shko', 'shkon', 'goes'), w('perpara'), p(','), wf('njeri', 'njerëzit', 'the people'), wf('shko', 'shkojnë', 'go'), w('pas'), p('.')),
     ],
     options: [
@@ -8523,19 +8614,17 @@ export const STORY = {
       notFrom('fshatiSheshi', L(w('ti'), w('je'), w('perseri'), wf('ne', 'në', 'in'), w('oda'), p('.'))),
       // the night's sleep among the men ends with the light at the windows
       became('dawn', L(w('tani'), w('eshte'), w('agim'), p('.'))),
-      L(wf('plak', 'plaku', 'the old man'), w('jep'), w('buke'), w('dhe'), w('kripe'), p('.')),
-      L(w('ti'), w('je'), w('nje'), w('mik'), p('.')),
-      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('si'), w('je'), p('?'), w('kush'), w('je'), w('ti'), p('?')),
-      L(w('une'), wf('thote', 'them', 'say'), p(':'), w('une'), w('jam'), w('nje'), w('udhetar'), p('.'), w('faleminderit'), p('.')),
-      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('vjen', 'eja', 'come'), p(','), w('ha'), w('buke'), w('edhe'), w('kripe'), p('!')),
-      L(w('nese'), w('ti'), w('je'), w('nje'), w('mik'), p(','), wf('plak', 'plaku', 'the old man'), w('na'), w('jep'), w('buke'), p('.')),
-      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), wf('shtepi', 'shtëpia', 'the house'), w('eshte'), w('e_link'), wf('perendi', 'Perëndisë', 'God'), w('dhe'), w('e_link'), wf('mik', 'mikut', 'guest'), p('.')),
-      L(w('tani'), w('eshte'), wf('ne', 'në', 'in'), w('rregull'), p('.')),
+      L(wf('plak', 'plaku', 'the old man'), w('jep'), w('buke'), w('dhe'), w('kripe'), p(':'), w('ti'), w('je'), w('nje'), w('mik'), p('.')),
+      // the get-to-know ritual belongs to the FIRST crossing of this threshold;
+      // a returning guest is known — the old man greets, he does not interrogate
+      first(L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('si'), w('je'), p('?'), w('kush'), w('je'), w('ti'), p('?'), w('une'), wf('thote', 'them', 'say'), p(':'), w('une'), w('jam'), w('nje'), w('udhetar'), p('.'), w('faleminderit'), p('.'))),
+      first(L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('tani'), w('eshte'), wf('ne', 'në', 'in'), w('rregull'), p('.'), wf('vjen', 'eja', 'come'), p(','), w('ha'), w('buke'), w('edhe'), w('kripe'), p('!'))),
+      first(L(w('nese'), w('ti'), w('je'), w('nje'), w('mik'), p(','), wf('shtepi', 'shtëpia', 'the house'), w('eshte'), w('e_link'), wf('perendi', 'Perëndisë', 'God'), w('dhe'), w('e_link'), wf('mik', 'mikut', 'guest'), p('.'))),
+      again(L(wf('plak', 'plaku', 'the old man'), w('te_obj'), w('sheh'), w('dhe'), w('thote'), p(':'), wf('vjen', 'eja', 'come'), p(','), w('mik'), p('!'))),
       L(w('ketu'), wf('rri', 'rrinë', 'rest'), wf('udhetar', 'udhëtarë', 'travellers'), p('.')),
       // evenings, the old man of the square sits in here too (npcs.js plakuSheshit)
       when('npc:plakuSheshit', L(w('nje'), w('plak'), w('tjeter'), w('rri'), w('ketu'), p('.'))),
-      L(wf('ne', 'në', 'in'), w('oda'), w('rri'), w('nje'), w('njeri'), w('me'), w('nje'), w('arme'), p(','), w('i_art'), w('qete'), w('tek'), w('vatra'), p('.')),
-      L(w('ketu'), w('rri'), w('dhe'), w('nje'), w('liber'), w('i_art'), w('vjeter'), p('.')),
+      L(wf('ne', 'në', 'in'), w('oda'), w('rri'), w('nje'), w('njeri'), w('me'), w('nje'), w('arme'), p(','), w('i_art'), w('qete'), w('tek'), w('vatra'), p(','), w('dhe'), w('nje'), w('liber'), w('i_art'), w('vjeter'), p('.')),
     ],
     options: [
       { text: L(w('ha'), w('buke')), to: 'oda2', reveal: 'mik' },
@@ -8557,6 +8646,7 @@ export const STORY = {
   // (Relocated from the palace gate, where a guard now keeps the door.)
   odaPlak: {
     id: 'odaPlak',
+    tells: ['qiell1'], // the Sun-tale points at the sky realm
     text: [
       L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
       // Dozon's Tale IX — "La fille promise au soleil", the very tale the old man
@@ -8592,22 +8682,19 @@ export const STORY = {
     id: 'udhetaret',
     text: [
       L(w('ketu'), p(','), w('tek'), wf('zjarr', 'zjarri', 'the fire'), p(','), wf('rri', 'rrinë', 'rest'), wf('udhetar', 'udhëtarë', 'travellers'), p('.')),
-      L(w('nje'), w('flet'), wf('per', 'për', 'about'), w('mal'), p('.')),
-      L(w('nje'), w('flet'), wf('per', 'për', 'about'), w('det'), p('.')),
-      L(w('nje'), wf('kendo', 'këndon', 'sings'), wf('per', 'për', 'about'), w('mujo'), p('.')),
-      L(w('nje'), w('flet'), wf('per', 'për', 'about'), w('nje'), w('trim'), w('te_link'), w('vjeter'), p('.')),
-      L(w('nje'), w('udhetar'), w('thote'), p(':'), w('hej'), p(','), w('mik'), p('!')),
-      L(w('cfare'), wf('kerko', 'kërkon', 'seek'), w('ti'), p('?'), w('pse'), w('je'), w('ketu'), p('?')),
-      L(w('une'), wf('thote', 'them', 'say'), p(':'), w('une'), wf('mendoj', 'mendoj', 'think'), w('se'), wf('uje', 'uji', 'the water'), w('rri'), w('tek'), wf('mal', 'mali', 'the mountain'), p('.')),
-      L(w('ju'), wf('jam', 'jeni', 'are'), wf('trim', 'trima', 'heroes'), p('.')),
-      L(w('cfare'), wf('ka', 'keni', 'have'), wf('sheh', 'parë', 'seen'), p('?')),
-      L(w('pse'), w('ata'), wf('rri', 'rrinë', 'rest'), w('ketu'), p('?')),
-      L(w('nje'), w('udhetar'), w('flet'), wf('per', 'për', 'about'), wf('nene', 'nënën', 'the mother'), w('e_link'), w('tij'), p('.')),
-      L(w('ai'), w('thote'), p(':'), wf('nene', 'nëna', 'the mother'), wf('im', 'ime', 'my'), w('rri'), w('atje'), p(','), w('larg'), p('.')),
-      L(w('une'), wf('do', 'dua', 'want'), wf('nene', 'nënën', 'the mother'), wf('im', 'time', 'my'), p('.')),
-      L(w('une'), w('duhet'), w('te_subj'), wf('shko', 'shkoj', 'go'), p('.')),
+      // each lure retires once its tale has been heard — the fire-circle offers
+      // what is still NEW to you (the options stay via the known-roads rule)
+      until('tregMal', L(w('nje'), w('flet'), wf('per', 'për', 'about'), w('mal'), p('.'))),
+      until('tregDet', L(w('nje'), w('flet'), wf('per', 'për', 'about'), w('det'), p('.'))),
+      until('tregMujo', L(w('nje'), wf('kendo', 'këndon', 'sings'), wf('per', 'për', 'about'), w('mujo'), p('.'))),
+      until('skender1', L(w('nje'), w('flet'), wf('per', 'për', 'about'), w('nje'), w('trim'), w('te_link'), w('vjeter'), p('.'))),
+      // the stranger is only interrogated ONCE — after that you're of the circle
+      first(L(w('nje'), w('udhetar'), w('thote'), p(':'), w('hej'), p(','), w('mik'), p('!'), w('cfare'), wf('kerko', 'kërkon', 'seek'), w('ti'), p('?'), w('pse'), w('je'), w('ketu'), p('?'))),
+      first(L(w('une'), wf('thote', 'them', 'say'), p(':'), w('une'), wf('mendoj', 'mendoj', 'think'), w('se'), wf('uje', 'uji', 'the water'), w('rri'), w('tek'), wf('mal', 'mali', 'the mountain'), p('.'))),
+      first(L(w('ju'), wf('jam', 'jeni', 'are'), wf('trim', 'trima', 'heroes'), p(':'), w('cfare'), wf('ka', 'keni', 'have'), wf('sheh', 'parë', 'seen'), p('?'))),
+      L(w('nje'), w('udhetar'), w('flet'), wf('per', 'për', 'about'), wf('nene', 'nënën', 'the mother'), w('e_link'), w('tij'), p(':'), wf('nene', 'nëna', 'the mother'), wf('im', 'ime', 'my'), w('rri'), w('atje'), p(','), w('larg'), p('.'), w('une'), wf('do', 'dua', 'want'), wf('nene', 'nënën', 'the mother'), wf('im', 'time', 'my'), p(':'), w('une'), w('duhet'), w('te_subj'), wf('shko', 'shkoj', 'go'), p('.')),
       L(w('pra'), p(','), wf('jam', 'jemi', 'are'), wf('udhetar', 'udhëtarë', 'travellers'), p('.')),
-      L(w('nje'), w('plake'), w('te_obj'), w('sheh'), p('.')),
+      until('tregDragua', L(w('nje'), w('plake'), w('te_obj'), w('sheh'), p('.'))),
     ],
     options: [
       { text: L(w('degjo'), wf('per', 'për', 'about'), w('mal')), to: 'tregMal', reveal: 'mal' },
@@ -8626,6 +8713,7 @@ export const STORY = {
   // back ten at a time, the way the wandering lahutarë have always eaten.
   kengaLahute: {
     id: 'kengaLahute',
+    tells: ['jutbina'], // your own song of Muji puts Jutbina on your map
     text: [
       // the singer's invocation before the song, exactly as Fishta opens the
       // epic: "Ndihmo', Zot, si m'ké ndihmue!" (Gheg)
@@ -8693,6 +8781,9 @@ export const STORY = {
   // the pilgrim's tale → the SKY realm (Zojz, the white-bull offering on Tomorr)
   tregMal: {
     id: 'tregMal',
+    // HEARSAY: the pilgrim's tale plants the holy peak in your head — the sky
+    // realm goes onto your map as a rumor until you stand there (see gameState)
+    tells: ['qiell1'],
     text: [
       L(w('nje'), w('udhetar'), wf('ngjit', 'ngjitet', 'climbs'), wf('ne', 'në', 'to'), w('nje'), w('mal'), w('te_link'), w('shenjte'), p('.')),
       L(wf('lart', 'lart', 'high'), w('rri'), w('zojz'), w('me'), w('mjeker'), w('te_link'), w('bardhe'), p('.')),
@@ -8708,6 +8799,7 @@ export const STORY = {
   // the coast-man's tale → the SEA realm (the Baloz, e Bukura e Detit in the deep)
   tregDet: {
     id: 'tregDet',
+    tells: ['deti1'],
     text: [
       L(w('larg'), w('eshte'), w('nje'), w('det'), w('i_link'), w('madh'), p('.')),
       L(w('nje'), w('baloz'), w('merr'), w('nje'), w('vajze'), p('.')),
@@ -8725,6 +8817,7 @@ export const STORY = {
   // the lahutar's song → the KRESHNIK realm (Mujo & Halili at Jutbina)
   tregMujo: {
     id: 'tregMujo',
+    tells: ['jutbina'],
     text: [
       L(w('nje'), w('lahute'), wf('kendo', 'këndon', 'sings'), wf('per', 'për', 'about'), w('mujo'), w('e_conj'), w('halil'), p('.')),
       L(w('mujo'), w('dhe'), w('halil'), wf('rri', 'rrinë', 'dwell'), w('ne'), w('jutbina'), p('.')),
@@ -9570,6 +9663,8 @@ export const STORY = {
     id: 'qiell1',
     text: [
       L(w('ti'), w('je'), wf('ne', 'në', 'on'), w('nje'), w('mal'), w('te_link'), w('shenjte'), p('.')),
+      // the pilgrim's tale made real — "ky mal është vërtetë i shenjtë"
+      when('rumor', L(w('ti'), wf('ka', 'ke', 'have'), wf('degjo', 'dëgjuar', 'heard'), wf('fjale', 'fjalët', 'the words'), p(':'), w('ja'), wf('mal', 'mali', 'the mountain'), w('i_art'), w('shenjte'), p('.'))),
       unless('night', L(wf('lart', 'lart', 'high'), wf('shqiponje', 'shqiponjat', 'eagles'), wf('fluturo', 'fluturojnë', 'fly'), p('.'))),
       // at night the eagles are gone from the sky and only the stars keep it
       when('night', L(w('naten'), w('nuk'), w('sheh'), wf('shqiponje', 'shqiponjat', 'the eagles'), p(':'), w('vetem'), wf('yll', 'yjet', 'the stars'), wf('je', 'janë', 'are'), wf('lart', 'lart', 'high'), p('.'))),
@@ -9928,59 +10023,56 @@ export const STORY = {
     ],
   },
 
-  // The miller at his water-mill — a flavour vignette (talk-and-return) carrying
-  // the telling/asking words of the 351-400 band. Reached from mulli1 ("degjo
-  // plakun") — the speaker IS the old miller of the mill scene.
+  // The miller at his water-mill — the talk at the door, trimmed to the mill
+  // itself (the fact, the proverb, the devil-origin, the trade). His WORLD —
+  // the fields behind the mill, the water under the bridge, the search for a
+  // new hand — moved out to where it physically is: the walked tour to
+  // fushaMulli (2026-07-18, the longest-nodes relocation pass).
   lumiMjeshter: {
     id: 'lumiMjeshter',
     text: [
       L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
-      L(w('rri'), p(','), w('djalosh'), p(':'), w('une'), w('te_obj'), w('tregoj'), w('nje'), w('gje'), p('.')),
-      L(w('ti'), wf('ka', 'ke', 'have'), w('nje'), w('pyetje'), wf('ne', 'në', 'in'), w('sy'), p('?')),
-      L(w('eshte'), w('nje'), w('fakt'), p(','), w('jo'), w('perralle'), p('.')),
+      first(L(w('rri'), p(','), w('djalosh'), p(':'), w('une'), w('te_obj'), w('tregoj'), w('nje'), w('gje'), p('.'), w('eshte'), w('nje'), w('fakt'), p(','), w('jo'), w('perralle'), p('.'))),
       // the proverb the game itself lives by: as long as you live, you learn
       Q('sa-rron',
         w('sa'), w('rron'), p(','), w('aq'), wf('meso', 'mëson', 'you learn'), p('.')),
       L(w('une'), wf('sheh', 'pashë', 'saw'), wf('uje', 'ujin', 'the water'), w('gjithe'), wf('jete', 'jetën', 'life'), p('.')),
       L(w('ne_we'), wf('sheh', 'shohim', 'see'), wf('mulli', 'mullirin', 'the mill'), p(':'), w('ai'), w('punon'), w('vete'), p('.')),
       L(wf('uje', 'uji', 'the water'), wf('leviz', 'lëviz', 'moves'), p(','), wf('gur', 'guri', 'the stone'), wf('kendo', 'këndon', 'sings'), p('.')),
-      L(w('une'), w('vetem'), wf('mban', 'mbaj', 'hold'), wf('pune', 'punën', 'the work'), p('.')),
-      L(w('po_but'), w('kush'), w('e_obj'), wf('bej', 'bëri', 'made'), wf('mulli', 'mullirin', 'the mill'), w('e_art'), wf('pari', 'parë', 'first'), p('?')),
-      L(w('oh'), p(','), wf('dreq', 'dreqi', 'the devil'), p('!'), w('keshtu'), wf('thote', 'thonë', 'say'), wf('pleq', 'pleqtë', 'the elders'), p('.')),
-      L(w('pa'), w('frike'), p(':'), wf('dreq', 'dreqi', 'the devil'), wf('ik', 'iku', 'is gone'), p(','), w('une'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')),
+      first(L(w('po_but'), w('kush'), w('e_obj'), wf('bej', 'bëri', 'made'), wf('mulli', 'mullirin', 'the mill'), w('e_art'), wf('pari', 'parë', 'first'), p('?'), w('oh'), p(','), wf('dreq', 'dreqi', 'the devil'), p('!'), w('keshtu'), wf('thote', 'thonë', 'say'), wf('pleq', 'pleqtë', 'the elders'), p('.'))),
       L(wf('pune', 'puna', 'the work'), w('eshte'), w('e_link'), w('cmendur'), p(','), w('por'), wf('buke', 'buka', 'the bread'), w('e_art'), w('mire'), p('.')),
-      L(w('me'), w('durim'), w('une'), wf('bej', 'bëj', 'make'), w('edhe'), wf('gje', 'gjëra', 'things'), wf('te_link', 'të', 'the'), wf('tjeter', 'tjera', 'other'), p('.')),
+      L(wf('vjen', 'eja', 'come'), p(':'), w('une'), w('te_obj'), w('tregoj'), wf('bote', 'botën', 'the world'), wf('im', 'time', 'my'), p('.')),
       L(w('ne_we'), wf('sheh', 'shihemi', 'see'), w('neser'), p('!'), w('mirupafshim'), p('!')),
     ],
     options: [
-      { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), to: 'lumiMjeshter2', reveal: 'plak' },
+      { text: L(w('ec'), w('me'), wf('plak', 'plakun', 'the old man')), to: 'fushaMulli', reveal: 'plak' },
       // he closed with "shihemi nesër!" — answer the goodbye in kind
       { text: L(wf('thote', 'thuaj', 'say'), p(':'), w('mirupafshim')), to: 'mulli1' },
     ],
   },
 
-  lumiMjeshter2: {
-    id: 'lumiMjeshter2',
+  // The fields behind the mill — the miller's whole world, WALKED instead of
+  // told: the water under the bridge, the fields at his back, the five empty
+  // years, and the offer of the work made where the work is (and takeable —
+  // «merr punën» leads straight to the day's grind).
+  fushaMulli: {
+    id: 'fushaMulli',
     text: [
-      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
-      L(w('une'), wf('mendoj', 'mendoja', 'was thinking'), w('per'), wf('ti', 'ty', 'you'), p('.')),
-      L(w('ti'), wf('duket', 'dukesh', 'seem'), w('i_art'), w('lumtur'), w('dhe'), w('i_art'), w('forte'), p('.')),
-      L(wf('cili', 'cili', 'which'), w('eshte'), wf('emer', 'emri', 'the name'), w('yt'), p('?')),
-      L(w('mos'), wf('thote', 'thuaj', 'tell'), p(':'), w('nje'), w('fshat'), w('i_art'), w('vogel'), wf('di', 'di', 'knows'), wf('emer', 'emrin', 'the name'), wf('yt', 'tënd', 'your'), p('.')),
-      L(w('ne_we'), wf('merr', 'marrim', 'take'), w('uje'), w('nga'), wf('lume', 'lumi', 'the river'), p('.')),
-      L(wf('merr', 'merrni', 'take'), w('uje'), p('!')),
-      L(w('une'), wf('kerko', 'kërkoj', 'search'), w('nje'), w('gje'), p(':'), w('nje'), w('dore'), w('te_link'), wf('ri', 're', 'new'), w('per'), wf('mulli', 'mullirin', 'the mill'), p('.')),
-      L(wf('uje', 'uji', 'the water'), wf('leviz', 'lëviz', 'moves'), w('drejt'), p(','), w('por'), w('une'), w('jam'), w('plak'), p('.')),
-      L(w('nen'), w('ure'), w('eshte'), wf('uje', 'uji', 'the water'), p('.')),
+      L(w('ti'), wf('ec', 'ecën', 'walk'), w('me'), wf('plak', 'plakun', 'the old man'), w('prapa'), wf('mulli', 'mullirit', 'the mill'), p('.')),
       L(w('prapa'), wf('mulli', 'mullirit', 'the mill'), wf('je', 'janë', 'are'), wf('fushe', 'fushat', 'the fields'), p('.'), w('ja'), w('gjithe'), wf('bote', 'bota', 'the world'), wf('im', 'ime', 'my'), p('.')),
+      L(w('nen'), w('ure'), w('eshte'), wf('uje', 'uji', 'the water'), p(':'), wf('uje', 'uji', 'the water'), wf('leviz', 'lëviz', 'moves'), w('drejt'), p(','), w('por'), w('une'), w('jam'), w('plak'), p('.')),
+      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
+      L(w('une'), wf('mendoj', 'mendoja', 'was thinking'), w('per'), wf('ti', 'ty', 'you'), p(':'), w('ti'), wf('duket', 'dukesh', 'seem'), w('i_art'), w('lumtur'), w('dhe'), w('i_art'), w('forte'), p('.')),
       L(w('pasi'), w('ne_we'), wf('bej', 'bëjmë', 'do'), wf('pune', 'punën', 'the work'), p(','), w('une'), w('rri'), w('dhe'), wf('sheh', 'shoh', 'watch'), wf('uje', 'ujin', 'the water'), p('.')),
-      L(w('pese'), wf('vit', 'vite', 'years'), wf('ka', 'kanë', 'have'), wf('kalo', 'kaluar', 'passed'), p('.')),
-      L(w('une'), w('nuk'), wf('ka', 'kam', 'have'), wf('mund', 'mundur', 'been able'), w('te_subj'), wf('gjen', 'gjej', 'find'), wf('askush', 'askënd', 'nobody'), p('.')),
-      L(w('ti'), wf('mund', 'mundesh', 'can'), p('?')),
+      when('night', L(w('naten'), wf('hene', 'hëna', 'the moon'), w('bie'), w('mbi'), wf('fushe', 'fushat', 'the fields'), w('dhe'), w('vetem'), wf('uje', 'uji', 'the water'), w('flet'), p('.'))),
+      L(w('pese'), wf('vit', 'vite', 'years'), wf('ka', 'kanë', 'have'), wf('kalo', 'kaluar', 'passed'), p(':'), w('une'), w('nuk'), wf('ka', 'kam', 'have'), wf('mund', 'mundur', 'been able'), w('te_subj'), wf('gjen', 'gjej', 'find'), wf('askush', 'askënd', 'nobody'), p('.')),
+      L(w('une'), wf('kerko', 'kërkoj', 'search'), w('nje'), w('dore'), w('te_link'), wf('ri', 're', 'new'), w('per'), wf('mulli', 'mullirin', 'the mill'), p('.'), w('ti'), wf('mund', 'mundesh', 'can'), p('?')),
       L(wf('merr', 'merre', 'take'), wf('pune', 'punën', 'the work'), w('prej'), wf('mua', 'meje', 'me'), p('!')),
     ],
     options: [
-      { text: L(wf('le', 'lër', 'leave'), wf('plak', 'plakun', 'the old man')), to: 'mulli1' },
+      // the offer, takeable on the spot — the day's grind for the miller's five lek
+      { text: L(w('merr'), wf('pune', 'punën', 'the work')), requires: 'day', lek: 5, to: 'punaMulli', reveal: 'pune' },
+      { text: L(w('kthehu'), wf('tek', 'te', 'to'), w('mulli')), to: 'mulli1' },
     ],
   },
 
@@ -11128,6 +11220,7 @@ const CONFUSERS = {
   aliPashaLiqen: L(w('lufto'), wf('liqen', 'liqenin', 'the lake')), // fight the lake — you cannot fight water
   detiThelle2: L(w('degjo'), wf('ar', 'arin', 'the gold')), // listen to the gold — it cannot speak
   jutbina: L(w('kerko'), wf('maja', 'majën', 'the summit')), // search the summit — none here
+  odaJutbina: L(w('merr'), wf('zjarr', 'zjarrin', 'the fire')), // take the fire — you cannot
   katallanRob: L(w('verbo'), wf('udhetar', 'udhëtarin', 'the traveller')), // blind the traveller — he is not your foe
   katallanGur: L(wf('ngre', 'ngre', 'lift'), wf('gur', 'gurin', 'the stone')), // lift the stone — you cannot
   katallanZjarr: L(w('godit'), wf('zjarr', 'zjarrin', 'the fire')), // strike the fire — pointless
@@ -11233,17 +11326,18 @@ const CONFUSERS = {
   sheshiPlak2: L(w('lufto'), wf('vatra', 'vatrat', 'the hearths')), // fight the hearths — nonsense
   sheshiPlak3: L(w('ik'), wf('fund', 'fundin', 'the end')), // flee the end — you cannot
   qytetiUdhetar: L(w('ec'), wf('det', 'detin', 'the sea')), // walk the sea — you cannot
+  udhaUdhetari: L(w('merr'), wf('dere', 'derën', 'the door')), // take the door — you cannot
+  rrugaDetit: L(w('degjo'), wf('gur', 'gurin', 'the stone')), // listen to the waystone — it cannot answer
+  lamtumira: L(w('jep'), wf('det', 'detin', 'the sea')), // give the sea away — you cannot
+  guriUdhes: L(w('rri'), w('mbi'), w('det')), // sit on the sea — you cannot
   kafeneja: L(w('pyet'), wf('kafene', 'kafenenë', 'the coffee-house')), // ask the coffee-house — it cannot answer
   kafeneja2: L(wf('bej', 'bëj', 'make'), wf('naten', 'natën', 'the night')), // make the night — you cannot
   kroiGrate: L(w('jep'), wf('fat', 'fatin', 'the luck')), // give the luck — you cannot hand it over
-  qytetiUdhetar2: L(w('fol'), wf('det', 'detin', 'the sea')), // speak to the sea — it cannot answer
   dilFrike: L(w('jep'), wf('frike', 'frikën', 'the fear')), // give the fear — you cannot hand it over
-  qytetiUdhetar3: L(w('merr'), wf('ore', 'orën', 'the hour')), // take the hour — you cannot carry time
   lumiMjeshter: L(w('tregoj'), wf('mulli', 'mullirin', 'the mill')), // tell the mill — it cannot listen
   udhetaretBisede: L(wf('shko', 'shko', 'go'), wf('ide', 'idenë', 'the idea')), // go the idea — it is not a place
   kroiGrate2: L(w('ndalo'), wf('mengjes', 'mëngjesin', 'the morning')), // stop the morning — you cannot
-  lumiMjeshter2: L(w('merr'), wf('vit', 'vite', 'years')), // take the years — you cannot carry time
-  qytetiUdhetar4: L(w('ec'), wf('arsye', 'arsyen', 'the reason')), // walk the reason — it is not a place
+  fushaMulli: L(w('merr'), wf('fushe', 'fushat', 'the fields')), // take the fields — you cannot carry land
   udhetaretBisede2: L(w('lufto'), wf('rruge', 'rrugën', 'the road')), // fight the road — nonsense
   nenaDiell1: L(wf('bej', 'bëj', 'make'), wf('diell', 'diellin', 'the sun')), // make the sun — you cannot
   karkanxholl1: L(wf('thirr', 'thërret', 'call'), wf('hekur', 'hekurin', 'the iron')), // call the iron — nonsense
@@ -11784,7 +11878,10 @@ const CONFUSERS3 = {
   punaMulli: L(w('mban'), wf('plak', 'plakun', 'the old man')), // carry the old man — you cannot
   punaBariu: L(w('ha'), wf('dhi', 'dhitë', 'the goats')), // eat the goats — you cannot
   kengaLahute: L(w('degjo'), w('dhjete')), // listen to ten — absurd
-  udhaShenja: L(w('degjo'), wf('harte', 'hartën', 'the map')), // listen to the map — it cannot answer
+  udhaShenja: L(w('degjo'), wf('shenje', 'shenjat', 'the signs')), // listen to the signs — they cannot speak
+  kopshtiBar: L(w('merr'), wf('mal', 'malin', 'the mountain')), // take the mountain — you cannot
+  kripore1: L(w('merr'), wf('det', 'detin', 'the sea')), // take the sea — you cannot
+  punaKripe: L(w('jep'), wf('diell', 'diellin', 'the sun')), // give the sun away — you cannot
 }
 
 // inject all three distractors into every non-ending node

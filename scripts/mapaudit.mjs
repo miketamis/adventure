@@ -513,7 +513,6 @@ section(!npcBad.length, `NPC routes walk real roads & npc conditions can fire ($
 const RETURN_OK = {
   'kafeneja->fshatiSheshi': 'stepping OUT of the coffee-house interior onto the square is a real crossing',
   'kafeneja2->fshatiSheshi': 'same interior->square crossing',
-  'jutbina->aliBajr1': "the tale's homecoming beat — as Ali you RETURN to the house after years away",
   'aliBajr1->aliBajrFund': "«kthehu dhe vrit krajlin» — the ballad's return-and-strike beat, not a travel label",
 }
 const retBad = []

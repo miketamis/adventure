@@ -116,7 +116,7 @@ add('meaningful choice (no damned-if-you-do)', Object.entries(STORY).flatMap(([i
 // npcNodeOf — validated by mapaudit's NPC-routes check) are virtual the same way.
 const TIME_PHASES = new Set(['dawn', 'day', 'dusk', 'night'])
 const FIRE_STATES = new Set(['fireBig', 'fireLow', 'fireOut', 'fireLive'])
-const isVirtual = (i) => i === 'embodying' || TIME_PHASES.has(i) || FIRE_STATES.has(i) || /^(npc|npcAt|from|became|embodying):/.test(i)
+const isVirtual = (i) => i === 'embodying' || i === 'again' || i === 'rumor' || TIME_PHASES.has(i) || FIRE_STATES.has(i) || /^(npc|npcAt|from|became|embodying|visited|heard):/.test(i)
 const reqIds = (o) => (o.requires == null ? [] : [].concat(o.requires))
 const incomingGatedByItem = {}
 for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.to) {
@@ -159,6 +159,11 @@ add('item reachability (required items grantable)', (() => {
   for (const n of Object.values(STORY)) for (const o of n.options || []) { for (const i of reqIds(o)) if (!isVirtual(i)) reqd.add(i); if (o.grant) granted.add(o.grant) }
   return [...reqd].filter((i) => !granted.has(i)).map((i) => `required but never granted: ${i}`)
 })())
+
+// 10b. HEARSAY TARGETS — every place a scene TELLS of (node.tells) must be a real
+//      node, and worth planting: it should carry a rumor-payoff or be a drawn place.
+add('hearsay targets (node.tells names real nodes)', Object.entries(STORY).flatMap(([id, n]) =>
+  (n.tells || []).filter((t) => !STORY[t]).map((t) => `[${id}] tells of missing node '${t}'`)))
 
 // 11. SYMMETRIC TRAVEL — each district hub must offer a way back/out. KEEP THIS LIST CURRENT as districts grow.
 const HUBS = ['mali1', 'lumi', 'pylliLoop', 'deti1', 'jutbina', 'fshatiJeta', 'fshatiLanes', 'udhetaret']

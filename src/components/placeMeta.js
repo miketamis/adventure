@@ -36,9 +36,15 @@ export const PLACE_META = {
   tregtari: {
     name: "pazari — the trader's stall",
     happenings: [
-      { title: 'trade with the merchant', nodes: ['tregtari', 'tregtari2'] },
+      { title: 'trade with the merchant', nodes: ['tregtari'] },
       { title: 'buy bread and salt', nodes: ['blerjaBuke', 'blerjaKripe'] },
       { title: 'sell mountain tea', nodes: ['shitjaCaj'] },
+    ],
+  },
+  tregtari2: {
+    name: "dyqani — the trader's shop",
+    happenings: [
+      { title: 'haggle over the bigger numbers', nodes: ['tregtari2'] },
       { title: 'the lahuta on the wall', nodes: ['blerjaLahuta'] },
       { title: 'plis and xhubleta', nodes: ['plisiFund', 'xhubletaFund'] },
     ],
@@ -78,8 +84,13 @@ export const PLACE_META = {
     name: 'sheshi i fshatit — the square',
     happenings: [
       { title: 'the village square', nodes: ['fshatiSheshi'] },
-      { title: 'the wedding and the round-dance', nodes: ['dasma1', 'dasmaFund', 'valleFund'] },
       { title: "the old man's bench", nodes: ['sheshiPlak', 'sheshiPlak2', 'sheshiPlak3'] },
+    ],
+  },
+  dasma1: {
+    name: 'oborri i dasmës — the wedding yard',
+    happenings: [
+      { title: 'the wedding and the round-dance', nodes: ['dasma1', 'dasmaFund', 'valleFund'] },
     ],
   },
   kopshtMermer1: {
@@ -167,7 +178,7 @@ export const PLACE_META = {
   lumiMjeshter: {
     name: 'mulliri — the mill',
     happenings: [
-      { title: 'the master of the mill', nodes: ['lumiMjeshter', 'lumiMjeshter2'] },
+      { title: 'the master of the mill', nodes: ['lumiMjeshter'] },
       { title: 'work at the millstones', nodes: ['mulli1', 'punaMulli', 'mulliFund', 'mulliKeq'] },
       { title: "the xhindet's night mill (Maro Përhitura)", nodes: ['maroMulli1', 'maroXhindet1', 'maroLitani1', 'maroLitani2', 'maroLitani3', 'maroShtremberDore', 'maroNataHumbur', 'maroDoraShtember', 'maroDoraFalje', 'maroShtrember'] },
     ],
