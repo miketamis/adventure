@@ -18,6 +18,7 @@ import ComprehensionTest from './ComprehensionTest.jsx'
 import WorldContext from './WorldContext.jsx'
 import EmbodimentFocus from './EmbodimentFocus.jsx'
 import { isDistantLineVisible, transitionInfo } from '../game/worldModel.js'
+import { festivalLabel } from '../game/environment.js'
 import { embodimentOptionAccess, embodimentQuest } from '../game/embodiment.js'
 import { resolveRevealLine } from '../game/revealResolver.js'
 import { isOptionRevealed } from '../game/revealVisibility.js'
@@ -40,14 +41,6 @@ const QUOTE_TIER_LABEL = {
 }
 
 const LIQUID_ITEMS = new Set(['qumesht', 'potion', 'cajMali']) // drinkable — don't "drink the X" them
-const FESTIVAL_LABEL = {
-  ditaVeres: 'Dita e Verës',
-  nenaDiellit: 'Nëna e Diellit',
-  shengjergjEve: 'Shëngjergj eve',
-  shengjergj: 'Shëngjergj',
-  twelveNights: 'the Twelve Nights',
-}
-
 const formatRouteDuration = (hours) => {
   if (hours < 24) return `${hours}h`
   const days = Math.floor(hours / 24)
@@ -587,7 +580,7 @@ export default function StoryView({ state, dispatch }) {
               if (e.timePassage?.label) {
                 routeParts.push(e.timePassage.label)
               } else if (e.date) {
-                routeParts.push(`wait for ${FESTIVAL_LABEL[e.date] || e.date}${e.targetPhase ? ` at ${e.targetPhase}` : ''}`)
+                routeParts.push(`wait for ${festivalLabel(e.date)}${e.targetPhase ? ` at ${e.targetPhase}` : ''}`)
               } else {
                 if (e.route?.hours != null) routeParts.push(formatRouteDuration(e.route.hours))
                 if (e.targetPhase || e.route?.targetPhase) routeParts.push(`then wait for ${e.targetPhase || e.route.targetPhase}`)

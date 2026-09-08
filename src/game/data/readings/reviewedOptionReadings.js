@@ -8,8 +8,8 @@ import { OPTION_READINGS_STATIC } from './optionsStatic.js'
 // stable address, exact Albanian pin, English phrase and explicit review state.
 // The SHA-256 seal is checked in scripts/languageaudit.mjs after all candidates
 // have been inspected. `internal-editorial` never claims native-speaker review.
-export const REVIEWED_OPTION_COUNT = 1652
-export const OPTION_READING_REVIEW_HASH = 'sha256:333002d0dfa7c1692391f81477d5a73e052913df93b3b25cf0f95381aef017b9'
+export const REVIEWED_OPTION_COUNT = 1653
+export const OPTION_READING_REVIEW_HASH = 'sha256:5fa8027419ccfab514582bb993d64f398a6206cbf3d4f5e1b45c711ad59ee411'
 
 const merged = {}
 for (const tranche of [OPTION_READINGS_A, OPTION_READINGS_B, OPTION_READINGS_C, OPTION_READINGS_STATIC]) {

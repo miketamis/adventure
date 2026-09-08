@@ -19,6 +19,7 @@ import {
   advanceToFestival,
   calendarAtClock,
   festivalIdsAtClock,
+  festivalLabel,
   hydrologyFromFacts,
   seasonAtClock,
   weatherAtClock,
@@ -343,14 +344,6 @@ export function projectedClockForOption(state, option) {
   return clock
 }
 
-const PASSAGE_FESTIVAL_LABEL = Object.freeze({
-  ditaVeres: 'Dita e Verës',
-  nenaDiellit: 'Nëna e Diellit',
-  shengjergjEve: 'Shëngjergj eve',
-  shengjergj: 'Shëngjergj',
-  twelveNights: 'the Twelve Nights',
-})
-
 // Long story spans are one choice but not one instant. Keep the exact clock
 // projection and its player-facing narrative description together, so the UI
 // can stand between departure and arrival without dispatching hundreds of
@@ -366,7 +359,7 @@ export function timePassageForOption(
   const authored = option?.timePassage
   if (!authored && !option?.date && elapsedHours < 24) return null
 
-  const festival = option?.date ? PASSAGE_FESTIVAL_LABEL[option.date] || option.date : null
+  const festival = option?.date ? festivalLabel(option.date) : null
   const fallbackLabel = festival
     ? `until ${festival}`
     : elapsedHours % 24 === 0

@@ -28,7 +28,7 @@ The governing rule is fit: use every mechanic the lore naturally supports, but n
 - A spatial mythic chart with exact routes, distance, travel time, direction and backtracking.
 - Arrival-aware prose, phase-crossing prose and leaner revisit text.
 - Rumours that mark unheard places and pay off on first arrival.
-- Day phases, deterministic calendar, weekdays, seasons, weather, hydrology and feast days.
+- Day phases, deterministic calendar, weekdays, seasons, weather, hydrology and data-driven observances.
 - Long-journey interstitials with sourced stages rather than silent clock jumps.
 - Timed world fixtures with reusable stages and groups; currently the clearing fire and mill lamp.
 - Clock-walking NPC schedules and one-shot processions.
@@ -92,7 +92,7 @@ The governing rule is fit: use every mechanic the lore naturally supports, but n
 | Blue Eye | Rich | Items, seasonal danger, water and lasting spring-world facts. |
 | Three Friends | Upgraded | Kordha’s external soul is the sword carried through the secrecy choice. |
 | Tomor and Shpirag | Rich | Dual identity, mountain routes, item decisions, battle and consequence. |
-| Tomorr Pilgrimage | Focused | Summit route, offering and living calendar; no invented side errand. |
+| Tomorr Pilgrimage | Upgraded | Its sourced 20–25 August observance now fills the summit through the shared calendar, with a playable wait and visible pilgrims. |
 | Tortoise | Focused | Hospitality and sharing remain social; the guest is not made a resource. |
 | Bridge of Arta | Upgraded | Mercy and immurement now leave mutually exclusive permanent bridge states. |
 | Zuku Bajraktar | Focused | Rusha’s freely sworn besa stays central, without invented payment or combat. |

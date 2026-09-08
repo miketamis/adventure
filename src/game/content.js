@@ -1830,6 +1830,10 @@ const TIME_SOURCE = Object.freeze({
     label: 'St George’s Day / Shëngjergji reference',
     url: 'https://en.wikipedia.org/wiki/Saint_George%27s_Day',
   }),
+  tomorriPilgrimage: Object.freeze({
+    label: 'World Headquarters of the Bektashi Order, traditional Mount Tomorr ceremony (2023)',
+    url: 'https://kryegjyshataboterorebektashiane.org/ceremonia-tradicionale-ne-malin-e-tomorrit/',
+  }),
 })
 
 const MARO_WEDDING_WAIT = Object.freeze({
@@ -5517,6 +5521,7 @@ export const STORY = {
       // gilded at dawn, the sky afire at dusk while the valleys drown in shadow
       when('dawn', L(w('eshte'), w('agim'), p(':'), wf('bote', 'bota', 'the world'), w('poshte'), w('eshte'), w('e_art'), wf('ar', 'artë', 'golden'), p('.'))),
       when('dusk', L(w('eshte'), w('muzg'), p(':'), wf('qiell', 'qielli', 'the sky'), w('eshte'), w('i_art'), w('kuq'), w('dhe'), w('i_art'), wf('ar', 'artë', 'golden'), p(','), w('dhe'), wf('bote', 'bota', 'the world'), w('poshte'), w('behet'), w('e_art'), w('erret'), p('.'))),
+      when(['festival:tomorriPilgrimage', 'day'], R('Today thousands of people climb here carrying the kurban.', w('sot'), w('mije'), wf('njeri', 'njerëz', 'people'), wf('ngjit', 'ngjiten', 'climb'), w('ketu'), w('me'), w('kurban'), p('.'))),
     ],
     options: [
       { text: L(w('ec'), w('mbi'), wf('rreze', 'rrezet', 'the rays')), to: 'diellShtepi1', reveal: 'rreze', revealOccurrence: 2, unless: 'night', become: 'maiden-promised-sun' },
@@ -5528,6 +5533,24 @@ export const STORY = {
       { text: L(w('zbrit'), wf('ne', 'në', 'to'), w('mal')), to: 'mali3' },
       // wait out the night on the peak — the rays return with the sun
       { text: L(w('prit'), w('agim')), requires: 'night', to: 'maja', time: 'dawn' },
+      {
+        text: R('Wait until summer.', w('prit'), w('deri'), w('ne'), w('vere')),
+        to: 'maja',
+        unless: 'festival:tomorriPilgrimage',
+        date: 'tomorriPilgrimage',
+        time: 'day',
+        timePassage: {
+          title: 'Waiting for the Tomorr pilgrimage',
+          label: 'the Mount Tomorr pilgrimage—20–25 August, daytime',
+          source: TIME_SOURCE.tomorriPilgrimage,
+          segments: [{
+            label: 'The calendar turns to the August pilgrimage',
+            detail: 'The mountain waits for 20–25 August, when pilgrims of every faith climb to Abaz Aliu’s feast carrying the kurban they will share.',
+            fidelity: 'calendar-exact',
+            visual: 'festival',
+          }],
+        },
+      },
     ],
   },
 

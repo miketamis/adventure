@@ -231,7 +231,7 @@ check('every multi-day or calendar jump has a sourced, semantically honest passa
       covered++
     }
   }
-  assert.equal(covered, 17, `expected 13 multi-day jumps and 4 calendar waits, found ${covered}`)
+  assert.equal(covered, 18, `expected 13 multi-day jumps and 5 calendar waits, found ${covered}`)
 
   const feast = STORY.binoshetDasma.options.find((option) => option.to === 'binoshetKuvendi')
   const firstCampaignMonth = STORY.binoshetLuftaFillon.options.find((option) => option.to === 'binoshetLuftaZgjat')
@@ -397,6 +397,9 @@ check('folk-calendar observances use the right civil and Orthodox dates', () => 
 
   const shengjergj = calendarAtClock(advanceToFestival(0, 'shengjergj', 'day'))
   assert.deepEqual([shengjergj.month, shengjergj.day], [5, 6])
+  const tomorri = calendarAtClock(advanceToFestival(0, 'tomorriPilgrimage', 'day'))
+  assert.deepEqual([tomorri.month, tomorri.day], [8, 20])
+  assert.ok(tomorri.festivals.includes('tomorriPilgrimage'))
   assert.equal(advanceToFestival(123, 'not-a-festival', 'day'), 123)
   assert.equal(advanceToFestival(123, 'ditaVeres', 'not-a-phase'), 123)
 

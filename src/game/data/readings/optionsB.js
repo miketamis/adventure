@@ -12,9 +12,10 @@ export const OPTION_READINGS_B = Object.freeze({
   "maja.options[4]": { al: "sheh kalanë", en: "See the castle.", review: 'internal-editorial' }, // 543
   "maja.options[5]": { al: "zbrit në mal", en: "Go down the mountain.", review: 'internal-editorial' }, // 544
   "maja.options[6]": { al: "prit agim", en: "Wait for dawn.", review: 'internal-editorial' }, // 545
-  "maja.options[7]": { al: "ngjit plakun", en: "Climb the old man.", review: 'internal-editorial' }, // 546
-  "maja.options[8]": { al: "sheh rrufenë", en: "See the thunderbolt.", review: 'internal-editorial' }, // 547
-  "maja.options[9]": { al: "dëgjo erën", en: "Listen to the wind.", review: 'internal-editorial' }, // 548
+  "maja.options[7]": { al: "prit deri në verë", en: "Wait until summer.", review: 'internal-editorial' }, // 546
+  "maja.options[8]": { al: "ngjit plakun", en: "Climb the old man.", review: 'internal-editorial' }, // 547
+  "maja.options[9]": { al: "sheh rrufenë", en: "See the thunderbolt.", review: 'internal-editorial' }, // 548
+  "maja.options[10]": { al: "dëgjo erën", en: "Listen to the wind.", review: 'internal-editorial' }, // 549
   "jutbina.options[0]": { al: "ndihmo Mujo", en: "Help Mujo.", review: 'internal-editorial' }, // 549
   "jutbina.options[1]": { al: "ndihmo trimin", en: "Help the hero.", review: 'internal-editorial' }, // 550
   "jutbina.options[2]": { al: "kërko zanat", en: "Look for the Zanas.", review: 'internal-editorial' }, // 551

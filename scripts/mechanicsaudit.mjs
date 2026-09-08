@@ -7,7 +7,7 @@ import { readdir } from 'node:fs/promises'
 import { ITEMS, STORY } from '../src/game/content.js'
 import { EMBODIMENT_QUESTS } from '../src/game/embodiment.js'
 import { FOLKLORE } from '../src/game/folklore.js'
-import { WORLD_FACT_PRESENTATION } from '../src/game/environment.js'
+import { FESTIVAL_IDS, OBSERVANCES, WORLD_FACT_PRESENTATION } from '../src/game/environment.js'
 import { TIMED_WORLD_FIXTURES, parseFixtureCondition } from '../src/game/worldFixtures.js'
 
 const REVIEW = Object.freeze({
@@ -54,7 +54,7 @@ const REVIEW = Object.freeze({
   'syri-kalter': ['rich', 'Items, seasonal danger, water and lasting spring facts all fit the Blue Eye legend.'],
   'three-friends': ['upgraded', 'Kordha’s external soul is now the specific sword carried through the secrecy choice.'],
   'tomor-shpirag': ['rich', 'Two identities, mountain routes, item decisions, battle and environmental consequence support the giants.'],
-  'tomorri-pilgrimage': ['focused', 'Pilgrimage is grounded in the summit route, offering and living calendar; no invented side errand is added.'],
+  'tomorri-pilgrimage': ['upgraded', 'Its sourced 20–25 August observance now fills the summit through the shared calendar, with a playable wait and visible pilgrims.'],
   tortoise: ['focused', 'Hospitality and sharing remain a social choice; treating the guest as a resource would spoil the fable.'],
   'ura-e-artes': ['upgraded', 'Mercy or immurement now leaves mutually exclusive permanent bridge states in the world.'],
   'zuku-bajraktar': ['focused', 'Rusha’s freely sworn besa is the point; the compact role avoids invented combat or payment.'],
@@ -129,6 +129,8 @@ for (const itemId of ['zogShqiponje', 'shpataKordhes']) assert.ok(ITEMS[itemId],
 for (const factId of ['rozafaCastleRaised', 'artaBridgeUnbuilt', 'artaBridgeRaised']) {
   assert.ok(WORLD_FACT_PRESENTATION[factId], `missing world presentation for ${factId}`)
 }
+assert.deepEqual(FESTIVAL_IDS, Object.keys(OBSERVANCES), 'observance ids drifted from their shared registry')
+assert.equal(STORY.maja.options.find((option) => option.date === 'tomorriPilgrimage')?.to, 'maja')
 
 const counts = Object.values(REVIEW).reduce((out, [status]) => ({ ...out, [status]: (out[status] || 0) + 1 }), {})
 console.log(`✅ mechanics review covers ${tales.length} full tales and ${FOLKLORE.length} lore cards`)

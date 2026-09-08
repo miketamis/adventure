@@ -4,13 +4,6 @@
 export const CALENDAR_EPOCH = Object.freeze({ year: 2026, month: 3, day: 13 })
 export const SEASONS = Object.freeze(['spring', 'summer', 'autumn', 'winter'])
 export const WEATHER_TYPES = Object.freeze(['clear', 'cloud', 'rain', 'storm', 'snow'])
-export const FESTIVAL_IDS = Object.freeze([
-  'ditaVeres',
-  'nenaDiellit',
-  'shengjergjEve',
-  'shengjergj',
-  'twelveNights',
-])
 
 // Every lasting ending effect has a player-facing memory.  Keep these compact:
 // they are ambient consequences, not a second ending blurb. `regions` says
@@ -89,6 +82,69 @@ function nenaDiellitUtc(year) {
   return new Date(orthodoxEasterUtc(year).getTime() + 24 * DAY_MS)
 }
 
+// One registry owns observance identity, player-facing labels and calendar
+// rules. Fixed days, ranges (including year-crossing ranges) and dates derived
+// from Orthodox Pascha are all expressions of the same calendar mechanic.
+// Adding a living feast must not require matching hard-coded lists in the
+// reducer and two separate views.
+export const OBSERVANCES = Object.freeze({
+  ditaVeres: Object.freeze({
+    label: 'Dita e Verës',
+    rule: Object.freeze({ kind: 'fixed', month: 3, day: 14 }),
+  }),
+  nenaDiellit: Object.freeze({
+    label: 'Nëna e Diellit',
+    rule: Object.freeze({ kind: 'orthodox-easter-offset', days: 24 }),
+  }),
+  shengjergjEve: Object.freeze({
+    label: 'Shëngjergj eve',
+    rule: Object.freeze({ kind: 'fixed', month: 5, day: 5 }),
+  }),
+  shengjergj: Object.freeze({
+    label: 'Shëngjergj',
+    rule: Object.freeze({ kind: 'fixed', month: 5, day: 6 }),
+  }),
+  twelveNights: Object.freeze({
+    label: 'the Twelve Nights',
+    rule: Object.freeze({
+      kind: 'annual-range',
+      start: Object.freeze({ month: 12, day: 25 }),
+      end: Object.freeze({ month: 1, day: 5 }),
+    }),
+  }),
+  tomorriPilgrimage: Object.freeze({
+    label: 'the Tomorr pilgrimage',
+    rule: Object.freeze({
+      kind: 'annual-range',
+      start: Object.freeze({ month: 8, day: 20 }),
+      end: Object.freeze({ month: 8, day: 25 }),
+    }),
+  }),
+})
+
+export const FESTIVAL_IDS = Object.freeze(Object.keys(OBSERVANCES))
+export const festivalLabel = (id) => OBSERVANCES[id]?.label || id
+
+const monthDay = ({ month, day }) => month * 100 + day
+
+function observanceMatches(observance, parts) {
+  const rule = observance?.rule
+  if (rule?.kind === 'fixed') return parts.month === rule.month && parts.day === rule.day
+  if (rule?.kind === 'annual-range') {
+    const current = monthDay(parts)
+    const start = monthDay(rule.start)
+    const end = monthDay(rule.end)
+    return start <= end
+      ? current >= start && current <= end
+      : current >= start || current <= end
+  }
+  if (rule?.kind === 'orthodox-easter-offset') {
+    const observed = new Date(orthodoxEasterUtc(parts.year).getTime() + rule.days * DAY_MS)
+    return parts.date.getUTCMonth() === observed.getUTCMonth() && parts.date.getUTCDate() === observed.getUTCDate()
+  }
+  return false
+}
+
 export function seasonAtClock(clock = 0) {
   const { month } = datePartsAtClock(clock)
   if (month >= 3 && month <= 5) return 'spring'
@@ -98,18 +154,10 @@ export function seasonAtClock(clock = 0) {
 }
 
 export function festivalIdsAtClock(clock = 0) {
-  const { date, year, month, day } = datePartsAtClock(clock)
-  const ids = []
-  if (month === 3 && day === 14) ids.push('ditaVeres')
-  if (month === 5 && day === 5) ids.push('shengjergjEve')
-  if (month === 5 && day === 6) ids.push('shengjergj')
-  if ((month === 12 && day >= 25) || (month === 1 && day <= 5)) ids.push('twelveNights')
-  const rusica = nenaDiellitUtc(year)
-  if (
-    date.getUTCMonth() === rusica.getUTCMonth() &&
-    date.getUTCDate() === rusica.getUTCDate()
-  ) ids.push('nenaDiellit')
-  return ids
+  const parts = datePartsAtClock(clock)
+  return Object.entries(OBSERVANCES)
+    .filter(([, observance]) => observanceMatches(observance, parts))
+    .map(([id]) => id)
 }
 
 export function calendarAtClock(clock = 0) {

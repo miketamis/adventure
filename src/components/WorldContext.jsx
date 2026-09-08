@@ -1,4 +1,5 @@
 import { environmentSnapshot } from '../game/gameState.js'
+import { festivalLabel } from '../game/environment.js'
 import { NODE_REGION, REGIONS } from '../game/regions.js'
 import { isEnclosedScene, sightlinesFrom } from '../game/worldModel.js'
 
@@ -15,14 +16,6 @@ const PHASE = {
   day: 'day',
   dusk: 'dusk',
   night: 'night',
-}
-
-const FESTIVAL = {
-  ditaVeres: 'Dita e Verës',
-  nenaDiellit: 'Nëna e Diellit',
-  shengjergjEve: 'Shëngjergj eve',
-  shengjergj: 'Shëngjergj',
-  twelveNights: 'the Twelve Nights',
 }
 
 const MONTH = [
@@ -77,7 +70,7 @@ export default function WorldContext({ state, worldClock = state.clock }) {
         </p>
       )}
       {calendar.festivals.length > 0 && (
-        <p className="world-festival">Today: {calendar.festivals.map((id) => FESTIVAL[id] || id).join(' · ')}</p>
+        <p className="world-festival">Today: {calendar.festivals.map(festivalLabel).join(' · ')}</p>
       )}
       <p className="world-horizon">
         <b>Horizon:</b>{' '}
