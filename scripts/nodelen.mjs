@@ -9,9 +9,9 @@
 import { STORY } from '../src/game/content.js'
 import { phaseAtClock } from '../src/game/gameState.js'
 import { NPCS } from '../src/game/npcs.js'
+import { TIMED_WORLD_FIXTURES, parseFixtureCondition } from '../src/game/worldFixtures.js'
 
 const TIME = ['dawn', 'day', 'dusk', 'night']
-const FIRE = new Set(['fireBig', 'fireLow', 'fireOut', 'fireLive'])
 
 // npc position at clock h for looping npcs; once-npcs treated as free (any offset)
 function npcAt(npcId, h) {
@@ -30,9 +30,11 @@ function condSat(id, env) {
   // a rumor-payoff can only fire on a FIRST arrival (heard of, never seen)
   if (id === 'rumor') return !env.familiar
   if (TIME.includes(id)) return phaseAtClock(env.h) === id
-  if (FIRE.has(id)) {
-    if (id === 'fireLive') return env.fire === 'fireBig' || env.fire === 'fireLow'
-    return env.fire === id
+  const fixtureCondition = parseFixtureCondition(id)
+  if (fixtureCondition) {
+    const fixture = TIMED_WORLD_FIXTURES[fixtureCondition.fixtureId]
+    const stage = env.fixtures[fixtureCondition.fixtureId]
+    return stage === fixtureCondition.stateId || Boolean(fixture.groups[fixtureCondition.stateId]?.includes(stage))
   }
   if (id.startsWith('from:')) return id.slice(5).split('|').includes(env.cameFrom)
   if (id.startsWith('became:')) return env.crossed && id.slice(7).split('|').includes(phaseAtClock(env.h))
@@ -62,12 +64,12 @@ for (const [nodeId, node] of Object.entries(STORY)) {
   const entries = node.text
   const froms = new Set(['__OTHER__'])
   const freeIds = new Set()
-  let hasFire = false
+  const fixtureIds = new Set()
   for (const e of entries) {
     if (Array.isArray(e)) continue
     for (const id of [].concat(e.cond)) {
       if (id.startsWith('from:')) id.slice(5).split('|').forEach((n) => froms.add(n))
-      else if (FIRE.has(id)) hasFire = true
+      else if (parseFixtureCondition(id)) fixtureIds.add(parseFixtureCondition(id).fixtureId)
       else if (!TIME.includes(id) && !id.startsWith('became:') && !id.startsWith('npc')) freeIds.add(id)
     }
   }
@@ -81,17 +83,24 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     }
   } else freeCombos.push(Object.fromEntries(freeList.map((id) => [id, true])))
 
+  let fixtureCombos = [{}]
+  for (const fixtureId of fixtureIds) {
+    fixtureCombos = fixtureCombos.flatMap((profile) =>
+      [null, ...TIMED_WORLD_FIXTURES[fixtureId].stages.map((stage) => stage.id)]
+        .map((stage) => ({ ...profile, [fixtureId]: stage })))
+  }
+
   let best = 0, bestFam = 0, bestEnv = null
   for (let h = 0; h < 24; h++)
     for (const crossed of [true, false])
       for (const cameFrom of froms)
-        for (const fire of hasFire ? ['fireBig', 'fireLow', 'fireOut', null] : [null])
+        for (const fixtures of fixtureCombos)
           for (const free of freeCombos)
             for (const familiar of [false, true]) {
-              const env = { h, crossed, cameFrom, fire, free, nodeId, familiar }
+              const env = { h, crossed, cameFrom, fixtures, free, nodeId, familiar }
               const n = entries.filter((e) => entrySat(e, env)).length
               if (familiar) { if (n > bestFam) bestFam = n }
-              else if (n > best) { best = n; bestEnv = { phase: phaseAtClock(h), crossed, cameFrom, fire, free: freeList.filter((id) => free[id] !== false) } }
+              else if (n > best) { best = n; bestEnv = { phase: phaseAtClock(h), crossed, cameFrom, fixtures, free: freeList.filter((id) => free[id] !== false) } }
             }
   results.push({ nodeId, total: entries.length, max: best, fam: bestFam, env: bestEnv, end: !!node.end })
 }
@@ -100,7 +109,8 @@ results.sort((a, b) => b.max - a.max)
 console.log('rank  node                     firstVisit  familiar  totalEntries  end  alignment')
 for (const r of results.slice(0, 25)) {
   const e = r.env || {}
-  const align = `phase=${e.phase}${e.crossed ? '+crossed' : ''} from=${e.cameFrom === '__OTHER__' ? '-' : e.cameFrom}${e.fire ? ' fire=' + e.fire : ''}${e.free && e.free.length ? ' has=' + e.free.join(',') : ''}`
+  const fixtureText = Object.entries(e.fixtures || {}).filter(([, stage]) => stage).map(([id, stage]) => `${id}:${stage}`).join(',')
+  const align = `phase=${e.phase}${e.crossed ? '+crossed' : ''} from=${e.cameFrom === '__OTHER__' ? '-' : e.cameFrom}${fixtureText ? ' fixtures=' + fixtureText : ''}${e.free && e.free.length ? ' has=' + e.free.join(',') : ''}`
   console.log(`${String(results.indexOf(r) + 1).padStart(4)}  ${r.nodeId.padEnd(24)} ${String(r.max).padStart(10)}  ${String(r.fam).padStart(8)}  ${String(r.total).padStart(12)}  ${r.end ? ' E ' : '   '}  ${align}`)
 }
 const dist = {}

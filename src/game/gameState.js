@@ -24,6 +24,13 @@ import {
   weatherAtClock,
   worldMemoriesFromFacts,
 } from './environment.js'
+import {
+  TIMED_WORLD_FIXTURES,
+  fixtureConditionMatches,
+  fixtureStageAt,
+  isTimedWorldFixture,
+  parseFixtureCondition,
+} from './worldFixtures.js'
 
 export { CALENDAR_EPOCH, FESTIVAL_IDS, SEASONS, WEATHER_TYPES }
 
@@ -181,25 +188,19 @@ function hasEnvironmentCond(state, id) {
 }
 
 // ---------------------------------------------------------------------------
-// THE CAMPFIRE — persistent WORLD state, not an item: the clearing keeps its
-// fire between visits. An option with `fire: true` lights it, stamping the
-// hour; it then burns down as the clock walks on — big for FIRE_BIG_HOURS,
-// dying until FIRE_OUT_HOURS, then out (cold ash) until relit. The fire states
-// are VIRTUAL ITEMS like the time phases: 'fireBig', 'fireLow', 'fireOut' and
-// 'fireLive' (big or dying) all work in requires/unless/when().
+// TIMED WORLD FIXTURES — persistent, place-bound things activated by story
+// actions and advanced by the clock which owns their scene. Conditions use
+// `fixture:<id>:<stage-or-group>`; campfire and millLamp are two expressions
+// of the same lifecycle. Map art still receives its older fireBig/fireLow/
+// fireOut vocabulary as a presentation adapter, not as game-state mechanics.
 // ---------------------------------------------------------------------------
-export const FIRE_BIG_HOURS = 4
-export const FIRE_OUT_HOURS = 8
-const FIRE_IDS = new Set(['fireBig', 'fireLow', 'fireOut', 'fireLive'])
-export const isFireId = (id) => FIRE_IDS.has(id)
-// null = never lit (no fire, no ash); otherwise the current phase of the burn
+export { TIMED_WORLD_FIXTURES }
+export const isFixtureId = (id) => Boolean(parseFixtureCondition(id))
+export const fixtureStateOf = (state, fixtureId) =>
+  fixtureStageAt(fixtureId, state.fixtures?.[fixtureId], storyClockOf(state))
 export function fireStateOf(state) {
-  if (state.fireLit == null) return null
-  // Raw map/debug state has no conditionClock and therefore remains on the
-  // living clock. A projected tale scene carries conditionClock, so its fire
-  // condition waits with the rest of that authored scene during a detour.
-  const age = storyClockOf(state) - state.fireLit
-  return age < FIRE_BIG_HOURS ? 'fireBig' : age < FIRE_OUT_HOURS ? 'fireLow' : 'fireOut'
+  const stage = fixtureStateOf(state, 'campfire')
+  return stage === 'bright' ? 'fireBig' : stage === 'low' ? 'fireLow' : stage === 'out' ? 'fireOut' : null
 }
 // ---------------------------------------------------------------------------
 // NPC ROUTES — walking people (see npcs.js). Position is DERIVED from the
@@ -285,14 +286,11 @@ export const isBecameId = (id) => typeof id === 'string' && id.startsWith('becam
 // only when that tale is closed or death starts a new run.
 export const isEmbodyingId = (id) => typeof id === 'string' && id.startsWith('embodying:')
 // one truth for "does the player have X right now" — item, companion, hour,
-// fire, or the way they came in
+// timed fixture, or the way they came in
 export const hasCond = (state, id) => {
   if (isTimeId(id)) return timeOfDay(state) === id
   if (isEnvironmentId(id)) return hasEnvironmentCond(state, id)
-  if (isFireId(id)) {
-    const f = fireStateOf(state)
-    return id === 'fireLive' ? f === 'fireBig' || f === 'fireLow' : f === id
-  }
+  if (isFixtureId(id)) return fixtureConditionMatches(id, state.fixtures, storyClockOf(state))
   if (isFromId(id)) return id.slice(5).split('|').includes(state.cameFrom)
   if (isBecameId(id))
     return (
@@ -662,9 +660,16 @@ export function normalizeSavedState(saved, fresh) {
   next.turn = Math.max(1, Math.floor(finiteOr(saved.turn, fresh.turn)))
   next.peak = Math.max(0, Math.floor(finiteOr(saved.peak, fresh.peak)))
   next.hearts = Math.max(0, Math.min(START_HEARTS, Math.floor(finiteOr(saved.hearts, fresh.hearts))))
-  next.fireLit = saved.fireLit == null || !Number.isFinite(saved.fireLit) || saved.fireLit < 0 || saved.fireLit > next.clock
-    ? null
-    : Math.floor(saved.fireLit)
+  next.fixtures = {}
+  const savedFixtures = isRecord(saved.fixtures) ? saved.fixtures : {}
+  for (const id of Object.keys(TIMED_WORLD_FIXTURES)) {
+    const legacyCampfire = id === 'campfire' ? saved.fireLit : null
+    const activatedAt = savedFixtures[id] ?? legacyCampfire
+    if (Number.isFinite(activatedAt) && activatedAt >= 0 && activatedAt <= next.clock) {
+      next.fixtures[id] = Math.floor(activatedAt)
+    }
+  }
+  delete next.fireLit
   next.cameFrom = STORY[saved.cameFrom] ? saved.cameFrom : null
   next.cameFromPhase = TIME_PHASES.includes(saved.cameFromPhase) ? saved.cameFromPhase : null
   next.familiar = saved.familiar === true
@@ -829,7 +834,7 @@ function baseRun() {
     turn: 1,
     clock: START_CLOCK, // hour of the world-day (see TIME OF DAY above)
     embodimentClock: null, // frozen tale chronology while an embodied role explores outside it
-    fireLit: null, // hour the clearing's campfire was last lit (see THE CAMPFIRE above)
+    fixtures: {}, // fixtureId -> activation hour (see TIMED WORLD FIXTURES above)
     npcStarted: {}, // npcId -> hour a one-shot NPC route was triggered (see NPC ROUTES above)
     worldFacts: {}, // lasting changes caused by completed tales (rain, restored water, spared places)
     view: 'story', // 'story' | 'practice' | 'dictionary' | 'map' | 'endings' | 'guide'
@@ -1151,8 +1156,13 @@ export function reducer(state, action) {
         clock,
         targetNode?.id || option.to,
       )
-      // lighting the campfire stamps the hour — from here it burns down on its own
-      const fireLit = option.fire ? clock : state.fireLit ?? null
+      // Activating a fixture stamps the clock which owns the current scene.
+      // A tale-owned lamp therefore waits with that tale during a detour, while
+      // an overworld campfire keeps ageing with the living world.
+      const fixtureClock = roleAccess.kind === 'quest' ? choiceToClock : clock
+      const fixtures = option.activateFixture && isTimedWorldFixture(option.activateFixture)
+        ? { ...(state.fixtures || {}), [option.activateFixture]: fixtureClock }
+        : state.fixtures || {}
       // entering a node with `startsNpc` sets a one-shot NPC walking (once per
       // run — a procession that already passed does not pass again)
       const npcStarted = targetNode?.startsNpc && state.npcStarted?.[targetNode.startsNpc] == null
@@ -1226,7 +1236,7 @@ export function reducer(state, action) {
         turn: state.turn + 1,
         clock,
         timePassage,
-        fireLit,
+        fixtures,
         npcStarted,
         worldFacts,
         embodying,

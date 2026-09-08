@@ -8,6 +8,7 @@ import {
   currentStoryState,
   embodimentClockOf,
   fireStateOf,
+  fixtureStateOf,
   hasCond,
   hasRequiredItem,
   npcNodeOf,
@@ -50,7 +51,7 @@ const stateAt = (nodeId, extra = {}) => ({
   nodeId, clock: START_CLOCK, cameFrom: null, cameFromPhase: null, familiar: false,
   heard: {}, rumor: false, trail: [], discovered: {}, inventory: {}, mana: {}, practiced: {},
   visited: {}, earned: {}, eligible: {}, attempts: {}, dismissedTests: {}, pendingTest: null,
-  peak: 3, hearts: 3, healedAt: {}, turn: 1, fireLit: null, npcStarted: {}, worldFacts: {},
+  peak: 3, hearts: 3, healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
   view: 'story', ended: null, embodying: null, embodimentOriginNode: null,
   embodimentFocusNode: null, embodimentWorldNode: null, embodimentPaused: false,
   embodimentClock: null, embodimentInventorySnapshot: null, embodimentInventoryIsolated: null,
@@ -62,7 +63,7 @@ const stateAt = (nodeId, extra = {}) => ({
 
 const asList = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
 const changesWorld = (option) => Boolean(
-  option?.grant || option?.consumes || option?.lek || option?.hearts || option?.fire,
+  option?.grant || option?.consumes || option?.lek || option?.hearts || option?.activateFixture,
 )
 const sameSet = (left, right) =>
   left.size === right.size && [...left].every((value) => right.has(value))
@@ -1120,8 +1121,8 @@ check('malformed role saves cannot desynchronise focus, teleport privately, or r
   assert.equal(validEnding.embodimentPaused, false)
 })
 
-check('raw world fire and NPC positions advance while projected tale conditions wait', () => {
-  const rawFire = stateAt('vatra', { clock: 107, fireLit: 100 })
+check('raw world fixtures and NPC positions advance while projected tale conditions wait', () => {
+  const rawFire = stateAt('vatra', { clock: 107, fixtures: { campfire: 100 } })
   const projectedFire = { ...rawFire, conditionClock: 101 }
   assert.equal(fireStateOf(rawFire), 'fireLow')
   assert.equal(fireStateOf(projectedFire), 'fireBig')
@@ -1148,11 +1149,20 @@ check('raw world fire and NPC positions advance while projected tale conditions 
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     for (const nodeId of quest.nodes) {
       assert.equal(STORY[nodeId]?.startsNpc, undefined, `${id}.${nodeId}: starts an NPC inside split time`)
-      for (const option of STORY[nodeId]?.options || []) {
-        assert.equal(Boolean(option.fire), false, `${id}.${nodeId}->${option.to}: stamps a fire inside split time`)
+      for (const option of STORY[nodeId]?.options || []) if (option.activateFixture) {
+        assert.equal(option.activateFixture, 'millLamp', `${id}.${nodeId}->${option.to}: unexpected tale fixture`)
+        assert.equal(nodeId, 'maroMulli1', `${id}.${nodeId}->${option.to}: fixture activated away from its place`)
       }
     }
   }
+
+  const taleLamp = stateAt('maroMulli1', {
+    clock: 109,
+    conditionClock: 102,
+    fixtures: { millLamp: 100 },
+  })
+  assert.equal(fixtureStateOf(taleLamp, 'millLamp'), 'bright')
+  assert.equal(fixtureStateOf({ ...taleLamp, conditionClock: 106 }, 'millLamp'), 'low')
 })
 
 check('the UI exposes confirmation, persistent identity, guidance and locked reasons', () => {

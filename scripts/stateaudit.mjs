@@ -68,7 +68,7 @@ const stateAt = (nodeId, clock = START_CLOCK, extra = {}) => ({
   hearts: 3,
   healedAt: {},
   turn: 1,
-  fireLit: null,
+  fixtures: {},
   npcStarted: {},
   worldFacts: {},
   view: 'story',
@@ -554,7 +554,7 @@ check('old and partial saves are normalized before play', () => {
   assert.equal(normalized.clock, START_CLOCK)
   assert.equal(normalized.turn, 1)
   assert.equal(normalized.hearts, 3)
-  assert.equal(normalized.fireLit, null)
+  assert.deepEqual(normalized.fixtures, {})
   assert.equal(normalized.view, 'story')
 })
 

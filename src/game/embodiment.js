@@ -237,7 +237,7 @@ export const embodimentIdentity = (state) => {
 }
 
 const changesWorld = (option) => Boolean(
-  option.grant || option.consumes || option.lek || option.hearts || option.fire,
+  option.grant || option.consumes || option.lek || option.hearts || option.activateFixture,
 )
 
 /**

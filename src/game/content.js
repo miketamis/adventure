@@ -1724,7 +1724,7 @@ export const Q = (quoteId, ...tokens) => {
 // companion. This lets a scene react to what walks with you: e.g. with the wolf, a
 // hostile encounter resolves "the wolf attacks them" instead of the neutral default.
 // Either accepts an array of ids as an AND ("all of these"): when(['night',
-// 'fireLive'], …) shows the line only at night AND while the fire burns; unless()
+// 'fixture:campfire:live'], …) shows the line only at night AND while the fire burns; unless()
 // with an array hides it only when ALL are present.
 export const when = (itemId, line) => ({ cond: itemId, line })
 export const unless = (itemId, line) => ({ cond: itemId, negate: true, line })
@@ -2126,9 +2126,9 @@ export const STORY = {
       // behind you the road you came by, ahead only trees; vazhdon = it KEEPS going
       R('This is a quiet place, but the forest continues deeper.', w('ketu'), w('eshte'), w('nje'), w('vend'), wf('i_art', 'i', 'of'), w('qete'), p(':'), wf('pyll', 'pylli', 'the forest'), w('vazhdon'), w('thelle'), p('.')),
       // the campfire is a PHYSICAL fact of the clearing — it burns, dies, goes cold
-      when('fireBig', R('The fire burns high.', wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('madh'), p('.'))),
-      when('fireLow', R('The fire is dying.', wf('zjarr', 'zjarri', 'the fire'), w('vdes'), p('.'))),
-      when('fireOut', R('The fire has gone cold.', wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('ftohte'), p('.'))),
+      when('fixture:campfire:bright', R('The fire burns high.', wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('madh'), p('.'))),
+      when('fixture:campfire:low', R('The fire is dying.', wf('zjarr', 'zjarri', 'the fire'), w('vdes'), p('.'))),
+      when('fixture:campfire:out', R('The fire has gone cold.', wf('zjarr', 'zjarri', 'the fire'), w('eshte'), w('i_art'), w('ftohte'), p('.'))),
       // if THIS visit crossed into the dark (lighting the fire at dusk, waiting),
       // nightfall is narrated as it happens…
       became('night', R('Night falls.', wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
@@ -2143,18 +2143,18 @@ export const STORY = {
       // burns, the light draws her to sit and the guest arc opens — a dark or
       // dead fireplace draws no one to it
       when('npc:plakaPyllit', R('A shivering old woman comes out of the forest.', w('nje'), w('plake'), w('e_art'), w('ftohte'), w('vjen'), w('nga'), wf('pyll', 'pylli', 'the forest'), p('.'))),
-      when(['npc:plakaPyllit', 'fireLive'], R('The old woman sits beside the fire.', wf('plake', 'plaka', 'the old woman'), w('rri'), wf('tek', 'te', 'at'), wf('zjarr', 'zjarri', 'the fire'), p('.'))),
-      when(['npc:plakaPyllit', 'fireLive'], R('The old woman is a sacred guest, and she wants bread.', wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), wf('mik', 'mik', 'guest'), w('i_art'), w('shenjte'), p(','), w('dhe'), w('do'), w('buke'), p('.'))),
+      when(['npc:plakaPyllit', 'fixture:campfire:live'], R('The old woman sits beside the fire.', wf('plake', 'plaka', 'the old woman'), w('rri'), wf('tek', 'te', 'at'), wf('zjarr', 'zjarri', 'the fire'), p('.'))),
+      when(['npc:plakaPyllit', 'fixture:campfire:live'], R('The old woman is a sacred guest, and she wants bread.', wf('plake', 'plaka', 'the old woman'), w('eshte'), w('nje'), wf('mik', 'mik', 'guest'), w('i_art'), w('shenjte'), p(','), w('dhe'), w('do'), w('buke'), p('.'))),
       R('You are hungry.', w('ti'), w('je'), w('i_art'), w('uritur'), p('.')),
     ],
     options: [
       // a fire wants the cold hours — by day it has no cause (standards §2)
-      { text: L(w('ndiz'), w('nje'), w('zjarr')), unless: ['day', 'fireLive'], fire: true, to: 'lendina' },
-      // the guest arc — only while SHE sits at a live fire (npc + fireLive)
-      { text: L(w('jep'), w('buke')), requires: ['buke', 'npc:plakaPyllit', 'fireLive'], consumes: 'buke', to: 'besaBekim', reveal: 'buke' },
+      { text: L(w('ndiz'), w('nje'), w('zjarr')), unless: ['day', 'fixture:campfire:live'], activateFixture: 'campfire', to: 'lendina' },
+      // the guest arc — only while SHE sits at a live fire (NPC + timed fixture)
+      { text: L(w('jep'), w('buke')), requires: ['buke', 'npc:plakaPyllit', 'fixture:campfire:live'], consumes: 'buke', to: 'besaBekim', reveal: 'buke' },
       // making the torch is the PLAYER's act (no narration) — it wants the big flame
-      { text: L(w('bej'), w('pishtar')), requires: 'fireBig', grant: 'pishtar', unless: 'pishtar', to: 'lendina' },
-      { text: L(w('prit'), w('ketu')), requires: ['npc:plakaPyllit', 'fireLive'], to: 'shtrigaNate' },
+      { text: L(w('bej'), w('pishtar')), requires: 'fixture:campfire:bright', grant: 'pishtar', unless: 'pishtar', to: 'lendina' },
+      { text: L(w('prit'), w('ketu')), requires: ['npc:plakaPyllit', 'fixture:campfire:live'], to: 'shtrigaNate' },
       // sleeping carries you into the night (the wolf finds you there)
       { text: L(w('fle'), w('ketu')), to: 'gjumi', time: 'night' },
       // rest in the clearing until dark — the big "wait" time-jump
@@ -5256,8 +5256,8 @@ export const STORY = {
       { text: L(w('dil'), w('nga'), wf('pyll', 'pylli', 'the forest')), to: 'start', reveal: 'pyll', revealOccurrence: 5 },
       // back to the road-end clearing — the camp: while your fire burns there it
       // calls you home by name, otherwise you walk back to the road
-      { text: L(w('kthehu'), w('tek'), wf('zjarr', 'zjarri', 'the fire')), requires: 'fireLive', to: 'lendina' },
-      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), unless: 'fireLive', to: 'lendina' },
+      { text: L(w('kthehu'), w('tek'), wf('zjarr', 'zjarri', 'the fire')), requires: 'fixture:campfire:live', to: 'lendina' },
+      { text: L(w('kthehu'), w('tek'), wf('rruge', 'rruga', 'the road')), unless: 'fixture:campfire:live', to: 'lendina' },
       // across the clearings to the brothers' camp — the forest circle runs both ways
       { text: L(w('shko'), wf('tek', 'te', 'to'), wf('vella', 'vëllezërit', 'the brothers')), to: 'pylli1', reveal: 'vella' },
       { text: L(w('ec'), w('ne'), w('valle')), requires: 'night', to: 'shtojzovalle1', reveal: 'valle', revealOccurrence: 2 },
@@ -11584,8 +11584,8 @@ export const STORY = {
       became('night', L(wf('naten', 'nata', 'night'), w('bie'), p('.'), wf('rruge', 'rruga', 'the road'), wf('poshte', 'poshtë', 'down'), w('eshte'), w('e_art'), wf('zi', 'zezë', 'black'), p(','), w('dhe'), w('vetem'), wf('uje', 'uji', 'the water'), w('flet'), w('larg'), p('.'))),
       from('mulli1', L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'in'), w('mulli'), w('me'), wf('thes', 'thesin', 'the sack'), p('.'))),
       L(wf('dere', 'dera', 'the door'), w('rri'), w('e_art'), wf('hap', 'hapur', 'open'), p('.'), w('brenda'), w('nuk'), w('eshte'), w('njeri'), p('.')),
-      unless('dritaMulli', L(wf('drite', 'drita', 'the light'), w('e_link'), wf('plak', 'plakut', 'the old man'), w('rri'), wf('tek', 'te', 'at'), wf('mur', 'muri', 'the wall'), p(','), w('pa'), w('zjarr'), p('.'))),
-      when('dritaMulli', L(wf('drite', 'drita', 'the light'), wf('bej', 'bën', 'makes'), wf('hije', 'hije', 'shadows'), w('mbi'), w('mur'), p('.'))),
+      unless('fixture:millLamp:live', L(wf('drite', 'drita', 'the light'), w('e_link'), wf('plak', 'plakut', 'the old man'), w('rri'), wf('tek', 'te', 'at'), wf('mur', 'muri', 'the wall'), p(','), w('pa'), w('zjarr'), p('.'))),
+      when('fixture:millLamp:live', L(wf('drite', 'drita', 'the light'), wf('bej', 'bën', 'makes'), wf('hije', 'hije', 'shadows'), w('mbi'), w('mur'), p('.'))),
       unless('bluarje', L(wf('mulli', 'mulliri', 'the mill'), w('rri'), w('i_art'), w('qete'), p('.'), wf('uje', 'uji', 'the water'), w('flet'), w('nen'), w('gur'), p('.'))),
       unless('bluarje', L(wf('dite', 'ditën', 'the day'), wf('plak', 'plaku', 'the old man'), wf('ve', 'vë', 'puts'), w('drithe'), wf('tek', 'te', 'at'), wf('gur', 'guri', 'the stone'), p(';'), w('naten'), wf('gur', 'guri', 'the stone'), w('fle'), p('.'))),
       when('furke', L(wf('furke', 'furka', 'the distaff'), w('me'), w('li'), w('rri'), wf('ne', 'në', 'in'), wf('dore', 'dorën', 'the hand'), wf('yt', 'tënde', 'your'), p(':'), w('naten'), w('e_art'), wf('gjate', 'gjatë', 'long'), p(','), w('kush'), w('rri'), p(','), w('tjerr'), p('.'))),
@@ -11594,7 +11594,7 @@ export const STORY = {
       when('npcAt:xhindet:mulli1', L(w('dikush'), wf('ec', 'ecën', 'walks'), wf('ne', 'në', 'in'), w('erresire'), w('afer'), wf('dere', 'derës', 'the door'), p('.'))),
     ],
     options: [
-      { text: L(w('ndiz'), wf('drite', 'dritën', 'the light')), unless: 'dritaMulli', grant: 'dritaMulli', to: 'maroMulli1', reveal: 'drite', revealOccurrence: 1 },
+      { text: L(w('ndiz'), wf('drite', 'dritën', 'the light')), unless: 'fixture:millLamp:live', activateFixture: 'millLamp', to: 'maroMulli1', reveal: 'drite', revealOccurrence: 1 },
       { text: L(wf('ve', 'vër', 'put'), wf('drithe', 'drithin', 'the grain'), wf('ne', 'në', 'in'), w('mulli')), requires: 'drithe', consumes: 'drithe', grant: 'bluarje', to: 'maroMulli1', reveal: 'drithe', revealOccurrence: 1 },
       { text: L(wf('tjerr', 'tirr', 'spin'), wf('li', 'lirin', 'the flax')), requires: 'furke', to: 'maroXhindet1', reveal: 'li' },
       { text: L(w('rri'), w('dhe'), w('prit'), wf('ne', 'në', 'in'), w('erresire')), to: 'maroXhindet1' },

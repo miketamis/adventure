@@ -66,7 +66,7 @@ export const NPCS = {
   // prove a Shtriga instead). Her night, every night (8 × 3h timetable): at
   // nightfall she comes out of the deep wood to the road-end clearing and stays
   // through the evening — if a fire burns there the light draws her to sit, and
-  // the guest arc opens (lendina gates it on npc: + fireLive). In the dead of
+  // the guest arc opens (lendina gates it on NPC presence + a live fixture). In the dead of
   // night she walks back into the dark trees.
   plakaPyllit: {
     name: 'plaka e ftohtë',

@@ -113,12 +113,10 @@ add('meaningful choice (no damned-if-you-do)', Object.entries(STORY).flatMap(([i
 
 // 7. STATE-MISMATCH — ending text that asserts an item-action must be reached ONLY via a requires-gated option.
 // `requires`/`unless` may be a single id or an array; a time-of-day phase id is a
-// virtual item (gates on the world clock), never a carried thing. The campfire
-// states (gameState's fireStateOf) and NPC presence (npc:/npcAt:, gameState's
-// npcNodeOf — validated by mapaudit's NPC-routes check) are virtual the same way.
+// virtual item (gates on the world clock), never a carried thing. Timed fixture
+// states and NPC presence (npc:/npcAt:) are virtual the same way.
 const TIME_PHASES = new Set(['dawn', 'day', 'dusk', 'night'])
-const FIRE_STATES = new Set(['fireBig', 'fireLow', 'fireOut', 'fireLive'])
-const isVirtual = (i) => i === 'embodying' || i === 'again' || i === 'rumor' || TIME_PHASES.has(i) || FIRE_STATES.has(i) || /^(npc|npcAt|from|became|embodying|visited|heard|season|weather|festival|weekday|fact):/.test(i)
+const isVirtual = (i) => i === 'embodying' || i === 'again' || i === 'rumor' || TIME_PHASES.has(i) || /^(fixture|npc|npcAt|from|became|embodying|visited|heard|season|weather|festival|weekday|fact):/.test(i)
 const reqIds = (o) => (o.requires == null ? [] : [].concat(o.requires))
 const incomingGatedByItem = {}
 for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.to) {

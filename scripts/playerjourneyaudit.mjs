@@ -50,7 +50,7 @@ const stateAt = (nodeId, extra = {}) => ({
   hearts: 3,
   healedAt: {},
   turn: 1,
-  fireLit: null,
+  fixtures: {},
   npcStarted: {},
   worldFacts: {},
   view: 'story',

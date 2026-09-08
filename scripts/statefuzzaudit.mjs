@@ -19,6 +19,7 @@ import {
   projectedClockForOption,
   reducer,
 } from '../src/game/gameState.js'
+import { TIMED_WORLD_FIXTURES, parseFixtureCondition } from '../src/game/worldFixtures.js'
 
 const checks = []
 const check = (name, fn) => {
@@ -35,7 +36,7 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
   heard: {}, rumor: false, trail: [], discovered: {}, inventory: {}, mana: {},
   practiced: {}, visited: {}, earned: {}, eligible: {}, attempts: {},
   dismissedTests: {}, pendingTest: null, peak: 3, hearts: START_HEARTS,
-  healedAt: {}, turn: 1, fireLit: null, npcStarted: {}, worldFacts: {},
+  healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
   view: 'story', ended: null, embodying: null, embodimentOriginNode: null,
   embodimentFocusNode: null, embodimentWorldNode: null, embodimentPaused: false,
   embodimentClock: null, embodimentInventorySnapshot: null, embodimentInventoryIsolated: null,
@@ -47,10 +48,22 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
 
 const list = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
 const virtual = (id) => typeof id === 'string' && (
-  ['dawn', 'day', 'dusk', 'night', 'again', 'rumor', 'embodying',
-    'fireBig', 'fireLow', 'fireOut', 'fireLive'].includes(id) ||
-  /^(season|weather|festival|weekday|fact|from|became|visited|heard|npc|npcAt|embodying):/.test(id)
+  ['dawn', 'day', 'dusk', 'night', 'again', 'rumor', 'embodying'].includes(id) ||
+  /^(fixture|season|weather|festival|weekday|fact|from|became|visited|heard|npc|npcAt|embodying):/.test(id)
 )
+
+function fixtureActivationFor(id, clock) {
+  const condition = parseFixtureCondition(id)
+  if (!condition) return null
+  const fixture = TIMED_WORLD_FIXTURES[condition.fixtureId]
+  const requested = fixture.groups[condition.stateId]?.[0] || condition.stateId
+  let age = 0
+  for (const stage of fixture.stages) {
+    if (stage.id === requested) return Math.max(0, clock - age)
+    age += stage.hours || 0
+  }
+  return null
+}
 
 function seedConditions(input, option) {
   const state = {
@@ -67,6 +80,11 @@ function seedConditions(input, option) {
     else if (id.startsWith('from:')) state.cameFrom = id.slice(5).split('|')[0]
     else if (id === 'again') state.familiar = true
     else if (id === 'rumor') state.rumor = true
+    else if (id.startsWith('fixture:')) {
+      const condition = parseFixtureCondition(id)
+      const activatedAt = fixtureActivationFor(id, state.clock)
+      if (condition && activatedAt != null) state.fixtures = { ...state.fixtures, [condition.fixtureId]: activatedAt }
+    }
   }
   for (const id of list(option.unless)) {
     if (!virtual(id)) delete state.inventory[id]
@@ -75,6 +93,10 @@ function seedConditions(input, option) {
     else if (id.startsWith('heard:')) delete state.heard[id.slice(6)]
     else if (id === 'again') state.familiar = false
     else if (id === 'rumor') state.rumor = false
+    else if (id.startsWith('fixture:')) {
+      const condition = parseFixtureCondition(id)
+      if (condition) delete state.fixtures[condition.fixtureId]
+    }
   }
   for (const id of phraseSenses(option.text)) {
     state.discovered[id] = true
@@ -88,10 +110,19 @@ function readyFor(input, option) {
   const start = Math.max(0, seeded.clock)
   for (let clock = start; clock < start + 370 * 24; clock++) {
     let candidate = { ...seeded, clock }
-    for (const id of [...list(option.requires), ...list(option.unless)]) {
-      if (id === 'fireBig' || id === 'fireLive') candidate.fireLit = clock
-      else if (id === 'fireLow') candidate.fireLit = Math.max(0, clock - 4)
-      else if (id === 'fireOut') candidate.fireLit = Math.max(0, clock - 8)
+    for (const id of list(option.requires)) {
+      const condition = parseFixtureCondition(id)
+      const activatedAt = fixtureActivationFor(id, clock)
+      if (condition && activatedAt != null) {
+        candidate.fixtures = { ...candidate.fixtures, [condition.fixtureId]: activatedAt }
+      }
+    }
+    for (const id of list(option.unless)) {
+      const condition = parseFixtureCondition(id)
+      if (condition) {
+        candidate.fixtures = { ...candidate.fixtures }
+        delete candidate.fixtures[condition.fixtureId]
+      }
     }
     if (canChoose(candidate, option) && embodimentOptionAccess(candidate, option, STORY[option.to]).ok) return candidate
   }
