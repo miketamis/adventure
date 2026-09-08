@@ -338,7 +338,7 @@ check('every role isolates arbitrary traveller possessions and health, then rest
       assert.deepEqual(entered.inventory, expectedLocal, `${id}: traveller item leaked into tale`)
       assert.equal(entered.embodimentInventoryIsolated, true)
       assert.equal(entered.embodimentHeartsSnapshot, travellerHearts)
-      assert.equal(entered.hearts, 3, `${id}: role did not begin at full health`)
+      assert.equal(entered.hearts, quest.startingHearts ?? 3, `${id}: role did not begin at its authored health`)
 
       for (const nodeId of quest.nodes.filter((candidate) => !STORY[candidate]?.end)) {
         const fromLoaded = {

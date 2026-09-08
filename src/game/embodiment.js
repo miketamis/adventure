@@ -89,7 +89,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
   }),
   'gjeto-basho-muji': quest({
     identity: 'Gjeto Basho Mujo', stance: 'embodied', entryFrom: 'odaJutbina', entryTo: 'gbMuji1',
-    objective: 'answer the Zanas while you lie wounded', nodes: 'gbMuji1 gbMujiFund gbMujiVdes',
+    objective: 'answer the Zanas while you lie wounded', startingHearts: 1, nodes: 'gbMuji1 gbMujiFund gbMujiVdes',
     endings: 'gbMujiFund gbMujiVdes',
   }),
   'rozafa': quest({

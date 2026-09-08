@@ -70,6 +70,8 @@ export const WORLD_FACT_INCOMPATIBLE = Object.freeze({
   prespaTownPreserved: Object.freeze(['prespaFlooded', 'prespaLakeFormed']),
   prespaFlooded: Object.freeze(['prespaTownPreserved']),
   prespaLakeFormed: Object.freeze(['prespaTownPreserved']),
+  artaBridgeUnbuilt: Object.freeze(['artaBridgeRaised']),
+  artaBridgeRaised: Object.freeze(['artaBridgeUnbuilt']),
 })
 
 // ---------------------------------------------------------------------------
@@ -1199,7 +1201,8 @@ export function reducer(state, action) {
         inventory = option.grant ? { [option.grant]: 1 } : {}
         embodimentInventoryIsolated = true
         embodimentHeartsSnapshot = state.hearts
-        hearts = START_HEARTS
+        hearts = Math.max(1, Math.min(START_HEARTS,
+          embodimentQuest(embodying)?.startingHearts ?? START_HEARTS))
         embodimentArrivalSnapshot = null
       } else if (embodying && roleAccess.kind === 'quest') {
         embodimentFocusNode = option.to

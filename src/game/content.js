@@ -2372,7 +2372,7 @@ export const STORY = {
     ],
     options: [
       { text: L(w('ec'), w('ne'), w('pyll')), to: 'pylliThelle', reveal: 'pyll', revealOccurrence: 1 },
-      { text: L(w('fol'), w('me'), wf('vella', 'vëllezërit', 'the brothers')), to: 'kordha1', reveal: 'vella', become: 'three-friends' },
+      { text: L(w('fol'), w('me'), wf('vella', 'vëllezërit', 'the brothers')), to: 'kordha1', reveal: 'vella', become: 'three-friends', grant: 'shpataKordhes' },
       { text: L(w('fol'), w('me'), wf('dervish', 'dervishin', 'the dervish')), to: 'arushe1', reveal: 'arushe' },
       { text: L(w('fol'), w('me'), wf('zane', 'zanën', 'the mountain-fairy')), to: 'prespaPyll', reveal: 'zane', become: 'legjenda-e-prespes' },
       // the honest way out stops at the forest-side bridgehead; the named old
@@ -2502,7 +2502,7 @@ export const STORY = {
       R('The Zanas come bearing milk and strength.', wf('zane', 'zanat', 'the Zanas'), wf('vjen', 'vijnë', 'come'), w('me'), w('qumesht'), w('dhe'), w('fuqi'), p('.')),
     ],
     options: [
-      { text: L(w('pi'), w('qumesht')), to: 'gbMujiFund' },
+      { text: L(w('pi'), w('qumesht')), requires: 'qumesht', consumes: 'qumesht', hearts: 3, to: 'gbMujiFund' },
       { text: L(w('ik')), to: 'gbMujiVdes', reveal: 'armik' },
     ],
   },
@@ -4282,6 +4282,7 @@ export const STORY = {
   kalaFundBesa: {
     id: 'kalaFundBesa',
     end: 'good',
+    worldEffects: ['rozafaCastleRaised'],
     title: 'The Word Kept',
     blurb:
       'You were the youngest — the one brother who kept his besa — so it was your own wife, never warned, who climbed the hill with the morning meal, and your own hands that sealed her into the wall she asked only to go on nursing her son from. The castle rose that day and never fell again. Low on its stone the wall still runs damp to this hour, with her milk and her tears for the boy she left below. You kept your word, and it cost you everything you had; but the fortress carries her name — Rozafat — and the old songs will remember that a man once loved his besa more than his own life.',
@@ -4297,6 +4298,7 @@ export const STORY = {
   kalaFundTurp: {
     id: 'kalaFundTurp',
     end: 'secret',
+    worldEffects: ['rozafaCastleRaised'],
     title: 'The Word Broken',
     blurb:
       'You warned your wife in the night, and at dawn she pleaded illness and stayed by the hearth — so it was the youngest brother, who alone kept his besa, whose wife came with the meal and went into the wall. Your own wife lives. But you broke the word you swore under the old man\'s eye, and you stood on the scaffold while another man\'s wife was sealed in stone for it. The castle stands, and the songs will name the youngest the honourable one and give his wife\'s name to the walls — and they will not remember you at all.',
@@ -5612,7 +5614,7 @@ export const STORY = {
       { text: L(w('degjo'), w('halil')), to: 'halilGarria1', become: 'halil-garria' },
       // embody Ali Bajraktari at the sixth-day decision that completes his second besa
       { text: L(w('degjo'), w('ali')), to: 'aliBajr1', become: 'ali-bajraktari' },
-      { text: L(w('rri'), w('me'), w('mujo')), to: 'gbMuji1', become: 'gjeto-basho-muji' },
+      { text: L(w('rri'), w('me'), w('mujo')), to: 'gbMuji1', become: 'gjeto-basho-muji', grant: 'qumesht' },
       { text: L(w('dil'), w('jashte')), to: 'jutbina' },
     ],
   },
@@ -5863,7 +5865,7 @@ export const STORY = {
       L(wf('zog', 'zogu', 'chick'), w('eshte'), w('ketu'), w('me'), wf('ti', 'ty', 'you'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), wf('zog', 'zogun', 'chick')), to: 'shqipeBarter' },
+      { text: L(w('merr'), wf('zog', 'zogun', 'chick')), grant: 'zogShqiponje', to: 'shqipeBarter' },
     ],
   },
 
@@ -5877,8 +5879,8 @@ export const STORY = {
       L(wf('shqiponje', 'shqiponja', 'the eagle'), w('thote'), p(':'), w('jep'), wf('zog', 'zogun', 'chick'), p('.'), w('ti'), w('merr'), w('sy'), p(','), w('fuqi'), w('dhe'), wf('emer', 'emrin', 'the name'), p('.')),
     ],
     options: [
-      { text: L(w('jep'), wf('zog', 'zogun', 'chick')), to: 'shqipeFund' },
-      { text: L(w('mban'), wf('zog', 'zogun', 'chick')), to: 'shqipeKapur', reveal: 'shqiponje', revealOccurrence: 3 },
+      { text: L(w('jep'), wf('zog', 'zogun', 'chick')), requires: 'zogShqiponje', consumes: 'zogShqiponje', to: 'shqipeFund' },
+      { text: L(w('mban'), wf('zog', 'zogun', 'chick')), requires: 'zogShqiponje', to: 'shqipeKapur', reveal: 'shqiponje', revealOccurrence: 3 },
     ],
   },
 
@@ -6020,7 +6022,7 @@ export const STORY = {
       L(wf('ere', 'era', 'wind'), w('thote'), p(':'), wf('ne', 'në', 'in'), wf('det', 'detin', 'the sea'), p('.')),
     ],
     options: [
-      { text: L(w('shko'), wf('ne', 'në', 'to'), wf('det', 'detin', 'the sea')), to: 'gjarperKulshedra', reveal: 'det' },
+      { text: L(w('shko'), wf('ne', 'në', 'to'), wf('det', 'detin', 'the sea')), grant: 'kripe', to: 'gjarperKulshedra', reveal: 'det' },
       { text: L(w('kthehu')), to: 'bota2' },
     ],
   },
@@ -6062,7 +6064,7 @@ export const STORY = {
       L(wf('njeri', 'njeriu', 'the person'), w('thote'), p(':'), w('uje'), w('me'), w('kripe'), wf('behet', 'bëhet', 'becomes'), wf('lot', 'lot', 'tears'), p('.')),
     ],
     options: [
-      { text: L(w('jep'), w('uje'), w('me'), w('kripe')), to: 'gjarperBurrFund', reveal: 'kulshedra', revealOccurrence: 2 },
+      { text: L(w('jep'), w('uje'), w('me'), w('kripe')), requires: 'kripe', consumes: 'kripe', to: 'gjarperBurrFund', reveal: 'kulshedra', revealOccurrence: 2 },
       { text: L(w('lufto'), wf('kulshedra', 'kulshedrën', 'the she-dragon')), to: 'gjarperKulVdes' },
     ],
   },
@@ -9356,8 +9358,8 @@ export const STORY = {
       L(w('nje'), w('plake'), w('do'), wf('fuqi', 'fuqinë', 'the power'), p('.')),
     ],
     options: [
-      { text: L(w('fol'), wf('per', 'për', 'about'), w('fuqi')), to: 'kordhaDeti', reveal: 'fuqi' },
-      { text: L(w('rri'), w('i_art'), w('qete')), to: 'kordhaFund' },
+      { text: L(w('fol'), wf('per', 'për', 'about'), w('fuqi')), requires: 'shpataKordhes', to: 'kordhaDeti', reveal: 'fuqi' },
+      { text: L(w('rri'), w('i_art'), w('qete')), requires: 'shpataKordhes', to: 'kordhaFund' },
     ],
   },
 
@@ -11305,6 +11307,7 @@ export const STORY = {
   uraArtesShpetim: {
     id: 'uraArtesShpetim',
     end: 'good',
+    worldEffects: ['artaBridgeUnbuilt'],
     title: 'The Bride Warned',
     blurb:
       'You were Kiço, the youngest of the three masons of Lluri — the one brother the ballad says was faithful — and you broke the besa anyway. Whether you whispered it in the night as your brothers did to their own wives, or cried out at the pit\'s very edge with the ring-lie already on your tongue, the price was the same: a besa that buys a bridge with an innocent life is no besa at all, and the old people honoured mercy above stone. The bridge of Arta never stood in this telling. Travellers ford the Arachthos and curse the crossing; the forty apprentices scattered to other work; and no song was ever made — for songs grow from graves, and your wife has none. She raised your son with both her hands free, and only you know what the river was never given.',
@@ -11321,6 +11324,7 @@ export const STORY = {
   uraArtesMur: {
     id: 'uraArtesMur',
     end: 'bad',
+    worldEffects: ['artaBridgeRaised'],
     title: 'The Bridge of Arta',
     blurb:
       'You were Kiço, and you were faithful — the only one of the three. Your brothers whispered in the night; you kept the old wayfarer\'s besa, and so it was your own unwarned wife who came down to the river with the bread when the other two brides begged off. You told her your ring had fallen into the pit, and she climbed down for it gladly, and the stones closed over her protesting — never sick a day, never hurt, buried alive. From inside the wall she cursed the bridge to tremble as she trembled, then left her last wishes like a blessing: her breast free of the stone, a white fig tree over the pier, its first fruit for her son. They honoured all of it. A silver spring runs from the wall to this day — it raised your boy, and the sick who drink it mend — and the bridge of Arta stands on her bones and has never fallen since. It only trembles when the suffering cross. The besa was kept, as at Rozafa\'s wall; but the songs of the south do not call you honourable for it — they only teach her curse to the children, so no mason ever sleeps easy again.',
@@ -13226,7 +13230,15 @@ export const ITEMS = {
   },
   kripe: {
     id: 'kripe', icon: '🧂', name: 'Salt', al: 'kripë',
-    blurb: 'The Zana’s salt. Thrown in the Kulshedra’s many eyes, it blinds the she-dragon.',
+    blurb: 'Salt carried for an old trick: thrown in a Kulshedra’s many eyes it blinds her, and stirred into water it can pass for tears before a sea-monster.',
+  },
+  zogShqiponje: {
+    id: 'zogShqiponje', icon: '🐣', name: 'Rescued eaglet', al: 'zog shqiponje', word: 'zog',
+    blurb: 'The chick you saved from the serpent and carried down from its nest. Its mother shadows the road and asks for her child back.',
+  },
+  shpataKordhes: {
+    id: 'shpataKordhes', icon: '⚔️', name: "Kordha's sword", al: 'shpata e Kordhës', word: 'shpate',
+    blurb: 'Kordha keeps his life in this sword. The blade makes his secret a thing you carry—and a thing a treacherous listener could steal.',
   },
   mish: {
     id: 'mish', icon: '🍖', name: 'Meat', al: 'mish',

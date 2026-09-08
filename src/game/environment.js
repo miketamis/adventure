@@ -42,6 +42,9 @@ export const WORLD_FACT_PRESENTATION = Object.freeze({
   southernSpringsRestored: { icon: '💧', text: 'The southern springs run freely again.', regions: ['sea', 'lake'] },
   roadLugatDefeated: { icon: '🛤️', text: 'The Lugat no longer stalks the night road.', regions: ['forest', 'village'] },
   tomorrKukudhDefeated: { icon: '⛰️', text: "Tomorr's Kukudh has been driven away.", regions: ['mountain'] },
+  rozafaCastleRaised: { icon: '🏰', text: "Rozafa's castle wall stands and bears her name.", regions: ['castle'] },
+  artaBridgeUnbuilt: { icon: '🌊', text: 'The bridge of Arta was never raised; travellers still ford the river.', regions: ['river'] },
+  artaBridgeRaised: { icon: '🌉', text: 'The bridge of Arta stands over the river and trembles for its buried bride.', regions: ['river'] },
 })
 
 const DAY_MS = 24 * 60 * 60 * 1000
