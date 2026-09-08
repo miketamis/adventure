@@ -160,9 +160,13 @@ export default {
     enter: 'rusha pours you coffee in the krajl\'s tower, and you will not drink until she swears you the besa',
     from: 'rusha1',
     ending: 'rushaFund',
+    learn: {
+      blinding: [['zuku1', "the blinded hero names his mother's betrayal and the captive baloz she chose over him"]],
+      healing: [['zuku2', "you witness the mountain herb restore Zuku's sight as he swears his besa"]],
+    },
     scenes: { rusha1: 'besa', rushaFund: 'besa' },
     divergences: [
-      { note: 'The record links two separate Kreshnik songs, but only the Rusha song is embodied. A separate open-world helper vignette encounters the already-blinded hero at the mountain; the player helps him as an outsider, so those prologue echoes are not claimed as scenes in this embodied projection. The first song\'s captured Baloz, mother\'s treachery, midnight blinding, disguised vengeance and fiery execution remain source-timeline lore.' },
+      { note: 'The record links two separate Kreshnik songs, but only the Rusha song is embodied. A separate open-world helper vignette encounters the already-blinded hero at the mountain; the player helps him as an outsider, so the blinding and healing are registered as learned prologue routes, not claimed as embodied scenes. The first song\'s captured Baloz, midnight disguise, household reckoning and fiery execution remain source-timeline lore.' },
       { beat: 'besa', note: 'The game splits the oath into a moral fork the song never offers: demand Rusha\'s besa and win her (rushaFund), or seize her without it and die on the Krajl\'s stair (rushaKeq). In the song she simply gives her word — an oath to obey, which the ending reframes as her coming \'of her free will.\'' },
       { beat: 'race', note: 'The song\'s whole second half — Mujo\'s rival claim to Rusha, the cadi trapped between two death-threats, and the courser-race where Mujo\'s own mount shies at the last instant so Zuku catches the bride — is cut. The game ends the moment Rusha rides home behind you.' },
     ],

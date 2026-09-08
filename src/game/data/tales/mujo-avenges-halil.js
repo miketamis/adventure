@@ -38,7 +38,7 @@ export default {
   },
   discrepancies: [
     'THE WEAPON THAT KILLS LLABUTANI (¶33.2): the Albanian is «mezdrak» (Tk. mızrak — a lance/spear); Elsie renders it "cudgel," a blunt club. The beats follow the more literal spear/lance and track it as Halili\'s own weapon (shtizaHalilit), not a club.',
-    'THE EXISTING IN-GAME VIGNETTES (reconciled): both jutbina → halil1 and vajtim1 → mujoHak1 now preserve the Palaj–Kurti/Elsie premise. Llabutani ambushes and wounds Mujo at home; nobody imprisons or kills him. Halili rides to take the blood by killing Llabutani at the cave, and the healed brothers return together.',
+    'THE IN-GAME VIGNETTE (reconciled): vajtim1 → mujoHak1 now preserves the Palaj–Kurti/Elsie premise. Llabutani ambushes and wounds Mujo at home; nobody imprisons or kills him. Halili rides to take the blood by killing Llabutani at the cave, and the healed brothers return together. The former duplicate at the Jutbina hub has been retired in favor of this single projection.',
     'MUJO\'S REELING MIND (¶10.2): «Po e rre mendja Muji s\'çohet tjetër» is a compressed, ambiguous line — literally "his mind churning, Muji does not rise otherwise/further." Elsie also reads it as Mujo failing to rise again despite Dizdar\'s grief; the beats follow that same reading.',
   ],
   // 45 strophes of the English translation; sentence counts per strophe
@@ -75,7 +75,7 @@ export default {
     { id: 'shtepiaMujit', emoji: '🛏️', name: 'Mujo\'s hall', note: 'his own house at Jutbina, where he lies wounded and guarded',
       anchor: { status: 'existing', node: 'mujo1', mirror: 'Mujo\'s own hall at Jutbina — the game already stages "ketu rrinë dy trima" (two heroes dwell here), Mujo and Halili together',
         mold: 'Mujo\'s standing home — this tale\'s convalescence is a different chapter of the same house; nothing at the existing scene contradicts a Mujo who, on some other day, lay wounded here under a zana\'s and a serpent\'s watch',
-        conflicts: 'the game\'s halil1→halilFund/halilKeq mini-scene now tells the same ambush-and-vengeance episode at compressed grain: Mujo wounded at home, Halili taking the blood at the cave; no rival prison chronology remains',
+        conflicts: 'the live mujoHak1→mujoHakFund/mujoHakKeq mini-scene tells this same ambush-and-vengeance episode at compressed grain: Mujo wounded at home, Halili taking the blood at the cave; no rival prison chronology remains',
         sharedWith: ['halil-marriage (mujo1→mujo4, the Tanusha raid, staged on some other day)'] } },
     { id: 'jutbina', emoji: '🏘️', name: 'the Plain of Jutbina', note: 'the frontier hamlet — home, and the homecoming feast',
       anchor: { status: 'existing', node: 'jutbina', mirror: 'Jutbina itself — the kreshnik hub the game already names "where the lahutë sings the Songs of the Kreshnikë"',
@@ -98,13 +98,13 @@ export default {
     { id: 'shtizaHalilit', emoji: '🔱', name: 'Halili\'s spear', note: 'the mezdrak that kills Llabutani at the cave\'s mouth' },
   ],
   // How the game stages this song (Beats debug "play" projection). The in-game
-  // vignettes (mujoHak1 and halil1) compress the file's own plot: Llabutani
-  // wounds Mujo, young Halili kills him at the cave, and both brothers survive.
+  // vignettes let an invented companion support Halili through the compressed
+  // revenge: Llabutani wounds Mujo, Halili kills him, both brothers survive.
   play: {
     entry: 'byOurMother',
-    stance: 'witness',
-    // witness: NO as/with
-    role: 'You come upon the lahutë mid-song: Llabutani has ambushed Mujo and left ten spear wounds in him, but Mujo is alive at home under his guardians. You are the listener as young Halili rides to the cave, kills the ambusher, and takes his brother\'s blood; the choice is whether that reckoning is allowed to happen.',
+    stance: 'companion',
+    with: 'halil',
+    role: 'You ride beside young Halili after Llabutani ambushes Mujo and leaves ten spear wounds in him. Mujo is alive at home under his guardians; you help Halili reach the cave and survive the reckoning, but Halili remains the brother who kills Llabutani and takes Mujo\'s blood.',
 
     from: 'mujoHak1',
     ending: 'mujoHakFund',
@@ -116,6 +116,7 @@ export default {
       { beat: 'byOurMother', note: 'The playable setup is now source-faithful at compressed scale: Llabutani wounds Mujo with ten spears, Mujo survives at home, and Halili rides to take the blood.' },
       { beat: 'guardians', note: 'The ora, serpent, wolf, and long convalescence remain in the full beats and ending prose rather than separate played nodes; the game explicitly keeps Mujo alive and in his own bed.' },
       { beat: 'theCave', note: 'The game folds the forty-five-strophe muster, pursuit, siege, healing, and rebukes into one cave fight, but keeps the sourced outcome: Halili kills Llabutani at the cave and returns beside a living Mujo.' },
+      { beat: 'inMyStead', note: 'The player accompanying Halili is a game counterfactual. The song gives the revenge ride and cave stand to Halili and the agas already in its cast; companion choices can aid him, but any refusal, defeat, or spared-Llabutani branch is an alternate game fate rather than a second source ending.' },
     ],
   },
   beats: [

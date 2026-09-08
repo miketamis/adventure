@@ -117,7 +117,7 @@ export default {
     divergences: [
       { note: 'The game\'s WITNESS stance on a place-origin legend woven into the drought quest: the Blue Eye node (udhaSyri) is a SHARED hub — the drought-hero reaches it here for water (the crossover ending syriFund, "a spring that does not stop") — so no figure is embodied and the hub stays open. You witness the legend at the spring rather than playing the old man.' },
       { beat: 'trick', note: "The heart of the legend — the wise old man loads two donkeys with tinder-straw, sets them alight, and the serpent swallows them instead of him and burns from within — is kept in the telling at the spring; the serpent's agonised cry «come out, mother sea — come out, sister Bistrica!» and the Vrisi/Sopot rampage are compressed." },
-      { beat: 'spring', note: "The ending the player reaches (syriFund) is the drought-quest crossover — you drink the endless deep-blue spring the dying serpent's eye created and lead its water home — rather than the serpent's death staged as its own screen; the Eye's origin is the reward's backstory." },
+      { beat: 'spring', note: "The ending the player reaches (syriFund) is the drought-quest crossover — you drink the endless deep-blue spring the dying serpent's eye created and lead its water home — rather than the serpent's death staged as its own screen; the Eye's origin is the reward's backstory. Cutting a channel from the spring to the village is the game's practical aftermath, not an event claimed by the selected origin legend." },
     ],
   },
   beats: [

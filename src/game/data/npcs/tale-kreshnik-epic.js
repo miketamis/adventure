@@ -2,8 +2,9 @@
 // ../npcs/_SCHEMA.md for the format contract. This file is owned by its tale:
 // agents editing other tales must not touch it. Mujo himself is NOT duplicated
 // here — he is the core NPC `mujo` in core-world.js, linked from the tale
-// file's cast. The game ALREADY STAGES this exact song as the halil1 →
-// halilFund/halilKeq branch off Jutbina ("The Krajl took Muji of Jutbina and
+// file's cast. The game ALREADY STAGES this exact song as the dedicated
+// kreshnikRrembimi1 → kreshnikRrembimiBurg → kreshnikRrembimiFund branch
+// off Jutbina ("The Krajl took Muji of Jutbina and
 // threw him in a tower... so Halili rode alone into the Krajl's land, broke
 // into the prison, fought his way through, and carried his brother home") —
 // the beats below anchor onto that branch, keyframed in full.
@@ -17,7 +18,7 @@ export default {
     backstory:
       "One of the many Krajls the frontier songs set against Jutbina — \"Kapidani\" names his own boast, not his office. Stung when his own wife praised Mujo above him in everything, he swore by God to gather three hundred landless, kinless men, arm and feed them a hundred days, and raze Mujo's kulla to a stump; he kept the oath, married Mujo's own captured wife in his first wife's place, and later crept alone into the Kingdom to take Mujo himself prisoner with his new bride's help — only for Halili to ride in and take his head in his own garden. NOT the same Krajl who keeps Rusha in her tower (tale-arnaut-osmani.js's own note holds across every frontier song: \"Krajl\" names the standing office of the Slavic royal enemy, not one man — each song's Krajl is his own man).",
     folklore: ['kreshnik-epic'],
-    location: { status: 'placed', node: 'halil1' },
+    location: { status: 'placed', node: 'kreshnikRrembimiBurg' },
     tales: { 'kreshnik-epic': 'krajli' },
   },
   mehreme: {
@@ -26,7 +27,7 @@ export default {
     backstory:
       "Carried off with Mujo's sister and daughter when the Krajl burned his kulla, she was made the Krajl's own wife in his first wife's place — and when Mujo himself rode alone into the Kingdom looking for her, she wept to see him, poured him nine-year raki until he could not wake, and bound him hand and foot for her new husband's boast. She answered the Krajl's own hunting-boast in kind (\"I've caught something bigger\") and paid Mujo back, at the very end, with her life. NOT Ajkuna, Omer's mother and Mujo's wife of the later songs — the frontier cycle keeps no one wife constant across its many singers and centuries; this is Mehreme's only appearance, this song's own telling.",
     folklore: ['kreshnik-epic'],
-    location: { status: 'placed', node: 'halil1' },
+    location: { status: 'placed', node: 'kreshnikRrembimiBurg' },
     tales: { 'kreshnik-epic': 'mehreme' },
   },
   gruaKrajlit: {
@@ -35,7 +36,7 @@ export default {
     backstory:
       "Praised Mujo above her own husband once too honestly, and paid for it the day the Krajl brought Mehreme home as his new bride: made to wash his feet, carry his water, and hold the firebrand between her teeth at his own table. She keeps her eyes open through all of it — on the tower wall at the very end, she is the one who names Sokol Halili correctly to a suddenly-frightened Mehreme, and welcomes the death she knows is riding in for both her husband and her rival. Mujo takes her for his own when it is over — the one clean thing salvaged from a burned kulla and a broken household. Never named in the song beyond her place at the Krajl's side.",
     folklore: ['kreshnik-epic'],
-    location: { status: 'placed', node: 'halil1' },
+    location: { status: 'placed', node: 'kreshnikRrembimiBurg' },
     tales: { 'kreshnik-epic': 'gruaKrajlit' },
   },
   familjaMujos: {

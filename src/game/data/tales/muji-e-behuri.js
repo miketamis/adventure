@@ -9,10 +9,9 @@
 // "paragraphs" here are 31 narrative strophes of my own devising (the source
 // has no marked strophe breaks) and a "sentence" is a punctuation-bounded
 // verse unit of 1-7 lines; the Albanian third element is the verbatim verse
-// group, lines joined with " / ". Jutbina and the shared mountain hub
-// (mali1) already host Muji's kulla and the frontier's bare flank — the
-// beats anchor onto both, and Mujo himself is the core NPC `mujo` (never
-// duplicated); Sokol Halili gets his first registry entry here.
+// group, lines joined with " / ". Jutbina and the shared mountain hub begin
+// the route; the dedicated Behuri scenes carry it through the spring, kulla,
+// and mejdan. Mujo remains the core NPC `mujo` (never duplicated).
 // ===========================================================================
 
 export default {
@@ -74,29 +73,37 @@ export default {
       anchor: { status: 'offstage', mirror: "New Kotor (Kotorre të Reja), across the frontier in the Krajl's own country",
         mold: "never staged — Osman's own doomed detour is seen only as the road his splinter çeta vanishes down; the tale narrates their fate at Behuri's kulla instead of drawing this leg of the journey" } },
     { id: 'kullaBehurit', emoji: '🏯', name: "Behuri's kulla", note: 'the fortified manor across the frontier — the room of heads, the powder store, the ruin',
-      anchor: { status: 'offstage', mirror: "a Slav captain's fortified tower-manor on the frontier's far side — Behuri's own kulla",
-        mold: "never staged as a walkable spot — Mujo's whole infiltration (the open gate, the ora's steel keys, the shattered sabre, the room of thirty heads, the powder store and the wick) is narrated, not drawn; if ever built, the nearest existing anchor to jump from is the shared mountain hub (mali1)",
+      anchor: { status: 'existing', node: 'behuriKulla', mirror: "a Slav captain's fortified tower-manor on the frontier's far side — Behuri's own kulla",
+        mold: "the dedicated scene stages Mujo's infiltration: the open gate, the ora's steel keys, the shattered sabre, the room of thirty heads, the powder store and the wick — before the action spills back onto the mountain road",
         conflicts: "NOT rusha1's Krajl tower (where Rusha is kept in the STORY's own zuku/rusha content) — Behuri is a local captain (Behur Kapidani), not the Krajl himself, and his daughters are not Rusha" } },
   ],
   items: [
     { id: 'celesat', emoji: '🗝️', name: "the ora's steel keys", note: "two keys of steel that let Mujo ride straight into Behuri's courtyard" },
     { id: 'koka', emoji: '💀', name: "Behuri's head", note: "cut and hung by the whiskers from Mujo's saddle — proof, then a wedding-road wonder" },
   ],
-  // How the game STAGES this song: a witnessed Kreshnik song, not an arc you
-  // enter — it threads through the frontier war-hub the map already keeps
-  // (jutbina + mali1), never its own mold-locked embodiment.
+  // How the game STAGES this song: a dedicated companion route through the
+  // Kreshnik frontier. You ride beside Mujo, but the source deeds remain his.
   play: {
     entry: 'wake',
-    stance: 'witness',
-    // witness: NO as/with
-    role: "You never take the field yourself — you hear the song of Muji and Behuri as it threads through the frontier war-hub. At Jutbina you catch Mujo's dawn call and the muster of the thirty agas; up on the massif you come upon the two-day raid, the split çeta, and Mujo's lone ride for Behuri's head. It plays out across the shared hubs the game already keeps, a witnessed Kreshnik song rather than a staged arc you can walk into.",
-    from: 'jutbina',
-    // no ending
-    scenes: { jutbina: 'wake', mali1: 'peakXhuri' },
+    stance: 'companion',
+    with: 'mujo',
+    role: "You ride beside Gjeto Basho Mujo from the dawn muster at Jutbina: through the divided çeta, the ambush at the spring, the warning of his ora, Behuri's head-hung kulla, and the long mejdan. You can help Mujo read danger and endure the road, but the song's fixed deeds — the infiltration, the poisoned dagger, the beheading, and the captive wedding journey — remain his.",
+    from: 'behuriJutbina',
+    ending: 'behuriFund',
+    scenes: {
+      behuriJutbina: ['wake', 'muster', 'greeting'],
+      behuriNdarja: ['toPastures', 'firstCamp', 'zanas', 'dawnWake', 'osmanGrudge', 'courserSign', 'departure', 'partingGrief', 'secondSearch'],
+      behuriBurimi: ['peakXhuri', 'ambush', 'forgottenLance', 'oraWarning'],
+      behuriKulla: ['intoKulla', 'thirtySabres', 'behuriReturns', 'chase'],
+      behuriMejdan: ['weaponsExchange', 'wrestling', 'boasts', 'distantThunder', 'behuriRage', 'grapple', 'cryToOras', 'sunTrick', 'killingStroke'],
+      behuriFund: ['returnFainting', 'weddingHome'],
+    },
     divergences: [
-      { beat: 'peakXhuri', note: "The song's second half — the wayside fountain, the ora's warning, the flame-breathing ride into Behuri's kulla, the room of thirty hung heads, the powder store, and the mejdan — all happens beyond mali1 at an offstage kulla the game never draws; the projection lands only its opening ambush on the massif you can actually stand on." },
-      { beat: 'departure', note: "Osman's splinter çeta rides for New Kotor and dies there, but the game keeps no such place — his doomed detour is heard, never travelled, so the whole New Kotor leg collapses onto the one shared massif node." },
-      { note: "You witness the song without embodying anyone: no become-lock, no as/with. It rides the frontier war-hub the game already keeps for the whole Kreshnik cycle rather than owning a staged arc of its own." },
+      { beat: 'wake', note: 'The Jutbina scene compresses Mujo waking, making coffee, Halili sounding the kushtrim, thirty agas arming, and the two çetas meeting on the road. These are consecutive source beats, not a claim that the whole muster happens in one instant.' },
+      { beat: 'departure', note: "The division scene telescopes two days of fruitless searching, the enchanted night watched by Halili and Zuku, Osman's grievance, the courser's warning, the split, and the second search. Osman's çeta still rides toward New Kotor and dies offstage; the game does not turn that doomed detour into Behuri's road." },
+      { beat: 'intoKulla', note: "The kulla scene compresses Mujo's ride through the open gate, the shattered sabre, the room of thirty heads, the powder-store fuse, Behuri's return with Osman and Zuku's heads, and the flight toward the mejdan. Behuri is a captain, not the Krajl, and this is not Rusha's tower." },
+      { beat: 'wrestling', note: "The mejdan scene condenses the exchanged weapons, ruined sabres, boasts, burning grapple, ora's whispered sun-trick, and poisoned dagger. The player's presence and ability to advise or hesitate are game counterfactuals: the source gives Mujo no human helper and fixes the outcome as Behuri's death and beheading." },
+      { beat: 'weddingHome', note: "The finale compresses the agas' fainting and the moonlit return into one closure. The source explicitly makes Behuri's captured, weeping daughters brides in Jutbina; the projection must not mislabel that coercive ending as a freely chosen romance." },
     ],
   },
   beats: [

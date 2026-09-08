@@ -5,6 +5,45 @@ export const CALENDAR_EPOCH = Object.freeze({ year: 2026, month: 3, day: 13 })
 export const SEASONS = Object.freeze(['spring', 'summer', 'autumn', 'winter'])
 export const WEATHER_TYPES = Object.freeze(['clear', 'cloud', 'rain', 'storm', 'snow'])
 
+// The story clock starts its 24-hour cycle at dawn. Keep that useful narrative
+// convention internal, while every authored/displayed `atHour` is an ordinary
+// civil hour: internal 0 is 06:00 and internal 18 is civil midnight. One shared
+// conversion prevents the UI, festival calendar and exact-hour choices from
+// each inventing a different meaning for "00:00".
+export const CIVIL_HOURS_PER_DAY = 24
+export const CIVIL_DAWN_HOUR = 6
+export const isCivilHour = (hour) => Number.isInteger(hour) && hour >= 0 && hour < CIVIL_HOURS_PER_DAY
+const positiveModulo = (value, divisor) => ((value % divisor) + divisor) % divisor
+export const internalHourAtClock = (clock = 0) => positiveModulo(Math.floor(clock), CIVIL_HOURS_PER_DAY)
+export const civilHourAtClock = (clock = 0) =>
+  positiveModulo(internalHourAtClock(clock) + CIVIL_DAWN_HOUR, CIVIL_HOURS_PER_DAY)
+export const civilDayOffsetAtClock = (clock = 0) =>
+  Math.floor((Math.floor(clock) + CIVIL_DAWN_HOUR) / CIVIL_HOURS_PER_DAY)
+export const internalHourForCivilHour = (civilHour) => isCivilHour(civilHour)
+  ? positiveModulo(civilHour - CIVIL_DAWN_HOUR, CIVIL_HOURS_PER_DAY)
+  : null
+
+export function phaseAtClock(clock = 0) {
+  const hour = internalHourAtClock(clock)
+  return hour < 3 ? 'dawn' : hour < 12 ? 'day' : hour < 15 ? 'dusk' : 'night'
+}
+
+export const phaseAtCivilHour = (civilHour) => {
+  const internalHour = internalHourForCivilHour(civilHour)
+  return internalHour == null ? null : phaseAtClock(internalHour)
+}
+
+// Earliest occurrence at or after `clock`. "At or after" is deliberate: a
+// source-exact 48-hour route which already lands at its authored civil hour
+// must remain 48 hours rather than silently becoming three days.
+export function advanceToCivilHour(clock, civilHour) {
+  if (!Number.isFinite(clock) || !isCivilHour(civilHour)) return clock
+  const wholeClock = Math.floor(clock)
+  const targetInternalHour = internalHourForCivilHour(civilHour)
+  const delta = positiveModulo(targetInternalHour - internalHourAtClock(wholeClock), CIVIL_HOURS_PER_DAY)
+  return wholeClock + delta
+}
+
 // Every lasting ending effect has a player-facing memory.  Keep these compact:
 // they are ambient consequences, not a second ending blurb. `regions` says
 // where the change is physically most noticeable; the complete ledger remains
@@ -25,7 +64,8 @@ export const WORLD_FACT_PRESENTATION = Object.freeze({
   krujeKulshedraDefeated: { icon: '⚔️', text: "Krujë's Kulshedra will trouble the mountain no more.", regions: ['mountain', 'castle'] },
   rainReturned: { icon: '🌧️', text: 'The rain answered the call and returned.', regions: ['village', 'forest', 'river'] },
   fieldsWatered: { icon: '🌾', text: 'The fields are watered again.', regions: ['village'] },
-  blueEyeOpened: { icon: '👁️', text: 'The Blue Eye spring is open.', regions: ['river', 'village'] },
+  blueEyeOpened: { icon: '👁️', text: "The serpent's fallen eye runs as the Blue Eye spring.", regions: ['river'] },
+  blueEyeChannelOpened: { icon: '⛏️', text: 'A hand-cut channel carries Blue Eye water toward the village.', regions: ['river', 'village'] },
   bollaSlain: { icon: '🐍', text: 'The Shëngjergj Bolla has been slain.', regions: ['river', 'village'] },
   futureDroughtPrevented: { icon: '💧', text: 'The Bolla can no longer hoard the coming waters.', regions: ['river', 'village'] },
   hailAverted: { icon: '⛈️', text: "Shurdhi's hail was turned aside.", regions: ['mountain', 'village'] },
@@ -35,9 +75,45 @@ export const WORLD_FACT_PRESENTATION = Object.freeze({
   southernSpringsRestored: { icon: '💧', text: 'The southern springs run freely again.', regions: ['sea', 'lake'] },
   roadLugatDefeated: { icon: '🛤️', text: 'The Lugat no longer stalks the night road.', regions: ['forest', 'village'] },
   tomorrKukudhDefeated: { icon: '⛰️', text: "Tomorr's Kukudh has been driven away.", regions: ['mountain'] },
+  tomorShpiragBattleScars: { icon: '⛰️', text: "Tomorr's craters and Shpirag's furrows mark the giants' last battle.", regions: ['mountain'] },
+  osumBornFromBeautyTears: { icon: '💧', text: "The Osum runs below as the Earthly Beauty's tears.", regions: ['mountain', 'river'] },
   rozafaCastleRaised: { icon: '🏰', text: "Rozafa's castle wall stands and bears her name.", regions: ['castle'] },
   artaBridgeUnbuilt: { icon: '🌊', text: 'The bridge of Arta was never raised; travellers still ford the river.', regions: ['river'] },
   artaBridgeRaised: { icon: '🌉', text: 'The bridge of Arta stands over the river and trembles for its buried bride.', regions: ['river'] },
+  swallowNestsProtected: { icon: '🪹', text: 'The swallow nests safely above human doorways.', regions: ['village'] },
+  swallowHumanBloodRevealed: { icon: '🐍', text: 'The ship-serpent knows that human blood tastes sweetest.', regions: ['sea', 'village'] },
+  zukuSightRestored: { icon: '👁️', text: "Three drops of a mountain flower restored Zuku Bajraktari's sight.", regions: ['mountain'] },
+  zukuBesaAlly: { icon: '🤝', text: 'Zuku Bajraktari remembers you as a sworn friend.', regions: ['mountain'] },
+  cuckooSisterBird: { icon: '🐦', text: "Gjon's grieving sister calls as the cuckoo by day.", regions: ['village', 'forest'] },
+  cuckooSisterFlower: { icon: '🪻', text: "Gjon's grieving sister blooms as the blue cuckoo-flower.", regions: ['village', 'forest'] },
+  coastalBalozDefeated: { icon: '⚔️', text: "The Baloz no longer comes ashore at Gjergj Elez Alia's coast.", regions: ['sea'] },
+  argjiroMilkStone: { icon: '🥛', text: "Argjiro's stone still beads with milk for her surviving child.", regions: ['castle'] },
+  gjirokasterArgjiroName: { icon: '🏰', text: "Gjirokastër's citadel is remembered as Argjiro's castle.", regions: ['castle'] },
+  argjiroLegendUnmade: { icon: '🏳️', text: 'Argjiro was taken alive; no milk runs from the rock in this telling.', regions: ['castle'] },
+  gjakovaOraSlain: { icon: '🐍', text: "The serpent-shaped ora of Gjakova's dead bazaar was slain.", regions: ['underworld'] },
+  gjakovaCavernWaterFouled: { icon: '🩸', text: "Blood clouds the guarded water beneath Gjakova's cavern.", regions: ['underworld'] },
+  dervishBearDefeated: { icon: '🐻', text: "The bear that hunted the dervish's parish is dead.", regions: ['forest', 'village'] },
+  mujoFreedFromKrajl: { icon: '🐎', text: "Mujo is home in Jutbina; the Krajl's iron prison door lies broken.", regions: ['mountain'] },
+  behuriKullaDestroyed: { icon: '🔥', text: "Behuri's kulla stands in ruins beyond the frontier pasture.", regions: ['mountain'] },
+})
+
+// Alternate tellings may all be remembered as achievements, but the living
+// world can present only one outcome at a time. This complete, symmetric
+// registry belongs beside the presentations it constrains; the reducer may
+// consume it without knowing the lore behind each pair.
+export const WORLD_FACT_INCOMPATIBLE = Object.freeze({
+  prespaTownPreserved: Object.freeze(['prespaFlooded', 'prespaLakeFormed']),
+  prespaFlooded: Object.freeze(['prespaTownPreserved']),
+  prespaLakeFormed: Object.freeze(['prespaTownPreserved']),
+  cuckooSisterBird: Object.freeze(['cuckooSisterFlower']),
+  cuckooSisterFlower: Object.freeze(['cuckooSisterBird']),
+  argjiroMilkStone: Object.freeze(['argjiroLegendUnmade']),
+  gjirokasterArgjiroName: Object.freeze(['argjiroLegendUnmade']),
+  argjiroLegendUnmade: Object.freeze(['argjiroMilkStone', 'gjirokasterArgjiroName']),
+  swallowNestsProtected: Object.freeze(['swallowHumanBloodRevealed']),
+  swallowHumanBloodRevealed: Object.freeze(['swallowNestsProtected']),
+  artaBridgeUnbuilt: Object.freeze(['artaBridgeRaised']),
+  artaBridgeRaised: Object.freeze(['artaBridgeUnbuilt']),
 })
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -45,7 +121,9 @@ const EPOCH_MS = Date.UTC(CALENDAR_EPOCH.year, CALENDAR_EPOCH.month - 1, CALENDA
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 function datePartsAtClock(clock = 0) {
-  const dayOffset = Math.floor(clock / 24)
+  // A civil date rolls over at civil midnight (internal hour 18), not when the
+  // dawn-based story cycle wraps six hours later.
+  const dayOffset = civilDayOffsetAtClock(clock)
   const date = new Date(EPOCH_MS + dayOffset * DAY_MS)
   const year = date.getUTCFullYear()
   const month = date.getUTCMonth() + 1
@@ -168,7 +246,7 @@ export function calendarAtClock(clock = 0) {
     day,
     dayOfYear,
     dayOffset,
-    hour: ((Math.floor(clock) % 24) + 24) % 24,
+    hour: civilHourAtClock(clock),
     weekday: WEEKDAYS[date.getUTCDay()],
     season: seasonAtClock(clock),
     festivals: festivalIdsAtClock(clock),
@@ -181,22 +259,21 @@ export const isFestivalAtClock = (clock, festivalId) =>
 // Move to the next matching feast-day (and target phase, when supplied).
 // Limiting the scan to two years catches malformed ids instead of letting an
 // authoring error loop.
-const phaseAtHour = (clock) => {
-  const hour = ((clock % 24) + 24) % 24
-  return hour < 3 ? 'dawn' : hour < 12 ? 'day' : hour < 15 ? 'dusk' : 'night'
-}
-
-export function advanceToFestival(clock, festivalId, phase) {
+export function advanceToFestival(clock, festivalId, phase, atHour = null) {
   if (!FESTIVAL_IDS.includes(festivalId)) return clock
   if (phase && !['dawn', 'day', 'dusk', 'night'].includes(phase)) return clock
+  if (atHour != null && !isCivilHour(atHour)) return clock
+  if (phase && atHour != null && phaseAtCivilHour(atHour) !== phase) return clock
   let next = clock
-  // Scan by the hour when a target phase is supplied. This guarantees both
-  // constraints simultaneously: asking for festival daylight while already
-  // in that festival's night correctly reaches next year's observance.
-  const step = phase ? 1 : 24
-  const maxSteps = phase ? 733 * 24 : 733
+  // Scan by the hour when a phase or civil hour is supplied. This guarantees
+  // every constraint simultaneously: a missed hour on a one-day observance
+  // reaches next year's occurrence rather than spilling into tomorrow.
+  const step = phase || atHour != null ? 1 : 24
+  const maxSteps = phase || atHour != null ? 733 * 24 : 733
   for (let i = 0; i <= maxSteps; i++, next += step) {
-    if (isFestivalAtClock(next, festivalId) && (!phase || phaseAtHour(next) === phase)) return next
+    if (isFestivalAtClock(next, festivalId) &&
+        (!phase || phaseAtClock(next) === phase) &&
+        (atHour == null || civilHourAtClock(next) === atHour)) return next
   }
   return clock
 }

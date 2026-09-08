@@ -12,13 +12,17 @@ import {
   visibleLines,
 } from '../game/content.js'
 import {
-  canAfford,
+  canChoose,
   canSpeak,
   canUseItem,
   currentStoryState,
+  effectAvailabilityForOption,
   environmentSnapshot,
   hasCond,
   hasRequiredItem,
+  interactionAvailabilityForOption,
+  optionLekAvailability,
+  optionLekDelta,
   phraseSenses,
 } from '../game/gameState.js'
 import { englishReadingOf, hasAuthoredEnglishReading } from '../game/language.js'
@@ -38,6 +42,13 @@ import {
   dynamicItemConfuserEnglish,
   optionEnglishReadingOf,
 } from '../game/data/readings/reviewedOptionReadings.js'
+import {
+  effectLockText,
+  formatCivilHour,
+  formatRouteDuration,
+  interactionLockText,
+  sceneAnnouncement,
+} from './storyMechanicsPresentation.js'
 
 const FactoidLore = lazy(() => import('./FactoidLore.jsx'))
 attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
@@ -48,13 +59,6 @@ const QUOTE_TIER_LABEL = {
   variant: 'related variant',
   external: 'external citation',
   oral: 'oral attribution',
-}
-
-const formatRouteDuration = (hours) => {
-  if (hours < 24) return `${hours}h`
-  const days = Math.floor(hours / 24)
-  const remainder = hours % 24
-  return remainder ? `${days}d ${remainder}h` : `${days}d`
 }
 
 export default function StoryView({ state, dispatch }) {
@@ -95,7 +99,23 @@ export default function StoryView({ state, dispatch }) {
     isDistantLineVisible(state.nodeId, line, environment),
   )
   const authoredLines = node.text.map(lineOf)
-  const sceneSummary = lines[0] ? englishReadingOf(lines[0]) : 'The story continues.'
+  const alreadyEarned = !!state.earned?.[state.nodeId]
+  // Keep the same comprehension boundary for every player. Before a good or
+  // secret ending is earned, its first English line must not leak through the
+  // screen-reader-only focus heading while the visible tale remains hidden.
+  const endingLoreHidden = ['good', 'secret'].includes(state.ended) &&
+    !alreadyEarned && endResult !== 'passed'
+  const sceneSummary = lines[0] && !endingLoreHidden
+    ? englishReadingOf(lines[0])
+    : endingLoreHidden
+      ? 'The ending is still hidden.'
+      : 'The story continues.'
+  const sceneStatus = sceneAnnouncement({
+    ending: state.ended,
+    title: node.title,
+    summary: sceneSummary,
+    loreHidden: endingLoreHidden,
+  })
 
   // A route choice replaces the scene beneath the user's focus. Put keyboard
   // and screen-reader users at the start of that new scene instead of leaving
@@ -122,7 +142,6 @@ export default function StoryView({ state, dispatch }) {
   // yours). EVERY question must be answered correctly; one wrong ends the
   // attempt — but the deed is already recorded (state.eligible), so the test
   // can be retaken from the Achievements tab with fresh questions.
-  const alreadyEarned = !!state.earned?.[state.nodeId]
   const isAchEnd = state.ended === 'good' || state.ended === 'secret'
   const gateOpen = isAchEnd && !alreadyEarned && endResult === null
   const endAttempt = state.attempts?.[state.nodeId] || 0
@@ -176,13 +195,17 @@ export default function StoryView({ state, dispatch }) {
   // but they're who walks WITH you, so they render as their own story line instead
   // of "you have a X", and an option can gate on them with `requires: '<companionId>'`.
   const ownedIds = Object.keys(state.inventory).filter((id) => state.inventory[id] > 0)
-  const travellerOwnedIds = state.embodying ? [] : ownedIds
-  // currency (lek) is a COUNT shown in the topbar purse, not a thing in the
-  // "ti ke një X" carry-line. Ids with no ITEMS entry are story FLAGS (a kept
-  // besa, a promise) — real state for requires/unless, but nothing you carry.
-  const itemIds = travellerOwnedIds.filter((id) => ITEMS[id] && !ITEMS[id].companion && !ITEMS[id].currency)
-  const companionIds = travellerOwnedIds.filter((id) => ITEMS[id]?.companion)
-  const usableOwned = travellerOwnedIds.filter((id) => ITEMS[id]?.use)
+  // Embodied roles carry an isolated tale inventory, not the traveller's
+  // suspended pack. Once a prop is catalogued it should be visible in the
+  // story just like any other held object; only direct reusable item actions
+  // remain disabled until the traveller returns to their own life.
+  const visibleOwnedIds = ownedIds
+  // Currency (lek) is a COUNT shown in the topbar purse, not a thing in the
+  // "ti ke një X" carry-line. Authored story flags live in state.flags, never
+  // in this physical inventory or its player-facing carry sentence.
+  const itemIds = visibleOwnedIds.filter((id) => ITEMS[id] && !ITEMS[id].companion && !ITEMS[id].currency)
+  const companionIds = visibleOwnedIds.filter((id) => ITEMS[id]?.companion)
+  const usableOwned = state.embodying ? [] : visibleOwnedIds.filter((id) => ITEMS[id]?.use)
 
   // "ti ke një X dhe një Y ." — what you carry, as a real (discoverable) story line
   const carryLine = () => {
@@ -236,7 +259,10 @@ export default function StoryView({ state, dispatch }) {
       return
     }
     const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
-    const affordable = canAfford(state, opt)
+    const lekAvailability = optionLekAvailability(storyState, opt)
+    const affordable = lekAvailability.ok
+    const interaction = interactionAvailabilityForOption(storyState, opt)
+    const effectAvailability = effectAvailabilityForOption(storyState, opt)
     const roleAccess = embodimentOptionAccess(state, opt, STORY[opt.to])
     const entryQuest = opt.become ? embodimentQuest(opt.become) : null
     entries.push({
@@ -247,17 +273,21 @@ export default function StoryView({ state, dispatch }) {
       real: true,
       allDiscovered,
       enoughMana,
-      lek: opt.lek || 0,
+      lek: optionLekDelta(opt),
       moneyLabel: opt.moneyLabel || null,
       affordable,
+      lekAvailability,
+      interaction,
+      effectAvailability,
       route: transitionInfo(state.nodeId, opt),
       date: opt.date || null,
       targetPhase: opt.time || null,
+      targetHour: opt.atHour ?? null,
       timePassage: opt.timePassage || null,
       beginQuest: !state.embodying ? entryQuest : null,
       roleBlocked: !roleAccess.ok,
       roleReason: roleAccess.reason,
-      ok: allDiscovered && enoughMana && hasRequiredItem(storyState, opt) && affordable && roleAccess.ok,
+      ok: canChoose(storyState, opt) && roleAccess.ok,
       onSelect: () => opt.become && !state.embodying
         ? dispatch({ type: 'REQUEST_EMBODIMENT', optionIndex: i })
         : dispatch({
@@ -269,7 +299,7 @@ export default function StoryView({ state, dispatch }) {
   // item uses — always available (you hold the item)
   usableOwned.forEach((id) => {
     const it = ITEMS[id]
-    const { allDiscovered, enoughMana, ok } = canUseItem(state, it)
+    const { allDiscovered, enoughMana, effectAvailability, ok } = canUseItem(state, it)
     entries.push({
       key: 'use-' + id,
       tokens: it.use.phrase,
@@ -278,6 +308,7 @@ export default function StoryView({ state, dispatch }) {
       real: true,
       allDiscovered,
       enoughMana,
+      effectAvailability,
       ok,
       onSelect: () => dispatch({
         type: 'USE_ITEM', item: it, expectedCount: state.inventory[id],
@@ -297,7 +328,7 @@ export default function StoryView({ state, dispatch }) {
       allDiscovered,
       enoughMana,
       ok,
-      onSelect: () => dispatch({ type: 'HEAL' }),
+      onSelect: () => dispatch({ type: 'HEAL', expectedHearts: state.hearts }),
     })
   }
   // confusers — always shown (the comprehension trap)
@@ -420,7 +451,7 @@ export default function StoryView({ state, dispatch }) {
   return (
     <section className="card story" aria-labelledby="story-scene-title">
       <h2 id="story-scene-title" className="sr-only" ref={sceneHeadingRef} tabIndex={-1}>
-        New scene. {sceneSummary}
+        {sceneStatus}
       </h2>
       {!state.ended && <WorldContext state={storyState} worldClock={state.clock} />}
       {!state.ended && <EmbodimentFocus state={state} dispatch={dispatch} />}
@@ -428,6 +459,13 @@ export default function StoryView({ state, dispatch }) {
         {!state.ended && heartLevel && renderLine(heartLevel.line, 'hearts')}
         {!state.ended && companionIds.length > 0 && renderLine(companionLine(), 'companions')}
         {!state.ended && itemIds.length > 0 && renderLine(carryLine(), 'carry')}
+        {!state.ended && state.embodying && (itemIds.length > 0 || companionIds.length > 0) && (
+          <p className="role-prop-note">
+            <span aria-hidden="true">🎭 </span>
+            Role props are visible here and used through the choices they unlock. Direct traveller
+            item actions wait outside with your own pack.
+          </p>
+        )}
         {/* an achievement ending's tale stays HIDDEN until the gate is passed —
             no cribbing the answers off the page, and a failed attempt reveals
             nothing (the tale waits, eligible, in the Achievements tab) */}
@@ -502,7 +540,9 @@ export default function StoryView({ state, dispatch }) {
               {endResult === 'passed' && <p className="hearts-restored">❤️ Hearts restored to full.</p>}
               <p className="hint">
                 Added to your achievements. This tale is done — step back into the world and
-                keep exploring. Everything you&apos;ve gathered comes with you.
+                keep exploring. {state.embodying
+                  ? 'Your traveller’s pack and health return exactly as they were; this role’s props stay with its tale.'
+                  : 'Everything you’ve gathered comes with you.'}
               </p>
               <button
                 className="btn primary"
@@ -590,10 +630,14 @@ export default function StoryView({ state, dispatch }) {
               if (e.timePassage?.label) {
                 routeParts.push(e.timePassage.label)
               } else if (e.date) {
-                routeParts.push(`wait for ${festivalLabel(e.date)}${e.targetPhase ? ` at ${e.targetPhase}` : ''}`)
+                routeParts.push(`wait for ${festivalLabel(e.date)}${e.targetHour != null
+                  ? ` at ${formatCivilHour(e.targetHour)}`
+                  : e.targetPhase ? ` at ${e.targetPhase}` : ''}`)
               } else {
                 if (e.route?.hours != null) routeParts.push(formatRouteDuration(e.route.hours))
-                if (e.targetPhase || e.route?.targetPhase) routeParts.push(`then wait for ${e.targetPhase || e.route.targetPhase}`)
+                const targetHour = e.targetHour ?? e.route?.targetHour
+                if (targetHour != null) routeParts.push(`arrive at ${formatCivilHour(targetHour)}`)
+                else if (e.targetPhase || e.route?.targetPhase) routeParts.push(`then wait for ${e.targetPhase || e.route.targetPhase}`)
               }
               let cost
               if (wasConfused) {
@@ -619,7 +663,16 @@ export default function StoryView({ state, dispatch }) {
                 )
               } else if (e.affordable === false) {
                 // priced path you can't pay for yet — the price tag is the lesson
-                cost = <span className="option-cost bad">need 🪙 {-e.lek} lek</span>
+                cost = <span className="option-cost bad">need 🪙 {e.lekAvailability.need} more lek</span>
+              } else if (e.interaction?.ok === false) {
+                const unavailable = interactionLockText(e.interaction)
+                cost = <span className="option-cost bad">⏳ {unavailable}</span>
+              } else if (e.effectAvailability?.ok === false) {
+                const unavailable = effectLockText(
+                  e.effectAvailability,
+                  (id) => ITEMS[id]?.name || id,
+                )
+                cost = <span className="option-cost bad">🧰 {unavailable}</span>
               } else if (e.heal) {
                 cost = (
                   <span className="option-cost ok">mends one ♥ · spends tokens · once at this level</span>
@@ -678,7 +731,8 @@ export default function StoryView({ state, dispatch }) {
                     )}
                   </span>
                   <span id={costId} className="option-cost-wrap">{cost}</span>
-                  {state.debug && e.real && !e.ok && !e.roleBlocked && (
+                  {state.debug && e.real && !e.ok && !e.roleBlocked &&
+                    e.interaction?.ok !== false && e.effectAvailability?.ok !== false && (
                     <button
                       type="button"
                       className="btn debug-mini"
@@ -693,10 +747,12 @@ export default function StoryView({ state, dispatch }) {
                   <button
                     type="button"
                     className="option-select"
-                    disabled={!e.ok}
+                    aria-disabled={!e.ok}
                     aria-label={`${e.ok ? 'Choose' : 'Locked'}: ${optionPhrase}`}
                     aria-describedby={[routeId, costId].filter(Boolean).join(' ')}
-                    onClick={e.onSelect}
+                    onClick={() => {
+                      if (e.ok) e.onSelect()
+                    }}
                   >
                     {e.ok ? 'Choose' : 'Locked'} <span aria-hidden="true">→</span>
                   </button>

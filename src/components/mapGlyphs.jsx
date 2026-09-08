@@ -549,6 +549,19 @@ function gZanaGift(x, y) {
     </g>
   )
 }
+function gMountainSpring(x, y) {
+  // A small wayside spring: stone lip, clear basin and the narrow runnel that
+  // makes a water-place legible even among the mountain route's grey greens.
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(1, 12, 15, 4)}
+      <path d="M-14 4 Q0 -3 14 4 L11 11 Q0 15 -11 11 Z" fill="#8d8b82" stroke="#4b4a44" strokeWidth={1.6} />
+      <path d="M-10 5 Q0 1 10 5 Q0 10 -10 5 Z" fill="#85bfd0" stroke="#4f8798" strokeWidth={1.1} />
+      <path d="M0 -14 C-5 -8 -5 -3 0 1 C5 -3 5 -8 0 -14 Z" fill="#bfe7ef" stroke="#5f9fb2" strokeWidth={1.2} />
+      <path d="M9 9 Q17 11 20 17" fill="none" stroke="#76adbd" strokeWidth={2} strokeLinecap="round" />
+    </g>
+  )
+}
 function gCradleRock(x, y) {
   return (
     <g transform={`translate(${x},${y})`}>
@@ -1035,7 +1048,7 @@ export const WORLD_GLYPH = {
   gBabaTomor, gEagle, gJutbina, gShurdhi, gVerbti, gPeri, gKatallan, gKreshnik,
   gDielli, gHena, gPrende, gBijaHene, gDiellShtepi, gPemaDielli, gErera, gDemQiell,
   gKulshedra, gBukuraDheut, gGuardianSerpent, gDeadCity, gBazaar, gShadowTrial, gShaft, gFates,
-  gZana, gBolla, gRiddleElder, gLake, gEagleNest, gZanaGift, gCradleRock,
+  gZana, gBolla, gRiddleElder, gLake, gEagleNest, gZanaGift, gMountainSpring, gCradleRock,
   gBaloz, gGjergj, gSister, gBukuraDetit, gShoreKulla, gGraveLahuta, gFishingCoast,
   gTraveller, gCampfire, gWolf, gBear, gFox, gWitch, gRevenant, gDhampir, gShtojzovalle,
   gSunOda, gStag, gBujtina, gHealer, gWaySign, gKullaSmall, gMejdan, gPrincePalace,
@@ -1057,6 +1070,11 @@ export const WORLD_LANDMARKS = [
   { id: 'odaJutbina', glyph: 'gSunOda', label: "Jutbina's great oda", x: 590, y: -282 },
   { id: 'gbMuji1', glyph: 'gKreshnik', label: "Mujo's twin trees", x: 720, y: -500 },
   { id: 'osmaniBurg', glyph: 'gStoneCastle', label: "the Krajl's prison", x: 810, y: -310 },
+  { id: 'kreshnikRrembimiBurg', glyph: 'gStoneCastle', label: "Mujo's prison tower", x: 930, y: -300 },
+  { id: 'behuriBurimi', glyph: 'gMountainSpring', label: 'the spring at Xhuri', x: 840, y: -610 },
+  { id: 'behuriKulla', glyph: 'gStoneCastle', label: "Behuri's kulla", x: 950, y: -520 },
+  { id: 'behuriMejdan', glyph: 'gMejdan', label: "Behuri's mejdan", x: 900, y: -400 },
+  { id: 'udhaSyri', glyph: 'gMountainSpring', label: 'the Blue Eye spring', x: -85, y: 850 },
   { id: 'halilGarria1', glyph: 'gKreshnik', label: "Halil Garria's rescue", x: 820, y: -220 },
   { id: 'mujoKale', glyph: 'gHorse', label: "Mujo's guarded horse", x: 780, y: -410 },
   { id: 'aliBajr1', glyph: 'gKullaSmall', label: "Ali Bajraktari's house", x: 760, y: -120 },

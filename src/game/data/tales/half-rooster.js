@@ -119,12 +119,12 @@ export default {
     ending: 'gjysmegjelFund',
     scenes: {
       gjysmegjel1: ['permesa', 'lakrat'],
-      gjysmegjel2: 'zjarri',
-      gjysmegjelFund: 'arka',
+      gjysmegjel2: ['bretkosa', 'dhelpra', 'ujku', 'miu'],
+      gjysmegjelFund: ['zjarri', 'stalla', 'patat', 'arka'],
     },
     divergences: [
       { beat: 'permesa', note: 'You travel as the half-rooster\'s companion. The game compresses the household quarrel and the road into its setup, then enters on Elsie\'s attested opening to the court episode: hunger, the cabbage garden, the crowing, and capture. No seized-coin motive is imported.' },
-      { beat: 'lakrat', note: "The four swallowed helpers and the king's four traps (thrown among the cabbages, the fire beneath him, the stable of horses, the yard of geese) are compressed into the single court scene where he looses frog, wolf, fox and mouse in turn and gnaws the chest open." },
+      { beat: 'lakrat', note: "The game separates the source sequence into a helper-gathering scene and one compressed court payoff. The frog, fox, wolf and mouse are met and swallowed in source order; the finale then runs the fire, stable, geese and chest trials in order, with each helper solving only its attested danger." },
       { beat: 'fundi', note: 'The envious coda — the rod that pays gold off the rooster\'s back but only vermin off the copy-cat cat, "one coin, then vermin" — is kept in the tale record, not staged; the game ends on the half-rooster hopping home crowing with the king\'s gold.' },
     ],
   },

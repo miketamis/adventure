@@ -3,13 +3,22 @@
 // lies about targets, corrupts stored scalar/map types, and walks every role.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { STORY, START_NODE, WORLD_HUB } from '../src/game/content.js'
+import {
+  HEART_LEVELS,
+  ITEMS,
+  STORY,
+  START_NODE,
+  WORLD_HUB,
+  itemHasAffordance,
+  itemHasTag,
+} from '../src/game/content.js'
 import { ACHIEVEMENTS, ACHIEVEMENT_BY_ID } from '../src/game/achievements.js'
 import { EMBODIMENT_QUESTS, embodimentOptionAccess } from '../src/game/embodiment.js'
 import {
   START_CLOCK,
   START_HEARTS,
   canChoose,
+  civilHourAtClock,
   currentStoryState,
   hasCond,
   loadAchievements,
@@ -20,6 +29,11 @@ import {
   reducer,
 } from '../src/game/gameState.js'
 import { TIMED_WORLD_FIXTURES, parseFixtureCondition } from '../src/game/worldFixtures.js'
+import { optionEffectsOf } from '../src/game/stateMechanics.js'
+import {
+  effectLockText,
+  interactionLockText,
+} from '../src/components/storyMechanicsPresentation.js'
 
 const checks = []
 const check = (name, fn) => {
@@ -35,6 +49,7 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
   nodeId, clock: START_CLOCK, cameFrom: null, cameFromPhase: null, familiar: false,
   heard: {}, rumor: false, trail: [], discovered: {}, inventory: {}, mana: {},
   practiced: {}, visited: {}, earned: {}, eligible: {}, attempts: {},
+  flags: {}, knowledge: {}, interactions: {},
   dismissedTests: {}, pendingTest: null, peak: 3, hearts: START_HEARTS,
   healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
   view: 'story', ended: null, embodying: null, embodimentOriginNode: null,
@@ -49,8 +64,34 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
 const list = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
 const virtual = (id) => typeof id === 'string' && (
   ['dawn', 'day', 'dusk', 'night', 'again', 'rumor', 'embodying'].includes(id) ||
-  /^(fixture|season|weather|festival|weekday|fact|from|became|visited|heard|npc|npcAt|embodying):/.test(id)
+  /^(fixture|season|weather|festival|weekday|fact|flag|knows|itemTag|affords|from|became|visited|heard|npc|npcAt|embodying):/.test(id)
 )
+
+const firstItemMatching = (predicate) => Object.values(ITEMS).find(predicate)?.id
+
+function seedInventoryEffects(state, option) {
+  const running = { ...state.inventory }
+  const minimum = {}
+  for (const effect of optionEffectsOf(option)) {
+    if (effect?.type !== 'inventory') continue
+    running[effect.id] = (running[effect.id] || 0) + effect.delta
+    minimum[effect.id] = Math.min(minimum[effect.id] || 0, running[effect.id])
+  }
+  for (const [id, low] of Object.entries(minimum)) {
+    if (low < 0) state.inventory[id] = (state.inventory[id] || 0) - low
+  }
+}
+
+function seedFixtureEffects(state, option, clock) {
+  const seeded = new Set()
+  for (const effect of optionEffectsOf(option)) {
+    if (effect?.type !== 'fixture' || seeded.has(effect.id)) continue
+    seeded.add(effect.id)
+    state.fixtures = { ...state.fixtures }
+    if (effect.action === 'activate') delete state.fixtures[effect.id]
+    else state.fixtures[effect.id] = clock
+  }
+}
 
 function fixtureActivationFor(id, clock) {
   const condition = parseFixtureCondition(id)
@@ -71,12 +112,23 @@ function seedConditions(input, option) {
     inventory: { ...input.inventory, lek: Math.max(999, Number(input.inventory?.lek) || 0) },
     worldFacts: { ...input.worldFacts }, heard: { ...input.heard },
     visited: { ...input.visited }, npcStarted: { ...input.npcStarted },
+    flags: { ...input.flags }, knowledge: { ...input.knowledge },
   }
   for (const id of list(option.requires)) {
     if (!virtual(id)) state.inventory[id] = Math.max(2, state.inventory[id] || 0)
     else if (id.startsWith('fact:')) state.worldFacts[id.slice(5)] = { atClock: state.clock, source: 'fuzz' }
     else if (id.startsWith('visited:')) state.visited[id.slice(8).split('|')[0]] = true
     else if (id.startsWith('heard:')) state.heard[id.slice(6)] = true
+    else if (id.startsWith('flag:')) state.flags[id.slice(5)] = true
+    else if (id.startsWith('knows:')) state.knowledge[id.slice(6)] = { atClock: state.clock, source: 'fuzz' }
+    else if (id.startsWith('itemTag:')) {
+      const itemId = firstItemMatching((item) => itemHasTag(item, id.slice(8)))
+      if (itemId) state.inventory[itemId] = Math.max(2, state.inventory[itemId] || 0)
+    }
+    else if (id.startsWith('affords:')) {
+      const itemId = firstItemMatching((item) => itemHasAffordance(item, id.slice(8)))
+      if (itemId) state.inventory[itemId] = Math.max(2, state.inventory[itemId] || 0)
+    }
     else if (id.startsWith('from:')) state.cameFrom = id.slice(5).split('|')[0]
     else if (id === 'again') state.familiar = true
     else if (id === 'rumor') state.rumor = true
@@ -91,6 +143,14 @@ function seedConditions(input, option) {
     else if (id.startsWith('fact:')) delete state.worldFacts[id.slice(5)]
     else if (id.startsWith('visited:')) for (const key of id.slice(8).split('|')) delete state.visited[key]
     else if (id.startsWith('heard:')) delete state.heard[id.slice(6)]
+    else if (id.startsWith('flag:')) delete state.flags[id.slice(5)]
+    else if (id.startsWith('knows:')) delete state.knowledge[id.slice(6)]
+    else if (id.startsWith('itemTag:')) {
+      for (const item of Object.values(ITEMS)) if (itemHasTag(item, id.slice(8))) delete state.inventory[item.id]
+    }
+    else if (id.startsWith('affords:')) {
+      for (const item of Object.values(ITEMS)) if (itemHasAffordance(item, id.slice(8))) delete state.inventory[item.id]
+    }
     else if (id === 'again') state.familiar = false
     else if (id === 'rumor') state.rumor = false
     else if (id.startsWith('fixture:')) {
@@ -98,6 +158,7 @@ function seedConditions(input, option) {
       if (condition) delete state.fixtures[condition.fixtureId]
     }
   }
+  seedInventoryEffects(state, option)
   for (const id of phraseSenses(option.text)) {
     state.discovered[id] = true
     state.mana[id] = Math.max(3, state.mana[id] || 0)
@@ -110,6 +171,7 @@ function readyFor(input, option) {
   const start = Math.max(0, seeded.clock)
   for (let clock = start; clock < start + 370 * 24; clock++) {
     let candidate = { ...seeded, clock }
+    seedFixtureEffects(candidate, option, projectedClockForOption(candidate, option))
     for (const id of list(option.requires)) {
       const condition = parseFixtureCondition(id)
       const activatedAt = fixtureActivationFor(id, clock)
@@ -148,6 +210,9 @@ check('every feasible authored choice ignores forged targets and rejects stale r
       const before = readyFor(stateAt(nodeId), option)
       if (!before) continue
       const expectedClock = projectedClockForOption(before, option)
+      if (option.atHour != null) {
+        assert.equal(civilHourAtClock(expectedClock), option.atHour, `${nodeId}->${option.to}: exact civil-hour projection drifted`)
+      }
       const action = {
         type: 'CHOOSE', option, targetNode: forgedEnding,
         fromNodeId: before.nodeId, fromTurn: before.turn,
@@ -344,7 +409,9 @@ check('hard restart clears transient role state but preserves durable learning',
   const durable = {
     mana: { ec: 4 }, practiced: { ec: 8 }, visited: { lumi: true }, heard: { deti: true },
     earned: { fate: true }, eligible: { deed: true }, attempts: { deed: 3 },
-    worldFacts: { riverRestored: { atClock: 90, source: 'audit' } }, debug: true,
+    worldFacts: { riverRestored: { atClock: 90, source: 'audit' } },
+    knowledge: { riverName: { atClock: 45, source: 'elder' } },
+    debug: true,
   }
   const active = stateAt('maroNisja', {
     ...durable,
@@ -359,6 +426,8 @@ check('hard restart clears transient role state but preserves durable learning',
     embodimentInventorySnapshot: { lek: 11, buke: 2 },
     embodimentInventoryIsolated: true,
     embodimentHeartsSnapshot: 2,
+    flags: { taleGate: true },
+    interactions: { work: { run: { uses: 2, lastAtClock: 40 } } },
   })
   assert.equal(reducer(active, { type: 'RESET' }), active, 'living role was abandoned by hard restart')
 
@@ -369,6 +438,8 @@ check('hard restart clears transient role state but preserves durable learning',
   assert.equal(restarted.embodying, null)
   assert.equal(restarted.timePassage, null)
   assert.deepEqual(restarted.inventory, {})
+  assert.deepEqual(restarted.flags, {})
+  assert.deepEqual(restarted.interactions, {})
   assert.deepEqual(restarted.discovered, {})
   for (const key of Object.keys(durable)) assert.deepEqual(restarted[key], durable[key], `${key} was not durable`)
   assert.deepEqual(reducer(restarted, { type: 'RESET' }), restarted, 'repeated hard restart changed clean state')
@@ -403,6 +474,7 @@ check('every repeat-sensitive UI commit has an immediate same-render lock', () =
   assert.match(comprehension, /advanceCommitted\.current = true/)
 
   const practice = component('PracticeView.jsx')
+  assert.doesNotMatch(practice, /canChoose\([^\n]+\)\.ok/, 'PracticeView treats canChoose boolean as an object')
   assert.match(practice, /answerCommitted\s*=\s*useRef\(false\)/)
   assert.match(practice, /if \(answered \|\| answerCommitted\.current\) return/)
 
@@ -417,6 +489,13 @@ check('every repeat-sensitive UI commit has an immediate same-render lock', () =
   const story = component('StoryView.jsx')
   assert.match(story, /fromNodeId: state\.nodeId, fromTurn: state\.turn/)
   assert.match(story, /expectedCount: state\.inventory\[id\]/)
+  assert.match(story, /type: 'HEAL', expectedHearts: state\.hearts/)
+  assert.match(story, /interactionLockText\(e\.interaction\)/)
+  assert.match(story, /effectLockText\(/)
+  assert.equal(interactionLockText({ ok: false, reason: 'cooldown', remainingHours: 2 }), 'ready in 2h')
+  assert.equal(effectLockText({ ok: false, reason: 'missing-item', itemId: 'buke', need: 1 }), 'need 1 buke')
+  assert.equal(effectLockText({ ok: false, reason: 'insufficient-lek', need: 3 }), 'need 3 more lek')
+  assert.equal(effectLockText({ ok: false, reason: 'fixture-out-of-reach' }), 'you must be beside it')
   assert.ok((story.match(/type: 'CONFUSE', expectedHearts: state\.hearts/g) || []).length >= 2)
 
   const confuse = stateAt(START_NODE, { hearts: 3 })
@@ -424,7 +503,24 @@ check('every repeat-sensitive UI commit has an immediate same-render lock', () =
   const once = reducer(confuse, action)
   assert.equal(once.hearts, 2)
   assert.equal(reducer(once, action), once, 'a stale confuser activation charged a second heart')
-  return 'quiz, practice, passage, choice, item and confuser commits'
+
+  const healIds = new Set([
+    ...phraseSenses(HEART_LEVELS[1].line),
+    ...phraseSenses(HEART_LEVELS[1].heal.phrase),
+    ...phraseSenses(HEART_LEVELS[2].line),
+    ...phraseSenses(HEART_LEVELS[2].heal.phrase),
+  ])
+  const healReady = stateAt(START_NODE, {
+    hearts: 1,
+    discovered: Object.fromEntries([...healIds].map((id) => [id, true])),
+    mana: Object.fromEntries([...healIds].map((id) => [id, 2])),
+  })
+  const healAction = { type: 'HEAL', expectedHearts: 1 }
+  const healedOnce = reducer(healReady, healAction)
+  assert.equal(healedOnce.hearts, 2)
+  assert.equal(reducer(healedOnce, healAction), healedOnce, 'a stale heal activation mended a second level')
+  assert.equal(reducer(healReady, { type: 'HEAL' }), healReady, 'an unbound heal action omitted its rendered level')
+  return 'quiz, practice, passage, choice, item, heal and confuser commits'
 })
 
 check('malformed and torn saves normalize to playable, monotonic state', () => {
@@ -441,6 +537,7 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
       peak: pick(2), hearts: pick(3), inventory: pick(4), mana: pick(5), practiced: pick(6),
       visited: pick(1), heard: pick(2), discovered: pick(3), earned: { durableEarned: false },
       eligible: { durableDeed: false }, attempts: { durableDeed: i % 5 }, worldFacts: pick(4),
+      flags: pick(5), knowledge: pick(6), interactions: pick(0),
       npcStarted: pick(5), trail: pick(6), ended: i % 2 ? 'good' : 'nonsense',
       view: i % 2 ? 'achievements' : 'missing', pendingTest: 'invented',
       timePassage: { toNodeId: START_NODE, fromClock: 0, toClock: 4 },
@@ -450,7 +547,10 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
     assert.ok(Number.isInteger(state.clock) && state.clock >= 0)
     assert.ok(Number.isInteger(state.turn) && state.turn >= 1)
     assert.ok(Number.isInteger(state.hearts) && state.hearts >= 0 && state.hearts <= START_HEARTS)
-    for (const key of ['inventory', 'mana', 'practiced', 'visited', 'heard', 'discovered', 'npcStarted']) {
+    for (const key of [
+      'inventory', 'mana', 'practiced', 'visited', 'heard', 'discovered', 'npcStarted',
+      'flags', 'knowledge', 'interactions',
+    ]) {
       assert.ok(state[key] && typeof state[key] === 'object' && !Array.isArray(state[key]), `${key} not repaired`)
     }
     assert.equal(state.earned.durableEarned, true)

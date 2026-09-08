@@ -12,10 +12,10 @@
 // the source's last two lines merge into Elsie's one closing line), so
 // "paragraphs" here are 19 narrative strophes and each numbered sentence is a
 // punctuation-bounded verse group of 1–6 lines; the Albanian third element is
-// the verbatim verse group, lines joined with " / ". The game ALREADY STAGES
-// this exact song as the halil1 → halilFund/halilKeq branch off Jutbina, with
+// the verbatim verse group, lines joined with " / ". The game stages the rescue
+// half of this song in the dedicated kreshnikRrembimi branch off Jutbina, with
 // Mujo and Halili as the core NPCs `mujo` (core-world.js) and `halili` (this
-// tale's own registry entry) — the beats anchor onto that branch in full.
+// tale's own registry entry).
 // ===========================================================================
 
 export default {
@@ -72,7 +72,7 @@ export default {
         mold: 'the brothers\' home tower — in THIS song burned to a stump by the Krajl\'s raiders while Mujo is away, its household carried off, and standing again by the song\'s own end',
         sharedWith: ['halil-marriage (mujo1/mujo2/mujo3/mujo4, the Tanusha strand)'] } },
     { id: 'krajlKulla', emoji: '🗼', name: "the Krajl's tower", note: 'twelve masons, twelve years, three hundred gilded chambers — and, in the end, a prison',
-      anchor: { status: 'existing', node: 'halil1', mirror: 'the Krajl\'s fortress across the frontier — the game\'s OWN halil1/halilFund/halilKeq branch, whose existing "good" ending already tells this exact song in miniature: "The Krajl took Muji of Jutbina and threw him in a tower... so Halili rode alone into the Krajl\'s land, broke into the prison, fought his way through, and carried his brother home"',
+      anchor: { status: 'existing', node: 'kreshnikRrembimiBurg', mirror: 'the Krajl\'s fortress across the frontier — the dedicated rescue branch reaches its prison here before Halili breaks Mujo free',
         mold: 'a Krajl\'s tower where Muji was once held and Halili once rode to free him — this tale is that song, told in full',
         conflicts: 'NOT rusha1 (Zuku\'s song\'s Krajl tower) — per tale-arnaut-osmani.js\'s own note, "Krajl" names the standing office of the frontier\'s Slavic royal enemy across many songs, not one man; each song\'s Krajl is his own man, a different daughter, a different tale' } },
     { id: 'bjeshka', emoji: '⛰️', name: 'the mountain pastures', note: 'the high road between Jutbina and the Kingdom',
@@ -92,7 +92,7 @@ export default {
     { id: 'prangat', emoji: '⛓️', name: 'the iron shackles', note: "lock Mujo hand and foot until his brother's courser breaks the door" },
   ],
   // How the GAME stages this song: not as the full 19-strophe epic but as the
-  // compact halil1 → halilFund branch off Jutbina. The player rides beside young
+  // dedicated three-scene rescue off Jutbina. The player rides beside young
   // Halili — roused at midnight, then backing him into the Krajl's tower to free
   // the jailed Mujo. Entry is the waking; the freeing is the payoff.
   play: {
@@ -101,13 +101,18 @@ export default {
     with: 'halili',
     role: "You ride at Sokol Halili's side. A Krajl has seized Gjeto Basho Mujo and thrown him in a foreign tower, and this once the elder kreshnik cannot break his own chains — so the youngest brother is left alone at Jutbina. You help rouse him at midnight and back him as he takes up Mujo's own courser and rides into the Krajl's land: into the prison, through the guards, and home again with his brother. The youngest Kreshnik proving himself.",
     enter: "the zanas hammer at Halili's door in the black of midnight",
-    from: 'halil1',
-    ending: 'halilFund',
-    scenes: { halil1: 'wakingHalili', halilFund: 'freed' },
+    from: 'kreshnikRrembimi1',
+    ending: 'kreshnikRrembimiFund',
+    scenes: {
+      kreshnikRrembimi1: ['wakingHalili', 'haliliRides'],
+      kreshnikRrembimiBurg: 'reckoningTower',
+      kreshnikRrembimiFund: 'freed',
+    },
     divergences: [
-      { beat: 'wakingHalili', note: "The game opens the branch at the rescue: three lines — a Krajl takes Mujo, Mujo is in prison, Halili is alone. The song's whole first half (the king's boast, the wife's retort, the terrible vow, the muster of three hundred kinless men, the burned kulla) is never played." },
-      { note: "Why Mujo is jailed changes. In the song he rides in alone and his own wife Mehreme drugs him with nine-year raki and shackles him in his sleep; the game just says 'a Krajl takes Mujo' — no traitor wife, no self-inflicted capture." },
-      { beat: 'freed', note: "The good ending stops at the rescue and the ride home. The song's homecoming is far harsher — Mujo cuts down Mehreme and his own sister and daughter besides, takes the king's first wife, and burns the tower; the game ends at 'Halili carries his brother home.'" },
+      { beat: 'wakingHalili', note: "The dedicated game branch opens at the rescue. The song's first fourteen beats — the king's boast, his wife's retort, Mujo's terrible vow, the muster of three hundred kinless men, the burned kulla, Mehreme's betrayal, and Mujo's last lahutë-song — remain prologue lore rather than playable scenes." },
+      { beat: 'betrayed', note: "Why Mujo is jailed is compressed and softened. In the song he rides into the tower himself and his wife Mehreme drugs him with nine-year raki and shackles him in his sleep; the rescue setup reduces that history to a Krajl holding Mujo prisoner." },
+      { beat: 'haliliRides', note: "The player riding beside Halili is an explicit game counterfactual. In the source Halili makes the rescue ride without a human companion, aided by Mujo's extraordinary courser; the companion choices support his deeds and do not turn that invented helper into source cast." },
+      { beat: 'freed', note: "The good ending stops when the steel door breaks and the brothers ride home. The song's homecoming is far harsher — Mujo kills Mehreme and his own sister and daughter, takes the king's first wife, burns the tower, and levels the kulla — none of which the rescue finale enacts." },
     ],
   },
   beats: [

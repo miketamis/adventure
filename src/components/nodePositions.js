@@ -74,8 +74,39 @@ export const NODE_AT = {
   gbMujiFund: 'gbMuji1',
   gbMujiVdes: 'gbMuji1',
   osmaniBurg: [810, -310],
-  osmaniLiri: 'jutbina',
+  osmaniVdekur: 'osmaniBurg',
+  osmaniProvat: 'osmaniBurg',
+  osmaniVallja: 'osmaniBurg',
+  osmaniShpata: 'osmaniBurg',
+  osmaniZbuluar: 'osmaniBurg',
+  // The escape ends on the homeward approach to Jutbina. It cannot alias the
+  // hamlet hub: the preceding choice is made at the distant Krajl's prison,
+  // and treating the ending as the exact same card as an unlinked hub made a
+  // false instantaneous co-location on the map.
+  osmaniLiri: [520, -320],
   osmaniRob: 'osmaniBurg',
+  // Two distinct Krajl songs use two distinct foreign prisons. Halili is
+  // woken at his own Jutbina doorway, rides east across the frontier, and
+  // brings Mujo back to the hamlet by a separate homeward approach.
+  kreshnikRrembimi1: [650, -280],
+  kreshnikRrembimiBurg: [930, -300],
+  kreshnikRrembimiFund: [555, -315],
+  kreshnikRrembimiHumbur: 'kreshnikRrembimiFund',
+  kreshnikRrembimiRefuz: 'kreshnikRrembimi1',
+  // Mujo and Behuri: the muster is inside the great oda, then the company
+  // crosses an authored chain of high pasture, spring, enemy kulla and open
+  // mejdan. The finale reaches the Jutbina road again; none of these foreign
+  // sites aliases another Krajl tale's tower.
+  behuriJutbina: 'odaJutbina',
+  behuriNdarja: [720, -590],
+  behuriBurimi: [840, -610],
+  behuriKulla: [950, -520],
+  behuriMejdan: [900, -400],
+  behuriFund: [700, -350],
+  behuriKotorHumbur: 'behuriNdarja',
+  behuriBurimHumbur: 'behuriBurimi',
+  behuriKullaHumbur: 'behuriKulla',
+  behuriMejdanHumbur: 'behuriMejdan',
   halilGarria1: [820, -220],
   halilGarriaFund: 'jutbina',
   halilGarriaKeq: 'halilGarria1',
@@ -228,8 +259,11 @@ export const NODE_AT = {
   gjarpri: 'bota2',
   uji: [180, 2360],
   kthimi: [560, 2080],
+  // The last homeward vista reaches the dry edge of the coast road. From there
+  // the path turns inland to the road and builders' house below Rozafa; this
+  // scene must stand on the drawn shore, not out in the Adriatic.
   udhaKthimit: [180, 1210],
-  ktheu3: [1180, 1980],
+  ktheu3: [800, 1570],
   shqipe1: [120, 1320],
   shqipe2: [95, 1250],
   shqipe3: 'shqipe2',
@@ -378,9 +412,6 @@ export const NODE_AT = {
   rusha1: [610, -428],
   rushaFund: 'rusha1',
   rushaKeq: 'rusha1',
-  halil1: [566, -392],
-  halilFund: 'halil1',
-  halilKeq: 'halil1',
   arushe2: 'pylli1',
   pallatiZi: [768, 448],
   pallatRoje: 'pallatiZi',
@@ -454,7 +485,11 @@ export const NODE_AT = {
   lumiHumbur: [230, 1075],
   botaHumbur: [100, 1890],
   ujkuUje: 'udhaThate',
-  udhaSyri: [-320, 720],
+  // The Blue Eye is reached by leaving the dry forest road for the river's
+  // western headwater. This stays a real walk (<500 map units) while bringing
+  // the spring inside the river country instead of drawing it in the woods.
+  udhaSyri: [-85, 850],
+  syriKanali: 'udhaSyri',
   syriFund: 'udhaSyri',
   uraFshaj: [310, 1120],
   maliStuhi: 'mali3',

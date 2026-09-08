@@ -1,10 +1,20 @@
-import { START_NODE, STORY, WORLD_HUB, HEART_LEVELS, frequentForms } from './content.js'
+import {
+  START_NODE,
+  STORY,
+  WORLD_HUB,
+  HEART_LEVELS,
+  ITEMS,
+  frequentForms,
+  itemHasAffordance,
+  itemHasTag,
+} from './content.js'
 import { ACHIEVEMENT_BY_ID, newlyEligibleAreas, offerableTest } from './achievements.js'
 import { NPCS } from './npcs.js'
 import { transitionInfo } from './worldModel.js'
 import { NODE_REGION } from './regions.js'
 import {
   canonicalEmbodimentId,
+  embodimentEntryNodes,
   embodimentOptionAccess,
   embodimentQuest,
   isEmbodimentEnding,
@@ -16,11 +26,17 @@ import {
   FESTIVAL_IDS,
   SEASONS,
   WEATHER_TYPES,
+  WORLD_FACT_INCOMPATIBLE,
+  advanceToCivilHour,
   advanceToFestival,
   calendarAtClock,
+  civilHourAtClock,
   festivalIdsAtClock,
   festivalLabel,
   hydrologyFromFacts,
+  isCivilHour,
+  phaseAtCivilHour,
+  phaseAtClock as environmentPhaseAtClock,
   seasonAtClock,
   weatherAtClock,
   worldMemoriesFromFacts,
@@ -32,8 +48,44 @@ import {
   isTimedWorldFixture,
   parseFixtureCondition,
 } from './worldFixtures.js'
+import {
+  applyOptionEffects,
+  entryInventoryFromOption,
+  interactionAvailability,
+  itemUseEffectsOption,
+  normalizeInteractionLedger,
+  normalizeKnowledge,
+  optionEffectAvailability,
+  optionEffectsAreValid,
+  optionInventoryIds,
+  optionLekAvailability,
+  optionLekDelta,
+  recordInteractionUse,
+} from './stateMechanics.js'
 
-export { CALENDAR_EPOCH, FESTIVAL_IDS, SEASONS, WEATHER_TYPES }
+export {
+  CALENDAR_EPOCH,
+  FESTIVAL_IDS,
+  SEASONS,
+  WEATHER_TYPES,
+  WORLD_FACT_INCOMPATIBLE,
+  advanceToCivilHour,
+  civilHourAtClock,
+  isCivilHour,
+  phaseAtCivilHour,
+}
+export {
+  INTERACTION_SCOPES,
+  applyOptionEffects,
+  interactionSpecOf,
+  normalizeInteractionLedger,
+  normalizeKnowledge,
+  optionEffectsAreValid,
+  optionEffectAvailability,
+  optionInventoryIds,
+  optionLekAvailability,
+  optionLekDelta,
+} from './stateMechanics.js'
 
 export const PEAK_START_TURNS = 3
 export const START_HEARTS = 3
@@ -64,19 +116,11 @@ const LEGACY_WORLD_EFFECTS_BY_ENDING = Object.freeze({
 export const worldEffectsForEnding = (endingId) =>
   WORLD_EFFECTS_BY_ENDING[endingId] || LEGACY_WORLD_EFFECTS_BY_ENDING[endingId] || []
 
-// Achievements may remember alternate endings, but the live world must not
-// claim incompatible outcomes at once. Preserving Nereida's town excludes the
-// flood and the lake it creates; choosing the flood excludes preservation.
-export const WORLD_FACT_INCOMPATIBLE = Object.freeze({
-  prespaTownPreserved: Object.freeze(['prespaFlooded', 'prespaLakeFormed']),
-  prespaFlooded: Object.freeze(['prespaTownPreserved']),
-  prespaLakeFormed: Object.freeze(['prespaTownPreserved']),
-  artaBridgeUnbuilt: Object.freeze(['artaBridgeRaised']),
-  artaBridgeRaised: Object.freeze(['artaBridgeUnbuilt']),
-})
-
 // ---------------------------------------------------------------------------
-// TIME OF DAY — a 24-"hour" day: dawn 0-2, day 3-11, dusk 12-14, night 15-23.
+// TIME OF DAY — the narrative clock starts at dawn: internal 0-2 is dawn,
+// 3-11 day, 12-14 dusk and 15-23 night. Authored `atHour` values and every
+// HH:00 shown to players are civil time: internal 0 = 06:00 (environment.js is
+// the single conversion boundary).
 // The clock drifts +1 hour per story choice, and an option may jump it forward
 // with `time: '<phase>'` (sleep → dawn, wait for dark → night). A phase id is a
 // VIRTUAL ITEM: `requires:'night'` / `unless:'day'` on options and
@@ -88,10 +132,7 @@ export const TIME_PHASES = ['dawn', 'day', 'dusk', 'night']
 // natural opening (into the forest, light a fire) has night FALL as the fire
 // catches, and the became('night') arrival lines get their showcase.
 export const START_CLOCK = 13
-export function phaseAtClock(clock) {
-  const h = ((clock % 24) + 24) % 24
-  return h < 3 ? 'dawn' : h < 12 ? 'day' : h < 15 ? 'dusk' : 'night'
-}
+export const phaseAtClock = environmentPhaseAtClock
 export const worldClockOf = (state) => state.clock ?? START_CLOCK
 export const storyClockOf = (state) => state.conditionClock ?? worldClockOf(state)
 export const timeOfDay = (state) => phaseAtClock(storyClockOf(state))
@@ -148,11 +189,14 @@ export function embodimentFocusState(state, nodeId = state.embodimentFocusNode) 
 export const isTimeId = (id) => TIME_PHASES.includes(id)
 export const calendarOf = (state) => calendarAtClock(storyClockOf(state))
 export const seasonOf = (state) => seasonAtClock(storyClockOf(state))
-export const weatherOf = (state) => weatherAtClock(
-  storyClockOf(state),
-  state.worldFacts,
-  NODE_REGION[state.nodeId] || 'village',
-)
+export const weatherOf = (state, scene = STORY[state.nodeId]) =>
+  WEATHER_TYPES.includes(scene?.sceneWeather)
+    ? scene.sceneWeather
+    : weatherAtClock(
+        storyClockOf(state),
+        state.worldFacts,
+        NODE_REGION[state.nodeId] || 'village',
+      )
 export const hydrologyOf = (state) => hydrologyFromFacts(state.worldFacts)
 export const hasWorldFact = (state, id) =>
   state.worldFacts?.[id] != null && state.worldFacts[id] !== false
@@ -283,6 +327,15 @@ export const isBacktrack = (state, to) =>
 
 export const isFromId = (id) => typeof id === 'string' && id.startsWith('from:')
 export const isBecameId = (id) => typeof id === 'string' && id.startsWith('became:')
+export const isFlagId = (id) => typeof id === 'string' && id.startsWith('flag:')
+export const isKnowledgeId = (id) => typeof id === 'string' && id.startsWith('knows:')
+export const isItemTagId = (id) => typeof id === 'string' && id.startsWith('itemTag:')
+export const isAffordanceId = (id) => typeof id === 'string' && id.startsWith('affords:')
+export const hasStoryFlag = (state, id) => hasOwn(state.flags, id) && state.flags[id] === true
+export const hasKnowledge = (state, id) => hasOwn(state.knowledge, id) &&
+  state.knowledge[id] != null && state.knowledge[id] !== false
+const hasCarriedItemMatching = (state, predicate) => Object.entries(state.inventory || {})
+  .some(([itemId, count]) => count > 0 && ITEMS[itemId] && predicate(ITEMS[itemId]))
 // the embodiment framework: `embodying` (bare) = bound to ANY tale; `embodying:<tale>`
 // = bound to that one. Virtual items resolve against the explicit runtime quest
 // contract in embodiment.js; a role lasts through its ending screen and is released
@@ -291,6 +344,7 @@ export const isEmbodyingId = (id) => typeof id === 'string' && id.startsWith('em
 // one truth for "does the player have X right now" — item, companion, hour,
 // timed fixture, or the way they came in
 export const hasCond = (state, id) => {
+  if (typeof id !== 'string' || !id) return false
   if (isTimeId(id)) return timeOfDay(state) === id
   if (isEnvironmentId(id)) return hasEnvironmentCond(state, id)
   if (isFixtureId(id)) return fixtureConditionMatches(id, state.fixtures, storyClockOf(state))
@@ -301,6 +355,21 @@ export const hasCond = (state, id) => {
       state.cameFromPhase !== timeOfDay(state) &&
       id.slice(7).split('|').includes(timeOfDay(state))
     )
+  if (isFlagId(id)) {
+    const flagId = id.slice(5)
+    // Old saves stored invisible story markers in inventory. New content can
+    // adopt explicit flag conditions without invalidating those saves.
+    return hasStoryFlag(state, flagId) || (state.inventory?.[flagId] || 0) > 0
+  }
+  if (isKnowledgeId(id)) return hasKnowledge(state, id.slice(6))
+  if (isItemTagId(id)) {
+    const tag = id.slice(8)
+    return Boolean(tag) && hasCarriedItemMatching(state, (item) => itemHasTag(item, tag))
+  }
+  if (isAffordanceId(id)) {
+    const affordance = id.slice(8)
+    return Boolean(affordance) && hasCarriedItemMatching(state, (item) => itemHasAffordance(item, affordance))
+  }
   if (isNpcId(id)) return npcCond(state, id)
   if (id === 'embodying') return state.embodying != null
   if (isEmbodyingId(id)) return state.embodying === id.slice(10)
@@ -316,7 +385,10 @@ export const hasCond = (state, id) => {
   // any scene has told you of the place (node.tells), seen or not.
   if (id === 'rumor') return !!state.rumor
   if (id.startsWith('heard:')) return !!state.heard?.[id.slice(6)]
-  return (state.inventory?.[id] || 0) > 0
+  // Bare ids remain migration-friendly: new story flags work with the same
+  // requires/unless syntax as the old invisible inventory markers, while the
+  // explicit `flag:` form removes ambiguity for new content.
+  return hasStoryFlag(state, id) || (state.inventory?.[id] || 0) > 0
 }
 // the next hour (at or after `clock`) that falls inside `phase`
 export function advanceToPhase(clock, phase) {
@@ -325,13 +397,28 @@ export function advanceToPhase(clock, phase) {
   return clock
 }
 
+// One validation contract protects authored content and reducer callers. Exact
+// civil hours may refine a phase, but never contradict it (00:00 is night;
+// 06:00 is dawn). Invalid timing metadata disables a choice instead of being
+// coerced into a different journey.
+export function optionTimingIsValid(option) {
+  if (!option || typeof option !== 'object') return false
+  if (option.durationHours != null &&
+      (!Number.isSafeInteger(option.durationHours) || option.durationHours < 0)) return false
+  if (option.time != null && !isTimeId(option.time)) return false
+  if (option.date != null && !FESTIVAL_IDS.includes(option.date)) return false
+  if (option.atHour != null && !isCivilHour(option.atHour)) return false
+  if (option.time && option.atHour != null && phaseAtCivilHour(option.atHour) !== option.time) return false
+  return true
+}
+
 // A normal choice takes one story-hour. Longer journeys may declare
 // `durationHours`, while `date` and `time` deliberately wait for a named annual
 // observance or phase. All callers use this one projection, including gating,
 // so an act that must finish before dawn cannot be selected at the last hour of
 // night and arrive after its own condition has ceased to be true.
 export function durationHoursOf(option, fromNodeId) {
-  if (Number.isFinite(option?.durationHours)) return Math.max(0, Math.floor(option.durationHours))
+  if (Number.isSafeInteger(option?.durationHours) && option.durationHours >= 0) return option.durationHours
   if (!fromNodeId) return 1
   const routeHours = transitionInfo(fromNodeId, option).hours
   return routeHours == null ? 1 : Math.max(0, Math.floor(routeHours))
@@ -339,7 +426,10 @@ export function durationHoursOf(option, fromNodeId) {
 
 export function projectedClockForOption(state, option) {
   let clock = storyClockOf(state) + durationHoursOf(option, state.nodeId)
-  if (option?.date) clock = advanceToFestival(clock, option.date, option.time)
+  // A festival target must satisfy its date, optional phase and optional exact
+  // civil hour together; resolving them sequentially could leave the festival.
+  if (option?.date) clock = advanceToFestival(clock, option.date, option.time, option.atHour)
+  else if (option?.atHour != null && isCivilHour(option.atHour)) clock = advanceToCivilHour(clock, option.atHour)
   else if (option?.time) clock = advanceToPhase(clock, option.time)
   return clock
 }
@@ -360,17 +450,22 @@ export function timePassageForOption(
   if (!authored && !option?.date && elapsedHours < 24) return null
 
   const festival = option?.date ? festivalLabel(option.date) : null
+  const exactHour = isCivilHour(option?.atHour)
+    ? `${String(option.atHour).padStart(2, '0')}:00`
+    : null
   const fallbackLabel = festival
-    ? `until ${festival}`
+    ? `until ${festival}${exactHour ? ` at ${exactHour}` : ''}`
     : elapsedHours % 24 === 0
-      ? `${elapsedHours / 24} ${elapsedHours === 24 ? 'day' : 'days'}`
-      : `${Math.floor(elapsedHours / 24)} days and ${elapsedHours % 24} hours`
+      ? `${elapsedHours / 24} ${elapsedHours === 24 ? 'day' : 'days'}${exactHour ? `, arriving at ${exactHour}` : ''}`
+      : `${Math.floor(elapsedHours / 24)} days and ${elapsedHours % 24} hours${exactHour ? `, arriving at ${exactHour}` : ''}`
   const segments = Array.isArray(authored?.segments) && authored.segments.length > 0
     ? authored.segments.map((segment) => ({ ...segment }))
     : [{
         label: festival ? `The calendar turns toward ${festival}` : fallbackLabel,
         detail: festival
-          ? `The story waits until ${festival}${option.time ? ` at ${option.time}` : ''}.`
+          ? `The story waits until ${festival}${option.atHour != null
+              ? ` at ${String(option.atHour).padStart(2, '0')}:00`
+              : option.time ? ` at ${option.time}` : ''}.`
           : 'Days pass before the next scene begins.',
         fidelity: festival ? 'calendar-exact' : 'clock-exact',
         visual: festival ? 'festival' : 'journey',
@@ -459,13 +554,16 @@ export function saveState(state) {
 const isRecord = (value) => value != null && typeof value === 'object' && !Array.isArray(value)
 const recordOrEmpty = (value) => isRecord(value) ? value : {}
 const finiteOr = (value, fallback) => Number.isFinite(value) ? value : fallback
+const hasOwn = (record, id) => Object.prototype.hasOwnProperty.call(record || {}, id)
+const safeMapKey = (id) => typeof id === 'string' && id.length > 0 && id.trim() === id &&
+  !['__proto__', 'prototype', 'constructor'].includes(id)
 const VIEWS = new Set(['story', 'practice', 'dictionary', 'map', 'endings', 'guide', 'debug'])
 const PUBLIC_FREE_ROAM_NODE_SET = new Set(PUBLIC_FREE_ROAM_NODES)
 const truthRecord = (...values) => {
   const next = {}
   for (const value of values) {
     if (!isRecord(value)) continue
-    for (const [id, present] of Object.entries(value)) if (present) next[id] = true
+    for (const [id, present] of Object.entries(value)) if (present && safeMapKey(id)) next[id] = true
   }
   return next
 }
@@ -473,8 +571,13 @@ const countRecord = (value) => {
   const next = {}
   if (!isRecord(value)) return next
   for (const [id, count] of Object.entries(value)) {
-    const numeric = Number(count)
-    if (Number.isFinite(numeric) && numeric > 0) next[id] = Math.floor(numeric)
+    const numeric = typeof count === 'number'
+      ? count
+      : typeof count === 'string' && count.trim()
+        ? Number(count)
+        : NaN
+    const whole = Number.isFinite(numeric) ? Math.floor(numeric) : 0
+    if (safeMapKey(id) && Number.isSafeInteger(whole) && whole > 0) next[id] = whole
   }
   return next
 }
@@ -500,7 +603,8 @@ const maxCountRecords = (...values) => {
 
 const safePublicNode = (quest, ...candidates) =>
   candidates.find((nodeId) => PUBLIC_FREE_ROAM_NODE_SET.has(nodeId)) ||
-  (PUBLIC_FREE_ROAM_NODE_SET.has(quest?.entryFrom) ? quest.entryFrom : WORLD_HUB)
+  embodimentEntryNodes(quest).find((nodeId) => PUBLIC_FREE_ROAM_NODE_SET.has(nodeId)) ||
+  WORLD_HUB
 
 const arrivalSnapshotOf = (state, focusNode = state.embodimentFocusNode) => ({
   nodeId: focusNode,
@@ -542,16 +646,16 @@ const embodimentInventoryIds = (embodimentId, quest) => {
   const ids = new Set()
   for (const nodeId of quest?.nodes || []) {
     for (const option of STORY[nodeId]?.options || []) {
-      if (option.grant) ids.add(option.grant)
-      if (option.consumes) ids.add(option.consumes)
-      if (option.lek) ids.add('lek')
+      for (const id of optionInventoryIds(option)) ids.add(id)
+      if (optionLekDelta(option)) ids.add('lek')
     }
   }
-  for (const option of STORY[quest?.entryFrom]?.options || []) {
-    if (canonicalEmbodimentId(option.become) !== embodimentId) continue
-    if (option.grant) ids.add(option.grant)
-    if (option.consumes) ids.add(option.consumes)
-    if (option.lek) ids.add('lek')
+  for (const entryFrom of embodimentEntryNodes(quest)) {
+    for (const option of STORY[entryFrom]?.options || []) {
+      if (canonicalEmbodimentId(option.become) !== embodimentId) continue
+      for (const id of optionInventoryIds(option)) ids.add(id)
+      if (optionLekDelta(option)) ids.add('lek')
+    }
   }
   return ids
 }
@@ -636,11 +740,19 @@ export function normalizeSavedState(saved, fresh) {
   // must never persist or leak tale time into the world map after a reload.
   delete next.conditionClock
   next.nodeId = STORY[saved.nodeId] ? saved.nodeId : fresh.nodeId
-  for (const key of ['heard', 'discovered', 'visited', 'dismissedTests', 'healedAt']) {
+  for (const key of ['heard', 'discovered', 'visited', 'dismissedTests', 'healedAt', 'flags']) {
     next[key] = truthRecord(fresh[key], saved[key])
   }
   for (const key of ['inventory', 'mana', 'practiced']) {
     next[key] = countRecord(isRecord(saved[key]) ? saved[key] : fresh[key])
+  }
+  // Early typed-flag builds represented Shpirag's role branch as an invisible
+  // carried object. Canonicalize it once on load so identity, gates and the
+  // inventory UI cannot disagree. `hasCond(flag:...)` retains its generic
+  // inventory fallback for any older in-memory state not yet re-saved.
+  if ((next.inventory.jamShpirag || 0) > 0) {
+    next.flags.jamShpirag = true
+    delete next.inventory.jamShpirag
   }
   next.npcStarted = countRecord(isRecord(saved.npcStarted) ? saved.npcStarted : fresh.npcStarted)
   // The compact achievement record exists specifically to survive a failed or
@@ -652,6 +764,17 @@ export function normalizeSavedState(saved, fresh) {
   next.attempts = maxCountRecords(fresh.attempts, saved.attempts)
   next.worldFacts = reconcileWorldFacts(isRecord(saved.worldFacts) ? saved.worldFacts : recordOrEmpty(fresh.worldFacts))
   next.clock = Math.max(0, Math.floor(finiteOr(saved.clock, fresh.clock)))
+  // Knowledge is monotonic learner memory, not physical world state. Preserve
+  // first-learning provenance while accepting the `true` entries early
+  // experimental saves used before metadata was recorded.
+  next.knowledge = normalizeKnowledge(
+    isRecord(saved.knowledge) ? saved.knowledge : fresh.knowledge,
+    next.clock,
+  )
+  next.interactions = normalizeInteractionLedger(
+    isRecord(saved.interactions) ? saved.interactions : fresh.interactions,
+    next.clock,
+  )
   next.turn = Math.max(1, Math.floor(finiteOr(saved.turn, fresh.turn)))
   next.peak = Math.max(0, Math.floor(finiteOr(saved.peak, fresh.peak)))
   next.hearts = Math.max(0, Math.min(START_HEARTS, Math.floor(finiteOr(saved.hearts, fresh.hearts))))
@@ -702,13 +825,14 @@ export function normalizeSavedState(saved, fresh) {
   }
   if (activeQuest && next.ended && !isEmbodimentEnding(next.embodying, next.nodeId)) {
     if (isRecord(saved.embodimentInventorySnapshot)) next.inventory = countRecord(saved.embodimentInventorySnapshot)
+    if (isRecord(saved.embodimentFlagsSnapshot)) next.flags = truthRecord(saved.embodimentFlagsSnapshot)
     next.hearts = savedEmbodimentHearts ?? Math.max(1, next.hearts)
     next.embodying = null
     activeQuest = null
   }
   next.embodimentOriginNode = activeQuest && STORY[saved.embodimentOriginNode]
     ? saved.embodimentOriginNode
-    : activeQuest?.entryFrom || null
+    : embodimentEntryNodes(activeQuest)[0] || null
   const savedFocusIsLive = activeQuest && activeQuest.nodes.includes(saved.embodimentFocusNode) &&
     !STORY[saved.embodimentFocusNode]?.end
   if (!activeQuest) {
@@ -751,6 +875,15 @@ export function normalizeSavedState(saved, fresh) {
     ? countRecord(saved.embodimentInventorySnapshot)
     : activeQuest
       ? { ...next.inventory }
+      : null
+  // Role-local branch markers must travel with the role, not poison a later
+  // replay after that role closes. Old active saves have no snapshot, so their
+  // current flags are the only lossless migration fallback.
+  next.embodimentFlagsSnapshot = activeQuest && isRecord(saved.embodimentFlagsSnapshot)
+    ? truthRecord(saved.embodimentFlagsSnapshot)
+    : activeQuest
+      ? Object.fromEntries(Object.entries(next.flags).filter(([id]) =>
+          !(next.embodying === 'tomor-shpirag' && id === 'jamShpirag')))
       : null
   // Saves written before pack isolation kept the traveller's belongings mixed
   // into the role inventory. Subtract the exact entry snapshot once; any
@@ -823,6 +956,9 @@ function baseRun() {
     // place you were just at — it always shows (never reveal-gated, never ringed).
     discovered: {}, // senseId -> true
     inventory: {}, // itemId -> count (you start with nothing)
+    flags: {}, // authored story state; never rendered as something carried
+    knowledge: {}, // learned facts with provenance; survives later runs
+    interactions: {}, // explicitly identified option uses, partitioned by scope
     peak: PEAK_START_TURNS, // story turns of "peak" remaining (hover -> English)
     hearts: START_HEARTS, // wrong training answers cost a heart; 0 = game over
     healedAt: {}, // heart level -> true once that level's once-per-run self-heal is spent (see HEART_LEVELS)
@@ -841,6 +977,7 @@ function baseRun() {
     embodimentPaused: false, // true while freely exploring away from the waiting tale
     embodimentInventorySnapshot: null, // traveller's pack, restored when the role closes
     embodimentInventoryIsolated: null, // migration marker: active inventory contains tale-local state only
+    embodimentFlagsSnapshot: null, // pre-role run flags, restored when the role closes
     embodimentHeartsSnapshot: null, // traveller health, restored when a surviving role closes
     embodimentArrivalSnapshot: null, // exact focus arrival, restored after a public-road detour
     pendingEmbodiment: null, // confirmed before the threshold spends words or moves
@@ -895,7 +1032,7 @@ export const hasRequiredItem = (state, option) => {
   // `time`/`date` is an authored wait: its purpose is to cross a boundary.
   // Otherwise a phase/calendar/weather condition must still hold when the
   // choice finishes, not only at the instant its button is drawn.
-  if (!option.time && !option.date) {
+  if (!option.time && !option.date && option.atHour == null) {
     const arrivalClock = projectedClockForOption(state, option)
     const arrivalState = { ...state, clock: arrivalClock, conditionClock: arrivalClock }
     if (!required.filter(isArrivalSensitiveId).every((id) => hasCond(arrivalState, id))) return false
@@ -914,15 +1051,69 @@ export const hasRequiredItem = (state, option) => {
 // pay. A priced option stays VISIBLE when you can't afford it (the price is part
 // of learning the scene) but can't be taken — see canChoose/StoryView.
 // ---------------------------------------------------------------------------
-export const lekOf = (state) => state.inventory.lek || 0
-export const canAfford = (state, option) => (option.lek ?? 0) >= 0 || lekOf(state) >= -option.lek
+export const lekOf = (state) => Number.isSafeInteger(state.inventory?.lek) && state.inventory.lek > 0
+  ? state.inventory.lek
+  : 0
+export const canAfford = (state, option) => optionLekAvailability(state, option).ok
+
+export const interactionAvailabilityForOption = (state, option) => interactionAvailability(
+  state.interactions,
+  option,
+  {
+    clock: storyClockOf(state),
+    nodeId: state.nodeId,
+    taleId: state.embodying,
+  },
+)
+
+const canActOnFixtureAt = (state) => (fixtureId) =>
+  TIMED_WORLD_FIXTURES[fixtureId]?.nodeId === state.nodeId
+
+export const effectAvailabilityForOption = (state, option) => optionEffectAvailability(
+  state,
+  option,
+  isTimedWorldFixture,
+  {
+    fixtureClock: projectedClockForOption(state, option),
+    canActOnFixture: canActOnFixtureAt(state),
+  },
+)
 
 export const canChoose = (state, option) => {
   const sp = canSpeak(state, option.text)
-  return sp.ok && hasRequiredItem(state, option) && canAfford(state, option)
+  return optionTimingIsValid(option) && sp.ok &&
+    hasRequiredItem(state, option) &&
+    canAfford(state, option) &&
+    effectAvailabilityForOption(state, option).ok &&
+    interactionAvailabilityForOption(state, option).ok
 }
 
-export const canUseItem = (state, item) => canSpeak(state, item.use.phrase)
+export const canUseItem = (state, item) => {
+  if (!item?.use?.phrase) {
+    return {
+      allDiscovered: false,
+      enoughMana: false,
+      ids: [],
+      effectAvailability: { ok: false, reason: 'invalid-effect' },
+      ok: false,
+    }
+  }
+  const speech = canSpeak(state, item.use.phrase)
+  const effectOption = itemUseEffectsOption(item)
+  const effectAvailability = optionEffectAvailability(state, effectOption, isTimedWorldFixture, {
+    fixtureClock: worldClockOf(state),
+    canActOnFixture: canActOnFixtureAt(state),
+  })
+  return {
+    ...speech,
+    effectAvailability,
+    ok: !state.embodying && !state.ended && !state.timePassage &&
+      !state.pendingEmbodiment && state.hearts > 0 && speech.ok &&
+      (state.inventory?.[item.id] || 0) > 0 &&
+      optionEffectsAreValid(effectOption, isTimedWorldFixture) &&
+      effectAvailability.ok,
+  }
+}
 
 function spend(mana, ids) {
   const next = { ...mana }
@@ -1018,7 +1209,8 @@ export function reducer(state, action) {
           state.nodeId !== state.embodimentFocusNode || !quest.nodes.includes(state.nodeId) ||
           STORY[state.nodeId]?.end) return state
       const to = safePublicNode(
-        quest, state.embodimentWorldNode, quest.returnTo, state.embodimentOriginNode, quest.entryFrom,
+        quest, state.embodimentWorldNode, quest.returnTo, state.embodimentOriginNode,
+        ...embodimentEntryNodes(quest),
       )
       return {
         ...state,
@@ -1078,12 +1270,8 @@ export function reducer(state, action) {
       const choiceState = roleAccess.kind === 'quest' ? currentStoryState(state) : state
       if (!canChoose(choiceState, option)) return state
       if (option.become && !state.embodying && !action.embodimentConfirmed) return state
+      const interactionUse = interactionAvailabilityForOption(choiceState, option)
       const { ids } = canSpeak(state, option.text)
-      let inventory = { ...state.inventory }
-      if (option.consumes) inventory[option.consumes] = (inventory[option.consumes] || 0) - 1
-      if (option.grant) inventory[option.grant] = (inventory[option.grant] || 0) + 1
-      // money changes hands: earn (+n) or pay (−n, never below zero)
-      if (option.lek) inventory.lek = Math.max(0, (inventory.lek || 0) + option.lek)
       // A BAD ending is recorded at once (a fate met is met). A good/secret
       // ending is an ACHIEVEMENT DEED: reaching it marks the achievement
       // ELIGIBLE (permanently — a failed test never loses the deed). The codex
@@ -1155,18 +1343,35 @@ export function reducer(state, action) {
       // A tale-owned lamp therefore waits with that tale during a detour, while
       // an overworld campfire keeps ageing with the living world.
       const fixtureClock = roleAccess.kind === 'quest' ? choiceToClock : clock
-      const fixtures = option.activateFixture && isTimedWorldFixture(option.activateFixture)
-        ? { ...(state.fixtures || {}), [option.activateFixture]: fixtureClock }
-        : state.fixtures || {}
+      // Normal turn decay happens before authored peak effects, so a reward of
+      // +3 peak always leaves three fresh turns after paying for this choice.
+      const effectState = applyOptionEffects(
+        { ...state, peak: Math.max(0, state.peak - 1) },
+        option,
+        {
+          atClock: clock,
+          fixtureClock,
+          canActOnFixture: canActOnFixtureAt(choiceState),
+          isFixture: isTimedWorldFixture,
+          maxHearts: START_HEARTS,
+          source: `${state.nodeId}->${option.to}`,
+        },
+      )
+      let inventory = effectState.inventory
+      const flags = effectState.flags
+      const knowledge = effectState.knowledge
+      const fixtures = effectState.fixtures
+      const heartsAfterEffects = effectState.hearts
+      const peak = effectState.peak
+      const interactions = recordInteractionUse(state.interactions, interactionUse, choiceToClock)
       // entering a node with `startsNpc` sets a one-shot NPC walking (once per
       // run — a procession that already passed does not pass again)
       const npcStarted = targetNode?.startsNpc && state.npcStarted?.[targetNode.startsNpc] == null
         ? { ...state.npcStarted, [targetNode.startsNpc]: clock }
         : state.npcStarted
-      // an option may restore hearts (a paid bed, the healer's herbs); an
-      // achievement restores to full only via EARN_ACHIEVEMENT (the passed gate)
-      let hearts = state.hearts
-      if (option.hearts) hearts = Math.max(0, Math.min(START_HEARTS, hearts + option.hearts))
+      // An option may alter hearts through either the legacy field or a typed
+      // resource effect. Achievement restoration remains EARN_ACHIEVEMENT-only.
+      let hearts = heartsAfterEffects
       // Crossing a confirmed threshold binds a role. The binding remains on its
       // own ending screen so the role cannot disappear before the tale has been
       // read/tested and explicitly closed.
@@ -1178,6 +1383,7 @@ export function reducer(state, action) {
       let embodimentClock = state.embodimentClock ?? null
       let embodimentInventorySnapshot = state.embodimentInventorySnapshot ?? null
       let embodimentInventoryIsolated = state.embodimentInventoryIsolated ?? null
+      let embodimentFlagsSnapshot = state.embodimentFlagsSnapshot ?? null
       let embodimentHeartsSnapshot = state.embodimentHeartsSnapshot ?? null
       let embodimentArrivalSnapshot = state.embodimentArrivalSnapshot ?? null
       if (option.become && !embodying) {
@@ -1188,10 +1394,11 @@ export function reducer(state, action) {
         embodimentPaused = false
         embodimentClock = clock
         embodimentInventorySnapshot = { ...state.inventory }
+        embodimentFlagsSnapshot = { ...state.flags }
         // The traveller's pack waits outside the role. Begin with a clean tale
         // inventory, then keep only state explicitly granted by the threshold
         // itself (currently Maro's grain). Closure restores the exact snapshot.
-        inventory = option.grant ? { [option.grant]: 1 } : {}
+        inventory = entryInventoryFromOption(option)
         embodimentInventoryIsolated = true
         embodimentHeartsSnapshot = state.hearts
         hearts = Math.max(1, Math.min(START_HEARTS,
@@ -1213,6 +1420,9 @@ export function reducer(state, action) {
         ...state,
         mana: spend(state.mana, ids),
         inventory,
+        flags,
+        knowledge,
+        interactions,
         earned,
         eligible,
         visited,
@@ -1228,7 +1438,7 @@ export function reducer(state, action) {
         // DISTINCT and capped at TRAIL_LEN). Drop the destination if it's already in
         // there so a place is never in its own backtrack set. See BACKTRACK below.
         trail: [state.nodeId, ...(state.trail || [])].filter((n, i, a) => a.indexOf(n) === i && n !== option.to).slice(0, TRAIL_LEN),
-        peak: Math.max(0, state.peak - 1),
+        peak,
         turn: state.turn + 1,
         clock,
         timePassage,
@@ -1243,6 +1453,7 @@ export function reducer(state, action) {
         embodimentClock,
         embodimentInventorySnapshot,
         embodimentInventoryIsolated,
+        embodimentFlagsSnapshot,
         embodimentHeartsSnapshot,
         embodimentArrivalSnapshot,
         pendingEmbodiment: null,
@@ -1269,22 +1480,40 @@ export function reducer(state, action) {
     case 'USE_ITEM': {
       // The traveller's pack is suspended while another life is being lived.
       // Tale-local props still work through ordinary quest options.
-      if (state.embodying) return state
-      const { item } = action
-      if ((state.inventory[item.id] || 0) <= 0) return state
-      if (action.expectedCount != null && action.expectedCount !== state.inventory[item.id]) return state
+      if (state.embodying || state.ended || state.timePassage ||
+          state.pendingEmbodiment || state.hearts <= 0) return state
+      const item = ITEMS[action.item?.id]
+      // Reducer actions may come from stale UI or devtools. Resolve the item
+      // through the canonical catalog so a caller cannot attach invented use
+      // effects to the id of something the player genuinely carries.
+      if (!item || (state.inventory[item.id] || 0) <= 0) return state
+      // Every rendered item action carries the exact count it observed. Make
+      // that token mandatory so a queued double activation cannot consume a
+      // second copy after the first render has already committed.
+      if (!Number.isSafeInteger(action.expectedCount) ||
+          action.expectedCount !== state.inventory[item.id]) return state
       if (!item.use || !canUseItem(state, item).ok) return state
       const { ids } = canSpeak(state, item.use.phrase)
-      const inventory = { ...state.inventory, [item.id]: state.inventory[item.id] - 1 }
-      let peak = state.peak
-      let hearts = state.hearts
-      if (item.use.effect?.peakTurns) peak += item.use.effect.peakTurns
-      if (item.use.effect?.hearts) hearts = Math.min(START_HEARTS, hearts + item.use.effect.hearts)
-      return { ...state, mana: spend(state.mana, ids), inventory, peak, hearts }
+      const effected = applyOptionEffects(
+        state,
+        itemUseEffectsOption(item),
+        {
+          atClock: worldClockOf(state),
+          fixtureClock: worldClockOf(state),
+          canActOnFixture: canActOnFixtureAt(state),
+          source: `item:${item.id}`,
+          maxHearts: START_HEARTS,
+          isFixture: isTimedWorldFixture,
+        },
+      )
+      return { ...effected, mana: spend(state.mana, ids) }
     }
 
     case 'HEAL': {
       if (state.embodying) return state
+      // Bind the action to the health line which revealed it. Two queued
+      // activations from one render must not consume the next level's remedy.
+      if (!Number.isSafeInteger(action.expectedHearts) || action.expectedHearts !== state.hearts) return state
       // The hearts-ladder self-mend (see content's HEART_LEVELS): only while AT
       // a below-full level, only once per level per run, only after the level's
       // health line is fully discovered — then it's a normal token spend.
@@ -1441,6 +1670,7 @@ export function reducer(state, action) {
         eligible: state.eligible,
         attempts: state.attempts,
         worldFacts: state.worldFacts || {},
+        knowledge: state.knowledge || {},
         debug: state.debug,
       }
 
@@ -1471,6 +1701,9 @@ export function reducer(state, action) {
         inventory: state.embodying && state.embodimentInventorySnapshot
           ? { ...state.embodimentInventorySnapshot }
           : state.inventory,
+        flags: state.embodying && state.embodimentFlagsSnapshot
+          ? { ...state.embodimentFlagsSnapshot }
+          : state.flags,
         hearts: state.embodying && Number.isInteger(state.embodimentHeartsSnapshot)
           ? Math.max(0, Math.min(START_HEARTS, state.embodimentHeartsSnapshot))
           : state.hearts,
@@ -1482,6 +1715,7 @@ export function reducer(state, action) {
         embodimentClock: null,
         embodimentInventorySnapshot: null,
         embodimentInventoryIsolated: null,
+        embodimentFlagsSnapshot: null,
         embodimentHeartsSnapshot: null,
         embodimentArrivalSnapshot: null,
         pendingEmbodiment: null,
@@ -1493,7 +1727,19 @@ export function reducer(state, action) {
       // everything undiscovered; keep learned progress, achievements, and the
       // lasting physical consequences of tales already completed.
       if (state.embodying && state.hearts > 0) return state
-      return { ...baseRun(), mana: state.mana, practiced: state.practiced, visited: state.visited, heard: state.heard || {}, earned: state.earned, eligible: state.eligible, attempts: state.attempts, worldFacts: state.worldFacts || {}, debug: state.debug }
+      return {
+        ...baseRun(),
+        mana: state.mana,
+        practiced: state.practiced,
+        visited: state.visited,
+        heard: state.heard || {},
+        earned: state.earned,
+        eligible: state.eligible,
+        attempts: state.attempts,
+        worldFacts: state.worldFacts || {},
+        knowledge: state.knowledge || {},
+        debug: state.debug,
+      }
 
     default:
       return state

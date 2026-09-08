@@ -17,6 +17,7 @@ import {
   PROJECTION_OMISSION_REVIEWS,
 } from '../src/game/data/tales/_projectionLedger.js'
 import { SELECTED_WITNESS_REVIEWS } from '../src/game/data/tales/_sourceLedger.js'
+import { FESTIVAL_IDS, phaseAtCivilHour } from '../src/game/environment.js'
 import {
   DISTANT_SIGHTLINES,
   DIRECTION_WORDS,
@@ -49,6 +50,7 @@ const ids = Object.keys(STORY)
 const routes = buildRouteGraph()
 const realOptions = Object.values(STORY).flatMap((node) => (node.options || []).filter((option) => !option.confuser))
 const storyViewSource = readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
+const worldContextSource = readFileSync(new URL('../src/components/WorldContext.jsx', import.meta.url), 'utf8')
 
 // 1. Referential and coordinate integrity.
 const badRefs = routes.filter((route) => !route.valid)
@@ -74,6 +76,41 @@ if (routeContractMissing.length) fail('route.contract', `${routeContractMissing.
 else ok('route.contract', `all ${routes.length} choices have kind, reason, exact vector, distance, duration and chart direction where applicable`, Object.fromEntries(
   [...new Set(routes.map((route) => route.kind))].sort().map((kind) => [kind, routes.filter((route) => route.kind === kind).length]),
 ))
+
+// Time is part of the route contract. `atHour` is civil time (0..23), while
+// phase ids retain the story clock's dawn-first partition. Reject fractions,
+// coercible strings and exact hours that contradict their accompanying phase.
+const timingErrors = []
+let exactHourRoutes = 0
+for (const [from, node] of Object.entries(STORY)) {
+  for (const option of (node.options || []).filter((candidate) => !candidate.confuser)) {
+    const edge = `${from}->${option.to}`
+    if (option.durationHours != null && (!Number.isSafeInteger(option.durationHours) || option.durationHours < 0)) {
+      timingErrors.push({ edge, field: 'durationHours', value: option.durationHours })
+    }
+    if (option.time != null && !['dawn', 'day', 'dusk', 'night'].includes(option.time)) {
+      timingErrors.push({ edge, field: 'time', value: option.time })
+    }
+    if (option.date != null && !FESTIVAL_IDS.includes(option.date)) {
+      timingErrors.push({ edge, field: 'date', value: option.date })
+    }
+    if (option.atHour != null) {
+      exactHourRoutes++
+      if (!Number.isInteger(option.atHour) || option.atHour < 0 || option.atHour > 23) {
+        timingErrors.push({ edge, field: 'atHour', value: option.atHour })
+      } else if (option.time && phaseAtCivilHour(option.atHour) !== option.time) {
+        timingErrors.push({ edge, field: 'time+atHour', value: { time: option.time, atHour: option.atHour } })
+      }
+      const route = routeForChoice(from, option)
+      if (route.valid && route.duration?.targetHour !== option.atHour) {
+        timingErrors.push({ edge, field: 'route.targetHour', value: route.duration?.targetHour })
+      }
+    }
+  }
+}
+if (timingErrors.length) fail('route.timing-contract', `${timingErrors.length} choices have malformed or contradictory timing`, timingErrors)
+else if (exactHourRoutes === 0) fail('route.timing-contract', 'the exact civil-hour route mechanic has no playable authored expression')
+else ok('route.timing-contract', `all route durations, phases, observances and ${exactHourRoutes} exact civil-hour targets are valid`)
 
 // "Same place" is an identity claim, not a fuzzy distance band. Exact
 // reconstruction also requires every authored place to occupy one unique grid
@@ -322,13 +359,22 @@ if (distributionViolations.overConcentratedRegions.length) {
   fail('distribution.region-share', `a region exceeds ${Math.round(distribution.thresholds.maxRegionSceneShare * 100)}% of all scenes`, distributionViolations.overConcentratedRegions)
 } else ok('distribution.region-share', `no region holds more than ${Math.round(distribution.thresholds.maxRegionSceneShare * 100)}% of the world's scenes`)
 
+if (distributionViolations.insufficientDensityComparison) {
+  fail('distribution.region-density-coverage', 'too few broad regions remain in the scenes-per-place balance check', {
+    comparable: distribution.densityComparableRegions.length,
+    minimum: distribution.thresholds.minRegionsForDensityComparison,
+    minimumPlaces: distribution.thresholds.minRegionPlacesForDensityComparison,
+  })
+} else ok('distribution.region-density-coverage', `${distribution.densityComparableRegions.length} broad regions remain under density comparison`)
+
 if (distributionViolations.regionDensityRatio > distribution.thresholds.maxRegionScenesPerPlaceRatio) {
-  fail('distribution.region-density-ratio', 'the richest region has too many scenes per place relative to the sparsest region', {
+  fail('distribution.region-density-ratio', 'a broad region has too many scenes per place relative to another broad region', {
     ratio: distributionViolations.regionDensityRatio,
     maximum: distribution.thresholds.maxRegionScenesPerPlaceRatio,
-    regions: distribution.regionRows,
+    minimumPlaces: distribution.thresholds.minRegionPlacesForDensityComparison,
+    regions: distribution.densityComparableRegions,
   })
-} else ok('distribution.region-density-ratio', `regional scenes-per-place density ratio is ${distributionViolations.regionDensityRatio.toFixed(2)}, within the ${distribution.thresholds.maxRegionScenesPerPlaceRatio.toFixed(2)} cap`)
+} else ok('distribution.region-density-ratio', `broad-region scenes-per-place density ratio is ${distributionViolations.regionDensityRatio.toFixed(2)}, within the ${distribution.thresholds.maxRegionScenesPerPlaceRatio.toFixed(2)} cap (minimum ${distribution.thresholds.minRegionPlacesForDensityComparison} places)`)
 
 // 7. Reconstruction coverage: every revealed physical choice must surface the
 // canonical route contract. Native Albanian direction/distance wording remains
@@ -348,6 +394,18 @@ else ok('prose.route-guidance', `all ${placedTransitions.length} place-changing 
   nativeWording: `${wordedJourneys.length}/${journeys.length}`,
   nativeCoverage: Number((wordingRatio * 100).toFixed(1)),
 })
+
+const exactHourGuidanceMounted = storyViewSource.includes('targetHour: opt.atHour ?? null') &&
+  storyViewSource.includes('arrive at ${formatCivilHour(targetHour)}') &&
+  storyViewSource.includes('wait for ${festivalLabel(e.date)}')
+if (!exactHourGuidanceMounted) fail('prose.exact-hour-guidance', 'exact civil-hour arrivals are missing from choice route notes')
+else ok('prose.exact-hour-guidance', 'exact civil-hour and festival-hour targets are visible before a player commits')
+
+const civilClockMounted = worldContextSource.includes('String(calendar.hour).padStart(2, \'0\')') &&
+  worldContextSource.includes('PHASE[phase] || phase') &&
+  worldContextSource.includes(':00')
+if (!civilClockMounted) fail('environment.civil-clock-display', 'world conditions do not show exact civil time beside the derived phase')
+else ok('environment.civil-clock-display', 'world and tale conditions display the converted civil HH:00 beside the matching phase')
 
 // 8. Sightline readiness: expose deterministic phase/weather output and report
 // how much existing far-view prose reacts to conditions.

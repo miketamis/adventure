@@ -6,6 +6,12 @@ import { fileURLToPath } from 'node:url'
 import { STORY } from '../src/game/content.js'
 import { playerMapLabel } from '../src/components/mapLabels.js'
 import { nextMapMarker } from '../src/components/mapKeyboard.js'
+import {
+  effectLockText,
+  formatCivilHour,
+  interactionLockText,
+  sceneAnnouncement,
+} from '../src/components/storyMechanicsPresentation.js'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8')
@@ -46,9 +52,43 @@ check('word activation cannot accidentally choose its option', token.includes('e
 check('story is a labelled region and focuses a changed scene', story.includes('aria-labelledby="story-scene-title"') && story.includes('sceneHeadingRef.current?.focus()'))
 check('story lines keep word controls separate from whole-line English', story.includes('englishReadingOf(line)') && story.includes('story-reading-label'))
 check('options form a named list', story.includes('role="list" aria-label="Available actions"') && story.includes('role="listitem"'))
-check('route selection is its own native control', story.includes('className="option-select"') && story.includes('disabled={!e.ok}') && story.includes('aria-describedby='))
+check('route selection is its own native, focusable control',
+  story.includes('className="option-select"') &&
+  story.includes('aria-disabled={!e.ok}') &&
+  !/(?:^|\s)disabled=\{!e\.ok\}/m.test(story) &&
+  story.includes('if (e.ok) e.onSelect()') &&
+  story.includes('aria-describedby='))
 check('action English is separate from word-by-word token glosses', story.includes('className={\'option-reading\'') && story.includes('option-gloss-label') && story.includes('Word by word'))
 check('route controls announce the reviewed action phrase', story.includes('const optionPhrase = e.reading') && story.includes('aria-label={`${e.ok ? \'Choose\' : \'Locked\'}: ${optionPhrase}`}'))
+check('locked actions expose their exact mechanic reason through the native control',
+  story.includes('interactionLockText(e.interaction)') &&
+  story.includes('effectLockText(') &&
+  story.includes('aria-describedby={[routeId, costId]') &&
+  story.includes('aria-disabled={!e.ok}') &&
+  styles.includes('.option-select[aria-disabled="true"]'))
+check('every generalized interaction lock has concrete player wording',
+  interactionLockText({ ok: false, reason: 'cooldown', remainingHours: 5 }) === 'ready in 5h' &&
+  interactionLockText({ ok: false, reason: 'max-uses', spec: { scope: 'day' } }) === 'already done today' &&
+  interactionLockText({ ok: false, reason: 'max-uses', spec: { scope: 'scene' } }) === 'already done here' &&
+  interactionLockText({ ok: false, reason: 'max-uses', spec: { scope: 'tale' } }) === 'already done in this tale' &&
+  interactionLockText({ ok: false, reason: 'max-uses', spec: { scope: 'run' } }) === 'already done this run' &&
+  interactionLockText({ ok: false, reason: 'unbound-scene' }) === 'available only inside its scene' &&
+  interactionLockText({ ok: false, reason: 'unbound-tale' }) === 'available only inside its tale')
+check('every generalized effect lock has concrete player wording',
+  effectLockText({ ok: false, reason: 'insufficient-lek', need: 4 }) === 'need 4 more lek' &&
+  effectLockText({ ok: false, reason: 'missing-item', need: 2, itemId: 'bread' }, () => 'bread') === 'need 2 bread' &&
+  effectLockText({ ok: false, reason: 'fixture-out-of-reach' }) === 'you must be beside it' &&
+  effectLockText({ ok: false, reason: 'fixture-state', action: 'activate', fixtureStage: 'bright' }) === 'it is already lit' &&
+  effectLockText({ ok: false, reason: 'fixture-state', action: 'refuel', fixtureStage: null }) === 'light it before refuelling' &&
+  effectLockText({ ok: false, reason: 'invalid-effect' }) === 'action is unavailable')
+check('civil-hour labels preserve midnight, dawn and late-night targets',
+  formatCivilHour(0) === '00:00' && formatCivilHour(6) === '06:00' &&
+  formatCivilHour(23) === '23:00' && formatCivilHour(24) === null)
+check('ending focus announces fate without leaking comprehension-gated lore',
+  story.includes('loreHidden: endingLoreHidden') &&
+  sceneAnnouncement({ ending: 'good', title: 'The Road Home', summary: 'secret answer', loreHidden: true }) ===
+    'Achievement ending reached: The Road Home. Complete the comprehension test to reveal its tale.' &&
+  !sceneAnnouncement({ ending: 'secret', title: 'Hidden Path', summary: 'secret answer', loreHidden: true }).includes('secret answer'))
 check('story no longer emulates buttons with generic elements', !story.includes('role="button"'))
 check('every blocking overlay uses modal semantics and isolates the app', app.includes('function BlockingModal') && app.includes('role="dialog"') && app.includes('aria-modal="true"') && app.includes('inert={blockingOverlay'))
 check('game sections are named navigation and expose the current page', app.includes('<nav className="tabs" aria-label="Game sections">') && app.includes("aria-current={state.view === view ? 'page' : undefined}"))

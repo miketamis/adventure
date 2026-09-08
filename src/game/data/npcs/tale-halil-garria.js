@@ -25,7 +25,7 @@
 // SAME core npc: parallel, not identical; kept separate.
 //
 // ALSO NOT Halili, Mujo's sworn brother of the Kângë Kreshnikësh cycle
-// (already staged at jutbina/halil1, in the SAME mountain massif as this
+// (already staged at jutbina/kreshnikRrembimi1, in the SAME mountain massif as this
 // tale's proposed anchors) — a frontier warrior with his own marriage-arc,
 // sharing nothing with this ballad's Halil Garria but a common given name.
 // ===========================================================================

@@ -81,7 +81,7 @@ export default {
     { id: 'jutbina', emoji: '🏘️', name: 'the Plain of Jutbina', note: 'Mujo and Halili\'s home, towers and open plain',
       anchor: { status: 'existing', node: 'jutbina', mirror: 'Jutbina — the game\'s own kreshnik hub',
         mold: 'already Mujo and Halili\'s home in-game, and already the seed of this exact song — the game\'s mujo1→mujoFund chain narrates a condensed telling of the very story these beats expand in full',
-        sharedWith: ['mujo-strength', 'the death-of-omer arc (planned, omer1/omer2/omerFund)', 'the zuku-bajraktar arc (planned, rusha1/rushaFund/rushaKeq)', 'the mujo-avenges-halil arc (planned, halil1/halilFund/halilKeq)'] } },
+        sharedWith: ['mujo-strength', 'the death-of-omer arc (omer1/omer2/omerFund)', 'the zuku-bajraktar arc (rusha1/rushaFund/rushaKeq)', 'the mujo-avenges-halil arc (mujoHak1/mujoHakFund/mujoHakKeq)'] } },
     { id: 'bjeshka', emoji: '⛰️', name: 'the high mountain pastures', note: 'the bare flank Halili crosses toward the frontier',
       anchor: { status: 'existing', node: 'mali1', mirror: 'the grazing heights above Jutbina — the frontier massif\'s own bare flank (three-friends\' and mujo-strength\'s own words for this spot)',
         mold: 'a bare, empty flank where wanderers cross paths — nobody owns the open mountainside; three-friends set this spot aside for exactly a "muji-halili" use, mujo-strength already claimed it once for Mujo\'s own cowherd years, and this tale claims it again for Halili\'s own crossing — the mountain hosts every kreshnik traveller and never runs out of room',
@@ -109,15 +109,14 @@ export default {
     { id: 'lahuta', emoji: '🎻', name: 'the lahutë', note: 'given to Halili at the stake for his last song — the song that summons Mujo' },
   ],
   // HOW THE GAME STAGES THIS SONG: the condensed five-screen chain off Jutbina
-  // (mujo1 → mujo2 → mujo3 → mujo4 → mujoFund) is a witness telling — you hear
-  // the song rather than embody Halili — so no `as`/`with` and no `become`.
-  // scenes map each existing STORY node onto the beat it condenses.
+  // (mujo1 → mujo2 → mujo3 → mujo4 → mujoFund) lets an invented companion ride
+  // with Halili without embodying him. Scenes map each STORY node to its beats.
   play: {
     entry: 'winterRefuge',
-    stance: 'witness',
-    // witness: NO as/with
+    stance: 'companion',
+    with: 'halili',
     role:
-      'You hear the frontier song of how young Sokol Halili won his bride. Taunted for going unwed, he wants only Tanusha, the Krajl of New Kotor\'s daughter, glimpsed once at a truce — and rides for her guarded on the road by the Sun, the Moon and the Zana, slipping in among her three hundred maidens in a borrowed gown. But the queen\'s betrayal throws him into a dungeon, and from the stake his last song on the lahutë carries home to Jutbina, summoning Mujo and the Agas to storm the town and carry both Halili and his bride away by force.',
+      'You ride beside young Sokol Halili as he seeks Tanusha, the Krajl of New Kotor\'s daughter: across the guarded frontier, into her camp, through the disguise among three hundred maidens, and toward the dungeon from which his lahutë-song summons Mujo. You are an invented helper, while Halili remains the singer, suitor, captive, and source hero.',
     from: 'mujo1',
     ending: 'mujoFund',
     scenes: {
@@ -131,6 +130,7 @@ export default {
       { note: 'The game telescopes the whole 33-strophe song into a five-screen chain off Jutbina — the winter refuge, Halili\'s vow and mountain-melting curse, the guarded journey, the tent-night, the disguise among three hundred maidens, the cortège to New Kotor, the queen\'s betrayal, the dungeon and the rescue battle all collapse into five beats. The tale record keeps the full sequence the screens only gesture at.' },
       { beat: 'tanushaWakes', note: 'In the game\'s mujo3, Tanusha knows Halili by a ring bearing his own likeness — a portrait-ring. The original song is far less committal: a ring merely rolls loose on the floor, and in a separate line she recognises the face beside her — nothing ties that face to the ring itself. The beats follow the game\'s already-settled reading.' },
       { beat: 'guardiansJourney', note: 'The game frames the Sun, the Moon and the Zana as the guard Halili must slip past to reach Tanusha. In the song they are his protectors, not his enemy — three wild goats voice the promise and a mountain ora escorts him to the Danube; the real danger is the queen\'s own betrayal, not the celestial guard.' },
+      { beat: 'guardiansJourney', note: 'The player riding with Halili is an explicit game counterfactual. The song sends Halili across the frontier without a human companion; its helpers are Mujo\'s courser, the three guardian powers voiced by wild goats, and the mountain ora. Player choices can support his route but do not transfer his disguise, song, courtship, or rescue to a new source character.' },
     ],
   },
   beats: [

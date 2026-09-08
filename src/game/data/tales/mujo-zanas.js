@@ -59,7 +59,7 @@ export default {
     { id: 'jutbina', emoji: '🏘️', name: 'the Plain of Jutbina', note: 'Mujo\'s home before, during, and after — the muster, the pen, the homecoming',
       anchor: { status: 'existing', node: 'jutbina', mirror: 'Jutbina, the kreshnik hub the game already names "where the lahutë sings the Songs of the Kreshnikë"', mold: 'jutbina already dwells Mujo and Halili and already leads (by night) into the Zana origin story — this tale is another chapter of the same hamlet\'s standing life: riders muster here, a pen of stolen goats stands here, and the whole company comes home here', sharedWith: ['mujo-strength', 'halil-marriage (mujo1/mujo2…)', 'the death-of-omer arc', 'binoshet (kopshtiZanave, a separate garden of many zanas above the hamlet)'] } },
     { id: 'mbreteria', emoji: '👑', name: 'the Krajl\'s realm', note: 'the Realm of the Christians across the frontier, where Mujo\'s bride and her father the Krajl live',
-      anchor: { status: 'offstage', mirror: 'the Christian frontier kingdom of the frontier-warrior songs — never one place twice', mold: 'never staged as an explorable spot; the wedding feast (¶4) is narrated, not walked. NOT the Krajl of Rusha\'s tower (content.js rusha1/halil1) or the Krajl who later takes Mujo captive — krajl is a stock TITLE across the cycle, like kulshedra is a kind and not a name, so a different Krajl may rule off-stage in every song without contradiction' } },
+      anchor: { status: 'offstage', mirror: 'the Christian frontier kingdom of the frontier-warrior songs — never one place twice', mold: 'never staged as an explorable spot; the wedding feast (¶4) is narrated, not walked. NOT Rusha\'s father at rusha1, NOT Krajle Kapidani who later holds Mujo at kreshnikRrembimiBurg, and NOT any other song\'s frontier king — krajl is a stock TITLE across the cycle, like kulshedra is a kind and not a name, so a different Krajl may rule off-stage in every song without contradiction' } },
     { id: 'bjeshka', emoji: '⛰️', name: 'the high pasture\'s shady meadows', note: 'three broad meadows on the road to the frontier — the zanas\' resting place, and the site of the wedding train\'s disaster',
       anchor: { status: 'existing', node: 'mali1', mirror: 'the grazing heights above Jutbina — the frontier massif\'s own bare flank', mold: 'a bare, empty flank where wanderers cross paths — nobody owns the open mountainside (three-friends\' own words for this spot); this tale\'s shady meadows are exactly the kind of danger a bare crossing-place can hold — travelers who linger to sing or rest here may meet zanas at rest, which is why mujo-strength\'s own herding-boy tale keeps to the SAME flank without clashing', sharedWith: ['three-friends (reserved this spot for "muji-halili")', 'mujo-strength (its own bjeshka)', 'sari-salltek'] } },
     { id: 'lugjetVerdha', emoji: '🐐', name: 'the Green Valleys', note: 'a hidden fold of the same high pasture: a lightless beech gorge, a hidden spring, and the pastureland beyond where the zanas keep their golden-horned goats',
@@ -69,20 +69,20 @@ export default {
     { id: 'dhite', emoji: '🐐', name: 'the three golden-horned goats', note: 'the zanas\' whole power, hidden in three wild goats no one had ever caught' },
   ],
   // PLAY PROJECTION — how the game stages this song (see _SCHEMA.md).
-  // A wayside discovery, not the epic ridden: you come on the stone wedding at
-  // dhia1 and seize the goat; the whole muster/hunt/ransom collapses into dhiaFund.
+  // A compressed companion intervention: you join Mujo at the stone wedding;
+  // the whole muster, hunt and ransom collapses into dhiaFund.
   play: {
     entry: 'zanasStrike',
-    stance: 'witness',
-    // witness: NO as/with
-    role: 'You come upon a wedding party frozen to stone on the high pasture — the wild Zanas\' work — and hear how their whole strength lies hidden in three goats with horns of gold. You are not Mujo but a wanderer who chances on the same secret: that to seize a goat is to hold a Zana\'s power in your hands and force her to swear a binding besa. When you take the goat, it is the oath, never the gold, that wakes the stone wedding again.',
+    stance: 'companion',
+    with: 'mujo',
+    role: 'You fall in beside Mujo after he finds a wedding party frozen to stone on the high pasture — the wild Zanas\' work. You help him uncover that their strength lies in three goats with horns of gold and hold fast until the little Zana swears her binding besa. You are Mujo\'s invented companion, not his replacement: in the song he musters the hunters, seizes the goats, bargains, and chooses the oath over their gold.',
     from: 'dhia1',
     ending: 'dhiaFund',
     scenes: { dhia1: 'zanasStrike', dhiaFund: 'theHunt' },
     divergences: [
-      { beat: 'zanasStrike', note: 'In the song the petrifaction is the mid-point of a long ride — Mujo\'s ignored warning, Dizdar Osman Aga\'s boast, the disaster. The game drops you in afterward as a stranger reading the stones, so the whole muster, feast and return home (beats opening through theyStop) are told as lore, not played.' },
-      { beat: 'theHunt', note: 'The source takes a hostage siege: Mujo musters three hundred hunters and a thousand hounds, pens the golden-horned goats for three days, and holds them for ransom until the zanas yield. The game collapses this to a single act — you simply seize a goat — with no hunt-band, no pen, and no days-long stalemate on screen.' },
-      { note: 'In the source it is the little zana alone who, weeping, takes Mujo by the hand and swears the besa that wakes the dead wedding. The game keeps the moral — the oath, not the gold — but hands the seizing to an anonymous witness, so the bride, Halili and Dizdar Osman Aga never step on screen.' },
+      { beat: 'zanasStrike', note: 'In the song the petrifaction is the midpoint of a long ride — Mujo\'s ignored warning, Dizdar Osman Aga\'s boast, then disaster. The game joins Mujo only after he finds the stones, so the muster, feast, outbound wedding journey, and warning (beats opening through theyStop) remain prologue lore.' },
+      { beat: 'theHunt', note: 'The source takes a hostage siege: Mujo musters three hundred hunters and a thousand hounds, pens the golden-horned goats for three days, and holds them for ransom until the zanas yield. The game collapses this to one companion-assisted seizure, with no hunt-band, pen, or days-long stalemate on screen.' },
+      { beat: 'littleZanaOath', note: 'In the source the little zana alone, weeping, takes Mujo by the hand and swears the besa that wakes the wedding. The player helping Mujo reach that oath is a game counterfactual; the companion must not replace the little zana as oath-giver or turn the bride, Halili, and Dizdar Osman Aga into on-screen participants.' },
     ],
   },
   beats: [

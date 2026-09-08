@@ -122,11 +122,13 @@ export default {
     scenes: {
       arushe1: 'lion',
       arushe2: 'cheese',
+      arushePeme: 'trees',
+      arusheNate: 'axe',
       arusheFund: 'cauldron',
     },
     divergences: [
       { beat: 'cheese', note: 'You travel as the dervish\'s companion, and the choice is cunning vs force: back his tricks (squeeze the "stone" that runs like water, the fleabite shrug, the milk-cauldron) and the cunning man wins, or fight the bear yourself and be lost (humbur). No become / mold-lock — this is a loose forest vignette, not a bound arc.' },
-      { beat: 'trees', note: 'The tall-tale boasts the dervish bluffs the bear with — an ox is beneath me, I could throw all the trees at once, I\'d carry off the whole spring, cliff and all, which way shall I throw YOU — are compressed to the signature cheese-squeeze and the milk-cauldron that finish the beast.' },
+      { beat: 'trees', note: 'The tree-lifting boast now has its own board at arushePeme. The longer chain of boasts — the hidden ox, carrying off the spring and cliff, and asking where to throw the bear itself — remains compressed around that playable contest.' },
       { beat: 'shares', note: 'The comic coda (the bear\'s wages of one kid, the "shepherd sold in a pair of trousers", the thieves\' loot divided into one pocket, and the village thrashing that answers) is kept in the tale record, not staged — the game ends on the cunning kill, "the cunning man outlives the strong."' },
     ],
   },

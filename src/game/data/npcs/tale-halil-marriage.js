@@ -23,7 +23,7 @@ export default {
     name: 'Krajli i Kotorës së Re', glyph: '👑', kind: 'human',
     role: 'the Captain King of New Kotor, Tanusha\'s father',
     backstory:
-      "Rules New Kotor across the frontier river from Jutbina — Tanusha's father, easily talked past a stranger twice by his own daughter's cover story, and just as quickly murderous once the trick comes out. He jails Halili and dies at his own stake, cut down by the very man he condemned. A Krajl is a KIND, not a name, like Baloz or Kulshedra: NOT the Krajl who jails Mujo in the jutbina halil1/halilFund vignette (there Halili rides free to spring his brother; the roles are reversed here, and this Krajl does not survive it), and NOT Rusha's father in the rusha1/rushaFund scenes (a different frontier, a different daughter, a different fate) — every Krajl the songs sing of is his own man.",
+      "Rules New Kotor across the frontier river from Jutbina — Tanusha's father, easily talked past a stranger twice by his own daughter's cover story, and just as quickly murderous once the trick comes out. He jails Halili and dies at his own stake, cut down by the very man he condemned. A Krajl is a KIND, not a name, like Baloz or Kulshedra: NOT Krajle Kapidani in the kreshnikRrembimi1/kreshnikRrembimiBurg rescue (there Halili rides free to spring an imprisoned Mujo; the brothers' roles are reversed), and NOT Rusha's father in the rusha1/rushaFund scenes (a different frontier, a different daughter, a different fate) — every Krajl the songs sing of is his own man.",
     folklore: ['halil-marriage'],
     location: { status: 'placed', node: 'mujo4' },
     tales: { 'halil-marriage': 'krajli' },

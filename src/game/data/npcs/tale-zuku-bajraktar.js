@@ -75,7 +75,7 @@ export default {
     name: 'Krajli', glyph: '👑', kind: 'human',
     role: 'Rusha\'s father, ruling his tower across the frontier',
     backstory:
-      'The Slav king in whose kulla Rusha is kept — named only by his standing title, never staged directly in either song, and never so much as mentioned reacting to his daughter\'s ride to Jutbina. "Krajl" names a standing office of the frontier\'s Slavic enemy across many kreshnik songs, the way "kulshedra" names a kind and not one beast; NOT the Krajl who once held Muji alone at the game\'s own halil1/halilFund tower, and NOT the Krajl of tale-arnaut-osmani\'s coal-and-corpse song — each song\'s Krajl is his own man, and this one is Rusha\'s father alone.',
+      'The Slav king in whose kulla Rusha is kept — named only by his standing title, never staged directly in either song, and never so much as mentioned reacting to his daughter\'s ride to Jutbina. "Krajl" names a standing office of the frontier\'s Slavic enemy across many kreshnik songs, the way "kulshedra" names a kind and not one beast; NOT Krajle Kapidani, who holds Muji alone in kreshnikRrembimiBurg, and NOT the Krajl of tale-arnaut-osmani\'s coal-and-corpse song — each song\'s Krajl is his own man, and this one is Rusha\'s father alone.',
     folklore: ['zuku-bajraktar'],
     location: { status: 'placed', node: 'rusha1' },
     tales: { 'zuku-bajraktar': 'krajli' },

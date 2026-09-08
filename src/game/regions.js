@@ -70,7 +70,22 @@ export const REGION_OVERRIDES = Object.freeze({
   sari1: 'mountain', sari2: 'mountain', sariFund: 'mountain',
   haliliDeka: 'mountain', haliliMejdan: 'mountain', haliliJeton: 'mountain',
   gbMuji1: 'mountain', gbMujiFund: 'mountain', gbMujiVdes: 'mountain',
-  osmaniBurg: 'mountain', osmaniLiri: 'mountain', osmaniRob: 'mountain',
+  osmaniBurg: 'mountain', osmaniVdekur: 'mountain', osmaniProvat: 'mountain',
+  osmaniVallja: 'mountain', osmaniShpata: 'mountain', osmaniZbuluar: 'mountain',
+  osmaniLiri: 'mountain', osmaniRob: 'mountain',
+  kreshnikRrembimi1: 'mountain', kreshnikRrembimiBurg: 'mountain',
+  kreshnikRrembimiFund: 'mountain', kreshnikRrembimiHumbur: 'mountain',
+  kreshnikRrembimiRefuz: 'mountain',
+  behuriJutbina: 'mountain', behuriNdarja: 'mountain', behuriBurimi: 'mountain',
+  behuriKulla: 'mountain', behuriMejdan: 'mountain', behuriFund: 'mountain',
+  behuriKotorHumbur: 'mountain', behuriBurimHumbur: 'mountain',
+  behuriKullaHumbur: 'mountain', behuriMejdanHumbur: 'mountain',
+  // The road and its drought/Lubia encounters stay at the forest edge even as
+  // optional routes lead out to the river. The Blue Eye scenes occupy one
+  // emerging river source: the dry bed, the spring and the hand-cut channel.
+  udha: 'forest', udheOra: 'forest', udhaThate: 'forest', ujkuUje: 'forest',
+  lubia1: 'forest', lubiaKoke: 'forest', lubiaFund: 'forest',
+  udhaSyri: 'river', syriKanali: 'river', syriFund: 'river',
   halilGarria1: 'mountain', halilGarriaFund: 'mountain', halilGarriaKeq: 'mountain',
   mujoKale: 'mountain', mujoKaleFund: 'mountain', mujoKaleLarg: 'mountain',
   aliBajr1: 'mountain', aliBajrFund: 'mountain', aliBajrKeq: 'mountain',
@@ -90,6 +105,13 @@ export const REGION_OVERRIDES = Object.freeze({
   gjizarUdha: 'underworld', gjizarPallat: 'underworld', gjizarKap: 'underworld',
   gjizarTradheti: 'underworld', gjizarPus: 'underworld',
   gjizarFund: 'village',
+  // The last coast-road vista stands on the dry shore before the route turns
+  // inland. The homeward road, builders' house and eagle-tree episode then sit
+  // below Rozafa; graph proximity to Tomorr must not pull them into the mountain.
+  ktheu3: 'sea', udhaKthimit: 'castle',
+  kalaMjegull: 'castle', kalaPlak: 'castle',
+  shqipe1: 'castle', shqipe2: 'castle', shqipe3: 'castle',
+  shqipeBarter: 'castle', shqipeKapur: 'castle', shqipeFund: 'castle',
   // These scenes are physically inside the sealed lower realm. Leaving them
   // to graph-seed order made the cave ascent inherit `sea` and the explicit
   // lost-below scene inherit `river`, exposing surface horizons underground.

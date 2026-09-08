@@ -50,7 +50,7 @@ export default function WorldContext({ state, worldClock = state.clock }) {
           🗺 <b>{placeLabel}</b>
         </span>
         <span>
-          {weatherUi[0]} {weatherUi[1]} · {PHASE[phase] || phase}
+          {weatherUi[0]} {weatherUi[1]} · {PHASE[phase] || phase} · {String(calendar.hour).padStart(2, '0')}:00
         </span>
         <span>
           {MONTH[calendar.month - 1]} {calendar.day}, {calendar.year} · {season}

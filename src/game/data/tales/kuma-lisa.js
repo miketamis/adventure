@@ -85,16 +85,15 @@ export default {
     { id: 'buketBardha', emoji: '🍞', name: 'the white loaves', note: 'a basketful packed for the field season — finished with the honey on the third "christening"' },
     { id: 'kerraba', emoji: '🪝', name: 'the hooked stick', note: 'the wolf\'s crook, poked down the bolt-hole — it caught roots when she cried leg, and legs when she cried root' },
   ],
-  // how the game stages this tale — the WITNESS/judgment projection (see _SCHEMA.md).
-  // Kuma Lisa is the trickster protagonist, but the game puts YOU in the judge's
-  // seat: the honey and loaves are gone and she denies eating either — see through
-  // the lie or accept her demand that the wolf search again. Either way, her head
-  // start and the root-or-leg trick let her escape, exactly as in Hahn.
+  // how the game stages this tale — a COMPANION/judgment projection (see _SCHEMA.md).
+  // You travel beside Kuma Lisa, but can still expose or support her lie. Either
+  // way, her head start and root-or-leg trick retain Hahn's fixed escape.
   play: {
     entry: 'ortaket',
-    stance: 'witness',
+    stance: 'companion',
+    with: 'dhelpra',
     role:
-      'You come upon the wolf Herr Nicola and the she-fox Kuma Lisa, partners in a field. Their tub of honey and basket of white loaves are gone after the fox\'s three invented christenings. The wolf accuses her; she denies everything and sends him back to search, buying the head start she needs to reach her hole. Do you see through the lie?',
+      'You work and travel beside the she-fox Kuma Lisa while she tricks her partner, the wolf Herr Nicola. Their honey and white loaves vanish during her three invented christenings; when the wolf accuses her, you may support the denial or expose it, but the fox still makes for her hole and survives by calling roots legs and her real leg a root.',
     from: 'dhelpra1',
     ending: 'dhelpraFund',
     scenes: {
@@ -103,7 +102,7 @@ export default {
       dhelpraFund: ['mohimi', 'vrima'],
     },
     divergences: [
-      { beat: 'zbulimi', note: 'The trickster is the tale\'s hero, but the game gives the choice to YOU as a witness to the wolf\'s accusation. Both routes keep Hahn\'s facts: honey and white loaves are missing, the tub is upside down, the fox simply denies the theft, and nothing is smeared on the wolf.' },
+      { beat: 'zbulimi', note: 'The player is an invented companion and third voice in a source scene containing only fox and wolf. Choosing to expose or support Kuma Lisa is therefore a game counterfactual; both routes keep Hahn\'s facts that the honey and white loaves are gone, the tub is upside down, the fox denies the theft, and nothing is smeared on the wolf.' },
       { beat: 'zanafilla', note: 'The folktale\'s signature sequence — three trips to the honey and three godchild names that mark the falling level, Little Beginning, Little Halfway and Little Tipped-Over — is compressed in the short playable entry and recounted in its ending.' },
       { beat: 'vrima', note: 'Both playable judgments converge on Hahn\'s root-or-leg escape: while the wolf searches, the fox reaches her hole and defeats his hooked stick by calling each root her leg and her real leg a root.' },
     ],

@@ -203,7 +203,7 @@ section(!stranded.length, `no stranded nodes (some neighbour within ${STRAND_MAX
 const JOURNEY_ALLOW = new Set([
   'tomorZbritje->pusi',      // the descent from Tomorr to the well's mouth
   'rrethi->dhia1',           // "ec lart" — up the mountainside to the stone wedding
-  'ktheu3->udhaKthimit',     // the long way home from the coast
+  'ktheu3->udhaKthimit',     // the coast-road vista begins the long inland way home
   'fshatiDil->pylli1',       // leaving the village into the great forest
   'mali1->qiell1',           // the ascent into the sky realm
   'qiell1->mali1',           // and the climb back down to Tomorr (the sky is not a trap)
@@ -238,6 +238,7 @@ const JOURNEY_ALLOW = new Set([
   'deti1->detiThelle1',      // the dive from the surface to the deep
   'detiThelle1->deti1',      // and the swim back up
   'maja->jutbina',           // from the bare peak down to the kreshnik hamlet
+  'maja->kalaMjegull',       // the castle is explicitly far below the summit: a journey, not a teleport
   'gjizar2->gjizarUdha',     // the explicitly far no-return road into the world below
   'gjizarTradheti->gjizarFund', // the Beauty's narrated rescue and return to the king's town
   'binoshetFund->binoshetKasollja', // Zjerma retraces Handa's long trail to the streamside hut

@@ -9,6 +9,7 @@ const authoredChunk = (id) => {
   const path = id.replaceAll('\\', '/')
   if (path.includes('/node_modules/')) return 'react-vendor'
   if (path.endsWith('/src/game/content.js')) return 'story-graph'
+  if (path.endsWith('/src/game/nounForms.js')) return 'noun-forms'
   if (path.endsWith('/src/game/folklore.js')) return 'folklore-catalog'
   if (path.endsWith('/src/game/quotes.js')) return 'quote-register'
   if (path.includes('/src/game/data/npcs/')) return 'npc-catalog'
@@ -23,7 +24,7 @@ export default defineConfig({
     rollupOptions: {
       output: { manualChunks: authoredChunk },
     },
-    // The largest authored dataset is intentionally substantial. The stricter
+    // The largest authored datasets are intentionally substantial. The stricter
     // raw and gzip release budgets live in scripts/bundleaudit.mjs; this limit
     // keeps Vite's generic warning useful for chunks the project has not
     // explicitly measured.

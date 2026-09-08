@@ -4,25 +4,48 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { STORY } from '../src/game/content.js'
+import { ITEMS, STORY } from '../src/game/content.js'
 import {
   FESTIVAL_IDS,
   START_CLOCK,
   TIME_PHASES,
+  applyOptionEffects,
   applyWorldEffects,
+  advanceToCivilHour,
+  canAfford,
+  canUseItem,
+  effectAvailabilityForOption,
   environmentSnapshot,
+  civilHourAtClock,
+  durationHoursOf,
+  hasCond,
   hasRequiredItem,
+  interactionAvailabilityForOption,
   normalizeSavedState,
+  optionEffectsAreValid,
+  optionTimingIsValid,
+  phaseAtCivilHour,
   phaseAtClock,
   phraseSenses,
   projectedClockForOption,
   reconcileWorldFacts,
   reducer,
   timePassageForOption,
+  weatherOf,
   worldEffectsForEnding,
   WORLD_FACT_INCOMPATIBLE,
   WORLD_EFFECTS_BY_ENDING,
 } from '../src/game/gameState.js'
+import {
+  canApplyOptionEffects,
+  interactionAvailability,
+  interactionSpecOf,
+  itemUseEffectsOption,
+  optionEffectAvailability,
+  optionEffectsOf,
+  optionLekAvailability,
+  recordInteractionUse,
+} from '../src/game/stateMechanics.js'
 import {
   WORLD_FACT_PRESENTATION,
   advanceToFestival,
@@ -33,6 +56,8 @@ import {
   worldMemoriesFromFacts,
 } from '../src/game/environment.js'
 import { REGIONS } from '../src/game/regions.js'
+import { embodimentOptionAccess } from '../src/game/embodiment.js'
+import { fixtureStageAt } from '../src/game/worldFixtures.js'
 import { isDistantLineVisible, sightlinesFrom, transitionInfo } from '../src/game/worldModel.js'
 
 const checks = []
@@ -56,6 +81,9 @@ const stateAt = (nodeId, clock = START_CLOCK, extra = {}) => ({
   trail: [],
   discovered: {},
   inventory: {},
+  flags: {},
+  knowledge: {},
+  interactions: {},
   mana: {},
   practiced: {},
   visited: {},
@@ -79,17 +107,650 @@ const stateAt = (nodeId, clock = START_CLOCK, extra = {}) => ({
   ...extra,
 })
 
+check('typed effects compose while legacy choice fields keep their behavior', () => {
+  const before = stateAt('start', 40, {
+    inventory: { buke: 2, lek: 9 },
+    flags: { oldRoad: true },
+    hearts: 2,
+    peak: 1,
+    fixtures: { campfire: 38 },
+  })
+  const option = {
+    effects: [
+      { type: 'item', id: 'buke', delta: -2 },
+      { type: 'inventory', id: 'barishte', delta: 3 },
+      { type: 'flag', id: 'metMiller' },
+      { type: 'flag', id: 'oldRoad', value: false },
+      { type: 'learn', id: 'millShortcut' },
+      { type: 'resource', id: 'lek', delta: -4 },
+      { type: 'resource', id: 'hearts', set: 3 },
+      { type: 'resource', id: 'hearts', delta: -1 },
+      { type: 'resource', id: 'peak', delta: 2 },
+      { type: 'fixture', id: 'campfire', action: 'clear' },
+      { type: 'fixture', id: 'millLamp' },
+    ],
+  }
+  assert.equal(optionEffectsAreValid(option, (id) => ['campfire', 'millLamp'].includes(id)), true)
+  assert.equal(canApplyOptionEffects(
+    before,
+    option,
+    (id) => ['campfire', 'millLamp'].includes(id),
+    { fixtureClock: 41 },
+  ), true)
+  const after = applyOptionEffects(before, option, {
+    atClock: 42,
+    fixtureClock: 41,
+    maxHearts: 3,
+    source: 'audit-choice',
+    isFixture: (id) => ['campfire', 'millLamp'].includes(id),
+  })
+  assert.deepEqual(after.inventory, { buke: 0, lek: 5, barishte: 3 })
+  assert.deepEqual(after.flags, { metMiller: true })
+  assert.deepEqual(after.knowledge, { millShortcut: { atClock: 42, source: 'audit-choice' } })
+  assert.deepEqual(after.fixtures, { campfire: 33, millLamp: 41 })
+  assert.equal(fixtureStageAt('campfire', after.fixtures.campfire, 41), 'out')
+  assert.equal(after.hearts, 2)
+  assert.equal(after.peak, 3)
+  assert.deepEqual(before.inventory, { buke: 2, lek: 9 }, 'effect resolver mutated its input')
+
+  const legacy = { consumes: 'buke', grant: 'kripe', lek: -2, hearts: 1, activateFixture: 'campfire' }
+  const typed = {
+    effects: [
+      { type: 'inventory', id: 'buke', delta: -1 },
+      { type: 'inventory', id: 'kripe', delta: 1 },
+      { type: 'resource', id: 'lek', delta: -2 },
+      { type: 'resource', id: 'hearts', delta: 1 },
+      { type: 'fixture', id: 'campfire', action: 'activate' },
+    ],
+  }
+  const legacyBefore = { ...before, fixtures: {} }
+  const context = { fixtureClock: 44, maxHearts: 3, isFixture: (id) => id === 'campfire' }
+  const legacyResult = applyOptionEffects(legacyBefore, legacy, context)
+  const typedResult = applyOptionEffects(legacyBefore, typed, context)
+  assert.deepEqual(
+    { inventory: legacyResult.inventory, hearts: legacyResult.hearts, fixtures: legacyResult.fixtures },
+    { inventory: typedResult.inventory, hearts: typedResult.hearts, fixtures: typedResult.fixtures },
+  )
+
+  assert.equal(canApplyOptionEffects(before, { effects: [{ type: 'item', id: 'buke', delta: -3 }] }), false)
+  assert.equal(canApplyOptionEffects(
+    { ...before, inventory: {} },
+    { consumes: 'buke' },
+  ), false, 'legacy consumption could drive inventory below zero without a redundant requires gate')
+  assert.equal(canApplyOptionEffects(
+    { ...before, inventory: {} },
+    { effects: [
+      { type: 'item', id: 'buke', delta: -1 },
+      { type: 'item', id: 'buke', delta: 1 },
+    ] },
+  ), false, 'later grants incorrectly paid an earlier item cost')
+  const combinedItems = applyOptionEffects(
+    { ...before, inventory: { buke: 3 } },
+    {
+      consumes: 'buke',
+      grant: 'kripe',
+      effects: [
+        { type: 'item', id: 'buke', delta: -1 },
+        { type: 'item', id: 'kripe', delta: 1 },
+      ],
+    },
+  )
+  assert.deepEqual(combinedItems.inventory, { buke: 1, kripe: 2 })
+
+  const resourceSets = applyOptionEffects(
+    { ...before, inventory: { lek: 7 }, hearts: 1, peak: 4 },
+    {
+      effects: [
+        { type: 'resource', id: 'lek', set: 12 },
+        { type: 'resource', id: 'lek', delta: -3 },
+        { type: 'resource', id: 'hearts', delta: 9 },
+        { type: 'resource', id: 'peak', set: 0 },
+        { type: 'resource', id: 'peak', delta: 2 },
+      ],
+    },
+    { maxHearts: 3 },
+  )
+  assert.equal(resourceSets.inventory.lek, 9)
+  assert.equal(resourceSets.hearts, 3)
+  assert.equal(resourceSets.peak, 2)
+  assert.equal(optionEffectsAreValid({ effects: 'not-an-array' }), false)
+  assert.equal(optionEffectsAreValid({ effects: [{ type: 'fixture', id: 'invented' }] }, () => false), false)
+  assert.equal(canAfford(before, { effects: [{ type: 'resource', id: 'lek', set: 0 }] }), true)
+  assert.equal(canAfford(before, {
+    lek: -5,
+    effects: [{ type: 'resource', id: 'lek', delta: -5 }],
+  }), false, 'combined legacy and typed prices were not totaled')
+
+  const spendAfterSet = {
+    effects: [
+      { type: 'resource', id: 'lek', set: 2 },
+      { type: 'resource', id: 'lek', delta: -3 },
+    ],
+  }
+  assert.deepEqual(
+    optionLekAvailability(before, spendAfterSet),
+    { ok: false, reason: 'insufficient-lek', have: 2, need: 1 },
+  )
+  assert.equal(canAfford(before, spendAfterSet), false, 'a pre-cost set bypassed affordability')
+  assert.equal(optionEffectAvailability(before, spendAfterSet).reason, 'insufficient-lek')
+  assert.equal(canAfford(
+    { ...before, inventory: {} },
+    { effects: [
+      { type: 'resource', id: 'lek', set: 12 },
+      { type: 'resource', id: 'lek', delta: -3 },
+    ] },
+  ), true, 'an earlier authored set did not fund a later cost')
+  assert.equal(canAfford(before, {
+    effects: [
+      { type: 'resource', id: 'lek', delta: -10 },
+      { type: 'resource', id: 'lek', set: 20 },
+    ],
+  }), false, 'a later set retroactively funded an earlier cost')
+
+  for (const malformed of [
+    { effects: [{ type: 'inventory', id: 'buke', delta: 1.5 }] },
+    { effects: [{ type: 'inventory', id: 'lek', delta: 1 }] },
+    { effects: [{ type: 'resource', id: 'lek', delta: -1.5 }] },
+    { effects: [{ type: 'flag', id: 'x', value: 'false' }] },
+    { effects: [{ type: 'flag', id: 'x', value: null }] },
+    { effects: [{ type: 'fixture', id: 'campfire', action: null }] },
+    { effects: [{ type: 'flag', id: '__proto__' }] },
+    { effects: [{ type: 'flag', id: ' padded ' }] },
+    { lek: -1.5 },
+  ]) assert.equal(optionEffectsAreValid(malformed), false, 'malformed effect was accepted')
+
+  const fixtureContext = (clock) => ({
+    fixtureClock: clock,
+    isFixture: (id) => id === 'campfire',
+  })
+  const activate = { effects: [{ type: 'fixture', id: 'campfire', action: 'relight' }] }
+  const refuel = { effects: [{ type: 'fixture', id: 'campfire', action: 'reset' }] }
+  const extinguish = { effects: [{ type: 'fixture', id: 'campfire', action: 'deactivate' }] }
+  let fixtureState = { ...before, fixtures: {} }
+  assert.equal(canApplyOptionEffects(fixtureState, activate, (id) => id === 'campfire', fixtureContext(20)), true)
+  fixtureState = applyOptionEffects(fixtureState, activate, fixtureContext(20))
+  assert.equal(fixtureState.fixtures.campfire, 20)
+  assert.equal(canApplyOptionEffects(fixtureState, activate, (id) => id === 'campfire', fixtureContext(21)), false)
+  assert.equal(canApplyOptionEffects(fixtureState, refuel, (id) => id === 'campfire', fixtureContext(23)), true)
+  fixtureState = applyOptionEffects(fixtureState, refuel, fixtureContext(23))
+  assert.equal(fixtureState.fixtures.campfire, 23)
+  fixtureState = applyOptionEffects(fixtureState, extinguish, fixtureContext(25))
+  assert.equal(fixtureState.fixtures.campfire, 17)
+  assert.equal(fixtureStageAt('campfire', fixtureState.fixtures.campfire, 25), 'out')
+
+  const remoteFixture = effectAvailabilityForOption(
+    stateAt('start', 40),
+    { text: [], to: 'start', effects: [{ type: 'fixture', id: 'campfire', action: 'activate' }] },
+  )
+  assert.deepEqual(
+    { ok: remoteFixture.ok, reason: remoteFixture.reason, fixtureId: remoteFixture.fixtureId },
+    { ok: false, reason: 'fixture-out-of-reach', fixtureId: 'campfire' },
+  )
+})
+
+check('item uses are canonical, atomic typed-effect transactions', () => {
+  const item = ITEMS.buke
+  const ids = phraseSenses(item.use.phrase)
+  const before = stateAt('start', 40, {
+    inventory: { buke: 1 },
+    hearts: 1,
+    discovered: Object.fromEntries(ids.map((id) => [id, true])),
+    mana: Object.fromEntries(ids.map((id) => [id, 2])),
+  })
+  assert.equal(canUseItem(before, item).ok, true)
+  const used = reducer(before, {
+    type: 'USE_ITEM',
+    item: { ...item, use: { ...item.use, effect: { hearts: 99 } } },
+    expectedCount: 1,
+  })
+  assert.equal(used.inventory.buke, 0)
+  assert.equal(used.hearts, 3, 'forged item metadata bypassed the canonical catalog')
+  assert.equal(used.mana[ids[0]], 1)
+  assert.equal(canUseItem(used, item).ok, false)
+
+  const twoCopies = { ...before, inventory: { buke: 2 } }
+  const staleAction = { type: 'USE_ITEM', item, expectedCount: 2 }
+  const firstUse = reducer(twoCopies, staleAction)
+  assert.equal(firstUse.inventory.buke, 1)
+  assert.strictEqual(reducer(firstUse, staleAction), firstUse, 'a stale item action consumed a second copy')
+  assert.strictEqual(
+    reducer(twoCopies, { type: 'USE_ITEM', item }),
+    twoCopies,
+    'an unbound item action omitted its observed count',
+  )
+  for (const blocked of [
+    { ...before, ended: 'bad' },
+    { ...before, timePassage: { id: 'active' } },
+    { ...before, pendingEmbodiment: { taleId: 'test' } },
+    { ...before, hearts: 0 },
+  ]) {
+    assert.equal(canUseItem(blocked, item).ok, false)
+    assert.strictEqual(
+      reducer(blocked, { type: 'USE_ITEM', item, expectedCount: 1 }),
+      blocked,
+      'item use mutated state behind a blocking surface',
+    )
+  }
+
+  const pricedUse = {
+    id: 'audit-priced-item',
+    use: {
+      phrase: item.use.phrase,
+      effects: [{ type: 'resource', id: 'lek', delta: -4 }],
+    },
+  }
+  const pricedState = { ...before, inventory: { 'audit-priced-item': 1, lek: 3 } }
+  const pricedAvailability = canUseItem(pricedState, pricedUse).effectAvailability
+  assert.deepEqual(
+    { ok: pricedAvailability.ok, reason: pricedAvailability.reason, need: pricedAvailability.need },
+    { ok: false, reason: 'insufficient-lek', need: 1 },
+    'item-use prices bypassed the canonical resource transaction',
+  )
+
+  const doubleConsume = {
+    ...item,
+    use: { ...item.use, effects: [{ type: 'inventory', id: 'buke', delta: -1 }] },
+  }
+  assert.equal(canUseItem(before, doubleConsume).effectAvailability.reason, 'missing-item')
+
+  const migrated = applyOptionEffects(
+    { ...before, inventory: { buke: 1 }, hearts: 0 },
+    itemUseEffectsOption({
+      ...item,
+      use: {
+        ...item.use,
+        effects: [{ type: 'resource', id: 'hearts', delta: 1 }],
+        effect: { hearts: 3 },
+      },
+    }),
+    { maxHearts: 3 },
+  )
+  assert.equal(migrated.hearts, 1, 'typed item effects were combined with their retired legacy adapter')
+})
+
+check('flags and learned knowledge are separate, save-safe state', () => {
+  const state = stateAt('start', 30, {
+    inventory: { legacyMarker: 1, buke: 1 },
+    flags: { gateOpened: true },
+    knowledge: { riverName: { atClock: 22, source: 'elder' } },
+  })
+  assert.equal(hasCond(state, 'flag:gateOpened'), true)
+  assert.equal(hasCond(state, 'flag:legacyMarker'), true, 'explicit flags did not bridge an old inventory marker')
+  assert.equal(hasCond(state, 'gateOpened'), true, 'bare flag compatibility was lost')
+  assert.equal(hasCond(state, 'knows:riverName'), true)
+  assert.equal(hasCond(state, 'itemTag:food'), true)
+  assert.equal(hasCond(state, 'affords:eat'), true)
+  assert.equal(hasCond(state, 'itemTag:light-source'), false)
+  assert.equal(hasCond(state, 'affords:illuminate'), false)
+  assert.equal(hasCond(state, 'fact:riverName'), false, 'learner knowledge leaked into physical world facts')
+  assert.equal(hasCond(state, 'flag:constructor'), false, 'prototype property became a story flag')
+  assert.equal(hasCond(state, 'knows:toString'), false, 'prototype property became learned knowledge')
+  assert.equal(hasCond(state, null), false, 'malformed condition crashed or became truthy')
+
+  const fresh = stateAt('start', 30)
+  const normalized = normalizeSavedState({
+    ...state,
+    flags: { gateOpened: true, falseFlag: false },
+    knowledge: {
+      riverName: { atClock: 999, source: 'elder' },
+      oldBooleanShape: true,
+      forgotten: false,
+    },
+  }, fresh)
+  assert.deepEqual(normalized.flags, { gateOpened: true })
+  assert.deepEqual(normalized.knowledge, {
+    riverName: { atClock: 30, source: 'elder' },
+    oldBooleanShape: { atClock: 0, source: null },
+  })
+
+  const migratedRoleFlag = normalizeSavedState({
+    ...fresh,
+    nodeId: 'tsBeteje',
+    embodying: 'tomor-shpirag',
+    embodimentFocusNode: 'tsBeteje',
+    inventory: { jamShpirag: 1, shkop: 1 },
+    embodimentInventorySnapshot: {},
+    embodimentInventoryIsolated: true,
+  }, fresh)
+  assert.equal(migratedRoleFlag.flags.jamShpirag, true)
+  assert.equal(migratedRoleFlag.inventory.jamShpirag, undefined)
+  assert.equal(hasCond(migratedRoleFlag, 'flag:jamShpirag'), true)
+  assert.equal(hasRequiredItem(
+    migratedRoleFlag,
+    STORY.tsBeteje.options.find((option) => option.to === 'shpiragFund'),
+  ), true, 'legacy Shpirag save could not reach its canonical ending')
+
+  const unsafe = normalizeSavedState({
+    ...fresh,
+    inventory: JSON.parse('{"__proto__": 2, "constructor": 1, " padded ": 1, "boolean": true, "buke": 1, "dust": 0.5}'),
+    flags: JSON.parse('{"__proto__": true, "constructor": true, "safe": true}'),
+    knowledge: JSON.parse('{"__proto__": true, "constructor": true, "safe": true}'),
+    interactions: JSON.parse('{"__proto__": {"run":{"uses":1,"lastAtClock":1}}, "safe":{"run":{"uses":1,"lastAtClock":1}}}'),
+  }, fresh)
+  assert.deepEqual(unsafe.inventory, { buke: 1 })
+  assert.deepEqual(unsafe.flags, { safe: true })
+  assert.deepEqual(unsafe.knowledge, { safe: { atClock: 0, source: null } })
+  assert.deepEqual(unsafe.interactions, { safe: { run: { uses: 1, lastAtClock: 1 } } })
+
+  const roleEnding = stateAt('shpiragFund', 40, {
+    ended: 'secret',
+    embodying: 'tomor-shpirag',
+    embodimentFocusNode: 'shpiragFund',
+    embodimentInventorySnapshot: { buke: 1 },
+    embodimentInventoryIsolated: true,
+    embodimentFlagsSnapshot: { forestThunderMark: true },
+    embodimentHeartsSnapshot: 2,
+    flags: { forestThunderMark: true, jamShpirag: true },
+    inventory: { shkop: 1 },
+  })
+  const returned = reducer(roleEnding, { type: 'RETURN_TO_WORLD' })
+  assert.deepEqual(returned.flags, { forestThunderMark: true }, 'role-local branch flag leaked into a replay')
+  assert.deepEqual(returned.inventory, { buke: 1 })
+  assert.equal(returned.embodimentFlagsSnapshot, null)
+
+  const reset = reducer(state, { type: 'RESET' })
+  assert.deepEqual(reset.knowledge, state.knowledge)
+  assert.deepEqual(reset.flags, {})
+  assert.deepEqual(reset.interactions, {})
+  const badId = Object.keys(STORY).find((id) => STORY[id].end === 'bad')
+  const continued = reducer({ ...state, nodeId: badId, ended: 'bad' }, { type: 'CONTINUE' })
+  assert.deepEqual(continued.knowledge, state.knowledge)
+  assert.deepEqual(continued.flags, {})
+})
+
+check('identified interactions enforce scene, day, tale, run, cooldown, and reducer limits', () => {
+  // Scene means authored-node lifetime within this run, not a transient visit.
+  // Leaving and returning to the same node must not silently reset it.
+  const oncePerScene = { interaction: { id: 'ask-elder', scope: 'scene', once: true } }
+  const firstScene = interactionAvailability({}, oncePerScene, { clock: 30, nodeId: 'start' })
+  const sceneLedger = recordInteractionUse({}, firstScene, 30)
+  assert.equal(interactionAvailability(sceneLedger, oncePerScene, { clock: 31, nodeId: 'start' }).reason, 'max-uses')
+  assert.equal(interactionAvailability(sceneLedger, oncePerScene, { clock: 90, nodeId: 'start' }).reason, 'max-uses')
+  assert.equal(interactionAvailability(sceneLedger, oncePerScene, { clock: 31, nodeId: 'lendina' }).ok, true)
+  assert.equal(interactionAvailability({}, oncePerScene, { clock: 31 }).reason, 'unbound-scene')
+
+  const daily = { interaction: { id: 'mill-work', scope: 'day', maxUses: 2, cooldownHours: 2 } }
+  let availability = interactionAvailability({}, daily, { clock: 25, nodeId: 'mulli' })
+  let ledger = recordInteractionUse({}, availability, 25)
+  assert.equal(interactionAvailability(ledger, daily, { clock: 26, nodeId: 'mulli' }).reason, 'cooldown')
+  assert.equal(interactionAvailability(ledger, daily, { clock: 26, nodeId: 'mulli' }).remainingHours, 1)
+  availability = interactionAvailability(ledger, daily, { clock: 27, nodeId: 'mulli' })
+  ledger = recordInteractionUse(ledger, availability, 27)
+  assert.equal(interactionAvailability(ledger, daily, { clock: 28, nodeId: 'mulli' }).reason, 'max-uses')
+  assert.equal(interactionAvailability(ledger, daily, { clock: 48, nodeId: 'mulli' }).ok, true)
+  const midnightDaily = { interaction: { id: 'midnight-market', scope: 'day', once: true } }
+  const beforeMidnight = interactionAvailability({}, midnightDaily, { clock: 17, nodeId: 'shesh' })
+  const beforeMidnightLedger = recordInteractionUse({}, beforeMidnight, 17)
+  assert.equal(interactionAvailability(beforeMidnightLedger, midnightDaily, { clock: 17, nodeId: 'shesh' }).reason, 'max-uses')
+  assert.equal(interactionAvailability(beforeMidnightLedger, midnightDaily, { clock: 18, nodeId: 'shesh' }).ok, true, 'day scope did not reset at civil midnight')
+
+  const tale = { interaction: { id: 'tale-oath', scope: 'tale', once: true } }
+  assert.equal(interactionAvailability({}, tale, { clock: 1, nodeId: 'start' }).reason, 'unbound-tale')
+  availability = interactionAvailability({}, tale, { clock: 1, nodeId: 'a', taleId: 'maro' })
+  ledger = recordInteractionUse({}, availability, 1)
+  assert.equal(interactionAvailability(ledger, tale, { clock: 20, nodeId: 'b', taleId: 'maro' }).reason, 'max-uses')
+  assert.equal(interactionAvailability(ledger, tale, { clock: 20, nodeId: 'b', taleId: 'gjizar' }).ok, true)
+  assert.equal(interactionAvailability({}, { interaction: { id: 'unlimited' } }, {
+    clock: 1, nodeId: 'start',
+  }).reason, 'invalid', 'an interaction with no actual limit was accepted')
+  for (const interaction of [
+    { id: 'typo', scope: 'daily', once: true },
+    { id: 'conflict', once: true, maxUses: 2 },
+    { id: 'misbound', scope: 'run', once: true, taleId: 'maro' },
+    { id: 'fractional-uses', scope: 'run', maxUses: 1.5 },
+    { id: 'fractional-cooldown', scope: 'run', cooldownHours: 1.5 },
+    { id: '__proto__', scope: 'run', once: true },
+    { id: 'null-scope', scope: null, once: true },
+    { id: 'null-limit', scope: 'run', maxUses: null },
+  ]) {
+    assert.equal(interactionAvailability({}, { interaction }, { clock: 1, nodeId: 'start' }).reason, 'invalid')
+  }
+
+  const normalized = normalizeSavedState({
+    ...stateAt('start', 30),
+    interactions: {
+      work: {
+        run: { uses: 2, lastAtClock: 999 },
+        'day:1': { uses: 0, lastAtClock: 20 },
+        malformed: { uses: 4, lastAtClock: 20 },
+      },
+      broken: 'not-a-ledger',
+    },
+  }, stateAt('start', 30))
+  assert.deepEqual(normalized.interactions, {
+    work: { run: { uses: 2, lastAtClock: 30 } },
+  })
+
+  // Exercise the actual reducer boundary with a harmless authored self-loop;
+  // restore the imported content object even if an assertion fails.
+  const repeat = STORY.pazariPerserit.options.find((option) => option.to === 'pazariPerserit')
+  const prior = repeat.interaction
+  try {
+    repeat.interaction = { id: 'audit-repeat', scope: 'run', once: true }
+    const ids = phraseSenses(repeat.text)
+    const ready = stateAt('pazariPerserit', 30, {
+      discovered: Object.fromEntries(ids.map((id) => [id, true])),
+      mana: Object.fromEntries(ids.map((id) => [id, 2])),
+    })
+    assert.equal(interactionAvailabilityForOption(ready, repeat).ok, true)
+    const action = {
+      type: 'CHOOSE', option: repeat, targetNode: STORY.pazariPerserit,
+      fromNodeId: ready.nodeId, fromTurn: ready.turn,
+    }
+    const chosen = reducer(ready, action)
+    assert.notStrictEqual(chosen, ready)
+    assert.equal(chosen.interactions['audit-repeat'].run.uses, 1)
+    const replay = reducer(chosen, { ...action, fromTurn: chosen.turn })
+    assert.strictEqual(replay, chosen, 'reducer allowed an exhausted interaction')
+  } finally {
+    if (prior === undefined) delete repeat.interaction
+    else repeat.interaction = prior
+  }
+})
+
+check('embodied detours reject every generalized state mutation', () => {
+  const travel = STORY.start.options.find((option) => option.to === 'fshatiLumi')
+  assert.ok(travel, 'audit needs the opening public road')
+  const roleState = stateAt('start', 30, {
+    embodying: 'aga-ymer',
+    embodimentPaused: true,
+    embodimentFocusNode: 'agaYmer2',
+  })
+  assert.equal(embodimentOptionAccess(roleState, travel, STORY.fshatiLumi).kind, 'detour')
+  assert.equal(embodimentOptionAccess(
+    roleState,
+    { ...travel, effects: [{ type: 'flag', id: 'forgedDetourEffect' }] },
+    STORY.fshatiLumi,
+  ).ok, false, 'typed effect crossed the suspended-role boundary')
+  assert.equal(embodimentOptionAccess(
+    roleState,
+    { ...travel, interaction: { id: 'forgedDetourInteraction', scope: 'run', once: true } },
+    STORY.fshatiLumi,
+  ).ok, false, 'interaction ledger mutation crossed the suspended-role boundary')
+  assert.equal(embodimentOptionAccess(
+    roleState,
+    travel,
+    { ...STORY.fshatiLumi, worldEffects: ['forgedDetourWorldEffect'] },
+  ).ok, false, 'target world effect crossed the suspended-role boundary')
+})
+
+check('playable content exercises limits, hidden knowledge, and fixture actions through the reducer', () => {
+  const authored = Object.entries(STORY).flatMap(([nodeId, node]) =>
+    (node.options || []).filter((option) => !option.confuser).map((option) => ({ nodeId, option })))
+
+  const paidDaily = authored.find(({ option }) =>
+    option.interaction?.scope === 'day' && (option.lek || 0) > 0)
+  assert.ok(paidDaily, 'no paid daily interaction is playable')
+  const wageIds = phraseSenses(paidDaily.option.text)
+  const wageBefore = stateAt(paidDaily.nodeId, 27, {
+    inventory: { lahute: 1 },
+    discovered: Object.fromEntries(wageIds.map((id) => [id, true])),
+    mana: Object.fromEntries(wageIds.map((id) => [id, 2])),
+  })
+  const wageAfter = reducer(wageBefore, {
+    type: 'CHOOSE', option: paidDaily.option, targetNode: STORY[paidDaily.option.to],
+    fromNodeId: paidDaily.nodeId, fromTurn: wageBefore.turn,
+  })
+  assert.equal(wageAfter.inventory.lek, paidDaily.option.lek)
+  assert.equal(interactionAvailabilityForOption(
+    { ...wageAfter, nodeId: paidDaily.nodeId }, paidDaily.option,
+  ).reason, 'max-uses')
+  assert.equal(interactionAvailabilityForOption(
+    { ...wageAfter, nodeId: paidDaily.nodeId, clock: 51 }, paidDaily.option,
+  ).ok, true, 'daily wage did not reopen on the next civil day')
+
+  const hiddenKnowledge = authored.find(({ option }) =>
+    (option.effects || []).some((effect) => effect.type === 'flag') &&
+    (option.effects || []).some((effect) => effect.type === 'learn') &&
+    [].concat(option.requires || []).some((id) => id.startsWith?.('itemTag:')))
+  assert.ok(hiddenKnowledge, 'no item-capability discovery learns durable lore and sets a process flag')
+  const discoveryIds = phraseSenses(hiddenKnowledge.option.text)
+  const discoveryBefore = stateAt(hiddenKnowledge.nodeId, 15, {
+    inventory: { pishtar: 1 },
+    discovered: Object.fromEntries(discoveryIds.map((id) => [id, true])),
+    mana: Object.fromEntries(discoveryIds.map((id) => [id, 2])),
+  })
+  const discoveryAfter = reducer(discoveryBefore, {
+    type: 'CHOOSE', option: hiddenKnowledge.option, targetNode: STORY[hiddenKnowledge.option.to],
+    fromNodeId: hiddenKnowledge.nodeId, fromTurn: discoveryBefore.turn,
+  })
+  const learned = hiddenKnowledge.option.effects.find((effect) => effect.type === 'learn').id
+  const flag = hiddenKnowledge.option.effects.find((effect) => effect.type === 'flag').id
+  assert.equal(hasCond(discoveryAfter, `knows:${learned}`), true)
+  assert.equal(hasCond(discoveryAfter, `flag:${flag}`), true)
+
+  const fixtureAction = authored.find(({ option }) =>
+    (option.effects || []).some((effect) => effect.type === 'fixture' && effect.action === 'refuel'))
+  assert.ok(fixtureAction, 'no typed refuel action is playable')
+  const fixtureEffect = fixtureAction.option.effects.find((effect) => effect.type === 'fixture')
+  const fixtureIds = phraseSenses(fixtureAction.option.text)
+  const fixtureBefore = stateAt(fixtureAction.nodeId, 15, {
+    fixtures: { [fixtureEffect.id]: 10 },
+    discovered: Object.fromEntries(fixtureIds.map((id) => [id, true])),
+    mana: Object.fromEntries(fixtureIds.map((id) => [id, 2])),
+  })
+  const fixtureAfter = reducer(fixtureBefore, {
+    type: 'CHOOSE', option: fixtureAction.option, targetNode: STORY[fixtureAction.option.to],
+    fromNodeId: fixtureAction.nodeId, fromTurn: fixtureBefore.turn,
+  })
+  assert.equal(fixtureAfter.fixtures[fixtureEffect.id], projectedClockForOption(fixtureBefore, fixtureAction.option))
+  assert.equal(fixtureStageAt(fixtureEffect.id, fixtureAfter.fixtures[fixtureEffect.id], fixtureAfter.clock), 'bright')
+})
+
 check('ordinary choices use canonical route hours', () => {
   let compared = 0
   for (const [from, node] of Object.entries(STORY)) {
     for (const option of node.options || []) {
       if (option.confuser || !STORY[option.to] || option.date || option.time || Number.isFinite(option.durationHours)) continue
       const start = 240
-      assert.equal(projectedClockForOption(stateAt(from, start), option), start + transitionInfo(from, option).hours, `${from}->${option.to}`)
+      const route = transitionInfo(from, option)
+      if (!route.valid) continue // placement audits own unmapped story-internal beats
+      assert.equal(projectedClockForOption(stateAt(from, start), option), start + route.hours, `${from}->${option.to}`)
       compared++
     }
   }
   assert.ok(compared >= 750, `only ${compared} ordinary choices compared`)
+})
+
+check('exact civil hours compose with routes, dates, phases, tale clocks, and saves', () => {
+  // The narrative cycle starts at dawn, but authored/displayed hours are
+  // civil: internal 0 is 06:00 and the civil date turns at internal 18.
+  assert.deepEqual(
+    [calendarAtClock(0).month, calendarAtClock(0).day, civilHourAtClock(0), phaseAtClock(0)],
+    [3, 13, 6, 'dawn'],
+  )
+  assert.deepEqual(
+    [calendarAtClock(17).day, civilHourAtClock(17), phaseAtClock(17)],
+    [13, 23, 'night'],
+  )
+  assert.deepEqual(
+    [calendarAtClock(18).day, civilHourAtClock(18), phaseAtClock(18)],
+    [14, 0, 'night'],
+  )
+  assert.equal(phaseAtCivilHour(0), 'night')
+  assert.equal(phaseAtCivilHour(6), 'dawn')
+  assert.equal(advanceToCivilHour(12, 18), 12, 'an already exact arrival gained a day')
+  assert.equal(advanceToCivilHour(13, 18), 36, 'a missed civil hour did not reach its next occurrence')
+  for (const malformed of [-1, 24, 1.5, '6', NaN, Infinity]) {
+    assert.equal(advanceToCivilHour(10, malformed), 10, `malformed hour ${String(malformed)} changed the clock`)
+  }
+
+  const routeThenHour = { text: [], to: 'start', durationHours: 4, atHour: 18 }
+  const routeStart = stateAt('start', 5) // 11:00 civil
+  const exactArrival = projectedClockForOption(routeStart, routeThenHour)
+  assert.equal(durationHoursOf(routeThenHour, 'start'), 4)
+  assert.ok(exactArrival >= routeStart.clock + 4, 'exact hour replaced the authored journey')
+  assert.equal(exactArrival, 12)
+  assert.equal(civilHourAtClock(exactArrival), 18)
+
+  const exactTwoDays = { text: [], to: 'start', durationHours: 48, atHour: 5, time: 'night' }
+  const beforeDawn = stateAt('start', 23) // 05:00 civil
+  assert.equal(projectedClockForOption(beforeDawn, exactTwoDays), 71, 'an exact 48-hour span gained a hidden day')
+
+  const exactFestival = { text: [], to: 'start', date: 'ditaVeres', atHour: 23, time: 'night' }
+  const festivalArrival = projectedClockForOption(stateAt('start', 0), exactFestival)
+  assert.deepEqual(
+    [calendarAtClock(festivalArrival).month, calendarAtClock(festivalArrival).day, civilHourAtClock(festivalArrival), phaseAtClock(festivalArrival)],
+    [3, 14, 23, 'night'],
+  )
+  const missedFestivalHour = projectedClockForOption(stateAt('start', festivalArrival + 1), exactFestival)
+  assert.ok(missedFestivalHour - festivalArrival > 300 * 24)
+  assert.equal(civilHourAtClock(missedFestivalHour), 23)
+  assert.ok(festivalIdsAtClock(missedFestivalHour).includes('ditaVeres'))
+
+  for (const malformed of [
+    { durationHours: 1.5 }, { durationHours: -1 }, { durationHours: Infinity },
+    { atHour: -1 }, { atHour: 24 }, { atHour: 5.5 }, { atHour: '0' },
+    { time: 'dawn', atHour: 0 }, { time: 'night', atHour: 6 },
+    { time: 'midnight' }, { date: 'invented-feast' },
+  ]) assert.equal(optionTimingIsValid(malformed), false, `accepted malformed timing ${JSON.stringify(malformed)}`)
+  assert.equal(optionTimingIsValid({ durationHours: 48, time: 'night', atHour: 5 }), true)
+  assert.equal(optionTimingIsValid({ date: 'ditaVeres', time: 'dawn', atHour: 6 }), true)
+
+  // Tale projection owns the target hour; the living world receives precisely
+  // the same elapsed delta and persisted passage endpoints retain both clocks.
+  const taleOption = {
+    text: [], to: 'start', durationHours: 1, atHour: 0, time: 'night',
+    timePassage: {
+      title: 'Midnight crossing', label: 'arrive at midnight',
+      segments: [{ label: 'One final hour', detail: 'The road reaches midnight.', hours: 1 }],
+    },
+  }
+  const taleState = stateAt('start', 100, { conditionClock: 17 }) // tale 23:00
+  const taleArrival = projectedClockForOption(taleState, taleOption)
+  const worldArrival = taleState.clock + (taleArrival - taleState.conditionClock)
+  const passage = timePassageForOption(taleState, taleOption, taleArrival, {
+    clockKind: 'tale', worldFromClock: taleState.clock, worldToClock: worldArrival,
+  })
+  assert.equal(taleArrival, 18)
+  assert.equal(civilHourAtClock(taleArrival), 0)
+  assert.equal(passage.clockKind, 'tale')
+  assert.deepEqual(
+    [passage.fromClock, passage.toClock, passage.worldFromClock, passage.worldToClock, passage.elapsedHours],
+    [17, 18, 100, 101, 1],
+  )
+  assert.deepEqual(JSON.parse(JSON.stringify(passage)), passage, 'exact-hour passage was not save-safe')
+
+  const fresh = stateAt('start', START_CLOCK)
+  const reloadedMidnight = normalizeSavedState({ ...fresh, clock: 18 }, fresh)
+  assert.equal(reloadedMidnight.clock, 18)
+  assert.deepEqual([calendarAtClock(reloadedMidnight.clock).day, civilHourAtClock(reloadedMidnight.clock)], [14, 0])
+
+  let authoredExactHours = 0
+  for (const [from, node] of Object.entries(STORY)) {
+    for (const option of node.options || []) {
+      if (option.atHour == null || option.confuser) continue
+      authoredExactHours++
+      for (const start of [0, 5, 17, 18, 23, 39, 365 * 24 + 22]) {
+        const arrival = projectedClockForOption(stateAt(from, start), option)
+        assert.ok(arrival >= start + durationHoursOf(option, from), `${from}->${option.to}: exact hour replaced route time`)
+        assert.equal(civilHourAtClock(arrival), option.atHour, `${from}->${option.to}: missed authored civil hour`)
+        if (option.time) assert.equal(phaseAtClock(arrival), option.time, `${from}->${option.to}: exact hour disagrees with phase`)
+        if (option.date) assert.ok(festivalIdsAtClock(arrival).includes(option.date), `${from}->${option.to}: exact hour left its observance`)
+      }
+    }
+  }
+  assert.ok(authoredExactHours >= 5, `only ${authoredExactHours} playable exact-hour routes`)
 })
 
 check('phase and festival waits include the road before the wait', () => {
@@ -110,7 +771,9 @@ check('phase and festival waits include the road before the wait', () => {
 check('authored long waits advance the narrated interval', () => {
   const gjizarWait = STORY.gjizarUdha.options.find((option) => option.to === 'gjizarPallat')
   assert.equal(gjizarWait.durationHours, 2161)
-  assert.equal(projectedClockForOption(stateAt('gjizarUdha', 240), gjizarWait), 240 + 2161)
+  const gjizarArrival = projectedClockForOption(stateAt('gjizarUdha', 240), gjizarWait)
+  assert.ok(gjizarArrival >= 240 + 2161 && gjizarArrival < 240 + 2161 + 24)
+  assert.equal(phaseAtClock(gjizarArrival), 'night', 'the 90-day flight no longer finds the sleeping palace at night')
 
   for (const from of ['maroIkja', 'maroMesnata']) {
     const weddingWait = STORY[from].options.find((option) => option.to === 'maroKrushqit')
@@ -231,7 +894,7 @@ check('every multi-day or calendar jump has a sourced, semantically honest passa
       covered++
     }
   }
-  assert.equal(covered, 18, `expected 13 multi-day jumps and 5 calendar waits, found ${covered}`)
+  assert.ok(covered >= 18, `long/calendar passage coverage fell below the reviewed baseline: ${covered}`)
 
   const feast = STORY.binoshetDasma.options.find((option) => option.to === 'binoshetKuvendi')
   const firstCampaignMonth = STORY.binoshetLuftaFillon.options.find((option) => option.to === 'binoshetLuftaZgjat')
@@ -372,8 +1035,10 @@ check('festival waits satisfy date and phase together', () => {
       if (option.date) assert.ok(FESTIVAL_IDS.includes(option.date), `${from}->${option.to}: unknown festival ${option.date}`)
       if (option.time) assert.ok(TIME_PHASES.includes(option.time), `${from}->${option.to}: unknown phase ${option.time}`)
       if (option.durationHours != null) {
-        assert.ok(Number.isFinite(option.durationHours) && option.durationHours >= 0, `${from}->${option.to}: invalid duration`)
+        assert.ok(Number.isSafeInteger(option.durationHours) && option.durationHours >= 0, `${from}->${option.to}: invalid duration`)
       }
+      if (option.atHour != null) assert.ok(Number.isInteger(option.atHour) && option.atHour >= 0 && option.atHour <= 23, `${from}->${option.to}: invalid civil hour`)
+      assert.equal(optionTimingIsValid(option), true, `${from}->${option.to}: contradictory or malformed timing`)
       if (!option.date) continue
       for (const start of [0, 39, 365 * 24 + 23]) {
         const arrival = projectedClockForOption(stateAt(from, start), option)
@@ -385,8 +1050,8 @@ check('festival waits satisfy date and phase together', () => {
 })
 
 check('folk-calendar observances use the right civil and Orthodox dates', () => {
-  const openingFestival = calendarAtClock(24)
-  assert.deepEqual([openingFestival.year, openingFestival.month, openingFestival.day], [2026, 3, 14])
+  const openingFestival = calendarAtClock(18)
+  assert.deepEqual([openingFestival.year, openingFestival.month, openingFestival.day, openingFestival.hour], [2026, 3, 14, 0])
   assert.ok(openingFestival.festivals.includes('ditaVeres'))
 
   // Rusicat is Orthodox Mid-Pentecost (the 25th day counting Pascha), not
@@ -405,7 +1070,7 @@ check('folk-calendar observances use the right civil and Orthodox dates', () => 
 
   // A request made after the target phase on the feast must advance to the
   // next annual observance, never spill into a non-festival morning.
-  const feastNight = advanceToFestival(0, 'ditaVeres', 'night')
+  const feastNight = advanceToFestival(0, 'ditaVeres', 'night', 23)
   const nextFeastDay = advanceToFestival(feastNight, 'ditaVeres', 'day')
   assert.ok(nextFeastDay - feastNight > 300 * 24)
   assert.ok(festivalIdsAtClock(nextFeastDay).includes('ditaVeres'))
@@ -437,13 +1102,26 @@ check('calendar and weather are deterministic', () => {
   for (const region of REGIONS) {
     const year = new Set()
     for (let day = 0; day < 366; day++) {
-      const midnight = day * 24
+      const midnight = 18 + day * 24
       const opening = weatherAtClock(midnight, {}, region.key)
       assert.equal(weatherAtClock(midnight + 23, {}, region.key), opening, `${region.key}: unsourced weather changed within one civil day`)
       year.add(opening)
     }
     if (region.key === 'underworld') assert.deepEqual([...year], ['clear'])
     else assert.ok(year.size >= 4, `${region.key}: only ${year.size} weather states occur in a full year`)
+  }
+})
+
+check('authored scene weather overrides only with canonical weather ids', () => {
+  const state = stateAt('start', 106)
+  assert.equal(weatherOf(state, { sceneWeather: 'storm' }), 'storm')
+  assert.equal(weatherOf(state, { sceneWeather: 'snow' }), 'snow')
+  assert.equal(weatherOf(state, { sceneWeather: 'invented' }), weatherAtClock(106, {}, 'village'))
+  assert.equal(weatherOf(state, { sceneWeather: null }), weatherAtClock(106, {}, 'village'))
+  for (const [id, node] of Object.entries(STORY)) {
+    if (node.sceneWeather == null) continue
+    assert.ok(['clear', 'cloud', 'rain', 'storm', 'snow'].includes(node.sceneWeather), `${id}: invalid sceneWeather`)
+    assert.equal(weatherOf(stateAt(id, 106)), node.sceneWeather, `${id}: authored scene weather was ignored`)
   }
 })
 
@@ -571,11 +1249,27 @@ check('self-loops cannot farm permanent state without a cost or exit', () => {
   for (const [nodeId, node] of Object.entries(STORY)) {
     for (const option of node.options || []) {
       if (option.confuser || option.to !== nodeId) continue
-      if (option.grant && !option.consumes) {
-        assert.ok(option.unless, `${nodeId}: repeatable self-loop grants '${option.grant}' forever`)
+      const effects = optionEffectsOf(option)
+      const netItems = new Map()
+      let netLek = 0
+      let damagesHearts = false
+      for (const effect of effects) {
+        if (effect?.type === 'inventory') {
+          netItems.set(effect.id, (netItems.get(effect.id) || 0) + effect.delta)
+        } else if (effect?.type === 'resource' && effect.id === 'lek' && effect.set == null) {
+          netLek += effect.delta
+        } else if (effect?.type === 'resource' && effect.id === 'hearts' && (effect.delta || 0) < 0) {
+          damagesHearts = true
+        }
       }
-      if ((option.hearts || 0) < 0) {
-        assert.ok(option.unless, `${nodeId}: damage self-loop can repeat below the authored consequence`)
+      const hasFiniteCost = [...netItems.values()].some((delta) => delta < 0) || netLek < 0
+      const additiveGain = [...netItems.values()].some((delta) => delta > 0) || netLek > 0
+      const bounded = Boolean(option.unless || interactionSpecOf(option))
+      if (additiveGain && !hasFiniteCost) {
+        assert.ok(bounded, `${nodeId}: repeatable self-loop has an unbounded inventory or lek gain`)
+      }
+      if (damagesHearts) {
+        assert.ok(bounded, `${nodeId}: damage self-loop can repeat below the authored consequence`)
       }
     }
   }

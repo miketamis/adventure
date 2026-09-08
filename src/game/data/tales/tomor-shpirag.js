@@ -84,8 +84,11 @@ export default {
       tsRoje: 'watch',
       tsZgjim: 'chance',
       tsShpeto: 'safety',
+      shpirag1: 'watch',
+      tsRast: 'chance',
       tsBeteje: 'battle',
       tsFundTomor: 'end',
+      shpiragFund: 'end',
     },
     divergences: [
       { beat: 'tomorr', note: 'You embody "a giant" and your first choice assigns which one — the folktale fixes each (Baba Tomor already has the Beauty to wife and guards Berat; Shpirag covets the city). The game lets you take either role but never changes the outcome — both fall, the Beauty weeps the Osum — only which mountain remains is yours.' },

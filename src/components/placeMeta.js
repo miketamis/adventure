@@ -144,6 +144,13 @@ export const PLACE_META = {
       { title: 'the brothers keep or break their word', nodes: ['kalaFundBesa', 'kalaFundTurp'] },
     ],
   },
+  udhaKthimit: {
+    name: 'udha nën Rozafë — the road below the castle',
+    happenings: [
+      { title: 'the homeward road and the castle vista', nodes: ['udhaKthimit'] },
+      { title: "the builders' house before dawn", nodes: ['kalaNate', 'kalaMengjes'] },
+    ],
+  },
   uraArtes1: {
     name: 'ura e Artës — the masons\' yard',
     happenings: [
@@ -404,13 +411,14 @@ export const PLACE_META = {
     name: 'Jutbina — the highland hamlet',
     happenings: [
       { title: 'the hamlet and its song', nodes: ['jutbina', 'kengaJutbina'] },
-      { title: 'warriors return home', nodes: ['osmaniLiri', 'halilGarriaFund'] },
+      { title: 'Halil Garria returns home', nodes: ['halilGarriaFund'] },
     ],
   },
   odaJutbina: {
     name: 'oda e Jutbinës — the great guest-room',
     happenings: [
       { title: "Halili's wound and duel", nodes: ['odaJutbina', 'haliliDeka', 'haliliJeton'] },
+      { title: "Mujo's dawn coffee and Behuri muster", nodes: ['behuriJutbina'] },
     ],
   },
   gbMuji1: {
@@ -422,7 +430,69 @@ export const PLACE_META = {
   osmaniBurg: {
     name: "burgu i krajlit — the Krajl's prison",
     happenings: [
-      { title: "Arnaut Osmani's captivity", nodes: ['osmaniBurg', 'osmaniRob'] },
+      { title: "Arnaut Osmani's captivity", nodes: ['osmaniBurg', 'osmaniVdekur', 'osmaniProvat', 'osmaniVallja', 'osmaniShpata', 'osmaniZbuluar', 'osmaniRob'] },
+    ],
+  },
+  osmaniLiri: {
+    name: 'udha e Jutbinës — the homeward road into Jutbina',
+    happenings: [
+      { title: "Arnaut Osmani brings the freed company home", nodes: ['osmaniLiri'] },
+    ],
+  },
+  kreshnikRrembimi1: {
+    name: 'dera e Halilit — Halili’s door in Jutbina',
+    happenings: [
+      { title: 'the Zanas bring news of captive Mujo at midnight', nodes: ['kreshnikRrembimi1', 'kreshnikRrembimiRefuz'] },
+    ],
+  },
+  kreshnikRrembimiBurg: {
+    name: "kulla e krajlit — the Krajl's prison tower",
+    continuityReason: "This is the prison of Mujo's own rescue song, not Arnaut Osmani's group dungeon or Rusha's household tower; the separate marker preserves three incompatible captives and three different Krajls.",
+    happenings: [
+      { title: "Halili and Mujo's courser break the iron door", nodes: ['kreshnikRrembimiBurg'] },
+    ],
+  },
+  kreshnikRrembimiFund: {
+    name: 'udha e kthimit — the homeward approach to Jutbina',
+    happenings: [
+      { title: 'Halili brings Mujo home alive', nodes: ['kreshnikRrembimiFund', 'kreshnikRrembimiHumbur'] },
+    ],
+  },
+  behuriNdarja: {
+    name: 'bjeshka e kufirit — the frontier high pasture',
+    happenings: [
+      { title: 'two days of searching and the split of the companies', nodes: ['behuriNdarja', 'behuriKotorHumbur'] },
+    ],
+  },
+  behuriBurimi: {
+    name: 'burimi i Xhurit — the spring at Xhuri',
+    happenings: [
+      { title: "Mujo's Ora warns him away from Behuri's water", nodes: ['behuriBurimi', 'behuriBurimHumbur'] },
+    ],
+  },
+  behuriKulla: {
+    name: "kulla e Behurit — Behuri's fortified tower",
+    continuityReason: "Behuri is a captain with his own tower, powder room and slain company; this is not any Krajl's prison, Rusha's home, or a generic Jutbina kulla.",
+    happenings: [
+      { title: 'the steel keys, thirty heads and the powder fuse', nodes: ['behuriKulla', 'behuriKullaHumbur'] },
+    ],
+  },
+  behuriMejdan: {
+    name: 'mejdani i Behurit — Behuri’s open duel ground',
+    happenings: [
+      { title: 'Mujo hears the Ora and asks for one last look at the sun', nodes: ['behuriMejdan', 'behuriMejdanHumbur'] },
+    ],
+  },
+  behuriFund: {
+    name: 'udha e Jutbinës — the returning company',
+    happenings: [
+      { title: 'Mujo returns from Behuri’s ruined tower', nodes: ['behuriFund'] },
+    ],
+  },
+  udhaSyri: {
+    name: 'Syri i Kaltër — the Blue Eye spring',
+    happenings: [
+      { title: 'the serpent’s eye becomes a spring and water is channelled home', nodes: ['udhaSyri', 'syriKanali', 'syriFund'] },
     ],
   },
   halilGarria1: {

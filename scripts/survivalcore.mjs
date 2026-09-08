@@ -184,7 +184,7 @@ const SURVIVAL = {
   ],
   '8 · Controlling & learning language': [
     { al: 'nuk kuptoj', en: ['dont understand', 'do not understand'], phrase: 'nuk kuptoj' },
-    { al: 'flisni ngadalë', en: ['slowly', 'speak slowly'], phrase: 'fol ngadalë' },
+    { al: 'flisni ngadalë', en: ['slowly', 'speak slowly'], phrase: 'flisni ngadalë' },
     { al: 'përsërit', en: ['repeat', 'again'] },
     { al: 'si thuhet', en: ['how do you say'], phrase: 'si thuhet' },
     { al: 'a flisni anglisht', en: ['do you speak', 'english'], skip: 'no English in a folktale world' },

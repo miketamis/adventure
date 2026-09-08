@@ -828,14 +828,43 @@ function gRoadmark(x, y) {
 // bankside worksite (uraArtes1) out past mid-river, ends ragged at open wooden
 // scaffolding; fallen stones lie in the water below the gap. It never touches
 // the west bank — the only true crossing stays the old tanners' stone bridge. ──
-function gUraArtes() {
+function gUraArtes(worldFacts = {}) {
   // the span's line: east bridgehead [204,510] toward the west bank [56,476];
   // the river channel lies under t ≈ 0.10..0.51 of this line, so the works
   // stop at mid-channel (t=0.30) and the scaffolding stands IN the water
   const P = (t) => [204 + (56 - 204) * t, 510 + (476 - 510) * t]
   const [ex, ey] = P(0), [mx, my] = P(0.3) // built portion stops mid-river
+  const factIsPresent = (id) => worldFacts[id] != null && worldFacts[id] !== false
+  if (factIsPresent('artaBridgeRaised')) {
+    const [wx, wy] = P(1)
+    return (
+      <g aria-label="the completed Bridge of Arta">
+        <line x1={ex} y1={ey} x2={wx} y2={wy} stroke="#6f6759" strokeWidth={18} strokeLinecap="round" />
+        <line x1={ex} y1={ey} x2={wx} y2={wy} stroke="#cfc8ba" strokeWidth={12} strokeLinecap="round" />
+        {Array.from({ length: 9 }, (_, i) => {
+          const [px, py] = P((i + 1) / 10)
+          return <line key={i} x1={px} y1={py - 6} x2={px} y2={py + 6} stroke="#9a938a" strokeWidth={1.3} />
+        })}
+        {[0.22, 0.5, 0.78].map((t) => {
+          const [px, py] = P(t)
+          return <path key={t} d={`M ${px - 6} ${py + 7} Q ${px} ${py + 18} ${px + 6} ${py + 7}`} fill="none" stroke="#6f6759" strokeWidth={3} />
+        })}
+      </g>
+    )
+  }
+  if (factIsPresent('artaBridgeUnbuilt')) {
+    return (
+      <g aria-label="the ford where the Bridge of Arta was never raised">
+        <path d="M 201 507 Q 180 500 161 498" fill="none" stroke="#a78f69" strokeWidth={8} strokeLinecap="round" opacity={0.75} />
+        {[0.2, 0.32, 0.44, 0.56, 0.68].map((t, i) => {
+          const [px, py] = P(t)
+          return <ellipse key={i} cx={px} cy={py + (i % 2 ? 4 : -2)} rx={5} ry={3.2} fill="#8b8378" stroke="#5b5348" strokeWidth={0.9} />
+        })}
+      </g>
+    )
+  }
   return (
-    <g>
+    <g aria-label="the half-built Bridge of Arta">
       {/* the built stone deck, out from the east bank */}
       <line x1={ex} y1={ey} x2={mx} y2={my} stroke="#6f6759" strokeWidth={17} strokeLinecap="butt" />
       <line x1={ex} y1={ey} x2={mx} y2={my} stroke="#cfc8ba" strokeWidth={12} strokeLinecap="butt" />
@@ -2465,7 +2494,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
               <Field x={874} y={696} w={176} h={120} rot={-6} tone="#7a664a" />
               <Field x={532} y={816} w={318} h={110} rot={0} tone="#6f5744" />
               <Field x={694} y={772} w={150} h={98} rot={4} tone="#7a664a" />
-              {gUraArtes()}
+              {gUraArtes(world?.worldFacts)}
               {/* ── the THROUGH-STREETS: the high street in from the crossroads,
                   the market street south past the pazar to the fields, the river
                   road down to the tanners' bridge. Wide, cobble-edged — the town's

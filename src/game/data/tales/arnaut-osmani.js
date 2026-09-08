@@ -12,7 +12,7 @@
 // already the game's own kreshnik hub (src/game/content.js) — these beats
 // bookend there and propose a new "Krajl's dungeon" branch off it for
 // everything in between; see the `burgu` place below for why the game's
-// EXISTING Krajl-tower nodes (halil1/halilFund, rusha1, kulle1/kulle2) are
+// EXISTING Krajl-tower nodes (kreshnikRrembimiBurg, rusha1, kulle1/kulle2) are
 // each the wrong mold for this particular captivity. The song's first beat
 // stages the band at the mountain pastures (`bjeshka`/mali1) — one more
 // momentary crossing of that shared "wanderers' flank" — before the second
@@ -76,15 +76,15 @@ export default {
     { id: 'jutbina', emoji: '🏘️', name: 'the Plain of Jutbina', note: 'the frontier hamlet — where the raid sets out from, and where the freed company rides home',
       anchor: { status: 'existing', node: 'jutbina', mirror: 'Jutbina, the kreshnik hub the game already names "where the lahutë sings the Songs of the Kreshnikë"',
         mold: 'the hub already gathers Mujo\'s strength-origin, the Tanusha raid, Zuku\'s two songs and a mejdan under one roof — "the scattered highland epic is gathered" here, exactly the role this song\'s bookends play too',
-        sharedWith: ['mujo-strength', 'the already-built halil1/rusha1/zuku1/mejdan1 side-quests (siblings at the same hub, not shared scenes)'] } },
+        sharedWith: ['mujo-strength', 'the already-built kreshnikRrembimi1/rusha1/zuku1/mejdan1 story branches (siblings at the same hub, not shared scenes)'] } },
     { id: 'bjeshka', emoji: '⛰️', name: 'the mountain pastures', note: 'the high ground above Jutbina where Osmani\'s band mustered before the ambush that took them',
       anchor: { status: 'existing', node: 'mali1', mirror: 'the grazing heights above Jutbina — the frontier massif\'s own bare flank',
         mold: 'a bare, empty flank where wanderers cross paths — nobody owns the open mountainside (three-friends\' own words for this spot, already reused once for mujo-strength\'s "muji-halili" scene); the tale\'s own first beat stages Osmani\'s band standing here a moment before the Slav raiders fall on them and drag them off to the dungeon',
         sharedWith: ['three-friends (reserved this spot for "muji-halili")', 'mujo-strength', 'sari-salltek'] } },
     { id: 'burgu', emoji: '⛓️', name: 'the Krajl\'s dungeon-tower', note: 'nine years, then six more: the cell, the false death, the three ordeals, the dance, and the blade',
       anchor: { status: 'proposed', node: 'jutbina', mirror: 'a foreign castle across the frontier, wherever the raid carried the twelve',
-        mold: 'a NEW Krajl and a NEW tower, proposed as a fourth branch off the Jutbina hub (alongside halil1/rusha1/zuku1) — this Krajl holds a dozen Agas together and is undone from the inside by one prisoner\'s trick, not the lone-captive-freed-from-outside pattern the hub already tells',
-        conflicts: 'NOT halil1/halilFund (that tower holds Muji ALONE and is broken from outside by Halili riding in — here Halili himself is one of the twelve INSIDE, freed by Osmani\'s trick; sharing the node would contradict both stories\' captives and their means of freedom). NOT rusha1 (a different Krajl\'s tower where his daughter Rusha lives free and serves coffee — no dungeon, no captives, no torture there). NOT kulle1/kulle2 (the blood-feud kulla in the village-life quarter, an unrelated Kanun custom-vignette, not a kreshnik song at all).',
+        mold: 'a NEW Krajl and a NEW tower, proposed as a fourth branch off the Jutbina hub (alongside kreshnikRrembimi1/rusha1/zuku1) — this Krajl holds a dozen Agas together and is undone from the inside by one prisoner\'s trick, not the lone-captive-freed-from-outside pattern the hub already tells',
+        conflicts: 'NOT kreshnikRrembimiBurg/kreshnikRrembimiFund (that tower holds Muji ALONE and is broken from outside by Halili riding in — here Halili himself is one of the twelve INSIDE, freed by Osmani\'s trick; sharing the node would contradict both stories\' captives and their means of freedom). NOT rusha1 (a different Krajl\'s tower where his daughter Rusha lives free and serves coffee — no dungeon, no captives, no torture there). NOT kulle1/kulle2 (the blood-feud kulla in the village-life quarter, an unrelated Kanun custom-vignette, not a kreshnik song at all).',
         proposal: 'draw a new option off jutbina ("shko te burgu i krajlit" or similar) leading to this dungeon-tower: a cell for the two sentences and the false death, then a courtyard for the body-tests, the dance of thirty maidens, and the blade' } },
     { id: 'raidedPalace', emoji: '🔥', name: 'the Krajl\'s burnt palace', note: 'palace, kulla and forest — burned before the song\'s first line',
       anchor: { status: 'offstage', mirror: 'the Krajl\'s own seat, somewhere across the frontier, before this song opens',
@@ -97,8 +97,8 @@ export default {
   // EMBODIED projection — a compact staged arc off the Jutbina hub: you ARE
   // Arnaut Osmani in the Krajl's dungeon, at the choice that decides whether the
   // whole company walks free. become:'arnaut-osmani' on the jutbina "rri me
-  // osmani" threshold; the entry node osmaniBurg holds the cell, the confession,
-  // and the choice, and flows only to the two endings (mold-lock safe).
+  // osmani" threshold; the entry node holds the confession, then the source's
+  // false-death gauntlet is played beat by beat before the escape.
   play: {
     entry: 'confession',
     stance: 'embodied',
@@ -109,13 +109,16 @@ export default {
     from: 'osmaniBurg',
     ending: 'osmaniLiri',
     scenes: {
-      osmaniBurg: 'confession',
+      osmaniBurg: ['confession', 'secondSentence'],
+      osmaniVdekur: ['plan', 'fakeDeath', 'oneOfUs', 'daughterFinds'],
+      osmaniProvat: ['bodyBrought', 'ordeals'],
+      osmaniVallja: ['dance', 'plea'],
+      osmaniShpata: 'blade',
       osmaniLiri: 'homecoming',
-      osmaniRob: 'secondSentence',
     },
     divergences: [
-      { beat: 'confession', note: 'The song\'s hinge — Osmani owning every crime alone to spare his companions, then earning six more years for the boast — becomes the player\'s own choice at osmaniBurg: take the blame and trick the Krajl (mashtro), or flee alone (ik). The whole cell, the nine years in irons, and the taunt-and-sentence exchange are compressed onto this one entry board.' },
-      { beat: 'homecoming', note: 'The good ending osmaniLiri folds the long middle of the song — the feigned death, the serpents-fire-and-nails ordeals, the dance of thirty maidens, and the sabre torn out of the air — into its outcome: the trick lands, the irons fall, and you lead the freed company home to Jutbina. The player chooses to take the blame; surviving the corpse-test is implied by the trick succeeding rather than played ordeal by ordeal.' },
+      { beat: 'confession', note: 'The song\'s hinge — Osmani owning every crime alone to spare his companions, then earning six more years for the boast — becomes the player\'s own choice at osmaniBurg: take the blame and trick the Krajl (mashtro), or flee alone (ik). The confession and second sentence share the entry board before night falls.' },
+      { beat: 'homecoming', note: 'The source-shaped route now plays the false death, the lament, the daughter\'s discovery, serpents, fire, twenty nails, thirty dancing maidens, her burial plea, and the guard\'s bare sabre as separate decisions. The ending retains the violent escape and homecoming outcome rather than asking the player to repeat blows after the decisive sword-seizure.' },
       { beat: 'secondSentence', note: 'Built from scratch — a divergence the song never takes: flee alone and the Krajl runs you down (kap) and throws you back for more years, your companions still chained. Canonical Osmani frees all eleven by owning the crimes and playing dead; this bad ending osmaniRob is the road the clever prisoner refuses.' },
     ],
   },

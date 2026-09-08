@@ -17,6 +17,11 @@ export const DISTRIBUTION_THRESHOLDS = Object.freeze({
   locationCardSceneFloor: 5,
   minSceneIdentityTokens: 10,
   maxRegionSceneShare: 0.35,
+  // Density comparisons need enough distinct places to describe a region rather
+  // than the scene depth of one castle, lake or court. Small named realms still
+  // remain covered by the absolute share, place-card and neighborhood gates.
+  minRegionPlacesForDensityComparison: 5,
+  minRegionsForDensityComparison: 5,
   maxRegionScenesPerPlaceRatio: 2.5,
 })
 
@@ -85,7 +90,9 @@ export function worldDistribution() {
       scenesPerPlace: members.length ? scenes / members.length : 0,
     }
   })
-  const populatedRegionDensities = regionRows.filter((row) => row.places).map((row) => row.scenesPerPlace)
+  const densityComparableRegions = regionRows.filter((row) =>
+    row.places >= DISTRIBUTION_THRESHOLDS.minRegionPlacesForDensityComparison)
+  const populatedRegionDensities = densityComparableRegions.map((row) => row.scenesPerPlace)
 
   const malformedCards = []
   for (const [place, meta] of Object.entries(PLACE_META)) {
@@ -116,6 +123,8 @@ export function worldDistribution() {
       !row.hasLocationCard && !row.allTerminal && row.descriptionTokens < DISTRIBUTION_THRESHOLDS.minSceneIdentityTokens),
     malformedCards,
     overConcentratedRegions: regionRows.filter((row) => row.sceneShare > DISTRIBUTION_THRESHOLDS.maxRegionSceneShare),
+    insufficientDensityComparison:
+      densityComparableRegions.length < DISTRIBUTION_THRESHOLDS.minRegionsForDensityComparison,
     regionDensityRatio: populatedRegionDensities.length
       ? Math.max(...populatedRegionDensities) / Math.min(...populatedRegionDensities)
       : 0,
@@ -130,6 +139,7 @@ export function worldDistribution() {
     },
     placeRows,
     regionRows,
+    densityComparableRegions,
     densestNeighborhoods: [...placeRows]
       .sort((a, b) => b.localScenes - a.localScenes || b.localPlaces - a.localPlaces || a.place.localeCompare(b.place))
       .slice(0, 10),

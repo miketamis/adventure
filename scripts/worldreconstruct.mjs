@@ -75,6 +75,7 @@ const report = {
       missingSceneIdentity: distributionModel.violations.missingSceneIdentity.length,
       malformedCards: distributionModel.violations.malformedCards.length,
       overConcentratedRegions: distributionModel.violations.overConcentratedRegions.length,
+      insufficientDensityComparison: distributionModel.violations.insufficientDensityComparison,
       regionDensityRatio: Number(distributionModel.violations.regionDensityRatio.toFixed(3)),
       regionDensityRatioExceeded:
         distributionModel.violations.regionDensityRatio > distributionModel.thresholds.maxRegionScenesPerPlaceRatio,
@@ -107,7 +108,7 @@ if (process.argv.includes('--json')) {
   const densest = report.distribution.densestNeighborhoods[0]
   const sparsest = report.distribution.sparsestPlaces[0]
   console.log(`Distribution: ${report.distribution.totals.locationCards} location cards; densest ${report.distribution.thresholds.localRadius}-unit neighborhood ${densest.place} (${densest.localPlaces} places / ${densest.localScenes} scenes); widest nearest-neighbor gap ${sparsest.place} (${sparsest.nearestDistance} units, ${sparsest.distributionReason ? 'reviewed' : 'unreviewed'})`)
-  console.log(`Regional balance: ${report.distribution.violations.regionDensityRatio.toFixed(2)}× richest-to-sparsest scenes per place (cap ${report.distribution.thresholds.maxRegionScenesPerPlaceRatio.toFixed(2)}×)`)
+  console.log(`Regional balance: ${report.distribution.violations.regionDensityRatio.toFixed(2)}× richest-to-sparsest scenes per place among regions with at least ${report.distribution.thresholds.minRegionPlacesForDensityComparison} places (cap ${report.distribution.thresholds.maxRegionScenesPerPlaceRatio.toFixed(2)}×)`)
   console.log('')
   console.log('| Place | Region | x | y |')
   console.log('|---|---:|---:|---:|')

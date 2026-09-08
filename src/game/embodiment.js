@@ -1,17 +1,27 @@
 import { STORY } from './content.js'
+import { optionEffectsOf } from './stateMechanics.js'
 import { transitionInfo } from './worldModel.js'
 
 // Runtime contracts for tales in which a choice commits the player to a role.
 // These are deliberately separate from tale `play.scenes`: that metadata maps
 // source beats, while this table owns gameplay boundaries, alternate branches
 // and every ending which may legitimately close the role.
-const words = (value) => value.trim().split(/\s+/)
+const words = (value = '') => value.trim().split(/\s+/).filter(Boolean)
 
-const quest = ({ nodes, endings, ...spec }) => Object.freeze({
-  ...spec,
-  nodes: Object.freeze(words(nodes)),
-  endings: Object.freeze(words(endings)),
-})
+// Most roles have one threshold, so `entryFrom` remains the stable primary
+// entry used by old saves and callers. `entryFroms` is the complete contract:
+// a tale may be entered from several coherent overworld viewpoints without
+// pretending that only the first authored threshold exists.
+const quest = ({ nodes, endings, entryFrom, entryFroms = '', ...spec }) => {
+  const entries = [...new Set([entryFrom, ...words(entryFroms)].filter(Boolean))]
+  return Object.freeze({
+    ...spec,
+    entryFrom: entries[0] || null,
+    entryFroms: Object.freeze(entries),
+    nodes: Object.freeze(words(nodes)),
+    endings: Object.freeze(words(endings)),
+  })
+}
 
 export const EMBODIMENT_QUESTS = Object.freeze({
   'aga-ymer': quest({
@@ -74,8 +84,15 @@ export const EMBODIMENT_QUESTS = Object.freeze({
   }),
   'arnaut-osmani': quest({
     identity: 'Arnaut Osmani', stance: 'embodied', entryFrom: 'odaJutbina', entryTo: 'osmaniBurg',
-    objective: 'answer for the twelve captives before the Krajl', nodes: 'osmaniBurg osmaniLiri osmaniRob',
-    endings: 'osmaniLiri osmaniRob',
+    objective: 'answer for the twelve captives and endure the Krajl’s corpse-tests',
+    nodes: 'osmaniBurg osmaniVdekur osmaniProvat osmaniVallja osmaniShpata osmaniLiri osmaniRob osmaniZbuluar',
+    endings: 'osmaniLiri osmaniRob osmaniZbuluar',
+  }),
+  'muji-e-behuri': quest({
+    identity: "Mujo's trusted road-companion", stance: 'companion', entryFrom: 'odaJutbina', entryTo: 'behuriJutbina', returnTo: 'jutbina',
+    objective: 'heed the courser and Ora, enter Behuri’s tower and help Mujo survive the final mejdan',
+    nodes: 'behuriJutbina behuriNdarja behuriBurimi behuriKulla behuriMejdan behuriFund behuriKotorHumbur behuriBurimHumbur behuriKullaHumbur behuriMejdanHumbur',
+    endings: 'behuriFund behuriKotorHumbur behuriBurimHumbur behuriKullaHumbur behuriMejdanHumbur',
   }),
   'halil-garria': quest({
     identity: 'Halil Garria', stance: 'embodied', entryFrom: 'odaJutbina', entryTo: 'halilGarria1',
@@ -93,7 +110,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
     endings: 'gbMujiFund gbMujiVdes',
   }),
   'rozafa': quest({
-    identity: 'one of the three brothers', stance: 'embodied', entryFrom: 'udhaKthimit', entryTo: 'kalaMjegull', returnTo: 'udhekryq',
+    identity: 'one of the three brothers', stance: 'embodied', entryFrom: 'udhaKthimit', entryFroms: 'maja', entryTo: 'kalaMjegull', returnTo: 'udhekryq',
     objective: 'learn why the castle wall falls and decide what your besa means',
     nodes: 'kalaMjegull kalaPlak kalaNate kalaMengjes kalaNgjitje kalaLutje kalaMur kalaFundBesa kalaFundTurp',
     endings: 'kalaFundBesa kalaFundTurp',
@@ -219,6 +236,11 @@ const PUBLIC_FREE_ROAM_NODE_SET = new Set(PUBLIC_FREE_ROAM_NODES)
 
 export const canonicalEmbodimentId = (id) => EMBODIMENT_ALIASES[id] || id
 export const embodimentQuest = (id) => EMBODIMENT_QUESTS[canonicalEmbodimentId(id)] || null
+export const embodimentEntryNodes = (idOrQuest) => {
+  const resolved = typeof idOrQuest === 'string' ? embodimentQuest(idOrQuest) : idOrQuest
+  if (resolved?.entryFroms?.length) return resolved.entryFroms
+  return resolved?.entryFrom ? [resolved.entryFrom] : []
+}
 export const isKnownEmbodiment = (id) => Boolean(embodimentQuest(id))
 export const isEmbodimentNode = (id, nodeId) => Boolean(embodimentQuest(id)?.nodes.includes(nodeId))
 export const isEmbodimentEnding = (id, nodeId) => Boolean(embodimentQuest(id)?.endings.includes(nodeId))
@@ -226,18 +248,20 @@ export const embodimentIdentity = (state) => {
   const quest = embodimentQuest(state?.embodying)
   if (!quest) return null
   if (canonicalEmbodimentId(state.embodying) === 'tomor-shpirag') {
-    if (state.inventory?.jamShpirag) return 'Shpirag'
+    // New saves use a semantic tale flag; the inventory fallback migrates old
+    // saves that encoded the role as a pseudo-item.
+    if (state.flags?.jamShpirag || state.inventory?.jamShpirag) return 'Shpirag'
     if (state.embodimentFocusNode !== 'tsHyrje') return 'Baba Tomor'
   }
   if (canonicalEmbodimentId(state.embodying) === 'rozafa' &&
       !['kalaMjegull', 'kalaPlak', 'kalaNate'].includes(state.embodimentFocusNode)) {
-    return state.inventory?.besaMbajtur ? 'the youngest brother' : 'one of the elder brothers'
+    return state.flags?.besaMbajtur ? 'the youngest brother' : 'one of the elder brothers'
   }
   return quest.identity
 }
 
-const changesWorld = (option) => Boolean(
-  option.grant || option.consumes || option.lek || option.hearts || option.activateFixture,
+const changesWorld = (option, targetNode) => Boolean(
+  optionEffectsOf(option).length || option.interaction != null || targetNode?.worldEffects?.length,
 )
 
 /**
@@ -263,7 +287,7 @@ export function embodimentOptionAccess(state, option, targetNode = STORY[option?
   const route = transitionInfo(state.nodeId, option)
   const edge = `${state.nodeId}->${option.to}`
   const publicTravel = route.valid && route.spatial && !route.projection &&
-    (route.kind === 'journey' || route.wander) && !changesWorld(option) &&
+    (route.kind === 'journey' || route.wander) && !changesWorld(option, targetNode) &&
     PUBLIC_FREE_ROAM_NODE_SET.has(option.to)
   const fromOwned = active.nodes.includes(state.nodeId)
   const toOwned = active.nodes.includes(option.to)
@@ -299,12 +323,12 @@ export function embodimentOptionAccess(state, option, targetNode = STORY[option?
 
   const reviewedTransit = PUBLIC_FREE_ROAM_TRANSITS[edge]
   const safeReviewedTransit = reviewedTransit && route.valid && route.spatial &&
-    route.kind === 'local' && !changesWorld(option) &&
+    route.kind === 'local' && !changesWorld(option, targetNode) &&
     PUBLIC_FREE_ROAM_NODE_SET.has(state.nodeId) && PUBLIC_FREE_ROAM_NODE_SET.has(option.to)
   if (safeReviewedTransit)
     return { ok: true, kind: 'detour', reason: null, transit: reviewedTransit.reason }
 
-  const harmlessWait = option.to === state.nodeId && (option.time || option.date) && !changesWorld(option)
+  const harmlessWait = option.to === state.nodeId && (option.time || option.date) && !changesWorld(option, targetNode)
   if (harmlessWait) return { ok: true, kind: 'wait', reason: null }
 
   return {

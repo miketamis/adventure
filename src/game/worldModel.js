@@ -9,7 +9,7 @@ import { STORY } from './content.js'
 import { NODE_POS, PLACE_OF } from '../components/nodePositions.js'
 import { NODE_REGION, REGIONS, isWander } from './regions.js'
 
-export const WORLD_MODEL_VERSION = 2
+export const WORLD_MODEL_VERSION = 3
 
 // This is a mythic composite chart, not a survey map of Albania. Its axes are
 // narrative: the forest is to the left, the sea-road to the right, the divine
@@ -182,8 +182,14 @@ export function durationForDistance(distance, option = {}) {
   // A target phase is a wait *after* travel, not a substitute for travel. Keep
   // both facts in one record so “reach it at night” cannot collapse a four-hour
   // road to the default one-hour action. Explicit durations remain authoritative.
-  if (Number.isFinite(option.durationHours) && option.durationHours >= 0) {
-    return { kind: 'hours', hours: option.durationHours, targetPhase: option.time || null }
+  const timing = {
+    targetPhase: option.time || null,
+    targetHour: Number.isInteger(option.atHour) && option.atHour >= 0 && option.atHour <= 23
+      ? option.atHour
+      : null,
+  }
+  if (Number.isSafeInteger(option.durationHours) && option.durationHours >= 0) {
+    return { kind: 'hours', hours: option.durationHours, ...timing }
   }
   // Every ordinary action advances the current game clock by one hour.
   const hours = distance <= ROUTE_THRESHOLDS.local ? 1
@@ -191,7 +197,7 @@ export function durationForDistance(distance, option = {}) {
       : distance <= ROUTE_THRESHOLDS.medium ? 2
         : distance <= ROUTE_THRESHOLDS.long ? 4
           : 8
-  return { kind: 'hours', hours, targetPhase: option.time || null }
+  return { kind: 'hours', hours, ...timing }
 }
 
 const signed = (value) => `${value >= 0 ? '+' : ''}${value}`
@@ -308,6 +314,7 @@ export function transitionInfo(from, option) {
     spatial: route.spatial !== false,
     hours: route.duration?.kind === 'hours' ? route.duration.hours : null,
     targetPhase: route.duration?.targetPhase || null,
+    targetHour: route.duration?.targetHour ?? null,
     label: route.valid
       ? route.samePlace
         ? `here at ${route.fromPlace}`

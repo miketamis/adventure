@@ -28,6 +28,7 @@ import {
   PUBLIC_FREE_ROAM_PLACES,
   PUBLIC_FREE_ROAM_TRANSITS,
   canonicalEmbodimentId,
+  embodimentEntryNodes,
   embodimentOptionAccess,
   isEmbodimentEnding,
 } from '../src/game/embodiment.js'
@@ -36,6 +37,7 @@ import { playerMapLabel } from '../src/components/mapLabels.js'
 import { transitionInfo } from '../src/game/worldModel.js'
 import { NPCS } from '../src/game/npcs.js'
 import { ACHIEVEMENTS } from '../src/game/achievements.js'
+import { optionEffectsOf } from '../src/game/stateMechanics.js'
 
 const checks = []
 const check = (name, fn) => {
@@ -50,11 +52,13 @@ const check = (name, fn) => {
 const stateAt = (nodeId, extra = {}) => ({
   nodeId, clock: START_CLOCK, cameFrom: null, cameFromPhase: null, familiar: false,
   heard: {}, rumor: false, trail: [], discovered: {}, inventory: {}, mana: {}, practiced: {},
+  flags: {}, knowledge: {}, interactions: {},
   visited: {}, earned: {}, eligible: {}, attempts: {}, dismissedTests: {}, pendingTest: null,
   peak: 3, hearts: 3, healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
   view: 'story', ended: null, embodying: null, embodimentOriginNode: null,
   embodimentFocusNode: null, embodimentWorldNode: null, embodimentPaused: false,
   embodimentClock: null, embodimentInventorySnapshot: null, embodimentInventoryIsolated: null,
+  embodimentFlagsSnapshot: null,
   embodimentHeartsSnapshot: null,
   embodimentArrivalSnapshot: null,
   pendingEmbodiment: null, timePassage: null,
@@ -62,8 +66,8 @@ const stateAt = (nodeId, extra = {}) => ({
 })
 
 const asList = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
-const changesWorld = (option) => Boolean(
-  option?.grant || option?.consumes || option?.lek || option?.hearts || option?.activateFixture,
+const changesWorld = (option, targetNode = STORY[option?.to]) => Boolean(
+  optionEffectsOf(option).length || option?.interaction != null || targetNode?.worldEffects?.length,
 )
 const sameSet = (left, right) =>
   left.size === right.size && [...left].every((value) => right.has(value))
@@ -222,21 +226,27 @@ check('every become threshold names a known, correctly located contract', () => 
       const id = canonicalEmbodimentId(option.become)
       const quest = EMBODIMENT_QUESTS[id]
       assert.ok(quest, `${from}->${option.to}: unknown ${option.become}`)
-      assert.equal(quest.entryFrom, from, `${id}: wrong entryFrom`)
+      assert.ok(embodimentEntryNodes(quest).includes(from), `${id}: unregistered entry ${from}`)
       assert.equal(quest.entryTo, option.to, `${id}: wrong entryTo`)
     }
   }
   assert.ok(count >= 28, `only ${count} confirmed character thresholds`)
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
-    assert.ok(STORY[quest.entryFrom]?.options.some((option) =>
-      option.to === quest.entryTo && canonicalEmbodimentId(option.become) === id), `${id}: no matching threshold`)
+    const entries = embodimentEntryNodes(quest)
+    assert.ok(entries.length > 0, `${id}: no threshold entries`)
+    assert.equal(quest.entryFrom, entries[0], `${id}: singular compatibility entry is not primary`)
+    for (const entryFrom of entries) {
+      assert.ok(STORY[entryFrom]?.options.some((option) =>
+        option.to === quest.entryTo && canonicalEmbodimentId(option.become) === id),
+      `${id}: no matching threshold from ${entryFrom}`)
+    }
   }
 })
 
 check('contracts contain only real nodes and list every terminal outcome', () => {
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     assert.ok(quest.identity && quest.objective && quest.stance, `${id}: incomplete identity copy`)
-    assert.ok(STORY[quest.returnTo || quest.entryFrom], `${id}: no safe overworld return`)
+    assert.ok(STORY[quest.returnTo || embodimentEntryNodes(quest)[0]], `${id}: no safe overworld return`)
     for (const nodeId of quest.nodes) assert.ok(STORY[nodeId], `${id}: missing ${nodeId}`)
     for (const endingId of quest.endings) {
       assert.ok(STORY[endingId]?.end, `${id}: ${endingId} is not an ending`)
@@ -822,13 +832,11 @@ check('every non-ending focus at every hour survives pause, detour, save and exa
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     const publicReturn = PUBLIC_FREE_ROAM_NODES.includes(quest.returnTo)
       ? quest.returnTo
-      : PUBLIC_FREE_ROAM_NODES.includes(quest.entryFrom)
-        ? quest.entryFrom
-        : WORLD_HUB
+      : embodimentEntryNodes(quest).find((entryFrom) => PUBLIC_FREE_ROAM_NODES.includes(entryFrom)) || WORLD_HUB
     for (const focusNode of quest.nodes.filter((nodeId) => !STORY[nodeId]?.end)) {
       const inbound = Object.entries(STORY).find(([from, node]) =>
-        from !== focusNode && (quest.nodes.includes(from) || from === quest.entryFrom) &&
-        node.options?.some((option) => option.to === focusNode))?.[0] || quest.entryFrom
+        from !== focusNode && (quest.nodes.includes(from) || embodimentEntryNodes(quest).includes(from)) &&
+        node.options?.some((option) => option.to === focusNode))?.[0] || embodimentEntryNodes(quest)[0]
       for (let hour = 0; hour < 24; hour++) {
         const taleClock = 24 * 200 + hour
         const live = stateAt(focusNode, {
@@ -907,9 +915,7 @@ check('every feasible tale edge at every starting hour advances the two clocks b
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     const publicReturn = PUBLIC_FREE_ROAM_NODES.includes(quest.returnTo)
       ? quest.returnTo
-      : PUBLIC_FREE_ROAM_NODES.includes(quest.entryFrom)
-        ? quest.entryFrom
-        : WORLD_HUB
+      : embodimentEntryNodes(quest).find((entryFrom) => PUBLIC_FREE_ROAM_NODES.includes(entryFrom)) || WORLD_HUB
     for (const from of quest.nodes.filter((nodeId) => !STORY[nodeId]?.end)) {
       for (const option of STORY[from]?.options || []) {
         if (!quest.nodes.includes(option.to) || option.confuser) continue
@@ -1202,6 +1208,11 @@ check('the UI exposes confirmation, persistent identity, guidance and locked rea
   assert.match(story, /currentStoryState\(state\)/)
   assert.match(story, /WorldContext state=\{storyState\} worldClock=\{state\.clock\}/)
   assert.match(story, /roleReason/)
+  assert.match(story, /const visibleOwnedIds = ownedIds/)
+  assert.match(story, /const usableOwned = state\.embodying \? \[\]/)
+  assert.match(story, /Role props are visible here and used through the choices they unlock/)
+  assert.match(story, /Direct traveller\s+item actions wait outside with your own pack/)
+  assert.match(story, /Authored story flags live in state\.flags/)
   assert.match(passage, /passage\.clockKind === 'tale'/)
   assert.match(passage, /Tale calendar before and after/)
   assert.match(passage, /Living world:/)

@@ -335,7 +335,7 @@ export default function PracticeView({ state, dispatch }) {
   const affordable = (node?.options || []).filter((opt) =>
     !opt.confuser &&
     isOptionRevealed(practiceState, opt, node) &&
-    canChoose(practiceState, opt).ok &&
+    canChoose(practiceState, opt) &&
     embodimentOptionAccess(state, opt, STORY[opt.to]).ok,
   )
 

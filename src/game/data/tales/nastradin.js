@@ -115,8 +115,8 @@ export default {
     { id: 'teshat', emoji: '🧥', name: 'the townsmen\'s finery', note: 'gold-stiff coats, silvered belt-arms, watches and chains' },
     { id: 'paret', emoji: '🪙', name: 'the pocket money', note: 'what the finery\'s pockets held — the price of a slaughtered cow' },
   ],
-  // how the game stages this tale — the WITNESS/judgment projection (see _SCHEMA.md).
-  // An ANTHOLOGY of the wise-fool's paradoxes, not one arc: you witness the renowned
+  // how the game stages this tale — a COMPANION/judgment projection (see _SCHEMA.md).
+  // An ANTHOLOGY of the wise-fool's paradoxes, not one arc: you sit beside the
   // hoxha and your choice resolves each puzzle the clever way (his) or the foolish
   // one — the borrowed cauldron that "gave birth" and then "died" (so its owner
   // cannot object), and the man made to pay for the SMELL of food with the SOUND of
@@ -124,9 +124,10 @@ export default {
   // castle (reuses kalaMur, where the finished Rozafa walls are now garrisoned).
   play: {
     entry: 'mushka',
-    stance: 'witness',
+    stance: 'companion',
+    with: 'nastradini',
     role:
-      'You come upon Nastradin Hoxha, the wise fool of a thousand tales, matched against the Vezir and his court. A cauldron he borrowed has "given birth" to a little pot — and later "died"; a cook demands gold from a poor man who only smelled his food. Weigh each paradox as the hoxha would, and no one cheats Nastradin; weigh it as a fool would, and the joke is on you.',
+      'You sit beside Nastradin Hoxha, the wise fool of a thousand tales, and help him weigh two paradoxes: the borrowed cauldron that first "gives birth" and later "dies", and the cook who demands gold from a poor man for smelling food. Answer with Nastradin\'s logic and help land the joke; answer foolishly and the game turns it back on you.',
     from: 'nastradin1',
     ending: 'nastradinGjyqFund',
     scenes: {
@@ -136,8 +137,9 @@ export default {
       nastradinGjyqFund: 'fundi',
     },
     divergences: [
-      { note: 'The game\'s WITNESS stance on an ANTHOLOGY of Nastradin\'s wit rather than one plot: two of the classic paradoxes are staged as puzzles you resolve — the borrowed cauldron that gives birth to a small pot (so you keep it) and later "dies" (so its owner cannot demand it back), and the smell-of-food trial. There is no single hero-arc to embody; you sit where the hoxha sits and judge.' },
+      { note: 'The game makes one invented companion thread through an ANTHOLOGY rather than a single source plot. Two classic paradoxes become puzzles you help Nastradin resolve — the borrowed cauldron that gives birth and later dies, and the smell-of-food trial. The joke-cycle supplies no continuous helper who attends both episodes.' },
       { beat: 'gjyqi', note: 'The signature ruling — a man is dragged before the judge for eating the SMELL of a cook\'s food, and Nastradin has him pay with the SOUND of his coins ("you ate the smell, you hear the gold") — is the good/clever ending "The Sound of the Coin"; hand the cook real gold instead and the fool\'s ending "Paid for the Smell" follows.' },
+      { beat: 'gjyqi', note: 'Letting the player hand over real gold is a game counterfactual used to test the proverb-like logic. In the selected witness Nastradin gives the clever sound-for-smell judgment; the foolish payment is not an alternate source anecdote.' },
       { note: 'The wider anthology — the mule due back "with a foal", the ox-cart bearing exactly three figs, old Nastradin\'s one doomsday cow, the townsmen\'s pocketed finery — is kept in the tale record; the Vezir\'s castle reuses kalaMur, the finished Rozafa walls a garrison holds centuries after the walling.' },
     ],
   },

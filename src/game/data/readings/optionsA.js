@@ -4,15 +4,15 @@ export const OPTION_READINGS_A = Object.freeze({
   "start.options[2]": { al: "hyr në pyll", en: "Enter the forest.", review: 'internal-editorial' }, // 2
   "start.options[3]": { al: "kalo pyllin", en: "Cross the forest.", review: 'internal-editorial' }, // conversation-core-shift
   "lendina.options[0]": { al: "ndiz një zjarr", en: "Light a fire.", review: 'internal-editorial' }, // 3
-  "lendina.options[1]": { al: "jep bukë", en: "Give bread.", review: 'internal-editorial' }, // 4
-  "lendina.options[2]": { al: "bëj pishtar", en: "Make a torch.", review: 'internal-editorial' }, // 5
-  "lendina.options[3]": { al: "prit këtu", en: "Wait here.", review: 'internal-editorial' }, // 6
-  "lendina.options[4]": { al: "fle këtu", en: "Sleep here.", review: 'internal-editorial' }, // 7
-  "lendina.options[5]": { al: "prit natën", en: "Wait for night.", review: 'internal-editorial' }, // 8
-  "lendina.options[6]": { al: "ec rrugës", en: "Walk along the road.", review: 'internal-editorial' }, // 9
-  "lendina.options[7]": { al: "ec thellë në pyll", en: "Walk deep into the forest.", review: 'internal-editorial' }, // 10
-  "lendina.options[8]": { al: "jep zjarrin", en: "Give the fire.", review: 'internal-editorial' }, // 11
-  "lendina.options[9]": { al: "ndiz pyllin", en: "Light the forest.", review: 'internal-editorial' }, // 12
+  "lendina.options[1]": { al: "hidh dru në zjarrin", en: "Throw wood in the fire.", review: 'internal-editorial' }, // 4
+  "lendina.options[2]": { al: "jep bukë", en: "Give bread.", review: 'internal-editorial' }, // 5
+  "lendina.options[3]": { al: "bëj pishtar", en: "Make a torch.", review: 'internal-editorial' }, // 6
+  "lendina.options[4]": { al: "prit këtu", en: "Wait here.", review: 'internal-editorial' }, // 7
+  "lendina.options[5]": { al: "fle këtu", en: "Sleep here.", review: 'internal-editorial' }, // 8
+  "lendina.options[6]": { al: "prit natën", en: "Wait for night.", review: 'internal-editorial' }, // 9
+  "lendina.options[7]": { al: "ec rrugës", en: "Walk along the road.", review: 'internal-editorial' }, // 10
+  "lendina.options[8]": { al: "ec thellë në pyll", en: "Walk deep into the forest.", review: 'internal-editorial' }, // 11
+  "lendina.options[9]": { al: "shiko nën gurin me dritë.", en: "Look under the stone with the light.", review: 'internal-editorial' }, // 12
   "plaka.options[0]": { al: "merr bukë", en: "Take bread.", review: 'internal-editorial' }, // 13
   "plaka.options[1]": { al: "dëgjo plakën", en: "Listen to the old woman.", review: 'internal-editorial' }, // 14
   "plaka.options[2]": { al: "dil jashtë", en: "Go outside.", review: 'internal-editorial' }, // 15
@@ -140,11 +140,11 @@ export const OPTION_READINGS_A = Object.freeze({
   "halilGarria1.options[2]": { al: "rri në zogun", en: "Stay inside the bird.", review: 'internal-editorial' }, // 137
   "halilGarria1.options[3]": { al: "merr varrin", en: "Take the grave.", review: 'internal-editorial' }, // 138
   "halilGarria1.options[4]": { al: "rri në motrën", en: "Stay in the sister.", review: 'internal-editorial' }, // 139
-  "osmaniBurg.options[0]": { al: "mashtro krajlin", en: "Trick the Krajl.", review: 'internal-editorial' }, // 140
+  "osmaniBurg.options[0]": { al: "merr çdo faj mbi vete.", en: "Take all the blame upon yourself.", review: 'internal-editorial' }, // 140
   "osmaniBurg.options[1]": { al: "ik vetëm", en: "Flee alone.", review: 'internal-editorial' }, // 141
-  "osmaniBurg.options[2]": { al: "mashtro hekurin", en: "Trick the iron.", review: 'internal-editorial' }, // 142
+  "osmaniBurg.options[2]": { al: "prangat flasin", en: "The shackles speak.", review: 'internal-editorial' }, // 142
   "osmaniBurg.options[3]": { al: "ik në burg", en: "Flee to prison.", review: 'internal-editorial' }, // 143
-  "osmaniBurg.options[4]": { al: "mashtro vëllezërit", en: "Trick the brothers.", review: 'internal-editorial' }, // 144
+  "osmaniBurg.options[4]": { al: "dielli rri në burg", en: "The sun stay in prison.", review: 'internal-editorial' }, // 144
   "haliliDeka.options[0]": { al: "dil në mejdan", en: "Go out to single combat.", review: 'internal-editorial' }, // 145
   "haliliDeka.options[1]": { al: "rri në Jutbina", en: "Stay in Jutbina.", review: 'internal-editorial' }, // 146
   "haliliDeka.options[2]": { al: "vrit mejdan", en: "Kill the duel.", review: 'internal-editorial' }, // 147
@@ -158,8 +158,8 @@ export const OPTION_READINGS_A = Object.freeze({
   "pylliThelle.options[5]": { al: "jep pyllin", en: "Give the forest.", review: 'internal-editorial' }, // 155
   "pylliThelle.options[6]": { al: "lufto natën", en: "Fight the night.", review: 'internal-editorial' }, // 156
   "shokuUjk.options[0]": { al: "ec me ujkun", en: "Walk with the wolf.", review: 'internal-editorial' }, // 157
-  "shokuUjk.options[1]": { al: "dëgjo ujkun", en: "Listen to the wolf.", review: 'internal-editorial' }, // 158
-  "shokuUjk.options[2]": { al: "dëgjo bukën", en: "Listen to the bread.", review: 'internal-editorial' }, // 159
+  "shokuUjk.options[1]": { al: "ec me ujkun", en: "Walk with the wolf.", review: 'internal-editorial' }, // 158
+  "shokuUjk.options[2]": { al: "dëgjo ujkun", en: "Listen to the wolf.", review: 'internal-editorial' }, // 159
   "udha.options[0]": { al: "ec në lumë", en: "Walk to the river.", review: 'internal-editorial' }, // 160
   "udha.options[1]": { al: "kthehu te zjarri dhe fle", en: "Return to the fire and sleep.", review: 'internal-editorial' }, // 161
   "udha.options[2]": { al: "jep lumin", en: "Give the river.", review: 'internal-editorial' }, // 162
@@ -337,36 +337,36 @@ export const OPTION_READINGS_A = Object.freeze({
   "siperfaqja.options[5]": { al: "dëgjo rrugën", en: "Listen to the road.", review: 'internal-editorial' }, // 334
   "kalaMjegull.options[0]": { al: "puno në murin", en: "Work on the wall.", review: 'internal-editorial' }, // 335
   "kalaMjegull.options[1]": { al: "dëgjo plakun", en: "Listen to the old man.", review: 'internal-editorial' }, // 336
-  "kalaMjegull.options[2]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 337
-  "kalaMjegull.options[3]": { al: "ngjit shqiponjën", en: "Climb the eagle.", review: 'internal-editorial' }, // 338
-  "kalaMjegull.options[4]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 339
+  "kalaMjegull.options[2]": { al: "muri flet", en: "The wall speaks.", review: 'internal-editorial' }, // 337
+  "kalaMjegull.options[3]": { al: "mjegulla punon", en: "The mist works.", review: 'internal-editorial' }, // 338
+  "kalaMjegull.options[4]": { al: "era bën një kala", en: "Wind makes a castle.", review: 'internal-editorial' }, // 339
   "kalaPlak.options[0]": { al: "shko në shtëpinë", en: "Go home.", review: 'internal-editorial' }, // 340
-  "kalaPlak.options[1]": { al: "lufto dragoin", en: "Fight the dragon.", review: 'internal-editorial' }, // 341
-  "kalaPlak.options[2]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 342
-  "kalaPlak.options[3]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 343
+  "kalaPlak.options[1]": { al: "muri premton besë", en: "The wall swears oath.", review: 'internal-editorial' }, // 341
+  "kalaPlak.options[2]": { al: "guri thotë: grua", en: "The stone says: woman.", review: 'internal-editorial' }, // 342
+  "kalaPlak.options[3]": { al: "besa do një gur", en: "The besa wants a stone.", review: 'internal-editorial' }, // 343
   "kalaNate.options[0]": { al: "mban besën", en: "Keep your besa.", review: 'internal-editorial' }, // 344
   "kalaNate.options[1]": { al: "thuaj grua", en: "Say “wife.”", review: 'internal-editorial' }, // 345
-  "kalaNate.options[2]": { al: "ngjit shqiponjën", en: "Climb the eagle.", review: 'internal-editorial' }, // 346
-  "kalaNate.options[3]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 347
-  "kalaNate.options[4]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 348
+  "kalaNate.options[2]": { al: "besa fle", en: "The besa sleeps.", review: 'internal-editorial' }, // 346
+  "kalaNate.options[3]": { al: "shtëpia fle", en: "The house sleeps.", review: 'internal-editorial' }, // 347
+  "kalaNate.options[4]": { al: "nata thotë: mos fle", en: "The night says: do not sleep.", review: 'internal-editorial' }, // 348
   "kalaMengjes.options[0]": { al: "shko në kala", en: "Go to the castle.", review: 'internal-editorial' }, // 349
-  "kalaMengjes.options[1]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 350
-  "kalaMengjes.options[2]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 351
-  "kalaMengjes.options[3]": { al: "lufto dragoin", en: "Fight the dragon.", review: 'internal-editorial' }, // 352
+  "kalaMengjes.options[1]": { al: "dielli sjell bukë", en: "The sun brings bread.", review: 'internal-editorial' }, // 350
+  "kalaMengjes.options[2]": { al: "kalaja sjell diellin", en: "The castle brings the sun.", review: 'internal-editorial' }, // 351
+  "kalaMengjes.options[3]": { al: "buka vjen në dielli", en: "The bread comes to the sun.", review: 'internal-editorial' }, // 352
   "kalaNgjitje.options[0]": { al: "dëgjo Rozafa", en: "Listen to Rozafa.", review: 'internal-editorial' }, // 353
-  "kalaNgjitje.options[1]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 354
-  "kalaNgjitje.options[2]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 355
-  "kalaNgjitje.options[3]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 356
+  "kalaNgjitje.options[1]": { al: "bukë do Rozafën", en: "Bread wants Rozafa.", review: 'internal-editorial' }, // 354
+  "kalaNgjitje.options[2]": { al: "fëmija do murin", en: "The child wants the wall.", review: 'internal-editorial' }, // 355
+  "kalaNgjitje.options[3]": { al: "muri ka një fëmijë", en: "The wall has a child.", review: 'internal-editorial' }, // 356
   "kalaLutje.options[0]": { al: "ndihmo murin", en: "Help build the wall.", review: 'internal-editorial' }, // 357
-  "kalaLutje.options[1]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 358
-  "kalaLutje.options[2]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 359
-  "kalaLutje.options[3]": { al: "ngjit shqiponjën", en: "Climb the eagle.", review: 'internal-editorial' }, // 360
+  "kalaLutje.options[1]": { al: "sy tund djepin", en: "Eyes rock the cradle.", review: 'internal-editorial' }, // 358
+  "kalaLutje.options[2]": { al: "këmbë jep qumësht", en: "Legs give milk.", review: 'internal-editorial' }, // 359
+  "kalaLutje.options[3]": { al: "gji sheh birin", en: "Breast see the son.", review: 'internal-editorial' }, // 360
   "kalaMur.options[0]": { al: "prit natën", en: "Wait for night.", review: 'internal-editorial' }, // 361
   "kalaMur.options[1]": { al: "sheh murin", en: "See the wall.", review: 'internal-editorial' }, // 362
   "kalaMur.options[2]": { al: "shko nga murin", en: "Go away from the wall.", review: 'internal-editorial' }, // 363
-  "kalaMur.options[3]": { al: "lufto dragoin", en: "Fight the dragon.", review: 'internal-editorial' }, // 364
-  "kalaMur.options[4]": { al: "ngjit shqiponjën", en: "Climb the eagle.", review: 'internal-editorial' }, // 365
-  "kalaMur.options[5]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 366
+  "kalaMur.options[3]": { al: "qumësht merr murin", en: "Milk take the wall.", review: 'internal-editorial' }, // 364
+  "kalaMur.options[4]": { al: "nata del nga muri", en: "The night comes out from the wall.", review: 'internal-editorial' }, // 365
+  "kalaMur.options[5]": { al: "qumësht rri lart", en: "Milk stay high.", review: 'internal-editorial' }, // 366
   "fshehur.options[0]": { al: "dëgjo plakun", en: "Listen to the old man.", review: 'internal-editorial' }, // 367
   "fshehur.options[1]": { al: "shko në shpellën", en: "Go to the cave.", review: 'internal-editorial' }, // 368
   "fshehur.options[2]": { al: "shko në Gjakovë", en: "Go to Gjakova.", review: 'internal-editorial' }, // 369

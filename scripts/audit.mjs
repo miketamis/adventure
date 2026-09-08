@@ -7,9 +7,10 @@
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { STORY, DICT, DEFS } from '../src/game/content.js'
+import { STORY, DICT, DEFS, ITEMS as ITEM_CATALOG } from '../src/game/content.js'
 import { ACHIEVEMENTS } from '../src/game/achievements.js'
 import { CORPUS, ENDING_LORE, FOLKLORE, HISTORY } from '../src/game/folklore.js'
+import { optionEffectsOf } from '../src/game/stateMechanics.js'
 
 const gl = (t) => (t || []).filter((x) => x && x.id).map((x) => x.en).join(' ')
 const textIds = (n) => {
@@ -21,15 +22,23 @@ const realOpts = (n) => (n.options || []).filter((o) => !o.confuser)
 
 // Words that DON'T name a present scene-thing (function words, directions/qualities, action verbs).
 const WL = new Set(
-  'ti ju je jam eshte ne tek nga nje te_link te_subj te_obj me_obj e_link e_art i_art dhe por nuk une ne_we per me pa ose qe ku pse si sa kush a_q do do_fut jo po_yes po_turn tani perseri shume pak mire keq rregull tjeter mund dot mos mbi faleminderit lutem mirupafshim'.split(' ')
-    .concat('lart larg poshte jashte brenda ketu shpejt ngadale naten dite agim mengjes muzg sonte deri vetem vogel madh forte ri vjeter bardhe zi gjelber qete sigurt thate erret ftohte uritur bukur krenar shenjte thelle nente dy tre shtate nevoje'.split(' '))
-    .concat('ec shko ngjit zbrit kthehu ik fle prit dil hyr bie vazhdo vazhdon degjo ndihmo merr jep lufto vrit shpeto sheh shiko beso thirr hidh prek kalo kerko ndiz premto fal fol pyet perserit kuptoj kushton hajde mban godit mbyll sulmo tund kendo vesh vajto mashtro lind ha pi bej fluturo zgjohu rri behet vjen flet thote gjen luan ruan verbo humbet vdes pre mbaroi hap meso ngre zgjedh sjell marto mallko le fsheh nxjerr varros shes blej shtyj terheq'.split(' '))
+  'ti ju je jam eshte ne tek nga nje te_link te_subj te_obj me_obj e_link e_art i_art dhe por nuk une ne_we per me pa ose qe ku pse si sa kush a_q do do_fut jo po_yes po_prog po_turn tani perseri shume pak mire keq rregull tjeter mund dot mos mbi faleminderit lutem mirupafshim'.split(' ')
+    .concat('lart larg poshte jashte brenda ketu shpejt ngadale bashke naten dite agim mengjes muzg sonte deri vetem vogel madh forte ri vjeter bardhe zi gjelber qete gati sigurt thate erret ftohte uritur bukur krenar shenjte thelle nente dy tre shtate nevoje'.split(' '))
+    .concat('ec shko ngjit zbrit kthehu ik fle prit dil hyr bie vazhdo vazhdon degjo ndihmo merr jep lufto vrit shpeto sheh shiko beso thirr hidh prek kalo kerko ndiz premto fal fol pyet perserit kuptoj kushton hajde mban godit mbyll sulmo tund kendo vesh vajto mashtro lind ha pi bej fluturo zgjohu rri leviz behet vjen flet thote gjen luan ruan verbo humbet vdes pre mbaroi hap meso ngre zgjedh sjell marto mallko le fsheh nxjerr varros shes blej shtyj terheq dorezohem'.split(' '))
 )
 // Things legitimately absent from the scene: carried ITEMS, COMPANIONS, DESTINATIONS, riddle answers, created.
 // (Extend as new items/places are added.)
-const ALLOW = new Set('buke kripe gur fuqi bekim shqiponje ujk ora zjarr fshat shesh krua udhekryq mal lume jutbina maja pyll det breshka gjarper toke bese dem flok vatra qilim bari oda kulle rruge shtepi pus lubia kemishe valle pallat kopsht vella kufi shpelle pishtar treg qytet lek lahute mik mjek'.split(' '))
+const ALLOW = new Set([
+  ...'buke kripe gur fuqi bekim shqiponje ujk ora zjarr fshat shesh krua burim udhekryq mal lume jutbina maja pyll det breshka gjarper toke bese dem flok vatra qilim bari oda kulle rruge shtepi pus lubia kemishe valle pallat kopsht vella kufi shpelle pishtar treg qytet lek lahute mik mjek'.split(' '),
+  ...Object.keys(ITEM_CATALOG),
+])
 
-const ITEMS = new Set('buke kripe gur qumesht bekim dem mish shpate flok pishtar'.split(' '))
+// Currency affordability is enforced by the resource transaction itself, not
+// by a redundant `requires: 'lek'` item gate. Keep the state-mismatch check on
+// carried physical things and companions only.
+const ITEMS = new Set(Object.values(ITEM_CATALOG)
+  .filter((item) => !item.currency && item.kind !== 'currency')
+  .map((item) => item.id))
 const ECLARG_KEEPERS = new Set(['thesarLeave', 'shtepia', 'nastradinFund']) // leaving IS the beat
 // Endings whose item-action is gated UPSTREAM (not on the immediate edge), listed as explicit exceptions:
 //   besaFire <- besaBekim ("sleep here"), and besaBekim is reachable ONLY via the bread-gated "jep buke".
@@ -54,7 +63,7 @@ add('action-feasibility (light-a-fire motivated)', Object.entries(STORY).flatMap
   return realOpts(n).flatMap((o) => {
     const ids = (o.text || []).filter((t) => t.id).map((t) => t.id)
     const motivated = tids.has('ftohte') || tids.has('naten') || tids.has('lugat') || tids.has('shtrige') || tids.has('erresire')
-    return ids[0] === 'ndiz' && !motivated ? [`[${id}] light-a-fire with no cold/night/threat`] : []
+    return ids[0] === 'ndiz' && ids.includes('zjarr') && !motivated ? [`[${id}] light-a-fire with no cold/night/threat`] : []
   })
 }))
 
@@ -114,9 +123,10 @@ add('meaningful choice (no damned-if-you-do)', Object.entries(STORY).flatMap(([i
 // 7. STATE-MISMATCH — ending text that asserts an item-action must be reached ONLY via a requires-gated option.
 // `requires`/`unless` may be a single id or an array; a time-of-day phase id is a
 // virtual item (gates on the world clock), never a carried thing. Timed fixture
-// states and NPC presence (npc:/npcAt:) are virtual the same way.
+// states, durable facts/knowledge, typed flags, item capabilities and NPC
+// presence are virtual the same way.
 const TIME_PHASES = new Set(['dawn', 'day', 'dusk', 'night'])
-const isVirtual = (i) => i === 'embodying' || i === 'again' || i === 'rumor' || TIME_PHASES.has(i) || /^(fixture|npc|npcAt|from|became|embodying|visited|heard|season|weather|festival|weekday|fact):/.test(i)
+const isVirtual = (i) => i === 'embodying' || i === 'again' || i === 'rumor' || TIME_PHASES.has(i) || /^(fixture|npc|npcAt|from|became|embodying|visited|heard|season|weather|festival|weekday|fact|flag|knows|itemTag|affords):/.test(i)
 const reqIds = (o) => (o.requires == null ? [] : [].concat(o.requires))
 const incomingGatedByItem = {}
 for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.to) {
@@ -154,7 +164,18 @@ add('achievement lore links resolve', (() => {
     .map((achievement) => `[${achievement.id}] lore '${achievement.lore || '(missing)'}' is not in folklore or history`)
 })())
 
-// 8c. The in-game library is a connected bibliography. Broken related/covers
+// 8c. Bad fates do not become achievements, but their ending panels and debug
+// source views still promise the same provenance as good and secret outcomes.
+// Audit STORY directly so a new ending can never bypass that contract merely
+// because it is intentionally absent from ACHIEVEMENTS.
+add('every ending has valid lore provenance', (() => {
+  const loreIds = new Set([...FOLKLORE, ...HISTORY].map((entry) => entry.id))
+  return Object.values(STORY)
+    .filter((node) => node.end && (!ENDING_LORE[node.id] || !loreIds.has(ENDING_LORE[node.id])))
+    .map((node) => `[${node.id}] ending lore '${ENDING_LORE[node.id] || '(missing)'}' is not in folklore or history`)
+})())
+
+// 8d. The in-game library is a connected bibliography. Broken related/covers
 // ids render as missing badges, while duplicate ids make navigation ambiguous.
 add('lore library references resolve uniquely', (() => {
   const out = []
@@ -191,7 +212,11 @@ add('confuser validity (distractors impossible)', Object.entries(STORY).flatMap(
 // 10. ITEM REACHABILITY — every item required by an option must be grantable somewhere.
 add('item reachability (required items grantable)', (() => {
   const reqd = new Set(), granted = new Set()
-  for (const n of Object.values(STORY)) for (const o of n.options || []) { for (const i of reqIds(o)) if (!isVirtual(i)) reqd.add(i); if (o.grant) granted.add(o.grant) }
+  for (const n of Object.values(STORY)) for (const o of n.options || []) {
+    for (const i of reqIds(o)) if (!isVirtual(i)) reqd.add(i)
+    for (const effect of optionEffectsOf(o))
+      if (effect?.type === 'inventory' && effect.delta > 0) granted.add(effect.id)
+  }
   return [...reqd].filter((i) => !granted.has(i)).map((i) => `required but never granted: ${i}`)
 })())
 
@@ -204,7 +229,10 @@ add('item reachability (required items grantable)', (() => {
 // (Option `requires:` is covered by check #10; this adds the text-line + `unless:` side.)
 add('condition validity (when/unless conds resolve)', (() => {
   const granted = new Set()
-  for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.grant) granted.add(o.grant)
+  for (const n of Object.values(STORY)) for (const o of n.options || []) {
+    for (const effect of optionEffectsOf(o))
+      if (effect?.type === 'inventory' && effect.delta > 0) granted.add(effect.id)
+  }
   const ok = (i) => isVirtual(i) || granted.has(i)
   const out = []
   for (const [id, n] of Object.entries(STORY)) {
