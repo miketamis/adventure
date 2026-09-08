@@ -9,6 +9,38 @@ export default {
     title: 'Sari Salltëk — the dragon-slaying dervish',
     source:
       'Jules Alexandre Degrand, Souvenirs de la Haute-Albanie (Paris 1901), pp. 236-243 · read in R. Elsie\'s translation (Oral Literature | Legends, legend_02.html); all lines paraphrased',
+    references: [
+      {
+        role: 'translation',
+        citation: 'Robert Elsie (trans.), “Sari Salltëk,” after Jules Alexandre Degrand, Souvenirs de la Haute-Albanie (1901), pp. 236–243',
+        url: 'http://www.albanianliterature.net/legends/legend_02.html',
+        note: 'The exact English translation selected for the beat record on Elsie’s surviving author site, which is served over HTTP only.',
+      },
+      {
+        role: 'facsimile',
+        citation: 'Jules Alexandre Degrand, Souvenirs de la Haute-Albanie (Paris, 1901)',
+        url: 'https://archive.org/details/souvenirsdelaha00degrgoog',
+        note: 'Page images of the French edition containing the selected account; Degrand recorded this witness in French.',
+      },
+      {
+        role: 'source-text',
+        citation: 'Jules Alexandre Degrand, Souvenirs de la Haute-Albanie (Paris, 1901), University of Michigan copy',
+        url: 'https://quod.lib.umich.edu/b/bosnia/AFG4971.0001.001?rgn=main%3Bview%3Dfulltext',
+        note: 'Institutional full-text and page-image access to the selected French source edition.',
+      },
+      {
+        role: 'scholarship',
+        citation: 'Sara Kuehn, “Multiplication, Translocation and Adaptation: Ṣarī Ṣaltūq’s Multiple Embodied Localities Throughout the Balkans,” in Constructing and Contesting Holy Places (Brill, 2023), pp. 221–256',
+        url: 'https://ucrisportal.univie.ac.at/en/publications/multiplication-translocation-and-adaptation-%E1%B9%A3ar%C4%AB-%E1%B9%A3alt%C5%ABqs-multiple/',
+        note: 'Scholarly context for Sari Saltuk’s multiple embodied localities, including the Albanian tradition; not a witness for Degrand’s tale.',
+      },
+      {
+        role: 'scholarship',
+        citation: 'Stefan Rohdewald, “A Muslim Holy Man to Convert Christians in a Transottoman Setting: Approaches to Sarı Saltuk from the Late Middle Ages to the Present,” Entangled Religions 9 (2019), pp. 57–78',
+        url: 'https://doi.org/10.46586/er.v9.2019.57-78',
+        note: 'Peer-reviewed historical and religious context, additional to the selected legend.',
+      },
+    ],
     // where the tale comes from — anchors should prefer this region's mirrors
     origin: { region: 'Central Albania (Krujë, Gheg-speaking) — the town at the mountain\'s foot, associated with the legend since at least Ibn Battuta (14th c.)', collector: 'Jules Alexandre Degrand, French traveller and geographer in the northern highlands', published: 'Paris, 1901' },
     // the ALBANIAN ORIGINAL — genuinely unfindable (see why below). Degrand
@@ -39,11 +71,8 @@ export default {
       { id: 'townsfolk', name: 'the people of Krujë', note: 'draw the lot, fail the apple test, mock the old man, then plot his death', npc: 'krujaFolk' },
     ],
     // anchor = the game location this tale place inhabits, under THE SHARING
-    // RULE (see _SCHEMA.md). The map has no dedicated Krujë node yet, so most
-    // places here are PROPOSED at the nearest existing spot (exactly how
-    // three-friends already stages Berat at shpirag1) — the mirror/mold say
-    // what should eventually be drawn, without contradicting what already
-    // lives at the node they borrow.
+    // RULE (see _SCHEMA.md). The tale now has a dedicated Krujë cave marker;
+    // the wider town and mountain path remain unstaged source places.
     places: [
       { id: 'road', emoji: '🛤️', name: 'the open road', note: 'the road into Krujë — every wanderer\'s tale sets out this way',
         anchor: { status: 'existing', node: 'start', mirror: 'the road out of old Tirana at the tanners\' bridge',
@@ -54,17 +83,15 @@ export default {
           conflicts: 'NOT pallatiZi — that is the grieving queen\'s own household (goose-girl, maiden-promised-sun), a mother and a stolen daughter; this prince keeps no such grief and rules a different kind of house. NOT kala1/Rozafa — Rozafa is the north\'s own walled citadel with its own three-brothers walling legend; Krujë is its own town, not a stand-in for Shkodra.',
           proposal: 'draw Krujë\'s own square and citadel gate at fshatiSheshi\'s edge when a dedicated node is built' } },
       { id: 'mountain', emoji: '⛰️', name: 'the mountain path', note: 'the climb from town to the dragon-scorched summit',
-        anchor: { status: 'proposed', node: 'mali1', mirror: 'Mali i Krujës, the dervish\'s own guardian height above the town — pinned at mali1 only as the nearest EXISTING spot, since no dedicated Krujë node exists yet. mali1 is not a blank wildcard: its own default text unconditionally opens "You are on Mount Tomorr" (src/game/content.js) and regions.js labels the whole area "Mount Tomorr" — three-friends\' own anchor for this identical node correctly marks it status:\'existing\'. This proposal does not contest that; it borrows Tomorr\'s own address for Krujë the same way legjenda-e-prespes borrows it for Lake Prespa, each honest that a second, unbuilt elsewhere-place is riding along on Tomorr\'s pin until the map reaches it, never that the peak itself is secretly Krujë',
-          mold: 'a climbing path up a scorched, arid crest — thirst, a struck spring, three dragon-charges turned aside; this is Krujë\'s own climb, narrated as its own separate, un-drawn summit even though the pin it borrows already belongs to Tomorr in the game\'s own text — the same borrowed-pin honesty legjenda-e-prespes keeps for its own elsewhere-lake at this node',
-          conflicts: 'NOT maja (Zojz\'s own peak) or tomorStuhi (Baba Tomor\'s storm-duel) — those are already-drawn Tomorr scenes elsewhere on the massif, not proposals sharing this node, so a lower Krujë crag never crowds them. NOT a denial of mali1\'s own existing Tomorr identity (three-friends\' status:\'existing\' anchor at this same node, and content.js\'s own unconditional "You are on Mount Tomorr" line) — that identity stands, unchallenged; Krujë simply rides the same placeholder pin the way legjenda-e-prespes\'s Prespa lake already does, each an honestly separate elsewhere-place, never a rival claim to be Tomorr itself',
-          sharedWith: ['three-friends (mali1\'s own existing anchor — Mount Tomorr, status:\'existing\', the hub\'s actual built identity)', 'legjenda-e-prespes (a second proposed elsewhere-mountain, Lake Prespa, riding the same borrowed pin, honest about the same non-claim)', 'the wider kreshnik-cycle tales anchoring mali1 as its own existing "grazing heights above Jutbina" facet of the same built massif (ali-bajraktari, mujo-strength, gjeto-basho-muji, and others) — a second true facet of mali1 itself, not a separate elsewhere-place'],
-          proposal: 'draw Krujë\'s own summit — parched ground, a struck spring, a ruined church\'s stones — as its own node above mali1' } },
+        anchor: { status: 'proposed', node: 'sari1', mirror: 'Mali i Krujës, the dervish\'s own guardian height above the town',
+          mold: 'the un-staged climb belongs immediately below the dedicated cave marker; the marker establishes Krujë without claiming that Tomorr is the same mountain',
+          conflicts: 'NOT maja or tomorStuhi — those are Mount Tomorr, a different real height and a different cycle',
+          proposal: 'draw the scorched Krujë ascent and struck spring as a short branch below sari1 if this compressed witness tale becomes explorable' } },
       { id: 'cave', emoji: '🕳️', name: 'the dragon\'s cave', note: 'the Kulshedra\'s den in the ruined church, later the dervish\'s own cell',
-        anchor: { status: 'proposed', node: 'mali1', mirror: 'the real cave still shown on Krujë\'s citadel hill, venerated to this day as Sari Salltëk\'s own — pinned at mali1 only as the nearest EXISTING spot, since no dedicated Krujë node exists yet',
-          mold: 'one cave, two eras: a Kulshedra\'s lair first, then a holy man\'s hermitage for years after — the seven tongues, the watermelon\'s seeds, all keep to this one, still-undrawn address; NOT mali1\'s own already-built cave-branch (katallan1, below) — a wholly different ogre legend sharing only "a cave off the mountain," not this one',
-          conflicts: 'NOT arushe1/pylli1 — that hermit-dervish (bear-dervish\'s dervishi) is a wood\'s-edge trickster with no strength and no shrine; a different dervish, a different legend, sharing only the word "dervish." NOT mujo-avenges-halil\'s own proposed cave at this same mali1 node — that is a lone kreshnik\'s siege-refuge, deliberately kept general ("any future frontier tale needing a mountain cave can share it without conflict"); two different un-drawn caves riding the same borrowed pin, never the same address. NOT katallan1 — mali1 already has a fully built, already-named cave one option-click away ("shko në shpellën" in mali1\'s own options, src/game/content.js): a one-eyed, kneeless man-eating giant, blinded and escaped by hiding among the rams, Albania\'s own Cyclops tale-type. That is a separate node (katallan1) reached FROM mali1, not mali1 itself, so a future dedicated Krujë cave built off mali1 would not overwrite it — but this proposal must not be read as claiming mali1\'s own existing cave-branch already IS the Kulshedra\'s den; it is a wholly unrelated legend at its own address',
-          sharedWith: ['mujo-avenges-halil (a second, unrelated cave proposed at the same node, kept general enough to hold both)'],
-          proposal: 'draw the cave and its ruined-church mouth as its own node once Krujë\'s summit is built' } },
+        anchor: { status: 'existing', node: 'sari1', mirror: 'the real cave still shown on Krujë\'s citadel hill, venerated to this day as Sari Salltëk\'s own',
+          mold: 'one dedicated cave, two eras: a Kulshedra\'s lair first, then a holy man\'s hermitage; its own marker keeps it separate from Tomorr and the Katallan\'s unrelated cave',
+          conflicts: 'NOT arushe1/pylli1 — that is a different dervish and legend. NOT katallan1 or the kreshnik cave proposals — those are unrelated caverns at separate chart addresses',
+          sharedWith: [] } },
       { id: 'sea', emoji: '🌊', name: 'the crossing to Corfu', note: 'the water Salltëk rides out over at the tale\'s end',
         anchor: { status: 'existing', node: 'deti1', mirror: 'the open Adriatic off the shore village — the same crossing every coastal tale keeps',
           mold: 'the deep between Albania and Corfu: whoever the roads send seaward departs from here without needing the shore to belong to them alone',
@@ -94,7 +121,7 @@ export default {
         sariFund: 'departure',
       },
       divergences: [
-        { note: 'The game\'s WITNESS stance on a dragon-slaying saint\'s legend rather than a played hero-arc: it is told in the underworld-well country (reached from pusi), the wooden-sword slaying and the seven-tongues proof against the false claimant its heart. No figure embodied — the saint is spoken of, not stepped into.' },
+        { note: 'The game\'s WITNESS stance on a dragon-slaying saint\'s legend rather than a played hero-arc: the projection is entered from the well country but staged at its own Krujë cave marker, with the wooden-sword slaying and seven-tongues proof at its heart. No figure is embodied — the saint is spoken of, not stepped into.' },
         { beat: 'reward', note: 'The signature motif — a false hero brings the seven heads and claims the maiden, but the dervish produces the seven cut-out tongues and the truth stands — is staged as the proof; "cut the tongues, lest another steal your glory."' },
         { beat: 'watermelon', note: "The saint's lesser miracles (delousing the girl to tears, striking water from the rock), his refusal of the king's daughter, the disciple's watermelon hurled at the cave roof, and the four-strides-to-Corfu departure are kept in the tale record and compressed; the seven-graves-in-seven-lands belief closes it." },
       ],

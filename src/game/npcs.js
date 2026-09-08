@@ -83,7 +83,11 @@ export const NPCS = {
   xhindet: {
     name: 'Xhindët',
     glyph: '👣',
-    route: ['pusiThate', 'fshatiSheshi', 'fshatiLumi', 'mulli1', 'mulli1', 'mulli1', 'mulli1', 'mulli1', 'mulli1', 'fshatiLumi', 'fshatiSheshi', 'pusiThate'],
+    // The clock indexes this route at slot 7 when night begins. Keep the well
+    // there so the *visible* part of the timetable follows the prose: well →
+    // sleeping square → river-quarter → mill, rather than showing only the
+    // return journey while the outward walk happened invisibly by day.
+    route: ['mulli1', 'mulli1', 'mulli1', 'mulli1', 'fshatiLumi', 'fshatiSheshi', 'pusiThate', 'pusiThate', 'fshatiSheshi', 'fshatiLumi', 'mulli1', 'mulli1'],
     stepHours: 2,
     activePhases: ['night'],
   },

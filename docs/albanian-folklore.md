@@ -6,14 +6,27 @@ Sources are linked inline and collected at the end.
 
 > **Why this matters for the game.** *Aventura Shqip* is meant to teach Albanian
 > *and* Albanian folk culture. The hero's quest, the creatures, the items, and
-> every ending are rooted in real tradition. This document is the canon the
-> content is built from — use it when writing new nodes so the lore stays true.
+> the central tale outcomes are source-rooted; playable branches and bad fates
+> may be clearly documented counterfactual adaptations. This document is the
+> evidence canon the content is built from — use it when writing new nodes so
+> the lore stays true without presenting an adaptation as a recovered tradition.
 
 **Contents:** [1. Roots & sources](#1-roots-and-sources) · [2. Cosmology & deities](#2-cosmology-and-the-deities) · [3. Drangue vs Kulshedra](#3-the-eternal-duel--drangue-vs-kulshedra) · [4. Guardian & fairy beings](#4-guardian-and-fairy-beings) · [5. Monsters & demons](#5-monsters-and-demons) · [6. The three Beauties](#6-the-three-beauties) · [7. The heroic epic](#7-the-heroic-epic--kângë-kreshnikësh) · [8. The great legends](#8-the-great-legends) · [9. The folktales](#9-the-folktales) · [10. Worldview: besa & Kanun](#10-the-worldview--besa-hospitality-the-kanun) · [11. Calendar & fire rituals](#11-the-calendar-and-the-fire-rituals) · [12. The spoken arts](#12-the-spoken-arts--proverbs-riddles-fables) · [13. How the game uses the lore](#13-how-aventura-shqip-uses-the-lore) · [14. Sources](#14-sources--further-reading)
 
 > **Folktale canons catalogued here** (all read from the source texts): Elsie's 32,
 > von Hahn's 20 (Nos. 95–114), Dozon's 10, Pedersen's 8, Wheeler's 10, plus
 > Lambertz's highland belief‑legends — see §9.
+
+> **How to read the citations.** A link is not automatically proof. This
+> reference distinguishes **primary or near-primary witnesses** (printed tale,
+> song, law, contemporary document or field report), **scholarship**
+> (peer-reviewed work or a research monograph), **institutional records**
+> (library, archive, UNESCO or Albanian public body), **reference summaries**
+> (encyclopaedias), and **community/popular attestations**. A catalogue proves
+> that a work exists, not that every detail attributed to it was checked. An
+> access-gated or externally hosted text remains an explicit access limit. See
+> the [world-claim source audit](world-claim-source-audit.md) for the current
+> link and coverage review.
 
 ---
 
@@ -571,7 +584,9 @@ Why Albanians call themselves *shqiptarë* and their land *Shqipëria*:
 > crag. While the eagle is away the boy climbs up and finds the snake — not dead —
 > rearing to strike the **eaglet** in the nest; he kills it and saves the chick. The
 > grateful eagle grants him **"the sharpness of my eyes and the strength of my
-> wings,"** and he grows into a mighty hero‑king. His people call him **Shqiptar**,
+> wings,"** and returns her child; the rescued eaglet remains attached to him and
+> follows him when both are grown. He becomes a mighty hero‑king — the telling
+> does not stage a crowd or coronation. He is called **Shqiptar**,
 > "Son of the Eagle," and his land **Shqipëria**, "Land of the Eagles."
 
 > **Folklore vs. philology.** This **folk etymology** (*shqipe* = "eagle," proposed
@@ -747,6 +762,12 @@ Elsie's verbatim text; ATU tale‑types are given where confident.*
 | 31 | Shega and Vllastar | a prophetic **black bird** averts a near‑incest: a Janissary knows his captive as his lost sister by her Albanian curse, and turns to fight for his homeland |
 | 32 | Rozafat Castle | the walled‑up wife |
 
+Elsie's prose legend 27 must not be merged with the separately selected
+Palaj–Kurti song **“Halili merr gjakun e Mujit.”** In legend 27, Mujo avenges a
+dead Halil by killing Kreshto; in the song, Llabutani wounds Mujo without
+killing him, Halili kills Llabutani, the zanas heal Mujo, and both brothers
+return. The game keeps these as different episodes of the wider cycle.
+
 ### Four of the lesser tales, in full (verified)
 Read verbatim from Elsie so the plots are accurate, not inferred:
 
@@ -802,8 +823,8 @@ from the original German; an older, often stranger set than Elsie's:
 | 101 | Silver‑Tooth (*Silberzahn*) | the youngest daughter goes to war as a man, warned of each gender‑test by a helper dog; recognised at last by a tooth the prince silvered with a thrown ring (cf. ATU 514/884) |
 | 102 | Dove Love (*Taubenliebe*) | a princess loves a **dove** that bathes in milk to become a youth; she betrays his secret, wears out **three pairs of iron shoes** seeking him (her father paints the palace black in grief), and restores him with an embrace (ATU 425) |
 | 103 | Snow White (*Schneewittchen*) | **von Hahn's own Albanian Snow White**: a girl sheltered by **forty dragons**, "killed" by a poisoned ring, hung in a pearl coffin, revived by a king — the Sun plays the "magic mirror" (ATU 709) |
-| 104 | The Origin of the Cuckoo | a sister accidentally kills her brother Gjon with her scissors; in grief he becomes the **Gjon‑bird** ("Gjon! Gjon!") and she the **cuckoo** ("Ku? ku?" — "Where? where?") (etiological) |
-| 105 | The Creation of the Wolf | the Devil moulds a wolf from dough but cannot give it life; God animates it with "**devour your creator**," and it eats the Devil — the origin of the curse "Eat him, wolf!" (etiological) |
+| 104 | The Origin of the Cuckoo | a sister has two brothers, both named Gjon, and accidentally kills one with her scissors; the **surviving brother** becomes the Gjon‑bird ("Gjon! Gjon!") and she the **cuckoo** ("Ku? ku?" — "Where? where?") (etiological) |
+| 105 | The Creation of the Wolf | the Devil kneads a wolf from dough and blows in vain; God strikes it with a switch and commands "**devour your creator**," and it eats the Devil — the origin of «Haje, ujk, e plase, Shën Mëhill!» (etiological) |
 | 106 | The Chained Devil | a short legend: the **Devil gnaws his chain** all year until it hangs by a thread, but each **Easter** the Saviour binds him anew |
 | 107 | The Fall of the Angels | the rebel angels, halted by **Archangel Michael**, froze where they fell — under, on and above the earth; the **tears** of those left hovering fall and kill whomever they strike (etiological — the curse "*may the drop fall on you*") |
 | 108 | Sinzirlis Minizirlis | a lovesick youth, mocked by the proud "Daughter of the Sun," disguises as a woman, enchants her with a charm and carries her off asleep *(in the supplement; partly Greek‑flavoured)* |
@@ -816,7 +837,7 @@ from the original German; an older, often stranger set than Elsie's:
 
 > **Two etiological myth‑lets** sit among these: Nos. **104 and 105** are not
 > wonder‑tales but tiny origin myths — how the cuckoo got its cry, and why the wolf
-> devours (the curse "*Të hângtë ujku!*", "May the wolf eat you!"). Note too that von
+> devours (the curse «*Haje, ujk, e plase, Shën Mëhill!*»). Note too that von
 > Hahn (No. 103) and Dozon (Elsie's #20) preserve **two independent Albanian Snow
 > Whites**, both with the **Sun as the all‑seeing "mirror"** and a **ring** (not an
 > apple) as the death‑charm; and that **Nos. 100 and 102 are the source tales** for
@@ -826,7 +847,7 @@ from the original German; an older, often stranger set than Elsie's:
 ### Little myths of how things came to be
 Beyond von Hahn's cuckoo and wolf, Albanian lore is full of tiny **etiological**
 tales:
-- **The bee, the cicada and the spider.** A dying mother's three daughters: the vain
+- **The bee, the cicada and the spider.** An old, sick mother's three daughters: the vain
   **spider** is cursed to weave a web she can never finish; the frivolous **cicada**
   to sing and die parched on a stem; the dutiful **bee** is blessed — "you shall be
   the **light of the ancestors and the food of the living**." So honey feeds the
@@ -1077,7 +1098,7 @@ On **fate, the guest, and kin**:
 Albanian wishes use the **optative mood** ("may it be"):
 - **"U bëfsh njëqind vjeç!"** — "May you live to a hundred!"
 - **"Gëzofsh!"** — "May you enjoy it!" (on a gift or good news).
-- **"Të hângtë ujku!"** — "May the wolf eat you!" (the pastoral curse behind tale #105).
+- **"Të hângtë ujku!"** — "May the wolf eat you!" (a related pastoral curse; von Hahn's tale #105 itself preserves «Haje, ujk, e plase, Shën Mëhill!»).
 - **"U bëfsh gur!"** — "May you turn to stone!" — the curse behind the land's many petrification legends.
 
 ### Animal fables
@@ -1113,8 +1134,10 @@ fortune. *(The "eat, my coat, eat", moon‑in‑the‑well, and key‑under‑th
 anecdotes circulate in Albania too, but as part of the shared Nasreddin corpus
 rather than from a specific Albanian collection.)*
 
-*Quoted forms follow Wikiquote, Elsie, and Albanian paremiology; a few colloquial
-blessing/curse formulas are idiomatically standard but lightly attested in print.*
+*Quoted forms follow the evidence routes in the quote register. A few
+living-language blessings and replies remain explicitly labelled as oral
+attributions because no exact local written witness has been identified;
+related printed formulas are not treated as proof of the exact wording.*
 
 Sources: [Albanian proverbs (Wikiquote)](https://en.wikiquote.org/wiki/Albanian_proverbs) ·
 [Optative mood](https://en.wikipedia.org/wiki/Optative_mood) ·
@@ -1146,6 +1169,34 @@ The game is a single hero's journey assembled from these traditions. Mapping:
 ---
 
 ## 14. Sources & further reading
+
+### Evidence-first research shelf
+
+These are the strongest broadly applicable sources behind the non-tale lore,
+custom and history layer. Links point to the text itself when legitimately
+available, otherwise to the most durable scholarly or institutional record.
+
+| Class | Source | What it can support | Access qualification |
+|---|---|---|---|
+| Primary / field witness | M. Edith Durham, *High Albania* (1909), [Internet Archive full-book scan](https://archive.org/details/highalbania) | highland life, hospitality, towers, dress, feast days, tattooing, beliefs, Gjakova cavern | public-domain full text; observations are Durham's period perspective |
+| Primary / customary-law text | Shtjefën Gjeçovi (collector), *Kanuni i Lekë Dukagjinit*, [Internet Archive scan and OCR](https://archive.org/details/kanuniilekedukagjinit) | besa, hospitality, kinship, marriage, feud and reconciliation | public-domain Albanian witness; a regional customary-law collection, not a timeless code for all Albanians |
+| Primary tale collections | J. G. von Hahn, *Griechische und albanesische Märchen* (1864), [Internet Archive full text](https://archive.org/details/griechischeunda00hahngoog); Auguste Dozon, *Contes albanais* (1881), [Internet Archive full text](https://archive.org/details/contesalbanais00unse_0); Holger Pedersen, *Albanesische Texte* (1895), [e-rara full text](https://www.e-rara.ch/download/fulltext/plain/10179198) | early printed tale witnesses and formulae | public-domain; several narratives were printed in German or French rather than as Albanian transcripts |
+| Primary epic collection | Palaj & Kurti, *Visaret e Kombit II — Kângë kreshnikësh dhe legjenda* (1937), [University of Shkodra catalogue](https://adsh.unishk.edu.al/index.php/items/show/526) | Albanian-language frontier songs | catalogue is public; the repository preserves selected local transcriptions, but the linked record is not a complete machine-readable text |
+| Primary audio archive | Albert B. Lord's 1937 Albanian recordings, [Milman Parry Collection, Harvard](https://mpc.chs.harvard.edu/) | performance practice and the sung epic tradition | institutional archive; recordings and metadata may require collection navigation or permission |
+| Scholarly synthesis | Robert Elsie, *A Dictionary of Albanian Religion, Mythology, and Folk Culture* (2001), [Google Books bibliographic record/preview](https://books.google.com/books?id=aAtQZ0vjf5gC) | named beings, religions, calendar rites and folk customs | copyrighted; preview/catalogue access is not full-text verification |
+| Scholarly synthesis | Mark Tirta, *Mitologjia ndër shqiptarë* (2004), [WorldCat search record](https://search.worldcat.org/search?q=Mitologjia+nd%C3%ABr+shqiptar%C3%AB+Tirta) | Albanian mythology and ritual | copyrighted; catalogue-level access only in this repository |
+| Peer-reviewed scholarship | Albert Doja, “Mythology and Destiny,” *Anthropos* 100.2 (2005), [DOI](https://doi.org/10.5771/0257-9774-2005-2-449), [UCL open-access record](https://discovery.ucl.ac.uk/id/eprint/18364/) | birth, caul, fate figures and their symbolic relationships | open-access author copy available from UCL; it does not support the whole reconstructed pantheon |
+| Comparative classification | Hans-Jörg Uther, *The Types of International Folktales* (2004/2024), [Folklore Fellows introduction](https://www.folklorefellows.fi/wp-content/uploads/FFC-284-286-Uther-2024-Introductions.pdf), [WorldCat record](https://search.worldcat.org/title/57716857) | ATU type numbers and international comparison | classification, not evidence that any particular Albanian variant contains a beat |
+| Institutional living-heritage record | Albania's [National Register of Intangible Cultural Heritage](https://regjistritkj.al/regjistri/) and its specific records for [Gjama e Burrave](https://regjistritkj.al/en/gjama-e-burrave-te%CC%88-dukagjinit/) and [verore / Dita e Verës practice](https://regjistritkj.al/riti-i-vendosjes-se-veroreve/) | living ritual, craft and performance practice | national inventory; origin stories recorded there remain tradition claims, not necessarily datable history |
+| Institutional heritage record | UNESCO: [xhubleta](https://ich.unesco.org/en/USL/xhubleta-skills-craftsmanship-and-forms-of-usage-01880), [lahuta](https://ich.unesco.org/en/USL/art-of-playing-singing-and-making-the-lahuta-02310), and [K'cimi of Tropojë](https://ich.unesco.org/en/RL/k-cimi-dancing-of-tropoje-01881) | current safeguarding status and documented community practice | supports the listed practice, not unrelated myths or every regional variant |
+| Institutional history synthesis | Library of Congress, *Albania: A Country Study* (1994), [catalogue and digital object](https://www.loc.gov/item/93042885/), [direct PDF](https://tile.loc.gov/storage-services/master/frd/frdcstdy/al/albaniacountryst00zick/albaniacountryst00zick.pdf) | broad historical chronology from the Ottoman period through the twentieth century | public digital text; an introductory synthesis, not a primary witness |
+| Primary historical documents | Robert Elsie's documentary editions of the [1878 League of Prizren resolutions](http://www.albanianhistory.net/1878_League-of-Prizren/index.html) and [1912 Declaration of Independence](http://www.albanianhistory.net/1912_Declaration-of-Independence/index.html) | translated documents and contemporary framing | online scholarly edition on Elsie’s surviving HTTP author site; translations should not be mistaken for the original-language artefacts |
+| Institutional place record | Albanian National Tourism Agency: [Tanners' Bridge](https://akt.gov.al/tanners-bridge/); National Agency of Protected Areas: [Syri i Kaltër Natural Park](https://akzm.gov.al/parku-natyror-syri-i-kalter/); UNESCO: [Butrint](https://whc.unesco.org/en/list/570/) | location, status and physical description of real sites | institutional place documentation; does not by itself prove an attached legend |
+
+The repository's preserved witnesses in [`docs/references/`](references/) are
+preferred for repeatable quotation checks. External links add provenance,
+context and independent corroboration, but can disappear or become access
+gated; the audit therefore records both evidence class and access state.
 
 **Standard scholarship**
 - Robert Elsie, *Albanian Folktales and Legends* — [books.elsie.de](http://books.elsie.de/b073_albanian-folktales-and-legends/)

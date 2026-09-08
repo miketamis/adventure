@@ -7,6 +7,12 @@
 export default {
   id: 'creation-wolf',
   title: 'Why the Wolf Devours',
+  references: [
+    { role: 'facsimile', citation: 'Johann Georg von Hahn, Albanesische Studien (1854), all three volumes — Digital Library of Slovenia', url: 'https://www.dlib.si/details/URN%3ANBN%3ASI%3Adoc-POV0ZX2I', note: 'National and University Library of Slovenia institutional scan of the first printing used for the source comparison.' },
+    { role: 'facsimile', citation: 'Johann Georg von Hahn, Griechische und albanesische Märchen (1864) — Internet Archive scan', url: 'https://archive.org/details/griechischeunda00hahngoog', note: 'Selected witness, no. 105 «Erschaffung des Wolfes».' },
+    { role: 'source-text', citation: 'von Hahn no. 105, «Erschaffung des Wolfes» — Märchenbasar transcription', url: 'https://maerchenbasar.de/erschaffung-des-wolfes/' },
+    { role: 'catalog', citation: 'Griechische und albanesische Märchen (1864) — Open Library record', url: 'https://openlibrary.org/works/OL13087296W/Griechische_und_albanesische_M%C3%A4rchen' },
+  ],
   source:
     'J. G. von Hahn, Albanesische Studien (Jena 1854) / Griechische und albanesische Märchen No. 105 (1864) · read in the German original — no English translation exists; all lines paraphrased from the German',
   // von Hahn's myth-notes come from his central-Albanian consular travels; the
@@ -27,8 +33,8 @@ export default {
   // variant differences (no Albanian text to disagree with, so these record
   // where the tellings diverge and which reading the beats follow)
   discrepancies: [
-    'DOUGH, NOT CLAY (¶2.3): von Hahn is explicit — the Devil «machte sich einen Teig an … knetete daraus eine Wolfsgestalt», a DOUGH mixed as he had watched God work; the game\'s own staging (ujkuLind1: «djalli bën një ujk nga baltë») and the lore card say clay. The beats follow von Hahn: dough.',
-    'NO BEGGING (¶4.1-2): the lore card (and the widespread Balkan variant) has the Devil beg God to animate the wolf, and God breathe it alive; in von Hahn the Devil never asks — God, «dieses vergeblichen Beginnens überdrüssig», strikes the figure with a switch unprompted and speaks the word. The switch-blow carries von Hahn\'s own etiology: it is why the wolf is «in der Mitte wie eingeknickt», kinked in the middle. The beats follow von Hahn.',
+    'DOUGH, NOT CLAY (¶2.3): von Hahn is explicit — the Devil «machte sich einen Teig an … knetete daraus eine Wolfsgestalt», a DOUGH mixed as he had watched God work. The lore card, tale beats and playable scene now all keep dough.',
+    'NO BEGGING (¶4.1-2): in the widespread Balkan variant the Devil begs God to animate the wolf and God breathes it alive. Von Hahn has neither incident: God, «dieses vergeblichen Beginnens überdrüssig», strikes the figure with a switch unprompted and speaks the word. The switch-blow carries von Hahn\'s own etiology: it is why the wolf is «in der Mitte wie eingeknickt», kinked in the middle. The playable scene follows this selected witness.',
     'THE CURSE (¶1.1): von Hahn\'s curse is «Haje, ujk, e plase, Shën Mëhill!»; the wolf lore card\'s "worst curse" is «Të hângtë ujku!» — related but distinct formulas. Line 1.1 keeps von Hahn\'s, transliterated from his transcription ("Haj e, uk, e pljass e, sche Mehil"; Lambertz 1922 "Haje uk e plase Shemhil").',
     'PRINTINGS (¶5.1): the 1854 Studien aims the curse only at the Devil; the Märchen printing (1864/1918) adds «oder einem andern, den er ebenso lieb hat» — "or anyone else he loves just as much." The beats follow the fuller Märchen text.',
   ],
@@ -72,13 +78,13 @@ export default {
   // how the game stages this tale — the WITNESS projection (see _SCHEMA.md). A
   // cosmogony no traveller-soul can step into (you are neither the Lord nor the
   // Devil), so it is TOLD, not embodied: the village storyteller (plakuSheshit)
-  // recounts it at the hearth and you listen, and the verbatim Gheg curse it
-  // explains — «Të hângtë ujku!» — is slotted word-for-word at the ending.
+  // recounts it at the hearth and you listen, and the Albanian curse preserved
+  // by von Hahn — «Haje, ujk, e plase, Shën Mëhill!» — closes the ending.
   play: {
     entry: 'sfida',
     stance: 'witness',
     role:
-      'You sit at the hearth as the old man tells the origin of the oldest curse: how the Devil, boasting he could create as well as God, kneaded a wolf that would not live — until the Lord gave it breath with the words that doomed its own maker, "devour your creator."',
+      'You sit at the hearth as the old man tells the origin of the oldest curse: how the Devil, boasting he could create as well as God, kneaded a dough-wolf that would not live — until the Lord struck it with a switch and spoke the words that doomed its own maker, "devour your creator."',
     from: 'ujkuLind1',
     ending: 'ujkuFund',
     scenes: {
@@ -87,8 +93,8 @@ export default {
     },
     divergences: [
       { note: 'This is the game\'s WITNESS stance — a cosmogony about the Lord and the Devil that the traveller-soul cannot embody, so the village storyteller recounts it and you listen (the third stance beside embodied and companion). No become, no mold-lock: hearing a myth leaves you free.' },
-      { beat: 'sfida', note: 'The five original beats (the curse-frame, the Devil\'s boast, the breath that would not take, the Lord\'s verdict, and the moral of why Albanians repeat the curse) are compressed into the two staged nodes — the Devil\'s hubris and clay wolf, then the fatal words and the wolf turning on its maker.' },
-      { beat: 'thupra', note: 'The verbatim Gheg curse the fable exists to explain — «Të hângtë ujku!», "may the wolf eat you" — is kept word-for-word as a Q() quote at the ending. The buckled-wolf etiology (the Lord\'s switch) and Archangel Michael\'s unexplained role stay in the tale record, unstaged.' },
+      { beat: 'sfida', note: 'The five original beats (the curse-frame, the Devil\'s boast, the breath that would not take, the Lord\'s verdict, and the moral of why Albanians repeat the curse) are compressed into two staged nodes. The entry now keeps the selected witness\'s dough, the Devil\'s futile blowing and the Lord\'s switch; it contains no invented plea or divine breath.' },
+      { beat: 'thupra', note: 'The ending keeps von Hahn\'s preserved Albanian curse — «Haje, ujk, e plase, Shën Mëhill!» — rather than substituting the related formula «Të hângtë ujku!». The playable entry stages the switch-blow and the wolf devouring its maker; Michael\'s role remains unexplained, just as the source says.' },
     ],
   },
   beats: [

@@ -52,7 +52,7 @@ console.log('\nbiggest same-spot groups:')
 groups.sort((a, b) => b.v.length - a.v.length).slice(0, 8).forEach((g) => console.log(`  ${g.v.length} @ ${g.k}: ${g.v.slice(0, 6).join(', ')}${g.v.length > 6 ? '…' : ''}`))
 
 if (WRITE && !missing.length && !extra.length) {
-  // emit the hand-authored NODE_AT format: one coordinate per PLACE (first node
+  // emit the explicit NODE_AT format: one coordinate per PLACE (first node
   // seen there is the anchor), everyone else standing there aliases the anchor.
   const anchorOf = {}
   const lines = ids.map((id) => {
@@ -62,7 +62,7 @@ if (WRITE && !missing.length && !extra.length) {
     anchorOf[k] = id
     return `  ${key}: [${pos[id][0]}, ${pos[id][1]}],`
   })
-  const out = `// HAND-AUTHORED map placement — one physical spot, ONE coordinate.
+  const out = `// EXPLICIT map placement — one physical spot, ONE coordinate.
 // (This bootstrap was emitted by scripts/nodeplace_merge.mjs; edit BY HAND.)
 // Each entry is either
 //   id: [x, y]       the node stands at its OWN spot (most nodes), or

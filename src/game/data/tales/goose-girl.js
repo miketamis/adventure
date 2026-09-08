@@ -8,6 +8,11 @@
 export default {
   id: 'goose-girl',
     title: 'The Goose-Girl and the Marble King',
+    references: [
+      { role: 'facsimile', citation: 'Auguste Dozon, Manuel de la langue Chkipe ou Albanaise (Paris, 1879) — University of Toronto scan', url: 'https://archive.org/details/manueldelalangue00dozouoft', note: 'Selected Albanian witness: second movement of chrestomathie tale IX, pp. 41–45.' },
+      { role: 'translation', citation: 'Robert Elsie, “The Maiden Who Was Promised to the Sun” — second movement', url: 'http://www.albanianliterature.net/folktales/tale_22.html', note: 'The game separates Dozon’s continuous tale into Maiden and Goose-Girl records.' },
+      { role: 'analogue', citation: 'ATU 533, “The Goose Girl” — comparative type overview', url: 'https://en.wikipedia.org/wiki/The_Goose_Girl', note: 'Title/type analogue only; not the source of Dozon’s marble-king episode.' },
+    ],
     source:
       'Auguste Dozon, Manuel de la langue chkipe ou albanaise (Paris 1879), chrestomathie tale IX «La fille promise au soleil», SECOND movement, repr. Folklor shqiptar 1 (1963) · read in R. Elsie\'s translation (tale 22, ¶8-12, renumbered here ¶1-5 — the first movement is the maiden-promised-sun tale); all lines paraphrased',
     // where the tale comes from — anchors should prefer this region's mirrors
@@ -24,7 +29,7 @@ export default {
     // where Elsie's translation and Dozon's Albanian disagree — the beats
     // decide per case which reading our world tells
     discrepancies: [
-      'TWO WEEKS, NOT THREE (¶2.4): the Albanian counts «të tri netet edhe të tri ditat edhe DY javë» — the seller passes with a week of vigil still to run, which is why a watcher is bought at all (her instruction is likewise «mos të fletsh dy a tri dit», days, not Elsie\'s nights). Elsie prints "three days, three nights and three weeks passed", contradicting his own ¶4.2 where the king wakes only "when three weeks were up". The beats follow the Albanian: the servant is bought FOR the last week.',
+      'TWO WEEKS, NOT THREE (¶2.4): the Albanian counts «të tri netet edhe të tri ditat edhe DY javë» — 17 civil days of the scroll\'s explicit three-days-and-nights plus three-weeks term have elapsed when the seller passes, leaving the third/final week to run. The later «Si shkuanë të tri javëtë» is therefore read as that final week completing, consistent with both the scroll and the servant\'s own claim to the full 24-day term. Her request that the servant not sleep for «dy a tri dit» is approximate or inclusive speech at the handoff, not a replacement for the written deadline. Elsie instead prints three weeks as already passed at ¶2.4. The beats and game clock follow the internally consistent Albanian total: 17 days plus 7 days.',
       'A SHOVELFUL, NOT A HANDFUL (¶3.4): Albanian «nxori një lopatë me florinj» — she pays a lopatë, a shovel-load of gold; Elsie renders it "a handful of gold coins". The beats keep the shovel (where a locked garden keeps its gold, neither text says).',
       'WHO BUILDS THE HUT (¶4.10): Albanian «mbreti e vuri edhe i bëri një kalive për të ndenjtur» — the KING sets her to the geese and has the hut made for her; Elsie has her build it herself. The beats follow the Albanian.',
       'PAGES, NOT A BOOK (¶2.2-3): the Albanian girl reads the scroll itself («edhe këjo e këndon») and then keeps awake over written pages («merrte kartëra edhe këndonte»); Elsie gives her "a book" (as does the built kopshtMermer2 scene, libri). The beats say pages.',
@@ -168,7 +173,7 @@ export default {
         note: 'She settles into the watch with written pages for company. Three nights, three days and two of the three weeks pass without sleep.',
         lines: [
           ['2.3', 'So she stays sleepless, taking up written pages and reading them.', "Edhe ajo rrinte pa gjumë (pa fjejtur) edhe merrte kartëra edhe këndonte."],
-          ['2.4', 'Three nights and three days pass, and week wears after week —', "Kur shkuanë të tri netet edhe të tri ditat edhe dy javë, [sic — DY javë: two of the three weeks done, one to run; Elsie prints \"three weeks passed\"]"],
+          ['2.4', 'Three nights and three days pass, and week wears after week —', 'Kur shkuanë të tri netet edhe të tri ditat edhe dy javë,', 'The Albanian has two weeks here; Elsie prints “three weeks passed.”'],
         ],
         cast: {
           maiden: ['marbleGarden', 'keeps awake over her pages — two weeks down, one to go'],
@@ -213,7 +218,7 @@ export default {
         note: 'The servant strips the sleeper\'s dress and wears it. On the third week the king comes to life to a woman claiming the vigil; he marries her, and the true keeper is explained away — a bought servant, brought along out of fear.',
         lines: [
           ['4.1', 'The servant sets to it: she takes the clothes off the sleeper and puts them on herself, so that the king, when he comes to life, will take HER to wife.', "Edhe këjo hysmeqarka zuri edhe i nxori robatë asaj edhe i vuri vetë, që, kur të ngjallet mbreti, të marrë atë grua."],
-          ['4.2', 'Three weeks to the day, and the stone king breathes again. Who are you? he wants to know.', "Si shkuanë të tri javëtë, u ngjall mbreti. «Ç'je ti?» i tha."],
+          ['4.2', 'When the third and final week is up, the stone king breathes again. Who are you? he wants to know.', "Si shkuanë të tri javëtë, u ngjall mbreti. «Ç'je ti?» i tha."],
           ['4.3', 'She answers: for three weeks, three days and three nights running, I never once closed my eyes —', "«Unë jam», i tha, «që kam tri dit e tri net e tri javë pa gjumë»,"],
           ['4.4', 'and he takes her for his wife.', "edhe ay e mori grua."],
           ['4.5', 'Then he asks: and this one sleeping — what is she?', "Pastaj e pyeti: «këjo që fle, ç'është?»"],
@@ -234,7 +239,7 @@ export default {
         lines: [
           ['4.8', 'Then the other one wakes too — just as the king turns to his wife: this servant of yours, so what do we do about her?', "Ahere u zgjua dhe këjo. I thotë mbreti gruasë: «këtë hysmeqarkë, ç't'a bëjmë?»"],
           ['4.9', 'She heard; and it was she who answered him: set me to guard the geese.', "Edhe ajo, si dëgjoi, i tha: «të më vësh të ruanj patet»,"],
-          ['4.10', 'So the king puts her to the geese, and a little hut is made for her to live in.', "edhe mbreti e vuri, edhe i bëri një kalive për të ndenjtur. [sic — the KING has the kalive built; Elsie has her build the hut herself]"],
+          ['4.10', 'So the king puts her to the geese, and a little hut is made for her to live in.', 'edhe mbreti e vuri, edhe i bëri një kalive për të ndenjtur.', 'The king has the kalive built; Elsie has her build the hut herself.'],
         ],
         cast: {
           maiden: ['gooseHut', 'goose-girl by her own word — a queen\'s daughter in a kalive'],

@@ -30,6 +30,12 @@
 export default {
   id: 'ali-bajraktari',
   title: 'Ali Bajraktari or the Word of Honour',
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Ali Bajraktari», Visaret e Kombit II (1937), pp. 120–130 — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_12.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “Ali Bajraktari or the Word of Honour”', url: 'http://www.albanianliterature.net/oralverse/verse_09_12.html' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (Shtypshkroja Nikaj, 1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+    { role: 'catalog', citation: 'Songs of the Frontier Warriors: The Albanian Epic Këngë Kreshnikësh — publisher record', url: 'https://www.bolchazy.com/product/songs-of-the-frontier-warriors-the-albanian-epic-kenge-kreshnikesh-p3350/' },
+  ],
   source:
     'Sung by Palok Ujka of Kastrat (District of Malësia e Madhe); Visaret e Kombit, vol. II, ed. Bernardin Palaj & Donat Kurti (Tirana 1937), pp. 108-117; repr. Folklor shqiptar II, Epika legjendare (Cikli i kreshnikëve), Vëllimi i parë, ed. Qemal Haxhihasani (Tirana 1966), pp. 142-149 · read in R. Elsie & J. Mathie-Heck\'s translation (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {
@@ -48,7 +54,7 @@ export default {
   discrepancies: [
     'THE TWO SONGS THAT BECOME ONE: the lore card (folklore.js) cites two separate Palaj-Kurti numbers — no. 13 "Ali Bajraktari / Besa" and no. 14 "The Wedding of Ali Bajraktari." Robert Elsie\'s own published translation, the fullest English telling findable (Visaret e Kombit II, pp. 108-117), runs the wedding and the besa as ONE continuous song, "Ali Bajraktari or the Word of Honour." The beats follow this single combined telling; both halves of the lore card\'s summary are present within it.',
     'TWO AGED MOTHERS: late in the song, the household matron who greets the disguised Ali warmly calls him hers, as though Ali\'s own mother were still alive — yet Ali\'s own outburst to the king states plainly that his mother has died. The beats read these as two different women: Ali\'s own mother dies offstage during the three years\' wait (nenaAliut), and the matron who later greets him at Jutbina is Mujo and Halili\'s own mother (the core NPC nenaMujit, already the household\'s matriarch in the marriage and strength songs), grieving a "son" the way the whole household has come to. The Albanian even calls BOTH women by the same term of endearment, «baxhi» ("auntie" / dear old one) — Ali uses it of his own dead mother («kam pasë lanë nanën baxhi», 16.4) and the beggar-Ali greets Mujo\'s mother with it too («Mirë se të gjej, mori baxhi!», 20.1) — one more sign the song means two different women under one shared title, not one.',
-    'WHERE THE MOTHER\'S DEATH IS ACTUALLY REVEALED: a prior pass here assumed the bride\'s own final letter (14.3/15.1-3) breaks the news of Ali\'s mother\'s death. It does not — the Albanian letter text (lines 161-165) says only that the bride has "waited with mother" the whole time and is now taking Halili as husband; nothing there says the mother has died. The death is instead revealed three beats later, in Ali\'s own outburst to the king (16.3-4): «Mora vesht se nana më ka dekë, / S\'ka kush nanën ma shtje n\'dhe, / Zogj e sorra nanën kanë me ma ngranë» ("I learned that mother has died on me, there is no one to lay her in the earth, crows and ravens will eat her") — Ali\'s own private grief, spoken only to the king, and never once connected aloud to the letter that triggered his scream. The beats follow the Albanian: 15.2\'s English gloss still says "his own mother has died," but its Albanian third element quotes the letter\'s real (unrelated) line and flags the mismatch inline; the death itself is sourced honestly at 16.4.',
+    'WHERE THE MOTHER\'S DEATH IS ACTUALLY REVEALED: a prior pass here assumed the bride\'s own final letter (14.3/15.1-3) breaks the news of Ali\'s mother\'s death. It does not — the Albanian letter text (lines 161-165) invokes the bride\'s long wait with his mother and says she is now taking Halili as husband; nothing there says the mother has died. The death is instead revealed three beats later, in Ali\'s own outburst to the king (16.3-4): «Mora vesht se nana më ka dekë, / S\'ka kush nanën ma shtje n\'dhe, / Zogj e sorra nanën kanë me ma ngranë» ("I learned that mother has died on me, there is no one to lay her in the earth, crows and ravens will eat her") — Ali\'s own private grief, spoken only to the king. The song never says how or when he learned it. Beat 15.2 now keeps only the letter\'s waiting claim; the death itself is sourced at 16.4.',
     'THE UNSPOKEN GRIEF: to the king, Ali names only his mother\'s death as his reason for needing leave; the very letter that breaks him also carries his bride\'s remarriage, which he never once mentions aloud. The beats keep this exactly as the song leaves it — a private grief spoken only in part.',
     'WHY JUTBINA: the song never explains how Ali\'s widowed bride ends up dressed by thirty maidens under Mujo and Halili\'s own roof — the same frontier hub the game already gives them — an unexplained gap typical of oral-epic compression. The beats read it as hospitality: with Ali\'s own mother dead and Ali given up for lost, the wider frontier krahina (the very muster the bride threatens to call down on the false Ali at her own door) takes her in, and Halili, the cycle\'s other unmarried standard-bearer, steps forward to marry her.',
   ],
@@ -82,7 +88,7 @@ export default {
         sharedWith: ['three-friends (reserved "muji-halili")', 'mujo-strength', 'mujo-courser', 'muji-e-behuri', 'mujo-avenges-halil', 'halil-marriage (the ora and the goats)', 'sari-salltek'] } },
     { id: 'mbretnia', emoji: '👑', name: 'the king\'s own kingdom', note: 'the hunting ground turned dungeon, and the hall where a besa is struck',
       anchor: { status: 'proposed', node: 'jutbina', mirror: 'the rival Christian Kingdom across the frontier — the kreshnik songs\' own standing enemy realm, seen here from its own side: a king\'s hunting party, his dungeon, his hall',
-        mold: '"Krajl" is an epic TITLE the songs give many different antagonists, not one ruler — this tale\'s own king, his Hungarian guards, his dungeon and his daughter are their own court, none of them the same man or hall as Krajlo Kapedani (mujo-courser), the Krajl of New Kotor (halil-marriage), the Krajl of Zuku Bajraktar (rusha1/rushaFund), or the captain of Mujo Avenges Halili (mejdan1/mujoHak1)',
+        mold: '"Krajl" is an epic TITLE the songs give many different antagonists, not one ruler — this tale\'s own king, his Hungarian guards, his dungeon and his daughter are their own court, none of them the same man or hall as Krajlo Kapedani (mujo-courser), the Krajl of New Kotor (halil-marriage), the Krajl of Zuku Bajraktar (rusha1/rushaFund), or Llabutani of Halili Avenges Mujo (mejdan1/mujoHak1)',
         conflicts: 'NOT any of those four already-claimed Krajl-courts, and NOT Arnaut Osmani\'s own burgu (a twelve-Aga dungeon undone from inside, a different shape of captivity entirely) — a sixth, separate king\'s realm',
         proposal: 'add a new node chain off jutbina (paralleling the halil-marriage and mujo-courser chains) for this king\'s hunting ground, his dungeon tower, and his hall' } },
     { id: 'jutbina', emoji: '🏘️', name: 'Mujo and Halili\'s own household', note: 'the hamlet hub where the beggar\'s disguise unfolds and the reunion is feasted',
@@ -98,25 +104,27 @@ export default {
     { id: 'gjogu', emoji: '🐴', name: 'Mujo\'s own courser', note: 'lent, riderless, to carry Ali and his bride clear through the trap door — and ridden straight back by Mujo himself in the chase' },
     { id: 'lemosha', emoji: '🪙', name: 'alms for a dead man\'s soul', note: 'gold pressed into the beggar\'s own hand by Mujo, Halili and their mother, each mourning a man who is holding out his own palm' },
   ],
-  // WITNESS projection — this Kreshnik song is referenced (heard at Jutbina),
-  // not yet built as its own playable arc; a full build would embody Ali.
+  // EMBODIED projection — the last and sharpest decision of the ballad. The
+  // failed door-double belongs to the earlier setup. The player enters after
+  // the bride has recognised Ali by the mark beneath his hair and after the
+  // six-day feast, when he must decide whether to return to captivity exactly
+  // as he promised the Krajl and the daughter who stood bail for him.
   play: {
-    entry: 'double',
+    entry: 'markOnBrow',
     stance: 'embodied',
     as: 'ali',
-    role: 'You are Ali Bajraktari, standard-bearer of your own frontier kulla, held far from home. While you are away a Slav has dressed in your own clothes and taken your own horse, and now stands as a false Ali at your own barred door — the door your besa sworn to your mother keeps shut to everyone but you. Return and unmask the double, cut him down at the threshold he has usurped, and keep your word of honour twice over — or stay away, and let the impostor keep your door, your name, and the bride the oath was sworn over.',
-    enter: 'a Slav double, in your own clothes and on your own horse, has taken your place at your own barred door while you are held far off — and to the people who cannot tell the difference, he is Ali now',
+    role: 'You are Ali Bajraktari. Three years a prisoner, you won six days of freedom on your bare word while the Krajl’s daughter stood bail. In Jutbina your bride recognised the mark beneath your long hair, you escaped together, and Mujo welcomed you home with six days of feasting. Now the sixth day is spent. Return to the Krajl because you gave your besa, even though it may cost everything you recovered — or remain at your hearth and leave the daughter to pay for trusting you.',
+    enter: 'your bride has recognised the old mark on your brow beneath the beggar’s hair, but the six days granted on your besa are already ending',
     from: 'aliBajr1',
     ending: 'aliBajrFund',
     scenes: {
-      aliBajr1: 'double',
-      aliBajrFund: 'wordKeptTwice',
-      aliBajrKeq: 'deceived',
+      aliBajr1: 'wordKeptTwice',
+      aliBajrFund: 'freedForGood',
     },
     divergences: [
-      { beat: 'double', note: 'Built from scratch. The whole first half of the song — the widow\'s son, the wedding, the besa sworn on the barred door, the hunt where Ali is caught asleep and jailed by the king — is compressed into the setup: you are simply Ali, held far off, with a Slav double already standing in your clothes at your own door. The playable stake is the one true hinge, return or stay away.' },
-      { beat: 'wordKeptTwice', note: 'The song\'s long disguise-and-unmasking (Ali begging alms for his own soul, known at last by the mark beneath his hair) is staged as the good ending\'s turn: you come home and cut the false Ali down at the threshold, the people see the true standard-bearer, and the word of honour is kept twice over — the besa on the door and the name given back to its owner.' },
-      { beat: 'deceived', note: 'The bad ending is the road the song never takes: you flee instead of coming home, and the double\'s lie stands. The Slav keeps the house, the barred door, your name, and the bride the besa was sworn over — the opened-door deception made permanent because no true Ali ever returns to undo it.' },
+      { beat: 'markOnBrow', note: 'The long beggar sequence is compressed into the entry and ending narration without changing its proof: Ali’s bride, not a crowd, recognises the old mark on his brow beneath his long hair.' },
+      { beat: 'wordKeptTwice', note: 'The choice is the source beat itself: on the sixth day Ali tells his bride that the Krajl’s daughter stood bail and that he must return because he gave his word.' },
+      { note: 'The BAD ending, “The Besa Left Behind,” is an explicit counterfactual. The ballad’s Ali does return; the invented branch makes the moral cost concrete by leaving the daughter exposed to the sentence she guaranteed.' },
     ],
   },
   beats: [
@@ -286,7 +294,7 @@ export default {
       lines: [
         ['12.1', 'The king tells the double not to worry — patience will win her slowly and surely.', 'Atherë krajli ç’ka qitë e i ka thanë: / - Aspak merak, djalë, mos u ban, / Dalëkadalë e jona ka me kenë.'],
         ['12.2', 'He writes the bride a letter of his own: she may be Ali\'s bride, but Ali is his prisoner for good, and she should choose herself a new husband.', 'Atherë krajli nji letër e shkruen, / Ç’ka qitë n’letër e po i shkruen: / - Ti qi je nusja e Alisë, / Merre ‘i burrë ku t’duesh vetë, / Se Alinë në burg e ke / E për gjithmonë burgun ja kam pre.'],
-        ['12.3', 'He sends it to her.', 'Fill n’dorë t’nuses ja ka çue. [the source actually places this line before the quoted letter text above, not after — reordered here to match the English split into two sentences]'],
+        ['12.3', 'He sends it to her.', 'Fill n’dorë t’nuses ja ka çue.', 'The source places this line before the quoted letter text; the beat order follows the English sentence split.'],
       ],
       cast: {
         krajl: ['mbretnia', 'writes and sends the bride his own letter'],
@@ -309,19 +317,19 @@ export default {
       },
     },
     {
-      id: 'choice', title: 'Mother\'s died, and the wait is over',
+      id: 'choice', title: 'Three years, and the wait is over',
       note: 'Three years pass unanswered, and the bride chooses Halili instead. She writes one final letter: if Ali still lives he must answer now, she has waited long enough, and in three weeks she\'ll be wed. (The mother\'s own death is never in this letter — Ali reveals it himself, later, to the king.)',
       lines: [
         ['14.1', 'Three years go by without a single answer to her letters.', 'Tri vjet rresht me letra e ka lypë, / Kurr xhevap nusja nuk kish marrë.'],
         ['14.2', 'She chooses to marry Sokol Halili instead.', 'Atherë nusja asht fejue, / Fejue e ka Sokol Halili.'],
         ['14.3', 'She sits down to write one final letter.', 'Por prep nusja nji letër e ka shkrue. / Ç’ka qitë n’letër e i ka thanë?'],
         ['15.1', 'If Ali is still alive, she tells him, he must answer at once.', '- Si në kjosh, Ali, kund gjallë. / Sa ma parë xhevap mue me m’dhanë,'],
-        ['15.2', 'His own mother has died in the meantime, and she has waited long enough.', 'Se gjithmonë me nanën kam me t’ndejë, [sic — the letter\'s own words say only "for I have waited with mother the whole time," not that the mother has died; see the discrepancies note "WHERE THE MOTHER\'S DEATH IS ACTUALLY REVEALED" — that news comes later, at 16.4]'],
+        ['15.2', 'She invokes the long years spent waiting with his mother — the wait cannot continue forever.', 'Se gjithmonë me nanën kam me t’ndejë,', 'The line is textually awkward in the printed Gheg, but it contains no report of the mother\'s death; that news appears only in Ali\'s later speech at 16.4.'],
         ['15.3', 'In three weeks, she writes, she will be taken as Halili\'s bride.', 'Se un nji burrë e kam xanë, / Para tri javve krushqit vijnë me m’marrë.'],
       ],
       cast: {
         nusja: ['jutbina', 'gives up the wait, chooses Halili, and sends one last letter'],
-        nena: ['home', '☠ dead sometime during the three years — Ali does not yet know it; he learns it only later, from his own grief when the king questions his scream (see the "scream" beat)'],
+        nena: ['home', '☠ dead sometime during the three years — the song does not say how or when Ali learns it; he first states the fact in the next beat'],
         halili: ['jutbina', 'agreed on, sight unseen, once the three years run out'],
       },
       exit: ['nena'],

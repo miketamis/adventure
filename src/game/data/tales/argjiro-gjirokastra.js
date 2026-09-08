@@ -22,6 +22,11 @@
 export default {
   id: 'argjiro-gjirokastra',
   title: 'Legjenda e Argjiros — Princess Argjiro of Gjirokastër',
+  references: [
+    { role: 'selected-witness', citation: '«Legjenda e Argjirosë» (Gjirokastër Castle heritage blog, 14 December 2016)', url: 'https://elisabetamosho.wordpress.com/2016/12/14/legjenda-e-argjirose/' },
+    { role: 'variant', citation: 'Gjirokastra Conservation and Development Organization, “Një histori e shkurtër e Gjirokastrës”', url: 'https://www.gjirokastra.org/albanian/al_sublinks/per_gjirokastren/mbi_gjirokastren_historia.html', note: 'Independent city-history version; calls Argjiro the ruler’s sister rather than his wife.' },
+    { role: 'context', citation: 'Municipality of Gjirokastër, “Historiku i Gjirokastrës”', url: 'https://bashkiagjirokaster.gov.al/historiku-i-gjirokastres/', note: 'Official local history records the leap tradition while cautioning that it is not historical etymology.' },
+  ],
   source:
     'No Elsie page or folk-tale-collection text exists for this legend. Used here: the "Legjenda e Argjirosë" prose legend kept by the Gjirokastër Castle heritage blog (elisabetamosho.wordpress.com, 14 Dec 2016), cross-checked nearly word-for-word against bordo.al (26 Jun 2019) and its reprints (actvusa.com 2023, observerkult.com 2025); the etymology-debate paragraph is separately drawn from the Gjirokastra Conservation and Development Organization\'s own published city history (gjirokastra.org) — the same body Wikipedia cites for the leap story · read in the Albanian originals directly; all lines are my own paraphrase',
   // where the tale comes from — anchors should prefer this region's mirrors
@@ -60,9 +65,9 @@ export default {
   // `conflicts` below for exactly why neither existing castle spot will do.
   places: [
     { id: 'castle', emoji: '🏰', name: 'Kalaja e Gjirokastrës (Kalaja e Argjirosë)', note: "the hilltop fortress over the Drino valley, and the rock at its foot where she fell",
-      anchor: { status: 'offstage',
+      anchor: { status: 'existing', node: 'argjiroKala',
         mirror: "Gjirokastra's real citadel — the \"City of Stone,\" one of the largest castles in the Balkans, on its limestone crag over the Drino valley in Albania's deep south, near the modern Greek border; the rock below its walls is still shown to visitors as Shkëmbi i Argjiros, Argjiro's Rock",
-        mold: "a real, specific, still-standing southern castle — its own city, its own siege, its own name-legend. No node exists for it: the game's southern reach currently stops at Mount Tomorr/Shpirag (already Berat's own moat-city, per three-friends and tomor-shpirag), and Gjirokastër lies much further south down the Drino valley, nowhere near Shpirag's foot — conflating the two would put two different real cities on one pin. If ever drawn, it wants its OWN new southward branch off the Tomorr cluster (nearest node today: shpirag1), not a reuse of an existing one.",
+        mold: "a real, specific, still-standing southern castle with its own chart marker, siege, and name-legend; the composite road reaches it without conflating it with Berat or Rozafa",
         conflicts: "NOT shpirag1/beratCity (three-friends, tomor-shpirag) — that pin is committed to Berat specifically, at Shpirag's actual foot; Gjirokastër is a different city, far enough south that forcing it onto the same spot would misstate two real places as one. NOT kalaRozafa (rozafa.js) — wrong region entirely (Shkodra, the north) and a wholly different walling legend (three brothers, a wife bricked in alive over years, not a single leap) whose castle-kings must never be conflated with Argjiro's." } },
   ],
   items: [
@@ -74,7 +79,8 @@ export default {
   // CHOICE: leap from the highest tower with your infant son (you die on the rock but
   // he lives, the stone weeps milk, and the city takes your name — the good ending) or
   // wait and be taken alive (the bad ending — no leap, no name). become:'argjiro-
-  // gjirokastra' on the summit vista (maja "sheh kalanë"); co-located on maja.
+  // gjirokastra' on the summit vista (maja "sheh kalanë"); staged at its own
+  // Gjirokastër castle marker rather than on the summit.
   play: {
     entry: 'siege',
     stance: 'embodied',
@@ -87,12 +93,12 @@ export default {
     ending: 'argjiroFund',
     scenes: {
       argjiroKala: 'siege',
-      argjiroFund: 'miracle',
+      argjiroFund: ['leap', 'miracle'],
     },
     divergences: [
       { beat: 'leap', note: 'Built from scratch. The legend fixes the leap — that is why the city is called Gjirokastër, Argjiro\'s castle. The game makes it a real choice and adds the path she never takes: wait, and be taken alive (the bad ending "Taken Alive"), where no rock weeps milk and the fortress keeps some other name. The heroic canonical leap is the good ending, sacrifice and all.' },
       { beat: 'miracle', note: 'The rock that weeps milk to keep the fallen princess\'s infant son alive is staged as the good ending\'s turn; the whole first movement (her rule as the prince\'s wife, the siege, the betrayal) is compressed into the setup at the castle.' },
-      { beat: 'debate', note: "The historians' caveat is honoured in the tale record, not the game: the name Gjirokastër is attested from Byzantine times (Kantakouzenos, 1336) long before any Ottoman siege, and is better traced to argyrokastron, \"silver castle\" (the grey stone shimmering like silver in the rain), or to a local tribe, the Argjirët — so the princess-legend is a beloved folk etymology, not the true source. The lake ending is co-located on the summit (maja) since the map has not reached the far-southern Drino valley where Gjirokastër truly stands." },
+      { beat: 'debate', note: "The historians' caveat is honoured in the tale record, not the game: the name Gjirokastër is attested from Byzantine times (Kantakouzenos, 1336) long before any Ottoman siege, and is better traced to argyrokastron, \"silver castle\" (the grey stone shimmering like silver in the rain), or to a local tribe, the Argjirët — so the princess-legend is a beloved folk etymology, not the true source. The playable castle has its own chart marker, but that marker remains part of the explicitly not-to-scale composite." },
     ],
   },
   beats: [

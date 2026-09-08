@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { VillageMap, buildGraph } from './DebugView.jsx'
-import { fireStateOf, liveNpcs } from '../game/gameState.js'
+import { VillageMap, buildGraph } from './WorldMapView.jsx'
+import { environmentSnapshot, fireStateOf, liveNpcs } from '../game/gameState.js'
 
 // ===========================================================================
 // MINIMAP — the debug World map, docked as a small panel on the right while you
@@ -15,6 +15,8 @@ export default function MiniMap({ state, dispatch }) {
   const [expanded, setExpanded] = useState(false)
   // clicking "open in Story Graph" jumps to the full Debug tab
   const goGraph = () => { setExpanded(false); dispatch({ type: 'SET_VIEW', view: 'debug' }) }
+  const environment = environmentSnapshot(state)
+  const { phase, weather, season } = environment
 
   if (!open) {
     return (
@@ -27,14 +29,19 @@ export default function MiniMap({ state, dispatch }) {
   return (
     <div className={'minimap' + (expanded ? ' expanded' : '')}>
       <div className="minimap-bar">
-        <span className="minimap-title">🗺 map</span>
+        <span className="minimap-title" title={[phase, weather, season].filter(Boolean).join(' · ')}>
+          🗺 map · {phase}{weather ? ` · ${weather}` : ''}
+        </span>
         <button className="minimap-btn" title={expanded ? 'Restore' : 'Full screen'}
                 onClick={() => setExpanded((e) => !e)}>{expanded ? '⤡' : '⤢'}</button>
         <button className="minimap-btn" title="Hide map"
                 onClick={() => { setExpanded(false); setOpen(false) }}>✕</button>
       </div>
       <div className="minimap-body">
-        <VillageMap g={g} current={state.nodeId} goGraph={goGraph} compact follow world={{ fire: fireStateOf(state) }} npcs={liveNpcs(state)}
+        <VillageMap g={g} current={state.nodeId}
+          objective={state.embodying && state.embodimentPaused ? state.embodimentFocusNode : null}
+          goGraph={goGraph} compact follow
+          world={{ ...environment, fire: fireStateOf(state) }} npcs={liveNpcs(state)}
           rumors={Object.keys(state.heard || {}).filter((id) => !state.visited?.[id])} />
       </div>
     </div>

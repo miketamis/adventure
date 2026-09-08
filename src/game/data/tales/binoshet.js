@@ -4,11 +4,18 @@
 // other tales must not touch it.
 // ===========================================================================
 
+import { sourcedBinoshet } from './_binoshet.source.js'
+
 export default {
   id: 'binoshet',
   title: 'Binoshët — the Twins (Zjerma & Handa)',
+  references: [
+    { role: 'facsimile', citation: 'Giuseppe Schirò, Canti tradizionali ed altri saggi delle colonie albanesi di Sicilia (1923) — Google Books scan', url: 'https://play.google.com/store/books/details?id=Z0UfwPKzZk0C', note: 'Selected primary witness: «Binóshæt», Arbëresh pp. 411–426 and Italian pp. 427–439.' },
+    { role: 'catalog', citation: 'Archivum Sicilia, bibliographic record for Schirò’s Canti tradizionali', url: 'https://www.archivumdoc.it/2019/04/canti-tradizionali-ed-altri-saggi-delle-colonie-albanesi-in-sicilia-giuseppe-schiro/' },
+    { role: 'translation', citation: '“The Twins” — modern English rendering of the Arbëresh tale', url: 'https://europeanfolktales.com/the-twins-albanian-folktale/', note: 'Convenience translation only; line verification uses Schirò’s primary scan.' },
+  ],
   source:
-    'Giuseppe Schirò, Canti tradizionali ed altri saggi delle colonie albanesi di Sicilia (Palermo, 1923), pp. 411–439 · read in the English synopsis at Wikipedia, "The Twins (folktale)" (sourced to Schirò\'s Albanian/Italian text); all lines paraphrased into my own words — no line here reproduces Wikipedia\'s or Wheeler\'s wording',
+    'Giuseppe Schirò, Canti tradizionali ed altri saggi delle colonie albanesi di Sicilia (Palermo, 1923), «Binóshæt»: Arbëresh text pp. 411–426 and Schirò\'s Italian translation pp. 427–439 · every beat has now been checked against the primary Arbëresh witness; all lines are original English paraphrases',
   // where the tale comes from — anchors should prefer this region's mirrors.
   // Schirò collected it from the Arbëreshë of Piana degli Albanesi, Sicily —
   // an emigrant community whose ancestors are traced (broadly) to Epirus and
@@ -20,32 +27,43 @@ export default {
     collector: 'Giuseppe Schirò (Arbëresh folklorist, born in Piana degli Albanesi)',
     published: 'Palermo, 1923',
   },
-  // NO ALBANIAN ORIGINAL FOUND — the lines carry no third element by design.
+  // Exact primary-witness passages have been page-collated for every beat.
   albanian: {
-    status: 'missing',
+    status: 'transcribed',
+    title: '«Binóshæt»',
+    source:
+      'Giuseppe Schirò, Canti tradizionali ed altri saggi delle colonie albanesi di Sicilia (Palermo, 1923): Arbëresh original pp. 411–426; the author\'s facing-following Italian translation pp. 427–439. Google Books volume Z0UfwPKzZk0C, University of Illinois scan. Source spelling and diacritics are retained; printed line-end hyphens are joined only where the same word is visible across the break.',
     why:
-      'Schirò\'s 1923 Canti tradizionali ed altri saggi delle colonie albanesi di Sicilia (Piana degli Albanesi) — the tale\'s only primary source, printed in Albanian and Italian — is not digitized or full-text searchable anywhere reachable: archive.org advancedsearch for "Schirò"+"Piana Albanesi", for creator:Schirò, and for "canti tradizionali" albanesi all return zero matching records, and a direct full-text search for the character names "Zjerma"+"Handa" across the whole archive returns zero hits too. None of the local corpora hold it either — grepped pralla-popullore-shqiptare-1954.sq.txt (the richest, 1954 Tirana), dozon-manuel-langue-chkipe.fr-sq.txt, hahn-albanesische-studien.de-sq.txt, jarnik-zur-albanishen-sprachenkunde.de-sq.txt, meyer-kurzgefasste-grammatik.de-sq.txt and lambertz-albanische-marchen.de-sq.txt for "binosh", "zjerm", "handa", "bardhakuq" and "binjak" — no hits (the sole "zjerm" match in the 1954 corpus is the unrelated word zjarm/"fire", not the name). docs/references/wheeler-albanian-wonder-tales.en.txt DOES hold a full English text of a close relative ("The Boy who was Brother to the Drague") but Wheeler wrote only in English, never printed an Albanian original, and his version diverges from Schirò\'s besides (see discrepancies). A Google Books API query for the Schirò title hit a rate limit (429) before returning anything. No Albanian original could be verified, so none is invented here.',
+      'Schirò prints the Arbëresh original on pp. 411–426 and his own Italian translation on pp. 427–439. Every one of the 141 English units is now attached to the exact, bounded Arbëresh passage for its beat. The collation corrected the lost crown, the “dark hour” rather than an Ora, Bardhakuqja rather than e Bukura e Dheut at the river, the interrupted wedding status, and Bardhakuqja\'s later fire ordeal.',
+    local: 'docs/references/schiro-1923-binoshet.sq.txt',
+    proofLocal: 'docs/references/schiro-1923-binoshet.sq.txt',
+    external: 'https://play.google.com/store/books/details?id=Z0UfwPKzZk0C',
+    catalogue: 'https://www.archivumdoc.it/2019/04/canti-tradizionali-ed-altri-saggi-delle-colonie-albanesi-in-sicilia-giuseppe-schiro/',
   },
   // where the record of the tale itself branches — which reading the beats follow
   discrepancies: [
-    'WHEELER\'S VARIANT (1936): George Post Wheeler\'s "The Boy who was Brother to the Drague" (Albanian Wonder Tales; full English text on file at docs/references/wheeler-albanian-wonder-tales.en.txt) tells much the same story but drops the Zanas\' garden and the ointment-witch entirely — instead a wounded drangue named Zef, saved by Zjermi early on, becomes his blood-brother, and drangues help break the kulshedra with thunder. Wheeler\'s telling also stops before any wife-mistaken-for-husband night: there is no sword laid between the beds. The beats here follow Schirò\'s fuller telling (the version the lore card itself describes); Wheeler\'s differences are recorded, not staged.',
+    'DARK HOUR, NOT ORA (2.1): the secondary synopsis calls the father\'s death-sign his Ora, but Schirò p. 412 prints «pósa ndíejti se e kísh zænæ héra e zézæ» — literally the dark/black hour had seized him. The beat follows the primary wording; no fate-spirit is inserted.',
+    'TWO DIFFERENT WOMEN: Schirò p. 414 names the maiden bound at the kulshedra\'s river as «Bardhakúkjes, çæ ísht e bija e rrégjit vét» (Bardhakuqja, the king\'s own daughter). E Bukura e Dheut belongs to Handa\'s later hedge-and-cave branch (pp. 420–424). They are not interchangeable. The faithful beats and play metadata keep them separate; any game scene that calls the river captive “the Earthly Beauty” still needs the same repair.',
+    'OPENING CROWN: Schirò p. 411 says the king «kish sbjérræ kuróræn e vétæ» (had lost his crown), not explicitly that he had already lost “his whole kingdom” in that sentence. The later recovery campaign establishes the dispossession, but line 1.1 now preserves the primary opening\'s narrower claim.',
+    'INTERRUPTED CROWNING / KINSHIP TERMS: on p. 418 Schirò says the ring darkens «Po si íshæn e vëjæn kuróræ» — as the wedding wreaths were being put on. The rite is therefore interrupted before completion. Later pages nevertheless call Bardhakuqja Zjerma\'s «núse», Handa her brother-in-law, and her father Zjerma\'s father-in-law. The beats preserve both layers: she is the promised bride when Zjerma leaves, and becomes his wife only after the recognition, fire ordeal, and return.',
+    'WHEELER\'S VARIANT (1936): George Post Wheeler\'s "The Boy who was Brother to the Drague" (Albanian Wonder Tales; full English text on file at docs/references/wheeler-albanian-wonder-tales.en.txt) tells much the same story but drops the Field of the Ladies and the ointment-witch entirely — instead a wounded drangue named Zef, saved by Zjermi early on, becomes his blood-brother, and drangues help break the kulshedra with thunder. Wheeler\'s telling also stops before any wife-mistaken-for-husband night: there is no sword laid between the beds. The beats here follow Schirò\'s fuller telling (the version the lore card itself describes); Wheeler\'s differences are recorded, not staged.',
     'PITRÈ\'S SHORTER VARIANT (1875): Giuseppe Pitrè\'s «I due gemelli fatati» (recorded by Gerlando Bennici) keeps only the magic birth — the fish, the twin foals and pups — and drops the father\'s death, the magic rings, and the whole dragon-slayer half of the plot; the Earthly Beauty is won at a tournament, not from a kulshedra. Noted for completeness, not used here.',
   ],
-  // sentence counts of the 17 paragraphs of the chosen (Schirò/Wikipedia) telling
+  // sentence counts of the 17 paragraphs of the chosen primary Schirò telling
   paragraphs: [14, 6, 4, 4, 8, 7, 10, 9, 11, 4, 9, 6, 7, 15, 9, 10, 8],
   cast: [
     { id: 'zjerma', name: 'Zjerma', note: 'twin marked with the Sun on his brow; the dragon-slayer half of the pair', npc: 'zjerma' },
     { id: 'handa', name: 'Handa', note: 'twin marked with the Moon on his brow; wins the Earthly Beauty', npc: 'handa' },
-    { id: 'ati', name: 'the father', note: 'a king who lost his kingdom; catches the magic fish; dies when the twins turn nineteen', npc: 'ati' },
+    { id: 'ati', name: 'the father', note: 'a king who lost his crown and whose ancestral realm remains occupied; catches the magic fish; dies when the twins turn nineteen', npc: 'ati' },
     { id: 'nena', name: 'the mother', note: 'raises the twins alone after; restored to her kingdom at the tale\'s end', npc: 'nena' },
     { id: 'peshku', name: 'the red fish', note: 'the talking, magic fish whose own body makes the family whole', npc: 'peshku' },
     { id: 'plakuQytetit', name: 'the weeping elder', note: 'grieves his own daughter, fed to the kulshedra the day before Zjerma comes', npc: 'plakuQytetit' },
-    { id: 'bardhakuqja', name: 'Bardhakuqja', note: '"the Red-and-White One" — the river-king\'s daughter, Zjerma\'s bride', npc: 'bardhakuqja' },
-    { id: 'mbretiLumit', name: 'the river-king', note: 'Bardhakuqja\'s father; hosts the wedding, gives his throne to Zjerma at the end', npc: 'mbretiLumit' },
+    { id: 'bardhakuqja', name: 'Bardhakuqja', note: '"the Red-and-White One" — the river-king\'s daughter; Zjerma\'s crowning is interrupted, and she becomes his wife after the final recognition', npc: 'bardhakuqja' },
+    { id: 'mbretiLumit', name: 'the river-king', note: 'Bardhakuqja\'s father; hosts the interrupted crowning and gives his throne to Zjerma at the end', npc: 'mbretiLumit' },
     { id: 'kulshedraLumit', name: 'the river kulshedra', note: 'seven-headed; dams the river for a maiden a day, slain by Zjerma', npc: 'kulshedraLumit' },
     { id: 'barkulku', name: 'Barkulku', note: '"Wolfbelly" — the false claimant who steals credit for the kill', npc: 'barkulku' },
     { id: 'plakuKasolles', name: 'the hut-keeper', note: 'warns Handa off the road, then arms Zjerma with the secret that saves him', npc: 'plakuKasolles' },
-    { id: 'zanat', name: 'the Zanas of the garden', note: 'white-clad mountain nymphs; charm and delay Handa with song and wine', npc: 'zanatKopshtit' },
+    { id: 'zanat', name: 'the maidens of the Field of the Ladies', note: 'white-clad supernatural maidens; welcome and redirect Handa with song, dance, and kisses', npc: 'zanatKopshtit' },
     { id: 'plakaGardhit', name: 'the old woman of the hedge', note: 'tests suitors at the Earthly Beauty\'s garden and turns the failed to stone', npc: 'plakaGardhit' },
     { id: 'beauty', name: 'the Earthly Beauty', note: 'e Bukura e Dheut, won this era by Handa', npc: 'bukuraDheut' },
     { id: 'kalorsit', name: 'the petrified suitors', note: 'noblemen turned to stone before Handa; all revived together', npc: 'kalorsit' },
@@ -80,23 +98,21 @@ export default {
         mold: 'pylli1 already hosts three brothers, a dervish, and a bear without clashing — Handa\'s hard crossing is one more path through the same wood',
         sharedWith: ['bear-dervish', 'cuckoo', 'the forest arcs'] } },
     { id: 'kasollja', emoji: '🛖', name: 'the hut-keeper\'s hut', note: 'a hermit\'s hut by a forest stream; he warns Handa off, then arms Zjerma with the secret',
-      anchor: { status: 'proposed', node: 'pylliThelle', mirror: 'a woodcutter\'s hut in the deep wood, one clearing over from the wolves\' den',
-        mold: 'a second old man, distinct from every other: NOT the grieving elder of qytetiLumit (plakuQytetit), NOT bear-dervish\'s hermit-dervish (proposed at arushe1), NOT Baba Tomor\'s old man of the summit (maja) — this one keeps one hut, warns one traveller, and later arms the other with the secret that saves his brother',
-        conflicts: 'NOT the wolves\' defile itself (also proposed at pylliThelle, by bear-dervish) — that gorge is where the dervish loses his kid to wolves; this hut sits a clearing over in the same deep wood, undisturbed by that story',
-        proposal: 'draw a small hut by a forest stream at pylliThelle, a short walk from the wolves\' gorge' } },
-    { id: 'kopshtiZanave', emoji: '🧚', name: 'the Zanas\' garden', note: 'a high mountain clearing where nymphs dance, sing, and delay the traveller with wine and kisses',
-      anchor: { status: 'proposed', node: 'jutbina', mirror: 'a silver clearing in the high pastures above Jutbina — the same mountain that already says "the Zanas give power"',
-        mold: 'a garden of many Zanas (plural, collective) dancing for a traveller, drawn from the SAME fairy source that empowers Mujo in his own hamlet below — two gifts from one well of lore, no contradiction',
-        conflicts: 'NOT zana1 — that is ONE named Zana bound to the game\'s own river; this is a garden of many, met on the mountain, not the river',
-        proposal: 'draw a flowering clearing a short climb above Jutbina\'s towers, where the Zanas dance for passing heroes' } },
+      anchor: { status: 'existing', node: 'binoshetKasollja', mirror: 'the tale\'s own hut beside a stream in an unnamed southern forest',
+        mold: 'a dedicated Binoshët scene: one old man warns Handa away, then gives Zjerma the counsel needed to follow and save him',
+        conflicts: 'NOT pylliThelle or the wolves\' defile — that gorge belongs to bear-dervish. NOT the grieving elder of qytetiLumit, bear-dervish\'s hermit-dervish, or Baba Tomor\'s summit elder; this keeper belongs to this hut and this rescue road only' } },
+    { id: 'kopshtiZanave', emoji: '🧚', name: 'the Field of the Ladies', note: 'a high mountain clearing where white-clad supernatural maidens dance, sing, kiss, and redirect the traveller',
+      anchor: { status: 'existing', node: 'binoshetKopshtiZanave', mirror: 'the tale\'s own flowering mountain clearing on its unnamed southern road',
+        mold: 'a dedicated Binoshët clearing: its white-clad maidens redirect Handa, then fail to delay the more disciplined Zjerma when he follows',
+        conflicts: 'NOT Jutbina/Udbina — Schirò calls this place «Fúsha e Zónjavet», not Mujo\'s named northern homeland or its Zanas. NOT zana1, the single named Zana bound to the game\'s river' } },
     { id: 'gardhiBukura', emoji: '✨', name: 'the Earthly Beauty\'s hedge', note: 'the bramble-hedged garden around her cave, guarded by a witch\'s three tests',
-      anchor: { status: 'existing', node: 'bukura1', mirror: 'the Earthly Beauty\'s cave under the earth',
-        mold: 'bukura1 already says of itself "she-dragon keeps the Beauty. they say: who wait, take blessing. who take fast, take stone." — this era\'s guardian is a witch, not a kulshedra, and the wait/haste proverb is exactly Zjerma\'s patience against Handa\'s thirst for glory; the Beauty is SERIAL (three-friends\' own note) — this era sits in its own turn, no contradiction',
-        conflicts: 'NOT kulshedraGate (three-friends\' guardian) — a different era, a different guardian; kulshedras and witches can each keep the gate in their own telling' } },
+      anchor: { status: 'existing', node: 'binoshetGardhiHanda', mirror: 'the tale\'s own bramble hedge and cave at the foot of an unnamed southern mountain',
+        mold: 'a dedicated two-stage Binoshët place: Handa fails the riddle, cord-cut and jump here; Zjerma reaches the same hedge at binoshetGardhiZjerma, passes all three, and binds the guardian',
+        conflicts: 'NOT bukura1 or its underworld kulshedra gate — this hedge is reached overland from the Field of the Ladies, is guarded by an old woman/bolla, and must remain drawable on that same surface road' } },
     { id: 'mbreteria', emoji: '👑', name: 'the twins\' ancestral kingdom', note: 'the lost homeland, held by a foreign king, reclaimed at the tale\'s end',
-      anchor: { status: 'offstage', mirror: 'the twins\' lost ancestral kingdom, held by a foreign crown',
-        mold: 'never staged — fittingly, for a tale first told by exiles who kept it alive in Sicily: the old homeland stays a name and a memory, reclaimed only in the telling',
-        conflicts: 'NOT shpirag1 or kala1 — those are OTHER kings\' finished stories; this kingdom is nameless and never drawn' } },
+      anchor: { status: 'existing', node: 'binoshetKurora', mirror: 'the tale\'s nameless ancestral kingdom, held by a foreign crown until the twins return',
+        mold: 'a dedicated Binoshët reconquest scene: Handa kills the occupying king, receives the ancestral crown from Zjerma, and the brothers restore their mother',
+        conflicts: 'NOT shpirag1 or kala1 — those are other kings\' finished stories. Schirò leaves this kingdom unnamed, so the game does not pin it to a contradictory historical castle' } },
   ],
   items: [
     { id: 'unazaZjerma', emoji: '💍', name: 'Zjerma\'s ring', note: 'gem darkens when Handa is in danger' },
@@ -105,52 +121,73 @@ export default {
     { id: 'gjaHanda', emoji: '⚔️', name: 'Handa\'s sword, horse, and dog', note: 'sprang from the garden and were born the hour he was' },
     { id: 'zambaku', emoji: '🌼', name: 'the white lily', note: 'its dew, touched to eyes and lips, undoes the witch\'s stone' },
   ],
-  // EMBODIED projection — a playable from-scratch arc. You ARE Zjerma, the
-  // dragon-slayer twin: enter from the dry-river hub (lumi) on the "lufto
-  // gjarprin" threshold, face the kulshedra that holds the Earthly Beauty, and
-  // choose — fight (the canonical heroic ending) or flee (the secret ending
-  // that closes on the sword laid between the brothers).
+  // EMBODIED projection — a full playable arc. You ARE Zjerma, the
+  // dragon-slayer twin: enter from the dry-river hub (lumi), save
+  // Bardhakuqja, answer the darkened ring, retrace Handa's failed road,
+  // break the hedge-witch's stone, restore the ancestral crown, and finish
+  // at the source tale's sword-between-twins recognition. Fleeing the first
+  // fight remains an explicitly counterfactual bad ending.
   play: {
     entry: 'cityOfKulshedra',
     stance: 'embodied',
     as: 'zjerma',
     role:
-      'You ARE Zjerma, elder of the twins born of a magic red fish and marked on the brow with the Sun. You ride into a city whose river a kulshedra dammed a month ago; near the temple of the Sun the beast holds e Bukura e Dheut, the Earthly Beauty, as its toll. Fight the seven-headed she-dragon with your horse and dog and cut the crowned head to free her and win her — or turn and flee, and be lost down the road the song keeps for the twin who goes wrong, where your brother Handa\'s ring darkens and he comes after you to find only the sword laid between you.',
+      'You ARE Zjerma, elder of the twins born from a magic red fish and marked with the Sun. Save Bardhakuqja from the river kulshedra, expose Barkulku\'s lie, then obey your darkening ring: follow Handa through the hut and the Field of the Ladies, pass the hedge trials he failed, revive him and the stone suitors, help him win e Bukura e Dheut, reclaim your ancestors\' crown, and trust the silver sword that finally proves your brother true. Fleeing the kulshedra is the one counterfactual ending.',
     enter:
-      'you ride into a city with a month-dry river, and at the black gorge where the water should rise a kulshedra holds the Earthly Beauty as its daily toll',
+      'you ride into a city with a month-dry river, and at the black gorge where the water should rise a kulshedra holds Bardhakuqja, the king\'s daughter, as its daily toll',
     from: 'binoshetLumi',
-    ending: 'binoshetFund',
+    ending: 'binoshetDyKurorat',
     scenes: {
       binoshetLumi: 'cityOfKulshedra',
-      binoshetFund: 'dragonFight',
-      binoshetHije: 'swordBetween',
+      binoshetFund: ['dragonFight', 'wolfbelly', 'ringDarkens'],
+      binoshetKasollja: ['handaForest', 'zjermaFollows'],
+      binoshetKopshtiZanave: 'zanaGarden',
+      binoshetGardhiHanda: 'hedgeTest',
+      binoshetGardhiZjerma: 'zjermaTests',
+      binoshetZambak: 'witchEnds',
+      binoshetDasma: 'beautyWon',
+      binoshetKuvendi: 'warOfCrown',
+      binoshetLuftaFillon: 'warOfCrown',
+      binoshetLuftaZgjat: 'warOfCrown',
+      binoshetLuftaFund: 'warOfCrown',
+      binoshetKurora: 'warOfCrown',
+      binoshetShpata: 'swordBetween',
+      binoshetNata: 'swordBetween',
+      binoshetZjarri: 'swordBetween',
+      binoshetTeNena: 'swordBetween',
+      binoshetDyKurorat: 'swordBetween',
     },
     divergences: [
-      { beat: 'dragonFight', note: 'Built from scratch. The canonical song fixes the kill — Zjerma cuts the crowned central head, the river runs again, and the maiden is won. The game makes it a real choice: fight is the good ending "The Beauty Won", and adds the path the hero never takes.' },
-      { beat: 'swordBetween', note: 'The secret ending "The Sword Between Them" borrows the tale\'s hardest image — Handa laying his sword between himself and the bride all night — and turns it on the twin who fled: Handa\'s ring darkens, he comes after his lost brother, and the song closes not on a rescue but on that cold blade laid between them.' },
-      { beat: 'parting', note: 'The whole first movement of the sung tale — the magic birth, the father\'s death and the twin rings, the parting at the almond-tree spring where each horse chooses its road — is compressed into the setup: you arrive already Zjerma, already riding the dragon-slayer half of the fork, at the dry river the kulshedra has dammed.' },
+      { beat: 'dragonFight', note: 'The primary fixes the kill — Zjerma cuts the crowned central head, the river runs again, and Bardhakuqja is won. The game lets the embodied Zjerma refuse that fixed act; fleeing ends immediately in the explicitly counterfactual binoshetHije branch.' },
+      { beat: 'wolfbelly', note: 'The binoshetFund aftermath continues past the fight: Barkulku claims the discarded heads, but Zjerma\'s tongues and crowned head expose him before the route moves on.' },
+      { beat: 'ringDarkens', note: 'The same binoshetFund aftermath darkens Zjerma\'s ring and makes that warning — not a fresh arbitrary quest marker — the cause of the onward rescue route.' },
+      { beat: 'zjermaFollows', note: 'The dedicated hut scene covers both visits: first the keeper warns Handa; later he recognizes the trail for Zjerma and gives him the counsel that makes the rescue possible.' },
+      { beat: 'beautyWon', note: 'The lily scene continues through the revived suitors\' gratitude. The next dedicated scene enters the Beauty\'s cave garden, lets Handa and e Bukura e Dheut meet as distinct people, and begins their source-exact nine feast-days.' },
+      { beat: 'warOfCrown', note: 'The game now keeps the source\'s causal rhythm instead of collapsing feast and war into one jump: the ninth day closes before Zjerma calls the council; the company travels to the ancestral kingdom; a playable campaign scene interrupts the calendar after one modeled month; and the foreign king\'s final entry into the bloody mêlée is played before Handa strikes him. The witness says only “several months,” so the three 30-day calendar months are always labelled as simulation, never source fact.' },
+      { beat: 'swordBetween', note: 'The good route gives Schirò\'s closing sequence distinct milestones without moving the embodied Zjerma to Handa\'s off-screen location: while Zjerma recovers in the ancestral kingdom, the sourced interlude tells how Handa reaches Bardhakuqja on the promised day at binoshetShpata and lays the sword between them at binoshetNata; Zjerma then physically crosses the bridge, recognizes the sword the following dawn, and sees Bardhakuqja pass through fire at binoshetZjarri. The couple visit the twins\' mother for three months before the river king gives Zjerma his staff and crown at binoshetDyKurorat. The separate flee ending openly reverses that trust, rescue and outcome.' },
+      { beat: 'parting', note: 'The whole first movement of the prose tale — the magic birth, the father\'s death and the twin rings, the parting at the almond-tree spring where each horse chooses its road — is compressed into the setup: you arrive already Zjerma, already riding the dragon-slayer half of the fork, at the dry river the kulshedra has dammed.' },
     ],
   },
   beats: [
     {
       id: 'shore', title: 'A king with nothing but a garden',
       note: 'A dispossessed king lives by the shore with nothing but two rings, a mare, a dog, and a garden. A magic red fish tells him how to divide its body — and his wife bears twin sons marked with the Sun and the Moon, born alongside two foals, two pups, and two silver swords.',
-      lines: [
-        ['1.1', 'A once-great king has lost his whole kingdom.'],
+      lines: sourcedBinoshet('shore', [
+        ['1.1', 'A king has lost his crown.'],
         ['1.2', 'All he has left is a pair of gold rings set with gems, a mare, a fearless bitch-hound, and a garden plot by the water where he and his wife make their home.'],
         ['1.3', 'His days go to turning the soil; hers go to the spindle and the loom.'],
         ['1.4', 'Neither of them longs for anything grander — a plot to tend and a house to keep is enough to satisfy them both.'],
         ['1.5', 'Only one thing is missing: a son.'],
         ['1.6', 'One morning the king walks down to the shore and hooks a great red fish.'],
-        ['1.7', 'The fish turns out to be no ordinary catch — it speaks, and it is full of magic.'],
-        ['1.8', 'It gives him directions: split it into four portions — the head, the middle section, the tail, and the bare skeleton.'],
+        ['1.7', 'Before it dies, the fish speaks to him.'],
+        ['1.8', 'It tells him to divide it into four.'],
         ['1.9', 'Its instructions are precise: his wife gets the head, he himself eats the center cut, the tail is shared between the two animals, and the skeleton goes into the ground under the vegetable rows.'],
         ['1.10', 'The king does exactly as the fish directs.'],
         ['1.11', 'His wife bears twin sons — Zjerma, marked on the brow with the Sun, and Handa, marked with the Moon.'],
-        ['1.12', 'That same season the mare drops two foals, the dog two pups, and two silver swords rise up out of the garden earth.'],
-        ['1.13', 'The queen raises the twins with great care.'],
+        ['1.12', 'The mare bears two foals, the dog two pups, and two silver swords rise up out of the garden earth.'],
+        ['1.13', 'The queen first feeds the twins her own sweet milk, then white bread from wheat flour sifted seven times, fat quail and lamb, and white grape wine; she bathes them in cold spring water, combs them with a silver comb, and dries them in fine linen.'],
         ['1.14', 'The king himself teaches them to ride bareback, to fight with every weapon there is, and to hunt the hills and woods.'],
-      ],
+      ]),
       cast: {
         zjerma: ['shtepia', 'born marked with the Sun on his brow; raised to ride, fight, and hunt'],
         handa: ['shtepia', 'born marked with the Moon on his brow; raised alongside his twin'],
@@ -180,14 +217,14 @@ export default {
     {
       id: 'fatherDies', title: 'Nine days, nine nights',
       note: 'At nineteen the twins lose their father: he passes on royal blood, a charge to love one another, and a ring each, then dies. They mourn him nine days and nights, bury him with his weapons, and comfort their grieving mother.',
-      lines: [
-        ['2.1', 'By the time the boys turn nineteen, the old king falls sick and knows the Ora has come for him.'],
+      lines: sourcedBinoshet('fatherDies', [
+        ['2.1', 'By the time the boys turn nineteen, the old king falls sick and senses that his dark hour has come.'],
         ['2.2', 'He calls them to his bedside, tells them their blood is royal, and charges them to love one another, to look after their mother, and to live rightly.'],
         ['2.3', 'He presses a gold ring into each of their palms just before the end comes.'],
         ['2.4', 'His sword and gear go into the grave with him, and for nine full days and nights the brothers do nothing but grieve.'],
         ['2.5', 'Their mother grieves hard, and the boys keep their promise and comfort her.'],
         ['2.6', 'Once the mourning ends she goes back to her spindle and loom, while the brothers hire a man to tend the garden and his wife to keep the house.'],
-      ],
+      ]),
       cast: {
         ati: ['shtepia', '☠ dies at nineteen years for the twins, entrusting them to love one another and care for their mother'],
         nena: ['shtepia', 'mourns her husband nine days and nine nights, then returns to her spindle and loom'],
@@ -202,27 +239,27 @@ export default {
     },
     {
       id: 'departure', title: 'Two swords for the world',
-      note: 'A year on, Zjerma proposes they ride out to win fame and reclaim their father\'s kingdom, taking their silver swords, horses, and dragon-brave dogs. Handa agrees at once.',
-      lines: [
-        ['3.1', 'A year on, Zjerma tells Handa he means to go out into the world, win renown, and take back the kingdom that was their father\'s, so their line\'s old glory can return.'],
+      note: 'A year on, Zjerma proposes they ride out to win fame and perhaps seize a kingdom, taking their silver swords, horses, and dragon-brave dogs. Handa agrees and they leave their mother in the household\'s care.',
+      lines: sourcedBinoshet('departure', [
+        ['3.1', 'A year on, Zjerma tells Handa that the world is wide and their blood is royal: they should ride out, win renown, and perhaps seize a kingdom so they can rise again to their ancestors\' former rank.'],
         ['3.2', 'Buckle on the silver swords, he says, saddle the horses, bring the two dogs — neither afraid to take on a drangue — and let\'s leave home.'],
         ['3.3', 'As for their mother, he isn\'t worried: she\'s old but well, and there are hands enough to help her.'],
-        ['3.4', 'Handa agrees at once, so they say their farewells and set off with the horses and the dogs.'],
-      ],
+        ['3.4', 'The brothers kiss their mother\'s hand and set out, leaving the horses to carry them with the reins loose on their necks.'],
+      ]),
       cast: {
-        zjerma: ['shtepia', 'proposes riding out to win fame and reclaim their father\'s kingdom'],
-        handa: ['shtepia', 'agrees at once — a year has passed since the mourning'],
+        zjerma: ['shtepia', 'proposes riding out to win fame and perhaps seize a kingdom'],
+        handa: ['shtepia', 'leaves with his twin — a year has passed since the mourning'],
       },
     },
     {
       id: 'parting', title: 'Where the almond tree blooms',
       note: 'The road carries them to a spring beneath a blossoming almond, exactly where the way divides. They agree to separate, let their horses choose the path, and vow to meet there every year — each carrying a ring that will darken if the other is ever in danger.',
-      lines: [
+      lines: sourcedBinoshet('parting', [
         ['4.1', 'Traveling on, they reach a spring rising beneath an almond tree in full bloom, right where their path breaks into two.'],
         ['4.2', 'They decide to part there, letting each horse choose its own path, and swear to meet again at that same spring on the same day every year.'],
         ['4.3', 'Should either twin ever fall into danger and need the other, the gem set in his ring will lose its shine and go black.'],
         ['4.4', 'They embrace once more; Zjerma\'s horse bears him off to the right, Handa\'s to the left.'],
-      ],
+      ]),
       cast: {
         zjerma: ['udha', 'parts from his brother at the almond-tree spring, riding right'],
         handa: ['udha', 'parts from his brother at the almond-tree spring, riding left'],
@@ -235,16 +272,16 @@ export default {
     {
       id: 'cityOfKulshedra', title: 'The city with the dry river',
       note: 'Zjerma rides into a city with shuttered houses and finds a weeping elder: a kulshedra dammed their river a month ago, and will only release it for a daily offering of a beautiful maiden. The elder\'s own daughter went yesterday; today it is the king\'s daughter, Bardhakuqja, offered up as the bride of whichever hero can kill the beast.',
-      lines: [
+      lines: sourcedBinoshet('cityOfKulshedra', [
         ['5.1', 'A few days on, Zjerma rides into a city with empty streets and every house shuttered tight.'],
         ['5.2', 'Near the temple of the Sun he finds an old man weeping.'],
-        ['5.3', 'Zjerma asks him what has happened.'],
-        ['5.4', 'The old man tells him a kulshedra dammed the town\'s river about a month back, and every hero who has gone against her since has died for it.'],
+        ['5.3', 'Before finding him, Zjerma searches everywhere for someone who can explain the deserted city.'],
+        ['5.4', 'The old man says a kulshedra seized the river\'s source a month ago: gardens have dried, leaves yellowed, flowers withered, and people are dying of thirst; none of the heroes sent to kill or drive her away returned home.'],
         ['5.5', 'The elders\' one idea was to strike a bargain with the monster for the water.'],
-        ['5.6', 'The kulshedra\'s price is a beautiful girl, handed over every day.'],
-        ['5.7', 'His own daughter went yesterday, the old man says, and today it is the turn of the king\'s own daughter, Bardhakuqja.'],
-        ['5.8', 'The king has sworn his daughter to whoever kills the dragon.'],
-      ],
+        ['5.6', 'The bargain binds the city and its king to give the kulshedra one of their most beautiful maidens every day; a week after the first victim, the monster is to let the water flow.'],
+        ['5.7', 'His own only daughter drew yesterday\'s lot, the old man says, and his torn heart will not let him stop weeping.'],
+        ['5.8', 'Today the lot falls to the king\'s own daughter, Bardhakuqja; whoever saves her and frees the city may marry her even if he is of the lowest rank, and will inherit the crown after her father dies.'],
+      ]),
       cast: {
         zjerma: ['qytetiLumit', 'rides into the city with the dried river; learns of the kulshedra\'s toll from the weeping elder'],
         plakuQytetit: ['qytetiLumit', 'weeps for his own daughter, fed to the kulshedra the day before'],
@@ -254,36 +291,36 @@ export default {
     },
     {
       id: 'abyss', title: 'Bound in the black gorge',
-      note: 'Zjerma vows revenge for the old man\'s daughter and reaches the black gorge where the kulshedra lairs. He finds Bardhakuqja bound to a rock, frees her despite her pleas that he flee, and falls asleep exhausted in her lap.',
-      lines: [
-        ['6.1', 'Zjerma swears to the old man he will settle the score for his daughter, and rides on with his horse and dog.'],
+      note: 'Zjerma vows revenge for the old man\'s daughter and reaches the black gorge where the kulshedra lairs. He finds Bardhakuqja bound to a rock, reassures and frees her, then falls asleep exhausted in her lap.',
+      lines: sourcedBinoshet('abyss', [
+        ['6.1', 'Zjerma swears to the old man that he will avenge his daughter against the kulshedra, then spurs his horse onward.'],
         ['6.2', 'He comes to a black gorge in the mountains.'],
         ['6.3', 'The river rises out of a deep, wide pit, and that pit is the monster\'s lair.'],
         ['6.4', 'The princess is bound to a rock there, barely alive.'],
-        ['6.5', 'The sight of her — still shining despite it all — stirs something in Zjerma; she, for her part, begs him to save himself and go.'],
+        ['6.5', 'The sight of her beauty sets Zjerma\'s blood racing; when she looks at him in disbelief, he tells her not to fear him, for his place is wherever danger lies.'],
         ['6.6', 'He will not hear of it: he gets down and cuts her free.'],
         ['6.7', 'Worn out, he sinks down with his head pillowed on her knee and is asleep almost at once.'],
-      ],
+      ]),
       cast: {
         zjerma: ['gryka', 'finds Bardhakuqja bound in the kulshedra\'s gorge, frees her, and falls asleep in her lap'],
-        bardhakuqja: ['gryka', 'bound to the rock; begs her rescuer to save himself instead'],
+        bardhakuqja: ['gryka', 'bound to the rock and barely alive; watches her unexpected rescuer in disbelief'],
       },
     },
     {
       id: 'dragonRises', title: 'Seven heads break the water',
-      note: 'At noon the water churns, and rather than wake Zjerma, Bardhakuqja weeps — a falling tear wakes him instead. The kulshedra rises: seven heads, poison and fire, a lizard\'s armored body, a nine-knotted tail, iron claws, a fin like a boar-fanged fish, and bat-wings nine times a hawk\'s span.',
-      lines: [
+      note: 'At noon the water churns, and rather than wake Zjerma, Bardhakuqja weeps — a falling tear wakes him instead. The kulshedra rises: seven heads, yellowish slime, flame-like forked tongues, a lizard\'s armored body, a nine-knotted tail, iron claws, a fish-like fin edged like boar tusks, and immense bat-wings.',
+      lines: sourcedBinoshet('dragonRises', [
         ['7.1', 'At midday the water starts to churn, and the princess understands the kulshedra is coming up.'],
         ['7.2', 'Rather than wake him, she cries instead.'],
-        ['7.3', 'One of her tears lands on his cheek and he starts awake; up on his horse, sword drawn, he waits for it.'],
+        ['7.3', 'One of her tears falls inside his ear and he starts awake; up on his horse, sword drawn, he waits for the beast.'],
         ['7.4', 'The water heaves and seven heads break the surface — the middle one horned and crowned with seven points.'],
-        ['7.5', 'Poison drips from her jaws, twin split tongues flick and rasp, and every one of her mouths breathes flame.'],
-        ['7.6', 'When she hauls herself onto the bank, Zjerma sees a body like some monstrous lizard\'s, plated in bone as hard as steel.'],
+        ['7.5', 'Yellowish slime spills among three rows of sharp teeth, while forked tongues hiss from her terrible throats like living flames.'],
+        ['7.6', 'When she hauls herself onto the bank, Zjerma sees a body like a monstrous lizard\'s beneath patchwork, bone-white armor harder than bronze.'],
         ['7.7', 'Her tail is a snake\'s, knotted nine times over and armored in thick scale.'],
         ['7.8', 'Her legs are short, thick, and powerful, tipped with claws like curved iron.'],
         ['7.9', 'Along her spine a fin like a fish\'s snaps open and shut, fringed with spines like a boar\'s tusks.'],
-        ['7.10', 'Bat-wings, nine times the span of any hawk\'s, complete her.'],
-      ],
+        ['7.10', 'Bat-like wings, nine times larger than even a great pair, complete her.'],
+      ]),
       cast: {
         zjerma: ['gryka', 'wakes at a falling tear and stands ready as the seven-headed kulshedra rises'],
         kulshedraLumit: ['gryka', 'breaks the surface in her full monstrous form'],
@@ -291,18 +328,18 @@ export default {
     },
     {
       id: 'dragonFight', title: 'The crowned head',
-      note: 'Zjerma and his horse and dog fight the kulshedra as she thrashes and burns; her severed heads regrow until he cuts the crowned central one, and she dies in a burst of black blood and fire. The sky clears and the river flows again.',
-      lines: [
-        ['8.1', 'As she gathers herself to strike, Zjerma and his horse close in, his dog right behind.'],
-        ['8.2', 'He drives at the beast while his dog worries her flank.'],
-        ['8.3', 'She thrashes and spews flame.'],
-        ['8.4', 'Hissing, she snaps at them both and tries to crush them under her tail.'],
-        ['8.5', 'The horse tramples her, cracking her bony plating and shattering scale after scale.'],
+      note: 'Zjerma strikes without pause and wounds the kulshedra on every side; her severed heads regrow until he cuts the crowned central one, and she dies in a burst of black blood and fire. The sky clears and the river flows again.',
+      lines: sourcedBinoshet('dragonFight', [
+        ['8.1', 'Zjerma lays into the kulshedra with his sword.'],
+        ['8.2', 'He does not pause between blows.'],
+        ['8.3', 'The blade wounds her on every side.'],
+        ['8.4', 'Now he shears away one head.'],
+        ['8.5', 'Then he takes another.'],
         ['8.6', 'Zjerma lops off head after head, but each grows straight back onto her bleeding necks — he sees he will have to take the crowned middle head to end her.'],
         ['8.7', 'Overhead the sky goes black with cloud, thunder and lightning breaking.'],
         ['8.8', 'He cuts through the central head, and a wave of scalding black blood and fire bursts from her neck with a shriek that fills the gorge.'],
         ['8.9', 'The cloud lifts, sunlight returns, and the river starts flowing again.'],
-      ],
+      ]),
       cast: {
         zjerma: ['gryka', 'fights the kulshedra with horse and dog at his side; cuts the crowned head and ends her'],
         kulshedraLumit: ['gryka', '☠ slain — the central head cut through, the river running again'],
@@ -311,81 +348,81 @@ export default {
     },
     {
       id: 'wolfbelly', title: 'Wolfbelly\'s lie',
-      note: 'Zjerma takes the crowned head and tongues, washes clean, and brings Bardhakuqja home to a hero\'s welcome — and marriage. A passer-by called Barkulku, "Wolfbelly," finds the corpse, takes the leftover heads, and falsely claims the kill at the wedding itself; exposed by the missing crowned head, he attacks Zjerma and is killed.',
-      lines: [
+      note: 'Zjerma takes the crowned head and tongues, washes clean, and brings Bardhakuqja home to a hero\'s welcome. A passer-by called Barkulku, "Wolfbelly," finds the corpse, takes the leftover heads, and falsely claims the kill as the crowning begins; exposed by the missing crowned head and tongues, he attacks Zjerma and is killed.',
+      lines: sourcedBinoshet('wolfbelly', [
         ['9.1', 'Zjerma slices the tongues from her seven heads and stows them, with the crowned head, in his saddlebag.'],
         ['9.2', 'He washes the blood off himself, his horse, and his dog in the river.'],
-        ['9.3', 'He sets the princess on his horse and brings her home to a city that greets them like conquering heroes.'],
+        ['9.3', 'Back in the city, he is received with great honor and celebration.'],
         ['9.4', 'Meanwhile a man called Barkulku — Wolfbelly — happens by the dead kulshedra\'s lair, not knowing what has already happened there.'],
         ['9.5', 'He hacks off the remaining heads, bags them, and goes looking for a reward.'],
-        ['9.6', 'He reaches the city just as Zjerma and Bardhakuqja\'s wedding is under way.'],
-        ['9.7', 'Striding up to the throne, he announces that he killed the kulshedra, and demands what was promised.'],
-        ['9.8', 'The king asks for proof, and Barkulku produces his sack of heads.'],
-        ['9.9', 'Zjerma notes what is absent from Barkulku\'s pile — the crowned head, the tongues — and produces both from his own saddlebag instead.'],
-        ['9.10', 'Invoking the Sun itself, the king warns that a burning awaits Barkulku unless he has some other defense to offer.'],
+        ['9.6', 'He reaches the city just as Bardhakuqja is about to be crowned with Zjerma.'],
+        ['9.7', 'Barkulku throws the severed heads down as proof of his claim.'],
+        ['9.8', 'Zjerma counts only six and asks where the crowned middle head has gone.'],
+        ['9.9', 'Barkulku says he chopped that head into a thousand pieces; Zjerma then asks him to show the monster\'s tongues.'],
+        ['9.10', 'The missing tongues leave Barkulku with no answer.'],
         ['9.11', 'Barkulku goes for Zjerma instead, and the dragon-slayer cuts him down.'],
-      ],
+      ]),
       cast: {
-        zjerma: ['qytetiLumit', 'brings Bardhakuqja home to a hero\'s welcome and marries her'],
-        bardhakuqja: ['qytetiLumit', 'weds Zjerma'],
+        zjerma: ['qytetiLumit', 'brings Bardhakuqja home to a hero\'s welcome; their crowning ceremony begins but does not finish'],
+        bardhakuqja: ['qytetiLumit', 'is about to be crowned with Zjerma when Barkulku interrupts'],
         barkulku: ['qytetiLumit', 'claims the kill with the leftover heads; exposed and killed for the lie'],
-        mbretiLumit: ['qytetiLumit', 'hosts the wedding; nearly fooled by Barkulku\'s theft'],
+        mbretiLumit: ['qytetiLumit', 'hosts the crowning rite; Barkulku tries to deceive his court'],
       },
       exit: ['barkulku'],
     },
     {
       id: 'ringDarkens', title: 'The gem goes black',
-      note: 'Just as the wedding wreaths are set, Zjerma sees his ring has darkened. He halts the ceremony, asks Bardhakuqja to wait a year and a month and a day, and, horse and dog at his heel, sets off in search of his twin.',
-      lines: [
+      note: 'Just as the wedding wreaths are being set, Zjerma sees his ring has darkened. He halts the ceremony and asks Bardhakuqja, still his promised bride, to wait a year and a month and a day while he runs to his twin\'s aid.',
+      lines: sourcedBinoshet('ringDarkens', [
         ['10.1', 'Just as the wedding wreaths are about to be set on their heads, Zjerma notices his ring\'s gem has gone dark.'],
         ['10.2', 'He calls the ceremony to a halt — he must leave at once, he says.'],
-        ['10.3', 'He kisses his new bride and tells her to wait a year and a month and a day; past that, she is free to marry another.'],
-        ['10.4', 'Then he takes his leave, swinging onto his horse with the dog running at heel, bound now for wherever his brother is.'],
-      ],
+        ['10.3', 'He kisses his promised bride and tells her to wait a year and a month and a day; if he has not returned by then, she is free to marry another.'],
+        ['10.4', 'His brother is in grave danger, he declares, and he must run to help him.'],
+      ]),
       cast: {
         zjerma: ['udha', 'leaves his bride mid-ceremony when his ring goes dark, riding to find his brother'],
       },
     },
     {
       id: 'handaForest', title: 'Worse than death ahead',
-      note: 'Handa crosses plain, hill, and thick forest, cutting his own path. Past the trees a hut-keeper warns him off the road ahead — worse than death waits, he says — but Handa answers that his fate is his own, and goes on.',
-      lines: [
-        ['11.1', 'Handa, meanwhile, has crossed plain, hill, and mountain with his own horse and dog, and come to a thick forest.'],
+      note: 'Handa gives his horse its head until it carries him to an ancient, sunless forest, where he must cut his own path. Past the trees a hut-keeper warns him off the road ahead — worse than death waits, he says — but Handa answers that his fate is his own, and goes on.',
+      lines: sourcedBinoshet('handaForest', [
+        ['11.1', 'Handa, meanwhile, lets his horse choose its way until it carries him to an ancient forest so dense that sunlight has scarcely entered it.'],
         ['11.2', 'He has to hack his own way through the undergrowth to make any progress.'],
         ['11.3', 'Where the trees finally thin, he finds a hut by a stream with an old man resting outside it.'],
-        ['11.4', 'The two exchange a greeting, and the old man urges him to turn back — what lies ahead, he warns, is worse than dying.'],
+        ['11.4', 'The old man urges him to turn back — what lies ahead, he warns, is worse than dying because life and honor are lost together.'],
         ['11.5', 'Handa answers that his fate is his own to follow, and keeps going.'],
-      ],
+      ]),
       cast: {
         handa: ['kasollja', 'crosses the forest, is warned off by the hut-keeper — and goes on anyway'],
         plakuKasolles: ['kasollja', 'warns Handa off the road ahead'],
       },
     },
     {
-      id: 'zanaGarden', title: 'Drunk in the Zanas\' garden',
-      note: 'Handa reaches the Zanas\' garden, where white-clad nymphs charm him with song, dance, and kisses. Drunk on their welcome, and told that the Earthly Beauty lives in a cave at the mountain\'s foot, he sets off to find her.',
-      lines: [
-        ['11.6', 'Handa comes to the Zanas\' garden.'],
-        ['11.7', 'Nymphs in white surround him, laughing, singing, dancing, plying him with kisses and caresses.'],
+      id: 'zanaGarden', title: 'The Field of the Ladies',
+      note: 'Handa reaches the Field of the Ladies, where white-clad supernatural maidens charm him with song, dance, and kisses. Swept up by their welcome and told that the Earthly Beauty lives in a cave at the mountain\'s foot, he sets off to find her.',
+      lines: sourcedBinoshet('zanaGarden', [
+        ['11.6', 'Handa comes to the Field of the Ladies.'],
+        ['11.7', 'White-clad maidens welcome him with laughter, songs, shouts, and dances, looking like living flowers in the young sunlight.'],
         ['11.8', 'They tell him that the Earthly Beauty makes her home in a cave at the mountain\'s foot.'],
-        ['11.9', 'Drunk on their welcome, Handa sets his mind on finding her.'],
-      ],
+        ['11.9', 'Desire takes hold of Handa, and no obstacle can restrain him from seeking her.'],
+      ]),
       cast: {
-        handa: ['kopshtiZanave', 'charmed and made drunk on welcome by the dancing Zanas; sets off to find the Earthly Beauty'],
-        zanat: ['kopshtiZanave', 'sing, dance, and charm Handa with kisses'],
+        handa: ['kopshtiZanave', 'swept up by the white-clad maidens\' welcome; sets off to find the Earthly Beauty'],
+        zanat: ['kopshtiZanave', 'the Field of the Ladies\' white-clad maidens; sing, dance, and welcome Handa with kisses'],
       },
     },
     {
       id: 'hedgeTest', title: 'Three tests, three failures',
       note: 'Handa reaches a hedge-ringed garden where an old woman offers him entry if he passes a threefold test: a riddle, a sword-cut, a hedge-jump. He fails all three, and her ointment turns Handa and both his animals to stone — and far off, Zjerma\'s ring goes dark.',
-      lines: [
-        ['12.1', 'He leaves the Zanas behind and, with horse and dog, comes to a garden ringed by a hedge of thorn and bramble.'],
+      lines: sourcedBinoshet('hedgeTest', [
+        ['12.1', 'He leaves the maidens behind and, with horse and dog, comes to a garden ringed by a hedge of thorn and bramble.'],
         ['12.2', 'An old woman asks his business; he tells her he has come to court — and wed — the Earthly Beauty.'],
         ['12.3', 'She will let him in, she says, if he can pass a test of wit, of swordcraft, and of horsemanship.'],
-        ['12.4', 'The test is threefold: answer a riddle, cut a woolen cord clean in two, and clear the hedge on horseback without brushing a single thorn.'],
-        ['12.5', 'Handa fails every part of it.'],
+        ['12.4', 'At the sword test, Handa strikes the wool, but one hair remains joining the two pieces.'],
+        ['12.5', 'At the riding test, his horse clears the hedge but one tail-hair brushes a leaf; Handa stays in the saddle, yet the test is lost.'],
         ['12.6', 'She flings her herb-brewed wash over Handa, his horse, and his hound, and stone swallows all three at once — far off, Zjerma watches his own ring lose its shine.'],
-      ],
+      ]),
       cast: {
         handa: ['gardhiBukura', 'fails all three tests and is turned to stone by the old woman'],
         plakaGardhit: ['gardhiBukura', 'tests Handa and turns him, his horse, and his dog to stone'],
@@ -393,34 +430,34 @@ export default {
     },
     {
       id: 'zjermaFollows', title: 'The hut-keeper\'s secret',
-      note: 'Zjerma follows Handa\'s trail back to the same hut, learns his brother would not be talked out of the road, and is armed by the hut-keeper with a secret counsel. He passes through the Zanas\' garden untouched by their songs.',
-      lines: [
-        ['13.1', 'Zjerma comes back to the spring under the almond tree, picks up Handa\'s trail, and reaches the same old man\'s hut.'],
-        ['13.2', 'The old man tells him his brother took the road to the Earthly Beauty\'s garden and would not be talked out of it.'],
+      note: 'Zjerma follows Handa\'s trail back to the same hut, learns his brother would not be talked out of the road, and is armed by the hut-keeper with a secret counsel. He passes through the Field of the Ladies untouched by its songs.',
+      lines: sourcedBinoshet('zjermaFollows', [
+        ['13.1', 'Zjerma reaches the spring under the flowering almond, cries out for his brother, and takes the path Handa chose.'],
+        ['13.2', 'Following the trail through the ancient forest to the bearded old man\'s hut, he learns that Handa would not listen and is now in danger or worse.'],
         ['13.3', 'He adds that many others took that same road before Handa, and not one of them ever came back.'],
-        ['13.4', 'The old man welcomes Zjerma inside and passes on secret counsel to help him win his brother back.'],
-        ['13.5', 'Zjerma thanks him, says goodbye, and moves on.'],
-        ['13.6', 'In the Zanas\' garden the nymphs try their songs and dances on him too.'],
+        ['13.4', 'When Zjerma asks how to save him, the old man tells him to dismount and come inside the hut.'],
+        ['13.5', 'There he gives Zjerma secret instructions and tells him to remember and follow them exactly.'],
+        ['13.6', 'At the Field of the Ladies, white-clad maidens meet Zjerma with songs and shouts.'],
         ['13.7', 'He does not so much as slow down, telling them they are lovely indeed, but not for him.'],
-      ],
+      ]),
       cast: {
-        zjerma: ['kopshtiZanave', 'gets the hut-keeper\'s secret, then passes through the Zanas\' garden untouched by their songs'],
+        zjerma: ['kopshtiZanave', 'gets the hut-keeper\'s secret, then passes through the Field of the Ladies untouched by its songs'],
         plakuKasolles: ['kasollja', 'arms Zjerma with the secret to save his brother'],
       },
     },
     {
       id: 'zjermaTests', title: 'Riddle, cord, and hedge',
       note: 'At the hedge, Zjerma passes every test the old woman sets, then seizes and binds her to a tree before she can douse him too. Threatened with death, she shows him the petrified men — Handa among them — and, forced, names the cure and where to find it.',
-      lines: [
+      lines: sourcedBinoshet('zjermaTests', [
         ['14.1', 'At the hedge of the Earthly Beauty\'s garden, Zjerma meets the old woman and takes up her challenge.'],
         ['14.2', 'He answers her riddle, cuts the woolen cord clean through with his silver sword, and clears the hedge on horseback.'],
         ['14.3', 'Before she can spray him with her ointment, he seizes her and binds her fast to a tree.'],
         ['14.4', 'He tells her plainly: show him his brother, or die.'],
-        ['14.5', 'Shaking, she leads him to the many men turned to stone there — Handa among them.'],
-        ['14.6', 'He wants the method that will undo the stone and insists on hearing it now.'],
-        ['14.7', 'She tells him the dew inside a white lily\'s cup, touched to the eyes and lips, will do it.'],
-        ['14.8', 'When he cannot find the flower himself, he forces her to show him where it grows, and she gives in.'],
-      ],
+        ['14.5', 'Shaking, she tells him to look around; among the flowers and trees he sees many mounted men turned to stone.'],
+        ['14.6', 'She tells him to anoint their eyes and lips with dew.'],
+        ['14.7', 'That dew, she says, is found inside the cup of a white lily.'],
+        ['14.8', 'She finally points below, to a hidden cleft among stones beside the stream where the white lily grows.'],
+      ]),
       cast: {
         zjerma: ['gardhiBukura', 'passes every test at the hedge and binds the old woman to a tree'],
         plakaGardhit: ['gardhiBukura', 'bound to a tree, forced to show Zjerma the petrified men and name the cure'],
@@ -432,15 +469,15 @@ export default {
     {
       id: 'witchEnds', title: 'The white lily',
       note: 'Zjerma revives Handa with the lily\'s dew, then every other petrified man and beast. As the old woman screams for him to stop, she throws off her shape for a black bolla\'s, and dies tearing herself against the tree she is bound to.',
-      lines: [
-        ['14.9', 'Flower found, Zjerma touches its dew to Handa\'s eyes and lips.'],
-        ['14.10', 'Color returns to Handa\'s skin and his eyes open, and Zjerma pulls his brother straight into his arms.'],
-        ['14.11', 'He goes on to anoint the horse, the dog, and every other petrified man with the same dew.'],
-        ['14.12', 'As Zjerma wakes the last of them, the old woman screams at him to stop — he pays her no mind.'],
+      lines: sourcedBinoshet('witchEnds', [
+        ['14.9', 'Flower found, Zjerma touches the dew inside its cup to Handa\'s eyes.'],
+        ['14.10', 'Handa\'s eyes shine like the morning star; when the dew touches his lips he yawns, stretches, and Zjerma embraces him.'],
+        ['14.11', 'Zjerma embraces Handa, tells him what happened, then revives Handa\'s horse and dog.'],
+        ['14.12', 'When Zjerma begins waking all the other petrified men, the old woman screams a protest, but he pays her no mind.'],
         ['14.13', 'In her fury she throws off her old-woman shape for a black bolla\'s and thrashes to break free of the tree.'],
         ['14.14', 'She wrenches at the trunk she is bound to, trying to tear it up by the roots.'],
-        ['14.15', 'It does not give: her body tears in two instead, and she dies.'],
-      ],
+        ['14.15', 'She coils seven tail-knots around her tree and three around a nearby oak, pulls for freedom, and tears herself in two.'],
+      ]),
       cast: {
         handa: ['gardhiBukura', 'revived by the lily\'s dew'],
         zjerma: ['gardhiBukura', 'revives Handa, then every other petrified man, with the lily\'s dew'],
@@ -455,17 +492,17 @@ export default {
     {
       id: 'beautyWon', title: 'A crown of laurel',
       note: 'The revived noblemen, out of gratitude to Zjerma, let Handa marry the Earthly Beauty without any tournament. She welcomes them all at her cave, and Zjerma weaves laurel crowns for the couple; nine days of feasting follow.',
-      lines: [
+      lines: sourcedBinoshet('beautyWon', [
         ['15.1', 'Once alive again, the freed men turn out to be noblemen, every one of them brave.'],
         ['15.2', 'Handa proposes a tournament among them for the Earthly Beauty\'s hand.'],
         ['15.3', 'But in thanks to Zjerma for their lives, the men step aside and let Handa marry her without a contest.'],
-        ['15.4', 'Zjerma asks them to come along when he and Handa go to meet her, and they agree.'],
-        ['15.5', 'The twins and their company reach her cave and find her seated where a grapevine and a cypress lean together to cast their shade.'],
+        ['15.4', 'Zjerma thanks the freed men and asks them to accompany the twins to receive the bride.'],
+        ['15.5', 'The twins lead the company in old songs until they reach the cave where the Earthly Beauty lives.'],
         ['15.6', 'She welcomes them all and gives Handa her hand.'],
         ['15.7', 'Her eyes, they say, outshine the Moon and gleam brighter than the evening star.'],
         ['15.8', 'Zjerma weaves two laurel crowns and sets them on the heads of the Earthly Beauty and Handa.'],
         ['15.9', 'Nine days of feasting follow.'],
-      ],
+      ]),
       cast: {
         handa: ['gardhiBukura', 'weds the Earthly Beauty without a fight, by the freed men\'s own choice'],
         beauty: ['gardhiBukura', 'welcomes the twins and gives Handa her hand'],
@@ -475,44 +512,44 @@ export default {
     },
     {
       id: 'warOfCrown', title: 'The old kingdom\'s crown',
-      note: 'Zjerma leads the freed noblemen to reclaim the twins\' ancestral kingdom from its foreign king, whom Handa kills; Zjerma passes the crown to his brother, and the twins restore their mother to her own kingdom. Zjerma then delivers the Earthly Beauty to Handa\'s new court — but falls too ill to make his own promised return to Bardhakuqja.',
-      lines: [
+      note: 'Zjerma leads the freed noblemen to reclaim the twins\' ancestral kingdom from its foreign king, whom Handa kills; Zjerma passes the crown to his brother, and the twins bring their mother with honor back to the royal home she entered as a bride. Zjerma then delivers the Earthly Beauty to Handa\'s new court — but falls too ill to make his own promised return to Bardhakuqja.',
+      lines: sourcedBinoshet('warOfCrown', [
         ['16.1', 'Zjerma calls on his new companions to help win back the twins\' ancestral kingdom from the power occupying it.'],
         ['16.2', 'Every one of them agrees, and they march off to war.'],
-        ['16.3', 'Small as their company is, their fighting strength — a match for any drangue\'s — carries them for months.'],
+        ['16.3', 'The enemy is powerful and includes warriors said to kill with a look, but the twins and their companions hold out against superior numbers for months.'],
         ['16.4', 'When the occupying king sees he can neither win nor save himself, he throws himself into the battle in person.'],
         ['16.5', 'Handa cuts him down with his silver sword.'],
         ['16.6', 'As heir to his own father-in-law\'s throne besides, Zjerma passes their ancestors\' crown to Handa and names him king.'],
-        ['16.7', 'The twins bring their mother home and restore her to her own kingdom.'],
+        ['16.7', 'The twins fetch their mother and bring her with great honor back to the house she had entered as a happy bride in her youth.'],
         ['16.8', 'Next Zjerma gathers his men and rides for the mountain, meaning to fetch the Earthly Beauty back for Handa\'s side.'],
-        ['16.9', 'The long road wears him down and he falls ill.'],
-        ['16.10', 'With the day he owes Bardhakuqja almost up and too weak to rise, he sends Handa in his place.'],
-      ],
+        ['16.9', 'From fatigue, Zjerma falls ill.'],
+        ['16.10', 'When the day he owes Bardhakuqja arrives and he is too weak to rise, he sends Handa in his place.'],
+      ]),
       cast: {
         zjerma: ['mbreteria', 'leads the war, delivers the Earthly Beauty to Handa\'s kingdom, then falls too ill to travel on to Bardhakuqja himself'],
         handa: ['mbreteria', 'kills the occupying king; crowned in his father\'s stead'],
         mbretiHuaj: ['mbreteria', '☠ killed by Handa\'s silver sword'],
-        nena: ['mbreteria', 'brought home and restored to her own kingdom'],
+        nena: ['mbreteria', 'brought with great honor back to her former bridal home'],
         beauty: ['mbreteria', 'brought to Handa\'s new kingdom by Zjerma'],
       },
       exit: ['mbretiHuaj'],
     },
     {
       id: 'swordBetween', title: 'The sword laid between them',
-      note: 'Handa is mistaken for Zjerma at Bardhakuqja\'s city and, put to bed with her, tells her the truth and lays his sword between them. Zjerma arrives recovered the next morning, nearly kills them both in a moment\'s jealous rage — until he sees the sword and laughs. The company reunites, and the aging river-king passes his throne and gold crown to Zjerma.',
-      lines: [
+      note: 'Handa is mistaken for Zjerma at Bardhakuqja\'s city and, put to bed with her, tells her the truth and lays his sword between them. Zjerma arrives recovered the next morning, nearly kills them both in a moment\'s jealous rage — until he sees the sword and laughs. Bardhakuqja proves her innocence by passing through fire, after which the family reunites and the aging river-king passes his throne and gold crown to Zjerma.',
+      lines: sourcedBinoshet('swordBetween', [
         ['17.1', 'The city takes Handa for Zjerma when he arrives, and welcomes him as such.'],
-        ['17.2', 'Pressed into his brother\'s marriage bed, Handa tells Bardhakuqja the truth of who he is and lays his sword down between them.'],
-        ['17.3', 'Next morning Zjerma turns up, unlooked-for and fully recovered.'],
-        ['17.4', 'He walks in and finds Handa in bed with his own wife.'],
+        ['17.2', 'Pressed into the bed prepared for his brother, Handa tells Bardhakuqja the truth of who he is and lays his sword down between them.'],
+        ['17.3', 'Next morning Zjerma unexpectedly enters the chamber where Handa and Bardhakuqja are sleeping.'],
+        ['17.4', 'At the sight of them together, his arms fall and his heart feels torn apart.'],
         ['17.5', 'For one moment, feeling betrayed, he thinks of killing them both in their sleep — until he spots Handa\'s sword lying between them.'],
         ['17.6', 'Understanding dawns, and he laughs — waking them both.'],
-        ['17.7', 'Together they all make their way to the kingdom Handa now rules, and there Bardhakuqja is introduced to both the twins\' mother and Handa\'s own bride; three months on, Zjerma and his wife set out for home.'],
-        ['17.8', 'Age has caught up with his father-in-law, who wants nothing more than rest, so the old man hands the throne and its golden circlet over to Zjerma.'],
-      ],
+        ['17.7', 'Bardhakuqja turns white then red, crosses through flame to prove her innocence, and comes out lovelier.'],
+        ['17.8', 'After three months she and Zjerma return; age has caught his father-in-law, who gives Zjerma the staff of command and the golden crown.'],
+      ]),
       cast: {
         handa: ['qytetiLumit', 'sent in his sick brother\'s place; mistaken for Zjerma, lays his sword between himself and Bardhakuqja all night'],
-        bardhakuqja: ['qytetiLumit', 'unknowingly shares a bed with her brother-in-law, a sword between them'],
+        bardhakuqja: ['qytetiLumit', 'shares a bed with Handa, a sword between them; then proves her innocence by passing through flame'],
         zjerma: ['qytetiLumit', 'arrives recovered the next morning, nearly kills them both, then understands and laughs'],
         mbretiLumit: ['qytetiLumit', 'old now and glad to rest; passes his throne and gold crown to Zjerma'],
       },

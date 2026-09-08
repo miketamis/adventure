@@ -33,7 +33,7 @@ export default {
   hysmeqarka: {
     name: 'hysmeqarka', glyph: '👗', kind: 'human',
     role: 'the bought servant who stole the vigil\'s wage',
-    backstory: 'Sold up a garden wall on a rope for a shovelful of gold, she was handed the last watch and the whole truth of the scroll — including what waking was worth. She kept the watch well enough, but stripped the sleeper\'s clothes, met the waking king in them, claimed the three weeks as her own, and was queen until a goose-girl\'s counted woes reached his ear. He had her killed and cut to pieces, the biggest piece this big («e bëri copëra, m\'e madhja copë ish kaqë»; Dozon\'s variant: «cingra mingra»). The tale\'s one liar, and its one death.',
+    backstory: 'Sold up a garden wall on a rope for a shovelful of gold, she was handed the last watch and the whole truth of the scroll — including what waking was worth. She kept the watch well enough, but stripped the sleeper\'s clothes, met the waking king in them, claimed the full three-weeks-plus-three-days-and-nights vigil as her own, and was queen until a goose-girl\'s counted woes reached his ear. He had her killed and cut to pieces, the biggest piece this big («e bëri copëra, m\'e madhja copë ish kaqë»; Dozon\'s variant: «cingra mingra»). The tale\'s one liar, and its one death.',
     folklore: ['goose-girl'],
     location: { status: 'planning', plan: 'dead at the tale\'s end — her scenes live inside the built Act II (mermerZgjim → mermerTradheti → mbretiDrejtesi); no standing map spot' },
     tales: { 'goose-girl': 'servant' },

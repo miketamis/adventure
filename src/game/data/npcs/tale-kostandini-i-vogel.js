@@ -8,20 +8,9 @@
 //   to a DIFFERENT groom than the village's own dasma, on the same standing
 //   route (roads and wedding-trains accumulate stories, they never clash).
 //
-// KNOWN UPSTREAM BUG (out of THIS file's scope — do not "fix" it here by
-// renaming this tale's own npc reference away from 'agaYmer'; that would only
-// paper over the real cause): src/game/data/npcs/tale-aga-ymer.js ALSO
-// defines a bare 'agaYmer' id for its own, separate protagonist (a different
-// retelling — Elsie's "nine years"/Pashë Veli prose version, placed at node
-// kalaRozafa). npcRegistry.js's glob-merge is last-file-wins alphabetically,
-// and 'tale-aga-ymer.js' sorts after 'core-village.js', so at runtime
-// NPC_REGISTRY.agaYmer resolves to tale-aga-ymer.js's character, not to
-// core-village.js's tower-keeper at node agaYmer1 that THIS tale's places
-// anchors (dungeon/besaChoice/freedom) assume. tale-aga-ymer.js's own other
-// cast members already use unique suffixed ids (nusjaYmerit, mbretiHuaj,
-// pashaVeliu) — 'agaYmer' is its only bare, collision-prone id, and the fix
-// belongs there (rename it), not in this tale's file, which the schema bars
-// us from editing.
+// The former duplicate `agaYmer` registry entry has been removed. Both selected
+// tellings now deliberately reuse the canonical core-village hero at agaYmer1;
+// telling-specific relatives retain their suffixed ids in tale-aga-ymer.js.
 //
 // NOT the core NPC 'kostandini' (Kostandin i vdekur, Doruntina's dead-riding
 // BROTHER) — the folklore card is explicit that this is a different legend:

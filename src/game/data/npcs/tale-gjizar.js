@@ -40,15 +40,15 @@ export default {
   djaliGjizar: {
     name: 'djali i vogël i mbretit', glyph: '🕯️', kind: 'human',
     role: 'the youngest prince — the quiet thief who truly won the nightingale',
-    backstory: 'He chose the stone that promised no return and paid kindness down the whole road: a comb for the savage woman, leaves for the tiger\'s oven, a son\'s mouth for the lioness, lifted eyelids for the blind lion, three months for three eagle-brides. In the Beauty\'s chamber he renewed the dying candles before he took the cage — the signature of a thief with manners. The bird fell silent when his rope was cut and sang again at his first word; the Beauty married him for the true telling. His staged arc is the village\'s back-lane vignette (gjizar2 → gjizarUdha → gjizarPallat → gjizarTradheti → gjizarFund).',
+    backstory: 'He chose the stone that promised no return and paid kindness down the whole road: a comb for the savage woman, leaves for the tiger\'s oven, a son\'s mouth for the lioness, lifted eyelids for the blind lion, three months for three eagle-brides. In the Beauty\'s chamber he lit four unlit lamps and extinguished four dying ones before taking the cage — the signature of a thief with manners. The bird fell silent when his rope was cut and sang again at his first word; the Beauty married him for the true telling. His staged arc is the village\'s back-lane vignette (gjizar2 → gjizarUdha → gjizarPallat → gjizarTradheti → gjizarFund).',
     folklore: ['gjizar'],
-    location: { status: 'planning', plan: 'rides the built vignette; on the world map his road runs gjizar1 fork → wilderness (gjizarUdha) → the dark road (udhetimi1/2 proposals) → bukura1' },
+    location: { status: 'walking', route: ['gjizar1', 'gjizar2', 'gjizarUdha', 'gjizarPallat', 'gjizarTradheti', 'gjizarFund'] },
     tales: { gjizar: 'youngest' },
   },
   egershania: {
     name: 'e egra e maleve', glyph: '🌿', kind: 'mythic',
     role: 'the savage woman of the wilderness, combing her hair with a gorse branch',
-    backstory: 'A wild woman of the empty country past the settled roads — no village, no inn, no people. The youth combed the lice from her hair with a proper comb, and the only payment she had was a warning: past these mountains even she has never gone. The game\'s gjizarUdha scene stages her as the hungry woman of the far road who is fed bread — the telling folds her and the eagle-mother into one figure; in Pedersen they are two. NOT the crossroads crone (plakaUdhekryqit) and NOT the cold old woman of the night forest (plakaPyllit).',
+    backstory: 'A wild woman of the empty country past the settled roads — no village, no inn, no people. The youth combed the lice from her hair with a proper comb, and the only payment she had was a warning: past these mountains even she has never gone. The game now keeps her distinct from the tiger-wife, lioness and eagle-mother as Pedersen does, though their helper chain shares one long-road scene. NOT the crossroads crone (plakaUdhekryqit) and NOT the cold old woman of the night forest (plakaPyllit).',
     folklore: ['gjizar'],
     location: { status: 'placed', node: 'gjizarUdha' },
     tales: { gjizar: 'wildWoman' },
@@ -88,7 +88,7 @@ export default {
   plakaShqiponjave: {
     name: 'plaka e shqiponjave', glyph: '🪺', kind: 'human',
     role: 'the eagle-mother — the old woman of the house in the wide field',
-    backstory: 'She bakes for three daughters who fly home as eagles and bathe back into maidens at the water-bowl on her table. She fed the doomed stranger first, hid him in the spy-hole closet, and drew the no-harm oath out of her daughters with one careful question before she opened the door. The village telling folds her into the hungry woman of the road (gjizarUdha); in Pedersen she is her own figure. NOT the crossroads crone and NOT the gate-keeper plaka.',
+    backstory: 'She bakes for three daughters who fly home as eagles and bathe back into maidens at the water-bowl on her table. She fed the doomed stranger first, hid him in the spy-hole closet, and drew the no-harm oath out of her daughters with one careful question before she opened the door. The game preserves her as her own figure within the long-road scene, distinct from the wild woman encountered earlier. NOT the crossroads crone and NOT the gate-keeper plaka.',
     folklore: ['gjizar'],
     location: { status: 'planning', plan: 'keeps the eagle-house proposed in the wide field off udhetimi2' },
     tales: { gjizar: 'eagleMother' },

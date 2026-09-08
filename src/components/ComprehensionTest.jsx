@@ -1,23 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-// The HARD comprehension gate on every achievement: an Albanian line from the
-// story you lived, three English readings — the real one and two near misses
-// (built in src/game/comprehension.js). EVERY question must be answered
+// The HARD comprehension gate on every achievement: reviewed Albanian sentences
+// from the story the player lived, supplemented by unambiguous words encountered
+// on that path when four reviewed whole-line readings are not yet available.
+// Every answer is real English; no literal-gloss sentence is used. EVERY question must be answered
 // correctly. One wrong answer costs a heart AND ends the attempt on the spot;
 // the parent decides what a pass or a fail means (onDone(passed)). Shared by
 // the ending screen, the area banner and the Achievements codex.
 export default function ComprehensionTest({ questions, dispatch, onDone }) {
   const [step, setStep] = useState(0)
   const [pick, setPick] = useState(null)
+  const answerCommitted = useRef(false)
+  const advanceCommitted = useRef(false)
+  const questionRef = useRef(null)
   const q = questions[step]
   const wrong = pick !== null && pick !== q.correct
   const last = step >= questions.length - 1
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => questionRef.current?.focus())
+    return () => window.cancelAnimationFrame(frame)
+  }, [step])
   return (
     <div className="comp-quiz">
+      <div ref={questionRef} className="comp-question" role="status" aria-live="polite" aria-atomic="true" tabIndex={-1}>
       <p className="comp-q">
-        📖 A e kuptove? — comprehension {step + 1} / {questions.length}
+        📖 <span lang="sq">A e kuptove?</span> — comprehension {step + 1} / {questions.length}
       </p>
-      <div className="comp-al">{q.albanian}</div>
+      <p className="hint">{q.prompt}</p>
+      <div className="comp-al" lang="sq">{q.albanian}</div>
+      </div>
       <div className="answers">
         {q.options.map((opt) => {
           let cls = 'answer'
@@ -29,8 +40,18 @@ export default function ComprehensionTest({ questions, dispatch, onDone }) {
               className={cls}
               disabled={pick !== null}
               onClick={() => {
+                if (answerCommitted.current) return
+                answerCommitted.current = true
+                advanceCommitted.current = false
                 setPick(opt)
-                if (opt !== q.correct) dispatch({ type: 'COMP_WRONG' })
+                if (opt !== q.correct) {
+                  // Record the failed gate in the same interaction as the
+                  // heart loss. At one remaining heart, the game-over overlay
+                  // otherwise arrives before a second "continue" click and a
+                  // reload could replay the same uncounted test attempt.
+                  dispatch({ type: 'COMP_WRONG' })
+                  onDone(false)
+                }
               }}
             >
               {opt}
@@ -45,14 +66,17 @@ export default function ComprehensionTest({ questions, dispatch, onDone }) {
         </p>
       ) : (
         <>
-          <div className={'feedback ' + (wrong ? 'bad' : 'good')}>
-            {wrong ? '✗ ' : '✓ Saktë! '}
-            <em>{q.albanian}</em> = {q.correct}
+          <div className={'feedback ' + (wrong ? 'bad' : 'good')} role="status" aria-live="polite" aria-atomic="true">
+            {wrong ? '✗ ' : <><span aria-hidden="true">✓ </span><span lang="sq">Saktë!</span>{' '}</>}
+            <em lang="sq">{q.albanian}</em> = {q.correct}
           </div>
           <button
             className="btn primary"
             onClick={() => {
+              if (advanceCommitted.current) return
+              advanceCommitted.current = true
               if (wrong || last) return onDone(!wrong)
+              answerCommitted.current = false
               setStep(step + 1)
               setPick(null)
             }}

@@ -30,7 +30,7 @@ export default {
   },
   ballabani: {
     name: 'Ballaban Badheri', glyph: '🐕', kind: 'human',
-    role: 'the Albanian turncoat pasha who wagers his head on bringing Skanderbeg\'s',
+    role: 'the Albanian turncoat pasha who wagers his head on bringing Skanderbeg in, alive or dead',
     backstory: 'An Albanian-born warrior who renounced his own blood to fight for the Ottomans, was first to plant the crescent flag on Constantinople\'s walls, and was made a pasha for it. He alone steps forward to hunt Skanderbeg for nine hundred thousand ducats of gold and a pashalik over Albania — is wounded, disarmed, marked with a cut ear and sent home in disgrace, then beheaded by his own Sultan for failing.',
     folklore: ['skanderbeg-legjenda'],
     location: { status: 'planning', plan: 'never staged; rides with the Ottoman host to the offstage river, dies at the offstage hilltop tent' },

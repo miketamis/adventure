@@ -21,6 +21,12 @@
 export default {
   id: 'kreshnik-epic',
   title: "Mujo's Wife is Kidnapped",
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Rrëmbimi i së shoqes së Mujit», Visaret e Kombit II (1937), pp. 159–169 — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_15.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “Mujo’s Wife is Kidnapped”', url: 'http://www.albanianliterature.net/oralverse/verse_09_15.html' },
+    { role: 'scholarship', citation: 'Zymer U. Neziri and Nicola Scaldaferri, “New Research on Albanian Epic Songs” (Harvard CHS)', url: 'https://classics-at.chs.harvard.edu/classics14-neziri-and-scaldaferri/' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+  ],
   source:
     'Sung by Mëhill Prêka of Curraj i Epërm (District of Tropoja); Visaret e Kombit II, ed. B. Palaj & D. Kurti (Tirana 1937), pp. 159–169 (n. 21 of the collection) · read in R. Elsie & J. Mathie-Heck\'s translation "Mujo\'s Wife is Kidnapped" (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {

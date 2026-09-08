@@ -213,6 +213,77 @@ function gPrincePalace(x, y) {
     </g>
   )
 }
+function gStoneCastle(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(2, 19, 25, 6)}
+      <path d="M-28 15 L-23 -8 L-13 -8 L-13 -14 L-5 -14 L-5 -8 L7 -8 L7 -17 L16 -17 L16 -8 L25 -8 L29 15 Z"
+            fill="#8f8d84" stroke="#4b463d" strokeWidth={2} />
+      <path d="M-5 15 V3 A6 6 0 0 1 7 3 V15" fill="#3a342d" stroke="#4b463d" strokeWidth={1.3} />
+      <rect x={-18} y={-3} width={4} height={6} fill="#2f2b24" />
+      <rect x={15} y={-3} width={4} height={6} fill="#2f2b24" />
+      <path d="M-32 16 Q0 7 33 16" fill="none" stroke="#6f735f" strokeWidth={4} opacity={0.8} />
+    </g>
+  )
+}
+function gCaveMouth(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(0, 16, 22, 6)}
+      <path d="M-27 15 Q-24 -12 0 -22 Q24 -12 27 15 Z" fill="#77766e" stroke="#44433d" strokeWidth={2} />
+      <path d="M-13 15 Q-12 -7 0 -12 Q12 -7 13 15 Z" fill="#171614" stroke="#37352f" strokeWidth={1.5} />
+      <path d="M-21 2 L-15 -2 M17 -5 L23 1" stroke="#a5a096" strokeWidth={1.2} opacity={0.7} />
+    </g>
+  )
+}
+function gGardenTree(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(1, 18, 18, 5)}
+      <rect x={-3.5} y={-2} width={7} height={20} rx={2} fill="#77502f" stroke="#4f341f" strokeWidth={1.2} />
+      <circle cx={0} cy={-10} r={16} fill="#708c4a" stroke="#405c30" strokeWidth={1.8} />
+      <circle cx={-11} cy={-4} r={10} fill="#819e56" stroke="#405c30" strokeWidth={1.2} />
+      <circle cx={11} cy={-4} r={10} fill="#78954f" stroke="#405c30" strokeWidth={1.2} />
+      {[-9, 1, 10].map((fx, i) => <circle key={i} cx={fx} cy={i === 1 ? -12 : -5} r={2.2} fill="#cf9d34" />)}
+    </g>
+  )
+}
+function gHorse(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(1, 16, 20, 5)}
+      <ellipse cx={0} cy={1} rx={17} ry={9} fill="#9a6a42" stroke="#4f3423" strokeWidth={1.8} />
+      <path d="M12 -2 Q17 -15 22 -13 L24 -5 Q21 1 15 4" fill="#9a6a42" stroke="#4f3423" strokeWidth={1.8} />
+      <path d="M19 -13 l-1 -7 l5 6 M23 -12 l4 -6 l0 8" fill="#6b452e" stroke="#4f3423" strokeWidth={1.1} />
+      {[-11, -4, 8, 14].map((lx, i) => <line key={i} x1={lx} y1={7} x2={lx + (i % 2 ? 1 : -1)} y2={17} stroke="#4f3423" strokeWidth={2.4} strokeLinecap="round" />)}
+      <circle cx={22} cy={-8} r={1.1} fill="#17120e" />
+    </g>
+  )
+}
+function gCuckoo(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(0, 14, 15, 4)}
+      <path d="M-15 4 Q-6 -11 7 -5 Q18 -2 19 6 Q8 11 -4 10 Z" fill="#6e7480" stroke="#343943" strokeWidth={1.7} />
+      <path d="M-6 3 Q1 -4 10 1 Q2 2 -4 8" fill="#9299a4" stroke="#484e58" strokeWidth={1.1} />
+      <circle cx={13} cy={-3} r={1.3} fill="#f4c634" />
+      <path d="M18 0 l7 3 l-7 2" fill="#c69237" />
+      <path d="M-12 7 l-11 7 l14 -2" fill="#545a64" stroke="#343943" strokeWidth={1} />
+      <path d="M-2 11 q-2 5 -5 7 M4 10 q1 5 4 7" fill="none" stroke="#4a3b2b" strokeWidth={1.4} />
+    </g>
+  )
+}
+function gSwallow(x, y) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {shadow(0, 13, 14, 4)}
+      <path d="M0 4 Q-18 -10 -28 -3 Q-14 -1 -5 9 Q0 13 5 9 Q14 -1 28 -3 Q18 -10 0 4 Z" fill="#26384b" stroke="#111d2a" strokeWidth={1.5} />
+      <path d="M-5 8 L-14 22 L0 13 L14 22 L5 8" fill="#26384b" stroke="#111d2a" strokeWidth={1.3} />
+      <path d="M-5 5 Q0 11 5 5" fill="#b04b3f" />
+      <circle cx={0} cy={1} r={1.2} fill="#f4e5c0" />
+    </g>
+  )
+}
 function gPemaDielli(x, y) {
   return (
     <g transform={`translate(${x},${y})`}>
@@ -790,23 +861,23 @@ function gStag(x, y) {
   )
 }
 
-// ── THE LIVING QUARTER OF THE DEAD CITY (underworld) ──────────────────────
-function gGhostInn(x, y) {
-  // the bujtina — a tall dark inn, hearth-lit windows, a lantern at the door
+// ── SURFACE GJAKOVA ───────────────────────────────────────────────────────
+function gBujtina(x, y) {
+  // the bujtina — a surface-town inn with hearth-lit windows and a door lantern
   return (
     <g transform={`translate(${x},${y})`}>
       {shadow(2, 15, 15, 4)}
-      <rect x={-12} y={-12} width={24} height={26} rx={1.5} fill="#2a2330" stroke="#120e1a" strokeWidth={1.8} />
-      <path d="M-15 -12 L0 -22 L15 -12 Z" fill="#463748" stroke="#120e1a" strokeWidth={1.4} />
+      <rect x={-12} y={-12} width={24} height={26} rx={1.5} fill="#9a8062" stroke="#4b3828" strokeWidth={1.8} />
+      <path d="M-15 -12 L0 -22 L15 -12 Z" fill="#73513c" stroke="#4b3828" strokeWidth={1.4} />
       {[[-7, -6], [3, -6], [-7, 3]].map(([wx, wy], i) => <rect key={i} x={wx} y={wy} width={4.6} height={5.6} rx={0.8} fill="#e8b53c" opacity={0.9} />)}
-      <rect x={3} y={2} width={7} height={12} rx={1} fill="#0e0b14" />
-      <line x1={-15} y1={-16} x2={-15} y2={-9} stroke="#4a4152" strokeWidth={1.4} />
+      <rect x={3} y={2} width={7} height={12} rx={1} fill="#3d2b20" />
+      <line x1={-15} y1={-16} x2={-15} y2={-9} stroke="#5a4230" strokeWidth={1.4} />
       <circle cx={-15} cy={-7.5} r={2.4} fill="#f6cf49" stroke="#a8710f" strokeWidth={0.8} />
     </g>
   )
 }
 function gHealer(x, y) {
-  // the healer of the quarter — an awning, a steaming kettle of herbs
+  // Gjakova's healer — an awning, a steaming kettle of herbs
   return (
     <g transform={`translate(${x},${y})`}>
       {shadow(1, 12, 14, 4)}
@@ -820,7 +891,7 @@ function gHealer(x, y) {
   )
 }
 function gWaySign(x, y) {
-  // the way-signs at the quarter's edge — dark post, pale rune-boards
+  // the way-signs at the surface town's edge — dark post, pale rune-boards
   return (
     <g transform={`translate(${x},${y})`}>
       {shadow(1, 10, 7, 3)}
@@ -967,21 +1038,40 @@ export const WORLD_GLYPH = {
   gZana, gBolla, gRiddleElder, gLake, gEagleNest, gZanaGift, gCradleRock,
   gBaloz, gGjergj, gSister, gBukuraDetit, gShoreKulla, gGraveLahuta, gFishingCoast,
   gTraveller, gCampfire, gWolf, gBear, gFox, gWitch, gRevenant, gDhampir, gShtojzovalle,
-  gSunOda, gStag, gGhostInn, gHealer, gWaySign, gKullaSmall, gMejdan, gPrincePalace,
+  gSunOda, gStag, gBujtina, gHealer, gWaySign, gKullaSmall, gMejdan, gPrincePalace,
+  gStoneCastle, gCaveMouth, gGardenTree, gHorse, gCuckoo, gSwallow,
 }
 
-// Re-rigged to the new (rotated real-Albania) map — see REGIONS in DebugView.jsx.
+// Landmarks on the mythic composite tale chart — see WORLD_CHART / REGIONS.
+// Coordinates express game-road and cosmological relationships, not latitude,
+// longitude, cardinal bearings, or a claim that distant Albanian sites coincide.
 export const WORLD_LANDMARKS = [
   // Mount Tomorr (top-centre) — summit figures high, the approach low
   { id: 'maja', glyph: 'gBabaTomor', label: 'Baba Tomor', x: 300, y: -820 },
-  { id: 'majaEagle', glyph: 'gEagle', label: 'Eagle of Tomorr', x: 470, y: -720 },
+  { id: 'majaEagle', glyph: 'gEagle', label: "Baba Tomor's eagle & shrine", x: 470, y: -720 },
   { id: 'shurdhi1', glyph: 'gShurdhi', label: 'Shurdhi', x: 60, y: -680 },
   { id: 'verbti1', glyph: 'gVerbti', label: 'i Verbti', x: 170, y: -610 },
   { id: 'peri1', glyph: 'gPeri', label: 'Peri', x: 180, y: -520 },
   { id: 'katallan1', glyph: 'gKatallan', label: 'Katallan', x: -40, y: -360 },
   { id: 'jutbina', glyph: 'gJutbina', label: 'Jutbina', x: 540, y: -360 },
-  // the foreign prince's land, out the north-east road past the crossroads
+  { id: 'odaJutbina', glyph: 'gSunOda', label: "Jutbina's great oda", x: 590, y: -282 },
+  { id: 'gbMuji1', glyph: 'gKreshnik', label: "Mujo's twin trees", x: 720, y: -500 },
+  { id: 'osmaniBurg', glyph: 'gStoneCastle', label: "the Krajl's prison", x: 810, y: -310 },
+  { id: 'halilGarria1', glyph: 'gKreshnik', label: "Halil Garria's rescue", x: 820, y: -220 },
+  { id: 'mujoKale', glyph: 'gHorse', label: "Mujo's guarded horse", x: 780, y: -410 },
+  { id: 'aliBajr1', glyph: 'gKullaSmall', label: "Ali Bajraktari's house", x: 760, y: -120 },
+  { id: 'tsHyrje', glyph: 'gBabaTomor', label: "giant Tomor's slope", x: 350, y: -600 },
+  { id: 'tomorProva', glyph: 'gShurdhi', label: "Tomorr's thunder trial", x: 420, y: -640 },
+  { id: 'sari1', glyph: 'gCaveMouth', label: "Sari Salltëk's cave", x: 640, y: -180 },
+  { id: 'kordhaPallat', glyph: 'gStoneCastle', label: "the sword-brothers' palace", x: -790, y: 150 },
+  // the foreign prince's land, out the upper-right tale-road past the crossroads
   { id: 'maroPallati', glyph: 'gPrincePalace', label: "the prince's palace", x: 1050, y: -40 },
+  { id: 'maroKopshti', glyph: 'gGardenTree', label: "the prince's garden wood", x: 980, y: 100 },
+  { id: 'maroIkja', glyph: 'gWaySign', label: "Maro's midnight road", x: 740, y: 340 },
+  { id: 'maroKrushqit', glyph: 'gKreshnik', label: 'the wedding road', x: 350, y: 330 },
+  { id: 'maroPrincesha', glyph: 'gWaySign', label: "the prince's road", x: 850, y: 80 },
+  { id: 'cuckoo1', glyph: 'gCuckoo', label: "Gjon's cuckoo-field", x: 755, y: 225 },
+  { id: 'dallendyshe1', glyph: 'gSwallow', label: "the swallow's eaves", x: 805, y: 215 },
   { id: 'mujoHak1', glyph: 'gKreshnik', label: 'Mujo', x: 300, y: -320 },
   // the kreshnik hamlet spots around Jutbina
   { id: 'mujo1', glyph: 'gKullaSmall', label: "Mujo's kulla", x: 604, y: -330 },
@@ -996,17 +1086,18 @@ export const WORLD_LANDMARKS = [
   { id: 'diellOda', glyph: 'gSunOda', label: "the Sun's oda", x: 385, y: -1125 },
   { id: 'rrugaDielli1', glyph: 'gStag', label: 'the road of the Sun', x: 300, y: -985 },
   { id: 'qiellPrende', glyph: 'gPrende', label: 'Prende', x: -260, y: -1080 },
-  { id: 'pemaDielli', glyph: 'gPemaDielli', label: 'Pema e Diellit', x: 382, y: -935 },
+  { id: 'pemaDielli', glyph: 'gPemaDielli', label: 'Pema e Diellit', x: 382, y: -1060 },
   { id: 'qiellErera1', glyph: 'gErera', label: 'Erërat (the winds)', x: 760, y: -1030 },
   // the world below (deepest, down the well shaft)
   { id: 'pusi', glyph: 'gShaft', label: 'the well descent', x: 420, y: 1960 },
   { id: 'sprova', glyph: 'gShadowTrial', label: 'the shadow trial', x: 140, y: 2130 },
   { id: 'gjarpri', glyph: 'gGuardianSerpent', label: 'the guardian serpent', x: 200, y: 2320 },
   { id: 'qyteti', glyph: 'gDeadCity', label: 'the dead city', x: 300, y: 2060 },
-  { id: 'tregtari', glyph: 'gBazaar', label: 'the ghostly market', x: 447, y: 2122 },
-  { id: 'bujtina', glyph: 'gGhostInn', label: 'the bujtina (inn)', x: 434, y: 2181 },
-  { id: 'sheruesi', glyph: 'gHealer', label: 'the healer', x: 352, y: 2172 },
-  { id: 'udhaShenja', glyph: 'gWaySign', label: 'the way-signs', x: 415, y: 2216 },
+  // Living Gjakova remains on the surface; Durham's cavern city below is wholly deserted.
+  { id: 'tregtari', glyph: 'gBazaar', label: 'the Gjakova market', x: 80, y: 980 },
+  { id: 'bujtina', glyph: 'gBujtina', label: 'the Gjakova bujtina (inn)', x: 50, y: 1065 },
+  { id: 'sheruesi', glyph: 'gHealer', label: 'the Gjakova healer', x: -30, y: 1050 },
+  { id: 'udhaShenja', glyph: 'gWaySign', label: 'the surface way-signs', x: 20, y: 1105 },
   { id: 'humbur', glyph: 'gFates', label: 'the three Fates', x: 560, y: 2340 },
   { id: 'bukura1', glyph: 'gBukuraDheut', label: 'E Bukura e Dheut', x: 640, y: 2120 },
   { id: 'kulshedra1', glyph: 'gKulshedra', label: 'the Kulshedra', x: 620, y: 2340 },
@@ -1018,11 +1109,15 @@ export const WORLD_LANDMARKS = [
   { id: 'zanaQumesht', glyph: 'gZanaGift', label: "the Zana's gifts", x: 260, y: 1140 },
   { id: 'zanaFole', glyph: 'gEagleNest', label: "the eagle's nest", x: 80, y: 1000 },
   { id: 'flocka1', glyph: 'gLake', label: 'the still lake', x: 140, y: 1560 },
+  { id: 'prespaPyll', glyph: 'gLake', label: 'Lake Prespa', x: -40, y: 1510 },
+  { id: 'prespaFund', glyph: 'gLake', label: 'the drowned town of Prespa', x: 20, y: 1680 },
+  { id: 'aliPashaLiqen', glyph: 'gLake', label: "Ali Pasha's lake island", x: 220, y: 1720 },
+  { id: 'argjiroKala', glyph: 'gStoneCastle', label: "Argjiro's Gjirokastër", x: 540, y: 1450 },
   { id: 'ura', glyph: 'gRiddleElder', label: 'the bridge riddle', x: 380, y: 1240 },
-  // the sea (the whole eastern coast; the Adriatic, reached from the river-mouth)
+  // the sea-road and Adriatic tales on the chart's right-hand side
   { id: 'deti1', glyph: 'gFishingCoast', label: 'the coast', x: 1010, y: 800 },
   { id: 'bregu', glyph: 'gFishingCoast', label: 'the shore village', x: 780, y: 1080 },
-  { id: 'balozMotra', glyph: 'gSister', label: 'the devoted sister', x: 720, y: 1040 },
+  { id: 'balozMotra', glyph: 'gSister', label: 'the devoted sister', x: 780, y: 1080 },
   { id: 'balozLufte', glyph: 'gBaloz', label: 'the Baloz', x: 880, y: 1130 },
   { id: 'balozKoke', glyph: 'gGjergj', label: 'Gjergj Elez Alia', x: 960, y: 1200 },
   { id: 'balozFitore', glyph: 'gGraveLahuta', label: 'the single grave', x: 640, y: 1100 },
@@ -1034,7 +1129,7 @@ export const WORLD_LANDMARKS = [
   { id: 'pylli1', glyph: 'gBear', label: 'the bear & the dervish', x: -560, y: 400 },
   { id: 'shokuUjk', glyph: 'gWolf', label: 'the hungry wolf', x: -700, y: 480 },
   { id: 'dhelpra1', glyph: 'gFox', label: 'the sly fox', x: -360, y: 600 },
-  { id: 'shtrigaNate', glyph: 'gWitch', label: 'the night-witch', x: -410, y: 480 },
+  { id: 'shtrigaNate', glyph: 'gWitch', label: 'the night-witch', x: -430, y: 452 },
   { id: 'shtojzovalle1', glyph: 'gShtojzovalle', label: 'the moon-dancers', x: -460, y: 800 },
   { id: 'karkanxholl1', glyph: 'gRevenant', label: 'the iron-clad revenant', x: -720, y: 820 },
   { id: 'dhampir1', glyph: 'gDhampir', label: 'the dhampir & the lugat', x: -360, y: 900 },

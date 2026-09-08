@@ -24,6 +24,38 @@ export default {
   title: 'Zuku Bajraktar — the standard-bearer and the bride won by besa',
   source:
     'Two songs of the Kângë Kreshnikësh: "Zuku Bajraktar" (recorded in Shala, District of Shkodra) and "Zuku merr Rushën" (sung by Dedë Zefi of Curraj i Epërm, District of Tropoja); Visaret e Kombit II, ed. B. Palaj & D. Kurti (Tirana 1937), pp. 89-96 and 140-145, repr. Folklor shqiptar II, Epika legjendare I, ed. Q. Haxhihasani (Tirana 1966), pp. 126-132 and 169-174 · read in R. Elsie & J. Mathie-Heck\'s translation (Songs of the Frontier Warriors, 2004); all lines paraphrased',
+  references: [
+    {
+      role: 'translation',
+      citation: 'Robert Elsie and Janice Mathie-Heck (trans.), “Zuku Bajraktar,” Songs of the Frontier Warriors, song 10 (2004)',
+      url: 'http://www.albanianliterature.net/oralverse/verse_09_10.html',
+      note: 'The exact English translation selected for the first song’s beats; the surviving author site has no working HTTPS endpoint.',
+    },
+    {
+      role: 'translation',
+      citation: 'Robert Elsie and Janice Mathie-Heck (trans.), “Zuku Captures Rusha,” Songs of the Frontier Warriors, song 14 (2004)',
+      url: 'http://www.albanianliterature.net/oralverse/verse_09_14.html',
+      note: 'The exact English translation selected for the second song’s beats; the surviving author site has no working HTTPS endpoint.',
+    },
+    {
+      role: 'facsimile',
+      citation: '“Zuku Bajraktar,” Albanian facsimile accompanying Elsie and Mathie-Heck, song 10',
+      url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_10.pdf',
+      note: 'Page images of the exact Albanian song transcribed into the local line-evidence file. The surviving legacy endpoint does not offer working HTTPS.',
+    },
+    {
+      role: 'facsimile',
+      citation: '“Zuku merr Rushën,” Albanian facsimile accompanying Elsie and Mathie-Heck, song 14',
+      url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_14.pdf',
+      note: 'Page images of the exact second Albanian song transcribed into the local line-evidence file. The surviving legacy endpoint does not offer working HTTPS.',
+    },
+    {
+      role: 'catalog',
+      citation: 'Robert Elsie and Janice Mathie-Heck, Songs of the Frontier Warriors: Këngë Kreshnikësh (2004), publisher record',
+      url: 'https://www.bolchazy.com/Songs-of-the-Frontier-Warriors-The-Albanian-Epic-Kenge-Kreshnikesh-P3350',
+      note: 'Publisher record for the bilingual edition with parallel Albanian and English texts.',
+    },
+  ],
   origin: {
     region: 'North Albania (Gheg) — Shala and Curraj i Epërm, District of Shkodra / Tropoja',
     collector: 'Bernardin Palaj & Donat Kurti (the Franciscan collectors of the epic)',
@@ -74,6 +106,7 @@ export default {
       anchor: { status: 'proposed', node: 'jutbina', mirror: 'one private household tower among Jutbina\'s own kullas — this family\'s own walls, not the hub\'s shared plain and not any neighbor\'s house',
         mold: 'a highland household kulla with its nine chambers and a cellar beneath — home to Zuku, his mother, and (in the second song) the horse she keeps shut away seven years. The hub already hosts several separate family towers side by side: Mujo\'s own hearth and stable (mujo-courser.home), Ali\'s own kulla (ali-bajraktari.home), Osmani\'s neighboring house (mujo-courser.osmani). This is one more — a stone\'s throw from the open ledina where the Agas feast, and further still from the cadi\'s seat — never the same walls as any of those, and never the communal ground jutbina\'s own base text describes',
         sharedWith: ['mujo-courser (home — a different family\'s hearth)', 'ali-bajraktari (home — a different family\'s kulla)', 'mujo-courser (osmani — a third, neighboring household)'],
+        conflicts: 'NOT Mujo\'s, Ali\'s, or Osmani\'s household: the Jutbina hub represents neighboring towers, and this proposal requires Zuku\'s own walls and cellar',
         proposal: 'draw a household kulla just off the main jutbina node, one among the "towers of the frontier-warriors" jutbina\'s own text already names' } },
     { id: 'maja', emoji: '🌑', name: 'the mountain\'s peak', note: 'where a blinded boy and his blinded courser are left to the bears and wolves',
       anchor: { status: 'existing', node: 'zuku1', mirror: 'the drought-cracked mountain where you found the blinded hero — the game\'s own zukuFund blurb already names this exact ground',
@@ -82,6 +115,7 @@ export default {
     { id: 'mikuShtepia', emoji: '🏠', name: 'a friend\'s house', note: 'where Zuku rests ten days and hears the beggar\'s plan',
       anchor: { status: 'proposed', node: 'zuku2', mirror: 'a companion\'s household somewhere in the same highlands',
         mold: 'a friend\'s hearth where a wounded hero is nursed back to strength before he acts — matches the moment the game\'s own zuku2 already stages ("the hero sees again... swears a besa")',
+        conflicts: 'NOT Zuku\'s mother\'s kulla or the cadi\'s court: this is an unnamed ally\'s separate healing-house along the return route',
         proposal: 'draw a second highland household near zuku1/zuku2 for the friend who plans the disguise' } },
     { id: 'kryqi', emoji: '🪵', name: 'the crossroads', note: 'where a felled beech becomes a stake',
       anchor: { status: 'proposed', node: 'zukuFund', mirror: 'a crossroads in Zuku\'s own northern hills',
@@ -114,10 +148,10 @@ export default {
     { id: 'unaza', emoji: '💍', name: 'the ring', note: 'the ring Zuku once gave Rusha — proof of who he is, shown at her window' },
   ],
   // PLAY PROJECTION — how the game stages this tale (see _SCHEMA.md).
-  // EMBODIED as Zuku across two condensed side-quests off Jutbina: the blinded-
-  // hero thread (zuku1/zuku2/zukuFund ← lament/healing/friend, lived as prologue
-  // lore) and the bride-won-by-besa thread you actually play (rusha1/rushaFund/
-  // rushaKeq). The whole choice turns on one oath; the fuller songs run behind it.
+  // EMBODIED as Zuku in the bride-won-by-besa thread (rusha1/rushaFund/
+  // rushaKeq). The earlier blinded-hero helper quest is discoverable prologue
+  // lore, but the player is an outside helper there and must not be mapped as an
+  // embodied Zuku scene. The whole embodied choice turns on one oath.
   play: {
     entry: 'besa',
     stance: 'embodied',
@@ -126,9 +160,9 @@ export default {
     enter: 'rusha pours you coffee in the krajl\'s tower, and you will not drink until she swears you the besa',
     from: 'rusha1',
     ending: 'rushaFund',
-    scenes: { zuku1: 'lament', zuku2: 'healing', zukuFund: 'friend', rusha1: 'besa', rushaFund: 'besa', rushaKeq: 'ride' },
+    scenes: { rusha1: 'besa', rushaFund: 'besa' },
     divergences: [
-      { note: 'The projection folds two separate Kreshnik songs into one embodied arc. The whole first song\'s engine — the captured Baloz, the mother\'s treachery, the midnight blinding, the beggar\'s-disguise vengeance and the fiery execution at the crossroads — never plays; the game opens on the already-blinded hero at the mountain (lament, healing, friend) before the Rusha ride.' },
+      { note: 'The record links two separate Kreshnik songs, but only the Rusha song is embodied. A separate open-world helper vignette encounters the already-blinded hero at the mountain; the player helps him as an outsider, so those prologue echoes are not claimed as scenes in this embodied projection. The first song\'s captured Baloz, mother\'s treachery, midnight blinding, disguised vengeance and fiery execution remain source-timeline lore.' },
       { beat: 'besa', note: 'The game splits the oath into a moral fork the song never offers: demand Rusha\'s besa and win her (rushaFund), or seize her without it and die on the Krajl\'s stair (rushaKeq). In the song she simply gives her word — an oath to obey, which the ending reframes as her coming \'of her free will.\'' },
       { beat: 'race', note: 'The song\'s whole second half — Mujo\'s rival claim to Rusha, the cadi trapped between two death-threats, and the courser-race where Mujo\'s own mount shies at the last instant so Zuku catches the bride — is cut. The game ends the moment Rusha rides home behind you.' },
     ],

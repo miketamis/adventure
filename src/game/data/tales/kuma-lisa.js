@@ -7,6 +7,12 @@
 export default {
   id: 'kuma-lisa',
   title: 'The Wolf, the Vixen and the Honey-Pot',
+  references: [
+    { role: 'facsimile', citation: 'Johann Georg von Hahn, Griechische und albanesische Märchen (1864) — Internet Archive scan', url: 'https://archive.org/details/griechischeunda00hahngoog', note: 'Selected German witness, volume II, no. 89.' },
+    { role: 'catalog', citation: 'Griechische und albanesische Märchen (1864) — Open Library record', url: 'https://openlibrary.org/works/OL13087296W/Griechische_und_albanesische_M%C3%A4rchen' },
+    { role: 'variant', citation: 'Gustav Weigand, Albanesische Grammatik im südgegischen Dialekt (1913) — Google Books scan', url: 'https://play.google.com/store/books/details?id=dtiN--PfJKcC', note: 'Contains Albanian Elbasan text no. 52, a distinct three-pot variant; not Hahn no. 89.' },
+    { role: 'analogue', citation: 'ATU 15, “The Theft of Butter by Playing Godfather” — Folklore Database', url: 'https://folkloredatabase.com/db_atu.php?atu=15' },
+  ],
   source:
     'J. G. von Hahn, Griechische und albanesische Märchen No. 89 (Leipzig 1864) · read in the German original — no English translation exists; all lines paraphrased from the German',
   // the tale TYPE (ATU 15, "Theft of Butter/Honey by Playing Godfather") is
@@ -18,18 +24,26 @@ export default {
     collector: 'Johann Georg von Hahn, Austrian consul — the founder of Albanology',
     published: 'Griechische und albanesische Märchen, vol. II, Nr. 89, Leipzig 1864',
   },
-  // NO ALBANIAN ORIGINAL EXISTS — Hahn 89 was printed in German only, and the
-  // one Albanian-language telling of the type (Weigand Nr. 52) is out of reach.
+  // NO ALBANIAN ORIGINAL OF HAHN 89 EXISTS — it was printed in German only.
+  // Weigand Nr. 52 is locally transcribed Albanian, but is a distinct variant.
   albanian: {
     status: 'missing',
-    why: 'von Hahn 89 sits in the GREEK animal-tale section of his 1864 collection — he printed it in German only, and no Albanian text of it exists. The Albanian-soil telling of ATU 15 is Gustav Weigand, Albanesische Grammatik im südgegischen Dialekt (Leipzig 1913), text Nr. 52 from Elbasan, known to this repo only through Lambertz\'s German plot summary (Lambertz 1922, pp. 89–90; verbatim extract in the local file\'s appendix): the Weigand volume is digitized only at HathiTrust, which refuses programmatic retrieval, and is not on archive.org, Google Books full view, MDZ or Wikimedia Commons (searched 2026-07-14). Nothing in the 1954 Tirana corpus (its fox tales are other types — the fox and the blackbird\'s shared field, the Fox\'s Bridge at Dibra), Dozon, Jarník or Meyer. The only Albanian words of the tale that survive are Weigand\'s two christening-names «Zanafilla» and «Marosha» — names, not quotable sentences, so the beat lines carry no Albanian (they are kept in the discrepancies for the record).',
+    why: 'von Hahn 89 sits in the GREEK animal-tale section of his 1864 collection and was printed in German only; no Albanian text of that selected witness exists. An Albanian-language analogue is now locally transcribed from Gustav Weigand, Albanesische Grammatik im südgegischen Dialekt (Leipzig 1913), text Nr. 52 from Elbasan, at docs/references/weigand-1913-zonja-skile-ujku.sq.txt. It is a different telling: three honey pots, two false christenings named Zanafilla and Marosha, followed by priest-and-barber revenge. Its sentences therefore cannot be presented as the Albanian original of Hahn\'s one-tub, three-christening, root-or-leg tale. Nothing in the 1954 Tirana corpus, Dozon, Jarník or Meyer supplies Hahn\'s exact plot in Albanian, so the selected beat lines remain correctly marked missing rather than splicing the analogue into them.',
     local: 'docs/references/hahn-89-ujku-dhelpra-mjalti.de.txt',
+    variants: [
+      {
+        title: 'Weigand No. 52, «Tierfabel: Fuchs und Wolf» (Elbasan, 1913, pp. 152–153)',
+        local: 'docs/references/weigand-1913-zonja-skile-ujku.sq.txt',
+        external: 'https://play.google.com/store/books/details?id=dtiN--PfJKcC',
+        note: 'The exact Albanian Elbasan analogue is locally transcribed from the primary page images. It has three honey pots, two false christenings named Zanafilla and Marosha, and the later priest/barber revenge. It is not the same telling as Hahn 89, so it remains a documented variant rather than being spliced into the selected beats.',
+      },
+    ],
   },
   // no Albanian text to disagree with — these record where the tellings
   // (lore card / game staging / Hahn / Weigand) diverge and which reading
   // the beats follow
   discrepancies: [
-    'HONEY, NOT BUTTER: the lore card — and the game\'s staged fox scene (dhelpra1/dhelpra2 and both endings\' blurbs) — tells the pan-Balkan BUTTER version: a pot laid up for the winter, the last of it smeared on the sleeping wolf\'s mouth, "thief!". Von Hahn 89, the card\'s cited source, has a tub of HONEY and a basket of white loaves eaten during the field work, and no smearing at all — the fox brazens it out and bolts down a hole. The beats follow von Hahn; the smear-and-frame ending stays the game\'s staged variant of the same trick.',
+    'HONEY, NOT BUTTER: von Hahn 89 has a tub of HONEY and a basket of white loaves eaten during field work. There is no sleeping wolf, no mouth-smearing and no counter-accusation: the fox denies the theft, sends the wolf back to search, and bolts down a hole. The lore card and playable scenes now follow that selected witness.',
     'THE CHRISTENING-NAMES (¶2.5, 3.7, 4.9): Hahn\'s names are German diminutives — Anfanginchen, Mittinchen, Stülpinchen ("Little Beginning / Little Halfway / Little Tipped-Over": the level of the honey). The only ALBANIAN names on record come from the Elbasan variant (Weigand Nr. 52, via Lambertz): «Zanafilla» ("beginning-girl") and «Marosha» ("end-girl") — that telling has only two visits. Quoted here for the record, NOT as beat-line Albanian: no verbatim Albanian sentence of the tale survives.',
     'WHOSE STORE (¶1.2): in Hahn the two buy the field TOGETHER and the provisions are shared; in the Elbasan variant the WOLF alone is the householder laying up three pots of honey for the winter (the lore card\'s "for the winter" echoes that variant). The beats follow Hahn: a shared store, which makes the theft a cheat between partners.',
     'THE ENDING (¶7.6): Hahn ends at the root-or-leg escape. The Elbasan variant runs on — the fox beaten half-dead, revived in the priest\'s bread-sack, the wolf coaxed into "ministering" in church and having all his teeth pulled with the barber\'s tongs, and the fox\'s last laugh: "that is the revenge for that time!". The beats end where Hahn ends.',
@@ -50,15 +64,16 @@ export default {
   places: [
     { id: 'ara', emoji: '🌾', name: 'the bought field', note: 'the plot the pair bought together and dig side by side',
       anchor: { status: 'existing', node: 'dhelpra1', mirror: 'a woodland-edge working plot in central Albania — the Elbasan country of the tale type\'s Albanian twin (Weigand Nr. 52)',
-        mold: 'a fox and a wolf laid up a store together and the fox ate it under cover of invented christenings — whether the store is the staged pot of butter or Hahn\'s tub of honey, the fox, the wolf, the trick and the lie are the same; the game\'s fox scene IS this tale\'s staging',
+        mold: 'a fox and a wolf laid up a tub of honey and white loaves together and the fox ate them under cover of invented christenings; the game\'s fox scene is this tale\'s staging',
         sharedWith: ['the dhelpra1 fox scene (ENDING_LORE dhelpraFund/dhelpraKeq → kuma-lisa)'] } },
     { id: 'kacuba', emoji: '🌿', name: 'the bush cache', note: 'where the honey-tub and the white loaves are hidden — and where every "christening" really happens',
       anchor: { status: 'existing', node: 'dhelpra2', mirror: 'any field-side thicket where working folk stash the midday meal',
-        mold: 'the hidden store beside the worked ground — emptied in secret, found upended at mealtime; the game\'s accusation scene (the empty store, the telltale mouth, believe her or not) plays here',
-        sharedWith: ['the dhelpra2 accusation scene (same staging, butter variant)'] } },
+        mold: 'the hidden store beside the worked ground — emptied in secret and found upended at mealtime; the game\'s accusation scene plays here without adding a telltale smear',
+        sharedWith: ['the dhelpra2 accusation scene'] } },
     { id: 'vrima', emoji: '🕳️', name: 'the fox\'s hole', note: 'the bolt-hole where the pursuit ends — root or leg',
       anchor: { status: 'proposed', node: 'dhelpra2', mirror: 'a burrow under forest roots, too narrow for anything but a fox',
         mold: 'a bolt-hole only the fox fits — every pursuit of her ends at its mouth, hauling roots',
+        conflicts: 'NOT the wolf den or a traveller\'s cave: this is a fox-width root burrow attached only to the field-side chase',
         proposal: 'draw a root-tangled fox-hole beside the fox scene (nearest spot today: dhelpra2); the root-or-leg escape plays at its mouth' } },
     { id: 'pagezimi', emoji: '⛪', name: 'the christening', note: 'the christening the fox is forever called to — it does not exist',
       anchor: { status: 'offstage', mirror: 'no church, no font, no child — the christening exists only inside the fox\'s lie',
@@ -72,25 +87,25 @@ export default {
   ],
   // how the game stages this tale — the WITNESS/judgment projection (see _SCHEMA.md).
   // Kuma Lisa is the trickster protagonist, but the game puts YOU in the judge's
-  // seat: the honey is gone, smeared on the sleeping wolf's own mouth, and she cries
-  // that HE ate it — see through her planted-butter lie (the wolf goes free) or
-  // believe her (a guiltless beast wronged). Her tricks work only on the credulous.
+  // seat: the honey and loaves are gone and she denies eating either — see through
+  // the lie or accept her demand that the wolf search again. Either way, her head
+  // start and the root-or-leg trick let her escape, exactly as in Hahn.
   play: {
     entry: 'ortaket',
     stance: 'witness',
     role:
-      'You come upon the wolf Herr Nicola and the she-fox Kuma Lisa, partners in a field — and the tub of honey they laid by is licked empty, with the last of it smeared on the sleeping wolf\'s own mouth. The fox cries that HE ate it. She is the godmother-fox of a hundred Balkan tales, forever slipping off to a "christening" that is really the honey-pot, and she wins only over those who believe her. Do you?',
+      'You come upon the wolf Herr Nicola and the she-fox Kuma Lisa, partners in a field. Their tub of honey and basket of white loaves are gone after the fox\'s three invented christenings. The wolf accuses her; she denies everything and sends him back to search, buying the head start she needs to reach her hole. Do you see through the lie?',
     from: 'dhelpra1',
     ending: 'dhelpraFund',
     scenes: {
       dhelpra1: 'ortaket',
       dhelpra2: 'zbulimi',
-      dhelpraFund: 'mohimi',
+      dhelpraFund: ['mohimi', 'vrima'],
     },
     divergences: [
-      { beat: 'zbulimi', note: 'The trickster is the tale\'s hero, but the game gives the choice to YOU as the one who must judge her planted-butter lie: refuse to believe her and the wolf goes free (the good ending "Kuma Lisa Caught Out"); believe her and a guiltless beast is driven off a thief (the secret ending). Kuma Lisa wins only over the credulous.' },
-      { beat: 'zanafilla', note: 'The folktale\'s signature charm — the fox sneaking to the honey three times and, asked each time what she named the "godchild," answering by how low the pot has sunk: Little Beginning, Little Halfway, Little Tipped-Over — is compressed to the planted-butter accusation you must judge, and kept in full in the tale record.' },
-      { beat: 'vrima', note: 'The root-or-leg bolt-hole escape (she shrieks "my leg!" when the wolf\'s hook snags a root and jeers "pull the root, donkey!" when it grips her real foot, until he wearies) is likewise carried in the record; Kuma Lisa herself is reused as the pan-Balkan she-fox across the game\'s animal tales.' },
+      { beat: 'zbulimi', note: 'The trickster is the tale\'s hero, but the game gives the choice to YOU as a witness to the wolf\'s accusation. Both routes keep Hahn\'s facts: honey and white loaves are missing, the tub is upside down, the fox simply denies the theft, and nothing is smeared on the wolf.' },
+      { beat: 'zanafilla', note: 'The folktale\'s signature sequence — three trips to the honey and three godchild names that mark the falling level, Little Beginning, Little Halfway and Little Tipped-Over — is compressed in the short playable entry and recounted in its ending.' },
+      { beat: 'vrima', note: 'Both playable judgments converge on Hahn\'s root-or-leg escape: while the wolf searches, the fox reaches her hole and defeats his hooked stick by calling each root her leg and her real leg a root.' },
     ],
   },
   beats: [

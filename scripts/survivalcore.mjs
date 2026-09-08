@@ -1,6 +1,7 @@
 // Survival-core coverage audit.
 //   node scripts/survivalcore.mjs            -> per-category coverage + gaps
 //   node scripts/survivalcore.mjs --missing  -> only the gaps
+//   node scripts/survivalcore.mjs --strict   -> fail when an in-world item is absent
 //
 // WHAT THIS IS (and why it is NOT freqcoverage.mjs):
 //   freqcoverage.mjs asks "do we use the top-N most FREQUENT words?".
@@ -238,6 +239,7 @@ const SURVIVAL = {
 // exclusions (modern tech with no folktale frame — a decision, not a gap) and are
 // counted separately so they never read as failures.
 const onlyMissing = process.argv.includes('--missing')
+const strict = process.argv.includes('--strict')
 let total = 0, covered = 0
 const gapsByCat = {}
 const skipped = []
@@ -262,3 +264,4 @@ for (const it of skipped) console.log(`  – ${it.al.padEnd(22)} ${it.skip}`)
 console.log(`\n${'='.repeat(50)}`)
 console.log(`SURVIVAL CORE (in-world): ${covered}/${total} covered (${Math.round((covered / total) * 100)}%)`)
 console.log(`${total - covered} real gaps · ${skipped.length} skipped by decision`)
+if (strict && covered !== total) process.exitCode = 1

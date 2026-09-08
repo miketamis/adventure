@@ -7,24 +7,33 @@
 export default {
   id: 'half-rooster',
   title: 'Half Rooster',
+  references: [
+    { role: 'translation', citation: 'Robert Elsie, “Half Rooster”', url: 'http://www.albanianliterature.net/folktales/tale_15.html', note: 'Selected English telling on Elsie’s surviving author site.' },
+    { role: 'source-text', citation: '«Gjysagjeli», Folklor shqiptar 1: Proza popullore (1963), pp. 90–93 — Google Books institutional scan', url: 'https://books.google.com/books?id=YgTaAAAAMAAJ&pg=PA90&dq=Gjysagjeli', note: 'The exact Albanian witness is snippet-indexed across pp. 90–93. Searches expose every distinctive movement in Elsie’s combined plot, but the volume remains snippet-only, so this is not represented as a complete transcript.' },
+    { role: 'catalog', citation: 'Biblioteka Kombëtare e Shqipërisë, Bibliografi e librit shqip 1913–1944, entries 3032–3033', url: 'https://www.bksh.al/bksh/LibriShqip1913.pdf', note: 'Official catalogue records Donat Kurti’s Prralla kombtare, blê I (1940), and its 1942 second edition.' },
+    { role: 'scholarship', citation: 'Spiro Floqi, “Periudha me fjali të varur shkakore,” Studime Filologjike 2 (1966)', url: 'https://albanica.al/studime_filologjike/article/download/2577/9283/12656', note: 'Prints the tale’s frog dialogue and cites it to Kurti, Prralla I, p. 75, independently identifying the earlier Albanian collection behind the 1963 reprint.' },
+    { role: 'variant', citation: 'Pralla popullore shqiptare (1954) — complete online transcription', url: 'https://doczz.net/doc/2729503/pralla-popullore-shqiptare', note: 'Contains the shorter, divergent «Gjymsa gjelit»; not Elsie’s exact witness.' },
+    { role: 'variant', citation: 'Maximilian Lambertz, Albanische Märchen (1922) — Google Books record and page preview', url: 'https://books.google.com/books/about/Albanische_M%C3%A4rchen.html?id=VTnYAAAAMAAJ', note: 'Contains the divergent Shkodra no. 60 and a German-only Zadrima variant.' },
+    { role: 'variant', citation: 'Auguste Dozon, Manuel de la langue Chkipe ou Albanaise (1879) — Internet Archive scan', url: 'https://archive.org/details/manueldelalangue00dozouoft', note: 'Tale VIII shares the gold-producing-bird ending but not the selected plot.' },
+    { role: 'analogue', citation: 'ATU 715, “Demi-coq” — Folklore Database', url: 'https://folkloredatabase.com/db_atu.php?atu=715' },
+  ],
   source:
-    'Pralla popullore shqiptare, Instituti i Shkencave (Tiranë 1954) per Elsie\'s source note · read in R. Elsie\'s translation (Albanian Folktales and Legends, tale 15); all lines paraphrased',
+    '«Gjysagjeli», Donat Kurti, Prralla kombtare I (1940/1942), reprinted in Folklor shqiptar 1: Proza popullore (Tiranë 1963), pp. 90–93 · read in R. Elsie\'s selected English telling (tale 15); all lines paraphrased',
   // where the tale comes from — anchors should prefer this region's mirrors.
-  // The 1954 book's own half-rooster text is central Geg (it follows a tale
-  // signed off "Përrallza në Godolesh" — Godolesh, by Elbasan), so the tale
-  // stages naturally around our village (= old Tirana).
+  // The exact witness is Geg, but the snippet-accessible reprint does not expose
+  // an individual teller or collection district. The game's village therefore
+  // stands in for an unspecified royal settlement rather than claiming Tirana.
   origin: {
-    region: 'Central Albania (Geg)',
-    collector: 'Komisjoni i folklorit, Instituti i Shkencave (red. Zihni Sako)',
-    published: 'Tiranë, 1954',
+    region: 'Geg Albania; individual teller and district not exposed by the accessible record',
+    collector: 'Donat Kurti (earlier collection identified by the 1963 reprint and a 1966 scholarly citation)',
+    published: 'Prralla kombtare I, Shkodër 1940/1942; reprinted in Folklor shqiptar 1, Tiranë 1963, pp. 90–93',
   },
-  // THE ALBANIAN ORIGINAL — genuinely hunted (re-hunted 2026-07-14/15,
-  // grepping every named source below directly rather than trusting a
-  // prior pass's summary of them), genuinely not found:
+  // THE ALBANIAN ORIGINAL — exact witness identified, but the surviving
+  // digital route is snippet-only rather than a continuous transcript:
   albanian: {
     status: 'missing',
     why:
-      'Elsie\'s page footer cites exactly "Pralla popullore shqiptare (Tirana: Instituti i Shkencave 1954)". We HAVE that book (docs/references/pralla-popullore-shqiptare-1954.sq.txt, all 50 tales present) and grepped it in full for gjel/kokosh: its ONLY half-rooster text is tale 37 «Gjymsa gjelit» (pp. 175–176, verbatim in docs/references/pralla-1954-gjymsa-gjelit.sq.txt) — a far shorter Geg variant whose plot diverges beat-by-beat from Elsie (fox, wolf and the whirlwind swallowed as millet grains; no frog, no fire, no mouse, no rod-beating, no deaths; ends with a sieve and a dish, nobody dying). The corpus\'s only other "gjel" hits are a bystander cockcrow inside an unrelated xhindet tale (line ~4169) and a DIFFERENT tale two pages later, «Gomari, çeni, mica e gjeli» ("The donkey, the dog, the cat and the rooster", a Bremen-Town-Musicians tale where a rooster is one of four animals) — a false positive for "gjel", not a half-rooster text, ruled out by reading it. Lambertz, Albanische Märchen (1922) no. 60 «Dätlsadäeli» (Shkodra) was this time actually located and extracted in full (previously only noted as existing) — verbatim with provenance in docs/references/lambertz-1922-nr60-dysagjeli-shkodra.sq.txt: its companions section is its OWN different tale (a cat, donkey, ram and wolf outwit a den of wolves — the international Bremen-musicians pattern, per Lambertz\'s own comparative footnote), but it does share Elsie\'s cabbage-garden capture, the money-chest, and the mouse gnawing an escape hole — still missing the frog/oven, stable/horses and fox/geese trials, the rod-beating, the envious old woman, the cat and every death, so it cannot be spliced onto Elsie\'s fuller beats without inventing the rest. The same book\'s Zadrima Halbhahn text (pp. 254 f.) is confirmed German-only again this pass — no accompanying Albanian at that section. Following Lambertz\'s own footnote (pp. 258 f.) to Dozon, Manuel de la langue chkipe (1878) tale VIII "Le coq qui pond de l\'or et la poule qui pond des serpents" (a rooster/hen, gold/serpents variant), CORRECTING an earlier pass\'s claim that our local Dozon file holds only a table-of-contents line and two dictionary examples for it: it in fact holds the FULL running Albanian text of tale VIII (docs/references/dozon-manuel-langue-chkipe.fr-sq.txt, raw OCR lines 1581–1618, re-extracted 2026-07-15 to docs/references/dozon-gjeli-flori-pula-gjarperinj.sq.txt) — a poor man\'s rooster gorges on the king\'s gold, feigns death, and is hung head-down and beaten with a stick so gold pours from its beak; the envious old woman\'s hen, coached by the rooster to eat a serpent instead of learning the real trick, is hung up the same way and disgorges live serpents that devour her. It shares the SHAPE of Elsie\'s ending (a bird that yields gold under a daily beating; an envious neighbour\'s copy-cat animal that ends in disaster) but not the specifics — no half-a-bird split, no belly-swallowed companions, no cabbage-garden capture, no oven/stable/geese/chest trials, and the punishment itself differs (hung head-down vs. beaten across the back; devoured by serpents vs. kills the cat and dies of rage) — so, like the other two variants below, its Albanian cannot be spliced onto Elsie\'s beats (including 8–10) without quoting sentences that describe events the beats don\'t actually contain. Independently re-run archive.org full-text search (advancedsearch.php) this pass for gjysmagjeli, gjysagjeli, gjymsagjeli, gjysmakokoshi, gjysmekokosh, dysagjeli and "gjymsa gjelit" — zero hits for every spelling. No located Albanian source contains Elsie\'s combined plot (frog+fox+wolf+mouse swallowed as belly-companions; oven/stable/geese/chest as the four deaths; the daily rod that pays gold, then the cat\'s vermin and both deaths) verbatim, so rather than pin a different variant\'s sentences onto Elsie\'s (which would feed the Q() quote system false quotes), the Albanian stays declared missing until the exact text Elsie translated surfaces.',
+      'The exact Albanian witness has now been identified, correcting the earlier conclusion that Elsie\'s combined plot was absent from located Albanian sources. Google Books\' institutional scan of Folklor shqiptar 1 indexes «Gjysagjeli» on pp. 90–93: its exposed snippets contain the frog and fox, the frog extinguishing the oven, the wolf and horses, the cabbage garden and money chest, the mouse, the daily rod producing gold, the envious old woman, and the cat disgorging lizards, snakes and carrion before the woman kills it and dies of rage. A 1966 Studime Filologjike article independently prints the frog dialogue and cites Kurti, Prralla I, p. 75; the National Library catalogue records Donat Kurti\'s Prralla kombtare I (1940; second edition 1942). This evidence identifies and plot-collates the earlier witness, but Google Books permits only search snippets, not continuous reading, and no lawfully reusable complete scan or transcript has been located. Under this repository\'s evidence rules, status therefore remains missing: snippets may establish provenance and correspondence, but may not be assembled into a pretend full text or used to populate the Q() quotation system. Elsie\'s footer attribution to Pralla popullore shqiptare (1954) is not borne out by that volume\'s complete local transcription: its «Gjymsa gjelit» is the shorter divergent variant preserved below. The Lambertz and Dozon texts likewise remain separate variants and are not spliced into the selected witness.',
     variants: [
       { title: '«Gjymsa gjelit» (Pralla popullore shqiptare 1954, tale 37, pp. 175–176)',
         local: 'docs/references/pralla-1954-gjymsa-gjelit.sq.txt',
@@ -41,11 +50,12 @@ export default {
   // Albanian variants and the in-game canon differ from the telling the beats
   // follow (Elsie), with the Albanian quoted where we have it.
   discrepancies: [
+    'PROVENANCE CORRECTION: the exact selected Albanian witness is «Gjysagjeli», indexed in Folklor shqiptar 1 (1963), pp. 90–93, and independently cited to Donat Kurti, Prralla I, p. 75. Elsie\'s webpage footer names the 1954 Pralla popullore shqiptare, but that volume\'s complete local text contains a materially shorter different variant. The beats remain faithful to Elsie because the 1963 snippets confirm the selected combined plot; no Albanian quotation is claimed until the continuous source text is readable.',
     'THE OPENING (¶1–2): in the 1954 Geg variant the couple never separates — they split the ROOSTER between them («Plaku kishte thanë: unë do ta ha gjysmën teme; plaka kishte thanë: jo, unë do ta çoj për fitim» — the old man eats HIS half, the old woman sends HERS out for profit). Elsie has the quarrel, the division cat-to-her / rooster-to-him, and the man eating half his own bird. The beats follow Elsie.',
     'THE COMPANIONS (¶3–4): Elsie\'s frog, fox, wolf and mouse are, in the 1954 variant, a fox, a wolf and the whirlwind (dyrdyli), each swallowed with a recurring formula that varies slightly each time it is said — «banu koqe mel e eja se t\' mar unë» the first two times, «banu koqe mel e eja se të marr unë» the third («become a millet grain and come, I\'ll take you in»). Lambertz\'s Shkodra text (no. 60) has an entirely different companions episode — a cat, a donkey, a ram and a wolf join the Half-Rooster on the road and together rout a den of wolves (the international Bremen-Town-Musicians pattern: „Sa i bukur je!“ says the wolf to the ram, meaning to eat him, before the ram\'s trick kills him) — nobody is swallowed at all. Lambertz\'s Zadrima variant (German only) has wolf, bee, river and cow. The frog-and-fire rescue exists in no located Albanian text (the Zadrima one quenches the oven with swallowed river-water). The beats follow Elsie.',
     'THE COURT TRIALS (¶5–7): the 1954 variant\'s rooster crows from the king\'s roof («Kikiko! T\' bin e mretit me gjo!») and is thrown to the hens (fox loosed), the stallions (wolf loosed) and onto the gold; Lambertz\'s Shkodra text instead sends him alone into a «kopSt laknas» [sic — kopsht laknash, "cabbage garden"; Lambertz\'s 1922 Shkodra phonetic transcription, badly OCR\'d] where he crows for joy, is caught and shut in a money-chest, eats the gold, and has the mouse gnaw him a hole out — one combined trial, not three. Elsie\'s telling reads as the fullest of this family — oven/frog, stable/wolf, geese/fox, chest/mouse — and the beats follow it.',
     'THE ENDING (¶8–10): the 1954 variant ends with the homecoming crow «Kikiki! Ba shosh\' e satac gati!» — sieve and dish held out, the rooster pays the old woman in gold and the cat throws the old man guts; nobody dies. Elsie ends with the daily rod that beats gold out of the rooster, the envious old woman\'s cat vomiting vermin, and the woman killing the cat and dying of rage. The beats follow Elsie.',
-    'THE COIN (in-game canon): the lore card and the gjysmegjelFund vignette open with "the king seizes a coin he found" — the international Half-Chick opening; Elsie\'s text has NO seized coin (the rooster is caught crowing, hungry, in the king\'s cabbages) and the only coin is the one he LOSES on the road home (¶8.2), which the cat later finds (¶9.4). The beats follow Elsie; the vignette\'s opening is recorded here for a future reconciliation pass.',
+    'THE COIN (reconciled): the former game text borrowed the international Half-Chick opening in which a king seizes a coin. It has been removed. The playable scene now follows Elsie: hunger leads the rooster into the king\'s cabbages, where his crowing gets him caught; the only coin is the one he later loses on the road home (¶8.2).',
   ],
   // sentence counts of the translation's 10 paragraphs (Elsie's tale 15)
   paragraphs: [4, 6, 12, 9, 7, 7, 3, 7, 6, 3],
@@ -62,7 +72,8 @@ export default {
     { id: 'sherbetoret', name: 'the king\'s servants', note: 'the hands that cut the cabbages and work the four deaths', npc: 'sherbetoretSarajit' },
   ],
   // anchor = the game location this tale place inhabits — REUSE over invention,
-  // under THE SHARING RULE. This is a CENTRAL-GEG tale: mirrors are old Tirana.
+  // under THE SHARING RULE. The exact district is unexposed; old Tirana is an
+  // explicit game-world stand-in, not a claim about where Kurti collected it.
   places: [
     { id: 'oborri', emoji: '🏚️', name: 'the divided homestead', note: 'one poor yard, two hearths since the quarrel — his hut and hers',
       anchor: { status: 'existing', node: 'gjysmegjel1', mirror: 'a poor mëhalla yard in old Tirana\'s village-life quarter',
@@ -84,7 +95,7 @@ export default {
     { id: 'saraji', emoji: '🏯', name: 'the king\'s saraj', note: 'court, oven, stable, goose-yard and treasury — the four deaths are tried here',
       anchor: { status: 'proposed', node: 'udhekryq', mirror: 'Sulejman Pasha\'s konak of old Tirana — the plain\'s own petty court',
         mold: 'a living petty king\'s walled court on the plain: servants, a bread-oven, a stable of horses, a goose-yard, one strong gold-chest — a king mighty enough to be worth outwitting, small enough to be outwitted by half a rooster',
-        conflicts: 'NOT pallatiZi (the black palace is the Sun-quest\'s mourning court — its queen weeps and its king is marble; no oven-comedy there), NOT shpirag1/Berat (the moat-king\'s walled city is the SOUTH\'s royal mirror and another tale\'s king — this central-Geg tale must not anchor there), NOT kalaRozafa (the walling legend owns it, wrong region and register)',
+        conflicts: 'NOT pallatiZi (the black palace is the Sun-quest\'s mourning court — its queen weeps and its king is marble; no oven-comedy there), NOT shpirag1/Berat (the moat-king\'s walled city is the south\'s wager court with another daughter and fate; no source evidence relocates this unplaced royal tale there), NOT kalaRozafa (the walling legend owns it; wrong register)',
         sharedWith: ['snake-bridegroom (its king proposes the SAME saraj/king at this spot: one court, one king, outwitted first by half a rooster then by a snake-suitor)'],
         proposal: 'draw a small walled saraj with garden, stable and goose-yard up the plain road from the crossroads (nearest spot today: udhekryq); the half-rooster\'s court scenes stay narrated from his yard (gjysmegjel1) until it is drawn' } },
   ],
@@ -94,8 +105,8 @@ export default {
     { id: 'thupra', emoji: '🥢', name: 'the rod', note: 'strikes the rooster\'s back each day and gold falls; strikes the cat and vermin come' },
   ],
   // how the game stages this tale — the COMPANION projection (see _SCHEMA.md). You
-  // help the plucky half-rooster — one wing, one leg, all cunning — reclaim the coin
-  // the king seized: on the road he swallows a frog, a fox, a wolf and a mouse, and
+  // help the plucky half-rooster — one wing, one leg, all cunning — survive the
+  // king's court after hunger gets him caught in the cabbages: on the road he swallows
   // looses them one by one to beat the king's traps (the frog drowns the fire, the
   // wolf the horses, the fox the geese, the mouse gnaws the gold-chest). No mold-lock.
   play: {
@@ -103,16 +114,16 @@ export default {
     stance: 'companion',
     with: 'gjysmagjeli',
     role:
-      'You help the half-rooster — Gjysmëkokoshi, one wing and one leg and all of him cunning — win back the coin the king seized. Crowing to the palace, he swallows a frog, a fox, a wolf and a mouse whole, and at court looses them one by one to beat each trap: the frog\'s pondful drowns the fire lit beneath him, the wolf goes among the king\'s horses, the fox among the geese, the mouse gnaws the gold-chest open — and he swallows back his coin and a bellyful more. The smallest and half-made outwits the mighty.',
+      'You help the half-rooster — Gjysmëkokoshi, one wing and one leg and all cunning — after hunger and loud crowing get him caught in the king\'s cabbage garden. At court he looses the four companions swallowed along the road: the frog\'s pondful drowns the fire, the wolf goes among the horses, the fox among the geese, and the mouse gnaws the gold-chest open. He swallows the king\'s gold and hops home. The smallest and half-made outwits the mighty.',
     from: 'gjysmegjel1',
     ending: 'gjysmegjelFund',
     scenes: {
-      gjysmegjel1: 'permesa',
+      gjysmegjel1: ['permesa', 'lakrat'],
       gjysmegjel2: 'zjarri',
       gjysmegjelFund: 'arka',
     },
     divergences: [
-      { beat: 'permesa', note: 'You travel as the half-rooster\'s companion through a beloved children\'s tale that runs one way — he was the household rooster split in the old couple\'s quarrel, came alive as half a bird, and set off after the coin the king took. The game distils it to the escapade at court; the choice offered is to follow him or turn back to the village.' },
+      { beat: 'permesa', note: 'You travel as the half-rooster\'s companion. The game compresses the household quarrel and the road into its setup, then enters on Elsie\'s attested opening to the court episode: hunger, the cabbage garden, the crowing, and capture. No seized-coin motive is imported.' },
       { beat: 'lakrat', note: "The four swallowed helpers and the king's four traps (thrown among the cabbages, the fire beneath him, the stable of horses, the yard of geese) are compressed into the single court scene where he looses frog, wolf, fox and mouse in turn and gnaws the chest open." },
       { beat: 'fundi', note: 'The envious coda — the rod that pays gold off the rooster\'s back but only vermin off the copy-cat cat, "one coin, then vermin" — is kept in the tale record, not staged; the game ends on the half-rooster hopping home crowing with the king\'s gold.' },
     ],

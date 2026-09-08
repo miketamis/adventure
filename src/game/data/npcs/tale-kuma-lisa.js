@@ -15,7 +15,7 @@ export default {
   ujkuNikolla: {
     name: 'ujku Nikollë', glyph: '🐺', kind: 'creature',
     role: 'Herr Nicola — the wolf who went partners with the fox, and was fed last',
-    backstory: 'A wolf with a man\'s name and a farmer\'s plans: he bought a field with the fox, stashed a tub of honey and a basket of white loaves for the work-season, and dug on trustingly through three "christenings". He found the tub upside down, believed the invented names, granted the second search — and wore himself out at her bolt-hole, pulling roots on command. Of the first wolf\'s devouring kind (ujkuPare) but NOT that wolf, and NOT the hungry wolf of the deep forest (the shokuUjk arc): this one\'s appetite is for honey, and in the game\'s staged butter variant he is the guiltless beast wronged when the fox cries thief with the butter on his sleeping mouth.',
+    backstory: 'A wolf with a man\'s name and a farmer\'s plans: he bought a field with the fox, stashed a tub of honey and a basket of white loaves for the work-season, and dug on trustingly through three "christenings". He found the tub upside down, heard the fox\'s bare denial, granted the second search — and wore himself out at her bolt-hole, pulling roots on command. Of the first wolf\'s devouring kind (ujkuPare) but NOT that wolf, and NOT the hungry wolf of the deep forest (the shokuUjk arc): this one is the honest field-partner the fox cheats of honey and bread.',
     folklore: ['kuma-lisa', 'wolf'],
     location: { status: 'placed', node: 'dhelpra1' },
     tales: { 'kuma-lisa': 'ujku' },

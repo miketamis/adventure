@@ -17,6 +17,10 @@
 export default {
   id: 'legjenda-e-prespes',
   title: 'Legjenda e Prespës — the drowned city of Prespa',
+  references: [
+    { role: 'selected-witness', citation: '“Legjenda e Prespës dhe Ohrit / The Legend of Prespa and Ohrid” (Protecting Lake Ohrid, 14 August 2017)', url: 'https://lakeohrid.blogspot.com/2017/08/legjenda-e-prespes-dhe-ohritthe-legend.html?m=0' },
+    { role: 'facsimile', citation: 'UNESCO, Protecting Lake Ohrid newsletter, fifth edition — bilingual PDF', url: 'https://whc.unesco.org/document/158681', note: 'Institutional copy of the same Albanian/English Prespa legend used by the blog.' },
+  ],
   source:
     '"Legjenda e Prespës dhe Ohrit", Protecting Lake Ohrid blog (DMO Albania, in the framework of a UNESCO/EU/Albanian Ministry of Environment project; Newsletter "Protecting Lake Ohrid", 5th ed.), posted 14 August 2017 · no Elsie translation exists for this legend; the blog itself prints the Albanian and an English rendering side by side — every English line here is the game\'s own paraphrase, never copied from the blog\'s wording',
   // where the tale comes from — anchors should prefer this region's mirrors
@@ -52,18 +56,15 @@ export default {
   // place behind it (this tale is the far SOUTH-EAST — Korçë/Prespa basin).
   places: [
     { id: 'pyll', emoji: '🌲', name: 'the forest above Prespa', note: 'where the prince first meets Nereida, and returns again and again to court her',
-      anchor: { status: 'existing', node: 'pylli1', mirror: 'the wooded hills above the real Prespa basin, near Korçë in the far south-east',
-        mold: 'the great forest every wanderer crosses; this tale adds one more meeting under its trees, alongside binoshet\'s, cuckoo\'s and snake-bridegroom\'s own — a forest never runs out of room for one more story',
-        sharedWith: ['binoshet', 'cuckoo', 'snake-bridegroom'] } },
+      anchor: { status: 'existing', node: 'prespaPyll', mirror: 'the wooded hills above the real Prespa basin, near Korçë in the far south-east',
+        mold: 'the dedicated lakeside woodland above Prespa: the tale enters here from the composite great forest, without claiming the two forests are one real-world address' } },
     { id: 'qyteti', emoji: '🏰', name: 'Prespa, the king\'s town', note: 'the great town on the site of today\'s lake, before the flood took it',
       anchor: { status: 'offstage', mirror: 'the town said to have stood where Lake Prespa\'s waters now lie, near Korçë in Albania\'s far south-east',
-        mold: 'a whole king\'s town — his court, his son, his subjects, everything the flood will take; never dramatized as its own scene, only the forest visit and the flood\'s aftermath (place "liqeni") are staged; this ground and liqeni\'s are the SAME ground, seen before and after one night',
-        conflicts: 'not qyteti, three-friends\' dead city of the world below, despite the coincidence of an English gloss — that is an underworld ruin under a wholly different node (STORY key "qyteti"); this town has no map node at all' } },
+        mold: 'a whole king\'s town — his court, his son, his subjects, everything the flood will take; the pre-flood streets are not separately explorable, while prespaFund draws this same ground after the water closes over it',
+        conflicts: 'not qyteti, three-friends\' dead city of the world below, despite the coincidence of an English gloss — that is an underworld ruin at a wholly different address' } },
     { id: 'liqeni', emoji: '🌊', name: 'Prespa, become a lake', note: 'the same ground, the morning after the flood — Lake Prespa itself',
-      anchor: { status: 'proposed', node: 'mali1', mirror: 'Lake Prespa, near Korçë in Albania\'s far south-east — a different lake entirely from every water already on this map (Lake Shkodra/flocka1 in the north; the Osum, tomor-shpirag\'s river, in the south-centre)',
-        mold: 'a king\'s whole town, drowned in one night into the still water that bears its name; nothing else is staked to this specific ground, only the wildcard hub it borrows for now — this place and "qyteti"\'s are the same site, before and after',
-        conflicts: 'not a claim that mali1 IS Tomorr, Mali i Krujës, or Prespa all at once — three tales now pin proposals here (three-friends\' Tomorr, sari-salltek\'s Krujë, this lake), each honest that the node stands in for an elsewhere-place the map has not yet reached, not that the identities are the same mountain',
-        proposal: 'when the map extends south-east to the Korçë/Prespa basin, draw the drowned town under calm water — kulla-roofs still said to show through on the stillest days — with the wooded slope (pylli1\'s own hills, continued) rising just above the shore' } },
+      anchor: { status: 'existing', node: 'prespaFund', mirror: 'Lake Prespa, near Korçë in Albania\'s far south-east — distinct from Lake Shkodra/flocka1 and the Osum river',
+        mold: 'the dedicated drowned-town water below the Prespa woodland, drawn as the same ground after the wedding-night flood; its own marker prevents the lake from being mistaken for Tomorr or another water' } },
   ],
   items: [
     { id: 'pasuria', emoji: '💰', name: 'the wealth of his father\'s land', note: 'every riches of the kingdom, and the place at his side as its next queen — offered, and refused' },
@@ -93,7 +94,7 @@ export default {
     divergences: [
       { beat: 'herWarning', note: 'The legend\'s prince never heeds the warning — that is why Lake Prespa exists. The game makes it a real choice and adds the path he never takes: let Nereida go, and your town stands and your people live (the good ending "The Warning Heeded"), though you rule alone and never win her. Seizing her enacts the etiology.' },
       { beat: 'theFlood', note: 'Built from scratch: the great town, the courting visits, the seizing-and-holding until she consents, and the wedding-night deluge are compressed into the forest meeting and the choice; the flood, the whole town and court drowned, and the water named Lake Prespa are the secret ending.' },
-      { beat: 'greatTown', note: 'The lake ending is co-located on the forest spot (pylli1) rather than drawn as a distinct south-eastern lake — the real Prespa lies near Korçë, a water the map has not yet reached (distinct from Lake Shkodra and the Osum); the tale record keeps that geography, and Nereida is said to keep the lake still.' },
+      { beat: 'greatTown', note: 'The playable chart now gives the Prespa woodland and drowned town distinct markers in its lake country. Their relative placement records the tale\'s topology (wood above town/lake) while remaining explicitly not to real-world scale.' },
     ],
   },
   beats: [

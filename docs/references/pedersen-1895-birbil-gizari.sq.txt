@@ -1,0 +1,515 @@
+HOLGER PEDERSEN — BIRBIL GIZÁRI (1895)
+========================================
+
+Work: Albanesische Texte mit Glossar
+Author/collector: Holger Pedersen (and his Albanian informants)
+Publication: Leipzig: S. Hirzel, 1895, pp. 30–35
+Primary scan: https://archive.org/details/pedersen-1895-albanesische-texte-split
+OCR: https://archive.org/download/pedersen-1895-albanesische-texte-split/Pedersen%201895%20Albanesische%20Texte%20split_djvu.txt
+Archive identifier: pedersen-1895-albanesische-texte-split
+
+STATUS
+------
+The exact Albanian source is TRANSCRIBED AND ALIGNED. The scan's heading is
+“Birbil Gizári.” The continuous tale occupies printed pp. 30–35 (roughly
+lines 1419–1675 in the Archive OCR). The first excerpts below preserve raw OCR
+to make the machine-text defects reproducible. A page-checked, mechanically
+transliterated alignment transcript follows them and supplies a source clause
+for every one of the game's 154 English sentence-units.
+
+OPENING (printed p. 30; raw OCR)
+--------------------------------
+UL.
+Birbil Gizdri.
+
+AS vie mbrel, ki$ tre djelm, ai mbreti sevdin e tij e kit ne diami,
+ne te falur. Asti beri tie dëami Sume te mir, edë si e bilisne ustalarete,
+vale mbreti te falej. Atjë ke falej, vate me dervis ë i Va mbretit, ke
+ve mire iste dfamija, po anafilë te falte. Si pa mbreti, ke 1 Va
+dervisi atë fjale, e prisi diamine nga binaja edë e beri deket me te
+mar nga të paren.
+
+THE QUEST NAMED (printed p. 31; raw OCR)
+-----------------------------------------
+Gone djelte, ke nii nesire te velë ne dëami 6
+ls fales, edë neve do rime per jaste te ruajme te zeme alë dervis, le
+Somi, se 18 kac. E ash vans: hiri mbreti mbernda me dëami e falej,
+djelte ruajen per jaste. Vate dervisi st nga hera ë 1 dote mbretit, ke
+ve mire dzami, po anafilë te faletc.
+
+Gote dervisi, Ke vkejë dëami iste Sum e mir,
+ke me ne dund muku ka, po duhej te ki$ edë birbil dizare, le
+j a So$ mbernda ne diami, alë here i$ ge, ke $ gendej ne durid mec.
+I Gone djelte, Ke vku iste birbil gizari, të vemi t e marmëc
+
+THE THREE ROADS (printed p. 31; raw OCR)
+-----------------------------------------
+U-misne le tre djelte të vijn te Gejen birbil gizarin. Si ikne none zet
+dit, vanë me në vend, atjë jene tri videra, edë kisne nga në gur, € 18
+Shruare nek atë gurete, € ne di tidera Yoëne yrdmete, Ke vku£ te Vejë
+ne ketë ude, do kyenete, ë në nga le tria uderate Skrianej, ke vkus
+vele keshj ude, me nuku këeneic.
+
+THE BIRD, WELL, RECOGNITION AND MARRIAGE (printed pp. 34–35; raw OCR)
+---------------------------------------------------------------------
+e mdrene atd € e Sptene ne vendi, ke 1$ birbil dizari. Po atjë ajo, ke
+his birbil gizerine, 18 e bukure e deut edë mbretel € kis ne avli te saj
+pese kind nobetsi, Ke ruajen, edë ne dere te jistesme his ulkun nobefsi,
+ne dere te dile ki$ kaptane, edë ne dere, ke ki$ ajd kondkume, kt$ astën.
+
+Atjë fene me pus, po me se të
+ndrzife uje, $ kif. I Gone velait vdgele, Ke vhire ti, te na ndzereis uj,
+te pime. Ebdë aShk e vate me tersire velan e vogel, edë i pren terstren
+edë e lan mbernda me pus edë iknes po pusi nuku i$ Sume i dele me
+uj, ke te mbilej djali, po ki$ nera ne grik, Ke koka i mbetej jast nga
+ujë, ë si e hode velan e vdgele mbernda, birbil gizari e pusoi kengen,
+me $ kendonej.
+
+Me te fole djali, zuri
+barbil dizari ë kendon, ë kendonej ake mire, sa prisi duriane nga meni.
+
+e pjeti, i da, ke vku e more li birbil dizarëc I Sa de ai tamamen asShi,
+si e kif mar. Ashi pastdj e ujdisne pumens e u-marfiane: mori djal i
+mbretit te bukuren e deut, edë jan sot € give ditene Fojn € mbreterojn.
+
+EDITORIAL NOTE
+--------------
+The OCR is deliberately not “cleaned” into modern Albanian: symbols such as
+$, €, 9 and 18 are recognition errors or font substitutions in the machine
+text. It is not used as quotation stock. The alignment transcript below was
+instead checked against the page images and records its transliteration policy.
++
+PAGE-CHECKED ALIGNMENT TRANSCRIPT (printed pp. 30–35)
+-----------------------------------------------------
+The clauses below were collated against the page images in the primary scan.
+They retain the informant’s dialectal vocabulary, grammar, and word order.
+Only Pedersen’s phonetic alphabet is transliterated to the nearest modern
+Albanian letters; for example: š→sh, ž→zh, dž→xh, č→ç, ð→dh, θ→th, ts→c.
+Vowel quantity/stress marks are omitted because the game does not teach them.
+Repeated English sentence-units may point to the same clause when the English
+translation subdivides one long Albanian sentence.
+
+[G001 · printed p. 30]
+Ish një mbret, kish tre djelm
+
+[G002 · printed p. 30]
+ai mbreti sevdān e tij e kish në xhami, në të falur
+
+[G003 · printed p. 30]
+Ashtu bëri një xhami shumë të mir, edhe si e bitishnë ustallarëtë, vate mbreti të falej
+
+[G004 · printed p. 30]
+Atje kë falej, vate një dervish e i tha mbretit, kë e mirë ishte xhamija, po anafilë të falëtë
+
+[G005 · printed p. 30]
+e prishi xhaminë nga binaja edhe e bëri gjetkë më të mir nga të parën
+
+[G006 · printed p. 30]
+Prapë po kë e bitisi, edhe vate të falej; vate dervishi e i thotë tojdho fjalë
+
+[G007 · printed p. 30]
+mbreti e prishi prapë edhe atë xhami e vuri e bëri tjetër edhe prishi aqë shumë para nek ato xhamitë, sa kë prishi gjithë gjënë e tij, kë kish, të gjithë mbretllëkun
+
+[G008 · printed p. 30]
+e si apososi edhe të tretën herë xhaminë, vate prapë të falej
+
+[G009 · printed p. 30]
+Në të falurë vete dervishi prapë e i tha tojdho llaf
+
+[G010 · printed p. 30]
+U-ngre dhe mbreti e doli, vate në pallat edhe rij shumë sekëlldisur, se t e prish prapë xhaminë e t e bën të re, s kish më; të vij të falej, s i zihej të falët
+
+[G011 · printed p. 30]
+e pan djelët e tij, kë rij sitoisur edhe sekëlldisur shumë; i thonë djelët, kë «ç të ke, baba, kë ri sekëlldisur; neve kemi akoma gjënë, mbretër jemi; pse sitoisej shumë?»
+
+[G012 · printed p. 30]
+U thotë mbreti djelmet, kë «u prisha gjithë punën time në xhami, edhe të falëtë nuku më zihet»
+
+[G013 · printed p. 30]
+I thanë djelët, kë «pse s të zihet të falët?»
+
+[G014 · printed p. 30]
+kurdo kë vete në xhami e falem, vjen një dervish e më thotë: «anafilë të falët»
+
+[G015 · printed p. 30]
+ti nesër të vetë në xhami e të falësh, edhe neve do rrimë për jashtë të ruajmë e t e zëmë atë dervish, të shomi, se ç të ka
+
+[G016 · printed p. 30]
+E ashtu vanë; hiri mbreti mbërnda në xhami e falej, djelët ruajnë për jashtë
+
+[G017 · printed p. 30]
+Vate dervishi si nga hera e i thotë mbretit, kë e mirë xhami, po anafilë të falëtë
+
+[G018 · printed p. 31]
+Nëkë bëri kë të dil dervishi nga dera, e zunë djelët e i thanë, kë «ti pse e thua këtë fjalë, kë ishte e mirë xhamija edhe anafilë të falëtë?»
+
+[G019 · printed p. 31]
+kë kjo xhami ishte shumë e mir, kë më në dunja nuku ka, po duhej të kish edhe birbil Gizarë, t e vësh mbërnda në xhami, atëherë ish gjë, kë s gjëndej në dunja më
+
+[G020 · printed p. 31]
+I thonë djelët, kë «ku ishte birbil Gizari, të vemi t e marrmë?»
+
+[G021 · printed p. 31]
+Thotë dervishi, kë «u dëgjuarë kam, po se ku ishte, nuk e di»
+
+[G022 · printed p. 31]
+kështu na tha dervishi, kë lipsete birbil Gizari, po se ku ishte, s e di as dervishi; tani neve do vemi të shomi të gjim, se ku ishte
+
+[G023 · printed p. 31]
+Edhe ashtu u-nisnë të tre djelët të vijn të gjejnë birbil Gizarin
+
+[G024 · printed p. 31]
+Si iknë njëzet dit, vanë më një vend, atje qenë tri udhëra
+
+[G025 · printed p. 31]
+edhe kishnë nga një gur, e ish shkruarë nek ata gurëtë
+
+[G026 · printed p. 31]
+e në di udhëra thoshnë grametë, kë «kush të vejë në këtë udhë, do kthehet»
+
+[G027 · printed p. 31]
+e një nga të tria udhëratë shkruanej, kë «kush vete kësaj udhë, më nuku kthehet»
+
+[G028 · printed p. 31]
+edhe ashtu ndëjnën të tre vëllezëritë atje edhe u-llafosnë
+
+[G029 · printed p. 31]
+kë «këtu të ndahemi, të marrëmë gjithë cili udhën e tij, edhe këtu të lëmë unazët të tre, e kush të vijë më përpara, të vejë të kërkojë për të tjerët»
+
+[G030 · printed p. 31]
+Ashtu lanë unazëtë nënë një gur edhe u-puqnë e u-ndanë
+
+[G031 · printed p. 31]
+Djali i vogël mori atë udhë, kë shkruan: «Kush vete kësaj udhë, më s kthehet», e të di të tjerëtë muar atë udhë, kë ktheheshin
+
+[G032 · printed p. 31]
+Njëri nga të di vëllezëritë e mbëdhej vate më një kasaba edhe u-bë berber, edhe tjetri vate në një tjetër kasaba edhe zuri kafene; edhe mbetnë atje, vështronën punën e tyre
+
+[G033 · printed p. 31]
+I vogëli, kë mori atë udhë, kë s kthehej, vate e ra më një vend të egrë, kë s kish as fshat as han as njeri gjëkundi, po gjithë theria edhe egërsira
+
+[G034 · printed p. 31]
+Atje nek vij, vate gjeti një grua të egrë, kë krihej kokënë me shparr
+
+[G035 · printed p. 31]
+vate dhe djali e e krehu me krehër edhe i hoqi llerënë edhe morratë, kë kish në kokë
+
+[G036 · printed p. 31]
+ç të do nga mua ti, kë më bëre këtë të mirë e më shpëtove nga morratë?
+
+[G037 · printed p. 31]
+u s dua gjë, të më japësh, po një fjalë do të të pyes, e në di, thuaj më
+
+[G038 · printed p. 31]
+ç fjalë do më pyesësh?
+
+[G039 · printed p. 31]
+u kërkoj birbil Gizar, e e ke dëgjuarë gjëkundi ti, kë gjezdis maletë?
+
+[G040 · printed p. 31]
+këtu ai zog, kë kërkon ti, nuku isht; po të kthehesh prapë, se këtu janë gjithë theria; edhe u, kë jam njeri i egrë, s kapërtoj dot m-at-anë malit, se atje janë theria shumë të mbëdha
+
+[G041 · printed p. 31]
+u do vete, edhe si e tha Perëndia, le të bënet
+
+[G042 · printed p. 31]
+Edhe ashtu iku djali nga ajo e vate lart në mal
+
+[G043 · printed p. 31]
+Atje pa një shtëpi; ajo shtëpija ish e kapllanit; edhe vate atje
+
+[G044 · printed p. 31]
+Kapllani nuku ish në shtëpi, ish e shoqe kapllanit edhe bënej bukë
+
+[G045 · printed p. 32]
+s dëse këtu ti? se tani vjen burri im, edhe do t hajë
+
+[G046 · printed p. 32]
+Tani kë erdha këtu, bë-më-ni, si të doni
+
+[G047 · printed p. 32]
+s dij të hap prushnë e furrësë me tjetër gjë, po e hapënej me sisë të saj, edhe digjej e bënej nga dhjetë dit sëmurë
+
+[G048 · printed p. 32]
+lë t e hap u prushnë
+
+[G049 · printed p. 32]
+Ashtu preu ca gjethe edhe e hapi
+
+[G050 · printed p. 32]
+kë e mësoj të bënej bukë e mos të sëmurej, u-gëzua shumë, po i vinej keq për djalë, kë do vinej kapllani, t e hajë
+
+[G051 · printed p. 32]
+i vuri djalit bukë, e hëngri, edhe e mori, e fshehu mbërnda në karselë
+
+[G052 · printed p. 32]
+Atje vate kapllani në shtëpi edhe gjeti të shoqenë, kë s ish sëmurtur, po ish në këmbë, dhe po kë hiri mbërnda, i foli me inat e i tha, kë «pse s bëre bukë sot?»
+
+[G053 · printed p. 32]
+bëra bukë
+
+[G054 · printed p. 32]
+ti, kurdo kë bënë bukë, sëmureshe; tani pse s u-sëmure?
+
+[G055 · printed p. 32]
+u gjeta një tjetër zanat, kë s digjem më, kurdo kë të bij bukë; pasandaj i dëftoi
+
+[G056 · printed p. 32]
+sikur të keshe njeri këtu, kë më mësoi, të mos digjem, kurdo kë të bij bukë, ç do i bëje?
+
+[G057 · printed p. 32]
+u atë njeri do e bënjë vëlla
+
+[G058 · printed p. 32]
+e nxori ajo njerinë nga karsela edhe i tha atit, kë «ki ishte, kë më mësoi»
+
+[G059 · printed p. 32]
+u-puqnë njeriu me kapllanë edhe zunë miqësi
+
+[G060 · printed p. 32]
+pse ke ardhur ti këtu?
+
+[G061 · printed p. 32]
+u kërkoj një zog, kë e thonë birbil Gizar, e e ke dëgjuarë gjëkundi apo jo?
+
+[G062 · printed p. 32]
+këtu ai zog nuku isht, po u kam një vëllanë tim, kë ishte shumë plak, edhe i kanë rënë pjekët e syvet, e i kanë zënë sytë, e nuku sheh; edhe të vesh atje
+
+[G063 · printed p. 32]
+Atje kë do vetë afërë shtëpisë, do gjesh të shoqen e asllanit të vëllait tim; ajo ishte plakë; edhe ishte kthyerë e vështron prej shtëpisë edhe sisëtë i ka vërviturë pas
+
+[G064 · printed p. 32]
+ti të vetë pas krahëvet e të zësh sisënë e saj me golë
+
+[G065 · printed p. 32]
+ajo do të të thotë: «Ç je ti, kë më zure sisën?» e ti t i thuash, kë «u jam djal yt, edhe të njoh për mëmë»
+
+[G066 · printed p. 32]
+do të flasë vëllai im nga mbërnda e do thotë, kë «ç isht ai?»
+
+[G067 · printed p. 32]
+u jam miku i vëllait tënd kapllanit, edhe më dërgoi këtu nekë tij për një hall, kë kam
+
+[G068 · printed p. 32]
+Eja mbërnda, edhe ti të vetë mbërnda, e me të folë kë t i flasësh, edhe të vesh t i heqësh pjekëtë, kë të shohë
+
+[G069 · printed p. 32]
+edhe ai mund të dijë, se ku ishte birbil Gizari; edhe po s e di ai, më tutje të mos të vesh, po të kthehesh prapë
+
+[G070 · printed p. 32]
+Ato fjalë i tha kapllani djalit edhe u-puqnë e u-ndanë
+
+[G071 · printed p. 33]
+vate djali në shtëpi të asllanit e bëri ashtu, si e kish porositurë kapllani, edhe e pyeti asllanin e i thotë, kë në dij birbil Gizarin, se ku ish
+
+[G072 · printed p. 33]
+s ishte gjëkundi ai zog, po të kthehesh prapë, se këtu e tutje janë theria nga xhiner, kë nuku shkoj dot as u, kë jam mbret i gjithë theriavet
+
+[G073 · printed p. 33]
+Edhe djali me gjithë ato, kë i tha asllani, nuku u-kthye, po i la shëndet asllanit, edhe iku e vate nga ajo udhë, kë i tha asllani, të mos të vijë
+
+[G074 · printed p. 33]
+Atje i dalën tri ipe edhe hapjënë golënë, kë të hajënë djalin
+
+[G075 · printed p. 33]
+djali nxori pallënë e njërësë i preu krahun, tjetrësë i preu këmbën, dhe tjetrësë i preu sqepin
+
+[G076 · printed p. 33]
+edhe si i preu, iknë ato e vanë në punë të tyre, edhe djali mori udhën e tij prapë edhe ikënej
+
+[G077 · printed p. 33]
+kur sheh një shtëpi me një shesh të madh, e si pa shtëpinë, u-nis e vate në shtëpi
+
+[G078 · printed p. 33]
+atje nek ajo shtëpija kë vate, gjeti një plakë, kë kish shtënë kulaçnë në zjarr edhe e piq
+
+[G079 · printed p. 33]
+s dëse këtu ti, o bir? se do vinë vashatë e mia edhe do të hanë
+
+[G080 · printed p. 33]
+tani kë erdha këtu në dorë tënde, ja, si të duatë, bë më
+
+[G081 · printed p. 33]
+plaka nxori kulaçnë nga zjarri edhe i dha djalit, e hëngri
+
+[G082 · printed p. 33]
+shtroi sufranë në mes të shtëpisë; në mes të sufrait vuri një shkurë me ujë, vuri edhe bukënë rrotulla sufrait, e mori dhe djalënë, e mbylli më një dollap, edhe i kish lënë një vrimë, kë të shij, se ç do bëhej
+
+[G083 · printed p. 33]
+për një çikë vjen ajo ipja, kë i kish prerë krahun
+
+[G084 · printed p. 33]
+hiri nga penxhereja edhe vate nek ata ujët, kë kish shkureja në mes të sufrait, edhe u-la, dhe me të larë, u-bë njeri
+
+[G085 · printed p. 33]
+Për një çikë erdhë dhe të tjerat ipe, kë kish prerë, e u-lanë edhe ato e u-bënë njerëz
+
+[G086 · printed p. 33]
+na bie erë njeriu
+
+[G087 · printed p. 33]
+ju vini nga njerëz, andaj u bie erë
+
+[G088 · printed p. 33]
+sikur të keshe nonjë njeri këtu, ç do i bënit?
+
+[G089 · printed p. 33]
+për shpirt të atit njeriut, kë më preu krahun, kë u s e ngas
+
+[G090 · printed p. 33]
+Për shpirt të atit, kë më preu këmbënë, kë s e ngas
+
+[G091 · printed p. 33]
+Edhe e vogëla bëri tojdho be, edhe ashtu pastaj e nxori plaka djalënë, e u thotë djali, kë «u jam ai, kë u preva»
+
+[G092 · printed p. 33]
+ato u-gëzuanë shumë, kë u-pojnë prapë me atë djalë, e i thonë ato, kë «për se ke ardhur ti këtu?»
+
+[G093 · printed p. 33]
+u kërkoj birbil Gizar, edhe cilëdo kë pyeta, gjersa erdha këtu, nuk e dij nonjë
+
+[G094 · printed p. 33]
+birbil Gizar e dimë neve, se ku isht, po të vesh ti me këmbë, lë, kë nuku shkon dot, kë të vesh, po edhe të shkosh, do tri vjet udhë, kë të vesh nek ai vend
+
+[G095 · printed p. 33]
+Po çish të bij?
+
+[G096 · printed p. 33]
+të na bësh një të mirë, kë do të kërkojmë neve, edhe neve të shpjem për një sahat këtej, edhe e merr
+
+[G097 · printed p. 33]
+ç të mirë doni nga u, t ua bij?
+
+[G098 · printed p. 33]
+do rrish tre muaj këtu me neve, edhe do flesh nga një muaj me gjithë cilënë nga neve
+
+[G099 · printed p. 34]
+Edhe ashtu i dhanë karar punësë, edhe ndënji me to tre muaj; në tre muaj e marrënë ato e e shpjenë në vendi, kë ish birbil Gizari
+
+[G100 · printed p. 34]
+Po atje ajo, kë kish birbil Gizarinë, ish e bukurë e dheut edhe mbretël
+
+[G101 · printed p. 34]
+e kish në avlli të saj pesë qind nobetçi, kë ruajnë
+
+[G102 · printed p. 34]
+edhe në derë të jashtësmë kish ulkun nobetçi, në derë të ditë kish kapllanë, edhe në derë, kë kish ajo konakunë, kish asllan
+
+[G103 · printed p. 34]
+e lëshuanë në mes të avllis mu ndë vakt, kë kish zënë gjumi të gjithë njerëzitë edhe ulkun edhe kapllanë edhe asllanë edhe të bukurënë e dheut
+
+[G104 · printed p. 34]
+edhe shkoi djali e hiri mbërnda në konak të saj
+
+[G105 · printed p. 34]
+ajo kish katrë llambadha dhezur, kish edhe katrë në sufra pa dhezur, e ato, kë kish dhezurë, ishnë hazër me të sosur
+
+[G106 · printed p. 34]
+dhezi të katra llambadhatë e pa-dhezura edhe të dhezurat i shoi edhe mori kluvinë me birbil Gizar edhe doli djali
+
+[G107 · printed p. 34]
+e me të dalë nga dera, u-zgjuanë gjithë
+
+[G108 · printed p. 34]
+po sa t e zënë, e muarë mikatë e tij edhe iknë e e shpunë në shtëpi të tyre
+
+[G109 · printed p. 34]
+E ndëjnën edhe ca kohë akoma atje; pastaj u thotë djali, kë «tani të më shpini në vend tim»; e muarë dhe ato e e shpunë gjersa në vendi, kë ish ndarë me vëllezër herën e parë
+
+[G110 · printed p. 34]
+edhe vete në guri, kë kishnë lënë unazëtë, edhe i gjeti unazët e vëllezëret atje
+
+[G111 · printed p. 34]
+mori udhënë, kë kishnë vaturë vëllezëritë, e vate i gjeti, kë njëri ish berber edhe tjetri kafexhi e u thotë, kë «hajdi t ikimë, të vemi në babai, se u birbil Gizar e gjeta edhe e solla»
+
+[G112 · printed p. 34]
+Ashtu u-nisnë të tre bashkë vëllezëritë edhe iknë për në babai
+
+[G113 · printed p. 34]
+e si vijnë në udhë, i mori etja
+
+[G114 · printed p. 34]
+krua s gjejnë, kë të pijënë ujë, e atje gjejnë një pus, po me se të nxirr ujë, s kish
+
+[G115 · printed p. 34]
+I thonë vëllait vogël, kë «hirë ti, të na nxjerrësh ujë, të pimë»
+
+[G116 · printed p. 34]
+e varrë me litarë vëllan e vogël, edhe i prenë litarënë edhe e lanë mbërnda në pus edhe iknë
+
+[G117 · printed p. 34]
+e si e hodhë vëllan e vogëlë mbërnda, birbil Gizari e pushoi këngën, më s këndonej
+
+[G118 · printed p. 34]
+po pusi nuku ish shumë i thellë me ujë, kë të mbytej djali, po kish gjersa në grikë, kë koka i mbetej jashtë nga ujët
+
+[G119 · printed p. 34]
+Ashtu e muarë ato e vanë në baba i tyre e j a shpunë
+
+[G120 · printed p. 34]
+I pyeti për djalën e vogëlë, kë «ç e bëtë?»
+
+[G121 · printed p. 34]
+ai doli batakçi edhe gjezdis kasabavet tutje tëhu
+
+[G122 · printed p. 34]
+na vjen mbretëresha e bukur e dheut, kë kish birbil Gizarinë, edhe erdhi të lufton mbretin e i kërkonej njerinë, kë i mori zogun
+
+[G123 · printed p. 34]
+u-ngre njëri vëlla i madhi e vate në e bukur e dheut; e pyeti ajo e i thotë, kë «ti erdhe e more birbil Gizarë?»
+
+[G124 · printed p. 34]
+u erdha
+
+[G125 · printed p. 34]
+më ç vend e gjete?
+
+[G126 · printed p. 34]
+Mbi qiparis
+
+[G127 · printed p. 34]
+ajo e shtroi poshtë e vuri njerëzitë, e e rrahnë, sa vdiq nga druri
+
+[G128 · printed p. 34]
+Si dëgjoi djal i mesmë, kë vëllan e madh e vrau, i ktheu edhe topnë pallatit mbretit edhe kasabasë edhe gërmisi gjysmën e pallatit
+
+[G129 · printed p. 34]
+nga frik ai pastajet vate e i tha babait tij të drejtën, se ç kishnë bërë, kë vëllanë e vogëlë e kishnë hedhur në pus
+
+[G130 · printed p. 35]
+mbreti dërgoi e e nxuarë nga pusi djalënë e vogëlë pak gjallë, sa kë mir frymë vetëm, pa fjalë nuku ip; ashtu e shpunë në shtëpi
+
+[G131 · printed p. 35]
+Për një a di dit erdhi në vetëhe djali, edhe foli
+
+[G132 · printed p. 35]
+Me të folë djali, zuri birbil Gizari e këndon, e këndonej aqë mirë, sa prishi dunjanë nga ment
+
+[G133 · printed p. 35]
+E bukur e dheut me të dëgjuarë zën e birbilit, eftis dërgoi e e shtroi me cohë të kuqe kë nga port e pallatit mbretit edhe gjersa papuar, kë ish ajo
+
+[G134 · printed p. 35]
+Ashtu dhe djali j a hipi kalit, mori dhe birbilinë në dorë edhe shkoi mbi cohë
+
+[G135 · printed p. 35]
+Si e panë dunjaja, kë shkonej mbi cohë kaluar, atëherë u-trembnë shumë, thanë, kë «tani do t e kthejë kasabanë e bukur e dheut»
+
+[G136 · printed p. 35]
+po u-këshnë
+
+[G137 · printed p. 35]
+se djali me të vaturë, kë u-afërua afër paporit, doli e bukur e dheut kë për jashtë edhe e priti
+
+[G138 · printed p. 35]
+e vanë mbërnda në papuar, e e pyeti, i tha, kë «ku e more ti birbil Gizar?»
+
+[G139 · printed p. 35]
+I tha dhe ai tamamën ashtu, si e kish marrë. Ashtu pastaj e ujdisnë punënë e u-martuanë
+
+[G140 · printed p. 35]
+mori djal i mbretit të bukurën e dheut, edhe janë sot e gjithë ditënë rrojnë e mbretërojnë
+
+COLLATION RESULT
+----------------
+All 154 English sentence-units in src/game/data/tales/gjizar.js are aligned
+to one of the page-checked Albanian clauses above. Zero units are unresolved.

@@ -18,6 +18,32 @@ export default {
   title: 'Scanderbeg and Ballaban',
   source:
     'Mitrush Kuteli, Tregime të moçme shqiptare (Tirana: Naim Frashëri, 1965; repr. 1987, 1998) · read in R. Elsie\'s translation ("Scanderbeg and Ballaban," Albanian Literature, legends #7); all lines paraphrased',
+  references: [
+    {
+      role: 'translation',
+      citation: 'Robert Elsie (trans.), “Scanderbeg and Ballaban,” after Mitrush Kuteli',
+      url: 'http://www.albanianliterature.net/legends/legend_07.html',
+      note: 'The exact English translation selected for the beat record; the surviving author site has no working HTTPS endpoint.',
+    },
+    {
+      role: 'facsimile',
+      citation: 'Mitrush Kuteli, “Skënderbeu dhe Ballabani,” Tregime të moçme shqiptare, pp. 114–125 in the Albanian–German edition',
+      url: 'https://archive.org/details/shqip-gjermanisht-tregime-te-mocme-shqiptare',
+      note: 'Page images of the exact Albanian source text transcribed into the local line-evidence file.',
+    },
+    {
+      role: 'context',
+      citation: 'Marin Barleti, The Historie of George Castriot, surnamed Scanderbeg (1596 English translation), EEBO text record',
+      url: 'https://quod.lib.umich.edu/e/eebo/A05070.0001.001',
+      note: 'Early chronicle context for Skanderbeg’s campaigns; the institutional record is access-controlled, and it is not Kuteli’s selected folk retelling or used to fill its beats.',
+    },
+    {
+      role: 'scholarship',
+      citation: 'Flavia Kaba and Xavier Baró i Queralt, “Héroe o traidor: Visiones complementarias … sobre Skanderbeg,” Medievalia 25.1 (2022), pp. 99–120',
+      url: 'https://doi.org/10.5565/rev/medievalia.571',
+      note: 'Peer-reviewed discussion of competing historical and cultural visions of Skanderbeg.',
+    },
+  ],
   origin: {
     region: 'National — the pan-Albanian resistance of the mid-15th century, not a regional Tosk/Gheg tale',
     collector: 'Mitrush Kuteli (Dhimitër Pasko), retelling 20th-century Albanian oral legend',
@@ -30,7 +56,7 @@ export default {
     local: 'docs/references/kuteli-skenderbeu-ballabani.sq.txt',
   },
   discrepancies: [
-    'FOLKLORE-ID / VARIANT NOTE: the FOLKLORE entry "skanderbeg-legjenda" this tale.id retells summarizes a DIFFERENT episode of the Skanderbeg cycle — the goat-candle ruse that lifts the siege of Krujë, and his death at Lezhë followed by the Ottomans digging up his bones as talismans a decade later. That episode is already staged, word for word, as the traveller\'s tale at udhetaret (content.js: skender1 → skender2 → skenderFund, an "end: secret" ending titled "The Goat-Candles of Krujë"). This tale — Kuteli\'s "Skënderbeu dhe Ballabani," read in Elsie\'s translation — covers a separate battle of the same 25-year war: an unnamed river crossing where Ballaban, an Albanian pasha turned Ottoman, wagers his head on capturing Skanderbeg and is beheaded by his own Sultan for failing. The two are compatible, not contradictory: both are undated episodes of Skanderbeg\'s lifelong resistance, share no named place or fixed year, and this tale\'s own places (river/hill/mountains/empire) are all `offstage`, so nothing here overwrites the goat-candle vignette\'s Krujë setting or its account of the death at Lezhë. The folklore.js summary and this tale\'s beats therefore describe two different legends about the same historical man, not two versions of one legend — see also the cast note on `skanderbeg` in ../npcs/tale-skanderbeg-legjenda.js, which names the goat-candle tale explicitly and says the same.',
+    'FOLKLORE CYCLE CARD / EPISODE SEPARATION: the FOLKLORE entry "skanderbeg-legjenda" is deliberately a cycle card that names two different Skanderbeg episodes. The later goat-candle ruse at Krujë is already staged as the traveller\'s tale at udhetaret (content.js: skender1 → skender2 → skenderFund, an "end: secret" ending titled "The Goat-Candles of Krujë"). This source record — Kuteli\'s "Skënderbeu dhe Ballabani," read in Elsie\'s translation — covers a separate battle of the same 25-year war: an unnamed river crossing where Ballaban, an Albanian pasha turned Ottoman, wagers his head on capturing Skanderbeg and is beheaded by his own Sultan for failing. The two are compatible, not interchangeable: both are undated episodes of Skanderbeg\'s lifelong resistance, share no named place or fixed year, and this tale\'s own places (river/hill/mountains/empire) are all `offstage`, so nothing here overwrites the goat-candle vignette\'s Krujë setting. The cycle card keeps both episodes explicitly separate, and this tale\'s `source-only` disposition prevents the Ballaban beats from being falsely mapped onto the goat scene.',
     'THE FRAME: Elsie prefaces the legend with his own historical note on the real Skanderbeg, ending "Here is a prose rendition of the tale." That preamble is Elsie\'s own scholarly voice, not the folk narrative — the numbered beats below start at the tale\'s actual first sentence ("Albania was faced with...") and never quote the preamble.',
     'BALLABAN\'S PRICE (¶12.6-8): Elsie\'s English slips to "a hundred thousand ducats" at this one spot, though the Albanian here («nëntëqind mijë dukatë») and every other mention (¶9.2, ¶12.15-16) hold steady at NINE hundred thousand. The beats follow the Albanian\'s consistent figure throughout.',
     'THE HERALD\'S ASIDE (¶7.2): the Albanian gives the Sultan a short confirming exchange with the herald — «— Ashtu? — Po, o mbret i madh.» ("Is that so?" "It is, great Sultan.") — before he asks again why death is sweeter than honey; Elsie\'s translation drops the aside. Kept in the beat\'s Albanian third element.',
@@ -44,7 +70,7 @@ export default {
     { id: 'skanderbeg', name: 'Skënderbeu', note: 'Gjergj Kastrioti — the national hero who held the empire off for a lifetime of war', npc: 'skenderbeu' },
     { id: 'murati', name: 'Sulltan Murati II', note: 'the elder Sultan, broken invasion after invasion, dies unsatisfied', npc: 'sulltanMurati' },
     { id: 'mehmeti', name: 'Sulltan Mehmeti II', note: 'the Conqueror of Constantinople, Murad\'s crueler son', npc: 'sulltanMehmeti' },
-    { id: 'ballaban', name: 'Ballaban Badheri', note: 'the Albanian turncoat pasha who wagers his head on Skanderbeg\'s', npc: 'ballabani' },
+    { id: 'ballaban', name: 'Ballaban Badheri', note: 'the Albanian turncoat pasha who wagers his head on capturing Skanderbeg', npc: 'ballabani' },
     { id: 'lajmetari', name: 'lajmëtari', note: 'the Sultan\'s herald, carries the parley out and the report back', npc: 'lajmetariTurk' },
     { id: 'malesoret', name: 'malësorët e Dukagjinit e Livetës', note: 'the two thousand highlanders who break the encirclement at the ford', npc: 'malesoretVeriut' },
     { id: 'ushtriaShqiptare', name: 'ushtria e Skënderbeut', note: 'his small, hopelessly outnumbered band', npc: 'ushtriaSkenderbeut' },
@@ -78,38 +104,13 @@ export default {
     { id: 'flamuriShqiptar', emoji: '🚩', name: 'the Albanian banner', note: 'waved one-handed through the duel, "for the honor of Albania"' },
     { id: 'flamuriTurk', emoji: '🌙', name: 'the crescent flag', note: 'the Ottoman standard, abandoned and left snagged in the thornbushes of the rout' },
   ],
-  // PLAY PROJECTION — how the game actually stages a Skanderbeg legend. Bare
-  // WITNESS: the player only hears a traveller's song at a shared hub; no
-  // embodiment, no mold-lock, no from/ending/scenes. IMPORTANT DIVERGENCE: the
-  // game sings the goat-candle lifting of the siege of Krujë (content.js nodes
-  // skender1/skender2/skenderFund), a DIFFERENT episode than this file's beats,
-  // which chronicle the river battle against the turncoat pasha Ballaban.
-  // PLAY PROJECTION — the game now STAGES a Skanderbeg legend as an embodied
-  // arc. IMPORTANT DIVERGENCE: it stages the goat-candle lifting of the siege of
-  // Krujë (content.js nodes skender1 → skender2 → skenderFund, plus the invented
-  // bad ending skenderKeq), a DIFFERENT episode than this file's fifteen beats,
-  // which chronicle the river battle against the turncoat pasha Ballaban. Same
-  // hero, same lifelong resistance, two separate legends — so the scenes map onto
-  // the nearest beats (the few-against-many stand, the night action, the enemy's
-  // terrified flight), and the divergences below record the mismatch.
-  play: {
-    entry: 'campfire',
-    stance: 'embodied',
-    as: 'skanderbeg',
-    role: 'You are Gjergj Kastrioti — Skënderbeu — defending the castle of Krujë. The enemy has laid siege to it and your men are pitifully few, far too few to meet that host in the open. Tie lit candles to the horns of a whole herd of goats and drive them up the ramparts by night, so the besiegers count a thousand watch-fires along the dark walls and break camp before dawn in fear — the clever trick the folk still love best. Or lead your handful out to fight the siege in open battle, and lose the walls.',
-    enter: 'the enemy has laid siege to your castle of Krujë and your men are pitifully few — too few by far to meet that host sword-to-sword in the open',
-    from: 'skender1',
-    ending: 'skenderFund',
-    scenes: {
-      skender1: 'campfire',
-      skender2: 'battleJoins',
-      skenderFund: 'sultanFlees',
-    },
-    divergences: [
-      { beat: 'campfire', note: 'The game stages the goat-candles favourite — the night-lifted siege of Krujë (nodes skender1 → skender2 → skenderFund) — while this file records a wholly different episode of the same war: the river battle against the turncoat pasha Ballaban. Same hero, same lifelong resistance, two separate legends. The three staged scenes therefore map onto the NEAREST beats of the Ballaban chronicle (the few-against-many stand at campfire, the night action at battleJoins, the enemy\'s terrified flight at sultanFlees), not onto beats that literally tell the goat trick — the goat-candle episode has no beat of its own here.' },
-      { beat: 'sultanFlees', note: 'Where this file gives a full fifteen-beat chronicle — Murad\'s deathbed, Mehmed the Conqueror, the herald\'s parley, the white avalanche, Ballaban beheaded — the game keeps only a short embodied three-scene arc, staging the goat trick and the enemy breaking camp afraid, and nothing of the Ballaban campaign.' },
-      { note: 'The BAD ending "Krujë Falls" (skenderKeq) is invented as the un-heroic counterfactual: refuse the ruse, lead too few men out to open battle, and the walls are lost — exactly as argjiro-gjirokastra and legjenda-e-prespes add the road their heroes never take. The arc is co-located at libriDiell under the sharing rule, and the historical caveat (the candle-goats and the helmet are a people\'s love for its hero, not the ledger of history) is honoured in the tale record, not the game.' },
-    ],
+  // This exact Kuteli/Skanderbeg-and-Ballaban witness remains a source-board
+  // chronicle. It must not be mapped onto the playable goat-candle legend merely
+  // because both stories concern Skanderbeg. The latter is separately identified
+  // in the folklore card and game ending as a later popular legend.
+  projection: {
+    status: 'source-only',
+    reason: 'No dedicated Ballaban campaign nodes exist. The playable goat-candle episode is a different legend and is deliberately not claimed as a projection of these beats.',
   },
   beats: [
     {

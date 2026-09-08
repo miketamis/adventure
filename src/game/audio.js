@@ -5,10 +5,11 @@
 // download script (scripts/tts-download.mjs) and the runtime agree on names.
 // ---------------------------------------------------------------------------
 
-// Slug an Albanian surface to an ascii, lowercase, collision-free filename.
-// Non [a-z0-9] chars (diacritics, capitals after lowercasing, spaces) become a
-// reversible `x<hex codepoint>` escape so distinct surfaces never collide on a
-// case-insensitive filesystem.
+// Slug an Albanian surface to a case-folded ASCII filename. Capitalization
+// variants intentionally share the same pronunciation clip; after lowercasing,
+// every non [a-z0-9] code point (including diacritics and spaces) becomes a
+// deterministic `x<hex codepoint>` escape. The release audit rejects any
+// distinct authored surfaces that would happen to collide under this scheme.
 export function audioSlug(al) {
   return al
     .toLowerCase()

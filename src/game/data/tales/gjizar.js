@@ -4,9 +4,171 @@
 // not touch it.
 // ===========================================================================
 
-export default {
+// Page-checked clause excerpts from Pedersen's printed Albanian, pp. 30–35.
+// His phonetic alphabet is transliterated to the nearest modern Albanian
+// letters (for example š→sh, ž→zh, dž→xh, č→ç, ð→dh, θ→th, ts→c);
+// dialectal vocabulary, grammar and word order are retained. Several English
+// sentence-units split one long Albanian sentence,
+// so those units honestly share the smallest source clause that covers them.
+const PEDERSEN_PASSAGES = [
+  [30, '1.1', 'Ish një mbret, kish tre djelm'],
+  [30, '1.2', 'ai mbreti sevdān e tij e kish në xhami, në të falur'],
+  [30, '1.3', 'Ashtu bëri një xhami shumë të mir, edhe si e bitishnë ustallarëtë, vate mbreti të falej'],
+  [30, '1.4', 'Atje kë falej, vate një dervish e i tha mbretit, kë e mirë ishte xhamija, po anafilë të falëtë'],
+  [30, '1.5', 'e prishi xhaminë nga binaja edhe e bëri gjetkë më të mir nga të parën'],
+  [30, '1.6 1.7', 'Prapë po kë e bitisi, edhe vate të falej; vate dervishi e i thotë tojdho fjalë'],
+  [30, '1.8 1.9', 'mbreti e prishi prapë edhe atë xhami e vuri e bëri tjetër edhe prishi aqë shumë para nek ato xhamitë, sa kë prishi gjithë gjënë e tij, kë kish, të gjithë mbretllëkun'],
+  [30, '1.10', 'e si apososi edhe të tretën herë xhaminë, vate prapë të falej'],
+  [30, '1.11', 'Në të falurë vete dervishi prapë e i tha tojdho llaf'],
+  [30, '1.12 1.13', 'U-ngre dhe mbreti e doli, vate në pallat edhe rij shumë sekëlldisur, se t e prish prapë xhaminë e t e bën të re, s kish më; të vij të falej, s i zihej të falët'],
+  [30, '2.1', 'e pan djelët e tij, kë rij sitoisur edhe sekëlldisur shumë; i thonë djelët, kë «ç të ke, baba, kë ri sekëlldisur; neve kemi akoma gjënë, mbretër jemi; pse sitoisej shumë?»'],
+  [30, '2.2', 'U thotë mbreti djelmet, kë «u prisha gjithë punën time në xhami, edhe të falëtë nuku më zihet»'],
+  [30, '2.3', 'I thanë djelët, kë «pse s të zihet të falët?»'],
+  [30, '2.4', 'kurdo kë vete në xhami e falem, vjen një dervish e më thotë: «anafilë të falët»'],
+  [30, '2.5', 'ti nesër të vetë në xhami e të falësh, edhe neve do rrimë për jashtë të ruajmë e t e zëmë atë dervish, të shomi, se ç të ka'],
+  [30, '2.6', 'E ashtu vanë; hiri mbreti mbërnda në xhami e falej, djelët ruajnë për jashtë'],
+  [30, '2.7', 'Vate dervishi si nga hera e i thotë mbretit, kë e mirë xhami, po anafilë të falëtë'],
+  [31, '2.8', 'Nëkë bëri kë të dil dervishi nga dera, e zunë djelët e i thanë, kë «ti pse e thua këtë fjalë, kë ishte e mirë xhamija edhe anafilë të falëtë?»'],
+  [31, '2.9', 'kë kjo xhami ishte shumë e mir, kë më në dunja nuku ka, po duhej të kish edhe birbil Gizarë, t e vësh mbërnda në xhami, atëherë ish gjë, kë s gjëndej në dunja më'],
+  [31, '2.10', 'I thonë djelët, kë «ku ishte birbil Gizari, të vemi t e marrmë?»'],
+  [31, '2.11', 'Thotë dervishi, kë «u dëgjuarë kam, po se ku ishte, nuk e di»'],
+  [31, '2.12', 'kështu na tha dervishi, kë lipsete birbil Gizari, po se ku ishte, s e di as dervishi; tani neve do vemi të shomi të gjim, se ku ishte'],
+  [31, '2.13', 'Edhe ashtu u-nisnë të tre djelët të vijn të gjejnë birbil Gizarin'],
+  [31, '2.14', 'Si iknë njëzet dit, vanë më një vend, atje qenë tri udhëra'],
+  [31, '2.15', 'edhe kishnë nga një gur, e ish shkruarë nek ata gurëtë'],
+  [31, '2.16', 'e në di udhëra thoshnë grametë, kë «kush të vejë në këtë udhë, do kthehet»'],
+  [31, '2.17', 'e një nga të tria udhëratë shkruanej, kë «kush vete kësaj udhë, më nuku kthehet»'],
+  [31, '2.18', 'edhe ashtu ndëjnën të tre vëllezëritë atje edhe u-llafosnë'],
+  [31, '2.19', 'kë «këtu të ndahemi, të marrëmë gjithë cili udhën e tij, edhe këtu të lëmë unazët të tre, e kush të vijë më përpara, të vejë të kërkojë për të tjerët»'],
+  [31, '2.20', 'Ashtu lanë unazëtë nënë një gur edhe u-puqnë e u-ndanë'],
+  [31, '2.21', 'Djali i vogël mori atë udhë, kë shkruan: «Kush vete kësaj udhë, më s kthehet», e të di të tjerëtë muar atë udhë, kë ktheheshin'],
+  [31, '2.22 2.23', 'Njëri nga të di vëllezëritë e mbëdhej vate më një kasaba edhe u-bë berber, edhe tjetri vate në një tjetër kasaba edhe zuri kafene; edhe mbetnë atje, vështronën punën e tyre'],
+  [31, '3.1', 'I vogëli, kë mori atë udhë, kë s kthehej, vate e ra më një vend të egrë, kë s kish as fshat as han as njeri gjëkundi, po gjithë theria edhe egërsira'],
+  [31, '3.2', 'Atje nek vij, vate gjeti një grua të egrë, kë krihej kokënë me shparr'],
+  [31, '3.3', 'vate dhe djali e e krehu me krehër edhe i hoqi llerënë edhe morratë, kë kish në kokë'],
+  [31, '3.4', 'ç të do nga mua ti, kë më bëre këtë të mirë e më shpëtove nga morratë?'],
+  [31, '3.5', 'u s dua gjë, të më japësh, po një fjalë do të të pyes, e në di, thuaj më'],
+  [31, '3.6', 'ç fjalë do më pyesësh?'],
+  [31, '3.7', 'u kërkoj birbil Gizar, e e ke dëgjuarë gjëkundi ti, kë gjezdis maletë?'],
+  [31, '3.8', 'këtu ai zog, kë kërkon ti, nuku isht; po të kthehesh prapë, se këtu janë gjithë theria; edhe u, kë jam njeri i egrë, s kapërtoj dot m-at-anë malit, se atje janë theria shumë të mbëdha'],
+  [31, '3.9', 'u do vete, edhe si e tha Perëndia, le të bënet'],
+  [31, '4.1', 'Edhe ashtu iku djali nga ajo e vate lart në mal'],
+  [31, '4.2 4.3 4.4', 'Atje pa një shtëpi; ajo shtëpija ish e kapllanit; edhe vate atje'],
+  [31, '4.5', 'Kapllani nuku ish në shtëpi, ish e shoqe kapllanit edhe bënej bukë'],
+  [32, '4.6', 's dëse këtu ti? se tani vjen burri im, edhe do t hajë'],
+  [32, '4.7', 'Tani kë erdha këtu, bë-më-ni, si të doni'],
+  [32, '4.8 4.9', 's dij të hap prushnë e furrësë me tjetër gjë, po e hapënej me sisë të saj, edhe digjej e bënej nga dhjetë dit sëmurë'],
+  [32, '4.10', 'lë t e hap u prushnë'],
+  [32, '4.11', 'Ashtu preu ca gjethe edhe e hapi'],
+  [32, '4.12 4.13', 'kë e mësoj të bënej bukë e mos të sëmurej, u-gëzua shumë, po i vinej keq për djalë, kë do vinej kapllani, t e hajë'],
+  [32, '4.14', 'i vuri djalit bukë, e hëngri, edhe e mori, e fshehu mbërnda në karselë'],
+  [32, '5.1', 'Atje vate kapllani në shtëpi edhe gjeti të shoqenë, kë s ish sëmurtur, po ish në këmbë, dhe po kë hiri mbërnda, i foli me inat e i tha, kë «pse s bëre bukë sot?»'],
+  [32, '5.2', 'bëra bukë'],
+  [32, '5.3', 'ti, kurdo kë bënë bukë, sëmureshe; tani pse s u-sëmure?'],
+  [32, '5.4 5.5', 'u gjeta një tjetër zanat, kë s digjem më, kurdo kë të bij bukë; pasandaj i dëftoi'],
+  [32, '5.6', 'sikur të keshe njeri këtu, kë më mësoi, të mos digjem, kurdo kë të bij bukë, ç do i bëje?'],
+  [32, '5.7', 'u atë njeri do e bënjë vëlla'],
+  [32, '5.8', 'e nxori ajo njerinë nga karsela edhe i tha atit, kë «ki ishte, kë më mësoi»'],
+  [32, '5.9', 'u-puqnë njeriu me kapllanë edhe zunë miqësi'],
+  [32, '5.10', 'pse ke ardhur ti këtu?'],
+  [32, '5.11', 'u kërkoj një zog, kë e thonë birbil Gizar, e e ke dëgjuarë gjëkundi apo jo?'],
+  [32, '5.12', 'këtu ai zog nuku isht, po u kam një vëllanë tim, kë ishte shumë plak, edhe i kanë rënë pjekët e syvet, e i kanë zënë sytë, e nuku sheh; edhe të vesh atje'],
+  [32, '5.13', 'Atje kë do vetë afërë shtëpisë, do gjesh të shoqen e asllanit të vëllait tim; ajo ishte plakë; edhe ishte kthyerë e vështron prej shtëpisë edhe sisëtë i ka vërviturë pas'],
+  [32, '5.14', 'ti të vetë pas krahëvet e të zësh sisënë e saj me golë'],
+  [32, '5.15', 'ajo do të të thotë: «Ç je ti, kë më zure sisën?» e ti t i thuash, kë «u jam djal yt, edhe të njoh për mëmë»'],
+  [32, '5.16', 'do të flasë vëllai im nga mbërnda e do thotë, kë «ç isht ai?»'],
+  [32, '5.17', 'u jam miku i vëllait tënd kapllanit, edhe më dërgoi këtu nekë tij për një hall, kë kam'],
+  [32, '5.18', 'Eja mbërnda, edhe ti të vetë mbërnda, e me të folë kë t i flasësh, edhe të vesh t i heqësh pjekëtë, kë të shohë'],
+  [32, '5.19 5.20', 'edhe ai mund të dijë, se ku ishte birbil Gizari; edhe po s e di ai, më tutje të mos të vesh, po të kthehesh prapë'],
+  [32, '5.21', 'Ato fjalë i tha kapllani djalit edhe u-puqnë e u-ndanë'],
+  [33, '5.22', 'vate djali në shtëpi të asllanit e bëri ashtu, si e kish porositurë kapllani, edhe e pyeti asllanin e i thotë, kë në dij birbil Gizarin, se ku ish'],
+  [33, '5.23', 's ishte gjëkundi ai zog, po të kthehesh prapë, se këtu e tutje janë theria nga xhiner, kë nuku shkoj dot as u, kë jam mbret i gjithë theriavet'],
+  [33, '6.1 6.2', 'Edhe djali me gjithë ato, kë i tha asllani, nuku u-kthye, po i la shëndet asllanit, edhe iku e vate nga ajo udhë, kë i tha asllani, të mos të vijë'],
+  [33, '6.3', 'Atje i dalën tri ipe edhe hapjënë golënë, kë të hajënë djalin'],
+  [33, '6.4', 'djali nxori pallënë e njërësë i preu krahun, tjetrësë i preu këmbën, dhe tjetrësë i preu sqepin'],
+  [33, '6.5', 'edhe si i preu, iknë ato e vanë në punë të tyre, edhe djali mori udhën e tij prapë edhe ikënej'],
+  [33, '6.6', 'kur sheh një shtëpi me një shesh të madh, e si pa shtëpinë, u-nis e vate në shtëpi'],
+  [33, '6.7', 'atje nek ajo shtëpija kë vate, gjeti një plakë, kë kish shtënë kulaçnë në zjarr edhe e piq'],
+  [33, '6.8', 's dëse këtu ti, o bir? se do vinë vashatë e mia edhe do të hanë'],
+  [33, '6.9', 'tani kë erdha këtu në dorë tënde, ja, si të duatë, bë më'],
+  [33, '6.10', 'plaka nxori kulaçnë nga zjarri edhe i dha djalit, e hëngri'],
+  [33, '6.11', 'shtroi sufranë në mes të shtëpisë; në mes të sufrait vuri një shkurë me ujë, vuri edhe bukënë rrotulla sufrait, e mori dhe djalënë, e mbylli më një dollap, edhe i kish lënë një vrimë, kë të shij, se ç do bëhej'],
+  [33, '6.12', 'për një çikë vjen ajo ipja, kë i kish prerë krahun'],
+  [33, '6.13', 'hiri nga penxhereja edhe vate nek ata ujët, kë kish shkureja në mes të sufrait, edhe u-la, dhe me të larë, u-bë njeri'],
+  [33, '6.14', 'Për një çikë erdhë dhe të tjerat ipe, kë kish prerë, e u-lanë edhe ato e u-bënë njerëz'],
+  [33, '6.15', 'na bie erë njeriu'],
+  [33, '6.16', 'ju vini nga njerëz, andaj u bie erë'],
+  [33, '6.17', 'sikur të keshe nonjë njeri këtu, ç do i bënit?'],
+  [33, '6.18', 'për shpirt të atit njeriut, kë më preu krahun, kë u s e ngas'],
+  [33, '6.19', 'Për shpirt të atit, kë më preu këmbënë, kë s e ngas'],
+  [33, '6.20', 'Edhe e vogëla bëri tojdho be, edhe ashtu pastaj e nxori plaka djalënë, e u thotë djali, kë «u jam ai, kë u preva»'],
+  [33, '6.21', 'ato u-gëzuanë shumë, kë u-pojnë prapë me atë djalë, e i thonë ato, kë «për se ke ardhur ti këtu?»'],
+  [33, '6.22', 'u kërkoj birbil Gizar, edhe cilëdo kë pyeta, gjersa erdha këtu, nuk e dij nonjë'],
+  [33, '6.23', 'birbil Gizar e dimë neve, se ku isht, po të vesh ti me këmbë, lë, kë nuku shkon dot, kë të vesh, po edhe të shkosh, do tri vjet udhë, kë të vesh nek ai vend'],
+  [33, '6.24', 'Po çish të bij?'],
+  [33, '6.25', 'të na bësh një të mirë, kë do të kërkojmë neve, edhe neve të shpjem për një sahat këtej, edhe e merr'],
+  [33, '6.26', 'ç të mirë doni nga u, t ua bij?'],
+  [33, '6.27', 'do rrish tre muaj këtu me neve, edhe do flesh nga një muaj me gjithë cilënë nga neve'],
+  [34, '7.1', 'Edhe ashtu i dhanë karar punësë, edhe ndënji me to tre muaj; në tre muaj e marrënë ato e e shpjenë në vendi, kë ish birbil Gizari'],
+  [34, '7.2', 'Po atje ajo, kë kish birbil Gizarinë, ish e bukurë e dheut edhe mbretël'],
+  [34, '7.3', 'e kish në avlli të saj pesë qind nobetçi, kë ruajnë'],
+  [34, '7.4', 'edhe në derë të jashtësmë kish ulkun nobetçi, në derë të ditë kish kapllanë, edhe në derë, kë kish ajo konakunë, kish asllan'],
+  [34, '7.5', 'e lëshuanë në mes të avllis mu ndë vakt, kë kish zënë gjumi të gjithë njerëzitë edhe ulkun edhe kapllanë edhe asllanë edhe të bukurënë e dheut'],
+  [34, '7.6', 'edhe shkoi djali e hiri mbërnda në konak të saj'],
+  [34, '7.7 7.8', 'ajo kish katrë llambadha dhezur, kish edhe katrë në sufra pa dhezur, e ato, kë kish dhezurë, ishnë hazër me të sosur'],
+  [34, '7.9', 'dhezi të katra llambadhatë e pa-dhezura edhe të dhezurat i shoi edhe mori kluvinë me birbil Gizar edhe doli djali'],
+  [34, '7.10', 'e me të dalë nga dera, u-zgjuanë gjithë'],
+  [34, '7.11', 'po sa t e zënë, e muarë mikatë e tij edhe iknë e e shpunë në shtëpi të tyre'],
+  [34, '8.1', 'E ndëjnën edhe ca kohë akoma atje; pastaj u thotë djali, kë «tani të më shpini në vend tim»; e muarë dhe ato e e shpunë gjersa në vendi, kë ish ndarë me vëllezër herën e parë'],
+  [34, '8.2', 'edhe vete në guri, kë kishnë lënë unazëtë, edhe i gjeti unazët e vëllezëret atje'],
+  [34, '8.3', 'mori udhënë, kë kishnë vaturë vëllezëritë, e vate i gjeti, kë njëri ish berber edhe tjetri kafexhi e u thotë, kë «hajdi t ikimë, të vemi në babai, se u birbil Gizar e gjeta edhe e solla»'],
+  [34, '8.4', 'Ashtu u-nisnë të tre bashkë vëllezëritë edhe iknë për në babai'],
+  [34, '9.1', 'e si vijnë në udhë, i mori etja'],
+  [34, '9.2', 'krua s gjejnë, kë të pijënë ujë, e atje gjejnë një pus, po me se të nxirr ujë, s kish'],
+  [34, '9.3', 'I thonë vëllait vogël, kë «hirë ti, të na nxjerrësh ujë, të pimë»'],
+  [34, '9.4', 'e varrë me litarë vëllan e vogël, edhe i prenë litarënë edhe e lanë mbërnda në pus edhe iknë'],
+  [34, '9.5', 'e si e hodhë vëllan e vogëlë mbërnda, birbil Gizari e pushoi këngën, më s këndonej'],
+  [34, '9.6 9.7', 'po pusi nuku ish shumë i thellë me ujë, kë të mbytej djali, po kish gjersa në grikë, kë koka i mbetej jashtë nga ujët'],
+  [34, '9.8', 'Ashtu e muarë ato e vanë në baba i tyre e j a shpunë'],
+  [34, '9.9', 'I pyeti për djalën e vogëlë, kë «ç e bëtë?»'],
+  [34, '9.10', 'ai doli batakçi edhe gjezdis kasabavet tutje tëhu'],
+  [34, '10.1', 'na vjen mbretëresha e bukur e dheut, kë kish birbil Gizarinë, edhe erdhi të lufton mbretin e i kërkonej njerinë, kë i mori zogun'],
+  [34, '10.2', 'u-ngre njëri vëlla i madhi e vate në e bukur e dheut; e pyeti ajo e i thotë, kë «ti erdhe e more birbil Gizarë?»'],
+  [34, '10.3', 'u erdha'],
+  [34, '10.4', 'më ç vend e gjete?'],
+  [34, '10.5', 'Mbi qiparis'],
+  [34, '10.6', 'ajo e shtroi poshtë e vuri njerëzitë, e e rrahnë, sa vdiq nga druri'],
+  [34, '10.7', 'Si dëgjoi djal i mesmë, kë vëllan e madh e vrau, i ktheu edhe topnë pallatit mbretit edhe kasabasë edhe gërmisi gjysmën e pallatit'],
+  [34, '10.8', 'nga frik ai pastajet vate e i tha babait tij të drejtën, se ç kishnë bërë, kë vëllanë e vogëlë e kishnë hedhur në pus'],
+  [35, '10.9 10.10', 'mbreti dërgoi e e nxuarë nga pusi djalënë e vogëlë pak gjallë, sa kë mir frymë vetëm, pa fjalë nuku ip; ashtu e shpunë në shtëpi'],
+  [35, '11.1', 'Për një a di dit erdhi në vetëhe djali, edhe foli'],
+  [35, '11.2', 'Me të folë djali, zuri birbil Gizari e këndon, e këndonej aqë mirë, sa prishi dunjanë nga ment'],
+  [35, '11.3', 'E bukur e dheut me të dëgjuarë zën e birbilit, eftis dërgoi e e shtroi me cohë të kuqe kë nga port e pallatit mbretit edhe gjersa papuar, kë ish ajo'],
+  [35, '11.4', 'Ashtu dhe djali j a hipi kalit, mori dhe birbilinë në dorë edhe shkoi mbi cohë'],
+  [35, '11.5', 'Si e panë dunjaja, kë shkonej mbi cohë kaluar, atëherë u-trembnë shumë, thanë, kë «tani do t e kthejë kasabanë e bukur e dheut»'],
+  [35, '11.6', 'po u-këshnë'],
+  [35, '11.7', 'se djali me të vaturë, kë u-afërua afër paporit, doli e bukur e dheut kë për jashtë edhe e priti'],
+  [35, '11.8', 'e vanë mbërnda në papuar, e e pyeti, i tha, kë «ku e more ti birbil Gizar?»'],
+  [35, '11.9', 'I tha dhe ai tamamën ashtu, si e kish marrë. Ashtu pastaj e ujdisnë punënë e u-martuanë'],
+  [35, '12.1', 'mori djal i mbretit të bukurën e dheut, edhe janë sot e gjithë ditënë rrojnë e mbretërojnë'],
+]
+
+const SOURCE_BY_REF = new Map()
+for (const [page, refs, text] of PEDERSEN_PASSAGES) {
+  for (const ref of refs.split(' ')) {
+    if (SOURCE_BY_REF.has(ref)) throw new Error(`Duplicate Pedersen source alignment for ${ref}`)
+    SOURCE_BY_REF.set(ref, { page, text })
+  }
+}
+
+const tale = {
   id: 'gjizar',
   title: 'Gjizar the Nightingale',
+  references: [
+    { role: 'facsimile', citation: 'Holger Pedersen, Albanesische Texte mit Glossar (Leipzig, 1895), pp. 30–35 — Internet Archive scan', url: 'https://archive.org/details/pedersen-1895-albanesische-texte-split', note: 'Selected Albanian witness, page-collated against the tale record.' },
+    { role: 'translation', citation: 'Robert Elsie, “Gjizar the Nightingale”', url: 'http://www.albanianliterature.net/folktales/tale_14.html' },
+    { role: 'analogue', citation: 'ATU 550, “The Golden Bird” — Folklore Database', url: 'https://folkloredatabase.com/db_atu.php?atu=550', note: 'Comparative international type, not Pedersen’s Albanian witness.' },
+  ],
   source:
     'Holger Pedersen, Albanesische Texte mit Glossar (Leipzig 1895), repr. Folklor shqiptar 1, Proza popullore (Tirana 1963) · read in R. Elsie\'s translation (tale 14, ATU 550); all lines paraphrased',
   // where the tale comes from — anchors should prefer this region's mirrors
@@ -15,20 +177,25 @@ export default {
     collector: 'Holger Pedersen, Danish linguist',
     published: 'Leipzig, 1895 (Abhandlungen der phil.-hist. Cl. der Königl. Sächs. Ges. der Wiss. XV.3)',
   },
-  // the ALBANIAN ORIGINAL — genuinely unfindable as free text; never invented.
+  // The exact Albanian original is collated against every English beat-line.
+  // Source fields preserve Pedersen's dialect while transliterating only his
+  // nineteenth-century phonetic symbols as documented above and locally.
   albanian: {
-    status: 'missing',
-    why:
-      'Pedersen\'s Albanesische Texte mit Glossar (1895) has no free digitization: searched archive.org (metadata + every digitized volume of the Sächsische Abhandlungen series — vol 15 is absent), HathiTrust, Google Books, Gallica/BnF, MDZ digitale-sammlungen, sachsen.digital/SLUB, TITUS, wikisource/wikibooks and the Albanian tale sites; the only scan found is a Scribd image upload (no extractable text), and the 1963 Folklor shqiptar 1 reprint is in copyright with no online text. The local corpora (pralla-popullore-shqiptare-1954, Dozon, Hahn, Jarnik, Meyer, Lambertz) carry OTHER Pedersen tales (e.g. Maro Përhitura) but not this one — checked for gjizar/bilbil/dervish/xhami/kafaz motifs. Even the tale\'s Albanian title cannot be verified, so no third elements are given anywhere.',
+    status: 'transcribed',
+    title: '«Birbil Gizári»',
+    source:
+      'Holger Pedersen, Albanesische Texte mit Glossar (Leipzig 1895), printed pp. 30–35. Clause excerpts checked against the page images and mechanically transliterated from Pedersen’s phonetic alphabet (š→sh, ž→zh, dž→xh, č→ç, ð→dh, θ→th, ts→c); dialectal wording and syntax are retained. English units which split one Albanian sentence share its covering source clause.',
+    local: 'docs/references/pedersen-1895-birbil-gizari.sq.txt',
+    external: 'https://archive.org/details/pedersen-1895-albanesische-texte-split',
   },
   // with no Albanian to compare, these record VARIANT and ADAPTATION
   // disagreements: Pedersen/Elsie vs the lore card and the built vignette
   discrepancies: [
-    'THE HELPER CHAIN: the lore card and the built vignette (gjizar2…gjizarFund) compress Pedersen\'s whole ladder of helpers — savage woman (¶3), tiger and wife (¶4-5), blind lion king (¶5), eagle-mother and three eagle-maidens (¶6) — into "a hungry woman he fed and her eagle". The beats keep the full chain.',
-    'THE PRICE OF THE FLIGHT (¶6.27): the eagle-sisters\' fee is three months — a month as husband to each; the game staging omits the bargain entirely and flies him free.',
-    'THE WAR (¶10): in Pedersen the Beauty comes by WARSHIP, has the lying eldest brother caned to death and shells half the king\'s palace before the truth surfaces; the lore card softens this to "the Beauty follows the bird, and the truth comes out". The beats follow Pedersen, cannons and all.',
-    'THE FORK: the tale\'s parting is a THREE-way — two stones promise return, one denies it; the game\'s gjizar1 scene reads only two roads aloud («ti kthehu» / «ti nuk kthehu»). The third stone belongs to the fork anchor\'s proposal.',
-    'THE SILENCE LAW (¶9.5): the bird falls silent the instant the rope is cut, and sings again the moment its true winner speaks (¶11.2) — the game\'s gjizarPus ending keeps exactly this law («zogu nuk flet»). But the tale itself ends at the wedding (¶11.9, ¶12.1) and never shows the mosque getting its song; the gjizarFund blurb\'s "the king had his nightingale for the mosque" is the game\'s own coda.',
+    'THE HELPER CHAIN: gjizarUdha now narrates Pedersen\'s full causal ladder — the wild woman, the oven-and-leaves kindness at the tiger\'s house, the blind lion, the three attacking eagles, and their transformation into maidens in the field-house. The tiger, lion and eagle households remain travel montage rather than separate map stops.',
+    'THE PRICE OF THE FLIGHT (¶6.27): the source makes the three-month fee a month as husband in each eagle-sister\'s bed. The playable Albanian states the same duration and one-month-per-sister bargain, but softens its sexual term to "stay with" for an age-suitable game. The ending and this record preserve the exact source difference.',
+    'THE WAR (¶10): the restored ending keeps the Beauty\'s warship, cypress-tree claim test, death of the lying eldest, cannon damage to half the palace, the middle brother\'s confession and the youngest brother\'s rescue. These are narrated adjudication rather than a player-controlled execution.',
+    'THE FORK AND RETURN TOWNS: the game now names three roads, two return inscriptions, three rings, a barber town and a separate coffee-house town. The two trade towns remain narrated offstage because the player embodies the youngest brother\'s no-return route.',
+    'THE SILENCE LAW (¶9.5): the bird falls silent the instant the rope is cut, and sings again the moment its true winner speaks (¶11.2). The restored ending stops at the source wedding (¶11.9, ¶12.1); it no longer invents a later scene of Gjizar singing in the mosque, although the mosque remains the quest\'s stated purpose.',
     'ATU 550 WITHOUT THE FOX: the type\'s fox-helper and horse/princess ladder are replaced by wounded eagle-brides; the cypress-tree lie (¶10.5) plays the type\'s recognition test — only the true thief knows the candle-lit chamber.',
   ],
   // sentence counts of the original's 12 paragraphs (Elsie's translation)
@@ -69,14 +236,16 @@ export default {
     { id: 'barberTown', emoji: '💈', name: 'the barber\'s town', note: 'the city down one return road, where the eldest opens a barber shop',
       anchor: { status: 'proposed', node: 'gjizar1', mirror: 'any bazaar town a return road reaches — a berberhane of the Ottoman south',
         mold: 'a return-road town big enough for a king\'s son to vanish into a barber\'s trade',
+        conflicts: 'NOT the coffee-house town down the second road and NOT the king\'s home city: the source makes three roads and three distinct destinations',
         proposal: 'mark the barber-brother\'s town down one RETURN lane off the gjizar1 fork (a shopfront is enough)' } },
     { id: 'coffeeTown', emoji: '☕', name: 'the coffee-house town', note: 'the city down the other return road, where the middle brother pours coffee',
       anchor: { status: 'proposed', node: 'gjizar1', mirror: 'a kafene town of the Tosk south',
         mold: 'the other return-road town, where the middle prince keeps a kafene and waits for nobody',
+        conflicts: 'NOT the barber town down the first road and NOT the king\'s home city: the source makes three roads and three distinct destinations',
         proposal: 'mark the coffee-brother\'s town down the other RETURN lane off the gjizar1 fork' } },
     { id: 'wilderness', emoji: '🐾', name: 'the wilderness', note: 'no village, no inn, no people — wild beasts and wilder things; the savage woman\'s ground',
       anchor: { status: 'existing', node: 'gjizarUdha', mirror: 'the wild margin where the settled south gives out — staged by the vignette\'s far-road scene',
-        mold: 'the hungry wild woman of the far road lives here: the game\'s gjizarUdha scene feeds her bread by the soul-spring («gruaja është e uritur»); in Pedersen she is the savage woman whose hair the youth combs clean of lice — either way, one kindness done to her opens the impossible road',
+        mold: 'the wild woman of the far road lives here: the restored gjizarUdha scene has the youth remove the lice from her hair, and her gratitude opens the impossible road exactly as in Pedersen',
         conflicts: 'she is NOT plakaUdhekryqit (no roads part here, and she guides for kindness, not errands) and NOT plakaPyllit (open waste, not night forest)',
         sharedWith: ['the gjizarUdha scene itself'] } },
     { id: 'tigerHouse', emoji: '🐅', name: 'the tiger\'s house', note: 'a hearth in the mountains: oven, embers, a trunk to hide a guest in',
@@ -90,9 +259,9 @@ export default {
         conflicts: 'NOT the hungry lion of the world-below gate (porta1/portaVdes) — that one eats the unproven at a door; this king keeps his own hearth and warns men back. NOT the lion at the Beauty\'s chamber door either — that is a guard at a post',
         proposal: 'set the blind lion\'s house farther down the dark road (udhetimi2), the old lioness turned toward the door' } },
     { id: 'deadRoad', emoji: '🌑', name: 'the road of no return', note: 'the third stone\'s road: wilderness, beast-houses, then the jinns\' country',
-      anchor: { status: 'existing', node: 'udhetimi1', mirror: 'the dark road of the world below — the no-return stone at the gjizar1 fork is this tale\'s door onto it',
-        mold: 'the one-way dark road toward the Beauty — every era\'s traveller meets its own beasts on it: Kordha\'s brood-kulshedra in his era, this tale\'s three eagles in this one; a road accumulates monsters without clashing',
-        sharedWith: ['three-friends (deadRoad)', 'the world-below epic'] } },
+      anchor: { status: 'existing', node: 'gjizarUdha', mirror: 'the dedicated dark route below the settled world, entered from the no-return stone at the gjizar1 fork',
+        mold: 'this tale\'s one-way road toward the Beauty: first wilderness, then the tiger and blind-lion handoffs, then the three wounded eagle-maidens whose flight reaches her court',
+        conflicts: 'NOT udhetimi1/udhetimi2 — those are the Three Friends\' world-below route. The map gives Gjizar its own no-return road so their serial monsters and travel sequence cannot be mistaken for one simultaneous journey.' } },
     { id: 'eaglesHouse', emoji: '🪺', name: 'the house in the wide field', note: 'the eagle-mother\'s house: table, water-bowl, and a closet with a spy-hole',
       anchor: { status: 'proposed', node: 'udhetimi2', mirror: 'a lone house in a wide field of the jinns\' country',
         mold: 'three eagle-maidens and their mother: the window is their door, the water-bowl their change of shape, and an hour\'s flight of theirs is three years of a man\'s walking',
@@ -104,10 +273,10 @@ export default {
         conflicts: 'her door-tiger and door-lion are NOT the tiger-friend and lion-king of the road — those keep their own hearths and their own tales',
         sharedWith: ['bukura-e-dheut', 'three-friends (palace)', 'the main Kulshedra arc', 'the gjizarPallat scene'] } },
     { id: 'well', emoji: '🕳️', name: 'the betrayal well', note: 'neck-deep water, a cut rope — on the road home to the king\'s town',
-      anchor: { status: 'proposed', node: 'gjizar2', mirror: 'the neck-deep wayside well of the ATU 550 betrayal, between the fork and the king\'s town',
+      anchor: { status: 'existing', node: 'gjizarTradheti', mirror: 'the neck-deep wayside well of the ATU 550 betrayal, between the fork and the king\'s town',
         mold: 'a wayside well deep enough to swallow a betrayal and shallow enough to keep a head above water — the gjizarTradheti/gjizarPus scenes already stage the rope, the cut and the silence',
         conflicts: 'NOT pusi — that well is the mouth of the world below, a passage, not a puddle; NOT pusiThate — the village\'s dry well belongs to the Xhindet and holds no water at all',
-        proposal: 'dig the betrayal well on the homeward stretch of the back-lane telling, where gjizarTradheti plays' } },
+        sharedWith: ['gjizarTradheti', 'gjizarPus'] } },
     { id: 'harbor', emoji: '⛵', name: 'the war-harbour', note: 'the Beauty\'s warship offshore, out past the map\'s edge; a red cloth run from the palace gate to meet her gangplank',
       anchor: { status: 'offstage', mirror: 'the queen\'s fleet standing off an Ottoman harbour town of the south — the same Vlora coast kingCity\'s own mirror names, reached from open water rather than tied up in the lane itself',
         mold: 'kingCity\'s own anchor (gjizar2) sits in the map\'s INLAND village region (regions.js), sharing that back lane with three other bird-tales (cuckoo1, dallendyshe1) — no quay or warship can be built fused onto it without turning the whole shared lane coastal. The war-harbour stays OFFSTAGE instead: the cannon-siege, the caning and the wedding-boarding remain narrated action reaching the king\'s town from off the map, cannons and all, exactly as Pedersen tells it — just never drawn as a second spot beside gjizar2',
@@ -116,34 +285,40 @@ export default {
   items: [
     { id: 'gjizari', emoji: '🐦', name: 'Gjizar the nightingale', note: 'the caged singer — sings only for the one who truly won it' },
     { id: 'unazat', emoji: '💍', name: 'the three rings', note: 'left under one stone at the parting; the first man back takes all three and goes looking' },
-    { id: 'qirinjte', emoji: '🕯️', name: 'the eight candles', note: 'four burning low, four unlit on the Beauty\'s table — the quiet thief renews them before he takes the cage' },
+    { id: 'qirinjte', emoji: '🕯️', name: 'the eight candles', note: 'four burning low, four unlit on the Beauty\'s table — the quiet thief lights the unlit four and extinguishes the dying four before he takes the cage' },
     { id: 'shpata', emoji: '⚔️', name: 'the youth\'s sabre', note: 'one draw against three eagles — a wing, a leg, a beak' },
   ],
   // how the game stages this tale — the embodied projection (see _SCHEMA.md). You are
-  // the youngest prince, down the road of no return after Gjizar the nightingale, which
-  // sings only in the Earthly Beauty's hall: feed the hungry woman of the road and her
-  // eagle bears you over; steal the caged bird as the Beauty sleeps; your brothers throw
-  // you in a well and take the cage — but the bird falls silent for them and sings only
-  // when it is yours again. Embodied but LOOSE (no become — gjizar1/2 are the shared
-  // bird-tales hub, so no mold-lock is set here).
+  // the youngest prince, down the road of no return after Gjizar the nightingale. The
+  // helper chain, eagle-maiden bargain, ring-led reunion, well betrayal and Beauty's
+  // violent truth-test are all explicit, but connective journeys remain montage. The
+  // gjizar2 threshold now establishes the youngest prince explicitly; the shared bird hub
+  // remains freely visitable again only after this character tale reaches an ending.
   play: {
     entry: 'egershania',
     stance: 'embodied',
     as: 'youngest',
     role:
-      'You are the youngest of three princes, gone down the road that says "do not return" after Gjizar the nightingale — the bird a king wants for his new mosque, which sings only in the palace of the Earthly Beauty. Feed the hungry woman of the road and her eagle will bear you across; slip the caged nightingale away as the Beauty sleeps and the candle burns; and though your brothers take the cage and leave you in a well, the bird will not sing a note in false hands, and the truth will out.',
+      'You are the youngest of three princes, gone down the road that says "do not return" after Gjizar the nightingale — the bird your father wants for his mosque. Help the wild woman, the tiger-wife and blind lion; survive three attacking eagles and discover that they are maidens; accept their three-month price for a one-hour flight; light the Earthly Beauty\'s four unlit lamps, extinguish the four dying ones, and slip the cage away. Their return flight and the rings reunite you with your brothers, who leave you in a well and claim the silent bird. The Beauty\'s exact questions, cannon and the bird\'s returning song expose the truth.',
+    enter: 'your father seeks Gjizar for his mosque, and of three parting roads you take the one whose stone says that whoever follows it will not return',
     from: 'gjizarUdha',
     ending: 'gjizarFund',
     scenes: {
-      gjizarUdha: 'egershania',
+      gjizarUdha: ['egershania', 'furra', 'shqiponjat', 'shtepiaFushes', 'betimi'],
       gjizarPallat: 'vjedhja',
-      gjizarTradheti: 'pusi',
-      gjizarFund: 'kenga',
+      gjizarTradheti: ['pusi', 'unazat'],
+      gjizarFund: ['topat', 'kenga'],
     },
     divergences: [
-      { beat: 'egershania', note: 'You embody the youngest prince, but LOOSELY (no become/mold-lock): the quest begins at the shared bird-tales fork gjizar1/gjizar2, off which the cuckoo, swallow and bee-spider-cicada also branch, so the arc is left open rather than sealed. The wilderness helpers of the fuller tale — the wild woman, the tiger, lion and eagle households who each pass you on — are compressed into the one hungry woman of the road and her eagle.' },
-      { beat: 'vjedhja', note: 'The quiet-theft scene is kept in detail (the eight candles, four burning low and four unlit on the Beauty\'s table, renewed before the cage is lifted while she sleeps); the ring-tokens, the brothers\' oath and the golden-apple leap of the long version are compressed around the well-betrayal.' },
-      { beat: 'kenga', note: 'The heart holds: the stolen nightingale falls silent in the brothers\' false hands and will not sing, so the Earthly Beauty comes after it and Gjizar sings the instant it is truly yours again — the truth comes out and the king has his bird for the mosque. "A nightingale sings only for the one who truly won it." (Elsie 14.)' },
+      { beat: 'egershania', note: 'You explicitly become the youngest prince at the shared bird-tales fork gjizar1/gjizar2. The wilderness helper chain is explicit in gjizarUdha, while its several households remain a narrated road montage rather than separate destinations.' },
+      { beat: 'furra', note: 'gjizarUdha now names the tiger-wife burned by her oven and the youth moving its embers with leaves. The tiger\'s resulting friendship and his handoff to the blind lion remain fixed narration.' },
+      { beat: 'shqiponjat', note: 'gjizarUdha directly restores the three hostile eagles and the identifying wing, leg and beak wounds that cause their later oaths.' },
+      { beat: 'shtepiaFushes', note: 'The same road montage explicitly reaches the house in the field: the old mother hides the youth, and he sees the wounded eagles enter the water and become three maidens.' },
+      { beat: 'betimi', note: 'The maidens swear by their wounds and require three months, one month with each sister, in exchange for the one-hour flight. Pedersen\'s explicitly marital/sexual term is preserved in the source record and ending but rendered as age-suitable "stay with" in playable Albanian.' },
+      { beat: 'vjedhja', note: 'The quiet-theft scene keeps the sleeping Beauty and Pedersen\'s exact exchange: four unlit lamps are lit and four dying ones extinguished before the youth lifts the cage.' },
+      { beat: 'unazat', note: 'gjizarTradheti now explicitly has the eagle-sisters return the youth to the three stones, the rings prove the brothers returned, and the youth finds them in separate barber and coffee-house towns before all three start home.' },
+      { beat: 'topat', note: 'gjizarFund directly narrates the Beauty\'s claim test, the eldest\'s false tree answer and death, the cannon breaking half the palace, the middle brother\'s confession and the king pulling the youngest from the well.' },
+      { beat: 'kenga', note: 'The stolen nightingale falls silent in the brothers\' false hands and sings the instant its true winner can speak again. The restored conclusion follows Pedersen through the Beauty\'s final question and marriage, without inventing a later mosque performance.' },
     ],
   },
   beats: [
@@ -514,3 +689,14 @@ export default {
     },
   ],
 }
+
+for (const beat of tale.beats) {
+  for (const line of beat.lines) {
+    const source = SOURCE_BY_REF.get(line[0])
+    if (!source) throw new Error(`Missing Pedersen source alignment for ${line[0]}`)
+    line[2] = source.text
+    line[3] = `Pedersen 1895, printed p. ${source.page}; phonetic alphabet mechanically transliterated.`
+  }
+}
+
+export default tale

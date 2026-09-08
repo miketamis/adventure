@@ -24,6 +24,32 @@ export default {
   title: 'The Death of Halili',
   source:
     'Sung by Shan Zefi of Curraj i Epërm, District of Tropoja; Visaret e Kombit, vol. II, ed. Bernardin Palaj & Donat Kurti (Tirana, 1937), pp. 227–230; repr. Folklor shqiptar II, Epika legjendare (Cikli i kreshnikëve), Vëllimi i parë, ed. Qemal Haxhihasani (Tirana, 1966), pp. 250–252 · read in Robert Elsie & Janice Mathie-Heck\'s translation, "Death of Halili" (Songs of the Frontier Warriors / Kângë Kreshnikësh, Bolchazy-Carducci, 2004); all lines paraphrased',
+  references: [
+    {
+      role: 'translation',
+      citation: 'Robert Elsie and Janice Mathie-Heck (trans.), “The Death of Halili,” Songs of the Frontier Warriors, song 21 (2004)',
+      url: 'http://www.albanianliterature.net/oralverse/verse_09_21.html',
+      note: 'The exact English translation selected for the beat record; the surviving author site has no working HTTPS endpoint.',
+    },
+    {
+      role: 'source-text',
+      citation: '“Deka e Halilit,” Albanian facsimile accompanying Elsie and Mathie-Heck, song 21',
+      url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_21.pdf',
+      note: 'The exact Albanian song transcribed into the local line-evidence file. This legacy host does not offer a working HTTPS endpoint, and no Wayback snapshot was available when checked.',
+    },
+    {
+      role: 'catalog',
+      citation: 'Robert Elsie and Janice Mathie-Heck, Songs of the Frontier Warriors: Këngë Kreshnikësh (2004), publisher record',
+      url: 'https://www.bolchazy.com/Songs-of-the-Frontier-Warriors-The-Albanian-Epic-Kenge-Kreshnikesh-P3350',
+      note: 'Publisher record for the bilingual edition with parallel Albanian and English texts.',
+    },
+    {
+      role: 'context',
+      citation: 'Robert Elsie and Janice Mathie-Heck, “Songs of the Frontier Warriors,” cycle index and introduction',
+      url: 'http://www.albanianliterature.net/oralverse/verse_09.html',
+      note: 'The translators’ cycle-level introduction and index; not a separate witness. The legacy host has no working HTTPS endpoint.',
+    },
+  ],
   origin: {
     region: 'North Albania (Gheg) — Curraj i Epërm, District of Tropoja',
     collector: 'Bernardin Palaj & Donat Kurti (1937); repr. Qemal Haxhihasani (1966)',

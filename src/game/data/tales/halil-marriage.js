@@ -20,6 +20,12 @@
 export default {
   id: 'halil-marriage',
   title: 'The Marriage of Halili',
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Martesa e Halilit», Visaret e Kombit II (1937), pp. 23–41 — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_05.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “The Marriage of Halili”', url: 'http://www.albanianliterature.net/oralverse/verse_09_05.html' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+    { role: 'catalog', citation: 'Songs of the Frontier Warriors: The Albanian Epic Këngë Kreshnikësh — publisher record', url: 'https://www.bolchazy.com/product/songs-of-the-frontier-warriors-the-albanian-epic-kenge-kreshnikesh-p3350/' },
+  ],
   source:
     'Sung by Mëhill Prêka of Curraj i Epërm (District of Tropoja); Visaret e Kombit, vol. II, ed. Bernardin Palaj & Donat Kurti (Tirana, 1937), pp. 23-41; repr. Folklor shqiptar II, Epika legjendare (Cikli i kreshnikëve), Vëllimi i parë, ed. Qemal Haxhihasani (Tirana, 1966), pp. 71-86 · read in Robert Elsie & Janice Mathie-Heck\'s translation, "The Marriage of Halili" (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {
@@ -83,6 +89,7 @@ export default {
     { id: 'lumiDanub', emoji: '🌊', name: 'the Danube ford', note: 'the wide frontier river and the Krajl\'s border camp on its far bank',
       anchor: { status: 'proposed', node: 'mujo2', mirror: 'the Danube — the Kângë Kreshnikësh\'s own name for the river the heroes cross into "the Realm of the Christians"',
         mold: 'the border river and the tented camp on its bank — mujo2 already narrates Halili\'s approach to exactly this frontier ("Tanusha stays far… guarded by the Sun, the Moon and the Zana… I hide among the maidens"); a fuller scene here would draw the fog bank, the scarlet pavilion, the oak by the water, and the flat washing-stones the poem itself describes',
+        conflicts: 'NOT the Buna, Osum, Lana, or a village stream: this is the epic cycle\'s named Danube frontier beyond Jutbina, represented only through the tale projection',
         proposal: 'draw a riverbank camp off mujo2: tents on the far shore, an oak with roots down to the water, washing-stones for the maidens' } },
     { id: 'kullaTanushes', emoji: '🏯', name: 'Tanusha\'s kulla', note: 'her own twelve-floor tower on the sea-cliffs of New Kotor',
       anchor: { status: 'existing', node: 'mujo3', mirror: 'New Kotor\'s own royal quarter — the walled town the Kângë Kreshnikësh always sets across the frontier from Jutbina',

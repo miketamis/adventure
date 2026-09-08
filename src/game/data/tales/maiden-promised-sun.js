@@ -7,6 +7,10 @@
 export default {
   id: 'maiden-promised-sun',
     title: 'The Maiden Who Was Promised to the Sun',
+    references: [
+      { role: 'facsimile', citation: 'Auguste Dozon, Manuel de la langue Chkipe ou Albanaise (Paris, 1879) — University of Toronto scan', url: 'https://archive.org/details/manueldelalangue00dozouoft', note: 'Selected Albanian witness: first movement of chrestomathie tale IX, pp. 39–41.' },
+      { role: 'translation', citation: 'Robert Elsie, “The Maiden Who Was Promised to the Sun” — first movement', url: 'http://www.albanianliterature.net/folktales/tale_22.html' },
+    ],
     source:
       'Auguste Dozon, Manuel de la langue chkipe ou albanaise (Paris 1879), chrestomathie tale IX «La fille promise au soleil», repr. Folklor shqiptar 1 (1963) · read in R. Elsie\'s translation (tale 22, FIRST movement, ¶1-7 — the second movement is the separate goose-girl tale); all lines paraphrased',
     // where the tale comes from — anchors should prefer this region's mirrors
@@ -24,7 +28,7 @@ export default {
     // decide per case which reading our world tells
     discrepancies: [
       'THE VOW (¶1.2): the Albanian queen petitions GOD as well as the Sun («i bënte rixha Perëndisë edhe diellit») and asks first for a SON, «makar një çupë» — or at least a girl; Elsie keeps only the Sun and only the daughter. The beats follow the Albanian.',
-      'WHO SUMMONS WHOM (¶3.8, ¶3.12-13): in Elsie the Sun summons the Kulshedra "for her" and then tells her to summon a stag; in the Albanian SHE calls some creatures first («si thirri dhe ajo ca shpesëra»), the Sun adds the Kulshedra to the line-up, and after rejecting it says only «thirrë tjetër shpesë» — call another creature — whereupon SHE calls the stag («ajo thirri dredhinë»). The beats follow the Albanian: choosing the stag is the maiden\'s own act. (The in-game diellThirrKul scene follows Elsie — there the Sun names the stag.)',
+      'WHO SUMMONS WHOM (reconciled, ¶3.8, ¶3.12-13): in the Albanian the maiden calls creatures first, the Sun adds and rejects the Kulshedra, and the maiden herself calls the stag. The playable diellThirrKul scene now preserves that agency: the Sun says only “call another creature,” and she names the stag.',
       'THE OAK (¶4.2): Albanian «hipë në atë lis» — a lis, an OAK; Elsie prints "tree". The pemaDielli spot should be drawn as a wayside oak.',
       'ONE KULSHEDRA OR TWO (¶5.1): the tree-beast enters indefinite — «shkoi një kuçedrë» / Elsie "A Kulshedra happened by" — so it can be read as a second beast; the lore card, the built quest (pemaVdes: "the jaws that had followed them the whole road home") and these beats read ONE: the house Kulshedra, cheated at the carrier-test. The maiden\'s stall «çap në shtëpi edhe kthehu» then sends it home — to the Sun\'s own house.',
       'THE FEE (¶3.19): Elsie "three okas of fresh hay" — the Albanian fee is plain «tri okë bar» (grass/fodder); «të njomë» (fresh) belongs to the stag\'s eating answer (¶3.16), not to the fee. And the telling closes at the reunion: the hay is never shown paid (the game\'s pallatiKthim ending stages the payment; the beats leave it owed).',
@@ -49,14 +53,13 @@ export default {
       enter: 'you find the maiden in the Sun\'s garden, weeping over a cabbage cracked in her hands',
       // THE PLAYTHROUGH ↔ BEATS MAP: which game node enacts which beat, so the
       // 🎭 playthrough view can lay the shortest route beside the folktale. The
-      // shortest path is COMPUTED over the story graph (from → ending); a beat
-      // whose scene sits off that route shows as "skippable" (e.g. the cabbage:
-      // you can go diellShtepi1→diellOda straight to the Sun and never grieve).
+      // shortest path is COMPUTED over the story graph (from → ending). The
+      // house is prologue context; the route now must descend to the garden and
+      // meet the maiden before the Sun can be approached.
       from: 'diellShtepi1',        // the arc's in-game start (the Sun's house)
       ending: 'pallatiKthim',      // the good ending the shortest route heads for
       scenes: {
-        diellShtepi1: 'houseGuest',   // beat 4 — arrival; you witness the Kulshedra
-        diellKopsht: 'cabbage',       // beat 5 — the garden (OFF the shortest route)
+        diellKopsht: 'cabbage',       // beat 5 — the garden on the required route
         diellKopshtFol: 'cabbage',    // beat 5 — you speak with the maiden
         diellOda: 'summons',          // beat 6 — you plead with the Sun
         diellThirrKul: 'summons',     // beat 6 — the creatures are put to the test
@@ -70,8 +73,9 @@ export default {
       // they piece the backstory together in-world by talking to people and
       // arriving in the Sun's house. Each entry = [storyNodeId, who/what tells
       // it]; the Beats view renders them as 🗺 links onto the World map.
-      // (beat 2 'schoolRoad' — the school-lane demand & the mother's stalling —
-      //  is a KNOWN GAP: no played node tells it yet; the diagram flags it.)
+      // Beat 2 (`schoolRoad`) was once a known disclosure gap; it is now
+      // recounted by the maiden at diellKopshtFol and sealed in the projection
+      // ledger like the other compressed prologue beats.
       learn: {
         vow: [
           ['odaPlak', 'the old man of the oda'],
@@ -93,7 +97,7 @@ export default {
       // folktale playable (distinct from `discrepancies`, which is translation vs
       // the Albanian original). Each { note, beat? } surfaces on the Beats page.
       divergences: [
-        { beat: 'summons', note: 'The onlooker you play does not exist in Dozon\'s tale. There, the maiden herself weeps over the cabbage, the Sun himself offers her the road home, and SHE calls the creatures and picks the stag. The game hands your traveller that intercession so the player has a part to play.' },
+        { beat: 'summons', note: 'The onlooker you play does not exist in Dozon\'s tale. The traveller pleads with the Sun, but the decisive source action remains the maiden\'s: she calls the creatures and chooses the stag after the Sun rejects the Kulshedra.' },
         { beat: 'taken', note: 'In the telling the Sun simply carries her to his house — there is no road at all. The game invents the sunbeam-road up from the peak of Tomorr so you can climb to reach her.' },
         { beat: 'oakParley', note: 'The tale\'s maiden always gets the morals right — she refuses the Kulshedra and never comes down from the oak. The game turns those into fatal wrong-choices (keep the Kulshedra → eaten; climb down → eaten) so the stakes are yours to lose.' },
         { beat: 'schoolRoad', note: 'The school-lane demand and the mother\'s stalling are never played; the maiden recounts them to you in the garden instead.' },

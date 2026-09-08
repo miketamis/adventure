@@ -11,7 +11,7 @@ export default {
   plakaGjarprit: {
     name: 'plaka me gjarprin', glyph: '🪵', kind: 'human',
     role: 'the childless old woman who kept a snake for a son',
-    backstory: 'She owned nothing but a cottage and her daily walk to the forest for wood — until a snake rode home in the bundle and she kept it for the son she never had. Twice kicked down the king\'s stairs for her son\'s wooing (once on a leg the ring had to mend), she woke mid-wonder in a palace with a maid\'s bell, and lived to see her snake come home a man. Distinct from every other crone: NOT the crossroads crone (plakaUdhekryqit), NOT the cold old woman of the forest (plakaPyllit), NOT the gate-keeper (plaka), NOT the cat-keeping old woman (plakaMaces), NOT the three sisters\' dying mother (nenaTriMotrave).',
+    backstory: 'She owned nothing but a cottage and her daily walk to the forest for wood — until a snake rode home in the bundle and she kept it for the son she never had. Twice kicked down the king\'s stairs for her son\'s wooing (once on a leg the ring had to mend), she woke mid-wonder in a palace with a maid\'s bell, and lived to see her snake come home a man. Distinct from every other crone: NOT the crossroads crone (plakaUdhekryqit), NOT the cold old woman of the forest (plakaPyllit), NOT the gate-keeper (plaka), NOT the cat-keeping old woman (plakaMaces), NOT the three sisters\' old, sick mother (nenaTriMotrave).',
     folklore: ['snake-bridegroom'],
     location: { status: 'planning', plan: 'lives at the proposed snake-mother\'s cottage at the poor edge of the village-life quarter (fshatiJeta) — the spot that stood one era as the snake\'s palace' },
     tales: { 'snake-bridegroom': 'oldWoman' },

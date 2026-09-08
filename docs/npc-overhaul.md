@@ -1,6 +1,10 @@
-# NPC Overhaul — everyone is an NPC
+# NPC Overhaul — archived baseline and design rationale
 
-*Design doc, 2026-07-10. No code changed yet.*
+> **Historical baseline, 2026-07-10.** The diagnosis and counts below describe
+> the pre-overhaul game, not the current build. The implementation now has 552
+> story nodes and 343 source-linked NPC registry entries; current guarantees are
+> recorded in [World structure](world-structure.md) and enforced by the release
+> audits. This file remains as design rationale for the system that was built.
 
 ## The diagnosis
 
@@ -26,7 +30,7 @@ a new subsystem.
 ## What deliberately does NOT change
 
 - **Conversation steps stay story nodes.** Every non-ending node carries three
-  hand-authored confusers, mana costs, word discovery, minimap position, audit
+  explicitly authored confusers, mana costs, word discovery, minimap position, audit
   coverage. A parallel dialogue-tree UI would orphan all of that. Dialogue stays
   node-shaped; what changes is that nodes become *owned by* characters.
 - **Story-arc characters stay in their branches.** Aga Ymer, Kordha, the Katallan,
@@ -202,6 +206,6 @@ Each phase lands green on `node scripts/audit.mjs` before the next starts.
   sources by phase (bujtina stays open as the night valve).
 - **`met:` per-run vs cross-run** — starting per-run; revisit after play.
 - **Sighting lines** (the `when('npc:x')` "you see her at the spring" lines) stay
-  hand-authored per node — auto-injection was considered and rejected: placement
+  explicitly authored per node — auto-injection was considered and rejected: placement
   within a scene's prose is craft, and the coverage lint (#24, every route stop
   has a sighting line or exemption) gets the consistency without the genericity.

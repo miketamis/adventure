@@ -7,6 +7,11 @@
 export default {
   id: 'bear-dervish',
   title: 'The Bear and the Dervish',
+  references: [
+    { role: 'facsimile', citation: 'Auguste Dozon, Manuel de la langue Chkipe ou Albanaise (Paris, 1879) — University of Toronto scan', url: 'https://archive.org/details/manueldelalangue00dozouoft', note: 'Selected Albanian witness, chrestomathie III, pp. 25–28.' },
+    { role: 'translation', citation: 'Robert Elsie, “The Bear and the Dervish”', url: 'http://www.albanianliterature.net/folktales/tale_12.html' },
+    { role: 'analogue', citation: 'ATU 1640, “The Valiant Little Tailor” — Folklore Database', url: 'https://folkloredatabase.com/db_atu.php?atu=1640', note: 'Comparative tale type only, not the Albanian witness.' },
+  ],
   source:
     'Auguste Dozon, Manuel de la langue chkipe ou albanaise (Paris 1879), repr. Folklor shqiptar 1, Proza popullore (Tirana 1963) · read in R. Elsie\'s translation; all lines paraphrased',
   // where the tale comes from — anchors should prefer this region's mirrors

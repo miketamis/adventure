@@ -19,6 +19,11 @@
 export default {
   id: 'aga-ymer',
   title: 'Aga Ymer of Ulcinj — the returning husband',
+  references: [
+    { role: 'selected-witness', citation: 'Robert Elsie, “Aga Ymeri of Ulqin” (translation of Mitrush Kuteli’s prose retelling)', url: 'http://www.albanianliterature.net/legends/legend_03.html' },
+    { role: 'variant', citation: 'Hipi Zhdripi (collector), «Ymer Agë Ulqini» (Krajë, 2006), Albanian Wikibooks transcription', url: 'https://sq.wikibooks.org/wiki/Ymer_Ag%C3%AB_Ulqini', note: 'Independent Albanian sung telling used for verbatim parallels; it is not Kuteli’s exact prose witness.' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “Ymer Aga of Ulqin” (Songs of the Frontier Warriors, no. 21)', url: 'http://www.albanianliterature.net/oralverse/verse_09_21.html', note: 'Translation of a sung variant, not the selected Kuteli prose text.' },
+  ],
   source:
     'Mitrush Kuteli (ed.), Tregime të moçme shqiptare (Tirana: Naim Frashëri, 1965, repr. 1987, 1998) · read in Robert Elsie\'s English translation, "Aga Ymeri of Ulqin"; all lines paraphrased',
   origin: {
@@ -108,6 +113,7 @@ export default {
     as: 'ymer',
     role:
       'You are Aga Ymer of Ulcinj, nine years and nine days a captive far from home, freed at last only on your besa to return to your chains. You reach your own door as your wife\'s vow to wait runs out and she is about to be wed to another; an old scar on your arm proves who you are. Now: keep your besa and ride all the way back to prison — where the captor-king, awed that a man would return to his cell to keep his word, may free you for good — or stay home and break the word you swore.',
+    enter: 'your bride has recognised the old scar on your arm, but the leave granted on your besa is ending and the prison road still waits',
     from: 'agaYmer2',
     ending: 'agaYmerFund',
     scenes: {
@@ -162,7 +168,7 @@ export default {
       note: 'Three battles running: his horse falls, then he is wounded, then he is taken. He is thrown into a foreign dungeon, but treated as the hero he is.',
       lines: [
         ['2.1-2', 'He proved as heroic as promised, but his enemies were many — in the first clash, armored horsemen rode him down and closed in with their blades.', 'Kur ka ra në luftë të parë, edhe kalin ja kanë vra.'],
-        ['2.3-4', 'He fought on, killing and wounding many, until his own horse was cut from under him — and kept fighting on foot until his blade itself broke.', 'Kur ka ra në luftë të dytë, edhe Agja varrue isht. Kur ka ra në luftë të tretë, rabazan-o e kanë marrë. [sic — the ballad prints "rabazan," its own word for a captured man, not "rob"]'],
+        ['2.3-4', 'He fought on, killing and wounding many, until his own horse was cut from under him — and kept fighting on foot until his blade itself broke.', 'Kur ka ra në luftë të dytë, edhe Agja varrue isht. Kur ka ra në luftë të tretë, rabazan-o e kanë marrë.', 'The ballad prints “rabazan,” its own word for a captured man, not “rob.”'],
         ['2.5-6', 'He was captured on the spot and locked away below a foreign stronghold ringed by high walls. Even so, he was treated with the respect any true hero is owed.', 'Rrap e zunë, n\'burk e çuen, për tri vjet ata e shkruen; e kanë shtie n\'burk të zi, tri vjet burgun ja kanë pre.'],
       ],
       cast: {
@@ -189,7 +195,7 @@ export default {
       note: 'As the promised day nears, his cheer collapses into real despair — he stops eating and playing entirely. The king\'s daughter draws the reason out of him: a dream of everything he loves in ruin.',
       lines: [
         ['4.1-9', 'He stayed hopeful, sure the Sultan would ransom a soldier who had served him so loyally — but sultans forget, and this one never once considered the ransom, while nine years slipped by all the same. As the deadline crept closer, a real gloom settled over him — the color drained from his face, food and drink lost all appeal, and even a laugh was beyond him; when his worried companions pressed him about it he just sat there wordless, staring at the ground.', 'Masi shkoi ai shoq i ti Agja s\'pa ha as s\'pa pi, as dyzenit ma s\'pa i bie. Aga Imeri rri pështetë, rri pështetë për jastëk.'],
-        ['4.10-13', 'Missing his music, the king\'s daughter asked after him — and when she learned he had gone days without food or his lute, she sent for him directly.', 'Kur nji ditë, në natje htret, bija e mretit del në penxhere, Aga Imerin p\'i pyeten: - Hajr allah, e Aga Imer, po dyzenit pse s\'pa i bie? Ç\'ke, Imer, qi je idhnue? [sic — the ballad reads "natje htret," an obscure/garbled turn of phrase; kept verbatim rather than back-translated as "early morning"]'],
+        ['4.10-13', 'Missing his music, the king\'s daughter asked after him — and when she learned he had gone days without food or his lute, she sent for him directly.', 'Kur nji ditë, në natje htret, bija e mretit del në penxhere, Aga Imerin p\'i pyeten: - Hajr allah, e Aga Imer, po dyzenit pse s\'pa i bie? Ç\'ke, Imer, qi je idhnue?', 'The ballad reads “natje htret,” an obscure or garbled phrase; it is retained rather than silently repaired.'],
         ['4.14-15', 'Brought before her, he said only that a bad dream had taken his appetite; she asked what kind of dream.', 'Imer Aga i ka thanë: - Kam nevojë-o m\'u idhnue: natën, mbrëmë, në mesnatë, e kam pa një andërr t\'shtirë,'],
         ['4.16-21', 'The dream, he said, showed his own house burned out and fallen apart, his father gone and unremembered, his mother\'s sight failed entirely, and his wife on the point of taking a new husband — after only the single night the two of them had ever actually had together, with the nine years and nine days she had sworn nearly spent.', 'unë kam pa një andërr të zezë: sarajet m\'ishin rranue, nanë e babë më janë qerrue, vasha e ime m\'isht fejue, motra mbet pa u martue. Se tri vjet-o më kanë shkue.'],
       ],
@@ -203,7 +209,7 @@ export default {
       note: 'He begs leave to go home before it is too late. The price is more than he could ever pay, so he offers something else — his sworn word — and it is enough.',
       lines: [
         ['4.22-23', 'He asked her one favor: win her father\'s word that he could leave for a handful of days — long enough to reach home, see his wife with his own eyes, and come straight back to his cell.', 'Izën mretit m\'u kërkue, me ju lutë njeri për mue! Tre dëshmitarë me m\'i çue!'],
-        ['4.24-25', 'She named the price — nine sacks of silver — and he could only answer that a man nine years a prisoner had no way on earth to raise it.', 'Ç\'ka qitë vajza e i ka thanë: - Ne ke para me t\'lëshue, shtjerja babës tre darzanë, se n\'Ulqin me shkue t\'lëshoj. Ç\'ka qitë agja e i ka thanë: - Paret, i mjeri, ku t\'i marr? Tash tri vjet-o rabazanë, kën nuk njoh e kën nuk dij, por pa i shtie tre darzanë: pa i lanë din e iman, e pa i lanë Ramazan, e pa i lanë Kurban Bajram, n\'daç dy Bajrame e një Ramazan, n\'daç pa i lanë të madhin zot, e të dytin ujt e detit, e të tretin armët e brezit. [sic — the ballad prints "rabazanë," its own word for a captive, not "rob jam"]'],
+        ['4.24-25', 'She named the price — nine sacks of silver — and he could only answer that a man nine years a prisoner had no way on earth to raise it.', 'Ç\'ka qitë vajza e i ka thanë: - Ne ke para me t\'lëshue, shtjerja babës tre darzanë, se n\'Ulqin me shkue t\'lëshoj. Ç\'ka qitë agja e i ka thanë: - Paret, i mjeri, ku t\'i marr? Tash tri vjet-o rabazanë, kën nuk njoh e kën nuk dij, por pa i shtie tre darzanë: pa i lanë din e iman, e pa i lanë Ramazan, e pa i lanë Kurban Bajram, n\'daç dy Bajrame e një Ramazan, n\'daç pa i lanë të madhin zot, e të dytin ujt e detit, e të tretin armët e brezit.', 'The ballad prints “rabazanë,” its own term for a captive, not “rob jam.”'],
         ['4.26-27', 'She asked what pledge he could give instead that he would really return — and he gave her his word of honour.', 'Vajza e mretit u ba rrazi edhe mreti besë i xuri me shkue n\'shpi e ka lëshue.'],
       ],
       cast: {
@@ -251,7 +257,7 @@ export default {
       note: 'He rides straight for the wedding party and repeats the false report of his own death. The attendants are relieved; the veiled bride weeps.',
       lines: [
         ['8.1', 'Without waiting, he swung back onto the horse and cut across to catch the wedding party.', 'N\'gjysë të rrugës kur ka shkue, vajti e ra te Kroni i Bardhë, një tubë krushq e gjet nën dardhë, ç\'i ka hasë ata me nuse.'],
-        ['8.2-4', 'They hailed each other on the road; asked his country he again said Spain, and they in turn asked whether he had any word of Aga Ymer.', 'Ndesha e mirë, o krushqellarë! Mirë se vjen ti, rabazan-e! - Mirë se rrini, krushq darsmorë! Mirë se vjen, o burgaxhi! - Unë pa vij pej Spanjet t\'zezë. [sic — the ballad prints "rabazan-e," not "rob"]'],
+        ['8.2-4', 'They hailed each other on the road; asked his country he again said Spain, and they in turn asked whether he had any word of Aga Ymer.', 'Ndesha e mirë, o krushqellarë! Mirë se vjen ti, rabazan-e! - Mirë se rrini, krushq darsmorë! Mirë se vjen, o burgaxhi! - Unë pa vij pej Spanjet t\'zezë.', 'The ballad prints “rabazan-e,” not “rob.”'],
         ['8.5-7', 'He gave them the same story he had just given his mother — Aga Ymer dead these three weeks. It was welcome news to the wedding party, though behind her veil the bride could not hold back her tears.', 'Ti qi erdhe, burgaxhi, a je veshur për Aga Imerin, ti për të a ke me dijtë? - Unë jam veshur për të zi, gjithë të zitë për të e kam. Aga Imeri na ka dekë, tash tri dit në dhé ka hi, vetë e lava, vetë e kjava, të shtatat me dorë ja dava.'],
       ],
       cast: {

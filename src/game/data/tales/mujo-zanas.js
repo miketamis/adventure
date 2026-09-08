@@ -18,6 +18,12 @@
 export default {
   id: 'mujo-zanas',
   title: 'The Marriage of Gjeto Basho Mujo',
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Martesa e Gjeto Basho Mujit», Visaret e Kombit II (1937), pp. 1–10 — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_02.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “The Marriage of Gjeto Basho Mujo”', url: 'http://www.albanianliterature.net/oralverse/verse_09_02.html' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+    { role: 'scholarship', citation: 'Zymer U. Neziri and Nicola Scaldaferri, “New Research on Albanian Epic Songs” (Harvard CHS)', url: 'https://classics-at.chs.harvard.edu/classics14-neziri-and-scaldaferri/' },
+  ],
   source:
     'Sung by Mëhill Prëka of Curraj i Epërm (District of Tropoja); Hylli i Dritës, Shkodra 1924, p. 414 sq.; Visaret e Kombit II, ed. B. Palaj & D. Kurti (Tirana 1937), pp. 1–10; repr. Folklor shqiptar II, Epika legjendare (Cikli i kreshnikëve) I, ed. Q. Haxhihasani (Tirana 1966), pp. 51–59 · read in R. Elsie & J. Mathie-Heck\'s translation (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {

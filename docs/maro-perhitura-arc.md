@@ -27,7 +27,7 @@ Albanian at length).
 - At DUSK the njerka stands at the door with a loaded grain sack her own girls
   refuse (the dark, the mill, the xhindet). She calls into the dusk: «Maro! ku
   je? merr drithin!» — the declaration option is answering to the name:
-  «thuaj: unë jam Maro». Verbatim Q() for the send-off taunt: «mos u trëmb, se
+  «thuaj: unë jam Maro». The source-linked, inflected send-off taunt is: «mos u trëmb, se
   s' të ha as kukudhi» (kukudh already in DICT/folklore!). Grant: `drithe`;
   interactive «merr furkën» (rule 18) grants `furke` (with the three shtullungë
   of flax). Unconditional walk-on option stays beside the declaration.
@@ -43,14 +43,14 @@ Albanian at length).
 - `maroMulli1` (co-located on the mill): the open door, the dark, the miller's
   kandil. Touchable props: «ndez kandilin», «lësho mullirin» (the stone starts on
   your grain), «tirr lin» → the xhindet come (shrieking and singing — loud, not
-  inert). Their first ask, VERBATIM: «ç' është kjo, që tjerr?»
+  inert). Their first ask uses source-linked, inflected wording: «ç' është ajo, që tjerr?»
 - **The litany loop** (3 asks, as in the tale — the flax, the distaff, the flour):
   each round the choice is
   - SPEAK the litany («thuaj: e mbjellim, e korrim…» — option IS the action;
-    result Q()s the tale's own endless chain verbatim; the scene grounds the
+    result Q()s three fully aligned selections from the tale's long litany; the scene grounds the
     verbs as Maro's remembered field-work). The xhindet listen open-mouthed and
     lay gold on you.
-  - ANSWER RUDELY (Lilo's verbatim words: «li është, nuk e shini?») → hearts:-1,
+  - ANSWER RUDELY (a shortened echo of Lilo's rude challenge: «li është! nuk e sheh?») → hearts:-1,
     a limb twisted; the asks continue.
 - Outcomes at cockcrow (`became('dawn')`, verbatim «këndoi kokoshi, iknë
   xhinërit»): pure litany → GILDED head to toe (big lek + `flori`) → Act III.
@@ -74,8 +74,10 @@ Albanian at length).
   magjistare — two mice become horses, four grasshoppers coachmen, a great
   pumpkin the coach, golden clothes. THE WARNING: away by half past eleven; at
   midnight all reverts.
-- The feast at the bujtina: the shoe fits only you. The prince begs — VERBATIM
-  Q(): «aman rri edhe një çikë». The choice: «ik para mesnate» (tale-true; the
+- The feast at the bujtina: the shoe fits only you. The prince's source plea,
+  «aman rri edhe një çikë», is adapted in the playable line as «rri edhe pak,
+  edhe pak!»; it is not marked as a verbatim `Q()`. The choice: «ik para
+  mesnate» (tale-true; the
   riders see the coach vanish at midnight and mark the aunt's house, then trail
   the ragged girl home) vs «rri edhe pak» (the reversion catches you — seen in
   rags, followed home directly). Either way the house is marked; the wedding

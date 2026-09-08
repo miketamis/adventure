@@ -22,7 +22,7 @@ export default {
     name: 'Krajlo Kapedani', glyph: '👑', kind: 'human',
     role: 'the Captain King of the courser song, the Krajl across the frontier',
     backstory:
-      'The Slav king whose jealousy over Mujo\'s courser sets the whole song moving: he first tries to ring Mujo in with his own army, then buys Arnaut Osmani\'s plan to steal the horse outright, and ends the tale resigned to having Mujo himself as a son-in-law by trickery. "Krajl" and "Kapidan" are epic TITLES the songs give many different antagonists, not one ruler — this Krajlo Kapedani is a distinct figure from the Krajl who fathers Rusha of the Zuku Bajraktar song (rusha1/rushaFund) and from the captain slain in Mujo Avenges Halili (mejdan1/mujoHak1); none of them the same man.',
+      'The Slav king whose jealousy over Mujo\'s courser sets the whole song moving: he first tries to ring Mujo in with his own army, then buys Arnaut Osmani\'s plan to steal the horse outright, and ends the tale resigned to having Mujo himself as a son-in-law by trickery. "Krajl" and "Kapidan" are epic TITLES the songs give many different antagonists, not one ruler — this Krajlo Kapedani is a distinct figure from the Krajl who fathers Rusha of the Zuku Bajraktar song (rusha1/rushaFund) and from Llabutani, slain in Halili Avenges Mujo (mejdan1/mujoHak1); none of them the same man.',
     folklore: ['mujo-courser'],
     location: { status: 'planning', plan: 'the Krajl\'s court across the frontier (proposed "krajlia", off the jutbina hub)' },
     tales: { 'mujo-courser': 'krajl' },

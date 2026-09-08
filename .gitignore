@@ -4,3 +4,10 @@ dist
 *.log
 .DS_Store
 .claude
+
+# Private conversational research material (never commit)
+chatScreenshot/
+.private/
+
+# Local research/scratch extracts (never source material for a commit)
+scratch_*.txt

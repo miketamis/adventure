@@ -135,6 +135,14 @@ export const FOLKLORE = [
       'How the frontier-warrior Mujo got his strength: lost in a thunderstorm he finds two cradles by a great boulder and rocks the unseen children to sleep all night. At dawn their mothers, the Zana mountain-fairies, reveal themselves and offer him a choice — wealth, knowledge, or a hero\'s strength. He chooses strength and they suckle him, granting power otherwise found only in a Drangue; thereafter the Zanas are his sworn sisters and protectors.',
     sources: [
       {
+        label: 'Palaj and Kurti, «Ajkuna kjan Omerin» — Albanian text',
+        url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_20.pdf',
+      },
+      {
+        label: 'Elsie and Mathie-Heck, “Ajkuna’s Lament” — translation',
+        url: 'http://www.albanianliterature.net/oralverse/verse_09_20.html',
+      },
+      {
         label: 'Kângë Kreshnikësh (Wikipedia)',
         url: 'https://en.wikipedia.org/wiki/Albanian_Songs_of_the_Frontier_Warriors',
       },
@@ -350,7 +358,7 @@ export const FOLKLORE = [
     title: 'Why the Wolf Devours (von Hahn 105)',
     category: 'Folktale',
     summary:
-      'An etiological myth: the Devil moulded a wolf out of dough but could not give it life and begged God to. God breathed it alive with the words "devour your creator" — and the wolf turned at once and ate the Devil. That is why the wolf devours, and why the worst curse a mouth can carry is "Të hângtë ujku!" — may the wolf eat you.',
+      'In von Hahn’s etiological myth, the Devil kneads a wolf out of dough and blows into it until his breath fails. God does not wait for a plea and does not breathe life into it: he strikes the figure in the side with a switch and commands it to devour its creator. The wolf comes alive, eats the Devil, and carries the blow’s kink ever after; the telling explains «Haje, ujk, e plase, Shën Mëhill!»',
     sources: [
       {
         label: 'von Hahn, Griechische und albanesische Märchen (Internet Archive)',
@@ -381,7 +389,7 @@ export const FOLKLORE = [
     title: 'Constantine and Doruntine — the besa beyond death',
     category: 'Legend',
     summary:
-      'Doruntine is the only daughter among thirteen children. When a prince from a far country asks for her, the youngest brother Kostandin gives his mother his besa: "Be I dead or living, I\'ll return you Doruntine." War kills all twelve brothers. On a feast day the grieving mother curses her dead son for breaking his word; the curse raises Kostandin from the grave as a lugat, who rides through the night, brings Doruntine home on his horse, leaves her at the door and returns to his grave. When the truth is spoken, both mother and daughter fall dead. The moral: an Albanian will rise even from the grave to keep his besa.',
+      'In the Chameria ballad followed by the game, a mother has nine sons and one daughter. The youngest, Kostandin, gives his besa to bring his far-married sister home; after war kills all nine brothers, the mother\'s curse raises him to keep it. He carries Doruntine home and returns to his grave; when the truth is spoken, both women die. A separately attested 1954 Albanian prose telling ends differently: only the mother dies and Doruntine remains alive outside the door. The variants are kept distinct, not merged.',
     sources: [
       {
         label: 'Constantin and Doruntinë (Wikipedia)',
@@ -435,7 +443,7 @@ export const FOLKLORE = [
     summary:
       'A place-origin legend near Saranda: a man-eating serpent/dragon on Mount Sopot is destroyed when an old man feeds it a burning straw-laden donkey; writhing, the monster\'s huge eye falls out and gushes water — the deep-blue spring, Syri i Kaltër, that "still cries" today. Sometimes the drought breaks not by the hero\'s sword but by the patient miracle of a spring that never runs dry.',
     sources: [
-      { label: 'Blue Eye (spring) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Blue_Eye_(spring)' },
+      { label: 'Blue Eye, Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Blue_Eye%2C_Albania' },
     ],
     related: ['sari-salltek', 'lubia', 'flocka'],
   },
@@ -444,9 +452,10 @@ export const FOLKLORE = [
     title: 'Sons of the Eagle — why Albanians are Shqiptarë',
     category: 'Legend',
     summary:
-      'The national origin legend. A youth hunting in the mountains sees a great eagle carry a snake to its crag; while the eagle is away the snake rears to strike the eaglet in the nest, and the boy kills it and saves the chick. The grateful eagle grants him "the sharpness of my eyes and the strength of my wings," and he grows into a mighty hero-king. His people call him Shqiptar, "Son of the Eagle," and his land Shqipëria, "Land of the Eagles." (A poetic folk etymology, not historical philology.)',
+      'A modern family origin legend. A boy hunting in the mountains sees a great eagle carry an apparently dead snake to her cliffside nest. After she leaves, he climbs up and kills the snake when he discovers it is still alive, saving the chick. The mother grants him the sharpness of her eyes, the strength of her wings, and her name in exchange for her child. The rescued eagle remains attached to him and follows him when both are grown; the hunter becomes king and is called Shqiptar, “Son of the Eagle,” while his land is called Shqipëria, “Land of Eagles.” (A poetic folk etymology, not historical philology.)',
     sources: [
-      { label: 'The Tale of the Eagle (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Tale_of_the_Eagle' },
+      { label: 'The Tale of the Eagle — USC family performance (2022)', url: 'http://folklore.usc.edu/the-tale-of-the-eagle/' },
+      { label: 'The Tale of the Eagle — later encyclopedia retelling', url: 'https://en.wikipedia.org/wiki/The_Tale_of_the_Eagle' },
     ],
     related: ['scurfhead', 'sari-salltek', 'gjizar'],
   },
@@ -525,11 +534,15 @@ export const FOLKLORE = [
   },
   {
     id: 'mujo-avenges-halil',
-    title: 'The blood answered — the brother\'s vengeance',
+    title: 'Halili takes Mujo\'s blood — the brother\'s vengeance',
     category: 'Epic',
     summary:
-      'Brother-vengeance runs all through the frontier cycle: a kreshnik treacherously killed must be answered in blood by his own. In the canonical lay (Palaj–Kurti no. 23, "Halili merr gjakun e Mujit") it is young Halili who avenges his elder brother Mujo of Jutbina, hunting the killer down; elsewhere Halili\'s own death is answered in turn. In the highland code a brother\'s blood, treacherously spilled, is the one debt that must be paid.',
+      'In the selected lay (Palaj–Kurti no. 23, "Halili merr gjakun e Mujit"), Llabutani ambushes and grievously wounds Mujo but does not kill him. Young Halili rides to the mountain cave, kills Llabutani, and takes back his living brother\'s blood; the healed Mujo reaches the cave and the brothers return together. A different wider-cycle episode has Mujo avenge Halili\'s death, but it is not this song and the two episodes must not be folded together.',
     sources: [
+      {
+        label: 'Halili Avenges Mujo — Elsie & Mathie-Heck translation',
+        url: 'http://www.albanianliterature.net/oralverse/verse_09.html',
+      },
       {
         label: 'Kângë Kreshnikësh (Wikipedia)',
         url: 'https://en.wikipedia.org/wiki/Albanian_Songs_of_the_Frontier_Warriors',
@@ -542,7 +555,7 @@ export const FOLKLORE = [
     title: 'The Death of Omer & Ajkuna\'s Lament',
     category: 'Epic',
     summary:
-      'Omer, Mujo\'s son, barely thirteen, is cornered in a churchyard and fights to the death; Mujo buries him under a mountain fir beneath a stone thirty men could not lift, and hides the death from the boy\'s mother. But Ajkuna — Omer\'s mother, Mujo\'s wife — learns of it, and her lament swells into a cry for every mother who loses a son to war, the mountains keening it back, until her own heart breaks at the graveside. It is the most beloved passage of the epic — the seam where the songs of war become the songs of grief.',
+      'Omer, Mujo\'s son, barely thirteen, is cornered in a churchyard and fights to the death; Mujo buries him under a mountain fir beneath a stone thirty men could not lift, and hides the death from the boy\'s mother. But Ajkuna — Omer\'s mother, Mujo\'s wife — learns of it, and her lament swells into a cry for every mother who loses a son to war, the mountains keening it back. At last the mountain Oras hush her crying, dry her tears, and lead her home to Jutbina. It is the most beloved passage of the epic — the seam where the songs of war become the songs of grief.',
     sources: [
       {
         label: 'Kângë Kreshnikësh (Wikipedia)',
@@ -619,7 +632,7 @@ export const FOLKLORE = [
     title: 'The Snake and the King\'s Daughter — the serpent bridegroom',
     category: 'Folktale',
     summary:
-      'Elsie\'s tale 13 (ATU 425). A childless old woman raises a snake as her son; with a magic ring he meets the king\'s impossible bridal conditions and weds the princess. By night the snake sheds his skin to become a youth named Swift, on the vow that she never tell — but the secret is goaded out and he vanishes, carried off by a Kulshedra beyond the sea. Because she had never wronged him she can follow: she walks the world in iron shoes asking the Sun, Moon and Wind, and frees him not by force but by wit (answering the Kulshedra\'s impossible chores with cleverer tricks). It is the long faithful search, never mere silence, that frees the snake-husband.',
+      'Elsie\'s tale 13 (ATU 425). A childless old woman raises a snake as her son; with a magic ring he meets the king\'s impossible bridal conditions and weds the princess. By night he sheds his skin to become a youth named Swift. Goaded at a wedding, the bride blurts out his secret and he vanishes; she then walks the world in iron shoes, asking the Sun, Moon and Wind, until she finds him captive beyond the sea. Her long search reaches him, but every saving trick is Swift\'s: the bread-crust sweep, salt water for tears, and the coffin that destroys the Kulshedra. Together they return, and he remains human.',
     sources: [
       {
         label: 'Albanian Folktales and Legends — Robert Elsie',
@@ -633,7 +646,7 @@ export const FOLKLORE = [
     title: 'Gjizar the Nightingale',
     category: 'Folktale',
     summary:
-      'Elsie\'s tale 14 (ATU 550). A king wants Gjizar the nightingale to sing in his mosque, but the bird sings only in the palace of the Earthly Beauty, far down the road of no return. The youngest son, helped by a hungry woman he fed and her eagle, reaches the hall and — while the Beauty sleeps and the candle burns — slips the caged nightingale away quietly. His brothers betray him, taking the cage and leaving him in a well, but the bird falls silent in their false hands and will not sing; the Beauty follows it, the truth comes out, and Gjizar sings the moment it is the true winner\'s again. A nightingale sings only for the one who truly won it.',
+      'Pedersen\'s “Birbil Gizári,” translated by Elsie as tale 14 (ATU 550). A king wants Gjizar the nightingale for his mosque. His youngest son takes the road of no return, combs the lice from a wild woman, saves a tiger-wife from burning herself at her oven, restores a blind lion\'s sight, then wounds three attacking eagles and discovers them bathing back into maidens. After their three-month bargain they fly him to the Earthly Beauty\'s guarded palace, where he lights four unlit lamps and extinguishes four dying ones before quietly taking the cage. His brothers later cut the well-rope and claim the silent bird. The Beauty arrives by warship, exposes the false claim, and threatens the palace with cannon fire until the truth and the youngest brother come out; Gjizar sings as soon as his true winner can speak, and the Beauty marries him.',
     sources: [
       {
         label: 'Albanian Folktales and Legends — Robert Elsie',
@@ -647,7 +660,7 @@ export const FOLKLORE = [
     title: 'The Maiden Who Was Promised to the Sun',
     category: 'Folktale',
     summary:
-      'Elsie\'s tale 22. A childless queen begs Dielli the Sun for a daughter and vows the child to him at twelve; the Sun duly carries her off to his house in the sky. A Kulshedra in his house wants to eat her — the Sun tests it ("If you were hungry, what would you eat?" "I\'d eat her") and so sends a stag, not the dragon, to bear her safely home. In this tale the Sun is no tyrant but her protector; the only way to lose her is to overrule him and keep the Kulshedra, or to let her climb down from the tree before the stag comes.',
+      'In Dozon\'s Albanian telling, a childless queen begs God and Dielli for a child and vows the child to the Sun at twelve. At his sky-house the maiden calls creatures to carry her home; the Sun adds a Kulshedra, tests and rejects it when it admits it would eat her, then tells her to call another. The maiden herself chooses the stag, which bears her safely away. The Sun protects her, but the decisive summons and choice are hers.',
     sources: [
       {
         label: 'Albanian Folktales and Legends — Robert Elsie',
@@ -661,7 +674,7 @@ export const FOLKLORE = [
     title: 'The Goose-Girl and the Marble King',
     category: 'Folktale',
     summary:
-      'The disenchantment-vigil that forms the SECOND HALF of Elsie tale 22 ("The Maiden Promised to the Sun"). A locked garden shuts a girl in among people and beasts of marble with a marble king whose scroll promises life to whoever keeps a three-week vigil. Worn out at the last, she buys a maidservant to watch while she sleeps; the servant steals her place, dressing in her clothes and telling the woken king she kept watch, and he marries her. Demoted to goose-girl, the true heroine weeps her tale aloud in her hut until the king overhears, learns the truth, and takes her for his wife. (Its "goose-girl" name is only a surface echo — this is the enchanted-spouse vigil family, ATU 425/410, with a substituted-bride motif, not the Falada tale ATU 533.)',
+      'The disenchantment-vigil that forms the SECOND HALF of Elsie tale 22 ("The Maiden Promised to the Sun"). A locked garden shuts a girl in among people and beasts of marble with a marble king whose scroll promises life to whoever keeps watch for three weeks plus three days and nights. Worn out at the last, she buys a maidservant to watch while she sleeps; the servant steals her place, dressing in her clothes and telling the woken king she kept watch, and he marries her. Demoted to goose-girl, the true heroine weeps her tale aloud in her hut until the king overhears, learns the truth, and takes her for his wife. (Its "goose-girl" name is only a surface echo — this is the enchanted-spouse vigil family, ATU 425/410, with a substituted-bride motif, not the Falada tale ATU 533.)',
     sources: [
       {
         label: 'Elsie, Albanian Folktales and Legends — tale 22 (the marble-king/goose-girl vigil is its second half)',
@@ -675,7 +688,7 @@ export const FOLKLORE = [
     title: 'The Half-Rooster (Gjysmëkokoshi)',
     category: 'Folktale',
     summary:
-      'Elsie\'s tale 15 (ATU 715, "Half-Chick"). The Half-Rooster — one leg, one wing, half a bird and all cunning — sets off to the palace when the king seizes a coin he found. On the road he swallows whole a frog, a fox, a wolf and a mouse. At court the king tries to be rid of him, and one by one he looses them: the frog drowns the fire lit beneath him, the wolf savages the king\'s horses, the fox the king\'s geese, the mouse gnaws open the gold-chest — out of which he swallows back his coin and more, and hops home crowing. The smallest and half-made outwits the mighty.',
+      'Elsie\'s tale 15 (ATU 715, "Half-Chick"). The Half-Rooster — one leg, one wing, half a bird and all cunning — swallows a frog, fox, wolf and mouse on the road. Hunger leads him into the king\'s cabbage garden, where his crowing gets him caught. Four attempts to kill him fail: the frog drowns the oven fire, the wolf attacks the horses, the fox the geese, and the mouse opens the gold-chest, whose treasure he swallows before hopping home. No king seizes a coin at the opening; the tale\'s one lost coin appears only later on the road home.',
     sources: [
       {
         label: 'Albanian Folktales and Legends — Robert Elsie',
@@ -703,11 +716,11 @@ export const FOLKLORE = [
     title: 'Kuma Lisa — the trickster she-fox',
     category: 'Folktale',
     summary:
-      'Kuma Lisa, the she-fox of a hundred Balkan tales. The fox and the wolf lay up a pot of butter for the winter, but all autumn the fox slips away ("I\'ve been asked to a christening") and licks the pot lower each visit; when it is empty she smears the last on the sleeping wolf\'s mouth and cries thief. The "planted butter" is her oldest trick, and she wins only over those who believe her — the credulous take her side and a guiltless beast is wronged, while the wary see through her and the fox slinks off hungry.',
+      'In von Hahn’s selected telling, the fox and wolf buy a field and hide a tub of honey with white loaves in a bush. The fox slips away to three invented christenings, eats the cache lower each time, and names each imaginary child for the honey’s level. When the wolf finds the tub upside down, she denies the theft and escapes into a hole, fooling his hooked stick by calling roots her leg and her leg a root. There is no butter and no mouth-smearing in this witness.',
     sources: [
       {
-        label: 'Albanian Literature: Folktales',
-        url: 'http://www.albanianliterature.net/folktales/',
+        label: 'von Hahn, Griechische und albanesische Märchen No. 89 (Internet Archive)',
+        url: 'https://archive.org/details/griechischeunda00hahngoog',
       },
     ],
     related: ['nastradin', 'wolf', 'half-rooster', 'bear-dervish'],
@@ -717,7 +730,7 @@ export const FOLKLORE = [
     title: 'The Origin of the Cuckoo — Gjon and the Cuckoo (von Hahn 104)',
     category: 'Folktale',
     summary:
-      'An etiological myth. A sister at her sewing accidentally strikes her brother Gjon dead with her scissors; in her grief she becomes the cuckoo, who cries "Ku? Ku?" ("Where? Where?") searching for him down the years, while he becomes the little Gjon-bird who answers only his own name "Gjon! Gjon!" — she calling by day and he by night, so the two call across the woods and never once meet.',
+      'An etiological myth about one sister and two brothers, both named Gjon. At her sewing the sister accidentally strikes one Gjon dead with her scissors. Grief changes the surviving Gjon into the little night-bird that calls the shared name “Gjon! Gjon!”, and changes the sister into the cuckoo that asks “Ku? Ku?” by day — or, in the second telling, into the blue cuckoo-flower. Day and night keep the living brother and sister from meeting.',
     sources: [
       {
         label: 'von Hahn, Griechische und albanesische Märchen (Internet Archive)',
@@ -731,11 +744,11 @@ export const FOLKLORE = [
     title: 'The Bee, the Spider and the Cicada',
     category: 'Folktale',
     summary:
-      'An etiological fable. A dying mother\'s three daughters: the one who would not leave her loom even to tend her dying mother is cursed to be the spider, weaving a web she can never finish; the idle, frivolous one to be the cicada, who sings one bright summer and dies parched on a stem; but the dutiful daughter is blessed — "you shall be the light of the ancestors and the food of the living." So the bee makes honey to feed the living and wax to light the dead, and one must never blaspheme in a house that keeps a hive.',
+      'An etiological fable. A very old, sick mother calls her three daughters: the one who will not leave her loom is cursed to be the spider, weaving a web she can never finish; the careless singer becomes the cicada, singing until she dries on a stem; but the dutiful daughter tends her mother and bakes a little cake that comforts her, then is blessed as the bee — honey for the living and wax for the candles of the dead. The source never says the mother dies.',
     sources: [
       {
-        label: 'Albanian Literature: Folktales',
-        url: 'http://www.albanianliterature.net/folktales/',
+        label: 'Ève № 287 (Paris, 28 March 1926), p. 2, «La légende de l’Abeille» — Gallica/BnF facsimile',
+        url: 'https://gallica.bnf.fr/ark:/12148/bd6t5733745d/f2.item',
       },
     ],
     related: ['swallow', 'cuckoo', 'tortoise'],
@@ -745,7 +758,7 @@ export const FOLKLORE = [
     title: 'The Swallow (dallëndyshja)',
     category: 'Folktale',
     summary:
-      'An etiological tale. A serpent threatens to sink a ship unless it learns whose blood is sweetest, so it can feed on the best of creatures — and the answer is man\'s. But the swallow bites out the prying mosquito\'s tongue before it can tell, so the serpent never learns and mankind is spared. In its fury the cheated serpent strikes at the fleeing swallow and tears her tail into the fork she has worn ever since. Ever after the swallow nests at the head of the house, the friend of man, and it is a sin to harm her.',
+      'An etiological tale. A ship\'s hull tears open by accident; the serpent offers to coil itself into the hole and save everyone in exchange for learning whose blood is sweetest. The mosquito discovers the answer is man\'s, but the swallow bites out its tongue before it can finish. The cheated serpent curses her future nests; she answers by nesting at the head of man, under human protection. Ever after she is dear as bread and it is a sin to harm her. This telling gives no serpent-strike and no origin for her forked tail.',
     sources: [
       {
         label: 'Albanian Literature: Folktales',
@@ -759,7 +772,7 @@ export const FOLKLORE = [
     title: 'Why the Tortoise Carries her House',
     category: 'Folktale',
     summary:
-      'An etiological tale of hospitality. A stingy wife who would not give a crust to a hungry traveller (some say to God in a beggar\'s shape) was cursed to wear her baking-pan upon her back and carry her house with her wherever she goes, slow and shut-in, for all time. So the tortoise (breshka) answers the old riddle "I have a packsaddle but I\'m no donkey," and the inhospitable are remembered — bread refused is a roof lost; she who gives bread keeps her own roof and her name.',
+      'An etiological tale of hospitality. A stingy wife gives a hungry guest bread and salt but hides the meat simmering in her earthen pot, satisfying the code\'s letter while betraying its heart. The guest\'s cry carries the case to heaven, and God — not the guest — fixes the pot to her back forever, making the first tortoise. The related riddle calls her the creature with a packsaddle who is no donkey.',
     sources: [
       {
         label: 'Albanian proverbs (Wikiquote)',
@@ -990,9 +1003,9 @@ export const FOLKLORE = [
     title: 'Legjendat e Skënderbeut — the legends of Skanderbeg',
     category: 'Legend',
     summary:
-      'The folk cycle around Gjergj Kastrioti Skënderbeu (1405–1468), the national hero who held the Ottomans off for a quarter-century. In legend he breaks the siege of Krujë by tying lit candles to a herd of goats so the enemy sees a great host on the ramparts — hence the goat-horned helmet. He died at Lezhë in 1468, and when the Ottomans retook Krujë ten years later (1478) they dug up his bones for talismans of his courage. When he died, they say, Albania fell. (The goat-candle ruse and the horned helmet are commemorative folk legend, not documented event-history.)',
+      'The folk cycle around Gjergj Kastrioti Skënderbeu (1405–1468), the national hero who resisted the Ottomans for a quarter-century. A later popular siege legend has him tie lights to goats’ horns so an enemy mistakes their movement for troops; the game presents that episode as legend, not documented event-history, and does not claim it explains his surviving horned helmet. A separate, fully sourced Kuteli legend tells the river battle against the turncoat Ballaban; its exact timeline remains in the source board without being falsely mapped onto the goat episode. Skanderbeg died at Lezhë in 1468, and later tradition also held that Ottoman soldiers dug up his bones for talismans of courage.',
     sources: [
-      { label: 'Skanderbeg (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Skanderbeg' },
+      { label: 'Siege of Krujë — later goat-candle legend (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Siege_of_Kruj%C3%AB_(1450)' },
       { label: 'Scanderbeg & Ballaban (Elsie, legend)', url: 'http://albanianliterature.net/legends/legend_07.html' },
     ],
     related: ['sons-of-eagle', 'rozafa', 'kanuni', 'besa'],
@@ -1074,8 +1087,9 @@ export const FOLKLORE = [
     title: 'Binoshët — the Twins (Zjerma & Handa)',
     category: 'Folktale',
     summary:
-      'The Arbëresh wonder-tale (Schirò, 1923) of twin brothers born with the sun and the moon on their brows, who set out with silver swords and drangue-fighting hounds. One slays the Kulshedra and frees the waters; the other wins the Earthly Beauty. When one is turned to stone, the twin so alike that even the wife is fooled brings him back — the ATU 303 "Two Brothers" fused with the dragon-slayer.',
+      'The Arbëresh wonder-tale recorded by Giuseppe Schirò (1923): Zjerma, marked with the Sun, and Handa, marked with the Moon, are twins born from a magic red fish with silver swords, horses and dragon-fighting hounds. Zjerma kills the river Kulshedra, frees Bardhakuqja and defeats Wolfbelly’s false claim; his darkening ring then leads him after Handa through a warning hut, the white-clad maidens of the Field of the Ladies and a witch’s three hedge trials. Lily-dew restores Handa and the petrified suitors, Handa marries the distinct Earthly Beauty, and the brothers reclaim their ancestral crown. In the recognition ending, Handa’s sword laid between himself and Bardhakuqja proves his loyalty—the ATU 303 “Two Brothers” pattern fused with the dragon-slayer.',
     sources: [
+      { label: 'Schirò, Canti tradizionali (1923), “Binóshæt” primary witness', url: 'https://books.google.com/books?id=Z0UfwPKzZk0C&pg=PA411' },
       { label: 'The Twins (Albanian tale) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Twins_(Albanian_tale)' },
     ],
     related: ['bukura-e-dheut', 'kulshedra', 'drangue', 'bija-hene-diell'],
@@ -1089,7 +1103,7 @@ export const FOLKLORE = [
     summary:
       'A song of the Kângë Kreshnikësh: to free his comrades held by the king, Arnaut Osmani lets burning coals be heaped on his bare chest and does not flinch — proving the more-than-human endurance of the frontier warrior and the price of the sworn word. The body may burn; the besa does not break.',
     sources: [
-      { label: 'Kângë Kreshnikësh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kang%C3%AB_Kreshnik%C3%ABsh' },
+      { label: 'Kângë Kreshnikësh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/K%C3%A2ng%C3%AB_Kreshnik%C3%ABsh' },
     ],
     related: ['kreshnik-epic', 'zuku-bajraktar', 'besa'],
   },
@@ -1100,7 +1114,7 @@ export const FOLKLORE = [
     summary:
       'A core Mujo song (Palaj–Kurti, Visaret e Kombit II): Mujo faces the rival lord Behur over a broken agreement, and the quarrel of honour becomes a single combat that only one will leave. Domestic pact and martial law of the border collide, as they always do in the kreshnik world.',
     sources: [
-      { label: 'Kângë Kreshnikësh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kang%C3%AB_Kreshnik%C3%ABsh' },
+      { label: 'Kângë Kreshnikësh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/K%C3%A2ng%C3%AB_Kreshnik%C3%ABsh' },
     ],
     related: ['mujo-strength', 'mujo-courser', 'kreshnik-epic'],
   },
@@ -1242,7 +1256,7 @@ export const FOLKLORE = [
       'Beyond the principle that "the house belongs to God and the guest," the welcome had a fixed shape: the guest was led to the kryet e vendit, the seat of honour at the head of the oda, and served coffee and a glass of raki, then a meal and tobacco, always in order of seniority. Lodged overnight (konak) he received "bread, salt and heart," and at leaving was escorted to the edge of the host\'s ground (përcjellja). The Kanun binds the host to defend a guest with his own life even if the guest proves to be his blood-enemy — under that roof the guest is untouchable, and a host who lets him come to harm is dishonoured forever.',
     sources: [
       { label: 'Besa (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Besa_(Albanian_culture)' },
-      { label: 'The Code of Lekë Dukagjini (Fox tr., archive.org)', url: 'https://archive.org/details/the-code-of-leke-dukagjini' },
+      { label: 'The Code of Lekë Dukagjini (Fox tr., archive.org)', url: 'https://archive.org/details/kanuni-i-leke-dukagjinit' },
     ],
     related: ['hospitality', 'oda-e-burrave', 'besa', 'kanuni', 'kanun-blood-feud'],
   },
@@ -1253,7 +1267,7 @@ export const FOLKLORE = [
     summary:
       'Two unrelated men could make themselves lifelong kin as sworn brothers (vëllam, native; probatin, from Slavic pobratim). In the rite Durham recorded, each tied a string tight round his little finger till it swelled, pricked it, and let a drop of blood fall on a lump of sugar which the other then ate — among Christians the drops went instead into a shared glass of raki, drunk together — swearing "jemi një gjak," we are one blood. Thereafter they owed each other a brother\'s defence and a brother\'s share in a feud, and their descendants could never intermarry, the union counting as incest "for more than a hundred years." It was used to seal an alliance or turn an enmity into kinship; women had a thinner-attested parallel, motërzimi.',
     sources: [
-      { label: 'Durham, High Albania (1909) — ch. II', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' },
+      { label: 'Durham, High Albania (1909) — ch. II, Internet Archive scan', url: 'https://archive.org/details/highalbania' },
       { label: 'Pobratim / blood brother (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Pobratim' },
     ],
     related: ['besa', 'kanuni', 'kanun-blood-feud', 'hospitality'],
@@ -1277,7 +1291,7 @@ export const FOLKLORE = [
     summary:
       'In everyday practice the besa was not only a lifelong oath but a working truce: a family "in blood" could grant an enemy a besa — a guaranteed span of safety — so he could reap his harvest, go to market, or attend a wedding or funeral without fear of the gun. The narrowest is the short truce right after a killing (often a 24-hour besa, under which the killer is even bound to attend the funeral and break bread); a longer besa, usually about a month and renewable, is brokered through the elders. Widest is the besa e katundit, sworn by a whole village so foes can meet in peace at a festival — Durham in 1908 heard "a week\'s besa had been sworn for the festival, so that all blood foes could meet as friends." To strike inside a besa was the blackest dishonour; it is what made a feud livable.',
     sources: [
-      { label: 'Durham, High Albania (1909)', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' },
+      { label: 'Durham, High Albania (1909) — Internet Archive scan', url: 'https://archive.org/details/highalbania' },
       { label: 'Besa (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Besa_(Albanian_culture)' },
     ],
     related: ['besa', 'kanun-blood-feud', 'kanuni', 'hospitality'],
@@ -1289,7 +1303,7 @@ export const FOLKLORE = [
     summary:
       'Albanian custom hedged dangerous names with avoidance. A highland wife did not speak her husband\'s name or his close kin\'s aloud, calling him only "i zoti i shtëpisë," the man of the house. The wolf was not named directly after dark for fear of summoning it — the old wished instead "mbylltë Zoti gojën," may God shut its mouth — and the same logic gave children plain or "ugly" protective names, since a child not worth envying is one the evil eye and the child-eating spirits pass over. (The apotropaic wolf-name Ujk/Ujkan exists in Albanian as a plausible parallel to the well-documented Serbian Vuk, though its protective use is more thinly attested.)',
     sources: [
-      { label: 'Durham, High Albania (1909)', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' },
+      { label: 'Durham, High Albania (1909) — Internet Archive scan', url: 'https://archive.org/details/highalbania' },
       { label: 'Vuk (name) — apotropaic naming (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Vuk_(name)' },
     ],
     related: ['evil-eye', 'lindja-besiku', 'ora', 'wolf'],
@@ -1328,7 +1342,7 @@ export const FOLKLORE = [
       'The fortified stone tower-house of the northern and Kosovar highlands, above all Dukagjin — thick masonry, small high windows, a single guarded door, a windowless ground floor for livestock and a top-floor men’s oda. Under the Kanun it was home and inviolable refuge alike: a man “in blood” could shut himself inside for years, untouchable within its walls.',
     sources: [
       { label: 'Kulla / tower houses (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kulla' },
-      { label: 'Elsie, The Tribes of Albania', url: 'https://archive.org/details/tribesofalbaniah0000elsi' },
+      { label: 'Elsie, The Tribes of Albania (Bloomsbury)', url: 'https://www.bloomsbury.com/uk/tribes-of-albania-9781788315142/' },
     ],
     related: ['oda-e-burrave', 'kanuni', 'kanun-blood-feud', 'mikpritja-oda'],
   },
@@ -1376,7 +1390,7 @@ export const FOLKLORE = [
       'The old body-marking of Catholic highland women (and some men) of northern Albania and Kosovo, pricked into hands, forearms and brow with soot mixed in milk or honey. Its motifs are suns and stars (Dielli), crescent moons (Hëna) and crosses — protective celestial marks in the old light-against-dark dualism, later fused with Christian faith and read as a badge against assimilation. It reaches back to Illyrian antiquity and was recorded by Edith Durham.',
     sources: [
       { label: 'Albanian traditional tattooing (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_traditional_tattooing' },
-      { label: 'Durham, High Albania (PD)', url: 'https://archive.org/details/highalbania00durhuoft' },
+      { label: 'Durham, High Albania (1909) — full book scan (Internet Archive)', url: 'https://archive.org/details/highalbania' },
     ],
     related: ['dielli', 'hena', 'evil-eye', 'xhubleta'],
   },
@@ -1400,7 +1414,7 @@ export const FOLKLORE = [
       'The low round communal table (and the meal ritual around it) at which the household and its guests gather seated on the floor to eat from shared dishes. It is the physical stage of Albanian hospitality — governed by besa and the Kanun’s “the house belongs to God and the guest” — where refusing offered food is an insult and raki toasts open the meal. To be welcomed to a family’s sofra is to be taken under its protection.',
     sources: [
       { label: 'Sofra (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Sofra' },
-      { label: 'Elsie, The Tribes of Albania', url: 'https://archive.org/details/tribesofalbaniah0000elsi' },
+      { label: 'Elsie, The Tribes of Albania (Google Books)', url: 'https://books.google.com/books/about/The_Tribes_of_Albania.html?id=bbeKDwAAQBAJ' },
     ],
     related: ['mikpritja-oda', 'hospitality', 'oda-e-burrave', 'besa'],
   },
@@ -1522,7 +1536,8 @@ export const FOLKLORE = [
       'The circumcision of a boy (usually about 5–10) is one of the biggest rites of Muslim Albanian family life — the majority community in Albania and Kosovo. Beyond the act itself (today usually done at a clinic), it is the occasion for a large feast: the boy is dressed up and celebrated and receives money and gifts from every guest; in conservative pockets whole villages still hold mass circumcisions with multi-day feasts.',
     sources: [
       { label: 'Albanian circumcision tradition (albanianblogger)', url: 'https://albanianblogger.com/albanian-circumcision-tradition/' },
-      { label: 'Kosovo hamlet clings to mass circumcision (AFP/Yahoo)', url: 'https://sg.news.yahoo.com/kosovo-hamlet-clings-tradition-mass-circumcision-052348750.html' },
+      { label: 'Novik, “The Rite of Male Circumcision among the Muslim Population in the Western Balkans” (fieldwork article PDF)', url: 'https://www.folklore.ee/folklore/vol80/novik.pdf' },
+      { label: 'Doja, “Corporal Development and Social Transition among the Albanians” (open-access PDF)', url: 'https://discovery.ucl.ac.uk/19157/1/19157.pdf' },
     ],
     related: ['dasma', 'fejesa', 'sulltan-nevruzi', 'mikpritja-oda'],
   },
@@ -1533,7 +1548,7 @@ export const FOLKLORE = [
     summary:
       'The two Eids are the central Muslim feasts and, in practice, national celebrations. Fitër Bajram ("the Big Bajram") ends Ramadan with sweets and door-to-door family visiting, starting with the eldest and met everywhere with coffee and hospitality; Kurban Bajram centres on a sacrificed sheep whose meat is shared with neighbours and the poor. Children are given money at both, and non-Muslim neighbours routinely exchange greetings and visit.',
     sources: [
-      { label: 'What is Bajram? (albaniannight)', url: 'https://albaniannight.com/what-is-bajram-7-facts-about-the-famous-albanian-holiday/' },
+      { label: 'Encyclopaedia Britannica — Eid al-Fitr', url: 'https://www.britannica.com/topic/Eid-al-Fitr' },
       { label: 'Eid among Albanians (Votra Magazine)', url: 'https://www.votramagazine.com/eid-among-albanians-a-tapestry-of-tradition-and-unity/' },
     ],
     related: ['kurbani', 'ramazani', 'harmonia-fetare', 'sulltan-nevruzi'],
@@ -1984,6 +1999,22 @@ export const ENDING_LORE = {
   aliPashaRob: 'ali-pashe-tepelena',
   binoshetFund: 'binoshet',
   binoshetHije: 'binoshet',
+  binoshetKasollja: 'binoshet',
+  binoshetKopshtiZanave: 'binoshet',
+  binoshetGardhiHanda: 'binoshet',
+  binoshetGardhiZjerma: 'binoshet',
+  binoshetZambak: 'binoshet',
+  binoshetDasma: 'binoshet',
+  binoshetKuvendi: 'binoshet',
+  binoshetLuftaFillon: 'binoshet',
+  binoshetLuftaZgjat: 'binoshet',
+  binoshetLuftaFund: 'binoshet',
+  binoshetKurora: 'binoshet',
+  binoshetShpata: 'binoshet',
+  binoshetNata: 'binoshet',
+  binoshetZjarri: 'binoshet',
+  binoshetTeNena: 'binoshet',
+  binoshetDyKurorat: 'binoshet',
   haliliMejdan: 'sokol-halili',
   haliliJeton: 'sokol-halili',
   gbMujiFund: 'gjeto-basho-muji',
@@ -2001,11 +2032,15 @@ export const ENDING_LORE = {
   // Village vignettes (the bridge of Arta / mill / spring / church / graves)
   uraArtesShpetim: 'ura-e-artes',
   uraArtesMur: 'ura-e-artes',
+  kalaFundBesa: 'rozafa',
+  kalaFundTurp: 'rozafa',
   tabakFund: 'ura-e-tabakeve',
   mulliFund: 'kanuni',
   kroiFund: 'hospitality',
+  lemoshaFund: 'hospitality',
   kishaFund: 'harmonia-fetare',
   varretFund: 'te-dyzetat',
+  xhindMulliFund: 'xhindi',
 
   // Oda told-tales (Skanderbeg / the lahuta / the burrnesha)
   skenderFund: 'skanderbeg-legjenda',
@@ -2153,7 +2188,7 @@ export const CORPUS = [
       'The Albanian national epic — 30 songs, 17,000+ Gheg verses of the highland wars, shot through with the zana, the ora, the besa and the Kanun. The single cleanest Albanian-language full text in the corpus.',
     online: [
       { label: 'archive.org — details', url: 'https://archive.org/details/lahuta-e-malcis-rome-1958-hr-150', fmt: 'html' },
-      { label: 'plain text (_djvu.txt)', url: 'https://archive.org/download/lahuta-e-malcis-rome-1958-hr-150/lahuta-e-malcis-rome-1958-hr-150_djvu.txt', fmt: 'txt' },
+      { label: 'Google Books — bibliographic record', url: 'https://books.google.com/books/about/Lahuta_E_Malc%C3%ADs.html?id=ORtjAAAAMAAJ', fmt: 'catalog' },
     ],
     local: 'docs/references/fishta-lahuta-e-malcis.sq.txt',
     covers: ['kreshnik-epic', 'zana-e-malit', 'ora', 'besa', 'kanuni', 'kanun-blood-feud'],
@@ -2235,7 +2270,6 @@ export const CORPUS = [
       'Gheg tales and language material from the Shkodër region with interlinear German glosses — a bilingual field record of northern folk narrative.',
     online: [
       { label: 'archive.org — details', url: 'https://archive.org/details/zuralbanischens00jarngoog', fmt: 'html' },
-      { label: 'plain text', url: 'https://archive.org/download/zuralbanischens00jarngoog/zuralbanischens00jarngoog_djvu.txt', fmt: 'txt' },
     ],
     local: 'docs/references/jarnik-zur-albanischen-sprachenkunde.de-sq.txt',
     covers: ['bukura-e-dheut', 'katallan'],
@@ -2307,7 +2341,7 @@ export const CORPUS = [
     online: [
       { label: 'archive.org — details', url: 'https://archive.org/details/highalbaniaitscu00durh', fmt: 'html' },
       { label: 'plain text', url: 'https://archive.org/download/highalbaniaitscu00durh/highalbaniaitscu00durh_djvu.txt', fmt: 'txt' },
-      { label: 'UPenn — free HTML (1909 ed.)', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html', fmt: 'html' },
+      { label: 'Internet Archive — full 1909 book scan', url: 'https://archive.org/details/highalbania', fmt: 'html' },
     ],
     local: 'docs/references/durham-high-albania-1908.en.txt',
     covers: ['gjakova-cavern', 'kanun-blood-feud', 'kanuni', 'besa', 'hospitality', 'ora', 'zana-e-malit', 'rozafa'],
@@ -2358,11 +2392,11 @@ export const CORPUS = [
     id: 'src-dine-valet',
     title: 'Valët e Detit',
     author: 'Spiro Dine', year: '1908', lang: 'sq', kind: 'anthology',
-    license: 'Public domain (page-image scan)',
+    license: 'Public domain (complete page-image scan)',
     summary:
-      'The longest Albanian book of its day (~894 pp); its second half is a vast folklore collection of songs and tales. The full scan is online at the National Library of Albania as page images (IIIF viewer, no plain-text/PDF), so it is linked rather than held as text.',
+      'The longest Albanian book of its day (856 numbered pages plus front and back matter); its second half is a vast folklore collection of songs and tales. The National Library of Albania scan is now preserved as a complete 886-image public-domain DjVu on Wikimedia Commons.',
     online: [
-      { label: 'BKSH digital library — full 894-page scan', url: 'https://bibliotekadigjitale.bksh.al/?manifest=https://bibliotekadigjitale.bksh.al/iiif/Manifester/IIIF/libra1!HASHd86a.dir', fmt: 'html' },
+      { label: 'Wikimedia Commons — complete 1908 scan from BKSH', url: 'https://commons.wikimedia.org/wiki/File:Val%C3%ABt_e_detit_(1908).djvu', fmt: 'scan' },
       { label: 'exlibris.al (study)', url: 'https://exlibris.al/emil-lafe-valet-e-detit-nje-permendore-e-folklorit-shqiptar/', fmt: 'catalog' },
     ],
     local: null,
@@ -2418,7 +2452,7 @@ export const CORPUS = [
     summary:
       'The standard modern literary retelling of the legend/epic cycle (Rozafa, Muji e Halili, the Beauty of the Earth) — the version most Albanians know. In copyright; the Rozafa and Kostandin full texts linked on the entries are Kuteli\'s.',
     online: [
-      { label: 'Open Library (catalog)', url: 'https://openlibrary.org/works/OL603209W/', fmt: 'catalog' },
+      { label: 'Open Library (catalog)', url: 'https://openlibrary.org/works/OL603209W/Tregime_te_mo%C3%A7me_shqiptare', fmt: 'catalog' },
     ],
     local: null,
     covers: ['rozafa', 'constantine-doruntine', 'tomor-shpirag', 'kreshnik-epic'],
@@ -2477,7 +2511,7 @@ export const CORPUS = [
     summary:
       'Leonard Fox\'s facing-page English translation of Gjeçovi\'s Kanun — the standard way into the code for non-Albanian readers. Linked, not ingested.',
     online: [
-      { label: 'archive.org — details', url: 'https://archive.org/details/the-code-of-leke-dukagjini', fmt: 'html' },
+      { label: 'archive.org — details', url: 'https://archive.org/details/kanuni-i-leke-dukagjinit', fmt: 'html' },
     ],
     local: null,
     covers: ['kanuni', 'kanun-blood-feud', 'besa', 'hospitality'],
@@ -2562,7 +2596,7 @@ export const CORPUS = [
     summary:
       'A sharp journalist\'s survey of the late-Ottoman Balkans including the Albanians — the League-of-Prizren aftermath, the tribes and the feud, on the eve of independence. Held locally.',
     online: [
-      { label: 'archive.org — plain text', url: 'https://archive.org/download/bub_gb_nsbQAAAAMAAJ/bub_gb_nsbQAAAAMAAJ_djvu.txt', fmt: 'txt' },
+      { label: 'archive.org — full scan and text', url: 'https://archive.org/details/bub_gb_nsbQAAAAMAAJ', fmt: 'html' },
     ],
     local: 'docs/references/brailsford-macedonia.en.txt',
     covers: ['kanun-blood-feud'],
@@ -2658,7 +2692,6 @@ export const CORPUS = [
       'The Boston Vatra federation\'s English-language review under Fan Noli — Albanian history, folklore and the independence cause for a diaspora audience. Complete run free on HathiTrust.',
     online: [
       { label: 'HathiTrust — full run', url: 'https://catalog.hathitrust.org/Record/000506617', fmt: 'html' },
-      { label: 'Online Books Page (Penn)', url: 'https://onlinebooks.library.upenn.edu/webbin/serial?id=adriaticrev', fmt: 'html' },
     ],
     local: null,
     covers: ['sons-of-eagle', 'skanderbeg-legjenda'],
@@ -2870,7 +2903,7 @@ export const HISTORY = [
       'An Ottoman-era humpbacked stone footbridge over the Lana, on the old road that brought livestock and produce into Tirana from the eastern highlands. It takes its name from the tabakët — the guild of tanners and leather-workers whose workshops and slaughterhouses stood on the bank beside it, close to the Tabak mosque the guild also raised. When the Lana was rerouted in the twentieth century the bridge was left standing dry among the traffic, until it was restored as a pedestrian crossing; it survives today in the middle of the capital, a few steps of worn stone from the guild city Tirana once was. The game’s first bridge — ura e vjetër, the tanners’ bridge by the river quarter — is this one.',
     sources: [
       { label: 'Tanners’ Bridge, Tirana (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tanners%27_Bridge' },
-      { label: 'The Tanners’ Bridge (Into Albania)', url: 'https://www.intoalbania.com/attraction/the-tanners-bridge/' },
+      { label: 'Tanners’ Bridge (Tirana Municipality)', url: 'https://tirana.al/en/points-of-interest/tanners-bridge' },
     ],
     related: ['ura-e-artes', 'kanuni'],
   },
@@ -2971,7 +3004,7 @@ export const HISTORY = [
       'The Kanun did not command vengeance but bound and slowed it: a killing left blood "owed" by the whole male line of the killer (koka për kokë, head for head), while women, children, guests and priests stayed untouchable. A man in blood shut himself in the fortified kullë, and only women and priests could cross the feud line to carry word and fetch the pleqësia, the council of elders. A besa — a truce of a day, or the besë e madhe of a season — let him harvest, travel or bury his dead in safety. Higher than any revenge the code set the falja e gjakut, the forgiveness of blood, brokered by elders and a guarantor until the two houses became sworn brothers. When the feud revived after communism, Kosovo answered with the great reconciliation campaign of 1990–92 under the folklorist Anton Çetta, ending over a thousand feuds, most famously before a vast crowd at Verrat e Llukës.',
     sources: [
       { label: 'Kanuni i Lekë Dukagjinit (Albanian full text, PD)', url: 'https://archive.org/details/kanuniilekedukagjinit' },
-      { label: 'Durham, High Albania — "The Land and the Law"', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' },
+      { label: 'Durham, High Albania — "The Land and the Law" (Internet Archive scan)', url: 'https://archive.org/details/highalbania' },
       { label: 'Reconciliation Movement of 1990 (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Reconciliation_Movement_in_1990' },
     ],
     related: ['kanun-blood-feud', 'kanuni', 'besa', 'besa-truce', 'vajtim', 'oda-e-burrave'],
@@ -3024,7 +3057,7 @@ export const HISTORY = [
       'Convened in Manastir in November 1908, this congress of delegates from across the Albanian lands standardised a single Latin-based alphabet, replacing the competing Ottoman-Arabic, Greek and rival Latin scripts. It unified the written language and became a cornerstone of the national movement, commemorated each 22 November.',
     sources: [
       { label: 'Congress of Manastir (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Congress_of_Manastir' },
-      { label: 'Skendi, The Albanian National Awakening', url: 'https://archive.org/details/albaniannational0000sken' },
+      { label: 'Skendi, The Albanian National Awakening (JSTOR)', url: 'https://www.jstor.org/stable/j.ctt17t75n7' },
     ],
     related: ['rilindja-awakening', 'league-of-prizren', 'independence-1912', 'frasheri-brothers'],
   },
@@ -3050,7 +3083,7 @@ export const HISTORY = [
       'A Kosovar Albanian guerrilla commander who led the 1910–12 uprisings against the Ottomans and stood at Vlora in November 1912 among those who declared independence. He later fell defending the nation’s borders, becoming an enduring symbol of the Kosovo Albanian national struggle.',
     sources: [
       { label: 'Isa Boletini (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Isa_Boletini' },
-      { label: 'Elsie, Biographical Dictionary of Albanian History', url: 'https://archive.org/details/biographicaldict0000elsi' },
+      { label: 'Elsie, Biographical Dictionary of Albanian History (Google Books)', url: 'https://books.google.com/books/about/A_Biographical_Dictionary_of_Albanian_Hi.html?id=pgf6GWJxuZgC' },
     ],
     related: ['independence-1912', 'league-of-prizren', 'shote-azem-galica'],
   },
@@ -3102,7 +3135,7 @@ export const HISTORY = [
       'A guerrilla and political leader of the Gjakovë highlands who fought in the 1910–12 uprisings, defended Albanian and Kosovar interests at independence, and backed Fan Noli’s 1924 revolution. Hunted by Zog’s forces, he died besieged in a cave near Dragobia in 1925; a town now bears his name.',
     sources: [
       { label: 'Bajram Curri (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Bajram_Curri' },
-      { label: 'Elsie, Biographical Dictionary of Albanian History', url: 'https://archive.org/details/biographicaldict0000elsi' },
+      { label: 'Elsie, Biographical Dictionary of Albanian History (Bloomsbury)', url: 'https://www.bloomsbury.com/ca/biographical-dictionary-of-albanian-history-9781780764313/' },
     ],
     related: ['independence-1912', 'shote-azem-galica', 'king-zog', 'mic-sokoli'],
   },
@@ -3114,7 +3147,7 @@ export const HISTORY = [
     summary:
       'Hereditary Kapedan of the Catholic tribal region of Mirdita, Prenk Bibë Doda led its semi-autonomous Ottoman-era statelet, joined the national movement around independence, and was assassinated in 1919 amid the struggles over Albania’s shape. Mirdita’s self-governing, Kanun-ruled polity is a distinctive strand of the northern story.',
     sources: [
-      { label: 'Prënk Bibë Doda (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Pr%C3%ABnk_Bib%C3%AB_Doda' },
+      { label: 'Elsie, Biographical Dictionary of Albanian History (Google Books)', url: 'https://books.google.com/books/about/A_Biographical_Dictionary_of_Albanian_Hi.html?id=pgf6GWJxuZgC' },
       { label: 'Mirdita (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Mirdita' },
     ],
     related: ['kanuni', 'independence-1912', 'bushati-pashalik-shkodra'],
@@ -3325,15 +3358,15 @@ export const EXTRA_SOURCES = {
   'zojz': [{ label: 'Albanian paganism — Sky/Zojz (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }, { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (2001)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: '*Dyēus — PIE sky-father cognate set (Wikipedia)', url: 'https://en.wikipedia.org/wiki/*Dy%C4%93us' }],
   'dielli': [{ label: 'Albanian paganism — Dielli (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }, { label: 'Nëna e Diellit — the Sun-veneration cycle (Wikipedia)', url: 'https://en.wikipedia.org/wiki/N%C3%ABna_e_Diellit' }],
   'hena': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'E Bija e Hënës dhe e Diellit — the Moon–Sun pair\'s daughter (Wikipedia)', url: 'https://en.wikipedia.org/wiki/E_Bija_e_H%C3%ABn%C3%ABs_dhe_e_Diellit' }],
-  'prende': [{ label: 'Elsie, Dictionary (s.v. Prende/Premte)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (PDF) — \'Prende\'', url: 'https://albanianstudies.org/wp-content/uploads/2015/09/2001-Elsie-Dictionary-of-Albanian-Religion-Mythology-and-Folk-Culture.pdf' }],
+  'prende': [{ label: 'Elsie, Dictionary (s.v. Prende/Premte)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (Google Books)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }],
   'i-verbti': [{ label: 'Elsie, Dictionary (s.v. Verbt, i)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Zibelthiurdos — Thracian parallel to Shurdhi/Verbti (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Zibelthiurdos' }],
   'shurdhi': [{ label: 'Elsie, Dictionary (s.v. Shurdhi)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Zibelthiurdos — Thracian storm-god parallel (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Zibelthiurdos' }],
-  'nena-e-diellit': [{ label: 'Tirta, Mitologjia ndër shqiptarë (2004)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }, { label: 'Hëna (Albanian paganism) — celestial-mother context (Wikipedia)', url: 'https://en.wikipedia.org/wiki/H%C3%ABna_(Albanian_paganism)' }],
+  'nena-e-diellit': [{ label: 'Tirta, Mitologjia ndër shqiptarë (WorldCat catalogue pointer; exact pages not digitised)', url: 'https://search.worldcat.org/search?q=Mitologjia+nd%C3%ABr+shqiptar%C3%AB+Tirta' }, { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (Google Books preview)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }, { label: 'Hëna (Albanian paganism) — celestial-mother context (Wikipedia)', url: 'https://en.wikipedia.org/wiki/H%C3%ABna_(Albanian_paganism)' }],
   'bija-hene-diell': [{ label: 'Kuteli, \'Bija e Hënës dhe e Diellit\' — full tale text', url: 'https://www.voal.ch/bija-e-henes-dhe-e-diellit-nga-mitrush-kuteli/kulture/letersi/' }, { label: 'ATU 707 — the star/crescent-brow motif\'s real home (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Youth_and_the_Maiden_with_Stars_on_their_Foreheads_and_Crescents_on_their_Breasts' }],
-  'bukura-e-dheut': [{ label: 'Elsie, Albanian Folktales and Legends', url: 'https://www.albanianliterature.net/authors/folklore/index.html' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology — \'Bukura e Dheut\'', url: 'https://archive.org/details/dictionaryofalba0000elsi' }],
-  'bukura-e-detit': [{ label: 'Elsie, Albanian Folktales and Legends', url: 'https://www.albanianliterature.net/authors/folklore/index.html' }],
+  'bukura-e-dheut': [{ label: 'Elsie, Albanian Folktales and Legends — surviving author site', url: 'http://www.albanianliterature.net/folktales/index.html' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology — \'Bukura e Dheut\'', url: 'https://archive.org/details/dictionaryofalba0000elsi' }],
+  'bukura-e-detit': [{ label: 'Elsie, Albanian Folktales and Legends — surviving author site', url: 'http://www.albanianliterature.net/folktales/index.html' }],
   'mujo-strength': [{ label: 'The Marriage of Mujo (Elsie/Mathie-Heck, oralverse 1)', url: 'http://www.albanianliterature.net/oralverse/verse_09_01.html' }, { label: 'Elsie & Mathie-Heck, Songs of the Frontier Warriors (Bolchazy-Carducci 2004)', url: 'https://www.bolchazy.com/Songs-of-the-Frontier-Warriors-The-Albanian-Epic-Kenge-Kreshnikesh-P3350' }],
-  'ora': [{ label: 'Doja, \'Mythology and Destiny\' (Anthropos 2005)', url: 'https://www.jstor.org/stable/40466705' }, { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (PDF) — \'Ora\'/\'Fate\'', url: 'https://albanianstudies.org/wp-content/uploads/2015/09/2001-Elsie-Dictionary-of-Albanian-Religion-Mythology-and-Folk-Culture.pdf' }],
+  'ora': [{ label: 'Doja, \'Mythology and Destiny\' (Anthropos 2005, DOI)', url: 'https://doi.org/10.5771/0257-9774-2005-2-449' }, { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (Google Books)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }],
   'shtojzovalle': [{ label: 'Elsie, Dictionary (s.v. Shtojzovalle)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'shtojzovalle — etymology (Wiktionary)', url: 'https://en.wiktionary.org/wiki/shtojzovalle' }],
   'flocka': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Floçka — long-haired water-spirits (Wikipedia draft)', url: 'https://en.wikipedia.org/wiki/Draft:Flo%C3%A7ka' }],
   'peri': [{ label: 'Elsie, Dictionary (s.v. Peri)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Albanian paganism — perria e detit; Turkish-derived fairy term (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }],
@@ -3343,20 +3376,20 @@ export const EXTRA_SOURCES = {
   'bolla': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology — \'Bolla\'', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Albanian paganism — serpent lore (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }],
   'lubia': [{ label: 'Ljubi (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Ljubi' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }],
   'stihi': [{ label: 'Stihi (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Stihi' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'stihi / stoikheion (Wiktionary)', url: 'https://en.wiktionary.org/wiki/stihi' }],
-  'shtriga': [{ label: 'Durham, High Albania (1909) — Project Gutenberg', url: 'https://www.gutenberg.org/ebooks/45072' }, { label: 'Strix (mythology) — Latin striga source (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Strix_(mythology)' }],
-  'karkanxholl': [{ label: 'Karkanxholl (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Karkanxholl' }, { label: 'Kallikantzaros — Albanian karkanxholl, the twelve days (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kallikantzaros' }],
+  'shtriga': [{ label: 'Durham, High Albania (1909) — full book scan (Internet Archive)', url: 'https://archive.org/details/highalbania' }, { label: 'Strix (mythology) — Latin striga source (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Strix_(mythology)' }],
+  'karkanxholl': [{ label: 'Karkanxholl (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Karkanxholl' }, { label: 'Kallikantzaros — Albanian karkanxholl, the twelve days (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kallikantzaros' }, { label: 'The Revenant in Albanian Language and Culture (scholarly article record)', url: 'https://www.researchgate.net/publication/303882291_Der_Revenant_in_der_albanischen_Sprache_und_Kultur_Ein_kurzer_Uberblick_in_Magie_Tarantismus_und_Vampirismus_Eine_interdisziplinare_Annahrung_M_Genesin_L_Rizzo_Hrsg_Schriften_zur_Kulturwissenschaft_Ba' }],
   'kukudh': [{ label: 'Kukudh (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kukudh' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }],
-  'dhampir': [{ label: 'Dhampir (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Dhampir' }],
+  'dhampir': [{ label: 'Dhampir (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Dhampir' }, { label: 'The Revenant in Albanian Language and Culture (scholarly article record)', url: 'https://www.researchgate.net/publication/303882291_Der_Revenant_in_der_albanischen_Sprache_und_Kultur_Ein_kurzer_Uberblick_in_Magie_Tarantismus_und_Vampirismus_Eine_interdisziplinare_Annahrung_M_Genesin_L_Rizzo_Hrsg_Schriften_zur_Kulturwissenschaft_Ba' }],
   'xhindi': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Jinn (genies) — Islamic origin, Ottoman transmission (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Jinn' }],
-  'katallan': [{ label: 'List of Albanian mythological figures (Wikipedia)', url: 'https://en.wikipedia.org/wiki/List_of_Albanian_mythological_figures' }, { label: 'Elsie, Albanian Folktales and Legends', url: 'http://www.albanianliterature.net/folktales/index.html' }, { label: 'Polyphemus — ATU 1137 blinded-ogre motif (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Polyphemus' }, { label: 'Almogavars — \'Katallani\' the one-eyed monster; \'Daedalus dhe Katallani\' (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Almogavars' }],
+  'katallan': [{ label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (Google Books)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }, { label: 'Elsie, Albanian Folktales and Legends', url: 'http://www.albanianliterature.net/folktales/index.html' }, { label: 'Polyphemus — ATU 1137 blinded-ogre motif (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Polyphemus' }, { label: 'Almogavars — \'Katallani\' the one-eyed monster; \'Daedalus dhe Katallani\' (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Almogavars' }],
   'wolf': [{ label: 'Albanian paganism — wolf totem (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }, { label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Lugat — the wolf drives the lugat back into its grave (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Lugat' }],
   'creation-wolf': [{ label: 'von Hahn 105 \'Erschaffung des Wolfes\' — full text (Zeno.org)', url: 'http://www.zeno.org/M%C3%A4rchen/M/Albanien/Johann+Georg+von+Hahn:+Griechische+und+Albanesische+M%C3%A4rchen/105.+Erschaffung+des+Wolfes' }, { label: 'von Hahn 105 \'Erschaffung des Wolfes\' — full text (Märchenbasar)', url: 'https://maerchenbasar.de/erschaffung-des-wolfes/' }],
   'rozafa': [{ label: 'The Legend of Rozafat Castle (Elsie, legend 06)', url: 'http://www.albanianliterature.net/legends/legend_06.html' }, { label: 'Dundes (ed.), The Walled-Up Wife: A Casebook', url: 'https://www.google.com/books/edition/The_Walled_Up_Wife/nq0aVj2Qff8C' }],
-  'constantine-doruntine': [{ label: 'The Ballad of Constantine and Dhoqina (Elsie/Mathie-Heck, oralverse)', url: 'http://www.albanianliterature.net/oralverse/verse_04.html' }, { label: 'The Dead Brother\'s Song — Balkan type of which this is the Albanian form (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Dead_Brother%27s_Song' }],
+  'constantine-doruntine': [{ label: 'The Ballad of Constantine and Dhoqina (Elsie/Mathie-Heck, oralverse)', url: 'http://www.albanianliterature.net/oralverse/verse_04.html' }, { label: 'Pralla popullore shqiptare (1954) — checked Albanian prose variant (local transcript)', url: REPO_BLOB + 'docs/references/plaka-nente-djelm-kostandin.sq.txt' }, { label: 'The Dead Brother\'s Song — Balkan type of which this is the Albanian form (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Dead_Brother%27s_Song' }],
   'gjergj-elez-alia': [{ label: 'Gjergj Elez Alia (Elsie/Mathie-Heck, oralverse 6)', url: 'http://www.albanianliterature.net/oralverse/verse_09_06.html' }, { label: 'Gjergj Elez Alia — Albanian text (Visaret e Kombit PDF)', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_06.pdf' }, { label: '\'Kanga e Gjergj Elez Alisë\', comm. Ullmar Qvick (Radi & Radi)', url: 'https://www.radiandradi.com/kanga-e-gjergj-elez-alise-me-komente-te-ullmar-qvick/' }],
-  'sari-salltek': [{ label: 'Sari Salltëk (Elsie, legend 02)', url: 'http://www.albanianliterature.net/legends/legend_02.html' }, { label: 'Elsie, The Albanian Bektashi: History & Culture of a Dervish Order', url: 'https://catalog.libraries.psu.edu/catalog/27978534' }, { label: 'Sarı Saltık — seven graves; dragon-of-Krujë legend (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Sar%C4%B1_Salt%C4%B1k' }],
+  'sari-salltek': [{ label: 'Sari Salltëk (Elsie, legend 02)', url: 'http://www.albanianliterature.net/legends/legend_02.html' }, { label: 'Elsie, The Albanian Bektashi: History & Culture of a Dervish Order — publisher record', url: 'https://www.bloomsbury.com/uk/albanian-bektashi-9781788315692/' }, { label: 'Sarı Saltık — seven graves; dragon-of-Krujë legend (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Sar%C4%B1_Salt%C4%B1k' }],
   'tomor-shpirag': [{ label: 'E Bukura e Dheut — the Beauty the giants fought over (Wikipedia)', url: 'https://en.wikipedia.org/wiki/E_Bukura_e_Dheut' }, { label: 'Baba Tomor — the giants\' place-myth (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Baba_Tomor' }],
-  'syri-kalter': [{ label: 'Blue Eye (spring) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Blue_Eye_(spring)' }, { label: 'Elsie — Albanian legends index (dragon-eye spring motifs)', url: 'http://www.albanianliterature.net/legends/' }],
+  'syri-kalter': [{ label: 'Blue Eye, Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Blue_Eye%2C_Albania' }, { label: 'Elsie — Albanian legends index (dragon-eye spring motifs)', url: 'http://www.albanianliterature.net/legends/' }],
   'sons-of-eagle': [{ label: 'Albanian legends index (Elsie)', url: 'http://www.albanianliterature.net/legends/' }, { label: 'Shqiptar — etymology: von Hahn \'to speak clearly\' vs Camarda \'eagle\' (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Shqiptar' }],
   'kreshnik-epic': [{ label: 'Songs of the Frontier Warriors — Elsie/Mathie-Heck (oralverse index)', url: 'http://www.albanianliterature.net/oralverse/verse_09.html' }, { label: 'Neziri & Scaldaferri, New Research on Albanian Epic Songs (Harvard Classics@)', url: 'https://classics-at.chs.harvard.edu/classics14-neziri-and-scaldaferri/' }],
   'mujo-zanas': [{ label: 'Songs of the Frontier Warriors (Elsie/Mathie-Heck)', url: 'http://www.albanianliterature.net/oralverse/verse_09.html' }],
@@ -3366,58 +3399,60 @@ export const EXTRA_SOURCES = {
   'mujo-avenges-halil': [{ label: 'Songs of the Frontier Warriors (Elsie/Mathie-Heck)', url: 'http://www.albanianliterature.net/oralverse/verse_09.html' }, { label: 'Kângë Kreshnikësh — \'Halili merr gjakun e Mujit\' #23 (Wikipedia)', url: 'https://en.wikipedia.org/wiki/K%C3%A2ng%C3%AB_Kreshnik%C3%ABsh' }],
   'death-of-omer': [{ label: 'The Death of Omer (Elsie/Mathie-Heck, oralverse 19)', url: 'http://www.albanianliterature.net/oralverse/verse_09_19.html' }, { label: 'Ajkuna\'s Lament (Elsie/Mathie-Heck, oralverse 20)', url: 'http://www.albanianliterature.net/oralverse/verse_09_20.html' }, { label: 'Songs of the Frontier Warriors — \'Death of Omer\' (#29) & \'Ajkuna Mourns Omer\' (#30)', url: 'https://www.bolchazy.com/Songs-of-the-Frontier-Warriors-The-Albanian-Epic-Kenge-Kreshnikesh-P3350' }],
   'aga-ymer': [{ label: 'Little Constantine / returning-husband type (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Little_Constantine' }, { label: 'Elsie, \'Ymer Aga of Ulqin\' — oralverse #21', url: 'http://www.albanianliterature.net/oralverse/verse_09_21.html' }],
-  'scurfhead': [{ label: '\'The Scurfhead\' — full text (Elsie tale 2)', url: 'http://www.albanianliterature.net/folktales/tale_02.html' }, { label: 'ATU 301 tale-type', url: 'https://en.wikipedia.org/wiki/The_Three_Stolen_Princesses' }, { label: 'Elsie, Albanian Folktales and Legends — full book PDF (tale 2)', url: 'http://www.aunix.net.au/robxenos/Albanian%20Folk%20Tales%20and%20Legends.pdf' }, { label: 'ATU 301 — Ashliman type index', url: 'https://sites.pitt.edu/~dash/type0301.html' }],
-  'three-friends': [{ label: '\'The Three Friends and the Earthly Beauty\' — full text (Elsie tale 3)', url: 'http://www.albanianliterature.net/folktales/tale_03.html' }, { label: 'ATU 302 \'The Ogre\'s Heart in the Egg\' (external-soul type)', url: 'https://en.wikipedia.org/wiki/The_Death_of_Koschei_the_Deathless' }, { label: 'ATU 302 \'The Ogre\'s Heart in the Egg\' — Ashliman', url: 'https://sites.pitt.edu/~dash/type0302.html' }],
-  'snake-bridegroom': [{ label: '\'The Snake and the King\'s Daughter\' — full text (Elsie tale 13)', url: 'http://www.albanianliterature.net/folktales/tale_13.html' }, { label: 'ATU 425 \'The Search for the Lost Husband\'', url: 'https://en.wikipedia.org/wiki/The_Search_for_the_Lost_Husband' }, { label: 'ATU 425 \'The Search for the Lost Husband\' — Ashliman', url: 'https://sites.pitt.edu/~dash/type0425.html' }],
-  'gjizar': [{ label: '\'Gjizar the Nightingale\' — full text (Elsie tale 14)', url: 'http://www.albanianliterature.net/folktales/tale_14.html' }, { label: 'ATU 550 Golden-Bird type', url: 'https://en.wikipedia.org/wiki/The_Golden_Bird' }, { label: 'ATU 550 \'Bird, Horse and Princess\' — Ashliman', url: 'https://sites.pitt.edu/~dash/type0550.html' }],
+  'scurfhead': [{ label: '\'The Scurfhead\' — full text (Elsie tale 2)', url: 'http://www.albanianliterature.net/folktales/tale_02.html' }, { label: 'ATU 301 comparative example: Prâslea the Brave', url: 'https://en.wikipedia.org/wiki/Pr%C3%A2slea_the_Brave_and_the_Golden_Apples' }, { label: 'Elsie, Albanian Folktales and Legends — full book PDF (tale 2)', url: 'http://www.aunix.net.au/robxenos/Albanian%20Folk%20Tales%20and%20Legends.pdf' }],
+  'three-friends': [{ label: '\'The Three Friends and the Earthly Beauty\' — full text (Elsie tale 3)', url: 'http://www.albanianliterature.net/folktales/tale_03.html' }, { label: 'ATU 302 \'The Ogre\'s Heart in the Egg\' (external-soul type)', url: 'https://en.wikipedia.org/wiki/The_Death_of_Koschei_the_Deathless' }],
+  'snake-bridegroom': [{ label: '\'The Snake and the King\'s Daughter\' — full text (Elsie tale 13)', url: 'http://www.albanianliterature.net/folktales/tale_13.html' }, { label: 'ATU 425 \'The Search for the Lost Husband\'', url: 'https://en.wikipedia.org/wiki/The_Search_for_the_Lost_Husband' }],
+  'gjizar': [{ label: '\'Gjizar the Nightingale\' — full text (Elsie tale 14)', url: 'http://www.albanianliterature.net/folktales/tale_14.html' }, { label: 'ATU 550 Golden-Bird type', url: 'https://en.wikipedia.org/wiki/The_Golden_Bird' }],
   'maiden-promised-sun': [{ label: '\'The Maiden who was Promised to the Sun\' — full text (Elsie tale 22)', url: 'http://www.albanianliterature.net/folktales/tale_22.html' }, { label: 'Elsie, Albanian Folktales and Legends — tale 22 full text', url: 'http://www.aunix.net.au/robxenos/Albanian%20Folk%20Tales%20and%20Legends.pdf' }],
-  'goose-girl': [{ label: 'Elsie tale 22 (the marble-king vigil source)', url: 'http://www.albanianliterature.net/folktales/tale_22.html' }, { label: 'ATU 533 \'The Goose Girl\' type', url: 'https://en.wikipedia.org/wiki/The_Goose_Girl' }, { label: 'ATU 425 enchanted-spouse vigil family — Ashliman', url: 'https://sites.pitt.edu/~dash/type0425.html' }],
-  'half-rooster': [{ label: '\'Half Rooster\' — full text (Elsie tale 15)', url: 'http://www.albanianliterature.net/folktales/tale_15.html' }, { label: 'ATU 715 \'Half-Chick\' type', url: 'https://en.wikipedia.org/wiki/Half-Chick' }, { label: 'ATU 715 \'Demi-coq / Half-Chick\' — Ashliman', url: 'https://sites.pitt.edu/~dash/type0715.html' }],
-  'bear-dervish': [{ label: '\'The Bear and the Dervish\' — full text (Elsie tale 12)', url: 'http://www.albanianliterature.net/folktales/tale_12.html' }, { label: 'ATU 1640 \'The Brave Little Tailor\'', url: 'https://en.wikipedia.org/wiki/The_Valiant_Little_Tailor' }, { label: 'ATU 1640 \'The Brave Tailor\' — Ashliman', url: 'https://sites.pitt.edu/~dash/type1640.html' }],
-  'kuma-lisa': [{ label: 'von Hahn 89 (the planted-butter tale, Zeno.org)', url: 'http://www.zeno.org/M%C3%A4rchen/M/Albanien/Johann+Georg+von+Hahn:+Griechische+und+Albanesische+M%C3%A4rchen' }, { label: 'ATU 15 \'The Theft of Butter by Playing Godfather\'', url: 'https://en.wikipedia.org/wiki/The_Fox_and_the_Wolf' }, { label: 'ATU 15 \'Fox Steals the Butter\' — Ashliman', url: 'https://sites.pitt.edu/~dash/type0015.html' }, { label: 'Kuma Lisa (Godmother Fox) — Slavic/Balkan trickster (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kuma_Lisa' }],
+  'goose-girl': [{ label: 'Elsie tale 22 (the marble-king vigil source)', url: 'http://www.albanianliterature.net/folktales/tale_22.html' }, { label: 'ATU 533 \'The Goose Girl\' type', url: 'https://en.wikipedia.org/wiki/The_Goose_Girl' }],
+  'half-rooster': [{ label: '\'Half Rooster\' — full text (Elsie tale 15)', url: 'http://www.albanianliterature.net/folktales/tale_15.html' }, { label: 'ATU 715 comparative tale family: Drakestail', url: 'https://en.wikipedia.org/wiki/Drakestail' }],
+  'bear-dervish': [{ label: '\'The Bear and the Dervish\' — full text (Elsie tale 12)', url: 'http://www.albanianliterature.net/folktales/tale_12.html' }, { label: 'ATU 1640 \'The Brave Little Tailor\'', url: 'https://en.wikipedia.org/wiki/The_Valiant_Little_Tailor' }],
+  'kuma-lisa': [{ label: 'von Hahn 89 — the honey-pot and false christenings (Zeno.org)', url: 'http://www.zeno.org/M%C3%A4rchen/M/Albanien/Johann+Georg+von+Hahn:+Griechische+und+Albanesische+M%C3%A4rchen' }, { label: 'ATU 15 \'The Theft of Butter by Playing Godfather\'', url: 'https://en.wikipedia.org/wiki/The_Fox_and_the_Wolf' }, { label: 'ATU 15 \'Fox Steals the Butter\' — Ashliman', url: 'https://sites.pitt.edu/~dash/type0015.html' }, { label: 'Kuma Lisa (Godmother Fox) — Slavic/Balkan trickster (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Kuma_Lisa' }],
   'cuckoo': [{ label: 'von Hahn 104 \'Entstehung des Kuckucks\' — full text (Zeno.org)', url: 'http://www.zeno.org/M%C3%A4rchen/M/Albanien/Johann+Georg+von+Hahn:+Griechische+und+Albanesische+M%C3%A4rchen/104.+Entstehung+des+Kuckucks' }, { label: 'von Hahn 104 \'Entstehung des Kuckucks\' — full text (Märchenbasar)', url: 'https://maerchenbasar.de/entstehung-des-kuckucks/' }],
   'bee-spider-cicada': [{ label: 'Albanian folk beliefs — bee reverence (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' }, { label: 'Albanian folklore — bee/insect etiological beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folklore' }],
   'swallow': [{ label: 'Albanian folk beliefs — swallow reverence (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' }],
-  'tortoise': [{ label: 'Elsie, Albanian Folktales index (origin-of-animals)', url: 'http://www.albanianliterature.net/folktales/' }, { label: 'ATU 751 \'The Greedy Peasant Woman\' — Ashliman', url: 'https://sites.pitt.edu/~dash/type0751.html' }],
-  'nastradin': [{ label: 'Nasreddin Hodja tales — Ashliman collection', url: 'https://sites.pitt.edu/~dash/nasreddin.html' }],
-  'besa': [{ label: 'The Code of Lekë Dukagjinit (Gjeçovi/Fox) — archive.org', url: 'https://archive.org/details/kanuni-i-leke-dukagjinit' }, { label: 'Durham, High Albania (1909) full text', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' }, { label: 'Kanun of Lekë Dukagjinit, Book Eight \'Besa\' (Fox trans.)', url: 'https://archive.org/details/the-code-of-leke-dukagjini' }],
-  'hospitality': [{ label: 'The Code of Lekë Dukagjinit (Fox) — the guest, archive.org', url: 'https://archive.org/details/kanuni-i-leke-dukagjinit' }, { label: 'Durham, High Albania (1909) full text', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' }, { label: 'Kanun of Lekë Dukagjinit, Book Eight — \'the house belongs to God and the guest\' (Fox)', url: 'https://archive.org/details/the-code-of-leke-dukagjini' }],
+  'tortoise': [{ label: 'Elsie, Albanian Folktales index (origin-of-animals)', url: 'http://www.albanianliterature.net/folktales/' }],
+  'nastradin': [{ label: 'Nasreddin Hodja tales — Ashliman collection', url: 'https://sites.pitt.edu/~dash/hodja.html' }],
+  'besa': [{ label: 'The Code of Lekë Dukagjinit (Gjeçovi/Fox) — archive.org', url: 'https://archive.org/details/kanuni-i-leke-dukagjinit' }, { label: 'Durham, High Albania (1909) — Internet Archive scan', url: 'https://archive.org/details/highalbania' }],
+  'hospitality': [{ label: 'The Code of Lekë Dukagjinit (Fox) — the guest, archive.org', url: 'https://archive.org/details/kanuni-i-leke-dukagjinit' }, { label: 'Durham, High Albania (1909) — Internet Archive scan', url: 'https://archive.org/details/highalbania' }],
   'kanun-blood-feud': [{ label: 'Hasluck, The Unwritten Law in Albania (1954)', url: 'https://archive.org/details/unwrittenlawinal0000marg' }, { label: 'The Code of Lekë Dukagjinit (Fox) — Book on blood', url: 'https://archive.org/details/kanuni-i-leke-dukagjinit' }, { label: 'Reconciliation Movement in 1990 — Çetta, Verrat e Llukës, ~1,200 feuds (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Reconciliation_Movement_in_1990' }],
   'evil-eye': [{ label: 'Albanian folk beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' }, { label: 'Durham, High Albania — \'mashallah\', blue bead and thread (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
   'vajtim': [{ label: 'Albanian Register of Intangible Cultural Heritage (national)', url: 'https://regjistritkj.al/en/' }, { label: 'Elsie, Albanian Oral Verse — laments', url: 'http://albanianliterature.net/oralverse/index.html' }],
   'dita-e-veres': [{ label: 'UNESCO ICH — Cultural practices associated to the 1st of March', url: 'https://ich.unesco.org/en/RL/cultural-practices-associated-to-the-1st-of-march-01287' }, { label: 'UNESCO ICH — Albania country page (5 elements; Dita e Verës absent)', url: 'https://ich.unesco.org/en/state/albania-AL' }],
-  'dodola': [{ label: 'Albanian paganism — rain rites (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }],
-  'gjakova-cavern': [{ label: 'Durham, High Albania (1909) — full text (Internet Archive)', url: 'https://archive.org/details/highalbania00durhuoft' }, { label: 'Durham, High Albania (1909) — full text (cavern passage), Gutenberg', url: 'https://www.gutenberg.org/ebooks/47554' }],
+  'dodola': [{ label: 'Burns, \'Rain and Dust\' — pan-Balkan dodola/peperuda study (journal PDF)', url: 'https://ojs.zrc-sazu.si/sms/article/download/1696/1445/4458' }, { label: 'Dragnea, \'The Paparuda/Dodola Rain-Making Ritual\' (Austrian Academy-hosted PDF)', url: 'https://www.oeaw.ac.at/fileadmin/kommissionen/vanishinglanguages/Collections/Greek_varieties/Thracian_Greek/Bibliography_pdf/Dragnea_2014_-_Paparuda_Dodola.pdf' }, { label: 'Albanian paganism — rain rites (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }],
+  'gjakova-cavern': [{ label: 'Durham, “High Albania and its customs in 1908” (1910) — article scan', url: 'https://archive.org/details/highalbaniaitscu00durh' }, { label: 'Durham, High Albania (1909) — full book scan (Internet Archive)', url: 'https://archive.org/details/highalbania' }],
   'enji': [{ label: 'Albanian paganism — Enji/Zjarri fire cult (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }, { label: '*H₁n̥gʷnis — PIE fire deity, cognate set Agni/ignis (Wikipedia)', url: 'https://en.wikipedia.org/wiki/*H%E2%82%81n%CC%A5g%CA%B7nis' }],
   'perendi': [{ label: 'Albanian paganism — Perëndi (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_paganism' }],
   'nena-e-vatres': [{ label: 'Elsie, Dictionary (hearth/fire)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Nëna e Vatrës — characterization & ambivalence (Wikipedia)', url: 'https://en.wikipedia.org/wiki/N%C3%ABna_e_Vatr%C3%ABs' }],
-  'fatia-mira': [{ label: 'Elsie, Dictionary (s.v. Fati, Miren)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (PDF) — \'Fatia\'/\'Mira\'', url: 'https://albanianstudies.org/wp-content/uploads/2015/09/2001-Elsie-Dictionary-of-Albanian-Religion-Mythology-and-Folk-Culture.pdf' }],
-  'zana-e-malit': [{ label: 'Doja, \'Mythology and Destiny\' (Anthropos 2005)', url: 'https://www.jstor.org/stable/40466705' }, { label: 'Zana (mythology) — Thana/Diana etymology, golden-horned goats, Muji (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Zana_(mythology)' }, { label: 'Doja, \'Mythology and Destiny\' (Anthropos 2005, JSTOR 40466549)', url: 'https://shs.hal.science/halshs-00425170/file/Mythology_and_Destiny.pdf' }],
+  'fatia-mira': [{ label: 'Elsie, Dictionary (s.v. Fati, Miren)', url: 'https://archive.org/details/dictionaryofalba0000elsi' }, { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (Google Books)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }],
+  'zana-e-malit': [{ label: 'Doja, \'Mythology and Destiny\' (Anthropos 2005, DOI; fate and birth symbolism)', url: 'https://doi.org/10.5771/0257-9774-2005-2-449' }, { label: 'Zana (mythology) — Thana/Diana etymology, golden-horned goats, Muji (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Zana_(mythology)' }, { label: 'Doja, \'Mythology and Destiny\' (UCL open-access record)', url: 'https://discovery.ucl.ac.uk/id/eprint/18364/' }],
   'gjarpri-i-shtepise': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }],
   'djalli': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }],
   'baloz': [{ label: 'Elsie, Songs of the Frontier Warriors (oral verse)', url: 'http://www.albanianliterature.net/oralverse/verse_01.html' }, { label: 'Kângë Kreshnikësh — Baloz in the frontier cycle (Wikipedia)', url: 'https://en.wikipedia.org/wiki/K%C3%ABng%C3%AB_Kreshnik%C3%ABsh' }, { label: 'Gjergj Elez Alia — hero rises after nine years to cut down Balozi i Zi (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Gjergj_Elez_Alia' }],
   'lugat': [{ label: 'Elsie, Dictionary of Albanian Religion & Mythology', url: 'https://archive.org/details/dictionaryofalba0000elsi' }],
   'skanderbeg-legjenda': [{ label: 'Scanderbeg and Ballaban (Elsie, legend 07)', url: 'http://www.albanianliterature.net/legends/legend_07.html' }, { label: 'Barleti, Historia de vita et gestis Scanderbegi — source of the legends (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Marin_Barleti' }],
   'ura-e-artes': [{ label: 'Dundes (ed.), The Walled-Up Wife: A Casebook', url: 'https://www.google.com/books/edition/The_Walled_Up_Wife/nq0aVj2Qff8C' }, { label: 'Bridge of Arta — the Greek walled-wife ballad (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Bridge_of_Arta' }],
-  'ura-e-tabakeve': [{ label: 'Tanners\' Bridge, Tirana (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tanners%27_Bridge' }, { label: 'The Tanners\' Bridge (Into Albania)', url: 'https://www.intoalbania.com/attraction/the-tanners-bridge/' }, { label: 'Tirana — Ottoman-era monuments incl. the Tabak bridge & mosque (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tirana' }],
-  'ali-pashe-tepelena': [{ label: 'Byron, Childe Harold\'s Pilgrimage, Canto II (Ali Pasha) — Gutenberg', url: 'https://www.gutenberg.org/files/5131/5131-h/5131-h.htm' }, { label: 'K. E. Fleming, The Muslim Bonaparte (Princeton)', url: 'https://press.princeton.edu/books/paperback/9780691001944/the-muslim-bonaparte' }],
-  'tomorri-pilgrimage': [{ label: 'Elsie, The Albanian Bektashi — Abbas Ali cult on Tomorr', url: 'https://catalog.libraries.psu.edu/catalog/27978534' }, { label: 'Bektashism in Albania — the mountain cult of Tomorr (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Bektashism_in_Albania' }],
+  'ura-e-tabakeve': [{ label: 'Tanners\' Bridge, Tirana (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tanners%27_Bridge' }, { label: 'Tanners\' Bridge (Tirana Municipality)', url: 'https://tirana.al/en/points-of-interest/tanners-bridge' }, { label: 'Tirana — Ottoman-era monuments incl. the Tabak bridge & mosque (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tirana' }],
+  'ali-pashe-tepelena': [{ label: 'Byron, Childe Harold\'s Pilgrimage, Canto II (Ali Pasha) — Gutenberg', url: 'https://www.gutenberg.org/files/5131/5131-h/5131-h.htm' }, { label: 'K. E. Fleming, The Muslim Bonaparte (JSTOR)', url: 'https://www.jstor.org/stable/j.ctt7zvj7v' }],
+  'tomorri-pilgrimage': [{ label: 'Elsie, The Albanian Bektashi — Abbas Ali cult on Tomorr (publisher record)', url: 'https://www.bloomsbury.com/uk/albanian-bektashi-9781788315692/' }, { label: 'Bektashism in Albania — the mountain cult of Tomorr (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Bektashism_in_Albania' }],
   'rrapi': [{ label: 'Durham, High Albania — open-air assemblies and judgment under the tree (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
-  'binoshet': [{ label: 'ATU 303 \'The Twins or Blood Brothers\'', url: 'https://en.wikipedia.org/wiki/The_Two_Brothers_(fairy_tale)' }, { label: 'The Twins (folktale) — correct URL (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Twins_(folktale)' }, { label: '\'The Twins\' — full English text of the Arbëresh tale', url: 'https://europeanfolktales.com/the-twins-albanian-folktale/' }],
+  'binoshet': [{ label: 'ATU 303 \'The Two Brothers\'', url: 'https://en.wikipedia.org/wiki/The_Two_Brothers' }, { label: 'The Twins (folktale) — Albanian tale context (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Twins_(folktale)' }, { label: '\'The Twins\' — full English text of the Arbëresh tale', url: 'https://europeanfolktales.com/the-twins-albanian-folktale/' }],
   'arnaut-osmani': [{ label: 'Arnaut Osmani (Elsie/Mathie-Heck, oralverse 13)', url: 'http://www.albanianliterature.net/oralverse/verse_09_13.html' }, { label: 'Arnaut Osman — hero shared across Albanian/Bosniak/Serbian epic (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Arnaut_Osman' }],
   'muji-e-behuri': [{ label: 'Mujo and Behuri (Elsie/Mathie-Heck, oralverse 7)', url: 'http://www.albanianliterature.net/oralverse/verse_09_07.html' }, { label: 'Mujo and Behuri — Albanian text (Visaret e Kombit PDF)', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_07.pdf' }, { label: 'Songs of the Frontier Warriors — \'Mujo and Behuri\' (Palaj-Kurti #6)', url: 'https://www.bolchazy.com/Songs-of-the-Frontier-Warriors-The-Albanian-Epic-Kenge-Kreshnikesh-P3350' }],
   'halil-garria': [{ label: 'Constantin and Doruntinë — returning-dead type (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Constantin_and_Doruntin%C3%AB' }, { label: 'Timo Mërkuri, \'Kënga e Halil Garrisë dhe disa probleme\' (Zemra Shqiptare)', url: 'https://www.zemrashqiptare.net/news/55566/timo-merkuri-kenga-e-halil-garrise-dhe-disa-probleme.html' }],
-  'nata-e-buzmit': [{ label: 'Yule log / badnjak — Balkan cognate custom (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Badnjak_(Slavic)' }],
+  'nata-e-buzmit': [{ label: 'Viereck, Atlas Linguarum Europae — Albanian buzmi and northern Albanian practice (PDF)', url: 'https://www1.ku.de/SLF/EngluVglSW/ELiX/viereck-111.pdf' }, { label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (Google Books preview)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }, { label: 'Yule log / badnjak — Balkan comparative custom (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Badnjak_%28Croatian%29' }],
   'kanuni': [{ label: 'Kanuni i Lekë Dukagjinit (Gjeçovi/Fox bilingual) — archive.org', url: 'https://archive.org/details/kanuni-i-leke-dukagjinit' }, { label: 'Elsie, \'Northern Albanian Culture and the Kanun\' (PDF)', url: 'http://www.elsie.de/pdf/articles/A2012KanunLeiden.pdf' }],
-  'oda-e-burrave': [{ label: 'Durham, High Albania (1909) — the oda/kulla', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' }, { label: 'Durham, High Albania — the oda/kulla and nighttime singing of the epic (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
+  'oda-e-burrave': [{ label: 'Durham, High Albania (1909) — the oda/kulla, Internet Archive scan', url: 'https://archive.org/details/highalbania' }, { label: 'Durham, High Albania — the oda/kulla and nighttime singing of the epic (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
   'gjama-e-burrave': [{ label: 'Albanian Register of Intangible Cultural Heritage — Gjama e Burrave (national)', url: 'https://regjistritkj.al/en/' }],
   'dita-e-shen-gjergjit': [{ label: 'Đurđevdan / St George\'s Day Balkan customs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/%C4%90ur%C4%91evdan' }, { label: 'Durham, High Albania — St George\'s Day, flocks to pasture, green branches (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
+  'sulltan-nevruzi': [{ label: 'World Bektashi Headquarters — Sulltan Nevruzi observance (official PDF)', url: 'https://kryegjyshataboterorebektashiane.org/wp-content/uploads/2019/10/Faqosje-Sulltan-Nevruzi-OK.pdf' }, { label: 'Encyclopaedia Britannica — Nowruz context', url: 'https://www.britannica.com/topic/Nowruz' }],
   'kurbani': [{ label: 'Eid al-Adha / Kurban (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Eid_al-Adha' }, { label: 'Sara Kuehn, Tomor Pilgrimage (Bektashi kurban, ~5,000/year)', url: 'https://www.sarakuehn.com/tomor-pilgrimage-albania' }],
-  'burrnesha': [{ label: 'Durham, High Albania (1909) — \'Albanian virgins\'', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' }, { label: 'Durham, High Albania — the Avowed/Sworn Virgin living as a man (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
-  'stani': [{ label: 'Durham, High Albania (1909) — highland pastoral life', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' }, { label: 'Durham, High Albania — the stan, bjeshkë, cheese and curd (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
+  'plisi': [{ label: 'Kosovo cultural-heritage database — Plisi object record', url: 'https://dtk.rks-gov.net/Objekti?heritageId=9832' }, { label: 'Kosovo Ministry of Foreign Affairs — Albanian cultural dress overview (PDF)', url: 'https://arkivi.mfa-ks.net/assets/cms/uploads/files/Burime/Publikimet%20e%20MPJ/AS_WE_ARE_VO1_S.pdf' }],
+  'burrnesha': [{ label: 'Durham, High Albania (1909) — \'Albanian virgins\', Internet Archive scan', url: 'https://archive.org/details/highalbania' }, { label: 'Durham, High Albania — the Avowed/Sworn Virgin living as a man (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }, { label: 'Young, Women Who Become Men (Bloomsbury scholarly monograph)', url: 'https://www.bloomsbury.com/uk/women-who-become-men-9781859733356/' }],
+  'stani': [{ label: 'Durham, High Albania (1909) — highland pastoral life, Internet Archive scan', url: 'https://archive.org/details/highalbania' }, { label: 'Durham, High Albania — the stan, bjeshkë, cheese and curd (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
   'dasma': [{ label: 'Hasluck, The Unwritten Law in Albania (1954) — marriage', url: 'https://archive.org/details/unwrittenlawinal0000marg' }],
   'paja': [{ label: 'Durham, High Albania — the bride\'s chest and displayed handwork (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
-  'mikpritja-oda': [{ label: 'Durham, High Albania (1909) full text', url: 'https://digital.library.upenn.edu/women/durham/albania/albania.html' }],
+  'mikpritja-oda': [{ label: 'Durham, High Albania (1909) — Internet Archive scan', url: 'https://archive.org/details/highalbania' }],
   'vellameri': [{ label: 'Hasluck, The Unwritten Law in Albania (1954) — sworn kinship', url: 'https://archive.org/details/unwrittenlawinal0000marg' }, { label: 'Proto-Slavic *pobratimъ — source of Alb. probatin (Wiktionary)', url: 'https://en.m.wiktionary.org/wiki/Reconstruction:Proto-Slavic/pobratim%D1%8A' }],
   'lindja-besiku': [{ label: 'Durham, High Albania — first-forty-days vulnerability, cradle charms (PDF)', url: 'https://plisi.org/biblio/libra/durham/high-albania.pdf' }],
   'besa-truce': [{ label: 'Hasluck, The Unwritten Law in Albania (1954) — besa/truce', url: 'https://archive.org/details/unwrittenlawinal0000marg' }],
@@ -3427,34 +3462,42 @@ export const EXTRA_SOURCES = {
   'kafeja': [{ label: 'Turkish coffee — UNESCO ICH intangible heritage', url: 'https://ich.unesco.org/en/RL/turkish-coffee-culture-and-tradition-00645' }, { label: 'Culture of Albania (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Culture_of_Albania' }],
   'rakia-gezuar': [{ label: 'Rakia (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Rakia' }],
   'syri-apparati': [{ label: 'Nazar (amulet) (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Nazar_(amulet)' }, { label: 'Evil eye (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Evil_eye' }],
-  'mashallah-ptu': [{ label: 'Mashallah (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Mashallah_(expression)' }],
-  'fall-kafeja': [{ label: 'Fortune-telling / Balkan coffee reading (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Coffee_reading' }],
-  'e-marta': [{ label: 'Albanian folk beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' }],
+  'plumbi-frika': [{ label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (catalogue/preview pointer)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }, { label: 'Quave & Pieroni, ritual healing in Arbëresh communities (peer-reviewed article record)', url: 'https://research.wur.nl/en/publications/ritual-healing-in-arbereshe-albanian-and-italian-communities-of-l/' }],
+  'mashallah-ptu': [{ label: 'Mashallah (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Mashallah' }, { label: 'Lajçi, \'The Evil Eye among Albanians\' (Albanological Institute article record)', url: 'https://www.ceeol.com/search/article-detail?id=21514' }, { label: 'Pew Research Center, The World’s Muslims — Albanian evil-eye survey data (PDF)', url: 'https://www.pewresearch.org/wp-content/uploads/sites/20/2012/08/the-worlds-muslims-full-report.pdf' }],
+  'fall-kafeja': [{ label: 'Novik, \'Coffee in the Culture and Traditions of Albanians in the Balkans\' (2025)', url: 'https://journals.ich.md/index.php/ethnology/en/article/view/68' }, { label: 'Tasseography / coffee-cup reading (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Tasseography' }],
+  'e-marta': [{ label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture — Tuesday (Google Books preview)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }, { label: 'Albanian folk beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' }],
   'nusja-omens': [{ label: 'Culture of Albania — marriage customs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Culture_of_Albania' }],
   'barra-besime': [{ label: 'Maternal impression — the craving-birthmark belief (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Maternal_impression' }],
-  'pragu': [{ label: 'Albanian folk beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' }],
-  'besime-popullore': [{ label: 'Albanian folk beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' }],
+  'pragu': [{ label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (Google Books preview)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }, { label: 'Albanian folk beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' }],
+  'besime-popullore': [{ label: 'Elsie, Dictionary of Albanian Religion, Mythology and Folk Culture (Google Books preview)', url: 'https://books.google.com/books/about/A_Dictionary_of_Albanian_Religion_Mythol.html?id=aAtQZ0vjf5gC' }, { label: 'Albanian folk beliefs (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Albanian_folk_beliefs' }],
   'illyrian-kingdom-teuta': [{ label: 'Polybius, Histories Bk. II (Teuta & the Illyrian War, PD)', url: 'https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Polybius/2*.html' }, { label: 'Britannica: Teuta', url: 'https://www.britannica.com/biography/Teuta' }, { label: 'Polybius, Histories Bk. II (Perseus)', url: 'https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0234:book=2' }, { label: 'Appian, The Illyrian Wars (Livius)', url: 'https://www.livius.org/sources/content/appian/appian-the-illyrian-wars/' }],
   'apollonia-butrint': [{ label: 'UNESCO World Heritage: Butrint (site 570)', url: 'https://whc.unesco.org/en/list/570/' }, { label: 'Butrint — ICOMOS evaluation & OUV (UNESCO)', url: 'https://whc.unesco.org/en/list/570/documents/' }, { label: 'Leake, Travels in Northern Greece (Apollonia & Butrint)', url: 'https://archive.org/details/travelsinnorther01leak' }],
-  'roman-conquest-illyria': [{ label: 'Livy, History of Rome Bk. 44 (defeat of Gentius, PD)', url: 'https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0144' }, { label: 'Britannica: Gentius', url: 'https://www.britannica.com/biography/Gentius' }, { label: 'Livy, History of Rome Bk. 44 (Gentius, Perseus)', url: 'https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0026:book=44' }],
+  'roman-conquest-illyria': [{ label: 'Livy, History of Rome Bk. 44 (defeat of Gentius, PD)', url: 'https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0144' }, { label: 'British Museum: Gentius', url: 'https://www.britishmuseum.org/collection/term/BIOG186029' }, { label: 'Livy, History of Rome Bk. 44 (Gentius, Perseus)', url: 'https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0026:book=44' }],
   'via-egnatia': [{ label: 'Britannica: Via Egnatia', url: 'https://www.britannica.com/topic/Via-Egnatia' }, { label: 'Via Egnatia — route, milestones, Egnatius inscription (Livius)', url: 'https://www.livius.org/articles/place/via-egnatia/' }, { label: 'Strabo, Geography Bk. 7 — the Egnatian Way (Perseus)', url: 'https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book=7' }],
   'principality-arbanon': [{ label: 'Britannica: Albania — Medieval period', url: 'https://www.britannica.com/place/Albania/The-medieval-period' }],
   'skanderbeg-revolt-kruje': [{ label: 'Barleti, History of Scanderbeg (1596 Eng. tr., EEBO/PD)', url: 'https://quod.lib.umich.edu/e/eebo/A05070.0001.001' }, { label: 'Noli, George Castrioti Scanderbeg (PD)', url: 'https://archive.org/details/georgecastriotis00noli' }],
-  'league-of-lezhe': [{ label: 'Britannica: Skanderbeg', url: 'https://www.britannica.com/biography/Skanderbeg' }, { label: 'Setton, The Papacy and the Levant vol. II (on Barleti\'s reliability)', url: 'https://archive.org/details/papacylevant1204volu02sett' }],
-  'sieges-of-kruje': [{ label: 'Britannica: Skanderbeg (sieges of Krujë)', url: 'https://www.britannica.com/biography/Skanderbeg' }, { label: 'Babinger, Mehmed the Conqueror and His Time (Krujë campaigns, Elbasan)', url: 'https://archive.org/details/mehmedconquerorh0000babi' }],
+  'league-of-lezhe': [{ label: 'Britannica: Skanderbeg', url: 'https://www.britannica.com/biography/Skanderbeg' }, { label: 'Setton, The Papacy and the Levant vol. II (Penn Press)', url: 'https://www.pennpress.org/9780871691279/papacy-and-the-levant-1204-1571-vol-ii/' }],
+  'sieges-of-kruje': [{ label: 'Britannica: Skanderbeg (sieges of Krujë)', url: 'https://www.britannica.com/biography/Skanderbeg' }, { label: 'Babinger, Mehmed the Conqueror and His Time (Google Books)', url: 'https://books.google.com/books/about/Mehmed_the_Conqueror_and_His_Time.html?id=PPxC6rO7vvsC' }],
   'death-of-skanderbeg': [{ label: 'Noli, George Castrioti Scanderbeg (death at Lezhë, PD)', url: 'https://archive.org/details/georgecastriotis00noli' }, { label: 'Britannica: Skanderbeg', url: 'https://www.britannica.com/biography/Skanderbeg' }, { label: 'Gibbon, Decline and Fall ch. 67 (Scanderbeg, Gutenberg)', url: 'https://www.gutenberg.org/files/25717/25717-h/25717-h.htm' }],
   'arberesh-exodus': [{ label: 'Britannica: Albanian language (Arbëreshë)', url: 'https://www.britannica.com/topic/Albanian-language' }, { label: 'Elsie — albanianhistory.net (Arbëresh settlement documents)', url: 'http://www.albanianhistory.net/' }],
   'ottoman-order': [{ label: 'Britannica: Timar', url: 'https://www.britannica.com/topic/timar' }, { label: 'İnalcık, The Ottoman Empire: The Classical Age 1300–1600 (timar & defter)', url: 'https://archive.org/details/ottomanempirecla0000inal' }],
   'devshirme-boy-levy': [{ label: 'Britannica: Devshirme', url: 'https://www.britannica.com/topic/devshirme' }, { label: 'Britannica: Janissary', url: 'https://www.britannica.com/topic/Janissary' }],
   'conversion-and-bektashi': [{ label: 'Britannica: Bektashi', url: 'https://www.britannica.com/topic/Bektashi' }, { label: 'Skendi, \'Crypto-Christianity in the Balkan Area under the Ottomans\' (laramanë, JSTOR)', url: 'https://www.jstor.org/stable/2493645' }],
-  'nora-of-kelmendi': [{ label: 'Elsie, The Tribes of Albania (Kelmendi history)', url: 'https://archive.org/details/tribesofalbaniah0000elsi' }],
+  'meshari-buzuku': [{ label: 'National Library of Albania — Meshari catalogue record', url: 'https://www.bksh.al/details/42798' }, { label: 'Demiraj, study of Buzuku’s Meshari (Albanian Academy journal PDF)', url: 'https://api.journals-akad.gov.al/media/article/Bardhyl_Demiraj_5-56.pdf' }, { label: 'Finna — critical Meshari edition catalogue record', url: 'https://www.finna.fi/Record/fikka.207952?lng=en-gb' }],
+  'frasheri-brothers': [{ label: 'Elsie, Biographical Dictionary of Albanian History (Google Books)', url: 'https://books.google.com/books/about/A_Biographical_Dictionary_of_Albanian_Hi.html?id=pgf6GWJxuZgC' }, { label: 'Skendi, The Albanian National Awakening (JSTOR)', url: 'https://www.jstor.org/stable/j.ctt17t75n7' }],
+  'gjergj-fishta': [{ label: 'Fishta, Lahuta e Malcís — full Albanian text (Internet Archive)', url: 'https://archive.org/details/lahuta-e-malcis-rome-1958-hr-150' }, { label: 'Elsie, Biographical Dictionary of Albanian History (Google Books)', url: 'https://books.google.com/books/about/A_Biographical_Dictionary_of_Albanian_Hi.html?id=pgf6GWJxuZgC' }],
+  'ded-gjo-luli': [{ label: 'Elsie, Biographical Dictionary of Albanian History (Google Books)', url: 'https://books.google.com/books/about/A_Biographical_Dictionary_of_Albanian_Hi.html?id=pgf6GWJxuZgC' }, { label: 'Skendi, The Albanian National Awakening (JSTOR)', url: 'https://www.jstor.org/stable/j.ctt17t75n7' }],
+  'lufta-e-vlores': [{ label: 'National History Museum — Independence pavilion (Vlora War and Congress of Lushnjë)', url: 'https://www.mhk.gov.al/portfolio/pavijoni-i-pavaresise/' }, { label: 'Library of Congress — Albania: A Country Study', url: 'https://www.loc.gov/item/93042885/' }],
+  'king-zog': [{ label: 'National History Museum — Independence pavilion (Zog period)', url: 'https://www.mhk.gov.al/portfolio/pavijoni-i-pavaresise/' }, { label: 'Elsie, Biographical Dictionary of Albanian History (Google Books)', url: 'https://books.google.com/books/about/A_Biographical_Dictionary_of_Albanian_Hi.html?id=pgf6GWJxuZgC' }, { label: 'Library of Congress — Albania: A Country Study', url: 'https://www.loc.gov/item/93042885/' }],
+  'italian-invasion-wwii': [{ label: 'National History Museum — Anti-Fascist War pavilion', url: 'https://www.mhk.gov.al/portfolio/pavijoni-i-persekutimit-komunist-2/' }, { label: 'Library of Congress — Albania: A Country Study', url: 'https://www.loc.gov/item/93042885/' }],
+  'nora-of-kelmendi': [{ label: 'Elsie, The Tribes of Albania (Kelmendi history, Bloomsbury)', url: 'https://www.bloomsbury.com/uk/tribes-of-albania-9781788315142/' }],
   'voskopoje-enlightenment': [{ label: 'Britannica: Aromani (Vlachs)', url: 'https://www.britannica.com/topic/Aromani' }],
   'bushati-pashalik-shkodra': [{ label: 'Britannica — Albania: the Ottoman period (Bushati & pashaliks)', url: 'https://www.britannica.com/place/Albania/The-Ottoman-period' }],
   'ali-pasha-ioannina': [{ label: 'Leake, Travels in Northern Greece (PD)', url: 'https://archive.org/details/travelsinnorther01leak' }, { label: 'Britannica — Ali Paşa Tepelenë', url: 'https://www.britannica.com/biography/Ali-Pasa-Tepelene' }],
-  'rilindja-awakening': [{ label: 'Britannica: Albanian language (Congress of Manastir)', url: 'https://www.britannica.com/topic/Albanian-language' }, { label: 'Skendi, The Albanian National Awakening 1878–1912 (Princeton 1967)', url: 'https://archive.org/details/albaniannational0000sken' }],
-  'league-of-prizren': [{ label: 'Skendi, The Albanian National Awakening', url: 'https://archive.org/details/albaniannational0000sken' }, { label: 'Britannica: League of Prizren', url: 'https://www.britannica.com/event/League-of-Prizren' }, { label: 'Elsie — 1878 Resolutions of the League of Prizren (primary text)', url: 'http://www.albanianhistory.net/1878_League-of-Prizren/index.html' }],
-  'mic-sokoli': [{ label: 'Skendi, The Albanian National Awakening (1881 resistance)', url: 'https://archive.org/details/albaniannational0000sken' }],
-  'independence-1912': [{ label: 'Skendi, The Albanian National Awakening (1912 Vlora)', url: 'https://archive.org/details/albaniannational0000sken' }, { label: 'Britannica: Albania — Independence', url: 'https://www.britannica.com/place/Albania/Independence' }, { label: 'Elsie — 1912 Declaration of Independence (primary text)', url: 'http://www.albanianhistory.net/1912_Independence/index.html' }],
-  'shote-azem-galica': [{ label: 'Elsie, Biographical Dictionary of Albanian History (Galica)', url: 'https://archive.org/details/biographicaldict0000elsi' }, { label: 'Vickers, The Albanians: A Modern History (Kaçak movement)', url: 'https://archive.org/details/albaniansmodernh0000vick' }],
+  'rilindja-awakening': [{ label: 'Britannica: Albanian language (Congress of Manastir)', url: 'https://www.britannica.com/topic/Albanian-language' }, { label: 'Skendi, The Albanian National Awakening 1878–1912 (JSTOR)', url: 'https://www.jstor.org/stable/j.ctt17t75n7' }],
+  'league-of-prizren': [{ label: 'Skendi, The Albanian National Awakening (JSTOR)', url: 'https://www.jstor.org/stable/j.ctt17t75n7' }, { label: 'Britannica: League of Prizren', url: 'https://www.britannica.com/event/League-of-Prizren' }, { label: '1878 Resolutions of the League of Prizren — Elsie documentary edition (primary text)', url: 'http://www.albanianhistory.net/1878_League-of-Prizren/index.html' }],
+  'mic-sokoli': [{ label: 'Skendi, The Albanian National Awakening (1881 resistance, JSTOR)', url: 'https://www.jstor.org/stable/j.ctt17t75n7' }],
+  'independence-1912': [{ label: 'Skendi, The Albanian National Awakening (1912 Vlora, JSTOR)', url: 'https://www.jstor.org/stable/j.ctt17t75n7' }, { label: 'Britannica: Albania — Independence', url: 'https://www.britannica.com/place/Albania/Independence' }, { label: '1912 Declaration of Independence — Elsie documentary edition (primary text)', url: 'http://www.albanianhistory.net/1912_Declaration-of-Independence/index.html' }],
+  'shote-azem-galica': [{ label: 'Elsie, Biographical Dictionary of Albanian History (Galica, Google Books)', url: 'https://books.google.com/books/about/A_Biographical_Dictionary_of_Albanian_Hi.html?id=pgf6GWJxuZgC' }, { label: 'Vickers, The Albanians: A Modern History (Bloomsbury)', url: 'https://www.bloomsbury.com/us/albanians-9781350141445/' }],
   'gjakmarrja': [{ label: 'Durham, High Albania — \'The Land and the Law\' (PD)', url: 'https://archive.org/details/highalbania0000durh' }, { label: 'Elsie, \'Northern Albanian Culture and the Kanun\' (PDF)', url: 'http://www.elsie.de/pdf/articles/A2012KanunLeiden.pdf' }],
 }

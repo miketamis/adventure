@@ -19,6 +19,20 @@ export default {
   title: 'The Swallow (dallëndyshja)',
   source:
     'Përparim Hysi, «Pse dallëndyshja e bën folenë te "koka e njeriut"?», Bota Sot (Tiranë), 1 August 2023 · read in the Albanian original; all lines paraphrased into my own English (see albanian.why for why no line carries the Albanian itself)',
+  references: [
+    {
+      role: 'selected-witness',
+      citation: 'Përparim Hysi, “Pse dallëndyshja e bën folenë te ‘koka e njeriut’?”, Bota Sot (1 August 2023)',
+      url: 'https://www.botasot.info/kultura/2031836/pse-dallendyshja-e-ben-folene-te-quot-koka-e-njeriut-quot/',
+      note: 'The exact modern Albanian telling selected for the beat record; linked for inspection but not quoted into gameplay because it remains copyrighted.',
+    },
+    {
+      role: 'source-text',
+      citation: 'Përparim Hysi, “Pse dallëndyshja e bën folenë tek ‘koka e njeriut’?”, Zemra Shqiptare reprint',
+      url: 'https://www.zemrashqiptare.net/news/62722/perparim-hysi-pse-dallendyshja-e-ben-folene-tekquotkoka-e-njeriutquot.html',
+      note: 'Preservation reprint of the complete selected text, not an independent oral witness.',
+    },
+  ],
   // where the tale comes from — anchors should prefer this region's mirrors.
   // The fable names no region at all; it is told wherever the custom of
   // never harming a swallow's nest is kept, which is everywhere in Albania.
@@ -40,7 +54,7 @@ export default {
   discrepancies: [
     'AN ACCIDENT, NOT A THREAT (¶2.3-2.6): the lore card summarises "a serpent threatens to sink a ship unless it learns whose blood is sweetest" — but Hysi\'s telling has the ship ALREADY torn open by a sudden accident, with the serpent VOLUNTEERING to plug the leak in exchange for its price. The stakes are the same (comply or everyone drowns), but the serpent is a bargainer hired mid-disaster, not the disaster\'s author. The beats follow Hysi: the hole opens on its own, and the serpent only afterward names its fee.',
     'THE SHIP IS NEVER STAGED: the game\'s own vignette (gjizar2\'s back lane → dallendyshe1 → dallendysheFund) compresses the whole fable into an overheard scrap of animal-lore in the village, with no ship, captain or passengers anywhere in it. The beats keep Hysi\'s ship as the tale\'s own mythic-time setting (an offstage place, "anija"), and let the story surface into the game\'s present tense only at its climax and close — exactly where the built scene already stages it (see the anchors).',
-    'THE FORKED TAIL IS NOT IN THIS TELLING: the game\'s own already-built secret ending (dallendysheFund, content.js — not this file\'s to edit) says the cheated serpent "struck at the swallow as she fled and tore her tail into the fork she has worn ever since"; the lore card repeats the same line. Hysi\'s telling has no such strike at all — his serpent curses her future NESTS only ("I will not leave you so much as one fledgling"), and the swallow answers by choosing to nest at man\'s head, full stop. Both endings agree on the RESULT (the swallow is marked, and forever after nests on man\'s house), so nothing is contradicted, only unproven by this source. The beats follow Hysi\'s telling for every numbered line; the final beat\'s note records the tail-strike as the game\'s own established coda, kept exactly as already built but not given a numbered line of its own, since no source in hand stages it.',
+    'THE FORKED TAIL (reconciled): Hysi\'s telling has no serpent-strike and gives no origin for the swallow\'s forked tail. The unsupported coda has been removed from the lore card, playable ending, and NPC notes. The game now keeps only the sourced curse on her nests and her answer: she will nest at the head of man.',
     '"AT THE HEAD OF MAN," LITERALLY (¶3.1): the lore card renders the swallow\'s answer as nesting "at the head of the house" — but Hysi\'s Albanian says «koka e njeriut», the head of MAN himself, not «koka e shtëpisë», the house\'s own head (its gable). The beats keep the more literal, more startling image: she builds directly over the doorway, at the height of a man\'s own head, which is also of course the gable-end of the house — the two readings meet at the same rafter.',
     'HOW THE HOLE WAS ACTUALLY PLUGGED (¶2.8): Hysi is specific that the serpent "coiled itself into a tight knot" («u mblodh "kutullac"») to seal the leak — a small physical detail the lore card\'s summary skips entirely. The beats keep it: the serpent buys its price with its own body, not merely a promise.',
   ],
@@ -73,7 +87,7 @@ export default {
     { id: 'rruga', emoji: '🏘️', name: 'the back lane', note: 'where the fight and the curse are overheard, any day you pass',
       anchor: { status: 'existing', node: 'dallendyshe1', mirror: 'a back lane of the game\'s own village — pan-Albanian lore has no home region to itself, so it settles wherever bird-tales already gather',
         mold: 'the lane\'s own line already carries the climax («një dallëndyshe lufton një gjarpër»; «një mushkonjë ndihmon gjarprin»; «një dallëndyshe pre gjuhën e mushkonjës»; «gjarpri është i keq me dallëndyshen») — the mythic-time wager surfaces here, present tense, as an ambient scrap of animal-lore; bird-tellings accumulate on this lane without clashing',
-        conflicts: 'NOT gjizar1 or cuckoo1 — those are the lane-fork house (the bee tale\'s dying mother) and the sewing house (Gjon and the Kjükje\'s scissors) respectively; this fable owns its own dedicated spot one step further down the same lane',
+        conflicts: 'NOT gjizar1 or cuckoo1 — those are the lane-fork house (the bee tale\'s old, sick mother) and the sewing house (the two brothers named Gjon and their sister Kjükje) respectively; this fable owns its own dedicated spot one step further down the same lane',
         sharedWith: ['cuckoo (Gjon\'s cry, next door at cuckoo1)', 'gjizar (the king\'s golden-chick errand, at gjizar2)'] } },
     { id: 'streha', emoji: '🪺', name: 'the eave at the head of man', note: 'where the swallow makes good on her answer — the story\'s own resolution, playable today',
       anchor: { status: 'existing', node: 'dallendysheFund', mirror: 'the gable-eave over any village doorway — the swallow\'s promised nesting-place made literal',
@@ -102,12 +116,12 @@ export default {
     ending: 'dallendysheFund',
     scenes: {
       dallendyshe1: 'gjuha',
-      dallendysheFund: 'streha',
+      dallendysheFund: ['mallkimi', 'streha'],
     },
     divergences: [
       { beat: 'gjuha', note: 'The legend\'s swallow always bites the tongue — that mercy IS the tale. The game makes it a real choice and adds the branch she never takes (let the mosquito speak → the secret ending "The Word Let Slip"): mankind can be doomed to the serpent, and the swallow never earns her place in the house.' },
       { beat: 'anija', note: 'The ship, its passengers, and the hull-hole the serpent plugs for its price are kept offstage — the game enters at the fatal instant on deck, distilling the fable to the swallow\'s single decisive act, exactly as the source frames it ("a small tale... it touches something every person can feel is true").' },
-      { beat: 'mallkimi', note: "The serpent's curse and the swallow's retort are compressed into the ending's image — the cheated serpent tears her tail into its fork, and she answers by nesting at the head of man, dear as bread." },
+      { beat: 'mallkimi', note: "The ending keeps Hysi's causal close: the serpent curses the swallow's future nests, and she answers by nesting at the head of man, dear as bread. No tail-strike is added." },
     ],
   },
   beats: [
@@ -192,7 +206,7 @@ export default {
     },
     {
       id: 'streha', title: 'Ever the friend of man',
-      note: 'From that day, swallows have nested in every house, dear to people as bread itself, and no one has ever torn one down. Mosquitoes still only buzz, and serpents, for their part, still hold their old grudge against man alone. (The game\'s own already-built ending remembers one blow more than this telling does: the cheated serpent striking the fleeing swallow and tearing her tail into the fork she wears since — kept here as the established coda, though no source in hand stages the strike itself.)',
+      note: 'From that day, swallows have nested in every house, dear to people as bread itself, and no one has ever torn one down. Mosquitoes still only buzz, and serpents, for their part, still hold their old grudge against man alone. No tail-strike is present in this telling or added by the game.',
       lines: [
         ['3.2', 'And from that day on, swallows have nested in our houses, and no one has ever torn one down.'],
         ['3.3', 'They are held as dear to us as bread itself.'],

@@ -1,7 +1,7 @@
 // The QUOTE PROOF REGISTER — one entry per Q() line in the story.
 //
-// A Q() line claims "this sentence is the real thing, quoted from the folk
-// sources." This file is where that claim is backed up. Each entry records
+// A Q() line claims "this is source-rooted folk wording, with its fidelity
+// stated honestly." This file is where that claim is backed up. Each entry records
 // WHAT the game quotes, WHERE the original lives, and — whenever the source
 // is one of the downloaded primary texts in docs/references/ — the exact
 // string a checker can find in that file. `node scripts/quotecheck.mjs`
@@ -9,7 +9,8 @@
 // it FAILS if a registered proof can't be found, and content.js throws at
 // import if a Q() line uses an id that isn't registered here. So a quote
 // cannot exist in the story without an entry, and an entry cannot claim a
-// corpus proof that doesn't hold.
+// corpus proof that doesn't hold. Adapted lines additionally map every piece
+// of displayed wording to a fragment present in their declared proof file.
 //
 // Fields:
 //   label       what the player sees after the line (the attribution)
@@ -17,11 +18,13 @@
 //               (the checker asserts the Q() line really contains this)
 //   original    the wording as the source itself has it (Gheg, dialect or
 //               19th-century orthography preserved)
-//   translation plain English of the original
+//   gameTranslation plain English of the exact displayed `game` line
+//   translation     plain English of the fuller source `original` context
 //   fidelity    'verbatim'  — the source wording, only re-spelled into the
 //                             game's standard Albanian
-//               'inflected' — the source formula with person/number/name
-//                             bent to fit the scene
+//               'inflected' — the source formula with grammar, dialect,
+//                             spelling, vocative, or legible OCR normalized
+//                             without a compositional rewrite
 //               'adapted'   — wording altered or merged; `note` says how
 //   source      CORPUS id (src/game/folklore.js) of the primary source, or
 //               null when the quote is oral tradition / a web source with
@@ -44,7 +47,7 @@
 //
 // ── ID NOTE ──────────────────────────────────────────────────────────────────
 // A handful of ids below are still the descriptive label string itself (e.g.
-// 'Ali Bajraktari — këngë kreshnike') rather than a short kebab-case id —
+// a printed song title) rather than a short kebab-case id —
 // that's simply the id of the FIRST Q() call registered for that source, kept
 // as-is. Originally (2026-07-18 registration pass) several of these label ids
 // were reused across more than one Q() call whose rendered Albanian was
@@ -64,6 +67,7 @@ export const QUOTES = {
   'Kanuni i Lekë Dukagjinit, §608': {
     label: 'Kanuni i Lekë Dukagjinit, §608',
     game: 'bukë e kripë e zemër',
+    gameTranslation: 'Bread, salt, and heart.',
     original: 'Mikut do t\'i bahet nderë: "Bukë e krypë e zêmër".',
     translation: 'The guest shall be honoured: with bread, salt and heart.',
     fidelity: 'verbatim',
@@ -80,9 +84,17 @@ export const QUOTES = {
   'Kanuni i Lekë Dukagjinit, §602': {
     label: 'Kanuni i Lekë Dukagjinit, §602',
     game: 'shtëpia e shqiptarit është e zotit dhe e mikut',
+    gameTranslation: "The Albanian’s house belongs to God and the guest.",
     original: '"Shpija e Shqyptarit asht e Zotit e e mikut."',
     translation: "The Albanian's house belongs to God and to the guest.",
-    fidelity: 'verbatim',
+    fidelity: 'adapted',
+    alignment: [
+      {
+        game: 'shtëpia e shqiptarit është e zotit dhe e mikut',
+        source: 'Shpija e Shqyptarit asht e Zotit e e mikut',
+        relation: 'Gheg spelling is standardized, and the source conjunction sequence “e e” is rendered as “dhe e”.',
+      },
+    ],
     source: 'src-kanun-leke',
     evidence: [
       {
@@ -96,6 +108,7 @@ export const QUOTES = {
   'Kanuni i Lekë Dukagjinit, §631': {
     label: 'Kanuni i Lekë Dukagjinit, §631',
     game: 'buka e lan dëmin',
+    gameTranslation: 'Bread washes away the harm.',
     original: '"Buka e lan dâmin."',
     translation: 'The bread washes away the harm. (The reconciliation meal ends the feud.)',
     fidelity: 'verbatim',
@@ -112,6 +125,7 @@ export const QUOTES = {
   'Kanuni i Lekë Dukagjinit, §620': {
     label: 'Kanuni i Lekë Dukagjinit, §620',
     game: 'mirë se erdhe',
+    gameTranslation: 'Welcome!',
     original: 'Po të hini miku në shpi, gjak me të pasë, do t\'i thuejsh: "Mirë së erdhe!"',
     translation: 'When the guest enters your house — even if you are in blood with him — you shall say: "Well have you come!"',
     fidelity: 'verbatim',
@@ -121,6 +135,7 @@ export const QUOTES = {
         kind: 'corpus',
         file: 'docs/references/kanuni-leke-dukagjinit.sq.txt',
         match: '"Mirë së erdhe!"',
+        note: 'The game uses the contemporary unstressed greeting spelling “mirë se erdhe” for the source’s “Mirë së erdhe”.',
       },
     ],
   },
@@ -129,6 +144,7 @@ export const QUOTES = {
   'Ymer Aga — këngë popullore': {
     label: 'Ymer Aga — këngë popullore',
     game: 'mirë se erdhe, aga ymer',
+    gameTranslation: 'Welcome, Aga Ymer!',
     original: '- Mirë se erdhe Imer Aga!',
     translation: 'Welcome home, Aga Ymer!',
     fidelity: 'inflected',
@@ -145,6 +161,7 @@ export const QUOTES = {
   'ymer-besa-kept': {
     label: 'Ymer Aga — këngë popullore',
     game: 'mbajte besën që ke dhënë',
+    gameTranslation: 'You kept the besa you gave!',
     original: 'majte besën i shqyptarit, / majte besën qi ke dhan-e!',
     translation: 'You kept the besa of the Albanian — you kept the besa you had given!',
     fidelity: 'verbatim',
@@ -161,6 +178,7 @@ export const QUOTES = {
   'ymer-udha-mbare': {
     label: 'Ymer Aga — këngë popullore',
     game: 'udha e mbarë',
+    gameTranslation: 'Safe travels!',
     original: '- Udha e marë, o krushqellar-e!',
     translation: 'A good road to you, o wedding guests!',
     fidelity: 'verbatim',
@@ -179,9 +197,17 @@ export const QUOTES = {
   'formula e përrallës (Dozon, 1879)': {
     label: 'formula e përrallës (Dozon, 1879)',
     game: 'ish e mos ish',
+    gameTranslation: 'There was, and there was not.',
     original: 'Iç mos iç ("Il était et il n\'était pas")',
     translation: 'There was and there was not — the set opening of the Tosk tales.',
-    fidelity: 'verbatim',
+    fidelity: 'adapted',
+    alignment: [
+      {
+        game: 'ish e mos ish',
+        source: 'Iç mos iç',
+        relation: 'Dozon’s ç-orthography is standardized to sh, and the game inserts the linking conjunction “e”.',
+      },
+    ],
     source: 'src-dozon-manuel',
     evidence: [
       {
@@ -195,6 +221,7 @@ export const QUOTES = {
   'formula e mbylljes (Dozon, 1879)': {
     label: 'formula e mbylljes (Dozon, 1879)',
     game: 'u mplakën e u trashëguan',
+    gameTranslation: 'They grew old and had heirs.',
     original: 'Oumblyâk edhé outraçigoûa. ("U mplak edhe u trashëgua.")',
     translation: 'He grew old and had heirs — the set closing of the Tosk tales.',
     fidelity: 'inflected',
@@ -211,6 +238,7 @@ export const QUOTES = {
   'fjalë e urtë (Dozon, 1879)': {
     label: 'fjalë e urtë (Dozon, 1879)',
     game: 'qeni që leh nuk kafshon',
+    gameTranslation: 'The dog that barks does not bite.',
     original: 'Kyéni kyœ lyéh noûkœ kafçón ("Qeni që leh nukë kafshon")',
     translation: 'The dog that barks does not bite. (Dozon\'s proverb no. 1, from Fier.)',
     fidelity: 'verbatim',
@@ -227,9 +255,17 @@ export const QUOTES = {
   'me-durim': {
     label: 'fjalë e urtë (Dozon, 1879)',
     game: 'me durim bëhen të gjitha',
+    gameTranslation: 'With patience, all things get done.',
     original: 'Me dourim tœ tœra bœkenœ ("Me durim të tëra bëhen")',
     translation: 'With patience all things are done. (Dozon\'s proverb no. 4.)',
-    fidelity: 'inflected',
+    fidelity: 'adapted',
+    alignment: [
+      {
+        game: 'me durim bëhen të gjitha',
+        source: 'Me dourim tœ tœra bœkenœ',
+        relation: 'Historical orthography is standardized; të tëra becomes the synonym të gjitha and moves after the verb.',
+      },
+    ],
     source: 'src-dozon-manuel',
     evidence: [
       {
@@ -245,6 +281,7 @@ export const QUOTES = {
   'Legjenda e Prespës — lakeohrid.blogspot.com': {
     label: 'Legjenda e Prespës dhe Ohrit — lakeohrid.blogspot.com',
     game: 'nëse ata martoheshin do të ndodhte një fatkeqësi shumë e madhe',
+    gameTranslation: 'If they married, a very great misfortune would happen.',
     original:
       'Legjenda thotë se, nëse ata martoheshin, do të ndodhte një fatkeqësi shumë e madhe dhe do të ndikonte në krijesat e liqenit dhe njerëzit që jetojnë rreth tij.',
     translation: 'The legend says that if the two of them married, a very great misfortune would happen and would affect the creatures of the lake and the people living around it.',
@@ -261,6 +298,7 @@ export const QUOTES = {
   'prespa-mbytja': {
     label: 'Legjenda e Prespës dhe Ohrit — lakeohrid.blogspot.com',
     game: 'që mbyti të gjithë qytetin duke krijuar një liqen',
+    gameTranslation: 'It drowned the whole city, creating a lake.',
     original:
       'ra një shi shumë i madh dhe i rrëmbyer, që mbyti të gjithë qytetin, duke krijuar një liqen, aty ku ndodhet sot liqeni i Prespës.',
     translation: 'a great, sweeping rain fell, which drowned the whole city, creating a lake, where Lake Prespa lies today.',
@@ -274,27 +312,12 @@ export const QUOTES = {
       },
     ],
   },
-  'Ali Bajraktari — këngë kreshnike': {
-    label: 'Ali Bajraktari (Besa) — këngë kreshnike',
-    game: 'se nuk je alija i ynë',
-    original: 'Se nuk je Alija i ynë,',
-    translation: 'For you are not our Ali,',
-    fidelity: 'verbatim',
-    source: 'src-visaret-kombit',
-    evidence: [
-      {
-        kind: 'corpus',
-        file: 'docs/references/palaj-kurti-ali-bajraktari.sq.txt',
-        match: 'Se nuk je Alija i ynë,',
-        note: 'Sung by Palok Ujka of Kastrat; published Visaret e Kombit vol. II (1937), pp. 108-117.',
-      },
-    ],
-  },
   'ali-bajr-besnik': {
     label: 'Ali Bajraktari (Besa) — këngë kreshnike',
     game: 'se besnik ti qenke qenë',
+    gameTranslation: 'For you have proved faithful.',
     original: 'Se besnik ti kenke kanë.',
-    translation: 'For faithful you have been.',
+    translation: 'For you have proved faithful.',
     fidelity: 'inflected',
     source: 'src-visaret-kombit',
     evidence: [
@@ -302,13 +325,14 @@ export const QUOTES = {
         kind: 'corpus',
         file: 'docs/references/palaj-kurti-ali-bajraktari.sq.txt',
         match: 'Se besnik ti kenke kanë.',
-        note: 'Gheg kenke kanë (a compound past) re-tensed to standard qenke qenë; the Slav king\'s admission as the true Ali rides home. Same song and file as "Ali Bajraktari — këngë kreshnike" above, line 358.',
+        note: 'Gheg kenke kanë (a compound past) re-tensed to standard qenke qenë; the Slav king\'s admission as the true Ali rides home, line 358.',
       },
     ],
   },
   'Arnaut Osmani — këngë kreshnike': {
     label: 'Arnaut Osmani — këngë kreshnike',
     game: "dritë as diell mos të shohë me sy",
+    gameTranslation: 'May he see neither light nor sun with his eyes.',
     original: "Dritë as diell mos t'shofë me sy.",
     translation: 'May he see neither light nor sun with his eyes (the curse on the imprisoned hero).',
     fidelity: 'verbatim',
@@ -325,8 +349,9 @@ export const QUOTES = {
   'Deka e Halilit — këngë kreshnike': {
     label: 'Deka e Halilit — këngë kreshnike',
     game: 'dredh, halil, zoti të vraftë',
+    gameTranslation: 'Turn back, Halil—may God strike you dead!',
     original: '- Dredh, Halil, zoti të vraftë,',
-    translation: 'Dodge, Halil, may God slay you (the taunt hurled in the duel).',
+    translation: 'Turn back, Halil, may God slay you (the warning hurled in the duel).',
     fidelity: 'verbatim',
     source: 'src-visaret-kombit',
     evidence: [
@@ -341,6 +366,7 @@ export const QUOTES = {
   'Zadrani për Halilin — Deka e Halilit': {
     label: 'Zadrani për Halilin — Deka e Halilit',
     game: 'mjeri unë, mjeri, sokol halili',
+    gameTranslation: 'Woe is me, woe, Sokol Halili!',
     original: '- Mjeri un, mjeri, Sokole Halili!',
     translation: 'Woe is me, woe, Falcon Halili! (Zadrani\'s cry over the dying hero.)',
     fidelity: 'inflected',
@@ -359,21 +385,32 @@ export const QUOTES = {
   'fjalë e urtë': {
     label: 'fjalë e urtë',
     game: 'zoti vonon, por nuk harron',
+    gameTranslation: 'God delays, but does not forget.',
     original: 'Zoti vonon, po nuk harron.',
     translation: 'God delays, but does not forget.',
-    fidelity: 'verbatim',
+    fidelity: 'adapted',
+    alignment: [
+      {
+        game: 'zoti vonon, por nuk harron',
+        source: 'Zoti vonon, po nuk harron',
+        relation: 'The conversational conjunction “po” is expanded to standard “por”; the rest is unchanged.',
+      },
+    ],
     source: null,
     evidence: [
       {
         kind: 'url',
         url: 'https://en.wikiquote.org/wiki/Albanian_proverbs',
         label: 'Albanian proverbs (Wikiquote)',
+        quote: 'Zoti vonon, po nuk harron.',
+        note: 'The game expands the source’s conversational conjunction “po” to standard “por”; the proverb and its meaning are otherwise unchanged.',
       },
     ],
   },
   'fjala-plumbi': {
     label: 'fjalë e urtë',
     game: "fjala dhe plumbi kur dalin s'kthehen më",
+    gameTranslation: 'Words and bullets do not return once released.',
     original: "Fjala dhe plumbi kur dalin s'kthehen më.",
     translation: 'The word and the bullet, once they go out, do not come back.',
     fidelity: 'verbatim',
@@ -389,6 +426,7 @@ export const QUOTES = {
   'besa-nuk-shitet': {
     label: 'fjalë e urtë',
     game: 'besa e shqiptarit nuk shitet',
+    gameTranslation: 'An Albanian’s besa is not for sale.',
     original: 'Besa e shqiptarit nuk shitet.',
     translation: "The Albanian's besa is not for sale.",
     fidelity: 'verbatim',
@@ -404,6 +442,7 @@ export const QUOTES = {
   'shtepia-pa-femije': {
     label: 'fjalë e urtë',
     game: 'shtëpia pa fëmijë si nata pa yje',
+    gameTranslation: 'A house without children is like a night without stars.',
     original: 'Shtëpia pa fëmijë, si nata pa yje.',
     translation: 'A house without children is like a night without stars.',
     fidelity: 'verbatim',
@@ -419,6 +458,7 @@ export const QUOTES = {
   'gjuha-eshtra': {
     label: 'fjalë e urtë',
     game: "gjuha eshtra s'ka, eshtra thyen",
+    gameTranslation: 'The tongue has no bones, yet it breaks bones.',
     original: "Gjuha eshtra s'ka, eshtra thyen. (also: Gjuha kocka nuk ka, po kocka thyen)",
     translation: 'The tongue has no bones, yet bones it breaks.',
     fidelity: 'verbatim',
@@ -434,9 +474,10 @@ export const QUOTES = {
   'mali-me-mal': {
     label: 'fjalë e urtë',
     game: 'mali me mal nuk piqet, njeriu me njeriun piqet',
+    gameTranslation: 'Mountains do not meet, but people do.',
     original: 'Mali me mal nuk piqen, njeriu me njeriun piqen.',
     translation: 'Mountain never meets mountain, but person meets person.',
-    fidelity: 'verbatim',
+    fidelity: 'inflected',
     source: null,
     evidence: [
       {
@@ -450,6 +491,7 @@ export const QUOTES = {
   'sa-rron': {
     label: 'fjalë e urtë',
     game: 'sa rron, aq mëson',
+    gameTranslation: 'As long as you live, you learn.',
     original: 'Sa rron, aq mëson.',
     translation: 'As long as you live, you learn.',
     fidelity: 'verbatim',
@@ -465,6 +507,7 @@ export const QUOTES = {
   'fjale-pak': {
     label: 'fjalë e urtë',
     game: 'fjalë pak e punë shumë',
+    gameTranslation: 'Few words and much work.',
     original: 'Fjalë pak e punë shumë.',
     translation: 'Few words and much work.',
     fidelity: 'verbatim',
@@ -481,6 +524,7 @@ export const QUOTES = {
   'beja popullore — Për Baba Tomor': {
     label: 'beja popullore — për Baba Tomor',
     game: 'për baba tomor',
+    gameTranslation: 'By Baba Tomor!',
     original: 'Beja "Për Baba Tomor"',
     translation: 'The oath "By Baba Tomor" (Mount Tomorr\'s sky-father, sworn by Muslim and Christian believers alike).',
     fidelity: 'verbatim',
@@ -504,6 +548,7 @@ export const QUOTES = {
   'Tre vëllezër — Mitko, Bleta shqypëtare': {
     label: 'Tre vëllezër me të bukurën e dheut — Mitko, Bleta shqypëtare',
     game: 'nga ky njeri nuk kam shpëtim unë',
+    gameTranslation: 'From this man I have no escape.',
     original: "kuçedra, «popo! tha, nga ky njeri s' kam shpëtim unë».",
     translation: 'The kuçedra: "alas!" she said, "from this man I have no escape."',
     fidelity: 'inflected',
@@ -522,6 +567,7 @@ export const QUOTES = {
   'Legjenda e Rozafës': {
     label: 'Legjenda e Rozafës — plaku i vjetër te muri',
     game: 'ditën punojmë e natën shembet',
+    gameTranslation: 'By day we work; by night it collapses.',
     original: 'Ditën punojmë e\nnatën shembet.',
     translation: "By day we labour and by night it collapses (the brothers' answer to the old man who stops on the road).",
     fidelity: 'verbatim',
@@ -537,6 +583,7 @@ export const QUOTES = {
   'Kanga e kalasë së Shkodrës': {
     label: 'Kanga e kalasë së Shkodrës — balada e murimit',
     game: 'lidhni besë e lidhni fe',
+    gameTranslation: 'Bind yourselves by besa and faith.',
     original: 'Lidhni besë, e lidhni fe,',
     translation: "Bind an oath, and bind a faith (the old saint's instruction to the three mason brothers).",
     fidelity: 'verbatim',
@@ -553,6 +600,7 @@ export const QUOTES = {
   'kala-prishi-bese': {
     label: 'Kanga e kalasë së Shkodrës — balada e murimit',
     game: 'prishi besë e prishi fe',
+    gameTranslation: 'He broke his besa and his faith.',
     original: 'Prishi besë, e prishi fe,',
     translation: 'He broke the oath, and broke the faith (said twice, of the two elder brothers who each break their word).',
     fidelity: 'verbatim',
@@ -571,6 +619,7 @@ export const QUOTES = {
   'Kostandini e Doruntina — legjendë': {
     label: 'Kostandini e Doruntina — "Plaka me nëntë djelm"',
     game: 'ku e ke besën që më dhe',
+    gameTranslation: 'Where is the besa you gave me?',
     original: '«O Kostandin, biri im! Ku e ke besën që më dhe?',
     translation: '"O Kostandin, my son! Where is the besa you gave me?" (the mother\'s curse that wakes the dead son.)',
     fidelity: 'verbatim',
@@ -587,8 +636,9 @@ export const QUOTES = {
   'doruntina-era': {
     label: 'Kostandini e Doruntina — "Plaka me nëntë djelm"',
     game: 'pse më vjen erë e dheut',
+    gameTranslation: 'Why do I smell earth on you?',
     original: '"Pse më vjen erë dheu, o vëlla?" — Doruntina, riding behind the dead Kostandin',
-    translation: 'Why do you smell of earth, brother?',
+    translation: 'Why do I smell earth on you, brother?',
     fidelity: 'inflected',
     source: null,
     evidence: [
@@ -608,6 +658,7 @@ export const QUOTES = {
   'doruntina-pluhuri': {
     label: 'Kostandini e Doruntina — "Plaka me nëntë djelm"',
     game: 'është pluhuri i udhës',
+    gameTranslation: 'It is the dust of the road.',
     original: '"Është pluhuri i udhës" — Kostandin\'s answer',
     translation: 'It is the dust of the road.',
     fidelity: 'inflected',
@@ -624,8 +675,9 @@ export const QUOTES = {
   'doruntina-nuk-je-ti': {
     label: 'Kostandini e Doruntina — "Plaka me nëntë djelm"',
     game: 'nuk je ti, ime bijë',
+    gameTranslation: 'You are not my daughter.',
     original: '«Nuk je ti, ime bijë»',
-    translation: "It is not you, my daughter — the mother's refusal to open the door until Doruntina proves herself.",
+    translation: "You are not my daughter — the mother's refusal to open the door until Doruntina proves herself.",
     fidelity: 'verbatim',
     source: null,
     evidence: [
@@ -642,8 +694,9 @@ export const QUOTES = {
   'Gjergj Elez Alia — këngë kreshnike': {
     label: 'Gjergj Elez Alia — këngë kreshnike',
     game: 'sytë e motrës po të pikojnë',
+    gameTranslation: 'Your sister’s tears are falling on you!',
     original: "Sytë e motrës po t'pikojnë, more vlla!",
-    translation: 'Your sister\'s eyes are dripping (with tears) for you, brother! (the sister\'s plea to the wounded hero.)',
+    translation: 'Your sister\'s tears are falling on you, brother! (She corrects the wounded hero, who mistook them for rain.)',
     fidelity: 'verbatim',
     source: 'src-visaret-kombit',
     evidence: [
@@ -658,6 +711,7 @@ export const QUOTES = {
   'gjergj-trim-mbi-trima': {
     label: 'Gjergj Elez Alia — këngë kreshnike',
     game: 'trim mbi trima ai gjergj elez alia',
+    gameTranslation: 'A hero above all heroes, this Gjergj Elez Alia!',
     original: 'Trim mbi trima ay Gjergj Elez Alija!',
     translation: 'Hero above heroes, that Gjergj Elez Alia! (the song\'s opening acclamation, echoed here as its close.)',
     fidelity: 'verbatim',
@@ -674,6 +728,7 @@ export const QUOTES = {
   'Martesa e Gjeto Basho Mujit — këngë kreshnike': {
     label: 'Gjeto Basho Muji — Martesa — këngë kreshnike',
     game: 'besa besë e fjala fjalë',
+    gameTranslation: 'A besa is a besa, and a word is a word.',
     original: 'Besa besë, e fjala fjalë,',
     translation: 'A besa is a besa, and a word is a word (the epic\'s formula for an unbreakable pledge).',
     fidelity: 'verbatim',
@@ -690,6 +745,7 @@ export const QUOTES = {
   'Zuku Bajraktar — këngë kreshnike': {
     label: 'Zuku Bajraktar — këngë kreshnike',
     game: 'se nëna ime më ka verbuar',
+    gameTranslation: 'For my mother has blinded me.',
     original: 'Se nana e eme m\'ka verbue.',
     translation: 'For my own mother has blinded me.',
     fidelity: 'verbatim',
@@ -706,6 +762,7 @@ export const QUOTES = {
   'zuku-besa-zotit': {
     label: 'Zuku Bajraktar — këngë kreshnike',
     game: 'besën e zotit djali ua kishte dhënë',
+    gameTranslation: 'The boy had given them his word before God.',
     original: "Besën e zotit djali jau ki' dhanë:",
     translation: "The boy had given them God's own besa:",
     fidelity: 'inflected',
@@ -724,6 +781,7 @@ export const QUOTES = {
   'Vajtimi i Ajkunës — këngë kreshnike': {
     label: 'Vajtimi i Ajkunës — këngë kreshnike',
     game: 'kanë lënë këngën zogjtë e malit',
+    gameTranslation: 'The mountain birds have ceased their song.',
     original: 'Kanë lanë kangen zogjtë e malit,',
     translation: 'The birds of the mountain have left off their song,',
     fidelity: 'verbatim',
@@ -740,9 +798,17 @@ export const QUOTES = {
   'ajkuna-shkimte-drita': {
     label: 'Vajtimi i Ajkunës — këngë kreshnike',
     game: "t'u shkimtë drita, o hënë",
+    gameTranslation: 'May your light go out, O moon!',
     original: "- T'u shkimtë drita ty, o mori hanë,",
     translation: 'May your light go out, o moon,',
-    fidelity: 'verbatim',
+    fidelity: 'adapted',
+    alignment: [
+      {
+        game: "t'u shkimtë drita, o hënë",
+        source: 'T’u shkimte (shoftë) drita ty, o mori hane',
+        relation: 'The gloss and vocative fillers “ty, o mori” are trimmed, while shkimte/hanë are standardized for display.',
+      },
+    ],
     source: 'src-vajtimi-ajkunes',
     evidence: [
       {
@@ -758,6 +824,7 @@ export const QUOTES = {
   'urimi i trimit': {
     label: 'urimi i trimit',
     game: 'të lumtë krahu',
+    gameTranslation: 'Blessed be your arm!',
     original: 'Të lumtë krahu! (the set congratulation on a feat of arms; Fishta: "Të lumtë goja, bajraktar")',
     translation: 'Blessed be your arm!',
     fidelity: 'verbatim',
@@ -771,42 +838,61 @@ export const QUOTES = {
         note: 'The Lahuta attests the optative formula "të lumtë <limb>" (there with goja, the mouth, praising a speech); krahu (the arm) is its standard martial pair in the living language.',
       },
       {
-        kind: 'oral',
-        note: 'The exact wording "të lumtë krahu" is the everyday congratulation on a deed of strength; standard usage, lightly attested in the public-domain corpus.',
+        kind: 'url',
+        url: 'https://unitir.edu.al/wp-content/uploads/2014/11/Dokturatura-Isuf-Bazaj-Fakulteti-i-Histori-Filologjise-Departamenti-i-Gjuhesise.pdf',
+        label: 'University of Tirana dissertation — traditional Albanian work greetings',
+        quote: 'Të lumtë krahu!',
+        note: 'The University of Tirana study prints the exact traditional formula in its discussion of work greetings (p. 168), citing Gjovalin Shkurtaj. The Lahuta witness above independently attests the same optative praise pattern.',
       },
     ],
   },
   'urim i moçëm': {
     label: 'urim i moçëm',
     game: 'u bëfsh njëqind vjeç',
+    gameTranslation: 'May you live to be a hundred!',
     original: 'U bëfsh njëqind vjeç!',
     translation: 'May you live to a hundred! (The optative blessing over a cure or a birthday.)',
     fidelity: 'verbatim',
     source: null,
     evidence: [
       {
-        kind: 'oral',
-        note: 'A standard optative blessing of the living language; idiomatically universal but not located in the public-domain corpus.',
+        kind: 'url',
+        url: 'https://ceo.edu.rs/wp-content/uploads/probni2016/manjine/jezik/Albanski%20jezik%202016.pdf',
+        label: 'Serbian Institute for Education Quality and Evaluation — Albanian-language school exam',
+        quote: 'U bëfsh njëqind vjeç!',
+        note: 'The exact blessing is printed with “Rrofsh sa malet!” and “Të priftë e mbara!” in an official Albanian-language examination question identifying the dëshirore (optative/wish) mood. This proves the written formula, not a specific antiquity or healing context.',
+      },
+      {
+        kind: 'url',
+        url: 'https://digitalna.ff.uns.ac.rs/sites/default/files/db/books/978-86-6065-614-0.pdf',
+        label: 'University of Novi Sad — study of the Albanian optative',
+        quote: 'U bëfsh njëqind vjeç!',
+        note: 'An independent university publication prints the same formula among Albanian optative blessings and discusses its meaning in Serbian.',
       },
     ],
   },
   'përgjigjja e mikut — urim i moçëm': {
     label: 'përgjigjja e mikut — urim i moçëm',
     game: 'mirë se ju gjeta',
+    gameTranslation: 'I am glad to find you well!',
     original: 'Mirë se ju gjeta! — the guest\'s set reply to "Mirë se erdhe!"',
     translation: 'Well have I found you! (The fixed response to the welcome the Kanun commands.)',
     fidelity: 'verbatim',
     source: null,
     evidence: [
       {
-        kind: 'oral',
-        note: 'The universal reply-half of the Albanian greeting pair whose first half the Kanun fixes in §620 (see "Kanuni i Lekë Dukagjinit, §620" above); the pair is standard from the highlands to the south.',
+        kind: 'url',
+        url: 'https://www.e-ucebnici.mon.gov.mk/pdf/Albanski_jazik_2.pdf',
+        label: 'North Macedonia Ministry of Education, Dëgjojmë dhe flasim (Albanian language 2)',
+        quote: 'Mirë se ju gjeta',
+        note: 'The official Albanian-language textbook prints “Mirë se erdhët — Mirë se ju gjeta” as the arrival exchange. Kanun §620 independently attests the welcome obligation, not this exact reply.',
       },
     ],
   },
   'urimi i dasmës': {
     label: 'urimi i dasmës',
     game: 'u trashëgofshin',
+    gameTranslation: 'May they have heirs!',
     original: 'na outraçigofçin ("na u trashëgofshin") — the blessing called at the betrothal and the ring-exchange',
     translation: 'May they have heirs! — the set wedding blessing.',
     fidelity: 'verbatim',
@@ -823,15 +909,24 @@ export const QUOTES = {
   'kënga e shiut': {
     label: 'kënga e shiut',
     game: 'bjerë shi në arat tona',
+    gameTranslation: 'Let rain fall on our fields!',
     original: 'Rona, rona, peperona, / bjerë shi ndër arat tona! (the children\'s dodola rain-chant)',
     translation: 'Rona, rona, butterfly-doll, let rain fall on our fields!',
-    fidelity: 'verbatim',
+    fidelity: 'adapted',
+    alignment: [
+      {
+        game: 'bjerë shi në arat tona',
+        source: 'bjerë shi ndër arat tona',
+        relation: 'The source preposition “ndër” is simplified to “në”; the remaining rain petition is unchanged.',
+      },
+    ],
     source: null,
     evidence: [
       {
         kind: 'url',
         url: 'https://en.wikipedia.org/wiki/Dodola',
         label: 'Dodola / peperona rain rite (Wikipedia)',
+        quote: 'Rona, rona, peperona, bjerë shi ndër arat tona!',
         note: 'The Albanian chant is recorded in the ethnographic literature (Tirta, Mitologjia ndër shqiptarë) in close variants: "Rona, rona, peperona, bjerë shi ndër arat tona". The game\'s në for ndër is the only change.',
       },
     ],
@@ -839,9 +934,17 @@ export const QUOTES = {
   'mbyllja e tregimtarit (Lambertz)': {
     label: 'mbyllja e tregimtarit (Lambertz)',
     game: 'përralla atje, shëndeti këtej',
+    gameTranslation: 'The tale goes there; health comes here!',
     original: 'Pralla n Lesh, shndetja prei nesh! (Tirana; Lambertz no. 61 — "the tale in the wool, health for us")',
     translation: 'The tale away, the health our way — the teller\'s sign-off.',
     fidelity: 'adapted',
+    alignment: [
+      {
+        game: 'përralla atje, shëndeti këtej',
+        source: 'Praia n Le§, Snedja prei nes!',
+        relation: 'The game preserves the two-part tale/health closing formula while replacing Lambertz’s wool/Lezha wordplay with the ordinary spatial pair atje/këtej.',
+      },
+    ],
     source: 'src-lambertz',
     evidence: [
       {
@@ -856,6 +959,7 @@ export const QUOTES = {
   'Lahuta e Malcís — Gjergj Fishta': {
     label: 'Lahuta e Malcís — Gjergj Fishta',
     game: 'ndihmo, zot, si më ke ndihmuar',
+    gameTranslation: 'Help me, God, as you have helped me!',
     original: "Ndihmo, Zot, si m'kë ndihmue!",
     translation: 'Help me, God, as you have helped me before! (The epic\'s opening invocation.)',
     fidelity: 'verbatim',
@@ -871,43 +975,50 @@ export const QUOTES = {
   },
   'mallkimi i moçëm (von Hahn, përralla 105)': {
     label: 'mallkimi i moçëm (von Hahn, përralla 105)',
-    game: 'të hëngtë ujku',
-    original: 'tœ ngrœntœ oûykou ("të ngrëntë ujku" — Tosk); Gheg: "Të hângtë ujku!"',
-    translation: 'May the wolf eat you! — the herdsman\'s curse the wolf-creation fable explains.',
+    game: 'haje ujk e plase shën mëhill',
+    gameTranslation: 'Eat him, wolf, and make him burst, Saint Michael!',
+    original: 'Haj e, uk, e pljaß e, sche Mehil!',
+    translation: 'Eat him, wolf, and make him burst, Saint Michael! — von Hahn\'s preserved Albanian curse.',
     fidelity: 'verbatim',
-    source: 'src-dozon-manuel',
+    source: 'src-hahn-marchen',
     evidence: [
       {
         kind: 'corpus',
-        file: 'docs/references/dozon-manuel-langue-chkipe.fr-sq.txt',
-        match: 'tœ ngrœntœ oûykou, que le loup te',
-        note: 'Dozon\'s note to proverb no. 37: "allusion à l\'imprécation qu\'on a coutume d\'adresser aux animaux domestiques: tœ ngrœntœ oûykou, que le loup te mange!" The Tosk verb ngrëntë and the game\'s standard hëngtë are forms of the same optative of ha (to eat).',
-      },
-      {
-        kind: 'url',
-        url: 'https://archive.org/stream/GriechischeUndAlbanesischeMarchenJohannGeorgVonHahn/GriechischeUndAlbanesischeMarchen-JohannGeorgVonHahn_djvu.txt',
-        label: 'von Hahn, Griechische und albanesische Märchen, tale 105',
-        note: 'The etiological fable ("why the wolf devours") behind the curse, in von Hahn\'s German translation.',
+        file: 'docs/references/hahn-erschaffung-des-wolfes.de-sq.txt',
+        match: 'Haj e, uk, e pljaß e, sche Mehil!',
+        note: 'Von Hahn prints this one sentence in Albanian inside the German telling. The game transliterates his spelling to modern orthography: Haje, ujk, e plase, Shën Mëhill!',
       },
     ],
   },
   'gjëegjëzë e moçme': {
     label: 'gjëegjëzë e moçme',
     game: 'punon ditë e natë, na jep dyllë e na jep mjaltë',
-    original: 'Zu-zu-zu, punon ditë e natë, na jep dyllë e na jep mjaltë. (answer: bleta, the bee)',
+    gameTranslation: 'It works day and night and gives us wax and honey.',
+    original: 'Zu-zu-zu, zu-zu-zu, shkon atje e shkon këtu, punon ditë e punon natë, na jep dyllë e na jep mjaltë. (answer: bleta, the bee)',
     translation: 'Buzz-buzz, works day and night, gives us wax and gives us honey.',
-    fidelity: 'verbatim',
+    fidelity: 'adapted',
+    alignment: [
+      {
+        game: 'punon ditë e natë, na jep dyllë e na jep mjaltë',
+        source: 'punon ditë e punon natë, na jep dyllë e na jep mjaltë',
+        relation: 'The game omits the opening movement couplet and the repeated verb before “natë,” while preserving the riddle’s work/wax/honey answer line.',
+      },
+    ],
     source: null,
     evidence: [
       {
-        kind: 'oral',
-        note: 'A children\'s gjëegjëzë from the school-collection tradition; circulates widely in Albanian riddle anthologies but is not located in the public-domain corpus.',
+        kind: 'url',
+        url: 'https://shkollaime.al/pluginfile.php/29/mod_page/content/74/Abetare.pdf',
+        label: 'Shkolla Ime, Abetare lesson material — Albanian bee riddle',
+        quote: 'Zu-zu-zu, zu-zu-zu, shkon atje e shkon këtu, punon ditë e punon natë, na jep dyllë e na jep mjaltë.',
+        note: 'The school lesson material prints the complete riddle and gives “bleta” as its answer. The game drops the travel line and one repeated “punon”; this is a written school-tradition attestation, not evidence for antiquity.',
       },
     ],
   },
   'nusja, nga guri': {
     label: 'balada e murimit — Ura e Artës',
     game: 'të dridhesh si dridhem unë',
+    gameTranslation: 'May you tremble as I tremble.',
     original: 'të më dridhesh kùshtù si dhe unë;',
     translation: 'May you tremble just as I do (the walled bride\'s curse on the bridge).',
     fidelity: 'verbatim',
@@ -926,6 +1037,7 @@ export const QUOTES = {
   'Pralla popullore shqiptare (1954)': {
     label: 'Maro Përhitura — Pralla popullore shqiptare (1954)',
     game: 'vjen maro përhitura veshur në flori',
+    gameTranslation: 'Maro Përhitura comes dressed in gold.',
     original: 'lehu qëni edhe tha, që «vjen Maro Perhitura veshur\nnë flori".',
     translation: 'The dog barked and said, "Maro Përhitura is coming, dressed in gold."',
     fidelity: 'verbatim',
@@ -935,12 +1047,14 @@ export const QUOTES = {
         kind: 'corpus',
         file: 'docs/references/pralla-1954-maro-perhitura.sq.txt',
         match: 'vjen Maro Perhitura veshur',
+        note: 'The game restores the character name’s standard spelling Përhitura from the scan’s unaccented/OCR form Perhitura.',
       },
     ],
   },
   'pralla-maro-kukudhi': {
     label: 'Maro Përhitura — Pralla popullore shqiptare (1954)',
     game: "mos u tremb, se s' të ha as kukudhi",
+    gameTranslation: 'Do not be afraid, for not even the kukudh will eat you.',
     original: 'edhe nga se do trëmbeç ti? E tilla, që je ti, mos u trëmb, se s të ha as kukudhi tij',
     translation: "Why should you be afraid? A girl like you — don't be afraid, not even the kukudh will eat you.",
     fidelity: 'inflected',
@@ -957,8 +1071,9 @@ export const QUOTES = {
   'pralla-maro-tjerr': {
     label: 'Maro Përhitura — Pralla popullore shqiptare (1954)',
     game: "ç' është ajo, që tjerr",
+    gameTranslation: 'What is that you are spinning?',
     original: 'e pyesnë vajzën e i thanë, që "ç\'është eta, që tjerr?"',
-    translation: 'They ask the girl, saying, "what is that, spinning?"',
+    translation: 'They ask the girl, "What is that you are spinning?"',
     fidelity: 'inflected',
     source: null,
     evidence: [
@@ -973,6 +1088,7 @@ export const QUOTES = {
   'pralla-maro-mundim': {
     label: 'Maro Përhitura — Pralla popullore shqiptare (1954)',
     game: "të thuash, se ç' mundim ka",
+    gameTranslation: 'Tell us what toil it takes.',
     original: 'I thon ata, që "ë rthuaç, se ç\' mundim ka", se ata xhinërit duajnë t\'i gjenjën nonjë shkak',
     translation: 'They say to her, "tell us what toil it is" — for the xhindet want to catch her out in some fault.',
     fidelity: 'inflected',
@@ -989,15 +1105,20 @@ export const QUOTES = {
   'lirit-vemefurke': {
     label: 'mundimi i lirit — Pralla popullore shqiptare (1954)',
     game: 'pa e vëmë në furkë, pa e tjerrim',
+    gameTranslation: 'We put it on the distaff and spin it.',
     original: 'p a e heqim me llanar, pa e bejmë shtullungë, pa e vëmë në furkë, pa e bëjmë lemsh, pa e tjerrim',
     translation: 'and then we set it on the distaff, and then we spin it (round two of Maro\'s litany).',
     fidelity: 'adapted',
+    alignment: [
+      { game: 'pa e vëmë në furkë', source: 'pa e vëmë në furkë', relation: 'Exact clause, punctuation normalized.' },
+      { game: 'pa e tjerrim', source: 'e tjerrim', relation: 'The repeated litany particle “pa” is carried across the intervening line break and omitted steps.' },
+    ],
     source: null,
     evidence: [
       {
         kind: 'corpus',
         file: 'docs/references/pralla-1954-maro-perhitura.sq.txt',
-        match: 'pa e vëmë në furkë',
+        match: 'pa e vëmë në furkë, pa\ne bëjmë lemsh, pa a\ne tjerrim',
         note: 'From the same ~25-step litany as "mundimi i lirit — Pralla popullore shqiptare (1954)" above; the game selects vëmë në furkë / tjerrim as round two\'s two representative verbs.',
       },
     ],
@@ -1005,9 +1126,17 @@ export const QUOTES = {
   'lirit-veshim': {
     label: 'mundimi i lirit — Pralla popullore shqiptare (1954)',
     game: 'pa e lajmë, pa e presim, pa e qepim, pa e veshim',
+    gameTranslation: 'We wash it, cut it, sew it, and wear it.',
     original: 'pa e marrëm, pa e lajmë, pa e presim, pa e\nqepim, pa e veshim',
     translation: 'and then we wash it, and then we cut it, and then we sew it, and then we wear it (round three, the litany\'s close).',
     fidelity: 'adapted',
+    alignment: [
+      {
+        game: 'pa e lajmë, pa e presim, pa e qepim, pa e veshim',
+        source: 'pa e lajmë, pa e presim, pa e\nqepim, pa e veshim',
+        relation: 'Exact final four clauses; the preceding “pa e marrëm” is deliberately trimmed.',
+      },
+    ],
     source: null,
     evidence: [
       {
@@ -1021,6 +1150,7 @@ export const QUOTES = {
   'pralla-maro-lajmi': {
     label: 'Maro Përhitura — Pralla popullore shqiptare (1954)',
     game: "unë s' jam për atje",
+    gameTranslation: 'That is no place for me.',
     original: 'edhe ejo u tha, që "u s\' janë për atje, po të veni ju, që jeni të mira"',
     translation: 'and she told them, "I am not for there — you go, you who are the pretty ones."',
     fidelity: 'inflected',
@@ -1037,6 +1167,7 @@ export const QUOTES = {
   'pralla-maro-krushqit': {
     label: 'Maro Përhitura — Pralla popullore shqiptare (1954)',
     game: 'ti je gruaja ime',
+    gameTranslation: 'You are my wife.',
     original: 'edhe ashtu i tha, që "shko, se do vemi në pallat tim, edhe ti je gruaja ime, edhe u jam burri yt".',
     translation: '"Come," he told her, "for we go to my palace, and you are my wife, and I am your husband."',
     fidelity: 'inflected',
@@ -1053,6 +1184,7 @@ export const QUOTES = {
   'pralla-maro-ciuciu': {
     label: 'Maro Përhitura — Pralla popullore shqiptare (1954)',
     game: "ciu ciu, djal' i mëmës",
+    gameTranslation: 'Cheep, cheep, mother’s boy!',
     original: "ciu ciu, djal' i mëmës",
     translation: 'cheep, cheep, mother\'s own boy (the bird-wife\'s song at the window).',
     fidelity: 'verbatim',
@@ -1069,6 +1201,7 @@ export const QUOTES = {
   'pralla-maro-fundi': {
     label: 'Maro Përhitura — Pralla popullore shqiptare (1954)',
     game: 'unë jam gruaja jote',
+    gameTranslation: 'I am your wife.',
     original: "I tho'ë ajo, që «u jam gruaja jote, princesha, që bëra djalën»",
     translation: 'She told him, "I am your wife, the princess who bore your son."',
     fidelity: 'inflected',
@@ -1085,27 +1218,39 @@ export const QUOTES = {
   'mundimi i lirit — Pralla popullore shqiptare (1954)': {
     label: 'mundimi i lirit — Pralla popullore shqiptare (1954)',
     game: 'pa e mbjellim, pa e mbledhim, pa e lidhim',
+    gameTranslation: 'We sow it, gather it, and bind it.',
     original: "punojmë dhen, pa e kthejmë, pa e mbjellëm, pa e tëharrim... pa e mbledhim, pa e lidhim, pa e shtypi[m]",
     translation: 'We work the field, plough it, sow it, harrow it... gather it, bind it, thresh it (Maro\'s patient litany of the flax\'s toil, the xhindet\'s test).',
     fidelity: 'adapted',
+    alignment: [
+      { game: 'pa e mbjellim', source: 'pa e mbjellëm', relation: 'Dialectal mbjellëm is standardized as mbjellim.' },
+      { game: 'pa e mbledhim', source: 'pa e mbledhim', relation: 'Exact clause.' },
+      { game: 'pa e lidhim', source: 'pa e lidhim', relation: 'Exact clause.' },
+    ],
     source: null,
     evidence: [
       {
         kind: 'corpus',
         file: 'docs/references/pralla-1954-maro-perhitura.sq.txt',
-        match: 'pa e mbledhim, pa e lidhim, pa e shtypi',
+        match: 'pa e mbjellëm, pa e tëharrim. pa e shkulim Pl\ne ndejmë në diell e thahet, pa e mbledhim, pa e lidhim',
         note: 'From Maro\'s full litany of ~25 steps ("pa e kthejmë, pa e mbjellëm, pa e tëharrim, pa e shkulim... pa e mbledhim, pa e lidhim, pa e shtypim..."); the game groups sow/gather/bind as the first of three rounds (Litani1/2/3), selecting three representative verbs from the longer chain rather than quoting it in full.',
       },
     ],
     note:
-      "This id is reused at maroLitani2 for round two — \"pa e vëmë në furkë, pa e tjerrim\" (source: \"pa e vëmë në furkë\", verbatim) — and at maroLitani3 for round three — \"pa e lajmë, pa e presim, pa e qepim, pa e veshim\" (source: \"pa e marrëm, pa e lajmë, pa e presim, pa e\\nqepim, pa e veshim\", verbatim). All three resolve under this shared id but would need distinct ids (e.g. suffixed -1/-2/-3) to each pass a per-line wording check.",
+      'This is round one of three separately registered litany quotations. Its three selected clauses are non-contiguous in the source because Maro recites the omitted agricultural steps between them; the alignment above binds each rendered clause to the same source passage.',
   },
   'porosia e tetos — Pralla popullore shqiptare (1954)': {
     label: 'porosia e tetos — Pralla popullore shqiptare (1954)',
     game: 'kur të bjerë mesnata, kuajt bëhen minj, karroca bëhet kungull',
+    gameTranslation: 'When midnight strikes, the horses become mice and the coach becomes a pumpkin.',
     original: 'po mbete atje, e ra sahati dymbëdhjetë, kualtë do të bëhen, mij, edhe karroca do bëhet kungull, edhe karrocerët do bëhen karkalecë,',
     translation: "If you stay past midnight, the horses will become mice, and the coach will become a pumpkin, and the coachmen will become grasshoppers (the sorceress aunt's deadline).",
     fidelity: 'adapted',
+    alignment: [
+      { game: 'kur të bjerë mesnata', source: 'e ra sahati dymbëdhjetë', relation: 'The clock striking twelve is rendered idiomatically as midnight falling.' },
+      { game: 'kuajt bëhen minj', source: 'kualtë do të bëhen, mij', relation: 'Dialectal kualtë and OCR mij are standardized as kuajt and minj.' },
+      { game: 'karroca bëhet kungull', source: 'karroca do bëhet kungull', relation: 'Future auxiliary is trimmed without changing the predicted transformation.' },
+    ],
     source: null,
     evidence: [
       {
@@ -1119,6 +1264,7 @@ export const QUOTES = {
   'mbyllja e përrallës — Pralla popullore shqiptare (1954)': {
     label: 'mbyllja e përrallës — Pralla popullore shqiptare (1954)',
     game: 'edhe janë sot e gjithë ditën',
+    gameTranslation: 'And they remain so to this very day.',
     original: 'edhe janë sot e gjithë ditën.',
     translation: 'And they are, to this very day. (The 1954 book\'s closing formula.)',
     fidelity: 'verbatim',
@@ -1135,6 +1281,7 @@ export const QUOTES = {
   'mallkimi i Lilos — Pralla popullore shqiptare (1954)': {
     label: 'mallkimi i Lilos — Pralla popullore shqiptare (1954)',
     game: 'ju plasshin sytë',
+    gameTranslation: 'May your eyes burst!',
     original: 'U thotë Lilua, "a li është nuk e shini? Pon u plasnë syt?»',
     translation: 'Lilua answers them, "Can\'t you see what it is? May your eyes burst!" (her rude retort to the xhindet\'s question, which earns her the twisted limbs.)',
     fidelity: 'inflected',
@@ -1151,9 +1298,10 @@ export const QUOTES = {
 }
 
 // The strongest tier of proof an entry carries:
-//   'corpus'   — the wording itself is machine-verified in docs/references/
-//   'variant'  — a corpus text attests the formula, an external link the wording
-//   'external' — link-verified against a printed source we don't hold
+//   'corpus'   — a relevant source excerpt is verified in docs/references/;
+//                fidelity/alignment records explain its relation to game text
+//   'variant'  — a local corpus text attests a related formula, not exact wording
+//   'external' — an external citation is recorded but not machine-checked here
 //   'oral'     — a living formula, not located in print (the honest weakest tier)
 export const quoteTier = (q) => {
   if (q.evidence.some((e) => e.kind === 'corpus' && !e.variant)) return 'corpus'
@@ -1170,3 +1318,71 @@ export const quoteProofUrl = (q, repoBlob) => {
   const u = q.evidence.find((e) => e.kind === 'url')
   return u ? u.url : null
 }
+
+// Every local quotation extract is bound to the work it came from.  A
+// `corpusId` points at the matching CORPUS record; stand-alone page-checked
+// extracts carry their own public source URL.  quotecheck verifies that every
+// corpus proof resolves through this table and that a quote's declared source
+// agrees with the work behind its file.
+export const QUOTE_EVIDENCE_WORKS = Object.freeze({
+  'docs/references/cam-balada-murimit-ura-e-artes.sq.txt': {
+    id: 'quote-cam-bridge-1983',
+    title: 'Çam ballad “Urën e Artës ndërtojmë” (collected 1954; printed 1983)',
+    url: 'https://fatmirt.blogspot.com/2019/09/balada-e-murimit.html',
+    relationship: 'page-checked-reproduction',
+    proofSha256: 'd3564cb38475584839fee3fe04cd827785ca58f4451976cfaebdb90019936d58',
+  },
+  'docs/references/dozon-manuel-langue-chkipe.fr-sq.txt': { id: 'src-dozon-manuel', corpusId: 'src-dozon-manuel', relationship: 'full-work', proofSha256: '33144acfbdc60a3bc80cd99ea64c61302835c8e9a76ddb58b09f56fc908f0f88' },
+  'docs/references/fishta-lahuta-e-malcis.sq.txt': { id: 'src-fishta-lahuta', corpusId: 'src-fishta-lahuta', relationship: 'full-work', proofSha256: '137df2eb579907c0fe554de56449a08610bd7ea0030578eeddcc455fbcef82a5' },
+  'docs/references/hahn-erschaffung-des-wolfes.de-sq.txt': {
+    id: 'src-hahn-marchen', corpusId: 'src-hahn-marchen', relationship: 'page-checked-extract',
+    url: 'http://www.zeno.org/nid/20007819471',
+    proofSha256: '8eb22b1656e626817fa3a4e701ab2a6b5524b416e089b0f37a4f02e919640fad',
+  },
+  'docs/references/kanuni-leke-dukagjinit.sq.txt': { id: 'src-kanun-leke', corpusId: 'src-kanun-leke', relationship: 'full-work', proofSha256: '7642f949899970df39353ebcfdedd2c0a7a00faf93036641a5b18657827d350a' },
+  'docs/references/kreshnik-gjeto-basho-muji-martesa.sq.txt': { id: 'src-visaret-kombit', corpusId: 'src-visaret-kombit', relationship: 'page-checked-extract', proofSha256: 'cc3eea92ad8f2af79fb44b4d59d8fef60cd8cd4f0dba8bd5fb5f06a95a26abd6' },
+  'docs/references/kryegjyshata-tomorri-abaz-aliut.sq.txt': {
+    id: 'quote-bektashi-tomorr', title: 'World Bektashi Headquarters — Mount Tomorr and Abbas Ali',
+    url: 'https://kryegjyshataboterorebektashiane.org/mali-tomorrit-dhe-gjurmet-e-abaz-aliut/',
+    relationship: 'official-page-extract',
+    proofSha256: 'bc3a444e2231c0168f8d067570bbf78c907d837c6d8d6a68a0426d3706b7693f',
+  },
+  'docs/references/lakeohrid-blog-legjenda-e-prespes.sq.txt': {
+    id: 'quote-prespa-newsletter', title: 'Protecting Lake Ohrid — Legend of Prespa and Ohrid',
+    url: 'https://lakeohrid.blogspot.com/2017/08/legjenda-e-prespes-dhe-ohritthe-legend.html?m=0',
+    relationship: 'page-extract',
+    proofSha256: 'b312273bf64b07352884a148804541102379795417f587b402328a18094bb8c0',
+  },
+  'docs/references/lambertz-albanische-marchen.de-sq.txt': { id: 'src-lambertz', corpusId: 'src-lambertz', relationship: 'full-work', proofSha256: 'd82b50b6a89d79130290db9176880e9374b281ae650d343eb9b2d3f9906bb98c' },
+  'docs/references/lambertz-baba-tomor-shpirag.de.txt': {
+    id: 'quote-lambertz-tomorr-variant', title: 'Lambertz — earlier Baba Tomor/Shpirag variant',
+    url: 'https://archive.org/details/albanischemarchenlambertz', relationship: 'variant-extract', proofSha256: 'd44f537416906953d14bf007b80044d6b8fe659f03ba6548c7fbab39de25d070',
+  },
+  'docs/references/mitko-tre-vellezer-bukura-dheut.sq.txt': { id: 'src-mitko-bleta', corpusId: 'src-mitko-bleta', relationship: 'page-checked-reproduction', proofSha256: '902505cf25ad59458143aacecb943098039dd0abc0a36ded190e25a8593302f9' },
+  'docs/references/palaj-kurti-ali-bajraktari.sq.txt': { id: 'src-visaret-kombit', corpusId: 'src-visaret-kombit', relationship: 'page-checked-extract', proofSha256: '865466f261a3399192955e9295838e6267a10b0eaeec90f5d5a4ffa8c9eaae2f' },
+  'docs/references/palaj-kurti-arnaut-osmani.sq.txt': { id: 'src-visaret-kombit', corpusId: 'src-visaret-kombit', relationship: 'page-checked-extract', proofSha256: 'ba02e2295eff2c5d76206323a15d05e741b6d0114e273c990d1bb5c40959ada6' },
+  'docs/references/palaj-kurti-deka-e-halilit.sq.txt': { id: 'src-visaret-kombit', corpusId: 'src-visaret-kombit', relationship: 'page-checked-extract', proofSha256: 'e758c8056ca7e949da767236db36f197a31f4a964497a03f2610f609e880f583' },
+  'docs/references/palaj-kurti-gjergj-elez-alia.sq.txt': { id: 'src-visaret-kombit', corpusId: 'src-visaret-kombit', relationship: 'page-checked-extract', proofSha256: 'ef76178a8f4cb19ebd0746b0b356a8386d27395b8a4fec58748e216033705163' },
+  'docs/references/palaj-kurti-zuku-bajraktar.sq.txt': { id: 'src-visaret-kombit', corpusId: 'src-visaret-kombit', relationship: 'page-checked-extract', proofSha256: 'b0ae33e376d4a6e996e63da65f09a201bbf86ad6e36f23f6d4d0aa8f6b08908a' },
+  'docs/references/plaka-nente-djelm-kostandin.sq.txt': {
+    id: 'quote-pralla-1954', title: 'Pralla popullore shqiptare (1954)',
+    url: 'https://doczz.net/doc/2729503/pralla-popullore-shqiptare', relationship: 'page-checked-extract', proofSha256: '35928eca55529337574e4a742777029d30be7ec61da545b8547930febca8460c',
+  },
+  'docs/references/pralla-1954-maro-perhitura.sq.txt': {
+    id: 'quote-pralla-1954', title: 'Pralla popullore shqiptare (1954)',
+    url: 'https://doczz.net/doc/2729503/pralla-popullore-shqiptare', relationship: 'page-checked-extract', proofSha256: '9e5ec8a9d8c86c896400aeaf154d1c7781431eccfcbc7797d6ae5186f2579492',
+  },
+  'docs/references/rozafa-legjenda-e-rozafes.sq.txt': {
+    id: 'quote-rozafa-variants', title: 'Rozafa prose and ballad variants',
+    url: 'http://vogelushet.blogspot.com/2008/06/rozafat.html', relationship: 'variant-page-extract', proofSha256: '44901b4c45bc1c5270be626dea84e1602e69150badb0a00e1665cc20abb87b1c',
+  },
+  'docs/references/vajtimi-i-ajkunes.sq.txt': { id: 'src-vajtimi-ajkunes', corpusId: 'src-vajtimi-ajkunes', relationship: 'full-work', proofSha256: 'e4a096afc8870b41170153d4b1fd23d1c8132b5fb67cb2b1af006c71ff56aa83' },
+  'docs/references/ymer-age-ulqini.sq.txt': { id: 'src-ymer-ulqini', corpusId: 'src-ymer-ulqini', relationship: 'full-work', proofSha256: 'e88fb649a7442944435dff1de058ec815e2f37be4de2e21fd7f50396e5bfd293' },
+})
+
+// This seal binds the exact quote wording, translations, fidelity labels,
+// alignments, evidence records, proof-file identities, and referenced CORPUS
+// work metadata as one payload. quotecheck recomputes it and fails closed after
+// any unsealed change. A matching hash proves payload identity, not external
+// expert or native-speaker approval.
+export const QUOTE_FIDELITY_REVIEW_HASH = 'sha256:6e44da8b061b1e3f62d94a081a8491ca3f750ff7f1a1d945d20f2db40db0e0ea'

@@ -1,4 +1,5 @@
-import { STORY, lineOf } from './content.js'
+import { DICT, STORY, lineOf } from './content.js'
+import { VERB_IDS, albanianTextOf, englishReadingIssues, englishReadingOf, englishReadingRevision, isComprehensionReadyLine } from './language.js'
 
 // ---------------------------------------------------------------------------
 // THE COMPREHENSION GATE — question building for achievements.
@@ -33,8 +34,10 @@ export const NON_NOUNS = new Set([
 
 // shuffle deterministically from a seed so a question's option order is stable
 // while it's on screen but scrambled (real answers are never simply first)
+const stableSeed = (seedStr) => [...seedStr].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7)
+
 export function stableShuffle(arr, seedStr) {
-  let seed = [...seedStr].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7)
+  let seed = stableSeed(seedStr)
   const rng = () => {
     seed = (seed * 1103515245 + 12345) & 0x7fffffff
     return seed / 0x7fffffff
@@ -47,23 +50,43 @@ export function stableShuffle(arr, seedStr) {
   return a
 }
 
-const lineEnglish = (line) =>
-  line.filter((t) => t.id && !t.paren).map((t) => t.en).join(' ').replace(/\s+([.!?:,;])/g, '$1').trim()
-const lineAlbanian = (line) =>
-  line.map((t) => (t.paren ? t.en : t.al)).join(' ').replace(/\s+([.!?:,;])/g, '$1').trim()
+const gcd = (a, b) => {
+  while (b) [a, b] = [b, a % b]
+  return a
+}
+
+// Visit a deterministic permutation without allocating and shuffling an entire
+// 2,000-line answer pool merely to take two distractors. A coprime stride walks
+// every index exactly once, while callers can stop after they have enough.
+const visitStable = (arr, seedStr, visit) => {
+  if (!arr.length) return
+  const seed = stableSeed(seedStr)
+  const start = seed % arr.length
+  let stride = arr.length === 1 ? 1 : ((seed >>> 11) % (arr.length - 1)) + 1
+  while (gcd(stride, arr.length) !== 1) stride = stride % arr.length + 1
+  for (let i = 0; i < arr.length; i++) {
+    if (visit(arr[(start + i * stride) % arr.length]) === false) break
+  }
+}
+
+const lineEnglish = englishReadingOf
+const lineAlbanian = albanianTextOf
 const isContent = (line) => line.filter((t) => t.id).length >= 2 // >=2 real words
 const richness = (line) => line.filter((t) => t.id && !NON_NOUNS.has(t.id)).length // nouns/verbs
 
 // pool of every ending's content lines (English), for plausible distractors — built once
 let _answerPool = null
+let _answerPoolRevision = -1
 const answerPool = () => {
-  if (!_answerPool) {
+  const revision = englishReadingRevision()
+  if (!_answerPool || _answerPoolRevision !== revision) {
     const set = new Set()
     for (const n of Object.values(STORY)) {
-      if (!n.end) continue
-      for (const l of n.text.map(lineOf).filter(isContent)) set.add(lineEnglish(l))
+      for (const l of n.text.map(lineOf).filter((line) => isContent(line) && isComprehensionReadyLine(line)))
+        set.add(lineEnglish(l))
     }
     _answerPool = [...set]
+    _answerPoolRevision = revision
   }
   return _answerPool
 }
@@ -79,36 +102,152 @@ const predsOf = (id) => {
   return _preds[id] || []
 }
 
-// NEAR-MISS distractors — the test should be genuinely failable. Two makers:
-// (1) SWAP two content words of the correct answer ("the wolf eats the man" →
-//     "the man eats the wolf") — grammatical, plausible, and only real
-//     comprehension of the Albanian word order tells them apart;
-// (2) a TOPICAL pool line that shares a content word with the answer, so the
-//     odd option can't be eliminated by topic alone.
+// NEAR-MISS distractors — the test should be genuinely failable without ever
+// presenting malformed English as if it were a legitimate reading. Candidates
+// are natural readings of other real game lines, preferring the same topic and
+// a similar length. (The old word-swap maker could output nonsense such as
+// “the mother quickly comes”; it has intentionally been removed.)
 const STOPWORDS = new Set(['the', 'a', 'an', 'is', 'are', 'was', 'were', 'of', 'to', 'in', 'on', 'at', 'and', 'or', 'with', 'for', 'you', 'your', 'it', 'its', 'i', 'my', 'me', 'he', 'she', 'they', 'this', 'that', 'not', 'no'])
 const stripPunct = (w) => w.replace(/[.,!?:;]+$/, '')
 const contentWords = (s) => s.split(' ').map(stripPunct).filter((w) => w && !STOPWORDS.has(w.toLowerCase()))
-function swapWordsDistractor(correct, seed) {
-  const toks = correct.split(' ')
-  const idx = []
-  for (let i = 0; i < toks.length; i++) {
-    const w = stripPunct(toks[i])
-    if (w && !STOPWORDS.has(w.toLowerCase())) idx.push(i)
+
+let _sentencePoolsRevision = -1
+let _sentencePools = new Map()
+const sentencePoolsFor = (correct) => {
+  const revision = englishReadingRevision()
+  if (_sentencePoolsRevision !== revision) {
+    _sentencePoolsRevision = revision
+    _sentencePools = new Map()
   }
-  const pairs = []
-  for (let a = 0; a < idx.length; a++)
-    for (let b = a + 1; b < idx.length; b++)
-      if (stripPunct(toks[idx[a]]).toLowerCase() !== stripPunct(toks[idx[b]]).toLowerCase()) pairs.push([idx[a], idx[b]])
-  if (!pairs.length) return null
-  const [i1, i2] = stableShuffle(pairs, seed)[0]
-  const tail = (w) => (w.match(/[.,!?:;]+$/) || [''])[0]
-  const out = [...toks]
-  const w1 = stripPunct(out[i1])
-  const w2 = stripPunct(out[i2])
-  out[i1] = w2 + tail(toks[i1])
-  out[i2] = w1 + tail(toks[i2])
-  const swapped = out.join(' ')
-  return swapped === correct ? null : swapped
+  if (_sentencePools.has(correct)) return _sentencePools.get(correct)
+  const wc = correct.split(' ').length
+  const cw = new Set(contentWords(correct).map((word) => word.toLowerCase()))
+  const pool = answerPool().filter((sentence) => sentence !== correct)
+  const topical = pool.filter((sentence) => contentWords(sentence).some((word) => cw.has(word.toLowerCase())))
+  const near = pool.filter((sentence) => Math.abs(sentence.split(' ').length - wc) <= 2)
+  const result = [
+    topical.filter((sentence) => Math.abs(sentence.split(' ').length - wc) <= 4),
+    topical,
+    near,
+    pool,
+  ]
+  _sentencePools.set(correct, result)
+  return result
+}
+
+// If a path has fewer than four reviewed whole-line readings, the remaining
+// questions assess concrete words the player encountered on that same path.
+// This is intentionally safer than asserting that a concatenation of token
+// glosses is a valid English sentence. Context-sensitive particles and
+// homographs are excluded from isolated-word questions.
+const WORD_GRAMMAR_IDS = new Set([
+  'ti', 'une', 'ai', 'ajo', 'ata', 'ju', 'ne_we', 'ky', 'kjo', 'kush', 'qe', 'se',
+  'ne', 'tek', 'nen', 'mbi', 'nga', 'prej', 'per', 'para', 'pas', 'deri', 'me', 'pa',
+  'dhe', 'e_conj', 'por', 'ose', 'as', 'jo', 'nuk', 'mos', 'do_fut', 'te_subj',
+  'te_obj', 'e_obj', 'me_obj', 'na_obj', 'ju_obj', 'i_obj', 'i_art', 'e_art',
+  'i_link', 'e_link', 'te_link', 'nje', 'im', 'yt', 'tij', 'saj', 'tone', 'yne',
+  'tona', 'tuaj', 'juaj', 'tyre', 'vetem', 'ende', 'tani', 'pastaj', 'atje', 'ketu',
+  'shume', 'pak', 'disa', 'tjeter', 'dy', 'tre', 'kater', 'pese', 'gjashte',
+  'shtate', 'tete', 'nente', 'dhjete', 'dymbedhjete', 'dyzet', 'njeqind',
+])
+
+const cleanWordGloss = (value) => String(value || '')
+  .replace(/\s+\((?:object|buddy)\)$/i, '')
+  .replace(/\s+/g, ' ')
+  .trim()
+
+const wordCandidate = (token) => {
+  if (!token?.id || token.paren || WORD_GRAMMAR_IDS.has(token.id)) return null
+  const albanian = String(token.al || '').trim()
+  const correct = cleanWordGloss(token.en)
+  if (!albanian || !correct || correct.includes('/') || correct.split(/\s+/).length > 5) return null
+  if (albanian.toLocaleLowerCase('sq') === correct.toLocaleLowerCase('en')) return null
+  if (/^(?:of|to|in|on|at|from|for|the|a|an)$/i.test(correct)) return null
+  if (englishReadingIssues(correct).length) return null
+  return {
+    albanian,
+    correct,
+    tokenId: token.id,
+    nounLike: Boolean(DICT[token.id]?.forms) || (!NON_NOUNS.has(token.id) && !VERB_IDS.has(token.id)),
+  }
+}
+
+const unambiguousWordCandidates = (tokens) => {
+  const groups = new Map()
+  for (const token of tokens) {
+    const candidate = wordCandidate(token)
+    if (!candidate) continue
+    const key = candidate.albanian.toLocaleLowerCase('sq')
+    if (!groups.has(key)) groups.set(key, new Map())
+    groups.get(key).set(candidate.correct.toLocaleLowerCase('en'), candidate)
+  }
+  return [...groups.values()].filter((readings) => readings.size === 1).map((readings) => [...readings.values()][0])
+}
+
+let _wordAnswerPool = null
+let _storySurfaceMeanings = null
+const storySurfaceMeanings = () => {
+  if (!_storySurfaceMeanings) {
+    _storySurfaceMeanings = new Map()
+    for (const node of Object.values(STORY)) {
+      for (const entry of node.text) {
+        for (const token of lineOf(entry)) {
+          if (!token?.id || !token.al || !token.en) continue
+          const surface = token.al.toLocaleLowerCase('sq')
+          if (!_storySurfaceMeanings.has(surface)) _storySurfaceMeanings.set(surface, new Set())
+          _storySurfaceMeanings.get(surface).add(cleanWordGloss(token.en).toLocaleLowerCase('en'))
+        }
+      }
+    }
+  }
+  return _storySurfaceMeanings
+}
+
+const wordAnswerPool = () => {
+  if (!_wordAnswerPool) {
+    const tokens = Object.values(STORY).flatMap((node) => node.text.flatMap((entry) => lineOf(entry)))
+    for (const [id, entry] of Object.entries(DICT)) tokens.push({ id, al: entry.al, en: entry.en })
+    _wordAnswerPool = unambiguousWordCandidates(tokens)
+  }
+  return _wordAnswerPool
+}
+
+const wordQuestionsFromLines = (orderedLines, seedKey, count, usedAlbanian = new Set()) => {
+  if (count <= 0) return []
+  const globalPool = wordAnswerPool()
+  const globallyUnambiguous = new Set(
+    [...storySurfaceMeanings()].filter(([, meanings]) => meanings.size === 1).map(([surface]) => surface),
+  )
+  const encountered = unambiguousWordCandidates(orderedLines.flat())
+    .filter((candidate) => globallyUnambiguous.has(candidate.albanian.toLocaleLowerCase('sq')))
+    .filter((candidate) => !usedAlbanian.has(candidate.albanian.toLocaleLowerCase('sq')))
+  const choices = stableShuffle(encountered, `${seedKey}:words`).slice(0, count)
+  return choices.map((candidate, index) => {
+    const localDistractors = encountered.filter((other) =>
+      other.correct !== candidate.correct && other.tokenId !== candidate.tokenId && other.nounLike === candidate.nounLike)
+    const sameLength = globalPool.filter((other) =>
+      other.correct !== candidate.correct
+      && other.tokenId !== candidate.tokenId
+      && other.nounLike === candidate.nounLike
+      && other.correct.split(/\s+/).length === candidate.correct.split(/\s+/).length)
+    const distractors = []
+    for (const pool of [localDistractors, sameLength, globalPool]) {
+      visitStable(pool, `${seedKey}:word:${candidate.albanian}:${index}`, (other) => {
+        if (other.correct !== candidate.correct && other.tokenId !== candidate.tokenId && !distractors.includes(other.correct)) distractors.push(other.correct)
+        return distractors.length < 2
+      })
+      if (distractors.length >= 2) break
+    }
+    if (distractors.length < 2) return null
+    return {
+      kind: 'word',
+      senseId: candidate.tokenId,
+      prompt: 'What does this Albanian word mean here?',
+      albanian: candidate.albanian,
+      correct: candidate.correct,
+      options: stableShuffle([candidate.correct, ...distractors], `${seedKey}:word-options:${index}`),
+    }
+  }).filter(Boolean)
 }
 
 // Turn an ORDERED list of story lines (most substantial first) into `count`
@@ -121,40 +260,39 @@ function comprehensionFromLines(orderedLines, seedKey, count = 3) {
   const candidates = []
   for (const l of orderedLines) {
     if (candidates.length >= count + 4) break
-    if (!isContent(l)) continue
+    if (!isContent(l) || !isComprehensionReadyLine(l)) continue
     const k = lineAlbanian(l)
     if (seen.has(k) || !k) continue
     seen.add(k)
     candidates.push(l)
   }
-  if (!candidates.length) return null
   const chosen = stableShuffle(candidates, seedKey).slice(0, count)
-  const pool = answerPool()
   const qs = chosen
     .map((line, i) => {
       const correct = lineEnglish(line)
-      const wc = correct.split(' ').length
-      const cw = new Set(contentWords(correct).map((w) => w.toLowerCase()))
       const distractors = []
-      // 1: the word-order flip of the answer itself
-      const swapped = swapWordsDistractor(correct, seedKey + correct + i)
-      if (swapped) distractors.push(swapped)
-      // 2: a same-topic line (shares a content word), else a near-length line
-      const p = pool.filter((s) => s !== correct && !distractors.includes(s))
-      const topical = p.filter((s) => contentWords(s).some((w) => cw.has(w.toLowerCase())))
-      const near = p.filter((s) => Math.abs(s.split(' ').length - wc) <= 2)
-      for (const src of [topical, near, p]) {
+      // Same-topic lines first (shared content vocabulary), then near-length
+      // real readings. Both are grammatically independent sentences.
+      for (const src of sentencePoolsFor(correct)) {
         if (distractors.length >= 2) break
-        for (const s of stableShuffle(src, seedKey + correct + i)) {
-          if (distractors.length >= 2) break
+        visitStable(src, seedKey + correct + i, (s) => {
           if (s !== correct && !distractors.includes(s)) distractors.push(s)
-        }
+          return distractors.length < 2
+        })
       }
       if (distractors.length < 2) return null
-      return { albanian: lineAlbanian(line), correct, options: stableShuffle([correct, ...distractors], seedKey + i) }
+      return {
+        kind: 'sentence',
+        prompt: 'Which English reading matches this Albanian sentence?',
+        albanian: lineAlbanian(line),
+        correct,
+        options: stableShuffle([correct, ...distractors], seedKey + i),
+      }
     })
     .filter(Boolean)
-  return qs.length ? qs : null
+  const usedAlbanian = new Set(qs.map((question) => question.albanian.toLocaleLowerCase('sq')))
+  qs.push(...wordQuestionsFromLines(orderedLines, seedKey, count - qs.length, usedAlbanian))
+  return qs.length === count ? qs : null
 }
 
 // the test for an ENDING achievement. THE JOURNEY IS THE TEST: questions come
@@ -179,8 +317,9 @@ function endingComprehension(nodeId, attempt) {
     }
     frontier = next
   }
-  // fallback for endings with a thin path: the ending's own lines
-  for (const l of node.text.map(lineOf).sort((a, b) => richness(b) - richness(a))) ordered.push(l)
+  // The ending remains hidden until this gate is passed. Never draw from its
+  // own text: even an isolated-word question must come from earlier scenes,
+  // not reveal the outcome the player is trying to unlock.
   return comprehensionFromLines(ordered, nodeId + ':a' + attempt, 4)
 }
 

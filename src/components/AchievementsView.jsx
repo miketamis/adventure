@@ -4,6 +4,7 @@ import { ACHIEVEMENTS, areaProgress } from '../game/achievements.js'
 import { testFor } from '../game/comprehension.js'
 import ComprehensionTest from './ComprehensionTest.jsx'
 import FactoidLore from './FactoidLore.jsx'
+import { embodimentIdentity } from '../game/embodiment.js'
 
 // The player's ACHIEVEMENTS — the lore collection. Every achievement has three
 // states here:
@@ -22,15 +23,23 @@ export default function AchievementsView({ state, dispatch }) {
   const [open, setOpen] = useState(null) // id of the expanded earned achievement
   const [testing, setTesting] = useState(null) // { id, questions } of an open retake
   const [failedId, setFailedId] = useState(null) // row showing a just-failed note
+  const activeIdentity = embodimentIdentity(state)
+  const roleTestLocked = Boolean(activeIdentity)
 
   const got = ACHIEVEMENTS.filter((a) => earned[a.id]).length
   const fatesGot = FATES.filter((e) => earned[e.id]).length
+  const taleAchievements = ACHIEVEMENTS.filter((a) => a.kind !== 'area')
+  const areaAchievements = ACHIEVEMENTS.filter((a) => a.kind === 'area')
+  const talesGot = taleAchievements.filter((a) => earned[a.id]).length
+  const areasGot = areaAchievements.filter((a) => earned[a.id]).length
+  const anthologyComplete = got === ACHIEVEMENTS.length
 
   // actionable first (deed done, gate unpassed), then earned, then still locked
   const rank = (a) => (eligible[a.id] && !earned[a.id] ? 0 : earned[a.id] ? 1 : 2)
   const ordered = [...ACHIEVEMENTS].sort((a, b) => rank(a) - rank(b))
 
   const startTest = (a) => {
+    if (roleTestLocked) return
     const questions = testFor(a, state.attempts?.[a.id] || 0)
     if (!questions) {
       // nothing to ask — unlock outright (shouldn't happen with authored content)
@@ -43,9 +52,9 @@ export default function AchievementsView({ state, dispatch }) {
   }
 
   return (
-    <div className="card endings">
+    <section className="card endings" aria-labelledby="achievements-title">
       <div className="endings-head">
-        <h3>🏆 Achievements</h3>
+        <h2 id="achievements-title">🏆 Achievements</h2>
         <span className="endings-count">
           {got} / {ACHIEVEMENTS.length}
         </span>
@@ -57,6 +66,45 @@ export default function AchievementsView({ state, dispatch }) {
         attempt. The deed is never lost — retake the test here whenever you&apos;re ready
         (the questions will be new). Unlocking one restores all your hearts.
       </p>
+
+      {roleTestLocked && (
+        <p className="role-test-lock" role="status">
+          🎭 You are {activeIdentity}. Finish this character&apos;s tale before taking an
+          unrelated achievement test. Lore you already earned remains open to read.
+        </p>
+      )}
+
+      <section className="collection-progress" aria-labelledby="collection-progress-title">
+        <h3 id="collection-progress-title">The Living Chronicle</h3>
+        <p>
+          Complete every tale and regional discovery to finish the anthology. Bad fates are
+          optional records, never required sacrifices.
+        </p>
+        <div className="collection-progress-grid">
+          <label>
+            <span>Tales <b>{talesGot}/{taleAchievements.length}</b></span>
+            <progress value={talesGot} max={taleAchievements.length} />
+          </label>
+          <label>
+            <span>Regions <b>{areasGot}/{areaAchievements.length}</b></span>
+            <progress value={areasGot} max={areaAchievements.length} />
+          </label>
+          <label>
+            <span>Optional fates <b>{fatesGot}/{FATES.length}</b></span>
+            <progress value={fatesGot} max={FATES.length} />
+          </label>
+        </div>
+        {anthologyComplete && (
+          <div className="anthology-complete" role="status">
+            <b>✦ The Living Chronicle is complete.</b>
+            <p>
+              You have lived every recoverable tale and learned every region in this telling of
+              the world. The roads remain open: seasons, weather, people and the consequences of
+              your choices continue to change around you.
+            </p>
+          </div>
+        )}
+      </section>
 
       <div className="ending-list">
         {ordered.map((a) => {
@@ -91,7 +139,12 @@ export default function AchievementsView({ state, dispatch }) {
                   </span>
                 </span>
                 {!isTesting && (
-                  <button className="btn primary" onClick={() => startTest(a)}>
+                  <button
+                    className="btn primary"
+                    disabled={roleTestLocked}
+                    title={roleTestLocked ? `Finish ${activeIdentity}'s tale before taking this test` : undefined}
+                    onClick={() => startTest(a)}
+                  >
                     📖 Take the test →
                   </button>
                 )}
@@ -158,6 +211,6 @@ export default function AchievementsView({ state, dispatch }) {
           )
         })}
       </div>
-    </div>
+    </section>
   )
 }

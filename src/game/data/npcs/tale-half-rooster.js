@@ -46,7 +46,7 @@ export default {
   dhelpraUdhes: {
     name: 'dhelpra e udhës', glyph: '🦊', kind: 'creature',
     role: 'the road-fox — the belly-companion loosed among the king\'s geese',
-    backstory: 'She took the Half-Rooster\'s friendship on the open road, rode in his belly, and when the goose-pen was meant to peck him to death she ate the king\'s geese to the last feather and slipped off to the thickets. A loyal companion fox, faithful to a friend — NOT Kuma Lisa, the trickster she-fox of the planted-butter lie; two foxes, two natures.',
+    backstory: 'She took the Half-Rooster\'s friendship on the open road, rode in his belly, and when the goose-pen was meant to peck him to death she ate the king\'s geese to the last feather and slipped off to the thickets. A loyal companion fox, faithful to a friend — NOT Kuma Lisa, the trickster she-fox who steals the shared honey during three invented christenings and escapes by bare denial; two foxes, two natures.',
     folklore: ['half-rooster'],
     location: { status: 'planning', plan: 'the roadside thickets off the road out of the village (start) — tale-era; unstaged' },
     tales: { 'half-rooster': 'dhelpra' },

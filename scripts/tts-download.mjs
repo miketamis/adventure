@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // TTS DOWNLOADER
-// Generates one MP3 per unique Albanian surface in the game using Azure Neural
+// Generates one MP3 per case-folded Albanian surface in the game using Azure Neural
 // TTS, writing them to public/audio/<slug>.mp3. Already-downloaded clips are
 // skipped, so re-running only fills gaps.
 //
@@ -14,6 +14,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { DICT, STORY } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
+import { collectAudioSurfaces } from './lib/audio-surfaces.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -45,24 +46,6 @@ if (!region) {
   process.exit(1)
 }
 const TTS_HOST = `https://${region}.tts.speech.microsoft.com`
-
-// --- collect every unique Albanian surface --------------------------------
-function collectSurfaces() {
-  const set = new Set()
-  const add = (al) => {
-    if (typeof al === 'string' && al.trim()) set.add(al.trim())
-  }
-  for (const entry of Object.values(DICT)) add(entry.al)
-  const walk = (node) => {
-    if (!node || typeof node !== 'object') return
-    if (typeof node.al === 'string' && !node.paren) add(node.al)
-    for (const v of Object.values(node)) {
-      if (v && typeof v === 'object') walk(v)
-    }
-  }
-  walk(STORY)
-  return [...set].sort((a, b) => a.localeCompare(b, 'sq'))
-}
 
 // --- pick the best Albanian neural voice -----------------------------------
 async function pickVoice() {
@@ -115,11 +98,22 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 async function main() {
   mkdirSync(OUT_DIR, { recursive: true })
-  const surfaces = collectSurfaces()
+  const authoredSurfaces = collectAudioSurfaces(DICT, STORY)
+  // Capitalization variants share one deterministic runtime URL and one
+  // pronunciation. Generate each case-folded filename only once.
+  const bySlug = new Map()
+  for (const al of authoredSurfaces) {
+    const slug = audioSlug(al)
+    const previous = bySlug.get(slug)
+    if (!previous || (previous[0] === previous[0].toUpperCase() && al[0] !== al[0].toUpperCase())) {
+      bySlug.set(slug, al)
+    }
+  }
+  const surfaces = [...bySlug.values()]
   const todo = surfaces.filter(
     (al) => FORCE || !existsSync(resolve(OUT_DIR, `${audioSlug(al)}.mp3`)),
   )
-  console.log(`${surfaces.length} surfaces total, ${todo.length} to generate.`)
+  console.log(`${authoredSurfaces.length} authored surfaces / ${surfaces.length} case-folded clips, ${todo.length} to generate.`)
   if (!todo.length) return
 
   const voice = await pickVoice()

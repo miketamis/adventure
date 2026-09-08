@@ -7,6 +7,10 @@
 export default {
   id: 'gjakova-cavern',
   title: 'The Gjakova cavern — the dead city guarded by Oras',
+  references: [
+    { role: 'facsimile', citation: 'M. Edith Durham, High Albania (1909) — Internet Archive scan', url: 'https://archive.org/details/highalbania', note: 'Selected English field witness; the Gjakova cavern passage is on pp. 263–264.' },
+    { role: 'catalog', citation: 'M. Edith Durham, High Albania — Google Books bibliographic record', url: 'https://books.google.com/books/about/High_Albania.html?id=LU5cnzftbk8C' },
+  ],
   source:
     'M. Edith Durham, High Albania (Edward Arnold, London, 1909), ch. "The Debatable Lands" (the Djakova section), pp. 263-264 · read directly from Durham\'s own English (she recorded this from oral testimony gathered at Djakova in 1908; there is no translated intermediary) — the extract is saved at docs/references/durham-high-albania-1909-gjakova.en.txt; all lines paraphrased in the tale author\'s own words',
   // where the tale comes from — anchors should prefer this region's mirrors.
@@ -33,7 +37,7 @@ export default {
   discrepancies: [
     'THE TORCH MECHANIC: Durham\'s own text only implies a torch in the warning clause ("his torch at once goes out") — she never says a torch must be carried in to see anything at all. The game\'s shpellaHyrje scene turns this into a hard mechanic (no pishtar torch, made at the forest campfire lendina, and the cave shows only blackness). This is a faithful dramatization of her one clause, not an invented incident, and this tale\'s own beats do not depend on it.',
     'THE THREE-ROAD RIDDLE (shpellaRruget) and the sword-branch that kills the guardian serpent for a cursed hoard (gjarperVrare, tying in the vitore\'s doom): both are the game\'s own additions inside the cavern, absent from Durham\'s four paragraphs. Neither contradicts her account — she never says the cavern has only one passage, nor forbids a fight — so they stand as elaboration, not correction. This tale\'s line coverage stays strictly to her own four paragraphs and does not cover these branches.',
-    'THE "LIVING QUARTER" (sheshi/tregtari/bujtina/sheruesi/udhetariHuaj) built into the dead city for the survival-vocabulary vignettes contradicts Durham\'s flat "no man now lives" — a deliberate departure for gameplay, not this tale\'s to resolve. This tale\'s beats keep the city as Durham gives it: dead, but its bazaar still stocked.',
+    'DEAD CITY / LIVING GJAKOVA: the survival-vocabulary quarter (sheshi/tregtari/bujtina/sheruesi/udhetariHuaj) is the living surface town of Gjakova outside the cavern, not a quarter of the underground city. The cave route now returns through the cavern mouth before reaching it, and the map draws the two settlements separately. Durham\'s city below therefore remains wholly uninhabited.',
   ],
   // sentence counts of the four paragraphs used (Durham, High Albania, 1909,
   // "The Debatable Lands" — see docs/references/durham-high-albania-1909-gjakova.en.txt)
@@ -77,6 +81,7 @@ export default {
     { id: 'chapelRuins', emoji: '⛪', name: 'the ruined chapel', note: 'broken walls on a hill not far from Djakova — a second ground the same oras keep',
       anchor: { status: 'proposed', node: 'fshehur', mirror: 'a hillside ruin near Djakova, the second guarded spot of Durham\'s own telling',
         mold: 'holy, or haunted, ground: lightning answers the treasure-digger, a leaping swarm of serpents answers the stone-robbers, and kneeling oxen are the district\'s final, undeniable proof — nobody has touched it since',
+        conflicts: 'NOT the dead city below or the informant\'s present-day riverbank: Durham names this as a second, separate guarded ruin on a nearby hillside',
         proposal: 'draw a small ruined chapel on the hillside near the river district (nearest built node: fshehur) — broken walls, no roof, a silence the local travellers give a wide berth' } },
   ],
   items: [

@@ -20,8 +20,9 @@
 #
 # [A] Fishta & Lambertz, Albanische Märchen (und andere Texte zur
 #     albanischen Volkskunde), Schriften der Balkankommission, Akademie der
-#     Wissenschaften in Wien, Bd. XII (1958) — THE SAME WORK English
-#     Wikipedia's "Baba Tomor" article cites as "Fishta & Lambertz (1958)".
+#     Wissenschaften in Wien, Bd. XII (1922). The title page and Internet
+#     Archive catalogue both date this edition to 1922; the former 1958 date
+#     was inherited from an erroneous secondary citation.
 #     Already in this repo's corpus as docs/references/lambertz-albanische-
 #     marchen.de-sq.txt (confirmed by its own title page, lines 1-10).
 #     Two passages concern this legend:
@@ -36,7 +37,7 @@
 #            German prose retelling of the legend AS HE HEARD IT IN BERAT,
 #            reproduced raw below.
 #
-# ── [A.ii] Lambertz, Albanische Märchen (1958), footnote, pp. 42-43 ────────
+# ── [A.ii] Lambertz, Albanische Märchen (1922), footnote, pp. 42-43 ────────
 # (raw OCR from docs/references/lambertz-albanische-marchen.de-sq.txt,
 #  lines 3059-3145; long ſ/ligature OCR artifacts kept as scanned)
 #
@@ -98,7 +99,7 @@
 # die  Flucht  und  Tomor  war  Sieger.
 #
 # ── HOW THIS DIFFERS FROM ELSIE'S TELLING (the tale's actual source) ──────
-# This 1958 footnote's ending DIVERGES from the 1973 Wörterbuch-der-
+# This 1922 footnote's ending DIVERGES from the 1973 Wörterbuch-der-
 # Mythologie telling Elsie translated: here Shpiraku FLEES and Tomor ALONE
 # survives as victor (no mutual death); a great WALNUT TREE helps by pelting
 # Shpirag with nuts (stone nut/leaf-prints also shown at Sinja, beside the

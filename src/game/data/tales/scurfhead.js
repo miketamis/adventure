@@ -9,6 +9,32 @@ export default {
   title: 'The Scurfhead',
   source:
     'Thimi Mitko, Bleta shqypëtare / Albanikê melissa (Alexandria, 1878), repr. Folklor shqiptar 1, Proza popullore (Tirana, 1963) · read in R. Elsie\'s translation ("The Scurfhead"); all lines paraphrased',
+  references: [
+    {
+      role: 'translation',
+      citation: 'Robert Elsie (trans.), “The Scurfhead,” after Thimi Mitko, Bleta shqypëtare (1878)',
+      url: 'http://www.albanianliterature.net/folktales/tale_02.html',
+      note: 'The exact English translation selected for the beat record; the surviving author site has no working HTTPS endpoint.',
+    },
+    {
+      role: 'variant',
+      citation: 'Gustav Meyer, “Qerozi,” Kurzgefasste albanesische Grammatik mit Lesestücken und Glossar (Leipzig, 1888), pp. 60–67',
+      url: 'https://archive.org/details/kurzgefasstealb00meyegoog',
+      note: 'Page-image access to a shorter, plot-matching Albanian chrestomathy retelling; it is not Mitko’s exact selected witness.',
+    },
+    {
+      role: 'catalog',
+      citation: 'Gustav Meyer, Kurzgefasste albanesische Grammatik (Leipzig, 1888), University of Shkodra digital catalogue',
+      url: 'https://adsh.unishk.edu.al/items/show/354',
+      note: 'Institutional bibliographic record for the edition containing the Albanian parallel used to check the tale.',
+    },
+    {
+      role: 'catalog',
+      citation: 'Robert Elsie, Albanian Folktales and Legends (Dukagjini, 2001): online book record and contents',
+      url: 'http://books.elsie.de/2004-1986/b09.html',
+      note: 'Author-maintained catalogue and contents page documenting the English anthology; its legacy host has no working HTTPS endpoint.',
+    },
+  ],
   // same collector/collection as three-friends (Elsie's tale 3) — this is Elsie's tale 2
   origin: { region: 'South Albania (Tosk)', collector: 'Thimi Mitko, of Korçë', published: 'Alexandria, 1878' },
   // ALBANIAN ORIGINAL RECOVERED 2026-07-15 — re-hunt confirmed the 1954 corpus
@@ -34,6 +60,7 @@ export default {
     source:
       'Gustav Meyer, Kurzgefasste albanesische Grammatik mit Lesestücken und Glossar (Leipzig, 1888), Lesestücke §3 "Qerozi", pp. 60(61)-67 — read directly off the scan\'s page images (archive.org id kurzgefasstealb00meyegoog, PDF pp. 78-85), NOT the site\'s corrupted OCR text. Transliterated from Meyer\'s own 1888 phonetic alphabet (his §§1-12) into modern Albanian orthography — a shorter chrestomathy retelling of the same Mitko tale Elsie translated, not a copy of Elsie\'s source text, so paragraph/sentence breaks are Meyer\'s own and only approximately track Elsie\'s numbering (see discrepancies). A handful of individual words remain uncertain even on the clean scan (cursive 1880s type, unfamiliar dialect items) and are marked [sic] at their one or two occurrences. `local` below is the RAW machine-OCR text per schema (unusable letter-for-letter, disclosed as such in its own header); the CLEAN page-image reconstruction actually checked word-for-word against every beat line\'s Albanian is the sibling file docs/references/meyer-qerozi-scurfhead.sq.txt.',
     local: 'docs/references/meyer-qerozi-scurfhead.de-sq.txt',
+    proofLocal: 'docs/references/meyer-qerozi-scurfhead.sq.txt',
   },
   discrepancies: [
     'STRUCTURE: Meyer\'s Lesestücke text is a trimmed chrestomathy retelling, not the Mitko original Elsie translated — its paragraph/sentence breaks do not match Elsie\'s one-for-one. Beat lines quote the Meyer clause that covers the same event, using ranges where Meyer merges several of Elsie\'s sentences into one.',
@@ -209,7 +236,7 @@ export default {
       lines: [
         ['4.1-2', 'The third son is the Scurfhead. Delighted that his brothers failed, he tells his father he too will guard the last quince.', 'Vëllezërit, sepse ai ish edhe qeros, e kishin të përbuzur; duke parë këtë turp mbi ata, u gëzua tepër, edhe doli përpara t\'et e i mori fjalën edhe kërkoi të tjera gjithë sa i duheshin për të mbrojtur ftonjtë,'],
         ['4.3', 'He collects what he needs, slips into the garden, and hides behind a tree.', 'edhe vate e u fsheh mu përpara drurit të tij.'],
-        ['4.4', 'When the dragon comes he springs out bravely and wounds it so badly that it flees.', 'Kur erdhi lamja, në çast i u lëshua ky me zemër e me trimëri edhe i ra [sic] e e plagosi rëndë kaq sa iku prap ajo në ditë të keqe.'],
+        ['4.4', 'When the dragon comes he springs out bravely and wounds it so badly that it flees.', 'Kur erdhi lamja, në çast i u lëshua ky me zemër e me trimëri edhe i ra e e plagosi rëndë kaq sa iku prap ajo në ditë të keqe.', 'The repeated construction around “i ra” is uncertain in the scan and retained without conjectural repair.'],
         ['4.5', 'Seeing such courage, the two elder brothers hang their heads in shame.', 'Të vëllezërit kur panë trimërinë e Qerozit, lëshuan hundët,'],
         ['4.6', 'Envy stings them, since neither had managed to fight it at all.', 'e u erdhi zili, sepse ata mbetën në turp mbi luftën e lamies.'],
         ['4.7', 'Still, hearing the shouting and the dragon\'s roar, they run to help, and the three chase it in fury until it vanishes down a hole in the ground.', 'Po me gjithë këto, posa dëgjuan ata thirrjet e tij edhe të pëlliturit e lamies, u sulën edhe ata për të ndihmuar, edhe e ndoqën egërsisht deri sa ajo hyri në një vrimë, të tre së bashku.'],
@@ -295,7 +322,7 @@ export default {
       id: 'dragonSlain', title: 'The well runs red',
       note: 'The dragon returns bloodied from its garden wound; a falling tear wakes the sleeping Scurfhead, who drives it into a well to its death — and the hoarded water gushes out crimson.',
       lines: [
-        ['8.1', 'At last the dragon arrives, still bloodied from its garden wound.', 'Më së fundi erdhi lamja e përgjakur keq nga plagat që kishte marrë [sic] në kopshtet,'],
+        ['8.1', 'At last the dragon arrives, still bloodied from its garden wound.', 'Më së fundi erdhi lamja e përgjakur keq nga plagat që kishte marrë në kopshtet,', 'The source construction is retained without editorial “[sic]” in the source-language field.'],
         ['8.2', 'By now the Scurfhead lies sleeping, his head resting on the girl\'s lap.', 'e çupa duke mbajtur Qerozin, i cili po flinte mbështetur kryet mbi prehrin e asaj,'],
         ['8.3', 'At the sight of the bloodied beast she starts to shake, and warm tears well up.', 'posa e pa, u drodh nga frika, edhe lëshoi nga sytë e saj mbi kryet e Qerozit një lot aq të nxehtë,'],
         ['8.4', 'One tear falls on his face and wakes him.', 'sa ai u zgjua në çast'],

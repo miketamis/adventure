@@ -8,7 +8,7 @@ export default {
   vajzaDiellit: {
     name: 'vajza e taksur Diellit', glyph: '👧', kind: 'human',
     role: 'the queen\'s daughter, vowed to the Sun before her birth',
-    backstory: 'Born to a childless queen who begged God and the Sun for any child at all — and pledged the child back at twelve. Taken off the school lane in her twelfth year; wept over a cracked cabbage in the sky-garden ("as this cabbage cracks, so cracks my mother\'s heart"); called the stag HERSELF when the Kulshedra failed the carrier-test; kept the oak\'s one rule and stalled the beast with her own words («çap në shtëpi edhe kthehu»); hers is the one voice the black door opens for. Her story runs on past that door — the marble garden, the three-week vigil and the false bride are the goose-girl movement, its own tale.',
+    backstory: 'Born to a childless queen who begged God and the Sun for any child at all — and pledged the child back at twelve. Taken off the school lane in her twelfth year; wept over a cracked cabbage in the sky-garden ("as this cabbage cracks, so cracks my mother\'s heart"); called the stag HERSELF when the Kulshedra failed the carrier-test; kept the oak\'s one rule and stalled the beast with her own words («çap në shtëpi edhe kthehu»); hers is the one voice the black door opens for. Her story runs on past that door — the marble garden, the vigil of three weeks plus three days and nights, and the false bride are the goose-girl movement, its own tale.',
     folklore: ['maiden-promised-sun', 'goose-girl'],
     location: { status: 'placed', node: 'diellKopsht' },
     tales: { 'maiden-promised-sun': 'maiden' },

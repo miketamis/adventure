@@ -7,6 +7,12 @@
 export default {
   id: 'cuckoo',
   title: 'The Origin of the Cuckoo — Gjon and the Cuckoo',
+  references: [
+    { role: 'facsimile', citation: 'Johann Georg von Hahn, Albanesische Studien (1854), all three volumes — Digital Library of Slovenia', url: 'https://www.dlib.si/details/URN%3ANBN%3ASI%3Adoc-POV0ZX2I', note: 'National and University Library of Slovenia institutional scan of the first printing, including the p. 165 provenance note and Greek-alphabet Albanian song.' },
+    { role: 'facsimile', citation: 'Johann Georg von Hahn, Griechische und albanesische Märchen (1864) — Internet Archive scan', url: 'https://archive.org/details/griechischeunda00hahngoog', note: 'Selected witness, no. 104 «Entstehung des Kuckucks».' },
+    { role: 'source-text', citation: 'von Hahn no. 104, «Entstehung des Kuckucks» — Märchenbasar transcription', url: 'https://maerchenbasar.de/entstehung-des-kuckucks/' },
+    { role: 'catalog', citation: 'Griechische und albanesische Märchen (1864) — Open Library record', url: 'https://openlibrary.org/works/OL13087296W/Griechische_und_albanesische_M%C3%A4rchen' },
+  ],
   source:
     'J. G. von Hahn, Albanesische Studien (Jena 1854) / Griechische und albanesische Märchen No. 104 (1864) · read in the German original — no English translation exists; all lines paraphrased from the German',
   // von Hahn's own note to No. 104 names both tellings' homes: "Aus Ljabowo
@@ -27,7 +33,7 @@ export default {
   },
   // where the tellings diverge — which reading the beats follow, per case
   discrepancies: [
-    'ONE BROTHER OR TWO (¶1.1): the lore card compresses the family to a single brother Gjon ("he becomes the little Gjon-bird"); von Hahn is explicit there were TWO brothers who both bore the name — the murdered one, and the survivor whom grief turned into the bird. The beats follow von Hahn; the card\'s poignancy survives intact, since the name the bird cries for his brother is also his own.',
+    'TWO BROTHERS, ONE NAME (¶1.1): von Hahn is explicit that there were TWO brothers who both bore the name Gjon — one was killed, while grief turned the survivor into the gjon-bird. The lore card and playable scene now preserve all three siblings and distinguish the dead Gjon from the surviving bird.',
     'MURDER vs ACCIDENT (¶1.2-3): the 1854 Studien (Elbasan) knows only that the second Gjon "was murdered — the closer circumstances were not to be learned here"; the scissors-slip is the Rica telling, which the 1864 Märchen adopts as the story. The beats follow the Märchen: an accident of absorbed hands, no murderer.',
     'THE SONG\'S DARKER DEATH (¶3.4-5): the song asks the flower whether she saw her brother «kë e therin posi ka» — slaughtered like an ox, blood in the spoon, flesh in the cup — a butchering, not a scissors-slip; the verse plainly remembers Elbasan\'s murder variant. Kept verbatim: the beats let the song contradict its frame exactly as the original does.',
     'BIRD OR FLOWER (¶2.1): Elbasan also tells that the sister became not the cuckoo but the blue cuckoo-flower — lul\' e qyqes (Tosk: buk\' e qyqe, "cuckoo\'s bread"). The tale itself keeps both endings side by side and so do the beats: bird in beat 3, flower in beats 4-6.',
@@ -50,7 +56,7 @@ export default {
     { id: 'shtepia', emoji: '🪡', name: 'the sewing house', note: 'the siblings\' house where the sister sat at her needlework',
       anchor: { status: 'existing', node: 'cuckoo1', mirror: 'a needlework house on a back lane of old Tirana\'s mëhalla — the game\'s village stands in the tale\'s own central Albania, a day\'s ride from Elbasan',
         mold: 'a modest house whose door opens on the back lane: a sister at her sewing, two brothers who share one name — the lane already tells this story (cuckoo1/cuckooFund alias here, and the lane scene itself says «një zog tjetër thotë: Gjon!»); bird-tellings accumulate on this lane without clashing (the swallow-and-serpent telling is its neighbour)',
-        conflicts: 'NOT gjizar1 — the lane-FORK house belongs to the bee tale\'s dying mother and her three daughters; this is a different house one lane back: three siblings, nobody sick, and death arrives by accident, not age',
+        conflicts: 'NOT gjizar1 — the lane-FORK house belongs to the bee tale\'s sick mother and her three daughters; this is a different house one lane back: three siblings, nobody sick, and death arrives by accident, not age',
         sharedWith: ['the back-lane threads (the king\'s golden chick, the swallow and the serpent)'] } },
     { id: 'pylli', emoji: '🌲', name: 'the calling woods', note: 'where the two birds cry across the trees — she by day, he by night — and never meet',
       anchor: { status: 'existing', node: 'pylli1', mirror: 'the beech woods on the hills above the village — central Albania, the tale\'s own country',
@@ -75,9 +81,9 @@ export default {
     stance: 'embodied',
     as: 'qyqja',
     role:
-      'You are the sister — the Kjükje. By a terrible slip of your scissors your brother Gjon lies dead, and the shape your grief takes is yours: the cuckoo who calls "Ku? Ku?" — "where? where?" — down all the years, or the blue cuckoo-flower that lays its little head in the women\'s open hands.',
+      'You are the sister — the Kjükje — of two brothers who are both named Gjon. A terrible slip of your scissors kills one; grief changes the surviving Gjon into the night-bird that calls their shared name, while your own grief takes one of the tale\'s two forms: the cuckoo who asks "Ku? Ku?" by day, or the blue cuckoo-flower that lays its head in the women\'s hands.',
     enter:
-      'you are the sister at her sewing, and your brother Gjon is about to step too close to the working scissors',
+      'you are the sister at her sewing; one of your two brothers named Gjon is about to step too close to the working scissors, while the other survives to become the night-bird',
     from: 'cuckoo1',
     ending: 'cuckooFund',
     scenes: {
@@ -87,7 +93,7 @@ export default {
     },
     divergences: [
       { beat: 'zogjte', note: 'The tale tells two endings — grief makes the sister the cuckoo, "or else" the blue cuckoo-flower. The game makes that the player\'s fork: call for Gjon forever (become the cuckoo, with the Gjon-bird answering by night) or lie down in the field (become the flower). Both are secret transformation-endings; neither undoes the death.' },
-      { beat: 'gjinia', note: 'The original has TWO brothers both named Gjon (the sister kills one; the survivor becomes the Gjon-bird). The game keeps one brother Gjon for clarity — the surviving Gjon-bird that answers "Gjon! Gjon!" by night is folded into the cuckoo ending.' },
+      { beat: 'gjinia', note: 'The playable scene keeps von Hahn\'s exact family structure: the sister has two brothers and both are named Gjon. Her scissors kill one; the other is explicitly the Gjon who becomes the night-bird and calls the name shared with his dead brother.' },
       { beat: 'kenga', note: 'The women\'s song to the cuckoo-flower (five lines in Von Hahn\'s German) has no locatable Albanian original, so it is not slotted as a verbatim Q() quote — the women\'s singing and the flower bowing its head into their palms are narrated instead.' },
     ],
   },

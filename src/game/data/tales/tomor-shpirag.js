@@ -16,6 +16,32 @@ export default {
   title: 'Baba Tomor and Shpirag — the giants who fought over the Beauty',
   source:
     'Maximilian Lambertz, "Die Mythologie der Albaner", in Wörterbuch der Mythologie (Stuttgart 1973), pp. 504-505 · read in R. Elsie\'s translation (legend_01.html, albanianliterature.net); all lines paraphrased',
+  references: [
+    {
+      role: 'translation',
+      citation: 'Robert Elsie (trans.), “Baba Tomor and Shpirag,” after Maximilian Lambertz, Die Mythologie der Albaner (1973), pp. 504–505',
+      url: 'http://www.albanianliterature.net/legends/legend_01.html',
+      note: 'The exact English translation selected for the beat record on Elsie’s surviving author site, which is served over HTTP only.',
+    },
+    {
+      role: 'catalog',
+      citation: 'Maximilian Lambertz, Die Mythologie der Albaner, Wörterbuch der Mythologie (1973), RelBib record',
+      url: 'https://relbib.de/Record/1073572021',
+      note: 'Specialist bibliographic record for the exact source publication cited by the translation.',
+    },
+    {
+      role: 'scholarship',
+      citation: 'Raino Eetu Isto, Monumental Endeavors: Sculpting History in Southeastern Europe, 1960–2016 (PhD diss., University of Maryland, 2018), p. 199',
+      url: 'https://api.drum.lib.umd.edu/server/api/core/bitstreams/5878fd75-f19a-4520-99ae-75d987b570ea/content',
+      note: 'Institutional scholarly access to a different local version in which the mountains are brothers; it is not Lambertz’s selected telling.',
+    },
+    {
+      role: 'scholarship',
+      citation: 'Oliver Schmitt, “Der Tomorr: Der heilige Berg der Bektashi-Derwische in historischer Perspektive,” in Navigating the Worlds of History, vol. 3 (2024), pp. 1235–1253',
+      url: 'https://ucrisportal.univie.ac.at/de/publications/der-tomorr-der-heilige-berg-der-bektashi-derwische-in-historische/',
+      note: 'Current scholarship on Mount Tomorr as a sacred landscape; contextual, not a witness for the giant-fight narrative.',
+    },
+  ],
   // where the tale comes from — anchors should prefer this region's mirrors
   origin: {
     region: 'South-Central Albania (Berat / Mount Tomorr) — a place-origin legend of the Tomorr massif',
@@ -26,14 +52,14 @@ export default {
   albanian: {
     status: 'missing',
     why:
-      'Searched exhaustively for an Albanian original of THIS telling (Baba Tomor & Shpirag fighting over E Bukura e Dheut, as synthesized by Lambertz for Wörterbuch der Mythologie 1973 and translated by Elsie) and found none. Local corpora: pralla-popullore-shqiptare-1954 (grep tomor/tomorr/shpirag — 0 hits), Dozon\'s Manuel, Jarník, Meyer\'s Kurzgefasste Grammatik — nothing. Von Hahn\'s Albanesische Studien only uses "Tomoros/Tomorus" as a geographic/etymological landmark, never narrating this legend. Fishta\'s Lahuta e Malcís mentions "mal t\' Tomorrit" twice (as a Kreshnik-epic simile, not this story). The one local hit that matters is docs/references/lambertz-albanische-marchen.de-sq.txt — Fishta & Lambertz, Albanische Märchen (Wien 1958), the SAME work English Wikipedia\'s "Baba Tomor" article cites: its pp. 42-43 footnote (raw OCR + full provenance saved to docs/references/lambertz-baba-tomor-shpirag.de.txt) prints, IN GERMAN ONLY, an oral account Lambertz heard in Berat, noting it was separately versified in ALBANIAN by the Elbasan poet Lip Papajanni — but that verse is never quoted there and has not been located anywhere else (checked archive.org full-text, Google Books, HathiTrust; Çajupi\'s famous "Baba Tomori" 1902 is a different, later patriotic dialogue-poem, not this narrative). Web search (2026-07-15) surfaces only a DIFFERENT modern oral variant (standard.al 2015; rrugapress.al; forum-al.com), where Tomorr and Shpirag are BROTHERS rivalling over a Zana named Kala, with no eagles/wind/mule/scythe/cudgel and God turning all three to stone for the fratricide — a distinct local legend for the same landscape, not a variant of Elsie/Lambertz\'s telling, so per the schema\'s rule it is declared missing rather than mined for lines. Nothing found may feed the Q() quote system; back-translating Elsie\'s or Lambertz\'s prose is forbidden.',
+      'Searched exhaustively for an Albanian original of THIS telling (Baba Tomor & Shpirag fighting over E Bukura e Dheut, as synthesized by Lambertz for Wörterbuch der Mythologie 1973 and translated by Elsie) and found none. Local corpora: pralla-popullore-shqiptare-1954 (grep tomor/tomorr/shpirag — 0 hits), Dozon\'s Manuel, Jarník, Meyer\'s Kurzgefasste Grammatik — nothing. Von Hahn\'s Albanesische Studien only uses "Tomoros/Tomorus" as a geographic/etymological landmark, never narrating this legend. Fishta\'s Lahuta e Malcís mentions "mal t\' Tomorrit" twice (as a Kreshnik-epic simile, not this story). The one local hit that matters is docs/references/lambertz-albanische-marchen.de-sq.txt — Maximilian Lambertz, Albanische Märchen (Wien 1922), Schriften der Balkankommission XII: its pp. 42-43 footnote (raw OCR + full provenance saved to docs/references/lambertz-baba-tomor-shpirag.de.txt) prints, IN GERMAN ONLY, an oral account Lambertz heard in Berat, noting it was separately versified in ALBANIAN by the Elbasan poet Lip Papajanni — but that verse is never quoted there and has not been located anywhere else (checked archive.org full-text, Google Books, HathiTrust; Çajupi\'s famous "Baba Tomori" 1902 is a different, later patriotic dialogue-poem, not this narrative). Web search (2026-07-15) surfaces only a DIFFERENT modern oral variant (standard.al 2015; rrugapress.al; forum-al.com), where Tomorr and Shpirag are BROTHERS rivalling over a Zana named Kala, with no eagles/wind/mule/scythe/cudgel and God turning all three to stone for the fratricide — a distinct local legend for the same landscape, not a variant of Elsie/Lambertz\'s telling, so per the schema\'s rule it is declared missing rather than mined for lines. Nothing found may feed the Q() quote system; back-translating Elsie\'s or Lambertz\'s prose is forbidden.',
     local: 'docs/references/lambertz-baba-tomor-shpirag.de.txt',
   },
   // open calls the beats had to decide — quoted variants, and how the beats
   // reconcile this legend's mythic "deaths" with figures who are ALREADY
   // alive elsewhere in this game's standing world
   discrepancies: [
-    'A DIFFERENT LAMBERTZ TELLING, NO MUTUAL DEATH (docs/references/lambertz-baba-tomor-shpirag.de.txt): the earlier 1958 Lambertz footnote (a variant heard in Berat) has Shpirag FLEE and Tomor alone survive as victor — no mutual death, no drowning, no Osum river — and adds a great walnut tree that helps Tomor by pelting Shpirag with nuts (stone nut-prints shown at Sinja beside the mule\'s hoofprint). Elsie\'s 1973 telling (this tale\'s actual source, a later and fuller Lambertz text) has both giants slay each other and the Beauty drown in her tears to make the Osum — the beats follow Elsie; the walnut tree is not used anywhere here.',
+    'A DIFFERENT LAMBERTZ TELLING, NO MUTUAL DEATH (docs/references/lambertz-baba-tomor-shpirag.de.txt): the earlier 1922 Lambertz footnote (a variant heard in Berat) has Shpirag FLEE and Tomor alone survive as victor — no mutual death, no drowning, no Osum river — and adds a great walnut tree that helps Tomor by pelting Shpirag with nuts (stone nut-prints shown at Sinja beside the mule\'s hoofprint). Elsie\'s 1973 telling (this tale\'s actual source, a later and fuller Lambertz text) has both giants slay each other and the Beauty drown in her tears to make the Osum — the beats follow Elsie; the walnut tree is not used anywhere here.',
     'A DIFFERENT MODERN VARIANT, BROTHERS NOT RIVALS (web search 2026-07-15: standard.al, rrugapress.al, forum-al.com): Tomorr and Shpirag as brothers dueling over one Zana ("Kala"), all three turned to stone by God as punishment. This is a separate local legend for the same two mountains, not a variant of the Lambertz/Elsie telling this tale follows, and none of its details (brothers, punishment, the name Kala) are used here.',
     'BABA TOMOR\'S "DEATH" (¶2.13) vs. the main quest: read plainly, Elsie\'s English ends Baba Tomor\'s story for good ("the two giants ultimately slew one another"), yet the game\'s own tomor1/tomor2/tomor3/majaEagle/tomorBekim already show him alive, arming wandering heroes on these very slopes. The beats follow Elsie literally — he dies of Shpirag\'s cudgel — but read that death AS his becoming the mountain forever, the same resolution the game already gives Shpirag ("the petrified rival of a finished war", per the goose-girl tale\'s own note): the peak itself is what remains, and it is the peak that still speaks, still arms, still receives the region\'s oldest oath.',
     'THE BEAUTY\'S DROWNING (¶2.13) vs. her registry seriality: taken as a permanent death this would break E Bukura e Dheut\'s established nature (her core registry entry: "the lore itself hands her to hero after hero... no tale may claim her permanently gone"). The beats keep Elsie\'s image — she weeps herself to death in THIS telling — as this era\'s ending only, exactly as Kordha\'s winning of her is its own separate era (see three-friends\' own palace mold); nothing here shows her return, but nothing here forecloses it either.',

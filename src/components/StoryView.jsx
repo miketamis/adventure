@@ -1,16 +1,69 @@
-import { useState, useEffect, useMemo } from 'react'
+import { lazy, Suspense, useState, useEffect, useMemo, useRef } from 'react'
 import Token from './Token.jsx'
-import { STORY, ITEMS, HEART_LEVELS, w, wf, p, visibleLines } from '../game/content.js'
-import { canSpeak, canUseItem, hasRequiredItem, hasCond, canAfford, phraseSenses, isBacktrack } from '../game/gameState.js'
-import { NON_NOUNS, stableShuffle, testFor } from '../game/comprehension.js'
+import { STORY, ITEMS, HEART_LEVELS, w, wf, p, lineOf, visibleLines } from '../game/content.js'
+import {
+  canAfford,
+  canSpeak,
+  canUseItem,
+  currentStoryState,
+  environmentSnapshot,
+  hasCond,
+  hasRequiredItem,
+  phraseSenses,
+} from '../game/gameState.js'
+import { englishReadingOf, hasAuthoredEnglishReading } from '../game/language.js'
+import { stableShuffle, testFor } from '../game/comprehension.js'
 import { ACHIEVEMENT_BY_ID } from '../game/achievements.js'
 import ComprehensionTest from './ComprehensionTest.jsx'
-import FactoidLore from './FactoidLore.jsx'
+import WorldContext from './WorldContext.jsx'
+import EmbodimentFocus from './EmbodimentFocus.jsx'
+import { isDistantLineVisible, transitionInfo } from '../game/worldModel.js'
+import { embodimentOptionAccess, embodimentQuest } from '../game/embodiment.js'
+import { resolveRevealLine } from '../game/revealResolver.js'
+import { isOptionRevealed } from '../game/revealVisibility.js'
+import { QUOTES, quoteProofUrl, quoteTier } from '../game/quotes.js'
+import {
+  attachReviewedOptionReadings,
+  dynamicItemConfuserEnglish,
+  optionEnglishReadingOf,
+} from '../game/data/readings/reviewedOptionReadings.js'
+
+const FactoidLore = lazy(() => import('./FactoidLore.jsx'))
+attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
+
+const QUOTE_REPO_BLOB = 'https://github.com/miketamis/adventure/blob/main/'
+const QUOTE_TIER_LABEL = {
+  corpus: 'local proof',
+  variant: 'related variant',
+  external: 'external citation',
+  oral: 'oral attribution',
+}
 
 const LIQUID_ITEMS = new Set(['qumesht', 'potion', 'cajMali']) // drinkable — don't "drink the X" them
+const FESTIVAL_LABEL = {
+  ditaVeres: 'Dita e Verës',
+  nenaDiellit: 'Nëna e Diellit',
+  shengjergjEve: 'Shëngjergj eve',
+  shengjergj: 'Shëngjergj',
+  twelveNights: 'the Twelve Nights',
+}
+
+const formatRouteDuration = (hours) => {
+  if (hours < 24) return `${hours}h`
+  const days = Math.floor(hours / 24)
+  const remainder = hours % 24
+  return remainder ? `${days}d ${remainder}h` : `${days}d`
+}
 
 export default function StoryView({ state, dispatch }) {
   const node = STORY[state.nodeId]
+  // The active tale scene owns its frozen narrative clock; public roaming
+  // scenes own the monotonic world clock. Keep one projected state for prose,
+  // horizon and gates so they can never disagree about the hour.
+  const storyState = currentStoryState(state)
+  const environment = environmentSnapshot(storyState)
+  const sceneHeadingRef = useRef(null)
+  const previousNodeRef = useRef(state.nodeId)
   // in debug mode peak never runs out, so hovering always reveals the English
   const peak = state.debug ? 999 : state.peak
   // which confuser option was just picked (to flash feedback); reset per node
@@ -34,9 +87,34 @@ export default function StoryView({ state, dispatch }) {
   // noun a phrase acts on is its last content noun.
   // the lines actually shown right now — a scene can react to what walks with you
   // AND to the hour (when()/unless() lines in content.js take item ids or a
-  // time-of-day phase id), so resolve against inventory + the world clock
-  const has = (id) => hasCond(state, id)
-  const lines = visibleLines(node, has)
+  // time-of-day phase id), so resolve against inventory + this scene's clock
+  const has = (id) => hasCond(storyState, id)
+  const lines = visibleLines(node, has).filter((line) =>
+    isDistantLineVisible(state.nodeId, line, environment),
+  )
+  const authoredLines = node.text.map(lineOf)
+  const sceneSummary = lines[0] ? englishReadingOf(lines[0]) : 'The story continues.'
+
+  // A route choice replaces the scene beneath the user's focus. Put keyboard
+  // and screen-reader users at the start of that new scene instead of leaving
+  // focus attached to a control that just disappeared.
+  useEffect(() => {
+    if (previousNodeRef.current === state.nodeId) return undefined
+    previousNodeRef.current = state.nodeId
+    const frame = window.requestAnimationFrame(() => sceneHeadingRef.current?.focus())
+    return () => window.cancelAnimationFrame(frame)
+  }, [state.nodeId])
+  // Returning from a lazy-loaded section can mount Story after the top-bar
+  // role shortcut has already tried to focus its destination. Complete that
+  // hand-off once the scene and persistent objective actually exist.
+  useEffect(() => {
+    if (!document.activeElement?.classList.contains('embody-badge')) return undefined
+    const frame = window.requestAnimationFrame(() => {
+      const target = document.getElementById('embodiment-focus') || sceneHeadingRef.current
+      target?.focus()
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [])
   // the HARD gate on a good/secret ending's achievement: only unearned ones are
   // tested (a fate needs no proof; an achievement earned on an earlier run is
   // yours). EVERY question must be answered correctly; one wrong ends the
@@ -59,7 +137,7 @@ export default function StoryView({ state, dispatch }) {
   }, [gateOpen, endQuestions, state.nodeId, dispatch])
 
   // an AREA achievement the world is offering right now (only while free-roaming)
-  const pendingAch = !state.ended && state.pendingTest ? ACHIEVEMENT_BY_ID[state.pendingTest] : null
+  const pendingAch = !state.ended && !state.embodying && state.pendingTest ? ACHIEVEMENT_BY_ID[state.pendingTest] : null
   const openAreaTest = () => {
     const questions = testFor(pendingAch, state.attempts?.[pendingAch.id] || 0)
     if (!questions) {
@@ -71,14 +149,11 @@ export default function StoryView({ state, dispatch }) {
     setAreaTest({ ach: pendingAch, questions, result: null })
   }
 
-  const isNoun = (id) => id && !NON_NOUNS.has(id)
   const lineDiscovered = (line) => line.every((t) => !t.id || state.discovered[t.id])
-  // the sentence a reveal-gate points at. When the naming word recurs (an arrival
-  // line "you climb up from the river…" AND a signpost "below, a road goes to the
-  // river"), ring the LAST occurrence — the establishing/arrival lines come first,
-  // and it's the later signpost that actually names the direction, so we never bait
-  // the player into the "where you came from" line. See BACKTRACK in gameState.js.
-  const sentenceFor = (senseId) => lines.findLast((line) => line.some((t) => t.id === senseId))
+  // The sentence a reveal-gate points at. A repeated naming word must carry an
+  // authored revealOccurrence choice; the shared resolver keeps this
+  // UI and the graph audits on exactly the same sentence.
+  const sentenceFor = (option) => resolveRevealLine(authoredLines, option).line
 
   // === HEARTS IN THE STORY ==================================================
   // Your health is a story line, not a chip: HEART_LEVELS[hearts] says how you
@@ -86,37 +161,26 @@ export default function StoryView({ state, dispatch }) {
   // discover every word of the line (📜) to reveal the mending action; taking
   // it (dispatch HEAL) is a normal token spend worth one heart.
   const heartLevel = HEART_LEVELS[state.hearts]
-  const healUnused = !!heartLevel?.heal && !state.healedAt?.[state.hearts]
+  const healUnused = !state.embodying && !!heartLevel?.heal && !state.healedAt?.[state.hearts]
   const healRevealed = healUnused && lineDiscovered(heartLevel.line)
   // An option stays hidden until you discover the sentence it belongs to — authored
   // PER OPTION as `reveal: '<senseId>'` in content.js (deliberately NOT an automatic
   // rule). No `reveal` field => the option is always shown. `scripts/storystats.mjs`
   // lints the design goals: that most options are gated, and that every node always
   // keeps at least one ungated, always-visible path.
-  const optionRevealed = (opt) => {
-    if (!opt.reveal) return true
-    // a step BACK to a recently-visited place always shows — never re-gated, and
-    // (because it counts as revealed) never rings its sentence. See BACKTRACK in
-    // gameState.js. Forward progress into a NEW place still gates normally.
-    if (isBacktrack(state, opt.to)) return true
-    // KNOWN ROADS — a destination you have ever explored needs no signpost
-    // sentence re-earned: the option shows outright (and its until()-retired
-    // signpost line may be gone from the scene). See FAMILIARITY in gameState.js.
-    if (state.visited?.[opt.to]) return true
-    const line = sentenceFor(opt.reveal)
-    return !line || lineDiscovered(line)
-  }
+  const optionRevealed = (opt) => isOptionRevealed(storyState, opt, node, lines)
 
   // what you hold. Companions (ITEMS[id].companion) are tracked exactly like items
   // but they're who walks WITH you, so they render as their own story line instead
   // of "you have a X", and an option can gate on them with `requires: '<companionId>'`.
   const ownedIds = Object.keys(state.inventory).filter((id) => state.inventory[id] > 0)
+  const travellerOwnedIds = state.embodying ? [] : ownedIds
   // currency (lek) is a COUNT shown in the topbar purse, not a thing in the
   // "ti ke një X" carry-line. Ids with no ITEMS entry are story FLAGS (a kept
   // besa, a promise) — real state for requires/unless, but nothing you carry.
-  const itemIds = ownedIds.filter((id) => ITEMS[id] && !ITEMS[id].companion && !ITEMS[id].currency)
-  const companionIds = ownedIds.filter((id) => ITEMS[id]?.companion)
-  const usableOwned = ownedIds.filter((id) => ITEMS[id]?.use)
+  const itemIds = travellerOwnedIds.filter((id) => ITEMS[id] && !ITEMS[id].companion && !ITEMS[id].currency)
+  const companionIds = travellerOwnedIds.filter((id) => ITEMS[id]?.companion)
+  const usableOwned = travellerOwnedIds.filter((id) => ITEMS[id]?.use)
 
   // "ti ke një X dhe një Y ." — what you carry, as a real (discoverable) story line
   const carryLine = () => {
@@ -139,18 +203,17 @@ export default function StoryView({ state, dispatch }) {
     return toks
   }
 
-  // Distractors built from the item(s) you carry — an impossible action on the
-  // item, and sometimes a nonsensical combo of the item with a thing in the scene.
-  const presentNouns = [...new Set(lines.flat().filter((t) => isNoun(t.id)).map((t) => t.id))]
+  // One deliberately impossible but grammatically rendered action built from
+  // an item you carry. Authored confusers already provide the scene-specific
+  // distractors; the former "outside + item + noun" word stack was not English.
   const itemConfusers = []
   if (itemIds.length > 0) {
     const hash = [...state.nodeId].reduce((a, c) => a + c.charCodeAt(0), 0)
     const featured = itemIds[hash % itemIds.length]
     const fw = ITEMS[featured].word || featured
-    itemConfusers.push([LIQUID_ITEMS.has(featured) ? w('lufto') : w('pi'), w(fw)])
-    if (presentNouns.length > 0 && hash % 2 === 0) {
-      itemConfusers.push([w('jashte'), w(fw), w(presentNouns[hash % presentNouns.length])])
-    }
+    const confuser = [LIQUID_ITEMS.has(featured) ? w('lufto') : w('pi'), w(fw)]
+    confuser.dynamicOptionReading = dynamicItemConfuserEnglish(ITEMS[featured], LIQUID_ITEMS.has(featured))
+    itemConfusers.push(confuser)
   }
   const seenPhrase = new Set()
   for (const o of node.options) seenPhrase.add(o.text.map((t) => t.id || t.en).join(' '))
@@ -164,23 +227,40 @@ export default function StoryView({ state, dispatch }) {
   let hiddenPaths = 0
   node.options.forEach((opt, i) => {
     if (opt.confuser) return // confusers handled below
-    if (!hasRequiredItem(state, opt)) return // hidden by requires:/unless:
+    if (!hasRequiredItem(storyState, opt)) return // hidden by requires:/unless:
     if (!optionRevealed(opt)) {
       hiddenPaths++
       return
     }
     const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
     const affordable = canAfford(state, opt)
+    const roleAccess = embodimentOptionAccess(state, opt, STORY[opt.to])
+    const entryQuest = opt.become ? embodimentQuest(opt.become) : null
     entries.push({
       key: 'opt-' + i,
       tokens: opt.text,
+      reading: optionEnglishReadingOf(opt.text),
+      readingReviewed: opt.text.optionReadingReview === 'internal-editorial',
       real: true,
       allDiscovered,
       enoughMana,
       lek: opt.lek || 0,
+      moneyLabel: opt.moneyLabel || null,
       affordable,
-      ok: allDiscovered && enoughMana && hasRequiredItem(state, opt) && affordable,
-      onSelect: () => dispatch({ type: 'CHOOSE', option: opt, targetNode: STORY[opt.to] }),
+      route: transitionInfo(state.nodeId, opt),
+      date: opt.date || null,
+      targetPhase: opt.time || null,
+      timePassage: opt.timePassage || null,
+      beginQuest: !state.embodying ? entryQuest : null,
+      roleBlocked: !roleAccess.ok,
+      roleReason: roleAccess.reason,
+      ok: allDiscovered && enoughMana && hasRequiredItem(storyState, opt) && affordable && roleAccess.ok,
+      onSelect: () => opt.become && !state.embodying
+        ? dispatch({ type: 'REQUEST_EMBODIMENT', optionIndex: i })
+        : dispatch({
+            type: 'CHOOSE', option: opt, targetNode: STORY[opt.to],
+            fromNodeId: state.nodeId, fromTurn: state.turn,
+          }),
     })
   })
   // item uses — always available (you hold the item)
@@ -190,11 +270,15 @@ export default function StoryView({ state, dispatch }) {
     entries.push({
       key: 'use-' + id,
       tokens: it.use.phrase,
+      reading: optionEnglishReadingOf(it.use.phrase),
+      readingReviewed: it.use.phrase.optionReadingReview === 'internal-editorial',
       real: true,
       allDiscovered,
       enoughMana,
       ok,
-      onSelect: () => dispatch({ type: 'USE_ITEM', item: it }),
+      onSelect: () => dispatch({
+        type: 'USE_ITEM', item: it, expectedCount: state.inventory[id],
+      }),
     })
   })
   // the hearts-ladder self-heal — revealed by fully discovering the health line
@@ -203,6 +287,8 @@ export default function StoryView({ state, dispatch }) {
     entries.push({
       key: 'heal',
       tokens: heartLevel.heal.phrase,
+      reading: optionEnglishReadingOf(heartLevel.heal.phrase),
+      readingReviewed: heartLevel.heal.phrase.optionReadingReview === 'internal-editorial',
       real: true,
       heal: true,
       allDiscovered,
@@ -212,18 +298,20 @@ export default function StoryView({ state, dispatch }) {
     })
   }
   // confusers — always shown (the comprehension trap)
-  {
+  if (!state.embodying) {
     node.options.forEach((opt, i) => {
       if (!opt.confuser) return
       const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
       entries.push({
         key: 'opt-' + i,
         tokens: opt.text,
+        reading: optionEnglishReadingOf(opt.text),
+        readingReviewed: opt.text.optionReadingReview === 'internal-editorial',
         allDiscovered,
         enoughMana,
         ok: allDiscovered && enoughMana,
         onSelect: () => {
-          dispatch({ type: 'CONFUSE' })
+          dispatch({ type: 'CONFUSE', expectedHearts: state.hearts })
           setConfusedKey('opt-' + i)
         },
       })
@@ -233,11 +321,14 @@ export default function StoryView({ state, dispatch }) {
       entries.push({
         key: 'dyn-' + k,
         tokens: toks,
+        reading: toks.dynamicOptionReading,
+        readingReviewed: false,
+        dynamicConfuser: true,
         allDiscovered,
         enoughMana,
         ok: allDiscovered && enoughMana,
         onSelect: () => {
-          dispatch({ type: 'CONFUSE' })
+          dispatch({ type: 'CONFUSE', expectedHearts: state.hearts })
           setConfusedKey('dyn-' + k)
         },
       })
@@ -251,9 +342,10 @@ export default function StoryView({ state, dispatch }) {
   const revealLineIdx = new Set()
   node.options.forEach((opt) => {
     if (opt.confuser || !opt.reveal) return
-    if (!hasRequiredItem(state, opt)) return // path not available at all → don't tease it
+    if (!hasRequiredItem(storyState, opt)) return // path not available at all → don't tease it
+    if (!embodimentOptionAccess(state, opt, STORY[opt.to]).ok) return
     if (optionRevealed(opt)) return // already opened
-    const line = sentenceFor(opt.reveal)
+    const line = sentenceFor(opt)
     if (line) revealLineIdx.add(lines.indexOf(line))
   })
   // the health line telegraphs its hidden mend the same way, until it's open
@@ -261,8 +353,15 @@ export default function StoryView({ state, dispatch }) {
 
   const renderLine = (line, i) => {
     const revealsPath = revealLineIdx.has(i)
-    // a Q() line — quoted word-for-word from the folk sources; set apart, attributed
+    // A Q() line carries reviewed source evidence. Its quote-register record
+    // states whether the displayed Albanian is verbatim, inflected, adapted,
+    // a related variant, or an explicitly oral formula.
     const quoteSrc = line.quote
+    const quoteRecord = line.quoteId ? QUOTES[line.quoteId] : null
+    const proofUrl = quoteRecord ? quoteProofUrl(quoteRecord, QUOTE_REPO_BLOB) : null
+    const quoteEvidence = quoteRecord ? QUOTE_TIER_LABEL[quoteTier(quoteRecord)] : null
+    const quoteDetail = quoteRecord ? `${quoteRecord.fidelity}, ${quoteEvidence}` : 'source-linked wording'
+    const reviewedReading = hasAuthoredEnglishReading(line)
     return (
       <p
         className={'story-line' + (revealsPath ? ' reveals-path' : '') + (quoteSrc ? ' quote-line' : '')}
@@ -289,17 +388,39 @@ export default function StoryView({ state, dispatch }) {
             📜
           </span>
         )}
-        {quoteSrc && (
-          <span className="quote-src" title="Quoted word-for-word from the folk sources">
-            — {quoteSrc}
+        {quoteSrc && (proofUrl ? (
+          <a
+            className="quote-src"
+            href={proofUrl}
+            target="_blank"
+            rel="noreferrer"
+            title={`Open strongest recorded evidence — ${quoteDetail}`}
+          >
+            — {quoteSrc} · {quoteDetail} ↗
+          </a>
+        ) : (
+          <span className="quote-src" title={`No written witness is linked — ${quoteDetail}`}>
+            — {quoteSrc} · {quoteDetail}
           </span>
-        )}
+        ))}
+        <span
+          className={'story-reading' + (reviewedReading ? ' reviewed' : '')}
+          title={reviewedReading ? 'Reviewed whole-line English translation' : 'Naturalized fallback reading awaiting line-by-line editorial review'}
+        >
+          <span className="story-reading-label">{reviewedReading ? 'Reviewed English' : 'English reading'}</span>
+          {englishReadingOf(line)}
+        </span>
       </p>
     )
   }
 
   return (
-    <div className="card story">
+    <section className="card story" aria-labelledby="story-scene-title">
+      <h2 id="story-scene-title" className="sr-only" ref={sceneHeadingRef} tabIndex={-1}>
+        New scene. {sceneSummary}
+      </h2>
+      {!state.ended && <WorldContext state={storyState} worldClock={state.clock} />}
+      {!state.ended && <EmbodimentFocus state={state} dispatch={dispatch} />}
       <div className="story-text">
         {!state.ended && heartLevel && renderLine(heartLevel.line, 'hearts')}
         {!state.ended && companionIds.length > 0 && renderLine(companionLine(), 'companions')}
@@ -372,7 +493,9 @@ export default function StoryView({ state, dispatch }) {
                 <div className="feedback good">✓ Every answer right — the tale is yours.</div>
               )}
               {node.blurb && <p className="ending-desc">{node.blurb}</p>}
-              <FactoidLore loreId={ACHIEVEMENT_BY_ID[node.id]?.lore} dispatch={dispatch} />
+              <Suspense fallback={<p className="hint" role="status">Opening the tale&apos;s sources…</p>}>
+                <FactoidLore loreId={ACHIEVEMENT_BY_ID[node.id]?.lore} dispatch={dispatch} />
+              </Suspense>
               {endResult === 'passed' && <p className="hearts-restored">❤️ Hearts restored to full.</p>}
               <p className="hint">
                 Added to your achievements. This tale is done — step back into the world and
@@ -411,7 +534,9 @@ export default function StoryView({ state, dispatch }) {
             <>
               <div className="feedback good">✓ Every answer right — the achievement is yours.</div>
               {areaTest.ach.blurb && <p className="ending-desc">{areaTest.ach.blurb}</p>}
-              <FactoidLore loreId={areaTest.ach.lore} dispatch={dispatch} />
+              <Suspense fallback={<p className="hint" role="status">Opening the achievement&apos;s sources…</p>}>
+                <FactoidLore loreId={areaTest.ach.lore} dispatch={dispatch} />
+              </Suspense>
               <p className="hearts-restored">❤️ Hearts restored to full.</p>
               <button className="btn primary" onClick={() => setAreaTest(null)}>
                 🚶 Back to the world →
@@ -451,12 +576,27 @@ export default function StoryView({ state, dispatch }) {
               </span>
             </div>
           )}
-          <div className="options">
+          <div className="options" role="list" aria-label="Available actions">
             {shuffledEntries.map((e) => {
               const wasConfused = confusedKey === e.key
+              const routeParts = []
+              if (e.beginQuest) {
+                routeParts.push(`${e.beginQuest.stance === 'companion' ? 'Join tale' : 'Begin tale'} · ${e.beginQuest.identity}`)
+              }
+              if (e.route?.valid && e.route.kind !== 'local') routeParts.push(e.route.label)
+              if (e.timePassage?.label) {
+                routeParts.push(e.timePassage.label)
+              } else if (e.date) {
+                routeParts.push(`wait for ${FESTIVAL_LABEL[e.date] || e.date}${e.targetPhase ? ` at ${e.targetPhase}` : ''}`)
+              } else {
+                if (e.route?.hours != null) routeParts.push(formatRouteDuration(e.route.hours))
+                if (e.targetPhase || e.route?.targetPhase) routeParts.push(`then wait for ${e.targetPhase || e.route.targetPhase}`)
+              }
               let cost
               if (wasConfused) {
                 cost = <span className="option-cost bad">✗ can&apos;t happen here · −1 ♥</span>
+              } else if (e.roleBlocked) {
+                cost = <span className="option-cost role-locked">🎭 {e.roleReason}</span>
               } else if (!e.allDiscovered) {
                 cost = <span className="option-cost bad">discover all words first</span>
               } else if (!e.enoughMana) {
@@ -484,46 +624,79 @@ export default function StoryView({ state, dispatch }) {
               } else if (e.lek) {
                 cost = (
                   <span className="option-cost ok">
-                    {e.lek > 0 ? `earns 🪙 ${e.lek}` : `costs 🪙 ${-e.lek}`} · spends tokens
+                    {e.lek > 0 ? `${e.moneyLabel || 'earns'} 🪙 ${e.lek}` : `costs 🪙 ${-e.lek}`} · spends tokens
                   </span>
                 )
+              } else if (e.beginQuest) {
+                cost = <span className="option-cost role-ready">🎭 confirmation first · then spends tokens</span>
               } else {
                 cost = <span className="option-cost ok">spends tokens</span>
               }
+              const optionDomId = `story-option-${state.nodeId}-${e.key}`.replace(/[^a-zA-Z0-9_-]/g, '-')
+              const routeId = routeParts.length > 0 ? `${optionDomId}-route` : null
+              const costId = `${optionDomId}-cost`
+              const optionPhrase = e.reading || optionEnglishReadingOf(e.tokens)
               return (
                 <div
                   key={e.key}
                   className={'option' + (e.ok ? ' ready' : ' locked') + (wasConfused ? ' confused' : '')}
-                  role="button"
-                  aria-disabled={!e.ok}
-                  onClick={e.ok ? e.onSelect : undefined}
+                  role="listitem"
+                  onClick={(event) => {
+                    // Keep the original click-anywhere card behavior for pointer
+                    // users, while the real button below owns keyboard semantics.
+                    // Child word/Train/debug controls keep their independent act.
+                    if (e.ok && !event.target.closest('button, a, input, select, textarea')) e.onSelect()
+                  }}
                 >
-                  <span className="option-text">
-                    {e.tokens.map((tok, j) => (
-                      <Token
-                        key={j}
-                        token={tok}
-                        discovered={state.discovered}
-                        peak={peak}
-                        onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
-                        tokenCount={tok.id ? state.mana[tok.id] || 0 : undefined}
-                      />
-                    ))}
-                    <span className="arrow"> →</span>
+                  <span className="option-main">
+                    <span className={'option-reading' + (e.readingReviewed ? ' reviewed' : '')}>
+                      <span className="option-reading-label">
+                        {e.readingReviewed ? 'Reviewed action' : e.dynamicConfuser ? 'Generated distractor' : 'Action English'}
+                      </span>
+                      {optionPhrase}
+                    </span>
+                    <span className="option-gloss-label">Word by word</span>
+                    <span className="option-text">
+                      {e.tokens.map((tok, j) => (
+                        <Token
+                          key={j}
+                          token={tok}
+                          discovered={state.discovered}
+                          peak={peak}
+                          onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
+                          tokenCount={tok.id ? state.mana[tok.id] || 0 : undefined}
+                        />
+                      ))}
+                    </span>
+                    {e.real && routeParts.length > 0 && (
+                      <span id={routeId} className="route-note" title="Direction, distance and world time from the canonical tale-chart">
+                        🗺 {routeParts.join(' · ')}
+                      </span>
+                    )}
                   </span>
-                  {cost}
-                  {state.debug && e.real && !e.ok && (
+                  <span id={costId} className="option-cost-wrap">{cost}</span>
+                  {state.debug && e.real && !e.ok && !e.roleBlocked && (
                     <button
+                      type="button"
                       className="btn debug-mini"
                       title="Debug: discover these words and grant the tokens to take this path"
-                      onClick={(ev) => {
-                        ev.stopPropagation()
+                      onClick={() => {
                         dispatch({ type: 'DEBUG_GRANT', ids: phraseSenses(e.tokens) })
                       }}
                     >
                       ⚡ tokens
                     </button>
                   )}
+                  <button
+                    type="button"
+                    className="option-select"
+                    disabled={!e.ok}
+                    aria-label={`${e.ok ? 'Choose' : 'Locked'}: ${optionPhrase}`}
+                    aria-describedby={[routeId, costId].filter(Boolean).join(' ')}
+                    onClick={e.onSelect}
+                  >
+                    {e.ok ? 'Choose' : 'Locked'} <span aria-hidden="true">→</span>
+                  </button>
                 </div>
               )
             })}
@@ -541,6 +714,6 @@ export default function StoryView({ state, dispatch }) {
           </p>
         </>
       )}
-    </div>
+    </section>
   )
 }

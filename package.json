@@ -3,17 +3,33 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "audit:story": "node scripts/storystats.mjs && node scripts/audit.mjs",
+    "audit:world": "node scripts/worldaudit.mjs && node scripts/stateaudit.mjs && node scripts/statefuzzaudit.mjs && node scripts/embodimentaudit.mjs",
+    "audit:lore": "node scripts/sourceaudit.mjs && node scripts/beatscoverage.mjs && node scripts/quotecheck.mjs && node scripts/lorecertainty.mjs",
+    "audit:language": "node scripts/languageaudit.mjs && node scripts/audioaudit.mjs && node scripts/conversationaudit.mjs",
+    "audit:experience": "node scripts/accessibilityaudit.mjs && node scripts/playerjourneyaudit.mjs && node scripts/revealaudit.mjs",
+    "audit:sources": "node scripts/sourceaudit.mjs --check-links",
+    "certify:world": "node scripts/worldreconstruct.mjs --check && node scripts/stateaudit.mjs && node scripts/statefuzzaudit.mjs && node scripts/embodimentaudit.mjs && node scripts/worldaudit.mjs --strict",
+    "certify:lore": "node scripts/sourceaudit.mjs && node scripts/beatscoverage.mjs && node scripts/quotecheck.mjs && node scripts/lorecertainty.mjs --strict",
+    "certify:language": "node scripts/languageaudit.mjs --strict && node scripts/audioaudit.mjs && node scripts/freqcoverage.mjs --strict && node scripts/survivalcore.mjs --missing --strict && node scripts/conversationaudit.mjs --strict",
+    "certify:reveal": "node scripts/revealaudit.mjs --strict",
+    "audit": "npm run audit:story && npm run audit:world && npm run audit:lore && npm run audit:language && npm run audit:experience",
+    "check": "npm run audit && npm run build && node scripts/bundleaudit.mjs",
+    "certify": "node scripts/certify.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.4.2"
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.2.2"
   }
 }

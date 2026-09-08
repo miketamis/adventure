@@ -31,6 +31,32 @@ export default {
   title: 'Ura e Artës — the Bridge of Arta',
   source:
     'Çam ballad «Urën e Artës ndërtojmë» (Rokë-Llur, Filipjadhë; collected Fier, 1954; printed in Këngë popullore nga Çamëria, Instituti i Kulturës Popullore, Tiranë 1983, p. 401), reproduced by Timo Mërkuri, "Balada e murimit" (fatmirt.blogspot.com, 4 Sept 2019) · read in the Albanian original directly — no English translation of this ballad exists; all lines are my own paraphrase',
+  references: [
+    {
+      role: 'selected-witness',
+      citation: '“Urën e Artës ndërtojmë,” collected from Rokë of Llur at Fier (1954), in Këngë popullore nga Çamëria (1983), reproduced by Timo Mërkuri',
+      url: 'https://fatmirt.blogspot.com/2019/09/balada-e-murimit.html',
+      note: 'The exact Çam Albanian ballad selected and transcribed for the line-level beat record.',
+    },
+    {
+      role: 'source-text',
+      citation: 'Timo Mërkuri, “Balada e murimit,” Zemra Shqiptare print archive',
+      url: 'https://www.zemrashqiptare.net/news/51430/rp-0/act-print/rf-1/printo.html',
+      note: 'Preservation mirror of the full article and ballad, not an independent witness.',
+    },
+    {
+      role: 'scholarship',
+      citation: 'Przemysław Kordos, “Supernatural, Folksong and Human Sacrifice,” Slavia Meridionalis 24 (2024)',
+      url: 'https://journals.ispan.edu.pl/index.php/sm/en/article/view/sm.3255',
+      note: 'Peer-reviewed study of the wider Greek Bridge of Arta tradition; it does not replace the selected Çam Albanian ballad.',
+    },
+    {
+      role: 'scholarship',
+      citation: 'Panajot Barka, “Ballad of Masonry in the Castle and Bridge as an Ethno-Cultural Differentiation between Ghegs and Tosks in Albania,” Academic Journal of Interdisciplinary Studies 4 (2015)',
+      url: 'https://ideas.repec.org/a/bjz/ajisjr/1139.html',
+      note: 'Comparative scholarship connecting Albanian masonry ballads with the Arta tradition (DOI 10.5901/ajis.2015.v4n2p287).',
+    },
+  ],
   // where the tale comes from — anchors should prefer this region's mirrors.
   // Çamëria/Epirus, now in Greece: the Balkan south, sister-region to (but
   // distinct from) the Tosk south of Albania proper; NOT the north (Rozafa's
@@ -131,7 +157,7 @@ export default {
       { beat: 'gathering', note: "The ballad has all three brothers building from its first line. The game's staging empties the youngest's place until the player claims it: visited un-embodied (uraTjeter1/uraVellezerit), the yard shows only Pano and Mihal, who say their little brother Kiço is not here — and answering their 'who are you?' with «unë jam Kiço, vëllai juaj» is the become-threshold that steps you into the mold. Once embodied, the tale proceeds with its three brothers as sung." },
       { beat: 'besa', note: "You embody Kiço, and the besa choice assigns the tale's moral to YOUR hand — but with the opposite valence to Rozafa: here warning your wife (mercy) is the GOOD ending and keeping the besa (your own wife walled) is the BAD one, where at Rozafa keeping the same silence is the honourable good ending. The game deliberately stages both readings of the same Balkan walling legend. Two mercy exits reach the good ending: break the silence in the night as your brothers did, or cry out at the pit's very edge." },
       { beat: 'ringTrick', note: "Fully staged: the mother sends the three brides in turn (the elder begging off with a sick child, the middle with her bread-making), your own promise to settle the boy frees your wife to go, and the ring-lie at the pit is the player's own spoken option. A bird startling off the bridge as she arrives nods to the Greek tradition's talking-bird omen without contradicting the Çam ballad's old wayfarer." },
-      { beat: 'blessing', note: "The bride's curse is slotted verbatim as a Q() inscription — «të dridhesh si dridhem unë» — and her dying wishes play as the walling ending's text: the breast left free outside the wall, the silver spring that raises her son and gives life, the white fig tree over the pier, the bridge that stands and trembles. The build-by-day / fall-by-night rhythm is played on the world clock, from the tale's own 'all day we build, all night it falls.'" },
+      { beat: 'blessing', note: "The bride's curse is slotted verbatim as a Q() inscription — «të dridhesh si dridhem unë» — and her dying wishes play as the walling ending's text: the breast left free outside the wall, the silver spring that raises her son and gives life, the white fig tree over the pier, the bridge that stands and trembles. The build-by-day / fall-by-night rhythm is played on tale time, from the tale's own 'all day we build, all night it falls'; while you act inside the tale, the living-world clock advances by the same intervals." },
     ],
   },
   beats: [

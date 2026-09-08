@@ -9,6 +9,11 @@
 export default {
   id: 'maro-perhitura',
   title: 'Maro Përhitura — the Ash-Girl Gilded by the Xhindet',
+  references: [
+    { role: 'source-text', citation: 'Pralla popullore shqiptare (Instituti i Shkencave, 1954) — complete online transcription', url: 'https://doczz.net/doc/2729503/pralla-popullore-shqiptare', note: 'Selected witness; «Maro Përhitura» is on printed pp. 100–110.' },
+    { role: 'facsimile', citation: 'Pralla popullore shqiptare (1954) — scanned volume', url: 'https://www.scribd.com/doc/48023206/pralla-alb', note: 'Publicly viewable user-hosted scan; the local transcription remains the reproducible evidence copy.' },
+    { role: 'context', citation: 'Shqipopédia, “Përralla” — overview naming Maro Përhitura as the Albanian ash-girl figure', url: 'https://wiki.shqipopedia.org/p%C3%ABrralla' },
+  ],
   source:
     'Pralla popullore shqiptare (Instituti i Shkencave, Tiranë 1954), pp. 100–110 · no Elsie/English translation exists for this tale — every English line below is the game\'s own paraphrase, composed directly from the Albanian, never copied from any translation',
   // where the tale comes from — anchors should prefer this region's mirrors
@@ -73,7 +78,7 @@ export default {
     { id: 'hani', emoji: '🍽️', name: 'the prince\'s feast-inn', note: 'a rented inn in a city half an hour off, for one fixed fortnight of nightly feasting',
       anchor: { status: 'existing', node: 'maroHani', mirror: 'a han by the crossroads, half an hour\'s walk from the village — the tale\'s own distance ("afër fshatit, një gjysmë sahati"); drawn spot [540,84], built with the game arc',
         mold: 'a rented han, not a resident court: the prince takes it for a fixed fortnight, holds a nightly feast for every unmarried girl brought to him, then closes it and goes home the morning after he learns his bride\'s trail — a visiting stranger\'s lodging, gone as soon as its business is done',
-        conflicts: 'NOT bujtina (existing) — that inn is staged in the torch-lit living quarter of the WORLD BELOW, serving "whoever the dark road brings" (bujtinari\'s own backstory); this prince\'s inn is an aboveground city near the village, not the underworld. NOT gjizar1/gjizar2\'s proposed "saraj" (half-rooster, snake-bridegroom) — that is Sulejman Pasha\'s own RESIDENT konak, one petty king outwitted twice over; this prince is a foreign visitor who rents a separate inn and leaves for good, not a standing court. NOT shpirag1/Berat — that is the SOUTH\'s own walled wager-city (three-friends, ali-pashe-tepelena) with its own king and daughter; this prince and his dream-bride are a different story entirely',
+        conflicts: 'NOT bujtina (existing) — that is Gjakova\'s standing surface inn beside the cavern road; this prince\'s inn belongs to a different aboveground city near the village, and he rents it only for his visit. NOT gjizar1/gjizar2\'s proposed "saraj" (half-rooster, snake-bridegroom) — that is Sulejman Pasha\'s own RESIDENT konak, one petty king outwitted twice over; this prince is a foreign visitor who rents a separate inn and leaves for good, not a standing court. NOT shpirag1/Berat — that is the SOUTH\'s own walled wager-city (three-friends, ali-pashe-tepelena) with its own king and daughter; this prince and his dream-bride are a different story entirely',
       } },
     { id: 'pallati', emoji: '🏰', name: 'the prince\'s palace, in another land', note: 'his court, and the garden where the bird-wife returns',
       anchor: { status: 'existing', node: 'maroPallati', mirror: 'a foreign royal court beyond the region the tale otherwise stays in — the tale never localizes it past "another land"; drawn as a pocket land past the north-east road (spot [1050,-40], its own map region), built with the game arc',
@@ -105,7 +110,7 @@ export default {
     role: 'You are Maro — the drudge-daughter sent into the xhindet\'s dark; your answers at the night mill are hers.',
     enter: 'at dusk the njerka stands at the door with a grain sack her own daughters refuse, calling a name into the dark — answering «unë jam Maro» makes you her.',
     from: 'maroShtepi',
-    ending: 'maroLiloKthim',
+    ending: 'maroFundi',
     learn: {
       widow1: [['maroNjerka', 'the njerka\'s own unashamed telling, by day']],
       remarriage: [['maroNjerka', 'the njerka: «burri im vdiq. tani unë e mbaj shtëpinë»']],
@@ -133,9 +138,11 @@ export default {
       maroHani: 'firstNight',
       maroIkja: 'chase',
       maroMesnata: 'chase',
-      maroKrushqit: 'wedding',
-      maroPrincesha: 'falseGrief',
+      // The wedding-train scene contains both the prince's arrival and Maro's
+      // visible mercy choice, so it directly stages two adjacent source beats.
+      maroKrushqit: ['wedding', 'falseGrief'],
       maroPallati: 'pregnancy',
+      maroGjilpera: 'needleGiven',
       maroLindja: 'birthNeedle',
       maroZogu: 'hijeAccusation',
       maroKopshti: 'birdGarden',
@@ -144,7 +151,7 @@ export default {
     },
     divergences: [
       { beat: 'nightfall', note: 'the door in: the tale\'s Maro is the household\'s own daughter; the game\'s traveller-soul steps into her place by ANSWERING to the name the njerka calls into the dusk («thuaj: unë jam Maro») — the rule-16 declared entry.' },
-      { beat: 'flaxLitany', note: 'the tale\'s single unbroken litany is re-cut into THREE answered asks (the flax, the distaff, the rags) so the player speaks it in rounds; each round quotes a verbatim contiguous slice of the original chain.' },
+      { beat: 'flaxLitany', note: 'the tale\'s single unbroken litany is re-cut into THREE answered asks (the flax, the distaff, the rags) so the player speaks it in rounds; every displayed clause is source-aligned, while the first round compacts non-contiguous agricultural steps and the later rounds trim intervening clauses.' },
       { beat: 'liloTwisted', note: 'the player may answer the xhindet rudely at any round — Lilo\'s insults, Lilo\'s twisting, lived in her stead a night early. The tale\'s own Maro never does.' },
       { beat: 'liloTwisted', note: 'the pardoned hand (maroDoraFalje) is the game\'s own mercy exit: one insolence, then the whole humble litany, and the unseen unbend what they bent at cockcrow. The tale grants Lilo no such exit — she curses on to the end.' },
       { beat: 'firstNight', note: 'the tale\'s two feast nights and the fifteen-day zjafet are compressed into ONE night at the han, with the shoe test at its heart; the prince\'s begging («aman rri edhe një çikë») is played as the real stay-or-flee choice — staying past midnight (the reversion before the whole han) is a game branch the tale\'s Maro never risks, and it costs her nothing but shame: the prince was looking at the foot the shoe fit, not the clothes.' },

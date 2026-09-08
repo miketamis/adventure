@@ -18,6 +18,15 @@
 export default {
   id: 'ali-pashe-tepelena',
   title: 'Ali Pashë Tepelena — the Lion of Ioannina',
+  references: [
+    { role: 'context', citation: '“Ali Pasha of Ioannina” — consolidated biographical record', url: 'https://en.wikipedia.org/wiki/Ali_Pasha_of_Ioannina', note: 'The tale is a declared historical synthesis, not a line-by-line folk witness.' },
+    { role: 'scholarship', citation: 'K. E. Fleming, The Muslim Bonaparte: Diplomacy and Orientalism in Ali Pasha’s Greece (Princeton University Press)', url: 'https://doi.org/10.1515/9781400842025' },
+    { role: 'facsimile', citation: 'John Cam Hobhouse, A Journey through Albania and Other Provinces of Turkey (1813), vol. 2 — Internet Archive scan', url: 'https://archive.org/details/journeythroughal02brou', note: 'Contemporary eyewitness context named in the retelling’s source note; not a folklore witness.' },
+    { role: 'facsimile', citation: 'W. M. Leake, Travels in Northern Greece (1835), vol. 1 — Internet Archive scan', url: 'https://archive.org/details/travelsinnorthe08leakgoog', note: 'Contemporary regional and biographical context named in the retelling’s source note; not a folklore witness.' },
+    { role: 'facsimile', citation: 'H. N. Brailsford, Macedonia: Its Races and Their Future (1906) — Internet Archive scan', url: 'https://archive.org/details/macedoniaitsrace00braiuoft', note: 'Historical context named in the retelling’s source note; not a folklore witness.' },
+    { role: 'source-text', citation: 'Lord Byron, Childe Harold’s Pilgrimage, canto II — Project Gutenberg', url: 'https://www.gutenberg.org/files/5131/5131-h/5131-h.htm', note: 'Contemporary literary reception and colour, not the source of the whole biography.' },
+    { role: 'catalog', citation: 'Gjergj Fishta, Lahuta e malcís — Open Library record', url: 'https://openlibrary.org/books/OL31785956M/Lahuta_e_malc%C3%ADs', note: 'Catalog support for the literary Eufrozina episode only.' },
+  ],
   source:
     'Wikipedia, "Ali Pasha of Yanina" (en.wikipedia.org, retrieved 2026-07-15) — the source folklore.js itself cites; read alongside contemporary eyewitness colour from John Cam Hobhouse\'s A Journey through Albania (1813) and W. M. Leake\'s Travels in Northern Greece (1835), and Henry N. Brailsford\'s Macedonia: Its Races and Their Future (1906); all lines are my own paraphrase, condensed from a much longer biographical record',
   // where the tale comes from — anchors should prefer this region's mirrors
@@ -64,11 +73,9 @@ export default {
   // anchor = the game location this tale place inhabits, under THE SHARING
   // RULE (see _SCHEMA.md). This tale is SOUTHERN — mirrors must not borrow
   // the north's Rozafa/Shkodra material. Ioannina/Epirus itself has no
-  // dedicated node on this Albania-only map, so its places are PROPOSED at
-  // the nearest existing southern spot, exactly as three-friends already
-  // stages Berat at shpirag1 and sari-salltek stages Krujë at fshatiSheshi —
-  // temporary jump-to points, not claims that the borrowed node IS this
-  // place.
+  // dedicated city node on this Albania-only map. The last act does now have a
+  // dedicated Lake Pamvotis island marker; earlier-life places remain proposed
+  // or offstage and never claim that their borrowed pins are the same cities.
   places: [
     { id: 'tepelena', emoji: '🏠', name: 'the family household at Tepelenë', note: 'Ali\'s birthplace and lifelong second seat',
       anchor: { status: 'proposed', node: 'fshatiSheshi',
@@ -89,11 +96,9 @@ export default {
         conflicts: 'NOT the SAME city or the SAME king as three-friends\' moat-king — that wager-king, his moat, and his daughter belong entirely to that story\'s own era and stay untouched; this is a real, different, later ruler temporarily jumped-to at the nearest drawn walled southern city until Ioannina itself is drawn',
         proposal: 'draw Ioannina\'s own citadel on its lake as its own node' } },
     { id: 'lakeIsland', emoji: '🌊', name: 'the island in the lake', note: 'the monastery where Ali surrendered — and, long before, where a girl of Janina chose to drown',
-      anchor: { status: 'proposed', node: 'detiThelle1',
-        mirror: 'the island of St Panteleimon in Lake Pamvotis at Ioannina — an inland lake, not the open sea, but the nearest drawn spot that already keeps this exact mold',
-        mold: 'the deep keeps what the world throws in — the sabre lay on E Bukura e Detit\'s floor in one story, and this water keeps what it is given too: a girl who chose it over the Pasha, and, in the end, the Pasha himself',
-        conflicts: 'NOT the same sea-floor as the sabre (three-friends) or E Bukura e Detit\'s own palace (bukuraDetit) — a separate, inland, southern lake, not yet drawn on this map; borrowed only because the mold already fits',
-        proposal: 'draw Lake Pamvotis and its island monastery as their own node' } },
+      anchor: { status: 'existing', node: 'aliPashaLiqen',
+        mirror: 'the island of St Panteleimon in Lake Pamvotis at Ioannina — an inland lake, not the open sea',
+        mold: 'a dedicated lake-island marker for the monastery, the water that took Eufrozina, and Ali Pasha\'s last siege; it is explicitly separate from every sea-floor tale' } },
     { id: 'road', emoji: '🛤️', name: 'the open road', note: 'the mountain road up from the coast — where the English travellers came in',
       anchor: { status: 'existing', node: 'start', mirror: 'the road out of old Tirana at the tanners\' bridge',
         mold: 'the open road hosts every traveller\'s setting-out — roads accumulate stories, they never clash' } },
@@ -130,7 +135,7 @@ export default {
     divergences: [
       { beat: 'death', note: 'Built from scratch as the canonical end: the delegation with the (false) firman, Ali\'s refusal to trust the paper, and the gunfight in which he dies unbroken are the SECRET ending "The Lion Dies Unbroken" (aliPashaVdes) — following the earliest-recorded Kiose Mehmed Pasha account the beats already fix. The whole preceding life (the vow, Hormovë and Kardhiq, the thirty-four-year rule, Byron, Eufrozina, Suli) is compressed into the role and the island setup rather than staged.' },
       { beat: 'island', note: 'The truce, the crossing to St. Panteleimon\'s island, and the treasury surrendered as a show of good faith are folded into the single entry beat at aliPashaLiqen, where the leverage is already spent and only the last choice remains.' },
-      { note: 'The BAD ending "The False Pardon Trusted" (aliPashaRob) is the path history denied him the dignity of avoiding — he is taken unresisting on a false besë and shot anyway, his head sent to the Sultan\'s gate beside his sons\'. It is invented as the un-heroic counterfactual, exactly as argjiro-gjirokastra and legjenda-e-prespes add the road their heroes never take. The arc is co-located at the sea hub deti1 under the sharing rule (Lake Pamvotis is an inland southern lake the map has not yet drawn), the same jump the tale\'s lakeIsland place already proposes.' },
+      { note: 'The BAD ending "The False Pardon Trusted" (aliPashaRob) is the path history denied him the dignity of avoiding — he is taken unresisting on a false besë and shot anyway, his head sent to the Sultan\'s gate beside his sons\'. It is invented as the un-heroic counterfactual, exactly as argjiro-gjirokastra and legjenda-e-prespes add the road their heroes never take. Both endings remain on the dedicated Lake Pamvotis island marker.' },
     ],
   },
   beats: [

@@ -1,13 +1,15 @@
 // Story coverage of the most frequent Albanian words.
-//   node scripts/freqcoverage.mjs [N]   (default 150)
+//   node scripts/freqcoverage.mjs [N] [--strict]   (default 150)
 // Collects every Albanian surface used in STORY text+options and reports which of
 // the top-N OpenSubtitles frequency words are/aren't used. De-accents to fold
 // spelling dupes (eshte/është). Complements freqrank.mjs (which ranks DICT words).
+// Strict mode makes any non-clitic gap release-blocking.
 import { readFileSync } from 'node:fs'
 import { STORY, DICT, ITEMS, lineOf } from '../src/game/content.js'
 
 const freqLines = readFileSync('scripts/data/sq_frequency_50k.txt','utf8').trim().split('\n')
-const TOP = Number(process.argv[2]) || 150   // node scripts/freqcoverage.mjs [N]
+const TOP = process.argv.map(Number).find((value) => Number.isFinite(value) && value > 0) || 150
+const strict = process.argv.includes('--strict')
 const top = freqLines.slice(0, TOP).map((ln,i)=>({ w: ln.split(' ')[0], rank: i+1, count: Number(ln.split(' ')[1])||0 }))
 
 const norm = (s) => (s||'').toLowerCase().replace(/[.,!?;:"'“”‘’()]/g,'').trim()
@@ -44,3 +46,4 @@ console.log('\n=== single-letter clitics (skipped) ===')
 console.log('  ' + clitic.map(c=>`${c.w}(#${c.rank})`).join(' '))
 console.log('\n=== diacritic-less dupes already covered ===')
 console.log('  ' + variant.map(c=>`${c.w}(#${c.rank})`).join(' '))
+if (strict && gap.length) process.exitCode = 1

@@ -9,6 +9,32 @@ export default {
   title: 'Syri i Kaltër — the Blue Eye spring',
   source:
     'oral legend of the deep south (Delvinë–Sarandë) · no Elsie translation exists for this legend — read in Albanian regional-press transcriptions of local oral tradition; all lines are my own translation into English, paraphrased',
+  references: [
+    {
+      role: 'selected-witness',
+      citation: '“Gjarpëri i Syrit të Kaltër,” Shqipëria.com reprint of the Kuriozitete.net oral account (2010)',
+      url: 'https://www.shqiperia.com/Gjarperi-i-Syrit-te-Kalter.8841/',
+      note: 'The surviving full Albanian reprint of the exact Mesopotam-village account selected for the beat record.',
+    },
+    {
+      role: 'variant',
+      citation: '“Legjenda e Syrit të Kaltër,” Saranda Web',
+      url: 'https://sarandaweb.net/legjenda-e-syrit-te-kalter-syri-i-kalter/',
+      note: 'Independent “wind” variant: one donkey, sea-borne arrival, and a different dying cry; not used to overwrite the selected witness.',
+    },
+    {
+      role: 'context',
+      citation: 'National Agency of Protected Areas, “Parku Natyror Syri i Kaltër”',
+      url: 'https://akzm.gov.al/parku-natyror-syri-i-kalter/',
+      note: 'Official protected-area and geographical context for the real spring; it does not attest the legend.',
+    },
+    {
+      role: 'context',
+      citation: 'Albanian National Tourism Agency, “Syri i Kaltër”',
+      url: 'https://akt.gov.al/monumente-natyrore/syri-i-kalter/',
+      note: 'Official visitor-facing description of the spring’s location and physical setting, separate from the oral witness.',
+    },
+  ],
   // this is a place-origin LEGEND, not an Elsie folktale: Elsie's Albanian
   // Literature site has no page for it (index_legends.html's 15 legends are
   // Baba Tomor, Sari Salltëk, Aga Ymeri, Gjergj Elez Alia, Mujo/Halili,

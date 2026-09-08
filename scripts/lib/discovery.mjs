@@ -21,6 +21,7 @@
 // Note: `start` forces nothing (no step taken yet), so guaranteed(start)=∅ — only
 // `visible` makes legibility satisfiable there. That's why visible must count.
 import { lineOf, visibleLines } from '../../src/game/content.js'
+import { resolveRevealLine } from '../../src/game/revealResolver.js'
 
 export const sensesOf = (tokens) => [...new Set((tokens || []).filter((t) => t.id).map((t) => t.id))]
 
@@ -30,12 +31,12 @@ export function analyzeDiscovery(STORY, START_NODE) {
   const allLines = (id) => (STORY[id].text || []).map(lineOf)
 
   // the reveal sentence's words = what you must discover for the option to appear.
-  const revealSenses = (id, reveal) => {
-    if (!reveal) return []
-    const line = allLines(id).find((l) => l.some((t) => t.id === reveal))
+  const revealSenses = (id, option) => {
+    if (!option.reveal) return []
+    const line = resolveRevealLine(allLines(id), option).line
     return line ? sensesOf(line) : []
   }
-  const forcedBy = (srcId, o) => new Set([...sensesOf(o.text), ...revealSenses(srcId, o.reveal)])
+  const forcedBy = (srcId, o) => new Set([...sensesOf(o.text), ...revealSenses(srcId, o)])
 
   // reverse graph + reachability
   const preds = {}

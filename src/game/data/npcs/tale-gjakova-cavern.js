@@ -14,7 +14,7 @@ export default {
   djakovaFolk: {
     name: 'njerëzit e Gjakovës', glyph: '🏘️', kind: 'collective',
     role: 'the people of the Djakova district who keep the cavern\'s warning',
-    backstory: 'They told Durham of the cavern\'s dead city and its guarded bazaar, but not one of them would walk her to its mouth. The same district\'s people are, across the years, the ones who tested — and confirmed — a second guarded spot on a nearby hill: men who tried to carry off the ruined chapel\'s stones and barely escaped a swarm of serpents, and, more recently, a carter whose oxen dropped to their knees before the same ruins. NOT the player\'s own home-village crowd (fshatiSheshi\'s square, fshatiLanes) — a separate, Northern Gheg community around Djakova/Prizren that the player\'s own arc never visits directly.',
+    backstory: 'They told Durham of the cavern\'s dead city and its guarded bazaar, but not one of them would walk her to its mouth. The same district\'s people are, across the years, the ones who tested — and confirmed — a second guarded spot on a nearby hill: men who tried to carry off the ruined chapel\'s stones and barely escaped a swarm of serpents, and, more recently, a carter whose oxen dropped to their knees before the same ruins. NOT the player\'s home-village crowd (fshatiSheshi/fshatiLanes) and never inhabitants of the city below: they are the separate Northern Gheg community of living Gjakova, now drawn outside the cavern.',
     folklore: ['gjakova-cavern'],
     location: { status: 'placed', node: 'fshehur' },
     tales: { 'gjakova-cavern': 'djakovaFolk' },

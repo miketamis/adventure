@@ -1,4 +1,4 @@
-// HAND-AUTHORED map placement — one physical spot, ONE coordinate.
+// EXPLICIT map placement — one physical spot, ONE coordinate.
 // Each entry is either
 //   id: [x, y]       the node stands at its OWN spot (most nodes), or
 //   id: 'anchorId'   the node stands AT that node's spot — the story
@@ -10,6 +10,12 @@ export const NODE_AT = {
   // the traveller's camp on the WEST bank, before the old stone bridge of the
   // tanners (Ura e Tabakëve) — the bridge you cross from here IS that bridge
   start: [92, 598],
+  bisedaUra1: 'start',
+  bisedaUra2: 'start',
+  bisedaUra3: 'start',
+  bisedaUraPlan: 'start',
+  bisedaShesh: 'start',
+  bisedaKroi: 'start',
   lendina: [-430, 452],
   plaka: [576, 388],
   agaYmer1: 'plaka',
@@ -22,37 +28,63 @@ export const NODE_AT = {
   agaYmerStay: 'plaka',
   agaYmerFund: 'plaka',
   pylli1: [-560, 400],
-  prespaPyll: 'pylli1',
-  prespaLiri: 'pylli1',
-  prespaFund: 'pylli1',
-  argjiroKala: 'maja',
-  argjiroFund: 'maja',
-  argjiroRob: 'maja',
-  aliPashaLiqen: 'deti1',
-  aliPashaVdes: 'deti1',
-  aliPashaRob: 'deti1',
+  // Prespa is its own lakeside woodland, not the great forest beside the
+  // opening bridge. The tale's two conclusions happen at that same place.
+  prespaPyll: [-40, 1510],
+  prespaLiri: 'prespaPyll',
+  prespaFund: [20, 1680], // after the flood, the town itself has become the lake
+  // Argjiro's Gjirokaster fortress is a distinct tale-place. It must not share
+  // Baba Tomor's summit merely because the player first sees it from there.
+  argjiroKala: [540, 1450],
+  argjiroFund: 'argjiroKala',
+  argjiroRob: 'argjiroKala',
+  // Ali Pasha's last stand is on Ioannina's lake island, a named inland place;
+  // it must not be collapsed onto the Adriatic coast where the tale is entered.
+  aliPashaLiqen: [220, 1720],
+  aliPashaVdes: 'aliPashaLiqen',
+  aliPashaRob: 'aliPashaLiqen',
   binoshetLumi: 'lumi',
   binoshetFund: 'lumi',
   binoshetHije: 'lumi',
+  // The twins' later road is a sequence of distinct source places. The ending
+  // returns to Bardhakuqja's river city after the recovered kingdom journey.
+  binoshetKasollja: [-500, 700],
+  binoshetKopshtiZanave: [-250, -700],
+  binoshetGardhiHanda: [-40, -520],
+  binoshetGardhiZjerma: 'binoshetGardhiHanda',
+  binoshetZambak: 'binoshetGardhiHanda',
+  binoshetDasma: 'binoshetGardhiHanda',
+  binoshetKuvendi: 'binoshetGardhiHanda',
+  binoshetKurora: [560, 1260],
+  binoshetLuftaFillon: 'binoshetKurora',
+  binoshetLuftaZgjat: 'binoshetKurora',
+  binoshetLuftaFund: 'binoshetKurora',
+  binoshetShpata: 'binoshetKurora',
+  binoshetNata: 'binoshetKurora',
+  binoshetZjarri: 'lumi',
+  binoshetTeNena: 'binoshetKurora',
+  binoshetDyKurorat: 'lumi',
   odaJutbina: [590, -282], // the men's room of the great kulla — the border-news oda
-  haliliDeka: 'jutbina',
-  haliliMejdan: 'jutbina',
-  haliliJeton: 'jutbina',
-  gbMuji1: 'jutbina',
-  gbMujiFund: 'jutbina',
-  gbMujiVdes: 'jutbina',
-  osmaniBurg: 'jutbina',
+  // Jutbina is a HAMLET, not one twenty-scene room. Its tales occupy the oda,
+  // mejdan, wounded hero's trees, Krajl's prison, horse-guard and Ali's house.
+  haliliDeka: 'odaJutbina',
+  haliliMejdan: 'mejdan1',
+  haliliJeton: 'odaJutbina',
+  gbMuji1: [720, -500],
+  gbMujiFund: 'gbMuji1',
+  gbMujiVdes: 'gbMuji1',
+  osmaniBurg: [810, -310],
   osmaniLiri: 'jutbina',
-  osmaniRob: 'jutbina',
-  halilGarria1: 'jutbina',
+  osmaniRob: 'osmaniBurg',
+  halilGarria1: [820, -220],
   halilGarriaFund: 'jutbina',
-  halilGarriaKeq: 'jutbina',
-  mujoKale: 'jutbina',
-  mujoKaleFund: 'jutbina',
-  mujoKaleLarg: 'jutbina',
-  aliBajr1: 'jutbina',
-  aliBajrFund: 'jutbina',
-  aliBajrKeq: 'jutbina',
+  halilGarriaKeq: 'halilGarria1',
+  mujoKale: [780, -410],
+  mujoKaleFund: 'mujoKale',
+  mujoKaleLarg: 'mujoKale',
+  aliBajr1: [760, -120],
+  aliBajrFund: 'aliBajr1',
+  aliBajrKeq: 'aliBajr1',
   pylliThelle: [-700, 480],
   shokuUjk: 'pylliThelle',
   udha: [-560, 720],
@@ -105,7 +137,7 @@ export const NODE_AT = {
   fitorja: 'kulshedra1',
   pusi2: [1560, 1640],
   shqiponja1: 'pusi2',
-  siperfaqja: [1180, 1600],
+  siperfaqja: [1180, 1540],
   kalaMur: [300, 1360],
   kalaMjegull: 'kalaMur',
   kalaPlak: 'kalaMur',
@@ -118,42 +150,43 @@ export const NODE_AT = {
   mishiVetes: 'pusi2',
   fshehur: [95, 900],
   thesarOra: [120, 950],
-  shpellaHyrje: [180, 1290],
+  // At the fork below, the entrance is the RIGHT-hand return and botaHumbur is
+  // the LEFT-hand road. Keep their x positions faithful to those words.
+  shpellaHyrje: [400, 1290],
   shpellaRruget: [235, 1430],
   qyteti: [300, 2060],
-  qytetiUdhetar: 'qyteti',
-  // ── the living quarter of the dead city — a real drawn plaza: the square at
-  // its heart, the bazaar NE, the inn SE, the healer SW, the traveller by the
-  // street in from the gate, the way-signs at the far edge.
-  sheshi: [400, 2140],
+  // ── living Gjakova stays on the surface, outside the cavern. The dead city
+  // below has only qyteti + thesar2 and no living inhabitants.
+  qytetiUdhetar: [10, 930],
+  sheshi: [15, 1020],
   lemoshaFund: 'sheshi',
   lemoshaBuke: 'sheshi', // the bread-alms beat — the same doorway on the square
-  tregtari: [447, 2122],
+  tregtari: [80, 980],
   blerjaBuke: 'tregtari',
   blerjaKripe: 'tregtari',
   shitjaCaj: 'tregtari',
-  tregtari2: [478, 2148], // the trader's dyqan — its own doorway beside the stall
+  tregtari2: [90, 1025], // the trader's dyqan — its own doorway beside the stall
   blerjaLahuta: 'tregtari2',
   plisiFund: 'tregtari2',
   xhubletaFund: 'tregtari2',
-  bujtina: [434, 2181],
+  bujtina: [50, 1065],
   gjumiBujtina: 'bujtina',
   kafeja1: 'bujtina',
   kafejaFund: 'bujtina',
   fallFund: 'bujtina',
   gezuarFund: 'bujtina',
-  sheruesi: [352, 2172],
-  kopshtiBar: [310, 2210], // the healer's herb garden behind the house
+  sheruesi: [-30, 1050],
+  kopshtiBar: [-70, 1090], // the healer's herb garden behind the house
   sherimiBar: 'sheruesi',
   besimeFund: 'sheruesi',
-  udhetariHuaj: [362, 2106],
+  udhetariHuaj: [-30, 990],
   kurbetiFund: 'udhetariHuaj',
-  udhaShenja: [415, 2216],
+  udhaShenja: [20, 1105],
   udhaUdhetari: 'udhaShenja', // the traveller's leaving — the same old door as an event
   // ── the sea-road beyond the old door: the toll-road's first stretch, then the
   // waystone where it bends down toward the far coast (the traveller's parting)
-  rrugaDetit: [560, 2285],
-  guriUdhes: [700, 2330],
+  rrugaDetit: [145, 1150],
+  guriUdhes: [250, 1190],
   lamtumira: 'guriUdhes', // the farewell at the waystone — same spot as the standing stone
   thesar2: [430, 2210],
   thesarKthyer: [500, 2250],
@@ -174,10 +207,10 @@ export const NODE_AT = {
   shtojzovalleLot: 'shtojzovalle1',
   shtojzovalleNuse: 'shtojzovalle1',
   shtojzovalleBekim: 'shtojzovalle1',
-  shtrigaNate: [-410, 480],
+  shtrigaNate: 'lendina', // waiting "here" keeps the witch's transformation at the clearing fire
   besaFire: 'lendina',
   shtrigaIkur: 'shtrigaNate',
-  gjumi: [-450, 425],
+  gjumi: 'lendina', // the shared sleep scene is the clearing's sleeping-ground
   fshatiDil: [604, 180],
   dilFrike: 'fshatiDil',
   ura: [380, 1240],
@@ -203,9 +236,11 @@ export const NODE_AT = {
   shqipeBarter: 'shqipe2',
   shqipeKapur: 'shqipe2',
   shqipeFund: 'shqipe2',
-  sari1: 'pusi',
-  sari2: 'pusi',
-  sariFund: 'pusi',
+  // Sari Salltëk's story is heard at the well, but happens at its own cave near
+  // Krujë. A narrated tale is not the same physical place as its storyteller.
+  sari1: [640, -180],
+  sari2: 'sari1',
+  sariFund: 'sari1',
   gjarperBurr1: 'bota2',
   gjarperBurrVdes: 'bota2',
   gjarperBurr2: 'bota2',
@@ -223,26 +258,33 @@ export const NODE_AT = {
   kostandinFund: 'kostandin1',
   gjizar1: [672, 214],
   gjizar2: [720, 164],
-  gjizarUdha: 'gjizar2',
-  gjizarPallat: 'gjizar2',
-  gjizarKap: 'gjizar2',
-  gjizarTradheti: 'gjizar2',
-  gjizarPus: 'gjizar2',
-  gjizarFund: 'gjizar2',
+  // Gjizar is an embodied journey, not seven pages heard without leaving the
+  // back lane. The no-return road reaches the world below, the theft occurs
+  // at the established Earthly Beauty's court, and the brothers' betrayal has
+  // its own well on the long homeward road. Only the resolved ending returns
+  // to the king's town where the tale began.
+  gjizarUdha: [360, 2320],
+  gjizarPallat: 'bukura1',
+  gjizarKap: 'bukura1',
+  gjizarTradheti: [800, 1940],
+  gjizarPus: 'gjizarTradheti',
+  gjizarFund: [755, 125],
   // Tomor & Shpirag embodied arc — Tomor's slopes share tomor1; Shpirag's ridge
   // (Berat at its foot) gets its OWN spot below the summit, fixing the old bug of
   // Berat resolving onto the sacred summit (maja).
-  tsHyrje: 'tomor1',
-  tsNuse: 'tomor1',
-  tsRoje: 'tomor1',
-  tsZgjim: 'tomor1',
-  tsShpeto: 'tomor1',
-  tsFundTomor: 'tomor1',
+  // The embodied giant's home/slope is below the pilgrimage shrine; the duel's
+  // aftermath belongs at the Shpirag battlefield, not on Baba Tomor's summit.
+  tsHyrje: [350, -600],
+  tsNuse: 'tsHyrje',
+  tsRoje: 'tsHyrje',
+  tsZgjim: 'tsHyrje',
+  tsShpeto: 'tsHyrje',
+  tsFundTomor: 'shpirag1',
   shpirag1: [560, -360],
   tsRast: 'shpirag1',
   tsBeteje: 'shpirag1',
   shpiragFund: 'shpirag1',
-  dhia1: [80, -420],
+  dhia1: [80, -520],
   dhiaFund: 'dhia1',
   tre1: [280, 2470],
   tre2: 'tre1',
@@ -251,7 +293,9 @@ export const NODE_AT = {
   udhetimi2: [240, 2440],
   bukuraThellesi: 'bukura1',
   bregu: [780, 1080],
-  balozMotra: [720, 1040],
+  // The shore-village scene already says the wounded hero, sister and kulla
+  // are "here". Listening and sleeping in the following scenes do not travel.
+  balozMotra: 'bregu',
   balozTribut: 'balozMotra',
   balozZgjedh: 'balozMotra',
   balozLufte: [880, 1130],
@@ -265,12 +309,16 @@ export const NODE_AT = {
   zanaDije: 'zanaQumesht',
   zanaFole: [80, 1000],
   foleShpetuar: 'zanaFole',
-  tomorProva: 'tomor1',
-  tomorStuhi: 'tomor1',
+  tomorProva: [420, -640],
+  tomorStuhi: 'tomorProva',
   ngjitja1: 'pusi2',
   ngjitja2: 'pusi2',
   ngjitja3: 'pusi2',
   fshatiSheshi: [499, 432],
+  porosiaShesh: 'fshatiSheshi',
+  pazariFshatit: 'fshatiSheshi',
+  pazariPerserit: 'fshatiSheshi',
+  porosiaBlerje: 'fshatiSheshi',
   dasma1: [598, 448], // the wedding yard — the feast-house ground east of the square (krushqit ride here)
   dasmaFund: 'dasma1',
   valleFund: 'dasma1',
@@ -287,31 +335,34 @@ export const NODE_AT = {
   maroShtepi: [252, 410],
   maroNjerka: 'maroShtepi',
   maroNisja: 'maroShtepi',
-  maroMulli1: 'lumiMjeshter',
-  maroXhindet1: 'lumiMjeshter',
-  maroLitani1: 'lumiMjeshter',
-  maroLitani2: 'lumiMjeshter',
-  maroLitani3: 'lumiMjeshter',
-  maroShtremberDore: 'lumiMjeshter',
-  maroNataHumbur: 'lumiMjeshter',
-  maroDoraShtember: 'lumiMjeshter',
-  maroDoraFalje: 'lumiMjeshter',
-  maroShtrember: 'lumiMjeshter',
+  maroMulli1: [186, 584], // the inner millstone floor during Maro's night vigil
+  maroXhindet1: 'maroMulli1',
+  maroLitani1: 'maroMulli1',
+  maroLitani2: 'maroMulli1',
+  maroLitani3: 'maroMulli1',
+  maroShtremberDore: 'maroMulli1',
+  maroNataHumbur: 'maroMulli1',
+  maroDoraShtember: 'maroMulli1',
+  maroDoraFalje: 'maroMulli1',
+  maroShtrember: 'maroMulli1',
   maroLiloNis: 'maroShtepi',
   maroLiloKthim: 'maroShtepi',
   maroLajmi: 'maroShtepi',
   maroTetua: [934, 512],
   maroHani: [540, 84],
-  maroIkja: 'maroShtepi', // the flight ENDS at your own door — the scene spans the road home
+  maroIkja: [740, 340], // midnight flight on the road between the auntie's door and home
   maroMesnata: 'maroHani', // midnight strikes AT the han — the walk home is its exit edge
-  maroKrushqit: 'maroShtepi',
-  maroPrincesha: 'maroShtepi',
+  maroKrushqit: [350, 330], // the wedding party surrounds the house from the road
+  maroPrincesha: [850, 80], // the bridal road into the prince's country
   maroPallati: [1050, -40],
+  maroGjilpera: 'maroPallati',
   maroLindja: 'maroPallati',
   maroZogu: 'maroPallati',
-  maroKopshti: 'maroPallati',
-  maroFundi: 'maroPallati',
-  maroCiuCiu: 'maroPallati',
+  // The bird flies from the palace window to the prince's garden wood. The
+  // later tree/perching and restoration scenes happen there, not in the room.
+  maroKopshti: [980, 100],
+  maroFundi: 'maroKopshti',
+  maroCiuCiu: 'maroKopshti',
   nenaDiell1: [516, 400],
   nenaDiellFund: 'nenaDiell1',
   karkanxholl1: [-720, 820],
@@ -336,6 +387,8 @@ export const NODE_AT = {
   pallatRojeZi: 'pallatiZi',
   pallatRojePse: 'pallatiZi',
   libriDiell: [418, 392],
+  sofraMikut: 'libriDiell',
+  sofraMikut2: 'libriDiell',
   pallatiKthim: 'pallatiZi',
   // ── the Sun's house — a real explorable compound on its cloud-plateau:
   // house → garden (west wing) → golden oda (east wing) → the forecourt where
@@ -348,7 +401,7 @@ export const NODE_AT = {
   diellThirrKul: [300, -1062],
   diellKulVdes: 'diellThirrKul',
   rrugaDielli1: [300, -985],
-  pemaDielli: [382, -935],
+  pemaDielli: [382, -1060],
   pemaVdes: 'pemaDielli',
   rrugaDielli2: [400, 120],
   kopshtMermer1: [690, 470],
@@ -373,6 +426,7 @@ export const NODE_AT = {
   vatra: [300, 378],
   vatraGjarpri: 'vatra', // the serpent's saucer — at the hearth itself
   qilim: [288, 468],
+  qilimNena: 'qilim', // the mother speaks at the loom — same spot as the qilim scene
   bariu: [300, 560],
   punaBariu: 'bariu',
   gjysmegjel1: [392, 566],
@@ -398,7 +452,7 @@ export const NODE_AT = {
   udhaThate: [-460, 640],
   maliHumbur: [500, -975],
   lumiHumbur: [230, 1075],
-  botaHumbur: [360, 1890],
+  botaHumbur: [100, 1890],
   ujkuUje: 'udhaThate',
   udhaSyri: [-320, 720],
   syriFund: 'udhaSyri',
@@ -441,12 +495,15 @@ export const NODE_AT = {
   kordhaMoat: [-648, 306],
   kordhaMoatVdes: 'kordhaMoat',
   kordhaUdha: [-668, 282],
-  kordhaPallat: 'kordha2',
-  kordhaZjarr: 'kordha2',
-  kordhaProva: 'kordha2',
-  kordhaProvaVdes: 'kordha2',
-  kordhaFund: 'kordha2',
-  kordhaDeti: 'kordha2',
+  // Beyond the moat and its road stands the king's palace. Its interior,
+  // dragon ordeal, spring and conclusions share that destination; they are not
+  // the brothers' earlier woodland stop.
+  kordhaPallat: [-790, 150],
+  kordhaZjarr: 'kordhaPallat',
+  kordhaProva: 'kordhaPallat',
+  kordhaProvaVdes: 'kordhaPallat',
+  kordhaFund: 'kordhaPallat',
+  kordhaDeti: 'kordhaPallat',
   shurdhi1: [60, -680],
   shurdhiFund: 'shurdhi1',
   kali1: 'mali3',
@@ -488,9 +545,11 @@ export const NODE_AT = {
   prendeFund: 'uji',
   riddle1: 'ura',
   riddleFund: 'ura',
-  cuckoo1: 'gjizar2',
-  cuckooFund: 'gjizar2',
-  cuckooLule: 'gjizar2',
+  // The bird-origin tales heard in the back lanes have their own nearby field
+  // and eaves; they do not happen at Gjizar's king-road marker.
+  cuckoo1: [755, 225],
+  cuckooFund: 'cuckoo1',
+  cuckooLule: 'cuckoo1',
   arushe1: 'pylli1',
   arushePeme: 'pylli1',
   arusheNate: 'pylli1',
@@ -501,9 +560,9 @@ export const NODE_AT = {
   bletaFund: 'gjizar1',
   merimangaFund: 'gjizar1',
   gjinkallaFund: 'gjizar1',
-  dallendyshe1: 'gjizar2',
-  dallendysheFund: 'gjizar2',
-  dallendysheGjak: 'gjizar2',
+  dallendyshe1: [805, 215],
+  dallendysheFund: 'dallendyshe1',
+  dallendysheGjak: 'dallendyshe1',
   kukudh1: 'udha',
   kukudhFund: 'udha',
   udhekryq: [458, 66],
@@ -511,10 +570,10 @@ export const NODE_AT = {
   qiellDem1: [120, -1390],
   qiellErera1: [760, -1030],
   qiellErera2: 'qiellErera1',
-  qiell2: [440, -1420],
+  qiell2: [440, -1480],
   zojzBekim: 'qiell2',
   diellShenjt: 'qiell2',
-  zojzRrufe: [560, -1450],
+  zojzRrufe: [560, -1560],
   qiellPrende: [-260, -1080],
   qiellDiell: [-120, -1230],
   demKeq: 'qiellDem1',
@@ -526,7 +585,9 @@ export const NODE_AT = {
   henaPaqe: [720, -1290],
   fshatiLumi: [232, 616],
   gruaUji1: 'fshatiLumi', // the water-carrier stopped on the bank — same spot as the river scene
-  lumiMjeshter: [166, 602],
+  // The master tells the mill's origin from the riverbank approach. The working
+  // floor and the night threshold are distinct parts of the same drawn mill.
+  lumiMjeshter: [130, 570],
   fushaMulli: [200, 545], // the fields behind the mill — the miller's world, walked
 
   // the NEW bridge (Ura e Artës) worksite — the masons' yard at the EAST
@@ -544,14 +605,14 @@ export const NODE_AT = {
   // up the lane from fshatiJeta: the night besa choice + the morning bride-test
   uraNata: [352, 462],
   uraMengjes: 'uraNata',
-  mulli1: 'lumiMjeshter',
-  punaMulli: 'lumiMjeshter',
-  mulliFund: 'lumiMjeshter',
-  mulliKeq: 'lumiMjeshter',
-  xhindMulli: 'lumiMjeshter',
-  xhindMulliFund: 'lumiMjeshter',
-  xhindMulliKeq: 'lumiMjeshter',
-  kroi1: [178, 674],
+  mulli1: [166, 602],
+  punaMulli: 'mulli1',
+  mulliFund: 'mulli1',
+  mulliKeq: 'mulli1',
+  xhindMulli: [146, 584],
+  xhindMulliFund: 'xhindMulli',
+  xhindMulliKeq: 'xhindMulli',
+  kroi1: [180, 672],
   kroiFund: 'kroi1',
   // the tanners' bank under the old bridge (Ura e Tabakëve) — its own spot on
   // the water, downstream of the stonebridge glyph

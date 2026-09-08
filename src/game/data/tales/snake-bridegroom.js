@@ -9,10 +9,10 @@
 // exits). Three-friends-style, the anchors below are where the tale's WORLD
 // places live on the map, not where the vignette is told.
 //
-// NO ALBANIAN ORIGINAL FOUND (see albanian.why) — lines carry no third
-// element by design, and no docs/references extract exists: the only text we
-// could transcribe is Elsie's English, which is copyrighted and must not
-// enter the repo.
+// THE EXACT ALBANIAN WITNESS IS IDENTIFIED BUT NOT CONTINUOUSLY READABLE (see
+// albanian.why) — lines carry no third element by design. Google Books search
+// snippets establish the source pages and plot, but are not a transcript and
+// must not be stitched together for the quotation system.
 // ===========================================================================
 
 export default {
@@ -20,6 +20,32 @@ export default {
   title: 'The Snake and the King\'s Daughter',
   source:
     'Instituti i Folklorit archive text, Folklor shqiptar 1 — Proza popullore (Tiranë 1963) · read in R. Elsie\'s translation (tale 13, ATU 425); all lines paraphrased',
+  references: [
+    {
+      role: 'translation',
+      citation: 'Robert Elsie (trans.), “The Snake and the King’s Daughter,” tale 13, after Folklor shqiptar 1: Proza popullore (1963)',
+      url: 'http://www.albanianliterature.net/folktales/tale_13.html',
+      note: 'The exact English translation selected for the beat record; the author site has no working HTTPS endpoint.',
+    },
+    {
+      role: 'source-text',
+      citation: 'Exact Albanian witness, Folklor shqiptar 1: Proza popullore (1963), pp. 397–403 — Google Books institutional scan',
+      url: 'https://books.google.com/books?id=YgTaAAAAMAAJ&pg=PA397&dq=Shpejti',
+      note: 'Search snippets expose the selected tale from the snake in the firewood through Swift, the Kulshedra, the ring in the jug, two cauldrons of tears and the coffin ruse. The volume is snippet-only, not a complete readable transcript.',
+    },
+    {
+      role: 'catalog',
+      citation: 'Folklor shqiptar 1: Proza popullore (Tiranë, 1963), Google Books bibliographic record',
+      url: 'https://books.google.com/books/about/Folklor_shqiptar_pts_1_5_Proza_popullore.html?id=nuotxwEACAAJ',
+      note: 'Bibliographic confirmation of the cited collection; this record has no readable preview.',
+    },
+    {
+      role: 'catalog',
+      citation: 'Robert Elsie, Albanian Folktales and Legends: online book record and contents',
+      url: 'http://books.elsie.de/2004-1986/b09.html',
+      note: 'Author-maintained record for the English anthology containing the selected translation; its legacy host has no working HTTPS endpoint.',
+    },
+  ],
   // where the tale comes from — anchors should prefer this region's mirrors.
   // The 1963 volume's redaction is standard Albanian and Elsie's source note
   // names no district, so — maiden-promised-sun-style — the game's village
@@ -29,18 +55,27 @@ export default {
     collector: 'Instituti i Folklorit, Tirana (archive text; the individual teller/collector is unnamed in Elsie\'s source note)',
     published: 'Tiranë, 1963 (Folklor shqiptar 1, Proza popullore)',
   },
-  // No Albanian original found — the lines carry NO third element by design.
+  // No complete Albanian transcript is readable — lines carry NO third element
+  // by design even though the exact source pages have now been identified.
   albanian: {
     status: 'missing',
     why:
-      'Elsie\'s source is Folklor shqiptar 1, Proza popullore (Tiranë 1963), which is not digitized anywhere reachable: archive.org (metadata + scrape API) has no scan, Google Books holds a metadata-only record with no preview, and the BKSH digital library exposes no working search endpoint. The local corpora have no variant of this tale: the 1954 Pralla popullore shqiptare\'s own bibliography lists all 38 of its tales (no snake-bridegroom; its snake tales — Feniçka, the cave-serpent — are other types; a separate iron-shoes wonder-tale in that same volume, p. ~48, is a "qose"/godfather-elephant tale, not this one — the iron-shoes journey is a stock device, not proof of a match). RE-CHECKED against docs/references/dozon-manuel-langue-chkipe.fr-sq.txt (2026-07): its own table of contents lists all 24 tales by title (Patimé; Les sœurs jalouses; L\'ours et le derviche; Le pou; Mosko et Tosko; La Belle de la terre; Le soulier; Le coq qui pond de l\'or et la poule qui pond des serpents; La fille promise au soleil; La boucle d\'or; La pierre merveilleuse; Le joueur de violon; Le pêcheur; La princesse de la Chine; Le lion aux pièces d\'or; La liouhia et la belle de la terre; Le serpent reconnaissant et la tabatière merveilleuse; Le coffre merveilleux; Le fils ingrat; L\'enfant vendu; La fille changée en garçon; Les diables dupés; Les deux voleurs; Les trois frères et les trois sœurs) — no "serpent époux"/bridegroom title among them. Tale 17, read in full, is the OTHER snake tale already on record: a frozen snake rescued by a poor boy, whose father rewards him with a wonder-snuffbox (not a son born a snake, no bride-condition test, no Kulshedra-abroad rescue) — confirmed a different ATU type, not this one. RE-CHECKED also against docs/references/dozon-contes-albanais.fr.txt (2026-07), Dozon\'s earlier French edition (24 tales, same list, cross-numbered to the Manuel, plus wedding customs at Përmet and an Abeille chkipe supplement): its table of contents carries no serpent-bridegroom title either, and grepping "serpent" across all ~9,200 lines turns up only the same two grateful-snake-and-treasure tales (Le serpent reconnaissant, nos. 9-10, matching the Manuel\'s tale 17 already ruled out) plus one "l\'époux" in the closing essay "Analyse de Psyché" — Dozon\'s own scholarly comparison of the volume\'s motifs to Apuleius\'s Cupid-and-Psyche, noting the animal-bridegroom-by-night motif\'s kinship to that Latin fable in passing, not an Albanian folk text and nothing transcribable. Hahn/Jarnik/Meyer/Lambertz were grepped without a hit (Hahn\'s ATU 425 "Schlangenkind" exists only in his German translation). Web searches under the plausible Albanian titles («Gjarpri dhe e bija e mbretit», «Gjarpri dhe çupa e mbretit») and under motif phrases (këpucë të hekurta, dy kazana me lot, the Kulshedra\'s chant) find only Anton Nikë Berisha\'s modern copyrighted poetic retelling («Gjarpri martohet me vajzën e mbretit», from an Arbëresh teller — a different variant besides) and snake-cult journalism. Nothing found may feed the Q() quote system; back-translating is forbidden.',
+      'The exact Albanian witness is digitized in a Google Books institutional scan of Folklor shqiptar 1, pp. 397–403, correcting the former metadata-only claim. Search snippets independently expose all of the selected tale\'s distinctive sequence: the childless woman carrying a snake home in firewood; the ring, palace and marriage conditions; Swift shedding his skin; the wedding disclosure and disappearance; the Kulshedra beyond the sea; the ring dropped into the washing jug; two cauldrons to be filled with tears; and the coffin ruse. The scan remains snippet-only, so there is still no continuously readable, lawfully reusable Albanian transcript from which exact source units can be aligned or Q() quotations stocked. Status therefore remains missing under the strict evidence schema rather than being promoted on fragmentary snippets. The local 1954 corpus does contain a close but materially different animal-bridegroom variant, «Shamakadija» (printed pp. 66–71): the groom is a foal who becomes human, his skin is burned, the Kulshedra abducts him, and his iron-shod wife follows; its trials, one tear-cauldron and magic-obstacle escape differ from the selected snake, ring, two-cauldron and coffin telling. It is preserved as a variant below and never spliced into Elsie\'s witness. Dozon\'s grateful-snake tale and Hahn\'s German Schlangenkind are other tale forms; modern retellings do not supply the missing continuous 1963 text. Back-translation remains forbidden.',
+    variants: [
+      {
+        title: '«Shamakadija» (Pralla popullore shqiptare 1954, pp. 66–71)',
+        local: 'docs/references/pralla-popullore-shqiptare-1954.sq.txt',
+        note: 'a close Albanian animal-bridegroom variant: foal rather than snake, burned skin and Kulshedra abduction, an iron-shod wife, different tasks, one tear-cauldron and a magic-obstacle escape rather than the selected ring, two cauldrons and coffin ending — not the source of Elsie\'s telling',
+      },
+    ],
   },
   // Where the telling the beats follow (Elsie) and the in-game/lore canon
   // disagree — recorded so the reconciliation pass isn't re-litigated. With
   // the Albanian missing, these quote the game's own Albanian where relevant.
   discrepancies: [
-    'WHO BREAKS THE SECRET (¶9.10-11): the lore card and the gjarperBurrFund blurb have the player-wife keep faith ("You kept faith and never betrayed him — but the secret slipped out all the same"); in Elsie SHE bursts it out herself at the wedding, goaded by her mother\'s praise of the dancer. The beats follow Elsie: the outburst is hers, the goad is the queen\'s.',
-    'WHOSE WIT FREES HIM (¶15-18): the lore card credits the wife ("frees him not by force but by wit, answering the Kulshedra\'s impossible chores with cleverer tricks"), and the in-game scene hands the salt-water trick to the visiting player («ujë me kripë bëhet lot», gjarperKulshedra); in Elsie every trick is SWIFT\'s — the bread-crust sweep, the salted cauldrons, and the coffin that ends the beast. The beats follow Elsie.',
+    'THE 1954 CLOSE VARIANT: «Shamakadija» (Pralla popullore shqiptare, pp. 66–71) is not the previously alleged qose/godfather-elephant tale. It is a genuine close animal-bridegroom analogue: a foal becomes a man, his wife burns the skin, a Kulshedra abducts him, and she follows in iron shoes. Its husband, trials, single tear-cauldron, escape and ending differ materially, so the beats continue to follow the exact 1963 snake witness and no 1954 sentences are presented as its quotations.',
+    'WHO BREAKS THE SECRET (reconciled, ¶9.10-11): the lore card and ending now state that the bride herself blurts out the secret at the wedding after her mother goads her with praise of the dancer. The earlier private-scene choice tests whether the player betrays him immediately; the canonical path defers, but does not erase, her later outburst.',
+    'WHOSE WIT FREES HIM (reconciled, ¶15-18): every saving idea is Swift\'s — the bread-crust sweep, the salted cauldrons, and the coffin that ends the beast. The playable scene now has the captive husband state the salt-water answer; the player-wife carries it out, and the ending credits Swift with the plan and the final coffin trick.',
     'THE MOON\'S GENDER (¶10.20, ¶11.2): Elsie\'s moon is "he" ("ask the moon if he\'s seen him at night"); the game\'s core Hëna (henaPaqe) is she. The beats cast the game\'s Hëna and paraphrase without the pronoun.',
     'THE SEARCH KIT (¶9.17): Elsie names iron shoes, an iron staff and a travelling case; the lore card and the game scene keep only the iron shoes («ti vesh hekur në këmbë», gjarperKerkim). The beats keep all three.',
     'WHO CARRIES HIM OFF (¶9.12, ¶13.8): the lore card says he "vanishes, carried off by a Kulshedra beyond the sea"; Elsie shows only the vanishing, and the FACT of the Kulshedra arrives two houses later, in the Wind\'s answer. The beats follow Elsie\'s order of revelation (the keyframe board, which states world-truth, does place him beyond the sea from the vanishing on).',
@@ -141,15 +176,16 @@ export default {
   // you never to tell. The secret slips out and a Kulshedra carries him off beyond the
   // sea — and because you never wronged him you may follow: iron shoes on your feet, you
   // ask the Sun, the Moon and the Wind, cross the water and outwit the she-dragon to win
-  // him back a man for good. Embodied but LOOSE (no become — the quest threads the
-  // shared sky/underworld hubs). "It is never silence that frees the snake-husband — it
+  // him back a man for good. The marriage threshold now establishes the bride explicitly;
+  // the shared sky/underworld remains explorable while her exact scene waits. "It is never silence that frees the snake-husband — it
   // is the long, faithful search after he is lost."
   play: {
     entry: 'kushtet',
     stance: 'embodied',
     as: 'bride',
     role:
-      'You are wed to a serpent who by night sheds his skin and stands a young man, and who begs you never to speak of it. Keep faith — but the secret slips out as it always does, and a Kulshedra bears him off beyond the sea. Because you never wronged him you can follow: iron shoes on your feet, you ask the Sun, the Moon and the Wind where he is, cross the water where the Wind points, and outwit the she-dragon to bring him home a man for good.',
+      'You are wed to a serpent who by night sheds his skin and stands as Swift, and who begs you never to speak of it. Goaded at a wedding, you blurt out the secret and he vanishes. Iron-shod, you search through the houses of the Sun, Moon and Wind until you find him beyond the sea; there Swift supplies the tricks that defeat the Kulshedra, while your faithful journey brings you both home.',
+    enter: 'a serpent has built a palace and asked the king for a daughter; if you marry him, the promise he asks you to keep begins tonight',
     from: 'gjarperBurr1',
     ending: 'gjarperBurrFund',
     scenes: {
@@ -158,9 +194,9 @@ export default {
       gjarperBurrFund: 'kthimi',
     },
     divergences: [
-      { beat: 'kushtet', note: 'You embody the bride, loosely (no become/mold-lock — the quest reuses the Sun-quest\'s sky and the underworld, shared hubs). The game\'s "good" path is faithful silence (betray him and he is lost at once, the bad ending gjarperBurrVdes); but as the tale insists, even faithful silence does not keep him — the loss and the long search come regardless.' },
+      { beat: 'kushtet', note: 'You explicitly embody the bride at the marriage threshold; the quest reuses the Sun-quest\'s sky and the underworld as shared places without loosening her role. The game\'s "good" path is faithful silence (betray him and he is lost at once, the bad ending gjarperBurrVdes); but as the tale insists, even faithful silence does not keep him — the loss and the long search come regardless.' },
       { beat: 'hekurat', note: 'The iron-shoes quest to the mothers of the Sun, the Moon and the Wind — worn out asking each where he is until the Wind points past the sea — reuses the sky region of the Sun-maiden\'s world (the Sun\'s house, the Moon\'s peace, the winds).' },
-      { beat: 'prova', note: 'The Kulshedra\'s many trials beyond the sea (the ring in the water-jug, the broom, the boiling cauldrons, the coffin built for a lie) are compressed into one outwitting; the point the tale makes against the "silence frees the enchanted husband" type is kept — here it is the faithful search, not the kept secret, that wins him.' },
+      { beat: 'prova', note: 'The Kulshedra\'s many trials beyond the sea are compressed into the salted-cauldron scene and the ending\'s account of the rest. Agency stays source-faithful: the wife performs the task, but Swift supplies the salt-water answer and later traps the Kulshedra in his coffin.' },
     ],
   },
   beats: [

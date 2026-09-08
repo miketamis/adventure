@@ -13,6 +13,14 @@ export default {
   id: 'kebab-tale-id',            // = the FOLKLORE entry id it retells
   title: 'English title (Elsie)',
   source: 'collector, collection (year) · translation read; all lines paraphrased',
+  references: [                    // REQUIRED — clickable evidence, with its exact role
+    {
+      role: 'selected-witness',    // see the controlled vocabulary below
+      citation: 'Author, Title (year), page/tale number when known',
+      url: 'https://…',
+      note: 'optional access/provenance limit or relationship to this telling',
+    },
+  ],
   origin: { region: 'South Albania (Tosk)' /* etc */, collector: '…', published: '…' },
   albanian: {                     // REQUIRED — the tale's Albanian original
     title: '«Albanian title as printed»',
@@ -27,9 +35,33 @@ export default {
   places: [ { id, emoji, name, note, anchor } ],
   items: [ { id, emoji, name, note } ],
   play: { entry, stance, as?, with?, finale?, role, enter?, learn?, from?, ending?, scenes?, divergences? },  // OPTIONAL — see below
+  projection: { status: 'source-only', reason: '…' }, // use instead of play when no game scene honestly enacts this exact witness
   beats: [ { id, title, note, lines, cast, items?, exit? } ],
 }
 ```
+
+### Clickable references
+
+Every tale must expose at least one honest route to the evidence a reader can
+inspect. More links are welcome when they add a genuinely different witness,
+facsimile, catalogue record, translation, scholarly discussion, or named
+variant; duplicate mirrors and generic search pages are not evidence density.
+
+`references[].role` is exactly one of:
+
+- `selected-witness` — the exact telling used for the beat record;
+- `source-text` — its source-language text or a faithful transcription;
+- `facsimile` — page images or a scan of the cited edition;
+- `translation` — a translation of the selected witness;
+- `catalog` — an institutional or bibliographic record for the edition;
+- `scholarship` — research that interprets or contextualizes the material;
+- `variant` — another telling of substantially the same tale;
+- `analogue` — a related tale or motif that is not the selected telling;
+- `context` — historical, geographical, ritual, or biographical background.
+
+Never label a variant or analogue as the selected witness. Use HTTPS whenever
+the host provides it. A modern or restricted source may be linked without being
+copied locally; state that access or copyright limit in `note`.
 
 ## How the tale becomes playable (`play`, OPTIONAL)
 
@@ -39,6 +71,12 @@ marks on the timeline. It is a projection ONLY: never add the player to `cast[]`
 or to a beat's keyframes (that would corrupt line coverage and the honest cast
 count); prologue-ness and the player's per-beat position are DERIVED by
 `playOf(tale)` in [../../taleLib.js](../../taleLib.js).
+
+If the exact source timeline has no honest game projection, omit `play` and add
+`projection: { status: 'source-only', reason }`. This is the correct state when
+a nearby playable vignette shares a hero or motif but tells a different legend;
+never map it to the “nearest” beats. The source-only record stays complete and
+available as lore while the audit verifies that the separation is deliberate.
 
 - **`entry`** — the beat **id** where the playable arc begins. Every beat before
   it is PROLOGUE the player learns as lore but never plays. Authoring rule: entry
@@ -77,8 +115,8 @@ count); prologue-ness and the player's per-beat position are DERIVED by
 
 - **`from` / `ending` / `scenes`** — OPTIONAL, power the **🎭 playthrough** view,
   which lays the game's shortest route to the good ending beside the source
-  beats. `scenes` = `{ storyNodeId: beatId }` mapping each game scene to the beat
-  it enacts. The view COMPUTES the graph-shortest path from `from` (default
+  beats. `scenes` = `{ storyNodeId: beatId | beatId[] }` mapping each game scene
+  to the beat or adjacent beats it enacts. The view COMPUTES the graph-shortest path from `from` (default
   START_NODE) to `ending` (a good-ending node; auto-detected via ENDING_LORE if
   omitted) and, per beat, shows the on-route scene's real text — or flags the
   beat "off the shortest route" when its scene is skippable (e.g. Maiden beat 5
@@ -95,6 +133,41 @@ count); prologue-ness and the player's per-beat position are DERIVED by
 The lint (`scripts/beatscoverage.mjs`) checks: `entry`/`finale` ∈ beat ids,
 `stance` ∈ the enum, embodied⇒`as` ∈ cast ids, companion⇒`with` ∈ cast ids (if
 given), witness⇒no `as`/`with`, `role` present, and every `learn` node ∈ STORY.
+
+An embodied `play` record also requires a matching gameplay contract in
+`../../embodiment.js` (or a documented source alias there). The two structures
+have different jobs: `play.scenes` proves which source beats are represented;
+the runtime contract lists every legal character-scene and alternate ending,
+the clear entry threshold, the overworld return point, and the next-purpose
+copy used while wandering. Never infer the runtime lock from `play.scenes` or
+the single canonical `play.ending`, because both may deliberately omit
+counterfactual branches. `scripts/embodimentaudit.mjs` fails closed when a role,
+threshold, ending, resume point, or reducer guard drifts.
+
+Every in-span beat without a direct `scenes` or `learn` link is reviewed in
+`_projectionLedger.js`. A beat-tagged `divergences` note documents how an
+adaptation differs; it does **not** make that beat playable and therefore does
+not exempt it from an omission disposition. Scene mappings must stay within the
+declared entry–finale span, and a beat cannot be both an enacted scene and
+learned prologue lore. Its disposition is:
+
+- `justified` — honest setup, narration, compression, repetition, aftermath, or
+  point-of-view boundary; no new scene is required merely to reduce a count;
+- `gap` — the projection substitutes, reverses, or loses source material central
+  enough to warrant a concrete repair;
+- `uncertain` — source evidence is not yet adequate to decide.
+
+Proposed places use the same three dispositions. A proposal can be a useful
+source-timeline or visual design record without being a defect. The lint
+requires exactly one evidence-bearing review per omitted beat and proposed
+anchor. Each review carries a frozen SHA-256 context digest: an omitted-beat
+digest binds its exact title, note, source lines, entry–finale span and current
+scene/learn/divergence status; a proposed-place digest binds its exact note,
+anchor mirror, mold, proposal, conflicts and declared projection scope. The
+lint recomputes these contexts, rejects missing, copied, reused, orphaned or
+stale digests, and requires a recommendation for every `gap` or `uncertain`
+item. A justified review records an honest non-enacted or non-built decision;
+it does not claim that the beat or place is directly playable.
 
 ## Beats are KEYFRAMES over a persistent world
 
@@ -180,10 +253,38 @@ Look things up (never guess node ids):
     originals (his French-based transcription)
   - `docs/references/hahn-albanesische-studien.de-sq.txt`, `jarnik-zur-albanischen-sprachenkunde.de-sq.txt`,
     `meyer-kurzgefasste-grammatik.de-sq.txt`, `lambertz-albanische-marchen.de-sq.txt`
-- Otherwise try archive.org full-text (curl works). If NO Albanian original is
-  findable, set `albanian: { status: 'missing', why: '…what you tried…' }` and
-  leave the lines' third element out — the lint will flag it as a known gap.
+- Otherwise try archive.org full-text (curl works). If the exact Albanian
+  original is found but has not yet been collated against the beat lines, use
+  `albanian: { status: 'located', why: '…where and what remains…', external:
+  'https://…', local?: 'docs/references/…' }`. A located source is not yet a
+  line-verified source: leave third elements out until the alignment is done.
+- If NO Albanian original is findable, set `albanian: { status: 'missing',
+  why: '…what you tried…' }` and leave the lines' third element out. “Missing”
+  means specifically that no exact Albanian transcript is available; it does
+  not by itself say that the selected French/German/English witness is
+  unverified. Add an evidence-bearing entry to `_sourceLedger.js` only after
+  every source unit has been compared with that selected witness and the scope
+  of that internal editorial attestation has been recorded. The entry’s record
+  hash binds the decision to the exact current beat record, and every locally
+  stocked witness must also have a byte hash. A hash proves payload identity,
+  not reviewer identity or expertise. External-only evidence remains an
+  explicit qualification because the repository cannot freeze it.
+  Use
+  `verified-selected-witness` for an exact selected telling and
+  `reviewed-synthesis` for an openly authored composite; never call a synthesis
+  an original folk text.
+- The third element contains source-language text only. Put `[sic]`,
+  translation notes, reordered-line notices, and every other editorial comment
+  in a fourth element or in `discrepancies`; never embed English apparatus in
+  text presented as the original.
   Do NOT invent or back-translate Albanian.
+
+Literal containment is the first proof method for source-language fields. When
+documented transliteration, OCR repair, verse re-segmentation, or a disclosed
+editorial correction prevents containment, `_sourceLedger.js` may hold a
+source-collation record with hashes of both the exact line fields and the local
+witness bytes. Changing either invalidates the record automatically; a broad
+“checked” note without those hashes is not certification.
 
 ## Do not
 

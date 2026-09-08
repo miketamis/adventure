@@ -46,6 +46,24 @@ const endingDepths = endings.map((id) => dist[id]).filter((d) => d !== undefined
 const avg = endingDepths.length ? (endingDepths.reduce((a, b) => a + b, 0) / endingDepths.length) : 0
 const median = endingDepths.length ? endingDepths[Math.floor(endingDepths.length / 2)] : 0
 
+// This is an open-world anthology: a mill shift or roadside haunting is
+// intentionally shorter than an embodied epic. Short depth is therefore a
+// review trigger, not an invitation to pad folklore. Every non-bad endpoint at
+// the three-step floor needs an explicit structural reason and still needs a
+// substantive ending (>=2 lines and >=30 words of explanatory blurb).
+const REVIEWED_COMPACT_ENDINGS = Object.freeze({
+  besaFire: 'opening tutorial payoff: keep the besa and tend the first fire',
+  kroiFund: 'single-site village spring custom',
+  mulliFund: 'single-shift mill-work vignette',
+  shtrigaIkur: 'time-gated roadside banishment',
+  tabakFund: 'single-site tanners guild vignette',
+})
+const compactNonBad = endings.filter((id) => nodes[id].end !== 'bad' && dist[id] <= 3)
+const unreviewedCompact = compactNonBad.filter((id) => !REVIEWED_COMPACT_ENDINGS[id])
+const staleCompactReviews = Object.keys(REVIEWED_COMPACT_ENDINGS).filter((id) => !nodes[id]?.end || nodes[id].end === 'bad' || dist[id] > 3)
+const abruptCompact = compactNonBad.filter((id) =>
+  (nodes[id].text || []).length < 2 || String(nodes[id].blurb || '').trim().split(/\s+/).length < 30)
+
 // ---- longest acyclic path from start (the deepest single chain) -------------
 let longest = 0, longestEnd = null
 const seen = new Set()
@@ -73,7 +91,7 @@ for (const id of nonEnd)
   }
 const gatedNodes = [...new Set(revealGates)]
 
-// GOAL LINT (gating is hand-authored, so we verify the design goals here instead of in
+// GOAL LINT (gating is explicitly authored, so we verify the design goals here instead of in
 // the engine): (1) every non-ending node must keep >= 1 UNGATED real option, so there is
 // always a path you can take without first decoding a sentence; (2) MOST options gate.
 // Also flag a reveal that points at a word missing from the node (a typo, gated forever).
@@ -91,6 +109,21 @@ for (const id of nonEnd) {
   const textIds = new Set(nodes[id].text.flatMap((e) => lineOf(e)).map((t) => t.id).filter(Boolean))
   for (const o of real) { const n = phraseNoun(o.text); if (n && textIds.has(n)) { gateableTotal++; if (o.reveal) gateableGated++ } }
 }
+
+// Riddle answers and mutually-exclusive resolution buttons should all remain
+// visible. They are deliberately not sentence-reveal puzzles on top of the
+// comprehension/state puzzle already being resolved.
+const REVIEWED_UNGATED_ONLY = Object.freeze({
+  shpellaRruget: 'three-road comprehension riddle',
+  tsBeteje: 'mutually-exclusive ending resolution based on embodied mountain',
+  djepi3: 'three-answer comprehension riddle',
+  bisedaUra3: 'both accepting and declining an invitation must remain visible as useful speech',
+  bisedaUraPlan: 'the learner makes a real location choice after decoding the same planning question',
+  bisedaShesh: 'today and tomorrow are mutually-exclusive practical time answers',
+  bisedaKroi: 'today and tomorrow are mutually-exclusive practical time answers',
+})
+const unreviewedUngatedOnly = ungatedOnly.filter((id) => !REVIEWED_UNGATED_ONLY[id])
+const staleUngatedReviews = Object.keys(REVIEWED_UNGATED_ONLY).filter((id) => !ungatedOnly.includes(id))
 
 // ---- distractor legibility ---------------------------------------------------
 // A confuser (distractor) should only use words the player can already read when
@@ -144,16 +177,29 @@ console.log('--- DEPTH (steps from start) ---')
 console.log(`ending depths:    [${endingDepths.join(', ')}]`)
 console.log(`  shortest ending: ${endingDepths[0]}`)
 console.log(`  median ending:   ${median}`)
-console.log(`  average ending:  ${avg.toFixed(1)}   (target ~30)`)
+console.log(`  average ending:  ${avg.toFixed(1)}   (anthology context; not a per-ending target)`)
 console.log(`  deepest ending:  ${endingDepths[endingDepths.length - 1]}`)
-console.log(`longest acyclic chain: ${longest}  -> ${longestEnd}   (target ~89)`)
+console.log(`longest acyclic chain: ${longest}  -> ${longestEnd}`)
+console.log(`${ok(!unreviewedCompact.length && !staleCompactReviews.length && !abruptCompact.length)} compact non-bad endings reviewed: ${compactNonBad.length}` +
+  (unreviewedCompact.length ? `\n   UNREVIEWED: ${unreviewedCompact.join(', ')}` : '') +
+  (staleCompactReviews.length ? `\n   STALE REVIEWS: ${staleCompactReviews.join(', ')}` : '') +
+  (abruptCompact.length ? `\n   TOO ABRUPT: ${abruptCompact.join(', ')}` : ''))
 console.log('')
 console.log('--- DESIGNED REVEAL GATES (authored sentence-unlocks) ---')
 console.log(`${ok(!brokenGates.length)} authored reveal gates: ${revealGates.length} on ${gatedNodes.length} nodes`)
 if (brokenGates.length) console.log('   BROKEN:\n   ' + brokenGates.join('\n   '))
 console.log(`${ok(!noUngated.length)} every node keeps >=1 ungated option:${noUngated.length ? ' VIOLATIONS -> ' + noUngated.join(', ') : ' yes'}`)
-console.log(`   options gated: ${gatedReal}/${totalReal} (${(100*gatedReal/totalReal).toFixed(0)}% of all); of options that act on something described in the scene, ${gateableGated}/${gateableTotal} (${(100*gateableGated/gateableTotal).toFixed(0)}%) gated` + (ungatedOnly.length ? `\n   multi-option nodes gating nothing yet (${ungatedOnly.length}): ${ungatedOnly.join(', ')}` : ''))
+console.log(`${ok(!unreviewedUngatedOnly.length && !staleUngatedReviews.length)} multi-option nodes with no reveal gate are reviewed: ${ungatedOnly.length}` +
+  (unreviewedUngatedOnly.length ? `\n   UNREVIEWED: ${unreviewedUngatedOnly.join(', ')}` : '') +
+  (staleUngatedReviews.length ? `\n   STALE REVIEWS: ${staleUngatedReviews.join(', ')}` : ''))
+console.log(`   options gated: ${gatedReal}/${totalReal} (${(100*gatedReal/totalReal).toFixed(0)}% of all); of options that act on something described in the scene, ${gateableGated}/${gateableTotal} (${(100*gateableGated/gateableTotal).toFixed(0)}%) gated`)
 console.log('')
 console.log('--- DISTRACTOR LEGIBILITY (confusers built from already-discovered words) ---')
 console.log(`${ok(!illegibleConfusers.length)} every confuser uses only legible words:${illegibleConfusers.length ? ' VIOLATIONS -> ' + illegibleConfusers.length + '\n   ' + illegibleConfusers.slice(0, 30).join('\n   ') + (illegibleConfusers.length > 30 ? `\n   ... and ${illegibleConfusers.length - 30} more` : '') : ' yes'}`)
 console.log(`${ok(!climbDistractors.length)} no "climb a climbable thing" distractor:${climbDistractors.length ? ' VIOLATIONS -> ' + climbDistractors.length + '\n   ' + climbDistractors.join('\n   ') : ' yes'}`)
+
+if (deadLinks.length || unreachable.length || deadEnds.length || missingDict.size || missingDefs.length || noConfuser.length ||
+    brokenGates.length || noUngated.length || unreviewedCompact.length || staleCompactReviews.length || abruptCompact.length ||
+    unreviewedUngatedOnly.length || staleUngatedReviews.length || illegibleConfusers.length || climbDistractors.length) {
+  process.exitCode = 1
+}

@@ -18,6 +18,11 @@
 export default {
   id: 'halil-garria',
   title: 'Kënga e Halil Garrisë — the oath beyond death',
+  references: [
+    { role: 'source-text', citation: 'Timo Mërkuri, “Kënga e Halil Garrisë dhe disa probleme” — complete Fishta/Gomsiqe text', url: 'https://www.fjalaelire.com/post/k%C3%ABnga-e-halil-garris%C3%AB-dhe-disa-probleme', note: 'The article states that it reproduces Gjergj Fishta’s 1924 transcription without intervention.' },
+    { role: 'source-text', citation: 'Timo Mërkuri, “Kënga e Halil Garrisë dhe disa probleme” — Zemra Shqiptare mirror', url: 'https://www.zemrashqiptare.net/news/55566/timo-merkuri-kenga-e-halil-garrise-dhe-disa-probleme.html' },
+    { role: 'scholarship', citation: 'Katica Kulavkova, “The Dead Brother’s Ballad as a Balkan Shared Place of Memory” (2021)', url: 'https://doi.org/10.19044/esj.2021.v17n39p1', note: 'Comparative context for the returning-dead ballad family; not the selected Halil Garria text.' },
+  ],
   source:
     'Recorded from an unnamed lahutar of Pukë by Fr. Gjergj Fishta at Gomsiqe; published in the review Hylli i Dritës, 1924 (152 verses) · full verbatim text and scholarly analysis in Timo Mërkuri, "Kënga e Halil Garrisë dhe disa probleme" (fjalaelire.com, Sarandë, November 2020) · all lines are this author\'s own paraphrase made directly from the Albanian, never copied from any existing translation (none was found)',
   origin: {
@@ -83,30 +88,34 @@ export default {
     { id: 'gjogu', emoji: '🐎', name: 'the grey horse', note: 'carries Halil living and carries him dead — the song never says which horse is which' },
     { id: 'vorret', emoji: '⚰️', name: 'the nine white graves', note: 'the proof of the family\'s ruin, found in plain sight on the road home' },
   ],
-  // EMBODIED projection: you ARE Halil, bound by a besa to a sworn brother whom
-  // a Krajl has chained in a foreign burg. The choice is the whole tale in
-  // miniature — keep the besa and ride to free him (the good ending, "Halili
-  // Keeps His Word"), or abandon him and flee alone (the bad ending, "The Broken
-  // Oath"). Entered from jutbina via the "shpeto vëllai" threshold
-  // (become:'halil-garria'); the dedicated nodes are halilGarria1 (entry+choice)
-  // and its two endings. See ../../content.js.
+  // EMBODIED projection: you ARE the ballad's dead Halil, not an invented
+  // kreshnik rescuing a captive brother. Seven years after the sister's message
+  // sets out, the mountain bird finds Halil's grave. The source road — rising,
+  // riding nine days, the three omens, the ruined houses, nine graves, return
+  // to the earth and the mother-and-daughter close — is narrated intact in the
+  // faithful ending. The alternative is plainly marked counterfactual.
   play: {
-    entry: 'reassure',
+    entry: 'waiting',
     stance: 'embodied',
     as: 'halil',
-    role: 'You are Halil Garria, and the whole song lives in one word you gave: your besa, sworn to a brother. A Krajl has taken that brother and chained him in a foreign burg, and now the oath comes due. Ride for the prison and break the iron from his wrists — keep your word whole against a Slav king\'s dungeon — or weigh the road and the risk, turn away, and leave him to rot with the besa broken behind you. In the kreshnik country a man is only as good as his besa.',
-    enter: 'a brother you are bound to by besa lies chained in a Krajl\'s foreign burg, and the oath you swore for him has come due',
+    role: 'You are Halil Garria, dead in your grave. For fifty purses you broke the oath never to marry your one sister nine days from home, then promised to visit her in nine days and bring her home in nine weeks. Seven years she has waited. Her mountain bird has found your grave at last, and God commands you to rise and fetch her. Keep the unpaid besa beyond death, or remain beneath the earth.',
+    enter: 'after seven years of searching, your sister’s mountain bird has found your grave with her message: a sister waits, a mother waits, and your besa is unpaid',
     from: 'halilGarria1',
     ending: 'halilGarriaFund',
     scenes: {
-      halilGarria1: 'reassure',
-      halilGarriaFund: 'rising',
-      halilGarriaKeq: 'bargain',
+      halilGarria1: 'rising',
+      halilGarriaFund: 'end',
+      halilGarriaKeq: 'waiting',
     },
     divergences: [
-      { beat: 'reassure', note: 'Built from scratch as a besa-rescue distilled from the dead-brother ballad. The full song\'s besa is a sister\'s marriage-oath; the playable arc keeps the ballad\'s true engine — a besa given, then tested to the death — but recasts it as the oath a kreshnik owes a sworn brother, so the choice can be staged as a single frontier decision at Jutbina.' },
-      { beat: 'rising', note: 'The good ending, "Halili Keeps His Word," is the ballad\'s own miracle made a choice: in the song God raises the dead Halil to keep an unpaid besa, and here you keep it while living — riding to the burg, breaking the iron, carrying the brother home. The oath held even against a king\'s dungeon.' },
-      { beat: 'bargain', note: 'The bad ending, "The Broken Oath," is the road the song\'s Halil takes at the outset when he sells his besa for fifty purses — here you break it not for gold but for your own skin, and the brother stays chained while the oath lies broken behind you. The divergence the doomed ballad never lets its hero escape.' },
+      { beat: 'reunion', note: 'The faithful ending narrates Halil rising, riding nine days, refusing coffee and bringing his sister onto the road at once.' },
+      { beat: 'omens', note: 'The ending preserves all three truth-signs: the smell of earth, the silent flute and the birds saying that the living travels with the dead.' },
+      { beat: 'ruin', note: 'The ending carries the pair past the family houses draped in black and fallen to ruin; the full beat board preserves Halil’s exact consoling lie.' },
+      { beat: 'graves', note: 'The ending preserves the nine white graves and Halil leaving his sister to return to his own grave.' },
+      { beat: 'threshold', note: 'The ending has the sister reach home alone and learn from her mother that every brother is dead.' },
+      { beat: 'search', note: 'The ending preserves mother and daughter taking one another by the hand and finding Halil at his grave.' },
+      { beat: 'end', note: 'The faithful ending keeps the ballad’s tragic close: mother and daughter embrace and fall dead together into Halil’s grave.' },
+      { note: 'The BAD ending, “Seven Years Become Eight,” is the explicit counterfactual: unlike the surviving song, Halil does not rise, and the second besa remains unpaid.' },
     ],
   },
   beats: [

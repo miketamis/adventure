@@ -14,7 +14,7 @@ export default {
   shqipetariPare: {
     name: 'Shqipëtari i parë', glyph: '🏹', kind: 'human',
     role: 'the unnamed mountain hunter who becomes the first Shqipëtar — "Son of the Eagle"',
-    backstory: 'A hunter with no name of his own in the telling: on a bare crag he kills the snake threatening a mother eagle\'s only chick, and for that one mercy the eagle repays him without being asked twice — his eyesight sharpens until it rivals hers, his arm takes on something of her wings\' own power, and before long he carries her name as his own. Grown seemingly unbeatable under her watch he clears the land of beasts and enemies, until his own people, awed rather than conquered, raise him up as their king and take the eagle\'s name for their own: Shqipëtar, Shqipëria. In the game\'s own telling of this legend (the shqipe1→shqipeFund crag quest) the player steps directly into his place — a founding myth always casts its listener as the hero\'s heir, and here the game makes that literal.',
+    backstory: 'A hunter with no name of his own at the start: on a bare crag he kills the snake threatening an eagle\'s chick. The mother repays him — his eyesight becomes as keen as hers and his strength like that of her wings — and promises that he will be called the strongest and bear her name. The rescued chick remains attached to him and follows him when both are grown. He kills beasts and enemies of the land, becomes king, and is called Shqipëtar in the family telling. In the game\'s crag quest the player steps directly into his place.',
     folklore: ['sons-of-eagle'],
     location: { status: 'planning', plan: 'embodied by the player at the crag quest (shqipe1→shqipeFund); no separate standing figure to pin — see shqiponjaShkembit/shqiponjaVogel/gjarpriShkembit for the crag\'s fixed residents' },
     tales: { 'sons-of-eagle': 'youth' },
@@ -22,17 +22,17 @@ export default {
   shqiponjaShkembit: {
     name: 'shqiponja e shkëmbit', glyph: '🦅', kind: 'mythic',
     role: 'the great mother eagle whose gift names a people',
-    backstory: 'Nests with a single eaglet on an unclaimed crag in the northern highlands. When a passing hunter kills the snake she has unwittingly carried in still living to her own nest, she repays the debt before it is even asked: his eyesight sharpens until it rivals her own, and it is as if he carries some of her wings\' own force in his stride from then on — before long, her very name is his too, and through him it becomes his whole nation\'s. A lone nesting eagle of this one crag only — NOT Baba Tomor\'s circling she-eagles of the southern summit (majaEagle, a different mountain and a different tale\'s birds) and NOT the three eagle-sister maidens of the Gjizar tale (motratShqiponja) or the flesh-fed eagle of the world below (shqiponja1) — a kulshedra or a shqiponjë is a KIND here, not a name; this crag has exactly one mother eagle.',
+    backstory: 'Nests with a single eaglet on an unclaimed crag in the northern highlands. When a passing hunter kills the snake she has unwittingly carried in still living to her own nest, she exchanges her child for a gift: his eyesight becomes as keen as hers, his strength like that of her wings, and he is promised her name. The family performance gives the lifelong companionship to the rescued chick, not to this mother. She belongs to this one crag only — not Baba Tomor\'s southern she-eagles, the Gjizar eagle-sisters, or the flesh-fed eagle of the world below.',
     folklore: ['sons-of-eagle'],
-    location: { status: 'planning', plan: 'nests permanently at the crag (shqipe1/shqipe2/shqipe3, and present again at the shqipeFund ending); no separate map pin outside this quest yet' },
+    location: { status: 'planning', plan: 'nests at the crag and catches the hunter on the road at shqipeBarter; the rescued chick, not the mother, appears in the later ending' },
     tales: { 'sons-of-eagle': 'eagle' },
   },
   shqiponjaVogel: {
     name: 'shqiponja e vogël', glyph: '🐣', kind: 'creature',
-    role: 'the mother eagle\'s only chick — the one life the whole legend turns on',
-    backstory: 'Left alone in the nest with what its mother believes is a dead snake, it plays with the limp coil until the snake wakes to strike — saved only by the hunter\'s arrow at the last instant. Too young to fly, it is carried off toward the hunter\'s home and returned within the same telling; it plays no further part once its mother\'s bargain is struck.',
+    role: 'the rescued chick who grows into the hunter\'s eagle companion',
+    backstory: 'Left in the nest beside what its mother believes is a dead snake, it survives because the hunter sees that the snake is alive and kills it. He carries the chick toward home, then returns it under the mother\'s bargain. The family performance explicitly says it remains attached to the boy and, once both are grown, follows him over hunt and battle.',
     folklore: ['sons-of-eagle'],
-    location: { status: 'planning', plan: 'stays in the nest at the crag (shqipe1/shqipe2); carried briefly at shqipe3 before being handed back' },
+    location: { status: 'planning', plan: 'begins in the nest, is carried briefly and returned at shqipeBarter, then appears as the grown eagle above the hero in shqipeFund' },
     tales: { 'sons-of-eagle': 'eaglet' },
   },
   gjarpriShkembit: {
@@ -42,13 +42,5 @@ export default {
     folklore: ['sons-of-eagle'],
     location: { status: 'planning', plan: 'lives and dies within the crag quest (shqipe1→shqipe2); no standing presence elsewhere' },
     tales: { 'sons-of-eagle': 'serpent' },
-  },
-  populliVendit: {
-    name: 'populli i vendit', glyph: '👥', kind: 'collective',
-    role: 'the land\'s people, who crown the hunter and take the eagle\'s name for their own',
-    backstory: 'Never named or numbered — only "the people of the land," who watch the once-unremarkable hunter grow invincible under the eagle\'s wing, clearing beasts and enemies alike, and who raise him up as king for it of their own will. It is THEY, not the hunter, who choose both his title (Shqipëtar) and their country\'s (Shqipëria) — the whole etymology legend turns on the people\'s naming, not his own claim.',
-    folklore: ['sons-of-eagle'],
-    location: { status: 'planning', plan: 'offstage collective — spoken of only at the ending (shqipeFund); never staged as individuals' },
-    tales: { 'sons-of-eagle': 'people' },
   },
 }

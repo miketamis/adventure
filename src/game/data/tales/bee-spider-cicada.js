@@ -14,8 +14,14 @@
 export default {
   id: 'bee-spider-cicada',
   title: 'The Bee, the Spider and the Cicada',
+  references: [
+    { role: 'facsimile', citation: 'Ève, seventh year, № 287 (28 March 1926), p. 2, “La légende de l’Abeille” — exact BnF issue and page', url: 'https://gallica.bnf.fr/ark:/12148/bd6t5733745d/f2.item', note: 'Primary scan. BnF issue metadata identifies this fascicle as A7,N287; the cover itself prints “Septième Année — N° 287.”' },
+    { role: 'catalog', citation: 'Bibliothèque nationale de France, catalogue record for Ève (Paris, 1920–1940)', url: 'https://catalogue.bnf.fr/ark:/12148/cb32771466k' },
+    { role: 'source-text', citation: '“Ève (1926) / Legjenda shqiptare e Bletës” — reproduction of the 28 March 1926 clipping', url: 'https://alb-spirit.com/2023/12/27/eve-1926legjenda-shqiptare-e-bletes/', note: 'Reproduces the Gallica/BnF image and a modern Albanian back-translation; the tale record follows the French clipping, not the back-translation.' },
+    { role: 'variant', citation: 'Përparim Hysi, “Mallkimi i nënës, të zë!!!” (Bota Sot, 2023)', url: 'https://www.botasot.info/opinione/2033701/mallkimi-i-nenes-te-ze/', note: 'Living four-sister oral variant attributed to Ismet Korita; not the selected 1926 three-sister witness.' },
+  ],
   source:
-    'anonymous, «La légende de l\'Abeille», Ève — journal féminin illustré du dimanche (Paris), № 267, 28 March 1926, p. 2 · read in the Gallica/BnF facsimile (French); all lines paraphrased',
+    'anonymous, «La légende de l\'Abeille», Ève — journal féminin illustré du dimanche (Paris), seventh year, № 287, 28 March 1926, p. 2 · Gallica/BnF ark:/12148/bd6t5733745d, view f2 (French); all lines paraphrased',
   // where the tale comes from — anchors should prefer this region's mirrors.
   // The French piece localises it no further than "the old legends of the
   // country" — a pan-Albanian house-and-hive legend, so it anchors at the
@@ -23,7 +29,7 @@ export default {
   origin: {
     region: 'pan-Albanian (no region printed; the girls\' names are given in Gheg-looking forms — Mârûnang)',
     collector: 'anonymous journalist, Ève (Paris), from gallica.bnf.fr',
-    published: 'Paris, 28 March 1926 (Ève № 267, p. 2)',
+    published: 'Paris, 28 March 1926 (Ève, seventh year, № 287, p. 2; BnF bd6t5733745d/f2)',
   },
   // No Albanian original found — the lines carry NO third element by design.
   albanian: {
@@ -34,7 +40,7 @@ export default {
   // where tellings disagree — the rewrite should decide per case which
   // reading our world tells
   discrepancies: [
-    'THE MOTHER\'S DEATH: the French never says she dies — she is «très vieille et malade» and the cake «la réconforta». But the game\'s own fork-scene says it outright («një nënë vdes këtu», gjizar1) and the ending blurb treats the scene as her deathbed. The beats follow the game: she dies eased after the blessing, and the first candle of the bee\'s wax burns for her.',
+    'ILLNESS, NOT DEATH: the French says only that the mother is «très vieille et malade» and that the little cake «la réconforta». The tale and its playable scenes therefore leave her alive and comforted after the blessing; the wax-for-the-dead line explains the bee\'s kind, not a first candle for her mother.',
     'THE FOUR-SISTER VARIANT: a living oral variant (heard by P. Hysi from the teller Ismet Korita; botasot.info) has FOUR daughters — a fly (Mushka) between spider and cicada, cursed «kurrë të mos pjellësh» (never to give birth); its spider-curse adds the wind tearing the web to pieces, and the sick mother asks for compresses, not a cake. The beats follow the three-sister 1926 telling, which is what the lore card retells.',
     'THE CICADA\'S NAME: the French prints «Rigjal (la Cigale)» — not the standard gjinkallë; likely the journalist\'s garbling of a dialect word. The beats use the game\'s standard gjinkalla.',
     'ANCESTORS vs THE DEAD: the blessing says «la lumière des ancêtres» (light of the ANCESTORS) while the closing line has the wax burn «pour les cierges des morts» (candles of the DEAD). Same idea, two words — the lore card merges them; the beats keep both readings where each line falls.',
@@ -45,7 +51,7 @@ export default {
   // mother's curse) — two utterances, two beats of the story.
   paragraphs: [3, 8, 1],
   cast: [
-    { id: 'nena', name: 'nëna plakë', note: 'the old sick mother whose word makes and unmakes — two curses, one blessing', npc: 'nenaTriMotrave' },
+    { id: 'nena', name: 'nëna plakë', note: 'the very old, sick mother whose word makes and unmakes — two curses, one blessing', npc: 'nenaTriMotrave' },
     { id: 'merimanga', name: 'Merimanga', note: 'the eldest — vain, loom-bound; the spider ever since', npc: 'motraMerimanga' },
     { id: 'gjinkalla', name: 'Gjinkalla', note: 'the second — careless, singing her days away; the cicada ever since', npc: 'motraGjinkalla' },
     { id: 'bleta', name: 'Bleta', note: 'the youngest — dutiful, never idle; blessed into the bee', npc: 'motraBleta' },
@@ -57,11 +63,12 @@ export default {
   places: [
     { id: 'home', emoji: '🏠', name: 'the mother\'s house', note: 'the one-room house at the lane fork where the whole tale plays',
       anchor: { status: 'existing', node: 'gjizar1', mirror: 'a lane-fork house at the edge of old Tirana\'s mëhalla',
-        mold: 'the parting lanes at the village\'s edge, and the dying mother\'s one-room house standing on them: three daughters, a loom in the corner, a hive in the yard — the game\'s own scene says «një nënë vdes këtu», and the tale\'s three endings (bleta1/bletaFund/merimangaFund) already share this spot',
+        mold: 'the parting lanes at the village\'s edge, and the sick mother\'s one-room house standing on them: three daughters, a loom in the corner, a hive in the yard — the tale\'s three endings (bleta1/bletaFund/merimangaFund) already share this spot',
         conflicts: 'NOT the Kordha widow\'s bare cottage (the three-friends home proposal at fshatiJeta) — that hearth holds one son and nothing else long sold; this house holds three daughters, a loom and a hive. NOT vatra — the vitore hearth-house belongs to its serpent-keeping family.' } },
     { id: 'hive', emoji: '🐝', name: 'the yard hive', note: 'the skep in the yard — the reason no one blasphemes in this house',
       anchor: { status: 'proposed', node: 'gjizar1', mirror: 'the courtyard straw skep every old Albanian house kept',
         mold: 'the hive of the mother\'s house: honey for the living, wax for the dead — a hive makes a house holy-mouthed',
+        conflicts: 'NOT Gjizar\'s fork or either brother\'s proposed shop: this is a small household skep in a separate yard-space, not a town, road, or coffee house',
         proposal: 'draw a straw skep (koshere) in the yard of the mother\'s house at the gjizar1 fork; the bee-blessing ending (bletaFund) becomes its scene, and the blaspheme-ban line belongs on it' } },
     { id: 'grass', emoji: '🌾', name: 'the summer grass', note: 'the grass stem where the cicada sings and dries',
       anchor: { status: 'existing', node: 'fshatiSheshi', mirror: 'the village square of old Tirana on a summer night',
@@ -74,23 +81,23 @@ export default {
   ],
   items: [
     { id: 'pelhura', emoji: '🕸️', name: 'the unfinished web', note: 'the cloth on the loom — cursed never to be finished' },
-    { id: 'kulaci', emoji: '🫓', name: 'the little cake', note: 'baked by the youngest — the last comfort of the sickbed' },
+    { id: 'kulaci', emoji: '🫓', name: 'the little cake', note: 'baked by the youngest — comfort for her sick mother' },
     { id: 'dylli', emoji: '🕯️', name: 'the wax', note: 'the bee\'s wax — candles for the dead' },
     { id: 'mjalti', emoji: '🍯', name: 'the honey', note: 'the bee\'s honey — food of the living' },
   ],
   // how the game stages this tale — the embodied projection (see _SCHEMA.md). You
-  // become one of a dying woman's three daughters; the CHOICE when she calls —
+  // become one of a sick woman's three daughters; the CHOICE when she calls —
   // tend her, weave on, or sing on — decides which sister you are and the fate her
-  // last breath fixes: the bee (blessed), the spider (endless web), or the cicada
+  // spoken word fixes: the bee (blessed), the spider (endless web), or the cicada
   // (sing till death). become:'bee-spider-cicada' rides the entry into bleta1.
   play: {
     entry: 'motrat',
     stance: 'embodied',
     as: 'bleta',
     role:
-      'You are one of a dying woman\'s three daughters. When she calls from her bed, your answer — tend her, or weave on, or sing on — decides which sister you are, and the fate her last breath fixes on you: the spider at her web that never finishes, the cicada who sings until she dries on the grass, or the bee, wax for the dead and honey for the living.',
+      'You are one of a very old, sick woman\'s three daughters. When she calls from her bed, your answer — tend her, or weave on, or sing on — decides which sister you are, and the fate her word fixes on you: the spider at her web that never finishes, the cicada who sings until she dries on the grass, or the bee, wax for the dead and honey for the living.',
     enter:
-      'a dying woman calls from her bed, and you are one of her three daughters — how you answer will decide which of them you are',
+      'a very old, sick woman calls from her bed, and you are one of her three daughters — how you answer will decide which of them you are',
     from: 'bleta1',
     ending: 'bletaFund',
     scenes: {
@@ -100,8 +107,8 @@ export default {
       bletaFund: 'bleta',
     },
     divergences: [
-      { beat: 'motrat', note: 'The folktale fixes each daughter\'s nature (vain eldest, careless second, dutiful youngest); the game makes it a three-way fork and your ONE answer to the dying mother assigns which sister you are — tend her → the bee (the good ending), weave on → the spider (endless web), sing on → the cicada (sing until you die). The two neglectful fates are the mother\'s curse; only the bee is her blessing.' },
-      { beat: 'bleta', note: 'You embody "a daughter"; the mother\'s dying words are the transformation. Her blessing on the bee — "the light of the ancestors and the food of the living" — is staged as the wax for the dead\'s candles and the honey for the living that close the good ending.' },
+      { beat: 'motrat', note: 'The folktale fixes each daughter\'s nature (vain eldest, careless second, dutiful youngest); the game makes it a three-way fork and your ONE answer to the sick mother assigns which sister you are — tend her → the bee (the good ending), weave on → the spider (endless web), sing on → the cicada (sing until you die). The two neglectful fates are the mother\'s curse; only the bee is her blessing.' },
+      { beat: 'bleta', note: 'You embody "a daughter"; the mother\'s spoken blessing is the transformation. The game keeps her comforted and alive, and stages the bee\'s gift as wax for the dead\'s candles and honey for the living.' },
       { beat: 'kosherja', note: 'The framing devotion — that in a house which keeps a hive no one will ever blaspheme — is kept in the tale record rather than staged as a scene; the hive itself is the proposed, unshown home of the blessed bee.' },
     ],
   },
@@ -160,7 +167,7 @@ export default {
     },
     {
       id: 'kulaci', title: 'The cake and the blessing',
-      note: 'The third daughter tends the sickbed and bakes a little cake that eases the old woman — and the mother\'s last word is a blessing: you shall be the light of the ancestors and the food of the living.',
+      note: 'The third daughter tends the sickbed and bakes a little cake that eases the old woman — and the mother gives her blessing: you shall be the light of the ancestors and the food of the living.',
       lines: [
         ['2.7', 'The third daughter tended her mother and baked her a little cake that comforted her.'],
         ['2.8', 'Then the mother said: be blessed — you shall be the light of the ancestors and the food of the living.'],
@@ -169,23 +176,22 @@ export default {
         bleta: ['home', 'tends the sickbed and bakes the little cake; the blessing falls on her'],
         nena: ['home', 'comforted at last; blesses her youngest — light of the ancestors, food of the living'],
       },
-      items: { kulaci: ['nena', 'warm from the hearth — the last comfort of the sickbed'] },
+      items: { kulaci: ['nena', 'warm from the hearth — comfort for her sick mother'] },
     },
     {
       id: 'bleta', title: 'Wax for the dead, honey for the living',
-      note: 'So the bee was made — the one creature whose work feeds both worlds: wax for the candles of the dead, sweet honey for the living. The mother goes to her rest under the first of those candles, and no one blasphemes in a house that keeps a hive.',
+      note: 'So the bee was made — the one creature whose work feeds both worlds: wax for the candles of the dead, sweet honey for the living. The mother remains comforted in her house, and no one blasphemes where her daughter\'s hive stands.',
       lines: [
         ['3.1', 'And the bee makes wax for the candles of the dead, and sweet honey for the living...'],
       ],
       cast: {
         bleta: ['hive', 'the bee now — works the yard skep, filling comb for both worlds'],
-        nena: ['home', '☠ dies eased and blessed; the first candle of her daughter\'s wax burns for her'],
+        nena: ['home', 'rests alive and comforted after the cake and blessing'],
       },
       items: {
         dylli: ['graves', 'burning as candles for the dead — forty days a flame'],
         mjalti: ['home', 'sweet on the table of the living'],
       },
-      exit: ['nena'],
     },
   ],
 }

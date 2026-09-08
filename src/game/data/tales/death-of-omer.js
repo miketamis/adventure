@@ -18,6 +18,13 @@
 export default {
   id: 'death-of-omer',
   title: 'The Death of Omer & Ajkuna\'s Lament',
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Deka e Omerit» — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_19.pdf' },
+    { role: 'source-text', citation: 'Palaj and Kurti, «Ajkuna kjan Omerin» — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_20.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “The Death of Omer”', url: 'http://www.albanianliterature.net/oralverse/verse_09_19.html' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “Ajkuna’s Lament”', url: 'http://www.albanianliterature.net/oralverse/verse_09_20.html' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+  ],
   source:
     'Sung by Lulash Zefi ("Deka e Omerit") and Mirash Gjoni ("Ajkuna kjan Omerin"), both of Curraj i Epërm (District of Tropoja); Visaret e Kombit II, ed. B. Palaj & D. Kurti (Tirana 1937), pp. 218-223 & 224-226, repr. Folklor shqiptar II, Epika legjendare I, ed. Q. Haxhihasani (Tirana 1966), pp. 242-246 & 247-249 · read in R. Elsie & J. Mathie-Heck\'s translation (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {
@@ -36,7 +43,7 @@ export default {
     'SEVEN OMERS, OR EIGHT? (¶1.4 vs ¶14.1): Ajkuna counts seven Omers dead before this one («shtatë Omera»); Mujo\'s curse over the grave counts eight («tetë Omera»). Both English and Albanian preserve the mismatch in both songs — the tradition itself never resolves whose count is right, and the beats keep both numbers exactly as sung rather than picking one.',
     '"HOMERI" (¶22.4): the Albanian PDF prints «Mor Homeri i nanës» where every other refrain in the same lament reads «Omeri» (¶21.4, ¶23.2) — almost certainly a scan/typesetting slip for the boy\'s own name. Quoted here as «Omeri», matching the refrain\'s own pattern; the raw reference file keeps the PDF\'s own "Homeri" with a note.',
     'ONE GRAVE, TOLD TWICE: "Death of Omer" has Mujo and Halili alone dig the grave the moment the boy dies, in the high pastures (¶13); "Ajkuna Mourns Omer" opens with Mujo taking twelve companions back to dig a grave in the Green Valleys, as if for the first time (¶17). Two independently-collected songs retelling one event, not a plot hole in either — the beats stage the second digging as Mujo\'s later return to finish the grave properly with mourners, not a second death.',
-    'SHE COMES HOME, NOT DEATH AT THE GRAVESIDE: the folklore card\'s own summary says Ajkuna\'s heart "breaks at the graveside," and the game\'s already-staged omerFund ending closes on her asleep by the grave. The actual epic (both songs) has the mountain oras intervene, calm her, and lead her back to Jutbina (¶24) — she is not left to die there. The beats follow the fuller epic and carry her home; the staged ending\'s more ambiguous close is compatible (grief overwhelms her before she is comforted) but the beats do not end the tale on death.',
+    'SHE COMES HOME, NOT DEATH AT THE GRAVESIDE: an earlier game summary wrongly let Ajkuna\'s heart "break at the graveside." The actual epic has the mountain oras intervene, calm her, dry her tears, and lead her back to Jutbina (¶24) — she is not left to die there. The staged omerFund ending now carries that final intervention directly.',
   ],
   // 24 scene-groups across both songs; sentence counts per group
   paragraphs: [4, 5, 5, 6, 4, 4, 5, 4, 4, 5, 3, 5, 2, 6, 4, 2, 6, 5, 3, 4, 4, 4, 2, 2],
@@ -91,11 +98,10 @@ export default {
     role: 'You come upon the frontier of Jutbina where the lahutë carries the Songs of the Kreshnikë. You hear how Omer, Mujo\'s boy, rode alone against a whole Kingdom, took nine wounds holding a chapel door, and died in his father\'s arms up in the high pastures. You witness Mujo carry him home and bury him under a beech, and his mother Ajkuna\'s grief swell into the song itself. You change nothing — the tale is already sung, and you are only its listener.',
     from: 'omer1',
     ending: 'omerFund',
-    scenes: { omer1: 'siege', omer2: 'grave', omerFund: 'underBeech' },
+    scenes: { omer1: 'siege', omer2: 'grave', omerFund: ['underBeech', 'comforted'] },
     divergences: [
       { note: 'The two-song epic (201 + 90 verses) compresses to a handful of staged moments off Jutbina — the siege, the grave, the lament. The witnessed thread (dishes → siege → grave → underBeech) keyframes the fuller song onto four nodes; the ride out, the lying portraits, and Mujo\'s curse on the pastures pass by as lore, not played scenes.' },
       { beat: 'grave', note: 'Two independently-collected songs each tell one burial: the first has Mujo and Halili dig the grave the instant Omer dies in the peaks (¶13); the second opens with twelve companions digging it anew in the Green Valleys as if for the first time (¶17). The game stages a single grave at omer2, folding both diggings into one.' },
-      { beat: 'comforted', note: 'The epic does not end in death: the mountain oras hush Ajkuna\'s wailing, dry her tears, and lead her home to Jutbina (¶24). The game\'s staged omerFund ending is more ambiguous — her heart breaks at the graveside and she lies down beside her son — closing on grief rather than on comfort.' },
     ],
   },
   beats: [

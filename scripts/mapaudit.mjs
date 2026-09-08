@@ -2,13 +2,13 @@
 // and everything explorable is represented on the map. Mechanically enforced:
 // these checks read the story graph (content.js) against the hand-placed map
 // (nodePositions.js), the region model (regions.js) and the DRAWN layers
-// (mapGlyphs.jsx landmarks, DebugView.jsx village places). Runs automatically
+// (mapGlyphs.jsx landmarks, WorldMapView.jsx village places). Runs automatically
 // at the end of `node scripts/audit.mjs`; run alone after ANY reposition or
 // story-edge edit:
 //   node scripts/mapaudit.mjs
-// The map is the real (rotated) Albania: sky/Tomorr at NEGATIVE y (top), the
-// underworld at LARGE y (bottom) — so "up" (lart/ngjit) must DECREASE y and
-// "down" (poshtë/zbrit) must INCREASE it, everywhere, even below ground.
+// The map is a non-cardinal mythic Albanian tale-chart: sky/Tomorr at NEGATIVE
+// y (top), the underworld at LARGE y (bottom). Thus "up" (lart/ngjit) must
+// DECREASE y and "down" (poshtë/zbrit) must INCREASE it, even below ground.
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -17,6 +17,8 @@ import { NODE_AT, NODE_POS, PLACE_OF, PLACE_NODES } from '../src/components/node
 import { PLACE_META } from '../src/components/placeMeta.js'
 import { REGIONS, NODE_REGION, VILLAGE_ANCHOR_IDS, isWander } from '../src/game/regions.js'
 import { NPCS } from '../src/game/npcs.js'
+import { npcNodeOf, TIME_PHASES } from '../src/game/gameState.js'
+import { exceptionFor, transitionInfo } from '../src/game/worldModel.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -47,7 +49,7 @@ section(!unplaced.length, `every story node has a map position (${ids.length - u
 
 // ---- 1. region containment ---------------------------------------------------
 // A node should sit inside (or on the fringe of) the region the BFS assigns it.
-// Known-fine outliers (each verified by hand — see the world-map-rerig memory):
+// Known-fine outliers (each explicitly documented below):
 //   humbur/ora*/botaHumbur — "you got lost" wander-sinks, region comes from the
 //     fallback BFS and is arbitrary; they're drawn in the dark on purpose.
 //   kthimi — walks the underworld toward the well-exit whose cluster surfaces at
@@ -103,10 +105,9 @@ const INTERACT_MAX = 400
 //     of the deep-forest den, where its node (and other parent edge) lives.
 //   pemaDielli->rrugaDielli2 — you speak from the tree; the stag then carries
 //     the maiden the whole road home to the village.
-const INTERACT_ALLOW = new Set(['gjumi->shokuUjk', 'gjumi->eaten', 'pemaDielli->rrugaDielli2'])
 const farInteract = []
 for (const e of edges) {
-  if (e.wander || INTERACT_ALLOW.has(`${e.from}->${e.to}`)) continue
+  if (e.wander || exceptionFor('interaction-distance', `${e.from}->${e.to}`)) continue
   const v = idsOf(e.o.text)[0]
   if (INTERACT.has(v) && e.len > INTERACT_MAX) farInteract.push(`${Math.round(e.len)} ${e.from} -> ${e.to} ("${idsOf(e.o.text).join(' ')}")`)
 }
@@ -124,16 +125,19 @@ for (const [a, v] of Object.entries(NODE_AT)) {
   if (anchorAt[k]) collide.push(`[${k}] '${a}' + '${anchorAt[k]}' — same spot must be authored (${a}: '${anchorAt[k]}') or nudged apart`)
   else anchorAt[k] = a
 }
-section(!collide.length, 'same spot is hand-authored (no accidental coordinate collisions)', collide)
+section(!collide.length, 'same spot is explicitly authored (no accidental coordinate collisions)', collide)
 
 // ---- 4b. location cards match the world -----------------------------------------
-// PLACE_META (the hand-authored "what can happen here" card) must reference real
+// PLACE_META (the explicitly authored "what can happen here" card) must reference real
 // places and real scenes: every key is a place ANCHOR, every happening node
 // belongs to that place, and no node is claimed by two happenings.
 const metaBad = []
 for (const [anchor, meta] of Object.entries(PLACE_META)) {
   const members = PLACE_NODES[anchor]
   if (!members) { metaBad.push(`'${anchor}' is not a place anchor (see NODE_AT)`); continue }
+  if ('continuityReason' in meta && (!meta.continuityReason?.trim() || meta.continuityReason.trim().length < 40)) {
+    metaBad.push(`'${anchor}' has an inadequate cross-story continuity reason`)
+  }
   const set = new Set(members), seen = new Set()
   for (const h of meta.happenings || []) for (const id of h.nodes) {
     if (!STORY[id]) metaBad.push(`'${anchor}' → "${h.title}": '${id}' is not a story node`)
@@ -162,7 +166,7 @@ for (const [k, group] of Object.entries(byPlace)) {
   const seen = new Set([group[0]]), q = [group[0]]
   while (q.length) for (const n of adj[q.pop()]) if (halo.has(n) && !seen.has(n)) { seen.add(n); q.push(n) }
   const missing = group.filter((id) => !seen.has(id))
-  if (missing.length) splitGroups.push(`@ '${k}' [${NODE_POS[k]}]: [${group.join(', ')}] — unlinked: ${missing.join(', ')}`)
+  if (missing.length && !PLACE_META[k]?.continuityReason) splitGroups.push(`@ '${k}' [${NODE_POS[k]}]: [${group.join(', ')}] — unlinked: ${missing.join(', ')}`)
 }
 section(!splitGroups.length, 'same-spot groups are story-connected', splitGroups)
 
@@ -172,7 +176,10 @@ section(!splitGroups.length, 'same-spot groups are story-connected', splitGroups
 const STRAND_MAX = 800
 // henaPaqe — the Moon's terrace stands across the sky from the Sun by design;
 // "kerko hene" is a deliberate journey over the cloud-plateau.
-const STRAND_ALLOW = new Set(['henaPaqe'])
+// gjizarFund — after the Beauty retrieves the youngest from the well, the
+// ending resumes in the king's mosque courtyard; the intervening homeward
+// journey is narrated in the ending rather than exposed as another choice.
+const STRAND_ALLOW = new Set(['henaPaqe', 'gjizarFund'])
 const stranded = []
 for (const id of ids) {
   const p = NODE_POS[id]
@@ -220,7 +227,7 @@ const JOURNEY_ALLOW = new Set([
   'lumi->flocka1',           // "larg është një liqen" — the far walk down to Lake Shkodra
   // same-region journeys (invisible before check 6 went region-blind):
   'kthimi->pusi2',           // the climb out of the world below, up the well shaft (see CROSS_ALLOW)
-  'pemaDielli->rrugaDielli2', // the stag carries the maiden the whole road home (see INTERACT_ALLOW)
+  'pemaDielli->rrugaDielli2', // the stag carries the maiden the whole road home (see STRUCTURAL_EXCEPTIONS)
   'qiellDiell->henaPaqe',    // "kerko hene" — the deliberate search across the sky (see STRAND_ALLOW)
   'qiell2->qiellPrende',     // "bie ne toke" — the FALL from Zojz's storm-peak, not a stroll
   'qiellErera2->qiell2',     // "mbyll sy" — you shut your eyes and the winds carry you
@@ -231,6 +238,14 @@ const JOURNEY_ALLOW = new Set([
   'deti1->detiThelle1',      // the dive from the surface to the deep
   'detiThelle1->deti1',      // and the swim back up
   'maja->jutbina',           // from the bare peak down to the kreshnik hamlet
+  'gjizar2->gjizarUdha',     // the explicitly far no-return road into the world below
+  'gjizarTradheti->gjizarFund', // the Beauty's narrated rescue and return to the king's town
+  'binoshetFund->binoshetKasollja', // Zjerma retraces Handa's long trail to the streamside hut
+  'binoshetKasollja->binoshetKopshtiZanave', // the warned road climbs through the forest to the Field of the Ladies
+  'binoshetKuvendi->binoshetLuftaFillon', // after the ninth feast-day, the revived company marches to reclaim the ancestral crown
+  'binoshetNata->binoshetZjarri', // recovered, Zjerma crosses the bridge from the ancestral kingdom to the dawn recognition
+  'binoshetZjarri->binoshetTeNena', // after the fire ordeal, the reunited company travels from the river kingdom to the twins' mother
+  'binoshetTeNena->binoshetDyKurorat', // after the stated three-month stay, Zjerma and Bardhakuqja ride back for the river king's staff and crown
 ])
 const oddNew = []
 for (const e of edges) {
@@ -238,7 +253,9 @@ for (const e of edges) {
   if (e.wander && !town) continue
   if (e.len <= (town ? 400 : 500)) continue
   const key = `${e.from}->${e.to}`
-  if (!JOURNEY_ALLOW.has(key)) oddNew.push(`${Math.round(e.len)} ${key} (${reg(e.from)} -> ${reg(e.to)}${town ? ', in-town limit 400' : ''})`)
+  if (!JOURNEY_ALLOW.has(key)
+    && !exceptionFor('interaction-distance', key)
+    && !exceptionFor('route-distance', key)) oddNew.push(`${Math.round(e.len)} ${key} (${reg(e.from)} -> ${reg(e.to)}${town ? ', in-town limit 400' : ''})`)
 }
 section(!oddNew.length, `odd links: every long edge (>500, in-town >400) is a verified journey (${JOURNEY_ALLOW.size} known)`, oddNew)
 
@@ -256,10 +273,10 @@ section(!nearHits.length, 'no near-collisions (distinct spots >= 16px apart)', n
 // ---- 8-10. the DRAWN map matches the story (landmarks & village places) --------
 // The JSX layers can't be imported under node — parse the bits we audit.
 const glyphsSrc = readFileSync(join(ROOT, 'src/components/mapGlyphs.jsx'), 'utf8')
-const debugSrc = readFileSync(join(ROOT, 'src/components/DebugView.jsx'), 'utf8')
+const mapSrc = readFileSync(join(ROOT, 'src/components/WorldMapView.jsx'), 'utf8')
 const LANDMARKS = [...glyphsSrc.matchAll(/\{ id: '([^']+)', glyph: '(\w+)', label: [^,]+, x: (-?\d+), y: (-?\d+) \}/g)]
   .map((m) => ({ id: m[1], glyph: m[2], x: +m[3], y: +m[4] }))
-const VILLAGE_PLACE_IDS = [...debugSrc.matchAll(/^\s*\{ id: '([^']+)', x: -?\d+, y: -?\d+, type: '/gm)].map((m) => m[1])
+const VILLAGE_PLACE_IDS = [...mapSrc.matchAll(/^\s*\{ id: '([^']+)', x: -?\d+, y: -?\d+, type: '/gm)].map((m) => m[1])
 
 // 8. a landmark whose id isn't a STORY node NEVER renders (the old 'ujk'/'treg' bug)
 section(LANDMARKS.length > 30 && !LANDMARKS.some((lm) => !STORY[lm.id]),
@@ -273,14 +290,14 @@ section(!LANDMARKS.some((lm) => STORY[lm.id] && NODE_POS[lm.id] && (NODE_POS[lm.
   LANDMARKS.filter((lm) => STORY[lm.id] && NODE_POS[lm.id] && (NODE_POS[lm.id][0] !== lm.x || NODE_POS[lm.id][1] !== lm.y))
     .map((lm) => `'${lm.id}' glyph at [${lm.x},${lm.y}] but node at [${NODE_POS[lm.id]}] — sync BOTH when moving a node`))
 
-// 10. the village's two lists (drawn places in DebugView, anchors in regions.js)
+// 10. the village's two lists (drawn places in WorldMapView, anchors in regions.js)
 // are one set seen from two sides; and every drawn place is a real node.
 section(!VILLAGE_PLACE_IDS.some((id) => !STORY[id])
   && !VILLAGE_ANCHOR_IDS.some((id) => !VILLAGE_PLACE_IDS.includes(id))
   && !VILLAGE_PLACE_IDS.some((id) => !VILLAGE_ANCHOR_IDS.includes(id)),
   `village places == village anchors (${VILLAGE_PLACE_IDS.length} places)`, [
     ...VILLAGE_PLACE_IDS.filter((id) => !STORY[id]).map((id) => `drawn village place '${id}' is not a STORY node`),
-    ...VILLAGE_ANCHOR_IDS.filter((id) => !VILLAGE_PLACE_IDS.includes(id)).map((id) => `anchor '${id}' (regions.js) has no drawn place in DebugView`),
+    ...VILLAGE_ANCHOR_IDS.filter((id) => !VILLAGE_PLACE_IDS.includes(id)).map((id) => `anchor '${id}' (regions.js) has no drawn place in WorldMapView`),
     ...VILLAGE_PLACE_IDS.filter((id) => !VILLAGE_ANCHOR_IDS.includes(id)).map((id) => `drawn place '${id}' missing from VILLAGE_ANCHOR_IDS (regions.js)`),
   ])
 
@@ -295,14 +312,10 @@ section(!Object.keys(NODE_POS).some((id) => !STORY[id]) && !REGIONS.some((rg) =>
 // >8 scenes on one coordinate usually means an explorable AREA is invisible on
 // the map — spread it into drawn sub-places (like the Sun's compound, Jutbina,
 // or the underworld living quarter), unless it truly is ONE room.
-const BIG_STACK_OK = {
-  libriDiell: 'the oda — one guest-room, a whole evening of talk (oda scenes + the travellers\' tales)',
-  gjizar2: 'gjizar\'s tale — told as one thread at the back-lane spot (candidate for a future drawn spread)',
-}
-const bigStacks = Object.entries(byPlace).filter(([k, v]) => v.length > 8 && !BIG_STACK_OK[k])
+const bigStacks = Object.entries(byPlace).filter(([k, v]) => v.length > 8 && !PLACE_META[k]?.densityReason)
 if (bigStacks.length) {
   console.log('')
-  for (const [k, v] of bigStacks) console.log(`⚠ ${v.length} scenes share '${k}' [${NODE_POS[k]}] — a whole area may be hiding in one dot; draw it out into sub-places (or allowlist in BIG_STACK_OK with a reason): ${v.join(', ')}`)
+  for (const [k, v] of bigStacks) console.log(`⚠ ${v.length} scenes share '${k}' [${NODE_POS[k]}] — draw it out into sub-places or add a reviewed densityReason to its location card: ${v.join(', ')}`)
 }
 
 // ---- 12. "ketu" (here) options stay put -----------------------------------------
@@ -371,10 +384,10 @@ for (const e of edges) {
 section(!crossBad.length, 'journeys avoid impassable realm cores (sea/underworld/sky)', crossBad)
 
 // ---- 15. land stays on land (the drawn coastline is authoritative) -----------------
-// seaCoastX is EXTRACTED from DebugView.jsx at run time, so this check can never
+// seaCoastX is EXTRACTED from WorldMapView.jsx at run time, so this check can never
 // drift from the drawn coast. Any non-sea node east of the waterline is a land
 // scene drawn in open water; a sea node far inland is the reverse.
-const coastSrc = debugSrc.match(/const seaCoastX = \(y\) => \{([\s\S]*?)\n\}/)
+const coastSrc = mapSrc.match(/const seaCoastX = \(y\) => \{([\s\S]*?)\n\}/)
 const seaCoastX = coastSrc && new Function('y', coastSrc[1])
 const coastBad = []
 if (seaCoastX) {
@@ -387,7 +400,7 @@ if (seaCoastX) {
     if (reg(id) === 'sea' && p[0] < coast - 150) coastBad.push(`${id} @ [${p}] (sea) is ${Math.round(coast - p[0])} inland of the coast`)
   }
 }
-section(!!seaCoastX && !coastBad.length, 'land nodes on land, sea nodes at sea (drawn coastline)', seaCoastX ? coastBad : ['could not extract seaCoastX from DebugView.jsx'])
+section(!!seaCoastX && !coastBad.length, 'land nodes on land, sea nodes at sea (drawn coastline)', seaCoastX ? coastBad : ['could not extract seaCoastX from WorldMapView.jsx'])
 
 // ---- 16. no duplicate ungated paths -------------------------------------------------
 // Two options from one node to the SAME target with identical gating AND identical
@@ -468,9 +481,18 @@ section(!proseBad.length, '"ti je në X" prose stands where it says', proseBad)
 // and no route node may be an ending screen. The story side is held to the same
 // truth: an npc:/npcAt: condition must name a defined NPC; `npc:<id>` only fires
 // where the NPC actually walks, and `npcAt:<id>:<node>` only at route nodes.
-const hasEdge = (a, b) => (STORY[a]?.options || []).some((o) => !o.confuser && o.to === b)
 const npcBad = []
+const gcd = (a, b) => { while (b) [a, b] = [b, a % b]; return a }
+const lcm = (a, b) => Math.abs(a * b) / gcd(a, b)
+const npcVisibleNodes = {}
 for (const [nid, npc] of Object.entries(NPCS)) {
+  if (!npc.name?.trim() || !npc.glyph?.trim()) npcBad.push(`${nid}: missing player-facing name or glyph`)
+  if (!Array.isArray(npc.route) || npc.route.length === 0) npcBad.push(`${nid}: route must contain at least one scene`)
+  if (!Number.isInteger(npc.stepHours) || npc.stepHours <= 0) npcBad.push(`${nid}: stepHours must be a positive whole number`)
+  if (npc.activePhases && (
+    new Set(npc.activePhases).size !== npc.activePhases.length ||
+    npc.activePhases.some((phase) => !TIME_PHASES.includes(phase))
+  )) npcBad.push(`${nid}: activePhases contains an unknown or repeated phase`)
   for (const r of npc.route) {
     if (!STORY[r]) npcBad.push(`${nid}: route node '${r}' is not a STORY node`)
     else if (STORY[r].end) npcBad.push(`${nid}: route node '${r}' is an ending screen`)
@@ -478,13 +500,36 @@ for (const [nid, npc] of Object.entries(NPCS)) {
   const steps = npc.once ? npc.route.length - 1 : npc.route.length
   for (let i = 0; i < steps; i++) {
     const a = npc.route[i], b = npc.route[(i + 1) % npc.route.length]
-    if (STORY[a] && STORY[b] && a !== b && !hasEdge(a, b))
-      npcBad.push(`${nid}: ${a} -> ${b} is not a story edge — NPCs walk the real roads`)
+    if (STORY[a] && STORY[b] && a !== b) {
+      const option = STORY[a].options.find((candidate) => !candidate.confuser && candidate.to === b)
+      if (!option) npcBad.push(`${nid}: ${a} -> ${b} is not a story edge — NPCs walk the real roads`)
+      else if (transitionInfo(a, option).hours > npc.stepHours) {
+        npcBad.push(`${nid}: ${a} -> ${b} needs ${transitionInfo(a, option).hours}h but its timetable allows ${npc.stepHours}h`)
+      }
+    }
+  }
+
+  if (!npc.once && npc.route.length && Number.isInteger(npc.stepHours) && npc.stepHours > 0) {
+    // The daily phase mask and route loop may have different periods (the
+    // wedding train is a 14-hour loop). Sample their least common multiple so
+    // every real phase/position pairing is observed rather than assuming day 1.
+    const period = lcm(24, npc.route.length * npc.stepHours)
+    const visible = new Set()
+    for (let clock = 0; clock < period; clock++) {
+      const node = npcNodeOf({ clock, npcStarted: {} }, nid)
+      if (node) visible.add(node)
+    }
+    npcVisibleNodes[nid] = visible
+    for (const node of new Set(npc.route)) if (!visible.has(node)) {
+      npcBad.push(`${nid}: '${node}' is in the route but can never occur during an active phase`)
+    }
   }
 }
 const npcConds = []
 for (const id of ids) {
-  for (const e of STORY[id].text || []) if (!Array.isArray(e) && typeof e.cond === 'string') npcConds.push([id, e.cond])
+  for (const e of STORY[id].text || []) if (!Array.isArray(e)) {
+    for (const c of [].concat(e.cond || [], e.none || [])) npcConds.push([id, c])
+  }
   for (const o of STORY[id].options || [])
     for (const c of [o.requires, o.unless].flatMap((v) => (v == null ? [] : [].concat(v)))) npcConds.push([id, c])
 }
@@ -495,9 +540,12 @@ for (const [id, c] of npcConds) {
   if (!npc) { npcBad.push(`${id}: '${c}' names an undefined NPC '${nid}' (npcs.js)`); continue }
   if (kind === 'npc' && !npc.route.includes(id))
     npcBad.push(`${id}: '${c}' can never fire — ${nid} never walks through '${id}'`)
+  else if (kind === 'npc' && npcVisibleNodes[nid] && !npcVisibleNodes[nid].has(id))
+    npcBad.push(`${id}: '${c}' is on the route but always falls outside ${nid}'s active phases`)
   if (kind === 'npcAt') for (const nd of (nodes || '').split('|')) {
     if (!STORY[nd]) npcBad.push(`${id}: '${c}' names missing node '${nd}'`)
     else if (!npc.route.includes(nd)) npcBad.push(`${id}: '${c}' — ${nid} never visits '${nd}'`)
+    else if (npcVisibleNodes[nid] && !npcVisibleNodes[nid].has(nd)) npcBad.push(`${id}: '${c}' names a route stop that is always offstage`)
   }
 }
 section(!npcBad.length, `NPC routes walk real roads & npc conditions can fire (${Object.keys(NPCS).length} NPCs)`, npcBad)

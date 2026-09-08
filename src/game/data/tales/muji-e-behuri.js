@@ -18,6 +18,12 @@
 export default {
   id: 'muji-e-behuri',
   title: 'Mujo and Behuri',
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Muji e Behuri», Visaret e Kombit II (1937), pp. 49–62 — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_07.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “Mujo and Behuri”', url: 'http://www.albanianliterature.net/oralverse/verse_09_07.html' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+    { role: 'catalog', citation: 'Songs of the Frontier Warriors: The Albanian Epic Këngë Kreshnikësh — publisher record', url: 'https://www.bolchazy.com/product/songs-of-the-frontier-warriors-the-albanian-epic-kenge-kreshnikesh-p3350/' },
+  ],
   source:
     'Sung by Lulash Zefi of Curraj i Epërm (District of Tropoja); published in Hylli i Dritës, Shkodra (1924), p. 257 sq.; Visaret e Kombit II, ed. B. Palaj & D. Kurti (Tirana 1937), pp. 49-62, repr. Folklor shqiptar II, Epika legjendare I, ed. Q. Haxhihasani (Tirana 1966), pp. 92-103 · read in R. Elsie & J. Mathie-Heck\'s translation (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {

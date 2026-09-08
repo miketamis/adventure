@@ -9,6 +9,26 @@ export default {
     title: 'The Three Friends and the Earthly Beauty',
     source:
       'Thimi Mitko, Bleta shqypëtare (Alexandria 1878), repr. Folklor shqiptar 1 (1963) · read in R. Elsie\'s translation; all lines paraphrased',
+    references: [
+      {
+        role: 'translation',
+        citation: 'Robert Elsie (trans.), “The Three Friends and the Earthly Beauty,” after Thimi Mitko',
+        url: 'http://www.albanianliterature.net/folktales/tale_03.html',
+        note: 'The exact English translation selected for the beat record; the surviving author site has no working HTTPS endpoint.',
+      },
+      {
+        role: 'source-text',
+        citation: 'Komisjoni i folklorit (ed. Zihni Sako), “Tre vëllezër me të bukurën e dheut,” Pralla popullore shqiptare (1954), pp. 7–13',
+        url: 'https://doczz.net/doc/2729503/pralla-popullore-shqiptare',
+        note: 'Searchable OCR access copy of the exact Albanian witness; an unofficial mirror, so the checked local extract governs line-level quotation.',
+      },
+      {
+        role: 'catalog',
+        citation: 'Robert Elsie, Albanian Folktales and Legends: online book record and contents',
+        url: 'http://books.elsie.de/2004-1986/b09.html',
+        note: 'Author-maintained anthology record documenting the translation; its legacy host has no working HTTPS endpoint.',
+      },
+    ],
     // where the tale comes from — anchors should prefer this region's mirrors
     origin: { region: 'South Albania (Tosk)', collector: 'Thimi Mitko, of Korçë', published: 'Alexandria, 1878' },
     // the ALBANIAN ORIGINAL: every beat line's third element is the verbatim
@@ -242,7 +262,7 @@ export default {
           ['4.7', 'To test it, Kordha hands Deti a stone and has him fling it to the far bank.', "E Kordha mori një gur prej dheut, e ja dha Detit, edhe i tha t'a hedhë përtej,"],
           ['4.8', 'Kordha wants to know: was that throw much effort?', "e pasi e hodhi, e pyeti atë: «a ish shum' i rëndë guri?»"],
           ['4.9', 'Barely, Deti admits — though the stone itself weighed under a hundred grams.', "Deti i tha se nuk ishte më shumë se pesë drëhemash."],
-          ['4.10', 'Then the leap itself should be no trouble at all, Ylli says.', "«Kaqë të rëndë është edhe të këcyerit tënë», tha Kordha. [sic — in the 1954 Albanian KORDHA speaks; Elsie gives the line to Ylli]"],
+          ['4.10', 'Then the leap itself should be no trouble at all, Ylli says.', '«Kaqë të rëndë është edhe të këcyerit tënë», tha Kordha.', 'The 1954 Albanian gives the line to Kordha; Elsie gives it to Ylli.'],
           ['4.11', 'In one motion he locks an arm around each brother and, with a single powerful bound, carries all three across the moat.', "E pa pritur më, u shti ay në mes të të dyvet, të Yllit dhe të Detit, e i pushtoi mirë të dy me të dy krahët, edh' u hoth me gjith' ata mbatanë pa ndonjë rëndësirë,"],
         ],
         cast: {
@@ -297,7 +317,7 @@ export default {
         note: 'At the old woman\'s cottage the road divides into seven. One leads to the Earthly Beauty; kings with armies have gone down it and never come back. Kordha writes a message on her wall for the two who will come asking, and takes that road.',
         lines: [
           ['6.1', 'Days of solitary travel bring him to a spot where a single road splits into seven.', "Duke ecur ky tani tri, katër dit udhë i vetmi, arriu në një vënd që ndaheshin shtatë udhë."],
-          ['6.2', 'An old woman sits outside a small dwelling right at the crossroads.', "Atje ishte një kullë tek rrinte një plakë. [sic — a KULLA, a tower; Elsie renders it \"cottage\"]"],
+          ['6.2', 'An old woman sits outside a small dwelling right at the crossroads.', 'Atje ishte një kullë tek rrinte një plakë.', 'The Albanian has a kulla, a tower; Elsie renders it “cottage.”'],
           ['6.3', 'Kordha asks her which destination each road reaches.', "Kësaj plake iu lut Kordha që t'i dëftejë se ku venë ato udhë,"],
           ['6.4-5', 'She points out the one that runs to the Earthly Beauty, and he starts for it without hesitation.', "e pasi morri vesh, zuri udhën e së Bukurës së dheut."],
           ['6.6', 'She stops him short — that road costs travelers their heads, she warns, and he\'s far too young to throw his life away.', "Atëhere plaka i tha këtij: «mos, o bir, hump kryet tat e djalërinë tënde më kot,"],

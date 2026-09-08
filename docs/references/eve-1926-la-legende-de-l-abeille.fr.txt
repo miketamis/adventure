@@ -1,12 +1,15 @@
 La légende de l'Abeille — Ève, journal féminin illustré du dimanche (Paris),
-septième année, № 267, dimanche 28 mars 1926, p. 2. Anonymous.
+septième année, № 287, dimanche 28 mars 1926, p. 2. Anonymous.
 The tale's canonical printed source: the etiological legend of the bee, the
-spider and the cicada as a dying mother's three daughters. FRENCH — no
+spider and the cicada as a very old, sick mother's three daughters. FRENCH — no
 Albanian folk original of this tale was findable (see the tale file's
-albanian.why). Transcribed 2026-07-14 from the facsimile of the Gallica/BnF
-scan (gallica.bnf.fr) as republished by Aurenc Bebja's blog "Dars (Klos),
-Mat - Albania" (darsiani.com, 27 Dec 2023). Line breaks re-flowed; spelling,
-italics-marked names (Mârûnang, Rigjal, Bleta) and punctuation as printed.
+albanian.why). Transcribed 2026-07-14 from the Gallica/BnF facsimile, now
+pinpointed at https://gallica.bnf.fr/ark:/12148/bd6t5733745d/f2.item (issue
+identifier ark:/12148/bd6t5733745d; BnF metadata: 1926-03-28, A7,N287). The
+issue cover itself prints “Septième Année — N° 287”; the former № 267 citation
+was a bibliographic error inherited from a secondary clipping reproduction.
+Line breaks re-flowed; spelling, italics-marked names (Mârûnang, Rigjal, Bleta)
+and punctuation as printed.
 ---------------------------------------------------------------------------
 
 La légende de l'Abeille.

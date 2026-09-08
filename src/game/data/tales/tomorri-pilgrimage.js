@@ -26,6 +26,32 @@ export default {
   title: 'Mali i Tomorrit — the sacred mountain & pilgrimage',
   source:
     'Kryegjyshata Botërore Bektashiane (World Headquarters of the Bektashi Order), official bilingual page "Mali Tomorr dhe gjurmët e Abaz Aliut" / "The Tomorr Mountain and the Footprint of Abbas Ali" (kryegjyshataboterorebektashiane.org, fetched 2026-07-15), plus one paragraph from the same body\'s news article on the 2023 pilgrimage ceremony; read in the Order\'s own English translation where one exists, all lines paraphrased in the agent\'s own words',
+  references: [
+    {
+      role: 'selected-witness',
+      citation: 'Kryegjyshata Botërore Bektashiane, “Mali i Tomorrit dhe gjurmët e Abaz Aliut”',
+      url: 'https://kryegjyshataboterorebektashiane.org/mali-tomorrit-dhe-gjurmet-e-abaz-aliut/',
+      note: 'The Order’s official Albanian account selected for the principal beat record.',
+    },
+    {
+      role: 'translation',
+      citation: 'World Headquarters of the Bektashi Order, “The Tomorr Mountain and the Footprint of Abbas Ali”',
+      url: 'https://kryegjyshataboterorebektashiane.org/en/the-tomorr-mountain-and-the-footprint-of-abbas-ali/',
+      note: 'The institution’s own English translation of the principal Albanian source.',
+    },
+    {
+      role: 'source-text',
+      citation: 'Kryegjyshata Botërore Bektashiane, “Ceremonia tradicionale në Malin e Tomorrit” (22 August 2023)',
+      url: 'https://kryegjyshataboterorebektashiane.org/ceremonia-tradicionale-ne-malin-e-tomorrit/',
+      note: 'Official source for the contemporary kurban sentence incorporated into the record.',
+    },
+    {
+      role: 'scholarship',
+      citation: 'Oliver Schmitt, “Der Tomorr: Der heilige Berg der Bektashi-Derwische in historischer Perspektive,” in Navigating the Worlds of History, vol. 3 (2024), pp. 1235–1253',
+      url: 'https://ucrisportal.univie.ac.at/de/publications/der-tomorr-der-heilige-berg-der-bektashi-derwische-in-historische/',
+      note: 'Current historical scholarship on the mountain’s Bektashi sacred landscape, independent of the Order’s account.',
+    },
+  ],
   origin: {
     region: 'South-Central Albania (Berat / Skrapar, Mount Tomorr) — the same massif as tomor-shpirag, a place-cult legend of the mountain itself',
     collector: 'The Bektashi Order\'s own World Headquarters, publishing its living tradition\'s own account of the mountain it administers',
@@ -65,6 +91,7 @@ export default {
     { id: 'peak', emoji: '🕌', name: "Abaz Aliu's tomb and the Kulmak tekke", note: 'the southern summit, 2,417m, where the tekke and the empty tomb stand',
       anchor: { status: 'proposed', node: 'maja', mirror: 'the real Kulmak tekke and Abbas Ali türbe on Tomorr\'s southern peak',
         mold: 'the SAME summit the main quest already gives an old man saying "in summer people climb here and eat a kurban" (content.js, node maja) — this tale explains whose feast that now is without changing a word of the existing scene; nothing here is the Sky-realm\'s separate Zojz summit (qiell2), which sits in its own region',
+        conflicts: 'NOT the Sky-realm summit or a generic invented shrine: this is the real Kulmak/Abaz Ali devotional site projected onto Tomorr\'s existing peak',
         proposal: 'add the small round stone tekke and Abaz Aliu\'s türbe to the existing peak scene' } },
     { id: 'lindja', emoji: '🏜️', name: 'the distant east', note: "Arabia and Karbala, where Abaz Aliu lived and died — seven centuries before Tomorr ever hears his name",
       anchor: { status: 'offstage', mirror: 'Karbala, in today\'s Iraq, and the wider Islamic world of the 7th century',

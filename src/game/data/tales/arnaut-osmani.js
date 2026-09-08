@@ -23,6 +23,12 @@
 export default {
   id: 'arnaut-osmani',
   title: 'Arnaut Osmani',
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Arnaut Osmani», Visaret e Kombit II (1937), pp. 130–135 — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_13.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “Arnaut Osmani”', url: 'http://www.albanianliterature.net/oralverse/verse_09_13.html' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+    { role: 'scholarship', citation: 'Songs of the Frontier Warriors: The Albanian Epic Këngë Kreshnikësh — bilingual edition', url: 'https://www.bolchazy.com/product/songs-of-the-frontier-warriors-the-albanian-epic-kenge-kreshnikesh-p3350/' },
+  ],
   source:
     'Recorded in Shala (District of Shkodra); Visaret e Kombit II, ed. B. Palaj & D. Kurti (Tirana 1937), pp. 130–135, repr. Folklor shqiptar II, Epika legjendare (Cikli i kreshnikëve) I, ed. Q. Haxhihasani (Tirana 1966), pp. 161–165 · read in R. Elsie & J. Mathie-Heck\'s translation (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {

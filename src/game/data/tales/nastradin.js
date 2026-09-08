@@ -9,6 +9,32 @@ export default {
   title: 'Nastradin Hoxha — the Mule with a Foal, the Three Figs, and the Doomsday Cow',
   source:
     'Pralla popullore shqiptare, Instituti i Shkencave, Tiranë 1954 — the book\'s three Nastradin anecdotes (pp. 188–190, 194–196) · read in the Albanian original directly (no English translation exists); all lines paraphrased from the Albanian',
+  references: [
+    {
+      role: 'source-text',
+      citation: 'Komisjoni i folklorit (ed. Zihni Sako), Pralla popullore shqiptare (Tiranë, 1954), pp. 188–190, 194–196',
+      url: 'https://doczz.net/doc/2729503/pralla-popullore-shqiptare',
+      note: 'Searchable OCR access copy of the exact printed Albanian witness; the locally checked extract remains the line-level authority because this is an unofficial mirror.',
+    },
+    {
+      role: 'context',
+      citation: 'UNESCO, “Telling tradition of Nasreddin Hodja / Molla Nesreddin … anecdotes” (Representative List, 2022)',
+      url: 'https://ich.unesco.org/en/RL/telling-tradition-of-nasreddin-hodja-molla-nesreddin-molla-ependi-apendi-afendi-kozhanasyr-anecdotes-01705',
+      note: 'Institutional background for the transnational oral tradition; it is not the selected Albanian witness.',
+    },
+    {
+      role: 'analogue',
+      citation: 'George Borrow, The Turkish Jester; or, The Pleasantries of Cogia Nasr Eddin Effendi (1884)',
+      url: 'https://www.gutenberg.org/files/16244/16244-h/16244-h.htm',
+      note: 'Public-domain non-Albanian analogue containing the borrowed-cauldron cycle; it does not replace the three 1954 Albanian anecdotes used for these beats.',
+    },
+    {
+      role: 'context',
+      citation: 'Maximilian Lambertz, Albanische Märchen und andere Texte zur albanischen Volkskunde (Vienna, 1922) — Internet Archive scan',
+      url: 'https://archive.org/details/albanischemarchenlambertz',
+      note: 'Full-view copy of an earlier Albanian tale collection used to check the wider Nastradin corpus, not the selected 1954 text.',
+    },
+  ],
   // where the cycle comes from — anchors prefer this region's mirrors: the
   // texts are GHEG (northern), a vezir-and-kala world; the Vezir's fortress
   // mirrors Rozafa under the Bushati vezirs, the pasture is the hodja's own
@@ -63,6 +89,7 @@ export default {
     { id: 'pazari', emoji: '🧺', name: 'pazari nën kala — the bazaar under the fortress', note: 'the town lane where the mule is paraded',
       anchor: { status: 'proposed', node: 'kalaMur', mirror: 'Shkodra\'s old bazaar between Rozafa and the Buna',
         mold: 'the market lane below the fortress gate: the town the Vezir rules and the crowd whose gossip carries his name further than his edicts — bazaars accumulate traders, marvels and stories without clashing',
+        conflicts: 'NOT the castle wall itself or Rozafa\'s building ground: this is the ordinary market below the gate, sharing only the city approach',
         proposal: 'draw a bazaar lane at the fortress\'s foot (stalls, the crowd, the road up to the gate) — nearest existing spot today is kala1 itself' } },
     { id: 'udha', emoji: '🛤️', name: 'the road north', note: 'the road of the fearful walk to the summons',
       anchor: { status: 'existing', node: 'start', mirror: 'the road out of old Tirana at the tanners\' bridge',

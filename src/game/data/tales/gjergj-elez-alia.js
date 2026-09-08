@@ -14,6 +14,12 @@
 export default {
   id: 'gjergj-elez-alia',
   title: 'Gjergj Elez Alia',
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Gjergj Elez Alia», Visaret e Kombit II (1937), pp. 42–48 — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_06.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “Gjergj Elez Alia”', url: 'http://www.albanianliterature.net/oralverse/verse_09_06.html' },
+    { role: 'scholarship', citation: 'Ullmar Qvick, commentary on «Kanga e Gjergj Elez Alisë»', url: 'https://www.radiandradi.com/kanga-e-gjergj-elez-alise-me-komente-te-ullmar-qvick/' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+  ],
   source:
     'Kângë kreshnikësh sung in Nikaj (District of Tropoja); Visaret e Kombit II, ed. B. Palaj & D. Kurti (Tirana 1937), pp. 42–48 · read in R. Elsie & J. Mathie-Heck\'s translation (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {
@@ -78,6 +84,7 @@ export default {
     { id: 'bunari', emoji: '🕳️', name: 'the well by the war grounds', note: 'where the headless trunk and its steed are drowned; the river runs black three years',
       anchor: { status: 'proposed', node: 'balozLufte', mirror: 'the bunar of the song — a dead well at the field\'s edge whose vein feeds the river',
         mold: 'a dead well that took a monster\'s carcass and fouled the river-line for three years — nothing else claims it',
+        conflicts: 'NOT the village well, Gjizar\'s betrayal well, or an underworld shaft: this bunar belongs only to Gjergj\'s battlefield and receives the baloz\'s corpse',
         proposal: 'add a dead well at the war grounds\' edge (and the blood-black river line) for the corpse-drowning scene' } },
     { id: 'varri', emoji: '🪦', name: 'the double grave under the linden', note: 'one wide grave, a cairn, and a linden planted at the head',
       anchor: { status: 'existing', node: 'balozFitore', mirror: 'the one-grave-for-two with a linden at its head that northern song-geography plants by the hero\'s tower',

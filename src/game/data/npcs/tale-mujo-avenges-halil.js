@@ -50,7 +50,7 @@ export default {
     name: 'uku i shtratit', glyph: '🐺', kind: 'creature',
     role: 'the fierce wolf that guards Mujo\'s feet',
     backstory:
-      'Curled at the foot of Mujo\'s sickbed, it lets no one at all come near — bares its teeth and half-rises at the first stranger\'s eyes, and only Mujo\'s own shout stops Dizdar from drawing steel on it. Faithful, not wild: one of the three guardians (with the ora and the serpent) that keep the wounded hero through the days his brother is away. NOT the mythic First Wolf of the creation legend (`Ujku i Parë`, the Devil\'s clay given breath) — an ordinary guard-beast doing an extraordinary watch, nothing more.',
+      'Curled at the foot of Mujo\'s sickbed, it lets no one at all come near — bares its teeth and half-rises at the first stranger\'s eyes, and only Mujo\'s own shout stops Dizdar from drawing steel on it. Faithful, not wild: one of the three guardians (with the ora and the serpent) that keep the wounded hero through the days his brother is away. NOT the mythic First Wolf of the creation legend (`Ujku i Parë`, the Devil\'s dough struck by God\'s switch and awakened by his command) — an ordinary guard-beast doing an extraordinary watch, nothing more.',
     folklore: ['mujo-avenges-halil'],
     location: { status: 'placed', node: 'mujo1' },
     tales: { 'mujo-avenges-halil': 'ujku' },

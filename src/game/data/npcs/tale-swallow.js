@@ -6,7 +6,7 @@ export default {
   dallendyshja: {
     name: 'Dallëndyshja', glyph: '🐦', kind: 'mythic',
     role: 'the swallow who saved mankind — friend of every house',
-    backstory: 'Aboard a storm-holed ship she alone kept the mosquito from naming man’s blood to the serpent that would have fed on him ever after: one snap of her beak took the tongue mid-word. The cheated serpent cursed her nests forever; she answered by building hers at the very head of man, where no one has ever torn one down since. The game’s own back-lane vignette (dallendyshe1 → dallendysheFund) remembers one blow more than any printed telling does: the serpent’s strike as she fled, which forked her tail into the shape she still wears. NOT the cuckoo (Qyqja) or her brother the gjon-bird — grief made them; the swallow earned her mark by an act of courage, and it is a sin to harm her nest to this day.',
+    backstory: 'Aboard a storm-holed ship she alone kept the mosquito from naming man’s blood to the serpent that would have fed on him ever after: one snap of her beak took the tongue mid-word. The cheated serpent cursed her nests forever; she answered by building hers at the very head of man, where no one has ever torn one down since. No serpent-strike or forked-tail origin appears in the recovered telling, so the game adds none. NOT the cuckoo (Qyqja) or her brother the gjon-bird — grief made them; the swallow earned human protection by courage, and it is a sin to harm her nest to this day.',
     folklore: ['swallow'],
     location: { status: 'placed', node: 'dallendysheFund' },
     tales: { swallow: 'dallendyshja' },
@@ -22,7 +22,7 @@ export default {
   gjarpriAnijes: {
     name: 'Gjarpri i anijes', glyph: '🐍', kind: 'creature',
     role: 'the serpent that priced a sinking ship at the sweetest blood alive',
-    backstory: 'A single sea-crossing serpent, not the underworld’s threshold-guardian (gjarpri, a different creature entirely — a kulshedra or gjarpër is a KIND, not a name) and not any house-snake’s vitore: this one coiled itself into a ship’s hull to buy time, named its own price — the sweetest blood there is — and was cheated of the answer by a swallow’s beak. It struck at her as she fled and has held its grudge against man ever since; every plain serpent’s bite is said to carry that same old temper.',
+    backstory: 'A single sea-crossing serpent, not the underworld’s threshold-guardian and not any house-snake’s vitore: this one coiled itself into an accidentally torn ship’s hull to buy time, named its own price — the sweetest blood there is — and was cheated of the answer by a swallow’s beak. It cursed her future nests; she answered by nesting under human protection. The recovered telling gives it no strike at her tail.',
     folklore: ['swallow'],
     location: { status: 'planning', plan: 'gone back to the water once the ship was safe — lives only inside the telling at dallendyshe1 (the back lane’s own vignette); no serpent of a single sea-crossing keeps a fixed place on the map' },
     tales: { swallow: 'gjarpri' },

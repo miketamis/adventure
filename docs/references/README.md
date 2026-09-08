@@ -1,17 +1,27 @@
-# Albanian Folklore Reference Corpus
+# Albanian Folklore Evidence Library
 
-Downloaded primary-source full texts backing the game's folklore library
+Locally held texts, checked extracts and source-location records backing the game's folklore library
 (`src/game/folklore.js` → the 📚 **Sources** panel in the in-game Debug tab).
 
-Every file here is a plain-text (`_djvu.txt` OCR or wiki `action=raw`) copy of a
-public-domain source, kept locally so the corpus survives link-rot. Language is
-encoded in the filename: `.sq` Albanian · `.de` German · `.fr` French · `.en`
-English (multi = bilingual, e.g. `.de-sq`).
+The folder is intentionally mixed: public-domain OCR, CC-licensed transcriptions,
+translations, page-checked research extracts, and source-location notes. A local
+file is evidence that can be inspected; it is not by itself a public-domain or
+primary-source claim. The `CORPUS` metadata and each file's own header record its
+work, relationship and reuse limits. Language is encoded in the filename: `.sq`
+Albanian · `.de` German · `.fr` French · `.en` English (multi = bilingual, e.g.
+`.de-sq`).
 
 Machine-readable metadata for each source lives in `CORPUS` in
 `src/game/folklore.js`; this README is the human index.
 
-## Downloaded — public domain
+Each beat-by-beat tale record also exposes a structured, clickable bibliography
+through its `references` array. The reference role distinguishes an exact
+selected witness from its facsimile or transcription, translations, catalogue
+records, scholarship, variants, analogues and general context. Run
+`npm run audit:sources` to perform the optional live URL probe in addition to
+the deterministic registry checks included in `npm run certify`.
+
+## Locally held evidence — license and limits shown per row
 
 | File | Work | Author | Year | Lang | Albanian text? |
 |---|---|---|---|---|---|
@@ -43,6 +53,9 @@ Machine-readable metadata for each source lives in `CORPUS` in
 | `brailsford-macedonia.en.txt` | Macedonia: Its Races and Their Future | H. N. Brailsford | 1906 | en | late-Ottoman Balkans / the feud |
 | `leake-travels-northern-greece-1.en.txt` | Travels in Northern Greece, vol. I | W. M. Leake | 1835 | en | Epirus & the southern coast |
 | `meyer-albanische-marchen-1884.de.txt` | Albanische Märchen (tale collection) | Gustav Meyer | 1884 | de | Tosk fairy tales |
+| `pedersen-1895-birbil-gizari.sq.txt` | Birbil Gizári (raw OCR samples plus page-checked alignment transcript from *Albanesische Texte mit Glossar*) | Holger Pedersen / Albanian informant | 1895 | sq | ✅ exact original; all 154 game units aligned to printed pp. 30–35 |
+| `weigand-1913-zonja-skile-ujku.sq.txt` | Tierfabel: Fuchs und Wolf, no. 52 (Elbasan) | Gustav Weigand / Josif Suterikji | 1913 | sq | ✅ complete Albanian analogue; not Hahn 89 |
+| `schiro-1923-binoshet.sq.txt` | «Binóshæt» (complete game-line witness transcript, pp. 411–426) | Giuseppe Schirò / Piana degli Albanesi teller | 1923 | sq (Arbëresh) | ✅ exact page-collated evidence for all 141 game units |
 
 These back the new **📜 History** layer and the expanded custom cluster. Two prestige
 Albanian originals proved partly digitized after all: **Dine's *Valët e detit*** is a full
@@ -52,8 +65,10 @@ Albanian originals proved partly digitized after all: **Dine's *Valët e detit**
 ## Not downloadable (link-only) — recorded in `CORPUS` with landing pages
 Prestige Albanian originals that are **not** cleanly digitized as free full text:
 Mitko *Bleta shqiptare* (1878), Dine *Valët e Detit* (1908), Palaj & Kurti
-*Visaret e Kombit II — Kângë kreshnikësh* (1937), Prennushi *Kângë popullore
-gegnishte* (1911), Pedersen *Albanesische Texte* (1895).
+*Visaret e Kombit II — Kângë kreshnikësh* (1937), and Prennushi *Kângë
+popullore gegnishte* (1911). Pedersen's 1895 *Albanesische Texte* is now
+available through the Internet Archive and is recorded in the downloaded table
+above; its 154 game units are collated against printed pp. 30–35.
 
 ## In copyright — linked, never ingested
 Elsie *Albanian Folktales and Legends* (freely readable, © Elsie), Kuteli

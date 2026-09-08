@@ -1,7 +1,13 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { DICT, STORY, frequentForms, splitStem } from '../game/content.js'
-import { canChoose, formsUnlocked } from '../game/gameState.js'
+import { canChoose, currentStoryState, formsUnlocked } from '../game/gameState.js'
+import { embodimentOptionAccess } from '../game/embodiment.js'
+import { isOptionRevealed } from '../game/revealVisibility.js'
 import { playWord } from '../game/audio.js'
+import {
+  EVERYDAY_CORE_SENSE_SET,
+  EVERYDAY_PHRASE_DRILLS,
+} from '../game/everydayAlbanian.js'
 
 // the answer rendered in Albanian (every word is discovered when affordable)
 const albanianPhrase = (tokens) => tokens.map((t) => (t.id ? t.al : t.en)).join(' ')
@@ -18,7 +24,10 @@ const ZERO_TOKEN_BOOST = 8 // a 0-token word is ~16× as likely as a 1-token one
 const weightedPick = (ids, mana) => {
   const weights = ids.map((id) => {
     const n = mana[id] || 0
-    return n === 0 ? ZERO_TOKEN_BOOST : 1 / (n + 1)
+    const need = n === 0 ? ZERO_TOKEN_BOOST : 1 / (n + 1)
+    // Practical conversation stays prominent even after folklore words enter
+    // the dictionary. This is a curriculum choice, not a cosmetic sort order.
+    return need * (EVERYDAY_CORE_SENSE_SET.has(id) ? 3 : 1)
   })
   const total = weights.reduce((a, b) => a + b, 0)
   let r = Math.random() * total
@@ -35,6 +44,36 @@ const shuffle = (arr) => {
     ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
+}
+
+function buildEverydayPhraseQuestion(unlocked, mana) {
+  const weights = unlocked.map((entry) => [...new Set(entry.requires)].reduce((sum, id) => {
+    const held = mana[id] || 0
+    return sum + (held === 0 ? ZERO_TOKEN_BOOST : 1 / (held + 1))
+  }, 0))
+  const total = weights.reduce((sum, weight) => sum + weight, 0)
+  let roll = Math.random() * total
+  let target = unlocked.at(-1)
+  for (let index = 0; index < unlocked.length; index++) {
+    roll -= weights[index]
+    if (roll <= 0) {
+      target = unlocked[index]
+      break
+    }
+  }
+  const dir = unlocked.length >= 4 && Math.random() < 0.5 ? 'en2al' : 'al2en'
+  // English distractors may come from the full reviewed bank without exposing
+  // unknown Albanian. Albanian distractors only come from unlocked phrases.
+  const pool = dir === 'en2al' ? unlocked : EVERYDAY_PHRASE_DRILLS
+  const distractors = shuffle(pool.filter((entry) => entry.id !== target.id)).slice(0, 3)
+  return {
+    kind: 'everyday-phrase',
+    answerId: target.id,
+    dir,
+    target,
+    rewardIds: [...new Set(target.requires)],
+    options: shuffle([target, ...distractors]),
+  }
 }
 
 // Homonym particles (e, të, i, do, po) carry a `ctx` example phrase: the same
@@ -154,29 +193,42 @@ function buildFormsQuestion(answerId, discoveredIds) {
 
 // Render an Albanian phrase with the target word highlighted.
 const FocusPhrase = ({ al, focus }) => (
-  <>
+  <span lang="sq">
     {al.split(' ').map((w, i) => (
       <span key={i}>
         {i > 0 ? ' ' : ''}
         {w === focus ? <b className="ctx-focus">{w}</b> : w}
       </span>
     ))}
-  </>
+  </span>
 )
 
 export default function PracticeView({ state, dispatch }) {
   const discoveredIds = Object.keys(state.discovered).filter((id) => state.discovered[id])
+  const unlockedEverydayPhrases = EVERYDAY_PHRASE_DRILLS.filter((entry) =>
+    entry.requires.every((id) => state.discovered[id]),
+  )
   const [q, setQ] = useState(null)
   const [picked, setPicked] = useState(null)
   const [step, setStep] = useState(1) // for two-step "endings" questions; 1 otherwise
+  const answerCommitted = useRef(false)
+  const questionRef = useRef(null)
 
   const next = useCallback(() => {
+    answerCommitted.current = false
     if (discoveredIds.length === 0) {
       setQ(null)
       return
     }
     setPicked(null)
     setStep(1)
+    // Complete, standard-Albanian chunks own most of the training mix; the
+    // remainder keeps word meanings and inflections alive.
+    const modeRoll = Math.random()
+    if (unlockedEverydayPhrases.length && modeRoll < 0.65) {
+      setQ(buildEverydayPhraseQuestion(unlockedEverydayPhrases, state.mana))
+      return
+    }
     // words whose "endings" drill has unlocked; occasionally quiz one of them
     const eligible = discoveredIds.filter((id) => formsUnlocked(state, id))
     if (eligible.length && Math.random() < 0.35) {
@@ -185,43 +237,63 @@ export default function PracticeView({ state, dispatch }) {
       setQ(buildQuestion(discoveredIds, state.mana))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [discoveredIds.length, state.mana, state.practiced])
+  }, [discoveredIds.length, unlockedEverydayPhrases.length, state.mana])
 
   useEffect(() => {
     if (!q && discoveredIds.length > 0) next()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [discoveredIds.length])
 
+  useEffect(() => {
+    if (!q) return undefined
+    const frame = window.requestAnimationFrame(() => questionRef.current?.focus())
+    return () => window.cancelAnimationFrame(frame)
+  }, [q, step])
+
   if (discoveredIds.length === 0) {
     return (
-      <div className="card practice">
+      <section className="card practice" aria-labelledby="practice-title">
+        <h2 id="practice-title" className="view-title">Train Albanian</h2>
         <p className="empty">
           You haven't discovered any words yet.
           <br />
           Go to the story and click words to discover them, then come back to train.
         </p>
-      </div>
+      </section>
     )
   }
 
   if (!q) {
     return (
-      <div className="card practice">
-        <p className="empty">Loading…</p>
-      </div>
+      <section className="card practice" aria-labelledby="practice-title">
+        <h2 id="practice-title" className="view-title">Train Albanian</h2>
+        <p className="empty" role="status">Preparing the next question…</p>
+      </section>
     )
   }
 
   const isForms = q.kind === 'forms'
+  const isEverydayPhrase = q.kind === 'everyday-phrase'
   // what a correct pick equals depends on the question kind and (for forms) the step
   const correctValue = isForms ? (step === 1 ? q.answerId : q.step2.answer) : q.answerId
   const answered = picked !== null
   const wasCorrect = picked === correctValue
 
   const onPick = (value) => {
-    if (answered) return
+    if (answered || answerCommitted.current) return
+    answerCommitted.current = true
     setPicked(value)
     const correct = value === correctValue
+
+    if (isEverydayPhrase) {
+      if (correct) {
+        for (const id of q.rewardIds) dispatch({ type: 'PRACTICE_CORRECT', id })
+      } else {
+        dispatch({ type: 'PRACTICE_WRONG' })
+      }
+      setTimeout(next, correct ? 1400 : 2200)
+      return
+    }
 
     if (isForms) {
       playWord(q.surface) // speak the INFLECTED surface, not the lemma
@@ -229,7 +301,11 @@ export default function PracticeView({ state, dispatch }) {
         // identify-the-word: real stakes, exactly like a normal question
         if (correct) {
           dispatch({ type: 'PRACTICE_CORRECT', id: q.answerId })
-          setTimeout(() => { setPicked(null); setStep(2) }, 1100) // reveal, then drill the ending
+          setTimeout(() => {
+            answerCommitted.current = false
+            setPicked(null)
+            setStep(2)
+          }, 1100) // reveal, then drill the ending
         } else {
           dispatch({ type: 'PRACTICE_WRONG' })
           setTimeout(next, 2000)
@@ -252,8 +328,16 @@ export default function PracticeView({ state, dispatch }) {
   const [formStem, formEnding] = isForms ? splitStem(q.answerId, q.surface) : ['', '']
 
   // story answers you can now afford (all words discovered + a token for each)
-  const node = STORY[state.nodeId]
-  const affordable = (node?.options || []).filter((opt) => canChoose(state, opt).ok)
+  const practiceState = currentStoryState(state)
+  const node = STORY[practiceState.nodeId]
+  // Match the Story screen's clock and role boundary. Training should never
+  // advertise a confuser or an act the current character cannot perform.
+  const affordable = (node?.options || []).filter((opt) =>
+    !opt.confuser &&
+    isOptionRevealed(practiceState, opt, node) &&
+    canChoose(practiceState, opt).ok &&
+    embodimentOptionAccess(state, opt, STORY[opt.to]).ok,
+  )
 
   return (
     <>
@@ -264,7 +348,7 @@ export default function PracticeView({ state, dispatch }) {
             {affordable.map((opt, i) => (
               <span key={i}>
                 {i > 0 ? ' or ' : ''}
-                <b>“{albanianPhrase(opt.text)}”</b>
+                <b lang="sq">“{albanianPhrase(opt.text)}”</b>
               </span>
             ))}
           </span>
@@ -277,12 +361,18 @@ export default function PracticeView({ state, dispatch }) {
         </div>
       )}
 
-      <div className="card practice">
+      <section className="card practice" aria-labelledby="practice-title">
+      <h2 id="practice-title" className="view-title">Train Albanian</h2>
+      <div ref={questionRef} className="practice-question" role="status" aria-live="polite" aria-atomic="true" tabIndex={-1}>
       <div className="prompt">
         {isForms
           ? step === 1
             ? 'What does this word mean?'
             : 'What does the ending do here?'
+          : isEverydayPhrase
+          ? q.dir === 'al2en'
+            ? 'What does this everyday phrase mean?'
+            : 'Which everyday Albanian phrase says this?'
           : q.kind === 'ctx'
           ? 'What does the highlighted word mean here?'
           : q.dir === 'al2en'
@@ -291,7 +381,7 @@ export default function PracticeView({ state, dispatch }) {
       </div>
       {isForms ? (
         <div className="question">
-          <span className="known-word q-inflected">
+          <span className="known-word q-inflected" lang="sq">
             <span className="stem">{formStem}</span>
             {formEnding && <span className="ending">{formEnding}</span>}
           </span>
@@ -303,9 +393,17 @@ export default function PracticeView({ state, dispatch }) {
           </div>
           <div className="ctx-en">{q.ctx.en}</div>
         </div>
+      ) : isEverydayPhrase ? (
+        <div className="question phrase-question">
+          <span className="phrase-form" lang={q.dir === 'al2en' ? 'sq' : undefined}>
+            {q.dir === 'al2en' ? q.target.al : q.target.en}
+          </span>
+          <span className="phrase-label">everyday phrase</span>
+        </div>
       ) : (
-        <div className="question">{q.promptText}</div>
+        <div className="question" lang={q.dir === 'al2en' ? 'sq' : undefined}>{q.promptText}</div>
       )}
+      </div>
 
       <div className="answers">
         {isForms
@@ -321,19 +419,36 @@ export default function PracticeView({ state, dispatch }) {
                 </button>
               )
             })
+          : isEverydayPhrase
+          ? q.options.map((entry) => {
+              let cls = 'answer'
+              if (answered && entry.id === correctValue) cls += ' correct'
+              else if (answered && entry.id === picked) cls += ' wrong'
+              return (
+                <button
+                  key={entry.id}
+                  className={cls}
+                  disabled={answered}
+                  onClick={() => onPick(entry.id)}
+                  lang={q.dir === 'en2al' ? 'sq' : undefined}
+                >
+                  {q.dir === 'al2en' ? entry.en : entry.al}
+                </button>
+              )
+            })
           : q.options.map((id) => {
               let cls = 'answer'
               if (answered && id === q.answerId) cls += ' correct'
               else if (answered && id === picked) cls += ' wrong'
               return (
-                <button key={id} className={cls} disabled={answered} onClick={() => onPick(id)}>
+                <button key={id} className={cls} lang={q.field === 'al' ? 'sq' : undefined} disabled={answered} onClick={() => onPick(id)}>
                   {senseText(id, q.field)}
                 </button>
               )
             })}
       </div>
 
-      <div className={'feedback ' + (answered ? (wasCorrect ? 'good' : 'bad') : '')}>
+      <div className={'feedback ' + (answered ? (wasCorrect ? 'good' : 'bad') : '')} role="status" aria-live="polite" aria-atomic="true">
         {answered &&
           (isForms
             ? step === 1
@@ -343,12 +458,15 @@ export default function PracticeView({ state, dispatch }) {
               : wasCorrect
               ? `✨ nuance! “${q.surface}” = ${q.step2.answer}`
               : `“${q.surface}” = ${q.step2.answer}`
+            : isEverydayPhrase
+            ? wasCorrect
+              ? `Të lumtë! “${q.target.al}” means “${q.target.en}”`
+              : `💔 −1 heart · “${q.target.al}” means “${q.target.en}”`
             : wasCorrect
             ? `Të lumtë! +1 token for "${DICT[q.answerId].al}"` // the folk blessing for a good answer
             : `💔 −1 heart · correct answer: ${senseText(q.answerId, q.field)}`)}
       </div>
-
-      </div>
+      </section>
     </>
   )
 }

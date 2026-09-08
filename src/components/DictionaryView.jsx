@@ -10,26 +10,28 @@ export default function DictionaryView({ state, dispatch }) {
 
   if (ids.length === 0) {
     return (
-      <div className="card dictionary">
+      <section className="card dictionary" aria-labelledby="dictionary-title">
+        <h2 id="dictionary-title" className="view-title">Albanian dictionary</h2>
         <p className="empty">
           You haven't discovered any words yet.
           <br />
           Click words in the story to discover them — they'll be collected here with an Albanian
           definition.
         </p>
-      </div>
+      </section>
     )
   }
 
   return (
-    <div className="card dictionary">
+    <section className="card dictionary" aria-labelledby="dictionary-title">
+      <h2 id="dictionary-title" className="view-title">Albanian dictionary</h2>
       {ids.map((id) => {
         const count = state.mana[id] || 0
         const def = DEFS[id]
         return (
           <div className="dict-entry" key={id}>
             <div className="dict-head">
-              <span className="dict-word">{DICT[id].al}</span>
+              <span className="dict-word" lang="sq">{DICT[id].al}</span>
               <span
                 className={'token-badge' + (count > 0 ? '' : ' zero')}
                 title={`${count} training token${count === 1 ? '' : 's'}`}
@@ -55,6 +57,6 @@ export default function DictionaryView({ state, dispatch }) {
           </div>
         )
       })}
-    </div>
+    </section>
   )
 }

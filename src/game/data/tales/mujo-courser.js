@@ -21,6 +21,12 @@
 export default {
   id: 'mujo-courser',
   title: 'Mujo\'s Courser',
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Gjogu i Mujit», Visaret e Kombit II (1937), pp. 70–80 — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_08.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “Mujo’s Courser”', url: 'http://www.albanianliterature.net/oralverse/verse_09_08.html' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+    { role: 'catalog', citation: 'Songs of the Frontier Warriors: The Albanian Epic Këngë Kreshnikësh — publisher record', url: 'https://www.bolchazy.com/product/songs-of-the-frontier-warriors-the-albanian-epic-kenge-kreshnikesh-p3350/' },
+  ],
   source:
     'Recorded in Shala (District of Shkodra); Visaret e Kombit II, ed. B. Palaj & D. Kurti (Tirana 1937), pp. 70–80, repr. Folklor shqiptar II, Epika legjendare I, ed. Q. Haxhihasani (Tirana 1966), pp. 109–118 · read in R. Elsie & J. Mathie-Heck\'s translation (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {
@@ -83,7 +89,7 @@ export default {
         proposal: 'add Osmani\'s household off jutbina — a courtyard and a stable with a door left standing open' } },
     { id: 'krajlia', emoji: '👑', name: 'the Krajl\'s Kingdom', note: 'the rival Kingdom across the frontier: the Krajl\'s court, his raging stable, his watch-tower, and the wedding-host\'s hall',
       anchor: { status: 'proposed', node: 'jutbina', mirror: 'the rival Christian Kingdom across the frontier — the kreshnik songs\' own standing enemy realm',
-        mold: '"Krajl" and "Kapidan" are epic TITLES the songs give many different antagonists, not one ruler — this tale\'s Krajlo Kapedani is a distinct figure from the Krajl of the Zuku Bajraktar song (rusha1/rushaFund), the Krajl of New Kotor (halil-marriage), the captain of Mujo Avenges Halili (mejdan1/mujoHak1), ali-bajraktari\'s own king (proposed "mbretnia", also off jutbina — its own conflicts note already names this Krajlo Kapedani by name as a separate court), and Arnaut Osmani\'s own burgu (a twelve-Aga dungeon undone from inside, a different Krajl and a different shape of captivity entirely); none of them the same man or the same court',
+        mold: '"Krajl" and "Kapidan" are epic TITLES the songs give many different antagonists, not one ruler — this tale\'s Krajlo Kapedani is a distinct figure from the Krajl of the Zuku Bajraktar song (rusha1/rushaFund), the Krajl of New Kotor (halil-marriage), Llabutani of Halili Avenges Mujo (mejdan1/mujoHak1), ali-bajraktari\'s own king (proposed "mbretnia", also off jutbina — its own conflicts note already names this Krajlo Kapedani by name as a separate court), and Arnaut Osmani\'s own burgu (a twelve-Aga dungeon undone from inside, a different Krajl and a different shape of captivity entirely); none of them the same man or the same court',
         conflicts: 'NOT rusha1\'s tower, mejdan1/mujoHak1\'s court, ali-bajraktari\'s "mbretnia", or arnaut-osmani\'s "burgu" — those belong to other, already-staged or already-proposed kreshnik songs with their own Krajl and their own captain; this is a seventh, separate king\'s realm sharing only the same interim jutbina placeholder node until each gets its own',
         proposal: 'add a new node chain off jutbina (paralleling mujo2-mujo4/mujoFund) for the Krajl\'s court, his stable, his tower, and the wedding-host\'s hall down the frontier road' } },
   ],

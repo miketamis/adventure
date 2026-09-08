@@ -17,6 +17,12 @@
 export default {
   id: 'mujo-strength',
   title: 'The Strength of Mujo',
+  references: [
+    { role: 'source-text', citation: 'Palaj and Kurti, «Fuqija e Mujit», Visaret e Kombit II (1937), pp. 63–66 — Albanian PDF', url: 'http://www.albanianliterature.net/oralverse/verse_09_AL/verse_09_AL_01.pdf' },
+    { role: 'translation', citation: 'Robert Elsie and Janice Mathie-Heck, “The Strength of Mujo”', url: 'http://www.albanianliterature.net/oralverse/verse_09_01.html' },
+    { role: 'catalog', citation: 'Visaret e kombit, volume 2 (1937) — Google Books record', url: 'https://books.google.com/books/about/Visaret_e_kombit.html?id=dPKdnQAACAAJ' },
+    { role: 'scholarship', citation: 'Zymer U. Neziri and Nicola Scaldaferri, “New Research on Albanian Epic Songs” (Harvard CHS)', url: 'https://classics-at.chs.harvard.edu/classics14-neziri-and-scaldaferri/' },
+  ],
   source:
     'Sung by Mëhill Prêka of Curraj i Epërm (District of Tropoja); Visaret e Kombit II, ed. B. Palaj & D. Kurti (Tirana 1937), pp. 63–66, repr. Folklor shqiptar II, Epika legjendare I, ed. Q. Haxhihasani (Tirana 1966), pp. 104–106 · read in R. Elsie & J. Mathie-Heck\'s translation (Songs of the Frontier Warriors, 2004); all lines paraphrased',
   origin: {

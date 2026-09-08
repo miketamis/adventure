@@ -12,6 +12,38 @@ export default {
     'this telling is Mitrush Kuteli\'s literary retelling in Tregime të moçme shqiptare ' +
     '(Tiranë: Naim Frashëri, 1965, repr. 1987/1998) · read in R. Elsie\'s translation ' +
     '("The Legend of Rozafat Castle"); all lines paraphrased',
+  references: [
+    {
+      role: 'translation',
+      citation: 'Robert Elsie (trans.), “The Legend of Rozafat Castle,” after Mitrush Kuteli',
+      url: 'http://www.albanianliterature.net/legends/legend_06.html',
+      note: 'The English translation selected for the beat record; the surviving author site has no working HTTPS endpoint.',
+    },
+    {
+      role: 'facsimile',
+      citation: 'Mitrush Kuteli, Tregime të moçme shqiptare (Albanian–German edition)',
+      url: 'https://archive.org/details/shqip-gjermanisht-tregime-te-mocme-shqiptare',
+      note: 'Page-image access to Kuteli’s collection; the independent Albanian prose and verse below, rather than an asserted Kuteli collation, govern the line pins.',
+    },
+    {
+      role: 'source-text',
+      citation: '“Rozafat” and “Kanga e kalasë së Shkodrës,” Për vogëlushët (18 June 2008)',
+      url: 'https://vogelushet.blogspot.com/2008/06/rozafat.html',
+      note: 'The exact Albanian prose and companion verse transcribed into the local line-evidence file; it is an independent telling, not confirmed as Kuteli’s wording.',
+    },
+    {
+      role: 'variant',
+      citation: '“Legjenda e Kalasë Rozafa,” Zemra Shqiptare',
+      url: 'https://www.zemrashqiptare.net/legjenda-e-kalase-rozafa-262.html',
+      note: 'A distinct Albanian verse variant with different attribution and details; not used as the selected witness.',
+    },
+    {
+      role: 'scholarship',
+      citation: 'Panajot Barka, “Ballad of Masonry in the Castle and Bridge as an Ethno-Cultural Differentiation between Ghegs and Tosks in Albania,” Academic Journal of Interdisciplinary Studies 4 (2015)',
+      url: 'https://ideas.repec.org/a/bjz/ajisjr/1139.html',
+      note: 'Comparative scholarship on the Albanian Rozafa and Greek Arta masonry-ballad traditions (DOI 10.5901/ajis.2015.v4n2p287).',
+    },
+  ],
   // where the legend is set and first recorded — a NORTHERN (Gheg) legend;
   // anchors below prefer this region's own mirrors (the castle at Shkodra)
   origin: {
@@ -79,7 +111,8 @@ export default {
   paragraphs: [20, 11, 8, 7, 3],
   // THE GAME PROJECTION — you embody "a brother"; the besa choice (kalaNate)
   // decides which one. The wall always takes a wife (the legend is fixed); only
-  // who you are, and what you carry, is yours. Endings clear `embodying`.
+  // who you are, and what you carry, is yours. The role remains visible through
+  // the ending and clears only when the player closes this tale.
   play: {
     entry: 'fog',
     stance: 'embodied',
@@ -96,7 +129,7 @@ export default {
     divergences: [
       { beat: 'besa', note: 'You embody "a brother" and your besa choice assigns which one — the folktale fixes each brother\'s role (two break the oath, the youngest keeps it); the game lets your choice decide whether you are the honourable youngest or a spared elder.' },
       { beat: 'walled', note: 'The wall always takes a wife — the game will not change the legend\'s outcome, only who you are and what you carry. Keep the besa and it is your own wife; break it and you stand by as the youngest\'s wife is walled.' },
-      { beat: 'fog', note: 'The build-by-day / fall-by-night rhythm is played on the world clock: you work the wall, night falls and it comes down, dawn shows it fallen again — until a life is sealed in and, the first night after, the wall no longer falls.' },
+      { beat: 'fog', note: 'The build-by-day / fall-by-night rhythm is played on tale time: you work the wall, night falls and it comes down, dawn shows it fallen again — until a life is sealed in and, the first night after, the wall no longer falls. While you act inside the tale, the living-world clock advances by the same intervals.' },
       { beat: 'walled', note: 'The white milk still seeping from the stone follows the oral/lore reading; Elsie\'s printed text ends on the mother\'s tears alone.' },
     ],
   },
@@ -137,7 +170,7 @@ export default {
       id: 'fog', title: 'Fog on the Buna',
       note: 'Fog hides the river for three days and nights; when it lifts, three brothers are seen raising a castle whose wall will not hold past nightfall.',
       lines: [
-        ['1.1', 'For three full days and nights, a fog swallows the Buna, and no one can see the river at all.', "I ra mjegulla Bunës dhe e mbuloi të tërë qytetin. Kjo mjegull mbeti aty tri ditë e tri netë. [sic — this prose says the fog covers \"the whole town,\" not \"the river\"]"],
+        ['1.1', 'For three full days and nights, a fog swallows the Buna, and no one can see the river at all.', 'I ra mjegulla Bunës dhe e mbuloi të tërë qytetin. Kjo mjegull mbeti aty tri ditë e tri netë.', 'The prose says the fog covers the whole town, not the river.'],
         ['1.2', 'Then a hard wind rises and tears the mist apart, and Mount Valdanuz stands clear again.', "Pas tri ditësh e tri netësh fryu një erë e hollë dhe e ngriti mjegullën."],
         ['1.3', 'Three brothers are up there, hard at work raising a castle.', "Aty majë kodrës punonin tre vëllezër e ndërtonin një kështjellë."],
         ['1.4', 'Night after night, whatever wall they have raised that day comes down again, and the castle never gets any closer to finished.', "Por, muri që ndërtonin ditën, u shembej natën..."],
@@ -163,11 +196,11 @@ export default {
         ['1.6', 'And the same to you, they answer him, though luck is against us.', "-Të mbarë paç o plak i mirë. Po ku e sheh ti të mbarën tonë?"],
         ['1.7', 'Every day we build, they tell him, and every night it falls.', "Ditën punojmë e natën shembet."],
         ['1.8', 'Do you happen to know any way to make a wall hold, they ask?', "A di ta thuash ndonjë fjalë të mirë: c'të bëjmë që ti mbajmë muret në këmbë?"],
-        ['1.9', 'I do, says the old man, but telling you would shame me.', "-Unë e di, por kam gjynah-ë. [from the companion sung ballad — this prose telling skips the shame/marriage exchange entirely]"],
-        ['1.10', 'Then let the shame fall on us, they say — we are the ones who need it built.', "-At gjynah-ë le’mi ne. [sung ballad, as 1.9]"],
-        ['1.11', 'He thinks it over a while, then asks whether the three of them have wives.', "-A jini të tre t’martuem, A i kini të trija vashat? [sung ballad, as 1.9]"],
-        ['1.12', 'We do, they say — each one of us.', "-Na të tre vashat i kena. [sung ballad, as 1.9]"],
-        ['1.13', 'Now tell us, they press him, what must be done.', "-Atëherë, tha plaku, dëgjoni. [sic — the prose gives this transition line to the old man (\"listen\") rather than a distinct plea from the brothers]"],
+        ['1.9', 'I do, says the old man, but telling you would shame me.', '-Unë e di, por kam gjynah-ë.', 'From the companion sung ballad; the prose skips this exchange.'],
+        ['1.10', 'Then let the shame fall on us, they say — we are the ones who need it built.', '-At gjynah-ë le’mi ne.', 'From the companion sung ballad, as at 1.9.'],
+        ['1.11', 'He thinks it over a while, then asks whether the three of them have wives.', '-A jini të tre t’martuem, A i kini të trija vashat?', 'From the companion sung ballad, as at 1.9.'],
+        ['1.12', 'We do, they say — each one of us.', '-Na të tre vashat i kena.', 'From the companion sung ballad, as at 1.9.'],
+        ['1.13', 'Now tell us, they press him, what must be done.', '-Atëherë, tha plaku, dëgjoni.', 'The prose gives this transition to the old man rather than the brothers.'],
       ],
       cast: {
         oldMan: ['kalaja', 'met at last — presses them for their trouble, then relents'],
@@ -181,8 +214,8 @@ export default {
         ['1.15', 'Whichever of them carries you tomorrow\'s meal, he tells them, must be buried alive inside the wall.', "Nesër cila vashë të vijë për të sjellë ushqimin, nga tre kunatat, duhet ta merrni dhe ta murosni të gjallë në muret e kështjellës."],
         ['1.16', 'Only a life sealed into the stone will make it hold for good, he says.', "Atëherë do ta shihni se muri do të ngrihet dhe do të qëndrojë përgjithmonë."],
         ['1.17', 'With that the old man turns and goes on his way.', "Kaq tha plaku dhe u zhduk."],
-        ['1.18', 'That evening the eldest brother cannot hold his tongue: he tells his wife everything, and warns her above all to stay clear of the building site.', "Vëllezërit të mërzitur kthehen në shtëpi. Dy vëllezërit e mëdhenj e shkelën besën dhe u treguan grave të veta. [sic — the prose narrates both elder brothers together in one sentence, not the eldest alone]"],
-        ['1.19', 'The second brother does the very same, confessing the whole bargain to his own wife.', "Ata u thanë vashave të mos vinin për të sjellë ushqimin të nesërmen. [continues the same shared sentence — see 1.18]"],
+        ['1.18', 'That evening the eldest brother cannot hold his tongue: he tells his wife everything, and warns her above all to stay clear of the building site.', 'Vëllezërit të mërzitur kthehen në shtëpi. Dy vëllezërit e mëdhenj e shkelën besën dhe u treguan grave të veta.', 'The prose narrates both elder brothers together in one sentence.'],
+        ['1.19', 'The second brother does the very same, confessing the whole bargain to his own wife.', 'Ata u thanë vashave të mos vinin për të sjellë ushqimin të nesërmen.', 'This continues the shared sentence accounted for at 1.18.'],
         ['1.20', 'Only the youngest holds his tongue, and his wife goes to bed knowing nothing of it.', "Vetëm vëllai i vogël e mbajti besën. Ai nuk i tregoi vashës së vet."],
       ],
       cast: {
@@ -200,16 +233,16 @@ export default {
       note: 'Next morning the brothers return to the wall. At home their unwitting mother asks each wife in turn to carry the meal up the hill; the two who were warned find excuses, and only the youngest agrees.',
       lines: [
         ['2.1', 'Early the next day the three brothers are back at the wall.', "Në mëngjes, si gjithmonë vëllezërit shkuan në punë"],
-        ['2.2', 'Axes ring, stone breaks under the blows, the wall climbs higher — and with every course laid, three hearts beat a little faster.', "dhe filluan të prisnin... [sic — the prose replaces the axe/heartbeat imagery with a plain \"and began to wait\"]"],
+        ['2.2', 'Axes ring, stone breaks under the blows, the wall climbs higher — and with every course laid, three hearts beat a little faster.', 'dhe filluan të prisnin...', 'The prose has only “and began to wait”; the axe and heartbeat imagery comes from the companion telling.'],
         ['2.3', 'Back home, their mother has no idea what was sworn on the mountain.', "Nëna e djemve në shtëpi nuk dinte gjë."],
         ['2.4', 'She turns to the eldest\'s wife: the men need their bread, water and wine carried up, daughter.', "Ajo i kërkon nuses së madhe t'u shpjerë trimave ushqimin."],
         ['2.5', 'Forgive me, mother, the young woman says, but I cannot go today.', "Nusja e madhe ankohet se ishte e sëmurë"],
-        ['2.6', 'I am not well, she tells her.', "dhe kështu nuk shkon. [sic — reported speech in the prose, not a direct quote as in Elsie]"],
-        ['2.7', 'The mother asks the second wife next, who begs off too, saying she is promised at her own parents\' house that day.', "I tha dhe të dytës. E reja e dytë i thotë: -Jo zonja nënë, sot unë duhet të shkoj për buajtje. [sic — the prose's excuse is going to tend the cattle, not visiting her parents; see discrepancies]"],
+        ['2.6', 'I am not well, she tells her.', 'dhe kështu nuk shkon.', 'Reported speech in the prose, not a direct quotation.'],
+        ['2.7', 'The mother asks the second wife next, who begs off too, saying she is promised at her own parents\' house that day.', 'I tha dhe të dytës. E reja e dytë i thotë: -Jo zonja nënë, sot unë duhet të shkoj për buajtje.', 'The prose excuse is tending cattle, not visiting her parents; see discrepancies.'],
         ['2.8', 'So she turns last to the youngest, with the same request: bread, water, wine, for the men on the hill.', "I vjen rradha nuses së vogël. -O nusja e vogël, trimat duan bukë, ujë dhe kungullin me verë."],
         ['2.9', 'The girl rises at once, saying she would gladly carry it up, only she worries her small son will want the breast and cry for her while she is away.', "-Po zonja nënë, përgjigjet nusja e vogël, por kam djalin e vogël që po qan."],
         ['2.10', 'Go on then, say the other two, we will keep the boy well minded.', "Dy kunatat e mëdha i premtuan se do të kujdesen për djalin."],
-        ['2.11', 'He will not so much as whimper, they promise.', "-Na djaloçin ta shikojmë, Kurr na tokë s’ta lëshojmë. [from the companion sung ballad — the prose only reports the promise, without this direct-quote detail]"],
+        ['2.11', 'He will not so much as whimper, they promise.', '-Na djaloçin ta shikojmë, Kurr na tokë s’ta lëshojmë.', 'From the companion sung ballad; the prose only reports the promise.'],
       ],
       cast: {
         eldest: ['kalaja', 'back at the wall, saying nothing of the night before'],
@@ -232,7 +265,7 @@ export default {
         ['3.3', 'Good luck to the work, she calls out as she comes near.', "përshëndet trimat. -Puna e mbarë o trima!"],
         ['3.4', 'But something is suddenly very wrong.', "Vëllezërit kur e panë, ndalën punën."],
         ['3.5', 'The axes fall silent, three hearts begin pounding, and all three men go pale.', "Fytyrat iu zbehen"],
-        ['3.6', 'At the sight of his own wife climbing toward him, the youngest brother flings his axe down the mountainside and curses the stones and the wall together.', "dhe burrit të saj i ra cekani nga dora. [sic — a hammer (\"cekan\"), not an axe; see discrepancies]"],
+        ['3.6', 'At the sight of his own wife climbing toward him, the youngest brother flings his axe down the mountainside and curses the stones and the wall together.', 'dhe burrit të saj i ra cekani nga dora.', 'The prose says hammer (cekan), not axe; see discrepancies.'],
         ['3.7', 'She wants to know why he would curse good stone like that — what could possibly be wrong?', "Nusja e vogël i thotë: -C'ke ti, im zot? Pse e mallkon gurin dhe murin?"],
         ['3.8', 'His brothers only give a bitter smile, and the eldest tells her plainly: an unlucky star stood over her birth, sister, for they swore to wall her up alive.', "Hidhet kunati i madh dhe i thotë: -Ti paske lindur në ditë të zezë, moj kunata e vogël. Ne duhet të murojmë të gjallë vajzën qe do na sillte sot për të ngrënë, vetëm në këtë mënyrë kështjella do të qëndrojë e nuk do të shembet më."],
       ],
@@ -252,10 +285,10 @@ export default {
       id: 'plea', title: 'One request',
       note: 'She accepts her fate without a fight, asking only that the wall leave her right eye, hand, foot and breast free — so she can go on watching, holding, rocking and nursing her son from within the stone.',
       lines: [
-        ['4.1', 'The young wife takes the news calmly: if that is what was sworn, she says, she will not fight it.', "-Shëndosh ju o tim' kunetër, [sic — the prose has her bless her in-laws directly, without a separate line of calm acceptance]"],
+        ['4.1', 'The young wife takes the news calmly: if that is what was sworn, she says, she will not fight it.', "-Shëndosh ju o tim' kunetër,", 'The prose has her bless her in-laws directly, without a separate line of acceptance.'],
         ['4.2', 'But she asks one thing of them first.', "por unë po ju lë një porosi:"],
         ['4.3', 'When they raise the stone around her, she says, they must leave open her right eye, her right hand, her right foot, and her right breast.', "Kur të më muroni, syrin e djathtë të ma lini jashtë që të shikoj tim bir,"],
-        ['4.4', 'Her son is still small, she reminds them.', "dorën e djathtë të ma lini jashtë që ta ledhatoj, [sic — the prose has no separate \"my son is still small\" line; quoted here is the next body-part clause, since the Albanian pairs each part directly with its function rather than listing all four parts first]"],
+        ['4.4', 'Her son is still small, she reminds them.', 'dorën e djathtë të ma lini jashtë që ta ledhatoj,', 'The prose has no separate small-son line; this is the next body-part clause.'],
         ['4.5', 'When he cries for her, she says, that eye will watch over him, that hand will comfort him, that foot will rock his cradle, and that breast will go on feeding him until he is weaned.', "këmbën e djathtë të ma lini jashtë që ti përkund djepin, dhe gjirin e djathtë të ma lini jashtë që ta mëkoj kur të qajë."],
         ['4.6', 'Let the rest of her turn to stone, she says, so long as the castle stands.', "Gjiri im u nguroftë, kështjella jonë gjithmonë qëndroftë,"],
         ['4.7', 'And let her son grow into a hero great enough to rule the whole world, she asks.', "djali im trimëroftë, u bëftë mbret e mbretëroftë!"],
@@ -270,7 +303,7 @@ export default {
       lines: [
         ['5.1', 'The brothers do what they swore: they take her up and shut her into the wall, stone by stone.', "Vëllezërit e morën nusen e vogël dhe e muruan në themel të kështjellës."],
         ['5.2', 'This time nothing falls — the wall holds, and keeps climbing, course upon course.', "Muret u ngritën e u lartuan e nuk u shembën më as natë e as ditë."],
-        ['5.3', 'And they say that to this day, low on the castle wall, the stone still runs damp and green with mildew — the mother\'s tears for the son she left behind, never dry.', "Por, rrëzë mureve të kështjellës edhe sot e kësaj dite, gurët janë të lagur dhe plot myk nga lotët e gjiri i nuses së vogël që vazhdon të pikojë për birin e saj. [this Albanian names BOTH tears and milk/breast in one clause — see discrepancies]"],
+        ['5.3', 'And they say that to this day, low on the castle wall, the stone still runs damp and green with mildew — the mother\'s tears for the son she left behind, never dry.', 'Por, rrëzë mureve të kështjellës edhe sot e kësaj dite, gurët janë të lagur dhe plot myk nga lotët e gjiri i nuses së vogël që vazhdon të pikojë për birin e saj.', 'The Albanian names both tears and milk/breast in one clause; see discrepancies.'],
       ],
       cast: {
         rozafa: ['kalaja', 'sealed into the wall forever — eye, hand, foot and breast left free; her voice still answers from the stone'],
