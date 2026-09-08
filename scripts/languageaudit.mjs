@@ -15,7 +15,14 @@
 import { createHash } from 'node:crypto'
 import { ACHIEVEMENTS } from '../src/game/achievements.js'
 import { testFor } from '../src/game/comprehension.js'
-import { DICT, HEART_LEVELS, ITEMS, STORY, lineOf } from '../src/game/content.js'
+import {
+  DICT,
+  HEART_LEVELS,
+  ITEMS,
+  STORY,
+  itemConfuserActionOf,
+  lineOf,
+} from '../src/game/content.js'
 import { REVIEWED_READINGS } from '../src/game/data/readings/reviewedReadings.js'
 import {
   attachReviewedOptionReadings,
@@ -156,11 +163,10 @@ for (const [address, phrase] of STATIC_ACTIONS) {
   assert(phrase.optionReading === review?.en, `${address}: static action English differs from registry`)
 }
 
-const liquidItems = new Set(['qumesht', 'potion', 'cajMali'])
 const dynamicConfuserReadings = []
 for (const [id, item] of Object.entries(ITEMS)) {
   if (item.companion || item.currency) continue
-  const reading = dynamicItemConfuserEnglish(item, liquidItems.has(id))
+  const reading = dynamicItemConfuserEnglish(item, itemConfuserActionOf(item))
   dynamicConfuserReadings.push(reading)
   assert(/^(?:Fight|Drink) .+[.]$/.test(reading), `dynamic item confuser is malformed for ${id}: ${reading}`)
   for (const issue of englishReadingIssues(reading))

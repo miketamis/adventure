@@ -1,6 +1,16 @@
 import { lazy, Suspense, useState, useEffect, useMemo, useRef } from 'react'
 import Token from './Token.jsx'
-import { STORY, ITEMS, HEART_LEVELS, w, wf, p, lineOf, visibleLines } from '../game/content.js'
+import {
+  STORY,
+  ITEMS,
+  HEART_LEVELS,
+  itemConfuserActionOf,
+  w,
+  wf,
+  p,
+  lineOf,
+  visibleLines,
+} from '../game/content.js'
 import {
   canAfford,
   canSpeak,
@@ -40,7 +50,6 @@ const QUOTE_TIER_LABEL = {
   oral: 'oral attribution',
 }
 
-const LIQUID_ITEMS = new Set(['qumesht', 'potion', 'cajMali']) // drinkable — don't "drink the X" them
 const formatRouteDuration = (hours) => {
   if (hours < 24) return `${hours}h`
   const days = Math.floor(hours / 24)
@@ -204,8 +213,9 @@ export default function StoryView({ state, dispatch }) {
     const hash = [...state.nodeId].reduce((a, c) => a + c.charCodeAt(0), 0)
     const featured = itemIds[hash % itemIds.length]
     const fw = ITEMS[featured].word || featured
-    const confuser = [LIQUID_ITEMS.has(featured) ? w('lufto') : w('pi'), w(fw)]
-    confuser.dynamicOptionReading = dynamicItemConfuserEnglish(ITEMS[featured], LIQUID_ITEMS.has(featured))
+    const confuserAction = itemConfuserActionOf(featured)
+    const confuser = [w(confuserAction === 'fight' ? 'lufto' : 'pi'), w(fw)]
+    confuser.dynamicOptionReading = dynamicItemConfuserEnglish(ITEMS[featured], confuserAction)
     itemConfusers.push(confuser)
   }
   const seenPhrase = new Set()

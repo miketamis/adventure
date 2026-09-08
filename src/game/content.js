@@ -13181,21 +13181,91 @@ export const ENDINGS = Object.values(STORY)
 // `use.phrase` is the Albanian you must "say" to use the item: every word must be
 // discovered and you must hold one training token per word, which are spent on use.
 // ---------------------------------------------------------------------------
+export const ITEM_KINDS = Object.freeze([
+  'currency',
+  'drink',
+  'food',
+  'tool',
+  'weapon',
+  'offering',
+  'quest-object',
+  'companion',
+])
+
+const ITEM_AFFORDANCES_BY_TAG = Object.freeze({
+  currency: Object.freeze(['spend']),
+  drink: Object.freeze(['drink']),
+  food: Object.freeze(['eat']),
+  tool: Object.freeze(['use']),
+  weapon: Object.freeze(['fight']),
+  offering: Object.freeze(['offer']),
+  'quest-object': Object.freeze(['carry']),
+  companion: Object.freeze(['accompany']),
+  herb: Object.freeze(['brew']),
+  ingredient: Object.freeze(['prepare']),
+  instrument: Object.freeze(['play']),
+  'light-source': Object.freeze(['illuminate']),
+})
+
+export const ITEM_TAGS = Object.freeze(Object.keys(ITEM_AFFORDANCES_BY_TAG))
+
+const itemRecordOf = (itemOrId) =>
+  typeof itemOrId === 'string' ? ITEMS[itemOrId] : itemOrId
+
+export const itemKindOf = (itemOrId) => itemRecordOf(itemOrId)?.kind || null
+
+export const itemHasTag = (itemOrId, tag) =>
+  itemRecordOf(itemOrId)?.tags?.includes(tag) || false
+
+export const itemAffordancesOf = (itemOrId) => {
+  const item = itemRecordOf(itemOrId)
+  if (!item) return Object.freeze([])
+  return Object.freeze([...new Set(
+    (item.tags || []).flatMap((tag) => ITEM_AFFORDANCES_BY_TAG[tag] || []),
+  )])
+}
+
+export const itemHasAffordance = (itemOrId, affordance) =>
+  itemAffordancesOf(itemOrId).includes(affordance)
+
+// A generated distractor must contradict what the featured item can actually
+// do. Drinks are therefore "fought"; every other carried object is "drunk".
+// Keeping that decision here prevents views and audits from growing item-id
+// allowlists as the inventory expands.
+export const itemConfuserActionOf = (itemOrId) =>
+  itemHasAffordance(itemOrId, 'drink') ? 'fight' : 'drink'
+
+// The reducer still reads the compact legacy `use.effect` object. New effect
+// consumers can use this adapter now, and items may move to explicit typed
+// `use.effects` arrays later without changing callers or duplicating effects.
+export const itemUseEffectsOf = (itemOrId) => {
+  const use = itemRecordOf(itemOrId)?.use
+  if (Array.isArray(use?.effects)) return use.effects
+  return Object.entries(use?.effect || {}).map(([legacyId, delta]) => Object.freeze({
+    type: 'resource',
+    id: legacyId === 'peakTurns' ? 'peak' : legacyId,
+    delta,
+  }))
+}
+
 export const ITEMS = {
   // --- MONEY — the lek. `currency: true` keeps it out of the "ti ke një X"
   // carry-line (a count, not a thing); the topbar shows the 🪙 purse instead.
   // Earned with work (the mill, the flock, mountain tea, a song on the lahuta),
   // spent at the market, the inn, the healer — an option's `lek: <n>` moves it.
   lek: {
-    id: 'lek', icon: '🪙', name: 'Lek', al: 'lek', word: 'lek', currency: true,
+    id: 'lek', icon: '🪙', name: 'Lek', al: 'lek', word: 'lek',
+    kind: 'currency', tags: ['currency'], currency: true,
     blurb: 'The coin of the country — named, the old people like to say, for Leka i Madh, Alexander the Great himself. Bread is five, a bed is twenty, and every lek of it is earned: the mill pays, the shepherd pays, the trader pays good money for mountain tea, and a song on the lahuta fills the cap.',
   },
   cajMali: {
     id: 'cajMali', icon: '🌿', name: 'Mountain tea', al: 'çaj mali', word: 'caj',
+    kind: 'drink', tags: ['drink', 'herb', 'quest-object'],
     blurb: 'Çaj mali — ironwort, the wild mountain tea of the high slopes, picked in the sun and dried in bundles. Every Albanian house brews it against colds and long winters, and the trader in living Gjakova pays ten lek a bundle for it.',
   },
   lahute: {
     id: 'lahute', icon: '🪕', name: 'Lahuta', al: 'lahutë', word: 'lahute',
+    kind: 'tool', tags: ['tool', 'instrument'],
     blurb: 'The one-stringed fiddle of the highland bards — carved from a single piece of maple, played on the knee while the lahutar half-sings, half-cries the songs of Muji and Halili. Sing with it where travellers rest and the listeners will pay a singer’s due.',
   },
   potion: {
@@ -13204,6 +13274,8 @@ export const ITEMS = {
     name: 'Potion',
     al: 'eliksir',
     word: 'eliksir',
+    kind: 'drink',
+    tags: ['drink'],
     blurb: 'Refreshes peak for 3 turns — hover a discovered Albanian word to see its English.',
     use: {
       label: 'Drink',
@@ -13216,6 +13288,8 @@ export const ITEMS = {
     icon: '🥛',
     name: "Zana's milk",
     al: 'qumësht',
+    kind: 'drink',
+    tags: ['drink', 'food', 'quest-object'],
     blurb: 'The mountain fairy’s milk. As the Zanas suckled the hero Mujo to make him stronger than a drangue, it has put a hero’s strength in you — enough to grapple even the Kulshedra bare-handed.',
   },
   bekim: {
@@ -13223,11 +13297,14 @@ export const ITEMS = {
     icon: '✨',
     name: "the Ora's blessing",
     al: 'bekim',
+    kind: 'quest-object',
+    tags: ['quest-object'],
     blurb: 'The blessing of the Ora you fed at your night-fire. A guest is sent by God, and the besa to feed a stranger is sacred above all — so the fate-spirit put her own strength in you, enough to meet even the Kulshedra bare-handed.',
   },
   // key items — carried, used by choosing the right path in the story
   buke: {
     id: 'buke', icon: '🍞', name: 'Bread', al: 'bukë',
+    kind: 'food', tags: ['food', 'quest-object'],
     blurb: 'A loaf from the old woman. Hunger walks the forest — bread can buy a friend or a passage. Eat it yourself to recover all your hearts — but then it is gone.',
     use: {
       label: 'Eat',
@@ -13237,34 +13314,42 @@ export const ITEMS = {
   },
   shpate: {
     id: 'shpate', icon: '⚔️', name: 'Sword', al: 'shpatë',
+    kind: 'weapon', tags: ['weapon', 'tool', 'quest-object'],
     blurb: 'Baba Tomor’s blade. The only steel that bites a Kulshedra — and it cuts a path past her guardian serpent.',
   },
   dem: {
     id: 'dem', icon: '🐂', name: 'White bull', al: 'dem',
+    kind: 'offering', tags: ['offering', 'quest-object'],
     blurb: 'The white bull, the offering the pilgrims still lead to the summit of Tomorr. It is the oldest gift the sky-father Zojz is owed — give it on the peak and no pride of yours will draw his thunderbolt.',
   },
   gur: {
     id: 'gur', icon: '🪨', name: 'Thunder-stone', al: 'gur',
+    kind: 'weapon', tags: ['weapon', 'tool', 'quest-object'],
     blurb: 'A strong stone — one lies loose at the dry well\'s rim, another where a Drangue fought the storm. In a caul-born hand any stone is a thunder-stone: hurled at the Kulshedra it strikes like lightning — a hidden ending. Dropped down the dry well, it sounds the dark.',
   },
   pishtar: {
     id: 'pishtar', icon: '🔦', name: 'Torch', al: 'pishtar',
+    kind: 'tool', tags: ['tool', 'light-source', 'quest-object'],
     blurb: 'A brand pulled from the big campfire in the forest clearing. The drowned cavern under the well is pitch dark — this is the only light that walks with you.',
   },
   kripe: {
     id: 'kripe', icon: '🧂', name: 'Salt', al: 'kripë',
+    kind: 'food', tags: ['food', 'ingredient', 'quest-object'],
     blurb: 'Salt carried for an old trick: thrown in a Kulshedra’s many eyes it blinds her, and stirred into water it can pass for tears before a sea-monster.',
   },
   zogShqiponje: {
     id: 'zogShqiponje', icon: '🐣', name: 'Rescued eaglet', al: 'zog shqiponje', word: 'zog',
+    kind: 'quest-object', tags: ['quest-object'],
     blurb: 'The chick you saved from the serpent and carried down from its nest. Its mother shadows the road and asks for her child back.',
   },
   shpataKordhes: {
     id: 'shpataKordhes', icon: '⚔️', name: "Kordha's sword", al: 'shpata e Kordhës', word: 'shpate',
+    kind: 'weapon', tags: ['weapon', 'quest-object'],
     blurb: 'Kordha keeps his life in this sword. The blade makes his secret a thing you carry—and a thing a treacherous listener could steal.',
   },
   mish: {
     id: 'mish', icon: '🍖', name: 'Meat', al: 'mish',
+    kind: 'food', tags: ['food', 'quest-object'],
     blurb: 'Meat from the Kulshedra’s larder. The eagle will only carry you up if it is fed.',
   },
   // companions — tracked like items, but they walk WITH you: they render as their own
@@ -13272,18 +13357,22 @@ export const ITEMS = {
   // them with requires:'<id>'. No `use` — you never spend a companion.
   ujk: {
     id: 'ujk', icon: '🐺', name: 'Wolf', al: 'ujku', word: 'ujk', companion: true,
+    kind: 'companion', tags: ['companion'],
     blurb: 'The wolf you shared your bread with — but the old people say a wolf may be a drangue in disguise, one of the storm-heroes hidden in beast-shape. It walks at your side now, and the bread you broke with it binds a besa deeper than the drought.',
   },
   shqiponja: {
     id: 'shqiponja', icon: '🦅', name: 'Eagle', al: 'shqiponja', word: 'shqiponje', companion: true,
+    kind: 'companion', tags: ['companion'],
     blurb: 'The great eagle whose chicks you saved from the nest-serpent. By the old law of the grateful beast it owes you its wings — trapped at the bottom of the world, call and it will come, as it bore the Scurfhead up out of the underworld.',
   },
   vajza: {
     id: 'vajza', icon: '👧', name: 'Maiden', al: 'vajza', word: 'vajze', companion: true,
+    kind: 'companion', tags: ['companion'],
     blurb: 'The queen’s daughter, promised to the Sun and carried home on a stag’s antlers. She walks beside you now — take her to the black palace and let her knock on her mother’s door.',
   },
   ora: {
     id: 'ora', icon: '✨', name: 'Ora', al: 'Ora', word: 'ora', companion: true,
+    kind: 'companion', tags: ['companion'],
     blurb: 'Your Ora — the fate-spirit born with you, e Bardha, the White One. Unseen, she walks at your side and turns aside what would harm you. Every Albanian is born with an Ora; few ever see their own. You braved the Lugat’s night, and yours stepped into the light to walk with you.',
   },
 }

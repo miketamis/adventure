@@ -89,11 +89,13 @@ export function optionEnglishReadingOf(tokens) {
 // The action is constrained to one verb plus one known item, so the audit can
 // exhaust every possible rendering without pretending these generated traps
 // received the same address-pinned review as static story actions.
-export function dynamicItemConfuserEnglish(item, fight) {
+export function dynamicItemConfuserEnglish(item, action) {
   const name = String(item?.name || '').trim()
   if (!name) throw new Error('Dynamic item confuser has no item name')
+  if (!['drink', 'fight'].includes(action))
+    throw new Error(`Dynamic item confuser has unsupported action: ${action}`)
   const object = /^(?:a|an|the)\b/i.test(name)
     ? name
     : `the ${name[0].toLocaleLowerCase('en')}${name.slice(1)}`
-  return `${fight ? 'Fight' : 'Drink'} ${object}.`
+  return `${action === 'fight' ? 'Fight' : 'Drink'} ${object}.`
 }
