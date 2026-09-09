@@ -56,6 +56,11 @@ check('Albanian learning surfaces declare their language to assistive technology
   dictionary.includes('className="dict-word" lang="sq"') &&
   comprehension.includes('className="comp-al" lang="sq"'))
 check('keyboard focus exposes the same word hint as hover', token.includes('onFocus={() => setShowHint(true)}') && token.includes('role="tooltip"'))
+check('saved-word hints reuse dictionary definitions without nested controls',
+  token.includes('const definition = DEFS[token.id]') &&
+  token.includes('<StaticDefinition tokens={definition} discovered={discovered} />') &&
+  token.includes('className="static-definition"') &&
+  !token.includes('<button key={index}'))
 check('word activation cannot accidentally choose its option', token.includes('event.stopPropagation()'))
 check('story is a labelled region and focuses a changed scene', story.includes('aria-labelledby="story-scene-title"') && story.includes('sceneHeadingRef.current?.focus()'))
 check('whole-line story English is debug-only while word controls remain available',

@@ -29,7 +29,8 @@ npm run certify  # all strict declared-scope certification gates
 - **Discover**: click any word to discover that *sense*. Discovered words render
   in Albanian everywhere they appear (`ti` → `ti`). You can never undiscover.
 - **Hover hints**: hovering an *undiscovered* word shows its Albanian. Hovering
-  or clicking a discovered word replays its Albanian pronunciation.
+  or focusing a discovered word shows its tokenised Albanian dictionary
+  definition; hovering or clicking also replays its pronunciation.
 - **Train** (`🎯`): multiple-choice on your discovered words (Albanian→English or
   English→Albanian). Each correct answer mints a **training token** (◆, your mana)
   for that word.

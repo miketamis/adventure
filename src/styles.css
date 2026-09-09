@@ -392,6 +392,24 @@ svg [role="button"]:focus-visible {
   pointer-events: none;
   z-index: 5;
 }
+.definition-tooltip {
+  width: max-content;
+  max-width: min(380px, calc(100vw - 32px));
+  padding: 7px 10px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: normal;
+  text-align: left;
+}
+.definition-tooltip .token {
+  min-height: 0;
+  margin: 0 1px;
+  padding: 0 2px;
+}
+.definition-tooltip .token.gloss {
+  cursor: default;
+}
 
 /* ---------- options ---------- */
 .options { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; }
