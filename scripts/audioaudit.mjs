@@ -35,6 +35,9 @@ for (const file of byFile.keys()) {
 }
 
 const stale = [...files].filter((file) => !byFile.has(file)).sort()
+for (const expectedTrainSurface of ['qëndro', 'fillojmë', 'arritur', 'shqetësohu']) {
+  assert.ok(surfaces.includes(expectedTrainSurface), `${expectedTrainSurface}: standalone Train form escaped audio coverage`)
+}
 assert.deepEqual(collisions, [],
   `distinct pronunciation surfaces share a filename: ${collisions.map(([file, group]) => `${file}: ${group.join(' / ')}`).join(', ')}`)
 assert.deepEqual(missing, [],

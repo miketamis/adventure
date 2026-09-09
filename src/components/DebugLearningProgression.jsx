@@ -16,6 +16,7 @@ import {
 import {
   TRAIN_EXERCISE_EXAMPLES,
   TRAIN_EXERCISE_FAMILIES,
+  TRAIN_NOUN_ENDING_CORRECTION_POLICY,
   TRAIN_QUESTION_MIX_POLICY,
   TRAIN_SCHEDULER_SAFEGUARDS,
   debugLearningLanes,
@@ -167,6 +168,8 @@ function StageCard({ stage, definitions, focuses }) {
   const typeDetails = [definition.mode, definition.typeScope, definition.answerTolerance]
     .filter(Boolean).join(' · ')
   const repair = definition.remediation
+  const opensNounEndingSheet = TRAIN_NOUN_ENDING_CORRECTION_POLICY.phraseProductionStages
+    .includes(definition)
   return (
     <li className={`dbg-learning-card ${status}`} data-stage-id={definition.id}>
       <span className={`dbg-learning-status ${status}`}>{status}</span>
@@ -199,6 +202,11 @@ function StageCard({ stage, definitions, focuses }) {
           miss → {repair.mode || 'earlier support'}{repair.afterDisjointRound ? ' after another-word round' : ''}
         </span>
       )}
+      {opensNounEndingSheet && (
+        <span className="dbg-learning-branch" data-noun-ending-branch="exact-reviewed-form">
+          noun-ending miss → immediate exact-form sheet; scheduled support still waits for the disjoint round
+        </span>
+      )}
       <div className="dbg-learning-evidence"><b>Selected checkpoint:</b> {evidenceText(evidence)}</div>
     </li>
   )
@@ -220,7 +228,10 @@ function WordFamilyCard({ family, status = 'locked', statusLabel }) {
         )
       })}
       {family.kind === 'forms-correction' && (
-        <div className="dbg-learning-evidence">Appears only after the noun-form answer is wrong; it does not cost another quiz round.</div>
+        <div className="dbg-learning-evidence">
+          Appears after a wrong noun-role choice, or after typed word/phrase production changes a reviewed noun ending.
+          It explains the exact form immediately and does not cost another quiz round.
+        </div>
       )}
     </li>
   )
@@ -233,8 +244,8 @@ function WordLane({ rewardCount }) {
   return (
     <section className="dbg-learning-lane" aria-labelledby="dbg-learning-word-lane">
       <header className="dbg-learning-lane-head">
-        <h3 id="dbg-learning-word-lane">Word and noun-form practice</h3>
-        <p>The noun-form unlock is a real word-evidence path; context and correction are explicitly separate branches.</p>
+        <h3 id="dbg-learning-word-lane">Word and form practice</h3>
+        <p>The form unlock is a real word-evidence path. This example is a noun, so its exact role correction is a separate branch.</p>
       </header>
       <ol className="dbg-learning-flow">
         <WordFamilyCard family={TRAIN_EXERCISE_FAMILIES.wordMeaning} status="passed" statusLabel="entry condition" />
@@ -245,7 +256,7 @@ function WordLane({ rewardCount }) {
           <div className="dbg-learning-evidence"><b>Rule:</b> noun forms unlock after {FORMS_UNLOCK_THRESHOLD} correct rounds that reward <span lang="sq">fshat</span>.</div>
         </li>
         <WordFamilyCard
-          family={TRAIN_EXERCISE_FAMILIES.nounForms}
+          family={TRAIN_EXERCISE_FAMILIES.wordForms}
           status={formsReady ? 'current' : 'locked'}
           statusLabel={formsReady ? 'unlocked' : 'unlocks next'}
         />

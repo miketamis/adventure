@@ -320,7 +320,7 @@ export default function App() {
           {state.debug && state.view === 'map' && <AtlasView state={state} />}
           {state.view === 'endings' && <AchievementsView state={state} dispatch={dispatch} />}
           {state.view === 'guide' && <GuideView />}
-          {state.view === 'debug' && <DebugView state={state} dispatch={dispatch} />}
+          {state.debug && state.view === 'debug' && <DebugView state={state} dispatch={dispatch} />}
 
           {/* debug minimap: the world map docked right, expandable to full screen.
               Hidden on the Debug tab, where the same map already fills the page. */}

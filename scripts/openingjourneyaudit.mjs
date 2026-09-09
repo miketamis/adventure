@@ -64,6 +64,17 @@ const beginFollow = () => {
 }
 
 {
+  let state = opening()
+  state = choose(state, 'bisedaUraPlan')
+  state = choose(state, 'bisedaFollowAgree')
+  assert.doesNotMatch(visibleText(state), /qëndro/, 'agreeing to follow still tells the player to wait before leaving')
+  state = choose(state, 'bisedaShesh')
+  assert.match(visibleText(state), /Elira/, 'the bridge narration forgot Elira’s learned name')
+  state = choose(state, 'bisedaShesh', (option) => option.to === 'bisedaShesh')
+  assert.match(visibleText(state), /Elira/, 'Elira became an unnamed pronoun while waiting across the bridge')
+}
+
+{
   let state = beginFollow()
   state = choose(state, 'fshatiLumi')
   assert.equal(state.clock, START_CLOCK + 1)
@@ -125,7 +136,13 @@ for (const [arrivalClock, expected] of [[28, 'late'], [31, 'missed']]) {
   state = choose(state, 'fshatiSheshi')
   assert.equal(state.rendezvous.eliraSquare.outcome, expected, `${expected} appointment reaction drifted`)
   state = choose(state, 'eliraShesh')
-  assert.match(visibleText(state), expected === 'late' ? /u vonove.*prita/ : /u vonove kaq shumë.*prita/)
+  assert.match(
+    visibleText(state),
+    expected === 'late'
+      ? /u vonove.*prita/
+      : /u vonove kaq shumë.*mendova se kishim një takim/,
+  )
+  assert.match(visibleText(state), /a mund të më ndihmosh/, `${expected} arrival offers help without first asking for it`)
 }
 
 {

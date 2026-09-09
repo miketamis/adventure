@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { DICT, frequentForms, splitStem } from '../game/content.js'
-import { formsUnlocked } from '../game/gameState.js'
+import { DICT, splitStem } from '../game/content.js'
+import { formTrackForSense, formsUnlocked, trainingForms } from '../game/formInventory.js'
 import { practiceReturnOption } from '../game/practiceReturn.js'
 import { playWord } from '../game/audio.js'
 import {
@@ -12,7 +12,10 @@ import {
   EVERYDAY_CORE_SENSE_SET,
   EVERYDAY_PHRASE_DRILLS,
 } from '../game/everydayAlbanian.js'
-import { buildNounEndingRefresher } from '../game/nounEndingRefresher.js'
+import {
+  buildNounEndingRefresher,
+  phraseNounEndingRefresher,
+} from '../game/nounEndingRefresher.js'
 import {
   TRAIN_EXERCISE_FAMILIES,
   TRAIN_QUESTION_MIX_POLICY,
@@ -137,12 +140,11 @@ function buildQuestion(discoveredIds, mana, excludeWords = []) {
   }
 }
 
-// An "endings" question, unlocked once a word has been practiced enough. The word
-// appears INFLECTED (e.g. bijën). Step 1: which word is it? (options are OTHER
-// words' glosses). Step 2: what does the ending do? (options are THIS word's own
-// form glosses — "a daughter" / "the daughter" / "the daughter (object)").
+// A reviewed-form question, unlocked once a word has been practiced enough.
+// Every word class can ask which sense an attested surface belongs to. Canonical
+// nouns add a second grammatical-role step and retain their targeted refresher.
 function buildFormsQuestion(answerId, discoveredIds, excludeWords = [], formPracticed = {}) {
-  const forms = frequentForms(answerId) // lemma row first, then every reviewed form
+  const forms = trainingForms(answerId) // lemma row first, then every reviewed form
   const lemma = DICT[answerId].al.toLowerCase()
   const inflected = forms.filter((f) =>
     f.al.toLowerCase() !== lemma && !containsExcludedPhraseWord(f.al, excludeWords),
@@ -163,7 +165,7 @@ function buildFormsQuestion(answerId, discoveredIds, excludeWords = [], formPrac
     if (usedText.has(text)) continue
     usedText.add(text)
     distractors.push(id)
-    if (distractors.length === TRAIN_EXERCISE_FAMILIES.nounForms.choiceDistractors) break
+    if (distractors.length === TRAIN_EXERCISE_FAMILIES.wordForms.choiceDistractors) break
   }
 
   // step 2 options: this word's OWN form glosses, deduped on identical text (so two
@@ -177,9 +179,10 @@ function buildFormsQuestion(answerId, discoveredIds, excludeWords = [], formPrac
   }
 
   return {
-    kind: TRAIN_EXERCISE_FAMILIES.nounForms.kind,
+    kind: TRAIN_EXERCISE_FAMILIES.wordForms.kind,
     answerId,
     surface: target.al,
+    ...formTrackForSense(answerId),
     lexicalSurfaces: [DICT[answerId].al, target.al],
     step1: { options: shuffle([answerId, ...distractors]) },
     step2: { options: shuffle(glosses), answer: target.gloss },
@@ -250,11 +253,11 @@ export default function PracticeView({ state, dispatch }) {
         return
       }
     }
-    // words whose "endings" drill has unlocked; occasionally quiz one of them
+    // words whose reviewed-form drill has unlocked; occasionally quiz one
     const eligible = discoveredIds.filter((id) =>
       formsUnlocked(state, id) &&
       !containsExcludedPhraseWord(DICT[id].al, excludeWords) &&
-      frequentForms(id).some((form) =>
+      trainingForms(id).some((form) =>
         form.al.toLocaleLowerCase('sq') !== DICT[id].al.toLocaleLowerCase('sq') &&
         !containsExcludedPhraseWord(form.al, excludeWords),
       ),
@@ -318,8 +321,20 @@ export default function PracticeView({ state, dispatch }) {
   nextRef.current = next
   const onPhraseComplete = useCallback((result) => {
     dispatch({ type: 'PRACTICE_PHRASE_RESULT', ...result })
+    const guide = phraseNounEndingRefresher(q, result)
+    if (guide) {
+      setTimeout(() => setFormsCorrection({
+        kind: TRAIN_WORD_FORM_POLICY.correction.kind,
+        guide,
+        stage: 'phrase-production',
+        chosen: result.diagnostic.answerSurface || 'a different form',
+        lemma: DICT[result.diagnostic.focusId].al,
+        meaning: senseText(result.diagnostic.focusId, 'en'),
+      }), 2800)
+      return
+    }
     setTimeout(() => nextRef.current?.(), result.correct ? 1900 : 2800)
-  }, [dispatch])
+  }, [dispatch, q])
 
   useEffect(() => {
     if (!q && discoveredIds.length > 0) next()
@@ -368,7 +383,7 @@ export default function PracticeView({ state, dispatch }) {
     )
   }
 
-  const isForms = q.kind === TRAIN_EXERCISE_FAMILIES.nounForms.kind
+  const isForms = q.kind === TRAIN_EXERCISE_FAMILIES.wordForms.kind
   const isEverydayPhrase = q.kind === TRAIN_EXERCISE_FAMILIES.phrase.kind
   // what a correct pick equals depends on the question kind and (for forms) the step
   const correctValue = isForms ? (step === FORM_IDENTIFY_LEMMA.step ? q.answerId : q.step2.answer) : q.answerId
@@ -382,7 +397,7 @@ export default function PracticeView({ state, dispatch }) {
     const correct = value === correctValue
 
     if (isForms) {
-      playWord(q.surface) // speak the INFLECTED surface, not the lemma
+      playWord(q.surface) // speak the reviewed surface, not the lemma
       if (step === FORM_IDENTIFY_LEMMA.step) {
         // identify-the-word: real stakes, exactly like a normal question
         if (correct) {
@@ -391,11 +406,21 @@ export default function PracticeView({ state, dispatch }) {
             id: q.answerId,
             completeRound: false,
           })
-          setTimeout(() => {
-            answerCommitted.current = false
-            setPicked(null)
-            setStep(FORM_IDENTIFY_JOB.step)
-          }, 1100) // reveal, then drill the ending
+          if (q.hasNounRoleStep) {
+            setTimeout(() => {
+              answerCommitted.current = false
+              setPicked(null)
+              setStep(FORM_IDENTIFY_JOB.step)
+            }, 1100) // reveal, then drill the noun's grammatical job
+          } else {
+            dispatch({
+              type: 'PRACTICE_FORM_CORRECT',
+              id: q.answerId,
+              formSurface: q.surface,
+              wordKeys: trainQuestionWordKeys(q),
+            })
+            setTimeout(next, 1200)
+          }
         } else {
           dispatch({
             type: 'PRACTICE_WRONG',
@@ -403,7 +428,9 @@ export default function PracticeView({ state, dispatch }) {
             formId: q.answerId,
             formSurface: q.surface,
           })
-          const guide = buildNounEndingRefresher(q.answerId, q.surface, q.step2.answer)
+          const guide = q.hasNounRoleStep
+            ? buildNounEndingRefresher(q.answerId, q.surface, q.step2.answer)
+            : null
           if (guide) {
             setTimeout(() => setFormsCorrection({
               kind: TRAIN_WORD_FORM_POLICY.correction.kind,
@@ -429,7 +456,9 @@ export default function PracticeView({ state, dispatch }) {
           setTimeout(next, 1200)
         } else {
           dispatch({ type: 'TRAIN_ROUND_COMPLETE', wordKeys: trainQuestionWordKeys(q) })
-          const guide = buildNounEndingRefresher(q.answerId, q.surface, q.step2.answer)
+          const guide = q.hasNounRoleStep
+            ? buildNounEndingRefresher(q.answerId, q.surface, q.step2.answer)
+            : null
           if (guide) {
             setTimeout(() => setFormsCorrection({
               kind: TRAIN_WORD_FORM_POLICY.correction.kind,
@@ -455,7 +484,8 @@ export default function PracticeView({ state, dispatch }) {
     setTimeout(next, correct ? 1200 : 2000)
   }
 
-  // for a forms question, split the shown surface so its ending renders faded
+  // Split the shown surface for visual continuity. The prompt calls it a form;
+  // only the noun-specific role step and correction discuss an ending.
   const [formStem, formEnding] = isForms ? splitStem(q.answerId, q.surface) : ['', '']
 
   if (formsCorrection) {
@@ -470,6 +500,12 @@ export default function PracticeView({ state, dispatch }) {
               <>
                 You chose “{chosen}”. <b lang="sq">{guide.target.al}</b> belongs to{' '}
                 <b lang="sq">{lemma}</b> ({meaning}); this form means “{guide.target.learnerMeaning}”.
+              </>
+            ) : stage === 'phrase-production' ? (
+              <>
+                In that phrase you wrote “{chosen}”. The needed form was{' '}
+                <b lang="sq">{guide.target.al}</b> from <b lang="sq">{lemma}</b> ({meaning});
+                here it means “{guide.target.learnerMeaning}”.
               </>
             ) : (
               <>
@@ -559,7 +595,7 @@ export default function PracticeView({ state, dispatch }) {
         {isForms
           ? step === FORM_IDENTIFY_LEMMA.step
             ? 'What does this word mean?'
-            : 'What does the ending do here?'
+            : 'What grammatical job does this noun form have here?'
           : q.kind === TRAIN_EXERCISE_FAMILIES.wordContext.kind
           ? 'What does the highlighted word mean here?'
           : q.dir === WORD_ALBANIAN_TO_ENGLISH.id
@@ -616,7 +652,9 @@ export default function PracticeView({ state, dispatch }) {
           (isForms
             ? step === FORM_IDENTIFY_LEMMA.step
               ? wasCorrect
-                ? `✓ “${q.surface}” is ${senseText(q.answerId, 'en')} — now, what does the ending add?`
+                ? q.hasNounRoleStep
+                  ? `✓ “${q.surface}” is ${senseText(q.answerId, 'en')} — now, what job does this noun form have?`
+                  : `✓ “${q.surface}” is a reviewed form of ${senseText(q.answerId, 'en')}`
                 : `💔 −1 heart · “${q.surface}” is ${senseText(q.answerId, 'en')}`
               : wasCorrect
               ? `✨ nuance! “${q.surface}” = ${q.step2.answer}`

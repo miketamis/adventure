@@ -2,9 +2,10 @@ import {
   START_NODE,
   STORY,
   WORLD_HUB,
+  DICT,
+  FORM_FREQ,
   HEART_LEVELS,
   ITEMS,
-  frequentForms,
   itemHasAffordance,
   itemHasTag,
 } from './content.js'
@@ -531,14 +532,9 @@ export function timePassageForOption(
   }
 }
 
-// How many correct practices of a word before its "endings" drill unlocks. `mana`
+// How many correct practices of a word before its reviewed-form drill unlocks. `mana`
 // is spent on story choices, so a separate monotonic `practiced` counter tracks it.
 export const FORMS_UNLOCK_THRESHOLD = TRAIN_WORD_FORM_POLICY.practiceWinsRequired
-// A word enters endings mode once it's been practiced enough AND it has a forms
-// table with at least two frequently-used forms (so step 2 is never a one-option
-// question). The lemma row always counts, so ≥2 means ≥1 real inflected form.
-export const formsUnlocked = (state, id) =>
-  (state.practiced?.[id] || 0) >= FORMS_UNLOCK_THRESHOLD && frequentForms(id).length >= 2
 
 // ---------------------------------------------------------------------------
 // Persistence: the WHOLE game state is saved to localStorage on every change,
@@ -650,13 +646,29 @@ const productionTierRecord = (value) => Object.fromEntries(
 const normalizedTrainWords = (values) => [...new Set(
   (Array.isArray(values) ? values : []).flatMap((value) => phraseSurfaceWordKeys(value)),
 )].slice(0, 100)
+
+// These are the few reviewed non-lemma surfaces produced only by generated
+// environment/health prose rather than authored STORY/ITEM lines. Keep this
+// core-state allow-list tiny: the complete training catalogue is lazy-loaded
+// with Train, while `inflectionpolicyaudit.mjs` independently proves this list
+// equals the generated-only surface delta.
+export const REVIEWED_GENERATED_FORM_SURFACES = Object.freeze({
+  vere: Object.freeze(['vere']),
+  pranvere: Object.freeze(['pranvere']),
+  vjeshte: Object.freeze(['vjeshte']),
+  dimer: Object.freeze(['dimri']),
+})
+
 const reviewedFormPracticeKey = (state, id, surface) => {
   if (!safeMapKey(id) || !state.discovered[id] || typeof surface !== 'string') return null
   const normalized = surface.normalize('NFC').toLocaleLowerCase('sq')
-  const form = frequentForms(id).find((candidate) =>
+  if (!normalized || normalized.length > 100) return null
+  const authored = FORM_FREQ[id]?.has(normalized)
+  const paradigm = DICT[id]?.forms?.some((candidate) =>
     candidate.al.normalize('NFC').toLocaleLowerCase('sq') === normalized,
   )
-  return form ? formPracticeKey(id, form.al) : null
+  const generated = REVIEWED_GENERATED_FORM_SURFACES[id]?.includes(normalized)
+  return authored || paradigm || generated ? formPracticeKey(id, surface) : null
 }
 const subtractCountRecords = (value, suspended) => {
   const next = {}
@@ -912,10 +924,10 @@ export function normalizeSavedState(saved, fresh) {
     ? [...new Set(saved.trail.filter((id) => STORY[id] && id !== next.nodeId))].slice(0, TRAIL_LEN)
     : []
   const savedView = saved.view === 'achievements' ? 'endings' : VIEWS.has(saved.view) ? saved.view : fresh.view
-  // The atlas is an authoring/debug instrument, not a player destination.
-  // Old saves made while it was public must resume in the story unless that
-  // same save explicitly has debug mode enabled.
-  next.view = savedView === 'map' && saved.debug !== true ? fresh.view : savedView
+  // The atlas and diagnostic screen are authoring/debug instruments, not
+  // player destinations. Old saves made while either was public must resume
+  // in the story unless that same save explicitly has debug mode enabled.
+  next.view = ['map', 'debug'].includes(savedView) && saved.debug !== true ? fresh.view : savedView
   // Ending state is a property of the current canonical scene, never a second
   // caller-controlled truth that can disagree with it after a partial write.
   const savedEnding = ['good', 'bad', 'secret'].includes(saved.ended) ? saved.ended : null
@@ -1734,7 +1746,7 @@ export function reducer(state, action) {
       return {
         ...state,
         mana: { ...state.mana, [action.id]: (state.mana[action.id] || 0) + 1 },
-        // monotonic (never spent) — this is what unlocks a word's endings drill
+        // monotonic (never spent) — this is what unlocks reviewed-form practice
         practiced: { ...state.practiced, [action.id]: (state.practiced?.[action.id] || 0) + 1 },
         trainRound: (state.trainRound || 0) + (completeRound ? 1 : 0),
         trainLastWords: completeRound ? normalizedTrainWords(action.wordKeys) : state.trainLastWords,
@@ -1948,7 +1960,7 @@ export function reducer(state, action) {
     case 'SET_VIEW':
       // UI gating is not a sufficient boundary: stale saves and manually
       // dispatched actions must not be able to render the atlas in normal play.
-      if (action.view === 'map' && !state.debug) {
+      if (['map', 'debug'].includes(action.view) && !state.debug) {
         return state.view === 'story' && !state.practiceTarget
           ? state
           : { ...state, view: 'story', practiceTarget: null }
@@ -1961,9 +1973,9 @@ export function reducer(state, action) {
       return {
         ...state,
         debug,
-        // Leaving debug from the atlas returns to the playable story instead
-        // of leaving an invisible or briefly exposed debug-only surface.
-        view: !debug && state.view === 'map' ? 'story' : state.view,
+        // Leaving debug from either diagnostic surface returns to playable
+        // story instead of stranding normal play on a hidden tab.
+        view: !debug && ['map', 'debug'].includes(state.view) ? 'story' : state.view,
       }
     }
 
@@ -1976,7 +1988,7 @@ export function reducer(state, action) {
       for (const id of action.ids || []) {
         discovered[id] = true
         if ((mana[id] || 0) < 1) mana[id] = 1
-        // also cross the endings-drill threshold so granted words are testable
+        // also cross the form-practice threshold so granted words are testable
         if ((practiced[id] || 0) < FORMS_UNLOCK_THRESHOLD) practiced[id] = FORMS_UNLOCK_THRESHOLD
       }
       return { ...state, discovered, mana, practiced }

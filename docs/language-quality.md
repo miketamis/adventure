@@ -149,6 +149,34 @@ same spelling, the role table keeps both but a context-free spelling question
 shows that surface only once; pretending the learner could distinguish two
 identical answers without sentence context would be an invalid quiz.
 
+Nounhood is classified independently in `nounRegistry.js`; it is never inferred
+from the presence of a row in `nounForms.js`. Each declared noun sense must be
+in exactly one of two auditable states: a complete reviewed paradigm, or an
+explicit backlog group. Backlogged nouns may retain already attested changing
+surfaces in the ordinary form-recognition track, but they cannot enter the
+noun-role quiz or ending refresher until their full paradigm has been reviewed.
+`node scripts/nounparadigmaudit.mjs --backlog` prints every outstanding sense,
+including separate groups for lemma/surface reconciliation and proper names.
+This keeps incomplete coverage visible instead of mislabelling those nouns as
+unchanging words or quietly overstating suffix coverage.
+
+Non-noun morphology uses a deliberately narrower first floor. Every changed
+surface explicitly authored with `wf(id, surface, gloss)` in playable story,
+choice, item, health, or generated environment/purse language is a reviewed
+declaration for that exact dictionary sense and is reachable in Train. Verbs,
+adjectives and pronouns first ask the learner to recognize which word/sense the
+form belongs to; they never receive the noun-only case/definiteness refresher.
+`inflectionpolicyaudit.mjs` independently reconstructs those sources—including
+the complete finite environment state space—and rejects either a source that
+the shared Train inventory omits or a non-noun routed through noun remediation.
+
+This is attested-playable coverage, not a claim that every verb now has a full
+conjugation or every adjective/pronoun a complete paradigm. Expanding those
+tables requires reviewed grammatical tags and example contexts. The retired
+`gen_forms.mjs` tried to infer noun cases from spelling and English glosses; it
+misclassified verbs, pronouns and adjectives and could fabricate paradigms, so
+neither it nor its stale generated output is part of the project anymore.
+
 ## Comprehension safety
 
 The achievement gate never constructs an English sentence by concatenating

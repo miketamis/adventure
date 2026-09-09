@@ -31,8 +31,20 @@ const internationalPhone = /(?<![\w/.-])(?:\+|00)\d{1,3}[\s.-](?:\d[\s.-]*){7,}/
 const textExtensions = /\.(?:c?js|mjs|jsx|json|md|txt|css|html|svg|yml|yaml)$/i
 const leaks = []
 
+const trackedContents = async (file) => {
+  try {
+    return await readFile(new URL(`../${file}`, import.meta.url), 'utf8')
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error
+    // A tracked file can be absent while its deletion is still unstaged. Read
+    // the index copy so the pre-commit audit remains useful during that state;
+    // once the deletion is staged, `git ls-files` no longer lists the path.
+    return execFileSync('git', ['show', `:${file}`], { cwd: root, encoding: 'utf8' })
+  }
+}
+
 for (const file of tracked.filter((name) => textExtensions.test(name))) {
-  const contents = await readFile(new URL(`../${file}`, import.meta.url), 'utf8')
+  const contents = await trackedContents(file)
   if (exportTimestamp.test(contents) || internationalPhone.test(contents)) leaks.push(file)
 }
 

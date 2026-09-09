@@ -131,18 +131,29 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
       q.phraseIds,
       q.target.al,
       false,
-      correct ? null : { kind: 'word', focusId: q.focusId },
+      correct ? null : {
+        kind: 'word',
+        focusId: q.focusId,
+        expectedSurface: q.correctWord,
+        answerSurface: tile.text,
+      },
     )
   }
 
   const checkTyping = (event) => {
     event.preventDefault()
     if (!typed.trim()) return
-    const result = phraseAnswerResult(typed, q.typingAnswer, q.answerTolerance)
+    const result = phraseAnswerResult(typed, q.typingAnswer, q.answerTolerance, q)
     const diagnostic = result.correct
       ? null
       : q.typeScope === 'word'
-        ? { kind: 'word', focusId: q.focusId }
+        ? {
+            kind: 'word',
+            focusId: q.focusId,
+            expectedSurface: q.typingAnswer,
+            expectedTag: q.expectedNounFormTag || null,
+            answerSurface: typed.trim(),
+          }
         : phraseAnswerDiagnostic(typed, q.typingAnswer, q.target)
     commit(result.correct, q.phraseIds, q.typingAnswer, result.usedLeeway, diagnostic)
   }

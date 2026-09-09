@@ -21,11 +21,11 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
     id: 'word-context', kind: 'ctx', label: 'Meaning in context', role: 'parallel', choiceDistractors: 3,
     variants: [{ id: 'highlighted-sense', label: 'Highlighted sense in a complete phrase' }],
   },
-  nounForms: {
-    id: 'noun-forms', kind: 'forms', label: 'Noun forms', role: 'parallel', choiceDistractors: 3,
+  wordForms: {
+    id: 'word-forms', kind: 'forms', label: 'Word forms', role: 'parallel', choiceDistractors: 3,
     variants: [
-      { id: 'identify-lemma', step: 1, label: 'Inflected form → word meaning' },
-      { id: 'identify-job', step: 2, label: 'Inflected form → grammatical job' },
+      { id: 'identify-lemma', step: 1, label: 'Reviewed form → word meaning' },
+      { id: 'identify-job', step: 2, label: 'Noun form → grammatical job', nounOnly: true },
     ],
   },
   nounCorrection: {
@@ -57,8 +57,24 @@ export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
 
 export const TRAIN_WORD_FORM_POLICY = deepFreeze({
   practiceWinsRequired: 3,
-  steps: TRAIN_EXERCISE_FAMILIES.nounForms.variants,
+  steps: TRAIN_EXERCISE_FAMILIES.wordForms.variants,
   correction: TRAIN_EXERCISE_FAMILIES.nounCorrection,
+  nonNounCoverageFloor: 'reviewed playable surfaces only; no speculative conjugation generation',
+})
+
+// This is a derived view over the production ladder: every typed stage can
+// diagnose a noun-ending miss, while selection/listening exercises cannot.
+// The correction sheet is immediate feedback; the stage's existing
+// `remediation` object remains the sole source for the later backed-off quiz.
+export const TRAIN_NOUN_ENDING_CORRECTION_POLICY = deepFreeze({
+  phraseProductionStages: PHRASE_STAGE_DEFINITIONS.production
+    .filter((definition) => definition.mode === 'type'),
+  phraseModes: ['type'],
+  phraseScopes: ['word', 'phrase'],
+  diagnosticKind: 'word',
+  evidence: 'expected reviewed noun form plus a learner form that changes only that noun stem/ending',
+  immediateFeedback: TRAIN_EXERCISE_FAMILIES.nounCorrection.variants[0],
+  scheduledFollowUp: 'the same production stage remediation after a disjoint round',
 })
 
 export const TRAIN_SCHEDULER_SAFEGUARDS = deepFreeze({

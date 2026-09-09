@@ -22,6 +22,7 @@ import {
 import {
   TRAIN_EXERCISE_EXAMPLES,
   TRAIN_EXERCISE_FAMILIES,
+  TRAIN_NOUN_ENDING_CORRECTION_POLICY,
   TRAIN_QUESTION_MIX_POLICY,
   TRAIN_SCHEDULER_SAFEGUARDS,
   TRAIN_WORD_FORM_POLICY,
@@ -132,6 +133,25 @@ check('all stage cards expose truthful gates and exact pass/miss behavior', () =
   }
 })
 
+check('typed noun-ending correction is derived from the real production ladder', () => {
+  assert.deepEqual(
+    TRAIN_NOUN_ENDING_CORRECTION_POLICY.phraseProductionStages,
+    PHRASE_STAGE_DEFINITIONS.production.filter((definition) => definition.mode === 'type'),
+  )
+  assert.deepEqual(
+    TRAIN_NOUN_ENDING_CORRECTION_POLICY.phraseProductionStages.map(({ id }) => id),
+    ['focus-spelling', 'independent-production', 'strict-retention'],
+  )
+  assert.equal(TRAIN_NOUN_ENDING_CORRECTION_POLICY.diagnosticKind, 'word')
+  assert.equal(TRAIN_NOUN_ENDING_CORRECTION_POLICY.immediateFeedback.id, 'exact-paradigm')
+  assert.ok(TRAIN_NOUN_ENDING_CORRECTION_POLICY.phraseProductionStages.every(
+    (definition) => definition.remediation.afterDisjointRound,
+  ))
+  const component = read('src/components/DebugLearningProgression.jsx')
+  assert.match(component, /data-noun-ending-branch="exact-reviewed-form"/)
+  assert.match(component, /noun-ending miss → immediate exact-form sheet/)
+})
+
 check('word-form, mix and no-repeat policies are shared with the real builders', () => {
   assert.equal(FORMS_UNLOCK_THRESHOLD, TRAIN_WORD_FORM_POLICY.practiceWinsRequired)
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.noImmediateSharedWords, true)
@@ -142,7 +162,7 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   const practice = read('src/components/PracticeView.jsx')
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordMeaning/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordContext/)
-  assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.nounForms/)
+  assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordForms/)
   assert.match(practice, /TRAIN_WORD_FORM_POLICY\.correction\.kind/)
   assert.match(practice, /WORD_ALBANIAN_TO_ENGLISH\.id/)
   assert.match(practice, /TRAIN_QUESTION_MIX_POLICY\.phraseShare/)

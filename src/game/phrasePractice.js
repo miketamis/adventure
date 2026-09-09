@@ -13,6 +13,7 @@ import {
   phraseSkillTier,
 } from './phraseProgression.js'
 import { phraseProductionFocuses } from './phraseFocus.js'
+import { phraseNounOccurrences, phraseNounRole } from './phraseNounRoles.js'
 import { TRAIN_EXERCISE_FAMILIES, TRAIN_QUESTION_MIX_POLICY } from './trainingProgression.js'
 
 export { PHRASE_SKILL_MAX_TIER, phraseSkillTier } from './phraseProgression.js'
@@ -124,15 +125,45 @@ function beginnerNearMatch(answer, target) {
   return totalEdits > 0
 }
 
-export function phraseAnswerResult(answer, target, tolerance = 'strict') {
+const isReviewedNounAlternative = (id, answerSurface, expectedSurface) => {
+  if (!id || !answerSurface || !expectedSurface || DICT[id]?.formTrack !== 'noun') return false
+  // Missing ë/ç remains beginner orthography help even when the resulting
+  // letters happen to spell another reviewed case form (punë/pune).
+  if (beginnerWord(answerSurface) === beginnerWord(expectedSurface)) return false
+  const expected = normalizedWord(expectedSurface)
+  const answer = normalizedWord(answerSurface)
+  return [DICT[id].al, ...(DICT[id].forms || [])].some((form) => {
+    const surface = normalizedWord(typeof form === 'string' ? form : form.al)
+    return surface === answer && surface !== expected
+  })
+}
+
+export function hasReviewedNounFormSubstitution(answer, target, context = null) {
+  const answerWords = phraseWords(answer)
+  const targetWords = phraseWords(target)
+  if (answerWords.length !== targetWords.length) return false
+  const phrase = context?.phrase || context?.target
+  if (!phrase) return false
+
+  if (context?.typeScope === 'word') {
+    return isReviewedNounAlternative(context.focusId, answerWords[0], targetWords[0])
+  }
+
+  return phraseNounOccurrences(phrase).some(({ id, index }) =>
+    isReviewedNounAlternative(id, answerWords[index], targetWords[index]))
+}
+
+export function phraseAnswerResult(answer, target, tolerance = 'strict', context = null) {
   const canonical = normalizePhraseAnswer(answer) === normalizePhraseAnswer(target)
   if (canonical) return { correct: true, usedLeeway: false }
-  const beginner = tolerance === 'beginner' && beginnerNearMatch(answer, target)
+  const beginner = tolerance === 'beginner' &&
+    !hasReviewedNounFormSubstitution(answer, target, context) &&
+    beginnerNearMatch(answer, target)
   return { correct: beginner, usedLeeway: beginner }
 }
 
-export const phraseAnswerIsCorrect = (answer, target, tolerance = 'strict') =>
-  phraseAnswerResult(answer, target, tolerance).correct
+export const phraseAnswerIsCorrect = (answer, target, tolerance = 'strict', context = null) =>
+  phraseAnswerResult(answer, target, tolerance, context).correct
 
 export function phraseAnswerDiagnostic(answer, target, phrase) {
   const answerWords = phraseWords(answer).map(normalizedWord)
@@ -141,10 +172,19 @@ export function phraseAnswerDiagnostic(answer, target, phrase) {
     answerWords.length === targetWords.length &&
     [...answerWords].sort().join('\u0000') === [...targetWords].sort().join('\u0000')
   ) return { kind: 'order' }
-  const focuses = phraseProductionFocuses(phrase)
-  for (const focus of focuses) {
+  const diagnosticWords = [...phraseProductionFocuses(phrase), ...phraseNounOccurrences(phrase)]
+    .filter((entry, index, entries) => entries.findIndex((candidate) =>
+      candidate.id === entry.id && candidate.index === entry.index) === index)
+    .sort((left, right) => left.index - right.index)
+  for (const focus of diagnosticWords) {
     if (answerWords[focus.index] !== normalizedWord(focus.word)) {
-      return { kind: 'word', focusId: focus.id }
+      return {
+        kind: 'word',
+        focusId: focus.id,
+        expectedSurface: focus.word,
+        expectedTag: focus.formTag || phraseNounRole(phrase.id, focus.id),
+        answerSurface: answerWords[focus.index] || null,
+      }
     }
   }
   return { kind: 'broad' }
@@ -287,7 +327,12 @@ function buildMatchQuestion(base, unlocked, rng, tier, mastery, forcedTier) {
 
 function wordFocusFor(target, words, rng, plannedFocusId = null) {
   const focuses = phraseProductionFocuses(target)
-    .map(({ id, index, word }) => ({ focusId: id, index, word }))
+    .map(({ id, index, word }) => ({
+      focusId: id,
+      index,
+      word,
+      formTag: phraseNounRole(target.id, id),
+    }))
   if (plannedFocusId) {
     const planned = focuses.find((focus) => focus.focusId === plannedFocusId)
     if (planned) return planned
@@ -447,6 +492,7 @@ export function buildPhraseQuestion(
         ...base,
         typeScope: 'word',
         focusId: focus.focusId,
+        expectedNounFormTag: focus.formTag || null,
         blankIndex: focus.index,
         // This is the bridge from choosing a missing word to producing the
         // complete phrase, so spell the exact contextual surface (shkon,

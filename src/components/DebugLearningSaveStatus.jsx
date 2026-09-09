@@ -1,6 +1,6 @@
 import { DICT } from '../game/content.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../game/everydayAlbanian.js'
-import { FORMS_UNLOCK_THRESHOLD, formsUnlocked } from '../game/gameState.js'
+import { FORMS_UNLOCK_THRESHOLD, formsUnlocked } from '../game/formInventory.js'
 import { buildPhraseProgressionSnapshot } from '../game/phrasePractice.js'
 
 const EXAMPLE_PHRASE_ID = 'going-village'

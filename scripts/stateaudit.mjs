@@ -1420,6 +1420,16 @@ check('old and partial saves are normalized before play', () => {
     stateAt('start'),
   )
   assert.equal(debugAtlasSave.view, 'map', 'a debug save lost its atlas location')
+  const normalDebugSave = normalizeSavedState(
+    { nodeId: 'start', view: 'debug', debug: false },
+    stateAt('start'),
+  )
+  assert.equal(normalDebugSave.view, 'story', 'a normal-mode save resumed on diagnostics')
+  const debugScreenSave = normalizeSavedState(
+    { nodeId: 'start', view: 'debug', debug: true },
+    stateAt('start'),
+  )
+  assert.equal(debugScreenSave.view, 'debug', 'a debug save lost its diagnostic screen')
 })
 
 check('damage cannot push hearts below zero', () => {

@@ -1,4 +1,5 @@
 import { NOUN_FORMS } from './nounForms.js'
+import { TRAIN_NOUN_ENDING_CORRECTION_POLICY } from './trainingProgression.js'
 
 // Learner-facing labels stay deliberately short: the authored gloss carries the
 // noun's exact meaning, while this label explains why that shape is being used.
@@ -20,6 +21,60 @@ export const NOUN_FORM_ROLE_LABELS = Object.freeze({
   adjPl: 'describing form · plural',
   elided: 'shortened poetic form',
 })
+
+// Phrase production reports the exact contextual surface which was missed.
+// Keeping this adapter here gives word-form and phrase exercises one correction
+// source: a noun refresher is shown only when that exact reviewed noun form is
+// known, never guessed from the learner's spelling.
+export function phraseNounEndingRefresher(question, result) {
+  const diagnostic = result?.diagnostic
+  if (
+    result?.correct ||
+    diagnostic?.kind !== TRAIN_NOUN_ENDING_CORRECTION_POLICY.diagnosticKind ||
+    !TRAIN_NOUN_ENDING_CORRECTION_POLICY.phraseModes.includes(question?.mode) ||
+    !TRAIN_NOUN_ENDING_CORRECTION_POLICY.phraseScopes.includes(question?.typeScope)
+  ) return null
+
+  const definition = question?.skill === 'production'
+    ? TRAIN_NOUN_ENDING_CORRECTION_POLICY.phraseProductionStages.find((stage) =>
+        stage.tier === question.tier &&
+        stage.mode === question.mode &&
+        stage.typeScope === question.typeScope,
+      )
+    : null
+  if (!definition) return null
+
+  const id = diagnostic.focusId || question?.focusId
+  const expectedSurface = diagnostic.expectedSurface
+  const answerSurface = diagnostic.answerSurface
+  const sourceForms = NOUN_FORMS[id]
+  if (!id || !expectedSurface || !answerSurface || !sourceForms) return null
+
+  const forms = uniqueForms(sourceForms)
+  const expectedMatches = forms.filter((form) => lower(form.al) === lower(expectedSurface))
+  // A syncretic surface can carry two grammatical jobs. Unless the question
+  // supplies the reviewed job, choosing either one would make the explanation
+  // confidently wrong (for example a bare form used as an object).
+  const expectedTag = diagnostic.expectedTag || question?.expectedNounFormTag
+  const target = expectedTag
+    ? expectedMatches.find((form) => form.tag === expectedTag)
+    : expectedMatches.length === 1 ? expectedMatches[0] : null
+  if (!target) return null
+
+  const answer = lower(answerSurface)
+  const expected = lower(expectedSurface)
+  if (answer === expected) return null
+  const anotherReviewedForm = forms.some((form) => lower(form.al) === answer)
+  const signature = classSignature(forms)
+  const changesOnlyEnding = Boolean(
+    signature &&
+    expected.startsWith(lower(signature.stem)) &&
+    answer.startsWith(lower(signature.stem)),
+  )
+  if (!anotherReviewedForm && !changesOnlyEnding) return null
+
+  return buildNounEndingRefresher(id, expectedSurface, target.gloss)
+}
 
 const SINGULAR_TAGS = new Set([
   'indefNom',

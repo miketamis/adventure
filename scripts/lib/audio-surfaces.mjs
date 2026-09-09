@@ -9,7 +9,15 @@ export function collectAudioSurfaces(dict, story, phrases = []) {
     if (typeof al === 'string' && al.trim()) surfaces.add(al.trim())
   }
 
-  for (const entry of Object.values(dict)) add(entry.al)
+  for (const entry of Object.values(dict)) {
+    add(entry.al)
+    // Train can play every standalone reviewed form, including surfaces that
+    // have not yet appeared in story prose. Bound fragments are deliberately
+    // excluded because the UI never presents or plays them on their own.
+    for (const form of entry.forms || []) {
+      if (form.trainable !== false) add(form.al)
+    }
+  }
 
   const walk = (value) => {
     if (!value || typeof value !== 'object') return

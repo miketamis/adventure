@@ -10,14 +10,14 @@
 export const TOP_1000_EXISTING_FORMS = {
   bej: 'bësh bëjë bëni bëra bëje bënte',
   thote: 'thënë thoni thoja thash thanë thoshte themi',
-  vete: 'veten vetes',
+  vete: 'veten',
   eshte: 'jesh jem qoftë qenka',
   behet: 'bëhem',
   vjen: 'ardhur vini',
   fal: 'falni',
   di: 'dini din dinë ditur dinte',
-  kohe: 'koha kohës',
-  ka: 'kem kishin kishim',
+  kohe: 'kohës',
+  ka: 'kem kishin',
   mund: 'mundem mundet mundemi',
   fol: 'flas flasësh',
   dua: 'doni doje don duash',
@@ -117,21 +117,6 @@ export const TOP_1000_ORTHOGRAPHIC_VARIANTS = {
 }
 
 export const TOP_1000_CANDIDATES = {
-  babi: {
-    tokens: 'babi',
-    priority: 'high',
-    reason: 'Very common affectionate “dad”; useful modern family vocabulary alongside baba.',
-  },
-  moment: {
-    tokens: 'moment',
-    priority: 'high',
-    reason: 'Core everyday “moment”; useful for waiting and “one moment” requests.',
-  },
-  qëndroj: {
-    tokens: 'qëndro qëndroni',
-    priority: 'high',
-    reason: 'Core “stay/stand”; supports meetings, warnings and position in the world.',
-  },
   tip: {
     tokens: 'tipi',
     priority: 'low',
@@ -141,11 +126,6 @@ export const TOP_1000_CANDIDATES = {
     tokens: 'meqë',
     priority: 'medium',
     reason: 'Common causal connector “since/given that”; makes explanations more natural.',
-  },
-  largohem: {
-    tokens: 'largohu',
-    priority: 'high',
-    reason: 'Everyday imperative “go away”; usable as a consequential dialogue choice.',
   },
   seriozisht: {
     tokens: 'seriozisht',
@@ -157,20 +137,10 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Everyday “interests/matters”; usable in conversation choices.',
   },
-  gaboj: {
-    tokens: 'gabuar',
-    priority: 'high',
-    reason: 'Participle “mistaken/wrong”; complements the existing noun gabim.',
-  },
   çuditshëm: {
     tokens: 'çuditshme',
     priority: 'medium',
     reason: 'Common “strange”; naturally describes supernatural encounters.',
-  },
-  rëndësishëm: {
-    tokens: 'rëndësishme',
-    priority: 'high',
-    reason: 'Everyday “important”; useful in plans, warnings and requests.',
   },
   mrekullueshëm: {
     tokens: 'mrekullueshme',
@@ -192,30 +162,15 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Common preposition/conjunction “toward/therefore”; fits relations and consequences.',
   },
-  filloj: {
-    tokens: 'fillim filluar fillojmë fillon filloi',
-    priority: 'high',
-    reason: 'Core verb/noun family “begin/start”; story events repeatedly create natural uses.',
-  },
   kapiten: {
     tokens: 'kapiten',
     priority: 'low',
     reason: 'Modern Standard-Albanian “captain”; can be contrasted with epic kapidan in sea scenes.',
   },
-  histori: {
-    tokens: 'histori',
-    priority: 'high',
-    reason: 'Everyday “story/history”; directly relevant to a lore-driven game.',
-  },
   sërish: {
     tokens: 'sërish',
     priority: 'low',
     reason: 'Useful “again”, but lower value because përsëri and prapë cover the same function.',
-  },
-  pije: {
-    tokens: 'pije',
-    priority: 'high',
-    reason: 'Everyday noun “drink/beverage”; fits the coffee-house and inn.',
   },
   natyrisht: {
     tokens: 'natyrisht',
@@ -232,55 +187,20 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Common colloquial “exactly/just right”, historically compatible Balkan-Turkish vocabulary.',
   },
-  mbetem: {
-    tokens: 'mbetur',
-    priority: 'high',
-    reason: 'Core verb “remain/be left”; fits waiting, stock and consequences.',
-  },
-  vendos: {
-    tokens: 'vendosur vendos',
-    priority: 'high',
-    reason: 'Core “decide/place”; central to choices and ordinary plans.',
-  },
   sipas: {
     tokens: 'sipas',
     priority: 'medium',
     reason: 'Common “according to”; useful when discussing advice, signs and lore.',
-  },
-  e_vërtetë: {
-    tokens: 'vërtetën vërteta',
-    priority: 'high',
-    reason: 'Everyday noun phrase “the truth”; distinct from existing adverb vërtet(ë).',
-  },
-  nder: {
-    tokens: 'nder',
-    priority: 'high',
-    reason: 'Everyday and lore-central “honour”; natural in besa storylines.',
   },
   rritem: {
     tokens: 'rritur',
     priority: 'medium',
     reason: 'Core “grow/grow up”; useful in family and elapsed-time talk.',
   },
-  rast: {
-    tokens: 'rast',
-    priority: 'high',
-    reason: 'Common “case/occasion/chance”; useful in everyday contingency talk.',
-  },
   mrekulli: {
     tokens: 'mrekulli',
     priority: 'medium',
     reason: 'Common “wonder/miracle”; fits supernatural lore and reactions.',
-  },
-  shqetësohem: {
-    tokens: 'shqetëso shqetësuar',
-    priority: 'high',
-    reason: 'Everyday “worry/be worried”; useful in meetings, lateness and danger.',
-  },
-  njëjtë: {
-    tokens: 'njëjtën',
-    priority: 'high',
-    reason: 'Core adjective “same”; useful in comparisons and repeated actions.',
   },
   bast: {
     tokens: 'bast',
@@ -297,11 +217,6 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Common “hate”; useful for preferences and conflict.',
   },
-  prind: {
-    tokens: 'prindërit',
-    priority: 'high',
-    reason: 'Core family noun “parents”; fits family and origin conversations.',
-  },
   vetmi: {
     tokens: 'vetmi',
     priority: 'low',
@@ -311,16 +226,6 @@ export const TOP_1000_CANDIDATES = {
     tokens: 'tmerrshme',
     priority: 'medium',
     reason: 'Common “terrible”; natural reaction to danger and loss.',
-  },
-  takim: {
-    tokens: 'takim',
-    priority: 'high',
-    reason: 'Core everyday “meeting/appointment”; directly supports Elira scheduling.',
-  },
-  lejoj: {
-    tokens: 'lejo lejoni',
-    priority: 'high',
-    reason: 'Core “allow/permit”; useful at doors, gates and guarded places.',
   },
   kudo: {
     tokens: 'kudo',
@@ -332,35 +237,10 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Common additive connector “even/furthermore”; improves natural narration.',
   },
-  mbrëmë: {
-    tokens: 'mbrëmë',
-    priority: 'high',
-    reason: 'Core time word “last night”; useful in recounting recent events.',
-  },
-  besim: {
-    tokens: 'besim',
-    priority: 'high',
-    reason: 'Everyday “trust/faith”; central to besa, religion and relationships.',
-  },
-  anije: {
-    tokens: 'anije',
-    priority: 'high',
-    reason: 'Common travel noun “ship”; fits the existing sea route.',
-  },
   veçantë: {
     tokens: 'veçantë',
     priority: 'medium',
     reason: 'Common “special/separate”; useful in gifts, people and instructions.',
-  },
-  telashe: {
-    tokens: 'telashe',
-    priority: 'high',
-    reason: 'Everyday “trouble”; natural in warnings and apologies.',
-  },
-  pothuajse: {
-    tokens: 'pothuajse',
-    priority: 'high',
-    reason: 'Core approximation “almost”; useful in progress and timing talk.',
   },
   numër: {
     tokens: 'numër',
@@ -372,20 +252,10 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Very common colloquial “pleasure/mood/fun”, historically compatible with the setting.',
   },
-  kuptim: {
-    tokens: 'kuptim',
-    priority: 'high',
-    reason: 'Core “meaning/sense”; useful in language-learning and conversation.',
-  },
   gjithsesi: {
     tokens: 'gjithsesi',
     priority: 'medium',
     reason: 'Standard conversational “anyway”; useful alongside informal nejse.',
-  },
-  urime: {
-    tokens: 'urime',
-    priority: 'high',
-    reason: 'Everyday “congratulations”; directly fits birthday and wedding scenes.',
   },
   tallem: {
     tokens: 'tallesh',
@@ -407,11 +277,6 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Everyday “plan”; directly useful for routes and meeting arrangements.',
   },
-  gjendje: {
-    tokens: 'gjendje',
-    priority: 'high',
-    reason: 'Core “condition/state”; fits health, weather and item condition.',
-  },
   fitoj: {
     tokens: 'fituar',
     priority: 'medium',
@@ -432,16 +297,6 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Common “through/by means of”; useful for routes despite synonym nëpër.',
   },
-  shkruaj: {
-    tokens: 'shkruar',
-    priority: 'high',
-    reason: 'Core literacy verb “write”; fits letters, signs and records.',
-  },
-  darkë: {
-    tokens: 'darkë',
-    priority: 'high',
-    reason: 'Core everyday meal/time noun “dinner/evening”; fits home and inn scenes.',
-  },
   pranoj: {
     tokens: 'pranoj',
     priority: 'medium',
@@ -452,20 +307,10 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Everyday “steal”; fits treasure and market consequences.',
   },
-  kënaqësi: {
-    tokens: 'kënaqësi',
-    priority: 'high',
-    reason: 'Common politeness noun “pleasure”; supports “with pleasure”.',
-  },
   pikë: {
     tokens: 'pikë',
     priority: 'low',
     reason: 'Polysemous “point/drop”; useful once a concrete scene fixes its sense.',
-  },
-  dikur: {
-    tokens: 'dikur',
-    priority: 'high',
-    reason: 'Common “once/sometime”; especially natural in lore narration.',
   },
   goxha: {
     tokens: 'goxha',
@@ -482,25 +327,10 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Core “solution”; fits riddles, routes and difficult choices.',
   },
-  trup: {
-    tokens: 'trupin',
-    priority: 'high',
-    reason: 'Core body noun “body”; fits health and physical description.',
-  },
   shkëlqyeshëm: {
     tokens: 'shkëlqyeshëm',
     priority: 'medium',
     reason: 'Common positive response “excellent”; useful as social feedback.',
-  },
-  fus: {
-    tokens: 'futur',
-    priority: 'high',
-    reason: 'Core “put/enter”; useful for containers, rooms and item actions.',
-  },
-  arrij: {
-    tokens: 'arritur',
-    priority: 'high',
-    reason: 'Core “arrive/reach/manage”; central to travel and task completion.',
   },
   milion: {
     tokens: 'milion',

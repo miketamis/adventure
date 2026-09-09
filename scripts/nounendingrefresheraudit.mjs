@@ -1,10 +1,19 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { DICT } from '../src/game/content.js'
+import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { NOUN_FORMS } from '../src/game/nounForms.js'
+import { phraseAnswerDiagnostic } from '../src/game/phrasePractice.js'
+import {
+  PHRASE_MIN_INTERVENING_ROUNDS,
+  advancePhraseProduction,
+  emptyPhraseProductionProgress,
+  phraseProductionPlan,
+} from '../src/game/phraseProgression.js'
 import {
   buildNounEndingRefresher,
   NOUN_FORM_ROLE_LABELS,
+  phraseNounEndingRefresher,
 } from '../src/game/nounEndingRefresher.js'
 
 let checked = 0
@@ -125,6 +134,105 @@ assert.deepEqual(
   'bridge refresher does not clearly distinguish the four grammatical jobs',
 )
 
+const phraseBridge = phraseNounEndingRefresher(
+  { focusId: 'ure', skill: 'production', tier: 3, mode: 'type', typeScope: 'phrase' },
+  {
+    correct: false,
+    diagnostic: {
+      kind: 'word',
+      focusId: 'ure',
+      expectedSurface: 'urën',
+      answerSurface: 'ura',
+    },
+  },
+)
+assert.equal(phraseBridge.target.al, 'urën', 'phrase remediation did not use its exact contextual noun form')
+assert.deepEqual(
+  phraseBridge.rows.map((row) => row.al),
+  ['urë', 'ura', 'urën', 'urës'],
+  'phrase remediation did not reuse the exact noun/general-pattern sheet',
+)
+const focusSpellingBridge = phraseNounEndingRefresher(
+  { focusId: 'ure', skill: 'production', tier: 2, mode: 'type', typeScope: 'word' },
+  {
+    correct: false,
+    diagnostic: { kind: 'word', focusId: 'ure', expectedSurface: 'urën', answerSurface: 'ura' },
+  },
+)
+assert.equal(focusSpellingBridge.target.al, 'urën', 'focus spelling lost the exact noun refresher')
+assert.deepEqual(focusSpellingBridge.ruleSignature, phraseBridge.ruleSignature)
+
+const goingVillage = EVERYDAY_PHRASE_DRILLS.find((phrase) => phrase.id === 'going-village')
+const villageDiagnostic = phraseAnswerDiagnostic('po shkoj në fshati', goingVillage.al, goingVillage)
+assert.equal(villageDiagnostic.expectedTag, 'indefAcc', 'the actual village phrase lost its reviewed object role')
+const villageGuide = phraseNounEndingRefresher(
+  { skill: 'production', tier: 3, mode: 'type', typeScope: 'phrase', target: goingVillage },
+  { correct: false, diagnostic: villageDiagnostic },
+)
+assert.equal(villageGuide.target.al, 'fshat')
+assert.equal(villageGuide.target.tag, 'indefAcc', 'the syncretic fshat surface guessed the wrong grammatical job')
+const villageFocusIds = ['shko', 'fshat']
+const villageReady = {
+  ...emptyPhraseProductionProgress(),
+  clozeWins: 2,
+  clozeProofs: villageFocusIds,
+  arrangeWins: 1,
+  spellingProofs: villageFocusIds,
+}
+const villageMiss = advancePhraseProduction(villageReady, villageFocusIds, 10, {
+  correct: false,
+  skill: 'production',
+  tier: 3,
+  mode: 'type',
+  typeScope: 'phrase',
+  questionKey: 'going-village:noun-ending-test',
+  diagnostic: villageDiagnostic,
+  round: 10,
+})
+assert.equal(villageMiss.accepted, true)
+assert.equal(villageMiss.progress.remediation.reason, 'word-form')
+assert.equal(villageMiss.progress.remediation.focusId, 'fshat')
+assert.equal(villageMiss.progress.remediation.stage, 2)
+assert.equal(
+  villageMiss.progress.remediation.dueAfterRound,
+  10 + PHRASE_MIN_INTERVENING_ROUNDS,
+  'noun-ending backoff did not preserve the disjoint-round delay',
+)
+assert.equal(phraseProductionPlan(villageMiss.progress, villageFocusIds, 10).due, false)
+assert.equal(phraseProductionPlan(villageMiss.progress, villageFocusIds, 11).due, true)
+assert.equal(
+  phraseNounEndingRefresher(
+    { focusId: 'shko', skill: 'production', tier: 3, mode: 'type', typeScope: 'phrase' },
+    { correct: false, diagnostic: { kind: 'word', focusId: 'shko', expectedSurface: 'shkoj', answerSurface: 'shkon' } },
+  ),
+  null,
+  'a non-noun phrase error opened noun-ending remediation',
+)
+assert.equal(
+  phraseNounEndingRefresher(
+    { focusId: 'ure' },
+    { correct: true, diagnostic: { kind: 'word', focusId: 'ure', expectedSurface: 'urën' } },
+  ),
+  null,
+  'a correct phrase opened noun-ending remediation',
+)
+assert.equal(
+  phraseNounEndingRefresher(
+    { focusId: 'ure', skill: 'production', tier: 0, mode: 'cloze', typeScope: 'word' },
+    { correct: false, diagnostic: { kind: 'word', focusId: 'ure', expectedSurface: 'urën', answerSurface: 'ura' } },
+  ),
+  null,
+  'a selection exercise opened the typed noun-ending correction sheet',
+)
+assert.equal(
+  phraseNounEndingRefresher(
+    { focusId: 'ure', skill: 'production', tier: 2, mode: 'type', typeScope: 'word' },
+    { correct: false, diagnostic: { kind: 'word', focusId: 'ure', expectedSurface: 'urën', answerSurface: 'lumë' } },
+  ),
+  null,
+  'a different noun was misdiagnosed as an ending error',
+)
+
 const refresherUi = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
 const refresherLogic = readFileSync(new URL('../src/game/nounEndingRefresher.js', import.meta.url), 'utf8')
 assert.ok(refresherUi.includes('Same noun, different job'), 'plain same-noun framing is missing')
@@ -132,6 +240,16 @@ assert.ok(refresherUi.includes('Pattern to reuse'), 'transferable pattern is not
 assert.ok(!refresherUi.includes('noun-ending-chain'), 'misleading form ladder remains in the UI')
 assert.ok(!refresherUi.includes('noun-ending-arrow'), 'unlabelled ending arrows remain in the UI')
 assert.ok(!refresherUi.includes('→') && !refresherLogic.includes('→'), 'noun refresher still implies a required sequence')
+assert.match(
+  refresherUi,
+  /const guide = phraseNounEndingRefresher\(q, result\)[\s\S]+stage: 'phrase-production'/,
+  'wrong noun forms in phrase production do not open the shared next-screen refresher',
+)
+assert.match(
+  refresherUi,
+  /In that phrase you wrote[\s\S]+The needed form was/,
+  'phrase correction does not connect the learner answer to the exact required form',
+)
 
 assert.equal(buildNounEndingRefresher('vajze', 'invented form'), null)
 assert.equal(buildNounEndingRefresher('not-a-noun', 'vajzën'), null)

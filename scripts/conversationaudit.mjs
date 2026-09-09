@@ -4,6 +4,7 @@
 // code. Private research transcripts must never become a build dependency.
 // Run: node scripts/conversationaudit.mjs [--strict]
 
+import { readFileSync } from 'node:fs'
 import { DICT, START_NODE, STORY, lineOf } from '../src/game/content.js'
 import { albanianTextOf } from '../src/game/language.js'
 import { environmentStoryLine } from '../src/game/storyContext.js'
@@ -82,6 +83,23 @@ for (const [time, clock] of Object.entries({ morning: 0, noon: 6, afternoon: 7, 
 }
 
 const failures = []
+
+// The public curriculum summary is part of the product promise. Keep its
+// machine-readable count block tied to the real registries so documentation
+// cannot quietly describe an older learning system.
+const curriculumDoc = readFileSync(new URL('../docs/everyday-albanian-curriculum.md', import.meta.url), 'utf8')
+const documentedCounts = {
+  opening: FIRST_MINUTES_PHRASES.length,
+  session: FIRST_SESSION_PHRASES.length,
+  core: EVERYDAY_CORE_SENSE_IDS.length,
+  phrases: EVERYDAY_PHRASE_DRILLS.length,
+  groups: EVERYDAY_CAN_DO_GROUPS.length,
+}
+for (const [key, count] of Object.entries(documentedCounts)) {
+  if (!curriculumDoc.includes(`<!-- curriculum:${key}=${count} -->`)) {
+    failures.push(`curriculum documentation count drift: ${key} should be ${count}`)
+  }
+}
 for (const target of FIRST_MINUTES_PHRASES) {
   const needle = normalize(target.al)
   const hits = appearances.filter((entry) => entry.al.includes(needle))

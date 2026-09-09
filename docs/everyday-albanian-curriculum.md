@@ -18,13 +18,14 @@ This gives the player the main intent and routine phrases in the private birthda
 
 ## Curriculum contract
 
-The public curriculum currently contains:
+The public curriculum currently contains (the hidden markers are checked
+against the live registries by `scripts/conversationaudit.mjs`):
 
-- 19 opening targets;
-- 60 first-session targets;
-- 144 practice-priority senses;
-- 110 whole-phrase drills;
-- 23 story-grounded can-do groups.
+- 15 opening targets; <!-- curriculum:opening=15 -->
+- 60 first-session targets; <!-- curriculum:session=60 -->
+- 161 practice-priority senses; <!-- curriculum:core=161 -->
+- 120 whole-phrase drills; <!-- curriculum:phrases=120 -->
+- 24 story-grounded can-do groups. <!-- curriculum:groups=24 -->
 
 Every whole-phrase drill must be found in a playable story line or action. `scripts/conversationaudit.mjs` rejects an ungrounded drill, a missing first-session target, an unknown sense, or an underfilled can-do group.
 

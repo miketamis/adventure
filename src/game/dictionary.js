@@ -693,8 +693,69 @@ export const DICT = {
   tone:      { al: 'tonë',      en: 'our' },        // #213
   perse:     { al: 'përse',     en: 'why' },        // #216
   gjate:     { al: 'gjatë',     en: 'long' },       // #217 (gjatë natës = during the night)
-  vete:      { al: 'vetë',      en: 'self' },       // #223 (veten = oneself)
+  vete:      { al: 'vetë',      en: 'self', enAll: 'self / himself' }, // #223 (veten = oneself)
   baba:      { al: 'baba',      en: 'father' },     // #225/#243 (babi, babai)
+  babi:      { al: 'babi',      en: 'dad' },        // affectionate everyday family address
+  prind:     { al: 'prind',     en: 'parent' },
+  takim:     { al: 'takim',     en: 'meeting' },
+  rast:      { al: 'rast',      en: 'case' },
+  nder:      { al: 'nder',      en: 'honour' },
+  besim:     { al: 'besim',     en: 'trust' },
+  telashe:   { al: 'telash',    en: 'trouble' },
+  urime:     { al: 'urim',      en: 'wish', enAll: 'wish / congratulations' },
+  anije:     { al: 'anije',     en: 'ship' },
+  pothuajse: { al: 'pothuajse', en: 'almost' },
+  kuptim:    { al: 'kuptim',    en: 'meaning' },
+  gjendje:   { al: 'gjendje',   en: 'condition' },
+  shkruaj:   { al: 'shkruaj',   en: 'write', enAll: 'write / written', forms: [
+    { al: 'shkruar', tag: 'part', gloss: 'written' },
+  ] },
+  darke:     { al: 'darkë',     en: 'dinner' },
+  kenaqesi:  { al: 'kënaqësi',  en: 'pleasure' },
+  dikur:     { al: 'dikur',     en: 'once' },
+  trup:      { al: 'trup',      en: 'body' },
+  fus:       { al: 'fus',       en: 'put in', enAll: 'put in / embedded', forms: [
+    { al: 'fut', tag: '3sgPres', gloss: 'puts in' },
+    { al: 'futur', tag: 'part', gloss: 'put inside' },
+  ] },
+  arrij:     { al: 'arrij',     en: 'arrive', forms: [
+    { al: 'arrin', tag: '3sgPres', gloss: 'arrives' },
+    { al: 'arritur', tag: 'part', gloss: 'arrived' },
+  ] },
+  moment:    { al: 'moment',    en: 'moment' },
+  qendroj:   { al: 'qëndroj',   en: 'stay', enAll: 'stay / stand', forms: [
+    { al: 'qëndro', tag: '2sgImp', gloss: 'stay' },
+    { al: 'qëndron', tag: '3sgPres', gloss: 'stands' },
+    { al: 'qëndroni', tag: '2plImp', gloss: 'stay' },
+  ] },
+  largohem:  { al: 'largohem',  en: 'leave', forms: [
+    { al: 'largohu', tag: '2sgImp', gloss: 'go away' },
+  ] },
+  gaboj:     { al: 'gaboj',     en: 'make a mistake', forms: [
+    { al: 'gabuar', tag: 'part', gloss: 'mistaken' },
+  ] },
+  rendesishem: { al: 'rëndësishëm', en: 'important', forms: [
+    { al: 'rëndësishme', tag: 'adjFem', gloss: 'important' },
+  ] },
+  rende:      { al: 'rëndë',      en: 'serious' },
+  filloj:    { al: 'filloj',    en: 'begin', forms: [
+    { al: 'filluar', tag: 'part', gloss: 'begun' },
+    { al: 'fillojmë', tag: '1plPres', gloss: 'we begin' },
+    { al: 'fillon', tag: '3sgPres', gloss: 'begins' },
+    { al: 'filloi', tag: '3sgPast', gloss: 'began' },
+  ] },
+  fillim:    { al: 'fillim',    en: 'beginning' },
+  histori:   { al: 'histori',   en: 'story', enAll: 'story / history' },
+  pije:      { al: 'pije',      en: 'drink' },
+  mbetem:    { al: 'mbetem',    en: 'remain', enAll: 'remain / be left', forms: [
+    { al: 'mbetet', tag: '3sgPres', gloss: 'remains' },
+    { al: 'mbetur', tag: 'part', gloss: 'left' },
+  ] },
+  vendos:    { al: 'vendos',    en: 'decide', enAll: 'decide / place', forms: [
+    { al: 'vendos', tag: '3sgPres', gloss: 'decides / places' },
+    { al: 'vendosur', tag: 'part', gloss: 'decided' },
+  ] },
+  e_vertete: { al: 'e vërtetë', en: 'truth' },
   shok:      { al: 'shok',      en: 'comrade' },    // #235 (shoku)
   ende:      { al: 'ende',      en: 'yet' },        // #236
   djale:     { al: 'djalë',     en: 'boy' },        // #239 (djema = boys)
@@ -712,6 +773,19 @@ export const DICT = {
   cili:      { al: 'cili',      en: 'which' },      // #275
   pershendetje:{al:'përshëndetje',en:'hello' },     // #277
   ckemi:     { al: 'çkemi',      en: 'how are things' },
+  shqetesohem: { al: 'shqetësohem', en: 'worry', enAll: 'worry / worried', forms: [
+    { al: 'u shqetëso', tag: 'negativeImperativeFragment', gloss: 'worry', trainable: false },
+    { al: 'shqetësohu', tag: '2sgImperative', gloss: 'worry' },
+    { al: 'shqetësuar', tag: 'part', gloss: 'worried' },
+  ] },
+  lejoj:     { al: 'lejoj',      en: 'allow', forms: [
+    { al: 'lejo', tag: '2sgImp', gloss: 'allow' },
+    { al: 'lejoni', tag: '2plPres', gloss: 'allow' },
+  ] },
+  njejte:    { al: 'njëjtë',     en: 'same', forms: [
+    { al: 'njëjtën', tag: 'adjFemAccDef', gloss: 'the same' },
+  ] },
+  mbreme:    { al: 'mbrëmë',      en: 'last night' },
   tashme:    { al: 'tashmë',     en: 'already' },
   prape:     { al: 'prapë',      en: 'again' },
   ndryshe:   { al: 'ndryshe',    en: 'differently' },

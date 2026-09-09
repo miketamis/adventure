@@ -3,6 +3,7 @@
 ## Checkpoint discipline
 
 - Commit after each coherent, verified increment instead of allowing unrelated work to accumulate in one large working tree.
+- Push each verified checkpoint to the configured upstream before beginning the next increment, then verify that the upstream branch resolves to the local commit. A local commit is not a completed checkpoint.
 - Before every commit, inspect the staged file list and staged diff, run the checks appropriate to the change, and confirm that the commit contains only project material.
 - Keep checkpoint commits focused and use a message that states the player-facing or engineering outcome.
 
@@ -38,3 +39,24 @@
 - Never schedule consecutive Train questions that share an Albanian word. When no disjoint question exists, show the caught-up state instead of silently repeating the only target.
 - Treat production, listening, and matching as separate evidence tracks. Wrong production answers must back off to targeted support after a disjoint round; retained strict recall must be spaced.
 - Any new Train kind, mode, variant, or unlock rule must be represented in the debug Learning graph and covered by `scripts/learningprogressionaudit.mjs` in the same change.
+- Keep noun part-of-speech classification independent of the paradigm table. Every declared noun must have either a complete reviewed paradigm or an explicit backlog entry; a missing paradigm must never make a noun look non-inflecting or enter noun-role practice through guessed endings.
+
+## Practical-language grounding
+
+- Prioritize reusable, present-day Albanian for introductions, needs, directions, time, weather, food, buying, help, plans, apologies, conversation repair, and ordinary objects. A practical phrase belongs in Train only when the player can encounter or say it in a believable story situation; `scripts/conversationaudit.mjs` is the release gate.
+- Keep folklore and practical language mutually reinforcing. Do not add a detached phrasebook scene, a modern object with no plausible world role, or language that exists only to satisfy a frequency count.
+- A focused cloze or spelling question rewards only its target word. Whole-phrase rewards belong only to an exercise that actually requires the whole phrase. Listening questions must not expose the English answer, and complete phrases must use continuous phrase audio rather than stitched isolated words.
+- Every construction exercise needs plausible distractors. A one-word greeting remains a word exercise; it must not masquerade as a whole-phrase exercise.
+
+## Dictionary and grammatical-form integrity
+
+- Every public dictionary sense must have a real story, option, item, environment, or Train use. Definitions must distinguish the sense in clear Albanian-learning English; placeholders, circular glosses, and generic filler fail the quality gate.
+- Model inflection by reviewed grammatical roles appropriate to the word class, not by appending every possible-looking suffix. Never invent a noun paradigm, verb conjugation, adjective agreement form, or pronoun case form to make a coverage number rise.
+- A used inflected surface must be attached to its correct dictionary sense and be reachable by the relevant learning path. Correction sheets must use the exact reviewed paradigm for the missed word, explain the transferable class rule and its limits, and label forms by grammatical job rather than implying a memorization order.
+- Keep class-specific coverage and remaining editorial scope explicit in the form audits. “Complete” means complete for the declared reviewed roles, never every theoretically possible form of every Albanian word.
+
+## Immersion and debug boundaries
+
+- Normal play must communicate health, money, time, weather, season, carried objects, companions, and consequences through Albanian story prose when relevant. Diagnostic ledgers, the map/atlas, build hash, raw counters, full English readings, and authoring metadata are debug-only.
+- Movement and appointments must preserve physical continuity. A conversation choice cannot silently teleport the player; moving NPCs need a location, timing policy, late/missed reactions, and persistence tests. Once the player learns an NPC’s name, later authored dialogue should use that name where a natural speaker tag appears.
+- Choices must never reveal their fluent English answer before the learner acts. Accessibility labels obey the same answer boundary as visible copy.

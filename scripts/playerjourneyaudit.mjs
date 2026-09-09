@@ -283,9 +283,12 @@ check('the world map is reachable only during an explicit debug session', () => 
   const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
   assert.match(app, /\{state\.debug && tab\('map', '🗺 Map'\)\}/)
   assert.match(app, /\{state\.debug && state\.view === 'map' && <AtlasView state=\{state\} \/>\}/)
+  assert.match(app, /\{state\.debug && state\.view === 'debug' && <DebugView state=\{state\} dispatch=\{dispatch\} \/>\}/)
 
   const normal = reducer(stateAt(START_NODE), { type: 'SET_VIEW', view: 'map' })
   assert.equal(normal.view, 'story', 'normal play opened the debug atlas')
+  const normalDebug = reducer(stateAt(START_NODE), { type: 'SET_VIEW', view: 'debug' })
+  assert.equal(normalDebug.view, 'story', 'normal play opened the diagnostic screen')
 
   const debugMap = reducer(
     stateAt(START_NODE, { debug: true }),
@@ -295,6 +298,15 @@ check('the world map is reachable only during an explicit debug session', () => 
   const debugOff = reducer(debugMap, { type: 'TOGGLE_DEBUG' })
   assert.equal(debugOff.debug, false)
   assert.equal(debugOff.view, 'story', 'turning debug off left the atlas active')
+
+  const debugScreen = reducer(
+    stateAt(START_NODE, { debug: true }),
+    { type: 'SET_VIEW', view: 'debug' },
+  )
+  assert.equal(debugScreen.view, 'debug', 'debug mode could not open its diagnostic screen')
+  const debugScreenOff = reducer(debugScreen, { type: 'TOGGLE_DEBUG' })
+  assert.equal(debugScreenOff.debug, false)
+  assert.equal(debugScreenOff.view, 'story', 'turning debug off left diagnostics active')
 })
 
 check('all option words have dictionary entries and can enter the learning loop', () => {

@@ -7,7 +7,15 @@ import { DICT } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
-import { phraseProductionFocusIds } from '../src/game/phraseFocus.js'
+import {
+  phraseProductionFocusIds,
+  phraseProductionFocuses,
+} from '../src/game/phraseFocus.js'
+import {
+  PHRASE_NOUN_ROLES,
+  phraseNounOccurrences,
+  phraseNounRole,
+} from '../src/game/phraseNounRoles.js'
 import {
   PHRASE_PROGRESS_VERSION,
   PHRASE_INITIAL_REVIEW_GAP,
@@ -19,6 +27,7 @@ import {
   buildPhraseQuestion,
   containsExcludedPhraseWord,
   normalizePhraseAnswer,
+  phraseAnswerDiagnostic,
   phraseAnswerResult,
   phraseAnswerIsCorrect,
   phraseQuestionWordKeys,
@@ -74,6 +83,97 @@ check('phrase tokenization keeps Albanian words and contractions, not punctuatio
   )
   assert.deepEqual(phraseWordKeys(" S’KA, GJE\u0308! "), ["s'ka", 'gjë'])
   assert.notDeepEqual(phraseWordKeys('cka gje'), phraseWordKeys('çka gjë'), 'Albanian letters were folded')
+
+  const village = EVERYDAY_PHRASE_DRILLS.find((entry) => entry.id === 'going-village')
+  const nounMiss = phraseAnswerDiagnostic('po shkoj në fshati', village.al, village)
+  assert.deepEqual(
+    nounMiss,
+    { kind: 'word', focusId: 'fshat', expectedSurface: 'fshat', expectedTag: 'indefAcc', answerSurface: 'fshati' },
+    'a phrase noun error lost the exact expected and learner surfaces needed by remediation',
+  )
+  assert.equal(
+    phraseNounRole(village.id, 'fshat'),
+    'indefAcc',
+    'the syncretic village surface lost its authored contextual noun role',
+  )
+})
+
+check('beginner leeway never turns a reviewed noun-form substitution into mastery', () => {
+  const normalized = (value) => value.normalize('NFC').toLocaleLowerCase('sq')
+  const beginnerLetters = (value) => normalized(value).replace(/ë/g, 'e').replace(/ç/g, 'c')
+  let guardedAlternatives = 0
+  let nounOccurrences = 0
+
+  for (const phrase of EVERYDAY_PHRASE_DRILLS) {
+    const words = phraseWords(phrase.al)
+    const occurrences = phraseNounOccurrences(phrase)
+    const independentlyMapped = words.flatMap((word, index) => phrase.requires
+      .filter((id) => DICT[id]?.formTrack === 'noun' && DICT[id].forms.some((form) =>
+        normalized(form.al) === normalized(word)))
+      .map((id) => `${index}:${id}`))
+    assert.deepEqual(
+      occurrences.map(({ id, index }) => `${index}:${id}`),
+      independentlyMapped,
+      `${phrase.id}: lazy noun-role ledger is missing or adding a phrase noun`,
+    )
+    for (const occurrence of occurrences) {
+      nounOccurrences += 1
+      const tag = phraseNounRole(phrase.id, occurrence.id)
+      assert.ok(tag, `${phrase.id}/${occurrence.id}: missing reviewed contextual noun role`)
+      assert.ok(
+        DICT[occurrence.id].forms.some((form) =>
+          form.tag === tag && normalized(form.al) === normalized(occurrence.word)),
+        `${phrase.id}/${occurrence.id}: ${occurrence.word} is not the declared ${tag} form`,
+      )
+
+      const alternatives = [...new Set(DICT[occurrence.id].forms.map((form) => form.al))]
+        .filter((surface) =>
+          normalized(surface) !== normalized(occurrence.word) &&
+          beginnerLetters(surface) !== beginnerLetters(occurrence.word))
+      for (const surface of alternatives) {
+        const attempt = [...words]
+        attempt[occurrence.index] = surface
+        assert.equal(
+          phraseAnswerIsCorrect(attempt.join(' '), phrase.al, 'beginner', {
+            target: phrase,
+            typeScope: 'phrase',
+          }),
+          false,
+          `${phrase.id}: accepted ${surface} in place of ${occurrence.word}`,
+        )
+        guardedAlternatives += 1
+      }
+
+      const different = alternatives[0]
+      if (different) {
+        const attempt = [...words]
+        attempt[occurrence.index] = different
+        const diagnostic = phraseAnswerDiagnostic(attempt.join(' '), phrase.al, phrase)
+        assert.equal(diagnostic.kind, 'word', `${phrase.id}/${occurrence.id}: noun miss became broad`)
+        assert.equal(diagnostic.focusId, occurrence.id, `${phrase.id}/${occurrence.id}: wrong diagnostic noun`)
+        assert.equal(diagnostic.expectedTag, tag, `${phrase.id}/${occurrence.id}: diagnostic lost contextual role`)
+      }
+    }
+  }
+
+  assert.ok(nounOccurrences >= 25, 'noun-bearing phrase coverage unexpectedly shrank')
+  assert.equal(
+    nounOccurrences,
+    Object.values(PHRASE_NOUN_ROLES).reduce((total, roles) => total + Object.keys(roles).length, 0),
+    'reviewed noun-role ledger contains a stale row',
+  )
+  assert.ok(guardedAlternatives >= 200, 'reviewed alternate-form regression coverage unexpectedly shrank')
+
+  const village = EVERYDAY_PHRASE_DRILLS.find((entry) => entry.id === 'going-village')
+  const focusContext = { target: village, typeScope: 'word', focusId: 'fshat' }
+  assert.equal(phraseAnswerIsCorrect('fshati', 'fshat', 'beginner', focusContext), false)
+  assert.equal(phraseAnswerIsCorrect('fsht', 'fshat', 'beginner', focusContext), true)
+  const work = EVERYDAY_PHRASE_DRILLS.find((entry) => entry.id === 'at-work')
+  assert.equal(
+    phraseAnswerIsCorrect('jam në pune', work.al, 'beginner', { target: work, typeScope: 'phrase' }),
+    true,
+    'noun-form guard removed intended ë/ç tolerance',
+  )
 })
 
 check('consecutive phrase rounds share no Albanian words, including matching rounds', () => {
@@ -139,6 +239,11 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
   assert.doesNotMatch(practiceSource, /buildQuestion\(discoveredIds, state\.mana\)\s*$/m)
 
   const questionSource = fs.readFileSync('src/components/PhrasePracticeQuestion.jsx', 'utf8')
+  assert.match(
+    questionSource,
+    /phraseAnswerResult\(typed, q\.typingAnswer, q\.answerTolerance, q\)/,
+    'typing omitted the noun-aware tolerance context',
+  )
   assert.match(questionSource, /q\.mode === 'cloze'[\s\S]+className="answers phrase-cloze-answers"/)
   assert.match(questionSource, /onClick=\{\(\) => chooseCloze\(tile\)\}/)
   assert.doesNotMatch(questionSource, /const needed = q\.mode === 'cloze'/)
@@ -423,7 +528,7 @@ check('every reward id still belongs to the public dictionary', () => {
   for (const id of phraseRewardIds(EVERYDAY_PHRASE_DRILLS)) assert.ok(DICT[id], id)
 })
 
-console.log(`\n${11 - failures.length}/11 phrase-practice contracts pass.`)
+console.log(`\n${12 - failures.length}/12 phrase-practice contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1
