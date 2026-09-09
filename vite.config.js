@@ -1,5 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { execFileSync } from 'node:child_process'
+
+const buildCommit = process.env.GITHUB_SHA || execFileSync(
+  'git',
+  ['rev-parse', 'HEAD'],
+  { encoding: 'utf8' },
+).trim()
 
 // Keep large, stable authored datasets out of the release shell. They are still
 // fetched for the first playable scene, but independent chunks let browsers
@@ -19,6 +26,9 @@ const authoredChunk = (id) => {
 export default defineConfig({
   // served from https://miketamis.github.io/adventure/
   base: '/adventure/',
+  define: {
+    __BUILD_COMMIT__: JSON.stringify(buildCommit),
+  },
   plugins: [react()],
   build: {
     rollupOptions: {

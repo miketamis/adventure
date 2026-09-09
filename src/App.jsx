@@ -28,6 +28,7 @@ const GuideView = lazy(() => import('./components/GuideView.jsx'))
 const AtlasView = lazy(() => import('./components/AtlasView.jsx'))
 const DebugView = lazy(() => import('./components/DebugView.jsx'))
 const MiniMap = lazy(() => import('./components/MiniMap.jsx'))
+const BUILD_COMMIT = __BUILD_COMMIT__
 
 const ViewFallback = () => (
   <div className="card view-fallback" role="status" aria-live="polite">Opening this part of the journey…</div>
@@ -193,7 +194,14 @@ export default function App() {
         <h1 className="title" onClick={onTitleClick} title="Aventura Shqip">
           Aventura Shqip <small>· learn Albanian</small>
         </h1>
-        {state.debug && <span className="stat debug-badge" title="Debug mode is on — click the title 5× to turn it off">🛠 debug</span>}
+        {state.debug && (
+          <span
+            className="stat debug-badge"
+            title={`Debug mode is on — build commit ${BUILD_COMMIT}. Click the title 5× to turn it off.`}
+          >
+            🛠 debug · <code>{BUILD_COMMIT.slice(0, 12)}</code>
+          </span>
+        )}
         {activeQuest && (
           <button
             className="stat embody-badge"

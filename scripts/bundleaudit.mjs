@@ -9,6 +9,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { basename, resolve } from 'node:path'
+import { execFileSync } from 'node:child_process'
 
 const DIST = resolve('dist')
 const ASSETS = resolve(DIST, 'assets')
@@ -33,6 +34,13 @@ assert.match(entryMatch[1], /^\/adventure\/assets\//,
 const assetRelativePath = entryMatch[1].replace(/^.*?(assets\/)/, '$1')
 const entryPath = resolve(DIST, assetRelativePath)
 assert.ok(existsSync(entryPath), `entry script does not exist: ${entryMatch[1]}`)
+const buildCommit = (process.env.GITHUB_SHA || execFileSync(
+  'git',
+  ['rev-parse', 'HEAD'],
+  { encoding: 'utf8' },
+)).trim()
+assert.ok(readFileSync(entryPath, 'utf8').includes(buildCommit),
+  `release shell does not expose its build commit ${buildCommit}`)
 
 const sizeOf = (path) => {
   const bytes = readFileSync(path)
