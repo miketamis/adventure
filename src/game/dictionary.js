@@ -14,31 +14,14 @@ export const DICT = {
   pyll:      { al: 'pyll',      en: 'forest' },
   madh:      { al: 'madh',      en: 'big' },
   sheh:      { al: 'sheh',      en: 'see' },
-  rruge:     { al: 'rrugë',     en: 'road', forms: [
-    { al: 'rrugë',  tag: 'indefNom', gloss: 'a road' },
-    { al: 'rruga',  tag: 'defNom',   gloss: 'the road' },
-    { al: 'rrugën', tag: 'defAcc',   gloss: 'the road (object)' },
-    { al: 'rrugës', tag: 'defDat',   gloss: 'to/of the road' },
-    { al: 'rrugët', tag: 'plDef',    gloss: 'the roads' },
-  ] },
+  rruge:     { al: 'rrugë',     en: 'road' },
   ec:        { al: 'ec',        en: 'walk' },
   fle:       { al: 'fle',       en: 'sleep' },
   ketu:      { al: 'këtu',      en: 'here' },
   dhe:       { al: 'dhe',       en: 'and', ctx: { al: 'bukë dhe ujë', en: 'bread __ water', focus: 'dhe' } },
-  shtepi:    { al: 'shtëpi',    en: 'house', forms: [
-    { al: 'shtëpi',   tag: 'indefNom', gloss: 'a house' },
-    { al: 'shtëpia',  tag: 'defNom',   gloss: 'the house' },
-    { al: 'shtëpinë', tag: 'defAcc',   gloss: 'the house (object)' },
-    { al: 'shtëpisë', tag: 'defDat',   gloss: 'to/of the house' },
-    { al: 'shtëpitë', tag: 'plDef',    gloss: 'the houses' },
-  ] },
+  shtepi:    { al: 'shtëpi',    en: 'house' },
   ka:        { al: 'ka',        en: 'has' },
-  dere:      { al: 'derë',      en: 'door', forms: [
-    { al: 'derë',  tag: 'indefNom', gloss: 'a door' },
-    { al: 'dera',  tag: 'defNom',   gloss: 'the door' },
-    { al: 'derën', tag: 'defAcc',   gloss: 'the door (object)' },
-    { al: 'derës', tag: 'defDat',   gloss: 'of/to the door' },
-  ] },
+  dere:      { al: 'derë',      en: 'door' },
   hap:       { al: 'hap',       en: 'open' },
   ik:        { al: 'ik',        en: 'flee' },
   brenda:    { al: 'brenda',    en: 'inside' },
@@ -51,9 +34,11 @@ export const DICT = {
   pi:        { al: 'pi',        en: 'drink' },
   behet:     { al: 'bëhet',     en: 'becomes' },
   mik:       { al: 'mik',       en: 'friend', enAll: 'friend / guest' }, // mik = the sacred guest of the Kanun
+  mike:      { al: 'mike',      en: 'friend', enAll: 'friend / guest' }, // feminine friend/guest
   ke:        { al: 'ke',        en: 'have' },
   ri:        { al: 'ri',        en: 'new' },
   toke:      { al: 'tokë',      en: 'ground' },
+  dhe_earth: { al: 'dhé',       en: 'earth' },
   naten:     { al: 'natën',     en: 'night' },
   vjen:      { al: 'vjen',      en: 'comes' },
   zgjohu:    { al: 'zgjohu',    en: 'wake' },
@@ -84,70 +69,31 @@ export const DICT = {
   // places & things along the journey
   lume:      { al: 'lumë',      en: 'river' },
   ure:       { al: 'urë',       en: 'bridge' },
-  mal:       { al: 'mal',       en: 'mountain', forms: [
-    { al: 'mal',   tag: 'indefNom', gloss: 'a mountain' },
-    { al: 'mali',  tag: 'defNom',   gloss: 'the mountain' },
-    { al: 'malin', tag: 'defAcc',   gloss: 'the mountain (object)' },
-    { al: 'malit', tag: 'defDat',   gloss: 'to/of the mountain' },
-    { al: 'malet', tag: 'plDef',    gloss: 'the mountains' },
-  ] },
+  mal:       { al: 'mal',       en: 'mountain' },
   shpelle:   { al: 'shpellë',   en: 'cave' },
   gjakove:   { al: 'Gjakovë',   en: 'Gjakova' },
-  plak:      { al: 'plak',      en: 'old man', forms: [
-    { al: 'plak',   tag: 'indefNom', gloss: 'an old man' },
-    { al: 'plaku',  tag: 'defNom',   gloss: 'the old man' },
-    { al: 'plakun', tag: 'defAcc',   gloss: 'the old man (object)' },
-    { al: 'plakut', tag: 'defDat',   gloss: 'of/to the old man' },
-    { al: 'plako',  tag: 'voc',      gloss: 'old man (buddy)' },
-  ] },
+  plak:      { al: 'plak',      en: 'old man' },
   kalo:      { al: 'kalo',      en: 'cross' },
   // --- folklore: characters & creatures ---
-  fshat:     { al: 'fshat',     en: 'village', forms: [
-    { al: 'fshat',   tag: 'indefNom', gloss: 'a village' },
-    { al: 'fshati',  tag: 'defNom',   gloss: 'the village' },
-    { al: 'fshatin', tag: 'defAcc',   gloss: 'the village (object)' },
-    { al: 'fshatit', tag: 'defDat',   gloss: 'of/to the village' },
-  ] },
+  fshat:     { al: 'fshat',     en: 'village' },
   plake:     { al: 'plakë',     en: 'old woman' },
   kulshedra: { al: 'kulshedra', en: 'she-dragon' }, // the Kulshedra: multi-headed, fire-spitting
   zane:      { al: 'zanë',      en: 'mountain-fairy' }, // the Zana: fierce mountain nymph
   bukura:    { al: 'Bukura',    en: 'the Beauty' },// E Bukura e Dheut
   dragua:    { al: 'dragua',    en: 'dragon-hero' },// the Drangue
-  trim:      { al: 'trim',      en: 'hero', forms: [
-    { al: 'trim',   tag: 'indefNom', gloss: 'a hero' },
-    { al: 'trimi',  tag: 'defNom',   gloss: 'the hero' },
-    { al: 'trimin', tag: 'defAcc',   gloss: 'the hero (object)' },
-    { al: 'trimit', tag: 'defDat',   gloss: 'to/of the hero' },
-    { al: 'trima',  tag: 'plIndef',  gloss: 'heroes' },
-    { al: 'trimat', tag: 'plDef',    gloss: 'the heroes' },
-  ] },
+  trim:      { al: 'trim',      en: 'hero' },
   shqiponje: { al: 'shqiponjë', en: 'eagle' },
-  tiger:     { al: 'tigër',     en: 'tiger', forms: [
-    { al: 'tigër',  tag: 'indefNom', gloss: 'a tiger' },
-    { al: 'tigri',  tag: 'defNom',   gloss: 'the tiger' },
-    { al: 'tigrit', tag: 'defDat',   gloss: 'to/of the tiger' },
-  ] },
-  furre:     { al: 'furrë',     en: 'oven', forms: [
-    { al: 'furrë',  tag: 'indefNom', gloss: 'an oven' },
-    { al: 'furra',  tag: 'defNom',   gloss: 'the oven' },
-    { al: 'furrës', tag: 'defDat',   gloss: 'to/of the oven' },
-  ] },
+  tiger:     { al: 'tigër',     en: 'tiger' },
+  furre:     { al: 'furrë',     en: 'oven' },
   gjethe:    { al: 'gjethe',    en: 'leaves' },
-  sqep:      { al: 'sqep',      en: 'beak', forms: [
-    { al: 'sqep',   tag: 'indefNom', gloss: 'a beak' },
-    { al: 'sqepi',  tag: 'defNom',   gloss: 'the beak' },
-    { al: 'sqepin', tag: 'defAcc',   gloss: 'the beak (object)' },
-  ] },
+  sqep:      { al: 'sqep',      en: 'beak' },
   gjarper:   { al: 'gjarpër',   en: 'serpent' },
-  mbret:     { al: 'mbret',     en: 'king', forms: [
-    { al: 'mbret',   tag: 'indefNom', gloss: 'a king' },
-    { al: 'mbreti',  tag: 'defNom',   gloss: 'the king' },
-    { al: 'mbretin', tag: 'defAcc',   gloss: 'the king (object)' },
-    { al: 'mbretit', tag: 'defDat',   gloss: 'to/of the king' },
-  ] },
+  mbret:     { al: 'mbret',     en: 'king' },
   nene:      { al: 'nënë',      en: 'mother' },
+  meme:      { al: 'mëmë',      en: 'mother (poetic)' },
   femije:    { al: 'fëmijë',    en: 'child' },
-  tomor:     { al: 'Tomor',     en: 'Tomorr' },    // the sky-father mountain
+  tomor:     { al: 'Tomor',     en: 'Tomor', ctx: { al: 'Baba Tomor flet', en: 'Father __ speaks', focus: 'Tomor' } }, // the source-bound name of the personified sky-father
+  tomorr:    { al: 'Tomorr',    en: 'Mount Tomorr', ctx: { al: 'mali Tomorr', en: 'Mount __', focus: 'Tomorr' } },
   // --- folklore: places & things ---
   pus:       { al: 'pus',       en: 'well' },
   vrime:     { al: 'vrimë',     en: 'hole' },
@@ -179,7 +125,8 @@ export const DICT = {
   mish:      { al: 'mish',      en: 'meat' },
   peshk:     { al: 'peshk',     en: 'fish' },   // a ware in the dead city's bazaar (Durham)
   qengj:     { al: 'qengj',     en: 'lamb' },
-  kashte:    { al: 'kashtë',    en: 'hay' },
+  kashte:    { al: 'kashtë',    en: 'straw', ctx: { al: 'kashtë nën kafshët', en: '__ under the animals', focus: 'kashtë' } },
+  sane:      { al: 'sanë',      en: 'hay', ctx: { al: 'kafshët hanë sanë', en: 'the animals eat __', focus: 'sanë' } },
   kukull:    { al: 'kukull',    en: 'doll' },
   varros:    { al: 'varros',    en: 'buries' },
   balte:     { al: 'baltë',     en: 'clay' },
@@ -198,7 +145,7 @@ export const DICT = {
   plesht:    { al: 'plesht',    en: 'flea' },
   kerce:     { al: 'kërcen',    en: 'leaps' },
   ballokume: { al: 'ballokume', en: 'cake' },
-  flutur:    { al: 'flutur',    en: 'moth' },
+  flutur:    { al: 'flutur',    en: 'butterfly', ctx: { al: 'flutura fluturon mes luleve', en: 'the __ flies among the flowers', focus: 'flutura' } },
   dre:       { al: 'dre',       en: 'stag' },
   kose:      { al: 'kosë',      en: 'scythe' },
   shkop:     { al: 'shkop',     en: 'cudgel' },
@@ -222,42 +169,16 @@ export const DICT = {
   pate:      { al: 'patë',      en: 'goose' },
   zgjuar:    { al: 'zgjuar',    en: 'awake' },
   zhytet:    { al: 'zhytet',    en: 'dives' },
-  aga:       { al: 'aga',       en: 'aga', forms: [
-    { al: 'agat', tag: 'plDef', gloss: 'the Agas' },
-    { al: 'agallarët', tag: 'plDef', gloss: 'the Agas' },
-  ] },
+  aga:       { al: 'aga',       en: 'aga' },
   filxhan:   { al: 'filxhan',   en: 'cup' },
-  cakmak:    { al: 'çakmak',    en: 'lighter', forms: [
-    { al: 'çakmak',   tag: 'indefNom', gloss: 'a lighter' },
-    { al: 'çakmaku',  tag: 'defNom',   gloss: 'the lighter' },
-    { al: 'çakmakun', tag: 'defAcc',   gloss: 'the lighter (object)' },
-  ] },
-  shishe:    { al: 'shishe',    en: 'bottle', forms: [
-    { al: 'shishe',   tag: 'indefNom', gloss: 'a bottle' },
-    { al: 'shishja',  tag: 'defNom',   gloss: 'the bottle' },
-    { al: 'shishen',  tag: 'defAcc',   gloss: 'the bottle (object)' },
-  ] },
-  cader:     { al: 'çadër',     en: 'umbrella', forms: [
-    { al: 'çadër',  tag: 'indefNom', gloss: 'an umbrella' },
-    { al: 'çadra',  tag: 'defNom',   gloss: 'the umbrella' },
-    { al: 'çadrën', tag: 'defAcc',   gloss: 'the umbrella (object)' },
-  ] },
-  batanije:  { al: 'batanije',  en: 'blanket', forms: [
-    { al: 'batanije',   tag: 'indefNom', gloss: 'a blanket' },
-    { al: 'batanija',   tag: 'defNom',   gloss: 'the blanket' },
-    { al: 'batanijen',  tag: 'defAcc',   gloss: 'the blanket (object)' },
-  ] },
-  sapun:     { al: 'sapun',     en: 'soap', forms: [
-    { al: 'sapun',   tag: 'indefNom', gloss: 'soap' },
-    { al: 'sapuni',  tag: 'defNom',   gloss: 'the soap' },
-    { al: 'sapunin', tag: 'defAcc',   gloss: 'the soap (object)' },
-  ] },
+  cakmak:    { al: 'çakmak',    en: 'lighter' },
+  shishe:    { al: 'shishe',    en: 'bottle' },
+  cader:     { al: 'çadër',     en: 'umbrella' },
+  batanije:  { al: 'batanije',  en: 'blanket' },
+  sapun:     { al: 'sapun',     en: 'soap' },
   mbush:     { al: 'mbush',     en: 'fill' },
   plot:      { al: 'plot',      en: 'full' },
-  cete:      { al: 'çetë',      en: 'company', forms: [
-    { al: 'çeta', tag: 'defNom', gloss: 'the company' },
-    { al: 'çetat', tag: 'plDef', gloss: 'the companies' },
-  ] },
+  cete:      { al: 'çetë',      en: 'company' },
   ndahet:    { al: 'ndahet',    en: 'splits away' },
   perkulet:  { al: 'përkulet',  en: 'bends' },
   pershperit:{ al: 'pëshpërit', en: 'whispers' },
@@ -265,10 +186,7 @@ export const DICT = {
   buzeqesh:  { al: 'buzëqesh',  en: 'smiles' },
   mbulon:    { al: 'mbulon',    en: 'covers' },
   pergjigjet:{ al: 'përgjigjet',en: 'answers' },
-  thua:      { al: 'thua',      en: 'fingernail', forms: [
-    { al: 'thonj', tag: 'plIndef', gloss: 'fingernails' },
-    { al: 'thonjtë', tag: 'plDef', gloss: 'the fingernails' },
-  ] },
+  thua:      { al: 'thua',      en: 'fingernail' },
   dashje:    { al: 'dashje',    en: 'intention' },
   dergon:    { al: 'dërgon',    en: 'sends' },
   con:       { al: 'çon',       en: 'leads' },
@@ -281,10 +199,7 @@ export const DICT = {
   shtrihet:  { al: 'shtrihet',  en: 'lies down' },
   sofer:     { al: 'sofër',     en: 'table' },
   mesdite:   { al: 'mesditë',   en: 'noon' },
-  porta:     { al: 'portë',     en: 'gate', forms: [
-    { al: 'porta', tag: 'defNom', gloss: 'the gate' },
-    { al: 'portën', tag: 'defAcc', gloss: 'the gate' },
-  ] },
+  porta:     { al: 'portë',     en: 'gate' },
   xhami:     { al: 'xhami',     en: 'mosque' },
   tabak:     { al: 'tabak',     en: 'tanner' },   // the leather-workers; their stone bridge over the river is Ura e Tabakëve
   lekure:    { al: 'lëkurë',    en: 'leather' },
@@ -296,7 +211,7 @@ export const DICT = {
   tym:       { al: 'tym',       en: 'smoke' },
   barut:     { al: 'barut',     en: 'gunpowder' },
   fitil:     { al: 'fitil',     en: 'fuse' },
-  ahur:      { al: 'ahur',      en: 'stable', forms: [{ al: 'ahurit', tag: 'defDat', gloss: 'of the stable' }] },
+  ahur:      { al: 'ahur',      en: 'stable' },
   kurth:     { al: 'kurth',     en: 'trap' },
   ul:        { al: 'ul',        en: 'lowers' },
   ndiej:     { al: 'ndiej',     en: 'sense' },
@@ -366,7 +281,8 @@ export const DICT = {
   dhelpra:   { al: 'dhelpër',   en: 'fox' },
   mi:        { al: 'mi',        en: 'mouse' },
   rrobe:     { al: 'rrobë',     en: 'dress' },   // e Bukura e Dheut's power-in-the-dress
-  krah:      { al: 'krah',      en: 'wing', enAll: 'wing / wings / arm' },    // the dragua's wings under the arms; të lumtë krahu = the arm
+  krah:      { al: 'krah',      en: 'wing', ctx: { al: 'zogu ka krahë', en: 'the bird has __', focus: 'krahë' } },
+  krah_arm:  { al: 'krah',      en: 'arm', enAll: 'arm / shoulder', ctx: { al: 'kam një plagë në krah', en: 'I have a wound on my __', focus: 'krah' } },
   kuq:       { al: 'kuq',       en: 'red' },     // the Kulshedra's reddish hair
   bri:       { al: 'bri',       en: 'horn' },    // the Vitore's golden horns
   gju:       { al: 'gju',       en: 'knee' },    // the Katallan has no knees
@@ -452,7 +368,8 @@ export const DICT = {
   do:        { al: 'do',        en: 'wants', ctx: { al: 'gjarpri do ar', en: 'the serpent __ gold', focus: 'do' } }, // dua also = love — glossed 'loves' at Halili's declaration (mujo2)
   do_fut:    { al: 'do',        en: 'will',  ctx: { al: 'bolla do të bëhet', en: 'the Bolla __ become', focus: 'do' } },  // future auxiliary
   bej:       { al: 'bëj',       en: 'make' },
-  luan:      { al: 'luan',      en: 'plays', enAll: 'plays / lion' }, // homonym: luan = plays AND lion
+  luan:      { al: 'luan',      en: 'plays', ctx: { al: 'fëmija luan', en: 'the child __', focus: 'luan' } },
+  luan_noun: { al: 'luan',      en: 'lion', ctx: { al: 'një luan ruan derën', en: 'a __ guards the door', focus: 'luan' } },
   mbyll:     { al: 'mbyll',     en: 'close' },
   zhurme:    { al: 'zhurmë',    en: 'noise' },
   tani:      { al: 'tani',      en: 'now' },
@@ -470,7 +387,8 @@ export const DICT = {
   // --- the storm of Baba Tomor (the Drangue's lightning) ---
   rrufe:     { al: 'rrufe',     en: 'thunderbolt' },
   re:        { al: 're',        en: 'cloud' },
-  ere:       { al: 'erë',       en: 'wind', enAll: 'wind / smell' }, // erë = wind AND smell
+  ere:       { al: 'erë',       en: 'wind', ctx: { al: 'era lëviz pemët', en: 'the __ moves the trees', focus: 'era' } },
+  ere_smell: { al: 'erë',       en: 'smell', ctx: { al: 'vjen erë buke', en: 'there is a __ of bread', focus: 'erë' } },
   mjegull:   { al: 'mjegull',   en: 'mist' },   // the Buna fog that opens Kuteli's Rozafa legend
   // --- the underworld: the rams & the Beauty's twist ---
   dash:      { al: 'dash',      en: 'ram' },     // the white & black rams (Scurfhead)
@@ -491,6 +409,7 @@ export const DICT = {
   lot:       { al: 'lot',       en: 'tears' },
   dhi:       { al: 'dhi',       en: 'goat' },
   ar:        { al: 'ar',        en: 'gold' },
+  arte:      { al: 'artë',      en: 'golden' },
   // --- Nastradin Hoxha (the comic interlude) ---
   hoxha:     { al: 'hoxha',     en: 'hodja' },   // Nastradin Hoxha, the trickster-sage
   kazan:     { al: 'kazan',     en: 'cauldron' },
@@ -538,14 +457,14 @@ export const DICT = {
   verbo:     { al: 'verbo',     en: 'blind' },   // verbo syrin — put out the eye
   gjak:      { al: 'gjak',      en: 'blood' },   // gjakmarrja / falja e gjakut
   dy:        { al: 'dy',        en: 'two' },
-  bar:       { al: 'bar',       en: 'herb' },    // the Ora's healing mountain herb
+  bar:       { al: 'bar',       en: 'herb' }, // also ordinary grass; context-specific readings stay on tokens
   tre:       { al: 'tre',       en: 'three' },
   shurdhi:   { al: 'Shurdhi',   en: 'Shurdhi' }, // the northern storm-god of hail and thunder
   hekur:     { al: 'hekur',     en: 'iron' },   // bang iron to rouse/ward the storm-god
   hekurt:    { al: 'hekurt',    en: 'iron' },   // adjectival form: derë e hekurt
   kale:      { al: 'kalë',      en: 'horse' },  // Mujo's oracular courser
   ruan:      { al: 'ruan',      en: 'guards' }, // the Ora-serpent guards the hoard
-  roje:      { al: 'roje',      en: 'guard' },  // the guard at the queen's black palace
+  roje:      { al: 'rojë',      en: 'guard' },  // the guard at the queen's black palace
   bekim:     { al: 'bekim',     en: 'blessing' }, // the Ora's blessing for the hospitable
   mujo:      { al: 'Mujo',      en: 'Mujo' },    // Gjeto Basho Muji, elder kreshnik of Jutbina
   halil:     { al: 'Halili',    en: 'Halili' },  // Sokol Halili, his young brother
@@ -578,11 +497,7 @@ export const DICT = {
   // --- review pass 2: Blue Eye donkey, Daughter of Moon & Sun, Aga Ymer ---
   gomar:     { al: 'gomar',     en: 'donkey' },  // the burning donkey (Syri i Kaltër)
   hene:      { al: 'hënë',      en: 'moon' },    // Hëna, mother of the lightning-maiden
-  bije:      { al: 'bijë',      en: 'daughter', forms: [
-    { al: 'bijë',  tag: 'indefNom', gloss: 'a daughter' },
-    { al: 'bija',  tag: 'defNom',   gloss: 'the daughter' },
-    { al: 'bijën', tag: 'defAcc',   gloss: 'the daughter (object)' },
-  ] },// E Bija e Hënës dhe e Diellit
+  bije:      { al: 'bijë',      en: 'daughter' },// E Bija e Hënës dhe e Diellit
   vit:       { al: 'vit',       en: 'year' },    // Aga Ymer's nine years
   fol:       { al: 'fol',       en: 'speak' },   // the broken-silence taboo
   shpirag:   { al: 'Shpirag',   en: 'Shpirag' }, // the rival mountain of Tomorr
@@ -651,7 +566,8 @@ export const DICT = {
   gjithe:    { al: 'gjithë',    en: 'all' },
   gjitheve:  { al: 'të gjithëve', en: 'everyone' },
   pak:       { al: 'pak',       en: 'a little' },
-  para:      { al: 'para',      en: 'before', enAll: 'before / money' }, // para natës = before night; paratë = the money
+  para:      { al: 'para',      en: 'before', enAll: 'before / ahead / in front of / forward', ctx: { al: 'eja para natës', en: 'come __ night', focus: 'para' } },
+  para_money:{ al: 'para',      en: 'money', ctx: { al: 'kam para për bukë', en: 'I have __ for bread', focus: 'para' } },
   tek:       { al: 'tek',       en: 'at' },
   vertete:   { al: 'vërtetë',   en: 'truly' },
   dicka:     { al: 'diçka',     en: 'something' },
@@ -706,20 +622,12 @@ export const DICT = {
   han:       { al: 'han',       en: 'roadside inn' }, // #3025 — the prince's feast-han by the crossroads
   gjej:      { al: 'gjej',      en: 'find' },       // #298
   heq:       { al: 'heq',       en: 'pull out' },   // #942 — the needle from the bird's head
-  dritare:   { al: 'dritare',   en: 'window', forms: [
-    { al: 'dritare',  tag: 'indefNom', gloss: 'a window' },
-    { al: 'dritarja', tag: 'defNom',   gloss: 'the window' },
-    { al: 'dritaren', tag: 'defAcc',   gloss: 'the window (object)' },
-  ] },     // #2712 — the bird at the window
+  dritare:   { al: 'dritare',   en: 'window' },     // #2712 — the bird at the window
   gjilpere:  { al: 'gjilpërë',  en: 'needle' },     // #11766 — the stepmother's hundred-lira weapon
   ciu:       { al: 'ciu',       en: 'cheep' },      // the bird-cry: «ciu ciu, djal' i mëmës»
   mami:      { al: 'mami',      en: 'midwife' },    // #279 — the bribed one at the birth
   lajm:      { al: 'lajm',      en: 'news' },       // #1760 — the prince's feast reaches the village
-  magjistare: { al: 'magjistare', en: 'sorceress', forms: [
-    { al: 'magjistare',  tag: 'indefNom', gloss: 'a sorceress' },
-    { al: 'magjistarja', tag: 'defNom',   gloss: 'the sorceress' },
-    { al: 'magjistaren', tag: 'defAcc',   gloss: 'the sorceress (object)' },
-  ] }, // the aunt's secret craft (≠ shtriga, the night-witch)
+  magjistare: { al: 'magjistare', en: 'sorceress' }, // the aunt's secret craft (≠ shtriga, the night-witch)
   teto:      { al: 'teto',      en: 'auntie' },     // the mother's sister — Maro's one kind door
   maro:      { al: 'Maro',      en: 'Maro' },       // the tale's drudge-daughter (Maro Përhitura)
   lilo:      { al: 'Lilo',      en: 'Lilo' },       // the njerka's elder daughter
@@ -798,12 +706,24 @@ export const DICT = {
   kujdes:    { al: 'kujdes',    en: 'care' },       // #261 (ki kujdes = be careful)
   kuptoj:    { al: 'kuptoj',    en: 'understand' }, // #262
   problem:   { al: 'problem',   en: 'problem' },    // #263
-  ok:        { al: 'ok',        en: 'okay' },       // #266
   fare:      { al: 'fare',      en: 'at all' },     // #267
   menyre:    { al: 'mënyrë',    en: 'way' },        // #272
   ndonjehere:{ al: 'ndonjëherë',en: 'sometimes' },  // #274
   cili:      { al: 'cili',      en: 'which' },      // #275
   pershendetje:{al:'përshëndetje',en:'hello' },     // #277
+  ckemi:     { al: 'çkemi',      en: 'how are things' },
+  tashme:    { al: 'tashmë',     en: 'already' },
+  prape:     { al: 'prapë',      en: 'again' },
+  ndryshe:   { al: 'ndryshe',    en: 'differently' },
+  qarte:     { al: 'qartë',      en: 'clearly' },
+  sakte:     { al: 'saktë',      en: 'correctly' },
+  patjeter:  { al: 'patjetër',   en: 'of course' },
+  pikerisht: { al: 'pikërisht',  en: 'exactly' },
+  ndersa:    { al: 'ndërsa',     en: 'while' },
+  perdor:    { al: 'përdor',     en: 'use' },
+  urdhero:   { al: 'urdhëro',    en: 'here you are' },
+  vrapo:     { al: 'vrapo',      en: 'run' },
+  paguaj:    { al: 'paguaj',     en: 'pay' },
   mama:      { al: 'mama',      en: 'mom' },        // #279 (mami = mommy)
   kesaj:     { al: 'kësaj',     en: 'this' },       // #281 (oblique fem.)
   rreth:     { al: 'rreth',     en: 'around' },     // #283
@@ -1012,16 +932,8 @@ export const DICT = {
   armik:      { al: 'armik',       en: 'enemy' },
   kenge:      { al: 'këngë',       en: 'song' },
   paster:     { al: 'pastër',      en: 'clean', enAll: 'clean / clear' },
-  kanal:      { al: 'kanal',       en: 'channel', forms: [
-    { al: 'kanal', tag: 'indefNom', gloss: 'a channel' },
-    { al: 'kanali', tag: 'defNom', gloss: 'the channel' },
-    { al: 'kanalin', tag: 'defAcc', gloss: 'the channel (object)' },
-  ] },
-  burim:      { al: 'burim',       en: 'spring', forms: [
-    { al: 'burim', tag: 'indefNom', gloss: 'a spring' },
-    { al: 'burimi', tag: 'defNom', gloss: 'the spring' },
-    { al: 'burimin', tag: 'defAcc', gloss: 'the spring (object)' },
-  ] },
+  kanal:      { al: 'kanal',       en: 'channel' },
+  burim:      { al: 'burim',       en: 'spring' },
   jeto:       { al: 'jeto',        en: 'live' },
   burrneshe:  { al: 'burrneshë',   en: 'sworn virgin' }, // the Kanun's vajza e betuar
   // --- living customs (city-quarter + wedding vignettes) ---
@@ -1035,10 +947,7 @@ export const DICT = {
   djeg:       { al: 'djeg',        en: 'burn', enAll: 'burn' },
   shkelqen:   { al: 'shkëlqen',    en: 'shines' },
   perqafon:   { al: 'përqafon',    en: 'embraces' },
-  pranga:     { al: 'pranga',      en: 'shackles', forms: [
-    { al: 'pranga', tag: 'plIndef', gloss: 'shackles' },
-    { al: 'prangat', tag: 'plDef', gloss: 'the shackles' },
-  ] },
+  pranga:     { al: 'pranga',      en: 'shackles' },
   balle:      { al: 'ballë',        en: 'brow' },
   thike:      { al: 'thikë',       en: 'knife' },
   luge:       { al: 'lugë',        en: 'spoon' },
@@ -1117,7 +1026,11 @@ export const DICT = {
   lumte:      { al: 'lumtë',       en: 'blessed be' },   // të lumtë krahu / të lumtë goja
 }
 
-// Declension tables for every noun the story inflects (see the wf() forms guard
-// and frequentForms). Attached onto DICT below; the 9 flagship nouns keep their
-// inline forms. Generated by scripts/gen_forms.mjs with explicit overrides.
-for (const [id, forms] of Object.entries(NOUN_FORMS)) DICT[id].forms = forms
+// Canonical noun declensions power the noun-role practice track. Other parts of
+// speech may still declare surface variants for wf() validation, but those must
+// not accidentally enter a noun-ending quiz.
+for (const [id, forms] of Object.entries(NOUN_FORMS)) {
+  if (!DICT[id]) throw new Error(`NOUN_FORMS.${id} has no matching dictionary sense`)
+  DICT[id].forms = forms
+  DICT[id].formTrack = 'noun'
+}

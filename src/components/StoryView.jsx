@@ -789,7 +789,7 @@ export default function StoryView({ state, dispatch }) {
                 cost = <span className="option-cost ok">spends tokens</span>
               }
               const optionDomId = `story-option-${state.nodeId}-${e.key}`.replace(/[^a-zA-Z0-9_-]/g, '-')
-              const routeId = routeParts.length > 0 ? `${optionDomId}-route` : null
+              const routeId = state.debug && routeParts.length > 0 ? `${optionDomId}-route` : null
               const costId = `${optionDomId}-cost`
               const optionPhrase = e.reading || optionEnglishReadingOf(e.tokens)
               const accessibleOptionPhrase = state.debug
@@ -828,7 +828,7 @@ export default function StoryView({ state, dispatch }) {
                         />
                       ))}
                     </span>
-                    {e.real && routeParts.length > 0 && (
+                    {state.debug && e.real && routeParts.length > 0 && (
                       <span id={routeId} className="route-note" title="Direction, distance and world time from the canonical tale-chart">
                         🗺 {routeParts.join(' · ')}
                       </span>

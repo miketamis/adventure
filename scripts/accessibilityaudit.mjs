@@ -89,6 +89,10 @@ check('route controls announce Albanian rather than leaking the English answer',
   story.includes('const accessibleOptionPhrase = state.debug') &&
   story.includes(': albanianTextOf(e.tokens)') &&
   story.includes('aria-label={`${e.ok ? \'Choose\' : \'Locked\'}: ${accessibleOptionPhrase}`}'))
+check('map-derived route metadata and its accessible description are debug-only',
+  story.includes('const routeId = state.debug && routeParts.length > 0') &&
+  story.includes('{state.debug && e.real && routeParts.length > 0 && (') &&
+  !guide.includes('Map tab'))
 check('long story prose uses labelled native pagination without discarding core lines',
   story.includes('aria-label="Story pages"') &&
   story.includes('aria-live="polite"') &&

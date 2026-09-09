@@ -19,6 +19,7 @@ import {
   TRAIN_SCHEDULER_SAFEGUARDS,
   TRAIN_WORD_FORM_POLICY,
 } from '../game/trainingProgression.js'
+import { pickLeastPracticedForm } from '../game/formProgression.js'
 import PhrasePracticeQuestion from './PhrasePracticeQuestion.jsx'
 
 // the answer rendered in Albanian (every word is discovered when affordable)
@@ -136,30 +137,20 @@ function buildQuestion(discoveredIds, mana, excludeWords = []) {
   }
 }
 
-// pick one of a word's forms, weighted toward the ones it takes most often
-const weightedPickForm = (forms) => {
-  const weights = forms.map((f) => (f.count || 0) + 1)
-  const total = weights.reduce((a, b) => a + b, 0)
-  let r = Math.random() * total
-  for (let i = 0; i < forms.length; i++) {
-    r -= weights[i]
-    if (r <= 0) return forms[i]
-  }
-  return forms[forms.length - 1]
-}
-
 // An "endings" question, unlocked once a word has been practiced enough. The word
 // appears INFLECTED (e.g. bijën). Step 1: which word is it? (options are OTHER
 // words' glosses). Step 2: what does the ending do? (options are THIS word's own
 // form glosses — "a daughter" / "the daughter" / "the daughter (object)").
-function buildFormsQuestion(answerId, discoveredIds, excludeWords = []) {
-  const forms = frequentForms(answerId) // lemma row first, then frequent inflected forms
+function buildFormsQuestion(answerId, discoveredIds, excludeWords = [], formPracticed = {}) {
+  const forms = frequentForms(answerId) // lemma row first, then every reviewed form
   const lemma = DICT[answerId].al.toLowerCase()
   const inflected = forms.filter((f) =>
     f.al.toLowerCase() !== lemma && !containsExcludedPhraseWord(f.al, excludeWords),
   )
   if (!inflected.length) return null
-  const target = weightedPickForm(inflected) // step-1 always shows a real ending, never the bare lemma
+  // Complete the least-seen layer before repeating a form. Frequency only
+  // orders equally unseen candidates, so rare reviewed forms cannot starve.
+  const target = pickLeastPracticedForm(inflected, answerId, formPracticed)
 
   // step 1 distractors: other discovered words (fall back to the whole dict)
   const answerText = senseText(answerId, 'en')
@@ -274,6 +265,7 @@ export default function PracticeView({ state, dispatch }) {
         weightedPick(eligible, state.mana),
         discoveredIds,
         excludeWords,
+        state.formPracticed,
       )
     }
     if (!nextQuestion) {
@@ -313,6 +305,7 @@ export default function PracticeView({ state, dispatch }) {
     discoveredIds.length,
     unlockedEverydayPhrases.length,
     state.mana,
+    state.formPracticed,
     state.phrasePracticed,
     state.phraseMistakes,
     state.phraseProductionProgress,
@@ -404,7 +397,12 @@ export default function PracticeView({ state, dispatch }) {
             setStep(FORM_IDENTIFY_JOB.step)
           }, 1100) // reveal, then drill the ending
         } else {
-          dispatch({ type: 'PRACTICE_WRONG', wordKeys: trainQuestionWordKeys(q) })
+          dispatch({
+            type: 'PRACTICE_WRONG',
+            wordKeys: trainQuestionWordKeys(q),
+            formId: q.answerId,
+            formSurface: q.surface,
+          })
           const guide = buildNounEndingRefresher(q.answerId, q.surface, q.step2.answer)
           if (guide) {
             setTimeout(() => setFormsCorrection({
@@ -421,10 +419,16 @@ export default function PracticeView({ state, dispatch }) {
         }
       } else {
         // step 2 is the nuance round: LENIENT — a miss costs no heart, no reward either
-        dispatch({ type: 'TRAIN_ROUND_COMPLETE', wordKeys: trainQuestionWordKeys(q) })
         if (correct) {
+          dispatch({
+            type: 'PRACTICE_FORM_CORRECT',
+            id: q.answerId,
+            formSurface: q.surface,
+            wordKeys: trainQuestionWordKeys(q),
+          })
           setTimeout(next, 1200)
         } else {
+          dispatch({ type: 'TRAIN_ROUND_COMPLETE', wordKeys: trainQuestionWordKeys(q) })
           const guide = buildNounEndingRefresher(q.answerId, q.surface, q.step2.answer)
           if (guide) {
             setTimeout(() => setFormsCorrection({

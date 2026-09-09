@@ -39,7 +39,7 @@ export const FINAL_READINGS = {
   "mujo4.text[0]": { al: "mbreti lë halilin në errësirë.", en: "The king leaves Halili in darkness." },
   "mujo4.text[1]": { al: "Halili këndon me lahutë.", en: "Halili sings to the music of a lahuta." },
   "mujo4.text[2]": { al: "Mujo dëgjon larg.", en: "Mujo hears him from far away." },
-  "mujo4.text[3]": { al: "agat vijnë me Mujo.", en: "The agas come with Mujo." },
+  "mujo4.text[3]": { al: "agallarët vijnë me Mujo.", en: "The agas come with Mujo." },
   "mujo4.text[4]": { al: "Mujo vjen!", en: "Mujo is coming!" },
   "mujoFund.text[0]": { al: "Mujo lufton mbretin.", en: "Mujo fights the king." },
   "mujoFund.text[1]": { al: "Halili vret mbretin.", en: "Halili kills the king." },
@@ -334,7 +334,7 @@ export const FINAL_READINGS = {
   "uraTjeter1.text[4]": { al: "nata vjen. ura bie në lumë me zhurmë.", en: "Night falls. The bridge crashes into the river." },
   "uraTjeter1.text[5]": { al: "dielli vjen. burrat bëjnë urën përsëri.", en: "Daylight comes. The men begin building the bridge again." },
   "uraTjeter1.text[6]": { al: "dy vëllezër dhe dyzet burra janë këtu.", en: "Two brothers and forty men are here." },
-  "uraTjeter1.text[7]": { al: "sot burrat punojnë në urën me gur.", en: "Today the men work on the stone bridge." },
+  "uraTjeter1.text[7]": { al: "sot burrat punojnë në urën; çdo gur bëhet pjesë e urës.", en: "Today the men work on the bridge; every stone becomes part of it." },
 
   "uraVellezerit.text[0]": { al: "ti flet me vëllezërit.", en: "You speak with the brothers." },
   "uraVellezerit.text[1]": { al: "ata janë Pano dhe Mihal.", en: "They are Pano and Mihal." },

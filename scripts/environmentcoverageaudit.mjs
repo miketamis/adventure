@@ -19,6 +19,7 @@ import {
 } from '../src/game/sceneEnvironmentSetting.js'
 import { planScenePresentation, SCENE_PAGE_POLICY, scenePageWithinBudget } from '../src/game/scenePresentation.js'
 import { isEnclosedScene } from '../src/game/worldModel.js'
+import { PLACE_OF } from '../src/components/nodePositions.js'
 
 const failures = []
 const check = (name, fn) => {
@@ -35,6 +36,18 @@ const reservedContentPolicy = Object.freeze({
   ...SCENE_PAGE_POLICY,
   maxLines: SCENE_PAGE_POLICY.maxLines - 1,
   maxLexicalTokens: SCENE_PAGE_POLICY.maxLexicalTokens - ENVIRONMENT_NARRATION_POLICY.maxLexicalTokens,
+})
+
+// Coverage is measured both by story node and by physical place. A tale can
+// have many consecutive outcome/dialogue nodes in one room; counting only raw
+// nodes would reward repeating atmosphere there instead of making the wider
+// travelled world feel lived in. These floors pin the completed whole-story
+// editorial pass and make new locations carry their share of authored context.
+const AUTHORED_ENVIRONMENT_COVERAGE = Object.freeze({
+  minimumNodes: 160,
+  minimumPlaces: 115,
+  minimumWeatherPlaces: 40,
+  minimumSeasonPlaces: 15,
 })
 
 check('every explicit narration setting names a real scene exactly once', () => {
@@ -83,6 +96,37 @@ check('true outdoor hubs, thresholds and courtyards remain exposed to local sky 
   ]) {
     assert.equal(narrationSettingForScene(id), 'outdoor', `${id}: outdoor hub was enclosed`)
   }
+})
+
+check('authored sensory context reaches the wider travelled world, not just repeated hub beats', () => {
+  const authoredNodes = []
+  const placesByDimension = Object.fromEntries(
+    ['time', 'weather', 'season'].map((dimension) => [dimension, new Set()]),
+  )
+  for (const [nodeId, node] of Object.entries(STORY)) {
+    const dimensions = authoredEnvironmentDimensions(node.text.map(lineOf))
+    if (!dimensions.size) continue
+    authoredNodes.push(nodeId)
+    const place = PLACE_OF[nodeId] || nodeId
+    for (const dimension of dimensions) placesByDimension[dimension].add(place)
+  }
+  const authoredPlaces = new Set(authoredNodes.map((nodeId) => PLACE_OF[nodeId] || nodeId))
+  assert.ok(
+    authoredNodes.length >= AUTHORED_ENVIRONMENT_COVERAGE.minimumNodes,
+    `only ${authoredNodes.length} story nodes have authored environment prose`,
+  )
+  assert.ok(
+    authoredPlaces.size >= AUTHORED_ENVIRONMENT_COVERAGE.minimumPlaces,
+    `only ${authoredPlaces.size} distinct places have authored environment prose`,
+  )
+  assert.ok(
+    placesByDimension.weather.size >= AUTHORED_ENVIRONMENT_COVERAGE.minimumWeatherPlaces,
+    `weather is authored at only ${placesByDimension.weather.size} distinct places`,
+  )
+  assert.ok(
+    placesByDimension.season.size >= AUTHORED_ENVIRONMENT_COVERAGE.minimumSeasonPlaces,
+    `season is authored at only ${placesByDimension.season.size} distinct places`,
+  )
 })
 
 check('enclosed and outdoor fallbacks phrase the same weather from the right vantage point', () => {
@@ -145,7 +189,7 @@ check('StoryView consumes the dedicated setting and visible-page dimensions', ()
   assert.doesNotMatch(source, /authoredEnvironmentDimensions\(lines\)/)
 })
 
-console.log(`\n${7 - failures.length}/7 environment-coverage contracts pass.`)
+console.log(`\n${8 - failures.length}/8 environment-coverage contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1

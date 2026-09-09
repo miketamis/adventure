@@ -53,11 +53,10 @@ npm run certify  # all strict declared-scope certification gates
   card naming the waiting objective and its direction. Tale time waits during a
   detour while living-world time advances, and returning restores the exact
   scene. Traveller health and belongings wait outside the role.
-- **World map** (`🗺`): every real route reports elapsed time, distance and a
-  vector on one mythic tale-chart. *Forestward/sea-roadward* and
-  *highward/deepward* are its two axes, not modern compass bearings. Following
-  the displayed vectors reconstructs the map. Weather, season, horizon,
-  travelling people and completed-tale consequences change with world time.
+- **Living world**: weather, season, travelling people and completed-tale
+  consequences change with world time and are narrated inside the story. The
+  world map, route vectors, distances and conditions dashboard are debugging
+  tools and are never part of the ordinary player interface.
 - **Evidence**: role confirmations and earned lore cards expose deduplicated,
   role-labelled links to witnesses, translations, variants, scholarship and
   local transcript proofs. Source roles and access or scope qualifications stay
@@ -97,7 +96,7 @@ stick.
 - `src/components/Token.jsx` — one word (gloss / discovered / particle + audio)
 - `src/components/StoryView.jsx` — passage + selectable paths
 - `src/components/PracticeView.jsx` — training questions
-- `src/components/WorldMapView.jsx` — shared player/debug map renderer
+- `src/components/WorldMapView.jsx` — debug-only world-map renderer
 - `src/components/ReleaseErrorBoundary.jsx` — safe recovery for shell and lazy-view failures
 - `src/App.jsx` — shell, top bar, tabs, role state and blocking passages
 - `scripts/bundleaudit.mjs` — production bootstrap, lazy-chunk and on-demand asset budgets

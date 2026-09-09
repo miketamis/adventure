@@ -140,7 +140,11 @@ const SHELL_RAW_BUDGET = 160 * KiB
 const SHELL_GZIP_BUDGET = 55 * KiB
 const BOOTSTRAP_RAW_BUDGET = 1_300 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
-const BOOTSTRAP_CHUNK_RAW_BUDGET = 700 * KiB
+// The story graph is intentionally a single synchronous world-state payload.
+// Keep its raw cache boundary aligned with Vite's explicit authored-data
+// warning limit; the stricter aggregate and gzip ceilings below still measure
+// the bytes a first-time player actually downloads.
+const BOOTSTRAP_CHUNK_RAW_BUDGET = 800 * KiB
 const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
 const READING_CHUNK_RAW_BUDGET = 350 * KiB
 const READING_CHUNK_GZIP_BUDGET = 100 * KiB

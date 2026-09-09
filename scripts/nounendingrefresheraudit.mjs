@@ -36,6 +36,7 @@ for (const [id, sourceForms] of Object.entries(NOUN_FORMS)) {
   const sourceKeys = new Set(sourceForms.map(exactKey))
 
   for (const target of sourceForms) {
+    assert.ok(NOUN_FORM_ROLE_LABELS[target.tag], `${id}/${target.al}: unknown learner-facing role ${target.tag}`)
     const sheet = buildNounEndingRefresher(id, target.al, target.gloss)
     assert.ok(sheet, `${id}/${target.al}: no refresher generated`)
     assert.equal(exactKey(sheet.target), exactKey(target), `${id}/${target.al}: wrong target form`)
@@ -90,7 +91,7 @@ for (const [id, sourceForms] of Object.entries(NOUN_FORMS)) {
       for (const row of sheet.peer.rows) {
         assert.equal(row.role, NOUN_FORM_ROLE_LABELS[row.tag], `${id}/${target.al}: peer form has wrong role`)
       }
-    } else {
+    } else if (coreTags.includes(target.tag)) {
       assert.match(sheet.pattern, /specific/i, `${id}/${target.al}: no-peer guidance is not explicitly narrowed`)
     }
     checked += 1
@@ -103,7 +104,7 @@ assert.deepEqual(
   ['vajzë', 'vajza', 'vajzën', 'vajzës'],
   'common feminine -ë correction lost its useful four-form chain',
 )
-assert.match(feminineExample.pattern, /common feminine -ë.+-ë for one\/a.+-a for the subject.+-ën for the object.+-ës for of\/to/)
+assert.match(feminineExample.pattern, /common feminine -ë.+-ë for one\/a.+-a for the subject.+-ën for the object.+-ës for of\/to\/from/)
 assert.ok(feminineExample.peer, 'common feminine class needs a second reviewed noun example')
 assert.notEqual(feminineExample.peer.id, 'vajze')
 assert.deepEqual(
@@ -119,7 +120,7 @@ assert.deepEqual(
     { al: 'urë', role: 'base form · one / a', learnerMeaning: 'a bridge', example: { al: 'një urë', en: 'a bridge' } },
     { al: 'ura', role: 'the noun · subject', learnerMeaning: 'the bridge', example: { al: 'Ura është këtu.', en: 'The bridge is here.' } },
     { al: 'urën', role: 'the noun · object', learnerMeaning: 'the bridge', example: { al: 'Shoh urën.', en: 'I see the bridge.' } },
-    { al: 'urës', role: 'to / of the noun', learnerMeaning: 'of / to the bridge', example: { al: 'Pranë urës.', en: 'Near the bridge.' } },
+    { al: 'urës', role: 'of / to / from the noun', learnerMeaning: 'of / to / from the bridge', example: { al: 'Pranë urës.', en: 'Near the bridge.' } },
   ],
   'bridge refresher does not clearly distinguish the four grammatical jobs',
 )

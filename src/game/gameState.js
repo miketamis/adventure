@@ -8,6 +8,7 @@ import {
   itemHasAffordance,
   itemHasTag,
 } from './content.js'
+import { formPracticeKey } from './formProgression.js'
 import {
   ACHIEVEMENT_RULE_BY_ID as ACHIEVEMENT_BY_ID,
   newlyEligibleAreas,
@@ -649,6 +650,14 @@ const productionTierRecord = (value) => Object.fromEntries(
 const normalizedTrainWords = (values) => [...new Set(
   (Array.isArray(values) ? values : []).flatMap((value) => phraseSurfaceWordKeys(value)),
 )].slice(0, 100)
+const reviewedFormPracticeKey = (state, id, surface) => {
+  if (!safeMapKey(id) || !state.discovered[id] || typeof surface !== 'string') return null
+  const normalized = surface.normalize('NFC').toLocaleLowerCase('sq')
+  const form = frequentForms(id).find((candidate) =>
+    candidate.al.normalize('NFC').toLocaleLowerCase('sq') === normalized,
+  )
+  return form ? formPracticeKey(id, form.al) : null
+}
 const subtractCountRecords = (value, suspended) => {
   const next = {}
   const current = countRecord(value)
@@ -811,7 +820,7 @@ export function normalizeSavedState(saved, fresh) {
   for (const key of ['heard', 'discovered', 'visited', 'dismissedTests', 'healedAt', 'flags']) {
     next[key] = truthRecord(fresh[key], saved[key])
   }
-  for (const key of ['inventory', 'mana', 'practiced']) {
+  for (const key of ['inventory', 'mana', 'practiced', 'formPracticed']) {
     next[key] = countRecord(isRecord(saved[key]) ? saved[key] : fresh[key])
   }
   next.phrasePracticed = countRecord(
@@ -1112,6 +1121,7 @@ export function newRun() {
     ...baseRun(),
     mana: {},
     practiced: {},
+    formPracticed: {},
     phrasePracticed: {},
     phraseMistakes: {},
     phraseProgressVersion: PHRASE_PROGRESS_VERSION,
@@ -1734,6 +1744,24 @@ export function reducer(state, action) {
       }
     }
 
+    case 'PRACTICE_FORM_CORRECT': {
+      if (!safeMapKey(action.id) || !state.discovered[action.id]) return state
+      const formKey = reviewedFormPracticeKey(state, action.id, action.formSurface)
+      if (!formKey) return state
+      return {
+        ...state,
+        formPracticed: {
+          ...state.formPracticed,
+          [formKey]: (state.formPracticed?.[formKey] || 0) + 1,
+        },
+        trainRound: (state.trainRound || 0) + 1,
+        trainLastWords: normalizedTrainWords(action.wordKeys),
+        trainLastQuestionKey: typeof action.questionKey === 'string'
+          ? action.questionKey.slice(0, 200)
+          : null,
+      }
+    }
+
     case 'PRACTICE_WRONG':
       return {
         ...state,
@@ -2041,6 +2069,7 @@ export function reducer(state, action) {
         ...baseRun(),
         mana: state.mana,
         practiced: state.practiced,
+        formPracticed: state.formPracticed || {},
         phrasePracticed: state.phrasePracticed || {},
         phraseMistakes: state.phraseMistakes || {},
         phraseProgressVersion: PHRASE_PROGRESS_VERSION,
@@ -2120,6 +2149,7 @@ export function reducer(state, action) {
         ...baseRun(),
         mana: state.mana,
         practiced: state.practiced,
+        formPracticed: state.formPracticed || {},
         phrasePracticed: state.phrasePracticed || {},
         phraseMistakes: state.phraseMistakes || {},
         phraseProgressVersion: PHRASE_PROGRESS_VERSION,

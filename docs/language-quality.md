@@ -1,6 +1,6 @@
 # Player-facing language quality
 
-Last audited: 2026-09-08
+Last audited: 2026-09-09
 
 This game intentionally keeps three kinds of English separate. They serve
 different learning purposes and must never be mistaken for one another:
@@ -32,22 +32,24 @@ only the displayed wording.
 
 The current machine-audited surface contains:
 
-- 582 story nodes;
-- 2,890 story lines;
-- 1,714 player options;
-- 1,718 reviewed action readings: all 1,714 story options plus every currently
-  authored item-use and healing phrase (four more actions), each pinned to its
-  live address and exact Albanian wording;
+- 592 story nodes;
+- 3,027 story lines;
+- 1,862 player options across static and generated contextual choices;
+- 1,753 reviewed static action readings: all 1,750 static story options plus
+  every currently authored item-use and healing phrase (three more actions),
+  each pinned to its live address and exact Albanian wording;
+- 76 generated contextual greeting actions and 36 generated everyday-item
+  actions checked from their shared production rules;
 - 23 possible generated item-distractor readings checked exhaustively for
   grammatical English;
-- 2,890 reviewed whole-line English readings;
-- 2,488 of those readings held in the deferred registry, each pinned to both a
+- 3,027 reviewed whole-line English readings;
+- 2,483 of those readings held in the deferred registry, each pinned to both a
   stable story address and the exact Albanian sentence reviewed there;
 - 31 exact source-quote lines with registered displayed-wording translations;
 - zero lines using the fallback-reading layer in the certified corpus;
 - 66 source-quote lines with registered displayed-wording translations, of which 35 include
   additional game framing and now also have a complete reviewed line reading.
-- 2,063 authored Albanian pronunciation surfaces, resolving to 2,024
+- 2,303 authored Albanian pronunciation surfaces, resolving to 2,255
   case-folded MP3 clips; zero are missing or malformed;
 - 151/151 in-world travel-survival syllabus items represented, with ten modern
   facilities or transport terms explicitly excluded from the folklore frame;
@@ -74,11 +76,78 @@ between any genuinely different authored surfaces.
 claims above as release gates. They complement, rather than replace, the
 sentence-level editorial and source-fidelity audits.
 
+The broader corpus check runs as
+`node scripts/freqcoverage.mjs 1000 --strict --summary`. It treats the subtitle
+frequency file as spoken-language evidence, not as a clean lemma list: exact
+story surfaces and explicitly drillable forms are counted directly, while each
+remaining top-1,000 token must have one human-reviewed disposition in
+`scripts/data/sq_top1000_review.mjs` (an existing inflection, a spelling
+variant, a prioritized useful candidate, or a specifically reasoned exclusion
+such as a foreign name or an object that cannot be made coherent with this
+world). The ledger is
+self-pruning: certification fails when an entry falls outside the sample or is
+left behind after that surface becomes playable.
+
 The interface exposes Albanian tokens, dictionary entries, practice prompts
 and comprehension sentences with `lang="sq"`. Mixed English/Albanian word
 controls use markup-backed accessible names instead of one untyped label, so
 assistive voices can switch language at the boundary without changing the
 visible learning interaction.
+
+## Learner dictionary definitions
+
+Every saved word has a short Albanian definition in `DEFS`. The same tokenised
+definition appears in the Dictionary and, without nested controls, when the
+player hovers or focuses that word in learning text. Known definition words use
+their Albanian surface and unknown ones retain the normal dashed English gloss;
+the tooltip must never create a second discovery or answer-giving interaction.
+
+A definition must identify the exact `DICT` sense. It cannot be a one-word
+alias, repeat its own headword, share identical wording with another sense, or
+fall back to placeholders such as *një gjë*, *një njeri*, *një vend*, or *një
+fjalë e vogël*. Concrete nouns should name a useful category plus a
+distinguishing feature or use. Verbs should state a recognizable action or
+result. Function words and discourse markers should use a short, natural
+micro-example that demonstrates their role. Proper names and lore terms should
+locate the person, place, or creature specifically enough to distinguish it
+from the rest of the world.
+
+`node scripts/definitionqualityaudit.mjs` enforces structural completeness and
+rejects those known placeholder patterns. Semantic and grammatical review must
+also compare uncertain senses against an authoritative Albanian explanatory
+dictionary, then paraphrase them into original beginner-readable wording; the
+release gate is not a substitute for a fluent human reviewer.
+
+`node scripts/dictionaryusageaudit.mjs` separately requires every `DICT` sense
+to occur in playable story prose, a player action, an item-use phrase, health
+narration, or generated environment narration. Occurrence inside `DEFS` does
+not count: a word cannot enter the public dictionary merely to define some
+other word and then remain impossible for the player to encounter.
+
+## Inflection paradigms
+
+“Every suffix” means every reviewed grammatical form appropriate to that kind
+of word, not a fabricated universal suffix list. Nouns decline for number,
+definiteness, and case; verbs, adjectives, pronouns, and clitics need their own
+paradigm tracks. A singular noun paradigm therefore records the indefinite
+subject, object, genitive/dative and ablative roles, plus the definite subject,
+object and shared genitive/dative/ablative surface. Count-noun paradigms also
+keep the indefinite and definite plural, the shared definite
+genitive/dative/ablative plural, and the distinct indefinite ablative plural
+(-sh/-ish) together. This follows the Academy of Sciences' published noun
+declension tables. When Albanian uses one surface for more than one job, the
+data preserves that syncretism rather than inventing a different ending.
+
+Every declared noun surface is eligible for Train even when it is uncommon in
+the current story route. The scheduler completes the learner's least-mastered
+layer before repeating a form; story frequency only breaks ties within that
+layer. A wrong answer receives its exact role refresher and remains unmastered,
+so failure cannot silently advance the paradigm. `nounparadigmaudit.mjs`
+enforces role completeness and `formprogressionaudit.mjs` proves every reviewed
+surface is reachable without starvation. When two grammatical roles have the
+same spelling, the role table keeps both but a context-free spelling question
+shows that surface only once; pretending the learner could distinguish two
+identical answers without sentence context would be an invalid quiz.
 
 ## Comprehension safety
 
@@ -108,11 +177,11 @@ actions must also keep identical English across registry files. The audit pins
 two narrow contextual exceptions: *rrugës* can be a road or a village lane,
 and *diellin* can name either the physical sun or the personified Sun.
 
-The audit simulates 50 salted attempts for every one of the 143
-achievements: 7,150 attempts and 28,600 questions. It requires four questions
+The audit simulates 50 salted attempts for every one of the 145
+achievements: 7,250 attempts and 29,000 questions. It requires four questions
 per attempt, three unique options per question, the correct option to be
 present, and every sentence answer to resolve to approved whole-line metadata.
-With full reading coverage, all 28,600 simulated questions are sentence-based.
+With full reading coverage, all 29,000 simulated questions are sentence-based.
 It also guards the reported regressions “You beautiful are,” “His mother stays
 and wait,” and singular “The dress have power.”
 

@@ -30,14 +30,9 @@ export default function GuideView() {
       <section className="guide-section" aria-labelledby="guide-map">
         <h3 id="guide-map">Reading the world</h3>
         <p>
-          Route notes show distance, elapsed time, and two mythic-chart directions. Forestward and
-          sea-roadward form one axis; highward and deepward form the other. They are not modern
-          compass bearings. Following the displayed route vectors reproduces the same map; the Map
-          tab lets you compare that reconstruction with the paths you have visited or heard about.
-        </p>
-        <p>
-          The date, season, weather, visible horizon, travelling people, and consequences of
-          completed tales continue changing as time passes.
+          Time, weather, travelling people, and the consequences of completed tales appear in the
+          places and conversations around you. Pay attention to what the world tells you: the
+          ordinary player interface does not expose a map or a conditions dashboard.
         </p>
       </section>
 

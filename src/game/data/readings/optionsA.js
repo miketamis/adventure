@@ -177,7 +177,7 @@ export const OPTION_READINGS_A = Object.freeze({
   "mujoHak1.options[2]": { al: "kthehu në Jutbina", en: "Return to Jutbina.", review: 'internal-editorial' }, // 174
   "mujoHak1.options[3]": { al: "ndihmo kapidanin", en: "Help the captain.", review: 'internal-editorial' }, // 175
   "mejdan1.options[0]": { al: "lufto vetëm", en: "Fight alone.", review: 'internal-editorial' }, // 176
-  "mejdan1.options[1]": { al: "thirr agat", en: "Call the agas.", review: 'internal-editorial' }, // 177
+  "mejdan1.options[1]": { al: "thirr agallarët", en: "Call the agas.", review: 'internal-editorial' }, // 177
   "mejdan1.options[2]": { al: "kthehu në Jutbina", en: "Return to Jutbina.", review: 'internal-editorial' }, // 178
   "mejdan1.options[3]": { al: "thirr kapidanin", en: "Call the captain.", review: 'internal-editorial' }, // 179
   "mejdan2.options[0]": { al: "jep besën", en: "Pledge your besa.", review: 'internal-editorial' }, // 180
@@ -294,7 +294,7 @@ export const OPTION_READINGS_A = Object.freeze({
   "bota2.options[4]": { al: "merr pusin", en: "Take the well.", review: 'internal-editorial' }, // 291
   "bota2.options[5]": { al: "dëgjo ujin", en: "Listen to the water.", review: 'internal-editorial' }, // 292
   "porta1.options[0]": { al: "jep mish luanit", en: "Give meat to the lion.", review: 'internal-editorial' }, // 293
-  "porta1.options[1]": { al: "jep kashtë qengjit", en: "Give hay to the lamb.", review: 'internal-editorial' }, // 294
+  "porta1.options[1]": { al: "jep sanë qengjit", en: "Give hay to the lamb.", review: 'internal-editorial' }, // 294
   "porta1.options[2]": { al: "jep mish qengjit", en: "Give meat to the lamb.", review: 'internal-editorial' }, // 295
   "porta1.options[3]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 296
   "porta1.options[4]": { al: "jep derën", en: "Give the door.", review: 'internal-editorial' }, // 297
@@ -476,7 +476,7 @@ export const OPTION_READINGS_A = Object.freeze({
   "udhetariHuaj.options[0]": { al: "dëgjo udhëtarin", en: "Listen to the traveller.", review: 'internal-editorial' }, // 471
   "udhetariHuaj.options[1]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 472
   "udhetariHuaj.options[2]": { al: "dëgjo njëzet", en: "Listen to twenty.", review: 'internal-editorial' }, // 473
-  "udhaShenja.options[0]": { al: "tërheq derën", en: "Pull the door.", review: 'internal-editorial' }, // 474
+  "udhaShenja.options[0]": { al: "tërhiq derën", en: "Pull the door.", review: 'internal-editorial' }, // 474
   "udhaShenja.options[1]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 475
   "udhaShenja.options[2]": { al: "dëgjo shenjat", en: "Listen to the signs.", review: 'internal-editorial' }, // 476
   "thesar2.options[0]": { al: "prek arin", en: "Touch the gold.", review: 'internal-editorial' }, // 477
