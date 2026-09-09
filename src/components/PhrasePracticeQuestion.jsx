@@ -87,7 +87,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
     if (committed.current) return
     committed.current = true
     setOutcome({ correct, correction })
-    onComplete({ correct, phraseIds })
+    onComplete({ correct, phraseIds, rewardIds: q.rewardIds })
   }
 
   const checkConstruction = () => {

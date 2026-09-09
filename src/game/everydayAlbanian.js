@@ -133,8 +133,9 @@ export const FIRST_SESSION_PHRASES = Object.freeze([
 // Whole-chunk practice is the speed lane. Each prompt reinforces every sense
 // needed to understand or speak the phrase, instead of making the learner win
 // five unrelated single-word questions before using one ordinary response.
+// Single words remain in ordinary vocabulary practice; this bank is reserved
+// for combinations the learner can actually construct, complete or translate.
 export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
-  { id: 'hello', al: 'përshëndetje!', en: 'Hello!', requires: ['pershendetje'] },
   { id: 'how-are-you', al: 'si je?', en: 'How are you?', requires: ['si', 'je'] },
   { id: 'well-thanks-you', al: 'jam mirë, faleminderit. po ti?', en: 'I am well, thank you. And you?', requires: ['jam', 'mire', 'faleminderit', 'po_turn', 'ti'] },
   { id: 'where-going', al: 'ku po shkon?', en: 'Where are you going?', requires: ['ku', 'po_prog', 'shko'] },
@@ -233,8 +234,6 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
   // Daily rhythm and return visits recur naturally at inns, stalls, roads and
   // guest-rooms. Keeping them in the phrase lane turns ambient world life into
   // language the player can actually reuse outside the tale.
-  { id: 'good-morning', al: 'mirëmëngjes!', en: 'Good morning!', requires: ['mirmengjes'] },
-  { id: 'good-evening', al: 'mirëmbrëma!', en: 'Good evening!', requires: ['mirembrema'] },
   { id: 'sleep-good-night', al: 'fle mirë! natën e mirë!', en: 'Sleep well! Good night!', requires: ['fle', 'mire', 'naten', 'e_art'] },
   { id: 'thanks-come-again', al: 'faleminderit! ejani përsëri!', en: 'Thank you! Come again!', requires: ['faleminderit', 'vjen', 'perseri'] },
   { id: 'thanks-goodbye', al: 'faleminderit dhe mirupafshim!', en: 'Thank you and goodbye!', requires: ['faleminderit', 'dhe', 'mirupafshim'] },
@@ -251,7 +250,7 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
 // The whole-phrase bank must not become a shapeless list. These groups state
 // the practical outcomes it has to keep covering as story content grows.
 export const EVERYDAY_CAN_DO_GROUPS = Object.freeze([
-  { id: 'social', label: 'greet, respond and read social tone', minimum: 8, drillIds: ['hello', 'how-are-you', 'well-thanks-you', 'good-morning', 'good-evening', 'thanks-very-much', 'yes-thank-you', 'welcome-enter', 'thanks-goodbye', 'sorry-sympathy'] },
+  { id: 'social', label: 'greet, respond and read social tone', minimum: 8, drillIds: ['how-are-you', 'well-thanks-you', 'thanks-very-much', 'yes-thank-you', 'welcome-enter', 'thanks-come-again', 'thanks-goodbye', 'sorry-sympathy', 'all-right-later', 'good-luck'] },
   { id: 'introduce', label: 'introduce yourself and learn about someone', minimum: 6, drillIds: ['your-name', 'where-from', 'where-live', 'what-work', 'from-gjakova', 'live-near-market', 'work-market'] },
   { id: 'family', label: 'ask about family and answer', minimum: 4, drillIds: ['how-family', 'family-well', 'have-siblings', 'miss-family'] },
   { id: 'coordinate', label: 'locate people and make plans', minimum: 8, drillIds: ['where-going', 'setting-off-coming', 'where-meet', 'today-tomorrow', 'what-time', 'where-are-you', 'when-finish', 'all-right-later', 'who-will-come', 'going-guest-room', 'when-guests-come', 'at-noon'] },
@@ -271,7 +270,7 @@ export const EVERYDAY_CAN_DO_GROUPS = Object.freeze([
   { id: 'food', label: 'eat, drink, offer and express preference', minimum: 8, drillIds: ['what-want', 'want-water', 'want-water-question', 'yes-thank-you', 'have-eaten', 'am-hungry', 'am-thirsty', 'come-eat-with-us', 'bon-appetit', 'like-tea', 'dont-like-coffee', 'coffee-please'] },
   { id: 'health', label: 'ask for care and describe pain', minimum: 3, drillIds: ['need-doctor', 'hurts-here', 'need-help'] },
   { id: 'lodging', label: 'ask for a room and a price', minimum: 3, drillIds: ['need-room-tonight', 'night-price', 'sleep-here'] },
-  { id: 'daily-rhythm', label: 'greet, part and check in across a day', minimum: 6, drillIds: ['good-morning', 'good-evening', 'sleep-good-night', 'still-not-slept', 'all-right-later', 'good-luck'] },
+  { id: 'daily-rhythm', label: 'part, make plans and check in across a day', minimum: 6, drillIds: ['tomorrow-morning', 'today-now', 'at-noon', 'where-were-you', 'have-slept', 'sleep-good-night', 'still-not-slept', 'all-right-later', 'good-luck'] },
   { id: 'hospitality', label: 'welcome a guest and close a visit warmly', minimum: 4, drillIds: ['welcome-enter', 'come-eat-with-us', 'thanks-come-again', 'thanks-goodbye'] },
   { id: 'thoughts-plans', label: 'share a feeling, idea or near-future concern', minimum: 4, drillIds: ['happy-going-home', 'have-an-idea', 'what-think', 'take-care-tonight', 'good-luck'] },
 ])

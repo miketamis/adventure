@@ -222,8 +222,8 @@ export default function PracticeView({ state, dispatch }) {
     state.phraseMistakes,
   ])
 
-  const onPhraseComplete = useCallback(({ correct, phraseIds }) => {
-    dispatch({ type: 'PRACTICE_PHRASE_RESULT', correct, phraseIds })
+  const onPhraseComplete = useCallback(({ correct, phraseIds, rewardIds }) => {
+    dispatch({ type: 'PRACTICE_PHRASE_RESULT', correct, phraseIds, rewardIds })
     setTimeout(next, correct ? 1900 : 2800)
   }, [dispatch, next])
 

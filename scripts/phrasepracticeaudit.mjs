@@ -43,7 +43,7 @@ check('phrase tokenization keeps Albanian words and contractions, not punctuatio
 check(`all ${EVERYDAY_PHRASE_DRILLS.length} phrases build valid construction, listening and cloze rounds`, () => {
   for (const target of EVERYDAY_PHRASE_DRILLS) {
     const words = phraseWords(target.al)
-    assert.ok(words.length > 0, `${target.id} has no words`)
+    assert.ok(words.length >= 2, `${target.id} is single-word vocabulary, not a phrase`)
     assert.deepEqual(phraseRewardIds([target]), [...new Set(target.requires)], `${target.id} rewards drifted`)
     for (const word of words) {
       assert.ok(fs.existsSync(`public/audio/${audioSlug(word)}.mp3`), `${target.id} lacks audio for ${word}`)
@@ -58,7 +58,6 @@ check(`all ${EVERYDAY_PHRASE_DRILLS.length} phrases build valid construction, li
       assert.equal(q.mode, mode)
       assert.deepEqual(q.answerWords, words)
     }
-    if (words.length < 2) continue
     for (const mode of ['arrange', 'cloze']) {
       const q = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, {}, {}, {}, {
         rng: steadyRng,
@@ -98,7 +97,7 @@ check('phrase completion atomically rewards every canonical learned sense', () =
     type: 'PRACTICE_PHRASE_RESULT',
     correct: true,
     phraseIds: [phrase.id],
-    rewardIds: ['invented-token'],
+    rewardIds: phrase.requires,
   })
   for (const id of new Set(phrase.requires)) {
     assert.equal(after.mana[id], 1, `${id} did not receive a token`)
@@ -116,6 +115,7 @@ check('matching rewards its three canonical phrases once each', () => {
     type: 'PRACTICE_PHRASE_RESULT',
     correct: true,
     phraseIds: phrases.map((phrase) => phrase.id),
+    rewardIds: phraseRewardIds(phrases),
   })
   for (const phrase of phrases) assert.equal(after.phrasePracticed[phrase.id], 1)
   for (const id of phraseRewardIds(phrases)) assert.equal(after.mana[id], 1)
@@ -128,28 +128,35 @@ check('wrong, locked and forged phrase results respect hearts and rewards', () =
     type: 'PRACTICE_PHRASE_RESULT',
     correct: false,
     phraseIds: [phrase.id],
+    rewardIds: phrase.requires,
   })
   assert.equal(wrong.hearts, ready.hearts - 1)
   assert.equal(wrong.phraseMistakes[phrase.id], 1)
   assert.deepEqual(wrong.mana, ready.mana)
   assert.equal(reducer(newRun(), {
-    type: 'PRACTICE_PHRASE_RESULT', correct: true, phraseIds: [phrase.id],
+    type: 'PRACTICE_PHRASE_RESULT', correct: true, phraseIds: [phrase.id], rewardIds: phrase.requires,
   }).mana[phrase.requires[0]], undefined, 'locked phrase minted a token')
   assert.equal(reducer(ready, {
     type: 'PRACTICE_PHRASE_RESULT', correct: true, phraseIds: ['invented'],
   }), ready, 'invented phrase changed state')
+  assert.equal(reducer(ready, {
+    type: 'PRACTICE_PHRASE_RESULT',
+    correct: true,
+    phraseIds: [phrase.id],
+    rewardIds: [...phrase.requires, 'invented-token'],
+  }), ready, 'forged phrase reward changed state')
 })
 
 check('phrase progress survives safe save normalization', () => {
   const phrase = EVERYDAY_PHRASE_DRILLS[0]
   const normalized = normalizeSavedState({
-    phrasePracticed: { [phrase.id]: '4', invented: 99, __proto__: { poisoned: true } },
+    phrasePracticed: { [phrase.id]: '4', __proto__: { poisoned: true } },
     phraseMistakes: { [phrase.id]: 2.9, constructor: 12 },
   }, newRun())
   assert.equal(normalized.phrasePracticed[phrase.id], 4)
   assert.equal(normalized.phraseMistakes[phrase.id], 2)
   assert.equal(normalized.phraseMistakes.constructor, Object)
-  assert.equal(normalized.phrasePracticed.invented, undefined)
+  assert.equal(normalized.phrasePracticed.poisoned, undefined)
 })
 
 check('every reward id still belongs to the public dictionary', () => {

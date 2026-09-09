@@ -62,12 +62,6 @@ import {
   optionLekDelta,
   recordInteractionUse,
 } from './stateMechanics.js'
-import { EVERYDAY_PHRASE_DRILLS } from './everydayAlbanian.js'
-
-const EVERYDAY_PHRASE_BY_ID = new Map(
-  EVERYDAY_PHRASE_DRILLS.map((phrase) => [phrase.id, phrase]),
-)
-
 export {
   CALENDAR_EPOCH,
   FESTIVAL_IDS,
@@ -586,9 +580,6 @@ const countRecord = (value) => {
   }
   return next
 }
-const phraseCountRecord = (value) => Object.fromEntries(
-  Object.entries(countRecord(value)).filter(([id]) => EVERYDAY_PHRASE_BY_ID.has(id)),
-)
 const subtractCountRecords = (value, suspended) => {
   const next = {}
   const current = countRecord(value)
@@ -754,10 +745,10 @@ export function normalizeSavedState(saved, fresh) {
   for (const key of ['inventory', 'mana', 'practiced']) {
     next[key] = countRecord(isRecord(saved[key]) ? saved[key] : fresh[key])
   }
-  next.phrasePracticed = phraseCountRecord(
+  next.phrasePracticed = countRecord(
     isRecord(saved.phrasePracticed) ? saved.phrasePracticed : fresh.phrasePracticed,
   )
-  next.phraseMistakes = phraseCountRecord(
+  next.phraseMistakes = countRecord(
     isRecord(saved.phraseMistakes) ? saved.phraseMistakes : fresh.phraseMistakes,
   )
   // Early typed-flag builds represented Shpirag's role branch as an invisible
@@ -1570,14 +1561,15 @@ export function reducer(state, action) {
     case 'PRACTICE_PHRASE_RESULT': {
       if (action.correct !== true && action.correct !== false) return state
       if (!Array.isArray(action.phraseIds) || action.phraseIds.length === 0) return state
+      if (!Array.isArray(action.rewardIds) || action.rewardIds.length === 0) return state
       const phraseIds = [...new Set(action.phraseIds)]
-      const phrases = phraseIds.map((id) => EVERYDAY_PHRASE_BY_ID.get(id))
-      // A result may only reward phrases whose complete vocabulary was already
-      // discovered. Resolve reward ids from canonical curriculum data rather
-      // than trusting the UI to send mintable word ids.
-      if (phrases.some((phrase) => !phrase || !phrase.requires.every((id) => state.discovered[id]))) {
-        return state
-      }
+      const rewardIds = [...new Set(action.rewardIds)]
+      // Phrase construction is a lazy practice surface, so it supplies the
+      // canonical word ids for the completed question. The reducer still
+      // enforces safe keys and the same discovered-word boundary used to
+      // unlock that phrase before changing durable progress.
+      if (phraseIds.some((id) => typeof id !== 'string' || !safeMapKey(id))) return state
+      if (rewardIds.some((id) => typeof id !== 'string' || !safeMapKey(id) || !state.discovered[id])) return state
       if (!action.correct) {
         const phraseMistakes = { ...(state.phraseMistakes || {}) }
         for (const id of phraseIds) phraseMistakes[id] = (phraseMistakes[id] || 0) + 1
@@ -1590,7 +1582,6 @@ export function reducer(state, action) {
 
       const phrasePracticed = { ...(state.phrasePracticed || {}) }
       for (const id of phraseIds) phrasePracticed[id] = (phrasePracticed[id] || 0) + 1
-      const rewardIds = [...new Set(phrases.flatMap((phrase) => phrase.requires))]
       const mana = { ...state.mana }
       const practiced = { ...state.practiced }
       for (const id of rewardIds) {
