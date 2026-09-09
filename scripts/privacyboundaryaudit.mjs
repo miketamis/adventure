@@ -25,7 +25,9 @@ for (const path of forbiddenRoots) {
 // Policy prose such as AGENTS.md may name the class of data it forbids, so the
 // audit looks for timestamps and phone-shaped payloads rather than keywords.
 const exportTimestamp = /\[\d{1,2}:\d{2},\s*\d{1,2}\/\d{1,2}\/\d{2,4}\]/
-const internationalPhone = /(?:\+|00)\d{1,3}[\s.-](?:\d[\s.-]*){7,}/
+// A phone-like number must begin at a text boundary. Without this guard, DOI
+// paths such as `j.0023-8333.2004...` are misclassified as `00` dialling.
+const internationalPhone = /(?<![\w/.-])(?:\+|00)\d{1,3}[\s.-](?:\d[\s.-]*){7,}/
 const textExtensions = /\.(?:c?js|mjs|jsx|json|md|txt|css|html|svg|yml|yaml)$/i
 const leaks = []
 

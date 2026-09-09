@@ -22,7 +22,7 @@ const realOpts = (n) => (n.options || []).filter((o) => !o.confuser)
 
 // Words that DON'T name a present scene-thing (function words, directions/qualities, action verbs).
 const WL = new Set(
-  'ti ju je jam eshte ne tek nga nje te_link te_subj te_obj me_obj e_link e_art i_art dhe edhe por nuk une ne_we per me pa ose qe ku pse si sa kush a_q do do_fut jo po_yes po_prog po_turn tani perseri shume pak mire keq rregull gje tjeter mund dot mos mbi faleminderit lutem mirupafshim'.split(' ')
+  'ti ju je jam eshte ne tek nga nje te_link te_subj te_obj me_obj e_link e_art i_art dhe edhe por nuk une ne_we per me pa ose qe ku pse si sa kush a_q do do_fut jo po_yes po_prog po_turn tani perseri shume pak mire keq rregull gje tjeter mund dot mos mbi faleminderit lutem mirupafshim gezuar'.split(' ')
     .concat('lart larg poshte jashte brenda ketu shpejt ngadale bashke naten dite agim mengjes muzg sonte deri vetem vogel madh forte ri vjeter bardhe zi gjelber qete gati sigurt thate erret ftohte uritur bukur krenar shenjte thelle nente dy tre shtate nevoje'.split(' '))
     .concat('ec shko ngjit zbrit kthehu ik fle prit dil hyr bie vazhdo vazhdon degjo ndihmo merr jep lufto vrit shpeto sheh shiko beso thirr hidh prek kalo kerko ndiz premto fal fol pyet perserit kuptoj kushton hajde mban godit mbyll sulmo tund kendo vesh vajto mashtro lind ha pi bej fluturo zgjohu rri leviz behet vjen flet thote gjen luan ruan verbo humbet vdes pre mbaroi hap mbush laj meso ngre zgjedh sjell marto mallko le fsheh nxjerr varros shes blej shtyj terheq dorezohem quhem nisem gezohem'.split(' '))
 )

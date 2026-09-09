@@ -1,4 +1,9 @@
 export const OPTION_READINGS_STATIC = Object.freeze({
+  "fshatiDitelindje.options[0]": { al: "gëzuar ditëlindjen!", en: "Say, “Happy birthday!”", review: 'internal-editorial' },
+  "fshatiDitelindje.options[1]": { al: "thuaj mirupafshim.", en: "Say goodbye.", review: 'internal-editorial' },
+  "fshatiDitelindje.options[2]": { al: "sofra sjell familjen", en: "The table brings the family.", review: 'internal-editorial' },
+  "fshatiDitelindjeUrim.options[0]": { al: "thuaj mirupafshim.", en: "Say goodbye.", review: 'internal-editorial' },
+  "fshatiDitelindjeUrim.options[1]": { al: "ditëlindja thotë faleminderit", en: "The birthday says thank you.", review: 'internal-editorial' },
   // The synthetic opening conversation is kept together here so its practical
   // English actions can be reviewed as one curriculum unit.
   "bisedaUra1.options[0]": { al: "jam mirë, faleminderit. po ti?", en: "Say: “I am well, thank you. And you?”", review: 'internal-editorial' },
@@ -13,7 +18,7 @@ export const OPTION_READINGS_STATIC = Object.freeze({
   "bisedaUraPlan.options[1]": { al: "takohemi më vonë.", en: "Say: “We will meet later.”", review: 'internal-editorial' },
   "bisedaUraPlan.options[2]": { al: "Elira quhet fshat", en: "Elira is called village.", review: 'internal-editorial' },
   "bisedaFollowAgree.options[0]": { al: "nisemi.", en: "Say: “Let us go.”", review: 'internal-editorial' },
-  "bisedaFollowAgree.options[1]": { al: "gruaja ha fshatin", en: "The woman eats the village.", review: 'internal-editorial' },
+  "bisedaFollowAgree.options[1]": { al: "fshati vjen me gruan", en: "The village comes with the woman.", review: 'internal-editorial' },
   "bisedaShesh.options[0]": { al: "kalo urën pas saj.", en: "Cross the bridge after her.", review: 'internal-editorial' },
   "bisedaShesh.options[1]": { al: "prit pak, të lutem.", en: "Say: “Wait a moment, please.”", review: 'internal-editorial' },
   "bisedaShesh.options[2]": { al: "prit urën", en: "Wait for the bridge.", review: 'internal-editorial' },
@@ -31,15 +36,15 @@ export const OPTION_READINGS_STATIC = Object.freeze({
   "eliraShesh.options[0]": { al: "si quhesh?", en: "Ask: “What is your name?”", review: 'internal-editorial' },
   "eliraShesh.options[1]": { al: "po, mund të të ndihmoj.", en: "Say: “Yes, I can help you.”", review: 'internal-editorial' },
   "eliraShesh.options[2]": { al: "tani jo, më fal.", en: "Say: “Not now, sorry.”", review: 'internal-editorial' },
-  "eliraShesh.options[3]": { al: "sheshi pyet Elirën", en: "The square asks Elira.", review: 'internal-editorial' },
+  "eliraShesh.options[3]": { al: "sheshi pyet fshatin", en: "The square asks the village.", review: 'internal-editorial' },
   "eliraEmriShesh.options[0]": { al: "po, mund të të ndihmoj.", en: "Say: “Yes, I can help you.”", review: 'internal-editorial' },
   "eliraEmriShesh.options[1]": { al: "tani jo, më fal.", en: "Say: “Not now, sorry.”", review: 'internal-editorial' },
-  "eliraEmriShesh.options[2]": { al: "sheshi pyet Elirën", en: "The square asks Elira.", review: 'internal-editorial' },
+  "eliraEmriShesh.options[2]": { al: "fshati ndihmon Elirën", en: "The village helps Elira.", review: 'internal-editorial' },
   "eliraBanore.options[0]": { al: "jam mirë, faleminderit. po ti?", en: "Say: “I am well, thank you. And you?”", review: 'internal-editorial' },
   "eliraBanore.options[1]": { al: "si quhesh?", en: "Ask: “What is your name?”", review: 'internal-editorial' },
-  "eliraBanore.options[2]": { al: "gruaja pi Elirën", en: "The woman drinks Elira.", review: 'internal-editorial' },
+  "eliraBanore.options[2]": { al: "gruaja pyet fshatin", en: "The woman asks the village.", review: 'internal-editorial' },
   "eliraEmriBanore.options[0]": { al: "edhe unë gëzohem.", en: "Say: “Nice to meet you too.”", review: 'internal-editorial' },
-  "eliraEmriBanore.options[1]": { al: "Elira ha Elirën", en: "Elira eats Elira.", review: 'internal-editorial' },
+  "eliraEmriBanore.options[1]": { al: "Elira quhet fshat", en: "Elira is called village.", review: 'internal-editorial' },
   // The first useful errand carries ordinary conversation into a market and
   // then back to the oda, where hospitality opens the Kulshedra trail.
   "porosiaShesh.options[0]": { al: "në rregull. po shkoj në treg.", en: "Say: “All right. I am going to the market.”", review: 'internal-editorial' },

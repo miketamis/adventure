@@ -7,6 +7,12 @@ import { DICT } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
+import { phraseProductionFocusIds } from '../src/game/phraseFocus.js'
+import {
+  PHRASE_PROGRESS_VERSION,
+  PHRASE_INITIAL_REVIEW_GAP,
+  emptyPhraseProductionProgress,
+} from '../src/game/phraseProgression.js'
 import {
   PHRASE_EXERCISE_MODES,
   PHRASE_SKILL_MAX_TIER,
@@ -120,15 +126,17 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
   assert.equal(containsExcludedPhraseWord('çka', ['cka']), false, 'Albanian diacritics were folded')
 
   const practiceSource = fs.readFileSync('src/components/PracticeView.jsx', 'utf8')
-  assert.match(practiceSource, /excludeWords: previousQuestionWords\.current/)
+  assert.match(practiceSource, /const excludeWords = previousQuestionWords\.current\.length/)
+  assert.match(practiceSource, /excludeWords,/)
   assert.match(practiceSource, /previousQuestionWords\.current = trainQuestionWordKeys\(nextQuestion\)/)
-  assert.match(practiceSource, /buildQuestion\(discoveredIds, state\.mana, previousQuestionWords\.current\)/)
-  assert.match(practiceSource, /buildFormsQuestion\([\s\S]+previousQuestionWords\.current/)
+  assert.match(practiceSource, /buildQuestion\(discoveredIds, state\.mana, excludeWords\)/)
+  assert.match(practiceSource, /buildFormsQuestion\([\s\S]+excludeWords/)
   assert.match(
     practiceSource,
-    /if \(!nextQuestion\) nextQuestion = buildQuestion\(discoveredIds, state\.mana\)/,
-    'an exhausted one-word schedule can remain stuck on Preparing forever',
+    /nextQuestion = \{ kind: TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome \}/,
+    'an exhausted schedule did not pause without repeating a word',
   )
+  assert.doesNotMatch(practiceSource, /buildQuestion\(discoveredIds, state\.mana\)\s*$/m)
 
   const questionSource = fs.readFileSync('src/components/PhrasePracticeQuestion.jsx', 'utf8')
   assert.match(questionSource, /q\.mode === 'cloze'[\s\S]+className="answers phrase-cloze-answers"/)
@@ -225,82 +233,89 @@ const finish = (state, question, overrides = {}) => reducer(state, {
   rewardIds: question.rewardIds,
   skill: question.skill,
   tier: question.tier,
+  questionKey: question.questionKey,
+  mode: question.mode,
+  typeScope: question.typeScope,
+  focusId: question.focusId || null,
+  diagnostic: null,
   ...overrides,
 })
 
-check('production advances monotonically from one gap to ordering, word spelling and full writing', () => {
-  const phrase = EVERYDAY_PHRASE_DRILLS.find((entry) => entry.requires.length >= 4)
+check('production requires two focuses, ordering, every focus spelling, then full writing', () => {
+  const phrase = EVERYDAY_PHRASE_DRILLS.find((entry) => entry.id === 'going-village')
   let state = unlockedState([phrase])
   const question = () => buildPhraseQuestion([phrase], state.mana, state.phrasePracticed, state.phraseMistakes, {
     rng: steadyRng,
-    targetId: phrase.id,
     distractorPool: EVERYDAY_PHRASE_DRILLS,
     mastery: {
-      production: state.phraseMastery,
       listening: state.phraseListeningMastery,
       matching: state.phraseMatchingMastery,
     },
+    productionProgress: state.phraseProductionProgress,
+    currentRound: state.trainRound,
   })
-
-  const cloze = question()
-  assert.equal(cloze.skill, 'production')
-  assert.equal(cloze.tier, 0)
-  assert.equal(cloze.mode, 'cloze')
-  assert.equal(cloze.rewardIds.length, 1, 'first gap rewarded the whole phrase')
-  assert.ok(phrase.requires.includes(cloze.rewardIds[0]))
-  state = finish(state, cloze)
-  assert.equal(state.phraseMastery[phrase.id], 1)
-  assert.equal(state.mana[cloze.rewardIds[0]], 1)
-  for (const id of phrase.requires.filter((id) => id !== cloze.rewardIds[0])) {
-    assert.equal(state.mana[id], undefined, `${id} was rewarded by a different missing word`)
+  const waitForPhrase = () => {
+    let next = question()
+    while (!next || next.skill !== 'production') {
+      if (next) state = finish(state, next)
+      else state = reducer(state, {
+          type: 'TRAIN_ROUND_COMPLETE',
+          questionKey: `disjoint:${state.trainRound}`,
+          wordKeys: ['ndryshe'],
+        })
+      next = question()
+    }
+    return next
   }
 
-  const arrange = question()
-  assert.equal(arrange.tier, 1)
-  assert.equal(arrange.mode, 'arrange')
-  state = finish(state, arrange)
-  assert.equal(state.phraseMastery[phrase.id], 2)
-
-  const word = question()
-  assert.equal(word.tier, 2)
-  assert.equal(word.mode, 'type')
-  assert.equal(word.typeScope, 'word')
-  assert.equal(word.rewardIds.length, 1)
-  assert.equal(word.answerTolerance, 'beginner')
-  state = finish(state, word)
-  assert.equal(state.phraseMastery[phrase.id], 3)
-
-  const guidedPhrase = question()
-  assert.equal(guidedPhrase.tier, 3)
-  assert.equal(guidedPhrase.typeScope, 'phrase')
-  assert.equal(guidedPhrase.answerTolerance, 'beginner')
-  state = finish(state, guidedPhrase)
+  const expectedTiers = [0, 0, 1, 2, 2, 3, 4]
+  const focusesSeen = { cloze: [], spelling: [] }
+  for (const expectedTier of expectedTiers) {
+    const q = waitForPhrase()
+    assert.equal(q.skill, 'production')
+    assert.equal(q.tier, expectedTier)
+    if (expectedTier === 0) focusesSeen.cloze.push(q.focusId)
+    if (expectedTier === 2) focusesSeen.spelling.push(q.focusId)
+    if ([0, 2].includes(expectedTier)) {
+      assert.deepEqual(q.rewardIds, [q.focusId], 'focused proof rewarded the whole phrase')
+    }
+    state = finish(state, q)
+  }
+  assert.deepEqual(focusesSeen.cloze, ['shko', 'fshat'])
+  assert.deepEqual(focusesSeen.spelling, ['shko', 'fshat'])
   assert.equal(state.phraseMastery[phrase.id], PHRASE_SKILL_MAX_TIER.production)
-
-  const mastered = question()
-  assert.equal(mastered.mode, 'type')
-  assert.equal(mastered.typeScope, 'phrase')
-  assert.equal(mastered.answerTolerance, 'strict')
-  const repeated = finish(state, mastered)
-  assert.equal(repeated.phraseMastery[phrase.id], PHRASE_SKILL_MAX_TIER.production)
-  assert.equal(repeated.hearts, state.hearts)
+  assert.equal(state.phraseProductionProgress[phrase.id].strictWins, 1)
+  assert.equal(state.phraseProductionProgress[phrase.id].reviewGap, PHRASE_INITIAL_REVIEW_GAP * 2)
 })
 
 check('listening and matching tighten on independent axes without lowering production', () => {
   const phrases = EVERYDAY_PHRASE_DRILLS.slice(0, 6)
   const target = phrases[0]
   let state = unlockedState(phrases)
-  state.phraseMastery[target.id] = 4
+  for (const phrase of phrases) {
+    const focusIds = phraseProductionFocusIds(phrase)
+    state.phraseProductionProgress[phrase.id] = {
+      ...emptyPhraseProductionProgress(),
+      clozeWins: 2,
+      clozeProofs: focusIds,
+      arrangeWins: 1,
+      spellingProofs: focusIds,
+      independentWins: 1,
+      dueAfterRound: 999,
+    }
+    state.phraseMastery[phrase.id] = 4
+  }
   const make = (mode) => buildPhraseQuestion(phrases, state.mana, state.phrasePracticed, state.phraseMistakes, {
     rng: steadyRng,
     mode,
     targetId: target.id,
     distractorPool: EVERYDAY_PHRASE_DRILLS,
     mastery: {
-      production: state.phraseMastery,
       listening: state.phraseListeningMastery,
       matching: state.phraseMatchingMastery,
     },
+    productionProgress: state.phraseProductionProgress,
+    currentRound: state.trainRound,
   })
 
   for (const [tier, extras] of [[0, 2], [1, 3], [2, 5]]) {
@@ -336,7 +351,6 @@ check('listening and matching tighten on independent axes without lowering produ
   assert.equal(state.phraseMatchingMastery[target.id], PHRASE_SKILL_MAX_TIER.matching)
 
   const mixedMastery = {
-    production: Object.fromEntries(phrases.map((phrase) => [phrase.id, 2])),
     matching: Object.fromEntries(phrases.map((phrase, index) => [phrase.id, index === 0 ? 1 : 0])),
   }
   const undersized = buildPhraseQuestion(phrases, {}, {}, {}, {
@@ -344,9 +358,10 @@ check('listening and matching tighten on independent axes without lowering produ
     mode: 'match',
     targetId: target.id,
     mastery: mixedMastery,
+    productionProgress: state.phraseProductionProgress,
+    currentRound: state.trainRound,
   })
-  assert.notEqual(undersized.mode, 'match', 'a one-card matching board escaped the scheduler')
-  assert.equal(undersized.skill, 'production')
+  assert.equal(undersized, null, 'a forced one-card matching board escaped the scheduler')
 })
 
 check('wrong, stale, locked and forged tier results respect hearts and rewards', () => {
@@ -374,6 +389,7 @@ check('wrong, stale, locked and forged tier results respect hearts and rewards',
 
 check('per-skill phrase tiers survive safe save normalization and clamp forged values', () => {
   const phrase = EVERYDAY_PHRASE_DRILLS[0]
+  const focusIds = phraseProductionFocusIds(phrase)
   const normalized = normalizeSavedState({
     phrasePracticed: { [phrase.id]: '4', __proto__: { poisoned: true } },
     phraseMistakes: { [phrase.id]: 2.9, constructor: 12 },
@@ -382,12 +398,25 @@ check('per-skill phrase tiers survive safe save normalization and clamp forged v
   }, newRun())
   assert.equal(normalized.phrasePracticed[phrase.id], 4)
   assert.equal(normalized.phraseMistakes[phrase.id], 2)
-  assert.equal(normalized.phraseMastery[phrase.id], 4, 'old correct history did not migrate')
+  assert.equal(normalized.phraseMastery[phrase.id], undefined, 'old exposure migrated into production')
   assert.equal(normalized.phraseListeningMastery[phrase.id], 2)
   assert.equal(normalized.phraseMatchingMastery[phrase.id], 2)
   assert.equal(normalized.phraseListeningMastery.invented, undefined)
   assert.equal(normalized.phraseMistakes.constructor, Object)
   assert.equal(normalized.phrasePracticed.poisoned, undefined)
+
+  const v2 = normalizeSavedState({
+    phraseProgressVersion: PHRASE_PROGRESS_VERSION,
+    phraseProductionProgress: {
+      [phrase.id]: {
+        ...emptyPhraseProductionProgress(),
+        clozeWins: 2,
+        clozeProofs: focusIds,
+        arrangeWins: 1,
+      },
+    },
+  }, newRun())
+  assert.equal(v2.phraseMastery[phrase.id], 2, 'reviewed v2 evidence did not survive normalization')
 })
 
 check('every reward id still belongs to the public dictionary', () => {

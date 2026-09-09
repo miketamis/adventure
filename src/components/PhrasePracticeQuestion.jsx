@@ -1,7 +1,11 @@
 import { useMemo, useRef, useState } from 'react'
 import { DICT } from '../game/content.js'
 import { playPhrase, playWord } from '../game/audio.js'
-import { phraseAnswerIsCorrect, phraseAnswerResult } from '../game/phrasePractice.js'
+import {
+  phraseAnswerDiagnostic,
+  phraseAnswerIsCorrect,
+  phraseAnswerResult,
+} from '../game/phrasePractice.js'
 
 const MODE_COPY = Object.freeze({
   arrange: 'Build the Albanian phrase',
@@ -81,7 +85,13 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
     [q.bank, selectedIds],
   )
 
-  const commit = (correct, phraseIds, correction = null, acceptedWithLeeway = false) => {
+  const commit = (
+    correct,
+    phraseIds,
+    correction = null,
+    acceptedWithLeeway = false,
+    diagnostic = null,
+  ) => {
     if (committed.current) return
     committed.current = true
     setOutcome({ correct, correction, acceptedWithLeeway })
@@ -91,26 +101,50 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
       rewardIds: q.rewardIds,
       skill: q.skill,
       tier: q.tier,
+      questionKey: q.questionKey,
+      mode: q.mode,
+      typeScope: q.typeScope,
+      focusId: q.focusId || null,
+      diagnostic,
     })
   }
 
   const checkConstruction = () => {
     const answer = selectedTiles.map((tile) => tile.text).join(' ')
-    commit(phraseAnswerIsCorrect(answer, q.target.al), q.phraseIds, q.target.al)
+    const correct = phraseAnswerIsCorrect(answer, q.target.al)
+    commit(
+      correct,
+      q.phraseIds,
+      q.target.al,
+      false,
+      correct ? null : phraseAnswerDiagnostic(answer, q.target.al, q.target),
+    )
   }
 
   const chooseCloze = (tile) => {
     if (answered || committed.current) return
     playWord(tile.text)
     setSelectedIds([tile.id])
-    commit(tile.answerIndex != null, q.phraseIds, q.target.al)
+    const correct = tile.answerIndex != null
+    commit(
+      correct,
+      q.phraseIds,
+      q.target.al,
+      false,
+      correct ? null : { kind: 'word', focusId: q.focusId },
+    )
   }
 
   const checkTyping = (event) => {
     event.preventDefault()
     if (!typed.trim()) return
     const result = phraseAnswerResult(typed, q.typingAnswer, q.answerTolerance)
-    commit(result.correct, q.phraseIds, q.typingAnswer, result.usedLeeway)
+    const diagnostic = result.correct
+      ? null
+      : q.typeScope === 'word'
+        ? { kind: 'word', focusId: q.focusId }
+        : phraseAnswerDiagnostic(typed, q.typingAnswer, q.target)
+    commit(result.correct, q.phraseIds, q.typingAnswer, result.usedLeeway, diagnostic)
   }
 
   const insertLetter = (letter) => {

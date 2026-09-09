@@ -310,7 +310,8 @@ export const OPTION_READINGS_B = Object.freeze({
   "fshatiSheshi.options[20]": { al: "fol me Elirën", en: "Speak with Elira.", review: 'internal-editorial' },
   "fshatiSheshi.options[21]": { al: "fol me gruan", en: "Speak with the woman.", review: 'internal-editorial' },
   "fshatiSheshi.options[22]": { al: "fol me Elirën", en: "Speak with Elira.", review: 'internal-editorial' },
-  "fshatiSheshi.options[23]": { al: "bëj pusin", en: "Make the well.", review: 'internal-editorial' }, // 834
+  "fshatiSheshi.options[23]": { al: "fol me familjen", en: "Speak with the family.", review: 'internal-editorial' },
+  "fshatiSheshi.options[24]": { al: "bëj pusin", en: "Make the well.", review: 'internal-editorial' }, // 834
   "sheshiPlak.options[0]": { al: "dëgjo plakun", en: "Listen to the old man.", review: 'internal-editorial' }, // 835
   "sheshiPlak.options[1]": { al: "lër plakun", en: "Leave the old man.", review: 'internal-editorial' }, // 836
   "sheshiPlak.options[2]": { al: "ndihmo pusin", en: "Help the well.", review: 'internal-editorial' }, // 837

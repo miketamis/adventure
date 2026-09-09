@@ -199,6 +199,7 @@ const uiSources = Object.fromEntries(await Promise.all([
   '../src/components/WorldContext.jsx',
   '../src/components/AchievementsView.jsx',
   '../src/components/PracticeView.jsx',
+  '../src/game/practiceReturn.js',
   '../src/components/AtlasView.jsx',
   '../src/components/WorldMapView.jsx',
   '../src/App.jsx',
@@ -1180,6 +1181,7 @@ check('the UI exposes confirmation, persistent identity, guidance and locked rea
   const worldContext = uiText('../src/components/WorldContext.jsx')
   const achievements = uiText('../src/components/AchievementsView.jsx')
   const practice = uiText('../src/components/PracticeView.jsx')
+  const practiceReturn = uiText('../src/game/practiceReturn.js')
   const atlas = uiText('../src/components/AtlasView.jsx')
   const map = uiText('../src/components/WorldMapView.jsx')
   const app = uiText('../src/App.jsx')
@@ -1222,8 +1224,9 @@ check('the UI exposes confirmation, persistent identity, guidance and locked rea
   assert.match(worldContext, /worldClock = state\.clock/)
   assert.match(achievements, /disabled=\{roleTestLocked\}/)
   assert.match(achievements, /Finish this character&apos;s tale before taking an/)
-  assert.match(practice, /embodimentOptionAccess\(state, opt, STORY\[opt\.to\]\)\.ok/)
-  assert.match(practice, /!opt\.confuser/)
+  assert.match(practice, /practiceReturnOption\(state\)/)
+  assert.match(practiceReturn, /embodimentOptionAccess\(state, option, STORY\[option\.to\]\)\.ok/)
+  assert.match(practiceReturn, /option\.confuser/)
   assert.match(atlas, /const objective = state\.embodying && state\.embodimentPaused \? state\.embodimentFocusNode : null/)
   assert.match(atlas, /playerMapLabel\(objective\)/)
   assert.match(atlas, /chartDirection\(dx, dy\)\?\.label/)

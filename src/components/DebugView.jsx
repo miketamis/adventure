@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef, Fragment } from 'react'
+import { useMemo, useState, useEffect, useRef, Fragment, lazy, Suspense } from 'react'
 import { createPortal } from 'react-dom'
 import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
 import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB, EXTRA_SOURCES, RANK } from '../game/folklore.js'
@@ -13,6 +13,9 @@ import {
   SELECTED_WITNESS_REVIEWS,
   SOURCE_REVIEW_DISPOSITIONS,
 } from '../game/data/tales/_sourceLedger.js'
+
+const DebugLearningProgression = lazy(() => import('./DebugLearningProgression.jsx'))
+const DebugLearningSaveStatus = lazy(() => import('./DebugLearningSaveStatus.jsx'))
 
 // ===========================================================================
 // DEBUG VIEW — a review console, only reachable in debug mode (click the title
@@ -1618,14 +1621,17 @@ export default function DebugView({ state, dispatch }) {
         <button className={'btn' + (sub === 'library' ? ' active' : '')} onClick={() => setSub('library')}>📖 Folklore</button>
         <button className={'btn' + (sub === 'beats' ? ' active' : '')} onClick={() => setSub('beats')}>🎬 Beats</button>
         <button className={'btn' + (sub === 'npcs' ? ' active' : '')} onClick={() => setSub('npcs')}>🎭 NPCs</button>
+        <button className={'btn' + (sub === 'learning' ? ' active' : '')} onClick={() => setSub('learning')}>🧠 Learning</button>
         <button className={'btn' + (sub === 'history' ? ' active' : '')} onClick={() => setSub('history')}>📜 History</button>
         <button className={'btn' + (sub === 'sources' ? ' active' : '')} onClick={() => setSub('sources')}>📚 Sources</button>
       </div>
-      <div className="dbg-legend">
-        {Object.entries(KIND_LABEL).map(([k, label]) => (
-          <span key={k}><i style={{ background: KIND_COLOR[k] }} /> {label}</span>
-        ))}
-      </div>
+      {sub !== 'learning' && (
+        <div className="dbg-legend">
+          {Object.entries(KIND_LABEL).map(([k, label]) => (
+            <span key={k}><i style={{ background: KIND_COLOR[k] }} /> {label}</span>
+          ))}
+        </div>
+      )}
       {sub === 'graph' && <StoryGraph g={g} sel={sel} setSel={setSel} goLore={goLore} />}
       {sub === 'village' && <VillageMap g={g} current={state.nodeId} goGraph={goGraph}
         world={{ ...environment, fire: fireStateOf(state) }}
@@ -1634,6 +1640,12 @@ export default function DebugView({ state, dispatch }) {
       {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} goSource={goSource} goHistory={goHistory} goBeats={goBeats} />}
       {sub === 'beats' && <Beats focus={beatFocus} goLore={goLore} goWorld={goWorld} goNpc={goNpc} />}
       {sub === 'npcs' && <Npcs focus={npcFocus} goWorld={goWorld} goLore={goLore} goBeats={goBeats} />}
+      {sub === 'learning' && (
+        <Suspense fallback={<p className="dbg-note" role="status">Loading learning progression…</p>}>
+          <DebugLearningSaveStatus state={state} />
+          <DebugLearningProgression />
+        </Suspense>
+      )}
       {sub === 'history' && <History focus={histFocus} goLore={goLore} goSource={goSource} />}
       {sub === 'sources' && <Sources focus={srcFocus} goLore={goLore} goHistory={goHistory} />}
     </section>

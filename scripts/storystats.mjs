@@ -121,6 +121,11 @@ const REVIEWED_UNGATED_ONLY = Object.freeze({
   bisedaUraPlan: 'the learner makes a real location choice after decoding the same planning question',
   bisedaShesh: 'today and tomorrow are mutually-exclusive practical time answers',
   bisedaKroi: 'today and tomorrow are mutually-exclusive practical time answers',
+  eliraBreg: 'name, help and polite-decline responses remain visible as one natural conversation turn',
+  eliraEmriBreg: 'accepting or declining the errand remains a direct conversational choice',
+  eliraShesh: 'name, help and polite-decline responses remain visible as one natural conversation turn',
+  eliraEmriShesh: 'accepting or declining the errand remains a direct conversational choice',
+  eliraBanore: 'the greeting response and asking a recurring NPC her name remain visible together',
   kroiGrate2: 'time-of-day greeting responses must remain visible together as a contextual choice',
 })
 const unreviewedUngatedOnly = ungatedOnly.filter((id) => !REVIEWED_UNGATED_ONLY[id])

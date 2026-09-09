@@ -15,8 +15,17 @@ import {
 } from './achievementRules.js'
 import { NPCS } from './npcs.js'
 import { EVERYDAY_PHRASE_DRILLS } from './everydayAlbanian.js'
-import { PHRASE_SKILL_MAX_TIER } from './phraseProgression.js'
+import {
+  PHRASE_PROGRESS_VERSION,
+  PHRASE_PROGRESSION_POLICY,
+  PHRASE_SKILL_MAX_TIER,
+  advancePhraseProduction,
+  normalizePhraseProductionProgress,
+  phraseProductionStage,
+} from './phraseProgression.js'
+import { phraseProductionFocusIds, phraseSurfaceWordKeys } from './phraseFocus.js'
 import { normalizeTrainingTarget, resolveTrainingTarget } from './trainingTarget.js'
+import { TRAIN_WORD_FORM_POLICY } from './trainingProgression.js'
 import { transitionInfo } from './worldModel.js'
 import { NODE_REGION } from './regions.js'
 import {
@@ -523,7 +532,7 @@ export function timePassageForOption(
 
 // How many correct practices of a word before its "endings" drill unlocks. `mana`
 // is spent on story choices, so a separate monotonic `practiced` counter tracks it.
-export const FORMS_UNLOCK_THRESHOLD = 3
+export const FORMS_UNLOCK_THRESHOLD = TRAIN_WORD_FORM_POLICY.practiceWinsRequired
 // A word enters endings mode once it's been practiced enough AND it has a forms
 // table with at least two frequently-used forms (so step 2 is never a one-option
 // question). The lemma row always counts, so ≥2 means ≥1 real inflected form.
@@ -618,6 +627,28 @@ const phraseMasteryRecord = (value, maxTier) => Object.fromEntries(
     .filter(([id]) => EVERYDAY_PHRASE_BY_ID.has(id))
     .map(([id, tier]) => [id, Math.min(maxTier, tier)]),
 )
+const phraseProductionProgressRecord = (value, currentRound) => {
+  if (!isRecord(value)) return {}
+  const next = {}
+  for (const [id, progress] of Object.entries(value)) {
+    const phrase = EVERYDAY_PHRASE_BY_ID.get(id)
+    if (!phrase || !isRecord(progress)) continue
+    const focusIds = phraseProductionFocusIds(phrase)
+    if (!focusIds.length) continue
+    next[id] = normalizePhraseProductionProgress(progress, focusIds, currentRound)
+  }
+  return next
+}
+const productionTierRecord = (value) => Object.fromEntries(
+  Object.entries(isRecord(value) ? value : {}).flatMap(([id, progress]) => {
+    const phrase = EVERYDAY_PHRASE_BY_ID.get(id)
+    if (!phrase) return []
+    return [[id, phraseProductionStage(progress, phraseProductionFocusIds(phrase))]]
+  }),
+)
+const normalizedTrainWords = (values) => [...new Set(
+  (Array.isArray(values) ? values : []).flatMap((value) => phraseSurfaceWordKeys(value)),
+)].slice(0, 100)
 const subtractCountRecords = (value, suspended) => {
   const next = {}
   const current = countRecord(value)
@@ -789,10 +820,21 @@ export function normalizeSavedState(saved, fresh) {
   next.phraseMistakes = countRecord(
     isRecord(saved.phraseMistakes) ? saved.phraseMistakes : fresh.phraseMistakes,
   )
-  next.phraseMastery = phraseMasteryRecord(
-    isRecord(saved.phraseMastery) ? saved.phraseMastery : next.phrasePracticed,
-    PHRASE_SKILL_MAX_TIER.production,
+  next.trainRound = Math.max(0, Math.floor(finiteOr(saved.trainRound, fresh.trainRound || 0)))
+  next.trainLastWords = normalizedTrainWords(saved.trainLastWords)
+  next.trainLastQuestionKey = typeof saved.trainLastQuestionKey === 'string'
+    ? saved.trainLastQuestionKey.slice(0, 200)
+    : null
+  // Version-1 counters recorded exposure, not gated productive evidence. Keep
+  // the learner's tokens and lifetime totals, but never migrate those counters
+  // into “can independently write this phrase”.
+  const hasPhraseProgressV2 = saved.phraseProgressVersion === PHRASE_PROGRESS_VERSION
+  next.phraseProgressVersion = PHRASE_PROGRESS_VERSION
+  next.phraseProductionProgress = phraseProductionProgressRecord(
+    hasPhraseProgressV2 ? saved.phraseProductionProgress : {},
+    next.trainRound,
   )
+  next.phraseMastery = productionTierRecord(next.phraseProductionProgress)
   next.phraseListeningMastery = phraseMasteryRecord(
     saved.phraseListeningMastery,
     PHRASE_SKILL_MAX_TIER.listening,
@@ -1072,9 +1114,14 @@ export function newRun() {
     practiced: {},
     phrasePracticed: {},
     phraseMistakes: {},
+    phraseProgressVersion: PHRASE_PROGRESS_VERSION,
+    phraseProductionProgress: {},
     phraseMastery: {},
     phraseListeningMastery: {},
     phraseMatchingMastery: {},
+    trainRound: 0,
+    trainLastWords: [],
+    trainLastQuestionKey: null,
     visited: {},
     ...loadAchievements(),
     debug: false,
@@ -1671,30 +1718,53 @@ export function reducer(state, action) {
       }
     }
 
-    case 'PRACTICE_CORRECT':
+    case 'PRACTICE_CORRECT': {
+      if (!safeMapKey(action.id) || !state.discovered[action.id]) return state
+      const completeRound = action.completeRound !== false
       return {
         ...state,
         mana: { ...state.mana, [action.id]: (state.mana[action.id] || 0) + 1 },
         // monotonic (never spent) — this is what unlocks a word's endings drill
         practiced: { ...state.practiced, [action.id]: (state.practiced?.[action.id] || 0) + 1 },
+        trainRound: (state.trainRound || 0) + (completeRound ? 1 : 0),
+        trainLastWords: completeRound ? normalizedTrainWords(action.wordKeys) : state.trainLastWords,
+        trainLastQuestionKey: completeRound && typeof action.questionKey === 'string'
+          ? action.questionKey.slice(0, 200)
+          : state.trainLastQuestionKey,
       }
+    }
 
     case 'PRACTICE_WRONG':
-      return { ...state, hearts: Math.max(0, state.hearts - 1) }
+      return {
+        ...state,
+        hearts: Math.max(0, state.hearts - 1),
+        trainRound: (state.trainRound || 0) + 1,
+        trainLastWords: normalizedTrainWords(action.wordKeys),
+        trainLastQuestionKey: typeof action.questionKey === 'string' ? action.questionKey.slice(0, 200) : null,
+      }
+
+    case 'TRAIN_ROUND_COMPLETE':
+      return {
+        ...state,
+        trainRound: (state.trainRound || 0) + 1,
+        trainLastWords: normalizedTrainWords(action.wordKeys),
+        trainLastQuestionKey: typeof action.questionKey === 'string' ? action.questionKey.slice(0, 200) : null,
+      }
 
     case 'PRACTICE_PHRASE_RESULT': {
       if (action.correct !== true && action.correct !== false) return state
       if (!Array.isArray(action.phraseIds) || action.phraseIds.length === 0) return state
       if (!Array.isArray(action.rewardIds) || action.rewardIds.length === 0) return state
-      const masteryField = action.skill === 'production'
-        ? 'phraseMastery'
-        : action.skill === 'listening'
+      const masteryField = action.skill === 'listening'
           ? 'phraseListeningMastery'
           : action.skill === 'matching'
             ? 'phraseMatchingMastery'
             : null
-      const maxTier = masteryField ? PHRASE_SKILL_MAX_TIER[action.skill] : null
-      if (!masteryField || !Number.isSafeInteger(action.tier) || action.tier < 0 || action.tier > maxTier) return state
+      if (!['production', 'listening', 'matching'].includes(action.skill)) return state
+      const maxTier = PHRASE_SKILL_MAX_TIER[action.skill]
+      if (!Number.isSafeInteger(action.tier) || action.tier < 0 || action.tier > maxTier) return state
+      if (typeof action.questionKey !== 'string' || !action.questionKey || action.questionKey.length > 200) return state
+      if (action.questionKey === state.trainLastQuestionKey) return state
       const phraseIds = [...new Set(action.phraseIds)]
       const rewardIds = [...new Set(action.rewardIds)]
       // Phrase construction is a lazy practice surface, so it supplies the
@@ -1706,16 +1776,96 @@ export function reducer(state, action) {
       const phrases = phraseIds.map((id) => EVERYDAY_PHRASE_BY_ID.get(id))
       if (phrases.some((phrase) => !phrase)) return state
       if (phrases.some((phrase) => phrase.requires.some((id) => !state.discovered[id]))) return state
+      const nextRound = (state.trainRound || 0) + 1
+      const trainLastWords = normalizedTrainWords(phrases.flatMap((phrase) => phrase.al))
+
+      if (action.skill === 'production') {
+        if (phraseIds.length !== 1) return state
+        const phrase = phrases[0]
+        const focusIds = phraseProductionFocusIds(phrase)
+        const transition = advancePhraseProduction(
+          state.phraseProductionProgress?.[phrase.id],
+          focusIds,
+          state.trainRound || 0,
+          {
+            correct: action.correct,
+            questionKey: action.questionKey,
+            skill: action.skill,
+            tier: action.tier,
+            mode: action.mode,
+            typeScope: action.typeScope,
+            focusId: action.focusId || null,
+            diagnostic: action.diagnostic,
+            round: nextRound,
+          },
+        )
+        if (!transition.accepted) return state
+        const plan = transition.plan
+        const canonicalRewards = plan.typeScope === 'word'
+          ? [plan.focusId]
+          : [...new Set(phrase.requires)]
+        if (
+          rewardIds.length !== canonicalRewards.length ||
+          rewardIds.some((id) => !canonicalRewards.includes(id))
+        ) return state
+        const phraseProductionProgress = {
+          ...(state.phraseProductionProgress || {}),
+          [phrase.id]: transition.progress,
+        }
+        const phraseMastery = {
+          ...(state.phraseMastery || {}),
+          [phrase.id]: phraseProductionStage(transition.progress, focusIds),
+        }
+        if (!action.correct) {
+          return {
+            ...state,
+            phraseProductionProgress,
+            phraseMastery,
+            phraseMistakes: {
+              ...(state.phraseMistakes || {}),
+              [phrase.id]: (state.phraseMistakes?.[phrase.id] || 0) + 1,
+            },
+            hearts: Math.max(0, state.hearts - 1),
+            trainRound: nextRound,
+            trainLastWords,
+            trainLastQuestionKey: action.questionKey,
+          }
+        }
+        const mana = { ...state.mana }
+        const practiced = { ...state.practiced }
+        for (const id of rewardIds) {
+          mana[id] = (mana[id] || 0) + 1
+          practiced[id] = (practiced[id] || 0) + 1
+        }
+        return {
+          ...state,
+          mana,
+          practiced,
+          phraseProductionProgress,
+          phraseMastery,
+          phrasePracticed: {
+            ...(state.phrasePracticed || {}),
+            [phrase.id]: (state.phrasePracticed?.[phrase.id] || 0) + 1,
+          },
+          trainRound: nextRound,
+          trainLastWords,
+          trainLastQuestionKey: action.questionKey,
+        }
+      }
+
+      if (!masteryField) return state
+      if (action.mode !== (action.skill === 'listening' ? 'listen' : 'match')) return state
+      if (phrases.some((phrase) => phraseProductionStage(
+        state.phraseProductionProgress?.[phrase.id],
+        phraseProductionFocusIds(phrase),
+      ) < PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage)) return state
       const currentTiers = phraseIds.map((id) => Math.min(
         maxTier,
         Math.max(0, Math.floor(state[masteryField]?.[id] || 0)),
       ))
       if (currentTiers.some((tier) => tier !== action.tier)) return state
       const canonicalRewards = new Set(phrases.flatMap((phrase) => phrase.requires))
-      const singleWordTier = action.skill === 'production' && (action.tier === 0 || action.tier === 2)
-      if (singleWordTier) {
-        if (rewardIds.length !== 1 || !canonicalRewards.has(rewardIds[0])) return state
-      } else if (
+      if (
         rewardIds.length !== canonicalRewards.size ||
         rewardIds.some((id) => !canonicalRewards.has(id))
       ) return state
@@ -1726,6 +1876,9 @@ export function reducer(state, action) {
           ...state,
           phraseMistakes,
           hearts: Math.max(0, state.hearts - 1),
+          trainRound: nextRound,
+          trainLastWords,
+          trainLastQuestionKey: action.questionKey,
         }
       }
 
@@ -1741,7 +1894,16 @@ export function reducer(state, action) {
         mana[id] = (mana[id] || 0) + 1
         practiced[id] = (practiced[id] || 0) + 1
       }
-      return { ...state, mana, practiced, phrasePracticed, [masteryField]: skillMastery }
+      return {
+        ...state,
+        mana,
+        practiced,
+        phrasePracticed,
+        [masteryField]: skillMastery,
+        trainRound: nextRound,
+        trainLastWords,
+        trainLastQuestionKey: action.questionKey,
+      }
     }
 
     case 'CONFUSE':
@@ -1881,9 +2043,14 @@ export function reducer(state, action) {
         practiced: state.practiced,
         phrasePracticed: state.phrasePracticed || {},
         phraseMistakes: state.phraseMistakes || {},
+        phraseProgressVersion: PHRASE_PROGRESS_VERSION,
+        phraseProductionProgress: state.phraseProductionProgress || {},
         phraseMastery: state.phraseMastery || {},
         phraseListeningMastery: state.phraseListeningMastery || {},
         phraseMatchingMastery: state.phraseMatchingMastery || {},
+        trainRound: state.trainRound || 0,
+        trainLastWords: state.trainLastWords || [],
+        trainLastQuestionKey: state.trainLastQuestionKey || null,
         visited: state.visited,
         heard: state.heard || {},
         discovered: state.discovered,
@@ -1955,9 +2122,14 @@ export function reducer(state, action) {
         practiced: state.practiced,
         phrasePracticed: state.phrasePracticed || {},
         phraseMistakes: state.phraseMistakes || {},
+        phraseProgressVersion: PHRASE_PROGRESS_VERSION,
+        phraseProductionProgress: state.phraseProductionProgress || {},
         phraseMastery: state.phraseMastery || {},
         phraseListeningMastery: state.phraseListeningMastery || {},
         phraseMatchingMastery: state.phraseMatchingMastery || {},
+        trainRound: state.trainRound || 0,
+        trainLastWords: state.trainLastWords || [],
+        trainLastQuestionKey: state.trainLastQuestionKey || null,
         visited: state.visited,
         heard: state.heard || {},
         earned: state.earned,

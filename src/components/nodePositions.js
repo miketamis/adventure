@@ -351,6 +351,8 @@ export const NODE_AT = {
   ngjitja2: 'pusi2',
   ngjitja3: 'pusi2',
   fshatiSheshi: [499, 432],
+  fshatiDitelindje: 'fshatiSheshi',
+  fshatiDitelindjeUrim: 'fshatiSheshi',
   eliraShesh: 'fshatiSheshi',
   eliraEmriShesh: 'fshatiSheshi',
   eliraBanore: 'fshatiSheshi',

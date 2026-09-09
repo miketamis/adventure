@@ -10,6 +10,7 @@ import {
   effectLockText,
   formatCivilHour,
   interactionLockText,
+  optionReadingVisible,
   sceneAnnouncement,
   storyReadingVisible,
 } from '../src/components/storyMechanicsPresentation.js'
@@ -24,6 +25,7 @@ const practice = read('src/components/PracticeView.jsx')
 const practiceReturn = read('src/game/practiceReturn.js')
 const phrasePractice = read('src/components/PhrasePracticeQuestion.jsx')
 const phrasePracticeLogic = read('src/game/phrasePractice.js')
+const scenePresentation = read('src/game/scenePresentation.js')
 const audio = read('src/game/audio.js')
 const dictionary = read('src/components/DictionaryView.jsx')
 const comprehension = read('src/components/ComprehensionTest.jsx')
@@ -32,6 +34,7 @@ const timePassage = read('src/components/TimePassage.jsx')
 const embodimentConfirm = read('src/components/EmbodimentConfirm.jsx')
 const guide = read('src/components/GuideView.jsx')
 const debug = read('src/components/DebugView.jsx')
+const debugLearning = read('src/components/DebugLearningProgression.jsx')
 const app = read('src/App.jsx')
 const main = read('src/main.jsx')
 const errorBoundary = read('src/components/ReleaseErrorBoundary.jsx')
@@ -71,8 +74,22 @@ check('route selection is its own native, focusable control',
   !/(?:^|\s)disabled=\{!e\.ok\}/m.test(story) &&
   story.includes('if (e.ok) e.onSelect()') &&
   story.includes('aria-describedby='))
-check('action English is separate from word-by-word token glosses', story.includes('className={\'option-reading\'') && story.includes('option-gloss-label') && story.includes('Word by word'))
-check('route controls announce the reviewed action phrase', story.includes('const optionPhrase = e.reading') && story.includes('aria-label={`${e.ok ? \'Choose\' : \'Locked\'}: ${optionPhrase}`}'))
+check('whole-action English is debug-only while word-by-word learning remains available',
+  story.includes('optionReadingVisible(state.debug)') &&
+  story.includes('className={\'option-reading\'') &&
+  story.includes('option-gloss-label') &&
+  story.includes('Word by word') &&
+  !optionReadingVisible(false) && optionReadingVisible(true))
+check('route controls announce Albanian rather than leaking the English answer',
+  story.includes('const accessibleOptionPhrase = state.debug') &&
+  story.includes(': albanianTextOf(e.tokens)') &&
+  story.includes('aria-label={`${e.ok ? \'Choose\' : \'Locked\'}: ${accessibleOptionPhrase}`}'))
+check('long story prose uses labelled native pagination without discarding core lines',
+  story.includes('aria-label="Story pages"') &&
+  story.includes('aria-live="polite"') &&
+  story.includes('scenePresentation.pages.length > 1') &&
+  scenePresentation.includes('Core prose is') &&
+  scenePresentation.includes('pinnedLines'))
 check('locked actions expose their exact mechanic reason through the native control',
   story.includes('interactionLockText(e.interaction)') &&
   story.includes('effectLockText(') &&
@@ -122,6 +139,14 @@ check('every lazy top-level view exposes a level-two heading and labelled region
   atlas.includes('aria-labelledby="atlas-title"') && atlas.includes('<h2 id="atlas-title"') &&
   guide.includes('aria-labelledby="guide-title"') && guide.includes('<h2 id="guide-title"') &&
   debug.includes('aria-labelledby="debug-title"') && debug.includes('<h2 id="debug-title"'))
+check('the debug learning graph is lazy, section-labelled and exposes text alongside status colour',
+  debug.includes("lazy(() => import('./DebugLearningProgression.jsx'))") &&
+  debug.includes('Loading learning progression…') &&
+  debugLearning.includes('aria-labelledby="dbg-learning-example-title"') &&
+  debugLearning.includes('aria-labelledby={`dbg-learning-${lane.id}`}') &&
+  debugLearning.includes('className={`dbg-learning-status ${status}`}') &&
+  styles.includes('@media (max-width: 560px)') &&
+  styles.includes('.dbg-learning-flow'))
 check('role badge moves visual and keyboard focus to persistent tale guidance', app.includes('focus?.scrollIntoView') && app.includes('focus?.focus()') && embodimentFocus.includes('tabIndex={-1}'))
 check('role focus routing survives lazy Story mount and respects reduced motion',
   story.includes("document.activeElement?.classList.contains('embody-badge')") &&

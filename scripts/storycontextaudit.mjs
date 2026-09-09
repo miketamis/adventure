@@ -42,18 +42,18 @@ const greetingScenes = Object.freeze({
 
 check('civil time, season and weather become ordinary Albanian story lines', () => {
   const cases = [
-    [0, 'spring', 'clear', 'është mëngjes. është pranverë. nuk ka re.'],
-    [6, 'summer', 'cloud', 'është mesditë. është verë. ka re.'],
-    [7, 'autumn', 'storm', 'është pasdite. është vjeshtë. ka stuhi.'],
-    [13, 'winter', 'rain', 'është mbrëmje. është dimër. po bie shi.'],
-    [18, 'winter', 'snow', 'është natë. është dimër. po bie borë.'],
+    [0, 'spring', 'clear', 'në këtë mëngjes pranvere, qielli është pa re.'],
+    [6, 'summer', 'cloud', 'në këtë mesditë vere, qielli është me re.'],
+    [7, 'autumn', 'storm', 'në këtë pasdite vjeshte, ka stuhi.'],
+    [13, 'winter', 'rain', 'në këtë mbrëmje dimri, po bie shi.'],
+    [18, 'winter', 'snow', 'në këtë natë dimri, po bie borë.'],
   ]
   for (const [clock, season, weather, expected] of cases) {
     assert.equal(albanianTextOf(environmentStoryLine({ clock, season, weather })), expected)
   }
   assert.equal(
     albanianTextOf(environmentStoryLine({ clock: 13, season: 'spring', weather: 'rain' }, { enclosed: true })),
-    'jashtë, është mbrëmje.',
+    'në këtë mbrëmje pranvere, jashtë po bie shi.',
   )
 })
 
@@ -63,12 +63,15 @@ check('authored environmental prose replaces only its declared generic fallback'
   assert.deepEqual([...authoredEnvironmentDimensions([immersiveTime])], ['time'])
   assert.equal(
     albanianTextOf(environmentStoryLine(environment, { omit: authoredEnvironmentDimensions([immersiveTime]) })),
-    'është pranverë. po bie shi.',
+    'në këtë pranverë, po bie shi.',
   )
 
   const allAuthored = describesEnvironment(['time', 'season', 'weather'], [w('muzg')])
   assert.equal(environmentStoryLine(environment, { omit: authoredEnvironmentDimensions([allAuthored]) }), null)
-  assert.equal(environmentStoryLine(environment, { enclosed: true, omit: ['time'] }), null)
+  assert.equal(
+    albanianTextOf(environmentStoryLine(environment, { enclosed: true, omit: ['time'] })),
+    'në këtë pranverë, jashtë po bie shi.',
+  )
 
   // Token choice is not presentation metadata: an unmarked line that happens
   // to contain a time word must not suppress a fallback by accident.
@@ -85,7 +88,7 @@ check('opening and authored weather scenes prefer their visible immersive descri
     assert.equal(dimensions.has('time'), true, `start/${phase}: time fallback was not replaced`)
     assert.equal(
       albanianTextOf(environmentStoryLine({ clock, season: 'spring', weather: 'clear' }, { omit: dimensions })),
-      'është pranverë. nuk ka re.',
+      'në këtë pranverë, qielli është pa re.',
       `start/${phase}: unrelated environment facts disappeared`,
     )
   }
@@ -110,6 +113,52 @@ check('opening and authored weather scenes prefer their visible immersive descri
       assert.ok(dimensions.every((dimension) => ['time', 'season', 'weather'].includes(dimension)), `${nodeId}: invalid environment dimension`)
     }
   }
+})
+
+check('every authored environment line is reachable and preserves undeclared fallbacks', () => {
+  const fallbackByOmission = Object.freeze({
+    '': 'në këtë mëngjes pranvere, po bie shi.',
+    season: 'në këtë mëngjes, po bie shi.',
+    'season+time': 'po bie shi.',
+    'season+time+weather': null,
+    'season+weather': 'është mëngjes.',
+    time: 'në këtë pranverë, po bie shi.',
+    'time+weather': 'është pranverë.',
+    weather: 'është një mëngjes pranvere.',
+  })
+  let markedLines = 0
+  for (const [nodeId, node] of Object.entries(STORY)) {
+    for (const entry of node.text) {
+      const target = lineOf(entry)
+      if (!target.environmentDimensions?.length) continue
+
+      // Construct the smallest truth assignment which makes this one wrapper
+      // visible.  This catches a line accidentally buried by its own when(),
+      // unless(), until() or whenUnless() metadata without guessing from prose.
+      const conditional = !Array.isArray(entry)
+      const conditionIds = conditional ? [].concat(entry.cond || []) : []
+      const required = new Set(conditional && !entry.negate ? conditionIds : [])
+      const excluded = new Set([
+        ...(conditional && entry.negate ? conditionIds : []),
+        ...(conditional ? [].concat(entry.none || []) : []),
+      ])
+      const visible = visibleLines(node, (id) => required.has(id) && !excluded.has(id))
+      assert.ok(visible.includes(target), `${nodeId}: marked line cannot become visible`)
+
+      const visibleDimensions = [...authoredEnvironmentDimensions(visible)].sort()
+      const expected = fallbackByOmission[visibleDimensions.join('+')]
+      assert.ok(visibleDimensions.join('+') in fallbackByOmission,
+        `${nodeId}: no pinned fallback case for ${visibleDimensions.join('+')}`)
+      const fallback = environmentStoryLine(
+        { clock: 0, season: 'spring', weather: 'rain' },
+        { omit: visibleDimensions },
+      )
+      assert.equal(fallback ? albanianTextOf(fallback) : null, expected,
+        `${nodeId}: an authored line suppressed an unrelated environment fact`)
+      markedLines++
+    }
+  }
+  assert.ok(markedLines >= 100, `only ${markedLines} authored environment lines were exercised`)
 })
 
 check('a positive lek balance is narrated exactly and zero stays silent', () => {
@@ -141,11 +190,11 @@ check('all 24 civil hours narrate and accept the same greeting period', () => {
     night: 'mirëmbrëma!',
   })
   const narratedPart = Object.freeze({
-    morning: 'është mëngjes.',
-    noon: 'është mesditë.',
-    afternoon: 'është pasdite.',
-    evening: 'është mbrëmje.',
-    night: 'është natë.',
+    morning: 'në këtë mëngjes',
+    noon: 'në këtë mesditë',
+    afternoon: 'në këtë pasdite',
+    evening: 'në këtë mbrëmje',
+    night: 'në këtë natë',
   })
   for (let clock = 0; clock < 24; clock++) {
     const state = { ...newRun(), nodeId: 'tregtari', clock }
@@ -197,9 +246,11 @@ check('normal play hides diagnostic counters while debug keeps the inspectors', 
   assert.match(app, /state\.debug && <span className="stat">turn/)
   assert.match(app, /\) : state\.debug \? \(/)
   assert.match(story, /state\.debug && <WorldContext/)
-  assert.match(story, /omit: authoredEnvironmentDimensions\(lines\)/)
+  assert.match(story, /setting: narrationSettingForScene\(state\.nodeId\)/)
+  assert.match(story, /omit: authoredEnvironmentDimensions\(presentedEntries\.map\(\(entry\) => entry\.line\)\)/)
   assert.match(story, /environmentLine && renderLine\(environmentLine, 'environment'\)/)
-  assert.match(story, /renderLine\(purseLine, 'purse'\)/)
+  assert.match(story, /purseLine\) sceneLineEntries\.push\(\{ key: 'purse'/)
+  assert.match(story, /presentedEntries\.map\(\(entry\) => renderLine\(entry\.line, entry\.renderKey\)\)/)
   assert.match(story, /if \(!hasRequiredItem\(storyState, opt\)\) return/)
 })
 
@@ -213,7 +264,7 @@ check('all whole-line English readings are debug-only', () => {
   assert.equal(storyReadingVisible(0, true), true)
 })
 
-console.log(`\n${9 - failures.length}/9 story-context contracts pass.`)
+console.log(`\n${10 - failures.length}/10 story-context contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1

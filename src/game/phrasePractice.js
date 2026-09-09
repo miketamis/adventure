@@ -4,29 +4,24 @@
 // words (s'ka) remain part of the word.
 
 import { DICT } from './content.js'
-import { PHRASE_SKILL_MAX_TIER, phraseSkillTier } from './phraseProgression.js'
+import {
+  PHRASE_PROGRESSION_POLICY,
+  PHRASE_SKILL_MAX_TIER,
+  PHRASE_STAGE_DEFINITIONS,
+  phraseProgressionSnapshot,
+  phraseProductionPlan,
+  phraseSkillTier,
+} from './phraseProgression.js'
+import { phraseProductionFocuses } from './phraseFocus.js'
+import { TRAIN_EXERCISE_FAMILIES, TRAIN_QUESTION_MIX_POLICY } from './trainingProgression.js'
 
 export { PHRASE_SKILL_MAX_TIER, phraseSkillTier } from './phraseProgression.js'
 
 export const PHRASE_EXERCISE_MODES = Object.freeze([
-  'arrange',
-  'listen',
-  'cloze',
-  'type',
-  'match',
+  ...new Set(Object.values(PHRASE_STAGE_DEFINITIONS).flat().map((definition) => definition.mode)),
 ])
 
 const MODE_SET = new Set(PHRASE_EXERCISE_MODES)
-const SMALL_WORDS = new Set(['a', 'e', 'i', 'jo', 'me', 'në', 'po', 'se', 'të'])
-
-const PRODUCTION_STEPS = Object.freeze([
-  Object.freeze({ mode: 'cloze', label: 'foundation' }),
-  Object.freeze({ mode: 'arrange', label: 'guided production' }),
-  Object.freeze({ mode: 'type', label: 'word spelling', typeScope: 'word', answerTolerance: 'beginner' }),
-  Object.freeze({ mode: 'type', label: 'independent production', typeScope: 'phrase', answerTolerance: 'beginner' }),
-  Object.freeze({ mode: 'type', label: 'mastered production', typeScope: 'phrase', answerTolerance: 'strict' }),
-])
-
 const SKILL_FIELD = Object.freeze({
   production: 'production',
   listening: 'listening',
@@ -51,7 +46,7 @@ export function phraseWordKeys(value) {
 }
 
 export function phraseQuestionWordKeys(question) {
-  if (question?.kind !== 'everyday-phrase') return []
+  if (question?.kind !== TRAIN_EXERCISE_FAMILIES.phrase.kind) return []
   const phrases = question.mode === 'match' ? question.phrases : [question.target]
   return [...new Set((phrases || []).flatMap((phrase) => phraseWordKeys(phrase?.al)))]
 }
@@ -139,6 +134,41 @@ export function phraseAnswerResult(answer, target, tolerance = 'strict') {
 export const phraseAnswerIsCorrect = (answer, target, tolerance = 'strict') =>
   phraseAnswerResult(answer, target, tolerance).correct
 
+export function phraseAnswerDiagnostic(answer, target, phrase) {
+  const answerWords = phraseWords(answer).map(normalizedWord)
+  const targetWords = phraseWords(target).map(normalizedWord)
+  if (
+    answerWords.length === targetWords.length &&
+    [...answerWords].sort().join('\u0000') === [...targetWords].sort().join('\u0000')
+  ) return { kind: 'order' }
+  const focuses = phraseProductionFocuses(phrase)
+  for (const focus of focuses) {
+    if (answerWords[focus.index] !== normalizedWord(focus.word)) {
+      return { kind: 'word', focusId: focus.id }
+    }
+  }
+  return { kind: 'broad' }
+}
+
+export function buildPhraseProgressionSnapshot(
+  phrase,
+  progress,
+  { currentRound = 0, listeningTier = 0, matchingTier = 0 } = {},
+) {
+  const focuses = phraseProductionFocuses(phrase)
+  return {
+    ...phraseProgressionSnapshot({
+      phraseId: phrase?.id,
+      progress,
+      focusIds: focuses.map(({ id }) => id),
+      currentRound,
+      listeningTier,
+      matchingTier,
+    }),
+    focuses,
+  }
+}
+
 export function shuffleWith(values, rng = Math.random) {
   const result = [...values]
   for (let index = result.length - 1; index > 0; index--) {
@@ -170,10 +200,11 @@ function pickTarget(unlocked, mana, practiced, mistakes, rng, targetId) {
   return weightedChoice(unlocked, (entry) => {
     const tokenNeed = phraseRewardIds([entry]).reduce((sum, id) => {
       const held = mana[id] || 0
-      return sum + (held === 0 ? 8 : 1 / (held + 1))
+      return sum + (held === 0 ? TRAIN_QUESTION_MIX_POLICY.zeroTokenWeight : 1 / (held + 1))
     }, 0)
-    const repair = 1 + Math.min(4, mistakes[entry.id] || 0) * 0.55
-    const familiarity = 1 + Math.min(12, practiced[entry.id] || 0) * 0.18
+    const targeting = TRAIN_QUESTION_MIX_POLICY.phraseTargeting
+    const repair = 1 + Math.min(targeting.mistakeBoostCap, mistakes[entry.id] || 0) * targeting.mistakeBoostPerMiss
+    const familiarity = 1 + Math.min(targeting.familiarityCap, practiced[entry.id] || 0) * targeting.familiarityPerPractice
     return tokenNeed * repair / familiarity
   }, rng)
 }
@@ -224,7 +255,8 @@ function buildWordBank(unlocked, distractorPool, target, answerWords, rng, reque
   return shuffleWith([...answerTiles, ...extraTiles], rng)
 }
 
-const matchPairCount = (tier) => [2, 3, 4][tier] || 4
+const matchPairCount = (tier) => PHRASE_STAGE_DEFINITIONS.matching[tier]?.variant.pairs ??
+  PHRASE_STAGE_DEFINITIONS.matching.at(-1).variant.pairs
 
 function buildMatchQuestion(base, unlocked, rng, tier, mastery, forcedTier) {
   const pairCount = matchPairCount(tier)
@@ -253,27 +285,16 @@ function buildMatchQuestion(base, unlocked, rng, tier, mastery, forcedTier) {
   }
 }
 
-function senseForWord(target, words, index) {
-  const surface = normalizedWord(words[index])
-  const exact = target.requires.find((id) => {
-    const entry = DICT[id]
-    if (!entry) return false
-    if (normalizedWord(entry.al) === surface) return true
-    return entry.forms?.some((form) => normalizedWord(form.al) === surface)
-  })
-  if (exact) return exact
-  return target.requires.length === words.length ? target.requires[index] : null
-}
-
-function wordFocusFor(target, words, rng) {
-  const mapped = words
-    .map((word, index) => ({ word, index, focusId: senseForWord(target, words, index) }))
-    .filter(({ focusId }) => focusId && DICT[focusId])
-  const useful = mapped.filter(({ word }) => word.length >= 4 && !SMALL_WORDS.has(normalizedWord(word)))
-  const candidates = useful.length ? useful : mapped
-  if (candidates.length) return candidates[Math.floor(rng() * candidates.length)]
-  const focusId = target.requires.find((id) => DICT[id])
-  return { index: 0, word: words[0], focusId }
+function wordFocusFor(target, words, rng, plannedFocusId = null) {
+  const focuses = phraseProductionFocuses(target)
+    .map(({ id, index, word }) => ({ focusId: id, index, word }))
+  if (plannedFocusId) {
+    const planned = focuses.find((focus) => focus.focusId === plannedFocusId)
+    if (planned) return planned
+  }
+  if (focuses.length) return focuses[Math.floor(rng() * focuses.length)]
+  const fallbackFocusId = target.requires.find((id) => DICT[id])
+  return { index: 0, word: words[0], focusId: fallbackFocusId }
 }
 
 function requestedSkill(requestedMode) {
@@ -282,15 +303,15 @@ function requestedSkill(requestedMode) {
   return 'production'
 }
 
-function skillForQuestion(target, mastery, rng, requestedMode) {
+function skillForQuestion(target, mastery, rng, requestedMode, productionPlan) {
   if (MODE_SET.has(requestedMode)) return requestedSkill(requestedMode)
-  const productionTier = phraseSkillTier(mastery.production?.[target.id], 'production')
-  // The first two encounters are invariant: one missing word, then the whole
-  // phrase in word tiles. No recognition drill can interrupt that foundation.
-  if (productionTier < 2) return 'production'
+  // Recognition never proves production. Listening and matching enter the mix
+  // only after this exact phrase has passed its cloze and arrangement gates.
+  if (productionPlan.remediation && productionPlan.due) return 'production'
+  if (productionPlan.baseStage < PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage) return 'production'
   const roll = rng()
-  if (roll < 0.62) return 'production'
-  if (roll < 0.84) return 'listening'
+  if (roll < TRAIN_QUESTION_MIX_POLICY.phraseSkill.productionWhenDueUpperBound && productionPlan.due) return 'production'
+  if (roll < TRAIN_QUESTION_MIX_POLICY.phraseSkill.listeningUpperBound) return 'listening'
   return 'matching'
 }
 
@@ -313,18 +334,39 @@ export function buildPhraseQuestion(
     distractorPool = unlocked,
     excludeWords = [],
     mastery = {},
+    productionProgress = {},
+    currentRound = 0,
     tier: requestedTier,
   } = {},
 ) {
   if (!Array.isArray(unlocked) || unlocked.length === 0) return null
   const excluded = excludedWordSet(excludeWords)
-  const eligible = excluded.size
+  let eligible = excluded.size
     ? unlocked.filter((entry) => !excludesPhraseWords(entry, excluded))
     : unlocked
+  const forcedQuestion = Boolean(targetId || MODE_SET.has(requestedMode) || requestedTier != null)
+  if (!forcedQuestion) {
+    eligible = eligible.filter((entry) => {
+      const focuses = phraseProductionFocuses(entry)
+      const plan = phraseProductionPlan(
+        productionProgress?.[entry.id],
+        focuses.map(({ id }) => id),
+        currentRound,
+      )
+      return plan?.due || plan?.baseStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage
+    })
+  }
   if (eligible.length === 0) return null
   let target = pickTarget(eligible, mana, practiced, mistakes, rng, targetId)
-  let skill = skillForQuestion(target, mastery, rng, requestedMode)
-  let tier = skillTier(target, mastery, skill, requestedTier)
+  let productionPlan = phraseProductionPlan(
+    productionProgress?.[target.id],
+    phraseProductionFocuses(target).map(({ id }) => id),
+    currentRound,
+  )
+  let skill = skillForQuestion(target, mastery, rng, requestedMode, productionPlan)
+  let tier = skill === 'production' && requestedTier == null
+    ? productionPlan.stage
+    : skillTier(target, mastery, skill, requestedTier)
 
   if (skill === 'matching') {
     const tierCounts = new Map()
@@ -345,34 +387,48 @@ export function buildPhraseQuestion(
       // meaningless one-card "match" round.
       if (!targetId && matchingTargets.length) {
         target = pickTarget(matchingTargets, mana, practiced, mistakes, rng)
+        productionPlan = phraseProductionPlan(
+          productionProgress?.[target.id],
+          phraseProductionFocuses(target).map(({ id }) => id),
+          currentRound,
+        )
+        tier = skillTier(target, mastery, skill, requestedTier)
+      } else if (productionPlan.due) {
+        skill = 'production'
+        tier = requestedTier == null ? productionPlan.stage : skillTier(target, mastery, skill)
+      } else if (
+        requestedMode == null &&
+        productionPlan.baseStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage
+      ) {
+        skill = 'listening'
         tier = skillTier(target, mastery, skill, requestedTier)
       } else {
-        skill = 'production'
-        tier = skillTier(target, mastery, skill)
+        return null
       }
     }
   }
 
   const answerWords = phraseWords(target.al)
-  const productionStep = skill === 'production' ? PRODUCTION_STEPS[tier] : null
+  const productionStep = skill === 'production' ? PHRASE_STAGE_DEFINITIONS.production[tier] : null
   const mode = MODE_SET.has(requestedMode) && requestedSkill(requestedMode) === skill
     ? requestedMode
     : skill === 'production'
       ? productionStep.mode
       : skill === 'listening' ? 'listen' : 'match'
   const base = {
-    kind: 'everyday-phrase',
+    kind: TRAIN_EXERCISE_FAMILIES.phrase.kind,
     questionKey: `${target.id}:${skill}:${tier}:${mode}:${questionSequence++}`,
     mode,
     skill,
     tier,
-    difficultyLabel: productionStep?.label ||
-      (skill === 'listening' ? ['guided listening', 'independent listening', 'mastered listening'][tier] :
-        ['guided matching', 'independent matching', 'mastered matching'][tier]),
+    difficultyLabel: productionStep?.label || PHRASE_STAGE_DEFINITIONS[skill][tier].label,
     target,
     phraseIds: [target.id],
     answerWords,
     rewardIds: phraseRewardIds([target]),
+    typeScope: productionStep?.typeScope,
+    remediation: skill === 'production' && productionPlan.remediation,
+    remediationReason: skill === 'production' ? productionPlan.remediationReason : null,
   }
 
   if (mode === 'match') return buildMatchQuestion(
@@ -384,9 +440,9 @@ export function buildPhraseQuestion(
     requestedTier != null,
   )
   if (mode === 'type') {
-    const step = productionStep || PRODUCTION_STEPS[PHRASE_SKILL_MAX_TIER.production]
+    const step = productionStep || PHRASE_STAGE_DEFINITIONS.production[PHRASE_SKILL_MAX_TIER.production]
     if (step.typeScope === 'word') {
-      const focus = wordFocusFor(target, answerWords, rng)
+      const focus = wordFocusFor(target, answerWords, rng, productionPlan.focusId)
       return {
         ...base,
         typeScope: 'word',
@@ -410,7 +466,7 @@ export function buildPhraseQuestion(
     }
   }
   if (mode === 'cloze') {
-    const focus = wordFocusFor(target, answerWords, rng)
+    const focus = wordFocusFor(target, answerWords, rng, productionPlan.focusId)
     const blankIndex = focus.index
     const correctWord = answerWords[blankIndex]
     return {
@@ -419,10 +475,20 @@ export function buildPhraseQuestion(
       correctWord,
       focusId: focus.focusId,
       rewardIds: [focus.focusId],
-      bank: buildWordBank(eligible, distractorPool, target, [correctWord], rng, 3, excluded),
+      bank: buildWordBank(
+        eligible,
+        distractorPool,
+        target,
+        [correctWord],
+        rng,
+        productionStep.variant.distractors,
+        excluded,
+      ),
     }
   }
-  const distractorCount = mode === 'listen' ? [2, 3, 5][tier] : 3
+  const distractorCount = mode === 'listen'
+    ? PHRASE_STAGE_DEFINITIONS.listening[tier].variant.distractors
+    : productionStep?.variant?.distractors
   return {
     ...base,
     bank: buildWordBank(eligible, distractorPool, target, answerWords, rng, distractorCount, excluded),

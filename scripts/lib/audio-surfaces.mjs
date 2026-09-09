@@ -1,6 +1,8 @@
 // One canonical walk for every Albanian surface that can expose the runtime
 // pronunciation button. Keep generation and certification on the same input so
 // newly-authored inflections cannot silently ship without audio.
+import { phraseWords } from '../../src/game/phrasePractice.js'
+
 export function collectAudioSurfaces(dict, story, phrases = []) {
   const surfaces = new Set()
   const add = (al) => {
@@ -17,7 +19,10 @@ export function collectAudioSurfaces(dict, story, phrases = []) {
     }
   }
   walk(story)
-  for (const phrase of phrases) add(phrase.al)
+  for (const phrase of phrases) {
+    add(phrase.al)
+    for (const word of phraseWords(phrase.al)) add(word)
+  }
 
   return [...surfaces].sort((a, b) => a.localeCompare(b, 'sq'))
 }

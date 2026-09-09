@@ -173,6 +173,7 @@ export const PLACE_META = {
     densityReason: 'The square is the village crossroads: its everyday errand, bench talk and coffeehouse visits are separate moments at one open meeting place, not invented new locations.',
     happenings: [
       { title: 'the village square', nodes: ['fshatiSheshi'] },
+      { title: 'birthday wishes at the family table', nodes: ['fshatiDitelindje', 'fshatiDitelindjeUrim'] },
       { title: 'meeting Elira at the agreed place', nodes: ['eliraShesh', 'eliraEmriShesh', 'eliraBanore', 'eliraEmriBanore'] },
       { title: "the guest's bread-and-salt errand", nodes: ['porosiaShesh', 'pazariFshatit', 'pazariPerserit', 'porosiaBlerje'] },
       { title: "the old man's bench", nodes: ['sheshiPlak', 'sheshiPlak2', 'sheshiPlak3'] },
