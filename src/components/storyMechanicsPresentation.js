@@ -25,6 +25,13 @@ export function storyReadingVisible(lineKey, debug = false) {
   return Boolean(debug)
 }
 
+// Complete action readings are answer keys too. The selectable Albanian and
+// its discoverable word glosses remain available in ordinary play, while the
+// fluent English action is reserved for the editorial/debug inspector.
+export function optionReadingVisible(debug = false) {
+  return Boolean(debug)
+}
+
 export function interactionLockText(availability) {
   if (availability?.ok !== false) return null
   if (availability.reason === 'cooldown') {

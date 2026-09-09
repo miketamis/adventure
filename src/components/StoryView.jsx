@@ -25,7 +25,7 @@ import {
   optionLekDelta,
   phraseSenses,
 } from '../game/gameState.js'
-import { englishReadingOf, hasAuthoredEnglishReading } from '../game/language.js'
+import { albanianTextOf, englishReadingOf, hasAuthoredEnglishReading } from '../game/language.js'
 import { stableShuffle, testFor } from '../game/comprehension.js'
 import { ACHIEVEMENT_BY_ID } from '../game/achievements.js'
 import ComprehensionTest from './ComprehensionTest.jsx'
@@ -53,6 +53,7 @@ import {
   formatCivilHour,
   formatRouteDuration,
   interactionLockText,
+  optionReadingVisible,
   sceneAnnouncement,
   storyReadingVisible,
 } from './storyMechanicsPresentation.js'
@@ -717,6 +718,9 @@ export default function StoryView({ state, dispatch }) {
               const routeId = routeParts.length > 0 ? `${optionDomId}-route` : null
               const costId = `${optionDomId}-cost`
               const optionPhrase = e.reading || optionEnglishReadingOf(e.tokens)
+              const accessibleOptionPhrase = state.debug
+                ? optionPhrase
+                : albanianTextOf(e.tokens)
               return (
                 <div
                   key={e.key}
@@ -730,12 +734,14 @@ export default function StoryView({ state, dispatch }) {
                   }}
                 >
                   <span className="option-main">
-                    <span className={'option-reading' + (e.readingReviewed ? ' reviewed' : '')}>
-                      <span className="option-reading-label">
-                        {e.readingReviewed ? 'Reviewed action' : e.dynamicConfuser ? 'Generated distractor' : 'Action English'}
+                    {optionReadingVisible(state.debug) && (
+                      <span className={'option-reading' + (e.readingReviewed ? ' reviewed' : '')}>
+                        <span className="option-reading-label">
+                          {e.readingReviewed ? 'Reviewed action' : e.dynamicConfuser ? 'Generated distractor' : 'Action English'}
+                        </span>
+                        {optionPhrase}
                       </span>
-                      {optionPhrase}
-                    </span>
+                    )}
                     <span className="option-gloss-label">Word by word</span>
                     <span className="option-text">
                       {e.tokens.map((tok, j) => (
@@ -772,7 +778,7 @@ export default function StoryView({ state, dispatch }) {
                     type="button"
                     className="option-select"
                     aria-disabled={!e.ok}
-                    aria-label={`${e.ok ? 'Choose' : 'Locked'}: ${optionPhrase}`}
+                    aria-label={`${e.ok ? 'Choose' : 'Locked'}: ${accessibleOptionPhrase}`}
                     aria-describedby={[routeId, costId].filter(Boolean).join(' ')}
                     onClick={() => {
                       if (e.ok) e.onSelect()

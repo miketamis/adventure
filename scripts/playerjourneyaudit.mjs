@@ -23,7 +23,7 @@ import {
 } from '../src/game/trainingTarget.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { isOptionRevealed } from '../src/game/revealVisibility.js'
-import { storyReadingVisible } from '../src/components/storyMechanicsPresentation.js'
+import { optionReadingVisible, storyReadingVisible } from '../src/components/storyMechanicsPresentation.js'
 
 const checks = []
 const check = (name, test) => {
@@ -216,7 +216,10 @@ check('a normal story journey cannot use the full English line as an answer key'
   assert.equal(storyReadingVisible(0, false), false)
   assert.equal(storyReadingVisible('environment', false), false)
   assert.equal(storyReadingVisible(0, true), true, 'debug lost its editorial reading inspector')
+  assert.equal(optionReadingVisible(false), false, 'normal play leaked a complete action translation')
+  assert.equal(optionReadingVisible(true), true, 'debug lost its reviewed action inspector')
   assert.match(story, /storyReadingVisible\(i, state\.debug\)/)
+  assert.match(story, /optionReadingVisible\(state\.debug\)/)
   assert.match(story, /const sceneSummary = state\.debug && lines\[0\]/)
   assert.match(story, /<Token/)
 })

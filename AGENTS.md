@@ -13,6 +13,11 @@
 - Public curriculum and story content may use aggregate findings and independently authored standard-Albanian examples. Do not copy distinctive private messages into tracked files.
 - Before every commit that changes language content, verify the ignored private paths are untracked and scan the staged changes for private-chat markers.
 
+## Learning-surface answer boundary
+
+- Fluent whole-line and whole-action English readings are editorial metadata and must remain debug-only. Ordinary play may expose the Albanian, local word glosses, and explicit feedback after an attempt, but must not place the completed English answer beside an active story sentence or choice.
+- Accessible names must follow the same rule: normal-play controls announce the Albanian choice, never a hidden fluent English answer.
+
 ## Immersive environment narration
 
 - Prefer authored scene prose that reveals the current time, season, or weather through what the player sees happening in that place.
