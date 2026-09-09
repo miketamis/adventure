@@ -20,6 +20,7 @@ const story = read('src/components/StoryView.jsx')
 const embodimentFocus = read('src/components/EmbodimentFocus.jsx')
 const achievements = read('src/components/AchievementsView.jsx')
 const practice = read('src/components/PracticeView.jsx')
+const phrasePractice = read('src/components/PhrasePracticeQuestion.jsx')
 const dictionary = read('src/components/DictionaryView.jsx')
 const comprehension = read('src/components/ComprehensionTest.jsx')
 const atlas = read('src/components/AtlasView.jsx')
@@ -111,6 +112,23 @@ check('role focus routing survives lazy Story mount and respects reduced motion'
   app.includes("matchMedia?.('(prefers-reduced-motion: reduce)')"))
 check('achievement retakes are unavailable while a character tale is bound', achievements.includes('disabled={roleTestLocked}') && achievements.includes('Finish this character&apos;s tale'))
 check('training recommendations match visible, real, role-allowed actions', practice.includes('!opt.confuser') && practice.includes('isOptionRevealed(practiceState, opt, node)') && practice.includes('embodimentOptionAccess(state, opt, STORY[opt.to]).ok'))
+check('whole phrases use construction, listening, cloze, typing and matching instead of sentence multiple choice',
+  practice.includes('<PhrasePracticeQuestion') &&
+  !practice.includes('q.options.map((entry)') &&
+  ['arrange', 'listen', 'cloze', 'type', 'match'].every((mode) => phrasePractice.includes(`${mode}:`)))
+check('phrase tiles, audio, typing helpers and matching pairs are keyboard-native and named',
+  phrasePractice.includes('<button') &&
+  phrasePractice.includes('aria-label="Your answer"') &&
+  phrasePractice.includes('aria-label="Available words"') &&
+  phrasePractice.includes('aria-label="Play the Albanian phrase"') &&
+  phrasePractice.includes('<form') &&
+  phrasePractice.includes('<label htmlFor=') &&
+  phrasePractice.includes('aria-pressed={matchLeft === entry.id}'))
+check('phrase results announce feedback and itemise every earned word token',
+  phrasePractice.includes('role="status"') &&
+  phrasePractice.includes('aria-live="polite"') &&
+  phrasePractice.includes('<RewardChips ids={q.rewardIds} />') &&
+  phrasePractice.includes('word tokens earned'))
 check('dismissible reset dialog returns focus to its trigger', app.includes('returnFocusRef={resetButtonRef}') && app.includes('const target = returnFocusRef?.current || previous'))
 check('blocking dialogs place and contain keyboard focus', app.includes('headingRef.current?.focus()') && app.includes("event.key !== 'Tab'") && app.includes('document.addEventListener(\'keydown\''))
 check('character confirmation blocks commitment until its exact tale and source record load',

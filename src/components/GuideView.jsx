@@ -14,7 +14,11 @@ export default function GuideView() {
         <ol>
           <li><b>Read the scene.</b> Unknown words appear as English meanings.</li>
           <li><b>Discover a word.</b> Activate it to reveal its Albanian form. This costs nothing.</li>
-          <li><b>Train it.</b> Correct answers earn one token for that word; mistakes cost one heart.</li>
+          <li>
+            <b>Train it.</b> Rebuild, hear, complete, type, and match the everyday phrases you
+            meet in the story. Finishing a phrase earns one token for every different learned word
+            it reinforces; a mistake costs one heart.
+          </li>
           <li><b>Choose a path.</b> A real choice spends one token for each different word it uses.</li>
         </ol>
         <p>

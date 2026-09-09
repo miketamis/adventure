@@ -762,6 +762,177 @@ svg [role="button"]:focus-visible {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+.phrase-exercise .prompt {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.phrase-cue {
+  color: var(--ink);
+  font-size: clamp(22px, 4vw, 31px);
+  line-height: 1.35;
+  margin: 8px 0 22px;
+}
+.phrase-listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  margin: 8px 0 22px;
+  padding: 10px 18px;
+  border: 1px solid var(--mana);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mana) 12%, var(--panel-2));
+  color: var(--ink);
+  font: 700 16px/1 ui-sans-serif, system-ui, sans-serif;
+}
+.phrase-listen:not(:disabled):hover { border-color: var(--discovered); }
+.phrase-answer-tray {
+  display: flex;
+  align-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  min-height: 76px;
+  padding: 12px;
+  border-block: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel-2) 70%, transparent);
+}
+.phrase-tray-hint {
+  color: var(--muted);
+  font: 14px/1.4 ui-sans-serif, system-ui, sans-serif;
+}
+.word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 4px 12px;
+}
+.word-tile {
+  min-height: 43px;
+  padding: 8px 13px;
+  border: 1px solid var(--line);
+  border-bottom-width: 3px;
+  border-radius: 9px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.15;
+}
+.word-tile:not(:disabled):hover { border-color: var(--mana); }
+.word-tile.selected {
+  border-color: var(--mana);
+  background: color-mix(in srgb, var(--mana) 13%, var(--panel-2));
+}
+.phrase-check {
+  display: block;
+  min-width: 150px;
+  margin: 15px 0 0 auto;
+}
+.phrase-cloze {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: -8px 0 20px;
+  color: var(--ink);
+  font-size: clamp(21px, 4vw, 29px);
+  line-height: 1.45;
+}
+.phrase-blank {
+  min-width: 82px;
+  color: var(--mana);
+  text-align: center;
+}
+.phrase-type-form {
+  display: grid;
+  gap: 9px;
+}
+.phrase-type-form label {
+  color: var(--muted);
+  font: 600 13px/1.3 ui-sans-serif, system-ui, sans-serif;
+}
+.phrase-type-form textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 74px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font: 21px/1.35 Georgia, serif;
+}
+.phrase-type-tools {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font: 12px/1.3 ui-sans-serif, system-ui, sans-serif;
+}
+.phrase-type-tools button {
+  min-width: 36px;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font-size: 18px;
+}
+.phrase-match-instruction,
+.phrase-match-progress {
+  color: var(--muted);
+  font: 14px/1.45 ui-sans-serif, system-ui, sans-serif;
+}
+.phrase-match-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+.phrase-match-column {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+.phrase-match-tile {
+  min-height: 64px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.35;
+  text-align: left;
+}
+.phrase-match-tile:not(:disabled):hover,
+.phrase-match-tile.selected {
+  border-color: var(--mana);
+  background: color-mix(in srgb, var(--mana) 13%, var(--panel-2));
+}
+.phrase-match-tile.matched {
+  border-color: var(--accent);
+  background: #284a2c;
+  opacity: 0.72;
+}
+.phrase-match-progress { margin-top: 12px; text-align: center; }
+.phrase-rewards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 10px;
+}
+.phrase-reward {
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 11%, var(--panel-2));
+  color: var(--ink);
+  font-size: 13px;
+}
 /* an inflected word in "endings" mode: root solid, ending gently faded */
 .practice .q-inflected .stem { color: var(--ink); }
 .practice .q-inflected .ending { opacity: 0.55; color: var(--accent); }
@@ -799,6 +970,12 @@ svg [role="button"]:focus-visible {
 }
 .feedback.good { color: var(--accent); }
 .feedback.bad { color: var(--danger); }
+
+@media (max-width: 560px) {
+  .phrase-match-board { grid-template-columns: 1fr; }
+  .phrase-check { width: 100%; }
+  .phrase-match-tile { min-height: 52px; }
+}
 
 /* comprehension quiz that gates the lore blurb at an ending */
 .comp-quiz { margin: 14px 0 6px; }

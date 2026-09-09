@@ -62,6 +62,11 @@ import {
   optionLekDelta,
   recordInteractionUse,
 } from './stateMechanics.js'
+import { EVERYDAY_PHRASE_DRILLS } from './everydayAlbanian.js'
+
+const EVERYDAY_PHRASE_BY_ID = new Map(
+  EVERYDAY_PHRASE_DRILLS.map((phrase) => [phrase.id, phrase]),
+)
 
 export {
   CALENDAR_EPOCH,
@@ -581,6 +586,9 @@ const countRecord = (value) => {
   }
   return next
 }
+const phraseCountRecord = (value) => Object.fromEntries(
+  Object.entries(countRecord(value)).filter(([id]) => EVERYDAY_PHRASE_BY_ID.has(id)),
+)
 const subtractCountRecords = (value, suspended) => {
   const next = {}
   const current = countRecord(value)
@@ -746,6 +754,12 @@ export function normalizeSavedState(saved, fresh) {
   for (const key of ['inventory', 'mana', 'practiced']) {
     next[key] = countRecord(isRecord(saved[key]) ? saved[key] : fresh[key])
   }
+  next.phrasePracticed = phraseCountRecord(
+    isRecord(saved.phrasePracticed) ? saved.phrasePracticed : fresh.phrasePracticed,
+  )
+  next.phraseMistakes = phraseCountRecord(
+    isRecord(saved.phraseMistakes) ? saved.phraseMistakes : fresh.phraseMistakes,
+  )
   // Early typed-flag builds represented Shpirag's role branch as an invisible
   // carried object. Canonicalize it once on load so identity, gates and the
   // inventory UI cannot disagree. `hasCond(flag:...)` retains its generic
@@ -989,9 +1003,19 @@ function baseRun() {
 
 // the initial state when the app boots
 export function newRun() {
-  // `mana`, `practiced` and the achievement maps live OUTSIDE baseRun(): they
-  // are long-term progress that carries across runs (unlike per-run state).
-  return { ...baseRun(), mana: {}, practiced: {}, visited: {}, ...loadAchievements(), debug: false, loreFocus: null }
+  // Word and phrase practice plus the achievement maps live OUTSIDE baseRun():
+  // they are long-term learning progress that carries across runs.
+  return {
+    ...baseRun(),
+    mana: {},
+    practiced: {},
+    phrasePracticed: {},
+    phraseMistakes: {},
+    visited: {},
+    ...loadAchievements(),
+    debug: false,
+    loreFocus: null,
+  }
 }
 
 // distinct sense ids used by a phrase (an option's answer or an item's use phrase)
@@ -1543,6 +1567,39 @@ export function reducer(state, action) {
     case 'PRACTICE_WRONG':
       return { ...state, hearts: Math.max(0, state.hearts - 1) }
 
+    case 'PRACTICE_PHRASE_RESULT': {
+      if (action.correct !== true && action.correct !== false) return state
+      if (!Array.isArray(action.phraseIds) || action.phraseIds.length === 0) return state
+      const phraseIds = [...new Set(action.phraseIds)]
+      const phrases = phraseIds.map((id) => EVERYDAY_PHRASE_BY_ID.get(id))
+      // A result may only reward phrases whose complete vocabulary was already
+      // discovered. Resolve reward ids from canonical curriculum data rather
+      // than trusting the UI to send mintable word ids.
+      if (phrases.some((phrase) => !phrase || !phrase.requires.every((id) => state.discovered[id]))) {
+        return state
+      }
+      if (!action.correct) {
+        const phraseMistakes = { ...(state.phraseMistakes || {}) }
+        for (const id of phraseIds) phraseMistakes[id] = (phraseMistakes[id] || 0) + 1
+        return {
+          ...state,
+          phraseMistakes,
+          hearts: Math.max(0, state.hearts - 1),
+        }
+      }
+
+      const phrasePracticed = { ...(state.phrasePracticed || {}) }
+      for (const id of phraseIds) phrasePracticed[id] = (phrasePracticed[id] || 0) + 1
+      const rewardIds = [...new Set(phrases.flatMap((phrase) => phrase.requires))]
+      const mana = { ...state.mana }
+      const practiced = { ...state.practiced }
+      for (const id of rewardIds) {
+        mana[id] = (mana[id] || 0) + 1
+        practiced[id] = (practiced[id] || 0) + 1
+      }
+      return { ...state, mana, practiced, phrasePracticed }
+    }
+
     case 'CONFUSE':
       // picked an option that can't happen in this part of the story
       if (action.expectedHearts != null && action.expectedHearts !== state.hearts) return state
@@ -1663,6 +1720,8 @@ export function reducer(state, action) {
         ...baseRun(),
         mana: state.mana,
         practiced: state.practiced,
+        phrasePracticed: state.phrasePracticed || {},
+        phraseMistakes: state.phraseMistakes || {},
         visited: state.visited,
         heard: state.heard || {},
         discovered: state.discovered,
@@ -1731,6 +1790,8 @@ export function reducer(state, action) {
         ...baseRun(),
         mana: state.mana,
         practiced: state.practiced,
+        phrasePracticed: state.phrasePracticed || {},
+        phraseMistakes: state.phraseMistakes || {},
         visited: state.visited,
         heard: state.heard || {},
         earned: state.earned,
