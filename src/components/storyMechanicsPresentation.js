@@ -16,11 +16,13 @@ export function formatCivilHour(hour) {
     : null
 }
 
-// Health is already expressed by the Albanian sentence in the story. Its
-// editorial English gloss is diagnostic metadata, so ordinary play should not
-// repeat that status in English beneath the sentence.
+// Whole-line English is editorial/debug metadata. Ordinary play must make the
+// learner understand the Albanian sentence from its known words and context;
+// showing the completed translation underneath would give that answer away.
+// Keep the line key in the signature because StoryView uses stable synthetic
+// keys for context lines as well as numeric keys for authored story lines.
 export function storyReadingVisible(lineKey, debug = false) {
-  return lineKey !== 'hearts' || Boolean(debug)
+  return Boolean(debug)
 }
 
 export function interactionLockText(availability) {

@@ -164,7 +164,6 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
           >
             <span aria-hidden="true">🔊</span> Play phrase
           </button>
-          {q.showEnglishCue && <div className="phrase-cue">{q.target.en}</div>}
         </>
       ) : q.mode === 'cloze' ? (
         <>

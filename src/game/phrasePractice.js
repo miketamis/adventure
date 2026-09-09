@@ -425,7 +425,6 @@ export function buildPhraseQuestion(
   const distractorCount = mode === 'listen' ? [2, 3, 5][tier] : 3
   return {
     ...base,
-    showEnglishCue: mode === 'listen' && tier === 0,
     bank: buildWordBank(eligible, distractorPool, target, answerWords, rng, distractorCount, excluded),
   }
 }

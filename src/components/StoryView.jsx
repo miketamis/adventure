@@ -32,7 +32,11 @@ import ComprehensionTest from './ComprehensionTest.jsx'
 import WorldContext from './WorldContext.jsx'
 import EmbodimentFocus from './EmbodimentFocus.jsx'
 import { isDistantLineVisible, isEnclosedScene, transitionInfo } from '../game/worldModel.js'
-import { environmentStoryLine, purseStoryLine } from '../game/storyContext.js'
+import {
+  authoredEnvironmentDimensions,
+  environmentStoryLine,
+  purseStoryLine,
+} from '../game/storyContext.js'
 import { festivalLabel } from '../game/environment.js'
 import { embodimentOptionAccess, embodimentQuest } from '../game/embodiment.js'
 import { resolveRevealLine } from '../game/revealResolver.js'
@@ -100,16 +104,17 @@ export default function StoryView({ state, dispatch }) {
   )
   const authoredLines = node.text.map(lineOf)
   const alreadyEarned = !!state.earned?.[state.nodeId]
-  // Keep the same comprehension boundary for every player. Before a good or
-  // secret ending is earned, its first English line must not leak through the
-  // screen-reader-only focus heading while the visible tale remains hidden.
+  // Keep the same comprehension boundary for every player. Whole-line English
+  // is a debug-only editorial aid, including in the screen-reader focus heading;
+  // normal play keeps the accessible announcement useful without giving away a
+  // translation that is deliberately absent from the visible story.
   const endingLoreHidden = ['good', 'secret'].includes(state.ended) &&
     !alreadyEarned && endResult !== 'passed'
-  const sceneSummary = lines[0] && !endingLoreHidden
+  const sceneSummary = state.debug && lines[0] && !endingLoreHidden
     ? englishReadingOf(lines[0])
     : endingLoreHidden
       ? 'The ending is still hidden.'
-      : 'The story continues.'
+      : 'Albanian story text is ready.'
   const sceneStatus = sceneAnnouncement({
     ending: state.ended,
     title: node.title,
@@ -208,6 +213,7 @@ export default function StoryView({ state, dispatch }) {
   const usableOwned = state.embodying ? [] : visibleOwnedIds.filter((id) => ITEMS[id]?.use)
   const environmentLine = environmentStoryLine(environment, {
     enclosed: isEnclosedScene(state.nodeId),
+    omit: authoredEnvironmentDimensions(lines),
   })
   const purseLine = purseStoryLine(state.inventory.lek)
 
@@ -468,7 +474,7 @@ export default function StoryView({ state, dispatch }) {
       {!state.ended && state.debug && <WorldContext state={storyState} worldClock={state.clock} />}
       {!state.ended && <EmbodimentFocus state={state} dispatch={dispatch} />}
       <div className="story-text">
-        {!state.ended && renderLine(environmentLine, 'environment')}
+        {!state.ended && environmentLine && renderLine(environmentLine, 'environment')}
         {!state.ended && heartLevel && renderLine(heartLevel.line, 'hearts')}
         {!state.ended && purseLine && renderLine(purseLine, 'purse')}
         {!state.ended && companionIds.length > 0 && renderLine(companionLine(), 'companions')}

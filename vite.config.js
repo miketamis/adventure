@@ -16,6 +16,7 @@ const authoredChunk = (id) => {
   const path = id.replaceAll('\\', '/')
   if (path.includes('/node_modules/')) return 'react-vendor'
   if (path.endsWith('/src/game/content.js')) return 'story-graph'
+  if (path.endsWith('/src/game/stateMechanics.js')) return 'state-mechanics'
   if (path.endsWith('/src/game/dictionary.js') || path.endsWith('/src/game/nounForms.js')) {
     return 'dictionary-catalog'
   }

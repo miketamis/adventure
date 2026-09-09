@@ -1,6 +1,8 @@
 import { QUOTES } from './quotes.js'
 import { DICT } from './dictionary.js'
+import { describesEnvironment } from './environmentNarration.js'
 export { DICT } from './dictionary.js'
+export { describesEnvironment } from './environmentNarration.js'
 
 // ---------------------------------------------------------------------------
 // TOKEN HELPERS
@@ -128,7 +130,10 @@ export const notFrom = (nodeIds, line) => ({ cond: fromCond(nodeIds), negate: tr
 // while notBecame() keeps the standing description ("është natën.") for a
 // scene entered deep inside the phase. Takes one phase id or an array (any).
 const becameCond = (phases) => 'became:' + [].concat(phases).join('|')
-export const became = (phases, line) => ({ cond: becameCond(phases), line })
+export const became = (phases, line) => ({
+  cond: becameCond(phases),
+  line: describesEnvironment('time', line),
+})
 export const notBecame = (phases, line) => ({ cond: becameCond(phases), negate: true, line })
 // FAMILIARITY — scenes that know they've been read (gameState tracks the
 // persistent `state.visited` map and exposes it as the virtual items `again`
@@ -333,11 +338,11 @@ export const STORY = {
       // an event when the walk crossed into the dark
       became('dusk', R('The sun sinks behind the forest.', wf('diell', 'dielli', 'the sun'), w('bie'), wf('pas', 'pas', 'behind'), wf('pyll', 'pyllit', 'the forest'), p('.'))),
       became('night', R('Night comes out of the forest.', wf('naten', 'nata', 'the night'), w('vjen'), w('nga'), wf('pyll', 'pylli', 'the forest'), p('.'))),
-      when('night', R('At night the forest is a black wall.', w('naten'), wf('pyll', 'pylli', 'the forest'), w('eshte'), w('nje'), w('mur'), w('i_art'), w('zi'), p('.'))),
+      when('night', describesEnvironment('time', R('At night the forest is a black wall.', w('naten'), wf('pyll', 'pylli', 'the forest'), w('eshte'), w('nje'), w('mur'), w('i_art'), w('zi'), p('.')))),
       when('night', R('Far away, a small light shines in the village.', w('larg'), p(','), wf('ne', 'në', 'in'), w('fshat'), p(','), w('ka'), w('nje'), w('drite'), w('te_link'), wf('vogel', 'vogël', 'small'), p('.'))),
-      when('dawn', R('It is dawn: cold light falls across the river.', w('eshte'), w('agim'), p(':'), w('nje'), w('drite'), w('e_art'), w('ftohte'), w('bie'), w('mbi'), wf('lume', 'lumin', 'the river'), p('.'))),
-      when('day', R('It is day: sunlight falls across the bridge and river.', w('eshte'), w('dite'), p(':'), wf('diell', 'dielli', 'the sun'), w('bie'), w('mbi'), wf('ure', 'urën', 'the bridge'), w('dhe'), w('mbi'), wf('lume', 'lumin', 'the river'), p('.'))),
-      when('dusk', R('It is dusk: the forest shadows grow long.', w('eshte'), w('muzg'), p(':'), wf('hije', 'hijet', 'the shadows'), w('e_link'), wf('pyll', 'pyllit', 'the forest'), wf('behet', 'bëhen', 'become'), wf('te_link', 'të', 'the'), wf('gjate', 'gjata', 'long'), p('.'))),
+      when('dawn', describesEnvironment('time', R('It is dawn: cold light falls across the river.', w('eshte'), w('agim'), p(':'), w('nje'), w('drite'), w('e_art'), w('ftohte'), w('bie'), w('mbi'), wf('lume', 'lumin', 'the river'), p('.')))),
+      when('day', describesEnvironment('time', R('It is day: sunlight falls across the bridge and river.', w('eshte'), w('dite'), p(':'), wf('diell', 'dielli', 'the sun'), w('bie'), w('mbi'), wf('ure', 'urën', 'the bridge'), w('dhe'), w('mbi'), wf('lume', 'lumin', 'the river'), p('.')))),
+      when('dusk', describesEnvironment('time', R('It is dusk: the forest shadows grow long.', w('eshte'), w('muzg'), p(':'), wf('hije', 'hijet', 'the shadows'), w('e_link'), wf('pyll', 'pyllit', 'the forest'), wf('behet', 'bëhen', 'become'), wf('te_link', 'të', 'the'), wf('gjate', 'gjata', 'long'), p('.')))),
       // The first person the learner meets opens the practical-language lane.
       // This is synthetic everyday dialogue, not a quotation from the research
       // corpus: the private material establishes priorities, never game copy.
@@ -5757,7 +5762,7 @@ export const STORY = {
     text: [
       L(w('tomor'), w('thote'), p(':')),
       L(w('nje'), w('dragua'), w('ka'), wf('fuqi', 'fuqinë', 'power'), w('e_link'), wf('rrufe', 'rrufesë', 'thunderbolt'), p('.')),
-      L(w('nje'), w('re'), w('e_art'), wf('madh', 'madhe', 'big'), w('dhe'), w('e_art'), wf('zi', 'zezë', 'black'), w('vjen'), w('mbi'), w('mal'), p('.')),
+      describesEnvironment('weather', L(w('nje'), w('re'), w('e_art'), wf('madh', 'madhe', 'big'), w('dhe'), w('e_art'), wf('zi', 'zezë', 'black'), w('vjen'), w('mbi'), w('mal'), p('.'))),
     ],
     options: [
       { text: L(w('degjo'), wf('tomor', 'Tomorin', 'Tomor')), to: 'tomorStuhi', reveal: 'tomor' },
@@ -5769,7 +5774,7 @@ export const STORY = {
     id: 'tomorStuhi',
     sceneWeather: 'storm',
     text: [
-      L(wf('ere', 'era', 'wind'), w('vjen'), w('e_art'), w('forte'), w('dhe'), wf('rrufe', 'rrufeja', 'thunderbolt'), wf('ndiz', 'ndez', 'light'), wf('qiell', 'qiellin', 'sky'), p('.')),
+      describesEnvironment('weather', L(wf('ere', 'era', 'wind'), w('vjen'), w('e_art'), w('forte'), w('dhe'), wf('rrufe', 'rrufeja', 'thunderbolt'), wf('ndiz', 'ndez', 'light'), wf('qiell', 'qiellin', 'sky'), p('.'))),
       L(w('nje'), w('dragua'), wf('lufto', 'lufton', 'fights'), wf('kulshedra', 'kulshedrën', 'the she-dragon'), w('ne'), w('re'), p('.')),
       L(w('ti'), w('nuk'), w('ik'), p('.')),
     ],
@@ -7578,7 +7583,7 @@ export const STORY = {
     id: 'maliStuhi',
     sceneWeather: 'storm',
     text: [
-      L(wf('ere', 'era', 'wind'), wf('godit', 'godet', 'strikes'), wf('mal', 'malin', 'the mountain'), p(','), w('dhe'), wf('rrufe', 'rrufeja', 'the thunderbolt'), w('bie'), p('.')),
+      describesEnvironment('weather', L(wf('ere', 'era', 'wind'), wf('godit', 'godet', 'strikes'), wf('mal', 'malin', 'the mountain'), p(','), w('dhe'), wf('rrufe', 'rrufeja', 'the thunderbolt'), w('bie'), p('.'))),
       L(w('nje'), w('zjarr'), w('i_art'), w('madh'), w('vjen'), w('nga'), wf('qiell', 'qielli', 'the sky'), p('.')),
       // the climb-line is true only on the way up from the old man's ledge
       from('mali3', L(w('ti'), w('ngjit'), w('lart'), p('.'))),
@@ -7881,7 +7886,7 @@ export const STORY = {
     blurb:
       'You did not slay the Kulshedra; you called the rain the old way. The children clad the Dordolec head to foot in green — elder and fern and oak — and led him singing through the parched lanes, sprinkling water as they went, their faces turned to Shendelli, the Holy Sun mountain. Old Perendia heard, as the rite promises, and the first fat drops struck the dust. Sometimes a drought breaks not by a hero’s sword but by the village’s own song.',
     text: [
-      L(w('shi'), w('vjen'), p('.')),
+      describesEnvironment('weather', L(w('shi'), w('vjen'), p('.'))),
       L(wf('fshat', 'fshati', 'the village'), w('ka'), w('uje'), w('perseri'), p('.')),
     ],
     options: [],
@@ -8325,7 +8330,7 @@ export const STORY = {
     id: 'shurdhi1',
     sceneWeather: 'storm',
     text: [
-      L(w('nje'), w('re'), w('e_art'), wf('zi', 'zezë', 'black'), w('vjen'), w('mbi'), w('mal'), p(':'), w('ne'), w('re'), w('rri'), w('shurdhi'), p('.')),
+      describesEnvironment('weather', L(w('nje'), w('re'), w('e_art'), wf('zi', 'zezë', 'black'), w('vjen'), w('mbi'), w('mal'), p(':'), w('ne'), w('re'), w('rri'), w('shurdhi'), p('.'))),
       L(w('shurdhi'), w('ka'), w('rrufe'), w('dhe'), w('bresher'), p(','), w('dhe'), wf('qiell', 'qielli', 'the sky'), w('dridhet'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('godit', 'godasin', 'strike'), w('hekur'), p(','), w('dhe'), wf('zhurme', 'zhurma', 'the noise'), w('hip'), wf('ne', 'në', 'to'), w('qiell'), p('.')),
     ],
@@ -9596,7 +9601,7 @@ export const STORY = {
     id: 'qiellErera1',
     sceneWeather: 'storm',
     text: [
-      L(w('shurdhi'), w('vjen'), w('me'), w('bresher'), p('.')),
+      describesEnvironment('weather', L(w('shurdhi'), w('vjen'), w('me'), w('bresher'), p('.'))),
       L(wf('ere', 'era', 'wind'), w('eshte'), w('e_art'), w('forte'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('godit', 'godasin', 'strike'), w('hekur'), p(':'), wf('hekur', 'hekuri', 'the iron'), wf('kendo', 'këndon', 'sings'), w('kunder'), wf('bresher', 'breshrit', 'the hail'), p('.')),
     ],

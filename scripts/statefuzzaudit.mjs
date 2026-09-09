@@ -49,7 +49,7 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
   nodeId, clock: START_CLOCK, cameFrom: null, cameFromPhase: null, familiar: false,
   heard: {}, rumor: false, trail: [], discovered: {}, inventory: {}, mana: {},
   practiced: {}, visited: {}, earned: {}, eligible: {}, attempts: {},
-  flags: {}, knowledge: {}, interactions: {},
+  flags: {}, knowledge: {}, interactions: {}, rendezvous: {},
   dismissedTests: {}, pendingTest: null, hearts: START_HEARTS,
   healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
   view: 'story', ended: null, embodying: null, embodimentOriginNode: null,
@@ -64,7 +64,7 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
 const list = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
 const virtual = (id) => typeof id === 'string' && (
   ['dawn', 'day', 'dusk', 'night', 'again', 'rumor', 'embodying'].includes(id) ||
-  /^(fixture|greeting|season|weather|festival|weekday|fact|flag|knows|itemTag|affords|from|became|visited|heard|npc|npcAt|embodying):/.test(id)
+  /^(fixture|greeting|season|weather|festival|weekday|fact|flag|knows|itemTag|affords|from|became|visited|heard|npc|npcAt|rendezvous|embodying):/.test(id)
 )
 
 const firstItemMatching = (predicate) => Object.values(ITEMS).find(predicate)?.id
@@ -428,6 +428,7 @@ check('hard restart clears transient role state but preserves durable learning',
     embodimentHeartsSnapshot: 2,
     flags: { taleGate: true },
     interactions: { work: { run: { uses: 2, lastAtClock: 40 } } },
+    rendezvous: { promised: { id: 'promised' } },
   })
   assert.equal(reducer(active, { type: 'RESET' }), active, 'living role was abandoned by hard restart')
 
@@ -440,6 +441,7 @@ check('hard restart clears transient role state but preserves durable learning',
   assert.deepEqual(restarted.inventory, {})
   assert.deepEqual(restarted.flags, {})
   assert.deepEqual(restarted.interactions, {})
+  assert.deepEqual(restarted.rendezvous, {})
   assert.deepEqual(restarted.discovered, {})
   for (const key of Object.keys(durable)) assert.deepEqual(restarted[key], durable[key], `${key} was not durable`)
   assert.deepEqual(reducer(restarted, { type: 'RESET' }), restarted, 'repeated hard restart changed clean state')
@@ -537,7 +539,7 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
       peak: pick(2), hearts: pick(3), inventory: pick(4), mana: pick(5), practiced: pick(6),
       visited: pick(1), heard: pick(2), discovered: pick(3), earned: { durableEarned: false },
       eligible: { durableDeed: false }, attempts: { durableDeed: i % 5 }, worldFacts: pick(4),
-      flags: pick(5), knowledge: pick(6), interactions: pick(0),
+      flags: pick(5), knowledge: pick(6), interactions: pick(0), rendezvous: pick(1),
       npcStarted: pick(5), trail: pick(6), ended: i % 2 ? 'good' : 'nonsense',
       view: i % 2 ? 'achievements' : 'missing', pendingTest: 'invented',
       timePassage: { toNodeId: START_NODE, fromClock: 0, toClock: 4 },
@@ -550,7 +552,7 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
     assert.equal(Object.hasOwn(state, 'peak'), false, 'retired peak state survived save normalization')
     for (const key of [
       'inventory', 'mana', 'practiced', 'visited', 'heard', 'discovered', 'npcStarted',
-      'flags', 'knowledge', 'interactions',
+      'flags', 'knowledge', 'interactions', 'rendezvous',
     ]) {
       assert.ok(state[key] && typeof state[key] === 'object' && !Array.isArray(state[key]), `${key} not repaired`)
     }

@@ -291,7 +291,7 @@ export default function App() {
         {tab('story', '📖 Story')}
         {tab('practice', '🎯 Train')}
         {tab('dictionary', '📚 Dictionary')}
-        {tab('map', '🗺 Map')}
+        {state.debug && tab('map', '🗺 Map')}
         {tab('endings', `🏆 Achievements (${achievementsGot}/${ACHIEVEMENT_IDS.length})`)}
         {tab('guide', '❔ Guide')}
         {state.debug && tab('debug', '🛠 Debug')}
@@ -317,7 +317,7 @@ export default function App() {
           {state.view === 'story' && <StoryView state={state} dispatch={dispatch} />}
           {state.view === 'practice' && <PracticeView state={state} dispatch={dispatch} />}
           {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
-          {state.view === 'map' && <AtlasView state={state} />}
+          {state.debug && state.view === 'map' && <AtlasView state={state} />}
           {state.view === 'endings' && <AchievementsView state={state} dispatch={dispatch} />}
           {state.view === 'guide' && <GuideView />}
           {state.view === 'debug' && <DebugView state={state} dispatch={dispatch} />}

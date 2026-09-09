@@ -101,7 +101,7 @@ const chunkNamed = (prefix) => {
 // These are intentional long-lived cache boundaries, not arbitrary filenames.
 // If Rollup ever folds one back into the shell, the shell-only budget might
 // catch it, but this assertion explains the architectural regression directly.
-for (const prefix of ['react-vendor', 'story-graph', 'dictionary-catalog', 'quote-register']) {
+for (const prefix of ['react-vendor', 'story-graph', 'dictionary-catalog', 'quote-register', 'state-mechanics']) {
   const chunk = chunkNamed(prefix)
   assert.ok(bootstrapNames.has(chunk.name), `${prefix} must remain in the initial static closure`)
 }
@@ -182,9 +182,13 @@ assert.ok(readingChunks[0].gzip <= READING_CHUNK_GZIP_BUDGET,
 
 const worldMapChunk = chunkNamed('WorldMapView')
 assert.ok(worldMapChunk.raw <= 220 * KiB,
-  `shared player map grew to ${display(worldMapChunk.raw)}; inspect research/debug imports`)
+  `shared debug map grew to ${display(worldMapChunk.raw)}; inspect research/debug imports`)
+assert.ok(!bootstrapNames.has(worldMapChunk.name),
+  'the debug-only world map must not enter the normal first-play bootstrap')
 for (const prefix of ['AtlasView', 'MiniMap']) {
   const viewChunk = chunkNamed(prefix)
+  assert.ok(!bootstrapNames.has(viewChunk.name),
+    `${prefix} is debug-only and must remain deferred outside normal first play`)
   const closure = staticClosureOf(viewChunk.name)
   const forbidden = [...closure].filter((name) =>
     name.startsWith('DebugView-') || taleNames.some((tale) => name.startsWith(`${tale}-`)))
@@ -205,7 +209,7 @@ console.log(`shell:       ${entryName} — ${display(entry.raw)} raw / ${display
 console.log(`bootstrap:   ${bootstrap.length} cacheable chunks — ${display(bootstrapTotal.raw)} raw / ${display(bootstrapTotal.gzip)} gzip total`)
 console.log(`lazy chunks: ${lazy.length}; largest ${lazy[0]?.name || 'none'} ${lazy[0] ? display(lazy[0].raw) : ''}`)
 console.log(`readings:    ${readingChunks[0].name} — ${display(readingChunks[0].raw)} raw / ${display(readingChunks[0].gzip)} gzip (deferred)`)
-console.log(`player map:  ${worldMapChunk.name} — ${display(worldMapChunk.raw)} raw; no debug/source-witness dependencies`)
+console.log(`debug map:   ${worldMapChunk.name} — ${display(worldMapChunk.raw)} raw; deferred outside normal play`)
 console.log(`tale chunks: ${taleNames.length} independently demand-loaded witnesses`)
 console.log(`audio:       ${audioFiles.length} on-demand clips — ${display(audioTotal)} total; none loaded by index.html`)
 console.log('✅ first-play bundle stays inside the release budget')

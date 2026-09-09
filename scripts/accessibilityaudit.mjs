@@ -11,6 +11,7 @@ import {
   formatCivilHour,
   interactionLockText,
   sceneAnnouncement,
+  storyReadingVisible,
 } from '../src/components/storyMechanicsPresentation.js'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -21,6 +22,7 @@ const embodimentFocus = read('src/components/EmbodimentFocus.jsx')
 const achievements = read('src/components/AchievementsView.jsx')
 const practice = read('src/components/PracticeView.jsx')
 const phrasePractice = read('src/components/PhrasePracticeQuestion.jsx')
+const phrasePracticeLogic = read('src/game/phrasePractice.js')
 const audio = read('src/game/audio.js')
 const dictionary = read('src/components/DictionaryView.jsx')
 const comprehension = read('src/components/ComprehensionTest.jsx')
@@ -52,7 +54,15 @@ check('Albanian learning surfaces declare their language to assistive technology
 check('keyboard focus exposes the same word hint as hover', token.includes('onFocus={() => setShowHint(true)}') && token.includes('role="tooltip"'))
 check('word activation cannot accidentally choose its option', token.includes('event.stopPropagation()'))
 check('story is a labelled region and focuses a changed scene', story.includes('aria-labelledby="story-scene-title"') && story.includes('sceneHeadingRef.current?.focus()'))
-check('story lines keep word controls separate from whole-line English', story.includes('englishReadingOf(line)') && story.includes('story-reading-label'))
+check('whole-line story English is debug-only while word controls remain available',
+  story.includes('storyReadingVisible(i, state.debug)') &&
+  story.includes('state.debug && lines[0]') &&
+  story.includes('story-reading-label') &&
+  story.includes('<Token') &&
+  !storyReadingVisible('environment', false) &&
+  !storyReadingVisible(0, false) &&
+  storyReadingVisible('environment', true) &&
+  storyReadingVisible(0, true))
 check('options form a named list', story.includes('role="list" aria-label="Available actions"') && story.includes('role="listitem"'))
 check('route selection is its own native, focusable control',
   story.includes('className="option-select"') &&
@@ -94,6 +104,11 @@ check('ending focus announces fate without leaking comprehension-gated lore',
 check('story no longer emulates buttons with generic elements', !story.includes('role="button"'))
 check('every blocking overlay uses modal semantics and isolates the app', app.includes('function BlockingModal') && app.includes('role="dialog"') && app.includes('aria-modal="true"') && app.includes('inert={blockingOverlay'))
 check('game sections are named navigation and expose the current page', app.includes('<nav className="tabs" aria-label="Game sections">') && app.includes("aria-current={state.view === view ? 'page' : undefined}"))
+check('the map navigation and atlas renderer are both debug-gated',
+  app.includes("{state.debug && tab('map', '🗺 Map')}") &&
+  app.includes("{state.debug && state.view === 'map' && <AtlasView state={state} />}") &&
+  !app.includes("\n        {tab('map', '🗺 Map')}") &&
+  !app.includes("\n          {state.view === 'map' && <AtlasView"))
 check('the application exposes header, navigation, main and a visible-on-focus skip link',
   app.includes('<header className="topbar">') &&
   app.includes('<main id="main-content" tabIndex={-1}>') &&
@@ -125,6 +140,11 @@ check('phrase listening uses one continuous authored recording',
   audio.includes('export function playPhrase(al)') &&
   phrasePractice.includes('playPhrase(q.target.al)') &&
   !phrasePractice.includes('playPhrase(q.answerWords)'))
+check('phrase listening is Albanian transcription without visible or assistive English answers',
+  phrasePractice.includes("q.mode === 'listen'") &&
+  phrasePractice.includes('aria-label="Play the Albanian phrase"') &&
+  !phrasePractice.includes('q.showEnglishCue') &&
+  !phrasePracticeLogic.includes('showEnglishCue'))
 check('phrase tiles, audio, typing helpers and matching pairs are keyboard-native and named',
   phrasePractice.includes('<button') &&
   phrasePractice.includes('aria-label="Your answer"') &&

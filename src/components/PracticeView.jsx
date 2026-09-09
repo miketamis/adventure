@@ -453,7 +453,6 @@ export default function PracticeView({ state, dispatch }) {
 
   if (formsCorrection) {
     const { guide, stage, chosen, lemma, meaning } = formsCorrection
-    const rowWords = guide.rows.map((row) => row.al).join(' → ')
     return (
       <section className="card practice" aria-labelledby="practice-title">
         <h2 id="practice-title" className="view-title">Train Albanian</h2>
@@ -463,24 +462,17 @@ export default function PracticeView({ state, dispatch }) {
             {stage === 'meaning' ? (
               <>
                 You chose “{chosen}”. <b lang="sq">{guide.target.al}</b> belongs to{' '}
-                <b lang="sq">{lemma}</b> ({meaning}); this form means “{guide.target.gloss}”.
+                <b lang="sq">{lemma}</b> ({meaning}); this form means “{guide.target.learnerMeaning}”.
               </>
             ) : (
               <>
                 You chose “{chosen}”. Here <b lang="sq">{guide.target.al}</b> means{' '}
-                “{guide.target.gloss}”.
+                “{guide.target.learnerMeaning}”.
               </>
             )}
           </p>
           <div className="noun-ending-layer-label">This noun</div>
-          <div className="noun-ending-chain" lang="sq" aria-label={`Forms: ${rowWords}`}>
-            {guide.rows.map((row, index) => (
-              <span key={`${row.tag}-${row.al}`}>
-                {index > 0 && <span className="noun-ending-arrow" aria-hidden="true">→</span>}
-                <strong className={row.missed ? 'missed' : ''}>{row.al}</strong>
-              </span>
-            ))}
-          </div>
+          <h4 className="noun-ending-same-noun">Same noun, different job</h4>
           <dl className="noun-ending-rows">
             {guide.rows.map((row) => (
               <div className={row.missed ? 'noun-ending-row missed' : 'noun-ending-row'} key={`${row.tag}-${row.al}`}>
@@ -488,7 +480,13 @@ export default function PracticeView({ state, dispatch }) {
                   <b lang="sq">{row.al}</b>
                   {row.missed && <span className="noun-ending-this">this form</span>}
                 </dt>
-                <dd><span>{row.role}</span><span>{row.gloss}</span></dd>
+                <dd>
+                  <div className="noun-ending-job"><span>{row.role}</span><span>{row.learnerMeaning}</span></div>
+                  <div className="noun-ending-example">
+                    <span lang="sq">{row.example.al}</span>
+                    <span>{row.example.en}</span>
+                  </div>
+                </dd>
               </div>
             ))}
           </dl>
@@ -496,17 +494,17 @@ export default function PracticeView({ state, dispatch }) {
             <h4>Pattern to reuse</h4>
             <p className="noun-ending-pattern">{guide.pattern}</p>
             {guide.peer && (
-              <p className="noun-ending-peer">
-                <b>Same pattern:</b>{' '}
-                <span lang="sq" aria-label={`Matching forms: ${guide.peer.rows.map((row) => row.al).join(' → ')}`}>
-                  {guide.peer.rows.map((row, index) => (
+              <div className="noun-ending-peer">
+                <b>Same pattern:</b>
+                <div className="noun-ending-peer-forms" lang="sq">
+                  {guide.peer.rows.map((row) => (
                     <span key={`${row.tag}-${row.al}`}>
-                      {index > 0 && <span aria-hidden="true"> → </span>}
                       <strong>{row.al}</strong>
+                      <small>{row.role}</small>
                     </span>
                   ))}
-                </span>
-              </p>
+                </div>
+              </div>
             )}
           </div>
           <button className="btn primary noun-ending-continue" onClick={next}>Continue training</button>

@@ -22,12 +22,15 @@ import {
   hasRequiredItem,
   interactionAvailabilityForOption,
   normalizeSavedState,
+  npcNodeOf,
   optionEffectsAreValid,
+  optionNpcStartsAreValid,
   optionTimingIsValid,
   phaseAtCivilHour,
   phaseAtClock,
   phraseSenses,
   projectedClockForOption,
+  rendezvousAvailabilityForOption,
   reconcileWorldFacts,
   reducer,
   timePassageForOption,
@@ -45,7 +48,14 @@ import {
   optionEffectsOf,
   optionLekAvailability,
   recordInteractionUse,
+  recordRendezvousArrivals,
+  rendezvousAvailability,
+  rendezvousDueClock,
+  rendezvousSpecOf,
+  rendezvousStatusOf,
+  scheduleRendezvous,
 } from '../src/game/stateMechanics.js'
+import { NPCS } from '../src/game/npcs.js'
 import {
   WORLD_FACT_PRESENTATION,
   advanceToFestival,
@@ -85,6 +95,7 @@ const stateAt = (nodeId, clock = START_CLOCK, extra = {}) => ({
   flags: {},
   knowledge: {},
   interactions: {},
+  rendezvous: {},
   mana: {},
   practiced: {},
   visited: {},
@@ -540,6 +551,136 @@ check('identified interactions enforce scene, day, tale, run, cooldown, and redu
   } finally {
     if (prior === undefined) delete repeat.interaction
     else repeat.interaction = prior
+  }
+})
+
+check('rendezvous promises keep their clock, classify arrivals, walk real NPCs, and survive saves', () => {
+  const followOption = {
+    rendezvous: {
+      id: 'audit-follow',
+      npcId: 'auditRendezvousNpc',
+      placeId: 'fshatiLumi',
+      kind: 'follow',
+      dueInHours: 1,
+      graceHours: 0,
+      leaveAfterHours: 2,
+    },
+  }
+  const spec = rendezvousSpecOf(followOption)
+  assert.equal(rendezvousDueClock(13, spec), 14)
+  const availability = rendezvousAvailability({ rendezvous: {} }, followOption, {
+    clock: 13,
+    isNpc: (id) => id === 'auditRendezvousNpc',
+    isPlace: (id) => id === 'fshatiLumi',
+  })
+  assert.equal(availability.ok, true)
+  const scheduled = scheduleRendezvous({}, availability)
+  assert.equal(rendezvousStatusOf(scheduled, 'audit-follow', 13), 'scheduled')
+  assert.equal(rendezvousStatusOf(scheduled, 'audit-follow', 14), 'waiting')
+  assert.equal(rendezvousStatusOf(scheduled, 'audit-follow', 15), 'late')
+  assert.equal(rendezvousStatusOf(scheduled, 'audit-follow', 17), 'missed')
+
+  const early = recordRendezvousArrivals(scheduled, {
+    nodeId: 'fshatiLumi', clock: 13, npcNodeOf: () => 'fshatiLumi',
+  })
+  assert.strictEqual(early, scheduled, 'an early co-location fulfilled a promise before its agreed time')
+  const absent = recordRendezvousArrivals(scheduled, {
+    nodeId: 'fshatiLumi', clock: 14, npcNodeOf: () => 'start',
+  })
+  assert.strictEqual(absent, scheduled, 'a promise resolved without the NPC being physically present')
+  const onTime = recordRendezvousArrivals(scheduled, {
+    nodeId: 'fshatiLumi', clock: 14, npcNodeOf: () => 'fshatiLumi',
+  })
+  assert.equal(onTime['audit-follow'].outcome, 'on-time')
+  assert.equal(onTime['audit-follow'].metAtClock, 14)
+  assert.equal(rendezvousStatusOf(onTime, 'audit-follow', 99), 'on-time')
+  const late = recordRendezvousArrivals(scheduled, {
+    nodeId: 'fshatiLumi', clock: 15, npcNodeOf: () => 'fshatiLumi',
+  })
+  assert.equal(late['audit-follow'].outcome, 'late')
+  const missed = recordRendezvousArrivals(scheduled, {
+    nodeId: 'fshatiLumi', clock: 17, npcNodeOf: () => 'fshatiLumi',
+  })
+  assert.equal(missed['audit-follow'].outcome, 'missed')
+
+  const tomorrow = rendezvousSpecOf({
+    rendezvous: {
+      id: 'audit-tomorrow', npcId: 'auditRendezvousNpc', placeId: 'fshatiSheshi',
+      kind: 'meeting', atHour: 7, dayOffset: 1, graceHours: 1, leaveAfterHours: 3,
+    },
+  })
+  assert.equal(rendezvousDueClock(13, tomorrow), 25, 'tomorrow 07:00 drifted across the civil-day boundary')
+  const pastToday = rendezvousAvailability({ rendezvous: {} }, {
+    rendezvous: {
+      id: 'audit-past', npcId: 'auditRendezvousNpc', placeId: 'fshatiSheshi',
+      kind: 'meeting', atHour: 18, dayOffset: 0, graceHours: 1, leaveAfterHours: 3,
+    },
+  }, { clock: 13 })
+  assert.equal(pastToday.reason, 'past-due')
+  assert.equal(rendezvousSpecOf({ rendezvous: { ...followOption.rendezvous, dueInHours: 1, atHour: 7 } }), false)
+  assert.equal(rendezvousAvailability({ rendezvous: scheduled }, followOption, { clock: 13 }).reason, 'already-scheduled')
+
+  const npcId = 'auditRendezvousNpc'
+  NPCS[npcId] = {
+    name: 'audit walker', glyph: '•', once: true, stepHours: 1,
+    route: ['start', 'fshatiLumi'], settlesAt: 'fshatiLumi',
+  }
+  const agreement = {
+    ...followOption,
+    text: STORY.start.options[0].text,
+    to: 'start',
+    durationHours: 0,
+    startsNpc: npcId,
+  }
+  STORY.start.options.push(agreement)
+  try {
+    const crossing = STORY.start.options.find((option) => option.to === 'fshatiLumi')
+    const ids = new Set([...phraseSenses(agreement.text), ...phraseSenses(crossing.text)])
+    let state = stateAt('start', 13, {
+      discovered: Object.fromEntries([...ids].map((id) => [id, true])),
+      mana: Object.fromEntries([...ids].map((id) => [id, 3])),
+    })
+    assert.equal(optionNpcStartsAreValid(agreement), true)
+    assert.equal(rendezvousAvailabilityForOption(state, agreement).ok, true)
+    state = reducer(state, { type: 'CHOOSE', option: agreement, targetNode: STORY.start })
+    assert.equal(state.nodeId, 'start', 'agreeing to a rendezvous moved the player')
+    assert.equal(state.clock, 13, 'agreeing to a rendezvous advanced the player clock')
+    assert.equal(state.npcStarted[npcId], 13)
+    assert.equal(npcNodeOf(state, npcId), 'start')
+    state = reducer(state, { type: 'CHOOSE', option: crossing, targetNode: STORY.fshatiLumi })
+    assert.equal(state.nodeId, 'fshatiLumi')
+    assert.equal(state.clock, 14)
+    assert.equal(npcNodeOf(state, npcId), 'fshatiLumi')
+    assert.equal(state.rendezvous['audit-follow'].outcome, 'on-time')
+    assert.equal(hasCond(state, 'rendezvous:audit-follow:fulfilled'), true)
+    assert.equal(hasCond(state, 'rendezvous:audit-follow:on-time'), true)
+    assert.equal(npcNodeOf({ ...state, clock: 40 }, npcId), 'fshatiLumi', 'one-shot NPC did not settle')
+
+    const normalized = normalizeSavedState({
+      ...stateAt('start', 30),
+      rendezvous: {
+        valid: {
+          id: 'valid', npcId, placeId: 'start', kind: 'meeting',
+          agreedAtClock: 20, dueAtClock: 40, graceHours: 1, leaveAfterHours: 3,
+          metAtClock: null, outcome: null,
+        },
+        badOutcome: {
+          id: 'badOutcome', npcId, placeId: 'start', kind: 'meeting',
+          agreedAtClock: 20, dueAtClock: 22, graceHours: 1, leaveAfterHours: 3,
+          metAtClock: 22, outcome: 'late',
+        },
+        unknownNpc: {
+          id: 'unknownNpc', npcId: 'missing', placeId: 'start', kind: 'meeting',
+          agreedAtClock: 20, dueAtClock: 22, graceHours: 1, leaveAfterHours: 3,
+          metAtClock: null, outcome: null,
+        },
+      },
+    }, stateAt('start', 30))
+    assert.deepEqual(Object.keys(normalized.rendezvous), ['valid'])
+    assert.equal(normalized.rendezvous.valid.dueAtClock, 40, 'a valid future promise was clamped away')
+  } finally {
+    STORY.start.options.pop()
+    delete NPCS[npcId]
   }
 })
 
@@ -1268,6 +1409,17 @@ check('old and partial saves are normalized before play', () => {
   assert.equal(normalized.hearts, 3)
   assert.deepEqual(normalized.fixtures, {})
   assert.equal(normalized.view, 'story')
+
+  const normalAtlasSave = normalizeSavedState(
+    { nodeId: 'start', view: 'map', debug: false },
+    stateAt('start'),
+  )
+  assert.equal(normalAtlasSave.view, 'story', 'a normal-mode save resumed on the debug atlas')
+  const debugAtlasSave = normalizeSavedState(
+    { nodeId: 'start', view: 'map', debug: true },
+    stateAt('start'),
+  )
+  assert.equal(debugAtlasSave.view, 'map', 'a debug save lost its atlas location')
 })
 
 check('damage cannot push hearts below zero', () => {

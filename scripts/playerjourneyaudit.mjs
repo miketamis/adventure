@@ -16,6 +16,7 @@ import {
 } from '../src/game/gameState.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { isOptionRevealed } from '../src/game/revealVisibility.js'
+import { storyReadingVisible } from '../src/components/storyMechanicsPresentation.js'
 
 const checks = []
 const check = (name, test) => {
@@ -131,6 +132,16 @@ check('training recommendations use the same reveal boundary as the Story screen
   assert.match(story, /isOptionRevealed\(storyState, opt, node, lines\)/)
 })
 
+check('a normal story journey cannot use the full English line as an answer key', () => {
+  const story = readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
+  assert.equal(storyReadingVisible(0, false), false)
+  assert.equal(storyReadingVisible('environment', false), false)
+  assert.equal(storyReadingVisible(0, true), true, 'debug lost its editorial reading inspector')
+  assert.match(story, /storyReadingVisible\(i, state\.debug\)/)
+  assert.match(story, /const sceneSummary = state\.debug && lines\[0\]/)
+  assert.match(story, /<Token/)
+})
+
 check('every ending has a mechanically valid way back into play', () => {
   assert.ok(STORY[WORLD_HUB], `world hub '${WORLD_HUB}' is missing`)
   for (const ending of ENDINGS) {
@@ -184,6 +195,24 @@ check('the first-turn guide explains every step the opening controls require', (
   for (const phrase of ['Discover a word', 'Train it', 'Choose a path', 'Character tales', 'Finishing the anthology', 'Folklore and sources']) {
     assert.ok(guide.includes(phrase), `guide omits '${phrase}'`)
   }
+})
+
+check('the world map is reachable only during an explicit debug session', () => {
+  const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
+  assert.match(app, /\{state\.debug && tab\('map', '🗺 Map'\)\}/)
+  assert.match(app, /\{state\.debug && state\.view === 'map' && <AtlasView state=\{state\} \/>\}/)
+
+  const normal = reducer(stateAt(START_NODE), { type: 'SET_VIEW', view: 'map' })
+  assert.equal(normal.view, 'story', 'normal play opened the debug atlas')
+
+  const debugMap = reducer(
+    stateAt(START_NODE, { debug: true }),
+    { type: 'SET_VIEW', view: 'map' },
+  )
+  assert.equal(debugMap.view, 'map', 'debug mode could not open the atlas')
+  const debugOff = reducer(debugMap, { type: 'TOGGLE_DEBUG' })
+  assert.equal(debugOff.debug, false)
+  assert.equal(debugOff.view, 'story', 'turning debug off left the atlas active')
 })
 
 check('all option words have dictionary entries and can enter the learning loop', () => {

@@ -1,5 +1,11 @@
 import { R, p, w, wf } from './content.js'
 import { civilDayPartAtClock } from './environment.js'
+import {
+  ENVIRONMENT_DIMENSIONS,
+  authoredEnvironmentDimensions,
+} from './environmentNarration.js'
+
+export { ENVIRONMENT_DIMENSIONS, authoredEnvironmentDimensions } from './environmentNarration.js'
 
 const TIME_OF_DAY = Object.freeze({
   morning: { id: 'mengjes', en: 'morning' },
@@ -43,13 +49,24 @@ const timeAt = (clock) => TIME_OF_DAY[civilDayPartAtClock(clock)]
 
 const wordFor = ({ id, al, en }) => al ? wf(id, al, en) : w(id)
 
+const normalizedOmissions = (dimensions) => {
+  const declared = dimensions == null
+    ? []
+    : typeof dimensions === 'string'
+      ? [dimensions]
+      : [...dimensions]
+  return new Set(declared.filter((dimension) => ENVIRONMENT_DIMENSIONS.includes(dimension)))
+}
+
 // Ordinary play receives this information in the same interactive prose as
 // health, carried items and every other fact the traveller can act upon. An
 // enclosed scene reports only the time outside: inventing sunshine or snow in
 // a sealed cavern would make a technically correct clock feel physically false.
-export function environmentStoryLine(environment, { enclosed = false } = {}) {
+export function environmentStoryLine(environment, { enclosed = false, omit = [] } = {}) {
   const time = timeAt(environment?.clock ?? 0)
+  const omitted = normalizedOmissions(omit)
   if (enclosed) {
+    if (omitted.has('time')) return null
     return R(
       `Outside, it is ${time.en}.`,
       w('jashte'), p(','), w('eshte'), wordFor(time), p('.'),
@@ -58,12 +75,21 @@ export function environmentStoryLine(environment, { enclosed = false } = {}) {
 
   const season = SEASON[environment?.season] || SEASON.spring
   const weather = WEATHER[environment?.weather] || WEATHER.clear
-  return R(
-    `It is ${time.en}. It is ${season.en}. ${weather.en[0].toUpperCase()}${weather.en.slice(1)}.`,
-    w('eshte'), wordFor(time), p('.'),
-    w('eshte'), w(season.id), p('.'),
-    ...weather.tokens(), p('.'),
-  )
+  const readings = []
+  const tokens = []
+  if (!omitted.has('time')) {
+    readings.push(`It is ${time.en}.`)
+    tokens.push(w('eshte'), wordFor(time), p('.'))
+  }
+  if (!omitted.has('season')) {
+    readings.push(`It is ${season.en}.`)
+    tokens.push(w('eshte'), w(season.id), p('.'))
+  }
+  if (!omitted.has('weather')) {
+    readings.push(`${weather.en[0].toUpperCase()}${weather.en.slice(1)}.`)
+    tokens.push(...weather.tokens(), p('.'))
+  }
+  return tokens.length ? R(readings.join(' '), tokens) : null
 }
 
 // Digits keep arbitrary earned balances exact; prices elsewhere in the story

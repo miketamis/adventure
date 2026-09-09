@@ -63,6 +63,69 @@ const uniqueForms = (forms) => {
 }
 
 const first = (forms, tag) => forms.find((form) => form.tag === tag)?.al
+const cleanGloss = (gloss) => gloss.replace(/\s*\([^)]*\)\s*$/, '').trim()
+const capitalize = (text) => text ? text[0].toLocaleUpperCase('sq') + text.slice(1) : text
+
+const bareNoun = (forms) => {
+  const lemmaGloss = cleanGloss(forms.find((form) => form.tag === 'indefNom')?.gloss || 'noun')
+  return lemmaGloss.replace(/^(?:a|an)\s+/i, '')
+}
+
+const learnerMeaningFor = (form, forms) => {
+  const noun = bareNoun(forms)
+  if (form.tag === 'defDat' || form.tag === 'defDatTosk') return `of / to the ${noun}`
+  if (form.tag === 'indefDat') return `of / to a ${noun}`
+  if (form.tag === 'ablIndef') return `from / of a ${noun}`
+  return cleanGloss(form.gloss)
+}
+
+// The examples demonstrate grammatical jobs, not a sequence. Each template is
+// short enough for a beginner and carries the exact reviewed surface unchanged.
+const exampleFor = (form, forms) => {
+  const meaning = learnerMeaningFor(form, forms)
+  const noun = bareNoun(forms)
+  switch (form.tag) {
+    case 'indefNom':
+      return /^(?:a|an)\s+/i.test(meaning)
+        ? { al: `një ${form.al}`, en: meaning }
+        : { al: `${form.al} këtu`, en: `${meaning} here` }
+    case 'indefAcc':
+    case 'defAcc':
+      return { al: `Shoh ${form.al}.`, en: `I see ${meaning}.` }
+    case 'defNom':
+      return { al: `${capitalize(form.al)} është këtu.`, en: `${capitalize(meaning)} is here.` }
+    case 'defDat':
+    case 'defDatTosk':
+      return { al: `Pranë ${form.al}.`, en: `Near the ${noun}.` }
+    case 'indefDat':
+      return { al: `Pranë ${form.al}.`, en: `Near a ${noun}.` }
+    case 'ablIndef':
+      return { al: `Prej një ${form.al}.`, en: `From a ${noun}.` }
+    case 'plIndef':
+      return { al: `Disa ${form.al}.`, en: `Some ${meaning}.` }
+    case 'plDef':
+      return { al: `${capitalize(form.al)} janë këtu.`, en: `${capitalize(meaning)} are here.` }
+    case 'plDat':
+      return { al: `Pranë ${form.al}.`, en: `Near ${meaning.replace(/^(?:of|to)\/?(?:of|to)?\s+/i, '')}.` }
+    case 'plAbl':
+      return { al: `Pas shumë ${form.al}.`, en: `After many ${meaning.replace(/^of\s+/i, '')}.` }
+    case 'adj':
+      return { al: `Diçka të ${form.al}.`, en: `Something ${meaning}.` }
+    case 'adjPl':
+      return { al: `Gjëra të ${form.al}.`, en: `${capitalize(meaning)} things.` }
+    case 'elided':
+      return { al: `Një ${form.al} i ri.`, en: `A young ${noun}.` }
+    default:
+      return { al: form.al, en: meaning }
+  }
+}
+
+const enrichForm = (form, forms) => ({
+  ...form,
+  role: NOUN_FORM_ROLE_LABELS[form.tag],
+  learnerMeaning: learnerMeaningFor(form, forms),
+  example: exampleFor(form, forms),
+})
 
 const commonPrefix = (surfaces) => {
   let prefix = surfaces[0] || ''
@@ -99,10 +162,7 @@ const peerFor = (id, signature) => {
     if (!candidate || candidate.key !== signature.key) continue
     peers.push({
       id: candidateId,
-      rows: candidate.rows.map((form) => ({
-        ...form,
-        role: NOUN_FORM_ROLE_LABELS[form.tag],
-      })),
+      rows: candidate.rows.map((form) => enrichForm(form, uniqueForms(sourceForms))),
     })
   }
   // Prefer the shortest readable example, with an alphabetical tie-break. This
@@ -144,10 +204,10 @@ const patternFor = (forms, target, signature, peer) => {
   if (lemma.endsWith('ë')) {
     const stem = lemma.slice(0, -1)
     if (definite === `${stem}a` && object === `${stem}ën` && toOf === `${stem}ës`) {
-      return 'A common feminine -ë class uses -ë → -a → -ën → -ës. Many feminine nouns use other classes, so first check that the base ends in -ë and the full pattern matches.'
+      return 'A common feminine -ë class uses -ë for one/a, -a for the subject, -ën for the object, and -ës for of/to. Many feminine nouns use other classes.'
     }
     if (definite === `${stem}i` && object === `${stem}in` && toOf === `${stem}it`) {
-      return 'This masculine -ë class uses -ë → -i → -in → -it. It is a narrow class, not a rule for every masculine noun.'
+      return 'This masculine -ë class uses -ë for one/a, -i for the subject, -in for the object, and -it for of/to. It is not a rule for every masculine noun.'
     }
   }
 
@@ -158,8 +218,10 @@ const patternFor = (forms, target, signature, peer) => {
     return 'This consonant-base class keeps the base, then uses -u, -un and -ut in the definite singular. Other masculine nouns use -i or change their stem.'
   }
 
-  const endingNames = signature.endings.map((ending) => ending || 'base').join(' → ')
-  return `These reviewed nouns share the narrow ${endingNames} singular pattern. Use it only when the noun’s full four-form row matches.`
+  const endingNames = signature.endings.map((ending, index) =>
+    `${ending || 'unchanged base'} (${NOUN_FORM_ROLE_LABELS[CORE_CLASS_TAGS[index]]})`,
+  ).join('; ')
+  return `These reviewed nouns share this narrow singular pattern: ${endingNames}. Use it only when all four jobs match.`
 }
 
 const rowsFor = (forms, target) => {
@@ -199,17 +261,13 @@ export function buildNounEndingRefresher(id, surface, expectedGloss) {
 
   return {
     id,
-    target: { ...target, role: NOUN_FORM_ROLE_LABELS[target.tag] },
+    target: enrichForm(target, forms),
     pattern: patternFor(forms, target, signature, peer),
     ruleSignature: signature ? {
       tags: [...CORE_CLASS_TAGS],
       endings: [...signature.endings],
     } : null,
     peer,
-    rows: rowsFor(forms, target).map((form) => ({
-      ...form,
-      role: NOUN_FORM_ROLE_LABELS[form.tag],
-      missed: form === target,
-    })),
+    rows: rowsFor(forms, target).map((form) => ({ ...enrichForm(form, forms), missed: form === target })),
   }
 }

@@ -4,7 +4,11 @@ import {
   fixtureActionTransition,
   fixtureSupportsAction,
 } from './worldFixtures.js'
-import { civilDayOffsetAtClock } from './environment.js'
+import {
+  CIVIL_DAWN_HOUR,
+  civilDayOffsetAtClock,
+  isCivilHour,
+} from './environment.js'
 
 // Pure state helpers for authored effects and interaction limits. This module
 // deliberately knows nothing about STORY or UI: gameState supplies the owning
@@ -433,6 +437,183 @@ export function normalizeInteractionLedger(value, maxClock = Infinity) {
       }
     }
     if (Object.keys(cleanScopes).length) next[id] = cleanScopes
+  }
+  return next
+}
+
+// A rendezvous is a promise attached to the living clock, not a disguised
+// travel instruction. Agreeing records where and when two people intend to
+// meet; the ordinary world graph still owns every step the player and NPC
+// take afterward. This keeps "tomorrow at seven" useful without teleporting
+// the traveller to either tomorrow or the meeting place.
+export const RENDEZVOUS_KINDS = Object.freeze(['follow', 'meeting'])
+export const RENDEZVOUS_OUTCOMES = Object.freeze(['on-time', 'late', 'missed'])
+
+export function rendezvousSpecOf(option) {
+  if (option?.rendezvous == null) return null
+  const raw = option.rendezvous
+  if (!isRecord(raw)) return false
+  const id = nonEmptyId(raw.id)
+  const npcId = nonEmptyId(raw.npcId)
+  const placeId = nonEmptyId(raw.placeId)
+  const kind = RENDEZVOUS_KINDS.includes(raw.kind) ? raw.kind : null
+  const hasRelativeDue = own(raw, 'dueInHours')
+  const hasCivilDue = own(raw, 'atHour')
+  if (hasRelativeDue === hasCivilDue) return false
+
+  const dueInHours = hasRelativeDue ? exactInteger(raw.dueInHours) : null
+  const atHour = hasCivilDue && isCivilHour(raw.atHour) ? raw.atHour : null
+  const dayOffset = own(raw, 'dayOffset') ? exactInteger(raw.dayOffset) : 0
+  const graceHours = own(raw, 'graceHours') ? exactInteger(raw.graceHours) : 0
+  const leaveAfterHours = own(raw, 'leaveAfterHours')
+    ? exactInteger(raw.leaveAfterHours)
+    : graceHours
+
+  if (!id || !npcId || !placeId || !kind ||
+      (hasRelativeDue && (dueInHours == null || dueInHours < 0 || own(raw, 'dayOffset'))) ||
+      (hasCivilDue && atHour == null) ||
+      dayOffset == null || dayOffset < 0 || graceHours == null || graceHours < 0 ||
+      leaveAfterHours == null || leaveAfterHours < graceHours) return false
+
+  return {
+    id,
+    npcId,
+    placeId,
+    kind,
+    dueInHours,
+    atHour,
+    dayOffset,
+    graceHours,
+    leaveAfterHours,
+  }
+}
+
+export function rendezvousDueClock(clock, spec) {
+  const agreedAtClock = finiteInteger(clock)
+  if (agreedAtClock == null || agreedAtClock < 0 || !spec || spec === false) return null
+  if (spec.dueInHours != null) return agreedAtClock + spec.dueInHours
+
+  // civilDayOffsetAtClock uses midnight as the date boundary even though the
+  // simulation's hour zero is 06:00. Rebuilding the absolute clock from the
+  // civil day therefore makes dayOffset:1 mean tomorrow, including for times
+  // before dawn, rather than merely "the next occurrence of this hour".
+  const civilDay = civilDayOffsetAtClock(agreedAtClock) + spec.dayOffset
+  const dueAtClock = civilDay * 24 - CIVIL_DAWN_HOUR + spec.atHour
+  return dueAtClock >= agreedAtClock ? dueAtClock : null
+}
+
+export function rendezvousAvailability(state, option, context = {}) {
+  const spec = rendezvousSpecOf(option)
+  if (spec == null) return { ok: true, tracked: false }
+  if (spec === false) return { ok: false, tracked: true, reason: 'invalid' }
+  if (context.isNpc && !context.isNpc(spec.npcId)) {
+    return { ok: false, tracked: true, reason: 'unknown-npc', spec }
+  }
+  if (context.isPlace && !context.isPlace(spec.placeId)) {
+    return { ok: false, tracked: true, reason: 'unknown-place', spec }
+  }
+  if (own(state?.rendezvous, spec.id)) {
+    return { ok: false, tracked: true, reason: 'already-scheduled', spec }
+  }
+  const agreedAtClock = Math.max(0, finiteInteger(context.clock) ?? 0)
+  const dueAtClock = rendezvousDueClock(agreedAtClock, spec)
+  if (dueAtClock == null) return { ok: false, tracked: true, reason: 'past-due', spec }
+  return { ok: true, tracked: true, spec, agreedAtClock, dueAtClock }
+}
+
+export function scheduleRendezvous(ledger, availability) {
+  if (!availability?.tracked || !availability.ok || !availability.spec) return ledger || {}
+  const { spec, agreedAtClock, dueAtClock } = availability
+  return {
+    ...(ledger || {}),
+    [spec.id]: {
+      id: spec.id,
+      npcId: spec.npcId,
+      placeId: spec.placeId,
+      kind: spec.kind,
+      agreedAtClock,
+      dueAtClock,
+      graceHours: spec.graceHours,
+      leaveAfterHours: spec.leaveAfterHours,
+      metAtClock: null,
+      outcome: null,
+    },
+  }
+}
+
+export function rendezvousOutcomeAtClock(entry, clock) {
+  const atClock = finiteInteger(clock)
+  if (!entry || atClock == null || atClock < 0) return null
+  if (atClock < entry.dueAtClock) return null
+  if (atClock <= entry.dueAtClock + entry.graceHours) return 'on-time'
+  if (atClock <= entry.dueAtClock + entry.leaveAfterHours) return 'late'
+  return 'missed'
+}
+
+export function rendezvousStatusOf(ledger, id, clock) {
+  const entry = ledger?.[id]
+  if (!entry) return null
+  if (entry.metAtClock != null) return entry.outcome
+  const atClock = Math.max(0, finiteInteger(clock) ?? 0)
+  if (atClock < entry.dueAtClock) return 'scheduled'
+  if (atClock <= entry.dueAtClock + entry.graceHours) return 'waiting'
+  if (atClock <= entry.dueAtClock + entry.leaveAfterHours) return 'late'
+  return 'missed'
+}
+
+export function recordRendezvousArrivals(ledger, context = {}) {
+  const nodeId = nonEmptyId(context.nodeId)
+  const atClock = finiteInteger(context.clock)
+  if (!nodeId || atClock == null || atClock < 0 || !isRecord(ledger)) return ledger || {}
+  let next = ledger
+  for (const [id, entry] of Object.entries(ledger)) {
+    if (entry.metAtClock != null || entry.placeId !== nodeId) continue
+    if (context.npcNodeOf && context.npcNodeOf(entry.npcId) !== nodeId) continue
+    const outcome = rendezvousOutcomeAtClock(entry, atClock)
+    if (!outcome) continue
+    if (next === ledger) next = { ...ledger }
+    next[id] = { ...entry, metAtClock: atClock, outcome }
+  }
+  return next
+}
+
+export function normalizeRendezvous(value, maxClock = Infinity, context = {}) {
+  const next = {}
+  if (!isRecord(value)) return next
+  for (const [id, raw] of Object.entries(value)) {
+    if (!nonEmptyId(id) || !isRecord(raw) || raw.id !== id) continue
+    const npcId = nonEmptyId(raw.npcId)
+    const placeId = nonEmptyId(raw.placeId)
+    const kind = RENDEZVOUS_KINDS.includes(raw.kind) ? raw.kind : null
+    const agreedAtClock = finiteInteger(raw.agreedAtClock)
+    const dueAtClock = finiteInteger(raw.dueAtClock)
+    const graceHours = finiteInteger(raw.graceHours)
+    const leaveAfterHours = finiteInteger(raw.leaveAfterHours)
+    const metAtClock = raw.metAtClock == null ? null : finiteInteger(raw.metAtClock)
+    const outcome = raw.outcome == null ? null : raw.outcome
+    if (!npcId || !placeId || !kind ||
+        (context.isNpc && !context.isNpc(npcId)) ||
+        (context.isPlace && !context.isPlace(placeId)) ||
+        agreedAtClock == null || agreedAtClock < 0 || agreedAtClock > maxClock ||
+        dueAtClock == null || dueAtClock < agreedAtClock ||
+        graceHours == null || graceHours < 0 ||
+        leaveAfterHours == null || leaveAfterHours < graceHours ||
+        (metAtClock != null && (metAtClock < agreedAtClock || metAtClock > maxClock)) ||
+        (metAtClock == null && outcome != null) ||
+        (metAtClock != null && (!RENDEZVOUS_OUTCOMES.includes(outcome) ||
+          rendezvousOutcomeAtClock({ dueAtClock, graceHours, leaveAfterHours }, metAtClock) !== outcome))) continue
+    next[id] = {
+      id,
+      npcId,
+      placeId,
+      kind,
+      agreedAtClock,
+      dueAtClock,
+      graceHours,
+      leaveAfterHours,
+      metAtClock,
+      outcome,
+    }
   }
   return next
 }

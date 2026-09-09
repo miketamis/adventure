@@ -17,10 +17,14 @@
 //   activePhases — time-of-day phases the NPC is out and about; any other hour
 //                  they are offstage (home, asleep). Omit for always-on.
 //   once         — instead of looping forever, the route runs ONCE, triggered
-//                  by entering a node that carries `startsNpc: '<id>'`; the NPC
-//                  is gone after the last step. Use sparingly (a procession,
+//                  by an option or entered node carrying `startsNpc: '<id>'`;
+//                  the NPC is gone after the last step. Use sparingly (a procession,
 //                  a funeral) — a looping NPC can never be missed for good,
 //                  a one-shot can. Loop is the default.
+//   settlesAt    — only for a one-shot route: after walking its complete route,
+//                  the NPC remains at this final stop instead of disappearing.
+//                  The value must equal route.at(-1), so settling can never be
+//                  used as an unwalked teleport.
 //   name, glyph  — for the debug map and tooltips.
 //
 // PRESENCE IS A VIRTUAL ITEM, through the same has() machinery as time phases

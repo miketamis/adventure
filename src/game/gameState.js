@@ -62,12 +62,17 @@ import {
   itemUseEffectsOption,
   normalizeInteractionLedger,
   normalizeKnowledge,
+  normalizeRendezvous,
   optionEffectAvailability,
   optionEffectsAreValid,
   optionInventoryIds,
   optionLekAvailability,
   optionLekDelta,
+  recordRendezvousArrivals,
   recordInteractionUse,
+  rendezvousAvailability,
+  rendezvousStatusOf,
+  scheduleRendezvous,
 } from './stateMechanics.js'
 export {
   CALENDAR_EPOCH,
@@ -86,11 +91,16 @@ export {
   interactionSpecOf,
   normalizeInteractionLedger,
   normalizeKnowledge,
+  normalizeRendezvous,
   optionEffectsAreValid,
   optionEffectAvailability,
   optionInventoryIds,
   optionLekAvailability,
   optionLekDelta,
+  recordRendezvousArrivals,
+  rendezvousAvailability,
+  rendezvousStatusOf,
+  scheduleRendezvous,
 } from './stateMechanics.js'
 
 export const START_HEARTS = 3
@@ -260,8 +270,9 @@ export function fireStateOf(state) {
 // NPC ROUTES — walking people (see npcs.js). Position is DERIVED from the
 // clock, campfire-style, never stored: a looping NPC is at
 // route[floor(clock / stepHours) % length] whenever the hour falls in their
-// activePhases; a `once` NPC starts when a node with `startsNpc` stamps
-// state.npcStarted[id] and is gone past the route's end. Presence feeds two
+// activePhases; a `once` NPC starts when an option or destination with
+// `startsNpc` stamps state.npcStarted[id], then either leaves or remains at its
+// explicit settlesAt stop after the route's end. Presence feeds two
 // virtual items: `npc:<id>` (standing where you stand) and `npcAt:<id>:<node>`
 // (visible at a named node — off-scene sightlines, accepts a|b alternatives).
 // ---------------------------------------------------------------------------
@@ -280,7 +291,7 @@ export function npcNodeOf(state, npcId) {
     const started = state.npcStarted?.[npcId]
     if (started == null || clock < started) return null
     const i = Math.floor((clock - started) / step)
-    return i < npc.route.length ? npc.route[i] : null
+    return i < npc.route.length ? npc.route[i] : npc.settlesAt || null
   }
   return npc.route[Math.floor(clock / step) % npc.route.length]
 }
@@ -338,6 +349,7 @@ export const isFlagId = (id) => typeof id === 'string' && id.startsWith('flag:')
 export const isKnowledgeId = (id) => typeof id === 'string' && id.startsWith('knows:')
 export const isItemTagId = (id) => typeof id === 'string' && id.startsWith('itemTag:')
 export const isAffordanceId = (id) => typeof id === 'string' && id.startsWith('affords:')
+export const isRendezvousId = (id) => typeof id === 'string' && id.startsWith('rendezvous:')
 export const hasStoryFlag = (state, id) => hasOwn(state.flags, id) && state.flags[id] === true
 export const hasKnowledge = (state, id) => hasOwn(state.knowledge, id) &&
   state.knowledge[id] != null && state.knowledge[id] !== false
@@ -376,6 +388,17 @@ export const hasCond = (state, id) => {
   if (isAffordanceId(id)) {
     const affordance = id.slice(8)
     return Boolean(affordance) && hasCarriedItemMatching(state, (item) => itemHasAffordance(item, affordance))
+  }
+  if (isRendezvousId(id)) {
+    const condition = id.slice('rendezvous:'.length)
+    const separator = condition.lastIndexOf(':')
+    if (separator <= 0) return false
+    const rendezvousId = condition.slice(0, separator)
+    const requested = condition.slice(separator + 1)
+    const entry = state.rendezvous?.[rendezvousId]
+    if (!entry) return false
+    if (requested === 'fulfilled') return entry.metAtClock != null
+    return rendezvousStatusOf(state.rendezvous, rendezvousId, worldClockOf(state)) === requested
   }
   if (isNpcId(id)) return npcCond(state, id)
   if (id === 'embodying') return state.embodying != null
@@ -806,6 +829,14 @@ export function normalizeSavedState(saved, fresh) {
     isRecord(saved.interactions) ? saved.interactions : fresh.interactions,
     next.clock,
   )
+  next.rendezvous = normalizeRendezvous(
+    isRecord(saved.rendezvous) ? saved.rendezvous : fresh.rendezvous,
+    next.clock,
+    {
+      isNpc: (id) => Boolean(NPCS[id]),
+      isPlace: (id) => Boolean(STORY[id]),
+    },
+  )
   next.turn = Math.max(1, Math.floor(finiteOr(saved.turn, fresh.turn)))
   // Peak was an early hover-translation resource. Drop it explicitly so old
   // saves cannot keep an obsolete mechanic alive through the top-level spread.
@@ -828,7 +859,11 @@ export function normalizeSavedState(saved, fresh) {
   next.trail = Array.isArray(saved.trail)
     ? [...new Set(saved.trail.filter((id) => STORY[id] && id !== next.nodeId))].slice(0, TRAIL_LEN)
     : []
-  next.view = saved.view === 'achievements' ? 'endings' : VIEWS.has(saved.view) ? saved.view : fresh.view
+  const savedView = saved.view === 'achievements' ? 'endings' : VIEWS.has(saved.view) ? saved.view : fresh.view
+  // The atlas is an authoring/debug instrument, not a player destination.
+  // Old saves made while it was public must resume in the story unless that
+  // same save explicitly has debug mode enabled.
+  next.view = savedView === 'map' && saved.debug !== true ? fresh.view : savedView
   // Ending state is a property of the current canonical scene, never a second
   // caller-controlled truth that can disagree with it after a partial write.
   const savedEnding = ['good', 'bad', 'secret'].includes(saved.ended) ? saved.ended : null
@@ -992,6 +1027,7 @@ function baseRun() {
     flags: {}, // authored story state; never rendered as something carried
     knowledge: {}, // learned facts with provenance; survives later runs
     interactions: {}, // explicitly identified option uses, partitioned by scope
+    rendezvous: {}, // named NPC promises with deadlines and physical meeting places
     hearts: START_HEARTS, // wrong training answers cost a heart; 0 = game over
     healedAt: {}, // heart level -> true once that level's once-per-run self-heal is spent (see HEART_LEVELS)
     turn: 1,
@@ -1112,6 +1148,27 @@ export const interactionAvailabilityForOption = (state, option) => interactionAv
   },
 )
 
+export const rendezvousAvailabilityForOption = (state, option) => rendezvousAvailability(
+  state,
+  option,
+  {
+    clock: worldClockOf(state),
+    isNpc: (id) => Boolean(NPCS[id]),
+    isPlace: (id) => Boolean(STORY[id]),
+  },
+)
+
+const npcStartIdsOf = (option) => option?.startsNpc == null
+  ? []
+  : Array.isArray(option.startsNpc)
+    ? option.startsNpc
+    : [option.startsNpc]
+
+export const optionNpcStartsAreValid = (option) => {
+  const ids = npcStartIdsOf(option)
+  return ids.length === new Set(ids).size && ids.every((id) => typeof id === 'string' && Boolean(NPCS[id]?.once))
+}
+
 const canActOnFixtureAt = (state) => (fixtureId) =>
   TIMED_WORLD_FIXTURES[fixtureId]?.nodeId === state.nodeId
 
@@ -1128,10 +1185,12 @@ export const effectAvailabilityForOption = (state, option) => optionEffectAvaila
 export const canChoose = (state, option) => {
   const sp = canSpeak(state, option.text)
   return optionTimingIsValid(option) && sp.ok &&
+    optionNpcStartsAreValid(option) &&
     hasRequiredItem(state, option) &&
     canAfford(state, option) &&
     effectAvailabilityForOption(state, option).ok &&
-    interactionAvailabilityForOption(state, option).ok
+    interactionAvailabilityForOption(state, option).ok &&
+    rendezvousAvailabilityForOption(state, option).ok
 }
 
 export const canUseItem = (state, item) => {
@@ -1317,6 +1376,7 @@ export function reducer(state, action) {
       if (!canChoose(choiceState, option)) return state
       if (option.become && !state.embodying && !action.embodimentConfirmed) return state
       const interactionUse = interactionAvailabilityForOption(choiceState, option)
+      const rendezvousUse = rendezvousAvailabilityForOption(state, option)
       const { ids } = canSpeak(state, option.text)
       // A BAD ending is recorded at once (a fate met is met). A good/secret
       // ending is an ACHIEVEMENT DEED: reaching it marks the achievement
@@ -1407,11 +1467,27 @@ export function reducer(state, action) {
       const fixtures = effectState.fixtures
       const heartsAfterEffects = effectState.hearts
       const interactions = recordInteractionUse(state.interactions, interactionUse, choiceToClock)
-      // entering a node with `startsNpc` sets a one-shot NPC walking (once per
-      // run — a procession that already passed does not pass again)
-      const npcStarted = targetNode?.startsNpc && state.npcStarted?.[targetNode.startsNpc] == null
-        ? { ...state.npcStarted, [targetNode.startsNpc]: clock }
-        : state.npcStarted
+      // A one-shot journey may begin because the player chose to set someone
+      // on their way, or because they entered an older trigger scene. The
+      // option-level form stamps departure time; the legacy node-level form
+      // stamps arrival time. Neither can restart a journey already under way.
+      let npcStarted = state.npcStarted
+      for (const npcId of npcStartIdsOf(option)) {
+        if (npcStarted?.[npcId] != null) continue
+        if (npcStarted === state.npcStarted) npcStarted = { ...state.npcStarted }
+        npcStarted[npcId] = worldFromClock
+      }
+      if (targetNode?.startsNpc && npcStarted?.[targetNode.startsNpc] == null) {
+        if (npcStarted === state.npcStarted) npcStarted = { ...state.npcStarted }
+        npcStarted[targetNode.startsNpc] = clock
+      }
+      let rendezvous = scheduleRendezvous(state.rendezvous, rendezvousUse)
+      const arrivalNpcState = { ...state, clock, conditionClock: clock, npcStarted, rendezvous }
+      rendezvous = recordRendezvousArrivals(rendezvous, {
+        nodeId: option.to,
+        clock,
+        npcNodeOf: (npcId) => npcNodeOf(arrivalNpcState, npcId),
+      })
       // An option may alter hearts through either the legacy field or a typed
       // resource effect. Achievement restoration remains EARN_ACHIEVEMENT-only.
       let hearts = heartsAfterEffects
@@ -1466,6 +1542,7 @@ export function reducer(state, action) {
         flags,
         knowledge,
         interactions,
+        rendezvous,
         earned,
         eligible,
         visited,
@@ -1659,11 +1736,24 @@ export function reducer(state, action) {
       return { ...state, hearts: Math.max(0, state.hearts - 1) }
 
     case 'SET_VIEW':
+      // UI gating is not a sufficient boundary: stale saves and manually
+      // dispatched actions must not be able to render the atlas in normal play.
+      if (action.view === 'map' && !state.debug) {
+        return state.view === 'story' ? state : { ...state, view: 'story' }
+      }
       return { ...state, view: action.view }
 
     // --- DEBUG MODE (unlocked by clicking the title 5×) ---------------------
-    case 'TOGGLE_DEBUG':
-      return { ...state, debug: !state.debug }
+    case 'TOGGLE_DEBUG': {
+      const debug = !state.debug
+      return {
+        ...state,
+        debug,
+        // Leaving debug from the atlas returns to the playable story instead
+        // of leaving an invisible or briefly exposed debug-only surface.
+        view: !debug && state.view === 'map' ? 'story' : state.view,
+      }
+    }
 
     // Instantly make an option/phrase takeable: discover all its words and give
     // one training token for each. Used by the ⚡ button on a locked option.

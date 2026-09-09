@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { STORY, visibleLines } from '../src/game/content.js'
+import { STORY, describesEnvironment, lineOf, visibleLines, w } from '../src/game/content.js'
 import {
   hasCond,
   hasRequiredItem,
@@ -12,7 +12,11 @@ import {
   reducer,
 } from '../src/game/gameState.js'
 import { albanianTextOf } from '../src/game/language.js'
-import { environmentStoryLine, purseStoryLine } from '../src/game/storyContext.js'
+import {
+  authoredEnvironmentDimensions,
+  environmentStoryLine,
+  purseStoryLine,
+} from '../src/game/storyContext.js'
 import { civilDayPartAtClock, civilHourAtClock, greetingPeriodAtClock } from '../src/game/environment.js'
 import { storyReadingVisible } from '../src/components/storyMechanicsPresentation.js'
 
@@ -51,6 +55,61 @@ check('civil time, season and weather become ordinary Albanian story lines', () 
     albanianTextOf(environmentStoryLine({ clock: 13, season: 'spring', weather: 'rain' }, { enclosed: true })),
     'jashtë, është mbrëmje.',
   )
+})
+
+check('authored environmental prose replaces only its declared generic fallback', () => {
+  const environment = { clock: 13, season: 'spring', weather: 'rain' }
+  const immersiveTime = describesEnvironment('time', [w('muzg')])
+  assert.deepEqual([...authoredEnvironmentDimensions([immersiveTime])], ['time'])
+  assert.equal(
+    albanianTextOf(environmentStoryLine(environment, { omit: authoredEnvironmentDimensions([immersiveTime]) })),
+    'është pranverë. po bie shi.',
+  )
+
+  const allAuthored = describesEnvironment(['time', 'season', 'weather'], [w('muzg')])
+  assert.equal(environmentStoryLine(environment, { omit: authoredEnvironmentDimensions([allAuthored]) }), null)
+  assert.equal(environmentStoryLine(environment, { enclosed: true, omit: ['time'] }), null)
+
+  // Token choice is not presentation metadata: an unmarked line that happens
+  // to contain a time word must not suppress a fallback by accident.
+  assert.deepEqual([...authoredEnvironmentDimensions([[w('muzg')]])], [])
+  assert.throws(() => describesEnvironment('temperature', [w('muzg')]), /dimensions must use/)
+})
+
+check('opening and authored weather scenes prefer their visible immersive descriptions', () => {
+  const phaseClocks = { dawn: 0, day: 3, dusk: 13, night: 15 }
+  for (const [phase, clock] of Object.entries(phaseClocks)) {
+    const state = { ...newRun(), nodeId: 'start', clock }
+    const lines = visibleLines(STORY.start, (id) => hasCond(state, id))
+    const dimensions = authoredEnvironmentDimensions(lines)
+    assert.equal(dimensions.has('time'), true, `start/${phase}: time fallback was not replaced`)
+    assert.equal(
+      albanianTextOf(environmentStoryLine({ clock, season: 'spring', weather: 'clear' }, { omit: dimensions })),
+      'është pranverë. nuk ka re.',
+      `start/${phase}: unrelated environment facts disappeared`,
+    )
+  }
+
+  const authoredWeatherNodes = [
+    'tomorProva',
+    'tomorStuhi',
+    'maliStuhi',
+    'dordolecFund',
+    'shurdhi1',
+    'qiellErera1',
+  ]
+  for (const nodeId of authoredWeatherNodes) {
+    const dimensions = authoredEnvironmentDimensions(STORY[nodeId].text.map(lineOf))
+    assert.equal(dimensions.has('weather'), true, `${nodeId}: authored weather does not replace its generic echo`)
+  }
+
+  for (const [nodeId, node] of Object.entries(STORY)) {
+    for (const entry of node.text) {
+      const dimensions = lineOf(entry).environmentDimensions || []
+      assert.equal(new Set(dimensions).size, dimensions.length, `${nodeId}: duplicate environment dimension`)
+      assert.ok(dimensions.every((dimension) => ['time', 'season', 'weather'].includes(dimension)), `${nodeId}: invalid environment dimension`)
+    }
+  }
 })
 
 check('a positive lek balance is narrated exactly and zero stays silent', () => {
@@ -138,19 +197,23 @@ check('normal play hides diagnostic counters while debug keeps the inspectors', 
   assert.match(app, /state\.debug && <span className="stat">turn/)
   assert.match(app, /\) : state\.debug \? \(/)
   assert.match(story, /state\.debug && <WorldContext/)
-  assert.match(story, /renderLine\(environmentLine, 'environment'\)/)
+  assert.match(story, /omit: authoredEnvironmentDimensions\(lines\)/)
+  assert.match(story, /environmentLine && renderLine\(environmentLine, 'environment'\)/)
   assert.match(story, /renderLine\(purseLine, 'purse'\)/)
   assert.match(story, /if \(!hasRequiredItem\(storyState, opt\)\) return/)
 })
 
-check('heart-status English is debug-only while other story readings remain visible', () => {
+check('all whole-line English readings are debug-only', () => {
   assert.equal(storyReadingVisible('hearts', false), false)
   assert.equal(storyReadingVisible('hearts'), false)
   assert.equal(storyReadingVisible('hearts', true), true)
-  assert.equal(storyReadingVisible('environment', false), true)
+  assert.equal(storyReadingVisible('environment', false), false)
+  assert.equal(storyReadingVisible('environment', true), true)
+  assert.equal(storyReadingVisible(0, false), false)
+  assert.equal(storyReadingVisible(0, true), true)
 })
 
-console.log(`\n${7 - failures.length}/7 story-context contracts pass.`)
+console.log(`\n${9 - failures.length}/9 story-context contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1

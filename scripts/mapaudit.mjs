@@ -18,6 +18,7 @@ import { PLACE_META } from '../src/components/placeMeta.js'
 import { REGIONS, NODE_REGION, VILLAGE_ANCHOR_IDS, isWander } from '../src/game/regions.js'
 import { NPCS } from '../src/game/npcs.js'
 import { npcNodeOf, TIME_PHASES } from '../src/game/gameState.js'
+import { rendezvousSpecOf } from '../src/game/stateMechanics.js'
 import { exceptionFor, transitionInfo } from '../src/game/worldModel.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -494,6 +495,9 @@ for (const [nid, npc] of Object.entries(NPCS)) {
     new Set(npc.activePhases).size !== npc.activePhases.length ||
     npc.activePhases.some((phase) => !TIME_PHASES.includes(phase))
   )) npcBad.push(`${nid}: activePhases contains an unknown or repeated phase`)
+  if (npc.settlesAt != null && (!npc.once || npc.settlesAt !== npc.route.at(-1))) {
+    npcBad.push(`${nid}: settlesAt must belong to a one-shot route and equal its final walked stop`)
+  }
   for (const r of npc.route) {
     if (!STORY[r]) npcBad.push(`${nid}: route node '${r}' is not a STORY node`)
     else if (STORY[r].end) npcBad.push(`${nid}: route node '${r}' is an ending screen`)
@@ -527,14 +531,49 @@ for (const [nid, npc] of Object.entries(NPCS)) {
   }
 }
 const npcConds = []
+const rendezvousIds = new Set()
 for (const id of ids) {
   for (const e of STORY[id].text || []) if (!Array.isArray(e)) {
     for (const c of [].concat(e.cond || [], e.none || [])) npcConds.push([id, c])
   }
-  for (const o of STORY[id].options || [])
+  for (const o of STORY[id].options || []) {
+    const starts = o.startsNpc == null ? [] : Array.isArray(o.startsNpc) ? o.startsNpc : [o.startsNpc]
+    if (starts.length !== new Set(starts).size) npcBad.push(`${id}: option repeats an option-level NPC start`)
+    for (const npcId of starts) {
+      if (!NPCS[npcId]) npcBad.push(`${id}: option starts unknown NPC '${npcId}'`)
+      else if (!NPCS[npcId].once) npcBad.push(`${id}: option starts '${npcId}', but only one-shot journeys can be started`)
+    }
+    const rendezvous = rendezvousSpecOf(o)
+    if (rendezvous === false) npcBad.push(`${id}: option has malformed rendezvous metadata`)
+    else if (rendezvous) {
+      if (rendezvousIds.has(rendezvous.id)) {
+        npcBad.push(`${id}: rendezvous id '${rendezvous.id}' is scheduled by more than one option`)
+      }
+      rendezvousIds.add(rendezvous.id)
+      const npc = NPCS[rendezvous.npcId]
+      if (!npc) npcBad.push(`${id}: rendezvous '${rendezvous.id}' names unknown NPC '${rendezvous.npcId}'`)
+      else if (!npc.route.includes(rendezvous.placeId) && npc.settlesAt !== rendezvous.placeId) {
+        npcBad.push(`${id}: rendezvous '${rendezvous.id}' promises '${rendezvous.placeId}', where ${rendezvous.npcId} can never stand`)
+      }
+      if (!STORY[rendezvous.placeId]) {
+        npcBad.push(`${id}: rendezvous '${rendezvous.id}' names unknown place '${rendezvous.placeId}'`)
+      }
+    }
     for (const c of [o.requires, o.unless].flatMap((v) => (v == null ? [] : [].concat(v)))) npcConds.push([id, c])
+  }
 }
 for (const [id, c] of npcConds) {
+  if (typeof c === 'string' && c.startsWith('rendezvous:')) {
+    const condition = c.slice('rendezvous:'.length)
+    const separator = condition.lastIndexOf(':')
+    const rendezvousId = separator > 0 ? condition.slice(0, separator) : ''
+    const status = separator > 0 ? condition.slice(separator + 1) : ''
+    if (!rendezvousIds.has(rendezvousId)) npcBad.push(`${id}: '${c}' names an unscheduled rendezvous`)
+    if (!['scheduled', 'waiting', 'on-time', 'late', 'missed', 'fulfilled'].includes(status)) {
+      npcBad.push(`${id}: '${c}' names unknown rendezvous status '${status}'`)
+    }
+    continue
+  }
   if (typeof c !== 'string' || !(c.startsWith('npc:') || c.startsWith('npcAt:'))) continue
   const [kind, nid, nodes] = c.split(':')
   const npc = NPCS[nid]

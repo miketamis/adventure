@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { DICT } from '../src/game/content.js'
 import { NOUN_FORMS } from '../src/game/nounForms.js'
 import {
@@ -52,6 +53,12 @@ for (const [id, sourceForms] of Object.entries(NOUN_FORMS)) {
     for (const row of sheet.rows) {
       assert.ok(sourceKeys.has(exactKey(row)), `${id}/${target.al}: invented row ${row.al}/${row.tag}`)
       assert.equal(row.role, NOUN_FORM_ROLE_LABELS[row.tag], `${id}/${row.al}: missing exact role label`)
+      assert.ok(row.learnerMeaning, `${id}/${row.al}: missing plain learner meaning`)
+      assert.ok(
+        row.example?.al.toLocaleLowerCase('sq').includes(row.al.toLocaleLowerCase('sq')),
+        `${id}/${row.al}: Albanian example does not contain the exact reviewed form`,
+      )
+      assert.ok(row.example?.en && /[A-Za-z]/.test(row.example.en), `${id}/${row.al}: missing English example`)
     }
 
     const targetSignature = coreTags.includes(target.tag) ? signatureOf(sourceForms) : null
@@ -80,6 +87,9 @@ for (const [id, sourceForms] of Object.entries(NOUN_FORMS)) {
         peerSignature.rows.map(exactKey),
         `${id}/${target.al}: peer example is not its exact reviewed four-form row`,
       )
+      for (const row of sheet.peer.rows) {
+        assert.equal(row.role, NOUN_FORM_ROLE_LABELS[row.tag], `${id}/${target.al}: peer form has wrong role`)
+      }
     } else {
       assert.match(sheet.pattern, /specific/i, `${id}/${target.al}: no-peer guidance is not explicitly narrowed`)
     }
@@ -93,7 +103,7 @@ assert.deepEqual(
   ['vajzë', 'vajza', 'vajzën', 'vajzës'],
   'common feminine -ë correction lost its useful four-form chain',
 )
-assert.match(feminineExample.pattern, /common feminine -ë.+-ë → -a → -ën → -ës/)
+assert.match(feminineExample.pattern, /common feminine -ë.+-ë for one\/a.+-a for the subject.+-ën for the object.+-ës for of\/to/)
 assert.ok(feminineExample.peer, 'common feminine class needs a second reviewed noun example')
 assert.notEqual(feminineExample.peer.id, 'vajze')
 assert.deepEqual(
@@ -101,6 +111,26 @@ assert.deepEqual(
   ['ë', 'a', 'ën', 'ës'],
   'common feminine peer does not share the exact four-ending signature',
 )
+
+const bridge = buildNounEndingRefresher('ure', 'urën', 'the bridge (object)')
+assert.deepEqual(
+  bridge.rows.map(({ al, role, learnerMeaning, example }) => ({ al, role, learnerMeaning, example })),
+  [
+    { al: 'urë', role: 'base form · one / a', learnerMeaning: 'a bridge', example: { al: 'një urë', en: 'a bridge' } },
+    { al: 'ura', role: 'the noun · subject', learnerMeaning: 'the bridge', example: { al: 'Ura është këtu.', en: 'The bridge is here.' } },
+    { al: 'urën', role: 'the noun · object', learnerMeaning: 'the bridge', example: { al: 'Shoh urën.', en: 'I see the bridge.' } },
+    { al: 'urës', role: 'to / of the noun', learnerMeaning: 'of / to the bridge', example: { al: 'Pranë urës.', en: 'Near the bridge.' } },
+  ],
+  'bridge refresher does not clearly distinguish the four grammatical jobs',
+)
+
+const refresherUi = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+const refresherLogic = readFileSync(new URL('../src/game/nounEndingRefresher.js', import.meta.url), 'utf8')
+assert.ok(refresherUi.includes('Same noun, different job'), 'plain same-noun framing is missing')
+assert.ok(refresherUi.includes('Pattern to reuse'), 'transferable pattern is not separated from the exact noun')
+assert.ok(!refresherUi.includes('noun-ending-chain'), 'misleading form ladder remains in the UI')
+assert.ok(!refresherUi.includes('noun-ending-arrow'), 'unlabelled ending arrows remain in the UI')
+assert.ok(!refresherUi.includes('→') && !refresherLogic.includes('→'), 'noun refresher still implies a required sequence')
 
 assert.equal(buildNounEndingRefresher('vajze', 'invented form'), null)
 assert.equal(buildNounEndingRefresher('not-a-noun', 'vajzën'), null)

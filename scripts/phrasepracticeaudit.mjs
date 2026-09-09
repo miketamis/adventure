@@ -306,7 +306,7 @@ check('listening and matching tighten on independent axes without lowering produ
   for (const [tier, extras] of [[0, 2], [1, 3], [2, 5]]) {
     const listen = make('listen')
     assert.equal(listen.tier, tier)
-    assert.equal(listen.showEnglishCue, tier === 0)
+    assert.equal('showEnglishCue' in listen, false, 'listening exposed an English-cue switch')
     assert.equal(listen.bank.filter((tile) => tile.answerIndex == null).length, extras)
     state = finish(state, listen)
     assert.equal(state.phraseMastery[target.id], 4, 'listening lowered production mastery')
