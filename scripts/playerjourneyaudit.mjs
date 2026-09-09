@@ -11,9 +11,16 @@ import {
   START_CLOCK,
   canChoose,
   canSpeak,
+  normalizeSavedState,
   phraseSenses,
   reducer,
 } from '../src/game/gameState.js'
+import { practiceReturnOption } from '../src/game/practiceReturn.js'
+import {
+  optionTrainingIdentity,
+  resolveTrainingTarget,
+  trainingTargetForOption,
+} from '../src/game/trainingTarget.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { isOptionRevealed } from '../src/game/revealVisibility.js'
 import { storyReadingVisible } from '../src/components/storyMechanicsPresentation.js'
@@ -126,10 +133,82 @@ check('the opening forest path unlocks from its signpost sentence, not a later f
 })
 
 check('training recommendations use the same reveal boundary as the Story screen', () => {
-  const practice = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+  const practiceReturn = readFileSync(new URL('../src/game/practiceReturn.js', import.meta.url), 'utf8')
   const story = readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
-  assert.match(practice, /isOptionRevealed\(practiceState, opt, node\)/)
+  assert.match(practiceReturn, /isOptionRevealed\(practiceState, option, node\)/)
   assert.match(story, /isOptionRevealed\(storyState, opt, node, lines\)/)
+})
+
+check('Train returns only to the exact story option that opened it', () => {
+  const node = STORY[START_NODE]
+  const greeting = node.options.find((option) => option.to === 'bisedaUra1')
+  const bridge = node.options.find((option) => option.to === 'fshatiLumi')
+  assert.ok(greeting && bridge, 'opening choices needed by the hand-off test disappeared')
+
+  let state = stateAt(START_NODE)
+  state = discover(discover(state, greeting.text), bridge.text)
+  assert.equal(canSpeak(state, greeting.text).enoughMana, false)
+  assert.equal(canSpeak(state, bridge.text).enoughMana, false)
+
+  const target = trainingTargetForOption(START_NODE, bridge)
+  assert.deepEqual(Object.keys(target).sort(), ['nodeId', 'optionIdentity'])
+  assert.equal(resolveTrainingTarget(target), bridge)
+  state = reducer(state, { type: 'BEGIN_OPTION_TRAINING', target })
+  assert.equal(state.view, 'practice')
+  assert.deepEqual(state.practiceTarget, target)
+
+  // One practice session can fund several sibling options. Only the option
+  // whose own Train button launched the session gets the return affordance.
+  state = trainOnce(trainOnce(state, greeting.text), bridge.text)
+  assert.equal(canChoose(state, greeting), true)
+  assert.equal(canChoose(state, bridge), true)
+  assert.equal(practiceReturnOption(state), bridge)
+
+  const restored = normalizeSavedState(JSON.parse(JSON.stringify(state)), stateAt(START_NODE))
+  assert.deepEqual(restored.practiceTarget, target, 'an exact practice hand-off did not survive its save')
+  assert.equal(practiceReturnOption(restored), bridge)
+
+  const leftPractice = reducer(state, { type: 'SET_VIEW', view: 'dictionary' })
+  assert.equal(leftPractice.practiceTarget, null, 'view navigation retained a spent hand-off')
+  assert.equal(practiceReturnOption(leftPractice), null)
+  const returned = reducer(state, { type: 'SET_VIEW', view: 'story' })
+  assert.equal(returned.practiceTarget, null, 'returning to Story retained a spent hand-off')
+  const genericPractice = reducer(returned, { type: 'SET_VIEW', view: 'practice' })
+  assert.equal(genericPractice.practiceTarget, null, 'the general Train tab inherited an old option')
+  assert.equal(practiceReturnOption(genericPractice), null)
+
+  const stale = {
+    ...state,
+    practiceTarget: { nodeId: START_NODE, optionIdentity: 'option-v1:{"retired":true}' },
+  }
+  assert.equal(practiceReturnOption(stale), null, 'a stale target fell back to an affordable sibling')
+  assert.equal(
+    normalizeSavedState(stale, stateAt(START_NODE)).practiceTarget,
+    null,
+    'save normalization retained a retired target',
+  )
+
+  const reset = reducer({ ...state, hearts: 0 }, { type: 'RESET' })
+  assert.equal(reset.practiceTarget, null, 'a new run retained the previous option target')
+
+  const practiceSource = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+  const storySource = readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
+  assert.match(practiceSource, /const returnOption = practiceReturnOption\(state\)/)
+  assert.doesNotMatch(practiceSource, /const affordable =/)
+  assert.match(storySource, /type: 'BEGIN_OPTION_TRAINING'/)
+})
+
+check('authored story-option training identities are unambiguous', () => {
+  for (const [nodeId, node] of Object.entries(STORY)) {
+    const seen = new Set()
+    for (const option of node.options || []) {
+      if (option.confuser) continue
+      const identity = optionTrainingIdentity(option)
+      assert.ok(identity && !seen.has(identity), `${nodeId}: duplicate real option training identity`)
+      seen.add(identity)
+      assert.equal(resolveTrainingTarget({ nodeId, optionIdentity: identity }), option)
+    }
+  }
 })
 
 check('a normal story journey cannot use the full English line as an answer key', () => {

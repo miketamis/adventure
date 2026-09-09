@@ -21,6 +21,7 @@ const story = read('src/components/StoryView.jsx')
 const embodimentFocus = read('src/components/EmbodimentFocus.jsx')
 const achievements = read('src/components/AchievementsView.jsx')
 const practice = read('src/components/PracticeView.jsx')
+const practiceReturn = read('src/game/practiceReturn.js')
 const phrasePractice = read('src/components/PhrasePracticeQuestion.jsx')
 const phrasePracticeLogic = read('src/game/phrasePractice.js')
 const audio = read('src/game/audio.js')
@@ -127,7 +128,11 @@ check('role focus routing survives lazy Story mount and respects reduced motion'
   story.includes("document.getElementById('embodiment-focus') || sceneHeadingRef.current") &&
   app.includes("matchMedia?.('(prefers-reduced-motion: reduce)')"))
 check('achievement retakes are unavailable while a character tale is bound', achievements.includes('disabled={roleTestLocked}') && achievements.includes('Finish this character&apos;s tale'))
-check('training recommendations match visible, real, role-allowed actions', practice.includes('!opt.confuser') && practice.includes('isOptionRevealed(practiceState, opt, node)') && practice.includes('embodimentOptionAccess(state, opt, STORY[opt.to]).ok'))
+check('training recommendations match visible, real, role-allowed actions',
+  practice.includes('practiceReturnOption(state)') &&
+  practiceReturn.includes('option.confuser') &&
+  practiceReturn.includes('isOptionRevealed(practiceState, option, node)') &&
+  practiceReturn.includes('embodimentOptionAccess(state, option, STORY[option.to]).ok'))
 check('whole phrases use construction, listening, cloze, typing and matching instead of sentence multiple choice',
   practice.includes('<PhrasePracticeQuestion') &&
   !practice.includes('q.options.map((entry)') &&

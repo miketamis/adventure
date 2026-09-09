@@ -16,6 +16,7 @@ import {
 import { NPCS } from './npcs.js'
 import { EVERYDAY_PHRASE_DRILLS } from './everydayAlbanian.js'
 import { PHRASE_SKILL_MAX_TIER } from './phraseProgression.js'
+import { normalizeTrainingTarget, resolveTrainingTarget } from './trainingTarget.js'
 import { transitionInfo } from './worldModel.js'
 import { NODE_REGION } from './regions.js'
 import {
@@ -990,6 +991,11 @@ export function normalizeSavedState(saved, fresh) {
   next.timePassage = canonicalSavedPassage(saved.timePassage, next, activeQuest)
   next.debug = saved.debug === true
   next.loreFocus = typeof saved.loreFocus === 'string' ? saved.loreFocus : null
+  // The return banner belongs only to a live practice hand-off from this exact
+  // scene. Retired/edited options and saves made in another view fail closed.
+  next.practiceTarget = next.view === 'practice'
+    ? normalizeTrainingTarget(saved.practiceTarget, next.nodeId)
+    : null
   return next
 }
 
@@ -1037,6 +1043,7 @@ function baseRun() {
     npcStarted: {}, // npcId -> hour a one-shot NPC route was triggered (see NPC ROUTES above)
     worldFacts: {}, // lasting changes caused by completed tales (rain, restored water, spared places)
     view: 'story', // 'story' | 'practice' | 'dictionary' | 'map' | 'endings' | 'guide'
+    practiceTarget: null, // exact story option whose Train button opened practice
     ended: null, // null | 'good' | 'bad' | 'secret'
     embodying: null, // explicit tale-role contract; kept through its ending screen
     embodimentOriginNode: null, // overworld threshold where the role began
@@ -1277,6 +1284,16 @@ export function reducer(state, action) {
       return { ...state, discovered: { ...state.discovered, [action.id]: true } }
     }
 
+    case 'BEGIN_OPTION_TRAINING': {
+      const practiceTarget = normalizeTrainingTarget(action.target, state.nodeId)
+      const option = practiceTarget && resolveTrainingTarget(practiceTarget)
+      const speech = option && canSpeak(state, option.text)
+      // Accept only the same state in which Story renders its Train control:
+      // every word is known, but at least one required token is still missing.
+      if (state.view !== 'story' || !option || !speech?.allDiscovered || speech.enoughMana) return state
+      return { ...state, view: 'practice', practiceTarget }
+    }
+
     case 'REQUEST_EMBODIMENT': {
       if (state.embodying || state.pendingEmbodiment || state.ended) return state
       const option = STORY[state.nodeId]?.options?.[action.optionIndex]
@@ -1329,6 +1346,7 @@ export function reducer(state, action) {
         embodimentPaused: true,
         embodimentArrivalSnapshot: arrivalSnapshotOf(state, state.nodeId),
         view: 'story',
+        practiceTarget: null,
       }
     }
 
@@ -1352,6 +1370,7 @@ export function reducer(state, action) {
         embodimentPaused: false,
         embodimentArrivalSnapshot: null,
         view: 'story',
+        practiceTarget: null,
       }
     }
 
@@ -1577,6 +1596,7 @@ export function reducer(state, action) {
         embodimentArrivalSnapshot,
         pendingEmbodiment: null,
         ended: targetNode?.end || null,
+        practiceTarget: null,
       }
     }
 
@@ -1739,9 +1759,11 @@ export function reducer(state, action) {
       // UI gating is not a sufficient boundary: stale saves and manually
       // dispatched actions must not be able to render the atlas in normal play.
       if (action.view === 'map' && !state.debug) {
-        return state.view === 'story' ? state : { ...state, view: 'story' }
+        return state.view === 'story' && !state.practiceTarget
+          ? state
+          : { ...state, view: 'story', practiceTarget: null }
       }
-      return { ...state, view: action.view }
+      return { ...state, view: action.view, practiceTarget: null }
 
     // --- DEBUG MODE (unlocked by clicking the title 5×) ---------------------
     case 'TOGGLE_DEBUG': {
@@ -1919,6 +1941,7 @@ export function reducer(state, action) {
         embodimentArrivalSnapshot: null,
         pendingEmbodiment: null,
         ended: null,
+        practiceTarget: null,
       }
 
     case 'RESET':

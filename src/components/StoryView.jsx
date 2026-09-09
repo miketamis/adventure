@@ -41,6 +41,7 @@ import { festivalLabel } from '../game/environment.js'
 import { embodimentOptionAccess, embodimentQuest } from '../game/embodiment.js'
 import { resolveRevealLine } from '../game/revealResolver.js'
 import { isOptionRevealed } from '../game/revealVisibility.js'
+import { trainingTargetForOption } from '../game/trainingTarget.js'
 import { QUOTES, quoteProofUrl, quoteTier } from '../game/quotes.js'
 import {
   attachReviewedOptionReadings,
@@ -277,6 +278,7 @@ export default function StoryView({ state, dispatch }) {
     const entryQuest = opt.become ? embodimentQuest(opt.become) : null
     entries.push({
       key: 'opt-' + i,
+      trainingTarget: trainingTargetForOption(state.nodeId, opt),
       tokens: opt.text,
       reading: optionEnglishReadingOf(opt.text),
       readingReviewed: ['internal-editorial', 'generated-world-item'].includes(opt.text.optionReadingReview),
@@ -352,6 +354,7 @@ export default function StoryView({ state, dispatch }) {
       const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
       entries.push({
         key: 'opt-' + i,
+        trainingTarget: trainingTargetForOption(state.nodeId, opt),
         tokens: opt.text,
         reading: optionEnglishReadingOf(opt.text),
         readingReviewed: ['internal-editorial', 'generated-world-item'].includes(opt.text.optionReadingReview),
@@ -674,7 +677,9 @@ export default function StoryView({ state, dispatch }) {
                       className="btn train-mini"
                       onClick={(ev) => {
                         ev.stopPropagation()
-                        dispatch({ type: 'SET_VIEW', view: 'practice' })
+                        dispatch(e.trainingTarget
+                          ? { type: 'BEGIN_OPTION_TRAINING', target: e.trainingTarget }
+                          : { type: 'SET_VIEW', view: 'practice' })
                       }}
                     >
                       🎯 Train

@@ -1,8 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { DICT, STORY, frequentForms, splitStem } from '../game/content.js'
-import { canChoose, currentStoryState, formsUnlocked } from '../game/gameState.js'
-import { embodimentOptionAccess } from '../game/embodiment.js'
-import { isOptionRevealed } from '../game/revealVisibility.js'
+import { DICT, frequentForms, splitStem } from '../game/content.js'
+import { formsUnlocked } from '../game/gameState.js'
+import { practiceReturnOption } from '../game/practiceReturn.js'
 import { playWord } from '../game/audio.js'
 import {
   buildPhraseQuestion,
@@ -513,30 +512,18 @@ export default function PracticeView({ state, dispatch }) {
     )
   }
 
-  // story answers you can now afford (all words discovered + a token for each)
-  const practiceState = currentStoryState(state)
-  const node = STORY[practiceState.nodeId]
-  // Match the Story screen's clock and role boundary. Training should never
-  // advertise a confuser or an act the current character cannot perform.
-  const affordable = (node?.options || []).filter((opt) =>
-    !opt.confuser &&
-    isOptionRevealed(practiceState, opt, node) &&
-    canChoose(practiceState, opt) &&
-    embodimentOptionAccess(state, opt, STORY[opt.to]).ok,
-  )
+  // Only the exact story option whose Train button opened this view may offer
+  // a return. A single drill can fund several choices; those siblings do not
+  // inherit this option's affordance.
+  const returnOption = practiceReturnOption(state)
 
   return (
     <>
-      {affordable.length > 0 && (
+      {returnOption && (
         <div className="ready-banner">
           <span>
             You have enough for{' '}
-            {affordable.map((opt, i) => (
-              <span key={i}>
-                {i > 0 ? ' or ' : ''}
-                <b lang="sq">“{albanianPhrase(opt.text)}”</b>
-              </span>
-            ))}
+            <b lang="sq">“{albanianPhrase(returnOption.text)}”</b>
           </span>
           <button
             className="btn primary"
