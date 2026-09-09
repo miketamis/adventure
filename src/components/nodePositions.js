@@ -14,6 +14,7 @@ export const NODE_AT = {
   bisedaUra2: 'start',
   bisedaUra3: 'start',
   bisedaUraPlan: 'start',
+  bisedaFollowAgree: 'start',
   bisedaShesh: 'start',
   bisedaKroi: 'start',
   lendina: [-430, 452],
@@ -350,6 +351,10 @@ export const NODE_AT = {
   ngjitja2: 'pusi2',
   ngjitja3: 'pusi2',
   fshatiSheshi: [499, 432],
+  eliraShesh: 'fshatiSheshi',
+  eliraEmriShesh: 'fshatiSheshi',
+  eliraBanore: 'fshatiSheshi',
+  eliraEmriBanore: 'fshatiSheshi',
   porosiaShesh: 'fshatiSheshi',
   pazariFshatit: 'fshatiSheshi',
   pazariPerserit: 'fshatiSheshi',
@@ -620,6 +625,8 @@ export const NODE_AT = {
   diellApex: 'qiellDiell',
   henaPaqe: [720, -1290],
   fshatiLumi: [232, 616],
+  eliraBreg: 'fshatiLumi',
+  eliraEmriBreg: 'fshatiLumi',
   gruaUji1: 'fshatiLumi', // the water-carrier stopped on the bank — same spot as the river scene
   // The master tells the mill's origin from the riverbank approach. The working
   // floor and the night threshold are distinct parts of the same drawn mill.

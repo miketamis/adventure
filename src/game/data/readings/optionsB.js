@@ -287,23 +287,30 @@ export const OPTION_READINGS_B = Object.freeze({
   "ngjitja3.options[0]": { al: "ngjit pusin", en: "Climb the well.", review: 'internal-editorial' }, // 817
   "ngjitja3.options[1]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 818
   "ngjitja3.options[2]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 819
-  "fshatiSheshi.options[0]": { al: "po, mund të të ndihmoj.", en: "Say: “Yes, I can help you.”", review: 'internal-editorial' }, // practical errand
-  "fshatiSheshi.options[1]": { al: "më fal, nuk mundem.", en: "Say: “Sorry, I cannot.”", review: 'internal-editorial' }, // practical refusal
-  "fshatiSheshi.options[2]": { al: "fol me plakun", en: "Speak with the old man.", review: 'internal-editorial' }, // 820
-  "fshatiSheshi.options[3]": { al: "hyr në shtëpi", en: "Enter the house.", review: 'internal-editorial' }, // 821
-  "fshatiSheshi.options[4]": { al: "hyr në odë", en: "Enter the guest room.", review: 'internal-editorial' }, // 822
-  "fshatiSheshi.options[5]": { al: "hyr në kafene", en: "Enter the coffeehouse.", review: 'internal-editorial' }, // 823
-  "fshatiSheshi.options[6]": { al: "ndihmo fëmijët", en: "Help the children.", review: 'internal-editorial' }, // 824
-  "fshatiSheshi.options[7]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' }, // 825
-  "fshatiSheshi.options[8]": { al: "bëj një festë", en: "Hold a festival.", review: 'internal-editorial' }, // 826
-  "fshatiSheshi.options[9]": { al: "shko në dasmë", en: "Go to the wedding.", review: 'internal-editorial' }, // 827
-  "fshatiSheshi.options[10]": { al: "ndihmo vajzat", en: "Help the girls.", review: 'internal-editorial' }, // 828
-  "fshatiSheshi.options[11]": { al: "zbrit te lumin", en: "Go down to the river.", review: 'internal-editorial' }, // 829
-  "fshatiSheshi.options[12]": { al: "shko te shtëpitë", en: "Go to the homes.", review: 'internal-editorial' }, // 830
-  "fshatiSheshi.options[13]": { al: "ngjit te kisha", en: "Climb to the church.", review: 'internal-editorial' }, // 831
-  "fshatiSheshi.options[14]": { al: "shko te udhëkryq", en: "Go to the crossroads.", review: 'internal-editorial' }, // 832
-  "fshatiSheshi.options[15]": { al: "ec rrugës", en: "Walk along the lane.", review: 'internal-editorial' }, // 833
-  "fshatiSheshi.options[16]": { al: "bëj pusin", en: "Make the well.", review: 'internal-editorial' }, // 834
+  "fshatiSheshi.options[0]": { al: "fol me plakun", en: "Speak with the old man.", review: 'internal-editorial' }, // 820
+  "fshatiSheshi.options[1]": { al: "hyr në shtëpi", en: "Enter the house.", review: 'internal-editorial' }, // 821
+  "fshatiSheshi.options[2]": { al: "hyr në odë", en: "Enter the guest room.", review: 'internal-editorial' }, // 822
+  "fshatiSheshi.options[3]": { al: "hyr në kafene", en: "Enter the coffeehouse.", review: 'internal-editorial' }, // 823
+  "fshatiSheshi.options[4]": { al: "ndihmo fëmijët", en: "Help the children.", review: 'internal-editorial' }, // 824
+  "fshatiSheshi.options[5]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' }, // 825
+  "fshatiSheshi.options[6]": { al: "bëj një festë", en: "Hold a festival.", review: 'internal-editorial' }, // 826
+  "fshatiSheshi.options[7]": { al: "shko në dasmë", en: "Go to the wedding.", review: 'internal-editorial' }, // 827
+  "fshatiSheshi.options[8]": { al: "ndihmo vajzat", en: "Help the girls.", review: 'internal-editorial' }, // 828
+  "fshatiSheshi.options[9]": { al: "zbrit te lumin", en: "Go down to the river.", review: 'internal-editorial' }, // 829
+  "fshatiSheshi.options[10]": { al: "shko te shtëpitë", en: "Go to the homes.", review: 'internal-editorial' }, // 830
+  "fshatiSheshi.options[11]": { al: "ngjit te kisha", en: "Climb to the church.", review: 'internal-editorial' }, // 831
+  "fshatiSheshi.options[12]": { al: "shko te udhëkryq", en: "Go to the crossroads.", review: 'internal-editorial' }, // 832
+  "fshatiSheshi.options[13]": { al: "ec rrugës", en: "Walk along the lane.", review: 'internal-editorial' }, // 833
+  "fshatiSheshi.options[14]": { al: "prit këtu deri nesër në orën nëntë.", en: "Wait here until tomorrow at nine.", review: 'internal-editorial' },
+  "fshatiSheshi.options[15]": { al: "fol me gruan", en: "Speak with the woman.", review: 'internal-editorial' },
+  "fshatiSheshi.options[16]": { al: "fol me Elirën", en: "Speak with Elira.", review: 'internal-editorial' },
+  "fshatiSheshi.options[17]": { al: "fol me gruan", en: "Speak with the woman.", review: 'internal-editorial' },
+  "fshatiSheshi.options[18]": { al: "fol me Elirën", en: "Speak with Elira.", review: 'internal-editorial' },
+  "fshatiSheshi.options[19]": { al: "fol me gruan", en: "Speak with the woman.", review: 'internal-editorial' },
+  "fshatiSheshi.options[20]": { al: "fol me Elirën", en: "Speak with Elira.", review: 'internal-editorial' },
+  "fshatiSheshi.options[21]": { al: "fol me gruan", en: "Speak with the woman.", review: 'internal-editorial' },
+  "fshatiSheshi.options[22]": { al: "fol me Elirën", en: "Speak with Elira.", review: 'internal-editorial' },
+  "fshatiSheshi.options[23]": { al: "bëj pusin", en: "Make the well.", review: 'internal-editorial' }, // 834
   "sheshiPlak.options[0]": { al: "dëgjo plakun", en: "Listen to the old man.", review: 'internal-editorial' }, // 835
   "sheshiPlak.options[1]": { al: "lër plakun", en: "Leave the old man.", review: 'internal-editorial' }, // 836
   "sheshiPlak.options[2]": { al: "ndihmo pusin", en: "Help the well.", review: 'internal-editorial' }, // 837

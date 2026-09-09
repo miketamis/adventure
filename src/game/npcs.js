@@ -42,6 +42,20 @@
 // Repeating a node in the route is dwell time; mapaudit skips same-node steps.
 
 export const NPCS = {
+  // Elira is the first person the traveller can get to know. She walks the
+  // same bridge and river road as the player, waits briefly on the far bank,
+  // then becomes a permanent resident of the village square. Her proper name
+  // is story knowledge, so normal prose continues to call her "the woman"
+  // until the player has actually asked her name.
+  elira: {
+    name: 'Elira',
+    glyph: '👩',
+    route: ['start', 'fshatiLumi', 'fshatiLumi', 'fshatiSheshi'],
+    stepHours: 1,
+    once: true,
+    settlesAt: 'fshatiSheshi',
+  },
+
   // The water-carrier: the dry well made her. Every daylight hour she walks
   // spring → river bank → up to the square with the full jugs, and back down
   // with the empty ones. At night she is home — "natën kroi është i qetë".

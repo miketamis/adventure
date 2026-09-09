@@ -3,6 +3,13 @@
 
 export default {
   // ── the village: walking routes (live schedules in npcs.js) ──────────────
+  elira: {
+    name: 'Elira', glyph: '👩', kind: 'human',
+    role: 'the traveller’s first acquaintance and a resident of the village square',
+    backstory: 'Elira meets the traveller at the old bridge while leaving the village. She keeps a promise to wait briefly on the far bank or meet at an agreed hour in the square, then continues along the real river road and remains a familiar face in the village.',
+    folklore: [],
+    location: { status: 'walking', route: ['start', 'fshatiLumi', 'fshatiSheshi'] },
+  },
   gruaUji: {
     name: 'gruaja me ujë', glyph: '🏺', kind: 'human',
     role: 'the water-carrier of the village',

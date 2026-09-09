@@ -346,12 +346,14 @@ export const STORY = {
       // The first person the learner meets opens the practical-language lane.
       // This is synthetic everyday dialogue, not a quotation from the research
       // corpus: the private material establishes priorities, never game copy.
-      notFrom('bisedaUra3', R('A woman comes from the village and says hello to you.', w('nje'), w('grua'), w('vjen'), w('nga'), w('fshat'), p('.'), wf('grua', 'gruaja', 'the woman'), w('te_obj'), w('thote'), p(':'), w('pershendetje'), p('!'))),
-      from('bisedaUra3', R('The woman says, “No problem. See you tomorrow.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('ka', "s'ka", 'has not'), w('gje'), p('.'), wf('sheh', 'shihemi', 'see'), w('neser'), p('.'))),
+      whenUnless([], ['flag:eliraDeparted', 'knows:npcName:elira'], R('A woman comes from the village and says hello to you.', w('nje'), w('grua'), w('vjen'), w('nga'), w('fshat'), p('.'), wf('grua', 'gruaja', 'the woman'), w('te_obj'), w('thote'), p(':'), w('pershendetje'), p('!'))),
+      whenUnless(['knows:npcName:elira'], ['flag:eliraDeparted'], R('Elira comes from the village and says hello to you.', w('elira'), w('vjen'), w('nga'), w('fshat'), p('.'), w('elira'), w('te_obj'), w('thote'), p(':'), w('pershendetje'), p('!'))),
+      whenUnless(['flag:eliraDeparted', 'npcAt:elira:start'], ['knows:npcName:elira'], R('The woman steps onto the bridge.', wf('grua', 'gruaja', 'the woman'), wf('hip', 'hyn', 'steps onto'), wf('ne', 'në', 'on'), wf('ure', 'urën', 'the bridge'), p('.'))),
+      when(['flag:eliraDeparted', 'npcAt:elira:start', 'knows:npcName:elira'], R('Elira steps onto the bridge.', w('elira'), wf('hip', 'hyn', 'steps onto'), wf('ne', 'në', 'on'), wf('ure', 'urën', 'the bridge'), p('.'))),
       R('You are hungry.', w('ti'), w('je'), w('i_art'), w('uritur'), p('.')),
     ],
     options: [
-      { text: L(w('pershendetje'), p('!')), to: 'bisedaUra1', durationHours: 0 },
+      { text: L(w('pershendetje'), p('!')), unless: 'flag:eliraDeparted', to: 'bisedaUra1', durationHours: 0 },
       { text: L(w('kalo'), wf('ure', 'urën', 'the bridge')), to: 'fshatiLumi' },
       // The first mention is the stable signpost ("behind you…a forest with a
       // road"); later mentions are changing dusk/night atmosphere.
@@ -398,17 +400,23 @@ export const STORY = {
   bisedaUra3: {
     id: 'bisedaUra3',
     text: [
-      R('She says, “Me too. I am setting off now. Are you coming?”', w('ajo'), w('thote'), p(':'), w('edhe'), w('une'), p('.'), w('po_prog'), w('nisem'), w('tani'), p('.'), w('a_q'), w('vjen'), p('?')),
+      R('She says, “I am leaving now. Will you come with me, or shall we meet later?”', w('ajo'), w('thote'), p(':'), w('po_prog'), w('nisem'), w('tani'), p('.'), w('a_q'), w('vjen'), w('me'), wf('une', 'mua', 'me'), p(','), w('apo'), wf('takohem', 'takohemi', 'shall we meet'), w('me_vone'), p('?')),
     ],
     options: [
       {
-        text: R('Yes, I am coming.', w('po_yes'), p(','), w('po_prog'), wf('vjen', 'vij', 'come'), p('.')),
-        to: 'bisedaUraPlan',
+        text: R('I will come with you.', w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), p('.')),
+        to: 'bisedaFollowAgree',
         durationHours: 0,
       },
       {
-        text: R('Sorry, I cannot come. Goodbye!', w('me_obj'), w('fal'), p(','), w('nuk'), wf('vjen', 'vij', 'come'), w('dot'), p('.'), w('mirupafshim'), p('!')),
-        to: 'start',
+        text: R('We will meet later.', wf('takohem', 'takohemi', 'meet'), w('me_vone'), p('.')),
+        to: 'bisedaKroi',
+        durationHours: 0,
+      },
+      {
+        text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')),
+        effects: [{ type: 'learn', id: 'npcName:elira' }],
+        to: 'bisedaUraPlan',
         durationHours: 0,
       },
     ],
@@ -417,43 +425,156 @@ export const STORY = {
   bisedaUraPlan: {
     id: 'bisedaUraPlan',
     text: [
-      R('The woman says, “Sorry. Wait a moment, please.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('me_obj'), w('fal'), p('.'), w('prit'), w('pak'), p(','), w('lutem'), p('.')),
-      R("She says, “I don't know. Where will we meet?”", w('ajo'), w('thote'), p(':'), w('nuk'), w('e_obj'), w('di'), p('.'), w('ku'), w('do_fut'), w('te_subj'), wf('takohem', 'takohemi', 'meet'), p('?')),
+      R('She says, “My name is Elira.”', w('ajo'), w('thote'), p(':'), w('une'), w('quhem'), w('elira'), p('.')),
+      R('“Will you come with me, or shall we meet later?”', w('a_q'), w('vjen'), w('me'), wf('une', 'mua', 'me'), p(','), w('apo'), wf('takohem', 'takohemi', 'shall we meet'), w('me_vone'), p('?')),
     ],
     options: [
       {
-        text: R('We will meet in the square.', wf('takohem', 'takohemi', 'meet'), wf('ne', 'në', 'in'), w('shesh'), p('.')),
-        to: 'bisedaShesh',
+        text: R('I will come with you.', w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), p('.')),
+        to: 'bisedaFollowAgree',
         durationHours: 0,
       },
       {
-        text: R('We will meet at the spring.', wf('takohem', 'takohemi', 'meet'), wf('tek', 'te', 'at'), wf('krua', 'kroi', 'the spring'), p('.')),
+        text: R('We will meet later.', wf('takohem', 'takohemi', 'meet'), w('me_vone'), p('.')),
         to: 'bisedaKroi',
         durationHours: 0,
       },
     ],
   },
 
+  bisedaFollowAgree: {
+    id: 'bisedaFollowAgree',
+    text: [
+      whenUnless([], ['knows:npcName:elira'], R('The woman says, “All right. Come with me.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('ne', 'në', 'in'), w('rregull'), p('.'), wf('vjen', 'eja', 'come'), w('me'), wf('une', 'mua', 'me'), p('.'))),
+      when('knows:npcName:elira', R('Elira says, “All right. Come with me.”', w('elira'), w('thote'), p(':'), wf('ne', 'në', 'in'), w('rregull'), p('.'), wf('vjen', 'eja', 'come'), w('me'), wf('une', 'mua', 'me'), p('.'))),
+    ],
+    options: [{
+      text: R('Let us go.', wf('nisem', 'nisemi', 'let us go'), p('.')),
+      effects: [{ type: 'flag', id: 'eliraDeparted' }, { type: 'flag', id: 'eliraFollowPlan' }],
+      startsNpc: 'elira',
+      rendezvous: {
+        id: 'eliraFollow', npcId: 'elira', placeId: 'fshatiLumi', kind: 'follow',
+        dueInHours: 1, graceHours: 0, leaveAfterHours: 1,
+      },
+      to: 'bisedaShesh',
+      durationHours: 0,
+    }],
+  },
+
   bisedaShesh: {
     id: 'bisedaShesh',
     text: [
-      R('She asks, “Today or tomorrow? At what time?”', w('ajo'), w('pyet'), p(':'), w('sot'), w('apo'), w('neser'), p('?'), wf('ne', 'në', 'in'), w('cfare'), wf('ore', 'ore', 'hour'), p('?')),
+      whenUnless('rendezvous:eliraFollow:scheduled', ['knows:npcName:elira'], R('The woman starts across the bridge and says, “Follow me.”', wf('grua', 'gruaja', 'the woman'), wf('nisem', 'niset', 'sets off'), wf('ne', 'në', 'on'), wf('ure', 'urën', 'the bridge'), w('dhe'), w('thote'), p(':'), wf('vjen', 'eja', 'come'), w('pas'), wf('une', 'meje', 'me'), p('.'))),
+      when(['rendezvous:eliraFollow:scheduled', 'knows:npcName:elira'], R('Elira starts across the bridge and says, “Follow me.”', w('elira'), wf('nisem', 'niset', 'sets off'), wf('ne', 'në', 'on'), wf('ure', 'urën', 'the bridge'), w('dhe'), w('thote'), p(':'), wf('vjen', 'eja', 'come'), w('pas'), wf('une', 'meje', 'me'), p('.'))),
+      when(['rendezvous:eliraFollow:waiting'], R('She is waiting for you on the other side of the bridge.', w('ajo'), wf('prit', 'pret', 'waits'), wf('per', 'për', 'for'), w('ti'), wf('ne', 'në', 'on'), wf('ane', 'anën', 'the side'), w('tjeter'), wf('te_link', 'të', 'of'), wf('ure', 'urës', 'the bridge'), p('.'))),
+      when(['rendezvous:eliraFollow:late'], R('She is still waiting across the river.', w('ajo'), wf('prit', 'pret', 'waits'), w('ende'), w('matane'), wf('lume', 'lumit', 'the river'), p('.'))),
+      when(['rendezvous:eliraFollow:missed'], R('She has continued towards the village.', w('ajo'), wf('vazhdo', 'ka vazhduar', 'has continued'), wf('ne', 'në', 'to'), w('fshat'), p('.'))),
     ],
     options: [
-      { text: R('Today, now.', w('sot'), p(','), w('tani'), p('.')), to: 'fshatiSheshi' },
-      { text: R('Tomorrow morning.', w('neser'), wf('ne', 'në', 'in'), w('mengjes'), p('.')), to: 'fshatiSheshi', time: 'dawn' },
+      { text: R('Cross the bridge after her.', w('kalo'), wf('ure', 'urën', 'the bridge'), w('pas'), wf('ajo', 'saj', 'her'), p('.')), to: 'fshatiLumi' },
+      { text: R('Wait a moment, please.', w('prit'), w('pak'), p(','), w('lutem'), p('.')), unless: 'rendezvous:eliraFollow:missed', to: 'bisedaShesh' },
     ],
   },
 
   bisedaKroi: {
     id: 'bisedaKroi',
     text: [
-      R('She asks, “Today or tomorrow? At what time?”', w('ajo'), w('pyet'), p(':'), w('sot'), w('apo'), w('neser'), p('?'), wf('ne', 'në', 'in'), w('cfare'), wf('ore', 'ore', 'hour'), p('?')),
+      whenUnless([], ['knows:npcName:elira'], R('The woman asks, “Shall we meet tomorrow at nine in the square?”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?'))),
+      when('knows:npcName:elira', R('Elira asks, “Shall we meet tomorrow at nine in the square?”', w('elira'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?'))),
     ],
     options: [
-      { text: R('Today, now.', w('sot'), p(','), w('tani'), p('.')), to: 'kroi1' },
-      { text: R('Tomorrow morning.', w('neser'), wf('ne', 'në', 'in'), w('mengjes'), p('.')), to: 'kroi1', time: 'dawn' },
+      {
+        text: R('Yes. Tomorrow at nine in the square.', w('po_yes'), p('.'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('.')),
+        effects: [{ type: 'flag', id: 'eliraDeparted' }, { type: 'flag', id: 'eliraMeetingPlan' }],
+        startsNpc: 'elira',
+        rendezvous: {
+          id: 'eliraSquare', npcId: 'elira', placeId: 'fshatiSheshi', kind: 'meeting',
+          atHour: 9, dayOffset: 1, graceHours: 1, leaveAfterHours: 3,
+        },
+        to: 'start',
+        durationHours: 0,
+      },
+      { text: R('No. I will come with you now.', w('jo'), p('.'), w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), w('tani'), p('.')), to: 'bisedaFollowAgree', durationHours: 0 },
+      { text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), unless: 'knows:npcName:elira', effects: [{ type: 'learn', id: 'npcName:elira' }], to: 'bisedaUraPlan', durationHours: 0 },
     ],
+  },
+
+  // The opening acquaintance now stays embodied in the world. These local
+  // conversation nodes never move the player; only the explicit road option
+  // from the river bank to the square advances the journey.
+  eliraBreg: {
+    id: 'eliraBreg',
+    text: [
+      when('rendezvous:eliraFollow:on-time', R('She says, “You came. Good. We will go together.”', w('ajo'), w('thote'), p(':'), wf('vjen', 'erdhe', 'you came'), p('.'), w('mire'), p('.'), w('do_fut'), w('te_subj'), wf('shko', 'shkojmë', 'go'), w('bashke'), p('.'))),
+      whenUnless(['rendezvous:eliraFollow:late'], ['knows:npcName:elira'], R('The woman asks, “What happened? I thought you were going to follow me.”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('?'), wf('mendoj', 'mendova', 'thought'), w('se'), w('do_fut'), w('te_subj'), wf('vjen', 'vije', 'come'), w('pas'), wf('une', 'meje', 'me'), p('.'))),
+      when(['rendezvous:eliraFollow:late', 'knows:npcName:elira'], R('Elira asks, “What happened? I thought you were going to follow me.”', w('elira'), w('pyet'), p(':'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('?'), wf('mendoj', 'mendova', 'thought'), w('se'), w('do_fut'), w('te_subj'), wf('vjen', 'vije', 'come'), w('pas'), wf('une', 'meje', 'me'), p('.'))),
+      R('She asks, “Can you help me in the village?”', w('ajo'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), wf('ne', 'në', 'in'), w('fshat'), p('?')),
+    ],
+    options: [
+      { text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), unless: 'knows:npcName:elira', effects: [{ type: 'learn', id: 'npcName:elira' }], to: 'eliraEmriBreg', durationHours: 0 },
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 2 },
+      { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], to: 'fshatiLumi', durationHours: 0 },
+    ],
+  },
+
+  eliraEmriBreg: {
+    id: 'eliraEmriBreg',
+    text: [
+      R('She says, “My name is Elira.”', w('ajo'), w('thote'), p(':'), w('une'), w('quhem'), w('elira'), p('.')),
+      R('“Can you help me in the village?”', w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), wf('ne', 'në', 'in'), w('fshat'), p('?')),
+    ],
+    options: [
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 2 },
+      { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], to: 'fshatiLumi', durationHours: 0 },
+    ],
+  },
+
+  eliraShesh: {
+    id: 'eliraShesh',
+    text: [
+      when('rendezvous:eliraFollow:on-time', R('She says, “You came. Good.”', w('ajo'), w('thote'), p(':'), wf('vjen', 'erdhe', 'you came'), p('.'), w('mire'), p('.'))),
+      when(['rendezvous:eliraFollow:late'], R('She asks, “What happened? I thought you were going to follow me.”', w('ajo'), w('pyet'), p(':'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('?'), wf('mendoj', 'mendova', 'thought'), w('se'), w('do_fut'), w('te_subj'), wf('vjen', 'vije', 'come'), w('pas'), wf('une', 'meje', 'me'), p('.'))),
+      when(['rendezvous:eliraFollow:missed'], R('She asks, “What happened? I thought you were going to follow me.”', w('ajo'), w('pyet'), p(':'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('?'), wf('mendoj', 'mendova', 'thought'), w('se'), w('do_fut'), w('te_subj'), wf('vjen', 'vije', 'come'), w('pas'), wf('une', 'meje', 'me'), p('.'))),
+      when('rendezvous:eliraSquare:on-time', R('She says, “You came on time. Very good!”', w('ajo'), w('thote'), p(':'), wf('vjen', 'erdhe', 'you came'), wf('ne', 'në', 'on'), w('kohe'), p('.'), w('shume'), w('mire'), p('!'))),
+      when('rendezvous:eliraSquare:late', R('She asks, “Why were you late? I waited for you in the square.”', w('ajo'), w('pyet'), p(':'), w('pse'), wf('vonohem', 'u vonove', 'were you late'), p('?'), w('te_obj'), wf('prit', 'prita', 'waited'), wf('ne', 'në', 'in'), w('shesh'), p('.'))),
+      when('rendezvous:eliraSquare:missed', R('She asks, “What took you so long? I waited for you in the square.”', w('ajo'), w('pyet'), p(':'), w('pse'), wf('vonohem', 'u vonove kaq shumë', 'were you so late'), p('?'), w('te_obj'), wf('prit', 'prita', 'waited'), wf('ne', 'në', 'in'), w('shesh'), p('.'))),
+      R('Then she asks, “Can you help me?”', w('pastaj'), w('ajo'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?')),
+    ],
+    options: [
+      { text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), unless: 'knows:npcName:elira', effects: [{ type: 'learn', id: 'npcName:elira' }], to: 'eliraEmriShesh', durationHours: 0 },
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 0 },
+      { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], to: 'fshatiSheshi', durationHours: 0 },
+    ],
+  },
+
+  eliraEmriShesh: {
+    id: 'eliraEmriShesh',
+    text: [
+      R('She says, “My name is Elira.”', w('ajo'), w('thote'), p(':'), w('une'), w('quhem'), w('elira'), p('.')),
+      R('“Can you help me?”', w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?')),
+    ],
+    options: [
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 0 },
+      { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], to: 'fshatiSheshi', durationHours: 0 },
+    ],
+  },
+
+  eliraBanore: {
+    id: 'eliraBanore',
+    text: [
+      whenUnless([], ['knows:npcName:elira'], R('The woman asks, “How are you?”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), w('si'), w('je'), p('?'))),
+      when('knows:npcName:elira', R('Elira asks, “How are you?”', w('elira'), w('pyet'), p(':'), w('si'), w('je'), p('?'))),
+    ],
+    options: [
+      { text: R('I am well, thank you. And you?', w('jam'), w('mire'), p(','), w('faleminderit'), p('.'), w('po_turn'), w('ti'), p('?')), to: 'fshatiSheshi', durationHours: 0 },
+      { text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), unless: 'knows:npcName:elira', effects: [{ type: 'learn', id: 'npcName:elira' }], to: 'eliraEmriBanore', durationHours: 0 },
+    ],
+  },
+
+  eliraEmriBanore: {
+    id: 'eliraEmriBanore',
+    text: [R('She says, “My name is Elira. Nice to meet you.”', w('ajo'), w('thote'), p(':'), w('une'), w('quhem'), w('elira'), p('.'), w('gezohem'), w('qe'), w('te_obj'), w('njoh'), p('.'))],
+    options: [{ text: R('Nice to meet you too.', w('edhe'), w('une'), w('gezohem'), p('.')), to: 'fshatiSheshi', durationHours: 0 }],
   },
 
   // =========================================================================
@@ -467,12 +588,14 @@ export const STORY = {
   porosiaShesh: {
     id: 'porosiaShesh',
     text: [
-      R('The woman gives you eight lek.', wf('grua', 'gruaja', 'the woman'), w('te_obj'), w('jep'), w('tete'), w('lek'), p('.')),
+      unless('knows:npcName:elira', R('The woman gives you eight lek.', wf('grua', 'gruaja', 'the woman'), w('te_obj'), w('jep'), w('tete'), w('lek'), p('.'))),
+      when('knows:npcName:elira', R('Elira gives you eight lek.', w('elira'), w('te_obj'), w('jep'), w('tete'), w('lek'), p('.'))),
       R('She says, “A guest is coming to our house tonight. We have neither bread nor salt.”', w('ajo'), w('thote'), p(':'), w('nje'), w('mik'), w('po_prog'), w('vjen'), wf('ne', 'në', 'to'), wf('shtepi', 'shtëpinë', 'the house'), wf('tone', 'tonë', 'our'), w('sonte'), p('.'), w('ne_we'), w('nuk'), wf('ka', 'kemi', 'have'), w('as'), w('buke'), p(','), w('as'), w('kripe'), p('.')),
       R('She asks, “Bring bread and salt, please. Do not forget the salt.”', w('ajo'), w('thote'), p(':'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.'), w('mos'), wf('harron', 'harro', 'forget'), wf('kripe', 'kripën', 'the salt'), p('.')),
       R('You ask, “Who will come?” She says, “A traveller from Gjakova.”', w('ti'), w('pyet'), p(':'), w('kush'), w('do_fut'), w('te_subj'), wf('vjen', 'vijë', 'come'), p('?'), w('ajo'), w('thote'), p(':'), w('nje'), w('udhetar'), w('nga'), w('gjakove'), p('.')),
       R('You call, “Is anyone here? Where is the market?”', w('ti'), wf('thirr', 'thërret', 'call'), p(':'), w('a_q'), w('ka'), w('njeri'), w('ketu'), p('?'), w('ku'), w('eshte'), wf('treg', 'tregu', 'the market'), p('?')),
-      R('The woman answers, “The market is here in the square.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('treg', 'tregu', 'the market'), w('eshte'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('shesh'), p('.')),
+      unless('knows:npcName:elira', R('The woman answers, “The market is here in the square.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('treg', 'tregu', 'the market'), w('eshte'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('shesh'), p('.'))),
+      when('knows:npcName:elira', R('Elira answers, “The market is here in the square.”', w('elira'), w('thote'), p(':'), wf('treg', 'tregu', 'the market'), w('eshte'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('shesh'), p('.'))),
       R('You ask, “Where is the guest-room? Left or right?”', w('ti'), w('pyet'), p(':'), w('ku'), w('eshte'), wf('oda', 'oda', 'the guest-room'), p('?'), w('majtas'), w('apo'), w('djathtas'), p('?')),
       R('She says, “Straight ahead, then right.”', w('ajo'), w('thote'), p(':'), w('drejt'), w('perpara'), p(','), w('pastaj'), w('djathtas'), p('.')),
     ],
@@ -5884,17 +6007,26 @@ export const STORY = {
       // the old man keeps his timetable (npcs.js plakuSheshit): mornings here,
       // evenings in the oda among the men
       when('npc:plakuSheshit', L(w('nje'), w('plak'), w('rri'), w('ketu'), w('dhe'), w('te_obj'), wf('shiko', 'shikon', 'looks'), p('.'))),
-      from('bisedaShesh', R('You and the woman meet in the square. She says, “Welcome!”', w('ti'), w('dhe'), wf('grua', 'gruaja', 'the woman'), wf('takohem', 'takoheni', 'meet'), wf('ne', 'në', 'in'), w('shesh'), p('.'), w('ajo'), w('thote'), p(':'), w('mireseerdhe'), p('!'))),
-      from('bisedaShesh', R('You say, “Thank you. What are we doing?”', w('ti'), wf('thote', 'thua', 'say'), p(':'), w('faleminderit'), p('.'), w('cfare'), w('po_prog'), wf('bej', 'bëjmë', 'do'), p('?'))),
-      from('bisedaShesh', R('She asks, “Can you help me?”', w('ajo'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'))),
       whenUnless([], ['night', 'again'], R('A family prepares a birthday table.', wf('familje', 'familja', 'the family'), wf('bej', 'bën', 'makes'), w('gati'), wf('sofer', 'sofrën', 'the table'), w('per'), wf('ditelindje', 'ditëlindjen', 'birthday'), p('.'))),
       whenUnless([], ['night', 'again'], R('The father asks, “What should I bring?” The mother answers, “Bread and cheese.”', w('baba'), w('pyet'), p(':'), w('cfare'), w('duhet'), w('te_subj'), wf('sjell', 'sjell', 'bring'), p('?'), w('nene'), w('thote'), p(':'), w('buke'), w('dhe'), w('djathe'), p('.'))),
       whenUnless([], ['night', 'again'], R('The child asks, “When will the guests come?” “At noon.”', w('femije'), w('pyet'), p(':'), w('kur'), w('do'), w('te_subj'), wf('vjen', 'vijnë', 'come'), wf('mik', 'miqtë', 'guest'), p('?'), wf('ne', 'në', 'in'), w('mesdite'), p('.'))),
       whenUnless([], ['night', 'again'], R('They say, “Happy birthday!” The child answers, “Thank you very much!”', wf('thote', 'thonë', 'say'), p(':'), wf('gezuar', 'gëzuar', 'happy'), wf('ditelindje', 'ditëlindjen', 'birthday'), p('!'), w('femije'), w('thote'), p(':'), w('faleminderit'), w('shume'), p('!'))),
+      // Elira reaches this square on foot. An agreed meeting remains pending
+      // until its exact hour; arriving early offers an in-place wait, never a
+      // teleport or a prematurely fulfilled promise.
+      whenUnless(['flag:eliraMeetingPlan', 'rendezvous:eliraSquare:scheduled'], ['npc:elira'], R('The woman is not here yet.', wf('grua', 'gruaja', 'the woman'), w('nuk'), w('eshte'), w('ketu'), w('ende'), p('.'))),
+      whenUnless(['flag:eliraMeetingPlan', 'rendezvous:eliraSquare:scheduled', 'npc:elira'], ['knows:npcName:elira'], R('The woman says, “You are early. We meet tomorrow at nine.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('ti'), w('je'), w('heret'), p('.'), wf('takohem', 'takohemi', 'meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), p('.'))),
+      when(['flag:eliraMeetingPlan', 'rendezvous:eliraSquare:scheduled', 'npc:elira', 'knows:npcName:elira'], R('Elira says, “You are early. We meet tomorrow at nine.”', w('elira'), w('thote'), p(':'), w('ti'), w('je'), w('heret'), p('.'), wf('takohem', 'takohemi', 'meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), p('.'))),
+      whenUnless(['flag:eliraFollowPlan', 'rendezvous:eliraFollow:fulfilled', 'npc:elira'], ['flag:eliraOpeningResolved', 'knows:npcName:elira'], R('The woman sees you and waits beside the dry well.', wf('grua', 'gruaja', 'the woman'), w('te_obj'), wf('shiko', 'sheh', 'sees'), w('dhe'), wf('prit', 'pret', 'waits'), w('afer'), wf('pus', 'pusit', 'the well'), w('i_art'), w('thate'), p('.'))),
+      whenUnless(['flag:eliraFollowPlan', 'rendezvous:eliraFollow:fulfilled', 'npc:elira', 'knows:npcName:elira'], ['flag:eliraOpeningResolved'], R('Elira sees you and waits beside the dry well.', w('elira'), w('te_obj'), wf('shiko', 'sheh', 'sees'), w('dhe'), wf('prit', 'pret', 'waits'), w('afer'), wf('pus', 'pusit', 'the well'), w('i_art'), w('thate'), p('.'))),
+      whenUnless(['flag:eliraMeetingPlan', 'rendezvous:eliraSquare:fulfilled', 'npc:elira'], ['flag:eliraOpeningResolved', 'knows:npcName:elira'], R('The woman sees you at the agreed meeting place.', wf('grua', 'gruaja', 'the woman'), w('te_obj'), wf('shiko', 'sheh', 'sees'), wf('ne', 'në', 'at'), w('shesh'), p('.'))),
+      whenUnless(['flag:eliraMeetingPlan', 'rendezvous:eliraSquare:fulfilled', 'npc:elira', 'knows:npcName:elira'], ['flag:eliraOpeningResolved'], R('Elira sees you at the agreed meeting place.', w('elira'), w('te_obj'), wf('shiko', 'sheh', 'sees'), wf('ne', 'në', 'at'), w('shesh'), p('.'))),
+      whenUnless(['flag:eliraOpeningResolved', 'npc:elira'], ['knows:npcName:elira'], R('The woman you met at the bridge is standing near the dry well.', wf('grua', 'gruaja', 'the woman'), w('qe'), wf('takohem', 'takove', 'you met'), wf('tek', 'te', 'at'), wf('ure', 'ura', 'the bridge'), w('rri'), w('afer'), wf('pus', 'pusit', 'the well'), w('i_art'), w('thate'), p('.'))),
+      when(['flag:eliraOpeningResolved', 'npc:elira', 'knows:npcName:elira'], R('Elira is standing near the dry well.', w('elira'), w('rri'), w('afer'), wf('pus', 'pusit', 'the well'), w('i_art'), w('thate'), p('.'))),
+      whenUnless(['flag:eliraFollowPlan', 'rendezvous:eliraFollow:missed', 'npc:elira'], ['flag:eliraOpeningResolved', 'knows:npcName:elira'], R('The woman from the bridge sees you in the square.', wf('grua', 'gruaja', 'the woman'), w('nga'), wf('ure', 'ura', 'the bridge'), w('te_obj'), wf('shiko', 'sheh', 'sees'), wf('ne', 'në', 'in'), w('shesh'), p('.'))),
+      whenUnless(['flag:eliraFollowPlan', 'rendezvous:eliraFollow:missed', 'npc:elira', 'knows:npcName:elira'], ['flag:eliraOpeningResolved'], R('Elira sees you in the square.', w('elira'), w('te_obj'), wf('shiko', 'sheh', 'sees'), wf('ne', 'në', 'in'), w('shesh'), p('.'))),
     ],
     options: [
-      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), requires: 'from:bisedaShesh', effects: [{ type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 0 },
-      { text: R("Sorry, I can't.", w('me_obj'), w('fal'), p(','), w('nuk'), wf('mund', 'mundem', 'can'), p('.')), requires: 'from:bisedaShesh', to: 'fshatiSheshi', durationHours: 0 },
       { text: L(w('fol'), w('me'), wf('plak', 'plakun', 'the old man')), requires: 'npc:plakuSheshit', to: 'sheshiPlak', reveal: 'plak' },
       { text: L(w('hyr'), wf('ne', 'në', 'to'), w('shtepi')), to: 'plaka', reveal: 'shtepi', revealOccurrence: 1 },
       { text: L(w('hyr'), wf('ne', 'në', 'to'), w('oda')), to: 'oda1', reveal: 'oda' },
@@ -5944,6 +6076,15 @@ export const STORY = {
       { text: L(w('ngjit'), wf('tek', 'te', 'to'), wf('kishe', 'kisha', 'the church')), to: 'kisha1', reveal: 'kishe' },
       { text: L(w('shko'), wf('tek', 'te', 'to'), w('udhekryq')), to: 'udhekryq' },
       { text: L(w('ec'), wf('rruge', 'rrugës', 'the lane')), to: 'fshatiLanes' },
+      { text: R('Wait here until tomorrow at nine.', w('prit'), w('ketu'), w('deri'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), p('.')), requires: 'rendezvous:eliraSquare:scheduled', to: 'fshatiSheshi', time: 'day', atHour: 9 },
+      { text: R('Speak with the woman.', w('fol'), w('me'), wf('grua', 'gruan', 'the woman')), requires: ['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:fulfilled'], unless: ['flag:eliraOpeningResolved', 'knows:npcName:elira'], to: 'eliraShesh', durationHours: 0 },
+      { text: R('Speak with Elira.', w('fol'), w('me'), wf('elira', 'Elirën', 'Elira')), requires: ['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:fulfilled', 'knows:npcName:elira'], unless: 'flag:eliraOpeningResolved', to: 'eliraShesh', durationHours: 0 },
+      { text: R('Speak with the woman.', w('fol'), w('me'), wf('grua', 'gruan', 'the woman')), requires: ['npc:elira', 'flag:eliraMeetingPlan', 'rendezvous:eliraSquare:fulfilled'], unless: ['flag:eliraOpeningResolved', 'knows:npcName:elira'], to: 'eliraShesh', durationHours: 0 },
+      { text: R('Speak with Elira.', w('fol'), w('me'), wf('elira', 'Elirën', 'Elira')), requires: ['npc:elira', 'flag:eliraMeetingPlan', 'rendezvous:eliraSquare:fulfilled', 'knows:npcName:elira'], unless: 'flag:eliraOpeningResolved', to: 'eliraShesh', durationHours: 0 },
+      { text: R('Speak with the woman.', w('fol'), w('me'), wf('grua', 'gruan', 'the woman')), requires: ['npc:elira', 'flag:eliraOpeningResolved'], unless: 'knows:npcName:elira', to: 'eliraBanore', durationHours: 0 },
+      { text: R('Speak with Elira.', w('fol'), w('me'), wf('elira', 'Elirën', 'Elira')), requires: ['npc:elira', 'flag:eliraOpeningResolved', 'knows:npcName:elira'], to: 'eliraBanore', durationHours: 0 },
+      { text: R('Speak with the woman.', w('fol'), w('me'), wf('grua', 'gruan', 'the woman')), requires: ['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:missed'], unless: ['flag:eliraOpeningResolved', 'knows:npcName:elira'], to: 'eliraShesh', durationHours: 0 },
+      { text: R('Speak with Elira.', w('fol'), w('me'), wf('elira', 'Elirën', 'Elira')), requires: ['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:missed', 'knows:npcName:elira'], unless: 'flag:eliraOpeningResolved', to: 'eliraShesh', durationHours: 0 },
     ],
   },
 
@@ -9888,6 +10029,8 @@ export const STORY = {
       when('npcAt:krushqit:start', L(wf('tek', 'te', 'at'), wf('ure', 'ura', 'the bridge'), w('e_art'), w('vjeter'), w('nje'), w('nuse'), w('vjen'), w('me'), w('kale'), p('.'))),
       when('npc:krushqit', L(w('nje'), w('nuse'), w('me'), w('kale'), wf('kalo', 'kalon', 'crosses'), wf('ure', 'urën', 'the bridge'), p('.'))),
       L(wf('lart', 'lart', 'up'), wf('shko', 'shkon', 'goes'), w('nje'), w('rruge'), wf('tek', 'te', 'to'), wf('fshat', 'fshati', 'the village'), p('.')),
+      whenUnless(['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:fulfilled'], ['flag:eliraOpeningResolved', 'knows:npcName:elira'], R('The woman is waiting beside the road.', wf('grua', 'gruaja', 'the woman'), wf('prit', 'pret', 'waits'), w('afer'), wf('rruge', 'rrugës', 'the road'), p('.'))),
+      whenUnless(['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:fulfilled', 'knows:npcName:elira'], ['flag:eliraOpeningResolved'], R('Elira is waiting beside the road.', w('elira'), wf('prit', 'pret', 'waits'), w('afer'), wf('rruge', 'rrugës', 'the road'), p('.'))),
     ],
     options: [
       // walk back over the bridge you crossed — retreat spends no tokens
@@ -9899,7 +10042,9 @@ export const STORY = {
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('mulli')), to: 'mulli1', reveal: 'mulli' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('krua')), to: 'kroi1', reveal: 'krua', revealOccurrence: 1 },
       { text: L(w('ngjit'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpitë', 'the homes')), to: 'fshatiJeta', reveal: 'rruge' },
-      { text: L(w('ngjit'), wf('ne', 'në', 'to'), w('fshat')), to: 'fshatiSheshi' },
+      { text: L(w('ngjit'), wf('ne', 'në', 'to'), w('fshat')), to: 'fshatiSheshi', durationHours: 1 },
+      { text: R('Go with the woman.', w('shko'), w('me'), wf('grua', 'gruan', 'the woman')), requires: ['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:fulfilled'], unless: ['flag:eliraOpeningResolved', 'knows:npcName:elira'], to: 'eliraBreg', durationHours: 0 },
+      { text: R('Go with Elira.', w('shko'), w('me'), wf('elira', 'Elirën', 'Elira')), requires: ['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:fulfilled', 'knows:npcName:elira'], unless: 'flag:eliraOpeningResolved', to: 'eliraBreg', durationHours: 0 },
     ],
   },
 
@@ -10989,14 +11134,9 @@ export const STORY = {
       // the spring is the women's meeting-place — jugs by day, and the day's news with them
       unless('night', L(wf('dite', 'ditën', 'the day'), w('gra'), wf('vjen', 'vijnë', 'come'), wf('tek', 'te', 'at'), wf('krua', 'kroi', 'the spring'), w('per'), w('uje'), w('dhe'), w('per'), wf('fjale', 'fjalë', 'words'), p('.'))),
       L(wf('thote', 'thonë', 'they say'), p(':'), w('nje'), w('mik'), w('vjen'), w('nga'), wf('perendi', 'Perëndia', 'God'), p(','), w('dhe'), w('nje'), w('ora'), w('mund'), w('te_subj'), wf('ec', 'ecë', 'walk'), wf('si', 'si', 'as'), w('vajze'), p('.')),
-      from('bisedaKroi', R('You and the woman meet at the spring. She says, “Welcome!”', w('ti'), w('dhe'), wf('grua', 'gruaja', 'the woman'), wf('takohem', 'takoheni', 'meet'), wf('tek', 'te', 'at'), wf('krua', 'kroi', 'the spring'), p('.'), w('ajo'), w('thote'), p(':'), w('mireseerdhe'), p('!'))),
-      from('bisedaKroi', R('You say, “Thank you. What are we doing?”', w('ti'), wf('thote', 'thua', 'say'), p(':'), w('faleminderit'), p('.'), w('cfare'), w('po_prog'), wf('bej', 'bëjmë', 'do'), p('?'))),
-      from('bisedaKroi', R('She asks, “Can you help me?”', w('ajo'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'))),
       R('The girl asks, “What do you want?” You say, “I want water, please.”', wf('vajze', 'vajza', 'the girl'), w('pyet'), p(':'), w('cfare'), w('do'), p('?'), w('ti'), wf('thote', 'thua', 'say'), p(':'), wf('do', 'dua', 'want'), w('uje'), p(','), w('lutem'), p('.')),
     ],
     options: [
-      { text: R('Yes, I can help you. Let us meet in the square.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.'), wf('takohem', 'takohemi', 'meet'), wf('ne', 'në', 'in'), w('shesh'), p('.')), requires: 'from:bisedaKroi', effects: [{ type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 0 },
-      { text: R("Sorry, I can't.", w('me_obj'), w('fal'), p(','), w('nuk'), wf('mund', 'mundem', 'can'), p('.')), requires: 'from:bisedaKroi', to: 'kroi1', durationHours: 0 },
       { text: L(w('pi'), w('uje')), to: 'kroiFund', reveal: 'uje', revealOccurrence: 6 },
       { text: L(w('degjo'), wf('gra', 'gratë', 'women')), unless: 'night', to: 'kroiGrate', reveal: 'gra' },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('lume', 'lumin', 'the river')), to: 'fshatiLumi' },
@@ -11183,10 +11323,17 @@ const CONFUSERS = {
   // of the world: each social turn has one clearly impossible action.
   bisedaUra1: L(w('ti'), w('je'), wf('grua', 'gruaja', 'the woman')),
   bisedaUra2: L(wf('fshat', 'fshati', 'the village'), w('po_prog'), wf('shko', 'shkon', 'goes')),
-  bisedaUra3: L(w('fal'), w('tani')),
-  bisedaUraPlan: L(wf('krua', 'kroi', 'the spring'), w('nuk'), w('e_obj'), w('di')),
-  bisedaShesh: L(w('tani'), w('vjen'), wf('ore', 'ora', 'the hour')),
-  bisedaKroi: L(w('tani'), w('vjen'), wf('ore', 'ora', 'the hour')),
+  bisedaUra3: L(wf('fshat', 'fshati', 'the village'), w('po_prog'), wf('shko', 'shkon', 'goes')),
+  bisedaUraPlan: L(w('elira'), wf('quhem', 'quhet', 'is called'), w('fshat')),
+  bisedaFollowAgree: L(wf('grua', 'gruaja', 'the woman'), w('ha'), wf('fshat', 'fshatin', 'the village')),
+  bisedaShesh: L(w('prit'), wf('ure', 'urën', 'the bridge')),
+  bisedaKroi: L(wf('shesh', 'sheshi', 'the square'), w('vjen'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente')),
+  eliraBreg: L(wf('fshat', 'fshati', 'the village'), w('pyet'), wf('grua', 'gruan', 'the woman')),
+  eliraEmriBreg: L(wf('fshat', 'fshati', 'the village'), wf('ndihmo', 'ndihmon', 'helps'), wf('elira', 'Elirën', 'Elira')),
+  eliraShesh: L(wf('shesh', 'sheshi', 'the square'), w('pyet'), wf('elira', 'Elirën', 'Elira')),
+  eliraEmriShesh: L(wf('shesh', 'sheshi', 'the square'), w('pyet'), wf('elira', 'Elirën', 'Elira')),
+  eliraBanore: L(wf('grua', 'gruaja', 'the woman'), w('pi'), wf('elira', 'Elirën', 'Elira')),
+  eliraEmriBanore: L(w('elira'), w('ha'), wf('elira', 'Elirën', 'Elira')),
   porosiaShesh: L(w('jep'), wf('shesh', 'sheshin', 'the square')), // give the square — impossible
   pazariFshatit: L(w('pyet'), wf('treg', 'tregun', 'the market')), // ask the market — it cannot answer
   pazariPerserit: L(w('pyet'), wf('kripe', 'kripën', 'the salt')), // ask the salt — it cannot answer
@@ -12630,6 +12777,7 @@ export function frequentForms(id, { min = 1, cap = 5 } = {}) {
 // Built from story-validated phrasings to keep the Albanian grammar correct.
 // ---------------------------------------------------------------------------
 export const DEFS = {
+  elira: L(w('nje'), w('grua'), w('nga'), w('fshat')), // the first woman you meet, once she gives her name
   // — the loom & the evil eye (village life) —
   pe: L(w('nje'), w('gje'), w('qe'), w('qep')), //                    a thing that sews (= thread)
   zili: L(w('kur'), w('ti'), w('do'), wf('gje', 'gjëra', 'the things'), w('e_link'), w('nje'), w('njeri')), // when you want another's things (= envy)

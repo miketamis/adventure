@@ -331,9 +331,11 @@ export const OPTION_READINGS_C = Object.freeze({
   "fshatiLumi.options[5]": { al: "shko në krua", en: "Go to the spring.", review: 'internal-editorial' }, // 1395
   "fshatiLumi.options[6]": { al: "ngjit te shtëpitë", en: "Go up to the houses.", review: 'internal-editorial' }, // 1396
   "fshatiLumi.options[7]": { al: "ngjit në fshat", en: "Go up to the village.", review: 'internal-editorial' }, // 1397
-  "fshatiLumi.options[8]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1398
-  "fshatiLumi.options[9]": { al: "merr urën", en: "Take the bridge.", review: 'internal-editorial' }, // 1399
-  "fshatiLumi.options[10]": { al: "merr mullirin", en: "Take the mill.", review: 'internal-editorial' }, // 1400
+  "fshatiLumi.options[8]": { al: "shko me gruan", en: "Go with the woman.", review: 'internal-editorial' },
+  "fshatiLumi.options[9]": { al: "shko me Elirën", en: "Go with Elira.", review: 'internal-editorial' },
+  "fshatiLumi.options[10]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1398
+  "fshatiLumi.options[11]": { al: "merr urën", en: "Take the bridge.", review: 'internal-editorial' }, // 1399
+  "fshatiLumi.options[12]": { al: "merr mullirin", en: "Take the mill.", review: 'internal-editorial' }, // 1400
   "gruaUji1.options[0]": { al: "lër gruan", en: "Leave the woman.", review: 'internal-editorial' }, // 1401
   "gruaUji1.options[1]": { al: "jep pusin", en: "Give the well.", review: 'internal-editorial' }, // 1402
   "lumiMjeshter.options[0]": { al: "ec me plakun", en: "Walk with the old man.", review: 'internal-editorial' }, // 1403
@@ -505,13 +507,11 @@ export const OPTION_READINGS_C = Object.freeze({
   "maroKopshti.options[2]": { al: "kap princin", en: "Catch the prince.", review: 'internal-editorial' }, // 1569
   "maroKopshti.options[3]": { al: "vrit zogun", en: "Kill the bird.", review: 'internal-editorial' }, // 1570
   "maroKopshti.options[4]": { al: "ec në kopsht", en: "Walk in the garden.", review: 'internal-editorial' }, // 1571
-  "kroi1.options[0]": { al: "po, mund të të ndihmoj. takohemi në shesh.", en: "Say: “Yes, I can help you. Let us meet in the square.”", review: 'internal-editorial' }, // practical errand
-  "kroi1.options[1]": { al: "më fal, nuk mundem.", en: "Say: “Sorry, I cannot.”", review: 'internal-editorial' }, // practical refusal
-  "kroi1.options[2]": { al: "pi ujë", en: "Drink water.", review: 'internal-editorial' }, // 1572
-  "kroi1.options[3]": { al: "dëgjo gratë", en: "Listen to the women.", review: 'internal-editorial' }, // 1573
-  "kroi1.options[4]": { al: "kthehu në lumin", en: "Return to the river.", review: 'internal-editorial' }, // 1574
-  "kroi1.options[5]": { al: "merr kroin", en: "Take the spring.", review: 'internal-editorial' }, // 1575
-  "kroi1.options[6]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1576
+  "kroi1.options[0]": { al: "pi ujë", en: "Drink water.", review: 'internal-editorial' }, // 1572
+  "kroi1.options[1]": { al: "dëgjo gratë", en: "Listen to the women.", review: 'internal-editorial' }, // 1573
+  "kroi1.options[2]": { al: "kthehu në lumin", en: "Return to the river.", review: 'internal-editorial' }, // 1574
+  "kroi1.options[3]": { al: "merr kroin", en: "Take the spring.", review: 'internal-editorial' }, // 1575
+  "kroi1.options[4]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1576
   "tabaket1.options[0]": { al: "fol me tabakun", en: "Speak with the tanner.", review: 'internal-editorial' }, // 1577
   "tabaket1.options[1]": { al: "bëj punë", en: "Do some work.", review: 'internal-editorial' }, // 1578
   "tabaket1.options[2]": { al: "kthehu te lumi", en: "Return to the river.", review: 'internal-editorial' }, // 1579

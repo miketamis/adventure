@@ -9,7 +9,7 @@ import { NOUN_FORMS } from './nounForms.js'
 export const DICT = {
   ti:        { al: 'ti',        en: 'you' },
   je:        { al: 'je',        en: 'are' },
-  ne:        { al: 'në',        en: 'in', enAll: 'in / on / to' },
+  ne:        { al: 'në',        en: 'in', enAll: 'in / on / to / at' },
   nje:       { al: 'një',       en: 'a' },
   pyll:      { al: 'pyll',      en: 'forest' },
   madh:      { al: 'madh',      en: 'big' },
@@ -970,6 +970,13 @@ export const DICT = {
   shendoshe:  { al: 'shëndoshë',   en: 'healthy' },   // shëndoshë e mirë — hale and hearty (full ♥)
   // --- about yourself & controlling language ---
   quhem:      { al: 'quhem',       en: 'am called' },
+  elira:      { al: 'Elira',        en: 'Elira' },
+  vonohem:    { al: 'vonohem',      en: 'am late' },
+  me_vone:    { al: 'më vonë',      en: 'later' },
+  ane:        { al: 'anë',          en: 'side' },
+  matane:     { al: 'matanë',       en: 'across' },
+  gezohem:    { al: 'gëzohem',      en: 'am pleased' },
+  heret:      { al: 'herët',        en: 'early' },
   familje:    { al: 'familje',     en: 'family' },
   vjec:       { al: 'vjeç',        en: 'years old' },
   perserit:   { al: 'përsërit',    en: 'repeat' },

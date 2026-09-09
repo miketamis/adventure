@@ -449,6 +449,7 @@ export const NOUN_FORMS = {
     { al: 'pus', tag: 'indefNom', gloss: "a well" },
     { al: 'pusi', tag: 'defNom', gloss: "the well" },
     { al: 'pusin', tag: 'defAcc', gloss: "the well (object)" },
+    { al: 'pusit', tag: 'defDat', gloss: "to/of the well" },
   ],
   qen: [ /* dog */
     { al: 'qen', tag: 'indefNom', gloss: "a dog" },

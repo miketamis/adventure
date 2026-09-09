@@ -10,7 +10,7 @@ export const PLACE_META = {
     name: 'ura para fshatit — the village bridgehead',
     happenings: [
       { title: 'the road, river and bridge into the village', nodes: ['start'] },
-      { title: 'the first everyday conversation: greeting, movement, meeting place and time', nodes: ['bisedaUra1', 'bisedaUra2', 'bisedaUra3', 'bisedaUraPlan', 'bisedaShesh', 'bisedaKroi'] },
+      { title: 'the first everyday conversation: greeting, movement, meeting place and time', nodes: ['bisedaUra1', 'bisedaUra2', 'bisedaUra3', 'bisedaUraPlan', 'bisedaFollowAgree', 'bisedaShesh', 'bisedaKroi'] },
     ],
   },
   lumi: {
@@ -173,6 +173,7 @@ export const PLACE_META = {
     densityReason: 'The square is the village crossroads: its everyday errand, bench talk and coffeehouse visits are separate moments at one open meeting place, not invented new locations.',
     happenings: [
       { title: 'the village square', nodes: ['fshatiSheshi'] },
+      { title: 'meeting Elira at the agreed place', nodes: ['eliraShesh', 'eliraEmriShesh', 'eliraBanore', 'eliraEmriBanore'] },
       { title: "the guest's bread-and-salt errand", nodes: ['porosiaShesh', 'pazariFshatit', 'pazariPerserit', 'porosiaBlerje'] },
       { title: "the old man's bench", nodes: ['sheshiPlak', 'sheshiPlak2', 'sheshiPlak3'] },
       { title: 'coffee at the square', nodes: ['kafeneja', 'kafeneja2'] },

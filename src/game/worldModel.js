@@ -110,15 +110,6 @@ export const WORLD_BARRIERS = Object.freeze([
 // invariant it relaxes, why the story needs it and who should review it.
 export const STRUCTURAL_EXCEPTIONS = Object.freeze([
   {
-    id: 'opening-conversation-walk-to-square',
-    rule: 'route-distance',
-    edges: ['bisedaShesh->fshatiSheshi'],
-    reason: 'The final spoken time choice commits the pair to their arranged meeting; the edge includes the walk from the bridgehead to the square, where the arrival dialogue resumes.',
-    source: 'content: bisedaShesh choice and fshatiSheshi arrival lines',
-    owner: 'language-curriculum',
-    review: 'if the opening conversation gains a separate bridge-crossing leg',
-  },
-  {
     id: 'wolf-carries-sleeper-to-den',
     rule: 'interaction-distance',
     edges: ['gjumi->shokuUjk', 'gjumi->eaten'],

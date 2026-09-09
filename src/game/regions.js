@@ -59,8 +59,11 @@ export const REGION_OVERRIDES = Object.freeze({
   // Keep its dialogue turns in the village region instead of letting graph
   // seed order pull early turns into the great forest.
   bisedaUra1: 'village', bisedaUra2: 'village', bisedaUra3: 'village',
-  bisedaUraPlan: 'village',
+  bisedaUraPlan: 'village', bisedaFollowAgree: 'village',
   bisedaShesh: 'village', bisedaKroi: 'village',
+  eliraBreg: 'village', eliraEmriBreg: 'village',
+  eliraShesh: 'village', eliraEmriShesh: 'village',
+  eliraBanore: 'village', eliraEmriBanore: 'village',
   porosiaShesh: 'village',
   pazariFshatit: 'village', pazariPerserit: 'village', porosiaBlerje: 'village',
   sofraMikut: 'village', sofraMikut2: 'village',
