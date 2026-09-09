@@ -59,10 +59,9 @@ export function subscribeMute(fn) {
 
 // Play a surface's clip. Caches <audio> elements so repeated hovers are cheap.
 const cache = new Map()
-let phrasePlayback = 0
+let activeAudio = null
 export function playWord(al) {
   if (!al || muted) return
-  phrasePlayback += 1
   playSurface(al)
 }
 
@@ -74,45 +73,24 @@ function playSurface(al) {
     cache.set(al, a)
   }
   try {
+    if (activeAudio && activeAudio !== a) {
+      activeAudio.pause()
+      activeAudio.currentTime = 0
+    }
+    activeAudio = a
     a.currentTime = 0
+    a.onended = () => { if (activeAudio === a) activeAudio = null }
+    a.onerror = () => { if (activeAudio === a) activeAudio = null }
     a.play().catch(() => {})
   } catch {
     /* ignore */
   }
 }
 
-// Play a complete phrase from its authored word clips without overlapping
-// them. Starting another word or phrase cancels the remainder of the old one.
-export async function playPhrase(words) {
-  if (!Array.isArray(words) || words.length === 0 || muted) return
-  const playback = ++phrasePlayback
-  for (const word of words) {
-    if (playback !== phrasePlayback || muted) return
-    let audio = cache.get(word)
-    if (!audio) {
-      audio = new Audio(audioUrl(word))
-      audio.preload = 'auto'
-      cache.set(word, audio)
-    }
-    await new Promise((resolve) => {
-      let settled = false
-      const finish = () => {
-        if (settled) return
-        settled = true
-        clearTimeout(timeout)
-        audio.removeEventListener('ended', finish)
-        audio.removeEventListener('error', finish)
-        resolve()
-      }
-      const timeout = setTimeout(finish, 3200)
-      audio.addEventListener('ended', finish, { once: true })
-      audio.addEventListener('error', finish, { once: true })
-      try {
-        audio.currentTime = 0
-        audio.play().catch(finish)
-      } catch {
-        finish()
-      }
-    })
-  }
+// Complete phrases have their own TTS recording. One continuous clip preserves
+// sentence rhythm and coarticulation instead of inserting a load/ended gap
+// between separately generated word recordings.
+export function playPhrase(al) {
+  if (!al || muted) return
+  playSurface(al)
 }

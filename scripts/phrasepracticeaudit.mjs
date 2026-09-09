@@ -48,6 +48,7 @@ check(`all ${EVERYDAY_PHRASE_DRILLS.length} phrases build valid construction, li
     for (const word of words) {
       assert.ok(fs.existsSync(`public/audio/${audioSlug(word)}.mp3`), `${target.id} lacks audio for ${word}`)
     }
+    assert.ok(fs.existsSync(`public/audio/${audioSlug(target.al)}.mp3`), `${target.id} lacks continuous phrase audio`)
     for (const mode of ['listen', 'type']) {
       const q = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, {}, {}, {}, {
         rng: steadyRng,
@@ -87,6 +88,21 @@ check('all five suitable phrase exercise families are generated', () => {
       assert.equal(new Set(q.left.map((entry) => entry.id)).size, 3)
       assert.equal(new Set(q.right.map((entry) => entry.id)).size, 3)
     }
+  }
+})
+
+check('a first unlocked phrase still receives useful distractor words', () => {
+  const target = EVERYDAY_PHRASE_DRILLS.find((entry) => phraseWords(entry.al).length >= 4)
+  for (const mode of ['arrange', 'listen', 'cloze']) {
+    const q = buildPhraseQuestion([target], {}, {}, {}, {
+      rng: steadyRng,
+      mode,
+      targetId: target.id,
+      distractorPool: EVERYDAY_PHRASE_DRILLS,
+    })
+    const answerTileCount = mode === 'cloze' ? 1 : phraseWords(target.al).length
+    assert.ok(q.bank.length >= answerTileCount + 3, `${mode} did not add three distractors`)
+    assert.equal(q.bank.filter((tile) => tile.answerIndex == null).length, 3)
   }
 })
 
@@ -163,7 +179,7 @@ check('every reward id still belongs to the public dictionary', () => {
   for (const id of phraseRewardIds(EVERYDAY_PHRASE_DRILLS)) assert.ok(DICT[id], id)
 })
 
-console.log(`\n${8 - failures.length}/8 phrase-practice contracts pass.`)
+console.log(`\n${9 - failures.length}/9 phrase-practice contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1

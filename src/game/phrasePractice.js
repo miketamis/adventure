@@ -71,25 +71,31 @@ function pickTarget(unlocked, mana, practiced, mistakes, rng, targetId) {
   }, rng)
 }
 
-function distractorWords(unlocked, target, targetWords, count, rng) {
+function distractorWords(unlocked, distractorPool, target, targetWords, count, rng) {
   const blocked = new Set(targetWords.map(normalizedWord))
   const candidates = []
   const seen = new Set()
-  for (const entry of shuffleWith(unlocked.filter((item) => item.id !== target.id), rng)) {
-    for (const word of shuffleWith(phraseWords(entry.al), rng)) {
-      const normalized = normalizedWord(word)
-      if (blocked.has(normalized) || seen.has(normalized)) continue
-      seen.add(normalized)
-      candidates.push(word)
-      if (candidates.length === count) return candidates
+  // Prefer words from other phrases the learner has unlocked, then fill from
+  // the wider practical phrase curriculum. This keeps early word banks useful
+  // even when the target is the learner's first complete phrase.
+  const pools = [unlocked, distractorPool]
+  for (const pool of pools) {
+    for (const entry of shuffleWith(pool.filter((item) => item.id !== target.id), rng)) {
+      for (const word of shuffleWith(phraseWords(entry.al), rng)) {
+        const normalized = normalizedWord(word)
+        if (blocked.has(normalized) || seen.has(normalized)) continue
+        seen.add(normalized)
+        candidates.push(word)
+        if (candidates.length === count) return candidates
+      }
     }
   }
   return candidates
 }
 
-function buildWordBank(unlocked, target, answerWords, rng, requestedDistractors) {
+function buildWordBank(unlocked, distractorPool, target, answerWords, rng, requestedDistractors) {
   const distractorCount = requestedDistractors ?? (answerWords.length <= 1 ? 3 : answerWords.length <= 3 ? 2 : 3)
-  const distractors = distractorWords(unlocked, target, answerWords, distractorCount, rng)
+  const distractors = distractorWords(unlocked, distractorPool, target, answerWords, distractorCount, rng)
   const answerTiles = answerWords.map((text, index) => ({
     id: `answer:${index}`,
     text,
@@ -158,7 +164,7 @@ export function buildPhraseQuestion(
   mana = {},
   practiced = {},
   mistakes = {},
-  { rng = Math.random, mode: requestedMode, targetId } = {},
+  { rng = Math.random, mode: requestedMode, targetId, distractorPool = unlocked } = {},
 ) {
   if (!Array.isArray(unlocked) || unlocked.length === 0) return null
   const target = pickTarget(unlocked, mana, practiced, mistakes, rng, targetId)
@@ -183,11 +189,11 @@ export function buildPhraseQuestion(
       ...base,
       blankIndex,
       correctWord,
-      bank: buildWordBank(unlocked, target, [correctWord], rng, 3),
+      bank: buildWordBank(unlocked, distractorPool, target, [correctWord], rng, 3),
     }
   }
   return {
     ...base,
-    bank: buildWordBank(unlocked, target, answerWords, rng),
+    bank: buildWordBank(unlocked, distractorPool, target, answerWords, rng),
   }
 }

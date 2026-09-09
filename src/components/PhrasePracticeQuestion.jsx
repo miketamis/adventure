@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { DICT } from '../game/content.js'
 import { playPhrase, playWord } from '../game/audio.js'
-import { phraseAnswerIsCorrect, phraseWords } from '../game/phrasePractice.js'
+import { phraseAnswerIsCorrect } from '../game/phrasePractice.js'
 
 const MODE_COPY = Object.freeze({
   arrange: 'Build the Albanian phrase',
@@ -133,7 +133,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
   const correction = outcome?.correction || q.target.al
 
   return (
-    <div className={`phrase-exercise phrase-${q.mode}`}>
+    <div className={`phrase-exercise phrase-mode-${q.mode}`}>
       <div className="prompt">
         {MODE_COPY[q.mode]} <span className="phrase-label">everyday phrase</span>
       </div>
@@ -143,7 +143,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
           type="button"
           className="phrase-listen"
           disabled={answered}
-          onClick={() => playPhrase(q.answerWords)}
+          onClick={() => playPhrase(q.target.al)}
           aria-label="Play the Albanian phrase"
         >
           <span aria-hidden="true">🔊</span> Play phrase
@@ -178,7 +178,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
                 onClick={() => {
                   setMatchLeft(entry.id)
                   const phrase = q.phrases.find((item) => item.id === entry.id)
-                  playPhrase(phraseWords(phrase?.al))
+                  playPhrase(phrase?.al)
                 }}
               >
                 {entry.text}

@@ -203,6 +203,7 @@ export default function PracticeView({ state, dispatch }) {
         state.mana,
         state.phrasePracticed,
         state.phraseMistakes,
+        { distractorPool: EVERYDAY_PHRASE_DRILLS },
       ))
       return
     }

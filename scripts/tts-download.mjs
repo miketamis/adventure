@@ -14,6 +14,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { DICT, STORY } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
+import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { collectAudioSurfaces } from './lib/audio-surfaces.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -98,7 +99,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 async function main() {
   mkdirSync(OUT_DIR, { recursive: true })
-  const authoredSurfaces = collectAudioSurfaces(DICT, STORY)
+  const authoredSurfaces = collectAudioSurfaces(DICT, STORY, EVERYDAY_PHRASE_DRILLS)
   // Capitalization variants share one deterministic runtime URL and one
   // pronunciation. Generate each case-folded filename only once.
   const bySlug = new Map()

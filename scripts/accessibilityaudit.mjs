@@ -21,6 +21,7 @@ const embodimentFocus = read('src/components/EmbodimentFocus.jsx')
 const achievements = read('src/components/AchievementsView.jsx')
 const practice = read('src/components/PracticeView.jsx')
 const phrasePractice = read('src/components/PhrasePracticeQuestion.jsx')
+const audio = read('src/game/audio.js')
 const dictionary = read('src/components/DictionaryView.jsx')
 const comprehension = read('src/components/ComprehensionTest.jsx')
 const atlas = read('src/components/AtlasView.jsx')
@@ -116,6 +117,14 @@ check('whole phrases use construction, listening, cloze, typing and matching ins
   practice.includes('<PhrasePracticeQuestion') &&
   !practice.includes('q.options.map((entry)') &&
   ['arrange', 'listen', 'cloze', 'type', 'match'].every((mode) => phrasePractice.includes(`${mode}:`)))
+check('phrase exercise mode classes cannot inherit a child control layout',
+  phrasePractice.includes('phrase-exercise phrase-mode-${q.mode}') &&
+  !phrasePractice.includes('phrase-exercise phrase-${q.mode}') &&
+  styles.includes('.phrase-exercise {'))
+check('phrase listening uses one continuous authored recording',
+  audio.includes('export function playPhrase(al)') &&
+  phrasePractice.includes('playPhrase(q.target.al)') &&
+  !phrasePractice.includes('playPhrase(q.answerWords)'))
 check('phrase tiles, audio, typing helpers and matching pairs are keyboard-native and named',
   phrasePractice.includes('<button') &&
   phrasePractice.includes('aria-label="Your answer"') &&

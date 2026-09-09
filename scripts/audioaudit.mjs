@@ -6,10 +6,11 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { DICT, STORY } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
+import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { collectAudioSurfaces } from './lib/audio-surfaces.mjs'
 
 const AUDIO_DIR = resolve('public/audio')
-const surfaces = collectAudioSurfaces(DICT, STORY)
+const surfaces = collectAudioSurfaces(DICT, STORY, EVERYDAY_PHRASE_DRILLS)
 const byFile = new Map()
 
 for (const surface of surfaces) {
