@@ -29,8 +29,8 @@ const inventoryEffect = (raw, legacy = false) => {
   const delta = exactInteger(raw.delta)
   // `lek` is a resource stored in inventory for legacy UI compatibility, but
   // authored effects must use the resource channel so affordability cannot be
-  // bypassed. Hearts and peak are never inventory entries.
-  return id && !['lek', 'hearts', 'peak'].includes(id) && delta != null && delta !== 0
+  // bypassed. Hearts are never inventory entries.
+  return id && !['lek', 'hearts'].includes(id) && delta != null && delta !== 0
     ? { type: 'inventory', id, delta, legacy }
     : null
 }
@@ -48,7 +48,7 @@ function canonicalTypedEffect(raw) {
     return id ? { type: 'learn', id } : null
   }
   if (raw.type === 'resource') {
-    const id = ['hearts', 'lek', 'peak'].includes(raw.id) ? raw.id : null
+    const id = ['hearts', 'lek'].includes(raw.id) ? raw.id : null
     const delta = exactInteger(raw.delta)
     const set = exactInteger(raw.set)
     const hasDelta = delta != null && delta !== 0
@@ -159,10 +159,7 @@ export function itemUseEffectsOption(item) {
   const legacy = item?.use?.effect
   // Explicit typed effects replace the legacy adapter, matching the public
   // item metadata helper and preventing a gradual migration from applying a
-  // healing/peak reward twice.
-  if (!hasTypedEffects && Number.isFinite(legacy?.peakTurns) && legacy.peakTurns !== 0) {
-    effects.unshift({ type: 'resource', id: 'peak', delta: Math.floor(legacy.peakTurns) })
-  }
+  // healing reward twice.
   if (!hasTypedEffects && Number.isFinite(legacy?.hearts) && legacy.hearts !== 0) {
     effects.unshift({ type: 'resource', id: 'hearts', delta: Math.floor(legacy.hearts) })
   }
@@ -249,7 +246,6 @@ export function applyOptionEffects(state, option, context = {}) {
   let knowledge = state.knowledge || {}
   let fixtures = state.fixtures || {}
   let hearts = state.hearts
-  let peak = state.peak
 
   for (const effect of optionEffectsOf(option)) {
     if (!effect) continue
@@ -289,11 +285,8 @@ export function applyOptionEffects(state, option, context = {}) {
       hearts = clamp(effect.set ?? ((Number.isFinite(hearts) ? hearts : 0) + effect.delta), 0, context.maxHearts ?? 3)
       continue
     }
-    if (effect.type === 'resource' && effect.id === 'peak') {
-      peak = Math.max(0, effect.set ?? ((Number.isFinite(peak) ? peak : 0) + effect.delta))
-    }
   }
-  return { ...state, inventory, flags, knowledge, fixtures, hearts, peak }
+  return { ...state, inventory, flags, knowledge, fixtures, hearts }
 }
 
 // On embodiment entry the traveller's pack is suspended. Preserve only new

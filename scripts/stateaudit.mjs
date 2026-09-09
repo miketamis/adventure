@@ -50,6 +50,7 @@ import {
   WORLD_FACT_PRESENTATION,
   advanceToFestival,
   calendarAtClock,
+  greetingPeriodAtClock,
   festivalIdsAtClock,
   hydrologyFromFacts,
   weatherAtClock,
@@ -92,7 +93,6 @@ const stateAt = (nodeId, clock = START_CLOCK, extra = {}) => ({
   attempts: {},
   dismissedTests: {},
   pendingTest: null,
-  peak: 3,
   hearts: 3,
   healedAt: {},
   turn: 1,
@@ -112,7 +112,6 @@ check('typed effects compose while legacy choice fields keep their behavior', ()
     inventory: { buke: 2, lek: 9 },
     flags: { oldRoad: true },
     hearts: 2,
-    peak: 1,
     fixtures: { campfire: 38 },
   })
   const option = {
@@ -125,7 +124,6 @@ check('typed effects compose while legacy choice fields keep their behavior', ()
       { type: 'resource', id: 'lek', delta: -4 },
       { type: 'resource', id: 'hearts', set: 3 },
       { type: 'resource', id: 'hearts', delta: -1 },
-      { type: 'resource', id: 'peak', delta: 2 },
       { type: 'fixture', id: 'campfire', action: 'clear' },
       { type: 'fixture', id: 'millLamp' },
     ],
@@ -150,7 +148,6 @@ check('typed effects compose while legacy choice fields keep their behavior', ()
   assert.deepEqual(after.fixtures, { campfire: 33, millLamp: 41 })
   assert.equal(fixtureStageAt('campfire', after.fixtures.campfire, 41), 'out')
   assert.equal(after.hearts, 2)
-  assert.equal(after.peak, 3)
   assert.deepEqual(before.inventory, { buke: 2, lek: 9 }, 'effect resolver mutated its input')
 
   const legacy = { consumes: 'buke', grant: 'kripe', lek: -2, hearts: 1, activateFixture: 'campfire' }
@@ -198,21 +195,19 @@ check('typed effects compose while legacy choice fields keep their behavior', ()
   assert.deepEqual(combinedItems.inventory, { buke: 1, kripe: 2 })
 
   const resourceSets = applyOptionEffects(
-    { ...before, inventory: { lek: 7 }, hearts: 1, peak: 4 },
+    { ...before, inventory: { lek: 7 }, hearts: 1 },
     {
       effects: [
         { type: 'resource', id: 'lek', set: 12 },
         { type: 'resource', id: 'lek', delta: -3 },
         { type: 'resource', id: 'hearts', delta: 9 },
-        { type: 'resource', id: 'peak', set: 0 },
-        { type: 'resource', id: 'peak', delta: 2 },
       ],
     },
     { maxHearts: 3 },
   )
   assert.equal(resourceSets.inventory.lek, 9)
   assert.equal(resourceSets.hearts, 3)
-  assert.equal(resourceSets.peak, 2)
+  assert.equal(optionEffectsAreValid({ effects: [{ type: 'resource', id: 'peak', delta: 1 }] }), false)
   assert.equal(optionEffectsAreValid({ effects: 'not-an-array' }), false)
   assert.equal(optionEffectsAreValid({ effects: [{ type: 'fixture', id: 'invented' }] }, () => false), false)
   assert.equal(canAfford(before, { effects: [{ type: 'resource', id: 'lek', set: 0 }] }), true)
@@ -985,21 +980,57 @@ check('night narration is reached at night', () => {
   assert.equal(phaseAtClock(projectedClockForOption(stateAt('udheNate', 5), revenant)), 'night')
 })
 
-check('the spring greeting follows the current phase', () => {
-  const greetingByPhase = (nodeId) => Object.fromEntries(
-    STORY[nodeId].text
-      .filter((entry) => entry?.cond && TIME_PHASES.includes(entry.cond))
-      .map((entry) => [entry.cond, entry.line.find((token) => ['mirmengjes', 'mirdita', 'mirembrema'].includes(token.id))?.id])
-      .filter(([, greeting]) => greeting),
-  )
-  assert.deepEqual(greetingByPhase('kroiGrate2'), { dawn: 'mirmengjes', day: 'mirdita', dusk: 'mirembrema' })
-  for (const nodeId of ['tregtari', 'sheruesi', 'udhetariHuaj']) {
-    assert.deepEqual(greetingByPhase(nodeId), {
-      dawn: 'mirmengjes',
-      day: 'mirdita',
-      dusk: 'mirembrema',
-      night: 'mirembrema',
-    }, `${nodeId}: greeting does not match the live clock`)
+check('social greetings follow the current civil period at every hour', () => {
+  const greetingIds = ['mirmengjes', 'mirdita', 'mirembrema']
+  const periods = ['morning', 'day', 'evening', 'night']
+  const greetingForPeriod = {
+    morning: 'mirmengjes',
+    day: 'mirdita',
+    evening: 'mirembrema',
+    night: 'mirembrema',
+  }
+  const alwaysOpenScenes = ['tregtari', 'bujtina', 'sheruesi', 'udhetariHuaj']
+
+  for (let clock = 0; clock < 24; clock++) {
+    const period = greetingPeriodAtClock(clock)
+    const civilHour = civilHourAtClock(clock)
+    const expectedGreeting = greetingForPeriod[period]
+
+    const activePeriods = periods.filter((candidate) =>
+      hasCond(stateAt('tregtari', clock), `greeting:${candidate}`),
+    )
+    assert.deepEqual(activePeriods, [period], `${civilHour}:00 exposes contradictory greeting periods`)
+
+    for (const nodeId of alwaysOpenScenes) {
+      const state = stateAt(nodeId, clock)
+      const spoken = STORY[nodeId].text
+        .filter((entry) => typeof entry?.cond === 'string' && entry.cond.startsWith('greeting:') && hasCond(state, entry.cond))
+        .map((entry) => entry.line.find((token) => greetingIds.includes(token.id))?.id)
+        .filter(Boolean)
+      assert.deepEqual(spoken, [expectedGreeting], `${nodeId} at ${civilHour}:00 speaks a contradictory greeting`)
+
+      const choices = STORY[nodeId].options.filter((option) =>
+        option.contextGreeting && hasRequiredItem(state, option),
+      )
+      assert.equal(choices.length, 4, `${nodeId} at ${civilHour}:00 does not expose four greeting choices`)
+      const correct = choices.filter((option) => !option.confuser)
+      assert.equal(correct.length, 1, `${nodeId} at ${civilHour}:00 does not expose exactly one right greeting`)
+      assert.equal(correct[0].contextGreeting.period, period, `${nodeId} at ${civilHour}:00 accepts the wrong civil period`)
+      assert.equal(correct[0].contextGreeting.response, expectedGreeting, `${nodeId} at ${civilHour}:00 accepts a contradictory greeting`)
+    }
+
+    // The spring conversation is deliberately unavailable at night, but every
+    // reachable civil period follows the same state contract as the all-day
+    // social scenes above.
+    if (period !== 'night') {
+      const state = stateAt('kroiGrate2', clock)
+      const correct = STORY.kroiGrate2.options.filter((option) =>
+        option.contextGreeting && !option.confuser && hasRequiredItem(state, option),
+      )
+      assert.equal(correct.length, 1, `kroiGrate2 at ${civilHour}:00 does not expose exactly one right greeting`)
+      assert.equal(correct[0].contextGreeting.period, period, `kroiGrate2 at ${civilHour}:00 accepts the wrong civil period`)
+      assert.equal(correct[0].contextGreeting.response, expectedGreeting, `kroiGrate2 at ${civilHour}:00 accepts a contradictory greeting`)
+    }
   }
 })
 

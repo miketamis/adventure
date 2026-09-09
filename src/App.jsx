@@ -9,7 +9,7 @@ import {
 } from './game/gameState.js'
 import { embodimentIdentity, embodimentQuest } from './game/embodiment.js'
 import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
-import { ACHIEVEMENTS } from './game/achievements.js'
+import { ACHIEVEMENT_IDS } from './game/achievementRules.js'
 import { STORY } from './game/content.js'
 import { attachReviewedEnglishReadings } from './game/language.js'
 import TimePassage from './components/TimePassage.jsx'
@@ -125,7 +125,6 @@ export default function App() {
       titleTimer.current = setTimeout(() => { titleClicks.current = 0 }, 1500)
     }
   }
-  const peakOn = state.peak > 0 || state.debug
   const muted = useSyncExternalStore(subscribeMute, isMuted)
   // Story sky follows the active tale's own hour. Maps, study tools and every
   // paused/free-roam scene stay on the monotonic living-world clock.
@@ -158,7 +157,7 @@ export default function App() {
     document.body.classList.add('time-' + phase)
   }, [phase])
   // the tab badge counts UNLOCKED achievements (gate passed), not the bad "fates"
-  const achievementsGot = ACHIEVEMENTS.filter((a) => state.earned?.[a.id]).length
+  const achievementsGot = ACHIEVEMENT_IDS.filter((id) => state.earned?.[id]).length
 
   // persist the whole state every change — reloading resumes exactly where you were
   useEffect(() => {
@@ -219,31 +218,23 @@ export default function App() {
             🎭 {activeQuest.stance === 'companion' ? 'with ' : 'as '}{activeIdentity}
           </button>
         )}
-        <span className={'stat tip-host' + (peakOn ? ' peak-on' : '')}>
-          👁 peak <b>{state.debug ? '∞' : state.peak}</b>
-          <span className="tooltip stat-tip">
-            <b>👁 Peak</b> — while active, hover a discovered Albanian word to reveal its
-            English. It lasts a number of turns; each path you take uses one. Drink a 🧪
-            potion to refresh it.
-          </span>
-        </span>
-        <span className="stat">turn <b>{state.turn}</b></span>
+        {state.debug && <span className="stat">turn <b>{state.turn}</b></span>}
         {activeQuest ? (
           <span className="stat" title="Your traveller's pack and purse return when this character tale ends">🎒 pack waiting</span>
-        ) : (
+        ) : state.debug ? (
           <span
-            className={'stat tip-host' + (state.debug ? ' clickable' : '')}
-            onClick={state.debug ? () => dispatch({ type: 'DEBUG_LEK' }) : undefined}
-            role={state.debug ? 'button' : undefined}
+            className="stat tip-host clickable"
+            onClick={() => dispatch({ type: 'DEBUG_LEK' })}
+            role="button"
           >
             🪙 <b>{state.inventory.lek || 0}</b>
             <span className="tooltip stat-tip">
               <b>🪙 Lek</b> — the money in your purse. Earn it with work: the mill, the flock,
               mountain tea, a song on the lahuta. Spend it at the market, the inn and the
-              healer.{state.debug ? ' Debug: click to add 20.' : ''}
+              healer. Debug: click to add 20.
             </span>
           </span>
-        )}
+        ) : null}
         {/* the hour is told IN the story (phase lines + sky tint), not by a chip;
             debug keeps the chip because clicking it is the time-skip tool */}
         {state.debug && (
@@ -301,7 +292,7 @@ export default function App() {
         {tab('practice', '🎯 Train')}
         {tab('dictionary', '📚 Dictionary')}
         {tab('map', '🗺 Map')}
-        {tab('endings', `🏆 Achievements (${achievementsGot}/${ACHIEVEMENTS.length})`)}
+        {tab('endings', `🏆 Achievements (${achievementsGot}/${ACHIEVEMENT_IDS.length})`)}
         {tab('guide', '❔ Guide')}
         {state.debug && tab('debug', '🛠 Debug')}
       </nav>

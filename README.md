@@ -28,10 +28,8 @@ npm run certify  # all strict declared-scope certification gates
   `i` → *the*) are real, learnable words; only punctuation isn't clickable.
 - **Discover**: click any word to discover that *sense*. Discovered words render
   in Albanian everywhere they appear (`ti` → `ti`). You can never undiscover.
-- **Hover hints**: hovering an *undiscovered* word shows its Albanian; with `peak`
-  active, hovering a *discovered* word shows its English (prefixed with 👁).
-- **Peak** (ability): you start with `peak` for 3 turns. Each path you take spends
-  one turn of peak. Drinking a 🧪 **potion** refreshes it (+3 turns).
+- **Hover hints**: hovering an *undiscovered* word shows its Albanian. Hovering
+  or clicking a discovered word replays its Albanian pronunciation.
 - **Train** (`🎯`): multiple-choice on your discovered words (Albanian→English or
   English→Albanian). Each correct answer mints a **training token** (◆, your mana)
   for that word.
@@ -41,8 +39,8 @@ npm run certify  # all strict declared-scope certification gates
   ("🔒 a hidden path…") until you've discovered *every word in the passage text*, then
   it reveals (✨) and can be pursued like any other path. It leads to a bonus ending.
 - **Inventory** (`🎒`): you start with nothing. Pick items up in the story (e.g.
-  *take the potion*). To **use** an item you must "say" its Albanian use-phrase —
-  e.g. `pi eliksir` (*drink potion*) — so every word must be discovered and you
+  *take the bread*). To **use** an item you must "say" its Albanian use-phrase —
+  e.g. `ha bukë` (*eat bread*) — so every word must be discovered and you
   spend one token per word, exactly like choosing a path.
 - **New run**: `⟳ new run` returns you to the opening with a fresh traveller
   (location, inventory, hearts, and word-discovery gates reset). Training tokens,
@@ -79,7 +77,7 @@ with deferred reviewed English under
   to drop an item into the bag, or `secret: true` to stay hidden until every word in
   the node's text is discovered. Endings set `end: 'good' | 'bad'`.
 - `ITEMS` — carriable items. Each has a `use.phrase` (the Albanian you must "say"
-  to use it) and a `use.effect` (e.g. `{ peakTurns: 3 }`).
+  to use it) and a `use.effect` (e.g. `{ hearts: 3 }`).
 - Token helpers: `w(id)` (dictionary word), `wf(id, al, en)` (an inflected surface
   of the same sense, e.g. `shtëpi` → `shtëpia`), `p(en)` (a non-learnable structural
   token — used only for punctuation).
@@ -95,7 +93,7 @@ stick.
 - `src/game/environment.js` — dates, seasons, weather and distant visibility
 - `src/game/embodiment.js` — named-role focus, public detours and action locks
 - `src/game/language.js` — reviewed whole-line and action readings
-- `src/components/Token.jsx` — one word (gloss / discovered / particle + peek)
+- `src/components/Token.jsx` — one word (gloss / discovered / particle + audio)
 - `src/components/StoryView.jsx` — passage + selectable paths
 - `src/components/PracticeView.jsx` — training questions
 - `src/components/WorldMapView.jsx` — shared player/debug map renderer

@@ -123,6 +123,7 @@ export const PLACE_META = {
     name: "dyqani — the trader's shop",
     happenings: [
       { title: 'haggle over the bigger numbers', nodes: ['tregtari2'] },
+      { title: 'browse everyday goods for the road', nodes: ['sendetDites'] },
       { title: 'the lahuta on the wall', nodes: ['blerjaLahuta'] },
       { title: 'plis and xhubleta', nodes: ['plisiFund', 'xhubletaFund'] },
     ],

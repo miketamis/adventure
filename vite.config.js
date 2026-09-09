@@ -8,15 +8,17 @@ const buildCommit = process.env.GITHUB_SHA || execFileSync(
   { encoding: 'utf8' },
 ).trim()
 
-// Keep large, stable authored datasets out of the release shell. They are still
-// fetched for the first playable scene, but independent chunks let browsers
-// parse/cache them separately and stop a one-line UI repair from invalidating
-// the whole anthology payload.
+// Keep large, stable authored datasets out of the release shell. Story and
+// dictionary data are fetched for first play; research/lore catalogs remain
+// on demand. Independent chunks let browsers cache either kind without a
+// one-line UI repair invalidating the whole anthology payload.
 const authoredChunk = (id) => {
   const path = id.replaceAll('\\', '/')
   if (path.includes('/node_modules/')) return 'react-vendor'
   if (path.endsWith('/src/game/content.js')) return 'story-graph'
-  if (path.endsWith('/src/game/nounForms.js')) return 'noun-forms'
+  if (path.endsWith('/src/game/dictionary.js') || path.endsWith('/src/game/nounForms.js')) {
+    return 'dictionary-catalog'
+  }
   if (path.endsWith('/src/game/folklore.js')) return 'folklore-catalog'
   if (path.endsWith('/src/game/quotes.js')) return 'quote-register'
   if (path.includes('/src/game/data/npcs/')) return 'npc-catalog'

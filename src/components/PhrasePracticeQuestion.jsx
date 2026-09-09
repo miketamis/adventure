@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { DICT } from '../game/content.js'
 import { playPhrase, playWord } from '../game/audio.js'
-import { phraseAnswerIsCorrect } from '../game/phrasePractice.js'
+import { phraseAnswerIsCorrect, phraseAnswerResult } from '../game/phrasePractice.js'
 
 const MODE_COPY = Object.freeze({
   arrange: 'Build the Albanian phrase',
@@ -14,7 +14,7 @@ const MODE_COPY = Object.freeze({
 function WordBank({ q, selectedIds, answered, onAdd, onRemove }) {
   const selected = selectedIds.map((id) => q.bank.find((tile) => tile.id === id)).filter(Boolean)
   const available = q.bank.filter((tile) => !selectedIds.includes(tile.id))
-  const needed = q.mode === 'cloze' ? 1 : q.answerWords.length
+  const needed = q.answerWords.length
 
   return (
     <>
@@ -31,9 +31,7 @@ function WordBank({ q, selectedIds, answered, onAdd, onRemove }) {
             {tile.text}
           </button>
         )) : (
-          <span className="phrase-tray-hint">
-            {q.mode === 'cloze' ? 'Choose the missing word' : 'Choose words in order'}
-          </span>
+          <span className="phrase-tray-hint">Choose words in order</span>
         )}
       </div>
 
@@ -83,23 +81,36 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
     [q.bank, selectedIds],
   )
 
-  const commit = (correct, phraseIds, correction = null) => {
+  const commit = (correct, phraseIds, correction = null, acceptedWithLeeway = false) => {
     if (committed.current) return
     committed.current = true
-    setOutcome({ correct, correction })
-    onComplete({ correct, phraseIds, rewardIds: q.rewardIds })
+    setOutcome({ correct, correction, acceptedWithLeeway })
+    onComplete({
+      correct,
+      phraseIds,
+      rewardIds: q.rewardIds,
+      skill: q.skill,
+      tier: q.tier,
+    })
   }
 
   const checkConstruction = () => {
     const answer = selectedTiles.map((tile) => tile.text).join(' ')
-    const target = q.mode === 'cloze' ? q.correctWord : q.target.al
-    commit(phraseAnswerIsCorrect(answer, target), q.phraseIds, q.target.al)
+    commit(phraseAnswerIsCorrect(answer, q.target.al), q.phraseIds, q.target.al)
+  }
+
+  const chooseCloze = (tile) => {
+    if (answered || committed.current) return
+    playWord(tile.text)
+    setSelectedIds([tile.id])
+    commit(tile.answerIndex != null, q.phraseIds, q.target.al)
   }
 
   const checkTyping = (event) => {
     event.preventDefault()
     if (!typed.trim()) return
-    commit(phraseAnswerIsCorrect(typed, q.target.al), q.phraseIds, q.target.al)
+    const result = phraseAnswerResult(typed, q.typingAnswer, q.answerTolerance)
+    commit(result.correct, q.phraseIds, q.typingAnswer, result.usedLeeway)
   }
 
   const insertLetter = (letter) => {
@@ -118,36 +129,43 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
     if (!matchLeft || answered || matched.includes(rightId)) return
     if (matchLeft !== rightId) {
       const phrase = q.phrases.find((entry) => entry.id === matchLeft)
-      commit(false, [matchLeft], phrase ? `${phrase.al} — ${phrase.en}` : null)
+      commit(false, q.phraseIds, phrase ? `${phrase.al} — ${phrase.en}` : null)
       return
     }
     const nextMatched = [...matched, rightId]
     setMatched(nextMatched)
     setMatchLeft(null)
     if (nextMatched.length === q.phrases.length) {
-      commit(true, q.phrases.map((entry) => entry.id))
+      commit(true, q.phraseIds)
     }
   }
 
-  const constructionReady = selectedTiles.length === (q.mode === 'cloze' ? 1 : q.answerWords.length)
-  const correction = outcome?.correction || q.target.al
+  const constructionReady = selectedTiles.length === q.answerWords.length
+  const correction = outcome?.correction || q.typingAnswer || q.target.al
+  const promptCopy = q.mode === 'type' && q.typeScope === 'word'
+    ? 'Write this word in Albanian'
+    : MODE_COPY[q.mode]
 
   return (
     <div className={`phrase-exercise phrase-mode-${q.mode}`}>
       <div className="prompt">
-        {MODE_COPY[q.mode]} <span className="phrase-label">everyday phrase</span>
+        {promptCopy}{' '}
+        <span className="phrase-label">everyday phrase · {q.difficultyLabel}</span>
       </div>
 
       {q.mode === 'listen' ? (
-        <button
-          type="button"
-          className="phrase-listen"
-          disabled={answered}
-          onClick={() => playPhrase(q.target.al)}
-          aria-label="Play the Albanian phrase"
-        >
-          <span aria-hidden="true">🔊</span> Play phrase
-        </button>
+        <>
+          <button
+            type="button"
+            className="phrase-listen"
+            disabled={answered}
+            onClick={() => playPhrase(q.target.al)}
+            aria-label="Play the Albanian phrase"
+          >
+            <span aria-hidden="true">🔊</span> Play phrase
+          </button>
+          {q.showEnglishCue && <div className="phrase-cue">{q.target.en}</div>}
+        </>
       ) : q.mode === 'cloze' ? (
         <>
           <div className="phrase-cue">{q.target.en}</div>
@@ -162,7 +180,18 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
       ) : q.mode === 'match' ? (
         <p className="phrase-match-instruction">Choose an Albanian line, then its English meaning.</p>
       ) : (
-        <div className="phrase-cue">{q.target.en}</div>
+        <>
+          <div className="phrase-cue">{q.typeScope === 'word' ? q.typingCue : q.target.en}</div>
+          {q.typeScope === 'word' && (
+            <div className="phrase-cloze" lang="sq">
+              {q.answerWords.map((word, index) => (
+                index === q.blankIndex
+                  ? <span className="phrase-blank" key={index}>_____</span>
+                  : <span key={index}>{word}</span>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {q.mode === 'match' ? (
@@ -220,9 +249,28 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
             <button type="button" disabled={answered} onClick={() => insertLetter('ç')}>ç</button>
           </div>
           <button className="btn primary phrase-check" type="submit" disabled={answered || !typed.trim()}>
-            Check phrase
+            {q.typeScope === 'word' ? 'Check word' : 'Check phrase'}
           </button>
         </form>
+      ) : q.mode === 'cloze' ? (
+        <div className="answers phrase-cloze-answers" role="group" aria-label="Choose the missing Albanian word" lang="sq">
+          {q.bank.map((tile) => {
+            let className = 'answer'
+            if (answered && tile.answerIndex != null) className += ' correct'
+            else if (answered && selectedIds.includes(tile.id)) className += ' wrong'
+            return (
+              <button
+                type="button"
+                className={className}
+                key={tile.id}
+                disabled={answered}
+                onClick={() => chooseCloze(tile)}
+              >
+                {tile.text}
+              </button>
+            )
+          })}
+        </div>
       ) : (
         <>
           <WordBank
@@ -230,7 +278,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
             selectedIds={selectedIds}
             answered={answered}
             onAdd={(id) => setSelectedIds((current) => {
-              const needed = q.mode === 'cloze' ? 1 : q.answerWords.length
+              const needed = q.answerWords.length
               return current.length >= needed || current.includes(id) ? current : [...current, id]
             })}
             onRemove={(id) => setSelectedIds((current) => current.filter((selected) => selected !== id))}
@@ -260,7 +308,14 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
       >
         {answered && (outcome.correct ? (
           <>
-            <div>Të lumtë! {q.mode === 'match' ? `${q.phrases.length} phrases matched.` : `“${q.target.al}”`}</div>
+            <div>
+              Të lumtë!{' '}
+              {outcome.acceptedWithLeeway
+                ? `Accepted at this level — compare the spelling: “${q.typingAnswer}”`
+                : q.mode === 'match'
+                  ? `${q.phrases.length} phrases matched.`
+                  : `“${q.typeScope === 'word' ? q.typingAnswer : q.target.al}”`}
+            </div>
             <RewardChips ids={q.rewardIds} />
           </>
         ) : (

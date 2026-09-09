@@ -23,6 +23,27 @@ export const internalHourForCivilHour = (civilHour) => isCivilHour(civilHour)
   ? positiveModulo(civilHour - CIVIL_DAWN_HOUR, CIVIL_HOURS_PER_DAY)
   : null
 
+// Civil-language periods are intentionally finer than the simulation's four
+// broad light phases. A 10:00 scene may be mechanically `day`, but people
+// still call it morning and greet one another with mirëmëngjes. Keeping the
+// shared civil-hour boundary here prevents prose and social choices from
+// teaching contradictory answers.
+export function civilDayPartAtClock(clock = 0) {
+  const hour = civilHourAtClock(clock)
+  if (hour >= 6 && hour < 12) return 'morning'
+  if (hour === 12) return 'noon'
+  if (hour >= 13 && hour < 18) return 'afternoon'
+  if (hour >= 18 && hour < 22) return 'evening'
+  return 'night'
+}
+
+export function greetingPeriodAtClock(clock = 0) {
+  const part = civilDayPartAtClock(clock)
+  if (part === 'morning') return 'morning'
+  if (part === 'noon' || part === 'afternoon') return 'day'
+  return part
+}
+
 export function phaseAtClock(clock = 0) {
   const hour = internalHourAtClock(clock)
   return hour < 3 ? 'dawn' : hour < 12 ? 'day' : hour < 15 ? 'dusk' : 'night'

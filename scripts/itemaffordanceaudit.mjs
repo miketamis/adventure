@@ -59,11 +59,11 @@ for (const [id, item] of itemEntries) {
   assert.ok(Array.isArray(effects), `${id}: use effects lookup must return an array`)
   for (const effect of effects) {
     assert.equal(effect.type, 'resource', `${id}: unsupported typed item-use effect`)
-    assert.ok(['hearts', 'lek', 'peak'].includes(effect.id), `${id}: invalid resource effect id ${effect.id}`)
+    assert.ok(['hearts', 'lek'].includes(effect.id), `${id}: invalid resource effect id ${effect.id}`)
     assert.ok(Number.isFinite(effect.delta) && effect.delta !== 0, `${id}: invalid resource effect delta`)
   }
   for (const [legacyId, delta] of Object.entries(item.use?.effect || {})) {
-    const id = legacyId === 'peakTurns' ? 'peak' : legacyId
+    const id = legacyId
     assert.ok(
       effects.some((effect) => effect.type === 'resource' && effect.id === id && effect.delta === delta),
       `${item.id}: legacy ${legacyId} effect is absent from typed lookup`,

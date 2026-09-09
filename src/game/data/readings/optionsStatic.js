@@ -46,7 +46,6 @@ export const OPTION_READINGS_STATIC = Object.freeze({
   "sofraMikut2.options[2]": { al: "dëgjo bukën", en: "Listen to the bread.", review: 'internal-editorial' },
   "sofraMikut2.options[3]": { al: "pyet kripën", en: "Ask the salt.", review: 'internal-editorial' },
   "sofraMikut2.options[4]": { al: "ha pusin", en: "Eat the well.", review: 'internal-editorial' },
-  "ITEMS.potion.use.phrase": { al: "pi eliksir", en: "Drink the potion.", review: 'internal-editorial' }, // static-1
   "ITEMS.buke.use.phrase": { al: "ha bukë", en: "Eat bread.", review: 'internal-editorial' }, // static-2
   "HEART_LEVELS.1.heal.phrase": { al: "lidh plagën", en: "Bind the wound.", review: 'internal-editorial' }, // static-3
   "HEART_LEVELS.2.heal.phrase": { al: "merr frymë thellë", en: "Take a deep breath.", review: 'internal-editorial' }, // static-4

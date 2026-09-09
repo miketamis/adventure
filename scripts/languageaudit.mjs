@@ -57,6 +57,9 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     options.push({ address: `${nodeId}.options[${index}]`, option })
 }
 const optionCount = options.length
+const reviewedStoryOptions = options.filter(({ option }) => !option.contextGreeting && !option.contextItemAction)
+const contextualGreetingOptions = options.filter(({ option }) => option.contextGreeting)
+const contextualItemOptions = options.filter(({ option }) => option.contextItemAction)
 
 const failures = []
 const fail = (message) => failures.push(message)
@@ -138,13 +141,44 @@ for (const [albanian, allowed] of CONTEXT_SENSITIVE_OPTION_READINGS) {
   )
 }
 
-for (const { address, option } of options) {
+for (const { address, option } of reviewedStoryOptions) {
   const review = REVIEWED_OPTION_READINGS[address]
   assert(Boolean(review), `${address}: missing static option review`)
   assert(option.text?.optionReadingAddress === address, `${address}: reviewed action was not attached`)
   assert(option.text?.optionReadingAlbanian === review?.al, `${address}: attached Albanian pin differs from registry`)
   assert(option.text?.optionReading === review?.en, `${address}: attached English differs from registry`)
   assert(albanianTextOf(option.text) === review?.al, `${address}: live Albanian differs from registry`)
+}
+
+const CONTEXT_GREETING_READING = new Map([
+  ['mirëmëngjes!', 'Good morning!'],
+  ['mirëdita!', 'Good day!'],
+  ['mirëmbrëma!', 'Good evening!'],
+  ['natën e mirë!', 'Good night!'],
+])
+for (const { address, option } of contextualGreetingOptions) {
+  const albanian = albanianTextOf(option.text)
+  const expected = CONTEXT_GREETING_READING.get(albanian)
+  assert(Boolean(expected), `${address}: generated contextual greeting is not canonical: ${albanian}`)
+  assert(option.text.optionReading === expected, `${address}: contextual greeting English drifted`)
+  assert(option.text.optionReadingAlbanian === albanian, `${address}: contextual greeting Albanian pin drifted`)
+  assert(option.text.optionReadingReview === 'generated-context', `${address}: contextual greeting lacks generated review provenance`)
+  assert(!REVIEWED_OPTION_READINGS[address], `${address}: generated greeting shadows a static address review`)
+}
+
+const contextualItemActionIds = new Set()
+for (const { address, option } of contextualItemOptions) {
+  const albanian = albanianTextOf(option.text)
+  const id = option.contextItemAction?.id
+  assert(Boolean(id), `${address}: generated item action has no stable id`)
+  assert(!contextualItemActionIds.has(id), `${address}: duplicate generated item action id ${id}`)
+  contextualItemActionIds.add(id)
+  assert(Boolean(String(option.text.optionReading || '').trim()), `${address}: generated item action has no English reading`)
+  assert(option.text.optionReadingAlbanian === albanian, `${address}: generated item action Albanian pin drifted`)
+  assert(option.text.optionReadingReview === 'generated-world-item', `${address}: generated item action lacks generated review provenance`)
+  assert(!REVIEWED_OPTION_READINGS[address], `${address}: generated item action shadows a static address review`)
+  for (const issue of englishReadingIssues(option.text.optionReading || ''))
+    fail(`${address}: generated item action English has ${issue}: ${option.text.optionReading}`)
 }
 
 const STATIC_ACTIONS = [
@@ -333,7 +367,7 @@ const reviewedAligned = reviewed.filter(({ line }) => englishReadingOf(line) ===
 console.log(`World language surface: ${Object.keys(STORY).length} nodes, ${lines.length} story lines, ${optionCount} options.`)
 console.log(`Reviewed whole-line English: ${reviewed.length} (${authored.length} authored; ${exactQuotes.length} exact source-quote translations).`)
 console.log(`Deferred reviewed-reading registry: ${Object.keys(REVIEWED_READINGS).length} address-and-source-pinned entries.`)
-console.log(`Reviewed action English: ${REVIEWED_OPTION_READINGS.size || Object.keys(REVIEWED_OPTION_READINGS).length}/${REVIEWED_OPTION_COUNT} static actions (${optionCount} story options + ${STATIC_ACTIONS.length} item/heal actions).`)
+console.log(`Reviewed action English: ${REVIEWED_OPTION_READINGS.size || Object.keys(REVIEWED_OPTION_READINGS).length}/${REVIEWED_OPTION_COUNT} static actions (${reviewedStoryOptions.length} story options + ${STATIC_ACTIONS.length} item/heal actions); ${contextualGreetingOptions.length} generated contextual greeting actions; ${contextualItemOptions.length} generated everyday-item actions.`)
 console.log(`Option review seal: ${optionReviewHash}; dynamic item distractor patterns checked: ${dynamicConfuserReadings.length}.`)
 console.log(`Literal alignment happens to equal ${reviewedAligned} reviewed readings; equality is allowed only because review metadata exists.`)
 console.log(`Editorial fallback backlog: ${fallbacks.length} lines (${blockedFallbacks.length} with known blocker signatures).`)

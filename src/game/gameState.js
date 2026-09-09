@@ -8,8 +8,14 @@ import {
   itemHasAffordance,
   itemHasTag,
 } from './content.js'
-import { ACHIEVEMENT_BY_ID, newlyEligibleAreas, offerableTest } from './achievements.js'
+import {
+  ACHIEVEMENT_RULE_BY_ID as ACHIEVEMENT_BY_ID,
+  newlyEligibleAreas,
+  offerableTest,
+} from './achievementRules.js'
 import { NPCS } from './npcs.js'
+import { EVERYDAY_PHRASE_DRILLS } from './everydayAlbanian.js'
+import { PHRASE_SKILL_MAX_TIER } from './phraseProgression.js'
 import { transitionInfo } from './worldModel.js'
 import { NODE_REGION } from './regions.js'
 import {
@@ -33,6 +39,7 @@ import {
   civilHourAtClock,
   festivalIdsAtClock,
   festivalLabel,
+  greetingPeriodAtClock,
   hydrologyFromFacts,
   isCivilHour,
   phaseAtCivilHour,
@@ -86,7 +93,6 @@ export {
   optionLekDelta,
 } from './stateMechanics.js'
 
-export const PEAK_START_TURNS = 3
 export const START_HEARTS = 3
 export const WORLD_EFFECTS_BY_ENDING = Object.freeze(
   Object.fromEntries(
@@ -216,7 +222,8 @@ export const environmentSnapshot = (state) => {
 
 export const isEnvironmentId = (id) =>
   typeof id === 'string' &&
-  (id.startsWith('season:') ||
+  (id.startsWith('greeting:') ||
+    id.startsWith('season:') ||
     id.startsWith('weather:') ||
     id.startsWith('festival:') ||
     id.startsWith('weekday:') ||
@@ -225,6 +232,7 @@ export const isEnvironmentId = (id) =>
 function hasEnvironmentCond(state, id) {
   const [kind, value] = id.split(':')
   if (!value) return false
+  if (kind === 'greeting') return greetingPeriodAtClock(storyClockOf(state)) === value
   if (kind === 'season') return seasonOf(state) === value
   if (kind === 'weather') return weatherOf(state) === value
   if (kind === 'festival') return festivalIdsAtClock(storyClockOf(state)).includes(value)
@@ -557,6 +565,7 @@ const hasOwn = (record, id) => Object.prototype.hasOwnProperty.call(record || {}
 const safeMapKey = (id) => typeof id === 'string' && id.length > 0 && id.trim() === id &&
   !['__proto__', 'prototype', 'constructor'].includes(id)
 const VIEWS = new Set(['story', 'practice', 'dictionary', 'map', 'endings', 'guide', 'debug'])
+const EVERYDAY_PHRASE_BY_ID = new Map(EVERYDAY_PHRASE_DRILLS.map((phrase) => [phrase.id, phrase]))
 const PUBLIC_FREE_ROAM_NODE_SET = new Set(PUBLIC_FREE_ROAM_NODES)
 const truthRecord = (...values) => {
   const next = {}
@@ -580,6 +589,11 @@ const countRecord = (value) => {
   }
   return next
 }
+const phraseMasteryRecord = (value, maxTier) => Object.fromEntries(
+  Object.entries(countRecord(value))
+    .filter(([id]) => EVERYDAY_PHRASE_BY_ID.has(id))
+    .map(([id, tier]) => [id, Math.min(maxTier, tier)]),
+)
 const subtractCountRecords = (value, suspended) => {
   const next = {}
   const current = countRecord(value)
@@ -751,6 +765,18 @@ export function normalizeSavedState(saved, fresh) {
   next.phraseMistakes = countRecord(
     isRecord(saved.phraseMistakes) ? saved.phraseMistakes : fresh.phraseMistakes,
   )
+  next.phraseMastery = phraseMasteryRecord(
+    isRecord(saved.phraseMastery) ? saved.phraseMastery : next.phrasePracticed,
+    PHRASE_SKILL_MAX_TIER.production,
+  )
+  next.phraseListeningMastery = phraseMasteryRecord(
+    saved.phraseListeningMastery,
+    PHRASE_SKILL_MAX_TIER.listening,
+  )
+  next.phraseMatchingMastery = phraseMasteryRecord(
+    saved.phraseMatchingMastery,
+    PHRASE_SKILL_MAX_TIER.matching,
+  )
   // Early typed-flag builds represented Shpirag's role branch as an invisible
   // carried object. Canonicalize it once on load so identity, gates and the
   // inventory UI cannot disagree. `hasCond(flag:...)` retains its generic
@@ -781,7 +807,9 @@ export function normalizeSavedState(saved, fresh) {
     next.clock,
   )
   next.turn = Math.max(1, Math.floor(finiteOr(saved.turn, fresh.turn)))
-  next.peak = Math.max(0, Math.floor(finiteOr(saved.peak, fresh.peak)))
+  // Peak was an early hover-translation resource. Drop it explicitly so old
+  // saves cannot keep an obsolete mechanic alive through the top-level spread.
+  delete next.peak
   next.hearts = Math.max(0, Math.min(START_HEARTS, Math.floor(finiteOr(saved.hearts, fresh.hearts))))
   next.fixtures = {}
   const savedFixtures = isRecord(saved.fixtures) ? saved.fixtures : {}
@@ -964,7 +992,6 @@ function baseRun() {
     flags: {}, // authored story state; never rendered as something carried
     knowledge: {}, // learned facts with provenance; survives later runs
     interactions: {}, // explicitly identified option uses, partitioned by scope
-    peak: PEAK_START_TURNS, // story turns of "peak" remaining (hover -> English)
     hearts: START_HEARTS, // wrong training answers cost a heart; 0 = game over
     healedAt: {}, // heart level -> true once that level's once-per-run self-heal is spent (see HEART_LEVELS)
     turn: 1,
@@ -1002,6 +1029,9 @@ export function newRun() {
     practiced: {},
     phrasePracticed: {},
     phraseMistakes: {},
+    phraseMastery: {},
+    phraseListeningMastery: {},
+    phraseMatchingMastery: {},
     visited: {},
     ...loadAchievements(),
     debug: false,
@@ -1034,6 +1064,7 @@ const isArrivalSensitiveId = (id) =>
   isTimeId(id) ||
   (typeof id === 'string' &&
     (id.startsWith('season:') ||
+      id.startsWith('greeting:') ||
       id.startsWith('weather:') ||
       id.startsWith('festival:') ||
       id.startsWith('weekday:')))
@@ -1358,10 +1389,8 @@ export function reducer(state, action) {
       // A tale-owned lamp therefore waits with that tale during a detour, while
       // an overworld campfire keeps ageing with the living world.
       const fixtureClock = roleAccess.kind === 'quest' ? choiceToClock : clock
-      // Normal turn decay happens before authored peak effects, so a reward of
-      // +3 peak always leaves three fresh turns after paying for this choice.
       const effectState = applyOptionEffects(
-        { ...state, peak: Math.max(0, state.peak - 1) },
+        state,
         option,
         {
           atClock: clock,
@@ -1377,7 +1406,6 @@ export function reducer(state, action) {
       const knowledge = effectState.knowledge
       const fixtures = effectState.fixtures
       const heartsAfterEffects = effectState.hearts
-      const peak = effectState.peak
       const interactions = recordInteractionUse(state.interactions, interactionUse, choiceToClock)
       // entering a node with `startsNpc` sets a one-shot NPC walking (once per
       // run — a procession that already passed does not pass again)
@@ -1453,7 +1481,6 @@ export function reducer(state, action) {
         // DISTINCT and capped at TRAIL_LEN). Drop the destination if it's already in
         // there so a place is never in its own backtrack set. See BACKTRACK below.
         trail: [state.nodeId, ...(state.trail || [])].filter((n, i, a) => a.indexOf(n) === i && n !== option.to).slice(0, TRAIL_LEN),
-        peak,
         turn: state.turn + 1,
         clock,
         timePassage,
@@ -1562,6 +1589,15 @@ export function reducer(state, action) {
       if (action.correct !== true && action.correct !== false) return state
       if (!Array.isArray(action.phraseIds) || action.phraseIds.length === 0) return state
       if (!Array.isArray(action.rewardIds) || action.rewardIds.length === 0) return state
+      const masteryField = action.skill === 'production'
+        ? 'phraseMastery'
+        : action.skill === 'listening'
+          ? 'phraseListeningMastery'
+          : action.skill === 'matching'
+            ? 'phraseMatchingMastery'
+            : null
+      const maxTier = masteryField ? PHRASE_SKILL_MAX_TIER[action.skill] : null
+      if (!masteryField || !Number.isSafeInteger(action.tier) || action.tier < 0 || action.tier > maxTier) return state
       const phraseIds = [...new Set(action.phraseIds)]
       const rewardIds = [...new Set(action.rewardIds)]
       // Phrase construction is a lazy practice surface, so it supplies the
@@ -1570,6 +1606,22 @@ export function reducer(state, action) {
       // unlock that phrase before changing durable progress.
       if (phraseIds.some((id) => typeof id !== 'string' || !safeMapKey(id))) return state
       if (rewardIds.some((id) => typeof id !== 'string' || !safeMapKey(id) || !state.discovered[id])) return state
+      const phrases = phraseIds.map((id) => EVERYDAY_PHRASE_BY_ID.get(id))
+      if (phrases.some((phrase) => !phrase)) return state
+      if (phrases.some((phrase) => phrase.requires.some((id) => !state.discovered[id]))) return state
+      const currentTiers = phraseIds.map((id) => Math.min(
+        maxTier,
+        Math.max(0, Math.floor(state[masteryField]?.[id] || 0)),
+      ))
+      if (currentTiers.some((tier) => tier !== action.tier)) return state
+      const canonicalRewards = new Set(phrases.flatMap((phrase) => phrase.requires))
+      const singleWordTier = action.skill === 'production' && (action.tier === 0 || action.tier === 2)
+      if (singleWordTier) {
+        if (rewardIds.length !== 1 || !canonicalRewards.has(rewardIds[0])) return state
+      } else if (
+        rewardIds.length !== canonicalRewards.size ||
+        rewardIds.some((id) => !canonicalRewards.has(id))
+      ) return state
       if (!action.correct) {
         const phraseMistakes = { ...(state.phraseMistakes || {}) }
         for (const id of phraseIds) phraseMistakes[id] = (phraseMistakes[id] || 0) + 1
@@ -1582,13 +1634,17 @@ export function reducer(state, action) {
 
       const phrasePracticed = { ...(state.phrasePracticed || {}) }
       for (const id of phraseIds) phrasePracticed[id] = (phrasePracticed[id] || 0) + 1
+      const skillMastery = { ...(state[masteryField] || {}) }
+      for (const [index, id] of phraseIds.entries()) {
+        skillMastery[id] = Math.min(maxTier, currentTiers[index] + 1)
+      }
       const mana = { ...state.mana }
       const practiced = { ...state.practiced }
       for (const id of rewardIds) {
         mana[id] = (mana[id] || 0) + 1
         practiced[id] = (practiced[id] || 0) + 1
       }
-      return { ...state, mana, practiced, phrasePracticed }
+      return { ...state, mana, practiced, phrasePracticed, [masteryField]: skillMastery }
     }
 
     case 'CONFUSE':
@@ -1713,6 +1769,9 @@ export function reducer(state, action) {
         practiced: state.practiced,
         phrasePracticed: state.phrasePracticed || {},
         phraseMistakes: state.phraseMistakes || {},
+        phraseMastery: state.phraseMastery || {},
+        phraseListeningMastery: state.phraseListeningMastery || {},
+        phraseMatchingMastery: state.phraseMatchingMastery || {},
         visited: state.visited,
         heard: state.heard || {},
         discovered: state.discovered,
@@ -1783,6 +1842,9 @@ export function reducer(state, action) {
         practiced: state.practiced,
         phrasePracticed: state.phrasePracticed || {},
         phraseMistakes: state.phraseMistakes || {},
+        phraseMastery: state.phraseMastery || {},
+        phraseListeningMastery: state.phraseListeningMastery || {},
+        phraseMatchingMastery: state.phraseMatchingMastery || {},
         visited: state.visited,
         heard: state.heard || {},
         earned: state.earned,

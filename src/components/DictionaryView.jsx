@@ -46,7 +46,6 @@ export default function DictionaryView({ state, dispatch }) {
                     key={j}
                     token={tok}
                     discovered={state.discovered}
-                    peak={state.debug ? 999 : state.peak}
                     onDiscover={(sid) => dispatch({ type: 'DISCOVER', id: sid })}
                   />
                 ))

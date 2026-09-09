@@ -5,25 +5,22 @@ import { playWord } from '../game/audio.js'
 // Renders one token.
 //  - particle:          "(of)"  -> dim, not interactive
 //  - undiscovered word: English gloss, dashed, click to discover.
-//                       Hovering shows the Albanian (always, no peak needed).
-//  - discovered word:   Albanian surface. If peak is active, hovering shows the
-//                       English, prefixed with the 👁 peak icon.
+//                       Hovering shows the Albanian before discovery.
+//  - discovered word:   Albanian surface; hover/click replays its pronunciation.
 // `tokenCount` (a number) shows a little token-tally circle under a discovered
 // word — used in the answer/option rows so you can see your tokens in context.
-export default function Token({ token, discovered, peak, onDiscover, tokenCount }) {
+export default function Token({ token, discovered, onDiscover, tokenCount }) {
   const [showHint, setShowHint] = useState(false)
   const tooltipId = useId()
   const controlLabelId = `${tooltipId}-control`
   const pointerPlayedAudio = useRef(false)
 
-  const enterWithPointer = () => {
-    setShowHint(true)
+  const playWithPointer = () => {
     pointerPlayedAudio.current = true
     playWord(token.al)
   }
 
-  const leaveWithPointer = () => {
-    setShowHint(false)
+  const resetPointerAudio = () => {
     pointerPlayedAudio.current = false
   }
 
@@ -49,8 +46,14 @@ export default function Token({ token, discovered, peak, onDiscover, tokenCount 
         className="token gloss"
         aria-labelledby={controlLabelId}
         onClick={activate(() => onDiscover(token.id))}
-        onMouseEnter={enterWithPointer}
-        onMouseLeave={leaveWithPointer}
+        onMouseEnter={() => {
+          setShowHint(true)
+          playWithPointer()
+        }}
+        onMouseLeave={() => {
+          setShowHint(false)
+          resetPointerAudio()
+        }}
         onFocus={() => setShowHint(true)}
         onBlur={() => setShowHint(false)}
       >
@@ -67,23 +70,19 @@ export default function Token({ token, discovered, peak, onDiscover, tokenCount 
     )
   }
 
-  const peekable = peak > 0
   const showCount = tokenCount != null
   const [stem, ending] = splitStem(token.id, token.al)
   return (
     <button
       type="button"
-      className={'token known' + (peekable ? ' peekable' : '') + (showCount ? ' has-count' : '')}
+      className={'token known' + (showCount ? ' has-count' : '')}
       aria-labelledby={controlLabelId}
-      onClick={activate(() => setShowHint((shown) => peekable && !shown))}
-      onMouseEnter={enterWithPointer}
-      onMouseLeave={leaveWithPointer}
-      onFocus={() => setShowHint(true)}
-      onBlur={() => setShowHint(false)}
+      onClick={activate()}
+      onMouseEnter={playWithPointer}
+      onMouseLeave={resetPointerAudio}
     >
       <span id={controlLabelId} className="sr-only">
         <span lang="sq">{token.al}</span>. Play pronunciation.
-        {peekable && <> English: {token.en}.</>}
         {showCount && <> {tokenCount} training token{tokenCount === 1 ? '' : 's'}.</>}
       </span>
       <span className="known-word" lang="sq" aria-hidden="true">
@@ -97,11 +96,6 @@ export default function Token({ token, discovered, peak, onDiscover, tokenCount 
           aria-hidden="true"
         >
           {tokenCount}
-        </span>
-      )}
-      {peekable && showHint && (
-        <span id={tooltipId} role="tooltip" className="tooltip" aria-hidden="true">
-          <span aria-hidden="true">👁 </span>{token.en}
         </span>
       )}
     </button>

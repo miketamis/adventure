@@ -31,7 +31,8 @@ import { ACHIEVEMENT_BY_ID } from '../game/achievements.js'
 import ComprehensionTest from './ComprehensionTest.jsx'
 import WorldContext from './WorldContext.jsx'
 import EmbodimentFocus from './EmbodimentFocus.jsx'
-import { isDistantLineVisible, transitionInfo } from '../game/worldModel.js'
+import { isDistantLineVisible, isEnclosedScene, transitionInfo } from '../game/worldModel.js'
+import { environmentStoryLine, purseStoryLine } from '../game/storyContext.js'
 import { festivalLabel } from '../game/environment.js'
 import { embodimentOptionAccess, embodimentQuest } from '../game/embodiment.js'
 import { resolveRevealLine } from '../game/revealResolver.js'
@@ -48,6 +49,7 @@ import {
   formatRouteDuration,
   interactionLockText,
   sceneAnnouncement,
+  storyReadingVisible,
 } from './storyMechanicsPresentation.js'
 
 const FactoidLore = lazy(() => import('./FactoidLore.jsx'))
@@ -70,8 +72,6 @@ export default function StoryView({ state, dispatch }) {
   const environment = environmentSnapshot(storyState)
   const sceneHeadingRef = useRef(null)
   const previousNodeRef = useRef(state.nodeId)
-  // in debug mode peak never runs out, so hovering always reveals the English
-  const peak = state.debug ? 999 : state.peak
   // which confuser option was just picked (to flash feedback); reset per node
   const [confusedKey, setConfusedKey] = useState(null)
   // how THIS visit's ending gate went: null (in progress / not applicable),
@@ -200,12 +200,16 @@ export default function StoryView({ state, dispatch }) {
   // story just like any other held object; only direct reusable item actions
   // remain disabled until the traveller returns to their own life.
   const visibleOwnedIds = ownedIds
-  // Currency (lek) is a COUNT shown in the topbar purse, not a thing in the
-  // "ti ke një X" carry-line. Authored story flags live in state.flags, never
-  // in this physical inventory or its player-facing carry sentence.
+  // Currency has its own dynamic "ti ke 5 lek" story sentence below, so it is
+  // not mistaken for a singular object in the "ti ke një X" carry-line.
+  // Authored story flags live in state.flags, never in this physical inventory.
   const itemIds = visibleOwnedIds.filter((id) => ITEMS[id] && !ITEMS[id].companion && !ITEMS[id].currency)
   const companionIds = visibleOwnedIds.filter((id) => ITEMS[id]?.companion)
   const usableOwned = state.embodying ? [] : visibleOwnedIds.filter((id) => ITEMS[id]?.use)
+  const environmentLine = environmentStoryLine(environment, {
+    enclosed: isEnclosedScene(state.nodeId),
+  })
+  const purseLine = purseStoryLine(state.inventory.lek)
 
   // "ti ke një X dhe një Y ." — what you carry, as a real (discoverable) story line
   const carryLine = () => {
@@ -269,7 +273,7 @@ export default function StoryView({ state, dispatch }) {
       key: 'opt-' + i,
       tokens: opt.text,
       reading: optionEnglishReadingOf(opt.text),
-      readingReviewed: opt.text.optionReadingReview === 'internal-editorial',
+      readingReviewed: ['internal-editorial', 'generated-world-item'].includes(opt.text.optionReadingReview),
       real: true,
       allDiscovered,
       enoughMana,
@@ -335,12 +339,16 @@ export default function StoryView({ state, dispatch }) {
   if (!state.embodying) {
     node.options.forEach((opt, i) => {
       if (!opt.confuser) return
+      // Contextual confusers can belong to an hour, season, weather or other
+      // ordinary story condition. A dawn "good night" must disappear when the
+      // clock reaches day just as its correct counterpart does.
+      if (!hasRequiredItem(storyState, opt)) return
       const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
       entries.push({
         key: 'opt-' + i,
         tokens: opt.text,
         reading: optionEnglishReadingOf(opt.text),
-        readingReviewed: opt.text.optionReadingReview === 'internal-editorial',
+        readingReviewed: ['internal-editorial', 'generated-world-item'].includes(opt.text.optionReadingReview),
         allDiscovered,
         enoughMana,
         ok: allDiscovered && enoughMana,
@@ -396,6 +404,7 @@ export default function StoryView({ state, dispatch }) {
     const quoteEvidence = quoteRecord ? QUOTE_TIER_LABEL[quoteTier(quoteRecord)] : null
     const quoteDetail = quoteRecord ? `${quoteRecord.fidelity}, ${quoteEvidence}` : 'source-linked wording'
     const reviewedReading = hasAuthoredEnglishReading(line)
+    const showReading = storyReadingVisible(i, state.debug)
     return (
       <p
         className={'story-line' + (revealsPath ? ' reveals-path' : '') + (quoteSrc ? ' quote-line' : '')}
@@ -406,7 +415,6 @@ export default function StoryView({ state, dispatch }) {
             key={j}
             token={tok}
             discovered={state.discovered}
-            peak={peak}
             onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
           />
         ))}
@@ -437,13 +445,15 @@ export default function StoryView({ state, dispatch }) {
             — {quoteSrc} · {quoteDetail}
           </span>
         ))}
-        <span
-          className={'story-reading' + (reviewedReading ? ' reviewed' : '')}
-          title={reviewedReading ? 'Reviewed whole-line English translation' : 'Naturalized fallback reading awaiting line-by-line editorial review'}
-        >
-          <span className="story-reading-label">{reviewedReading ? 'Reviewed English' : 'English reading'}</span>
-          {englishReadingOf(line)}
-        </span>
+        {showReading && (
+          <span
+            className={'story-reading' + (reviewedReading ? ' reviewed' : '')}
+            title={reviewedReading ? 'Reviewed whole-line English translation' : 'Naturalized fallback reading awaiting line-by-line editorial review'}
+          >
+            <span className="story-reading-label">{reviewedReading ? 'Reviewed English' : 'English reading'}</span>
+            {englishReadingOf(line)}
+          </span>
+        )}
       </p>
     )
   }
@@ -453,10 +463,14 @@ export default function StoryView({ state, dispatch }) {
       <h2 id="story-scene-title" className="sr-only" ref={sceneHeadingRef} tabIndex={-1}>
         {sceneStatus}
       </h2>
-      {!state.ended && <WorldContext state={storyState} worldClock={state.clock} />}
+      {/* The compact ledger is a diagnostic inspector. Ordinary play learns
+          these facts through the interactive prose immediately below. */}
+      {!state.ended && state.debug && <WorldContext state={storyState} worldClock={state.clock} />}
       {!state.ended && <EmbodimentFocus state={state} dispatch={dispatch} />}
       <div className="story-text">
+        {!state.ended && renderLine(environmentLine, 'environment')}
         {!state.ended && heartLevel && renderLine(heartLevel.line, 'hearts')}
+        {!state.ended && purseLine && renderLine(purseLine, 'purse')}
         {!state.ended && companionIds.length > 0 && renderLine(companionLine(), 'companions')}
         {!state.ended && itemIds.length > 0 && renderLine(carryLine(), 'carry')}
         {!state.ended && state.embodying && (itemIds.length > 0 || companionIds.length > 0) && (
@@ -718,7 +732,6 @@ export default function StoryView({ state, dispatch }) {
                           key={j}
                           token={tok}
                           discovered={state.discovered}
-                          peak={peak}
                           onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
                           tokenCount={tok.id ? state.mana[tok.id] || 0 : undefined}
                         />

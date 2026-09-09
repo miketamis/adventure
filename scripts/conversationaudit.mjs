@@ -6,6 +6,7 @@
 
 import { DICT, START_NODE, STORY, lineOf } from '../src/game/content.js'
 import { albanianTextOf } from '../src/game/language.js'
+import { environmentStoryLine } from '../src/game/storyContext.js'
 import {
   EVERYDAY_CAN_DO_GROUPS,
   EVERYDAY_CORE_SENSE_IDS,
@@ -60,6 +61,23 @@ for (const [nodeId, node] of Object.entries(STORY)) {
       interactive: true,
       al: normalize(albanianTextOf(option.text)),
     })
+  }
+}
+
+// The changing environmental sentence is generated from public game state
+// rather than copied into hundreds of scene records. Enumerate its canonical
+// combinations here so phrase grounding covers what the player actually reads.
+for (const [time, clock] of Object.entries({ morning: 0, noon: 6, afternoon: 7, evening: 13, night: 18 })) {
+  for (const season of ['spring', 'summer', 'autumn', 'winter']) {
+    for (const weather of ['clear', 'cloud', 'rain', 'storm', 'snow']) {
+      appearances.push({
+        address: `storyContext.${time}.${season}.${weather}`,
+        nodeId: 'storyContext',
+        depth: 0,
+        interactive: false,
+        al: normalize(albanianTextOf(environmentStoryLine({ clock, season, weather }))),
+      })
+    }
   }
 }
 

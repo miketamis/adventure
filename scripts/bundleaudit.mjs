@@ -101,12 +101,36 @@ const chunkNamed = (prefix) => {
 // These are intentional long-lived cache boundaries, not arbitrary filenames.
 // If Rollup ever folds one back into the shell, the shell-only budget might
 // catch it, but this assertion explains the architectural regression directly.
-for (const prefix of ['react-vendor', 'story-graph', 'noun-forms', 'folklore-catalog', 'quote-register']) {
+for (const prefix of ['react-vendor', 'story-graph', 'dictionary-catalog', 'quote-register']) {
   const chunk = chunkNamed(prefix)
   assert.ok(bootstrapNames.has(chunk.name), `${prefix} must remain in the initial static closure`)
 }
+assert.ok(!bootstrapNames.has(chunkNamed('folklore-catalog').name),
+  'the full folklore catalog should stay deferred until a lore, achievements, or debug surface requests it')
 assert.ok(!bootstrapNames.has(chunkNamed('npc-catalog').name),
   'the full NPC catalog should stay deferred until a map/debug surface requests it')
+
+// The small synchronous achievement contract must stay equivalent to the rich
+// deferred catalog. This makes the lazy-free boundary reviewable: moving lore
+// out of first play may not change what unlocks, counts, or becomes eligible.
+const [{ ACHIEVEMENT_IDS, AREA_ACHIEVEMENT_RULES }, { ACHIEVEMENTS }] = await Promise.all([
+  import('../src/game/achievementRules.js'),
+  import('../src/game/achievements.js'),
+])
+assert.deepEqual(
+  [...ACHIEVEMENT_IDS].sort(),
+  ACHIEVEMENTS.map(({ id }) => id).sort(),
+  'compact and rich achievement catalogs disagree on their IDs',
+)
+for (const rule of AREA_ACHIEVEMENT_RULES) {
+  const rich = ACHIEVEMENTS.find(({ id }) => id === rule.id)
+  assert.ok(rich, `rich achievement catalog is missing ${rule.id}`)
+  assert.deepEqual(
+    { kind: rich.kind, region: rich.region, threshold: rich.threshold },
+    { kind: rule.kind, region: rule.region, threshold: rule.threshold },
+    `${rule.id} differs between compact eligibility rules and rich lore metadata`,
+  )
+}
 
 // The release shell is kept independently small, while the full bootstrap
 // budget includes its statically imported story graph and authored catalogs.

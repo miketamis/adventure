@@ -1,6 +1,6 @@
 import { ENDINGS } from './content.js'
 import { AREA_ACHIEVEMENTS, ENDING_LORE } from './folklore.js'
-import { REGION_NODES } from './regions.js'
+export { areaProgress, newlyEligibleAreas, offerableTest } from './achievementRules.js'
 
 // ---------------------------------------------------------------------------
 // ACHIEVEMENTS — the lore collection as a real achievement system.
@@ -38,29 +38,3 @@ export const ACHIEVEMENTS = [
   })),
 ]
 export const ACHIEVEMENT_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]))
-
-// how much of an area achievement's region has been walked
-export function areaProgress(ach, visited) {
-  const nodes = REGION_NODES[ach.region] || []
-  let seen = 0
-  for (const id of nodes) if (visited?.[id]) seen++
-  return { seen, total: nodes.length }
-}
-
-// area achievements whose deed is now done (threshold crossed) but that aren't
-// yet marked eligible — CHOOSE promotes these as you explore
-export const newlyEligibleAreas = (visited, eligible) =>
-  ACHIEVEMENTS.filter((a) => {
-    if (a.kind !== 'area' || eligible[a.id]) return false
-    const { seen, total } = areaProgress(a, visited)
-    return total > 0 && seen / total >= a.threshold
-  }).map((a) => a.id)
-
-// the one test the world offers via the in-story banner right now: the first
-// area achievement whose deed is done but whose gate is unpassed — unless the
-// player waved it off this run (the codex always keeps the retake available)
-export const offerableTest = (eligible, earned, dismissed) => {
-  for (const a of ACHIEVEMENTS)
-    if (a.kind === 'area' && eligible[a.id] && !earned[a.id] && !dismissed?.[a.id]) return a.id
-  return null
-}

@@ -4,11 +4,16 @@ import { canChoose, currentStoryState, formsUnlocked } from '../game/gameState.j
 import { embodimentOptionAccess } from '../game/embodiment.js'
 import { isOptionRevealed } from '../game/revealVisibility.js'
 import { playWord } from '../game/audio.js'
-import { buildPhraseQuestion } from '../game/phrasePractice.js'
+import {
+  buildPhraseQuestion,
+  containsExcludedPhraseWord,
+  trainQuestionWordKeys,
+} from '../game/phrasePractice.js'
 import {
   EVERYDAY_CORE_SENSE_SET,
   EVERYDAY_PHRASE_DRILLS,
 } from '../game/everydayAlbanian.js'
+import { buildNounEndingRefresher } from '../game/nounEndingRefresher.js'
 import PhrasePracticeQuestion from './PhrasePracticeQuestion.jsx'
 
 // the answer rendered in Albanian (every word is discovered when affordable)
@@ -68,21 +73,35 @@ function buildContextQuestion(answerId, discoveredIds) {
     distractors.push(id)
     if (distractors.length === 3) break
   }
-  return { kind: 'ctx', answerId, field: 'en', ctx: DICT[answerId].ctx, options: shuffle([answerId, ...distractors]) }
+  return {
+    kind: 'ctx',
+    answerId,
+    field: 'en',
+    ctx: DICT[answerId].ctx,
+    options: shuffle([answerId, ...distractors]),
+    lexicalSurfaces: [DICT[answerId].ctx.al],
+  }
 }
 
 // Build a multiple-choice question from the discovered senses.
 // The quizzed word is weighted by `mana`: more tokens -> less likely to appear.
-function buildQuestion(discoveredIds, mana) {
-  const answerId = weightedPick(discoveredIds, mana)
-  if (DICT[answerId].ctx) return buildContextQuestion(answerId, discoveredIds)
+function buildQuestion(discoveredIds, mana, excludeWords = []) {
+  const candidates = discoveredIds.filter((id) => {
+    const surface = DICT[id].ctx?.al || DICT[id].al
+    return !containsExcludedPhraseWord(surface, excludeWords)
+  })
+  if (!candidates.length) return null
+  const answerId = weightedPick(candidates, mana)
+  if (DICT[answerId].ctx) return buildContextQuestion(answerId, candidates)
 
   const dir = Math.random() < 0.5 ? 'al2en' : 'en2al' // prompt side
   const field = dir === 'al2en' ? 'en' : 'al' // the option text we show
   const promptField = dir === 'al2en' ? 'al' : 'en'
 
   // distractors: prefer other discovered senses, fall back to whole dictionary
-  const pool = discoveredIds.length >= 4 ? discoveredIds : Object.keys(DICT)
+  const pool = (candidates.length >= 4 ? candidates : Object.keys(DICT)).filter((id) =>
+    !containsExcludedPhraseWord(DICT[id].al, excludeWords),
+  )
   const distractors = []
   const usedText = new Set([senseText(answerId, field)])
   for (const id of shuffle(pool)) {
@@ -105,6 +124,7 @@ function buildQuestion(discoveredIds, mana) {
     field,
     promptText: senseText(answerId, promptField),
     options,
+    lexicalSurfaces: [DICT[answerId].al],
   }
 }
 
@@ -124,10 +144,13 @@ const weightedPickForm = (forms) => {
 // appears INFLECTED (e.g. bijën). Step 1: which word is it? (options are OTHER
 // words' glosses). Step 2: what does the ending do? (options are THIS word's own
 // form glosses — "a daughter" / "the daughter" / "the daughter (object)").
-function buildFormsQuestion(answerId, discoveredIds) {
+function buildFormsQuestion(answerId, discoveredIds, excludeWords = []) {
   const forms = frequentForms(answerId) // lemma row first, then frequent inflected forms
   const lemma = DICT[answerId].al.toLowerCase()
-  const inflected = forms.filter((f) => f.al.toLowerCase() !== lemma)
+  const inflected = forms.filter((f) =>
+    f.al.toLowerCase() !== lemma && !containsExcludedPhraseWord(f.al, excludeWords),
+  )
+  if (!inflected.length) return null
   const target = weightedPickForm(inflected) // step-1 always shows a real ending, never the bare lemma
 
   // step 1 distractors: other discovered words (fall back to the whole dict)
@@ -158,6 +181,7 @@ function buildFormsQuestion(answerId, discoveredIds) {
     kind: 'forms',
     answerId,
     surface: target.al,
+    lexicalSurfaces: [DICT[answerId].al, target.al],
     step1: { options: shuffle([answerId, ...distractors]) },
     step2: { options: shuffle(glosses), answer: target.gloss },
   }
@@ -183,11 +207,15 @@ export default function PracticeView({ state, dispatch }) {
   const [q, setQ] = useState(null)
   const [picked, setPicked] = useState(null)
   const [step, setStep] = useState(1) // for two-step "endings" questions; 1 otherwise
+  const [formsCorrection, setFormsCorrection] = useState(null)
   const answerCommitted = useRef(false)
   const questionRef = useRef(null)
+  const previousQuestionWords = useRef([])
+  const nextRef = useRef(null)
 
   const next = useCallback(() => {
     answerCommitted.current = false
+    setFormsCorrection(null)
     if (discoveredIds.length === 0) {
       setQ(null)
       return
@@ -198,22 +226,109 @@ export default function PracticeView({ state, dispatch }) {
     // remainder keeps word meanings and inflections alive.
     const modeRoll = Math.random()
     if (unlockedEverydayPhrases.length && modeRoll < 0.65) {
-      setQ(buildPhraseQuestion(
+      const phraseQuestion = buildPhraseQuestion(
         unlockedEverydayPhrases,
         state.mana,
         state.phrasePracticed,
         state.phraseMistakes,
-        { distractorPool: EVERYDAY_PHRASE_DRILLS },
-      ))
-      return
+        {
+          distractorPool: EVERYDAY_PHRASE_DRILLS,
+          excludeWords: previousQuestionWords.current,
+          mastery: {
+            production: state.phraseMastery,
+            listening: state.phraseListeningMastery,
+            matching: state.phraseMatchingMastery,
+          },
+        },
+      )
+      if (phraseQuestion) {
+        previousQuestionWords.current = trainQuestionWordKeys(phraseQuestion)
+        setQ(phraseQuestion)
+        return
+      }
     }
     // words whose "endings" drill has unlocked; occasionally quiz one of them
-    const eligible = discoveredIds.filter((id) => formsUnlocked(state, id))
+    const eligible = discoveredIds.filter((id) =>
+      formsUnlocked(state, id) &&
+      !containsExcludedPhraseWord(DICT[id].al, previousQuestionWords.current) &&
+      frequentForms(id).some((form) =>
+        form.al.toLocaleLowerCase('sq') !== DICT[id].al.toLocaleLowerCase('sq') &&
+        !containsExcludedPhraseWord(form.al, previousQuestionWords.current),
+      ),
+    )
+    let nextQuestion = null
     if (eligible.length && Math.random() < 0.35) {
-      setQ(buildFormsQuestion(weightedPick(eligible, state.mana), discoveredIds))
-    } else {
-      setQ(buildQuestion(discoveredIds, state.mana))
+      nextQuestion = buildFormsQuestion(
+        weightedPick(eligible, state.mana),
+        discoveredIds,
+        previousQuestionWords.current,
+      )
     }
+    if (!nextQuestion) {
+      nextQuestion = buildQuestion(discoveredIds, state.mana, previousQuestionWords.current)
+    }
+    // With an exceptionally tiny unlocked vocabulary there may be no legal
+    // non-repeating word round. Prefer a disjoint phrase even when this roll was
+    // allocated to vocabulary; null is retained only when no legal question of
+    // either family exists.
+    if (!nextQuestion && unlockedEverydayPhrases.length) {
+      nextQuestion = buildPhraseQuestion(
+        unlockedEverydayPhrases,
+        state.mana,
+        state.phrasePracticed,
+        state.phraseMistakes,
+        {
+          distractorPool: EVERYDAY_PHRASE_DRILLS,
+          excludeWords: previousQuestionWords.current,
+          mastery: {
+            production: state.phraseMastery,
+            listening: state.phraseListeningMastery,
+            matching: state.phraseMatchingMastery,
+          },
+        },
+      )
+    }
+    // The non-repeat boundary is absolute whenever another legal target
+    // exists. With only one unlocked word (or one overlapping phrase), though,
+    // every disjoint builder above correctly returns null. Repeat that sole
+    // available material rather than leaving Train on “Preparing…” forever.
+    if (!nextQuestion) {
+      if (unlockedEverydayPhrases.length && modeRoll < 0.65) {
+        nextQuestion = buildPhraseQuestion(
+          unlockedEverydayPhrases,
+          state.mana,
+          state.phrasePracticed,
+          state.phraseMistakes,
+          {
+            distractorPool: EVERYDAY_PHRASE_DRILLS,
+            mastery: {
+              production: state.phraseMastery,
+              listening: state.phraseListeningMastery,
+              matching: state.phraseMatchingMastery,
+            },
+          },
+        )
+      }
+      if (!nextQuestion) nextQuestion = buildQuestion(discoveredIds, state.mana)
+      if (!nextQuestion && unlockedEverydayPhrases.length) {
+        nextQuestion = buildPhraseQuestion(
+          unlockedEverydayPhrases,
+          state.mana,
+          state.phrasePracticed,
+          state.phraseMistakes,
+          {
+            distractorPool: EVERYDAY_PHRASE_DRILLS,
+            mastery: {
+              production: state.phraseMastery,
+              listening: state.phraseListeningMastery,
+              matching: state.phraseMatchingMastery,
+            },
+          },
+        )
+      }
+    }
+    if (nextQuestion) previousQuestionWords.current = trainQuestionWordKeys(nextQuestion)
+    setQ(nextQuestion)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     discoveredIds.length,
@@ -221,12 +336,16 @@ export default function PracticeView({ state, dispatch }) {
     state.mana,
     state.phrasePracticed,
     state.phraseMistakes,
+    state.phraseMastery,
+    state.phraseListeningMastery,
+    state.phraseMatchingMastery,
   ])
 
-  const onPhraseComplete = useCallback(({ correct, phraseIds, rewardIds }) => {
-    dispatch({ type: 'PRACTICE_PHRASE_RESULT', correct, phraseIds, rewardIds })
-    setTimeout(next, correct ? 1900 : 2800)
-  }, [dispatch, next])
+  nextRef.current = next
+  const onPhraseComplete = useCallback(({ correct, phraseIds, rewardIds, skill, tier }) => {
+    dispatch({ type: 'PRACTICE_PHRASE_RESULT', correct, phraseIds, rewardIds, skill, tier })
+    setTimeout(() => nextRef.current?.(), correct ? 1900 : 2800)
+  }, [dispatch])
 
   useEffect(() => {
     if (!q && discoveredIds.length > 0) next()
@@ -237,7 +356,7 @@ export default function PracticeView({ state, dispatch }) {
     if (!q) return undefined
     const frame = window.requestAnimationFrame(() => questionRef.current?.focus())
     return () => window.cancelAnimationFrame(frame)
-  }, [q, step])
+  }, [q, step, formsCorrection])
 
   if (discoveredIds.length === 0) {
     return (
@@ -287,11 +406,37 @@ export default function PracticeView({ state, dispatch }) {
           }, 1100) // reveal, then drill the ending
         } else {
           dispatch({ type: 'PRACTICE_WRONG' })
-          setTimeout(next, 2000)
+          const guide = buildNounEndingRefresher(q.answerId, q.surface, q.step2.answer)
+          if (guide) {
+            setTimeout(() => setFormsCorrection({
+              guide,
+              stage: 'meaning',
+              chosen: senseText(value, 'en'),
+              lemma: DICT[q.answerId].al,
+              meaning: senseText(q.answerId, 'en'),
+            }), 900)
+          } else {
+            setTimeout(next, 2000)
+          }
         }
       } else {
         // step 2 is the nuance round: LENIENT — a miss costs no heart, no reward either
-        setTimeout(next, correct ? 1200 : 2200)
+        if (correct) {
+          setTimeout(next, 1200)
+        } else {
+          const guide = buildNounEndingRefresher(q.answerId, q.surface, q.step2.answer)
+          if (guide) {
+            setTimeout(() => setFormsCorrection({
+              guide,
+              stage: 'ending',
+              chosen: value,
+              lemma: DICT[q.answerId].al,
+              meaning: senseText(q.answerId, 'en'),
+            }), 900)
+          } else {
+            setTimeout(next, 2200)
+          }
+        }
       }
       return
     }
@@ -305,6 +450,70 @@ export default function PracticeView({ state, dispatch }) {
 
   // for a forms question, split the shown surface so its ending renders faded
   const [formStem, formEnding] = isForms ? splitStem(q.answerId, q.surface) : ['', '']
+
+  if (formsCorrection) {
+    const { guide, stage, chosen, lemma, meaning } = formsCorrection
+    const rowWords = guide.rows.map((row) => row.al).join(' → ')
+    return (
+      <section className="card practice" aria-labelledby="practice-title">
+        <h2 id="practice-title" className="view-title">Train Albanian</h2>
+        <div ref={questionRef} className="noun-ending-refresher" aria-labelledby="ending-refresher-title" tabIndex={-1}>
+          <h3 className="prompt" id="ending-refresher-title">Quick ending refresher</h3>
+          <p className="noun-ending-correction" role="status" aria-live="assertive">
+            {stage === 'meaning' ? (
+              <>
+                You chose “{chosen}”. <b lang="sq">{guide.target.al}</b> belongs to{' '}
+                <b lang="sq">{lemma}</b> ({meaning}); this form means “{guide.target.gloss}”.
+              </>
+            ) : (
+              <>
+                You chose “{chosen}”. Here <b lang="sq">{guide.target.al}</b> means{' '}
+                “{guide.target.gloss}”.
+              </>
+            )}
+          </p>
+          <div className="noun-ending-layer-label">This noun</div>
+          <div className="noun-ending-chain" lang="sq" aria-label={`Forms: ${rowWords}`}>
+            {guide.rows.map((row, index) => (
+              <span key={`${row.tag}-${row.al}`}>
+                {index > 0 && <span className="noun-ending-arrow" aria-hidden="true">→</span>}
+                <strong className={row.missed ? 'missed' : ''}>{row.al}</strong>
+              </span>
+            ))}
+          </div>
+          <dl className="noun-ending-rows">
+            {guide.rows.map((row) => (
+              <div className={row.missed ? 'noun-ending-row missed' : 'noun-ending-row'} key={`${row.tag}-${row.al}`}>
+                <dt>
+                  <b lang="sq">{row.al}</b>
+                  {row.missed && <span className="noun-ending-this">this form</span>}
+                </dt>
+                <dd><span>{row.role}</span><span>{row.gloss}</span></dd>
+              </div>
+            ))}
+          </dl>
+          <div className="noun-ending-rule">
+            <h4>Pattern to reuse</h4>
+            <p className="noun-ending-pattern">{guide.pattern}</p>
+            {guide.peer && (
+              <p className="noun-ending-peer">
+                <b>Same pattern:</b>{' '}
+                <span lang="sq" aria-label={`Matching forms: ${guide.peer.rows.map((row) => row.al).join(' → ')}`}>
+                  {guide.peer.rows.map((row, index) => (
+                    <span key={`${row.tag}-${row.al}`}>
+                      {index > 0 && <span aria-hidden="true"> → </span>}
+                      <strong>{row.al}</strong>
+                    </span>
+                  ))}
+                </span>
+              </p>
+            )}
+          </div>
+          <button className="btn primary noun-ending-continue" onClick={next}>Continue training</button>
+        </div>
+      </section>
+    )
+  }
 
   // story answers you can now afford (all words discovered + a token for each)
   const practiceState = currentStoryState(state)

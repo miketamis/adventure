@@ -431,6 +431,7 @@ export const NOUN_FORMS = {
     { al: 'plakë', tag: 'indefNom', gloss: "an old woman" },
     { al: 'plaka', tag: 'defNom', gloss: "the old woman" },
     { al: 'plakën', tag: 'defAcc', gloss: "the old woman (object)" },
+    { al: 'plakës', tag: 'defDat', gloss: "to the old woman" },
   ],
   prift: [ /* priest */
     { al: 'prift', tag: 'indefNom', gloss: "a priest" },

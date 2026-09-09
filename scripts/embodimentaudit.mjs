@@ -54,7 +54,7 @@ const stateAt = (nodeId, extra = {}) => ({
   heard: {}, rumor: false, trail: [], discovered: {}, inventory: {}, mana: {}, practiced: {},
   flags: {}, knowledge: {}, interactions: {},
   visited: {}, earned: {}, eligible: {}, attempts: {}, dismissedTests: {}, pendingTest: null,
-  peak: 3, hearts: 3, healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
+  hearts: 3, healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
   view: 'story', ended: null, embodying: null, embodimentOriginNode: null,
   embodimentFocusNode: null, embodimentWorldNode: null, embodimentPaused: false,
   embodimentClock: null, embodimentInventorySnapshot: null, embodimentInventoryIsolated: null,

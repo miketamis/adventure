@@ -50,7 +50,7 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
   heard: {}, rumor: false, trail: [], discovered: {}, inventory: {}, mana: {},
   practiced: {}, visited: {}, earned: {}, eligible: {}, attempts: {},
   flags: {}, knowledge: {}, interactions: {},
-  dismissedTests: {}, pendingTest: null, peak: 3, hearts: START_HEARTS,
+  dismissedTests: {}, pendingTest: null, hearts: START_HEARTS,
   healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
   view: 'story', ended: null, embodying: null, embodimentOriginNode: null,
   embodimentFocusNode: null, embodimentWorldNode: null, embodimentPaused: false,
@@ -64,7 +64,7 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
 const list = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
 const virtual = (id) => typeof id === 'string' && (
   ['dawn', 'day', 'dusk', 'night', 'again', 'rumor', 'embodying'].includes(id) ||
-  /^(fixture|season|weather|festival|weekday|fact|flag|knows|itemTag|affords|from|became|visited|heard|npc|npcAt|embodying):/.test(id)
+  /^(fixture|greeting|season|weather|festival|weekday|fact|flag|knows|itemTag|affords|from|became|visited|heard|npc|npcAt|embodying):/.test(id)
 )
 
 const firstItemMatching = (predicate) => Object.values(ITEMS).find(predicate)?.id
@@ -547,6 +547,7 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
     assert.ok(Number.isInteger(state.clock) && state.clock >= 0)
     assert.ok(Number.isInteger(state.turn) && state.turn >= 1)
     assert.ok(Number.isInteger(state.hearts) && state.hearts >= 0 && state.hearts <= START_HEARTS)
+    assert.equal(Object.hasOwn(state, 'peak'), false, 'retired peak state survived save normalization')
     for (const key of [
       'inventory', 'mana', 'practiced', 'visited', 'heard', 'discovered', 'npcStarted',
       'flags', 'knowledge', 'interactions',

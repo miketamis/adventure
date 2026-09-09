@@ -197,6 +197,7 @@ export const NODE_AT = {
   blerjaKripe: 'tregtari',
   shitjaCaj: 'tregtari',
   tregtari2: [90, 1025], // the trader's dyqan — its own doorway beside the stall
+  sendetDites: 'tregtari2', // everyday-goods shelf inside the same shop
   blerjaLahuta: 'tregtari2',
   plisiFund: 'tregtari2',
   xhubletaFund: 'tregtari2',

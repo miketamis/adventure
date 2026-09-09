@@ -121,6 +121,7 @@ const REVIEWED_UNGATED_ONLY = Object.freeze({
   bisedaUraPlan: 'the learner makes a real location choice after decoding the same planning question',
   bisedaShesh: 'today and tomorrow are mutually-exclusive practical time answers',
   bisedaKroi: 'today and tomorrow are mutually-exclusive practical time answers',
+  kroiGrate2: 'time-of-day greeting responses must remain visible together as a contextual choice',
 })
 const unreviewedUngatedOnly = ungatedOnly.filter((id) => !REVIEWED_UNGATED_ONLY[id])
 const staleUngatedReviews = Object.keys(REVIEWED_UNGATED_ONLY).filter((id) => !ungatedOnly.includes(id))

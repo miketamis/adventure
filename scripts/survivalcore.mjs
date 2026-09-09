@@ -14,25 +14,15 @@
 //   ndihmë) are selected by NEED, not by frequency rank, so many sit far below
 //   #1000 and a pure frequency sweep misses them. That gap is the point.
 //
-// Matching is import-free (content.js may be mid-edit / throw on import): we
-// read the DICT block as text and match each survival item either by Albanian
-// surface (de-accented) or by an English keyword appearing in its gloss.
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import { dirname, join } from 'node:path'
+// Read the catalog from its own static-cache module rather than scraping the
+// story facade. This keeps the audit aligned with the production source of
+// truth after DICT was split out of content.js, without pulling that catalog
+// back into the story-graph chunk.
+import { DICT } from '../src/game/dictionary.js'
 
-const here = dirname(fileURLToPath(import.meta.url))
-const src = readFileSync(join(here, '..', 'src', 'game', 'content.js'), 'utf8')
-
-// --- pull DICT entries out of the source text (no import) ---
-const dictStart = src.indexOf('export const DICT = {')
-const dictEnd = src.indexOf('\n}', dictStart)
-const dictBlock = src.slice(dictStart, dictEnd)
-const entryRe = /al:\s*'([^']+)'\s*,\s*en:\s*'([^']+)'(?:\s*,\s*enAll:\s*'([^']+)')?/g
 const dictAl = new Set()
 const dictGloss = []   // {al, en}
-for (const m of dictBlock.matchAll(entryRe)) {
-  const [, al, en, enAll] = m
+for (const { al, en, enAll } of Object.values(DICT)) {
   dictAl.add(deaccent(norm(al)))
   dictGloss.push({ al, en: (enAll || en).toLowerCase() })
 }

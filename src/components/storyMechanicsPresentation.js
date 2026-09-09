@@ -16,6 +16,13 @@ export function formatCivilHour(hour) {
     : null
 }
 
+// Health is already expressed by the Albanian sentence in the story. Its
+// editorial English gloss is diagnostic metadata, so ordinary play should not
+// repeat that status in English beneath the sentence.
+export function storyReadingVisible(lineKey, debug = false) {
+  return lineKey !== 'hearts' || Boolean(debug)
+}
+
 export function interactionLockText(availability) {
   if (availability?.ok !== false) return null
   if (availability.reason === 'cooldown') {

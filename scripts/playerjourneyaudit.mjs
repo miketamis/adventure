@@ -46,7 +46,6 @@ const stateAt = (nodeId, extra = {}) => ({
   attempts: {},
   dismissedTests: {},
   pendingTest: null,
-  peak: 3,
   hearts: 3,
   healedAt: {},
   turn: 1,
