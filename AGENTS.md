@@ -45,6 +45,7 @@
 
 - Prioritize reusable, present-day Albanian for introductions, needs, directions, time, weather, food, buying, help, plans, apologies, conversation repair, and ordinary objects. A practical phrase belongs in Train only when the player can encounter or say it in a believable story situation; `scripts/conversationaudit.mjs` is the release gate.
 - Keep folklore and practical language mutually reinforcing. Do not add a detached phrasebook scene, a modern object with no plausible world role, or language that exists only to satisfy a frequency count.
+- A designated high-value practical object must have a dictionary sense, appear in playable language outside its definition, and participate in a believable human action or affordance in the story. A shop listing, inventory blurb, passive atmospheric prop, or folklore-only mention is not sufficient; update the designated ledger in `scripts/everydayitemaudit.mjs` with the content change.
 - A focused cloze or spelling question rewards only its target word. Whole-phrase rewards belong only to an exercise that actually requires the whole phrase. Listening questions must not expose the English answer, and complete phrases must use continuous phrase audio rather than stitched isolated words.
 - Every construction exercise needs plausible distractors. A one-word greeting remains a word exercise; it must not masquerade as a whole-phrase exercise.
 

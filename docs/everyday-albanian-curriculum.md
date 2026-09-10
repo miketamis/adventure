@@ -23,7 +23,7 @@ against the live registries by `scripts/conversationaudit.mjs`):
 
 - 15 opening targets; <!-- curriculum:opening=15 -->
 - 60 first-session targets; <!-- curriculum:session=60 -->
-- 161 practice-priority senses; <!-- curriculum:core=161 -->
+- 173 practice-priority senses; <!-- curriculum:core=173 -->
 - 120 whole-phrase drills; <!-- curriculum:phrases=120 -->
 - 24 story-grounded can-do groups. <!-- curriculum:groups=24 -->
 

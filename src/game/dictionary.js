@@ -60,7 +60,7 @@ export const DICT = {
   te_subj:   { al: 'të',        en: 'to',  ctx: { al: 'mund të pi', en: 'can __ drink', focus: 'të' } },   // subjunctive particle
   te_obj:    { al: 'të',        en: 'you', ctx: { al: 'ujku të ha', en: 'the wolf eats __', focus: 'të' } },  // object clitic
   mund:      { al: 'mund',      en: 'can' },
-  deri:      { al: 'deri',      en: 'until' },
+  deri:      { al: 'deri',      en: 'until' },      // #152
   i_art:     { al: 'i',         en: 'the', ctx: { al: 'i uritur', en: '__ hungry', focus: 'i' } },  // adjectival article
   i_link:    { al: 'i',         en: 'of',  ctx: { al: 'syri i gjarprit', en: 'the eye __ the serpent', focus: 'i' } },   // masculine linking article
   kerko:     { al: 'kërko',     en: 'search' },
@@ -543,7 +543,7 @@ export const DICT = {
   di:        { al: 'di',        en: 'know' },
   duhet:     { al: 'duhet',     en: 'must' },
   mendoj:    { al: 'mendoj',    en: 'think' },
-  duket:     { al: 'duket',     en: 'seems' },
+  duket:     { al: 'duket',     en: 'seems' },      // #422 (dukesh)
   ai:        { al: 'ai',        en: 'he' },
   ajo:       { al: 'ajo',       en: 'she' },
   ata:       { al: 'ata',       en: 'they' },
@@ -659,7 +659,6 @@ export const DICT = {
   yt:        { al: 'yt',        en: 'your' },       // #131 (tënde = your, fem.)
   ma:        { al: 'ma',        en: 'to me' },      // #133 (ma jep = give it to me)
   // --- top 151-200 spoken-frequency fill ---
-  deri:      { al: 'deri',      en: 'until' },      // #152
   hajde:     { al: 'hajde',     en: 'come on' },    // #153 (interjection)
   prej:      { al: 'prej',      en: 'from' },       // #155
   ia:        { al: 'ia',        en: 'it to him' },  // #156 (clitic cluster i+a)
@@ -845,7 +844,6 @@ export const DICT = {
   ndalo:     { al: 'ndalo',     en: 'stop' },       // #413
   lehte:     { al: 'lehtë',     en: 'easy' },       // #414
   njoh:      { al: 'njoh',      en: 'know' },       // #416 (know a person)
-  duket:     { al: 'duket',     en: 'seems' },      // #422 (dukesh)
   pasi:      { al: 'pasi',      en: 'after' },      // #429
   mengjes:   { al: 'mëngjes',   en: 'morning' },    // #430
   pese:      { al: 'pesë',      en: 'five' },       // #431
@@ -997,7 +995,7 @@ export const DICT = {
   ndalohet:   { al: 'ndalohet',    en: 'forbidden' },
   burra:      { al: 'burra',       en: 'men' },
   gra:        { al: 'gra',         en: 'women' },
-  bilete:     { al: 'biletë',      en: 'fare' },     // folk-frame: a gate/passage fare (not a bus ticket)
+  bilete:     { al: 'biletë',      en: 'ticket' },   // the paid passage ticket at the old gate
   polici:     { al: 'polici',      en: 'guard' },    // folk-frame: a city guard (roje)
   hotel:      { al: 'hotel',       en: 'hotel' },    // folk-frame: a big inn
   restorant:  { al: 'restorant',   en: 'eating-house' }, // folk-frame: a house where you eat
@@ -1025,6 +1023,14 @@ export const DICT = {
   balle:      { al: 'ballë',        en: 'brow' },
   thike:      { al: 'thikë',       en: 'knife' },
   luge:       { al: 'lugë',        en: 'spoon' },
+  gote:       { al: 'gotë',        en: 'glass' },
+  peshqir:    { al: 'peshqir',     en: 'towel' },
+  ilac:       { al: 'ilaç',        en: 'medicine' },
+  fashe:      { al: 'fashë',       en: 'bandage' },
+  cante:      { al: 'çantë',       en: 'bag' },
+  kove:       { al: 'kovë',        en: 'bucket' },
+  cekic:      { al: 'çekiç',       en: 'hammer' },
+  shporte:    { al: 'shportë',     en: 'basket' },
   plis:       { al: 'plis',        en: 'felt cap' },     // the white qeleshe
   xhublete:   { al: 'xhubletë',    en: 'bell-dress' },   // the highland felt dress
   kurbet:     { al: 'kurbet',      en: 'exile-work' },   // labour migration, the kurbet

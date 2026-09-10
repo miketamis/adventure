@@ -455,11 +455,11 @@ export const OPTION_READINGS_A = Object.freeze({
   "gjumiBujtina.options[1]": { al: "fle në kafe", en: "Sleep in the coffee.", review: 'internal-editorial' }, // 451
   "gjumiBujtina.options[2]": { al: "jep agim", en: "Give the dawn.", review: 'internal-editorial' }, // 452
   "gjumiBujtina.options[3]": { al: "fle në lek", en: "Sleep in a lek.", review: 'internal-editorial' }, // 453
-  "kafeja1.options[0]": { al: "pi kafen", en: "Drink the coffee.", review: 'internal-editorial' }, // 454
+  "kafeja1.options[0]": { al: "pi kafenë", en: "Drink the coffee.", review: 'internal-editorial' }, // 454
   "kafeja1.options[1]": { al: "dëgjo gruan", en: "Listen to the woman.", review: 'internal-editorial' }, // 455
   "kafeja1.options[2]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 456
   "kafeja1.options[3]": { al: "pi fat", en: "Drink luck.", review: 'internal-editorial' }, // 457
-  "kafeja1.options[4]": { al: "dëgjo kafen", en: "Listen to the coffee.", review: 'internal-editorial' }, // 458
+  "kafeja1.options[4]": { al: "dëgjo kafenë", en: "Listen to the coffee.", review: 'internal-editorial' }, // 458
   "kafeja1.options[5]": { al: "bëj një fat", en: "Make a fate.", review: 'internal-editorial' }, // 459
   "sheruesi.options[0]": { al: "më dhemb këtu. kam nevojë për ndihmë.", en: "Say: “It hurts here. I need help.”", review: 'internal-editorial' }, // practical health
   "sheruesi.options[1]": { al: "shko në kopsht", en: "Go to the garden.", review: 'internal-editorial' }, // 460

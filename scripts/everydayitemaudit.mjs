@@ -7,6 +7,7 @@
 
 import assert from 'node:assert/strict'
 import {
+  DICT,
   ITEMS,
   STORY,
   itemHasTag,
@@ -15,7 +16,92 @@ import {
 } from '../src/game/content.js'
 import { hasCond, newRun } from '../src/game/gameState.js'
 import { albanianTextOf } from '../src/game/language.js'
+import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { optionEffectsOf, optionLekDelta } from '../src/game/stateMechanics.js'
+
+// A designated practical object is not complete merely because it has a
+// dictionary entry, sits on a shelf, or is named in some atmosphere. Each
+// entry below pins the story contexts and human actions that demonstrate the
+// object's ordinary affordance. This is deliberately editorial: a generic
+// verb such as "see" cannot accidentally turn a decorative prop into taught,
+// usable vocabulary.
+//
+// Add a row here in the same change as every new high-value practical object.
+// The gate will then require:
+//   1. a real dictionary sense;
+//   2. a playable occurrence outside the definition; and
+//   3. the object and one reviewed affordance verb in the same story beat.
+const DESIGNATED_PRACTICAL_OBJECTS = Object.freeze({
+  cakmak: { scenes: ['lendina', 'varret1'], actions: ['ndiz'], label: 'light a fire or candle' },
+  shishe: { scenes: ['kroi1', 'pusiThate', 'fshatiSheshi', 'fshatiLumi', 'sheshi', 'lendina', 'rrugaDetit', 'udhekryq'], actions: ['mbush', 'pi'], label: 'fill or drink from a bottle' },
+  cader: { scenes: ['fshatiSheshi', 'fshatiLumi', 'sheshi', 'rrugaDetit', 'pusiThate', 'udhekryq'], actions: ['hap'], label: 'open an umbrella in bad weather' },
+  litar: { scenes: ['pusiThate'], actions: ['lidh'], label: 'tie a rope to draw water' },
+  batanije: { scenes: ['lendina'], actions: ['jep'], label: 'give a blanket to someone who is cold' },
+  sapun: { scenes: ['kroi1'], actions: ['laj'], label: 'wash with soap' },
+
+  // 2026-09 practical-language tranche. Some are carried; others are useful
+  // fixtures or borrowed tools whose ownership should remain with the world.
+  gote: { scenes: ['kafeja1'], actions: ['pi', 'mbush', 'jep'], label: 'drink, fill, or serve a glass' },
+  peshqir: { scenes: ['kroi1'], actions: ['thaj', 'fshij', 'perdor'], label: 'dry or wipe with a towel after washing' },
+  ilac: { scenes: ['sherimiBar'], actions: ['merr', 'pi', 'jep', 'pergatit'], label: 'prepare, give, or take medicine' },
+  fashe: { scenes: ['sheruesi'], actions: ['lidh', 've'], label: 'put on or tie a bandage' },
+  cante: { scenes: ['udhetariHuaj'], actions: ['mban', 'hap', 'merr'], label: 'carry, open, or take something from a bag' },
+  kove: { scenes: ['pusiThate'], actions: ['ul', 'terheq', 'mbush'], label: 'lower, pull, or fill a bucket at the well' },
+  cekic: { scenes: ['uraArtes1'], actions: ['punon', 'godit', 'ndreq'], label: 'work or repair with a hammer' },
+  shporte: { scenes: ['cajMali1'], actions: ['mbledh', 'mbush', 'mban'], label: 'gather or carry something in a basket' },
+  luge: { scenes: ['sherimiBar'], actions: ['merr', 'pi', 'perdor'], label: 'measure or take medicine with a spoon' },
+})
+
+const playableStoryOccurrences = []
+for (const [nodeId, node] of Object.entries(STORY)) {
+  node.text.forEach((entry, index) => playableStoryOccurrences.push({
+    nodeId,
+    address: `story:${nodeId}:line:${index + 1}`,
+    tokens: lineOf(entry),
+    validAffordanceEvidence: true,
+  }))
+  node.options.forEach((option, index) => playableStoryOccurrences.push({
+    nodeId,
+    address: `story:${nodeId}:option:${index + 1}`,
+    tokens: option.text,
+    // An intentionally wrong choice may teach discrimination, but it is not
+    // proof that the story lets the player use an object meaningfully.
+    validAffordanceEvidence: !option.confuser,
+  }))
+}
+
+const tokenIdsOf = (tokens) => new Set((tokens || []).map((token) => token?.id).filter(Boolean))
+const practicalObjectFailures = []
+for (const [senseId, policy] of Object.entries(DESIGNATED_PRACTICAL_OBJECTS)) {
+  if (!DICT[senseId]) {
+    practicalObjectFailures.push(`${senseId}: designated practical object has no dictionary sense`)
+    continue
+  }
+
+  const occurrences = playableStoryOccurrences.filter(({ tokens }) => tokenIdsOf(tokens).has(senseId))
+  if (!occurrences.length) {
+    practicalObjectFailures.push(
+      `${senseId}: designated practical object never occurs in playable story language outside its definition`,
+    )
+    continue
+  }
+
+  const practicalUses = occurrences.filter(({ nodeId, tokens, validAffordanceEvidence }) => {
+    if (!validAffordanceEvidence) return false
+    if (!policy.scenes.includes(nodeId)) return false
+    const tokenIds = tokenIdsOf(tokens)
+    return policy.actions.some((actionSenseId) => tokenIds.has(actionSenseId))
+  })
+  if (!practicalUses.length) practicalObjectFailures.push(
+    `${senseId}: no meaningful human affordance (${policy.label}) in ${policy.scenes.join(', ')}; `
+      + `object occurrences: ${occurrences.map(({ address }) => address).join(', ')}`,
+  )
+}
+if (practicalObjectFailures.length) {
+  console.error(`Everyday-item grounding failed: ${practicalObjectFailures.length} designated objects are incomplete:`)
+  for (const failure of practicalObjectFailures) console.error(`  - ${failure}`)
+  process.exit(1)
+}
 
 const EXPECTED_ITEMS = Object.freeze({
   cakmak: ['tool', 'ignition-source'],
@@ -25,6 +111,7 @@ const EXPECTED_ITEMS = Object.freeze({
   litar: ['tool', 'climbing-tool'],
   batanije: ['tool', 'warmth'],
   sapun: ['tool', 'hygiene'],
+  peshqir: ['tool', 'hygiene'],
 })
 
 for (const [itemId, tags] of Object.entries(EXPECTED_ITEMS)) {
@@ -61,7 +148,7 @@ const condIncludes = (entry, condition) =>
   (Array.isArray(entry?.cond) ? entry.cond : [entry?.cond]).includes(condition)
 const consequence = (nodeId, condition) => STORY[nodeId].text.find((entry) => condIncludes(entry, condition))
 
-const shopGoods = Object.freeze({ cakmak: 8, shishe: 5, cader: 15, litar: 20, batanije: 20, sapun: 4 })
+const shopGoods = Object.freeze({ cakmak: 8, shishe: 5, cader: 15, litar: 20, batanije: 20, sapun: 4, peshqir: 6 })
 for (const [itemId, price] of Object.entries(shopGoods)) {
   const buy = action('sendetDites', `buy-${itemId}`)
   assert.equal(optionLekDelta(buy), -price, `buy-${itemId}: wrong price`)
@@ -111,6 +198,66 @@ const wash = action('kroi1', 'wash-hands-at-spring')
 assert.equal(requirementIncludes(wash, 'sapun'), true, 'washing does not require soap')
 assert.ok(consequence('kroi1', 'flag:washedAtSpring'), 'washing has no clean-hands story consequence')
 
+const towel = action('kroi1', 'dry-hands-with-towel')
+for (const requirement of ['peshqir', 'flag:washedAtSpring'])
+  assert.equal(requirementIncludes(towel, requirement), true, `towel action missing ${requirement} context`)
+assert.equal(effectsInclude(towel, 'flag', 'driedAtSpring'), true, 'towel action records no dry-hands consequence')
+assert.ok(consequence('kroi1', 'flag:driedAtSpring'), 'towel action has no visible story consequence')
+
+// These contextual actions are comprehension rewards, not unexplained buttons:
+// each practical object is first named in a setup line that is visible in the
+// same reachable state. Pin both the gate target and that conditional visibility
+// so a later prose edit cannot strand the action behind its own consequence.
+const practicalRevealStates = Object.freeze([
+  ['kroi1', 'dry-hands-with-towel', 'peshqir', { inventory: { peshqir: 1 }, flags: { washedAtSpring: true } }],
+  ['sheruesi', 'bandage-right-hand', 'fashe', { flags: { askedForHelp: true } }],
+  ['pusiThate', 'draw-water-with-bucket', 'kove', { inventory: { litar: 1 }, worldFacts: { villageWellsRestored: true } }],
+  ['uraArtes1', 'work-with-hammer', 'cekic', { clock: 3 }],
+  ['cajMali1', 'fill-tea-basket', 'shporte', { inventory: { cajMali: 1 } }],
+])
+for (const [nodeId, actionId, senseId, patch] of practicalRevealStates) {
+  const option = action(nodeId, actionId)
+  assert.equal(option.reveal, senseId, `${actionId}: action is not gated by its setup object`)
+  const node = STORY[nodeId]
+  const setupLine = resolveRevealLine(node.text.map(lineOf), option).line
+  assert.ok(setupLine, `${actionId}: reveal does not resolve to an authored setup line`)
+  const base = newRun()
+  const ready = {
+    ...base,
+    ...patch,
+    nodeId,
+    inventory: { ...base.inventory, ...patch.inventory },
+    flags: { ...base.flags, ...patch.flags },
+    worldFacts: { ...base.worldFacts, ...patch.worldFacts },
+  }
+  assert.equal(
+    visibleLines(node, (id) => hasCond(ready, id)).includes(setupLine),
+    true,
+    `${actionId}: setup line is not visible before the reachable action`,
+  )
+}
+
+const bandage = action('sheruesi', 'bandage-right-hand')
+assert.equal(requirementIncludes(bandage, 'flag:askedForHelp'), true, 'bandage is available before asking the healer for help')
+assert.equal(effectsInclude(bandage, 'flag', 'handBandaged'), true, 'bandage action records no treated-hand consequence')
+assert.ok(consequence('sheruesi', 'flag:handBandaged'), 'bandage action has no visible story consequence')
+
+const bucket = action('pusiThate', 'draw-water-with-bucket')
+for (const requirement of ['fact:villageWellsRestored', 'litar'])
+  assert.equal(requirementIncludes(bucket, requirement), true, `bucket action missing ${requirement} context`)
+assert.equal(effectsInclude(bucket, 'flag', 'drewWaterWithBucket'), true, 'bucket action records no drawn-water consequence')
+assert.ok(consequence('pusiThate', 'flag:drewWaterWithBucket'), 'bucket action has no visible story consequence')
+
+const hammer = action('uraArtes1', 'work-with-hammer')
+assert.equal(requirementIncludes(hammer, 'day'), true, 'bridge work with the hammer is not tied to daylight')
+assert.equal(effectsInclude(hammer, 'flag', 'workedWithHammer'), true, 'hammer action records no bridge-work consequence')
+assert.ok(consequence('uraArtes1', 'flag:workedWithHammer'), 'hammer action has no visible story consequence')
+
+const basket = action('cajMali1', 'fill-tea-basket')
+assert.equal(requirementIncludes(basket, 'cajMali'), true, 'tea basket can be filled before gathering mountain tea')
+assert.equal(effectsInclude(basket, 'flag', 'teaBasketFilled'), true, 'basket action records no gathered-tea consequence')
+assert.ok(consequence('cajMali1', 'flag:teaBasketFilled'), 'basket action has no visible story consequence')
+
 const blanket = action('lendina', 'give-blanket-to-guest')
 for (const requirement of ['batanije', 'npc:plakaPyllit', 'fixture:campfire:live'])
   assert.equal(requirementIncludes(blanket, requirement), true, `blanket action missing ${requirement} context`)
@@ -118,4 +265,4 @@ assert.equal(effectsInclude(blanket, 'inventory', 'batanije', -1), true, 'giving
 assert.equal(effectsInclude(blanket, 'inventory', 'bekim', 1), false, 'blanket must not replace the sacred hospitality/bread challenge')
 assert.match(albanianTextOf(lineOf(consequence('lendina', 'flag:forestGuestWarm'))), /ende e uritur/, 'blanket consequence must preserve the hungry guest challenge')
 
-console.log(`✓ everyday items: ${Object.keys(EXPECTED_ITEMS).length} carried forms, ${Object.keys(shopGoods).length} shop goods, ${generated.length} contextual actions`)
+console.log(`✓ everyday items: ${Object.keys(DESIGNATED_PRACTICAL_OBJECTS).length} grounded object senses, ${Object.keys(EXPECTED_ITEMS).length} carried forms, ${Object.keys(shopGoods).length} shop goods, ${generated.length} contextual actions`)

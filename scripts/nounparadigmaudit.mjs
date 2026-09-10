@@ -46,6 +46,66 @@ const allowedTags = new Set([
   'voc',
 ])
 
+// Pin evidence-reviewed migrations so uncommon plurals and case endings cannot
+// drift while the independent registry still appears structurally complete.
+const migratedParadigmSurfaces = Object.freeze({
+  kohe: ['kohë', 'kohë', 'kohe', 'kohe', 'koha', 'kohën', 'kohës', 'kohë', 'kohët', 'kohëve', 'kohësh'],
+  ore: ['orë', 'orë', 'ore', 'ore', 'ora', 'orën', 'orës', 'orë', 'orët', 'orëve', 'orësh'],
+  emer: ['emër', 'emër', 'emri', 'emri', 'emri', 'emrin', 'emrit', 'emra', 'emrat', 'emrave', 'emrash'],
+  fjale: ['fjalë', 'fjalë', 'fjale', 'fjale', 'fjala', 'fjalën', 'fjalës', 'fjalë', 'fjalët', 'fjalëve', 'fjalësh'],
+  mengjes: ['mëngjes', 'mëngjes', 'mëngjesi', 'mëngjesi', 'mëngjesi', 'mëngjesin', 'mëngjesit', 'mëngjese', 'mëngjeset', 'mëngjeseve', 'mëngjesesh'],
+  dhome: ['dhomë', 'dhomë', 'dhome', 'dhome', 'dhoma', 'dhomën', 'dhomës', 'dhoma', 'dhomat', 'dhomave', 'dhomash'],
+  ushqim: ['ushqim', 'ushqim', 'ushqimi', 'ushqimi', 'ushqimi', 'ushqimin', 'ushqimit', 'ushqime', 'ushqimet', 'ushqimeve', 'ushqimesh'],
+  kafe: ['kafe', 'kafe', 'kafeje', 'kafeje', 'kafeja', 'kafenë', 'kafesë', 'kafe', 'kafetë', 'kafeve', 'kafesh'],
+  shtrat: ['shtrat', 'shtrat', 'shtrati', 'shtrati', 'shtrati', 'shtratin', 'shtratit', 'shtretër', 'shtretërit', 'shtretërve', 'shtretërsh'],
+  mbremje: ['mbrëmje', 'mbrëmje', 'mbrëmjeje', 'mbrëmjeje', 'mbrëmja', 'mbrëmjen', 'mbrëmjes', 'mbrëmje', 'mbrëmjet', 'mbrëmjeve', 'mbrëmjesh'],
+  mish: ['mish', 'mish', 'mishi', 'mishi', 'mishi', 'mishin', 'mishit'],
+  ditelindje: ['ditëlindje', 'ditëlindje', 'ditëlindjeje', 'ditëlindjeje', 'ditëlindja', 'ditëlindjen', 'ditëlindjes', 'ditëlindje', 'ditëlindjet', 'ditëlindjeve', 'ditëlindjesh'],
+  celes: ['çelës', 'çelës', 'çelësi', 'çelësi', 'çelësi', 'çelësin', 'çelësit', 'çelësa', 'çelësat', 'çelësave', 'çelësash'],
+  dyqan: ['dyqan', 'dyqan', 'dyqani', 'dyqani', 'dyqani', 'dyqanin', 'dyqanit', 'dyqane', 'dyqanet', 'dyqaneve', 'dyqanesh'],
+  thike: ['thikë', 'thikë', 'thike', 'thike', 'thika', 'thikën', 'thikës', 'thika', 'thikat', 'thikave', 'thikash'],
+  caj: ['çaj', 'çaj', 'çaji', 'çaji', 'çaji', 'çajin', 'çajit', 'çaje', 'çajet', 'çajeve', 'çajesh'],
+  pyll: ['pyll', 'pyll', 'pylli', 'pylli', 'pylli', 'pyllin', 'pyllit', 'pyje', 'pyjet', 'pyjeve', 'pyjesh'],
+  kepuce: ['këpucë', 'këpucë', 'këpuce', 'këpuce', 'këpuca', 'këpucën', 'këpucës', 'këpucë', 'këpucët', 'këpucëve', 'këpucësh'],
+  buke: ['bukë', 'bukë', 'buke', 'buke', 'buka', 'bukën', 'bukës', 'bukë', 'bukët', 'bukëve', 'bukësh'],
+  bilete: ['biletë', 'biletë', 'bilete', 'bilete', 'bileta', 'biletën', 'biletës', 'bileta', 'biletat', 'biletave', 'biletash'],
+})
+
+const allRoles = [...singularRoles, ...pluralRoles]
+for (const [id, surfaces] of Object.entries(migratedParadigmSurfaces)) {
+  const roles = id === 'mish' ? singularRoles : allRoles
+  assert.deepEqual(
+    NOUN_FORMS[id]?.map(({ tag, al }) => [tag, al]),
+    roles.map((tag, index) => [tag, surfaces[index]]),
+    `${id}: evidence-reviewed paradigm drifted`,
+  )
+}
+assert.equal(
+  NOUN_PLURAL_EXEMPTIONS.mish,
+  'mass noun in this curriculum: generic edible meat/flesh',
+  'mish: curriculum-sense plural exemption drifted',
+)
+
+// Practical-object additions are still nouns before their declensions have
+// been reviewed. Pin that classification independently so adding a bare
+// dictionary row cannot make these changing words look non-inflecting.
+const practicalNounBacklogIds = [
+  'gote',
+  'peshqir',
+  'ilac',
+  'fashe',
+  'cante',
+  'kove',
+  'cekic',
+  'shporte',
+]
+for (const id of practicalNounBacklogIds) {
+  assert.ok(DICT[id], `${id}: practical noun has no dictionary sense`)
+  assert.ok(NOUN_SENSE_IDS.has(id), `${id}: practical noun bypassed explicit noun classification`)
+  assert.ok(NOUN_PARADIGM_BACKLOG.common.has(id), `${id}: unreviewed practical noun left the common backlog`)
+  assert.ok(!NOUN_FORMS[id], `${id}: practical noun received an unreviewed paradigm`)
+}
+
 let forms = 0
 let pluralParadigms = 0
 const paradigmIds = new Set(Object.keys(NOUN_FORMS))

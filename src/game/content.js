@@ -1592,7 +1592,7 @@ export const STORY = {
       describesEnvironment('time', L(w('pas'), wf('dite', 'ditës', 'the day'), p(','), wf('mbremje', 'mbrëmja', 'the evening'), w('vjen'), p('.'))),
     ],
     options: [
-      { text: L(w('prit'), w('deri'), wf('mbremje', 'në mbrëmje', 'evening')), to: 'binoshetNata', time: 'night' },
+      { text: L(w('prit'), w('deri'), wf('ne', 'në', 'in'), w('mbremje')), to: 'binoshetNata', time: 'night' },
     ],
   },
 
@@ -3493,7 +3493,7 @@ export const STORY = {
     id: 'sendetDites',
     text: [
       R('The trader asks, “What kind are you looking for?”', wf('tregtar', 'tregtari', 'the trader'), w('pyet'), p(':'), w('cfare'), wf('lloj', 'lloji', 'kind'), wf('kerko', 'kërkon', 'are looking for'), p('?')),
-      R('He says, “I have a lighter and a bottle, an umbrella and a rope, a blanket and soap.”', w('ai'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('cakmak'), w('dhe'), w('nje'), w('shishe'), p(','), w('nje'), w('cader'), w('dhe'), w('nje'), wf('litar', 'litar', 'rope'), p(','), w('nje'), w('batanije'), w('dhe'), w('sapun'), p('.')),
+      R('He says, “I have a lighter and a bottle, an umbrella and a rope, a blanket, soap, and a towel.”', w('ai'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('cakmak'), w('dhe'), w('nje'), w('shishe'), p(','), w('nje'), w('cader'), w('dhe'), w('nje'), wf('litar', 'litar', 'rope'), p(','), w('nje'), w('batanije'), p(','), w('sapun'), w('dhe'), w('nje'), w('peshqir'), p('.')),
       R('He adds, “There is only one lighter left.”', w('ai'), w('thote'), p(':'), wf('ka', 'ka', 'there is'), wf('mbetem', 'mbetur', 'be left'), w('vetem'), w('nje'), w('cakmak'), p('.')),
     ],
     options: [],
@@ -3597,14 +3597,14 @@ export const STORY = {
     id: 'kafeja1',
     text: [
       L(wf('grua', 'gruaja', 'the woman'), wf('bej', 'bën', 'makes'), w('nje'), w('kafe'), w('e_art'), wf('vogel', 'vogël', 'small'), p('.')),
-      L(wf('kafe', 'kafeja', 'the coffee'), w('vjen'), w('me'), w('uje'), p('.')),
+      R('The woman gives you the coffee and a glass of water.', wf('grua', 'gruaja', 'the woman'), w('te_obj'), w('jep'), wf('kafe', 'kafenë', 'the coffee'), w('dhe'), w('nje'), w('gote'), w('uje'), p('.')),
       L(wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('pi'), w('ngadale'), p('.')),
       // the coffee-house wisdom, told where the coffee actually is
       L(w('kafe'), w('vjen'), w('perpara'), p(','), w('pas'), wf('vjen', 'vijnë', 'come'), wf('fjale', 'fjalët', 'the words'), p('.')),
       L(w('une'), wf('sheh', 'shoh', 'see'), w('fat'), wf('ne', 'në', 'in'), w('kafe'), p('.')),
     ],
     options: [
-      { text: L(w('pi'), wf('kafe', 'kafen', 'the coffee')), to: 'kafejaFund', reveal: 'kafe', revealOccurrence: 1 },
+      { text: L(w('pi'), wf('kafe', 'kafenë', 'the coffee')), to: 'kafejaFund', reveal: 'kafe', revealOccurrence: 1 },
       { text: L(w('degjo'), wf('grua', 'gruan', 'the woman')), to: 'fallFund', reveal: 'fat' },
       { text: L(w('kthehu')), to: 'bujtina' },
     ],
@@ -3617,7 +3617,7 @@ export const STORY = {
     blurb:
       'The woman of the inn made you kafe turke — ground fine, boiled slow in the little copper xhezve, served small and strong with a glass of water on the side — and you drank it the only correct way: avash-avash, slowly, slowly, in no hurry at all. Coffee is the social ritual of Albanian life; a single cup can anchor a whole afternoon of friends, business and gossip, and to set one before a guest is as much a part of the welcome as bread and salt. You did not just drink a coffee. You kept somebody company.',
     text: [
-      L(w('ti'), w('pi'), wf('kafe', 'kafen', 'the coffee'), w('ngadale'), p('.')),
+      L(w('ti'), w('pi'), wf('kafe', 'kafenë', 'the coffee'), w('ngadale'), p('.')),
       L(w('ti'), w('flet'), w('dhe'), w('rri'), p('.')),
     ],
     options: [],
@@ -3630,7 +3630,7 @@ export const STORY = {
     blurb:
       'When the cup was done the woman turned it over on the saucer to cool, righted it, and read your fortune in the shapes the grounds had left — love in one quarter of the cup, the far future in another, all of it told half-laughing, the way the fall is always told. Reading the coffee is a routine, sociable little magic done by women of every background, kept up even where belief has gone loose; Tuesday and Friday are its lucky days, and Sunday is left alone. "A guest is coming down your road," she said. She was right before she said it — you had already come down hers.',
     text: [
-      L(wf('grua', 'gruaja', 'the woman'), w('sheh'), wf('ne', 'në', 'in'), wf('kafe', 'kafen', 'the coffee'), p('.')),
+      L(wf('grua', 'gruaja', 'the woman'), w('sheh'), wf('ne', 'në', 'in'), wf('kafe', 'kafenë', 'the coffee'), p('.')),
       L(wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('nje'), w('mik'), w('vjen'), w('per'), wf('ti', 'ty', 'you'), p('.')),
     ],
     options: [],
@@ -3710,11 +3710,11 @@ export const STORY = {
     id: 'sherimiBar',
     text: [
       L(w('ti'), w('jep'), w('dhjete'), w('lek'), p('.')),
-      R('The healer gives you herbs and says, “The warm liquid will help you. Do not drink too much.”', wf('sherues', 'shëruesi', 'the healer'), w('te_obj'), w('jep'), w('bar'), w('dhe'), w('thote'), p(':'), wf('leng', 'lëngu', 'the liquid'), w('i_art'), w('ngrohte'), w('do_fut'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmojë', 'help'), p('.'), w('mos'), w('pi'), w('teper'), p('.')),
+      R('The healer fills a spoon with medicine and gives it to you. He says, “The liquid is warm. Take only one spoonful; do not drink too much.”', wf('sherues', 'shëruesi', 'the healer'), w('mbush'), w('nje'), w('luge'), w('me'), w('ilac'), w('dhe'), w('ta'), w('jep'), p('.'), w('ai'), w('thote'), p(':'), wf('leng', 'lëngu', 'the liquid'), w('eshte'), w('i_art'), w('ngrohte'), p('.'), w('merr'), w('vetem'), w('nje'), w('luge'), p(';'), w('mos'), w('pi'), w('teper'), p('.')),
       // the signs are told over the steeping brew (see besimeFund's blurb)
       L(w('kur'), wf('dore', 'dora', 'the hand'), w('te_obj'), w('ha'), p(','), w('vjen'), wf('para_money', 'para', 'money'), p('.')),
       L(w('kur'), wf('luge', 'luga', 'the spoon'), w('bie'), p(','), w('vjen'), w('nje'), w('grua'), p('.')),
-      R('You drink it, so you get better.', w('ti'), w('pi'), p(';'), w('prandaj'), wf('behet', 'bëhesh', 'become'), w('mire'), p('.')),
+      R('You take the medicine with the spoon, so you get better.', w('ti'), w('e_obj'), w('merr'), wf('ilac', 'ilaçin', 'the medicine'), w('me'), w('luge'), p(';'), w('prandaj'), wf('behet', 'bëhesh', 'become'), w('mire'), p('.')),
     ],
     options: [
       { text: L(w('kthehu')), to: 'sheshi' },
@@ -3739,7 +3739,7 @@ export const STORY = {
   udhetariHuaj: {
     id: 'udhetariHuaj',
     text: [
-      L(wf('udhetar', 'udhëtari', 'the traveller'), w('ka'), w('nje'), w('harte'), w('dhe'), w('thote'), p(':')),
+      R('The traveller opens his bag, takes out a map, and says:', wf('udhetar', 'udhëtari', 'the traveller'), w('hap'), wf('cante', 'çantën', 'his bag'), p(','), wf('nxjerr', 'nxjerr', 'takes out'), w('nje'), w('harte'), w('dhe'), w('thote'), p(':')),
       when('greeting:morning', describesEnvironment('time', L(w('mirmengjes'), p('!')))),
       when('greeting:day', describesEnvironment('time', L(w('mirdita'), p('!')))),
       when('greeting:evening', describesEnvironment('time', L(w('mirembrema'), p('!')))),
@@ -12036,7 +12036,7 @@ const CONFUSERS2 = {
   tregDet: L(w('degjo'), wf('det', 'detin', 'the sea')), // listen to the sea — it cannot speak
   tregMujo: L(w('lufto'), wf('lahute', 'lahutën', 'the lute')), // fight the lute — you cannot
   lahuta1: L(w('degjo'), wf('koke', 'kokën', 'the head')), // listen to the head — it does not sing
-  kafeja1: L(w('degjo'), wf('kafe', 'kafen', 'the coffee')), // listen to the coffee — it cannot answer
+  kafeja1: L(w('degjo'), wf('kafe', 'kafenë', 'the coffee')), // listen to the coffee — it cannot answer
   dasma1: L(w('kendo'), w('kale')), // sing the horse — you cannot sing a horse
   shpellaRruget: L(w('shko'), wf('ne', 'në', 'in'), w('pishtar')), // take the darkness — you cannot
   djepi3: L(w('merr'), w('fund')), // take the end — it is not a thing to carry
@@ -12345,6 +12345,7 @@ const EVERYDAY_SHOP_GOODS = Object.freeze([
   ['litar', 20, 'a rope'],
   ['batanije', 20, 'a blanket'],
   ['sapun', 4, 'some soap'],
+  ['peshqir', 6, 'a towel'],
 ])
 for (const [itemId, price, englishNounPhrase] of EVERYDAY_SHOP_GOODS) {
   STORY.sendetDites.options.push(worldItemAction(
@@ -12470,6 +12471,87 @@ STORY.kroi1.options.push(worldItemAction(
   'Wash your hands with soap.',
   L(w('laj'), wf('dore', 'duart', 'hands'), w('me'), w('sapun'), p('.')),
   { to: 'kroi1', requires: 'sapun', unless: 'flag:washedAtSpring', effects: [{ type: 'flag', id: 'washedAtSpring' }], durationHours: 0 },
+))
+STORY.kroi1.text.push(whenUnless(['peshqir', 'flag:washedAtSpring'], ['flag:driedAtSpring'], R(
+  'You have the towel in your hand.',
+  w('ti'), w('ke'), wf('peshqir', 'peshqirin', 'the towel'), wf('ne', 'në', 'in'), w('dore'), p('.'),
+)))
+STORY.kroi1.text.push(when('flag:driedAtSpring', R(
+  'After washing your hands, you use the towel.',
+  w('pasi'), wf('laj', 'lan', 'wash'), wf('dore', 'duart', 'hands'), p(','), w('ti'), w('perdor'), wf('peshqir', 'peshqirin', 'the towel'), p('.'),
+)))
+STORY.kroi1.options.push(worldItemAction(
+  'dry-hands-with-towel',
+  'përdor peshqirin pasi lan duart',
+  'Use the towel after washing your hands.',
+  L(w('perdor'), wf('peshqir', 'peshqirin', 'the towel'), w('pasi'), wf('laj', 'lan', 'wash'), wf('dore', 'duart', 'hands')),
+  { to: 'kroi1', requires: ['peshqir', 'flag:washedAtSpring'], unless: 'flag:driedAtSpring', effects: [{ type: 'flag', id: 'driedAtSpring' }], durationHours: 0, reveal: 'peshqir', revealOccurrence: 1 },
+))
+
+// The remaining objects are fixtures or borrowed tools: they teach useful
+// words through an action without pretending the traveller owns everything.
+STORY.sheruesi.text.push(whenUnless(['flag:askedForHelp'], ['flag:handBandaged'], R(
+  'The healer has a clean bandage.',
+  wf('sherues', 'shëruesi', 'the healer'), w('ka'), w('nje'), w('fashe'), wf('te_link', 'të', 'the'), w('paster'), p('.'),
+)))
+STORY.sheruesi.text.push(when('flag:handBandaged', R(
+  'The healer wraps a bandage around your hand.',
+  wf('sherues', 'shëruesi', 'the healer'), w('ta'), w('lidh'), wf('dore', 'dorën', 'your hand'), w('me'), w('nje'), w('fashe'), p('.'),
+)))
+STORY.sheruesi.options.push(worldItemAction(
+  'bandage-right-hand',
+  'lidh dorën me fashë',
+  'Bandage the hand.',
+  L(w('lidh'), wf('dore', 'dorën', 'the hand'), w('me'), w('fashe')),
+  { to: 'sheruesi', requires: 'flag:askedForHelp', unless: 'flag:handBandaged', effects: [{ type: 'flag', id: 'handBandaged' }], hearts: 1, durationHours: 0, reveal: 'fashe', revealOccurrence: 1 },
+))
+
+STORY.pusiThate.text.push(whenUnless(['fact:villageWellsRestored'], ['flag:drewWaterWithBucket'], R(
+  'A bucket rests beside the well.',
+  w('nje'), w('kove'), w('rri'), w('prane'), wf('pus', 'pusit', 'the well'), p('.'),
+)))
+STORY.pusiThate.text.push(when('flag:drewWaterWithBucket', R(
+  'You lower the bucket into the well with the rope and pull it back up, full of water.',
+  w('ti'), w('ul'), wf('kove', 'kovën', 'the bucket'), wf('ne', 'në', 'in'), w('pus'), w('me'), wf('litar', 'litarin', 'rope'), w('dhe'), w('e_obj'), w('terheq'), w('lart'), p(','), w('plot'), w('me'), w('uje'), p('.'),
+)))
+STORY.pusiThate.options.push(worldItemAction(
+  'draw-water-with-bucket',
+  'ul kovën në pus me litarin',
+  'Lower the bucket into the well with the rope.',
+  L(w('ul'), wf('kove', 'kovën', 'the bucket'), wf('ne', 'në', 'in'), w('pus'), w('me'), wf('litar', 'litarin', 'rope')),
+  { to: 'pusiThate', requires: ['fact:villageWellsRestored', 'litar'], unless: 'flag:drewWaterWithBucket', effects: [{ type: 'flag', id: 'drewWaterWithBucket' }], durationHours: 0, reveal: 'kove', revealOccurrence: 1 },
+))
+
+STORY.uraArtes1.text.push(whenUnless(['day'], ['flag:workedWithHammer'], R(
+  'Mihal holds a hammer and beckons to you.',
+  w('mihal'), w('mban'), w('nje'), w('cekic'), w('dhe'), w('te_obj'), wf('bej', 'bën', 'makes'), w('shenje'), p('.'),
+)))
+STORY.uraArtes1.text.push(when('flag:workedWithHammer', R(
+  'Mihal hands you the hammer. You strike the stone and work beside your brothers.',
+  w('mihal'), w('te_obj'), w('jep'), wf('cekic', 'çekiçin', 'the hammer'), p('.'), w('ti'), wf('godit', 'godet', 'strike'), wf('gur', 'gurin', 'the stone'), w('dhe'), w('punon'), w('me'), wf('vella', 'vëllezërit', 'your brothers'), p('.'),
+)))
+STORY.uraArtes1.options.push(worldItemAction(
+  'work-with-hammer',
+  'godit gurin me çekiç',
+  'Strike the stone with the hammer.',
+  L(w('godit'), wf('gur', 'gurin', 'the stone'), w('me'), w('cekic')),
+  { to: 'uraArtes1', requires: 'day', unless: 'flag:workedWithHammer', effects: [{ type: 'flag', id: 'workedWithHammer' }], durationHours: 0, reveal: 'cekic', revealOccurrence: 1 },
+))
+
+STORY.cajMali1.text.push(unless('flag:teaBasketFilled', R(
+  'A basket rests beside the mountain tea.',
+  w('nje'), w('shporte'), w('rri'), w('prane'), wf('caj', 'çajit'), wf('te_link', 'të', 'the'), wf('mal', 'malit', 'the mountain'), p('.'),
+)))
+STORY.cajMali1.text.push(when('flag:teaBasketFilled', R(
+  'You fill the basket with mountain tea.',
+  w('ti'), w('mbush'), wf('shporte', 'shportën', 'the basket'), w('me'), w('caj'), wf('mal', 'mali', 'mountain'), p('.'),
+)))
+STORY.cajMali1.options.push(worldItemAction(
+  'fill-tea-basket',
+  'mbush shportën me çaj mali',
+  'Fill the basket with mountain tea.',
+  L(w('mbush'), wf('shporte', 'shportën', 'the basket'), w('me'), w('caj'), wf('mal', 'mali', 'mountain')),
+  { to: 'cajMali1', requires: 'cajMali', unless: 'flag:teaBasketFilled', effects: [{ type: 'flag', id: 'teaBasketFilled' }], durationHours: 0, reveal: 'shporte', revealOccurrence: 1 },
 ))
 STORY.lendina.text.push(when('flag:forestGuestWarm', R(
   'The old woman wraps herself in the blanket. She is warm now, but she is still hungry.',
@@ -12684,6 +12766,11 @@ export const ITEMS = {
     id: 'sapun', icon: '🧼', name: 'Soap', al: 'sapun', word: 'sapun',
     kind: 'tool', tags: ['tool', 'hygiene'],
     blurb: 'A bar of soap from the shop. At the spring, clean water turns it into the useful little action of washing your hands.',
+  },
+  peshqir: {
+    id: 'peshqir', icon: '🧺', name: 'Towel', al: 'peshqir', word: 'peshqir',
+    kind: 'tool', tags: ['tool', 'hygiene'],
+    blurb: 'A clean towel from the town shop. After washing at the spring, use it to dry your hands; it stays with you for the road.',
   },
   kripe: {
     id: 'kripe', icon: '🧂', name: 'Salt', al: 'kripë',
@@ -13217,7 +13304,6 @@ export const DEFS = {
   ma: L(p('___'), w('jep'), wf('cakmak', 'çakmakun', 'the lighter')),
   vend: L(w('ku'), w('je'), w('ose'), w('ku'), wf('shko', 'shkon', 'goes')),
   // top 151-200 frequency fill
-  deri: L(w('ec'), p('___'), wf('ne', 'te', 'at'), wf('ure', 'ura', 'the bridge'), w('dhe'), w('prit')),
   hajde: L(p('___'), w('me'), w('mua'), p(';'), wf('shko', 'shkojmë', 'go'), w('tani')),
   prej: L(w('vjen'), p('___'), wf('fshat', 'fshatit', 'the village')),
   ia: L(p('___'), w('jep'), wf('buke', 'bukën', 'the bread'), wf('ai', 'atij', 'to him')),
@@ -13736,6 +13822,14 @@ export const DEFS = {
   shenje: L(w('e_obj'), w('sheh'), w('dhe'), wf('kuptoj', 'kupton', 'understand'), w('cfare'), w('duhet'), w('te_subj'), wf('bej', 'bësh', 'do')),
   thike: L(w('gje'), w('prej'), wf('hekur', 'hekuri'), w('qe'), wf('pre', 'pret', 'cuts'), w('buke'), w('ose'), w('mish')),
   luge: L(w('e_obj'), w('mban'), w('ne'), w('dore'), w('per'), w('te_subj'), wf('ha', 'ngrënë', 'eat')),
+  gote: L(w('mban'), w('uje'), w('ose'), w('nje'), w('pije'), wf('tjeter', 'tjetër', 'other'), w('per'), w('te_subj'), wf('pi', 'pirë', 'drink')),
+  peshqir: L(w('e_obj'), w('perdor'), w('pasi'), wf('laj', 'lan', 'wash'), wf('dore', 'duart', 'hands'), w('ose'), wf('fytyre', 'fytyrën', 'face')),
+  ilac: L(w('dicka'), w('qe'), w('merr'), w('kur'), w('je'), w('i_art'), w('semur'), w('dhe'), w('te_obj'), wf('ndihmo', 'ndihmon', 'helps')),
+  fashe: L(w('mbulon'), w('dhe'), w('lidh'), w('nje'), w('plage')),
+  cante: L(w('mban'), wf('gje', 'gjëra', 'things'), w('qe'), w('merr'), w('me'), wf('vete', 'vete', 'self')),
+  kove: L(w('mban'), w('uje'), w('dhe'), wf('perdor', 'përdoret', 'is used'), wf('tek', 'te', 'at'), w('pus')),
+  cekic: L(w('godit'), w('gur'), p(','), w('hekur'), w('ose'), w('gozhde')),
+  shporte: L(w('mban'), w('caj'), p(','), w('ushqim'), w('ose'), wf('gje', 'gjëra', 'things'), wf('te_link', 'të', 'the'), wf('tjeter', 'tjera', 'other')),
   plis: L(w('rrobe'), w('e_art'), w('bardhe'), w('qe'), wf('burre', 'burrat', 'men'), wf('mban', 'mbajnë', 'keep'), w('ne'), w('koke')),
   xhublete: L(w('rrobe'), w('e_art'), w('gjate'), w('qe'), wf('vesh', 'veshin', 'wear'), wf('grua', 'gratë', 'women'), w('ne'), w('mal')),
   kurbet: L(w('pune'), w('larg'), wf('shtepi', 'shtëpisë', 'house'), w('dhe'), wf('familje', 'familjes'), w('per'), w('shume'), w('kohe')),
@@ -13832,7 +13926,6 @@ export const DEFS = {
   di: L(w('une'), p('___'), w('ku'), w('eshte'), wf('fshat', 'fshati', 'the village')),
   duhet: L(w('ti'), p('___'), w('te_subj'), wf('shko', 'shkosh', 'go'), w('tani'), p(';'), w('nuk'), w('mund'), w('te_subj'), wf('prit', 'presësh', 'wait')),
   mendoj: L(w('une'), p('___'), w('para'), w('se'), w('te_subj'), w('zgjedh')),
-  duket: L(w('ai'), p('___'), w('i_art'), w('lodhur')),
   ai: L(w('nje'), w('burre'), p('; ___'), w('eshte'), w('ketu')),
   ajo: L(w('nje'), w('grua'), p('; ___'), w('eshte'), w('ketu')),
   ata: L(w('dy'), wf('njeri', 'njerëz', 'people'), p('; ___'), wf('je', 'janë', 'are'), w('ketu')),

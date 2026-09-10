@@ -673,4 +673,4 @@ export const unresolvedPlaceReviews = () =>
 // until this digest is consciously updated. The digest records payload identity;
 // by itself it does not prove expert or native-speaker review.
 export const PROJECTION_REVIEW_SNAPSHOT_HASH =
-  '167c3be20c4663ee1ebef705973da2da75b337ed68ad523c63a82e2521648c0a'
+  '09da1bb99c37669d6d0f703ad755e37e06a63b2c17a05105803b358bc68ed429'

@@ -35,7 +35,9 @@ export const EVERYDAY_CORE_SENSE_IDS = Object.freeze([
   'ha', 'pi', 'ndihmo', 'kuptoj', 'perserit', 'ngadale', 'pelqen', 'nevoje', 'dhemb',
   'majtas', 'djathtas', 'drejt', 'afer', 'treg', 'dyqan', 'blej', 'kushton',
   'lek', 'kripe', 'oda', 'bujtine', 'dhome', 'shtrat', 'fle',
-  'cakmak', 'shishe', 'cader', 'litar', 'batanije', 'sapun', 'mbush', 'hap', 'laj',
+  'cakmak', 'shishe', 'cader', 'litar', 'batanije', 'sapun', 'peshqir',
+  'gote', 'luge', 'ilac', 'fashe', 'cante', 'kove', 'cekic', 'shporte',
+  'mbush', 'hap', 'laj', 'perdor', 'lidh', 'godit',
   'mjek', 'sherues', 'semur', 'dhimbje', 'shok',
 ])
 
