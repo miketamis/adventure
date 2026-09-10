@@ -3,6 +3,7 @@
 // player focuses or hovers a saved word.
 import assert from 'node:assert/strict'
 import { DEFS, DICT } from '../src/game/content.js'
+import { EDITORIALLY_REVIEWED_DEFINITIONS } from './definitionreviewledger.mjs'
 
 const failures = []
 const fail = (message) => failures.push(message)
@@ -15,6 +16,7 @@ const bannedPlaceholders = new Set([
   'nje fjale e_art vogel',
 ])
 const definitionOwners = new Map()
+const renderedDefinitions = new Map()
 
 for (const id of Object.keys(DICT)) {
   const tokens = DEFS[id]
@@ -38,6 +40,7 @@ for (const id of Object.keys(DICT)) {
     .join(' ')
     .replace(/\s+([,.;!?])/g, '$1')
     .toLocaleLowerCase('sq')
+  renderedDefinitions.set(id, rendered)
   const owners = definitionOwners.get(rendered) || []
   owners.push(id)
   definitionOwners.set(rendered, owners)
@@ -50,6 +53,17 @@ for (const id of Object.keys(DEFS)) {
 for (const [rendered, owners] of definitionOwners) {
   if (owners.length > 1) {
     fail(`${owners.join(', ')}: identical definition “${rendered}” does not distinguish these senses`)
+  }
+}
+
+for (const [id, expected] of Object.entries(EDITORIALLY_REVIEWED_DEFINITIONS)) {
+  if (!DICT[id]) {
+    fail(`${id}: editorial definition review points to an unknown sense`)
+    continue
+  }
+  const actual = renderedDefinitions.get(id)
+  if (actual !== expected.toLocaleLowerCase('sq')) {
+    fail(`${id}: learner definition changed after editorial review; review it again and update definitionreviewledger.mjs`)
   }
 }
 
@@ -70,3 +84,5 @@ if (failures.length) {
 
 assert.equal(Object.keys(DEFS).length, Object.keys(DICT).length)
 console.log(`✓ ${Object.keys(DICT).length} dictionary senses have complete, non-placeholder Albanian definitions.`)
+const reviewedCount = Object.keys(EDITORIALLY_REVIEWED_DEFINITIONS).length
+console.log(`  Editorial meaning review: ${reviewedCount} sealed; ${Object.keys(DICT).length - reviewedCount} explicitly remain in the review backlog.`)
