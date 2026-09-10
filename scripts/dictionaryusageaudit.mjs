@@ -1,7 +1,7 @@
 // Every public dictionary sense must be encountered through actual play. A
 // definition is support for a saved word, never a hiding place for otherwise
 // unused vocabulary.
-import { DICT, HEART_LEVELS, ITEMS, STORY, lineOf } from '../src/game/content.js'
+import { DICT, HEART_LEVELS, ITEMS, STORY, lineOf, moneyOutcomeLinesOf } from '../src/game/content.js'
 import { environmentStoryLine, purseStoryLine } from '../src/game/storyContext.js'
 
 const uses = new Map(Object.keys(DICT).map((id) => [id, []]))
@@ -16,7 +16,11 @@ function addTokens(tokens, location) {
 
 for (const [nodeId, node] of Object.entries(STORY)) {
   node.text.forEach((entry, index) => addTokens(lineOf(entry), `story:${nodeId}:line:${index + 1}`))
-  node.options.forEach((option, index) => addTokens(option.text, `story:${nodeId}:option:${index + 1}`))
+  node.options.forEach((option, index) => {
+    addTokens(option.text, `story:${nodeId}:option:${index + 1}`)
+    moneyOutcomeLinesOf(option).forEach((line, outcomeIndex) =>
+      addTokens(line, `story:${nodeId}:option:${index + 1}:money:${outcomeIndex + 1}`))
+  })
 }
 
 for (const [itemId, item] of Object.entries(ITEMS)) {

@@ -1,4 +1,4 @@
-import { DICT, HEART_LEVELS, ITEMS, STORY } from './content.js'
+import { DICT, HEART_LEVELS, ITEMS, STORY, moneyOutcomeLinesOf } from './content.js'
 import { TRAIN_WORD_FORM_POLICY } from './trainingProgression.js'
 import { wordProgressStage } from './wordProgression.js'
 import { SEASONS, WEATHER_TYPES } from './environment.js'
@@ -34,7 +34,10 @@ const addToken = (token) => {
 
 for (const node of Object.values(STORY)) {
   for (const entry of node.text) for (const token of lineOf(entry)) addToken(token)
-  for (const option of node.options) for (const token of option.text) addToken(token)
+  for (const option of node.options) {
+    for (const token of option.text) addToken(token)
+    for (const outcome of moneyOutcomeLinesOf(option)) for (const token of outcome) addToken(token)
+  }
 }
 for (const item of Object.values(ITEMS)) {
   for (const action of Object.values(item)) {

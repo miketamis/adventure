@@ -929,6 +929,11 @@ export const DICT = {
   dhjete:     { al: 'dhjetë',      en: 'ten' },
   njezet:     { al: 'njëzet',      en: 'twenty' },
   njeqind:    { al: 'njëqind',     en: 'hundred' },
+  dyqind:     { al: 'dyqind',      en: 'two hundred' },
+  treqind:    { al: 'treqind',     en: 'three hundred' },
+  peseqind:   { al: 'pesëqind',    en: 'five hundred' },
+  gjashteqind:{ al: 'gjashtëqind', en: 'six hundred' },
+  teteqind:   { al: 'tetëqind',    en: 'eight hundred' },
   mije:       { al: 'mijë',        en: 'thousand' },
   zero:       { al: 'zero',        en: 'zero' },
   // --- buying & bargaining ---

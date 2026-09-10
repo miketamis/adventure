@@ -32,6 +32,18 @@ export function optionReadingVisible(debug = false) {
   return Boolean(debug)
 }
 
+// Positive payouts are consequences, not promises printed on the choice. A
+// learner should choose to help because of the Albanian action and discover
+// the payment in the story. Debug keeps the raw effect visible for authors;
+// prices remain visible in normal play because the player must consent to a
+// cost before spending money.
+export function optionMoneyEffectText(delta, debug = false) {
+  if (!Number.isSafeInteger(delta) || delta === 0) return null
+  if (delta > 0 && !debug) return 'spends tokens'
+  const money = delta > 0 ? `receives 🪙 ${delta}` : `costs 🪙 ${-delta}`
+  return `${money} · spends tokens`
+}
+
 export function interactionLockText(availability) {
   if (availability?.ok !== false) return null
   if (availability.reason === 'cooldown') {

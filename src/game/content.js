@@ -1,6 +1,24 @@
 import { QUOTES } from './quotes.js'
 import { DICT } from './dictionary.js'
 import { describesEnvironment } from './environmentNarration.js'
+import {
+  ALMS_AMOUNT,
+  BEER_PRICE,
+  BREAD_PRICE,
+  ELIRA_ERRAND_ADVANCE,
+  EVERYDAY_GOOD_PRICES,
+  HEALER_HERBS_PRICE,
+  INN_NIGHT_PRICE,
+  LAHUTA_PRICE,
+  MARKET_TENDER,
+  ORDINARY_WORK_WAGE,
+  ROAD_TICKET_PRICE,
+  SALT_PRICE,
+  SONG_WAGE,
+  TEA_BUNDLE_PRICE,
+  TEA_PRICE,
+  oldLekQuoteFor,
+} from './economy.js'
 export { DICT } from './dictionary.js'
 export { describesEnvironment } from './environmentNarration.js'
 
@@ -158,6 +176,97 @@ export const first = (line) => ({ cond: 'again', negate: true, line })
 export const again = (line) => ({ cond: 'again', line })
 export const until = (nodeIds, line) => ({ cond: [].concat(nodeIds).map((n) => 'visited:' + n), negate: true, line })
 export const lineOf = (entry) => (Array.isArray(entry) ? entry : entry.line)
+
+// Money changes are authored on the choice that causes them, not as a fixed
+// sentence on the destination. The renderer can therefore join the exact
+// transaction to the player's resulting purse balance, including after a
+// reload. Variants let a known NPC use their name without making two economic
+// effects or hard-coding player state into the prose.
+export const moneyOutcomeLinesOf = (option) => {
+  const outcome = option?.moneyOutcome
+  if (!outcome) return []
+  if (Array.isArray(outcome)) return [outcome]
+  return (outcome.variants || []).map((variant) => variant.line).filter(Array.isArray)
+}
+
+export const moneyOutcomeLineOf = (option, has = () => false) => {
+  const outcome = option?.moneyOutcome
+  if (!outcome) return null
+  if (Array.isArray(outcome)) return outcome
+  const variants = outcome.variants || []
+  return variants.find((variant) => !variant.when || has(variant.when))?.line || null
+}
+
+const NUMBER_TOKEN_IDS = {
+  100: 'njeqind',
+  200: 'dyqind',
+  300: 'treqind',
+  500: 'peseqind',
+  600: 'gjashteqind',
+  800: 'teteqind',
+  1000: 'nje mije',
+  1500: 'nje mije e_conj peseqind',
+  2000: 'dy mije',
+  5000: 'pese mije',
+  100000: 'njeqind mije',
+}
+
+const numberTokens = (amount) => {
+  const ids = NUMBER_TOKEN_IDS[amount]
+  if (!ids) throw new Error(`No reviewed Albanian number wording for ${amount} lek`)
+  return ids.split(' ').map(w)
+}
+
+const lekTokens = (amount) => [...numberTokens(amount), wf('lek', 'lekë', 'lek')]
+
+const moneyOutcome = (reading, ...tokens) => R(reading, ...tokens)
+const takeForMoneyOutcome = (amount, englishObject, payVerb, ...objectTokens) => moneyOutcome(
+  `You pay ${amount} lek and take ${englishObject}.`,
+  w('ti'), payVerb, ...lekTokens(amount), w('dhe'), w('merr'), ...objectTokens, p('.'),
+)
+const thankedWageOutcome = (id, al, gloss) => L(
+  wf(id, al, gloss), w('te_obj'), w('jep'),
+  ...lekTokens(ORDINARY_WORK_WAGE), w('dhe'), w('thote'), p(':'), w('faleminderit'), p('!'),
+)
+
+const ELIRA_ERRAND_MONEY_OUTCOME = {
+  variants: [
+    {
+      when: 'knows:npcName:elira',
+      line: R(
+        `Elira gives you ${ELIRA_ERRAND_ADVANCE} lek.`,
+        w('elira'), w('te_obj'), w('jep'), ...lekTokens(ELIRA_ERRAND_ADVANCE), p('.'),
+      ),
+    },
+    {
+      line: R(
+        `The woman gives you ${ELIRA_ERRAND_ADVANCE} lek.`,
+        wf('grua', 'Gruaja', 'the woman'), w('te_obj'), w('jep'),
+        ...lekTokens(ELIRA_ERRAND_ADVANCE), p('.'),
+      ),
+    },
+  ],
+}
+
+const errandPurchaseTotal = BREAD_PRICE + SALT_PRICE
+const ERRAND_PURCHASE_MONEY_OUTCOME = moneyOutcome(
+    `You pay ${errandPurchaseTotal} lek and take one loaf and salt.`,
+    w('ti'), wf('paguaj', 'paguan', 'pay'), ...lekTokens(errandPurchaseTotal),
+    w('dhe'), w('merr'), w('nje'), w('buke'), w('dhe'), w('kripe'), p('.'),
+)
+
+const SALT_WORK_MONEY_OUTCOME = L(wf('burre', 'burrat', 'the men'), wf('jep', 'japin', 'give'), ...lekTokens(ORDINARY_WORK_WAGE), w('dhe'), wf('thote', 'thonë', 'say'), p(':'), w('faleminderit'), p('!'))
+const BREAD_PURCHASE_MONEY_OUTCOME = L(w('ti'), w('jep'), ...lekTokens(BREAD_PRICE), w('dhe'), w('merr'), w('nje'), w('buke'), p('.'))
+const SALT_PURCHASE_MONEY_OUTCOME = L(w('ti'), w('jep'), ...lekTokens(SALT_PRICE), w('dhe'), w('merr'), wf('kripe', 'kripën', 'the salt'), p('.'))
+const TEA_SALE_MONEY_OUTCOME = L(w('ti'), w('jep'), w('caj'), w('dhe'), wf('tregtar', 'tregtari', 'the trader'), w('te_obj'), w('jep'), ...lekTokens(TEA_BUNDLE_PRICE), p('.'))
+const LAHUTA_PURCHASE_MONEY_OUTCOME = L(w('ti'), w('jep'), ...lekTokens(LAHUTA_PRICE), w('dhe'), w('merr'), wf('lahute', 'lahutën', 'the lute'), p('.'))
+const INN_NIGHT_MONEY_OUTCOME = L(w('ti'), w('jep'), ...lekTokens(INN_NIGHT_PRICE), w('dhe'), w('fle'), wf('ne', 'në', 'in'), w('nje'), w('shtrat'), p('.'))
+const HEALER_MONEY_OUTCOME = L(w('ti'), w('jep'), ...lekTokens(HEALER_HERBS_PRICE), w('per'), wf('ilac', 'ilaçin', 'the medicine'), p('.'))
+const TICKET_MONEY_OUTCOME = moneyOutcome(`You pay ${ROAD_TICKET_PRICE} lek for your ticket.`, w('ti'), wf('paguaj', 'paguan', 'pay'), ...lekTokens(ROAD_TICKET_PRICE), w('per'), wf('bilete', 'biletën', 'the ticket'), p('.'))
+const SONG_MONEY_OUTCOME = L(w('burra'), wf('jep', 'japin', 'give'), ...lekTokens(SONG_WAGE), p('.'))
+const SHEPHERD_MONEY_OUTCOME = thankedWageOutcome('bari', 'bariu', 'the shepherd')
+const OLD_MAN_MONEY_OUTCOME = thankedWageOutcome('plak', 'plaku', 'the old man')
+const TANNER_MONEY_OUTCOME = thankedWageOutcome('tabak', 'tabaku', 'the tanner')
 // Optional atmosphere may enrich a short scene, but it must not extend an
 // already crowded scroll or displace a sentence that teaches or unlocks an
 // action. The shared scene-presentation planner is the only place that may
@@ -534,7 +643,7 @@ export const STORY = {
     ],
     options: [
       { text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), unless: 'knows:npcName:elira', effects: [{ type: 'learn', id: 'npcName:elira' }], to: 'eliraEmriBreg', durationHours: 0 },
-      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 2 },
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: ELIRA_ERRAND_ADVANCE, moneyOutcome: ELIRA_ERRAND_MONEY_OUTCOME, to: 'porosiaShesh', durationHours: 2 },
       { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], to: 'fshatiLumi', durationHours: 0 },
     ],
   },
@@ -546,7 +655,7 @@ export const STORY = {
       R('“Would you be able to help me in the village?”', w('a_q'), w('ke'), w('mundesi'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), wf('ne', 'në', 'in'), w('fshat'), p('?')),
     ],
     options: [
-      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 2 },
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: ELIRA_ERRAND_ADVANCE, moneyOutcome: ELIRA_ERRAND_MONEY_OUTCOME, to: 'porosiaShesh', durationHours: 2 },
       { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], to: 'fshatiLumi', durationHours: 0 },
     ],
   },
@@ -576,7 +685,7 @@ export const STORY = {
     ],
     options: [
       { text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), unless: 'knows:npcName:elira', effects: [{ type: 'learn', id: 'npcName:elira' }], to: 'eliraEmriShesh', durationHours: 0 },
-      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 0 },
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: ELIRA_ERRAND_ADVANCE, moneyOutcome: ELIRA_ERRAND_MONEY_OUTCOME, to: 'porosiaShesh', durationHours: 0 },
       { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], to: 'fshatiSheshi', durationHours: 0 },
     ],
   },
@@ -588,7 +697,7 @@ export const STORY = {
       R('“Can you help me?”', w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?')),
     ],
     options: [
-      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: 8, moneyLabel: 'receives', to: 'porosiaShesh', durationHours: 0 },
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }, { type: 'flag', id: 'porosiaMikut' }], lek: ELIRA_ERRAND_ADVANCE, moneyOutcome: ELIRA_ERRAND_MONEY_OUTCOME, to: 'porosiaShesh', durationHours: 0 },
       { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], to: 'fshatiSheshi', durationHours: 0 },
     ],
   },
@@ -622,8 +731,8 @@ export const STORY = {
   porosiaShesh: {
     id: 'porosiaShesh',
     text: [
-      unless('knows:npcName:elira', R('The woman gives you eight lek.', wf('grua', 'gruaja', 'the woman'), w('te_obj'), w('jep'), w('tete'), w('lek'), p('.'))),
-      when('knows:npcName:elira', R('Elira gives you eight lek.', w('elira'), w('te_obj'), w('jep'), w('tete'), w('lek'), p('.'))),
+      whenUnless([], ['knows:npcName:elira', 'arrival:money'], ELIRA_ERRAND_MONEY_OUTCOME.variants[1].line),
+      whenUnless(['knows:npcName:elira'], ['arrival:money'], ELIRA_ERRAND_MONEY_OUTCOME.variants[0].line),
       R('She says, “A guest is coming to our house tonight. We have neither bread nor salt.”', w('ajo'), w('thote'), p(':'), w('nje'), w('mik'), w('po_prog'), w('vjen'), wf('ne', 'në', 'to'), wf('shtepi', 'shtëpinë', 'the house'), wf('tone', 'tonë', 'our'), w('sonte'), p('.'), w('ne_we'), w('nuk'), wf('ka', 'kemi', 'have'), w('as'), w('buke'), p(','), w('as'), w('kripe'), p('.')),
       R('She asks, “Bring bread and salt, please. Do not forget the salt.”', w('ajo'), w('thote'), p(':'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.'), w('mos'), wf('harron', 'harro', 'forget'), wf('kripe', 'kripën', 'the salt'), p('.')),
       R('You ask, “Who will come?” She says, “A traveller from Gjakova.”', w('ti'), w('pyet'), p(':'), w('kush'), w('do_fut'), w('te_subj'), wf('vjen', 'vijë', 'come'), p('?'), w('ajo'), w('thote'), p(':'), w('nje'), w('udhetar'), w('nga'), w('gjakove'), p('.')),
@@ -644,13 +753,13 @@ export const STORY = {
       when('weather:rain', ambient(describesEnvironment('weather', R('Rain falls across the square, and people walk quickly through the market.', wf('shi', 'Shiu', 'the rain'), w('bie'), w('mbi'), w('shesh'), p(','), w('dhe'), wf('njeri', 'njerëzit', 'the people'), wf('ec', 'ecin', 'walk'), w('shpejt'), wf('ne', 'në', 'in'), w('treg'), p('.'))), 'env:pazariFshatit:rain')),
       R('At the market a trader says, “Good day. What would you like?”', wf('ne', 'në', 'in'), w('treg'), w('nje'), w('tregtar'), w('thote'), p(':'), w('mirdita'), p('.'), w('cfare'), wf('deshiron', 'dëshironi', 'would you like'), p('?')),
       R('You ask, “Do you have bread? Do you have salt?”', w('ti'), w('pyet'), p(':'), wf('ka', 'keni', 'have'), w('buke'), p('?'), wf('ka', 'keni', 'have'), w('kripe'), p('?')),
-      R('The trader answers quickly, “Bread, five lek. Salt, three lek.”', wf('tregtar', 'tregtari', 'the trader'), w('thote'), w('shpejt'), p(':'), w('buke'), p(','), w('pese'), w('lek'), p('.'), w('kripe'), p(','), w('tre'), w('lek'), p('.')),
+      L(wf('tregtar', 'tregtari', 'the trader'), w('thote'), w('shpejt'), p(':'), w('buke'), p(','), ...lekTokens(BREAD_PRICE), p('.'), w('kripe'), p(','), ...lekTokens(SALT_PRICE), p('.')),
     ],
     options: [
       { text: R("I don't understand. Speak slowly, please.", w('nuk'), w('kuptoj'), p('.'), w('fol'), w('ngadale'), p(','), w('lutem'), p('.')), to: 'pazariPerserit', durationHours: 0 },
       {
         text: R('I would like bread and salt, please. How much are they?', wf('do', 'dua', 'want'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.'), w('sa'), wf('kushton', 'kushtojnë', 'cost'), p('?')),
-        reveal: 'lek', requires: 'flag:porosiaMikut', effects: [{ type: 'flag', id: 'sofraGati' }], lek: -8, to: 'porosiaBlerje', durationHours: 0,
+        reveal: 'lek', requires: 'flag:porosiaMikut', effects: [{ type: 'flag', id: 'sofraGati' }], lek: -errandPurchaseTotal, moneyOutcome: ERRAND_PURCHASE_MONEY_OUTCOME, to: 'porosiaBlerje', durationHours: 0,
       },
     ],
   },
@@ -658,7 +767,7 @@ export const STORY = {
   pazariPerserit: {
     id: 'pazariPerserit',
     text: [
-      R('The trader speaks slowly: “One loaf costs five lek. Salt costs three lek.”', wf('tregtar', 'tregtari', 'the trader'), w('flet'), w('ngadale'), p(':'), w('nje'), w('buke'), w('kushton'), w('pese'), w('lek'), p('.'), w('kripe'), w('kushton'), w('tre'), w('lek'), p('.')),
+      L(wf('tregtar', 'tregtari', 'the trader'), w('flet'), w('ngadale'), p(':'), w('nje'), w('buke'), w('kushton'), ...lekTokens(BREAD_PRICE), p('.'), w('kripe'), w('kushton'), ...lekTokens(SALT_PRICE), p('.')),
       R('You ask, “What does it mean?”', w('ti'), w('pyet'), p(':'), w('cfare'), w('do_fut'), w('te_subj'), wf('thote', 'thotë', 'mean'), p('?')),
       R('He says, “Of course. It means how much money you must give. Just ask: how much does it cost?”', w('ai'), w('thote'), p(':'), w('sigurisht'), p('.'), w('do_fut'), w('te_subj'), wf('thote', 'thotë', 'mean'), w('sa'), w('para_money'), w('duhet'), w('te_subj'), wf('jep', 'japësh', 'give'), p('.'), w('thjesht'), w('pyet'), p(':'), w('sa'), w('kushton'), p('?')),
     ],
@@ -666,7 +775,7 @@ export const STORY = {
       { text: R('Repeat that, please.', w('perserit'), p(','), w('lutem'), p('.')), to: 'pazariPerserit', durationHours: 0 },
       {
         text: R('I would like bread and salt, please. How much are they?', wf('do', 'dua', 'want'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.'), w('sa'), wf('kushton', 'kushtojnë', 'cost'), p('?')),
-        reveal: 'para_money', requires: 'flag:porosiaMikut', effects: [{ type: 'flag', id: 'sofraGati' }], lek: -8, to: 'porosiaBlerje', durationHours: 0,
+        reveal: 'para_money', requires: 'flag:porosiaMikut', effects: [{ type: 'flag', id: 'sofraGati' }], lek: -errandPurchaseTotal, moneyOutcome: ERRAND_PURCHASE_MONEY_OUTCOME, to: 'porosiaBlerje', durationHours: 0,
       },
     ],
   },
@@ -674,7 +783,7 @@ export const STORY = {
   porosiaBlerje: {
     id: 'porosiaBlerje',
     text: [
-      R('You pay eight lek and take one loaf and salt.', w('ti'), wf('paguaj', 'paguan', 'pay'), w('tete'), wf('lek', 'lekë', 'lek'), w('dhe'), w('merr'), w('nje'), w('buke'), w('dhe'), w('kripe'), p('.')),
+      unless('arrival:money', ERRAND_PURCHASE_MONEY_OUTCOME),
       R('The trader gives you a bill and says, “Here you are. Thank you!”', wf('tregtar', 'tregtari', 'the trader'), w('te_obj'), w('jep'), w('nje'), w('fatura'), w('dhe'), w('thote'), p(':'), w('urdhero'), p('.'), w('faleminderit'), p('!')),
       R('A child asks, “Where are you going?” You answer, “I am going to the guest-room.”', w('nje'), w('femije'), w('pyet'), p(':'), w('ku'), w('po_prog'), wf('shko', 'shkon', 'are going'), p('?'), w('ti'), wf('thote', 'thua', 'say'), p(':'), w('po_prog'), wf('shko', 'shkoj', 'am going'), wf('ne', 'në', 'to'), w('oda'), p('.')),
       R('The child asks, “What have you taken?” You say, “Bread and salt for the guest.”', wf('femije', 'fëmija', 'the child'), w('pyet'), p(':'), w('cfare'), w('ke'), wf('merr', 'marrë', 'taken'), p('?'), w('ti'), wf('thote', 'thua', 'say'), p(':'), w('buke'), w('dhe'), w('kripe'), w('per'), wf('mik', 'mikun', 'guest'), p('.')),
@@ -2571,20 +2680,20 @@ export const STORY = {
       when('dawn', describesEnvironment('time', L(w('eshte'), w('agim'), p(':'), wf('drite', 'drita', 'the light'), w('e_art'), wf('pari', 'parë', 'first'), w('bie'), w('mbi'), w('kripe'), w('te_link'), w('bardhe'), p('.')))),
     ],
     options: [
-      // honest work at the pans — the coast's answer to the mill's five lek
-      { text: L(wf('bej', 'bëj', 'do'), w('pune')), requires: 'day', lek: 5, to: 'punaKripe', reveal: 'pune' },
+      // honest work at the pans — the coast's answer to the mill's day wage
+      { text: L(wf('bej', 'bëj', 'do'), w('pune')), requires: 'day', lek: ORDINARY_WORK_WAGE, moneyOutcome: SALT_WORK_MONEY_OUTCOME, to: 'punaKripe', reveal: 'pune' },
       // the heaped white cones — a pinch for the road (the trader sells more)
       { text: L(w('merr'), w('pak'), w('kripe')), grant: 'kripe', unless: 'kripe', to: 'kripore1', reveal: 'kripe', revealOccurrence: 2 },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('fshat')), to: 'deti1' },
     ],
   },
 
-  // A day's raking beside the salt-men — five lek, like the mill pays.
+  // A day's raking beside the salt-men, paid on the living-world lek scale.
   punaKripe: {
     id: 'punaKripe',
     text: [
       describesEnvironment('time', L(w('ti'), wf('bej', 'bën', 'do'), w('pune'), w('me'), wf('burre', 'burrat', 'the men'), w('nen'), w('diell'), p('.'))),
-      L(wf('burre', 'burrat', 'the men'), wf('jep', 'japin', 'give'), w('pese'), w('lek'), w('dhe'), wf('thote', 'thonë', 'say'), p(':'), w('faleminderit'), p('!')),
+      unless('arrival:money', SALT_WORK_MONEY_OUTCOME),
     ],
     options: [
       { text: L(wf('le', 'lër', 'leave'), wf('pune', 'punën', 'the work')), to: 'kripore1' },
@@ -3231,7 +3340,7 @@ export const STORY = {
   },
 
   // The old door as an EVENT: the traveller pays the road-toll the guard's sign
-  // demands, and for five lek of your own you can walk out with him. Same spot
+  // demands, and for five hundred lek of your own you can walk out with him. Same spot
   // as udhaShenja (the standing door scene) — see nodePositions.
   udhaUdhetari: {
     id: 'udhaUdhetari',
@@ -3239,8 +3348,8 @@ export const STORY = {
       L(w('ti'), wf('ec', 'ecën', 'walk'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller'), w('tek'), wf('dere', 'dera', 'the door'), w('e_art'), w('vjeter'), p('.')),
       L(w('nje'), w('roje'), w('ruan'), wf('dere', 'derën', 'the door'), p('.')),
       L(wf('roje', 'roja', 'the guard'), w('thote'), p(':'), w('per'), w('te_subj'), wf('kalo', 'kaluar', 'pass'), p(','), w('duhet'), w('nje'), w('bilete'), p('.')),
-      L(w('nje'), w('bilete'), w('kushton'), w('pese'), w('lek'), p('.')),
-      L(wf('udhetar', 'udhëtari', 'the traveller'), w('jep'), w('pese'), w('lek'), w('dhe'), w('merr'), w('nje'), w('bilete'), p('.')),
+      L(w('nje'), w('bilete'), w('kushton'), ...lekTokens(ROAD_TICKET_PRICE), p('.')),
+      L(wf('udhetar', 'udhëtari', 'the traveller'), w('jep'), ...lekTokens(ROAD_TICKET_PRICE), w('dhe'), w('merr'), w('nje'), w('bilete'), p('.')),
       L(wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':')),
       L(w('nuk'), w('ka'), w('problem'), p('.'), w('une'), w('di'), w('si'), wf('kalo', 'kalojmë', 'we pass'), p('.')),
       L(w('a_q'), wf('ka', 'ke', 'have'), wf('para_money', 'para', 'money'), p('?'), w('a_q'), w('do'), w('te_subj'), wf('vjen', 'vish', 'come'), p('?')),
@@ -3248,7 +3357,7 @@ export const STORY = {
       L(w('sic'), wf('thote', 'thashë', 'said'), p(','), wf('nisem', 'nisemi', 'we leave'), w('pas'), w('pak'), p('.'), w('dakord'), p('?')),
     ],
     options: [
-      { text: L(wf('dil', 'dil', 'go out'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), lek: -5, to: 'rrugaDetit', reveal: 'bilete', revealOccurrence: 1 },
+      { text: L(wf('dil', 'dil', 'go out'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), lek: -ROAD_TICKET_PRICE, moneyOutcome: TICKET_MONEY_OUTCOME, to: 'rrugaDetit', reveal: 'bilete', revealOccurrence: 1 },
       { text: L(wf('le', 'lër', 'leave'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'sheshi' },
     ],
   },
@@ -3352,7 +3461,7 @@ export const STORY = {
       { text: R('I need a doctor.', wf('ka', 'kam', 'have'), w('nevoje'), w('per'), w('nje'), w('mjek'), p('.')), to: 'sheruesi' },
       { text: L(w('fol'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'udhetariHuaj' },
       { text: L(w('shiko'), wf('dere', 'derën', 'the door')), to: 'udhaShenja' },
-      { text: L(w('jep'), w('lek')), lek: -5, to: 'lemoshaFund', reveal: 'njeri', revealOccurrence: 2 },
+      { text: L(w('jep'), w('lek')), lek: -ALMS_AMOUNT, to: 'lemoshaFund', reveal: 'njeri', revealOccurrence: 2 },
       // the loaf the prose says he lacks — bought twenty feet away at the
       // trader's stall; once fed he stays fed (bukaDhene) and the square's
       // description says so
@@ -3380,9 +3489,9 @@ export const STORY = {
     end: 'secret',
     title: 'Lëmosha — the Open Hand',
     blurb:
-      'The man at the great door had neither bread nor lek, and you put five lek in his hand without being asked. That is lëmosha, the alms-giving that sits beside hospitality at the root of the old code: the guest is sent by God, and so is the man at your door with nothing. Dora që jep s’mbetet zbrazët, the old people say — the hand that gives is never left empty. Yours already isn’t: you gave money in Albanian and were thanked in it, and no phrasebook sells that.',
+      'The man at the great door had neither bread nor lek, and you put one hundred lek in his hand without being asked. That is lëmosha, the alms-giving that sits beside hospitality at the root of the old code: the guest is sent by God, and so is the man at your door with nothing. Dora që jep s’mbetet zbrazët, the old people say — the hand that gives is never left empty. Yours already isn’t: you gave money in Albanian and were thanked in it, and no phrasebook sells that.',
     text: [
-      L(w('ti'), w('jep'), w('pese'), w('lek'), p('.')),
+      L(w('ti'), w('jep'), ...lekTokens(ALMS_AMOUNT), p('.')),
       L(wf('njeri', 'njeriu', 'the man'), w('thote'), p(':'), w('faleminderit'), p('!'), w('ti'), w('je'), w('nje'), w('mik'), p('.')),
     ],
     options: [],
@@ -3401,32 +3510,32 @@ export const STORY = {
       when('greeting:night', describesEnvironment('time', L(w('mirembrema'), p('!')))),
       L(w('si'), wf('je', 'jeni', 'are'), p('?'), w('cfare'), wf('deshiron', 'dëshironi', 'would you like'), p('?')),
       L(w('une'), w('shes'), w('mish'), p(','), w('peshk'), p(','), w('perime'), p('.'), w('gjithashtu'), w('shes'), w('gjalpe'), p('.'), wf('mish', 'mishi', 'the meat'), w('eshte'), w('i_art'), w('shtrenjte'), p(','), wf('perime', 'perimet', 'the vegetables'), wf('jam', 'janë', 'are'), w('te_link'), wf('lire', 'lira', 'cheap'), p('.')),
-      L(w('nje'), w('buke'), w('kushton'), w('pese'), w('lek'), p('.')),
-      L(w('sa'), w('kushton'), w('nje'), w('caj'), p('?'), w('nje'), w('caj'), p(','), w('gjashte'), w('lek'), p('.')),
-      L(w('nje'), w('birre'), p(','), w('tete'), w('lek'), p('.'), w('kripe'), p(','), w('tre'), w('lek'), p('.')),
+      L(w('nje'), w('buke'), w('kushton'), ...lekTokens(BREAD_PRICE), p('.')),
+      L(w('sa'), w('kushton'), w('nje'), w('caj'), p('?'), w('nje'), w('caj'), p(','), ...lekTokens(TEA_PRICE), p('.')),
+      L(w('nje'), w('birre'), p(','), ...lekTokens(BEER_PRICE), p('.'), w('kripe'), p(','), ...lekTokens(SALT_PRICE), p('.')),
       // the how-to-buy demo is a first-meeting lesson; the stall stays a stall
       first(L(w('a_q'), w('do'), w('te_subj'), wf('blej', 'blesh', 'buy'), w('gje'), p('?'), w('me_obj'), w('jep'), wf('para_money', 'paratë', 'money'), w('ketu'), p('.'))),
-      first(L(w('me_obj'), w('jep'), w('dhjete'), w('lek'), p('.'), w('une'), w('te_obj'), wf('jep', 'jap', 'give'), wf('kusur', 'kusurin', 'the change'), p('.'))),
+      first(L(w('me_obj'), w('jep'), ...lekTokens(MARKET_TENDER), p('.'), w('une'), w('te_obj'), wf('jep', 'jap', 'give'), wf('kusur', 'kusurin', 'the change'), p('.'))),
       until('tregtari2', L(w('ai'), w('ka'), w('edhe'), w('nje'), w('dyqan'), w('me'), wf('rrobe', 'rroba', 'clothes'), p('.'))),
       L(w('faleminderit'), p('!'), wf('vjen', 'ejani', 'come'), w('perseri'), p('!')),
       ...greetingReplyLines('greetedTrader'),
       greetingFarewellHintLine(),
     ],
     options: [
-      { text: L(w('blej'), w('buke')), lek: -5, grant: 'buke', to: 'blerjaBuke', reveal: 'buke' },
-      { text: L(w('blej'), w('kripe')), lek: -3, grant: 'kripe', to: 'blerjaKripe', reveal: 'kripe' },
-      { text: L(w('shes'), w('caj')), requires: 'cajMali', consumes: 'cajMali', lek: 10, to: 'shitjaCaj', reveal: 'caj' },
+      { text: L(w('blej'), w('buke')), lek: -BREAD_PRICE, moneyOutcome: BREAD_PURCHASE_MONEY_OUTCOME, grant: 'buke', to: 'blerjaBuke', reveal: 'buke' },
+      { text: L(w('blej'), w('kripe')), lek: -SALT_PRICE, moneyOutcome: SALT_PURCHASE_MONEY_OUTCOME, grant: 'kripe', to: 'blerjaKripe', reveal: 'kripe' },
+      { text: L(w('shes'), w('caj')), requires: 'cajMali', consumes: 'cajMali', lek: TEA_BUNDLE_PRICE, moneyOutcome: TEA_SALE_MONEY_OUTCOME, to: 'shitjaCaj', reveal: 'caj' },
       { text: L(w('hyr'), wf('ne', 'në', 'in'), w('dyqan')), to: 'tregtari2', reveal: 'dyqan' },
       { text: L(w('kthehu')), to: 'sheshi' },
     ],
   },
 
-  // A real purchase — five lek across the stall, a loaf in the pack. The first
+  // A real purchase — current nominal lek across the stall, a loaf in the pack. The first
   // survival transaction the game lets you actually MAKE, not just hear priced.
   blerjaBuke: {
     id: 'blerjaBuke',
     text: [
-      L(w('ti'), w('jep'), w('pese'), w('lek'), w('dhe'), w('merr'), w('nje'), w('buke'), p('.')),
+      unless('arrival:money', BREAD_PURCHASE_MONEY_OUTCOME),
       L(wf('tregtar', 'tregtari', 'the trader'), w('thote'), p(':'), w('faleminderit'), p('!'), wf('vjen', 'eja', 'come'), w('perseri'), p('!')),
     ],
     options: [
@@ -3439,7 +3548,7 @@ export const STORY = {
   blerjaKripe: {
     id: 'blerjaKripe',
     text: [
-      L(w('ti'), w('jep'), w('tre'), w('lek'), w('dhe'), w('merr'), w('kripe'), p('.')),
+      unless('arrival:money', SALT_PURCHASE_MONEY_OUTCOME),
       L(wf('tregtar', 'tregtari', 'the trader'), w('thote'), p(':'), w('faleminderit'), p('!')),
     ],
     options: [
@@ -3448,11 +3557,11 @@ export const STORY = {
   },
 
   // Selling the mountain's tea — the picker's side of the market. The wild herb
-  // of the high slopes is worth more than the brewed cup: ten lek the bundle.
+  // of the high slopes is worth more than the brewed cup.
   shitjaCaj: {
     id: 'shitjaCaj',
     text: [
-      L(w('ti'), w('jep'), w('caj'), w('dhe'), wf('tregtar', 'tregtari', 'the trader'), w('jep'), w('dhjete'), w('lek'), p('.')),
+      unless('arrival:money', TEA_SALE_MONEY_OUTCOME),
       L(wf('tregtar', 'tregtari', 'the trader'), w('thote'), p(':'), w('caj'), w('nga'), wf('mal', 'mali', 'the mountain'), w('eshte'), w('bar'), w('i_art'), w('mire'), p('!')),
     ],
     options: [
@@ -3466,21 +3575,21 @@ export const STORY = {
     id: 'tregtari2',
     text: [
       L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'in'), w('dyqan'), p('.'), wf('tregtar', 'tregtari', 'the trader'), w('thote'), p(':')),
-      L(w('sa'), wf('para_money', 'para', 'money'), wf('ka', 'ke', 'have'), p('?'), w('njezet'), w('lek'), p('?')),
-      L(w('nje'), w('gje'), w('e_link'), w('mire'), w('kushton'), w('njeqind'), w('lek'), p('.'), w('nje'), w('kale'), w('kushton'), w('mije'), w('lek'), p('.')),
+      L(w('sa'), wf('para_money', 'para', 'money'), wf('ka', 'ke', 'have'), p('?'), ...lekTokens(INN_NIGHT_PRICE), p('?')),
+      L(w('nje'), w('gje'), w('e_link'), w('mire'), w('kushton'), ...lekTokens(HEALER_HERBS_PRICE), p('.'), w('nje'), w('kale'), w('kushton'), ...lekTokens(100_000), p('.')),
       R('But if you have zero lek, no problem: water costs nothing.', w('por'), w('nese'), wf('ka', 'ke', 'have'), w('zero'), wf('lek', 'lekë', 'lek'), p(','), w('nuk'), w('ka'), w('problem'), p(':'), wf('uje', 'uji', 'the water'), w('nuk'), w('kushton'), w('para_money'), p('.')),
       L(wf('ne', 'në', 'in'), wf('dyqan', 'dyqanin', 'the shop'), w('im'), w('ka'), wf('gje', 'gjëra', 'things'), wf('te_link', 'të', 'the'), wf('mire', 'mira', 'good'), p('.')),
       L(w('une'), w('shes'), w('edhe'), wf('rrobe', 'rroba', 'clothes'), p(':'), w('nje'), w('plis'), w('i_art'), w('bardhe'), p(','), w('nje'), w('xhublete'), p('.')),
       // the wares' stories retire once each has been handled/heard (until)
       until('plisiFund', L(wf('plis', 'plisi', 'the felt cap'), w('behet'), w('me'), w('dore'), p('.'))),
       until('xhubletaFund', L(wf('xhublete', 'xhubleta', 'the bell-dress'), w('eshte'), w('e_art'), wf('zi', 'zezë', 'black'), w('dhe'), w('ka'), w('diell'), p(','), w('hene'), w('dhe'), w('yll'), p('.'), w('nje'), w('vajze'), w('e_obj'), w('vesh'), w('kur'), w('behet'), w('grua'), p('.'))),
-      until('blerjaLahuta', L(w('une'), w('shes'), w('edhe'), w('nje'), w('lahute'), p(':'), w('dyzet'), w('lek'), p('.'))),
+      until('blerjaLahuta', L(w('une'), w('shes'), w('edhe'), w('nje'), w('lahute'), p(':'), ...lekTokens(LAHUTA_PRICE), p('.'))),
       L(w('faleminderit'), w('dhe'), w('mirupafshim'), p('!')),
     ],
     options: [
       { text: L(w('merr'), wf('plis', 'plisin', 'the felt cap')), to: 'plisiFund', reveal: 'plis', revealOccurrence: 2 },
       { text: L(w('shiko'), wf('xhublete', 'xhubletën', 'the bell-dress')), to: 'xhubletaFund', reveal: 'xhublete', revealOccurrence: 2 },
-      { text: L(w('blej'), w('lahute')), lek: -40, grant: 'lahute', to: 'blerjaLahuta', reveal: 'lahute' },
+      { text: L(w('blej'), w('lahute')), lek: -LAHUTA_PRICE, moneyOutcome: LAHUTA_PURCHASE_MONEY_OUTCOME, grant: 'lahute', to: 'blerjaLahuta', reveal: 'lahute' },
       { text: L(w('kthehu')), to: 'sheshi' },
     ],
   },
@@ -3495,16 +3604,17 @@ export const STORY = {
       R('The trader asks, “What kind are you looking for?”', wf('tregtar', 'tregtari', 'the trader'), w('pyet'), p(':'), w('cfare'), wf('lloj', 'lloji', 'kind'), wf('kerko', 'kërkon', 'are looking for'), p('?')),
       R('He says, “I have a lighter and a bottle, an umbrella and a rope, a blanket, soap, and a towel.”', w('ai'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('cakmak'), w('dhe'), w('nje'), w('shishe'), p(','), w('nje'), w('cader'), w('dhe'), w('nje'), wf('litar', 'litar', 'rope'), p(','), w('nje'), w('batanije'), p(','), w('sapun'), w('dhe'), w('nje'), w('peshqir'), p('.')),
       R('He adds, “There is only one lighter left.”', w('ai'), w('thote'), p(':'), wf('ka', 'ka', 'there is'), wf('mbetem', 'mbetur', 'be left'), w('vetem'), w('nje'), w('cakmak'), p('.')),
+      unless('cakmak', L(wf('tregtar', 'Tregtari', 'the trader'), wf('tregoj', 'tregon', 'shows'), wf('cakmak', 'çakmakun', 'the lighter'), w('dhe'), w('thote'), p(':'), ...numberTokens(oldLekQuoteFor(EVERYDAY_GOOD_PRICES.cakmak)), wf('te_link', 'të', 'the'), wf('vjeter', 'vjetra', 'old'), p('.'), wf('pastaj', 'Pastaj', 'then'), wf('tregoj', 'tregon', 'shows'), ...lekTokens(EVERYDAY_GOOD_PRICES.cakmak), p(':'), w('kaq'), wf('paguaj', 'paguan', 'pay'), p('.'))),
     ],
     options: [],
   },
 
-  // Forty lek for a bard's fiddle — the game's one INVESTMENT: it pays itself
+  // Five thousand lek for a bard's fiddle — the game's one INVESTMENT: it pays itself
   // back song by song wherever travellers rest (see kengaLahute).
   blerjaLahuta: {
     id: 'blerjaLahuta',
     text: [
-      L(w('ti'), w('jep'), w('dyzet'), w('lek'), w('dhe'), w('merr'), wf('lahute', 'lahutën', 'the lute'), p('.')),
+      unless('arrival:money', LAHUTA_PURCHASE_MONEY_OUTCOME),
       L(wf('tregtar', 'tregtari', 'the trader'), w('thote'), p(':'), w('kendo'), w('per'), wf('trim', 'trima', 'heroes'), p('!')),
     ],
     options: [
@@ -3553,8 +3663,8 @@ export const STORY = {
       when('greeting:evening', describesEnvironment('time', R('Good evening! It is almost time for dinner.', w('mirembrema'), p('!'), w('eshte'), w('pothuajse'), wf('kohe', 'koha', 'the time'), w('per'), w('darke'), p('.')))),
       when('greeting:night', describesEnvironment('time', L(w('mirembrema'), p('!')))),
       L(w('nje'), w('bujtine'), w('e_link'), wf('madh', 'madhe', 'big'), w('eshte'), w('nje'), w('hotel'), p('.')),
-      L(w('ketu'), w('eshte'), w('nje'), w('dhome'), p(':'), wf('dhome', 'dhoma', 'the room'), w('ka'), w('nje'), w('shtrat'), p('.')),
-      L(wf('naten', 'nata', 'the night'), w('kushton'), w('njezet'), w('lek'), p('.'), w('ketu'), w('eshte'), w('celes'), p('.')),
+      L(wf('bujtine', 'Bujtina', 'the inn'), w('ka'), w('tete'), wf('dhome', 'dhoma', 'rooms'), p(';'), w('kjo'), w('ka'), w('nje'), w('shtrat'), p('.')),
+      L(wf('naten', 'nata', 'the night'), w('kushton'), ...lekTokens(INN_NIGHT_PRICE), p('.'), w('ketu'), w('eshte'), w('celes'), p('.')),
       L(w('fle'), w('mire'), p('!'), w('natenmire'), p('!')),
       // the traveller's blessing, exactly as the ballad has it ("Udha e marë, o
       // krushqellarë!" — Ymer Aga) — the inn-keeper's farewell to every guest
@@ -3562,7 +3672,7 @@ export const STORY = {
         wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('udhe', 'udha', 'the road'), w('e_art'), w('mbare'), p('!')),
       R('Smoke from the fire fills the inn while the woman makes coffee.', wf('tym', 'tymi', 'the smoke'), w('i_link'), wf('zjarr', 'zjarrit', 'the fire'), w('mbush'), wf('bujtine', 'bujtinën', 'the inn'), p(','), w('ndersa'), wf('grua', 'gruaja', 'the woman'), wf('bej', 'bën', 'makes'), w('kafe'), p('.')),
       L(wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('raki'), w('eshte'), w('per'), w('mik'), p('.')),
-      when('flag:askedRoom', R('The innkeeper answers, “The room is here. One night costs twenty lek.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('dhome', 'dhoma', 'the room'), w('eshte'), w('ketu'), p('.'), w('nje'), w('naten'), w('kushton'), w('njezet'), w('lek'), p('.'))),
+      when('flag:askedRoom', L(wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('dhome', 'dhoma', 'the room'), w('eshte'), w('ketu'), p('.'), w('nje'), w('naten'), w('kushton'), ...lekTokens(INN_NIGHT_PRICE), p('.'))),
       ...greetingReplyLines('greetedInnkeeper'),
       greetingFarewellHintLine(),
       R('The innkeeper says, “Please stay a moment. What drink would you like: coffee, tea, or water?”', wf('grua', 'gruaja', 'the innkeeper'), w('thote'), p(':'), w('ju'), w('lutem'), p(','), wf('qendroj', 'qëndroni', 'stay'), w('nje'), w('moment'), p('.'), w('cfare'), w('pije'), wf('deshiron', 'dëshironi', 'would you like'), p(':'), w('kafe'), p(','), w('caj'), w('apo'), w('uje'), p('?')),
@@ -3571,18 +3681,18 @@ export const STORY = {
       { text: R('I need a room tonight. How much does one night cost?', wf('ka', 'kam', 'have'), w('nevoje'), w('per'), w('nje'), w('dhome'), w('sonte'), p('.'), w('sa'), w('kushton'), w('nje'), wf('naten', 'natë', 'night'), p('?')), effects: [{ type: 'flag', id: 'askedRoom' }], unless: 'flag:askedRoom', to: 'bujtina', durationHours: 0 },
       { text: R('I would like coffee, please.', wf('do', 'dua', 'want'), w('kafe'), p(','), w('lutem'), p('.')), to: 'kafeja1', reveal: 'kafe', revealOccurrence: 1 },
       { text: L(w('pi'), w('raki')), to: 'gezuarFund', reveal: 'raki', revealOccurrence: 1 },
-      // the priced bed the scene quotes ("nata kushton njëzet lek") — unlike the
+      // the priced bed the scene quotes — unlike the
       // oda's free guest-corner, an inn is trade: pay, sleep to dawn, wake whole
-      { text: R('Can I sleep here?', w('a_q'), w('mund'), w('te_subj'), w('fle'), w('ketu'), p('?')), lek: -20, time: 'dawn', hearts: 3, unless: 'dawn', to: 'gjumiBujtina', reveal: 'shtrat' },
+      { text: R('Can I sleep here?', w('a_q'), w('mund'), w('te_subj'), w('fle'), w('ketu'), p('?')), lek: -INN_NIGHT_PRICE, moneyOutcome: INN_NIGHT_MONEY_OUTCOME, time: 'dawn', hearts: 3, unless: 'dawn', to: 'gjumiBujtina', reveal: 'shtrat' },
       { text: L(w('kthehu')), to: 'sheshi' },
     ],
   },
 
-  // The paid night — twenty lek, a bed, a key, and the morning coffee already on.
+  // The paid night — a bed, a key, and the morning coffee already on.
   gjumiBujtina: {
     id: 'gjumiBujtina',
     text: [
-      L(w('ti'), w('jep'), w('njezet'), w('lek'), w('dhe'), w('fle'), wf('ne', 'në', 'in'), w('nje'), w('shtrat'), p('.')),
+      unless('arrival:money', INN_NIGHT_MONEY_OUTCOME),
       L(wf('gjume', 'gjumi', 'the sleep'), w('vjen'), w('shpejt'), w('dhe'), w('ti'), w('fle'), w('mire'), p('.')),
       describesEnvironment('time', L(w('tani'), w('eshte'), w('agim'), p(':'), wf('drite', 'drita', 'the light'), w('vjen'), wf('ne', 'në', 'in'), w('dhome'), p('.'))),
       L(wf('grua', 'gruaja', 'the woman'), wf('bej', 'bën', 'makes'), w('kafe'), p('.')),
@@ -3694,22 +3804,22 @@ export const STORY = {
       L(w('ti'), w('je'), wf('ne', 'në', 'in'), w('kopsht'), p(','), w('pas'), wf('shtepi', 'shtëpisë', 'the house'), p('.')),
       L(w('ketu'), w('eshte'), w('bar'), p('.')),
       L(w('bar'), w('eshte'), w('mire'), w('per'), wf('ti', 'ty', 'you'), p('.')),
-      L(w('bar'), w('kushton'), w('dhjete'), w('lek'), p('.')),
+      L(w('bar'), w('kushton'), ...lekTokens(HEALER_HERBS_PRICE), p('.')),
       L(wf('sherues', 'shëruesi', 'the healer'), w('thote'), p(':'), w('caj'), w('i_art'), w('mire'), w('vjen'), w('nga'), wf('mal', 'mali', 'the mountain'), p('.')),
       when('night', describesEnvironment('time', L(w('naten'), wf('hene', 'hëna', 'the moon'), w('bie'), w('mbi'), wf('kopsht', 'kopshtin', 'the garden'), w('dhe'), wf('ere', 'era', 'wind'), w('vjen'), w('nga'), wf('mal', 'mali', 'the mountain'), p('.')))),
     ],
     options: [
-      { text: L(w('merr'), w('bar')), lek: -10, hearts: 3, to: 'sherimiBar', reveal: 'bar', revealOccurrence: 3 },
+      { text: L(w('merr'), w('bar')), lek: -HEALER_HERBS_PRICE, moneyOutcome: HEALER_MONEY_OUTCOME, hearts: 3, to: 'sherimiBar', reveal: 'bar', revealOccurrence: 3 },
       { text: L(w('kthehu')), to: 'sheruesi' },
     ],
   },
 
-  // Ten lek for the healer's herbs — the folktale world's clinic visit: the cure
+  // The healer's herbs — the folktale world's clinic visit: the cure
   // is a brew of the same mountain tea the slopes grow (see cajMali1).
   sherimiBar: {
     id: 'sherimiBar',
     text: [
-      L(w('ti'), w('jep'), w('dhjete'), w('lek'), p('.')),
+      unless('arrival:money', HEALER_MONEY_OUTCOME),
       R('The healer fills a spoon with medicine and gives it to you. He says, “The liquid is warm. Take only one spoonful; do not drink too much.”', wf('sherues', 'shëruesi', 'the healer'), w('mbush'), w('nje'), w('luge'), w('me'), w('ilac'), w('dhe'), w('ta'), w('jep'), p('.'), w('ai'), w('thote'), p(':'), wf('leng', 'lëngu', 'the liquid'), w('eshte'), w('i_art'), w('ngrohte'), p('.'), w('merr'), w('vetem'), w('nje'), w('luge'), p(';'), w('mos'), w('pi'), w('teper'), p('.')),
       // the signs are told over the steeping brew (see besimeFund's blurb)
       L(w('kur'), wf('dore', 'dora', 'the hand'), w('te_obj'), w('ha'), p(','), w('vjen'), wf('para_money', 'para', 'money'), p('.')),
@@ -3773,7 +3883,7 @@ export const STORY = {
   },
 
   // The old gate — the door's own signs (push/pull/forbidden/ticket), and a
-  // REAL passage now: five lek buys the road beyond it (rrugaDetit). The
+  // REAL passage now: a five-hundred-lek ticket buys the road beyond it (rrugaDetit). The
   // direction-signs moved OUT to the waystone on the road itself, where a
   // walker actually consults them (guriUdhes/rrugaDetit).
   udhaShenja: {
@@ -3788,11 +3898,11 @@ export const STORY = {
       L(wf('dere', 'dera', 'the door'), w('eshte'), w('mbyllur'), p('.'), w('ndalohet'), p('!')),
       L(w('per'), w('brenda'), p(','), w('shtyj'), p(':'), w('per'), w('jashte'), p(','), wf('terheq', 'tërhiq', 'pull'), p('.')),
       L(w('per'), wf('rruge', 'rrugën', 'the road'), p(','), w('jep'), w('nje'), w('bilete'), p('.')),
-      R('There is an easy way through. Pay five lek for the ticket; after that, you can pull the door open.', w('ka'), w('nje'), w('menyre'), w('te_link'), w('lehte'), w('per'), w('te_subj'), wf('kalo', 'kaluar', 'cross'), p('.'), w('paguaj'), w('pese'), wf('lek', 'lekë', 'lek'), w('per'), wf('bilete', 'biletën', 'the ticket'), p(';'), w('pas'), w('kesaj'), p(','), w('mund'), w('ta'), wf('terheq', 'tërheqësh', 'pull'), wf('dere', 'derën', 'the door'), p('.')),
+      L(w('ka'), w('nje'), w('menyre'), w('te_link'), w('lehte'), w('per'), w('te_subj'), wf('kalo', 'kaluar', 'cross'), p('.'), w('paguaj'), ...lekTokens(ROAD_TICKET_PRICE), w('per'), wf('bilete', 'biletën', 'the ticket'), p(';'), w('pas'), w('kesaj'), p(','), w('mund'), w('ta'), wf('terheq', 'tërheqësh', 'pull'), wf('dere', 'derën', 'the door'), p('.')),
       R('Standing beside the old gate, the guard says, “Pay for the ticket or go away.”', wf('roje', 'roja', 'the guard'), wf('qendroj', 'qëndron', 'stand'), w('prane'), wf('dere', 'derës', 'of the gate'), w('te_link'), w('vjeter'), w('dhe'), w('thote'), p(':'), w('paguaj'), wf('bilete', 'biletën', 'the ticket'), w('ose'), wf('largohem', 'largohu', 'go away'), p('.')),
     ],
     options: [
-      { text: L(wf('terheq', 'tërhiq', 'pull'), wf('dere', 'derën', 'the door')), lek: -5, to: 'rrugaDetit', reveal: 'bilete', revealOccurrence: 1 },
+      { text: L(wf('terheq', 'tërhiq', 'pull'), wf('dere', 'derën', 'the door')), lek: -ROAD_TICKET_PRICE, moneyOutcome: TICKET_MONEY_OUTCOME, to: 'rrugaDetit', reveal: 'bilete', revealOccurrence: 1 },
       { text: L(w('kthehu')), to: 'sheshi' },
     ],
   },
@@ -4360,7 +4470,7 @@ export const STORY = {
       { text: L(w('dil'), wf('ne', 'në', 'to'), w('mejdan')), to: 'mejdan1', reveal: 'mejdan', unless: 'night' },
       // "një lahutë këndon" — own a lahuta and the singing is YOURS: the epic
       // hall is the aptest stage in the world, and it pays like the oda does
-      { text: L(w('kendo'), w('me'), wf('lahute', 'lahutën', 'the lute')), requires: 'lahute', interaction: { id: 'jutbinaSongWage', scope: 'day', maxUses: 1 }, lek: 10, to: 'kengaJutbina', reveal: 'lahute' },
+      { text: L(w('kendo'), w('me'), wf('lahute', 'lahutën', 'the lute')), requires: 'lahute', interaction: { id: 'jutbinaSongWage', scope: 'day', maxUses: 1 }, lek: SONG_WAGE, moneyOutcome: SONG_MONEY_OUTCOME, to: 'kengaJutbina', reveal: 'lahute' },
       // sit out the dark among the towers — the frontier wakes at first light
       { text: L(w('prit'), w('agim')), requires: 'night', to: 'jutbina', time: 'dawn' },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), w('maja')), to: 'maja' },
@@ -4405,7 +4515,7 @@ export const STORY = {
       { text: R('Say, “Yes, I am ready. Let us go together.”', w('po_yes'), p(','), w('jam'), w('gati'), p('.'), wf('nisem', 'nisemi', 'we leave'), w('bashke'), p('.')), to: 'behuriJutbina', become: 'muji-e-behuri', time: 'night', atHour: 5, unless: 'fact:behuriKullaDestroyed' },
       // An earned coda: any carried instrument can voice the new verse. It is
       // hidden until both rescues have changed the frontier, and pays once.
-      { text: R('Sing again.', wf('kendo', 'Këndo', 'sing'), w('perseri'), p('.')), requires: ['fact:mujoFreedFromKrajl', 'fact:behuriKullaDestroyed', 'affords:play'], interaction: { id: 'frontierNewVerse', scope: 'run', once: true }, effects: [{ type: 'learn', id: 'frontierNewVerse' }], lek: 5, to: 'odaJutbina' },
+      { text: R('Sing again.', wf('kendo', 'Këndo', 'sing'), w('perseri'), p('.')), requires: ['fact:mujoFreedFromKrajl', 'fact:behuriKullaDestroyed', 'affords:play'], interaction: { id: 'frontierNewVerse', scope: 'run', once: true }, effects: [{ type: 'learn', id: 'frontierNewVerse' }], lek: SONG_WAGE, moneyOutcome: moneyOutcome(`The men give you ${SONG_WAGE} lek for the new song.`, w('burra'), wf('jep', 'japin', 'give'), ...lekTokens(SONG_WAGE), w('per'), wf('kenge', 'këngën', 'the song'), w('e_art'), wf('ri', 're', 'new'), p('.')), to: 'odaJutbina' },
       { text: L(w('dil'), w('jashte')), to: 'jutbina' },
     ],
   },
@@ -4650,7 +4760,7 @@ export const STORY = {
       L(w('ti'), wf('kendo', 'këndon', 'sing'), w('me'), wf('lahute', 'lahutën', 'the lute'), wf('per', 'për', 'about'), wf('mujo', 'Mujon', 'Muji'), p('.')),
       L(w('burra'), wf('rri', 'rrinë', 'sit'), w('dhe'), wf('degjo', 'dëgjojnë', 'listen'), p('.')),
       L(w('mujo'), w('dhe'), w('halil'), wf('degjo', 'dëgjojnë', 'listen'), p('.')),
-      L(w('burra'), wf('jep', 'japin', 'give'), w('dhjete'), w('lek'), p('.')),
+      unless('arrival:money', SONG_MONEY_OUTCOME),
       L(w('mujo'), w('thote'), p(':'), w('ti'), wf('kendo', 'këndon', 'sing'), w('si'), w('nje'), w('trim'), p('!')),
     ],
     options: [
@@ -7322,8 +7432,8 @@ export const STORY = {
     ],
     options: [
       { text: L(w('degjo'), wf('bari', 'bariun', 'the shepherd')), unless: 'night', to: 'fshatiJeta', reveal: 'bari', revealOccurrence: 1 },
-      // a herder's wage — watch the flock while he sleeps, five lek at dusk
-      { text: L(wf('ruan', 'ruaj', 'guard'), wf('dhi', 'dhitë', 'the goats')), requires: 'day', interaction: { id: 'guardGoatsWage', scope: 'day', maxUses: 1 }, lek: 5, to: 'punaBariu', reveal: 'pune' },
+      // a herder's wage — watch the flock while he sleeps, paid at dusk
+      { text: L(wf('ruan', 'ruaj', 'guard'), wf('dhi', 'dhitë', 'the goats')), requires: 'day', interaction: { id: 'guardGoatsWage', scope: 'day', maxUses: 1 }, lek: ORDINARY_WORK_WAGE, moneyOutcome: SHEPHERD_MONEY_OUTCOME, to: 'punaBariu', reveal: 'pune' },
       { text: L(w('kthehu')), to: 'fshatiJeta' },
     ],
   },
@@ -7334,7 +7444,7 @@ export const STORY = {
     text: [
       L(w('ti'), wf('ruan', 'ruan', 'guard'), wf('dhi', 'dhitë', 'the goats'), w('dhe'), wf('bari', 'bariu', 'the shepherd'), w('fle'), p('.')),
       L(wf('dhi', 'dhitë', 'the goats'), wf('ha', 'hanë', 'eat'), w('bar'), p('.')),
-      L(wf('bari', 'bariu', 'the shepherd'), w('jep'), w('pese'), w('lek'), w('dhe'), w('thote'), p(':'), w('faleminderit'), p('!')),
+      unless('arrival:money', SHEPHERD_MONEY_OUTCOME),
     ],
     options: [
       { text: L(w('kthehu')), to: 'fshatiJeta' },
@@ -8834,13 +8944,13 @@ export const STORY = {
       { text: L(w('degjo'), wf('plake', 'plakën', 'the old woman')), to: 'tregDragua', reveal: 'plake' },
       { text: L(w('fol'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'udhetaretBisede', reveal: 'udhetar', revealOccurrence: 2 },
       // own a lahuta and the oda is a stage: sing of Muji, earn a singer's due
-      { text: L(w('kendo'), w('me'), wf('lahute', 'lahutën', 'the lute')), requires: 'lahute', lek: 10, to: 'kengaLahute', reveal: 'mujo' },
+      { text: L(w('kendo'), w('me'), wf('lahute', 'lahutën', 'the lute')), requires: 'lahute', lek: SONG_WAGE, moneyOutcome: SONG_MONEY_OUTCOME, to: 'kengaLahute', reveal: 'mujo' },
       { text: L(wf('le', 'lër', 'leave'), wf('udhetar', 'udhëtarët', 'the travellers')), to: 'oda1' },
     ],
   },
 
-  // Your song in the oda — the lahuta bought at the market earns its forty lek
-  // back ten at a time, the way the wandering lahutarë have always eaten.
+  // Your song in the oda — the lahuta bought at the market can earn its price
+  // back over several performances, the way wandering lahutarë have eaten.
   kengaLahute: {
     id: 'kengaLahute',
     tells: ['jutbina'], // your own song of Muji puts Jutbina on your map
@@ -8851,7 +8961,7 @@ export const STORY = {
         w('ti'), wf('thote', 'thua', 'say'), p(':'), w('ndihmo'), p(','), w('zot'), p(','), wf('si', 'si', 'as'), wf('me_obj', 'më', 'me'), w('ke'), wf('ndihmo', 'ndihmuar', 'helped'), p('!')),
       L(w('ti'), wf('kendo', 'këndon', 'sing'), w('me'), wf('lahute', 'lahutën', 'the lute'), wf('per', 'për', 'about'), w('mujo'), p('.')),
       L(w('burra'), wf('rri', 'rrinë', 'sit'), w('dhe'), wf('degjo', 'dëgjojnë', 'listen'), p('.')),
-      L(w('burra'), wf('jep', 'japin', 'give'), w('dhjete'), w('lek'), p('.')),
+      unless('arrival:money', SONG_MONEY_OUTCOME),
       L(w('nje'), w('plak'), w('thote'), p(':'), w('ti'), wf('kendo', 'këndon', 'sing'), w('si'), w('nje'), w('trim'), p('!')),
     ],
     options: [
@@ -10239,8 +10349,8 @@ export const STORY = {
       L(wf('merr', 'merre', 'take'), wf('pune', 'punën', 'the work'), w('prej'), wf('mua', 'meje', 'me'), p('!')),
     ],
     options: [
-      // the offer, takeable on the spot — the day's grind for the miller's five lek
-      { text: L(w('merr'), wf('pune', 'punën', 'the work')), requires: 'day', lek: 5, to: 'punaMulli', reveal: 'pune', revealOccurrence: 2 },
+      // the offer, takeable on the spot — the day's grind for the miller's wage
+      { text: L(w('merr'), wf('pune', 'punën', 'the work')), requires: 'day', lek: ORDINARY_WORK_WAGE, moneyOutcome: OLD_MAN_MONEY_OUTCOME, to: 'punaMulli', reveal: 'pune', revealOccurrence: 2 },
       { text: L(w('kthehu'), wf('tek', 'te', 'to'), w('mulli')), to: 'mulli1' },
     ],
   },
@@ -10510,7 +10620,7 @@ export const STORY = {
       { text: L(w('merr'), w('pak'), w('miell')), unless: 'night', to: 'mulliFund', reveal: 'miell', revealOccurrence: 4 },
       { text: L(w('merr'), w('shume'), w('miell')), unless: 'night', to: 'mulliKeq', reveal: 'miell', revealOccurrence: 4 },
       // honest work at the common stone — only while the mill actually runs (day)
-      { text: L(w('bej'), w('pune')), requires: 'day', lek: 5, to: 'punaMulli', reveal: 'pune' },
+      { text: L(w('bej'), w('pune')), requires: 'day', lek: ORDINARY_WORK_WAGE, moneyOutcome: OLD_MAN_MONEY_OUTCOME, to: 'punaMulli', reveal: 'pune' },
       // hear the miller out — not at dusk (he is fleeing the dark) or night (gone)
       { text: L(w('degjo'), wf('plak', 'plakun', 'the old man')), unless: ['night', 'dusk'], to: 'lumiMjeshter', reveal: 'plak', revealOccurrence: 1 },
       // the ordinary mortal's night mill: look inside and meet the Xhindët
@@ -10521,7 +10631,7 @@ export const STORY = {
     ],
   },
 
-  // A day's work at the mill — flour carried for the village, five lek earned.
+  // A day's work at the mill — flour carried for the village, with a day wage.
   punaMulli: {
     id: 'punaMulli',
     text: [
@@ -10530,7 +10640,7 @@ export const STORY = {
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('ne_we'),
         wf('mban', 'mbajmë', 'carry'), w('miell'), w('per'), wf('fshat', 'fshatin', 'the village'), p('.')),
       L(w('ti'), w('punon'), w('shume'), wf('ne', 'në', 'in'), w('mulli'), p('.')),
-      L(wf('plak', 'plaku', 'the old man'), w('jep'), w('pese'), w('lek'), w('dhe'), w('thote'), p(':'), w('faleminderit'), p('!')),
+      unless('arrival:money', OLD_MAN_MONEY_OUTCOME),
       // the worker's motto: few words and much work
       Q('fjale-pak',
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('fjale'), w('pak'), w('e_conj'), w('pune'), w('shume'), p('!')),
@@ -10798,7 +10908,7 @@ export const STORY = {
       L(wf('miell', 'mielli', 'the flour'), wf('yt', 'yt', 'your'), w('eshte'), w('gati'), p('.'), wf('drite', 'drita', 'the light'), w('e_link'), wf('dite', 'ditës', 'day'), w('vjen'), p('.')),
     ],
     options: [
-      { text: L(w('merr'), wf('miell', 'miellin', 'the flour'), w('dhe'), w('shko'), wf('ne', 'në', 'to'), w('shtepi')), to: 'maroShtepi', lek: 30, grant: 'flori', time: 'dawn' },
+      { text: L(w('merr'), wf('miell', 'miellin', 'the flour'), w('dhe'), w('shko'), wf('ne', 'në', 'to'), w('shtepi')), to: 'maroShtepi', grant: 'flori', time: 'dawn' },
     ],
   },
 
@@ -11306,8 +11416,8 @@ export const STORY = {
     ],
     options: [
       { text: L(w('fol'), w('me'), wf('tabak', 'tabakun', 'the tanner')), requires: 'day', to: 'tabakFund', reveal: 'tabak', revealOccurrence: 2 },
-      // honest work on the bank — hides hauled from the cold water, four lek
-      { text: L(w('bej'), w('pune')), requires: 'day', lek: 4, to: 'punaTabak', reveal: 'pune' },
+      // honest work on the bank — hides hauled from the cold water for a day wage
+      { text: L(w('bej'), w('pune')), requires: 'day', lek: ORDINARY_WORK_WAGE, moneyOutcome: TANNER_MONEY_OUTCOME, to: 'punaTabak', reveal: 'pune' },
       { text: L(w('kthehu'), wf('tek', 'te', 'to'), wf('lume', 'lumi', 'the river')), to: 'fshatiLumi' },
     ],
   },
@@ -11318,7 +11428,7 @@ export const STORY = {
     text: [
       L(w('ti'), w('punon'), w('lekure'), w('me'), wf('tabak', 'tabakët', 'the tanners'), p('.')),
       L(wf('uje', 'uji', 'the water'), w('eshte'), w('i_art'), w('ftohte'), w('dhe'), wf('pune', 'puna', 'the work'), w('e_link'), wf('madh', 'madhe', 'big'), p('.')),
-      L(wf('tabak', 'tabaku', 'the tanner'), w('jep'), w('kater'), w('lek'), w('dhe'), w('thote'), p(':'), w('faleminderit'), p('!')),
+      unless('arrival:money', TANNER_MONEY_OUTCOME),
     ],
     options: [
       // the day's hides are hauled — you wade out of the cold Lana
@@ -12284,7 +12394,7 @@ const CONFUSERS3 = {
   cajMali1: L(w('blej'), wf('mal', 'malin', 'the mountain')), // buy the mountain — the trader buys tea, not you the mountain
   punaMulli: L(w('mban'), wf('plak', 'plakun', 'the old man')), // carry the old man — you cannot
   punaBariu: L(w('ha'), wf('dhi', 'dhitë', 'the goats')), // eat the goats — you cannot
-  kengaLahute: L(w('degjo'), w('dhjete')), // listen to ten — absurd
+  kengaLahute: L(w('degjo'), w('teteqind')), // listen to eight hundred — absurd
   udhaShenja: L(w('degjo'), wf('shenje', 'shenjat', 'the signs')), // listen to the signs — they cannot speak
   kopshtiBar: L(w('merr'), wf('mal', 'malin', 'the mountain')), // take the mountain — you cannot
   kripore1: L(w('merr'), wf('det', 'detin', 'the sea')), // take the sea — you cannot
@@ -12339,15 +12449,16 @@ STORY.tregtari2.options.push(worldItemAction(
 ))
 
 const EVERYDAY_SHOP_GOODS = Object.freeze([
-  ['cakmak', 8, 'a lighter'],
-  ['shishe', 5, 'a bottle'],
-  ['cader', 15, 'an umbrella'],
-  ['litar', 20, 'a rope'],
-  ['batanije', 20, 'a blanket'],
-  ['sapun', 4, 'some soap'],
-  ['peshqir', 6, 'a towel'],
+  ['cakmak', EVERYDAY_GOOD_PRICES.cakmak, 'a lighter'],
+  ['shishe', EVERYDAY_GOOD_PRICES.shishe, 'a bottle'],
+  ['cader', EVERYDAY_GOOD_PRICES.cader, 'an umbrella'],
+  ['litar', EVERYDAY_GOOD_PRICES.litar, 'a rope'],
+  ['batanije', EVERYDAY_GOOD_PRICES.batanije, 'a blanket'],
+  ['sapun', EVERYDAY_GOOD_PRICES.sapun, 'some soap'],
+  ['peshqir', EVERYDAY_GOOD_PRICES.peshqir, 'a towel'],
 ])
 for (const [itemId, price, englishNounPhrase] of EVERYDAY_SHOP_GOODS) {
+  const purchasedObject = itemId === 'sapun' ? [w('sapun')] : [w('nje'), w(itemId)]
   STORY.sendetDites.options.push(worldItemAction(
     'buy-' + itemId,
     'dua një ' + DICT[itemId].al + ', ju lutem.',
@@ -12356,6 +12467,9 @@ for (const [itemId, price, englishNounPhrase] of EVERYDAY_SHOP_GOODS) {
     {
       to: 'sendetDites',
       lek: -price,
+      moneyOutcome: takeForMoneyOutcome(
+        price, englishNounPhrase, wf('paguaj', 'paguan', 'pay'), ...purchasedObject,
+      ),
       grant: itemId,
       unless: itemId,
       durationHours: 0,
@@ -12656,12 +12770,12 @@ export const ITEMS = {
   lek: {
     id: 'lek', icon: '🪙', name: 'Lek', al: 'lek', word: 'lek',
     kind: 'currency', tags: ['currency'], currency: true,
-    blurb: 'The coin of the country — named, the old people like to say, for Leka i Madh, Alexander the Great himself. Bread is five, a bed is twenty, and every lek of it is earned: the mill pays, the shepherd pays, the trader pays good money for mountain tea, and a song on the lahuta fills the cap.',
+    blurb: 'The currency of Albania. The game records the nominal value printed on the money: bread is one hundred lek, a simple room is two thousand, and work, trade, and music can all fill the purse. In everyday speech, some people still quote “old lek” by adding a zero; the trader teaches that convention without changing what you actually pay.',
   },
   cajMali: {
     id: 'cajMali', icon: '🌿', name: 'Mountain tea', al: 'çaj mali', word: 'caj',
     kind: 'drink', tags: ['drink', 'herb', 'quest-object'],
-    blurb: 'Çaj mali — ironwort, the wild mountain tea of the high slopes, picked in the sun and dried in bundles. Every Albanian house brews it against colds and long winters, and the trader in living Gjakova pays ten lek a bundle for it.',
+    blurb: 'Çaj mali — ironwort, the wild mountain tea of the high slopes, picked in the sun and dried in bundles. Every Albanian house brews it against colds and long winters, and the trader in living Gjakova pays five hundred lek a bundle for it.',
   },
   lahute: {
     id: 'lahute', icon: '🪕', name: 'Lahuta', al: 'lahutë', word: 'lahute',
@@ -13983,6 +14097,11 @@ export const DEFS = {
   dhjete: L(w('nente'), w('dhe'), w('nje')), //             nine and one
   njezet: L(w('dhjete'), w('dhe'), w('dhjete')), //         ten and ten
   njeqind: L(w('dhjete'), w('here'), w('dhjete')),
+  dyqind: L(w('dy'), w('here'), w('njeqind')),
+  treqind: L(w('tre'), w('here'), w('njeqind')),
+  peseqind: L(w('pese'), w('here'), w('njeqind')),
+  gjashteqind: L(w('gjashte'), w('here'), w('njeqind')),
+  teteqind: L(w('tete'), w('here'), w('njeqind')),
   mije: L(w('dhjete'), w('here'), w('njeqind')),
   zero: L(w('une'), wf('ka', 'kam'), p('___'), wf('lek', 'lekë', 'lek'), p(';'), w('nuk'), w('mund'), w('te_subj'), w('blej'), w('asgje')),
   tregtar: L(w('njeri'), w('qe'), wf('blej', 'blen', 'buys'), w('dhe'), wf('shes', 'shet', 'sells'), w('ne'), w('treg')),
@@ -13990,7 +14109,7 @@ export const DEFS = {
   blej: L(w('jep'), w('para_money'), w('dhe'), w('merr'), w('dicka')),
   shes: L(w('jep'), w('dicka'), w('dhe'), w('merr'), w('para_money')),
   kushton: L(w('sa'), wf('lek', 'lekë', 'lek'), p('___'), wf('buke', 'buka', 'the bread'), p('?')),
-  lek: L(w('para_money'), p(':'), w('nje'), w('buke'), w('mund'), w('te_subj'), wf('kushton', 'kushtojë', 'cost'), w('pese'), p('___')),
+  lek: L(w('para_money'), p(':'), w('nje'), w('buke'), w('mund'), w('te_subj'), wf('kushton', 'kushtojë', 'cost'), w('njeqind'), p('___')),
   shtrenjte: L(wf('kushton', 'kushton', 'costs'), w('shume'), wf('lek', 'lekë', 'lek')),
   lire: L(wf('kushton', 'kushton', 'costs'), w('pak'), wf('lek', 'lekë', 'lek')),
   dyqan: L(w('vend'), w('ku'), wf('tregtar', 'tregtari', 'the trader'), wf('shes', 'shet', 'sells'), w('dhe'), w('ti'), wf('blej', 'blen', 'buys')),

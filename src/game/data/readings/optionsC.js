@@ -159,7 +159,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "kengaLahute.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1223
   "kengaLahute.options[1]": { al: "këndo për lek", en: "Sing for a lek.", review: 'internal-editorial' }, // 1224
   "kengaLahute.options[2]": { al: "jep burra", en: "Give men.", review: 'internal-editorial' }, // 1225
-  "kengaLahute.options[3]": { al: "dëgjo dhjetë", en: "Listen to ten.", review: 'internal-editorial' }, // 1226
+  "kengaLahute.options[3]": { al: "dëgjo tetëqind", en: "Listen to eight hundred.", review: 'internal-editorial' }, // 1226
   "udhetaretBisede.options[0]": { al: "dëgjo udhëtarin", en: "Listen to the traveller.", review: 'internal-editorial' }, // 1227
   "udhetaretBisede.options[1]": { al: "dëgjo të tjerët", en: "Listen to the others.", review: 'internal-editorial' }, // 1228
   "udhetaretBisede.options[2]": { al: "shko idenë", en: "Go to the idea.", review: 'internal-editorial' }, // 1229

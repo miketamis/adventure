@@ -61,5 +61,7 @@
 ## Immersion and debug boundaries
 
 - Normal play must communicate health, money, time, weather, season, carried objects, companions, and consequences through Albanian story prose when relevant. Diagnostic ledgers, the map/atlas, build hash, raw counters, full English readings, and authoring metadata are debug-only.
+- A choice must never reveal a positive money reward before the player commits to it; exact payout previews are debug-only. The resulting scene must join the canonical transaction prose to the new total balance, including a zero-balance sentence when appropriate, rather than showing an unexplained purse total before the payment.
+- Living-world prices and rewards use the current nominal value printed on Albanian money. "Old lek" may appear as believable dialogue only when the same scene makes the 10:1 conversion explicit; game effects and affordability always use the nominal amount.
 - Movement and appointments must preserve physical continuity. A conversation choice cannot silently teleport the player; moving NPCs need a location, timing policy, late/missed reactions, and persistence tests. Once the player learns an NPC’s name, later authored dialogue should use that name where a natural speaker tag appears.
 - Choices must never reveal their fluent English answer before the learner acts. Accessibility labels obey the same answer boundary as visible copy.

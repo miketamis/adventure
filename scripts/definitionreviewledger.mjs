@@ -99,7 +99,7 @@ export const EDITORIALLY_REVIEWED_DEFINITIONS = Object.freeze({
   kulle: 'shtëpi e lartë prej guri me odë',
   larg: 'jo afër; duhet të ecësh shumë',
   lart: 'më larg nga toka, drejt qiellit',
-  lek: 'para : një bukë mund të kushtojë pesë ___',
+  lek: 'para : një bukë mund të kushtojë njëqind ___',
   loja: 'njerëzit ose fëmijët luajnë bashkë me rregulla, për kënaqësi',
   lufto: 'godit armikun me armë dhe ai të godet',
   lume: 'ujë që lëviz nga mali drejt detit',

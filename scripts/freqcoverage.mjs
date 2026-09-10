@@ -7,7 +7,7 @@
 // exact match. Complements freqrank.mjs (which ranks DICT words).
 // Strict mode makes every unclassified non-clitic gap release-blocking.
 import { readFileSync } from 'node:fs'
-import { STORY, DICT, HEART_LEVELS, ITEMS, lineOf } from '../src/game/content.js'
+import { STORY, DICT, HEART_LEVELS, ITEMS, lineOf, moneyOutcomeLinesOf } from '../src/game/content.js'
 import { environmentStoryLine, purseStoryLine } from '../src/game/storyContext.js'
 import {
   TOP_1000_CANDIDATES,
@@ -33,7 +33,10 @@ const addTok = (toks) => { for (const t of toks||[]) if (t.al) {
 for (const id of Object.keys(STORY)) {
   const n = STORY[id]
   for (const e of n.text) addTok(lineOf(e))
-  for (const o of (n.options||[])) addTok(o.text)
+  for (const o of (n.options||[])) {
+    addTok(o.text)
+    for (const line of moneyOutcomeLinesOf(o)) addTok(line)
+  }
 }
 for (const it of Object.values(ITEMS)) if (it.use) addTok(it.use.phrase)
 for (const level of Object.values(HEART_LEVELS)) {

@@ -10,6 +10,7 @@ import {
   effectLockText,
   formatCivilHour,
   interactionLockText,
+  optionMoneyEffectText,
   optionReadingVisible,
   sceneAnnouncement,
   storyReadingVisible,
@@ -90,6 +91,11 @@ check('route controls announce Albanian rather than leaking the English answer',
   story.includes('const accessibleOptionPhrase = state.debug') &&
   story.includes(': albanianTextOf(e.tokens)') &&
   story.includes('aria-label={`${e.ok ? \'Choose\' : \'Locked\'}: ${accessibleOptionPhrase}`}'))
+check('normal choices conceal future rewards while debug exposes exact effects',
+  optionMoneyEffectText(800) === 'spends tokens' &&
+  optionMoneyEffectText(800, true) === 'receives 🪙 800 · spends tokens' &&
+  optionMoneyEffectText(-500) === 'costs 🪙 500 · spends tokens' &&
+  story.includes('optionMoneyEffectText(e.lek, state.debug)'))
 check('map-derived route metadata and its accessible description are debug-only',
   story.includes('const routeId = state.debug && routeParts.length > 0') &&
   story.includes('{state.debug && e.real && routeParts.length > 0 && (') &&

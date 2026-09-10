@@ -9,6 +9,7 @@ import {
   FESTIVAL_IDS,
   START_CLOCK,
   TIME_PHASES,
+  arrivalOptionOf,
   applyOptionEffects,
   applyWorldEffects,
   advanceToCivilHour,
@@ -728,6 +729,16 @@ check('playable content exercises limits, hidden knowledge, and fixture actions 
     fromNodeId: paidDaily.nodeId, fromTurn: wageBefore.turn,
   })
   assert.equal(wageAfter.inventory.lek, paidDaily.option.lek)
+  assert.equal(arrivalOptionOf(wageAfter), paidDaily.option,
+    'arrival prose lost the exact canonical choice that changed the purse')
+  const wageReloaded = normalizeSavedState(wageAfter, stateAt(wageAfter.nodeId, wageAfter.clock))
+  assert.equal(arrivalOptionOf(wageReloaded), paidDaily.option,
+    'a valid transaction arrival did not survive reload')
+  assert.equal(arrivalOptionOf(normalizeSavedState({
+    ...wageAfter,
+    choiceIndex: 99_999,
+  }, stateAt(wageAfter.nodeId, wageAfter.clock))), null,
+  'a forged transaction option survived save normalization')
   assert.equal(interactionAvailabilityForOption(
     { ...wageAfter, nodeId: paidDaily.nodeId }, paidDaily.option,
   ).reason, 'max-uses')

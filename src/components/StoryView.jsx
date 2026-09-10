@@ -9,9 +9,11 @@ import {
   wf,
   p,
   lineOf,
+  moneyOutcomeLineOf,
   visibleLines,
 } from '../game/content.js'
 import {
+  arrivalOptionOf,
   canChoose,
   canSpeak,
   canUseItem,
@@ -36,6 +38,7 @@ import {
   ENVIRONMENT_NARRATION_POLICY,
   authoredEnvironmentDimensions,
   environmentStoryLine,
+  moneyTransactionStoryLine,
   purseStoryLine,
 } from '../game/storyContext.js'
 import { festivalLabel } from '../game/environment.js'
@@ -59,6 +62,7 @@ import {
   formatCivilHour,
   formatRouteDuration,
   interactionLockText,
+  optionMoneyEffectText,
   optionReadingVisible,
   sceneAnnouncement,
   storyReadingVisible,
@@ -219,7 +223,11 @@ export default function StoryView({ state, dispatch }) {
   const itemIds = visibleOwnedIds.filter((id) => ITEMS[id] && !ITEMS[id].companion && !ITEMS[id].currency)
   const companionIds = visibleOwnedIds.filter((id) => ITEMS[id]?.companion)
   const usableOwned = state.embodying ? [] : visibleOwnedIds.filter((id) => ITEMS[id]?.use)
-  const purseLine = purseStoryLine(state.inventory.lek)
+  const arrivalOption = arrivalOptionOf(state)
+  const moneyOutcome = moneyOutcomeLineOf(arrivalOption, (id) => hasCond(storyState, id))
+  const purseLine = moneyOutcome
+    ? moneyTransactionStoryLine(moneyOutcome, state.inventory.lek)
+    : purseStoryLine(state.inventory.lek)
 
   // "ti ke një X dhe një Y ." — what you carry, as a real (discoverable) story line
   const carryLine = () => {
@@ -289,7 +297,6 @@ export default function StoryView({ state, dispatch }) {
       allDiscovered,
       enoughMana,
       lek: optionLekDelta(opt),
-      moneyLabel: opt.moneyLabel || null,
       affordable,
       lekAvailability,
       interaction,
@@ -742,11 +749,7 @@ export default function StoryView({ state, dispatch }) {
                   <span className="option-cost ok">mends one ♥ · spends tokens · once at this level</span>
                 )
               } else if (e.lek) {
-                cost = (
-                  <span className="option-cost ok">
-                    {e.lek > 0 ? `${e.moneyLabel || 'earns'} 🪙 ${e.lek}` : `costs 🪙 ${-e.lek}`} · spends tokens
-                  </span>
-                )
+                cost = <span className="option-cost ok">{optionMoneyEffectText(e.lek, state.debug)}</span>
               } else if (e.beginQuest) {
                 cost = <span className="option-cost role-ready">🎭 confirmation first · then spends tokens</span>
               } else {

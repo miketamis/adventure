@@ -161,11 +161,34 @@ export function environmentStoryLine(environment, { setting, enclosed = false, o
 // Digits keep arbitrary earned balances exact; prices elsewhere in the story
 // teach the common spoken number words. The currency itself remains a normal,
 // discoverable Albanian token rather than returning as a HUD counter.
+const lekWord = (balance) => balance === 1 ? w('lek') : wf('lek', 'lekë', 'lek')
+
 export function purseStoryLine(lek) {
   const balance = Number.isSafeInteger(lek) && lek > 0 ? lek : 0
   if (!balance) return null
   return R(
     `You have ${balance} lek.`,
-    w('ti'), w('ke'), p(String(balance)), w('lek'), p('.'),
+    w('ti'), w('ke'), p(String(balance)), lekWord(balance), p('.'),
+  )
+}
+
+// A money-changing choice owns the action sentence (who paid whom and why),
+// while this shared generator owns the live balance. Joining them prevents the
+// next scene from saying "you have 800" before it explains where the money
+// came from, and it remains exact when the player already had money.
+export function moneyTransactionStoryLine(actionLine, lek) {
+  if (!Array.isArray(actionLine)) return purseStoryLine(lek)
+  const balance = Number.isSafeInteger(lek) && lek > 0 ? lek : 0
+  const balanceTokens = balance
+    ? [wf('tani', 'Tani', 'now'), w('ke'), p(String(balance)), lekWord(balance), p('.')]
+    : [wf('tani', 'Tani', 'now'), w('nuk'), w('ke'), w('para_money'), w('me'), wf('vete', 'vete', 'self'), p('.')]
+  const balanceReading = balance
+    ? `You now have ${balance} lek.`
+    : 'You now have no money on you.'
+  const actionReading = actionLine.reading || ''
+  return R(
+    `${actionReading}${actionReading ? ' ' : ''}${balanceReading}`,
+    ...actionLine,
+    ...balanceTokens,
   )
 }

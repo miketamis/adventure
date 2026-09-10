@@ -15,6 +15,7 @@ import {
   visibleLines,
 } from '../src/game/content.js'
 import { hasCond, newRun } from '../src/game/gameState.js'
+import { EVERYDAY_GOOD_PRICES } from '../src/game/economy.js'
 import { albanianTextOf } from '../src/game/language.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { optionEffectsOf, optionLekDelta } from '../src/game/stateMechanics.js'
@@ -148,8 +149,7 @@ const condIncludes = (entry, condition) =>
   (Array.isArray(entry?.cond) ? entry.cond : [entry?.cond]).includes(condition)
 const consequence = (nodeId, condition) => STORY[nodeId].text.find((entry) => condIncludes(entry, condition))
 
-const shopGoods = Object.freeze({ cakmak: 8, shishe: 5, cader: 15, litar: 20, batanije: 20, sapun: 4, peshqir: 6 })
-for (const [itemId, price] of Object.entries(shopGoods)) {
+for (const [itemId, price] of Object.entries(EVERYDAY_GOOD_PRICES)) {
   const buy = action('sendetDites', `buy-${itemId}`)
   assert.equal(optionLekDelta(buy), -price, `buy-${itemId}: wrong price`)
   assert.equal(effectsInclude(buy, 'inventory', itemId, 1), true, `buy-${itemId}: purchase does not grant item`)
@@ -265,4 +265,4 @@ assert.equal(effectsInclude(blanket, 'inventory', 'batanije', -1), true, 'giving
 assert.equal(effectsInclude(blanket, 'inventory', 'bekim', 1), false, 'blanket must not replace the sacred hospitality/bread challenge')
 assert.match(albanianTextOf(lineOf(consequence('lendina', 'flag:forestGuestWarm'))), /ende e uritur/, 'blanket consequence must preserve the hungry guest challenge')
 
-console.log(`✓ everyday items: ${Object.keys(DESIGNATED_PRACTICAL_OBJECTS).length} grounded object senses, ${Object.keys(EXPECTED_ITEMS).length} carried forms, ${Object.keys(shopGoods).length} shop goods, ${generated.length} contextual actions`)
+console.log(`✓ everyday items: ${Object.keys(DESIGNATED_PRACTICAL_OBJECTS).length} grounded object senses, ${Object.keys(EXPECTED_ITEMS).length} carried forms, ${Object.keys(EVERYDAY_GOOD_PRICES).length} shop goods, ${generated.length} contextual actions`)

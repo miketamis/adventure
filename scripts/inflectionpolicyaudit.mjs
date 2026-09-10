@@ -4,7 +4,7 @@
 // reachable in Train; broader paradigms require separate linguistic review.
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
-import { DICT, FORM_FREQ, HEART_LEVELS, ITEMS, STORY } from '../src/game/content.js'
+import { DICT, FORM_FREQ, HEART_LEVELS, ITEMS, STORY, moneyOutcomeLinesOf } from '../src/game/content.js'
 import { SEASONS, WEATHER_TYPES } from '../src/game/environment.js'
 import {
   PLAYABLE_FORM_INVENTORY,
@@ -50,7 +50,11 @@ const collect = (tokens, location) => {
 }
 for (const [nodeId, node] of Object.entries(STORY)) {
   node.text.forEach((entry, index) => collect(tokensOf(entry), `STORY.${nodeId}.text[${index}]`))
-  node.options.forEach((option, index) => collect(option.text, `STORY.${nodeId}.options[${index}]`))
+  node.options.forEach((option, index) => {
+    collect(option.text, `STORY.${nodeId}.options[${index}]`)
+    moneyOutcomeLinesOf(option).forEach((line, outcomeIndex) =>
+      collect(line, `STORY.${nodeId}.options[${index}].moneyOutcome[${outcomeIndex}]`))
+  })
 }
 for (const [itemId, item] of Object.entries(ITEMS)) {
   for (const [actionId, action] of Object.entries(item)) {

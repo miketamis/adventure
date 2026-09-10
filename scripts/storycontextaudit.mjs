@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { STORY, describesEnvironment, lineOf, visibleLines, w } from '../src/game/content.js'
+import { STORY, describesEnvironment, lineOf, moneyOutcomeLineOf, visibleLines, w } from '../src/game/content.js'
 import {
   hasCond,
   hasRequiredItem,
@@ -15,6 +15,7 @@ import { albanianTextOf } from '../src/game/language.js'
 import {
   authoredEnvironmentDimensions,
   environmentStoryLine,
+  moneyTransactionStoryLine,
   purseStoryLine,
 } from '../src/game/storyContext.js'
 import { civilDayPartAtClock, civilHourAtClock, greetingPeriodAtClock } from '../src/game/environment.js'
@@ -164,7 +165,22 @@ check('every authored environment line is reachable and preserves undeclared fal
 check('a positive lek balance is narrated exactly and zero stays silent', () => {
   assert.equal(purseStoryLine(0), null)
   assert.equal(purseStoryLine(-3), null)
-  assert.equal(albanianTextOf(purseStoryLine(17)), 'ti ke 17 lek.')
+  assert.equal(albanianTextOf(purseStoryLine(1)), 'ti ke 1 lek.')
+  assert.equal(albanianTextOf(purseStoryLine(17)), 'ti ke 17 lekë.')
+})
+
+check('a money-changing arrival joins the action to the exact resulting balance', () => {
+  const eliraOption = STORY.eliraShesh.options.find((option) => option.lek > 0)
+  const knownOutcome = moneyOutcomeLineOf(eliraOption, (id) => id === 'knows:npcName:elira')
+  const unknownOutcome = moneyOutcomeLineOf(eliraOption, () => false)
+  assert.equal(
+    albanianTextOf(moneyTransactionStoryLine(knownOutcome, 1_400)),
+    'Elira të jep tetëqind lekë. Tani ke 1400 lekë.',
+  )
+  assert.equal(
+    albanianTextOf(moneyTransactionStoryLine(unknownOutcome, 0)),
+    'Gruaja të jep tetëqind lekë. Tani nuk ke para me vete.',
+  )
 })
 
 check('each social encounter has one right greeting and three contextual distractors', () => {
@@ -264,7 +280,7 @@ check('all whole-line English readings are debug-only', () => {
   assert.equal(storyReadingVisible(0, true), true)
 })
 
-console.log(`\n${10 - failures.length}/10 story-context contracts pass.`)
+console.log(`\n${11 - failures.length}/11 story-context contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1

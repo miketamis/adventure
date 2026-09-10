@@ -394,6 +394,7 @@ export const isEmbodyingId = (id) => typeof id === 'string' && id.startsWith('em
 // timed fixture, or the way they came in
 export const hasCond = (state, id) => {
   if (typeof id !== 'string' || !id) return false
+  if (id === 'arrival:money') return Boolean(arrivalOptionOf(state)?.moneyOutcome)
   if (isTimeId(id)) return timeOfDay(state) === id
   if (isEnvironmentId(id)) return hasEnvironmentCond(state, id)
   if (isFixtureId(id)) return fixtureConditionMatches(id, state.fixtures, storyClockOf(state))
@@ -973,6 +974,10 @@ export function normalizeSavedState(saved, fresh) {
   delete next.fireLit
   next.cameFrom = STORY[saved.cameFrom] ? saved.cameFrom : null
   next.cameFromPhase = TIME_PHASES.includes(saved.cameFromPhase) ? saved.cameFromPhase : null
+  delete next.lastChoice
+  const savedChoiceIndex = Number.isInteger(saved.choiceIndex) ? saved.choiceIndex : null
+  const savedChoiceOption = STORY[next.cameFrom]?.options?.[savedChoiceIndex]
+  next.choiceIndex = savedChoiceOption?.to === next.nodeId ? savedChoiceIndex : null
   next.familiar = saved.familiar === true
   next.rumor = saved.rumor === true
   next.trail = Array.isArray(saved.trail)
@@ -1140,6 +1145,7 @@ function baseRun() {
     nodeId: START_NODE,
     cameFrom: null, // the node you walked in from (see ARRIVAL above)
     cameFromPhase: null, // the time-of-day phase when you chose your last option (see ARRIVAL)
+    choiceIndex: null, // canonical source option for transaction-aware arrival prose
     familiar: false, // was THIS node already visited when you arrived? (see FAMILIARITY below)
     heard: {}, // nodeId -> true once a scene TOLD you of the place (see HEARSAY below)
     rumor: false, // does THIS arrival fulfil a rumor — heard of, never seen? (see HEARSAY)
@@ -1271,6 +1277,11 @@ export const hasRequiredItem = (state, option) => {
 export const lekOf = (state) => Number.isSafeInteger(state.inventory?.lek) && state.inventory.lek > 0
   ? state.inventory.lek
   : 0
+export const arrivalOptionOf = (state) => {
+  if (!Number.isInteger(state?.choiceIndex)) return null
+  const option = STORY[state.cameFrom]?.options?.[state.choiceIndex]
+  return option?.to === state.nodeId ? option : null
+}
 export const canAfford = (state, option) => optionLekAvailability(state, option).ok
 
 export const interactionAvailabilityForOption = (state, option) => interactionAvailability(
@@ -1706,6 +1717,7 @@ export function reducer(state, action) {
         nodeId: option.to,
         cameFrom: state.nodeId,
         cameFromPhase: timeOfDay(choiceState),
+        choiceIndex: STORY[state.nodeId].options.indexOf(option),
         familiar,
         heard,
         rumor,
