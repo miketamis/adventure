@@ -2,6 +2,7 @@ import { DICT } from '../game/content.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../game/everydayAlbanian.js'
 import { FORMS_UNLOCK_THRESHOLD, formsUnlocked } from '../game/formInventory.js'
 import { buildPhraseProgressionSnapshot } from '../game/phrasePractice.js'
+import { wordProgressionSnapshot } from '../game/wordProgression.js'
 
 const EXAMPLE_PHRASE_ID = 'going-village'
 const EXAMPLE_WORD_ID = 'fshat'
@@ -20,6 +21,10 @@ export default function DebugLearningSaveStatus({ state }) {
     },
   )
   const rewarded = state.practiced?.[EXAMPLE_WORD_ID] || 0
+  const wordSnapshot = wordProgressionSnapshot(
+    state.wordProgress?.[EXAMPLE_WORD_ID],
+    state.trainRound || 0,
+  )
   const correctRounds = state.phrasePracticed?.[phrase.id] || 0
   const missedRounds = state.phraseMistakes?.[phrase.id] || 0
 
@@ -33,8 +38,14 @@ export default function DebugLearningSaveStatus({ state }) {
           : `locked · ${phrase.requires.length - missing.length}/${phrase.requires.length} words discovered`}
       </span>
       <span>
+        <b lang="sq">{DICT[EXAMPLE_WORD_ID].al}</b> word:{' '}
+        {wordSnapshot.next.difficultyLabel} · {wordSnapshot.next.due ? 'ready' : 'spaced'}
+      </span>
+      <span>
         <b lang="sq">{DICT[EXAMPLE_WORD_ID].al}</b> noun forms:{' '}
-        {formsUnlocked(state, EXAMPLE_WORD_ID) ? 'unlocked' : `${rewarded}/${FORMS_UNLOCK_THRESHOLD} rewards`}
+        {formsUnlocked(state, EXAMPLE_WORD_ID)
+          ? 'unlocked'
+          : `${rewarded}/${FORMS_UNLOCK_THRESHOLD} rewards · lexical tier ${wordSnapshot.next.baseStage}`}
       </span>
       <span><b>Recorded phrase rounds:</b> {correctRounds} correct · {missedRounds} missed</span>
     </aside>

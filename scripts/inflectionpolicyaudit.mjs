@@ -16,6 +16,7 @@ import { WORD_CLASS, wordClassOf } from '../src/game/wordClassPolicy.js'
 import { NOUN_PARADIGM_BACKLOG_IDS } from '../src/game/nounRegistry.js'
 import { REVIEWED_GENERATED_FORM_SURFACES } from '../src/game/gameState.js'
 import { FORMS_UNLOCK_THRESHOLD, formsUnlocked } from '../src/game/formInventory.js'
+import { completedWordProgress } from '../src/game/wordProgression.js'
 import {
   ENVIRONMENT_DIMENSIONS,
   ENVIRONMENT_NARRATION_SETTINGS,
@@ -138,9 +139,17 @@ for (const [id, entry] of Object.entries(DICT)) {
   }
   if (usedVariants.length) {
     assert.equal(
-      formsUnlocked({ practiced: { [id]: FORMS_UNLOCK_THRESHOLD } }, id),
+      formsUnlocked({
+        practiced: { [id]: FORMS_UNLOCK_THRESHOLD },
+        wordProgress: { [id]: completedWordProgress() },
+      }, id),
       true,
       `${id}: reviewed playable forms cannot pass the production unlock gate`,
+    )
+    assert.equal(
+      formsUnlocked({ practiced: { [id]: FORMS_UNLOCK_THRESHOLD } }, id),
+      false,
+      `${id}: lifetime rewards bypassed the lexical-production gate`,
     )
   }
   for (const form of entry.forms || []) {

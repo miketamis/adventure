@@ -6,6 +6,7 @@ import { playWord } from '../game/audio.js'
 import {
   buildPhraseQuestion,
   containsExcludedPhraseWord,
+  phraseAnswerResult,
   trainQuestionWordKeys,
 } from '../game/phrasePractice.js'
 import {
@@ -22,12 +23,14 @@ import {
   TRAIN_SCHEDULER_SAFEGUARDS,
   TRAIN_WORD_FORM_POLICY,
 } from '../game/trainingProgression.js'
+import { wordProgressPlan } from '../game/wordProgression.js'
+import { buildWordQuestion, wordHasNoEvidence } from '../game/wordPractice.js'
 import { pickLeastPracticedForm } from '../game/formProgression.js'
 import PhrasePracticeQuestion from './PhrasePracticeQuestion.jsx'
 
 // the answer rendered in Albanian (every word is discovered when affordable)
 const albanianPhrase = (tokens) => tokens.map((t) => (t.id ? t.al : t.en)).join(' ')
-const [WORD_ALBANIAN_TO_ENGLISH, WORD_ENGLISH_TO_ALBANIAN] = TRAIN_EXERCISE_FAMILIES.wordMeaning.variants
+const [WORD_ALBANIAN_TO_ENGLISH] = TRAIN_EXERCISE_FAMILIES.wordMeaning.variants
 const [FORM_IDENTIFY_LEMMA, FORM_IDENTIFY_JOB] = TRAIN_WORD_FORM_POLICY.steps
 
 // The text shown for a sense on a given side. Training shows *all* English
@@ -61,83 +64,6 @@ const shuffle = (arr) => {
     ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
-}
-
-// Homonym particles (e, të, i, do, po) carry a `ctx` example phrase: the same
-// surface has several senses, so the bare word is ambiguous and MUST be quizzed
-// in context. Such senses are routed to a dedicated context question.
-const siblingsOf = (id) => Object.keys(DICT).filter((x) => x !== id && DICT[x].al === DICT[id].al)
-
-// A context question: show the word inside its phrase (target highlighted) and
-// ask for THAT sense. Distractors are the rival senses of the same surface first
-// (the whole point — only context separates them), then any other gloss.
-function buildContextQuestion(answerId, discoveredIds) {
-  const pool = [...siblingsOf(answerId), ...shuffle(discoveredIds), ...shuffle(Object.keys(DICT))]
-  const distractors = []
-  const usedText = new Set([senseText(answerId, 'en')])
-  for (const id of pool) {
-    if (id === answerId || distractors.includes(id)) continue
-    const text = senseText(id, 'en')
-    if (usedText.has(text)) continue
-    usedText.add(text)
-    distractors.push(id)
-    if (distractors.length === TRAIN_EXERCISE_FAMILIES.wordContext.choiceDistractors) break
-  }
-  return {
-    kind: TRAIN_EXERCISE_FAMILIES.wordContext.kind,
-    answerId,
-    field: 'en',
-    ctx: DICT[answerId].ctx,
-    options: shuffle([answerId, ...distractors]),
-    lexicalSurfaces: [DICT[answerId].ctx.al],
-  }
-}
-
-// Build a multiple-choice question from the discovered senses.
-// The quizzed word is weighted by `mana`: more tokens -> less likely to appear.
-function buildQuestion(discoveredIds, mana, excludeWords = []) {
-  const candidates = discoveredIds.filter((id) => {
-    const surface = DICT[id].ctx?.al || DICT[id].al
-    return !containsExcludedPhraseWord(surface, excludeWords)
-  })
-  if (!candidates.length) return null
-  const answerId = weightedPick(candidates, mana)
-  if (DICT[answerId].ctx) return buildContextQuestion(answerId, candidates)
-
-  const dir = Math.random() < TRAIN_QUESTION_MIX_POLICY.wordDirection.albanianToEnglishShare
-    ? WORD_ALBANIAN_TO_ENGLISH.id
-    : WORD_ENGLISH_TO_ALBANIAN.id // prompt side
-  const field = dir === WORD_ALBANIAN_TO_ENGLISH.id ? 'en' : 'al' // the option text we show
-  const promptField = dir === WORD_ALBANIAN_TO_ENGLISH.id ? 'al' : 'en'
-
-  // distractors: prefer other discovered senses, fall back to whole dictionary
-  const pool = (candidates.length >= 4 ? candidates : Object.keys(DICT)).filter((id) =>
-    !containsExcludedPhraseWord(DICT[id].al, excludeWords),
-  )
-  const distractors = []
-  const usedText = new Set([senseText(answerId, field)])
-  for (const id of shuffle(pool)) {
-    if (id === answerId) continue
-    // skip an option that would ALSO be correct: same prompt-side text means it
-    // shares the answer's word (al2en) or its meaning (en2al) — a second answer.
-    if (DICT[id][promptField] === DICT[answerId][promptField]) continue
-    const text = senseText(id, field)
-    if (usedText.has(text)) continue
-    usedText.add(text)
-    distractors.push(id)
-    if (distractors.length === TRAIN_EXERCISE_FAMILIES.wordMeaning.choiceDistractors) break
-  }
-
-  const options = shuffle([answerId, ...distractors])
-  return {
-    kind: TRAIN_EXERCISE_FAMILIES.wordMeaning.kind,
-    answerId,
-    dir,
-    field,
-    promptText: senseText(answerId, promptField),
-    options,
-    lexicalSurfaces: [DICT[answerId].al],
-  }
 }
 
 // A reviewed-form question, unlocked once a word has been practiced enough.
@@ -208,10 +134,13 @@ export default function PracticeView({ state, dispatch }) {
   )
   const [q, setQ] = useState(null)
   const [picked, setPicked] = useState(null)
+  const [typedWord, setTypedWord] = useState('')
+  const [typedWordLeeway, setTypedWordLeeway] = useState(false)
   const [step, setStep] = useState(FORM_IDENTIFY_LEMMA.step)
   const [formsCorrection, setFormsCorrection] = useState(null)
   const answerCommitted = useRef(false)
   const questionRef = useRef(null)
+  const wordInputRef = useRef(null)
   const previousQuestionWords = useRef([])
   const nextRef = useRef(null)
 
@@ -223,6 +152,8 @@ export default function PracticeView({ state, dispatch }) {
       return
     }
     setPicked(null)
+    setTypedWord('')
+    setTypedWordLeeway(false)
     setStep(FORM_IDENTIFY_LEMMA.step)
     const excludeWords = previousQuestionWords.current.length
       ? previousQuestionWords.current
@@ -230,7 +161,13 @@ export default function PracticeView({ state, dispatch }) {
     // Complete, standard-Albanian chunks own most of the training mix; the
     // remainder keeps word meanings and inflections alive.
     const modeRoll = Math.random()
-    if (unlockedEverydayPhrases.length && modeRoll < TRAIN_QUESTION_MIX_POLICY.phraseShare) {
+    const unstartedWordDue = discoveredIds.some((id) => {
+      const surface = DICT[id].ctx?.al || DICT[id].al
+      return !containsExcludedPhraseWord(surface, excludeWords) &&
+        wordHasNoEvidence(state.wordProgress?.[id]) &&
+        wordProgressPlan(state.wordProgress?.[id], state.trainRound || 0).due
+    })
+    if (!unstartedWordDue && unlockedEverydayPhrases.length && modeRoll < TRAIN_QUESTION_MIX_POLICY.phraseShare) {
       const phraseQuestion = buildPhraseQuestion(
         unlockedEverydayPhrases,
         state.mana,
@@ -272,7 +209,13 @@ export default function PracticeView({ state, dispatch }) {
       )
     }
     if (!nextQuestion) {
-      nextQuestion = buildQuestion(discoveredIds, state.mana, excludeWords)
+      nextQuestion = buildWordQuestion({
+        discoveredIds,
+        mana: state.mana,
+        wordProgress: state.wordProgress,
+        currentRound: state.trainRound,
+        excludeWords,
+      })
     }
     // With an exceptionally tiny unlocked vocabulary there may be no legal
     // non-repeating word round. Prefer a disjoint phrase even when this roll was
@@ -308,6 +251,7 @@ export default function PracticeView({ state, dispatch }) {
     discoveredIds.length,
     unlockedEverydayPhrases.length,
     state.mana,
+    state.wordProgress,
     state.formPracticed,
     state.phrasePracticed,
     state.phraseMistakes,
@@ -343,7 +287,10 @@ export default function PracticeView({ state, dispatch }) {
 
   useEffect(() => {
     if (!q) return undefined
-    const frame = window.requestAnimationFrame(() => questionRef.current?.focus())
+    const frame = window.requestAnimationFrame(() => {
+      if (q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind) wordInputRef.current?.focus()
+      else questionRef.current?.focus()
+    })
     return () => window.cancelAnimationFrame(frame)
   }, [q, step, formsCorrection])
 
@@ -384,6 +331,7 @@ export default function PracticeView({ state, dispatch }) {
   }
 
   const isForms = q.kind === TRAIN_EXERCISE_FAMILIES.wordForms.kind
+  const isWordSpelling = q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind
   const isEverydayPhrase = q.kind === TRAIN_EXERCISE_FAMILIES.phrase.kind
   // what a correct pick equals depends on the question kind and (for forms) the step
   const correctValue = isForms ? (step === FORM_IDENTIFY_LEMMA.step ? q.answerId : q.step2.answer) : q.answerId
@@ -479,9 +427,50 @@ export default function PracticeView({ state, dispatch }) {
     // normal / context question
     playWord(DICT[q.answerId].al)
     const wordKeys = trainQuestionWordKeys(q)
-    if (correct) dispatch({ type: 'PRACTICE_CORRECT', id: q.answerId, wordKeys })
-    else dispatch({ type: 'PRACTICE_WRONG', wordKeys })
-    setTimeout(next, correct ? 1200 : 2000)
+    dispatch({
+      type: 'PRACTICE_WORD_RESULT',
+      correct,
+      id: q.answerId,
+      tier: q.tier,
+      mode: q.mode,
+      direction: q.dir,
+      questionKey: q.questionKey,
+      wordKeys,
+    })
+    setTimeout(() => nextRef.current?.(), correct ? 1200 : 2000)
+  }
+
+  const insertWordLetter = (letter) => {
+    const input = wordInputRef.current
+    const start = input?.selectionStart ?? typedWord.length
+    const end = input?.selectionEnd ?? typedWord.length
+    const value = `${typedWord.slice(0, start)}${letter}${typedWord.slice(end)}`
+    setTypedWord(value)
+    requestAnimationFrame(() => {
+      wordInputRef.current?.focus()
+      wordInputRef.current?.setSelectionRange(start + 1, start + 1)
+    })
+  }
+
+  const checkWordSpelling = (event) => {
+    event.preventDefault()
+    if (!isWordSpelling || !typedWord.trim() || answerCommitted.current) return
+    answerCommitted.current = true
+    const result = phraseAnswerResult(typedWord, q.typingAnswer, q.answerTolerance)
+    setTypedWordLeeway(result.usedLeeway)
+    setPicked(result.correct ? q.answerId : '__typed-word-miss__')
+    playWord(q.typingAnswer)
+    dispatch({
+      type: 'PRACTICE_WORD_RESULT',
+      correct: result.correct,
+      id: q.answerId,
+      tier: q.tier,
+      mode: q.mode,
+      direction: q.dir,
+      questionKey: q.questionKey,
+      wordKeys: trainQuestionWordKeys(q),
+    })
+    setTimeout(() => nextRef.current?.(), result.correct ? 1600 : 2400)
   }
 
   // Split the shown surface for visual continuity. The prompt calls it a form;
@@ -598,9 +587,14 @@ export default function PracticeView({ state, dispatch }) {
             : 'What grammatical job does this noun form have here?'
           : q.kind === TRAIN_EXERCISE_FAMILIES.wordContext.kind
           ? 'What does the highlighted word mean here?'
+          : isWordSpelling
+          ? 'Write this word in Albanian'
           : q.dir === WORD_ALBANIAN_TO_ENGLISH.id
           ? 'What does this Albanian word mean?'
           : 'Which Albanian word means this?'}
+        {!isForms && q.difficultyLabel && (
+          <span className="phrase-label practice-word-level">{q.difficultyLabel}</span>
+        )}
       </div>
       {isForms ? (
         <div className="question">
@@ -616,11 +610,38 @@ export default function PracticeView({ state, dispatch }) {
           </div>
           <div className="ctx-en">{q.ctx.en}</div>
         </div>
+      ) : isWordSpelling ? (
+        <div className="question">{q.typingCue}</div>
       ) : (
         <div className="question" lang={q.dir === WORD_ALBANIAN_TO_ENGLISH.id ? 'sq' : undefined}>{q.promptText}</div>
       )}
       </div>
 
+      {isWordSpelling ? (
+        <form className="phrase-type-form word-type-form" onSubmit={checkWordSpelling}>
+          <label htmlFor={`word-answer-${q.questionKey}`}>Your Albanian answer</label>
+          <input
+            id={`word-answer-${q.questionKey}`}
+            ref={wordInputRef}
+            lang="sq"
+            type="text"
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck="false"
+            value={typedWord}
+            disabled={answered}
+            onChange={(event) => setTypedWord(event.target.value)}
+          />
+          <div className="phrase-type-tools">
+            <span>Albanian letters:</span>
+            <button type="button" disabled={answered} onClick={() => insertWordLetter('ë')}>ë</button>
+            <button type="button" disabled={answered} onClick={() => insertWordLetter('ç')}>ç</button>
+          </div>
+          <button className="btn primary phrase-check" type="submit" disabled={answered || !typedWord.trim()}>
+            Check word
+          </button>
+        </form>
+      ) : (
       <div className="answers">
         {isForms
           ? (step === FORM_IDENTIFY_LEMMA.step ? q.step1.options : q.step2.options).map((opt) => {
@@ -646,6 +667,7 @@ export default function PracticeView({ state, dispatch }) {
               )
             })}
       </div>
+      )}
 
       <div className={'feedback ' + (answered ? (wasCorrect ? 'good' : 'bad') : '')} role="status" aria-live="polite" aria-atomic="true">
         {answered &&
@@ -659,6 +681,12 @@ export default function PracticeView({ state, dispatch }) {
               : wasCorrect
               ? `✨ nuance! “${q.surface}” = ${q.step2.answer}`
               : `“${q.surface}” = ${q.step2.answer}`
+            : isWordSpelling
+            ? wasCorrect
+              ? typedWordLeeway
+                ? `Të lumtë! +1 token · accepted at this level; compare “${q.typingAnswer}”`
+                : `Të lumtë! +1 token for "${q.typingAnswer}"`
+              : `💔 −1 heart · correct spelling: ${q.typingAnswer}`
             : wasCorrect
             ? `Të lumtë! +1 token for "${DICT[q.answerId].al}"` // the folk blessing for a good answer
             : `💔 −1 heart · correct answer: ${senseText(q.answerId, q.field)}`)}

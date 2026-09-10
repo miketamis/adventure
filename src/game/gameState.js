@@ -28,6 +28,12 @@ import {
 import { phraseProductionFocusIds, phraseSurfaceWordKeys } from './phraseFocus.js'
 import { normalizeTrainingTarget, resolveTrainingTarget } from './trainingTarget.js'
 import { TRAIN_WORD_FORM_POLICY } from './trainingProgression.js'
+import {
+  WORD_PROGRESS_VERSION,
+  advanceWordProgress,
+  completedWordProgress,
+  normalizeWordProgress,
+} from './wordProgression.js'
 import { transitionInfo } from './worldModel.js'
 import { NODE_REGION } from './regions.js'
 import {
@@ -636,6 +642,15 @@ const phraseProductionProgressRecord = (value, currentRound) => {
   }
   return next
 }
+const wordProgressRecord = (value, currentRound, discovered) => {
+  if (!isRecord(value)) return {}
+  const next = {}
+  for (const [id, progress] of Object.entries(value)) {
+    if (!safeMapKey(id) || !DICT[id] || !discovered[id] || !isRecord(progress)) continue
+    next[id] = normalizeWordProgress(progress, currentRound)
+  }
+  return next
+}
 const productionTierRecord = (value) => Object.fromEntries(
   Object.entries(isRecord(value) ? value : {}).flatMap(([id, progress]) => {
     const phrase = EVERYDAY_PHRASE_BY_ID.get(id)
@@ -846,6 +861,16 @@ export function normalizeSavedState(saved, fresh) {
   next.trainLastQuestionKey = typeof saved.trainLastQuestionKey === 'string'
     ? saved.trainLastQuestionKey.slice(0, 200)
     : null
+  // The old lifetime `practiced` count mixed recognition, productive choices,
+  // form work and phrase rewards. Preserve it for totals, but do not invent
+  // exact lexical-stage evidence when migrating a pre-ladder save.
+  const hasWordProgressV1 = saved.wordProgressVersion === WORD_PROGRESS_VERSION
+  next.wordProgressVersion = WORD_PROGRESS_VERSION
+  next.wordProgress = wordProgressRecord(
+    hasWordProgressV1 ? saved.wordProgress : {},
+    next.trainRound,
+    next.discovered,
+  )
   // Version-1 counters recorded exposure, not gated productive evidence. Keep
   // the learner's tokens and lifetime totals, but never migrate those counters
   // into “can independently write this phrase”.
@@ -1133,6 +1158,8 @@ export function newRun() {
     ...baseRun(),
     mana: {},
     practiced: {},
+    wordProgressVersion: WORD_PROGRESS_VERSION,
+    wordProgress: {},
     formPracticed: {},
     phrasePracticed: {},
     phraseMistakes: {},
@@ -1756,6 +1783,44 @@ export function reducer(state, action) {
       }
     }
 
+    case 'PRACTICE_WORD_RESULT': {
+      if (action.correct !== true && action.correct !== false) return state
+      if (!safeMapKey(action.id) || !state.discovered[action.id] || !DICT[action.id]) return state
+      const nextRound = (state.trainRound || 0) + 1
+      const transition = advanceWordProgress(
+        state.wordProgress?.[action.id],
+        state.trainRound || 0,
+        {
+          correct: action.correct,
+          tier: action.tier,
+          mode: action.mode,
+          direction: action.direction,
+          questionKey: action.questionKey,
+          round: nextRound,
+        },
+      )
+      if (!transition.accepted) return state
+      const wordProgress = {
+        ...(state.wordProgress || {}),
+        [action.id]: transition.progress,
+      }
+      return {
+        ...state,
+        wordProgressVersion: WORD_PROGRESS_VERSION,
+        wordProgress,
+        mana: action.correct
+          ? { ...state.mana, [action.id]: (state.mana[action.id] || 0) + 1 }
+          : state.mana,
+        practiced: action.correct
+          ? { ...state.practiced, [action.id]: (state.practiced?.[action.id] || 0) + 1 }
+          : state.practiced,
+        hearts: action.correct ? state.hearts : Math.max(0, state.hearts - 1),
+        trainRound: nextRound,
+        trainLastWords: normalizedTrainWords(action.wordKeys),
+        trainLastQuestionKey: transition.progress.lastAttemptKey,
+      }
+    }
+
     case 'PRACTICE_FORM_CORRECT': {
       if (!safeMapKey(action.id) || !state.discovered[action.id]) return state
       const formKey = reviewedFormPracticeKey(state, action.id, action.formSurface)
@@ -1985,13 +2050,23 @@ export function reducer(state, action) {
       const discovered = { ...state.discovered }
       const mana = { ...state.mana }
       const practiced = { ...state.practiced }
+      const wordProgress = { ...(state.wordProgress || {}) }
       for (const id of action.ids || []) {
+        if (!safeMapKey(id) || !DICT[id]) continue
         discovered[id] = true
         if ((mana[id] || 0) < 1) mana[id] = 1
         // also cross the form-practice threshold so granted words are testable
         if ((practiced[id] || 0) < FORMS_UNLOCK_THRESHOLD) practiced[id] = FORMS_UNLOCK_THRESHOLD
+        wordProgress[id] = completedWordProgress(state.trainRound || 0)
       }
-      return { ...state, discovered, mana, practiced }
+      return {
+        ...state,
+        discovered,
+        mana,
+        practiced,
+        wordProgressVersion: WORD_PROGRESS_VERSION,
+        wordProgress,
+      }
     }
 
     // Drop 20 lek in the purse (the 🛠 🪙 chip) so priced paths are testable.
@@ -2081,6 +2156,8 @@ export function reducer(state, action) {
         ...baseRun(),
         mana: state.mana,
         practiced: state.practiced,
+        wordProgressVersion: WORD_PROGRESS_VERSION,
+        wordProgress: state.wordProgress || {},
         formPracticed: state.formPracticed || {},
         phrasePracticed: state.phrasePracticed || {},
         phraseMistakes: state.phraseMistakes || {},
@@ -2161,6 +2238,8 @@ export function reducer(state, action) {
         ...baseRun(),
         mana: state.mana,
         practiced: state.practiced,
+        wordProgressVersion: WORD_PROGRESS_VERSION,
+        wordProgress: state.wordProgress || {},
         formPracticed: state.formPracticed || {},
         phrasePracticed: state.phrasePracticed || {},
         phraseMistakes: state.phraseMistakes || {},

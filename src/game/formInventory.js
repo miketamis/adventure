@@ -1,5 +1,6 @@
 import { DICT, HEART_LEVELS, ITEMS, STORY } from './content.js'
 import { TRAIN_WORD_FORM_POLICY } from './trainingProgression.js'
+import { wordProgressStage } from './wordProgression.js'
 import { SEASONS, WEATHER_TYPES } from './environment.js'
 import {
   ENVIRONMENT_DIMENSIONS,
@@ -131,7 +132,9 @@ export const FORMS_UNLOCK_THRESHOLD = TRAIN_WORD_FORM_POLICY.practiceWinsRequire
 // reviewed non-lemma surface. Nouns use complete role-labelled paradigms;
 // other classes use only surfaces already attested in playable content.
 export const formsUnlocked = (state, id) =>
-  (state.practiced?.[id] || 0) >= FORMS_UNLOCK_THRESHOLD && trainingForms(id).length >= 2
+  (state.practiced?.[id] || 0) >= FORMS_UNLOCK_THRESHOLD &&
+  wordProgressStage(state.wordProgress?.[id]) >= TRAIN_WORD_FORM_POLICY.lexicalStageRequired &&
+  trainingForms(id).length >= 2
 
 // Every reviewed surface is included by default. Frequency only orders forms
 // within the same mastery layer; callers must opt into narrowing with min/cap.

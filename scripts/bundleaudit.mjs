@@ -138,7 +138,10 @@ for (const rule of AREA_ACHIEVEMENT_RULES) {
 // browser still has to fetch every member of the static closure before play.
 const SHELL_RAW_BUDGET = 160 * KiB
 const SHELL_GZIP_BUDGET = 55 * KiB
-const BOOTSTRAP_RAW_BUDGET = 1_300 * KiB
+// The lexical evidence state machine and the expanded learner definitions are
+// first-play behavior, not optional tooling. Keep a narrow measured allowance
+// for them while retaining the independent gzip ceiling below.
+const BOOTSTRAP_RAW_BUDGET = 1_310 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data

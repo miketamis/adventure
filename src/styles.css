@@ -921,9 +921,9 @@ svg [role="button"]:focus-visible {
   color: var(--muted);
   font: 600 13px/1.3 ui-sans-serif, system-ui, sans-serif;
 }
-.phrase-type-form textarea {
+.phrase-type-form textarea,
+.word-type-form input {
   width: 100%;
-  resize: vertical;
   min-height: 74px;
   padding: 12px 14px;
   border: 1px solid var(--line);
@@ -932,6 +932,9 @@ svg [role="button"]:focus-visible {
   color: var(--ink);
   font: 21px/1.35 Georgia, serif;
 }
+.phrase-type-form textarea { resize: vertical; }
+.word-type-form input { min-height: 54px; }
+.practice-word-level { margin-left: 8px; }
 .phrase-type-tools {
   display: flex;
   align-items: center;

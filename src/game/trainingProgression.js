@@ -1,4 +1,7 @@
 import { PHRASE_STAGE_DEFINITIONS } from './phraseProgression.js'
+import { WORD_PROGRESSION_POLICY } from './wordProgression.js'
+
+export { WORD_PROGRESSION_POLICY, WORD_STAGE_DEFINITIONS } from './wordProgression.js'
 
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
@@ -11,15 +14,22 @@ const deepFreeze = (value) => {
 // curriculum inspectable instead of leaving behavior hidden in JSX branches.
 export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
   wordMeaning: {
-    id: 'word-meaning', kind: 'normal', label: 'Word meaning', role: 'parallel', choiceDistractors: 3,
+    id: 'word-meaning', kind: 'normal', label: 'Word meaning', role: 'progression',
     variants: [
       { id: 'al2en', label: 'Albanian → English' },
       { id: 'en2al', label: 'English → Albanian' },
     ],
   },
   wordContext: {
-    id: 'word-context', kind: 'ctx', label: 'Meaning in context', role: 'parallel', choiceDistractors: 3,
+    id: 'word-context', kind: 'ctx', label: 'Meaning in context', role: 'conditional',
     variants: [{ id: 'highlighted-sense', label: 'Highlighted sense in a complete phrase' }],
+  },
+  wordSpelling: {
+    id: 'word-spelling', kind: 'word-spelling', label: 'Word spelling', role: 'progression',
+    variants: [
+      { id: 'supported-word-spelling', label: 'Beginner-tolerant typed recall' },
+      { id: 'retained-word-spelling', label: 'Strict spelling after a review gap' },
+    ],
   },
   wordForms: {
     id: 'word-forms', kind: 'forms', label: 'Word forms', role: 'parallel', choiceDistractors: 3,
@@ -43,7 +53,9 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
 export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
   phraseShare: 0.65,
   formShareWithinWordRounds: 0.35,
-  wordDirection: { albanianToEnglishShare: 0.5 },
+  // Word direction and choice count are no longer random knobs: the exact
+  // word-evidence stage owns both through WORD_STAGE_DEFINITIONS.
+  wordDirection: { source: 'word-stage-definition' },
   phraseSkill: { productionWhenDueUpperBound: 0.62, listeningUpperBound: 0.84 },
   practicalWordWeight: 3,
   zeroTokenWeight: 8,
@@ -57,6 +69,8 @@ export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
 
 export const TRAIN_WORD_FORM_POLICY = deepFreeze({
   practiceWinsRequired: 3,
+  lexicalStageRequired: WORD_PROGRESSION_POLICY.formUnlock.requiredBaseStage,
+  lexicalPrerequisite: WORD_PROGRESSION_POLICY.formUnlock.rationale,
   steps: TRAIN_EXERCISE_FAMILIES.wordForms.variants,
   correction: TRAIN_EXERCISE_FAMILIES.nounCorrection,
   nonNounCoverageFloor: 'reviewed playable surfaces only; no speculative conjugation generation',
@@ -93,6 +107,12 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
   al2en: { prompt: 'fshat', promptLang: 'sq', response: 'village' },
   en2al: { prompt: 'village', promptLang: 'en', response: 'fshat' },
   'highlighted-sense': { prompt: 'Po shkoj në fshat. (në)', promptLang: 'sq', response: 'to / in' },
+  'guided-word-recognition': { prompt: 'fshat', promptLang: 'sq', response: 'village · 1 distractor' },
+  'independent-word-recognition': { prompt: 'fshat', promptLang: 'sq', response: 'village · 3 distractors' },
+  'guided-word-selection': { prompt: 'village', promptLang: 'en', response: 'fshat · 1 distractor' },
+  'independent-word-selection': { prompt: 'village', promptLang: 'en', response: 'fshat · 3 distractors' },
+  'supported-word-spelling': { prompt: 'village', promptLang: 'en', response: 'type fshat · beginner leeway' },
+  'retained-word-spelling': { prompt: 'village', promptLang: 'en', response: 'type fshat exactly after a gap' },
   'identify-lemma': { prompt: 'fshatin', promptLang: 'sq', response: 'village' },
   'identify-job': { prompt: 'fshatin', promptLang: 'sq', response: 'the village · object' },
   'exact-paradigm': { prompt: 'fshat · fshati · fshatin · fshatit', promptLang: 'sq', response: 'same noun; four labelled jobs, not a ladder' },

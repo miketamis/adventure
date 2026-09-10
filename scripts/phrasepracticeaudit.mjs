@@ -229,14 +229,22 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
   assert.match(practiceSource, /const excludeWords = previousQuestionWords\.current\.length/)
   assert.match(practiceSource, /excludeWords,/)
   assert.match(practiceSource, /previousQuestionWords\.current = trainQuestionWordKeys\(nextQuestion\)/)
-  assert.match(practiceSource, /buildQuestion\(discoveredIds, state\.mana, excludeWords\)/)
+  assert.match(
+    practiceSource,
+    /buildWordQuestion\(\{[\s\S]+discoveredIds,[\s\S]+mana: state\.mana,[\s\S]+excludeWords,[\s\S]+\}\)/,
+    'the staged word builder did not receive the shared no-repeat boundary',
+  )
   assert.match(practiceSource, /buildFormsQuestion\([\s\S]+excludeWords/)
   assert.match(
     practiceSource,
     /nextQuestion = \{ kind: TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome \}/,
     'an exhausted schedule did not pause without repeating a word',
   )
-  assert.doesNotMatch(practiceSource, /buildQuestion\(discoveredIds, state\.mana\)\s*$/m)
+  assert.doesNotMatch(
+    practiceSource,
+    /buildWordQuestion\(\{(?:(?!excludeWords)[\s\S])*?\}\)/,
+    'a word question bypasses the shared no-repeat boundary',
+  )
 
   const questionSource = fs.readFileSync('src/components/PhrasePracticeQuestion.jsx', 'utf8')
   assert.match(

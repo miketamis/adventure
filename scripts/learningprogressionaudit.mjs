@@ -28,6 +28,13 @@ import {
   TRAIN_WORD_FORM_POLICY,
   debugLearningLanes,
 } from '../src/game/trainingProgression.js'
+import { buildWordQuestion } from '../src/game/wordPractice.js'
+import {
+  WORD_PROGRESSION_POLICY,
+  WORD_STAGE_DEFINITIONS,
+  advanceWordProgress,
+  wordProgressionSnapshot,
+} from '../src/game/wordProgression.js'
 
 const checks = []
 const check = (name, run) => {
@@ -82,6 +89,30 @@ check('every registered phrase mode, tier and word variant appears in the graph 
       assert.ok(TRAIN_EXERCISE_EXAMPLES[variant.id], `missing example for ${family.id}/${variant.id}`)
     }
   }
+  for (const definition of WORD_STAGE_DEFINITIONS) {
+    assert.ok(TRAIN_EXERCISE_EXAMPLES[definition.id], `missing lexical-stage example for ${definition.id}`)
+  }
+})
+
+check('the word walkthrough and builder share the exact lexical stage registry', () => {
+  const entry = wordProgressionSnapshot(null, 0)
+  assert.equal(entry.stages.length, WORD_STAGE_DEFINITIONS.length)
+  entry.stages.forEach((stage, index) => assert.equal(stage.definition, WORD_STAGE_DEFINITIONS[index]))
+  const question = buildWordQuestion({ discoveredIds: ['fshat'], currentRound: 0, rng: () => 0.2 })
+  assert.equal(question.tier, WORD_STAGE_DEFINITIONS[0].tier)
+  assert.equal(question.mode, WORD_STAGE_DEFINITIONS[0].mode)
+  assert.equal(question.options.length, WORD_STAGE_DEFINITIONS[0].variant.distractors + 1)
+  const advanced = advanceWordProgress(null, 0, {
+    correct: true,
+    tier: question.tier,
+    mode: question.mode,
+    direction: question.dir,
+    questionKey: question.questionKey,
+    round: 1,
+  })
+  assert.equal(advanced.accepted, true)
+  assert.equal(wordProgressionSnapshot(advanced.progress, 1).next.baseStage, 1)
+  assert.ok(WORD_PROGRESSION_POLICY.evidenceBoundary.doesNotProve.includes('CEFR attainment'))
 })
 
 check('the builders can emit every registered phrase exercise variant', () => {
@@ -158,17 +189,21 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists, false)
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome, 'caught-up')
   assert.ok(TRAIN_QUESTION_MIX_POLICY.phraseShare > 0 && TRAIN_QUESTION_MIX_POLICY.phraseShare < 1)
+  assert.equal(TRAIN_QUESTION_MIX_POLICY.wordDirection.source, 'word-stage-definition')
 
   const practice = read('src/components/PracticeView.jsx')
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordMeaning/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordContext/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordForms/)
+  assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordSpelling/)
+  assert.match(practice, /buildWordQuestion/)
   assert.match(practice, /TRAIN_WORD_FORM_POLICY\.correction\.kind/)
   assert.match(practice, /WORD_ALBANIAN_TO_ENGLISH\.id/)
   assert.match(practice, /TRAIN_QUESTION_MIX_POLICY\.phraseShare/)
   assert.match(practice, /TRAIN_QUESTION_MIX_POLICY\.formShareWithinWordRounds/)
   assert.match(practice, /TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome/)
   assert.doesNotMatch(practice, /modeRoll < 0\.65|Math\.random\(\) < 0\.35|ZERO_TOKEN_BOOST/)
+  assert.doesNotMatch(practice, /albanianToEnglishShare/)
   assert.deepEqual([...practice.matchAll(/kind:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]), [])
 
   const phrasePractice = read('src/game/phrasePractice.js')
@@ -197,6 +232,9 @@ check('the player-facing app cannot eagerly load the debug learning graph', () =
   assert.match(component, /FORMS_UNLOCK_THRESHOLD/)
   assert.match(component, /data-walkthrough-state="independent"/)
   assert.match(component, /buildWalkthroughSteps\(phrase\)/)
+  assert.match(component, /buildWordWalkthroughSteps\(\)/)
+  assert.match(component, /wordProgressionSnapshot/)
+  assert.match(component, /advanceWordProgress/)
   assert.match(component, /advancePhraseProduction\(progress, focusIds/)
   assert.match(component, /aria-pressed=/)
   assert.match(component, /never your save/)

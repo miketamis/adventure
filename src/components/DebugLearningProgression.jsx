@@ -19,12 +19,77 @@ import {
   TRAIN_NOUN_ENDING_CORRECTION_POLICY,
   TRAIN_QUESTION_MIX_POLICY,
   TRAIN_SCHEDULER_SAFEGUARDS,
+  TRAIN_WORD_FORM_POLICY,
   debugLearningLanes,
 } from '../game/trainingProgression.js'
 import { NOUN_FORM_ROLE_LABELS } from '../game/nounEndingRefresher.js'
+import {
+  WORD_PROGRESSION_POLICY,
+  WORD_STAGE_DEFINITIONS,
+  advanceWordProgress,
+  wordProgressionSnapshot,
+} from '../game/wordProgression.js'
 
 const EXAMPLE_PHRASE_ID = 'going-village'
 const EXAMPLE_WORD_ID = 'fshat'
+
+function buildWordWalkthroughSteps() {
+  const steps = [{
+    id: 'word-entry',
+    label: 'new word',
+    detail: 'No lexical evidence yet: the first question has two choices.',
+    snapshot: wordProgressionSnapshot(null, 0),
+    currentRound: 0,
+    rewards: 0,
+  }]
+  let progress = null
+  let round = 0
+  let rewards = 0
+  let previousBaseStage = 0
+  for (let attempt = 0; attempt < 18 && previousBaseStage < WORD_STAGE_DEFINITIONS.length - 1; attempt++) {
+    let snapshot = wordProgressionSnapshot(progress, round)
+    round = Math.max(round, snapshot.next.dueAfterRound)
+    snapshot = wordProgressionSnapshot(progress, round)
+    const plan = snapshot.next
+    const result = advanceWordProgress(progress, round, {
+      correct: true,
+      tier: plan.tier,
+      mode: plan.mode,
+      direction: plan.direction,
+      questionKey: `debug-word-${attempt}`,
+      round: round + 1,
+    })
+    if (!result.accepted) break
+    progress = result.progress
+    rewards += 1
+    const after = wordProgressionSnapshot(progress, round + 1)
+    if (after.next.baseStage > previousBaseStage) {
+      previousBaseStage = after.next.baseStage
+      steps.push({
+        id: after.next.definition.id,
+        label: after.next.difficultyLabel,
+        detail: `The exact earlier word proofs are complete; ${after.next.difficultyLabel} is next.`,
+        snapshot: after,
+        currentRound: round + 1,
+        rewards,
+      })
+    }
+    round += 2
+  }
+  const retention = steps.at(-1)
+  if (retention?.snapshot.next.baseStage === WORD_STAGE_DEFINITIONS.length - 1 && !retention.snapshot.next.due) {
+    const dueRound = retention.snapshot.next.dueAfterRound
+    steps.push({
+      ...retention,
+      id: 'retained-word-due',
+      label: 'retention due',
+      detail: 'The review gap has elapsed; exact spelling is ready.',
+      snapshot: wordProgressionSnapshot(progress, dueRound),
+      currentRound: dueRound,
+    })
+  }
+  return steps
+}
 
 // Generate the demonstration by successfully traversing the real production
 // state machine. This is local, disposable state: no save data enters it and
@@ -237,23 +302,54 @@ function WordFamilyCard({ family, status = 'locked', statusLabel }) {
   )
 }
 
-function WordLane({ rewardCount }) {
+function WordLane() {
+  const steps = useMemo(() => buildWordWalkthroughSteps(), [])
+  const [selectedStep, setSelectedStep] = useState(0)
+  const step = steps[Math.min(selectedStep, steps.length - 1)]
+  const { snapshot, rewards: rewardCount } = step
   const boundedRewards = Math.min(rewardCount, FORMS_UNLOCK_THRESHOLD)
-  const formsReady = rewardCount >= FORMS_UNLOCK_THRESHOLD
+  const formsReady = snapshot.next.baseStage >= TRAIN_WORD_FORM_POLICY.lexicalStageRequired &&
+    rewardCount >= FORMS_UNLOCK_THRESHOLD
   const gateStatus = formsReady ? 'passed' : 'current'
   return (
     <section className="dbg-learning-lane" aria-labelledby="dbg-learning-word-lane">
       <header className="dbg-learning-lane-head">
         <h3 id="dbg-learning-word-lane">Word and form practice</h3>
-        <p>The form unlock is a real word-evidence path. This example is a noun, so its exact role correction is a separate branch.</p>
+        <p>A separate deterministic word walkthrough. It begins at zero and uses the same registry and transition function as Train.</p>
       </header>
+      <div className="dbg-learning-step-buttons" role="group" aria-label="Example word progression checkpoint">
+        {steps.map((candidate, index) => (
+          <button
+            type="button"
+            className={index === selectedStep ? 'active' : ''}
+            aria-pressed={index === selectedStep}
+            onClick={() => setSelectedStep(index)}
+            key={candidate.id}
+          >
+            {index}. {candidate.label}
+          </button>
+        ))}
+      </div>
+      <p className="dbg-learning-evidence">{step.detail} This example is disposable and never changes your save.</p>
       <ol className="dbg-learning-flow">
-        <WordFamilyCard family={TRAIN_EXERCISE_FAMILIES.wordMeaning} status="passed" statusLabel="entry condition" />
+        {snapshot.stages.map(({ definition, status, wins, winsRequired, remediation, due }) => {
+          const example = TRAIN_EXERCISE_EXAMPLES[definition.id]
+          return (
+            <li className={`dbg-learning-card ${status}`} data-word-stage-id={definition.id} key={definition.id}>
+              <span className={`dbg-learning-status ${status}`}>{remediation ? 'repair' : due ? 'due' : status}</span>
+              <h4>{definition.label}</h4>
+              {example && <p><span lang={example.promptLang}>{example.prompt}</span><br /><span aria-hidden="true">↳ </span>{example.response}</p>}
+              <p><b>Proof:</b> {definition.proves}</p>
+              <p><b>Gate:</b> {winsRequired == null ? 'spaced strict recall' : `${wins}/${winsRequired} correct at this exact stage`}</p>
+              <p><b>Miss:</b> {definition.tier === 0 ? 'repeat entry support after a different word' : 'one easier supported retrieval, then return here'}</p>
+            </li>
+          )
+        })}
         <li className={`dbg-learning-card ${gateStatus}`} data-word-form-gate="practice-wins">
           <span className={`dbg-learning-status ${gateStatus}`}>{boundedRewards} / {FORMS_UNLOCK_THRESHOLD}</span>
           <h4>Noun-form gate</h4>
-          <p>Correct rounds that reward <span lang="sq">fshat</span> add to one shared word-practice counter.</p>
-          <div className="dbg-learning-evidence"><b>Rule:</b> noun forms unlock after {FORMS_UNLOCK_THRESHOLD} correct rounds that reward <span lang="sq">fshat</span>.</div>
+          <p>Correct rounds that reward <span lang="sq">fshat</span> add to its practice count, but that total cannot replace lexical production.</p>
+          <div className="dbg-learning-evidence"><b>Rule:</b> forms need {FORMS_UNLOCK_THRESHOLD} rewards and completion of {WORD_STAGE_DEFINITIONS[TRAIN_WORD_FORM_POLICY.lexicalStageRequired - 1].label}.</div>
         </li>
         <WordFamilyCard
           family={TRAIN_EXERCISE_FAMILIES.wordForms}
@@ -394,7 +490,7 @@ export default function DebugLearningProgression() {
             <h3 id="dbg-learning-rules-title">What is shared — and what is not</h3>
             <ul>
               <li>Discovering every required word makes the phrase eligible; general word quizzes do not skip a phrase-production gate.</li>
-              <li>When a correct phrase round rewards <span lang="sq">fshat</span>, it also raises that word’s practice count toward the real {FORMS_UNLOCK_THRESHOLD}-reward noun-form gate.</li>
+              <li>When a correct phrase round rewards <span lang="sq">fshat</span>, it raises the shared practice count; forms still wait for the word ladder’s own spelling proof.</li>
               <li>Cloze and contextual spelling record phrase-specific focus evidence. A win for the same word in another phrase does not count here.</li>
               <li>Listening and matching have separate evidence. They unlock only at production stage {PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage}: {PHRASE_PROGRESSION_POLICY.crossSkillUnlock.rationale}</li>
             </ul>
@@ -402,9 +498,9 @@ export default function DebugLearningProgression() {
         </aside>
 
         <div className="dbg-learning-lanes">
-          <WordLane rewardCount={step.wordRewards} />
+          <WordLane />
           <div className="dbg-learning-interlock" role="note" data-evidence-interlock="phrase-reward-to-word-practice">
-            <b>One-way shared edge:</b> a correct phrase round that rewards <span lang="sq">fshat</span> feeds the noun-form counter above. Its cloze and spelling proofs still belong only to this phrase; word or form drills never advance a phrase card.
+            <b>One-way shared edge:</b> a correct phrase round that rewards <span lang="sq">fshat</span> feeds its lifetime practice counter. It cannot replace the word’s own spelling proof, while word or form drills never advance a phrase card.
           </div>
           {lanes.map((lane) => (
             <section className="dbg-learning-lane" aria-labelledby={`dbg-learning-${lane.id}`} key={lane.id}>
@@ -429,6 +525,7 @@ export default function DebugLearningProgression() {
               <li>{TRAIN_SCHEDULER_SAFEGUARDS.noImmediateSharedWords && 'Consecutive questions never share an Albanian word.'} {!TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists && `If the legal pool is exhausted, Train reports ${TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome} instead of repeating.`}</li>
               <li>A miss schedules targeted support only after another-word round; retention lapses step back to supported production before strict recall returns.</li>
               <li>Correct strict retrieval expands the real review gap up to {PHRASE_PROGRESSION_POLICY.retention.maximumGapRounds} Train rounds.</li>
+              <li><b>Evidence boundary:</b> the word ladder proves {WORD_PROGRESSION_POLICY.evidenceBoundary.proves.join(', ')}. It does not by itself prove {WORD_PROGRESSION_POLICY.evidenceBoundary.doesNotProve.join(', ')}.</li>
             </ul>
           </section>
         </div>
