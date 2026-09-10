@@ -157,6 +157,17 @@ check('the debug learning graph is lazy, section-labelled and exposes text along
   debugLearning.includes('className={`dbg-learning-status ${status}`}') &&
   styles.includes('@media (max-width: 560px)') &&
   styles.includes('.dbg-learning-flow'))
+check('every debug learning example uses a labelled native modal with keyboard dismissal',
+  debugLearning.includes('className="dbg-learning-example-button"') &&
+  debugLearning.includes('aria-label={`Example question for ${label}`}') &&
+  debugLearning.includes('<dialog') &&
+  debugLearning.includes('aria-labelledby="dbg-learning-example-dialog-title"') &&
+  debugLearning.includes('dialog.showModal()') &&
+  debugLearning.includes('onCancel=') &&
+  debugLearning.includes('onKeyDown=') &&
+  debugLearning.includes('aria-label="Close example question"') &&
+  styles.includes('.dbg-learning-example-dialog::backdrop') &&
+  styles.includes('.dbg-learning-example-button:focus-visible'))
 check('role badge moves visual and keyboard focus to persistent tale guidance', app.includes('focus?.scrollIntoView') && app.includes('focus?.focus()') && embodimentFocus.includes('tabIndex={-1}'))
 check('role focus routing survives lazy Story mount and respects reduced motion',
   story.includes("document.activeElement?.classList.contains('embody-badge')") &&

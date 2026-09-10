@@ -20,7 +20,6 @@ import {
   PHRASE_PROGRESSION_RESEARCH_ALIGNMENT,
 } from '../src/game/phraseProgressionResearch.js'
 import {
-  TRAIN_EXERCISE_EXAMPLES,
   TRAIN_EXERCISE_FAMILIES,
   TRAIN_NOUN_ENDING_CORRECTION_POLICY,
   TRAIN_QUESTION_MIX_POLICY,
@@ -28,6 +27,7 @@ import {
   TRAIN_WORD_FORM_POLICY,
   debugLearningLanes,
 } from '../src/game/trainingProgression.js'
+import { TRAIN_EXERCISE_EXAMPLES } from '../src/game/trainingExampleRegistry.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
 import {
   WORD_PROGRESSION_POLICY,
@@ -92,6 +92,53 @@ check('every registered phrase mode, tier and word variant appears in the graph 
   for (const definition of WORD_STAGE_DEFINITIONS) {
     assert.ok(TRAIN_EXERCISE_EXAMPLES[definition.id], `missing lexical-stage example for ${definition.id}`)
   }
+})
+
+check('every learning question step opens a structured example dialog', () => {
+  const component = read('src/components/DebugLearningProgression.jsx')
+  const styles = read('src/styles.css')
+  const exampleIds = new Set([
+    ...allDefinitions.map(({ id }) => id),
+    ...WORD_STAGE_DEFINITIONS.map(({ id }) => id),
+    ...wordFamilies.flatMap(({ variants }) => variants.map(({ id }) => id)),
+  ])
+  for (const id of exampleIds) {
+    const example = TRAIN_EXERCISE_EXAMPLES[id]
+    assert.ok(example?.instruction, `${id} has no question instruction`)
+    assert.ok(example?.prompt, `${id} has no example prompt`)
+    assert.ok(example?.response, `${id} has no expected interaction`)
+  }
+  for (const definition of WORD_STAGE_DEFINITIONS.filter(({ mode }) => mode === 'choice')) {
+    assert.equal(
+      TRAIN_EXERCISE_EXAMPLES[definition.id].choices.length,
+      definition.variant.distractors + 1,
+      `${definition.id} example does not mirror its choice count`,
+    )
+  }
+  for (const definition of PHRASE_STAGE_DEFINITIONS.listening) {
+    assert.equal(
+      TRAIN_EXERCISE_EXAMPLES[definition.id].tiles.length,
+      4 + definition.variant.distractors,
+      `${definition.id} example does not mirror its distractor count`,
+    )
+  }
+  for (const definition of PHRASE_STAGE_DEFINITIONS.matching) {
+    assert.equal(
+      TRAIN_EXERCISE_EXAMPLES[definition.id].pairs.length,
+      definition.variant.pairs,
+      `${definition.id} example does not mirror its pair count`,
+    )
+  }
+  assert.match(component, /function ExampleQuestionDialog/)
+  assert.match(component, /function ExampleQuestionPreview/)
+  assert.match(component, /<dialog/)
+  assert.match(component, /dialog\.showModal\(\)/)
+  assert.match(component, /onCancel=/)
+  assert.match(component, /aria-label=\{`Example question for \$\{label\}`\}/)
+  assert.match(component, /exampleId=\{definition\.id\}/)
+  assert.match(component, /exampleId=\{variant\.id\}/)
+  assert.match(styles, /\.dbg-learning-example-dialog::backdrop/)
+  assert.match(styles, /\.dbg-learning-example-button:focus-visible/)
 })
 
 check('the word walkthrough and builder share the exact lexical stage registry', () => {

@@ -100,35 +100,6 @@ export const TRAIN_SCHEDULER_SAFEGUARDS = deepFreeze({
   phraseRewardsAlsoIncreaseWordPractice: true,
 })
 
-// Concrete samples make the graph readable without redefining what unlocks
-// them. Completeness is audited against both registries, so a new variant must
-// gain an example before the debug contract can pass.
-export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
-  al2en: { prompt: 'fshat', promptLang: 'sq', response: 'village' },
-  en2al: { prompt: 'village', promptLang: 'en', response: 'fshat' },
-  'highlighted-sense': { prompt: 'Po shkoj në fshat. (në)', promptLang: 'sq', response: 'to / in' },
-  'guided-word-recognition': { prompt: 'fshat', promptLang: 'sq', response: 'village · 1 distractor' },
-  'independent-word-recognition': { prompt: 'fshat', promptLang: 'sq', response: 'village · 3 distractors' },
-  'guided-word-selection': { prompt: 'village', promptLang: 'en', response: 'fshat · 1 distractor' },
-  'independent-word-selection': { prompt: 'village', promptLang: 'en', response: 'fshat · 3 distractors' },
-  'supported-word-spelling': { prompt: 'village', promptLang: 'en', response: 'type fshat · beginner leeway' },
-  'retained-word-spelling': { prompt: 'village', promptLang: 'en', response: 'type fshat exactly after a gap' },
-  'identify-lemma': { prompt: 'fshatin', promptLang: 'sq', response: 'village' },
-  'identify-job': { prompt: 'fshatin', promptLang: 'sq', response: 'the village · object' },
-  'exact-paradigm': { prompt: 'fshat · fshati · fshatin · fshatit', promptLang: 'sq', response: 'same noun; four labelled jobs, not a ladder' },
-  'focused-cloze': { prompt: 'Po shkoj në _____.', promptLang: 'sq', response: 'fshat + distractors' },
-  'whole-arrangement': { prompt: 'I am going to the village.', promptLang: 'en', response: 'po · shkoj · në · fshat + distractors' },
-  'focus-spelling': { prompt: 'Po shkoj në _____.', promptLang: 'sq', response: 'type fshat in this sentence' },
-  'independent-production': { prompt: 'I am going to the village.', promptLang: 'en', response: 'type the complete Albanian phrase' },
-  'strict-retention': { prompt: 'I am going to the village.', promptLang: 'en', response: 'type the complete phrase after a review gap' },
-  'guided-listening': { prompt: 'continuous Albanian audio', response: 'build what you hear · no English · distractors from policy' },
-  'independent-listening': { prompt: 'continuous Albanian audio', response: 'build what you hear · larger word bank' },
-  'mastered-listening': { prompt: 'continuous Albanian audio', response: 'build what you hear · largest word bank' },
-  'guided-matching': { prompt: 'Albanian phrase cards', promptLang: 'sq', response: 'match each English meaning' },
-  'independent-matching': { prompt: 'larger phrase board', promptLang: 'sq', response: 'match each meaning' },
-  'mastered-matching': { prompt: 'largest phrase board', promptLang: 'sq', response: 'match each meaning' },
-})
-
 const tierStatus = (tier, currentTier, eligible, reportedStatus) => {
   if (!eligible) return 'locked'
   if (reportedStatus === 'locked') return 'locked'

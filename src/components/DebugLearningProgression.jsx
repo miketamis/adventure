@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { DICT } from '../game/content.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../game/everydayAlbanian.js'
+import { playPhrase } from '../game/audio.js'
 import { FORMS_UNLOCK_THRESHOLD } from '../game/gameState.js'
 import { buildPhraseProgressionSnapshot } from '../game/phrasePractice.js'
 import {
@@ -14,7 +15,6 @@ import {
   PHRASE_PROGRESSION_RESEARCH_ALIGNMENT,
 } from '../game/phraseProgressionResearch.js'
 import {
-  TRAIN_EXERCISE_EXAMPLES,
   TRAIN_EXERCISE_FAMILIES,
   TRAIN_NOUN_ENDING_CORRECTION_POLICY,
   TRAIN_QUESTION_MIX_POLICY,
@@ -22,6 +22,7 @@ import {
   TRAIN_WORD_FORM_POLICY,
   debugLearningLanes,
 } from '../game/trainingProgression.js'
+import { TRAIN_EXERCISE_EXAMPLES } from '../game/trainingExampleRegistry.js'
 import { NOUN_FORM_ROLE_LABELS } from '../game/nounEndingRefresher.js'
 import {
   WORD_PROGRESSION_POLICY,
@@ -175,6 +176,123 @@ const LANE_COPY = Object.freeze({
 
 const clean = (value) => String(value || '').replace(/[-_]/g, ' ')
 
+function ExampleButton({ exampleId, label, context, onOpen }) {
+  const example = TRAIN_EXERCISE_EXAMPLES[exampleId]
+  if (!example) return null
+  return (
+    <button
+      type="button"
+      className="dbg-learning-example-button"
+      aria-label={`Example question for ${label}`}
+      onClick={() => onOpen({ id: exampleId, label, context, example })}
+    >
+      Example
+    </button>
+  )
+}
+
+function ExampleQuestionPreview({ selection }) {
+  const { example } = selection
+  return (
+    <div className="dbg-learning-question-preview">
+      <div className="dbg-learning-question-meta">
+        <span>{selection.context}</span>
+        <code>{selection.id}</code>
+      </div>
+      <p className="dbg-learning-question-instruction">{example.instruction}</p>
+      {example.audio ? (
+        <button
+          type="button"
+          className="phrase-listen dbg-learning-question-audio"
+          onClick={() => playPhrase(example.audio)}
+          aria-label="Play the example Albanian phrase"
+        >
+          <span aria-hidden="true">🔊</span> Play phrase
+        </button>
+      ) : (
+        <div className="dbg-learning-question-prompt" lang={example.promptLang}>
+          {example.prompt}
+        </div>
+      )}
+      {example.choices && (
+        <div className="dbg-learning-question-choices" aria-label="Example answer choices">
+          {example.choices.map((choice) => <span key={choice}>{choice}</span>)}
+        </div>
+      )}
+      {example.tiles && (
+        <div className="dbg-learning-question-tiles" aria-label="Example available word tiles" lang="sq">
+          {example.tiles.map((tile, index) => <span key={`${tile}-${index}`}>{tile}</span>)}
+        </div>
+      )}
+      {example.input && (
+        <div className="dbg-learning-question-input" aria-label="Example text input">
+          <span>{example.input}</span>
+        </div>
+      )}
+      {example.pairs && (
+        <div className="dbg-learning-question-pairs" aria-label="Example matching board">
+          <div lang="sq">{example.pairs.map(({ al }) => <span key={al}>{al}</span>)}</div>
+          <div>{example.pairs.map(({ en }) => <span key={en}>{en}</span>)}</div>
+        </div>
+      )}
+      <div className="dbg-learning-question-answer">
+        <b>Expected interaction</b>
+        <span>{example.response}</span>
+      </div>
+    </div>
+  )
+}
+
+function ExampleQuestionDialog({ selection, onClose }) {
+  const dialogRef = useRef(null)
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!selection || !dialog || dialog.open) return undefined
+    dialog.showModal()
+    return () => {
+      if (dialog.open) dialog.close()
+    }
+  }, [selection])
+
+  if (!selection) return null
+  return (
+    <dialog
+      ref={dialogRef}
+      className="dbg-learning-example-dialog"
+      aria-labelledby="dbg-learning-example-dialog-title"
+      onCancel={(event) => {
+        event.preventDefault()
+        onClose()
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape') return
+        event.preventDefault()
+        onClose()
+      }}
+      onClose={onClose}
+    >
+      <header>
+        <div>
+          <p className="dbg-learning-kicker">Question example · independent of save</p>
+          <h2 id="dbg-learning-example-dialog-title">{selection.label}</h2>
+        </div>
+        <button
+          type="button"
+          className="dbg-learning-example-close"
+          aria-label="Close example question"
+          onClick={() => dialogRef.current?.close()}
+        >
+          ×
+        </button>
+      </header>
+      <ExampleQuestionPreview selection={selection} />
+      <p className="dbg-learning-example-caveat">
+        This is a disposable debug preview. Opening or answering the real question is the only thing that can create learning evidence.
+      </p>
+    </dialog>
+  )
+}
+
 function gateText(definition) {
   const gate = definition.gate
   const details = []
@@ -227,9 +345,8 @@ function evidenceText(evidence) {
   return parts.join(' · ') || 'No evidence recorded yet.'
 }
 
-function StageCard({ stage, definitions, focuses }) {
+function StageCard({ stage, definitions, focuses, onExample }) {
   const { definition, status, evidence, scheduled, due, remediation } = stage
-  const example = TRAIN_EXERCISE_EXAMPLES[definition.id]
   const typeDetails = [definition.mode, definition.typeScope, definition.answerTolerance]
     .filter(Boolean).join(' · ')
   const repair = definition.remediation
@@ -237,17 +354,20 @@ function StageCard({ stage, definitions, focuses }) {
     .includes(definition)
   return (
     <li className={`dbg-learning-card ${status}`} data-stage-id={definition.id}>
-      <span className={`dbg-learning-status ${status}`}>{status}</span>
-      {scheduled && <span className={`dbg-learning-status ${due ? 'due' : 'locked'}`}>{remediation ? 'repair' : due ? 'due next' : 'spaced'}</span>}
+      <div className="dbg-learning-card-head">
+        <div>
+          <span className={`dbg-learning-status ${status}`}>{status}</span>
+          {scheduled && <span className={`dbg-learning-status ${due ? 'due' : 'locked'}`}>{remediation ? 'repair' : due ? 'due next' : 'spaced'}</span>}
+        </div>
+        <ExampleButton
+          exampleId={definition.id}
+          label={definition.label}
+          context={`Phrase ${definition.skill || 'production'} · ${definition.mode}`}
+          onOpen={onExample}
+        />
+      </div>
       <h4>{definition.label}</h4>
       <p><code>{typeDetails}</code></p>
-      {example && (
-        <p>
-          <span lang={example.promptLang}>{example.prompt}</span>
-          <br />
-          <span aria-hidden="true">↳ </span>{example.response}
-        </p>
-      )}
       <p><b>Gate:</b> {gateText(definition) || 'tier-specific evidence in this skill'}</p>
       <p><b>Word reward:</b> {definition.typeScope === 'word'
         ? 'only the exact focus word'
@@ -277,18 +397,22 @@ function StageCard({ stage, definitions, focuses }) {
   )
 }
 
-function WordFamilyCard({ family, status = 'locked', statusLabel }) {
+function WordFamilyCard({ family, status = 'locked', statusLabel, onExample }) {
   const label = statusLabel || (family.role === 'remediation' ? 'on error' : status)
   return (
     <li className={`dbg-learning-card ${status}`} data-family-id={family.id}>
       <span className={`dbg-learning-status ${status}`}>{label}</span>
       <h4>{family.label}</h4>
       {family.variants.map((variant) => {
-        const example = TRAIN_EXERCISE_EXAMPLES[variant.id]
         return (
           <div className="dbg-learning-variant" key={variant.id} data-variant-id={variant.id}>
             <b>{variant.label}</b>
-            {example && <span><span lang={example.promptLang}>{example.prompt}</span> · {example.response}</span>}
+            <ExampleButton
+              exampleId={variant.id}
+              label={variant.label}
+              context={family.label}
+              onOpen={onExample}
+            />
           </div>
         )
       })}
@@ -302,7 +426,7 @@ function WordFamilyCard({ family, status = 'locked', statusLabel }) {
   )
 }
 
-function WordLane() {
+function WordLane({ onExample }) {
   const steps = useMemo(() => buildWordWalkthroughSteps(), [])
   const [selectedStep, setSelectedStep] = useState(0)
   const step = steps[Math.min(selectedStep, steps.length - 1)]
@@ -333,12 +457,18 @@ function WordLane() {
       <p className="dbg-learning-evidence">{step.detail} This example is disposable and never changes your save.</p>
       <ol className="dbg-learning-flow">
         {snapshot.stages.map(({ definition, status, wins, winsRequired, remediation, due }) => {
-          const example = TRAIN_EXERCISE_EXAMPLES[definition.id]
           return (
             <li className={`dbg-learning-card ${status}`} data-word-stage-id={definition.id} key={definition.id}>
-              <span className={`dbg-learning-status ${status}`}>{remediation ? 'repair' : due ? 'due' : status}</span>
+              <div className="dbg-learning-card-head">
+                <span className={`dbg-learning-status ${status}`}>{remediation ? 'repair' : due ? 'due' : status}</span>
+                <ExampleButton
+                  exampleId={definition.id}
+                  label={definition.label}
+                  context={`Word ${definition.mode} · ${definition.direction}`}
+                  onOpen={onExample}
+                />
+              </div>
               <h4>{definition.label}</h4>
-              {example && <p><span lang={example.promptLang}>{example.prompt}</span><br /><span aria-hidden="true">↳ </span>{example.response}</p>}
               <p><b>Proof:</b> {definition.proves}</p>
               <p><b>Gate:</b> {winsRequired == null ? 'spaced strict recall' : `${wins}/${winsRequired} correct at this exact stage`}</p>
               <p><b>Miss:</b> {definition.tier === 0 ? 'repeat entry support after a different word' : 'one easier supported retrieval, then return here'}</p>
@@ -355,19 +485,20 @@ function WordLane() {
           family={TRAIN_EXERCISE_FAMILIES.wordForms}
           status={formsReady ? 'current' : 'locked'}
           statusLabel={formsReady ? 'unlocked' : 'unlocks next'}
+          onExample={onExample}
         />
       </ol>
       <div className="dbg-learning-parallel" aria-label="Parallel and corrective word exercise branches">
         <div>
           <p className="dbg-learning-branch-label">Parallel homonym path · not a <span lang="sq">fshat</span> gate</p>
           <ul className="dbg-learning-flow parallel">
-            <WordFamilyCard family={TRAIN_EXERCISE_FAMILIES.wordContext} status="current" statusLabel="when applicable" />
+            <WordFamilyCard family={TRAIN_EXERCISE_FAMILIES.wordContext} status="current" statusLabel="when applicable" onExample={onExample} />
           </ul>
         </div>
         <div>
           <p className="dbg-learning-branch-label">Wrong noun answer only</p>
           <ul className="dbg-learning-flow parallel">
-            <WordFamilyCard family={TRAIN_EXERCISE_FAMILIES.nounCorrection} status="locked" />
+            <WordFamilyCard family={TRAIN_EXERCISE_FAMILIES.nounCorrection} status="locked" onExample={onExample} />
           </ul>
         </div>
       </div>
@@ -421,6 +552,7 @@ export default function DebugLearningProgression() {
   const phrase = EVERYDAY_PHRASE_DRILLS.find((entry) => entry.id === EXAMPLE_PHRASE_ID)
   const steps = useMemo(() => buildWalkthroughSteps(phrase), [phrase])
   const [selectedStep, setSelectedStep] = useState(0)
+  const [questionExample, setQuestionExample] = useState(null)
   const step = steps[Math.min(selectedStep, steps.length - 1)]
   const snapshot = step.snapshot
   const lanes = debugLearningLanes(snapshot, { phraseEligible: true })
@@ -498,7 +630,7 @@ export default function DebugLearningProgression() {
         </aside>
 
         <div className="dbg-learning-lanes">
-          <WordLane />
+          <WordLane onExample={setQuestionExample} />
           <div className="dbg-learning-interlock" role="note" data-evidence-interlock="phrase-reward-to-word-practice">
             <b>One-way shared edge:</b> a correct phrase round that rewards <span lang="sq">fshat</span> feeds its lifetime practice counter. It cannot replace the word’s own spelling proof, while word or form drills never advance a phrase card.
           </div>
@@ -510,7 +642,7 @@ export default function DebugLearningProgression() {
               </header>
               <ol className="dbg-learning-flow">
                 {lane.stages.map((stage) => (
-                  <StageCard stage={stage} definitions={lane.definitions} focuses={snapshot.focuses} key={stage.definition.id} />
+                  <StageCard stage={stage} definitions={lane.definitions} focuses={snapshot.focuses} onExample={setQuestionExample} key={stage.definition.id} />
                 ))}
               </ol>
             </section>
@@ -532,6 +664,7 @@ export default function DebugLearningProgression() {
 
         <Research entries={PHRASE_PROGRESSION_RESEARCH} />
       </div>
+      <ExampleQuestionDialog selection={questionExample} onClose={() => setQuestionExample(null)} />
     </div>
   )
 }
