@@ -22,6 +22,7 @@ const story = read('src/components/StoryView.jsx')
 const embodimentFocus = read('src/components/EmbodimentFocus.jsx')
 const achievements = read('src/components/AchievementsView.jsx')
 const practice = read('src/components/PracticeView.jsx')
+const cefrCapstone = read('src/components/CefrCapstone.jsx')
 const practiceReturn = read('src/game/practiceReturn.js')
 const phrasePractice = read('src/components/PhrasePracticeQuestion.jsx')
 const phrasePracticeLogic = read('src/game/phrasePractice.js')
@@ -171,6 +172,22 @@ check('whole phrases use construction, listening, cloze, typing and matching ins
   practice.includes('<PhrasePracticeQuestion') &&
   !practice.includes('q.options.map((entry)') &&
   ['arrange', 'listen', 'cloze', 'type', 'match'].every((mode) => phrasePractice.includes(`${mode}:`)))
+check('CEFR journeys are labelled and keep Albanian assessment surfaces language-tagged',
+  cefrCapstone.includes('aria-labelledby="cefr-title"') &&
+  cefrCapstone.includes('aria-labelledby="cefr-task-title"') &&
+  cefrCapstone.includes('lang="sq">{task.stimulus.textSq}') &&
+  cefrCapstone.includes('lang="sq">{choice.labelSq}'))
+check('CEFR choice, writing and speech tasks retain native labelled controls and live feedback',
+  cefrCapstone.includes('type="radio"') &&
+  cefrCapstone.includes('<label className="cefr-draft-label"') &&
+  cefrCapstone.includes('role="alert"') &&
+  cefrCapstone.includes('role="status"') &&
+  cefrCapstone.includes('<audio controls'))
+check('CEFR microphone capture is private, revocable and never transcribed into a guessed score',
+  cefrCapstone.includes('new MediaRecorder(stream)') &&
+  cefrCapstone.includes('URL.revokeObjectURL') &&
+  cefrCapstone.includes('The game cannot infer pronunciation from written words.') &&
+  !cefrCapstone.includes('SpeechRecognition'))
 check('phrase exercise mode classes cannot inherit a child control layout',
   phrasePractice.includes('phrase-exercise phrase-mode-${q.mode}') &&
   !phrasePractice.includes('phrase-exercise phrase-${q.mode}') &&

@@ -147,7 +147,7 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
     productionFocus: ['shko', 'fshat'],
   },
   { id: 'setting-off-coming', al: 'po nisem tani. a vjen me mua, apo takohemi më vonë?', en: 'I am leaving now. Will you come with me, or shall we meet later?', requires: ['po_prog', 'nisem', 'tani', 'a_q', 'vjen', 'me', 'une', 'apo', 'takohem', 'me_more', 'vone'] },
-  { id: 'yes-coming', al: 'po vij me ty.', en: 'I will come with you.', requires: ['po_prog', 'vjen', 'me', 'ti'] },
+  { id: 'yes-coming', al: 'po vij me ty.', en: 'I am coming with you.', requires: ['po_prog', 'vjen', 'me', 'ti'] },
   { id: 'cannot-come', al: 'tani jo, më fal.', en: 'Not now, sorry.', requires: ['tani', 'jo', 'me_obj', 'fal'] },
   { id: 'meet-later', al: 'takohemi më vonë.', en: 'We will meet later.', requires: ['takohem', 'me_more', 'vone'] },
   { id: 'wait-please', al: 'prit pak, të lutem.', en: 'Wait a moment, please.', requires: ['prit', 'pak', 'lutem'] },

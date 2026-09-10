@@ -26,7 +26,9 @@ import {
 import { wordProgressPlan } from '../game/wordProgression.js'
 import { buildWordQuestion, wordHasNoEvidence } from '../game/wordPractice.js'
 import { pickLeastPracticedForm } from '../game/formProgression.js'
+import { cefrProfile } from '../game/cefrAssessment.js'
 import PhrasePracticeQuestion from './PhrasePracticeQuestion.jsx'
+import CefrCapstone from './CefrCapstone.jsx'
 
 // the answer rendered in Albanian (every word is discovered when affordable)
 const albanianPhrase = (tokens) => tokens.map((t) => (t.id ? t.al : t.en)).join(' ')
@@ -127,6 +129,30 @@ const FocusPhrase = ({ al, focus }) => (
   </span>
 )
 
+const CefrEntry = ({ state, onOpen }) => {
+  const profile = cefrProfile(state.cefrEvidence)
+  return (
+    <aside className="cefr-entry" aria-labelledby="cefr-entry-title">
+      <div>
+        <span className="cefr-eyebrow">Guided journey</span>
+        <h3 id="cefr-entry-title">From first words to A2 village life</h3>
+        <p>
+          Story and Train unlock guided listening, speaking, writing and mediation practice.
+          Fresh A1 checks open after preparation; A2 follows a complete A1 profile.
+        </p>
+      </div>
+      <div className="cefr-entry-status" aria-label="CEFR readiness status">
+        <span className={profile.A1.passed ? 'passed' : ''}>{profile.A1.passed ? '✓' : '○'} A1</span>
+        <span aria-hidden="true">then</span>
+        <span className={profile.A2.passed ? 'passed' : profile.A1.passed ? '' : 'locked'}>
+          {profile.A2.passed ? '✓' : profile.A1.passed ? '○' : '🔒'} A2
+        </span>
+      </div>
+      <button type="button" className="btn" onClick={onOpen}>Open readiness journeys</button>
+    </aside>
+  )
+}
+
 export default function PracticeView({ state, dispatch }) {
   const discoveredIds = Object.keys(state.discovered).filter((id) => state.discovered[id])
   const unlockedEverydayPhrases = EVERYDAY_PHRASE_DRILLS.filter((entry) =>
@@ -138,6 +164,7 @@ export default function PracticeView({ state, dispatch }) {
   const [typedWordLeeway, setTypedWordLeeway] = useState(false)
   const [step, setStep] = useState(FORM_IDENTIFY_LEMMA.step)
   const [formsCorrection, setFormsCorrection] = useState(null)
+  const [showCefr, setShowCefr] = useState(false)
   const answerCommitted = useRef(false)
   const questionRef = useRef(null)
   const wordInputRef = useRef(null)
@@ -294,39 +321,52 @@ export default function PracticeView({ state, dispatch }) {
     return () => window.cancelAnimationFrame(frame)
   }, [q, step, formsCorrection])
 
+  if (showCefr) {
+    return <CefrCapstone state={state} dispatch={dispatch} onClose={() => setShowCefr(false)} />
+  }
+
   if (discoveredIds.length === 0) {
     return (
-      <section className="card practice" aria-labelledby="practice-title">
-        <h2 id="practice-title" className="view-title">Train Albanian</h2>
-        <p className="empty">
-          You haven't discovered any words yet.
-          <br />
-          Go to the story and click words to discover them, then come back to train.
-        </p>
-      </section>
+      <>
+        <CefrEntry state={state} onOpen={() => setShowCefr(true)} />
+        <section className="card practice" aria-labelledby="practice-title">
+          <h2 id="practice-title" className="view-title">Train Albanian</h2>
+          <p className="empty">
+            You haven't discovered any words yet.
+            <br />
+            Go to the story and click words to discover them, then come back to train.
+          </p>
+        </section>
+      </>
     )
   }
 
   if (!q) {
     return (
-      <section className="card practice" aria-labelledby="practice-title">
-        <h2 id="practice-title" className="view-title">Train Albanian</h2>
-        <p className="empty" role="status">Preparing the next question…</p>
-      </section>
+      <>
+        <CefrEntry state={state} onOpen={() => setShowCefr(true)} />
+        <section className="card practice" aria-labelledby="practice-title">
+          <h2 id="practice-title" className="view-title">Train Albanian</h2>
+          <p className="empty" role="status">Preparing the next question…</p>
+        </section>
+      </>
     )
   }
 
   if (q.kind === TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) {
     return (
-      <section className="card practice" aria-labelledby="practice-title">
-        <h2 id="practice-title" className="view-title">Train Albanian</h2>
-        <p className="empty" role="status">
-          You’re caught up for now. Discover another word or come back after your next story beat.
-        </p>
-        <button className="btn primary" onClick={() => dispatch({ type: 'SET_VIEW', view: 'story' })}>
-          Return to story
-        </button>
-      </section>
+      <>
+        <CefrEntry state={state} onOpen={() => setShowCefr(true)} />
+        <section className="card practice" aria-labelledby="practice-title">
+          <h2 id="practice-title" className="view-title">Train Albanian</h2>
+          <p className="empty" role="status">
+            You’re caught up for now. Discover another word or come back after your next story beat.
+          </p>
+          <button className="btn primary" onClick={() => dispatch({ type: 'SET_VIEW', view: 'story' })}>
+            Return to story
+          </button>
+        </section>
+      </>
     )
   }
 
@@ -552,6 +592,7 @@ export default function PracticeView({ state, dispatch }) {
 
   return (
     <>
+      <CefrEntry state={state} onOpen={() => setShowCefr(true)} />
       {returnOption && (
         <div className="ready-banner">
           <span>

@@ -16,6 +16,7 @@ import {
 
 const DebugLearningProgression = lazy(() => import('./DebugLearningProgression.jsx'))
 const DebugLearningSaveStatus = lazy(() => import('./DebugLearningSaveStatus.jsx'))
+const DebugCefrProgression = lazy(() => import('./DebugCefrProgression.jsx'))
 
 // ===========================================================================
 // DEBUG VIEW — a review console, only reachable in debug mode (click the title
@@ -1622,10 +1623,11 @@ export default function DebugView({ state, dispatch }) {
         <button className={'btn' + (sub === 'beats' ? ' active' : '')} onClick={() => setSub('beats')}>🎬 Beats</button>
         <button className={'btn' + (sub === 'npcs' ? ' active' : '')} onClick={() => setSub('npcs')}>🎭 NPCs</button>
         <button className={'btn' + (sub === 'learning' ? ' active' : '')} onClick={() => setSub('learning')}>🧠 Learning</button>
+        <button className={'btn' + (sub === 'cefr' ? ' active' : '')} onClick={() => setSub('cefr')}>🏁 CEFR Path</button>
         <button className={'btn' + (sub === 'history' ? ' active' : '')} onClick={() => setSub('history')}>📜 History</button>
         <button className={'btn' + (sub === 'sources' ? ' active' : '')} onClick={() => setSub('sources')}>📚 Sources</button>
       </div>
-      {sub !== 'learning' && (
+      {!['learning', 'cefr'].includes(sub) && (
         <div className="dbg-legend">
           {Object.entries(KIND_LABEL).map(([k, label]) => (
             <span key={k}><i style={{ background: KIND_COLOR[k] }} /> {label}</span>
@@ -1644,6 +1646,11 @@ export default function DebugView({ state, dispatch }) {
         <Suspense fallback={<p className="dbg-note" role="status">Loading learning progression…</p>}>
           <DebugLearningSaveStatus state={state} />
           <DebugLearningProgression />
+        </Suspense>
+      )}
+      {sub === 'cefr' && (
+        <Suspense fallback={<p className="dbg-note" role="status">Loading CEFR progression…</p>}>
+          <DebugCefrProgression state={state} />
         </Suspense>
       )}
       {sub === 'history' && <History focus={histFocus} goLore={goLore} goSource={goSource} />}

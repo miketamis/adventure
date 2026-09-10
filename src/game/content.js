@@ -419,7 +419,7 @@ export const STORY = {
     ],
     options: [
       {
-        text: R('I will come with you.', w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), p('.')),
+        text: R('I am coming with you.', w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), p('.')),
         to: 'bisedaFollowAgree',
         durationHours: 0,
       },
@@ -441,12 +441,12 @@ export const STORY = {
     id: 'bisedaUraPlan',
     text: [
       R('She says, “My name is Elira.”', w('ajo'), w('thote'), p(':'), w('une'), w('quhem'), w('elira'), p('.')),
-      R('“Will you come with me, or shall we meet later?”', w('a_q'), w('vjen'), w('me'), wf('une', 'mua', 'me'), p(','), w('apo'), wf('takohem', 'takohemi', 'shall we meet'), w('me_vone'), p('?')),
+      R('“I am leaving now. Will you come with me, or shall we meet later?”', w('po_prog'), w('nisem'), w('tani'), p('.'), w('a_q'), w('vjen'), w('me'), wf('une', 'mua', 'me'), p(','), w('apo'), wf('takohem', 'takohemi', 'shall we meet'), w('me_vone'), p('?')),
       R('Elira asks, “Have you decided?”', w('elira'), w('pyet'), p(':'), w('a_q'), w('ke'), wf('vendos', 'vendosur', 'decide'), p('?')),
     ],
     options: [
       {
-        text: R('I will come with you.', w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), p('.')),
+        text: R('I am coming with you.', w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), p('.')),
         to: 'bisedaFollowAgree',
         durationHours: 0,
       },
@@ -499,8 +499,8 @@ export const STORY = {
   bisedaKroi: {
     id: 'bisedaKroi',
     text: [
-      whenUnless([], ['knows:npcName:elira'], R('The woman asks, “Shall we meet tomorrow at nine in the square?”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?'))),
-      when('knows:npcName:elira', R('Elira asks, “Shall we meet tomorrow at nine in the square?”', w('elira'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?'))),
+      whenUnless([], ['knows:npcName:elira'], R('The woman asks, “Shall we meet tomorrow at nine, in the square?”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?'))),
+      when('knows:npcName:elira', R('Elira asks, “Shall we meet tomorrow at nine, in the square?”', w('elira'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?'))),
     ],
     options: [
       {
@@ -514,7 +514,7 @@ export const STORY = {
         to: 'start',
         durationHours: 0,
       },
-      { text: R('No. I will come with you now.', w('jo'), p('.'), w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), w('tani'), p('.')), to: 'bisedaFollowAgree', durationHours: 0 },
+      { text: R('No. I am coming with you now.', w('jo'), p('.'), w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), w('tani'), p('.')), to: 'bisedaFollowAgree', durationHours: 0 },
       { text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), unless: 'knows:npcName:elira', effects: [{ type: 'learn', id: 'npcName:elira' }], to: 'bisedaUraPlan', durationHours: 0 },
     ],
   },

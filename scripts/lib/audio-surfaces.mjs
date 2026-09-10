@@ -3,7 +3,7 @@
 // newly-authored inflections cannot silently ship without audio.
 import { phraseWords } from '../../src/game/phrasePractice.js'
 
-export function collectAudioSurfaces(dict, story, phrases = []) {
+export function collectAudioSurfaces(dict, story, phrases = [], cefrTasks = [], cefrPreparation = []) {
   const surfaces = new Set()
   const add = (al) => {
     if (typeof al === 'string' && al.trim()) surfaces.add(al.trim())
@@ -30,6 +30,21 @@ export function collectAudioSurfaces(dict, story, phrases = []) {
   for (const phrase of phrases) {
     add(phrase.al)
     for (const word of phraseWords(phrase.al)) add(word)
+  }
+  // Held-out listening transcripts never render before an attempt, but their
+  // complete recordings are playable assessment stimuli. Keep them in the
+  // same generated-asset contract as ordinary continuous phrase audio.
+  for (const task of cefrTasks) {
+    if (task?.mode === 'listening' && task.stimulus?.kind === 'continuous-audio') {
+      add(task.stimulus.scriptSq)
+    }
+  }
+  // Guided preparation also uses continuous utterances. These are ordinary
+  // practice recordings (never held-out evidence), but they still need one
+  // fluent clip rather than stitched word audio.
+  for (const activity of cefrPreparation) {
+    if (activity?.stimulus?.channel === 'continuous-audio') add(activity.stimulus.transcript?.text)
+    if (activity?.kind === 'local-audio-cycle') add(activity.model?.text)
   }
 
   return [...surfaces].sort((a, b) => a.localeCompare(b, 'sq'))

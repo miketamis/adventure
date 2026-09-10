@@ -5,6 +5,8 @@
 // whether a learner can accomplish unfamiliar communicative tasks. Phrase
 // mastery is preparation for these gates, never a substitute for them.
 
+export { CEFR_EVIDENCE_VERSION } from './cefrEvidenceState.js'
+
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
   for (const child of Object.values(value)) deepFreeze(child)
@@ -29,8 +31,24 @@ export const CEFR_OFFICIAL_SOURCES = deepFreeze({
     url: 'https://rm.coe.int/common-european-framework-of-reference-for-languages-learning-teaching/16809ea0d4',
   },
   assessment: {
-    label: 'Council of Europe — tests and examinations',
-    url: 'https://www.coe.int/en/web/common-european-framework-reference-languages/tests-and-examinations',
+    label: 'Council of Europe — assessment',
+    url: 'https://www.coe.int/en/web/common-european-framework-reference-languages/assessment',
+  },
+  classroomAssessment: {
+    label: 'Council of Europe — classroom assessment',
+    url: 'https://www.coe.int/en/web/common-european-framework-reference-languages/classroom-assessment',
+  },
+  actionOrientation: {
+    label: 'Council of Europe — action orientation in the classroom',
+    url: 'https://www.coe.int/en/web/common-european-framework-reference-languages/action-orientation-in-the-classroom',
+  },
+  socialAgent: {
+    label: 'Council of Europe — learners as social agents',
+    url: 'https://www.coe.int/en/web/common-european-framework-reference-languages/the-user/learners-as-a-social-agent',
+  },
+  mediation: {
+    label: 'Council of Europe — mediation',
+    url: 'https://www.coe.int/en/web/common-european-framework-reference-languages/mediation',
   },
   referenceLevels: {
     label: 'Council of Europe — language-specific Reference Level Descriptions',
@@ -130,101 +148,103 @@ export const CEFR_LEVEL_OUTCOMES = deepFreeze({
 // These are the smallest coherent assessment families, framed as ordinary
 // events in the existing world. Variants are held out from Train so the gate
 // measures transfer rather than memory for one of the 120 reviewed phrases.
-// `planned` is intentional and must not be presented as shipped functionality.
+// `implemented` means the task family, preparation route, renderer and local
+// first-attempt evidence path ship together. It does not mean the cut scores
+// have been externally standard-set or that the result is accredited.
 export const CEFR_CAPSTONE_TASK_FAMILIES = deepFreeze({
   'a1-unseen-listening': {
-    level: 'A1', mode: 'listening', implementation: 'planned',
+    level: 'A1', mode: 'listening', implementation: 'implemented',
     loreFrame: 'At the bridge and inn, recognise a new greeting, name, destination, price or time spoken slowly by a traveller.',
     trainWith: ['continuous phrase audio', 'word audio', 'listening construction'],
     assessWith: 'held-out audio followed by meaning or action selection; no transcript or English answer before the attempt',
-    minimumForms: 12, minimumVoices: 2, heldOut: true,
+    minimumForms: 12, minimumSpeakerIdentities: 2, minimumAcousticVoices: 2, heldOut: true,
   },
   'a1-unseen-reading': {
-    level: 'A1', mode: 'reading', implementation: 'planned',
+    level: 'A1', mode: 'reading', implementation: 'implemented',
     loreFrame: 'Read new names, prices and one-line notices on a market board, inn door and meeting note.',
     trainWith: ['story reading', 'dictionary definitions', 'short grounded phrases'],
     assessWith: 'held-out one-line text followed by a concrete choice or information lookup',
     minimumForms: 12, minimumTextTypes: 3, heldOut: true,
   },
   'a1-live-dialogue': {
-    level: 'A1', mode: 'spokenInteraction', implementation: 'planned',
+    level: 'A1', mode: 'spokenInteraction', implementation: 'implemented',
     loreFrame: 'Answer Elira, an innkeeper and a trader aloud about identity, immediate needs, destination and price.',
     trainWith: ['choice dialogue', 'listen-and-repeat', 'conversation repair'],
-    assessWith: 'recorded two-turn role-play whose next prompt depends on the learner response',
+    assessWith: 'recorded two-reply role-play whose second prompt is revealed only after the learner records the first response',
     minimumForms: 4, minimumTurns: 2, requiresAudioCapture: true, heldOut: true,
   },
   'a1-spoken-portrait': {
-    level: 'A1', mode: 'spokenProduction', implementation: 'planned',
+    level: 'A1', mode: 'spokenProduction', implementation: 'implemented',
     loreFrame: 'Introduce yourself at the guest-room and describe where you live and one person you know.',
     trainWith: ['substitution frames', 'listen-record-replay', 'pronunciation comparison'],
     assessWith: '20–35 second recorded response to a visual prompt, without a completed model beside it',
     minimumForms: 2, minimumSeconds: 20, requiresAudioCapture: true, heldOut: true,
   },
   'a1-written-exchange': {
-    level: 'A1', mode: 'writtenInteraction', implementation: 'planned',
+    level: 'A1', mode: 'writtenInteraction', implementation: 'implemented',
     loreFrame: 'Leave and answer short guest-book or messenger-board notes: greeting, location, feeling and thanks.',
     trainWith: ['phrase construction', 'short reply frames'],
     assessWith: 'free typed reply scored for communicative intent, not exact-string identity',
     minimumForms: 3, minimumWords: 8, heldOut: true,
   },
   'a1-free-writing': {
-    level: 'A1', mode: 'writtenProduction', implementation: 'planned',
+    level: 'A1', mode: 'writtenProduction', implementation: 'implemented',
     loreFrame: 'Write a short note naming yourself, a familiar person, a place and an immediate need.',
     trainWith: ['focus spelling', 'whole phrase recall', 'sentence recombination'],
     assessWith: 'free typed 3-sentence note scored with a short criterion rubric',
     minimumForms: 2, minimumWords: 20, heldOut: true,
   },
   'a1-simple-relay': {
-    level: 'A1', mode: 'mediation', implementation: 'planned',
+    level: 'A1', mode: 'mediation', implementation: 'implemented',
     loreFrame: 'Tell Elira the time, place or price written on a short inn or market notice.',
     trainWith: ['information matching', 'time, place and price phrases'],
     assessWith: 'select or produce the required fact for a character who cannot see the source',
     minimumForms: 3, heldOut: true,
   },
   'a2-unseen-listening': {
-    level: 'A2', mode: 'listening', implementation: 'planned',
+    level: 'A2', mode: 'listening', implementation: 'implemented',
     loreFrame: 'Follow new market, weather, road, feast and lodging messages from traders, travellers and the town crier.',
     trainWith: ['tiered listening construction', 'continuous phrase audio', 'gist-before-detail practice'],
     assessWith: 'held-out short messages and announcements with separate main-point and detail questions',
-    minimumForms: 24, minimumVoices: 3, minimumTopicFamilies: 6, heldOut: true,
+    minimumForms: 24, minimumSpeakerIdentities: 3, minimumAcousticVoices: 2, minimumTopicFamilies: 6, heldOut: true,
   },
   'a2-unseen-reading': {
-    level: 'A2', mode: 'reading', implementation: 'planned',
+    level: 'A2', mode: 'reading', implementation: 'implemented',
     loreFrame: 'Use new inn tariffs, stall lists, route notices, invitations, personal letters and appointment notes to act in the world.',
     trainWith: ['story reading', 'scan-for-information tasks', 'short correspondence'],
     assessWith: 'held-out texts requiring gist and predictable fact retrieval without word glosses',
     minimumForms: 24, minimumTextTypes: 6, heldOut: true,
   },
   'a2-live-dialogue': {
-    level: 'A2', mode: 'spokenInteraction', implementation: 'planned',
+    level: 'A2', mode: 'spokenInteraction', implementation: 'implemented',
     loreFrame: 'Resolve a purchase, room request, route problem, healer visit, invitation and changed meeting plan aloud.',
     trainWith: ['branching intent practice', 'repair phrases', 'slot recombination'],
     assessWith: 'recorded 4–6 turn role-play with at least one unpredictable but supportive follow-up',
     minimumForms: 6, minimumTurns: 4, requiresAudioCapture: true, heldOut: true,
   },
   'a2-spoken-portrait': {
-    level: 'A2', mode: 'spokenProduction', implementation: 'planned',
+    level: 'A2', mode: 'spokenProduction', implementation: 'implemented',
     loreFrame: 'At a guest supper, describe family, home, work or learned craft, daily routine and one recent journey or event.',
     trainWith: ['sentence frames', 'connector practice', 'past/present/future recombination', 'record-and-replay'],
     assessWith: '45–75 second recorded series of simple connected sentences from a fresh prompt',
     minimumForms: 3, minimumSeconds: 45, requiresAudioCapture: true, heldOut: true,
   },
   'a2-written-exchange': {
-    level: 'A2', mode: 'writtenInteraction', implementation: 'planned',
+    level: 'A2', mode: 'writtenInteraction', implementation: 'implemented',
     loreFrame: 'Exchange courier notes about news, feelings, needs, apology and a meeting whose time or place changes.',
     trainWith: ['message reconstruction', 'multiple acceptable replies', 'conversation repair'],
     assessWith: 'free typed exchange with a responsive second turn and no displayed full-answer translation',
     minimumForms: 4, minimumWords: 25, heldOut: true,
   },
   'a2-free-writing': {
-    level: 'A2', mode: 'writtenProduction', implementation: 'planned',
+    level: 'A2', mode: 'writtenProduction', implementation: 'implemented',
     loreFrame: 'Write Elira or an innkeeper a short connected account of what happened, the present problem and what should happen next.',
     trainWith: ['guided paragraph assembly', 'connectors', 'past/present/future sequencing'],
     assessWith: 'free typed 50–80 word note using simple connectors; meaning is scored independently from form accuracy',
     minimumForms: 3, minimumWords: 50, heldOut: true,
   },
   'a2-practical-relay': {
-    level: 'A2', mode: 'mediation', implementation: 'planned',
+    level: 'A2', mode: 'mediation', implementation: 'implemented',
     loreFrame: 'Relay a healer’s instruction, crier’s announcement or traveller’s route warning, then help two characters agree on the practical next step.',
     trainWith: ['identify the main point', 'fact selection', 'ask-for-repetition and agreement phrases'],
     assessWith: 'held-out source followed by a concise relay and one collaborative response',
@@ -232,8 +252,9 @@ export const CEFR_CAPSTONE_TASK_FAMILIES = deepFreeze({
   },
 })
 
-// Honest inventory of the evidence already implemented. Partial evidence can
-// prepare learners for a CEFR outcome but cannot open a level gate.
+// Honest inventory of the shipped evidence. Preparation evidence cannot open
+// a level gate, while capstone evidence can support only an internal readiness
+// profile. Open production and speech remain explicitly learner-self-reviewed.
 export const CURRENT_CEFR_EVIDENCE = deepFreeze({
   groundedPracticalCurriculum: {
     status: 'implemented',
@@ -248,28 +269,33 @@ export const CURRENT_CEFR_EVIDENCE = deepFreeze({
   continuousPhraseListening: {
     status: 'implemented',
     proof: ['playPhrase', 'public/audio'],
-    limitation: 'The current phrase bank uses one synthetic voice and has no held-out message or announcement assessment.',
+    limitation: 'Ordinary Train phrase playback uses one synthetic voice; broader acoustic variation is supplied only by the held-out listening bank.',
   },
   reviewedSurfacePractice: {
     status: 'implemented',
     proof: ['buildFormInventory', 'NOUN_FORMS'],
     limitation: 'Reviewed surfaces support form learning but do not by themselves prove generative grammatical control.',
   },
+  guidedTransferPreparation: {
+    status: 'implemented',
+    proof: ['CEFR_PREPARATION_STAGES', 'CEFR_PREPARATION_MECHANICS', 'CefrPreparation'],
+    limitation: 'Preparation activities teach transfer mechanics but never count as held-out attainment evidence.',
+  },
   unseenListeningAndReading: {
-    status: 'missing', proof: [],
-    limitation: 'No assessment bank is held out from story and Train exposure.',
+    status: 'implemented', proof: ['CEFR_TASKS', 'CefrCapstone', 'cefrWindowIdForTask'],
+    limitation: 'The listening bank maps seven speaker identities onto two synthetic acoustic voices; neither breadth nor cut scores have external validation.',
   },
   openWrittenProduction: {
-    status: 'missing', proof: [],
-    limitation: 'Typed practice expects a known answer rather than a learner-authored connected message.',
+    status: 'implemented', proof: ['OpenResponseTask', 'selfReviewedRubric', 'CEFR_RECORD_EVIDENCE'],
+    limitation: 'Open writing is checked with an explicit learner self-review rubric, not an independent Albanian-language evaluator or human rating.',
   },
   spokenInteractionAndProduction: {
-    status: 'missing', proof: [],
-    limitation: 'The browser does not capture or evaluate learner speech.',
+    status: 'implemented', proof: ['SpeechTask', 'MediaRecorder', 'performanceEvidenceFor'],
+    limitation: 'Speech stays local and requires record/replay plus a learner intelligibility self-check; the browser does not independently judge pronunciation.',
   },
   mediationTasks: {
-    status: 'missing', proof: [],
-    limitation: 'No task asks the learner to relay unseen information for another character or collaborate from it.',
+    status: 'implemented', proof: ['source-and-listener', 'source-and-collaboration', 'relay-and-reply'],
+    limitation: 'Mediation uses held-out sources and communicative criteria, but open relay quality is still learner-self-reviewed rather than externally rated.',
   },
 })
 
@@ -306,12 +332,11 @@ export const CEFR_LEVEL_GATES = deepFreeze({
 })
 
 export const CEFR_PRODUCT_CLAIMS = deepFreeze({
-  current: 'A1 foundations with emerging A2 coverage; no completed CEFR level is yet evidenced across all modes.',
-  afterInternalGates: 'A1-ready or A2-ready, reported as a seven-mode profile.',
-  certificationBoundary: 'Do not market a certified CEFR level until Albanian tasks, rubrics and cut scores have received native-speaker review, piloting and external standard-setting.',
+  current: 'A guided zero-to-A2 curriculum and internal seven-mode A1/A2 readiness gates are implemented; open writing, speech and mediation use explicit learner self-review.',
+  afterInternalGates: 'Report A1-ready or A2-ready only as an internal seven-mode profile, never as an accredited or independently verified level.',
+  certificationBoundary: 'Do not market a certified CEFR level until Albanian tasks, rubrics and cut scores receive independent native-speaker review, true-beginner piloting and external standard-setting.',
 })
 
-export const CEFR_EVIDENCE_VERSION = 1
 
 export function cefrImplementationStatus(level) {
   const outcomes = CEFR_LEVEL_OUTCOMES[level] || []
@@ -343,9 +368,9 @@ const distinctByVariant = (events) => {
  * `{ level, mode, taskFamily, variantId, windowId, heldOut, correct, rubric,
  *    pronunciationPass }`.
  *
- * Planned task families block the real gate. Tests and the future capstone can
- * supply `implementationByTask` to exercise the evaluator or mark a shipped
- * family without creating a second set of gate thresholds.
+ * Any future planned task family blocks its real gate. Tests may supply
+ * `implementationByTask` to exercise proposed evidence without copying the
+ * gate thresholds; the shipped profile uses the registry status directly.
  */
 export function evaluateCefrLevel(level, evidence = [], {
   achievedLevels = [],

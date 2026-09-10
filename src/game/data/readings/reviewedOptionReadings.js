@@ -9,7 +9,7 @@ import { OPTION_READINGS_STATIC } from './optionsStatic.js'
 // The SHA-256 seal is checked in scripts/languageaudit.mjs after all candidates
 // have been inspected. `internal-editorial` never claims native-speaker review.
 export const REVIEWED_OPTION_COUNT = 1754
-export const OPTION_READING_REVIEW_HASH = 'sha256:de65adf70db3865094fc06cf9731173780c36ed3bf8a9608be5a3f6ea507d310'
+export const OPTION_READING_REVIEW_HASH = 'sha256:170edf297bfff5589d07221cca7460fee59b46e5d371a8db5d2af7222b039adb'
 
 const merged = {}
 for (const tranche of [OPTION_READINGS_A, OPTION_READINGS_B, OPTION_READINGS_C, OPTION_READINGS_STATIC]) {

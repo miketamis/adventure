@@ -7,10 +7,18 @@ import { resolve } from 'node:path'
 import { DICT, STORY } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
+import { CEFR_TASKS } from '../src/game/cefrTasks.js'
+import { CEFR_PREPARATION_ACTIVITIES } from '../src/game/cefrPreparation.js'
 import { collectAudioSurfaces } from './lib/audio-surfaces.mjs'
 
 const AUDIO_DIR = resolve('public/audio')
-const surfaces = collectAudioSurfaces(DICT, STORY, EVERYDAY_PHRASE_DRILLS)
+const surfaces = collectAudioSurfaces(
+  DICT,
+  STORY,
+  EVERYDAY_PHRASE_DRILLS,
+  CEFR_TASKS,
+  CEFR_PREPARATION_ACTIVITIES,
+)
 const byFile = new Map()
 
 for (const surface of surfaces) {

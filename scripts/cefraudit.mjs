@@ -30,6 +30,8 @@ import { NOUN_FORMS } from '../src/game/nounForms.js'
 import { PHRASE_STAGE_DEFINITIONS } from '../src/game/phraseProgression.js'
 import { TRAIN_EXERCISE_FAMILIES } from '../src/game/trainingProgression.js'
 import { audioSlug } from '../src/game/audio.js'
+import { CEFR_PREPARATION_ACTIVITIES, CEFR_PREPARATION_MECHANICS } from '../src/game/cefrPreparation.js'
+import { CEFR_TASKS_BY_FAMILY } from '../src/game/cefrTasks.js'
 
 const failures = []
 const check = (label, fn) => {
@@ -89,12 +91,26 @@ check('every capstone family is held-out, lore-grounded and honestly labelled', 
   assert.deepEqual([...referenced].sort(), Object.keys(CEFR_CAPSTONE_TASK_FAMILIES).sort())
   for (const [id, task] of Object.entries(CEFR_CAPSTONE_TASK_FAMILIES)) {
     assert.ok(allowedImplementation.has(task.implementation), `${id}: invalid implementation state`)
+    assert.equal(task.implementation, 'implemented', `${id}: shipped family is still labelled planned`)
     assert.equal(task.heldOut, true, `${id}: assessment is not held out from Train`)
     assert.ok(task.loreFrame.length >= 50, `${id}: missing meaningful lore frame`)
     assert.ok(task.trainWith.length >= 2, `${id}: no training path`)
     assert.ok(task.assessWith.length >= 50, `${id}: assessment is underspecified`)
     assert.ok(task.minimumForms >= 2, `${id}: too few independent task forms`)
     if (task.mode.startsWith('spoken')) assert.equal(task.requiresAudioCapture, true, `${id}: spoken evidence has no audio capture`)
+  }
+})
+
+check('listening distinguishes speaker identities from acoustic voices', () => {
+  for (const familyId of ['a1-unseen-listening', 'a2-unseen-listening']) {
+    const family = CEFR_CAPSTONE_TASK_FAMILIES[familyId]
+    const tasks = CEFR_TASKS_BY_FAMILY[familyId]
+    const speakerIdentities = new Set(tasks.map(({ voice }) => voice.id)).size
+    const acousticVoices = new Set(tasks.map(({ voice }) => voice.synthesisVoice)).size
+    assert.ok(speakerIdentities >= family.minimumSpeakerIdentities, `${familyId}: insufficient speaker identities`)
+    assert.ok(acousticVoices >= family.minimumAcousticVoices, `${familyId}: insufficient acoustic voices`)
+    assert.equal(acousticVoices, 2, `${familyId}: claims acoustic variation the shipped bank does not have`)
+    assert.ok(speakerIdentities > acousticVoices, `${familyId}: speaker identities were confused with acoustic voices`)
   }
 })
 
@@ -142,19 +158,16 @@ const passingEvidenceFor = (level) => {
   }))
 }
 
-check('the executable gate blocks planned tasks, missing modes and A2-before-A1', () => {
-  const implementationByTask = Object.fromEntries(Object.keys(CEFR_CAPSTONE_TASK_FAMILIES).map((id) => [id, 'implemented']))
+check('the executable gate accepts shipped tasks but blocks missing modes and A2-before-A1', () => {
   const a1Evidence = passingEvidenceFor('A1')
-  assert.equal(evaluateCefrLevel('A1', a1Evidence).passed, false, 'planned families opened the real gate')
-  assert.equal(evaluateCefrLevel('A1', a1Evidence, { implementationByTask }).passed, true, 'complete A1 evidence did not pass')
+  assert.equal(evaluateCefrLevel('A1', a1Evidence).passed, true, 'complete implemented A1 evidence did not pass')
   const withoutMediation = a1Evidence.filter(({ mode }) => mode !== 'mediation')
-  assert.equal(evaluateCefrLevel('A1', withoutMediation, { implementationByTask }).passed, false, 'stronger modes compensated for missing mediation')
+  assert.equal(evaluateCefrLevel('A1', withoutMediation).passed, false, 'stronger modes compensated for missing mediation')
 
   const a2Evidence = passingEvidenceFor('A2')
-  assert.equal(evaluateCefrLevel('A2', a2Evidence, { implementationByTask }).passed, false, 'A2 passed without A1')
+  assert.equal(evaluateCefrLevel('A2', a2Evidence).passed, false, 'A2 passed without A1')
   assert.equal(evaluateCefrLevel('A2', a2Evidence, {
     achievedLevels: ['A1'],
-    implementationByTask,
   }).passed, true, 'complete A2 evidence did not pass after A1')
 })
 
@@ -165,9 +178,14 @@ check('implemented evidence and missing evidence cannot masquerade as each other
     if (evidence.status === 'missing') assert.equal(evidence.proof.length, 0, `${id}: missing item advertises proof`)
     assert.ok(evidence.limitation.length >= 40, `${id}: limitation is not explicit`)
   }
-  assert.equal(cefrImplementationStatus('A1'), 'planned')
-  assert.equal(cefrImplementationStatus('A2'), 'planned')
-  assert.match(CEFR_PRODUCT_CLAIMS.current, /no completed CEFR level/i)
+  assert.equal(cefrImplementationStatus('A1'), 'implemented')
+  assert.equal(cefrImplementationStatus('A2'), 'implemented')
+  assert.ok(Object.values(CURRENT_CEFR_EVIDENCE).every(({ status }) => status === 'implemented'))
+  assert.match(CEFR_PRODUCT_CLAIMS.current, /learner self-review/i)
+  assert.match(CEFR_PRODUCT_CLAIMS.afterInternalGates, /internal seven-mode profile/i)
+  assert.match(CEFR_PRODUCT_CLAIMS.afterInternalGates, /never as an accredited/i)
+  assert.match(CEFR_PRODUCT_CLAIMS.certificationBoundary, /native-speaker review/i)
+  assert.match(CEFR_PRODUCT_CLAIMS.certificationBoundary, /true-beginner piloting/i)
 })
 
 check('the existing phrase ladder supplies preparation without declaring CEFR transfer', () => {
@@ -206,19 +224,20 @@ for (const item of Object.values(ITEMS)) {
 }
 
 console.log('')
-console.log('=== Current preparation evidence (not a CEFR level score) ===')
+console.log('=== Shipped zero-to-A2 path (internal readiness, not certification) ===')
 console.log(`story: ${Object.keys(STORY).length} nodes / ${storyEndings} endings`)
 console.log(`dictionary: ${Object.keys(DICT).length} senses; ${storyTokenSenses.size} used in story/options/items`)
 console.log(`practical lane: ${EVERYDAY_CORE_SENSE_IDS.length} priority senses / ${EVERYDAY_PHRASE_DRILLS.length} grounded phrases / ${EVERYDAY_CAN_DO_GROUPS.length} can-do groups`)
 console.log(`player-choice phrase grounding: ${phrasesSpokenAsChoices}/${EVERYDAY_PHRASE_DRILLS.length} phrases appear in a non-confuser choice`)
 console.log(`forms: ${changingFormRows} reviewed changing surfaces across ${sensesWithTrainableForms} senses; ${Object.keys(NOUN_FORMS).length} reviewed noun paradigms`)
-console.log(`audio: ${audioClipCount} generated clips; phrase listening is continuous but currently single-voice`)
-console.log('A1 implementation gate: planned (open production, held-out transfer and mediation remain missing)')
-console.log('A2 implementation gate: planned and locked behind A1')
+console.log(`audio: ${audioClipCount} generated clips; Train phrase audio is single-voice, held-out listening uses exactly 2 acoustic voices across 7 speaker identities`)
+console.log(`guided transfer: ${Object.keys(CEFR_PREPARATION_MECHANICS).length} mechanics / ${CEFR_PREPARATION_ACTIVITIES.length} activities`)
+console.log('A1 implementation gate: shipped across 7 modes; open performance evidence is learner-self-reviewed')
+console.log('A2 implementation gate: shipped across 7 modes and locked behind A1; open performance evidence is learner-self-reviewed')
 
 if (failures.length) {
   console.error(`\n${failures.length} CEFR policy failure(s).`)
   process.exitCode = 1
 } else {
-  console.log('\n✓ CEFR zero-to-A2 policy is internally coherent; current gaps remain explicitly planned.')
+  console.log('\n✓ CEFR zero-to-A2 path is internally coherent; its self-review and non-accredited limits remain explicit.')
 }

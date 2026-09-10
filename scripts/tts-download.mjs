@@ -6,6 +6,7 @@
 //
 //   node scripts/tts-download.mjs            # fill missing clips
 //   node scripts/tts-download.mjs --force    # re-generate everything
+//   node scripts/tts-download.mjs --force-cefr # re-generate held-out listening clips with their assigned voices
 //
 // Credentials come from .env (AZURE_TTS_KEY1 / AZURE_TTS_ENDPOINT).
 // ---------------------------------------------------------------------------
@@ -15,12 +16,15 @@ import { fileURLToPath } from 'node:url'
 import { DICT, STORY } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
+import { CEFR_TASKS } from '../src/game/cefrTasks.js'
+import { CEFR_PREPARATION_ACTIVITIES } from '../src/game/cefrPreparation.js'
 import { collectAudioSurfaces } from './lib/audio-surfaces.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const OUT_DIR = resolve(ROOT, 'public/audio')
 const FORCE = process.argv.includes('--force')
+const FORCE_CEFR = process.argv.includes('--force-cefr')
 
 // --- credentials ----------------------------------------------------------
 function loadEnv() {
@@ -49,7 +53,7 @@ if (!region) {
 const TTS_HOST = `https://${region}.tts.speech.microsoft.com`
 
 // --- pick the best Albanian neural voice -----------------------------------
-async function pickVoice() {
+async function availableVoices() {
   const res = await fetch(`${TTS_HOST}/cognitiveservices/voices/list`, {
     headers: { 'Ocp-Apim-Subscription-Key': KEY },
   })
@@ -66,7 +70,10 @@ async function pickVoice() {
     sq.find((v) => /Anila/i.test(v.ShortName)) ||
     sq.find((v) => v.VoiceType === 'Neural') ||
     sq[0]
-  return pick.ShortName
+  return {
+    defaultVoice: pick.ShortName,
+    supported: new Set(sq.map((entry) => entry.ShortName)),
+  }
 }
 
 // --- synthesize one surface ------------------------------------------------
@@ -99,7 +106,25 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 async function main() {
   mkdirSync(OUT_DIR, { recursive: true })
-  const authoredSurfaces = collectAudioSurfaces(DICT, STORY, EVERYDAY_PHRASE_DRILLS)
+  const authoredSurfaces = collectAudioSurfaces(
+    DICT,
+    STORY,
+    EVERYDAY_PHRASE_DRILLS,
+    CEFR_TASKS,
+    CEFR_PREPARATION_ACTIVITIES,
+  )
+  const cefrVoiceBySlug = new Map()
+  for (const task of CEFR_TASKS) {
+    if (task?.mode !== 'listening' || task.stimulus?.kind !== 'continuous-audio') continue
+    const slug = audioSlug(task.stimulus.scriptSq)
+    const assigned = task.voice?.synthesisVoice
+    if (!assigned) throw new Error(`${task.id} has no synthesisVoice`)
+    const previous = cefrVoiceBySlug.get(slug)
+    if (previous && previous !== assigned) {
+      throw new Error(`${task.id} reuses a listening surface with conflicting voices`)
+    }
+    cefrVoiceBySlug.set(slug, assigned)
+  }
   // Capitalization variants share one deterministic runtime URL and one
   // pronunciation. Generate each case-folded filename only once.
   const bySlug = new Map()
@@ -112,13 +137,17 @@ async function main() {
   }
   const surfaces = [...bySlug.values()]
   const todo = surfaces.filter(
-    (al) => FORCE || !existsSync(resolve(OUT_DIR, `${audioSlug(al)}.mp3`)),
+    (al) => FORCE || (FORCE_CEFR && cefrVoiceBySlug.has(audioSlug(al))) ||
+      !existsSync(resolve(OUT_DIR, `${audioSlug(al)}.mp3`)),
   )
   console.log(`${authoredSurfaces.length} authored surfaces / ${surfaces.length} case-folded clips, ${todo.length} to generate.`)
   if (!todo.length) return
 
-  const voice = await pickVoice()
-  console.log(`Using voice: ${voice}`)
+  const { defaultVoice, supported } = await availableVoices()
+  for (const assigned of new Set(cefrVoiceBySlug.values())) {
+    if (!supported.has(assigned)) throw new Error(`Assigned CEFR voice is unavailable on this Speech resource: ${assigned}`)
+  }
+  console.log(`Using default voice: ${defaultVoice}; ${new Set(cefrVoiceBySlug.values()).size} assigned CEFR voices`)
 
   let done = 0
   for (const al of todo) {
@@ -126,6 +155,7 @@ async function main() {
     let attempt = 0
     for (;;) {
       try {
+        const voice = cefrVoiceBySlug.get(audioSlug(al)) || defaultVoice
         const buf = await synth(al, voice)
         writeFileSync(file, buf)
         done++

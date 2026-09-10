@@ -34,6 +34,16 @@ import {
   completedWordProgress,
   normalizeWordProgress,
 } from './wordProgression.js'
+import {
+  emptyCefrState,
+  mergeStoredCefrEvidence,
+  normalizeStoredCefrState,
+} from './cefrEvidenceState.js'
+import {
+  emptyCefrPreparationState,
+  normalizeCefrPreparationState,
+  recordCefrPreparationAttempt,
+} from './cefrPreparationEvidenceState.js'
 import { transitionInfo } from './worldModel.js'
 import { NODE_REGION } from './regions.js'
 import {
@@ -642,11 +652,16 @@ const phraseProductionProgressRecord = (value, currentRound) => {
   }
   return next
 }
-const wordProgressRecord = (value, currentRound, discovered) => {
+const wordProgressRecord = (value, currentRound) => {
   if (!isRecord(value)) return {}
   const next = {}
   for (const [id, progress] of Object.entries(value)) {
-    if (!safeMapKey(id) || !DICT[id] || !discovered[id] || !isRecord(progress)) continue
+    // Exact Train proofs are long-term learning evidence. A hard story reset
+    // deliberately clears this run's clickable-word discovery map, but must
+    // not make a following save/reload erase the learner's earlier proofs.
+    // Practice eligibility still checks `state.discovered` at the reducer/UI
+    // boundary; normalization only validates that the sense and record exist.
+    if (!safeMapKey(id) || !DICT[id] || !isRecord(progress)) continue
     next[id] = normalizeWordProgress(progress, currentRound)
   }
   return next
@@ -869,7 +884,6 @@ export function normalizeSavedState(saved, fresh) {
   next.wordProgress = wordProgressRecord(
     hasWordProgressV1 ? saved.wordProgress : {},
     next.trainRound,
-    next.discovered,
   )
   // Version-1 counters recorded exposure, not gated productive evidence. Keep
   // the learner's tokens and lifetime totals, but never migrate those counters
@@ -889,6 +903,10 @@ export function normalizeSavedState(saved, fresh) {
     saved.phraseMatchingMastery,
     PHRASE_SKILL_MAX_TIER.matching,
   )
+  // Capstones retain only compact pass evidence. Drafts and microphone audio
+  // never enter game state, localStorage, analytics or a network request.
+  Object.assign(next, normalizeStoredCefrState(saved))
+  Object.assign(next, normalizeCefrPreparationState(saved))
   // Early typed-flag builds represented Shpirag's role branch as an invisible
   // carried object. Canonicalize it once on load so identity, gates and the
   // inventory UI cannot disagree. `hasCond(flag:...)` retains its generic
@@ -1171,6 +1189,8 @@ export function newRun() {
     trainRound: 0,
     trainLastWords: [],
     trainLastQuestionKey: null,
+    ...emptyCefrState(),
+    ...emptyCefrPreparationState(),
     visited: {},
     ...loadAchievements(),
     debug: false,
@@ -1856,6 +1876,23 @@ export function reducer(state, action) {
         trainLastQuestionKey: typeof action.questionKey === 'string' ? action.questionKey.slice(0, 200) : null,
       }
 
+    case 'CEFR_RECORD_EVIDENCE': {
+      const cefrEvidence = mergeStoredCefrEvidence(state.cefrEvidence, action.evidence)
+      if (cefrEvidence.length === (state.cefrEvidence || []).length &&
+          cefrEvidence.every((event, index) => event === state.cefrEvidence[index])) return state
+      return {
+        ...state,
+        ...emptyCefrState(),
+        cefrEvidence,
+      }
+    }
+
+    case 'CEFR_PREPARATION_ATTEMPT':
+      return {
+        ...state,
+        ...recordCefrPreparationAttempt(state, action.activityId, action.mechanicId, action.passed),
+      }
+
     case 'PRACTICE_PHRASE_RESULT': {
       if (action.correct !== true && action.correct !== false) return state
       if (!Array.isArray(action.phraseIds) || action.phraseIds.length === 0) return state
@@ -2169,6 +2206,8 @@ export function reducer(state, action) {
         trainRound: state.trainRound || 0,
         trainLastWords: state.trainLastWords || [],
         trainLastQuestionKey: state.trainLastQuestionKey || null,
+        ...normalizeStoredCefrState(state),
+        ...normalizeCefrPreparationState(state),
         visited: state.visited,
         heard: state.heard || {},
         discovered: state.discovered,
@@ -2251,6 +2290,8 @@ export function reducer(state, action) {
         trainRound: state.trainRound || 0,
         trainLastWords: state.trainLastWords || [],
         trainLastQuestionKey: state.trainLastQuestionKey || null,
+        ...normalizeStoredCefrState(state),
+        ...normalizeCefrPreparationState(state),
         visited: state.visited,
         heard: state.heard || {},
         earned: state.earned,
