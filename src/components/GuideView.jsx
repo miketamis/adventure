@@ -13,7 +13,11 @@ export default function GuideView() {
         <h3 id="guide-loop">The learning loop</h3>
         <ol>
           <li><b>Read the scene.</b> Unknown words appear as English meanings.</li>
-          <li><b>Discover a word.</b> Activate it to reveal its Albanian form. This costs nothing.</li>
+          <li>
+            <b>Discover a word.</b> Activate it to hear and reveal its Albanian form. That is the
+            guided introduction, so its first Train question asks you to recognise it among four
+            meanings instead of repeating the reveal. This costs nothing.
+          </li>
           <li>
             <b>Train it.</b> Rebuild, hear, complete, type, and match the everyday phrases you
             meet in the story. Finishing a phrase earns one token for every different learned word

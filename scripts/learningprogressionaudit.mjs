@@ -142,12 +142,17 @@ check('every learning question step opens a structured example dialog', () => {
 })
 
 check('the word walkthrough and builder share the exact lexical stage registry', () => {
+  const guide = read('src/components/GuideView.jsx')
   const entry = wordProgressionSnapshot(null, 0)
   assert.equal(entry.stages.length, WORD_STAGE_DEFINITIONS.length)
+  assert.equal(WORD_STAGE_DEFINITIONS[0].id, 'independent-word-recognition')
+  assert.ok(!WORD_STAGE_DEFINITIONS.some(({ id }) => id === 'guided-word-recognition'))
+  assert.match(WORD_PROGRESSION_POLICY.principle, /Saving a word completes guided recognition/)
   entry.stages.forEach((stage, index) => assert.equal(stage.definition, WORD_STAGE_DEFINITIONS[index]))
   const question = buildWordQuestion({ discoveredIds: ['fshat'], currentRound: 0, rng: () => 0.2 })
   assert.equal(question.tier, WORD_STAGE_DEFINITIONS[0].tier)
   assert.equal(question.mode, WORD_STAGE_DEFINITIONS[0].mode)
+  assert.equal(question.wordStageId, 'independent-word-recognition')
   assert.equal(question.options.length, WORD_STAGE_DEFINITIONS[0].variant.distractors + 1)
   const advanced = advanceWordProgress(null, 0, {
     correct: true,
@@ -158,8 +163,10 @@ check('the word walkthrough and builder share the exact lexical stage registry',
     round: 1,
   })
   assert.equal(advanced.accepted, true)
-  assert.equal(wordProgressionSnapshot(advanced.progress, 1).next.baseStage, 1)
+  assert.equal(wordProgressionSnapshot(advanced.progress, 1).next.baseStage, 0)
+  assert.equal(advanced.progress.wins['independent-word-recognition'], 1)
   assert.ok(WORD_PROGRESSION_POLICY.evidenceBoundary.doesNotProve.includes('CEFR attainment'))
+  assert.match(guide, /first Train question asks you to recognise it among four/)
 })
 
 check('the builders can emit every registered phrase exercise variant', () => {

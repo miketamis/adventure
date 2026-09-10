@@ -28,7 +28,9 @@ const first = makeQuestion(null, 0)
 assert.equal(first.tier, 0)
 assert.equal(first.dir, 'al2en')
 assert.equal(first.mode, 'choice')
-assert.equal(first.options.length, 2, 'a new word did not begin with two choices')
+assert.equal(first.wordStageId, 'independent-word-recognition')
+assert.equal(first.options.length, 4, 'a saved word did not begin Train with independent recognition')
+assert.ok(!WORD_STAGE_DEFINITIONS.some(({ id: stageId }) => stageId === 'guided-word-recognition'))
 
 let progress = null
 let round = 0
@@ -81,7 +83,7 @@ const missed = advanceWordProgress(progress, retained.dueAfterRound, {
   round: retained.dueAfterRound + 1,
 })
 assert.equal(missed.accepted, true)
-assert.equal(missed.progress.remediation.stage, 2)
+assert.equal(missed.progress.remediation.stage, 1)
 assert.equal(wordProgressStage(missed.progress), WORD_SKILL_MAX_TIER, 'a lapse erased completed proofs')
 const repairRound = missed.progress.remediation.dueAfterRound
 const repair = wordProgressPlan(missed.progress, repairRound)
@@ -91,7 +93,7 @@ assert.equal(repair.mode, 'choice')
 
 const context = makeQuestion(null, 0, 'po_yes')
 assert.equal(context.kind, 'ctx')
-assert.equal(context.options.length, 2)
+assert.equal(context.options.length, 4)
 assert.match(context.ctx.en, /__/)
 
 assert.equal(makeQuestion(null, 0)?.answerId, id)
@@ -103,6 +105,19 @@ assert.equal(buildWordQuestion({
 }), null, 'the no-repeat boundary ignored the target word')
 
 const fresh = newRun()
+const savedWord = reducer(fresh, { type: 'DISCOVER', id })
+assert.equal(savedWord.discovered[id], true)
+assert.deepEqual(savedWord.wordProgress[id], {
+  wins: {},
+  strictWins: 0,
+  dueAfterRound: 0,
+  reviewGap: 6,
+  lastAttemptKey: null,
+  lastAttemptRound: 0,
+  remediation: null,
+})
+assert.equal(makeQuestion(savedWord.wordProgress[id], 0).wordStageId, 'independent-word-recognition')
+
 const migrated = normalizeSavedState({
   ...fresh,
   discovered: { [id]: true },
@@ -111,7 +126,45 @@ const migrated = normalizeSavedState({
   wordProgress: { [id]: completedWordProgress() },
 }, fresh)
 assert.equal(migrated.wordProgressVersion, WORD_PROGRESS_VERSION)
-assert.deepEqual(migrated.wordProgress, {}, 'legacy mixed totals became invented skill evidence')
+assert.deepEqual(migrated.wordProgress[id].wins, {}, 'legacy mixed totals became invented Train evidence')
+assert.equal(wordProgressStage(migrated.wordProgress[id]), 0, 'the saved-word marker skipped independent recognition')
+
+const v1Progress = {
+  wins: {
+    'guided-word-recognition': 1,
+    'independent-word-recognition': 2,
+    'guided-word-selection': 1,
+    'independent-word-selection': 2,
+    'supported-word-spelling': 1,
+  },
+  strictWins: 0,
+  dueAfterRound: 30,
+  reviewGap: 12,
+  lastAttemptKey: 'v1-retention-miss',
+  lastAttemptRound: 22,
+  remediation: {
+    stage: 2,
+    returnStage: 5,
+    reason: 'retention-lapse',
+    dueAfterRound: 24,
+  },
+}
+const upgradedV1 = normalizeSavedState({
+  ...fresh,
+  discovered: { [id]: true },
+  wordProgressVersion: 1,
+  wordProgress: { [id]: v1Progress },
+  trainRound: 22,
+}, fresh)
+assert.equal(upgradedV1.wordProgressVersion, WORD_PROGRESS_VERSION)
+assert.equal(wordProgressStage(upgradedV1.wordProgress[id]), WORD_SKILL_MAX_TIER)
+assert.equal(upgradedV1.wordProgress[id].wins['guided-word-recognition'], undefined)
+assert.deepEqual(upgradedV1.wordProgress[id].remediation, {
+  stage: 1,
+  returnStage: 4,
+  reason: 'retention-lapse',
+  dueAfterRound: 24,
+})
 
 const mastered = completedWordProgress(20)
 const restored = normalizeSavedState({
@@ -140,7 +193,8 @@ const answered = reducer(playable, {
 assert.equal(answered.mana[id], 1)
 assert.equal(answered.practiced[id], 1)
 assert.equal(answered.trainRound, 1)
-assert.equal(wordProgressStage(answered.wordProgress[id]), 1)
+assert.equal(wordProgressStage(answered.wordProgress[id]), 0)
+assert.equal(answered.wordProgress[id].wins['independent-word-recognition'], 1)
 assert.strictEqual(reducer(answered, {
   type: 'PRACTICE_WORD_RESULT',
   correct: true,
@@ -152,4 +206,4 @@ assert.strictEqual(reducer(answered, {
   wordKeys: [id],
 }), answered, 'a duplicate result awarded twice')
 
-console.log(`${WORD_STAGE_DEFINITIONS.length} lexical stages verified: guided recognition → independent recognition → guided selection → independent selection → supported spelling → retained spelling.`)
+console.log(`${WORD_STAGE_DEFINITIONS.length} Train stages verified after save-to-vocabulary recognition: independent recognition → guided selection → independent selection → supported spelling → retained spelling.`)

@@ -32,6 +32,8 @@ import {
   WORD_PROGRESS_VERSION,
   advanceWordProgress,
   completedWordProgress,
+  emptyWordProgress,
+  migrateWordProgressV1,
   normalizeWordProgress,
 } from './wordProgression.js'
 import {
@@ -652,7 +654,7 @@ const phraseProductionProgressRecord = (value, currentRound) => {
   }
   return next
 }
-const wordProgressRecord = (value, currentRound) => {
+const wordProgressRecord = (value, currentRound, normalize = normalizeWordProgress) => {
   if (!isRecord(value)) return {}
   const next = {}
   for (const [id, progress] of Object.entries(value)) {
@@ -662,7 +664,7 @@ const wordProgressRecord = (value, currentRound) => {
     // Practice eligibility still checks `state.discovered` at the reducer/UI
     // boundary; normalization only validates that the sense and record exist.
     if (!safeMapKey(id) || !DICT[id] || !isRecord(progress)) continue
-    next[id] = normalizeWordProgress(progress, currentRound)
+    next[id] = normalize(progress, currentRound)
   }
   return next
 }
@@ -878,13 +880,23 @@ export function normalizeSavedState(saved, fresh) {
     : null
   // The old lifetime `practiced` count mixed recognition, productive choices,
   // form work and phrase rewards. Preserve it for totals, but do not invent
-  // exact lexical-stage evidence when migrating a pre-ladder save.
-  const hasWordProgressV1 = saved.wordProgressVersion === WORD_PROGRESS_VERSION
+  // exact lexical-stage evidence when migrating a pre-ladder save. Version 1
+  // is the same evidence ladder with a now-redundant entry tier, so its stable
+  // proof IDs and explicitly remapped repair tier can be preserved.
+  const hasCurrentWordProgress = saved.wordProgressVersion === WORD_PROGRESS_VERSION
+  const hasWordProgressV1 = saved.wordProgressVersion === 1
   next.wordProgressVersion = WORD_PROGRESS_VERSION
   next.wordProgress = wordProgressRecord(
-    hasWordProgressV1 ? saved.wordProgress : {},
+    hasCurrentWordProgress || hasWordProgressV1 ? saved.wordProgress : {},
     next.trainRound,
+    hasWordProgressV1 ? migrateWordProgressV1 : normalizeWordProgress,
   )
+  // Saving the word is the guided-recognition event. Give every word already
+  // saved in this run a durable empty ladder record so that achievement is not
+  // lost merely because the learner has not attempted its first Train quiz.
+  for (const id of Object.keys(next.discovered)) {
+    if (DICT[id] && !next.wordProgress[id]) next.wordProgress[id] = emptyWordProgress()
+  }
   // Version-1 counters recorded exposure, not gated productive evidence. Keep
   // the learner's tokens and lifetime totals, but never migrate those counters
   // into “can independently write this phrase”.
@@ -1397,7 +1409,15 @@ export function reducer(state, action) {
   switch (action.type) {
     case 'DISCOVER': {
       if (state.discovered[action.id]) return state
-      return { ...state, discovered: { ...state.discovered, [action.id]: true } }
+      const wordProgress = safeMapKey(action.id) && DICT[action.id] && !state.wordProgress?.[action.id]
+        ? { ...(state.wordProgress || {}), [action.id]: emptyWordProgress() }
+        : state.wordProgress
+      return {
+        ...state,
+        discovered: { ...state.discovered, [action.id]: true },
+        wordProgressVersion: WORD_PROGRESS_VERSION,
+        wordProgress,
+      }
     }
 
     case 'BEGIN_OPTION_TRAINING': {

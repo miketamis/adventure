@@ -37,8 +37,8 @@ const EXAMPLE_WORD_ID = 'fshat'
 function buildWordWalkthroughSteps() {
   const steps = [{
     id: 'word-entry',
-    label: 'new word',
-    detail: 'No lexical evidence yet: the first question has two choices.',
+    label: 'word saved',
+    detail: 'Saving the word already completed guided recognition; the first Train question has four choices.',
     snapshot: wordProgressionSnapshot(null, 0),
     currentRound: 0,
     rewards: 0,
@@ -439,7 +439,7 @@ function WordLane({ onExample }) {
     <section className="dbg-learning-lane" aria-labelledby="dbg-learning-word-lane">
       <header className="dbg-learning-lane-head">
         <h3 id="dbg-learning-word-lane">Word and form practice</h3>
-        <p>A separate deterministic word walkthrough. It begins at zero and uses the same registry and transition function as Train.</p>
+        <p>A separate deterministic word walkthrough. It begins when the word is saved and uses the same registry and transition function as Train.</p>
       </header>
       <div className="dbg-learning-step-buttons" role="group" aria-label="Example word progression checkpoint">
         {steps.map((candidate, index) => (
@@ -621,7 +621,7 @@ export default function DebugLearningProgression() {
           <section className="dbg-learning-rules" aria-labelledby="dbg-learning-rules-title">
             <h3 id="dbg-learning-rules-title">What is shared — and what is not</h3>
             <ul>
-              <li>Discovering every required word makes the phrase eligible; general word quizzes do not skip a phrase-production gate.</li>
+              <li>Saving every required word makes the phrase eligible; general word quizzes do not skip a phrase-production gate.</li>
               <li>When a correct phrase round rewards <span lang="sq">fshat</span>, it raises the shared practice count; forms still wait for the word ladder’s own spelling proof.</li>
               <li>Cloze and contextual spelling record phrase-specific focus evidence. A win for the same word in another phrase does not count here.</li>
               <li>Listening and matching have separate evidence. They unlock only at production stage {PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage}: {PHRASE_PROGRESSION_POLICY.crossSkillUnlock.rationale}</li>

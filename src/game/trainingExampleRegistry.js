@@ -21,10 +21,6 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     instruction: 'What does the highlighted word mean here?', prompt: 'Po shkoj në fshat.  [në]', promptLang: 'sq',
     choices: ['to / in', 'now', 'not', 'and'], response: 'Choose “to / in”.',
   },
-  'guided-word-recognition': {
-    instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',
-    choices: ['village', 'river'], response: 'Choose “village”; one distractor is shown.',
-  },
   'independent-word-recognition': {
     instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',
     choices: ['village', 'bridge', 'river', 'house'], response: 'Choose “village” among three distractors.',

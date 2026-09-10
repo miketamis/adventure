@@ -34,7 +34,7 @@
 
 ## Train progression integrity
 
-- Every newly discovered word must begin at the lowest lexical stage: two-choice Albanian-to-English recognition. Harder recognition, Albanian selection, typed spelling, strict retention, and reviewed forms unlock only from that word's exact saved evidence; lifetime token totals may not substitute for a productive proof.
+- Saving a newly discovered word completes guided recognition because the learner has deliberately paired that word with its meaning. Its first Train stage is four-choice independent Albanian-to-English recognition; Albanian selection, typed spelling, strict retention, and reviewed forms unlock only from that word's exact saved evidence, and lifetime token totals may not substitute for a productive proof.
 - A word-stage miss must schedule easier support after a disjoint round without erasing all earlier proofs or immediately oscillating the durable stage. Keep word stages, gates, transitions, answer tolerance, spacing, and the debug walkthrough in the shared production registry.
 - A harder phrase exercise may unlock only from phrase-specific evidence for the skills it requires. Recognition totals or general player ability must never skip cloze, ordering, contextual word spelling, or supported whole-phrase production.
 - Keep exercise families, variants, mix weights, gates, transitions, spacing, and remediation in the production progression registries. Builders and the debug Learning graph must consume those same objects; do not copy thresholds into UI code.

@@ -63,7 +63,7 @@ const countBy = (items, keyFor) => items.reduce((counts, item) => {
 
 function simulateWord() {
   const snapshots = [{
-    id: 'word-entry', label: 'word discovered', note: 'No evidence yet; the real next task is two-choice Albanian-to-English recognition.',
+    id: 'word-entry', label: 'word saved', note: 'Saving the word completed guided recognition; the real next task is four-choice independent Albanian-to-English recognition.',
     value: wordProgressionSnapshot(null, 0), round: 0,
   }]
   let progress = null
