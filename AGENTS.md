@@ -22,7 +22,7 @@
 ## Scene prose and density
 
 - Write each location as a coherent lived beat, not a stack of database facts. Combine details that the player perceives together; avoid runs of short “X is…” sentences, repeated subjects, redundant signposts, and state facts that do not affect the scene.
-- A normal story card must use the shared scene-presentation budget. Core prose may paginate but must never be silently discarded. Mark only genuinely optional atmosphere with `ambient(...)`; an ambient line may fill spare room but may not create another page or displace a reveal-bearing line. Debug mode must retain the full source prose and expose the normal-play projection.
+- A normal story scene is one continuous browser-scroll surface: never paginate it, and never silently discard core prose. Mark only genuinely optional atmosphere with `ambient(...)`; an ambient line may fill spare room in a compact scene but may not extend an already crowded scroll or displace a reveal-bearing line. Debug mode must retain the full source prose and expose the normal-play projection.
 - Prefer one short sensory environmental sentence that naturally conveys time, season, or weather. When authored prose already conveys a dimension, mark that exact dimension with `describesEnvironment(...)` so the generic fallback disappears; do not pile a second weather/status sentence on top.
 
 ## Immersive environment narration

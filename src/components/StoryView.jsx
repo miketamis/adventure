@@ -46,8 +46,7 @@ import { trainingTargetForOption } from '../game/trainingTarget.js'
 import { narrationSettingForScene } from '../game/sceneEnvironmentSetting.js'
 import {
   planScenePresentation,
-  scenePageAllowsActions,
-  SCENE_PAGE_POLICY,
+  SCENE_SCROLL_POLICY,
 } from '../game/scenePresentation.js'
 import { QUOTES, quoteProofUrl, quoteTier } from '../game/quotes.js'
 import {
@@ -94,16 +93,11 @@ export default function StoryView({ state, dispatch }) {
   // here — its questions are drawn once when it opens, and the result survives
   // the reducer clearing pendingTest on earn/fail.
   const [areaTest, setAreaTest] = useState(null) // { ach, questions, result }
-  const [scenePage, setScenePage] = useState(0)
   useEffect(() => {
     setConfusedKey(null)
     setEndResult(null)
     setAreaTest(null)
-    setScenePage(0)
   }, [state.nodeId])
-  useEffect(() => {
-    setScenePage(0)
-  }, [state.turn])
 
   // === SENTENCE-GATED DIRECTIONS ============================================
   // A direction stays hidden until you discover every word of the sentence that
@@ -427,30 +421,23 @@ export default function StoryView({ state, dispatch }) {
   const pinnedLines = [...revealLineIdx].map((key) =>
     key === 'hearts' ? heartLevel?.line : lines[key],
   ).filter(Boolean)
-  // Reserve one compact line for generated context. Which dimensions that
-  // line contains is decided from the page the player can actually see: an
-  // authored dusk sentence on page two must not erase time from page one.
-  const contentPagePolicy = state.ended ? SCENE_PAGE_POLICY : {
-    ...SCENE_PAGE_POLICY,
-    maxLines: Math.max(1, SCENE_PAGE_POLICY.maxLines - 1),
+  // Reserve one compact line for generated context when deciding whether
+  // optional atmosphere still fits. Core prose remains one continuous scroll.
+  const contentScrollPolicy = state.ended ? SCENE_SCROLL_POLICY : {
+    ...SCENE_SCROLL_POLICY,
+    maxLines: Math.max(1, SCENE_SCROLL_POLICY.maxLines - 1),
     maxLexicalTokens: Math.max(
       1,
-      SCENE_PAGE_POLICY.maxLexicalTokens - ENVIRONMENT_NARRATION_POLICY.maxLexicalTokens,
+      SCENE_SCROLL_POLICY.maxLexicalTokens - ENVIRONMENT_NARRATION_POLICY.maxLexicalTokens,
     ),
   }
   const scenePresentation = planScenePresentation(sceneLineEntries, {
     debug: state.debug,
     pinnedLines,
     seed: state.turn,
-    policy: contentPagePolicy,
+    policy: contentScrollPolicy,
   })
-  const presentedPageIndex = Math.min(scenePage, scenePresentation.pages.length - 1)
-  const presentedEntries = scenePresentation.pages[presentedPageIndex] || []
-  const sceneActionsVisible = scenePageAllowsActions({
-    debug: state.debug,
-    pageIndex: presentedPageIndex,
-    pageCount: scenePresentation.pages.length,
-  })
+  const presentedEntries = scenePresentation.entries
   const environmentLine = !state.ended && environmentStoryLine(environment, {
     setting: narrationSettingForScene(state.nodeId),
     omit: authoredEnvironmentDimensions(presentedEntries.map((entry) => entry.line)),
@@ -544,29 +531,8 @@ export default function StoryView({ state, dispatch }) {
 
       {state.debug && scenePresentation.sourceMeasure.lines > 0 && (
         <p className="scene-density-debug">
-          Debug density: {scenePresentation.sourceMeasure.lines} lines / {scenePresentation.sourceMeasure.lexicalTokens} words → normal play {scenePresentation.normalPages.length} {scenePresentation.normalPages.length === 1 ? 'page' : 'pages'}; {scenePresentation.omittedAmbient.length} optional {scenePresentation.omittedAmbient.length === 1 ? 'line' : 'lines'} omitted.
+          Debug density: {scenePresentation.sourceMeasure.lines} lines / {scenePresentation.sourceMeasure.lexicalTokens} words → normal play one scroll surface with {scenePresentation.normalEntries.length} lines; {scenePresentation.omittedAmbient.length} optional {scenePresentation.omittedAmbient.length === 1 ? 'line' : 'lines'} omitted.
         </p>
-      )}
-      {!state.debug && scenePresentation.pages.length > 1 && (
-        <nav className="scene-pages" aria-label="Story pages">
-          <button
-            type="button"
-            className="btn secondary"
-            disabled={presentedPageIndex === 0}
-            onClick={() => setScenePage((page) => Math.max(0, page - 1))}
-          >
-            ← Back
-          </button>
-          <span aria-live="polite">Scene {presentedPageIndex + 1} of {scenePresentation.pages.length}</span>
-          <button
-            type="button"
-            className="btn primary"
-            disabled={presentedPageIndex === scenePresentation.pages.length - 1}
-            onClick={() => setScenePage((page) => Math.min(scenePresentation.pages.length - 1, page + 1))}
-          >
-            Continue →
-          </button>
-        </nav>
       )}
 
       {state.ended ? (
@@ -695,8 +661,6 @@ export default function StoryView({ state, dispatch }) {
         </div>
       ) : (
         <>
-          {sceneActionsVisible ? (
-            <>
           {pendingAch && (
             <div className="factoid-banner">
               <span className="factoid-banner-text">
@@ -875,12 +839,6 @@ export default function StoryView({ state, dispatch }) {
             then hold one token per word to take it. Some choices can&apos;t really happen here —
             picking one costs a ♥.
           </p>
-            </>
-          ) : (
-            <p className="hint scene-pages-hint">
-              Continue through the scene to choose what happens next.
-            </p>
-          )}
         </>
       )}
     </section>

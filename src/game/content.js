@@ -158,10 +158,10 @@ export const first = (line) => ({ cond: 'again', negate: true, line })
 export const again = (line) => ({ cond: 'again', line })
 export const until = (nodeIds, line) => ({ cond: [].concat(nodeIds).map((n) => 'visited:' + n), negate: true, line })
 export const lineOf = (entry) => (Array.isArray(entry) ? entry : entry.line)
-// Optional atmosphere may enrich a short card, but it must never force a
-// crowded scene onto another page or displace a sentence that teaches or
-// unlocks an action. The shared scene-presentation planner is the only place
-// that may omit these lines in normal play; Debug always shows them.
+// Optional atmosphere may enrich a short scene, but it must not extend an
+// already crowded scroll or displace a sentence that teaches or unlocks an
+// action. The shared scene-presentation planner is the only place that may
+// omit these lines in normal play; Debug always shows them.
 export const ambient = (entry, key = null) => {
   const line = lineOf(entry)
   if (!Array.isArray(line)) throw new Error('ambient(): expected a story line or conditional story entry')

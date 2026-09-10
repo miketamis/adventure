@@ -1,19 +1,20 @@
-// Learning-surface prose gate: a scene may contain a long tale, but one card
-// must stay readable. Core lines paginate; optional atmosphere can fill spare
-// room without creating another page. This also pins the opening's first visual
-// beat so it cannot regress into three disconnected database-like facts.
+// Learning-surface prose gate: every scene is one continuous browser-scroll
+// surface. Core lines are never split or discarded; optional atmosphere can
+// fill a compact scene without extending an already crowded one. This also
+// pins the opening's first visual beat so it cannot regress into three
+// disconnected database-like facts.
 
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
 import {
   STORY,
   lineOf,
 } from '../src/game/content.js'
 import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import {
-  SCENE_PAGE_POLICY,
+  SCENE_SCROLL_POLICY,
   planScenePresentation,
-  scenePageAllowsActions,
-  scenePageWithinBudget,
+  sceneFitsAmbientBudget,
 } from '../src/game/scenePresentation.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
 
@@ -35,28 +36,28 @@ const fakeLine = (size, extra = {}) => Object.assign(
 )
 const entriesOf = (lines) => lines.map((line, index) => ({ key: String(index), line }))
 
-check('the player-facing page budget is explicit and compact', () => {
-  assert.deepEqual(SCENE_PAGE_POLICY, {
+check('the optional-atmosphere budget is explicit and compact', () => {
+  assert.deepEqual(SCENE_SCROLL_POLICY, {
     maxLines: 8,
     maxLexicalTokens: 72,
     maxAmbientLines: 2,
   })
 })
 
-check('long core prose is paged without losing a line', () => {
+check('long core prose stays on one complete scroll surface', () => {
   const entries = entriesOf(Array.from({ length: 20 }, () => fakeLine(6)))
   const plan = planScenePresentation(entries)
-  assert.ok(plan.pages.length > 1)
-  assert.equal(plan.pages.flat().length, entries.length)
-  assert.ok(plan.pages.every((page) => scenePageWithinBudget(page)))
+  assert.deepEqual(plan.entries, entries)
+  assert.deepEqual(plan.normalEntries, entries)
+  assert.equal('pages' in plan, false)
 })
 
-check('optional atmosphere never creates another page', () => {
+check('optional atmosphere does not extend an already crowded scroll', () => {
   const core = Array.from({ length: 8 }, () => fakeLine(6))
   const atmosphere = [fakeLine(4, { scenePriority: 'ambient' }), fakeLine(4, { scenePriority: 'ambient' })]
   const plan = planScenePresentation(entriesOf([...core, ...atmosphere]))
-  assert.equal(plan.pages.length, 1)
-  assert.equal(plan.pages[0].length, core.length)
+  assert.equal(plan.entries.length, core.length)
+  assert.ok(sceneFitsAmbientBudget(plan.entries))
   assert.equal(plan.omittedAmbient.length, atmosphere.length)
 })
 
@@ -66,39 +67,39 @@ check('a reveal-bearing ambient line is never discarded', () => {
     ...Array.from({ length: 9 }, () => fakeLine(6)),
     ambientReveal,
   ]), { pinnedLines: [ambientReveal] })
-  assert.ok(plan.pages.flat().some((entry) => entry.line === ambientReveal))
+  assert.ok(plan.entries.some((entry) => entry.line === ambientReveal))
   assert.ok(!plan.omittedAmbient.some((entry) => entry.line === ambientReveal))
 })
 
-check('Debug retains the complete prose while reporting the normal projection', () => {
-  const entries = entriesOf(Array.from({ length: 14 }, () => fakeLine(6)))
+check('Debug retains optional prose while reporting the normal scroll projection', () => {
+  const entries = entriesOf([
+    ...Array.from({ length: 8 }, () => fakeLine(6)),
+    fakeLine(4, { scenePriority: 'ambient' }),
+  ])
   const plan = planScenePresentation(entries, { debug: true })
-  assert.equal(plan.pages.length, 1)
-  assert.equal(plan.pages[0].length, entries.length)
-  assert.ok(plan.normalPages.length > 1)
+  assert.deepEqual(plan.entries, entries)
+  assert.equal(plan.normalEntries.length, entries.length - 1)
 })
 
-check('actions wait for the final story page while Debug keeps direct access', () => {
-  assert.equal(scenePageAllowsActions({ pageIndex: 0, pageCount: 2 }), false)
-  assert.equal(scenePageAllowsActions({ pageIndex: 1, pageCount: 2 }), true)
-  assert.equal(scenePageAllowsActions({ pageIndex: 0, pageCount: 1 }), true)
-  assert.equal(scenePageAllowsActions({ debug: true, pageIndex: 0, pageCount: 3 }), true)
-})
-
-check('every authored scene can be presented inside the shared page budget', () => {
+check('every authored scene keeps all core prose on one surface', () => {
   const oversized = []
-  const brokenPages = []
   for (const [nodeId, node] of Object.entries(STORY)) {
     const entries = entriesOf(node.text.map(lineOf))
     const plan = planScenePresentation(entries)
     if (plan.oversized.length) oversized.push(nodeId)
-    if (plan.pages.some((page) => !scenePageWithinBudget(page))) brokenPages.push(nodeId)
+    const core = entries.filter((entry) => entry.line.scenePriority !== 'ambient')
+    assert.ok(core.every((entry) => plan.entries.includes(entry)), `${nodeId}: core prose disappeared`)
     const ambientKeys = node.text.map(lineOf).filter((line) => line.scenePriority === 'ambient').map((line) => line.ambientKey)
     assert.equal(new Set(ambientKeys).size, ambientKeys.length, `${nodeId}: duplicate ambient key`)
     assert.ok(ambientKeys.every(Boolean), `${nodeId}: optional atmosphere needs a stable ambient key`)
   }
   assert.deepEqual(oversized, [], `single lines exceed the token budget: ${oversized.join(', ')}`)
-  assert.deepEqual(brokenPages, [], `pages exceed the shared budget: ${brokenPages.join(', ')}`)
+})
+
+check('StoryView has no scene pagination controls or page gate', () => {
+  const source = fs.readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
+  assert.match(source, /scenePresentation\.entries/)
+  assert.doesNotMatch(source, /scenePage|scene-pages|aria-label="Story pages"|Scene \{presented/)
 })
 
 check('the opening bridge, river and destination read as one visual beat', () => {

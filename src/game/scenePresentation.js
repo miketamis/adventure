@@ -1,9 +1,9 @@
-// A story card is a learning surface, not a transcript dump. Core prose is
-// paged instead of discarded; optional atmosphere may fill spare room but can
-// never create another page. A reveal-bearing line is always core, even when
-// its author marked it ambient.
+// A story scene is one continuous learning surface. Core prose is never split
+// or discarded; the browser page simply scrolls when a scene is long. Optional
+// atmosphere may fill spare room in a compact scene, while a reveal-bearing
+// line is always core even when its author marked it ambient.
 
-export const SCENE_PAGE_POLICY = Object.freeze({
+export const SCENE_SCROLL_POLICY = Object.freeze({
   maxLines: 8,
   maxLexicalTokens: 72,
   maxAmbientLines: 2,
@@ -30,26 +30,11 @@ const rotated = (entries, seed) => {
   return [...entries.slice(offset), ...entries.slice(0, offset)]
 }
 
-const paginate = (entries, policy) => {
-  if (!entries.length) return [[]]
-  const pages = []
-  let page = []
-  for (const entry of entries) {
-    if (page.length && !fits([...page, entry], policy)) {
-      pages.push(page)
-      page = []
-    }
-    page.push(entry)
-  }
-  if (page.length) pages.push(page)
-  return pages
-}
-
 export function planScenePresentation(entries, {
   debug = false,
   pinnedLines = [],
   seed = 0,
-  policy = SCENE_PAGE_POLICY,
+  policy = SCENE_SCROLL_POLICY,
 } = {}) {
   const source = (entries || []).filter((entry) => Array.isArray(entry?.line))
   const pinned = new Set(pinnedLines)
@@ -72,14 +57,13 @@ export function planScenePresentation(entries, {
   }
 
   const normalEntries = source.filter((entry) => selected.has(entry))
-  const normalPages = paginate(normalEntries, policy)
-  const pages = debug ? [source] : normalPages
+  const presentedEntries = debug ? source : normalEntries
   const omittedAmbient = optional.filter((entry) => !selected.has(entry))
   const oversized = normalEntries.filter((entry) => lexicalTokenCount(entry.line) > policy.maxLexicalTokens)
 
   return {
-    pages,
-    normalPages,
+    entries: presentedEntries,
+    normalEntries,
     omittedAmbient,
     oversized,
     sourceMeasure: pageMeasure(source),
@@ -88,12 +72,6 @@ export function planScenePresentation(entries, {
   }
 }
 
-export function scenePageWithinBudget(page, policy = SCENE_PAGE_POLICY) {
-  return fits(page || [], policy)
-}
-
-// Normal play asks the learner to finish the scene before acting on it. Debug
-// keeps controls visible so authors can inspect and traverse a node directly.
-export function scenePageAllowsActions({ debug = false, pageIndex = 0, pageCount = 1 } = {}) {
-  return debug || pageIndex >= Math.max(0, pageCount - 1)
+export function sceneFitsAmbientBudget(entries, policy = SCENE_SCROLL_POLICY) {
+  return fits(entries || [], policy)
 }

@@ -1,6 +1,6 @@
 // Story-wide release checks for where generated environment prose is staged.
 // This is intentionally separate from the weather/calendar cross-product:
-// here we verify rooms versus open air and the interaction with pagination.
+// here we verify rooms versus open air and the one-surface scene projection.
 
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -17,7 +17,7 @@ import {
   isEnclosedNarrationScene,
   narrationSettingForScene,
 } from '../src/game/sceneEnvironmentSetting.js'
-import { planScenePresentation, SCENE_PAGE_POLICY, scenePageWithinBudget } from '../src/game/scenePresentation.js'
+import { planScenePresentation, SCENE_SCROLL_POLICY } from '../src/game/scenePresentation.js'
 import { isEnclosedScene } from '../src/game/worldModel.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
 
@@ -33,9 +33,9 @@ const check = (name, fn) => {
 }
 
 const reservedContentPolicy = Object.freeze({
-  ...SCENE_PAGE_POLICY,
-  maxLines: SCENE_PAGE_POLICY.maxLines - 1,
-  maxLexicalTokens: SCENE_PAGE_POLICY.maxLexicalTokens - ENVIRONMENT_NARRATION_POLICY.maxLexicalTokens,
+  ...SCENE_SCROLL_POLICY,
+  maxLines: SCENE_SCROLL_POLICY.maxLines - 1,
+  maxLexicalTokens: SCENE_SCROLL_POLICY.maxLexicalTokens - ENVIRONMENT_NARRATION_POLICY.maxLexicalTokens,
 })
 
 // Coverage is measured both by story node and by physical place. A tale can
@@ -137,7 +137,7 @@ check('enclosed and outdoor fallbacks phrase the same weather from the right van
   assert.equal(outside, 'në këtë mbrëmje pranvere, po bie shi.')
 })
 
-check('only authored dimensions on the visible normal page suppress fallback', () => {
+check('authored dimensions on the visible scroll suppress the matching fallback', () => {
   for (const nodeId of ['lumi', 'deti1', 'maja', 'qiellPrende']) {
     const state = { ...newRun(), nodeId, clock: 0, visited: { [nodeId]: true } }
     const lines = visibleLines(STORY[nodeId], (id) => hasCond(state, id))
@@ -145,30 +145,16 @@ check('only authored dimensions on the visible normal page suppress fallback', (
       lines.map((line, index) => ({ key: String(index), line })),
       { policy: reservedContentPolicy },
     )
-    assert.ok(presentation.pages.length > 1, `${nodeId}: fixture no longer exercises pagination`)
-    const firstDimensions = authoredEnvironmentDimensions(presentation.pages[0].map((entry) => entry.line))
-    assert.equal(firstDimensions.has('time'), false, `${nodeId}: time unexpectedly moved onto page one`)
-    const firstFallback = environmentStoryLine(
+    const presentedLines = presentation.entries.map((entry) => entry.line)
+    const dimensions = authoredEnvironmentDimensions(presentedLines)
+    assert.equal(dimensions.has('time'), true, `${nodeId}: visible authored time disappeared`)
+    const fallback = environmentStoryLine(
       { clock: 0, season: 'spring', weather: 'rain' },
-      { setting: narrationSettingForScene(nodeId), omit: firstDimensions },
+      { setting: narrationSettingForScene(nodeId), omit: dimensions },
     )
-    assert.ok(albanianTextOf(firstFallback).includes('mëngjes'), `${nodeId}: hidden page erased visible time`)
-
-    const markedPage = presentation.pages.find((page) =>
-      authoredEnvironmentDimensions(page.map((entry) => entry.line)).has('time'))
-    assert.ok(markedPage, `${nodeId}: authored time disappeared from every page`)
-    const markedFallback = environmentStoryLine(
-      { clock: 0, season: 'spring', weather: 'rain' },
-      {
-        setting: narrationSettingForScene(nodeId),
-        omit: authoredEnvironmentDimensions(markedPage.map((entry) => entry.line)),
-      },
-    )
-    assert.equal(albanianTextOf(markedFallback).includes('mëngjes'), false, `${nodeId}: visible authored time was duplicated`)
-    assert.ok(scenePageWithinBudget([
-      ...(firstFallback ? [{ line: firstFallback }] : []),
-      ...presentation.pages[0],
-    ]), `${nodeId}: reserved context overflowed the shared scene budget`)
+    assert.equal(albanianTextOf(fallback).includes('mëngjes'), false, `${nodeId}: visible authored time was duplicated`)
+    const coreLines = lines.filter((line) => line.scenePriority !== 'ambient')
+    assert.ok(coreLines.every((line) => presentedLines.includes(line)), `${nodeId}: core prose left the visible scroll`)
   }
 })
 
@@ -178,12 +164,13 @@ check('debug still keeps every authored source line', () => {
     lines.map((line, index) => ({ key: String(index), line })),
     { debug: true, policy: reservedContentPolicy },
   )
-  assert.deepEqual(debug.pages[0].map((entry) => entry.line), lines)
+  assert.deepEqual(debug.entries.map((entry) => entry.line), lines)
 })
 
-check('StoryView consumes the dedicated setting and visible-page dimensions', () => {
+check('StoryView consumes the dedicated setting and visible-scroll dimensions', () => {
   const source = fs.readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
   assert.match(source, /setting: narrationSettingForScene\(state\.nodeId\)/)
+  assert.match(source, /const presentedEntries = scenePresentation\.entries/)
   assert.match(source, /authoredEnvironmentDimensions\(presentedEntries\.map\(\(entry\) => entry\.line\)\)/)
   assert.doesNotMatch(source, /isEnclosedScene/)
   assert.doesNotMatch(source, /authoredEnvironmentDimensions\(lines\)/)

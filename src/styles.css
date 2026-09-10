@@ -253,21 +253,6 @@ svg [role="button"]:focus-visible {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.scene-pages {
-  display: grid;
-  grid-template-columns: minmax(100px, 1fr) auto minmax(100px, 1fr);
-  align-items: center;
-  gap: 12px;
-  margin: 18px 0 4px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font: 700 12px/1.4 ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: 0.04em;
-  text-align: center;
-}
-.scene-pages .btn:first-child { justify-self: start; }
-.scene-pages .btn:last-child { justify-self: end; }
 .scene-density-debug {
   margin: 12px 0 0;
   color: #d9c2ff;
@@ -1700,9 +1685,6 @@ svg [role="button"]:focus-visible {
   .card { padding: 18px 14px; border-radius: 11px; }
   .story-text { font-size: 20px; line-height: 2; }
   .story-line.quote-line { margin-left: -7px; }
-  .scene-pages { grid-template-columns: 1fr 1fr; }
-  .scene-pages span { grid-column: 1 / -1; grid-row: 1; }
-  .scene-pages .btn { width: 100%; }
   .quote-src { white-space: normal; }
   .onboarding-banner { align-items: stretch; flex-direction: column; }
   .onboarding-banner .btn { width: 100%; }

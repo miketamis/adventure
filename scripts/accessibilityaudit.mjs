@@ -94,11 +94,12 @@ check('map-derived route metadata and its accessible description are debug-only'
   story.includes('const routeId = state.debug && routeParts.length > 0') &&
   story.includes('{state.debug && e.real && routeParts.length > 0 && (') &&
   !guide.includes('Map tab'))
-check('long story prose uses labelled native pagination without discarding core lines',
-  story.includes('aria-label="Story pages"') &&
-  story.includes('aria-live="polite"') &&
-  story.includes('scenePresentation.pages.length > 1') &&
-  scenePresentation.includes('Core prose is') &&
+check('long story prose stays on one continuous scroll without discarding core lines',
+  story.includes('const presentedEntries = scenePresentation.entries') &&
+  !story.includes('aria-label="Story pages"') &&
+  !story.includes('scene-pages') &&
+  !story.includes('scenePage') &&
+  scenePresentation.includes('one continuous learning surface') &&
   scenePresentation.includes('pinnedLines'))
 check('locked actions expose their exact mechanic reason through the native control',
   story.includes('interactionLockText(e.interaction)') &&
