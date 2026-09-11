@@ -25,6 +25,18 @@ const practice = fs.readFileSync(new URL('../src/components/PracticeView.jsx', i
 const gameState = fs.readFileSync(new URL('../src/game/gameState.js', import.meta.url), 'utf8')
 const evidenceState = fs.readFileSync(new URL('../src/game/cefrEvidenceState.js', import.meta.url), 'utf8')
 
+// Keep certification runnable on the repository's minimum supported Node 20.
+// Map.groupBy is newer than that runtime, so this audit uses the equivalent
+// explicit grouping instead of letting a local newer Node hide a CI failure.
+const groupBy = (items, keyOf) => {
+  const groups = new Map()
+  for (const item of items) {
+    const key = keyOf(item)
+    groups.set(key, [...(groups.get(key) || []), item])
+  }
+  return groups
+}
+
 assert.deepEqual(
   [...new Set(CEFR_TASKS.map((task) => task.stimulus.kind))].sort(),
   [...CEFR_SUPPORTED_STIMULUS_KINDS].sort(),
@@ -42,7 +54,7 @@ assert.ok(Object.keys(CEFR_TASKS_BY_FAMILY).every((family) =>
 for (const level of ['A1', 'A2']) {
   for (const mode of ['listening', 'reading']) {
     const tasks = CEFR_TASKS.filter((task) => task.level === level && task.mode === mode)
-    const windows = Map.groupBy(tasks, cefrWindowIdForTask)
+    const windows = groupBy(tasks, cefrWindowIdForTask)
     assert.equal(windows.size, CEFR_LEVEL_GATES[level].reception.minimumDistinctWindows,
       `${level} ${mode} must use distinct held-out windows`)
     for (const [windowId, forms] of windows) {
