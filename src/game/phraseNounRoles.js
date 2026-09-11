@@ -38,7 +38,6 @@ export const PHRASE_NOUN_ROLES = Object.freeze({
   'think-go-dry-well': { pus: 'defNom' },
   'want-water-question': { uje: 'indefAcc' },
   'miss-family': { familje: 'defNom' },
-  'anyone-here': { njeri: 'indefAcc' },
   'where-market': { treg: 'defNom' },
   'where-guest-room': { oda: 'defNom' },
   'lighter-please': { cakmak: 'indefAcc' },

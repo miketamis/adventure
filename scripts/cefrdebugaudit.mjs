@@ -35,7 +35,7 @@ import {
 } from '../src/game/cefrPreparation.js'
 import { CEFR_TASKS, CEFR_TASKS_BY_FAMILY } from '../src/game/cefrTasks.js'
 import { PHRASE_STAGE_DEFINITIONS } from '../src/game/phraseProgression.js'
-import { WORD_STAGE_DEFINITIONS } from '../src/game/wordProgression.js'
+import { WORD_CAPABILITY_DEFINITIONS } from '../src/game/wordProgression.js'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8')
@@ -97,7 +97,7 @@ check('the diagram consumes each production registry instead of copying threshol
     'CEFR_TASKS', 'CEFR_TASKS_BY_FAMILY', 'CEFR_IMPLEMENTATION_BY_FAMILY',
     'CURRENT_CEFR_EVIDENCE', 'CEFR_PREPARATION_STAGES', 'CEFR_PREPARATION_MECHANICS',
     'CEFR_PREPARATION_ACTIVITIES', 'CEFR_PREPARATION_CAPABILITIES',
-    'preparationMechanicsForCapstone', 'preparationPlan', 'WORD_STAGE_DEFINITIONS',
+    'preparationMechanicsForCapstone', 'preparationPlan', 'WORD_CAPABILITY_DEFINITIONS',
     'PHRASE_STAGE_DEFINITIONS', 'wordProgressionSnapshot', 'advanceWordProgress',
     'advancePhraseProduction', 'buildPhraseProgressionSnapshot', 'cefrProfile',
     'cefrWindowIdForTask', 'cefrFamilyReachability', 'liveCefrPreparationEvidence',
@@ -157,7 +157,9 @@ check('the real village phrase, noun forms and exact word/phrase ladders drive t
   assert.match(component, /const EXAMPLE_PHRASE_ID = 'going-village'/)
   assert.match(component, /const EXAMPLE_WORD_ID = 'fshat'/)
   assert.match(component, /word\.forms\.map/)
-  assert.match(component, /WORD_STAGE_DEFINITIONS\.map/)
+  assert.match(component, /step\.word\.stages\.map/)
+  assert.match(component, /mechanic\.readiness\.wordCapabilityId/)
+  assert.doesNotMatch(component, /wordStageId|preparationWordStages/)
   assert.match(component, /PHRASE_STAGE_DEFINITIONS\.production\.map/)
 })
 

@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useRef, Fragment, lazy, Suspense } from 'react'
 import { createPortal } from 'react-dom'
-import { STORY, START_NODE, ENDINGS, lineOf } from '../game/content.js'
+import { STORY, START_NODE, lineOf } from '../game/content.js'
+import { RICH_ENDINGS, RICH_ENDING_BY_ID } from '../game/endingCatalog.js'
 import { FOLKLORE, ENDING_LORE, CORPUS, HISTORY, REPO_BLOB, EXTRA_SOURCES, RANK } from '../game/folklore.js'
 import { TALES, framesOf, coverageOf, playOf } from '../game/taleBeats.js'
 import { NPC_REGISTRY, NPC_OF_CAST } from '../game/npcRegistry.js'
@@ -16,6 +17,7 @@ import {
 
 const DebugLearningProgression = lazy(() => import('./DebugLearningProgression.jsx'))
 const DebugLearningSaveStatus = lazy(() => import('./DebugLearningSaveStatus.jsx'))
+const DebugLearningEvidenceInspector = lazy(() => import('./DebugLearningEvidenceInspector.jsx'))
 const DebugCefrProgression = lazy(() => import('./DebugCefrProgression.jsx'))
 
 // ===========================================================================
@@ -124,6 +126,7 @@ function Badge({ tag = 'button', className, title, renderBody, width, children, 
 function NodeBody({ node, intro }) {
   const n = STORY[node]
   if (!n) return <div className="dbg-hc-miss">unknown scene: {node}</div>
+  const ending = RICH_ENDING_BY_ID[node]
   const anchor = PLACE_OF[node]
   const placeName = PLACE_META[anchor]?.name
   const mold = moldOf(node)
@@ -133,7 +136,7 @@ function NodeBody({ node, intro }) {
       <div className="dbg-nodecard-head">
         <code>{node}</code>
         {n.end && <span className={'dbg-tag ' + n.end}>{n.end} ending</span>}
-        {n.title && <b>{n.title}</b>}
+        {ending?.title && <b>{ending.title}</b>}
         {lore && <span className="dbg-nodecard-lore">📖 {lore.title}</span>}
       </div>
       {intro && <p className="dbg-nodecard-intro">{intro}</p>}
@@ -156,7 +159,7 @@ function NodeBody({ node, intro }) {
           </div>
         ))}
       </div>
-      {n.blurb && <p className="dbg-blurb">{n.blurb}</p>}
+      {ending?.blurb && <p className="dbg-blurb">{ending.blurb}</p>}
       {n.options?.some((o) => !o.confuser) && (
         <div className="dbg-nodecard-exits">
           {n.options.filter((o) => !o.confuser).map((o, i) => (
@@ -290,6 +293,7 @@ function NodeChip({ node, label, goWorld, intro, title, className = 'dbg-beat-wo
 
 function NodeDetail({ id, onPick, goLore }) {
   const n = STORY[id]
+  const ending = RICH_ENDING_BY_ID[id]
   const lore = n.end && ENDING_LORE[id] ? LORE_BY_ID[ENDING_LORE[id]] : null
   return (
     <div className="dbg-detail">
@@ -297,7 +301,7 @@ function NodeDetail({ id, onPick, goLore }) {
         <code>{id}</code>
         {n.end && <Badge tag="span" className={'dbg-tag ' + n.end} width={260}
                          renderBody={() => <KindBody kind={n.end} />}>{n.end} ending</Badge>}
-        {n.title && <b>{n.title}</b>}
+        {ending?.title && <b>{ending.title}</b>}
         {lore && (
           <Badge className={`dbg-tag dbg-tag-btn ${HISTORY_BY_ID[lore.id] ? 'secret' : 'node'}`} onClick={() => goLore(lore.id)}
                  renderBody={() => HISTORY_BY_ID[lore.id] ? <HistoryBody id={lore.id} /> : <LoreBody id={lore.id} />}>
@@ -314,7 +318,7 @@ function NodeDetail({ id, onPick, goLore }) {
           </div>
         ))}
       </div>
-      {n.blurb && <p className="dbg-blurb">{n.blurb}</p>}
+      {ending?.blurb && <p className="dbg-blurb">{ending.blurb}</p>}
       {n.options?.length > 0 && (
         <div className="dbg-opts">
           {n.options.map((o, i) => {
@@ -1241,7 +1245,7 @@ function Library({ focus, goGraph, goLore, goSource, goHistory, goBeats }) {
     for (const h of HISTORY) for (const id of (h.related || [])) (m[id] ||= []).push(h)
     return m
   }, [])
-  const endTitle = useMemo(() => Object.fromEntries(ENDINGS.map((e) => [e.id, e])), [])
+  const endTitle = useMemo(() => Object.fromEntries(RICH_ENDINGS.map((e) => [e.id, e])), [])
   useEffect(() => {
     if (focus && refs.current[focus]) refs.current[focus].scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [focus])
@@ -1602,7 +1606,7 @@ export default function DebugView({ state, dispatch }) {
   const goNpc = (npcId) => { setNpcFocus(npcId); setSub('npcs') }
   const goSource = (srcId) => { setSrcFocus(srcId); setSub('sources') }
   const goHistory = (histId) => { setHistFocus(histId); setSub('history') }
-  const endCounts = ENDINGS.reduce((a, e) => ((a[e.kind] = (a[e.kind] || 0) + 1), a), {})
+  const endCounts = RICH_ENDINGS.reduce((a, e) => ((a[e.kind] = (a[e.kind] || 0) + 1), a), {})
 
   return (
     <section className="card dbg" aria-labelledby="debug-title">
@@ -1645,6 +1649,7 @@ export default function DebugView({ state, dispatch }) {
       {sub === 'learning' && (
         <Suspense fallback={<p className="dbg-note" role="status">Loading learning progression…</p>}>
           <DebugLearningSaveStatus state={state} />
+          <DebugLearningEvidenceInspector state={state} />
           <DebugLearningProgression />
         </Suspense>
       )}

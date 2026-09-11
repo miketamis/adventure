@@ -17,9 +17,58 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     instruction: 'Choose the Albanian word.', prompt: 'village', promptLang: 'en',
     choices: ['fshat', 'urë'], response: 'Choose “fshat”.',
   },
-  'highlighted-sense': {
-    instruction: 'What does the highlighted word mean here?', prompt: 'Po shkoj në fshat.  [në]', promptLang: 'sq',
-    choices: ['to / in', 'now', 'not', 'and'], response: 'Choose “to / in”.',
+  'meaning-recognition': {
+    instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',
+    choices: ['village', 'bridge', 'river', 'house'], response: 'Choose “village” among three plausible meanings.',
+  },
+  'four-choice-meaning': {
+    instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',
+    choices: ['village', 'bridge', 'river', 'house'], response: 'Choose “village” among three plausible meanings.',
+  },
+  'controlled-lemma-retrieval': {
+    instruction: 'Choose the Albanian word.', prompt: 'village', promptLang: 'en',
+    choices: ['fshat', 'urë'], response: 'Choose “fshat”; this is controlled selection, not independent production.',
+  },
+  'controlled-retrieval-two-choice': {
+    instruction: 'Choose the Albanian word.', prompt: 'village', promptLang: 'en',
+    choices: ['fshat', 'urë'], response: 'Choose “fshat” with one plausible distractor.',
+  },
+  'controlled-retrieval-four-choice': {
+    instruction: 'Choose the Albanian word.', prompt: 'village', promptLang: 'en',
+    choices: ['fshat', 'urë', 'lumë', 'shtëpi'], response: 'Choose “fshat” among three plausible distractors.',
+  },
+  'reviewed-form-contrast': {
+    instruction: 'What job does the highlighted form have here?', prompt: 'Po shkoj në [fshat].', promptLang: 'sq',
+    choices: ['a village · after a direction', 'the village · subject', 'the village · object', 'of / to / from the village'],
+    response: 'Choose the reviewed grammatical job shown by this exact context.',
+  },
+  'contextual-form-selection': {
+    instruction: 'Choose the form that completes this sentence.', prompt: 'Po shkoj në ___.', promptLang: 'sq',
+    choices: ['fshat', 'fshati', 'fshatin', 'fshatit'], response: 'Choose “fshat” for this reviewed role.',
+  },
+  'word-form-construction': {
+    instruction: 'Build the Albanian word or form.', prompt: 'Po shkoj në ___.', promptLang: 'sq',
+    tiles: ['f', 'sh', 'a', 't', 'v', 'ë', 'i'], response: 'Build “fshat”; only this target earns a token.',
+  },
+  'contextual-typed-recall': {
+    instruction: 'Write the missing word in Albanian.', prompt: 'Po shkoj në ___.', promptLang: 'sq',
+    input: 'Type the missing Albanian word…', response: 'Type “fshat”; beginner letter leeway applies.',
+  },
+  'strict-spaced-recall': {
+    instruction: 'Write the missing word in Albanian.', prompt: 'Po shkoj në ___.', promptLang: 'sq',
+    input: 'Type the missing Albanian word…', response: 'Type “fshat” exactly after the review gap.',
+  },
+  'marked-context-recognition': {
+    instruction: 'Choose what the marked word means here.', prompt: 'Po shkoj në [fshat]. · I am going to the __.', promptLang: 'sq',
+    choices: ['village', 'bridge', 'river', 'house'], response: 'Choose “village” from the marked Albanian context.',
+  },
+  'mirrored-controlled-retrieval': {
+    instruction: 'Complete the Albanian sentence from the English context.', prompt: 'I am going to the village. · Po shkoj në _____.',
+    choices: ['fshat', 'urë', 'lumë', 'shtëpi'], response: 'Choose “fshat” for the Albanian gap.',
+  },
+  'unmarked-context-recognition': {
+    instruction: 'Find the target from context, then choose its meaning.', prompt: 'Po shkoj në fshat. · I am going to the __.', promptLang: 'sq',
+    choices: ['village', 'bridge', 'river', 'house'], response: 'Find “fshat” without a visual mark, then choose “village”.',
   },
   'independent-word-recognition': {
     instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',

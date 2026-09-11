@@ -10,6 +10,7 @@ import {
   itemHasTag,
 } from './content.js'
 import { formPracticeKey } from './formProgression.js'
+import { wordProgressionOptionsForSense } from './formInventory.js'
 import {
   ACHIEVEMENT_RULE_BY_ID as ACHIEVEMENT_BY_ID,
   newlyEligibleAreas,
@@ -29,11 +30,18 @@ import { phraseProductionFocusIds, phraseSurfaceWordKeys } from './phraseFocus.j
 import { normalizeTrainingTarget, resolveTrainingTarget } from './trainingTarget.js'
 import { TRAIN_WORD_FORM_POLICY } from './trainingProgression.js'
 import {
+  NON_TRAINABLE_NAMED_ENTITY_IDS,
+  isTrainableSense,
+  lexicalTrainability,
+} from './lexicalTrainability.js'
+import {
   WORD_PROGRESS_VERSION,
   advanceWordProgress,
   completedWordProgress,
   emptyWordProgress,
   migrateWordProgressV1,
+  migrateWordProgressV2,
+  migrateWordProgressV3,
   normalizeWordProgress,
 } from './wordProgression.js'
 import {
@@ -104,6 +112,25 @@ import {
   rendezvousStatusOf,
   scheduleRendezvous,
 } from './stateMechanics.js'
+import {
+  ELIRA_BREAD_SALT_QUEST_ID,
+  QUEST_STATE_VERSION,
+  applyQuestAction,
+  normalizeQuestLedger,
+  offerQuests,
+  questActionAvailability,
+  questConditionMatches,
+  questStatusOf,
+} from './quests.js'
+import {
+  isObservationConditionId,
+  normalizeObservations,
+  observationIdFromCondition,
+} from './observations.js'
+import {
+  normalizeEnvironmentNarrationState,
+  planEnvironmentNarration,
+} from './environmentNarration.js'
 export {
   CALENDAR_EPOCH,
   FESTIVAL_IDS,
@@ -132,6 +159,12 @@ export {
   rendezvousStatusOf,
   scheduleRendezvous,
 } from './stateMechanics.js'
+export {
+  ELIRA_BREAD_SALT_QUEST_ID,
+  QUEST_STATE_VERSION,
+  questActionAvailability,
+  questStatusOf,
+} from './quests.js'
 
 export const START_HEARTS = 3
 export const WORLD_EFFECTS_BY_ENDING = Object.freeze(
@@ -380,6 +413,7 @@ export const isKnowledgeId = (id) => typeof id === 'string' && id.startsWith('kn
 export const isItemTagId = (id) => typeof id === 'string' && id.startsWith('itemTag:')
 export const isAffordanceId = (id) => typeof id === 'string' && id.startsWith('affords:')
 export const isRendezvousId = (id) => typeof id === 'string' && id.startsWith('rendezvous:')
+export const isQuestId = (id) => typeof id === 'string' && id.startsWith('quest:')
 export const hasStoryFlag = (state, id) => hasOwn(state.flags, id) && state.flags[id] === true
 export const hasKnowledge = (state, id) => hasOwn(state.knowledge, id) &&
   state.knowledge[id] != null && state.knowledge[id] !== false
@@ -394,6 +428,10 @@ export const isEmbodyingId = (id) => typeof id === 'string' && id.startsWith('em
 // timed fixture, or the way they came in
 export const hasCond = (state, id) => {
   if (typeof id !== 'string' || !id) return false
+  if (isObservationConditionId(id)) {
+    const observationId = observationIdFromCondition(id)
+    return Object.prototype.hasOwnProperty.call(state.observations || {}, observationId)
+  }
   if (id === 'arrival:money') return Boolean(arrivalOptionOf(state)?.moneyOutcome)
   if (isTimeId(id)) return timeOfDay(state) === id
   if (isEnvironmentId(id)) return hasEnvironmentCond(state, id)
@@ -407,6 +445,9 @@ export const hasCond = (state, id) => {
     )
   if (isFlagId(id)) {
     const flagId = id.slice(5)
+    // Physical catalog items never have a flag alias. A malformed save with
+    // flags.buke must not satisfy either a bread gate or an explicit flag gate.
+    if (ITEMS[flagId]) return false
     // Old saves stored invisible story markers in inventory. New content can
     // adopt explicit flag conditions without invalidating those saves.
     return hasStoryFlag(state, flagId) || (state.inventory?.[flagId] || 0) > 0
@@ -431,6 +472,7 @@ export const hasCond = (state, id) => {
     if (requested === 'fulfilled') return entry.metAtClock != null
     return rendezvousStatusOf(state.rendezvous, rendezvousId, worldClockOf(state)) === requested
   }
+  if (isQuestId(id)) return questConditionMatches(state, id.slice('quest:'.length))
   if (isNpcId(id)) return npcCond(state, id)
   if (id === 'embodying') return state.embodying != null
   if (isEmbodyingId(id)) return state.embodying === id.slice(10)
@@ -449,7 +491,9 @@ export const hasCond = (state, id) => {
   // Bare ids remain migration-friendly: new story flags work with the same
   // requires/unless syntax as the old invisible inventory markers, while the
   // explicit `flag:` form removes ambiguity for new content.
-  return hasStoryFlag(state, id) || (state.inventory?.[id] || 0) > 0
+  return ITEMS[id]
+    ? (state.inventory?.[id] || 0) > 0
+    : hasStoryFlag(state, id) || (state.inventory?.[id] || 0) > 0
 }
 // the next hour (at or after `clock`) that falls inside `phase`
 export function advanceToPhase(clock, phase) {
@@ -565,6 +609,18 @@ export const FORMS_UNLOCK_THRESHOLD = TRAIN_WORD_FORM_POLICY.practiceWinsRequire
 const ACHIEVEMENTS_KEY = 'aventura.achievements.v1'
 const LEGACY_ENDINGS_KEY = 'aventura.endings.v1' // pre-achievement collection
 const STATE_KEY = 'aventura.state.v1'
+// These plausible legacy/partial-write aliases are never runtime authorities.
+// Keeping them after a load invites UI or future content to read a stale second
+// answer instead of the canonical state named on the right.
+export const RETIRED_SHADOW_STATE_KEYS = Object.freeze([
+  'health', // hearts
+  'lek', 'money', 'purse', // inventory.lek
+  'time', 'hour', 'day', 'season', 'weather', 'timeOfDay', // clock
+  'location', 'place', 'position', // nodeId
+  'identity', 'knownNames', 'npcNames', // knowledge
+  'facts', 'consequences', // worldFacts
+  'quest', 'activeQuest', 'questStatus', // quests
+])
 
 export function loadAchievements() {
   let legacyEarned = {}
@@ -861,6 +917,7 @@ export function normalizeSavedState(saved, fresh) {
   // `conditionClock` exists only on short-lived render/gating projections. It
   // must never persist or leak tale time into the world map after a reload.
   delete next.conditionClock
+  for (const key of RETIRED_SHADOW_STATE_KEYS) delete next[key]
   next.nodeId = STORY[saved.nodeId] ? saved.nodeId : fresh.nodeId
   for (const key of ['heard', 'discovered', 'visited', 'dismissedTests', 'healedAt', 'flags']) {
     next[key] = truthRecord(fresh[key], saved[key])
@@ -868,6 +925,21 @@ export function normalizeSavedState(saved, fresh) {
   for (const key of ['inventory', 'mana', 'practiced', 'formPracticed']) {
     next[key] = countRecord(isRecord(saved[key]) ? saved[key] : fresh[key])
   }
+  // Older builds exposed proper names as saveable vocabulary. They remain
+  // pronounceable story knowledge, but cannot retain lexical progress, tokens
+  // or form evidence after the explicit named-entity boundary is introduced.
+  for (const id of NON_TRAINABLE_NAMED_ENTITY_IDS) {
+    delete next.discovered[id]
+    delete next.mana[id]
+    delete next.practiced[id]
+  }
+  for (const key of Object.keys(next.formPracticed)) {
+    const [id] = key.split('::')
+    if (!isTrainableSense(id)) delete next.formPracticed[key]
+  }
+  // A physical item has one source of truth: inventory. Drop corrupt or old
+  // item-shaped flags before any story condition can inspect this run.
+  for (const itemId of Object.keys(ITEMS)) delete next.flags[itemId]
   next.phrasePracticed = countRecord(
     isRecord(saved.phrasePracticed) ? saved.phrasePracticed : fresh.phrasePracticed,
   )
@@ -883,15 +955,23 @@ export function normalizeSavedState(saved, fresh) {
   // form work and phrase rewards. Preserve it for totals, but do not invent
   // exact lexical-stage evidence when migrating a pre-ladder save. Version 1
   // is the same evidence ladder with a now-redundant entry tier, so its stable
-  // proof IDs and explicitly remapped repair tier can be preserved.
+  // proof IDs and explicitly remapped repair tier can be preserved. Version 2
+  // also preserves its lexical proofs but starts with no invented context proof.
   const hasCurrentWordProgress = saved.wordProgressVersion === WORD_PROGRESS_VERSION
+  const hasWordProgressV3 = saved.wordProgressVersion === 3
+  const hasWordProgressV2 = saved.wordProgressVersion === 2
   const hasWordProgressV1 = saved.wordProgressVersion === 1
   next.wordProgressVersion = WORD_PROGRESS_VERSION
   next.wordProgress = wordProgressRecord(
-    hasCurrentWordProgress || hasWordProgressV1 ? saved.wordProgress : {},
+    hasCurrentWordProgress || hasWordProgressV3 || hasWordProgressV2 || hasWordProgressV1 ? saved.wordProgress : {},
     next.trainRound,
-    hasWordProgressV1 ? migrateWordProgressV1 : normalizeWordProgress,
+    hasWordProgressV3
+      ? migrateWordProgressV3
+      : hasWordProgressV1
+      ? migrateWordProgressV1
+      : hasWordProgressV2 ? migrateWordProgressV2 : normalizeWordProgress,
   )
+  for (const id of NON_TRAINABLE_NAMED_ENTITY_IDS) delete next.wordProgress[id]
   // Saving the word is the guided-recognition event. Give every word already
   // saved in this run a durable empty ladder record so that achievement is not
   // lost merely because the learner has not attempted its first Train quiz.
@@ -938,6 +1018,25 @@ export function normalizeSavedState(saved, fresh) {
   next.attempts = maxCountRecords(fresh.attempts, saved.attempts)
   next.worldFacts = reconcileWorldFacts(isRecord(saved.worldFacts) ? saved.worldFacts : recordOrEmpty(fresh.worldFacts))
   next.clock = Math.max(0, Math.floor(finiteOr(saved.clock, fresh.clock)))
+  next.environmentNarration = normalizeEnvironmentNarrationState(
+    saved.environmentNarration ?? fresh.environmentNarration,
+  )
+  next.observations = normalizeObservations(
+    isRecord(saved.observations) ? saved.observations : fresh.observations,
+    next.clock,
+  )
+  next.questStateVersion = QUEST_STATE_VERSION
+  next.quests = normalizeQuestLedger(saved.quests, next.clock, {
+    accepted: Boolean(saved.flags?.porosiaMikut || saved.inventory?.porosiaMikut || saved.flags?.sofraGati),
+    completed: Boolean(saved.flags?.mikpritjaMesuar && ['sofraMikut', 'sofraMikut2'].includes(saved.nodeId)),
+  })
+  // Quest lifecycle and readiness now have one canonical home. Remove the old
+  // invisible aliases so future saves cannot let a shadow flag disagree.
+  delete next.flags.porosiaMikut
+  delete next.flags.sofraGati
+  delete next.inventory.porosiaMikut
+  delete next.inventory.sofraGati
+  next.quests = offerQuests(next.quests, STORY[next.nodeId]?.questOffers, next.clock, `load:${next.nodeId}`)
   // Knowledge is monotonic learner memory, not physical world state. Preserve
   // first-learning provenance while accepting the `true` entries early
   // experimental saves used before metadata was recorded.
@@ -1156,8 +1255,12 @@ function baseRun() {
     inventory: {}, // itemId -> count (you start with nothing)
     flags: {}, // authored story state; never rendered as something carried
     knowledge: {}, // learned facts with provenance; survives later runs
+    observations: {}, // attention beats noticed during this run; survives save/reload
+    environmentNarration: normalizeEnvironmentNarrationState(), // last environment facts communicated in prose
     interactions: {}, // explicitly identified option uses, partitioned by scope
     rendezvous: {}, // named NPC promises with deadlines and physical meeting places
+    questStateVersion: QUEST_STATE_VERSION,
+    quests: {}, // stable quest id -> lifecycle entry; objective readiness is derived
     hearts: START_HEARTS, // wrong training answers cost a heart; 0 = game over
     healedAt: {}, // heart level -> true once that level's once-per-run self-heal is spent (see HEART_LEVELS)
     turn: 1,
@@ -1223,9 +1326,14 @@ export function phraseSenses(tokens) {
   return [...ids]
 }
 
+// Proper names can be spoken and pronounced without being purchased from the
+// vocabulary economy. Keep the all-sense helper above for validation/debug,
+// and use this narrower set for discovery, token and spending mechanics.
+export const trainablePhraseSenses = (tokens) => phraseSenses(tokens).filter(isTrainableSense)
+
 // can a token phrase be "spoken": all words discovered + one token each available
 export function canSpeak(state, tokens) {
-  const ids = phraseSenses(tokens)
+  const ids = trainablePhraseSenses(tokens)
   const allDiscovered = ids.every((id) => state.discovered[id])
   const enoughMana = ids.every((id) => (state.mana[id] || 0) >= 1)
   return { ids, allDiscovered, enoughMana, ok: allDiscovered && enoughMana }
@@ -1251,6 +1359,7 @@ export const hasRequiredItem = (state, option) => {
   const excluded = condList(option.unless)
   if (!required.every((id) => hasCond(state, id))) return false
   if (!excluded.every((id) => !hasCond(state, id))) return false
+  if (!questActionAvailability(state, option).ok) return false
 
   // `time`/`date` is an authored wait: its purpose is to cross a boundary.
   // Otherwise a phase/calendar/weather condition must still hold when the
@@ -1418,7 +1527,24 @@ export function reconcileWorldFacts(worldFacts) {
 
 export function reducer(state, action) {
   switch (action.type) {
+    case 'NARRATE_ENVIRONMENT': {
+      if (action.nodeId !== state.nodeId || action.turn !== state.turn || state.ended) return state
+      const plan = planEnvironmentNarration(
+        environmentSnapshot(currentStoryState(state)),
+        state.environmentNarration,
+        {
+          nodeId: state.nodeId,
+          turn: state.turn,
+          authoredDimensions: action.authoredDimensions,
+        },
+      )
+      return plan.needsCommit
+        ? { ...state, environmentNarration: plan.nextState }
+        : state
+    }
+
     case 'DISCOVER': {
+      if (!isTrainableSense(action.id)) return state
       if (state.discovered[action.id]) return state
       const wordProgress = safeMapKey(action.id) && DICT[action.id] && !state.wordProgress?.[action.id]
         ? { ...(state.wordProgress || {}), [action.id]: emptyWordProgress() }
@@ -1543,6 +1669,8 @@ export function reducer(state, action) {
       if (option.become && !state.embodying && !action.embodimentConfirmed) return state
       const interactionUse = interactionAvailabilityForOption(choiceState, option)
       const rendezvousUse = rendezvousAvailabilityForOption(state, option)
+      const questUse = questActionAvailability(choiceState, option)
+      if (!questUse.ok) return state
       const { ids } = canSpeak(state, option.text)
       // A BAD ending is recorded at once (a fate met is met). A good/secret
       // ending is an ACHIEVEMENT DEED: reaching it marks the achievement
@@ -1625,11 +1753,20 @@ export function reducer(state, action) {
           isFixture: isTimedWorldFixture,
           maxHearts: START_HEARTS,
           source: `${state.nodeId}->${option.to}`,
+          nodeId: state.nodeId,
         },
       )
+      let quests = applyQuestAction(
+        state.quests,
+        questUse,
+        clock,
+        `${state.nodeId}->${option.to}`,
+      )
+      quests = offerQuests(quests, targetNode?.questOffers, clock, `arrive:${option.to}`)
       let inventory = effectState.inventory
       const flags = effectState.flags
       const knowledge = effectState.knowledge
+      const observations = effectState.observations
       const fixtures = effectState.fixtures
       const heartsAfterEffects = effectState.hearts
       const interactions = recordInteractionUse(state.interactions, interactionUse, choiceToClock)
@@ -1707,8 +1844,11 @@ export function reducer(state, action) {
         inventory,
         flags,
         knowledge,
+        observations,
         interactions,
         rendezvous,
+        questStateVersion: QUEST_STATE_VERSION,
+        quests,
         earned,
         eligible,
         visited,
@@ -1820,7 +1960,7 @@ export function reducer(state, action) {
     }
 
     case 'PRACTICE_CORRECT': {
-      if (!safeMapKey(action.id) || !state.discovered[action.id]) return state
+      if (!safeMapKey(action.id) || !isTrainableSense(action.id) || !state.discovered[action.id]) return state
       const completeRound = action.completeRound !== false
       return {
         ...state,
@@ -1837,7 +1977,7 @@ export function reducer(state, action) {
 
     case 'PRACTICE_WORD_RESULT': {
       if (action.correct !== true && action.correct !== false) return state
-      if (!safeMapKey(action.id) || !state.discovered[action.id] || !DICT[action.id]) return state
+      if (!safeMapKey(action.id) || !isTrainableSense(action.id) || !state.discovered[action.id] || !DICT[action.id]) return state
       const nextRound = (state.trainRound || 0) + 1
       const transition = advanceWordProgress(
         state.wordProgress?.[action.id],
@@ -1847,9 +1987,13 @@ export function reducer(state, action) {
           tier: action.tier,
           mode: action.mode,
           direction: action.direction,
+          stageId: action.wordStageId,
+          variantId: action.variantId,
+          targetFormKey: action.targetFormKey,
           questionKey: action.questionKey,
           round: nextRound,
         },
+        wordProgressionOptionsForSense(action.id),
       )
       if (!transition.accepted) return state
       const wordProgress = {
@@ -1874,7 +2018,9 @@ export function reducer(state, action) {
     }
 
     case 'PRACTICE_FORM_CORRECT': {
-      if (!safeMapKey(action.id) || !state.discovered[action.id]) return state
+      if (!safeMapKey(action.id) || !isTrainableSense(action.id) || !state.discovered[action.id]) return state
+      if (typeof action.questionKey !== 'string' || !action.questionKey || action.questionKey.length > 200) return state
+      if (action.questionKey === state.trainLastQuestionKey) return state
       const formKey = reviewedFormPracticeKey(state, action.id, action.formSurface)
       if (!formKey) return state
       return {
@@ -1892,6 +2038,7 @@ export function reducer(state, action) {
     }
 
     case 'PRACTICE_WRONG':
+      if (action.formId != null && !isTrainableSense(action.formId)) return state
       return {
         ...state,
         hearts: Math.max(0, state.hearts - 1),
@@ -1946,12 +2093,17 @@ export function reducer(state, action) {
       // enforces safe keys and the same discovered-word boundary used to
       // unlock that phrase before changing durable progress.
       if (phraseIds.some((id) => typeof id !== 'string' || !safeMapKey(id))) return state
-      if (rewardIds.some((id) => typeof id !== 'string' || !safeMapKey(id) || !state.discovered[id])) return state
+      if (rewardIds.some((id) => typeof id !== 'string' || !safeMapKey(id) || !isTrainableSense(id) || !state.discovered[id])) return state
       const phrases = phraseIds.map((id) => EVERYDAY_PHRASE_BY_ID.get(id))
       if (phrases.some((phrase) => !phrase)) return state
-      if (phrases.some((phrase) => phrase.requires.some((id) => !state.discovered[id]))) return state
+      if (phrases.some((phrase) => phrase.requires.some((id) => isTrainableSense(id) && !state.discovered[id]))) return state
       const nextRound = (state.trainRound || 0) + 1
-      const trainLastWords = normalizedTrainWords(phrases.flatMap((phrase) => phrase.al))
+      const canonicalPhraseWords = normalizedTrainWords(phrases.flatMap((phrase) => phrase.al))
+      const trainLastWords = normalizedTrainWords(action.wordKeys)
+      if (
+        !trainLastWords.length ||
+        canonicalPhraseWords.some((word) => !trainLastWords.includes(word))
+      ) return state
 
       if (action.skill === 'production') {
         if (phraseIds.length !== 1) return state
@@ -1977,7 +2129,7 @@ export function reducer(state, action) {
         const plan = transition.plan
         const canonicalRewards = plan.typeScope === 'word'
           ? [plan.focusId]
-          : [...new Set(phrase.requires)]
+          : [...new Set(phrase.requires.filter(isTrainableSense))]
         if (
           rewardIds.length !== canonicalRewards.length ||
           rewardIds.some((id) => !canonicalRewards.includes(id))
@@ -2038,7 +2190,9 @@ export function reducer(state, action) {
         Math.max(0, Math.floor(state[masteryField]?.[id] || 0)),
       ))
       if (currentTiers.some((tier) => tier !== action.tier)) return state
-      const canonicalRewards = new Set(phrases.flatMap((phrase) => phrase.requires))
+      const canonicalRewards = new Set(
+        phrases.flatMap((phrase) => phrase.requires).filter(isTrainableSense),
+      )
       if (
         rewardIds.length !== canonicalRewards.size ||
         rewardIds.some((id) => !canonicalRewards.has(id))
@@ -2121,7 +2275,7 @@ export function reducer(state, action) {
       const practiced = { ...state.practiced }
       const wordProgress = { ...(state.wordProgress || {}) }
       for (const id of action.ids || []) {
-        if (!safeMapKey(id) || !DICT[id]) continue
+        if (!safeMapKey(id) || !DICT[id] || !isTrainableSense(id)) continue
         discovered[id] = true
         if ((mana[id] || 0) < 1) mana[id] = 1
         // also cross the form-practice threshold so granted words are testable

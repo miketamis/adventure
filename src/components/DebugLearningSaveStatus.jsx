@@ -1,6 +1,6 @@
 import { DICT } from '../game/content.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../game/everydayAlbanian.js'
-import { FORMS_UNLOCK_THRESHOLD, formsUnlocked } from '../game/formInventory.js'
+import { reviewedFormTargets, wordProgressionOptionsForSense } from '../game/formInventory.js'
 import { buildPhraseProgressionSnapshot } from '../game/phrasePractice.js'
 import { wordProgressionSnapshot } from '../game/wordProgression.js'
 
@@ -24,6 +24,7 @@ export default function DebugLearningSaveStatus({ state }) {
   const wordSnapshot = wordProgressionSnapshot(
     state.wordProgress?.[EXAMPLE_WORD_ID],
     state.trainRound || 0,
+    wordProgressionOptionsForSense(EXAMPLE_WORD_ID),
   )
   const correctRounds = state.phrasePracticed?.[phrase.id] || 0
   const missedRounds = state.phraseMistakes?.[phrase.id] || 0
@@ -43,9 +44,9 @@ export default function DebugLearningSaveStatus({ state }) {
       </span>
       <span>
         <b lang="sq">{DICT[EXAMPLE_WORD_ID].al}</b> noun forms:{' '}
-        {formsUnlocked(state, EXAMPLE_WORD_ID)
-          ? 'unlocked'
-          : `${rewarded}/${FORMS_UNLOCK_THRESHOLD} rewards · lexical tier ${wordSnapshot.next.baseStage}`}
+        {wordSnapshot.hasReviewedFormLane
+          ? `${reviewedFormTargets(EXAMPLE_WORD_ID).length} exact reviewed role targets · ${wordSnapshot.next.baseStageId}`
+          : 'inapplicable · no reviewed form lane'}
       </span>
       <span><b>Recorded phrase rounds:</b> {correctRounds} correct · {missedRounds} missed</span>
     </aside>

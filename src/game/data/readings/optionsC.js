@@ -34,8 +34,9 @@ export const OPTION_READINGS_C = Object.freeze({
   "majaEagle.options[2]": { al: "ngjit shqiponjën", en: "Climb the eagle.", review: 'internal-editorial' }, // 1098
   "majaEagle.options[3]": { al: "dëgjo rrufenë", en: "Listen to the thunderbolt.", review: 'internal-editorial' }, // 1099
   "tomorBekim.options[0]": { al: "dëgjo Tomor", en: "Listen to Tomorr.", review: 'internal-editorial' }, // 1100
-  "tomorBekim.options[1]": { al: "lufto dragoin", en: "Fight the dragon.", review: 'internal-editorial' }, // 1101
-  "tomorBekim.options[2]": { al: "dëgjo malin", en: "Listen to the mountain.", review: 'internal-editorial' }, // 1102
+  "tomorBekim.options[1]": { al: "zbrit nga mali.", en: "Go down from the mountain.", review: 'internal-editorial' }, // 1101
+  "tomorBekim.options[2]": { al: "lufto dragoin", en: "Fight the dragon.", review: 'internal-editorial' }, // 1102
+  "tomorBekim.options[3]": { al: "dëgjo malin", en: "Listen to the mountain.", review: 'internal-editorial' }, // 1103
   "tomorZbritje.options[0]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' }, // 1103
   "tomorZbritje.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 1104
   "tomorZbritje.options[2]": { al: "dëgjo kulshedrën", en: "Listen to the she-dragon.", review: 'internal-editorial' }, // 1105
@@ -54,8 +55,9 @@ export const OPTION_READINGS_C = Object.freeze({
   "ktheu2.options[3]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 1118
   "ktheu2.options[4]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 1119
   "bukuraLirim.options[0]": { al: "dëgjo Bukurën", en: "Listen to the Beauty.", review: 'internal-editorial' }, // 1120
-  "bukuraLirim.options[1]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 1121
-  "bukuraLirim.options[2]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 1122
+  "bukuraLirim.options[1]": { al: "ik shpejt.", en: "Flee quickly.", review: 'internal-editorial' }, // 1121
+  "bukuraLirim.options[2]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 1122
+  "bukuraLirim.options[3]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 1123
   "dordolec1.options[0]": { al: "këndo me fëmijët", en: "Sing with the children.", review: 'internal-editorial' }, // 1123
   "dordolec1.options[1]": { al: "shiko shtëpinë", en: "Look at the house.", review: 'internal-editorial' }, // 1124
   "dordolec1.options[2]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 1125

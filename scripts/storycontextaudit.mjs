@@ -8,6 +8,7 @@ import {
   hasCond,
   hasRequiredItem,
   newRun,
+  normalizeSavedState,
   phraseSenses,
   reducer,
 } from '../src/game/gameState.js'
@@ -15,11 +16,13 @@ import { albanianTextOf } from '../src/game/language.js'
 import {
   authoredEnvironmentDimensions,
   environmentStoryLine,
+  planEnvironmentNarration,
   moneyTransactionStoryLine,
   purseStoryLine,
 } from '../src/game/storyContext.js'
 import { civilDayPartAtClock, civilHourAtClock, greetingPeriodAtClock } from '../src/game/environment.js'
 import { storyReadingVisible } from '../src/components/storyMechanicsPresentation.js'
+import { observationConditionId, observationIdOfLine } from '../src/game/observations.js'
 
 const failures = []
 const check = (name, fn) => {
@@ -78,6 +81,99 @@ check('authored environmental prose replaces only its declared generic fallback'
   // to contain a time word must not suppress a fallback by accident.
   assert.deepEqual([...authoredEnvironmentDimensions([[w('muzg')]])], [])
   assert.throws(() => describesEnvironment('temperature', [w('muzg')]), /dimensions must use/)
+})
+
+check('environment fallback is transition-driven per dimension and survives reload', () => {
+  const initialEnvironment = { clock: 0, season: 'spring', weather: 'rain' }
+  const first = planEnvironmentNarration(
+    initialEnvironment,
+    undefined,
+    { nodeId: 'start', turn: 1, authoredDimensions: ['time'] },
+  )
+  assert.deepEqual(first.fallbackDimensions, [], 'fresh state invented an environment transition')
+  assert.deepEqual(first.omitDimensions, ['time', 'season', 'weather'])
+  assert.equal(environmentStoryLine(initialEnvironment, { omit: first.omitDimensions }), null)
+  assert.deepEqual(first.nextState.communicated, {
+    time: 'morning',
+    season: 'spring',
+    weather: 'rain',
+  })
+
+  // A pre-ledger save is also an unknown baseline, not evidence that all three
+  // dimensions just changed during play.
+  const legacySave = { ...newRun() }
+  delete legacySave.environmentNarration
+  const migrated = normalizeSavedState(legacySave, newRun())
+  const migratedFirst = planEnvironmentNarration(
+    initialEnvironment,
+    migrated.environmentNarration,
+    { nodeId: 'start', turn: 1, authoredDimensions: [] },
+  )
+  assert.deepEqual(migratedFirst.fallbackDimensions, [], 'legacy save invented an environment transition')
+  assert.deepEqual(migratedFirst.omitDimensions, ['time', 'season', 'weather'])
+
+  const initialState = newRun()
+  const committedState = reducer(initialState, {
+    type: 'NARRATE_ENVIRONMENT',
+    nodeId: initialState.nodeId,
+    turn: initialState.turn,
+    authoredDimensions: ['time'],
+  })
+  assert.notEqual(committedState, initialState)
+  assert.deepEqual(Object.keys(committedState.environmentNarration.communicated).sort(), ['season', 'time', 'weather'])
+  assert.equal(reducer(committedState, {
+    type: 'NARRATE_ENVIRONMENT',
+    nodeId: initialState.nodeId,
+    turn: initialState.turn,
+    authoredDimensions: ['time'],
+  }), committedState, 'same presentation acknowledged itself twice')
+
+  // The silent baseline remains silent on rerender.
+  const rerender = planEnvironmentNarration(
+    initialEnvironment,
+    first.nextState,
+    { nodeId: 'start', turn: 1, authoredDimensions: ['time'] },
+  )
+  assert.equal(rerender.needsCommit, false)
+  assert.deepEqual(rerender.fallbackDimensions, [])
+
+  // Movement under unchanged conditions is silent.
+  const unchangedMove = planEnvironmentNarration(
+    initialEnvironment,
+    first.nextState,
+    { nodeId: 'lendina', turn: 2, authoredDimensions: [] },
+  )
+  assert.deepEqual(unchangedMove.fallbackDimensions, [])
+
+  // Only the changed weather is narrated; a visible authored time line records
+  // the new time itself and suppresses its generic twin.
+  const partialChange = planEnvironmentNarration(
+    { clock: 6, season: 'spring', weather: 'storm' },
+    unchangedMove.nextState,
+    { nodeId: 'pylliLoop', turn: 3, authoredDimensions: ['time'] },
+  )
+  assert.deepEqual(partialChange.fallbackDimensions, ['weather'])
+  assert.deepEqual(partialChange.omitDimensions.sort(), ['season', 'time'])
+  assert.equal(partialChange.nextState.communicated.time, 'noon')
+
+  const state = { ...newRun(), environmentNarration: partialChange.nextState }
+  const loaded = normalizeSavedState(JSON.parse(JSON.stringify(state)), newRun())
+  const afterReload = planEnvironmentNarration(
+    { clock: 6, season: 'spring', weather: 'storm' },
+    loaded.environmentNarration,
+    { nodeId: 'pylliLoop', turn: 3, authoredDimensions: ['time'] },
+  )
+  assert.equal(afterReload.needsCommit, false)
+  assert.deepEqual(afterReload.fallbackDimensions, ['weather'])
+
+  // Once that transition has been shown, moving again under the same values is
+  // silent rather than repeating it on every card.
+  const afterAcknowledgedMove = planEnvironmentNarration(
+    { clock: 6, season: 'spring', weather: 'storm' },
+    partialChange.nextState,
+    { nodeId: 'mali1', turn: 4, authoredDimensions: [] },
+  )
+  assert.deepEqual(afterAcknowledgedMove.fallbackDimensions, [])
 })
 
 check('opening and authored weather scenes prefer their visible immersive descriptions', () => {
@@ -139,6 +235,8 @@ check('every authored environment line is reachable and preserves undeclared fal
       const conditional = !Array.isArray(entry)
       const conditionIds = conditional ? [].concat(entry.cond || []) : []
       const required = new Set(conditional && !entry.negate ? conditionIds : [])
+      const observationId = observationIdOfLine(target)
+      if (observationId) required.add(observationConditionId(observationId))
       const excluded = new Set([
         ...(conditional && entry.negate ? conditionIds : []),
         ...(conditional ? [].concat(entry.none || []) : []),
@@ -170,7 +268,7 @@ check('a positive lek balance is narrated exactly and zero stays silent', () => 
 })
 
 check('a money-changing arrival joins the action to the exact resulting balance', () => {
-  const eliraOption = STORY.eliraShesh.options.find((option) => option.lek > 0)
+  const eliraOption = STORY.eliraShesh.options.find((option) => option.questAction?.action === 'accept')
   const knownOutcome = moneyOutcomeLineOf(eliraOption, (id) => id === 'knows:npcName:elira')
   const unknownOutcome = moneyOutcomeLineOf(eliraOption, () => false)
   assert.equal(
@@ -178,8 +276,12 @@ check('a money-changing arrival joins the action to the exact resulting balance'
     'Elira të jep tetëqind lekë. Tani ke 1400 lekë.',
   )
   assert.equal(
-    albanianTextOf(moneyTransactionStoryLine(unknownOutcome, 0)),
-    'Gruaja të jep tetëqind lekë. Tani nuk ke para me vete.',
+    albanianTextOf(moneyTransactionStoryLine(unknownOutcome, 800)),
+    'Gruaja të jep tetëqind lekë. Tani ke 800 lekë.',
+  )
+  assert.equal(
+    albanianTextOf(moneyTransactionStoryLine(unknownOutcome, 808)),
+    'Gruaja të jep tetëqind lekë. Tani ke 808 lekë.',
   )
 })
 
@@ -263,7 +365,9 @@ check('normal play hides diagnostic counters while debug keeps the inspectors', 
   assert.match(app, /\) : state\.debug \? \(/)
   assert.match(story, /state\.debug && <WorldContext/)
   assert.match(story, /setting: narrationSettingForScene\(state\.nodeId\)/)
-  assert.match(story, /omit: authoredEnvironmentDimensions\(presentedEntries\.map\(\(entry\) => entry\.line\)\)/)
+  assert.match(story, /planEnvironmentNarration\(/)
+  assert.match(story, /omit: environmentNarration\.omitDimensions/)
+  assert.match(story, /type: 'NARRATE_ENVIRONMENT'/)
   assert.match(story, /environmentLine && renderLine\(environmentLine, 'environment'\)/)
   assert.match(story, /purseLine\) sceneLineEntries\.push\(\{ key: 'purse'/)
   assert.match(story, /presentedEntries\.map\(\(entry\) => renderLine\(entry\.line, entry\.renderKey\)\)/)

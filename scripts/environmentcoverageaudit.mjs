@@ -171,7 +171,7 @@ check('StoryView consumes the dedicated setting and visible-scroll dimensions', 
   const source = fs.readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
   assert.match(source, /setting: narrationSettingForScene\(state\.nodeId\)/)
   assert.match(source, /const presentedEntries = scenePresentation\.entries/)
-  assert.match(source, /authoredEnvironmentDimensions\(presentedEntries\.map\(\(entry\) => entry\.line\)\)/)
+  assert.match(source, /authoredEnvironmentDimensions\(\s*presentedEntries\.map\(\(entry\) => entry\.line\),?\s*\)/)
   assert.doesNotMatch(source, /isEnclosedScene/)
   assert.doesNotMatch(source, /authoredEnvironmentDimensions\(lines\)/)
 })

@@ -23,14 +23,14 @@ const firstReadableLine = (node) => {
 // place names. Prefer an explicit place card, then an ending title, then
 // the scene's natural English opening. The final fallback is deliberately
 // generic rather than leaking an implementation key.
-export function playerMapLabel(id) {
+export function playerMapLabel(id, endingById = null) {
   const node = STORY[id]
   const place = PLACE_OF[id]
-  return PLACE_META[place]?.name || PLAYER_MAP_LABEL_OVERRIDES[place] || node?.title || firstReadableLine(node) || 'Known story place'
+  return PLACE_META[place]?.name || PLAYER_MAP_LABEL_OVERRIDES[place] || endingById?.[id]?.title || firstReadableLine(node) || 'Known story place'
 }
 
-export function playerMapShortLabel(id, maxLength = 42) {
-  const label = playerMapLabel(id)
+export function playerMapShortLabel(id, maxLength = 42, endingById = null) {
+  const label = playerMapLabel(id, endingById)
   if (label.length <= maxLength) return label
   const clipped = label.slice(0, maxLength + 1).replace(/\s+\S*$/, '').trim()
   return `${clipped || label.slice(0, maxLength).trim()}…`

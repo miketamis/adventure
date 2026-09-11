@@ -19,10 +19,12 @@ import {
 } from '../src/game/cefrPreparation.js'
 import { liveCefrPreparationEvidence } from '../src/game/cefrPreparationEvidence.js'
 import { CEFR_TASKS } from '../src/game/cefrTasks.js'
+import { reviewedFormTargets, wordProgressionOptionsForSense } from '../src/game/formInventory.js'
+import { lexicalTrainability } from '../src/game/lexicalTrainability.js'
 import { newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
 import { trainQuestionWordKeys } from '../src/game/phrasePractice.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
-import { WORD_STAGE_DEFINITIONS, wordProgressStage } from '../src/game/wordProgression.js'
+import { WORD_CAPABILITY_DEFINITIONS, wordCapabilitySnapshot } from '../src/game/wordProgression.js'
 import { analyzeDiscovery, sensesOf } from './lib/discovery.mjs'
 
 const componentSource = readFileSync(new URL('../src/components/CefrCapstone.jsx', import.meta.url), 'utf8')
@@ -38,13 +40,39 @@ const check = (label, fn) => {
 }
 
 const focusSenseIds = [...new Set(CEFR_PREPARATION_ACTIVITIES.flatMap(({ focusSenseIds: ids }) => ids))]
-const wordStageTier = new Map(WORD_STAGE_DEFINITIONS.map(({ id, tier }) => [id, tier]))
-const requiredTierBySense = new Map(focusSenseIds.map((senseId) => {
-  const stages = CEFR_PREPARATION_ACTIVITIES
+const capabilityIndex = new Map(WORD_CAPABILITY_DEFINITIONS.map(({ id }, index) => [id, index]))
+const DISJOINT_SUPPORT_SENSE_IDS = ['pershendetje', 'jo', 'si', 'cfare', 'pse', 'kush']
+const discoverySenseIds = [...new Set([...focusSenseIds, ...DISJOINT_SUPPORT_SENSE_IDS])]
+const requiredCapabilityBySense = new Map(focusSenseIds.map((senseId) => {
+  const capabilities = CEFR_PREPARATION_ACTIVITIES
     .filter(({ focusSenseIds: ids }) => ids.includes(senseId))
-    .map(({ mechanicId }) => wordStageTier.get(CEFR_PREPARATION_MECHANICS[mechanicId].readiness.wordStageId))
-  return [senseId, Math.max(...stages)]
+    .map(({ mechanicId }) => CEFR_PREPARATION_MECHANICS[mechanicId].readiness.wordCapabilityId)
+  return [senseId, capabilities.sort((left, right) => capabilityIndex.get(right) - capabilityIndex.get(left))[0]]
 }))
+
+const capabilityStatusPasses = (definition, status) => status === 'passed' ||
+  (definition.conditional && status === 'inapplicable')
+
+const snapshotMeetsCapability = (snapshot, requiredCapabilityId) => {
+  const requiredIndex = capabilityIndex.get(requiredCapabilityId)
+  if (!Number.isInteger(requiredIndex)) return false
+  const capabilities = snapshot?.capabilities || {}
+  return WORD_CAPABILITY_DEFINITIONS.slice(0, requiredIndex + 1).every((definition) =>
+    capabilityStatusPasses(definition, capabilities[definition.id]?.status))
+}
+
+const senseMeetsCapability = (evidence, senseId, requiredCapabilityId) =>
+  snapshotMeetsCapability(evidence.wordCapabilities?.[senseId], requiredCapabilityId)
+
+const progressionOptionsBySense = new Map(focusSenseIds.map((senseId) => {
+  return [senseId, wordProgressionOptionsForSense(senseId)]
+}))
+
+const liveWordSnapshot = (state, senseId) => wordCapabilitySnapshot(
+  state.wordProgress?.[senseId],
+  state.trainRound,
+  progressionOptionsBySense.get(senseId),
+)
 
 const structural = analyzeDiscovery(STORY, START_NODE)
 const distance = { [START_NODE]: 0 }
@@ -68,7 +96,7 @@ const visibleOnOrdinaryFirstVisit = (entry) => {
   return entry.negate ? hasPositiveCondition : !hasPositiveCondition
 }
 
-const discoveryWitnesses = new Map(focusSenseIds.map((senseId) => {
+const discoveryWitnesses = new Map(discoverySenseIds.map((senseId) => {
   const candidates = []
   for (const nodeId of structural.reachable) {
     for (const entry of STORY[nodeId].text || []) {
@@ -143,40 +171,61 @@ const summaryFor = (state) => {
   return { profile, evidence, byLevel }
 }
 
-const completeWordStages = (initial) => {
+const completeWordCapabilities = (initial) => {
   let state = initial
   let guard = 0
-  while (focusSenseIds.some((senseId) =>
-    wordProgressStage(state.wordProgress?.[senseId]) < requiredTierBySense.get(senseId))) {
-    let advanced = false
-    for (const senseId of focusSenseIds) {
-      if (wordProgressStage(state.wordProgress?.[senseId]) >= requiredTierBySense.get(senseId)) continue
-      const question = buildWordQuestion({
-        discoveredIds: [senseId],
+  // Complete stronger requirements first. Once a focus is ready, later rounds
+  // never select it as the answer and therefore cannot move it onto a fresh
+  // form lane that would legitimately need new evidence.
+  const orderedFocus = [...focusSenseIds].sort((left, right) =>
+    capabilityIndex.get(requiredCapabilityBySense.get(right)) - capabilityIndex.get(requiredCapabilityBySense.get(left)))
+  for (let focusIndex = 0; focusIndex < orderedFocus.length; focusIndex++) {
+    const senseId = orderedFocus[focusIndex]
+    const requiredCapabilityId = requiredCapabilityBySense.get(senseId)
+    while (!snapshotMeetsCapability(liveWordSnapshot(state, senseId), requiredCapabilityId)) {
+      // Ask the production scheduler for the target plus a small pool of real
+      // focus words. When spacing or overlap excludes the target, one of those
+      // words supplies the required disjoint round; the audit never advances a
+      // clock or injects evidence by hand.
+      const futureFocus = orderedFocus.slice(focusIndex + 1)
+      const retainedSupport = orderedFocus.slice(0, focusIndex).filter((id) =>
+        requiredCapabilityBySense.get(id) === 'strict-spaced-recall')
+      const offset = futureFocus.length ? guard % futureFocus.length : 0
+      const support = [
+        ...futureFocus.slice(offset, offset + 4),
+        ...futureFocus.slice(0, Math.max(0, 4 - (futureFocus.length - offset))),
+        ...retainedSupport.slice(-4),
+        ...DISJOINT_SUPPORT_SENSE_IDS,
+      ]
+        .filter((id, index, values) => id !== senseId && values.indexOf(id) === index)
+        .slice(0, 14)
+      let question = buildWordQuestion({
+        discoveredIds: [senseId, ...support],
         mana: state.mana,
         wordProgress: state.wordProgress,
         currentRound: state.trainRound,
         excludeWords: state.trainLastWords,
         rng: () => 0,
       })
-      if (!question) continue
+      assert.ok(question, `the real disjoint Train scheduler deadlocked while preparing ${senseId}`)
       const next = reducer(state, {
         type: 'PRACTICE_WORD_RESULT',
         correct: true,
         id: question.answerId,
         tier: question.tier,
+        wordStageId: question.wordStageId,
+        variantId: question.variantId,
+        targetFormKey: question.targetFormKey,
         mode: question.mode,
         direction: question.dir,
         questionKey: question.questionKey,
         wordKeys: trainQuestionWordKeys(question),
       })
-      assert.notEqual(next, state, `${senseId}: exact Train event was rejected`)
-      assert.equal(next.hearts, state.hearts, `${senseId}: a correct Train answer changed health`)
+      assert.notEqual(next, state, `${question.answerId}: exact Train event was rejected`)
+      assert.equal(next.hearts, state.hearts, `${question.answerId}: a correct Train answer changed health`)
       state = next
-      advanced = true
+      assert.ok(++guard < 5000, 'word-capability simulation did not converge')
     }
-    assert.ok(advanced, 'the disjoint Train scheduler could not advance any required word')
-    assert.ok(++guard < 30, 'word-stage simulation did not converge')
   }
   return state
 }
@@ -226,8 +275,8 @@ const completeCapstoneLevel = (initial, level) => {
 
 let journey = newRun()
 
-check('every guided focus is a real dictionary sense with an ordinary story discovery witness', () => {
-  for (const senseId of focusSenseIds) {
+check('every guided focus and disjoint support word has an ordinary story discovery witness', () => {
+  for (const senseId of discoverySenseIds) {
     assert.ok(DICT[senseId], `${senseId}: missing dictionary entry`)
     const witness = discoveryWitnesses.get(senseId)
     assert.ok(witness, `${senseId}: no first-visit story line or ungated story option on a reachable normal route`)
@@ -235,13 +284,80 @@ check('every guided focus is a real dictionary sense with an ordinary story disc
   }
 })
 
-check('a blank non-debug save can discover and Train every focus to its exact required stage', () => {
+check('a blank non-debug save can discover and Train every focus through its exact required capability', () => {
   assert.equal(journey.debug, false)
-  for (const senseId of focusSenseIds) journey = reducer(journey, { type: 'DISCOVER', id: senseId })
-  journey = completeWordStages(journey)
-  for (const [senseId, requiredTier] of requiredTierBySense) {
-    assert.ok(wordProgressStage(journey.wordProgress[senseId]) >= requiredTier, `${senseId}: required tier ${requiredTier} not reached`)
+  for (const senseId of discoverySenseIds) {
+    journey = reducer(journey, { type: 'DISCOVER', id: senseId })
   }
+  journey = completeWordCapabilities(journey)
+  const evidence = liveCefrPreparationEvidence(journey, [])
+  for (const [senseId, requiredCapabilityId] of requiredCapabilityBySense) {
+    assert.equal(senseMeetsCapability(evidence, senseId, requiredCapabilityId), true,
+      `${senseId}: required capability ${requiredCapabilityId} and its prerequisites were not reached`)
+  }
+})
+
+check('blank-save proof reaches both exact form and non-form paths without treating names as vocabulary', () => {
+  const evidence = liveCefrPreparationEvidence(journey, [])
+  const inflectingId = 'fshat'
+  const nonInflectingId = 'ku'
+  assert.ok(reviewedFormTargets(inflectingId).length >= 2, `${inflectingId} is not exercising a real reviewed form lane`)
+  assert.equal(reviewedFormTargets(nonInflectingId).length, 0, `${nonInflectingId} is not exercising the no-form lane`)
+  assert.equal(evidence.wordCapabilities[inflectingId].capabilities['reviewed-form-awareness'].status, 'passed')
+  assert.equal(evidence.wordCapabilities[inflectingId].capabilities['contextual-form-selection'].status, 'passed')
+  assert.equal(evidence.wordCapabilities[nonInflectingId].capabilities['reviewed-form-awareness'].status, 'inapplicable')
+  assert.equal(evidence.wordCapabilities[nonInflectingId].capabilities['contextual-form-selection'].status, 'inapplicable')
+  assert.equal(evidence.wordCapabilities[nonInflectingId].capabilities['contextual-typed-recall'].status, 'passed')
+  for (const senseId of focusSenseIds) {
+    assert.equal(lexicalTrainability(senseId).trainable, true, `${senseId}: a non-trainable identity entered CEFR lexical focus`)
+    assert.ok(Object.values(evidence.wordCapabilities[senseId].capabilities)
+      .every(({ status }) => status !== 'not-trainable'), `${senseId}: reported not-trainable evidence`)
+  }
+})
+
+check('save migration preserves only semantically equivalent old proofs', () => {
+  const oldExact = normalizeSavedState({
+    ...newRun(),
+    discovered: { fshat: true },
+    wordProgressVersion: 3,
+    wordProgress: {
+      fshat: {
+        wins: {
+          'independent-word-recognition': 2,
+          'guided-word-selection': 1,
+          'independent-word-selection': 2,
+          'word-form-choice': 99,
+          'supported-word-spelling': 99,
+          'retained-word-spelling': 99,
+        },
+        formProofs: { invented: { wins: { 'word-form-construction': 99 }, strictWins: 99 } },
+        strictWins: 99,
+      },
+    },
+  }, newRun())
+  const exact = liveCefrPreparationEvidence(oldExact, []).wordCapabilities.fshat.capabilities
+  assert.equal(exact['meaning-recognition'].status, 'passed')
+  assert.equal(exact['controlled-retrieval-supported'].status, 'passed')
+  assert.equal(exact['controlled-retrieval-expanded'].status, 'passed')
+  for (const capabilityId of [
+    'reviewed-form-awareness',
+    'contextual-form-selection',
+    'word-form-construction',
+    'contextual-typed-recall',
+    'strict-spaced-recall',
+  ]) assert.notEqual(exact[capabilityId].status, 'passed', `v3 invented ${capabilityId}`)
+
+  const preLadder = normalizeSavedState({
+    ...newRun(),
+    discovered: { fshat: true },
+    practiced: { fshat: 9999 },
+    formPracticed: { 'fshat::fshati': 9999 },
+    wordProgressVersion: 0,
+    wordProgress: { fshat: { wins: { 'contextual-typed-recall': 9999 }, strictWins: 9999 } },
+  }, newRun())
+  const unproved = liveCefrPreparationEvidence(preLadder, []).wordCapabilities.fshat.capabilities
+  assert.ok(WORD_CAPABILITY_DEFINITIONS.every(({ id }) => unproved[id].status !== 'passed'),
+    'pre-ladder totals or unknown progress invented a semantic capability')
 })
 
 check('word proofs survive a hard story reset and a following save/reload', () => {

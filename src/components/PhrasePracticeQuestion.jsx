@@ -5,7 +5,11 @@ import {
   phraseAnswerDiagnostic,
   phraseAnswerIsCorrect,
   phraseAnswerResult,
+  trainQuestionWordKeys,
 } from '../game/phrasePractice.js'
+import ContextualCompletion, {
+  CONTEXT_TARGET_PRESENTATION,
+} from './ContextualCompletion.jsx'
 
 const MODE_COPY = Object.freeze({
   arrange: 'Build the Albanian phrase',
@@ -106,6 +110,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
       typeScope: q.typeScope,
       focusId: q.focusId || null,
       diagnostic,
+      wordKeys: trainQuestionWordKeys(q),
     })
   }
 
@@ -190,6 +195,62 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
   const promptCopy = q.mode === 'type' && q.typeScope === 'word'
     ? 'Write this word in Albanian'
     : MODE_COPY[q.mode]
+  const feedback = answered && (outcome.correct ? (
+    <>
+      <div>
+        Të lumtë!{' '}
+        {outcome.acceptedWithLeeway
+          ? `Accepted at this level — compare the spelling: “${q.typingAnswer}”`
+          : q.mode === 'match'
+            ? `${q.phrases.length} phrases matched.`
+            : `“${q.typeScope === 'word' ? q.typingAnswer : q.target.al}”`}
+      </div>
+      <RewardChips ids={q.rewardIds} />
+    </>
+  ) : (
+    <div>💔 −1 heart · <span lang="sq">{correction}</span></div>
+  ))
+
+  if (q.mode === 'cloze') {
+    return (
+      <ContextualCompletion
+        className="phrase-mode-cloze"
+        instruction={promptCopy}
+        directionLabel="Meaning → Albanian"
+        badge={`everyday phrase · ${q.difficultyLabel}`}
+        lines={[
+          {
+            id: 'meaning-cue',
+            label: 'Meaning cue',
+            text: q.target.en,
+          },
+          {
+            id: 'albanian-completion',
+            label: 'Albanian completion',
+            lang: 'sq',
+            words: q.answerWords,
+            secondary: true,
+            target: {
+              indices: [q.blankIndex],
+              presentation: CONTEXT_TARGET_PRESENTATION.blank,
+              accessibleLabel: 'missing Albanian word',
+            },
+          },
+        ]}
+        answers={q.bank.map((tile) => ({ id: tile.id, label: tile.text, lang: 'sq' }))}
+        answerGroupLabel="Choose the missing Albanian word"
+        answered={answered}
+        selectedAnswerId={selectedIds[0] || null}
+        correctAnswerIds={q.bank.filter((tile) => tile.answerIndex != null).map((tile) => tile.id)}
+        onAnswer={(id) => {
+          const tile = q.bank.find((candidate) => candidate.id === id)
+          if (tile) chooseCloze(tile)
+        }}
+        feedbackTone={outcome?.correct ? 'good' : 'bad'}
+        feedback={feedback}
+      />
+    )
+  }
 
   return (
     <div className={`phrase-exercise phrase-mode-${q.mode}`}>
@@ -209,17 +270,6 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
           >
             <span aria-hidden="true">🔊</span> Play phrase
           </button>
-        </>
-      ) : q.mode === 'cloze' ? (
-        <>
-          <div className="phrase-cue">{q.target.en}</div>
-          <div className="phrase-cloze" lang="sq">
-            {q.answerWords.map((word, index) => (
-              index === q.blankIndex
-                ? <span className="phrase-blank" key={index}>_____</span>
-                : <span key={index}>{word}</span>
-            ))}
-          </div>
         </>
       ) : q.mode === 'match' ? (
         <p className="phrase-match-instruction">Choose an Albanian line, then its English meaning.</p>
@@ -296,25 +346,6 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
             {q.typeScope === 'word' ? 'Check word' : 'Check phrase'}
           </button>
         </form>
-      ) : q.mode === 'cloze' ? (
-        <div className="answers phrase-cloze-answers" role="group" aria-label="Choose the missing Albanian word" lang="sq">
-          {q.bank.map((tile) => {
-            let className = 'answer'
-            if (answered && tile.answerIndex != null) className += ' correct'
-            else if (answered && selectedIds.includes(tile.id)) className += ' wrong'
-            return (
-              <button
-                type="button"
-                className={className}
-                key={tile.id}
-                disabled={answered}
-                onClick={() => chooseCloze(tile)}
-              >
-                {tile.text}
-              </button>
-            )
-          })}
-        </div>
       ) : (
         <>
           <WordBank
@@ -350,21 +381,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
         aria-live="polite"
         aria-atomic="true"
       >
-        {answered && (outcome.correct ? (
-          <>
-            <div>
-              Të lumtë!{' '}
-              {outcome.acceptedWithLeeway
-                ? `Accepted at this level — compare the spelling: “${q.typingAnswer}”`
-                : q.mode === 'match'
-                  ? `${q.phrases.length} phrases matched.`
-                  : `“${q.typeScope === 'word' ? q.typingAnswer : q.target.al}”`}
-            </div>
-            <RewardChips ids={q.rewardIds} />
-          </>
-        ) : (
-          <div>💔 −1 heart · <span lang="sq">{correction}</span></div>
-        ))}
+        {feedback}
       </div>
     </div>
   )

@@ -18,6 +18,11 @@ const authoredChunk = (id) => {
   if (path.endsWith('/src/game/content.js')) return 'story-graph'
   if (
     path.endsWith('/src/game/stateMechanics.js') ||
+    path.endsWith('/src/game/everydayAlbanian.js') ||
+    path.endsWith('/src/game/quests.js') ||
+    path.endsWith('/src/game/economy.js') ||
+    path.endsWith('/src/game/phraseProgression.js') ||
+    path.endsWith('/src/game/lexicalTrainability.js') ||
     path.endsWith('/src/game/wordProgression.js') ||
     path.endsWith('/src/game/trainingProgression.js')
   ) return 'state-mechanics'

@@ -7,6 +7,7 @@ import {
   HEART_LEVELS,
   ITEMS,
   STORY,
+  STORY_OBSERVATION_BEATS,
   START_NODE,
   WORLD_HUB,
   itemHasAffordance,
@@ -27,6 +28,7 @@ import {
   phraseSenses,
   projectedClockForOption,
   reducer,
+  trainablePhraseSenses,
 } from '../src/game/gameState.js'
 import { TIMED_WORLD_FIXTURES, parseFixtureCondition } from '../src/game/worldFixtures.js'
 import { optionEffectsOf } from '../src/game/stateMechanics.js'
@@ -49,7 +51,7 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
   nodeId, clock: START_CLOCK, cameFrom: null, cameFromPhase: null, familiar: false,
   heard: {}, rumor: false, trail: [], discovered: {}, inventory: {}, mana: {},
   practiced: {}, visited: {}, earned: {}, eligible: {}, attempts: {},
-  flags: {}, knowledge: {}, interactions: {}, rendezvous: {},
+  flags: {}, knowledge: {}, observations: {}, interactions: {}, rendezvous: {},
   dismissedTests: {}, pendingTest: null, hearts: START_HEARTS,
   healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
   view: 'story', ended: null, embodying: null, embodimentOriginNode: null,
@@ -64,7 +66,7 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
 const list = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
 const virtual = (id) => typeof id === 'string' && (
   ['dawn', 'day', 'dusk', 'night', 'again', 'rumor', 'embodying'].includes(id) ||
-  /^(fixture|greeting|season|weather|festival|weekday|fact|flag|knows|itemTag|affords|from|became|visited|heard|npc|npcAt|rendezvous|embodying):/.test(id)
+  /^(fixture|greeting|season|weather|festival|weekday|fact|flag|knows|observed|itemTag|affords|from|became|visited|heard|npc|npcAt|rendezvous|embodying):/.test(id)
 )
 
 const firstItemMatching = (predicate) => Object.values(ITEMS).find(predicate)?.id
@@ -113,6 +115,7 @@ function seedConditions(input, option) {
     worldFacts: { ...input.worldFacts }, heard: { ...input.heard },
     visited: { ...input.visited }, npcStarted: { ...input.npcStarted },
     flags: { ...input.flags }, knowledge: { ...input.knowledge },
+    observations: { ...input.observations },
   }
   for (const id of list(option.requires)) {
     if (!virtual(id)) state.inventory[id] = Math.max(2, state.inventory[id] || 0)
@@ -121,6 +124,7 @@ function seedConditions(input, option) {
     else if (id.startsWith('heard:')) state.heard[id.slice(6)] = true
     else if (id.startsWith('flag:')) state.flags[id.slice(5)] = true
     else if (id.startsWith('knows:')) state.knowledge[id.slice(6)] = { atClock: state.clock, source: 'fuzz' }
+    else if (id.startsWith('observed:')) state.observations[id.slice(9)] = { atClock: state.clock, nodeId: state.nodeId }
     else if (id.startsWith('itemTag:')) {
       const itemId = firstItemMatching((item) => itemHasTag(item, id.slice(8)))
       if (itemId) state.inventory[itemId] = Math.max(2, state.inventory[itemId] || 0)
@@ -145,6 +149,7 @@ function seedConditions(input, option) {
     else if (id.startsWith('heard:')) delete state.heard[id.slice(6)]
     else if (id.startsWith('flag:')) delete state.flags[id.slice(5)]
     else if (id.startsWith('knows:')) delete state.knowledge[id.slice(6)]
+    else if (id.startsWith('observed:')) delete state.observations[id.slice(9)]
     else if (id.startsWith('itemTag:')) {
       for (const item of Object.values(ITEMS)) if (itemHasTag(item, id.slice(8))) delete state.inventory[item.id]
     }
@@ -159,7 +164,7 @@ function seedConditions(input, option) {
     }
   }
   seedInventoryEffects(state, option)
-  for (const id of phraseSenses(option.text)) {
+  for (const id of trainablePhraseSenses(option.text)) {
     state.discovered[id] = true
     state.mana[id] = Math.max(3, state.mana[id] || 0)
   }
@@ -224,13 +229,45 @@ check('every feasible authored choice ignores forged targets and rejects stale r
       assert.equal(after.clock, expectedClock, `${nodeId}->${option.to}: wrong clock commit`)
       assert.equal(after.turn, before.turn + 1, `${nodeId}->${option.to}: wrong turn commit`)
       assert.equal(reducer(after, action), after, `${nodeId}->${option.to}: stale action replayed`)
-      for (const id of phraseSenses(option.text)) assert.equal(after.mana[id], before.mana[id] - 1, `${nodeId}->${option.to}: ${id} not spent exactly once`)
+      for (const id of trainablePhraseSenses(option.text)) assert.equal(after.mana[id], before.mana[id] - 1, `${nodeId}->${option.to}: ${id} not spent exactly once`)
       assert.ok(after.hearts >= 0 && after.hearts <= START_HEARTS, `${nodeId}->${option.to}: hearts out of range`)
       covered++
     }
   }
   assert.ok(covered >= 700, `only ${covered} choices reached adversarial commit coverage`)
   return `${covered} authored transitions`
+})
+
+check('attention actions are exhaustive in either order and cannot consume time or replay', () => {
+  let exercised = 0
+  const nodes = new Set(STORY_OBSERVATION_BEATS.map((beat) => beat.nodeId))
+  for (const nodeId of nodes) {
+    const options = STORY[nodeId].options.filter((option) => option.contextObservation)
+    const orders = options.length === 2 ? [options, [...options].reverse()] : [options]
+    for (const order of orders) {
+      let state = stateAt(nodeId)
+      for (const option of order) {
+        const before = readyFor(state, option)
+        assert.ok(before, `${nodeId}/${option.observation.id}: attention cannot be prepared`)
+        const atClock = before.clock
+        const fromTurn = before.turn
+        const after = choose(before, option)
+        assert.equal(after.nodeId, nodeId, `${nodeId}/${option.observation.id}: attention moved the player`)
+        assert.equal(after.clock, atClock, `${nodeId}/${option.observation.id}: attention consumed time`)
+        assert.ok(after.observations[option.observation.id], `${nodeId}/${option.observation.id}: result was not recorded`)
+        assert.equal(canChoose(after, option), false, `${nodeId}/${option.observation.id}: completed action remained clickable`)
+        const stale = reducer(after, {
+          type: 'CHOOSE', option, targetNode: STORY[nodeId], fromNodeId: nodeId, fromTurn,
+        })
+        assert.equal(stale, after, `${nodeId}/${option.observation.id}: stale attention replayed`)
+        state = after
+        exercised++
+      }
+      const loaded = normalizeSavedState(JSON.parse(JSON.stringify(state)), stateAt(nodeId))
+      assert.deepEqual(loaded.observations, state.observations, `${nodeId}: observed detail was lost on reload`)
+    }
+  }
+  return `${exercised} ordered observation commits across ${nodes.size} scenes`
 })
 
 check('every character threshold confirms atomically, pauses, resumes, and closes', () => {
@@ -539,7 +576,8 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
       peak: pick(2), hearts: pick(3), inventory: pick(4), mana: pick(5), practiced: pick(6),
       visited: pick(1), heard: pick(2), discovered: pick(3), earned: { durableEarned: false },
       eligible: { durableDeed: false }, attempts: { durableDeed: i % 5 }, worldFacts: pick(4),
-      flags: pick(5), knowledge: pick(6), interactions: pick(0), rendezvous: pick(1),
+      flags: pick(5), knowledge: pick(6), observations: pick(0), environmentNarration: pick(2),
+      interactions: pick(0), rendezvous: pick(1),
       npcStarted: pick(5), trail: pick(6), ended: i % 2 ? 'good' : 'nonsense',
       view: i % 2 ? 'achievements' : 'missing', pendingTest: 'invented',
       timePassage: { toNodeId: START_NODE, fromClock: 0, toClock: 4 },
@@ -552,7 +590,7 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
     assert.equal(Object.hasOwn(state, 'peak'), false, 'retired peak state survived save normalization')
     for (const key of [
       'inventory', 'mana', 'practiced', 'visited', 'heard', 'discovered', 'npcStarted',
-      'flags', 'knowledge', 'interactions', 'rendezvous',
+      'flags', 'knowledge', 'observations', 'environmentNarration', 'interactions', 'rendezvous',
     ]) {
       assert.ok(state[key] && typeof state[key] === 'object' && !Array.isArray(state[key]), `${key} not repaired`)
     }

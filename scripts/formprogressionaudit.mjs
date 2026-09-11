@@ -1,94 +1,96 @@
-// Proves that every reviewed form surface is reachable in Train and that the
-// scheduler exhausts an unseen layer before repeating a mastered form.
 import assert from 'node:assert/strict'
 import { DICT } from '../src/game/content.js'
-import {
-  formTrackForSense,
-  playableFormUsage,
-  trainingForms,
-} from '../src/game/formInventory.js'
-import { formPracticeKey, pickLeastPracticedForm } from '../src/game/formProgression.js'
-import { newRun, reducer } from '../src/game/gameState.js'
+import { buildFormQuestion } from '../src/game/formPractice.js'
+import { reviewedFormTargets, wordProgressionOptionsForSense } from '../src/game/formInventory.js'
+import { isTrainableSense } from '../src/game/lexicalTrainability.js'
+import { WORD_CONTEXT_LATE_PROOF, wordProgressPlan } from '../src/game/wordProgression.js'
 
 const lower = (value) => value.normalize('NFC').toLocaleLowerCase('sq')
-let trackedSenses = 0
-let drillableForms = 0
-const classes = new Map()
+const baseWins = Object.freeze({ 'meaning-recognition': 2, 'controlled-lemma-retrieval': 3 })
+let lanes = 0
+let exactTargets = 0
+let skipped = 0
 
 for (const [id, entry] of Object.entries(DICT)) {
-  const drillPool = trainingForms(id)
-  if (drillPool.length < 2) continue
-  trackedSenses += 1
-  const track = formTrackForSense(id)
-  classes.set(track.wordClass, (classes.get(track.wordClass) || 0) + 1)
-
-  const poolSurfaces = new Set(drillPool.map((form) => lower(form.al)))
-  if (entry.formTrack === 'noun') {
-    // Syncretic noun roles may share one surface. Train exposes the spelling
-    // once while the noun refresher retains every reviewed grammatical row.
-    const reviewed = new Set(entry.forms.map((form) => lower(form.al)))
-    assert.deepEqual([...poolSurfaces].sort(), [...reviewed].sort(), `${id}: Train silently omits a reviewed noun form`)
-    assert.equal(track.hasNounRoleStep, true, `${id}: noun lost its grammatical-role step`)
-  } else {
-    assert.equal(track.hasNounRoleStep, false, `${id}: non-noun was sent to noun-role remediation`)
-    const lemma = lower(entry.al)
-    for (const surface of playableFormUsage(id).keys()) {
-      if (surface === lemma) continue
-      const declaration = (entry.forms || []).find((form) => lower(form.al) === surface)
-      if (declaration?.trainable === false) {
-        assert.match(declaration.tag, /Fragment$/, `${id}/${surface}: non-trainable surface lacks an explicit fragment tag`)
-      } else {
-        assert.ok(poolSurfaces.has(surface), `${id}/${surface}: playable form is not quiz-reachable`)
-      }
-    }
-    for (const form of entry.forms || []) {
-      if (form.trainable === false) {
-        assert.match(form.tag, /Fragment$/, `${id}/${form.al}: a non-trainable form needs an explicit fragment tag`)
-      } else {
-        assert.ok(poolSurfaces.has(lower(form.al)), `${id}/${form.al}: dictionary form is not quiz-reachable`)
-      }
-    }
+  if (!isTrainableSense(id)) continue
+  const options = wordProgressionOptionsForSense(id)
+  const targets = options.reviewedForms
+  if (!targets.length) {
+    skipped += 1
+    const plan = wordProgressPlan({ wins: baseWins, contextWins: { [WORD_CONTEXT_LATE_PROOF]: 1 } }, 50, options)
+    assert.equal(plan.stageId, 'word-form-construction', `${id}: unavailable form lane did not skip to construction`)
+    continue
+  }
+  lanes += 1
+  assert.ok(new Set(targets.map(({ surface }) => lower(surface))).size >= 2, `${id}: form lane has no surface contrast`)
+  if (entry.formTrack !== 'noun') {
+    assert.ok(entry.forms?.length, `${id}: raw playable occurrences entered nonnoun form practice without reviewed declarations`)
   }
 
-  const lemma = lower(entry.al)
-  const targets = drillPool.filter((form) => lower(form.al) !== lemma)
-  const mastery = {}
-  const firstCycle = []
-  for (let index = 0; index < targets.length; index += 1) {
-    const selected = pickLeastPracticedForm(targets, id, mastery, () => 0)
-    assert.ok(selected, `${id}: scheduler returned no target`)
-    assert.ok(!firstCycle.includes(lower(selected.al)), `${id}: ${selected.al} repeated before every reviewed form appeared`)
-    firstCycle.push(lower(selected.al))
-    mastery[formPracticeKey(id, selected.al)] = 1
+  for (const target of targets) {
+    exactTargets += 1
+    assert.ok(lower(target.context?.al).includes(lower(target.surface)), `${id}/${target.key}: target absent from natural context`)
+    assert.ok(target.context?.alGap.includes('__'), `${id}/${target.key}: context has no exact gap`)
+    assert.ok(target.context?.en, `${id}/${target.key}: context lacks reviewed English cue`)
+    assert.ok(['reviewed-noun-template', 'reviewed-line-reading'].includes(target.context.provenance),
+      `${id}/${target.key}: learner-facing English came from an unreviewed word-gloss join`)
+    if (entry.formTrack !== 'noun') assert.equal(target.context.provenance, 'reviewed-line-reading')
+
+    const contrastProgress = {
+      wins: baseWins,
+      contextWins: { [WORD_CONTEXT_LATE_PROOF]: 1 },
+      activeFormKey: target.key,
+    }
+    const contrastPlan = wordProgressPlan(contrastProgress, 50, options)
+    assert.equal(contrastPlan.stageId, 'reviewed-form-contrast', `${id}/${target.key}: role contrast is not first`)
+    assert.equal(contrastPlan.targetFormKey, target.key)
+    const contrast = buildFormQuestion({ answerId: id, plan: contrastPlan, currentRound: 50, rng: () => 0.271 })
+    assert.ok(contrast, `${id}/${target.key}: reviewed contrast cannot build`)
+    assert.equal(contrast.kind, 'forms')
+    assert.equal(contrast.answerValue, target.key)
+    assert.ok(contrast.options.length >= 2 && contrast.options.length <= 4)
+    assert.equal(new Set(contrast.options.map(({ label }) => label)).size, contrast.options.length)
+    assert.ok(contrast.options.some(({ value }) => value === target.key))
+
+    const selectionProgress = {
+      ...contrastProgress,
+      formProofs: { [target.key]: { wins: { 'reviewed-form-contrast': 1 } } },
+    }
+    const selectionPlan = wordProgressPlan(selectionProgress, 50, options)
+    assert.equal(selectionPlan.stageId, 'contextual-form-selection')
+    const selection = buildFormQuestion({ answerId: id, plan: selectionPlan, currentRound: 50, rng: () => 0.271 })
+    assert.ok(selection, `${id}/${target.key}: contextual form selection cannot build`)
+    assert.equal(selection.kind, 'form-context')
+    assert.equal(selection.answerValue, target.surface)
+    assert.ok(selection.options.length >= 2 && selection.options.length <= 4)
+    assert.equal(new Set(selection.options.map(({ label }) => lower(label))).size, selection.options.length)
+
+    const constructionProgress = {
+      ...selectionProgress,
+      formProofs: { [target.key]: { wins: {
+        'reviewed-form-contrast': 1,
+        'contextual-form-selection': 1,
+      } } },
+    }
+    const constructionPlan = wordProgressPlan(constructionProgress, 50, options)
+    assert.equal(constructionPlan.stageId, 'word-form-construction')
+    const construction = buildFormQuestion({ answerId: id, plan: constructionPlan, currentRound: 50, rng: () => 0.271 })
+    assert.ok(construction, `${id}/${target.key}: construction cannot build`)
+    assert.equal(construction.kind, 'word-construction')
+    assert.ok(construction.construction.pieces.some(({ distractor }) => distractor), `${id}/${target.key}: no distractor chunk`)
+    const assembled = construction.construction.answerPieceIds.map((pieceId) =>
+      construction.construction.pieces.find(({ id: candidate }) => candidate === pieceId)?.text || '',
+    ).join('')
+    assert.equal(assembled, lower(target.surface), `${id}/${target.key}: exact reviewed surface cannot be constructed`)
+    assert.deepEqual(construction.rewardIds, [id], `${id}/${target.key}: construction rewards anything beyond its target`)
   }
-  assert.equal(new Set(firstCycle).size, targets.length, `${id}: first form cycle is incomplete`)
-  drillableForms += targets.length
 }
 
-// Reducer-side validation prevents forged or stale UI events from creating
-// mastery. Check one noun and one non-noun so both inventory paths stay live.
-const samples = [
-  Object.entries(DICT).find(([id, entry]) => entry.formTrack === 'noun' && trainingForms(id).length > 1),
-  Object.entries(DICT).find(([id, entry]) => entry.formTrack !== 'noun' && trainingForms(id).length > 1),
-].filter(Boolean)
-assert.equal(samples.length, 2, 'both noun and non-noun form tracks need a reducer sample')
+const fshat = reviewedFormTargets('fshat')
+assert.ok(fshat.filter(({ surface }) => lower(surface) === 'fshat').length >= 2, 'syncretic fshat roles were collapsed')
+assert.equal(new Set(fshat.filter(({ surface }) => lower(surface) === 'fshat').map(({ key }) => key)).size, 2)
+const indefiniteObject = fshat.find(({ role }) => role === 'indefAcc')
+assert.equal(indefiniteObject.context.al, 'Shoh një fshat.')
+assert.equal(indefiniteObject.context.alGap, 'Shoh një __.')
 
-for (const [sampleId, sampleEntry] of samples) {
-  const sampleForm = trainingForms(sampleId).find((form) => lower(form.al) !== lower(sampleEntry.al))
-  const ready = { ...newRun(), discovered: { [sampleId]: true } }
-  const correct = reducer(ready, {
-    type: 'PRACTICE_FORM_CORRECT',
-    id: sampleId,
-    formSurface: sampleForm.al,
-  })
-  assert.equal(correct.formPracticed[formPracticeKey(sampleId, sampleForm.al)], 1)
-  const forged = reducer(ready, {
-    type: 'PRACTICE_FORM_CORRECT',
-    id: sampleId,
-    formSurface: '__not_a_reviewed_form__',
-  })
-  assert.deepEqual(forged.formPracticed, {}, `${sampleId}: forged form surface created mastery`)
-}
-
-console.log(`✓ ${drillableForms} reviewed standalone form surfaces across ${trackedSenses} senses are reachable without starvation; bound fragments are excluded.`)
-console.log(`  tracked classes: ${[...classes].map(([name, count]) => `${name} ${count}`).join(', ')}`)
+console.log(`✓ ${exactTargets} exact reviewed form/role targets across ${lanes} lanes build contrast, contextual selection and target-only construction; ${skipped} senses skip safely.`)

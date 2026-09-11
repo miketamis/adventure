@@ -36,6 +36,12 @@ import {
   phraseWords,
   trainQuestionWordKeys,
 } from '../src/game/phrasePractice.js'
+import {
+  phraseClozeContrastRank,
+  phraseClozeDistractorPolicy,
+  isReviewedClozeSlotPeer,
+} from '../src/game/practiceContrasts.js'
+import { isTrainableSense } from '../src/game/lexicalTrainability.js'
 
 const failures = []
 const check = (name, fn) => {
@@ -221,11 +227,22 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
     trainQuestionWordKeys({ kind: 'forms', lexicalSurfaces: ['vajzë', 'VAJZE\u0308N'] }),
     ['vajzë', 'vajzën'],
   )
+  assert.deepEqual(
+    trainQuestionWordKeys({
+      kind: 'normal',
+      field: 'al',
+      lexicalSurfaces: ['fshat'],
+      options: ['fshat', 'ure', 'lume', 'shtepi'],
+    }),
+    ['fshat', 'urë', 'lumë', 'shtëpi'],
+    'visible Albanian word-choice distractors were omitted from spacing',
+  )
   assert.equal(containsExcludedPhraseWord('Jam mirë.', ['JAM']), true)
   assert.equal(containsExcludedPhraseWord('Jam mirë.', ['mirë']), true)
   assert.equal(containsExcludedPhraseWord('çka', ['cka']), false, 'Albanian diacritics were folded')
 
   const practiceSource = fs.readFileSync('src/components/PracticeView.jsx', 'utf8')
+  assert.match(practiceSource, /<ContextualCompletion/)
   assert.match(practiceSource, /const excludeWords = previousQuestionWords\.current\.length/)
   assert.match(practiceSource, /excludeWords,/)
   assert.match(practiceSource, /previousQuestionWords\.current = trainQuestionWordKeys\(nextQuestion\)/)
@@ -234,7 +251,10 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
     /buildWordQuestion\(\{[\s\S]+discoveredIds,[\s\S]+mana: state\.mana,[\s\S]+excludeWords,[\s\S]+\}\)/,
     'the staged word builder did not receive the shared no-repeat boundary',
   )
-  assert.match(practiceSource, /buildFormsQuestion\([\s\S]+excludeWords/)
+  assert.match(practiceSource, /buildWordQuestion\(\{[\s\S]+excludeWords/)
+  assert.match(practiceSource, /TRAIN_EXERCISE_FAMILIES\.wordForms/)
+  assert.match(practiceSource, /TRAIN_EXERCISE_FAMILIES\.wordFormContext/)
+  assert.match(practiceSource, /TRAIN_EXERCISE_FAMILIES\.wordConstruction/)
   assert.match(
     practiceSource,
     /nextQuestion = \{ kind: TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome \}/,
@@ -247,13 +267,16 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
   )
 
   const questionSource = fs.readFileSync('src/components/PhrasePracticeQuestion.jsx', 'utf8')
+  assert.match(questionSource, /wordKeys: trainQuestionWordKeys\(q\)/)
   assert.match(
     questionSource,
     /phraseAnswerResult\(typed, q\.typingAnswer, q\.answerTolerance, q\)/,
     'typing omitted the noun-aware tolerance context',
   )
-  assert.match(questionSource, /q\.mode === 'cloze'[\s\S]+className="answers phrase-cloze-answers"/)
-  assert.match(questionSource, /onClick=\{\(\) => chooseCloze\(tile\)\}/)
+  assert.match(questionSource, /q\.mode === 'cloze'[\s\S]+<ContextualCompletion/)
+  assert.match(questionSource, /directionLabel="Meaning → Albanian"/)
+  assert.match(questionSource, /onAnswer=\{\(id\) => \{[\s\S]+q\.bank\.find[\s\S]+chooseCloze\(tile\)/)
+  assert.match(questionSource, /correctAnswerIds=\{q\.bank\.filter\(\(tile\) => tile\.answerIndex != null\)/)
   assert.doesNotMatch(questionSource, /const needed = q\.mode === 'cloze'/)
 })
 
@@ -261,7 +284,11 @@ check(`all ${EVERYDAY_PHRASE_DRILLS.length} phrases build valid construction, li
   for (const target of EVERYDAY_PHRASE_DRILLS) {
     const words = phraseWords(target.al)
     assert.ok(words.length >= 2, `${target.id} is single-word vocabulary, not a phrase`)
-    assert.deepEqual(phraseRewardIds([target]), [...new Set(target.requires)], `${target.id} rewards drifted`)
+    assert.deepEqual(
+      phraseRewardIds([target]),
+      [...new Set(target.requires.filter(isTrainableSense))],
+      `${target.id} rewards drifted or included a proper name`,
+    )
     for (const word of words) {
       assert.ok(fs.existsSync(`public/audio/${audioSlug(word)}.mp3`), `${target.id} lacks audio for ${word}`)
     }
@@ -276,6 +303,20 @@ check(`all ${EVERYDAY_PHRASE_DRILLS.length} phrases build valid construction, li
       assert.equal(q.target.id, target.id)
       assert.equal(q.mode, mode)
       assert.deepEqual(q.answerWords, words)
+      if (mode === 'listen') {
+        for (const tile of q.bank.filter((entry) => entry.answerIndex == null)) {
+          const targetFocus = phraseProductionFocuses(target).find(({ id }) => id === tile.targetFocusId)
+          assert.ok(targetFocus, `${target.id}/${tile.text}: listening distractor has no target role`)
+          const answer = {
+            focusId: targetFocus.id,
+            formTag: phraseNounRole(target.id, targetFocus.id),
+          }
+          const candidate = { focusId: tile.senseId, formTag: tile.formTag }
+          assert.equal(tile.distractorPolicy, phraseClozeDistractorPolicy(answer, candidate))
+          assert.ok(Number.isFinite(phraseClozeContrastRank(answer, candidate)))
+          if (answer.formTag) assert.equal(tile.formTag, answer.formTag)
+        }
+      }
     }
     const spelling = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, {}, {}, {}, {
       rng: steadyRng,
@@ -290,17 +331,106 @@ check(`all ${EVERYDAY_PHRASE_DRILLS.length} phrases build valid construction, li
     assert.equal(phraseWords(spelling.typingAnswer).length, 1, `${target.id} word spelling asks for several words`)
     assert.equal(spelling.typingCue, target.en, `${target.id} word spelling lost its phrase cue`)
     for (const mode of ['arrange', 'cloze']) {
-      const q = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, {}, {}, {}, {
-        rng: steadyRng,
-        mode,
-        tier: tierForMode[mode],
-        targetId: target.id,
-      })
-      assert.equal(q.mode, mode)
+    const q = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, {}, {}, {}, {
+      rng: steadyRng,
+      mode,
+      tier: tierForMode[mode],
+      targetId: target.id,
+      currentRound: 7,
+    })
+    assert.equal(q.mode, mode)
+    assert.match(q.questionKey, new RegExp(`^${target.id}:7:`), `${target.id} ${mode} key is not round-bound`)
       assert.ok(q.bank.length > (mode === 'cloze' ? 1 : words.length), `${target.id} ${mode} lacks distractors`)
       const answerTiles = q.bank.filter((tile) => tile.answerIndex != null)
       assert.equal(answerTiles.length, mode === 'cloze' ? 1 : words.length)
-      if (mode === 'cloze') assert.equal(answerTiles[0].text, q.correctWord)
+      if (mode === 'arrange') {
+        for (const tile of q.bank.filter((entry) => entry.answerIndex == null)) {
+          const targetFocus = phraseProductionFocuses(target).find(({ id }) => id === tile.targetFocusId)
+          assert.ok(targetFocus, `${target.id}/${tile.text}: arrangement distractor has no target role`)
+          const answer = {
+            focusId: targetFocus.id,
+            formTag: phraseNounRole(target.id, targetFocus.id),
+          }
+          const candidate = { focusId: tile.senseId, formTag: tile.formTag }
+          assert.equal(tile.distractorPolicy, phraseClozeDistractorPolicy(answer, candidate))
+          assert.ok(Number.isFinite(phraseClozeContrastRank(answer, candidate)))
+          if (answer.formTag) assert.equal(tile.formTag, answer.formTag)
+        }
+      }
+      if (mode === 'cloze') {
+        assert.equal(answerTiles[0].text, q.correctWord)
+        assert.equal(answerTiles[0].senseId, q.focusId, `${target.id} cloze answer lost its sense alignment`)
+        assert.deepEqual(q.rewardIds, [q.focusId], `${target.id} focused cloze rewarded non-target words`)
+        assert.equal(q.distractorPolicy, 'reviewed-role-or-slot-peer')
+        assert.equal(
+          new Set(q.bank.map((tile) => normalizePhraseAnswer(tile.text))).size,
+          q.bank.length,
+          `${target.id} cloze has duplicate/ambiguous answer surfaces`,
+        )
+        for (const tile of q.bank.filter((entry) => entry.answerIndex == null)) {
+          assert.ok(tile.senseId && DICT[tile.senseId], `${target.id}/${tile.text} is not sense-aligned`)
+          const answer = { focusId: q.focusId, formTag: answerTiles[0].formTag }
+          const candidate = { focusId: tile.senseId, formTag: tile.formTag }
+          assert.equal(
+            tile.distractorPolicy,
+            phraseClozeDistractorPolicy(answer, candidate),
+            `${target.id}/${tile.text} mislabels its contrast policy`,
+          )
+          if (answer.formTag) {
+            assert.equal(
+              tile.formTag,
+              answer.formTag,
+              `${target.id}/${tile.text} cannot fill the reviewed noun-role slot`,
+            )
+          }
+          if (tile.distractorPolicy === 'reviewed-slot-peer') {
+            assert.equal(
+              isReviewedClozeSlotPeer(q.focusId, tile.senseId),
+              true,
+              `${target.id}/${tile.text} uses an unreviewed cross-role slot peer`,
+            )
+          }
+          assert.ok(Number.isFinite(phraseClozeContrastRank(
+            answer,
+            candidate,
+          )), `${target.id}/${tile.text} is an implausible cross-role distractor`)
+        }
+      }
+    }
+  }
+})
+
+check('every reachable cloze focus has three reviewed role-compatible distractors', () => {
+  for (const target of EVERYDAY_PHRASE_DRILLS) {
+    const focusIds = [...new Set(phraseProductionFocusIds(target))]
+    for (const focusId of focusIds) {
+      // Keep the real planner at its cloze stage while marking every other
+      // possible focus as seen, so each distinct target is exercised.
+      const phraseProgress = focusIds.length > 1 ? {
+        clozeWins: 1,
+        clozeProofs: focusIds.filter((id) => id !== focusId),
+        dueAfterRound: 0,
+      } : null
+      const q = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, {}, {}, {}, {
+        targetId: target.id,
+        mode: 'cloze',
+        distractorPool: EVERYDAY_PHRASE_DRILLS,
+        productionProgress: phraseProgress ? { [target.id]: phraseProgress } : {},
+        rng: steadyRng,
+      })
+      assert.equal(q.focusId, focusId, `${target.id}: planner did not expose ${focusId}`)
+      const answer = q.bank.find((tile) => tile.answerIndex != null)
+      const distractors = q.bank.filter((tile) => tile.answerIndex == null)
+      assert.equal(distractors.length, 3, `${target.id}/${focusId}: incomplete cloze bank`)
+      for (const tile of distractors) {
+        const candidate = { focusId: tile.senseId, formTag: tile.formTag }
+        assert.equal(
+          tile.distractorPolicy,
+          phraseClozeDistractorPolicy({ focusId, formTag: answer.formTag }, candidate),
+          `${target.id}/${focusId}/${tile.text}: unreviewed distractor`,
+        )
+        if (answer.formTag) assert.equal(tile.formTag, answer.formTag)
+      }
     }
   }
 })
@@ -336,6 +466,12 @@ check('a first unlocked phrase still receives useful distractor words', () => {
     const answerTileCount = mode === 'cloze' ? 1 : phraseWords(target.al).length
     assert.ok(q.bank.length >= answerTileCount + 3, `${mode} did not add three distractors`)
     assert.ok(q.bank.filter((tile) => tile.answerIndex == null).length >= 3)
+    for (const tile of q.bank) {
+      assert.ok(
+        phraseWordKeys(tile.text).every((word) => phraseQuestionWordKeys(q).includes(word)),
+        `${mode} omitted visible bank word ${tile.text} from the next-round spacing boundary`,
+      )
+    }
   }
 })
 
@@ -351,6 +487,7 @@ const finish = (state, question, overrides = {}) => reducer(state, {
   typeScope: question.typeScope,
   focusId: question.focusId || null,
   diagnostic: null,
+  wordKeys: trainQuestionWordKeys(question),
   ...overrides,
 })
 
@@ -393,6 +530,11 @@ check('production requires two focuses, ordering, every focus spelling, then ful
       assert.deepEqual(q.rewardIds, [q.focusId], 'focused proof rewarded the whole phrase')
     }
     state = finish(state, q)
+    assert.deepEqual(
+      new Set(state.trainLastWords),
+      new Set(trainQuestionWordKeys(q)),
+      'the reducer did not persist every visible Albanian surface for spacing',
+    )
   }
   assert.deepEqual(focusesSeen.cloze, ['shko', 'fshat'])
   assert.deepEqual(focusesSeen.spelling, ['shko', 'fshat'])

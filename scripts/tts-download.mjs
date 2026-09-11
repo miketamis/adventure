@@ -25,6 +25,7 @@ const ROOT = resolve(__dirname, '..')
 const OUT_DIR = resolve(ROOT, 'public/audio')
 const FORCE = process.argv.includes('--force')
 const FORCE_CEFR = process.argv.includes('--force-cefr')
+const ONLY_SURFACE = process.argv.find((argument) => argument.startsWith('--surface='))?.slice('--surface='.length) || null
 
 // --- credentials ----------------------------------------------------------
 function loadEnv() {
@@ -137,8 +138,11 @@ async function main() {
   }
   const surfaces = [...bySlug.values()]
   const todo = surfaces.filter(
-    (al) => FORCE || (FORCE_CEFR && cefrVoiceBySlug.has(audioSlug(al))) ||
-      !existsSync(resolve(OUT_DIR, `${audioSlug(al)}.mp3`)),
+    (al) => (!ONLY_SURFACE || al === ONLY_SURFACE) && (
+      FORCE ||
+      (FORCE_CEFR && cefrVoiceBySlug.has(audioSlug(al))) ||
+      !existsSync(resolve(OUT_DIR, `${audioSlug(al)}.mp3`))
+    ),
   )
   console.log(`${authoredSurfaces.length} authored surfaces / ${surfaces.length} case-folded clips, ${todo.length} to generate.`)
   if (!todo.length) return

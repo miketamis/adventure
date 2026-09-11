@@ -1,209 +1,157 @@
-// Contract for the lexical evidence ladder. This exercises the same pure state
-// machine and question builder used by Train, plus reducer persistence edges.
-
 import assert from 'node:assert/strict'
-import { formsUnlocked } from '../src/game/formInventory.js'
-import { newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
+import { existsSync } from 'node:fs'
+import { DICT } from '../src/game/content.js'
+import { audioSlug } from '../src/game/audio.js'
+import {
+  REVIEWED_CONTEXT_QUALITY,
+  reviewedContextEligibilityForSense,
+  reviewedFormTargets,
+  wordProgressionOptionsForSense,
+} from '../src/game/formInventory.js'
+import { lexicalTrainability } from '../src/game/lexicalTrainability.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
 import {
-  WORD_PROGRESS_VERSION,
+  WORD_CAPABILITY_IDS,
+  WORD_CONTEXT_EXERCISE_CONCEPT,
+  WORD_CONTEXT_LATE_PROOF,
+  WORD_CONTEXT_VARIANTS,
+  WORD_PROGRESSION_POLICY,
   WORD_STAGE_DEFINITIONS,
-  WORD_SKILL_MAX_TIER,
   advanceWordProgress,
-  completedWordProgress,
-  wordProgressPlan,
-  wordProgressStage,
+  migrateWordProgressV3,
+  wordCapabilitySnapshot,
+  wordContextAlignment,
 } from '../src/game/wordProgression.js'
 
-const id = 'fshat'
-const makeQuestion = (progress, currentRound, targetId = id) => buildWordQuestion({
-  discoveredIds: [targetId],
-  mana: {},
-  wordProgress: { [targetId]: progress },
-  currentRound,
-  rng: () => 0.25,
-})
+assert.deepEqual(WORD_STAGE_DEFINITIONS.map(({ id }) => id), [
+  'meaning-recognition', 'controlled-lemma-retrieval', 'reviewed-form-contrast',
+  'contextual-form-selection', 'word-form-construction', 'contextual-typed-recall',
+  'strict-spaced-recall',
+])
+assert.equal(WORD_PROGRESSION_POLICY.productionBeginsAt, 'word-form-construction')
+assert.deepEqual(WORD_STAGE_DEFINITIONS[1].variants.map(({ id }) => id), [
+  'controlled-retrieval-two-choice', 'controlled-retrieval-four-choice',
+])
+assert.ok(WORD_STAGE_DEFINITIONS.slice(0, 4).every(({ evidenceTrack }) => evidenceTrack !== 'production'))
+assert.ok(WORD_STAGE_DEFINITIONS.slice(4).every(({ evidenceTrack }) => evidenceTrack === 'production'))
 
-const first = makeQuestion(null, 0)
-assert.equal(first.tier, 0)
-assert.equal(first.dir, 'al2en')
-assert.equal(first.mode, 'choice')
-assert.equal(first.wordStageId, 'independent-word-recognition')
-assert.equal(first.options.length, 4, 'a saved word did not begin Train with independent recognition')
-assert.ok(!WORD_STAGE_DEFINITIONS.some(({ id: stageId }) => stageId === 'guided-word-recognition'))
-
-let progress = null
-let round = 0
-let sequence = 0
-for (const definition of WORD_STAGE_DEFINITIONS.slice(0, -1)) {
-  const required = definition.gate.wins
-  for (let win = 0; win < required; win++) {
-    const plan = wordProgressPlan(progress, round)
-    round = Math.max(round, plan.dueAfterRound)
-    const duePlan = wordProgressPlan(progress, round)
-    assert.equal(duePlan.tier, definition.tier)
-    assert.equal(duePlan.mode, definition.mode)
-    assert.equal(duePlan.direction, definition.direction)
-    const question = makeQuestion(progress, round)
-    assert.equal(question.tier, definition.tier)
-    if (definition.mode === 'choice') {
-      assert.equal(question.options.length, definition.variant.distractors + 1)
-    } else {
-      assert.equal(question.kind, 'word-spelling')
-      assert.equal(question.answerTolerance, definition.answerTolerance)
-    }
+const run = (id, { stopWhen, max = 30 } = {}) => {
+  let progress = null
+  let round = 0
+  const seen = []
+  const options = wordProgressionOptionsForSense(id)
+  for (let index = 0; index < max; index++) {
+    const question = buildWordQuestion({
+      discoveredIds: [id], wordProgress: { [id]: progress }, currentRound: round, rng: () => 0.314,
+    })
+    assert.ok(question, `${id}: due progression returned no question`)
+    seen.push(question)
+    if (stopWhen?.(question, progress)) return { progress, round, seen, question }
     const result = advanceWordProgress(progress, round, {
       correct: true,
+      stageId: question.wordStageId,
       tier: question.tier,
       mode: question.mode,
       direction: question.dir,
-      questionKey: `word-audit-${sequence++}`,
+      variantId: question.variantId ?? null,
+      targetFormKey: question.targetFormKey ?? null,
+      questionKey: `word-progression-audit:${id}:${index}`,
       round: round + 1,
-    })
-    assert.equal(result.accepted, true)
+    }, options)
+    assert.equal(result.accepted, true, `${id}: ${result.reason}`)
     progress = result.progress
-    round += 1
-    assert.equal(wordProgressPlan(progress, round).due, false, 'same word repeated without a disjoint round')
-    round += 1
+    round = Math.max(round + 1, progress.dueAfterRound)
   }
+  return { progress, round, seen }
 }
-assert.equal(wordProgressStage(progress), WORD_SKILL_MAX_TIER)
-const retained = wordProgressPlan(progress, round)
-assert.equal(retained.mode, 'type')
-assert.equal(retained.answerTolerance, 'strict')
-assert.ok(retained.dueAfterRound > round, 'strict spelling did not receive an initial review gap')
 
-const beforeMiss = wordProgressPlan(progress, retained.dueAfterRound)
-const missed = advanceWordProgress(progress, retained.dueAfterRound, {
-  correct: false,
-  tier: beforeMiss.tier,
-  mode: beforeMiss.mode,
-  direction: beforeMiss.direction,
-  questionKey: 'word-audit-retention-miss',
-  round: retained.dueAfterRound + 1,
-})
-assert.equal(missed.accepted, true)
-assert.equal(missed.progress.remediation.stage, 1)
-assert.equal(wordProgressStage(missed.progress), WORD_SKILL_MAX_TIER, 'a lapse erased completed proofs')
-const repairRound = missed.progress.remediation.dueAfterRound
-const repair = wordProgressPlan(missed.progress, repairRound)
-assert.equal(repair.remediation, true)
-assert.equal(repair.direction, 'en2al')
-assert.equal(repair.mode, 'choice')
+const early = run('po_yes', { stopWhen: (question) => question.wordStageId === 'word-form-construction' })
+assert.deepEqual(early.seen.slice(0, 5).map(({ variantId }) => variantId), [
+  'marked-context-recognition', 'marked-context-recognition',
+  'mirrored-controlled-retrieval', 'mirrored-controlled-retrieval', 'mirrored-controlled-retrieval',
+])
+assert.deepEqual(early.seen.slice(0, 5).map(({ options }) => options.length), [4, 4, 2, 4, 4])
+assert.equal(early.question.variantId, WORD_CONTEXT_LATE_PROOF)
+assert.equal(early.question.contextReview, true)
+assert.equal(early.question.evidenceTrack, 'recognition')
+const firstPo = early.seen[0]
+assert.equal(firstPo.ctx.al, DICT.po_yes.ctx.al)
+assert.equal(firstPo.ctx.en, DICT.po_yes.ctx.en)
+assert.equal(firstPo.promptProfile.showEnglishContext, false,
+  'English context solved Albanian-to-meaning recognition before the learner read Albanian')
+assert.equal(new Set(Object.values(firstPo.optionLabels)).size, 4)
+assert.ok(Object.values(firstPo.optionLabels).includes('confirms: yes'))
+assert.equal(firstPo.audioSurface, DICT.po_yes.ctx.al)
+assert.ok(existsSync(`public/audio/${audioSlug(firstPo.audioSurface)}.mp3`), 'po_yes exchange lacks continuous audio')
 
-const context = makeQuestion(null, 0, 'po_yes')
-assert.equal(context.kind, 'ctx')
-assert.equal(context.options.length, 4)
-assert.match(context.ctx.en, /__/)
-
-assert.equal(makeQuestion(null, 0)?.answerId, id)
-assert.equal(buildWordQuestion({
-  discoveredIds: [id],
-  wordProgress: {},
-  currentRound: 0,
-  excludeWords: ['fshat'],
-}), null, 'the no-repeat boundary ignored the target word')
-
-const fresh = newRun()
-const savedWord = reducer(fresh, { type: 'DISCOVER', id })
-assert.equal(savedWord.discovered[id], true)
-assert.deepEqual(savedWord.wordProgress[id], {
-  wins: {},
-  strictWins: 0,
-  dueAfterRound: 0,
-  reviewGap: 6,
-  lastAttemptKey: null,
-  lastAttemptRound: 0,
-  remediation: null,
-})
-assert.equal(makeQuestion(savedWord.wordProgress[id], 0).wordStageId, 'independent-word-recognition')
-
-const migrated = normalizeSavedState({
-  ...fresh,
-  discovered: { [id]: true },
-  practiced: { [id]: 99 },
-  wordProgressVersion: 0,
-  wordProgress: { [id]: completedWordProgress() },
-}, fresh)
-assert.equal(migrated.wordProgressVersion, WORD_PROGRESS_VERSION)
-assert.deepEqual(migrated.wordProgress[id].wins, {}, 'legacy mixed totals became invented Train evidence')
-assert.equal(wordProgressStage(migrated.wordProgress[id]), 0, 'the saved-word marker skipped independent recognition')
-
-const v1Progress = {
-  wins: {
-    'guided-word-recognition': 1,
-    'independent-word-recognition': 2,
-    'guided-word-selection': 1,
-    'independent-word-selection': 2,
-    'supported-word-spelling': 1,
-  },
-  strictWins: 0,
-  dueAfterRound: 30,
-  reviewGap: 12,
-  lastAttemptKey: 'v1-retention-miss',
-  lastAttemptRound: 22,
-  remediation: {
-    stage: 2,
-    returnStage: 5,
-    reason: 'retention-lapse',
-    dueAfterRound: 24,
-  },
+for (const [id, entry] of Object.entries(DICT).filter(([, value]) => value.ctx)) {
+  const normalized = entry.ctx.al.toLocaleLowerCase('sq').replace(/[“”"'.!?:,;]/gu, '').trim()
+  const focus = entry.ctx.focus.toLocaleLowerCase('sq')
+  assert.notEqual(normalized, `ti thua ${focus}`, `${id}: context is only a “you say target” wrapper`)
+  assert.notEqual(normalized, `ju thoni ${focus}`, `${id}: context is only a “you say target” wrapper`)
 }
-const upgradedV1 = normalizeSavedState({
-  ...fresh,
-  discovered: { [id]: true },
-  wordProgressVersion: 1,
-  wordProgress: { [id]: v1Progress },
-  trainRound: 22,
-}, fresh)
-assert.equal(upgradedV1.wordProgressVersion, WORD_PROGRESS_VERSION)
-assert.equal(wordProgressStage(upgradedV1.wordProgress[id]), WORD_SKILL_MAX_TIER)
-assert.equal(upgradedV1.wordProgress[id].wins['guided-word-recognition'], undefined)
-assert.deepEqual(upgradedV1.wordProgress[id].remediation, {
-  stage: 1,
-  returnStage: 4,
-  reason: 'retention-lapse',
-  dueAfterRound: 24,
-})
 
-const mastered = completedWordProgress(20)
-const restored = normalizeSavedState({
-  ...fresh,
-  discovered: { [id]: true },
-  practiced: { [id]: 9 },
-  wordProgressVersion: WORD_PROGRESS_VERSION,
-  wordProgress: { [id]: mastered },
-  trainRound: 20,
-}, fresh)
-assert.equal(wordProgressStage(restored.wordProgress[id]), WORD_SKILL_MAX_TIER)
-assert.equal(formsUnlocked(restored, id), true)
+for (const [id] of Object.entries(DICT).filter(([senseId]) => lexicalTrainability(senseId).trainable)) {
+  const eligibility = reviewedContextEligibilityForSense(id)
+  if (!eligibility.requiresReviewedContext) continue
+  assert.equal(eligibility.eligible, true, `${id}: ${eligibility.gaps.join('; ')}`)
+  assert.equal(DICT[id].ctx.quality, REVIEWED_CONTEXT_QUALITY)
+  assert.equal(wordProgressionOptionsForSense(id).trainability.trainable, true)
+}
 
-const question = first
-const playable = { ...fresh, discovered: { [id]: true } }
-const answered = reducer(playable, {
-  type: 'PRACTICE_WORD_RESULT',
+const rejectedWithoutReviewedContext = advanceWordProgress(null, 0, {
   correct: true,
-  id,
-  tier: question.tier,
-  mode: question.mode,
-  direction: question.dir,
-  questionKey: question.questionKey,
-  wordKeys: [id],
-})
-assert.equal(answered.mana[id], 1)
-assert.equal(answered.practiced[id], 1)
-assert.equal(answered.trainRound, 1)
-assert.equal(wordProgressStage(answered.wordProgress[id]), 0)
-assert.equal(answered.wordProgress[id].wins['independent-word-recognition'], 1)
-assert.strictEqual(reducer(answered, {
-  type: 'PRACTICE_WORD_RESULT',
-  correct: true,
-  id,
-  tier: question.tier,
-  mode: question.mode,
-  direction: question.dir,
-  questionKey: question.questionKey,
-  wordKeys: [id],
-}), answered, 'a duplicate result awarded twice')
+  stageId: 'meaning-recognition',
+  tier: 0,
+  mode: 'choice',
+  direction: 'al2en',
+  variantId: 'four-choice-meaning',
+  questionKey: 'forged-unreviewed-context',
+  round: 1,
+}, { trainability: { trainable: false, reason: 'context review required' } })
+assert.equal(rejectedWithoutReviewedContext.accepted, false)
+assert.equal(rejectedWithoutReviewedContext.reason, 'not-trainable')
 
-console.log(`${WORD_STAGE_DEFINITIONS.length} Train stages verified after save-to-vocabulary recognition: independent recognition → guided selection → independent selection → supported spelling → retained spelling.`)
+const conceptIds = new Set(WORD_CONTEXT_VARIANTS.map(({ exerciseConceptId }) => exerciseConceptId))
+assert.deepEqual([...conceptIds], [WORD_CONTEXT_EXERCISE_CONCEPT])
+const ambiguous = { al: 'po, po', en: '__', focus: 'po' }
+assert.equal(wordContextAlignment(ambiguous).reason, 'ambiguous-target')
+const malformed = { al: 'ti thua po', en: 'you say yes', focus: 'po' }
+assert.equal(wordContextAlignment(malformed).usable, false)
+
+const nounOptions = wordProgressionOptionsForSense('fshat')
+assert.equal(nounOptions.reviewedForms.length, reviewedFormTargets('fshat').length)
+const nounSnapshot = wordCapabilitySnapshot(null, 0, nounOptions)
+assert.equal(nounSnapshot.hasReviewedFormLane, true)
+assert.deepEqual(Object.keys(nounSnapshot.capabilities), [...WORD_CAPABILITY_IDS])
+const simpleSnapshot = wordCapabilitySnapshot(null, 0, wordProgressionOptionsForSense('po_prog'))
+assert.equal(simpleSnapshot.hasReviewedFormLane, false)
+assert.equal(simpleSnapshot.capabilities['reviewed-form-awareness'].status, 'inapplicable')
+assert.equal(simpleSnapshot.capabilities['contextual-form-selection'].status, 'inapplicable')
+assert.equal(simpleSnapshot.capabilities['word-form-construction'].status, 'pending')
+
+const nameSnapshot = wordCapabilitySnapshot(null, 0, {
+  ...wordProgressionOptionsForSense('elira'),
+  trainability: lexicalTrainability('elira'),
+})
+assert.equal(nameSnapshot.currentStageId, null)
+assert.ok(Object.values(nameSnapshot.capabilities).every(({ status }) => status === 'not-trainable'))
+
+const migrated = migrateWordProgressV3({ wins: {
+  'independent-word-recognition': 2,
+  'guided-word-selection': 1,
+  'independent-word-selection': 2,
+  'supported-word-spelling': 1,
+} }, 8)
+assert.equal(migrated.wins['meaning-recognition'], 2)
+assert.equal(migrated.wins['controlled-lemma-retrieval'], 3)
+assert.equal(migrated.wins['word-form-construction'], undefined, 'old isolated spelling invented construction proof')
+assert.deepEqual(migrated.formProofs, {}, 'old form totals invented exact form/role evidence')
+
+for (const id of Object.keys(DICT).filter((senseId) => lexicalTrainability(senseId).trainable)) {
+  const options = wordProgressionOptionsForSense(id)
+  const snapshot = wordCapabilitySnapshot(null, 0, options)
+  assert.deepEqual(Object.keys(snapshot.capabilities), [...WORD_CAPABILITY_IDS], `${id}: incomplete capability snapshot`)
+}
+
+console.log('✓ lexical registry, aligned context variants, conditional form capabilities, migration and trainability snapshots are coherent.')

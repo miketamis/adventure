@@ -4,17 +4,21 @@ import { cefrProfile } from '../game/cefrAssessment.js'
 import {
   CEFR_PREPARATION_ACTIVITIES,
   CEFR_PREPARATION_MECHANICS,
+  CEFR_PREPARATION_SCENARIO_COMPANION,
   CEFR_PREPARATION_STAGES,
   evaluatePreparationResponse,
   preparationPlan,
 } from '../game/cefrPreparation.js'
 import { liveCefrPreparationEvidence } from '../game/cefrPreparationEvidence.js'
 import { cefrPreparationLoreLabels } from '../game/cefrPreparationPresentation.js'
-import { WORD_STAGE_DEFINITIONS } from '../game/wordProgression.js'
+import { WORD_CAPABILITY_DEFINITIONS } from '../game/wordProgression.js'
 import { DICT } from '../game/dictionary.js'
 
-const stageLabel = (stageId) => WORD_STAGE_DEFINITIONS.find(({ id }) => id === stageId)?.label || stageId
+const capabilityLabel = (capabilityId) =>
+  WORD_CAPABILITY_DEFINITIONS.find(({ id }) => id === capabilityId)?.label || capabilityId.replaceAll('-', ' ')
 const sqText = (value) => typeof value === 'string' ? value : value?.text || ''
+const scenarioCompanionAtSentenceStart = CEFR_PREPARATION_SCENARIO_COMPANION
+  .replace(/^./u, (first) => first.toUpperCase())
 
 function Albanian({ value, className = '' }) {
   if (!value) return null
@@ -265,7 +269,7 @@ function ActivitySurface({ activity, answer, setAnswer, submitted, attempted }) 
 
       {response.kind === 'branch-by-intent' && (
         <div>
-          {answer.branchPrompt && <p className="cefr-prep-branch-note">Elira changes her next turn in response to your choice.</p>}
+          {answer.branchPrompt && <p className="cefr-prep-branch-note">{scenarioCompanionAtSentenceStart} changes the next turn in response to your choice.</p>}
           {answer.optionIds.length > 0 && (
             <div className="cefr-prep-dialogue-history" aria-label="Earlier replies in this practice exchange">
               {answer.optionIds.map((optionId, index) => {
@@ -288,7 +292,7 @@ function ActivitySurface({ activity, answer, setAnswer, submitted, attempted }) 
       {response.kind === 'scan-and-relay' && (
         <div className="cefr-prep-two-step">
           <ChoiceSet options={activity.factOptions} value={answer.factId} onChange={(factId) => setAnswer({ ...answer, factId })} disabled={submitted} label="1. Find the fact" />
-          <ChoiceSet options={activity.relayOptions} value={answer.relayId} onChange={(relayId) => setAnswer({ ...answer, relayId })} disabled={submitted} label="2. Tell Elira" />
+          <ChoiceSet options={activity.relayOptions} value={answer.relayId} onChange={(relayId) => setAnswer({ ...answer, relayId })} disabled={submitted} label={`2. Tell ${CEFR_PREPARATION_SCENARIO_COMPANION}`} />
         </div>
       )}
 
@@ -506,7 +510,7 @@ function ActivityPlayer({ activity, attempts, debug, lorePlace, loreCompanion, o
         <button type="button" className="btn" onClick={onBack}>Preparation path</button>
       </div>
       <div className="cefr-prep-context">
-        <span>{lorePlace}{loreCompanion ? ` · with ${loreCompanion}` : ''}</span>
+        <span>Current story · {lorePlace}{loreCompanion ? ` · with ${loreCompanion}` : ''}</span>
         {debug && <span>{attempts} earlier {attempts === 1 ? 'attempt' : 'attempts'}</span>}
       </div>
       <p className="cefr-task-prompt">{activity.instruction}</p>
@@ -528,13 +532,13 @@ function ActivityPlayer({ activity, attempts, debug, lorePlace, loreCompanion, o
 }
 
 function lockedReason(readiness, debug = false) {
-  const wordReasons = readiness.reasons.filter((reason) => reason.startsWith('requires-word:'))
-  if (wordReasons.length) {
-    const [, senseId, stageId] = wordReasons[0].split(':')
-    const remaining = wordReasons.length > 1
-      ? debug ? ` and ${wordReasons.length - 1} more needed words` : ' and the other required words'
+  const capabilityReasons = readiness.reasons.filter((reason) => reason.startsWith('requires-capability:'))
+  if (capabilityReasons.length) {
+    const [, senseId, capabilityId] = capabilityReasons[0].split(':')
+    const remaining = capabilityReasons.length > 1
+      ? debug ? ` and ${capabilityReasons.length - 1} more needed words` : ' and the other required words'
       : ''
-    return `Train ${DICT[senseId]?.al || senseId} to ${stageLabel(stageId)}${remaining}.`
+    return `Train ${DICT[senseId]?.al || senseId} for ${capabilityLabel(capabilityId)}${remaining}.`
   }
   const level = readiness.reasons.find((reason) => reason.startsWith('requires-level:'))?.split(':')[1]
   if (level) return `Reach ${level} readiness before beginning A2 preparation.`

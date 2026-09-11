@@ -1,7 +1,17 @@
 import { PHRASE_STAGE_DEFINITIONS } from './phraseProgression.js'
-import { WORD_PROGRESSION_POLICY } from './wordProgression.js'
+import {
+  WORD_CONTEXT_VARIANTS,
+  WORD_PROGRESSION_POLICY,
+  WORD_STAGE_DEFINITIONS,
+} from './wordProgression.js'
 
-export { WORD_PROGRESSION_POLICY, WORD_STAGE_DEFINITIONS } from './wordProgression.js'
+export {
+  WORD_CONTEXT_VARIANTS,
+  WORD_PROGRESSION_POLICY,
+  WORD_STAGE_DEFINITIONS,
+} from './wordProgression.js'
+
+const WORD_STAGE_BY_ID = Object.freeze(Object.fromEntries(WORD_STAGE_DEFINITIONS.map((stage) => [stage.id, stage])))
 
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
@@ -16,27 +26,34 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
   wordMeaning: {
     id: 'word-meaning', kind: 'normal', label: 'Word meaning', role: 'progression',
     variants: [
-      { id: 'al2en', label: 'Albanian → English' },
-      { id: 'en2al', label: 'English → Albanian' },
+      WORD_STAGE_BY_ID['meaning-recognition'].variant,
+      ...WORD_STAGE_BY_ID['controlled-lemma-retrieval'].variants,
     ],
   },
   wordContext: {
-    id: 'word-context', kind: 'ctx', label: 'Meaning in context', role: 'conditional',
-    variants: [{ id: 'highlighted-sense', label: 'Highlighted sense in a complete phrase' }],
+    id: 'word-context', kind: 'ctx', label: 'Context gap', role: 'conditional',
+    // Preserve identity with the scheduler's mirrored context definitions so
+    // the debug graph cannot drift into a different set of unlock rules.
+    variants: WORD_CONTEXT_VARIANTS,
   },
   wordSpelling: {
     id: 'word-spelling', kind: 'word-spelling', label: 'Word spelling', role: 'progression',
     variants: [
-      { id: 'supported-word-spelling', label: 'Beginner-tolerant typed recall' },
-      { id: 'retained-word-spelling', label: 'Strict spelling after a review gap' },
+      WORD_STAGE_BY_ID['contextual-typed-recall'],
+      WORD_STAGE_BY_ID['strict-spaced-recall'],
     ],
   },
+  wordConstruction: {
+    id: 'word-construction', kind: 'word-construction', label: 'Build the word or form', role: 'progression',
+    variants: [WORD_STAGE_BY_ID['word-form-construction']],
+  },
   wordForms: {
-    id: 'word-forms', kind: 'forms', label: 'Word forms', role: 'parallel', choiceDistractors: 3,
-    variants: [
-      { id: 'identify-lemma', step: 1, label: 'Reviewed form → word meaning' },
-      { id: 'identify-job', step: 2, label: 'Noun form → grammatical job', nounOnly: true },
-    ],
+    id: 'word-forms', kind: 'forms', label: 'Reviewed form contrast', role: 'progression', choiceDistractors: 3,
+    variants: [WORD_STAGE_BY_ID['reviewed-form-contrast']],
+  },
+  wordFormContext: {
+    id: 'word-form-context', kind: 'form-context', label: 'Choose the form in context', role: 'progression', choiceDistractors: 3,
+    variants: [WORD_STAGE_BY_ID['contextual-form-selection']],
   },
   nounCorrection: {
     id: 'noun-correction', kind: 'forms-correction', label: 'Exact ending refresher', role: 'remediation',
@@ -52,7 +69,7 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
 
 export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
   phraseShare: 0.65,
-  formShareWithinWordRounds: 0.35,
+  formShareWithinWordRounds: 0,
   // Word direction and choice count are no longer random knobs: the exact
   // word-evidence stage owns both through WORD_STAGE_DEFINITIONS.
   wordDirection: { source: 'word-stage-definition' },
@@ -68,9 +85,9 @@ export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
 })
 
 export const TRAIN_WORD_FORM_POLICY = deepFreeze({
-  practiceWinsRequired: 3,
-  lexicalStageRequired: WORD_PROGRESSION_POLICY.formUnlock.requiredBaseStage,
-  lexicalPrerequisite: WORD_PROGRESSION_POLICY.formUnlock.rationale,
+  practiceWinsRequired: 0,
+  lexicalStageRequired: 2,
+  lexicalPrerequisite: 'Complete meaning recognition and both internal variants of controlled lemma retrieval.',
   steps: TRAIN_EXERCISE_FAMILIES.wordForms.variants,
   correction: TRAIN_EXERCISE_FAMILIES.nounCorrection,
   nonNounCoverageFloor: 'reviewed playable surfaces only; no speculative conjugation generation',

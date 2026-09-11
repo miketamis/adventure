@@ -50,6 +50,11 @@ export const NPCS = {
   elira: {
     name: 'Elira',
     glyph: '👩',
+    identity: {
+      mode: 'discoverable',
+      descriptor: 'the woman from the bridge',
+      reason: 'Elira gives the traveller her proper name only when they ask for it.',
+    },
     route: ['start', 'fshatiLumi', 'fshatiLumi', 'fshatiSheshi'],
     stepHours: 1,
     once: true,
@@ -62,6 +67,10 @@ export const NPCS = {
   gruaUji: {
     name: 'gruaja me ujë',
     glyph: '🏺',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'This is a visible role description, not a concealed personal name.',
+    },
     route: ['kroi1', 'fshatiLumi', 'fshatiSheshi', 'fshatiLumi'],
     stepHours: 2,
     activePhases: ['dawn', 'day', 'dusk'],
@@ -74,6 +83,10 @@ export const NPCS = {
   krushqit: {
     name: 'krushqit me nusen',
     glyph: '🐎',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'The wedding party is identified by the procession the traveller can see.',
+    },
     route: ['start', 'fshatiLumi', 'fshatiSheshi', 'dasma1', 'dasma1', 'fshatiSheshi', 'fshatiLumi'],
     stepHours: 2,
     activePhases: ['dawn', 'day', 'dusk'],
@@ -89,6 +102,10 @@ export const NPCS = {
   plakaPyllit: {
     name: 'plaka e ftohtë',
     glyph: '👵',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'This descriptive forest title is apparent in the encounter and is not a personal name.',
+    },
     route: ['pylliLoop', 'pylliLoop', 'pylliLoop', 'pylliLoop', 'pylliLoop', 'lendina', 'lendina', 'pylliLoop'],
     stepHours: 3,
     activePhases: ['night'],
@@ -101,6 +118,10 @@ export const NPCS = {
   xhindet: {
     name: 'Xhindët',
     glyph: '👣',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'This names the collective kind encountered at night, not one person with a hidden name.',
+    },
     // The clock indexes this route at slot 7 when night begins. Keep the well
     // there so the *visible* part of the timetable follows the prose: well →
     // sleeping square → river-quarter → mill, rather than showing only the
@@ -116,6 +137,10 @@ export const NPCS = {
   plakuSheshit: {
     name: 'plaku i sheshit',
     glyph: '👴',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'The square elder is identified by his visible social role and location.',
+    },
     route: ['fshatiSheshi', 'fshatiSheshi', 'fshatiSheshi', 'fshatiSheshi', 'oda1', 'oda1', 'oda1', 'oda1'],
     stepHours: 3,
   },
@@ -126,6 +151,10 @@ export const NPCS = {
   bari: {
     name: 'bariu me dhitë',
     glyph: '🐐',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'The shepherd is identified by the goats and his work rather than a concealed proper name.',
+    },
     route: ['fshatiJeta', 'bariu', 'bariu', 'bariu', 'fshatiJeta', 'fshatiJeta', 'fshatiJeta', 'fshatiJeta'],
     stepHours: 3,
     activePhases: ['dawn', 'day', 'dusk'],
@@ -136,6 +165,10 @@ export const NPCS = {
   femijet: {
     name: 'fëmijët me dordolecin',
     glyph: '🧒',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'This is a visible group description, not a collection of undisclosed personal names.',
+    },
     route: ['fshatiSheshi', 'fshatiLanes'],
     stepHours: 2,
     activePhases: ['dawn', 'day', 'dusk'],

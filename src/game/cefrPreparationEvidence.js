@@ -2,7 +2,9 @@ import { CEFR_PREPARATION_ACTIVITIES } from './cefrPreparation.js'
 import {
   normalizeCefrPreparationState,
 } from './cefrPreparationEvidenceState.js'
-import { WORD_STAGE_DEFINITIONS, wordProgressStage } from './wordProgression.js'
+import { DICT } from './dictionary.js'
+import { wordProgressionOptionsForSense } from './formInventory.js'
+import { wordCapabilitySnapshot } from './wordProgression.js'
 
 export {
   emptyCefrPreparationState,
@@ -24,19 +26,22 @@ const strictMechanicPasses = (saved) => {
 }
 
 export function liveCefrPreparationEvidence(state, achievedLevels = []) {
-  const wordStages = {}
+  const wordCapabilities = {}
   // Word progression is durable learning evidence, while `discovered` is the
   // set of clickable words encountered in the current story run. A reset may
   // clear the latter, but must not relock guided CEFR work the learner already
   // earned through Train.
   for (const [senseId, progress] of Object.entries(safeRecord(state?.wordProgress))) {
-    const tier = wordProgressStage(progress)
-    const stage = WORD_STAGE_DEFINITIONS[tier]
-    if (stage) wordStages[senseId] = stage.id
+    if (!DICT[senseId]) continue
+    wordCapabilities[senseId] = wordCapabilitySnapshot(
+      progress,
+      state?.trainRound || 0,
+      wordProgressionOptionsForSense(senseId),
+    )
   }
   return {
     achievedLevels: [...new Set(achievedLevels.filter((level) => level === 'A1' || level === 'A2'))],
-    wordStages,
+    wordCapabilities,
     mechanicPasses: strictMechanicPasses(state),
   }
 }

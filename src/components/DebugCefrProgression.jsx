@@ -31,6 +31,7 @@ import {
 } from '../game/cefrPreparation.js'
 import { liveCefrPreparationEvidence } from '../game/cefrPreparationEvidence.js'
 import { CEFR_TASKS, CEFR_TASKS_BY_FAMILY } from '../game/cefrTasks.js'
+import { wordProgressionOptionsForSense } from '../game/formInventory.js'
 import { NOUN_FORM_ROLE_LABELS } from '../game/nounEndingRefresher.js'
 import {
   advancePhraseProduction,
@@ -39,11 +40,10 @@ import {
 } from '../game/phraseProgression.js'
 import { buildPhraseProgressionSnapshot } from '../game/phrasePractice.js'
 import { phraseProductionFocusIds } from '../game/phraseFocus.js'
-import { TRAIN_WORD_FORM_POLICY } from '../game/trainingProgression.js'
 import {
   advanceWordProgress,
+  WORD_CAPABILITY_DEFINITIONS,
   WORD_PROGRESSION_POLICY,
-  WORD_STAGE_DEFINITIONS,
   wordProgressionSnapshot,
 } from '../game/wordProgression.js'
 
@@ -62,39 +62,49 @@ const countBy = (items, keyFor) => items.reduce((counts, item) => {
 }, {})
 
 function simulateWord() {
+  const options = wordProgressionOptionsForSense(EXAMPLE_WORD_ID)
   const snapshots = [{
     id: 'word-entry', label: 'word saved', note: 'Saving the word completed guided recognition; the real next task is four-choice independent Albanian-to-English recognition.',
-    value: wordProgressionSnapshot(null, 0), round: 0,
+    value: wordProgressionSnapshot(null, 0, options), round: 0,
   }]
   let progress = null
   let round = 0
-  let previousStage = 0
-  for (let attempt = 0; attempt < 30 && previousStage < WORD_STAGE_DEFINITIONS.length - 1; attempt++) {
-    let snapshot = wordProgressionSnapshot(progress, round)
+  let previousStepKey = 'meaning-recognition:'
+  for (let attempt = 0; attempt < 300; attempt++) {
+    let snapshot = wordProgressionSnapshot(progress, round, options)
     round = Math.max(round, snapshot.next.dueAfterRound)
-    snapshot = wordProgressionSnapshot(progress, round)
+    snapshot = wordProgressionSnapshot(progress, round, options)
     const plan = snapshot.next
     const result = advanceWordProgress(progress, round, {
       correct: true,
+      stageId: plan.stageId,
       tier: plan.tier,
       mode: plan.mode,
       direction: plan.direction,
+      targetFormKey: plan.targetFormKey,
       questionKey: `cefr-debug-word-${attempt}`,
       round: round + 1,
-    })
+    }, options)
     if (!result.accepted) break
     progress = result.progress
-    const after = wordProgressionSnapshot(progress, round + 1)
-    if (after.next.baseStage > previousStage) {
-      previousStage = after.next.baseStage
+    const after = wordProgressionSnapshot(progress, round + 1, options)
+    const stepKey = `${after.currentStageId}:${after.next?.targetFormKey || ''}`
+    const allReviewedFormsRetained = reviewedForms.length > 0 && reviewedForms.every(
+      ({ key }) => after.progress.formProofs[key]?.strictWins > 0,
+    )
+    if (stepKey !== previousStepKey || allReviewedFormsRetained) {
+      previousStepKey = stepKey
       snapshots.push({
-        id: `word-${after.next.definition.id}`,
-        label: after.next.difficultyLabel,
-        note: `The exact earlier lexical proofs are complete; ${after.next.difficultyLabel} is next.`,
+        id: allReviewedFormsRetained ? 'word-all-reviewed-forms-retained' : `word-${stepKey}`,
+        label: allReviewedFormsRetained ? 'all reviewed forms retained' : after.next.difficultyLabel,
+        note: allReviewedFormsRetained
+          ? 'Every reviewed form has its own strict spaced-recall proof; no aggregate tier or unrelated token total substitutes for it.'
+          : `The exact earlier capability proofs are complete; ${after.next.difficultyLabel} is next for ${after.next.formTarget?.surface || DICT[EXAMPLE_WORD_ID].al}.`,
         value: after,
         round: round + 1,
       })
     }
+    if (allReviewedFormsRetained) break
     round += 2
   }
   return snapshots
@@ -163,9 +173,13 @@ function assessmentEvidence(level, phase) {
   }).flatMap(passingEvidence)
 }
 
-const preparationWordStages = Object.fromEntries(
+const preparationWordCapabilities = Object.fromEntries(
   [...new Set(CEFR_PREPARATION_ACTIVITIES.flatMap(({ focusSenseIds }) => focusSenseIds))]
-    .map((senseId) => [senseId, WORD_STAGE_DEFINITIONS.at(-1).id]),
+    .map((senseId) => [senseId, {
+      capabilities: Object.fromEntries(WORD_CAPABILITY_DEFINITIONS.map(
+        ({ id }) => [id, { status: 'passed', evidence: { deterministicExample: true } }],
+      )),
+    }]),
 )
 
 function completedPreparationThrough(stageOrder) {
@@ -178,7 +192,7 @@ function completedPreparationThrough(stageOrder) {
     achievedLevels: stageOrder >= CEFR_PREPARATION_STAGES.find(({ id }) => id === 'a2-understand').order
       ? ['A1']
       : [],
-    wordStages: preparationWordStages,
+    wordCapabilities: preparationWordCapabilities,
     mechanicPasses: Object.fromEntries([...passedMechanicIds].map((mechanicId) => [
       mechanicId,
       CEFR_PREPARATION_ACTIVITIES.filter((activity) => activity.mechanicId === mechanicId)
@@ -370,12 +384,12 @@ function Walkthrough() {
         <article>
           <span className="dbg-learning-status current">word track</span>
           <h4><span lang="sq">{word.al}</span> · {word.en}</h4>
-          <p>Next: <b>{step.word.next.difficultyLabel}</b> · tier {step.word.next.tier} · {step.word.next.mode} · {step.word.next.direction}</p>
+          <p>Next: <b>{step.word.next.difficultyLabel}</b> · {step.word.next.mode} · {step.word.next.direction}</p>
           <p>{WORD_PROGRESSION_POLICY.principle}</p>
           <div className="dbg-cefr-mini-flow">
-            {WORD_STAGE_DEFINITIONS.map((definition) => (
-              <span className={statusClass(definition.tier < step.word.next.baseStage, definition.tier === step.word.next.baseStage)} key={definition.id}>
-                {definition.label}
+            {step.word.stages.map(({ definition, status }) => (
+              <span className={status} key={definition.id}>
+                {definition.label} · {status}
               </span>
             ))}
           </div>
@@ -396,7 +410,7 @@ function Walkthrough() {
         <article>
           <span className="dbg-learning-status current">noun forms</span>
           <h4>{word.forms.length} reviewed <span lang="sq">fshat</span> forms</h4>
-          <p>Unlocked only after lexical stage {TRAIN_WORD_FORM_POLICY.lexicalStageRequired} and {TRAIN_WORD_FORM_POLICY.practiceWinsRequired} rewarded practices; phrase wins may add practice but never replace word spelling.</p>
+          <p>Reviewed forms follow the same semantic capability registry shown above; conditional form work is skipped only when this word truly has no reviewed form lane.</p>
           <dl className="dbg-cefr-form-list">
             {word.forms.map((form) => (
               <div key={`${form.tag}:${form.al}`}>
@@ -535,7 +549,7 @@ function PreparationGraph({ state, profile }) {
         <div>
           <p className="dbg-learning-kicker">Production preparation registry · complete unlock graph</p>
           <h3 id="dbg-cefr-preparation-graph-title">{CEFR_PREPARATION_STAGES.length} stages · {Object.keys(CEFR_PREPARATION_MECHANICS).length} mechanics · {CEFR_PREPARATION_ACTIVITIES.length} activities</h3>
-          <p>The graph uses the same exact word-stage evidence and A1 prerequisite as the preparation evaluator. A pass here prepares a capability; it never counts as a held-out capstone pass.</p>
+          <p>The graph uses the same exact semantic word-capability evidence and A1 prerequisite as the preparation evaluator. A pass here prepares a capability; it never counts as a held-out capstone pass.</p>
         </div>
         <span className={`dbg-learning-status ${runtimePersisted ? 'passed' : 'locked'}`}>
           {runtimePersisted ? 'live preparation evidence wired' : 'runtime persistence blocker'}
@@ -575,7 +589,7 @@ function PreparationGraph({ state, profile }) {
                       </header>
                       <dl>
                         <dt>Registry ID</dt><dd><code>{mechanic.id}</code></dd>
-                        <dt>Word gate</dt><dd><code>{mechanic.readiness.wordStageId}</code></dd>
+                        <dt>Word capability</dt><dd><code>{mechanic.readiness.wordCapabilityId}</code></dd>
                         <dt>Prerequisites</dt><dd>{[
                           mechanic.readiness.prerequisiteLevel && `${mechanic.readiness.prerequisiteLevel} level`,
                           ...mechanic.readiness.prerequisiteMechanicIds,

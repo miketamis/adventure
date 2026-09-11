@@ -1,5 +1,7 @@
 // Story validation + depth stats. Run: node scripts/storystats.mjs
 import { STORY, START_NODE, DICT, DEFS, ITEMS, lineOf, moneyOutcomeLinesOf } from '../src/game/content.js'
+import { RICH_ENDING_BY_ID } from '../src/game/endingCatalog.js'
+import { REVIEWED_UNGATED_AGENCY_CHOICES } from '../src/game/narrativeFlow.js'
 import { analyzeDiscovery, sensesOf } from './lib/discovery.mjs'
 
 const nodes = STORY
@@ -65,7 +67,7 @@ const compactNonBad = endings.filter((id) => nodes[id].end !== 'bad' && dist[id]
 const unreviewedCompact = compactNonBad.filter((id) => !REVIEWED_COMPACT_ENDINGS[id])
 const staleCompactReviews = Object.keys(REVIEWED_COMPACT_ENDINGS).filter((id) => !nodes[id]?.end || nodes[id].end === 'bad' || dist[id] > 3)
 const abruptCompact = compactNonBad.filter((id) =>
-  (nodes[id].text || []).length < 2 || String(nodes[id].blurb || '').trim().split(/\s+/).length < 30)
+  (nodes[id].text || []).length < 2 || String(RICH_ENDING_BY_ID[id]?.blurb || '').trim().split(/\s+/).length < 30)
 
 // ---- longest acyclic path from start (the deepest single chain) -------------
 let longest = 0, longestEnd = null
@@ -117,6 +119,8 @@ for (const id of nonEnd) {
 // visible. They are deliberately not sentence-reveal puzzles on top of the
 // comprehension/state puzzle already being resolved.
 const REVIEWED_UNGATED_ONLY = Object.freeze({
+  ...Object.fromEntries(Object.entries(REVIEWED_UNGATED_AGENCY_CHOICES)
+    .map(([nodeId, review]) => [nodeId, review.reason])),
   shpellaRruget: 'three-road comprehension riddle',
   tsBeteje: 'mutually-exclusive ending resolution based on embodied mountain',
   djepi3: 'three-answer comprehension riddle',
@@ -128,7 +132,8 @@ const REVIEWED_UNGATED_ONLY = Object.freeze({
   eliraEmriBreg: 'accepting or declining the errand remains a direct conversational choice',
   eliraShesh: 'name, help and polite-decline responses remain visible as one natural conversation turn',
   eliraEmriShesh: 'accepting or declining the errand remains a direct conversational choice',
-  eliraBanore: 'the greeting response and asking a recurring NPC her name remain visible together',
+  eliraBanore: 'the available quest response and asking a recurring NPC her name remain visible together',
+  porosiaShesh: 'the learner may act immediately or ask one of three optional errand questions',
   kroiGrate2: 'time-of-day greeting responses must remain visible together as a contextual choice',
 })
 const unreviewedUngatedOnly = ungatedOnly.filter((id) => !REVIEWED_UNGATED_ONLY[id])

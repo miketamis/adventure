@@ -3,6 +3,7 @@ import { civilDayPartAtClock } from './environment.js'
 import {
   ENVIRONMENT_DIMENSIONS,
   authoredEnvironmentDimensions,
+  planEnvironmentNarration,
   normalizeEnvironmentNarrationSetting,
 } from './environmentNarration.js'
 
@@ -12,6 +13,7 @@ export {
   ENVIRONMENT_NARRATION_SETTINGS,
   authoredEnvironmentDimensions,
   environmentNarrationSetting,
+  planEnvironmentNarration,
 } from './environmentNarration.js'
 
 const TIME_OF_DAY = Object.freeze({

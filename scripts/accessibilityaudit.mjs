@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { STORY } from '../src/game/content.js'
+import { RICH_ENDING_BY_ID } from '../src/game/endingCatalog.js'
 import { playerMapLabel } from '../src/components/mapLabels.js'
 import { nextMapMarker } from '../src/components/mapKeyboard.js'
 import {
@@ -26,6 +27,7 @@ const practice = read('src/components/PracticeView.jsx')
 const cefrCapstone = read('src/components/CefrCapstone.jsx')
 const practiceReturn = read('src/game/practiceReturn.js')
 const phrasePractice = read('src/components/PhrasePracticeQuestion.jsx')
+const contextualCompletion = read('src/components/ContextualCompletion.jsx')
 const phrasePracticeLogic = read('src/game/phrasePractice.js')
 const scenePresentation = read('src/game/scenePresentation.js')
 const audio = read('src/game/audio.js')
@@ -43,7 +45,7 @@ const errorBoundary = read('src/components/ReleaseErrorBoundary.jsx')
 const worldMap = read('src/components/WorldMapView.jsx')
 const styles = read('src/styles.css')
 const discovery = read('scripts/lib/discovery.mjs')
-const playerMapLabels = Object.keys(STORY).map((id) => ({ id, label: playerMapLabel(id) }))
+const playerMapLabels = Object.keys(STORY).map((id) => ({ id, label: playerMapLabel(id, RICH_ENDING_BY_ID) }))
 
 const checks = []
 const check = (name, condition) => checks.push({ name, condition: Boolean(condition) })
@@ -53,10 +55,14 @@ check('word controls declare button type and markup-aware accessible labels', to
 check('Albanian learning surfaces declare their language to assistive technology',
   token.includes('<span lang="sq">“{token.al}”</span>') &&
   token.includes('className="known-word" lang="sq"') &&
-  practice.includes('className="known-word q-inflected" lang="sq"') &&
+  practice.includes('<p lang="sq">{q.context.al.split(q.surface)') &&
+  practice.includes('className="word-construction-answer" lang="sq"') &&
   practice.includes("lang={q.field === 'al' ? 'sq' : undefined}") &&
   dictionary.includes('className="dict-word" lang="sq"') &&
   comprehension.includes('className="comp-al" lang="sq"'))
+check('context choices and correction feedback use reviewed grammatical-job labels',
+  practice.includes("label: q.optionLabels?.[id] || senseText(id, q.field)") &&
+  practice.includes("q.optionLabels?.[q.answerId] || senseText(q.answerId, q.field)"))
 check('keyboard focus exposes the same word hint as hover', token.includes('onFocus={() => setShowHint(true)}') && token.includes('role="tooltip"'))
 check('saved-word hints reuse dictionary definitions without nested controls',
   token.includes('const definition = DEFS[token.id]') &&
@@ -190,6 +196,30 @@ check('whole phrases use construction, listening, cloze, typing and matching ins
   practice.includes('<PhrasePracticeQuestion') &&
   !practice.includes('q.options.map((entry)') &&
   ['arrange', 'listen', 'cloze', 'type', 'match'].every((mode) => phrasePractice.includes(`${mode}:`)))
+check('word context and phrase cloze share one accessible mirrored completion surface',
+  practice.includes("from './ContextualCompletion.jsx'") &&
+  phrasePractice.includes("from './ContextualCompletion.jsx'") &&
+  practice.includes("? 'Albanian → grammatical job'") &&
+  practice.includes(": 'Albanian → meaning'") &&
+  practice.includes("q.promptProfile?.contextPresentation === 'unmarked'") &&
+  practice.includes('q.promptProfile?.showEnglishContext === false') &&
+  practice.includes('indices: q.ctx.targetTokenIndices') &&
+  practice.includes('indices: [q.ctx.meaningGapTokenIndex]') &&
+  practice.includes('What job does the marked word do here?') &&
+  practice.includes('Choose the meaning that fits this Albanian context') &&
+  !practice.includes('`What does “${q.ctx?.focus}” mean here?`') &&
+  phrasePractice.includes('directionLabel="Meaning → Albanian"') &&
+  contextualCompletion.includes('role="group"') &&
+  contextualCompletion.includes('aria-labelledby={headingId}') &&
+  contextualCompletion.includes('answerGroupLabel') &&
+  contextualCompletion.includes('type="button"') &&
+  contextualCompletion.includes('role="status"') &&
+  contextualCompletion.includes('aria-live="polite"') &&
+  contextualCompletion.includes('className="sr-only"') &&
+  contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.marked') &&
+  contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.blank') &&
+  contextualCompletion.includes("unmarked: 'unmarked'") &&
+  !phrasePractice.includes('CONTEXT_TARGET_PRESENTATION.unmarked'))
 check('CEFR journeys are labelled and keep Albanian assessment surfaces language-tagged',
   cefrCapstone.includes('aria-labelledby="cefr-title"') &&
   cefrCapstone.includes('aria-labelledby="cefr-task-title"') &&
@@ -209,7 +239,7 @@ check('CEFR microphone capture is private, revocable and never transcribed into 
 check('phrase exercise mode classes cannot inherit a child control layout',
   phrasePractice.includes('phrase-exercise phrase-mode-${q.mode}') &&
   !phrasePractice.includes('phrase-exercise phrase-${q.mode}') &&
-  styles.includes('.phrase-exercise {'))
+  styles.includes('.phrase-exercise,\n.contextual-completion {'))
 check('phrase listening uses one continuous authored recording',
   audio.includes('export function playPhrase(al)') &&
   phrasePractice.includes('playPhrase(q.target.al)') &&
@@ -273,16 +303,16 @@ check('shared-place map controls do not duplicate an inspectable player host',
 check(
   `all player map labels are natural and hide authoring ids (${playerMapLabels.length}/${playerMapLabels.length})`,
   playerMapLabels.every(({ id, label }) => typeof label === 'string' && label.trim() && label.trim() !== id) &&
-    worldMap.includes('aria-label={`${playerMapLabel(d.id)}') &&
+    worldMap.includes('aria-label={`${richPlayerMapLabel(d.id)}') &&
     !worldMap.includes('aria-label={`${d.id}'),
 )
 check(
   'player map hover text hides authoring ids for places, routes and NPC positions',
-  worldMap.includes('? playerMapLabel(pl.id)') &&
-    worldMap.includes('? playerMapLabel(d.id)') &&
-    worldMap.includes('? playerMapLabel(lm.id)') &&
-    worldMap.includes('`${playerMapLabel(u)} → ${playerMapLabel(v)}`') &&
-    worldMap.includes('near ${playerMapLabel(n.node)}') &&
+  worldMap.includes('? richPlayerMapLabel(pl.id)') &&
+    worldMap.includes('? richPlayerMapLabel(d.id)') &&
+    worldMap.includes('? richPlayerMapLabel(lm.id)') &&
+    worldMap.includes('`${richPlayerMapLabel(u)} → ${richPlayerMapLabel(v)}`') &&
+    worldMap.includes('near ${richPlayerMapLabel(n.node)}') &&
     !worldMap.includes('<title>{pl.id}') &&
     !worldMap.includes('<title>{d.id}') &&
     !worldMap.includes('<title>{lm.id}') &&
@@ -291,7 +321,7 @@ check(
 check('focused SVG locations receive a visible cue', styles.includes('svg [role="button"]:focus-visible'))
 check('a paused role exposes its waiting scene as a named map target with textual directions',
   atlas.includes('const objective = state.embodying && state.embodimentPaused ? state.embodimentFocusNode : null') &&
-  atlas.includes('playerMapLabel(objective)') &&
+  atlas.includes('playerMapLabel(objective, RICH_ENDING_BY_ID)') &&
   atlas.includes('chartDirection(dx, dy)?.label') &&
   atlas.includes('distanceBand(Math.hypot(dx, dy))') &&
   atlas.includes('Look for its violet double ring') &&

@@ -7,8 +7,10 @@ import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import {
   ENVIRONMENT_NARRATION_POLICY,
   ENVIRONMENT_NARRATION_SETTINGS,
+  ENVIRONMENT_DIMENSIONS,
   environmentNarrationSetting,
   environmentStoryLine,
+  planEnvironmentNarration,
 } from '../src/game/storyContext.js'
 import { SEASONS, WEATHER_TYPES, civilDayPartAtClock, phaseAtClock } from '../src/game/environment.js'
 
@@ -119,6 +121,46 @@ check('authored dimensions suppress exactly their own generated facts', () => {
   }
 })
 
+check('only a real post-baseline change creates transition narration', () => {
+  const initial = { clock: 0, season: 'spring', weather: 'clear' }
+  for (const legacy of [undefined, {}, { version: 0 }, { communicated: {} }]) {
+    const baseline = planEnvironmentNarration(initial, legacy, {
+      nodeId: 'start', turn: 1, authoredDimensions: [],
+    })
+    assert.deepEqual(baseline.fallbackDimensions, [], 'missing history was mistaken for a transition')
+    assert.deepEqual(baseline.omitDimensions, ENVIRONMENT_DIMENSIONS)
+    assert.deepEqual(baseline.nextState.communicated, {
+      time: 'morning', season: 'spring', weather: 'clear',
+    })
+  }
+
+  const baseline = planEnvironmentNarration(initial, undefined, {
+    nodeId: 'start', turn: 1, authoredDimensions: [],
+  })
+  const changed = planEnvironmentNarration(
+    { ...initial, weather: 'rain' },
+    baseline.nextState,
+    { nodeId: 'lendina', turn: 2, authoredDimensions: [] },
+  )
+  assert.deepEqual(changed.fallbackDimensions, ['weather'])
+  assert.deepEqual(changed.omitDimensions.sort(), ['season', 'time'])
+
+  const reloadStable = planEnvironmentNarration(
+    { ...initial, weather: 'rain' },
+    JSON.parse(JSON.stringify(changed.nextState)),
+    { nodeId: 'lendina', turn: 2, authoredDimensions: [] },
+  )
+  assert.equal(reloadStable.needsCommit, false)
+  assert.deepEqual(reloadStable.fallbackDimensions, ['weather'])
+
+  const nextScene = planEnvironmentNarration(
+    { ...initial, weather: 'rain' },
+    changed.nextState,
+    { nodeId: 'pylliLoop', turn: 3, authoredDimensions: [] },
+  )
+  assert.deepEqual(nextScene.fallbackDimensions, [])
+})
+
 check('English editorial readings remain compact sentence metadata', () => {
   for (const setting of ENVIRONMENT_NARRATION_SETTINGS) {
     const reading = englishReadingOf(environmentStoryLine(
@@ -130,7 +172,7 @@ check('English editorial readings remain compact sentence metadata', () => {
   }
 })
 
-console.log(`\n${6 - failures.length}/6 immersive-environment contracts pass.`)
+console.log(`\n${7 - failures.length}/7 immersive-environment contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1

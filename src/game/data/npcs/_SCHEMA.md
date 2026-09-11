@@ -17,6 +17,20 @@ npcId: {
               agree with this. Note distinctions from similar figures
               ("NOT the forest crone — this one keeps the crossroads").',
   folklore: ['lore-card-ids'],
+  // Required for every recurring runtime NPC. A proper name that the player
+  // can learn is discoverable; a role, title or collective that is apparent
+  // from the encounter is known by context. Discoverable identities require
+  // an authored reveal and persistent named/anonymous story variants.
+  identity: {
+    mode: 'discoverable',
+    descriptor: 'the woman from the bridge',
+    reason: 'Elira gives the traveller her proper name only when asked.',
+  },
+  // OR:
+  // identity: {
+  //   mode: 'known-by-context',
+  //   reason: 'The visible role is a contextual title, not a hidden name.',
+  // },
   location: {
     status: 'placed'   // fixed map node → node: 'nodeId'
           | 'walking'  // clock route → route: ['nodeId', …] (see src/game/npcs.js)

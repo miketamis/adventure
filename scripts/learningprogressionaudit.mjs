@@ -29,7 +29,10 @@ import {
 } from '../src/game/trainingProgression.js'
 import { TRAIN_EXERCISE_EXAMPLES } from '../src/game/trainingExampleRegistry.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
+import { wordProgressionOptionsForSense } from '../src/game/formInventory.js'
 import {
+  WORD_CONTEXT_EXERCISE_CONCEPT,
+  WORD_CONTEXT_VARIANTS,
   WORD_PROGRESSION_POLICY,
   WORD_STAGE_DEFINITIONS,
   advanceWordProgress,
@@ -109,11 +112,17 @@ check('every learning question step opens a structured example dialog', () => {
     assert.ok(example?.response, `${id} has no expected interaction`)
   }
   for (const definition of WORD_STAGE_DEFINITIONS.filter(({ mode }) => mode === 'choice')) {
-    assert.equal(
-      TRAIN_EXERCISE_EXAMPLES[definition.id].choices.length,
-      definition.variant.distractors + 1,
-      `${definition.id} example does not mirror its choice count`,
-    )
+    const count = TRAIN_EXERCISE_EXAMPLES[definition.id].choices.length
+    if (definition.variants) {
+      assert.ok(definition.variants.some(({ distractors }) => count === distractors + 1),
+        `${definition.id} example does not mirror one of its controlled choice variants`)
+    } else if (definition.variant.choiceRange) {
+      assert.ok(count >= definition.variant.choiceRange[0] && count <= definition.variant.choiceRange[1],
+        `${definition.id} example falls outside its reviewed choice range`)
+    } else {
+      assert.equal(count, definition.variant.distractors + 1,
+        `${definition.id} example does not mirror its choice count`)
+    }
   }
   for (const definition of PHRASE_STAGE_DEFINITIONS.listening) {
     assert.equal(
@@ -143,28 +152,85 @@ check('every learning question step opens a structured example dialog', () => {
 
 check('the word walkthrough and builder share the exact lexical stage registry', () => {
   const guide = read('src/components/GuideView.jsx')
-  const entry = wordProgressionSnapshot(null, 0)
+  const component = read('src/components/DebugLearningProgression.jsx')
+  const exampleOptions = wordProgressionOptionsForSense('fshat')
+  const entry = wordProgressionSnapshot(null, 0, exampleOptions)
   assert.equal(entry.stages.length, WORD_STAGE_DEFINITIONS.length)
-  assert.equal(WORD_STAGE_DEFINITIONS[0].id, 'independent-word-recognition')
-  assert.ok(!WORD_STAGE_DEFINITIONS.some(({ id }) => id === 'guided-word-recognition'))
-  assert.match(WORD_PROGRESSION_POLICY.principle, /Saving a word completes guided recognition/)
+  assert.equal(WORD_STAGE_DEFINITIONS[0].id, 'meaning-recognition')
+  assert.match(WORD_PROGRESSION_POLICY.principle, /Train begins with four-choice meaning recognition/)
+  assert.equal(WORD_PROGRESSION_POLICY.productionBeginsAt, 'word-form-construction')
   entry.stages.forEach((stage, index) => assert.equal(stage.definition, WORD_STAGE_DEFINITIONS[index]))
   const question = buildWordQuestion({ discoveredIds: ['fshat'], currentRound: 0, rng: () => 0.2 })
   assert.equal(question.tier, WORD_STAGE_DEFINITIONS[0].tier)
   assert.equal(question.mode, WORD_STAGE_DEFINITIONS[0].mode)
-  assert.equal(question.wordStageId, 'independent-word-recognition')
+  assert.equal(question.wordStageId, 'meaning-recognition')
   assert.equal(question.options.length, WORD_STAGE_DEFINITIONS[0].variant.distractors + 1)
   const advanced = advanceWordProgress(null, 0, {
     correct: true,
     tier: question.tier,
     mode: question.mode,
     direction: question.dir,
+    stageId: question.wordStageId,
+    variantId: question.variantId,
+    targetFormKey: question.targetFormKey,
     questionKey: question.questionKey,
     round: 1,
-  })
+  }, exampleOptions)
   assert.equal(advanced.accepted, true)
-  assert.equal(wordProgressionSnapshot(advanced.progress, 1).next.baseStage, 0)
-  assert.equal(advanced.progress.wins['independent-word-recognition'], 1)
+  assert.equal(wordProgressionSnapshot(advanced.progress, 1, exampleOptions).next.baseStage, 0)
+  assert.equal(advanced.progress.wins['meaning-recognition'], 1)
+
+  // Traverse the production builder, not a duplicate list of debug steps. This
+  // sequence is the behavioral contract the deterministic fshat walkthrough
+  // must expose, including the context proof that interposes at the same base
+  // tier before spelling.
+  let progress = null
+  let round = 0
+  const observed = []
+  for (let attempt = 0; attempt < 18; attempt++) {
+    const built = buildWordQuestion({
+      discoveredIds: ['fshat'],
+      wordProgress: { fshat: progress },
+      currentRound: round,
+      rng: () => 0.2,
+    })
+    assert.ok(built, `fshat walkthrough stopped before retained spelling at attempt ${attempt}`)
+    observed.push(built.variantId || built.wordStageId)
+    if (built.wordStageId === 'strict-spaced-recall') break
+    const result = advanceWordProgress(progress, round, {
+      correct: true,
+      stageId: built.wordStageId,
+      tier: built.tier,
+      mode: built.mode,
+      direction: built.dir,
+      variantId: built.variantId ?? null,
+      targetFormKey: built.targetFormKey ?? null,
+      questionKey: built.questionKey,
+      round: round + 1,
+    }, exampleOptions)
+    assert.equal(result.accepted, true, `production rejected fshat walkthrough attempt ${attempt}`)
+    progress = result.progress
+    round = progress.dueAfterRound
+  }
+  assert.deepEqual(observed, [
+    'marked-context-recognition',
+    'marked-context-recognition',
+    'mirrored-controlled-retrieval',
+    'mirrored-controlled-retrieval',
+    'mirrored-controlled-retrieval',
+    'class-specific-form-contrast',
+    'reviewed-form-in-context',
+    'unmarked-context-recognition',
+    'letter-and-chunk-construction',
+    'contextual-typed-recall',
+    'strict-spaced-recall',
+  ])
+  assert.match(component, /const progressionOptions = exampleWordProgressionOptions\(\)/)
+  assert.match(component, /wordProgressionSnapshot\(null, 0, progressionOptions\)/)
+  assert.match(component, /advanceWordProgress\(progress, round,[\s\S]+\}, progressionOptions\)/)
+  assert.match(component, /wordPlanCheckpoint\(after\.next\)/)
+  assert.match(component, /contextSnapshot=\{snapshot\.context\}/)
+  assert.match(component, /separate context proof/)
   assert.ok(WORD_PROGRESSION_POLICY.evidenceBoundary.doesNotProve.includes('CEFR attainment'))
   assert.match(guide, /first Train question asks you to recognise it among four/)
 })
@@ -237,8 +303,40 @@ check('typed noun-ending correction is derived from the real production ladder',
   assert.match(component, /noun-ending miss → immediate exact-form sheet/)
 })
 
+check('debug graph derives the shared context-gap family from production variants', () => {
+  const component = read('src/components/DebugLearningProgression.jsx')
+  const examplesSource = read('src/game/trainingExampleRegistry.js')
+  assert.equal(TRAIN_EXERCISE_FAMILIES.wordContext.variants, WORD_CONTEXT_VARIANTS)
+  assert.equal(WORD_PROGRESSION_POLICY.contextVariant.variants, WORD_CONTEXT_VARIANTS)
+  assert.ok(WORD_CONTEXT_VARIANTS.every(
+    (variant) => variant.exerciseConceptId === WORD_CONTEXT_EXERCISE_CONCEPT,
+  ))
+  assert.deepEqual(
+    WORD_CONTEXT_VARIANTS.map(({ evidenceTrack }) => evidenceTrack),
+    ['recognition', 'controlled-retrieval', 'recognition'],
+  )
+  for (const { id } of WORD_CONTEXT_VARIANTS) {
+    assert.equal(
+      [...examplesSource.matchAll(new RegExp(`'${id}':`, 'g'))].length,
+      1,
+      `${id} has a duplicate or missing debug example key`,
+    )
+  }
+  assert.equal(
+    WORD_CONTEXT_VARIANTS.find(({ id }) => id === 'unmarked-context-recognition').unlock.stageId,
+    'word-form-construction',
+  )
+  assert.match(component, /WORD_CONTEXT_EXERCISE_CONCEPT/)
+  assert.match(component, /WORD_CONTEXT_VARIANTS\.map/)
+  assert.match(component, /variant\.unlock/)
+  assert.match(component, /WORD_STAGE_DEFINITIONS\.find/)
+  assert.match(component, /Shared contextual-completion progression/)
+  assert.doesNotMatch(component, /Parallel homonym path/)
+})
+
 check('word-form, mix and no-repeat policies are shared with the real builders', () => {
   assert.equal(FORMS_UNLOCK_THRESHOLD, TRAIN_WORD_FORM_POLICY.practiceWinsRequired)
+  assert.equal(FORMS_UNLOCK_THRESHOLD, 0, 'a lifetime reward total still gates the integrated form ladder')
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.noImmediateSharedWords, true)
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists, false)
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome, 'caught-up')
@@ -249,16 +347,22 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordMeaning/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordContext/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordForms/)
+  assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordFormContext/)
+  assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordConstruction/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordSpelling/)
   assert.match(practice, /buildWordQuestion/)
-  assert.match(practice, /TRAIN_WORD_FORM_POLICY\.correction\.kind/)
+  assert.match(practice, /formsCorrection/)
   assert.match(practice, /WORD_ALBANIAN_TO_ENGLISH\.id/)
   assert.match(practice, /TRAIN_QUESTION_MIX_POLICY\.phraseShare/)
-  assert.match(practice, /TRAIN_QUESTION_MIX_POLICY\.formShareWithinWordRounds/)
+  assert.equal(TRAIN_QUESTION_MIX_POLICY.formShareWithinWordRounds, 0)
   assert.match(practice, /TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome/)
   assert.doesNotMatch(practice, /modeRoll < 0\.65|Math\.random\(\) < 0\.35|ZERO_TOKEN_BOOST/)
   assert.doesNotMatch(practice, /albanianToEnglishShare/)
-  assert.deepEqual([...practice.matchAll(/kind:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]), [])
+  assert.deepEqual(
+    [...practice.matchAll(/kind:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]),
+    ['forms-correction', 'forms-correction'],
+    'only the registered noun-remediation surface may use a literal local kind',
+  )
 
   const phrasePractice = read('src/game/phrasePractice.js')
   assert.match(phrasePractice, /TRAIN_EXERCISE_FAMILIES\.phrase\.kind/)
@@ -283,7 +387,7 @@ check('the player-facing app cannot eagerly load the debug learning graph', () =
   assert.match(debug, /sub === 'learning'/)
   assert.match(component, /buildPhraseProgressionSnapshot/)
   assert.match(component, /debugLearningLanes\(snapshot/)
-  assert.match(component, /FORMS_UNLOCK_THRESHOLD/)
+  assert.match(component, /data-word-form-gate="reviewed-form-lane"/)
   assert.match(component, /data-walkthrough-state="independent"/)
   assert.match(component, /buildWalkthroughSteps\(phrase\)/)
   assert.match(component, /buildWordWalkthroughSteps\(\)/)
@@ -295,9 +399,11 @@ check('the player-facing app cannot eagerly load the debug learning graph', () =
   assert.doesNotMatch(component, /\bstate\./)
   assert.match(saveStatus, /data-learning-state="current-save"/)
   assert.match(saveStatus, /state\.phraseProductionProgress/)
-  assert.match(debug, /<DebugLearningSaveStatus state=\{state\}\s*\/>\s*<DebugLearningProgression\s*\/>/s)
+  assert.match(debug, /<DebugLearningSaveStatus state=\{state\}\s*\/>/)
+  assert.match(debug, /<DebugLearningEvidenceInspector state=\{state\}\s*\/>/)
+  assert.match(debug, /<DebugLearningProgression\s*\/>/)
   assert.doesNotMatch(debug, /<DebugLearningProgression\s+state=/)
-  assert.match(component, /data-word-form-gate="practice-wins"/)
+  assert.match(component, /data-word-form-gate="reviewed-form-lane"/)
   assert.match(component, /data-evidence-interlock="phrase-reward-to-word-practice"/)
   assert.match(component, /word or form drills never advance a phrase card/)
 })

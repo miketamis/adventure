@@ -18,7 +18,7 @@ import { PLACE_META } from '../src/components/placeMeta.js'
 import { REGIONS, NODE_REGION, VILLAGE_ANCHOR_IDS, isWander } from '../src/game/regions.js'
 import { NPCS } from '../src/game/npcs.js'
 import { npcNodeOf, TIME_PHASES } from '../src/game/gameState.js'
-import { rendezvousSpecOf } from '../src/game/stateMechanics.js'
+import { optionEffectsOf, rendezvousSpecOf } from '../src/game/stateMechanics.js'
 import { exceptionFor, transitionInfo } from '../src/game/worldModel.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -234,6 +234,7 @@ const JOURNEY_ALLOW = new Set([
   'qiellErera2->qiell2',     // "mbyll sy" — you shut your eyes and the winds carry you
   'siperfaqja->bregu',       // surfaced from the world below, the walk down to the shore
   'tomor3->tomorZbritje',    // the narrated descent of Tomorr ("ti zbret poshtë në mal")
+  'tomorBekim->tomorZbritje', // decline the fuller warning and begin that same explicit descent immediately
   'start->lendina',          // "hyr ne pyll" — the forest road from the bridgehead to the glade
   'lendina->start',          // and back out the same road
   'deti1->detiThelle1',      // the dive from the surface to the deep
@@ -416,7 +417,15 @@ for (const id of ids) {
   const seen = {}
   for (const o of STORY[id].options || []) {
     if (o.confuser || !o.to || !STORY[o.to]) continue
-    const key = o.to + '|' + JSON.stringify([o.requires ?? null, o.unless ?? null, o.time ?? null, o.grant ?? null, o.consumes ?? null, o.reveal ?? null])
+    const effects = optionEffectsOf(o).map(({ legacy: _legacy, ...effect }) => effect)
+    const key = o.to + '|' + JSON.stringify([
+      o.requires ?? null,
+      o.unless ?? null,
+      o.time ?? null,
+      o.reveal ?? null,
+      o.questAction ?? null,
+      effects,
+    ])
     if (seen[key]) dupBad.push(`${id}: "${idsOf(seen[key].text).join(' ')}" and "${idsOf(o.text).join(' ')}" both -> ${o.to} with identical gates+effects`)
     else seen[key] = o
   }

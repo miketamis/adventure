@@ -235,11 +235,15 @@ assert.equal(
 
 const refresherUi = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
 const refresherLogic = readFileSync(new URL('../src/game/nounEndingRefresher.js', import.meta.url), 'utf8')
+const refresherMarkupStart = refresherUi.indexOf('className="noun-ending-refresher"')
+const refresherMarkupEnd = refresherUi.indexOf('// Only the exact story option', refresherMarkupStart)
+assert.ok(refresherMarkupStart >= 0 && refresherMarkupEnd > refresherMarkupStart, 'noun refresher markup boundary is missing')
+const refresherMarkup = refresherUi.slice(refresherMarkupStart, refresherMarkupEnd)
 assert.ok(refresherUi.includes('Same noun, different job'), 'plain same-noun framing is missing')
 assert.ok(refresherUi.includes('Pattern to reuse'), 'transferable pattern is not separated from the exact noun')
 assert.ok(!refresherUi.includes('noun-ending-chain'), 'misleading form ladder remains in the UI')
 assert.ok(!refresherUi.includes('noun-ending-arrow'), 'unlabelled ending arrows remain in the UI')
-assert.ok(!refresherUi.includes('→') && !refresherLogic.includes('→'), 'noun refresher still implies a required sequence')
+assert.ok(!refresherMarkup.includes('→') && !refresherLogic.includes('→'), 'noun refresher still implies a required sequence')
 assert.match(
   refresherUi,
   /const guide = phraseNounEndingRefresher\(q, result\)[\s\S]+stage: 'phrase-production'/,

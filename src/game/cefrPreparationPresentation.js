@@ -1,4 +1,5 @@
 import { NPCS } from './npcs.js'
+import { npcIdentityReference } from './npcIdentity.js'
 
 export const CEFR_PREPARATION_PLACE_LABELS = Object.freeze({
   start: 'bridge approach',
@@ -15,8 +16,6 @@ export function cefrPreparationLoreLabels(activity, state = {}) {
   const nodeId = activity?.loreAnchor?.nodeId
   const npcId = activity?.loreAnchor?.npcId
   const place = CEFR_PREPARATION_PLACE_LABELS[nodeId] || null
-  let companion = null
-  if (npcId === 'elira' && !state.knowledge?.['npcName:elira']) companion = 'the woman from the bridge'
-  else if (npcId) companion = NPCS[npcId]?.name || null
+  const companion = npcId ? npcIdentityReference(state, npcId) || NPCS[npcId]?.name || null : null
   return { place, companion }
 }

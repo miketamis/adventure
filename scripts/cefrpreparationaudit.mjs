@@ -12,7 +12,7 @@ import {
   CEFR_PREPARATION_EVIDENCE_CONTRACT,
   CEFR_PREPARATION_EXAMPLES,
   CEFR_PREPARATION_MECHANICS,
-  CEFR_PREPARATION_SOURCE_STAGES,
+  CEFR_PREPARATION_SOURCE_REGISTRIES,
   CEFR_PREPARATION_STAGES,
   CEFR_TRAIN_WITH_MECHANIC_MAP,
   buildPreparationActivity,
@@ -74,7 +74,9 @@ check('every mechanic is playable, ordered and attached to a real stage', () => 
     assert.ok(!orders.has(mechanic.order), `${id} repeats order ${mechanic.order}`)
     orders.add(mechanic.order)
     assert.ok(CEFR_PREPARATION_ACTIVITIES.some((activity) => activity.mechanicId === id), `${id} has no playable activity`)
-    assert.ok(CEFR_PREPARATION_SOURCE_STAGES.word.includes(mechanic.readiness.wordStageId), `${id} copies an unknown word stage`)
+    assert.ok(CEFR_PREPARATION_SOURCE_REGISTRIES.wordCapabilities.some(
+      ({ id: capabilityId }) => capabilityId === mechanic.readiness.wordCapabilityId,
+    ), `${id} references an unknown word capability`)
     if (mechanic.level === 'A2') assert.equal(mechanic.readiness.prerequisiteLevel, 'A1', `${id} can open before A1`)
     for (const prerequisite of mechanic.readiness.prerequisiteMechanicIds) {
       const prior = CEFR_PREPARATION_MECHANICS[prerequisite]
@@ -307,20 +309,48 @@ check('preparation stimuli are not copied into the held-out capstone bank', () =
   }
 })
 
-check('readiness uses exact word stages, prior mechanics and A1-before-A2', () => {
+check('readiness uses semantic word capabilities, prior mechanics and A1-before-A2', () => {
   assert.ok(CEFR_PREPARATION_EVIDENCE_CONTRACT.principles.some((line) => line.includes('lifetime token totals')))
   const a1 = preparationReadiness('a1-audio-meaning', {})
   assert.equal(a1.ready, false)
-  assert.ok(a1.reasons.every((reason) => reason.startsWith('requires-word:')))
+  assert.ok(a1.reasons.every((reason) => reason.startsWith('requires-capability:')))
 
-  const allWordStages = Object.fromEntries(Object.keys(DICT).map((id) => [id, 'retained-word-spelling']))
-  const firstReady = preparationReadiness('a1-audio-meaning', { wordStages: allWordStages })
+  const allPassedCapabilities = Object.fromEntries(Object.keys(DICT).map((id) => [id, {
+    capabilities: Object.fromEntries(CEFR_PREPARATION_SOURCE_REGISTRIES.wordCapabilities.map(
+      ({ id: capabilityId }) => [capabilityId, { status: 'passed' }],
+    )),
+  }]))
+  const firstReady = preparationReadiness('a1-audio-meaning', { wordCapabilities: allPassedCapabilities })
   assert.equal(firstReady.ready, true)
-  const a2WithoutA1 = preparationReadiness('a2-gist-detail', { wordStages: allWordStages })
+  const a2WithoutA1 = preparationReadiness('a2-gist-detail', { wordCapabilities: allPassedCapabilities })
   assert.equal(a2WithoutA1.ready, false)
   assert.ok(a2WithoutA1.reasons.includes('requires-level:A1'))
-  const a2WithA1 = preparationReadiness('a2-gist-detail', { wordStages: allWordStages, achievedLevels: ['A1'] })
+  const a2WithA1 = preparationReadiness('a2-gist-detail', { wordCapabilities: allPassedCapabilities, achievedLevels: ['A1'] })
   assert.equal(a2WithA1.ready, true)
+
+  const formConditional = structuredClone(allPassedCapabilities)
+  for (const snapshot of Object.values(formConditional)) {
+    snapshot.capabilities['reviewed-form-awareness'] = { status: 'inapplicable' }
+  }
+  assert.equal(preparationReadiness('a2-gist-detail', {
+    wordCapabilities: formConditional,
+    achievedLevels: ['A1'],
+  }).ready, true, 'a non-inflecting focus was deadlocked by a conditional form gate')
+  const untrainedNonInflecting = structuredClone(formConditional)
+  const firstGistFocus = CEFR_PREPARATION_ACTIVITIES.find(
+    ({ mechanicId }) => mechanicId === 'a2-gist-detail',
+  ).focusSenseIds[0]
+  untrainedNonInflecting[firstGistFocus].capabilities['meaning-recognition'] = { status: 'pending' }
+  assert.equal(preparationReadiness('a2-gist-detail', {
+    wordCapabilities: untrainedNonInflecting,
+    achievedLevels: ['A1'],
+  }).ready, false, 'an inapplicable form lane skipped an earlier meaning prerequisite')
+  const blocked = structuredClone(allPassedCapabilities)
+  blocked[firstGistFocus].capabilities['reviewed-form-awareness'] = { status: 'not-trainable' }
+  assert.equal(preparationReadiness('a2-gist-detail', {
+    wordCapabilities: blocked,
+    achievedLevels: ['A1'],
+  }).ready, false, 'a not-trainable lexical focus silently satisfied readiness')
 })
 
 check('every mechanic has a deterministic, executable example', () => {

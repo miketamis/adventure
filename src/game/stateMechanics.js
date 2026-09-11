@@ -9,6 +9,8 @@ import {
   civilDayOffsetAtClock,
   isCivilHour,
 } from './environment.js'
+import { questActionEffectsOf } from './quests.js'
+import { recordObservation } from './observations.js'
 
 // Pure state helpers for authored effects and interaction limits. This module
 // deliberately knows nothing about STORY or UI: gameState supplies the owning
@@ -50,6 +52,10 @@ function canonicalTypedEffect(raw) {
   if (raw.type === 'learn' || raw.type === 'knowledge') {
     const id = nonEmptyId(raw.id)
     return id ? { type: 'learn', id } : null
+  }
+  if (raw.type === 'observe') {
+    const id = nonEmptyId(raw.id)
+    return id ? { type: 'observe', id } : null
   }
   if (raw.type === 'resource') {
     const id = ['hearts', 'lek'].includes(raw.id) ? raw.id : null
@@ -98,6 +104,7 @@ export function optionEffectsOf(option) {
     const id = nonEmptyId(option.activateFixture)
     effects.push(id ? { type: 'fixture', id, action: 'activate', legacy: true } : null)
   }
+  effects.push(...questActionEffectsOf(option))
   if (!Array.isArray(option?.effects)) return effects
   for (const raw of option.effects) effects.push(canonicalTypedEffect(raw))
   return effects
@@ -248,6 +255,7 @@ export function applyOptionEffects(state, option, context = {}) {
   let inventory = state.inventory || {}
   let flags = state.flags || {}
   let knowledge = state.knowledge || {}
+  let observations = state.observations || {}
   let fixtures = state.fixtures || {}
   let hearts = state.hearts
 
@@ -266,6 +274,13 @@ export function applyOptionEffects(state, option, context = {}) {
     }
     if (effect.type === 'learn') {
       knowledge = learnKnowledge(knowledge, effect.id, context.atClock, context.source)
+      continue
+    }
+    if (effect.type === 'observe') {
+      observations = recordObservation(observations, effect.id, {
+        atClock: context.atClock,
+        nodeId: context.nodeId,
+      })
       continue
     }
     if (effect.type === 'fixture') {
@@ -290,7 +305,7 @@ export function applyOptionEffects(state, option, context = {}) {
       continue
     }
   }
-  return { ...state, inventory, flags, knowledge, fixtures, hearts }
+  return { ...state, inventory, flags, knowledge, observations, fixtures, hearts }
 }
 
 // On embodiment entry the traveller's pack is suspended. Preserve only new

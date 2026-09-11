@@ -29,7 +29,7 @@ import {
 } from '../game/gameState.js'
 import { albanianTextOf, englishReadingOf, hasAuthoredEnglishReading } from '../game/language.js'
 import { stableShuffle, testFor } from '../game/comprehension.js'
-import { ACHIEVEMENT_BY_ID } from '../game/achievements.js'
+import { ACHIEVEMENT_RULE_BY_ID } from '../game/achievementRules.js'
 import ComprehensionTest from './ComprehensionTest.jsx'
 import WorldContext from './WorldContext.jsx'
 import EmbodimentFocus from './EmbodimentFocus.jsx'
@@ -39,6 +39,7 @@ import {
   authoredEnvironmentDimensions,
   environmentStoryLine,
   moneyTransactionStoryLine,
+  planEnvironmentNarration,
   purseStoryLine,
 } from '../game/storyContext.js'
 import { festivalLabel } from '../game/environment.js'
@@ -81,6 +82,30 @@ const QUOTE_TIER_LABEL = {
 
 export default function StoryView({ state, dispatch }) {
   const node = STORY[state.nodeId]
+  const [endingCopy, setEndingCopy] = useState(null)
+  const [richAchievementById, setRichAchievementById] = useState(null)
+  useEffect(() => {
+    if (!state.ended) {
+      setEndingCopy(null)
+      return undefined
+    }
+    let live = true
+    import('../game/endingCopy.js').then(({ ENDING_COPY }) => {
+      if (live) setEndingCopy(ENDING_COPY[state.nodeId] || null)
+    }).catch((error) => console.error('Could not load ending copy.', error))
+    return () => { live = false }
+  }, [state.ended, state.nodeId])
+  useEffect(() => {
+    if ((!state.ended || state.ended === 'bad') && !state.pendingTest) {
+      setRichAchievementById(null)
+      return undefined
+    }
+    let live = true
+    import('../game/achievements.js').then(({ ACHIEVEMENT_BY_ID }) => {
+      if (live) setRichAchievementById(ACHIEVEMENT_BY_ID)
+    }).catch((error) => console.error('Could not load achievement details.', error))
+    return () => { live = false }
+  }, [state.ended, state.pendingTest])
   // The active tale scene owns its frozen narrative clock; public roaming
   // scenes own the monotonic world clock. Keep one projected state for prose,
   // horizon and gates so they can never disagree about the hour.
@@ -129,7 +154,7 @@ export default function StoryView({ state, dispatch }) {
       : 'Albanian story text is ready.'
   const sceneStatus = sceneAnnouncement({
     ending: state.ended,
-    title: node.title,
+    title: endingCopy?.title || node.id,
     summary: sceneSummary,
     loreHidden: endingLoreHidden,
   })
@@ -163,7 +188,7 @@ export default function StoryView({ state, dispatch }) {
   const gateOpen = isAchEnd && !alreadyEarned && endResult === null
   const endAttempt = state.attempts?.[state.nodeId] || 0
   const endQuestions = useMemo(
-    () => (isAchEnd && !alreadyEarned ? testFor(ACHIEVEMENT_BY_ID[state.nodeId], endAttempt) : null),
+    () => (isAchEnd && !alreadyEarned ? testFor(ACHIEVEMENT_RULE_BY_ID[state.nodeId], endAttempt) : null),
     [state.nodeId, isAchEnd, alreadyEarned, endAttempt],
   )
   // an ending so thin no test can be built proves itself — unlock outright
@@ -175,7 +200,9 @@ export default function StoryView({ state, dispatch }) {
   }, [gateOpen, endQuestions, state.nodeId, dispatch])
 
   // an AREA achievement the world is offering right now (only while free-roaming)
-  const pendingAch = !state.ended && !state.embodying && state.pendingTest ? ACHIEVEMENT_BY_ID[state.pendingTest] : null
+  const pendingAch = !state.ended && !state.embodying && state.pendingTest
+    ? richAchievementById?.[state.pendingTest] || null
+    : null
   const openAreaTest = () => {
     const questions = testFor(pendingAch, state.attempts?.[pendingAch.id] || 0)
     if (!questions) {
@@ -292,7 +319,7 @@ export default function StoryView({ state, dispatch }) {
       trainingTarget: trainingTargetForOption(state.nodeId, opt),
       tokens: opt.text,
       reading: optionEnglishReadingOf(opt.text),
-      readingReviewed: ['internal-editorial', 'generated-world-item'].includes(opt.text.optionReadingReview),
+      readingReviewed: ['internal-editorial', 'generated-world-item', 'generated-observation'].includes(opt.text.optionReadingReview),
       real: true,
       allDiscovered,
       enoughMana,
@@ -367,7 +394,7 @@ export default function StoryView({ state, dispatch }) {
         trainingTarget: trainingTargetForOption(state.nodeId, opt),
         tokens: opt.text,
         reading: optionEnglishReadingOf(opt.text),
-        readingReviewed: ['internal-editorial', 'generated-world-item'].includes(opt.text.optionReadingReview),
+        readingReviewed: ['internal-editorial', 'generated-world-item', 'generated-observation'].includes(opt.text.optionReadingReview),
         allDiscovered,
         enoughMana,
         ok: allDiscovered && enoughMana,
@@ -445,10 +472,39 @@ export default function StoryView({ state, dispatch }) {
     policy: contentScrollPolicy,
   })
   const presentedEntries = scenePresentation.entries
+  const presentedEnvironmentDimensions = authoredEnvironmentDimensions(
+    presentedEntries.map((entry) => entry.line),
+  )
+  const environmentNarration = planEnvironmentNarration(
+    environment,
+    state.environmentNarration,
+    {
+      nodeId: state.nodeId,
+      turn: state.turn,
+      authoredDimensions: presentedEnvironmentDimensions,
+    },
+  )
   const environmentLine = !state.ended && environmentStoryLine(environment, {
     setting: narrationSettingForScene(state.nodeId),
-    omit: authoredEnvironmentDimensions(presentedEntries.map((entry) => entry.line)),
+    omit: environmentNarration.omitDimensions,
   })
+  const authoredEnvironmentKey = [...presentedEnvironmentDimensions].sort().join('|')
+  useEffect(() => {
+    if (state.ended || !environmentNarration.needsCommit) return
+    dispatch({
+      type: 'NARRATE_ENVIRONMENT',
+      nodeId: state.nodeId,
+      turn: state.turn,
+      authoredDimensions: [...presentedEnvironmentDimensions],
+    })
+  }, [
+    state.ended,
+    state.nodeId,
+    state.turn,
+    authoredEnvironmentKey,
+    environmentNarration.needsCommit,
+    dispatch,
+  ])
 
   const renderLine = (line, i) => {
     const revealsPath = revealLineIdx.has(i)
@@ -555,10 +611,10 @@ export default function StoryView({ state, dispatch }) {
                     ? '🏆 Achievement unlocked'
                     : '✨ Secret achievement unlocked'}
           </div>
-          {node.title && <div className="ending-name">{node.title}</div>}
+          {endingCopy?.title && <div className="ending-name">{endingCopy.title}</div>}
           {state.ended === 'bad' ? (
             <>
-              {node.blurb && <p className="ending-desc">{node.blurb}</p>}
+              {endingCopy?.blurb && <p className="ending-desc">{endingCopy.blurb}</p>}
               <p className="hint">
                 Recorded in your codex as a fate. Play again to seek out an achievement — your
                 discovered words and tokens carry over.
@@ -602,9 +658,9 @@ export default function StoryView({ state, dispatch }) {
               {endResult === 'passed' && (
                 <div className="feedback good">✓ Every answer right — the tale is yours.</div>
               )}
-              {node.blurb && <p className="ending-desc">{node.blurb}</p>}
+              {endingCopy?.blurb && <p className="ending-desc">{endingCopy.blurb}</p>}
               <Suspense fallback={<p className="hint" role="status">Opening the tale&apos;s sources…</p>}>
-                <FactoidLore loreId={ACHIEVEMENT_BY_ID[node.id]?.lore} dispatch={dispatch} />
+                <FactoidLore loreId={richAchievementById?.[node.id]?.lore} dispatch={dispatch} />
               </Suspense>
               {endResult === 'passed' && <p className="hearts-restored">❤️ Hearts restored to full.</p>}
               <p className="hint">

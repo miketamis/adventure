@@ -38,7 +38,8 @@ export const ROUTE_THRESHOLDS = Object.freeze({
 
 export const MOVEMENT_VERBS = new Set([
   'ec', 'shko', 'kthehu', 'ik', 'hyr', 'dil', 'kalo', 'ngjit', 'ngjitu',
-  'zbrit', 'hip', 'fluturo', 'vrapo', 'not', 'lundro', 'ndiq',
+  'zbrit', 'hip', 'fluturo', 'vrapo', 'not', 'lundro', 'ndiq', 'vjen',
+  'nisem', 'vazhdo',
 ])
 
 export const INTERACTION_VERBS = new Set([
@@ -230,7 +231,8 @@ export function routeForChoice(from, option) {
   const dy = finish[1] - start[1]
   const distance = Math.hypot(dx, dy)
   const samePlace = PLACE_OF[from] === PLACE_OF[to]
-  const movementVerb = MOVEMENT_VERBS.has(verb)
+  const movementVerbId = ids.find((id) => MOVEMENT_VERBS.has(id)) || null
+  const movementVerb = Boolean(movementVerbId)
   const interactionVerb = INTERACTION_VERBS.has(verb)
   const edge = `${from}->${to}`
   const projection = exceptionFor('interaction-distance', edge)?.id === 'embodied-tale-projections'
@@ -255,12 +257,13 @@ export function routeForChoice(from, option) {
       : projection
         ? 'an embodied tale threshold changes setting; its chart placement is shown but the vector is not a walked road'
         : movementVerb
-          ? `option begins with movement verb '${verb}'`
+          ? `option includes movement verb '${movementVerbId}'`
           : interactionVerb
             ? `the interaction is followed by a narrated transition`
             : 'story transition between distinct mapped places',
     tokenIds: ids,
     verb,
+    movementVerbId,
     movementVerb,
     interactionVerb,
     projection,

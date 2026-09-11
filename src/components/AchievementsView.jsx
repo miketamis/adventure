@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ENDINGS } from '../game/content.js'
+import { RICH_ENDINGS } from '../game/endingCatalog.js'
 import { ACHIEVEMENTS, areaProgress } from '../game/achievements.js'
 import { testFor } from '../game/comprehension.js'
 import ComprehensionTest from './ComprehensionTest.jsx'
@@ -14,7 +14,7 @@ import { embodimentIdentity } from '../game/embodiment.js'
 //              test can be taken (and retaken, with fresh questions) right here
 //   earned   — gate passed: title, tale and the deeper lore payload
 // Bad endings are "fates" (game overs) — recorded apart, no gate, no unlock.
-const FATES = ENDINGS.filter((e) => e.kind === 'bad')
+const FATES = RICH_ENDINGS.filter((e) => e.kind === 'bad')
 const ICON = { good: '🏆', secret: '✨', area: '📜' }
 
 export default function AchievementsView({ state, dispatch }) {

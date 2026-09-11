@@ -1,4 +1,4 @@
-import { ENDINGS } from './content.js'
+import { RICH_ENDINGS } from './endingCatalog.js'
 import { AREA_ACHIEVEMENTS, ENDING_LORE } from './folklore.js'
 export { areaProgress, newlyEligibleAreas, offerableTest } from './achievementRules.js'
 
@@ -15,7 +15,7 @@ export { areaProgress, newlyEligibleAreas, offerableTest } from './achievementRu
 // Bad endings are FATES: recorded the moment they're met — no test, no unlock.
 // ---------------------------------------------------------------------------
 export const ACHIEVEMENTS = [
-  ...ENDINGS.filter((e) => e.kind !== 'bad').map((e) => ({
+  ...RICH_ENDINGS.filter((e) => e.kind !== 'bad').map((e) => ({
     id: e.id,
     kind: e.kind, // 'good' | 'secret'
     title: e.title,

@@ -13,8 +13,14 @@ import {
   phraseSkillTier,
 } from './phraseProgression.js'
 import { phraseProductionFocuses } from './phraseFocus.js'
+import { isTrainableSense } from './lexicalTrainability.js'
 import { phraseNounOccurrences, phraseNounRole } from './phraseNounRoles.js'
 import { TRAIN_EXERCISE_FAMILIES, TRAIN_QUESTION_MIX_POLICY } from './trainingProgression.js'
+import {
+  phraseClozeContrastRank,
+  phraseClozeDistractorPolicy,
+  practiceContrastRole,
+} from './practiceContrasts.js'
 
 export { PHRASE_SKILL_MAX_TIER, phraseSkillTier } from './phraseProgression.js'
 
@@ -49,13 +55,25 @@ export function phraseWordKeys(value) {
 export function phraseQuestionWordKeys(question) {
   if (question?.kind !== TRAIN_EXERCISE_FAMILIES.phrase.kind) return []
   const phrases = question.mode === 'match' ? question.phrases : [question.target]
-  return [...new Set((phrases || []).flatMap((phrase) => phraseWordKeys(phrase?.al)))]
+  const bankSurfaces = question.mode === 'match'
+    ? []
+    : (question.bank || []).map((tile) => tile.text)
+  return [...new Set([
+    ...(phrases || []).flatMap((phrase) => phraseWordKeys(phrase?.al)),
+    ...bankSurfaces.flatMap(phraseWordKeys),
+  ])]
 }
 
 export function trainQuestionWordKeys(question) {
   const phraseKeys = phraseQuestionWordKeys(question)
   if (phraseKeys.length) return phraseKeys
-  return phraseWordKeys(question?.lexicalSurfaces?.join(' ') || '')
+  const albanianChoiceSurfaces = question?.field === 'al'
+    ? (question.options || []).map((id) => DICT[id]?.al).filter(Boolean)
+    : []
+  return phraseWordKeys([
+    ...(question?.lexicalSurfaces || []),
+    ...albanianChoiceSurfaces,
+  ].join(' '))
 }
 
 // Export a tiny common predicate so phrase, vocabulary, context and endings
@@ -219,7 +237,7 @@ export function shuffleWith(values, rng = Math.random) {
 }
 
 export function phraseRewardIds(phrases) {
-  return [...new Set(phrases.flatMap((phrase) => phrase?.requires || []))]
+  return [...new Set(phrases.flatMap((phrase) => phrase?.requires || []).filter(isTrainableSense))]
 }
 
 function weightedChoice(entries, weightOf, rng) {
@@ -251,24 +269,76 @@ function pickTarget(unlocked, mana, practiced, mistakes, rng, targetId) {
 
 function distractorWords(unlocked, distractorPool, target, targetWords, count, rng, excludedWords) {
   const blocked = new Set([...targetWords.map(normalizedWord), ...excludedWords])
+  const targetFocuses = phraseProductionFocuses(target).map((focus) => ({
+    ...focus,
+    focusId: focus.id,
+    formTag: phraseNounRole(target.id, focus.id),
+  }))
   const candidates = []
   const seen = new Set()
-  // Prefer words from other phrases the learner has unlocked, then fill from
-  // the wider practical phrase curriculum. This keeps early word banks useful
-  // even when the target is the learner's first complete phrase.
+  const addCandidate = (candidate) => {
+    const word = normalizedWord(candidate.word)
+    if (!word || blocked.has(word) || seen.has(word)) return
+    const rankedTargets = targetFocuses
+      .map((focus) => ({
+        focus,
+        rank: phraseClozeContrastRank(focus, candidate),
+        distractorPolicy: phraseClozeDistractorPolicy(focus, candidate),
+      }))
+      .filter(({ rank }) => Number.isFinite(rank))
+      .sort((left, right) => left.rank - right.rank)
+    if (!rankedTargets.length) return
+    const best = rankedTargets[0]
+    seen.add(word)
+    candidates.push({
+      ...candidate,
+      word: candidate.word,
+      rank: best.rank,
+      targetFocusId: best.focus.focusId,
+      targetFormTag: best.focus.formTag || null,
+      distractorPolicy: best.distractorPolicy,
+    })
+  }
+
+  // Prefer attested surfaces from other complete phrases. Each extra tile must
+  // be a reviewed role-compatible alternative to at least one content-bearing
+  // target word; a random familiar word is not automatically a useful foil.
   const pools = [unlocked, distractorPool]
   for (const pool of pools) {
     for (const entry of shuffleWith(pool.filter((item) => item.id !== target.id), rng)) {
-      for (const word of shuffleWith(phraseWords(entry.al), rng)) {
-        const normalized = normalizedWord(word)
-        if (blocked.has(normalized) || seen.has(normalized)) continue
-        seen.add(normalized)
-        candidates.push(word)
-        if (candidates.length === count) return candidates
+      for (const focus of shuffleWith(phraseProductionFocuses(entry), rng)) {
+        addCandidate({
+          focusId: focus.id,
+          formTag: phraseNounRole(entry.id, focus.id),
+          word: focus.word,
+          source: 'attested-phrase-surface',
+        })
       }
     }
   }
-  return candidates
+
+  // A learner's first unlocked phrase still needs a full bank. Fill only from
+  // reviewed dictionary forms that match one of the target roles; noun fillers
+  // must carry the same exact reviewed case/number tag as their target slot.
+  for (const [focusId, entry] of Object.entries(DICT)) {
+    for (const targetFocus of targetFocuses) {
+      const surfaces = targetFocus.formTag
+        ? (entry.forms || []).filter((form) => form.tag === targetFocus.formTag)
+        : [{ al: entry.al, tag: null }]
+      for (const surface of surfaces) {
+        addCandidate({
+          focusId,
+          formTag: surface.tag || null,
+          word: surface.al,
+          source: 'reviewed-dictionary-surface',
+        })
+      }
+    }
+  }
+
+  return shuffleWith(candidates, rng)
+    .sort((left, right) => left.rank - right.rank)
+    .slice(0, count)
 }
 
 function buildWordBank(unlocked, distractorPool, target, answerWords, rng, requestedDistractors, excludedWords) {
@@ -287,10 +357,16 @@ function buildWordBank(unlocked, distractorPool, target, answerWords, rng, reque
     text,
     answerIndex: index,
   }))
-  const extraTiles = distractors.map((text, index) => ({
+  const extraTiles = distractors.map((candidate, index) => ({
     id: `extra:${index}`,
-    text,
+    text: candidate.word,
     answerIndex: null,
+    senseId: candidate.focusId,
+    formTag: candidate.formTag || null,
+    targetFocusId: candidate.targetFocusId,
+    targetFormTag: candidate.targetFormTag,
+    distractorPolicy: candidate.distractorPolicy,
+    distractorSource: candidate.source,
   }))
   return shuffleWith([...answerTiles, ...extraTiles], rng)
 }
@@ -340,6 +416,78 @@ function wordFocusFor(target, words, rng, plannedFocusId = null) {
   if (focuses.length) return focuses[Math.floor(rng() * focuses.length)]
   const fallbackFocusId = target.requires.find((id) => DICT[id])
   return { index: 0, word: words[0], focusId: fallbackFocusId }
+}
+
+function buildClozeBank(unlocked, distractorPool, target, focus, count, rng, excludedWords) {
+  const blocked = new Set([normalizedWord(focus.word), ...excludedWords])
+  const candidates = []
+  const seen = new Set()
+  const pools = [unlocked, distractorPool]
+  for (const pool of pools) {
+    for (const phrase of pool) {
+      if (phrase.id === target.id) continue
+      for (const candidate of phraseProductionFocuses(phrase)) {
+        const word = normalizedWord(candidate.word)
+        if (blocked.has(word) || seen.has(word)) continue
+        const formTag = phraseNounRole(phrase.id, candidate.id)
+        const rank = phraseClozeContrastRank(focus, {
+          focusId: candidate.id,
+          formTag,
+        })
+        if (!Number.isFinite(rank)) continue
+        seen.add(word)
+        candidates.push({
+          ...candidate,
+          focusId: candidate.id,
+          formTag,
+          rank,
+          distractorPolicy: phraseClozeDistractorPolicy(focus, { focusId: candidate.id, formTag }),
+        })
+      }
+    }
+  }
+  // A one-phrase unlock still needs peers. A noun gap draws the exact reviewed
+  // case/number form from other noun paradigms; using their lemmas would create
+  // distractors that cannot grammatically occupy the blank.
+  for (const [focusId, entry] of Object.entries(DICT)) {
+    const surfaces = focus.formTag
+      ? (entry.forms || []).filter((form) => form.tag === focus.formTag)
+      : [{ al: entry.al, tag: null }]
+    for (const surface of surfaces) {
+      const word = normalizedWord(surface.al)
+      if (blocked.has(word) || seen.has(word)) continue
+      const candidate = { focusId, formTag: surface.tag || null }
+      const rank = phraseClozeContrastRank(focus, candidate)
+      if (!Number.isFinite(rank)) continue
+      seen.add(word)
+      candidates.push({
+        ...candidate,
+        word: surface.al,
+        rank,
+        distractorPolicy: phraseClozeDistractorPolicy(focus, candidate),
+      })
+    }
+  }
+  const distractors = shuffleWith(candidates, rng)
+    .sort((left, right) => left.rank - right.rank)
+    .slice(0, count)
+    .map((candidate, index) => ({
+      id: `extra:${index}`,
+      text: candidate.word,
+      answerIndex: null,
+      senseId: candidate.focusId,
+      formTag: candidate.formTag,
+      contrastRole: practiceContrastRole(candidate.focusId),
+      distractorPolicy: candidate.distractorPolicy,
+    }))
+  return shuffleWith([{
+    id: `answer:${focus.index}`,
+    text: focus.word,
+    answerIndex: focus.index,
+    senseId: focus.focusId,
+    formTag: focus.formTag || null,
+    contrastRole: practiceContrastRole(focus.focusId),
+  }, ...distractors], rng)
 }
 
 function requestedSkill(requestedMode) {
@@ -462,7 +610,7 @@ export function buildPhraseQuestion(
       : skill === 'listening' ? 'listen' : 'match'
   const base = {
     kind: TRAIN_EXERCISE_FAMILIES.phrase.kind,
-    questionKey: `${target.id}:${skill}:${tier}:${mode}:${questionSequence++}`,
+    questionKey: `${target.id}:${currentRound}:${skill}:${tier}:${mode}:${questionSequence++}`,
     mode,
     skill,
     tier,
@@ -520,14 +668,16 @@ export function buildPhraseQuestion(
       blankIndex,
       correctWord,
       focusId: focus.focusId,
+      contrastRole: practiceContrastRole(focus.focusId),
+      distractorPolicy: 'reviewed-role-or-slot-peer',
       rewardIds: [focus.focusId],
-      bank: buildWordBank(
+      bank: buildClozeBank(
         eligible,
         distractorPool,
         target,
-        [correctWord],
-        rng,
+        { ...focus, word: correctWord },
         productionStep.variant.distractors,
+        rng,
         excluded,
       ),
     }

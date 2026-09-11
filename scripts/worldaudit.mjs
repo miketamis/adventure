@@ -22,6 +22,7 @@ import {
   DISTANT_SIGHTLINES,
   DIRECTION_WORDS,
   DISTANCE_WORDS,
+  MOVEMENT_VERBS,
   ROUTE_THRESHOLDS,
   STRUCTURAL_EXCEPTIONS,
   WORLD_AXES,
@@ -107,6 +108,33 @@ for (const [from, node] of Object.entries(STORY)) {
       }
     }
   }
+}
+
+// An explicitly authored journey duration must have an equally explicit
+// transition. It may be spoken in the player's choice, expanded by a sourced
+// time-passage card, or narrated immediately in the destination's opening.
+// This catches the old failure where “Yes, I can help” silently moved the
+// traveller from the river bank to the square two hours later.
+const explicitJourneyErrors = []
+const explicitJourneys = Object.entries(STORY).flatMap(([from, node]) => (
+  (node.options || []).filter((option) => !option.confuser && Number.isFinite(option.durationHours))
+    .map((option) => ({ route: routeForChoice(from, option), option }))
+)).filter(({ route }) => route.valid && !route.samePlace)
+for (const { route, option } of explicitJourneys) {
+  if (!option || option.durationHours <= 0 || route.movementVerb || option.timePassage) continue
+  const openingNarratesMovement = (STORY[route.to]?.text || []).slice(0, 2).some((entry) => (
+    tokenIds(lineOf(entry)).some((id) => MOVEMENT_VERBS.has(id))
+  ))
+  if (!openingNarratesMovement) explicitJourneyErrors.push({
+    edge: `${route.from}->${route.to}`,
+    durationHours: option.durationHours,
+    optionTokens: tokenIds(option.text),
+  })
+}
+if (explicitJourneyErrors.length) {
+  fail('prose.explicit-journey', 'timed place changes occur without choice, passage or arrival movement prose', explicitJourneyErrors)
+} else {
+  ok('prose.explicit-journey', `${explicitJourneys.filter(({ route }) => route.duration.hours > 0).length} explicitly timed place changes narrate their movement`)
 }
 if (timingErrors.length) fail('route.timing-contract', `${timingErrors.length} choices have malformed or contradictory timing`, timingErrors)
 else if (exactHourRoutes === 0) fail('route.timing-contract', 'the exact civil-hour route mechanic has no playable authored expression')

@@ -8,10 +8,15 @@
 import { DICT } from './dictionary.js'
 import { CEFR_CAPSTONE_TASK_FAMILIES } from './cefrProgression.js'
 import { PHRASE_STAGE_DEFINITIONS } from './phraseProgression.js'
-import { WORD_STAGE_DEFINITIONS } from './wordProgression.js'
+import { WORD_CAPABILITY_DEFINITIONS } from './wordProgression.js'
 import { CEFR_PREPARATION_VERSION } from './cefrPreparationEvidenceState.js'
 
 export { CEFR_PREPARATION_VERSION }
+
+// Guided examples are deterministic and must not teach a persistent story
+// NPC's undiscovered name by accident. The adjacent current-story badge is
+// state-aware; activity instructions use this fixed role label instead.
+export const CEFR_PREPARATION_SCENARIO_COMPANION = 'the villager'
 
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
@@ -176,7 +181,7 @@ const A1_ACTIVITIES = [
   activity({
     id: 'a1-destination-reply', mechanicId: 'a1-choice-dialogue', level: 'A1',
     kind: 'reply-choice', nodeId: 'bisedaUra1', npcId: 'elira',
-    instruction: 'Answer Elira’s question.',
+    instruction: `Answer ${CEFR_PREPARATION_SCENARIO_COMPANION}’s question.`,
     focusSenseIds: ['ku', 'shko', 'fshat'],
     prompt: sq(W('ku', 'Ku'), W('po_prog'), W('shko', 'shkon'), P('?')),
     options: [
@@ -264,7 +269,7 @@ const A1_ACTIVITIES = [
   activity({
     id: 'a1-slower-repetition', mechanicId: 'a1-conversation-repair', level: 'A1',
     kind: 'branching-repair', nodeId: 'bisedaUraPlan', npcId: 'elira',
-    instruction: 'Respond, or ask Elira to repeat more slowly.',
+    instruction: `Respond, or ask ${CEFR_PREPARATION_SCENARIO_COMPANION} to repeat more slowly.`,
     focusSenseIds: ['perserit', 'ngadale', 'lutem', 'vjen', 'treg'],
     opening: sq(W('a_q', 'A'), W('do_fut'), W('te_subj'), W('vjen', 'vish'), W('ne', 'në'), W('treg'), P('?')),
     replyOptions: [
@@ -288,7 +293,7 @@ const A1_ACTIVITIES = [
   activity({
     id: 'a1-market-price-relay', mechanicId: 'a1-scan-relay', level: 'A1',
     kind: 'scan-and-relay', nodeId: 'pazariFshatit', npcId: 'elira',
-    instruction: 'Find the price on the card, then tell Elira.',
+    instruction: `Find the price on the card, then tell ${CEFR_PREPARATION_SCENARIO_COMPANION}.`,
     focusSenseIds: ['buke', 'tete', 'lek'],
     source: sq(W('buke', 'BUKË'), P(':'), W('tete', 'TETË'), W('lek', 'LEKË')),
     sourceHolder: 'stall-card',
@@ -569,113 +574,111 @@ export const CEFR_PREPARATION_ACTIVITIES = deepFreeze([...A1_ACTIVITIES, ...A2_A
 const activitiesForMechanic = (mechanicId) =>
   CEFR_PREPARATION_ACTIVITIES.filter((entry) => entry.mechanicId === mechanicId)
 
-const wordStage = (id) => WORD_STAGE_DEFINITIONS.find(({ id: stageId }) => stageId === id)?.tier
-
 export const CEFR_PREPARATION_MECHANICS = deepFreeze({
   'a1-audio-meaning': {
     id: 'a1-audio-meaning', level: 'A1', stageId: 'a1-notice', order: 0,
     label: 'Hear a familiar message', capabilities: [],
-    readiness: { wordStageId: 'independent-word-recognition', prerequisiteMechanicIds: [] },
+    readiness: { wordCapabilityId: 'meaning-recognition', prerequisiteMechanicIds: [] },
   },
   'a1-audio-construction': {
     id: 'a1-audio-construction', level: 'A1', stageId: 'a1-notice', order: 1,
     label: 'Build what you hear', capabilities: [],
-    readiness: { wordStageId: 'independent-word-selection', prerequisiteMechanicIds: ['a1-audio-meaning'] },
+    readiness: { wordCapabilityId: 'controlled-retrieval-supported', prerequisiteMechanicIds: ['a1-audio-meaning'] },
   },
   'a1-read-and-act': {
     id: 'a1-read-and-act', level: 'A1', stageId: 'a1-notice', order: 2,
     label: 'Read and act', capabilities: [],
-    readiness: { wordStageId: 'independent-word-recognition', prerequisiteMechanicIds: ['a1-audio-meaning'] },
+    readiness: { wordCapabilityId: 'meaning-recognition', prerequisiteMechanicIds: ['a1-audio-meaning'] },
   },
   'a1-choice-dialogue': {
     id: 'a1-choice-dialogue', level: 'A1', stageId: 'a1-respond', order: 3,
     label: 'Choose a relevant reply', capabilities: ['multiple-acceptable-replies'],
-    readiness: { wordStageId: 'independent-word-selection', prerequisiteMechanicIds: ['a1-read-and-act'] },
+    readiness: { wordCapabilityId: 'controlled-retrieval-expanded', prerequisiteMechanicIds: ['a1-read-and-act'] },
   },
   'a1-slot-recombination': {
     id: 'a1-slot-recombination', level: 'A1', stageId: 'a1-respond', order: 4,
     label: 'Change one useful slot', capabilities: ['slot-recombination'],
-    readiness: { wordStageId: 'independent-word-selection', prerequisiteMechanicIds: ['a1-choice-dialogue'] },
+    readiness: { wordCapabilityId: 'controlled-retrieval-expanded', prerequisiteMechanicIds: ['a1-choice-dialogue'] },
   },
   'a1-record-replay': {
     id: 'a1-record-replay', level: 'A1', stageId: 'a1-respond', order: 5,
     label: 'Listen, record, replay, retry', capabilities: ['local-record-replay-retry'],
-    readiness: { wordStageId: 'independent-word-selection', prerequisiteMechanicIds: ['a1-choice-dialogue'] },
+    readiness: { wordCapabilityId: 'controlled-retrieval-expanded', prerequisiteMechanicIds: ['a1-choice-dialogue'] },
   },
   'a1-phrase-composition': {
     id: 'a1-phrase-composition', level: 'A1', stageId: 'a1-respond', order: 6,
     label: 'Spell, arrange and recombine', capabilities: ['slot-recombination'],
-    readiness: { wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a1-slot-recombination'] },
+    readiness: { wordCapabilityId: 'contextual-typed-recall', prerequisiteMechanicIds: ['a1-slot-recombination'] },
   },
   'a1-multiple-replies': {
     id: 'a1-multiple-replies', level: 'A1', stageId: 'a1-respond', order: 7,
     label: 'Recognise more than one good reply', capabilities: ['multiple-acceptable-replies'],
-    readiness: { wordStageId: 'independent-word-selection', prerequisiteMechanicIds: ['a1-choice-dialogue'] },
+    readiness: { wordCapabilityId: 'controlled-retrieval-expanded', prerequisiteMechanicIds: ['a1-choice-dialogue'] },
   },
   'a1-conversation-repair': {
     id: 'a1-conversation-repair', level: 'A1', stageId: 'a1-repair', order: 8,
     label: 'Ask for slower repetition', capabilities: ['adaptive-conversation-repair'],
-    readiness: { wordStageId: 'independent-word-selection', prerequisiteMechanicIds: ['a1-record-replay', 'a1-multiple-replies'] },
+    readiness: { wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a1-record-replay', 'a1-multiple-replies'] },
   },
   'a1-scan-relay': {
     id: 'a1-scan-relay', level: 'A1', stageId: 'a1-repair', order: 9,
     label: 'Find and relay one fact', capabilities: ['scan-and-relay'],
-    readiness: { wordStageId: 'independent-word-selection', prerequisiteMechanicIds: ['a1-read-and-act', 'a1-conversation-repair'] },
+    readiness: { wordCapabilityId: 'reviewed-form-awareness', prerequisiteMechanicIds: ['a1-read-and-act', 'a1-conversation-repair'] },
   },
   'a2-gist-detail': {
     id: 'a2-gist-detail', level: 'A2', stageId: 'a2-understand', order: 10,
     label: 'Main point before detail', capabilities: ['gist-then-detail'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: [] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'reviewed-form-awareness', prerequisiteMechanicIds: [] },
   },
   'a2-scan-information': {
     id: 'a2-scan-information', level: 'A2', stageId: 'a2-understand', order: 11,
     label: 'Scan a practical notice', capabilities: ['scan-and-relay'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-gist-detail'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-form-selection', prerequisiteMechanicIds: ['a2-gist-detail'] },
   },
   'a2-branching-repair': {
     id: 'a2-branching-repair', level: 'A2', stageId: 'a2-interact', order: 12,
     label: 'Repair and continue a branch', capabilities: ['adaptive-conversation-repair'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-gist-detail'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a2-gist-detail'] },
   },
   'a2-slot-recombination': {
     id: 'a2-slot-recombination', level: 'A2', stageId: 'a2-interact', order: 13,
     label: 'Recombine intent and reason', capabilities: ['slot-recombination'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-branching-repair'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a2-branching-repair'] },
   },
   'a2-multiple-replies': {
     id: 'a2-multiple-replies', level: 'A2', stageId: 'a2-interact', order: 14,
     label: 'Use different valid replies', capabilities: ['multiple-acceptable-replies'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-branching-repair'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a2-branching-repair'] },
   },
   'a2-temporal-sequencing': {
     id: 'a2-temporal-sequencing', level: 'A2', stageId: 'a2-connect', order: 15,
     label: 'Past, present and near future', capabilities: ['past-present-near-future-sequencing'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-slot-recombination'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-form-selection', prerequisiteMechanicIds: ['a2-slot-recombination'] },
   },
   'a2-connector-links': {
     id: 'a2-connector-links', level: 'A2', stageId: 'a2-connect', order: 16,
     label: 'Connect with dhe, por and sepse', capabilities: ['connectors-dhe-por-sepse'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-temporal-sequencing'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a2-temporal-sequencing'] },
   },
   'a2-record-replay': {
     id: 'a2-record-replay', level: 'A2', stageId: 'a2-connect', order: 17,
     label: 'Record a connected answer', capabilities: ['local-record-replay-retry'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-temporal-sequencing'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-typed-recall', prerequisiteMechanicIds: ['a2-temporal-sequencing'] },
   },
   'a2-message-replies': {
     id: 'a2-message-replies', level: 'A2', stageId: 'a2-connect', order: 18,
     label: 'Reconstruct and answer a message', capabilities: ['multiple-acceptable-replies'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-multiple-replies', 'a2-connector-links'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-typed-recall', prerequisiteMechanicIds: ['a2-multiple-replies', 'a2-connector-links'] },
   },
   'a2-paragraph-assembly': {
     id: 'a2-paragraph-assembly', level: 'A2', stageId: 'a2-connect', order: 19,
     label: 'Build a connected note', capabilities: ['past-present-near-future-sequencing', 'connectors-dhe-por-sepse'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-connector-links', 'a2-message-replies'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-typed-recall', prerequisiteMechanicIds: ['a2-connector-links', 'a2-message-replies'] },
   },
   'a2-main-point-relay': {
     id: 'a2-main-point-relay', level: 'A2', stageId: 'a2-relay', order: 20,
     label: 'Relay the point and agree', capabilities: ['gist-then-detail', 'scan-and-relay', 'adaptive-conversation-repair'],
-    readiness: { prerequisiteLevel: 'A1', wordStageId: 'supported-word-spelling', prerequisiteMechanicIds: ['a2-scan-information', 'a2-paragraph-assembly', 'a2-record-replay'] },
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'strict-spaced-recall', prerequisiteMechanicIds: ['a2-scan-information', 'a2-paragraph-assembly', 'a2-record-replay'] },
   },
 })
 
@@ -728,11 +731,19 @@ export const CEFR_PREPARATION_EVIDENCE_CONTRACT = deepFreeze({
   version: CEFR_PREPARATION_VERSION,
   shape: {
     achievedLevels: ['A1'],
-    wordStages: { '<senseId>': '<WORD_STAGE_DEFINITIONS.id>' },
+    wordCapabilities: {
+      '<senseId>': {
+        capabilities: {
+          '<WORD_CAPABILITY_DEFINITIONS.id>': { status: 'passed | pending | inapplicable | not-trainable' },
+        },
+      },
+    },
     mechanicPasses: { '<mechanicId>': ['<distinct activity id>'] },
   },
   principles: [
-    'Only exact word-stage evidence for each activity focus may satisfy its lexical prerequisite.',
+    'Only semantic capabilities derived from exact saved evidence for each activity focus may satisfy its lexical prerequisite.',
+    'A named capability also requires every earlier applicable capability in the shared lexical progression; an inapplicable form lane never skips meaning or controlled retrieval.',
+    'Conditional reviewed-form capabilities may be inapplicable; ordinary lexical and production capabilities must be explicitly passed.',
     'Only distinct passed preparation activities satisfy a mechanic; lifetime token totals do not count.',
     'A2 preparation remains locked until the A1 level gate is achieved.',
     'Preparation evidence never counts as held-out capstone evidence.',
@@ -750,6 +761,21 @@ const focusIdsForMechanic = (mechanicId) => [...new Set(
   activitiesForMechanic(mechanicId).flatMap(({ focusSenseIds }) => focusSenseIds),
 )]
 
+const CONDITIONAL_FORM_CAPABILITIES = new Set(WORD_CAPABILITY_DEFINITIONS
+  .filter(({ conditional }) => conditional === 'reviewed-form-lane')
+  .map(({ id }) => id))
+
+const capabilityStatus = (evidence, senseId, capabilityId) =>
+  evidence?.wordCapabilities?.[senseId]?.capabilities?.[capabilityId]?.status || 'pending'
+
+const capabilitySatisfiesReadiness = (capabilityId, status) => status === 'passed' ||
+  (status === 'inapplicable' && CONDITIONAL_FORM_CAPABILITIES.has(capabilityId))
+
+const capabilitiesThrough = (capabilityId) => {
+  const index = WORD_CAPABILITY_DEFINITIONS.findIndex(({ id }) => id === capabilityId)
+  return index < 0 ? [] : WORD_CAPABILITY_DEFINITIONS.slice(0, index + 1)
+}
+
 export function preparationReadiness(mechanicId, evidence = {}) {
   const mechanic = CEFR_PREPARATION_MECHANICS[mechanicId]
   if (!mechanic) return { mechanicId, ready: false, complete: false, reasons: ['unknown-mechanic'] }
@@ -766,11 +792,14 @@ export function preparationReadiness(mechanicId, evidence = {}) {
     if (!requiredActivities.some((id) => passed.has(id))) reasons.push(`requires-mechanic:${prerequisiteId}`)
   }
 
-  const requiredWordTier = wordStage(mechanic.readiness.wordStageId)
+  const requiredCapabilityId = mechanic.readiness.wordCapabilityId
   for (const senseId of focusIdsForMechanic(mechanicId)) {
-    const suppliedTier = wordStage(evidence.wordStages?.[senseId])
-    if (!Number.isInteger(suppliedTier) || suppliedTier < requiredWordTier) {
-      reasons.push(`requires-word:${senseId}:${mechanic.readiness.wordStageId}`)
+    const unmet = capabilitiesThrough(requiredCapabilityId).find(({ id }) => {
+      const status = capabilityStatus(evidence, senseId, id)
+      return !capabilitySatisfiesReadiness(id, status)
+    })
+    if (unmet) {
+      reasons.push(`requires-capability:${senseId}:${unmet.id}:${capabilityStatus(evidence, senseId, unmet.id)}`)
     }
   }
 
@@ -955,9 +984,10 @@ export function preparationMechanicsForCapstone(familyId) {
     .sort((a, b) => a.order - b.order)
 }
 
-// Export the real phrase stage IDs used in evidence displays without copying
-// them into the preparation policy.
-export const CEFR_PREPARATION_SOURCE_STAGES = deepFreeze({
-  word: WORD_STAGE_DEFINITIONS.map(({ id }) => id),
-  phrase: Object.values(PHRASE_STAGE_DEFINITIONS).flat().map(({ id }) => id),
+// This is a direct view over the production registries. Debug and audits can
+// display the real semantic word gates and phrase stages without translating
+// them back into numeric tiers or maintaining a second threshold table.
+export const CEFR_PREPARATION_SOURCE_REGISTRIES = deepFreeze({
+  wordCapabilities: WORD_CAPABILITY_DEFINITIONS,
+  phraseStages: Object.values(PHRASE_STAGE_DEFINITIONS).flat(),
 })

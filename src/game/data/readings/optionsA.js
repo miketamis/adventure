@@ -226,13 +226,15 @@ export const OPTION_READINGS_A = Object.freeze({
   "zana1.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 223
   "zana1.options[2]": { al: "beso dragoin", en: "Trust the dragon.", review: 'internal-editorial' }, // 224
   "zanaQumesht.options[0]": { al: "merr qumësht", en: "Take milk.", review: 'internal-editorial' }, // 225
-  "zanaQumesht.options[1]": { al: "tund djepin", en: "Rock the cradle.", review: 'internal-editorial' }, // 226
-  "zanaQumesht.options[2]": { al: "sheh fëmijën", en: "See the child.", review: 'internal-editorial' }, // 227
-  "zanaQumesht.options[3]": { al: "merr djepin", en: "Take the cradle.", review: 'internal-editorial' }, // 228
+  "zanaQumesht.options[1]": { al: "mos e merr qumështin.", en: "Do not take the milk.", review: 'internal-editorial' }, // 226
+  "zanaQumesht.options[2]": { al: "tund djepin", en: "Rock the cradle.", review: 'internal-editorial' }, // 227
+  "zanaQumesht.options[3]": { al: "sheh fëmijën", en: "See the child.", review: 'internal-editorial' }, // 228
+  "zanaQumesht.options[4]": { al: "merr djepin", en: "Take the cradle.", review: 'internal-editorial' }, // 229
   "zanaKripe.options[0]": { al: "merr kripë", en: "Take salt.", review: 'internal-editorial' }, // 229
-  "zanaKripe.options[1]": { al: "sheh bukën", en: "See the bread.", review: 'internal-editorial' }, // 230
-  "zanaKripe.options[2]": { al: "tund djepin", en: "Rock the cradle.", review: 'internal-editorial' }, // 231
-  "zanaKripe.options[3]": { al: "merr djepin", en: "Take the cradle.", review: 'internal-editorial' }, // 232
+  "zanaKripe.options[1]": { al: "mos e merr kripën.", en: "Do not take the salt.", review: 'internal-editorial' }, // 230
+  "zanaKripe.options[2]": { al: "sheh bukën", en: "See the bread.", review: 'internal-editorial' }, // 231
+  "zanaKripe.options[3]": { al: "tund djepin", en: "Rock the cradle.", review: 'internal-editorial' }, // 232
+  "zanaKripe.options[4]": { al: "merr djepin", en: "Take the cradle.", review: 'internal-editorial' }, // 233
   "rrethi.options[0]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' }, // 233
   "rrethi.options[1]": { al: "ec lart", en: "Walk up.", review: 'internal-editorial' }, // 234
   "rrethi.options[2]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 235
@@ -273,9 +275,10 @@ export const OPTION_READINGS_A = Object.freeze({
   "tomor1.options[2]": { al: "dëgjo rrufenë", en: "Listen to the thunderbolt.", review: 'internal-editorial' }, // 270
   "tomor1.options[3]": { al: "prit plakun", en: "Wait for the old man.", review: 'internal-editorial' }, // 271
   "tomor2.options[0]": { al: "merr shpatë", en: "Take a sword.", review: 'internal-editorial' }, // 272
-  "tomor2.options[1]": { al: "lufto renë", en: "Fight the cloud.", review: 'internal-editorial' }, // 273
-  "tomor2.options[2]": { al: "ngjit rrufenë", en: "Climb the thunderbolt.", review: 'internal-editorial' }, // 274
-  "tomor2.options[3]": { al: "merr erën", en: "Take the wind.", review: 'internal-editorial' }, // 275
+  "tomor2.options[1]": { al: "mos e merr shpatën.", en: "Do not take the sword.", review: 'internal-editorial' }, // 273
+  "tomor2.options[2]": { al: "lufto renë", en: "Fight the cloud.", review: 'internal-editorial' }, // 274
+  "tomor2.options[3]": { al: "ngjit rrufenë", en: "Climb the thunderbolt.", review: 'internal-editorial' }, // 275
+  "tomor2.options[4]": { al: "merr erën", en: "Take the wind.", review: 'internal-editorial' }, // 276
   "pusi.options[0]": { al: "zbrit në pus", en: "Go down into the well.", review: 'internal-editorial' }, // 276
   "pusi.options[1]": { al: "dëgjo dervishin", en: "Listen to the dervish.", review: 'internal-editorial' }, // 277
   "pusi.options[2]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 278
@@ -299,9 +302,10 @@ export const OPTION_READINGS_A = Object.freeze({
   "porta1.options[3]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 296
   "porta1.options[4]": { al: "jep derën", en: "Give the door.", review: 'internal-editorial' }, // 297
   "bukura1.options[0]": { al: "shpëto Bukurën", en: "Save the Beauty.", review: 'internal-editorial' }, // 298
-  "bukura1.options[1]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 299
-  "bukura1.options[2]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 300
-  "bukura1.options[3]": { al: "hap kulshedrën", en: "Open the she-dragon.", review: 'internal-editorial' }, // 301
+  "bukura1.options[1]": { al: "ik shpejt.", en: "Flee quickly.", review: 'internal-editorial' }, // 299
+  "bukura1.options[2]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 300
+  "bukura1.options[3]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 301
+  "bukura1.options[4]": { al: "hap kulshedrën", en: "Open the she-dragon.", review: 'internal-editorial' }, // 302
   "bukura2.options[0]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 302
   "bukura2.options[1]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 303
   "bukura2.options[2]": { al: "lufto pusin", en: "Fight the well.", review: 'internal-editorial' }, // 304

@@ -150,6 +150,7 @@ const exampleFor = (form, forms) => {
         ? { al: `një ${form.al}`, en: meaning }
         : { al: `${form.al} këtu`, en: `${meaning} here` }
     case 'indefAcc':
+      return { al: `Shoh një ${form.al}.`, en: `I see ${meaning}.` }
     case 'defAcc':
       return { al: `Shoh ${form.al}.`, en: `I see ${meaning}.` }
     case 'defNom':

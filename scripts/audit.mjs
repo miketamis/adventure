@@ -7,10 +7,22 @@
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { STORY, DICT, DEFS, ITEMS as ITEM_CATALOG } from '../src/game/content.js'
+import {
+  STORY,
+  STORY_OBSERVATION_BEATS,
+  DICT,
+  DEFS,
+  ITEMS as ITEM_CATALOG,
+} from '../src/game/content.js'
+import { RICH_ENDING_BY_ID } from '../src/game/endingCatalog.js'
+import { declaredStoryGlosses } from '../src/game/dictionary.js'
 import { ACHIEVEMENTS } from '../src/game/achievements.js'
 import { CORPUS, ENDING_LORE, FOLKLORE, HISTORY } from '../src/game/folklore.js'
 import { optionEffectsOf } from '../src/game/stateMechanics.js'
+import { QUESTS, QUEST_STATUSES } from '../src/game/quests.js'
+import { observationConditionId } from '../src/game/observations.js'
+import { WORD_CLASS, wordClassOf } from '../src/game/wordClassPolicy.js'
+import { wordContextAlignment } from '../src/game/wordProgression.js'
 
 const gl = (t) => (t || []).filter((x) => x && x.id).map((x) => x.en).join(' ')
 const textIds = (n) => {
@@ -19,6 +31,18 @@ const textIds = (n) => {
   return s
 }
 const realOpts = (n) => (n.options || []).filter((o) => !o.confuser)
+const observationBeatById = new Map(STORY_OBSERVATION_BEATS.map((beat) => [beat.id, beat]))
+const isCanonicalObservationAction = (nodeId, option) => {
+  const id = option?.contextObservation?.id
+  const beat = observationBeatById.get(id)
+  return Boolean(beat && beat.nodeId === nodeId &&
+    option.observation?.id === id && option.observation?.beat === beat.beat &&
+    option.contextObservation?.beat === beat.beat &&
+    optionEffectsOf(option).some((effect) => effect?.type === 'observe' && effect.id === id))
+}
+const isThingSense = (id) => wordClassOf(id, DICT[id], {
+  hasAttestedVariant: Boolean(DICT[id]?.forms?.length),
+}) === WORD_CLASS.NOUN
 
 // Words that DON'T name a present scene-thing (function words, directions/qualities, action verbs).
 const WL = new Set(
@@ -50,9 +74,17 @@ const add = (name, fails) => checks.push({ name, fails })
 // 1. OPTION-GROUNDING — the thing an option acts on must be in the node text.
 add('option-grounding (act-on-thing present)', Object.entries(STORY).flatMap(([id, n]) => {
   if (n.end) return []
-  const tids = textIds(n)
+  const grounded = textIds(n)
   return realOpts(n).flatMap((o) => {
-    const miss = (o.text || []).filter((t) => t && t.id && !WL.has(t.id) && !ALLOW.has(t.id) && !tids.has(t.id)).map((t) => t.id)
+    // Observation actions are themselves reviewed perception affordances: their
+    // canonical beat metadata, same-place effect and hidden lines are validated
+    // together by observationaudit. For ordinary options, test only noun-like
+    // things; particles, directions and manner words are not acted-on objects.
+    if (isCanonicalObservationAction(id, o)) return []
+    const miss = [...new Set((o.text || [])
+      .filter((t) => t?.id && isThingSense(t.id) &&
+        !WL.has(t.id) && !ALLOW.has(t.id) && !grounded.has(t.id))
+      .map((t) => t.id))]
     return miss.length ? [`[${id}] "${gl(o.text)}" -> ${o.to}  MISSING:${miss.join(',')}`] : []
   })
 }))
@@ -126,7 +158,20 @@ add('meaningful choice (no damned-if-you-do)', Object.entries(STORY).flatMap(([i
 // states, durable facts/knowledge, typed flags, item capabilities and NPC
 // presence and transaction-aware arrival narration are virtual the same way.
 const TIME_PHASES = new Set(['dawn', 'day', 'dusk', 'night'])
-const isVirtual = (i) => i === 'embodying' || i === 'again' || i === 'rumor' || TIME_PHASES.has(i) || /^(arrival|fixture|npc|npcAt|rendezvous|from|became|embodying|visited|heard|greeting|season|weather|festival|weekday|fact|flag|knows|itemTag|affords):/.test(i)
+const observationConditions = new Set(STORY_OBSERVATION_BEATS.map((beat) => observationConditionId(beat.id)))
+const isRegisteredQuestCondition = (condition) => {
+  if (typeof condition !== 'string' || !condition.startsWith('quest:')) return false
+  const body = condition.slice('quest:'.length)
+  const separator = body.lastIndexOf(':')
+  if (separator <= 0) return false
+  const questId = body.slice(0, separator)
+  const status = body.slice(separator + 1)
+  return Boolean(QUESTS[questId] && QUEST_STATUSES.includes(status))
+}
+const isRegisteredObservationCondition = (condition) => observationConditions.has(condition)
+const isVirtual = (i) => i === 'embodying' || i === 'again' || i === 'rumor' || TIME_PHASES.has(i) ||
+  isRegisteredQuestCondition(i) || isRegisteredObservationCondition(i) ||
+  /^(arrival|fixture|npc|npcAt|rendezvous|from|became|embodying|visited|heard|greeting|season|weather|festival|weekday|fact|flag|knows|itemTag|affords):/.test(i)
 const reqIds = (o) => (o.requires == null ? [] : [].concat(o.requires))
 const incomingGatedByItem = {}
 for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.to) {
@@ -144,8 +189,9 @@ add('ending prose (title + clean unique blurb)', (() => {
   const out = [], seen = {}
   for (const [id, n] of Object.entries(STORY)) {
     if (!n.end) continue
-    const b = (n.blurb || '').trim()
-    if (!n.title) out.push(`[${id}] missing title`)
+    const ending = RICH_ENDING_BY_ID[id]
+    const b = (ending?.blurb || '').trim()
+    if (!ending?.title) out.push(`[${id}] missing title`)
     if (!b) { out.push(`[${id}] missing blurb`); continue }
     if (b.length < 60) out.push(`[${id}] blurb too short`)
     if (/\b(\w+)\s+\1\b/i.test(b) || /\bthe the\b|\ba a\b|  /.test(b)) out.push(`[${id}] blurb doubled-word/repeat`)
@@ -231,6 +277,28 @@ add('item reachability (required items grantable)', (() => {
   return [...reqd].filter((i) => !granted.has(i)).map((i) => `required but never granted: ${i}`)
 })())
 
+add('canonical quest/observation virtual-state registries', (() => {
+  const out = []
+  for (const quest of Object.values(QUESTS)) {
+    for (const status of QUEST_STATUSES) {
+      const condition = `quest:${quest.id}:${status}`
+      if (!isVirtual(condition)) out.push(`canonical quest condition rejected: ${condition}`)
+    }
+  }
+  for (const beat of STORY_OBSERVATION_BEATS) {
+    const condition = observationConditionId(beat.id)
+    if (!isVirtual(condition)) out.push(`canonical observation condition rejected: ${condition}`)
+  }
+  for (const condition of [
+    'quest:not-registered:active',
+    `quest:${Object.keys(QUESTS)[0]}:not-a-status`,
+    'observed:not-registered',
+  ]) {
+    if (isVirtual(condition)) out.push(`unknown virtual condition accepted: ${condition}`)
+  }
+  return out
+})())
+
 // 10c. CONDITION VALIDITY — every when()/unless() cond on a STORY LINE (and every
 // option `unless:`) must RESOLVE to something real: a virtual gate (time/fire/npc/
 // from/became/embodying/visited/heard/again/rumor) OR an item that some option GRANTS.
@@ -304,7 +372,7 @@ const storyTokens = (() => {
   }
   return out
 })()
-const sensesOf = (id) => (DICT[id].enAll ?? DICT[id].en).split('/').map((s) => s.trim())
+const sensesOf = (id) => declaredStoryGlosses(DICT[id])
 
 add('sense validity (story gloss ∈ declared senses)', storyTokens.flatMap((t) =>
   DICT[t.id]?.enAll && !sensesOf(t.id).includes(t.en)
@@ -343,7 +411,8 @@ add('homonym senses have quiz context (ctx)', (() => {
     for (const id of ids) {
       const c = DICT[id].ctx
       if (!c || !c.al || !c.en || !c.focus) { fails.push(`${id} ('${DICT[id].al}'): shares a surface but has no ctx {al,en,focus}`); continue }
-      if (!c.al.split(' ').includes(c.focus)) fails.push(`${id}: ctx.focus "${c.focus}" is not a word in ctx.al "${c.al}"`)
+      const alignment = wordContextAlignment(c)
+      if (!alignment.usable) fails.push(`${id}: ctx.focus "${c.focus}" is not uniquely aligned in ctx.al "${c.al}" (${alignment.reason})`)
     }
   }
   return fails

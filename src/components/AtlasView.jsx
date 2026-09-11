@@ -4,6 +4,7 @@ import { environmentSnapshot, fireStateOf, liveNpcs } from '../game/gameState.js
 import { NODE_POS } from './nodePositions.js'
 import { playerMapLabel } from './mapLabels.js'
 import { chartDirection, distanceBand } from '../game/worldModel.js'
+import { RICH_ENDING_BY_ID } from '../game/endingCatalog.js'
 
 export default function AtlasView({ state }) {
   const graph = useMemo(buildGraph, [])
@@ -40,7 +41,7 @@ export default function AtlasView({ state }) {
         </p>
         {objective && (
           <p className="atlas-objective" role="status">
-            🎭 Your character&apos;s tale waits at <b>{playerMapLabel(objective)}</b>
+            🎭 Your character&apos;s tale waits at <b>{playerMapLabel(objective, RICH_ENDING_BY_ID)}</b>
             {roleDirections ? ` — ${roleDirections}.` : '.'} Look for its violet double ring.
           </p>
         )}

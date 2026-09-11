@@ -1228,7 +1228,10 @@ check('the UI exposes confirmation, persistent identity, guidance and locked rea
   assert.match(practiceReturn, /embodimentOptionAccess\(state, option, STORY\[option\.to\]\)\.ok/)
   assert.match(practiceReturn, /option\.confuser/)
   assert.match(atlas, /const objective = state\.embodying && state\.embodimentPaused \? state\.embodimentFocusNode : null/)
-  assert.match(atlas, /playerMapLabel\(objective\)/)
+  // The debug-only atlas may enrich an ending objective with the deferred
+  // ending catalog. Keep that explicit injection here: the shared map-label
+  // helper and ordinary Story/EmbodimentFocus path must remain catalog-free.
+  assert.match(atlas, /playerMapLabel\(objective,\s*RICH_ENDING_BY_ID\)/)
   assert.match(atlas, /chartDirection\(dx, dy\)\?\.label/)
   assert.match(atlas, /distanceBand\(Math\.hypot\(dx, dy\)\)/)
   assert.match(atlas, /Look for its violet double ring/)

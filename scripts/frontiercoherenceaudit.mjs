@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { STORY } from '../src/game/content.js'
+import { RICH_ENDING_BY_ID } from '../src/game/endingCatalog.js'
 import { NODE_POS, PLACE_OF } from '../src/components/nodePositions.js'
 import { PLACE_META } from '../src/components/placeMeta.js'
 import { NODE_REGION } from '../src/game/regions.js'
@@ -59,7 +60,7 @@ for (const ending of ['kreshnikRrembimiHumbur', 'kreshnikRrembimiRefuz']) {
   expectsFact(ending, 'mujoFreedFromKrajl')
   assert.equal(STORY[ending].returnTo, 'jutbina')
 }
-assert.match(STORY.kreshnikRrembimiRefuz.blurb, /rode alone|rides alone/i)
+assert.match(RICH_ENDING_BY_ID.kreshnikRrembimiRefuz.blurb, /rode alone|rides alone/i)
 
 // Behuri's route is a real spatial sequence: oda, pasture, Xhuri spring,
 // captain's kulla, open mejdan, and the road home. Each counterfactual defeat

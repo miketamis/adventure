@@ -1,10 +1,25 @@
 // Release gate for lived money narration and the nominal/"old lek" boundary.
 import assert from 'node:assert/strict'
-import { EVERYDAY_GOOD_PRICES, LEK_ECONOMY, OLD_LEK_MULTIPLIER, oldLekQuoteFor } from '../src/game/economy.js'
+import {
+  ELIRA_ERRAND_ADVANCE,
+  EVERYDAY_GOOD_PRICES,
+  LEK_ECONOMY,
+  OLD_LEK_MULTIPLIER,
+  oldLekQuoteFor,
+} from '../src/game/economy.js'
 import { STORY, lineOf, moneyOutcomeLineOf, moneyOutcomeLinesOf } from '../src/game/content.js'
 import { albanianTextOf } from '../src/game/language.js'
-import { arrivalOptionOf, hasCond, newRun, phraseSenses, reducer } from '../src/game/gameState.js'
+import {
+  arrivalOptionOf,
+  hasCond,
+  newRun,
+  normalizeSavedState,
+  phraseSenses,
+  reducer,
+} from '../src/game/gameState.js'
 import { moneyTransactionStoryLine } from '../src/game/storyContext.js'
+import { optionEffectsOf } from '../src/game/stateMechanics.js'
+import { ELIRA_BREAD_SALT_QUEST_ID, offerQuests } from '../src/game/quests.js'
 
 const checks = []
 const check = (name, test) => {
@@ -40,28 +55,56 @@ check('every continuing money change owns transaction prose', () => {
   }
 })
 
-check('Elira pays after the promise and the arrival shows the resulting purse', () => {
-  const option = STORY.eliraShesh.options.find((candidate) => candidate.lek > 0)
-  const ids = phraseSenses(option.text)
-  const before = {
-    ...newRun(),
-    nodeId: 'eliraShesh',
-    inventory: { lek: 600 },
-    discovered: Object.fromEntries(ids.map((id) => [id, true])),
-    mana: Object.fromEntries(ids.map((id) => [id, 2])),
-    knowledge: { 'npcName:elira': { atClock: 0, source: 'audit' } },
+check('every Elira acceptance grants exactly 800 and narrates the atomic resulting purse', () => {
+  const origins = ['eliraBreg', 'eliraEmriBreg', 'eliraShesh', 'eliraEmriShesh']
+  for (const nodeId of origins) {
+    const option = STORY[nodeId].options.find((candidate) => candidate.questAction?.action === 'accept')
+    assert.ok(option, `${nodeId}: no paid errand acceptance`)
+    const questAdvance = optionEffectsOf(option).filter(
+      (effect) => effect?.type === 'resource' && effect.id === 'lek',
+    )
+    assert.deepEqual(questAdvance.map((effect) => effect.delta), [ELIRA_ERRAND_ADVANCE],
+      `${nodeId}: errand grant is not one nominal 800-lek transaction`)
+    assert.equal(option.lek, undefined, `${nodeId}: quest advance bypasses the registry`)
+    assert.equal(option.to, 'fshatiSheshi', `${nodeId}: acceptance did not return to free roam`)
+    assert.doesNotMatch(albanianTextOf(option.text), /tetëqind|800|lek/,
+      `${nodeId}: choice previews its reward`)
+
+    for (const startingLek of [0, 8, 600]) {
+      const ids = phraseSenses(option.text)
+      const fresh = newRun()
+      const before = {
+        ...fresh,
+        nodeId,
+        inventory: { ...fresh.inventory, lek: startingLek },
+        discovered: Object.fromEntries(ids.map((id) => [id, true])),
+        mana: Object.fromEntries(ids.map((id) => [id, 20])),
+        knowledge: { 'npcName:elira': { atClock: 0, source: 'audit' } },
+        quests: offerQuests({}, [ELIRA_BREAD_SALT_QUEST_ID], fresh.clock, `audit:${nodeId}`),
+      }
+      const after = reducer(before, {
+        type: 'CHOOSE', option, targetNode: STORY[option.to],
+        fromNodeId: before.nodeId, fromTurn: before.turn,
+      })
+      const resultingLek = startingLek + ELIRA_ERRAND_ADVANCE
+      assert.equal(after.inventory.lek, resultingLek, `${nodeId}/${startingLek}: grant applied incorrectly`)
+      assert.equal(arrivalOptionOf(after), option, `${nodeId}/${startingLek}: arrival lost its transaction`)
+      const outcome = moneyOutcomeLineOf(option, (id) => hasCond(after, id))
+      const expected = `Elira të jep tetëqind lekë. Tani ke ${resultingLek} lekë.`
+      assert.equal(albanianTextOf(moneyTransactionStoryLine(outcome, after.inventory.lek)), expected,
+        `${nodeId}/${startingLek}: transaction and resulting balance were not one narration`)
+
+      const restored = normalizeSavedState(JSON.parse(JSON.stringify(after)), newRun())
+      const restoredOption = arrivalOptionOf(restored)
+      assert.ok(restoredOption, `${nodeId}/${startingLek}: save/reload lost the arrival option`)
+      const restoredOutcome = moneyOutcomeLineOf(restoredOption, (id) => hasCond(restored, id))
+      assert.equal(
+        albanianTextOf(moneyTransactionStoryLine(restoredOutcome, restored.inventory.lek)),
+        expected,
+        `${nodeId}/${startingLek}: save/reload split or changed the transaction narration`,
+      )
+    }
   }
-  const after = reducer(before, {
-    type: 'CHOOSE', option, targetNode: STORY[option.to],
-    fromNodeId: before.nodeId, fromTurn: before.turn,
-  })
-  assert.equal(after.inventory.lek, 1_400)
-  assert.equal(arrivalOptionOf(after), option)
-  const outcome = moneyOutcomeLineOf(option, (id) => hasCond(after, id))
-  assert.equal(
-    albanianTextOf(moneyTransactionStoryLine(outcome, after.inventory.lek)),
-    'Elira të jep tetëqind lekë. Tani ke 1400 lekë.',
-  )
 })
 
 check('old lek dialogue teaches 10:1 without changing the charged value', () => {

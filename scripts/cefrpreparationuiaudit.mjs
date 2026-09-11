@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs'
 import {
   CEFR_PREPARATION_ACTIVITIES,
   CEFR_PREPARATION_MECHANICS,
+  CEFR_PREPARATION_SCENARIO_COMPANION,
   CEFR_PREPARATION_VERSION,
   preparationPlan,
   preparationReadiness,
@@ -49,6 +50,26 @@ check('all 23 registered activities have a playable response renderer', () => {
       assert.ok(activity.connectorOptions?.length || activity.requiredLinks?.some(({ allowedSenseIds }) => allowedSenseIds.length), `${activity.id} cannot render connectors`)
     }
   }
+})
+
+check('deterministic practice does not leak a story NPC name while the current-story badge stays identity-aware', () => {
+  assert.equal(CEFR_PREPARATION_SCENARIO_COMPANION, 'the villager')
+  assert.doesNotMatch(componentSource, /\bElira\b/,
+    'a deterministic component label bypasses the scenario companion role')
+  for (const activity of CEFR_PREPARATION_ACTIVITIES) {
+    assert.doesNotMatch(activity.instruction, /\bElira\b/,
+      `${activity.id} reveals a persistent story identity in deterministic instructions`)
+  }
+
+  const activity = CEFR_PREPARATION_ACTIVITIES.find(({ loreAnchor }) => loreAnchor.npcId === 'elira')
+  assert.ok(activity, 'no preparation activity exercises a discoverable companion')
+  assert.equal(cefrPreparationLoreLabels(activity, {}).companion, 'the woman from the bridge')
+  assert.equal(
+    cefrPreparationLoreLabels(activity, { knowledge: { 'npcName:elira': true } }).companion,
+    'Elira',
+  )
+  assert.match(componentSource, /Current story · \{lorePlace\}/,
+    'the live story badge is not visibly separated from the deterministic exercise')
 })
 
 check('preparation completion is normalized and distinct from capstone evidence', () => {
@@ -107,7 +128,7 @@ check('the reducer records only preparation evidence, never rewards or health ch
   assert.deepEqual(after.cefrPreparationPasses[activity.mechanicId], [activity.id])
 })
 
-check('readiness consumes exact live word-stage evidence rather than totals', () => {
+check('readiness consumes exact live word-capability evidence rather than totals', () => {
   const focusIds = [...new Set(CEFR_PREPARATION_ACTIVITIES.flatMap(({ focusSenseIds }) => focusSenseIds))]
   const discovered = Object.fromEntries(focusIds.map((id) => [id, true]))
   const noProof = liveCefrPreparationEvidence({ discovered, wordProgress: {} }, [])
@@ -160,7 +181,7 @@ check('listening, repair and recording preserve their learning boundaries', () =
 check('ordinary preparation hides raw counters while debug retains exact diagnostics', () => {
   assert.match(componentSource, /debug && <span>\{attempts\}/)
   assert.match(componentSource, /state\.debug\s*\? `\$\{summary\.byLevel\[level\]\.completed\}\/\$\{summary\.byLevel\[level\]\.total\}/)
-  assert.match(componentSource, /debug \? ` and \$\{wordReasons\.length - 1\} more needed words` : ' and the other required words'/)
+  assert.match(componentSource, /debug \? ` and \$\{capabilityReasons\.length - 1\} more needed words` : ' and the other required words'/)
 })
 
 check('preparation state survives load and both run transitions', () => {

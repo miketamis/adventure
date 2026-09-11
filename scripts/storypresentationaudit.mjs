@@ -9,6 +9,7 @@ import fs from 'node:fs'
 import {
   STORY,
   lineOf,
+  visibleLines,
 } from '../src/game/content.js'
 import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import {
@@ -134,6 +135,27 @@ check('the birthday dialogue is a coherent same-place interaction, not hub trans
   assert.ok(STORY.fshatiSheshi.options.some((option) => option.to === 'fshatiDitelindje'))
   assert.ok(STORY.fshatiDitelindje.options.some((option) => option.to === 'fshatiDitelindjeUrim'))
   assert.ok(STORY.fshatiDitelindjeUrim.options.some((option) => option.to === 'fshatiSheshi'))
+})
+
+check('the opening errand stays compact while optional questions remain in the square', () => {
+  const cases = [
+    [],
+    ['flag:eliraErrandResponseGuest'],
+    ['flag:eliraErrandResponseMarket'],
+    ['flag:eliraErrandResponseGuestRoom'],
+  ]
+  assert.equal(PLACE_OF.porosiaShesh, PLACE_OF.fshatiSheshi, 'the optional dialogue moved the player')
+  for (const responseFlags of cases) {
+    for (const knowsElira of [false, true]) {
+      const active = new Set(responseFlags)
+      if (knowsElira) active.add('knows:npcName:elira')
+      const visible = visibleLines(STORY.porosiaShesh, (id) => active.has(id))
+      assert.equal(visible.length, 1, 'one conversation turn should render one core line')
+      const entries = entriesOf(visible)
+      assert.equal(planScenePresentation(entries).entries.length, 1, 'conversation turn exceeded the scene budget')
+      assert.ok(sceneFitsAmbientBudget(entries), 'conversation turn left no compact scene budget')
+    }
+  }
 })
 
 const failed = checks.filter((entry) => !entry.ok)

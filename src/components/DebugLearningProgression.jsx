@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { DICT } from '../game/content.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../game/everydayAlbanian.js'
 import { playPhrase } from '../game/audio.js'
-import { FORMS_UNLOCK_THRESHOLD } from '../game/gameState.js'
 import { buildPhraseProgressionSnapshot } from '../game/phrasePractice.js'
 import {
   PHRASE_PROGRESSION_POLICY,
@@ -24,7 +23,10 @@ import {
 } from '../game/trainingProgression.js'
 import { TRAIN_EXERCISE_EXAMPLES } from '../game/trainingExampleRegistry.js'
 import { NOUN_FORM_ROLE_LABELS } from '../game/nounEndingRefresher.js'
+import { wordProgressionOptionsForSense } from '../game/formInventory.js'
 import {
+  WORD_CONTEXT_EXERCISE_CONCEPT,
+  WORD_CONTEXT_VARIANTS,
   WORD_PROGRESSION_POLICY,
   WORD_STAGE_DEFINITIONS,
   advanceWordProgress,
@@ -34,42 +36,59 @@ import {
 const EXAMPLE_PHRASE_ID = 'going-village'
 const EXAMPLE_WORD_ID = 'fshat'
 
+const exampleWordProgressionOptions = () => wordProgressionOptionsForSense(EXAMPLE_WORD_ID)
+
+const wordPlanCheckpoint = (plan) => [
+  plan.baseStage,
+  plan.stage,
+  plan.contextVariantId || 'isolated',
+  plan.contextReview ? plan.contextProofId : 'stage-proof',
+].join(':')
+
 function buildWordWalkthroughSteps() {
+  const progressionOptions = exampleWordProgressionOptions()
+  const entrySnapshot = wordProgressionSnapshot(null, 0, progressionOptions)
   const steps = [{
     id: 'word-entry',
     label: 'word saved',
-    detail: 'Saving the word already completed guided recognition; the first Train question has four choices.',
-    snapshot: wordProgressionSnapshot(null, 0),
+    detail: 'Saving exposes the word and its gloss but awards no Train proof; the first Train question is four-choice Albanian-to-English meaning recognition.',
+    snapshot: entrySnapshot,
     currentRound: 0,
     rewards: 0,
   }]
   let progress = null
   let round = 0
   let rewards = 0
-  let previousBaseStage = 0
-  for (let attempt = 0; attempt < 18 && previousBaseStage < WORD_STAGE_DEFINITIONS.length - 1; attempt++) {
-    let snapshot = wordProgressionSnapshot(progress, round)
+  let previousCheckpoint = wordPlanCheckpoint(entrySnapshot.next)
+  for (let attempt = 0; attempt < 24; attempt++) {
+    let snapshot = wordProgressionSnapshot(progress, round, progressionOptions)
+    if (snapshot.next.baseStage >= WORD_STAGE_DEFINITIONS.length - 1 && !snapshot.next.contextReview) break
     round = Math.max(round, snapshot.next.dueAfterRound)
-    snapshot = wordProgressionSnapshot(progress, round)
+    snapshot = wordProgressionSnapshot(progress, round, progressionOptions)
     const plan = snapshot.next
     const result = advanceWordProgress(progress, round, {
       correct: true,
       tier: plan.tier,
       mode: plan.mode,
       direction: plan.direction,
+      variantId: plan.contextVariantId || plan.variantId,
+      targetFormKey: plan.targetFormKey,
       questionKey: `debug-word-${attempt}`,
       round: round + 1,
-    })
+    }, progressionOptions)
     if (!result.accepted) break
     progress = result.progress
     rewards += 1
-    const after = wordProgressionSnapshot(progress, round + 1)
-    if (after.next.baseStage > previousBaseStage) {
-      previousBaseStage = after.next.baseStage
+    const after = wordProgressionSnapshot(progress, round + 1, progressionOptions)
+    const nextCheckpoint = wordPlanCheckpoint(after.next)
+    if (nextCheckpoint !== previousCheckpoint) {
+      previousCheckpoint = nextCheckpoint
       steps.push({
-        id: after.next.definition.id,
+        id: `${after.next.definition.id}:${after.next.contextVariantId || 'isolated'}`,
         label: after.next.difficultyLabel,
-        detail: `The exact earlier word proofs are complete; ${after.next.difficultyLabel} is next.`,
+        detail: after.next.contextReview
+          ? `The earlier lexical proofs are complete; ${after.next.difficultyLabel} now records its own context evidence.`
+          : `The exact earlier word and context proofs are complete; ${after.next.difficultyLabel} is next.`,
         snapshot: after,
         currentRound: round + 1,
         rewards,
@@ -85,7 +104,7 @@ function buildWordWalkthroughSteps() {
       id: 'retained-word-due',
       label: 'retention due',
       detail: 'The review gap has elapsed; exact spelling is ready.',
-      snapshot: wordProgressionSnapshot(progress, dueRound),
+      snapshot: wordProgressionSnapshot(progress, dueRound, progressionOptions),
       currentRound: dueRound,
     })
   }
@@ -426,14 +445,69 @@ function WordFamilyCard({ family, status = 'locked', statusLabel, onExample }) {
   )
 }
 
+function contextUnlockText(variant) {
+  const unlock = variant.unlock || {}
+  if (unlock.kind === 'saved-word') return 'Unlock: as soon as this word is saved.'
+  const stageLabels = (unlock.stages || [unlock.stageId])
+    .filter(Boolean)
+    .map((id) => WORD_STAGE_DEFINITIONS.find((stage) => stage.id === id)?.label || clean(id))
+  if (unlock.kind === 'stage-proof') return `Unlock: after ${stageLabels[0]} is proven.`
+  if (unlock.kind === 'all-stage-proofs') return `Unlock: after ${stageLabels.join(' and ')} are proven.`
+  if (unlock.kind === 'stage-active') return `Scheduled within ${stageLabels[0]}.`
+  if (unlock.kind === 'before-stage') return `Unlock: after prerequisites, immediately before ${stageLabels[0]}.`
+  return `Unlock: ${clean(unlock.kind || 'production registry rule')}.`
+}
+
+function ContextGapFamilyCard({ family, contextSnapshot, onExample }) {
+  const variantStatus = new Map((contextSnapshot?.variants || []).map((entry) => [entry.definition.id, entry]))
+  const statuses = [...variantStatus.values()].map(({ status }) => status)
+  const familyStatus = statuses.includes('current') || statuses.includes('eligible')
+    ? 'current'
+    : statuses.length && statuses.every((status) => status === 'passed' || status === 'skipped')
+      ? 'passed'
+      : 'locked'
+  return (
+    <li
+      className={`dbg-learning-card ${familyStatus}`}
+      data-family-id={family.id}
+      data-context-concept={WORD_CONTEXT_EXERCISE_CONCEPT}
+    >
+      <span className={`dbg-learning-status ${familyStatus}`}>{familyStatus} · shared family</span>
+      <h4>Context-gap progression</h4>
+      <p>One context-completion family moves from marked recognition, through mirrored Albanian retrieval, to a later unmarked recognition proof.</p>
+      {WORD_CONTEXT_VARIANTS.map((variant) => {
+        const evidence = variantStatus.get(variant.id)
+        const status = evidence?.status || 'locked'
+        return (
+        <div className={`dbg-learning-variant ${status}`} key={variant.id} data-variant-id={variant.id}>
+          <span className={`dbg-learning-status ${status}`}>{status}</span>
+          <b>{variant.label}</b>
+          <ExampleButton
+            exampleId={variant.id}
+            label={variant.label}
+            context={family.label}
+            onOpen={onExample}
+          />
+          <p><code>{variant.direction} · {variant.evidenceTrack} · target: {variant.targetPresentation}</code></p>
+          <p>{contextUnlockText(variant)}</p>
+          <p><b>Selected checkpoint:</b>{' '}
+            {variant.proofId
+              ? `${evidence?.proof || 0}/1 separate context proof${evidence?.scheduledAs ? ` · scheduled as ${evidence.scheduledAs}` : ''}`
+              : `evidence is recorded by its ${variant.evidenceTrack} word-stage gate`}
+          </p>
+        </div>
+        )
+      })}
+    </li>
+  )
+}
+
 function WordLane({ onExample }) {
   const steps = useMemo(() => buildWordWalkthroughSteps(), [])
   const [selectedStep, setSelectedStep] = useState(0)
   const step = steps[Math.min(selectedStep, steps.length - 1)]
-  const { snapshot, rewards: rewardCount } = step
-  const boundedRewards = Math.min(rewardCount, FORMS_UNLOCK_THRESHOLD)
-  const formsReady = snapshot.next.baseStage >= TRAIN_WORD_FORM_POLICY.lexicalStageRequired &&
-    rewardCount >= FORMS_UNLOCK_THRESHOLD
+  const { snapshot } = step
+  const formsReady = snapshot.next.baseStage >= TRAIN_WORD_FORM_POLICY.lexicalStageRequired
   const gateStatus = formsReady ? 'passed' : 'current'
   return (
     <section className="dbg-learning-lane" aria-labelledby="dbg-learning-word-lane">
@@ -475,11 +549,11 @@ function WordLane({ onExample }) {
             </li>
           )
         })}
-        <li className={`dbg-learning-card ${gateStatus}`} data-word-form-gate="practice-wins">
-          <span className={`dbg-learning-status ${gateStatus}`}>{boundedRewards} / {FORMS_UNLOCK_THRESHOLD}</span>
-          <h4>Noun-form gate</h4>
-          <p>Correct rounds that reward <span lang="sq">fshat</span> add to its practice count, but that total cannot replace lexical production.</p>
-          <div className="dbg-learning-evidence"><b>Rule:</b> forms need {FORMS_UNLOCK_THRESHOLD} rewards and completion of {WORD_STAGE_DEFINITIONS[TRAIN_WORD_FORM_POLICY.lexicalStageRequired - 1].label}.</div>
+        <li className={`dbg-learning-card ${gateStatus}`} data-word-form-gate="reviewed-form-lane">
+          <span className={`dbg-learning-status ${gateStatus}`}>{formsReady ? 'applicable now' : 'prerequisite pending'}</span>
+          <h4>Reviewed-form applicability</h4>
+          <p>The exact form lane exists because <span lang="sq">fshat</span> has reviewed form-and-role records. Reward totals cannot skip or unlock it.</p>
+          <div className="dbg-learning-evidence"><b>Rule:</b> it follows completion of {WORD_STAGE_DEFINITIONS[TRAIN_WORD_FORM_POLICY.lexicalStageRequired - 1].label}; a word with no reviewed lane skips only the two conditional form capabilities.</div>
         </li>
         <WordFamilyCard
           family={TRAIN_EXERCISE_FAMILIES.wordForms}
@@ -490,9 +564,13 @@ function WordLane({ onExample }) {
       </ol>
       <div className="dbg-learning-parallel" aria-label="Parallel and corrective word exercise branches">
         <div>
-          <p className="dbg-learning-branch-label">Parallel homonym path · not a <span lang="sq">fshat</span> gate</p>
+          <p className="dbg-learning-branch-label">Shared contextual-completion progression</p>
           <ul className="dbg-learning-flow parallel">
-            <WordFamilyCard family={TRAIN_EXERCISE_FAMILIES.wordContext} status="current" statusLabel="when applicable" onExample={onExample} />
+            <ContextGapFamilyCard
+              family={TRAIN_EXERCISE_FAMILIES.wordContext}
+              contextSnapshot={snapshot.context}
+              onExample={onExample}
+            />
           </ul>
         </div>
         <div>

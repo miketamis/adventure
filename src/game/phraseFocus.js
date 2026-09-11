@@ -1,4 +1,5 @@
 import { DICT } from './dictionary.js'
+import { isTrainableSense } from './lexicalTrainability.js'
 
 const SMALL_WORDS = new Set(['a', 'e', 'i', 'jo', 'me', 'në', 'po', 'se', 'të'])
 
@@ -32,7 +33,7 @@ export function phraseProductionFocuses(phrase) {
   const surfaces = words(phrase.al)
   const mapped = surfaces
     .map((word, index) => ({ id: senseAt(phrase, surfaces, index), index, word }))
-    .filter((focus) => focus.id && DICT[focus.id])
+    .filter((focus) => focus.id && DICT[focus.id] && isTrainableSense(focus.id))
   const explicit = Array.isArray(phrase.productionFocus)
     ? [...new Set(phrase.productionFocus.filter((id) => phrase.requires.includes(id)))]
     : []

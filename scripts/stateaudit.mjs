@@ -22,6 +22,7 @@ import {
   hasCond,
   hasRequiredItem,
   interactionAvailabilityForOption,
+  newRun,
   normalizeSavedState,
   npcNodeOf,
   optionEffectsAreValid,
@@ -57,6 +58,15 @@ import {
   scheduleRendezvous,
 } from '../src/game/stateMechanics.js'
 import { NPCS } from '../src/game/npcs.js'
+import coreVillageNpcs from '../src/game/data/npcs/core-village.js'
+import {
+  knowsNpcIdentity,
+  npcIdentityConditionId,
+  npcIdentityKnowledgeId,
+  npcIdentityReference,
+  npcIdentityRevealEffect,
+  npcIdentitySpec,
+} from '../src/game/npcIdentity.js'
 import {
   WORLD_FACT_PRESENTATION,
   advanceToFestival,
@@ -70,7 +80,7 @@ import {
 import { REGIONS } from '../src/game/regions.js'
 import { embodimentOptionAccess } from '../src/game/embodiment.js'
 import { fixtureStageAt } from '../src/game/worldFixtures.js'
-import { isDistantLineVisible, sightlinesFrom, transitionInfo } from '../src/game/worldModel.js'
+import { isDistantLineVisible, routeForChoice, sightlinesFrom, transitionInfo } from '../src/game/worldModel.js'
 
 const checks = []
 const check = (name, test) => {
@@ -117,6 +127,47 @@ const stateAt = (nodeId, clock = START_CLOCK, extra = {}) => ({
   debug: false,
   loreFocus: null,
   ...extra,
+})
+
+check('discoverable NPC identity is generic, authored knowledge that survives saves and resets', () => {
+  const spec = npcIdentitySpec('elira')
+  assert.deepEqual(spec, {
+    npcId: 'elira',
+    name: 'Elira',
+    descriptor: 'the woman from the bridge',
+    knowledgeId: 'npcName:elira',
+  })
+  assert.deepEqual(coreVillageNpcs.elira.identity, NPCS.elira.identity,
+    'NPC catalog and runtime identity metadata drifted')
+  assert.equal(npcIdentitySpec('gruaUji'), null, 'an undiscoverable NPC silently gained an identity key')
+  assert.equal(npcIdentityKnowledgeId('missing'), null)
+  assert.equal(npcIdentityConditionId('missing'), null)
+  assert.throws(() => npcIdentityRevealEffect('missing'), /no discoverable identity contract/)
+
+  const fresh = newRun()
+  assert.equal(knowsNpcIdentity(fresh, 'elira'), false)
+  assert.equal(npcIdentityReference(fresh, 'elira'), 'the woman from the bridge')
+  assert.equal(hasCond(fresh, npcIdentityConditionId('elira')), false)
+
+  const learned = applyOptionEffects(
+    fresh,
+    { effects: [npcIdentityRevealEffect('elira')] },
+    { atClock: 19, source: 'identity-audit' },
+  )
+  assert.equal(knowsNpcIdentity(learned, 'elira'), true)
+  assert.equal(npcIdentityReference(learned, 'elira'), 'Elira')
+  assert.equal(hasCond(learned, npcIdentityConditionId('elira')), true)
+  assert.deepEqual(learned.knowledge[npcIdentityKnowledgeId('elira')], {
+    atClock: 19,
+    source: 'identity-audit',
+  })
+
+  const restored = normalizeSavedState(JSON.parse(JSON.stringify(learned)), newRun())
+  assert.equal(knowsNpcIdentity(restored, 'elira'), true, 'save/reload forgot a learned identity')
+  const reset = reducer(restored, { type: 'RESET' })
+  assert.equal(reset.nodeId, 'start')
+  assert.equal(knowsNpcIdentity(reset, 'elira'), true, 'reset forgot a learned identity')
+  assert.equal(npcIdentityReference(reset, 'elira'), 'Elira')
 })
 
 check('typed effects compose while legacy choice fields keep their behavior', () => {
@@ -721,6 +772,9 @@ check('playable content exercises limits, hidden knowledge, and fixture actions 
   const wageIds = phraseSenses(paidDaily.option.text)
   const wageBefore = stateAt(paidDaily.nodeId, 27, {
     inventory: { lahute: 1 },
+    observations: paidDaily.option.attentionGate
+      ? { [paidDaily.option.attentionGate.id]: { atClock: 27, nodeId: paidDaily.nodeId } }
+      : {},
     discovered: Object.fromEntries(wageIds.map((id) => [id, true])),
     mana: Object.fromEntries(wageIds.map((id) => [id, 2])),
   })
@@ -797,6 +851,15 @@ check('ordinary choices use canonical route hours', () => {
     }
   }
   assert.ok(compared >= 750, `only ${compared} ordinary choices compared`)
+
+  const accompaniedWalk = STORY.eliraBreg.options.find((option) => (
+    !option.confuser && option.to === 'fshatiSheshi' && option.durationHours === 2
+  ))
+  assert.ok(accompaniedWalk, 'the river-bank walk to the village disappeared')
+  const accompaniedRoute = routeForChoice('eliraBreg', accompaniedWalk)
+  assert.equal(accompaniedRoute.verb, 'po_yes', 'movement test no longer begins with a non-movement clause')
+  assert.equal(accompaniedRoute.movementVerbId, 'vjen', 'movement inside a multi-clause choice was not found')
+  assert.equal(accompaniedRoute.kind, 'journey', 'a narrated accompanied walk was classified as a hidden scene shift')
 })
 
 check('exact civil hours compose with routes, dates, phases, tale clocks, and saves', () => {

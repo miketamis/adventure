@@ -1,4 +1,5 @@
 import { NOUN_FORMS } from './nounForms.js'
+import { REVIEWED_WORD_CONTEXTS } from './reviewedWordContexts.js'
 
 // Albanian word/sense catalog. Kept as its own static cache boundary: the
 // story, reducer and training surfaces all need it synchronously, but adding
@@ -18,7 +19,7 @@ export const DICT = {
   ec:        { al: 'ec',        en: 'walk' },
   fle:       { al: 'fle',       en: 'sleep' },
   ketu:      { al: 'këtu',      en: 'here' },
-  dhe:       { al: 'dhe',       en: 'and', ctx: { al: 'bukë dhe ujë', en: 'bread __ water', focus: 'dhe' } },
+  dhe:       { al: 'dhe',       en: 'and' },
   shtepi:    { al: 'shtëpi',    en: 'house' },
   ka:        { al: 'ka',        en: 'has' },
   dere:      { al: 'derë',      en: 'door' },
@@ -56,13 +57,13 @@ export const DICT = {
   humbet:    { al: 'humbet',    en: 'gets lost' },
   merr:      { al: 'merr',      en: 'take' },
   // grammatical particles — shown word-for-word like any other word
-  te_link:   { al: 'të',        en: 'of',  ctx: { al: 'fuqi të rrufe', en: 'power __ lightning', focus: 'të' } },   // linking particle
-  te_subj:   { al: 'të',        en: 'to',  ctx: { al: 'mund të pi', en: 'can __ drink', focus: 'të' } },   // subjunctive particle
-  te_obj:    { al: 'të',        en: 'you', ctx: { al: 'ujku të ha', en: 'the wolf eats __', focus: 'të' } },  // object clitic
+  te_link:   { al: 'të',        en: 'of' },   // linking particle
+  te_subj:   { al: 'të',        en: 'to' },   // subjunctive particle
+  te_obj:    { al: 'të',        en: 'you' },  // object clitic
   mund:      { al: 'mund',      en: 'can' },
   deri:      { al: 'deri',      en: 'until' },      // #152
-  i_art:     { al: 'i',         en: 'the', ctx: { al: 'i uritur', en: '__ hungry', focus: 'i' } },  // adjectival article
-  i_link:    { al: 'i',         en: 'of',  ctx: { al: 'syri i gjarprit', en: 'the eye __ the serpent', focus: 'i' } },   // masculine linking article
+  i_art:     { al: 'i',         en: 'masculine adjective article' },
+  i_link:    { al: 'i',         en: 'of' },   // masculine linking article
   kerko:     { al: 'kërko',     en: 'search' },
   thesar:    { al: 'thesar',    en: 'treasure' },
   gjen:      { al: 'gjen',      en: 'finds' },
@@ -125,8 +126,8 @@ export const DICT = {
   mish:      { al: 'mish',      en: 'meat' },
   peshk:     { al: 'peshk',     en: 'fish' },   // a ware in the dead city's bazaar (Durham)
   qengj:     { al: 'qengj',     en: 'lamb' },
-  kashte:    { al: 'kashtë',    en: 'straw', ctx: { al: 'kashtë nën kafshët', en: '__ under the animals', focus: 'kashtë' } },
-  sane:      { al: 'sanë',      en: 'hay', ctx: { al: 'kafshët hanë sanë', en: 'the animals eat __', focus: 'sanë' } },
+  kashte:    { al: 'kashtë',    en: 'straw' },
+  sane:      { al: 'sanë',      en: 'hay' },
   kukull:    { al: 'kukull',    en: 'doll' },
   varros:    { al: 'varros',    en: 'buries' },
   balte:     { al: 'baltë',     en: 'clay' },
@@ -145,7 +146,7 @@ export const DICT = {
   plesht:    { al: 'plesht',    en: 'flea' },
   kerce:     { al: 'kërcen',    en: 'leaps' },
   ballokume: { al: 'ballokume', en: 'cake' },
-  flutur:    { al: 'flutur',    en: 'butterfly', ctx: { al: 'flutura fluturon mes luleve', en: 'the __ flies among the flowers', focus: 'flutura' } },
+  flutur:    { al: 'flutur',    en: 'butterfly' },
   dre:       { al: 'dre',       en: 'stag' },
   kose:      { al: 'kosë',      en: 'scythe' },
   shkop:     { al: 'shkop',     en: 'cudgel' },
@@ -281,8 +282,8 @@ export const DICT = {
   dhelpra:   { al: 'dhelpër',   en: 'fox' },
   mi:        { al: 'mi',        en: 'mouse' },
   rrobe:     { al: 'rrobë',     en: 'dress' },   // e Bukura e Dheut's power-in-the-dress
-  krah:      { al: 'krah',      en: 'wing', ctx: { al: 'zogu ka krahë', en: 'the bird has __', focus: 'krahë' } },
-  krah_arm:  { al: 'krah',      en: 'arm', enAll: 'arm / shoulder', ctx: { al: 'kam një plagë në krah', en: 'I have a wound on my __', focus: 'krah' } },
+  krah:      { al: 'krah',      en: 'wing' },
+  krah_arm:  { al: 'krah',      en: 'arm', enAll: 'arm / shoulder' },
   kuq:       { al: 'kuq',       en: 'red' },     // the Kulshedra's reddish hair
   bri:       { al: 'bri',       en: 'horn' },    // the Vitore's golden horns
   gju:       { al: 'gju',       en: 'knee' },    // the Katallan has no knees
@@ -317,11 +318,11 @@ export const DICT = {
   lart:      { al: 'lart',      en: 'up', enAll: 'up / high' },
   por:       { al: 'por',       en: 'but' },
   // 'po' is highly polysemous — three grammatically distinct senses on one surface:
-  po_yes:    { al: 'po',        en: 'yes', ctx: { al: 'ti thua: po', en: 'you say: __', focus: 'po' } },  // affirmation
-  po_prog:   { al: 'po',        en: 'is',  ctx: { al: 'uji po vjen', en: 'the water __ coming', focus: 'po' } },   // progressive marker, "is …-ing"
-  po_but:    { al: 'po',        en: 'but', ctx: { al: 'rri këtu po nuk ka ujë', en: 'stays here __ has no water', focus: 'po' } },  // adversative (spoken variant of por)
-  po_turn:   { al: 'po',        en: 'and', ctx: { al: 'mirë, po ti?', en: 'fine, __ you?', focus: 'po' } }, // turns the same question back: “and/how about…?”
-  a_q:       { al: 'a',         en: 'do', ctx: { al: 'a vjen?', en: '__ you come?', focus: 'a' } }, // yes/no question particle
+  po_yes:    { al: 'po',        en: 'yes' },  // affirmation in a natural polar exchange
+  po_prog:   { al: 'po',        en: 'is' },   // progressive marker, "is …-ing"
+  po_but:    { al: 'po',        en: 'but' },  // adversative (spoken variant of por)
+  po_turn:   { al: 'po',        en: 'what about', usage: 'Used to return or redirect attention or a question: “what about …?”' }, // conversational return/redirect, not the conjunction “and”
+  a_q:       { al: 'a',         en: 'yes/no question marker' },
   nuk:       { al: 'nuk',       en: 'not' },
   une:       { al: 'unë',       en: 'I' },
   mua:       { al: 'mua',       en: 'me' },   // object form of unë — used in reported speech
@@ -347,13 +348,13 @@ export const DICT = {
   kembe:     { al: 'këmbë',     en: 'legs' },
   fuqi:      { al: 'fuqi',      en: 'power' },
   rrezik:    { al: 'rrezik',    en: 'danger' },
-  e_art:     { al: 'e',         en: 'the', ctx: { al: 'e bukura', en: '__ beautiful one', focus: 'e' } },   // feminine adjectival article
-  e_link:    { al: 'e',         en: 'of',  ctx: { al: 'Bukura e Detit', en: 'the Beauty __ the Sea', focus: 'e' } },   // feminine linking article
-  e_obj:     { al: 'e',         en: 'it', enAll: 'it / her / him', ctx: { al: 'kulshedra e ha', en: 'the kulshedra eats __', focus: 'e' } }, // object clitic (all genders): kulshedra e ha (eats IT) · Halili e do (wants HER) · Mujo e vajton (mourns HIM)
-  i_obj:     { al: 'i',         en: 'to him', ctx: { al: 'i thotë krajlit', en: 'says __ to the Krajl', focus: 'i' } },
-  e_conj:    { al: 'e',         en: 'and', ctx: { al: 'Mujo e Halili', en: 'Mujo __ Halili', focus: 'e' } }, // conjunction (folk/epic register, = dhe)
+  e_art:     { al: 'e',         en: 'feminine adjective article' },
+  e_link:    { al: 'e',         en: 'of' },   // feminine linking article
+  e_obj:     { al: 'e',         en: 'it', enAll: 'it / her / him' }, // object clitic (all genders): kulshedra e ha (eats IT) · Halili e do (wants HER) · Mujo e vajton (mourns HIM)
+  i_obj:     { al: 'i',         en: 'to him' },
+  e_conj:    { al: 'e',         en: 'and' }, // conjunction (folk/epic register, = dhe)
   jo:        { al: 'jo',        en: 'not' },
-  pa:        { al: 'pa',        en: 'without', enAll: 'without / and then' }, // folk chains: «pa e lajmë, pa e presim…»
+  pa:        { al: 'pa',        en: 'without' },
   me:        { al: 'me',        en: 'with' },
   shume:     { al: 'shumë',     en: 'many' },
   mire:      { al: 'mirë',      en: 'good' },
@@ -365,11 +366,11 @@ export const DICT = {
   jashte:    { al: 'jashtë',    en: 'outside' },
   ku:        { al: 'ku',        en: 'where' },
   qe:        { al: 'që',        en: 'that' },
-  do:        { al: 'do',        en: 'wants', ctx: { al: 'gjarpri do ar', en: 'the serpent __ gold', focus: 'do' } }, // dua also = love — glossed 'loves' at Halili's declaration (mujo2)
-  do_fut:    { al: 'do',        en: 'will',  ctx: { al: 'bolla do të bëhet', en: 'the Bolla __ become', focus: 'do' } },  // future auxiliary
+  do:        { al: 'do',        en: 'wants' }, // dua also = love — glossed 'loves' at Halili's declaration (mujo2)
+  do_fut:    { al: 'do',        en: 'will' },  // future auxiliary
   bej:       { al: 'bëj',       en: 'make' },
-  luan:      { al: 'luan',      en: 'plays', ctx: { al: 'fëmija luan', en: 'the child __', focus: 'luan' } },
-  luan_noun: { al: 'luan',      en: 'lion', ctx: { al: 'një luan ruan derën', en: 'a __ guards the door', focus: 'luan' } },
+  luan:      { al: 'luan',      en: 'plays' },
+  luan_noun: { al: 'luan',      en: 'lion' },
   mbyll:     { al: 'mbyll',     en: 'close' },
   zhurme:    { al: 'zhurmë',    en: 'noise' },
   tani:      { al: 'tani',      en: 'now' },
@@ -387,8 +388,8 @@ export const DICT = {
   // --- the storm of Baba Tomor (the Drangue's lightning) ---
   rrufe:     { al: 'rrufe',     en: 'thunderbolt' },
   re:        { al: 're',        en: 'cloud' },
-  ere:       { al: 'erë',       en: 'wind', ctx: { al: 'era lëviz pemët', en: 'the __ moves the trees', focus: 'era' } },
-  ere_smell: { al: 'erë',       en: 'smell', ctx: { al: 'vjen erë buke', en: 'there is a __ of bread', focus: 'erë' } },
+  ere:       { al: 'erë',       en: 'wind' },
+  ere_smell: { al: 'erë',       en: 'smell' },
   mjegull:   { al: 'mjegull',   en: 'mist' },   // the Buna fog that opens Kuteli's Rozafa legend
   // --- the underworld: the rams & the Beauty's twist ---
   dash:      { al: 'dash',      en: 'ram' },     // the white & black rams (Scurfhead)
@@ -566,8 +567,8 @@ export const DICT = {
   gjithe:    { al: 'gjithë',    en: 'all' },
   gjitheve:  { al: 'të gjithëve', en: 'everyone' },
   pak:       { al: 'pak',       en: 'a little' },
-  para:      { al: 'para',      en: 'before', enAll: 'before / ahead / in front of / forward', ctx: { al: 'eja para natës', en: 'come __ night', focus: 'para' } },
-  para_money:{ al: 'para',      en: 'money', ctx: { al: 'kam para për bukë', en: 'I have __ for bread', focus: 'para' } },
+  para:      { al: 'para',      en: 'before', enAll: 'before / ahead / in front of / forward' },
+  para_money:{ al: 'para',      en: 'money' },
   tek:       { al: 'tek',       en: 'at' },
   vertete:   { al: 'vërtetë',   en: 'truly' },
   dicka:     { al: 'diçka',     en: 'something' },
@@ -636,7 +637,7 @@ export const DICT = {
   //     meets constantly (pronouns, quantifiers, deixis). Ranks from the
   //     OpenSubtitles sq_50k list; see scripts/freqrank.mjs.
   ne_we:     { al: 'ne',        en: 'we' },        // #29  (distinct from ne='në'=in)
-  me_more:   { al: 'më',        en: 'more', ctx: { al: 'më i madh', en: '__ big (bigger)', focus: 'më' } }, // #8 (comparative; shares 'më' with me_obj)
+  me_more:   { al: 'më',        en: 'more' }, // #8 (comparative; shares 'më' with me_obj)
   disa:      { al: 'disa',      en: 'some' },       // #116
   ndonje:    { al: 'ndonjë',    en: 'any' },        // #114
   gjitha:    { al: 'gjitha',    en: 'all' },        // #115 (të gjitha)
@@ -884,7 +885,7 @@ export const DICT = {
   qesh:       { al: 'qesh',        en: 'laughs' },
   // --- quote-harvest 2026-07-17: words carried by verbatim folk Q-lines ---
   pikon:     { al: 'pikon',    en: 'drips' },
-  dhe_gave:  { al: 'dhe',      en: 'gave', ctx: { al: 'ti më dhe besën', en: 'you __ me the oath', focus: 'dhe' } },  // aorist 2sg of jap (you gave)
+  dhe_gave:  { al: 'dhe',      en: 'gave' },  // aorist 2sg of jap (you gave)
   yne:       { al: 'ynë',      en: 'our' },
   besnik:    { al: 'besnik',   en: 'faithful' },
   qenke:     { al: 'qenke',    en: 'you have been' },
@@ -1096,7 +1097,7 @@ export const DICT = {
   harron:     { al: 'harron',      en: 'forgets' },
   udhe:       { al: 'udhë',        en: 'road' },         // the farewell's word (cf. udhëkryq); = rrugë
   mbare:      { al: 'mbarë',       en: 'fortunate' },    // udha e mbarë — the traveller's blessing
-  me_obj:     { al: 'më',          en: 'me', ctx: { al: 'më jep bukë', en: 'give __ bread', focus: 'më' } }, // object clitic
+  me_obj:     { al: 'më',          en: 'me' }, // object clitic
   plumb:      { al: 'plumb',       en: 'bullet' },       // fjala dhe plumbi kur dalin s'kthehen më
   piqet:      { al: 'piqet',       en: 'meets' },        // mali me mal nuk piqet, njeriu me njeriun piqet
   dylle:      { al: 'dyllë',       en: 'wax' },          // the bee-riddle: na jep dyllë…
@@ -1111,6 +1112,14 @@ export const DICT = {
   lumte:      { al: 'lumtë',       en: 'blessed be' },   // të lumtë krahu / të lumtë goja
 }
 
+// Context-sensitive teaching data is reviewed as one coherent registry so a
+// homograph family cannot silently gain a new bare, ambiguous Train question.
+// The dictionary remains the canonical runtime surface consumed everywhere.
+for (const [id, context] of Object.entries(REVIEWED_WORD_CONTEXTS)) {
+  if (!DICT[id]) throw new Error(`REVIEWED_WORD_CONTEXTS.${id} has no matching dictionary sense`)
+  DICT[id].ctx = context
+}
+
 // Canonical noun declensions power the noun-role practice track. Other parts of
 // speech may still declare surface variants for wf() validation, but those must
 // not accidentally enter a noun-ending quiz.
@@ -1118,4 +1127,14 @@ for (const [id, forms] of Object.entries(NOUN_FORMS)) {
   if (!DICT[id]) throw new Error(`NOUN_FORMS.${id} has no matching dictionary sense`)
   DICT[id].forms = forms
   DICT[id].formTrack = 'noun'
+}
+
+// Story tokens use the canonical retrieval-gloss field: a slash-separated
+// `enAll` when several glosses are declared, otherwise the default `en`.
+// Learner explanations belong in DEFS or contextual-function labels instead.
+// Keep this interpretation shared by authoring-time wf() validation and audits.
+export const declaredStoryGlosses = (entry) => {
+  if (!entry?.en) return []
+  const source = entry.enAll ?? entry.en
+  return source.split('/').map((gloss) => gloss.trim()).filter(Boolean)
 }

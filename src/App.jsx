@@ -12,8 +12,6 @@ import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
 import { ACHIEVEMENT_IDS } from './game/achievementRules.js'
 import { STORY } from './game/content.js'
 import { attachReviewedEnglishReadings } from './game/language.js'
-import TimePassage from './components/TimePassage.jsx'
-import EmbodimentConfirm from './components/EmbodimentConfirm.jsx'
 import ReleaseErrorBoundary from './components/ReleaseErrorBoundary.jsx'
 
 // Story is the first and dominant surface. The larger study, collection and
@@ -28,6 +26,11 @@ const GuideView = lazy(() => import('./components/GuideView.jsx'))
 const AtlasView = lazy(() => import('./components/AtlasView.jsx'))
 const DebugView = lazy(() => import('./components/DebugView.jsx'))
 const MiniMap = lazy(() => import('./components/MiniMap.jsx'))
+// These blocking surfaces are reached only after an authored time jump or
+// embodied-tale choice. Keep their sizeable presentation logic out of the
+// ordinary opening route and fetch it only when that event actually occurs.
+const TimePassage = lazy(() => import('./components/TimePassage.jsx'))
+const EmbodimentConfirm = lazy(() => import('./components/EmbodimentConfirm.jsx'))
 const BUILD_COMMIT = __BUILD_COMMIT__
 
 const ViewFallback = () => (
@@ -390,12 +393,14 @@ export default function App() {
         </BlockingModal>
       )}
 
-      {state.timePassage && (
-        <TimePassage key={state.timePassage.id} passage={state.timePassage} dispatch={dispatch} />
-      )}
-      {state.pendingEmbodiment && !state.timePassage && (
-        <EmbodimentConfirm pending={state.pendingEmbodiment} dispatch={dispatch} />
-      )}
+      <Suspense fallback={<div className="card view-fallback" role="status">Preparing the next story beat…</div>}>
+        {state.timePassage && (
+          <TimePassage key={state.timePassage.id} passage={state.timePassage} dispatch={dispatch} />
+        )}
+        {state.pendingEmbodiment && !state.timePassage && (
+          <EmbodimentConfirm pending={state.pendingEmbodiment} dispatch={dispatch} />
+        )}
+      </Suspense>
     </div>
   )
 }

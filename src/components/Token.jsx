@@ -1,6 +1,7 @@
 import { useId, useRef, useState } from 'react'
 import { DEFS, splitStem } from '../game/content.js'
 import { playWord } from '../game/audio.js'
+import { lexicalTrainability } from '../game/lexicalTrainability.js'
 
 function definitionText(tokens, discovered) {
   return tokens
@@ -41,6 +42,8 @@ function StaticDefinition({ tokens, discovered }) {
 
 // Renders one token.
 //  - particle:          "(of)"  -> dim, not interactive
+//  - personal/place name: Albanian story text; pronunciation only, never saved
+//                         or styled as a vocabulary discovery.
 //  - undiscovered word: English gloss, dashed, click to discover.
 //                       Hovering shows the Albanian before discovery.
 //  - discovered word:   Albanian surface; hover/focus reveals its Albanian
@@ -73,6 +76,23 @@ export default function Token({ token, discovered, onDiscover, tokenCount }) {
   if (token.paren) {
     // structural tokens (punctuation) render plainly, not clickable
     return <span className="token particle">{token.en}</span>
+  }
+
+  const trainability = lexicalTrainability(token.id)
+  if (!trainability.trainable) {
+    const entityLabel = trainability.kind === 'place-name' ? 'Place name' : 'Personal name'
+    return (
+      <button
+        type="button"
+        className="token named-entity"
+        onClick={activate()}
+        onMouseEnter={playWithPointer}
+        onMouseLeave={resetPointerAudio}
+        aria-label={`${token.al}. ${entityLabel}. Play pronunciation; not a vocabulary target.`}
+      >
+        <span className="known-word" lang="sq" aria-hidden="true">{token.al}</span>
+      </button>
+    )
   }
 
   const isKnown = discovered[token.id]

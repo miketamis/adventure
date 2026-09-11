@@ -109,6 +109,12 @@ assert.ok(!bootstrapNames.has(chunkNamed('folklore-catalog').name),
   'the full folklore catalog should stay deferred until a lore, achievements, or debug surface requests it')
 assert.ok(!bootstrapNames.has(chunkNamed('npc-catalog').name),
   'the full NPC catalog should stay deferred until a map/debug surface requests it')
+const endingCatalog = chunkNamed('endingCatalog')
+assert.ok(!bootstrapNames.has(endingCatalog.name),
+  'rich ending titles and blurbs should stay deferred until an ending, codex, or debug surface requests them')
+const storyView = chunkNamed('StoryView')
+assert.ok(!staticClosureOf(storyView.name).has(endingCatalog.name),
+  'the ordinary story view must not fetch rich ending copy before the player reaches an ending')
 
 // The small synchronous achievement contract must stay equivalent to the rich
 // deferred catalog. This makes the lazy-free boundary reviewable: moving lore

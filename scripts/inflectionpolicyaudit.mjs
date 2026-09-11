@@ -17,6 +17,7 @@ import { NOUN_PARADIGM_BACKLOG_IDS } from '../src/game/nounRegistry.js'
 import { REVIEWED_GENERATED_FORM_SURFACES } from '../src/game/gameState.js'
 import { FORMS_UNLOCK_THRESHOLD, formsUnlocked } from '../src/game/formInventory.js'
 import { completedWordProgress } from '../src/game/wordProgression.js'
+import { isTrainableSense } from '../src/game/lexicalTrainability.js'
 import {
   ENVIRONMENT_DIMENSIONS,
   ENVIRONMENT_NARRATION_SETTINGS,
@@ -141,7 +142,7 @@ for (const [id, entry] of Object.entries(DICT)) {
       assert.ok(quizSurfaces.has(surface), `${id}/${surface}: playable surface is not quiz-reachable for its sense`)
     }
   }
-  if (usedVariants.length) {
+  if (usedVariants.length && isTrainableSense(id)) {
     assert.equal(
       formsUnlocked({
         practiced: { [id]: FORMS_UNLOCK_THRESHOLD },
@@ -154,6 +155,16 @@ for (const [id, entry] of Object.entries(DICT)) {
       formsUnlocked({ practiced: { [id]: FORMS_UNLOCK_THRESHOLD } }, id),
       false,
       `${id}: lifetime rewards bypassed the lexical-production gate`,
+    )
+  }
+  if (usedVariants.length && !isTrainableSense(id)) {
+    assert.equal(
+      formsUnlocked({
+        practiced: { [id]: FORMS_UNLOCK_THRESHOLD },
+        wordProgress: { [id]: completedWordProgress() },
+      }, id),
+      false,
+      `${id}: a proper name entered Train through its reviewed story forms`,
     )
   }
   for (const form of entry.forms || []) {
@@ -197,10 +208,12 @@ assert.equal(
 )
 
 const practice = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+const formPractice = readFileSync(new URL('../src/game/formPractice.js', import.meta.url), 'utf8')
+const formInventory = readFileSync(new URL('../src/game/formInventory.js', import.meta.url), 'utf8')
 assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordForms/, 'Train does not consume the shared word-form family')
-assert.match(practice, /const forms = trainingForms\(answerId\)/, 'form question builder bypasses the shared inventory')
-assert.match(practice, /trainingForms\(id\)\.some/, 'form eligibility bypasses the shared inventory')
-assert.match(practice, /q\.hasNounRoleStep\s*\?\s*buildNounEndingRefresher/s, 'noun correction is not guarded by word class')
+assert.match(formPractice, /const forms = reviewedFormTargets\(answerId\)/, 'form question builder bypasses the shared exact-role inventory')
+assert.match(formInventory, /trainingForms\(id\)\.length >= 2/, 'form eligibility bypasses the shared inventory')
+assert.match(practice, /q\.formTarget\?\.wordClass === 'noun'[\s\S]+buildNounEndingRefresher/, 'noun correction is not guarded by word class')
 assert.doesNotMatch(practice, /What does the ending do here\?/, 'general form quiz still calls every change a noun ending')
 assert.ok(!existsSync(new URL('./gen_forms.mjs', import.meta.url)), 'unsafe heuristic noun generator still exists')
 assert.ok(!existsSync(new URL('./data/forms_block.js', import.meta.url)), 'stale fabricated noun-form artifact still exists')

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { STORY, START_NODE, lineOf } from '../game/content.js'
+import { RICH_ENDING_BY_ID } from '../game/endingCatalog.js'
 import { REGIONS, WORLD_CHART, isWander, assignRegions } from '../game/regions.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
 import { NODE_POS, PLACE_OF } from './nodePositions.js'
@@ -7,6 +8,9 @@ import { PLACE_META } from './placeMeta.js'
 import { playerMapLabel, playerMapShortLabel } from './mapLabels.js'
 import { nextMapMarker } from './mapKeyboard.js'
 import { englishReadingOf } from '../game/language.js'
+
+const richPlayerMapLabel = (id) => playerMapLabel(id, RICH_ENDING_BY_ID)
+const richPlayerMapShortLabel = (id, maxLength = 42) => playerMapShortLabel(id, maxLength, RICH_ENDING_BY_ID)
 
 const KIND_COLOR = {
   start: '#4aa3ff',
@@ -2358,7 +2362,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
           {' '}through the centre, the <b>sea-road</b> right, and — down through the well — the world below.
           {' '}Keyboard: <b>Tab</b> into the map, use the <b>arrow keys</b> to move between nearby places, and press <b>Enter</b> to inspect one.
           {player
-            ? <> The bright ring marks where you are; story paths appear here as you visit or hear about them.{objective && <> The violet double ring marks where your character&apos;s tale is waiting: <b>{playerMapLabel(objective)}</b>.</>}</>
+            ? <> The bright ring marks where you are; story paths appear here as you visit or hear about them.{objective && <> The violet double ring marks where your character&apos;s tale is waiting: <b>{richPlayerMapLabel(objective)}</b>.</>}</>
             : <> Every <b>dot</b> is a scene; click any dot or building to open it in the Story Graph.</>}
           {' '}With a keyboard, Tab into the map, use the arrow keys to move between nearby places, and press Enter to select.
         </p>
@@ -2651,7 +2655,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
                      aria-label={canInspect(pl.id) ? `${pl.label}${isCur ? ', you are here' : ', known story place'}${objectiveAtPlace ? ', your character tale waits here' : ''}` : undefined}
                      onClick={() => canInspect(pl.id) && setSel(target)} style={{ cursor: canInspect(pl.id) ? 'pointer' : 'default' }}>
                     <title>{player
-                      ? playerMapLabel(pl.id)
+                      ? richPlayerMapLabel(pl.id)
                       : `${pl.id}${STORY[pl.id].end ? ` (${STORY[pl.id].end})` : ''}`}</title>
                     {(isSel || isCur) && <circle cx={pl.x} cy={pl.y} r={24} fill="none" stroke={isSel ? '#3ad0c0' : '#fff'} strokeWidth={2.4} opacity={0.85} />}
                     {objectiveAtPlace && <><circle cx={pl.x} cy={pl.y} r={29} fill="none" stroke="#c9a7f2" strokeWidth={2.4} opacity={0.95} /><circle cx={pl.x} cy={pl.y} r={34} fill="none" stroke="#765b98" strokeWidth={1.5} strokeDasharray="5 4" opacity={0.9} /></>}
@@ -2688,7 +2692,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
                       strokeWidth={2.6 * ds} opacity={0.92} style={{ cursor: 'pointer' }}
                       onClick={() => setSel(u)}>
                   <title>{player
-                    ? `${playerMapLabel(u)} → ${playerMapLabel(v)}`
+                    ? `${richPlayerMapLabel(u)} → ${richPlayerMapLabel(v)}`
                     : `${u} → ${v}  ·  crosses ~${s.crossings} scenes  ·  ${Math.round(s.len)}px  (${s.ru}→${s.rv})`}</title>
                 </line>
               )
@@ -2706,14 +2710,14 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
               return (
                 <g key={d.id} className="dbg-wdot" opacity={dim ? 0.22 : 1}
                    {...mapMarkerProps(`scene-${d.id}`, d.id, d.x, d.y, () => setSel(target))}
-                   aria-label={`${playerMapLabel(d.id)}${isCur ? ', you are here' : ', known story place'}${isObjective ? ', your character tale waits here' : ''}`}
+                   aria-label={`${richPlayerMapLabel(d.id)}${isCur ? ', you are here' : ', known story place'}${isObjective ? ', your character tale waits here' : ''}`}
                    onClick={() => setSel(target)} style={{ cursor: 'pointer' }}>
                   <title>{player
-                    ? playerMapLabel(d.id)
+                    ? richPlayerMapLabel(d.id)
                     : `${d.id}${STORY[d.id].end ? ` (${STORY[d.id].end})` : ''}`}</title>
                   {label && <text x={d.x} y={d.y - 10 * ds} textAnchor="middle" className="dbg-wdotlabel"
                                   style={{ fontSize: 10.5 * ds, strokeWidth: 3 * ds }}>
-                    {player ? playerMapShortLabel(d.id) : d.id}
+                    {player ? richPlayerMapShortLabel(d.id) : d.id}
                   </text>}
                   {/* generous invisible hit target so tiny glyphs are easy to click */}
                   <circle cx={d.x} cy={d.y} r={dr * 2.4} fill="transparent" />
@@ -2747,7 +2751,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
                    {...mapMarkerProps(`place-${c.key}`, host ? null : target, c.x, c.y, activate, clusterInteractive)}
                    aria-hidden={!clusterInteractive ? 'true' : undefined}
                    aria-label={player
-                     ? `${playerMapLabel(target)}, known story place${c.members.some((m) => isCurrentPlace(m.id)) ? ', you are here' : ''}${holdsObjective ? ', your character tale waits here' : ''}`
+                     ? `${richPlayerMapLabel(target)}, known story place${c.members.some((m) => isCurrentPlace(m.id)) ? ', you are here' : ''}${holdsObjective ? ', your character tale waits here' : ''}`
                      : `${c.members.length} scenes at ${PLACE_META[c.key.slice(4)]?.name || c.key.slice(4)}`}
                    onClick={clusterInteractive ? activate : undefined} style={{ cursor: clusterInteractive ? 'pointer' : 'default' }}>
                   <title>{player ? 'Show a known scene at this place' : `${c.members.length} scenes happen here — click for the location card`}</title>
@@ -2787,7 +2791,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
                    aria-label={canInspect(lm.id) ? `${lm.label}${isCur ? ', you are here' : ', known story place'}${objectiveAtPlace ? ', your character tale waits here' : ''}` : undefined}
                    onClick={() => canInspect(lm.id) && setSel(target)} style={{ cursor: canInspect(lm.id) ? 'pointer' : 'default' }}>
                   <title>{player
-                    ? playerMapLabel(lm.id)
+                    ? richPlayerMapLabel(lm.id)
                     : `${lm.id}${STORY[lm.id].end ? ` (${STORY[lm.id].end})` : ''}`}</title>
                   {(isSel || isCur) && <circle cx={lm.x} cy={lm.y} r={30} fill="none" stroke={isSel ? '#3ad0c0' : '#fff'} strokeWidth={2.6} opacity={0.85} />}
                   {objectiveAtPlace && <><circle cx={lm.x} cy={lm.y} r={35} fill="none" stroke="#c9a7f2" strokeWidth={2.5} opacity={0.95} /><circle cx={lm.x} cy={lm.y} r={40} fill="none" stroke="#765b98" strokeWidth={1.5} strokeDasharray="5 4" opacity={0.9} /></>}
@@ -2805,7 +2809,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
               if (!p) return null
               return (
                 <g key={'npc' + n.id} className="dbg-npc">
-                  <title>{player ? `${n.name} — near ${playerMapLabel(n.node)}` : `${n.name} — ${n.node}`}</title>
+                  <title>{player ? `${n.name} — near ${richPlayerMapLabel(n.node)}` : `${n.name} — ${n.node}`}</title>
                   <circle cx={p[0] + 12} cy={p[1] - 10} r={8.5} fill="#1c2433" stroke="#e6b84e" strokeWidth={1.2} opacity={0.92} />
                   <text x={p[0] + 12} y={p[1] - 6.4} textAnchor="middle" fontSize={10.5}>{n.glyph}</text>
                 </g>
@@ -2868,7 +2872,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
             <div className="dbg-wi-head">
               <code>{sel}</code>
               {info.n.end && <span className={'dbg-tag ' + info.n.end}>{info.n.end}</span>}
-              {info.n.title && <b>{info.n.title}</b>}
+              {RICH_ENDING_BY_ID[sel]?.title && <b>{RICH_ENDING_BY_ID[sel].title}</b>}
               <button className="dbg-wi-x" title="clear selection" onClick={() => setSel(null)}>✕</button>
             </div>
             {info.firstLine && <p className="dbg-wi-line">“{info.firstLine}”</p>}

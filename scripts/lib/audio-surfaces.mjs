@@ -11,6 +11,7 @@ export function collectAudioSurfaces(dict, story, phrases = [], cefrTasks = [], 
 
   for (const entry of Object.values(dict)) {
     add(entry.al)
+    if (entry.ctx?.audio === true) add(entry.ctx.al)
     // Train can play every standalone reviewed form, including surfaces that
     // have not yet appeared in story prose. Bound fragments are deliberately
     // excluded because the UI never presents or plays them on their own.

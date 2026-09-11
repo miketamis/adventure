@@ -22,9 +22,9 @@ The public curriculum currently contains (the hidden markers are checked
 against the live registries by `scripts/conversationaudit.mjs`):
 
 - 15 opening targets; <!-- curriculum:opening=15 -->
-- 60 first-session targets; <!-- curriculum:session=60 -->
+- 58 first-session targets; <!-- curriculum:session=58 -->
 - 173 practice-priority senses; <!-- curriculum:core=173 -->
-- 120 whole-phrase drills; <!-- curriculum:phrases=120 -->
+- 118 whole-phrase drills; <!-- curriculum:phrases=118 -->
 - 24 story-grounded can-do groups. <!-- curriculum:groups=24 -->
 
 Every whole-phrase drill must be found in a playable story line or action. `scripts/conversationaudit.mjs` rejects an ungrounded drill, a missing first-session target, an unknown sense, or an underfilled can-do group.

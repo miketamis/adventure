@@ -221,8 +221,9 @@ export const OPTION_READINGS_B = Object.freeze({
   "udhetimi2.options[2]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 751
   "udhetimi2.options[3]": { al: "hap dashin", en: "Open the ram.", review: 'internal-editorial' }, // 752
   "bukuraThellesi.options[0]": { al: "dëgjo Bukurën", en: "Listen to the Beauty.", review: 'internal-editorial' }, // 753
-  "bukuraThellesi.options[1]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 754
-  "bukuraThellesi.options[2]": { al: "merr ujin", en: "Take the water.", review: 'internal-editorial' }, // 755
+  "bukuraThellesi.options[1]": { al: "ik shpejt.", en: "Flee quickly.", review: 'internal-editorial' }, // 754
+  "bukuraThellesi.options[2]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 755
+  "bukuraThellesi.options[3]": { al: "merr ujin", en: "Take the water.", review: 'internal-editorial' }, // 756
   "bregu.options[0]": { al: "dëgjo motrën", en: "Listen to the sister.", review: 'internal-editorial' }, // 756
   "bregu.options[1]": { al: "fle këtu", en: "Sleep here.", review: 'internal-editorial' }, // 757
   "bregu.options[2]": { al: "kthehu në det", en: "Return to the sea.", review: 'internal-editorial' }, // 758
@@ -289,7 +290,7 @@ export const OPTION_READINGS_B = Object.freeze({
   "ngjitja3.options[2]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 819
   "fshatiSheshi.options[0]": { al: "fol me plakun", en: "Speak with the old man.", review: 'internal-editorial' }, // 820
   "fshatiSheshi.options[1]": { al: "hyr në shtëpi", en: "Enter the house.", review: 'internal-editorial' }, // 821
-  "fshatiSheshi.options[2]": { al: "hyr në odë", en: "Enter the guest room.", review: 'internal-editorial' }, // 822
+  "fshatiSheshi.options[2]": { al: "po shkoj në odë.", en: "I am going to the guest-room.", review: 'internal-editorial' }, // 822
   "fshatiSheshi.options[3]": { al: "hyr në kafene", en: "Enter the coffeehouse.", review: 'internal-editorial' }, // 823
   "fshatiSheshi.options[4]": { al: "ndihmo fëmijët", en: "Help the children.", review: 'internal-editorial' }, // 824
   "fshatiSheshi.options[5]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' }, // 825

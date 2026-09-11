@@ -17,6 +17,7 @@ import {
 import { hasCond, newRun } from '../src/game/gameState.js'
 import { EVERYDAY_GOOD_PRICES } from '../src/game/economy.js'
 import { albanianTextOf } from '../src/game/language.js'
+import { observationIdFromCondition } from '../src/game/observations.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { optionEffectsOf, optionLekDelta } from '../src/game/stateMechanics.js'
 
@@ -222,6 +223,13 @@ for (const [nodeId, actionId, senseId, patch] of practicalRevealStates) {
   const setupLine = resolveRevealLine(node.text.map(lineOf), option).line
   assert.ok(setupLine, `${actionId}: reveal does not resolve to an authored setup line`)
   const base = newRun()
+  const actionRequirements = option.requires == null
+    ? []
+    : Array.isArray(option.requires) ? option.requires : [option.requires]
+  const observations = Object.fromEntries(actionRequirements
+    .map(observationIdFromCondition)
+    .filter(Boolean)
+    .map((id) => [id, { atClock: patch.clock || base.clock, nodeId }]))
   const ready = {
     ...base,
     ...patch,
@@ -229,6 +237,7 @@ for (const [nodeId, actionId, senseId, patch] of practicalRevealStates) {
     inventory: { ...base.inventory, ...patch.inventory },
     flags: { ...base.flags, ...patch.flags },
     worldFacts: { ...base.worldFacts, ...patch.worldFacts },
+    observations: { ...base.observations, ...observations },
   }
   assert.equal(
     visibleLines(node, (id) => hasCond(ready, id)).includes(setupLine),
