@@ -881,6 +881,53 @@ svg [role="button"]:focus-visible {
 .cefr-prep-own-audio audio { flex: 1 1 280px; max-width: 100%; }
 .cefr-prep-selfcheck,
 .cefr-prep-plan-builder label { display: flex; align-items: flex-start; gap: 9px; color: var(--ink); line-height: 1.45; }
+.cefr-prep-context-cues {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+  margin: 14px 0; padding: 0;
+}
+.cefr-prep-context-cues > div {
+  display: grid; gap: 4px; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 9px; background: var(--panel-2);
+}
+.cefr-prep-context-cues dt { color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+.cefr-prep-context-cues dd { margin: 0; color: var(--ink); font-size: 14px; text-transform: capitalize; }
+.cefr-prep-memory,
+.cefr-prep-strategy,
+.cefr-prep-retelling { display: grid; gap: 14px; }
+.cefr-prep-memory-cue,
+.cefr-prep-world-affordance,
+.cefr-prep-recovery,
+.cefr-prep-register-feedback {
+  padding: 13px 15px; border: 1px solid color-mix(in srgb, var(--mana) 35%, var(--line));
+  border-radius: 10px; background: color-mix(in srgb, var(--mana) 5%, var(--panel-2));
+}
+.cefr-prep-memory-cue p,
+.cefr-prep-register-feedback p { margin: 0 0 9px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.cefr-prep-register-feedback { display: grid; gap: 8px; }
+.cefr-prep-register-feedback p { margin: 0; }
+.cefr-prep-register-feedback p > span:first-child { color: var(--ink); font-weight: 700; text-transform: capitalize; }
+.cefr-prep-world-affordance { margin: 0; color: var(--muted); line-height: 1.45; }
+.cefr-prep-recovery > blockquote {
+  margin: 12px 0; padding: 13px 15px; border-left: 3px solid var(--mana);
+  background: var(--panel); color: var(--ink); font: 20px/1.5 Georgia, serif;
+}
+.cefr-prep-round-heading { margin: 8px 0 12px; color: var(--ink); font-size: 16px; }
+.cefr-prep-cue-cards { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.cefr-prep-cue-cards > span {
+  padding: 8px 11px; border: 1px solid var(--mana); border-radius: 999px;
+  background: color-mix(in srgb, var(--mana) 8%, var(--panel)); color: var(--ink); font: 17px/1.25 Georgia, serif;
+}
+.cefr-prep-scene-cues { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 12px; }
+.cefr-prep-scene-cues > span {
+  display: grid; width: 54px; min-height: 54px; place-items: center; border: 1px solid var(--line);
+  border-radius: 12px; background: var(--panel-2); font-size: 26px;
+}
+.cefr-prep-recorder-checks { display: grid; gap: 10px; }
+.cefr-prep-recorder-checks fieldset {
+  display: grid; gap: 7px; margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: 9px;
+}
+.cefr-prep-recorder-checks legend { padding: 0 6px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.cefr-prep-recorder-checks fieldset label { display: flex; align-items: flex-start; gap: 8px; color: var(--ink); }
 .cefr-prep-branch-note { padding: 8px 10px; border-left: 3px solid var(--mana); background: color-mix(in srgb, var(--mana) 7%, var(--panel)); color: var(--muted); }
 .cefr-prep-dialogue-history { display: grid; gap: 6px; margin: 10px 0; }
 .cefr-prep-dialogue-history p { margin: 0; color: var(--muted); font-size: 13px; }
@@ -1430,6 +1477,7 @@ svg [role="button"]:focus-visible {
   .cefr-review-actions .btn { width: 100%; }
   .cefr-prep-stage,
   .cefr-prep-plan-builder { grid-template-columns: 1fr; }
+  .cefr-prep-context-cues { grid-template-columns: 1fr; }
   .cefr-prep-mechanics article { align-items: stretch; flex-direction: column; }
   .cefr-prep-activity-buttons { justify-content: flex-start; }
   .phrase-exercise,

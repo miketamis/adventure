@@ -4,6 +4,7 @@ import {
   cefrFamilyReachability,
   cefrModeProgress,
   cefrProfile,
+  combineOpenResponseTurns,
   nextCefrTask,
   openResponseMetrics,
   performanceEvidenceFor,
@@ -12,6 +13,11 @@ import {
 } from '../game/cefrAssessment.js'
 import { CEFR_LEVEL_GATES, CEFR_LEVEL_OUTCOMES, CEFR_MODES } from '../game/cefrProgression.js'
 import { preparationMechanicsForCapstone } from '../game/cefrPreparation.js'
+import {
+  analyzeOpenResponseFeedback,
+  requiresA2WritingRevision,
+  supportsOpenResponseFeedback,
+} from '../game/openResponseFeedback.js'
 import CefrPreparation, { cefrPreparationSummary } from './CefrPreparation.jsx'
 
 const SPOKEN_MODES = new Set(['spokenInteraction', 'spokenProduction'])
@@ -135,8 +141,16 @@ function ReceptionTask({ task, onComplete }) {
   const [answers, setAnswers] = useState({})
   const [submitted, setSubmitted] = useState(false)
   const [plays, setPlays] = useState(0)
+  const [playing, setPlaying] = useState(false)
+  const [audioError, setAudioError] = useState('')
+  const mountedRef = useRef(true)
   const replayLimit = task.stimulus.replayPolicy === 'up-to-three' ? 3 : 2
   const allAnswered = task.questions.every(({ id }) => typeof answers[id] === 'string')
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   const submit = () => {
     if (!allAnswered || submitted) return
@@ -152,16 +166,23 @@ function ReceptionTask({ task, onComplete }) {
           <button
             type="button"
             className="btn cefr-listen-button"
-            disabled={plays >= replayLimit || submitted}
-            onClick={() => {
-              playPhrase(task.stimulus.scriptSq)
-              setPlays((count) => count + 1)
+            disabled={playing || plays >= replayLimit || submitted}
+            onClick={async () => {
+              if (playing) return
+              setPlaying(true)
+              setAudioError('')
+              const completed = await playPhrase(task.stimulus.scriptSq)
+              if (!mountedRef.current) return
+              setPlaying(false)
+              if (completed) setPlays((count) => count + 1)
+              else setAudioError('The message did not finish. Check sound, then play it again; failed playback does not use a play.')
             }}
             aria-label={`Play ${task.voice.character}'s message. ${replayLimit - plays} plays remain.`}
           >
-            🔊 Hear {task.voice.character} <small>{replayLimit - plays} plays left</small>
+            🔊 {playing ? 'Playing…' : `Hear ${task.voice.character}`} <small>{replayLimit - plays} plays left</small>
           </button>
           <p>Only the continuous audio is available during this mission. No transcript or translation is revealed.</p>
+          {audioError && <p className="cefr-error" role="alert">{audioError}</p>}
         </div>
       ) : (
         <blockquote className="cefr-written-stimulus" lang="sq">{task.stimulus.textSq}</blockquote>
@@ -235,35 +256,217 @@ function Stimulus({ task, dialogueStep = 0 }) {
   return null
 }
 
+function DraftFeedback({ feedback }) {
+  if (!feedback) return null
+  const { metrics, semanticAnchors } = feedback
+  return (
+    <section className="cefr-review cefr-draft-feedback" aria-labelledby="cefr-draft-feedback-title">
+      <div className="cefr-task-place cefr-draft-feedback-heading">
+        <h4 id="cefr-draft-feedback-title">Notice, then decide what to revise</h4>
+        <span>Structure · lexical notice</span>
+      </div>
+      <p>
+        The game can count structure and recognise reviewed spellings. It cannot decide whether
+        your Albanian is natural, grammatical, or communicates the intended meaning.
+      </p>
+
+      <div className="cefr-metrics cefr-feedback-counts" aria-label="Draft structure counts">
+        <span><b>{metrics.words}</b> words{metrics.minimumWords > 0 ? ` · ${metrics.minimumWords} needed` : ''}</span>
+        <span><b>{metrics.sentences}</b> sentences{metrics.minimumSentences > 0 ? ` · ${metrics.minimumSentences} needed` : ''}</span>
+        <span><b>{metrics.turns}</b> turns{metrics.minimumTurns > 0 ? ` · ${metrics.minimumTurns} needed` : ''}</span>
+      </div>
+
+      <div className="cefr-review-block cefr-feedback-section">
+        <h5>Recognised reviewed forms</h5>
+        <p>{feedback.recognizedTokenCount}/{feedback.tokenCount} letter-word tokens match the reviewed dictionary or form inventory.</p>
+        {feedback.recognized.length > 0 ? (
+          <ul className="cefr-alternatives cefr-feedback-chips">
+            {feedback.recognized.map((entry) => {
+              const sourceLemmas = entry.lemmas.filter((lemma) => lemma.toLocaleLowerCase('sq') !== entry.surface)
+              return (
+                <li key={entry.surface} lang="sq">
+                  <b>{entry.surface}</b>{entry.count > 1 && <span> ×{entry.count}</span>}
+                  {sourceLemmas.length > 0 && <small> ({sourceLemmas.join(' / ')})</small>}
+                </li>
+              )
+            })}
+          </ul>
+        ) : <p>No reviewed Albanian form has been recognised yet.</p>}
+      </div>
+
+      <div className="cefr-review-block cefr-feedback-section">
+        <h5>Check, not automatically wrong</h5>
+        <p>These spellings are outside the reviewed inventory. They may still be names or valid Albanian; they never lower this result automatically.</p>
+        {feedback.unrecognized.length > 0 ? (
+          <ul className="cefr-alternatives cefr-feedback-chips uncertain">
+            {feedback.unrecognized.map((entry) => (
+              <li key={entry.surface} lang="sq"><b>{entry.surface}</b>{entry.count > 1 && <span> ×{entry.count}</span>}</li>
+            ))}
+          </ul>
+        ) : <p>Every letter-word token is present in the reviewed inventory.</p>}
+      </div>
+
+      <div className="cefr-review-block cefr-feedback-section">
+        <h5>Basic connectors noticed</h5>
+        <ul className="cefr-feedback-connectors">
+          {feedback.connectors.map(({ surface, count, present }) => (
+            <li className={present ? 'present' : ''} key={surface}>
+              <b lang="sq">{surface}</b><span>{present ? `seen ${count}×` : 'not seen'}</span>
+            </li>
+          ))}
+        </ul>
+        <p>A connector count is a noticing prompt, not a quality score.</p>
+      </div>
+
+      <div className="cefr-review-block cefr-feedback-section">
+        <h5>Prompt meaning</h5>
+        {semanticAnchors.available ? (
+          <>
+            <p>{semanticAnchors.coveredCount}/{semanticAnchors.anchors.length} safely authored prompt-word anchors appear. Presence does not prove that the intended meaning is expressed.</p>
+            <ul className="cefr-alternatives cefr-feedback-chips">
+              {semanticAnchors.anchors.map((anchor) => (
+                <li className={anchor.present ? 'present' : 'missing'} key={anchor.senseId} lang="sq">
+                  <b>{anchor.lemma}</b><span>{anchor.present ? ' noticed' : ' not noticed'}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p>No safe prompt-word anchors are authored for this task, so the game does not guess whether you covered its meaning. Use the task checklist in the self-review.</p>
+        )}
+      </div>
+      <p className="cefr-private-note">🔒 This draft is analysed only in page memory. Its text is not added to saved evidence.</p>
+    </section>
+  )
+}
+
 function OpenResponseTask({ task, onComplete }) {
   const [draft, setDraft] = useState('')
+  const [sentTurns, setSentTurns] = useState([])
   const [firstDraft, setFirstDraft] = useState(null)
+  const [assessedDraft, setAssessedDraft] = useState(null)
   const [practiceRevision, setPracticeRevision] = useState(false)
-  const [reviewing, setReviewing] = useState(false)
+  const [phase, setPhase] = useState('writing')
+  const [revisionCompleted, setRevisionCompleted] = useState(false)
   const [requirementChecks, setRequirementChecks] = useState({})
   const [dimensionChecks, setDimensionChecks] = useState({})
   const [submitted, setSubmitted] = useState(false)
-  const assessedDraft = firstDraft ?? draft
-  const metrics = openResponseMetrics(assessedDraft, task.response)
-  const structureMet = metrics.wordFloorMet && metrics.sentenceFloorMet && metrics.turnFloorMet
+  const draftRef = useRef(null)
+  const followUpRef = useRef(null)
+  const feedbackRef = useRef(null)
+  const selfReviewRef = useRef(null)
+  const feedbackEnabled = supportsOpenResponseFeedback(task)
+  const revisionRequired = requiresA2WritingRevision(task)
+  const requiredTurns = Math.max(1, Number(task.response.requiredTurns || task.response.minimumTurns || 1))
+  const stagedExchange = task.response.kind === 'free-text-exchange' && requiredTurns > 1
+  const workingDraft = stagedExchange && phase === 'writing'
+    ? combineOpenResponseTurns([...sentTurns, draft])
+    : draft
+  const metricsText = phase === 'practice-revising'
+    ? draft
+    : phase === 'first-feedback' ? firstDraft : (assessedDraft ?? workingDraft)
+  const metrics = openResponseMetrics(metricsText || '', task.response)
+  const structureTargetsMet = metrics.wordFloorMet && metrics.sentenceFloorMet && metrics.turnFloorMet
+  const feedbackText = ['first-feedback', 'revising'].includes(phase)
+    ? firstDraft
+    : phase === 'practice-revising' ? draft
+    : phase === 'self-review' || submitted ? assessedDraft : null
+  const feedback = useMemo(
+    () => feedbackEnabled && feedbackText != null
+      ? analyzeOpenResponseFeedback(feedbackText, task)
+      : null,
+    [feedbackEnabled, feedbackText, task],
+  )
+
+  useEffect(() => {
+    const target = phase === 'writing' && sentTurns.length > 0
+      ? followUpRef.current
+      : ['revising', 'practice-revising'].includes(phase)
+        ? draftRef.current
+        : phase === 'self-review'
+          ? selfReviewRef.current
+          : ['first-feedback', 'practice-reviewed'].includes(phase)
+            ? feedbackRef.current
+            : null
+    target?.focus()
+  }, [phase, sentTurns.length])
 
   const save = () => {
-    if (submitted) return
-    const rubric = selfReviewedRubric(task, { requirementChecks, dimensionChecks, structureMet })
+    if (submitted || phase !== 'self-review' || (revisionRequired && !revisionCompleted)) return
+    const rubric = selfReviewedRubric(task, {
+      requirementChecks,
+      dimensionChecks,
+      structureMet: structureTargetsMet,
+    })
     setSubmitted(true)
     onComplete(performanceEvidenceFor(task, rubric), Object.values(rubric).every((score) => score >= 2))
   }
 
+  const checkDraft = () => {
+    if (!draft.trim() || submitted) return
+    if (stagedExchange && sentTurns.length < requiredTurns - 1) {
+      setSentTurns((current) => [...current, draft.trim()])
+      setDraft('')
+      return
+    }
+    const completedDraft = stagedExchange
+      ? combineOpenResponseTurns([...sentTurns, draft])
+      : draft
+    setDraft(completedDraft)
+    setFirstDraft(completedDraft)
+    if (revisionRequired) {
+      setPhase('first-feedback')
+      return
+    }
+    setAssessedDraft(completedDraft)
+    setPhase('self-review')
+  }
+
+  const finishRevision = () => {
+    if (!draft.trim() || submitted || phase !== 'revising') return
+    setAssessedDraft(draft)
+    setRevisionCompleted(true)
+    setPhase('self-review')
+  }
+
+  const startPracticeRevision = () => {
+    if (!submitted) return
+    setPracticeRevision(true)
+    setPhase('practice-revising')
+  }
+
+  const finishPracticeRevision = () => {
+    if (!submitted || !practiceRevision || !draft.trim()) return
+    setAssessedDraft(draft)
+    setPracticeRevision(false)
+    setPhase('practice-reviewed')
+  }
+
   return (
-    <TaskFrame task={task}>
+      <TaskFrame task={task}>
       <Stimulus task={task} />
-      <label className="cefr-draft-label" htmlFor={`cefr-draft-${task.id}`}>Your Albanian message</label>
+      {stagedExchange && phase === 'writing' && sentTurns.map((turn, index) => (
+        <blockquote className="cefr-written-stimulus cefr-sent-turn" lang="sq" key={`${task.id}-sent-${index}`}>
+          <b>You:</b> {turn}
+        </blockquote>
+      ))}
+      {stagedExchange && sentTurns.length > 0 && (
+        <blockquote className="cefr-written-stimulus cefr-follow-up" lang="sq" ref={followUpRef} tabIndex="-1">
+          <b>{task.storyAnchor.npcLabel}:</b> {task.stimulus.followUpSq}
+        </blockquote>
+      )}
+      <label className="cefr-draft-label" htmlFor={`cefr-draft-${task.id}`}>
+        {stagedExchange && phase === 'writing'
+          ? `Your Albanian reply ${sentTurns.length + 1} of ${requiredTurns}`
+          : 'Your Albanian message'}
+      </label>
       <textarea
+        ref={draftRef}
         id={`cefr-draft-${task.id}`}
         lang="sq"
         value={draft}
-        disabled={(reviewing && !practiceRevision) || (submitted && !practiceRevision)}
-        onChange={(event) => { setDraft(event.target.value); setReviewing(false) }}
+        disabled={(['first-feedback', 'self-review'].includes(phase) || submitted) && !practiceRevision}
+        onChange={(event) => setDraft(event.target.value)}
         rows={task.level === 'A2' ? 8 : 5}
         spellCheck="false"
         autoComplete="off"
@@ -276,16 +479,28 @@ function OpenResponseTask({ task, onComplete }) {
         {metrics.minimumSentences > 0 && <span className={metrics.sentenceFloorMet ? 'met' : ''}>{metrics.sentences}/{metrics.minimumSentences} sentences</span>}
         {metrics.minimumTurns > 0 && <span className={metrics.turnFloorMet ? 'met' : ''}>{metrics.turns}/{metrics.minimumTurns} turns</span>}
       </div>
-      {!reviewing && !submitted && (
-        <button type="button" className="btn primary cefr-submit" disabled={!draft.trim()} onClick={() => {
-          setFirstDraft(draft)
-          setReviewing(true)
-        }}>
-          Review this draft
+      {phase === 'writing' && !submitted && (
+        <button type="button" className="btn primary cefr-submit" disabled={!draft.trim()} onClick={checkDraft}>
+          {stagedExchange
+            ? sentTurns.length < requiredTurns - 1 ? 'Send reply 1' : 'Send reply 2 and check the exchange'
+            : 'Check this draft'}
         </button>
       )}
-      {reviewing && !submitted && (
-        <div className="cefr-review">
+      {feedback && <div ref={feedbackRef} tabIndex="-1"><DraftFeedback feedback={feedback} /></div>}
+      {phase === 'first-feedback' && !submitted && (
+        <div className="cefr-review-block cefr-revision-gate">
+          <p>Before the A2 self-review, make one deliberate revision pass. You may change the draft or keep a line after checking it carefully.</p>
+          <button type="button" className="btn primary" onClick={() => setPhase('revising')}>Revise after this check</button>
+        </div>
+      )}
+      {phase === 'revising' && !submitted && (
+        <div className="cefr-review-block cefr-revision-gate">
+          <p>Edit the message above using what you noticed, then freeze the revised draft for your honest self-review.</p>
+          <button type="button" className="btn primary" disabled={!draft.trim()} onClick={finishRevision}>Finish revision and self-review</button>
+        </div>
+      )}
+      {phase === 'self-review' && !submitted && (
+        <div className="cefr-review" ref={selfReviewRef} tabIndex="-1">
           <RequirementReview
             task={task}
             checks={requirementChecks}
@@ -295,18 +510,31 @@ function OpenResponseTask({ task, onComplete }) {
             checks={dimensionChecks}
             onChange={(id, value) => setDimensionChecks((current) => ({ ...current, [id]: value }))}
           />
-          {!structureMet && <p className="cefr-structure-warning">The frozen first draft does not meet this mission’s length or turn floor. Saving it records “needs work”; you can revise it for practice afterward.</p>}
-          <p className="cefr-heldout-note">This check refers to the frozen first draft above. Reviewed language stays hidden until its evidence is saved.</p>
+          {!structureTargetsMet && <p className="cefr-structure-warning">The frozen assessed draft is below this mission’s required length, sentence, or turn floor. It cannot meet task fulfilment yet; counts do not judge Albanian quality.</p>}
+          <p className="cefr-heldout-note">This self-check refers to the frozen assessed draft above. Objective task floors confirm that the response has enough structure; spelling, connector, and anchor notices do not pass or fail the CEFR rubric.</p>
           <div className="cefr-review-actions"><button type="button" className="btn primary" onClick={save}>Save honest self-check</button></div>
         </div>
       )}
       {submitted && (
         <div className="cefr-after-attempt">
-          <p className="cefr-result" role="status">This attempt saved only rubric evidence. Your message was not put in the save file.</p>
-          <ReviewedAlternatives task={task} />
-          <button type="button" className="btn" onClick={() => setPracticeRevision(true)}>
-            Revise for practice (not new gate evidence)
-          </button>
+          {practiceRevision ? (
+            <>
+              <p>This edit is private practice. It cannot replace the held-out result already saved.</p>
+              <button type="button" className="btn primary" disabled={!draft.trim()} onClick={finishPracticeRevision}>
+                Finish and recheck practice revision
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="cefr-result" role="status">{phase === 'practice-reviewed'
+                ? 'Practice revision rechecked. No new readiness evidence was saved.'
+                : 'This attempt saved only rubric evidence. Your message was not put in the save file.'}</p>
+              <ReviewedAlternatives task={task} />
+              <button type="button" className="btn" onClick={startPracticeRevision}>
+                {phase === 'practice-reviewed' ? 'Revise again for practice' : 'Revise for practice (not new gate evidence)'}
+              </button>
+            </>
+          )}
         </div>
       )}
     </TaskFrame>

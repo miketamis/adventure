@@ -355,9 +355,35 @@ const reading = ({ id, level, textType, topic, location, npc, textSq, questions 
   rubric: receptionRubric(level === 'A1' ? `Locate one concrete fact in this ${textType}.` : `Identify the purpose and retrieve a detail from this ${textType}.`),
 })
 
+// These lexical anchors power deterministic noticing after an open-writing
+// attempt. They are task-specific prompts for revision, never a semantic score:
+// a learner may express the same communicative content with other valid words.
+export const CEFR_OPEN_RESPONSE_FOCUS_SENSE_IDS = deepFreeze({
+  'a1-written-exchange-01': ['pershendetje', 'bujtine', 'mire'],
+  'a1-written-exchange-02': ['faleminderit', 'shporte', 'ore'],
+  'a1-written-exchange-03': ['jam', 'takohem', 'pus', 'mirupafshim'],
+  'a1-written-exchange-04': ['jam', 'takohem', 'shesh', 'mirupafshim'],
+  'a1-free-writing-01': ['quhem', 'mik', 'jam', 'dua'],
+  'a1-free-writing-02': ['shko', 'treg', 'dua', 'kthehu'],
+  'a1-free-writing-03': ['quhem', 'mik', 'jam', 'dua'],
+  'a1-free-writing-04': ['shko', 'treg', 'dua', 'kthehu'],
+  'a2-written-exchange-01': ['keq', 'mund', 'ndihmo'],
+  'a2-written-exchange-02': ['fal', 'keq', 'sepse', 'takohem', 'ore'],
+  'a2-written-exchange-03': ['mund', 'sjell', 'fashe', 'vjen', 'ore'],
+  'a2-written-exchange-04': ['takohem', 'ore', 'pus', 'dakord'],
+  'a2-written-exchange-05': ['mund', 'sjell', 'fashe', 'vjen', 'ore'],
+  'a2-written-exchange-06': ['takohem', 'ore', 'pus', 'dakord'],
+  'a2-free-writing-01': ['rruge', 'jam', 'problem', 'shko', 'pastaj'],
+  'a2-free-writing-02': ['mbreme', 'dhome', 'ftohte', 'dua', 'pasdite'],
+  'a2-free-writing-03': ['mengjes', 'pastaj', 'tregtar', 'sonte', 'sepse'],
+  'a2-free-writing-04': ['rruge', 'jam', 'problem', 'shko', 'pastaj'],
+  'a2-free-writing-05': ['mbreme', 'dhome', 'ftohte', 'dua', 'pasdite'],
+  'a2-free-writing-06': ['mengjes', 'pastaj', 'tregtar', 'sonte', 'sepse'],
+})
+
 const performance = ({
   id, familyId, level, mode, topic, location, npc, stimulus, prompt, requirements,
-  response, focus, criticalEvidence, speaker = null,
+  response, focus, criticalEvidence, focusSenseIds = [], speaker = null,
 }) => ({
   id,
   familyId,
@@ -368,6 +394,9 @@ const performance = ({
   storyAnchor: anchor(location, npc, focus),
   stimulus,
   prompt,
+  ...(focusSenseIds.length || CEFR_OPEN_RESPONSE_FOCUS_SENSE_IDS[id]
+    ? { focusSenseIds: focusSenseIds.length ? focusSenseIds : CEFR_OPEN_RESPONSE_FOCUS_SENSE_IDS[id] }
+    : {}),
   voice: speaker
     ? voice(speaker, 'supportive-natural')
     : (mode.startsWith('spoken')
@@ -702,7 +731,7 @@ const A2_PERFORMANCE = [
   performance({ id: 'a2-written-exchange-01', familyId: 'a2-written-exchange', level: 'A2', mode: 'writtenInteraction', topic: 'news-and-feelings', location: 'courier-board', npc: 'Elira', stimulus: { kind: 'incoming-note', textSq: 'Isha në qytet, por nuk e kam çantën time. Jam mirë. Si jeni ju?' }, prompt: 'Reply with concern, local news and one practical offer.', requirements: [requirement('feeling', 'Respond to the news with an appropriate feeling.', ['social:concern']), requirement('news', 'Give one piece of local news.', ['exchange:local-news']), requirement('offer', 'Offer one practical action.', ['help:offer'])], response: { kind: 'free-text-exchange', minimumWords: 25, requiredTurns: 1 }, focus: 'Respond to news and offer useful help.', criticalEvidence: ['response to feeling', 'local news', 'offer'] }),
   performance({ id: 'a2-written-exchange-02', familyId: 'a2-written-exchange', level: 'A2', mode: 'writtenInteraction', topic: 'apology', location: 'inn', npc: 'bujtinari', stimulus: { kind: 'incoming-note', textSq: 'Të prita te dera e dhomës, por nuk erdhe.' }, prompt: 'Apologise, give a reason and propose a new time.', requirements: [requirement('apology', 'Apologise clearly.', ['social:apology'], ['Më fal.', 'Më vjen keq.']), requirement('reason', 'Give a reason.', ['reason:absence']), requirement('new-time', 'Suggest a new time.', ['meeting:new-time'])], response: { kind: 'free-text-exchange', minimumWords: 25, requiredTurns: 1 }, focus: 'Repair a missed arrangement in writing.', criticalEvidence: ['apology', 'reason', 'new time'] }),
   performance({ id: 'a2-written-exchange-03', familyId: 'a2-written-exchange', level: 'A2', mode: 'writtenInteraction', topic: 'need-and-reply', location: 'healer-house', npc: 'shëruesi', stimulus: { kind: 'incoming-note', textSq: 'Më duhen ujë i pastër dhe një fashë para mbrëmjes. A mund të më ndihmosh?' }, prompt: 'Answer what you can do, what you cannot do, and when you will arrive.', requirements: [requirement('accept', 'Accept at least one part.', ['help:accepted-part']), requirement('limit', 'State one limit or problem.', ['help:limit']), requirement('arrival', 'Give an arrival time.', ['time:arrival'])], response: { kind: 'free-text-exchange', minimumWords: 25, requiredTurns: 1 }, focus: 'Negotiate a practical request in writing.', criticalEvidence: ['accepted task', 'limit', 'arrival time'] }),
-  performance({ id: 'a2-written-exchange-04', familyId: 'a2-written-exchange', level: 'A2', mode: 'writtenInteraction', topic: 'changed-plan', location: 'courier-board', npc: 'Elira', stimulus: { kind: 'incoming-note', textSq: 'Takimi te ura nuk bëhet dot. A je i lirë nesër?' }, prompt: 'Propose a new place and time, ask for confirmation, then answer a short follow-up.', requirements: [requirement('place', 'Propose a new meeting place.', ['meeting:new-place']), requirement('time', 'Propose a new time.', ['meeting:new-time']), requirement('confirm', 'Ask for confirmation.', ['meeting:request-confirmation']), requirement('follow-up', 'Respond to the generated acceptance or counter-offer.', ['meeting:responsive-turn'])], response: { kind: 'free-text-exchange', minimumWords: 25, requiredTurns: 2 }, focus: 'Conduct a responsive two-turn meeting arrangement.', criticalEvidence: ['new place', 'new time', 'confirmation', 'responsive second turn'] }),
+  performance({ id: 'a2-written-exchange-04', familyId: 'a2-written-exchange', level: 'A2', mode: 'writtenInteraction', topic: 'changed-plan', location: 'courier-board', npc: 'Elira', stimulus: { kind: 'incoming-note', textSq: 'Takimi te ura nuk bëhet dot. A je i lirë nesër?', followUpSq: 'Po, nesër. Por mund të vij vetëm në mëngjes. A është ora nëntë mirë?' }, prompt: 'Propose a new place and time, ask for confirmation, then answer a short follow-up.', requirements: [requirement('place', 'Propose a new meeting place.', ['meeting:new-place']), requirement('time', 'Propose a new time.', ['meeting:new-time']), requirement('confirm', 'Ask for confirmation.', ['meeting:request-confirmation']), requirement('follow-up', 'Respond to the new counter-offer.', ['meeting:responsive-turn'])], response: { kind: 'free-text-exchange', minimumWords: 25, requiredTurns: 2 }, focus: 'Conduct a responsive two-turn meeting arrangement.', criticalEvidence: ['new place', 'new time', 'confirmation', 'responsive second turn'] }),
   performance({ id: 'a2-free-writing-01', familyId: 'a2-free-writing', level: 'A2', mode: 'writtenProduction', topic: 'road-account', location: 'inn', npc: 'Elira', stimulus: { kind: 'scene-prompt', cues: ['what happened on the road', 'where you are now', 'the present problem', 'what you will do next'] }, prompt: 'Write Elira a connected account of 50–80 words.', requirements: [requirement('past', 'Describe a past road event.', ['account:past-event']), requirement('present', 'Describe the current situation.', ['account:present-state']), requirement('problem', 'Explain one problem.', ['account:problem']), requirement('next', 'State a next action.', ['account:next-action']), requirement('links', 'Use at least two basic connectors.', ['cohesion:two-connectors'], ['dhe', 'por', 'sepse', 'pastaj'])], response: { kind: 'free-text', minimumWords: 50, maximumWords: 80, minimumSentences: 5 }, focus: 'Write a connected past-present-next journey account.', criticalEvidence: ['past event', 'present state', 'problem', 'next action', 'connectors'] }),
   performance({ id: 'a2-free-writing-02', familyId: 'a2-free-writing', level: 'A2', mode: 'writtenProduction', topic: 'inn-problem', location: 'inn-guest-room', npc: 'bujtinari', stimulus: { kind: 'scene-prompt', cues: ['what was wrong last night', 'how it affects you now', 'what solution you want', 'when it should happen'] }, prompt: 'Write the innkeeper a clear 50–80 word note.', requirements: [requirement('past-problem', 'Describe what was wrong.', ['lodging:past-problem']), requirement('effect', 'State the present effect or feeling.', ['lodging:present-effect']), requirement('solution', 'Request a reasonable solution.', ['lodging:solution']), requirement('time', 'Give a useful time.', ['time:requested-action']), requirement('links', 'Use simple connectors.', ['cohesion:two-connectors'], ['dhe', 'por', 'sepse'])], response: { kind: 'free-text', minimumWords: 50, maximumWords: 80, minimumSentences: 5 }, focus: 'Explain a lodging problem and request a solution.', criticalEvidence: ['problem', 'effect', 'solution', 'time', 'connectors'] }),
   performance({ id: 'a2-free-writing-03', familyId: 'a2-free-writing', level: 'A2', mode: 'writtenProduction', topic: 'village-day', location: 'courier-board', npc: 'Elira', stimulus: { kind: 'scene-prompt', cues: ['morning work', 'one person you met', 'weather or place', 'evening plan and reason'] }, prompt: 'Write Elira a 50–80 word account of your village day.', requirements: [requirement('routine', 'Describe at least two actions in order.', ['account:action-series']), requirement('person', 'Mention one person and interaction.', ['account:person-interaction']), requirement('setting', 'Mention weather or place.', ['account:setting']), requirement('plan', 'Give an evening plan and reason.', ['account:plan-and-reason']), requirement('links', 'Use simple connectors.', ['cohesion:two-connectors'], ['dhe', 'por', 'sepse', 'pastaj'])], response: { kind: 'free-text', minimumWords: 50, maximumWords: 80, minimumSentences: 5 }, focus: 'Write a connected everyday account with a reasoned plan.', criticalEvidence: ['action sequence', 'person', 'setting', 'plan and reason'] }),
@@ -730,6 +759,9 @@ const reserve = (baseId, id, topic, location, npc, stimulus, prompt, overrides =
     storyAnchor: anchor(location, npc, `Reserve held-out form: ${prompt}`),
     stimulus,
     prompt,
+    ...(CEFR_OPEN_RESPONSE_FOCUS_SENSE_IDS[id] || recordOverrides.focusSenseIds
+      ? { focusSenseIds: CEFR_OPEN_RESPONSE_FOCUS_SENSE_IDS[id] || recordOverrides.focusSenseIds }
+      : {}),
     rubric: performanceRubric(focus, criticalEvidence),
   }
 }
@@ -751,7 +783,7 @@ const CEFR_RESERVE_PERFORMANCE = [
   reserve('a2-spoken-portrait-02', 'a2-spoken-portrait-05', 'inn-work', 'inn-supper', 'plaku i sheshit', { kind: 'fresh-topic-card', cues: ['work or a learned skill', 'the place or tools', 'what comes first and next', 'why it matters'] }, 'Explain a useful kind of work to the inn guests.'),
   reserve('a2-spoken-portrait-03', 'a2-spoken-portrait-06', 'recent-journey', 'healer-house', 'shëruesi', { kind: 'fresh-topic-card', cues: ['a recent journey', 'the road or weather', 'one event', 'your next plan'] }, 'Give the healer a short account of a recent journey.'),
   reserve('a2-written-exchange-03', 'a2-written-exchange-05', 'market-help', 'market', 'tregtari', { kind: 'incoming-note', textSq: 'Jam në treg dhe nuk mund të vij. Më duhen ujë i pastër dhe një fashë. A mund të më ndihmosh?' }, 'Reply with what you can do, one limit and a time.'),
-  reserve('a2-written-exchange-04', 'a2-written-exchange-06', 'changed-plan', 'Elira-house', 'Elira', { kind: 'incoming-note', textSq: 'Sonte nuk mund të takohemi te ura. Ku dhe kur takohemi?' }, 'Propose a new place and time, ask for confirmation, then answer the reply.'),
+  reserve('a2-written-exchange-04', 'a2-written-exchange-06', 'changed-plan', 'Elira-house', 'Elira', { kind: 'incoming-note', textSq: 'Sonte nuk mund të takohemi te ura. Ku dhe kur takohemi?', followUpSq: 'Pusi është larg për mua. A mund të takohemi në shesh në orën dhjetë?' }, 'Propose a new place and time, ask for confirmation, then answer the reply.'),
   reserve('a2-free-writing-01', 'a2-free-writing-04', 'road-account', 'market', 'tregtari', { kind: 'scene-prompt', cues: ['a past road event', 'where you are now', 'a present problem', 'your next action'] }, 'Write a connected 50–80 word journey account.'),
   reserve('a2-free-writing-02', 'a2-free-writing-05', 'inn-problem', 'village-square', 'Elira', { kind: 'scene-prompt', cues: ['a problem last night', 'how it affects you now', 'the solution you want', 'when you need it'] }, 'Write a connected 50–80 word lodging request.'),
   reserve('a2-free-writing-03', 'a2-free-writing-06', 'village-day', 'healer-house', 'shëruesi', { kind: 'scene-prompt', cues: ['two actions in order', 'a person you met', 'the weather or place', 'an evening plan and reason'] }, 'Write a connected 50–80 word account of a village day.'),

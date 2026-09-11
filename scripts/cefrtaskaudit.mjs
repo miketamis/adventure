@@ -11,6 +11,7 @@ import { PLAYABLE_FORM_INVENTORY } from '../src/game/formInventory.js'
 import {
   CEFR_ACOUSTIC_VOICES,
   CEFR_AUTHORED_TASK_COUNTS,
+  CEFR_OPEN_RESPONSE_FOCUS_SENSE_IDS,
   CEFR_RECEPTION_REVIEWED_DISTRACTORS,
   CEFR_TASK_SCHEMA_VERSION,
   CEFR_TASKS,
@@ -301,6 +302,34 @@ check('performance tasks carry meaningful response evidence and the shared gate 
     if (family.requiresAudioCapture) {
       assert.match(task.response.kind, /^recorded-/, `${task.id} does not capture speech`)
       assert.equal(task.voice.locale, 'sq-AL', `${task.id} lacks Albanian voice metadata`)
+    }
+  }
+})
+
+check('every open-writing task has safe task-specific lexical anchors', () => {
+  const openWritingTasks = CEFR_TASKS.filter(({ response }) =>
+    ['free-text', 'free-text-exchange'].includes(response.kind))
+  const registeredIds = Object.keys(CEFR_OPEN_RESPONSE_FOCUS_SENSE_IDS).sort()
+  assert.equal(openWritingTasks.length, 20, 'open-writing task count changed without anchor review')
+  assert.deepEqual(registeredIds, openWritingTasks.map(({ id }) => id).sort(),
+    'open-writing anchor registry does not exactly cover the task bank')
+
+  const containsWholePhrase = (text, phrase) =>
+    ` ${normalize(text)} `.includes(` ${normalize(phrase)} `)
+
+  for (const task of openWritingTasks) {
+    const anchors = CEFR_OPEN_RESPONSE_FOCUS_SENSE_IDS[task.id]
+    assert.deepEqual(task.focusSenseIds, anchors, `${task.id} does not consume its authored anchor list`)
+    assert.ok(anchors.length >= 3 && anchors.length <= 5,
+      `${task.id} needs three to five focused anchors rather than a vocabulary dump`)
+    assert.equal(new Set(anchors).size, anchors.length, `${task.id} repeats a lexical anchor`)
+
+    const reviewedAlbanian = sqStringsOf(task).map(normalize).join(' ')
+    for (const senseId of anchors) {
+      assert.ok(DICT[senseId]?.al, `${task.id} has unknown anchor sense ${senseId}`)
+      const reviewedForms = [DICT[senseId].al, ...(PLAYABLE_FORM_INVENTORY[senseId] || []).map(({ al }) => al)]
+      assert.ok(reviewedForms.some((surface) => containsWholePhrase(reviewedAlbanian, surface)),
+        `${task.id}/${senseId} is not grounded in its Albanian stimulus or reviewed response alternatives`)
     }
   }
 })

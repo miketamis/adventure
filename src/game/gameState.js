@@ -2341,7 +2341,13 @@ export function reducer(state, action) {
     case 'CEFR_PREPARATION_ATTEMPT':
       return {
         ...state,
-        ...recordCefrPreparationAttempt(state, action.activityId, action.mechanicId, action.passed),
+        ...recordCefrPreparationAttempt(
+          state,
+          action.activityId,
+          action.mechanicId,
+          action.passed,
+          action.supportRevealed === true,
+        ),
       }
 
     case 'PRACTICE_PHRASE_RESULT': {

@@ -9,7 +9,10 @@ import {
   evaluatePreparationResponse,
   preparationPlan,
 } from '../game/cefrPreparation.js'
-import { liveCefrPreparationEvidence } from '../game/cefrPreparationEvidence.js'
+import {
+  cefrPreparationFreshEligibility,
+  liveCefrPreparationEvidence,
+} from '../game/cefrPreparationEvidence.js'
 import { cefrPreparationLoreLabels } from '../game/cefrPreparationPresentation.js'
 import { WORD_CAPABILITY_DEFINITIONS } from '../game/wordProgression.js'
 import { DICT } from '../game/dictionary.js'
@@ -23,6 +26,47 @@ const scenarioCompanionAtSentenceStart = CEFR_PREPARATION_SCENARIO_COMPANION
 function Albanian({ value, className = '' }) {
   if (!value) return null
   return <span className={className} lang="sq">{sqText(value)}</span>
+}
+
+function AlbanianFrame({ parts = [], blankLabel = 'missing Albanian word' }) {
+  return (
+    <div className="cefr-prep-frame" lang="sq">
+      {parts.map((part, index) => part.kind === 'blank'
+        ? (
+            <span
+              className="cefr-prep-blank"
+              aria-label={blankLabel}
+              key={`${part.id}-${index}`}
+            >
+              <span aria-hidden="true">…</span>
+            </span>
+          )
+        : <Albanian value={part} key={`${sqText(part)}-${index}`} />)}
+    </div>
+  )
+}
+
+const readableId = (value) => String(value || '').replaceAll('-', ' ')
+
+function RelationshipCue({ cue }) {
+  if (!cue) return null
+  return (
+    <dl className="cefr-prep-context-cues" aria-label="Conversation context">
+      <div><dt>Relationship</dt><dd>{readableId(cue.familiarity)}</dd></div>
+      <div><dt>People addressed</dt><dd>{cue.audienceSize}</dd></div>
+    </dl>
+  )
+}
+
+function WorldCue({ cue }) {
+  if (!cue) return null
+  return (
+    <dl className="cefr-prep-context-cues" aria-label="Meaning to express">
+      <div><dt>Who</dt><dd>{readableId(cue.actor)}</dd></div>
+      <div><dt>When</dt><dd>{readableId(cue.time)}</dd></div>
+      <div><dt>Where</dt><dd>{readableId(cue.destination)}</dd></div>
+    </dl>
+  )
 }
 
 const unique = (values) => [...new Set(values)]
@@ -99,29 +143,35 @@ function SlotFrame({ activity, selections, onChange, disabled }) {
   )
 }
 
-function LocalRecorder({ activity, value, onChange, disabled }) {
+function LocalRecorder({ activity, value, onChange, disabled, showModel = true, selfCheckLabel, requiredCriteria = [] }) {
   const [recording, setRecording] = useState(false)
+  const [modelPlaying, setModelPlaying] = useState(false)
   const [clipUrl, setClipUrl] = useState(null)
   const [error, setError] = useState('')
   const recorderRef = useRef(null)
   const streamRef = useRef(null)
   const chunksRef = useRef([])
   const clipUrlRef = useRef(null)
+  const mountedRef = useRef(true)
 
   const release = () => {
     streamRef.current?.getTracks().forEach((track) => track.stop())
     streamRef.current = null
   }
 
-  useEffect(() => () => {
-    const recorder = recorderRef.current
-    if (recorder) {
-      recorder.ondataavailable = null
-      recorder.onstop = null
-      if (recorder.state !== 'inactive') recorder.stop()
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+      const recorder = recorderRef.current
+      if (recorder) {
+        recorder.ondataavailable = null
+        recorder.onstop = null
+        if (recorder.state !== 'inactive') recorder.stop()
+      }
+      streamRef.current?.getTracks().forEach((track) => track.stop())
+      if (clipUrlRef.current) URL.revokeObjectURL(clipUrlRef.current)
     }
-    streamRef.current?.getTracks().forEach((track) => track.stop())
-    if (clipUrlRef.current) URL.revokeObjectURL(clipUrlRef.current)
   }, [])
 
   const start = async () => {
@@ -144,7 +194,7 @@ function LocalRecorder({ activity, value, onChange, disabled }) {
         setClipUrl(nextUrl)
         setRecording(false)
         release()
-        onChange({ ...value, recorded: true, replayed: false, selfCheck: null })
+        onChange({ ...value, recorded: true, replayed: false, selfCheck: null, ideaChecks: [] })
       }
       recorder.start()
       setRecording(true)
@@ -159,25 +209,31 @@ function LocalRecorder({ activity, value, onChange, disabled }) {
     if (clipUrlRef.current) URL.revokeObjectURL(clipUrlRef.current)
     clipUrlRef.current = null
     setClipUrl(null)
-    onChange({ ...value, recorded: false, replayed: false, selfCheck: null })
+    onChange({ ...value, recorded: false, replayed: false, selfCheck: null, ideaChecks: [] })
   }
 
-  const model = activity.model ? [activity.model] : activity.prompts || []
+  const model = showModel ? (activity.model ? [activity.model] : activity.prompts || []) : []
+  const ideaCriteria = requiredCriteria
   return (
     <div className="cefr-prep-recorder">
       <p className="cefr-private-note">🔒 Recording stays only in this tab. It is never saved or uploaded.</p>
       <div className="cefr-prep-models">
         {model.map((line, index) => (
-          <button type="button" className="btn" key={`${sqText(line)}-${index}`} onClick={() => {
-            playPhrase(sqText(line))
-            onChange({ ...value, modelPlayed: true })
+          <button type="button" className="btn" disabled={disabled || modelPlaying} key={`${sqText(line)}-${index}`} onClick={async () => {
+            setModelPlaying(true)
+            setError('')
+            const completed = await playPhrase(sqText(line))
+            if (!mountedRef.current) return
+            setModelPlaying(false)
+            if (completed) onChange({ ...value, modelPlayed: true })
+            else setError('The model audio did not finish. Check sound, then play it again.')
           }}>
-            🔊 {model.length > 1 ? `Hear prompt ${index + 1}` : 'Hear the model'}
+            🔊 {modelPlaying ? 'Playing…' : model.length > 1 ? `Hear prompt ${index + 1}` : 'Hear the model'}
           </button>
         ))}
       </div>
       {!clipUrl && (
-        <button type="button" className="btn primary" disabled={disabled} onClick={() => recording ? recorderRef.current?.stop() : start()}>
+        <button type="button" className="btn primary" disabled={disabled || modelPlaying} onClick={() => recording ? recorderRef.current?.stop() : start()}>
           {recording ? 'Stop recording' : 'Record locally'}
         </button>
       )}
@@ -190,40 +246,357 @@ function LocalRecorder({ activity, value, onChange, disabled }) {
         </div>
       )}
       {value.replayed && (
-        <label className="cefr-prep-selfcheck">
-          <input
-            type="checkbox"
-            disabled={disabled}
-            checked={value.selfCheck === 'ready'}
-            onChange={(event) => onChange({ ...value, selfCheck: event.target.checked ? 'ready' : null })}
-          />
-          <span>I replayed it and my Albanian communicates the requested meaning.</span>
-        </label>
+        <div className="cefr-prep-recorder-checks">
+          {ideaCriteria.length > 0 && (
+            <fieldset disabled={disabled}>
+              <legend>Ideas heard in my retelling</legend>
+              {ideaCriteria.map((criterionId) => (
+                <label key={criterionId}>
+                  <input
+                    type="checkbox"
+                    checked={(value.ideaChecks || []).includes(criterionId)}
+                    onChange={(event) => onChange({
+                      ...value,
+                      ideaChecks: event.target.checked
+                        ? unique([...(value.ideaChecks || []), criterionId])
+                        : (value.ideaChecks || []).filter((id) => id !== criterionId),
+                    })}
+                  />
+                  <span>{readableId(criterionId)}</span>
+                </label>
+              ))}
+            </fieldset>
+          )}
+          <label className="cefr-prep-selfcheck">
+            <input
+              type="checkbox"
+              disabled={disabled}
+              checked={value.selfCheck === 'ready'}
+              onChange={(event) => onChange({
+                ...value,
+                selfCheck: event.target.checked ? 'ready' : null,
+              })}
+            />
+            <span>{selfCheckLabel || 'I replayed it and my Albanian communicates the requested meaning.'}</span>
+          </label>
+        </div>
       )}
       {error && <p className="cefr-error" role="alert">{error}</p>}
     </div>
   )
 }
 
+function ListeningStimulus({ stimulus, played, attempted, onPlay, playOnce = false, label = 'Play continuous message' }) {
+  const [playing, setPlaying] = useState(false)
+  const [error, setError] = useState('')
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
+  if (!stimulus) return null
+  const play = async () => {
+    if (playing) return
+    setPlaying(true)
+    setError('')
+    const completed = await onPlay()
+    if (!mountedRef.current) return
+    setPlaying(false)
+    if (!completed) setError('The audio did not finish. Check sound, then play it again.')
+  }
+  return (
+    <div className="cefr-listening-stimulus">
+      <button
+        type="button"
+        className="btn cefr-listen-button"
+        disabled={playing || playOnce && played}
+        onClick={play}
+      >
+        🔊 {playing ? 'Playing…' : played && playOnce ? 'Message played once' : label}
+      </button>
+      <p>{attempted
+        ? 'The Albanian transcript is now available below for supported retry.'
+        : playOnce && played
+          ? 'The message has disappeared. Continue from memory.'
+          : 'Listen without a transcript or English translation first.'}</p>
+      {attempted && <blockquote lang="sq">{sqText(stimulus.transcript)}</blockquote>}
+      {error && <p className="cefr-error" role="alert">{error}</p>}
+    </div>
+  )
+}
+
+function DelayedReconstruction({ activity, answer, setAnswer, submitted, attempted, stimulus }) {
+  const minimumCueCount = activity.memoryDelay?.minimumInterveningCueCount || 1
+  const cue = activity.memoryDelay?.interveningCue
+  const cueCount = answer.delayCueCount || 0
+  const playOnce = activity.memoryDelay?.replayBeforeCommit === false
+  return (
+    <div className="cefr-prep-memory">
+      <ListeningStimulus
+        stimulus={stimulus}
+        played={answer.played}
+        attempted={attempted}
+        playOnce={playOnce}
+        onPlay={async () => {
+          const completed = await playPhrase(sqText(stimulus?.transcript))
+          if (completed) setAnswer((current) => ({ ...current, played: true, audioPlayed: true }))
+          return completed
+        }}
+      />
+      {answer.played && !answer.delayCompleted && cue && (
+        <div className="cefr-prep-memory-cue" aria-live="polite">
+          <p>The spoken message is no longer visible. Attend to the scene before rebuilding it.</p>
+          <button type="button" className="btn" disabled={submitted} onClick={() => {
+            const nextCueCount = cueCount + 1
+            setAnswer({
+              ...answer,
+              delayCueCount: nextCueCount,
+              delayCompleted: nextCueCount >= minimumCueCount,
+            })
+          }}>
+            <span aria-hidden="true">{cue.symbol}</span> Observe {readableId(cue.id)}
+          </button>
+        </div>
+      )}
+      {answer.delayCompleted && (
+        <OrderedTiles
+          tiles={activity.chunks}
+          value={answer.orderedIds}
+          onChange={(orderedIds) => setAnswer({ ...answer, orderedIds })}
+          disabled={submitted}
+          label="Rebuild the remembered message"
+        />
+      )}
+    </div>
+  )
+}
+
+function RegisterContrast({ rows }) {
+  return (
+    <div className="cefr-prep-register-feedback" role="note" aria-label="Register contrast for supported retry">
+      <b>Compare the matching forms</b>
+      {rows.map((row) => (
+        <p key={row.register}>
+          <span>{readableId(row.register)}:</span>{' '}
+          <Albanian value={row.pronoun} /> · <Albanian value={row.imperative} /> · <Albanian value={row.politeness} />
+        </p>
+      ))}
+    </div>
+  )
+}
+
+function TargetedCorrection({ activity, answer }) {
+  const response = activity.response
+  if (response.kind === 'meaning-switch-choice' && answer.optionId !== response.correctOptionId) {
+    const correct = activity.options.find(({ id }) => id === response.correctOptionId)
+    return (
+      <div className="cefr-prep-register-feedback" role="note">
+        <b>Match the form to the scene</b>
+        <p>
+          The actor is {readableId(activity.worldCue?.actor)} and the time is {readableId(activity.worldCue?.time)}.
+          {' '}The matching Albanian form is <Albanian value={correct?.text} />.
+        </p>
+      </div>
+    )
+  }
+  if (response.kind === 'strategy-and-recovery') {
+    const strategyCorrect = response.acceptedStrategyIds.includes(answer.strategyId)
+    const recoveryCorrect = response.acceptedRecoveryIds.includes(answer.recoveryId)
+    if (strategyCorrect && recoveryCorrect) return null
+    const strategies = activity.strategyOptions.filter(({ id }) => response.acceptedStrategyIds.includes(id))
+    const recovery = activity.recovery?.options?.find(({ id }) => response.acceptedRecoveryIds.includes(id))
+    return (
+      <div className="cefr-prep-register-feedback" role="note">
+        <b>{strategyCorrect ? 'Use the recovered meaning' : 'Repair the communication gap first'}</b>
+        {!strategyCorrect && (
+          <p>
+            A useful strategy here is{' '}
+            {strategies.map((option, index) => <span key={option.id}>{index > 0 && ' or '}<Albanian value={option.text} /></span>)}.
+          </p>
+        )}
+        {recovery && <p>Then act on the answer with <Albanian value={recovery.text} />.</p>}
+      </div>
+    )
+  }
+  return null
+}
+
+function StrategyRecovery({ activity, answer, setAnswer, submitted, attempted, stimulus }) {
+  const acceptedStrategies = activity.response.acceptedStrategyIds || []
+  const strategyAccepted = acceptedStrategies.includes(answer.strategyId)
+  const revealIds = activity.recovery?.revealAfterStrategies || [activity.recovery?.revealAfterStrategy].filter(Boolean)
+  const recoveryRevealed = strategyAccepted && (!revealIds.length || revealIds.includes(answer.strategyId))
+  const recoveryStimulus = activity.recovery?.stimulus?.channel === 'continuous-audio'
+    ? activity.recovery.stimulus
+    : null
+  const canChooseStrategy = !stimulus || answer.audioPlayed
+  const canChooseRecovery = recoveryRevealed && (!recoveryStimulus || answer.recoveryAudioPlayed)
+
+  return (
+    <div className="cefr-prep-strategy">
+      {stimulus && (
+        <ListeningStimulus
+          stimulus={stimulus}
+          played={answer.audioPlayed}
+          attempted={attempted}
+          onPlay={async () => {
+            const completed = await playPhrase(sqText(stimulus.transcript))
+            if (completed) setAnswer((current) => ({ ...current, audioPlayed: true }))
+            return completed
+          }}
+          label={stimulus.interference ? 'Play the noisy warning' : 'Play continuous message'}
+        />
+      )}
+      {activity.missingWordContext?.availableReferent?.canPoint && (
+        <p className="cefr-prep-world-affordance">The item is in front of you, so you can point to it.</p>
+      )}
+      {canChooseStrategy && (
+        <ChoiceSet
+          options={activity.strategyOptions}
+          value={answer.strategyId}
+          onChange={(strategyId) => setAnswer({ ...answer, strategyId, recoveryId: null, recoveryAudioPlayed: false })}
+          disabled={submitted}
+          label="1. Choose a communication strategy"
+        />
+      )}
+      {recoveryRevealed && (
+        <div className="cefr-prep-recovery" aria-live="polite">
+          <b>2. Use the clearer reply</b>
+          {activity.recovery.source && <blockquote lang="sq">{sqText(activity.recovery.source)}</blockquote>}
+          {recoveryStimulus && (
+            <ListeningStimulus
+              stimulus={recoveryStimulus}
+              played={answer.recoveryAudioPlayed}
+              attempted={attempted}
+              onPlay={async () => {
+                const completed = await playPhrase(sqText(recoveryStimulus.transcript))
+                if (completed) setAnswer((current) => ({ ...current, recoveryAudioPlayed: true }))
+                return completed
+              }}
+              label="Play the clearer reply"
+            />
+          )}
+          {canChooseRecovery && (
+            <ChoiceSet
+              options={activity.recovery.options}
+              value={answer.recoveryId}
+              onChange={(recoveryId) => setAnswer({ ...answer, recoveryId })}
+              disabled={submitted}
+              label="Choose what to do with the recovered meaning"
+            />
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const retellingCriteriaForRound = (activity, round) =>
+  activity.response.requiredCriteriaByRound?.[round.id] || []
+
+const recorderRoundComplete = (round, acceptedSelfChecks = ['ready'], ideaCriteria = []) => Boolean(
+  round?.recorded &&
+  round?.replayed &&
+  acceptedSelfChecks.includes(round.selfCheck) &&
+  ideaCriteria.every((criterionId) => round.ideaChecks?.includes(criterionId)),
+)
+
+function FadedRetelling({ activity, answer, setAnswer, submitted, attempted, stimulus }) {
+  const supported = activity.rounds.find(({ id }) => id === 'supported')
+  const faded = activity.rounds.find(({ id }) => id === 'faded')
+  const acceptedSelfChecks = activity.response.acceptedSelfChecks
+  const supportedAnswer = answer.byRound?.[supported.id] || {}
+  const fadedAnswer = answer.byRound?.[faded.id] || {}
+  const supportedCriteria = retellingCriteriaForRound(activity, supported)
+  const fadedCriteria = retellingCriteriaForRound(activity, faded)
+  const supportedComplete = recorderRoundComplete(supportedAnswer, acceptedSelfChecks, supportedCriteria)
+
+  const updateRound = (roundId, next) => setAnswer({
+    ...answer,
+    byRound: { ...answer.byRound, [roundId]: next },
+  })
+
+  return (
+    <div className="cefr-prep-retelling">
+      <ListeningStimulus
+        stimulus={stimulus}
+        played={answer.witnessPlayed}
+        attempted={attempted}
+        playOnce
+        label="Witness the message once"
+        onPlay={async () => {
+          const completed = await playPhrase(sqText(stimulus?.transcript))
+          if (completed) setAnswer((current) => ({ ...current, witnessPlayed: true, audioPlayed: true }))
+          return completed
+        }}
+      />
+      {answer.witnessPlayed && !answer.fadedStarted && (
+        <section aria-labelledby="cefr-supported-retelling">
+          <h3 id="cefr-supported-retelling" className="cefr-prep-round-heading">First retelling · Albanian cue cards</h3>
+          <div className="cefr-prep-cue-cards" aria-label="Albanian cue cards">
+            {supported.cueCards.map((card) => <Albanian value={card.text} key={card.id} />)}
+          </div>
+          <LocalRecorder
+            activity={activity}
+            value={supportedAnswer}
+            onChange={(next) => updateRound(supported.id, next)}
+            disabled={submitted}
+            showModel={false}
+            requiredCriteria={supportedCriteria}
+            selfCheckLabel="I replayed this supported retelling and communicated the witnessed events."
+          />
+          {supportedComplete && (
+            <button type="button" className="btn primary" disabled={submitted} onClick={() => setAnswer({ ...answer, fadedStarted: true })}>
+              Remove word cues and retell again
+            </button>
+          )}
+        </section>
+      )}
+      {answer.fadedStarted && (
+        <section aria-labelledby="cefr-faded-retelling">
+          <h3 id="cefr-faded-retelling" className="cefr-prep-round-heading">Second retelling · scene cues only</h3>
+          <div className="cefr-prep-scene-cues" aria-label="Scene cues without words">
+            {faded.cues.map((cue) => (
+              <span key={cue.id} aria-label={readableId(cue.id)}><span aria-hidden="true">{cue.symbol}</span></span>
+            ))}
+          </div>
+          <LocalRecorder
+            activity={activity}
+            value={fadedAnswer}
+            onChange={(next) => updateRound(faded.id, next)}
+            disabled={submitted}
+            showModel={false}
+            requiredCriteria={fadedCriteria}
+            selfCheckLabel="I replayed this second retelling and communicated the witnessed events without word cues."
+          />
+        </section>
+      )}
+    </div>
+  )
+}
+
 function ActivitySurface({ activity, answer, setAnswer, submitted, attempted }) {
   const response = activity.response
-  const audioOnly = activity.stimulus?.beforeAttempt === 'audio-only'
-  const playAudio = () => {
-    playPhrase(sqText(activity.stimulus?.transcript))
-    setAnswer({ ...answer, audioPlayed: true })
+  const audioStimulus = activity.stimulus?.channel === 'continuous-audio'
+    ? activity.stimulus
+    : activity.opening?.channel === 'continuous-audio'
+      ? activity.opening
+      : null
+  const managesOwnStimulus = ['delayed-ordered-chunks', 'strategy-and-recovery', 'faded-local-audio-cycle'].includes(response.kind)
+  const audioOnly = audioStimulus?.beforeAttempt === 'audio-only' && !managesOwnStimulus
+  const playAudio = async () => {
+    const completed = await playPhrase(sqText(audioStimulus?.transcript))
+    if (completed) setAnswer((current) => ({ ...current, audioPlayed: true }))
+    return completed
   }
 
   return (
     <div className="cefr-prep-surface">
       {audioOnly && (
-        <div className="cefr-listening-stimulus">
-          <button type="button" className="btn cefr-listen-button" onClick={playAudio}>🔊 Play continuous message</button>
-          <p>{attempted ? 'The Albanian transcript is now available below for supported retry.' : 'Listen without a transcript or English translation first.'}</p>
-          {attempted && <blockquote lang="sq">{sqText(activity.stimulus.transcript)}</blockquote>}
-        </div>
+        <ListeningStimulus stimulus={audioStimulus} played={answer.audioPlayed} attempted={attempted} onPlay={playAudio} />
       )}
       {!audioOnly && activity.source && <blockquote lang="sq">{sqText(activity.source)}</blockquote>}
-      {activity.opening && <blockquote className="cefr-dialogue-stimulus" lang="sq">{sqText(answer.branchPrompt || activity.opening)}</blockquote>}
+      {activity.opening && !audioStimulus && <blockquote className="cefr-dialogue-stimulus" lang="sq">{sqText(answer.branchPrompt || activity.opening)}</blockquote>}
       {activity.prompt && <p className="cefr-prep-prompt"><Albanian value={activity.prompt} /></p>}
       {activity.visibleGoal && <p className="cefr-prep-visible-goal"><b>Goal:</b> {activity.visibleGoal}</p>}
 
@@ -246,17 +619,24 @@ function ActivitySurface({ activity, answer, setAnswer, submitted, attempted }) 
         />
       )}
 
+      {response.kind === 'delayed-ordered-chunks' && (
+        <DelayedReconstruction
+          activity={activity}
+          answer={answer}
+          setAnswer={setAnswer}
+          submitted={submitted}
+          attempted={attempted}
+          stimulus={audioStimulus}
+        />
+      )}
+
       {response.kind === 'slot-selection' && (
         <SlotFrame activity={activity} selections={answer.selections} onChange={(selections) => setAnswer({ ...answer, selections })} disabled={submitted} />
       )}
 
       {response.kind === 'typed-exact' && (
         <div className="cefr-prep-typed">
-          <div className="cefr-prep-frame" lang="sq">
-            {activity.frame.map((part, index) => part.kind === 'blank'
-              ? <span className="cefr-prep-blank" key={`${part.id}-${index}`}>…</span>
-              : <Albanian value={part} key={`${sqText(part)}-${index}`} />)}
-          </div>
+          <AlbanianFrame parts={activity.frame} />
           <label>
             <span>Missing Albanian word</span>
             <input lang="sq" value={answer.text} disabled={submitted} onChange={(event) => setAnswer({ ...answer, text: event.target.value })} />
@@ -264,8 +644,75 @@ function ActivitySurface({ activity, answer, setAnswer, submitted, attempted }) 
         </div>
       )}
 
+      {response.kind === 'focused-dictation' && (
+        <div className="cefr-prep-typed cefr-prep-dictation">
+          <AlbanianFrame parts={activity.maskedTranscript} blankLabel="word heard in the audio" />
+          <label>
+            <span>Type only the missing Albanian word you heard</span>
+            <input
+              lang="sq"
+              autoComplete="off"
+              spellCheck={false}
+              value={answer.text}
+              disabled={submitted || !answer.audioPlayed}
+              onChange={(event) => setAnswer({ ...answer, text: event.target.value })}
+            />
+          </label>
+        </div>
+      )}
+
+      {response.kind === 'meaning-switch-choice' && (
+        <div className="cefr-prep-meaning-switch">
+          <WorldCue cue={activity.worldCue} />
+          <AlbanianFrame parts={activity.frame} blankLabel="verb form selected below" />
+          <ChoiceSet
+            options={activity.options}
+            value={answer.optionId}
+            onChange={(optionId) => setAnswer({ ...answer, optionId })}
+            disabled={submitted}
+            label={`Choose the form that matches ${readableId(response.switchDimension)}`}
+          />
+        </div>
+      )}
+
+      {response.kind === 'register-appropriate-choice' && (
+        <div className="cefr-prep-register">
+          <RelationshipCue cue={activity.relationshipCue} />
+          <ChoiceSet
+            options={activity.options}
+            value={answer.optionId}
+            onChange={(optionId) => setAnswer({ ...answer, optionId })}
+            disabled={submitted}
+            label="Choose the request that fits this relationship"
+          />
+          {attempted && <RegisterContrast rows={activity.registerContrast} />}
+        </div>
+      )}
+
       {response.kind === 'local-audio-cycle' && (
         <LocalRecorder activity={activity} value={answer} onChange={setAnswer} disabled={submitted} />
+      )}
+
+      {response.kind === 'faded-local-audio-cycle' && (
+        <FadedRetelling
+          activity={activity}
+          answer={answer}
+          setAnswer={setAnswer}
+          submitted={submitted}
+          attempted={attempted}
+          stimulus={audioStimulus}
+        />
+      )}
+
+      {response.kind === 'strategy-and-recovery' && (
+        <StrategyRecovery
+          activity={activity}
+          answer={answer}
+          setAnswer={setAnswer}
+          submitted={submitted}
+          attempted={attempted}
+          stimulus={audioStimulus}
+        />
       )}
 
       {response.kind === 'branch-by-intent' && (
@@ -387,6 +834,8 @@ function ActivitySurface({ activity, answer, setAnswer, submitted, attempted }) 
           ) : null)}
         </div>
       )}
+
+      {submitted && <TargetedCorrection activity={activity} answer={answer} />}
     </div>
   )
 }
@@ -414,6 +863,14 @@ const initialAnswer = () => ({
   byStep: {},
   repairStep: null,
   audioPlayed: false,
+  played: false,
+  delayCueCount: 0,
+  delayCompleted: false,
+  strategyId: null,
+  recoveryId: null,
+  recoveryAudioPlayed: false,
+  witnessPlayed: false,
+  fadedStarted: false,
   modelPlayed: false,
 })
 
@@ -427,12 +884,35 @@ function preparationAnswerReady(activity, answer) {
     case 'ordered-tiles':
       return answer.orderedIds.length >= response.correctIds.length &&
         (!activity.stimulus?.beforeAttempt || answer.audioPlayed)
+    case 'delayed-ordered-chunks':
+      return response.requiredSignals.every((signal) => answer[signal] === true) &&
+        answer.orderedIds.length >= response.correctIds.length
     case 'slot-selection':
       return Object.keys(response.correctSelections).every((id) => Boolean(answer.selections[id]))
     case 'typed-exact':
       return Boolean(answer.text.trim())
+    case 'focused-dictation':
+      return answer.audioPlayed && Boolean(answer.text.trim())
+    case 'meaning-switch-choice':
+    case 'register-appropriate-choice':
+      return Boolean(answer.optionId)
     case 'local-audio-cycle':
       return answer.modelPlayed && answer.recorded && answer.replayed && answer.selfCheck === 'ready'
+    case 'faded-local-audio-cycle':
+      return answer.witnessPlayed && response.requiredRoundIds.every((roundId) => {
+        const round = activity.rounds.find(({ id }) => id === roundId)
+        return recorderRoundComplete(
+          answer.byRound?.[roundId],
+          response.acceptedSelfChecks,
+          retellingCriteriaForRound(activity, round),
+        )
+      })
+    case 'strategy-and-recovery': {
+      if (!answer.strategyId || (activity.stimulus?.beforeAttempt || activity.opening?.beforeAttempt) && !answer.audioPlayed) return false
+      if (!response.acceptedStrategyIds.includes(answer.strategyId)) return true
+      const recoveryNeedsAudio = activity.recovery?.stimulus?.beforeAttempt === 'audio-only'
+      return Boolean(answer.recoveryId) && (!recoveryNeedsAudio || answer.recoveryAudioPlayed)
+    }
     case 'scan-and-relay':
       return Boolean(answer.factId && answer.relayId)
     case 'ordered-rounds':
@@ -452,12 +932,21 @@ function preparationAnswerReady(activity, answer) {
   }
 }
 
-function ActivityPlayer({ activity, attempts, debug, lorePlace, loreCompanion, onAttempt, onBack }) {
+function ActivityPlayer({ activity, attempts, debug, lorePlace, loreCompanion, initiallyFresh, onAttempt, onBack }) {
   const [answer, setAnswer] = useState(initialAnswer)
   const [attempted, setAttempted] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [passed, setPassed] = useState(false)
+  const [freshMasteryEligible, setFreshMasteryEligible] = useState(initiallyFresh)
+  const [masteryAwarded, setMasteryAwarded] = useState(false)
   const response = activity.response
+  const hasAudioAnswerReveal = [activity.stimulus, activity.opening]
+    .some((entry) => entry?.beforeAttempt === 'audio-only' && entry?.transcriptReveal)
+  const revealsAnswerSupport = hasAudioAnswerReveal || [
+    'meaning-switch-choice',
+    'register-appropriate-choice',
+    'strategy-and-recovery',
+  ].includes(response.kind)
 
   const preparedAnswer = response.kind === 'paragraph-plan'
     ? {
@@ -465,6 +954,14 @@ function ActivityPlayer({ activity, attempts, debug, lorePlace, loreCompanion, o
         connectorSenseIds: answer.connectorSenseIds,
       }
     : answer
+  const answerWithAttemptMode = response.evidencePolicy
+    ? {
+        ...preparedAnswer,
+        attemptMode: freshMasteryEligible
+          ? response.evidencePolicy.freshPassAttemptMode
+          : response.evidencePolicy.supportedAttemptMode,
+      }
+    : preparedAnswer
 
   const submit = () => {
     if (submitted) return
@@ -484,21 +981,31 @@ function ActivityPlayer({ activity, attempts, debug, lorePlace, loreCompanion, o
       }
       setAttempted(true)
       setSubmitted(true)
-      setPassed(result.passed)
-      onAttempt(activity.id, result.passed)
+      const durablePass = result.passed && freshMasteryEligible
+      setPassed(result.passed || result.correct)
+      setMasteryAwarded(durablePass)
+      if (!result.passed && revealsAnswerSupport) setFreshMasteryEligible(false)
+      const supportRevealed = Boolean(response.evidencePolicy && !result.passed && revealsAnswerSupport)
+      onAttempt(activity.id, durablePass, supportRevealed)
       return
     }
-    const result = evaluatePreparationResponse(activity.id, preparedAnswer)
+    const result = evaluatePreparationResponse(activity.id, answerWithAttemptMode)
+    const correct = result.passed || result.correct
+    const durablePass = result.passed && freshMasteryEligible
     setAttempted(true)
     setSubmitted(true)
-    setPassed(result.passed)
-    onAttempt(activity.id, result.passed)
+    setPassed(correct)
+    setMasteryAwarded(durablePass)
+    if (!correct && revealsAnswerSupport) setFreshMasteryEligible(false)
+    const supportRevealed = Boolean(response.evidencePolicy && !correct && revealsAnswerSupport)
+    onAttempt(activity.id, durablePass, supportRevealed)
   }
 
   const retry = () => {
     setAnswer(initialAnswer())
     setSubmitted(false)
     setPassed(false)
+    setMasteryAwarded(false)
   }
 
   return (
@@ -511,7 +1018,7 @@ function ActivityPlayer({ activity, attempts, debug, lorePlace, loreCompanion, o
         <button type="button" className="btn" onClick={onBack}>Preparation path</button>
       </div>
       <div className="cefr-prep-context">
-        <span>Current story · {lorePlace}{loreCompanion ? ` · with ${loreCompanion}` : ''}</span>
+        <span>Lore practice setting · {lorePlace}{loreCompanion ? ` · with ${loreCompanion}` : ''}</span>
         {debug && <span>{attempts} earlier {attempts === 1 ? 'attempt' : 'attempts'}</span>}
       </div>
       <p className="cefr-task-prompt">{activity.instruction}</p>
@@ -520,9 +1027,13 @@ function ActivityPlayer({ activity, attempts, debug, lorePlace, loreCompanion, o
         <button type="button" className="btn primary cefr-submit" disabled={!preparationAnswerReady(activity, answer)} onClick={submit}>Check this practice</button>
       )}
       {submitted && (
-        <div className={`cefr-complete ${passed ? 'passed' : 'needs-work'}`} role="status">
-          <b>{passed ? 'Ready for the next step.' : 'Use the support, then try this one again.'}</b>
-          <span>Practice changes no hearts or word tokens. Retries are always available.</span>
+        <div className={`cefr-complete ${masteryAwarded ? 'passed' : 'needs-work'}`} role="status">
+          <b>{masteryAwarded
+            ? 'Ready for the next step.'
+            : passed
+              ? 'Supported retry complete. Replay this activity fresh later for mastery.'
+              : 'Use the support, then try this one again.'}</b>
+          <span>Practice changes no hearts or word tokens. An answer seen during support cannot award fresh mastery.</span>
           {passed
             ? <button type="button" className="btn primary" onClick={onBack}>Continue the path</button>
             : <button type="button" className="btn primary" onClick={retry}>Try again with support</button>}
@@ -575,11 +1086,13 @@ export default function CefrPreparation({ state, dispatch, onBack, onReturnToTra
         debug={state.debug}
         lorePlace={lore.place}
         loreCompanion={lore.companion}
-        onAttempt={(id, passed) => dispatch({
+        initiallyFresh={cefrPreparationFreshEligibility(state, activity.id)}
+        onAttempt={(id, passed, supportRevealed) => dispatch({
           type: 'CEFR_PREPARATION_ATTEMPT',
           activityId: id,
           mechanicId: activity.mechanicId,
           passed,
+          supportRevealed,
         })}
         onBack={() => setActivityId(null)}
       />

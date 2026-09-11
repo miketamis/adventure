@@ -14,6 +14,11 @@ export {
 
 const activityById = new Map(CEFR_PREPARATION_ACTIVITIES.map((entry) => [entry.id, entry]))
 const safeRecord = (value) => value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+const focusSet = (activity) => new Set(activity?.focusSenseIds || [])
+const disjointFocus = (left, right) => {
+  const rightIds = focusSet(right)
+  return [...focusSet(left)].every((senseId) => !rightIds.has(senseId))
+}
 
 const strictMechanicPasses = (saved) => {
   const normalized = normalizeCefrPreparationState(saved)
@@ -44,4 +49,18 @@ export function liveCefrPreparationEvidence(state, achievedLevels = []) {
     wordCapabilities,
     mechanicPasses: strictMechanicPasses(state),
   }
+}
+
+// Once an answer or transcript has been revealed, remounting the activity must
+// not turn the same memory into a fresh attempt. One completed, disjoint
+// preparation round provides the minimum separation before another fresh try.
+export function cefrPreparationFreshEligibility(state, activityId) {
+  const activity = activityById.get(activityId)
+  if (!activity?.response?.evidencePolicy) return true
+  const normalized = normalizeCefrPreparationState(state)
+  const exposedAt = normalized.cefrPreparationSupportExposure[activityId]
+  if (!exposedAt) return true
+  if (normalized.cefrPreparationAttemptSequence <= exposedAt) return false
+  const intervening = activityById.get(normalized.cefrPreparationLastAttemptId)
+  return Boolean(intervening && intervening.id !== activityId && disjointFocus(activity, intervening))
 }

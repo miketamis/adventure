@@ -123,7 +123,33 @@ const correctPreparationAnswer = (entry) => {
     case 'ordered-tiles': return { orderedIds: response.correctIds }
     case 'slot-selection': return { selections: response.correctSelections }
     case 'typed-exact': return { text: response.accepted[0] }
+    case 'focused-dictation': return {
+      text: response.accepted[0],
+      attemptMode: response.evidencePolicy?.freshPassAttemptMode,
+    }
+    case 'meaning-switch-choice': return {
+      optionId: response.correctOptionId,
+      attemptMode: response.evidencePolicy?.freshPassAttemptMode,
+    }
+    case 'register-appropriate-choice': return {
+      optionId: response.acceptedOptionIds[0],
+      attemptMode: response.evidencePolicy?.freshPassAttemptMode,
+    }
+    case 'delayed-ordered-chunks': return {
+      orderedIds: response.correctIds,
+      ...Object.fromEntries(response.requiredSignals.map((signal) => [signal, true])),
+      attemptMode: response.evidencePolicy?.freshPassAttemptMode,
+    }
     case 'local-audio-cycle': return { recorded: true, replayed: true, selfCheck: response.acceptedSelfChecks[0] }
+    case 'faded-local-audio-cycle': return {
+      byRound: Object.fromEntries(response.requiredRoundIds.map((roundId) => [roundId, {
+        recorded: true,
+        replayed: true,
+        selfCheck: response.acceptedSelfChecks[0],
+        ideaChecks: response.requiredCriteriaByRound[roundId],
+      }])),
+      attemptMode: response.evidencePolicy?.freshPassAttemptMode,
+    }
     case 'branch-by-intent': {
       const walk = (allowedIds, path = []) => {
         for (const optionId of allowedIds) {
@@ -140,6 +166,11 @@ const correctPreparationAnswer = (entry) => {
       return { optionIds: walk(entry.initialReplyOptionIds || entry.replyOptions.map(({ id }) => id)) || [] }
     }
     case 'scan-and-relay': return { factId: response.correctFactId, relayId: response.acceptedRelayIds[0] }
+    case 'strategy-and-recovery': return {
+      strategyId: response.acceptedStrategyIds[0],
+      recoveryId: response.acceptedRecoveryIds[0],
+      attemptMode: response.evidencePolicy?.freshPassAttemptMode,
+    }
     case 'ordered-rounds': return { byRound: Object.fromEntries(entry.rounds.map((round) => [round.id, round.correctOptionId])) }
     case 'fact-map': return { byPrompt: response.correctByPrompt }
     case 'connector-map': return { bySentence: response.correctBySentence }

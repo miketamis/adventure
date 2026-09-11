@@ -43,9 +43,17 @@ export function collectAudioSurfaces(dict, story, phrases = [], cefrTasks = [], 
   // Guided preparation also uses continuous utterances. These are ordinary
   // practice recordings (never held-out evidence), but they still need one
   // fluent clip rather than stitched word audio.
+  const collectPreparationAudio = (value) => {
+    if (!value || typeof value !== 'object') return
+    if (value.channel === 'continuous-audio') add(value.transcript?.text)
+    for (const child of Object.values(value)) collectPreparationAudio(child)
+  }
   for (const activity of cefrPreparation) {
-    if (activity?.stimulus?.channel === 'continuous-audio') add(activity.stimulus.transcript?.text)
-    if (activity?.kind === 'local-audio-cycle') add(activity.model?.text)
+    collectPreparationAudio(activity)
+    if (activity?.kind === 'local-audio-cycle') {
+      add(activity.model?.text)
+      for (const prompt of activity.prompts || []) add(prompt?.text)
+    }
   }
 
   return [...surfaces].sort((a, b) => a.localeCompare(b, 'sq'))

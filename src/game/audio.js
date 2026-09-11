@@ -41,6 +41,7 @@ export function isMuted() {
 }
 export function setMuted(value) {
   muted = !!value
+  if (muted) stopActivePlayback()
   try {
     localStorage.setItem(MUTE_KEY, muted ? '1' : '0')
   } catch {
@@ -60,37 +61,69 @@ export function subscribeMute(fn) {
 // Play a surface's clip. Caches <audio> elements so repeated hovers are cheap.
 const cache = new Map()
 let activeAudio = null
-export function playWord(al) {
-  if (!al || muted) return
-  playSurface(al)
-}
+let activePlayback = null
 
-function playSurface(al) {
-  let a = cache.get(al)
-  if (!a) {
-    a = new Audio(audioUrl(al))
-    a.preload = 'auto'
-    cache.set(al, a)
-  }
+function stopActivePlayback() {
+  if (!activePlayback) return
+  const playback = activePlayback
+  activePlayback = null
+  playback.audio.onended = null
+  playback.audio.onerror = null
   try {
-    if (activeAudio && activeAudio !== a) {
-      activeAudio.pause()
-      activeAudio.currentTime = 0
-    }
-    activeAudio = a
-    a.currentTime = 0
-    a.onended = () => { if (activeAudio === a) activeAudio = null }
-    a.onerror = () => { if (activeAudio === a) activeAudio = null }
-    a.play().catch(() => {})
+    playback.audio.pause()
+    playback.audio.currentTime = 0
   } catch {
     /* ignore */
   }
+  if (activeAudio === playback.audio) activeAudio = null
+  playback.resolve(false)
+}
+
+export function playWord(al) {
+  if (!al || muted) return
+  void playSurface(al)
+}
+
+function playSurface(al) {
+  if (!al || muted) return Promise.resolve(false)
+  let a = cache.get(al)
+  if (!a) {
+    try {
+      if (typeof Audio !== 'function') return Promise.resolve(false)
+      a = new Audio(audioUrl(al))
+      a.preload = 'auto'
+      cache.set(al, a)
+    } catch {
+      return Promise.resolve(false)
+    }
+  }
+  stopActivePlayback()
+  return new Promise((resolve) => {
+    const playback = { audio: a, resolve }
+    const settle = (completed) => {
+      if (activePlayback !== playback) return
+      activePlayback = null
+      a.onended = null
+      a.onerror = null
+      if (activeAudio === a) activeAudio = null
+      resolve(completed)
+    }
+    try {
+      activeAudio = a
+      activePlayback = playback
+      a.currentTime = 0
+      a.onended = () => settle(true)
+      a.onerror = () => settle(false)
+      Promise.resolve(a.play()).catch(() => settle(false))
+    } catch {
+      settle(false)
+    }
+  })
 }
 
 // Complete phrases have their own TTS recording. One continuous clip preserves
 // sentence rhythm and coarticulation instead of inserting a load/ended gap
 // between separately generated word recordings.
 export function playPhrase(al) {
-  if (!al || muted) return
-  playSurface(al)
+  return playSurface(al)
 }

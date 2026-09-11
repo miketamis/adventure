@@ -78,12 +78,18 @@ const activity = ({
 
 export const CEFR_PREPARATION_CAPABILITIES = deepFreeze([
   'gist-then-detail',
+  'focused-sound-to-spelling',
   'slot-recombination',
   'multiple-acceptable-replies',
+  'meaning-driven-form-selection',
+  'relationship-appropriate-register',
   'past-present-near-future-sequencing',
   'connectors-dhe-por-sepse',
   'local-record-replay-retry',
+  'cue-faded-retelling-rehearsal',
   'adaptive-conversation-repair',
+  'compensating-communication-strategies',
+  'source-removed-audio-reconstruction',
   'scan-and-relay',
 ])
 
@@ -164,6 +170,50 @@ const A1_ACTIVITIES = [
       { id: 'bread-distractor', text: sq(W('buke')) },
     ],
     response: { kind: 'ordered-tiles', correctIds: ['want', 'water', 'please'] },
+  }),
+  activity({
+    id: 'a1-dictate-village-destination', mechanicId: 'a1-focused-dictation', level: 'A1',
+    kind: 'listen-focused-dictation', nodeId: 'start', npcId: 'elira',
+    instruction: 'Listen to the whole line, then type only the missing place word.',
+    focusSenseIds: ['fshat'],
+    stimulus: {
+      channel: 'continuous-audio',
+      transcript: sq(W('sot', 'Sot'), W('po_prog'), W('shko', 'shkoj'), W('ne', 'në'), W('fshat'), P('.')),
+      beforeAttempt: 'audio-only',
+      transcriptReveal: 'after-response',
+    },
+    maskedTranscript: [sq(W('sot', 'Sot'), W('po_prog'), W('shko', 'shkoj'), W('ne', 'në')), { kind: 'blank', id: 'heard-place' }, sq(P('.'))],
+    target: { id: 'heard-place', senseId: 'fshat', surface: 'fshat' },
+    response: {
+      kind: 'focused-dictation', accepted: ['fshat'], exactDiacritics: true,
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
+  }),
+  activity({
+    id: 'a1-dictate-market-bread', mechanicId: 'a1-focused-dictation', level: 'A1',
+    kind: 'listen-focused-dictation', nodeId: 'pazariFshatit',
+    instruction: 'Listen to the whole request, then type only the missing item word.',
+    focusSenseIds: ['buke'],
+    stimulus: {
+      channel: 'continuous-audio',
+      transcript: sq(W('dua', 'Dua'), W('nje', 'një'), W('buke'), P(','), W('lutem', 'ju lutem'), P('.')),
+      beforeAttempt: 'audio-only',
+      transcriptReveal: 'after-response',
+    },
+    maskedTranscript: [sq(W('dua', 'Dua'), W('nje', 'një')), { kind: 'blank', id: 'heard-item' }, sq(P(','), W('lutem', 'ju lutem'), P('.'))],
+    target: { id: 'heard-item', senseId: 'buke', surface: 'bukë' },
+    response: {
+      kind: 'focused-dictation', accepted: ['bukë'], exactDiacritics: true,
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
   }),
   activity({
     id: 'a1-read-bread-price', mechanicId: 'a1-read-and-act', level: 'A1',
@@ -354,6 +404,74 @@ const A2_ACTIVITIES = [
     response: { kind: 'ordered-rounds', requiredRoundIds: ['gist', 'detail'] },
   }),
   activity({
+    id: 'a2-delayed-market-message', mechanicId: 'a2-delayed-audio-reconstruction', level: 'A2',
+    kind: 'source-removed-audio-reconstruction', nodeId: 'pazariFshatit',
+    instruction: 'Hear the market message, let it disappear, then rebuild it from memory.',
+    focusSenseIds: ['treg', 'hap', 'mesdite'],
+    stimulus: {
+      channel: 'continuous-audio',
+      transcript: sq(W('ne', 'Në'), W('mesdite'), W('treg', 'tregu'), W('hap', 'hapet'), P('.')),
+      beforeAttempt: 'audio-only',
+      transcriptReveal: 'after-response',
+    },
+    memoryDelay: {
+      sourceRemovedAfterPlayback: true,
+      replayBeforeCommit: false,
+      interveningCue: { kind: 'visual-cue', id: 'market-bell', symbol: '🔔' },
+      minimumInterveningCueCount: 1,
+    },
+    chunks: [
+      { id: 'noon', text: sq(W('ne', 'Në'), W('mesdite')) },
+      { id: 'market-opens', text: sq(W('treg', 'tregu'), W('hap', 'hapet'), P('.')) },
+      { id: 'morning-distractor', text: sq(W('ne', 'Në'), W('mengjes')) },
+      { id: 'market-closes-distractor', text: sq(W('treg', 'tregu'), W('eshte'), W('mbyllur'), P('.')) },
+    ],
+    response: {
+      kind: 'delayed-ordered-chunks',
+      correctIds: ['noon', 'market-opens'],
+      requiredSignals: ['played', 'delayCompleted'],
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
+  }),
+  activity({
+    id: 'a2-delayed-river-message', mechanicId: 'a2-delayed-audio-reconstruction', level: 'A2',
+    kind: 'source-removed-audio-reconstruction', nodeId: 'fshatiLumi', npcId: 'elira',
+    instruction: 'Hear the road warning, inspect the river, then rebuild the warning from memory.',
+    focusSenseIds: ['rruge', 'mbyllur', 'ure', 'hapur'],
+    stimulus: {
+      channel: 'continuous-audio',
+      transcript: sq(W('rruge', 'Rruga'), W('eshte'), W('mbyllur'), P(','), W('por'), W('ure', 'ura'), W('eshte'), W('hapur'), P('.')),
+      beforeAttempt: 'audio-only',
+      transcriptReveal: 'after-response',
+    },
+    memoryDelay: {
+      sourceRemovedAfterPlayback: true,
+      replayBeforeCommit: false,
+      interveningCue: { kind: 'visual-cue', id: 'river-current', symbol: '🌊' },
+      minimumInterveningCueCount: 1,
+    },
+    chunks: [
+      { id: 'road-closed', text: sq(W('rruge', 'Rruga'), W('eshte'), W('mbyllur')) },
+      { id: 'contrast', text: sq(P(','), W('por')) },
+      { id: 'bridge-open', text: sq(W('ure', 'ura'), W('eshte'), W('hapur'), P('.')) },
+      { id: 'bridge-closed-distractor', text: sq(W('ure', 'ura'), W('eshte'), W('mbyllur'), P('.')) },
+    ],
+    response: {
+      kind: 'delayed-ordered-chunks',
+      correctIds: ['road-closed', 'contrast', 'bridge-open'],
+      requiredSignals: ['played', 'delayCompleted'],
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
+  }),
+  activity({
     id: 'a2-bridge-notice-scan', mechanicId: 'a2-scan-information', level: 'A2',
     kind: 'scan-then-act', nodeId: 'start', npcId: 'elira',
     instruction: 'Scan the notice for the usable route and relay it.',
@@ -400,6 +518,174 @@ const A2_ACTIVITIES = [
       'change-place': { completes: true },
     },
     response: { kind: 'branch-by-intent', retryAfterRepair: true, minimumTurns: 2 },
+  }),
+  activity({
+    id: 'a2-point-and-ask-lighter', mechanicId: 'a2-communication-strategies', level: 'A2',
+    kind: 'strategy-and-recovery', nodeId: 'tregtari',
+    instruction: 'When the item word is missing, point, ask for its name, then use the answer.',
+    focusSenseIds: ['si', 'quhem', 'kjo', 'cakmak'],
+    missingWordContext: {
+      availableReferent: { kind: 'world-object', itemId: 'cakmak', canPoint: true },
+      knowledgeState: 'word-not-retrievable',
+    },
+    strategyOptions: [
+      { id: 'point-and-name', strategy: 'point-and-ask-name', text: sq(W('si', 'Si'), W('quhem', 'quhet'), W('kjo'), P('?')) },
+      { id: 'guess-bread', strategy: 'guess', text: sq(W('a_q', 'A'), W('eshte'), W('buke'), P('?')) },
+      { id: 'ask-bridge', strategy: 'change-topic', text: sq(W('ku', 'Ku'), W('eshte'), W('ure', 'ura'), P('?')) },
+    ],
+    recovery: {
+      revealAfterStrategy: 'point-and-name',
+      source: sq(W('quhem', 'Quhet'), W('cakmak'), P('.')),
+      options: [
+        { id: 'request-lighter', text: sq(W('dua', 'Dua'), W('cakmak', 'çakmakun'), P(','), W('lutem', 'ju lutem'), P('.')) },
+        { id: 'request-bread', text: sq(W('dua', 'Dua'), W('buke'), P(','), W('lutem', 'ju lutem'), P('.')) },
+      ],
+    },
+    response: {
+      kind: 'strategy-and-recovery',
+      acceptedStrategyIds: ['point-and-name'],
+      acceptedRecoveryIds: ['request-lighter'],
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
+  }),
+  activity({
+    id: 'a2-ask-slower-road-warning', mechanicId: 'a2-communication-strategies', level: 'A2',
+    kind: 'strategy-and-recovery', nodeId: 'fshatiSheshi', npcId: 'plakuSheshit',
+    instruction: 'When noise hides a warning, ask for slower speech, then act on the clearer message.',
+    focusSenseIds: ['kuptoj', 'ngadale', 'lutem', 'rruge', 'mbyllur', 'shko', 'ure'],
+    stimulus: {
+      channel: 'continuous-audio',
+      transcript: sq(W('rruge', 'Rruga'), W('prane', 'pranë'), W('lume', 'lumit'), W('eshte'), W('mbyllur'), P('.')),
+      beforeAttempt: 'audio-only',
+      transcriptReveal: 'after-response',
+      interference: 'market-noise',
+    },
+    strategyOptions: [
+      { id: 'slower-respectful', strategy: 'ask-slower', text: sq(W('nuk', 'Nuk'), W('kuptoj'), P('.'), W('me_more', 'Më'), W('ngadale'), P(','), W('lutem', 'ju lutem'), P('.')) },
+      { id: 'short-slower', strategy: 'ask-slower', text: sq(W('me_more', 'Më'), W('ngadale'), P(','), W('lutem', 'ju lutem'), P('.')) },
+      { id: 'pretend-understood', strategy: 'pretend-understood', text: sq(W('po_yes', 'Po'), P(','), W('kuptoj'), P('.')) },
+    ],
+    recovery: {
+      revealAfterStrategies: ['slower-respectful', 'short-slower'],
+      source: sq(W('rruge', 'Rruga'), W('eshte'), W('mbyllur'), P('.'), W('shko', 'Shko'), W('nga'), W('ure', 'ura'), P('.')),
+      sourceReveal: 'after-strategy',
+      options: [
+        { id: 'use-bridge', text: sq(W('shko', 'Shko'), W('nga'), W('ure', 'ura'), P('.')) },
+        { id: 'use-road', text: sq(W('shko', 'Shko'), W('nga'), W('rruge', 'rruga'), P('.')) },
+      ],
+    },
+    response: {
+      kind: 'strategy-and-recovery',
+      acceptedStrategyIds: ['slower-respectful', 'short-slower'],
+      acceptedRecoveryIds: ['use-bridge'],
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
+  }),
+  activity({
+    id: 'a2-register-familiar-companion', mechanicId: 'a2-register-pragmatics', level: 'A2',
+    kind: 'relationship-sensitive-reply', nodeId: 'start', npcId: 'elira',
+    instruction: 'Call a close friend whom you already address as ti, using a matching familiar request.',
+    focusSenseIds: ['ti', 'ju', 'vjen', 'lutem'],
+    relationshipCue: { familiarity: 'close-friend-already-addressed-as-ti', audienceSize: 1, expectedRegister: 'familiar-singular' },
+    options: [
+      { id: 'familiar-verb-first', register: 'familiar-singular', text: sq(W('vjen', 'Eja'), P(','), W('lutem', 'të lutem'), P('.')) },
+      { id: 'familiar-please-first', register: 'familiar-singular', text: sq(W('lutem', 'Të lutem'), P(','), W('vjen', 'eja'), P('.')) },
+      { id: 'respectful', register: 'respectful-or-plural', text: sq(W('vjen', 'Ejani'), P(','), W('lutem', 'ju lutem'), P('.')) },
+      { id: 'mixed', register: 'mismatched', text: sq(W('vjen', 'Ejani'), P(','), W('lutem', 'të lutem'), P('.')) },
+    ],
+    registerContrast: [
+      { register: 'familiar-singular', pronoun: sq(W('ti')), imperative: sq(W('vjen', 'eja')), politeness: sq(W('lutem', 'të lutem')) },
+      { register: 'respectful-or-plural', pronoun: sq(W('ju')), imperative: sq(W('vjen', 'ejani')), politeness: sq(W('lutem', 'ju lutem')) },
+    ],
+    response: {
+      kind: 'register-appropriate-choice',
+      acceptedOptionIds: ['familiar-verb-first', 'familiar-please-first'],
+      expectedRegister: 'familiar-singular',
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
+  }),
+  activity({
+    id: 'a2-register-respectful-elder', mechanicId: 'a2-register-pragmatics', level: 'A2',
+    kind: 'relationship-sensitive-reply', nodeId: 'fshatiSheshi', npcId: 'plakuSheshit',
+    instruction: 'Call the square elder over with a matching respectful request.',
+    focusSenseIds: ['ti', 'ju', 'vjen', 'lutem'],
+    relationshipCue: { familiarity: 'older-stranger', audienceSize: 1, expectedRegister: 'respectful-or-plural' },
+    options: [
+      { id: 'respectful-verb-first', register: 'respectful-or-plural', text: sq(W('vjen', 'Ejani'), P(','), W('lutem', 'ju lutem'), P('.')) },
+      { id: 'respectful-please-first', register: 'respectful-or-plural', text: sq(W('lutem', 'Ju lutem'), P(','), W('vjen', 'ejani'), P('.')) },
+      { id: 'familiar', register: 'familiar-singular', text: sq(W('vjen', 'Eja'), P(','), W('lutem', 'të lutem'), P('.')) },
+      { id: 'mixed', register: 'mismatched', text: sq(W('vjen', 'Eja'), P(','), W('lutem', 'ju lutem'), P('.')) },
+    ],
+    registerContrast: [
+      { register: 'familiar-singular', pronoun: sq(W('ti')), imperative: sq(W('vjen', 'eja')), politeness: sq(W('lutem', 'të lutem')) },
+      { register: 'respectful-or-plural', pronoun: sq(W('ju')), imperative: sq(W('vjen', 'ejani')), politeness: sq(W('lutem', 'ju lutem')) },
+    ],
+    response: {
+      kind: 'register-appropriate-choice',
+      acceptedOptionIds: ['respectful-verb-first', 'respectful-please-first'],
+      expectedRegister: 'respectful-or-plural',
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
+  }),
+  activity({
+    id: 'a2-form-who-goes', mechanicId: 'a2-meaning-switch-forms', level: 'A2',
+    kind: 'meaning-switch-form', nodeId: 'start', npcId: 'elira',
+    instruction: 'Choose the verb form that makes the shown traveller the one moving now.',
+    focusSenseIds: ['shko'],
+    worldCue: { actor: 'traveller-self', time: 'present-progressive', destination: 'village' },
+    frame: [sq(W('une', 'Unë'), W('po_prog')), { kind: 'blank', id: 'movement-form' }, sq(W('ne', 'në'), W('fshat'), P('.'))],
+    options: [
+      { id: 'first-singular-present', surface: 'shkoj', text: sq(W('shko', 'shkoj')) },
+      { id: 'second-singular-present', surface: 'shkon', text: sq(W('shko', 'shkon')) },
+      { id: 'first-plural-present', surface: 'shkojmë', text: sq(W('shko', 'shkojmë')) },
+      { id: 'third-singular-past', surface: 'shkoi', text: sq(W('shko', 'shkoi')) },
+    ],
+    response: {
+      kind: 'meaning-switch-choice', correctOptionId: 'first-singular-present', switchDimension: 'actor',
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
+  }),
+  activity({
+    id: 'a2-form-when-he-goes', mechanicId: 'a2-meaning-switch-forms', level: 'A2',
+    kind: 'meaning-switch-form', nodeId: 'fshatiSheshi', npcId: 'elira',
+    instruction: 'Choose the verb form for a completed journey yesterday; the traveller is here now.',
+    focusSenseIds: ['shko'],
+    worldCue: { actor: 'one-other-traveller', time: 'completed-yesterday-now-here', destination: 'village' },
+    frame: [sq(W('dje', 'Dje'), W('ai')), { kind: 'blank', id: 'movement-form' }, sq(W('ne', 'në'), W('fshat'), P('.'), W('tani', 'Tani'), W('eshte'), W('ketu'), P('.'))],
+    options: [
+      { id: 'first-singular-present', surface: 'shkoj', text: sq(W('shko', 'shkoj')) },
+      { id: 'second-singular-present', surface: 'shkon', text: sq(W('shko', 'shkon')) },
+      { id: 'first-plural-present', surface: 'shkojmë', text: sq(W('shko', 'shkojmë')) },
+      { id: 'third-singular-past', surface: 'shkoi', text: sq(W('shko', 'shkoi')) },
+    ],
+    response: {
+      kind: 'meaning-switch-choice', correctOptionId: 'third-singular-past', switchDimension: 'time',
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
   }),
   activity({
     id: 'a2-reason-slot-frame', mechanicId: 'a2-slot-recombination', level: 'A2',
@@ -498,6 +784,102 @@ const A2_ACTIVITIES = [
       acceptedSelfChecks: ['ready'],
       retryAlwaysAvailable: true,
       selfCheckCriteria: ['past-answer', 'present-answer', 'near-future-answer', 'intelligible-to-self'],
+    },
+  }),
+  activity({
+    id: 'a2-retell-bolla-warning', mechanicId: 'a2-faded-retelling', level: 'A2',
+    kind: 'cue-faded-local-retelling', nodeId: 'bolla1',
+    instruction: 'Witness the warning, tell it once with cue cards, then tell it again from scene cues.',
+    focusSenseIds: ['bolla', 'fle', 'lume', 'rruge', 'mbyllur', 'por', 'ure', 'hapur'],
+    stimulus: {
+      channel: 'continuous-audio',
+      role: 'witness-event',
+      transcript: sq(W('bolla', 'Bolla'), W('fle'), W('ne', 'në'), W('lume', 'lumë'), P('.'), W('rruge', 'Rruga'), W('eshte'), W('mbyllur'), P(','), W('por'), W('ure', 'ura'), W('eshte'), W('hapur'), P('.')),
+      beforeAttempt: 'audio-only',
+      transcriptReveal: 'after-second-retelling',
+    },
+    rounds: [
+      {
+        id: 'supported', support: 'albanian-cue-cards',
+        cueCards: [
+          { id: 'bolla-sleeps-in-river', text: sq(W('bolla'), W('fle'), W('ne', 'në'), W('lume', 'lumë')) },
+          { id: 'road-is-closed', text: sq(W('rruge', 'rruga'), W('mbyllur')) },
+          { id: 'bridge-is-open', text: sq(W('ure', 'ura'), W('hapur')) },
+        ],
+      },
+      {
+        id: 'faded', support: 'scene-cues-only',
+        cues: [
+          { kind: 'visual-cue', id: 'serpent', symbol: '🐉' },
+          { kind: 'visual-cue', id: 'river', symbol: '🌊' },
+          { kind: 'visual-cue', id: 'blocked-road', symbol: '⛔' },
+          { kind: 'visual-cue', id: 'open-bridge', symbol: '🌉' },
+        ],
+      },
+    ],
+    cycle: ['witness-once', 'record-supported', 'replay-supported', 'remove-word-cues', 'record-faded', 'replay-faded', 'retry-or-self-check'],
+    privacy: { persistRecording: false, uploadRecording: false, inference: 'none' },
+    response: {
+      kind: 'faded-local-audio-cycle',
+      requiredRoundIds: ['supported', 'faded'],
+      acceptedSelfChecks: ['ready'],
+      requiredCriteriaByRound: {
+        supported: ['bolla-sleeps-in-river', 'road-is-closed', 'bridge-is-open'],
+        faded: ['bolla-sleeps-in-river', 'road-is-closed', 'bridge-is-open'],
+      },
+      retryAlwaysAvailable: true,
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
+    },
+  }),
+  activity({
+    id: 'a2-retell-rainy-market', mechanicId: 'a2-faded-retelling', level: 'A2',
+    kind: 'cue-faded-local-retelling', nodeId: 'pazariFshatit',
+    instruction: 'Hear the market update, tell it with word cues, then tell it again from the scene alone.',
+    focusSenseIds: ['sot', 'bie', 'shi', 'treg', 'hap', 'mesdite'],
+    stimulus: {
+      channel: 'continuous-audio',
+      role: 'witness-event',
+      transcript: sq(W('sot', 'Sot'), W('bie'), W('shi'), P('.'), W('treg', 'Tregu'), W('hap', 'hapet'), W('ne', 'në'), W('mesdite'), P('.')),
+      beforeAttempt: 'audio-only',
+      transcriptReveal: 'after-second-retelling',
+    },
+    rounds: [
+      {
+        id: 'supported', support: 'albanian-cue-cards',
+        cueCards: [
+          { id: 'it-is-raining-today', text: sq(W('sot'), W('shi')) },
+          { id: 'market-opens-at-noon', text: sq(W('treg', 'tregu'), W('mesdite')) },
+        ],
+      },
+      {
+        id: 'faded', support: 'scene-cues-only',
+        cues: [
+          { kind: 'visual-cue', id: 'rain-now', symbol: '🌧️' },
+          { kind: 'visual-cue', id: 'market-bell', symbol: '🔔' },
+          { kind: 'visual-cue', id: 'noon', symbol: '🕛' },
+        ],
+      },
+    ],
+    cycle: ['witness-once', 'record-supported', 'replay-supported', 'remove-word-cues', 'record-faded', 'replay-faded', 'retry-or-self-check'],
+    privacy: { persistRecording: false, uploadRecording: false, inference: 'none' },
+    response: {
+      kind: 'faded-local-audio-cycle',
+      requiredRoundIds: ['supported', 'faded'],
+      acceptedSelfChecks: ['ready'],
+      requiredCriteriaByRound: {
+        supported: ['it-is-raining-today', 'market-opens-at-noon'],
+        faded: ['it-is-raining-today', 'market-opens-at-noon'],
+      },
+      retryAlwaysAvailable: true,
+      evidencePolicy: {
+        freshPassAttemptMode: 'fresh-hidden',
+        supportedAttemptMode: 'supported-visible',
+        supportedCorrectOutcome: 'practice-only',
+      },
     },
   }),
   activity({
@@ -605,98 +987,155 @@ export const CEFR_PREPARATION_MECHANICS = deepFreeze({
     label: 'Build what you hear', capabilities: [],
     readiness: { wordCapabilityId: 'controlled-retrieval-supported', prerequisiteMechanicIds: ['a1-audio-meaning'] },
   },
+  'a1-focused-dictation': {
+    id: 'a1-focused-dictation', level: 'A1', stageId: 'a1-notice', order: 2,
+    label: 'Write one word from continuous speech', capabilities: ['focused-sound-to-spelling'],
+    readiness: { wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a1-audio-construction'] },
+    mastery: {
+      completionPolicy: 'all-authored-activities', minimumDistinctActivities: 2,
+      minimumDistinctContexts: 2, contextKey: 'loreAnchor.nodeId',
+    },
+  },
   'a1-read-and-act': {
-    id: 'a1-read-and-act', level: 'A1', stageId: 'a1-notice', order: 2,
+    id: 'a1-read-and-act', level: 'A1', stageId: 'a1-notice', order: 3,
     label: 'Read and act', capabilities: [],
     readiness: { wordCapabilityId: 'meaning-recognition', prerequisiteMechanicIds: ['a1-audio-meaning'] },
   },
   'a1-choice-dialogue': {
-    id: 'a1-choice-dialogue', level: 'A1', stageId: 'a1-respond', order: 3,
+    id: 'a1-choice-dialogue', level: 'A1', stageId: 'a1-respond', order: 4,
     label: 'Choose a relevant reply', capabilities: ['multiple-acceptable-replies'],
     readiness: { wordCapabilityId: 'controlled-retrieval-expanded', prerequisiteMechanicIds: ['a1-read-and-act'] },
   },
   'a1-slot-recombination': {
-    id: 'a1-slot-recombination', level: 'A1', stageId: 'a1-respond', order: 4,
+    id: 'a1-slot-recombination', level: 'A1', stageId: 'a1-respond', order: 5,
     label: 'Change one useful slot', capabilities: ['slot-recombination'],
     readiness: { wordCapabilityId: 'controlled-retrieval-expanded', prerequisiteMechanicIds: ['a1-choice-dialogue'] },
   },
   'a1-record-replay': {
-    id: 'a1-record-replay', level: 'A1', stageId: 'a1-respond', order: 5,
+    id: 'a1-record-replay', level: 'A1', stageId: 'a1-respond', order: 6,
     label: 'Listen, record, replay, retry', capabilities: ['local-record-replay-retry'],
     readiness: { wordCapabilityId: 'controlled-retrieval-expanded', prerequisiteMechanicIds: ['a1-choice-dialogue'] },
   },
   'a1-phrase-composition': {
-    id: 'a1-phrase-composition', level: 'A1', stageId: 'a1-respond', order: 6,
+    id: 'a1-phrase-composition', level: 'A1', stageId: 'a1-respond', order: 7,
     label: 'Spell, arrange and recombine', capabilities: ['slot-recombination'],
     readiness: { wordCapabilityId: 'contextual-typed-recall', prerequisiteMechanicIds: ['a1-slot-recombination'] },
   },
   'a1-multiple-replies': {
-    id: 'a1-multiple-replies', level: 'A1', stageId: 'a1-respond', order: 7,
+    id: 'a1-multiple-replies', level: 'A1', stageId: 'a1-respond', order: 8,
     label: 'Recognise more than one good reply', capabilities: ['multiple-acceptable-replies'],
     readiness: { wordCapabilityId: 'controlled-retrieval-expanded', prerequisiteMechanicIds: ['a1-choice-dialogue'] },
   },
   'a1-conversation-repair': {
-    id: 'a1-conversation-repair', level: 'A1', stageId: 'a1-repair', order: 8,
+    id: 'a1-conversation-repair', level: 'A1', stageId: 'a1-repair', order: 9,
     label: 'Ask for slower repetition', capabilities: ['adaptive-conversation-repair'],
     readiness: { wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a1-record-replay', 'a1-multiple-replies'] },
   },
   'a1-scan-relay': {
-    id: 'a1-scan-relay', level: 'A1', stageId: 'a1-repair', order: 9,
+    id: 'a1-scan-relay', level: 'A1', stageId: 'a1-repair', order: 10,
     label: 'Find and relay one fact', capabilities: ['scan-and-relay'],
     readiness: { wordCapabilityId: 'reviewed-form-awareness', prerequisiteMechanicIds: ['a1-read-and-act', 'a1-conversation-repair'] },
   },
   'a2-gist-detail': {
-    id: 'a2-gist-detail', level: 'A2', stageId: 'a2-understand', order: 10,
+    id: 'a2-gist-detail', level: 'A2', stageId: 'a2-understand', order: 11,
     label: 'Main point before detail', capabilities: ['gist-then-detail'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'reviewed-form-awareness', prerequisiteMechanicIds: [] },
   },
+  'a2-delayed-audio-reconstruction': {
+    id: 'a2-delayed-audio-reconstruction', level: 'A2', stageId: 'a2-understand', order: 12,
+    label: 'Rebuild a message after its source disappears', capabilities: ['source-removed-audio-reconstruction'],
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a2-gist-detail'] },
+    mastery: {
+      completionPolicy: 'all-authored-activities', minimumDistinctActivities: 2,
+      minimumDistinctContexts: 2, contextKey: 'loreAnchor.nodeId',
+    },
+  },
   'a2-scan-information': {
-    id: 'a2-scan-information', level: 'A2', stageId: 'a2-understand', order: 11,
+    id: 'a2-scan-information', level: 'A2', stageId: 'a2-understand', order: 13,
     label: 'Scan a practical notice', capabilities: ['scan-and-relay'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-form-selection', prerequisiteMechanicIds: ['a2-gist-detail'] },
   },
   'a2-branching-repair': {
-    id: 'a2-branching-repair', level: 'A2', stageId: 'a2-interact', order: 12,
+    id: 'a2-branching-repair', level: 'A2', stageId: 'a2-interact', order: 14,
     label: 'Repair and continue a branch', capabilities: ['adaptive-conversation-repair'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a2-gist-detail'] },
   },
+  'a2-communication-strategies': {
+    id: 'a2-communication-strategies', level: 'A2', stageId: 'a2-interact', order: 15,
+    label: 'Repair a missing word and recover', capabilities: ['compensating-communication-strategies'],
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'controlled-retrieval-expanded', prerequisiteMechanicIds: ['a2-branching-repair'] },
+    mastery: {
+      completionPolicy: 'all-authored-activities', minimumDistinctActivities: 2,
+      minimumDistinctContexts: 2, contextKey: 'loreAnchor.nodeId',
+    },
+  },
+  'a2-meaning-switch-forms': {
+    id: 'a2-meaning-switch-forms', level: 'A2', stageId: 'a2-interact', order: 16,
+    label: 'Change who or when through form', capabilities: ['meaning-driven-form-selection'],
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-form-selection', prerequisiteMechanicIds: ['a2-scan-information'] },
+    mastery: {
+      completionPolicy: 'all-authored-activities', minimumDistinctActivities: 2,
+      minimumDistinctContexts: 2, contextKey: 'loreAnchor.nodeId',
+      transferDimensions: ['actor', 'time'],
+    },
+  },
+  'a2-register-pragmatics': {
+    id: 'a2-register-pragmatics', level: 'A2', stageId: 'a2-interact', order: 17,
+    label: 'Match ti or ju to the relationship', capabilities: ['relationship-appropriate-register'],
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-form-selection', prerequisiteMechanicIds: ['a2-communication-strategies', 'a2-meaning-switch-forms'] },
+    mastery: {
+      completionPolicy: 'all-authored-activities', minimumDistinctActivities: 2,
+      minimumDistinctContexts: 2, contextKey: 'loreAnchor.nodeId',
+      transferDimensions: ['familiar-singular', 'respectful-or-plural'],
+    },
+  },
   'a2-slot-recombination': {
-    id: 'a2-slot-recombination', level: 'A2', stageId: 'a2-interact', order: 13,
+    id: 'a2-slot-recombination', level: 'A2', stageId: 'a2-interact', order: 18,
     label: 'Recombine intent and reason', capabilities: ['slot-recombination'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a2-branching-repair'] },
   },
   'a2-multiple-replies': {
-    id: 'a2-multiple-replies', level: 'A2', stageId: 'a2-interact', order: 14,
+    id: 'a2-multiple-replies', level: 'A2', stageId: 'a2-interact', order: 19,
     label: 'Use different valid replies', capabilities: ['multiple-acceptable-replies'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a2-branching-repair'] },
   },
   'a2-temporal-sequencing': {
-    id: 'a2-temporal-sequencing', level: 'A2', stageId: 'a2-connect', order: 15,
+    id: 'a2-temporal-sequencing', level: 'A2', stageId: 'a2-connect', order: 20,
     label: 'Past, present and near future', capabilities: ['past-present-near-future-sequencing'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-form-selection', prerequisiteMechanicIds: ['a2-slot-recombination'] },
   },
   'a2-connector-links': {
-    id: 'a2-connector-links', level: 'A2', stageId: 'a2-connect', order: 16,
+    id: 'a2-connector-links', level: 'A2', stageId: 'a2-connect', order: 21,
     label: 'Connect with dhe, por and sepse', capabilities: ['connectors-dhe-por-sepse'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'word-form-construction', prerequisiteMechanicIds: ['a2-temporal-sequencing'] },
   },
   'a2-record-replay': {
-    id: 'a2-record-replay', level: 'A2', stageId: 'a2-connect', order: 17,
+    id: 'a2-record-replay', level: 'A2', stageId: 'a2-connect', order: 22,
     label: 'Record a connected answer', capabilities: ['local-record-replay-retry'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-typed-recall', prerequisiteMechanicIds: ['a2-temporal-sequencing'] },
   },
+  'a2-faded-retelling': {
+    id: 'a2-faded-retelling', level: 'A2', stageId: 'a2-connect', order: 23,
+    label: 'Retell immediately with less support', capabilities: ['cue-faded-retelling-rehearsal', 'local-record-replay-retry'],
+    readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-typed-recall', prerequisiteMechanicIds: ['a2-delayed-audio-reconstruction', 'a2-record-replay'] },
+    mastery: {
+      completionPolicy: 'all-authored-activities', minimumDistinctActivities: 2,
+      minimumDistinctContexts: 2, contextKey: 'loreAnchor.nodeId',
+      repetitionsPerActivity: 2, finalSupport: 'scene-cues-only',
+    },
+  },
   'a2-message-replies': {
-    id: 'a2-message-replies', level: 'A2', stageId: 'a2-connect', order: 18,
+    id: 'a2-message-replies', level: 'A2', stageId: 'a2-connect', order: 24,
     label: 'Reconstruct and answer a message', capabilities: ['multiple-acceptable-replies'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-typed-recall', prerequisiteMechanicIds: ['a2-multiple-replies', 'a2-connector-links'] },
   },
   'a2-paragraph-assembly': {
-    id: 'a2-paragraph-assembly', level: 'A2', stageId: 'a2-connect', order: 19,
+    id: 'a2-paragraph-assembly', level: 'A2', stageId: 'a2-connect', order: 25,
     label: 'Build a connected note', capabilities: ['past-present-near-future-sequencing', 'connectors-dhe-por-sepse'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'contextual-typed-recall', prerequisiteMechanicIds: ['a2-connector-links', 'a2-message-replies'] },
   },
   'a2-main-point-relay': {
-    id: 'a2-main-point-relay', level: 'A2', stageId: 'a2-relay', order: 20,
+    id: 'a2-main-point-relay', level: 'A2', stageId: 'a2-relay', order: 26,
     label: 'Relay the point and agree', capabilities: ['gist-then-detail', 'scan-and-relay', 'adaptive-conversation-repair'],
     readiness: { prerequisiteLevel: 'A1', wordCapabilityId: 'strict-spaced-recall', prerequisiteMechanicIds: ['a2-scan-information', 'a2-paragraph-assembly', 'a2-record-replay'] },
   },
@@ -707,44 +1146,44 @@ export const CEFR_PREPARATION_MECHANICS = deepFreeze({
 // from editorial capstone terminology to actual production mechanics, not a
 // second implementation of the curriculum.
 export const CEFR_TRAIN_WITH_MECHANIC_MAP = deepFreeze({
-  'continuous phrase audio': ['a1-audio-meaning', 'a2-gist-detail'],
+  'continuous phrase audio': ['a1-audio-meaning', 'a1-focused-dictation', 'a2-gist-detail', 'a2-delayed-audio-reconstruction'],
   'word audio': ['a1-audio-meaning'],
-  'listening construction': ['a1-audio-construction'],
+  'listening construction': ['a1-audio-construction', 'a1-focused-dictation', 'a2-delayed-audio-reconstruction'],
   'story reading': ['a1-read-and-act', 'a2-scan-information'],
   'dictionary definitions': ['a1-read-and-act'],
   'short grounded phrases': ['a1-read-and-act', 'a1-phrase-composition'],
-  'choice dialogue': ['a1-choice-dialogue'],
-  'listen-and-repeat': ['a1-record-replay'],
-  'conversation repair': ['a1-conversation-repair', 'a2-branching-repair'],
+  'choice dialogue': ['a1-choice-dialogue', 'a2-register-pragmatics'],
+  'listen-and-repeat': ['a1-record-replay', 'a2-faded-retelling'],
+  'conversation repair': ['a1-conversation-repair', 'a2-branching-repair', 'a2-communication-strategies'],
   'substitution frames': ['a1-slot-recombination'],
-  'listen-record-replay': ['a1-record-replay'],
+  'listen-record-replay': ['a1-record-replay', 'a2-faded-retelling'],
   'pronunciation comparison': ['a1-record-replay'],
   'phrase construction': ['a1-phrase-composition'],
   'short reply frames': ['a1-multiple-replies'],
-  'focus spelling': ['a1-phrase-composition'],
+  'focus spelling': ['a1-phrase-composition', 'a1-focused-dictation'],
   'whole phrase recall': ['a1-phrase-composition'],
   'sentence recombination': ['a1-slot-recombination', 'a1-phrase-composition'],
   'information matching': ['a1-read-and-act', 'a1-scan-relay'],
   'time, place and price phrases': ['a1-read-and-act', 'a1-scan-relay'],
-  'tiered listening construction': ['a1-audio-construction', 'a2-gist-detail'],
+  'tiered listening construction': ['a1-audio-construction', 'a1-focused-dictation', 'a2-gist-detail', 'a2-delayed-audio-reconstruction'],
   'gist-before-detail practice': ['a2-gist-detail'],
   'scan-for-information tasks': ['a2-scan-information'],
   'short correspondence': ['a2-message-replies'],
-  'branching intent practice': ['a2-branching-repair'],
-  'repair phrases': ['a1-conversation-repair', 'a2-branching-repair'],
+  'branching intent practice': ['a2-branching-repair', 'a2-communication-strategies', 'a2-register-pragmatics'],
+  'repair phrases': ['a1-conversation-repair', 'a2-branching-repair', 'a2-communication-strategies'],
   'slot recombination': ['a2-slot-recombination'],
-  'sentence frames': ['a2-slot-recombination', 'a2-paragraph-assembly'],
+  'sentence frames': ['a2-meaning-switch-forms', 'a2-slot-recombination', 'a2-paragraph-assembly'],
   'connector practice': ['a2-connector-links'],
-  'past/present/future recombination': ['a2-temporal-sequencing', 'a2-paragraph-assembly'],
-  'record-and-replay': ['a2-record-replay'],
-  'message reconstruction': ['a2-message-replies'],
-  'multiple acceptable replies': ['a2-multiple-replies', 'a2-message-replies'],
+  'past/present/future recombination': ['a2-meaning-switch-forms', 'a2-temporal-sequencing', 'a2-paragraph-assembly'],
+  'record-and-replay': ['a2-record-replay', 'a2-faded-retelling'],
+  'message reconstruction': ['a2-delayed-audio-reconstruction', 'a2-message-replies'],
+  'multiple acceptable replies': ['a2-register-pragmatics', 'a2-multiple-replies', 'a2-message-replies'],
   'guided paragraph assembly': ['a2-paragraph-assembly'],
   connectors: ['a2-connector-links', 'a2-paragraph-assembly'],
   'past/present/future sequencing': ['a2-temporal-sequencing'],
   'identify the main point': ['a2-gist-detail', 'a2-main-point-relay'],
   'fact selection': ['a2-scan-information', 'a2-main-point-relay'],
-  'ask-for-repetition and agreement phrases': ['a2-branching-repair', 'a2-main-point-relay'],
+  'ask-for-repetition and agreement phrases': ['a2-branching-repair', 'a2-communication-strategies', 'a2-main-point-relay'],
 })
 
 export const CEFR_PREPARATION_EVIDENCE_CONTRACT = deepFreeze({
@@ -765,6 +1204,9 @@ export const CEFR_PREPARATION_EVIDENCE_CONTRACT = deepFreeze({
     'A named capability also requires every earlier applicable capability in the shared lexical progression; an inapplicable form lane never skips meaning or controlled retrieval.',
     'Conditional reviewed-form capabilities may be inapplicable; ordinary lexical and production capabilities must be explicitly passed.',
     'Only distinct passed preparation activities satisfy a mechanic; lifetime token totals do not count.',
+    'Transfer mechanics declare their minimum distinct activities and contexts; every authored transfer mechanic currently requires all of its activities.',
+    'Source-removed reconstruction and cue-faded retelling are immediate guided rehearsal; they never claim elapsed or changed-context transfer evidence.',
+    'An attempt made after its transcript or answer support is revealed is useful practice but cannot award the same persisted preparation pass as a fresh hidden attempt.',
     'A2 preparation remains locked until the A1 level gate is achieved.',
     'Preparation evidence never counts as held-out capstone evidence.',
     'Recording completion proves a local practice cycle, not pronunciation quality.',
@@ -809,7 +1251,9 @@ export function preparationReadiness(mechanicId, evidence = {}) {
   for (const prerequisiteId of mechanic.readiness.prerequisiteMechanicIds) {
     const requiredActivities = activitiesForMechanic(prerequisiteId).map(({ id }) => id)
     const passed = new Set(safePassedActivities(evidence, prerequisiteId))
-    if (!requiredActivities.some((id) => passed.has(id))) reasons.push(`requires-mechanic:${prerequisiteId}`)
+    if (!requiredActivities.length || !requiredActivities.every((id) => passed.has(id))) {
+      reasons.push(`requires-mechanic:${prerequisiteId}`)
+    }
   }
 
   const requiredCapabilityId = mechanic.readiness.wordCapabilityId
@@ -898,8 +1342,34 @@ export function evaluatePreparationResponse(activityId, answer = {}) {
     case 'typed-exact':
       passed = response.accepted.some((accepted) => normalizeAnswer(accepted) === normalizeAnswer(answer.text))
       break
+    case 'focused-dictation':
+      passed = response.accepted.some((accepted) => normalizeAnswer(accepted) === normalizeAnswer(answer.text))
+      break
+    case 'meaning-switch-choice':
+      passed = answer.optionId === response.correctOptionId
+      break
+    case 'register-appropriate-choice':
+      passed = response.acceptedOptionIds.includes(answer.optionId)
+      break
+    case 'delayed-ordered-chunks':
+      passed = response.requiredSignals.every((signal) => answer[signal] === true) &&
+        equalList(answer.orderedIds, response.correctIds)
+      break
     case 'local-audio-cycle':
       passed = Boolean(answer.recorded && answer.replayed && response.acceptedSelfChecks.includes(answer.selfCheck))
+      break
+    case 'faded-local-audio-cycle':
+      passed = response.requiredRoundIds.every((roundId) => {
+        const round = answer.byRound?.[roundId]
+        const requiredCriteria = response.requiredCriteriaByRound?.[roundId] || []
+        return Boolean(
+          round?.recorded &&
+          round?.replayed &&
+          response.acceptedSelfChecks.includes(round.selfCheck) &&
+          Array.isArray(round.ideaChecks) &&
+          requiredCriteria.every((criterionId) => round.ideaChecks.includes(criterionId)),
+        )
+      })
       break
     case 'branch-by-intent': {
       const optionIds = Array.isArray(answer.optionIds)
@@ -936,6 +1406,10 @@ export function evaluatePreparationResponse(activityId, answer = {}) {
     case 'scan-and-relay':
       passed = answer.factId === response.correctFactId && response.acceptedRelayIds.includes(answer.relayId)
       break
+    case 'strategy-and-recovery':
+      passed = response.acceptedStrategyIds.includes(answer.strategyId) &&
+        response.acceptedRecoveryIds.includes(answer.recoveryId)
+      break
     case 'ordered-rounds':
       passed = response.requiredRoundIds.every((roundId) => {
         const round = entry.rounds.find(({ id }) => id === roundId)
@@ -961,6 +1435,19 @@ export function evaluatePreparationResponse(activityId, answer = {}) {
     default:
       return { passed: false, reason: 'unsupported-response-kind' }
   }
+
+  if (passed && response.evidencePolicy) {
+    const requiredMode = response.evidencePolicy.freshPassAttemptMode
+    if (answer.attemptMode !== requiredMode) {
+      const supported = answer.attemptMode === response.evidencePolicy.supportedAttemptMode
+      return {
+        passed: false,
+        correct: true,
+        evidence: supported ? response.evidencePolicy.supportedCorrectOutcome : 'none',
+        reason: supported ? 'supported-practice-only' : 'attempt-mode-required',
+      }
+    }
+  }
   return { passed, reason: passed ? 'correct' : 'try-again' }
 }
 
@@ -974,6 +1461,7 @@ export function nextPreparationPrompt(activityId, optionId) {
 export const CEFR_PREPARATION_EXAMPLES = deepFreeze({
   'a1-audio-meaning': { activityId: 'a1-audio-destination', answer: { optionId: 'village' } },
   'a1-audio-construction': { activityId: 'a1-audio-water-build', answer: { orderedIds: ['want', 'water', 'please'] } },
+  'a1-focused-dictation': { activityId: 'a1-dictate-market-bread', answer: { text: 'bukë', attemptMode: 'fresh-hidden' } },
   'a1-read-and-act': { activityId: 'a1-read-bread-price', answer: { optionId: 'eight' } },
   'a1-choice-dialogue': { activityId: 'a1-destination-reply', answer: { optionId: 'village' } },
   'a1-slot-recombination': { activityId: 'a1-need-substitution', answer: { selections: { item: 'cheese' } } },
@@ -983,13 +1471,37 @@ export const CEFR_PREPARATION_EXAMPLES = deepFreeze({
   'a1-conversation-repair': { activityId: 'a1-slower-repetition', answer: { optionId: 'repair' }, expectedNextText: 'Vjen në treg?' },
   'a1-scan-relay': { activityId: 'a1-market-price-relay', answer: { factId: 'eight', relayId: 'relay-eight' } },
   'a2-gist-detail': { activityId: 'a2-weather-market-gist', answer: { byRound: { gist: 'late-market', detail: 'noon' } } },
+  'a2-delayed-audio-reconstruction': { activityId: 'a2-delayed-market-message', answer: { played: true, delayCompleted: true, orderedIds: ['noon', 'market-opens'], attemptMode: 'fresh-hidden' } },
   'a2-scan-information': { activityId: 'a2-bridge-notice-scan', answer: { byPrompt: { status: 'bridge-closed', route: 'left-road' } } },
   'a2-branching-repair': { activityId: 'a2-meeting-branch-repair', answer: { optionIds: ['time', 'confirm-well'] } },
+  'a2-communication-strategies': { activityId: 'a2-ask-slower-road-warning', answer: { strategyId: 'slower-respectful', recoveryId: 'use-bridge', attemptMode: 'fresh-hidden' } },
+  'a2-meaning-switch-forms': { activityId: 'a2-form-who-goes', answer: { optionId: 'first-singular-present', attemptMode: 'fresh-hidden' } },
+  'a2-register-pragmatics': { activityId: 'a2-register-familiar-companion', answer: { optionId: 'familiar-verb-first', attemptMode: 'fresh-hidden' } },
   'a2-slot-recombination': { activityId: 'a2-reason-slot-frame', answer: { selections: { place: 'market', reason: 'rain' } } },
   'a2-multiple-replies': { activityId: 'a2-help-reply-set', answer: { optionId: 'accept-can' } },
   'a2-temporal-sequencing': { activityId: 'a2-journey-time-sequence', answer: { orderedIds: ['past', 'present', 'future'] } },
   'a2-connector-links': { activityId: 'a2-basic-connectors', answer: { bySentence: { addition: 'dhe', contrast: 'por', reason: 'sepse' } } },
   'a2-record-replay': { activityId: 'a2-journey-recording', answer: { recorded: true, replayed: true, selfCheck: 'ready' } },
+  'a2-faded-retelling': {
+    activityId: 'a2-retell-bolla-warning',
+    answer: {
+      attemptMode: 'fresh-hidden',
+      byRound: {
+        supported: {
+          recorded: true,
+          replayed: true,
+          selfCheck: 'ready',
+          ideaChecks: ['bolla-sleeps-in-river', 'road-is-closed', 'bridge-is-open'],
+        },
+        faded: {
+          recorded: true,
+          replayed: true,
+          selfCheck: 'ready',
+          ideaChecks: ['bolla-sleeps-in-river', 'road-is-closed', 'bridge-is-open'],
+        },
+      },
+    },
+  },
   'a2-message-replies': { activityId: 'a2-message-reconstruction', answer: { messageIds: ['meeting', 'tomorrow', 'time', 'place'], replyId: 'accept' } },
   'a2-paragraph-assembly': { activityId: 'a2-connected-note-builder', answer: { roles: ['past-event', 'present-state', 'reason', 'near-future'], connectorSenseIds: ['dhe', 'sepse'] } },
   'a2-main-point-relay': { activityId: 'a2-road-main-point-relay', answer: { byStep: { 'main-point': 'road-closed', relay: 'bridge-open', agreement: 'agree-bridge' } } },

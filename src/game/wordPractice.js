@@ -251,6 +251,12 @@ export function buildWordQuestion({
     if (containsExcludedPhraseWord(surface, excludeWords)) return []
     const progress = normalizeWordProgress(wordProgress[id], currentRound)
     const plan = wordProgressPlan(progress, currentRound, progressionOptions)
+    // An inflecting word can advance from its lemma to a different reviewed
+    // surface while keeping the same sense ID. Apply the no-repeat boundary to
+    // that exact scheduled surface too; otherwise the weighted picker may
+    // select a form that the form builder must reject, hiding other legal,
+    // disjoint due words behind a false caught-up result.
+    if (plan.formTarget?.surface && containsExcludedPhraseWord(plan.formTarget.surface, excludeWords)) return []
     return plan.due ? [{ id, plan }] : []
   })
   if (!due.length) return null

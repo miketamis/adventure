@@ -12,6 +12,7 @@ import {
 } from '../src/game/cefrPreparation.js'
 import {
   emptyCefrPreparationState,
+  cefrPreparationFreshEligibility,
   liveCefrPreparationEvidence,
   normalizeCefrPreparationState,
   recordCefrPreparationAttempt,
@@ -24,6 +25,7 @@ const componentSource = readFileSync(new URL('../src/components/CefrPreparation.
 const capstoneSource = readFileSync(new URL('../src/components/CefrCapstone.jsx', import.meta.url), 'utf8')
 const stateSource = readFileSync(new URL('../src/game/gameState.js', import.meta.url), 'utf8')
 const evidenceStateSource = readFileSync(new URL('../src/game/cefrPreparationEvidenceState.js', import.meta.url), 'utf8')
+const audioSource = readFileSync(new URL('../src/game/audio.js', import.meta.url), 'utf8')
 const failures = []
 const check = (label, fn) => {
   try {
@@ -35,8 +37,9 @@ const check = (label, fn) => {
   }
 }
 
-check('all 23 registered activities have a playable response renderer', () => {
-  assert.equal(CEFR_PREPARATION_ACTIVITIES.length, 23)
+check(`all ${CEFR_PREPARATION_ACTIVITIES.length} registered activities have a playable response renderer`, () => {
+  assert.equal(new Set(CEFR_PREPARATION_ACTIVITIES.map(({ id }) => id)).size, CEFR_PREPARATION_ACTIVITIES.length)
+  assert.ok(CEFR_PREPARATION_ACTIVITIES.length >= Object.keys(CEFR_PREPARATION_MECHANICS).length)
   const responseKinds = new Set(CEFR_PREPARATION_ACTIVITIES.map(({ response }) => response.kind))
   for (const kind of responseKinds) {
     assert.match(componentSource, new RegExp(`response\\.kind === ['\"]${kind}['\"]|case ['\"]${kind}['\"]`), kind)
@@ -50,9 +53,75 @@ check('all 23 registered activities have a playable response renderer', () => {
       assert.ok(activity.connectorOptions?.length || activity.requiredLinks?.some(({ allowedSenseIds }) => allowedSenseIds.length), `${activity.id} cannot render connectors`)
     }
   }
+  for (const nodeId of ['tregtari', 'bolla1']) {
+    const activity = CEFR_PREPARATION_ACTIVITIES.find(({ loreAnchor }) => loreAnchor.nodeId === nodeId)
+    assert.ok(activity, `${nodeId} has no preparation activity`)
+    const { place } = cefrPreparationLoreLabels(activity, {})
+    assert.ok(place && place !== nodeId, `${nodeId} leaks as a raw/null current-story label`)
+  }
 })
 
-check('deterministic practice does not leak a story NPC name while the current-story badge stays identity-aware', () => {
+check('new preparation renderers preserve their exact target, sequence and accessibility contracts', () => {
+  assert.match(componentSource, /<AlbanianFrame parts=\{activity\.maskedTranscript\} blankLabel="word heard in the audio"/)
+  assert.match(componentSource, /disabled=\{submitted \|\| !answer\.audioPlayed\}/)
+  assert.match(componentSource, /<WorldCue cue=\{activity\.worldCue\} \/>/)
+  assert.match(componentSource, /aria-label="Meaning to express"/)
+  assert.match(componentSource, /<RelationshipCue cue=\{activity\.relationshipCue\} \/>/)
+  assert.match(componentSource, /attempted && <RegisterContrast rows=\{activity\.registerContrast\} \/>/)
+
+  assert.match(componentSource, /activity\.memoryDelay\?\.replayBeforeCommit === false/)
+  assert.match(componentSource, /if \(completed\) setAnswer\(\(current\) => \(\{ \.\.\.current, played: true, audioPlayed: true \}\)\)/)
+  assert.match(componentSource, /delayCompleted: nextCueCount >= minimumCueCount/)
+  assert.match(componentSource, /answer\.delayCompleted && \(/)
+  assert.match(componentSource, /response\.requiredSignals\.every\(\(signal\) => answer\[signal\] === true\)/)
+
+  assert.match(componentSource, /response\.acceptedStrategyIds\.includes\(answer\.strategyId\)/)
+  assert.match(componentSource, /recoveryRevealed = strategyAccepted/)
+  assert.match(componentSource, /canChooseRecovery = recoveryRevealed/)
+  assert.match(componentSource, /activity\.opening\?\.channel === 'continuous-audio'/)
+  assert.match(componentSource, /activity\.opening && !audioStimulus/)
+
+  assert.match(componentSource, /response\.requiredCriteriaByRound\?\.\[round\.id\]/)
+  assert.match(componentSource, /ideaChecks: event\.target\.checked/)
+  assert.match(componentSource, /answer\.byRound\?\.\[supported\.id\]/)
+  assert.match(componentSource, /answer\.byRound\?\.\[faded\.id\]/)
+  assert.match(componentSource, /Remove word cues and retell again/)
+  assert.match(componentSource, /aria-label="Scene cues without words"/)
+  assert.match(componentSource, /showModel=\{false\}/)
+})
+
+check('answer-revealing support is explicit practice-only and cannot dispatch fresh mastery', () => {
+  assert.match(componentSource, /answerWithAttemptMode/)
+  assert.match(componentSource, /response\.evidencePolicy\.freshPassAttemptMode/)
+  assert.match(componentSource, /response\.evidencePolicy\.supportedAttemptMode/)
+  assert.match(componentSource, /const durablePass = result\.passed && freshMasteryEligible/)
+  assert.match(componentSource, /onAttempt\(activity\.id, durablePass, supportRevealed\)/)
+  assert.match(componentSource, /Supported retry complete\. Replay this activity fresh later for mastery\./)
+  assert.match(componentSource, /An answer seen during support cannot award fresh mastery\./)
+  assert.match(componentSource, /initiallyFresh=\{cefrPreparationFreshEligibility\(state, activity\.id\)\}/)
+  assert.match(componentSource, /supportRevealed,/)
+
+  const target = CEFR_PREPARATION_ACTIVITIES.find(({ id }) => id === 'a2-form-who-goes')
+  const disjoint = CEFR_PREPARATION_ACTIVITIES.find((entry) => entry.id !== target.id &&
+    entry.focusSenseIds.every((senseId) => !target.focusSenseIds.includes(senseId)))
+  assert.ok(disjoint, 'freshness audit needs a disjoint preparation round')
+  let state = emptyCefrPreparationState()
+  assert.equal(cefrPreparationFreshEligibility(state, target.id), true)
+  state = recordCefrPreparationAttempt(state, target.id, target.mechanicId, false, true)
+  assert.equal(cefrPreparationFreshEligibility(state, target.id), false,
+    'remount immediately after meaning-switch correction became fresh')
+  state = normalizeCefrPreparationState(JSON.parse(JSON.stringify(state)))
+  assert.equal(cefrPreparationFreshEligibility(state, target.id), false,
+    'save/reload erased answer-support exposure')
+  state = recordCefrPreparationAttempt(state, target.id, target.mechanicId, false, false)
+  assert.equal(cefrPreparationFreshEligibility(state, target.id), false,
+    'same-item retry incorrectly supplied a disjoint round')
+  state = recordCefrPreparationAttempt(state, disjoint.id, disjoint.mechanicId, false, false)
+  assert.equal(cefrPreparationFreshEligibility(state, target.id), true,
+    'a disjoint intervening preparation round did not restore freshness')
+})
+
+check('deterministic lore practice does not leak a story NPC name while its setting badge stays identity-aware', () => {
   assert.equal(CEFR_PREPARATION_SCENARIO_COMPANION, 'the villager')
   assert.doesNotMatch(componentSource, /\bElira\b/,
     'a deterministic component label bypasses the scenario companion role')
@@ -68,8 +137,20 @@ check('deterministic practice does not leak a story NPC name while the current-s
     cefrPreparationLoreLabels(activity, { knowledge: { 'npcName:elira': true } }).companion,
     'Elira',
   )
-  assert.match(componentSource, /Current story · \{lorePlace\}/,
-    'the live story badge is not visibly separated from the deterministic exercise')
+  assert.match(componentSource, /Lore practice setting · \{lorePlace\}/,
+    'the deterministic exercise labels its lore setting as the current story')
+})
+
+check('CEFR playback evidence waits for successful audio completion', () => {
+  assert.match(audioSource, /return Promise\.resolve\(false\)/)
+  assert.match(audioSource, /a\.onended = \(\) => settle\(true\)/)
+  assert.match(audioSource, /a\.onerror = \(\) => settle\(false\)/)
+  assert.match(audioSource, /stopActivePlayback\(\)/)
+  assert.match(componentSource, /const completed = await playPhrase/)
+  assert.match(componentSource, /if \(completed\) setAnswer/)
+  assert.doesNotMatch(componentSource, /playPhrase\([^\n]+\)\n\s*setAnswer/)
+  assert.match(capstoneSource, /const completed = await playPhrase\(task\.stimulus\.scriptSq\)/)
+  assert.match(capstoneSource, /if \(completed\) setPlays/)
 })
 
 check('preparation completion is normalized and distinct from capstone evidence', () => {
@@ -84,6 +165,17 @@ check('preparation completion is normalized and distinct from capstone evidence'
   assert.equal(Object.hasOwn(state, 'cefrEvidence'), false)
   assert.equal(JSON.stringify(state).includes('answer'), false)
   assert.equal(JSON.stringify(state).includes('recording'), false)
+
+  const migrated = normalizeCefrPreparationState({
+    cefrPreparationVersion: 1,
+    cefrPreparationPasses: { [activity.mechanicId]: [activity.id] },
+    cefrPreparationAttempts: { [activity.id]: 3 },
+  })
+  assert.equal(migrated.cefrPreparationVersion, 2)
+  assert.equal(migrated.cefrPreparationAttemptSequence, 3)
+  assert.equal(migrated.cefrPreparationLastAttemptId, null)
+  assert.deepEqual(migrated.cefrPreparationSupportExposure, {})
+  assert.deepEqual(migrated.cefrPreparationPasses[activity.mechanicId], [activity.id])
 
   const dirty = normalizeCefrPreparationState({
     ...state,
@@ -193,6 +285,64 @@ check('preparation state survives load and both run transitions', () => {
   assert.match(stateSource, /from ['"]\.\/cefrPreparationEvidenceState\.js['"]/)
   assert.doesNotMatch(evidenceStateSource, /cefrPreparation\.js|CEFR_PREPARATION_ACTIVITIES/)
 })
+
+try {
+  const originalAudio = globalThis.Audio
+  const instances = []
+  class AuditAudio {
+    static rejectNext = false
+    static throwNext = false
+    constructor() {
+      if (AuditAudio.throwNext) {
+        AuditAudio.throwNext = false
+        throw new Error('constructor blocked')
+      }
+      this.currentTime = 0
+      instances.push(this)
+    }
+    pause() {}
+    play() {
+      if (AuditAudio.rejectNext) {
+        AuditAudio.rejectNext = false
+        return Promise.reject(new Error('blocked'))
+      }
+      return Promise.resolve()
+    }
+  }
+  globalThis.Audio = AuditAudio
+  try {
+    const audio = await import(`../src/game/audio.js?cefr-playback-audit=${Date.now()}`)
+    audio.setMuted(false)
+    const completed = audio.playPhrase('audit completed phrase')
+    instances.at(-1).onended()
+    assert.equal(await completed, true, 'a completed phrase did not resolve true')
+
+    const interrupted = audio.playPhrase('audit interrupted phrase')
+    const replacement = audio.playPhrase('audit replacement phrase')
+    assert.equal(await interrupted, false, 'an interrupted phrase resolved as completed')
+    instances.at(-1).onended()
+    assert.equal(await replacement, true, 'the replacement phrase did not complete')
+
+    AuditAudio.rejectNext = true
+    assert.equal(await audio.playPhrase('audit rejected phrase'), false,
+      'a rejected browser playback resolved as completed')
+    const errored = audio.playPhrase('audit errored phrase')
+    instances.at(-1).onerror()
+    assert.equal(await errored, false, 'an audio error resolved as completed')
+    AuditAudio.throwNext = true
+    assert.equal(await audio.playPhrase('audit constructor failure'), false,
+      'an audio construction failure did not resolve false')
+    audio.setMuted(true)
+    assert.equal(await audio.playPhrase('audit muted phrase'), false,
+      'muted playback resolved as completed')
+  } finally {
+    globalThis.Audio = originalAudio
+  }
+  console.log('✓ phrase playback resolves true only after audible completion')
+} catch (error) {
+  failures.push(`phrase playback resolves true only after audible completion: ${error.message}`)
+  console.error(`✗ phrase playback resolves true only after audible completion: ${error.message}`)
+}
 
 if (failures.length) {
   console.error(`\n${failures.length} CEFR preparation UI audit failure(s).`)

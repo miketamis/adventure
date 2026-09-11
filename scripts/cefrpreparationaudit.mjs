@@ -86,7 +86,7 @@ check('every mechanic is playable, ordered and attached to a real stage', () => 
   }
 })
 
-check('all eight required pre-capstone capabilities have concrete activities', () => {
+check(`all ${CEFR_PREPARATION_CAPABILITIES.length} required pre-capstone capabilities have concrete activities`, () => {
   const implemented = new Set(Object.values(CEFR_PREPARATION_MECHANICS).flatMap(({ capabilities }) => capabilities))
   assert.deepEqual([...implemented].sort(), [...CEFR_PREPARATION_CAPABILITIES].sort())
   for (const capability of CEFR_PREPARATION_CAPABILITIES) {
@@ -204,6 +204,120 @@ check('record/replay/retry is local, non-persistent and makes no pronunciation i
   }
 })
 
+check('new listening, form, register, strategy and retelling responses have adversarial pass/fail coverage', () => {
+  const passingAnswers = new Map()
+  const withFreshMode = (entry, answer) => entry.response.evidencePolicy
+    ? { ...answer, attemptMode: entry.response.evidencePolicy.freshPassAttemptMode }
+    : answer
+
+  for (const entry of CEFR_PREPARATION_ACTIVITIES.filter(({ response }) => response.kind === 'focused-dictation')) {
+    const answer = withFreshMode(entry, { text: entry.response.accepted[0] })
+    passingAnswers.set(entry.id, answer)
+    assert.equal(evaluatePreparationResponse(entry.id, answer).passed, true, entry.id)
+    assert.equal(evaluatePreparationResponse(entry.id, withFreshMode(entry, { text: '__wrong__' })).passed, false, entry.id)
+    assert.equal(evaluatePreparationResponse(entry.id, { text: entry.response.accepted[0] }).reason, 'attempt-mode-required', entry.id)
+  }
+
+  for (const entry of CEFR_PREPARATION_ACTIVITIES.filter(({ response }) => response.kind === 'delayed-ordered-chunks')) {
+    const answer = withFreshMode(entry, { played: true, delayCompleted: true, orderedIds: [...entry.response.correctIds] })
+    passingAnswers.set(entry.id, answer)
+    assert.equal(evaluatePreparationResponse(entry.id, answer).passed, true, entry.id)
+    assert.equal(evaluatePreparationResponse(entry.id, { ...answer, played: false }).passed, false, entry.id)
+    assert.equal(evaluatePreparationResponse(entry.id, { ...answer, orderedIds: [...answer.orderedIds].reverse() }).passed, false, entry.id)
+  }
+
+  for (const entry of CEFR_PREPARATION_ACTIVITIES.filter(({ response }) => response.kind === 'meaning-switch-choice')) {
+    const answer = withFreshMode(entry, { optionId: entry.response.correctOptionId })
+    passingAnswers.set(entry.id, answer)
+    assert.equal(evaluatePreparationResponse(entry.id, answer).passed, true, entry.id)
+    const wrong = entry.options.find(({ id }) => id !== entry.response.correctOptionId)
+    assert.equal(evaluatePreparationResponse(entry.id, { optionId: wrong.id }).passed, false, entry.id)
+  }
+
+  for (const entry of CEFR_PREPARATION_ACTIVITIES.filter(({ response }) => response.kind === 'register-appropriate-choice')) {
+    for (const optionId of entry.response.acceptedOptionIds) {
+      assert.equal(evaluatePreparationResponse(entry.id, withFreshMode(entry, { optionId })).passed, true, `${entry.id}:${optionId}`)
+    }
+    const answer = withFreshMode(entry, { optionId: entry.response.acceptedOptionIds[0] })
+    passingAnswers.set(entry.id, answer)
+    const wrong = entry.options.find(({ id }) => !entry.response.acceptedOptionIds.includes(id))
+    assert.equal(evaluatePreparationResponse(entry.id, { optionId: wrong.id }).passed, false, entry.id)
+  }
+
+  for (const entry of CEFR_PREPARATION_ACTIVITIES.filter(({ response }) => response.kind === 'strategy-and-recovery')) {
+    const answer = withFreshMode(entry, {
+      strategyId: entry.response.acceptedStrategyIds[0],
+      recoveryId: entry.response.acceptedRecoveryIds[0],
+    })
+    passingAnswers.set(entry.id, answer)
+    assert.equal(evaluatePreparationResponse(entry.id, answer).passed, true, entry.id)
+    const wrongStrategy = entry.strategyOptions.find(({ id }) => !entry.response.acceptedStrategyIds.includes(id))
+    const wrongRecovery = entry.recovery.options.find(({ id }) => !entry.response.acceptedRecoveryIds.includes(id))
+    assert.equal(evaluatePreparationResponse(entry.id, { ...answer, strategyId: wrongStrategy.id }).passed, false, entry.id)
+    assert.equal(evaluatePreparationResponse(entry.id, { ...answer, recoveryId: wrongRecovery.id }).passed, false, entry.id)
+  }
+
+  for (const entry of CEFR_PREPARATION_ACTIVITIES.filter(({ response }) => response.kind === 'faded-local-audio-cycle')) {
+    const answer = withFreshMode(entry, {
+      byRound: Object.fromEntries(entry.response.requiredRoundIds.map((roundId) => [roundId, {
+        recorded: true,
+        replayed: true,
+        selfCheck: 'ready',
+        ideaChecks: [...entry.response.requiredCriteriaByRound[roundId]],
+      }])),
+    })
+    passingAnswers.set(entry.id, answer)
+    assert.equal(evaluatePreparationResponse(entry.id, answer).passed, true, entry.id)
+    const missingIdea = structuredClone(answer)
+    missingIdea.byRound[entry.response.requiredRoundIds.at(-1)].ideaChecks.pop()
+    assert.equal(evaluatePreparationResponse(entry.id, missingIdea).passed, false, entry.id)
+    const missingRound = structuredClone(answer)
+    missingRound.byRound[entry.response.requiredRoundIds.at(-1)] = {}
+    assert.equal(evaluatePreparationResponse(entry.id, missingRound).passed, false, entry.id)
+  }
+
+  for (const entry of CEFR_PREPARATION_ACTIVITIES.filter(({ response }) => response.evidencePolicy)) {
+    const answer = passingAnswers.get(entry.id)
+    assert.ok(answer, `${entry.id} has an untested answer-revealing response kind`)
+    const supported = evaluatePreparationResponse(entry.id, {
+      ...answer,
+      attemptMode: entry.response.evidencePolicy.supportedAttemptMode,
+    })
+    assert.equal(supported.passed, false, entry.id)
+    assert.equal(supported.correct, true, entry.id)
+    assert.equal(supported.evidence, 'practice-only', entry.id)
+  }
+})
+
+check('multi-context preparation requires every authored activity without claiming elapsed transfer', () => {
+  const transferMechanics = Object.values(CEFR_PREPARATION_MECHANICS).filter(({ mastery }) => mastery)
+  assert.ok(transferMechanics.length > 0)
+  for (const mechanic of transferMechanics) {
+    const activities = CEFR_PREPARATION_ACTIVITIES.filter(({ mechanicId }) => mechanicId === mechanic.id)
+    const activityIds = activities.map(({ id }) => id)
+    const contexts = new Set(activities.map(({ loreAnchor }) => loreAnchor.nodeId))
+    assert.equal(mechanic.mastery.completionPolicy, 'all-authored-activities', mechanic.id)
+    assert.equal(Object.hasOwn(mechanic.mastery, 'delayedTransferRequired'), false,
+      `${mechanic.id} claims delayed transfer without an elapsed/disjoint evidence receipt`)
+    assert.ok(activities.length >= mechanic.mastery.minimumDistinctActivities, `${mechanic.id} lacks distinct activities`)
+    assert.ok(contexts.size >= mechanic.mastery.minimumDistinctContexts, `${mechanic.id} lacks distinct lore contexts`)
+    assert.equal(preparationReadiness(mechanic.id, {
+      mechanicPasses: { [mechanic.id]: activityIds.slice(0, -1) },
+    }).complete, false, `${mechanic.id} completed from only one context`)
+    assert.equal(preparationReadiness(mechanic.id, {
+      mechanicPasses: { [mechanic.id]: activityIds },
+    }).complete, true, `${mechanic.id} cannot complete across all authored contexts`)
+
+    if (mechanic.mastery.transferDimensions) {
+      const authoredDimensions = new Set(activities.map((entry) =>
+        entry.response.switchDimension || entry.relationshipCue?.expectedRegister).filter(Boolean))
+      for (const dimension of mechanic.mastery.transferDimensions) {
+        assert.ok(authoredDimensions.has(dimension), `${mechanic.id} does not author transfer dimension ${dimension}`)
+      }
+    }
+  }
+})
+
 check('conversation repair changes the next Albanian prompt', () => {
   const tasks = CEFR_PREPARATION_ACTIVITIES.filter(({ kind }) => kind === 'branching-repair')
   assert.ok(tasks.some(({ level }) => level === 'A1'))
@@ -301,7 +415,7 @@ check('scan-and-relay separates source access from the person who needs the fact
   }
 })
 
-check('all 38 exact capstone trainWith labels resolve to implemented same-level preparation', () => {
+check(`all ${Object.keys(CEFR_TRAIN_WITH_MECHANIC_MAP).length} exact capstone trainWith labels resolve to implemented same-level preparation`, () => {
   const labels = new Set(Object.values(CEFR_CAPSTONE_TASK_FAMILIES).flatMap(({ trainWith }) => trainWith))
   assert.deepEqual(new Set(Object.keys(CEFR_TRAIN_WITH_MECHANIC_MAP)), labels)
   for (const [familyId, family] of Object.entries(CEFR_CAPSTONE_TASK_FAMILIES)) {
@@ -347,6 +461,28 @@ check('readiness uses semantic word capabilities, prior mechanics and A1-before-
   }]))
   const firstReady = preparationReadiness('a1-audio-meaning', { wordCapabilities: allPassedCapabilities })
   assert.equal(firstReady.ready, true)
+  const targetWithMultiActivityPrerequisite = 'a2-faded-retelling'
+  const prerequisiteId = 'a2-delayed-audio-reconstruction'
+  const prerequisiteActivities = CEFR_PREPARATION_ACTIVITIES
+    .filter(({ mechanicId }) => mechanicId === prerequisiteId)
+    .map(({ id }) => id)
+  assert.ok(prerequisiteActivities.length > 1, 'prerequisite audit needs more than one authored activity')
+  const prerequisitePasses = Object.fromEntries(CEFR_PREPARATION_MECHANICS[targetWithMultiActivityPrerequisite]
+    .readiness.prerequisiteMechanicIds.map((mechanicId) => [mechanicId, CEFR_PREPARATION_ACTIVITIES
+      .filter(({ mechanicId: candidate }) => candidate === mechanicId)
+      .map(({ id }) => id)]))
+  const partlyPrepared = preparationReadiness(targetWithMultiActivityPrerequisite, {
+    wordCapabilities: allPassedCapabilities,
+    achievedLevels: ['A1'],
+    mechanicPasses: { ...prerequisitePasses, [prerequisiteId]: prerequisiteActivities.slice(0, -1) },
+  })
+  assert.equal(partlyPrepared.ready, false, 'one prerequisite activity incorrectly unlocked the next mechanic')
+  assert.ok(partlyPrepared.reasons.includes(`requires-mechanic:${prerequisiteId}`))
+  assert.equal(preparationReadiness(targetWithMultiActivityPrerequisite, {
+    wordCapabilities: allPassedCapabilities,
+    achievedLevels: ['A1'],
+    mechanicPasses: prerequisitePasses,
+  }).ready, true, 'all prerequisite activities did not unlock the next mechanic')
   const a2WithoutA1 = preparationReadiness('a2-gist-detail', { wordCapabilities: allPassedCapabilities })
   assert.equal(a2WithoutA1.ready, false)
   assert.ok(a2WithoutA1.reasons.includes('requires-level:A1'))

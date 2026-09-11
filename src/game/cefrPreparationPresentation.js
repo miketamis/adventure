@@ -10,6 +10,8 @@ export const CEFR_PREPARATION_PLACE_LABELS = Object.freeze({
   bujtina: 'village inn',
   bisedaUraPlan: 'bridge meeting place',
   fshatiLumi: 'riverbank below the village',
+  tregtari: "trader's market stall",
+  bolla1: "path by Bolla's cave",
 })
 
 export function cefrPreparationLoreLabels(activity, state = {}) {

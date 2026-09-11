@@ -130,6 +130,36 @@ assert.equal(simpleSnapshot.capabilities['reviewed-form-awareness'].status, 'ina
 assert.equal(simpleSnapshot.capabilities['contextual-form-selection'].status, 'inapplicable')
 assert.equal(simpleSnapshot.capabilities['word-form-construction'].status, 'pending')
 
+// A noun may move from its lemma to another reviewed spelling without changing
+// sense ID. The real scheduler must skip that exact surface for one round and
+// choose a disjoint due word, rather than selecting it and letting the form
+// builder collapse the whole pool to a false caught-up state.
+const ureOptions = wordProgressionOptionsForSense('ure')
+const ureTarget = ureOptions.reviewedForms.find(({ surface }) => surface === 'ure')
+assert.ok(ureTarget, 'urë no longer exposes the reviewed ure form used by the scheduler regression')
+const ureAtInflectedForm = {
+  wins: { 'meaning-recognition': 2, 'controlled-lemma-retrieval': 3 },
+  contextWins: { [WORD_CONTEXT_LATE_PROOF]: 1 },
+  activeFormKey: ureTarget.key,
+  formProofs: { [ureTarget.key]: {} },
+}
+assert.equal(buildWordQuestion({
+  discoveredIds: ['ure'],
+  wordProgress: { ure: ureAtInflectedForm },
+  currentRound: 20,
+  excludeWords: ['ure'],
+  rng: () => 0,
+}), null, 'an immediately repeated reviewed form bypassed the no-repeat boundary')
+const disjointAfterInflectedForm = buildWordQuestion({
+  discoveredIds: ['ure', 'jo'],
+  wordProgress: { ure: ureAtInflectedForm },
+  currentRound: 20,
+  excludeWords: ['ure'],
+  rng: () => 0,
+})
+assert.equal(disjointAfterInflectedForm?.answerId, 'jo',
+  'an excluded reviewed form hid a legal disjoint word round')
+
 const nameSnapshot = wordCapabilitySnapshot(null, 0, {
   ...wordProgressionOptionsForSense('elira'),
   trainability: lexicalTrainability('elira'),

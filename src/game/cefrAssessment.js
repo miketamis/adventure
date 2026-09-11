@@ -45,6 +45,7 @@ const responseKinds = new Set(CEFR_SUPPORTED_RESPONSE_KINDS)
 const levelIds = new Set(['A1', 'A2'])
 const modeIds = new Set(CEFR_MODES.map(({ id }) => id))
 const taskById = new Map(CEFR_TASKS.map((task) => [task.id, task]))
+const finiteInteger = (value) => Number.isFinite(Number(value)) ? Math.trunc(Number(value)) : 0
 
 export const CEFR_IMPLEMENTATION_BY_FAMILY = Object.freeze(Object.fromEntries(
   Object.entries(CEFR_TASKS_BY_FAMILY).map(([familyId, tasks]) => [
@@ -336,6 +337,16 @@ export function openResponseMetrics(text, response = {}) {
     sentenceFloorMet: sentences >= minimumSentences,
     turnFloorMet: Math.max(turns, trimmed ? 1 : 0) >= minimumTurns,
   }
+}
+
+// Keep a responsive written exchange in page memory as distinct learner turns.
+// Joining is a presentation/scoring helper only: raw text still never enters
+// the compact CEFR evidence record.
+export function combineOpenResponseTurns(turns) {
+  return (Array.isArray(turns) ? turns : [])
+    .filter((turn) => typeof turn === 'string' && turn.trim())
+    .map((turn) => turn.trim())
+    .join('\n\n')
 }
 
 // The learner checks communicative concepts, not a single canonical sentence.

@@ -4,10 +4,12 @@ import {
   CEFR_IMPLEMENTATION_BY_FAMILY,
   CEFR_SUPPORTED_RESPONSE_KINDS,
   CEFR_SUPPORTED_STIMULUS_KINDS,
+  combineOpenResponseTurns,
   cefrProfile,
   cefrWindowIdForTask,
   mergeCefrEvidence,
   normalizeCefrState,
+  openResponseMetrics,
   performanceEvidenceFor,
   receptionEvidenceFor,
   selfReviewedRubric,
@@ -99,6 +101,30 @@ const noConceptChecks = selfReviewedRubric(openTask, {
 })
 assert.ok(noConceptChecks.taskFulfilment < 2,
   'open production passed by form/keywords without checking its communicative concepts')
+const everyRequirementChecked = Object.fromEntries(openTask.requirements.map(({ id }) => [id, true]))
+const everyDimensionChecked = Object.fromEntries(openTask.rubric.dimensions.map((dimension) => [dimension, true]))
+const oneTokenMetrics = openResponseMetrics('x', openTask.response)
+const oneTokenRubric = selfReviewedRubric(openTask, {
+  requirementChecks: everyRequirementChecked,
+  dimensionChecks: everyDimensionChecked,
+  structureMet: oneTokenMetrics.wordFloorMet && oneTokenMetrics.sentenceFloorMet && oneTokenMetrics.turnFloorMet,
+})
+assert.ok(oneTokenRubric.taskFulfilment < 2,
+  'one token passed an A2 writing task by self-checking every box')
+
+const stagedWrittenExchanges = CEFR_TASKS.filter((task) =>
+  task.response.kind === 'free-text-exchange' && Number(task.response.requiredTurns) > 1)
+assert.ok(stagedWrittenExchanges.length >= 2, 'the held-out bank has no live and reserve responsive written exchange')
+for (const task of stagedWrittenExchanges) {
+  assert.equal(task.stimulus.kind, 'incoming-note', `${task.id} does not begin from an incoming note`)
+  assert.ok(task.stimulus.followUpSq?.length >= 25, `${task.id} has no authored Albanian follow-up`)
+  const firstOnly = combineOpenResponseTurns(['Takohemi nesër në shesh.'])
+  const completed = combineOpenResponseTurns([firstOnly, 'Po, ora nëntë është mirë.'])
+  assert.equal(openResponseMetrics(firstOnly, task.response).turnFloorMet, false,
+    `${task.id} passed before its second learner turn`)
+  assert.equal(openResponseMetrics(completed, task.response).turnFloorMet, true,
+    `${task.id} did not recognise two distinct learner turns`)
+}
 
 const allEvidence = CEFR_TASKS.flatMap((task) => {
   if (['listening', 'reading'].includes(task.mode)) {
@@ -180,9 +206,22 @@ assert.ok(component.includes('new MediaRecorder(stream)') &&
 assert.ok(component.includes('recordingCaptured: recordings.length >= neededRecordings') &&
   component.includes('supportive Albanian listener'),
 'spoken evidence is not tied to capture and an explicit intelligibility self-check')
-assert.ok(component.includes('setFirstDraft(draft)') &&
+assert.ok(component.includes('setFirstDraft(completedDraft)') &&
   component.indexOf('<ReviewedAlternatives task={task} />') > component.indexOf('submitted &&'),
 'reviewed alternatives can contaminate the frozen held-out writing attempt')
+assert.ok(component.includes('setSentTurns((current) => [...current, draft.trim()])') &&
+  component.includes('task.stimulus.followUpSq') &&
+  component.includes("sentTurns.length < requiredTurns - 1"),
+'responsive written interaction reveals no authored second turn after the first learner reply')
+assert.match(component, /stagedExchange && sentTurns\.length > 0 && \(/,
+  'the authored written follow-up is not gated behind the first sent learner turn')
+assert.doesNotMatch(component, /sentTurns\.length > 0 && phase === ['"]writing['"] && \(\s*<blockquote className="cefr-written-stimulus cefr-follow-up"/,
+  'the interlocutor follow-up disappears before feedback and revision are complete')
+assert.ok(component.includes('structureMet: structureTargetsMet'),
+  'the open-writing save path ignores its objective structural floor')
+assert.ok(component.includes('ref={followUpRef}') && component.includes('ref={feedbackRef}') &&
+  component.includes('ref={selfReviewRef}') && component.includes('draftRef.current'),
+'phase-changing writing controls do not move focus to the newly available work')
 assert.ok(component.includes('{state.debug && <> Debug gate:') &&
   component.includes('Strength in one mode cannot hide a missing mode.') &&
   component.includes('internal all-mode readiness profile'),
