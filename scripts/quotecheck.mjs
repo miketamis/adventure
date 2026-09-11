@@ -7,8 +7,7 @@
 //   Ledger: node scripts/quotecheck.mjs --report   (also rewrite docs/quote-proofs.md)
 //
 // What is checked, per Q() line in the story:
-//   1. its quoteId resolves in QUOTES (content.js already throws otherwise —
-//      re-checked here so the script stands alone)
+//   1. its quoteId resolves in QUOTES
 //   2. the line's Albanian really contains the register's `game` wording, so
 //      the register can't drift away from the story it documents
 // and per register entry:
@@ -206,7 +205,7 @@ const findInFile = (raw, needle) => {
 }
 
 // ── collect every Q() line in the story ─────────────────────────────────────
-const sites = [] // { nodeId, quoteId, quoteGame, quoteGameTranslation, quoteSourceTranslation, albanian }
+const sites = [] // { nodeId, quoteId, albanian }
 for (const [nodeId, node] of Object.entries(STORY)) {
   for (const entry of node.text || []) {
     const line = Array.isArray(entry) ? entry : entry.line
@@ -214,9 +213,6 @@ for (const [nodeId, node] of Object.entries(STORY)) {
       sites.push({
         nodeId,
         quoteId: line.quoteId,
-        quoteGame: line.quoteGame,
-        quoteGameTranslation: line.quoteGameTranslation,
-        quoteSourceTranslation: line.quoteSourceTranslation,
         albanian: albanianOf(line),
       })
   }
@@ -239,12 +235,6 @@ for (const s of sites) {
     fails.push(`node ${s.nodeId}: Q('${s.quoteId}') has no register entry`)
     continue
   }
-  if (s.quoteGame !== q.game)
-    fails.push(`node ${s.nodeId}: Q('${s.quoteId}') metadata is not the exact registered game string`)
-  if (s.quoteGameTranslation !== q.gameTranslation)
-    fails.push(`node ${s.nodeId}: Q('${s.quoteId}') displayed-line translation drifted from its register entry`)
-  if (s.quoteSourceTranslation !== q.translation)
-    fails.push(`node ${s.nodeId}: Q('${s.quoteId}') source-context translation drifted from its register entry`)
   if (!containsTokenRun(s.albanian, q.game))
     fails.push(
       `node ${s.nodeId}: story line does not contain the complete registered token sequence for '${s.quoteId}'\n` +

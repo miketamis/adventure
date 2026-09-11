@@ -7,8 +7,8 @@ and checked by [`scripts/quotecheck.mjs`](../scripts/quotecheck.mjs). The audit 
 generated, human-readable form of that register: what the game says, what the
 source says, and where to check it.
 
-**66 quoted lines** (65 distinct quotes): 49 corpus · 14 external · 2 variant.
-**Evidence register seal:** `sha256:6e44da8b061b1e3f62d94a081a8491ca3f750ff7f1a1d945d20f2db40db0e0ea`
+**65 quoted lines** (64 distinct quotes): 49 corpus · 13 external · 2 variant.
+**Evidence register seal:** `sha256:928b9e44e69461bd3d019927aca2a2ccd993c14ba66702e174eede9bc60129f9`
 
 ## `Kanuni i Lekë Dukagjinit, §608` — Kanuni i Lekë Dukagjinit, §608
 
@@ -219,20 +219,6 @@ source says, and where to check it.
 - **Proof:** **✓ local-source checked** — the cited excerpt is present in the locally held work; fidelity and any adaptation are recorded below
   - [`docs/references/palaj-kurti-deka-e-halilit.sq.txt`](https://github.com/miketamis/adventure/blob/main/docs/references/palaj-kurti-deka-e-halilit.sq.txt#L74) line 74; work: [Visaret e Kombit II — Kângë kreshnikësh dhe legjenda](https://adsh.unishk.edu.al/index.php/items/show/526) (page-checked-extract): `Mjeri un, mjeri, Sokole Halili!` — Same song and file as "Deka e Halilit — këngë kreshnike" above, 18 lines on; Gheg un/Sokole respelled unë/Sokol.
 - **Story node:** `haliliMejdan`
-
-## `fjalë e urtë` — fjalë e urtë
-
-> **zoti vonon, por nuk harron**
-
-- **Displayed-line translation:** God delays, but does not forget.
-- **Registered source wording/context:** Zoti vonon, po nuk harron.
-- **Source wording/context translation:** God delays, but does not forget.
-- **Fidelity:** adapted
-- **Proof:** **↗ externally cited** — a source URL is recorded, but its wording is not machine-checked by this local audit
-- **Adaptation alignment:**
-  - game `zoti vonon, por nuk harron` ← source `Zoti vonon, po nuk harron` ([recorded external excerpt](https://en.wikiquote.org/wiki/Albanian_proverbs)) — The conversational conjunction “po” is expanded to standard “por”; the rest is unchanged.
-  - [Albanian proverbs (Wikiquote)](https://en.wikiquote.org/wiki/Albanian_proverbs): “Zoti vonon, po nuk harron.” — The game expands the source’s conversational conjunction “po” to standard “por”; the proverb and its meaning are otherwise unchanged.
-- **Story node:** `stihi1`
 
 ## `fjala-plumbi` — fjalë e urtë
 

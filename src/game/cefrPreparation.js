@@ -194,6 +194,7 @@ const A1_ACTIVITIES = [
     id: 'a1-need-substitution', mechanicId: 'a1-slot-recombination', level: 'A1',
     kind: 'slot-frame', nodeId: 'pazariFshatit',
     instruction: 'Change the item while keeping the useful request frame.',
+    visibleGoal: 'Make the new request ask for cheese.',
     focusSenseIds: ['dua', 'uje', 'buke', 'djathe', 'lutem'],
     frame: [sq(W('dua')), { kind: 'slot', id: 'item' }, sq(P(','), W('lutem', 'të lutem'), P('.'))],
     slots: {
@@ -225,6 +226,7 @@ const A1_ACTIVITIES = [
     id: 'a1-focused-village-spelling', mechanicId: 'a1-phrase-composition', level: 'A1',
     kind: 'focused-spelling', nodeId: 'start', npcId: 'elira',
     instruction: 'Type only the missing destination word.',
+    visibleGoal: 'Destination: the village.',
     focusSenseIds: ['fshat'],
     frame: [sq(W('po_prog'), W('shko', 'shkoj'), W('ne', 'në')), { kind: 'blank', id: 'destination' }, sq(P('.'))],
     response: { kind: 'typed-exact', accepted: ['fshat'] },
@@ -233,6 +235,7 @@ const A1_ACTIVITIES = [
     id: 'a1-village-phrase-arrangement', mechanicId: 'a1-phrase-composition', level: 'A1',
     kind: 'sentence-arrangement', nodeId: 'start', npcId: 'elira',
     instruction: 'Build the complete Albanian sentence.',
+    visibleGoal: 'Build: “I am going to the village.”',
     focusSenseIds: ['po_prog', 'shko', 'ne', 'fshat'],
     tiles: [
       { id: 'village', text: sq(W('fshat')) },
@@ -246,17 +249,22 @@ const A1_ACTIVITIES = [
     id: 'a1-two-sentence-recombination', mechanicId: 'a1-phrase-composition', level: 'A1',
     kind: 'sentence-recombination', nodeId: 'fshatiSheshi', npcId: 'elira',
     instruction: 'Combine the two learned ideas into a short note.',
+    visibleGoal: 'Include both ideas: “I am in the village” and “I want water.”',
     focusSenseIds: ['jam', 'fshat', 'dua', 'uje'],
     ideaCards: [
       { id: 'place', text: sq(W('jam'), W('ne', 'në'), W('fshat'), P('.')) },
       { id: 'need', text: sq(W('dua'), W('uje'), P('.')) },
     ],
-    response: { kind: 'ordered-tiles', correctIds: ['place', 'need'] },
+    response: {
+      kind: 'ordered-tiles',
+      correctIds: ['place', 'need'],
+      acceptedOrders: [['place', 'need'], ['need', 'place']],
+    },
   }),
   activity({
     id: 'a1-inn-reply-set', mechanicId: 'a1-multiple-replies', level: 'A1',
     kind: 'accepted-reply-set', nodeId: 'bujtina',
-    instruction: 'Choose any reply that answers the question naturally.',
+    instruction: 'Accept the offered room with any natural reply.',
     focusSenseIds: ['dua', 'dhome', 'po_yes', 'faleminderit'],
     prompt: sq(W('a_q', 'A'), W('do'), W('nje', 'një'), W('dhome'), P('?')),
     options: [
@@ -397,6 +405,7 @@ const A2_ACTIVITIES = [
     id: 'a2-reason-slot-frame', mechanicId: 'a2-slot-recombination', level: 'A2',
     kind: 'multi-slot-frame', nodeId: 'pazariFshatit',
     instruction: 'Build a new reasoned plan by changing both slots.',
+    visibleGoal: 'Avoid the market; give rain as the reason.',
     focusSenseIds: ['shko', 'treg', 'fshat', 'sepse', 'shi', 'bie'],
     frame: [sq(W('nuk', 'Nuk'), W('shko', 'shkoj'), W('ne', 'në')), { kind: 'slot', id: 'place' }, sq(W('sepse')), { kind: 'slot', id: 'reason' }, sq(P('.'))],
     slots: {
@@ -495,6 +504,7 @@ const A2_ACTIVITIES = [
     id: 'a2-message-reconstruction', mechanicId: 'a2-message-replies', level: 'A2',
     kind: 'message-reconstruction', nodeId: 'fshatiSheshi', npcId: 'elira',
     instruction: 'Rebuild the note, then choose any reply that fits the change.',
+    visibleGoal: 'The note arranges tomorrow’s meeting at nine by the well.',
     focusSenseIds: ['takohem', 'neser', 'ore', 'nente', 'pus', 'mire'],
     messageTiles: [
       { id: 'meeting', text: sq(W('takohem', 'Takohemi')) },
@@ -510,6 +520,16 @@ const A2_ACTIVITIES = [
     response: {
       kind: 'reconstruct-and-reply',
       correctMessageIds: ['meeting', 'tomorrow', 'time', 'place'],
+      acceptedMessageOrders: [
+        ['meeting', 'tomorrow', 'time', 'place'],
+        ['meeting', 'tomorrow', 'place', 'time'],
+        ['meeting', 'time', 'tomorrow', 'place'],
+        ['meeting', 'time', 'place', 'tomorrow'],
+        ['meeting', 'place', 'tomorrow', 'time'],
+        ['meeting', 'place', 'time', 'tomorrow'],
+        ['tomorrow', 'meeting', 'time', 'place'],
+        ['tomorrow', 'meeting', 'place', 'time'],
+      ],
       acceptedReplyIds: ['accept', 'ask-place'],
     },
   }),
@@ -869,7 +889,8 @@ export function evaluatePreparationResponse(activityId, answer = {}) {
       passed = response.acceptedOptionIds.includes(answer.optionId)
       break
     case 'ordered-tiles':
-      passed = equalList(answer.orderedIds, response.correctIds)
+      passed = (response.acceptedOrders || [response.correctIds])
+        .some((accepted) => equalList(answer.orderedIds, accepted))
       break
     case 'slot-selection':
       passed = equalMap(answer.selections, response.correctSelections)
@@ -926,7 +947,8 @@ export function evaluatePreparationResponse(activityId, answer = {}) {
       passed = equalMap(answer.byPrompt || answer.bySentence, response.correctByPrompt || response.correctBySentence)
       break
     case 'reconstruct-and-reply':
-      passed = equalList(answer.messageIds, response.correctMessageIds) && response.acceptedReplyIds.includes(answer.replyId)
+      passed = (response.acceptedMessageOrders || [response.correctMessageIds])
+        .some((accepted) => equalList(answer.messageIds, accepted)) && response.acceptedReplyIds.includes(answer.replyId)
       break
     case 'paragraph-plan':
       passed = response.requiredRoles.every((role) => answer.roles?.includes(role)) &&

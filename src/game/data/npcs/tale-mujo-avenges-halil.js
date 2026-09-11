@@ -25,7 +25,7 @@ export default {
     backstory:
       'The first to notice Mujo is missing from the raiding party ("here Gjeto Basho Mujo is still missing"), and the one who later mocks Halili to his face as too young and worthless to the çeta — the insult that sends Halili off alone in a fury to take the blood himself. Not cruel exactly, just careless with his mouth; the song never punishes him for it, but it costs the çeta its best fighter for the raid he himself proposed.',
     folklore: ['mujo-avenges-halil'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'placed', node: 'mujoHak1' },
     tales: { 'mujo-avenges-halil': 'tali' },
   },
   treqindAgallaret: {

@@ -19,7 +19,7 @@ const ids = (value) => value.trim().split(/\s+/).filter(Boolean)
 export const PERSONAL_NAME_IDS = Object.freeze(ids(`
   ali aliPasha argjiro bardhakuqja barkulku behuri doruntine elira gjergj
   gjizar gjon halil handa kico kostandin kumaLisa lena lilo maro mehill mihal
-  mujo nereida omer osman osmani pano prende rozafa rusha sariSalltek
+  miraEmri mujo nereida omer osman osmani pano prende rozafa rusha sariSalltek
   shengjergj shurdhi skender tanusha tomor ymer zadran zjerma zojz zuku
 `))
 

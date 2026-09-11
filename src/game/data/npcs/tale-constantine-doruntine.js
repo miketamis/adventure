@@ -20,7 +20,7 @@ export default {
     role: 'the sister carried home by her dead brother, one night only',
     backstory: 'The only daughter among nine brothers, married off across seven mountain ranges while still a girl. When Kostandini rose from his grave to keep his besa, she rode home behind him through the night without knowing her brother was dead — and reached her mother\'s door only for the truth to break both their hearts at once. Called Dhoqina in the Chameria ballad Elsie translated (also Garantina or Fjoruntina in other regional tellings, per Elsie\'s own headnote) — the game keeps the name Doruntina throughout, matching the tale\'s id and its existing vocabulary.',
     folklore: ['constantine-doruntine', 'besa'],
-    location: { status: 'placed', node: 'kostandin1' },
+    location: { status: 'placed', node: 'kostandin3' },
     tales: { 'constantine-doruntine': 'doruntina' },
   },
   vellezeritKostandinit: {

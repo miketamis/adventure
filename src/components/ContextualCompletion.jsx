@@ -1,12 +1,7 @@
 import { useId } from 'react'
+import { CONTEXT_TARGET_PRESENTATION } from '../game/contextQuestionPresentation.js'
 
-// Unmarked support stays dormant until a production prompt profile asks for
-// it; adding the later stage does not require inventing another exercise UI.
-export const CONTEXT_TARGET_PRESENTATION = Object.freeze({
-  marked: 'marked',
-  blank: 'blank',
-  unmarked: 'unmarked',
-})
+export { CONTEXT_TARGET_PRESENTATION } from '../game/contextQuestionPresentation.js'
 
 function ContextLine({ line }) {
   const target = line.target || null
@@ -24,7 +19,7 @@ function ContextLine({ line }) {
           let rendered = word
           if (isTarget && target.presentation === CONTEXT_TARGET_PRESENTATION.marked) {
             rendered = (
-              <mark className="contextual-completion-target" aria-label={`Target word: ${word}`}>
+              <mark className="contextual-completion-target" aria-label={word}>
                 {word}
               </mark>
             )
@@ -36,8 +31,9 @@ function ContextLine({ line }) {
               </span>
             )
           }
-          // `unmarked` deliberately renders the word with no visual or
-          // accessible target disclosure.
+          // In the later `unmarked` proof the instruction names this exact
+          // surface. The sentence itself stays visually natural without ever
+          // making the task referent ambiguous.
           return <span key={`${line.id}-${index}`}>{index > 0 ? ' ' : ''}{rendered}</span>
         }) : line.text}
       </div>

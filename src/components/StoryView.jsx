@@ -9,8 +9,6 @@ import {
   wf,
   p,
   lineOf,
-  moneyOutcomeLineOf,
-  visibleLines,
 } from '../game/content.js'
 import {
   arrivalOptionOf,
@@ -19,13 +17,17 @@ import {
   canUseItem,
   currentStoryState,
   effectAvailabilityForOption,
+  environmentNarrationScopeOf,
   environmentSnapshot,
   hasCond,
   hasRequiredItem,
   interactionAvailabilityForOption,
   optionLekAvailability,
   optionLekDelta,
+  npcFirstEncounterPlanForState,
   phraseSenses,
+  requiredInventoryIdsForOption,
+  resolvedMoneyOutcomeLine,
 } from '../game/gameState.js'
 import { albanianTextOf, englishReadingOf, hasAuthoredEnglishReading } from '../game/language.js'
 import { stableShuffle, testFor } from '../game/comprehension.js'
@@ -37,10 +39,14 @@ import { isDistantLineVisible, transitionInfo } from '../game/worldModel.js'
 import {
   ENVIRONMENT_NARRATION_POLICY,
   authoredEnvironmentDimensions,
+  companionStoryLine,
+  departedCompanionStoryLine,
   environmentStoryLine,
+  heldItemsStoryLine,
   moneyTransactionStoryLine,
   planEnvironmentNarration,
   purseStoryLine,
+  removedItemsStoryLine,
 } from '../game/storyContext.js'
 import { festivalLabel } from '../game/environment.js'
 import { embodimentOptionAccess, embodimentQuest } from '../game/embodiment.js'
@@ -48,6 +54,8 @@ import { resolveRevealLine } from '../game/revealResolver.js'
 import { isOptionRevealed } from '../game/revealVisibility.js'
 import { trainingTargetForOption } from '../game/trainingTarget.js'
 import { narrationSettingForScene } from '../game/sceneEnvironmentSetting.js'
+import { planHealthNarration } from '../game/healthNarration.js'
+import { inventoryNarrationSnapshot, planInventoryNarration } from '../game/inventoryNarration.js'
 import {
   planScenePresentation,
   SCENE_SCROLL_POLICY,
@@ -68,6 +76,8 @@ import {
   sceneAnnouncement,
   storyReadingVisible,
 } from './storyMechanicsPresentation.js'
+import { storyConfuserConsequence } from '../game/consequenceBuilders.js'
+import '../game/npcAppearanceRegistry.js'
 
 const FactoidLore = lazy(() => import('./FactoidLore.jsx'))
 attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
@@ -111,10 +121,9 @@ export default function StoryView({ state, dispatch }) {
   // horizon and gates so they can never disagree about the hour.
   const storyState = currentStoryState(state)
   const environment = environmentSnapshot(storyState)
+  const environmentNarrationScope = environmentNarrationScopeOf(state)
   const sceneHeadingRef = useRef(null)
   const previousNodeRef = useRef(state.nodeId)
-  // which confuser option was just picked (to flash feedback); reset per node
-  const [confusedKey, setConfusedKey] = useState(null)
   // how THIS visit's ending gate went: null (in progress / not applicable),
   // 'passed' (achievement just unlocked) or 'failed' (the attempt is over)
   const [endResult, setEndResult] = useState(null)
@@ -123,7 +132,6 @@ export default function StoryView({ state, dispatch }) {
   // the reducer clearing pendingTest on earn/fail.
   const [areaTest, setAreaTest] = useState(null) // { ach, questions, result }
   useEffect(() => {
-    setConfusedKey(null)
     setEndResult(null)
     setAreaTest(null)
   }, [state.nodeId])
@@ -135,8 +143,8 @@ export default function StoryView({ state, dispatch }) {
   // the lines actually shown right now — a scene can react to what walks with you
   // AND to the hour (when()/unless() lines in content.js take item ids or a
   // time-of-day phase id), so resolve against inventory + this scene's clock
-  const has = (id) => hasCond(storyState, id)
-  const lines = visibleLines(node, has).filter((line) =>
+  const npcAppearancePlan = npcFirstEncounterPlanForState(state)
+  const lines = npcAppearancePlan.lines.filter((line) =>
     isDistantLineVisible(state.nodeId, line, environment),
   )
   const authoredLines = node.text.map(lineOf)
@@ -228,6 +236,11 @@ export default function StoryView({ state, dispatch }) {
   const heartLevel = HEART_LEVELS[state.hearts]
   const healUnused = !state.embodying && !!heartLevel?.heal && !state.healedAt?.[state.hearts]
   const healRevealed = healUnused && lineDiscovered(heartLevel.line)
+  const healthNarration = planHealthNarration(state.hearts, state.healthNarration, {
+    nodeId: state.nodeId,
+    turn: state.turn,
+    keepVisible: state.hearts <= 2 || healUnused,
+  })
   // An option stays hidden until you discover the sentence it belongs to — authored
   // PER OPTION as `reveal: '<senseId>'` in content.js (deliberately NOT an automatic
   // rule). No `reveal` field => the option is always shown. `scripts/storystats.mjs`
@@ -251,31 +264,7 @@ export default function StoryView({ state, dispatch }) {
   const companionIds = visibleOwnedIds.filter((id) => ITEMS[id]?.companion)
   const usableOwned = state.embodying ? [] : visibleOwnedIds.filter((id) => ITEMS[id]?.use)
   const arrivalOption = arrivalOptionOf(state)
-  const moneyOutcome = moneyOutcomeLineOf(arrivalOption, (id) => hasCond(storyState, id))
-  const purseLine = moneyOutcome
-    ? moneyTransactionStoryLine(moneyOutcome, state.inventory.lek)
-    : purseStoryLine(state.inventory.lek)
-
-  // "ti ke një X dhe një Y ." — what you carry, as a real (discoverable) story line
-  const carryLine = () => {
-    const toks = [w('ti'), w('ke')]
-    itemIds.forEach((id, i) => {
-      if (i > 0) toks.push(w('dhe'))
-      toks.push(w('nje'), w(ITEMS[id].word || id))
-    })
-    toks.push(p('.'))
-    return toks
-  }
-
-  // "ti dhe ujku ." — who walks beside you, woven into the story as a real line
-  const companionLine = () => {
-    const toks = [w('ti')]
-    companionIds.forEach((id) => {
-      toks.push(w('dhe'), wf(ITEMS[id].word || id, ITEMS[id].al, 'the ' + ITEMS[id].name.toLowerCase()))
-    })
-    toks.push(p('.'))
-    return toks
-  }
+  const moneyOutcome = resolvedMoneyOutcomeLine(state, arrivalOption)
 
   // One deliberately impossible but grammatically rendered action built from
   // an item you carry. Authored confusers already provide the scene-specific
@@ -299,6 +288,7 @@ export default function StoryView({ state, dispatch }) {
   )
 
   const entries = []
+  const actionableHeldIds = new Set(usableOwned)
   let hiddenPaths = 0
   node.options.forEach((opt, i) => {
     if (opt.confuser) return // confusers handled below
@@ -314,6 +304,9 @@ export default function StoryView({ state, dispatch }) {
     const effectAvailability = effectAvailabilityForOption(storyState, opt)
     const roleAccess = embodimentOptionAccess(state, opt, STORY[opt.to])
     const entryQuest = opt.become ? embodimentQuest(opt.become) : null
+    if (roleAccess.ok && interaction.ok && effectAvailability.ok) {
+      for (const id of requiredInventoryIdsForOption(storyState, opt)) actionableHeldIds.add(id)
+    }
     entries.push({
       key: 'opt-' + i,
       trainingTarget: trainingTargetForOption(state.nodeId, opt),
@@ -389,8 +382,14 @@ export default function StoryView({ state, dispatch }) {
       // clock reaches day just as its correct counterpart does.
       if (!hasRequiredItem(storyState, opt)) return
       const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
+      const key = 'opt-' + i
+      const correctGreeting = opt.contextGreeting && node.options.find((candidate) =>
+        candidate.contextGreeting?.challengeId === opt.contextGreeting.challengeId &&
+        candidate.contextGreeting?.period === opt.contextGreeting.period &&
+        candidate.contextGreeting?.correct,
+      )
       entries.push({
-        key: 'opt-' + i,
+        key,
         trainingTarget: trainingTargetForOption(state.nodeId, opt),
         tokens: opt.text,
         reading: optionEnglishReadingOf(opt.text),
@@ -398,16 +397,26 @@ export default function StoryView({ state, dispatch }) {
         allDiscovered,
         enoughMana,
         ok: allDiscovered && enoughMana,
-        onSelect: () => {
-          dispatch({ type: 'CONFUSE', expectedHearts: state.hearts })
-          setConfusedKey('opt-' + i)
-        },
+        onSelect: () => dispatch({
+          type: 'CONFUSE',
+          expectedHearts: state.hearts,
+          consequence: storyConfuserConsequence({
+            nodeId: state.nodeId,
+            turn: state.turn,
+            key,
+            tokens: opt.text,
+            english: optionEnglishReadingOf(opt.text),
+            greeting: opt.contextGreeting,
+            correctGreeting,
+          }),
+        }),
       })
     })
     dynamicConfusers.forEach((toks, k) => {
       const { allDiscovered, enoughMana } = canSpeak(state, toks)
+      const key = 'dyn-' + k
       entries.push({
-        key: 'dyn-' + k,
+        key,
         tokens: toks,
         reading: toks.dynamicOptionReading,
         readingReviewed: false,
@@ -415,10 +424,18 @@ export default function StoryView({ state, dispatch }) {
         allDiscovered,
         enoughMana,
         ok: allDiscovered && enoughMana,
-        onSelect: () => {
-          dispatch({ type: 'CONFUSE', expectedHearts: state.hearts })
-          setConfusedKey('dyn-' + k)
-        },
+        onSelect: () => dispatch({
+          type: 'CONFUSE',
+          expectedHearts: state.hearts,
+          consequence: storyConfuserConsequence({
+            nodeId: state.nodeId,
+            turn: state.turn,
+            key,
+            tokens: toks,
+            english: toks.dynamicOptionReading,
+            dynamicItem: true,
+          }),
+        }),
       })
     })
   }
@@ -440,11 +457,35 @@ export default function StoryView({ state, dispatch }) {
   if (healUnused && !healRevealed) revealLineIdx.add('hearts')
 
   const storyLinesVisible = !state.ended || state.ended === 'bad' || alreadyEarned || endResult === 'passed'
+  const inventoryNarration = planInventoryNarration(
+    inventoryNarrationSnapshot(state.inventory, ITEMS),
+    state.inventoryNarration,
+    {
+      nodeId: state.nodeId,
+      turn: state.turn,
+      actionableItemIds: [...actionableHeldIds].filter((id) => !ITEMS[id]?.companion),
+      actionableCompanionIds: [...actionableHeldIds].filter((id) => ITEMS[id]?.companion),
+      transaction: Boolean(moneyOutcome),
+    },
+  )
+  const purseLine = inventoryNarration.showPurse
+    ? moneyOutcome
+      ? moneyTransactionStoryLine(moneyOutcome, state.inventory.lek)
+      : purseStoryLine(state.inventory.lek, { includeEmpty: true })
+    : null
+  const carriedLine = heldItemsStoryLine(ITEMS, inventoryNarration.presentItemIds)
+  const removedLine = removedItemsStoryLine(ITEMS, inventoryNarration.removedItemIds)
+  const companionsLine = companionStoryLine(ITEMS, inventoryNarration.presentCompanionIds)
+  const departedLine = departedCompanionStoryLine(ITEMS, inventoryNarration.removedCompanionIds)
   const sceneLineEntries = []
-  if (!state.ended && heartLevel) sceneLineEntries.push({ key: 'hearts', line: heartLevel.line, renderKey: 'hearts' })
+  if (!state.ended && heartLevel && healthNarration.visible) {
+    sceneLineEntries.push({ key: 'hearts', line: heartLevel.line, renderKey: 'hearts' })
+  }
   if (!state.ended && purseLine) sceneLineEntries.push({ key: 'purse', line: purseLine, renderKey: 'purse' })
-  if (!state.ended && companionIds.length > 0) sceneLineEntries.push({ key: 'companions', line: companionLine(), renderKey: 'companions' })
-  if (!state.ended && itemIds.length > 0) sceneLineEntries.push({ key: 'carry', line: carryLine(), renderKey: 'carry' })
+  if (!state.ended && removedLine) sceneLineEntries.push({ key: 'removed-items', line: removedLine, renderKey: 'removed-items' })
+  if (!state.ended && carriedLine) sceneLineEntries.push({ key: 'carry', line: carriedLine, renderKey: 'carry' })
+  if (!state.ended && departedLine) sceneLineEntries.push({ key: 'departed-companions', line: departedLine, renderKey: 'departed-companions' })
+  if (!state.ended && companionsLine) sceneLineEntries.push({ key: 'companions', line: companionsLine, renderKey: 'companions' })
   if (storyLinesVisible) {
     lines.forEach((line, index) => sceneLineEntries.push({
       key: `authored-${index}`,
@@ -482,25 +523,73 @@ export default function StoryView({ state, dispatch }) {
       nodeId: state.nodeId,
       turn: state.turn,
       authoredDimensions: presentedEnvironmentDimensions,
+      scopeId: environmentNarrationScope,
     },
   )
   const environmentLine = !state.ended && environmentStoryLine(environment, {
     setting: narrationSettingForScene(state.nodeId),
     omit: environmentNarration.omitDimensions,
+    transitionFrom: environmentNarration.previousSnapshot,
   })
   const authoredEnvironmentKey = [...presentedEnvironmentDimensions].sort().join('|')
+  const activeNpcPortraitKey = npcAppearancePlan.activeNpcIds.join('|')
+  useEffect(() => {
+    if (!npcAppearancePlan.needsCommit) return
+    dispatch({
+      type: 'NARRATE_NPC_APPEARANCES',
+      nodeId: state.nodeId,
+      turn: state.turn,
+    })
+  }, [
+    state.nodeId,
+    state.turn,
+    activeNpcPortraitKey,
+    npcAppearancePlan.needsCommit,
+    dispatch,
+  ])
+  useEffect(() => {
+    if (state.ended || !healthNarration.needsCommit) return
+    dispatch({ type: 'NARRATE_HEALTH', nodeId: state.nodeId, turn: state.turn })
+  }, [
+    state.ended,
+    state.nodeId,
+    state.turn,
+    state.hearts,
+    healthNarration.needsCommit,
+    dispatch,
+  ])
+  const actionableInventoryKey = [...actionableHeldIds].sort().join('|')
+  useEffect(() => {
+    if (state.ended || !inventoryNarration.needsCommit) return
+    dispatch({
+      type: 'NARRATE_INVENTORY',
+      nodeId: state.nodeId,
+      turn: state.turn,
+      actionableItemIds: inventoryNarration.actionableItemIds,
+      actionableCompanionIds: inventoryNarration.actionableCompanionIds,
+    })
+  }, [
+    state.ended,
+    state.nodeId,
+    state.turn,
+    actionableInventoryKey,
+    inventoryNarration.needsCommit,
+    dispatch,
+  ])
   useEffect(() => {
     if (state.ended || !environmentNarration.needsCommit) return
     dispatch({
       type: 'NARRATE_ENVIRONMENT',
       nodeId: state.nodeId,
       turn: state.turn,
+      scopeId: environmentNarrationScope,
       authoredDimensions: [...presentedEnvironmentDimensions],
     })
   }, [
     state.ended,
     state.nodeId,
     state.turn,
+    environmentNarrationScope,
     authoredEnvironmentKey,
     environmentNarration.needsCommit,
     dispatch,
@@ -511,8 +600,8 @@ export default function StoryView({ state, dispatch }) {
     // A Q() line carries reviewed source evidence. Its quote-register record
     // states whether the displayed Albanian is verbatim, inflected, adapted,
     // a related variant, or an explicitly oral formula.
-    const quoteSrc = line.quote
     const quoteRecord = line.quoteId ? QUOTES[line.quoteId] : null
+    const quoteSrc = quoteRecord?.label || line.quoteId
     const proofUrl = quoteRecord ? quoteProofUrl(quoteRecord, QUOTE_REPO_BLOB) : null
     const quoteEvidence = quoteRecord ? QUOTE_TIER_LABEL[quoteTier(quoteRecord)] : null
     const quoteDetail = quoteRecord ? `${quoteRecord.fidelity}, ${quoteEvidence}` : 'source-linked wording'
@@ -543,7 +632,7 @@ export default function StoryView({ state, dispatch }) {
             📜
           </span>
         )}
-        {quoteSrc && (proofUrl ? (
+        {state.debug && quoteSrc && (proofUrl ? (
           <a
             className="quote-src"
             href={proofUrl}
@@ -583,7 +672,7 @@ export default function StoryView({ state, dispatch }) {
       <div className="story-text">
         {environmentLine && renderLine(environmentLine, 'environment')}
         {presentedEntries.map((entry) => renderLine(entry.line, entry.renderKey))}
-        {!state.ended && state.embodying && (itemIds.length > 0 || companionIds.length > 0) && (
+        {!state.ended && state.debug && state.embodying && (itemIds.length > 0 || companionIds.length > 0) && (
           <p className="role-prop-note">
             <span aria-hidden="true">🎭 </span>
             Role props are visible here and used through the choices they unlock. Direct traveller
@@ -627,13 +716,12 @@ export default function StoryView({ state, dispatch }) {
             endQuestions && (
               <ComprehensionTest
                 questions={endQuestions}
-                dispatch={dispatch}
-                onDone={(passed) => {
+                onDone={(passed, consequence) => {
                   if (passed) {
                     dispatch({ type: 'EARN_ACHIEVEMENT', id: node.id })
                     setEndResult('passed')
                   } else {
-                    dispatch({ type: 'FAIL_TEST', id: node.id })
+                    dispatch({ type: 'COMP_WRONG', id: node.id, consequence })
                     setEndResult('failed')
                   }
                 }}
@@ -691,10 +779,9 @@ export default function StoryView({ state, dispatch }) {
           {areaTest.result === null ? (
             <ComprehensionTest
               questions={areaTest.questions}
-              dispatch={dispatch}
-              onDone={(passed) => {
+              onDone={(passed, consequence) => {
                 if (passed) dispatch({ type: 'EARN_ACHIEVEMENT', id: areaTest.ach.id })
-                else dispatch({ type: 'FAIL_TEST', id: areaTest.ach.id })
+                else dispatch({ type: 'COMP_WRONG', id: areaTest.ach.id, consequence })
                 setAreaTest({ ...areaTest, result: passed ? 'passed' : 'failed' })
               }}
             />
@@ -746,7 +833,6 @@ export default function StoryView({ state, dispatch }) {
           )}
           <div className="options" role="list" aria-label="Available actions">
             {shuffledEntries.map((e) => {
-              const wasConfused = confusedKey === e.key
               const routeParts = []
               if (e.beginQuest) {
                 routeParts.push(`${e.beginQuest.stance === 'companion' ? 'Join tale' : 'Begin tale'} · ${e.beginQuest.identity}`)
@@ -765,9 +851,7 @@ export default function StoryView({ state, dispatch }) {
                 else if (e.targetPhase || e.route?.targetPhase) routeParts.push(`then wait for ${e.targetPhase || e.route.targetPhase}`)
               }
               let cost
-              if (wasConfused) {
-                cost = <span className="option-cost bad">✗ can&apos;t happen here · −1 ♥</span>
-              } else if (e.roleBlocked) {
+              if (e.roleBlocked) {
                 cost = <span className="option-cost role-locked">🎭 {e.roleReason}</span>
               } else if (!e.allDiscovered) {
                 cost = <span className="option-cost bad">discover all words first</span>
@@ -800,20 +884,21 @@ export default function StoryView({ state, dispatch }) {
                   (id) => ITEMS[id]?.name || id,
                 )
                 cost = <span className="option-cost bad">🧰 {unavailable}</span>
-              } else if (e.heal) {
+              } else if (e.heal && state.debug) {
                 cost = (
                   <span className="option-cost ok">mends one ♥ · spends tokens · once at this level</span>
                 )
               } else if (e.lek) {
-                cost = <span className="option-cost ok">{optionMoneyEffectText(e.lek, state.debug)}</span>
-              } else if (e.beginQuest) {
+                const moneyEffect = optionMoneyEffectText(e.lek, state.debug)
+                cost = moneyEffect ? <span className="option-cost ok">{moneyEffect}</span> : null
+              } else if (e.beginQuest && state.debug) {
                 cost = <span className="option-cost role-ready">🎭 confirmation first · then spends tokens</span>
-              } else {
+              } else if (state.debug) {
                 cost = <span className="option-cost ok">spends tokens</span>
               }
               const optionDomId = `story-option-${state.nodeId}-${e.key}`.replace(/[^a-zA-Z0-9_-]/g, '-')
               const routeId = state.debug && routeParts.length > 0 ? `${optionDomId}-route` : null
-              const costId = `${optionDomId}-cost`
+              const costId = cost ? `${optionDomId}-cost` : null
               const optionPhrase = e.reading || optionEnglishReadingOf(e.tokens)
               const accessibleOptionPhrase = state.debug
                 ? optionPhrase
@@ -821,7 +906,7 @@ export default function StoryView({ state, dispatch }) {
               return (
                 <div
                   key={e.key}
-                  className={'option' + (e.ok ? ' ready' : ' locked') + (wasConfused ? ' confused' : '')}
+                  className={'option' + (e.ok ? ' ready' : ' locked')}
                   role="listitem"
                   onClick={(event) => {
                     // Keep the original click-anywhere card behavior for pointer
@@ -839,7 +924,6 @@ export default function StoryView({ state, dispatch }) {
                         {optionPhrase}
                       </span>
                     )}
-                    <span className="option-gloss-label">Word by word</span>
                     <span className="option-text">
                       {e.tokens.map((tok, j) => (
                         <Token
@@ -857,7 +941,7 @@ export default function StoryView({ state, dispatch }) {
                       </span>
                     )}
                   </span>
-                  <span id={costId} className="option-cost-wrap">{cost}</span>
+                  {cost && <span id={costId} className="option-cost-wrap">{cost}</span>}
                   {state.debug && e.real && !e.ok && !e.roleBlocked &&
                     e.interaction?.ok !== false && e.effectAvailability?.ok !== false && (
                     <button

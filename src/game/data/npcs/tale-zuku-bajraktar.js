@@ -13,7 +13,7 @@ export default {
     backstory:
       'Unnamed in the song, she desires her son\'s own prisoner the moment she sees him through a locked door, and buys his promise of marriage with a plot: taunt Zuku into being bound with ten ropes (as his legendary father once was), then blind both the boy and his courser with heated pokers and abandon them on the mountain. When Zuku returns as a disguised beggar to kill the baloz and reveal himself, she defends her dead lover and then begs for her own life — and is bound instead to a felled beech at the crossroads and burned. NOT the crossroads crone of three-friends (a different region, a different old woman, a different fate) — this mother\'s crime and death are hers alone.',
     folklore: ['zuku-bajraktar'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'planning', plan: 'Zuku\'s tower-house in the unimplemented first song' },
     tales: { 'zuku-bajraktar': 'nenaZukut' },
   },
   balozSedelija: {
@@ -22,7 +22,7 @@ export default {
     backstory:
       'A Slavic frontier fighter Zuku takes alive after killing his companion Smilaliq Alija in the same skirmish. Locked in the innermost chamber of Zuku\'s own house, he is too afraid of his captor\'s strength to accept the mother\'s offer of freedom and marriage outright — until she promises to blind the boy herself. He feasts and sleeps in the house he was a prisoner in, and is cut down by the very hero he feared the moment that hero walks back in as a beggar. "Baloz" here names a RANK among the shkja fighters (a captain), not a species — NOT the core Balozi i Detit (the sea-champion of Gjergj Elez Alia\'s song), who is a wholly different, semi-mythic figure from a different sea and a different story; this Baloz Sedelija rides, talks, plots and dies exactly like the human captain he is.',
     folklore: ['zuku-bajraktar'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'planning', plan: 'the locked inner chamber of Zuku\'s tower-house in the unimplemented first song' },
     tales: { 'zuku-bajraktar': 'balozSedelija' },
   },
   smilaliqAlija: {
@@ -31,7 +31,7 @@ export default {
     backstory:
       'One of two shkja fighters Zuku\'s ora points out to him through his field-glass on an empty mountain pasture. He falls to Zuku\'s sabre in the same stroke that takes Baloz Sedelija prisoner alive — a single line of the song, and no more.',
     folklore: ['zuku-bajraktar'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'planning', plan: 'the high pasture skirmish in the unimplemented first song' },
     tales: { 'zuku-bajraktar': 'smilaliqAlija' },
   },
   oratMalit: {
@@ -49,7 +49,7 @@ export default {
     backstory:
       'Zuku\'s one true friend, at whose house the healed but weakened hero rests ten days and nights to recover his strength. On hearing of the sworn vow of vengeance, he is the one who devises the plan that gets Zuku past his own mother\'s door unrecognized: rags, a torn sack, a beggar\'s staff, and a little grain to gather at her feet. Never named beyond "miku," and never seen again once the plan is set in motion.',
     folklore: ['zuku-bajraktar'],
-    location: { status: 'placed', node: 'zuku2' },
+    location: { status: 'planning', plan: 'his own highland house in the unimplemented first song; the existing zuku2 node stages a different encounter' },
     tales: { 'zuku-bajraktar': 'mikuZukut' },
   },
   gjoguZukut: {
@@ -58,7 +58,7 @@ export default {
     backstory:
       'Ridden out to the hunt at the song\'s start, blinded with heated pokers the same midnight as his rider, and abandoned with him at the mountain\'s peak. He and Zuku weep and lament together, each too weak and blind to help the other, until his own shrieking neigh — deafening the whole mountain pasture — draws the oras who heal Zuku (though the song never says whether the courser\'s own sight was ever restored). Sent to wander free while Zuku goes disguised as a beggar, he is somehow at his rider\'s side again by the final reckoning, exactly as Zuku himself boasts to his mother. NOT gjogSeteVjet, the seven-year courser kept in the cellar for the second ride — two different mounts for two different rides — NOT gjogu, Mujo\'s own oracular grey (core-kreshnik.js), and NOT gjoguGjergjit, the war-courser of Gjergj Elez Alia\'s own song.',
     folklore: ['zuku-bajraktar'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'planning', plan: 'the mountain abandonment and healing in the unimplemented first song' },
     tales: { 'zuku-bajraktar': 'gjogu' },
   },
   // agatJutbines — the Agas of Jutbina — is the shared canonical figure in core-kreshnik.js.
@@ -77,7 +77,7 @@ export default {
     backstory:
       'The Slav king in whose kulla Rusha is kept — named only by his standing title, never staged directly in either song, and never so much as mentioned reacting to his daughter\'s ride to Jutbina. "Krajl" names a standing office of the frontier\'s Slavic enemy across many kreshnik songs, the way "kulshedra" names a kind and not one beast; NOT Krajle Kapidani, who holds Muji alone in kreshnikRrembimiBurg, and NOT the Krajl of tale-arnaut-osmani\'s coal-and-corpse song — each song\'s Krajl is his own man, and this one is Rusha\'s father alone.',
     folklore: ['zuku-bajraktar'],
-    location: { status: 'placed', node: 'rusha1' },
+    location: { status: 'planning', plan: 'Rusha\'s father remains offstage in the implemented tower scene, as he does in the song' },
     tales: { 'zuku-bajraktar': 'krajli' },
   },
   kadiu: {
@@ -86,7 +86,7 @@ export default {
     backstory:
       'Called on only after the Kanun\'s own pleqësia (council of elders) fails to settle whose bride Rusha is, the cadi is threatened with death by Mujo and then by Zuku in turn, whichever way he might rule. Three sleepless days and nights he puzzles over it until, he says, God himself sends him the answer: a horse-race on the war grounds, the maiden to whoever\'s courser reaches her first. Never named beyond his office, and never seen again once the race is run.',
     folklore: ['zuku-bajraktar'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'planning', plan: 'the cadi\'s court and deciding horse-race, when the latter half of the tale becomes playable' },
     tales: { 'zuku-bajraktar': 'kadiu' },
   },
   gjogSeteVjet: {
@@ -95,7 +95,7 @@ export default {
     backstory:
       'Shut away seven years in the dark cellar of Zuku\'s house, never once seeing sunlight, until the mother comes down in tears to saddle it for her son\'s ride into the Krajl\'s land — and the courser, feeling the cellar "drip" for the first time, learns from her why: it fears for both their lives. It carries Zuku by night to Rusha\'s kulla and back, and wins the deciding race on the war grounds outright when Mujo\'s own courser shies at the last stride. NOT gjoguZukut, the courser blinded alongside Zuku in the first song — a different mount for a different ride, kept safe at home the whole time that story unfolded.',
     folklore: ['zuku-bajraktar'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'planning', plan: 'Zuku\'s cellar and the later horse-race, when those beats become playable' },
     tales: { 'zuku-bajraktar': 'gjogSeteVjet' },
   },
 }

@@ -149,7 +149,16 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
   { id: 'cannot-come', al: 'tani jo, më fal.', en: 'Not now, sorry.', requires: ['tani', 'jo', 'me_obj', 'fal'] },
   { id: 'meet-later', al: 'takohemi më vonë.', en: 'We will meet later.', requires: ['takohem', 'me_more', 'vone'] },
   { id: 'wait-please', al: 'prit pak, të lutem.', en: 'Wait a moment, please.', requires: ['prit', 'pak', 'lutem'] },
-  { id: 'dont-know', al: 'nuk e di.', en: "I don't know.", requires: ['nuk', 'e_obj', 'di'] },
+  {
+    id: 'dont-know',
+    al: 'nuk e di.',
+    en: "I don't know.",
+    requires: ['nuk', 'e_obj', 'di'],
+    // The ordinary whole phrase keeps its natural English. When the object
+    // clitic itself is the missing target, make that otherwise implicit object
+    // explicit so “you/him/me” cannot be defended as another right answer.
+    focusCues: Object.freeze({ e_obj: "I don't know it." }),
+  },
   { id: 'meet-tomorrow-question', al: 'takohemi nesër në orën nëntë në shesh?', en: 'Shall we meet tomorrow at nine in the square?', requires: ['takohem', 'neser', 'ne', 'ore', 'nente', 'shesh'] },
   { id: 'accept-tomorrow-square', al: 'po. nesër në orën nëntë në shesh.', en: 'Yes. Tomorrow at nine in the square.', requires: ['po_yes', 'neser', 'ne', 'ore', 'nente', 'shesh'] },
   { id: 'where-are-you', al: 'ku je?', en: 'Where are you?', requires: ['ku', 'je'] },

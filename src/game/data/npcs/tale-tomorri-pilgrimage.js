@@ -18,7 +18,7 @@ export default {
     role: 'the dervish who rebuilt the Kulmak tekke, 1915-1916',
     backstory: 'A historical figure, not a mythic one: when Greek armed bands burned the mountain\'s dervish-lodge in 1914, Dervish Iljazi rebuilt it as the new Kulmak tekke over 1915 and 1916, on the southeastern shoulder of Tomorr below Abaz Aliu\'s own tomb. The tekke he built is the one the pilgrims still climb to every August. NOT Sari Salltëk\'s own wandering dervish of Krujë (sariSalltek) — a builder and a founder, not a dragon-slayer, and a world away in the north.',
     folklore: ['tomorri-pilgrimage'],
-    location: { status: 'placed', node: 'maja' },
+    location: { status: 'planning', plan: 'historical builder represented through the Kulmak tekke history, not as a living person on the present-day peak' },
     tales: { 'tomorri-pilgrimage': 'dervishIljazi' },
   },
   pelegrinetTomorrit: {

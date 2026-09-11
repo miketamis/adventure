@@ -15,7 +15,7 @@ export default {
     backstory:
       'One of twelve Agas the Krajl\'s raiders dragged off a mountain pasture near Jutbina — and the only one of them who confessed to every count against him (the burnt palace, the torn-down kulla, the plundered herds, and a savage revenge on the king\'s own parents when no ransom came) rather than let his companions share the blame. Nine years in irons, then six more, and still no way out — until he swore he would not flinch if they threw him into seven blazing ovens, and proved it: three real ordeals of serpents, fire, and the nail, endured without a breath while playing a corpse, until the last shackle came off and he tore a guard\'s own sabre out of the air to cut his way free. NOT the Arnaut Osmani of "Arnaut Osmani and Hyso Radoica" (Palaj–Kurti no. 11, a stolen wife, a duel, and two long-lost brothers reunited) — the epic gives the same popular name to more than one hero across its songs, exactly as it does with Zuku; this is the coals-and-corpse song alone (no. 13).',
     folklore: ['arnaut-osmani', 'kreshnik-epic'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'placed', node: 'osmaniBurg' },
     tales: { 'arnaut-osmani': 'osmani' },
   },
   sokolHalili: {
@@ -24,7 +24,7 @@ export default {
     backstory:
       'Mujo\'s constant companion and the second pillar the whole kreshnik cycle stands on — young, quick and reckless where his brother is raw strength, with a cycle of songs all his own: marriages, raids, deaths and captures among them. In THIS song he rides out with Arnaut Osmani\'s raiding band and is swept up in the same ambush, one of the twelve Agas chained in a foreign king\'s dungeon for nine years and then six more, and freed only by Osmani\'s trick, having taken no blame and no credit himself. NOT the same captivity as kreshnikRrembimi1/kreshnikRrembimiBurg, where another Krajl holds Muji alone and a free Halili rides in from Jutbina to rescue him — a DIFFERENT tower, a DIFFERENT Krajl, and the brothers on opposite sides of the chains. The frontier songs capture and free their heroes by turns, story by story; this is one of Halili\'s own turns in captivity.',
     folklore: ['arnaut-osmani', 'kreshnik-epic'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'placed', node: 'haliliDeka' },
     tales: { 'arnaut-osmani': 'halili' },
   },
   agatOsmanit: {

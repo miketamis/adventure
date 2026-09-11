@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { comprehensionMissConsequence } from '../game/consequenceBuilders.js'
 
 // The HARD comprehension gate on every achievement: reviewed Albanian sentences
 // from the story the player lived, supplemented by unambiguous words encountered
@@ -7,7 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 // correctly. One wrong answer costs a heart AND ends the attempt on the spot;
 // the parent decides what a pass or a fail means (onDone(passed)). Shared by
 // the ending screen, the area banner and the Achievements codex.
-export default function ComprehensionTest({ questions, dispatch, onDone }) {
+export default function ComprehensionTest({ questions, onDone }) {
   const [step, setStep] = useState(0)
   const [pick, setPick] = useState(null)
   const answerCommitted = useRef(false)
@@ -45,12 +46,10 @@ export default function ComprehensionTest({ questions, dispatch, onDone }) {
                 advanceCommitted.current = false
                 setPick(opt)
                 if (opt !== q.correct) {
-                  // Record the failed gate in the same interaction as the
-                  // heart loss. At one remaining heart, the game-over overlay
-                  // otherwise arrives before a second "continue" click and a
-                  // reload could replay the same uncounted test attempt.
-                  dispatch({ type: 'COMP_WRONG' })
-                  onDone(false)
+                  // The owner knows which achievement this question belongs
+                  // to, so it commits the failed gate and explained heart loss
+                  // together rather than issuing two reducer transactions.
+                  onDone(false, comprehensionMissConsequence(q, opt))
                 }
               }}
             >

@@ -16,15 +16,27 @@ export default {
     location: { status: 'walking', route: ['start', 'fshatiLumi', 'fshatiSheshi'] },
   },
   gruaUji: {
-    name: 'gruaja me ujë', glyph: '🏺', kind: 'human',
+    name: 'Mira', glyph: '🏺', kind: 'human',
     identity: {
-      mode: 'known-by-context',
-      reason: 'This is a visible role description, not a concealed personal name.',
+      mode: 'discoverable',
+      descriptor: 'the woman carrying water',
+      reason: 'The traveller knows her work from the jugs, but learns the name Mira only by asking her.',
     },
     role: 'the water-carrier of the village',
     backstory: 'When the old well went dry she became the village\'s water: every daylight hour she walks spring → river bank → square with the full jugs and back down with the empty ones. At night the spring is quiet, and so is she.',
     folklore: [],
-    location: { status: 'walking', route: ['kroi1', 'fshatiLumi', 'fshatiSheshi'] },
+    location: { status: 'walking', route: ['kroi1', 'fshatiLumi', 'fshatiSheshi'], encounters: ['gruaUji1'] },
+  },
+  vajzaKroi: {
+    name: 'vajza e kroit', glyph: '🪣', kind: 'human',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'The spring and her water bucket identify her role; no personal name is introduced.',
+    },
+    role: 'the girl who offers water to travellers at the village spring',
+    backstory: 'She sits beside the working spring with a bucket and welcomes thirsty travellers while the village carries water uphill.',
+    folklore: ['mikpritja-oda'],
+    location: { status: 'walking', route: ['kroi1'] },
   },
   krushqit: {
     name: 'krushqit me nusen', glyph: '🐎', kind: 'collective',
@@ -135,7 +147,7 @@ export default {
     role: 'the dead rider who kept his besa',
     backstory: 'He promised his mother he would bring his sister home, and the grave did not excuse him: Kostandin i vdekur rode by night with Doruntina behind him, and lay back down when the word was kept. His stone stands by the church.',
     folklore: ['kostandin-doruntina', 'besa'],
-    location: { status: 'placed', node: 'kostandin1' },
+    location: { status: 'placed', node: 'kostandin2' },
   },
 
 }

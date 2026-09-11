@@ -44,7 +44,7 @@ export default {
     role: 'the Beauty of the Sea, in the deep',
     backstory: 'Her realm is the deep water and the drowned palace. What sinks, sinks into her keeping — the sabre lay on her floor until Deti dove for it.',
     folklore: ['bukura-e-detit'],
-    location: { status: 'placed', node: 'detiThelle1' },
+    location: { status: 'placed', node: 'detiThelle2' },
   },
   balozi: {
     name: 'Balozi i Detit', glyph: '⚓', kind: 'mythic',
@@ -79,7 +79,7 @@ export default {
     role: 'the three Fates of the world below',
     backstory: 'Third night after a birth they speak a life; in the world below they weigh the lost. The "humbur" wanderers stand before them.',
     folklore: ['fatia', 'ora'],
-    location: { status: 'placed', node: 'tre1' },
+    location: { status: 'placed', node: 'djepi2' },
   },
   shtriga: {
     name: 'shtriga e natës', glyph: '🌑', kind: 'mythic',
@@ -114,7 +114,7 @@ export default {
     role: 'the marble king of the black palace garden',
     backstory: 'The king of the marble garden behind the black palace — his stone court, his night watch, his justice for the goose-girl. Act II of the Sun quest will wake his story fully.',
     folklore: ['maiden-promised-sun'],
-    location: { status: 'placed', node: 'kopshtMermer1' },
+    location: { status: 'placed', node: 'kopshtMermer2' },
   },
   rozafa: {
     name: 'Rozafa', glyph: '🧱', kind: 'human',

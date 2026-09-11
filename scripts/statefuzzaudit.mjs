@@ -479,7 +479,7 @@ check('hard restart clears transient role state but preserves durable learning',
   assert.deepEqual(restarted.flags, {})
   assert.deepEqual(restarted.interactions, {})
   assert.deepEqual(restarted.rendezvous, {})
-  assert.deepEqual(restarted.discovered, {})
+  assert.deepEqual(restarted.discovered, active.discovered)
   for (const key of Object.keys(durable)) assert.deepEqual(restarted[key], durable[key], `${key} was not durable`)
   assert.deepEqual(reducer(restarted, { type: 'RESET' }), restarted, 'repeated hard restart changed clean state')
   return 'live-role lock; fatal recovery; repeat idempotence'
@@ -535,10 +535,21 @@ check('every repeat-sensitive UI commit has an immediate same-render lock', () =
   assert.equal(effectLockText({ ok: false, reason: 'missing-item', itemId: 'buke', need: 1 }), 'need 1 buke')
   assert.equal(effectLockText({ ok: false, reason: 'insufficient-lek', need: 3 }), 'need 3 more lek')
   assert.equal(effectLockText({ ok: false, reason: 'fixture-out-of-reach' }), 'you must be beside it')
-  assert.ok((story.match(/type: 'CONFUSE', expectedHearts: state\.hearts/g) || []).length >= 2)
+  assert.ok((story.match(/type: 'CONFUSE'/g) || []).length >= 2)
+  assert.ok((story.match(/consequence: storyConfuserConsequence/g) || []).length >= 2)
 
   const confuse = stateAt(START_NODE, { hearts: 3 })
-  const action = { type: 'CONFUSE', expectedHearts: confuse.hearts }
+  const action = {
+    type: 'CONFUSE',
+    expectedHearts: confuse.hearts,
+    consequence: {
+      source: 'story-confuser',
+      eventId: 'state-fuzz:confuser',
+      attempted: { al: 'pi urën' },
+      reason: { code: 'impossible-scene-action', text: 'A bridge is not something the player can drink.' },
+      reasoning: 'Choose an action that the object in this scene can physically support.',
+    },
+  }
   const once = reducer(confuse, action)
   assert.equal(once.hearts, 2)
   assert.equal(reducer(once, action), once, 'a stale confuser activation charged a second heart')
@@ -577,6 +588,7 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
       visited: pick(1), heard: pick(2), discovered: pick(3), earned: { durableEarned: false },
       eligible: { durableDeed: false }, attempts: { durableDeed: i % 5 }, worldFacts: pick(4),
       flags: pick(5), knowledge: pick(6), observations: pick(0), environmentNarration: pick(2),
+      healthNarration: pick(3), inventoryNarration: pick(4),
       interactions: pick(0), rendezvous: pick(1),
       npcStarted: pick(5), trail: pick(6), ended: i % 2 ? 'good' : 'nonsense',
       view: i % 2 ? 'achievements' : 'missing', pendingTest: 'invented',
@@ -590,7 +602,8 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
     assert.equal(Object.hasOwn(state, 'peak'), false, 'retired peak state survived save normalization')
     for (const key of [
       'inventory', 'mana', 'practiced', 'visited', 'heard', 'discovered', 'npcStarted',
-      'flags', 'knowledge', 'observations', 'environmentNarration', 'interactions', 'rendezvous',
+      'flags', 'knowledge', 'observations', 'environmentNarration', 'healthNarration',
+      'inventoryNarration', 'interactions', 'rendezvous',
     ]) {
       assert.ok(state[key] && typeof state[key] === 'object' && !Array.isArray(state[key]), `${key} not repaired`)
     }
@@ -605,7 +618,11 @@ check('malformed and torn saves normalize to playable, monotonic state', () => {
   }
 
   const numeric = normalizeSavedState({
-    ...fresh, inventory: { lek: '7', buke: '2', poison: -4 }, mana: { ec: '3' },
+    ...fresh,
+    inventory: { lek: '7', buke: '2', poison: -4 },
+    discovered: { ec: true },
+    mana: { ec: '3' },
+    practiced: { ec: '3' },
   }, stateAt())
   assert.deepEqual(numeric.inventory, { lek: 7, buke: 2 })
   assert.deepEqual(numeric.mana, { ec: 3 })

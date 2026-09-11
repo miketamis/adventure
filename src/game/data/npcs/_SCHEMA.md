@@ -35,6 +35,10 @@ npcId: {
     status: 'placed'   // fixed map node → node: 'nodeId'
           | 'walking'  // clock route → route: ['nodeId', …] (see src/game/npcs.js)
           | 'planning' // not on the map yet → plan: 'where they will live'
+    // Optional only when the same NPC is genuinely present in a separate
+    // interaction or embodied-timeline node. This is not a substitute for a
+    // real placed node/route and every listed scene must contain that person.
+    encounters: ['conversationOrTaleNodeId'],
   },
   tales: { 'tale-id': 'castId' },   // roles this npc plays in beat timelines
 }

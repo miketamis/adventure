@@ -15,7 +15,7 @@ export default {
     backstory:
       'Mujo\'s wife at Jutbina: the one who confirms his midnight dream of the courser\'s birth, and who raises the foal in strict secrecy for three full years on his order — wheat instead of barley, wine instead of water, never once let into daylight. The songs will later make her the mother of Omer and the singer of the cycle\'s own great lament (death-of-omer) — this tale is years before that grief, and this is her first appearance in the cycle\'s own timeline.',
     folklore: ['mujo-courser'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'placed', node: 'mujoKale' },
     tales: { 'mujo-courser': 'ajkuna' },
   },
   krajloKapedani: {
@@ -42,7 +42,7 @@ export default {
     backstory:
       'A shepherd of the Krajl\'s own highlands, said to favor Mujo closely enough that people remarked on it. Mujo trades caps with him on a false pretext, then kills him outright and takes his clothes and his crook — the disguise that carries the whole second half of the song. He never speaks again after the trade of caps; the disguise is the last anyone hears of him.',
     folklore: ['mujo-courser'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'placed', node: 'mujoKale' },
     tales: { 'mujo-courser': 'raspodini' },
   },
   rushaKrajlise: {

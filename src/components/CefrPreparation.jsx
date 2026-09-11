@@ -80,7 +80,7 @@ function OrderedTiles({ tiles, value = [], onChange, disabled = false, label = '
 
 function SlotFrame({ activity, selections, onChange, disabled }) {
   const frameText = activity.frame?.map((part) => part.kind === 'slot'
-    ? `[${selections[part.id] || part.id}]`
+    ? `[${sqText(activity.slots?.[part.id]?.find(({ id }) => id === selections[part.id])?.text) || '…'}]`
     : sqText(part)).join(' ').replace(/\s+([,.!?])/gu, '$1')
   return (
     <div className="cefr-prep-slots">
@@ -225,6 +225,7 @@ function ActivitySurface({ activity, answer, setAnswer, submitted, attempted }) 
       {!audioOnly && activity.source && <blockquote lang="sq">{sqText(activity.source)}</blockquote>}
       {activity.opening && <blockquote className="cefr-dialogue-stimulus" lang="sq">{sqText(answer.branchPrompt || activity.opening)}</blockquote>}
       {activity.prompt && <p className="cefr-prep-prompt"><Albanian value={activity.prompt} /></p>}
+      {activity.visibleGoal && <p className="cefr-prep-visible-goal"><b>Goal:</b> {activity.visibleGoal}</p>}
 
       {(response.kind === 'single-choice' || response.kind === 'multiple-acceptable-choice') && (
         <ChoiceSet

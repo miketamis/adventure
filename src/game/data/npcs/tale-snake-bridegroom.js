@@ -55,7 +55,7 @@ export default {
     role: 'the Mother of the Sun — keeper of his table in the compound above',
     backstory: 'The mother-goddess of the sky keeps the Sun\'s house: she calls off the sun-children, hides desperate guests, and wrings from her tired, flesh-hungry son the promise that makes him answer questions instead of eating the asker. The village knows her too — each spring the girls bury her clay doll with real weeping (the nenaDiellFund rite) so that, mourned, she returns green with the year; the doll dies in the village, the mother keeps the table in the sky.',
     folklore: ['nena-e-diellit', 'dielli', 'snake-bridegroom'],
-    location: { status: 'placed', node: 'diellShtepi1' },
+    location: { status: 'planning', plan: 'the Sun\'s household in the bride\'s long search, when that journey becomes playable' },
     tales: { 'snake-bridegroom': 'sunMother' },
   },
   femijetDiellit: {

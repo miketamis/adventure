@@ -186,7 +186,8 @@ check('ordinary preparation hides raw counters while debug retains exact diagnos
 
 check('preparation state survives load and both run transitions', () => {
   assert.match(stateSource, /normalizeCefrPreparationState\(saved\)/)
-  assert.ok((stateSource.match(/\.\.\.normalizeCefrPreparationState\(state\)/g) || []).length >= 2)
+  assert.match(stateSource, /function restartStoryRun\(state\)[\s\S]*?\.\.\.normalizeCefrPreparationState\(state\)/)
+  assert.ok((stateSource.match(/return restartStoryRun\(state\)/g) || []).length >= 2)
   assert.match(stateSource, /case 'CEFR_PREPARATION_ATTEMPT'/)
   assert.doesNotMatch(stateSource, /from ['"]\.\/cefrPreparationEvidence\.js['"]/)
   assert.match(stateSource, /from ['"]\.\/cefrPreparationEvidenceState\.js['"]/)

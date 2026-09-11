@@ -20,6 +20,15 @@ import {
 import { isTrainableSense } from './lexicalTrainability.js'
 import { playableContextForSense, wordProgressionOptionsForSense } from './formInventory.js'
 import { buildConstructionPieces, buildFormQuestion } from './formPractice.js'
+import {
+  choiceSetIsValid,
+  sensesMayShareAnswer,
+} from './practiceAnswerValidity.js'
+import {
+  CONTEXT_TARGET_PRESENTATION,
+  contextualTargetReference,
+  wordProductionTargetReference,
+} from './contextQuestionPresentation.js'
 
 const DIRECTION = Object.freeze({
   al2en: { field: 'en', promptField: 'al' },
@@ -29,10 +38,6 @@ const DIRECTION = Object.freeze({
 const senseText = (id, field) => field === 'en'
   ? DICT[id].enAll ?? DICT[id].en
   : DICT[id][field]
-
-const siblingsOf = (id) => Object.keys(DICT).filter(
-  (candidate) => candidate !== id && DICT[candidate].al === DICT[id].al,
-)
 
 const weightedPick = (entries, mana, rng) => {
   const weights = entries.map(({ id, plan }) => {
@@ -80,6 +85,7 @@ const distractorIds = (
   for (const { id } of ranked) {
     if (id === answerId || distractors.includes(id)) continue
     if (containsExcludedPhraseWord(DICT[id].al, excludeWords)) continue
+    if (!contextual && sensesMayShareAnswer(answerId, id)) continue
     // A second option with the same prompt or answer text would create two
     // defensible answers in a bare-word question. A contextual sense question
     // deliberately does the opposite: same-surface meanings are its best
@@ -123,46 +129,66 @@ const contextSurfaces = (answerId, plan) => {
   }
 }
 
-function buildContextQuestion(answerId, candidateIds, plan, excludeWords, rng) {
-  const { field, promptField } = DIRECTION[plan.direction]
+function buildContextQuestion(answerId, plan, excludeWords, rng) {
+  const { field } = DIRECTION[plan.direction]
   const count = plan.contextVariant.choiceDistractors === 'from-stage'
     ? plan.variant.distractors
     : plan.contextVariant.choiceDistractors
-  const preferred = [...siblingsOf(answerId), ...candidateIds, ...Object.keys(DICT)]
+  const defensibleAlternatives = new Set(Object.keys(
+    DICT[answerId].ctx.defensibleAlternativeRationales?.[plan.direction] || {},
+  ))
   const authoredDistractors = (plan.direction === 'al2en' ? DICT[answerId].ctx.distractorIds || [] : []).filter((id, index, ids) =>
-    DICT[id] && id !== answerId && ids.indexOf(id) === index,
+    DICT[id] && id !== answerId && ids.indexOf(id) === index && !defensibleAlternatives.has(id),
   ).slice(0, count)
-  const distractors = authoredDistractors.length === count
+  const distractors = plan.direction === 'al2en'
     ? authoredDistractors
-    : plan.direction === 'en2al'
-    ? (DICT[answerId].ctx.retrieval.distractorIds || []).filter((id, index, ids) =>
+    : (DICT[answerId].ctx.retrieval.distractorIds || []).filter((id, index, ids) =>
         DICT[id] && id !== answerId && ids.indexOf(id) === index &&
+        !defensibleAlternatives.has(id) &&
         !containsExcludedPhraseWord(DICT[id].al, excludeWords) &&
         senseText(id, field) !== senseText(answerId, field),
       ).slice(0, count)
-    : distractorIds(
-        answerId,
-        preferred,
-        field,
-        promptField,
-        count,
-        excludeWords,
-        rng,
-        { contextual: true },
-      )
-  // A contextual Albanian gap is useful only with reviewed slot-compatible
-  // alternatives. If the authored list cannot fill this tier, the caller uses
-  // the ordinary isolated retrieval question instead of fabricating options.
+  // Context-dependent senses may use only their exact editorially reviewed
+  // alternatives. A short or ambiguous list fails closed; falling through to
+  // a bare homograph question would erase the very context that identifies the
+  // sense being tested.
   if (plan.direction === 'en2al' && distractors.length !== count) return null
   const promptProfile = contextualPromptProfile(answerId, {
     contextPresentation: plan.targetPresentation,
   })
+  const ctx = contextSurfaces(answerId, plan)
+  const targetReference = contextualTargetReference({
+    direction: plan.direction,
+    targetKind: promptProfile.targetKind,
+    presentation: plan.direction === 'en2al'
+      ? CONTEXT_TARGET_PRESENTATION.blank
+      : plan.targetPresentation,
+    targetSurface: ctx.target,
+    targetTokenIndices: ctx.targetTokenIndices,
+  })
+  // A contextual question with zero or multiple possible referents is not a
+  // harder exercise; it is an invalid one. Fail closed before it reaches Train.
+  if (!targetReference.valid) return null
   const options = shuffleWith([answerId, ...distractors], rng)
+  const optionLabels = Object.fromEntries(options.map((id) => [
+    id,
+    DICT[answerId].ctx.distractorLabels?.[plan.direction]?.[id] || (plan.direction === 'al2en'
+      ? contextualChoiceLabel(id, senseText(id, field))
+      : senseText(id, field)),
+  ]))
+  if (!choiceSetIsValid({
+    answerValue: answerId,
+    optionValues: options,
+    labelOf: (id) => optionLabels[id],
+    expectedOptionCount: count + 1,
+    locale: field === 'al' ? 'sq' : 'en',
+  })) return null
   return {
     kind: TRAIN_EXERCISE_FAMILIES.wordContext.kind,
     answerId,
     field,
-    ctx: contextSurfaces(answerId, plan),
+    ctx,
+    targetReference,
     dir: plan.direction,
     mode: plan.mode,
     tier: plan.tier,
@@ -193,12 +219,7 @@ function buildContextQuestion(answerId, candidateIds, plan, excludeWords, rng) {
       showEnglishContext: plan.direction === 'en2al',
     },
     options,
-    optionLabels: Object.fromEntries(options.map((id) => [
-      id,
-      DICT[answerId].ctx.distractorLabels?.[plan.direction]?.[id] || (plan.direction === 'al2en'
-        ? contextualChoiceLabel(id, senseText(id, field))
-        : senseText(id, field)),
-    ])),
+    optionLabels,
     audioSurface: DICT[answerId].ctx.audio === true ? DICT[answerId].ctx.al : null,
     lexicalSurfaces: [DICT[answerId].ctx.al],
   }
@@ -243,6 +264,12 @@ export function buildWordQuestion({
   const productionSurface = plan.formTarget?.surface || DICT[answerId].al
   const productionContext = plan.formTarget?.context || playableContextForSense(answerId, productionSurface)
   if (!plan.contextReview && plan.stageId === 'word-form-construction') {
+    const targetReference = wordProductionTargetReference({
+      mode: 'construction',
+      meaningCue: productionContext?.en || senseText(answerId, 'en'),
+      context: productionContext,
+    })
+    if (!targetReference.valid) return null
     return {
       kind: TRAIN_EXERCISE_FAMILIES.wordConstruction.kind,
       questionKey,
@@ -257,6 +284,7 @@ export function buildWordQuestion({
       targetFormKey: plan.targetFormKey,
       surface: productionSurface,
       context: productionContext,
+      targetReference,
       construction: buildConstructionPieces(productionSurface, {
         distractorCount: plan.definition.variant.distractorChunks,
         rng,
@@ -267,6 +295,13 @@ export function buildWordQuestion({
     }
   }
   if (plan.mode === 'type') {
+    const typingCue = productionContext?.en || senseText(answerId, 'en')
+    const targetReference = wordProductionTargetReference({
+      mode: 'spelling',
+      meaningCue: typingCue,
+      context: productionContext,
+    })
+    if (!targetReference.valid) return null
     return {
       kind: TRAIN_EXERCISE_FAMILIES.wordSpelling.kind,
       questionKey,
@@ -280,8 +315,9 @@ export function buildWordQuestion({
       remediation: plan.remediation,
       answerTolerance: plan.answerTolerance,
       targetFormKey: plan.targetFormKey,
-      typingCue: productionContext?.en || senseText(answerId, 'en'),
+      typingCue,
       typingContext: productionContext,
+      targetReference,
       typingAnswer: productionSurface,
       lexicalSurfaces: [productionSurface],
     }
@@ -294,12 +330,11 @@ export function buildWordQuestion({
   if (plan.contextVariant) {
     const contextQuestion = buildContextQuestion(
       answerId,
-      due.map(({ id }) => id),
       plan,
       excludeWords,
       rng,
     )
-    if (contextQuestion) return { ...contextQuestion, questionKey }
+    return contextQuestion ? { ...contextQuestion, questionKey } : null
   }
 
   const distractors = distractorIds(
@@ -311,6 +346,15 @@ export function buildWordQuestion({
     excludeWords,
     rng,
   )
+  const options = shuffleWith([answerId, ...distractors], rng)
+  if (!choiceSetIsValid({
+    answerValue: answerId,
+    optionValues: options,
+    labelOf: (id) => senseText(id, field),
+    expectedOptionCount: plan.variant.distractors + 1,
+    locale: field === 'al' ? 'sq' : 'en',
+    wrongOptionIsValid: (id) => sensesMayShareAnswer(answerId, id),
+  })) return null
   return {
     kind: TRAIN_EXERCISE_FAMILIES.wordMeaning.kind,
     questionKey,
@@ -325,7 +369,7 @@ export function buildWordQuestion({
     targetFormKey: plan.targetFormKey,
     field,
     promptText: senseText(answerId, promptField),
-    options: shuffleWith([answerId, ...distractors], rng),
+    options,
     lexicalSurfaces: [DICT[answerId].al],
   }
 }

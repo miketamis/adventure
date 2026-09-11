@@ -427,8 +427,7 @@ svg [role="button"]:focus-visible {
   font: 13px/1.45 ui-sans-serif, system-ui, sans-serif;
 }
 .option-reading.reviewed { color: #ddd3c5; }
-.option-reading-label,
-.option-gloss-label {
+.option-reading-label {
   display: inline-block;
   margin-right: 8px;
   color: #8faebe;
@@ -437,7 +436,6 @@ svg [role="button"]:focus-visible {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.option-gloss-label { display: block; margin: 2px 0 -2px; color: #8c8378; }
 .option-text { max-width: 100%; overflow-wrap: anywhere; }
 .option-cost-wrap { display: inline-flex; align-items: center; min-width: 0; }
 .option-select {
@@ -1526,6 +1524,37 @@ svg [role="button"]:focus-visible {
 .modal p { margin: 0 0 10px; font-size: 14px; line-height: 1.6; color: var(--muted); }
 .modal p b { color: var(--ink); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+.modal.heart-consequence {
+  max-width: 600px;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  border-color: color-mix(in srgb, var(--danger) 72%, var(--line));
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.62);
+}
+.modal.heart-consequence h2 { color: var(--danger); }
+.heart-consequence-section {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel-2) 80%, transparent);
+}
+.heart-consequence-section h3 {
+  margin: 0 0 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.heart-consequence-section p:last-child { margin-bottom: 0; }
+.heart-consequence-section.correction,
+.heart-consequence-section.grammar { border-color: color-mix(in srgb, var(--discovered) 48%, var(--line)); }
+.heart-consequence-al {
+  color: var(--discovered) !important;
+  font: 700 22px/1.35 Georgia, 'Times New Roman', serif !important;
+}
 
 .embodiment-confirm { border-color: #765b98; box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5); }
 .embodiment-confirm h2:focus { outline: none; }

@@ -15,7 +15,7 @@ export default {
     role: 'the wise old man who fed the serpent fire instead of flesh',
     backstory: 'When the serpent had already eaten the water-women of Vrisi, whole flocks, and two shepherds besides, he loaded two donkeys with sacks of tinder-straw and set them ablaze by its lair on Sopot\'s slope — so when it came for the man who lit the fire, it swallowed the burning donkeys instead, and burned from within until it died. NOT plaku i sheshit (the village square\'s old man) or plaka e udhëkryqit (the crossroads crone) — a different old man, a different deed, a different corner of the country.',
     folklore: ['syri-kalter'],
-    location: { status: 'placed', node: 'udhaThate' },
+    location: { status: 'placed', node: 'udhaSyri' },
     tales: { 'syri-kalter': 'plaku' },
   },
   gratëVrisit: {

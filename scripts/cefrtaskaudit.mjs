@@ -11,6 +11,7 @@ import { PLAYABLE_FORM_INVENTORY } from '../src/game/formInventory.js'
 import {
   CEFR_ACOUSTIC_VOICES,
   CEFR_AUTHORED_TASK_COUNTS,
+  CEFR_RECEPTION_REVIEWED_DISTRACTORS,
   CEFR_TASK_SCHEMA_VERSION,
   CEFR_TASKS,
   CEFR_TASKS_BY_FAMILY,
@@ -166,12 +167,30 @@ check('A2 distractors are task-relevant peers and detail prompts identify the re
         assert.doesNotMatch(question.prompt, /Which detail (?:do you need to remember|helps you act)/i, `${task.id}/${question.id} uses an arbitrary detail prompt`)
         assert.ok(question.prompt.length >= 25, `${task.id}/${question.id} detail prompt is not task-specific`)
       } else {
+        if (question.distractorPolicy === 'reviewed-context-contradiction') continue
         const peerAnswers = acceptedGistsByCategory.get(question.choiceCategory)
         for (const choice of question.choices.filter(({ id }) => !question.acceptedChoiceIds.includes(id))) {
           assert.ok(peerAnswers.has(normalize(choice.labelSq)), `${task.id}/${question.id} distractor is not a valid same-context peer answer`)
         }
       }
     }
+  }
+})
+
+check('known broad-or-compatible reception distractors are replaced by reviewed contradictions', () => {
+  const tasks = new Map(CEFR_TASKS.map((task) => [task.id, task]))
+  assert.ok(Object.keys(CEFR_RECEPTION_REVIEWED_DISTRACTORS).length >= 10)
+  for (const [key, reviewedLabels] of Object.entries(CEFR_RECEPTION_REVIEWED_DISTRACTORS)) {
+    const separator = key.lastIndexOf(':')
+    const taskId = key.slice(0, separator)
+    const kind = key.slice(separator + 1)
+    const question = tasks.get(taskId)?.questions.find((entry) => entry.kind === kind)
+    assert.ok(question, `${key} has no matching question`)
+    assert.equal(question.distractorPolicy, 'reviewed-context-contradiction', `${key} lost its reviewed policy`)
+    const wrongLabels = question.choices
+      .filter(({ id }) => !question.acceptedChoiceIds.includes(id))
+      .map(({ labelSq }) => labelSq)
+    assert.deepEqual(wrongLabels, reviewedLabels, `${key} no longer uses its exact reviewed contradictions`)
   }
 })
 

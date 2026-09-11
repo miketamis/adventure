@@ -8,6 +8,8 @@ import {
   ITEMS,
   itemHasAffordance,
   itemHasTag,
+  moneyOutcomeLineOf,
+  visibleLines,
 } from './content.js'
 import { formPracticeKey } from './formProgression.js'
 import { wordProgressionOptionsForSense } from './formInventory.js'
@@ -128,9 +130,31 @@ import {
   observationIdFromCondition,
 } from './observations.js'
 import {
+  WORLD_ENVIRONMENT_NARRATION_SCOPE,
   normalizeEnvironmentNarrationState,
   planEnvironmentNarration,
 } from './environmentNarration.js'
+import { normalizeHealthNarrationState, planHealthNarration } from './healthNarration.js'
+import {
+  inventoryNarrationSnapshot,
+  normalizeInventoryNarrationState,
+  planInventoryNarration,
+} from './inventoryNarration.js'
+import {
+  normalizeActiveNpcPortraits,
+  normalizeNpcPortraitsSeen,
+  planNpcFirstEncounterLines,
+} from './npcAppearance.js'
+import {
+  applyExplainedHeartLoss,
+  attachExplainedHeartLoss,
+  heartLossConsequenceForSave,
+} from './heartConsequences.js'
+import { albanianTextOf } from './language.js'
+import {
+  clearStoryRunTrainingSession,
+  storyRunCarryover,
+} from './resetPolicy.js'
 export {
   CALENDAR_EPOCH,
   FESTIVAL_IDS,
@@ -241,6 +265,13 @@ export function currentStoryState(state) {
     return worldState
   }
   return { ...state, conditionClock: embodimentClockOf(state) }
+}
+
+export function environmentNarrationScopeOf(state) {
+  const quest = embodimentQuest(state?.embodying)
+  return quest && !state.embodimentPaused && quest.nodes.includes(state.nodeId)
+    ? `tale:${canonicalEmbodimentId(state.embodying)}`
+    : WORLD_ENVIRONMENT_NARRATION_SCOPE
 }
 
 // The focus card evaluates the frozen tale scene while the player may be
@@ -495,6 +526,22 @@ export const hasCond = (state, id) => {
     ? (state.inventory?.[id] || 0) > 0
     : hasStoryFlag(state, id) || (state.inventory?.[id] || 0) > 0
 }
+
+// The renderer and reducer consume this exact plan. That handshake prevents a
+// stale render from recording a person who is no longer present, and keeps
+// the per-NPC first-encounter ledger independent of location familiarity.
+export function npcFirstEncounterPlanForState(state) {
+  const projectedState = currentStoryState(state)
+  const node = STORY[state.nodeId]
+  const has = (id) => hasCond(projectedState, id)
+  return planNpcFirstEncounterLines(
+    node,
+    node ? visibleLines(node, has) : [],
+    has,
+    state.npcPortraitsSeen,
+    state.activeNpcPortraits,
+  )
+}
 // the next hour (at or after `clock`) that falls inside `phase`
 export function advanceToPhase(clock, phase) {
   if (!isTimeId(phase)) return clock
@@ -715,11 +762,9 @@ const wordProgressRecord = (value, currentRound, normalize = normalizeWordProgre
   if (!isRecord(value)) return {}
   const next = {}
   for (const [id, progress] of Object.entries(value)) {
-    // Exact Train proofs are long-term learning evidence. A hard story reset
-    // deliberately clears this run's clickable-word discovery map, but must
-    // not make a following save/reload erase the learner's earlier proofs.
-    // Practice eligibility still checks `state.discovered` at the reducer/UI
-    // boundary; normalization only validates that the sense and record exist.
+    // Exact Train proofs are long-term learning evidence. Discovery now belongs
+    // to the same durable learner profile, so a story reset cannot strand these
+    // proofs behind a second artificial save-the-word pass.
     if (!safeMapKey(id) || !DICT[id] || !isRecord(progress)) continue
     next[id] = normalize(progress, currentRound)
   }
@@ -736,16 +781,80 @@ const normalizedTrainWords = (values) => [...new Set(
   (Array.isArray(values) ? values : []).flatMap((value) => phraseSurfaceWordKeys(value)),
 )].slice(0, 100)
 
+// Repair the learner profile as one internally coherent unit. Every spendable
+// token is backed by at least that much monotonic correct-practice evidence;
+// older saves made immediately after the former discovery-clearing reset regain
+// the vocabulary already proven by their word/form/phrase records.
+function reconcileLearnerEvidence(state) {
+  const discovered = truthRecord(state.discovered)
+  const practiced = countRecord(state.practiced)
+  for (const id of Object.keys(practiced)) {
+    if (!DICT[id] || !isTrainableSense(id)) delete practiced[id]
+    else discovered[id] = true
+  }
+
+  const wordProgress = isRecord(state.wordProgress) ? state.wordProgress : {}
+  for (const id of Object.keys(wordProgress)) {
+    if (DICT[id] && isTrainableSense(id)) discovered[id] = true
+  }
+
+  const formPracticed = countRecord(state.formPracticed)
+  for (const key of Object.keys(formPracticed)) {
+    const [id] = key.split('::')
+    if (!DICT[id] || !isTrainableSense(id)) delete formPracticed[key]
+    else discovered[id] = true
+  }
+
+  const phraseEvidenceFields = [
+    'phrasePracticed',
+    'phraseMistakes',
+    'phraseProductionProgress',
+    'phraseMastery',
+    'phraseListeningMastery',
+    'phraseMatchingMastery',
+  ]
+  for (const field of phraseEvidenceFields) {
+    const evidence = isRecord(state[field]) ? state[field] : {}
+    for (const phraseId of Object.keys(evidence)) {
+      const phrase = EVERYDAY_PHRASE_BY_ID.get(phraseId)
+      if (!phrase) continue
+      for (const id of phrase.requires) {
+        if (DICT[id] && isTrainableSense(id)) discovered[id] = true
+      }
+    }
+  }
+
+  for (const id of Object.keys(discovered)) {
+    if (!DICT[id] || !isTrainableSense(id)) delete discovered[id]
+  }
+
+  const mana = {}
+  for (const [id, count] of Object.entries(countRecord(state.mana))) {
+    const backedCount = Math.min(count, practiced[id] || 0)
+    if (backedCount > 0 && discovered[id]) mana[id] = backedCount
+  }
+
+  return {
+    ...state,
+    discovered,
+    mana,
+    practiced,
+    wordProgress,
+    formPracticed,
+  }
+}
+
 // These are the few reviewed non-lemma surfaces produced only by generated
-// environment/health prose rather than authored STORY/ITEM lines. Keep this
+// environment, health, purse or inventory prose rather than authored STORY/ITEM lines. Keep this
 // core-state allow-list tiny: the complete training catalogue is lazy-loaded
 // with Train, while `inflectionpolicyaudit.mjs` independently proves this list
 // equals the generated-only surface delta.
 export const REVIEWED_GENERATED_FORM_SURFACES = Object.freeze({
   vere: Object.freeze(['vere']),
   pranvere: Object.freeze(['pranvere']),
-  vjeshte: Object.freeze(['vjeshte']),
+  vjeshte: Object.freeze(['vjeshte', 'vjeshta']),
   dimer: Object.freeze(['dimri']),
+  vete: Object.freeze(['vete']),
 })
 
 const reviewedFormPracticeKey = (state, id, surface) => {
@@ -1021,6 +1130,23 @@ export function normalizeSavedState(saved, fresh) {
   next.environmentNarration = normalizeEnvironmentNarrationState(
     saved.environmentNarration ?? fresh.environmentNarration,
   )
+  next.healthNarration = normalizeHealthNarrationState(
+    saved.healthNarration ?? fresh.healthNarration,
+  )
+  next.inventoryNarration = normalizeInventoryNarrationState(
+    saved.inventoryNarration ?? fresh.inventoryNarration,
+  )
+  next.npcPortraitsSeen = normalizeNpcPortraitsSeen(
+    saved.npcPortraitsSeen ?? fresh.npcPortraitsSeen,
+  )
+  next.activeNpcPortraits = normalizeActiveNpcPortraits(
+    saved.activeNpcPortraits ?? fresh.activeNpcPortraits,
+    next.npcPortraitsSeen,
+  )
+  next.pendingHeartConsequence = heartLossConsequenceForSave(
+    saved.pendingHeartConsequence,
+    next.hearts,
+  )
   next.observations = normalizeObservations(
     isRecord(saved.observations) ? saved.observations : fresh.observations,
     next.clock,
@@ -1218,7 +1344,7 @@ export function normalizeSavedState(saved, fresh) {
   next.practiceTarget = next.view === 'practice'
     ? normalizeTrainingTarget(saved.practiceTarget, next.nodeId)
     : null
-  return next
+  return reconcileLearnerEvidence(next)
 }
 
 // the saved run if it's still valid, otherwise a fresh run
@@ -1251,12 +1377,16 @@ function baseRun() {
     trail: [], // the last few DISTINCT nodes you occupied before this one, most-recent first
     // (see BACKTRACK below). An option whose destination is in the trail is a step BACK to a
     // place you were just at — it always shows (never reveal-gated, never ringed).
-    discovered: {}, // senseId -> true
+    discovered: {}, // overlaid from the durable learner profile; blank only for a genuinely new learner
     inventory: {}, // itemId -> count (you start with nothing)
     flags: {}, // authored story state; never rendered as something carried
     knowledge: {}, // learned facts with provenance; survives later runs
     observations: {}, // attention beats noticed during this run; survives save/reload
     environmentNarration: normalizeEnvironmentNarrationState(), // last environment facts communicated in prose
+    healthNarration: normalizeHealthNarrationState(), // last heart count communicated in prose
+    inventoryNarration: normalizeInventoryNarrationState(), // pack/purse facts already established in prose
+    npcPortraitsSeen: {}, // NPC id -> true after their first projected portrait is actually shown
+    activeNpcPortraits: null, // encounter latch; keeps that first portrait readable until departure
     interactions: {}, // explicitly identified option uses, partitioned by scope
     rendezvous: {}, // named NPC promises with deadlines and physical meeting places
     questStateVersion: QUEST_STATE_VERSION,
@@ -1286,15 +1416,11 @@ function baseRun() {
     pendingTest: null, // achievement id whose test the in-story banner is offering
     dismissedTests: {}, // achievement ids whose banner was waved off this run
     timePassage: null, // persisted interstitial for a committed multi-day transition
+    pendingHeartConsequence: null, // blocking post-attempt explanation paired atomically with health loss
   }
 }
 
-// the initial state when the app boots
-export function newRun() {
-  // Word and phrase practice plus the achievement maps live OUTSIDE baseRun():
-  // they are long-term learning progress that carries across runs.
-  return {
-    ...baseRun(),
+const emptyLearnerProfile = () => ({
     mana: {},
     practiced: {},
     wordProgressVersion: WORD_PROGRESS_VERSION,
@@ -1312,11 +1438,42 @@ export function newRun() {
     trainLastQuestionKey: null,
     ...emptyCefrState(),
     ...emptyCefrPreparationState(),
+})
+
+// the initial state when the app boots
+export function newRun() {
+  // Word and phrase practice plus the achievement maps live OUTSIDE baseRun():
+  // they are long-term learning progress that carries across runs.
+  return {
+    ...baseRun(),
+    ...emptyLearnerProfile(),
     visited: {},
     ...loadAchievements(),
     debug: false,
     loreFocus: null,
   }
+}
+
+// Story death/new-run clears the world attempt, not the learner. Both reducer
+// paths call this one constructor so new evidence tracks cannot accidentally
+// survive one reset button but disappear through another.
+function restartStoryRun(state) {
+  const restarted = clearStoryRunTrainingSession({
+    ...baseRun(),
+    ...emptyLearnerProfile(),
+    visited: {},
+    earned: {},
+    eligible: {},
+    attempts: {},
+    debug: false,
+    loreFocus: null,
+    ...storyRunCarryover(state),
+    wordProgressVersion: WORD_PROGRESS_VERSION,
+    phraseProgressVersion: PHRASE_PROGRESS_VERSION,
+    ...normalizeStoredCefrState(state),
+    ...normalizeCefrPreparationState(state),
+  })
+  return reconcileLearnerEvidence(restarted)
 }
 
 // distinct sense ids used by a phrase (an option's answer or an item's use phrase)
@@ -1345,6 +1502,27 @@ export function canSpeak(state, tokens) {
 // single id or an array (e.g. requires: ['buke', 'night']), and a time-of-day phase id
 // gates on the hour instead of the pack.
 const condList = (v) => (v == null ? [] : Array.isArray(v) ? v : [v])
+export const requiredInventoryIdsForOption = (state, option) => {
+  const held = Object.entries(state?.inventory || {})
+    .filter(([id, count]) => ITEMS[id] && count > 0)
+  const ids = new Set()
+  for (const requirement of condList(option?.requires)) {
+    if (ITEMS[requirement] && (state.inventory?.[requirement] || 0) > 0) {
+      ids.add(requirement)
+      continue
+    }
+    if (isItemTagId(requirement)) {
+      const tag = requirement.slice(8)
+      for (const [id] of held) if (itemHasTag(ITEMS[id], tag)) ids.add(id)
+      continue
+    }
+    if (isAffordanceId(requirement)) {
+      const affordance = requirement.slice(8)
+      for (const [id] of held) if (itemHasAffordance(ITEMS[id], affordance)) ids.add(id)
+    }
+  }
+  return ids
+}
 const isArrivalSensitiveId = (id) =>
   isTimeId(id) ||
   (typeof id === 'string' &&
@@ -1390,6 +1568,15 @@ export const arrivalOptionOf = (state) => {
   if (!Number.isInteger(state?.choiceIndex)) return null
   const option = STORY[state.cameFrom]?.options?.[state.choiceIndex]
   return option?.to === state.nodeId ? option : null
+}
+// Resolve conditional transaction prose against the same projected story
+// state everywhere. Merely having `moneyOutcome` metadata is not enough: a
+// variant whose condition is false must not make the narration ledger believe
+// that the player saw a transaction.
+export const resolvedMoneyOutcomeLine = (state, option = arrivalOptionOf(state)) => {
+  if (!option) return null
+  const storyState = currentStoryState(state)
+  return moneyOutcomeLineOf(option, (id) => hasCond(storyState, id))
 }
 export const canAfford = (state, option) => optionLekAvailability(state, option).ok
 
@@ -1526,9 +1713,21 @@ export function reconcileWorldFacts(worldFacts) {
 }
 
 export function reducer(state, action) {
+  // A heart consequence is an acknowledged learning beat, not a toast. Keep
+  // every underlying surface inert at the state boundary until the learner
+  // has read why the attempt failed. Bind dismissal to the exact event so a
+  // stale queued click cannot dismiss a later consequence.
+  if (state.pendingHeartConsequence && action.type !== 'ACKNOWLEDGE_HEART_CONSEQUENCE') return state
   switch (action.type) {
+    case 'ACKNOWLEDGE_HEART_CONSEQUENCE':
+      return action.eventId === state.pendingHeartConsequence?.eventId
+        ? { ...state, pendingHeartConsequence: null }
+        : state
+
     case 'NARRATE_ENVIRONMENT': {
       if (action.nodeId !== state.nodeId || action.turn !== state.turn || state.ended) return state
+      const scopeId = environmentNarrationScopeOf(state)
+      if (action.scopeId != null && action.scopeId !== scopeId) return state
       const plan = planEnvironmentNarration(
         environmentSnapshot(currentStoryState(state)),
         state.environmentNarration,
@@ -1536,10 +1735,55 @@ export function reducer(state, action) {
           nodeId: state.nodeId,
           turn: state.turn,
           authoredDimensions: action.authoredDimensions,
+          scopeId,
         },
       )
       return plan.needsCommit
         ? { ...state, environmentNarration: plan.nextState }
+        : state
+    }
+
+    case 'NARRATE_HEALTH': {
+      if (action.nodeId !== state.nodeId || action.turn !== state.turn || state.ended) return state
+      const level = HEART_LEVELS[state.hearts]
+      const keepVisible = state.hearts <= 2 || (
+        !!level?.heal && !state.healedAt?.[state.hearts]
+      )
+      const plan = planHealthNarration(state.hearts, state.healthNarration, {
+        nodeId: state.nodeId,
+        turn: state.turn,
+        keepVisible,
+      })
+      return plan.needsCommit ? { ...state, healthNarration: plan.nextState } : state
+    }
+
+    case 'NARRATE_INVENTORY': {
+      if (action.nodeId !== state.nodeId || action.turn !== state.turn || state.ended) return state
+      const held = (ids) => [...new Set(Array.isArray(ids) ? ids : [])]
+        .filter((id) => ITEMS[id] && (state.inventory?.[id] || 0) > 0)
+      const plan = planInventoryNarration(
+        inventoryNarrationSnapshot(state.inventory, ITEMS),
+        state.inventoryNarration,
+        {
+          nodeId: state.nodeId,
+          turn: state.turn,
+          actionableItemIds: held(action.actionableItemIds).filter((id) => !ITEMS[id].companion),
+          actionableCompanionIds: held(action.actionableCompanionIds).filter((id) => ITEMS[id].companion),
+          transaction: Boolean(resolvedMoneyOutcomeLine(state)),
+        },
+      )
+      return plan.needsCommit ? { ...state, inventoryNarration: plan.nextState } : state
+    }
+
+    case 'NARRATE_NPC_APPEARANCES': {
+      if (action.nodeId !== state.nodeId || action.turn !== state.turn) return state
+      const plan = npcFirstEncounterPlanForState(state)
+      return plan.needsCommit
+        ? {
+            ...state,
+            npcPortraitsSeen: plan.nextSeen,
+            activeNpcPortraits: plan.nextActive,
+          }
         : state
     }
 
@@ -1838,7 +2082,7 @@ export function reducer(state, action) {
         embodimentWorldNode = option.to
         embodimentPaused = true
       }
-      return {
+      const chosenState = {
         ...state,
         mana: spend(state.mana, ids),
         inventory,
@@ -1886,6 +2130,20 @@ export function reducer(state, action) {
         ended: targetNode?.end || null,
         practiceTarget: null,
       }
+      // Entering another character's tale establishes that role's authored
+      // starting health; it is not damage to the traveller and therefore does
+      // not open the penalty explanation.
+      if (option.become || heartsAfterEffects >= state.hearts) return chosenState
+      const authoredConsequence = option.heartConsequence && {
+        ...option.heartConsequence,
+        source: 'story-choice',
+        eventId: `story:${state.nodeId}:${state.turn}:${STORY[state.nodeId].options.indexOf(option)}`,
+        attempted: {
+          ...option.heartConsequence.attempted,
+          al: albanianTextOf(option.text),
+        },
+      }
+      return attachExplainedHeartLoss(state, chosenState, authoredConsequence) || state
     }
 
     case 'ADVANCE_TIME_PASSAGE': {
@@ -1933,7 +2191,18 @@ export function reducer(state, action) {
           isFixture: isTimedWorldFixture,
         },
       )
-      return { ...effected, mana: spend(state.mana, ids) }
+      const resultState = { ...effected, mana: spend(state.mana, ids) }
+      if (resultState.hearts >= state.hearts) return resultState
+      const authoredConsequence = item.use.heartConsequence && {
+        ...item.use.heartConsequence,
+        source: 'item-action',
+        eventId: `item:${item.id}:${state.turn}:${action.expectedCount}`,
+        attempted: {
+          ...item.use.heartConsequence.attempted,
+          al: albanianTextOf(item.use.phrase),
+        },
+      }
+      return attachExplainedHeartLoss(state, resultState, authoredConsequence) || state
     }
 
     case 'HEAL': {
@@ -2000,7 +2269,7 @@ export function reducer(state, action) {
         ...(state.wordProgress || {}),
         [action.id]: transition.progress,
       }
-      return {
+      const resultState = {
         ...state,
         wordProgressVersion: WORD_PROGRESS_VERSION,
         wordProgress,
@@ -2010,11 +2279,15 @@ export function reducer(state, action) {
         practiced: action.correct
           ? { ...state.practiced, [action.id]: (state.practiced?.[action.id] || 0) + 1 }
           : state.practiced,
-        hearts: action.correct ? state.hearts : Math.max(0, state.hearts - 1),
         trainRound: nextRound,
         trainLastWords: normalizedTrainWords(action.wordKeys),
         trainLastQuestionKey: transition.progress.lastAttemptKey,
       }
+      if (action.correct) return resultState
+      // The miss, its durable remediation transition and its health cost are
+      // one transaction. If the UI failed to provide the exact post-attempt
+      // explanation, neither the progression mutation nor the penalty lands.
+      return applyExplainedHeartLoss(resultState, action.consequence, 1) || state
     }
 
     case 'PRACTICE_FORM_CORRECT': {
@@ -2039,13 +2312,12 @@ export function reducer(state, action) {
 
     case 'PRACTICE_WRONG':
       if (action.formId != null && !isTrainableSense(action.formId)) return state
-      return {
+      return applyExplainedHeartLoss({
         ...state,
-        hearts: Math.max(0, state.hearts - 1),
         trainRound: (state.trainRound || 0) + 1,
         trainLastWords: normalizedTrainWords(action.wordKeys),
         trainLastQuestionKey: typeof action.questionKey === 'string' ? action.questionKey.slice(0, 200) : null,
-      }
+      }, action.consequence, 1) || state
 
     case 'TRAIN_ROUND_COMPLETE':
       return {
@@ -2143,7 +2415,7 @@ export function reducer(state, action) {
           [phrase.id]: phraseProductionStage(transition.progress, focusIds),
         }
         if (!action.correct) {
-          return {
+          const resultState = {
             ...state,
             phraseProductionProgress,
             phraseMastery,
@@ -2151,11 +2423,11 @@ export function reducer(state, action) {
               ...(state.phraseMistakes || {}),
               [phrase.id]: (state.phraseMistakes?.[phrase.id] || 0) + 1,
             },
-            hearts: Math.max(0, state.hearts - 1),
             trainRound: nextRound,
             trainLastWords,
             trainLastQuestionKey: action.questionKey,
           }
+          return applyExplainedHeartLoss(resultState, action.consequence, 1) || state
         }
         const mana = { ...state.mana }
         const practiced = { ...state.practiced }
@@ -2200,14 +2472,14 @@ export function reducer(state, action) {
       if (!action.correct) {
         const phraseMistakes = { ...(state.phraseMistakes || {}) }
         for (const id of phraseIds) phraseMistakes[id] = (phraseMistakes[id] || 0) + 1
-        return {
+        const resultState = {
           ...state,
           phraseMistakes,
-          hearts: Math.max(0, state.hearts - 1),
           trainRound: nextRound,
           trainLastWords,
           trainLastQuestionKey: action.questionKey,
         }
+        return applyExplainedHeartLoss(resultState, action.consequence, 1) || state
       }
 
       const phrasePracticed = { ...(state.phrasePracticed || {}) }
@@ -2237,13 +2509,23 @@ export function reducer(state, action) {
     case 'CONFUSE':
       // picked an option that can't happen in this part of the story
       if (action.expectedHearts != null && action.expectedHearts !== state.hearts) return state
-      return state.embodying ? state : { ...state, hearts: Math.max(0, state.hearts - 1) }
+      return state.embodying ? state : applyExplainedHeartLoss(state, action.consequence, 1) || state
 
     case 'COMP_WRONG':
       // missed a comprehension question — costs a heart (run out and the run
-      // is over). The gate is HARD: the wrong answer also ends the attempt
-      // (see FAIL_TEST), but the deed stays eligible for a retake.
-      return { ...state, hearts: Math.max(0, state.hearts - 1) }
+      // is over). The gate is HARD: record the ended attempt and explanation
+      // in the same fail-closed transaction so neither can land on its own.
+      if (state.embodying && !(
+        state.ended && state.nodeId === action.id &&
+        isEmbodimentEnding(state.embodying, state.nodeId)
+      )) return state
+      if (!ACHIEVEMENT_BY_ID[action.id] || !state.eligible?.[action.id] || state.earned?.[action.id]) return state
+      return applyExplainedHeartLoss({
+        ...state,
+        attempts: { ...state.attempts, [action.id]: (state.attempts[action.id] || 0) + 1 },
+        pendingTest: state.pendingTest === action.id ? null : state.pendingTest,
+        dismissedTests: { ...state.dismissedTests, [action.id]: true },
+      }, action.consequence, 1) || state
 
     case 'SET_VIEW':
       // UI gating is not a sufficient boundary: stale saves and manually
@@ -2375,35 +2657,7 @@ export function reducer(state, action) {
       if (state.ended !== 'bad') return state
       if (STORY[state.nodeId]?.end !== 'bad') return state
       if (state.embodying && !isEmbodimentEnding(state.embodying, state.nodeId)) return state
-      return {
-        ...baseRun(),
-        mana: state.mana,
-        practiced: state.practiced,
-        wordProgressVersion: WORD_PROGRESS_VERSION,
-        wordProgress: state.wordProgress || {},
-        formPracticed: state.formPracticed || {},
-        phrasePracticed: state.phrasePracticed || {},
-        phraseMistakes: state.phraseMistakes || {},
-        phraseProgressVersion: PHRASE_PROGRESS_VERSION,
-        phraseProductionProgress: state.phraseProductionProgress || {},
-        phraseMastery: state.phraseMastery || {},
-        phraseListeningMastery: state.phraseListeningMastery || {},
-        phraseMatchingMastery: state.phraseMatchingMastery || {},
-        trainRound: state.trainRound || 0,
-        trainLastWords: state.trainLastWords || [],
-        trainLastQuestionKey: state.trainLastQuestionKey || null,
-        ...normalizeStoredCefrState(state),
-        ...normalizeCefrPreparationState(state),
-        visited: state.visited,
-        heard: state.heard || {},
-        discovered: state.discovered,
-        earned: state.earned,
-        eligible: state.eligible,
-        attempts: state.attempts,
-        worldFacts: state.worldFacts || {},
-        knowledge: state.knowledge || {},
-        debug: state.debug,
-      }
+      return restartStoryRun(state)
 
     case 'RETURN_TO_WORLD':
       // finished a good OR secret ending: don't restart — drop straight back into
@@ -2456,37 +2710,10 @@ export function reducer(state, action) {
 
     case 'RESET':
       // hard new run (top-right button or game over): back to the start with
-      // everything undiscovered; keep learned progress, achievements, and the
-      // lasting physical consequences of tales already completed.
+      // a fresh world attempt; keep the coherent learner profile, achievements,
+      // and the lasting physical consequences of tales already completed.
       if (state.embodying && state.hearts > 0) return state
-      return {
-        ...baseRun(),
-        mana: state.mana,
-        practiced: state.practiced,
-        wordProgressVersion: WORD_PROGRESS_VERSION,
-        wordProgress: state.wordProgress || {},
-        formPracticed: state.formPracticed || {},
-        phrasePracticed: state.phrasePracticed || {},
-        phraseMistakes: state.phraseMistakes || {},
-        phraseProgressVersion: PHRASE_PROGRESS_VERSION,
-        phraseProductionProgress: state.phraseProductionProgress || {},
-        phraseMastery: state.phraseMastery || {},
-        phraseListeningMastery: state.phraseListeningMastery || {},
-        phraseMatchingMastery: state.phraseMatchingMastery || {},
-        trainRound: state.trainRound || 0,
-        trainLastWords: state.trainLastWords || [],
-        trainLastQuestionKey: state.trainLastQuestionKey || null,
-        ...normalizeStoredCefrState(state),
-        ...normalizeCefrPreparationState(state),
-        visited: state.visited,
-        heard: state.heard || {},
-        earned: state.earned,
-        eligible: state.eligible,
-        attempts: state.attempts,
-        worldFacts: state.worldFacts || {},
-        knowledge: state.knowledge || {},
-        debug: state.debug,
-      }
+      return restartStoryRun(state)
 
     default:
       return state

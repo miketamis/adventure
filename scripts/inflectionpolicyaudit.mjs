@@ -21,8 +21,12 @@ import { isTrainableSense } from '../src/game/lexicalTrainability.js'
 import {
   ENVIRONMENT_DIMENSIONS,
   ENVIRONMENT_NARRATION_SETTINGS,
+  companionStoryLine,
+  departedCompanionStoryLine,
   environmentStoryLine,
+  heldItemsStoryLine,
   purseStoryLine,
+  removedItemsStoryLine,
 } from '../src/game/storyContext.js'
 
 const lower = (value) => value.normalize('NFC').toLocaleLowerCase('sq')
@@ -76,6 +80,17 @@ for (const setting of ENVIRONMENT_NARRATION_SETTINGS) {
             tokensOf(environmentStoryLine({ clock, season, weather }, { setting, omit })),
             `environment:${setting}:${season}:${weather}:${clock}:omit-${mask}`,
           )
+          collect(
+            tokensOf(environmentStoryLine(
+              { clock, season, weather },
+              {
+                setting,
+                omit,
+                transitionFrom: { time: 'night', season: 'winter', weather: 'storm' },
+              },
+            )),
+            `environment-transition:${setting}:${season}:${weather}:${clock}:omit-${mask}`,
+          )
           generatedEnvironmentCases++
         }
       }
@@ -86,6 +101,21 @@ for (const balance of [1, Number.MAX_SAFE_INTEGER]) {
   collect(tokensOf(purseStoryLine(balance)), `purse:${balance}`)
   generatedPurseCases++
 }
+collect(tokensOf(purseStoryLine(0, { includeEmpty: true })), 'purse:empty')
+const heldItemIds = Object.keys(ITEMS).filter((id) => !ITEMS[id].currency && !ITEMS[id].companion)
+const companionIds = Object.keys(ITEMS).filter((id) => ITEMS[id].companion)
+for (const id of heldItemIds) {
+  collect(tokensOf(heldItemsStoryLine(ITEMS, [id])), `inventory:held:${id}`)
+  collect(tokensOf(removedItemsStoryLine(ITEMS, [id])), `inventory:removed:${id}`)
+}
+for (const id of companionIds) {
+  collect(tokensOf(companionStoryLine(ITEMS, [id])), `inventory:companion:${id}`)
+  collect(tokensOf(departedCompanionStoryLine(ITEMS, [id])), `inventory:departed:${id}`)
+}
+collect(tokensOf(heldItemsStoryLine(ITEMS, heldItemIds.slice(0, 2))), 'inventory:held-list')
+collect(tokensOf(removedItemsStoryLine(ITEMS, heldItemIds.slice(0, 2))), 'inventory:removed-list')
+collect(tokensOf(companionStoryLine(ITEMS, companionIds.slice(0, 2))), 'inventory:companion-list')
+collect(tokensOf(departedCompanionStoryLine(ITEMS, companionIds.slice(0, 2))), 'inventory:departed-list')
 assert.equal(generatedEnvironmentCases, 7680, 'generated environment state enumeration drifted')
 assert.equal(generatedPurseCases, 2, 'generated purse boundary enumeration drifted')
 

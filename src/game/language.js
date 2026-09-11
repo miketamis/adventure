@@ -318,29 +318,12 @@ export function fallbackEnglishReadingOf(line) {
 }
 
 export function englishReadingOf(line) {
-  const authored = String(line?.reading || (isExactSourceQuoteLine(line) ? line?.quoteGameTranslation : '') || '').trim()
+  const authored = String(line?.reading || '').trim()
   return authored || fallbackEnglishReadingOf(line)
 }
 
-const normalizedSourceText = (text) => String(text || '')
-  .toLocaleLowerCase('sq')
-  .normalize('NFKC')
-  .replace(/[“”«».,!?:;…'’-]/g, ' ')
-  .replace(/\s+/g, ' ')
-  .trim()
-
-// A quote's dedicated game translation describes q.game only. The separate
-// source translation may include speakers, omitted clauses, or editorial
-// context and is never eligible as player-facing whole-line English.
-export const isExactSourceQuoteLine = (line) => Boolean(
-  line?.quoteGameTranslation
-  && line?.quoteGame
-  && normalizedSourceText(albanianTextOf(line)) === normalizedSourceText(line.quoteGame),
-)
-
 export const hasAuthoredEnglishReading = (line) => Boolean(
-  String(line?.reading || '').trim()
-  || (isExactSourceQuoteLine(line) && String(line?.quoteGameTranslation || '').trim()),
+  String(line?.reading || '').trim(),
 )
 
 // These are deliberately narrow blockers, not a claim that a regex can edit

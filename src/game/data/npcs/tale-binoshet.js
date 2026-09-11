@@ -119,7 +119,7 @@ export default {
     role: 'the foreign king occupying the twins\' ancestral kingdom',
     backstory: 'Holds the twins\' father\'s old kingdom by force. After months of war against the twins\' smaller company, he loses hope of victory or escape, throws himself into the bloodiest fighting, and is killed by Handa\'s silver sword; Zjerma then passes the ancestral crown to Handa.',
     folklore: ['binoshet'],
-    location: { status: 'placed', node: 'binoshetKurora' },
+    location: { status: 'placed', node: 'binoshetLuftaFund' },
     tales: { binoshet: 'mbretiHuaj' },
   },
 }

@@ -24,7 +24,7 @@ export default {
     role: 'the middle sister, cursed into the cicada',
     backstory: 'She would not break off her song for the sickbed, so the song became her sentence: sing until you die of it. She sings her one bright summer and dies dried out, her back fastened to a grass stem — and next summer sings again, serial like the season itself. On warm nights she is the voice in the dark of the village square (the square\'s own night-line: «një gjinkalla këndon në errësirë»).',
     folklore: ['bee-spider-cicada'],
-    location: { status: 'placed', node: 'fshatiSheshi' },
+    location: { status: 'placed', node: 'fshatiSheshi', encounters: ['bleta1'] },
     tales: { 'bee-spider-cicada': 'gjinkalla' },
   },
   motraBleta: {

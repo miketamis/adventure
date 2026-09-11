@@ -134,6 +134,7 @@ const REVIEWED_UNGATED_ONLY = Object.freeze({
   eliraEmriShesh: 'accepting or declining the errand remains a direct conversational choice',
   eliraBanore: 'the available quest response and asking a recurring NPC her name remain visible together',
   porosiaShesh: 'the learner may act immediately or ask one of three optional errand questions',
+  gruaUji1: 'the learner chooses which optional question to ask; discovery gates must not prescribe a conversation order',
   kroiGrate2: 'time-of-day greeting responses must remain visible together as a contextual choice',
 })
 const unreviewedUngatedOnly = ungatedOnly.filter((id) => !REVIEWED_UNGATED_ONLY[id])

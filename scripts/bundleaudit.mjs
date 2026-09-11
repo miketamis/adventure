@@ -101,10 +101,12 @@ const chunkNamed = (prefix) => {
 // These are intentional long-lived cache boundaries, not arbitrary filenames.
 // If Rollup ever folds one back into the shell, the shell-only budget might
 // catch it, but this assertion explains the architectural regression directly.
-for (const prefix of ['react-vendor', 'story-graph', 'dictionary-catalog', 'quote-register', 'state-mechanics']) {
+for (const prefix of ['react-vendor', 'story-graph', 'dictionary-catalog', 'state-mechanics']) {
   const chunk = chunkNamed(prefix)
   assert.ok(bootstrapNames.has(chunk.name), `${prefix} must remain in the initial static closure`)
 }
+assert.ok(!bootstrapNames.has(chunkNamed('quote-register').name),
+  'source-proof metadata is debug/lore material and must stay deferred outside normal first play')
 assert.ok(!bootstrapNames.has(chunkNamed('folklore-catalog').name),
   'the full folklore catalog should stay deferred until a lore, achievements, or debug surface requests it')
 assert.ok(!bootstrapNames.has(chunkNamed('npc-catalog').name),

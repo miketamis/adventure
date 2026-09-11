@@ -105,7 +105,14 @@ for (const id of FUNCTION_IDS) {
 // particle is a same-role contrast. For example: "po / nuk / ende / akoma bie
 // shi" all make a viable sentence while testing the progressive marker.
 export const REVIEWED_CLOZE_SLOT_PEERS = Object.freeze({
-  po_prog: Object.freeze(ids('nuk ende akoma')),
+  // These alternatives change the exact assertion, not merely its idiom:
+  // negative, question and future. “Ende/akoma/edhe” remain defensible
+  // additions to a present-progressive cue and therefore are excluded.
+  po_prog: Object.freeze(ids('nuk a_q do_fut')),
+  // In “A do ujë?”, replacing A with another question word changes the
+  // requested information. “Nuk/Mos” can instead form natural biased offers,
+  // so they are not safe wrong answers for the neutral English question.
+  a_q: Object.freeze(ids('ku kush pse')),
   nente: Object.freeze(ids('shtate tete dhjete')),
   shume: Object.freeze(ids('perseri vertet gjithmone')),
   nje: Object.freeze(ids('dy tre pak')),

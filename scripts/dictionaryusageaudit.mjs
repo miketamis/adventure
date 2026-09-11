@@ -2,7 +2,18 @@
 // definition is support for a saved word, never a hiding place for otherwise
 // unused vocabulary.
 import { DICT, HEART_LEVELS, ITEMS, STORY, lineOf, moneyOutcomeLinesOf } from '../src/game/content.js'
-import { environmentStoryLine, purseStoryLine } from '../src/game/storyContext.js'
+import { npcPortraitLines } from '../src/game/npcAppearance.js'
+import {
+  companionStoryLine,
+  departedCompanionStoryLine,
+  environmentStoryLine,
+  heldItemsStoryLine,
+  purseStoryLine,
+  removedItemsStoryLine,
+} from '../src/game/storyContext.js'
+import { loadNpcAppearancePartitions } from './lib/loadnpcappearances.mjs'
+
+await loadNpcAppearancePartitions()
 
 const uses = new Map(Object.keys(DICT).map((id) => [id, []]))
 
@@ -21,6 +32,9 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     moneyOutcomeLinesOf(option).forEach((line, outcomeIndex) =>
       addTokens(line, `story:${nodeId}:option:${index + 1}:money:${outcomeIndex + 1}`))
   })
+}
+for (const [index, line] of npcPortraitLines().entries()) {
+  addTokens(line, `npc-first-encounter:${index + 1}`)
 }
 
 for (const [itemId, item] of Object.entries(ITEMS)) {
@@ -45,9 +59,28 @@ for (const clock of clocks) for (const season of seasons) {
       lineOf(environmentStoryLine({ clock, season, weather }, { setting })),
       `environment:${clock}:${season}:${weather}:${setting}`,
     )
+    addTokens(
+      lineOf(environmentStoryLine(
+        { clock, season, weather },
+        { setting, transitionFrom: { time: 'night', season: 'winter', weather: 'storm' } },
+      )),
+      `environment-transition:${clock}:${season}:${weather}:${setting}`,
+    )
   }
 }
 addTokens(lineOf(purseStoryLine(1)), 'purse:positive-balance')
+addTokens(lineOf(purseStoryLine(0, { includeEmpty: true })), 'purse:empty-balance')
+
+const heldItemIds = Object.keys(ITEMS).filter((id) => !ITEMS[id].currency && !ITEMS[id].companion)
+const companionIds = Object.keys(ITEMS).filter((id) => ITEMS[id].companion)
+for (const id of heldItemIds) {
+  addTokens(lineOf(heldItemsStoryLine(ITEMS, [id])), `inventory:${id}:held`)
+  addTokens(lineOf(removedItemsStoryLine(ITEMS, [id])), `inventory:${id}:removed`)
+}
+for (const id of companionIds) {
+  addTokens(lineOf(companionStoryLine(ITEMS, [id])), `companion:${id}:present`)
+  addTokens(lineOf(departedCompanionStoryLine(ITEMS, [id])), `companion:${id}:departed`)
+}
 
 const unused = [...uses]
   .filter(([, locations]) => locations.length === 0)

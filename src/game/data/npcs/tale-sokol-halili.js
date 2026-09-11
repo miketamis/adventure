@@ -31,7 +31,7 @@ export default {
     backstory:
       'A warrior of Tetova across the frontier, armed with a rifle that strikes true however crookedly it is aimed. He meets Halili already blood-spattered in the Green Valleys, avenging two cousins Halili killed there that same day; he kills him with a single warning shot, then lays the body out in the shade with real tenderness and grief, dreading what Mujo will do to him. When Mujo comes for him in turn the same rifle cannot finish the job — the two grapple three days and nights before a poisoned dagger, named to Mujo by the zana sisterhood, finally kills him. Cutting the body open afterward, Mujo finds three serpents coiled in his belly, one still awake: the hidden source of a strength that let him survive the very shot that killed Halili outright. Not a Krajl and not tied to any other named enemy elsewhere in the cycle — a lone warrior, his tribe and his slain cousins named only in passing, met once in this one song.',
     folklore: ['sokol-halili'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'placed', node: 'haliliMejdan' },
     tales: { 'sokol-halili': 'zadrani' },
   },
   osmaniZilise: {
@@ -40,7 +40,7 @@ export default {
     backstory:
       'One of the three hundred Agas camped with Mujo and Halili at Kunora, and the only one of them the song says held a grudge against Mujo. The moment Mujo slips off alone to scout the high pastures, this Osmani wakes the sleeping Halili with a kick and a lie — that the shkja have already killed Mujo in the Green Valleys — and sends him racing off to his death; when Mujo returns, he tells him the same lie in reverse, sending the second brother after the first. The song never explains the grudge, only that it exists, and that one lie costs the frontier its second pillar. NOT `arnautOsmani`, the loyal Aga of the coals-and-corpse song ("Arnaut Osmani," Palaj–Kurti no. 13, tale-arnaut-osmani.js), who endures nine years in chains rather than let his companions share the blame — the epic hands this popular name to more than one man across its songs, exactly as it does with Zuku and with every Krajl; this is a different Osmani, known here only for the lie he tells twice.',
     folklore: ['sokol-halili'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'placed', node: 'haliliDeka' },
     tales: { 'sokol-halili': 'osmani' },
   },
 }

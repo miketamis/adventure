@@ -7,6 +7,7 @@ import { STORY, describesEnvironment, lineOf, moneyOutcomeLineOf, visibleLines, 
 import {
   hasCond,
   hasRequiredItem,
+  environmentNarrationScopeOf,
   newRun,
   normalizeSavedState,
   phraseSenses,
@@ -23,9 +24,12 @@ import {
 import { civilDayPartAtClock, civilHourAtClock, greetingPeriodAtClock } from '../src/game/environment.js'
 import { storyReadingVisible } from '../src/components/storyMechanicsPresentation.js'
 import { observationConditionId, observationIdOfLine } from '../src/game/observations.js'
+import { normalizeHealthNarrationState, planHealthNarration } from '../src/game/healthNarration.js'
 
 const failures = []
+let checkCount = 0
 const check = (name, fn) => {
+  checkCount += 1
   try {
     fn()
     console.log(`✓ ${name}`)
@@ -90,17 +94,21 @@ check('environment fallback is transition-driven per dimension and survives relo
     undefined,
     { nodeId: 'start', turn: 1, authoredDimensions: ['time'] },
   )
-  assert.deepEqual(first.fallbackDimensions, [], 'fresh state invented an environment transition')
-  assert.deepEqual(first.omitDimensions, ['time', 'season', 'weather'])
-  assert.equal(environmentStoryLine(initialEnvironment, { omit: first.omitDimensions }), null)
-  assert.deepEqual(first.nextState.communicated, {
+  assert.deepEqual(first.fallbackDimensions, ['season', 'weather'],
+    'fresh state did not introduce its unknown season and weather')
+  assert.deepEqual(first.omitDimensions, ['time'])
+  assert.equal(
+    albanianTextOf(environmentStoryLine(initialEnvironment, { omit: first.omitDimensions })),
+    'në këtë pranverë, po bie shi.',
+  )
+  assert.deepEqual(first.nextState.scopes.world.communicated, {
     time: 'morning',
     season: 'spring',
     weather: 'rain',
   })
 
-  // A pre-ledger save is also an unknown baseline, not evidence that all three
-  // dimensions just changed during play.
+  // A pre-ledger save also starts from unknown conditions, so it communicates
+  // the current environment once instead of remaining contextless.
   const legacySave = { ...newRun() }
   delete legacySave.environmentNarration
   const migrated = normalizeSavedState(legacySave, newRun())
@@ -109,8 +117,39 @@ check('environment fallback is transition-driven per dimension and survives relo
     migrated.environmentNarration,
     { nodeId: 'start', turn: 1, authoredDimensions: [] },
   )
-  assert.deepEqual(migratedFirst.fallbackDimensions, [], 'legacy save invented an environment transition')
-  assert.deepEqual(migratedFirst.omitDimensions, ['time', 'season', 'weather'])
+  assert.deepEqual(migratedFirst.fallbackDimensions, ['time', 'season', 'weather'])
+  assert.deepEqual(migratedFirst.omitDimensions, [])
+
+  // Version 1 silently stored an opening baseline without presenting it. Drop
+  // that false communication record once so existing runs receive the corrected
+  // unknown-to-known opening context too.
+  const previousPolicySave = {
+    ...newRun(),
+    environmentNarration: {
+      version: 1,
+      communicated: { time: 'morning', season: 'spring', weather: 'rain' },
+      active: null,
+    },
+  }
+  const upgraded = normalizeSavedState(previousPolicySave, newRun())
+  const upgradedFirst = planEnvironmentNarration(
+    initialEnvironment,
+    upgraded.environmentNarration,
+    { nodeId: 'start', turn: 1, authoredDimensions: ['time'] },
+  )
+  assert.deepEqual(upgradedFirst.fallbackDimensions, ['season', 'weather'])
+
+  const unscopedSave = {
+    ...newRun(),
+    environmentNarration: {
+      version: 2,
+      communicated: { time: 'night', season: 'winter', weather: 'storm' },
+      active: null,
+    },
+  }
+  const scopedMigration = normalizeSavedState(unscopedSave, newRun())
+  assert.deepEqual(scopedMigration.environmentNarration.scopes, {},
+    'an unscoped clock snapshot was guessed into the living world')
 
   const initialState = newRun()
   const committedState = reducer(initialState, {
@@ -120,7 +159,10 @@ check('environment fallback is transition-driven per dimension and survives relo
     authoredDimensions: ['time'],
   })
   assert.notEqual(committedState, initialState)
-  assert.deepEqual(Object.keys(committedState.environmentNarration.communicated).sort(), ['season', 'time', 'weather'])
+  assert.deepEqual(
+    Object.keys(committedState.environmentNarration.scopes.world.communicated).sort(),
+    ['season', 'time', 'weather'],
+  )
   assert.equal(reducer(committedState, {
     type: 'NARRATE_ENVIRONMENT',
     nodeId: initialState.nodeId,
@@ -128,14 +170,14 @@ check('environment fallback is transition-driven per dimension and survives relo
     authoredDimensions: ['time'],
   }), committedState, 'same presentation acknowledged itself twice')
 
-  // The silent baseline remains silent on rerender.
+  // The initial transition remains visible for this presentation on rerender.
   const rerender = planEnvironmentNarration(
     initialEnvironment,
     first.nextState,
     { nodeId: 'start', turn: 1, authoredDimensions: ['time'] },
   )
   assert.equal(rerender.needsCommit, false)
-  assert.deepEqual(rerender.fallbackDimensions, [])
+  assert.deepEqual(rerender.fallbackDimensions, ['season', 'weather'])
 
   // Movement under unchanged conditions is silent.
   const unchangedMove = planEnvironmentNarration(
@@ -154,7 +196,17 @@ check('environment fallback is transition-driven per dimension and survives relo
   )
   assert.deepEqual(partialChange.fallbackDimensions, ['weather'])
   assert.deepEqual(partialChange.omitDimensions.sort(), ['season', 'time'])
-  assert.equal(partialChange.nextState.communicated.time, 'noon')
+  assert.equal(partialChange.nextState.scopes.world.communicated.time, 'noon')
+  assert.equal(
+    albanianTextOf(environmentStoryLine(
+      { clock: 6, season: 'spring', weather: 'storm' },
+      {
+        omit: partialChange.omitDimensions,
+        transitionFrom: partialChange.previousSnapshot,
+      },
+    )),
+    'fillon një stuhi.',
+  )
 
   const state = { ...newRun(), environmentNarration: partialChange.nextState }
   const loaded = normalizeSavedState(JSON.parse(JSON.stringify(state)), newRun())
@@ -174,6 +226,104 @@ check('environment fallback is transition-driven per dimension and survives relo
     { nodeId: 'mali1', turn: 4, authoredDimensions: [] },
   )
   assert.deepEqual(afterAcknowledgedMove.fallbackDimensions, [])
+})
+
+check('the reducer persists separate world and embodied-tale narration domains', () => {
+  let world = newRun()
+  assert.equal(environmentNarrationScopeOf(world), 'world')
+  world = reducer(world, {
+    type: 'NARRATE_ENVIRONMENT', nodeId: world.nodeId, turn: world.turn,
+    scopeId: 'world', authoredDimensions: [],
+  })
+  const worldSnapshot = world.environmentNarration.scopes.world.communicated
+
+  let tale = {
+    ...world,
+    nodeId: 'agaYmer2',
+    embodying: 'aga-ymer',
+    embodimentClock: 1,
+    embodimentPaused: false,
+    turn: world.turn + 1,
+  }
+  assert.equal(environmentNarrationScopeOf(tale), 'tale:aga-ymer')
+  tale = reducer(tale, {
+    type: 'NARRATE_ENVIRONMENT', nodeId: tale.nodeId, turn: tale.turn,
+    scopeId: 'tale:aga-ymer', authoredDimensions: [],
+  })
+  assert.deepEqual(Object.keys(tale.environmentNarration.scopes).sort(), ['tale:aga-ymer', 'world'])
+  assert.deepEqual(tale.environmentNarration.scopes.world.communicated, worldSnapshot)
+
+  const loadedTale = normalizeSavedState(JSON.parse(JSON.stringify(tale)), newRun())
+  assert.deepEqual(loadedTale.environmentNarration, tale.environmentNarration)
+  const paused = {
+    ...loadedTale,
+    nodeId: 'start',
+    embodimentPaused: true,
+    clock: world.clock,
+    turn: loadedTale.turn + 1,
+  }
+  assert.equal(environmentNarrationScopeOf(paused), 'world')
+  const returned = reducer(paused, {
+    type: 'NARRATE_ENVIRONMENT', nodeId: paused.nodeId, turn: paused.turn,
+    scopeId: 'world', authoredDimensions: [],
+  })
+  assert.deepEqual(returned.environmentNarration.scopes.world.communicated, worldSnapshot)
+  assert.deepEqual(returned.environmentNarration.scopes.world.active.fallbackDimensions, [])
+
+  const resumed = {
+    ...returned,
+    nodeId: 'agaYmer2',
+    embodimentPaused: false,
+    turn: returned.turn + 1,
+  }
+  const resumedNarration = reducer(resumed, {
+    type: 'NARRATE_ENVIRONMENT', nodeId: resumed.nodeId, turn: resumed.turn,
+    scopeId: 'tale:aga-ymer', authoredDimensions: [],
+  })
+  assert.deepEqual(resumedNarration.environmentNarration.scopes['tale:aga-ymer'].active.fallbackDimensions, [],
+    'resuming a frozen tale emitted a backward transition')
+})
+
+check('health prose appears on change and remains while wounded or healable', () => {
+  const opening = planHealthNarration(3, undefined, {
+    nodeId: 'start', turn: 1, keepVisible: false,
+  })
+  assert.equal(opening.visible, true, 'opening health was not established')
+
+  const rerender = planHealthNarration(3, opening.nextState, {
+    nodeId: 'start', turn: 1, keepVisible: false,
+  })
+  assert.equal(rerender.visible, true, 'opening health vanished during its own presentation')
+  assert.equal(rerender.needsCommit, false)
+
+  const unchangedMove = planHealthNarration(3, opening.nextState, {
+    nodeId: 'lendina', turn: 2, keepVisible: false,
+  })
+  assert.equal(unchangedMove.visible, false, 'full health repeated without changing')
+  const reloadedQuiet = planHealthNarration(
+    3,
+    normalizeHealthNarrationState(JSON.parse(JSON.stringify(unchangedMove.nextState))),
+    { nodeId: 'lendina', turn: 2, keepVisible: false },
+  )
+  assert.equal(reloadedQuiet.visible, false, 'reload repeated unchanged full health')
+
+  const wounded = planHealthNarration(2, unchangedMove.nextState, {
+    nodeId: 'lendina', turn: 2, keepVisible: true,
+  })
+  assert.equal(wounded.visible, true, 'heart loss was not narrated')
+  const woundedMove = planHealthNarration(2, wounded.nextState, {
+    nodeId: 'fshatiLumi', turn: 3, keepVisible: true,
+  })
+  assert.equal(woundedMove.visible, true, 'wounded warning did not remain visible')
+
+  const healed = planHealthNarration(3, woundedMove.nextState, {
+    nodeId: 'fshatiLumi', turn: 3, keepVisible: false,
+  })
+  assert.equal(healed.visible, true, 'healing change was not narrated')
+  const healedMove = planHealthNarration(3, healed.nextState, {
+    nodeId: 'fshatiSheshi', turn: 4, keepVisible: false,
+  })
+  assert.equal(healedMove.visible, false, 'full health remained permanent after its change beat')
 })
 
 check('opening and authored weather scenes prefer their visible immersive descriptions', () => {
@@ -354,7 +504,17 @@ check('a correct greeting records the spoken reply and an incorrect one costs on
   assert.equal(STORY.tregtari.options.filter((option) =>
     option.contextGreeting && hasRequiredItem(answered, option),
   ).length, 0, 'the completed greeting remained in the action list')
-  assert.equal(reducer(state, { type: 'CONFUSE', expectedHearts: state.hearts }).hearts, state.hearts - 1)
+  assert.equal(reducer(state, {
+    type: 'CONFUSE',
+    expectedHearts: state.hearts,
+    consequence: {
+      source: 'story-confuser',
+      eventId: 'story-context:greeting-miss',
+      attempted: { al: 'natën e mirë!' },
+      reason: { code: 'wrong-time-greeting', text: 'This farewell does not fit the current greeting exchange.' },
+      correction: { al: 'mirëmbrëma!', en: 'Good evening!' },
+    },
+  }).hearts, state.hearts - 1)
   assert.equal(wrong.contextGreeting.correct, false)
 })
 
@@ -384,7 +544,7 @@ check('all whole-line English readings are debug-only', () => {
   assert.equal(storyReadingVisible(0, true), true)
 })
 
-console.log(`\n${11 - failures.length}/11 story-context contracts pass.`)
+console.log(`\n${checkCount - failures.length}/${checkCount} story-context contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1

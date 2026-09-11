@@ -121,22 +121,25 @@ check('authored dimensions suppress exactly their own generated facts', () => {
   }
 })
 
-check('only a real post-baseline change creates transition narration', () => {
+check('the opening and later changes create transition narration once', () => {
   const initial = { clock: 0, season: 'spring', weather: 'clear' }
   for (const legacy of [undefined, {}, { version: 0 }, { communicated: {} }]) {
     const baseline = planEnvironmentNarration(initial, legacy, {
       nodeId: 'start', turn: 1, authoredDimensions: [],
     })
-    assert.deepEqual(baseline.fallbackDimensions, [], 'missing history was mistaken for a transition')
-    assert.deepEqual(baseline.omitDimensions, ENVIRONMENT_DIMENSIONS)
-    assert.deepEqual(baseline.nextState.communicated, {
+    assert.deepEqual(baseline.fallbackDimensions, ENVIRONMENT_DIMENSIONS,
+      'unknown opening conditions were not treated as an initial transition')
+    assert.deepEqual(baseline.omitDimensions, [])
+    assert.deepEqual(baseline.nextState.scopes.world.communicated, {
       time: 'morning', season: 'spring', weather: 'clear',
     })
   }
 
   const baseline = planEnvironmentNarration(initial, undefined, {
-    nodeId: 'start', turn: 1, authoredDimensions: [],
+    nodeId: 'start', turn: 1, authoredDimensions: ['time'],
   })
+  assert.deepEqual(baseline.fallbackDimensions, ['season', 'weather'])
+  assert.deepEqual(baseline.omitDimensions, ['time'])
   const changed = planEnvironmentNarration(
     { ...initial, weather: 'rain' },
     baseline.nextState,
@@ -144,6 +147,33 @@ check('only a real post-baseline change creates transition narration', () => {
   )
   assert.deepEqual(changed.fallbackDimensions, ['weather'])
   assert.deepEqual(changed.omitDimensions.sort(), ['season', 'time'])
+  const rainBegins = environmentStoryLine(
+    { ...initial, weather: 'rain' },
+    { omit: changed.omitDimensions, transitionFrom: changed.previousSnapshot },
+  )
+  assert.equal(albanianTextOf(rainBegins), 'fillon të bjerë shi.')
+  assert.equal(englishReadingOf(rainBegins), 'It starts to rain.')
+
+  const nightFalls = environmentStoryLine(
+    { clock: 16, season: 'spring', weather: 'rain' },
+    {
+      omit: ['season', 'weather'],
+      transitionFrom: { time: 'evening', season: 'spring', weather: 'rain' },
+    },
+  )
+  assert.equal(albanianTextOf(nightFalls), 'bie nata.')
+  assert.equal(englishReadingOf(nightFalls), 'Night falls.')
+
+  const winterBeginsOutside = environmentStoryLine(
+    { clock: 16, season: 'winter', weather: 'rain' },
+    {
+      setting: 'enclosed',
+      omit: ['time', 'weather'],
+      transitionFrom: { time: 'night', season: 'autumn', weather: 'rain' },
+    },
+  )
+  assert.equal(albanianTextOf(winterBeginsOutside), 'jashtë fillon dimri.')
+  assert.equal(englishReadingOf(winterBeginsOutside), 'Winter begins outside.')
 
   const reloadStable = planEnvironmentNarration(
     { ...initial, weather: 'rain' },
@@ -161,6 +191,33 @@ check('only a real post-baseline change creates transition narration', () => {
   assert.deepEqual(nextScene.fallbackDimensions, [])
 })
 
+check('world and frozen-tale clocks keep independent communicated histories', () => {
+  const world = { clock: 13, season: 'spring', weather: 'clear' }
+  const tale = { clock: 1, season: 'spring', weather: 'clear' }
+  const worldOpening = planEnvironmentNarration(world, undefined, {
+    nodeId: 'start', turn: 1, scopeId: 'world', authoredDimensions: [],
+  })
+  const taleOpening = planEnvironmentNarration(tale, worldOpening.nextState, {
+    nodeId: 'agaYmer2', turn: 2, scopeId: 'tale:aga-ymer', authoredDimensions: [],
+  })
+  assert.deepEqual(taleOpening.fallbackDimensions, ENVIRONMENT_DIMENSIONS,
+    'a tale inherited the living-world clock as if time had moved backwards')
+
+  const worldReturn = planEnvironmentNarration(world, taleOpening.nextState, {
+    nodeId: 'plaka', turn: 3, scopeId: 'world', authoredDimensions: [],
+  })
+  assert.deepEqual(worldReturn.fallbackDimensions, [],
+    'returning from a tale repeated or rewound unchanged world conditions')
+
+  const reloaded = JSON.parse(JSON.stringify(taleOpening.nextState))
+  const taleResume = planEnvironmentNarration(tale, reloaded, {
+    nodeId: 'agaYmer2', turn: 4, scopeId: 'tale:aga-ymer', authoredDimensions: [],
+  })
+  assert.deepEqual(taleResume.fallbackDimensions, [],
+    'reloading and resuming repeated unchanged frozen-tale conditions')
+  assert.deepEqual(Object.keys(taleResume.nextState.scopes).sort(), ['tale:aga-ymer', 'world'])
+})
+
 check('English editorial readings remain compact sentence metadata', () => {
   for (const setting of ENVIRONMENT_NARRATION_SETTINGS) {
     const reading = englishReadingOf(environmentStoryLine(
@@ -172,7 +229,7 @@ check('English editorial readings remain compact sentence metadata', () => {
   }
 })
 
-console.log(`\n${7 - failures.length}/7 immersive-environment contracts pass.`)
+console.log(`\n${8 - failures.length}/8 immersive-environment contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1

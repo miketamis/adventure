@@ -11,7 +11,7 @@ export default {
     backstory:
       'Mujo\'s own blood brother and the frontier\'s second hero — the fast, reckless younger half of the pair, sent alone into the Kingdom to win his own bride in "The Marriage of Halili," and here sent to scout the Rugged Peak while Mujo minds young Omer. He hears his nephew\'s dying groan from a mountain away, rides beside Mujo to the rescue, and is the one who finally tells Ajkuna the plain truth her husband won\'t. NOT a separate "Halil" of any other cycle — the one sworn brother of Mujo the whole kreshnik cycle turns on.',
     folklore: ['kreshnik-epic', 'halil-marriage', 'death-of-omer', 'mujo-avenges-halil'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'placed', node: 'omer2' },
     tales: { 'death-of-omer': 'halil' },
   },
   ajkunaGruaMujit: {
@@ -20,7 +20,7 @@ export default {
     backstory:
       'Wife to Gjeto Basho Mujo and mother to a line of sons all named Omer, each raised knowing his father\'s trade and each lost to it in turn — seven before this one, by her own count; eight, by her husband\'s, cursing the pastures afterward. Kept from this son\'s death first by a lie and then by her husband\'s bare roof, she walks alone to his grave in the Green Valleys and curses the moon for its silence; only the mountain oras keep her from breaking there for good, and lead her home. NOT nenaMujit (Mujo\'s OWN mother, who raised him a cowherd and never appears again after his youth) — a different woman, a different grief, a generation apart.',
     folklore: ['kreshnik-epic', 'death-of-omer', 'vajtim'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'placed', node: 'omerFund' },
     tales: { 'death-of-omer': 'ajkuna' },
   },
   omeriMujit: {
@@ -65,7 +65,7 @@ export default {
     backstory:
       'Fate-spirits of the high pastures where Omer lies buried — they cannot bear to watch Ajkuna keen herself to pieces over his grave, so they still her wailing mouth, calm her breaking heart, dry her tears, and walk her back down to Jutbina themselves. A kind, not a name: NOT orët e Gjakovës (tale-gjakova-cavern.js\'s guardian-oras, a world away at the dead city\'s bazaar) and NOT the forest crone of the road-end clearing (plakaPyllit, core-village.js, who may or may not be an Ora at all) — these belong only to this one grief, in these Green Valleys.',
     folklore: ['ora', 'death-of-omer'],
-    location: { status: 'placed', node: 'omer2' },
+    location: { status: 'placed', node: 'omerFund' },
     tales: { 'death-of-omer': 'oret' },
   },
 }

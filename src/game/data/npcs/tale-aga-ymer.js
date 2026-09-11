@@ -9,7 +9,7 @@ export default {
     role: 'Aga Ymer\'s bride — waited exactly as long as she swore to',
     backstory: 'Married to Aga Ymer for one single night before he was called to war, she was talked up from an offer of nine days to a sworn nine years and nine days, with an honest clause: past that day, she was free to think him dead and marry again. She held to it to the very edge of the term, and knew her true husband the instant he bared the scar his own mother had once described to her.',
     folklore: ['aga-ymer'],
-    location: { status: 'placed', node: 'kalaMur' },
+    location: { status: 'placed', node: 'agaYmer2' },
     tales: { 'aga-ymer': 'bride' },
   },
   nenaYmerit: {
@@ -17,7 +17,7 @@ export default {
     role: 'Aga Ymer\'s mother, who did not know her own son at the fountain',
     backstory: 'Kept the household at Ulqin through nine years without her son. Meeting a long-haired stranger at her own roadside spring, she asked after her boy and was told, by her own boy, that he had died three weeks before — and wept for him without ever learning otherwise on the page.',
     folklore: ['aga-ymer'],
-    location: { status: 'placed', node: 'kalaMur' },
+    location: { status: 'placed', node: 'agaYmer1' },
     tales: { 'aga-ymer': 'mother' },
   },
   mbretiHuaj: {

@@ -137,7 +137,8 @@ export default function App() {
   const activeQuest = embodimentQuest(state.embodying)
   const activeIdentity = embodimentIdentity(state)
   const blockingOverlay = Boolean(
-    state.timePassage || state.pendingEmbodiment || state.hearts <= 0 || confirmReset,
+    state.pendingHeartConsequence || state.timePassage || state.pendingEmbodiment ||
+    state.hearts <= 0 || confirmReset,
   )
   // The full editorial reading corpus is substantial and does not need to
   // delay the first interactive scene. Load it just after mount, validate every
@@ -334,7 +335,72 @@ export default function App() {
 
       </div>
 
-      {state.hearts <= 0 && !state.timePassage && !state.pendingEmbodiment && (
+      {state.pendingHeartConsequence && (
+        <BlockingModal
+          id="heart-consequence-title"
+          title={state.pendingHeartConsequence.loss === 1 ? '💔 You lost one heart' : `💔 You lost ${state.pendingHeartConsequence.loss} hearts`}
+          className="heart-consequence"
+          onDismiss={() => dispatch({
+            type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
+            eventId: state.pendingHeartConsequence.eventId,
+          })}
+          actions={(
+            <button
+              className="btn primary"
+              onClick={() => dispatch({
+                type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
+                eventId: state.pendingHeartConsequence.eventId,
+              })}
+            >
+              Return to game
+            </button>
+          )}
+        >
+          <div className="heart-consequence-section">
+            <h3>Your attempt</h3>
+            {state.pendingHeartConsequence.attempted.al && (
+              <p className="heart-consequence-al" lang="sq">{state.pendingHeartConsequence.attempted.al}</p>
+            )}
+            {state.pendingHeartConsequence.attempted.en && (
+              <p>{state.pendingHeartConsequence.attempted.en}</p>
+            )}
+          </div>
+          <div className="heart-consequence-section">
+            <h3>Why the heart was lost</h3>
+            <p>{state.pendingHeartConsequence.reason.text}</p>
+          </div>
+          {(state.pendingHeartConsequence.correction || state.pendingHeartConsequence.reasoning) && (
+            <div className="heart-consequence-section correction">
+              <h3>{state.pendingHeartConsequence.correction ? 'What fits here' : 'What to notice'}</h3>
+              {state.pendingHeartConsequence.correction?.al && (
+                <p className="heart-consequence-al" lang="sq">{state.pendingHeartConsequence.correction.al}</p>
+              )}
+              {state.pendingHeartConsequence.correction?.en && (
+                <p>{state.pendingHeartConsequence.correction.en}</p>
+              )}
+              {state.pendingHeartConsequence.reasoning && (
+                <p>{state.pendingHeartConsequence.reasoning}</p>
+              )}
+            </div>
+          )}
+          {state.pendingHeartConsequence.grammar && (
+            <div className="heart-consequence-section grammar">
+              <h3>Ending pattern to reuse</h3>
+              {state.pendingHeartConsequence.grammar.target?.al && (
+                <p className="heart-consequence-al" lang="sq">
+                  {state.pendingHeartConsequence.grammar.target.al}
+                  {state.pendingHeartConsequence.grammar.target.en
+                    ? ` — ${state.pendingHeartConsequence.grammar.target.en}`
+                    : ''}
+                </p>
+              )}
+              <p>{state.pendingHeartConsequence.grammar.pattern}</p>
+            </div>
+          )}
+        </BlockingModal>
+      )}
+
+      {state.hearts <= 0 && !state.pendingHeartConsequence && !state.timePassage && !state.pendingEmbodiment && (
         <BlockingModal
           id="gameover-title"
           title="💔 Game over"
@@ -353,13 +419,13 @@ export default function App() {
         >
           <p>You ran out of hearts. This run is over.</p>
           <p>
-            You <b>keep all your training tokens</b> (◆). Start again from the beginning of
-            the story — every word will need rediscovering.
+            Start again from the beginning of the story. Your <b>saved words, training
+            tokens, and learning progress</b> all stay with you.
           </p>
         </BlockingModal>
       )}
 
-      {confirmReset && state.hearts > 0 && !state.timePassage && !state.pendingEmbodiment && (
+      {confirmReset && state.hearts > 0 && !state.pendingHeartConsequence && !state.timePassage && !state.pendingEmbodiment && (
         <BlockingModal
           id="new-run-title"
           title="Start a new run?"
@@ -383,21 +449,20 @@ export default function App() {
           )}
         >
           <p>
-            You go back to the <b>start of the story</b>, and every word becomes
-            <b> undiscovered</b> again.
+            You go back to the <b>start of the story</b>. The places, objects, quests,
+            and choices in this attempt reset.
           </p>
           <p>
-            You <b>keep all your training tokens</b> (◆) — but you can&apos;t spend them
-            until you rediscover those words.
+            Your <b>saved words, training tokens, and learning progress</b> stay with you.
           </p>
         </BlockingModal>
       )}
 
       <Suspense fallback={<div className="card view-fallback" role="status">Preparing the next story beat…</div>}>
-        {state.timePassage && (
+        {state.timePassage && !state.pendingHeartConsequence && (
           <TimePassage key={state.timePassage.id} passage={state.timePassage} dispatch={dispatch} />
         )}
-        {state.pendingEmbodiment && !state.timePassage && (
+        {state.pendingEmbodiment && !state.pendingHeartConsequence && !state.timePassage && (
           <EmbodimentConfirm pending={state.pendingEmbodiment} dispatch={dispatch} />
         )}
       </Suspense>

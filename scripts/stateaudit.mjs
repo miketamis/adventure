@@ -139,7 +139,14 @@ check('discoverable NPC identity is generic, authored knowledge that survives sa
   })
   assert.deepEqual(coreVillageNpcs.elira.identity, NPCS.elira.identity,
     'NPC catalog and runtime identity metadata drifted')
-  assert.equal(npcIdentitySpec('gruaUji'), null, 'an undiscoverable NPC silently gained an identity key')
+  assert.deepEqual(npcIdentitySpec('gruaUji'), {
+    npcId: 'gruaUji',
+    name: 'Mira',
+    descriptor: 'the woman carrying water',
+    knowledgeId: 'npcName:gruaUji',
+  })
+  assert.deepEqual(coreVillageNpcs.gruaUji.identity, NPCS.gruaUji.identity,
+    'water-carrier catalog and runtime identity metadata drifted')
   assert.equal(npcIdentityKnowledgeId('missing'), null)
   assert.equal(npcIdentityConditionId('missing'), null)
   assert.throws(() => npcIdentityRevealEffect('missing'), /no discoverable identity contract/)
@@ -168,6 +175,15 @@ check('discoverable NPC identity is generic, authored knowledge that survives sa
   assert.equal(reset.nodeId, 'start')
   assert.equal(knowsNpcIdentity(reset, 'elira'), true, 'reset forgot a learned identity')
   assert.equal(npcIdentityReference(reset, 'elira'), 'Elira')
+
+  const knowsMira = applyOptionEffects(
+    fresh,
+    { effects: [npcIdentityRevealEffect('gruaUji')] },
+    { atClock: 20, source: 'conversation-hub' },
+  )
+  assert.equal(knowsNpcIdentity(knowsMira, 'gruaUji'), true)
+  assert.equal(npcIdentityReference(knowsMira, 'gruaUji'), 'Mira')
+  assert.equal(hasCond(knowsMira, npcIdentityConditionId('gruaUji')), true)
 })
 
 check('typed effects compose while legacy choice fields keep their behavior', () => {

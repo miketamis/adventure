@@ -43,9 +43,13 @@ export const EDITORIALLY_REVIEWED_DEFINITIONS = Object.freeze({
   shendet: 'gjendje e trupit kur nuk je i sëmurë dhe ke fuqi',
   sheh: 'përdor sytë për të kuptuar çfarë ka përpara',
   sherues: 'njeri që ndihmon njerëzit e sëmurë me bar ose ilaç',
+  shami: 'një gjë që e vesh mbi kokë',
   shume: 'më tepër se pak, për gjëra, ujë, punë ose fuqi',
   vajze: 'fëmijë ose njeri i ri; jo djalë ose burrë',
   ze: 'ajo që dëgjon kur dikush flet ose kur një gjë bën zhurmë',
+  lagur: 'me ujë; jo i thatë',
+  miraEmri: 'emri i gruas që sjell ujë nga kroi',
+  rrjedh: 'lëviz si uji në lumë',
 
   // High-frequency core-language tranche. Contextual blanks are intentional
   // for function words whose grammatical job is clearer in a short sentence.

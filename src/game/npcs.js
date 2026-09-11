@@ -65,14 +65,29 @@ export const NPCS = {
   // spring → river bank → up to the square with the full jugs, and back down
   // with the empty ones. At night she is home — "natën kroi është i qetë".
   gruaUji: {
-    name: 'gruaja me ujë',
+    name: 'Mira',
     glyph: '🏺',
     identity: {
-      mode: 'known-by-context',
-      reason: 'This is a visible role description, not a concealed personal name.',
+      mode: 'discoverable',
+      descriptor: 'the woman carrying water',
+      reason: 'The traveller knows her work from the jugs, but learns the name Mira only by asking her.',
     },
     route: ['kroi1', 'fshatiLumi', 'fshatiSheshi', 'fshatiLumi'],
     stepHours: 2,
+    activePhases: ['dawn', 'day', 'dusk'],
+  },
+
+  // The girl who offers water at the spring is identified by that hospitable
+  // role. She has no concealed personal name to reveal.
+  vajzaKroi: {
+    name: 'vajza e kroit',
+    glyph: '🪣',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'The spring and her water bucket identify her role; no personal name is introduced.',
+    },
+    route: ['kroi1'],
+    stepHours: 24,
     activePhases: ['dawn', 'day', 'dusk'],
   },
 

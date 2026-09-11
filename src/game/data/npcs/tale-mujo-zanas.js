@@ -22,7 +22,7 @@ export default {
     backstory:
       'Won by Mujo on an earlier raid into the Krajl\'s land, never named in the song. Taken captive with her whole wedding train at the high pasture\'s shady meadows, she alone is left untouched when the zanas turn the company to stone — and is carried to their cave to cook and fetch water. There Mujo finds her at a hidden spring and turns her into his own agent: she refuses the zanas\' table until, under oath, they let slip the secret of their power, and it is her message that later brings the zanas to Mujo\'s door to bargain. NOT Rusha (the OTHER Krajl\'s daughter, of the Halili-marriage strand across content.js) — a different bride, a different Krajl, a different song; krajl is a stock title of the frontier cycle, not one man.',
     folklore: ['mujo-zanas'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'planning', plan: 'the Green Valleys cave and spring, when the Mujo-and-zanas tale becomes playable' },
     tales: { 'mujo-zanas': 'bride' },
   },
   krajliDhendrit: {
@@ -40,7 +40,7 @@ export default {
     backstory:
       'The one elder among Mujo\'s three hundred young Agas, a Dizdar (fortress-castellan) by title, trusted to lead the wedding train to the Krajl\'s land and back. Mujo warns the whole company not to sing, revel, or rest at the high pasture\'s three shady meadows — home to three fierce zanas — but on the homeward leg Osman Aga\'s own boast (he has led brides across these very meadows many times before, always safely) persuades the company to stop anyway, and the zanas turn them all to stone. Restored along with the rest once Mujo wins the zanas\' besa.',
     folklore: ['mujo-zanas'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'planning', plan: 'the wedding road through the Green Valleys, when the Mujo-and-zanas tale becomes playable' },
     tales: { 'mujo-zanas': 'dizdari' },
   },
   darsmoretJutbines: {
@@ -58,7 +58,7 @@ export default {
     backstory:
       'Three "zana t\'idhta" — bitter, fierce zanas — who take their rest by turns in the shady meadows of the high pasture above Jutbina and turn to stone anyone who lingers there to sing, revel, or sleep. Their entire power is hidden in three wild goats with horns of gold ducats, kept in the hidden Green Valleys beyond a lightless beech gorge: catch the goats, and the zanas\' own strength drains away to nothing. Hostile on first meeting — unlike the gentler cradle-mother PAIR of mujo-strength\'s zanatShkembit, met by night and quick to reward a kindness — this trio yields to Mujo only when he holds their goats hostage, and swears him a besa in the end. NOT Zana e lumit (the single named Zana of the game\'s own river, zana1) — a different triad entirely, met only on this one mountainside.',
     folklore: ['zana', 'mujo-zanas'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'planning', plan: 'their own shady meadows in the Green Valleys, when the Mujo-and-zanas tale becomes playable' },
     tales: { 'mujo-zanas': 'zanat' },
   },
   zanaVogel: {
@@ -67,7 +67,7 @@ export default {
     backstory:
       'The youngest of the trio at the Green Valleys, and the one crack of mercy in an otherwise fierce sisterhood: when her sisters spring to freeze the captive bride for asking after their power, she alone steps between them and talks them down, then lets the secret of the golden-horned goats slip. Later, when Mujo refuses to trade the goats for anything, she is the one who breaks from her sisters, wipes her own tears in the hair of her brow, takes his hand, and swears him a besa — safe passage forever after in bride-winning, in war with a Baloz, in revelry on their own pastures. Bound now by her own sworn word, she sings the besa\'s fulfillment hand in hand with the eldest zana at the tale\'s close.',
     folklore: ['zana', 'mujo-zanas'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'planning', plan: 'among her sisters in the Green Valleys, when the Mujo-and-zanas tale becomes playable' },
     tales: { 'mujo-zanas': 'zanaVogel' },
   },
   haliliZanas: {
@@ -76,7 +76,7 @@ export default {
     backstory:
       'Mujo\'s younger brother — the "djali" (the youngster) Mujo calls on by name the instant the little zana\'s besa is sworn, to open the pen and set the golden-horned goats free. The wider cycle (Kângë Kreshnikësh) knows him as Sokol Halili, Mujo\'s constant second — the one who later rides alone into the Krajl\'s land to free his captured brother, wins his own bride, and is avenged by Mujo in turn — but none of that is staged in this song, which only needs him standing at Jutbina, ready to his brother\'s word. NOT a fresh core figure: two sibling tales (halil-marriage, mujo-avenges-halil) already keep their own `halili` registry entries for their own fuller portraits — this one is kept separately (as `haliliZanas`) rather than colliding with either.',
     folklore: ['muji-halili', 'mujo-zanas'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'planning', plan: 'Mujo\'s goat pen in Jutbina, when the Mujo-and-zanas tale becomes playable' },
     tales: { 'mujo-zanas': 'halili' },
   },
   gjahtaretJutbines: {

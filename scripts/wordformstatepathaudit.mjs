@@ -14,6 +14,7 @@ import {
   normalizeSavedState,
   reducer,
 } from '../src/game/gameState.js'
+import { trainMissConsequence } from '../src/game/consequenceBuilders.js'
 import { isTrainableSense, lexicalTrainability } from '../src/game/lexicalTrainability.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
 import {
@@ -115,17 +116,34 @@ const resultAction = (question, correct, overrides = {}) => ({
   targetFormKey: question.targetFormKey ?? null,
   questionKey: question.questionKey,
   wordKeys: question.lexicalSurfaces || [DICT[question.answerId].al],
+  ...(!correct ? {
+    consequence: trainMissConsequence({
+      source: question.targetFormKey ? 'train-form' : 'train-word',
+      questionKey: question.questionKey,
+      attemptedEn: 'audit miss',
+      reasonCode: 'audit-word-miss',
+      reason: 'The audit answer does not match this exact word question.',
+      correctAl: question.surface || DICT[question.answerId].al,
+      correctEn: DICT[question.answerId].en,
+    }),
+  } : {}),
   ...overrides,
 })
 
 const answerQuestion = (state, question, correct = true) => {
   const beforeRound = state.trainRound
-  const next = reducer(state, resultAction(question, correct))
+  let next = reducer(state, resultAction(question, correct))
   assert.notStrictEqual(next, state,
     `${question.answerId}: reducer rejected ${question.wordStageId}/${question.variantId || 'base'}`)
   assert.equal(next.trainRound, beforeRound + 1, `${question.answerId}: accepted result did not complete one round`)
   assert.equal(next.mana[question.answerId] || 0, (state.mana[question.answerId] || 0) + (correct ? 1 : 0),
     `${question.answerId}: token reward did not match correctness`)
+  if (!correct && next.pendingHeartConsequence) {
+    next = reducer(next, {
+      type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
+      eventId: next.pendingHeartConsequence.eventId,
+    })
+  }
   const restored = persisted(next)
   assert.deepEqual(restored.wordProgress[question.answerId], next.wordProgress[question.answerId],
     `${question.answerId}: progress changed across save normalization`)
@@ -179,6 +197,8 @@ let due = nextDueQuestion(simple, 'tani')
 simple = due.state
 assert.equal(due.question.wordStageId, 'word-form-construction')
 assert.equal(due.question.kind, 'word-construction')
+assert.equal(due.question.targetReference?.valid, true)
+assert.ok(due.question.targetReference.meaningCue)
 assert.ok(due.question.construction.answerPieceIds.length >= 2, 'construction is not decomposed into learner-controlled pieces')
 assert.ok(due.question.construction.pieces.some(({ distractor }) => distractor), 'construction has no distractor chunks')
 const assembled = due.question.construction.answerPieceIds.map((pieceId) =>
@@ -192,6 +212,8 @@ simple = due.state
 assert.equal(due.question.wordStageId, 'contextual-typed-recall')
 assert.equal(due.question.kind, 'word-spelling')
 assert.equal(due.question.answerTolerance, 'beginner')
+assert.equal(due.question.targetReference?.valid, true)
+assert.equal(due.question.targetReference.context, due.question.typingContext)
 simple = answerQuestion(simple, due.question)
 const typedRound = simple.trainRound
 
@@ -199,6 +221,7 @@ due = nextDueQuestion(simple, 'tani')
 simple = due.state
 assert.equal(due.question.wordStageId, 'strict-spaced-recall')
 assert.equal(due.question.answerTolerance, 'strict')
+assert.equal(due.question.targetReference?.valid, true)
 assert.ok(simple.trainRound - typedRound >= WORD_INITIAL_REVIEW_GAP,
   'strict recall appeared before the initial retention interval')
 
@@ -376,6 +399,8 @@ for (const id of Object.keys(DICT).filter(isTrainableSense)) {
   } else {
     skippedLaneCount += 1
     assert.equal(question.wordStageId, 'word-form-construction', `${id}: unavailable form lane did not skip cleanly`)
+    assert.equal(question.targetReference?.valid, true, `${id}: construction has no target reference`)
+    assert.ok(question.targetReference.meaningCue, `${id}: construction has no learner-visible meaning cue`)
     const exact = question.construction.answerPieceIds.map((pieceId) =>
       question.construction.pieces.find(({ id: candidate }) => candidate === pieceId)?.text || '',
     ).join('')

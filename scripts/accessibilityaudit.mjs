@@ -28,6 +28,7 @@ const cefrCapstone = read('src/components/CefrCapstone.jsx')
 const practiceReturn = read('src/game/practiceReturn.js')
 const phrasePractice = read('src/components/PhrasePracticeQuestion.jsx')
 const contextualCompletion = read('src/components/ContextualCompletion.jsx')
+const contextQuestionPresentation = read('src/game/contextQuestionPresentation.js')
 const phrasePracticeLogic = read('src/game/phrasePractice.js')
 const scenePresentation = read('src/game/scenePresentation.js')
 const audio = read('src/game/audio.js')
@@ -55,7 +56,7 @@ check('word controls declare button type and markup-aware accessible labels', to
 check('Albanian learning surfaces declare their language to assistive technology',
   token.includes('<span lang="sq">“{token.al}”</span>') &&
   token.includes('className="known-word" lang="sq"') &&
-  practice.includes('<p lang="sq">{q.context.al.split(q.surface)') &&
+  practice.includes('<p lang="sq">{q.context.al.split(/\\s+/).map') &&
   practice.includes('className="word-construction-answer" lang="sq"') &&
   practice.includes("lang={q.field === 'al' ? 'sq' : undefined}") &&
   dictionary.includes('className="dict-word" lang="sq"') &&
@@ -90,18 +91,26 @@ check('route selection is its own native, focusable control',
 check('whole-action English is debug-only while word-by-word learning remains available',
   story.includes('optionReadingVisible(state.debug)') &&
   story.includes('className={\'option-reading\'') &&
-  story.includes('option-gloss-label') &&
-  story.includes('Word by word') &&
+  story.includes('className="option-text"') &&
+  !story.includes('Word by word') &&
   !optionReadingVisible(false) && optionReadingVisible(true))
 check('route controls announce Albanian rather than leaking the English answer',
   story.includes('const accessibleOptionPhrase = state.debug') &&
   story.includes(': albanianTextOf(e.tokens)') &&
   story.includes('aria-label={`${e.ok ? \'Choose\' : \'Locked\'}: ${accessibleOptionPhrase}`}'))
 check('normal choices conceal future rewards while debug exposes exact effects',
-  optionMoneyEffectText(800) === 'spends tokens' &&
+  optionMoneyEffectText(800) === null &&
+  optionMoneyEffectText(-500) === null &&
   optionMoneyEffectText(800, true) === 'receives 🪙 800 · spends tokens' &&
-  optionMoneyEffectText(-500) === 'costs 🪙 500 · spends tokens' &&
-  story.includes('optionMoneyEffectText(e.lek, state.debug)'))
+  optionMoneyEffectText(-500, true) === 'costs 🪙 500 · spends tokens' &&
+  story.includes('optionMoneyEffectText(e.lek, state.debug)') &&
+  story.includes('e.heal && state.debug') &&
+  story.includes('e.beginQuest && state.debug') &&
+  story.includes('else if (state.debug)') &&
+  story.includes('{cost && <span id={costId}'))
+check('source fidelity and role-prop authoring notes are debug-only',
+  story.includes('state.debug && quoteSrc &&') &&
+  story.includes('state.debug && state.embodying && (itemIds.length > 0 || companionIds.length > 0)'))
 check('map-derived route metadata and its accessible description are debug-only',
   story.includes('const routeId = state.debug && routeParts.length > 0') &&
   story.includes('{state.debug && e.real && routeParts.length > 0 && (') &&
@@ -199,15 +208,18 @@ check('whole phrases use construction, listening, cloze, typing and matching ins
 check('word context and phrase cloze share one accessible mirrored completion surface',
   practice.includes("from './ContextualCompletion.jsx'") &&
   phrasePractice.includes("from './ContextualCompletion.jsx'") &&
-  practice.includes("? 'Albanian → grammatical job'") &&
-  practice.includes(": 'Albanian → meaning'") &&
+  practice.includes('q.targetReference?.instruction') &&
+  practice.includes('q.targetReference?.directionLabel') &&
+  practice.includes('q.targetReference?.answerGroupLabel') &&
   practice.includes("q.promptProfile?.contextPresentation === 'unmarked'") &&
   practice.includes('q.promptProfile?.showEnglishContext === false') &&
   practice.includes('indices: q.ctx.targetTokenIndices') &&
   practice.includes('indices: [q.ctx.meaningGapTokenIndex]') &&
-  practice.includes('What job does the marked word do here?') &&
-  practice.includes('Choose the meaning that fits this Albanian context') &&
-  !practice.includes('`What does “${q.ctx?.focus}” mean here?`') &&
+  contextQuestionPresentation.includes("referenceMode: 'visual-mark'") &&
+  contextQuestionPresentation.includes("referenceMode: 'named-surface'") &&
+  contextQuestionPresentation.includes('`What job does ${quoted(surface)} do here?`') &&
+  contextQuestionPresentation.includes('`What does ${quoted(surface)} mean here?`') &&
+  practice.includes('<span lang="sq">“{q.targetReference.instructionTarget}”</span>') &&
   phrasePractice.includes('directionLabel="Meaning → Albanian"') &&
   contextualCompletion.includes('role="group"') &&
   contextualCompletion.includes('aria-labelledby={headingId}') &&
@@ -218,8 +230,22 @@ check('word context and phrase cloze share one accessible mirrored completion su
   contextualCompletion.includes('className="sr-only"') &&
   contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.marked') &&
   contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.blank') &&
-  contextualCompletion.includes("unmarked: 'unmarked'") &&
+  contextQuestionPresentation.includes("unmarked: 'unmarked'") &&
   !phrasePractice.includes('CONTEXT_TARGET_PRESENTATION.unmarked'))
+check('word construction and spelling render one shared explicit target reference',
+  contextQuestionPresentation.includes('wordProductionTargetReference') &&
+  contextQuestionPresentation.includes("referenceMode: hasContext ? 'single-gap-with-meaning-cue' : 'meaning-cue'") &&
+  practice.includes('q.targetReference.instruction') &&
+  practice.includes('q.targetReference.meaningCue') &&
+  practice.includes('q.typingContext?.alGap') &&
+  contextualCompletion.includes('aria-label={word}'))
+check('normal Train hides internal progression badges while debug retains them',
+  practice.includes('badge={state.debug ?') &&
+  practice.includes('state.debug && q.difficultyLabel') &&
+  practice.includes('debug={state.debug}') &&
+  phrasePractice.includes('debug = false') &&
+  phrasePractice.includes('badge={debug ?') &&
+  phrasePractice.includes('debug && <span className="phrase-label"'))
 check('CEFR journeys are labelled and keep Albanian assessment surfaces language-tagged',
   cefrCapstone.includes('aria-labelledby="cefr-title"') &&
   cefrCapstone.includes('aria-labelledby="cefr-task-title"') &&

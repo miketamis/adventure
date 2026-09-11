@@ -79,7 +79,7 @@ export const TOP_1000_EXISTING_FORMS = {
   faj: 'faji',
   marto: 'martuar',
   im: 'imja sime',
-  jep: 'jepni',
+  jep: 'jepni japësh',
   luan: 'luaj',
   qep: 'qepe',
   fsheh: 'fshehur',

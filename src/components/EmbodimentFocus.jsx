@@ -37,9 +37,45 @@ export default function EmbodimentFocus({ state, dispatch }) {
   const focusNode = quest.nodes.includes(state.embodimentFocusNode)
     ? state.embodimentFocusNode
     : quest.entryTo
+  const onCourse = !state.embodimentPaused && state.nodeId === focusNode
+  const identity = embodimentIdentity(state)
+  const identityLead = quest.stance === 'companion'
+    ? `You travel as ${identity}`
+    : `You are ${identity}`
+
+  // Ordinary play keeps only the control needed to step out of or back into
+  // the role. The exact next action, map bearing, distance and parallel clock
+  // are authoring diagnostics: showing an option's reviewed English here would
+  // reveal its answer before the learner reaches that Albanian choice.
+  if (!state.debug) {
+    return (
+      <aside
+        id="embodiment-focus"
+        className={'embodiment-focus compact' + (onCourse ? '' : ' off-course')}
+        tabIndex={-1}
+        aria-label={`${identityLead} tale controls`}
+      >
+        <div className="embodiment-focus-head" role="status" aria-live="polite">
+          <span className="embodiment-focus-icon" aria-hidden="true">🎭</span>
+          <b>{identityLead}.</b>
+        </div>
+        <div className="embodiment-focus-actions">
+          {onCourse ? (
+            <button className="btn" onClick={() => dispatch({ type: 'PAUSE_EMBODIMENT' })}>
+              Explore public roads for now
+            </button>
+          ) : (
+            <button className="btn primary" onClick={() => dispatch({ type: 'RESUME_EMBODIMENT' })}>
+              Step back into the tale
+            </button>
+          )}
+        </div>
+      </aside>
+    )
+  }
+
   const focusState = embodimentFocusState(state, focusNode)
   const objective = objectiveAt(focusState, quest, focusNode)
-  const onCourse = !state.embodimentPaused && state.nodeId === focusNode
   const talePhase = timeOfDay(focusState)
   const worldPhase = phaseAtClock(worldClockOf(state))
   const currentPos = NODE_POS[state.nodeId]
@@ -50,11 +86,6 @@ export default function EmbodimentFocus({ state, dispatch }) {
   const band = distanceBand(distance)
   const direction = chartDirection(dx, dy)?.label
   const far = ['long', 'expedition'].includes(band)
-  const identity = embodimentIdentity(state)
-  const identityLead = quest.stance === 'companion'
-    ? `You travel as ${identity}`
-    : `You are ${identity}`
-
   return (
     <aside
       id="embodiment-focus"

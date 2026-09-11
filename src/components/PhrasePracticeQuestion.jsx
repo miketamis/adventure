@@ -75,7 +75,7 @@ function RewardChips({ ids }) {
   )
 }
 
-export default function PhrasePracticeQuestion({ q, onComplete }) {
+export default function PhrasePracticeQuestion({ q, debug = false, onComplete }) {
   const [selectedIds, setSelectedIds] = useState([])
   const [typed, setTyped] = useState('')
   const [matchLeft, setMatchLeft] = useState(null)
@@ -95,6 +95,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
     correction = null,
     acceptedWithLeeway = false,
     diagnostic = null,
+    attempted = null,
   ) => {
     if (committed.current) return
     committed.current = true
@@ -110,6 +111,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
       typeScope: q.typeScope,
       focusId: q.focusId || null,
       diagnostic,
+      attempted,
       wordKeys: trainQuestionWordKeys(q),
     })
   }
@@ -123,6 +125,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
       q.target.al,
       false,
       correct ? null : phraseAnswerDiagnostic(answer, q.target.al, q.target),
+      { al: answer },
     )
   }
 
@@ -142,6 +145,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
         expectedSurface: q.correctWord,
         answerSurface: tile.text,
       },
+      { al: tile.text },
     )
   }
 
@@ -160,7 +164,14 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
             answerSurface: typed.trim(),
           }
         : phraseAnswerDiagnostic(typed, q.typingAnswer, q.target)
-    commit(result.correct, q.phraseIds, q.typingAnswer, result.usedLeeway, diagnostic)
+    commit(
+      result.correct,
+      q.phraseIds,
+      q.typingAnswer,
+      result.usedLeeway,
+      diagnostic,
+      { al: typed.trim() },
+    )
   }
 
   const insertLetter = (letter) => {
@@ -179,7 +190,15 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
     if (!matchLeft || answered || matched.includes(rightId)) return
     if (matchLeft !== rightId) {
       const phrase = q.phrases.find((entry) => entry.id === matchLeft)
-      commit(false, q.phraseIds, phrase ? `${phrase.al} — ${phrase.en}` : null)
+      const chosenMeaning = q.right.find((entry) => entry.id === rightId)?.text
+      commit(
+        false,
+        q.phraseIds,
+        phrase ? `${phrase.al} — ${phrase.en}` : null,
+        false,
+        null,
+        { al: phrase?.al, en: chosenMeaning },
+      )
       return
     }
     const nextMatched = [...matched, rightId]
@@ -191,11 +210,10 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
   }
 
   const constructionReady = selectedTiles.length === q.answerWords.length
-  const correction = outcome?.correction || q.typingAnswer || q.target.al
   const promptCopy = q.mode === 'type' && q.typeScope === 'word'
     ? 'Write this word in Albanian'
     : MODE_COPY[q.mode]
-  const feedback = answered && (outcome.correct ? (
+  const feedback = answered && outcome.correct ? (
     <>
       <div>
         Të lumtë!{' '}
@@ -207,9 +225,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
       </div>
       <RewardChips ids={q.rewardIds} />
     </>
-  ) : (
-    <div>💔 −1 heart · <span lang="sq">{correction}</span></div>
-  ))
+  ) : null
 
   if (q.mode === 'cloze') {
     return (
@@ -217,12 +233,12 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
         className="phrase-mode-cloze"
         instruction={promptCopy}
         directionLabel="Meaning → Albanian"
-        badge={`everyday phrase · ${q.difficultyLabel}`}
+        badge={debug ? `everyday phrase · ${q.difficultyLabel}` : null}
         lines={[
           {
             id: 'meaning-cue',
             label: 'Meaning cue',
-            text: q.target.en,
+            text: q.meaningCue || q.target.en,
           },
           {
             id: 'albanian-completion',
@@ -256,7 +272,7 @@ export default function PhrasePracticeQuestion({ q, onComplete }) {
     <div className={`phrase-exercise phrase-mode-${q.mode}`}>
       <div className="prompt">
         {promptCopy}{' '}
-        <span className="phrase-label">everyday phrase · {q.difficultyLabel}</span>
+        {debug && <span className="phrase-label">everyday phrase · {q.difficultyLabel}</span>}
       </div>
 
       {q.mode === 'listen' ? (

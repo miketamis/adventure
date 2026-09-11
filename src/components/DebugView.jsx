@@ -10,6 +10,7 @@ import { NODE_POS, PLACE_OF } from './nodePositions.js'
 import { PLACE_META } from './placeMeta.js'
 import { environmentSnapshot, fireStateOf, liveNpcs } from '../game/gameState.js'
 import { englishReadingOf } from '../game/language.js'
+import { QUOTES } from '../game/quotes.js'
 import {
   SELECTED_WITNESS_REVIEWS,
   SOURCE_REVIEW_DISPOSITIONS,
@@ -153,7 +154,7 @@ function NodeBody({ node, intro }) {
       )}
       <div className="dbg-lines">
         {n.text.map(lineOf).map((line, i) => (
-          <div className={'dbg-line' + (line.quote ? ' dbg-quote' : '')} key={i}>
+          <div className={'dbg-line' + (line.quoteId ? ' dbg-quote' : '')} key={i}>
             <span className="dbg-al">{albanianOf(line)}</span>
             <span className="dbg-en">{englishOf(line)}</span>
           </div>
@@ -311,10 +312,10 @@ function NodeDetail({ id, onPick, goLore }) {
       </div>
       <div className="dbg-lines">
         {n.text.map(lineOf).map((line, i) => (
-          <div className={'dbg-line' + (line.quote ? ' dbg-quote' : '')} key={i}>
+          <div className={'dbg-line' + (line.quoteId ? ' dbg-quote' : '')} key={i}>
             <span className="dbg-al">{albanianOf(line)}</span>
             <span className="dbg-en">{englishOf(line)}</span>
-            {line.quote && <span className="dbg-quote-src">📜 {line.quote}</span>}
+            {line.quoteId && <span className="dbg-quote-src">📜 {QUOTES[line.quoteId]?.label || line.quoteId}</span>}
           </div>
         ))}
       </div>

@@ -43,7 +43,7 @@ export default {
     backstory:
       'Has shadowed Halili unseen since the Green Valleys, "cherished like her own eyesight," and shows herself only once, at the foot of a cliff above the Danube, to name the river and point him across to the camp. NOT plakaPyllit (the cold old woman of the village\'s own night forest — the tales hold she MAY be an Ora, or may be a Shtriga, and no story has ever settled it) — this Ora keeps the frontier crossing alone, unnamed, and is never seen again once Halili is safely pointed on.',
     folklore: ['halil-marriage', 'ora'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'placed', node: 'mujo2' },
     tales: { 'halil-marriage': 'ora' },
   },
   dhitZanat: {

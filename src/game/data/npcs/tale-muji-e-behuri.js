@@ -16,7 +16,7 @@ export default {
     backstory:
       'An old aga who rides out with his own thirty men alongside Mujo\'s band — proud, quick to feel slighted, and certain Mujo has stolen glory that should have been shared. When Mujo will not yield, the old man tears the çeta in two and rides for New Kotor vowing plunder, a head, or a bride for some lucky boy of Jutbina. He and his whole company are ambushed and beheaded at Behur Kapidani\'s kulla before the song is half done — his own pride is what puts him on that road alone.',
     folklore: ['muji-e-behuri', 'kreshnik-epic'],
-    location: { status: 'placed', node: 'jutbina' },
+    location: { status: 'placed', node: 'behuriNdarja' },
     tales: { 'muji-e-behuri': 'osman' },
   },
   behuri: {
@@ -43,7 +43,7 @@ export default {
     backstory:
       'Every Albanian is born with an ora, a personal guardian-fate for life — this is MUJO\'S own, met once at a mountain fountain (where she forbids him to drink before he has killed Behur Kapidani) and once again mid-duel, when pinned to the ground he calls the mountain oras to keep their promise and she comes flying to whisper the trick that wins the fight. NOT `fatet` (the three Fates of the world below, who weigh the dead) and not any other tale\'s ora — every person\'s ora is their own, and this one belongs to Mujo alone.',
     folklore: ['ora', 'muji-e-behuri'],
-    location: { status: 'placed', node: 'mali1' },
+    location: { status: 'placed', node: 'behuriBurimi' },
     tales: { 'muji-e-behuri': 'ora' },
   },
   // gjogu — Mujo's oracular grey courser — is the shared canonical figure in core-kreshnik.js.

@@ -151,14 +151,13 @@ export default function AchievementsView({ state, dispatch }) {
                 {isTesting && (
                   <ComprehensionTest
                     questions={testing.questions}
-                    dispatch={dispatch}
-                    onDone={(passed) => {
+                    onDone={(passed, consequence) => {
                       setTesting(null)
                       if (passed) {
                         dispatch({ type: 'EARN_ACHIEVEMENT', id: a.id })
                         setOpen(a.id)
                       } else {
-                        dispatch({ type: 'FAIL_TEST', id: a.id })
+                        dispatch({ type: 'COMP_WRONG', id: a.id, consequence })
                         setFailedId(a.id)
                       }
                     }}

@@ -40,11 +40,14 @@ import {
   englishReadingOf,
   hasAuthoredEnglishReading,
   isComprehensionReadyLine,
-  isExactSourceQuoteLine,
 } from '../src/game/language.js'
+import { npcPortraitLines } from '../src/game/npcAppearance.js'
+import { loadNpcAppearancePartitions } from './lib/loadnpcappearances.mjs'
+import { QUOTES } from '../src/game/quotes.js'
 
 attachReviewedEnglishReadings(STORY, REVIEWED_READINGS)
 attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
+await loadNpcAppearancePartitions()
 
 const STRICT = process.argv.includes('--strict')
 const LIST_BACKLOG = process.argv.includes('--list-backlog')
@@ -55,6 +58,9 @@ for (const [nodeId, node] of Object.entries(STORY)) {
   for (const [index, entry] of (node.text || []).entries()) lines.push({ nodeId, index, line: lineOf(entry) })
   for (const [index, option] of (node.options || []).entries())
     options.push({ address: `${nodeId}.options[${index}]`, option })
+}
+for (const [index, line] of npcPortraitLines().entries()) {
+  lines.push({ nodeId: 'npc-first-encounter', index, line })
 }
 const optionCount = options.length
 const reviewedStoryOptions = options.filter(({ option }) =>
@@ -243,7 +249,14 @@ for (const [address, expected] of Object.entries(KNOWN_OPTION_REPAIRS))
 
 const authored = lines.filter(({ line }) => String(line?.reading || '').trim())
 const quoteLines = lines.filter(({ line }) => line?.quoteId)
-const exactQuotes = quoteLines.filter(({ line }) => isExactSourceQuoteLine(line))
+const normalizedQuoteText = (value) => String(value || '')
+  .toLocaleLowerCase('sq')
+  .normalize('NFKC')
+  .replace(/[“”«».,!?:;…'’-]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+const exactQuotes = quoteLines.filter(({ line }) =>
+  normalizedQuoteText(albanianTextOf(line)) === normalizedQuoteText(QUOTES[line.quoteId]?.game))
 const reviewed = lines.filter(({ line }) => hasAuthoredEnglishReading(line))
 const fallbacks = lines.filter(({ line }) => !hasAuthoredEnglishReading(line))
 const blockedFallbacks = fallbacks.filter(({ line }) => englishReadingIssues(line).length)
@@ -286,10 +299,15 @@ for (const { nodeId, index, line } of lines) {
     for (const issue of englishReadingIssues(line.reading)) fail(`${where}: authored reading: ${issue}: ${line.reading}`)
   }
   if (line?.quoteId) {
-    assert(Boolean(line.quoteGameTranslation), `${where}: ${line.quoteId} has no displayed-line English translation`)
-    assert(Boolean(line.quoteSourceTranslation), `${where}: ${line.quoteId} has no source-context English translation`)
-    assert(line.quoteTranslation === line.quoteGameTranslation, `${where}: compatibility translation leaked source context`)
-    assert(Boolean(line.quoteGame), `${where}: ${line.quoteId} has no registered Albanian game text`)
+    const quote = QUOTES[line.quoteId]
+    assert(Boolean(quote), `${where}: ${line.quoteId} has no quote-register entry`)
+    assert(Boolean(quote?.gameTranslation), `${where}: ${line.quoteId} has no displayed-line English translation`)
+    assert(Boolean(quote?.translation), `${where}: ${line.quoteId} has no source-context English translation`)
+    assert(Boolean(quote?.game), `${where}: ${line.quoteId} has no registered Albanian game text`)
+    if (quote && normalizedQuoteText(albanianTextOf(line)) === normalizedQuoteText(quote.game)) {
+      assert(line.reading === quote.gameTranslation,
+        `${where}: exact quote reading drifted from its registered displayed-line translation`)
+    }
   }
   if (isComprehensionReadyLine(line))
     assert(hasAuthoredEnglishReading(line), `${where}: an unreviewed fallback was marked quiz-ready`)

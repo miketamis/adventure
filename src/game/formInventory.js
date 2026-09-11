@@ -5,8 +5,12 @@ import { SEASONS, WEATHER_TYPES } from './environment.js'
 import {
   ENVIRONMENT_DIMENSIONS,
   ENVIRONMENT_NARRATION_SETTINGS,
+  companionStoryLine,
+  departedCompanionStoryLine,
   environmentStoryLine,
+  heldItemsStoryLine,
   purseStoryLine,
+  removedItemsStoryLine,
 } from './storyContext.js'
 import { WORD_CLASS, wordClassOf } from './wordClassPolicy.js'
 import { buildNounEndingRefresher, NOUN_FORM_ROLE_LABELS } from './nounEndingRefresher.js'
@@ -93,6 +97,14 @@ for (const setting of ENVIRONMENT_NARRATION_SETTINGS) {
             { clock, season, weather },
             { setting, omit },
           ))) addToken(token)
+          for (const token of lineOf(environmentStoryLine(
+            { clock, season, weather },
+            {
+              setting,
+              omit,
+              transitionFrom: { time: 'night', season: 'winter', weather: 'storm' },
+            },
+          ))) addToken(token)
         }
       }
     }
@@ -104,6 +116,23 @@ for (const setting of ENVIRONMENT_NARRATION_SETTINGS) {
 for (const balance of [1, Number.MAX_SAFE_INTEGER]) {
   for (const token of lineOf(purseStoryLine(balance))) addToken(token)
 }
+for (const token of lineOf(purseStoryLine(0, { includeEmpty: true }))) addToken(token)
+
+const heldItemIds = Object.keys(ITEMS).filter((id) => !ITEMS[id].currency && !ITEMS[id].companion)
+const companionIds = Object.keys(ITEMS).filter((id) => ITEMS[id].companion)
+for (const id of heldItemIds) {
+  addLine(heldItemsStoryLine(ITEMS, [id]))
+  addLine(removedItemsStoryLine(ITEMS, [id]))
+}
+for (const id of companionIds) {
+  addLine(companionStoryLine(ITEMS, [id]))
+  addLine(departedCompanionStoryLine(ITEMS, [id]))
+}
+// Exercise the plural/list grammar without multiplying every catalog pair.
+addLine(heldItemsStoryLine(ITEMS, heldItemIds.slice(0, 2)))
+addLine(removedItemsStoryLine(ITEMS, heldItemIds.slice(0, 2)))
+addLine(companionStoryLine(ITEMS, companionIds.slice(0, 2)))
+addLine(departedCompanionStoryLine(ITEMS, companionIds.slice(0, 2)))
 
 const mostFrequentGloss = (record, fallback) => {
   let answer = fallback
@@ -333,6 +362,9 @@ export function reviewedContextEligibilityForSense(id) {
     .filter((candidate, index, ids) => DICT[candidate] && candidate !== id && ids.indexOf(candidate) === index)
   const distinctRetrievalSurfaces = new Set(retrievalDistractors.map(normalizedSenseSurface))
   distinctRetrievalSurfaces.delete(normalizedSenseSurface(id))
+  const defensibleRationales = context?.defensibleAlternativeRationales || {}
+  const defensibleRecognitionIds = Object.keys(defensibleRationales.al2en || {})
+  const defensibleRetrievalIds = Object.keys(defensibleRationales.en2al || {})
   const gaps = []
   if (context?.quality !== REVIEWED_CONTEXT_QUALITY) gaps.push(`ctx.quality must be “${REVIEWED_CONTEXT_QUALITY}”`)
   if (!alignment.usable || !alignment.unmarkedSafe) gaps.push(`context alignment: ${alignment.reason || 'target is not uniquely aligned'}`)
@@ -342,6 +374,22 @@ export function reviewedContextEligibilityForSense(id) {
   if (recognitionDistractors.length < 3) gaps.push('context recognition needs three reviewed distractor senses')
   if (new Set(recognitionLabels).size !== recognitionLabels.length) gaps.push('context recognition labels are not distinct')
   if (distinctRetrievalSurfaces.size < 3) gaps.push('controlled retrieval needs three distinct Albanian distractor surfaces')
+  for (const [direction, rationales] of Object.entries(defensibleRationales)) {
+    if (!['al2en', 'en2al'].includes(direction) || !rationales || typeof rationales !== 'object' || Array.isArray(rationales)) {
+      gaps.push(`invalid defensible-alternative direction: ${direction}`)
+      continue
+    }
+    for (const [candidateId, rationale] of Object.entries(rationales)) {
+      if (!DICT[candidateId]) gaps.push(`unknown defensible alternative: ${candidateId}`)
+      if (typeof rationale !== 'string' || rationale.trim().length < 24) {
+        gaps.push(`defensible alternative ${candidateId} lacks a substantive rationale`)
+      }
+    }
+  }
+  const leakedRecognition = recognitionDistractors.filter((candidate) => defensibleRecognitionIds.includes(candidate))
+  const leakedRetrieval = retrievalDistractors.filter((candidate) => defensibleRetrievalIds.includes(candidate))
+  if (leakedRecognition.length) gaps.push(`defensible recognition alternatives used as wrong answers: ${leakedRecognition.join(', ')}`)
+  if (leakedRetrieval.length) gaps.push(`defensible retrieval alternatives used as wrong answers: ${leakedRetrieval.join(', ')}`)
   return Object.freeze({
     eligible: gaps.length === 0,
     requiresReviewedContext,
@@ -350,6 +398,10 @@ export function reviewedContextEligibilityForSense(id) {
     missingSiblingIds: Object.freeze(missingSiblingIds),
     recognitionDistractorIds: Object.freeze(recognitionDistractors),
     retrievalDistractorIds: Object.freeze(retrievalDistractors),
+    defensibleAlternativeIds: Object.freeze({
+      al2en: Object.freeze(defensibleRecognitionIds),
+      en2al: Object.freeze(defensibleRetrievalIds),
+    }),
     alignment,
     gaps: Object.freeze(gaps),
   })

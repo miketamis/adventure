@@ -8,7 +8,7 @@ export default {
     role: 'the sister whose scissors slipped — the cuckoo who asks «Ku? Ku?» by day',
     backstory: 'She sat so deep in her needlework that she never saw her brother step to her shoulder; the blades flew out mid-stroke and struck his heart. No one cursed her — grief alone changed her: all day the cuckoo asks the woods «Ku? Ku?» (where? where?), and the answer only ever comes by night, when she cannot fly to it, so brother and sister never once meet. Elbasan tells her other ending too: she became the blue lul\' e qyqes, and a woman who sings the flower the old charm may feel the little head lie down in her palms. Folk speech keeps her name for the bereft and utterly alone — «qyqe» — and Fishta\'s gloss holds: the qyqja mourns forever. NOT the swallow-sister (dallëndyshja), and none of the bee tale\'s cursed sisters — her mark is bereavement, not punishment.',
     folklore: ['cuckoo'],
-    location: { status: 'placed', node: 'lendina' },
+    location: { status: 'placed', node: 'lendina', encounters: ['cuckoo1'] },
     tales: { cuckoo: 'qyqja' },
   },
   gjonZogu: {
@@ -16,7 +16,7 @@ export default {
     role: 'the surviving brother — the little gjon-bird that cries the shared name at night',
     backstory: 'Two brothers in that house carried the one name, Gjon; the scissors took one of them. Grief made the survivor the small night-bird Albanians call gjoni, and every night since he calls the name — his brother\'s, which is also his own: «Gjon! Gjon!» His sister asks by day and he answers by night, so the two calls cross the same woods forever and never meet — the world\'s own clock (ditë/natë) is the wall between them. Distinct from every ill-omened night-caller of the forest: the gjon is no lugat\'s voice — it is the sound of a brother still being missed.',
     folklore: ['cuckoo'],
-    location: { status: 'placed', node: 'pylli1' },
+    location: { status: 'placed', node: 'pylli1', encounters: ['cuckooFund'] },
     tales: { cuckoo: 'gjoni' },
   },
   gjoniVrare: {

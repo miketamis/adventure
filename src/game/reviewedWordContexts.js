@@ -18,6 +18,7 @@ const reviewed = ({
   cueTokens,
   rationale,
   contrastRationales = {},
+  defensibleAlternativeRationales = {},
   register = 'everyday-standard',
   ...optional
 }) => Object.freeze({
@@ -30,6 +31,12 @@ const reviewed = ({
   rationale,
   contrastIds: Object.freeze(contrastIds),
   contrastRationales: Object.freeze(contrastRationales),
+  defensibleAlternativeRationales: Object.freeze(Object.fromEntries(
+    Object.entries(defensibleAlternativeRationales).map(([direction, rationales]) => [
+      direction,
+      Object.freeze({ ...rationales }),
+    ]),
+  )),
   distractorIds: Object.freeze(distractorIds),
   retrieval: Object.freeze({
     en: retrievalEn,
@@ -46,7 +53,12 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'dhe',
     retrievalEn: 'Do you want bread and cheese?',
     distractorIds: ['dhe_gave', 'ose', 'edhe'],
-    retrievalDistractorIds: ['ose', 'pa', 'me'],
+    retrievalDistractorIds: ['ose', 'pa', 'por'],
+    defensibleAlternativeRationales: {
+      en2al: {
+        me: 'Bukë me djathë is also a natural request for bread with cheese, so the short English cue cannot make me unequivocally wrong.',
+      },
+    },
     contrastIds: ['dhe_gave'],
     cueTokens: ['bukë', 'djathë'],
     rationale: 'Between two foods, dhe joins equal alternatives in a natural offer.',
@@ -215,7 +227,11 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'po',
     retrievalEn: 'It is raining.',
     distractorIds: ['po_yes', 'po_but', 'po_turn'],
-    retrievalDistractorIds: ['nuk', 'ende', 'akoma'],
+    retrievalDistractorIds: ['nuk', 'a_q', 'do_fut'],
+    defensibleAlternativeRationales: { en2al: {
+      ende: '“Ende bie shi” is a grammatical, more specific statement that still entails the broad cue “It is raining”.',
+      akoma: '“Akoma bie shi” is a grammatical, more specific statement that still entails the broad cue “It is raining”.',
+    } },
     contrastIds: ['po_yes', 'po_but', 'po_turn'],
     cueTokens: ['bie', 'shi'],
     rationale: 'Directly before the weather verb bie, po marks an action happening now.',
@@ -231,7 +247,10 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'po',
     retrievalEn: 'I want to come, but I cannot.',
     distractorIds: ['po_yes', 'po_prog', 'po_turn'],
-    retrievalDistractorIds: ['por', 'dhe', 'sepse'],
+    retrievalDistractorIds: ['sepse', 'prandaj', 'ose'],
+    defensibleAlternativeRationales: { en2al: {
+      por: 'Por is the standard conjunction for the same contrast and completes this sentence with the same meaning.',
+    } },
     contrastIds: ['po_yes', 'po_prog', 'po_turn'],
     cueTokens: ['Dua', 'nuk'],
     rationale: 'The wish to come and the inability to do so form the contrast introduced by po.',
@@ -247,7 +266,15 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'po',
     retrievalEn: 'I am well; what about you?',
     distractorIds: ['po_yes', 'po_prog', 'po_but'],
-    retrievalDistractorIds: ['dhe', 'edhe', 'por'],
+    // “Dhe ti?” is also natural here (“And you?”), so conjunctions are not
+    // valid wrong answers in this exact frame. Use continuators that leave the
+    // displayed question grammatically incomplete instead.
+    retrievalDistractorIds: ['sepse', 'kur', 'ku'],
+    defensibleAlternativeRationales: { en2al: {
+      dhe: '“Dhe ti?” naturally returns the same question as “Po ti?”.',
+      edhe: 'Edhe can redirect the turn in closely related conversational frames and is not an unequivocal false answer.',
+      por: '“Por ti?” can contrast and redirect attention to the other speaker in this short exchange.',
+    } },
     contrastIds: ['po_yes', 'po_prog', 'po_but'],
     cueTokens: ['mirë', 'ti'],
     rationale: 'Following one person’s answer and preceding ti?, po returns the same question to the other speaker.',
@@ -305,7 +332,12 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'e',
     retrievalEn: 'The girl waits for the bread; the old man brings it.',
     distractorIds: ['e_art', 'e_link', 'e_conj'],
-    retrievalDistractorIds: ['ta', 'ma', 'ua'],
+    retrievalDistractorIds: ['i_obj', 'me_obj', 'te_obj'],
+    defensibleAlternativeRationales: { en2al: {
+      ta: 'Ta still carries the object “it” while adding an unstated second-person recipient.',
+      ma: 'Ma still carries the object “it” while adding a first-person recipient not ruled out by the broad cue.',
+      ua: 'Ua still carries the object “it” while adding a plural recipient not ruled out by the broad cue.',
+    } },
     contrastIds: ['e_art', 'e_link', 'e_conj'],
     cueTokens: ['bukën', 'sjell'],
     rationale: 'The previously named bread supplies the referent that e replaces as the object of sjell.',
@@ -337,7 +369,11 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'e',
     retrievalEn: 'Mujo and Halili walk together.',
     distractorIds: ['e_art', 'e_link', 'e_obj'],
-    retrievalDistractorIds: ['dhe', 'me', 'ose'],
+    retrievalDistractorIds: ['me', 'ose', 'pa'],
+    defensibleAlternativeRationales: {
+      al2en: { dhe: 'Dhe also means “and”, so it is not a false meaning for the marked folk coordinator.' },
+      en2al: { dhe: 'Dhe is the standard Albanian coordinator and gives this line the same basic meaning.' },
+    },
     contrastIds: ['e_art', 'e_link', 'e_obj'],
     cueTokens: ['Mujo', 'Halili', 'bashkë'],
     rationale: 'Between two epic names with a plural verb, e coordinates the pair in folk register.',
@@ -439,7 +475,10 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'para',
     retrievalEn: 'I have money for bread.',
     distractorIds: ['para', 'lek', 'flori'],
-    retrievalDistractorIds: ['lek', 'flori', 'uje'],
+    retrievalDistractorIds: ['uje', 'kripe', 'kohe'],
+    defensibleAlternativeRationales: { en2al: {
+      lek: 'Having lek for bread is a natural, more concrete way to say that the speaker has money for bread.',
+    } },
     contrastIds: ['para'],
     cueTokens: ['Kam', 'bukë'],
     rationale: 'Having para to buy bread selects the everyday money sense.',
@@ -520,7 +559,10 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'por',
     retrievalEn: 'It is late, but the bridge is still open.',
     distractorIds: ['po_but', 'dhe', 'ndersa'],
-    retrievalDistractorIds: ['sepse', 'dhe', 'ndersa'],
+    retrievalDistractorIds: ['sepse', 'prandaj', 'ose'],
+    defensibleAlternativeRationales: { en2al: {
+      ndersa: 'Ndërsa can introduce the same contrast between lateness and the bridge remaining open.',
+    } },
     cueTokens: ['vonë', 'hapur'],
     rationale: 'The late hour and still-open bridge are contrasting facts joined by por.',
   }),
@@ -531,6 +573,9 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     retrievalEn: 'Do you want coffee or tea?',
     distractorIds: ['ose', 'dhe', 'por'],
     retrievalDistractorIds: ['dhe', 'me', 'pa'],
+    defensibleAlternativeRationales: { en2al: {
+      ose: 'Ose is also used for alternatives and can be heard in questions, even though apo is preferred here.',
+    } },
     cueTokens: ['kafe', 'çaj'],
     rationale: 'In a direct question offering two drinks, apo marks the choice between them.',
   }),
@@ -540,7 +585,10 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'ose',
     retrievalEn: 'We can wait here or at the bridge.',
     distractorIds: ['apo', 'dhe', 'por'],
-    retrievalDistractorIds: ['apo', 'dhe', 'jo'],
+    retrievalDistractorIds: ['dhe', 'jo', 'por'],
+    defensibleAlternativeRationales: { en2al: {
+      apo: 'Apo can also coordinate alternatives in conversational Albanian, so it is not unequivocally impossible here.',
+    } },
     cueTokens: ['këtu', 'ura'],
     rationale: 'In a statement naming two possible meeting places, ose presents alternatives.',
   }),
@@ -549,8 +597,12 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     en: 'I know __ he is here.',
     focus: 'se',
     retrievalEn: 'I know that he is here.',
-    distractorIds: ['qe', 'sepse', 'nese'],
-    retrievalDistractorIds: ['qe', 'sepse', 'nese'],
+    distractorIds: ['sepse', 'nese', 'kur'],
+    retrievalDistractorIds: ['sepse', 'nese', 'kur'],
+    defensibleAlternativeRationales: {
+      al2en: { qe: 'Që can introduce the same reported content and its broad function label overlaps this answer.' },
+      en2al: { qe: '“E di që ai është këtu” is a standard sentence with the same meaning.' },
+    },
     cueTokens: ['di', 'ai'],
     rationale: 'After di, se introduces the content of what the speaker knows.',
   }),
@@ -569,8 +621,18 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     en: 'I carry the bread, __ you carry the water.',
     focus: 'ndërsa',
     retrievalEn: 'I carry the bread, while you carry the water.',
-    distractorIds: ['por', 'dhe', 'kur'],
-    retrievalDistractorIds: ['por', 'dhe', 'kur'],
+    distractorIds: ['sepse', 'prandaj', 'ose'],
+    retrievalDistractorIds: ['sepse', 'prandaj', 'ose'],
+    defensibleAlternativeRationales: {
+      al2en: {
+        por: 'Por can express a compatible contrast between the two parallel clauses.',
+        dhe: 'Dhe can truthfully coordinate the two simultaneous actions without contradicting the displayed situation.',
+      },
+      en2al: {
+        por: 'Por produces a grammatical compatible contrast rather than an unequivocally false sentence.',
+        dhe: 'Dhe produces a grammatical coordination that preserves both facts in the cue.',
+      },
+    },
     cueTokens: ['Unë', 'ti'],
     rationale: 'The two simultaneous subjects and parallel actions are contrasted by ndërsa.',
   }),
@@ -590,7 +652,10 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     focus: 'në',
     retrievalEn: 'I found it on the road.',
     distractorIds: ['tek', 'nga', 'prane'],
-    retrievalDistractorIds: ['mbi', 'nen', 'prane'],
+    retrievalDistractorIds: ['nen', 'prane', 'pas'],
+    defensibleAlternativeRationales: { en2al: {
+      mbi: 'Mbi rrugë can also describe being on the road, so the broad English preposition does not rule it out safely.',
+    } },
     cueTokens: ['gjeta', 'rrugë'],
     rationale: 'With the place noun rrugë, në locates where the object was found.',
     distractorLabels: { al2en: { ne: 'marks location here: on' } },

@@ -57,6 +57,16 @@ for (const id of requiredContextIds) {
   }
   assert.ok(typeof context.rationale === 'string' && context.rationale.length >= 24, `${id}: context rationale is not substantive`)
 
+  for (const [direction, rationales] of Object.entries(context.defensibleAlternativeRationales || {})) {
+    assert.ok(['al2en', 'en2al'].includes(direction), `${id}: invalid defensible-alternative direction ${direction}`)
+    for (const [candidateId, rationale] of Object.entries(rationales)) {
+      assert.ok(DICT[candidateId], `${id}: unknown defensible alternative ${candidateId}`)
+      assert.ok(rationale.length >= 24, `${id}/${direction}/${candidateId}: alternative rationale is not substantive`)
+      const distractors = direction === 'al2en' ? context.distractorIds : context.retrieval.distractorIds
+      assert.ok(!distractors.includes(candidateId), `${id}/${direction}: defensible ${candidateId} is still scored wrong`)
+    }
+  }
+
   const siblings = sameSurfaceSiblingIds(id)
   assert.deepEqual(sorted(context.contrastIds || []), sorted(siblings), `${id}: same-surface contrast coverage drifted`)
   assert.deepEqual(sorted(Object.keys(context.contrastRationales || {})), sorted(siblings), `${id}: sibling-specific rationale coverage drifted`)
@@ -84,6 +94,13 @@ const expectedContextSequence = [
 ]
 let emittedQuestionCount = 0
 
+// A distractor must be wrong in the exact displayed utterance, not merely a
+// less-preferred translation. Both “po ti?” and “dhe ti?” are natural ways to
+// return the question, so “dhe”/“edhe” may never be scored as wrong here.
+assert.deepEqual(DICT.po_turn.ctx.retrieval.distractorIds, ['sepse', 'kur', 'ku'])
+assert.ok(!DICT.po_turn.ctx.retrieval.distractorIds.some((id) => ['dhe', 'edhe', 'por'].includes(id)),
+  'po_turn: a grammatical conversational alternative is being used as a false distractor')
+
 for (const id of requiredContextIds) {
   let progress = null
   let round = 0
@@ -105,10 +122,27 @@ for (const id of requiredContextIds) {
       assert.equal(question.answerId, id)
       assert.equal(question.ctx.authoredAl, DICT[id].ctx.al)
       assert.equal(question.ctx.authoredEn, DICT[id].ctx.en)
+      assert.equal(question.ctx.targetTokenIndices.length, 1,
+        `${id}/${question.variantId}: contextual question does not identify exactly one target`)
+      assert.equal(question.targetReference?.valid, true,
+        `${id}/${question.variantId}: contextual target reference is invalid`)
+      assert.ok(['visual-mark', 'named-surface', 'single-gap'].includes(question.targetReference.referenceMode),
+        `${id}/${question.variantId}: contextual target has no learner-visible reference mode`)
+      if (question.promptProfile.contextPresentation === 'unmarked') {
+        assert.equal(question.targetReference.referenceMode, 'named-surface')
+        assert.ok(question.targetReference.instruction.includes(`“${question.ctx.target}”`),
+          `${id}/${question.variantId}: visually unmarked prompt does not name its exact target`)
+      }
       assert.equal(question.options.length, question.dir === 'en2al' && emitted.length === 3 ? 2 : 4,
         `${id}/${question.variantId}: wrong real choice range`)
       assert.equal(new Set(Object.values(question.optionLabels)).size, question.options.length,
         `${id}/${question.variantId}: learner-visible options are not distinct`)
+      for (const defensibleId of Object.keys(
+        DICT[id].ctx.defensibleAlternativeRationales?.[question.dir] || {},
+      )) {
+        assert.ok(!question.options.includes(defensibleId),
+          `${id}/${question.variantId}: defensible alternative ${defensibleId} escaped into the live bank`)
+      }
 
       if (question.dir === 'al2en') {
         assert.equal(question.promptProfile.showEnglishContext, false,
@@ -117,6 +151,9 @@ for (const id of requiredContextIds) {
           assert.ok(question.options.includes(siblingId), `${id}/${question.variantId}: same-spelling sense ${siblingId} is missing`)
         }
       } else {
+        assert.equal(question.targetReference.referenceMode, 'single-gap')
+        assert.equal(question.ctx.al.split('__').length - 1, 1,
+          `${id}/${question.variantId}: retrieval surface does not contain exactly one gap`)
         const optionSurfaces = question.options.map((optionId) => lower(DICT[optionId].al))
         assert.equal(new Set(optionSurfaces).size, optionSurfaces.length,
           `${id}/${question.variantId}: Albanian retrieval contains duplicate written answers`)
@@ -156,4 +193,10 @@ for (const id of requiredContextIds) {
 }
 
 assert.equal(emittedQuestionCount, requiredContextIds.length * expectedContextSequence.length)
+assert.deepEqual(DICT.po_but.ctx.retrieval.distractorIds, ['sepse', 'prandaj', 'ose'])
+assert.deepEqual(DICT.e_conj.ctx.retrieval.distractorIds, ['me', 'ose', 'pa'])
+assert.deepEqual(DICT.se.ctx.retrieval.distractorIds, ['sepse', 'nese', 'kur'])
+assert.deepEqual(DICT.para_money.ctx.retrieval.distractorIds, ['uje', 'kripe', 'kohe'])
+assert.deepEqual(DICT.ndersa.ctx.retrieval.distractorIds, ['sepse', 'prandaj', 'ose'])
+assert.deepEqual(DICT.ne.ctx.retrieval.distractorIds, ['nen', 'prane', 'pas'])
 console.log(`✓ ${requiredContextIds.length} required senses and ${emittedQuestionCount} real context-question states are natural, reviewed, disambiguating and fail-closed.`)

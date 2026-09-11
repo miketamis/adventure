@@ -382,31 +382,6 @@ export const QUOTES = {
   },
 
   // ── Proverbs quoted from the living tradition (already collected once) ──
-  'fjalë e urtë': {
-    label: 'fjalë e urtë',
-    game: 'zoti vonon, por nuk harron',
-    gameTranslation: 'God delays, but does not forget.',
-    original: 'Zoti vonon, po nuk harron.',
-    translation: 'God delays, but does not forget.',
-    fidelity: 'adapted',
-    alignment: [
-      {
-        game: 'zoti vonon, por nuk harron',
-        source: 'Zoti vonon, po nuk harron',
-        relation: 'The conversational conjunction “po” is expanded to standard “por”; the rest is unchanged.',
-      },
-    ],
-    source: null,
-    evidence: [
-      {
-        kind: 'url',
-        url: 'https://en.wikiquote.org/wiki/Albanian_proverbs',
-        label: 'Albanian proverbs (Wikiquote)',
-        quote: 'Zoti vonon, po nuk harron.',
-        note: 'The game expands the source’s conversational conjunction “po” to standard “por”; the proverb and its meaning are otherwise unchanged.',
-      },
-    ],
-  },
   'fjala-plumbi': {
     label: 'fjalë e urtë',
     game: "fjala dhe plumbi kur dalin s'kthehen më",
@@ -1385,4 +1360,4 @@ export const QUOTE_EVIDENCE_WORKS = Object.freeze({
 // work metadata as one payload. quotecheck recomputes it and fails closed after
 // any unsealed change. A matching hash proves payload identity, not external
 // expert or native-speaker approval.
-export const QUOTE_FIDELITY_REVIEW_HASH = 'sha256:6e44da8b061b1e3f62d94a081a8491ca3f750ff7f1a1d945d20f2db40db0e0ea'
+export const QUOTE_FIDELITY_REVIEW_HASH = 'sha256:928b9e44e69461bd3d019927aca2a2ccd993c14ba66702e174eede9bc60129f9'

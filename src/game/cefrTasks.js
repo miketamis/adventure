@@ -164,6 +164,33 @@ const plausibleChoiceSet = (acceptedId, acceptedLabel, candidates, offset = 0) =
   return [[acceptedId, acceptedLabel], ...distractors]
 }
 
+// Broad same-topic pools are useful only when their members are genuinely
+// incompatible with the exact stimulus. These reviewed overrides cover cases
+// where a broader/narrower pool label could also be true (for example, 08:00
+// and “in the morning”). Keeping them explicit makes the one-answer contract
+// editorially inspectable instead of pretending string inequality is enough.
+export const CEFR_RECEPTION_REVIEWED_DISTRACTORS = deepFreeze({
+  'a2-unseen-listening-01:gist': ['Rruga për në Korçë është e hapur', 'Udhëtari duhet të shkojë nga ura'],
+  'a2-unseen-listening-04:gist': ['Ura është e hapur', 'Takimi është te ura'],
+  'a2-unseen-listening-05:detail': ['Bukë', 'Sapun'],
+  'a2-unseen-listening-08:detail': ['Në mesditë', 'Në mbrëmje'],
+  'a2-unseen-listening-12:detail': ['Në mesditë', 'Në mbrëmje'],
+  'a2-unseen-listening-18:detail': ['Sonte', 'Nesër në mëngjes'],
+  'a2-unseen-listening-23:detail': ['Nesër në mëngjes', 'Sot në mbrëmje'],
+  'a2-unseen-reading-04:detail': ['Në orën pesë', 'Në orën shtatë'],
+  'a2-unseen-reading-12:gist': ['Ura e madhe është e mbyllur', 'Duhet ta kalosh lumin në mbrëmje'],
+  'a2-unseen-reading-15:detail': ['Në mbrëmje', 'Nesër pas darkës'],
+})
+
+const reviewedReceptionChoiceSet = (taskId, kind, acceptedId, acceptedLabel, candidates, offset) => {
+  const reviewed = CEFR_RECEPTION_REVIEWED_DISTRACTORS[`${taskId}:${kind}`]
+  if (!reviewed) return plausibleChoiceSet(acceptedId, acceptedLabel, candidates, offset)
+  return [
+    [acceptedId, acceptedLabel],
+    ...reviewed.map((label, index) => [`${acceptedId}-reviewed-alternative-${index + 1}`, label]),
+  ]
+}
+
 const normalizeForChoices = (value) => String(value || '')
   .toLocaleLowerCase('sq')
   .normalize('NFC')
@@ -578,8 +605,8 @@ const gistCandidates = (rows, group) => rows.filter((row) => row[1] === group).m
 const A2_LISTENING_DATA = A2_LISTENING_ROWS.map(([number, topic, location, npc, speaker, scriptSq, gistId, gistLabel, detailId, detailLabel]) => listening({
   id: `a2-unseen-listening-${number}`, level: 'A2', topic, location, npc, speaker, scriptSq,
   questions: [
-    question('gist', 'gist', 'What is the main point of the message?', plausibleChoiceSet(gistId, gistLabel, gistCandidates(A2_LISTENING_ROWS, topic), Number(number)), gistId, [`gist:${gistId}`], { choiceCategory: `message:${topic}`, distractorPolicy: 'same-topic-peer' }),
-    question('detail', 'detail', A2_LISTENING_DETAIL_DESIGN[number][0], plausibleChoiceSet(detailId, detailLabel, detailCandidates(A2_LISTENING_ROWS, A2_LISTENING_DETAIL_DESIGN, A2_LISTENING_DETAIL_DESIGN[number][1]), Number(number)), detailId, [`detail:${detailId}`], { choiceCategory: A2_LISTENING_DETAIL_DESIGN[number][1], distractorPolicy: 'same-semantic-category' }),
+    question('gist', 'gist', 'What is the main point of the message?', reviewedReceptionChoiceSet(`a2-unseen-listening-${number}`, 'gist', gistId, gistLabel, gistCandidates(A2_LISTENING_ROWS, topic), Number(number)), gistId, [`gist:${gistId}`], { choiceCategory: `message:${topic}`, distractorPolicy: CEFR_RECEPTION_REVIEWED_DISTRACTORS[`a2-unseen-listening-${number}:gist`] ? 'reviewed-context-contradiction' : 'same-topic-peer' }),
+    question('detail', 'detail', A2_LISTENING_DETAIL_DESIGN[number][0], reviewedReceptionChoiceSet(`a2-unseen-listening-${number}`, 'detail', detailId, detailLabel, detailCandidates(A2_LISTENING_ROWS, A2_LISTENING_DETAIL_DESIGN, A2_LISTENING_DETAIL_DESIGN[number][1]), Number(number)), detailId, [`detail:${detailId}`], { choiceCategory: A2_LISTENING_DETAIL_DESIGN[number][1], distractorPolicy: CEFR_RECEPTION_REVIEWED_DISTRACTORS[`a2-unseen-listening-${number}:detail`] ? 'reviewed-context-contradiction' : 'same-semantic-category' }),
   ],
 }))
 
@@ -657,8 +684,8 @@ const readingDetailCandidates = (category) => [
 const A2_READING_DATA = A2_READING_ROWS.map(([number, textType, topic, location, npc, textSq, gistId, gistLabel, detailId, detailLabel]) => reading({
   id: `a2-unseen-reading-${number}`, level: 'A2', textType, topic, location, npc, textSq,
   questions: [
-    question('gist', 'gist', 'What is the main message of this text?', plausibleChoiceSet(gistId, gistLabel, gistCandidates(A2_READING_ROWS, textType), Number(number)), gistId, [`gist:${gistId}`], { choiceCategory: `message:${textType}`, distractorPolicy: 'same-text-type-peer' }),
-    question('detail', 'detail', A2_READING_DETAIL_DESIGN[number][0], plausibleChoiceSet(detailId, detailLabel, readingDetailCandidates(A2_READING_DETAIL_DESIGN[number][1]), Number(number)), detailId, [`detail:${detailId}`], { choiceCategory: A2_READING_DETAIL_DESIGN[number][1], distractorPolicy: 'same-semantic-category' }),
+    question('gist', 'gist', 'What is the main message of this text?', reviewedReceptionChoiceSet(`a2-unseen-reading-${number}`, 'gist', gistId, gistLabel, gistCandidates(A2_READING_ROWS, textType), Number(number)), gistId, [`gist:${gistId}`], { choiceCategory: `message:${textType}`, distractorPolicy: CEFR_RECEPTION_REVIEWED_DISTRACTORS[`a2-unseen-reading-${number}:gist`] ? 'reviewed-context-contradiction' : 'same-text-type-peer' }),
+    question('detail', 'detail', A2_READING_DETAIL_DESIGN[number][0], reviewedReceptionChoiceSet(`a2-unseen-reading-${number}`, 'detail', detailId, detailLabel, readingDetailCandidates(A2_READING_DETAIL_DESIGN[number][1]), Number(number)), detailId, [`detail:${detailId}`], { choiceCategory: A2_READING_DETAIL_DESIGN[number][1], distractorPolicy: CEFR_RECEPTION_REVIEWED_DISTRACTORS[`a2-unseen-reading-${number}:detail`] ? 'reviewed-context-contradiction' : 'same-semantic-category' }),
   ],
 }))
 

@@ -20,7 +20,12 @@ export const ENVIRONMENT_NARRATION_POLICY = Object.freeze({
   terminalSentences: 1,
 })
 
-export const ENVIRONMENT_NARRATION_STATE_VERSION = 1
+export const ENVIRONMENT_NARRATION_STATE_VERSION = 3
+
+export const WORLD_ENVIRONMENT_NARRATION_SCOPE = 'world'
+
+const safeScopeId = (value) => typeof value === 'string' &&
+  (value === WORLD_ENVIRONMENT_NARRATION_SCOPE || /^tale:[a-z][a-z0-9-]*$/u.test(value))
 
 const cleanDimensions = (value) => [...new Set(
   Array.isArray(value) ? value : value instanceof Set ? [...value] : [],
@@ -45,7 +50,7 @@ export function environmentNarrationSnapshot(environment = {}) {
   })
 }
 
-export function normalizeEnvironmentNarrationState(value) {
+const normalizeScopeState = (value) => {
   const communicated = cleanSnapshot(value?.communicated)
   const active = value?.active
   const activeSnapshot = cleanSnapshot(active?.snapshot)
@@ -58,35 +63,52 @@ export function normalizeEnvironmentNarrationState(value) {
         snapshot: activeSnapshot,
         fallbackDimensions: cleanDimensions(active.fallbackDimensions),
         authoredDimensions: cleanDimensions(active.authoredDimensions),
+        previousSnapshot: cleanSnapshot(active.previousSnapshot),
       }
     : null
-  return {
-    version: ENVIRONMENT_NARRATION_STATE_VERSION,
-    communicated,
-    active: normalizedActive,
+  return { communicated, active: normalizedActive }
+}
+
+export function normalizeEnvironmentNarrationState(value) {
+  // Earlier ledgers stored one global snapshot. It cannot be assigned safely
+  // after a save made inside a frozen tale or an overworld detour, so migrate
+  // it to unknown rather than inventing a backwards time transition. Each
+  // canonical clock domain will establish itself once on its next appearance.
+  if (value?.version !== ENVIRONMENT_NARRATION_STATE_VERSION) {
+    return { version: ENVIRONMENT_NARRATION_STATE_VERSION, scopes: {} }
   }
+  const scopes = Object.fromEntries(Object.entries(value.scopes || {}).flatMap(([scopeId, scope]) =>
+    safeScopeId(scopeId) ? [[scopeId, normalizeScopeState(scope)]] : [],
+  ))
+  return { version: ENVIRONMENT_NARRATION_STATE_VERSION, scopes }
 }
 
 // A presentation is stable for its current scene/turn, but a move or same-place
 // action asks again whether anything actually changed. Missing history is not a
-// transition: a fresh run or legacy save silently establishes its baseline.
-// Thereafter, previously communicated values stay silent and a visible authored
-// line wins over the generic fallback.
+// transition: the opening moves from unknown conditions to the initial world
+// state, so its un-authored dimensions are communicated once. Thereafter,
+// previously communicated values stay silent and a visible authored line wins
+// over the generic fallback.
 export function planEnvironmentNarration(environment, value, {
   nodeId,
   turn,
   authoredDimensions = [],
+  scopeId = WORLD_ENVIRONMENT_NARRATION_SCOPE,
 } = {}) {
   const current = environmentNarrationSnapshot(environment)
   const state = normalizeEnvironmentNarrationState(value)
+  const canonicalScopeId = safeScopeId(scopeId) ? scopeId : WORLD_ENVIRONMENT_NARRATION_SCOPE
+  const scope = state.scopes[canonicalScopeId] || normalizeScopeState()
   const authored = cleanDimensions(authoredDimensions)
-  if (state.active?.nodeId === nodeId && state.active.turn === turn &&
-      sameSnapshot(state.active.snapshot, current)) {
-    const fallbackDimensions = state.active.fallbackDimensions
+  if (scope.active?.nodeId === nodeId && scope.active.turn === turn &&
+      sameSnapshot(scope.active.snapshot, current)) {
+    const fallbackDimensions = scope.active.fallbackDimensions
     return {
+      scopeId: canonicalScopeId,
       snapshot: current,
-      authoredDimensions: state.active.authoredDimensions,
+      authoredDimensions: scope.active.authoredDimensions,
       fallbackDimensions,
+      previousSnapshot: scope.active.previousSnapshot,
       omitDimensions: ENVIRONMENT_DIMENSIONS.filter((dimension) => !fallbackDimensions.includes(dimension)),
       nextState: state,
       needsCommit: false,
@@ -94,16 +116,14 @@ export function planEnvironmentNarration(environment, value, {
   }
 
   const changed = ENVIRONMENT_DIMENSIONS.filter((dimension) =>
-    typeof state.communicated[dimension] === 'string' &&
-    state.communicated[dimension] !== current[dimension],
+    scope.communicated[dimension] !== current[dimension],
   )
+  const previousSnapshot = { ...scope.communicated }
   const fallbackDimensions = changed.filter((dimension) => !authored.includes(dimension))
-  // Always fill unknown dimensions from the current snapshot without narrating
-  // them. Once a dimension has a baseline, only a real value change can enter
-  // `fallbackDimensions` on a later presentation.
+  // Once the initial unknown-to-known transition has established a baseline,
+  // only a real value change can enter `fallbackDimensions` later.
   const communicated = { ...current }
-  const nextState = {
-    version: ENVIRONMENT_NARRATION_STATE_VERSION,
+  const nextScope = {
     communicated,
     active: {
       nodeId,
@@ -111,12 +131,19 @@ export function planEnvironmentNarration(environment, value, {
       snapshot: { ...current },
       fallbackDimensions,
       authoredDimensions: authored,
+      previousSnapshot,
     },
   }
+  const nextState = {
+    version: ENVIRONMENT_NARRATION_STATE_VERSION,
+    scopes: { ...state.scopes, [canonicalScopeId]: nextScope },
+  }
   return {
+    scopeId: canonicalScopeId,
     snapshot: current,
     authoredDimensions: authored,
     fallbackDimensions,
+    previousSnapshot,
     omitDimensions: ENVIRONMENT_DIMENSIONS.filter((dimension) => !fallbackDimensions.includes(dimension)),
     nextState,
     needsCommit: true,

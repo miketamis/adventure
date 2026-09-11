@@ -7,6 +7,7 @@ import { DICT } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
+import { trainMissConsequence } from '../src/game/consequenceBuilders.js'
 import {
   phraseProductionFocusIds,
   phraseProductionFocuses,
@@ -42,6 +43,7 @@ import {
   isReviewedClozeSlotPeer,
 } from '../src/game/practiceContrasts.js'
 import { isTrainableSense } from '../src/game/lexicalTrainability.js'
+import { sensesMayShareAnswer } from '../src/game/practiceAnswerValidity.js'
 
 const failures = []
 const check = (name, fn) => {
@@ -312,9 +314,13 @@ check(`all ${EVERYDAY_PHRASE_DRILLS.length} phrases build valid construction, li
             formTag: phraseNounRole(target.id, targetFocus.id),
           }
           const candidate = { focusId: tile.senseId, formTag: tile.formTag }
-          assert.equal(tile.distractorPolicy, phraseClozeDistractorPolicy(answer, candidate))
-          assert.ok(Number.isFinite(phraseClozeContrastRank(answer, candidate)))
-          if (answer.formTag) assert.equal(tile.formTag, answer.formTag)
+          if (tile.distractorPolicy === 'different-meaning-extra-tile') {
+            assert.equal(sensesMayShareAnswer(answer.focusId, candidate.focusId), false)
+          } else {
+            assert.equal(tile.distractorPolicy, phraseClozeDistractorPolicy(answer, candidate))
+            assert.ok(Number.isFinite(phraseClozeContrastRank(answer, candidate)))
+            if (answer.formTag) assert.equal(tile.formTag, answer.formTag)
+          }
         }
       }
     }
@@ -352,9 +358,13 @@ check(`all ${EVERYDAY_PHRASE_DRILLS.length} phrases build valid construction, li
             formTag: phraseNounRole(target.id, targetFocus.id),
           }
           const candidate = { focusId: tile.senseId, formTag: tile.formTag }
-          assert.equal(tile.distractorPolicy, phraseClozeDistractorPolicy(answer, candidate))
-          assert.ok(Number.isFinite(phraseClozeContrastRank(answer, candidate)))
-          if (answer.formTag) assert.equal(tile.formTag, answer.formTag)
+          if (tile.distractorPolicy === 'different-meaning-extra-tile') {
+            assert.equal(sensesMayShareAnswer(answer.focusId, candidate.focusId), false)
+          } else {
+            assert.equal(tile.distractorPolicy, phraseClozeDistractorPolicy(answer, candidate))
+            assert.ok(Number.isFinite(phraseClozeContrastRank(answer, candidate)))
+            if (answer.formTag) assert.equal(tile.formTag, answer.formTag)
+          }
         }
       }
       if (mode === 'cloze') {
@@ -475,21 +485,35 @@ check('a first unlocked phrase still receives useful distractor words', () => {
   }
 })
 
-const finish = (state, question, overrides = {}) => reducer(state, {
-  type: 'PRACTICE_PHRASE_RESULT',
-  correct: true,
-  phraseIds: question.phraseIds,
-  rewardIds: question.rewardIds,
-  skill: question.skill,
-  tier: question.tier,
-  questionKey: question.questionKey,
-  mode: question.mode,
-  typeScope: question.typeScope,
-  focusId: question.focusId || null,
-  diagnostic: null,
-  wordKeys: trainQuestionWordKeys(question),
-  ...overrides,
-})
+const finish = (state, question, overrides = {}) => {
+  const action = {
+    type: 'PRACTICE_PHRASE_RESULT',
+    correct: true,
+    phraseIds: question.phraseIds,
+    rewardIds: question.rewardIds,
+    skill: question.skill,
+    tier: question.tier,
+    questionKey: question.questionKey,
+    mode: question.mode,
+    typeScope: question.typeScope,
+    focusId: question.focusId || null,
+    diagnostic: null,
+    wordKeys: trainQuestionWordKeys(question),
+    ...overrides,
+  }
+  if (!action.correct && !action.consequence) {
+    action.consequence = trainMissConsequence({
+      source: 'train-phrase',
+      questionKey: question.questionKey,
+      attemptedAl: 'audit miss',
+      reasonCode: 'audit-phrase-miss',
+      reason: 'The audit answer does not match the tested phrase.',
+      correctAl: question.target.al,
+      correctEn: question.target.en,
+    })
+  }
+  return reducer(state, action)
+}
 
 check('production requires two focuses, ordering, every focus spelling, then full writing', () => {
   const phrase = EVERYDAY_PHRASE_DRILLS.find((entry) => entry.id === 'going-village')

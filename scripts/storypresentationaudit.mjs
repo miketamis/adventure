@@ -103,6 +103,25 @@ check('StoryView has no scene pagination controls or page gate', () => {
   assert.doesNotMatch(source, /scenePage|scene-pages|aria-label="Story pages"|Scene \{presented/)
 })
 
+check('normal play omits mechanical effect summaries and authoring annotations', () => {
+  const source = fs.readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
+  assert.match(source, /e\.heal && state\.debug/)
+  assert.match(source, /e\.beginQuest && state\.debug/)
+  assert.match(source, /else if \(state\.debug\) \{\s*cost = <span className="option-cost ok">spends tokens<\/span>/u)
+  assert.match(source, /state\.debug && quoteSrc &&/)
+  assert.match(source, /state\.debug && state\.embodying && \(itemIds\.length > 0 \|\| companionIds\.length > 0\)/)
+})
+
+check('normal role controls do not expose the option answer, map bearing or parallel clocks', () => {
+  const source = fs.readFileSync(new URL('../src/components/EmbodimentFocus.jsx', import.meta.url), 'utf8')
+  assert.match(source, /if \(!state\.debug\) \{/)
+  const normalBranch = source.slice(source.indexOf('if (!state.debug) {'), source.indexOf('const focusState ='))
+  assert.ok(normalBranch.length > 0, 'normal/debug role-control boundary was not found')
+  assert.doesNotMatch(normalBranch, /objectiveAt|optionEnglishReadingOf|playerMapLabel|chartDirection|distanceBand|talePhase|worldPhase/)
+  assert.match(normalBranch, /PAUSE_EMBODIMENT/)
+  assert.match(normalBranch, /RESUME_EMBODIMENT/)
+})
+
 check('the opening bridge, river and destination read as one visual beat', () => {
   const lines = STORY.start.text.map(lineOf)
   const combined = lines.filter((line) => {
@@ -135,6 +154,23 @@ check('the birthday dialogue is a coherent same-place interaction, not hub trans
   assert.ok(STORY.fshatiSheshi.options.some((option) => option.to === 'fshatiDitelindje'))
   assert.ok(STORY.fshatiDitelindje.options.some((option) => option.to === 'fshatiDitelindjeUrim'))
   assert.ok(STORY.fshatiDitelindjeUrim.options.some((option) => option.to === 'fshatiSheshi'))
+})
+
+check('the Stihi warning has a visible carrier and no disconnected second moral', () => {
+  const prose = STORY.stihi1.text.map(lineOf)
+  const albanian = prose.map(albanianTextOf)
+  assert.ok(
+    albanian.includes('Njerëzit thonë: kush merr arin, nuk del. kush lë arin, jeton.'),
+    'the contextual gold warning lost its explicit speaker',
+  )
+  assert.ok(
+    albanian.every((text) => !text.includes('Zoti vonon')),
+    'the unrelated proverb returned beside an already explicit warning',
+  )
+  assert.ok(
+    prose.every((line) => line.quoteId !== 'fjalë e urtë'),
+    'a stale source attribution survived after the proverb was removed',
+  )
 })
 
 check('the opening errand stays compact while optional questions remain in the square', () => {

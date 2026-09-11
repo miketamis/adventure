@@ -3,9 +3,18 @@ import { reviewedFormTargets } from './formInventory.js'
 import { containsExcludedPhraseWord, shuffleWith } from './phrasePractice.js'
 import { TRAIN_EXERCISE_FAMILIES } from './trainingProgression.js'
 import { isTrainableSense } from './lexicalTrainability.js'
+import { choiceSetIsValid } from './practiceAnswerValidity.js'
+import { wordProductionTargetReference } from './contextQuestionPresentation.js'
 
 let formQuestionSequence = 0
 const lower = (value) => value.normalize('NFC').toLocaleLowerCase('sq')
+
+const targetTokenIndices = (text, surface) => {
+  const target = lower(surface)
+  return String(text || '').split(/\s+/).flatMap((word, index) =>
+    lower(word).replace(/^[^\p{L}\p{M}]+|[^\p{L}\p{M}]+$/gu, '') === target ? [index] : [],
+  )
+}
 
 const uniqueBy = (values, keyOf) => {
   const seen = new Set()
@@ -108,16 +117,24 @@ export function buildFormQuestion({
   const forms = reviewedFormTargets(answerId)
   const target = targetForPlan(forms, plan)
   if (!target || containsExcludedPhraseWord(target.surface, excludeWords)) return null
+  const targetIndices = targetTokenIndices(target.context?.al, target.surface)
+  if (targetIndices.length !== 1 || String(target.context?.alGap || '').split('__').length - 1 !== 1) return null
   const base = questionBase(answerId, target, plan, currentRound)
 
   if (plan.stageId === 'reviewed-form-contrast') {
     const options = contrastOptions(forms, target, rng)
-    if (options.length < 2) return null
+    if (options.length < 2 || !choiceSetIsValid({
+      answerValue: target.key,
+      optionValues: options.map(({ value }) => value),
+      labelOf: (value) => options.find((option) => option.value === value)?.label,
+      expectedOptionCount: options.length,
+    })) return null
     return {
       ...base,
       kind: TRAIN_EXERCISE_FAMILIES.wordForms.kind,
       promptKind: target.wordClass === 'noun' ? 'noun-role-in-context' : 'reviewed-use-in-context',
       context: target.context,
+      targetTokenIndices: targetIndices,
       options,
       answerValue: target.key,
       distractorPolicy: target.wordClass === 'noun' ? 'same-noun-reviewed-roles' : 'same-word-reviewed-uses',
@@ -126,7 +143,13 @@ export function buildFormQuestion({
 
   if (plan.stageId === 'contextual-form-selection') {
     const options = surfaceOptions(forms, target, rng)
-    if (options.length < 2) return null
+    if (options.length < 2 || !choiceSetIsValid({
+      answerValue: target.surface,
+      optionValues: options.map(({ value }) => value),
+      labelOf: (value) => value,
+      expectedOptionCount: options.length,
+      locale: 'sq',
+    })) return null
     return {
       ...base,
       kind: TRAIN_EXERCISE_FAMILIES.wordFormContext.kind,
@@ -138,10 +161,17 @@ export function buildFormQuestion({
   }
 
   if (plan.stageId === 'word-form-construction') {
+    const targetReference = wordProductionTargetReference({
+      mode: 'construction',
+      meaningCue: target.context.en,
+      context: target.context,
+    })
+    if (!targetReference.valid) return null
     return {
       ...base,
       kind: TRAIN_EXERCISE_FAMILIES.wordConstruction.kind,
       context: target.context,
+      targetReference,
       construction: buildConstructionPieces(target.surface, {
         distractorCount: plan.definition.variant.distractorChunks,
         rng,

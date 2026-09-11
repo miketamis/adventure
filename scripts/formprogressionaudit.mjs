@@ -47,6 +47,12 @@ for (const [id, entry] of Object.entries(DICT)) {
     const contrast = buildFormQuestion({ answerId: id, plan: contrastPlan, currentRound: 50, rng: () => 0.271 })
     assert.ok(contrast, `${id}/${target.key}: reviewed contrast cannot build`)
     assert.equal(contrast.kind, 'forms')
+    assert.equal(contrast.targetTokenIndices.length, 1,
+      `${id}/${target.key}: reviewed contrast does not mark exactly one target form`)
+    const markedToken = contrast.context.al.split(/\s+/)[contrast.targetTokenIndices[0]]
+      .replace(/^[^\p{L}\p{M}]+|[^\p{L}\p{M}]+$/gu, '')
+    assert.equal(lower(markedToken), lower(target.surface),
+      `${id}/${target.key}: marked token is not the reviewed target surface`)
     assert.equal(contrast.answerValue, target.key)
     assert.ok(contrast.options.length >= 2 && contrast.options.length <= 4)
     assert.equal(new Set(contrast.options.map(({ label }) => label)).size, contrast.options.length)
@@ -61,6 +67,8 @@ for (const [id, entry] of Object.entries(DICT)) {
     const selection = buildFormQuestion({ answerId: id, plan: selectionPlan, currentRound: 50, rng: () => 0.271 })
     assert.ok(selection, `${id}/${target.key}: contextual form selection cannot build`)
     assert.equal(selection.kind, 'form-context')
+    assert.equal(selection.context.alGap.split('__').length - 1, 1,
+      `${id}/${target.key}: contextual selection does not show exactly one target gap`)
     assert.equal(selection.answerValue, target.surface)
     assert.ok(selection.options.length >= 2 && selection.options.length <= 4)
     assert.equal(new Set(selection.options.map(({ label }) => lower(label))).size, selection.options.length)
@@ -77,6 +85,11 @@ for (const [id, entry] of Object.entries(DICT)) {
     const construction = buildFormQuestion({ answerId: id, plan: constructionPlan, currentRound: 50, rng: () => 0.271 })
     assert.ok(construction, `${id}/${target.key}: construction cannot build`)
     assert.equal(construction.kind, 'word-construction')
+    assert.equal(construction.targetReference?.valid, true,
+      `${id}/${target.key}: construction has no valid target reference`)
+    assert.equal(construction.targetReference.referenceMode, 'single-gap-with-meaning-cue')
+    assert.equal(construction.context.alGap.split('__').length - 1, 1,
+      `${id}/${target.key}: construction does not show exactly one target gap`)
     assert.ok(construction.construction.pieces.some(({ distractor }) => distractor), `${id}/${target.key}: no distractor chunk`)
     const assembled = construction.construction.answerPieceIds.map((pieceId) =>
       construction.construction.pieces.find(({ id: candidate }) => candidate === pieceId)?.text || '',

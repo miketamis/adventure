@@ -606,6 +606,8 @@ export const DICT = {
   pres:      { al: 'pres',      en: 'cut' },        // #514 — the litany's shears
   tremb:     { al: 'tremb',     en: 'frighten' },   // #4851 — «mos u tremb» (the njerka's send-off)
   rroba:     { al: 'rroba',     en: 'clothes' },    // #1688 — rags vs the golden clothes
+  shami:     { al: 'shami',     en: 'headscarf' },
+  lagur:     { al: 'lagur',     en: 'wet' },
   thes:      { al: 'thes',      en: 'sack' },       // #5297 — the grain sack on Maro's back
   varfer:    { al: 'varfër',    en: 'poor' },       // the njerka's house, Maro's rags
   kjo:       { al: 'kjo',       en: 'this' },       // fem. (Maro's answer: «kjo ka shumë mundim»)
@@ -1024,6 +1026,7 @@ export const DICT = {
   denoj:      { al: 'dënon',       en: 'sentences' },
   djeg:       { al: 'djeg',        en: 'burn', enAll: 'burn' },
   shkelqen:   { al: 'shkëlqen',    en: 'shines' },
+  rrjedh:     { al: 'rrjedh',       en: 'flows' },
   perqafon:   { al: 'përqafon',    en: 'embraces' },
   pranga:     { al: 'pranga',      en: 'shackles' },
   balle:      { al: 'ballë',        en: 'brow' },
@@ -1064,6 +1067,7 @@ export const DICT = {
   aliPasha:   { al: 'Ali Pasha',   en: 'Ali Pasha' },    // the Lion of Ioannina
   zadran:     { al: 'Zadran',      en: 'Zadran' },       // the Slav who kills Halili
   zuku:       { al: 'Zuku',        en: 'Zuku' },         // Zuku Bajraktar
+  miraEmri:   { al: 'Mira',        en: 'Mira' },         // the village water-carrier
   // --- the Bridge of Arta (the Çam walled-bride ballad, Rozafa's southern twin) ---
   arta:       { al: 'Arta',        en: 'Arta' },         // the town on the Arachthos, in Çamëria
   kico:       { al: 'Kiço',        en: 'Kiço' },         // the youngest brother-mason — the player's mold

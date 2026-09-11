@@ -30,6 +30,7 @@ import ContextualCompletion, {
   CONTEXT_TARGET_PRESENTATION,
 } from './ContextualCompletion.jsx'
 import CefrCapstone from './CefrCapstone.jsx'
+import { trainMissConsequence } from '../game/consequenceBuilders.js'
 
 // the answer rendered in Albanian (every word is discovered when affordable)
 const albanianPhrase = (tokens) => tokens.map((t) => (t.id ? t.al : t.en)).join(' ')
@@ -183,20 +184,48 @@ export default function PracticeView({ state, dispatch }) {
 
   nextRef.current = next
   const onPhraseComplete = useCallback((result) => {
-    dispatch({ type: 'PRACTICE_PHRASE_RESULT', ...result })
     const guide = phraseNounEndingRefresher(q, result)
+    const consequence = result.correct ? null : trainMissConsequence({
+      source: 'train-phrase',
+      questionKey: q.questionKey,
+      attemptedAl: result.attempted?.al,
+      attemptedEn: result.attempted?.en,
+      reasonCode: q.mode === 'cloze'
+        ? 'wrong-phrase-slot'
+        : q.mode === 'match'
+          ? 'wrong-phrase-match'
+          : q.mode === 'type'
+            ? 'wrong-phrase-spelling'
+            : q.mode === 'listen'
+              ? 'wrong-heard-order'
+              : 'wrong-phrase-order',
+      reason: q.mode === 'cloze'
+        ? 'The selected word does not complete this phrase in the displayed context.'
+        : q.mode === 'match'
+          ? 'The selected English meaning belongs to a different Albanian phrase.'
+          : q.mode === 'type'
+            ? 'The written Albanian does not yet match the complete phrase requested.'
+            : q.mode === 'listen'
+              ? 'The built word sequence does not match the continuous Albanian phrase you heard.'
+              : 'The selected words are not in the order required by this Albanian phrase.',
+      correctAl: q.target.al,
+      correctEn: q.target.en,
+      grammarGuide: guide,
+    })
+    dispatch({ type: 'PRACTICE_PHRASE_RESULT', ...result, consequence })
     if (guide) {
-      setTimeout(() => setFormsCorrection({
+      setFormsCorrection({
         kind: 'forms-correction',
         guide,
         stage: 'phrase-production',
         chosen: result.diagnostic.answerSurface || 'a different form',
         lemma: DICT[result.diagnostic.focusId].al,
         meaning: senseText(result.diagnostic.focusId, 'en'),
-      }), 2800)
+      })
       return
     }
-    setTimeout(() => nextRef.current?.(), result.correct ? 1900 : 2800)
+    if (result.correct) setTimeout(() => nextRef.current?.(), 1900)
+    else setTimeout(() => nextRef.current?.(), 0)
   }, [dispatch, q])
 
   useEffect(() => {
@@ -276,21 +305,14 @@ export default function PracticeView({ state, dispatch }) {
     : q.promptProfile?.contextPresentation === 'unmarked'
       ? CONTEXT_TARGET_PRESENTATION.unmarked
       : CONTEXT_TARGET_PRESENTATION.marked
-  const contextualTargetIsMarked = contextualTargetPresentation === CONTEXT_TARGET_PRESENTATION.marked
-  const contextualInstruction = isContextualAlbanianRetrieval
-    ? 'Complete the Albanian sentence'
-    : contextualTargetKind === 'grammatical-function'
-    ? contextualTargetIsMarked
-      ? 'What job does the marked word do here?'
-      : 'Which grammatical job fits the key word in this context?'
-    : contextualTargetIsMarked
-      ? 'Choose what the marked word means here'
-      : 'Choose the meaning that fits this Albanian context'
-  const contextualDirectionLabel = isContextualAlbanianRetrieval
-    ? 'English context → Albanian'
-    : contextualTargetKind === 'grammatical-function'
-      ? 'Albanian → grammatical job'
-      : 'Albanian → meaning'
+  const contextualInstruction = q.targetReference?.instructionTarget ? (
+    <>
+      {q.targetReference.instructionPrefix}
+      <span lang="sq">“{q.targetReference.instructionTarget}”</span>
+      {q.targetReference.instructionSuffix}
+    </>
+  ) : q.targetReference?.instruction
+  const contextualDirectionLabel = q.targetReference?.directionLabel
   const contextualEnglishCue = isContextualCompletion
     ? q.ctx.en.replace('__', senseText(q.answerId, 'en'))
     : ''
@@ -306,6 +328,11 @@ export default function PracticeView({ state, dispatch }) {
 
     if (isFormChoice) {
       playWord(q.surface)
+      const chosen = q.options.find((option) => option.value === value)?.label || String(value)
+      const correctOption = q.options.find((option) => option.value === correctValue)?.label || q.surface
+      const guide = !correct && q.formTarget?.wordClass === 'noun'
+        ? buildNounEndingRefresher(q.answerId, q.surface, q.formTarget.gloss)
+        : null
       dispatch({
         type: 'PRACTICE_WORD_RESULT',
         correct,
@@ -318,27 +345,39 @@ export default function PracticeView({ state, dispatch }) {
         targetFormKey: q.targetFormKey,
         questionKey: q.questionKey,
         wordKeys: trainQuestionWordKeys(q),
+        consequence: correct ? null : trainMissConsequence({
+          source: 'train-form',
+          questionKey: q.questionKey,
+          attemptedAl: isFormContext ? chosen : q.surface,
+          attemptedEn: isFormContext ? null : chosen,
+          reasonCode: isFormContext ? 'wrong-noun-form' : 'wrong-form-role',
+          reason: isFormContext
+            ? `“${chosen}” does not carry the grammatical job required by the displayed sentence.`
+            : `The selected grammatical job does not match how “${q.surface}” is used in this sentence.`,
+          correctAl: isFormContext ? correctOption : q.surface,
+          correctEn: isFormContext ? q.formTarget?.gloss : correctOption,
+          grammarGuide: guide,
+        }),
       })
-      const guide = !correct && q.formTarget?.wordClass === 'noun'
-        ? buildNounEndingRefresher(q.answerId, q.surface, q.formTarget.gloss)
-        : null
       if (guide) {
-        const chosen = q.options.find((option) => option.value === value)?.label || String(value)
-        setTimeout(() => setFormsCorrection({
+        setFormsCorrection({
           kind: 'forms-correction',
           guide,
           stage: q.wordStageId,
           chosen,
           lemma: DICT[q.answerId].al,
           meaning: senseText(q.answerId, 'en'),
-        }), 900)
-      } else setTimeout(() => nextRef.current?.(), correct ? 1200 : 2000)
+        })
+      } else if (correct) setTimeout(() => nextRef.current?.(), 1200)
+      else setTimeout(() => nextRef.current?.(), 0)
       return
     }
 
     // normal / context question
     playWord(DICT[q.answerId].al)
     const wordKeys = trainQuestionWordKeys(q)
+    const chosenLabel = q.optionLabels?.[value] || senseText(value, q.field)
+    const correctLabel = q.optionLabels?.[q.answerId] || senseText(q.answerId, q.field)
     dispatch({
       type: 'PRACTICE_WORD_RESULT',
       correct,
@@ -351,8 +390,21 @@ export default function PracticeView({ state, dispatch }) {
       targetFormKey: q.targetFormKey,
       questionKey: q.questionKey,
       wordKeys,
+      consequence: correct ? null : trainMissConsequence({
+        source: 'train-word',
+        questionKey: q.questionKey,
+        attemptedAl: q.field === 'al' ? chosenLabel : null,
+        attemptedEn: q.field === 'en' ? chosenLabel : null,
+        reasonCode: isContextualCompletion ? 'wrong-contextual-meaning' : 'wrong-word-meaning',
+        reason: isContextualCompletion
+          ? 'The selected word or meaning does not fit the job marked by this exact sentence.'
+          : 'The selected answer does not match the tested Albanian word and sense.',
+        correctAl: q.field === 'al' ? correctLabel : DICT[q.answerId].al,
+        correctEn: q.field === 'en' ? correctLabel : senseText(q.answerId, 'en'),
+      }),
     })
-    setTimeout(() => nextRef.current?.(), correct ? 1200 : 2000)
+    if (correct) setTimeout(() => nextRef.current?.(), 1200)
+    else setTimeout(() => nextRef.current?.(), 0)
   }
 
   const insertWordLetter = (letter) => {
@@ -387,8 +439,20 @@ export default function PracticeView({ state, dispatch }) {
       targetFormKey: q.targetFormKey,
       questionKey: q.questionKey,
       wordKeys: trainQuestionWordKeys(q),
+      consequence: result.correct ? null : trainMissConsequence({
+        source: q.targetFormKey ? 'train-form' : 'train-word',
+        questionKey: q.questionKey,
+        attemptedAl: typedWord.trim(),
+        reasonCode: q.targetFormKey ? 'wrong-form-spelling' : 'wrong-word-spelling',
+        reason: q.targetFormKey
+          ? 'The spelling does not match the reviewed form required by this sentence.'
+          : 'The spelling does not yet match the Albanian word requested.',
+        correctAl: q.typingAnswer,
+        correctEn: q.typingCue,
+      }),
     })
-    setTimeout(() => nextRef.current?.(), result.correct ? 1600 : 2400)
+    if (result.correct) setTimeout(() => nextRef.current?.(), 1600)
+    else setTimeout(() => nextRef.current?.(), 0)
   }
 
   const constructedText = isWordConstruction
@@ -418,8 +482,20 @@ export default function PracticeView({ state, dispatch }) {
       targetFormKey: q.targetFormKey,
       questionKey: q.questionKey,
       wordKeys: trainQuestionWordKeys(q),
+      consequence: correct ? null : trainMissConsequence({
+        source: q.targetFormKey ? 'train-form' : 'train-word',
+        questionKey: q.questionKey,
+        attemptedAl: constructedText,
+        reasonCode: q.targetFormKey ? 'wrong-form-construction' : 'wrong-word-construction',
+        reason: q.targetFormKey
+          ? 'The selected letter chunks do not build the reviewed form required here.'
+          : 'The selected letter chunks do not build the Albanian word requested.',
+        correctAl: q.surface,
+        correctEn: q.typingCue || q.context?.en,
+      }),
     })
-    setTimeout(() => nextRef.current?.(), correct ? 1500 : 2300)
+    if (correct) setTimeout(() => nextRef.current?.(), 1500)
+    else setTimeout(() => nextRef.current?.(), 0)
   }
 
   if (formsCorrection) {
@@ -520,6 +596,7 @@ export default function PracticeView({ state, dispatch }) {
           <PhrasePracticeQuestion
             key={q.questionKey}
             q={q}
+            debug={state.debug}
             onComplete={onPhraseComplete}
           />
         </div>
@@ -533,7 +610,7 @@ export default function PracticeView({ state, dispatch }) {
           <ContextualCompletion
             instruction={contextualInstruction}
             directionLabel={contextualDirectionLabel}
-            badge={q.difficultyLabel ? `word · ${q.difficultyLabel}` : 'word'}
+            badge={state.debug ? (q.difficultyLabel ? `word · ${q.difficultyLabel}` : 'word') : null}
             lines={isContextualAlbanianRetrieval ? [
               {
                 id: 'english-context',
@@ -580,11 +657,7 @@ export default function PracticeView({ state, dispatch }) {
               label: q.optionLabels?.[id] || senseText(id, q.field),
               lang: q.field === 'al' ? 'sq' : undefined,
             }))}
-            answerGroupLabel={isContextualAlbanianRetrieval
-              ? 'Choose the missing Albanian word'
-              : contextualTargetKind === 'grammatical-function'
-              ? 'Choose the target word’s grammatical job'
-              : 'Choose the target word’s meaning'}
+            answerGroupLabel={q.targetReference?.answerGroupLabel}
             answered={answered}
             selectedAnswerId={picked}
             correctAnswerIds={[q.answerId]}
@@ -592,7 +665,7 @@ export default function PracticeView({ state, dispatch }) {
             feedbackTone={wasCorrect ? 'good' : 'bad'}
             feedback={wasCorrect
               ? `Të lumtë! +1 token for "${DICT[q.answerId].al}"`
-              : `💔 −1 heart · correct answer: ${q.optionLabels?.[q.answerId] || senseText(q.answerId, q.field)}`}
+              : null}
           />
         </div>
       ) : (
@@ -605,27 +678,32 @@ export default function PracticeView({ state, dispatch }) {
                   : 'Which reviewed use fits this word here?'
                 : isFormContext
                   ? 'Choose the correct form for this context'
-                  : isWordConstruction
-                    ? 'Build this in Albanian'
-                    : isWordSpelling
-                      ? 'Write the missing word in Albanian'
+                  : isWordConstruction || isWordSpelling
+                    ? q.targetReference.instruction
                       : q.dir === WORD_ALBANIAN_TO_ENGLISH.id
                         ? 'What does this Albanian word mean?'
                         : 'Which Albanian word means this?'}
-              {q.difficultyLabel && <span className="phrase-label practice-word-level">{q.difficultyLabel}</span>}
+              {state.debug && q.difficultyLabel && <span className="phrase-label practice-word-level">{q.difficultyLabel}</span>}
             </div>
 
             {isForms ? (
               <div className="word-form-context">
-                <p lang="sq">{q.context.al.split(q.surface).map((part, index, parts) => (
-                  <span key={`${part}-${index}`}>{part}{index < parts.length - 1 && <mark>{q.surface}</mark>}</span>
+                <p lang="sq">{q.context.al.split(/\s+/).map((word, index) => (
+                  <span key={`${word}-${index}`}>
+                    {index > 0 ? ' ' : ''}
+                    {q.targetTokenIndices.includes(index)
+                      ? <mark aria-label={`Target form: ${word}`}>{word}</mark>
+                      : word}
+                  </span>
                 ))}</p>
                 <small>{q.context.en}</small>
               </div>
             ) : isFormContext || isWordConstruction || isWordSpelling ? (
               <div className="word-form-context">
-                <p>{q.context?.en || q.typingCue}</p>
-                {q.context?.alGap && <p lang="sq">{q.context.alGap}</p>}
+                <p>{isFormContext ? q.context.en : q.targetReference.meaningCue}</p>
+                {(isWordSpelling ? q.typingContext?.alGap : q.context?.alGap) && (
+                  <p lang="sq">{isWordSpelling ? q.typingContext.alGap : q.context.alGap}</p>
+                )}
               </div>
             ) : (
               <div className="question" lang={q.dir === WORD_ALBANIAN_TO_ENGLISH.id ? 'sq' : undefined}>{q.promptText}</div>
@@ -690,11 +768,9 @@ export default function PracticeView({ state, dispatch }) {
           )}
 
           <div className={'feedback ' + (answered ? (wasCorrect ? 'good' : 'bad') : '')} role="status" aria-live="polite" aria-atomic="true">
-            {answered && (wasCorrect
-              ? typedWordLeeway
-                ? `Të lumtë! +1 token · accepted here; compare “${q.typingAnswer}”`
-                : `Të lumtë! +1 token for "${q.surface || DICT[q.answerId].al}"`
-              : `💔 −1 heart · correct answer: ${q.surface || senseText(q.answerId, q.field)}`)}
+            {answered && wasCorrect && (typedWordLeeway
+              ? `Të lumtë! +1 token · accepted here; compare “${q.typingAnswer}”`
+              : `Të lumtë! +1 token for "${q.surface || DICT[q.answerId].al}"`)}
           </div>
         </>
       )}

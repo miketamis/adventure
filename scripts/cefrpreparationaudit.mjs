@@ -153,6 +153,31 @@ check('listening hides transcripts and every task hides fluent English answers',
   }
 })
 
+check('deterministic composition tasks show the exact communicative target before scoring', () => {
+  const idsRequiringVisibleGoal = [
+    'a1-need-substitution',
+    'a1-focused-village-spelling',
+    'a1-village-phrase-arrangement',
+    'a1-two-sentence-recombination',
+    'a2-reason-slot-frame',
+    'a2-message-reconstruction',
+  ]
+  for (const id of idsRequiringVisibleGoal) {
+    const entry = buildPreparationActivity(id)
+    assert.ok(entry.visibleGoal?.length >= 20, `${id} scores a target that is not shown to the learner`)
+  }
+
+  const recombination = buildPreparationActivity('a1-two-sentence-recombination')
+  assert.equal(evaluatePreparationResponse(recombination.id, { orderedIds: ['place', 'need'] }).passed, true)
+  assert.equal(evaluatePreparationResponse(recombination.id, { orderedIds: ['need', 'place'] }).passed, true,
+    'the other coherent sentence order is incorrectly rejected')
+
+  const message = buildPreparationActivity('a2-message-reconstruction')
+  assert.equal(evaluatePreparationResponse(message.id, {
+    messageIds: ['tomorrow', 'meeting', 'place', 'time'], replyId: 'accept',
+  }).passed, true, 'a reviewed natural placement of time and place is incorrectly rejected')
+})
+
 check('gist precedes detail and detail stays gated by a gist response', () => {
   const tasks = CEFR_PREPARATION_ACTIVITIES.filter(({ kind }) => kind === 'gist-then-detail')
   assert.ok(tasks.length)

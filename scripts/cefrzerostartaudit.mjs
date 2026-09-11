@@ -361,11 +361,13 @@ check('save migration preserves only semantically equivalent old proofs', () => 
 })
 
 check('word proofs survive a hard story reset and a following save/reload', () => {
+  const beforeDiscovery = JSON.parse(JSON.stringify(journey.discovered))
   const beforeProgress = JSON.parse(JSON.stringify(journey.wordProgress))
   journey = reducer(journey, { type: 'RESET' })
-  assert.deepEqual(journey.discovered, {}, 'hard reset did not clear current-run discovery')
+  assert.deepEqual(journey.discovered, beforeDiscovery, 'hard reset erased durable saved vocabulary')
   assert.deepEqual(journey.wordProgress, beforeProgress, 'hard reset erased durable Train proof')
   journey = normalizeSavedState(JSON.parse(JSON.stringify(journey)), newRun())
+  assert.deepEqual(journey.discovered, beforeDiscovery, 'reload after reset erased durable saved vocabulary')
   assert.deepEqual(journey.wordProgress, beforeProgress, 'reload after reset erased durable Train proof')
   assert.ok(summaryFor(journey).byLevel.A1.plan.some(({ readiness }) => readiness.ready), 'retained word proof did not reopen A1 preparation')
 })
