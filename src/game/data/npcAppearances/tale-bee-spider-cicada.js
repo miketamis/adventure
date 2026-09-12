@@ -4,9 +4,9 @@ const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'tale-be
 
 export const THREE_SISTERS_MOTHER_APPEARANCE = portrait({
   npcId: 'nenaTriMotrave', nodeId: 'bleta1',
-  details: ['age', 'hair', 'condition'], practicalWordIds: ['nene', 'vjeter', 'flok', 'semur'],
+  details: ['age', 'condition', 'posture', 'location'], practicalWordIds: ['nene', 'vjeter', 'semur', 'batanije', 'dritare'],
   placement: { kind: 'replace', lineIndex: 0 },
-  portraitLines: [{ line: R('In the house lies an old sick mother with white hair.', w('ne', 'Në'), w('shtepi'), w('rri'), w('nje'), w('nene'), w('e_art'), w('vjeter'), w('dhe'), w('e_art'), w('semur'), w('me'), w('flok'), w('te_link'), w('bardhe'), p('.')) }],
+  portraitLines: [{ line: R('In the house, an old sick mother rests beneath a blanket beside the window.', w('ne', 'Në'), w('shtepi'), p(','), w('nje'), w('nene'), w('e_art'), w('vjeter'), w('dhe'), w('e_art'), w('semur'), w('rri'), w('nen'), w('nje'), w('batanije'), w('prane'), w('dritare', 'dritares'), p('.')) }],
 })
 
 export const SPIDER_SISTER_APPEARANCE = portrait({

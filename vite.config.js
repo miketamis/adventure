@@ -35,13 +35,102 @@ const authoredChunk = (id) => {
   return undefined
 }
 
+const astPropertyName = (node) => {
+  if (!node) return null
+  if (node.type === 'Identifier') return node.name
+  if (node.type === 'Literal') return String(node.value)
+  return null
+}
+
+const walkAst = (node, visit) => {
+  if (!node || typeof node !== 'object') return
+  visit(node)
+  for (const [key, child] of Object.entries(node)) {
+    if (key === 'start' || key === 'end' || key === 'loc') continue
+    if (Array.isArray(child)) child.forEach((entry) => walkAst(entry, visit))
+    else if (child && typeof child.type === 'string') walkAst(child, visit)
+  }
+}
+
+const memberExpressionRoot = (node) => {
+  let current = node
+  while (current?.type === 'MemberExpression') current = current.object
+  return current
+}
+
+const stripStoryReadings = (code, ast) => {
+  const ranges = new Map()
+  const collectReadings = (node) => walkAst(node, (candidate) => {
+    const reading = candidate.arguments?.[0]
+    const isStaticReading = (
+      reading?.type === 'Literal' && typeof reading.value === 'string'
+    ) || (
+      reading?.type === 'TemplateLiteral' && reading.expressions.length === 0
+    )
+    if (
+      candidate.type === 'CallExpression' &&
+      candidate.callee?.type === 'Identifier' &&
+      candidate.callee.name === 'R' &&
+      isStaticReading
+    ) ranges.set(reading.start, reading.end)
+  })
+
+  // Readings in each node's authored text array.
+  walkAst(ast, (candidate) => {
+    if (candidate.type !== 'VariableDeclarator' || candidate.id?.name !== 'STORY') return
+    for (const storyNode of candidate.init?.properties || []) {
+      if (storyNode.type !== 'Property' || storyNode.value?.type !== 'ObjectExpression') continue
+      for (const field of storyNode.value.properties) {
+        if (field.type === 'Property' && astPropertyName(field.key) === 'text') {
+          collectReadings(field.value)
+        }
+      }
+    }
+  })
+
+  // Reviewed text appended after the main object, including additions made in
+  // loops for responsive weather and item affordances.
+  walkAst(ast, (candidate) => {
+    if (
+      candidate.type !== 'CallExpression' ||
+      astPropertyName(candidate.callee?.property) !== 'push'
+    ) return
+    const container = candidate.callee.object
+    const root = memberExpressionRoot(container?.object)
+    if (
+      container?.type === 'MemberExpression' &&
+      astPropertyName(container.property) === 'text' &&
+      root?.type === 'Identifier' && root.name === 'STORY'
+    ) candidate.arguments.forEach(collectReadings)
+  })
+
+  let transformed = code
+  for (const [start, end] of [...ranges.entries()].sort(([left], [right]) => right - left)) {
+    transformed = `${transformed.slice(0, start)}''${transformed.slice(end)}`
+  }
+  return transformed
+}
+
+// Source and audit runs retain R('English', tokens). Production removes only
+// reviewed STORY-text literals from the eager graph; debug mode hydrates those
+// readings from the deferred corpus. Dynamic/generated readings remain intact.
+const deferStoryReadings = () => ({
+  name: 'defer-reviewed-story-readings',
+  apply: 'build',
+  transform(code, rawId) {
+    const id = rawId.split('?')[0].replaceAll('\\', '/')
+    if (!id.endsWith('/src/game/content.js')) return null
+    return { code: stripStoryReadings(code, this.parse(code)), map: null }
+  },
+})
+
 export default defineConfig({
   // served from https://miketamis.github.io/adventure/
   base: '/adventure/',
   define: {
     __BUILD_COMMIT__: JSON.stringify(buildCommit),
   },
-  plugins: [react()],
+  plugins: [deferStoryReadings(), react()],
   build: {
     rollupOptions: {
       output: { manualChunks: authoredChunk },

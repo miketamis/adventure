@@ -13,7 +13,7 @@ export const OPTION_READINGS_A = Object.freeze({
   "lendina.options[7]": { al: "ec rrugës", en: "Walk along the road.", review: 'internal-editorial' }, // 10
   "lendina.options[8]": { al: "ec thellë në pyll", en: "Walk deep into the forest.", review: 'internal-editorial' }, // 11
   "lendina.options[9]": { al: "shiko nën gurin me dritë.", en: "Look under the stone with the light.", review: 'internal-editorial' }, // 12
-  "plaka.options[0]": { al: "merr bukë", en: "Take bread.", review: 'internal-editorial' }, // 13
+  "plaka.options[0]": { al: "ma jep bukën, të lutem", en: "Give me the bread, please.", review: 'internal-editorial' }, // 13
   "plaka.options[1]": { al: "dëgjo plakën", en: "Listen to the old woman.", review: 'internal-editorial' }, // 14
   "plaka.options[2]": { al: "dil jashtë", en: "Go outside.", review: 'internal-editorial' }, // 15
   "plaka.options[3]": { al: "merr Bukurën", en: "Take the Beauty.", review: 'internal-editorial' }, // 16
@@ -283,11 +283,11 @@ export const OPTION_READINGS_A = Object.freeze({
   "pusi.options[1]": { al: "dëgjo dervishin", en: "Listen to the dervish.", review: 'internal-editorial' }, // 277
   "pusi.options[2]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 278
   "pusi.options[3]": { al: "dëgjo pusin", en: "Listen to the well.", review: 'internal-editorial' }, // 279
-  "pusi.options[4]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 280
+  "pusi.options[4]": { al: "lufto pusin", en: "Fight the well.", review: 'internal-editorial' }, // 280
   "pusi.options[5]": { al: "merr botën", en: "Take the world.", review: 'internal-editorial' }, // 281
   "bota1.options[0]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 282
   "bota1.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 283
-  "bota1.options[2]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 284
+  "bota1.options[2]": { al: "lufto derën", en: "Fight the door.", review: 'internal-editorial' }, // 284
   "bota1.options[3]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 285
   "bota1.options[4]": { al: "dëgjo botën", en: "Listen to the world.", review: 'internal-editorial' }, // 286
   "bota2.options[0]": { al: "merr mish", en: "Take meat.", review: 'internal-editorial' }, // 287
@@ -537,6 +537,6 @@ export const OPTION_READINGS_A = Object.freeze({
   "fshatiDil.options[6]": { al: "lufto pyllin", en: "Fight the forest.", review: 'internal-editorial' }, // 528
   "fshatiDil.options[7]": { al: "fol me gjakun", en: "Speak with the blood.", review: 'internal-editorial' }, // 529
   "dilFrike.options[0]": { al: "lër gruan", en: "Leave the woman.", review: 'internal-editorial' }, // 530
-  "dilFrike.options[1]": { al: "jep frikën", en: "Give the fear.", review: 'internal-editorial' }, // 531
+  "dilFrike.options[1]": { al: "merr frikën", en: "Take the fear.", review: 'internal-editorial' }, // 531
   "ura.options[0]": { al: "kalo urën", en: "Cross the bridge.", review: 'internal-editorial' }, // 532
 })

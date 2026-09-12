@@ -1004,7 +1004,9 @@ export const DICT = {
   burra:      { al: 'burra',       en: 'men' },
   gra:        { al: 'gra',         en: 'women' },
   bilete:     { al: 'biletë',      en: 'ticket' },   // the paid passage ticket at the old gate
-  polici:     { al: 'polici',      en: 'guard' },    // folk-frame: a city guard (roje)
+  polici:     { al: 'polic',       en: 'police officer', forms: [
+    { al: 'polici', tag: 'nounDef', gloss: 'the police officer' },
+  ] }, // a city officer represented through the lore-compatible gate watch
   hotel:      { al: 'hotel',       en: 'hotel' },    // folk-frame: a big inn
   restorant:  { al: 'restorant',   en: 'eating-house' }, // folk-frame: a house where you eat
   // --- legends & living-custom vignettes (Skanderbeg / burrnesha / lahuta) ---
@@ -1114,6 +1116,39 @@ export const DICT = {
   shendet:    { al: 'shëndet',     en: 'health' },       // …shëndeti këtej!
   djathte:    { al: 'djathtë',     en: 'right (side)' }, // Rozafa: gjirin e djathtë ma lini jashtë
   lumte:      { al: 'lumtë',       en: 'blessed be' },   // të lumtë krahu / të lumtë goja
+  // --- lived-world texture and natural conversation ---
+  // These are ordinary, reusable words first encountered through concrete
+  // weather, place, movement and conversation beats rather than a detached
+  // phrase list. Their definitions below stay in Albanian and their story
+  // uses make the meaning visible before Train asks for recall.
+  lagesht:        { al: 'lagësht',        en: 'damp' },
+  fresket:        { al: 'freskët',        en: 'pleasantly cool or fresh' },
+  kercet:         { al: 'kërcet',         en: 'creaks or cracks' },
+  fishkellen:     { al: 'fishkëllen',     en: 'whistles' },
+  lekundet:       { al: 'lëkundet',       en: 'sways, rocks, or shakes' },
+  vezullon:       { al: 'vezullon',       en: 'glimmers or shimmers' },
+  lulezon:        { al: 'lulëzon',        en: 'blooms' },
+  vyshket:        { al: 'vyshket',        en: 'withers' },
+  ngrin:          { al: 'ngrin',          en: 'freezes' },
+  shkrihet:       { al: 'shkrihet',       en: 'melts or thaws' },
+  rreshqet:       { al: 'rrëshqet',       en: 'slips or slides' },
+  zbardh:         { al: 'zbardh',          en: 'turns white or brightens' },
+  qetesohet:      { al: 'qetësohet',      en: 'calms down' },
+  pasqyrohet:     { al: 'pasqyrohet',     en: 'is reflected' },
+  seriozisht:     { al: 'seriozisht',     en: 'seriously' },
+  cuditshem:      { al: 'çuditshëm',      en: 'strangely' },
+  mrekullueshem:  { al: 'mrekullueshëm',  en: 'wonderful' },
+  natyrisht:      { al: 'natyrisht',      en: 'of course' },
+  pervec:         { al: 'përveç',         en: 'except for' },
+  tamam:          { al: 'tamam',          en: 'exactly or just right' },
+  qesharak:       { al: 'qesharak',       en: 'funny or ridiculous' },
+  tmerrshem:      { al: 'tmerrshëm',      en: 'terrible' },
+  kudo:           { al: 'kudo',           en: 'everywhere' },
+  vecante:        { al: 'veçantë',        en: 'special or distinct' },
+  gjithsesi:      { al: 'gjithsesi',      en: 'anyway', enAll: 'anyway / even so' },
+  ndryshon:       { al: 'ndryshon',       en: 'changes' },
+  permes:         { al: 'përmes',         en: 'through' },
+  goxha:          { al: 'goxha',          en: 'quite or rather' },
 }
 
 // Context-sensitive teaching data is reviewed as one coherent registry so a

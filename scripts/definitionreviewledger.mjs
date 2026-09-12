@@ -51,6 +51,39 @@ export const EDITORIALLY_REVIEWED_DEFINITIONS = Object.freeze({
   miraEmri: 'emri i gruas që sjell ujë nga kroi',
   rrjedh: 'lëviz si uji në lumë',
 
+  // Lived-world tranche. These meanings were reviewed together with the
+  // concrete story situations that introduce them; keep the exact learner
+  // definitions sealed so a later atmosphere edit cannot quietly loosen the
+  // vocabulary it is meant to teach.
+  lagesht: 'me pak ujë; jo i thatë',
+  fresket: 'pak i ftohtë, por të bën mirë',
+  kercet: 'druri nxjerr një zë të fortë kur përkulet',
+  fishkellen: 'era nxjerr një zë të gjatë kur kalon nëpër një vrimë',
+  lekundet: 'lëviz para dhe mbrapa, përsëri dhe përsëri',
+  vezullon: 'shkëlqen pak dhe duket sikur drita lëviz',
+  lulezon: 'lulja hapet',
+  vyshket: 'lulja bëhet e thatë dhe bie',
+  ngrin: 'uji bëhet i fortë kur është shumë i ftohtë',
+  shkrihet: 'bora bëhet ujë në diell',
+  rreshqet: 'lëviz pa dashje mbi tokë ose gur',
+  zbardh: 'qielli bëhet më i bardhë kur vjen drita',
+  qetesohet: 'bëhet i qetë dhe nuk ka më zhurmë ose frikë',
+  pasqyrohet: 'hëna duket edhe në ujë, jo vetëm në qiell',
+  seriozisht: 'pa shaka; për një gjë me rëndësi',
+  cuditshem: 'në një mënyrë që duket ndryshe dhe nuk kuptohet shpejt',
+  mrekullueshem: 'shumë i mirë ose shumë i bukur; të bën të lumtur',
+  natyrisht: 'patjetër; kështu duhet të jetë',
+  pervec: 'pa këtë; me të gjitha gjërat e tjera',
+  tamam: 'saktë; jo më shumë dhe jo më pak',
+  qesharak: 'që të bën të qeshësh ose duket pa kuptim',
+  tmerrshem: 'shumë i keq dhe të bën të kesh frikë',
+  kudo: 'në çdo vend',
+  vecante: 'jo si gjërat e tjera; ndryshe në një mënyrë të rëndësishme',
+  gjithsesi: 'edhe nëse kjo është e vërtetë, vazhdojmë',
+  ndryshon: 'një gjë nuk rri e njëjtë; bëhet ndryshe',
+  permes: 'nga njëra anë e një vendi deri në anën tjetër',
+  goxha: 'shumë, por jo tepër',
+
   // High-frequency core-language tranche. Contextual blanks are intentional
   // for function words whose grammatical job is clearer in a short sentence.
   agim: 'kohë kur dielli del',

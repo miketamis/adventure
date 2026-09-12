@@ -17,10 +17,10 @@ export const PROMISED_MAIDEN_APPEARANCE = portrait({
 
 export const BLACK_PALACE_QUEEN_APPEARANCE = portrait({
   npcId: 'mbretereshaZeze', nodeId: 'pallatiZi',
-  details: ['clothing', 'face', 'condition'],
-  practicalWordIds: ['mbreteresha', 'rroba', 'zi', 'lodhur'],
+  details: ['clothing', 'location', 'face', 'condition'],
+  practicalWordIds: ['mbreteresha', 'rroba', 'zi', 'dritare', 'fytyre', 'lodhur'],
   placement: { kind: 'insert-after', lineIndex: 0 },
-  portraitLines: [{ line: R('Inside sits a queen in black clothes, with a tired face.', w('brenda'), w('rri'), w('nje'), w('mbreteresha'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza', 'black'), w('dhe'), w('nje'), w('fytyre'), w('te_link'), w('lodhur'), p('.')) }],
+  portraitLines: [{ line: R('Inside, a queen in black clothes sits beside the window; her face is tired.', w('brenda'), p(','), w('nje'), w('mbreteresha'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza', 'black'), w('rri'), w('prane'), w('dritare', 'dritares'), p(';'), w('fytyre', 'fytyra'), w('e_link'), w('saj'), w('eshte'), w('e_art'), w('lodhur'), p('.')) }],
 })
 
 export const SUN_HOUSE_KULSHEDRA_APPEARANCE = portrait({

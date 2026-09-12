@@ -9,13 +9,13 @@
 
 export const TOP_1000_EXISTING_FORMS = {
   bej: 'bësh bëjë bëni bëra bëje bënte',
-  thote: 'thënë thoni thoja thash thanë thoshte themi',
+  thote: 'thënë thoni thoja thash thanë thoshte themi them',
   vete: 'veten',
   eshte: 'jesh jem qoftë qenka',
   behet: 'bëhem',
   vjen: 'ardhur vini',
   fal: 'falni',
-  di: 'dini din dinë ditur dinte',
+  di: 'dini din dinë ditur dinte dija',
   ka: 'kem kishin',
   mund: 'mundem mundet mundemi',
   fol: 'flas flasësh',
@@ -49,7 +49,7 @@ export const TOP_1000_EXISTING_FORMS = {
   minuta: 'minutë',
   tone: 'tanë',
   mama: 'mamaja',
-  ju: 'juve jush',
+  ju: 'juve',
   force: 'forca',
   punon: 'punuar',
   pak: 'paktën',
@@ -85,7 +85,7 @@ export const TOP_1000_EXISTING_FORMS = {
   fsheh: 'fshehur',
   plot: 'plotë',
   dergon: 'dërguar',
-  mendoj: 'mendo mendoni',
+  mendoj: 'mendo mendoni menduar',
   harron: 'harruar',
   shok: 'shokë shokët',
   forte: 'fort',
@@ -123,11 +123,6 @@ export const TOP_1000_CANDIDATES = {
     tokens: 'meqë',
     priority: 'medium',
     reason: 'Common causal connector “since/given that”; makes explanations more natural.',
-  },
-  seriozisht: {
-    tokens: 'seriozisht',
-    priority: 'medium',
-    reason: 'Everyday stance adverb “seriously”; fits disbelief and warning dialogue.',
   },
   interesoj: {
     tokens: 'intereson',
@@ -169,21 +164,6 @@ export const TOP_1000_CANDIDATES = {
     priority: 'low',
     reason: 'Useful “again”, but lower value because përsëri and prapë cover the same function.',
   },
-  natyrisht: {
-    tokens: 'natyrisht',
-    priority: 'medium',
-    reason: 'Conversational “naturally/of course”; usable in cooperative dialogue.',
-  },
-  përveç: {
-    tokens: 'përveç',
-    priority: 'medium',
-    reason: 'Core connector “except/besides”; useful for choices and inventory talk.',
-  },
-  tamam: {
-    tokens: 'tamam',
-    priority: 'medium',
-    reason: 'Common colloquial “exactly/just right”, historically compatible Balkan-Turkish vocabulary.',
-  },
   sipas: {
     tokens: 'sipas',
     priority: 'medium',
@@ -224,20 +204,10 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Common “terrible”; natural reaction to danger and loss.',
   },
-  kudo: {
-    tokens: 'kudo',
-    priority: 'medium',
-    reason: 'Common “everywhere”; useful in searches and travel.',
-  },
   madje: {
     tokens: 'madje',
     priority: 'medium',
     reason: 'Common additive connector “even/furthermore”; improves natural narration.',
-  },
-  veçantë: {
-    tokens: 'veçantë',
-    priority: 'medium',
-    reason: 'Common “special/separate”; useful in gifts, people and instructions.',
   },
   numër: {
     tokens: 'numër',
@@ -248,11 +218,6 @@ export const TOP_1000_CANDIDATES = {
     tokens: 'qejf',
     priority: 'medium',
     reason: 'Very common colloquial “pleasure/mood/fun”, historically compatible with the setting.',
-  },
-  gjithsesi: {
-    tokens: 'gjithsesi',
-    priority: 'medium',
-    reason: 'Standard conversational “anyway”; useful alongside informal nejse.',
   },
   tallem: {
     tokens: 'tallesh',
@@ -289,11 +254,6 @@ export const TOP_1000_CANDIDATES = {
     priority: 'low',
     reason: 'Useful “translate”, though it belongs in learning dialogue rather than the historical world.',
   },
-  përmes: {
-    tokens: 'përmes',
-    priority: 'medium',
-    reason: 'Common “through/by means of”; useful for routes despite synonym nëpër.',
-  },
   pranoj: {
     tokens: 'pranoj',
     priority: 'medium',
@@ -308,11 +268,6 @@ export const TOP_1000_CANDIDATES = {
     tokens: 'pikë',
     priority: 'low',
     reason: 'Polysemous “point/drop”; useful once a concrete scene fixes its sense.',
-  },
-  goxha: {
-    tokens: 'goxha',
-    priority: 'medium',
-    reason: 'Frequent colloquial intensifier “quite/rather”; useful for natural speech.',
   },
   parasysh: {
     tokens: 'parasysh',
@@ -366,8 +321,8 @@ export const TOP_1000_EXCLUSIONS = {
     tokens: 'makinë makina makinën dollarë',
   },
   modern_communications_or_services: {
-    reason: 'Modern communication or institution is out of world; equivalent needs are handled by lajm, roje, mjek and shërues.',
-    tokens: 'telefon polic spital mesazh alo',
+    reason: 'Modern communication or a collective institution is out of world; equivalent needs are handled by lajm, the individual city polic, roje, mjek and shërues.',
+    tokens: 'telefon policia spital mesazh alo',
   },
   modern_international_acknowledgement: {
     reason: 'International “OK” needs no Albanian decoding and is anachronistic in the premodern story; the game teaches në rregull and dakord.',

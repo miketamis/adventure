@@ -1,0 +1,128 @@
+// Reconcile the deferred English-reading registry after a prose edit moves,
+// merges or replaces story lines. Exact Albanian remains the identity seal:
+// an old review may move only to the same Albanian surface in the same node;
+// genuinely rewritten lines must carry an explicit R() reading in content.
+//
+// Default: report/check only. Pass --write to rewrite the four registry files.
+
+import { writeFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { STORY, lineOf } from '../src/game/content.js'
+import { albanianTextOf } from '../src/game/language.js'
+import { EARLY_READINGS } from '../src/game/data/readings/early.js'
+import { MIDDLE_READINGS } from '../src/game/data/readings/middle.js'
+import { LATE_READINGS } from '../src/game/data/readings/late.js'
+import { FINAL_READINGS } from '../src/game/data/readings/final.js'
+
+const tranches = [
+  { name: 'EARLY_READINGS', path: new URL('../src/game/data/readings/early.js', import.meta.url), values: EARLY_READINGS },
+  { name: 'MIDDLE_READINGS', path: new URL('../src/game/data/readings/middle.js', import.meta.url), values: MIDDLE_READINGS },
+  { name: 'LATE_READINGS', path: new URL('../src/game/data/readings/late.js', import.meta.url), values: LATE_READINGS },
+  { name: 'FINAL_READINGS', path: new URL('../src/game/data/readings/final.js', import.meta.url), values: FINAL_READINGS },
+]
+
+const addressPattern = /^(.+)\.text\[(\d+)]$/
+const linesByNode = new Map()
+const lineByAddress = new Map()
+for (const [nodeId, node] of Object.entries(STORY)) {
+  const lines = (node.text || []).map((entry, index) => {
+    const line = lineOf(entry)
+    const value = { nodeId, index, address: `${nodeId}.text[${index}]`, al: albanianTextOf(line), reading: line.reading || null }
+    lineByAddress.set(value.address, value)
+    return value
+  })
+  linesByNode.set(nodeId, lines)
+}
+
+const usedAddresses = new Set()
+const nodeOwners = new Map()
+const next = tranches.map(() => [])
+const moved = []
+const removed = []
+const conflicts = []
+const revised = []
+const addedAuthored = []
+
+for (const [owner, tranche] of tranches.entries()) {
+  for (const [oldAddress, review] of Object.entries(tranche.values)) {
+    const match = addressPattern.exec(oldAddress)
+    if (!match) {
+      conflicts.push(`${oldAddress}: malformed address`)
+      continue
+    }
+    const [, nodeId, rawOldIndex] = match
+    const oldIndex = Number(rawOldIndex)
+    const candidates = (linesByNode.get(nodeId) || [])
+      .filter((line) => line.al === review.al && !usedAddresses.has(line.address))
+      .sort((left, right) => Math.abs(left.index - oldIndex) - Math.abs(right.index - oldIndex) || left.index - right.index)
+    const exact = lineByAddress.get(oldAddress)
+    const target = exact?.al === review.al && !usedAddresses.has(oldAddress) ? exact : candidates[0]
+    if (!target) {
+      removed.push(oldAddress)
+      continue
+    }
+    if (target.reading && target.reading !== review.en)
+      revised.push(`${oldAddress} -> ${target.address}`)
+    usedAddresses.add(target.address)
+    nodeOwners.set(nodeId, owner)
+    next[owner].push([target.address, { al: target.al, en: target.reading || review.en }])
+    if (target.address !== oldAddress) moved.push(`${oldAddress} -> ${target.address}`)
+  }
+}
+
+// Source-authored R() readings are the review authority during development and
+// audits, but the production build removes those duplicate strings from the
+// eager story graph. Keep every one in the deferred debug corpus as well.
+const nodeIds = Object.keys(STORY)
+for (const [nodeIndex, nodeId] of nodeIds.entries()) {
+  for (const line of linesByNode.get(nodeId) || []) {
+    if (!line.reading || usedAddresses.has(line.address)) continue
+    const fallbackOwner = Math.min(
+      tranches.length - 1,
+      Math.floor((nodeIndex * tranches.length) / Math.max(1, nodeIds.length)),
+    )
+    const owner = nodeOwners.get(nodeId) ?? fallbackOwner
+    next[owner].push([line.address, { al: line.al, en: line.reading }])
+    usedAddresses.add(line.address)
+    addedAuthored.push(line.address)
+  }
+}
+
+for (const entries of next) {
+  const duplicates = entries.map(([address]) => address)
+    .filter((address, index, all) => all.indexOf(address) !== index)
+  if (duplicates.length) conflicts.push(`duplicate rebuilt addresses: ${[...new Set(duplicates)].join(', ')}`)
+}
+
+if (conflicts.length) {
+  console.error(conflicts.join('\n'))
+  process.exit(1)
+}
+
+const write = process.argv.includes('--write')
+const strictCheck = process.argv.includes('--check')
+if (write) {
+  for (const [owner, tranche] of tranches.entries()) {
+    const body = next[owner]
+      .map(([address, review]) => `  ${JSON.stringify(address)}: { al: ${JSON.stringify(review.al)}, en: ${JSON.stringify(review.en)} },`)
+      .join('\n')
+    const source = `// Reviewed whole-line English readings keyed by their stable story address.\n` +
+      `// Generated by scripts/reviewedreadingsync.mjs from exact Albanian seals\n` +
+      `// and already-authored fluent readings; edit prose with R(), then resync.\n` +
+      `export const ${tranche.name} = {\n${body}\n}\n`
+    writeFileSync(fileURLToPath(tranche.path), source)
+  }
+}
+
+console.log(`reviewed readings: ${usedAddresses.size} current entries`)
+console.log(`moved within their original node: ${moved.length}`)
+console.log(`removed because their Albanian line no longer exists: ${removed.length}`)
+console.log(`English revised by an explicit R() reading: ${revised.length}`)
+console.log(`authored readings added to the deferred corpus: ${addedAuthored.length}`)
+if (!write && (moved.length || removed.length || revised.length || addedAuthored.length)) {
+  console.log('run with --write after the story edit is final')
+}
+if (strictCheck && (moved.length || removed.length || revised.length || addedAuthored.length)) {
+  console.error('reviewed-reading registry is stale; run npm run sync:readings')
+  process.exitCode = 1
+}

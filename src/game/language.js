@@ -70,6 +70,8 @@ const ADJECTIVES = new Set([
   'erret', 'ftohte', 'ngrohte', 'nxehte', 'qete', 'forte', 'ri', 'vjeter',
   'uritur', 'lodhur', 'shendoshe', 'semur', 'verber', 'eger', 'shenjte',
   'thelle', 'gjate', 'gjalle', 'vdekur', 'huaj', 'vertete', 'mbyllur',
+  'lagesht', 'fresket', 'cuditshem', 'mrekullueshem', 'qesharak', 'tmerrshem',
+  'vecante',
 ])
 
 const ADJECTIVE_ARTICLES = new Set(['i_art', 'e_art', 'i_link', 'e_link', 'te_link'])
@@ -87,6 +89,8 @@ export const VERB_IDS = new Set([
   'degjo', 'zgjohu', 'zgjedh', 'martoj', 'marto', 'mallko', 'fal', 'godit', 'pre',
   've', 'vazhdon', 'humbet', 'ndihmo', 'dhemb', 'skuqem', 'meso', 'lind', 'kerkoi', 'kerko', 'ndodh',
   'qaj', 'vajto', 'terheq', 'shtyj', 'fryj', 'shuaj', 'mbyt', 'krijoj', 'rrjedh',
+  'kercet', 'fishkellen', 'lekundet', 'vezullon', 'lulezon', 'vyshket', 'ngrin',
+  'shkrihet', 'rreshqet', 'zbardh', 'qetesohet', 'pasqyrohet', 'ndryshon',
 ])
 
 // Only change forms we can identify unambiguously. This is not machine

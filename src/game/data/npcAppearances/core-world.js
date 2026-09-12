@@ -9,10 +9,10 @@ const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'core-wo
 
 export const ZANA_APPEARANCE = portrait({
   npcId: 'zana', nodeId: 'zana1',
-  details: ['hair', 'build', 'location'],
-  practicalWordIds: ['flok', 'gjate', 'forte', 'lume'],
+  details: ['hair', 'condition', 'carried-object', 'location'],
+  practicalWordIds: ['flok', 'gjate', 'lagur', 'lule', 'dore', 'lume'],
   placement: { kind: 'replace', lineIndex: 0 },
-  portraitLines: [{ line: R('The Zana beside the river has long hair and a strong body.', w('zane', 'Zana'), w('prane'), w('lume', 'lumit'), w('ka'), w('flok'), w('te_link'), w('gjate'), w('dhe'), w('nje'), w('trup'), w('te_link'), w('forte'), p('.')) }],
+  portraitLines: [{ line: R('The Zana beside the river has long wet hair and a flower in her hand.', w('zane', 'Zana'), w('prane'), w('lume', 'lumit'), w('ka'), w('flok'), w('te_link'), w('gjate'), w('dhe'), w('te_link'), w('lagur'), p(','), w('me'), w('nje'), w('lule'), w('ne'), w('dore'), p('.')) }],
 })
 
 export const BOLLA_APPEARANCE = portrait({

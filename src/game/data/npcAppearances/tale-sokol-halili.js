@@ -9,11 +9,11 @@ const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'tale-so
 
 export const ZADRAN_APPEARANCE = portrait({
   npcId: 'zadraniTetoves', nodeId: 'haliliMejdan',
-  details: ['clothing', 'colour', 'carried-object'],
-  practicalWordIds: ['burre', 'rroba', 'zi', 'shpate', 'dore'],
+  details: ['build', 'clothing', 'colour', 'carried-object'],
+  practicalWordIds: ['burre', 'gjate', 'rroba', 'zi', 'shpate', 'dore'],
   placement: { kind: 'insert-after', lineIndex: 0 },
   portraitLines: [
-    { line: R('A man in black clothes waits in the arena with a sword in his hand.', w('nje'), w('burre'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza', 'black'), w('rri'), w('ne', 'në', 'in'), w('mejdan'), w('me'), w('nje'), w('shpate'), w('ne', 'në', 'in'), w('dore'), p('.')) },
+    { line: R('A tall man in black clothes waits in the arena with a sword in his hand.', w('nje'), w('burre'), w('i_art'), w('gjate'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza', 'black'), w('rri'), w('ne', 'në', 'in'), w('mejdan'), w('me'), w('nje'), w('shpate'), w('ne', 'në', 'in'), w('dore'), p('.')) },
   ],
 })
 

@@ -17,10 +17,10 @@ export const OSMAN_AGA_APPEARANCE = portrait({
 
 export const MUJO_ORA_APPEARANCE = portrait({
   npcId: 'oraMujit', nodeId: 'behuriBurimi',
-  details: ['clothing', 'posture', 'location'],
-  practicalWordIds: ['ora', 'qete', 'burim', 'rroba'],
+  details: ['hair', 'clothing', 'posture', 'location'],
+  practicalWordIds: ['ora', 'flok', 'gjate', 'qete', 'burim', 'rroba'],
   placement: { kind: 'insert-after', lineIndex: 2 },
-  portraitLines: [{ line: R('Mujo’s Ora waits calmly beside the spring, in white clothes.', w('ora', 'Ora'), w('e_link'), w('mujo', 'Mujit'), w('prit', 'pret'), w('e_art'), w('qete'), w('prane'), w('burim', 'burimit'), p(','), w('me'), w('rroba'), w('te_link'), w('bardhe'), p('.')) }],
+  portraitLines: [{ line: R('Mujo’s Ora, with long hair and white clothes, waits calmly beside the spring.', w('ora', 'Ora'), w('e_link'), w('mujo', 'Mujit'), p(','), w('me'), w('flok'), w('te_link'), w('gjate'), w('dhe'), w('rroba'), w('te_link'), w('bardhe', 'bardha'), p(','), w('prit', 'pret'), w('e_art'), w('qete'), w('prane'), w('burim', 'burimit'), p('.')) }],
 })
 
 export default Object.freeze({

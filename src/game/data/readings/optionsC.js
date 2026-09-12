@@ -27,7 +27,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "qeniGate.options[0]": { al: "Ora të ndihmon", en: "The Ora helps you.", review: 'internal-editorial' }, // 1091
   "qeniGate.options[1]": { al: "jep bukë qenit", en: "Give bread to the dog.", review: 'internal-editorial' }, // 1092
   "qeniGate.options[2]": { al: "kalo qenin", en: "Pass the dog.", review: 'internal-editorial' }, // 1093
-  "qeniGate.options[3]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 1094
+  "qeniGate.options[3]": { al: "lufto derën", en: "Fight the door.", review: 'internal-editorial' }, // 1094
   "qeniGate.options[4]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 1095
   "majaEagle.options[0]": { al: "dëgjo Tomor", en: "Listen to Tomorr.", review: 'internal-editorial' }, // 1096
   "majaEagle.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 1097
@@ -57,7 +57,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "bukuraLirim.options[0]": { al: "dëgjo Bukurën", en: "Listen to the Beauty.", review: 'internal-editorial' }, // 1120
   "bukuraLirim.options[1]": { al: "ik shpejt.", en: "Flee quickly.", review: 'internal-editorial' }, // 1121
   "bukuraLirim.options[2]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 1122
-  "bukuraLirim.options[3]": { al: "lufto kulshedrën", en: "Fight the she-dragon.", review: 'internal-editorial' }, // 1123
+  "bukuraLirim.options[3]": { al: "lufto hekurin", en: "Fight the iron.", review: 'internal-editorial' }, // 1123
   "dordolec1.options[0]": { al: "këndo me fëmijët", en: "Sing with the children.", review: 'internal-editorial' }, // 1123
   "dordolec1.options[1]": { al: "shiko shtëpinë", en: "Look at the house.", review: 'internal-editorial' }, // 1124
   "dordolec1.options[2]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 1125
@@ -396,7 +396,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "mulli1.options[7]": { al: "merr mullirin", en: "Take the mill.", review: 'internal-editorial' }, // 1450
   "mulli1.options[8]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1451
   "punaMulli.options[0]": { al: "lër punën", en: "Leave the work.", review: 'internal-editorial' }, // 1452
-  "punaMulli.options[1]": { al: "merr plakun", en: "Take the old man.", review: 'internal-editorial' }, // 1453
+  "punaMulli.options[1]": { al: "pyet miellin", en: "Ask the flour.", review: 'internal-editorial' }, // 1453
   "punaMulli.options[2]": { al: "jep plakun", en: "Give the old man.", review: 'internal-editorial' }, // 1454
   "punaMulli.options[3]": { al: "mban plakun", en: "Carry the old man.", review: 'internal-editorial' }, // 1455
   "xhindMulli.options[0]": { al: "rri i qetë", en: "Stay calm.", review: 'internal-editorial' }, // 1456

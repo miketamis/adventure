@@ -376,7 +376,7 @@ export const OPTION_READINGS_B = Object.freeze({
   "diellShtepi1.options[0]": { al: "shko në kopsht", en: "Go to the garden.", review: 'internal-editorial' }, // 899
   "diellShtepi1.options[1]": { al: "kthehu në majë", en: "Return to the summit.", review: 'internal-editorial' }, // 900
   "diellShtepi1.options[2]": { al: "prek erën", en: "Touch the scent.", review: 'internal-editorial' }, // 901
-  "diellKopsht.options[0]": { al: "fol me vajzën", en: "Speak with the maiden.", review: 'internal-editorial' }, // 902
+  "diellKopsht.options[0]": { al: "pyet vajzën: a e do nënën?", en: "Ask the maiden, “Do you want your mother?”", review: 'internal-editorial' }, // 902
   "diellKopsht.options[1]": { al: "kthehu në shtëpinë", en: "Return to the house.", review: 'internal-editorial' }, // 903
   "diellKopsht.options[2]": { al: "merr kopshtin", en: "Take the garden.", review: 'internal-editorial' }, // 904
   "diellKopshtFol.options[0]": { al: "fol me diellin", en: "Speak with the Sun.", review: 'internal-editorial' }, // 905

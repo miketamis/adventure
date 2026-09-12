@@ -17,18 +17,18 @@ export const CAPTAIN_KRAJL_APPEARANCE = portrait({
 
 export const MEHREME_APPEARANCE = portrait({
   npcId: 'mehreme', nodeId: 'kreshnikRrembimiBurg',
-  details: ['carried-object', 'clothing', 'hands'],
-  practicalWordIds: ['grua', 'shishe', 'raki', 'dore'],
+  details: ['carried-object', 'clothing', 'posture'],
+  practicalWordIds: ['grua', 'rroba', 'kuq', 'shishe', 'raki', 'trup'],
   placement: { kind: 'insert-after', lineIndex: 1 },
-  portraitLines: [{ line: R('A woman in red clothes holds a bottle of raki in her hand.', w('nje'), w('grua'), w('me'), w('rroba'), w('te_link'), w('kuq', 'kuqe'), w('mban'), w('nje'), w('shishe'), w('me'), w('raki'), w('ne'), w('dore'), p('.')) }],
+  portraitLines: [{ line: R('A woman in red clothes holds a bottle of raki close to her body.', w('nje'), w('grua'), w('me'), w('rroba'), w('te_link'), w('kuq', 'kuqe'), w('mban'), w('nje'), w('shishe'), w('me'), w('raki'), w('prane'), w('trup', 'trupit'), w('te_link'), w('saj'), p('.')) }],
 })
 
 export const FIRST_KRAJL_WIFE_APPEARANCE = portrait({
   npcId: 'gruaKrajlit', nodeId: 'kreshnikRrembimiBurg',
-  details: ['clothing', 'carried-object', 'work-marks'],
-  practicalWordIds: ['grua', 'rroba', 'vjeter', 'kove'],
+  details: ['clothing', 'carried-object', 'work-marks', 'hands'],
+  practicalWordIds: ['grua', 'rroba', 'vjeter', 'kove', 'uje', 'dore', 'lagur'],
   placement: { kind: 'insert-after', lineIndex: 3 },
-  portraitLines: [{ line: R('A woman in old clothes waits beside the guard with a bucket of water.', w('nje'), w('grua'), w('me'), w('rroba'), w('te_link'), w('vjeter', 'vjetra', 'old'), w('prit', 'pret'), w('prane'), w('roje', 'rojës'), w('me'), w('nje'), w('kove'), w('me'), w('uje'), p('.')) }],
+  portraitLines: [{ line: R('A woman in old clothes holds a bucket of water; her hands are wet.', w('nje'), w('grua'), w('me'), w('rroba'), w('te_link'), w('vjeter', 'vjetra', 'old'), w('mban'), w('nje'), w('kove'), w('me'), w('uje'), p(';'), w('dore', 'duart'), w('e_link'), w('saj'), w('eshte', 'janë'), w('te_link'), w('lagur', 'lagura'), p('.')) }],
 })
 
 export default Object.freeze({

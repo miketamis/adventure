@@ -113,6 +113,7 @@ const TIME_UI = {
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, loadState)
   const [, setReadingCorpusVersion] = useState(0)
+  const readingCorpusPromise = useRef(null)
   const [confirmReset, setConfirmReset] = useState(false)
   const resetButtonRef = useRef(null)
   // debug mode is unlocked by clicking the title 5× in quick succession
@@ -140,21 +141,27 @@ export default function App() {
     state.pendingHeartConsequence || state.timePassage || state.pendingEmbodiment ||
     state.hearts <= 0 || confirmReset,
   )
-  // The full editorial reading corpus is substantial and does not need to
-  // delay the first interactive scene. Load it just after mount, validate every
-  // address/source pair, then rerender against the attached natural readings.
+  // Fluent whole-line English is an editorial/debug aid, never normal-play
+  // scaffolding. Fetch its substantial corpus only when debug is actually
+  // opened, validate every address/source pair, then rerender against it.
   useEffect(() => {
+    if (!state.debug) return undefined
     let live = true
-    import('./game/data/readings/reviewedReadings.js').then(({ REVIEWED_READINGS }) => {
-      attachReviewedEnglishReadings(STORY, REVIEWED_READINGS)
+    if (!readingCorpusPromise.current) {
+      readingCorpusPromise.current = import('./game/data/readings/reviewedReadings.js')
+        .then(({ REVIEWED_READINGS }) => attachReviewedEnglishReadings(STORY, REVIEWED_READINGS))
+        .catch((error) => {
+          readingCorpusPromise.current = null
+          throw error
+        })
+    }
+    readingCorpusPromise.current.then(() => {
       if (live) setReadingCorpusVersion((version) => version + 1)
     }).catch((error) => {
-      // Keep the conservative, visibly labelled reading aid available if the
-      // optional chunk fails; a stale corpus remains a hard development error.
-      console.error('Could not load the reviewed English reading corpus.', error)
+      if (live) console.error('Could not load the reviewed English reading corpus.', error)
     })
     return () => { live = false }
-  }, [])
+  }, [state.debug])
   // tint the whole sky (the page background) to the hour
   useEffect(() => {
     for (const p of Object.keys(TIME_UI)) document.body.classList.remove('time-' + p)

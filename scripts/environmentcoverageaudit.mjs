@@ -44,10 +44,10 @@ const reservedContentPolicy = Object.freeze({
 // travelled world feel lived in. These floors pin the completed whole-story
 // editorial pass and make new locations carry their share of authored context.
 const AUTHORED_ENVIRONMENT_COVERAGE = Object.freeze({
-  minimumNodes: 160,
-  minimumPlaces: 115,
-  minimumWeatherPlaces: 40,
-  minimumSeasonPlaces: 15,
+  minimumNodes: 169,
+  minimumPlaces: 122,
+  minimumWeatherPlaces: 49,
+  minimumSeasonPlaces: 20,
 })
 
 check('every explicit narration setting names a real scene exactly once', () => {

@@ -19,7 +19,7 @@ export const SICKBED_SERPENT_APPEARANCE = portrait({
   npcId: 'gjarpriShtratit', nodeId: 'mujo1',
   details: ['build', 'carried-object', 'location'],
   practicalWordIds: ['gjarper', 'shtrat', 'ilac', 'gjuhe'],
-  placement: { kind: 'insert-after', lineIndex: 4 },
+  placement: { kind: 'insert-after', lineIndex: 3 },
   portraitLines: [{ line: R('A long serpent lies on the bed, with medicine beneath its tongue.', w('nje'), w('gjarper'), w('i_art'), w('gjate'), w('rri'), w('mbi'), w('shtrat'), p(','), w('me'), w('ilac'), w('nen'), w('gjuhe'), p('.')) }],
 })
 
@@ -27,7 +27,7 @@ export const SICKBED_WOLF_APPEARANCE = portrait({
   npcId: 'ujkuBesnik', nodeId: 'mujo1',
   details: ['face', 'posture', 'location'],
   practicalWordIds: ['ujk', 'kembe', 'shtrat', 'goje'],
-  placement: { kind: 'insert-after', lineIndex: 4 },
+  placement: { kind: 'insert-after', lineIndex: 3 },
   portraitLines: [{ line: R('The wolf waits at the foot of the bed with its mouth open.', w('ujk', 'Ujku'), w('prit', 'pret'), w('tek'), w('kembe', 'këmbët'), w('e_link'), w('shtrat', 'shtratit'), w('me'), w('goje'), w('te_link'), w('hap', 'hapur'), p('.')) }],
 })
 
