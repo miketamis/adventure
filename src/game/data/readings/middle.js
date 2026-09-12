@@ -640,7 +640,6 @@ export const MIDDLE_READINGS = {
   "kreshnikRrembimiHumbur.text[1]": { al: "kali thyen derën e hekurt. Mujo kthehet në shtëpi.", en: "The courser breaks the iron door, and Mujo returns home." },
   "kreshnikRrembimiRefuz.text[0]": { al: "ti rri në Jutbina. dera e Halilit mbyllet.", en: "You stay in Jutbina. Halili’s door closes." },
   "kreshnikRrembimiRefuz.text[1]": { al: "Halili merr kalin dhe shkon vetëm.", en: "Halili takes the courser and goes alone." },
-  "kreshnikRrembimiRefuz.text[2]": { al: "në agim, Halili kthehet në shtëpi me Mujon.", en: "At dawn Halili returns home with Mujo." },
   "behuriJutbina.text[0]": { al: "para agimit, Mujo ndez zjarrin në vatër dhe bën kafe.", en: "Before dawn, Mujo lights the hearth and makes coffee." },
   "behuriJutbina.text[1]": { al: "Mujo thotë: Halili, a je zgjuar? thirri tridhjetë agallarët. nisemi sot.", en: "He calls, “Halil, are you awake? Call the thirty Agas. We leave today.”" },
   "behuriJutbina.text[2]": { al: "Halili pyet: ku po shkojmë? Mujo thotë: ku na çon zot.", en: "Halili asks, “Where are we going?” Mujo answers, “Where God leads us.”" },
@@ -720,4 +719,8 @@ export const MIDDLE_READINGS = {
   "pusiGuri.text[5]": { al: "lart, shiu bie mbi gurët e pusit.", en: "Above, rain falls on the stones of the well." },
   "nenaDiell1.text[4]": { al: "Lulet e pranverës rrinë pranë kukullës prej baltë.", en: "Spring flowers lie beside the clay doll." },
   "dhelpra1.text[5]": { al: "Në verë, bletët vijnë te lulet në arë.", en: "In summer, bees come to the flowers in the field." },
+  "sheshiMjek.text[0]": { al: "një grua të dëgjon dhe tregon shtëpinë e shëruesit.", en: "A woman hears you and points to the healer’s house." },
+  "kreshnikRrembimiRefuz.text[2]": { al: "më vonë njerëzit thonë se në agim Halili u kthye në shtëpi me Mujon.", en: "Later people say that Halili returned home with Mujo at dawn." },
+  "behuriMejdanKeshilla.text[0]": { al: "Mujo të dëgjon dhe kërko të shohë diellin për një herë të fundit.", en: "Mujo hears you and asks to see the sun one last time." },
+  "kreshnikRrembimiNisja.text[0]": { al: "Halili thotë: mirë. kali është gati për rrugën drejt kullës së Krajlit.", en: "Halili says, “Good. The courser is ready for the road to the Krajl’s tower.”" },
 }

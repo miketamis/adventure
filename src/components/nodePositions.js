@@ -90,6 +90,7 @@ export const NODE_AT = {
   // woken at his own Jutbina doorway, rides east across the frontier, and
   // brings Mujo back to the hamlet by a separate homeward approach.
   kreshnikRrembimi1: [650, -280],
+  kreshnikRrembimiNisja: 'kreshnikRrembimi1',
   kreshnikRrembimiBurg: [930, -300],
   kreshnikRrembimiFund: [555, -315],
   kreshnikRrembimiHumbur: 'kreshnikRrembimiFund',
@@ -103,6 +104,7 @@ export const NODE_AT = {
   behuriBurimi: [840, -610],
   behuriKulla: [950, -520],
   behuriMejdan: [900, -400],
+  behuriMejdanKeshilla: 'behuriMejdan',
   behuriFund: [700, -350],
   behuriKotorHumbur: 'behuriNdarja',
   behuriBurimHumbur: 'behuriBurimi',
@@ -191,6 +193,7 @@ export const NODE_AT = {
   // below has only qyteti + thesar2 and no living inhabitants.
   qytetiUdhetar: [10, 930],
   sheshi: [15, 1020],
+  sheshiMjek: 'sheshi',
   lemoshaFund: 'sheshi',
   lemoshaBuke: 'sheshi', // the bread-alms beat — the same doorway on the square
   tregtari: [80, 980],
@@ -428,6 +431,8 @@ export const NODE_AT = {
   libriDiell: [418, 392],
   sofraMikut: 'libriDiell',
   sofraMikut2: 'libriDiell',
+  sofraVendimPlaka: 'libriDiell',
+  sofraVendimPusi: 'libriDiell',
   pallatiKthim: 'pallatiZi',
   // ── the Sun's house — a real explorable compound on its cloud-plateau:
   // house → garden (west wing) → golden oda (east wing) → the forecourt where

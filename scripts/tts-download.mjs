@@ -7,6 +7,7 @@
 //   node scripts/tts-download.mjs            # fill missing clips
 //   node scripts/tts-download.mjs --force    # re-generate everything
 //   node scripts/tts-download.mjs --force-cefr # re-generate held-out listening clips with their assigned voices
+//   node scripts/tts-download.mjs --list-voices # inspect the real sq-AL inventory without generating audio
 //
 // Credentials come from .env (AZURE_TTS_KEY1 / AZURE_TTS_ENDPOINT).
 // ---------------------------------------------------------------------------
@@ -25,6 +26,7 @@ const ROOT = resolve(__dirname, '..')
 const OUT_DIR = resolve(ROOT, 'public/audio')
 const FORCE = process.argv.includes('--force')
 const FORCE_CEFR = process.argv.includes('--force-cefr')
+const LIST_VOICES = process.argv.includes('--list-voices')
 const ONLY_SURFACE = process.argv.find((argument) => argument.startsWith('--surface='))?.slice('--surface='.length) || null
 
 // --- credentials ----------------------------------------------------------
@@ -74,6 +76,13 @@ async function availableVoices() {
   return {
     defaultVoice: pick.ShortName,
     supported: new Set(sq.map((entry) => entry.ShortName)),
+    voices: sq.map((entry) => ({
+      shortName: entry.ShortName,
+      displayName: entry.DisplayName,
+      gender: entry.Gender,
+      voiceType: entry.VoiceType,
+      styles: entry.StyleList || [],
+    })),
   }
 }
 
@@ -106,6 +115,15 @@ async function synth(text, voice) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 async function main() {
+  if (LIST_VOICES) {
+    const { voices } = await availableVoices()
+    console.log(`Configured Speech resource exposes ${voices.length} sq-AL acoustic voice${voices.length === 1 ? '' : 's'}:`)
+    for (const entry of voices) {
+      console.log(`  ${entry.shortName} · ${entry.gender || 'unspecified gender'} · ${entry.voiceType || 'unspecified type'}${entry.styles.length ? ` · styles: ${entry.styles.join(', ')}` : ''}`)
+    }
+    console.log('Speaking-rate, pitch and character-label variants do not count as additional acoustic voices.')
+    return
+  }
   mkdirSync(OUT_DIR, { recursive: true })
   const authoredSurfaces = collectAudioSurfaces(
     DICT,

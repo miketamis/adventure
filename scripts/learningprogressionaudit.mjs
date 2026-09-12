@@ -400,7 +400,7 @@ check('the player-facing app cannot eagerly load the debug learning graph', () =
   assert.match(saveStatus, /data-learning-state="current-save"/)
   assert.match(saveStatus, /state\.phraseProductionProgress/)
   assert.match(debug, /<DebugLearningSaveStatus state=\{state\}\s*\/>/)
-  assert.match(debug, /<DebugLearningEvidenceInspector state=\{state\}\s*\/>/)
+  assert.match(debug, /<DebugLearningEvidenceInspector state=\{state\} dispatch=\{dispatch\}\s*\/>/)
   assert.match(debug, /<DebugLearningProgression\s*\/>/)
   assert.doesNotMatch(debug, /<DebugLearningProgression\s+state=/)
   assert.match(component, /data-word-form-gate="reviewed-form-lane"/)
@@ -420,7 +420,7 @@ check('research rationale is primary-linked and product thresholds stay caveated
   assert.equal(PHRASE_PROGRESSION_MODEL_CARD.sotaClaim, false)
   assert.match(PHRASE_PROGRESSION_MODEL_CARD.reason, /cannot be established/i)
   assert.match(PHRASE_PROGRESSION_MODEL_CARD.calibrationRequirement, /privacy-reviewed/i)
-  assert.match(PHRASE_PROGRESSION_POLICY.caveat, /product policy pending player telemetry/i)
+  assert.match(PHRASE_PROGRESSION_POLICY.caveat, /product policy pending consented true-beginner player telemetry/i)
   assert.match(PHRASE_PROGRESSION_POLICY.caveat, /not a universal SOTA constant/i)
 })
 

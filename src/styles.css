@@ -2094,6 +2094,19 @@ svg [role="button"]:focus-visible {
 .dbg-card.focus { border-color: #b07bff; box-shadow: 0 0 0 2px #b07bff44; }
 .dbg-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
 .dbg-card-head b { font-size: 15px; color: var(--ink); }
+
+.dbg-authoring-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.dbg-authoring-head .dbg-card-head, .dbg-authoring-head .dbg-note { flex-basis: 100%; }
+.dbg-authoring-toggle { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.dbg-authoring-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); gap: 10px; }
+.dbg-authoring-options { display: grid; gap: 8px; }
+.dbg-authoring-choice { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3px; text-align: left; }
+.dbg-authoring-choice small { color: var(--muted); font-style: italic; }
+.dbg-authoring-choice code { color: #8fb6c9; font-size: 11px; white-space: normal; }
+.dbg-authoring-json { max-height: 380px; overflow: auto; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #0e0c0a; color: var(--muted); font-size: 11px; }
+.dbg-authoring-entities { display: flex; flex-wrap: wrap; gap: 6px; }
+.dbg-authoring-event { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 1.5fr); gap: 8px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 12px; }
+.dbg-authoring-event strong { grid-column: 2; color: var(--danger); }
 .dbg-summary { font-size: 13px; color: var(--gloss); line-height: 1.55; margin: 0 0 8px; }
 .dbg-sources { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
 .dbg-sources a { font-size: 12px; color: #7fc0e6; text-decoration: none; }
@@ -2484,6 +2497,9 @@ svg [role="button"]:focus-visible {
 
 @media (max-width: 820px) {
   .dbg-subtabs { flex-wrap: wrap; }
+  .dbg-authoring-grid { grid-template-columns: 1fr; }
+  .dbg-authoring-event { grid-template-columns: 1fr; }
+  .dbg-authoring-event strong { grid-column: 1; }
   .dbg-learning-controls { grid-template-columns: 1fr; }
   .dbg-learning-step-buttons { justify-content: flex-start; }
   .dbg-learning-hero, .dbg-learning-layout { grid-template-columns: 1fr; }

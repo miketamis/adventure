@@ -499,6 +499,7 @@ const finish = (state, question, overrides = {}) => {
     focusId: question.focusId || null,
     diagnostic: null,
     wordKeys: trainQuestionWordKeys(question),
+    audioCompleted: true,
     ...overrides,
   }
   if (!action.correct && !action.consequence) {
@@ -526,20 +527,22 @@ check('production requires two focuses, ordering, every focus spelling, then ful
       matching: state.phraseMatchingMastery,
     },
     productionProgress: state.phraseProductionProgress,
+    listeningProgress: state.phraseListeningProgress,
+    matchingProgress: state.phraseMatchingProgress,
     currentRound: state.trainRound,
   })
   const waitForPhrase = () => {
-    let next = question()
-    while (!next || next.skill !== 'production') {
+    for (let attempts = 0; attempts < 64; attempts++) {
+      const next = question()
+      if (next?.skill === 'production') return next
       if (next) state = finish(state, next)
       else state = reducer(state, {
           type: 'TRAIN_ROUND_COMPLETE',
           questionKey: `disjoint:${state.trainRound}`,
           wordKeys: ['ndryshe'],
         })
-      next = question()
     }
-    return next
+    assert.fail('a due production question was starved for 64 scheduler attempts')
   }
 
   const expectedTiers = [0, 0, 1, 2, 2, 3, 4]
@@ -594,6 +597,8 @@ check('listening and matching tighten on independent axes without lowering produ
       matching: state.phraseMatchingMastery,
     },
     productionProgress: state.phraseProductionProgress,
+    listeningProgress: state.phraseListeningProgress,
+    matchingProgress: state.phraseMatchingProgress,
     currentRound: state.trainRound,
   })
 
@@ -604,6 +609,13 @@ check('listening and matching tighten on independent axes without lowering produ
     assert.equal(listen.bank.filter((tile) => tile.answerIndex == null).length, extras)
     state = finish(state, listen)
     assert.equal(state.phraseMastery[target.id], 4, 'listening lowered production mastery')
+    if (tier < PHRASE_SKILL_MAX_TIER.listening) {
+      state = reducer(state, {
+        type: 'TRAIN_ROUND_COMPLETE',
+        questionKey: `listening-disjoint:${tier}`,
+        wordKeys: ['ndryshe'],
+      })
+    }
   }
   assert.equal(state.phraseListeningMastery[target.id], PHRASE_SKILL_MAX_TIER.listening)
 
@@ -611,6 +623,7 @@ check('listening and matching tighten on independent axes without lowering produ
     state = {
       ...state,
       phraseMatchingMastery: Object.fromEntries(phrases.map((phrase) => [phrase.id, tier])),
+      phraseMatchingProgress: Object.fromEntries(phrases.map((phrase) => [phrase.id, { tier }])),
     }
     const match = make('match')
     assert.equal(match.tier, tier)

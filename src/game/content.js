@@ -798,13 +798,17 @@ export const STORY = {
       npcIdentityLine('elira', true, R('Elira says, “You came. Good. We will go together.”', w('elira'), w('thote'), p(':'), wf('vjen', 'erdhe', 'you came'), p('.'), w('mire'), p('.'), w('do_fut'), w('te_subj'), wf('shko', 'shkojmë', 'go'), w('bashke'), p('.')), { required: 'rendezvous:eliraFollow:on-time' }),
       npcIdentityLine('elira', false, R('The woman asks, “What happened? I thought you were going to follow me.”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('?'), wf('mendoj', 'mendova', 'thought'), w('se'), w('do_fut'), w('te_subj'), wf('vjen', 'vije', 'come'), w('pas'), wf('une', 'meje', 'me'), p('.')), { required: 'rendezvous:eliraFollow:late' }),
       npcIdentityLine('elira', true, R('Elira asks, “What happened? I thought you were going to follow me.”', w('elira'), w('pyet'), p(':'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('?'), wf('mendoj', 'mendova', 'thought'), w('se'), w('do_fut'), w('te_subj'), wf('vjen', 'vije', 'come'), w('pas'), wf('une', 'meje', 'me'), p('.')), { required: 'rendezvous:eliraFollow:late' }),
-      npcIdentityLine('elira', false, R('The woman asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.'))),
-      npcIdentityLine('elira', true, R('Elira asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', w('elira'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.'))),
+      npcIdentityLine('elira', false, R('The woman asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')), { required: eliraQuestCondition('offered') }),
+      npcIdentityLine('elira', true, R('Elira asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', w('elira'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')), { required: eliraQuestCondition('offered') }),
+      npcIdentityLine('elira', false, R('The woman says, “Thank you. I am going up to the village.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('faleminderit'), p('.'), w('po_prog'), wf('shko', 'shkoj', 'go'), w('lart'), wf('ne', 'në', 'to'), w('fshat'), p('.')), { required: eliraQuestCondition('active') }),
+      npcIdentityLine('elira', true, R('Elira says, “Thank you. I am going up to the village.”', w('elira'), w('thote'), p(':'), w('faleminderit'), p('.'), w('po_prog'), wf('shko', 'shkoj', 'go'), w('lart'), wf('ne', 'në', 'to'), w('fshat'), p('.')), { required: eliraQuestCondition('active') }),
     ],
     options: [
       { text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), unless: npcIdentityConditionId('elira'), effects: [npcIdentityRevealEffect('elira')], to: 'eliraEmriBreg', durationHours: 0 },
-      { text: R('Yes, I can help you. I am coming with you to the village.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.'), w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), wf('ne', 'në', 'to'), w('fshat'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('accept'), moneyOutcome: ELIRA_ERRAND_MONEY_OUTCOME, to: 'fshatiSheshi', durationHours: 2 },
-      { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('decline'), to: 'fshatiLumi', durationHours: 0 },
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), requires: eliraQuestCondition('offered'), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('accept'), moneyOutcome: ELIRA_ERRAND_MONEY_OUTCOME, to: 'eliraEmriBreg', durationHours: 0 },
+      { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), requires: eliraQuestCondition('offered'), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('decline'), to: 'fshatiLumi', durationHours: 0 },
+      { text: R('Go up to the village.', w('ngjit'), wf('ne', 'në', 'to'), w('fshat'), p('.')), requires: eliraQuestCondition('active'), to: 'fshatiSheshi', durationHours: 2 },
+      { text: R('Stay here beside the river.', w('rri'), w('ketu'), w('afer'), wf('lume', 'lumit', 'the river'), p('.')), requires: eliraQuestCondition('active'), to: 'fshatiLumi', durationHours: 0 },
     ],
   },
 
@@ -812,12 +816,16 @@ export const STORY = {
     id: 'eliraEmriBreg',
     questOffers: [ELIRA_BREAD_SALT_QUEST_ID],
     text: [
-      R('She says, “My name is Elira.”', w('ajo'), w('thote'), p(':'), w('une'), w('quhem'), w('elira'), p('.')),
-      R('“Would you be able to help me? A guest is coming tonight. Please bring bread and salt.”', w('a_q'), w('ke'), w('mundesi'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')),
+      when(eliraQuestCondition('offered'), R('She says, “My name is Elira.”', w('ajo'), w('thote'), p(':'), w('une'), w('quhem'), w('elira'), p('.'))),
+      when(eliraQuestCondition('offered'), R('“Would you be able to help me? A guest is coming tonight. Please bring bread and salt.”', w('a_q'), w('ke'), w('mundesi'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.'))),
+      npcIdentityLine('elira', false, R('The woman says, “Thank you. I am going up to the village.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('faleminderit'), p('.'), w('po_prog'), wf('shko', 'shkoj', 'go'), w('lart'), wf('ne', 'në', 'to'), w('fshat'), p('.')), { required: eliraQuestCondition('active') }),
+      npcIdentityLine('elira', true, R('Elira says, “Thank you. I am going up to the village.”', w('elira'), w('thote'), p(':'), w('faleminderit'), p('.'), w('po_prog'), wf('shko', 'shkoj', 'go'), w('lart'), wf('ne', 'në', 'to'), w('fshat'), p('.')), { required: eliraQuestCondition('active') }),
     ],
     options: [
-      { text: R('Yes, I can help you. I am coming with you to the village.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.'), w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), wf('ne', 'në', 'to'), w('fshat'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('accept'), moneyOutcome: ELIRA_ERRAND_MONEY_OUTCOME, to: 'fshatiSheshi', durationHours: 2 },
-      { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('decline'), to: 'fshatiLumi', durationHours: 0 },
+      { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), requires: eliraQuestCondition('offered'), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('accept'), moneyOutcome: ELIRA_ERRAND_MONEY_OUTCOME, to: 'eliraBreg', durationHours: 0 },
+      { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), requires: eliraQuestCondition('offered'), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('decline'), to: 'fshatiLumi', durationHours: 0 },
+      { text: R('Go up to the village.', w('ngjit'), wf('ne', 'në', 'to'), w('fshat'), p('.')), requires: eliraQuestCondition('active'), to: 'fshatiSheshi', durationHours: 2 },
+      { text: R('Stay here beside the river.', w('rri'), w('ketu'), w('afer'), wf('lume', 'lumit', 'the river'), p('.')), requires: eliraQuestCondition('active'), to: 'fshatiLumi', durationHours: 0 },
     ],
   },
 
@@ -1020,9 +1028,33 @@ export const STORY = {
       R('She says, “Be careful!”', w('ajo'), w('thote'), p(':'), wf('ke', 'ki', 'have'), w('kujdes'), p('!')),
     ],
     options: [
-      { text: R('I do not agree. I will ask the old woman, “May I enter?”', w('nuk'), w('jam'), w('dakord'), p('.'), w('do_fut'), w('te_subj'), wf('pyet', 'pyes', 'ask'), wf('plake', 'plakën', 'the old woman'), p(':'), w('a_q'), w('mund'), w('te_subj'), wf('hyr', 'hyj', 'enter'), p('?')), reveal: 'plake', revealOccurrence: 1, to: 'plaka' },
-      { text: R('Yes. I will go to the dry well in the village.', w('po_yes'), p('.'), w('do_fut'), w('te_subj'), wf('shko', 'shkoj', 'go'), wf('tek', 'te', 'to'), w('pus'), w('i_art'), w('thate'), wf('ne', 'në', 'in'), w('fshat'), p('.')), to: 'pusiThate' },
+      { text: R('I do not agree. I will ask the old woman, “May I enter?”', w('nuk'), w('jam'), w('dakord'), p('.'), w('do_fut'), w('te_subj'), wf('pyet', 'pyes', 'ask'), wf('plake', 'plakën', 'the old woman'), p(':'), w('a_q'), w('mund'), w('te_subj'), wf('hyr', 'hyj', 'enter'), p('?')), reveal: 'plake', revealOccurrence: 1, to: 'sofraVendimPlaka', durationHours: 0 },
+      { text: R('Yes. I will go to the dry well in the village.', w('po_yes'), p('.'), w('do_fut'), w('te_subj'), wf('shko', 'shkoj', 'go'), wf('tek', 'te', 'to'), w('pus'), w('i_art'), w('thate'), wf('ne', 'në', 'in'), w('fshat'), p('.')), to: 'sofraVendimPusi', durationHours: 0 },
       { text: R('Yes, take it.', w('po_yes'), p(','), wf('merr', 'merre', 'take it'), p('.')), unless: 'flag:gaveGuestBread', effects: [{ type: 'flag', id: 'gaveGuestBread' }], to: 'sofraMikut2', durationHours: 0 },
+    ],
+  },
+
+  sofraVendimPlaka: {
+    id: 'sofraVendimPlaka',
+    text: [
+      R('She says, “All right. Ask the old woman.”', w('ajo'), wf('thote', 'thotë', 'says'), p(':'), wf('ne', 'në', 'in'), wf('rregull', 'rregull', 'all right'), p('.'), w('pyet'), wf('plake', 'plakën', 'the old woman'), p('.')),
+    ],
+    options: [
+      { text: R('Go to the old woman’s house.', w('shko'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpia', 'the house'), w('e_link'), wf('plake', 'plakës', 'of the old woman'), p('.')), to: 'plaka', reveal: 'plake' },
+      { text: R('Go to the dry well.', w('shko'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.')), to: 'pusiThate' },
+      { text: R('Return to the square.', w('kthehu'), wf('ne', 'në', 'to'), w('shesh'), p('.')), to: 'fshatiSheshi' },
+    ],
+  },
+
+  sofraVendimPusi: {
+    id: 'sofraVendimPusi',
+    text: [
+      R('She says, “All right. Go to the dry well. The old woman may know more.”', w('ajo'), wf('thote', 'thotë', 'says'), p(':'), wf('ne', 'në', 'in'), wf('rregull', 'rregull', 'all right'), p('.'), w('shko'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.'), wf('plake', 'plaka', 'the old woman'), w('mund'), w('te_subj'), w('di'), w('me_more'), w('shume'), p('.')),
+    ],
+    options: [
+      { text: R('Go to the dry well.', w('shko'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.')), to: 'pusiThate', reveal: 'pus' },
+      { text: R('Go to the old woman’s house.', w('shko'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpia', 'the house'), w('e_link'), wf('plake', 'plakës', 'of the old woman'), p('.')), to: 'plaka' },
+      { text: R('Return to the square.', w('kthehu'), wf('ne', 'në', 'to'), w('shesh'), p('.')), to: 'fshatiSheshi' },
     ],
   },
 
@@ -3515,7 +3547,7 @@ export const STORY = {
     options: [
       { text: L(w('fol'), w('me'), wf('tregtar', 'tregtarin', 'the trader')), unless: 'night', to: 'tregtari' },
       { text: L(w('shko'), w('ne'), wf('bujtine', 'bujtinën', 'the inn')), to: 'bujtina' },
-      { text: R('I need a doctor.', wf('ka', 'kam', 'have'), w('nevoje'), w('per'), w('nje'), w('mjek'), p('.')), to: 'sheruesi' },
+      { text: R('I need a doctor.', wf('ka', 'kam', 'have'), w('nevoje'), w('per'), w('nje'), w('mjek'), p('.')), to: 'sheshiMjek', durationHours: 0 },
       { text: L(w('fol'), w('me'), wf('udhetar', 'udhëtarin', 'the traveller')), to: 'udhetariHuaj' },
       { text: L(w('shiko'), wf('dere', 'derën', 'the door')), to: 'udhaShenja' },
       { text: L(w('jep'), w('lek')), lek: -ALMS_AMOUNT, to: 'lemoshaFund', reveal: 'njeri', revealOccurrence: 2 },
@@ -3524,6 +3556,17 @@ export const STORY = {
       // description says so
       { text: L(w('jep'), w('buke')), requires: 'buke', consumes: 'buke', effects: [{ type: 'flag', id: 'bukaDhene' }], unless: 'flag:bukaDhene', to: 'lemoshaBuke', reveal: 'njeri', revealOccurrence: 2 },
       { text: L(w('kthehu'), wf('tek', 'te', 'to'), wf('shpelle', 'shpella', 'the cavern')), to: 'fshehur' },
+    ],
+  },
+
+  sheshiMjek: {
+    id: 'sheshiMjek',
+    text: [
+      R('A woman hears you and points to the healer’s house.', w('nje'), w('grua'), w('te_obj'), wf('degjo', 'dëgjon', 'hears'), w('dhe'), wf('tregoj', 'tregon', 'points to'), wf('shtepi', 'shtëpinë', 'the house'), w('e_link'), wf('sherues', 'shëruesit', 'of the healer'), p('.')),
+    ],
+    options: [
+      { text: R('Go to the healer.', w('shko'), wf('tek', 'te', 'to'), wf('sherues', 'shëruesi', 'the healer'), p('.')), to: 'sheruesi', reveal: 'sherues' },
+      { text: R('Stay in the square.', w('rri'), wf('ne', 'në', 'in'), w('shesh'), p('.')), to: 'sheshi', durationHours: 0 },
     ],
   },
 
@@ -4510,8 +4553,19 @@ export const STORY = {
       R('A Zana says, “Mujo’s courser can break an iron door.”', w('nje'), w('zane'), w('thote'), p(':'), wf('kale', 'kali', 'the horse'), w('i_link'), wf('mujo', 'Mujos', 'of Mujo'), w('mund'), w('te_subj'), wf('thyen', 'thyejë', 'break'), w('nje'), w('dere'), w('te_link'), w('hekurt'), p('.')),
     ],
     options: [
-      { text: R('Yes. I am coming with you.', w('po_yes'), p('.'), w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), p('.')), to: 'kreshnikRrembimiBurg', durationHours: 6, time: 'dawn', atHour: 6, reveal: 'kale', revealOccurrence: 1, effects: [{ type: 'learn', id: 'mujoCourserBreaksIron' }] },
-      { text: R('No. I cannot come.', w('jo'), p('.'), w('nuk'), w('mund'), w('te_subj'), wf('vjen', 'vij', 'come'), p('.')), to: 'kreshnikRrembimiRefuz', durationHours: 6, time: 'dawn', atHour: 6 },
+      { text: R('Yes. I will help you.', w('po_yes'), p('.'), w('do_fut'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), to: 'kreshnikRrembimiNisja', durationHours: 0, reveal: 'kale', revealOccurrence: 1, effects: [{ type: 'learn', id: 'mujoCourserBreaksIron' }] },
+      { text: R('No. I cannot come.', w('jo'), p('.'), w('nuk'), w('mund'), w('te_subj'), wf('vjen', 'vij', 'come'), p('.')), to: 'kreshnikRrembimiRefuz', durationHours: 0 },
+    ],
+  },
+
+  kreshnikRrembimiNisja: {
+    id: 'kreshnikRrembimiNisja',
+    text: [
+      R('Halili says, “Good. The courser is ready for the road to the Krajl’s tower.”', w('halil'), w('thote'), p(':'), w('mire'), p('.'), wf('kale', 'kali', 'the horse'), w('eshte'), w('gati'), w('per'), wf('rruge', 'rrugën', 'the road'), w('drejt'), wf('kulle', 'kullës', 'the tower'), wf('te_link', 'së', 'of'), wf('krajl', 'Krajlit', 'the Krajl'), p('.')),
+    ],
+    options: [
+      { text: R('Ride with Halili to the Krajl’s tower.', w('shko'), w('me'), wf('halil', 'Halilin', 'Halil'), wf('tek', 'te', 'to'), wf('kulle', 'kulla', 'the tower'), w('e_link'), wf('krajl', 'krajlit', 'of the Krajl'), p('.')), to: 'kreshnikRrembimiBurg', durationHours: 6, time: 'dawn', atHour: 6, reveal: 'kale' },
+      { text: R('Tell Halili, “No. I cannot come.”', wf('thote', 'thuaji', 'tell'), wf('halil', 'Halilit', 'Halil'), p(':'), w('jo'), p('.'), w('nuk'), w('mund'), w('te_subj'), wf('vjen', 'vij', 'come'), p('.')), to: 'kreshnikRrembimiRefuz', durationHours: 0 },
     ],
   },
 
@@ -4565,7 +4619,7 @@ export const STORY = {
     text: [
       R('You stay in Jutbina. Halili’s door closes.', w('ti'), w('rri'), wf('ne', 'në', 'in'), w('jutbina'), p('.'), wf('dere', 'dera', 'the door'), w('e_link'), wf('halil', 'Halilit', 'of Halil'), wf('mbyll', 'mbyllet', 'closes'), p('.')),
       R('Halili takes the courser and goes alone.', w('halil'), w('merr'), wf('kale', 'kalin', 'the horse'), w('dhe'), wf('shko', 'shkon', 'go'), w('vetem'), p('.')),
-      describesEnvironment('time', R('At dawn Halili returns home with Mujo.', wf('ne', 'në', 'in'), w('agim'), p(','), w('halil'), wf('kthehu', 'kthehet', 'returns'), wf('ne', 'në', 'to'), w('shtepi'), w('me'), wf('mujo', 'Mujon', 'Mujo'), p('.'))),
+      R('Later people say that Halili returned home with Mujo at dawn.', w('me_vone'), wf('njeri', 'njerëzit', 'the people'), wf('thote', 'thonë', 'say'), w('se'), wf('ne', 'në', 'at'), w('agim'), w('halil'), wf('kthehu', 'u kthye', 'returned'), wf('ne', 'në', 'to'), w('shtepi'), w('me'), wf('mujo', 'Mujon', 'Mujo'), p('.')),
     ],
     options: [],
   },
@@ -4649,8 +4703,19 @@ export const STORY = {
       R('Mujo does not say anything yet.', w('mujo'), w('nuk'), w('thote'), w('gje'), w('ende'), p('.')),
     ],
     options: [
-      { text: R('Tell Mujo, “Look at the sun.”', wf('thote', 'thuaji', 'tell'), wf('mujo', 'Mujos', 'to Mujo'), p(':'), w('shiko'), wf('diell', 'diellin', 'the sun'), p('.')), to: 'behuriFund', reveal: 'ora', revealOccurrence: 1 },
+      { text: R('Tell Mujo, “Look at the sun.”', wf('thote', 'thuaji', 'tell'), wf('mujo', 'Mujos', 'to Mujo'), p(':'), w('shiko'), wf('diell', 'diellin', 'the sun'), p('.')), to: 'behuriMejdanKeshilla', durationHours: 0, reveal: 'ora', revealOccurrence: 1 },
       { text: R('Tell Mujo, “Give up.”', wf('thote', 'thuaji', 'tell'), wf('mujo', 'Mujos', 'to Mujo'), p(':'), wf('dorezohem', 'dorëzohu', 'surrender'), p('.')), to: 'behuriMejdanHumbur' },
+    ],
+  },
+
+  behuriMejdanKeshilla: {
+    id: 'behuriMejdanKeshilla',
+    text: [
+      R('Mujo hears you and asks to see the sun one last time.', w('mujo'), w('te_obj'), wf('degjo', 'dëgjon', 'hears'), w('dhe'), w('kerko'), w('te_subj'), wf('sheh', 'shohë', 'see'), wf('diell', 'diellin', 'the sun'), w('per'), w('nje'), wf('here', 'herë', 'time'), wf('te_link', 'të', 'the'), wf('fund', 'fundit', 'last'), p('.')),
+    ],
+    options: [
+      { text: R('Watch what Mujo does.', w('shiko'), w('cfare'), wf('bej', 'bën', 'does'), w('mujo'), p('.')), to: 'behuriFund' },
+      { text: R('Tell Mujo, “Give up.”', wf('thote', 'thuaji', 'tell'), wf('mujo', 'Mujos', 'to Mujo'), p(':'), wf('dorezohem', 'dorëzohu', 'surrender'), p('.')), to: 'behuriMejdanHumbur', durationHours: 0, reveal: 'mujo' },
     ],
   },
 
@@ -6093,7 +6158,7 @@ export const STORY = {
     options: [
       { text: L(w('fol'), w('me'), wf('plak', 'plakun', 'the old man')), requires: 'npc:plakuSheshit', to: 'sheshiPlak', reveal: 'plak' },
       { text: L(w('hyr'), wf('ne', 'në', 'to'), w('shtepi')), to: 'plaka', reveal: 'shtepi', revealOccurrence: 1 },
-      { text: R('I am going to the guest-room.', w('po_prog'), wf('shko', 'shkoj', 'go'), wf('ne', 'në', 'to'), wf('oda', 'odë', 'guest-room'), p('.')), to: 'oda1', reveal: 'oda' },
+      { text: R('Go to the guest-room.', w('shko'), wf('ne', 'në', 'to'), wf('oda', 'odë', 'guest-room'), p('.')), to: 'oda1', reveal: 'oda' },
       { text: L(w('hyr'), wf('ne', 'në', 'in'), w('kafene')), unless: 'night', to: 'kafeneja', reveal: 'kafene' },
       { text: L(w('ndihmo'), wf('femije', 'fëmijët', 'the children')), requires: 'npc:femijet', to: 'dordolec1', reveal: 'dordolec' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('pus')), to: 'pusiThate', reveal: 'thate', revealOccurrence: 1 },
@@ -11538,7 +11603,7 @@ const CONFUSERS = {
   dallendyshe1: L(w('ndihmo'), wf('gjak', 'gjakun', 'the blood')), // help the blood — you cannot
   kukudh1: L(w('vrit'), wf('arme', 'armën', 'the weapon')), // kill the bread — you cannot
   bijaHene1: L(w('degjo'), wf('hene', 'hënën', 'the moon')), // listen to the moon — you cannot
-  agaYmer1: L(w('hyr'), wf('ne', 'në', 'to'), wf('trim', 'trimin', 'the hero')), // enter the hero — you cannot
+  agaYmer1: L(w('premto'), wf('burg', 'burgun', 'the prison')), // promise the prison — it cannot receive a promise
   agaYmer2: L(w('degjo'), wf('plage', 'plagën', 'the wound')), // listen to the wound — you cannot
   // --- the LEK economy vignettes ---
   blerjaBuke: L(w('merr'), wf('tregtar', 'tregtarin', 'the trader')), // take the trader — you cannot
@@ -12018,6 +12083,11 @@ const CONFUSERS3 = {
   binoshetLuftaFund: L(wf('hyr', 'hyr', 'enter'), wf('ne', 'në', 'in'), wf('shpate', 'shpatën', 'the sword')),
   binoshetKurora: L(w('vrit'), w('mbreteri')),
   binoshetNata: L(w('lufto'), wf('mbremje', 'mbrëmjen', 'the evening')),
+  sofraVendimPlaka: L(w('pyet'), wf('pus', 'pusin', 'the well')), // ask the well — it cannot answer
+  sofraVendimPusi: L(wf('thote', 'thuaj', 'say'), p(':'), wf('pus', 'pusi', 'the well')), // say “the well” — it is not an action on the road
+  sheshiMjek: L(w('degjo'), wf('shtepi', 'shtëpinë', 'the house')), // listen to the house — it cannot answer
+  kreshnikRrembimiNisja: L(w('ndihmo'), wf('kulle', 'kullën', 'the tower')), // help the tower — it is not a person
+  behuriMejdanKeshilla: L(w('degjo'), wf('diell', 'diellin', 'the sun')), // listen to the sun — it cannot answer
 }
 
 // inject all three distractors into every non-ending node

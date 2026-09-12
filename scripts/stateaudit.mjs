@@ -81,6 +81,8 @@ import { REGIONS } from '../src/game/regions.js'
 import { embodimentOptionAccess } from '../src/game/embodiment.js'
 import { fixtureStageAt } from '../src/game/worldFixtures.js'
 import { isDistantLineVisible, routeForChoice, sightlinesFrom, transitionInfo } from '../src/game/worldModel.js'
+import { perceivableEntitiesAt, worldRelationsForState } from '../src/game/worldEntities.js'
+import { PLACE_OF } from '../src/components/nodePositions.js'
 
 const checks = []
 const check = (name, test) => {
@@ -127,6 +129,18 @@ const stateAt = (nodeId, clock = START_CLOCK, extra = {}) => ({
   debug: false,
   loreFocus: null,
   ...extra,
+})
+
+check('perceivable world projection follows node, inventory, NPC and fixture state', () => {
+  const state = stateAt('lendina', START_CLOCK, {
+    inventory: { cader: 1 },
+    fixtures: { campfire: START_CLOCK },
+  })
+  const relations = worldRelationsForState(state, { npcNodeOf, clock: START_CLOCK })
+  const perceived = perceivableEntitiesAt(state, 'lendina', { npcNodeOf, clock: START_CLOCK })
+  assert.ok(relations.some((entry) => entry.subject === 'actor:player' && entry.target === 'place:lendina'))
+  assert.ok(perceived.some((entry) => entry.id === 'item:cader'))
+  assert.ok(perceived.some((entry) => entry.id === 'fixture:campfire'))
 })
 
 check('discoverable NPC identity is generic, authored knowledge that survives saves and resets', () => {
@@ -868,14 +882,16 @@ check('ordinary choices use canonical route hours', () => {
   }
   assert.ok(compared >= 750, `only ${compared} ordinary choices compared`)
 
-  const accompaniedWalk = STORY.eliraBreg.options.find((option) => (
+  const spokenAcceptance = STORY.eliraBreg.options.find((option) => option.to === 'eliraEmriBreg')
+  const accompaniedWalk = STORY.eliraEmriBreg.options.find((option) => (
     !option.confuser && option.to === 'fshatiSheshi' && option.durationHours === 2
   ))
-  assert.ok(accompaniedWalk, 'the river-bank walk to the village disappeared')
-  const accompaniedRoute = routeForChoice('eliraBreg', accompaniedWalk)
-  assert.equal(accompaniedRoute.verb, 'po_yes', 'movement test no longer begins with a non-movement clause')
-  assert.equal(accompaniedRoute.movementVerbId, 'vjen', 'movement inside a multi-clause choice was not found')
-  assert.equal(accompaniedRoute.kind, 'journey', 'a narrated accompanied walk was classified as a hidden scene shift')
+  assert.ok(spokenAcceptance, 'the in-place river-bank acceptance disappeared')
+  assert.equal(PLACE_OF.eliraBreg, PLACE_OF.eliraEmriBreg, 'speaking acceptance moved the player')
+  assert.ok(accompaniedWalk, 'the separate river-bank walk to the village disappeared')
+  const accompaniedRoute = routeForChoice('eliraEmriBreg', accompaniedWalk)
+  assert.equal(accompaniedRoute.movementVerbId, 'ngjit', 'separate journey has no movement verb')
+  assert.equal(accompaniedRoute.kind, 'journey', 'the explicit accompanied walk was classified as a hidden scene shift')
 })
 
 check('exact civil hours compose with routes, dates, phases, tale clocks, and saves', () => {

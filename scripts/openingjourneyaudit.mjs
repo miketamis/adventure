@@ -246,9 +246,10 @@ const offeredErrandState = ({ nodeId = 'eliraShesh', lek = 0, knowsElira = false
 
 const acceptErrand = (input = {}) => {
   const state = offeredErrandState(input)
-  return choose(state, 'fshatiSheshi', (option) => (
-    option.questAction?.id === ELIRA_QUEST_ID && option.questAction.action === 'accept'
+  const option = STORY[state.nodeId].options.find((candidate) => (
+    candidate.questAction?.id === ELIRA_QUEST_ID && candidate.questAction.action === 'accept'
   ))
+  return choose(state, option.to, (candidate) => candidate === option)
 }
 
 const asksErrandQuestion = (id) => (option) =>
@@ -271,25 +272,31 @@ for (const nodeId of ['eliraBreg', 'eliraEmriBreg', 'eliraShesh', 'eliraEmriShes
     candidate.questAction?.id === ELIRA_QUEST_ID && candidate.questAction.action === 'accept'
   ))
   assert.ok(option, `${nodeId}: no registered errand acceptance`)
-  assert.equal(option.to, 'fshatiSheshi', `${nodeId}: acceptance entered a quest corridor instead of ordinary free roam`)
   assert.equal(option.lek, undefined, `${nodeId}: acceptance bypasses the quest registry with a legacy reward`)
+  assert.equal(PLACE_OF[nodeId], PLACE_OF[option.to], `${nodeId}: speaking acceptance also moved the player`)
+  assert.equal(option.durationHours, 0, `${nodeId}: speaking acceptance advanced travel time`)
   if (nodeId.endsWith('Breg')) {
-    assert.notEqual(PLACE_OF[nodeId], PLACE_OF[option.to], `${nodeId}: river-bank acceptance unexpectedly stayed put`)
-    assert.ok(option.durationHours > 0, `${nodeId}: the river-to-square walk takes no time`)
-    assert.match(albanian(option.text), /po vij me ty në fshat/,
-      `${nodeId}: the choice moves to the square without saying the player is going to the village`)
+    assert.doesNotMatch(albanian(option.text), /(?:shko|vij).*(?:fshat|shesh)/,
+      `${nodeId}: acceptance still promises or performs travel`)
   } else {
-    assert.equal(PLACE_OF[nodeId], PLACE_OF[option.to], `${nodeId}: square acceptance unexpectedly moves the player`)
-    assert.equal(option.durationHours, 0, `${nodeId}: a same-square reply advances time`)
+    assert.equal(option.to, 'fshatiSheshi', `${nodeId}: square acceptance did not return ordinary free roam`)
   }
 
   for (const lek of [0, 8, 600]) {
     const accepted = acceptErrand({ nodeId, lek, knowsElira: nodeId.includes('Emri') })
-    assert.equal(accepted.nodeId, 'fshatiSheshi', `${nodeId}/${lek}: acceptance did not return control to the square`)
+    assert.equal(accepted.nodeId, option.to, `${nodeId}/${lek}: acceptance did not resolve at the spoken location`)
     assert.equal(accepted.inventory.lek, lek + 800, `${nodeId}/${lek}: wrong canonical advance`)
     assert.equal(questStatusOf(accepted, ELIRA_QUEST_ID), 'active', `${nodeId}/${lek}: quest is not active`)
-    assert.ok(STORY.fshatiSheshi.options.filter((choice) => !choice.confuser).length >= 10,
-      `${nodeId}/${lek}: free-roam square has collapsed into a quest path`)
+    if (nodeId.endsWith('Breg')) {
+      const choices = STORY[accepted.nodeId].options.filter((choice) => !choice.confuser && hasRequiredItem(accepted, choice))
+      assert.ok(choices.some((choice) => choice.to === 'fshatiSheshi'),
+        `${nodeId}/${lek}: no separate choice remains to travel to the village`)
+      assert.ok(choices.some((choice) => PLACE_OF[choice.to] === PLACE_OF[nodeId]),
+        `${nodeId}/${lek}: the player cannot remain at the river after accepting`)
+    } else {
+      assert.ok(STORY.fshatiSheshi.options.filter((choice) => !choice.confuser).length >= 10,
+        `${nodeId}/${lek}: free-roam square has collapsed into a quest path`)
+    }
     const restored = normalizeSavedState(JSON.parse(JSON.stringify(accepted)), newRun())
     assert.equal(restored.inventory.lek, lek + 800, `${nodeId}/${lek}: save/reload changed the advance`)
     assert.equal(questStatusOf(restored, ELIRA_QUEST_ID), 'active', `${nodeId}/${lek}: save/reload lost the quest`)

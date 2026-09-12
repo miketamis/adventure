@@ -16,6 +16,16 @@ const state = {
   phraseMistakes: { [phraseId]: 42 },
   phraseListeningMastery: { [phraseId]: 2 },
   phraseMatchingMastery: { [phraseId]: 1 },
+  phraseListeningProgress: { [phraseId]: {
+    tier: 2, winsAtTier: 3, dueAfterRound: 97,
+    lastAttemptKey: 'listening-last-sentinel', lastAttemptRound: 96,
+    temporal: { attempts: 5, correct: 4, lapses: 1, lastAttemptAtMs: 1000, dueAtMs: 2000 },
+  } },
+  phraseMatchingProgress: { [phraseId]: {
+    tier: 1, winsAtTier: 0, dueAfterRound: 98,
+    lastAttemptKey: 'matching-last-sentinel', lastAttemptRound: 95,
+    temporal: { attempts: 2, correct: 2, lastAttemptAtMs: 900 },
+  } },
   phraseProductionProgress: { [phraseId]: {
     clozeWins: 2, clozeProofs: ['shko', 'fshat'], arrangeWins: 1, spellingProofs: ['shko'],
     independentWins: 0, strictWins: 0, dueAfterRound: 98, reviewGap: 16,
@@ -36,7 +46,7 @@ const state = {
   }])),
 }
 
-const model = buildLearningEvidenceInspector(state)
+const model = buildLearningEvidenceInspector(state, 2_000)
 assert.equal(model.mode, 'live-current-save')
 assert.equal(model.deterministicWalkthroughIndependent, true)
 assert.equal(model.phrase.al, 'po shkoj në fshat.')
@@ -50,11 +60,13 @@ assert.equal(model.phrase.persisted.totals.correct, 41)
 assert.equal(model.phrase.persisted.totals.mistakes, 42)
 assert.equal(model.phrase.persisted.listening.tier, 2)
 assert.equal(model.phrase.persisted.matching.tier, 1)
-for (const track of ['listening', 'matching']) {
-  for (const field of ['wins', 'proofs', 'spacing', 'remediation', 'lastAttempt']) {
-    assert.equal(model.phrase.persisted[track][field].status, 'absent', `${track}.${field} absence is hidden`)
-  }
-}
+assert.equal(model.phrase.persisted.listening.temporal.attempts, 5)
+assert.equal(model.phrase.persisted.listening.lastAttemptKey, 'listening-last-sentinel')
+assert.equal(model.phrase.persisted.listening.due, true)
+assert.equal(model.phrase.persisted.listening.adaptation.calibrated, false)
+assert.equal(model.phrase.persisted.matching.temporal.attempts, 2)
+assert.equal(model.phrase.persisted.matching.lastAttemptKey, 'matching-last-sentinel')
+assert.equal(model.phrase.persisted.matching.adaptation.calibrated, false)
 
 assert.deepEqual(model.words.map(({ id }) => id), LEARNING_INSPECTOR_WORDS.map(({ id }) => id))
 for (const [index, word] of model.words.entries()) {
@@ -79,7 +91,7 @@ assert.equal(mutated.words.find(({ id }) => id === 'fshat').persisted.tokens, 77
 assert.equal(mutated.deterministicWalkthroughIndependent, true)
 const debugView = readFileSync(new URL('../src/components/DebugView.jsx', import.meta.url), 'utf8')
 assert.match(debugView, /lazy\(\(\) => import\('\.\/DebugLearningEvidenceInspector\.jsx'\)\)/)
-assert.match(debugView, /<DebugLearningEvidenceInspector state=\{state\} \/>/)
+assert.match(debugView, /<DebugLearningEvidenceInspector state=\{state\} dispatch=\{dispatch\} \/>/)
 assert.match(debugView, /<DebugLearningProgression \/>/, 'deterministic walkthrough accidentally received live state')
 
-console.log('✓ live learning inspector exposes normalized phrase/all-word evidence, explicit absences and independent deterministic walkthrough.')
+console.log('✓ live learning inspector exposes normalized timestamped phrase/all-word evidence and an independent deterministic walkthrough.')

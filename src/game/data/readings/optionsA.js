@@ -21,7 +21,7 @@ export const OPTION_READINGS_A = Object.freeze({
   "plaka.options[5]": { al: "merr ujin", en: "Take the water.", review: 'internal-editorial' }, // 18
   "agaYmer1.options[0]": { al: "dëgjo trimin", en: "Listen to the hero.", review: 'internal-editorial' }, // 19
   "agaYmer1.options[1]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 20
-  "agaYmer1.options[2]": { al: "hyr në trimin", en: "Enter into the hero.", review: 'internal-editorial' }, // 21
+  "agaYmer1.options[2]": { al: "premto burgun", en: "Promise the prison.", review: 'internal-editorial' }, // 21
   "agaYmer1.options[3]": { al: "dëgjo burgun", en: "Listen to the prison.", review: 'internal-editorial' }, // 22
   "syriKeq1.options[0]": { al: "jep hudhër fëmijës", en: "Give garlic to the child.", review: 'internal-editorial' }, // 23
   "syriKeq1.options[1]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 24

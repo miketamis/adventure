@@ -8,7 +8,7 @@ import {
   timeOfDay,
 } from './game/gameState.js'
 import { embodimentIdentity, embodimentQuest } from './game/embodiment.js'
-import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
+import { isMuted, playActionPhrase, toggleMute, subscribeMute } from './game/audio.js'
 import { ACHIEVEMENT_IDS } from './game/achievementRules.js'
 import { STORY } from './game/content.js'
 import { attachReviewedEnglishReadings } from './game/language.js'
@@ -130,6 +130,17 @@ export default function App() {
     }
   }
   const muted = useSyncExternalStore(subscribeMute, isMuted)
+  const playedActionSpeechId = useRef(null)
+  // The reducer emits this only after a real story action commits. Keeping the
+  // consumed id in the mounted app prevents StrictMode, rerenders and unrelated
+  // state updates from replaying it; saves omit the event entirely, so reload
+  // cannot repeat an old action. Playback failure is non-blocking.
+  useEffect(() => {
+    const event = state.actionSpeech
+    if (!event || event.id === playedActionSpeechId.current) return
+    playedActionSpeechId.current = event.id
+    void playActionPhrase(event.al)
+  }, [state.actionSpeech])
   // Story sky follows the active tale's own hour. Maps, study tools and every
   // paused/free-roam scene stay on the monotonic living-world clock.
   const displayState = state.view === 'story' ? currentStoryState(state) : state

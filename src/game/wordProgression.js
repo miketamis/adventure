@@ -2,13 +2,23 @@
 // and the debug graph all consume these definitions; UI components must not
 // invent their own gates or rename receptive selection as "production".
 
+import {
+  COLD_START_ADAPTATION_MODEL,
+  ELAPSED_SPACING_POLICY,
+  coldStartAdaptationSnapshot,
+  emptyTemporalEvidence,
+  normalizeTemporalEvidence,
+  recordTemporalAttempt,
+  temporalDue,
+} from './adaptiveLearning.js'
+
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
   for (const child of Object.values(value)) deepFreeze(child)
   return Object.freeze(value)
 }
 
-export const WORD_PROGRESS_VERSION = 4
+export const WORD_PROGRESS_VERSION = 5
 export const WORD_MIN_INTERVENING_ROUNDS = 1
 export const WORD_INITIAL_REVIEW_GAP = 6
 export const WORD_MAX_REVIEW_GAP = 64
@@ -214,6 +224,8 @@ export const WORD_PROGRESSION_POLICY = deepFreeze({
     proves: ['word meaning recognition', 'controlled lemma retrieval', 'reviewed form choice', 'constructed and typed recall'],
     doesNotProve: ['free conversation', 'broad listening comprehension', 'CEFR attainment'],
   },
+  elapsedSpacing: ELAPSED_SPACING_POLICY,
+  adaptation: COLD_START_ADAPTATION_MODEL,
 })
 
 const safeCount = (value) => {
@@ -283,6 +295,7 @@ const emptyFormProof = () => ({
   reviewGap: WORD_INITIAL_REVIEW_GAP,
   lastAttemptKey: null,
   lastAttemptRound: 0,
+  temporal: emptyTemporalEvidence(),
 })
 
 export function emptyWordProgress() {
@@ -298,6 +311,7 @@ export function emptyWordProgress() {
     lastAttemptKey: null,
     lastAttemptRound: 0,
     remediation: null,
+    temporal: emptyTemporalEvidence(),
   }
 }
 
@@ -324,6 +338,7 @@ const normalizedFormProofs = (value) => {
       reviewGap,
       lastAttemptKey: safeString(proof.lastAttemptKey),
       lastAttemptRound: safeRound(proof.lastAttemptRound),
+      temporal: normalizeTemporalEvidence(proof.temporal),
     }
   }
   return next
@@ -359,6 +374,7 @@ export function normalizeWordProgress(value, currentRound = 0) {
     lastAttemptKey: safeString(source.lastAttemptKey),
     lastAttemptRound: safeRound(source.lastAttemptRound),
     remediation: null,
+    temporal: normalizeTemporalEvidence(source.temporal),
   }
   next.remediation = normalizedRemediation(source.remediation, currentRound)
   return next
@@ -501,6 +517,9 @@ export function wordProgressPlan(value, currentRound = 0, options = {}) {
   const contextVariant = contextVariantFor(definition, alignment)
   const proof = formTarget ? progress.formProofs[formTarget.key] || emptyFormProof() : progress
   const dueAfterRound = progress.remediation?.dueAfterRound ?? Math.max(proof.dueAfterRound || 0, progress.dueAfterRound)
+  const temporal = normalizeTemporalEvidence(proof.temporal || progress.temporal)
+  const nowMs = options.nowMs || 0
+  const retention = definition.tier === WORD_SKILL_MAX_TIER && !progress.remediation
   return {
     stage: definition.tier,
     tier: definition.tier,
@@ -515,7 +534,7 @@ export function wordProgressPlan(value, currentRound = 0, options = {}) {
     answerTolerance: definition.answerTolerance,
     difficultyLabel: definition.label,
     dueAfterRound,
-    due: currentRound >= dueAfterRound,
+    due: temporalDue({ currentRound, dueAfterRound, nowMs, dueAtMs: temporal.dueAtMs, requireElapsed: retention }),
     remediation: Boolean(progress.remediation),
     remediationReason: progress.remediation?.reason || null,
     familyId: contextVariant?.familyId || definition.familyId,
@@ -530,6 +549,13 @@ export function wordProgressPlan(value, currentRound = 0, options = {}) {
     formTarget,
     targetFormKey: formTarget?.key || null,
     hasReviewedFormLane: base.hasReviewedFormLane,
+    temporal,
+    adaptation: coldStartAdaptationSnapshot(temporal, {
+      nowMs,
+      stageTier: definition.tier,
+      mode: definition.mode,
+      supportLevel: progress.remediation || definition.tier <= 1 ? 0.5 : 0,
+    }),
   }
 }
 
@@ -572,7 +598,7 @@ export function advanceWordProgress(value, currentRound = 0, result = {}, option
   if (options.trainability?.trainable === false) {
     return { accepted: false, reason: 'not-trainable', progress, plan: null }
   }
-  const plan = wordProgressPlan(progress, currentRound, options)
+  const plan = wordProgressPlan(progress, currentRound, { ...options, nowMs: result.attemptedAtMs })
   const questionKey = safeString(result.questionKey)
   if (!plan.due) return { accepted: false, reason: 'not-due', progress, plan }
   if (!questionKey) return { accepted: false, reason: 'missing-question-key', progress, plan }
@@ -589,6 +615,12 @@ export function advanceWordProgress(value, currentRound = 0, result = {}, option
     lastAttemptRound: nextRound,
   }
   if (plan.contextReview) {
+    next.temporal = recordTemporalAttempt(next.temporal, {
+      correct: result.correct,
+      attemptedAtMs: result.attemptedAtMs,
+      responseDurationMs: result.responseDurationMs,
+      supportExposed: plan.remediation,
+    })
     if (result.correct) {
       next.contextWins[WORD_CONTEXT_LATE_PROOF] = 1
       next.contextSupportRequired = false
@@ -598,6 +630,14 @@ export function advanceWordProgress(value, currentRound = 0, result = {}, option
   }
 
   const proof = mutableProofFor(next, plan.targetFormKey)
+  const temporalOwner = plan.targetFormKey ? proof : next
+  temporalOwner.temporal = recordTemporalAttempt(temporalOwner.temporal, {
+    correct: result.correct,
+    attemptedAtMs: result.attemptedAtMs,
+    responseDurationMs: result.responseDurationMs,
+    supportExposed: plan.remediation || plan.definition.tier <= 1 || plan.contextReview,
+    retention: plan.definition.tier === WORD_SKILL_MAX_TIER,
+  })
   if (!result.correct) {
     if (plan.definition.tier === WORD_SKILL_MAX_TIER) {
       proof.reviewGap = Math.max(WORD_INITIAL_REVIEW_GAP, Math.floor(proof.reviewGap / 2))
@@ -621,6 +661,9 @@ export function advanceWordProgress(value, currentRound = 0, result = {}, option
         ? WORD_INITIAL_REVIEW_GAP
         : WORD_MIN_INTERVENING_ROUNDS
     )
+    if (plan.definition.id === 'contextual-typed-recall' && temporalOwner.temporal.lastAttemptAtMs) {
+      temporalOwner.temporal.dueAtMs = temporalOwner.temporal.lastAttemptAtMs + temporalOwner.temporal.reviewIntervalMs
+    }
   } else {
     proof.strictWins += 1
     proof.reviewGap = Math.min(WORD_MAX_REVIEW_GAP, proof.reviewGap * 2)
@@ -691,6 +734,8 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
     dueAfterRound: targetProof.dueAfterRound || progress.dueAfterRound,
     lastAttemptKey: targetProof.lastAttemptKey || progress.lastAttemptKey,
     lastAttemptRound: targetProof.lastAttemptRound || progress.lastAttemptRound,
+    temporal: normalizeTemporalEvidence(targetProof.temporal || progress.temporal),
+    adaptation: plan.adaptation || null,
   }
   const statusForStage = (stageId, capabilityId) => {
     if (stageStatus[stageId] === 'inapplicable') return 'inapplicable'

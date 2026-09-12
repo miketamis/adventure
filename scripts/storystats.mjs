@@ -69,16 +69,72 @@ const staleCompactReviews = Object.keys(REVIEWED_COMPACT_ENDINGS).filter((id) =>
 const abruptCompact = compactNonBad.filter((id) =>
   (nodes[id].text || []).length < 2 || String(RICH_ENDING_BY_ID[id]?.blurb || '').trim().split(/\s+/).length < 30)
 
-// ---- longest acyclic path from start (the deepest single chain) -------------
-let longest = 0, longestEnd = null
-const seen = new Set()
-function dfs(id, depth, path) {
-  if (depth > longest) { longest = depth; longestEnd = id }
-  for (const to of edges(id)) {
-    if (nodes[to] && !path.has(to)) { path.add(to); dfs(to, depth + 1, path); path.delete(to) }
+// ---- deepest structural route from start ------------------------------------
+// Exact longest-simple-path search is exponential on an open-world graph: each
+// return route creates another permutation for the DFS. Collapse cycles into
+// strongly connected components, then measure the longest weighted path in the
+// resulting DAG. The SCC weights make this an honest upper bound on distinct
+// scenes along one route (not a claim that every scene inside a cycle can be
+// visited once in a single traversal), and keep this release audit O(V + E).
+const adjacency = Object.fromEntries(ids.map((id) => [id, edges(id).filter((to) => nodes[to])]))
+const reverse = Object.fromEntries(ids.map((id) => [id, []]))
+for (const [from, tos] of Object.entries(adjacency)) for (const to of tos) reverse[to].push(from)
+
+const finishOrder = []
+const ordered = new Set()
+function orderDfs(id) {
+  if (ordered.has(id)) return
+  ordered.add(id)
+  for (const to of adjacency[id]) orderDfs(to)
+  finishOrder.push(id)
+}
+for (const id of ids) orderDfs(id)
+
+const componentOf = {}
+const components = []
+function componentDfs(id, componentId) {
+  if (componentOf[id] !== undefined) return
+  componentOf[id] = componentId
+  components[componentId].push(id)
+  for (const from of reverse[id]) componentDfs(from, componentId)
+}
+for (const id of finishOrder.reverse()) {
+  if (componentOf[id] !== undefined) continue
+  components.push([])
+  componentDfs(id, components.length - 1)
+}
+
+const componentEdges = components.map(() => new Set())
+const componentIndegree = components.map(() => 0)
+for (const [from, tos] of Object.entries(adjacency)) {
+  const fromComponent = componentOf[from]
+  for (const to of tos) {
+    const toComponent = componentOf[to]
+    if (fromComponent === toComponent || componentEdges[fromComponent].has(toComponent)) continue
+    componentEdges[fromComponent].add(toComponent)
+    componentIndegree[toComponent] += 1
   }
 }
-dfs(START_NODE, 1, new Set([START_NODE]))
+const componentQueue = componentIndegree.flatMap((degree, id) => degree === 0 ? [id] : [])
+const componentDepth = components.map(() => Number.NEGATIVE_INFINITY)
+componentDepth[componentOf[START_NODE]] = components[componentOf[START_NODE]].length
+for (let cursor = 0; cursor < componentQueue.length; cursor++) {
+  const from = componentQueue[cursor]
+  for (const to of componentEdges[from]) {
+    const candidate = componentDepth[from] + components[to].length
+    if (candidate > componentDepth[to]) {
+      componentDepth[to] = candidate
+    }
+    componentIndegree[to] -= 1
+    if (componentIndegree[to] === 0) componentQueue.push(to)
+  }
+}
+const deepestComponent = componentDepth.reduce((best, depth, id) =>
+  depth > componentDepth[best] ? id : best, componentOf[START_NODE])
+const structuralRouteUpperBound = componentDepth[deepestComponent]
+const structuralRouteEnd = components[deepestComponent].slice().sort()[0]
+const reachableCycles = components.filter((component) =>
+  component.length > 1 && component.some((id) => reachable.has(id))).length
 
 // ---- sentence-gated directions (the reveal mechanic) ------------------------
 const NON_NOUNS = new Set(['ti','je','ne','nje','dhe','ka','ke','mund','eshte','te_link','te_subj','te_obj','i_art','e_art','me','por','nuk','pa','ku','qe','do','per','une','jam','ose','jo','sheh','ec','fle','hap','ik','jep','pi','behet','vjen','zgjohu','rri','ndiz','ha','mbaroi','humbet','merr','kerko','gjen','kalo','shko','prit','lufto','vrit','shpeto','ngjit','zbrit','fluturo','degjo','flet','thote','ndihmo','beso','hyr','dil','thirr','hidh','kthehu','prek','vdes','bie','pre','luan','bej','mbyll','vazhdon','lind','fol','premto','madh','vogel','erret','sigurt','ri','vjeter','uritur','shpejt','qete','perseri','forte','bukur','keq','thate','lart','mire','ngadale','poshte','larg','jashte','tani','ngrohte','ftohte','ketu','brenda','bardhe','zi','shume','tjeter','nente','shtate'])
@@ -194,7 +250,7 @@ console.log(`  shortest ending: ${endingDepths[0]}`)
 console.log(`  median ending:   ${median}`)
 console.log(`  average ending:  ${avg.toFixed(1)}   (anthology context; not a per-ending target)`)
 console.log(`  deepest ending:  ${endingDepths[endingDepths.length - 1]}`)
-console.log(`longest acyclic chain: ${longest}  -> ${longestEnd}`)
+console.log(`deepest SCC route upper bound: ${structuralRouteUpperBound} scenes -> ${structuralRouteEnd} (${reachableCycles} reachable cyclic regions collapsed)`)
 console.log(`${ok(!unreviewedCompact.length && !staleCompactReviews.length && !abruptCompact.length)} compact non-bad endings reviewed: ${compactNonBad.length}` +
   (unreviewedCompact.length ? `\n   UNREVIEWED: ${unreviewedCompact.join(', ')}` : '') +
   (staleCompactReviews.length ? `\n   STALE REVIEWS: ${staleCompactReviews.join(', ')}` : '') +

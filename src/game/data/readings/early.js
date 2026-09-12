@@ -888,4 +888,10 @@ export const EARLY_READINGS = {
   "sheruesi.text[18]": { al: "natën, kur ikën, thua: natën e mirë.", en: "At night, when you leave, you say, “Good night.”" },
   "sheruesi.text[19]": { al: "shëruesi ka një fashë të pastër.", en: "The healer has a clean bandage." },
   "sheruesi.text[20]": { al: "shëruesi ta lidh dorën me një fashë.", en: "The healer wraps a bandage around your hand." },
+  "eliraBreg.text[6]": { al: "gruaja thotë: faleminderit. po shkoj lart në fshat.", en: "The woman says, “Thank you. I am going up to the village.”" },
+  "eliraBreg.text[7]": { al: "Elira thotë: faleminderit. po shkoj lart në fshat.", en: "Elira says, “Thank you. I am going up to the village.”" },
+  "eliraEmriBreg.text[2]": { al: "gruaja thotë: faleminderit. po shkoj lart në fshat.", en: "The woman says, “Thank you. I am going up to the village.”" },
+  "eliraEmriBreg.text[3]": { al: "Elira thotë: faleminderit. po shkoj lart në fshat.", en: "Elira says, “Thank you. I am going up to the village.”" },
+  "sofraVendimPlaka.text[0]": { al: "ajo thotë: në rregull. pyet plakën.", en: "She says, “All right. Ask the old woman.”" },
+  "sofraVendimPusi.text[0]": { al: "ajo thotë: në rregull. shko te pusi i thatë. plaka mund të di më shumë.", en: "She says, “All right. Go to the dry well. The old woman may know more.”" },
 }

@@ -47,17 +47,17 @@ export const PHRASE_PROGRESSION_RESEARCH_ALIGNMENT = deepFreeze([
   {
     id: 'forgetting-model', status: 'calibration-needed',
     evidenceIds: ['half-life-regression', 'half-life-regression-2026', 'l2-spacing'],
-    systemResponse: 'Expanded review gaps and lapse backoff are active. Learner/item/context parameters remain transparent defaults until consented outcome data can calibrate them.',
+    systemResponse: 'Strict retention now requires both disjoint Train rounds and persisted real elapsed time. The interpretable HLR/IRT-ready features and intervals remain transparent cold-start defaults until consented delayed outcomes can calibrate them.',
   },
   {
     id: 'uncertainty', status: 'calibration-needed',
     evidenceIds: ['uncertainty-deferral-2026'],
-    systemResponse: 'Cold start defers difficulty through hard evidence gates and falls back to support after errors. A probabilistic uncertainty model requires representative player data.',
+    systemResponse: 'Cold start exposes a wide heuristic uncertainty interval, preserves hard evidence gates and falls back to support after errors. Uncertainty can never award mastery; representative player data is still required for calibrated probabilities.',
   },
 ])
 
 export const PHRASE_PROGRESSION_MODEL_CARD = deepFreeze({
-  classification: 'research-aligned, interpretable cold-start scheduler',
+  classification: 'research-aligned, interpretable and uncalibrated cold-start scheduler',
   sotaClaim: false,
   reason: 'Empirical SOTA is a measured comparison on representative learner outcomes; it cannot be established from architecture or citations alone.',
   calibrationRequirement: 'Consent-based, privacy-reviewed interaction telemetry with delayed-retention outcomes, calibration error, learning-efficiency and subgroup checks.',

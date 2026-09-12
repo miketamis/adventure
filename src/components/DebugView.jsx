@@ -20,6 +20,7 @@ const DebugLearningProgression = lazy(() => import('./DebugLearningProgression.j
 const DebugLearningSaveStatus = lazy(() => import('./DebugLearningSaveStatus.jsx'))
 const DebugLearningEvidenceInspector = lazy(() => import('./DebugLearningEvidenceInspector.jsx'))
 const DebugCefrProgression = lazy(() => import('./DebugCefrProgression.jsx'))
+const DebugAuthoringLab = lazy(() => import('./DebugAuthoringLab.jsx'))
 
 // ===========================================================================
 // DEBUG VIEW — a review console, only reachable in debug mode (click the title
@@ -1627,12 +1628,13 @@ export default function DebugView({ state, dispatch }) {
         <button className={'btn' + (sub === 'library' ? ' active' : '')} onClick={() => setSub('library')}>📖 Folklore</button>
         <button className={'btn' + (sub === 'beats' ? ' active' : '')} onClick={() => setSub('beats')}>🎬 Beats</button>
         <button className={'btn' + (sub === 'npcs' ? ' active' : '')} onClick={() => setSub('npcs')}>🎭 NPCs</button>
+        <button className={'btn' + (sub === 'authoring' ? ' active' : '')} onClick={() => setSub('authoring')}>🧪 Authoring</button>
         <button className={'btn' + (sub === 'learning' ? ' active' : '')} onClick={() => setSub('learning')}>🧠 Learning</button>
         <button className={'btn' + (sub === 'cefr' ? ' active' : '')} onClick={() => setSub('cefr')}>🏁 CEFR Path</button>
         <button className={'btn' + (sub === 'history' ? ' active' : '')} onClick={() => setSub('history')}>📜 History</button>
         <button className={'btn' + (sub === 'sources' ? ' active' : '')} onClick={() => setSub('sources')}>📚 Sources</button>
       </div>
-      {!['learning', 'cefr'].includes(sub) && (
+      {!['learning', 'cefr', 'authoring'].includes(sub) && (
         <div className="dbg-legend">
           {Object.entries(KIND_LABEL).map(([k, label]) => (
             <span key={k}><i style={{ background: KIND_COLOR[k] }} /> {label}</span>
@@ -1647,10 +1649,15 @@ export default function DebugView({ state, dispatch }) {
       {sub === 'library' && <Library focus={libFocus} goGraph={goGraph} goLore={goLore} goSource={goSource} goHistory={goHistory} goBeats={goBeats} />}
       {sub === 'beats' && <Beats focus={beatFocus} goLore={goLore} goWorld={goWorld} goNpc={goNpc} />}
       {sub === 'npcs' && <Npcs focus={npcFocus} goWorld={goWorld} goLore={goLore} goBeats={goBeats} />}
+      {sub === 'authoring' && (
+        <Suspense fallback={<p className="dbg-note" role="status">Loading authoring sandbox…</p>}>
+          <DebugAuthoringLab state={state} />
+        </Suspense>
+      )}
       {sub === 'learning' && (
         <Suspense fallback={<p className="dbg-note" role="status">Loading learning progression…</p>}>
           <DebugLearningSaveStatus state={state} />
-          <DebugLearningEvidenceInspector state={state} />
+          <DebugLearningEvidenceInspector state={state} dispatch={dispatch} />
           <DebugLearningProgression />
         </Suspense>
       )}

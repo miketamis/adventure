@@ -2,13 +2,23 @@
 // normalization and the debug curriculum graph. A stage is derived from
 // auditable evidence; an old counter can never masquerade as productive recall.
 
+import {
+  COLD_START_ADAPTATION_MODEL,
+  ELAPSED_SPACING_POLICY,
+  coldStartAdaptationSnapshot,
+  emptyTemporalEvidence,
+  normalizeTemporalEvidence,
+  recordTemporalAttempt,
+  temporalDue,
+} from './adaptiveLearning.js'
+
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
   for (const child of Object.values(value)) deepFreeze(child)
   return Object.freeze(value)
 }
 
-export const PHRASE_PROGRESS_VERSION = 2
+export const PHRASE_PROGRESS_VERSION = 3
 export const PHRASE_MIN_INTERVENING_ROUNDS = 1
 export const PHRASE_INITIAL_REVIEW_GAP = 4
 export const PHRASE_MAX_REVIEW_GAP = 64
@@ -109,9 +119,11 @@ export const PHRASE_PROGRESSION_POLICY = deepFreeze({
     maximumGapRounds: PHRASE_MAX_REVIEW_GAP,
     correctMultiplier: 2,
     lapseReturnsToTier: 3,
+    elapsed: ELAPSED_SPACING_POLICY,
   },
   remediation: { delayedByDisjointRounds: PHRASE_MIN_INTERVENING_ROUNDS },
-  caveat: 'Research motivates per-skill evidence, graduated retrieval, feedback and spacing. These exact thresholds are a transparent product policy pending player telemetry, not a universal SOTA constant.',
+  adaptation: COLD_START_ADAPTATION_MODEL,
+  caveat: 'Research motivates per-skill evidence, graduated retrieval, feedback and elapsed spacing. These exact thresholds and the cold-start estimate are a transparent, uncalibrated product policy pending consented true-beginner player telemetry, not a universal SOTA constant.',
 })
 
 export const PHRASE_SKILL_MAX_TIER = Object.freeze({
@@ -151,6 +163,7 @@ export function emptyPhraseProductionProgress() {
     lastAttemptKey: null,
     lastAttemptRound: 0,
     remediation: null,
+    temporal: emptyTemporalEvidence(),
   }
 }
 
@@ -193,6 +206,7 @@ export function normalizePhraseProductionProgress(value, focusIds, currentRound 
       : null,
     lastAttemptRound: safeRound(source.lastAttemptRound),
     remediation: null,
+    temporal: normalizeTemporalEvidence(source.temporal),
   }
   normalized.remediation = normalizedRemediation(source.remediation, focusIds, currentRound)
   return normalized
@@ -212,7 +226,7 @@ export function phraseProductionStage(progress, focusIds) {
 
 const firstUnproved = (focusIds, proofs) => safeFocusIds(focusIds).find((id) => !proofs.includes(id)) || safeFocusIds(focusIds)[0] || null
 
-export function phraseProductionPlan(progress, focusIds, currentRound = 0) {
+export function phraseProductionPlan(progress, focusIds, currentRound = 0, nowMs = 0) {
   const ids = safeFocusIds(focusIds)
   if (!ids.length) return null
   const state = normalizePhraseProductionProgress(progress, ids, currentRound)
@@ -221,7 +235,13 @@ export function phraseProductionPlan(progress, focusIds, currentRound = 0) {
   const stage = repair?.stage ?? baseStage
   const definition = PHRASE_STAGE_DEFINITIONS.production[stage]
   const dueAfterRound = repair?.dueAfterRound ?? state.dueAfterRound
-  const due = currentRound >= dueAfterRound
+  const due = temporalDue({
+    currentRound,
+    dueAfterRound,
+    nowMs,
+    dueAtMs: state.temporal.dueAtMs,
+    requireElapsed: baseStage === PHRASE_SKILL_MAX_TIER.production && !repair,
+  })
   const focusId = repair?.focusId || (stage === 0
     ? firstUnproved(ids, state.clozeProofs)
     : stage === 2
@@ -236,11 +256,19 @@ export function phraseProductionPlan(progress, focusIds, currentRound = 0) {
     typeScope: definition.typeScope,
     answerTolerance: definition.answerTolerance,
     difficultyLabel: definition.label,
+    definition,
     focusId,
     due,
     dueAfterRound,
     remediation: Boolean(repair),
     remediationReason: repair?.reason || null,
+    temporal: state.temporal,
+    adaptation: coldStartAdaptationSnapshot(state.temporal, {
+      nowMs,
+      stageTier: stage,
+      mode: definition.mode,
+      supportLevel: repair ? 1 : stage <= 1 ? 0.5 : 0,
+    }),
   }
 }
 
@@ -296,7 +324,7 @@ const remediationForFailure = (plan, result, focusIds, nextRound) => {
 export function advancePhraseProduction(progress, focusIds, currentRound = 0, result = {}) {
   const ids = safeFocusIds(focusIds)
   const state = normalizePhraseProductionProgress(progress, ids, currentRound)
-  const plan = phraseProductionPlan(state, ids, currentRound)
+  const plan = phraseProductionPlan(state, ids, currentRound, result.attemptedAtMs)
   const questionKey = typeof result.questionKey === 'string' ? result.questionKey.slice(0, 200) : ''
   if (!plan || !plan.due) return { accepted: false, reason: 'not-due', progress: state, plan }
   if (!questionKey) return { accepted: false, reason: 'missing-question-key', progress: state, plan }
@@ -308,6 +336,13 @@ export function advancePhraseProduction(progress, focusIds, currentRound = 0, re
     ...state,
     lastAttemptKey: questionKey,
     lastAttemptRound: nextRound,
+    temporal: recordTemporalAttempt(state.temporal, {
+      correct: result.correct,
+      attemptedAtMs: result.attemptedAtMs,
+      responseDurationMs: result.responseDurationMs,
+      supportExposed: plan.remediation || plan.stage <= 1,
+      retention: plan.stage === PHRASE_SKILL_MAX_TIER.production,
+    }),
   }
 
   if (!result.correct) {
@@ -340,6 +375,9 @@ export function advancePhraseProduction(progress, focusIds, currentRound = 0, re
   } else if (plan.stage === 3) {
     next.independentWins += 1
     next.dueAfterRound = nextRound + next.reviewGap
+    if (next.temporal.lastAttemptAtMs) {
+      next.temporal.dueAtMs = next.temporal.lastAttemptAtMs + next.temporal.reviewIntervalMs
+    }
   } else {
     next.strictWins += 1
     next.reviewGap = Math.min(PHRASE_MAX_REVIEW_GAP, next.reviewGap * 2)
@@ -382,12 +420,17 @@ export function phraseProgressionSnapshot({
   currentRound = 0,
   listeningTier = 0,
   matchingTier = 0,
+  listeningProgress,
+  matchingProgress,
+  nowMs = 0,
 } = {}) {
   const ids = safeFocusIds(focusIds)
   const state = normalizePhraseProductionProgress(progress, ids, currentRound)
   const currentStage = phraseProductionStage(state, ids)
-  const next = phraseProductionPlan(state, ids, currentRound)
+  const next = phraseProductionPlan(state, ids, currentRound, nowMs)
   const crossSkillEligible = currentStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage
+  const listeningPlan = phraseSkillPlan(listeningProgress ?? { tier: listeningTier }, 'listening', currentRound, nowMs)
+  const matchingPlan = phraseSkillPlan(matchingProgress ?? { tier: matchingTier }, 'matching', currentRound, nowMs)
   return {
     phraseId,
     focusIds: ids,
@@ -402,16 +445,111 @@ export function phraseProgressionSnapshot({
       evidence: proofEvidenceFor(definition.tier, state, ids),
     })),
     listening: {
-      tier: phraseSkillTier(listeningTier, 'listening'),
-      definition: PHRASE_STAGE_DEFINITIONS.listening[phraseSkillTier(listeningTier, 'listening')],
+      ...listeningPlan,
       eligible: crossSkillEligible,
-      status: crossSkillEligible ? 'eligible' : 'locked',
+      status: crossSkillEligible ? listeningPlan.due ? 'eligible' : 'spaced' : 'locked',
     },
     matching: {
-      tier: phraseSkillTier(matchingTier, 'matching'),
-      definition: PHRASE_STAGE_DEFINITIONS.matching[phraseSkillTier(matchingTier, 'matching')],
+      ...matchingPlan,
       eligible: crossSkillEligible,
-      status: crossSkillEligible ? 'eligible' : 'locked',
+      status: crossSkillEligible ? matchingPlan.due ? 'eligible' : 'spaced' : 'locked',
     },
   }
+}
+
+export function emptyPhraseSkillProgress(skill) {
+  if (!['listening', 'matching'].includes(skill)) throw new Error(`Unsupported phrase skill: ${skill}`)
+  return {
+    tier: 0,
+    winsAtTier: 0,
+    dueAfterRound: 0,
+    lastAttemptKey: null,
+    lastAttemptRound: 0,
+    remediation: false,
+    temporal: emptyTemporalEvidence(),
+  }
+}
+
+export function normalizePhraseSkillProgress(value, skill) {
+  const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+  const tier = phraseSkillTier(source.tier, skill)
+  return {
+    tier,
+    winsAtTier: safeCount(source.winsAtTier),
+    dueAfterRound: safeRound(source.dueAfterRound),
+    lastAttemptKey: typeof source.lastAttemptKey === 'string' && source.lastAttemptKey
+      ? source.lastAttemptKey.slice(0, 200) : null,
+    lastAttemptRound: safeRound(source.lastAttemptRound),
+    remediation: source.remediation === true,
+    temporal: normalizeTemporalEvidence(source.temporal),
+  }
+}
+
+export function phraseSkillPlan(value, skill, currentRound = 0, nowMs = 0) {
+  const progress = normalizePhraseSkillProgress(value, skill)
+  const definition = PHRASE_STAGE_DEFINITIONS[skill][progress.tier]
+  const retention = progress.tier === PHRASE_SKILL_MAX_TIER[skill] && progress.temporal.correct > 0
+  return {
+    skill,
+    tier: progress.tier,
+    stage: progress.tier,
+    definition,
+    mode: definition.mode,
+    dueAfterRound: progress.dueAfterRound,
+    due: temporalDue({
+      currentRound,
+      dueAfterRound: progress.dueAfterRound,
+      nowMs,
+      dueAtMs: progress.temporal.dueAtMs,
+      requireElapsed: retention && !progress.remediation,
+    }),
+    remediation: progress.remediation,
+    temporal: progress.temporal,
+    adaptation: coldStartAdaptationSnapshot(progress.temporal, {
+      nowMs,
+      stageTier: progress.tier,
+      mode: definition.mode,
+      supportLevel: progress.remediation || progress.tier === 0 ? 0.5 : 0,
+    }),
+  }
+}
+
+export function advancePhraseSkill(value, skill, currentRound = 0, result = {}) {
+  const progress = normalizePhraseSkillProgress(value, skill)
+  const plan = phraseSkillPlan(progress, skill, currentRound, result.attemptedAtMs)
+  const questionKey = typeof result.questionKey === 'string' ? result.questionKey.slice(0, 200) : ''
+  if (!plan.due) return { accepted: false, reason: 'not-due', progress, plan }
+  if (!questionKey) return { accepted: false, reason: 'missing-question-key', progress, plan }
+  if (questionKey === progress.lastAttemptKey) return { accepted: false, reason: 'duplicate-question', progress, plan }
+  if (result.tier !== plan.tier || result.mode !== plan.mode) {
+    return { accepted: false, reason: 'plan-mismatch', progress, plan }
+  }
+  const nextRound = Math.max(safeRound(currentRound), safeRound(result.round))
+  const atMaximum = plan.tier === PHRASE_SKILL_MAX_TIER[skill]
+  const next = {
+    ...progress,
+    lastAttemptKey: questionKey,
+    lastAttemptRound: nextRound,
+    dueAfterRound: nextRound + PHRASE_MIN_INTERVENING_ROUNDS,
+    remediation: result.correct !== true,
+    temporal: recordTemporalAttempt(progress.temporal, {
+      correct: result.correct,
+      attemptedAtMs: result.attemptedAtMs,
+      responseDurationMs: result.responseDurationMs,
+      supportExposed: progress.remediation || plan.tier === 0,
+      retention: atMaximum,
+    }),
+  }
+  if (result.correct) {
+    next.winsAtTier += 1
+    next.remediation = false
+    if (!atMaximum) {
+      next.tier += 1
+      next.winsAtTier = 0
+      if (next.tier === PHRASE_SKILL_MAX_TIER[skill] && next.temporal.lastAttemptAtMs) {
+        next.temporal.dueAtMs = next.temporal.lastAttemptAtMs + next.temporal.reviewIntervalMs
+      }
+    }
+  }
+  return { accepted: true, progress: normalizePhraseSkillProgress(next, skill), plan }
 }

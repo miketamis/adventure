@@ -38,13 +38,12 @@ const reservedContentPolicy = Object.freeze({
   maxLexicalTokens: SCENE_SCROLL_POLICY.maxLexicalTokens - ENVIRONMENT_NARRATION_POLICY.maxLexicalTokens,
 })
 
-// Coverage is measured both by story node and by physical place. A tale can
-// have many consecutive outcome/dialogue nodes in one room; counting only raw
-// nodes would reward repeating atmosphere there instead of making the wider
-// travelled world feel lived in. These floors pin the completed whole-story
-// editorial pass and make new locations carry their share of authored context.
+// Coverage is measured by canonical physical place. A tale can have many
+// consecutive outcome/dialogue nodes in one room; counting raw nodes rewards
+// repeating atmosphere there instead of making the wider travelled world feel
+// lived in. These floors pin the completed whole-story editorial pass and make
+// new locations carry their share of authored context.
 const AUTHORED_ENVIRONMENT_COVERAGE = Object.freeze({
-  minimumNodes: 169,
   minimumPlaces: 122,
   minimumWeatherPlaces: 49,
   minimumSeasonPlaces: 20,
@@ -111,10 +110,6 @@ check('authored sensory context reaches the wider travelled world, not just repe
     for (const dimension of dimensions) placesByDimension[dimension].add(place)
   }
   const authoredPlaces = new Set(authoredNodes.map((nodeId) => PLACE_OF[nodeId] || nodeId))
-  assert.ok(
-    authoredNodes.length >= AUTHORED_ENVIRONMENT_COVERAGE.minimumNodes,
-    `only ${authoredNodes.length} story nodes have authored environment prose`,
-  )
   assert.ok(
     authoredPlaces.size >= AUTHORED_ENVIRONMENT_COVERAGE.minimumPlaces,
     `only ${authoredPlaces.size} distinct places have authored environment prose`,

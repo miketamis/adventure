@@ -238,7 +238,9 @@ check('a genuinely new learner begins without inherited run or learning state', 
   for (const field of STORY_RUN_RESET_POLICY.learnerProfile) {
     if (field.endsWith('Version')) assert.ok(Number.isSafeInteger(fresh[field]), `${field}: missing version`)
     else if (field === 'trainRound') assert.equal(fresh[field], 0)
-    else if (field === 'cefrEvidence') assert.deepEqual(fresh[field], [])
+    else if (field === 'learningResearchConsent') assert.equal(fresh[field], false)
+    else if (field === 'learningTelemetrySequence') assert.equal(fresh[field], 0)
+    else if (['cefrEvidence', 'learningTelemetryEvents'].includes(field)) assert.deepEqual(fresh[field], [])
     else assert.deepEqual(fresh[field], {}, `${field}: new learner inherited evidence`)
   }
   assert.equal(fresh.nodeId, START_NODE)

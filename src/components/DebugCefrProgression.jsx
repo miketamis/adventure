@@ -30,6 +30,12 @@ import {
   preparationPlan,
 } from '../game/cefrPreparation.js'
 import { liveCefrPreparationEvidence } from '../game/cefrPreparationEvidence.js'
+import {
+  CEFR_ACOUSTIC_BREADTH,
+  CEFR_EXTERNAL_VALIDATION_WORKFLOWS,
+  CEFR_VALIDATION_PRIVACY,
+  cefrExternalValidationSnapshot,
+} from '../game/cefrExternalValidation.js'
 import { CEFR_TASKS, CEFR_TASKS_BY_FAMILY } from '../game/cefrTasks.js'
 import { wordProgressionOptionsForSense } from '../game/formInventory.js'
 import { NOUN_FORM_ROLE_LABELS } from '../game/nounEndingRefresher.js'
@@ -642,6 +648,47 @@ function PreparationInventory() {
   )
 }
 
+function ExternalValidationStatus() {
+  const snapshot = cefrExternalValidationSnapshot()
+  const listeningTasks = CEFR_TASKS.filter(({ mode }) => mode === 'listening')
+  const speakerIdentities = new Set(listeningTasks.map(({ voice }) => voice?.speakerIdentityId).filter(Boolean)).size
+  return (
+    <section className="dbg-cefr-preparation" aria-labelledby="dbg-cefr-validation-title" data-external-validation-status={snapshot.status}>
+      <header className="dbg-cefr-section-head">
+        <div>
+          <p className="dbg-learning-kicker">External evidence boundary · debug only</p>
+          <h3 id="dbg-cefr-validation-title">Human validation is pending, not simulated</h3>
+          <p>Repository checks can enforce the protocol, but they cannot manufacture a qualified review, participant, rating, learning result or CEFR judgment.</p>
+        </div>
+        <span className="dbg-learning-status locked">{snapshot.completed}/{snapshot.total} externally complete</span>
+      </header>
+      <div className="dbg-cefr-gate-card">
+        <h4>Acoustic breadth</h4>
+        <p><b>{CEFR_ACOUSTIC_BREADTH.providerInventory.voiceIds.length} real provider voices</b> for <code>{CEFR_ACOUSTIC_BREADTH.locale}</code>, verified {CEFR_ACOUSTIC_BREADTH.providerInventory.checkedOn}: {CEFR_ACOUSTIC_BREADTH.providerInventory.voiceIds.join(' · ')}.</p>
+        <p>{speakerIdentities} story speaker identities reuse those two acoustic voices. Character names, rate changes and pitch shifts do not count as new voices.</p>
+        <p><b>Human recording pack:</b> {CEFR_ACOUSTIC_BREADTH.humanRecordingPack.status} · {CEFR_ACOUSTIC_BREADTH.humanRecordingPack.voiceIds.length} approved voices. Breadth target: {snapshot.approvedAcousticVoices}/{CEFR_ACOUSTIC_BREADTH.targetDistinctVoices}; current state: <b>{snapshot.acousticBreadthReady ? 'ready' : 'blocked'}</b>.</p>
+        <code>{CEFR_ACOUSTIC_BREADTH.verificationCommand}</code>
+      </div>
+      <div className="dbg-cefr-prep-grid">
+        {CEFR_EXTERNAL_VALIDATION_WORKFLOWS.map((workflow) => (
+          <article data-validation-workflow={workflow.id} key={workflow.id}>
+            <span className="dbg-learning-status locked">{workflow.status}</span>
+            <h4>{workflow.label}</h4>
+            <p>{workflow.purpose}</p>
+            <p><b>Blocks:</b> {workflow.blockingClaim}</p>
+            <p><b>Needs:</b> {workflow.prerequisites.join(' · ') || 'no earlier workflow'}</p>
+            <small>{workflow.completionAuthority}</small>
+          </article>
+        ))}
+      </div>
+      <div className="dbg-cefr-blocker">
+        <b>Private-data boundary:</b> {CEFR_VALIDATION_PRIVACY.learnerContent} {CEFR_VALIDATION_PRIVACY.trackedState}
+        <br />Scaffold: <code>node scripts/cefr-validation.mjs --scaffold=.private/validation/pilot-001</code>
+      </div>
+    </section>
+  )
+}
+
 function TaskInventory() {
   const [level, setLevel] = useState('all')
   const [mode, setMode] = useState('all')
@@ -722,6 +769,7 @@ export default function DebugCefrProgression({ state }) {
       <PreparationGraph state={state} profile={liveProfile} />
       <FamilyCoverage evidence={liveEvidence} />
       <PreparationInventory />
+      <ExternalValidationStatus />
       <TaskInventory />
     </div>
   )

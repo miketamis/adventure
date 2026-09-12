@@ -25,6 +25,7 @@ import {
   reducer,
 } from '../src/game/gameState.js'
 import { optionEffectsOf } from '../src/game/stateMechanics.js'
+import { PLACE_OF } from '../src/components/nodePositions.js'
 
 const Q = ELIRA_BREAD_SALT_QUEST_ID
 const checks = []
@@ -120,18 +121,31 @@ check('the concurrent ledger and lifecycle generalize to a future registered que
   assert.deepEqual(Object.keys(normalizeQuestLedger(ledger, 5, {}, registry)).sort(), [Q, future.id].sort())
 })
 
-check('every Elira acceptance is one atomic 800-lek activation and exits to free roam', () => {
+check('every Elira acceptance is one atomic 800-lek activation; river-bank speech leaves travel separate', () => {
   for (const nodeId of ['eliraBreg', 'eliraEmriBreg', 'eliraShesh', 'eliraEmriShesh']) {
     const option = actionOption(nodeId, 'accept')
     assert.ok(option, `${nodeId}: no quest acceptance`)
-    assert.equal(option.to, 'fshatiSheshi', `${nodeId}: acceptance did not land in ordinary free roam`)
+    const expectedDestination = nodeId === 'eliraBreg'
+      ? 'eliraEmriBreg'
+      : nodeId === 'eliraEmriBreg'
+        ? 'eliraBreg'
+        : 'fshatiSheshi'
+    assert.equal(option.to, expectedDestination, `${nodeId}: acceptance reached the wrong response scene`)
     assert.equal(option.lek, undefined, `${nodeId}: reward leaked through the legacy scalar channel`)
     assert.doesNotMatch(albanianTextOf(option.text), /lek|tetëqind|800/i,
       `${nodeId}: the choice previews its advance`)
-    if (nodeId.endsWith('Breg')) assert.match(albanianTextOf(option.text), /vij me ty në fshat/)
+    if (nodeId.endsWith('Breg')) {
+      assert.equal(PLACE_OF[nodeId], PLACE_OF[option.to], `${nodeId}: speaking acceptance relocates the player`)
+      assert.doesNotMatch(albanianTextOf(option.text), /vij me ty|shkoj në fshat/,
+        `${nodeId}: acceptance falsely promises immediate travel`)
+      assert.ok(STORY[option.to].options.some((next) => next.to === 'fshatiSheshi'),
+        `${nodeId}: the reaction has no independent follow choice`)
+      assert.ok(STORY[option.to].options.some((next) => next.to === 'fshatiLumi'),
+        `${nodeId}: the reaction has no independent stay choice`)
+    }
     const before = stateAt(nodeId, { inventory: { lek: 75 } })
     const after = choose(before, option)
-    assert.equal(after.nodeId, 'fshatiSheshi')
+    assert.equal(after.nodeId, expectedDestination)
     assert.equal(after.inventory.lek, 875)
     assert.equal(after.quests[Q].acceptanceCount, 1)
     assert.equal(questStatusOf(after, Q), 'active')

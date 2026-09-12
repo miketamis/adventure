@@ -65,7 +65,7 @@ export const PLACE_META = {
     name: 'oda e miqve — the guest-room',
     densityReason: 'One guest-room intentionally holds a whole evening of hospitality and eight separately listed, non-simultaneous conversations; the location card is its interior map.',
     happenings: [
-      { title: 'bread and salt for the arriving guest', nodes: ['sofraMikut', 'sofraMikut2'] },
+      { title: 'bread and salt for the arriving guest', nodes: ['sofraMikut', 'sofraMikut2', 'sofraVendimPlaka', 'sofraVendimPusi'] },
       { title: 'the book of the Sun', nodes: ['libriDiell'] },
       { title: "the old man's welcome", nodes: ['oda1', 'odaPlak', 'oda2'] },
       { title: 'a song for the lord of the house', nodes: ['kengaLahute'] },
@@ -166,6 +166,14 @@ export const PLACE_META = {
     happenings: [
       { title: 'the besa of silence, kept or broken', nodes: ['uraNata'] },
       { title: 'the bread and the three brides', nodes: ['uraMengjes'] },
+    ],
+  },
+  fshatiLumi: {
+    name: 'bregu i lumit — the village river bank',
+    happenings: [
+      { title: 'the bridge and river-quarter', nodes: ['fshatiLumi'] },
+      { title: 'Elira waits, offers the errand, and starts uphill', nodes: ['eliraBreg', 'eliraEmriBreg'] },
+      { title: 'the water-carrier stops beside the river', nodes: ['gruaUji1'] },
     ],
   },
   fshatiSheshi: {
@@ -445,7 +453,7 @@ export const PLACE_META = {
   kreshnikRrembimi1: {
     name: 'dera e Halilit — Halili’s door in Jutbina',
     happenings: [
-      { title: 'the Zanas bring news of captive Mujo at midnight', nodes: ['kreshnikRrembimi1', 'kreshnikRrembimiRefuz'] },
+      { title: 'the Zanas bring news of captive Mujo at midnight', nodes: ['kreshnikRrembimi1', 'kreshnikRrembimiNisja', 'kreshnikRrembimiRefuz'] },
     ],
   },
   kreshnikRrembimiBurg: {
@@ -483,7 +491,7 @@ export const PLACE_META = {
   behuriMejdan: {
     name: 'mejdani i Behurit — Behuri’s open duel ground',
     happenings: [
-      { title: 'Mujo hears the Ora and asks for one last look at the sun', nodes: ['behuriMejdan', 'behuriMejdanHumbur'] },
+      { title: 'Mujo hears the Ora and asks for one last look at the sun', nodes: ['behuriMejdan', 'behuriMejdanKeshilla', 'behuriMejdanHumbur'] },
     ],
   },
   behuriFund: {

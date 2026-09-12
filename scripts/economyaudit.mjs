@@ -20,6 +20,7 @@ import {
 import { moneyTransactionStoryLine } from '../src/game/storyContext.js'
 import { optionEffectsOf } from '../src/game/stateMechanics.js'
 import { ELIRA_BREAD_SALT_QUEST_ID, offerQuests } from '../src/game/quests.js'
+import { PLACE_OF } from '../src/components/nodePositions.js'
 
 const checks = []
 const check = (name, test) => {
@@ -66,7 +67,8 @@ check('every Elira acceptance grants exactly 800 and narrates the atomic resulti
     assert.deepEqual(questAdvance.map((effect) => effect.delta), [ELIRA_ERRAND_ADVANCE],
       `${nodeId}: errand grant is not one nominal 800-lek transaction`)
     assert.equal(option.lek, undefined, `${nodeId}: quest advance bypasses the registry`)
-    assert.equal(option.to, 'fshatiSheshi', `${nodeId}: acceptance did not return to free roam`)
+    assert.equal(PLACE_OF[option.to] || option.to, PLACE_OF[nodeId] || nodeId,
+      `${nodeId}: speaking acceptance also moved the player`)
     assert.doesNotMatch(albanianTextOf(option.text), /tetëqind|800|lek/,
       `${nodeId}: choice previews its reward`)
 

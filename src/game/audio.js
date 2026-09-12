@@ -62,21 +62,35 @@ export function subscribeMute(fn) {
 const cache = new Map()
 let activeAudio = null
 let activePlayback = null
+let activeUtterance = null
 
 function stopActivePlayback() {
-  if (!activePlayback) return
-  const playback = activePlayback
-  activePlayback = null
-  playback.audio.onended = null
-  playback.audio.onerror = null
-  try {
-    playback.audio.pause()
-    playback.audio.currentTime = 0
-  } catch {
-    /* ignore */
+  if (activePlayback) {
+    const playback = activePlayback
+    activePlayback = null
+    playback.audio.onended = null
+    playback.audio.onerror = null
+    try {
+      playback.audio.pause()
+      playback.audio.currentTime = 0
+    } catch {
+      /* ignore */
+    }
+    if (activeAudio === playback.audio) activeAudio = null
+    playback.resolve(false)
   }
-  if (activeAudio === playback.audio) activeAudio = null
-  playback.resolve(false)
+  if (activeUtterance) {
+    const playback = activeUtterance
+    activeUtterance = null
+    playback.utterance.onend = null
+    playback.utterance.onerror = null
+    try {
+      globalThis.speechSynthesis?.cancel()
+    } catch {
+      /* ignore */
+    }
+    playback.resolve(false)
+  }
 }
 
 export function playWord(al) {
@@ -126,4 +140,58 @@ function playSurface(al) {
 // between separately generated word recordings.
 export function playPhrase(al) {
   return playSurface(al)
+}
+
+// Story actions are authored as complete Albanian utterances. Prefer the
+// studio-generated phrase MP3 when one exists; if an older/newly-authored
+// action has not received that asset yet, ask the browser to speak the entire
+// utterance in one sq-AL request. This fallback is deliberately one utterance,
+// never a sequence of word clips, so Albanian rhythm is not broken by loading
+// gaps. A missing browser voice or rejected playback simply resolves false.
+function speakContinuousAlbanian(al) {
+  if (!al || muted) return Promise.resolve(false)
+  const synth = globalThis.speechSynthesis
+  const Utterance = globalThis.SpeechSynthesisUtterance
+  if (!synth || typeof synth.speak !== 'function' || typeof Utterance !== 'function') {
+    return Promise.resolve(false)
+  }
+  stopActivePlayback()
+  return new Promise((resolve) => {
+    const settle = (playback, completed) => {
+      if (activeUtterance !== playback) return
+      activeUtterance = null
+      playback.utterance.onend = null
+      playback.utterance.onerror = null
+      resolve(completed)
+    }
+    try {
+      const utterance = new Utterance(al)
+      utterance.lang = 'sq-AL'
+      utterance.rate = 0.95
+      const voice = synth.getVoices?.().find((candidate) =>
+        /^sq(?:-|_)/i.test(candidate.lang || ''),
+      )
+      if (voice) utterance.voice = voice
+      const playback = { utterance, resolve }
+      utterance.onend = () => settle(playback, true)
+      utterance.onerror = () => settle(playback, false)
+      activeUtterance = playback
+      synth.speak(utterance)
+    } catch {
+      if (activeUtterance) {
+        const playback = activeUtterance
+        activeUtterance = null
+        playback.resolve(false)
+      } else {
+        resolve(false)
+      }
+    }
+  })
+}
+
+export async function playActionPhrase(al) {
+  if (!al || muted) return false
+  const recorded = await playSurface(al)
+  if (recorded || muted) return recorded
+  return speakContinuousAlbanian(al)
 }

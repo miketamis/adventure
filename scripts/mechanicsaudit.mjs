@@ -25,6 +25,7 @@ import {
   optionEffectsOf,
   optionLekDelta,
 } from '../src/game/stateMechanics.js'
+import { WORLD_ENTITIES, worldActionIssues } from '../src/game/worldEntities.js'
 
 const REVIEW = Object.freeze({
   'aga-ymer': ['focused', 'The six-day release and return are an oath choice; extra props would distract from besa.'],
@@ -131,7 +132,9 @@ for (const tale of tales) {
 assert.ok(Object.keys(TIMED_WORLD_FIXTURES).length >= 2, 'timed fixtures regressed into a one-off mechanic')
 const activatedFixtures = new Set()
 for (const [nodeId, node] of Object.entries(STORY)) {
-  for (const option of node.options || []) {
+  for (const [optionIndex, option] of (node.options || []).entries()) {
+    assert.deepEqual(worldActionIssues(nodeId, option), [],
+      `${nodeId}.options[${optionIndex}]: typed world affordance drift`)
     assert.equal(optionEffectsAreValid(option, isTimedWorldFixture), true, `${nodeId}->${option.to}: invalid typed effect`)
 
     if (option.interaction != null) {
@@ -192,6 +195,8 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     }
   }
 }
+assert.ok(Object.keys(WORLD_ENTITIES).length > Object.keys(ITEMS).length + Object.keys(TIMED_WORLD_FIXTURES).length,
+  'typed world model does not cover places, actors and perceptions')
 assert.deepEqual(activatedFixtures, new Set(Object.keys(TIMED_WORLD_FIXTURES)), 'every timed fixture needs an authored activation')
 
 // General systems are release features only when playable content exercises

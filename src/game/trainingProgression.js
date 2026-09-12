@@ -73,7 +73,7 @@ export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
   // Word direction and choice count are no longer random knobs: the exact
   // word-evidence stage owns both through WORD_STAGE_DEFINITIONS.
   wordDirection: { source: 'word-stage-definition' },
-  phraseSkill: { productionWhenDueUpperBound: 0.62, listeningUpperBound: 0.84 },
+  phraseSkill: { productionDuePriority: true, productionWhenDueUpperBound: 1, listeningUpperBound: 0.84 },
   practicalWordWeight: 3,
   zeroTokenWeight: 8,
   phraseTargeting: {

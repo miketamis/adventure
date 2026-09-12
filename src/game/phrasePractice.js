@@ -10,6 +10,7 @@ import {
   PHRASE_STAGE_DEFINITIONS,
   phraseProgressionSnapshot,
   phraseProductionPlan,
+  phraseSkillPlan,
   phraseSkillTier,
 } from './phraseProgression.js'
 import { phraseProductionFocuses } from './phraseFocus.js'
@@ -216,7 +217,14 @@ export function phraseAnswerDiagnostic(answer, target, phrase) {
 export function buildPhraseProgressionSnapshot(
   phrase,
   progress,
-  { currentRound = 0, listeningTier = 0, matchingTier = 0 } = {},
+  {
+    currentRound = 0,
+    listeningTier = 0,
+    matchingTier = 0,
+    listeningProgress,
+    matchingProgress,
+    nowMs = 0,
+  } = {},
 ) {
   const focuses = phraseProductionFocuses(phrase)
   return {
@@ -227,6 +235,9 @@ export function buildPhraseProgressionSnapshot(
       currentRound,
       listeningTier,
       matchingTier,
+      listeningProgress,
+      matchingProgress,
+      nowMs,
     }),
     focuses,
   }
@@ -550,16 +561,18 @@ function requestedSkill(requestedMode) {
   return 'production'
 }
 
-function skillForQuestion(target, mastery, rng, requestedMode, productionPlan) {
+function skillForQuestion(target, mastery, rng, requestedMode, productionPlan, skillPlans) {
   if (MODE_SET.has(requestedMode)) return requestedSkill(requestedMode)
   // Recognition never proves production. Listening and matching enter the mix
   // only after this exact phrase has passed its cloze and arrangement gates.
   if (productionPlan.remediation && productionPlan.due) return 'production'
   if (productionPlan.baseStage < PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage) return 'production'
+  if (productionPlan.due) return 'production'
   const roll = rng()
-  if (roll < TRAIN_QUESTION_MIX_POLICY.phraseSkill.productionWhenDueUpperBound && productionPlan.due) return 'production'
-  if (roll < TRAIN_QUESTION_MIX_POLICY.phraseSkill.listeningUpperBound) return 'listening'
-  return 'matching'
+  if (roll < TRAIN_QUESTION_MIX_POLICY.phraseSkill.listeningUpperBound && skillPlans.listening.due) return 'listening'
+  if (skillPlans.matching.due) return 'matching'
+  if (skillPlans.listening.due) return 'listening'
+  return productionPlan.due ? 'production' : null
 }
 
 function skillTier(target, mastery, skill, requestedTier) {
@@ -582,7 +595,10 @@ export function buildPhraseQuestion(
     excludeWords = [],
     mastery = {},
     productionProgress = {},
+    listeningProgress = {},
+    matchingProgress = {},
     currentRound = 0,
+    nowMs = 0,
     tier: requestedTier,
   } = {},
 ) {
@@ -599,8 +615,17 @@ export function buildPhraseQuestion(
         productionProgress?.[entry.id],
         focuses.map(({ id }) => id),
         currentRound,
+        nowMs,
       )
-      return plan?.due || plan?.baseStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage
+      if (plan?.due) return true
+      if (plan?.baseStage < PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage) return false
+      return phraseSkillPlan(
+        listeningProgress?.[entry.id] ?? { tier: mastery.listening?.[entry.id] || 0 },
+        'listening', currentRound, nowMs,
+      ).due || phraseSkillPlan(
+        matchingProgress?.[entry.id] ?? { tier: mastery.matching?.[entry.id] || 0 },
+        'matching', currentRound, nowMs,
+      ).due
     })
   }
   if (eligible.length === 0) return null
@@ -609,8 +634,20 @@ export function buildPhraseQuestion(
     productionProgress?.[target.id],
     phraseProductionFocuses(target).map(({ id }) => id),
     currentRound,
+    nowMs,
   )
-  let skill = skillForQuestion(target, mastery, rng, requestedMode, productionPlan)
+  const skillPlans = {
+    listening: phraseSkillPlan(
+      listeningProgress?.[target.id] ?? { tier: mastery.listening?.[target.id] || 0 },
+      'listening', currentRound, nowMs,
+    ),
+    matching: phraseSkillPlan(
+      matchingProgress?.[target.id] ?? { tier: mastery.matching?.[target.id] || 0 },
+      'matching', currentRound, nowMs,
+    ),
+  }
+  let skill = skillForQuestion(target, mastery, rng, requestedMode, productionPlan, skillPlans)
+  if (!skill) return null
   let tier = skill === 'production' && requestedTier == null
     ? productionPlan.stage
     : skillTier(target, mastery, skill, requestedTier)
@@ -638,6 +675,7 @@ export function buildPhraseQuestion(
           productionProgress?.[target.id],
           phraseProductionFocuses(target).map(({ id }) => id),
           currentRound,
+          nowMs,
         )
         tier = skillTier(target, mastery, skill, requestedTier)
       } else if (productionPlan.due) {
@@ -645,7 +683,8 @@ export function buildPhraseQuestion(
         tier = requestedTier == null ? productionPlan.stage : skillTier(target, mastery, skill)
       } else if (
         requestedMode == null &&
-        productionPlan.baseStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage
+        productionPlan.baseStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage &&
+        skillPlans.listening.due
       ) {
         skill = 'listening'
         tier = skillTier(target, mastery, skill, requestedTier)

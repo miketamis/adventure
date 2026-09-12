@@ -1,7 +1,7 @@
 import { EVERYDAY_PHRASE_DRILLS } from './everydayAlbanian.js'
 import { phraseProductionFocusIds } from './phraseFocus.js'
 import { buildPhraseProgressionSnapshot } from './phrasePractice.js'
-import { normalizePhraseProductionProgress } from './phraseProgression.js'
+import { normalizePhraseProductionProgress, normalizePhraseSkillProgress } from './phraseProgression.js'
 import { wordProgressionOptionsForSense } from './formInventory.js'
 import { lexicalTrainability } from './lexicalTrainability.js'
 import { normalizeWordProgress, wordCapabilitySnapshot } from './wordProgression.js'
@@ -14,36 +14,33 @@ export const LEARNING_INSPECTOR_WORDS = Object.freeze([
   { id: 'fshat', surface: 'fshat' },
 ])
 
-const absent = (reason = 'not stored for this evidence track') => ({ status: 'absent', reason })
-
-export function buildLearningEvidenceInspector(state = {}) {
+export function buildLearningEvidenceInspector(state = {}, nowMs = 0) {
   const phrase = EVERYDAY_PHRASE_DRILLS.find(({ id }) => id === LEARNING_INSPECTOR_PHRASE_ID)
   const currentRound = Number.isSafeInteger(state.trainRound) ? state.trainRound : 0
   const focusIds = phraseProductionFocusIds(phrase)
   const production = normalizePhraseProductionProgress(state.phraseProductionProgress?.[phrase.id], focusIds, currentRound)
   const listeningTier = state.phraseListeningMastery?.[phrase.id] || 0
   const matchingTier = state.phraseMatchingMastery?.[phrase.id] || 0
-  const phraseSnapshot = buildPhraseProgressionSnapshot(phrase, production, { currentRound, listeningTier, matchingTier })
+  const listening = normalizePhraseSkillProgress(
+    state.phraseListeningProgress?.[phrase.id] ?? { tier: listeningTier },
+    'listening',
+  )
+  const matching = normalizePhraseSkillProgress(
+    state.phraseMatchingProgress?.[phrase.id] ?? { tier: matchingTier },
+    'matching',
+  )
+  const phraseSnapshot = buildPhraseProgressionSnapshot(phrase, production, {
+    currentRound,
+    listeningTier,
+    matchingTier,
+    listeningProgress: listening,
+    matchingProgress: matching,
+    nowMs,
+  })
   const phrasePersisted = {
     production,
-    listening: {
-      tier: listeningTier,
-      wins: absent('listening currently persists a normalized mastery tier, not a separate win ledger'),
-      proofs: absent('listening proof keys are not persisted separately'),
-      spacing: absent('listening spacing is not persisted separately'),
-      due: phraseSnapshot.listening.eligible,
-      remediation: absent('listening remediation is represented by its retained tier'),
-      lastAttempt: absent('no listening-specific last-attempt key is persisted'),
-    },
-    matching: {
-      tier: matchingTier,
-      wins: absent('matching currently persists a normalized mastery tier, not a separate win ledger'),
-      proofs: absent('matching proof keys are not persisted separately'),
-      spacing: absent('matching spacing is not persisted separately'),
-      due: phraseSnapshot.matching.eligible,
-      remediation: absent('matching remediation is represented by its retained tier'),
-      lastAttempt: absent('no matching-specific last-attempt key is persisted'),
-    },
+    listening: { ...listening, due: phraseSnapshot.listening.due, adaptation: phraseSnapshot.listening.adaptation },
+    matching: { ...matching, due: phraseSnapshot.matching.due, adaptation: phraseSnapshot.matching.adaptation },
     totals: {
       correct: state.phrasePracticed?.[phrase.id] || 0,
       mistakes: state.phraseMistakes?.[phrase.id] || 0,
@@ -56,7 +53,7 @@ export function buildLearningEvidenceInspector(state = {}) {
     const forms = options.reviewedForms
     const trainability = options.trainability
     const progress = normalizeWordProgress(state.wordProgress?.[mapping.id], currentRound)
-    const snapshot = wordCapabilitySnapshot(progress, currentRound, options)
+    const snapshot = wordCapabilitySnapshot(progress, currentRound, { ...options, nowMs })
     const persisted = {
       discovered: Boolean(state.discovered?.[mapping.id]),
       saved: Boolean(state.discovered?.[mapping.id]),
@@ -82,6 +79,13 @@ export function buildLearningEvidenceInspector(state = {}) {
     mode: 'live-current-save',
     deterministicWalkthroughIndependent: true,
     currentRound,
+    evaluatedAtMs: nowMs,
+    researchTelemetry: {
+      consent: state.learningResearchConsent === true,
+      localOnly: true,
+      eventCount: Array.isArray(state.learningTelemetryEvents) ? state.learningTelemetryEvents.length : 0,
+      lastEvent: Array.isArray(state.learningTelemetryEvents) ? state.learningTelemetryEvents.at(-1) || null : null,
+    },
     phrase: {
       id: phrase.id,
       al: phrase.al,

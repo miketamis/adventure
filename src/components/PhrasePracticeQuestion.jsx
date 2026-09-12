@@ -81,7 +81,10 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
   const [matchLeft, setMatchLeft] = useState(null)
   const [matched, setMatched] = useState([])
   const [outcome, setOutcome] = useState(null)
+  const [listeningCompleted, setListeningCompleted] = useState(q.mode !== 'listen')
+  const [listeningStatus, setListeningStatus] = useState(q.mode === 'listen' ? 'Play the complete phrase before answering.' : '')
   const committed = useRef(false)
+  const startedAt = useRef(Date.now())
   const inputRef = useRef(null)
   const answered = outcome !== null
   const selectedTiles = useMemo(
@@ -113,10 +116,14 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
       diagnostic,
       attempted,
       wordKeys: trainQuestionWordKeys(q),
+      attemptedAtMs: Date.now(),
+      responseDurationMs: Math.max(0, Date.now() - startedAt.current),
+      audioCompleted: q.mode !== 'listen' || listeningCompleted,
     })
   }
 
   const checkConstruction = () => {
+    if (q.mode === 'listen' && !listeningCompleted) return
     const answer = selectedTiles.map((tile) => tile.text).join(' ')
     const correct = phraseAnswerIsCorrect(answer, q.target.al)
     commit(
@@ -281,11 +288,20 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
             type="button"
             className="phrase-listen"
             disabled={answered}
-            onClick={() => playPhrase(q.target.al)}
+            onClick={async () => {
+              setListeningCompleted(false)
+              setListeningStatus('Playing the complete phrase…')
+              const completed = await playPhrase(q.target.al)
+              setListeningCompleted(completed)
+              setListeningStatus(completed
+                ? 'Phrase finished. Build what you heard.'
+                : 'Playback did not finish. Play the phrase again before answering.')
+            }}
             aria-label="Play the Albanian phrase"
           >
             <span aria-hidden="true">🔊</span> Play phrase
           </button>
+          <p className="phrase-listen-status" role="status" aria-live="polite">{listeningStatus}</p>
         </>
       ) : q.mode === 'match' ? (
         <p className="phrase-match-instruction">Choose an Albanian line, then its English meaning.</p>
@@ -367,7 +383,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
           <WordBank
             q={q}
             selectedIds={selectedIds}
-            answered={answered}
+            answered={answered || (q.mode === 'listen' && !listeningCompleted)}
             onAdd={(id) => setSelectedIds((current) => {
               const needed = q.answerWords.length
               return current.length >= needed || current.includes(id) ? current : [...current, id]

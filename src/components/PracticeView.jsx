@@ -82,6 +82,14 @@ export default function PracticeView({ state, dispatch }) {
   const wordInputRef = useRef(null)
   const previousQuestionWords = useRef([])
   const nextRef = useRef(null)
+  const questionStartedAt = useRef(Date.now())
+  const attemptTiming = () => {
+    const attemptedAtMs = Date.now()
+    return {
+      attemptedAtMs,
+      responseDurationMs: Math.max(0, attemptedAtMs - questionStartedAt.current),
+    }
+  }
 
   const next = useCallback(() => {
     answerCommitted.current = false
@@ -94,6 +102,7 @@ export default function PracticeView({ state, dispatch }) {
     setTypedWord('')
     setTypedWordLeeway(false)
     setConstructedPieceIds([])
+    const nowMs = Date.now()
     const excludeWords = previousQuestionWords.current.length
       ? previousQuestionWords.current
       : state.trainLastWords || []
@@ -106,7 +115,7 @@ export default function PracticeView({ state, dispatch }) {
       const surface = progressionOptions.context?.al || DICT[id].al
       return !containsExcludedPhraseWord(surface, excludeWords) &&
         wordHasNoEvidence(state.wordProgress?.[id]) &&
-        wordProgressPlan(state.wordProgress?.[id], state.trainRound || 0, progressionOptions).due
+        wordProgressPlan(state.wordProgress?.[id], state.trainRound || 0, { ...progressionOptions, nowMs }).due
     })
     if (!unstartedWordDue && unlockedEverydayPhrases.length && modeRoll < TRAIN_QUESTION_MIX_POLICY.phraseShare) {
       const phraseQuestion = buildPhraseQuestion(
@@ -122,7 +131,10 @@ export default function PracticeView({ state, dispatch }) {
             matching: state.phraseMatchingMastery,
           },
           productionProgress: state.phraseProductionProgress,
+          listeningProgress: state.phraseListeningProgress,
+          matchingProgress: state.phraseMatchingProgress,
           currentRound: state.trainRound,
+          nowMs,
         },
       )
       if (phraseQuestion) {
@@ -136,6 +148,7 @@ export default function PracticeView({ state, dispatch }) {
       mana: state.mana,
       wordProgress: state.wordProgress,
       currentRound: state.trainRound,
+      nowMs,
       excludeWords,
     })
     // With an exceptionally tiny unlocked vocabulary there may be no legal
@@ -156,7 +169,10 @@ export default function PracticeView({ state, dispatch }) {
             matching: state.phraseMatchingMastery,
           },
           productionProgress: state.phraseProductionProgress,
+          listeningProgress: state.phraseListeningProgress,
+          matchingProgress: state.phraseMatchingProgress,
           currentRound: state.trainRound,
+          nowMs,
         },
       )
     }
@@ -178,6 +194,8 @@ export default function PracticeView({ state, dispatch }) {
     state.phraseProductionProgress,
     state.phraseListeningMastery,
     state.phraseMatchingMastery,
+    state.phraseListeningProgress,
+    state.phraseMatchingProgress,
     state.trainRound,
     state.trainLastWords,
   ])
@@ -235,6 +253,7 @@ export default function PracticeView({ state, dispatch }) {
 
   useEffect(() => {
     if (!q) return undefined
+    questionStartedAt.current = Date.now()
     const frame = window.requestAnimationFrame(() => {
       if (q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind) wordInputRef.current?.focus()
       else questionRef.current?.focus()
@@ -345,6 +364,7 @@ export default function PracticeView({ state, dispatch }) {
         targetFormKey: q.targetFormKey,
         questionKey: q.questionKey,
         wordKeys: trainQuestionWordKeys(q),
+        ...attemptTiming(),
         consequence: correct ? null : trainMissConsequence({
           source: 'train-form',
           questionKey: q.questionKey,
@@ -390,6 +410,7 @@ export default function PracticeView({ state, dispatch }) {
       targetFormKey: q.targetFormKey,
       questionKey: q.questionKey,
       wordKeys,
+      ...attemptTiming(),
       consequence: correct ? null : trainMissConsequence({
         source: 'train-word',
         questionKey: q.questionKey,
@@ -439,6 +460,7 @@ export default function PracticeView({ state, dispatch }) {
       targetFormKey: q.targetFormKey,
       questionKey: q.questionKey,
       wordKeys: trainQuestionWordKeys(q),
+      ...attemptTiming(),
       consequence: result.correct ? null : trainMissConsequence({
         source: q.targetFormKey ? 'train-form' : 'train-word',
         questionKey: q.questionKey,
@@ -482,6 +504,7 @@ export default function PracticeView({ state, dispatch }) {
       targetFormKey: q.targetFormKey,
       questionKey: q.questionKey,
       wordKeys: trainQuestionWordKeys(q),
+      ...attemptTiming(),
       consequence: correct ? null : trainMissConsequence({
         source: q.targetFormKey ? 'train-form' : 'train-word',
         questionKey: q.questionKey,

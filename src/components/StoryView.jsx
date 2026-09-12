@@ -400,6 +400,7 @@ export default function StoryView({ state, dispatch }) {
         onSelect: () => dispatch({
           type: 'CONFUSE',
           expectedHearts: state.hearts,
+          actionText: opt.text,
           consequence: storyConfuserConsequence({
             nodeId: state.nodeId,
             turn: state.turn,
@@ -427,6 +428,7 @@ export default function StoryView({ state, dispatch }) {
         onSelect: () => dispatch({
           type: 'CONFUSE',
           expectedHearts: state.hearts,
+          actionText: toks,
           consequence: storyConfuserConsequence({
             nodeId: state.nodeId,
             turn: state.turn,

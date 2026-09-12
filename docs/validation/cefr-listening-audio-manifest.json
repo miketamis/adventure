@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "generator": "scripts/cefr-listening-manifest.mjs",
+  "synthesisPipeline": "scripts/tts-download.mjs --force-cefr",
+  "provider": "Microsoft Azure Speech",
+  "locale": "sq-AL",
+  "reproducibleVoiceIds": [
+    "sq-AL-AnilaNeural",
+    "sq-AL-IlirNeural"
+  ],
+  "evidenceBoundary": "This ledger pins task assignment and bytes; it does not replace listening checks or human comprehensibility review.",
+  "entries": [
+    {
+      "taskId": "a1-unseen-listening-01",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "jamx20elirax2ex20pox20shkojx20tex20urax20ex20vjetxebrx2e",
+      "relativePath": "public/audio/jamx20elirax2ex20pox20shkojx20tex20urax20ex20vjetxebrx2e.mp3",
+      "bytes": 24192,
+      "sha256": "980b4a8e8f9733929bc5296b4829c446784444126133259b26e7cd5a2e133d64"
+    },
+    {
+      "taskId": "a1-unseen-listening-02",
+      "locale": "sq-AL",
+      "speakerIdentityId": "bujtinari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "dhomax20ex20vogxeblx20kushtonx20dyzetx20lekxebx2e",
+      "relativePath": "public/audio/dhomax20ex20vogxeblx20kushtonx20dyzetx20lekxebx2e.mp3",
+      "bytes": 18864,
+      "sha256": "9a3e60f79fba461a1841e2d143aceafc88c6ccf9181b353aa20c2391421ec969"
+    },
+    {
+      "taskId": "a1-unseen-listening-03",
+      "locale": "sq-AL",
+      "speakerIdentityId": "tregtari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "tregux20hapetx20nxebx20orxebnx20tetxebx20txebx20mxebngjesitx2e",
+      "relativePath": "public/audio/tregux20hapetx20nxebx20orxebnx20tetxebx20txebx20mxebngjesitx2e.mp3",
+      "bytes": 18864,
+      "sha256": "d865c9c280a4fe4a6552ae85527c8969cc8eaee341825445d81e1842049ff41e"
+    },
+    {
+      "taskId": "a1-unseen-listening-04",
+      "locale": "sq-AL",
+      "speakerIdentityId": "sheruesi",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "mxebx20duhetx20ujxebx20ix20ngrohtxebx20pxebrx20ilaxe7inx2e",
+      "relativePath": "public/audio/mxebx20duhetx20ujxebx20ix20ngrohtxebx20pxebrx20ilaxe7inx2e.mp3",
+      "bytes": 16992,
+      "sha256": "a477d226c366a85f6501c55b8121141c8c2e6b99e5ebc5c3160185caaaf72200"
+    },
+    {
+      "taskId": "a1-unseen-listening-05",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuSheshit",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "kjox20xebshtxebx20pxebrx20elirxebnx2cx20tex20shtxebpiax20pranxebx20pusitx2e",
+      "relativePath": "public/audio/kjox20xebshtxebx20pxebrx20elirxebnx2cx20tex20shtxebpiax20pranxebx20pusitx2e.mp3",
+      "bytes": 19728,
+      "sha256": "16d9b46db78cc5150248e571b19be868d2d0bcd6d8d410ae0d48a6035d04feb9"
+    },
+    {
+      "taskId": "a1-unseen-listening-06",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuUdhes",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "sotx20nisemx20pxebrx20korxe7xebx20mex20kalinx20timx2e",
+      "relativePath": "public/audio/sotx20nisemx20pxebrx20korxe7xebx20mex20kalinx20timx2e.mp3",
+      "bytes": 18000,
+      "sha256": "9e8288c422e94451c532a0dbe5f5da14f702bba4cef561137d44d138d7a61127"
+    },
+    {
+      "taskId": "a1-unseen-listening-07",
+      "locale": "sq-AL",
+      "speakerIdentityId": "bujtinari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "mxebngjesix20xebshtxebx20gatix20nxebx20odxebnx20ex20madhex2e",
+      "relativePath": "public/audio/mxebngjesix20xebshtxebx20gatix20nxebx20odxebnx20ex20madhex2e.mp3",
+      "bytes": 18864,
+      "sha256": "891b4a792d6a7874f710dfc979e5555865a252420ae49ec87531eff2af66ea13"
+    },
+    {
+      "taskId": "a1-unseen-listening-08",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "txebx20presx20pranxebx20pusitx20nxebx20mesditxebx2e",
+      "relativePath": "public/audio/txebx20presx20pranxebx20pusitx20nxebx20mesditxebx2e.mp3",
+      "bytes": 16416,
+      "sha256": "2077d06bbf25b7cf663161bdfc85c7cf4fa78fbf7411b13a5493b7bb2337d563"
+    },
+    {
+      "taskId": "a1-unseen-listening-09",
+      "locale": "sq-AL",
+      "speakerIdentityId": "tregtari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "sotx20kamx20bukxebx20dhex20djathxebx20txebx20bardhxebx2e",
+      "relativePath": "public/audio/sotx20kamx20bukxebx20dhex20djathxebx20txebx20bardhxebx2e.mp3",
+      "bytes": 17280,
+      "sha256": "7ab427f10d7f63420a4a32c4a59c68831822b94ded4c099a8f2abd44e02b6e37"
+    },
+    {
+      "taskId": "a1-unseen-listening-10",
+      "locale": "sq-AL",
+      "speakerIdentityId": "mihalGuri",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "xe7ekixe7inx20ex20kamx20nxebx20shportxebx20txebx20vogxeblx2e",
+      "relativePath": "public/audio/xe7ekixe7inx20ex20kamx20nxebx20shportxebx20txebx20vogxeblx2e.mp3",
+      "bytes": 17712,
+      "sha256": "29f906eb2bc2c1005972e7909f4308379f2aa46940e3198ee706f62f306934e0"
+    },
+    {
+      "taskId": "a1-unseen-listening-11",
+      "locale": "sq-AL",
+      "speakerIdentityId": "sheruesi",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "merrx20njxebx20lugxebx20mex20ilaxe7x20pasx20bukxebsx2e",
+      "relativePath": "public/audio/merrx20njxebx20lugxebx20mex20ilaxe7x20pasx20bukxebsx2e.mp3",
+      "bytes": 18144,
+      "sha256": "bcde90ac418f37ad1d5efcafe88bc651ec55027fce05299ce317d96b538b810f"
+    },
+    {
+      "taskId": "a1-unseen-listening-12",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuSheshit",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "sontex20portax20ex20fshatitx20mbylletx20nxebx20orxebnx20nxebntxebx2e",
+      "relativePath": "public/audio/sontex20portax20ex20fshatitx20mbylletx20nxebx20orxebnx20nxebntxebx2e.mp3",
+      "bytes": 20880,
+      "sha256": "6aab53d7ca962c22a77edb06e08ea819c291aeb25fce64ed0e835a9e5fcb51de"
+    },
+    {
+      "taskId": "a2-unseen-listening-01",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuUdhes",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "shiux20kax20mbyllurx20rrugxebnx20pxebrx20nxebx20korxe7xebx2ex20shkox20ngax20mullirix3bx20rrugax20xebshtxebx20ex20gjatxebx2cx20porx20ex20sigurtx2e",
+      "relativePath": "public/audio/shiux20kax20mbyllurx20rrugxebnx20pxebrx20nxebx20korxe7xebx2ex20shkox20ngax20mullirix3bx20rrugax20xebshtxebx20ex20gjatxebx2cx20porx20ex20sigurtx2e.mp3",
+      "bytes": 40752,
+      "sha256": "08488b33f246e5457d098ab36d2400ad58c9a9d10ff05935832d4fa06e421442"
+    },
+    {
+      "taskId": "a2-unseen-listening-02",
+      "locale": "sq-AL",
+      "speakerIdentityId": "mihalGuri",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "urax20nukx20xebshtxebx20ex20sigurtx20tanix2ex20njerxebzitx20duhetx20txebx20presinx20derix20nxebx20mesditxebx2e",
+      "relativePath": "public/audio/urax20nukx20xebshtxebx20ex20sigurtx20tanix2ex20njerxebzitx20duhetx20txebx20presinx20derix20nxebx20mesditxebx2e.mp3",
+      "bytes": 34848,
+      "sha256": "69718b3f669b4506494b0a3f9bbacfba730e13319f059be8f3bf6c09aa1f35ed"
+    },
+    {
+      "taskId": "a2-unseen-listening-03",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "pemax20xebshtxebx20nxebx20rrugxebx20parax20tejex2ex20merrx20rrugxebnx20majtasx2e",
+      "relativePath": "public/audio/pemax20xebshtxebx20nxebx20rrugxebx20parax20tejex2ex20merrx20rrugxebnx20majtasx2e.mp3",
+      "bytes": 28512,
+      "sha256": "0c281973372de5a0939d098d18cff215620d63a32d6ae140fdd99b93c6369684"
+    },
+    {
+      "taskId": "a2-unseen-listening-04",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuSheshit",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "lumix20xebshtxebx20ix20madhx20sepsex20biex20shix20dhex20urax20xebshtxebx20mbyllurx2ex20takohemix20tex20mullirix2e",
+      "relativePath": "public/audio/lumix20xebshtxebx20ix20madhx20sepsex20biex20shix20dhex20urax20xebshtxebx20mbyllurx2ex20takohemix20tex20mullirix2e.mp3",
+      "bytes": 36000,
+      "sha256": "f9174af87db449714e6219402930f2cd450fa055810426bbc63eb876fc256bfe"
+    },
+    {
+      "taskId": "a2-unseen-listening-05",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuSheshit",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "sontex20vjenx20njxebx20stuhix20mex20shumxebx20shix2ex20sillx20kafshxebtx20brendax20parax20natxebsx2e",
+      "relativePath": "public/audio/sontex20vjenx20njxebx20stuhix20mex20shumxebx20shix2ex20sillx20kafshxebtx20brendax20parax20natxebsx2e.mp3",
+      "bytes": 33552,
+      "sha256": "d4a580fcd2aaf1b825033b734f0b2b88410619675588142fef802358088a2d06"
+    },
+    {
+      "taskId": "a2-unseen-listening-06",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "nesxebrx20nxebx20mxebngjesx20kax20mjegullx2ex20nxebx20mesditxebx20nukx20kax20mjegullx2e",
+      "relativePath": "public/audio/nesxebrx20nxebx20mxebngjesx20kax20mjegullx2ex20nxebx20mesditxebx20nukx20kax20mjegullx2e.mp3",
+      "bytes": 31104,
+      "sha256": "0fe753e2f62af1c2046e793dfa23053dc78b5d5731794cadb81318a1dbdc892b"
+    },
+    {
+      "taskId": "a2-unseen-listening-07",
+      "locale": "sq-AL",
+      "speakerIdentityId": "bujtinari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "sontex20xebshtxebx20shumxebx20ftohtxebx2ex20nxebx20dhomxebnx20ex20miqvex20kax20njxebx20batanijex20tjetxebrx2e",
+      "relativePath": "public/audio/sontex20xebshtxebx20shumxebx20ftohtxebx2ex20nxebx20dhomxebnx20ex20miqvex20kax20njxebx20batanijex20tjetxebrx2e.mp3",
+      "bytes": 33552,
+      "sha256": "af5a44a013ea801cd2239dff2a168927df683f4e4c4d5aa3a35df4b12d384cde"
+    },
+    {
+      "taskId": "a2-unseen-listening-08",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "tanix20nukx20kax20stuhix2ex20tregux20hapetx20sotx20nxebx20orxebnx20tetxebx2e",
+      "relativePath": "public/audio/tanix20nukx20kax20stuhix2ex20tregux20hapetx20sotx20nxebx20orxebnx20tetxebx2e.mp3",
+      "bytes": 28512,
+      "sha256": "75b45bd7ec9ffc0916b4b58df5c16f3307ac612bc21488e2f5b8f85a3641e674"
+    },
+    {
+      "taskId": "a2-unseen-listening-09",
+      "locale": "sq-AL",
+      "speakerIdentityId": "tregtari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "bukax20kushtonx20dyzetx20lekxebx20nxebx20mxebngjesx2ex20nxebx20mesditxebx20kushtonx20tridhjetxebx20lekxebx2e",
+      "relativePath": "public/audio/bukax20kushtonx20dyzetx20lekxebx20nxebx20mxebngjesx2ex20nxebx20mesditxebx20kushtonx20tridhjetxebx20lekxebx2e.mp3",
+      "bytes": 36288,
+      "sha256": "66094352029efb3e40586eef10ab85e222c2c69815fe366352c88e4488e0d482"
+    },
+    {
+      "taskId": "a2-unseen-listening-10",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuSheshit",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "sotx20biex20shix2ex20tregux20nukx20xebshtxebx20nxebx20sheshx3bx20xebshtxebx20nxebx20odxebx2e",
+      "relativePath": "public/audio/sotx20biex20shix2ex20tregux20nukx20xebshtxebx20nxebx20sheshx3bx20xebshtxebx20nxebx20odxebx2e.mp3",
+      "bytes": 29952,
+      "sha256": "b9394789d3da07ad531d0bbe81dc99ab7c14a439b3860e634f27fd336ab79aa7"
+    },
+    {
+      "taskId": "a2-unseen-listening-11",
+      "locale": "sq-AL",
+      "speakerIdentityId": "tregtari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "tix20dox20kripxebx20dhex20sapunx2ex20sotx20kax20vetxebmx20sapunx3bx20kripax20vjenx20nesxebrx2e",
+      "relativePath": "public/audio/tix20dox20kripxebx20dhex20sapunx2ex20sotx20kax20vetxebmx20sapunx3bx20kripax20vjenx20nesxebrx2e.mp3",
+      "bytes": 34272,
+      "sha256": "ac9598dbddd2c27cd51acd75d91963ba820025d4ae01905e3dcc99fff24d677e"
+    },
+    {
+      "taskId": "a2-unseen-listening-12",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuSheshit",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "tregtarix20kax20njxebx20xe7ekixe7x20txebx20rix20sotx2ex20merrex20nxebx20mxebngjesx2e",
+      "relativePath": "public/audio/tregtarix20kax20njxebx20xe7ekixe7x20txebx20rix20sotx2ex20merrex20nxebx20mxebngjesx2e.mp3",
+      "bytes": 28800,
+      "sha256": "b0603a48fc188b6ca129b6f0d5beef803d2170f7ef347ebecbc8ada8a8296f25"
+    },
+    {
+      "taskId": "a2-unseen-listening-13",
+      "locale": "sq-AL",
+      "speakerIdentityId": "bujtinari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "dhomax20ex20vogxeblx20kushtonx20njxebqindx20lekxebx20pxebrx20natxebx2ex20mxebngjesix20xebshtxebx20gatix20nxebx20orxebnx20tetxebx2e",
+      "relativePath": "public/audio/dhomax20ex20vogxeblx20kushtonx20njxebqindx20lekxebx20pxebrx20natxebx2ex20mxebngjesix20xebshtxebx20gatix20nxebx20orxebnx20tetxebx2e.mp3",
+      "bytes": 38160,
+      "sha256": "47227d7514ff593ce1668add62c8349dcd24871521e19c1d2a69b7db0f1bfe9a"
+    },
+    {
+      "taskId": "a2-unseen-listening-14",
+      "locale": "sq-AL",
+      "speakerIdentityId": "bujtinari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "sontex20nukx20kax20dhomxebx20txebx20lirxebx2ex20kax20njxebx20shtratx20nxebx20odxebnx20ex20madhex2e",
+      "relativePath": "public/audio/sontex20nukx20kax20dhomxebx20txebx20lirxebx2ex20kax20njxebx20shtratx20nxebx20odxebnx20ex20madhex2e.mp3",
+      "bytes": 29520,
+      "sha256": "7ede5d288cc25de5fed02edfe83a1de3625fc2b7ae02699a0463f47c75a56579"
+    },
+    {
+      "taskId": "a2-unseen-listening-15",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "nesxebrx2cx20parax20sex20txebx20shkoshx20nxebx20tregx2cx20vendosx20xe7elxebsinx20tex20derax2e",
+      "relativePath": "public/audio/nesxebrx2cx20parax20sex20txebx20shkoshx20nxebx20tregx2cx20vendosx20xe7elxebsinx20tex20derax2e.mp3",
+      "bytes": 26928,
+      "sha256": "3f3d1dd939655ba93d8b107408dbfa7d7e76d056c83dc25ee04a6a2fee7edb43"
+    },
+    {
+      "taskId": "a2-unseen-listening-16",
+      "locale": "sq-AL",
+      "speakerIdentityId": "bujtinari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "ujix20ix20ngrohtxebx20dox20txebx20jetxebx20gatix20pasx20njxebx20orex2e",
+      "relativePath": "public/audio/ujix20ix20ngrohtxebx20dox20txebx20jetxebx20gatix20pasx20njxebx20orex2e.mp3",
+      "bytes": 19728,
+      "sha256": "21caa7c5cfe654bddb03257bdff41641d7567a522f8c8d712b0a1c6fee75b0df"
+    },
+    {
+      "taskId": "a2-unseen-listening-17",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuSheshit",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "kax20njxebx20festxebx20nesxebrx20nxebx20sheshx2ex20xe7dox20familjex20sjellx20bukxebx2e",
+      "relativePath": "public/audio/kax20njxebx20festxebx20nesxebrx20nxebx20sheshx2ex20xe7dox20familjex20sjellx20bukxebx2e.mp3",
+      "bytes": 30096,
+      "sha256": "0a412c808d3d59b5fff9dbc202d2b3f51286ccdbd73ea6fe25ac6a1570dd1a7d"
+    },
+    {
+      "taskId": "a2-unseen-listening-18",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "sontex20nukx20mundx20txebx20hax20mex20jux2ex20ejanix20nesxebrx20nxebx20shtxebpinxebx20timex20nxebx20mbrxebmjex2e",
+      "relativePath": "public/audio/sontex20nukx20mundx20txebx20hax20mex20jux2ex20ejanix20nesxebrx20nxebx20shtxebpinxebx20timex20nxebx20mbrxebmjex2e.mp3",
+      "bytes": 33840,
+      "sha256": "971c8253fb64b5dacfe556fcb6817372341c46dcb348020f77cd39fc5b1a923b"
+    },
+    {
+      "taskId": "a2-unseen-listening-19",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "fxebmijxebtx20hanxebx20nxebx20odxebx20parax20njerxebzvex20txebx20tjerxebx2e",
+      "relativePath": "public/audio/fxebmijxebtx20hanxebx20nxebx20odxebx20parax20njerxebzvex20txebx20tjerxebx2e.mp3",
+      "bytes": 19584,
+      "sha256": "8e48c7d04dc2828102aa06d32cf099a4045a9bbd33e180e549218c1808763057"
+    },
+    {
+      "taskId": "a2-unseen-listening-20",
+      "locale": "sq-AL",
+      "speakerIdentityId": "bujtinari",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "pxebrx20darkxebx20kax20vendx20pxebrx20gjashtxebx20njerxebzx2ex20tanix20jemix20katxebrx2e",
+      "relativePath": "public/audio/pxebrx20darkxebx20kax20vendx20pxebrx20gjashtxebx20njerxebzx2ex20tanix20jemix20katxebrx2e.mp3",
+      "bytes": 28944,
+      "sha256": "fa59cc71d9702afb1b852cc5a8c1ac2a576b67050c23906da828c0ac2e814f83"
+    },
+    {
+      "taskId": "a2-unseen-listening-21",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "mosx20mxebx20pritx20tex20urax2ex20takohemix20tex20pusix20nxebx20orxebnx20katxebrx2e",
+      "relativePath": "public/audio/mosx20mxebx20pritx20tex20urax2ex20takohemix20tex20pusix20nxebx20orxebnx20katxebrx2e.mp3",
+      "bytes": 29808,
+      "sha256": "bdfe27b91c00df9613152b5a11b046adcac0959b24dad12f3a2c8c5d3a1bc933"
+    },
+    {
+      "taskId": "a2-unseen-listening-22",
+      "locale": "sq-AL",
+      "speakerIdentityId": "sheruesi",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "nukx20mundx20txebx20txebx20ndihmojx20nxebx20orxebnx20tetxebx2ex20ejax20nxebx20orxebnx20nxebntxebx2e",
+      "relativePath": "public/audio/nukx20mundx20txebx20txebx20ndihmojx20nxebx20orxebnx20tetxebx2ex20ejax20nxebx20orxebnx20nxebntxebx2e.mp3",
+      "bytes": 29376,
+      "sha256": "095404b095e37424ad28980c5a76a2f06b92954b5b015c848a68f4f2935563a4"
+    },
+    {
+      "taskId": "a2-unseen-listening-23",
+      "locale": "sq-AL",
+      "speakerIdentityId": "plakuSheshit",
+      "acousticVoiceId": "sq-AL-IlirNeural",
+      "scriptSlug": "plakux20ix20udhxebsx20nukx20arrinx20nesxebrx20nxebx20mxebngjesx2ex20aix20dox20txebx20jetxebx20kxebtux20nxebx20mbrxebmjex2e",
+      "relativePath": "public/audio/plakux20ix20udhxebsx20nukx20arrinx20nesxebrx20nxebx20mxebngjesx2ex20aix20dox20txebx20jetxebx20kxebtux20nxebx20mbrxebmjex2e.mp3",
+      "bytes": 35136,
+      "sha256": "ee3b64385137a8749cc9304f0bb53921936b09f57065f46746dbfdda7084ba2e"
+    },
+    {
+      "taskId": "a2-unseen-listening-24",
+      "locale": "sq-AL",
+      "speakerIdentityId": "elira",
+      "acousticVoiceId": "sq-AL-AnilaNeural",
+      "scriptSlug": "dox20txebx20presx20nxebx20tregx20derix20nxebx20mesditxebx2ex20pastajx20jamx20nxebx20bujtinxebx2e",
+      "relativePath": "public/audio/dox20txebx20presx20nxebx20tregx20derix20nxebx20mesditxebx2ex20pastajx20jamx20nxebx20bujtinxebx2e.mp3",
+      "bytes": 31104,
+      "sha256": "fabae15765174ac701464d8b36197e780622940604c58e41fc6cbe312afd6274"
+    }
+  ]
+}

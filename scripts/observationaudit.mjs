@@ -23,6 +23,7 @@ import {
   observationIdOfLine,
   sceneLineRoleOf,
 } from '../src/game/observations.js'
+import { WORLD_ENTITIES, worldActionOfOption } from '../src/game/worldEntities.js'
 
 const checks = []
 const check = (name, test) => {
@@ -83,6 +84,10 @@ check('each observation is a coherent 1–2 line same-place beat with a disappea
     assert.equal(option.to, spec.nodeId, `${spec.id}: attention moved the player`)
     assert.equal(option.durationHours, 0, `${spec.id}: attention advanced time`)
     assert.deepEqual(option.effects.at(-1), { type: 'observe', id: spec.id })
+    assert.equal(WORLD_ENTITIES[`perception:${spec.id}`]?.authority.channel, 'observations',
+      `${spec.id}: no typed perception entity`)
+    assert.ok(worldActionOfOption(spec.nodeId, option).targets.includes(`perception:${spec.id}`),
+      `${spec.id}: observation choice does not target its perception entity`)
     assert.ok([].concat(option.unless).includes(observationConditionId(spec.id)), `${spec.id}: action does not disappear`)
     for (const index of spec.lineIndices) {
       assert.equal(observationIdOfLine(lineOf(node.text[index])), spec.id)

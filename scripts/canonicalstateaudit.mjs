@@ -22,6 +22,7 @@ import { QUESTS, QUEST_STATE_VERSION } from '../src/game/quests.js'
 import { NPCS } from '../src/game/npcs.js'
 import { npcIdentityKnowledgeId } from '../src/game/npcIdentity.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
+import { WORLD_ENTITIES, worldRelationsForState } from '../src/game/worldEntities.js'
 
 const checks = []
 const check = (name, test) => {
@@ -146,6 +147,18 @@ check('time, weather, season, and physical place remain projections of clock and
   const altered = normalizeSavedState({ ...state, season: 'stale', weather: 'stale', location: 'start' }, newRun())
   assert.deepEqual(environmentSnapshot(altered), environment)
   assert.equal(altered.nodeId, 'fshatiSheshi')
+})
+
+check('typed world entities project canonical state without adding a shadow ledger', () => {
+  const state = { ...newRun(), nodeId: 'lendina', inventory: { buke: 2 }, fixtures: { campfire: 13 } }
+  const relations = worldRelationsForState(state, { clock: 13 })
+  assert.ok(relations.some((entry) => entry.subject === 'actor:player' && entry.target === 'place:lendina'))
+  assert.ok(relations.some((entry) => entry.subject === 'item:buke' && entry.count === 2))
+  assert.ok(relations.some((entry) => entry.subject === 'fixture:campfire' && entry.state === 'bright'))
+  assert.equal(WORLD_ENTITIES['item:buke'].authority.channel, 'inventory')
+  assert.equal(WORLD_ENTITIES['fixture:campfire'].authority.channel, 'fixtures')
+  assert.equal(Object.hasOwn(state, 'entities'), false)
+  assert.equal(Object.hasOwn(state, 'relations'), false)
 })
 
 check('quest state resets per run while learned identity and world consequences persist', () => {

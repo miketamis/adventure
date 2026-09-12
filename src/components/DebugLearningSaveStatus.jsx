@@ -18,13 +18,16 @@ export default function DebugLearningSaveStatus({ state }) {
       currentRound: state.trainRound || 0,
       listeningTier: state.phraseListeningMastery?.[phrase.id] || 0,
       matchingTier: state.phraseMatchingMastery?.[phrase.id] || 0,
+      listeningProgress: state.phraseListeningProgress?.[phrase.id],
+      matchingProgress: state.phraseMatchingProgress?.[phrase.id],
+      nowMs: Date.now(),
     },
   )
   const rewarded = state.practiced?.[EXAMPLE_WORD_ID] || 0
   const wordSnapshot = wordProgressionSnapshot(
     state.wordProgress?.[EXAMPLE_WORD_ID],
     state.trainRound || 0,
-    wordProgressionOptionsForSense(EXAMPLE_WORD_ID),
+    { ...wordProgressionOptionsForSense(EXAMPLE_WORD_ID), nowMs: Date.now() },
   )
   const correctRounds = state.phrasePracticed?.[phrase.id] || 0
   const missedRounds = state.phraseMistakes?.[phrase.id] || 0

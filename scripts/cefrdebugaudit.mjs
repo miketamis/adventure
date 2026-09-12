@@ -34,6 +34,11 @@ import {
   preparationPlan,
 } from '../src/game/cefrPreparation.js'
 import { CEFR_TASKS, CEFR_TASKS_BY_FAMILY } from '../src/game/cefrTasks.js'
+import {
+  CEFR_ACOUSTIC_BREADTH,
+  CEFR_EXTERNAL_VALIDATION_WORKFLOWS,
+  cefrExternalValidationSnapshot,
+} from '../src/game/cefrExternalValidation.js'
 import { PHRASE_STAGE_DEFINITIONS } from '../src/game/phraseProgression.js'
 import { WORD_CAPABILITY_DEFINITIONS } from '../src/game/wordProgression.js'
 
@@ -205,6 +210,21 @@ check('listening breadth reports speaker identities and acoustic voices separate
   }
   assert.match(component, /speaker identities/)
   assert.match(component, /acoustic voices/)
+})
+
+check('external validation and real acoustic limits are visible without fabricating human evidence', () => {
+  const snapshot = cefrExternalValidationSnapshot()
+  assert.equal(snapshot.status, 'pending-human')
+  assert.equal(snapshot.completed, 0)
+  assert.equal(CEFR_ACOUSTIC_BREADTH.providerInventory.voiceIds.length, 2)
+  assert.equal(CEFR_ACOUSTIC_BREADTH.humanRecordingPack.voiceIds.length, 0)
+  assert.ok(CEFR_EXTERNAL_VALIDATION_WORKFLOWS.every(({ status }) => status === 'pending-human'))
+  assert.match(component, /CEFR_EXTERNAL_VALIDATION_WORKFLOWS\.map/)
+  assert.match(component, /data-validation-workflow=/)
+  assert.match(component, /Human validation is pending, not simulated/)
+  assert.match(component, /real provider voices/)
+  assert.match(component, /Human recording pack:/)
+  assert.match(component, /Private-data boundary:/)
 })
 
 check('every assessment family keeps a real first-attempt miss budget', () => {

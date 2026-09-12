@@ -240,6 +240,7 @@ export function buildWordQuestion({
   mana = {},
   wordProgress = {},
   currentRound = 0,
+  nowMs = 0,
   excludeWords = [],
   rng = Math.random,
 } = {}) {
@@ -250,7 +251,7 @@ export function buildWordQuestion({
     const surface = progressionOptions.context?.al || DICT[id].al
     if (containsExcludedPhraseWord(surface, excludeWords)) return []
     const progress = normalizeWordProgress(wordProgress[id], currentRound)
-    const plan = wordProgressPlan(progress, currentRound, progressionOptions)
+    const plan = wordProgressPlan(progress, currentRound, { ...progressionOptions, nowMs })
     // An inflecting word can advance from its lemma to a different reviewed
     // surface while keeping the same sense ID. Apply the no-repeat boundary to
     // that exact scheduled surface too; otherwise the weighted picker may
