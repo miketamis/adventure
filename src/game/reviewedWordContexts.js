@@ -623,6 +623,7 @@ export const REVIEWED_WORD_CONTEXTS = Object.freeze({
     retrievalEn: 'I carry the bread, while you carry the water.',
     distractorIds: ['sepse', 'prandaj', 'ose'],
     retrievalDistractorIds: ['sepse', 'prandaj', 'ose'],
+    distractorLabels: { al2en: { ndersa: 'while (contrasting two parallel clauses)' } },
     defensibleAlternativeRationales: {
       al2en: {
         por: 'Por can express a compatible contrast between the two parallel clauses.',

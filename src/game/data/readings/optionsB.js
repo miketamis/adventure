@@ -86,7 +86,7 @@ export const OPTION_READINGS_B = Object.freeze({
   "udhaKthimit.options[3]": { al: "lufto rrugën", en: "Fight the road.", review: 'internal-editorial' }, // 616
   "udhaKthimit.options[4]": { al: "merr arin", en: "Take the gold.", review: 'internal-editorial' }, // 617
   "udhaKthimit.options[5]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 618
-  "shqipe1.options[0]": { al: "ngjit në folé", en: "Climb to the nest.", review: 'internal-editorial' }, // 619
+  "shqipe1.options[0]": { al: "ngjit në fole", en: "Climb to the nest.", review: 'internal-editorial' }, // 619
   "shqipe1.options[1]": { al: "ec larg", en: "Walk away.", review: 'internal-editorial' }, // 620
   "shqipe1.options[2]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 621
   "shqipe1.options[3]": { al: "dëgjo pemën", en: "Listen to the tree.", review: 'internal-editorial' }, // 622

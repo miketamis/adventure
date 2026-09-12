@@ -1,209 +1,66 @@
-// Definition meaning cannot be certified by structural lint alone. This ledger
-// records the learner-facing text that has received a focused human editorial
-// pass. The quality audit seals these exact readings: changing one deliberately
-// requires reviewing the new meaning and updating its row here.
+// Exact editorial seals for every learner-facing dictionary sense.
 //
-// Dictionary senses not listed here remain an explicit editorial backlog. The
-// audit reports that count rather than presenting structural validity as proof
-// that every definition is semantically good.
-export const EDITORIALLY_REVIEWED_DEFINITIONS = Object.freeze({
-  bilete: 'një gjë; ti e blen dhe ia tregon rojës për të kaluar ose për të shkuar në një vend tjetër',
-  burre: 'njeri si një baba ose një vëlla, jo grua; nuk është më fëmijë',
-  dhimbje: 'ajo që ndien në trup kur je i sëmurë ose ke një plagë',
-  di: 'kam në mend një fakt ose mënyrë si bëhet diçka',
-  djale: 'fëmijë ose njeri i ri; jo vajzë ose grua',
-  do: 'ai ose ajo e kërkon sepse i pëlqen ose i duhet',
-  drejte: 'ajo që është e vërtetë ose bëhet pa gabim',
-  dua: 'e kërkoj sepse më pëlqen ose më duhet',
-  fatura: 'një gjë që tregon çfarë ke blerë dhe sa lekë duhet të paguash',
-  fjale: 'një pjesë e asaj që themi ose që është shkruar në libër; disa bashkë japin kuptim',
-  fuqi: 'mund të ngresh, të luftosh ose të bësh një punë të vështirë',
-  gjendje: 'si është një njeri ose një gjë tani; mund të jetë e mirë ose e rëndë',
-  grua: 'njeri si një nënë ose një motër, jo burrë; nuk është më fëmijë',
-  histori: 'fjalë që tregojnë çfarë ndodh; ose çfarë ka ndodhur më parë',
-  krah_arm: 'pjesë e trupit që mbaron te dora; me të njeriu ngre dhe mban gjëra',
-  kusur: 'para që tregtari të jep prapa kur ke paguar më shumë se duhet',
-  lekure: 'mbulon mishin e njeriut ose të kafshës; tabaku e punon për të bërë rroba',
-  luan_noun: 'kafshë e egër, e madhe dhe e fortë, e afërt me tigrin',
-  me: 'tregon se njerëzit janë bashkë; ose çfarë përdor dikush për një punë',
-  mik: 'dikush që e njeh mirë dhe i beson; ose një njeri që e pret në shtëpi',
-  mike: 'grua ose vajzë që e njeh mirë dhe i beson; ose një grua që e pret në shtëpi',
-  mire: 'si duhet, pa problem ose gabim; jo keq',
-  mjek: 'njeri që di si të ndihmojë njerëzit e sëmurë dhe përdor ilaç',
-  moment: 'pak kohë, jo një orë e tërë',
-  ndiej: 'e kuptoj me trup ose me zemër, jo vetëm me mend',
-  njoh: 'e kam takuar ose parë më parë dhe di kush ose çfarë është',
-  polici: 'njeri që ruan rregullin dhe ndalon njerëzit që bëjnë keq',
-  problem: 'një gjendje ose punë e vështirë që të ndalon; duhet të gjesh mënyrë për ta bërë mirë',
-  rast: 'një gjendje ose një gjë që ndodh; në këtë ___ do të thotë “ kur gjërat janë kështu ”',
-  rende: 'për një gjendje të keqe ose me rrezik që ka nevojë për ndihmë tani',
-  rendesishem: 'që ka shumë rëndësi; duhet ta kujtojmë ose të bëjmë kujdes',
-  rrezik: 'gjendje ose vend ku mund të ndodhë një gjë e keqe ose mund të vdesësh',
-  semur: 'me shëndet të keq; mund të kesh dhimbje ose të kesh pak fuqi',
-  shendet: 'gjendje e trupit kur nuk je i sëmurë dhe ke fuqi',
-  sheh: 'përdor sytë për të kuptuar çfarë ka përpara',
-  sherues: 'njeri që ndihmon njerëzit e sëmurë me bar ose ilaç',
-  shami: 'një gjë që e vesh mbi kokë',
-  shume: 'më tepër se pak, për gjëra, ujë, punë ose fuqi',
-  vajze: 'fëmijë ose njeri i ri; jo djalë ose burrë',
-  ze: 'ajo që dëgjon kur dikush flet ose kur një gjë bën zhurmë',
-  lagur: 'me ujë; jo i thatë',
-  miraEmri: 'emri i gruas që sjell ujë nga kroi',
-  rrjedh: 'lëviz si uji në lumë',
+// The alphabetical files are deliberately disjoint so large reviews can be
+// performed in parallel without turning this aggregator into a merge hotspot.
+// A definition or English sense label may change only together with a renewed
+// line-by-line review and an updated seal in the owning tranche.
+import {
+  DEFINITION_REVIEWS_A_H,
+  GLOSS_REVIEWS_A_H,
+} from './data/definitionReviews/a-h.mjs'
+import {
+  DEFINITION_REVIEWS_I_P,
+  GLOSS_REVIEWS_I_P,
+} from './data/definitionReviews/i-p.mjs'
+import {
+  DEFINITION_REVIEWS_Q_Z,
+  GLOSS_REVIEWS_Q_Z,
+} from './data/definitionReviews/q-z.mjs'
 
-  // Lived-world tranche. These meanings were reviewed together with the
-  // concrete story situations that introduce them; keep the exact learner
-  // definitions sealed so a later atmosphere edit cannot quietly loosen the
-  // vocabulary it is meant to teach.
-  lagesht: 'me pak ujë; jo i thatë',
-  fresket: 'pak i ftohtë, por të bën mirë',
-  kercet: 'druri nxjerr një zë të fortë kur përkulet',
-  fishkellen: 'era nxjerr një zë të gjatë kur kalon nëpër një vrimë',
-  lekundet: 'lëviz para dhe mbrapa, përsëri dhe përsëri',
-  vezullon: 'shkëlqen pak dhe duket sikur drita lëviz',
-  lulezon: 'lulja hapet',
-  vyshket: 'lulja bëhet e thatë dhe bie',
-  ngrin: 'uji bëhet i fortë kur është shumë i ftohtë',
-  shkrihet: 'bora bëhet ujë në diell',
-  rreshqet: 'lëviz pa dashje mbi tokë ose gur',
-  zbardh: 'qielli bëhet më i bardhë kur vjen drita',
-  qetesohet: 'bëhet i qetë dhe nuk ka më zhurmë ose frikë',
-  pasqyrohet: 'hëna duket edhe në ujë, jo vetëm në qiell',
-  seriozisht: 'pa shaka; për një gjë me rëndësi',
-  cuditshem: 'në një mënyrë që duket ndryshe dhe nuk kuptohet shpejt',
-  mrekullueshem: 'shumë i mirë ose shumë i bukur; të bën të lumtur',
-  natyrisht: 'patjetër; kështu duhet të jetë',
-  pervec: 'pa këtë; me të gjitha gjërat e tjera',
-  tamam: 'saktë; jo më shumë dhe jo më pak',
-  qesharak: 'që të bën të qeshësh ose duket pa kuptim',
-  tmerrshem: 'shumë i keq dhe të bën të kesh frikë',
-  kudo: 'në çdo vend',
-  vecante: 'jo si gjërat e tjera; ndryshe në një mënyrë të rëndësishme',
-  gjithsesi: 'edhe nëse kjo është e vërtetë, vazhdojmë',
-  ndryshon: 'një gjë nuk rri e njëjtë; bëhet ndryshe',
-  permes: 'nga njëra anë e një vendi deri në anën tjetër',
-  goxha: 'shumë, por jo tepër',
+// Keep tranche ownership machine-readable. The quality gate uses the same
+// objects that are merged below, so a reviewed row cannot drift into a
+// convenient file outside the range selected by its Albanian headword.
+export const DEFINITION_REVIEW_TRANCHES = Object.freeze([
+  Object.freeze({
+    id: 'a-h',
+    first: 'a',
+    last: 'h',
+    definitions: DEFINITION_REVIEWS_A_H,
+    glosses: GLOSS_REVIEWS_A_H,
+  }),
+  Object.freeze({
+    id: 'i-p',
+    first: 'i',
+    last: 'p',
+    definitions: DEFINITION_REVIEWS_I_P,
+    glosses: GLOSS_REVIEWS_I_P,
+  }),
+  Object.freeze({
+    id: 'q-z',
+    first: 'q',
+    last: 'z',
+    definitions: DEFINITION_REVIEWS_Q_Z,
+    glosses: GLOSS_REVIEWS_Q_Z,
+  }),
+])
 
-  // High-frequency core-language tranche. Contextual blanks are intentional
-  // for function words whose grammatical job is clearer in a short sentence.
-  agim: 'kohë kur dielli del',
-  ai: 'një burrë; ___ është këtu',
-  ajo: 'një grua; ___ është këtu',
-  ar: 'gjë e verdhë dhe shumë e shtrenjtë; prej saj bëhen unaza',
-  bardhe: 'si borë ose qumësht; me shumë dritë',
-  behet: 'nuk ishte kështu më parë, por është tani; edhe buka ___ nga mielli',
-  bej: 'krijoj diçka ose punoj për ta mbaruar',
-  bese: 'një fjalë e dhënë që duhet ta mbash, edhe kur është e vështirë',
-  bie: 'lëviz nga lart poshtë pa ecur; përdoret edhe kur vjen shi ose borë',
-  buke: 'ushqim i bërë me miell, ujë dhe zjarr',
-  degjo: 'zëri vjen te ti, edhe kur nuk e sheh atë që flet',
-  dere: 'hapet për të hyrë dhe mbyllet pas teje',
-  det: 'vend shumë i madh me ujë dhe shumë kripë',
-  dhe: 'bukë ___ ujë',
-  diell: 'dritë e madhe në qiell gjatë ditës',
-  dil: 'kalo nga brenda jashtë',
-  dite: 'kohë nga agimi deri në muzg',
-  dore: 'pjesë e krahut për të marrë dhe prekur',
-  drite: 'ajo që të lejon të shohësh kur nuk është errët',
-  e_art: 'vajza është ___ bukur',
-  e_link: 'vajza ___ detit',
-  e_obj: 'kulshedra ___ ha vajzën',
-  ec: 'lëviz në këmbë',
-  eshte: 'ajo ___ këtu tani',
-  femije: 'djalë i vogël ose vajzë e vogël',
-  fle: 'rri me sytë mbyllur dhe pushon',
-  flet: 'nxjerr fjalë nga goja',
-  fol: 'thua fjalë me zë',
-  fshat: 'shtëpi dhe rrugë të vogla larg qytetit',
-  gjak: 'lëng i kuq që del nga plaga',
-  gjarper: 'kafshë e gjatë pa këmbë',
-  gur: 'pjesë e fortë e tokës që nuk thyhet lehtë',
-  ha: 'merr ushqim në gojë',
-  hap: 'bën që një gjë e mbyllur të mos jetë më e mbyllur',
-  hyr: 'kalo nga jashtë brenda',
-  i_art: 'djali është ___ uritur',
-  ik: 'largohem nga një vend; mund të shkosh shpejt për të shpëtuar nga rreziku',
-  jam: 'unë ___ mirë.',
-  je: 'ti ___ mirë sot',
-  jep: 'kalo diçka nga dora jote te një tjetër',
-  ka: 'ai ___ një shtëpi; ___ edhe ujë brenda',
-  kala: 'vend i fortë me mure të larta, portë dhe rojë',
-  kale: 'kafshë e madhe; njeriu hipën mbi të',
-  kalo: 'shko nga njëra anë në tjetrën',
-  kendo: 'thotë fjalët e një kënge me zë',
-  ketu: 'në vendin ku jam tani',
-  kthehu: 'shko përsëri në vendin nga erdhe',
-  kulle: 'shtëpi e lartë prej guri me odë',
-  larg: 'jo afër; duhet të ecësh shumë',
-  lart: 'më larg nga toka, drejt qiellit',
-  lek: 'para : një bukë mund të kushtojë njëqind ___',
-  loja: 'njerëzit ose fëmijët luajnë bashkë me rregulla, për kënaqësi',
-  lufto: 'godit armikun me armë dhe ai të godet',
-  lume: 'ujë që lëviz nga mali drejt detit',
-  madh: 'jo i vogël, si mali pranë një guri',
-  mal: 'tokë shumë e lartë',
-  mban: 'ka diçka në dorë, në trup ose me vete; nuk e lë të ik',
-  mbaroi: 'nuk vazhdon më',
-  mbi: 'më lart se diçka tjetër',
-  mbret: 'burri që mban kurorën dhe jeton në pallat',
-  merr: 'e sjell në dorën tënde ose dikush ta jep',
-  mur: 'pjesë e fortë prej guri që mbyll një vend',
-  naten: 'koha e errët nga muzgu deri në agim',
-  ndihmo: 'i jep dikujt atë që i duhet',
-  ne: 'uji është ___ shishe',
-  nene: 'gruaja që ka lindur fëmijën e saj',
-  nga: 'vij ___ fshati; buka bëhet ___ mielli',
-  ngjit: 'shko nga poshtë lart',
-  nje: '___ shtëpi, jo dy',
-  njeri: 'burrë, grua ose fëmijë',
-  nuk: 'para një fjale, e bën kuptimin të kundërt',
-  pa: 'kafe ___ qumësht',
-  pas: 'më vonë në kohë ose mbrapa në vend; jo para',
-  peme: 'gjë e gjallë me dru dhe gjethe; mund të japë edhe ushqim',
-  per: 'kur diçka i jepet dikujt ose flitet rreth saj; tregon edhe pse bëhet një punë',
-  perseri: 'edhe një herë',
-  pi: 'merr ujë ose lëng në gojë',
-  plak: 'burrë që ka jetuar shumë vite',
-  plake: 'grua që ka jetuar shumë vite',
-  por: 'lidh dy mendime të kundërta',
-  poshte: 'më afër tokës dhe larg qiellit',
-  prit: 'mos ik; rri këtu',
-  pus: 'vrimë e thellë në tokë ku gjen ujë',
-  pyet: 'thotë diçka sepse kërkon një përgjigje',
-  pyll: 'tokë e mbuluar me shumë pemë',
-  qete: 'pa frikë, lëvizje ose zhurmë',
-  qytet: 'vend i madh me shumë shtëpi dhe rrugë',
-  rri: 'qëndron ose jeton në një vend; nuk ikën',
-  rruge: 'tokë ku ecin njerëzit nga një anë në tjetrën',
-  shko: 'lëviz nga këtu në një vend tjetër',
-  shpejt: 'në pak kohë',
-  shqiponje: 'zog i madh me sqep dhe krahë të fortë',
-  shtepi: 'ku familja ha, fle dhe rri bashkë',
-  si: '___ je tani? pyet për mënyrën; mund të thotë edhe “ ashtu ___ ”',
-  sjell: 'vjen këtu me diçka nga një vend tjetër',
-  sy: 'pjesët e fytyrës me të cilat sheh',
-  tani: 'në këtë kohë',
-  te_link: 'në anën tjetër ___ urës',
-  te_obj: 'ajo ___ sheh; ti je këtu',
-  te_subj: 'dua ___ shkoj',
-  tek: 'jam ___ ura',
-  thate: 'që nuk ka ujë',
-  thote: 'i tregon dikujt diçka me zë',
-  ti: 'unë flas; ___ je një njeri që dëgjon',
-  tjeter: 'jo ky ose kjo; një gjë më shumë ose ndryshe nga kjo',
-  trim: 'burrë i fortë që lufton për të tjerët',
-  udhetar: 'njeri që shkon nga një vend në një tjetër',
-  uje: 'lëng i pastër që pimë çdo ditë',
-  ujk: 'kafshë e egër si qeni, që jeton në pyll',
-  une: 'njeriu që flet për veten',
-  ure: 'rrugë mbi ujë për të kaluar',
-  vdes: 'jeta mbaron',
-  vella: 'djali tjetër i nënës dhe i babait',
-  vetem: 'pa njerëz të tjerë; ose jo më shumë se kaq',
-  vjen: 'lëviz nga atje deri këtu',
-  vrit: 'bëj që dikush të vdesë',
-  zbrit: 'shko nga lart poshtë',
-  zi: 'si natën pa hënë; pa dritë',
-  zjarr: 'flakë e nxehtë që jep dritë',
-  zog: 'kafshë me krahë, sqep dhe pendë që mund të fluturojë; edhe fëmijë i saj',
-})
+function mergeDisjoint(label, tranches) {
+  const merged = {}
+  for (const tranche of tranches) {
+    for (const [id, value] of Object.entries(tranche)) {
+      if (Object.hasOwn(merged, id)) {
+        throw new Error(`${label}: duplicate review seal for ${id}`)
+      }
+      merged[id] = value
+    }
+  }
+  return Object.freeze(merged)
+}
+
+export const EDITORIALLY_REVIEWED_DEFINITIONS = mergeDisjoint('definition reviews', [
+  ...DEFINITION_REVIEW_TRANCHES.map(({ definitions }) => definitions),
+])
+
+export const EDITORIALLY_REVIEWED_GLOSSES = mergeDisjoint('gloss reviews', [
+  ...DEFINITION_REVIEW_TRANCHES.map(({ glosses }) => glosses),
+])

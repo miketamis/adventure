@@ -482,7 +482,7 @@ export const LATE_READINGS = {
   "tregMal.text[0]": { al: "një udhëtar ngjitet në një mal të shenjtë.", en: "A traveller climbs a sacred mountain." },
   "tregMal.text[1]": { al: "lart rri Zojz me mjekër të bardhë.", en: "High above dwells Zojz with his white beard." },
   "tregMal.text[2]": { al: "oh, sa lart!", en: "Oh, how high it is!" },
-  "tregMal.text[3]": { al: "ky mal është vërtetë i shenjtë.", en: "This mountain is truly sacred." },
+  "tregMal.text[3]": { al: "ky mal është vërtet i shenjtë.", en: "This mountain is truly sacred." },
   "tregMal.text[4]": { al: "Zojz do një dem të bardhë.", en: "Zojz desires a white bull." },
   "tregDet.text[0]": { al: "larg është një det i madh.", en: "A vast sea lies far away." },
   "tregDet.text[1]": { al: "një baloz merr një vajzë.", en: "A baloz carries off a maiden." },
