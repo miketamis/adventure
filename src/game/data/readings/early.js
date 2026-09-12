@@ -894,4 +894,7 @@ export const EARLY_READINGS = {
   "eliraEmriBreg.text[3]": { al: "Elira thotë: faleminderit. po shkoj lart në fshat.", en: "Elira says, “Thank you. I am going up to the village.”" },
   "sofraVendimPlaka.text[0]": { al: "ajo thotë: në rregull. pyet plakën.", en: "She says, “All right. Ask the old woman.”" },
   "sofraVendimPusi.text[0]": { al: "ajo thotë: në rregull. shko te pusi i thatë. plaka mund të di më shumë.", en: "She says, “All right. Go to the dry well. The old woman may know more.”" },
+  "eliraPorosiaDorezuar.text[0]": { al: "gruaja merr bukën dhe kripën. ajo thotë: faleminderit. oda është gati.", en: "The woman takes the bread and salt. She says, “Thank you. The guest-room is ready.”" },
+  "eliraPorosiaDorezuar.text[1]": { al: "Elira merr bukën dhe kripën. Elira thotë: faleminderit. oda është gati.", en: "Elira takes the bread and salt. Elira says, “Thank you. The guest-room is ready.”" },
+  "porosiaBlerjePergjigje.text[0]": { al: "fëmija thotë: mirë. ajo po pret.", en: "The child says, “Good. She is waiting.”" },
 }

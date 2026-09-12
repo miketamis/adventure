@@ -232,9 +232,9 @@ export const OPTION_READINGS_A = Object.freeze({
   "zanaQumesht.options[4]": { al: "merr djepin", en: "Take the cradle.", review: 'internal-editorial' }, // 229
   "zanaKripe.options[0]": { al: "merr kripë", en: "Take salt.", review: 'internal-editorial' }, // 229
   "zanaKripe.options[1]": { al: "mos e merr kripën.", en: "Do not take the salt.", review: 'internal-editorial' }, // 230
-  "zanaKripe.options[2]": { al: "sheh bukën", en: "See the bread.", review: 'internal-editorial' }, // 231
-  "zanaKripe.options[3]": { al: "tund djepin", en: "Rock the cradle.", review: 'internal-editorial' }, // 232
-  "zanaKripe.options[4]": { al: "merr djepin", en: "Take the cradle.", review: 'internal-editorial' }, // 233
+  "zanaKripe.options[2]": { al: "ngjit lart me zanën.", en: "Climb with the Zana.", review: 'internal-editorial' },
+  "zanaKripe.options[3]": { al: "kthehu.", en: "Go back.", review: 'internal-editorial' },
+  "zanaKripe.options[4]": { al: "sheh bukën", en: "See the bread.", review: 'internal-editorial' },
   "rrethi.options[0]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' }, // 233
   "rrethi.options[1]": { al: "ec lart", en: "Walk up.", review: 'internal-editorial' }, // 234
   "rrethi.options[2]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 235
@@ -415,7 +415,7 @@ export const OPTION_READINGS_A = Object.freeze({
   "guriUdhes.options[1]": { al: "rri mbi det", en: "Stay on the sea.", review: 'internal-editorial' }, // 408
   "sheshi.options[0]": { al: "fol me tregtarin", en: "Speak with the trader.", review: 'internal-editorial' }, // 409
   "sheshi.options[1]": { al: "shko në bujtinën", en: "Go to the inn.", review: 'internal-editorial' }, // 410
-  "sheshi.options[2]": { al: "kam nevojë për një mjek.", en: "Say: “I need a doctor.”", review: 'internal-editorial' }, // practical health
+  "sheshi.options[2]": { al: "kam nevojë për një mjek.", en: "I need a doctor.", review: 'internal-editorial' },
   "sheshi.options[3]": { al: "fol me udhëtarin", en: "Speak with the traveller.", review: 'internal-editorial' }, // 412
   "sheshi.options[4]": { al: "shiko derën", en: "Look at the door.", review: 'internal-editorial' }, // 413
   "sheshi.options[5]": { al: "jep lek", en: "Give a lek.", review: 'internal-editorial' }, // 414
@@ -449,10 +449,10 @@ export const OPTION_READINGS_A = Object.freeze({
   "blerjaLahuta.options[1]": { al: "këndo me lek", en: "Sing with a lek.", review: 'internal-editorial' }, // 442
   "blerjaLahuta.options[2]": { al: "merr tregtarin", en: "Take the trader.", review: 'internal-editorial' }, // 443
   "blerjaLahuta.options[3]": { al: "blej tregtarin", en: "Buy the trader.", review: 'internal-editorial' }, // 444
-  "bujtina.options[0]": { al: "kam nevojë për një dhomë sonte. sa kushton një natë?", en: "Ask for a room tonight and its price.", review: 'internal-editorial' }, // practical lodging
-  "bujtina.options[1]": { al: "dua kafe, të lutem.", en: "Say: “I would like coffee, please.”", review: 'internal-editorial' }, // practical ordering
+  "bujtina.options[0]": { al: "kam nevojë për një dhomë sonte. sa kushton një natë?", en: "I need a room tonight. How much does one night cost?", review: 'internal-editorial' },
+  "bujtina.options[1]": { al: "dua kafe, të lutem.", en: "I would like coffee, please.", review: 'internal-editorial' },
   "bujtina.options[2]": { al: "pi raki", en: "Drink grape brandy.", review: 'internal-editorial' }, // 446
-  "bujtina.options[3]": { al: "a mund të fle këtu?", en: "Ask: “Can I sleep here?”", review: 'internal-editorial' }, // 447
+  "bujtina.options[3]": { al: "a mund të fle këtu?", en: "Can I sleep here?", review: 'internal-editorial' },
   "bujtina.options[4]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 448
   "bujtina.options[5]": { al: "dëgjo çelësin", en: "Listen to the key.", review: 'internal-editorial' }, // 449
   "gjumiBujtina.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 450
@@ -465,7 +465,7 @@ export const OPTION_READINGS_A = Object.freeze({
   "kafeja1.options[3]": { al: "pi fat", en: "Drink luck.", review: 'internal-editorial' }, // 457
   "kafeja1.options[4]": { al: "dëgjo kafenë", en: "Listen to the coffee.", review: 'internal-editorial' }, // 458
   "kafeja1.options[5]": { al: "bëj një fat", en: "Make a fate.", review: 'internal-editorial' }, // 459
-  "sheruesi.options[0]": { al: "më dhemb këtu. kam nevojë për ndihmë.", en: "Say: “It hurts here. I need help.”", review: 'internal-editorial' }, // practical health
+  "sheruesi.options[0]": { al: "më dhemb këtu. kam nevojë për ndihmë.", en: "It hurts here. I need help.", review: 'internal-editorial' },
   "sheruesi.options[1]": { al: "shko në kopsht", en: "Go to the garden.", review: 'internal-editorial' }, // 460
   "sheruesi.options[2]": { al: "dëgjo shëruesin", en: "Listen to the healer.", review: 'internal-editorial' }, // 461
   "sheruesi.options[3]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 462
@@ -539,4 +539,6 @@ export const OPTION_READINGS_A = Object.freeze({
   "dilFrike.options[0]": { al: "lër gruan", en: "Leave the woman.", review: 'internal-editorial' }, // 530
   "dilFrike.options[1]": { al: "merr frikën", en: "Take the fear.", review: 'internal-editorial' }, // 531
   "ura.options[0]": { al: "kalo urën", en: "Cross the bridge.", review: 'internal-editorial' }, // 532
+  "zanaKripe.options[5]": { al: "tund djepin", en: "Rock the cradle.", review: 'internal-editorial' },
+  "zanaKripe.options[6]": { al: "merr djepin", en: "Take the cradle.", review: 'internal-editorial' },
 })

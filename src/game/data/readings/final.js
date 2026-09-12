@@ -755,4 +755,5 @@ export const FINAL_READINGS = {
   "varret1.text[1]": { al: "ti je përsëri te varret.", en: "You are at the graves again." },
   "varret1.text[5]": { al: "një grua ndez një qiri për një burrë, me lot në sy.", en: "A woman lights a candle for a man, with tears in her eyes." },
   "varretFund.text[2]": { al: "çakmaku ndez qiriun. flaka e vogël rri pranë varrit.", en: "The lighter lights the candle. The small flame keeps vigil beside the grave." },
+  "maroLitani3.text[4]": { al: "ti mban miellin dhe floririn.", en: "You hold the flour and the gold." },
 }

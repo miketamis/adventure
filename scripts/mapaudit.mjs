@@ -48,6 +48,13 @@ for (const id of ids) for (const o of STORY[id].options || []) {
 const unplaced = ids.filter((id) => !NODE_POS[id])
 section(!unplaced.length, `every story node has a map position (${ids.length - unplaced.length}/${ids.length})`, unplaced.map((id) => 'UNPLACED: ' + id))
 
+const brothersConversation = STORY.pylli1.options.find((option) => option.to === 'kordha1')
+section(Boolean(brothersConversation) && PLACE_OF.pylli1 === PLACE_OF.kordha1,
+  'speaking with the visible forest brothers stays at their physical scene',
+  brothersConversation && PLACE_OF.pylli1 !== PLACE_OF.kordha1
+    ? [`pylli1 (${PLACE_OF.pylli1}) -> kordha1 (${PLACE_OF.kordha1})`]
+    : [])
+
 // ---- 1. region containment ---------------------------------------------------
 // A node should sit inside (or on the fringe of) the region the BFS assigns it.
 // Known-fine outliers (each explicitly documented below):
@@ -102,8 +109,8 @@ const INTERACT = new Set(['fol', 'degjo', 'merr', 'jep', 'prek', 'tund', 'pi', '
 const INTERACT_MAX = 400
 // Verified narrative scene-shifts (the action happens here, the STORY then
 // carries you elsewhere before the next node):
-//   gjumi->shokuUjk/eaten — the wolf met at your sleeping-place is the SAME wolf
-//     of the deep-forest den, where its node (and other parent edge) lives.
+//   gjumi->eaten — after the fatal struggle at the sleeping-place, the wolf
+//     drags the fallen traveller to the same deep-forest den used elsewhere.
 //   pemaDielli->rrugaDielli2 — you speak from the tree; the stag then carries
 //     the maiden the whole road home to the village.
 const farInteract = []

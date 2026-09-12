@@ -9,7 +9,7 @@ import {
   reducer,
 } from './gameState.js'
 import { englishReadingOf } from './language.js'
-import { choiceSemanticsIssues, speechMovementIssue } from './choiceSemantics.js'
+import { choiceSemanticsIssues, compoundIntentIssues } from './choiceSemantics.js'
 import { PLACE_OF } from '../components/nodePositions.js'
 import {
   WORLD_ENTITIES,
@@ -44,8 +44,7 @@ export function authoringSchemaIssues(story = STORY) {
       if (option?.to && !story[option.to]) opt(`unknown destination '${option.to}'`)
       for (const issue of choiceSemanticsIssues(option)) opt(issue)
       for (const issue of worldActionIssues(nodeId, option)) opt(issue)
-      const mixed = speechMovementIssue(nodeId, option, PLACE_OF)
-      if (mixed) opt(mixed)
+      for (const issue of compoundIntentIssues(nodeId, option, PLACE_OF)) opt(issue)
     }
   }
   return Object.freeze(issues)

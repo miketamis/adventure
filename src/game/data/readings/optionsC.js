@@ -106,7 +106,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "zuku2.options[0]": { al: "dëgjo trimin", en: "Listen to the hero.", review: 'internal-editorial' }, // 1168
   "zuku2.options[1]": { al: "dëgjo malin", en: "Listen to the mountain.", review: 'internal-editorial' }, // 1169
   "kordha1.options[0]": { al: "premto një besë", en: "Pledge a besa.", review: 'internal-editorial' }, // 1170
-  "kordha1.options[1]": { al: "kthehu në pyll", en: "Return to the forest.", review: 'internal-editorial' }, // 1171
+  "kordha1.options[1]": { al: "largohu nga vëllezërit", en: "Walk away from the brothers.", review: 'internal-editorial' },
   "kordha1.options[2]": { al: "fol shpatën", en: "Speak to the sword.", review: 'internal-editorial' }, // 1172
   "kordha2.options[0]": { al: "fol për fuqi", en: "Speak about power.", review: 'internal-editorial' }, // 1173
   "kordha2.options[1]": { al: "rri i qetë", en: "Stay calm.", review: 'internal-editorial' }, // 1174
@@ -134,8 +134,8 @@ export const OPTION_READINGS_C = Object.freeze({
   "nastradin2.options[1]": { al: "kërko kazanin", en: "Look for the cauldron.", review: 'internal-editorial' }, // 1196
   "nastradin2.options[2]": { al: "kërko fëmijën", en: "Look for the child.", review: 'internal-editorial' }, // 1197
   "besaBekim.options[0]": { al: "merr bekimin", en: "Take the blessing.", review: 'internal-editorial' }, // 1198
-  "besaBekim.options[1]": { al: "fle këtu", en: "Sleep here.", review: 'internal-editorial' }, // 1199
-  "besaBekim.options[2]": { al: "merr plakën", en: "Take the old woman.", review: 'internal-editorial' }, // 1200
+  "besaBekim.options[1]": { al: "kthehu në rruga e pyllit.", en: "Return to the forest road.", review: 'internal-editorial' },
+  "besaBekim.options[2]": { al: "fle këtu", en: "Sleep here.", review: 'internal-editorial' },
   "oda1.options[0]": { al: "ha bukë", en: "Eat bread.", review: 'internal-editorial' }, // 1201
   "oda1.options[1]": { al: "merr kripë", en: "Take salt.", review: 'internal-editorial' }, // 1202
   "oda1.options[2]": { al: "dëgjo udhëtarët", en: "Listen to the travellers.", review: 'internal-editorial' }, // 1203
@@ -339,7 +339,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "fshatiLumi.options[11]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1398
   "fshatiLumi.options[12]": { al: "merr urën", en: "Take the bridge.", review: 'internal-editorial' }, // 1399
   "fshatiLumi.options[13]": { al: "merr mullirin", en: "Take the mill.", review: 'internal-editorial' }, // 1400
-  "gruaUji1.options[0]": { al: "si quhesh?", en: "Ask: “What is your name?”", review: 'internal-editorial' },
+  "gruaUji1.options[0]": { al: "si quhesh?", en: "What is your name?", review: 'internal-editorial' },
   "gruaUji1.options[1]": { al: "pse është pusi i thatë?", en: "Why is the well dry?", review: 'internal-editorial' },
   "gruaUji1.options[2]": { al: "kush të thirri?", en: "Who called you?", review: 'internal-editorial' },
   "gruaUji1.options[3]": { al: "ku është kroi?", en: "Where is the spring?", review: 'internal-editorial' },
@@ -446,10 +446,10 @@ export const OPTION_READINGS_C = Object.freeze({
   "maroLitani2.options[2]": { al: "vër natën në furkë", en: "Put the night on the distaff.", review: 'internal-editorial' }, // 1500
   "maroLitani2.options[3]": { al: "tirr floririn", en: "Spin the gold.", review: 'internal-editorial' }, // 1501
   "maroLitani2.options[4]": { al: "tirr xhindët", en: "Spin the night-spirits.", review: 'internal-editorial' }, // 1502
-  "maroLitani3.options[0]": { al: "merr miellin dhe shko në shtëpi", en: "Take the flour and go home.", review: 'internal-editorial' }, // 1503
-  "maroLitani3.options[1]": { al: "laj gjelin", en: "Wash the rooster.", review: 'internal-editorial' }, // 1504
-  "maroLitani3.options[2]": { al: "qep dritën", en: "Sew the light.", review: 'internal-editorial' }, // 1505
-  "maroLitani3.options[3]": { al: "pres erën", en: "Cut the wind.", review: 'internal-editorial' }, // 1506
+  "maroLitani3.options[0]": { al: "merr miellin.", en: "Take the flour.", review: 'internal-editorial' },
+  "maroLitani3.options[1]": { al: "shko në shtëpi.", en: "Go home.", review: 'internal-editorial' },
+  "maroLitani3.options[2]": { al: "laj gjelin", en: "Wash the rooster.", review: 'internal-editorial' },
+  "maroLitani3.options[3]": { al: "qep dritën", en: "Sew the light.", review: 'internal-editorial' },
   "maroShtremberDore.options[0]": { al: "thuaj: mos pyesni më", en: "Say, “Do not ask any more.”", review: 'internal-editorial' }, // 1507
   "maroShtremberDore.options[1]": { al: "rri pa fjalë deri në agim", en: "Remain silent until dawn.", review: 'internal-editorial' }, // 1508
   "maroShtremberDore.options[2]": { al: "trego mundimin e lirit", en: "Describe the toil of the flax.", review: 'internal-editorial' }, // 1509
@@ -541,4 +541,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "varret1.options[3]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1595
   "varret1.options[4]": { al: "ndiz besën", en: "Light the oath.", review: 'internal-editorial' }, // 1596
   "varret1.options[5]": { al: "rri në qiriun", en: "Stay in the candle.", review: 'internal-editorial' }, // 1597
+  "besaBekim.options[3]": { al: "merr plakën", en: "Take the old woman.", review: 'internal-editorial' },
+  "maroLitani3.options[4]": { al: "pres erën", en: "Cut the wind.", review: 'internal-editorial' },
 })

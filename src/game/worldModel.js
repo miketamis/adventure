@@ -111,13 +111,13 @@ export const WORLD_BARRIERS = Object.freeze([
 // invariant it relaxes, why the story needs it and who should review it.
 export const STRUCTURAL_EXCEPTIONS = Object.freeze([
   {
-    id: 'wolf-carries-sleeper-to-den',
+    id: 'wolf-drags-fallen-sleeper-to-den',
     rule: 'interaction-distance',
-    edges: ['gjumi->shokuUjk', 'gjumi->eaten'],
-    reason: 'The encounter begins at the sleeping place, then the narrated scene carries the traveller to the wolf\'s deep-forest den.',
+    edges: ['gjumi->eaten'],
+    reason: 'The fatal struggle begins at the sleeping place; after the player falls, the wolf drags them to its deep-forest den.',
     source: 'content: gjumi outcome prose',
     owner: 'narrative',
-    review: 'when the wolf encounter gains an explicit journey node',
+    review: 'if the fatal outcome gains an explicit intermediate consequence scene',
   },
   {
     id: 'sun-stag-carries-maiden-home',

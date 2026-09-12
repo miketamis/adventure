@@ -633,4 +633,5 @@ export const LATE_READINGS = {
   "kali1.text[2]": { al: "Në agim, fryma e kalit bëhet e bardhë.", en: "At dawn, the horse’s breath turns white." },
   "thesarLeave.text[2]": { al: "Drita zbardh hyrjen e shpellës para teje.", en: "Light brightens the cave entrance ahead of you." },
   "lahuta1.text[4]": { al: "natën, drita e zjarrit bie mbi lahutë.", en: "At night, firelight falls across the lute." },
+  "besaBekim.text[2]": { al: "Bekimi rri me ty.", en: "The blessing stays with you." },
 }

@@ -182,8 +182,8 @@ export const PLACE_META = {
     happenings: [
       { title: 'the village square', nodes: ['fshatiSheshi'] },
       { title: 'birthday wishes at the family table', nodes: ['fshatiDitelindje', 'fshatiDitelindjeUrim'] },
-      { title: 'meeting Elira at the agreed place', nodes: ['eliraShesh', 'eliraEmriShesh', 'eliraBanore', 'eliraEmriBanore'] },
-      { title: "the guest's bread-and-salt errand", nodes: ['porosiaShesh', 'pazariFshatit', 'pazariPerserit', 'porosiaBlerje'] },
+      { title: 'meeting Elira at the agreed place', nodes: ['eliraShesh', 'eliraEmriShesh', 'eliraBanore', 'eliraEmriBanore', 'eliraPorosiaDorezuar'] },
+      { title: "the guest's bread-and-salt errand", nodes: ['porosiaShesh', 'pazariFshatit', 'pazariPerserit', 'porosiaBlerje', 'porosiaBlerjePergjigje'] },
       { title: "the old man's bench", nodes: ['sheshiPlak', 'sheshiPlak2', 'sheshiPlak3'] },
       { title: 'coffee at the square', nodes: ['kafeneja', 'kafeneja2'] },
     ],
@@ -283,6 +283,7 @@ export const PLACE_META = {
     name: 'buza e pyllit të madh — the forest edge',
     happenings: [
       { title: 'into the great forest', nodes: ['pylli1'] },
+      { title: "the three brothers and Kordha's oath", nodes: ['kordha1'] },
       { title: 'the dervish and the bear', nodes: ['arushe1', 'arushe2', 'arushePeme', 'arusheNate', 'arusheFund'] },
     ],
   },
@@ -534,7 +535,7 @@ export const PLACE_META = {
   lendina: {
     name: 'lëndina e zjarrit — the forest clearing',
     happenings: [
-      { title: 'the clearing and its sleeping-ground', nodes: ['lendina', 'gjumi'] },
+      { title: 'the clearing and its sleeping-ground', nodes: ['lendina', 'gjumi', 'gjumiUjkShok'] },
       { title: 'the sacred guest at the fire', nodes: ['besaFire', 'besaBekim'] },
       { title: 'the witch at the fire', nodes: ['shtrigaNate', 'shtrigaIkur'] },
     ],

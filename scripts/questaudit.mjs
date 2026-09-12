@@ -185,12 +185,14 @@ check('partial returns give the matching contextual reminder and always permit l
   }
 })
 
-check('turn-in consumes exact items, completes once, and pays no second reward', () => {
+check('turn-in completes in place; following to the guest-room remains a separate choice', () => {
   const option = actionOption('eliraBanore', 'turn-in')
   const before = activeState({ buke: 2, kripe: 3, lek: 800 })
   assert.equal(canChoose(teachOption(before, option), option), true)
   const after = choose(before, option)
-  assert.equal(after.nodeId, 'sofraMikut')
+  assert.equal(after.nodeId, 'eliraPorosiaDorezuar')
+  assert.equal(PLACE_OF[after.nodeId], PLACE_OF.eliraBanore,
+    'handing over the errand silently relocates the player')
   assert.equal(after.inventory.buke, 1)
   assert.equal(after.inventory.kripe, 2)
   assert.equal(after.inventory.lek, 800)
@@ -201,6 +203,14 @@ check('turn-in consumes exact items, completes once, and pays no second reward',
   assert.equal(duplicate, after)
   assert.equal(duplicate.inventory.buke, 1)
   assert.equal(duplicate.inventory.kripe, 2)
+
+  const follow = STORY.eliraPorosiaDorezuar.options.find((candidate) => candidate.to === 'sofraMikut')
+  const stay = STORY.eliraPorosiaDorezuar.options.find((candidate) => candidate.to === 'fshatiSheshi')
+  assert.ok(follow, 'the in-place response has no independent follow choice')
+  assert.ok(stay, 'the in-place response does not let the player stay in the square')
+  assert.equal(follow.questAction, undefined, 'following repeats the completed hand-in')
+  assert.equal(option.durationHours, 0, 'the hand-in consumes hidden travel time')
+  assert.ok(follow.durationHours > 0, 'the explicit journey has no travel duration')
 })
 
 check('decline can be reoffered; abandonment retains items and closes without another advance', () => {
@@ -255,7 +265,7 @@ check('bread and salt come from canonical inventory sources, never readiness fla
 
 check('guest-room follow-through respects learned Elira identity', () => {
   const completed = { ...activeState(), quests: { [Q]: { ...activeEntry, status: 'completed' } } }
-  for (const nodeId of ['sofraMikut', 'sofraMikut2']) {
+  for (const nodeId of ['eliraPorosiaDorezuar', 'sofraMikut', 'sofraMikut2']) {
     const unknown = visibleLines(STORY[nodeId], (id) => hasCond(completed, id)).map((line) => line.reading || '')
     const knownState = {
       ...completed,

@@ -9,6 +9,7 @@ import { STORY, lineOf, visibleLines } from '../src/game/content.js'
 import { CONVERSATION_HUBS } from '../src/game/conversationHub.js'
 import { albanianTextOf } from '../src/game/language.js'
 import { npcIdentityKnowledgeId } from '../src/game/npcIdentity.js'
+import { PLACE_OF } from '../src/components/nodePositions.js'
 
 const rawFlagId = (conditionId) => conditionId.replace(/^flag:/, '')
 const idsOf = (line) => line.filter((token) => token.id).map((token) => token.id)
@@ -101,9 +102,13 @@ assert.ok(STORY.behuriKulla.options.some((option) => albanianTextOf(option.text)
   'the stable-door reply is not an explicit choice')
 assert.equal(albanianTextOf(lineOf(STORY.porosiaBlerje.text[2])), 'fëmija pyet: çfarë ke marrë?',
   'the child’s market question again supplies the answer')
-assert.ok(STORY.porosiaBlerje.options.some((option) =>
-  albanianTextOf(option.text) === 'bukë dhe kripë për mikun. po kthehem në shesh.'),
-'the market answer is not part of the player’s chosen return')
+const marketAnswer = STORY.porosiaBlerje.options.find((option) =>
+  albanianTextOf(option.text) === 'bukë dhe kripë për mikun.')
+assert.ok(marketAnswer, 'the child’s market question has no explicit answer')
+assert.equal(PLACE_OF.porosiaBlerje, PLACE_OF[marketAnswer.to],
+  'answering the child also relocates the player')
+assert.ok(STORY[marketAnswer.to].options.some((option) => option.to === 'fshatiSheshi'),
+  'the child’s response does not offer an independent return to the square')
 assert.ok(STORY.sheruesi.options.some((option) =>
   albanianTextOf(option.text) === 'më dhemb këtu. kam nevojë për ndihmë.'
   && option.effects?.some((effect) => effect.type === 'flag' && effect.id === 'askedForHelp')),
@@ -112,6 +117,18 @@ assert.ok(STORY.sofraMikut2.options.some((option) =>
   albanianTextOf(option.text) === 'po, merre.'
   && option.effects?.some((effect) => effect.type === 'flag' && effect.id === 'gaveGuestBread')),
 'the guest’s bread request has no optional explicit reply')
+const dryWellAgreement = STORY.sofraMikut2.options.find((option) =>
+  albanianTextOf(option.text) === 'po, jam dakord.')
+assert.ok(dryWellAgreement, 'the dry-well plan is not an explicit player reply')
+assert.equal(dryWellAgreement.intent, 'speech', 'the dry-well agreement is not classified as speech')
+assert.deepEqual(dryWellAgreement.playerIntents, ['speech'],
+  'the dry-well agreement claims to perform another player intention')
+assert.equal(PLACE_OF.sofraMikut2, PLACE_OF[dryWellAgreement.to],
+  'agreeing to investigate the dry well also starts the journey')
+assert.ok(STORY[dryWellAgreement.to].options.some((option) => option.to === 'pusiThate'),
+  'the response has no later explicit journey to the dry well')
+assert.ok(STORY[dryWellAgreement.to].options.some((option) => option.to === 'fshatiSheshi'),
+  'the response traps the player into the dry-well journey')
 assert.ok(!suppliedPlayerReplies.some((address) => address.startsWith('kroi1.')),
   'the spring girl still supplies the player’s reply')
 assert.ok(STORY.kroi1.options.some((option) => albanianTextOf(option.text) === 'dua ujë, të lutem.'),

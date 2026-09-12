@@ -236,7 +236,10 @@ assert.equal(edge('gbMuji1', 'gbMujiFund')?.consumes, 'qumesht')
 assert.equal(edge('gbMuji1', 'gbMujiFund')?.hearts, 3)
 assert.equal(edge('shqipe3', 'shqipeBarter')?.grant, 'zogShqiponje')
 assert.equal(edge('shqipeBarter', 'shqipeFund')?.consumes, 'zogShqiponje')
-assert.equal(edge('gjarperKerkim', 'gjarperKulshedra')?.grant, 'kripe')
+// Reaching the coast and picking up the salt are separate intentions: the
+// arrival edge moves only, then the same-place action owns the inventory gain.
+assert.equal(edge('gjarperKerkim', 'gjarperKulshedra')?.grant, undefined)
+assert.equal(edge('gjarperKulshedra', 'gjarperKulshedra')?.grant, 'kripe')
 assert.equal(edge('gjarperKulshedra', 'gjarperBurrFund')?.consumes, 'kripe')
 assert.equal(edge('pylli1', 'kordha1')?.grant, 'shpataKordhes')
 assert.ok(asList(edge('kordha2', 'kordhaFund')?.requires).includes('shpataKordhes'))

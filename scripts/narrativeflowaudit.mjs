@@ -222,8 +222,8 @@ for (const [nodeId, node] of Object.entries(STORY)) {
 
 const reviewIds = REVIEWED_NARRATIVE_CORRIDORS.map((review) => review.id)
 assert.equal(new Set(reviewIds).size, reviewIds.length, 'narrative corridor review ids are not unique')
-assert.equal(REVIEWED_NARRATIVE_CORRIDORS.length, 8,
-  'the eight individually reviewed baseline corridors changed without a migration review')
+assert.equal(REVIEWED_NARRATIVE_CORRIDORS.length, 10,
+  'the ten individually reviewed baseline corridors changed without a migration review')
 
 const consequenceSignature = (option) => JSON.stringify({
   to: option.to,
@@ -262,7 +262,7 @@ const corridorAgencyNodes = [...new Set(REVIEWED_NARRATIVE_CORRIDORS
   .flatMap((review) => review.agencyAt || []))].sort()
 assert.deepEqual(Object.keys(REVIEWED_UNGATED_AGENCY_CHOICES).sort(), corridorAgencyNodes,
   'the canonical ungated-choice reviews must cover every restored-agency decision exactly')
-const agencyPurposes = new Set(['answer', 'exit', 'accept', 'decline', 'rescue', 'flee', 'listen', 'descend'])
+const agencyPurposes = new Set(['answer', 'exit', 'accept', 'decline', 'rescue', 'flee', 'listen', 'descend', 'travel', 'stay'])
 for (const [nodeId, review] of Object.entries(REVIEWED_UNGATED_AGENCY_CHOICES)) {
   assert.ok(review.reason.length >= 100, `${nodeId}: ungated agency review needs a concrete reason`)
   const expectedCorridors = REVIEWED_NARRATIVE_CORRIDORS

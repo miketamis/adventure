@@ -60,6 +60,22 @@ export const REVIEWED_NARRATIVE_CORRIDORS = Object.freeze([
     reason: 'Both dialogue boundaries let the traveller abandon the dangerous underworld rescue; the character reveal is never a compulsory sequence of continue buttons.',
   }),
   Object.freeze({
+    id: 'elira-errand-turn-in-and-follow',
+    nodes: ['eliraBanore', 'eliraPorosiaDorezuar', 'sofraMikut'],
+    category: 'transaction-and-travel',
+    disposition: 'agency-restored',
+    agencyAt: ['eliraPorosiaDorezuar'],
+    reason: 'Handing Elira the requested food resolves in the village square; afterward the traveller may accompany her to the guest-room or remain in the square instead of being moved by the hand-in action.',
+  }),
+  Object.freeze({
+    id: 'market-answer-and-departure',
+    nodes: ['porosiaBlerje', 'porosiaBlerjePergjigje', 'fshatiSheshi'],
+    category: 'information-dialogue',
+    disposition: 'agency-restored',
+    agencyAt: ['porosiaBlerjePergjigje'],
+    reason: 'Answering the child about the purchased food resolves at the market; afterward the traveller may leave for the square or remain at the market instead of being relocated by the spoken answer.',
+  }),
+  Object.freeze({
     id: 'kulshedra-finishing-blow',
     nodes: ['kulshLufte2', 'fitorja', 'springReturn'],
     category: 'combat-resolution',
@@ -101,10 +117,12 @@ export const REVIEWED_UNGATED_AGENCY_CHOICES = Object.freeze({
   zanaKripe: Object.freeze({
     corridors: ['zana-two-gifts'],
     options: Object.freeze([
-      Object.freeze({ to: 'zanaFole', purpose: 'accept' }),
-      Object.freeze({ to: 'zanaFole', purpose: 'decline' }),
+      Object.freeze({ to: 'zanaKripe', purpose: 'accept' }),
+      Object.freeze({ to: 'zanaKripe', purpose: 'decline' }),
+      Object.freeze({ to: 'zanaFole', purpose: 'travel' }),
+      Object.freeze({ to: 'zana1', purpose: 'exit' }),
     ]),
-    reason: 'Salt is a separate offered gift, so the learner must be free to accept or decline it without a reveal gate silently deciding what enters the inventory.',
+    reason: 'Salt is a separate offered gift, so accepting or declining resolves in place; only afterward does the traveller independently choose whether to climb with the Zana or turn back.',
   }),
   tomor2: Object.freeze({
     corridors: ['tomor-sword-and-warning'],
@@ -145,5 +163,21 @@ export const REVIEWED_UNGATED_AGENCY_CHOICES = Object.freeze({
       Object.freeze({ to: 'humbur', purpose: 'flee' }),
     ]),
     reason: 'Freeing the captive does not trap the traveller in dialogue: listening to her story and fleeing the underworld remain visible, distinct choices.',
+  }),
+  eliraPorosiaDorezuar: Object.freeze({
+    corridors: ['elira-errand-turn-in-and-follow'],
+    options: Object.freeze([
+      Object.freeze({ to: 'sofraMikut', purpose: 'travel' }),
+      Object.freeze({ to: 'fshatiSheshi', purpose: 'stay' }),
+    ]),
+    reason: 'The completed delivery must leave both physical intentions visible: the traveller may deliberately follow Elira to the guest-room or stay in the square and continue exploring the open world.',
+  }),
+  porosiaBlerjePergjigje: Object.freeze({
+    corridors: ['market-answer-and-departure'],
+    options: Object.freeze([
+      Object.freeze({ to: 'fshatiSheshi', purpose: 'exit' }),
+      Object.freeze({ to: 'pazariFshatit', purpose: 'stay' }),
+    ]),
+    reason: 'Once the child has answered, leaving and staying are equally immediate navigation intentions; neither should be hidden behind decoding unrelated response prose or forced by the conversation.',
   }),
 })

@@ -247,6 +247,7 @@ export const NODE_AT = {
   besaFire: 'lendina',
   shtrigaIkur: 'shtrigaNate',
   gjumi: 'lendina', // the shared sleep scene is the clearing's sleeping-ground
+  gjumiUjkShok: 'lendina', // feeding the wolf resolves before any onward walk
   fshatiDil: [604, 180],
   dilFrike: 'fshatiDil',
   ura: [380, 1240],
@@ -360,10 +361,12 @@ export const NODE_AT = {
   eliraEmriShesh: 'fshatiSheshi',
   eliraBanore: 'fshatiSheshi',
   eliraEmriBanore: 'fshatiSheshi',
+  eliraPorosiaDorezuar: 'fshatiSheshi',
   porosiaShesh: 'fshatiSheshi',
   pazariFshatit: 'fshatiSheshi',
   pazariPerserit: 'fshatiSheshi',
   porosiaBlerje: 'fshatiSheshi',
+  porosiaBlerjePergjigje: 'fshatiSheshi',
   dasma1: [598, 448], // the wedding yard — the feast-house ground east of the square (krushqit ride here)
   dasmaFund: 'dasma1',
   valleFund: 'dasma1',
@@ -536,9 +539,10 @@ export const NODE_AT = {
   zuku1: [668, -318],
   zuku2: 'zuku1',
   zukuFund: 'zuku1',
-  // the sword-brothers tale marches west from the bear glade toward the palace:
-  // the brothers -> the moat leap -> the road to the palace gate
-  kordha1: [-600, 352],
+  // The first Kordha conversation is with the same three brothers already
+  // visible at the forest edge. Their later oath begins the walk toward the
+  // moat and palace; speaking to them does not move the player first.
+  kordha1: 'pylli1',
   kordha2: [-680, 260],
   kordhaMoat: [-648, 306],
   kordhaMoatVdes: 'kordhaMoat',
