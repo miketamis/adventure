@@ -232,21 +232,35 @@ export const formTrackForSense = (id) => {
 
 export const playableFormUsage = (id) => usage.get(id) || new Map()
 
+export const isReviewedProductionContext = (context) => Boolean(
+  context && (
+    context.reviewedEnglish === true ||
+    ['reviewed-noun-template', 'reviewed-line-reading', 'reviewed-dictionary-context'].includes(context.provenance)
+  ),
+)
+
 export function playableContextForSense(id, surface = DICT[id]?.al) {
   if (!DICT[id] || typeof surface !== 'string') return null
-  const harvested = playableFormUsage(id).get(lower(surface))?.examples?.[0]
-  if (harvested) return harvested
+  // Never turn token-by-token dictionary glosses into an English sentence.
+  // Production needs an editor-authored whole-line cue; an unreviewed story
+  // occurrence is evidence of Albanian use, but not permission to teach its
+  // mechanical interlinear reading as natural English.
+  const harvested = playableFormUsage(id).get(lower(surface))?.examples
+    ?.find((candidate) => candidate.reviewedEnglish)
+  if (isReviewedProductionContext(harvested)) return harvested
   const authored = DICT[id].ctx
-  if (!authored?.al || !authored?.en || !authored?.focus) return null
+  if (!authored?.al || !authored?.focus || authored.retrieval?.reviewed !== true || !authored.retrieval?.en) return null
   const words = authored.al.split(/\s+/u)
   const targetTokenIndex = words.findIndex((word) => lower(word.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, '')) === lower(authored.focus))
   if (targetTokenIndex < 0) return null
   return Object.freeze({
     al: authored.al,
-    en: authored.retrieval?.reviewed ? authored.retrieval.en : authored.en.replace('__', DICT[id].en),
+    en: authored.retrieval.en,
     focus: authored.focus,
     targetTokenIndex,
     alGap: words.map((word, index) => index === targetTokenIndex ? '__' : word).join(' '),
+    reviewedEnglish: true,
+    provenance: 'reviewed-dictionary-context',
   })
 }
 

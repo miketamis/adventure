@@ -28,6 +28,7 @@ const cefrCapstone = read('src/components/CefrCapstone.jsx')
 const practiceReturn = read('src/game/practiceReturn.js')
 const phrasePractice = read('src/components/PhrasePracticeQuestion.jsx')
 const contextualCompletion = read('src/components/ContextualCompletion.jsx')
+const trainingActivityShell = read('src/components/TrainingActivityShell.jsx')
 const contextQuestionPresentation = read('src/game/contextQuestionPresentation.js')
 const phrasePracticeLogic = read('src/game/phrasePractice.js')
 const scenePresentation = read('src/game/scenePresentation.js')
@@ -221,8 +222,9 @@ check('word context and phrase cloze share one accessible mirrored completion su
   contextQuestionPresentation.includes('`What does ${quoted(surface)} mean here?`') &&
   practice.includes('<span lang="sq">“{q.targetReference.instructionTarget}”</span>') &&
   phrasePractice.includes('directionLabel="Meaning → Albanian"') &&
-  contextualCompletion.includes('role="group"') &&
-  contextualCompletion.includes('aria-labelledby={headingId}') &&
+  contextualCompletion.includes('<TrainingActivityShell') &&
+  trainingActivityShell.includes('role="group"') &&
+  trainingActivityShell.includes('aria-labelledby={headingId}') &&
   contextualCompletion.includes('answerGroupLabel') &&
   contextualCompletion.includes('type="button"') &&
   contextualCompletion.includes('role="status"') &&
@@ -240,12 +242,11 @@ check('word construction and spelling render one shared explicit target referenc
   practice.includes('q.typingContext?.alGap') &&
   contextualCompletion.includes('aria-label={word}'))
 check('normal Train hides internal progression badges while debug retains them',
-  practice.includes('badge={state.debug ?') &&
-  practice.includes('state.debug && q.difficultyLabel') &&
+  practice.includes('debugMeta={q.difficultyLabel') &&
   practice.includes('debug={state.debug}') &&
   phrasePractice.includes('debug = false') &&
-  phrasePractice.includes('badge={debug ?') &&
-  phrasePractice.includes('debug && <span className="phrase-label"'))
+  phrasePractice.includes('debugMeta={<span className="phrase-label">') &&
+  trainingActivityShell.includes('debug && debugMeta'))
 check('CEFR journeys are labelled and keep Albanian assessment surfaces language-tagged',
   cefrCapstone.includes('aria-labelledby="cefr-title"') &&
   cefrCapstone.includes('aria-labelledby="cefr-task-title"') &&
@@ -265,7 +266,7 @@ check('CEFR microphone capture is private, revocable and never transcribed into 
 check('phrase exercise mode classes cannot inherit a child control layout',
   phrasePractice.includes('phrase-exercise phrase-mode-${q.mode}') &&
   !phrasePractice.includes('phrase-exercise phrase-${q.mode}') &&
-  styles.includes('.phrase-exercise,\n.contextual-completion {'))
+  styles.includes('.training-activity-shell {'))
 check('phrase listening uses one continuous authored recording',
   audio.includes('export function playPhrase(al)') &&
   phrasePractice.includes('playPhrase(q.target.al)') &&

@@ -15,6 +15,7 @@ import {
 import { playActionPhrase, setMuted } from '../src/game/audio.js'
 import { storyConfuserConsequence } from '../src/game/consequenceBuilders.js'
 import { optionEnglishReadingOf } from '../src/game/data/readings/reviewedOptionReadings.js'
+import fs from 'node:fs'
 
 const checks = []
 async function check(name, test) {
@@ -31,6 +32,22 @@ async function check(name, test) {
 const grant = (state, line) => reducer(state, {
   type: 'DEBUG_GRANT',
   ids: phraseSenses(line),
+})
+
+await check('the app keeps the source scene inert until karaoke playback settles', () => {
+  const app = fs.readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
+  const karaoke = fs.readFileSync(new URL('../src/components/ActionKaraoke.jsx', import.meta.url), 'utf8')
+  const previewAt = app.indexOf('const preview = reducer(current, action)')
+  const mountAt = app.indexOf('<ActionKaraoke action={actionTransition}')
+  assert.ok(previewAt >= 0 && mountAt > previewAt, 'accepted action is not previewed before karaoke mounts')
+  assert.match(app, /const finishActionTransition = useCallback\([\s\S]*?baseDispatch\(transition\.action\)/)
+  assert.match(app, /confirmReset \|\| actionTransition/)
+  assert.match(app, /inert=\{blockingOverlay \? '' : undefined\}/)
+  assert.match(app, /<ActionKaraoke action=\{actionTransition\} onComplete=\{finishActionTransition\}/)
+  assert.match(karaoke, /playActionPhrase\(action\.al/)
+  assert.match(karaoke, /\.then\(finish, finish\)/)
+  assert.match(karaoke, /--karaoke-progress/)
+  assert.match(karaoke, /lang="sq"/)
 })
 
 await check('a committed story choice emits its exact complete Albanian action once', () => {
@@ -143,10 +160,9 @@ await check('one-shot action speech is omitted from saves and dropped on reload'
   }
 })
 
-await check('fallback speech sends one whole sq-AL utterance and mute stays silent', async () => {
+await check('missing MP3 stays silent without browser speech synthesis and mute stays silent', async () => {
   const originalAudio = globalThis.Audio
   const originalSynth = globalThis.speechSynthesis
-  const originalUtterance = globalThis.SpeechSynthesisUtterance
   const utterances = []
   class MissingRecording {
     pause() {}
@@ -155,36 +171,26 @@ await check('fallback speech sends one whole sq-AL utterance and mute stays sile
       return Promise.resolve()
     }
   }
-  class Utterance {
-    constructor(text) { this.text = text }
-  }
   globalThis.Audio = MissingRecording
-  globalThis.SpeechSynthesisUtterance = Utterance
   globalThis.speechSynthesis = {
     cancel() {},
-    getVoices: () => [{ lang: 'sq-AL', name: 'Albanian' }],
     speak(utterance) {
       utterances.push(utterance)
-      queueMicrotask(() => utterance.onend?.())
     },
   }
   try {
     setMuted(false)
-    assert.equal(await playActionPhrase('po shkoj në fshat.'), true)
-    assert.equal(utterances.length, 1)
-    assert.equal(utterances[0].text, 'po shkoj në fshat.')
-    assert.equal(utterances[0].lang, 'sq-AL')
+    assert.equal(await playActionPhrase('po shkoj në fshat.'), false)
+    assert.equal(utterances.length, 0)
     setMuted(true)
     assert.equal(await playActionPhrase('kjo nuk duhet të dëgjohet'), false)
-    assert.equal(utterances.length, 1)
+    assert.equal(utterances.length, 0)
   } finally {
     setMuted(false)
     if (originalAudio === undefined) delete globalThis.Audio
     else globalThis.Audio = originalAudio
     if (originalSynth === undefined) delete globalThis.speechSynthesis
     else globalThis.speechSynthesis = originalSynth
-    if (originalUtterance === undefined) delete globalThis.SpeechSynthesisUtterance
-    else globalThis.SpeechSynthesisUtterance = originalUtterance
   }
 })
 

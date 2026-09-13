@@ -18,7 +18,11 @@ import {
   wordContrastRank,
 } from './practiceContrasts.js'
 import { isTrainableSense } from './lexicalTrainability.js'
-import { playableContextForSense, wordProgressionOptionsForSense } from './formInventory.js'
+import {
+  isReviewedProductionContext,
+  playableContextForSense,
+  wordProgressionOptionsForSense,
+} from './formInventory.js'
 import { buildConstructionPieces, buildFormQuestion } from './formPractice.js'
 import {
   choiceSetIsValid,
@@ -311,11 +315,17 @@ export function buildWordQuestion({
   const questionKey = `${answerId}:word:${currentRound}:${plan.tier}:${plan.mode}:${plan.variantId || plan.contextVariantId || 'isolated'}:${contextKey}:${questionSequence++}`
   const productionSurface = plan.formTarget?.surface || DICT[answerId].al
   const productionContext = plan.formTarget?.context || playableContextForSense(answerId, productionSurface)
+  // A sentence-shaped English production cue must be a reviewed whole-line
+  // reading. If no such context exists, the later builders use the concise
+  // dictionary meaning instead of exposing an interlinear gloss collage.
+  const reviewedProductionContext = isReviewedProductionContext(productionContext)
+    ? productionContext
+    : null
   if (!plan.contextReview && plan.stageId === 'word-form-construction') {
     const targetReference = wordProductionTargetReference({
       mode: 'construction',
-      meaningCue: productionContext?.en || senseText(answerId, 'en'),
-      context: productionContext,
+      meaningCue: reviewedProductionContext?.en || senseText(answerId, 'en'),
+      context: reviewedProductionContext,
     })
     if (!targetReference.valid) return null
     return {
@@ -331,7 +341,7 @@ export function buildWordQuestion({
       remediation: plan.remediation,
       targetFormKey: plan.targetFormKey,
       surface: productionSurface,
-      context: productionContext,
+      context: reviewedProductionContext,
       targetReference,
       construction: buildConstructionPieces(productionSurface, {
         distractorCount: plan.definition.variant.distractorChunks,
@@ -343,11 +353,11 @@ export function buildWordQuestion({
     }
   }
   if (plan.mode === 'type') {
-    const typingCue = productionContext?.en || senseText(answerId, 'en')
+    const typingCue = reviewedProductionContext?.en || senseText(answerId, 'en')
     const targetReference = wordProductionTargetReference({
       mode: 'spelling',
       meaningCue: typingCue,
-      context: productionContext,
+      context: reviewedProductionContext,
     })
     if (!targetReference.valid) return null
     return {
@@ -364,7 +374,7 @@ export function buildWordQuestion({
       answerTolerance: plan.answerTolerance,
       targetFormKey: plan.targetFormKey,
       typingCue,
-      typingContext: productionContext,
+      typingContext: reviewedProductionContext,
       targetReference,
       typingAnswer: productionSurface,
       lexicalSurfaces: [productionSurface],

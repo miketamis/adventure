@@ -1,5 +1,5 @@
-import { useId } from 'react'
 import { CONTEXT_TARGET_PRESENTATION } from '../game/contextQuestionPresentation.js'
+import TrainingActivityShell from './TrainingActivityShell.jsx'
 
 export { CONTEXT_TARGET_PRESENTATION } from '../game/contextQuestionPresentation.js'
 
@@ -43,6 +43,7 @@ function ContextLine({ line }) {
 
 export default function ContextualCompletion({
   instruction,
+  debug = false,
   directionLabel,
   badge,
   lines = [],
@@ -56,22 +57,20 @@ export default function ContextualCompletion({
   feedbackTone,
   className = '',
 }) {
-  const headingId = useId()
   const correctIds = new Set(correctAnswerIds)
 
   return (
-    <div
+    <TrainingActivityShell
+      instruction={instruction}
+      debug={debug}
       className={`contextual-completion ${className}`.trim()}
-      role="group"
-      aria-labelledby={headingId}
-    >
-      <div className="prompt">
-        <h3 id={headingId}>{instruction}</h3>
+      debugMeta={(
         <span className="contextual-completion-meta">
-          <span className="contextual-completion-direction">{directionLabel}</span>
+          {directionLabel && <span className="contextual-completion-direction">{directionLabel}</span>}
           {badge && <span className="phrase-label">{badge}</span>}
         </span>
-      </div>
+      )}
+    >
 
       <div className="contextual-completion-lines">
         {lines.map((line) => <ContextLine line={line} key={line.id} />)}
@@ -106,6 +105,6 @@ export default function ContextualCompletion({
       >
         {answered && feedback}
       </div>
-    </div>
+    </TrainingActivityShell>
   )
 }

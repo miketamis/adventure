@@ -4,7 +4,12 @@
 import assert from 'node:assert/strict'
 import { DICT } from '../src/game/content.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
-import { wordProgressionOptionsForSense } from '../src/game/formInventory.js'
+import {
+  isReviewedProductionContext,
+  playableContextForSense,
+  playableFormUsage,
+  wordProgressionOptionsForSense,
+} from '../src/game/formInventory.js'
 import { isTrainableSense } from '../src/game/lexicalTrainability.js'
 import {
   choiceSetErrors,
@@ -61,6 +66,26 @@ const validateWordQuestion = (question) => {
       expectedOptionCount: question.options.length,
       locale: question.kind === 'form-context' ? 'sq' : 'en',
     }), [], `${question.questionKey}: form bank has more than one visible answer`)
+  }
+  if (question.kind === 'word-construction' || question.kind === 'word-spelling') {
+    const context = question.kind === 'word-spelling' ? question.typingContext : question.context
+    if (context) {
+      assert.equal(isReviewedProductionContext(context), true,
+        `${question.questionKey}: sentence production cue came from joined token glosses`)
+      assert.equal(question.targetReference.meaningCue, context.en,
+        `${question.questionKey}: production replaced the reviewed whole-sentence English cue`)
+    }
+  }
+}
+
+// Audit the whole harvested context bank, not merely whichever questions the
+// deterministic scheduler happens to sample below. Unreviewed occurrences may
+// prove that an Albanian form is playable, but can never become English prose.
+for (const id of Object.keys(DICT).filter(isTrainableSense)) {
+  for (const surface of playableFormUsage(id).keys()) {
+    const context = playableContextForSense(id, surface)
+    if (context) assert.equal(isReviewedProductionContext(context), true,
+      `${id}/${surface}: playable production context is not whole-line reviewed English`)
   }
 }
 

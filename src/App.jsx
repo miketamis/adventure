@@ -1,4 +1,4 @@
-import { lazy, Suspense, useReducer, useState, useEffect, useRef, useSyncExternalStore } from 'react'
+import { lazy, Suspense, useCallback, useReducer, useState, useEffect, useRef, useSyncExternalStore } from 'react'
 import {
   currentStoryState,
   loadState,
@@ -8,7 +8,7 @@ import {
   timeOfDay,
 } from './game/gameState.js'
 import { embodimentIdentity, embodimentQuest } from './game/embodiment.js'
-import { isMuted, playActionPhrase, toggleMute, subscribeMute } from './game/audio.js'
+import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
 import { ACHIEVEMENT_IDS } from './game/achievementRules.js'
 import { STORY } from './game/content.js'
 import { attachReviewedEnglishReadings } from './game/language.js'
@@ -31,10 +31,12 @@ const MiniMap = lazy(() => import('./components/MiniMap.jsx'))
 // ordinary opening route and fetch it only when that event actually occurs.
 const TimePassage = lazy(() => import('./components/TimePassage.jsx'))
 const EmbodimentConfirm = lazy(() => import('./components/EmbodimentConfirm.jsx'))
+const ActionKaraoke = lazy(() => import('./components/ActionKaraoke.jsx'))
 const BUILD_COMMIT = __BUILD_COMMIT__
+const SPOKEN_ACTION_TYPES = ['CHOOSE', 'CONFUSE', 'USE_ITEM', 'HEAL', 'CONFIRM_EMBODIMENT']
 
 const ViewFallback = () => (
-  <div className="card view-fallback" role="status" aria-live="polite">Opening this part of the journey…</div>
+  <div className="card view-fallback" role="status" aria-live="polite">Opening the journey…</div>
 )
 
 function BlockingModal({ id, title, className = '', onDismiss, returnFocusRef, children, actions }) {
@@ -111,7 +113,41 @@ const TIME_UI = {
 }
 
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, undefined, loadState)
+  const [state, baseDispatch] = useReducer(reducer, undefined, loadState)
+  const stateRef = useRef(state)
+  stateRef.current = state
+  const [actionTransition, setActionTransition] = useState(null)
+  const actionTransitionRef = useRef(null)
+  const dispatch = useCallback((action) => {
+    // Keep the current scene visible while the accepted Albanian action plays.
+    // The reducer remains the authority for validity: only an action whose
+    // preview emits a new committed-speech event receives this transition.
+    if (actionTransitionRef.current) return
+    if (!SPOKEN_ACTION_TYPES.includes(action?.type)) {
+      baseDispatch(action)
+      return
+    }
+    const current = stateRef.current
+    const preview = reducer(current, action)
+    const event = preview !== current && preview.actionSpeech?.id !== current.actionSpeech?.id
+      ? preview.actionSpeech
+      : null
+    if (!event?.al) {
+      baseDispatch(action)
+      return
+    }
+    const transition = { id: event.id, al: event.al, action }
+    actionTransitionRef.current = transition
+    setActionTransition(transition)
+  }, [])
+  const finishActionTransition = useCallback((transition) => {
+    if (actionTransitionRef.current?.id !== transition.id) return
+    // Nothing else can dispatch while the overlay is active, so the same
+    // action is still valid against the unchanged source scene.
+    baseDispatch(transition.action)
+    actionTransitionRef.current = null
+    setActionTransition(null)
+  }, [])
   const [, setReadingCorpusVersion] = useState(0)
   const readingCorpusPromise = useRef(null)
   const [confirmReset, setConfirmReset] = useState(false)
@@ -130,17 +166,6 @@ export default function App() {
     }
   }
   const muted = useSyncExternalStore(subscribeMute, isMuted)
-  const playedActionSpeechId = useRef(null)
-  // The reducer emits this only after a real story action commits. Keeping the
-  // consumed id in the mounted app prevents StrictMode, rerenders and unrelated
-  // state updates from replaying it; saves omit the event entirely, so reload
-  // cannot repeat an old action. Playback failure is non-blocking.
-  useEffect(() => {
-    const event = state.actionSpeech
-    if (!event || event.id === playedActionSpeechId.current) return
-    playedActionSpeechId.current = event.id
-    void playActionPhrase(event.al)
-  }, [state.actionSpeech])
   // Story sky follows the active tale's own hour. Maps, study tools and every
   // paused/free-roam scene stay on the monotonic living-world clock.
   const displayState = state.view === 'story' ? currentStoryState(state) : state
@@ -150,7 +175,7 @@ export default function App() {
   const activeIdentity = embodimentIdentity(state)
   const blockingOverlay = Boolean(
     state.pendingHeartConsequence || state.timePassage || state.pendingEmbodiment ||
-    state.hearts <= 0 || confirmReset,
+    state.hearts <= 0 || confirmReset || actionTransition,
   )
   // Fluent whole-line English is an editorial/debug aid, never normal-play
   // scaffolding. Fetch its substantial corpus only when debug is actually
@@ -352,6 +377,12 @@ export default function App() {
       </main>
 
       </div>
+
+      {actionTransition && (
+        <Suspense fallback={<div className="action-karaoke-overlay" aria-hidden="true" />}>
+          <ActionKaraoke action={actionTransition} onComplete={finishActionTransition} />
+        </Suspense>
+      )}
 
       {state.pendingHeartConsequence && (
         <BlockingModal

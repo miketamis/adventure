@@ -14,7 +14,7 @@
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { DICT, STORY } from '../src/game/content.js'
+import { DICT, HEART_LEVELS, ITEMS, STORY } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { CEFR_TASKS } from '../src/game/cefrTasks.js'
@@ -131,6 +131,7 @@ async function main() {
     EVERYDAY_PHRASE_DRILLS,
     CEFR_TASKS,
     CEFR_PREPARATION_ACTIVITIES,
+    { items: ITEMS, heartLevels: HEART_LEVELS },
   )
   const cefrVoiceBySlug = new Map()
   for (const task of CEFR_TASKS) {

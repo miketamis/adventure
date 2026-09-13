@@ -160,7 +160,10 @@ const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
 const READING_CHUNK_RAW_BUDGET = 350 * KiB
 const READING_CHUNK_GZIP_BUDGET = 100 * KiB
 const AUDIO_FILE_BUDGET = 64 * KiB
-const AUDIO_TOTAL_BUDGET = 30 * 1024 * KiB
+// Every accepted story action now has one continuous, on-demand MP3 so action
+// karaoke never falls back to stitched word clips or browser TTS. Keep a
+// measured ceiling over that complete 4,486-clip archive; none is eager-loaded.
+const AUDIO_TOTAL_BUDGET = 48 * 1024 * KiB
 
 assert.ok(entry.raw <= SHELL_RAW_BUDGET,
   `release shell grew to ${display(entry.raw)} (budget ${display(SHELL_RAW_BUDGET)}); inspect shell imports`)

@@ -1069,8 +1069,7 @@ svg [role="button"]:focus-visible {
 }
 .practice-question { width: 100%; min-width: 0; }
 .practice-question[tabindex="-1"]:focus { outline: none; }
-.phrase-exercise,
-.contextual-completion {
+.training-activity-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   width: min(780px, 100%);
@@ -1084,8 +1083,7 @@ svg [role="button"]:focus-visible {
     linear-gradient(160deg, color-mix(in srgb, var(--panel-2) 92%, #182025), var(--panel-2));
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
 }
-.phrase-exercise .prompt,
-.contextual-completion .prompt {
+.training-activity-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -1098,11 +1096,12 @@ svg [role="button"]:focus-visible {
   font-size: clamp(17px, 2.5vw, 21px);
   font-weight: 700;
 }
-.contextual-completion .prompt h3 {
+.training-activity-header h3 {
   margin: 0;
   color: inherit;
   font: inherit;
 }
+.training-activity-debug-meta,
 .contextual-completion-meta {
   display: inline-flex;
   align-items: center;
@@ -1461,6 +1460,50 @@ svg [role="button"]:focus-visible {
 .feedback.good { color: var(--accent); }
 .feedback.bad { color: var(--danger); }
 
+.action-karaoke-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 7, 10, 0.76);
+  backdrop-filter: blur(7px);
+}
+.action-karaoke {
+  width: min(720px, 100%);
+  padding: clamp(24px, 6vw, 48px);
+  border: 1px solid color-mix(in srgb, var(--mana) 58%, var(--line));
+  border-radius: 20px;
+  background: radial-gradient(circle at 50% 0%, #243036, var(--panel) 60%);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .5);
+  text-align: center;
+}
+.action-karaoke-label {
+  color: var(--muted);
+  font: 700 11px/1.2 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.action-karaoke-label:focus { outline: none; }
+.action-karaoke p {
+  margin: 18px 0 0;
+  font-size: clamp(30px, 7vw, 54px);
+  line-height: 1.3;
+}
+.action-karaoke p span {
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0,
+    var(--accent) var(--karaoke-progress),
+    color-mix(in srgb, var(--ink) 54%, var(--muted)) var(--karaoke-progress),
+    color-mix(in srgb, var(--ink) 54%, var(--muted)) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
 @media (max-width: 560px) {
   .cefr-entry { grid-template-columns: 1fr; }
   .cefr-entry-status { justify-content: flex-start; }
@@ -1480,10 +1523,8 @@ svg [role="button"]:focus-visible {
   .cefr-prep-context-cues { grid-template-columns: 1fr; }
   .cefr-prep-mechanics article { align-items: stretch; flex-direction: column; }
   .cefr-prep-activity-buttons { justify-content: flex-start; }
-  .phrase-exercise,
-  .contextual-completion { padding: 16px 14px 18px; border-radius: 12px; }
-  .phrase-exercise .prompt,
-  .contextual-completion .prompt { align-items: flex-start; flex-direction: column; }
+  .training-activity-shell { padding: 16px 14px 18px; border-radius: 12px; }
+  .training-activity-header { align-items: flex-start; flex-direction: column; }
   .contextual-completion-answers { grid-template-columns: 1fr; }
   .phrase-match-board { grid-template-columns: 1fr; }
   .phrase-check { width: 100%; }

@@ -10,6 +10,7 @@ import {
 import ContextualCompletion, {
   CONTEXT_TARGET_PRESENTATION,
 } from './ContextualCompletion.jsx'
+import TrainingActivityShell from './TrainingActivityShell.jsx'
 
 const MODE_COPY = Object.freeze({
   arrange: 'Build the Albanian phrase',
@@ -239,6 +240,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
       <ContextualCompletion
         className="phrase-mode-cloze"
         instruction={promptCopy}
+        debug={debug}
         directionLabel="Meaning → Albanian"
         badge={debug ? `everyday phrase · ${q.difficultyLabel}` : null}
         lines={[
@@ -276,11 +278,12 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
   }
 
   return (
-    <div className={`phrase-exercise phrase-mode-${q.mode}`}>
-      <div className="prompt">
-        {promptCopy}{' '}
-        {debug && <span className="phrase-label">everyday phrase · {q.difficultyLabel}</span>}
-      </div>
+    <TrainingActivityShell
+      className={`phrase-exercise phrase-mode-${q.mode}`}
+      instruction={promptCopy}
+      debug={debug}
+      debugMeta={<span className="phrase-label">everyday phrase · {q.difficultyLabel}</span>}
+    >
 
       {q.mode === 'listen' ? (
         <>
@@ -415,6 +418,6 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
       >
         {feedback}
       </div>
-    </div>
+    </TrainingActivityShell>
   )
 }

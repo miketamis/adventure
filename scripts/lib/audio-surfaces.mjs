@@ -2,8 +2,16 @@
 // pronunciation button. Keep generation and certification on the same input so
 // newly-authored inflections cannot silently ship without audio.
 import { phraseWords } from '../../src/game/phrasePractice.js'
+import { albanianTextOf } from '../../src/game/language.js'
 
-export function collectAudioSurfaces(dict, story, phrases = [], cefrTasks = [], cefrPreparation = []) {
+export function collectAudioSurfaces(
+  dict,
+  story,
+  phrases = [],
+  cefrTasks = [],
+  cefrPreparation = [],
+  { items = {}, heartLevels = {} } = {},
+) {
   const surfaces = new Set()
   const add = (al) => {
     if (typeof al === 'string' && al.trim()) surfaces.add(al.trim())
@@ -28,6 +36,14 @@ export function collectAudioSurfaces(dict, story, phrases = [], cefrTasks = [], 
     }
   }
   walk(story)
+  // Committed actions play as one fluent utterance before the reducer changes
+  // scene. Their complete surfaces therefore need their own recordings; the
+  // individual token clips gathered by walk(story) cannot be stitched.
+  for (const node of Object.values(story)) {
+    for (const option of node.options || []) add(albanianTextOf(option.text))
+  }
+  for (const item of Object.values(items)) add(albanianTextOf(item.use?.phrase))
+  for (const level of Object.values(heartLevels)) add(albanianTextOf(level.heal?.phrase))
   for (const phrase of phrases) {
     add(phrase.al)
     for (const word of phraseWords(phrase.al)) add(word)

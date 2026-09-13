@@ -19,7 +19,9 @@
 
 - Fluent whole-line and whole-action English readings are editorial metadata and must remain debug-only. Ordinary play may expose the Albanian, local word glosses, and explicit feedback after an attempt, but must not place the completed English answer beside an active story sentence or choice.
 - Accessible names must follow the same rule: normal-play controls announce the Albanian choice, never a hidden fluent English answer.
-- After a player action actually commits, speak its complete Albanian surface once. Use one continuous phrase recording or one continuous Albanian utterance—never stitched word clips—and emit playback from the shared accepted-action boundary. Locked, disabled, stale, rejected, debug-only and merely previewed actions stay silent; mute and playback failure remain non-blocking, and reload or rerender must not replay the action.
+- Once a player action passes the canonical reducer validation, keep the source screen visible and inert while a karaoke treatment plays its complete generated Albanian phrase MP3; apply the destination state only when that playback completes or fails safely. Never use stitched word clips or runtime browser text-to-speech. Locked, disabled, stale, rejected, debug-only and merely previewed actions stay silent; mute and playback failure remain non-blocking, and reload or rerender must not replay the action.
+- A sentence-shaped English cue in Train must be an authored, reviewed whole-sentence reading. Never join per-token dictionary glosses into learner-facing English; if no reviewed sentence exists, fail closed to the concise sense cue or omit that contextual variant. Keep a whole-bank audit over every emitted contextual, construction, and spelling question.
+- Every Train activity uses the shared exercise-card shell and interaction hierarchy. Ordinary play shows the task, the material needed to answer it, controls, and post-attempt feedback; direction arrows, scheduler stage names, difficulty labels, evidence-track names, and other authoring diagnostics are debug-only.
 
 ## Scene prose and density
 

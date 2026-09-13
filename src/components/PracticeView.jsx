@@ -29,6 +29,7 @@ import PhrasePracticeQuestion from './PhrasePracticeQuestion.jsx'
 import ContextualCompletion, {
   CONTEXT_TARGET_PRESENTATION,
 } from './ContextualCompletion.jsx'
+import TrainingActivityShell from './TrainingActivityShell.jsx'
 import CefrCapstone from './CefrCapstone.jsx'
 import { trainMissConsequence } from '../game/consequenceBuilders.js'
 
@@ -632,6 +633,7 @@ export default function PracticeView({ state, dispatch }) {
           )}
           <ContextualCompletion
             instruction={contextualInstruction}
+            debug={state.debug}
             directionLabel={contextualDirectionLabel}
             badge={state.debug ? (q.difficultyLabel ? `word · ${q.difficultyLabel}` : 'word') : null}
             lines={isContextualAlbanianRetrieval ? [
@@ -692,10 +694,9 @@ export default function PracticeView({ state, dispatch }) {
           />
         </div>
       ) : (
-        <>
-          <div ref={questionRef} className="practice-question" role="status" aria-live="polite" aria-atomic="true" tabIndex={-1}>
-            <div className="prompt">
-              {isForms
+        <div ref={questionRef} className="practice-question" role="status" aria-live="polite" aria-atomic="true" tabIndex={-1}>
+          <TrainingActivityShell
+            instruction={isForms
                 ? q.promptKind === 'noun-role-in-context'
                   ? 'What grammatical job does the marked form have here?'
                   : 'Which reviewed use fits this word here?'
@@ -706,9 +707,11 @@ export default function PracticeView({ state, dispatch }) {
                       : q.dir === WORD_ALBANIAN_TO_ENGLISH.id
                         ? 'What does this Albanian word mean?'
                         : 'Which Albanian word means this?'}
-              {state.debug && q.difficultyLabel && <span className="phrase-label practice-word-level">{q.difficultyLabel}</span>}
-            </div>
-
+            debug={state.debug}
+            debugMeta={q.difficultyLabel
+              ? <span className="phrase-label">word · {q.difficultyLabel}</span>
+              : <span className="phrase-label">word</span>}
+          >
             {isForms ? (
               <div className="word-form-context">
                 <p lang="sq">{q.context.al.split(/\s+/).map((word, index) => (
@@ -731,8 +734,6 @@ export default function PracticeView({ state, dispatch }) {
             ) : (
               <div className="question" lang={q.dir === WORD_ALBANIAN_TO_ENGLISH.id ? 'sq' : undefined}>{q.promptText}</div>
             )}
-          </div>
-
           {isWordSpelling ? (
             <form className="phrase-type-form word-type-form" onSubmit={checkWordSpelling}>
               <label htmlFor={`word-answer-${q.questionKey}`}>Your Albanian answer</label>
@@ -795,7 +796,8 @@ export default function PracticeView({ state, dispatch }) {
               ? `Të lumtë! +1 token · accepted here; compare “${q.typingAnswer}”`
               : `Të lumtë! +1 token for "${q.surface || DICT[q.answerId].al}"`)}
           </div>
-        </>
+          </TrainingActivityShell>
+        </div>
       )}
       </section>
     </>
