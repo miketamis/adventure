@@ -372,13 +372,19 @@ const lexicalProof = {
   contextWins: { [WORD_CONTEXT_LATE_PROOF]: 1 },
   dueAfterRound: 0,
 }
+// Context-bearing function words now fail closed until every supporting word
+// in their reviewed situation is saved. This state-path fixture is testing
+// the post-lexical lane rather than unknown-context gating, so give the
+// builder a fully known lexicon and pin the exact representative target.
+const allKnownTrainableIds = Object.keys(DICT).filter(isTrainableSense)
 for (const [id, expectedClass, expectsLane] of representativeTracks) {
   assert.equal(formTrackForSense(id).wordClass, expectedClass, `${id}: representative class drifted`)
   assert.equal(reviewedFormTargets(id).length > 0, expectsLane, `${id}: reviewed-form eligibility drifted`)
   const question = buildWordQuestion({
-    discoveredIds: [id],
+    discoveredIds: allKnownTrainableIds,
     wordProgress: { [id]: lexicalProof },
     currentRound: 0,
+    targetId: id,
     rng: () => 0.314159,
   })
   assert.ok(question, `${id}: class-specific lane skip deadlocked the builder`)
@@ -395,9 +401,10 @@ let skippedLaneCount = 0
 for (const id of Object.keys(DICT).filter(isTrainableSense)) {
   const forms = reviewedFormTargets(id)
   const question = buildWordQuestion({
-    discoveredIds: [id],
+    discoveredIds: allKnownTrainableIds,
     wordProgress: { [id]: lexicalProof },
     currentRound: 0,
+    targetId: id,
     rng: () => 0.161803,
   })
   assert.ok(question, `${id}: post-lexical progression has no buildable question`)
