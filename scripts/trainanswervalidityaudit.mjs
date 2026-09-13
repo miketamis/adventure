@@ -68,9 +68,13 @@ for (const id of Object.keys(DICT).filter(isTrainableSense)) {
   let progress = null
   let round = 0
   const options = wordProgressionOptionsForSense(id)
+  const discoveredIds = [id, ...new Set([
+    ...(DICT[id].ctx?.requires || []),
+    ...(DICT[id].ctx?.variants || []).flatMap(({ requires = [] }) => requires),
+  ])]
   for (let attempt = 0; attempt < 12; attempt += 1) {
     const question = buildWordQuestion({
-      discoveredIds: [id], wordProgress: { [id]: progress }, currentRound: round, rng: steadyRng,
+      discoveredIds, targetId: id, wordProgress: { [id]: progress }, currentRound: round, rng: steadyRng,
     })
     assert.ok(question, `${id}: a due word stage could not build an unequivocal question`)
     validateWordQuestion(question)

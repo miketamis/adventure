@@ -39,6 +39,41 @@ const senseText = (id, field) => field === 'en'
   ? DICT[id].enAll ?? DICT[id].en
   : DICT[id][field]
 
+const mergedReviewedContext = (base, variant = null) => {
+  if (!variant) return base
+  const { variants: _variants, retrievalEn, ...variantFields } = variant
+  return {
+    ...base,
+    ...variantFields,
+    retrieval: {
+      ...base.retrieval,
+      en: retrievalEn,
+      reviewed: true,
+    },
+  }
+}
+
+export function eligibleReviewedContexts(answerId, discoveredIds = []) {
+  const base = DICT[answerId]?.ctx
+  if (!base) return []
+  const variants = Array.isArray(base.variants) && base.variants.length
+    ? base.variants.map((variant) => mergedReviewedContext(base, variant))
+    : [base]
+  const discovered = new Set(discoveredIds)
+  return variants.filter((context) => !Array.isArray(context.requires) ||
+    context.requires.every((id) => id === answerId || discovered.has(id)))
+}
+
+const reviewedContextForRound = (answerId, discoveredIds, currentRound, lastAttemptKey) => {
+  const eligible = eligibleReviewedContexts(answerId, discoveredIds)
+  if (!eligible.length) return null
+  const previousId = typeof lastAttemptKey === 'string'
+    ? eligible.find(({ id }) => lastAttemptKey.includes(`:context-${id}:`))?.id
+    : null
+  const fresh = eligible.length > 1 ? eligible.filter(({ id }) => id !== previousId) : eligible
+  return fresh[currentRound % fresh.length]
+}
+
 const weightedPick = (entries, mana, rng) => {
   const weights = entries.map(({ id, plan }) => {
     const held = mana[id] || 0
@@ -100,8 +135,7 @@ const distractorIds = (
   return distractors
 }
 
-const contextSurfaces = (answerId, plan) => {
-  const authored = DICT[answerId].ctx
+const contextSurfaces = (authored, plan) => {
   const { targetRange, targetRanges = [] } = plan.alignment
   const tokenIndexAt = (text, characterIndex) => [...text.matchAll(/\S+/gu)]
     .findIndex((match) => characterIndex >= match.index && characterIndex < match.index + match[0].length)
@@ -129,20 +163,20 @@ const contextSurfaces = (answerId, plan) => {
   }
 }
 
-function buildContextQuestion(answerId, plan, excludeWords, rng) {
+function buildContextQuestion(answerId, plan, authored, excludeWords, rng) {
   const { field } = DIRECTION[plan.direction]
   const count = plan.contextVariant.choiceDistractors === 'from-stage'
     ? plan.variant.distractors
     : plan.contextVariant.choiceDistractors
   const defensibleAlternatives = new Set(Object.keys(
-    DICT[answerId].ctx.defensibleAlternativeRationales?.[plan.direction] || {},
+    authored.defensibleAlternativeRationales?.[plan.direction] || {},
   ))
-  const authoredDistractors = (plan.direction === 'al2en' ? DICT[answerId].ctx.distractorIds || [] : []).filter((id, index, ids) =>
+  const authoredDistractors = (plan.direction === 'al2en' ? authored.distractorIds || [] : []).filter((id, index, ids) =>
     DICT[id] && id !== answerId && ids.indexOf(id) === index && !defensibleAlternatives.has(id),
   ).slice(0, count)
   const distractors = plan.direction === 'al2en'
     ? authoredDistractors
-    : (DICT[answerId].ctx.retrieval.distractorIds || []).filter((id, index, ids) =>
+    : (authored.retrieval.distractorIds || []).filter((id, index, ids) =>
         DICT[id] && id !== answerId && ids.indexOf(id) === index &&
         !defensibleAlternatives.has(id) &&
         !containsExcludedPhraseWord(DICT[id].al, excludeWords) &&
@@ -156,7 +190,7 @@ function buildContextQuestion(answerId, plan, excludeWords, rng) {
   const promptProfile = contextualPromptProfile(answerId, {
     contextPresentation: plan.targetPresentation,
   })
-  const ctx = contextSurfaces(answerId, plan)
+  const ctx = contextSurfaces(authored, plan)
   const targetReference = contextualTargetReference({
     direction: plan.direction,
     targetKind: promptProfile.targetKind,
@@ -172,7 +206,7 @@ function buildContextQuestion(answerId, plan, excludeWords, rng) {
   const options = shuffleWith([answerId, ...distractors], rng)
   const optionLabels = Object.fromEntries(options.map((id) => [
     id,
-    DICT[answerId].ctx.distractorLabels?.[plan.direction]?.[id] || (plan.direction === 'al2en'
+    authored.distractorLabels?.[plan.direction]?.[id] || (plan.direction === 'al2en'
       ? contextualChoiceLabel(id, senseText(id, field))
       : senseText(id, field)),
   ]))
@@ -198,6 +232,8 @@ function buildContextQuestion(answerId, plan, excludeWords, rng) {
     variantId: plan.contextVariantId,
     evidenceTrack: plan.evidenceTrack,
     contextReview: plan.contextReview,
+    contextSourceId: authored.id || null,
+    contextPhraseId: authored.phraseId || null,
     difficultyLabel: plan.difficultyLabel,
     remediation: plan.remediation,
     targetFormKey: plan.targetFormKey,
@@ -220,8 +256,8 @@ function buildContextQuestion(answerId, plan, excludeWords, rng) {
     },
     options,
     optionLabels,
-    audioSurface: DICT[answerId].ctx.audio === true ? DICT[answerId].ctx.al : null,
-    lexicalSurfaces: [DICT[answerId].ctx.al],
+    audioSurface: authored.audio === true ? authored.al : null,
+    lexicalSurfaces: [authored.al],
   }
 }
 
@@ -241,33 +277,38 @@ export function buildWordQuestion({
   wordProgress = {},
   currentRound = 0,
   nowMs = 0,
+  targetId = null,
   excludeWords = [],
   rng = Math.random,
 } = {}) {
   const due = (discoveredIds || []).flatMap((id) => {
+    if (targetId && id !== targetId) return []
     if (!DICT[id] || !isTrainableSense(id)) return []
     const progressionOptions = wordProgressionOptionsForSense(id)
     if (!progressionOptions.trainability.trainable) return []
-    const surface = progressionOptions.context?.al || DICT[id].al
-    if (containsExcludedPhraseWord(surface, excludeWords)) return []
     const progress = normalizeWordProgress(wordProgress[id], currentRound)
-    const plan = wordProgressPlan(progress, currentRound, { ...progressionOptions, nowMs })
+    const context = reviewedContextForRound(id, discoveredIds, currentRound, progress.lastAttemptKey)
+    if (progressionOptions.context && !context) return []
+    const surface = context?.al || DICT[id].al
+    if (containsExcludedPhraseWord(surface, excludeWords)) return []
+    const plan = wordProgressPlan(progress, currentRound, { ...progressionOptions, context, nowMs })
     // An inflecting word can advance from its lemma to a different reviewed
     // surface while keeping the same sense ID. Apply the no-repeat boundary to
     // that exact scheduled surface too; otherwise the weighted picker may
     // select a form that the form builder must reject, hiding other legal,
     // disjoint due words behind a false caught-up result.
     if (plan.formTarget?.surface && containsExcludedPhraseWord(plan.formTarget.surface, excludeWords)) return []
-    return plan.due ? [{ id, plan }] : []
+    return plan.due ? [{ id, plan, context }] : []
   })
   if (!due.length) return null
 
-  const { id: answerId, plan } = weightedPick(due, mana, rng)
+  const { id: answerId, plan, context } = weightedPick(due, mana, rng)
   if (!plan.contextReview && (['reviewed-form-contrast', 'contextual-form-selection'].includes(plan.stageId) ||
       (plan.stageId === 'word-form-construction' && plan.targetFormKey))) {
     return buildFormQuestion({ answerId, plan, excludeWords, currentRound, rng })
   }
-  const questionKey = `${answerId}:word:${currentRound}:${plan.tier}:${plan.mode}:${plan.variantId || plan.contextVariantId || 'isolated'}:${questionSequence++}`
+  const contextKey = context?.id ? `context-${context.id}` : 'isolated'
+  const questionKey = `${answerId}:word:${currentRound}:${plan.tier}:${plan.mode}:${plan.variantId || plan.contextVariantId || 'isolated'}:${contextKey}:${questionSequence++}`
   const productionSurface = plan.formTarget?.surface || DICT[answerId].al
   const productionContext = plan.formTarget?.context || playableContextForSense(answerId, productionSurface)
   if (!plan.contextReview && plan.stageId === 'word-form-construction') {
@@ -338,6 +379,7 @@ export function buildWordQuestion({
     const contextQuestion = buildContextQuestion(
       answerId,
       plan,
+      context,
       excludeWords,
       rng,
     )

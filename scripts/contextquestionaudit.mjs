@@ -14,6 +14,7 @@ import {
   practiceTargetKind,
 } from '../src/game/practiceContrasts.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
+import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import {
   WORD_CONTEXT_LATE_PROOF,
   advanceWordProgress,
@@ -22,6 +23,7 @@ import {
 const lower = (value) => String(value || '').normalize('NFC').toLocaleLowerCase('sq')
 const words = (value) => lower(value).match(/[\p{L}\p{M}]+/gu) || []
 const sorted = (values) => [...values].sort()
+const phraseById = Object.fromEntries(EVERYDAY_PHRASE_DRILLS.map((phrase) => [phrase.id, phrase]))
 const sameSurfaceSiblingIds = (id) => Object.keys(DICT).filter((candidate) =>
   candidate !== id && lower(DICT[candidate]?.al) === lower(DICT[id]?.al),
 )
@@ -93,6 +95,7 @@ const expectedContextSequence = [
   WORD_CONTEXT_LATE_PROOF,
 ]
 let emittedQuestionCount = 0
+const poProgressContextSources = new Set()
 
 // A distractor must be wrong in the exact displayed utterance, not merely a
 // less-preferred translation. Both “po ti?” and “dhe ti?” are natural ways to
@@ -106,11 +109,16 @@ for (const id of requiredContextIds) {
   let round = 0
   const emitted = []
   const progressionOptions = wordProgressionOptionsForSense(id)
+  const discoveredIds = [id, ...new Set([
+    ...(DICT[id].ctx.requires || []),
+    ...(DICT[id].ctx.variants || []).flatMap(({ requires = [] }) => requires),
+  ])]
   assert.equal(progressionOptions.trainability.trainable, true, `${id}: reviewed sense stayed excluded from Train`)
 
   for (let attempt = 0; attempt < 40; attempt++) {
     const question = buildWordQuestion({
-      discoveredIds: [id],
+      discoveredIds,
+      targetId: id,
       wordProgress: { [id]: progress },
       currentRound: round,
       rng: () => 0.314159,
@@ -120,8 +128,12 @@ for (const id of requiredContextIds) {
       emitted.push(question)
       emittedQuestionCount += 1
       assert.equal(question.answerId, id)
-      assert.equal(question.ctx.authoredAl, DICT[id].ctx.al)
-      assert.equal(question.ctx.authoredEn, DICT[id].ctx.en)
+      const source = question.contextPhraseId ? phraseById[question.contextPhraseId] : DICT[id].ctx
+      assert.equal(question.ctx.authoredAl, source.al)
+      assert.equal(question.ctx.authoredEn, question.contextPhraseId
+        ? DICT[id].ctx.variants.find(({ phraseId }) => phraseId === question.contextPhraseId).en
+        : source.en)
+      if (id === 'po_prog') poProgressContextSources.add(question.contextSourceId)
       assert.equal(question.ctx.targetTokenIndices.length, 1,
         `${id}/${question.variantId}: contextual question does not identify exactly one target`)
       assert.equal(question.targetReference?.valid, true,
@@ -193,6 +205,27 @@ for (const id of requiredContextIds) {
 }
 
 assert.equal(emittedQuestionCount, requiredContextIds.length * expectedContextSequence.length)
+for (const id of requiredContextIds.filter((senseId) => practiceTargetKind(senseId) === PRACTICE_TARGET_KIND.function)) {
+  const context = DICT[id].ctx
+  const variants = context.variants || [context]
+  for (const variant of variants) {
+    assert.ok(Array.isArray(variant.requires) && variant.requires.length > 0,
+      `${id}/${variant.id || 'default'}: grammatical context has no explicit known-word prerequisites`)
+    for (const requiredId of variant.requires) assert.ok(DICT[requiredId], `${id}: unknown prerequisite ${requiredId}`)
+  }
+}
+assert.ok(DICT.po_prog.ctx.variants.length >= 6, 'po progressive has too few reviewed everyday situations')
+assert.ok(poProgressContextSources.size >= 3, 'po progressive repeated one sentence through its learning ladder')
+assert.equal(buildWordQuestion({
+  discoveredIds: ['po_prog', 'bie'], targetId: 'po_prog', currentRound: 0, rng: () => 0,
+}), null, 'Po bie shi was scheduled before shi was saved')
+const rainContext = buildWordQuestion({
+  discoveredIds: ['po_prog', 'bie', 'shi'], targetId: 'po_prog', currentRound: 0, rng: () => 0,
+})
+assert.equal(rainContext?.contextPhraseId, 'raining-now')
+assert.deepEqual(DICT.po_prog.ctx.variants.find(({ phraseId }) => phraseId === 'raining-now').requires,
+  phraseById['raining-now'].requires,
+  'grammar context prerequisites drifted from the phrase system')
 assert.deepEqual(DICT.po_but.ctx.retrieval.distractorIds, ['sepse', 'prandaj', 'ose'])
 assert.deepEqual(DICT.e_conj.ctx.retrieval.distractorIds, ['me', 'ose', 'pa'])
 assert.deepEqual(DICT.se.ctx.retrieval.distractorIds, ['sepse', 'nese', 'kur'])

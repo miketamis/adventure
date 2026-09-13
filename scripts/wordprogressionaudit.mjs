@@ -40,9 +40,13 @@ const run = (id, { stopWhen, max = 30 } = {}) => {
   let round = 0
   const seen = []
   const options = wordProgressionOptionsForSense(id)
+  const discoveredIds = [id, ...new Set([
+    ...(DICT[id].ctx?.requires || []),
+    ...(DICT[id].ctx?.variants || []).flatMap(({ requires = [] }) => requires),
+  ])]
   for (let index = 0; index < max; index++) {
     const question = buildWordQuestion({
-      discoveredIds: [id], wordProgress: { [id]: progress }, currentRound: round, rng: () => 0.314,
+      discoveredIds, targetId: id, wordProgress: { [id]: progress }, currentRound: round, rng: () => 0.314,
     })
     assert.ok(question, `${id}: due progression returned no question`)
     seen.push(question)
