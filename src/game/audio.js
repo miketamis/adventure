@@ -111,21 +111,30 @@ function playSurface(al, { onProgress } = {}) {
       a.ontimeupdate = null
       a.onloadedmetadata = null
       if (activeAudio === a) activeAudio = null
-      if (completed) onProgress?.(1)
+      if (completed) {
+        const duration = Number(a.duration)
+        onProgress?.(1, {
+          currentTimeMs: Number.isFinite(duration) ? duration * 1000 : null,
+          durationMs: Number.isFinite(duration) ? duration * 1000 : null,
+        })
+      }
       resolve(completed)
     }
     const reportProgress = () => {
       const duration = Number(a.duration)
       const currentTime = Number(a.currentTime)
       if (Number.isFinite(duration) && duration > 0 && Number.isFinite(currentTime)) {
-        onProgress?.(Math.max(0, Math.min(1, currentTime / duration)))
+        onProgress?.(Math.max(0, Math.min(1, currentTime / duration)), {
+          currentTimeMs: currentTime * 1000,
+          durationMs: duration * 1000,
+        })
       }
     }
     try {
       activeAudio = a
       activePlayback = playback
       a.currentTime = 0
-      onProgress?.(0)
+      onProgress?.(0, { currentTimeMs: 0, durationMs: null })
       a.ontimeupdate = reportProgress
       a.onloadedmetadata = reportProgress
       a.onended = () => settle(true)

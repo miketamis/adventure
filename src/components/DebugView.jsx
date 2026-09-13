@@ -19,6 +19,7 @@ import {
 const DebugLearningProgression = lazy(() => import('./DebugLearningProgression.jsx'))
 const DebugLearningSaveStatus = lazy(() => import('./DebugLearningSaveStatus.jsx'))
 const DebugLearningEvidenceInspector = lazy(() => import('./DebugLearningEvidenceInspector.jsx'))
+const DebugLearningActivityCoverage = lazy(() => import('./DebugLearningActivityCoverage.jsx'))
 const DebugCefrProgression = lazy(() => import('./DebugCefrProgression.jsx'))
 const DebugAuthoringLab = lazy(() => import('./DebugAuthoringLab.jsx'))
 
@@ -1630,11 +1631,12 @@ export default function DebugView({ state, dispatch }) {
         <button className={'btn' + (sub === 'npcs' ? ' active' : '')} onClick={() => setSub('npcs')}>🎭 NPCs</button>
         <button className={'btn' + (sub === 'authoring' ? ' active' : '')} onClick={() => setSub('authoring')}>🧪 Authoring</button>
         <button className={'btn' + (sub === 'learning' ? ' active' : '')} onClick={() => setSub('learning')}>🧠 Learning</button>
+        <button className={'btn' + (sub === 'activity-coverage' ? ' active' : '')} onClick={() => setSub('activity-coverage')}>🧩 Activity Coverage</button>
         <button className={'btn' + (sub === 'cefr' ? ' active' : '')} onClick={() => setSub('cefr')}>🏁 CEFR Path</button>
         <button className={'btn' + (sub === 'history' ? ' active' : '')} onClick={() => setSub('history')}>📜 History</button>
         <button className={'btn' + (sub === 'sources' ? ' active' : '')} onClick={() => setSub('sources')}>📚 Sources</button>
       </div>
-      {!['learning', 'cefr', 'authoring'].includes(sub) && (
+      {!['learning', 'activity-coverage', 'cefr', 'authoring'].includes(sub) && (
         <div className="dbg-legend">
           {Object.entries(KIND_LABEL).map(([k, label]) => (
             <span key={k}><i style={{ background: KIND_COLOR[k] }} /> {label}</span>
@@ -1659,6 +1661,11 @@ export default function DebugView({ state, dispatch }) {
           <DebugLearningSaveStatus state={state} />
           <DebugLearningEvidenceInspector state={state} dispatch={dispatch} />
           <DebugLearningProgression />
+        </Suspense>
+      )}
+      {sub === 'activity-coverage' && (
+        <Suspense fallback={<p className="dbg-note" role="status">Loading activity coverage…</p>}>
+          <DebugLearningActivityCoverage />
         </Suspense>
       )}
       {sub === 'cefr' && (

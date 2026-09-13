@@ -12,6 +12,7 @@ import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
 import { ACHIEVEMENT_IDS } from './game/achievementRules.js'
 import { STORY } from './game/content.js'
 import { attachReviewedEnglishReadings } from './game/language.js'
+import { TRAIN_HEALTH_POLICY } from './game/trainHealthPolicy.js'
 import ReleaseErrorBoundary from './components/ReleaseErrorBoundary.jsx'
 
 // Story is the first and dominant surface. The larger study, collection and
@@ -380,14 +381,22 @@ export default function App() {
 
       {actionTransition && (
         <Suspense fallback={<div className="action-karaoke-overlay" aria-hidden="true" />}>
-          <ActionKaraoke action={actionTransition} onComplete={finishActionTransition} />
+          <ActionKaraoke
+            action={actionTransition}
+            onComplete={finishActionTransition}
+            debug={state.debug}
+          />
         </Suspense>
       )}
 
       {state.pendingHeartConsequence && (
         <BlockingModal
           id="heart-consequence-title"
-          title={state.pendingHeartConsequence.loss === 1 ? '💔 You lost one heart' : `💔 You lost ${state.pendingHeartConsequence.loss} hearts`}
+          title={state.pendingHeartConsequence.protected
+            ? '🛡 Practice miss — no heart lost'
+            : state.pendingHeartConsequence.loss === 1
+              ? '💔 You lost one heart'
+              : `💔 You lost ${state.pendingHeartConsequence.loss} hearts`}
           className="heart-consequence"
           onDismiss={() => dispatch({
             type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
@@ -415,9 +424,15 @@ export default function App() {
             )}
           </div>
           <div className="heart-consequence-section">
-            <h3>Why the heart was lost</h3>
+            <h3>{state.pendingHeartConsequence.protected ? 'Why the answer was wrong' : 'Why the heart was lost'}</h3>
             <p>{state.pendingHeartConsequence.reason.text}</p>
           </div>
+          {state.pendingHeartConsequence.source.startsWith('train-') && (
+            <div className="heart-consequence-section train-combo-reset">
+              <h3>Correct combo reset</h3>
+              <p>0/{TRAIN_HEALTH_POLICY.recoveryCorrectCompletions} · Build a new correct-answer combo to restore a heart.</p>
+            </div>
+          )}
           {(state.pendingHeartConsequence.correction || state.pendingHeartConsequence.reasoning) && (
             <div className="heart-consequence-section correction">
               <h3>{state.pendingHeartConsequence.correction ? 'What fits here' : 'What to notice'}</h3>

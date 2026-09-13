@@ -55,6 +55,13 @@ import {
   migrateWordProgressV3,
   normalizeWordProgress,
 } from './wordProgression.js'
+import { wordAspectTargetsForPlan } from './wordLearningAspects.js'
+import {
+  WORD_EXPOSURE_VERSION,
+  normalizeWordExposure,
+  normalizeWordExposureReceipts,
+  recordWordExposure,
+} from './wordExposure.js'
 import {
   emptyCefrState,
   mergeStoredCefrEvidence,
@@ -156,9 +163,27 @@ import {
 } from './npcAppearance.js'
 import {
   applyExplainedHeartLoss,
+  attachProtectedTrainMiss,
   attachExplainedHeartLoss,
   heartLossConsequenceForSave,
 } from './heartConsequences.js'
+import {
+  TRAIN_HEALTH_POLICY_VERSION,
+  applyTrainHealthResult,
+  normalizeTrainHealingStreak,
+  normalizeTrainAspectTargets,
+  normalizeTrainStageExposures,
+  phraseTrainAspectTargets,
+  trainAspectExposureKeys,
+  wordMatchingTrainAspectTargets,
+  wordTrainAspectTargets,
+} from './trainHealthPolicy.js'
+import { WORD_MATCHING_POLICY } from './wordMatchingPolicy.js'
+import {
+  WORD_MATCHING_PROGRESS_VERSION,
+  normalizeWordMatchingProgress,
+  recordWordMatchingResult,
+} from './wordMatchingProgress.js'
 import { albanianTextOf } from './language.js'
 import {
   clearStoryRunTrainingSession,
@@ -518,10 +543,10 @@ export const hasCond = (state, id) => {
   if (id === 'embodying') return state.embodying != null
   if (isEmbodyingId(id)) return state.embodying === id.slice(10)
   // FAMILIARITY — `again` is true when the node you stand at was already visited
-  // when you arrived (this run or an earlier one: state.visited persists, the way
-  // your discovered words do — the LEARNER's familiarity, not the run's).
+  // when you arrived during this run. The visited map survives save/reload for
+  // the active attempt but resets whenever a new run begins.
   // `visited:<nodeId>` (or `visited:a|b`, any match) is true once a place has
-  // ever been explored — a signpost line can retire once its road is known.
+  // been explored in this run — a signpost line can retire once its road is known.
   if (id === 'again') return !!state.familiar
   if (id.startsWith('visited:')) return id.slice(8).split('|').some((n) => !!state.visited?.[n])
   // HEARSAY — `rumor` is true only on an arrival at a place you had heard of but
@@ -1071,6 +1096,9 @@ export function normalizeSavedState(saved, fresh) {
     saved.actionSpeechSequence >= 0
       ? saved.actionSpeechSequence
       : 0
+  next.storyRunSequence = Number.isSafeInteger(saved.storyRunSequence) && saved.storyRunSequence > 0
+    ? saved.storyRunSequence
+    : 1
   for (const key of RETIRED_SHADOW_STATE_KEYS) delete next[key]
   next.nodeId = STORY[saved.nodeId] ? saved.nodeId : fresh.nodeId
   for (const key of ['heard', 'discovered', 'deathUnsavedWords', 'visited', 'dismissedTests', 'healedAt', 'flags']) {
@@ -1105,6 +1133,20 @@ export function normalizeSavedState(saved, fresh) {
   next.trainLastQuestionKey = typeof saved.trainLastQuestionKey === 'string'
     ? saved.trainLastQuestionKey.slice(0, 200)
     : null
+  next.wordExposureVersion = WORD_EXPOSURE_VERSION
+  next.wordExposure = normalizeWordExposure(saved.wordExposure)
+  next.wordExposureReceipts = normalizeWordExposureReceipts(saved.wordExposureReceipts)
+  next.trainHealthPolicyVersion = TRAIN_HEALTH_POLICY_VERSION
+  next.trainStageExposures = normalizeTrainStageExposures(saved.trainStageExposures)
+  next.trainHealingStreak = normalizeTrainHealingStreak(saved.trainHealingStreak)
+  next.trainRecoveryEvent = isRecord(saved.trainRecoveryEvent) &&
+    typeof saved.trainRecoveryEvent.questionKey === 'string' &&
+    Number.isSafeInteger(saved.trainRecoveryEvent.hearts)
+      ? {
+          questionKey: saved.trainRecoveryEvent.questionKey.slice(0, 200),
+          hearts: Math.max(0, Math.min(START_HEARTS, saved.trainRecoveryEvent.hearts)),
+        }
+      : null
   // The old lifetime `practiced` count mixed recognition, productive choices,
   // form work and phrase rewards. Preserve it for totals, but do not invent
   // exact lexical-stage evidence when migrating a pre-ladder save. Version 1
@@ -1112,6 +1154,9 @@ export function normalizeSavedState(saved, fresh) {
   // proof IDs and explicitly remapped repair tier can be preserved. Version 2
   // also preserves its lexical proofs but starts with no invented context proof.
   const hasCurrentWordProgress = saved.wordProgressVersion === WORD_PROGRESS_VERSION
+  // v7 adds an independent aspect profile derived from the exact v6 proofs.
+  // Keep the legacy evidence alongside its lossless aspect migration.
+  const hasWordProgressV6 = saved.wordProgressVersion === 6
   // v6 changes only the order in which the same proof IDs are requested. Keep
   // every exact v5 proof; do not punish an existing learner for the new ramp.
   const hasWordProgressV5 = saved.wordProgressVersion === 5
@@ -1121,7 +1166,7 @@ export function normalizeSavedState(saved, fresh) {
   const hasWordProgressV1 = saved.wordProgressVersion === 1
   next.wordProgressVersion = WORD_PROGRESS_VERSION
   next.wordProgress = wordProgressRecord(
-    hasCurrentWordProgress || hasWordProgressV5 || hasWordProgressV4 || hasWordProgressV3 || hasWordProgressV2 || hasWordProgressV1 ? saved.wordProgress : {},
+    hasCurrentWordProgress || hasWordProgressV6 || hasWordProgressV5 || hasWordProgressV4 || hasWordProgressV3 || hasWordProgressV2 || hasWordProgressV1 ? saved.wordProgress : {},
     next.trainRound,
     hasWordProgressV3
       ? migrateWordProgressV3
@@ -1158,6 +1203,8 @@ export function normalizeSavedState(saved, fresh) {
   )
   next.phraseListeningMastery = skillTierRecord(next.phraseListeningProgress, 'listening')
   next.phraseMatchingMastery = skillTierRecord(next.phraseMatchingProgress, 'matching')
+  next.wordMatchingProgressVersion = WORD_MATCHING_PROGRESS_VERSION
+  next.wordMatchingProgress = normalizeWordMatchingProgress(saved.wordMatchingProgress)
   Object.assign(next, normalizeLearningTelemetryState(saved))
   // Capstones retain only compact pass evidence. Drafts and microphone audio
   // never enter game state, localStorage, analytics or a network request.
@@ -1471,7 +1518,10 @@ function baseRun() {
     dismissedTests: {}, // achievement ids whose banner was waved off this run
     timePassage: null, // persisted interstitial for a committed multi-day transition
     pendingHeartConsequence: null, // blocking post-attempt explanation paired atomically with health loss
+    trainHealingStreak: 0, // consecutive correct Train rounds in this story run
+    trainRecoveryEvent: null, // one just-completed Train round that restored a heart
     actionSpeechSequence: 0, // monotonic id for committed player-action speech
+    storyRunSequence: 1, // stable exposure receipt domain; increments on each story restart
     actionSpeech: null, // one-shot Albanian playback request; deliberately omitted from saves
   }
 }
@@ -1482,6 +1532,9 @@ const emptyLearnerProfile = () => ({
     practiced: {},
     wordProgressVersion: WORD_PROGRESS_VERSION,
     wordProgress: {},
+    wordExposureVersion: WORD_EXPOSURE_VERSION,
+    wordExposure: {},
+    wordExposureReceipts: {},
     formPracticed: {},
     phrasePracticed: {},
     phraseMistakes: {},
@@ -1495,6 +1548,10 @@ const emptyLearnerProfile = () => ({
     trainRound: 0,
     trainLastWords: [],
     trainLastQuestionKey: null,
+    trainHealthPolicyVersion: TRAIN_HEALTH_POLICY_VERSION,
+    trainStageExposures: {},
+    wordMatchingProgressVersion: WORD_MATCHING_PROGRESS_VERSION,
+    wordMatchingProgress: normalizeWordMatchingProgress(),
     ...emptyLearningTelemetryState(),
     ...emptyCefrState(),
     ...emptyCefrPreparationState(),
@@ -1544,6 +1601,7 @@ function restartStoryRun(state) {
     actionSpeechSequence: Number.isSafeInteger(state.actionSpeechSequence)
       ? state.actionSpeechSequence
       : 0,
+    storyRunSequence: (Number.isSafeInteger(state.storyRunSequence) ? state.storyRunSequence : 1) + 1,
     actionSpeech: null,
   })
   return reconcileLearnerEvidence(restarted)
@@ -1790,6 +1848,42 @@ const withLearningEvent = (state, event) => ({
   ...appendLearningTelemetryEvent(state, learningTelemetryEvent(event)),
 })
 const withLearningEvents = (state, events) => events.reduce(withLearningEvent, state)
+
+const wordAttemptExposureKeys = (action, plan) => {
+  const allowed = wordAspectTargetsForPlan(
+    action.id,
+    plan,
+    typeof action.aspectPhaseId === 'string' ? action.aspectPhaseId : null,
+  )
+  const requested = normalizeTrainAspectTargets(action.aspectTargets)
+  const allowedKeys = new Set(trainAspectExposureKeys(allowed))
+  const requestedKeys = trainAspectExposureKeys(requested)
+  if (!requestedKeys.length) return [...allowedKeys]
+  return requestedKeys.length === allowedKeys.size && requestedKeys.every((key) => allowedKeys.has(key))
+    ? requestedKeys
+    : []
+}
+
+// Progress, protection/recovery, and corrective feedback are one reducer
+// transaction. A protected miss still needs the same complete explanation as
+// a damaging miss; only its heart delta changes.
+const withTrainHealthResult = (progressed, {
+  correct,
+  exposureKeys,
+  questionKey,
+  consequence,
+} = {}) => {
+  const result = applyTrainHealthResult(progressed, {
+    exposureKeys,
+    correct,
+    questionKey,
+    maximumHearts: START_HEARTS,
+  })
+  if (!result) return null
+  if (correct) return result.state
+  if (result.protectedAttempt) return attachProtectedTrainMiss(result.state, consequence)
+  return applyExplainedHeartLoss(result.state, consequence, 1)
+}
 
 // Reducers stay side-effect free: a successful story action emits one
 // transient, serializable-safe request and the app's audio boundary performs
@@ -2349,6 +2443,17 @@ export function reducer(state, action) {
       }
     }
 
+    case 'RECORD_WORD_EXPOSURE': {
+      const occurrences = Array.isArray(action.occurrences)
+        ? action.occurrences.filter((id) => safeMapKey(id) && DICT[id] && isTrainableSense(id))
+        : []
+      return recordWordExposure(state, {
+        receipt: action.receipt,
+        source: action.source,
+        occurrences,
+      }) || state
+    }
+
     case 'PRACTICE_WORD_RESULT': {
       if (action.correct !== true && action.correct !== false) return state
       if (!safeMapKey(action.id) || !isTrainableSense(action.id) || !state.discovered[action.id] || !DICT[action.id]) return state
@@ -2364,6 +2469,8 @@ export function reducer(state, action) {
           stageId: action.wordStageId,
           variantId: action.variantId,
           targetFormKey: action.targetFormKey,
+          aspectTargets: action.aspectTargets,
+          audioCompleted: action.audioCompleted,
           questionKey: action.questionKey,
           round: nextRound,
           attemptedAtMs: action.attemptedAtMs,
@@ -2401,12 +2508,79 @@ export function reducer(state, action) {
         responseDurationMs: action.responseDurationMs,
         support: transition.plan.remediation || transition.plan.definition.tier <= 1,
       }
-      if (action.correct) return withLearningEvent(resultState, event)
-      // The miss, its durable remediation transition and its health cost are
-      // one transaction. If the UI failed to provide the exact post-attempt
-      // explanation, neither the progression mutation nor the penalty lands.
-      const penalized = applyExplainedHeartLoss(resultState, action.consequence, 1)
-      return penalized ? withLearningEvent(penalized, event) : state
+      const healthResult = withTrainHealthResult(resultState, {
+        correct: action.correct,
+        exposureKeys: wordAttemptExposureKeys(action, transition.plan),
+        questionKey: action.questionKey,
+        consequence: action.consequence,
+      })
+      // The miss, its durable remediation/exposure transition, its exact
+      // correction and either protection or health cost are one transaction.
+      return healthResult ? withLearningEvent(healthResult, event) : state
+    }
+
+    case 'PRACTICE_WORD_MATCH_RESULT': {
+      if (action.correct !== true && action.correct !== false) return state
+      if (action.variantId !== WORD_MATCHING_POLICY.id) return state
+      if (typeof action.questionKey !== 'string' || !action.questionKey || action.questionKey.length > 200) return state
+      if (action.questionKey === state.trainLastQuestionKey) return state
+      if (!Number.isSafeInteger(action.attemptedAtMs) || action.attemptedAtMs <= 0) return state
+      if (!Number.isFinite(action.responseDurationMs) || action.responseDurationMs < 0) return state
+      if (!Array.isArray(action.wordIds) || action.wordIds.length !== WORD_MATCHING_POLICY.pairCount) return state
+      const wordIds = [...new Set(action.wordIds)]
+      if (wordIds.length !== WORD_MATCHING_POLICY.pairCount) return state
+      if (wordIds.some((id) => !safeMapKey(id) || !DICT[id] || !isTrainableSense(id) || !state.discovered[id])) return state
+      if (wordIds.some((id) => (state.wordProgress?.[id]?.wins?.[WORD_MATCHING_POLICY.unlock.stageId] || 0) < WORD_MATCHING_POLICY.unlock.wins)) return state
+      const canonicalWordKeys = normalizedTrainWords(wordIds.map((id) => DICT[id].al))
+      const trainLastWords = normalizedTrainWords(action.wordKeys)
+      if (!trainLastWords.length || canonicalWordKeys.some((word) => !trainLastWords.includes(word))) return state
+
+      const nextRound = (state.trainRound || 0) + 1
+      const mana = { ...state.mana }
+      const practiced = { ...state.practiced }
+      if (action.correct) {
+        for (const id of wordIds) {
+          mana[id] = (mana[id] || 0) + 1
+          practiced[id] = (practiced[id] || 0) + 1
+        }
+      }
+      const resultState = {
+        ...state,
+        wordMatchingProgressVersion: WORD_MATCHING_PROGRESS_VERSION,
+        wordMatchingProgress: recordWordMatchingResult(
+          state.wordMatchingProgress,
+          action.variantId,
+          wordIds,
+          action.correct,
+          nextRound,
+          action.attemptedAtMs,
+          action.responseDurationMs,
+        ),
+        mana: action.correct ? mana : state.mana,
+        practiced: action.correct ? practiced : state.practiced,
+        trainRound: nextRound,
+        trainLastWords,
+        trainLastQuestionKey: action.questionKey,
+      }
+      const healthResult = withTrainHealthResult(resultState, {
+        correct: action.correct,
+        exposureKeys: trainAspectExposureKeys(wordMatchingTrainAspectTargets(action)),
+        questionKey: action.questionKey,
+        consequence: action.consequence,
+      })
+      if (!healthResult) return state
+      const events = wordIds.map((id) => ({
+        track: 'word-matching',
+        targetId: id,
+        stageId: WORD_MATCHING_POLICY.id,
+        variantId: action.variantId,
+        tier: 0,
+        correct: action.correct,
+        attemptedAtMs: action.attemptedAtMs,
+        responseDurationMs: action.responseDurationMs,
+        support: false,
+      }))
+      return withLearningEvents(healthResult, events)
     }
 
     case 'PRACTICE_FORM_CORRECT': {
@@ -2501,6 +2675,17 @@ export function reducer(state, action) {
         !trainLastWords.length ||
         canonicalPhraseWords.some((word) => !trainLastWords.includes(word))
       ) return state
+      const phraseWordTargets = new Set(action.skill === 'production'
+        ? action.typeScope === 'word' && action.focusId
+          ? [action.focusId]
+          : phrases.flatMap((phrase) => phrase.requires).filter(isTrainableSense)
+        : [])
+      const withPhraseCoExposure = (candidate) => recordWordExposure(candidate, {
+        receipt: `phrase:${action.questionKey}`,
+        source: 'phrase-co-exposure',
+        occurrences: phrases.flatMap((phrase) => phrase.requires)
+          .filter((id) => isTrainableSense(id) && !phraseWordTargets.has(id)),
+      }) || candidate
 
       if (action.skill === 'production') {
         if (phraseIds.length !== 1) return state
@@ -2565,8 +2750,13 @@ export function reducer(state, action) {
             trainLastWords,
             trainLastQuestionKey: action.questionKey,
           }
-          const penalized = applyExplainedHeartLoss(resultState, action.consequence, 1)
-          return penalized ? withLearningEvent(penalized, event) : state
+          const healthResult = withTrainHealthResult(resultState, {
+            correct: false,
+            exposureKeys: trainAspectExposureKeys(phraseTrainAspectTargets(action)),
+            questionKey: action.questionKey,
+            consequence: action.consequence,
+          })
+          return healthResult ? withLearningEvent(healthResult, event) : state
         }
         const mana = { ...state.mana }
         const practiced = { ...state.practiced }
@@ -2574,7 +2764,7 @@ export function reducer(state, action) {
           mana[id] = (mana[id] || 0) + 1
           practiced[id] = (practiced[id] || 0) + 1
         }
-        return withLearningEvent({
+        const resultState = {
           ...state,
           mana,
           practiced,
@@ -2587,7 +2777,13 @@ export function reducer(state, action) {
           trainRound: nextRound,
           trainLastWords,
           trainLastQuestionKey: action.questionKey,
-        }, event)
+        }
+        const healthResult = withTrainHealthResult(resultState, {
+          correct: true,
+          exposureKeys: trainAspectExposureKeys(phraseTrainAspectTargets(action)),
+          questionKey: action.questionKey,
+        })
+        return healthResult ? withPhraseCoExposure(withLearningEvent(healthResult, event)) : state
       }
 
       if (!masteryField) return state
@@ -2651,8 +2847,13 @@ export function reducer(state, action) {
           trainLastWords,
           trainLastQuestionKey: action.questionKey,
         }
-        const penalized = applyExplainedHeartLoss(resultState, action.consequence, 1)
-        return penalized ? withLearningEvents(penalized, events) : state
+        const healthResult = withTrainHealthResult(resultState, {
+          correct: false,
+          exposureKeys: trainAspectExposureKeys(phraseTrainAspectTargets(action)),
+          questionKey: action.questionKey,
+          consequence: action.consequence,
+        })
+        return healthResult ? withLearningEvents(healthResult, events) : state
       }
 
       const phrasePracticed = { ...(state.phrasePracticed || {}) }
@@ -2663,7 +2864,7 @@ export function reducer(state, action) {
         mana[id] = (mana[id] || 0) + 1
         practiced[id] = (practiced[id] || 0) + 1
       }
-      return withLearningEvents({
+      const resultState = {
         ...state,
         mana,
         practiced,
@@ -2673,7 +2874,13 @@ export function reducer(state, action) {
         trainRound: nextRound,
         trainLastWords,
         trainLastQuestionKey: action.questionKey,
-      }, events)
+      }
+      const healthResult = withTrainHealthResult(resultState, {
+        correct: true,
+        exposureKeys: trainAspectExposureKeys(phraseTrainAspectTargets(action)),
+        questionKey: action.questionKey,
+      })
+      return healthResult ? withPhraseCoExposure(withLearningEvents(healthResult, events)) : state
     }
 
     case 'CONFUSE':

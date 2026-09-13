@@ -7,6 +7,8 @@ const TRAINING_SESSION_DEFAULTS = Object.freeze({
   trainLastWords: Object.freeze([]),
   trainLastQuestionKey: null,
   pendingHeartConsequence: null,
+  trainHealingStreak: 0,
+  trainRecoveryEvent: null,
 })
 
 export const STORY_RUN_RESET_POLICY = Object.freeze({
@@ -17,6 +19,8 @@ export const STORY_RUN_RESET_POLICY = Object.freeze({
     'practiced',
     'wordProgressVersion',
     'wordProgress',
+    'wordExposureVersion',
+    'wordExposure',
     'formPracticed',
     'phrasePracticed',
     'phraseMistakes',
@@ -28,6 +32,10 @@ export const STORY_RUN_RESET_POLICY = Object.freeze({
     'phraseListeningProgress',
     'phraseMatchingProgress',
     'trainRound',
+    'trainHealthPolicyVersion',
+    'trainStageExposures',
+    'wordMatchingProgressVersion',
+    'wordMatchingProgress',
     'cefrEvidenceVersion',
     'cefrEvidence',
     'cefrPreparationVersion',
@@ -54,7 +62,7 @@ export const STORY_RUN_RESET_POLICY = Object.freeze({
 // Death creates a small, recoverable vocabulary consequence without destroying
 // learning. Passing the opening two-recognition gate is enough to secure a
 // saved word; the lifetime-practice fallback protects evidence migrated from
-// older ladders and words repeatedly practised inside complete phrases.
+// older capability profiles and words repeatedly practised inside complete phrases.
 export const DEATH_WORD_RETENTION_POLICY = Object.freeze({
   meaningRecognitionWins: 2,
   lifetimeCorrectPractice: 3,

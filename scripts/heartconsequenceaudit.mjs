@@ -267,10 +267,10 @@ check('source inventory has no player decrement outside the shared wrappers', ()
   assert.equal(rawReducerDecrements.length, 1, 'a new raw reducer decrement bypasses the shared contract')
   assert.match(gameState.slice(Math.max(0, rawReducerDecrements[0].index - 100), rawReducerDecrements[0].index), /DEBUG_HURT/,
     'the sole raw decrement is not the explicit debug-only exemption')
-  for (const actionCase of ['PRACTICE_WORD_RESULT', 'PRACTICE_WRONG', 'PRACTICE_PHRASE_RESULT', 'CONFUSE', 'COMP_WRONG']) {
+  for (const actionCase of ['PRACTICE_WORD_RESULT', 'PRACTICE_WORD_MATCH_RESULT', 'PRACTICE_WRONG', 'PRACTICE_PHRASE_RESULT', 'CONFUSE', 'COMP_WRONG']) {
     const start = gameState.indexOf(`case '${actionCase}'`)
     const end = gameState.indexOf("\n    case '", start + 10)
-    assert.ok(start >= 0 && gameState.slice(start, end < 0 ? undefined : end).includes('applyExplainedHeartLoss'),
+    assert.ok(start >= 0 && /applyExplainedHeartLoss|withTrainHealthResult/.test(gameState.slice(start, end < 0 ? undefined : end)),
       `${actionCase} does not use the shared loss wrapper`)
   }
   assert.match(gameState, /attachExplainedHeartLoss\(state, chosenState, authoredConsequence\)/)
@@ -283,6 +283,8 @@ check('source inventory has no player decrement outside the shared wrappers', ()
   assert.match(comprehension, /onDone\(false, comprehensionMissConsequence/)
   assert.match(app, /state\.pendingHeartConsequence/)
   assert.match(app, /Why the heart was lost/)
+  assert.match(app, /Practice miss — no heart lost/)
+  assert.match(app, /Why the answer was wrong/)
   assert.match(app, />\s*Return to game\s*</)
   assert.match(app, /inert=\{blockingOverlay/)
 })

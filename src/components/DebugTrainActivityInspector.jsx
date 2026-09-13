@@ -32,9 +32,26 @@ function WordRecord({ word, targetId }) {
         <div><dt>Trainability</dt><dd>{word.trainability.trainable ? 'trainable' : 'not trainable'} · {word.trainability.kind} · {word.trainability.reason}</dd></div>
         <div><dt>Current stage</dt><dd>{show(current.currentStageId)} → {show(current.nextStageId)} · {current.next?.due ? 'due' : 'not due'}</dd></div>
         <div><dt>Player evidence</dt><dd>{word.learner.discovered ? 'saved' : 'not saved'} · {word.learner.tokens} tokens · {word.learner.practiceRewards} rewards</dd></div>
+        <div><dt>Passive familiarity</dt><dd>{word.learner.passiveExposure.total} occurrences · {word.learner.passiveExposure.story} story · {word.learner.passiveExposure['phrase-co-exposure']} phrase co-exposure (never mastery)</dd></div>
         <div><dt>Reviewed material</dt><dd>{word.playableFormInventory.length} form rows · {word.reviewedFormTargets.length} exact role targets · {word.playableUsageBySurface.length} used surfaces</dd></div>
         <div><dt>Activity occurrences</dt><dd>{word.occurrenceCount}: {word.occurrences.map(({ source, role }) => `${source} (${role})`).join(' · ')}</dd></div>
       </dl>
+      <div className="debug-train-table-wrap">
+        <table data-debug-word-aspects>
+          <thead><tr><th>Aspect</th><th>State</th><th>Evidence</th><th>Prerequisites</th><th>Scheduling contribution</th></tr></thead>
+          <tbody>
+            {current.aspects.map((row) => (
+              <tr key={`${row.aspect.id}:${row.targetFormKey || 'lemma'}`}>
+                <td>{row.aspect.label}<br /><code>{row.aspect.id}</code></td>
+                <td>{row.status}{row.selected ? ' · selected' : ''}</td>
+                <td>{row.wins || 0}/{row.winsRequired || 1} wins · {row.attempts || 0} attempts · due round {row.dueAfterRound || 0}</td>
+                <td>{row.prerequisites?.length ? row.prerequisites.map((item) => `${item.aspectId} ${item.wins}/${item.winsRequired}`).join(' · ') : 'none'}</td>
+                <td>{row.schedulingContribution || 'none'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <div className="debug-train-json-grid">
         <JsonDetails label="Dictionary entry (raw)" value={word.dictionary} />
         <JsonDetails label="Albanian definition tokens (raw)" value={word.albanianDefinition} />
@@ -49,7 +66,7 @@ function WordRecord({ word, targetId }) {
   )
 }
 
-export default function DebugTrainActivityInspector({ question, state }) {
+export default function DebugTrainActivityInspector({ question, state, currentPhase = null }) {
   const model = buildDebugTrainActivity(question, state, Date.now())
   return (
     <section className="card debug-train-inspector" data-debug-train-inspector aria-labelledby="debug-train-title">
@@ -66,6 +83,7 @@ export default function DebugTrainActivityInspector({ question, state }) {
         <div><dt>Family</dt><dd>{model.family?.label || 'unknown'} (<code>{model.family?.id || model.question.kind}</code>)</dd></div>
         <div><dt>Exercise</dt><dd>{show(model.question.skill)} · {show(model.question.mode)} · tier {show(model.question.tier)} · {show(model.question.difficultyLabel)}</dd></div>
         <div><dt>Stage / variant</dt><dd>{show(model.question.wordStageId)} · {show(model.question.variantId)}</dd></div>
+        <div><dt>Live phase</dt><dd>{currentPhase ? `${currentPhase.index + 1}/${currentPhase.total} · ${currentPhase.id}` : 'single-phase activity'}</dd></div>
         <div><dt>Target</dt><dd><code>{show(model.question.answerId || model.question.focusId)}</code> · form {show(model.question.targetFormKey)}</dd></div>
         <div><dt>Evidence rewarded</dt><dd>{model.question.rewardIds.length ? model.question.rewardIds.join(', ') : 'none'}</dd></div>
         <div><dt>Rules in force</dt><dd>round {model.currentRound} · previous words {model.relevantPersistedState.trainLastWords.join(', ') || 'none'}</dd></div>
@@ -79,6 +97,49 @@ export default function DebugTrainActivityInspector({ question, state }) {
         </p>
         <pre>{json(model.selectionTrace)}</pre>
       </details>
+
+      {model.distractorPlan && (
+        <details open data-debug-distractor-plan>
+          <summary>Learner-aware distractor decision</summary>
+          <p>
+            <b>{model.distractorPlan.targetDifficultyBand}</b> band · {model.distractorPlan.bandPolicy?.purpose}.{' '}
+            {model.distractorPlan.calibration} Showing every selected row and the first 80 rejected candidates;
+            the exact full trace remains in the scheduler JSON.
+          </p>
+          {model.distractorPlan.targetHardContrastReview && (
+            <p>
+              <b>Editorial registry:</b> {model.distractorPlan.targetHardContrastReview.source} ·{' '}
+              {model.distractorPlan.targetHardContrastReview.status} ·{' '}
+              {model.distractorPlan.targetHardContrastReview.reviewedLinkCount} link(s)
+              {model.distractorPlan.targetHardContrastReview.reason
+                ? ` · ${model.distractorPlan.targetHardContrastReview.reason}` : ''}
+            </p>
+          )}
+          <div className="debug-train-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Option</th><th>Decision</th><th>Relation / confusability</th><th>Learner evidence</th><th>Validity</th></tr>
+              </thead>
+              <tbody>
+                {[...(model.distractorPlan.selected || []), ...(model.distractorPlan.rejected || []).slice(0, 80)].map((row) => (
+                  <tr key={`distractor:${row.id}`}>
+                    <td><b lang="sq">{row.label}</b><br /><code>{row.id}</code><br />{row.source}</td>
+                    <td>{row.selection.selected ? 'selected' : 'not selected'} · {row.selection.reason}</td>
+                    <td>
+                      {row.relation.type} · rank {show(row.relation.contrastRank)} · {row.relation.confusability.band} ({row.relation.confusability.score}) · spelling {row.relation.orthographicSimilarity}
+                      {row.relation.editorialHardContrast && (
+                        <><br /><b>Registry link:</b> {row.relation.editorialHardContrast.relation} · {row.relation.editorialHardContrast.reason} · source {row.relation.editorialHardContrast.source}</>
+                      )}
+                    </td>
+                    <td>{row.learnerEvidence.familiarity} · {row.learnerEvidence.saved ? 'saved' : 'not saved'} · meaning wins {row.learnerEvidence.recognitionWins} · production wins {row.learnerEvidence.productiveWins} · passive {row.learnerEvidence.passiveExposure} (not mastery)</td>
+                    <td>{row.validity.accepted ? 'valid' : row.validity.rejectionReasons.join('; ')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      )}
 
       <details open>
         <summary>Every Albanian word occurrence shown or represented by this activity ({model.occurrences.length})</summary>

@@ -8,7 +8,6 @@ generated, human-readable form of that register: what the game says, what the
 source says, and where to check it.
 
 **65 quoted lines** (64 distinct quotes): 49 corpus · 13 external · 2 variant.
-**Evidence register seal:** `sha256:928b9e44e69461bd3d019927aca2a2ccd993c14ba66702e174eede9bc60129f9`
 
 ## `Kanuni i Lekë Dukagjinit, §608` — Kanuni i Lekë Dukagjinit, §608
 

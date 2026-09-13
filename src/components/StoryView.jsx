@@ -78,6 +78,7 @@ import {
 } from './storyMechanicsPresentation.js'
 import { storyConfuserConsequence } from '../game/consequenceBuilders.js'
 import '../game/npcAppearanceRegistry.js'
+import { isTrainableSense } from '../game/lexicalTrainability.js'
 
 const FactoidLore = lazy(() => import('./FactoidLore.jsx'))
 attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
@@ -533,6 +534,19 @@ export default function StoryView({ state, dispatch }) {
     omit: environmentNarration.omitDimensions,
     transitionFrom: environmentNarration.previousSnapshot,
   })
+  const exposureLines = [environmentLine, ...scenePresentation.normalEntries.map(({ line }) => line)].filter(Boolean)
+  const storyExposureOccurrences = exposureLines.flatMap((line) => line.flatMap((token) =>
+    token.id && isTrainableSense(token.id) ? [token.id] : []))
+  const storyExposureReceipt = `story:${state.storyRunSequence || 1}:${state.nodeId}:${state.turn}`
+  // Choices are language the learner really sees too. Give each visible row its
+  // own replay-safe receipt so revealing one later in the same scene records
+  // only that new exposure instead of recounting all prose and earlier choices.
+  const storyChoiceExposures = shuffledEntries.map((entry) => ({
+    receipt: `story-choice:${state.storyRunSequence || 1}:${state.nodeId}:${state.turn}:${entry.key}`,
+    occurrences: entry.tokens.flatMap((token) =>
+      token.id && isTrainableSense(token.id) ? [token.id] : []),
+  })).filter(({ occurrences }) => occurrences.length)
+  const storyChoiceExposureKey = storyChoiceExposures.map(({ receipt }) => receipt).join('|')
   const authoredEnvironmentKey = [...presentedEnvironmentDimensions].sort().join('|')
   const activeNpcPortraitKey = npcAppearancePlan.activeNpcIds.join('|')
   useEffect(() => {
@@ -549,6 +563,25 @@ export default function StoryView({ state, dispatch }) {
     npcAppearancePlan.needsCommit,
     dispatch,
   ])
+  useEffect(() => {
+    if (!storyExposureOccurrences.length) return
+    dispatch({
+      type: 'RECORD_WORD_EXPOSURE',
+      receipt: storyExposureReceipt,
+      source: 'story',
+      occurrences: storyExposureOccurrences,
+    })
+  }, [storyExposureReceipt, dispatch])
+  useEffect(() => {
+    for (const exposure of storyChoiceExposures) {
+      dispatch({
+        type: 'RECORD_WORD_EXPOSURE',
+        receipt: exposure.receipt,
+        source: 'story',
+        occurrences: exposure.occurrences,
+      })
+    }
+  }, [storyChoiceExposureKey, dispatch])
   useEffect(() => {
     if (state.ended || !healthNarration.needsCommit) return
     dispatch({ type: 'NARRATE_HEALTH', nodeId: state.nodeId, turn: state.turn })

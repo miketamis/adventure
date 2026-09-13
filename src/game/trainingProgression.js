@@ -4,6 +4,10 @@ import {
   WORD_PROGRESSION_POLICY,
   WORD_STAGE_DEFINITIONS,
 } from './wordProgression.js'
+import { WORD_MATCHING_POLICY } from './wordMatchingPolicy.js'
+import { NOUN_GRAMMAR_ACTIVITY_VARIANTS } from './nounAgreementPractice.js'
+
+export { TRAIN_HEALTH_POLICY } from './trainHealthPolicy.js'
 
 export {
   WORD_CONTEXT_VARIANTS,
@@ -28,6 +32,7 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
     variants: [
       WORD_STAGE_BY_ID['meaning-recognition'].variant,
       ...WORD_STAGE_BY_ID['controlled-lemma-retrieval'].variants,
+      NOUN_GRAMMAR_ACTIVITY_VARIANTS.demonstrativeWholeChoice,
     ],
   },
   wordContext: {
@@ -36,6 +41,13 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
     // the debug graph cannot drift into a different set of unlock rules.
     variants: WORD_CONTEXT_VARIANTS,
   },
+  wordAudioRecognition: {
+    id: 'word-audio-recognition', kind: 'normal', label: 'Recognise a heard word', role: 'progression',
+    variants: [
+      WORD_STAGE_BY_ID['auditory-surface-recognition'],
+      WORD_STAGE_BY_ID['auditory-meaning-recognition'],
+    ],
+  },
   wordSpelling: {
     id: 'word-spelling', kind: 'word-spelling', label: 'Word spelling', role: 'progression',
     variants: [
@@ -43,17 +55,31 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
       WORD_STAGE_BY_ID['strict-spaced-recall'],
     ],
   },
+  wordAudioSpelling: {
+    id: 'word-audio-spelling', kind: 'word-spelling', label: 'Spell the heard word', role: 'progression',
+    variants: [WORD_STAGE_BY_ID['auditory-word-spelling']],
+  },
+  wordMatching: {
+    id: 'word-matching', kind: 'word-match', label: 'Mixed word matching', role: 'reinforcement',
+    variants: [WORD_MATCHING_POLICY],
+  },
   wordConstruction: {
     id: 'word-construction', kind: 'word-construction', label: 'Build the word or form', role: 'progression',
     variants: [WORD_STAGE_BY_ID['word-form-construction']],
   },
-  wordForms: {
-    id: 'word-forms', kind: 'forms', label: 'Reviewed form contrast', role: 'progression', choiceDistractors: 3,
-    variants: [WORD_STAGE_BY_ID['reviewed-form-contrast']],
+  wordAudioConstruction: {
+    id: 'word-audio-construction', kind: 'word-construction', label: 'Build the heard word', role: 'progression',
+    variants: [WORD_STAGE_BY_ID['auditory-word-construction']],
   },
-  wordFormContext: {
-    id: 'word-form-context', kind: 'form-context', label: 'Choose the form in context', role: 'progression', choiceDistractors: 3,
-    variants: [WORD_STAGE_BY_ID['contextual-form-selection']],
+  wordForms: {
+    id: 'word-forms', kind: 'forms', label: 'Reviewed form and ending', role: 'progression', choiceDistractors: 3,
+    variants: [
+      WORD_STAGE_BY_ID['reviewed-form-contrast'],
+      WORD_STAGE_BY_ID['contextual-form-selection'],
+      WORD_STAGE_BY_ID['reviewed-ending-recall'],
+      WORD_STAGE_BY_ID['demonstrative-noun-agreement'],
+      WORD_STAGE_BY_ID['adjective-linking-article-agreement'],
+    ],
   },
   nounCorrection: {
     id: 'noun-correction', kind: 'forms-correction', label: 'Exact ending refresher', role: 'remediation',
@@ -69,6 +95,7 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
 
 export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
   phraseShare: 0.65,
+  wordMatchingShare: WORD_MATCHING_POLICY.schedulerShare,
   formShareWithinWordRounds: 0,
   // Word direction and choice count are no longer random knobs: the exact
   // word-evidence stage owns both through WORD_STAGE_DEFINITIONS.
@@ -87,13 +114,13 @@ export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
 export const TRAIN_WORD_FORM_POLICY = deepFreeze({
   practiceWinsRequired: 0,
   lexicalStageRequired: 1,
-  lexicalPrerequisite: 'Complete two successful meaning-recognition rounds; then introduce a reviewed form and its grammatical job before spelling.',
+  lexicalPrerequisite: 'Complete two successful meaning-recognition rounds; then identify a reviewed form and its grammatical job, choose its exact ending, and later type that ending before whole-form spelling.',
   steps: TRAIN_EXERCISE_FAMILIES.wordForms.variants,
   correction: TRAIN_EXERCISE_FAMILIES.nounCorrection,
   nonNounCoverageFloor: 'reviewed playable surfaces only; no speculative conjugation generation',
 })
 
-// This is a derived view over the production ladder: every typed stage can
+// This is a derived view over the phrase-production sequence: every typed stage can
 // diagnose a noun-ending miss, while selection/listening exercises cannot.
 // The correction sheet is immediate feedback; the stage's existing
 // `remediation` object remains the sole source for the later backed-off quiz.

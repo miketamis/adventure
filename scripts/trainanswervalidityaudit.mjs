@@ -22,6 +22,7 @@ import { buildWordQuestion } from '../src/game/wordPractice.js'
 import { advanceWordProgress } from '../src/game/wordProgression.js'
 
 const steadyRng = () => 0.381966
+const allTrainableIds = Object.keys(DICT).filter(isTrainableSense)
 let wordQuestions = 0
 let phraseQuestions = 0
 
@@ -58,14 +59,21 @@ const validateWordQuestion = (question) => {
     assert.deepEqual(question.options.filter((id) => defended.includes(id)), [],
       `${question.questionKey}: an explicitly defensible alternative is scored wrong`)
   }
-  if (['forms', 'form-context'].includes(question.kind)) {
-    assert.deepEqual(choiceSetErrors({
-      answerValue: question.answerValue,
-      optionValues: question.options.map(({ value }) => value),
-      labelOf: (value) => question.options.find((option) => option.value === value)?.label,
-      expectedOptionCount: question.options.length,
-      locale: question.kind === 'form-context' ? 'sq' : 'en',
-    }), [], `${question.questionKey}: form bank has more than one visible answer`)
+  if (['forms', 'form-context'].includes(question.kind) && question.mode === 'choice') {
+    const phaseBanks = question.phaseQuestions
+      ? Object.entries(question.phaseQuestions)
+      : [['single', { answerValue: question.answerValue, options: question.options }]]
+    for (const [phaseId, phase] of phaseBanks) {
+      assert.ok(Array.isArray(phase.options), `${question.questionKey}/${phaseId}: missing form choice bank`)
+      const optionValues = phase.options.map((option) => option.value)
+      assert.deepEqual(choiceSetErrors({
+        answerValue: phase.answerValue,
+        optionValues,
+        labelOf: (value) => phase.options.find((option) => option.value === value)?.label,
+        expectedOptionCount: phase.options.length,
+        locale: question.kind === 'form-context' ? 'sq' : 'en',
+      }), [], `${question.questionKey}: form phase bank has more than one visible answer`)
+    }
   }
   if (question.kind === 'word-construction' || question.kind === 'word-spelling') {
     const context = question.kind === 'word-spelling' ? question.typingContext : question.context
@@ -81,7 +89,7 @@ const validateWordQuestion = (question) => {
 // Audit the whole harvested context bank, not merely whichever questions the
 // deterministic scheduler happens to sample below. Unreviewed occurrences may
 // prove that an Albanian form is playable, but can never become English prose.
-for (const id of Object.keys(DICT).filter(isTrainableSense)) {
+for (const id of allTrainableIds) {
   for (const surface of playableFormUsage(id).keys()) {
     const context = playableContextForSense(id, surface)
     if (context) assert.equal(isReviewedProductionContext(context), true,
@@ -89,14 +97,15 @@ for (const id of Object.keys(DICT).filter(isTrainableSense)) {
   }
 }
 
-for (const id of Object.keys(DICT).filter(isTrainableSense)) {
+for (const id of allTrainableIds) {
   let progress = null
   let round = 0
   const options = wordProgressionOptionsForSense(id)
-  const discoveredIds = [id, ...new Set([
-    ...(DICT[id].ctx?.requires || []),
-    ...(DICT[id].ctx?.variants || []).flatMap(({ requires = [] }) => requires),
-  ])]
+  // This is a whole-bank validity audit rather than a cold-start scheduler
+  // fixture. Make every trainable option known so later Albanian-choice stages
+  // can exercise their hardest legal banks; separate progression audits pin the
+  // real all-other-words-known gate and fail-closed caught-up behaviour.
+  const discoveredIds = allTrainableIds
   for (let attempt = 0; attempt < 12; attempt += 1) {
     const question = buildWordQuestion({
       discoveredIds, targetId: id, wordProgress: { [id]: progress }, currentRound: round, rng: steadyRng,
@@ -111,6 +120,7 @@ for (const id of Object.keys(DICT).filter(isTrainableSense)) {
       direction: question.dir,
       variantId: question.variantId ?? null,
       targetFormKey: question.targetFormKey ?? null,
+      audioCompleted: question.requiresCompletedAudio ? true : undefined,
       questionKey: `answer-validity:${id}:${attempt}`,
       round: round + 1,
     }, options)

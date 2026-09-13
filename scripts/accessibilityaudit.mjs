@@ -65,6 +65,12 @@ check('Albanian learning surfaces declare their language to assistive technology
 check('context choices and correction feedback use reviewed grammatical-job labels',
   practice.includes("label: q.optionLabels?.[id] || senseText(id, q.field)") &&
   practice.includes("q.optionLabels?.[q.answerId] || senseText(q.answerId, q.field)"))
+check('every Train question announces its exact heart risk before interaction',
+  practice.includes('role="note"') &&
+  practice.includes('aria-label={trainHeartRiskText(trainHealth)}') &&
+  practice.includes("trainHealth.missEndsRun ? '💔'") &&
+  practice.includes('{trainRecoveryStatusText(recoveryPlan)}') &&
+  practice.indexOf('className={`train-heart-risk') < practice.indexOf('{isWordMatching ? ('))
 check('keyboard focus exposes the same word hint as hover', token.includes('onFocus={() => setShowHint(true)}') && token.includes('role="tooltip"'))
 check('saved-word hints reuse dictionary definitions without nested controls',
   token.includes('const definition = DEFS[token.id]') &&
@@ -212,12 +218,12 @@ check('word context and phrase cloze share one accessible mirrored completion su
   practice.includes('q.targetReference?.instruction') &&
   practice.includes('q.targetReference?.directionLabel') &&
   practice.includes('q.targetReference?.answerGroupLabel') &&
-  practice.includes("q.promptProfile?.contextPresentation === 'unmarked'") &&
+  practice.includes('q.promptProfile?.contextPresentation === CONTEXT_TARGET_PRESENTATION.namedMarked') &&
   practice.includes('q.promptProfile?.showEnglishContext === false') &&
   practice.includes('indices: q.ctx.targetTokenIndices') &&
   practice.includes('indices: [q.ctx.meaningGapTokenIndex]') &&
   contextQuestionPresentation.includes("referenceMode: 'visual-mark'") &&
-  contextQuestionPresentation.includes("referenceMode: 'named-surface'") &&
+  contextQuestionPresentation.includes("referenceMode: 'named-and-marked-surface'") &&
   contextQuestionPresentation.includes('`What job does ${quoted(surface)} do here?`') &&
   contextQuestionPresentation.includes('`What does ${quoted(surface)} mean here?`') &&
   practice.includes('<span lang="sq">“{q.targetReference.instructionTarget}”</span>') &&
@@ -233,6 +239,7 @@ check('word context and phrase cloze share one accessible mirrored completion su
   contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.marked') &&
   contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.blank') &&
   contextQuestionPresentation.includes("unmarked: 'unmarked'") &&
+  contextQuestionPresentation.includes("referenceMode: 'requires-target-identification-phase'") &&
   !phrasePractice.includes('CONTEXT_TARGET_PRESENTATION.unmarked'))
 check('word construction and spelling render one shared explicit target reference',
   contextQuestionPresentation.includes('wordProductionTargetReference') &&

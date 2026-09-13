@@ -124,6 +124,16 @@ check('every learning question step opens a structured example dialog', () => {
         `${definition.id} example does not mirror its choice count`)
     }
   }
+  const reviewedForm = WORD_STAGE_DEFINITIONS.find(({ id }) => id === 'reviewed-form-contrast')
+  assert.deepEqual(reviewedForm.variant.phases.map(({ task }) => task), ['lemma-identification', 'reviewed-form-selection', 'grammatical-role'])
+  assert.equal(reviewedForm.variant.phases[0].completion, 'advance-without-evidence')
+  assert.equal(reviewedForm.variant.phases[1].completion, 'advance-without-evidence')
+  assert.equal(reviewedForm.variant.phases[2].completion, 'complete-stage-once')
+  assert.deepEqual(
+    TRAIN_EXERCISE_EXAMPLES['reviewed-form-contrast'].phases.map(({ id }) => id),
+    reviewedForm.variant.phases.map(({ id }) => id),
+    'the debug example does not render the production staged-activity sequence',
+  )
   for (const definition of PHRASE_STAGE_DEFINITIONS.listening) {
     assert.equal(
       TRAIN_EXERCISE_EXAMPLES[definition.id].tiles.length,
@@ -180,22 +190,32 @@ check('the word walkthrough and builder share the exact lexical stage registry',
   assert.equal(wordProgressionSnapshot(advanced.progress, 1, exampleOptions).next.baseStage, 0)
   assert.equal(advanced.progress.wins['meaning-recognition'], 1)
 
-  // Traverse the production builder, not a duplicate list of debug steps. This
-  // sequence is the behavioral contract the deterministic fshat walkthrough
-  // must expose, including the context proof that interposes at the same base
-  // tier before spelling.
+  // Traverse the real builder, not a duplicate list of debug steps. Word
+  // capabilities may branch once their own prerequisites pass, so this checks
+  // the emitted aspect evidence and required local edges rather than asserting
+  // one global order.
   let progress = null
   let round = 0
   const observed = []
-  for (let attempt = 0; attempt < 18; attempt++) {
+  const discoveredIds = [...new Set([
+    'fshat',
+    // Saved contrast nouns are required by the real agreement builder; the
+    // walkthrough must exercise that production gate instead of bypassing it.
+    'liber', 'rruge', 'shtepi',
+    'ky', 'kjo', 'i_art', 'e_art', 'mire',
+    ...(exampleOptions.context?.requires || []),
+    ...exampleOptions.reviewedForms.flatMap(({ context }) => context?.requires || []),
+  ])]
+  for (let attempt = 0; attempt < 36; attempt++) {
     const built = buildWordQuestion({
-      discoveredIds: ['fshat'],
+      discoveredIds,
+      targetId: 'fshat',
       wordProgress: { fshat: progress },
       currentRound: round,
       rng: () => 0.2,
     })
     assert.ok(built, `fshat walkthrough stopped before retained spelling at attempt ${attempt}`)
-    observed.push(built.variantId || built.wordStageId)
+    observed.push(built.aspectTargets.find(({ evidenceMode }) => evidenceMode === 'write')?.aspectId)
     if (built.wordStageId === 'strict-spaced-recall') break
     const result = advanceWordProgress(progress, round, {
       correct: true,
@@ -205,6 +225,8 @@ check('the word walkthrough and builder share the exact lexical stage registry',
       direction: built.dir,
       variantId: built.variantId ?? null,
       targetFormKey: built.targetFormKey ?? null,
+      aspectTargets: built.aspectTargets,
+      audioCompleted: built.requiresCompletedAudio ? true : undefined,
       questionKey: built.questionKey,
       round: round + 1,
     }, exampleOptions)
@@ -212,19 +234,17 @@ check('the word walkthrough and builder share the exact lexical stage registry',
     progress = result.progress
     round = progress.dueAfterRound
   }
-  assert.deepEqual(observed, [
-    'marked-context-recognition',
-    'marked-context-recognition',
-    'class-specific-form-contrast',
-    'mirrored-controlled-retrieval',
-    'mirrored-controlled-retrieval',
-    'mirrored-controlled-retrieval',
-    'reviewed-form-in-context',
-    'unmarked-context-recognition',
-    'letter-and-chunk-construction',
-    'contextual-typed-recall',
-    'strict-spaced-recall',
-  ])
+  for (const aspectId of [
+    'lexical-meaning-recognition', 'grammatical-form-recognition',
+    'controlled-lemma-retrieval', 'contextual-form-selection',
+    'reviewed-ending-recall',
+    'contextual-meaning-inference', 'auditory-form-construction',
+    'auditory-typed-recall', 'orthographic-construction',
+    'contextual-written-recall', 'spaced-exact-recall',
+  ]) assert.ok(observed.includes(aspectId), `fshat walkthrough omitted ${aspectId}`)
+  assert.ok(observed.indexOf('grammatical-form-recognition') < observed.indexOf('contextual-form-selection'))
+  assert.ok(observed.indexOf('auditory-form-construction') < observed.indexOf('auditory-typed-recall'))
+  assert.ok(observed.indexOf('orthographic-construction') < observed.indexOf('contextual-written-recall'))
   assert.match(component, /const progressionOptions = exampleWordProgressionOptions\(\)/)
   assert.match(component, /wordProgressionSnapshot\(null, 0, progressionOptions\)/)
   assert.match(component, /advanceWordProgress\(progress, round,[\s\S]+\}, progressionOptions\)/)
@@ -284,7 +304,7 @@ check('all stage cards expose truthful gates and exact pass/miss behavior', () =
   }
 })
 
-check('typed noun-ending correction is derived from the real production ladder', () => {
+check('typed noun-ending correction is derived from the real phrase-production sequence', () => {
   assert.deepEqual(
     TRAIN_NOUN_ENDING_CORRECTION_POLICY.phraseProductionStages,
     PHRASE_STAGE_DEFINITIONS.production.filter((definition) => definition.mode === 'type'),
@@ -347,7 +367,7 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordMeaning/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordContext/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordForms/)
-  assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordFormContext/)
+  assert.doesNotMatch(practice, /TRAIN_EXERCISE_FAMILIES\.wordFormContext/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordConstruction/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordSpelling/)
   assert.match(practice, /buildWordQuestion/)
@@ -360,7 +380,7 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.doesNotMatch(practice, /albanianToEnglishShare/)
   assert.deepEqual(
     [...practice.matchAll(/kind:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]),
-    ['forms-correction', 'forms-correction'],
+    ['forms-correction', 'forms-correction', 'forms-correction'],
     'only the registered noun-remediation surface may use a literal local kind',
   )
 

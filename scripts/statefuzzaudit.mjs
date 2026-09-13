@@ -482,8 +482,18 @@ check('hard restart clears transient role state but preserves durable learning',
   assert.deepEqual(restarted.discovered, active.discovered)
   assert.deepEqual(restarted.visited, {}, 'visited places survived a new run')
   for (const key of Object.keys(durable)) assert.deepEqual(restarted[key], durable[key], `${key} was not durable`)
-  assert.deepEqual(reducer(restarted, { type: 'RESET' }), restarted, 'repeated hard restart changed clean state')
-  return 'live-role lock; fatal recovery; repeat idempotence'
+  const nextRun = reducer(restarted, { type: 'RESET' })
+  assert.equal(
+    nextRun.storyRunSequence,
+    restarted.storyRunSequence + 1,
+    'a deliberate new run did not receive a fresh replay-safe receipt domain',
+  )
+  assert.deepEqual(
+    { ...nextRun, storyRunSequence: restarted.storyRunSequence },
+    restarted,
+    'repeated hard restart changed clean state beyond its run identity',
+  )
+  return 'live-role lock; fatal recovery; repeat-safe fresh run identity'
 })
 
 check('achievement reducer cannot bypass deed gates or redirect ending returns', () => {
@@ -516,7 +526,8 @@ check('every repeat-sensitive UI commit has an immediate same-render lock', () =
   const practice = component('PracticeView.jsx')
   assert.doesNotMatch(practice, /canChoose\([^\n]+\)\.ok/, 'PracticeView treats canChoose boolean as an object')
   assert.match(practice, /answerCommitted\s*=\s*useRef\(false\)/)
-  assert.match(practice, /if \(answered \|\| answerCommitted\.current\) return/)
+  assert.match(practice, /if \(answered \|\| answerCommitted\.current/)
+  assert.match(practice, /answerCommitted\.current = true/)
 
   const passage = component('TimePassage.jsx')
   assert.match(passage, /actionCommitted\s*=\s*useRef\(false\)/)

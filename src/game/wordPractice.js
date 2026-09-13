@@ -16,7 +16,6 @@ import {
 import {
   contextualChoiceLabel,
   contextualPromptProfile,
-  wordContrastRank,
 } from './practiceContrasts.js'
 import { isTrainableSense } from './lexicalTrainability.js'
 import {
@@ -24,7 +23,17 @@ import {
   playableContextForSense,
   wordProgressionOptionsForSense,
 } from './formInventory.js'
-import { buildConstructionPieces, buildFormQuestion } from './formPractice.js'
+import {
+  buildConstructionPieces,
+  buildFormQuestion,
+  buildNounAgreementQuestion,
+  reviewedFormContextGate,
+} from './formPractice.js'
+import {
+  buildDemonstrativeWholeChoice,
+  reviewedNounAgreementGate,
+} from './nounAgreementPractice.js'
+import { wordAspectTargetsForPlan } from './wordLearningAspects.js'
 import {
   choiceSetIsValid,
   sensesMayShareAnswer,
@@ -34,6 +43,10 @@ import {
   contextualTargetReference,
   wordProductionTargetReference,
 } from './contextQuestionPresentation.js'
+import {
+  distractorDifficultyBandForPlan,
+  planSenseDistractors,
+} from './distractorPlanning.js'
 
 const DIRECTION = Object.freeze({
   al2en: { field: 'en', promptField: 'al' },
@@ -43,6 +56,19 @@ const DIRECTION = Object.freeze({
 const senseText = (id, field) => field === 'en'
   ? DICT[id].enAll ?? DICT[id].en
   : DICT[id][field]
+
+const audioRecognitionChoiceCapacity = (answerId, candidateIds, field, excludeWords) => {
+  const answerLabel = senseText(answerId, field)
+  const labels = new Set()
+  for (const id of [...new Set(candidateIds || [])]) {
+    if (id === answerId || !DICT[id] || !isTrainableSense(id) || sensesMayShareAnswer(answerId, id)) continue
+    if (containsExcludedPhraseWord(DICT[id].al, excludeWords)) continue
+    const label = senseText(id, field)
+    if (!label || label === answerLabel) continue
+    labels.add(label)
+  }
+  return labels.size
+}
 
 const mergedReviewedContext = (base, variant = null) => {
   if (!variant) return base
@@ -79,20 +105,34 @@ const reviewedContextForRound = (answerId, discoveredIds, currentRound, lastAtte
   return fresh[currentRound % fresh.length]
 }
 
-const wordWeight = ({ id, plan }, mana) => {
+const wordWeight = ({ id, plan }, mana, wordExposure) => {
   const held = mana[id] || 0
   const need = held === 0 ? TRAIN_QUESTION_MIX_POLICY.zeroTokenWeight : 1 / (held + 1)
   const practical = EVERYDAY_CORE_SENSE_SET.has(id)
     ? TRAIN_QUESTION_MIX_POLICY.practicalWordWeight
     : 1
-  // Within the due pool, earlier lexical stages stay slightly ahead of
-  // retention work without starving an older word.
-  const foundation = 1 + Math.max(0, 3 - plan.baseStage) * 0.3
-  return { held, need, practical, foundation, weight: need * practical * foundation }
+  const selectedAspect = plan.aspectSelection?.candidates?.find(({ aspect }) => aspect.id === plan.aspectId)
+  const foundation = 1 + (1 - (selectedAspect?.masteryRatio || 0)) * 0.9
+  const passiveExposure = wordExposure?.[id]?.total || 0
+  // Repeatedly seeing an unproven word is a useful invitation to retrieve it,
+  // never evidence that retrieval is already mastered. The boost is deliberately
+  // bounded and fades with the selected aspect's actual proof strength.
+  const exposureSignal = Math.min(1, Math.log2(passiveExposure + 1) / 6)
+  const retrievalPriorityBoost = 1 + 0.35 * exposureSignal * Math.max(0, 1 - (selectedAspect?.masteryRatio || 0))
+  return {
+    held,
+    need,
+    practical,
+    foundation,
+    passiveExposure,
+    exposureSignal,
+    retrievalPriorityBoost,
+    weight: need * practical * foundation * retrievalPriorityBoost,
+  }
 }
 
-const weightedPick = (entries, mana, rng, trace = null) => {
-  const breakdowns = entries.map((entry) => ({ id: entry.id, ...wordWeight(entry, mana) }))
+const weightedPick = (entries, mana, wordExposure, rng, trace = null) => {
+  const breakdowns = entries.map((entry) => ({ id: entry.id, ...wordWeight(entry, mana, wordExposure) }))
   const weights = breakdowns.map(({ weight }) => weight)
   const total = weights.reduce((sum, weight) => sum + weight, 0)
   const random = rng()
@@ -102,7 +142,7 @@ const weightedPick = (entries, mana, rng, trace = null) => {
     roll -= weights[index]
     if (roll <= 0) {
       if (trace) trace.weightedSelection = {
-        formula: 'token need × practical-language priority × earlier-stage priority',
+        formula: 'token need × practical-language priority × weak-aspect priority × bounded passive-exposure retrieval boost',
         random,
         totalWeight: total,
         roll: initialRoll,
@@ -113,7 +153,7 @@ const weightedPick = (entries, mana, rng, trace = null) => {
     }
   }
   if (trace) trace.weightedSelection = {
-    formula: 'token need × practical-language priority × earlier-stage priority',
+    formula: 'token need × practical-language priority × weak-aspect priority × bounded passive-exposure retrieval boost',
     random,
     totalWeight: total,
     roll: initialRoll,
@@ -131,42 +171,48 @@ const distractorIds = (
   count,
   excludeWords,
   rng,
-  { contextual = false, debugTrace = null } = {},
+  {
+    contextual = false,
+    debugTrace = null,
+    difficultyBand = 'developing',
+    discoveredIds = [],
+    mana = {},
+    practiced = {},
+    wordProgress = {},
+    wordExposure = {},
+    strictCandidatePool = false,
+  } = {},
 ) => {
-  const localFirst = candidateIds.length > count
-    ? candidateIds
-    : [...candidateIds, ...Object.keys(DICT)]
-  const distractors = []
   const choiceText = (id) => contextual && field === 'en'
     ? contextualChoiceLabel(id, senseText(id, field))
     : senseText(id, field)
-  const usedText = new Set([choiceText(answerId)])
-  const ranked = [...new Set(shuffleWith(localFirst, rng))]
-    .map((id) => ({ id, rank: wordContrastRank(answerId, id, { contextual }) }))
-    .filter(({ rank }) => Number.isFinite(rank))
-    .sort((left, right) => left.rank - right.rank)
-  for (const { id } of ranked) {
-    if (id === answerId || distractors.includes(id)) continue
-    if (containsExcludedPhraseWord(DICT[id].al, excludeWords)) continue
-    if (!contextual && sensesMayShareAnswer(answerId, id)) continue
-    // A second option with the same prompt or answer text would create two
-    // defensible answers in a bare-word question. A contextual sense question
-    // deliberately does the opposite: same-surface meanings are its best
-    // contrasts because the Albanian context must disambiguate them.
-    if (!contextual && DICT[id][promptField] === DICT[answerId][promptField]) continue
-    const text = choiceText(id)
-    if (usedText.has(text)) continue
-    usedText.add(text)
-    distractors.push(id)
-    if (distractors.length === count) break
-  }
-  if (debugTrace) debugTrace.distractors = {
-    policy: contextual ? 'reviewed contextual contrast rank' : 'distinct incompatible sense ranked by lexical contrast',
-    requested: count,
-    rankedCandidates: ranked,
-    selectedIds: [...distractors],
-  }
-  return distractors
+  const planned = planSenseDistractors({
+    answerId,
+    candidateIds,
+    count,
+    field,
+    promptField,
+    contextual,
+    difficultyBand,
+    discoveredIds,
+    mana,
+    practiced,
+    wordProgress,
+    wordExposure,
+    ...(strictCandidatePool ? {
+      fallbackIds: [],
+      useHardContrastRegistry: false,
+      requireReviewedRelation: false,
+      source: 'saved-audio-options',
+    } : {}),
+    excludeReason: (id) => containsExcludedPhraseWord(DICT[id].al, excludeWords)
+      ? 'candidate shares an Albanian word with the preceding Train activity'
+      : null,
+    labelOf: choiceText,
+    rng,
+  })
+  if (debugTrace) debugTrace.distractors = planned.trace
+  return planned.complete ? planned.selectedIds : []
 }
 
 const contextSurfaces = (authored, plan) => {
@@ -197,7 +243,7 @@ const contextSurfaces = (authored, plan) => {
   }
 }
 
-function buildContextQuestion(answerId, plan, authored, excludeWords, rng, debugTrace = null) {
+function buildContextQuestion(answerId, plan, authored, excludeWords, rng, debugTrace = null, learner = {}) {
   const { field } = DIRECTION[plan.direction]
   const count = plan.contextVariant.choiceDistractors === 'from-stage'
     ? plan.variant.distractors
@@ -205,30 +251,40 @@ function buildContextQuestion(answerId, plan, authored, excludeWords, rng, debug
   const defensibleAlternatives = new Set(Object.keys(
     authored.defensibleAlternativeRationales?.[plan.direction] || {},
   ))
-  const authoredDistractors = (plan.direction === 'al2en' ? authored.distractorIds || [] : []).filter((id, index, ids) =>
-    DICT[id] && id !== answerId && ids.indexOf(id) === index && !defensibleAlternatives.has(id),
-  ).slice(0, count)
-  const distractors = plan.direction === 'al2en'
-    ? authoredDistractors
-    : (authored.retrieval.distractorIds || []).filter((id, index, ids) =>
-        DICT[id] && id !== answerId && ids.indexOf(id) === index &&
-        !defensibleAlternatives.has(id) &&
-        !containsExcludedPhraseWord(DICT[id].al, excludeWords) &&
-        senseText(id, field) !== senseText(answerId, field),
-      ).slice(0, count)
+  const authoredDistractors = plan.direction === 'al2en'
+    ? authored.distractorIds || []
+    : authored.retrieval.distractorIds || []
+  const optionLabel = (id) => authored.distractorLabels?.[plan.direction]?.[id] || (plan.direction === 'al2en'
+    ? contextualChoiceLabel(id, senseText(id, field))
+    : senseText(id, field))
+  const plannedDistractors = planSenseDistractors({
+    answerId,
+    candidateIds: authoredDistractors,
+    fallbackIds: [],
+    count,
+    field,
+    promptField: DIRECTION[plan.direction].promptField,
+    contextual: true,
+    difficultyBand: distractorDifficultyBandForPlan(plan),
+    ...learner,
+    source: 'editor-reviewed-context-pool',
+    excludeReason: (id) => defensibleAlternatives.has(id)
+      ? 'editor marks this sense as a defensible alternative'
+      : plan.direction === 'en2al' && containsExcludedPhraseWord(DICT[id].al, excludeWords)
+        ? 'candidate shares an Albanian word with the preceding Train activity'
+        : null,
+    labelOf: optionLabel,
+    wrongOptionIsValid: (id) => defensibleAlternatives.has(id) ||
+      (plan.direction === 'en2al' && sensesMayShareAnswer(answerId, id)),
+    rng,
+  })
+  const distractors = plannedDistractors.selectedIds
   // Context-dependent senses may use only their exact editorially reviewed
   // alternatives. A short or ambiguous list fails closed; falling through to
   // a bare homograph question would erase the very context that identifies the
   // sense being tested.
-  if (plan.direction === 'en2al' && distractors.length !== count) return null
-  if (debugTrace) debugTrace.distractors = {
-    policy: plan.direction === 'al2en'
-      ? 'editor-reviewed context-specific sense contrasts'
-      : 'editor-reviewed Albanian retrieval contrasts',
-    requested: count,
-    authoredIds: [...distractors],
-    defensibleAlternativesExcluded: [...defensibleAlternatives],
-  }
+  if (!plannedDistractors.complete) return null
+  if (debugTrace) debugTrace.distractors = plannedDistractors.trace
   const promptProfile = contextualPromptProfile(answerId, {
     contextPresentation: plan.targetPresentation,
   })
@@ -248,9 +304,7 @@ function buildContextQuestion(answerId, plan, authored, excludeWords, rng, debug
   const options = shuffleWith([answerId, ...distractors], rng)
   const optionLabels = Object.fromEntries(options.map((id) => [
     id,
-    authored.distractorLabels?.[plan.direction]?.[id] || (plan.direction === 'al2en'
-      ? contextualChoiceLabel(id, senseText(id, field))
-      : senseText(id, field)),
+    optionLabel(id),
   ]))
   if (!choiceSetIsValid({
     answerValue: answerId,
@@ -316,7 +370,9 @@ export function wordHasNoEvidence(value) {
 export function buildWordQuestion({
   discoveredIds,
   mana = {},
+  practiced = {},
   wordProgress = {},
+  wordExposure = {},
   currentRound = 0,
   nowMs = 0,
   targetId = null,
@@ -387,6 +443,43 @@ export function buildWordQuestion({
       if (candidate) trace.candidates.push(candidate)
       continue
     }
+    if (plan.formTarget) {
+      const formContextGate = reviewedFormContextGate(plan.formTarget, discoveredIds)
+      candidate && (candidate.formContextGate = formContextGate)
+      if (!formContextGate.eligible) {
+        candidate?.reasons.push(formContextGate.reason)
+        if (candidate) trace.candidates.push(candidate)
+        continue
+      }
+    }
+    if (['demonstrative-noun-agreement', 'adjective-linking-article-agreement'].includes(plan.stageId)) {
+      const agreementKind = plan.stageId === 'demonstrative-noun-agreement' ? 'demonstrative' : 'adjective'
+      const agreementGate = reviewedNounAgreementGate(plan.nounAgreementFrame, discoveredIds, agreementKind)
+      candidate && (candidate.nounAgreementGate = agreementGate)
+      if (!agreementGate.eligible) {
+        candidate?.reasons.push(agreementGate.reason)
+        if (candidate) trace.candidates.push(candidate)
+        continue
+      }
+    }
+    if (['auditory-surface-recognition', 'auditory-meaning-recognition'].includes(plan.stageId)) {
+      const optionField = plan.stageId === 'auditory-surface-recognition' ? 'al' : 'en'
+      const neededDistractors = plan.variant?.distractors || 3
+      const capacity = audioRecognitionChoiceCapacity(id, discoveredIds, optionField, excludeWords)
+      candidate && (candidate.audioRecognitionGate = {
+        eligible: capacity >= neededDistractors,
+        knownDistinctDistractors: capacity,
+        neededDistractors,
+        reason: capacity >= neededDistractors
+          ? 'enough distinct saved senses for an audio-only choice set'
+          : 'not enough distinct saved senses for an audio-only choice set',
+      })
+      if (capacity < neededDistractors) {
+        candidate?.reasons.push('not enough distinct saved senses for the four-choice audio recognition card')
+        if (candidate) trace.candidates.push(candidate)
+        continue
+      }
+    }
     if (!plan.due) {
       candidate?.reasons.push('current stage is not due by round/elapsed-spacing policy')
       if (candidate) trace.candidates.push(candidate)
@@ -401,7 +494,7 @@ export function buildWordQuestion({
   }
   if (!due.length) return null
 
-  const { id: answerId, plan, context } = weightedPick(due, mana, rng, trace)
+  const { id: answerId, plan, context } = weightedPick(due, mana, wordExposure, rng, trace)
   if (trace) trace.selected = {
     answerId,
     stageId: plan.stageId,
@@ -411,21 +504,35 @@ export function buildWordQuestion({
     reason: 'selected from the eligible due pool by the recorded weighting calculation',
   }
   const finish = (question, buildPath, extra = {}) => {
-    if (!question || !trace) return question
-    return {
+    if (!question) return question
+    const withAspects = {
       ...question,
+      aspectTargets: question.aspectTargets || wordAspectTargetsForPlan(answerId, plan),
+      aspectRegistryVersion: plan.aspectSelection?.registryVersion || null,
+    }
+    if (!trace) return withAspects
+    return {
+      ...withAspects,
       debugSelection: {
         ...trace,
+        aspectSelection: plan.aspectSelection,
         build: { path: buildPath, ...extra },
       },
     }
   }
-  if (!plan.contextReview && (['reviewed-form-contrast', 'contextual-form-selection'].includes(plan.stageId) ||
+  if (!plan.contextReview && (['reviewed-form-contrast', 'contextual-form-selection', 'reviewed-ending-recall'].includes(plan.stageId) ||
       (plan.stageId === 'word-form-construction' && plan.targetFormKey))) {
     return finish(
-      buildFormQuestion({ answerId, plan, excludeWords, currentRound, rng }),
+      buildFormQuestion({ answerId, plan, candidateIds: discoveredIds, excludeWords, currentRound, rng }),
       'reviewed-form-builder',
       { targetFormKey: plan.targetFormKey },
+    )
+  }
+  if (!plan.contextReview && ['demonstrative-noun-agreement', 'adjective-linking-article-agreement'].includes(plan.stageId)) {
+    return finish(
+      buildNounAgreementQuestion({ answerId, plan, candidateIds: discoveredIds, excludeWords, currentRound, rng }),
+      'reviewed-noun-agreement-builder',
+      { grammarVariantId: plan.variantId },
     )
   }
   const contextKey = context?.id ? `context-${context.id}` : 'isolated'
@@ -438,6 +545,138 @@ export function buildWordQuestion({
   const reviewedProductionContext = isReviewedProductionContext(productionContext)
     ? productionContext
     : null
+  if (!plan.contextReview && ['auditory-surface-recognition', 'auditory-meaning-recognition'].includes(plan.stageId)) {
+    const field = plan.stageId === 'auditory-surface-recognition' ? 'al' : 'en'
+    const promptField = field === 'al' ? 'en' : 'al'
+    const distractors = distractorIds(
+      answerId,
+      discoveredIds,
+      field,
+      promptField,
+      plan.variant.distractors,
+      excludeWords,
+      rng,
+      {
+        debugTrace: trace,
+        difficultyBand: distractorDifficultyBandForPlan(plan),
+        discoveredIds,
+        mana,
+        practiced,
+        wordProgress,
+        wordExposure,
+        strictCandidatePool: true,
+      },
+    )
+    const options = shuffleWith([answerId, ...distractors], rng)
+    if (!choiceSetIsValid({
+      answerValue: answerId,
+      optionValues: options,
+      labelOf: (id) => senseText(id, field),
+      expectedOptionCount: plan.variant.distractors + 1,
+      locale: field === 'al' ? 'sq' : 'en',
+      wrongOptionIsValid: (id) => sensesMayShareAnswer(answerId, id),
+    })) return null
+    return finish({
+      kind: TRAIN_EXERCISE_FAMILIES.wordAudioRecognition.kind,
+      familyId: TRAIN_EXERCISE_FAMILIES.wordAudioRecognition.id,
+      questionKey,
+      answerId,
+      dir: plan.direction,
+      mode: plan.mode,
+      tier: plan.tier,
+      wordStageId: plan.stageId,
+      variantId: plan.variantId,
+      difficultyLabel: plan.difficultyLabel,
+      remediation: plan.remediation,
+      targetFormKey: null,
+      field,
+      options,
+      stimulusMode: 'audio-only',
+      audioSurface: DICT[answerId].al,
+      requiresCompletedAudio: true,
+      targetReference: {
+        valid: true,
+        instruction: field === 'al'
+          ? 'Listen, then choose the written Albanian word'
+          : 'Listen, then choose what the Albanian word means',
+        presentation: 'audio-only',
+      },
+      lexicalSurfaces: options.map((id) => DICT[id].al),
+      distractorPolicy: 'four distinct saved trainable senses; no transcript before the answer',
+    }, 'audio-word-recognition', {
+      targetSurface: DICT[answerId].al,
+      audioRequired: true,
+      optionField: field,
+    })
+  }
+  if (!plan.contextReview && plan.stageId === 'auditory-word-construction') {
+    return finish({
+      kind: TRAIN_EXERCISE_FAMILIES.wordAudioConstruction.kind,
+      familyId: TRAIN_EXERCISE_FAMILIES.wordAudioConstruction.id,
+      questionKey,
+      answerId,
+      dir: plan.direction,
+      mode: plan.mode,
+      tier: plan.tier,
+      wordStageId: plan.stageId,
+      variantId: plan.variantId,
+      difficultyLabel: plan.difficultyLabel,
+      remediation: plan.remediation,
+      answerTolerance: plan.answerTolerance,
+      targetFormKey: plan.targetFormKey,
+      surface: productionSurface,
+      stimulusMode: 'audio-only',
+      audioSurface: productionSurface,
+      requiresCompletedAudio: true,
+      targetReference: {
+        valid: true,
+        instruction: 'Listen, then build the Albanian word',
+        presentation: 'audio-only',
+      },
+      construction: buildConstructionPieces(productionSurface, {
+        distractorCount: plan.definition.variant.distractorChunks,
+        rng,
+      }),
+      answerValue: productionSurface.normalize('NFC').toLocaleLowerCase('sq'),
+      rewardIds: [answerId],
+      lexicalSurfaces: [productionSurface],
+    }, 'audio-word-construction', {
+      targetSurface: productionSurface,
+      audioRequired: true,
+      tileAudio: plan.definition.variant.tileAudio,
+    })
+  }
+  if (!plan.contextReview && plan.stageId === 'auditory-word-spelling') {
+    return finish({
+      kind: TRAIN_EXERCISE_FAMILIES.wordAudioSpelling.kind,
+      familyId: TRAIN_EXERCISE_FAMILIES.wordAudioSpelling.id,
+      questionKey,
+      answerId,
+      dir: plan.direction,
+      mode: plan.mode,
+      tier: plan.tier,
+      wordStageId: plan.stageId,
+      variantId: plan.variantId,
+      difficultyLabel: plan.difficultyLabel,
+      remediation: plan.remediation,
+      answerTolerance: plan.answerTolerance,
+      targetFormKey: plan.targetFormKey,
+      stimulusMode: 'audio-only',
+      audioSurface: productionSurface,
+      requiresCompletedAudio: true,
+      targetReference: {
+        valid: true,
+        instruction: 'Listen, then type the Albanian word',
+        presentation: 'audio-only',
+      },
+      typingAnswer: productionSurface,
+      lexicalSurfaces: [productionSurface],
+    }, 'audio-word-spelling', {
+      targetSurface: productionSurface,
+      audioRequired: true,
+      answerTolerance: plan.answerTolerance,
+    })
+  }
   if (!plan.contextReview && plan.stageId === 'word-form-construction') {
     const targetReference = wordProductionTargetReference({
       mode: 'construction',
@@ -456,6 +695,7 @@ export function buildWordQuestion({
       variantId: plan.variantId,
       difficultyLabel: plan.difficultyLabel,
       remediation: plan.remediation,
+      answerTolerance: plan.answerTolerance,
       targetFormKey: plan.targetFormKey,
       surface: productionSurface,
       context: reviewedProductionContext,
@@ -510,6 +750,13 @@ export function buildWordQuestion({
       excludeWords,
       rng,
       trace,
+      {
+        discoveredIds,
+        mana,
+        practiced,
+        wordProgress,
+        wordExposure,
+      },
     )
     return finish(contextQuestion ? { ...contextQuestion, questionKey } : null, 'reviewed-context-question', {
       contextId: context?.id || null,
@@ -517,15 +764,58 @@ export function buildWordQuestion({
     })
   }
 
+  // The first two-choice retrieval can carry noun gender incidentally without
+  // claiming grammar evidence: the learner chooses one authored `ky/kjo +
+  // noun` bundle. The independently scheduled split activity is what later
+  // tests and records agreement.
+  if (plan.stageId === 'controlled-lemma-retrieval' &&
+      ['controlled-retrieval-two-choice', 'controlled-retrieval-four-choice'].includes(plan.variantId) &&
+      reviewedNounAgreementGate(plan.nounAgreementFrame, discoveredIds, 'demonstrative').eligible) {
+    const bundled = buildDemonstrativeWholeChoice({
+      answerId,
+      candidateIds: discoveredIds.filter((id) => !containsExcludedPhraseWord(DICT[id]?.al || '', excludeWords)),
+      optionCount: plan.variant.distractors + 1,
+      rng,
+    })
+    if (bundled && !bundled.lexicalSurfaces.some((surface) => containsExcludedPhraseWord(surface, excludeWords))) {
+      return finish({
+        kind: TRAIN_EXERCISE_FAMILIES.wordMeaning.kind,
+        questionKey,
+        answerId,
+        dir: plan.direction,
+        mode: plan.mode,
+        tier: plan.tier,
+        wordStageId: plan.stageId,
+        variantId: plan.variantId,
+        difficultyLabel: plan.difficultyLabel,
+        remediation: plan.remediation,
+        targetFormKey: null,
+        field: 'al',
+        ...bundled,
+      }, 'demonstrative-noun-whole-choice', {
+        grammarVariantId: bundled.grammarVariantId,
+        evidenceBoundary: 'controlled lemma retrieval only; no agreement proof',
+      })
+    }
+  }
+
   const distractors = distractorIds(
     answerId,
-    due.map(({ id }) => id),
+    discoveredIds,
     field,
     promptField,
     plan.variant.distractors,
     excludeWords,
     rng,
-    { debugTrace: trace },
+    {
+      debugTrace: trace,
+      difficultyBand: distractorDifficultyBandForPlan(plan),
+      discoveredIds,
+      mana,
+      practiced,
+      wordProgress,
+      wordExposure,
+    },
   )
   const options = shuffleWith([answerId, ...distractors], rng)
   if (!choiceSetIsValid({

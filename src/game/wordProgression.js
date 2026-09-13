@@ -1,6 +1,6 @@
-// The canonical lexical learning ladder. Train, persistence, CEFR readiness
-// and the debug graph all consume these definitions; UI components must not
-// invent their own gates or rename receptive selection as "production".
+// Canonical lexical learning capabilities. Train, persistence, CEFR readiness
+// and Debug Learning all consume this graph; UI components must not invent
+// their own gates or rename receptive selection as "production".
 
 import {
   COLD_START_ADAPTATION_MODEL,
@@ -11,6 +11,25 @@ import {
   recordTemporalAttempt,
   temporalDue,
 } from './adaptiveLearning.js'
+import {
+  WORD_ASPECT_REGISTRY_VERSION,
+  WORD_LEARNING_ASPECTS,
+  WORD_LEARNING_ASPECT_BY_ID,
+  WORD_STAGE_ASPECT_BINDINGS,
+  wordAspectDefinitionForStage,
+  wordAspectEvidenceKey,
+  wordAspectTargetsForPlan,
+} from './wordLearningAspects.js'
+import { NOUN_GRAMMAR_ACTIVITY_VARIANTS } from './nounAgreementPractice.js'
+import { sensesMayShareAnswer } from './practiceAnswerValidity.js'
+
+export {
+  WORD_ASPECT_REGISTRY_VERSION,
+  WORD_LEARNING_ASPECTS,
+  WORD_LEARNING_ASPECT_BY_ID,
+  WORD_STAGE_ASPECT_BINDINGS,
+  wordAspectTargetsForPlan,
+} from './wordLearningAspects.js'
 
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
@@ -18,7 +37,7 @@ const deepFreeze = (value) => {
   return Object.freeze(value)
 }
 
-export const WORD_PROGRESS_VERSION = 6
+export const WORD_PROGRESS_VERSION = 9
 export const WORD_MIN_INTERVENING_ROUNDS = 1
 export const WORD_INITIAL_REVIEW_GAP = 6
 export const WORD_MAX_REVIEW_GAP = 64
@@ -29,10 +48,17 @@ export const WORD_CONTEXT_LATE_PROOF = 'unmarked-context-recognition'
 export const WORD_CAPABILITY_DEFINITIONS = deepFreeze([
   { id: 'meaning-recognition', label: 'Recognise meaning', stageId: 'meaning-recognition' },
   { id: 'reviewed-form-awareness', label: 'Distinguish a reviewed form and job', stageId: 'reviewed-form-contrast', conditional: 'reviewed-form-lane' },
+  { id: 'auditory-surface-recognition', label: 'Recognise the written word from its audio', stageId: 'auditory-surface-recognition' },
+  { id: 'auditory-meaning-recognition', label: 'Recognise meaning from word audio', stageId: 'auditory-meaning-recognition', conditional: 'unambiguous-audio-sense' },
   { id: 'controlled-retrieval-supported', label: 'Retrieve from two choices', stageId: 'controlled-lemma-retrieval' },
   { id: 'controlled-retrieval-expanded', label: 'Retrieve from four choices', stageId: 'controlled-lemma-retrieval' },
-  { id: 'contextual-form-selection', label: 'Select the reviewed form in context', stageId: 'contextual-form-selection', conditional: 'reviewed-form-lane' },
-  { id: 'word-form-construction', label: 'Construct the word or form', stageId: 'word-form-construction' },
+  { id: 'demonstrative-noun-agreement', label: 'Choose this + noun agreement', stageId: 'demonstrative-noun-agreement', conditional: 'reviewed-demonstrative-frame' },
+  { id: 'adjective-linking-article-agreement', label: 'Choose the adjective linking article', stageId: 'adjective-linking-article-agreement', conditional: 'reviewed-adjective-frame' },
+  { id: 'contextual-form-selection', label: 'Choose the reviewed ending in context', stageId: 'contextual-form-selection', conditional: 'reviewed-noun-ending-lane' },
+  { id: 'reviewed-ending-recall', label: 'Type the reviewed ending in context', stageId: 'reviewed-ending-recall', conditional: 'reviewed-noun-ending-lane' },
+  { id: 'auditory-word-construction', label: 'Build the heard word from letter sounds', stageId: 'auditory-word-construction' },
+  { id: 'auditory-word-spelling', label: 'Type the heard word', stageId: 'auditory-word-spelling' },
+  { id: 'word-form-construction', label: 'Construct the word or form from a meaning or context cue', stageId: 'word-form-construction' },
   { id: 'contextual-typed-recall', label: 'Type it in context with beginner leeway', stageId: 'contextual-typed-recall' },
   { id: 'strict-spaced-recall', label: 'Recall it exactly after spacing', stageId: 'strict-spaced-recall' },
 ])
@@ -71,18 +97,18 @@ export const WORD_CONTEXT_VARIANTS = deepFreeze([
     id: WORD_CONTEXT_LATE_PROOF,
     familyId: 'word-context',
     exerciseConceptId: WORD_CONTEXT_EXERCISE_CONCEPT,
-    label: 'Unmarked context · recognise independently',
+    label: 'Named context · recognise independently',
     direction: 'al2en',
     mode: 'choice',
     choiceDistractors: 3,
     evidenceTrack: 'recognition',
     sourceLanguage: 'sq',
     gapLanguage: 'en',
-    targetPresentation: 'unmarked',
+    targetPresentation: 'named-marked',
     unlock: { kind: 'before-stage', stageId: 'word-form-construction' },
     proofId: WORD_CONTEXT_LATE_PROOF,
     alignmentPolicy: {
-      unmarkedRequiresExactlyOneTarget: true,
+      namedTargetRequiresExactlyOneTarget: true,
       missingOrAmbiguousTarget: 'retain-marking',
       malformedGapPair: 'skip-context-variant',
     },
@@ -117,13 +143,78 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     direction: 'form2role',
     evidenceTrack: 'form-awareness',
     conditional: 'reviewed-form-lane',
-    variant: { id: 'class-specific-form-contrast', choiceRange: [2, 4], distractors: { min: 1, max: 3 } },
+    variant: {
+      id: 'class-specific-form-contrast',
+      choiceRange: [2, 4],
+      distractors: { min: 1, max: 3 },
+      phases: [
+        {
+          id: 'identify-root-lemma',
+          task: 'lemma-identification',
+          aspectTargets: [{ aspectId: 'lexical-meaning-recognition', evidenceMode: 'prerequisite' }],
+          familyId: 'word-meaning',
+          direction: 'al2en',
+          choiceDistractors: 3,
+          completion: 'advance-without-evidence',
+        },
+        {
+          id: 'choose-reviewed-form',
+          task: 'reviewed-form-selection',
+          aspectTargets: [{ aspectId: 'grammatical-form-recognition', evidenceMode: 'prerequisite' }],
+          familyId: 'word-forms',
+          direction: 'context2form',
+          completion: 'advance-without-evidence',
+        },
+        {
+          id: 'identify-marked-form-job',
+          task: 'grammatical-role',
+          aspectTargets: [{ aspectId: 'grammatical-form-recognition', evidenceMode: 'write' }],
+          familyId: 'word-forms',
+          direction: 'form2role',
+          completion: 'complete-stage-once',
+        },
+      ],
+      evidencePolicy: 'one exact per-form result after all three phases; either earlier miss fails the whole activity without partial proof',
+      rewardPolicy: 'one target-word reward only after all three phases',
+      aspectTargets: WORD_STAGE_ASPECT_BINDINGS['reviewed-form-contrast'],
+    },
     gate: { wins: 1 },
     capabilityIds: ['reviewed-form-awareness'],
-    proves: 'distinguishes the exact reviewed form and its grammatical job',
+    proves: 'identifies the base word, selects the exact reviewed form for its Albanian context, then distinguishes that form’s grammatical job',
   },
   {
     tier: 2,
+    id: 'auditory-surface-recognition',
+    label: 'heard word · choose written Albanian',
+    familyId: 'word-audio-recognition',
+    mode: 'choice',
+    direction: 'audio2al',
+    evidenceTrack: 'listening-orthography',
+    requiresCompletedAudio: true,
+    stimulusMode: 'audio-only',
+    variant: { id: 'audio-to-written-word', distractors: 3 },
+    gate: { wins: 1 },
+    capabilityIds: ['auditory-surface-recognition'],
+    proves: 'recognises the written Albanian word after its continuous complete-word MP3 finishes',
+  },
+  {
+    tier: 3,
+    id: 'auditory-meaning-recognition',
+    label: 'heard word · choose meaning',
+    familyId: 'word-audio-recognition',
+    mode: 'choice',
+    direction: 'audio2en',
+    evidenceTrack: 'listening-comprehension',
+    conditional: 'unambiguous-audio-sense',
+    requiresCompletedAudio: true,
+    stimulusMode: 'audio-only',
+    variant: { id: 'audio-to-word-meaning', distractors: 3 },
+    gate: { wins: 1 },
+    capabilityIds: ['auditory-meaning-recognition'],
+    proves: 'recognises the meaning of a continuous complete-word MP3 without a visible Albanian transcript',
+  },
+  {
+    tier: 4,
     id: 'controlled-lemma-retrieval',
     label: 'controlled lemma retrieval',
     familyId: 'word-meaning',
@@ -140,47 +231,123 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'retrieves the Albanian lemma from a controlled set; selection is not production',
   },
   {
-    tier: 3,
-    id: 'contextual-form-selection',
-    label: 'form selection in context',
-    familyId: 'word-form-context',
+    tier: 5,
+    id: 'demonstrative-noun-agreement',
+    label: 'demonstrative + noun agreement',
+    familyId: 'word-forms',
     mode: 'choice',
-    direction: 'context2form',
-    evidenceTrack: 'form-selection',
-    conditional: 'reviewed-form-lane',
-    variant: { id: 'reviewed-form-in-context', choiceRange: [2, 4], distractors: { min: 1, max: 3 } },
+    direction: 'en2al',
+    evidenceTrack: 'noun-agreement',
+    conditional: 'reviewed-demonstrative-frame',
+    variant: NOUN_GRAMMAR_ACTIVITY_VARIANTS.demonstrativeSplitChoice,
     gate: { wins: 1 },
-    capabilityIds: ['contextual-form-selection'],
-    proves: 'selects the correct reviewed surface for its real grammatical context',
+    capabilityIds: ['demonstrative-noun-agreement'],
+    proves: 'chooses the reviewed gender-marked demonstrative and retrieves the noun in one staged activity',
   },
   {
-    tier: 4,
+    tier: 6,
+    id: 'adjective-linking-article-agreement',
+    label: 'adjective linking-article agreement',
+    familyId: 'word-forms',
+    mode: 'choice',
+    direction: 'form2role',
+    evidenceTrack: 'noun-agreement',
+    conditional: 'reviewed-adjective-frame',
+    variant: NOUN_GRAMMAR_ACTIVITY_VARIANTS.adjectiveArticleStaged,
+    gate: { wins: 1 },
+    capabilityIds: ['adjective-linking-article-agreement'],
+    proves: 'identifies the noun before choosing the reviewed i/e article that links its adjective',
+  },
+  {
+    tier: 7,
+    id: 'contextual-form-selection',
+    label: 'choose the reviewed noun ending',
+    familyId: 'word-forms',
+    mode: 'choice',
+    direction: 'context2ending',
+    evidenceTrack: 'ending-selection',
+    conditional: 'reviewed-noun-ending-lane',
+    variant: { id: 'reviewed-ending-choice', choiceRange: [2, 4], distractors: { min: 1, max: 3 } },
+    gate: { wins: 1 },
+    capabilityIds: ['contextual-form-selection'],
+    proves: 'selects only the exact reviewed ending required by a real Albanian context',
+  },
+  {
+    tier: 8,
+    id: 'reviewed-ending-recall',
+    label: 'type the reviewed noun ending',
+    familyId: 'word-forms',
+    mode: 'type',
+    direction: 'context2ending',
+    evidenceTrack: 'ending-recall',
+    answerTolerance: 'strict',
+    conditional: 'reviewed-noun-ending-lane',
+    variant: { id: 'reviewed-ending-typed' },
+    gate: { wins: 1 },
+    capabilityIds: ['reviewed-ending-recall'],
+    proves: 'recalls and types only the exact reviewed ending required by a real Albanian context',
+  },
+  {
+    tier: 9,
+    id: 'auditory-word-construction',
+    label: 'heard word · supplied letters',
+    familyId: 'word-audio-construction',
+    mode: 'construct',
+    direction: 'audio2al',
+    evidenceTrack: 'listening-orthography',
+    requiresCompletedAudio: true,
+    stimulusMode: 'audio-only',
+    answerTolerance: 'repair',
+    variant: { id: 'audio-letter-construction', distractorChunks: 3, tileAudio: 'recorded-mp3' },
+    gate: { wins: 1 },
+    capabilityIds: ['auditory-word-construction'],
+    proves: 'maps a continuous recorded Albanian word to its exact spelling using supplied letter chunks',
+  },
+  {
+    tier: 10,
+    id: 'auditory-word-spelling',
+    label: 'heard word · typed spelling',
+    familyId: 'word-audio-spelling',
+    mode: 'type',
+    direction: 'audio2al',
+    evidenceTrack: 'listening-orthography',
+    requiresCompletedAudio: true,
+    stimulusMode: 'audio-only',
+    answerTolerance: 'repair',
+    variant: { id: 'audio-typed-spelling' },
+    gate: { wins: 1 },
+    capabilityIds: ['auditory-word-spelling'],
+    proves: 'maps a continuous recorded Albanian word to an exact independently typed spelling',
+  },
+  {
+    tier: 11,
     id: 'word-form-construction',
     label: 'word / form construction',
     familyId: 'word-construction',
     mode: 'construct',
     direction: 'en2al',
     evidenceTrack: 'production',
+    answerTolerance: 'repair',
     variant: { id: 'letter-and-chunk-construction', distractorChunks: 3 },
     gate: { wins: 1 },
     capabilityIds: ['word-form-construction'],
     proves: 'constructs the target from Albanian letters or chunks',
   },
   {
-    tier: 5,
+    tier: 12,
     id: 'contextual-typed-recall',
     label: 'beginner-tolerant contextual recall',
     familyId: 'word-spelling',
     mode: 'type',
     direction: 'en2al',
     evidenceTrack: 'production',
-    answerTolerance: 'beginner',
+    answerTolerance: 'repair',
     gate: { wins: 1 },
     capabilityIds: ['contextual-typed-recall'],
     proves: 'recalls and types the word or reviewed form in context with beginner leeway',
   },
   {
-    tier: 6,
+    tier: 13,
     id: 'strict-spaced-recall',
     label: 'strict spaced recall',
     familyId: 'word-spelling',
@@ -199,19 +366,31 @@ const STAGE_BY_ID = Object.freeze(Object.fromEntries(WORD_STAGE_DEFINITIONS.map(
 
 export const WORD_PROGRESSION_POLICY = deepFreeze({
   version: WORD_PROGRESS_VERSION,
-  principle: 'Saving supplies guided recognition. After two meaning recognitions, an inflecting word immediately introduces one reviewed form and its grammatical job; controlled selection remains retrieval, and production begins only when the learner constructs a form.',
+  principle: 'Saving supplies guided recognition. After two meaning recognitions, independently evidenced aspects compete from their own prerequisites: a reviewed form meaning-and-job card receives the first exact-tie priority, then complete-word audio recognition, exact ending choice and recall, controlled retrieval, authored noun agreement, sound-led spelling and later production. This registry order is only a deterministic tie-break, never a mastery ladder.',
   stageOrder: WORD_STAGE_DEFINITIONS.map(({ id }) => id),
   productionBeginsAt: 'word-form-construction',
   controlledRetrievalVariants: STAGE_BY_ID['controlled-lemma-retrieval'].variants,
+  auditoryRecognition: {
+    familyId: 'word-audio-recognition',
+    stages: ['auditory-surface-recognition', 'auditory-meaning-recognition'],
+    source: 'continuous complete-word MP3 only',
+    rule: 'First identify the written Albanian word from audio, then identify its meaning from audio. Every option is an already saved sense; playback must complete before either result is accepted.',
+  },
   formLane: {
-    conditionalCapabilities: ['reviewed-form-awareness', 'contextual-form-selection'],
+    conditionalCapabilities: ['reviewed-form-awareness', 'contextual-form-selection', 'reviewed-ending-recall'],
     source: 'reviewed forms only',
-    rule: 'After two successful lemma recognitions, inflecting senses immediately practise an exact reviewed form-and-role record. Non-inflecting senses skip only the two form-specific capabilities.',
+    rule: 'After two successful lemma recognitions, inflecting senses immediately practise an exact reviewed form-and-role record. A noun with a safe exact stem split then chooses and later types the ending for that same form; each form keeps its own evidence.',
+  },
+  nounAgreement: {
+    source: 'explicit reviewed noun-agreement frames only',
+    wholeBundleVariant: 'demonstrative-noun-whole-choice',
+    independentlyScoredAspects: ['demonstrative-noun-agreement', 'adjective-linking-article-agreement'],
+    rule: 'The first whole demonstrative+noun choice remains lexical retrieval. Later staged activities separately prove ky/kjo agreement and i/e adjective-linking agreement; neither is inferred from a guessed ending.',
   },
   contextVariant: {
     exerciseConceptId: WORD_CONTEXT_EXERCISE_CONCEPT,
     variants: WORD_CONTEXT_VARIANTS,
-    rule: 'Marked, mirrored and later unmarked contexts are aligned recognition/retrieval support; none counts as production.',
+    rule: 'Marked, mirrored and later named-and-marked contexts are aligned recognition/retrieval support; none counts as production. A truly unmarked variant requires a separate target-identification phase.',
   },
   remediation: {
     delayedByDisjointRounds: WORD_MIN_INTERVENING_ROUNDS,
@@ -219,9 +398,11 @@ export const WORD_PROGRESSION_POLICY = deepFreeze({
   },
   evidenceBoundary: {
     recognition: ['meaning-recognition', 'marked-context-recognition', 'unmarked-context-recognition'],
-    controlledRetrieval: ['controlled-retrieval-two-choice', 'controlled-retrieval-four-choice', 'mirrored-controlled-retrieval'],
+    listeningRecognition: ['audio-to-written-word', 'audio-to-word-meaning'],
+    controlledRetrieval: ['controlled-retrieval-two-choice', 'controlled-retrieval-four-choice', 'mirrored-controlled-retrieval', 'demonstrative-noun-whole-choice'],
+    nounAgreement: ['demonstrative-noun-split-choice', 'adjective-linking-article-staged'],
     production: ['word-form-construction', 'contextual-typed-recall', 'strict-spaced-recall'],
-    proves: ['word meaning recognition', 'controlled lemma retrieval', 'reviewed form choice', 'constructed and typed recall'],
+    proves: ['word meaning recognition', 'word-level listening recognition', 'controlled lemma retrieval', 'reviewed form/job recognition', 'reviewed ending selection and recall', 'constructed and typed recall'],
     doesNotProve: ['free conversation', 'broad listening comprehension', 'CEFR attainment'],
   },
   elapsedSpacing: ELAPSED_SPACING_POLICY,
@@ -300,6 +481,8 @@ const emptyFormProof = () => ({
 
 export function emptyWordProgress() {
   return {
+    aspectRegistryVersion: WORD_ASPECT_REGISTRY_VERSION,
+    aspectProofs: {},
     wins: {},
     contextWins: {},
     contextSupportRequired: false,
@@ -313,6 +496,82 @@ export function emptyWordProgress() {
     remediation: null,
     temporal: emptyTemporalEvidence(),
   }
+}
+
+const emptyAspectProof = () => ({
+  wins: 0,
+  attempts: 0,
+  correctAttempts: 0,
+  dueAfterRound: 0,
+  lastAttemptKey: null,
+  lastAttemptRound: 0,
+  temporal: emptyTemporalEvidence(),
+})
+
+const normalizeAspectProofs = (value) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+  return Object.fromEntries(Object.entries(value).flatMap(([key, proof]) => {
+    if (!key || key.length > 500 || !proof || typeof proof !== 'object' || Array.isArray(proof)) return []
+    const aspectId = key.split('|').at(-1)
+    if (!WORD_LEARNING_ASPECT_BY_ID[aspectId]) return []
+    return [[key, {
+      wins: safeCount(proof.wins),
+      attempts: safeCount(proof.attempts),
+      correctAttempts: Math.min(safeCount(proof.attempts), safeCount(proof.correctAttempts)),
+      dueAfterRound: safeRound(proof.dueAfterRound),
+      lastAttemptKey: safeString(proof.lastAttemptKey),
+      lastAttemptRound: safeRound(proof.lastAttemptRound),
+      temporal: normalizeTemporalEvidence(proof.temporal),
+    }]]
+  }))
+}
+
+const seedAspectProof = (proofs, aspectId, wins, source, targetFormKey = null) => {
+  if (!WORD_LEARNING_ASPECT_BY_ID[aspectId] || !wins) return
+  const key = wordAspectEvidenceKey(aspectId, targetFormKey)
+  const existing = proofs[key] || emptyAspectProof()
+  proofs[key] = {
+    ...existing,
+    wins: Math.max(existing.wins, wins),
+    attempts: Math.max(existing.attempts, safeCount(source?.temporal?.attempts) || wins),
+    correctAttempts: Math.max(existing.correctAttempts, safeCount(source?.temporal?.correctAttempts) || wins),
+    dueAfterRound: Math.max(existing.dueAfterRound, safeRound(source?.dueAfterRound)),
+    lastAttemptKey: existing.lastAttemptKey || safeString(source?.lastAttemptKey),
+    lastAttemptRound: Math.max(existing.lastAttemptRound, safeRound(source?.lastAttemptRound)),
+    temporal: existing.temporal?.attempts ? existing.temporal : normalizeTemporalEvidence(source?.temporal),
+  }
+}
+
+const aspectProofsWithLegacyEvidence = (source, wins, contextWins, formProofs, strictWins) => {
+  const proofs = normalizeAspectProofs(source.aspectProofs)
+  // Once the independent-aspect schema owns this record, the legacy aggregate
+  // counters are compatibility mirrors only. Re-seeding from the word-wide
+  // temporal total on every normalization would make untouched aspects appear
+  // attempted (and failed) whenever some other capability was practised.
+  if (source.aspectRegistryVersion === WORD_ASPECT_REGISTRY_VERSION) return proofs
+  for (const definition of WORD_STAGE_DEFINITIONS) {
+    const aspect = wordAspectDefinitionForStage(definition.id)
+    if (!aspect) continue
+    const legacyWins = definition.id === 'strict-spaced-recall' ? strictWins : safeCount(wins[definition.id])
+    seedAspectProof(proofs, aspect.id, legacyWins, source)
+  }
+  seedAspectProof(
+    proofs,
+    'contextual-meaning-inference',
+    safeCount(contextWins[WORD_CONTEXT_LATE_PROOF]),
+    source,
+  )
+  for (const [targetFormKey, formProof] of Object.entries(formProofs)) {
+    for (const definition of WORD_STAGE_DEFINITIONS) {
+      const aspect = wordAspectDefinitionForStage(definition.id)
+      if (!aspect) continue
+      const legacyWins = definition.id === 'strict-spaced-recall'
+        ? safeCount(formProof.strictWins)
+        : safeCount(formProof.wins?.[definition.id])
+      seedAspectProof(proofs, aspect.id, legacyWins, formProof, targetFormKey)
+    }
+  }
+  return proofs
 }
 
 const normalizedWins = (value, ids = WORD_STAGE_DEFINITIONS.map(({ id }) => id)) => {
@@ -364,13 +623,19 @@ export function normalizeWordProgress(value, currentRound = 0) {
   const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
   const reviewGap = Math.max(WORD_INITIAL_REVIEW_GAP, Math.min(WORD_MAX_REVIEW_GAP, safeCount(source.reviewGap) || WORD_INITIAL_REVIEW_GAP))
   const contextPassed = safeCount(source.contextWins?.[WORD_CONTEXT_LATE_PROOF]) > 0
+  const wins = normalizedWins(source.wins)
+  const contextWins = contextPassed ? { [WORD_CONTEXT_LATE_PROOF]: 1 } : {}
+  const formProofs = normalizedFormProofs(source.formProofs)
+  const strictWins = safeCount(source.strictWins)
   const next = {
-    wins: normalizedWins(source.wins),
-    contextWins: contextPassed ? { [WORD_CONTEXT_LATE_PROOF]: 1 } : {},
+    aspectRegistryVersion: WORD_ASPECT_REGISTRY_VERSION,
+    aspectProofs: aspectProofsWithLegacyEvidence(source, wins, contextWins, formProofs, strictWins),
+    wins,
+    contextWins,
     contextSupportRequired: source.contextSupportRequired === true && !contextPassed,
-    formProofs: normalizedFormProofs(source.formProofs),
+    formProofs,
     activeFormKey: safeString(source.activeFormKey, 240),
-    strictWins: safeCount(source.strictWins),
+    strictWins,
     dueAfterRound: safeRound(source.dueAfterRound),
     reviewGap,
     lastAttemptKey: safeString(source.lastAttemptKey),
@@ -410,56 +675,200 @@ const normalizedReviewedForms = (options) => {
   })
 }
 
-const proofWins = (progress, definition, formKey = null) => formKey
-  ? progress.formProofs[formKey]?.wins?.[definition.id] || 0
-  : progress.wins[definition.id] || 0
+const aspectTargetFormKey = (aspect, formKey) => aspect?.scope === 'lemma' ? null : formKey
 
-const proofPassed = (progress, definition, formKey = null) => definition.tier === WORD_SKILL_MAX_TIER
-  ? (formKey ? progress.formProofs[formKey]?.strictWins : progress.strictWins) > 0
-  : proofWins(progress, definition, formKey) >= (definition.gate.wins || 1)
+const aspectProofFor = (progress, aspectId, formKey = null) => progress.aspectProofs[
+  wordAspectEvidenceKey(aspectId, aspectTargetFormKey(WORD_LEARNING_ASPECT_BY_ID[aspectId], formKey))
+] || emptyAspectProof()
+
+const proofWins = (progress, definition, formKey = null) => {
+  const aspect = wordAspectDefinitionForStage(definition.id)
+  if (aspect) return aspectProofFor(progress, aspect.id, formKey).wins
+  return formKey
+    ? progress.formProofs[formKey]?.wins?.[definition.id] || 0
+    : progress.wins[definition.id] || 0
+}
+
+const proofPassed = (progress, definition, formKey = null) =>
+  proofWins(progress, definition, formKey) >= (definition.gate.wins || 1)
 
 const selectedForm = (progress, forms) => {
   if (!forms.length) return null
-  const active = forms.find((form) => form.key === progress.activeFormKey)
+  const ordered = [
+    ...forms.filter((form) => form.endingPractice),
+    ...forms.filter((form) => !form.endingPractice),
+  ]
+  const active = ordered.find((form) => form.key === progress.activeFormKey)
   return (active && !proofPassed(progress, STAGE_BY_ID['strict-spaced-recall'], active.key) ? active : null) ||
-    forms.find((form) => !proofPassed(progress, STAGE_BY_ID['strict-spaced-recall'], form.key)) || active ||
-    forms[0]
+    ordered.find((form) => !proofPassed(progress, STAGE_BY_ID['strict-spaced-recall'], form.key)) || active ||
+    ordered[0]
 }
 
-const retrievalVariant = (progress) => {
-  const wins = progress.wins['controlled-lemma-retrieval'] || 0
-  return wins < 1
+const retrievalDistractorCapacity = (answerId, context) => {
+  const defended = new Set(Object.keys(context?.defensibleAlternativeRationales?.en2al || {}))
+  return [...new Set(context?.retrieval?.distractorIds || [])].filter((candidateId) =>
+    candidateId && !defended.has(candidateId) && !sensesMayShareAnswer(answerId, candidateId)).length
+}
+
+const retrievalVariant = (progress, answerId, context) => {
+  const wins = aspectProofFor(progress, 'controlled-lemma-retrieval').wins
+  // A reviewed context is authoritative about what can be scored wrong. Never
+  // ask its expanded bank for three foils when synonymous or otherwise valid
+  // alternatives leave fewer than three. The same retrieval aspect remains in
+  // play; semantic confusability, not a fabricated answer, carries difficulty.
+  const supportsExpandedBank = !context || retrievalDistractorCapacity(answerId, context) >= 3
+  return wins < 1 || !supportsExpandedBank
     ? STAGE_BY_ID['controlled-lemma-retrieval'].variants[0]
     : STAGE_BY_ID['controlled-lemma-retrieval'].variants[1]
 }
 
-const basePlan = (progress, options = {}) => {
+const aspectWinsRequired = (aspect) => {
+  if (aspect.id === 'contextual-meaning-inference') return 1
+  return STAGE_BY_ID[aspect.stageId]?.gate?.wins || 1
+}
+
+const formKeyForAspect = (aspect, formTarget, hasReviewedFormLane) => {
+  if (aspect.scope === 'lemma') return null
+  return hasReviewedFormLane ? formTarget?.key || null : null
+}
+
+const prerequisiteRows = (
+  progress,
+  aspect,
+  formTarget,
+  hasReviewedFormLane,
+  hasReviewedNounEndingLane,
+  hasReviewedContextLane,
+) => {
+  const conditional = [
+    ...(hasReviewedFormLane ? aspect.conditionalPrerequisites?.['reviewed-form-lane'] || [] : []),
+    ...(hasReviewedNounEndingLane ? aspect.conditionalPrerequisites?.['reviewed-noun-ending-lane'] || [] : []),
+    ...(hasReviewedContextLane ? aspect.conditionalPrerequisites?.['reviewed-context-lane'] || [] : []),
+  ]
+  return [...aspect.prerequisites, ...conditional].map((requirement) => {
+    const requiredAspect = WORD_LEARNING_ASPECT_BY_ID[requirement.aspectId]
+    const formKey = ['same-form', 'active-form', 'same-target'].includes(requirement.scope)
+      ? formTarget?.key || null
+      : formKeyForAspect(requiredAspect, formTarget, hasReviewedFormLane)
+    const proof = aspectProofFor(progress, requirement.aspectId, formKey)
+    const requiredWins = aspectWinsRequired(requiredAspect)
+    return {
+      ...requirement,
+      formKey,
+      wins: proof.wins,
+      winsRequired: requiredWins,
+      passed: proof.wins >= requiredWins,
+    }
+  })
+}
+
+const aspectSchedule = (progress, options = {}) => {
   const forms = normalizedReviewedForms(options)
   const hasReviewedFormLane = forms.length > 0 || options.hasReviewedFormLane === true
-  const meaning = STAGE_BY_ID['meaning-recognition']
-  if (!proofPassed(progress, meaning)) return { definition: meaning, formTarget: null, forms, hasReviewedFormLane }
   const formTarget = selectedForm(progress, forms)
-  if (hasReviewedFormLane && formTarget) {
-    const awareness = STAGE_BY_ID['reviewed-form-contrast']
-    if (!proofPassed(progress, awareness, formTarget.key)) {
-      return { definition: awareness, formTarget, forms, hasReviewedFormLane }
+  const hasReviewedNounEndingLane = Boolean(formTarget?.endingPractice)
+  const conditionalAvailability = {
+    'reviewed-form-lane': hasReviewedFormLane,
+    'reviewed-noun-ending-lane': hasReviewedNounEndingLane,
+    'reviewed-demonstrative-frame': Boolean(options.nounAgreementFrame?.demonstrative),
+    'reviewed-adjective-frame': Boolean(options.nounAgreementFrame?.adjective),
+    'unambiguous-audio-sense': options.unambiguousAudioSense !== false,
+  }
+  const contextAlignment = wordContextAlignment(options.context, options.answerSurface)
+  const currentRound = safeRound(options.currentRound)
+  const nowMs = options.nowMs || 0
+  const candidates = WORD_LEARNING_ASPECTS.map((aspect, priority) => {
+    const inapplicable = Boolean(aspect.conditional && !conditionalAvailability[aspect.conditional]) ||
+      (aspect.scope === 'reviewed-form' && !formTarget) ||
+      (aspect.id === 'contextual-meaning-inference' && !contextAlignment.usable)
+    const targetFormKey = formKeyForAspect(aspect, formTarget, hasReviewedFormLane)
+    const proof = aspectProofFor(progress, aspect.id, targetFormKey)
+    const prerequisites = prerequisiteRows(
+      progress,
+      aspect,
+      formTarget,
+      hasReviewedFormLane,
+      hasReviewedNounEndingLane,
+      contextAlignment.usable,
+    )
+    const winsRequired = aspectWinsRequired(aspect)
+    const passed = proof.wins >= winsRequired
+    const retention = aspect.id === 'spaced-exact-recall'
+    // The first strict retrieval inherits the delay created by the immediately
+    // preceding typed proof. After strict recall has its own attempt history,
+    // its expanding interval becomes authoritative.
+    const spacingProof = retention && proof.attempts === 0
+      ? aspectProofFor(progress, 'contextual-written-recall', targetFormKey)
+      : proof
+    const due = !inapplicable && temporalDue({
+      currentRound,
+      dueAfterRound: spacingProof.dueAfterRound,
+      nowMs,
+      dueAtMs: spacingProof.temporal?.dueAtMs || 0,
+      requireElapsed: retention,
+    })
+    const failures = Math.max(0, proof.attempts - proof.correctAttempts)
+    const failureRate = proof.attempts ? failures / proof.attempts : 0
+    const uncertainty = 1 / Math.sqrt(proof.attempts + 1)
+    const overdueRounds = Math.min(8, Math.max(0, currentRound - proof.dueAfterRound))
+    const masteryRatio = Math.min(1, proof.wins / winsRequired)
+    const selectionScore = Number((
+      (1 - masteryRatio) * 4 +
+      failureRate * 2 +
+      uncertainty +
+      overdueRounds * 0.125
+    ).toFixed(4))
+    return {
+      aspect,
+      priority,
+      targetFormKey,
+      proof,
+      spacingProof,
+      spacingSourceAspectId: retention && proof.attempts === 0
+        ? 'contextual-written-recall'
+        : aspect.id,
+      prerequisites,
+      applicable: !inapplicable,
+      eligible: !inapplicable && prerequisites.every(({ passed: ready }) => ready),
+      passed,
+      due,
+      recurring: retention,
+      needsPractice: retention || !passed,
+      masteryRatio,
+      failures,
+      failureRate,
+      uncertainty,
+      overdueRounds,
+      selectionScore,
+      winsRequired,
     }
+  })
+  // This is a capability graph, not a single ordered sequence. Every due weak
+  // aspect whose own minimal prerequisites pass competes on its own evidence.
+  // Registry order is only the final deterministic tie-break for equal scores.
+  const ranked = (rows) => [...rows].sort((left, right) =>
+    right.selectionScore - left.selectionScore || left.priority - right.priority)
+  const selected = ranked(candidates.filter(({ eligible, due, needsPractice }) =>
+    eligible && due && needsPractice))[0] ||
+    ranked(candidates.filter(({ eligible, needsPractice }) => eligible && needsPractice))[0] ||
+    candidates.find(({ aspect }) => aspect.id === 'spaced-exact-recall')
+  const selectedStageId = selected?.aspect.id === 'contextual-meaning-inference'
+    ? 'word-form-construction'
+    : selected?.aspect.stageId
+  return {
+    definition: STAGE_BY_ID[selectedStageId] || STAGE_BY_ID['meaning-recognition'],
+    selectedAspect: selected,
+    aspectCandidates: candidates,
+    contextAspectDue: selected?.aspect.id === 'contextual-meaning-inference',
+    formTarget: selected?.targetFormKey ? formTarget : null,
+    nounAgreementFrame: options.nounAgreementFrame || null,
+    forms,
+    hasReviewedFormLane,
+    hasReviewedNounEndingLane,
   }
-  const retrieval = STAGE_BY_ID['controlled-lemma-retrieval']
-  if (!proofPassed(progress, retrieval)) {
-    return { definition: retrieval, formTarget: null, forms, hasReviewedFormLane }
-  }
-  if (hasReviewedFormLane && formTarget) {
-    for (const definition of WORD_STAGE_DEFINITIONS.slice(3)) {
-      if (!proofPassed(progress, definition, formTarget.key)) return { definition, formTarget, forms, hasReviewedFormLane }
-    }
-    return { definition: STAGE_BY_ID['strict-spaced-recall'], formTarget, forms, hasReviewedFormLane }
-  }
-  for (const definition of WORD_STAGE_DEFINITIONS.slice(4)) {
-    if (!proofPassed(progress, definition)) return { definition, formTarget: null, forms, hasReviewedFormLane: false }
-  }
-  return { definition: STAGE_BY_ID['strict-spaced-recall'], formTarget: null, forms, hasReviewedFormLane: false }
 }
+
+const basePlan = aspectSchedule
 
 export function wordProgressStage(value, options = {}) {
   return basePlan(normalizeWordProgress(value), options).definition.tier
@@ -475,7 +884,7 @@ const contextVariantFor = (definition, alignment) => {
 
 const lateContextPlan = (progress, base, currentRound, alignment) => {
   if (progress.contextWins[WORD_CONTEXT_LATE_PROOF]) return null
-  if (base.definition.tier < STAGE_BY_ID['word-form-construction'].tier) return null
+  if (base.selectedAspect?.aspect.id !== 'contextual-meaning-inference') return null
   if (!alignment.usable) return null
   const requested = CONTEXT_VARIANT_BY_ID[WORD_CONTEXT_LATE_PROOF]
   const variant = progress.contextSupportRequired || !alignment.unmarkedSafe
@@ -491,8 +900,8 @@ const lateContextPlan = (progress, base, currentRound, alignment) => {
     mode: variant.mode,
     direction: variant.direction,
     difficultyLabel: variant.label,
-    dueAfterRound: progress.dueAfterRound,
-    due: currentRound >= progress.dueAfterRound,
+    dueAfterRound: base.selectedAspect.spacingProof.dueAfterRound,
+    due: base.selectedAspect.due,
     remediation: progress.contextSupportRequired,
     remediationReason: progress.contextSupportRequired ? 'context-recognition-miss' : null,
     familyId: variant.familyId,
@@ -506,12 +915,21 @@ const lateContextPlan = (progress, base, currentRound, alignment) => {
     alignment,
     formTarget: base.formTarget,
     hasReviewedFormLane: base.hasReviewedFormLane,
+    hasReviewedNounEndingLane: base.hasReviewedNounEndingLane,
+    aspectId: 'contextual-meaning-inference',
+    aspectDefinition: WORD_LEARNING_ASPECT_BY_ID['contextual-meaning-inference'],
+    aspectSelection: {
+      registryVersion: WORD_ASPECT_REGISTRY_VERSION,
+      strategy: 'highest scored due weak aspect; registry order breaks exact ties',
+      candidates: base.aspectCandidates,
+      selectedAspectId: 'contextual-meaning-inference',
+    },
   }
 }
 
 export function wordProgressPlan(value, currentRound = 0, options = {}) {
   const progress = normalizeWordProgress(value, currentRound)
-  const base = basePlan(progress, options)
+  const base = basePlan(progress, { ...options, currentRound })
   const alignment = wordContextAlignment(options.context, options.answerSurface)
   if (!progress.remediation) {
     const late = lateContextPlan(progress, base, currentRound, alignment)
@@ -523,14 +941,20 @@ export function wordProgressPlan(value, currentRound = 0, options = {}) {
     definition = STAGE_BY_ID[progress.remediation.stageId] || definition
     formTarget = base.forms.find((form) => form.key === progress.remediation.targetFormKey) || formTarget
   }
-  const controlledVariant = definition.id === 'controlled-lemma-retrieval' ? retrievalVariant(progress) : null
+  const controlledVariant = definition.id === 'controlled-lemma-retrieval'
+    ? retrievalVariant(progress, options.trainability?.id, options.context)
+    : null
   const variant = controlledVariant || definition.variant
   const contextVariant = contextVariantFor(definition, alignment)
   const proof = formTarget ? progress.formProofs[formTarget.key] || emptyFormProof() : progress
-  const dueAfterRound = progress.remediation?.dueAfterRound ?? Math.max(proof.dueAfterRound || 0, progress.dueAfterRound)
-  const temporal = normalizeTemporalEvidence(proof.temporal || progress.temporal)
+  const selectedAspectProof = base.selectedAspect?.spacingProof || base.selectedAspect?.proof || emptyAspectProof()
+  const dueAfterRound = progress.remediation?.dueAfterRound ?? selectedAspectProof.dueAfterRound
+  const temporal = normalizeTemporalEvidence(selectedAspectProof.temporal)
   const nowMs = options.nowMs || 0
   const retention = definition.tier === WORD_SKILL_MAX_TIER && !progress.remediation
+  const aspectDefinition = progress.remediation
+    ? wordAspectDefinitionForStage(definition.id)
+    : base.selectedAspect?.aspect || wordAspectDefinitionForStage(definition.id)
   return {
     stage: definition.tier,
     tier: definition.tier,
@@ -545,7 +969,9 @@ export function wordProgressPlan(value, currentRound = 0, options = {}) {
     answerTolerance: definition.answerTolerance,
     difficultyLabel: definition.label,
     dueAfterRound,
-    due: temporalDue({ currentRound, dueAfterRound, nowMs, dueAtMs: temporal.dueAtMs, requireElapsed: retention }),
+    due: progress.remediation
+      ? temporalDue({ currentRound, dueAfterRound, nowMs, dueAtMs: temporal.dueAtMs, requireElapsed: retention })
+      : Boolean(base.selectedAspect?.due),
     remediation: Boolean(progress.remediation),
     remediationReason: progress.remediation?.reason || null,
     familyId: contextVariant?.familyId || definition.familyId,
@@ -560,6 +986,18 @@ export function wordProgressPlan(value, currentRound = 0, options = {}) {
     formTarget,
     targetFormKey: formTarget?.key || null,
     hasReviewedFormLane: base.hasReviewedFormLane,
+    hasReviewedNounEndingLane: base.hasReviewedNounEndingLane,
+    nounAgreementFrame: base.nounAgreementFrame,
+    aspectId: aspectDefinition?.id || null,
+    aspectDefinition,
+    aspectSelection: {
+      registryVersion: WORD_ASPECT_REGISTRY_VERSION,
+      strategy: progress.remediation
+        ? 'explicit remediation aspect'
+        : 'highest scored due weak aspect; registry order breaks exact ties',
+      candidates: base.aspectCandidates,
+      selectedAspectId: aspectDefinition?.id || null,
+    },
     temporal,
     adaptation: coldStartAdaptationSnapshot(temporal, {
       nowMs,
@@ -574,22 +1012,86 @@ const resultMatchesPlan = (result, plan) =>
   result?.stageId === plan.stageId &&
   result?.tier === plan.tier && result?.mode === plan.mode && result?.direction === plan.direction &&
   result?.variantId === (plan.contextVariantId || plan.variantId) &&
-  (plan.targetFormKey ? result?.targetFormKey === plan.targetFormKey : result?.targetFormKey == null)
+  (plan.targetFormKey ? result?.targetFormKey === plan.targetFormKey : result?.targetFormKey == null) &&
+  (!plan.definition.requiresCompletedAudio || result?.audioCompleted === true) &&
+  (!Array.isArray(result?.aspectTargets) || result.aspectTargets.every(({
+    aspectId,
+    targetFormKey,
+    evidenceMode,
+  }) => {
+    const aspect = WORD_LEARNING_ASPECT_BY_ID[aspectId]
+    const expectedFormKey = aspect?.scope === 'lemma' ? null : plan.targetFormKey || null
+    return Boolean(aspect) &&
+      (targetFormKey || null) === expectedFormKey &&
+      (evidenceMode === 'prerequisite' || (evidenceMode === 'write' && aspectId === plan.aspectId))
+  }))
+
+const exercisedAspectTargets = (result, plan) => {
+  const explicit = Array.isArray(result.aspectTargets) ? result.aspectTargets : []
+  const targets = explicit.length ? explicit : [{
+    aspectId: plan.aspectId,
+    targetFormKey: plan.targetFormKey || null,
+    evidenceMode: 'write',
+  }]
+  return targets.filter(({ aspectId, evidenceMode }) =>
+    WORD_LEARNING_ASPECT_BY_ID[aspectId] && evidenceMode !== 'prerequisite')
+}
+
+const recordAspectResult = (next, result, plan, nextRound) => {
+  next.aspectProofs = { ...next.aspectProofs }
+  for (const target of exercisedAspectTargets(result, plan)) {
+    const aspect = WORD_LEARNING_ASPECT_BY_ID[target.aspectId]
+    const targetFormKey = aspectTargetFormKey(aspect, target.targetFormKey || plan.targetFormKey)
+    const key = wordAspectEvidenceKey(aspect.id, targetFormKey)
+    const previous = next.aspectProofs[key] || emptyAspectProof()
+    const temporal = recordTemporalAttempt(previous.temporal, {
+      correct: result.correct,
+      attemptedAtMs: result.attemptedAtMs,
+      responseDurationMs: result.responseDurationMs,
+      supportExposed: plan.remediation || plan.definition.tier <= 1 || plan.contextReview,
+      retention: aspect.id === 'spaced-exact-recall',
+    })
+    next.aspectProofs[key] = {
+      ...previous,
+      attempts: previous.attempts + 1,
+      correctAttempts: previous.correctAttempts + (result.correct ? 1 : 0),
+      wins: result.correct
+        ? Math.min(aspectWinsRequired(aspect), previous.wins + 1)
+        : previous.wins,
+      dueAfterRound: nextRound + (
+        aspect.id === 'contextual-written-recall' || aspect.id === 'spaced-exact-recall'
+          ? WORD_INITIAL_REVIEW_GAP
+          : WORD_MIN_INTERVENING_ROUNDS
+      ),
+      lastAttemptKey: safeString(result.questionKey),
+      lastAttemptRound: nextRound,
+      temporal,
+    }
+  }
+}
 
 const remediationForFailure = (plan, nextRound) => {
   if (plan.definition.tier === 0) return null
-  // Back off exactly one applicable rung. This preserves the target form and
-  // gives relevant support (selection before construction; construction before
-  // typing) instead of dropping every production miss back to a lemma quiz.
+  // Route a miss to the closest supporting capability. This preserves the
+  // target form without collapsing independent aspects into a single order.
   const previousStageById = plan.hasReviewedFormLane ? {
     'reviewed-form-contrast': 'meaning-recognition',
     'controlled-lemma-retrieval': 'meaning-recognition',
+    'demonstrative-noun-agreement': 'controlled-lemma-retrieval',
+    'adjective-linking-article-agreement': 'controlled-lemma-retrieval',
     'contextual-form-selection': 'reviewed-form-contrast',
-    'word-form-construction': 'contextual-form-selection',
+    'reviewed-ending-recall': 'contextual-form-selection',
+    'auditory-word-construction': plan.hasReviewedNounEndingLane ? 'reviewed-ending-recall' : 'meaning-recognition',
+    'auditory-word-spelling': 'auditory-word-construction',
+    'word-form-construction': plan.hasReviewedNounEndingLane ? 'reviewed-ending-recall' : 'reviewed-form-contrast',
     'contextual-typed-recall': 'word-form-construction',
     'strict-spaced-recall': 'contextual-typed-recall',
   } : {
     'controlled-lemma-retrieval': 'meaning-recognition',
+    'demonstrative-noun-agreement': 'controlled-lemma-retrieval',
+    'adjective-linking-article-agreement': 'controlled-lemma-retrieval',
+    'auditory-word-construction': 'meaning-recognition',
+    'auditory-word-spelling': 'auditory-word-construction',
     'word-form-construction': 'controlled-lemma-retrieval',
     'contextual-typed-recall': 'word-form-construction',
     'strict-spaced-recall': 'contextual-typed-recall',
@@ -631,12 +1133,15 @@ export function advanceWordProgress(value, currentRound = 0, result = {}, option
   const nextRound = Math.max(safeRound(currentRound), safeRound(result.round))
   const next = {
     ...progress,
+    aspectRegistryVersion: WORD_ASPECT_REGISTRY_VERSION,
+    aspectProofs: { ...progress.aspectProofs },
     wins: { ...progress.wins },
     contextWins: { ...progress.contextWins },
     formProofs: { ...progress.formProofs },
     lastAttemptKey: questionKey,
     lastAttemptRound: nextRound,
   }
+  recordAspectResult(next, result, plan, nextRound)
   if (plan.contextReview) {
     next.temporal = recordTemporalAttempt(next.temporal, {
       correct: result.correct,
@@ -720,6 +1225,7 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
     return {
       trainability: options.trainability,
       hasReviewedFormLane: false,
+      hasReviewedNounEndingLane: false,
       currentStageId: null,
       nextStageId: null,
       progress: normalizeWordProgress(value, currentRound),
@@ -727,6 +1233,7 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
       stages: WORD_STAGE_DEFINITIONS.map((definition) => ({ definition, status: 'not-trainable', wins: 0, winsRequired: definition.gate.wins ?? null })),
       context: { exerciseConceptId: WORD_CONTEXT_EXERCISE_CONCEPT, alignment: wordContextAlignment(options.context, options.answerSurface), variants: [] },
       capabilities,
+      aspects: WORD_LEARNING_ASPECTS.map((aspect) => ({ aspect, status: 'not-trainable', eligible: false, selected: false })),
     }
   }
   const progress = normalizeWordProgress(value, currentRound)
@@ -734,11 +1241,19 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
   const forms = normalizedReviewedForms(options)
   const target = plan.formTarget || selectedForm(progress, forms)
   const targetProof = target ? progress.formProofs[target.key] || emptyFormProof() : progress
+  const conditionalAvailability = {
+    'reviewed-form-lane': plan.hasReviewedFormLane,
+    'reviewed-noun-ending-lane': plan.hasReviewedNounEndingLane,
+    'reviewed-demonstrative-frame': Boolean(options.nounAgreementFrame?.demonstrative),
+    'reviewed-adjective-frame': Boolean(options.nounAgreementFrame?.adjective),
+    'unambiguous-audio-sense': options.unambiguousAudioSense !== false,
+  }
   const stageRows = WORD_STAGE_DEFINITIONS.map((definition) => {
-    const formKey = ['reviewed-form-contrast', 'contextual-form-selection', 'word-form-construction',
+    const formKey = ['reviewed-form-contrast', 'contextual-form-selection', 'reviewed-ending-recall',
+      'auditory-word-construction', 'auditory-word-spelling', 'word-form-construction',
       'contextual-typed-recall', 'strict-spaced-recall'].includes(definition.id)
       ? target?.key || null : null
-    const conditionalSkipped = Boolean(definition.conditional && !plan.hasReviewedFormLane)
+    const conditionalSkipped = Boolean(definition.conditional && !conditionalAvailability[definition.conditional])
     const passed = conditionalSkipped || proofPassed(progress, definition, formKey)
     return {
       definition,
@@ -780,6 +1295,42 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
     return [id, capabilityRecord(status, evidence, gap, plan, { stageId, targetFormKey: target?.key || null })]
   }))
   const alignment = wordContextAlignment(options.context, options.answerSurface)
+  const aspects = (plan.aspectSelection?.candidates || []).map((candidate) => ({
+    aspect: candidate.aspect,
+    targetFormKey: candidate.targetFormKey,
+    status: !candidate.applicable
+      ? 'inapplicable'
+      : candidate.aspect.id === plan.aspectId
+        ? plan.due ? 'current' : 'spaced'
+        : candidate.recurring && candidate.passed
+          ? candidate.due ? 'eligible' : 'spaced'
+          : candidate.passed
+            ? 'passed'
+            : candidate.eligible ? 'eligible' : 'locked',
+    eligible: candidate.eligible,
+    selected: candidate.aspect.id === plan.aspectId,
+    due: candidate.due,
+    wins: candidate.proof.wins,
+    winsRequired: candidate.winsRequired,
+    attempts: candidate.proof.attempts,
+    correctAttempts: candidate.proof.correctAttempts,
+    dueAfterRound: candidate.spacingProof.dueAfterRound,
+    spacingSourceAspectId: candidate.spacingSourceAspectId,
+    temporal: candidate.proof.temporal,
+    failures: candidate.failures,
+    failureRate: candidate.failureRate,
+    uncertainty: candidate.uncertainty,
+    overdueRounds: candidate.overdueRounds,
+    selectionScore: candidate.selectionScore,
+    prerequisites: candidate.prerequisites,
+    schedulingContribution: candidate.aspect.id === plan.aspectId
+      ? plan.aspectSelection.strategy
+      : candidate.eligible && candidate.due && candidate.needsPractice
+        ? 'eligible due weak aspect; another candidate scored higher'
+        : candidate.eligible && candidate.needsPractice
+          ? 'eligible but waiting for its own spacing gate'
+        : candidate.passed ? 'mastered for this target' : 'prerequisite or applicability gate pending',
+  }))
   const contextStatus = (definition) => {
     if (definition.id === WORD_CONTEXT_LATE_PROOF) {
       if (progress.contextWins[WORD_CONTEXT_LATE_PROOF]) return 'passed'
@@ -792,12 +1343,14 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
   return {
     trainability: options.trainability || { trainable: true, kind: 'lexical' },
     hasReviewedFormLane: plan.hasReviewedFormLane,
+    hasReviewedNounEndingLane: plan.hasReviewedNounEndingLane,
     currentStageId: plan.stageId,
     nextStageId: plan.stageId,
     progress,
     next: plan,
     stages: stageRows,
     capabilities,
+    aspects,
     context: {
       exerciseConceptId: WORD_CONTEXT_EXERCISE_CONCEPT,
       alignment,

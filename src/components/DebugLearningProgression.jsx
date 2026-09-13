@@ -15,10 +15,10 @@ import {
 } from '../game/phraseProgressionResearch.js'
 import {
   TRAIN_EXERCISE_FAMILIES,
+  TRAIN_HEALTH_POLICY,
   TRAIN_NOUN_ENDING_CORRECTION_POLICY,
   TRAIN_QUESTION_MIX_POLICY,
   TRAIN_SCHEDULER_SAFEGUARDS,
-  TRAIN_WORD_FORM_POLICY,
   debugLearningLanes,
 } from '../game/trainingProgression.js'
 import { TRAIN_EXERCISE_EXAMPLES } from '../game/trainingExampleRegistry.js'
@@ -26,12 +26,14 @@ import { NOUN_FORM_ROLE_LABELS } from '../game/nounEndingRefresher.js'
 import { wordProgressionOptionsForSense } from '../game/formInventory.js'
 import {
   WORD_CONTEXT_EXERCISE_CONCEPT,
+  WORD_CONTEXT_LATE_PROOF,
   WORD_CONTEXT_VARIANTS,
   WORD_PROGRESSION_POLICY,
   WORD_STAGE_DEFINITIONS,
   advanceWordProgress,
   wordProgressionSnapshot,
 } from '../game/wordProgression.js'
+import { WORD_MATCHING_POLICY } from '../game/wordMatchingPolicy.js'
 
 const EXAMPLE_PHRASE_ID = 'going-village'
 const EXAMPLE_WORD_ID = 'fshat'
@@ -39,8 +41,8 @@ const EXAMPLE_WORD_ID = 'fshat'
 const exampleWordProgressionOptions = () => wordProgressionOptionsForSense(EXAMPLE_WORD_ID)
 
 const wordPlanCheckpoint = (plan) => [
-  plan.baseStage,
-  plan.stage,
+  plan.aspectId,
+  plan.targetFormKey || 'lemma',
   plan.contextVariantId || 'isolated',
   plan.contextReview ? plan.contextProofId : 'stage-proof',
 ].join(':')
@@ -62,12 +64,13 @@ function buildWordWalkthroughSteps() {
   let previousCheckpoint = wordPlanCheckpoint(entrySnapshot.next)
   for (let attempt = 0; attempt < 24; attempt++) {
     let snapshot = wordProgressionSnapshot(progress, round, progressionOptions)
-    if (snapshot.next.baseStage >= WORD_STAGE_DEFINITIONS.length - 1 && !snapshot.next.contextReview) break
+    if (snapshot.aspects.every(({ status }) => ['passed', 'inapplicable'].includes(status))) break
     round = Math.max(round, snapshot.next.dueAfterRound)
     snapshot = wordProgressionSnapshot(progress, round, progressionOptions)
     const plan = snapshot.next
     const result = advanceWordProgress(progress, round, {
       correct: true,
+      stageId: plan.stageId,
       tier: plan.tier,
       mode: plan.mode,
       direction: plan.direction,
@@ -75,6 +78,8 @@ function buildWordWalkthroughSteps() {
       targetFormKey: plan.targetFormKey,
       questionKey: `debug-word-${attempt}`,
       round: round + 1,
+      attemptedAtMs: snapshot.next.temporal?.dueAtMs || 0,
+      audioCompleted: plan.definition.requiresCompletedAudio ? true : undefined,
     }, progressionOptions)
     if (!result.accepted) break
     progress = result.progress
@@ -111,7 +116,7 @@ function buildWordWalkthroughSteps() {
   return steps
 }
 
-// Generate the demonstration by successfully traversing the real production
+// Generate the demonstration by successfully traversing the real phrase
 // state machine. This is local, disposable state: no save data enters it and
 // clicking a checkpoint can never award tokens or change the player's game.
 function buildWalkthroughSteps(phrase) {
@@ -233,9 +238,23 @@ function ExampleQuestionPreview({ selection }) {
           {example.prompt}
         </div>
       )}
-      {example.choices && (
+      {example.choices && !example.phases && (
         <div className="dbg-learning-question-choices" aria-label="Example answer choices">
           {example.choices.map((choice) => <span key={choice}>{choice}</span>)}
+        </div>
+      )}
+      {example.phases && (
+        <div className="dbg-learning-question-phases" aria-label="Example activity phases">
+          {example.phases.map((phase, index) => (
+            <section key={phase.id}>
+              <b>Phase {index + 1} · {clean(phase.id)}</b>
+              {phase.prompt && <div className="dbg-learning-question-prompt" lang={phase.promptLang}>{phase.prompt}</div>}
+              <div className="dbg-learning-question-choices" aria-label={`Phase ${index + 1} answer choices`}>
+                {phase.choices.map((choice) => <span key={choice}>{choice}</span>)}
+              </div>
+              <p>{phase.response}</p>
+            </section>
+          ))}
         </div>
       )}
       {example.tiles && (
@@ -474,7 +493,7 @@ function ContextGapFamilyCard({ family, contextSnapshot, onExample }) {
     >
       <span className={`dbg-learning-status ${familyStatus}`}>{familyStatus} · shared family</span>
       <h4>Context-gap progression</h4>
-      <p>One context-completion family moves from marked recognition, through mirrored Albanian retrieval, to a later visually unmarked recognition proof whose instruction still names the exact target.</p>
+      <p>One context-completion family moves from marked recognition through mirrored Albanian retrieval to a harder named-target proof. A truly unmarked variant remains a candidate until it first asks the learner to point to the target word.</p>
       {WORD_CONTEXT_VARIANTS.map((variant) => {
         const evidence = variantStatus.get(variant.id)
         const status = evidence?.status || 'locked'
@@ -507,13 +526,14 @@ function WordLane({ onExample }) {
   const [selectedStep, setSelectedStep] = useState(0)
   const step = steps[Math.min(selectedStep, steps.length - 1)]
   const { snapshot } = step
-  const formsReady = snapshot.next.baseStage >= TRAIN_WORD_FORM_POLICY.lexicalStageRequired
+  const formsReady = snapshot.aspects.some(({ aspect, status }) =>
+    aspect.id === 'lexical-meaning-recognition' && status === 'passed')
   const gateStatus = formsReady ? 'passed' : 'current'
   return (
     <section className="dbg-learning-lane" aria-labelledby="dbg-learning-word-lane">
       <header className="dbg-learning-lane-head">
         <h3 id="dbg-learning-word-lane">Word and form practice</h3>
-        <p>A separate deterministic word walkthrough. It begins when the word is saved and uses the same registry and transition function as Train.</p>
+        <p>A deterministic view of the real capability graph. It begins when the word is saved; several weak aspects can be eligible together, and Train selects from their own proof, failure, spacing and uncertainty evidence. Card order is only the final exact-tie break—not a mastery ladder—and gives an available reviewed form its first early turn after the two meaning wins.</p>
       </header>
       <div className="dbg-learning-step-buttons" role="group" aria-label="Example word progression checkpoint">
         {steps.map((candidate, index) => (
@@ -529,40 +549,66 @@ function WordLane({ onExample }) {
         ))}
       </div>
       <p className="dbg-learning-evidence">{step.detail} This example is disposable and never changes your save.</p>
-      <ol className="dbg-learning-flow">
-        {snapshot.stages.map(({ definition, status, wins, winsRequired, remediation, due }) => {
+      <div className="dbg-learning-flow dbg-learning-aspect-map" data-word-aspect-registry-version={snapshot.next.aspectSelection.registryVersion}>
+        {snapshot.aspects.map((row) => {
+          const definition = WORD_STAGE_DEFINITIONS.find(({ id }) => id === row.aspect.stageId)
+          const exampleId = row.aspect.id === 'contextual-meaning-inference'
+            ? WORD_CONTEXT_LATE_PROOF
+            : row.aspect.stageId
           return (
-            <li className={`dbg-learning-card ${status}`} data-word-stage-id={definition.id} key={definition.id}>
+            <article
+              className={`dbg-learning-card ${row.status}`}
+              data-word-stage-id={row.aspect.stageId}
+              data-word-aspect-id={row.aspect.id}
+              key={`${row.aspect.id}:${row.targetFormKey || 'lemma'}`}
+            >
               <div className="dbg-learning-card-head">
-                <span className={`dbg-learning-status ${status}`}>{remediation ? 'repair' : due ? 'due' : status}</span>
+                <span className={`dbg-learning-status ${row.status}`}>{row.selected ? `selected · ${row.status}` : row.status}</span>
                 <ExampleButton
-                  exampleId={definition.id}
-                  label={definition.label}
-                  context={`Word ${definition.mode} · ${definition.direction}`}
+                  exampleId={exampleId}
+                  label={row.aspect.label}
+                  context={`Word aspect · ${row.aspect.dimension}`}
                   onOpen={onExample}
                 />
               </div>
-              <h4>{definition.label}</h4>
-              <p><b>Proof:</b> {definition.proves}</p>
-              <p><b>Gate:</b> {winsRequired == null ? 'spaced strict recall' : `${wins}/${winsRequired} correct at this exact stage`}</p>
-              <p><b>Miss:</b> {definition.tier === 0 ? 'repeat entry support after a different word' : 'one easier supported retrieval, then return here'}</p>
-            </li>
+              <h4>{row.aspect.label}</h4>
+              <p><code>{row.aspect.dimension} · {row.aspect.scope}{row.targetFormKey ? ` · ${row.targetFormKey}` : ''}</code></p>
+              <p><b>Evidence:</b> {row.aspect.evidence}</p>
+              <p><b>Needs:</b>{' '}
+                {row.prerequisites.length
+                  ? row.prerequisites.map(({ aspectId, wins, winsRequired }) => `${clean(aspectId)} ${wins}/${winsRequired}`).join(' · ')
+                  : 'saved word; no other Train aspect'}
+              </p>
+              <p><b>Own proof:</b> {row.wins || 0}/{row.winsRequired || 1} wins · {row.attempts || 0} attempts · due after round {row.dueAfterRound || 0}</p>
+              <p><b>Selection:</b> {row.schedulingContribution}{row.selectionScore != null ? ` · score ${row.selectionScore}` : ''}</p>
+              {definition && <p><b>Activity:</b> {definition.label} · a miss routes to targeted support after a disjoint round.</p>}
+            </article>
           )
         })}
-        <li className={`dbg-learning-card ${gateStatus}`} data-word-form-gate="reviewed-form-lane">
+        <article className={`dbg-learning-card ${gateStatus}`} data-word-form-gate="reviewed-form-lane">
           <span className={`dbg-learning-status ${gateStatus}`}>{formsReady ? 'applicable now' : 'prerequisite pending'}</span>
           <h4>Reviewed-form applicability</h4>
           <p>The exact form lane exists because <span lang="sq">fshat</span> has reviewed form-and-role records. Reward totals cannot skip or unlock it.</p>
-          <div className="dbg-learning-evidence"><b>Rule:</b> it follows completion of {WORD_STAGE_DEFINITIONS[TRAIN_WORD_FORM_POLICY.lexicalStageRequired - 1].label}; a word with no reviewed lane skips only the two conditional form capabilities.</div>
-        </li>
-        <WordFamilyCard
-          family={TRAIN_EXERCISE_FAMILIES.wordForms}
-          status={formsReady ? 'current' : 'locked'}
-          statusLabel={formsReady ? 'unlocked' : 'unlocks next'}
-          onExample={onExample}
-        />
-      </ol>
+          <div className="dbg-learning-evidence"><b>Rule:</b> it becomes applicable after the meaning-recognition foundation; a word with no reviewed lane skips only form-specific capabilities.</div>
+        </article>
+      </div>
       <div className="dbg-learning-parallel" aria-label="Parallel and corrective word exercise branches">
+        <div>
+          <p className="dbg-learning-branch-label">Saved-word matching reinforcement</p>
+          <ul className="dbg-learning-flow parallel">
+            <WordFamilyCard
+              family={TRAIN_EXERCISE_FAMILIES.wordMatching}
+              status={formsReady ? 'current' : 'locked'}
+              statusLabel={formsReady ? 'eligible when five disjoint words exist' : 'needs meaning proof'}
+              onExample={onExample}
+            />
+          </ul>
+          <p className="dbg-learning-evidence">
+            <b>Real board rule:</b> {WORD_MATCHING_POLICY.composition.easy} easy,{' '}
+            {WORD_MATCHING_POLICY.composition['medium-hard']} medium-hard and{' '}
+            {WORD_MATCHING_POLICY.composition['very-hard']} very-hard pairs. Challenge is ranked from retained practice and reviewed confusability; an undersized or ambiguous pool falls back to another due activity.
+          </p>
+        </div>
         <div>
           <p className="dbg-learning-branch-label">Shared contextual-completion progression</p>
           <ul className="dbg-learning-flow parallel">
@@ -700,7 +746,7 @@ export default function DebugLearningProgression() {
             <h3 id="dbg-learning-rules-title">What is shared — and what is not</h3>
             <ul>
               <li>Saving every required word makes the phrase eligible; general word quizzes do not skip a phrase-production gate.</li>
-              <li>When a correct phrase round rewards <span lang="sq">fshat</span>, it raises the shared practice count; forms still wait for the word ladder’s own spelling proof.</li>
+              <li>When a correct phrase round rewards <span lang="sq">fshat</span>, it raises the shared practice count; form capabilities still wait for their exact aspect proofs.</li>
               <li>Cloze and contextual spelling record phrase-specific focus evidence. A win for the same word in another phrase does not count here.</li>
               <li>Listening and matching have separate evidence. They unlock only at production stage {PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage}: {PHRASE_PROGRESSION_POLICY.crossSkillUnlock.rationale}</li>
             </ul>
@@ -731,13 +777,15 @@ export default function DebugLearningProgression() {
             <ul>
               <li>Selection attempts: {Math.round(TRAIN_QUESTION_MIX_POLICY.phraseShare * 100)}% go first to a legal, due phrase; within the remaining word allocation, {Math.round(TRAIN_QUESTION_MIX_POLICY.formShareWithinWordRounds * 100)}% tries noun forms when eligible. An unavailable family falls through without breaking no-repeat.</li>
               <li>After the cross-skill gate, due production is served first so listening and matching cannot strand a required phrase-production step. While production is spaced, due listening and matching rotate independently; the listening boundary is {Math.round(TRAIN_QUESTION_MIX_POLICY.phraseSkill.listeningUpperBound * 100)}%.</li>
-              <li>Targeting weights practical vocabulary ×{TRAIN_QUESTION_MIX_POLICY.practicalWordWeight} and zero-token needs ×{TRAIN_QUESTION_MIX_POLICY.zeroTokenWeight}; mistakes raise priority while familiarity lowers it.</li>
+              <li>Targeting weights practical vocabulary ×{TRAIN_QUESTION_MIX_POLICY.practicalWordWeight} and zero-token needs ×{TRAIN_QUESTION_MIX_POLICY.zeroTokenWeight}; failures and weak aspects raise priority. Repeated passive exposure gives an unproven aspect a bounded retrieval-priority boost, but never supplies proof, unlocks an activity, changes heart risk or claims CEFR evidence.</li>
               <li>{TRAIN_SCHEDULER_SAFEGUARDS.noImmediateSharedWords && 'Consecutive questions never share an Albanian word.'} {!TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists && `If the legal pool is exhausted, Train reports ${TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome} instead of repeating.`}</li>
               <li>A miss schedules targeted support only after another-word round; retention lapses step back to supported production before strict recall returns.</li>
               <li>Correct strict retrieval expands the real review gap up to {PHRASE_PROGRESSION_POLICY.retention.maximumGapRounds} Train rounds.</li>
               <li>Durable retention also waits for real elapsed time: the cold-start interval begins at {PHRASE_PROGRESSION_POLICY.retention.elapsed.initialRetentionMs / 3600000} hours and can expand to {PHRASE_PROGRESSION_POLICY.retention.elapsed.maximumRetentionMs / 86400000} days. Both the round and elapsed gates must be due.</li>
               <li><b>Cold-start estimate:</b> {PHRASE_PROGRESSION_POLICY.adaptation.classification}. Its feature schema is shared with runtime ({PHRASE_PROGRESSION_POLICY.adaptation.featureSchema.join(', ')}); high uncertainty can add support or shorten a later interval, but never skip a prerequisite or award mastery.</li>
-              <li><b>Evidence boundary:</b> the word ladder proves {WORD_PROGRESSION_POLICY.evidenceBoundary.proves.join(', ')}. It does not by itself prove {WORD_PROGRESSION_POLICY.evidenceBoundary.doesNotProve.join(', ')}.</li>
+              <li><b>Evidence boundary:</b> the word-aspect graph proves {WORD_PROGRESSION_POLICY.evidenceBoundary.proves.join(', ')}. It does not by itself prove {WORD_PROGRESSION_POLICY.evidenceBoundary.doesNotProve.join(', ')}.</li>
+              <li><b>Heart protection:</b> {TRAIN_HEALTH_POLICY.protectionRule} Exposure is keyed by the exact target, independent learning aspect, and that aspect’s difficulty level—not by a global tier or token total.</li>
+              <li><b>Train recovery:</b> {TRAIN_HEALTH_POLICY.recoveryRule}</li>
             </ul>
           </section>
         </div>

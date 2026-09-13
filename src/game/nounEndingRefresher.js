@@ -147,39 +147,39 @@ const exampleFor = (form, forms) => {
   switch (form.tag) {
     case 'indefNom':
       return /^(?:a|an)\s+/i.test(meaning)
-        ? { al: `një ${form.al}`, en: meaning }
-        : { al: `${form.al} këtu`, en: `${meaning} here` }
+        ? { al: `një ${form.al}`, en: meaning, requires: ['nje'] }
+        : { al: `${form.al} këtu`, en: `${meaning} here`, requires: ['ketu'] }
     case 'indefAcc':
-      return { al: `Shoh një ${form.al}.`, en: `I see ${meaning}.` }
+      return { al: `Shoh një ${form.al}.`, en: `I see ${meaning}.`, requires: ['sheh', 'nje'] }
     case 'defAcc':
-      return { al: `Shoh ${form.al}.`, en: `I see ${meaning}.` }
+      return { al: `Shoh ${form.al}.`, en: `I see ${meaning}.`, requires: ['sheh'] }
     case 'defNom':
-      return { al: `${capitalize(form.al)} është këtu.`, en: `${capitalize(meaning)} is here.` }
+      return { al: `${capitalize(form.al)} është këtu.`, en: `${capitalize(meaning)} is here.`, requires: ['eshte', 'ketu'] }
     case 'defDat':
     case 'defDatTosk':
-      return { al: `Pranë ${form.al}.`, en: `Near the ${noun}.` }
+      return { al: `Pranë ${form.al}.`, en: `Near the ${noun}.`, requires: ['prane'] }
     case 'indefDat':
-      return { al: `Pranë një ${form.al}.`, en: `Near a ${noun}.` }
+      return { al: `Pranë një ${form.al}.`, en: `Near a ${noun}.`, requires: ['prane', 'nje'] }
     case 'ablIndef':
-      return { al: `Prej një ${form.al}.`, en: `From a ${noun}.` }
+      return { al: `Prej një ${form.al}.`, en: `From a ${noun}.`, requires: ['prej', 'nje'] }
     case 'voc':
-      return { al: `${capitalize(form.al)}!`, en: `${capitalize(meaning)}!` }
+      return { al: `${capitalize(form.al)}!`, en: `${capitalize(meaning)}!`, requires: [] }
     case 'plIndef':
-      return { al: `Disa ${form.al}.`, en: `Some ${meaning}.` }
+      return { al: `Disa ${form.al}.`, en: `Some ${meaning}.`, requires: ['disa'] }
     case 'plDef':
-      return { al: `${capitalize(form.al)} janë këtu.`, en: `${capitalize(meaning)} are here.` }
+      return { al: `${capitalize(form.al)} janë këtu.`, en: `${capitalize(meaning)} are here.`, requires: ['jam', 'ketu'] }
     case 'plDat':
-      return { al: `Pranë ${form.al}.`, en: `Near the ${barePluralMeaning(meaning)}.` }
+      return { al: `Pranë ${form.al}.`, en: `Near the ${barePluralMeaning(meaning)}.`, requires: ['prane'] }
     case 'plAbl':
-      return { al: `Pas shumë ${form.al}.`, en: `After many ${barePluralMeaning(meaning)}.` }
+      return { al: `Pas shumë ${form.al}.`, en: `After many ${barePluralMeaning(meaning)}.`, requires: ['pas', 'shume'] }
     case 'adj':
-      return { al: `Diçka të ${form.al}.`, en: `Something ${meaning}.` }
+      return { al: `Diçka të ${form.al}.`, en: `Something ${meaning}.`, requires: ['dicka', 'te_link'] }
     case 'adjPl':
-      return { al: `Gjëra të ${form.al}.`, en: `${capitalize(meaning)} things.` }
+      return { al: `Gjëra të ${form.al}.`, en: `${capitalize(meaning)} things.`, requires: ['gje', 'te_link'] }
     case 'elided':
-      return { al: `Një ${form.al} i ri.`, en: `A young ${noun}.` }
+      return { al: `Një ${form.al} i ri.`, en: `A young ${noun}.`, requires: ['nje', 'i_art', 'ri'] }
     default:
-      return { al: form.al, en: meaning }
+      return { al: form.al, en: meaning, requires: [] }
   }
 }
 
@@ -214,6 +214,34 @@ const classSignature = (forms) => {
   if (stem.length < 2) return null
   const endings = rows.map((row) => row.al.slice(stem.length))
   return { key: endings.join('\u0000'), endings, rows, stem }
+}
+
+// Ending drills are allowed only when the same reviewed four-role singular
+// table supplies a stable stem. This deliberately excludes guessed suffixes,
+// irregular plural stems and one-off playable spellings. A consonant-base
+// lemma has a real zero ending, which may be a recognition distractor but is
+// not itself used as a typed-ending target.
+export function reviewedNounEndingPractice(id, surface, tag) {
+  const forms = uniqueForms(NOUN_FORMS[id] || [])
+  const signature = classSignature(forms)
+  if (!signature) return null
+  const target = signature.rows.find((form) => form.tag === tag && lower(form.al) === lower(surface))
+  if (!target || !target.al.startsWith(signature.stem)) return null
+  const answer = target.al.slice(signature.stem.length)
+  if (!answer) return null
+  const alternatives = [...new Set(signature.rows.map((form) => form.al.slice(signature.stem.length)))]
+  if (alternatives.length < 2) return null
+  return Object.freeze({
+    stem: signature.stem,
+    answer,
+    label: `-${answer}`,
+    options: Object.freeze(alternatives.map((ending) => Object.freeze({
+      value: ending,
+      label: ending ? `-${ending}` : 'no added ending',
+    }))),
+    sourceTags: Object.freeze([...CORE_CLASS_TAGS]),
+    source: 'exact-reviewed-four-role-singular-paradigm',
+  })
 }
 
 const peerFor = (id, signature) => {

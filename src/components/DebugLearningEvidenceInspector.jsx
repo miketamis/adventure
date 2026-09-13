@@ -90,7 +90,23 @@ export default function DebugLearningEvidenceInspector({ state, dispatch }) {
             {word.persisted.saved ? 'saved' : 'not saved'} · {word.persisted.tokens} tokens · {word.persisted.practiceRewards} rewards ·{' '}
             {word.snapshot.hasReviewedFormLane ? `${word.reviewedForms.length} exact reviewed form/role targets` : 'form lane inapplicable'}
           </p>
+          <p><b>Passive familiarity only:</b> {word.persisted.passiveExposure.total} visible occurrences ({word.persisted.passiveExposure.story} story; {word.persisted.passiveExposure['phrase-co-exposure']} phrase co-exposure). This never unlocks an aspect or CEFR evidence.</p>
           <p>Derived current / next: <b>{show(word.currentStageId)}</b> / <b>{show(word.nextStageId)}</b></p>
+          <table data-learning-aspect-matrix>
+            <thead><tr><th>Independent aspect</th><th>Status</th><th>Evidence</th><th>Eligible / due</th><th>Prerequisites</th><th>Selection</th></tr></thead>
+            <tbody>
+              {word.snapshot.aspects.map((row) => (
+                <tr key={`${row.aspect.id}:${row.targetFormKey || 'lemma'}`}>
+                  <th>{row.aspect.label}<br /><code>{row.aspect.id}</code></th>
+                  <td>{row.status}</td>
+                  <td>{row.wins || 0}/{row.winsRequired || 1} wins; {row.attempts || 0} attempts</td>
+                  <td>{row.eligible ? 'eligible' : 'not eligible'}; {row.selected && word.snapshot.next?.due ? 'due' : 'not due'}</td>
+                  <td>{row.prerequisites?.length ? row.prerequisites.map((item) => `${item.aspectId} ${item.wins}/${item.winsRequired}`).join(' · ') : 'none'}</td>
+                  <td>{row.schedulingContribution || 'none'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           <table>
             <thead><tr><th>Capability</th><th>Status</th><th>Gap</th><th>Due</th><th>Remediation</th><th>Last attempt</th></tr></thead>
             <CapabilityRows capabilities={word.snapshot.capabilities} />

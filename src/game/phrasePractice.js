@@ -189,6 +189,18 @@ export function phraseAnswerResult(answer, target, tolerance = 'strict', context
 export const phraseAnswerIsCorrect = (answer, target, tolerance = 'strict', context = null) =>
   phraseAnswerResult(answer, target, tolerance, context).correct
 
+export function phraseQuestionExactAnswer(question) {
+  if (!question || typeof question !== 'object') return null
+  const value = question.mode === 'cloze'
+    ? question.correctWord
+    : question.mode === 'type'
+      ? question.typingAnswer
+      : question.mode === 'match'
+        ? null
+        : question.target?.al
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
 export function phraseAnswerDiagnostic(answer, target, phrase) {
   const answerWords = phraseWords(answer).map(normalizedWord)
   const targetWords = phraseWords(target).map(normalizedWord)
@@ -886,6 +898,7 @@ export function buildPhraseQuestion(
         // complete phrase, so spell the exact contextual surface (shkon,
         // takohemi, lutem…), not an unrelated dictionary lemma.
         typingAnswer: focus.word,
+        exactAnswerAl: focus.word,
         typingCue: target.en,
         answerTolerance: step.answerTolerance,
         rewardIds: [focus.focusId],
@@ -895,6 +908,7 @@ export function buildPhraseQuestion(
       ...base,
       typeScope: 'phrase',
       typingAnswer: target.al,
+      exactAnswerAl: target.al,
       typingCue: target.en,
       answerTolerance: step.answerTolerance,
     }
@@ -917,6 +931,7 @@ export function buildPhraseQuestion(
       ...base,
       blankIndex,
       correctWord,
+      exactAnswerAl: correctWord,
       focusId: focus.focusId,
       meaningCue: target.focusCues?.[focus.focusId] || target.en,
       contrastRole: practiceContrastRole(focus.focusId),
@@ -933,5 +948,6 @@ export function buildPhraseQuestion(
   return {
     ...base,
     bank,
+    exactAnswerAl: target.al,
   }
 }

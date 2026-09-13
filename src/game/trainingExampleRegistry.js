@@ -25,6 +25,33 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',
     choices: ['village', 'bridge', 'river', 'house'], response: 'Choose “village” among three plausible meanings.',
   },
+  'auditory-surface-recognition': {
+    instruction: 'Listen, then choose the written Albanian word.', prompt: 'continuous complete-word MP3', audio: 'fshat',
+    choices: ['fshat', 'urë', 'rrugë', 'shtëpi'], response: 'After the recording finishes, choose “fshat”. No transcript appears before the answer.',
+  },
+  'audio-to-written-word': {
+    instruction: 'Listen, then choose the written Albanian word.', prompt: 'continuous complete-word MP3', audio: 'fshat',
+    choices: ['fshat', 'urë', 'rrugë', 'shtëpi'], response: 'Choose the saved Albanian word that matches the recording.',
+  },
+  'auditory-meaning-recognition': {
+    instruction: 'Listen, then choose what the Albanian word means.', prompt: 'continuous complete-word MP3', audio: 'fshat',
+    choices: ['village', 'bridge', 'road', 'house'], response: 'After the recording finishes, choose “village”. The Albanian transcript remains hidden.',
+  },
+  'audio-to-word-meaning': {
+    instruction: 'Listen, then choose what the Albanian word means.', prompt: 'continuous complete-word MP3', audio: 'fshat',
+    choices: ['village', 'bridge', 'road', 'house'], response: 'Choose the meaning of the recorded saved word without seeing its spelling.',
+  },
+  'mixed-five-pair-board': {
+    instruction: 'Match the Albanian words to their meanings', prompt: 'A mixed saved-word board', promptLang: 'sq',
+    pairs: [
+      { al: 'fshat', en: 'village', difficultyBand: 'easy' },
+      { al: 'urë', en: 'bridge', difficultyBand: 'medium-hard' },
+      { al: 'rrugë', en: 'road', difficultyBand: 'medium-hard' },
+      { al: 'vonë', en: 'late', difficultyBand: 'very-hard' },
+      { al: 'prit', en: 'wait', difficultyBand: 'very-hard' },
+    ],
+    response: 'Match all five pairs: one relative easy anchor, two medium-hard words and two highest-challenge words from the eligible saved pool.',
+  },
   'controlled-lemma-retrieval': {
     instruction: 'Choose the Albanian word.', prompt: 'village', promptLang: 'en',
     choices: ['fshat', 'urë'], response: 'Choose “fshat”; this is controlled selection, not independent production.',
@@ -37,14 +64,93 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     instruction: 'Choose the Albanian word.', prompt: 'village', promptLang: 'en',
     choices: ['fshat', 'urë', 'lumë', 'shtëpi'], response: 'Choose “fshat” among three plausible distractors.',
   },
+  'demonstrative-noun-whole-choice': {
+    instruction: 'Which Albanian noun phrase means this?', prompt: 'this book', promptLang: 'en',
+    choices: ['ky libër', 'kjo urë'],
+    response: 'Choose “ky libër”. This whole-bundle step records lexical retrieval for libër, not a separate grammar success.',
+  },
+  'demonstrative-noun-agreement': {
+    instruction: 'Choose the demonstrative, then the noun.', prompt: 'this book', promptLang: 'en',
+    choices: ['ky', 'kjo'],
+    phases: [
+      { id: 'choose-demonstrative', choices: ['ky', 'kjo'], response: 'Choose “ky”; no evidence is recorded yet.' },
+      { id: 'choose-noun', prompt: 'ky __', choices: ['libër', 'urë', 'shtëpi', 'fshat'], response: 'Choose “libër”; completing both parts records one agreement result.' },
+    ],
+    response: 'Complete both parts of the same reviewed noun phrase; only the complete activity records demonstrative-agreement evidence.',
+  },
+  'demonstrative-noun-split-choice': {
+    instruction: 'Choose the demonstrative, then the noun.', prompt: 'this book', promptLang: 'en',
+    choices: ['ky', 'kjo'],
+    phases: [
+      { id: 'choose-demonstrative', choices: ['ky', 'kjo'], response: 'Choose “ky”.' },
+      { id: 'choose-noun', prompt: 'ky __', choices: ['libër', 'urë', 'shtëpi', 'fshat'], response: 'Choose “libër”.' },
+    ],
+    response: 'The determiner and noun are separate decisions on one card, using a reviewed gender frame.',
+  },
+  'adjective-linking-article-agreement': {
+    instruction: 'Identify the noun, choose its linking article, then identify the article’s job.', prompt: '[libri] i mirë', promptLang: 'sq',
+    choices: ['book', 'bridge', 'road', 'house'],
+    phases: [
+      { id: 'identify-agreement-noun', choices: ['book', 'bridge', 'road', 'house'], response: 'Choose “book”; no evidence is recorded yet.' },
+      { id: 'choose-linking-article', prompt: 'libri __ mirë', choices: ['i', 'e'], response: 'Choose “i”; no evidence is recorded yet.' },
+      { id: 'identify-linking-article-job', prompt: 'libri [i] mirë', choices: ['links this masculine noun to its adjective', 'links a feminine noun to its adjective'], response: 'Choose the masculine agreement job; completing all three phases records one result.' },
+    ],
+    response: 'Meaning is established before the exact article and its grammatical job are tested; only the complete chain records agreement evidence.',
+  },
+  'adjective-linking-article-staged': {
+    instruction: 'Identify the noun, choose its linking article, then identify the article’s job.', prompt: '[libri] i mirë', promptLang: 'sq',
+    choices: ['book', 'bridge', 'road', 'house'],
+    phases: [
+      { id: 'identify-agreement-noun', choices: ['book', 'bridge', 'road', 'house'], response: 'Identify libri as “book”.' },
+      { id: 'choose-linking-article', prompt: 'libri __ mirë', choices: ['i', 'e'], response: 'Choose “i”.' },
+      { id: 'identify-linking-article-job', prompt: 'libri [i] mirë', choices: ['links this masculine noun to its adjective', 'links a feminine noun to its adjective'], response: 'Identify the agreement job.' },
+    ],
+    response: 'No English sentence is displayed; the later phases ask for the reviewed Albanian form and why it fits.',
+  },
   'reviewed-form-contrast': {
-    instruction: 'What job does the highlighted form have here?', prompt: 'Po shkoj në [fshat].', promptLang: 'sq',
+    instruction: 'Identify the base word, choose the exact reviewed form, then identify its grammatical job.', prompt: '[Fshati] është këtu.', promptLang: 'sq',
     choices: ['a village · after a direction', 'the village · subject', 'the village · object', 'of / to / from the village'],
-    response: 'Choose the reviewed grammatical job shown by this exact context.',
+    phases: [
+      { id: 'identify-root-lemma', choices: ['fshat · village', 'urë · bridge', 'lumë · river', 'shtëpi · house'], response: 'Choose “fshat · village”.' },
+      { id: 'choose-reviewed-form', prompt: '__ është këtu.', choices: ['fshat', 'fshati', 'fshatin', 'fshatit'], response: 'Choose “fshati”.' },
+      { id: 'identify-marked-form-job', choices: ['a village · after a direction', 'the village · subject', 'the village · object', 'of / to / from the village'], response: 'Choose the reviewed grammatical job.' },
+    ],
+    response: 'Complete all three phases; the first two record nothing, and only the complete chain records exact per-form evidence and awards one target token.',
   },
   'contextual-form-selection': {
-    instruction: 'Choose the form that completes this sentence.', prompt: 'Po shkoj në ___.', promptLang: 'sq',
-    choices: ['fshat', 'fshati', 'fshatin', 'fshatit'], response: 'Choose “fshat” for this reviewed role.',
+    instruction: 'Choose only the ending that completes the marked noun.', prompt: 'Fshat__ është këtu.', promptLang: 'sq',
+    choices: ['no added ending', '-i', '-in', '-it'], response: 'Choose “-i”; the exact reviewed form is “fshati”.',
+  },
+  'reviewed-ending-choice': {
+    instruction: 'Choose only the ending that completes the marked noun.', prompt: 'Fshat__ është këtu.', promptLang: 'sq',
+    choices: ['no added ending', '-i', '-in', '-it'], response: 'Choose “-i”; only the ending is tested.',
+  },
+  'reviewed-ending-recall': {
+    instruction: 'Type only the ending that completes the marked noun.', prompt: 'Fshat__ është këtu.', promptLang: 'sq',
+    input: 'Type only the missing ending…', response: 'Type “i”; the exact reviewed form is “fshati”.',
+  },
+  'reviewed-ending-typed': {
+    instruction: 'Type only the ending that completes the marked noun.', prompt: 'Fshat__ është këtu.', promptLang: 'sq',
+    input: 'Type only the missing ending…', response: 'Type “i”; this is independent ending recall, not whole-word spelling.',
+  },
+  'auditory-word-construction': {
+    instruction: 'Listen, then build the Albanian word.', prompt: 'continuous recording only', audio: 'fshat',
+    tiles: ['f', 'sh', 'a', 't', 'v', 'ë', 'i'],
+    response: 'Play the complete word, then tap f · sh · a · t. Each tapped tile plays its own recorded Albanian sound.',
+  },
+  'audio-letter-construction': {
+    instruction: 'Listen, then build the Albanian word.', prompt: 'continuous recording only', audio: 'fshat',
+    tiles: ['f', 'sh', 'a', 't', 'v', 'ë', 'i'],
+    response: 'Build “fshat” from the supplied recorded-sound tiles; no English cue is shown.',
+  },
+  'auditory-word-spelling': {
+    instruction: 'Listen, then type the Albanian word.', prompt: 'continuous recording only', audio: 'fshat',
+    input: 'Type the word you heard…',
+    response: 'Type “fshat” exactly. A close early attempt opens an immediate repair instead of awarding proof or costing a heart.',
+  },
+  'audio-typed-spelling': {
+    instruction: 'Listen, then type the Albanian word.', prompt: 'continuous recording only', audio: 'fshat',
+    input: 'Type the word you heard…', response: 'Type “fshat” exactly after its complete recorded MP3 finishes.',
   },
   'word-form-construction': {
     instruction: 'Build the Albanian word or form.', prompt: 'Po shkoj në ___.', promptLang: 'sq',
@@ -52,7 +158,7 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
   },
   'contextual-typed-recall': {
     instruction: 'Write the missing word in Albanian.', prompt: 'Po shkoj në ___.', promptLang: 'sq',
-    input: 'Type the missing Albanian word…', response: 'Type “fshat”; beginner letter leeway applies.',
+    input: 'Type the missing Albanian word…', response: 'Type “fshat” exactly; a close attempt stays open for a guided repair.',
   },
   'strict-spaced-recall': {
     instruction: 'Write the missing word in Albanian.', prompt: 'Po shkoj në ___.', promptLang: 'sq',
@@ -68,7 +174,7 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
   },
   'unmarked-context-recognition': {
     instruction: 'What does “fshat” mean here?', prompt: 'Po shkoj në fshat.', promptLang: 'sq',
-    choices: ['village', 'bridge', 'river', 'house'], response: 'The target is named explicitly without a visual mark; choose “village”.',
+    choices: ['village', 'bridge', 'river', 'house'], response: 'The persisted legacy ID says “unmarked”, but the production presentation is named-and-marked: “fshat” is underlined in green because the instruction names it. Choose “village”.',
   },
   'independent-word-recognition': {
     instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',

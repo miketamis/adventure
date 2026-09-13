@@ -24,25 +24,39 @@ import {
 } from '../src/game/wordProgression.js'
 
 assert.deepEqual(WORD_STAGE_DEFINITIONS.map(({ id }) => id), [
-  'meaning-recognition', 'reviewed-form-contrast', 'controlled-lemma-retrieval',
-  'contextual-form-selection', 'word-form-construction', 'contextual-typed-recall',
+  'meaning-recognition', 'reviewed-form-contrast',
+  'auditory-surface-recognition', 'auditory-meaning-recognition',
+  'controlled-lemma-retrieval',
+  'demonstrative-noun-agreement', 'adjective-linking-article-agreement',
+  'contextual-form-selection', 'reviewed-ending-recall',
+  'auditory-word-construction', 'auditory-word-spelling',
+  'word-form-construction', 'contextual-typed-recall',
   'strict-spaced-recall',
 ])
 assert.equal(WORD_PROGRESSION_POLICY.productionBeginsAt, 'word-form-construction')
-assert.deepEqual(WORD_STAGE_DEFINITIONS[2].variants.map(({ id }) => id), [
+assert.deepEqual(WORD_STAGE_DEFINITIONS.find(({ id }) => id === 'controlled-lemma-retrieval').variants.map(({ id }) => id), [
   'controlled-retrieval-two-choice', 'controlled-retrieval-four-choice',
 ])
-assert.ok(WORD_STAGE_DEFINITIONS.slice(0, 4).every(({ evidenceTrack }) => evidenceTrack !== 'production'))
-assert.ok(WORD_STAGE_DEFINITIONS.slice(4).every(({ evidenceTrack }) => evidenceTrack === 'production'))
+assert.ok(WORD_STAGE_DEFINITIONS.filter(({ id }) => !['word-form-construction', 'contextual-typed-recall', 'strict-spaced-recall'].includes(id))
+  .every(({ evidenceTrack }) => evidenceTrack !== 'production'))
+assert.deepEqual(WORD_STAGE_DEFINITIONS.filter(({ id }) => ['auditory-word-construction', 'auditory-word-spelling'].includes(id)).map(({ evidenceTrack }) => evidenceTrack), [
+  'listening-orthography', 'listening-orthography',
+])
+assert.ok(WORD_STAGE_DEFINITIONS.filter(({ id }) => ['word-form-construction', 'contextual-typed-recall', 'strict-spaced-recall'].includes(id))
+  .every(({ evidenceTrack }) => evidenceTrack === 'production'))
 
 const run = (id, { stopWhen, max = 30 } = {}) => {
   let progress = null
   let round = 0
   const seen = []
   const options = wordProgressionOptionsForSense(id)
-  const discoveredIds = [id, ...new Set([
+  const discoveredIds = [...new Set([id,
+    ...Object.keys(DICT).filter((senseId) => lexicalTrainability(senseId).trainable),
     ...(DICT[id].ctx?.requires || []),
     ...(DICT[id].ctx?.variants || []).flatMap(({ requires = [] }) => requires),
+    // Audio-recognition choices deliberately use only saved, reviewed senses.
+    // Keep a stable saved pool in this end-to-end progression fixture.
+    'fshat', 'ure', 'rruge', 'shtepi',
   ])]
   for (let index = 0; index < max; index++) {
     const question = buildWordQuestion({
@@ -59,6 +73,8 @@ const run = (id, { stopWhen, max = 30 } = {}) => {
       direction: question.dir,
       variantId: question.variantId ?? null,
       targetFormKey: question.targetFormKey ?? null,
+      aspectTargets: question.aspectTargets,
+      audioCompleted: question.requiresCompletedAudio ? true : undefined,
       questionKey: `word-progression-audit:${id}:${index}`,
       round: round + 1,
     }, options)
@@ -72,9 +88,12 @@ const run = (id, { stopWhen, max = 30 } = {}) => {
 const early = run('po_yes', { stopWhen: (question) => question.wordStageId === 'word-form-construction' })
 assert.deepEqual(early.seen.slice(0, 5).map(({ variantId }) => variantId), [
   'marked-context-recognition', 'marked-context-recognition',
-  'mirrored-controlled-retrieval', 'mirrored-controlled-retrieval', 'mirrored-controlled-retrieval',
+  // Bare “po” has several reviewed senses, so audio alone cannot identify its
+  // meaning; only the orthographic listening phase is applicable here.
+  'audio-to-written-word',
+  'mirrored-controlled-retrieval', 'unmarked-context-recognition',
 ])
-assert.deepEqual(early.seen.slice(0, 5).map(({ options }) => options.length), [4, 4, 2, 4, 4])
+assert.deepEqual(early.seen.slice(0, 5).map(({ options }) => options.length), [4, 4, 4, 2, 4])
 assert.equal(early.question.variantId, WORD_CONTEXT_LATE_PROOF)
 assert.equal(early.question.contextReview, true)
 assert.equal(early.question.evidenceTrack, 'recognition')
@@ -132,6 +151,7 @@ const simpleSnapshot = wordCapabilitySnapshot(null, 0, wordProgressionOptionsFor
 assert.equal(simpleSnapshot.hasReviewedFormLane, false)
 assert.equal(simpleSnapshot.capabilities['reviewed-form-awareness'].status, 'inapplicable')
 assert.equal(simpleSnapshot.capabilities['contextual-form-selection'].status, 'inapplicable')
+assert.equal(simpleSnapshot.capabilities['reviewed-ending-recall'].status, 'inapplicable')
 assert.equal(simpleSnapshot.capabilities['word-form-construction'].status, 'pending')
 
 const earlyFormPlan = wordCapabilitySnapshot({ wins: { 'meaning-recognition': 2 } }, 4, nounOptions)

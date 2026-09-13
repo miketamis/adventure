@@ -1,6 +1,6 @@
 // Guided preparation for the held-out CEFR capstones.
 //
-// The ordinary word and phrase ladders teach exact language. These activities
+// The ordinary word and phrase aspect graphs teach exact language. These activities
 // teach the next layer: using already learned language to understand, respond,
 // repair, recombine and relay. Capstone stimuli never appear here. UI code can
 // render this registry directly and record its small evidence events locally.
@@ -9,6 +9,7 @@ import { DICT } from './dictionary.js'
 import { CEFR_CAPSTONE_TASK_FAMILIES } from './cefrProgression.js'
 import { PHRASE_STAGE_DEFINITIONS } from './phraseProgression.js'
 import { WORD_CAPABILITY_DEFINITIONS } from './wordProgression.js'
+import { WORD_LEARNING_ASPECTS } from './wordLearningAspects.js'
 import { CEFR_PREPARATION_VERSION } from './cefrPreparationEvidenceState.js'
 
 export { CEFR_PREPARATION_VERSION }
@@ -1223,19 +1224,50 @@ const focusIdsForMechanic = (mechanicId) => [...new Set(
   activitiesForMechanic(mechanicId).flatMap(({ focusSenseIds }) => focusSenseIds),
 )]
 
-const CONDITIONAL_FORM_CAPABILITIES = new Set(WORD_CAPABILITY_DEFINITIONS
-  .filter(({ conditional }) => conditional === 'reviewed-form-lane')
+const CONDITIONAL_CAPABILITIES = new Set(WORD_CAPABILITY_DEFINITIONS
+  .filter(({ conditional }) => Boolean(conditional))
   .map(({ id }) => id))
 
 const capabilityStatus = (evidence, senseId, capabilityId) =>
   evidence?.wordCapabilities?.[senseId]?.capabilities?.[capabilityId]?.status || 'pending'
 
 const capabilitySatisfiesReadiness = (capabilityId, status) => status === 'passed' ||
-  (status === 'inapplicable' && CONDITIONAL_FORM_CAPABILITIES.has(capabilityId))
+  (status === 'inapplicable' && CONDITIONAL_CAPABILITIES.has(capabilityId))
 
-const capabilitiesThrough = (capabilityId) => {
-  const index = WORD_CAPABILITY_DEFINITIONS.findIndex(({ id }) => id === capabilityId)
-  return index < 0 ? [] : WORD_CAPABILITY_DEFINITIONS.slice(0, index + 1)
+const capabilityById = new Map(WORD_CAPABILITY_DEFINITIONS.map((definition) => [definition.id, definition]))
+const capabilitiesByStage = new Map(WORD_CAPABILITY_DEFINITIONS.map(({ stageId }) => [
+  stageId,
+  WORD_CAPABILITY_DEFINITIONS.filter((definition) => definition.stageId === stageId),
+]))
+const capabilityForAspect = new Map(WORD_LEARNING_ASPECTS.flatMap((aspect) => {
+  const definitions = capabilitiesByStage.get(aspect.stageId) || []
+  return definitions.length ? [[aspect.id, definitions.at(-1).id]] : []
+}))
+
+// Readiness follows only the requested aspect and its real prerequisite
+// closure. Registry order remains a deterministic scheduling tie-break, never
+// a hidden requirement to master unrelated branches first.
+export function capabilitiesRequiredFor(capabilityId) {
+  const required = []
+  const seen = new Set()
+  const visit = (id) => {
+    if (!id || seen.has(id)) return
+    const definition = capabilityById.get(id)
+    if (!definition) return
+    seen.add(id)
+    const aspect = WORD_LEARNING_ASPECTS.find(({ stageId }) => stageId === definition.stageId)
+    const prerequisiteAspectIds = [
+      ...(aspect?.prerequisites || []).map(({ aspectId }) => aspectId),
+      ...Object.values(aspect?.conditionalPrerequisites || {}).flat().map(({ aspectId }) => aspectId),
+    ]
+    for (const aspectId of prerequisiteAspectIds) visit(capabilityForAspect.get(aspectId))
+    const sameStage = capabilitiesByStage.get(definition.stageId) || []
+    const ownIndex = sameStage.findIndex(({ id: candidateId }) => candidateId === id)
+    for (const earlier of sameStage.slice(0, ownIndex)) visit(earlier.id)
+    required.push(definition)
+  }
+  visit(capabilityId)
+  return required
 }
 
 export function preparationReadiness(mechanicId, evidence = {}) {
@@ -1258,7 +1290,7 @@ export function preparationReadiness(mechanicId, evidence = {}) {
 
   const requiredCapabilityId = mechanic.readiness.wordCapabilityId
   for (const senseId of focusIdsForMechanic(mechanicId)) {
-    const unmet = capabilitiesThrough(requiredCapabilityId).find(({ id }) => {
+    const unmet = capabilitiesRequiredFor(requiredCapabilityId).find(({ id }) => {
       const status = capabilityStatus(evidence, senseId, id)
       return !capabilitySatisfiesReadiness(id, status)
     })

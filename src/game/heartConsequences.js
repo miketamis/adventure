@@ -7,7 +7,9 @@ export const HEART_CONSEQUENCE_VERSION = 1
 export const HEART_CONSEQUENCE_SOURCES = Object.freeze([
   'train-word',
   'train-form',
+  'train-noun-agreement',
   'train-phrase',
+  'train-word-matching',
   'story-confuser',
   'story-choice',
   'item-action',
@@ -66,6 +68,15 @@ export function normalizeHeartConsequence(value, loss = value?.loss) {
 }
 
 export function heartLossConsequenceForSave(value, currentHearts = 0) {
+  if (value?.protected === true && value?.loss === 0) {
+    const consequence = normalizeHeartConsequence(value, 1)
+    const beforeHearts = Number.isSafeInteger(value.beforeHearts) ? value.beforeHearts : null
+    const afterHearts = Number.isSafeInteger(value.afterHearts) ? value.afterHearts : null
+    if (!consequence || beforeHearts == null || afterHearts == null ||
+        beforeHearts !== afterHearts || afterHearts !== currentHearts ||
+        afterHearts < 0 || afterHearts > 3) return null
+    return { ...consequence, protected: true, loss: 0, beforeHearts, afterHearts }
+  }
   const consequence = normalizeHeartConsequence(value)
   if (!consequence) return null
   const beforeHearts = Number.isSafeInteger(value.beforeHearts) ? value.beforeHearts : null
@@ -73,6 +84,22 @@ export function heartLossConsequenceForSave(value, currentHearts = 0) {
   if (beforeHearts == null || afterHearts == null || beforeHearts - afterHearts !== consequence.loss ||
       afterHearts !== currentHearts || afterHearts < 0 || beforeHearts > 3) return null
   return { ...consequence, beforeHearts, afterHearts }
+}
+
+export function attachProtectedTrainMiss(state, value) {
+  if (state.pendingHeartConsequence) return null
+  const consequence = normalizeHeartConsequence(value, 1)
+  if (!consequence) return null
+  return {
+    ...state,
+    pendingHeartConsequence: {
+      ...consequence,
+      protected: true,
+      loss: 0,
+      beforeHearts: state.hearts,
+      afterHearts: state.hearts,
+    },
+  }
 }
 
 export function applyExplainedHeartLoss(state, value, requestedLoss = 1) {

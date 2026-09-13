@@ -126,6 +126,7 @@ const resettableAttemptFixture = (profile) => ({
   knowledge: { 'npcName:elira': { atClock: 2, source: 'audit' } },
   npcPortraitsSeen: { bari: true },
   activeNpcPortraits: { nodeId: 'bariu', npcIds: ['bari'] },
+  wordExposureReceipts: { 'story:1:start:0': 'story' },
   debug: true,
 })
 
@@ -135,6 +136,8 @@ check('reset policy categories are explicit, disjoint, and consumed by their hel
   assert.equal(new Set(fields).size, fields.length, 'a reset field belongs to more than one policy category')
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('discovered'))
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('deathUnsavedWords'))
+  assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('trainStageExposures'))
+  assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('wordMatchingProgress'))
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('cefrEvidence'))
   assert.ok(STORY_RUN_RESET_POLICY.durableChronicle.includes('npcPortraitsSeen'))
   assert.ok(!STORY_RUN_RESET_POLICY.durableChronicle.includes('visited'))
@@ -151,6 +154,8 @@ check('reset policy categories are explicit, disjoint, and consumed by their hel
   assert.deepEqual(cleared.trainLastWords, [])
   assert.equal(cleared.trainLastQuestionKey, null)
   assert.equal(cleared.pendingHeartConsequence, null)
+  assert.equal(cleared.trainHealingStreak, 0)
+  assert.equal(cleared.trainRecoveryEvent, null)
 })
 
 check('RESET rebuilds the run while preserving every declared learner and chronicle field', () => {
@@ -170,14 +175,20 @@ check('RESET rebuilds the run while preserving every declared learner and chroni
   assert.deepEqual(after.visited, {}, 'visited places leaked across story restart')
   for (const field of [
     'inventory', 'flags', 'observations', 'interactions', 'rendezvous', 'quests',
-    'healedAt', 'dismissedTests', 'fixtures', 'npcStarted',
+    'healedAt', 'dismissedTests', 'fixtures', 'npcStarted', 'wordExposureReceipts',
   ]) assert.deepEqual(after[field], {}, `${field}: leaked across story restart`)
   for (const field of [
     'pendingTest', 'timePassage', 'pendingEmbodiment', 'practiceTarget',
     'trainLastQuestionKey', 'pendingHeartConsequence', 'activeNpcPortraits',
   ]) assert.equal(after[field], null, `${field}: transient state survived restart`)
   assert.deepEqual(after.trainLastWords, [])
-  assert.deepEqual(reducer(after, { type: 'RESET' }), after, 'clean restart is not idempotent')
+  const restartedAgain = reducer(after, { type: 'RESET' })
+  assert.equal(restartedAgain.storyRunSequence, after.storyRunSequence + 1,
+    'a new run did not receive a fresh passive-exposure receipt domain')
+  const { storyRunSequence: _afterRun, ...afterStableFields } = after
+  const { storyRunSequence: _againRun, ...againStableFields } = restartedAgain
+  assert.deepEqual(againStableFields, afterStableFields,
+    'clean restart changed state beyond the intentional run-sequence identity')
 })
 
 check('bad-ending CONTINUE and explicit RESET share the exact restart constructor', () => {
@@ -281,7 +292,7 @@ check('death unsaves only weak words while tokens, exact proofs, and ranks survi
   assert.equal(rediscovered.discovered.ure, true)
   assert.equal(rediscovered.deathUnsavedWords.ure, undefined, 'saving again retained the death tombstone')
   assert.equal(rediscovered.mana.ure, 1, 'saving again did not restore access to the retained token')
-  assert.deepEqual(rediscovered.wordProgress.ure, weakProgress, 'saving again restarted the training ladder')
+  assert.deepEqual(rediscovered.wordProgress.ure, weakProgress, 'saving again restarted the word capability profile')
 })
 
 check('a living new run clears visited places without unsaving weak vocabulary', () => {
@@ -306,6 +317,7 @@ check('a genuinely new learner begins without inherited run or learning state', 
     else if (field === 'learningResearchConsent') assert.equal(fresh[field], false)
     else if (field === 'learningTelemetrySequence') assert.equal(fresh[field], 0)
     else if (['cefrEvidence', 'learningTelemetryEvents'].includes(field)) assert.deepEqual(fresh[field], [])
+    else if (field === 'wordMatchingProgress') assert.deepEqual(fresh[field], { family: {}, words: {} })
     else assert.deepEqual(fresh[field], {}, `${field}: new learner inherited evidence`)
   }
   assert.equal(fresh.nodeId, START_NODE)

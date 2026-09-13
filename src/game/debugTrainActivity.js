@@ -24,6 +24,20 @@ import {
   normalizeWordProgress,
   wordCapabilitySnapshot,
 } from './wordProgression.js'
+import { WORD_SPELLING_SUPPORT_POLICY } from './wordSpellingPolicy.js'
+import {
+  WORD_ASPECT_REGISTRY_VERSION,
+  WORD_LEARNING_ASPECTS,
+  WORD_STAGE_ASPECT_BINDINGS,
+} from './wordLearningAspects.js'
+import { wordExposureFor } from './wordExposure.js'
+import {
+  TRAIN_HEALTH_POLICY,
+  normalizeTrainHealingStreak,
+  normalizeTrainStageExposures,
+  trainHealthPlanForQuestion,
+} from './trainHealthPolicy.js'
+import { normalizeWordMatchingProgress } from './wordMatchingProgress.js'
 
 const lower = (value) => String(value || '').normalize('NFC').toLocaleLowerCase('sq')
 const cleanSurface = (value) => lower(value).replace(/^[^\p{L}\p{M}]+|[^\p{L}\p{M}]+$/gu, '')
@@ -138,9 +152,63 @@ function explicitOptionOccurrences(question) {
   })
 }
 
+function lexicalCheckOccurrences(question) {
+  if (!Array.isArray(question?.lexicalCheck?.options)) return []
+  return question.lexicalCheck.options.flatMap((id, index) => DICT[id] ? [{
+    source: 'meaning phase options',
+    role: id === question.lexicalCheck.answerId ? 'correct sense option' : 'distractor sense option',
+    index,
+    surface: DICT[id].al,
+    id,
+    candidateIds: [id],
+    resolution: 'meaning phase option sense id',
+  }] : [])
+}
+
+function stagedGrammarOccurrences(question) {
+  if (!question?.grammarBundle || !question.phaseQuestions) return []
+  return Object.entries(question.phaseQuestions).flatMap(([phaseId, phase]) => {
+    const promptOccurrences = phase.promptLang === 'sq'
+      ? genericTextOccurrences(phase.prompt, `grammar phase:${phaseId}`, {
+          targetId: question.answerId,
+          targetSurface: phase.markSurface || question.surface,
+        })
+      : []
+    const optionOccurrences = (phase.options || []).flatMap((option, index) => {
+      if (option.lang !== 'sq') return []
+      const candidateIds = senseIdsForSurface(option.label)
+      const id = DICT[option.value] ? option.value : candidateIds.length === 1 ? candidateIds[0] : null
+      return [{
+        source: `grammar phase:${phaseId} options`,
+        role: option.value === phase.answerValue ? 'correct Albanian option' : 'distractor Albanian option',
+        index,
+        surface: option.label,
+        id,
+        candidateIds: id ? [id] : candidateIds,
+        resolution: id ? 'reviewed grammar-phase option metadata' : 'surface lookup',
+      }]
+    })
+    return [...promptOccurrences, ...optionOccurrences]
+  })
+}
+
 export function trainActivityWordOccurrences(question) {
   if (!question) return []
   const occurrences = []
+  if (question.kind === TRAIN_EXERCISE_FAMILIES.wordMatching.kind) {
+    for (const [index, pair] of (question.pairs || []).entries()) {
+      occurrences.push({
+        source: 'word matching board',
+        role: pair.difficultyBand || 'matching pair',
+        index,
+        surface: pair.al,
+        id: pair.id,
+        candidateIds: [pair.id],
+        resolution: 'matching pair sense id',
+      })
+    }
+    return occurrences
+  }
   if (question.kind === TRAIN_EXERCISE_FAMILIES.phrase.kind) {
     const phrases = question.mode === 'match' ? question.phrases || [] : [question.target].filter(Boolean)
     for (const phrase of phrases) occurrences.push(...phraseOccurrences(phrase, `phrase:${phrase.id}`))
@@ -184,7 +252,9 @@ export function trainActivityWordOccurrences(question) {
       resolution: 'question answer id',
     })
   }
+  occurrences.push(...lexicalCheckOccurrences(question))
   occurrences.push(...explicitOptionOccurrences(question))
+  occurrences.push(...stagedGrammarOccurrences(question))
   return occurrences
 }
 
@@ -218,9 +288,11 @@ function wordRecord(id, occurrences, state, currentRound, nowMs) {
       tokens: state.mana?.[id] || 0,
       practiceRewards: state.practiced?.[id] || 0,
       reviewedFormRewards: relevantFormRewards(state, id),
+      wordMatching: normalizeWordMatchingProgress(state.wordMatchingProgress).words[id] || null,
       persistedProgress: state.wordProgress?.[id] || null,
       normalizedProgress,
       capabilitySnapshot: wordCapabilitySnapshot(normalizedProgress, currentRound, { ...progressionOptions, nowMs }),
+      passiveExposure: wordExposureFor(state, id),
     },
   }
 }
@@ -263,6 +335,7 @@ function phraseRecord(phrase, state, currentRound, nowMs) {
 }
 
 const familyForQuestion = (question) => Object.values(TRAIN_EXERCISE_FAMILIES)
+  .find(({ id }) => id === question?.familyId) || Object.values(TRAIN_EXERCISE_FAMILIES)
   .find(({ kind }) => kind === question?.kind) || null
 
 export function buildDebugTrainActivity(question, state = {}, nowMs = Date.now()) {
@@ -306,10 +379,25 @@ export function buildDebugTrainActivity(question, state = {}, nowMs = Date.now()
       answerTolerance: question?.answerTolerance || null,
       remediation: question?.remediation || null,
       distractorPolicy: question?.distractorPolicy || null,
+      phasePlan: question?.phasePlan || null,
+      phaseAspectTargets: question?.phaseAspectTargets || null,
+      aspectTargets: question?.aspectTargets || [],
+      aspectRegistryVersion: question?.aspectRegistryVersion || WORD_ASPECT_REGISTRY_VERSION,
+      lexicalCheck: question?.lexicalCheck || null,
       targetReference: question?.targetReference || null,
       audioSurface: question?.audioSurface || question?.target?.al || null,
+      stimulusMode: question?.stimulusMode || null,
+      requiresCompletedAudio: question?.requiresCompletedAudio === true,
+      spellingSupportPolicy: question?.answerTolerance
+        ? {
+            ...WORD_SPELLING_SUPPORT_POLICY,
+            activeTolerance: question.answerTolerance,
+          }
+        : null,
+      trainHealth: trainHealthPlanForQuestion(state, question),
     },
     selectionTrace: question?.debugSelection || null,
+    distractorPlan: question?.debugSelection?.distractors || question?.lexicalCheck?.distractorPlan || null,
     occurrences,
     unresolvedOccurrences: occurrences.filter(({ candidateIds }) => candidateIds.length !== 1),
     words: resolvedIds.map((id) => wordRecord(id, byId.get(id), state, currentRound, nowMs)),
@@ -318,11 +406,18 @@ export function buildDebugTrainActivity(question, state = {}, nowMs = Date.now()
       family: familyForQuestion(question),
       mixPolicy: TRAIN_QUESTION_MIX_POLICY,
       safeguards: TRAIN_SCHEDULER_SAFEGUARDS,
+      wordAspectRegistry: WORD_LEARNING_ASPECTS,
+      wordStageAspectBindings: WORD_STAGE_ASPECT_BINDINGS,
+      trainHealthPolicy: TRAIN_HEALTH_POLICY,
+      wordSpellingSupportPolicy: WORD_SPELLING_SUPPORT_POLICY,
     },
     relevantPersistedState: {
       trainRound: currentRound,
       trainLastWords: state.trainLastWords || [],
       trainLastQuestionKey: state.trainLastQuestionKey || null,
+      trainStageExposures: normalizeTrainStageExposures(state.trainStageExposures),
+      trainHealingStreak: normalizeTrainHealingStreak(state.trainHealingStreak),
+      wordMatchingProgress: normalizeWordMatchingProgress(state.wordMatchingProgress),
     },
     rawQuestion: question,
   }

@@ -4,6 +4,7 @@ import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { buildDebugTrainActivity } from '../src/game/debugTrainActivity.js'
 import { buildPhraseQuestion } from '../src/game/phrasePractice.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
+import { reviewedFormTargets } from '../src/game/formInventory.js'
 
 const phrase = EVERYDAY_PHRASE_DRILLS.find(({ id }) => id === 'going-village')
 const phraseState = {
@@ -66,6 +67,29 @@ assert.equal(wordModel.words.find(({ id }) => id === 'fshat').dictionary.en, 'vi
 assert.ok(Array.isArray(wordModel.words.find(({ id }) => id === 'fshat').albanianDefinition.tokens))
 assert.ok(Array.isArray(wordModel.words.find(({ id }) => id === 'fshat').playableFormInventory))
 assert.ok(Array.isArray(wordModel.words.find(({ id }) => id === 'fshat').playableUsageBySurface))
+
+const formQuestion = buildWordQuestion({
+  discoveredIds: [...new Set([
+    ...phrase.requires,
+    'nje', 'burg', 'dyqan', 'hotel',
+    ...reviewedFormTargets('fshat').flatMap(({ context }) => context?.requires || []),
+  ])],
+  targetId: 'fshat',
+  mana: phraseState.mana,
+  wordProgress: { fshat: { wins: { 'meaning-recognition': 2 } } },
+  currentRound: phraseState.trainRound,
+  rng: () => 0.314,
+  debugTrace: true,
+})
+assert.equal(formQuestion?.wordStageId, 'reviewed-form-contrast')
+const formModel = buildDebugTrainActivity(formQuestion, phraseState, 2_000)
+assert.strictEqual(formModel.question.phasePlan, formQuestion.phasePlan)
+assert.deepEqual(formModel.question.lexicalCheck, formQuestion.lexicalCheck)
+assert.deepEqual(
+  formModel.occurrences.filter(({ source }) => source === 'meaning phase options').map(({ id }) => id),
+  formQuestion.lexicalCheck.options,
+  'debug inspection omitted one or more sense choices from the staged meaning phase',
+)
 
 const ordinaryQuestion = buildWordQuestion({
   discoveredIds: ['fshat'], targetId: 'fshat', currentRound: 0, rng: () => 0.314,

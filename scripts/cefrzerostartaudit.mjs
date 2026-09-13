@@ -14,12 +14,17 @@ import {
 import {
   CEFR_PREPARATION_ACTIVITIES,
   CEFR_PREPARATION_MECHANICS,
+  capabilitiesRequiredFor,
   evaluatePreparationResponse,
   preparationPlan,
 } from '../src/game/cefrPreparation.js'
 import { liveCefrPreparationEvidence } from '../src/game/cefrPreparationEvidence.js'
 import { CEFR_TASKS } from '../src/game/cefrTasks.js'
 import { reviewedFormTargets, wordProgressionOptionsForSense } from '../src/game/formInventory.js'
+import {
+  reviewedNounAgreementFrame,
+  reviewedNounAgreementSupportIds,
+} from '../src/game/nounAgreementPractice.js'
 import { lexicalTrainability } from '../src/game/lexicalTrainability.js'
 import { newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
 import { trainQuestionWordKeys } from '../src/game/phrasePractice.js'
@@ -46,10 +51,21 @@ const DISJOINT_SUPPORT_SENSE_IDS = ['pershendetje', 'jo', 'si', 'cfare', 'pse', 
 const reviewedContextSupportIds = [...new Set(Object.values(REVIEWED_WORD_CONTEXTS)
   .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
   .flatMap(({ requires = [] }) => requires))]
+const reviewedFormSupportIds = [...new Set(focusSenseIds.flatMap((senseId) =>
+  reviewedFormTargets(senseId).flatMap(({ context }) => context?.requires || [])))]
+const reviewedAgreementSupportIds = [...new Set(focusSenseIds.flatMap((senseId) => {
+  const frame = reviewedNounAgreementFrame(senseId)
+  return [
+    ...reviewedNounAgreementSupportIds(frame, 'demonstrative'),
+    ...reviewedNounAgreementSupportIds(frame, 'adjective'),
+  ]
+}))]
 const discoverySenseIds = [...new Set([
   ...focusSenseIds,
   ...DISJOINT_SUPPORT_SENSE_IDS,
   ...reviewedContextSupportIds,
+  ...reviewedFormSupportIds,
+  ...reviewedAgreementSupportIds,
 ])]
 const requiredCapabilityBySense = new Map(focusSenseIds.map((senseId) => {
   const capabilities = CEFR_PREPARATION_ACTIVITIES
@@ -62,11 +78,9 @@ const capabilityStatusPasses = (definition, status) => status === 'passed' ||
   (definition.conditional && status === 'inapplicable')
 
 const snapshotMeetsCapability = (snapshot, requiredCapabilityId) => {
-  const requiredIndex = capabilityIndex.get(requiredCapabilityId)
-  if (!Number.isInteger(requiredIndex)) return false
-  const capabilities = snapshot?.capabilities || {}
-  return WORD_CAPABILITY_DEFINITIONS.slice(0, requiredIndex + 1).every((definition) =>
-    capabilityStatusPasses(definition, capabilities[definition.id]?.status))
+  const required = capabilitiesRequiredFor(requiredCapabilityId)
+  return required.length > 0 && required.every((definition) =>
+    capabilityStatusPasses(definition, snapshot?.capabilities?.[definition.id]?.status))
 }
 
 const senseMeetsCapability = (evidence, senseId, requiredCapabilityId) =>
@@ -80,6 +94,14 @@ const liveWordSnapshot = (state, senseId) => wordCapabilitySnapshot(
   state.wordProgress?.[senseId],
   state.trainRound,
   progressionOptionsBySense.get(senseId),
+)
+
+const compactCapabilitySnapshot = (snapshot) => Object.fromEntries(
+  Object.entries(snapshot?.capabilities || {}).map(([id, capability]) => [id, {
+    status: capability.status,
+    targetFormKey: capability.targetFormKey,
+    gaps: capability.gaps,
+  }]),
 )
 
 const structural = analyzeDiscovery(STORY, START_NODE)
@@ -252,13 +274,24 @@ const completeWordCapabilities = (initial) => {
       // round. Advance one real, disjoint support target while retaining the
       // complete known-word set used to validate reviewed context questions.
       if (!question) {
+        const upcoming = wordProgressionOptionsForSense(senseId)
+        const upcomingPlan = liveWordSnapshot(state, senseId).next
+        const targetBoundary = [
+          DICT[senseId].al,
+          upcoming.context?.al,
+          upcomingPlan?.formTarget?.surface,
+          upcomingPlan?.formTarget?.context?.al,
+        ].filter(Boolean)
         for (const supportId of support) {
           question = buildWordQuestion({
             discoveredIds: knownIds,
             mana: state.mana,
             wordProgress: state.wordProgress,
             currentRound: state.trainRound,
-            excludeWords: state.trainLastWords,
+            // The support card must itself leave the requested target's next
+            // Albanian surface clear. Otherwise a deterministic option bank
+            // can keep reintroducing that target as a distractor forever.
+            excludeWords: [...(state.trainLastWords || []), ...targetBoundary],
             targetId: supportId,
             rng: () => 0,
           })
@@ -274,15 +307,19 @@ const completeWordCapabilities = (initial) => {
         wordStageId: question.wordStageId,
         variantId: question.variantId,
         targetFormKey: question.targetFormKey,
+        aspectTargets: question.aspectTargets,
         mode: question.mode,
         direction: question.dir,
         questionKey: question.questionKey,
         wordKeys: trainQuestionWordKeys(question),
+        audioCompleted: question.requiresCompletedAudio ? true : undefined,
       })
       assert.notEqual(next, state, `${question.answerId}: exact Train event was rejected`)
       assert.equal(next.hearts, state.hearts, `${question.answerId}: a correct Train answer changed health`)
       state = next
-      assert.ok(++guard < 5000, 'word-capability simulation did not converge')
+      assert.ok(++guard < 5000,
+        `word-capability simulation did not converge at ${senseId}/${requiredCapabilityId}: ` +
+        JSON.stringify(compactCapabilitySnapshot(liveWordSnapshot(state, senseId))))
     }
   }
   return state

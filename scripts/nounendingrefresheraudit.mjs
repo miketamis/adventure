@@ -126,10 +126,10 @@ const bridge = buildNounEndingRefresher('ure', 'urën', 'the bridge (object)')
 assert.deepEqual(
   bridge.rows.map(({ al, role, learnerMeaning, example }) => ({ al, role, learnerMeaning, example })),
   [
-    { al: 'urë', role: 'base form · one / a', learnerMeaning: 'a bridge', example: { al: 'një urë', en: 'a bridge' } },
-    { al: 'ura', role: 'the noun · subject', learnerMeaning: 'the bridge', example: { al: 'Ura është këtu.', en: 'The bridge is here.' } },
-    { al: 'urën', role: 'the noun · object', learnerMeaning: 'the bridge', example: { al: 'Shoh urën.', en: 'I see the bridge.' } },
-    { al: 'urës', role: 'of / to / from the noun', learnerMeaning: 'of / to / from the bridge', example: { al: 'Pranë urës.', en: 'Near the bridge.' } },
+    { al: 'urë', role: 'base form · one / a', learnerMeaning: 'a bridge', example: { al: 'një urë', en: 'a bridge', requires: ['nje'] } },
+    { al: 'ura', role: 'the noun · subject', learnerMeaning: 'the bridge', example: { al: 'Ura është këtu.', en: 'The bridge is here.', requires: ['eshte', 'ketu'] } },
+    { al: 'urën', role: 'the noun · object', learnerMeaning: 'the bridge', example: { al: 'Shoh urën.', en: 'I see the bridge.', requires: ['sheh'] } },
+    { al: 'urës', role: 'of / to / from the noun', learnerMeaning: 'of / to / from the bridge', example: { al: 'Pranë urës.', en: 'Near the bridge.', requires: ['prane'] } },
   ],
   'bridge refresher does not clearly distinguish the four grammatical jobs',
 )

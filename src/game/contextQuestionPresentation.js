@@ -3,6 +3,7 @@
 // highlight, but it may never make the learner guess which word is the target.
 export const CONTEXT_TARGET_PRESENTATION = Object.freeze({
   marked: 'marked',
+  namedMarked: 'named-marked',
   blank: 'blank',
   unmarked: 'unmarked',
 })
@@ -49,10 +50,10 @@ export function contextualTargetReference({
     })
   }
 
-  if (presentation === CONTEXT_TARGET_PRESENTATION.unmarked) {
+  if (presentation === CONTEXT_TARGET_PRESENTATION.namedMarked) {
     return Object.freeze({
       valid: true,
-      referenceMode: 'named-surface',
+      referenceMode: 'named-and-marked-surface',
       instructionPrefix: grammatical ? 'What job does ' : 'What does ',
       instructionTarget: surface,
       instructionSuffix: grammatical ? ' do here?' : ' mean here?',
@@ -64,6 +65,13 @@ export function contextualTargetReference({
         ? 'Choose the named word’s grammatical job'
         : 'Choose the named word’s meaning',
     })
+  }
+
+  // A genuinely unmarked activity must first ask the learner to locate the
+  // relevant word. Until that two-phase interaction exists, fail closed rather
+  // than naming an allegedly hidden target or making the referent ambiguous.
+  if (presentation === CONTEXT_TARGET_PRESENTATION.unmarked) {
+    return Object.freeze({ valid: false, referenceMode: 'requires-target-identification-phase' })
   }
 
   return Object.freeze({ valid: false, referenceMode: 'invalid' })

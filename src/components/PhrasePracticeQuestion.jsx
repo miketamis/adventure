@@ -5,12 +5,15 @@ import {
   phraseAnswerDiagnostic,
   phraseAnswerIsCorrect,
   phraseAnswerResult,
+  phraseQuestionExactAnswer,
   trainQuestionWordKeys,
 } from '../game/phrasePractice.js'
+import { acceptedAnswerComparison } from '../game/acceptedAnswerFeedback.js'
 import ContextualCompletion, {
   CONTEXT_TARGET_PRESENTATION,
 } from './ContextualCompletion.jsx'
 import TrainingActivityShell from './TrainingActivityShell.jsx'
+import AcceptedAnswerReview from './AcceptedAnswerReview.jsx'
 
 const MODE_COPY = Object.freeze({
   arrange: 'Build the Albanian phrase',
@@ -76,7 +79,7 @@ function RewardChips({ ids }) {
   )
 }
 
-export default function PhrasePracticeQuestion({ q, debug = false, onComplete }) {
+export default function PhrasePracticeQuestion({ q, debug = false, onComplete, onContinue }) {
   const [selectedIds, setSelectedIds] = useState([])
   const [typed, setTyped] = useState('')
   const [matchLeft, setMatchLeft] = useState(null)
@@ -103,7 +106,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
   ) => {
     if (committed.current) return
     committed.current = true
-    setOutcome({ correct, correction, acceptedWithLeeway })
+    setOutcome({ correct, correction, acceptedWithLeeway, attempted })
     onComplete({
       correct,
       phraseIds,
@@ -116,6 +119,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
       focusId: q.focusId || null,
       diagnostic,
       attempted,
+      acceptedWithLeeway,
       wordKeys: trainQuestionWordKeys(q),
       attemptedAtMs: Date.now(),
       responseDurationMs: Math.max(0, Date.now() - startedAt.current),
@@ -221,15 +225,17 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
   const promptCopy = q.mode === 'type' && q.typeScope === 'word'
     ? 'Write this word in Albanian'
     : MODE_COPY[q.mode]
-  const feedback = answered && outcome.correct ? (
+  const exactAnswer = phraseQuestionExactAnswer(q)
+  const acceptedComparison = outcome?.acceptedWithLeeway
+    ? acceptedAnswerComparison(outcome.attempted?.al, exactAnswer)
+    : null
+  const feedback = answered && outcome.correct && !outcome.acceptedWithLeeway ? (
     <>
       <div>
         Të lumtë!{' '}
-        {outcome.acceptedWithLeeway
-          ? `Accepted at this level — compare the spelling: “${q.typingAnswer}”`
-          : q.mode === 'match'
+        {q.mode === 'match'
             ? `${q.phrases.length} phrases matched.`
-            : `“${q.typeScope === 'word' ? q.typingAnswer : q.target.al}”`}
+            : `“${exactAnswer}”`}
       </div>
       <RewardChips ids={q.rewardIds} />
     </>
@@ -418,6 +424,13 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete })
       >
         {feedback}
       </div>
+      {acceptedComparison && (
+        <AcceptedAnswerReview
+          comparison={acceptedComparison}
+          reward={<RewardChips ids={q.rewardIds} />}
+          onContinue={onContinue}
+        />
+      )}
     </TrainingActivityShell>
   )
 }

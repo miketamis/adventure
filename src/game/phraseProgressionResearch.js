@@ -7,6 +7,10 @@ const deepFreeze = (value) => {
 // Debug-only evidence register. Keeping this prose outside phraseProgression.js
 // prevents research material from entering the player release shell.
 export const PHRASE_PROGRESSION_RESEARCH = deepFreeze([
+  { id: 'word-knowledge-dimensions', label: 'Word knowledge has multiple partially independent dimensions, strengthened by contextual encounters.', url: 'https://doi.org/10.1093/applin/aml048' },
+  { id: 'incidental-exposure-boundary', label: 'Incidental exposure can support early form and form–meaning familiarity but does not establish productive mastery.', url: 'https://doi.org/10.1017/S0272263117000341' },
+  { id: 'multi-component-q-matrix', label: 'Activities can exercise multiple explicit knowledge components rather than one global ability stage.', url: 'https://jedm.educationaldatamining.org/index.php/JEDM/article/view/314' },
+  { id: 'retrieval-practice', label: 'Successful effortful retrieval supports durable learning beyond restudy alone.', url: 'https://doi.org/10.1126/science.1152408' },
   { id: 'knowledge-tracing', label: 'Knowledge tracing models changing mastery per knowledge component.', url: 'https://link.springer.com/article/10.1007/BF01099821' },
   { id: 'receptive-productive', label: 'L2 recognition and active recall are distinct levels of vocabulary strength.', url: 'https://doi.org/10.1111/j.0023-8333.2004.00260.x' },
   { id: 'test-format-feedback', label: 'Effortful short-answer retrieval with corrective feedback supports later retention.', url: 'https://doi.org/10.1080/09541440601056620' },
@@ -24,6 +28,16 @@ export const PHRASE_PROGRESSION_RESEARCH = deepFreeze([
 // scheduler follows the evidence and where real, consented interaction data is
 // still required before a learned model could honestly be called calibrated.
 export const PHRASE_PROGRESSION_RESEARCH_ALIGNMENT = deepFreeze([
+  {
+    id: 'independent-word-aspects', status: 'implemented',
+    evidenceIds: ['word-knowledge-dimensions', 'multi-component-q-matrix'],
+    systemResponse: 'Word meaning, grammatical form, contextual inference, listening-to-orthography, construction and typed recall keep independent target-scoped proofs in a branching prerequisite graph.',
+  },
+  {
+    id: 'exposure-is-not-mastery', status: 'implemented',
+    evidenceIds: ['incidental-exposure-boundary', 'retrieval-practice'],
+    systemResponse: 'Replay-safe story and phrase co-exposure can only give an unproven weak word a bounded retrieval-priority boost; it cannot unlock, prove, protect from heart risk or claim CEFR evidence.',
+  },
   {
     id: 'separate-skill-evidence', status: 'implemented',
     evidenceIds: ['knowledge-tracing', 'directional-transfer-2024'],

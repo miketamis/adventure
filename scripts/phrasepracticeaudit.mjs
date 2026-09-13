@@ -43,6 +43,7 @@ import {
   isReviewedClozeSlotPeer,
 } from '../src/game/practiceContrasts.js'
 import { isTrainableSense } from '../src/game/lexicalTrainability.js'
+import { trainHealthPlanForQuestion } from '../src/game/trainHealthPolicy.js'
 import { sensesMayShareAnswer } from '../src/game/practiceAnswerValidity.js'
 
 const failures = []
@@ -254,9 +255,11 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
     'the staged word builder did not receive the shared no-repeat boundary',
   )
   assert.match(practiceSource, /buildWordQuestion\(\{[\s\S]+excludeWords/)
-  assert.match(practiceSource, /TRAIN_EXERCISE_FAMILIES\.wordForms/)
-  assert.match(practiceSource, /TRAIN_EXERCISE_FAMILIES\.wordFormContext/)
-  assert.match(practiceSource, /TRAIN_EXERCISE_FAMILIES\.wordConstruction/)
+  assert.match(
+    practiceSource,
+    /let nextQuestion = buildWordQuestion\(\{[\s\S]+excludeWords,[\s\S]+\}\)/,
+    'the unified aspect-driven word builder did not receive the shared no-repeat boundary',
+  )
   assert.match(
     practiceSource,
     /nextQuestion = \{ kind: TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome \}/,
@@ -662,10 +665,15 @@ check('wrong, stale, locked and forged tier results respect hearts and rewards',
   const q = buildPhraseQuestion([phrase], {}, {}, {}, {
     rng: steadyRng, targetId: phrase.id, distractorPool: EVERYDAY_PHRASE_DRILLS,
   })
-  const wrong = finish(ready, q, { correct: false })
-  assert.equal(wrong.hearts, ready.hearts - 1)
+  const exposureKeys = trainHealthPlanForQuestion(ready, q).exposureKeys
+  const experienced = {
+    ...ready,
+    trainStageExposures: Object.fromEntries(exposureKeys.map((key) => [key, 1])),
+  }
+  const wrong = finish(experienced, q, { correct: false })
+  assert.equal(wrong.hearts, experienced.hearts - 1)
   assert.equal(wrong.phraseMistakes[phrase.id], 1)
-  assert.deepEqual(wrong.mana, ready.mana)
+  assert.deepEqual(wrong.mana, experienced.mana)
   assert.equal(finish(newRun(), q).mana[q.rewardIds[0]], undefined, 'locked phrase minted a token')
   const completed = finish(ready, q)
   assert.equal(finish(completed, q), completed, 'stale lower-tier result changed state')

@@ -1,9 +1,10 @@
-// Independent end-to-end contract for the lexical/form ladder. This begins at
+// Independent end-to-end contract for the lexical/form capability graph. This begins at
 // a blank save, travels through the same question builder and reducer actions
 // used by Train, and serializes after every turn. Pure registry assertions
 // alone cannot catch a question that the UI can build but the reducer rejects.
 
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { DICT } from '../src/game/content.js'
 import {
   formTrackForSense,
@@ -17,6 +18,7 @@ import {
 import { trainMissConsequence } from '../src/game/consequenceBuilders.js'
 import { isTrainableSense, lexicalTrainability } from '../src/game/lexicalTrainability.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
+import { trainQuestionWordKeys } from '../src/game/phrasePractice.js'
 import {
   WORD_CONTEXT_LATE_PROOF,
   WORD_INITIAL_REVIEW_GAP,
@@ -29,8 +31,15 @@ import {
 const EXPECTED_STAGE_ORDER = [
   'meaning-recognition',
   'reviewed-form-contrast',
+  'auditory-surface-recognition',
+  'auditory-meaning-recognition',
   'controlled-lemma-retrieval',
+  'demonstrative-noun-agreement',
+  'adjective-linking-article-agreement',
   'contextual-form-selection',
+  'reviewed-ending-recall',
+  'auditory-word-construction',
+  'auditory-word-spelling',
   'word-form-construction',
   'contextual-typed-recall',
   'strict-spaced-recall',
@@ -42,11 +51,16 @@ let disjointSequence = 0
 
 assert.deepEqual(WORD_STAGE_DEFINITIONS.map(({ id }) => id), EXPECTED_STAGE_ORDER)
 assert.equal(WORD_PROGRESSION_POLICY.productionBeginsAt, 'word-form-construction')
-for (const definition of WORD_STAGE_DEFINITIONS.slice(0, 4)) {
+for (const definition of WORD_STAGE_DEFINITIONS.filter(({ mode }) => mode === 'choice')) {
   assert.equal(definition.mode, 'choice', `${definition.id}: a selection stage is not a choice`)
   assert.notEqual(definition.evidenceTrack, 'production', `${definition.id}: selection is mislabeled as production`)
 }
-for (const definition of WORD_STAGE_DEFINITIONS.slice(4)) {
+for (const definition of WORD_STAGE_DEFINITIONS.filter(({ id }) =>
+  ['auditory-word-construction', 'auditory-word-spelling'].includes(id))) {
+  assert.equal(definition.evidenceTrack, 'listening-orthography', `${definition.id}: audio spelling lacks listening-orthography evidence`)
+}
+for (const definition of WORD_STAGE_DEFINITIONS.filter(({ id }) =>
+  ['word-form-construction', 'contextual-typed-recall', 'strict-spaced-recall'].includes(id))) {
   assert.equal(definition.evidenceTrack, 'production', `${definition.id}: generative/typed work lacks production evidence`)
 }
 assert.deepEqual(
@@ -74,7 +88,8 @@ const blankSavedWord = (id) => {
 }
 
 const questionFor = (state, id, { excludeLast = true } = {}) => buildWordQuestion({
-  discoveredIds: [id],
+  discoveredIds: Object.keys(state.discovered || {}),
+  targetId: id,
   mana: state.mana,
   wordProgress: state.wordProgress,
   currentRound: state.trainRound,
@@ -94,8 +109,9 @@ const nextDueQuestion = (startingState, id) => {
     const question = questionFor(state, id)
     if (question) return { state, question }
     const plan = wordProgressPlan(state.wordProgress[id], state.trainRound, optionsFor(id))
+    const scheduledSurfaces = [DICT[id].al, plan.formTarget?.surface].filter(Boolean)
     const targetExcluded = (state.trainLastWords || []).some((word) =>
-      lower(DICT[id].al).split(/\s+/u).includes(lower(word)),
+      scheduledSurfaces.some((surface) => lower(surface).split(/\s+/u).includes(lower(word))),
     )
     assert.ok(!plan.due || targetExcluded,
       `${id}: ${plan.stageId}/${plan.variantId || plan.contextVariantId || 'base'} is due but builder returned null`)
@@ -114,8 +130,10 @@ const resultAction = (question, correct, overrides = {}) => ({
   wordStageId: question.wordStageId,
   variantId: question.variantId ?? null,
   targetFormKey: question.targetFormKey ?? null,
+  aspectTargets: question.aspectTargets,
+  audioCompleted: question.requiresCompletedAudio ? true : undefined,
   questionKey: question.questionKey,
-  wordKeys: question.lexicalSurfaces || [DICT[question.answerId].al],
+  wordKeys: trainQuestionWordKeys(question),
   ...(!correct ? {
     consequence: trainMissConsequence({
       source: question.targetFormKey ? 'train-form' : 'train-word',
@@ -147,8 +165,15 @@ const answerQuestion = (state, question, correct = true) => {
   const restored = persisted(next)
   assert.deepEqual(restored.wordProgress[question.answerId], next.wordProgress[question.answerId],
     `${question.answerId}: progress changed across save normalization`)
-  assert.equal(questionFor(restored, question.answerId), null,
-    `${question.answerId}: the same word was immediately scheduled again`)
+  const immediate = questionFor(restored, question.answerId)
+  if (immediate) {
+    const previousWords = new Set(restored.trainLastWords || [])
+    const immediateWords = trainQuestionWordKeys(immediate)
+    const repeatedWords = immediateWords.filter((word) => previousWords.has(word))
+    assert.deepEqual(repeatedWords, [],
+      `${question.answerId}: immediately repeated ${repeatedWords.join(', ')} from ` +
+      `${[...previousWords].join(', ')} in ${immediate.wordStageId}/${immediate.variantId || 'base'}`)
+  }
   return restored
 }
 
@@ -166,12 +191,15 @@ const reachQuestion = (startingState, id, predicate, maxAnswers = 180) => {
   assert.fail(`${id}: target question did not appear after ${maxAnswers} successful answers`)
 }
 
-// Non-inflecting path: saving supplies no independent proof, recognition starts
-// with four choices, controlled Albanian retrieval expands 2 -> 4, then true
-// construction precedes tolerant typing and delayed exact retention.
+// Non-inflecting path: meaning recognition unlocks both controlled retrieval
+// and the sound/spelling branch. The weakest eligible aspect wins rather than
+// a fixed global ladder.
 let simple = blankSavedWord('tani')
+for (const supportId of ['dje', 'neser', 'mengjes']) {
+  simple = persisted(reducer(simple, { type: 'DISCOVER', id: supportId }))
+}
 const simpleQuestions = []
-for (let index = 0; index < 5; index++) {
+for (let index = 0; index < 7; index++) {
   const due = nextDueQuestion(simple, 'tani')
   simple = due.state
   simpleQuestions.push(due.question)
@@ -180,18 +208,33 @@ for (let index = 0; index < 5; index++) {
 assert.deepEqual(simpleQuestions.map(({ wordStageId }) => wordStageId), [
   'meaning-recognition',
   'meaning-recognition',
+  'auditory-surface-recognition',
+  'auditory-meaning-recognition',
   'controlled-lemma-retrieval',
-  'controlled-lemma-retrieval',
-  'controlled-lemma-retrieval',
+  'auditory-word-construction',
+  'auditory-word-spelling',
 ])
-assert.deepEqual(simpleQuestions.map(({ options }) => options.length), [4, 4, 2, 4, 4])
+assert.deepEqual(simpleQuestions.map(({ options }) => options?.length || null), [4, 4, 4, 4, 2, null, null])
 assert.deepEqual(simpleQuestions.map(({ variantId }) => variantId), [
   'four-choice-meaning',
   'four-choice-meaning',
+  'audio-to-written-word',
+  'audio-to-word-meaning',
   'controlled-retrieval-two-choice',
-  'controlled-retrieval-four-choice',
-  'controlled-retrieval-four-choice',
+  'audio-letter-construction',
+  'audio-typed-spelling',
 ])
+assert.deepEqual(simpleQuestions.filter(({ requiresCompletedAudio }) => requiresCompletedAudio).map(({ stimulusMode, requiresCompletedAudio }) => [stimulusMode, requiresCompletedAudio]), [
+  ['audio-only', true], ['audio-only', true], ['audio-only', true], ['audio-only', true],
+])
+
+for (let retrievalRound = 0; retrievalRound < 2; retrievalRound++) {
+  const retrieval = nextDueQuestion(simple, 'tani')
+  simple = retrieval.state
+  assert.equal(retrieval.question.wordStageId, 'controlled-lemma-retrieval')
+  assert.equal(retrieval.question.variantId, 'controlled-retrieval-four-choice')
+  simple = answerQuestion(simple, retrieval.question)
+}
 
 let due = nextDueQuestion(simple, 'tani')
 simple = due.state
@@ -211,7 +254,7 @@ due = nextDueQuestion(simple, 'tani')
 simple = due.state
 assert.equal(due.question.wordStageId, 'contextual-typed-recall')
 assert.equal(due.question.kind, 'word-spelling')
-assert.equal(due.question.answerTolerance, 'beginner')
+assert.equal(due.question.answerTolerance, 'repair')
 assert.equal(due.question.targetReference?.valid, true)
 assert.equal(due.question.targetReference.context, due.question.typingContext)
 simple = answerQuestion(simple, due.question)
@@ -228,12 +271,16 @@ assert.ok(simple.trainRound - typedRound >= WORD_INITIAL_REVIEW_GAP,
 // Variant identity is evidence: an old supported two-choice answer cannot be
 // submitted as the later expanded four-choice proof.
 let variants = blankSavedWord('ketu')
-for (let index = 0; index < 3; index++) {
-  const step = nextDueQuestion(variants, 'ketu')
-  variants = answerQuestion(step.state, step.question)
+for (const supportId of ['atje', 'brenda', 'afer']) {
+  variants = persisted(reducer(variants, { type: 'DISCOVER', id: supportId }))
 }
-let expanded = nextDueQuestion(variants, 'ketu')
-variants = expanded.state
+let expandedStep = reachQuestion(
+  variants,
+  'ketu',
+  (question) => question.variantId === 'controlled-retrieval-four-choice',
+)
+variants = expandedStep.state
+let expanded = expandedStep
 assert.equal(expanded.question.variantId, 'controlled-retrieval-four-choice')
 const staleVariant = reducer(variants, resultAction(expanded.question, true, {
   variantId: 'controlled-retrieval-two-choice',
@@ -261,6 +308,13 @@ assert.equal(expanded.question.variantId, 'controlled-retrieval-four-choice',
 // surface+role row, including syncretic spellings such as the first two fshat
 // rows; context-gap proof remains a separate evidence track.
 let noun = blankSavedWord('fshat')
+const nounContextSupport = [...new Set(reviewedFormTargets('fshat')
+  .flatMap(({ context }) => context.requires || [])
+  .filter((id) => id !== 'fshat'))]
+for (const supportId of [...new Set([
+  ...nounContextSupport,
+  'liber', 'rruge', 'shtepi', 'ky', 'kjo', 'i_art', 'e_art', 'mire',
+])]) noun = persisted(reducer(noun, { type: 'DISCOVER', id: supportId }))
 let reached = reachQuestion(noun, 'fshat', (question) => question.wordStageId === 'reviewed-form-contrast')
 noun = reached.state
 const firstFormQuestion = reached.question
@@ -270,11 +324,27 @@ assert.ok(firstFormQuestion.formTarget.context.al)
 assert.ok(firstFormQuestion.formTarget.context.en)
 assert.ok(firstFormQuestion.formTarget.context.alGap.includes('__'))
 assert.ok(firstFormQuestion.options.length >= 2 && firstFormQuestion.options.length <= 4)
+assert.strictEqual(firstFormQuestion.phasePlan, STAGE['reviewed-form-contrast'].variant.phases)
+assert.deepEqual(firstFormQuestion.phasePlan.map(({ task }) => task), ['lemma-identification', 'reviewed-form-selection', 'grammatical-role'])
+assert.equal(firstFormQuestion.lexicalCheck.answerId, 'fshat')
+assert.equal(firstFormQuestion.lexicalCheck.options.length, 4)
+assert.ok(firstFormQuestion.lexicalCheck.options.includes('fshat'))
 assert.equal(new Set(firstFormQuestion.options.map(({ label }) => label)).size, firstFormQuestion.options.length)
 assert.ok(firstFormQuestion.options.every(({ label }) => !label.includes('→')), 'noun roles were presented as an arrow ladder')
 assert.deepEqual(reached.observed.map(({ wordStageId }) => wordStageId), [
   'meaning-recognition', 'meaning-recognition', 'reviewed-form-contrast',
 ], 'the first reviewed form did not follow two successful base-word recognitions')
+
+const practiceSource = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+assert.doesNotMatch(practiceSource, /<small>\{q\.context\.en\}<\/small>/,
+  'the reviewed-form card leaks its complete English context before either phase')
+assert.match(practiceSource, /if \(isFormSupportPhase && correct\)[\s\S]*?setFormPhaseIndex[\s\S]*?return/,
+  'a support phase success does not advance within the same card')
+assert.doesNotMatch(
+  practiceSource.match(/if \(isFormSupportPhase && correct\)[\s\S]*?\n\s*\}/)?.[0] || '',
+  /PRACTICE_WORD_RESULT/,
+  'an intermediate support success records evidence or rewards a token',
+)
 
 const forgedForm = reducer(noun, resultAction(firstFormQuestion, true, {
   targetFormKey: 'fshat::not-the-reviewed-target',
@@ -286,19 +356,28 @@ assert.equal(noun.wordProgress.fshat.formProofs[firstFormKey].wins['reviewed-for
 assert.equal(noun.wordProgress.fshat.wins['reviewed-form-contrast'], undefined,
   'form proof leaked into word-global evidence')
 
-due = nextDueQuestion(noun, 'fshat')
-noun = due.state
-for (let retrievalRound = 0; retrievalRound < 3; retrievalRound++) {
-  assert.equal(due.question.wordStageId, 'controlled-lemma-retrieval')
-  assert.equal(due.question.targetFormKey, null)
-  noun = answerQuestion(noun, due.question)
+for (const expectedStage of [
+  'auditory-surface-recognition',
+  'auditory-meaning-recognition',
+  'controlled-lemma-retrieval',
+]) {
   due = nextDueQuestion(noun, 'fshat')
   noun = due.state
+  assert.equal(due.question.wordStageId, expectedStage)
+  noun = answerQuestion(noun, due.question)
 }
+due = nextDueQuestion(noun, 'fshat')
+noun = due.state
 assert.equal(due.question.wordStageId, 'contextual-form-selection')
 assert.equal(due.question.targetFormKey, firstFormKey)
 assert.ok(due.question.context.alGap.includes('__'))
 assert.equal(new Set(due.question.options.map(({ value }) => lower(value))).size, due.question.options.length)
+noun = answerQuestion(noun, due.question)
+
+due = nextDueQuestion(noun, 'fshat')
+noun = due.state
+assert.equal(due.question.wordStageId, 'reviewed-ending-recall')
+assert.equal(due.question.targetFormKey, firstFormKey)
 noun = answerQuestion(noun, due.question)
 
 due = nextDueQuestion(noun, 'fshat')
@@ -311,6 +390,32 @@ noun = answerQuestion(noun, due.question)
 assert.equal(noun.wordProgress.fshat.contextWins[WORD_CONTEXT_LATE_PROOF], 1)
 assert.deepEqual(noun.wordProgress.fshat.formProofs[firstFormKey], proofBeforeContext,
   'context-gap evidence changed exact form evidence')
+
+due = nextDueQuestion(noun, 'fshat')
+noun = due.state
+assert.equal(due.question.wordStageId, 'auditory-word-construction')
+assert.equal(due.question.stimulusMode, 'audio-only')
+assert.equal(due.question.targetFormKey, firstFormKey)
+noun = answerQuestion(noun, due.question)
+
+due = nextDueQuestion(noun, 'fshat')
+noun = due.state
+assert.equal(due.question.wordStageId, 'auditory-word-spelling')
+assert.equal(due.question.stimulusMode, 'audio-only')
+assert.equal(due.question.targetFormKey, firstFormKey)
+noun = answerQuestion(noun, due.question)
+
+for (const expectedStage of [
+  'controlled-lemma-retrieval',
+  'controlled-lemma-retrieval',
+  'demonstrative-noun-agreement',
+  'adjective-linking-article-agreement',
+]) {
+  due = nextDueQuestion(noun, 'fshat')
+  noun = due.state
+  assert.equal(due.question.wordStageId, expectedStage)
+  noun = answerQuestion(noun, due.question)
+}
 
 due = nextDueQuestion(noun, 'fshat')
 noun = due.state
@@ -368,7 +473,12 @@ const representativeTracks = [
   ['tani', 'non-inflecting', false],
 ]
 const lexicalProof = {
-  wins: { 'meaning-recognition': 2, 'controlled-lemma-retrieval': 3 },
+  wins: {
+    'meaning-recognition': 2,
+    'auditory-surface-recognition': 1,
+    'auditory-meaning-recognition': 1,
+    'controlled-lemma-retrieval': 3,
+  },
   contextWins: { [WORD_CONTEXT_LATE_PROOF]: 1 },
   dueAfterRound: 0,
 }
@@ -388,7 +498,7 @@ for (const [id, expectedClass, expectsLane] of representativeTracks) {
     rng: () => 0.314159,
   })
   assert.ok(question, `${id}: class-specific lane skip deadlocked the builder`)
-  assert.equal(question.wordStageId, expectsLane ? 'reviewed-form-contrast' : 'word-form-construction')
+  assert.equal(question.wordStageId, expectsLane ? 'reviewed-form-contrast' : 'auditory-word-construction')
 }
 
 // Exhaustive entry-state check: after lexical evidence, every trainable sense
@@ -415,9 +525,9 @@ for (const id of Object.keys(DICT).filter(isTrainableSense)) {
       `${id}: reviewed form contrast fell outside the controlled 2–4 range`)
   } else {
     skippedLaneCount += 1
-    assert.equal(question.wordStageId, 'word-form-construction', `${id}: unavailable form lane did not skip cleanly`)
+    assert.equal(question.wordStageId, 'auditory-word-construction', `${id}: unavailable form lane did not skip cleanly into listening-led spelling`)
     assert.equal(question.targetReference?.valid, true, `${id}: construction has no target reference`)
-    assert.ok(question.targetReference.meaningCue, `${id}: construction has no learner-visible meaning cue`)
+    assert.equal(question.targetReference.presentation, 'audio-only', `${id}: lower spelling exposed a non-audio prompt`)
     const exact = question.construction.answerPieceIds.map((pieceId) =>
       question.construction.pieces.find(({ id: candidate }) => candidate === pieceId)?.text || '',
     ).join('')

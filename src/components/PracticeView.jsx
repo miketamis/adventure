@@ -5,7 +5,6 @@ import { playPhrase, playWord } from '../game/audio.js'
 import {
   buildPhraseQuestion,
   containsExcludedPhraseWord,
-  phraseAnswerResult,
   trainQuestionWordKeys,
 } from '../game/phrasePractice.js'
 import {
@@ -22,6 +21,7 @@ import {
 } from '../game/trainingProgression.js'
 import { wordProgressPlan } from '../game/wordProgression.js'
 import { buildWordQuestion, wordHasNoEvidence } from '../game/wordPractice.js'
+import { planWordMatchingRound } from '../game/wordMatching.js'
 import { wordProgressionOptionsForSense } from '../game/formInventory.js'
 import { cefrProfile } from '../game/cefrAssessment.js'
 import { isTrainableSense } from '../game/lexicalTrainability.js'
@@ -30,8 +30,17 @@ import ContextualCompletion, {
   CONTEXT_TARGET_PRESENTATION,
 } from './ContextualCompletion.jsx'
 import TrainingActivityShell from './TrainingActivityShell.jsx'
+import WordMatchingQuestion from './WordMatchingQuestion.jsx'
 import CefrCapstone from './CefrCapstone.jsx'
 import { trainMissConsequence } from '../game/consequenceBuilders.js'
+import {
+  trainCorrectWillRestoreHeart,
+  trainHealthPlanForQuestion,
+  trainHeartRiskText,
+  trainRecoveryPlanForState,
+  trainRecoveryStatusText,
+} from '../game/trainHealthPolicy.js'
+import { wordSpellingAttempt, wordSpellingRepairMessage } from '../game/wordSpellingPolicy.js'
 
 const DebugTrainActivityInspector = lazy(() => import('./DebugTrainActivityInspector.jsx'))
 
@@ -76,9 +85,14 @@ export default function PracticeView({ state, dispatch }) {
   const [q, setQ] = useState(null)
   const [picked, setPicked] = useState(null)
   const [typedWord, setTypedWord] = useState('')
-  const [typedWordLeeway, setTypedWordLeeway] = useState(false)
+  const [acceptedLeewayReview, setAcceptedLeewayReview] = useState(false)
+  const [awaitingRecoveryContinue, setAwaitingRecoveryContinue] = useState(false)
+  const [wordAudioCompleted, setWordAudioCompleted] = useState(false)
+  const [wordAudioError, setWordAudioError] = useState('')
+  const [wordRepair, setWordRepair] = useState(null)
   const [constructedPieceIds, setConstructedPieceIds] = useState([])
   const [formsCorrection, setFormsCorrection] = useState(null)
+  const [formPhaseIndex, setFormPhaseIndex] = useState(0)
   const [showCefr, setShowCefr] = useState(false)
   const answerCommitted = useRef(false)
   const questionRef = useRef(null)
@@ -103,8 +117,13 @@ export default function PracticeView({ state, dispatch }) {
     }
     setPicked(null)
     setTypedWord('')
-    setTypedWordLeeway(false)
+    setAcceptedLeewayReview(false)
+    setAwaitingRecoveryContinue(false)
+    setWordAudioCompleted(false)
+    setWordAudioError('')
+    setWordRepair(null)
     setConstructedPieceIds([])
+    setFormPhaseIndex(0)
     const nowMs = Date.now()
     const excludeWords = previousQuestionWords.current.length
       ? previousQuestionWords.current
@@ -133,9 +152,14 @@ export default function PracticeView({ state, dispatch }) {
       attempts: [],
     } : null
     const attachSchedulerTrace = (question, route, reason) => {
-      if (!question || !schedulerTrace) return question
-      return {
+      if (!question) return question
+      const plannedQuestion = {
         ...question,
+        trainHealth: trainHealthPlanForQuestion(state, question),
+      }
+      if (!schedulerTrace) return plannedQuestion
+      return {
+        ...plannedQuestion,
         debugSelection: {
           scheduler: {
             ...schedulerTrace,
@@ -179,6 +203,33 @@ export default function PracticeView({ state, dispatch }) {
         return
       }
     }
+    if (!unstartedWordDue && modeRoll < TRAIN_QUESTION_MIX_POLICY.phraseShare + TRAIN_QUESTION_MIX_POLICY.wordMatchingShare) {
+      const matchingPlan = planWordMatchingRound({
+        discoveredIds,
+        wordProgress: state.wordProgress,
+        wordMatchingProgress: state.wordMatchingProgress,
+        practiced: state.practiced,
+        excludeWords,
+        currentRound: state.trainRound,
+        rng: Math.random,
+        debugTrace: state.debug,
+      })
+      schedulerTrace?.attempts.push({
+        family: 'word-matching',
+        reason: matchingPlan.trace.outcome.reason || 'the family roll selected a complete mixed-difficulty matching board',
+        trace: matchingPlan.trace,
+      })
+      const matchingQuestion = attachSchedulerTrace(
+        matchingPlan.question,
+        'word-matching',
+        'No unstarted word was due; the family roll selected mixed saved-word matching.',
+      )
+      if (matchingQuestion) {
+        previousQuestionWords.current = trainQuestionWordKeys(matchingQuestion)
+        setQ(matchingQuestion)
+        return
+      }
+    }
     schedulerTrace?.attempts.push({
       family: 'word',
       reason: unstartedWordDue
@@ -188,7 +239,9 @@ export default function PracticeView({ state, dispatch }) {
     let nextQuestion = buildWordQuestion({
       discoveredIds,
       mana: state.mana,
+      practiced: state.practiced,
       wordProgress: state.wordProgress,
+      wordExposure: state.wordExposure,
       currentRound: state.trainRound,
       nowMs,
       excludeWords,
@@ -245,6 +298,7 @@ export default function PracticeView({ state, dispatch }) {
     discoveredIds.length,
     unlockedEverydayPhrases.length,
     state.mana,
+    state.practiced,
     state.wordProgress,
     state.phrasePracticed,
     state.phraseMistakes,
@@ -253,13 +307,20 @@ export default function PracticeView({ state, dispatch }) {
     state.phraseMatchingMastery,
     state.phraseListeningProgress,
     state.phraseMatchingProgress,
+    state.wordMatchingProgress,
     state.trainRound,
     state.trainLastWords,
+    state.trainStageExposures,
     state.debug,
   ])
 
   nextRef.current = next
   const onPhraseComplete = useCallback((result) => {
+    const restoresHeart = result.correct && trainCorrectWillRestoreHeart(
+      q.trainHealth || trainHealthPlanForQuestion(state, q),
+    )
+    setAcceptedLeewayReview(result.acceptedWithLeeway === true)
+    setAwaitingRecoveryContinue(restoresHeart)
     const guide = phraseNounEndingRefresher(q, result)
     const consequence = result.correct ? null : trainMissConsequence({
       source: 'train-phrase',
@@ -300,9 +361,40 @@ export default function PracticeView({ state, dispatch }) {
       })
       return
     }
-    if (result.correct) setTimeout(() => nextRef.current?.(), 1900)
-    else setTimeout(() => nextRef.current?.(), 0)
-  }, [dispatch, q])
+    if (result.correct && !result.acceptedWithLeeway && !restoresHeart) setTimeout(() => nextRef.current?.(), 1900)
+    else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
+  }, [dispatch, q, state])
+
+  const onWordMatchComplete = useCallback((result) => {
+    const restoresHeart = result.correct && trainCorrectWillRestoreHeart(
+      q.trainHealth || trainHealthPlanForQuestion(state, q),
+    )
+    setAwaitingRecoveryContinue(restoresHeart)
+    const wordKeys = trainQuestionWordKeys(q)
+    const correctPair = q.pairs.find(({ al }) => al === result.attempted?.al)
+    dispatch({
+      type: 'PRACTICE_WORD_MATCH_RESULT',
+      correct: result.correct,
+      variantId: q.variantId,
+      wordIds: q.wordIds,
+      questionKey: q.questionKey,
+      wordKeys,
+      attemptedAtMs: result.attemptedAtMs,
+      responseDurationMs: result.responseDurationMs,
+      consequence: result.correct ? null : trainMissConsequence({
+        source: 'train-word-matching',
+        questionKey: q.questionKey,
+        attemptedAl: result.attempted?.al,
+        attemptedEn: result.attempted?.en,
+        reasonCode: 'wrong-word-match',
+        reason: `“${result.attempted?.en || 'that meaning'}” belongs to a different Albanian word on this board.`,
+        correctAl: correctPair?.al,
+        correctEn: correctPair?.en,
+      }),
+    })
+    if (result.correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1800)
+    else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
+  }, [dispatch, q, state])
 
   useEffect(() => {
     if (!q && discoveredIds.length > 0) next()
@@ -313,7 +405,7 @@ export default function PracticeView({ state, dispatch }) {
     if (!q) return undefined
     questionStartedAt.current = Date.now()
     const frame = window.requestAnimationFrame(() => {
-      if (q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind) wordInputRef.current?.focus()
+      if (q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind || q.formExerciseMode === 'ending-type') wordInputRef.current?.focus()
       else questionRef.current?.focus()
     })
     return () => window.cancelAnimationFrame(frame)
@@ -369,19 +461,28 @@ export default function PracticeView({ state, dispatch }) {
   }
 
   const isForms = q.kind === TRAIN_EXERCISE_FAMILIES.wordForms.kind
-  const isFormContext = q.kind === TRAIN_EXERCISE_FAMILIES.wordFormContext.kind
-  const isFormChoice = isForms || isFormContext
+  const isFormIntro = isForms && q.formExerciseMode === 'identify-form'
+  const isEndingChoice = isForms && q.formExerciseMode === 'ending-choice'
+  const isEndingTyping = isForms && q.formExerciseMode === 'ending-type'
+  const isFormChoice = isFormIntro || isEndingChoice
   const isWordConstruction = q.kind === TRAIN_EXERCISE_FAMILIES.wordConstruction.kind
   const isWordSpelling = q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind
+  const isAudioWord = q.stimulusMode === 'audio-only'
   const isEverydayPhrase = q.kind === TRAIN_EXERCISE_FAMILIES.phrase.kind
+  const isWordMatching = q.kind === TRAIN_EXERCISE_FAMILIES.wordMatching.kind
   const isContextualCompletion = q.kind === TRAIN_EXERCISE_FAMILIES.wordContext.kind
+  const trainHealth = q.trainHealth || trainHealthPlanForQuestion(state, q)
+  const recoveryPlan = trainRecoveryPlanForState(state, trainHealth.maximumHearts)
+  const restoredHeart = state.trainRecoveryEvent?.questionKey === q.questionKey
   const isContextualAlbanianRetrieval = isContextualCompletion && q.dir === 'en2al'
   const contextualTargetKind = q.promptProfile?.targetKind || 'lexical-meaning'
   const contextualTargetPresentation = isContextualAlbanianRetrieval
     ? CONTEXT_TARGET_PRESENTATION.blank
-    : q.promptProfile?.contextPresentation === 'unmarked'
-      ? CONTEXT_TARGET_PRESENTATION.unmarked
-      : CONTEXT_TARGET_PRESENTATION.marked
+    : q.promptProfile?.contextPresentation === CONTEXT_TARGET_PRESENTATION.namedMarked
+      ? CONTEXT_TARGET_PRESENTATION.namedMarked
+      : q.promptProfile?.contextPresentation === CONTEXT_TARGET_PRESENTATION.unmarked
+        ? CONTEXT_TARGET_PRESENTATION.unmarked
+        : CONTEXT_TARGET_PRESENTATION.marked
   const contextualInstruction = q.targetReference?.instructionTarget ? (
     <>
       {q.targetReference.instructionPrefix}
@@ -393,20 +494,133 @@ export default function PracticeView({ state, dispatch }) {
   const contextualEnglishCue = isContextualCompletion
     ? q.ctx.en.replace('__', senseText(q.answerId, 'en'))
     : ''
-  const correctValue = isFormChoice ? q.answerValue : q.answerId
+  const formPhase = isForms ? q.phasePlan?.[formPhaseIndex] : null
+  const grammarPhaseQuestion = isForms && q.grammarBundle
+    ? q.phaseQuestions?.[formPhase?.id] || null
+    : null
+  const isFormIdentityPhase = isFormIntro && formPhase?.task === 'lemma-identification'
+  const isFormSelectionPhase = isFormIntro && formPhase?.task === 'reviewed-form-selection'
+  const isFormSupportPhase = isFormIdentityPhase || isFormSelectionPhase
+  const correctValue = grammarPhaseQuestion
+    ? grammarPhaseQuestion.answerValue
+    : isFormIdentityPhase
+    ? q.lexicalCheck.answerId
+    : isFormSelectionPhase
+      ? q.formSelectionCheck.answerValue
+    : isFormChoice
+      ? q.answerValue
+      : q.answerId
   const answered = picked !== null
   const wasCorrect = picked === correctValue
 
   const onPick = (value) => {
-    if (answered || answerCommitted.current) return
+    if (answered || answerCommitted.current || (q.requiresCompletedAudio && !wordAudioCompleted)) return
     answerCommitted.current = true
-    setPicked(value)
     const correct = value === correctValue
+
+    if (grammarPhaseQuestion) {
+      const isFinalPhase = formPhaseIndex === q.phasePlan.length - 1
+      if (correct && !isFinalPhase) {
+        playWord(q.surface)
+        setFormPhaseIndex((index) => index + 1)
+        answerCommitted.current = false
+        window.requestAnimationFrame(() => questionRef.current?.focus())
+        return
+      }
+      setPicked(value)
+      const restoresHeart = correct && trainCorrectWillRestoreHeart(trainHealth)
+      setAwaitingRecoveryContinue(restoresHeart)
+      const selectedOption = grammarPhaseQuestion.options.find((option) => option.value === value)
+      const miss = grammarPhaseQuestion.miss || {}
+      dispatch({
+        type: 'PRACTICE_WORD_RESULT',
+        correct,
+        id: q.answerId,
+        tier: q.tier,
+        mode: q.mode,
+        direction: q.dir,
+        wordStageId: q.wordStageId,
+        variantId: q.variantId,
+        targetFormKey: null,
+        aspectPhaseId: formPhase.id,
+        aspectTargets: q.phaseAspectTargets?.[formPhase.id] || q.aspectTargets,
+        questionKey: q.questionKey,
+        wordKeys: trainQuestionWordKeys(q),
+        ...attemptTiming(),
+        consequence: correct ? null : trainMissConsequence({
+          source: 'train-noun-agreement',
+          questionKey: q.questionKey,
+          attemptedAl: selectedOption?.lang === 'sq' ? selectedOption.label : null,
+          attemptedEn: selectedOption?.lang === 'en' ? selectedOption.label : null,
+          reasonCode: miss.reasonCode || 'wrong-noun-agreement',
+          reason: miss.reason || 'That choice does not agree with the reviewed Albanian noun phrase.',
+          correctAl: miss.correctAl || q.agreementFrame?.demonstrative?.phrase || q.agreementFrame?.adjective?.phrase,
+          correctEn: miss.correctEn || null,
+          reasoning: miss.reasoning || null,
+        }),
+      })
+      playWord(q.surface)
+      if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1200)
+      else if (!correct) setTimeout(() => nextRef.current?.(), 0)
+      return
+    }
+
+    if (isFormSupportPhase && correct) {
+      playWord(q.surface)
+      setFormPhaseIndex((index) => index + 1)
+      answerCommitted.current = false
+      window.requestAnimationFrame(() => questionRef.current?.focus())
+      return
+    }
+
+    setPicked(value)
+
+    if (isFormSupportPhase) {
+      const chosen = isFormIdentityPhase
+        ? q.lexicalCheck.optionLabels[value]
+        : q.formSelectionCheck.options.find((option) => option.value === value)?.label || String(value)
+      const correctMeaning = isFormIdentityPhase ? q.lexicalCheck.optionLabels[q.answerId] : null
+      dispatch({
+        type: 'PRACTICE_WORD_RESULT',
+        correct: false,
+        id: q.answerId,
+        tier: q.tier,
+        mode: q.mode,
+        direction: q.dir,
+        wordStageId: q.wordStageId,
+        variantId: q.variantId,
+        targetFormKey: q.targetFormKey,
+        aspectPhaseId: formPhase.id,
+        aspectTargets: q.phaseAspectTargets?.[formPhase.id] || [],
+        questionKey: q.questionKey,
+        wordKeys: trainQuestionWordKeys(q),
+        ...attemptTiming(),
+        consequence: trainMissConsequence({
+          source: 'train-form',
+          questionKey: q.questionKey,
+          attemptedEn: chosen,
+          reasonCode: isFormIdentityPhase ? 'wrong-marked-form-lemma' : 'wrong-contextual-form',
+          reason: isFormIdentityPhase
+            ? `“${chosen}” is not the base word and meaning of the marked form “${q.surface}”.`
+            : `“${chosen}” is not the reviewed form required by this Albanian sentence.`,
+          correctAl: isFormIdentityPhase ? DICT[q.answerId].al : q.surface,
+          correctEn: correctMeaning,
+          reasoning: isFormIdentityPhase
+            ? 'Identify the base word before deciding which inflected form the sentence needs.'
+            : 'Use the Albanian context to choose the exact reviewed form before naming its grammatical job.',
+        }),
+      })
+      setTimeout(() => nextRef.current?.(), 0)
+      return
+    }
 
     if (isFormChoice) {
       playWord(q.surface)
       const chosen = q.options.find((option) => option.value === value)?.label || String(value)
       const correctOption = q.options.find((option) => option.value === correctValue)?.label || q.surface
+      const isEnding = isEndingChoice
+      const restoresHeart = correct && trainCorrectWillRestoreHeart(trainHealth)
+      setAwaitingRecoveryContinue(restoresHeart)
       const guide = !correct && q.formTarget?.wordClass === 'noun'
         ? buildNounEndingRefresher(q.answerId, q.surface, q.formTarget.gloss)
         : null
@@ -420,20 +634,21 @@ export default function PracticeView({ state, dispatch }) {
         wordStageId: q.wordStageId,
         variantId: q.variantId,
         targetFormKey: q.targetFormKey,
+        aspectTargets: q.aspectTargets,
         questionKey: q.questionKey,
         wordKeys: trainQuestionWordKeys(q),
         ...attemptTiming(),
         consequence: correct ? null : trainMissConsequence({
           source: 'train-form',
           questionKey: q.questionKey,
-          attemptedAl: isFormContext ? chosen : q.surface,
-          attemptedEn: isFormContext ? null : chosen,
-          reasonCode: isFormContext ? 'wrong-noun-form' : 'wrong-form-role',
-          reason: isFormContext
-            ? `“${chosen}” does not carry the grammatical job required by the displayed sentence.`
+          attemptedAl: isEnding ? chosen : q.surface,
+          attemptedEn: isEnding ? null : chosen,
+          reasonCode: isEnding ? 'wrong-noun-ending' : 'wrong-form-role',
+          reason: isEnding
+            ? `“${chosen}” is not the ending used by this noun in the displayed Albanian sentence.`
             : `The selected grammatical job does not match how “${q.surface}” is used in this sentence.`,
-          correctAl: isFormContext ? correctOption : q.surface,
-          correctEn: isFormContext ? q.formTarget?.gloss : correctOption,
+          correctAl: isEnding ? correctOption : q.surface,
+          correctEn: isEnding ? null : correctOption,
           grammarGuide: guide,
         }),
       })
@@ -446,8 +661,8 @@ export default function PracticeView({ state, dispatch }) {
           lemma: DICT[q.answerId].al,
           meaning: senseText(q.answerId, 'en'),
         })
-      } else if (correct) setTimeout(() => nextRef.current?.(), 1200)
-      else setTimeout(() => nextRef.current?.(), 0)
+      } else if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1200)
+      else if (!correct) setTimeout(() => nextRef.current?.(), 0)
       return
     }
 
@@ -456,6 +671,8 @@ export default function PracticeView({ state, dispatch }) {
     const wordKeys = trainQuestionWordKeys(q)
     const chosenLabel = q.optionLabels?.[value] || senseText(value, q.field)
     const correctLabel = q.optionLabels?.[q.answerId] || senseText(q.answerId, q.field)
+    const restoresHeart = correct && trainCorrectWillRestoreHeart(trainHealth)
+    setAwaitingRecoveryContinue(restoresHeart)
     dispatch({
       type: 'PRACTICE_WORD_RESULT',
       correct,
@@ -466,6 +683,8 @@ export default function PracticeView({ state, dispatch }) {
       wordStageId: q.wordStageId,
       variantId: q.variantId,
       targetFormKey: q.targetFormKey,
+      aspectTargets: q.aspectTargets,
+      audioCompleted: q.requiresCompletedAudio ? wordAudioCompleted : undefined,
       questionKey: q.questionKey,
       wordKeys,
       ...attemptTiming(),
@@ -482,8 +701,8 @@ export default function PracticeView({ state, dispatch }) {
         correctEn: q.field === 'en' ? correctLabel : senseText(q.answerId, 'en'),
       }),
     })
-    if (correct) setTimeout(() => nextRef.current?.(), 1200)
-    else setTimeout(() => nextRef.current?.(), 0)
+    if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1200)
+    else if (!correct) setTimeout(() => nextRef.current?.(), 0)
   }
 
   const insertWordLetter = (letter) => {
@@ -498,14 +717,43 @@ export default function PracticeView({ state, dispatch }) {
     })
   }
 
+  const playWordStimulus = async () => {
+    if (!q?.audioSurface || answered) return
+    setWordAudioError('')
+    const completed = await playPhrase(q.audioSurface)
+    if (questionRef.current && completed) {
+      setWordAudioCompleted(true)
+      if (q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind) {
+        window.requestAnimationFrame(() => wordInputRef.current?.focus())
+      }
+    } else if (!completed) {
+      setWordAudioError('The recorded word did not finish. Check that sound is on, then play it again.')
+    }
+  }
+
   const checkWordSpelling = (event) => {
     event.preventDefault()
-    if (!isWordSpelling || !typedWord.trim() || answerCommitted.current) return
+    if (!(isWordSpelling || isEndingTyping) || !typedWord.trim() || answerCommitted.current) return
     answerCommitted.current = true
-    const result = phraseAnswerResult(typedWord, q.typingAnswer, q.answerTolerance)
-    setTypedWordLeeway(result.usedLeeway)
+    if (q.requiresCompletedAudio && !wordAudioCompleted) {
+      answerCommitted.current = false
+      return
+    }
+    const result = wordSpellingAttempt(typedWord, q.typingAnswer, q.answerTolerance)
+    if (result.repairRequired) {
+      setWordRepair(result)
+      answerCommitted.current = false
+      window.requestAnimationFrame(() => wordInputRef.current?.focus())
+      return
+    }
+    setWordRepair(null)
     setPicked(result.correct ? q.answerId : '__typed-word-miss__')
-    playWord(q.typingAnswer)
+    const restoresHeart = result.correct && trainCorrectWillRestoreHeart(trainHealth)
+    setAwaitingRecoveryContinue(restoresHeart)
+    playWord(isEndingTyping ? q.surface : q.typingAnswer)
+    const guide = !result.correct && isEndingTyping
+      ? buildNounEndingRefresher(q.answerId, q.surface, q.formTarget.gloss)
+      : null
     dispatch({
       type: 'PRACTICE_WORD_RESULT',
       correct: result.correct,
@@ -516,6 +764,8 @@ export default function PracticeView({ state, dispatch }) {
       wordStageId: q.wordStageId,
       variantId: q.variantId,
       targetFormKey: q.targetFormKey,
+      aspectTargets: q.aspectTargets,
+      audioCompleted: q.requiresCompletedAudio ? wordAudioCompleted : undefined,
       questionKey: q.questionKey,
       wordKeys: trainQuestionWordKeys(q),
       ...attemptTiming(),
@@ -523,32 +773,62 @@ export default function PracticeView({ state, dispatch }) {
         source: q.targetFormKey ? 'train-form' : 'train-word',
         questionKey: q.questionKey,
         attemptedAl: typedWord.trim(),
-        reasonCode: q.targetFormKey ? 'wrong-form-spelling' : 'wrong-word-spelling',
-        reason: q.targetFormKey
-          ? 'The spelling does not match the reviewed form required by this sentence.'
+        reasonCode: isEndingTyping ? 'wrong-noun-ending' : q.targetFormKey ? 'wrong-form-spelling' : 'wrong-word-spelling',
+        reason: isEndingTyping
+          ? 'The typed ending does not complete this noun in the displayed Albanian sentence.'
+          : q.targetFormKey
+            ? 'The spelling does not match the reviewed form required by this sentence.'
           : 'The spelling does not yet match the Albanian word requested.',
-        correctAl: q.typingAnswer,
-        correctEn: q.typingCue,
+        correctAl: isEndingTyping ? q.endingPractice.label : q.typingAnswer,
+        correctEn: isEndingTyping ? null : q.typingCue,
+        grammarGuide: guide,
       }),
     })
-    if (result.correct) setTimeout(() => nextRef.current?.(), 1600)
-    else setTimeout(() => nextRef.current?.(), 0)
+    if (guide) {
+      setFormsCorrection({
+        kind: 'forms-correction',
+        guide,
+        stage: q.wordStageId,
+        chosen: typedWord.trim(),
+        lemma: DICT[q.answerId].al,
+        meaning: senseText(q.answerId, 'en'),
+      })
+      return
+    }
+    if (result.correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1600)
+    else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
   }
 
   const constructedText = isWordConstruction
     ? constructedPieceIds.map((id) => q.construction.pieces.find((piece) => piece.id === id)?.text || '').join('')
     : ''
   const toggleConstructionPiece = (pieceId) => {
-    if (answered) return
+    if (answered || (q.requiresCompletedAudio && !wordAudioCompleted)) return
+    const piece = q.construction.pieces.find((candidate) => candidate.id === pieceId)
     setConstructedPieceIds((current) => current.includes(pieceId)
       ? current.filter((id) => id !== pieceId)
       : [...current, pieceId])
+    if (piece?.text && piece.text !== ' ') playWord(piece.text)
+    setWordRepair(null)
   }
   const checkConstruction = () => {
     if (!isWordConstruction || !constructedPieceIds.length || answerCommitted.current) return
     answerCommitted.current = true
-    const correct = constructedText.normalize('NFC').toLocaleLowerCase('sq') === q.answerValue
+    if (q.requiresCompletedAudio && !wordAudioCompleted) {
+      answerCommitted.current = false
+      return
+    }
+    const spellingResult = wordSpellingAttempt(constructedText, q.surface, q.answerTolerance)
+    if (spellingResult.repairRequired) {
+      setWordRepair(spellingResult)
+      answerCommitted.current = false
+      return
+    }
+    setWordRepair(null)
+    const correct = spellingResult.correct
     setPicked(correct ? q.answerId : '__construction-miss__')
+    const restoresHeart = correct && trainCorrectWillRestoreHeart(trainHealth)
+    setAwaitingRecoveryContinue(restoresHeart)
     playWord(q.surface)
     dispatch({
       type: 'PRACTICE_WORD_RESULT',
@@ -560,6 +840,8 @@ export default function PracticeView({ state, dispatch }) {
       wordStageId: q.wordStageId,
       variantId: q.variantId,
       targetFormKey: q.targetFormKey,
+      aspectTargets: q.aspectTargets,
+      audioCompleted: q.requiresCompletedAudio ? wordAudioCompleted : undefined,
       questionKey: q.questionKey,
       wordKeys: trainQuestionWordKeys(q),
       ...attemptTiming(),
@@ -575,8 +857,8 @@ export default function PracticeView({ state, dispatch }) {
         correctEn: q.typingCue || q.context?.en,
       }),
     })
-    if (correct) setTimeout(() => nextRef.current?.(), 1500)
-    else setTimeout(() => nextRef.current?.(), 0)
+    if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1500)
+    else if (!correct) setTimeout(() => nextRef.current?.(), 0)
   }
 
   if (formsCorrection) {
@@ -647,7 +929,7 @@ export default function PracticeView({ state, dispatch }) {
         </section>
         {state.debug && (
           <Suspense fallback={<p className="debug-train-loading">Loading current activity evidence…</p>}>
-            <DebugTrainActivityInspector question={q} state={state} />
+            <DebugTrainActivityInspector question={q} state={state} currentPhase={Array.isArray(q.phasePlan) ? { index: formPhaseIndex, total: q.phasePlan.length, id: formPhase?.id } : null} />
           </Suspense>
         )}
       </>
@@ -679,13 +961,45 @@ export default function PracticeView({ state, dispatch }) {
 
       <section className="card practice" aria-labelledby="practice-title">
       <h2 id="practice-title" className="view-title">Train Albanian</h2>
-      {isEverydayPhrase ? (
+      <div
+        className={`train-heart-risk ${trainHealth.protectedAttempt ? 'protected' : trainHealth.missEndsRun ? 'lethal' : 'at-risk'}`}
+        role="note"
+        aria-label={trainHeartRiskText(trainHealth)}
+      >
+        <span aria-hidden="true">{trainHealth.protectedAttempt ? '🛡' : trainHealth.missEndsRun ? '💔' : '♥'}</span>
+        <span>{trainHeartRiskText(trainHealth)}</span>
+      </div>
+      <p className="train-recovery-status" role="note">
+        {trainRecoveryStatusText(recoveryPlan)}
+      </p>
+      {restoredHeart && (
+        <div className="train-heart-recovery" role="status" aria-live="polite">
+          <p>
+            ♥ Correct combo {trainHealth.recoveryCorrectCompletions}/{trainHealth.recoveryCorrectCompletions} — one heart restored.
+            {' '}You now have {state.hearts} of {trainHealth.maximumHearts} hearts.
+          </p>
+          {awaitingRecoveryContinue && !acceptedLeewayReview && (
+            <button type="button" className="btn primary" onClick={next}>Continue training</button>
+          )}
+        </div>
+      )}
+      {isWordMatching ? (
+        <div ref={questionRef} className="practice-question" tabIndex={-1}>
+          <WordMatchingQuestion
+            key={q.questionKey}
+            q={q}
+            debug={state.debug}
+            onComplete={onWordMatchComplete}
+          />
+        </div>
+      ) : isEverydayPhrase ? (
         <div ref={questionRef} className="practice-question" tabIndex={-1}>
           <PhrasePracticeQuestion
             key={q.questionKey}
             q={q}
             debug={state.debug}
             onComplete={onPhraseComplete}
+            onContinue={next}
           />
         </div>
       ) : isContextualCompletion ? (
@@ -760,13 +1074,21 @@ export default function PracticeView({ state, dispatch }) {
       ) : (
         <div ref={questionRef} className="practice-question" role="status" aria-live="polite" aria-atomic="true" tabIndex={-1}>
           <TrainingActivityShell
-            instruction={isForms
-                ? q.promptKind === 'noun-role-in-context'
-                  ? 'What grammatical job does the marked form have here?'
-                  : 'Which reviewed use fits this word here?'
-                : isFormContext
-                  ? 'Choose the correct form for this context'
-                  : isWordConstruction || isWordSpelling
+            instruction={grammarPhaseQuestion
+                ? grammarPhaseQuestion.instruction
+                : isEndingChoice
+                  ? 'Choose only the ending that completes the marked noun'
+                  : isEndingTyping
+                    ? 'Type only the ending that completes the marked noun'
+                : isForms
+                ? isFormIdentityPhase
+                  ? 'Which base word does the marked Albanian form belong to?'
+                  : isFormSelectionPhase
+                    ? 'Which reviewed form completes this Albanian sentence?'
+                  : q.promptKind === 'noun-role-in-context'
+                    ? 'What grammatical job does the marked form have here?'
+                    : 'What grammatical job does the marked form have here?'
+                : isWordConstruction || isWordSpelling
                     ? q.targetReference.instruction
                       : q.dir === WORD_ALBANIAN_TO_ENGLISH.id
                         ? 'What does this Albanian word mean?'
@@ -776,7 +1098,36 @@ export default function PracticeView({ state, dispatch }) {
               ? <span className="phrase-label">word · {q.difficultyLabel}</span>
               : <span className="phrase-label">word</span>}
           >
-            {isForms ? (
+            {grammarPhaseQuestion ? (
+              <div className="word-form-context noun-agreement-context">
+                {grammarPhaseQuestion.cue && <p>{grammarPhaseQuestion.cue}</p>}
+                <p lang={grammarPhaseQuestion.promptLang === 'sq' ? 'sq' : undefined}>
+                  {grammarPhaseQuestion.prompt.split(/\s+/).map((word, index) => {
+                    const clean = word.replace(/^[^\p{L}\p{M}]+|[^\p{L}\p{M}]+$/gu, '')
+                    return (
+                      <span key={`${word}-${index}`}>
+                        {index > 0 ? ' ' : ''}
+                        {grammarPhaseQuestion.markSurface === clean
+                          ? <mark aria-label={`Target noun: ${word}`}>{word}</mark>
+                          : word}
+                      </span>
+                    )
+                  })}
+                </p>
+              </div>
+            ) : isForms && (isEndingChoice || isEndingTyping) ? (
+              <div className="word-form-context noun-ending-prompt">
+                <p lang="sq">
+                  {q.endingPrompt.split('__')[0]}
+                  <mark aria-label="Missing noun ending">__</mark>
+                  {q.endingPrompt.split('__')[1]}
+                </p>
+              </div>
+            ) : isFormSelectionPhase ? (
+              <div className="word-form-context">
+                <p lang="sq">{q.context.alGap}</p>
+              </div>
+            ) : isForms ? (
               <div className="word-form-context">
                 <p lang="sq">{q.context.al.split(/\s+/).map((word, index) => (
                   <span key={`${word}-${index}`}>
@@ -786,11 +1137,26 @@ export default function PracticeView({ state, dispatch }) {
                       : word}
                   </span>
                 ))}</p>
-                <small>{q.context.en}</small>
               </div>
-            ) : isFormContext || isWordConstruction || isWordSpelling ? (
+            ) : isAudioWord ? (
+              <div className="word-audio-stimulus">
+                <button
+                  className="btn phrase-play"
+                  type="button"
+                  disabled={answered}
+                  onClick={playWordStimulus}
+                  aria-label="Play the complete recorded Albanian word"
+                >
+                  🔊 {wordAudioCompleted ? 'Play word again' : 'Play word'}
+                </button>
+                {!wordAudioCompleted && !wordAudioError && (
+                  <p>Listen to the complete recording before you answer.</p>
+                )}
+                {wordAudioError && <p className="word-audio-error" role="alert">{wordAudioError}</p>}
+              </div>
+            ) : isWordConstruction || isWordSpelling ? (
               <div className="word-form-context">
-                <p>{isFormContext ? q.context.en : q.targetReference.meaningCue}</p>
+                <p>{q.targetReference.meaningCue}</p>
                 {(isWordSpelling ? q.typingContext?.alGap : q.context?.alGap) && (
                   <p lang="sq">{isWordSpelling ? q.typingContext.alGap : q.context.alGap}</p>
                 )}
@@ -798,9 +1164,11 @@ export default function PracticeView({ state, dispatch }) {
             ) : (
               <div className="question" lang={q.dir === WORD_ALBANIAN_TO_ENGLISH.id ? 'sq' : undefined}>{q.promptText}</div>
             )}
-          {isWordSpelling ? (
+          {isWordSpelling || isEndingTyping ? (
             <form className="phrase-type-form word-type-form" onSubmit={checkWordSpelling}>
-              <label htmlFor={`word-answer-${q.questionKey}`}>Your Albanian answer</label>
+              <label htmlFor={`word-answer-${q.questionKey}`}>
+                {isEndingTyping ? 'Only the missing ending' : 'Your Albanian answer'}
+              </label>
               <input
                 id={`word-answer-${q.questionKey}`}
                 ref={wordInputRef}
@@ -810,15 +1178,21 @@ export default function PracticeView({ state, dispatch }) {
                 autoCapitalize="none"
                 spellCheck="false"
                 value={typedWord}
-                disabled={answered}
-                onChange={(event) => setTypedWord(event.target.value)}
+                disabled={answered || (q.requiresCompletedAudio && !wordAudioCompleted)}
+                onChange={(event) => {
+                  setTypedWord(event.target.value)
+                  setWordRepair(null)
+                }}
               />
               <div className="phrase-type-tools">
                 <span>Albanian letters:</span>
-                <button type="button" disabled={answered} onClick={() => insertWordLetter('ë')}>ë</button>
-                <button type="button" disabled={answered} onClick={() => insertWordLetter('ç')}>ç</button>
+                <button type="button" disabled={answered || (q.requiresCompletedAudio && !wordAudioCompleted)} onClick={() => insertWordLetter('ë')}>ë</button>
+                <button type="button" disabled={answered || (q.requiresCompletedAudio && !wordAudioCompleted)} onClick={() => insertWordLetter('ç')}>ç</button>
               </div>
-              <button className="btn primary phrase-check" type="submit" disabled={answered || !typedWord.trim()}>Check word</button>
+              {wordRepair && <p className="word-spelling-repair" role="status" aria-live="assertive">{wordSpellingRepairMessage(wordRepair)}</p>}
+              <button className="btn primary phrase-check" type="submit" disabled={answered || !typedWord.trim() || (q.requiresCompletedAudio && !wordAudioCompleted)}>
+                {isEndingTyping ? 'Check ending' : 'Check word'}
+              </button>
             </form>
           ) : isWordConstruction ? (
             <div className="word-construction">
@@ -829,36 +1203,56 @@ export default function PracticeView({ state, dispatch }) {
                 {q.construction.pieces.map((piece) => {
                   const selected = constructedPieceIds.includes(piece.id)
                   return (
-                    <button key={piece.id} type="button" className={`answer ${selected ? 'selected' : ''}`} disabled={answered} onClick={() => toggleConstructionPiece(piece.id)} lang="sq">
+                    <button key={piece.id} type="button" className={`answer ${selected ? 'selected' : ''}`} disabled={answered || (q.requiresCompletedAudio && !wordAudioCompleted)} onClick={() => toggleConstructionPiece(piece.id)} lang="sq" aria-label={`${piece.label || piece.text} · recorded Albanian sound`}>
                       {piece.label || piece.text}
                     </button>
                   )
                 })}
               </div>
-              <button className="btn primary phrase-check" type="button" disabled={answered || !constructedPieceIds.length} onClick={checkConstruction}>Check word</button>
+              {wordRepair && <p className="word-spelling-repair" role="status" aria-live="assertive">{wordSpellingRepairMessage(wordRepair)}</p>}
+              <button className="btn primary phrase-check" type="button" disabled={answered || !constructedPieceIds.length || (q.requiresCompletedAudio && !wordAudioCompleted)} onClick={checkConstruction}>Check word</button>
             </div>
           ) : (
             <div className="answers">
-              {isFormChoice
+              {grammarPhaseQuestion
+                ? grammarPhaseQuestion.options.map((option) => {
+                    let cls = 'answer'
+                    if (answered && option.value === correctValue) cls += ' correct'
+                    else if (answered && option.value === picked) cls += ' wrong'
+                    return <button key={option.value} className={cls} lang={option.lang === 'sq' ? 'sq' : undefined} disabled={answered} onClick={() => onPick(option.value)}>{option.label}</button>
+                  })
+                : isFormIdentityPhase
+                ? q.lexicalCheck.options.map((id) => {
+                    let cls = 'answer'
+                    if (answered && id === correctValue) cls += ' correct'
+                    else if (answered && id === picked) cls += ' wrong'
+                    return <button key={id} className={cls} disabled={answered} onClick={() => onPick(id)}>{q.lexicalCheck.optionLabels[id]}</button>
+                  })
+                : isFormSelectionPhase
+                  ? q.formSelectionCheck.options.map((option) => {
+                      let cls = 'answer'
+                      if (answered && option.value === correctValue) cls += ' correct'
+                      else if (answered && option.value === picked) cls += ' wrong'
+                      return <button key={option.value} className={cls} lang="sq" disabled={answered} onClick={() => onPick(option.value)}>{option.label}</button>
+                    })
+                : isFormChoice
                 ? q.options.map((option) => {
                     let cls = 'answer'
                     if (answered && option.value === correctValue) cls += ' correct'
                     else if (answered && option.value === picked) cls += ' wrong'
-                    return <button key={option.value} className={cls} lang={isFormContext ? 'sq' : undefined} disabled={answered} onClick={() => onPick(option.value)}>{option.label}</button>
+                    return <button key={option.value || 'zero-ending'} className={cls} lang={isEndingChoice ? 'sq' : undefined} disabled={answered} onClick={() => onPick(option.value)}>{option.label}</button>
                   })
                 : q.options.map((id) => {
                     let cls = 'answer'
                     if (answered && id === q.answerId) cls += ' correct'
                     else if (answered && id === picked) cls += ' wrong'
-                    return <button key={id} className={cls} lang={q.field === 'al' ? 'sq' : undefined} disabled={answered} onClick={() => onPick(id)}>{senseText(id, q.field)}</button>
+                    return <button key={id} className={cls} lang={q.field === 'al' ? 'sq' : undefined} disabled={answered || (q.requiresCompletedAudio && !wordAudioCompleted)} onClick={() => onPick(id)}>{q.optionLabels?.[id] || senseText(id, q.field)}</button>
                   })}
             </div>
           )}
 
           <div className={'feedback ' + (answered ? (wasCorrect ? 'good' : 'bad') : '')} role="status" aria-live="polite" aria-atomic="true">
-            {answered && wasCorrect && (typedWordLeeway
-              ? `Të lumtë! +1 token · accepted here; compare “${q.typingAnswer}”`
-              : `Të lumtë! +1 token for "${q.surface || DICT[q.answerId].al}"`)}
+            {answered && wasCorrect && `Të lumtë! +1 token for "${q.surface || DICT[q.answerId].al}"`}
           </div>
           </TrainingActivityShell>
         </div>
@@ -866,7 +1260,7 @@ export default function PracticeView({ state, dispatch }) {
       </section>
       {state.debug && (
         <Suspense fallback={<p className="debug-train-loading">Loading current activity evidence…</p>}>
-          <DebugTrainActivityInspector question={q} state={state} />
+          <DebugTrainActivityInspector question={q} state={state} currentPhase={Array.isArray(q.phasePlan) ? { index: formPhaseIndex, total: q.phasePlan.length, id: formPhase?.id } : null} />
         </Suspense>
       )}
     </>

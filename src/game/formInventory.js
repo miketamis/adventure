@@ -13,13 +13,18 @@ import {
   removedItemsStoryLine,
 } from './storyContext.js'
 import { WORD_CLASS, wordClassOf } from './wordClassPolicy.js'
-import { buildNounEndingRefresher, NOUN_FORM_ROLE_LABELS } from './nounEndingRefresher.js'
+import {
+  buildNounEndingRefresher,
+  NOUN_FORM_ROLE_LABELS,
+  reviewedNounEndingPractice,
+} from './nounEndingRefresher.js'
 import { isTrainableSense, lexicalTrainability } from './lexicalTrainability.js'
 import {
   PRACTICE_TARGET_KIND,
   contextualChoiceLabel,
   practiceTargetKind,
 } from './practiceContrasts.js'
+import { reviewedNounAgreementFrame } from './nounAgreementPractice.js'
 
 const lower = (value) => value.normalize('NFC').toLocaleLowerCase('sq')
 const lineOf = (entry) => Array.isArray(entry) ? entry : entry?.line || []
@@ -52,6 +57,7 @@ const addToken = (token, tokens = null, tokenIndex = -1) => {
       targetTokenIndex: tokenIndex,
       alGap: tidyLine(alWords.map((part, index) => index === tokenIndex ? '__' : part).join(' ')),
       enCue: tidyLine(enWords.join(' ')),
+      requires: Object.freeze([...new Set(tokens.flatMap((part) => part?.id ? [part.id] : []))]),
     }))
   }
   bySurface.set(key, record)
@@ -261,17 +267,20 @@ export function playableContextForSense(id, surface = DICT[id]?.al) {
     alGap: words.map((word, index) => index === targetTokenIndex ? '__' : word).join(' '),
     reviewedEnglish: true,
     provenance: 'reviewed-dictionary-context',
+    requires: Object.freeze([...(authored.requires || [])]),
   })
 }
 
 const genericRoleLabel = (form, wordClass) => {
   if (NOUN_FORM_ROLE_LABELS[form.tag]) return NOUN_FORM_ROLE_LABELS[form.tag]
-  const cleaned = String(form.tag || '').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').trim()
-  if (cleaned && cleaned !== 'attested Surface' && cleaned !== 'lemma') return cleaned.toLocaleLowerCase('en')
-  if (wordClass === WORD_CLASS.VERB) return 'reviewed verb form in this sentence'
-  if (wordClass === WORD_CLASS.ADJECTIVE) return 'reviewed describing form in this sentence'
-  if (wordClass === WORD_CLASS.PRONOUN) return 'reviewed pronoun form in this sentence'
-  return 'reviewed form in this sentence'
+  const reviewedNonNounRoles = {
+    '2plImp': 'a polite command to you / a command to you all',
+    '3sgPast': 'he / she / it · completed past action',
+    '3sgPres': 'he / she / it · present action',
+    part: 'past participle · used with have / be',
+  }
+  if (wordClass !== WORD_CLASS.NOUN) return reviewedNonNounRoles[form.tag] || null
+  return null
 }
 
 // Preserve exact form+role rows for progression. `trainingForms` intentionally
@@ -312,16 +321,22 @@ export function reviewedFormTargets(id) {
     const gapWord = surfaceOffset >= 0
       ? `${rawTargetWord.slice(0, surfaceOffset)}__${rawTargetWord.slice(surfaceOffset + surface.length)}`
       : '__'
+    const roleLabel = guide?.target?.role || genericRoleLabel(form, track.wordClass)
+    if (!roleLabel) return []
+    const endingPractice = track.hasNounRoleStep
+      ? reviewedNounEndingPractice(id, surface, role)
+      : null
     return [Object.freeze({
       key,
       id,
       surface,
       role,
-      roleLabel: guide?.target?.role || genericRoleLabel(form, track.wordClass),
+      roleLabel,
       learnerMeaning: guide?.target?.learnerMeaning || form.gloss || DICT[id].en,
       gloss: form.gloss || DICT[id].en,
       wordClass: track.wordClass,
       coverage: track.coverage,
+      endingPractice,
       context: Object.freeze({
         al: example.al,
         en: example.en,
@@ -329,12 +344,13 @@ export function reviewedFormTargets(id) {
         alGap: example.alGap || words.map((word, index) => index === targetIndex ? gapWord : word).join(' '),
         focus: surface,
         targetTokenIndex: targetIndex,
+        requires: Object.freeze([...new Set([id, ...(example.requires || [])])]),
       }),
     })]
   })
   const distinctSurfaces = new Set(targets.map(({ surface }) => lower(surface))).size
   const distinctContrasts = new Set(targets.map((target) =>
-    target.wordClass === WORD_CLASS.NOUN ? target.roleLabel : target.learnerMeaning,
+    target.roleLabel,
   )).size
   return distinctSurfaces >= 2 && distinctContrasts >= 2 ? targets : []
 }
@@ -435,11 +451,19 @@ export const wordProgressionOptionsForSense = (id) => {
         reason: `Context review required before this sense can enter Train: ${contextEligibility.gaps.join('; ')}`,
       })
     : lexical
+  const answerSurface = DICT[id]?.al || null
+  const normalizedAudioSurface = String(answerSurface || '').normalize('NFC').toLocaleLowerCase('sq').trim()
+  const unambiguousAudioSense = Boolean(normalizedAudioSurface) && Object.entries(DICT)
+    .filter(([candidateId, candidate]) => lexicalTrainability(candidateId).trainable &&
+      String(candidate?.al || '').normalize('NFC').toLocaleLowerCase('sq').trim() === normalizedAudioSurface)
+    .length === 1
   return {
     context: contextEligibility.eligible && contextEligibility.requiresReviewedContext ? DICT[id].ctx : null,
     contextEligibility,
-    answerSurface: DICT[id]?.al || null,
+    answerSurface,
+    unambiguousAudioSense,
     reviewedForms: reviewedFormTargets(id),
+    nounAgreementFrame: reviewedNounAgreementFrame(id),
     trainability,
   }
 }

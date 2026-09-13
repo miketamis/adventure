@@ -17,7 +17,10 @@ function ContextLine({ line }) {
             target?.match != null && word === target.match
           )
           let rendered = word
-          if (isTarget && target.presentation === CONTEXT_TARGET_PRESENTATION.marked) {
+          if (isTarget && (
+            target.presentation === CONTEXT_TARGET_PRESENTATION.marked ||
+            target.presentation === CONTEXT_TARGET_PRESENTATION.namedMarked
+          )) {
             rendered = (
               <mark className="contextual-completion-target" aria-label={word}>
                 {word}
@@ -31,9 +34,6 @@ function ContextLine({ line }) {
               </span>
             )
           }
-          // In the later `unmarked` proof the instruction names this exact
-          // surface. The sentence itself stays visually natural without ever
-          // making the task referent ambiguous.
           return <span key={`${line.id}-${index}`}>{index > 0 ? ' ' : ''}{rendered}</span>
         }) : line.text}
       </div>

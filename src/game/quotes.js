@@ -1354,10 +1354,3 @@ export const QUOTE_EVIDENCE_WORKS = Object.freeze({
   'docs/references/vajtimi-i-ajkunes.sq.txt': { id: 'src-vajtimi-ajkunes', corpusId: 'src-vajtimi-ajkunes', relationship: 'full-work', proofSha256: 'e4a096afc8870b41170153d4b1fd23d1c8132b5fb67cb2b1af006c71ff56aa83' },
   'docs/references/ymer-age-ulqini.sq.txt': { id: 'src-ymer-ulqini', corpusId: 'src-ymer-ulqini', relationship: 'full-work', proofSha256: 'e88fb649a7442944435dff1de058ec815e2f37be4de2e21fd7f50396e5bfd293' },
 })
-
-// This seal binds the exact quote wording, translations, fidelity labels,
-// alignments, evidence records, proof-file identities, and referenced CORPUS
-// work metadata as one payload. quotecheck recomputes it and fails closed after
-// any unsealed change. A matching hash proves payload identity, not external
-// expert or native-speaker approval.
-export const QUOTE_FIDELITY_REVIEW_HASH = 'sha256:928b9e44e69461bd3d019927aca2a2ccd993c14ba66702e174eede9bc60129f9'

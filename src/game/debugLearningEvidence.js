@@ -5,6 +5,7 @@ import { normalizePhraseProductionProgress, normalizePhraseSkillProgress } from 
 import { wordProgressionOptionsForSense } from './formInventory.js'
 import { lexicalTrainability } from './lexicalTrainability.js'
 import { normalizeWordProgress, wordCapabilitySnapshot } from './wordProgression.js'
+import { wordExposureFor } from './wordExposure.js'
 
 export const LEARNING_INSPECTOR_PHRASE_ID = 'going-village'
 export const LEARNING_INSPECTOR_WORDS = Object.freeze([
@@ -62,6 +63,7 @@ export function buildLearningEvidenceInspector(state = {}, nowMs = 0) {
       reviewedFormRewards: Object.fromEntries(Object.entries(state.formPracticed || {})
         .filter(([key]) => key.startsWith(`${mapping.id}::`))),
       progress,
+      passiveExposure: wordExposureFor(state, mapping.id),
     }
     return {
       ...mapping,

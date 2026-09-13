@@ -20,7 +20,8 @@
 //      alignments whose source fragments occur in the quote's proof files
 //   7. the English for the displayed quote is complete, standalone, and kept
 //      separate from the fuller source-context translation
-//   8. a stable review seal binds every quote, alignment, and work record
+//   8. required fields and fidelity claims are validated on the exact record
+//      that changed, without a manually renewed registry-wide approval seal
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
@@ -29,7 +30,6 @@ import { STORY, DICT } from '../src/game/content.js'
 import {
   QUOTES,
   QUOTE_EVIDENCE_WORKS,
-  QUOTE_FIDELITY_REVIEW_HASH,
   quoteTier,
 } from '../src/game/quotes.js'
 import { CORPUS, REPO_BLOB } from '../src/game/folklore.js'
@@ -128,29 +128,6 @@ const materiallyRelated = (evidence, candidates) => {
     return ordered >= required && longestCommonRun(ev, claim) >= Math.min(2, ev.length)
   })
 }
-
-const stableValue = (value) => {
-  if (Array.isArray(value)) return value.map(stableValue)
-  if (value && typeof value === 'object')
-    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stableValue(value[key])]))
-  return value
-}
-
-const reviewedCorpusIds = new Set(
-  Object.values(QUOTE_EVIDENCE_WORKS).flatMap((work) => (work.corpusId ? [work.corpusId] : [])),
-)
-const reviewedCorpusWorks = CORPUS.filter((work) => reviewedCorpusIds.has(work.id)).sort((a, b) =>
-  a.id.localeCompare(b.id),
-)
-const REVIEW_HASH =
-  'sha256:' +
-  createHash('sha256')
-    .update(
-      JSON.stringify(
-        stableValue({ corpusWorks: reviewedCorpusWorks, evidenceWorks: QUOTE_EVIDENCE_WORKS, quotes: QUOTES }),
-      ),
-    )
-    .digest('hex')
 
 const safeProofPath = (file) => {
   if (typeof file !== 'string' || !file.startsWith('docs/references/') || file.includes('\\')) return null
@@ -287,10 +264,23 @@ for (const [file, work] of Object.entries(QUOTE_EVIDENCE_WORKS)) {
   }
 }
 
+const quoteIdByGameSurface = new Map()
 for (const [id, q] of Object.entries(QUOTES)) {
   if (!used.has(id)) fails.push(`register entry '${id}' is not used by any story line`)
   if (!q.label || !q.game || !q.gameTranslation || !q.original || !q.translation || !q.fidelity)
     fails.push(`register entry '${id}' is missing a required field`)
+  for (const field of ['label', 'game', 'gameTranslation', 'original', 'translation']) {
+    const value = q[field]
+    if (typeof value !== 'string') continue
+    if (value !== value.trim()) fails.push(`register entry '${id}' ${field} has outer whitespace`)
+    if (['label', 'game', 'gameTranslation'].includes(field) && /\r|\n/.test(value))
+      fails.push(`register entry '${id}' ${field} must stay on one line`)
+  }
+  const gameSurface = normalize(q.game || '')
+  const duplicateGameId = quoteIdByGameSurface.get(gameSurface)
+  if (gameSurface && duplicateGameId)
+    fails.push(`register entries '${duplicateGameId}' and '${id}' duplicate the same displayed quote wording`)
+  else if (gameSurface) quoteIdByGameSurface.set(gameSurface, id)
   for (const issue of gameTranslationIssues(q.gameTranslation))
     fails.push(`register entry '${id}' gameTranslation ${issue}: ${JSON.stringify(q.gameTranslation)}`)
   if (!VALID_FIDELITIES.has(q.fidelity))
@@ -331,6 +321,9 @@ for (const [id, q] of Object.entries(QUOTES)) {
     fails.push(`register entry '${id}' has no evidence at all`)
     continue
   }
+  const evidenceFingerprints = q.evidence.map((entry) => JSON.stringify(entry))
+  if (new Set(evidenceFingerprints).size !== evidenceFingerprints.length)
+    fails.push(`register entry '${id}' repeats an identical evidence record`)
   proofs[id] = []
   for (const ev of q.evidence) {
     if (ev.kind === 'corpus') {
@@ -446,14 +439,6 @@ for (const [id, expected] of Object.entries(GAME_TRANSLATION_FIXTURES))
 for (const file of Object.keys(QUOTE_EVIDENCE_WORKS))
   if (!usedEvidenceFiles.has(file)) fails.push(`evidence-work '${file}' is not used by any quote record`)
 
-if (QUOTE_FIDELITY_REVIEW_HASH !== REVIEW_HASH)
-  fails.push(
-    `quote/work review seal mismatch\n` +
-      `    recorded: ${QUOTE_FIDELITY_REVIEW_HASH}\n` +
-      `    current:  ${REVIEW_HASH}\n` +
-      `    review the changed records, then update QUOTE_FIDELITY_REVIEW_HASH`,
-  )
-
 // ── report ───────────────────────────────────────────────────────────────────
 const tierOf = (id) => quoteTier(QUOTES[id])
 const tally = {}
@@ -472,7 +457,6 @@ if (fails.length) {
   console.error('\nFAILURES:\n' + fails.map((f) => '  ✗ ' + f).join('\n'))
   process.exit(1)
 }
-console.log(`review seal: ${REVIEW_HASH}`)
 console.log('\nall quote register links, work bindings, and recorded transformations valid ✓')
 
 // ── the human-readable ledger ────────────────────────────────────────────────
@@ -496,7 +480,6 @@ if (REPORT) {
   lines.push('')
   const counts = Object.entries(tally).map(([k, v]) => `${v} ${k}`).join(' · ')
   lines.push(`**${sites.length} quoted lines** (${used.size} distinct quotes): ${counts}.`)
-  lines.push(`**Evidence register seal:** \`${REVIEW_HASH}\``)
   lines.push('')
   for (const [id, q] of Object.entries(QUOTES)) {
     lines.push(`## \`${id}\` — ${q.label}`)

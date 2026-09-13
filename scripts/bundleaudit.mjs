@@ -14,11 +14,13 @@ import { execFileSync } from 'node:child_process'
 const DIST = resolve('dist')
 const ASSETS = resolve(DIST, 'assets')
 const AUDIO = resolve(DIST, 'audio')
+const ACTION_TIMINGS = resolve(AUDIO, 'action-timings.json')
 const KiB = 1024
 
 assert.ok(existsSync(resolve(DIST, 'index.html')), 'dist/index.html is missing; run `npm run build` first')
 assert.ok(existsSync(ASSETS), 'dist/assets is missing; run `npm run build` first')
 assert.ok(existsSync(AUDIO), 'dist/audio is missing; pronunciation assets were not copied')
+assert.ok(existsSync(ACTION_TIMINGS), 'dist/audio/action-timings.json is missing; action karaoke cannot align to its MP3s')
 
 const html = readFileSync(resolve(DIST, 'index.html'), 'utf8')
 const entryMatch = html.match(/<script[^>]+type="module"[^>]+src="([^"]+\.js)"/)
@@ -145,11 +147,11 @@ for (const rule of AREA_ACHIEVEMENT_RULES) {
 // This distinguishes a useful cache boundary from pretend byte savings: the
 // browser still has to fetch every member of the static closure before play.
 const SHELL_RAW_BUDGET = 160 * KiB
-const SHELL_GZIP_BUDGET = 55 * KiB
-// The lexical evidence state machine, death-retention boundary, and expanded
-// learner definitions are first-play behavior, not optional tooling. Keep a
-// narrow measured allowance for them while retaining the gzip ceiling below.
-const BOOTSTRAP_RAW_BUDGET = 1_311 * KiB
+const SHELL_GZIP_BUDGET = 56 * KiB
+// The lexical evidence state machine, death-retention boundary, and compact
+// mixed-matching registry are first-play behavior, not optional tooling. Keep
+// a narrow measured allowance for them while retaining the gzip ceiling below.
+const BOOTSTRAP_RAW_BUDGET = 1_360 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
@@ -160,10 +162,16 @@ const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
 const READING_CHUNK_RAW_BUDGET = 350 * KiB
 const READING_CHUNK_GZIP_BUDGET = 100 * KiB
 const AUDIO_FILE_BUDGET = 64 * KiB
+// Word-level timestamps are loaded only after an accepted action starts its
+// continuous MP3. Budget the independently cached manifest as well as the
+// clips so alignment metadata cannot grow without a release review.
+const ACTION_TIMINGS_RAW_BUDGET = 1_024 * KiB
+const ACTION_TIMINGS_GZIP_BUDGET = 130 * KiB
 // Every accepted story action now has one continuous, on-demand MP3 so action
 // karaoke never falls back to stitched word clips or browser TTS. Keep a
 // measured ceiling over that complete 4,486-clip archive; none is eager-loaded.
 const AUDIO_TOTAL_BUDGET = 48 * 1024 * KiB
+const actionTimings = sizeOf(ACTION_TIMINGS)
 
 assert.ok(entry.raw <= SHELL_RAW_BUDGET,
   `release shell grew to ${display(entry.raw)} (budget ${display(SHELL_RAW_BUDGET)}); inspect shell imports`)
@@ -187,6 +195,10 @@ assert.deepEqual(oversizedAudio, [],
   `oversized pronunciation clips: ${oversizedAudio.map((file) => `${file.name} ${display(file.raw)}`).join(', ')}`)
 assert.ok(audioTotal <= AUDIO_TOTAL_BUDGET,
   `pronunciation archive grew to ${display(audioTotal)} (budget ${display(AUDIO_TOTAL_BUDGET)})`)
+assert.ok(actionTimings.raw <= ACTION_TIMINGS_RAW_BUDGET,
+  `action timing manifest grew to ${display(actionTimings.raw)} (budget ${display(ACTION_TIMINGS_RAW_BUDGET)})`)
+assert.ok(actionTimings.gzip <= ACTION_TIMINGS_GZIP_BUDGET,
+  `action timing manifest gzip grew to ${display(actionTimings.gzip)} (budget ${display(ACTION_TIMINGS_GZIP_BUDGET)})`)
 assert.ok(!/<(?:audio|link)[^>]+audio\//i.test(html),
   'index.html must not eagerly load the on-demand pronunciation archive')
 
@@ -230,4 +242,5 @@ console.log(`readings:    ${readingChunks[0].name} — ${display(readingChunks[0
 console.log(`debug map:   ${worldMapChunk.name} — ${display(worldMapChunk.raw)} raw; deferred outside normal play`)
 console.log(`tale chunks: ${taleNames.length} independently demand-loaded witnesses`)
 console.log(`audio:       ${audioFiles.length} on-demand clips — ${display(audioTotal)} total; none loaded by index.html`)
+console.log(`timings:     ${display(actionTimings.raw)} raw / ${display(actionTimings.gzip)} gzip; loaded only for accepted-action karaoke`)
 console.log('✅ first-play bundle stays inside the release budget')
