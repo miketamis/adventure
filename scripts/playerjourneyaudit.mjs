@@ -123,6 +123,16 @@ check('the opening forest path unlocks from its signpost sentence, not a later f
   let state = stateAt(START_NODE)
   assert.equal(ids.every((id) => state.discovered[id]), false)
   assert.equal(isOptionRevealed(state, option, node), false)
+  assert.equal(
+    isOptionRevealed({ ...state, visited: { lendina: true } }, option, node),
+    false,
+    'a prior visit from another route bypassed this scene\'s undiscovered signpost',
+  )
+  assert.equal(
+    isOptionRevealed({ ...state, cameFrom: 'lendina' }, option, node),
+    true,
+    'an immediate retreat stopped being available',
+  )
   state = discover(state, resolution.line)
   assert.equal(ids.every((id) => state.discovered[id]), true)
   assert.equal(isOptionRevealed(state, option, node), true)

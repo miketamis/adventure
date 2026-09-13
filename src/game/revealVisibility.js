@@ -9,7 +9,11 @@ import { resolveRevealLine } from './revealResolver.js'
 export function isOptionRevealed(state, option, node = STORY[state.nodeId], renderedLines = null) {
   if (!option?.reveal) return true
   if (!node) return false
-  if (isBacktrack(state, option.to) || state.visited?.[option.to]) return true
+  // A route previously reached from somewhere else is not proof that this
+  // scene's signpost has been understood. Only an actual retreat to a recent
+  // location bypasses the local reveal gate, so legacy/familiar-world state
+  // cannot expose a forward option before its complete marked line is known.
+  if (isBacktrack(state, option.to)) return true
 
   const revealLine = resolveRevealLine(node.text.map(lineOf), option).line
   if (!revealLine) return true
