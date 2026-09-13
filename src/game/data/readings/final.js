@@ -756,4 +756,7 @@ export const FINAL_READINGS = {
   "varret1.text[5]": { al: "një grua ndez një qiri për një burrë, me lot në sy.", en: "A woman lights a candle for a man, with tears in her eyes." },
   "varretFund.text[2]": { al: "çakmaku ndez qiriun. flaka e vogël rri pranë varrit.", en: "The lighter lights the candle. The small flame keeps vigil beside the grave." },
   "maroLitani3.text[4]": { al: "ti mban miellin dhe floririn.", en: "You hold the flour and the gold." },
+  "tabaket1.text[3]": { al: "tabakët punojnë lëkurën këtu.", en: "The tanners work the leather here." },
+  "tabaket1.text[4]": { al: "tabakët punojnë lëkurën këtu.", en: "The tanners work the leather here." },
+  "kisha1.text[6]": { al: "njerëzit shkojnë në kishë dhe në teqe.", en: "People go to church and to the Bektashi lodge." },
 }

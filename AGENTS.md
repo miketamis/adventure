@@ -4,6 +4,7 @@
 
 - Commit after each coherent, verified increment instead of allowing unrelated work to accumulate in one large working tree.
 - Push each verified checkpoint to the configured upstream before beginning the next increment, then verify that the upstream branch resolves to the local commit. A local commit is not a completed checkpoint.
+- After each push, wait for that exact commit's deployment workflow to reach a terminal state and verify the deployed site is healthy. Treat a failed, cancelled, or superseded deployment as an incomplete checkpoint: inspect the remote logs, fix the cause, push again, and wait for the replacement deployment before moving on.
 - Before every commit, inspect the staged file list and staged diff, run the checks appropriate to the change, and confirm that the commit contains only project material.
 - Keep checkpoint commits focused and use a message that states the player-facing or engineering outcome.
 

@@ -897,4 +897,8 @@ export const EARLY_READINGS = {
   "eliraPorosiaDorezuar.text[0]": { al: "gruaja merr bukën dhe kripën. ajo thotë: faleminderit. oda është gati.", en: "The woman takes the bread and salt. She says, “Thank you. The guest-room is ready.”" },
   "eliraPorosiaDorezuar.text[1]": { al: "Elira merr bukën dhe kripën. Elira thotë: faleminderit. oda është gati.", en: "Elira takes the bread and salt. Elira says, “Thank you. The guest-room is ready.”" },
   "porosiaBlerjePergjigje.text[0]": { al: "fëmija thotë: mirë. ajo po pret.", en: "The child says, “Good. She is waiting.”" },
+  "mujoKale.text[1]": { al: "ti do kalin: një kalë i bardhë. kali rri larg.", en: "You want the horse—a white horse standing far away." },
+  "zanaQumesht.text[1]": { al: "zana jep qumësht nga tri dhi.", en: "The Zana gives milk from three goats." },
+  "zanaKripe.text[2]": { al: "ti mban kripën në dorë.", en: "You hold the salt in your hand." },
+  "zanaKripe.text[3]": { al: "kripa rri me zanën.", en: "The salt remains with the Zana." },
 }

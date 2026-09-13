@@ -729,4 +729,5 @@ export const MIDDLE_READINGS = {
   "gjarperKulshedra.text[4]": { al: "Kripa rri mbi një gur pranë detit.", en: "Salt lies on a rock beside the sea." },
   "tsShpeto.text[3]": { al: "ti mban kosën e Tomorit.", en: "You hold Tomor’s scythe." },
   "foleShpetuar.text[3]": { al: "Shqiponja pret pranë teje.", en: "The eagle waits beside you." },
+  "humbur.text[1]": { al: "thonë se çdo njeri ka një Ora për gjithë jetën.", en: "They say that every person has an Ora throughout their life." },
 }

@@ -290,7 +290,7 @@ export const OPTION_READINGS_B = Object.freeze({
   "ngjitja3.options[2]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 819
   "fshatiSheshi.options[0]": { al: "fol me plakun", en: "Speak with the old man.", review: 'internal-editorial' }, // 820
   "fshatiSheshi.options[1]": { al: "hyr në shtëpi", en: "Enter the house.", review: 'internal-editorial' }, // 821
-  "fshatiSheshi.options[2]": { al: "shko në odë.", en: "Go to the guest-room.", review: 'internal-editorial' }, // 822
+  "fshatiSheshi.options[2]": { al: "po shkoj në odë.", en: "I am going to the guest-room.", review: 'internal-editorial' }, // 822
   "fshatiSheshi.options[3]": { al: "hyr në kafene", en: "Enter the coffeehouse.", review: 'internal-editorial' }, // 823
   "fshatiSheshi.options[4]": { al: "ndihmo fëmijët", en: "Help the children.", review: 'internal-editorial' }, // 824
   "fshatiSheshi.options[5]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' }, // 825
