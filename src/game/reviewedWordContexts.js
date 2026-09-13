@@ -13,11 +13,11 @@ const PHRASE_BY_ID = Object.freeze(Object.fromEntries(
   EVERYDAY_PHRASE_DRILLS.map((phrase) => [phrase.id, phrase]),
 ))
 
-const phraseContext = ({ id, phraseId, en, cueTokens, rationale }) => {
+const phraseContext = ({ phraseId, en, cueTokens }) => {
   const phrase = PHRASE_BY_ID[phraseId]
   if (!phrase) throw new Error(`Unknown reviewed phrase context: ${phraseId}`)
   return Object.freeze({
-    id,
+    id: phraseId,
     phraseId,
     al: phrase.al,
     en,
@@ -25,86 +25,80 @@ const phraseContext = ({ id, phraseId, en, cueTokens, rationale }) => {
     retrievalEn: phrase.en,
     requires: Object.freeze([...phrase.requires]),
     cueTokens: Object.freeze(cueTokens),
-    rationale,
   })
 }
 
 export const PO_PROGRESS_CONTEXT_VARIANTS = Object.freeze([
   phraseContext({
-    id: 'going-village', phraseId: 'going-village',
+    phraseId: 'going-village',
     en: 'I __ going to the village.', cueTokens: ['shkoj', 'fshat'],
-    rationale: 'Immediately before shkoj, po presents the journey as happening now.',
   }),
   phraseContext({
-    id: 'where-going', phraseId: 'where-going',
+    phraseId: 'where-going',
     en: 'Where __ you going?', cueTokens: ['shkon'],
-    rationale: 'Between the question word and shkon, po asks about an action in progress.',
   }),
   phraseContext({
-    id: 'going-guest-room', phraseId: 'going-guest-room',
+    phraseId: 'going-guest-room',
     en: 'I __ going to the guest-room.', cueTokens: ['shkoj', 'odë'],
-    rationale: 'Immediately before shkoj, po presents this movement as happening now.',
   }),
   phraseContext({
-    id: 'what-doing', phraseId: 'what-doing',
+    phraseId: 'what-doing',
     en: 'What __ we doing?', cueTokens: ['bëjmë'],
-    rationale: 'Immediately before bëjmë, po asks about the activity happening now.',
   }),
   phraseContext({
-    id: 'coming-with-you', phraseId: 'yes-coming',
+    phraseId: 'yes-coming',
     en: 'I __ coming with you.', cueTokens: ['vij'],
-    rationale: 'Immediately before vij, po presents the speaker’s movement as already under way.',
   }),
   phraseContext({
-    id: 'raining-now', phraseId: 'raining-now',
+    phraseId: 'raining-now',
     en: 'It __ raining.', cueTokens: ['bie', 'shi'],
-    rationale: 'Directly before the weather verb bie, po marks rain happening now.',
   }),
   phraseContext({
-    id: 'snowing-now', phraseId: 'snowing-now',
+    phraseId: 'snowing-now',
     en: 'It __ snowing.', cueTokens: ['bie', 'borë'],
-    rationale: 'Directly before the weather verb bie, po marks snow happening now.',
   }),
 ])
 
 // Grammatical-job questions are solvable only after the learner has saved the
 // other meaning-bearing words in the exact situation. Proper names are world
 // knowledge and need no vocabulary token; every lexical/supporting sense does.
-const GRAMMATICAL_CONTEXT_REQUIRES = Object.freeze({
-  ne: ['e_obj', 'gjej', 'rruge'],
-  dhe: ['a_q', 'do', 'buke', 'djathe'],
-  te_link: ['ata', 'jam', 'mik', 'fshat'],
-  te_subj: ['do', 'pi', 'uje'],
-  te_obj: ['ajo', 'prit', 'tek', 'ure'],
-  i_art: ['ujk', 'eshte', 'madh'],
-  i_link: ['ky', 'eshte', 'celes', 'shtepi'],
-  mos: ['e_obj', 'hap', 'dere'],
-  nga: ['po_prog', 'vjen', 'fshat'],
-  por: ['eshte', 'vone', 'ure', 'ende', 'hap'],
-  po_yes: ['a_q', 'je', 'mire'],
-  po_but: ['do', 'te_subj', 'vjen', 'nuk', 'mund'],
-  po_turn: ['une', 'jam', 'mire', 'ti'],
-  a_q: ['vjen', 'cdo', 'dite'],
-  nuk: ['ka', 'uje'],
-  per: ['ky', 'buke', 'eshte', 'ti'],
-  e_art: ['ure', 'eshte', 'vjeter'],
-  e_link: ['ky', 'eshte', 'dere', 'shtepi'],
-  e_obj: ['vajze', 'prit', 'buke', 'plak', 'sjell'],
-  i_obj: ['djale', 'prit', 'plak', 'sjell', 'uje'],
-  e_conj: ['ec', 'bashke'],
-  pa: ['pi', 'kafe', 'qumesht'],
-  me: ['pi', 'caj', 'mjalte'],
-  qe: ['ky', 'eshte', 'burre', 'punon', 'ne', 'mulli'],
-  do_fut: ['bolla', 'te_subj', 'bej', 'kulshedra'],
-  ose: ['mund', 'te_subj', 'prit', 'ketu', 'tek', 'ure'],
-  edhe: ['merr', 'uje'],
-  apo: ['do', 'kafe', 'caj'],
-  tek: ['po_prog', 'te_obj', 'prit', 'ure'],
-  se: ['e_obj', 'di', 'ai', 'eshte', 'ketu'],
-  me_more: ['ky', 'mal', 'eshte', 'i_art', 'lart', 'se', 'tjeter'],
-  ndersa: ['une', 'mban', 'buke', 'ti', 'uje'],
-  me_obj: ['plak', 'jep', 'buke'],
-})
+// Keep the authored table compact: this registry is part of the first-play
+// scheduler bundle, while the public shape remains a frozen array of sense IDs.
+const GRAMMATICAL_CONTEXT_REQUIRES = Object.freeze(Object.fromEntries(Object.entries({
+  ne: 'e_obj gjej rruge',
+  dhe: 'a_q do buke djathe',
+  te_link: 'ata jam mik fshat',
+  te_subj: 'do pi uje',
+  te_obj: 'ajo prit tek ure',
+  i_art: 'ujk eshte madh',
+  i_link: 'ky eshte celes shtepi',
+  mos: 'e_obj hap dere',
+  nga: 'po_prog vjen fshat',
+  por: 'eshte vone ure ende hap',
+  po_yes: 'a_q je mire',
+  po_but: 'do te_subj vjen nuk mund',
+  po_turn: 'une jam mire ti',
+  a_q: 'vjen cdo dite',
+  nuk: 'ka uje',
+  per: 'ky buke eshte ti',
+  e_art: 'ure eshte vjeter',
+  e_link: 'ky eshte dere shtepi',
+  e_obj: 'vajze prit buke plak sjell',
+  i_obj: 'djale prit plak sjell uje',
+  e_conj: 'ec bashke',
+  pa: 'pi kafe qumesht',
+  me: 'pi caj mjalte',
+  qe: 'ky eshte burre punon ne mulli',
+  do_fut: 'bolla te_subj bej kulshedra',
+  ose: 'mund te_subj prit ketu tek ure',
+  edhe: 'merr uje',
+  apo: 'do kafe caj',
+  tek: 'po_prog te_obj prit ure',
+  se: 'e_obj di ai eshte ketu',
+  me_more: 'ky mal eshte i_art lart se tjeter',
+  ndersa: 'une mban buke ti uje',
+  me_obj: 'plak jep buke',
+}).map(([id, ids]) => [id, Object.freeze(ids.split(' '))])))
 
 const reviewed = ({
   al,
@@ -333,7 +327,7 @@ const BASE_REVIEWED_WORD_CONTEXTS = Object.freeze({
     } },
     contrastIds: ['po_yes', 'po_but', 'po_turn'],
     cueTokens: ['bie', 'shi'],
-    rationale: 'Directly before the weather verb bie, po marks an action happening now.',
+    rationale: 'Before a finite verb, po presents its action as happening now.',
     contrastRationales: {
       po_yes: 'Po is not a standalone reply to a question.',
       po_but: 'It precedes one verb phrase rather than joining contrasting clauses.',
