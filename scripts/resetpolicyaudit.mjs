@@ -1,17 +1,20 @@
 // Release gate for the boundary between the persistent learner and a single
-// story attempt. A death/new-run may rebuild the world, but it must not erase
-// vocabulary or learning evidence, leave a half-finished Train question open,
-// or preserve spendable tokens unsupported by correct practice.
+// story attempt. Every new run clears physical exploration. Death may unsave
+// weak vocabulary, but it must not erase tokens or training evidence, leave a
+// half-finished Train question open, or preserve tokens unsupported by practice.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { START_NODE, STORY } from '../src/game/content.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { START_HEARTS, newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
 import {
+  DEATH_WORD_RETENTION_POLICY,
   STORY_RUN_RESET_POLICY,
   clearStoryRunTrainingSession,
+  deathVocabularyResetPlan,
   storyRunCarryover,
 } from '../src/game/resetPolicy.js'
+import { emptyWordProgress } from '../src/game/wordProgression.js'
 
 const checks = []
 const check = (name, test) => {
@@ -131,8 +134,10 @@ check('reset policy categories are explicit, disjoint, and consumed by their hel
   const fields = groups.flat()
   assert.equal(new Set(fields).size, fields.length, 'a reset field belongs to more than one policy category')
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('discovered'))
+  assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('deathUnsavedWords'))
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('cefrEvidence'))
   assert.ok(STORY_RUN_RESET_POLICY.durableChronicle.includes('npcPortraitsSeen'))
+  assert.ok(!STORY_RUN_RESET_POLICY.durableChronicle.includes('visited'))
   assert.ok(STORY_RUN_RESET_POLICY.clearTrainingSession.includes('pendingHeartConsequence'))
 
   const source = Object.fromEntries(fields.map((field, index) => [field, { index }]))
@@ -162,6 +167,7 @@ check('RESET rebuilds the run while preserving every declared learner and chroni
   assert.equal(after.hearts, START_HEARTS)
   assert.equal(after.view, 'story')
   assert.equal(after.ended, null)
+  assert.deepEqual(after.visited, {}, 'visited places leaked across story restart')
   for (const field of [
     'inventory', 'flags', 'observations', 'interactions', 'rendezvous', 'quests',
     'healedAt', 'dismissedTests', 'fixtures', 'npcStarted',
@@ -231,6 +237,65 @@ check('migration and restart never preserve tokens beyond monotonic correct evid
   for (const [id, count] of Object.entries(restarted.mana)) {
     assert.ok(count <= (restarted.practiced[id] || 0), `${id}: token balance outlived its evidence`)
   }
+})
+
+check('death unsaves only weak words while tokens, exact proofs, and ranks survive', () => {
+  const weakProgress = emptyWordProgress()
+  const recognitionSecure = {
+    ...emptyWordProgress(),
+    wins: { 'meaning-recognition': DEATH_WORD_RETENTION_POLICY.meaningRecognitionWins },
+  }
+  const before = {
+    ...newRun(),
+    hearts: 0,
+    visited: { fshatiSheshi: true, lendina: true },
+    discovered: { ure: true, fshat: true, mire: true },
+    deathUnsavedWords: {},
+    practiced: {
+      ure: 1,
+      fshat: DEATH_WORD_RETENTION_POLICY.meaningRecognitionWins,
+      mire: DEATH_WORD_RETENTION_POLICY.lifetimeCorrectPractice,
+    },
+    mana: { ure: 1, fshat: 2, mire: 2 },
+    wordProgress: { ure: weakProgress, fshat: recognitionSecure, mire: emptyWordProgress() },
+  }
+  const plan = deathVocabularyResetPlan(before)
+  assert.deepEqual(plan.deathUnsavedWords, { ure: true })
+
+  const after = reducer(before, { type: 'RESET' })
+  assert.deepEqual(after.visited, {})
+  assert.equal(after.discovered.ure, undefined, 'weak word remained saved after death')
+  assert.equal(after.deathUnsavedWords.ure, true, 'death-unsaved word lacks a migration tombstone')
+  assert.equal(after.discovered.fshat, true, 'exact initial recognition did not secure the word')
+  assert.equal(after.discovered.mire, true, 'repeated correct practice did not secure a legacy word')
+  assert.deepEqual(after.wordProgress, before.wordProgress, 'death changed exact Train progression')
+  assert.deepEqual(after.practiced, before.practiced, 'death changed lifetime correct-practice counts')
+  assert.deepEqual(after.mana, before.mana, 'death changed earned token balances')
+
+  const reloaded = normalizeSavedState(clone(after), newRun())
+  assert.equal(reloaded.discovered.ure, undefined, 'reload silently re-saved a death-unsaved word')
+  assert.equal(reloaded.mana.ure, 1, 'reload erased the unsaved word’s backed token')
+  assert.deepEqual(reloaded.wordProgress.ure, weakProgress, 'reload erased the unsaved word’s rank')
+
+  const rediscovered = reducer(reloaded, { type: 'DISCOVER', id: 'ure' })
+  assert.equal(rediscovered.discovered.ure, true)
+  assert.equal(rediscovered.deathUnsavedWords.ure, undefined, 'saving again retained the death tombstone')
+  assert.equal(rediscovered.mana.ure, 1, 'saving again did not restore access to the retained token')
+  assert.deepEqual(rediscovered.wordProgress.ure, weakProgress, 'saving again restarted the training ladder')
+})
+
+check('a living new run clears visited places without unsaving weak vocabulary', () => {
+  const before = {
+    ...newRun(),
+    hearts: 2,
+    visited: { fshatiSheshi: true },
+    discovered: { ure: true },
+    wordProgress: { ure: emptyWordProgress() },
+  }
+  const after = reducer(before, { type: 'RESET' })
+  assert.deepEqual(after.visited, {})
+  assert.equal(after.discovered.ure, true)
+  assert.equal(after.deathUnsavedWords.ure, undefined)
 })
 
 check('a genuinely new learner begins without inherited run or learning state', () => {

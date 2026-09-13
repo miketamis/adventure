@@ -468,8 +468,8 @@ export default function App() {
         >
           <p>You ran out of hearts. This run is over.</p>
           <p>
-            Start again from the beginning of the story. Your <b>saved words, training
-            tokens, and learning progress</b> all stay with you.
+            Weak saved words leave your Dictionary until you find them again. Your <b>training
+            tokens and learning progress</b> stay with you.
           </p>
         </BlockingModal>
       )}

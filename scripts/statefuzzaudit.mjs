@@ -444,7 +444,7 @@ check('embodied long passages persist both clocks and the current segment', () =
 
 check('hard restart clears transient role state but preserves durable learning', () => {
   const durable = {
-    mana: { ec: 4 }, practiced: { ec: 8 }, visited: { lumi: true }, heard: { deti: true },
+    mana: { ec: 4 }, practiced: { ec: 8 }, heard: { deti: true },
     earned: { fate: true }, eligible: { deed: true }, attempts: { deed: 3 },
     worldFacts: { riverRestored: { atClock: 90, source: 'audit' } },
     knowledge: { riverName: { atClock: 45, source: 'elder' } },
@@ -480,6 +480,7 @@ check('hard restart clears transient role state but preserves durable learning',
   assert.deepEqual(restarted.interactions, {})
   assert.deepEqual(restarted.rendezvous, {})
   assert.deepEqual(restarted.discovered, active.discovered)
+  assert.deepEqual(restarted.visited, {}, 'visited places survived a new run')
   for (const key of Object.keys(durable)) assert.deepEqual(restarted[key], durable[key], `${key} was not durable`)
   assert.deepEqual(reducer(restarted, { type: 'RESET' }), restarted, 'repeated hard restart changed clean state')
   return 'live-role lock; fatal recovery; repeat idempotence'

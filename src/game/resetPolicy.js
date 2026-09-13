@@ -12,6 +12,7 @@ const TRAINING_SESSION_DEFAULTS = Object.freeze({
 export const STORY_RUN_RESET_POLICY = Object.freeze({
   learnerProfile: Object.freeze([
     'discovered',
+    'deathUnsavedWords',
     'mana',
     'practiced',
     'wordProgressVersion',
@@ -38,7 +39,6 @@ export const STORY_RUN_RESET_POLICY = Object.freeze({
     'learningTelemetryEvents',
   ]),
   durableChronicle: Object.freeze([
-    'visited',
     'heard',
     'earned',
     'eligible',
@@ -50,6 +50,31 @@ export const STORY_RUN_RESET_POLICY = Object.freeze({
   preferences: Object.freeze(['debug']),
   clearTrainingSession: Object.freeze(Object.keys(TRAINING_SESSION_DEFAULTS)),
 })
+
+// Death creates a small, recoverable vocabulary consequence without destroying
+// learning. Passing the opening two-recognition gate is enough to secure a
+// saved word; the lifetime-practice fallback protects evidence migrated from
+// older ladders and words repeatedly practised inside complete phrases.
+export const DEATH_WORD_RETENTION_POLICY = Object.freeze({
+  meaningRecognitionWins: 2,
+  lifetimeCorrectPractice: 3,
+})
+
+export const deathVocabularyResetPlan = (state) => {
+  const discovered = { ...(state?.discovered || {}) }
+  const deathUnsavedWords = { ...(state?.deathUnsavedWords || {}) }
+  for (const id of Object.keys(discovered)) {
+    const meaningWins = state?.wordProgress?.[id]?.wins?.['meaning-recognition'] || 0
+    const lifetimeCorrect = state?.practiced?.[id] || 0
+    if (
+      meaningWins >= DEATH_WORD_RETENTION_POLICY.meaningRecognitionWins ||
+      lifetimeCorrect >= DEATH_WORD_RETENTION_POLICY.lifetimeCorrectPractice
+    ) continue
+    delete discovered[id]
+    deathUnsavedWords[id] = true
+  }
+  return { discovered, deathUnsavedWords }
+}
 
 const carryFields = Object.freeze([
   ...STORY_RUN_RESET_POLICY.learnerProfile,

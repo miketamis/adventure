@@ -162,6 +162,7 @@ import {
 import { albanianTextOf } from './language.js'
 import {
   clearStoryRunTrainingSession,
+  deathVocabularyResetPlan,
   storyRunCarryover,
 } from './resetPolicy.js'
 export {
@@ -814,22 +815,23 @@ const normalizedTrainWords = (values) => [...new Set(
 // the vocabulary already proven by their word/form/phrase records.
 function reconcileLearnerEvidence(state) {
   const discovered = truthRecord(state.discovered)
+  const deathUnsavedWords = truthRecord(state.deathUnsavedWords)
   const practiced = countRecord(state.practiced)
   for (const id of Object.keys(practiced)) {
     if (!DICT[id] || !isTrainableSense(id)) delete practiced[id]
-    else discovered[id] = true
+    else if (!deathUnsavedWords[id]) discovered[id] = true
   }
 
   const wordProgress = isRecord(state.wordProgress) ? state.wordProgress : {}
   for (const id of Object.keys(wordProgress)) {
-    if (DICT[id] && isTrainableSense(id)) discovered[id] = true
+    if (DICT[id] && isTrainableSense(id) && !deathUnsavedWords[id]) discovered[id] = true
   }
 
   const formPracticed = countRecord(state.formPracticed)
   for (const key of Object.keys(formPracticed)) {
     const [id] = key.split('::')
     if (!DICT[id] || !isTrainableSense(id)) delete formPracticed[key]
-    else discovered[id] = true
+    else if (!deathUnsavedWords[id]) discovered[id] = true
   }
 
   const phraseEvidenceFields = [
@@ -848,11 +850,15 @@ function reconcileLearnerEvidence(state) {
       const phrase = EVERYDAY_PHRASE_BY_ID.get(phraseId)
       if (!phrase) continue
       for (const id of phrase.requires) {
-        if (DICT[id] && isTrainableSense(id)) discovered[id] = true
+        if (DICT[id] && isTrainableSense(id) && !deathUnsavedWords[id]) discovered[id] = true
       }
     }
   }
 
+  for (const id of Object.keys(deathUnsavedWords)) {
+    if (!DICT[id] || !isTrainableSense(id)) delete deathUnsavedWords[id]
+    else delete discovered[id]
+  }
   for (const id of Object.keys(discovered)) {
     if (!DICT[id] || !isTrainableSense(id)) delete discovered[id]
   }
@@ -860,12 +866,15 @@ function reconcileLearnerEvidence(state) {
   const mana = {}
   for (const [id, count] of Object.entries(countRecord(state.mana))) {
     const backedCount = Math.min(count, practiced[id] || 0)
-    if (backedCount > 0 && discovered[id]) mana[id] = backedCount
+    // A death may remove a weak word from the saved list, but the user's earned
+    // tokens remain waiting behind that word's next deliberate discovery.
+    if (backedCount > 0) mana[id] = backedCount
   }
 
   return {
     ...state,
     discovered,
+    deathUnsavedWords,
     mana,
     practiced,
     wordProgress,
@@ -1064,7 +1073,7 @@ export function normalizeSavedState(saved, fresh) {
       : 0
   for (const key of RETIRED_SHADOW_STATE_KEYS) delete next[key]
   next.nodeId = STORY[saved.nodeId] ? saved.nodeId : fresh.nodeId
-  for (const key of ['heard', 'discovered', 'visited', 'dismissedTests', 'healedAt', 'flags']) {
+  for (const key of ['heard', 'discovered', 'deathUnsavedWords', 'visited', 'dismissedTests', 'healedAt', 'flags']) {
     next[key] = truthRecord(fresh[key], saved[key])
   }
   for (const key of ['inventory', 'mana', 'practiced', 'formPracticed']) {
@@ -1468,6 +1477,7 @@ function baseRun() {
 }
 
 const emptyLearnerProfile = () => ({
+    deathUnsavedWords: {},
     mana: {},
     practiced: {},
     wordProgressVersion: WORD_PROGRESS_VERSION,
@@ -1504,10 +1514,12 @@ export function newRun() {
   }
 }
 
-// Story death/new-run clears the world attempt, not the learner. Both reducer
-// paths call this one constructor so new evidence tracks cannot accidentally
-// survive one reset button but disappear through another.
+// Every story restart clears the world attempt. Death additionally removes
+// weak words from the saved list, but never destroys their tokens or learning
+// proofs. Both reducer paths call this constructor so reset behavior cannot
+// drift between buttons.
 function restartStoryRun(state) {
+  const deathVocabulary = state.hearts <= 0 ? deathVocabularyResetPlan(state) : null
   const restarted = clearStoryRunTrainingSession({
     ...baseRun(),
     ...emptyLearnerProfile(),
@@ -1518,6 +1530,10 @@ function restartStoryRun(state) {
     debug: false,
     loreFocus: null,
     ...storyRunCarryover(state),
+    ...(deathVocabulary ? {
+      discovered: deathVocabulary.discovered,
+      deathUnsavedWords: deathVocabulary.deathUnsavedWords,
+    } : {}),
     wordProgressVersion: WORD_PROGRESS_VERSION,
     phraseProgressVersion: PHRASE_PROGRESS_VERSION,
     ...normalizeStoredCefrState(state),
@@ -1876,9 +1892,12 @@ export function reducer(state, action) {
       const wordProgress = safeMapKey(action.id) && DICT[action.id] && !state.wordProgress?.[action.id]
         ? { ...(state.wordProgress || {}), [action.id]: emptyWordProgress() }
         : state.wordProgress
+      const deathUnsavedWords = { ...(state.deathUnsavedWords || {}) }
+      delete deathUnsavedWords[action.id]
       return {
         ...state,
         discovered: { ...state.discovered, [action.id]: true },
+        deathUnsavedWords,
         wordProgressVersion: WORD_PROGRESS_VERSION,
         wordProgress,
       }
@@ -2719,12 +2738,14 @@ export function reducer(state, action) {
     // one training token for each. Used by the ⚡ button on a locked option.
     case 'DEBUG_GRANT': {
       const discovered = { ...state.discovered }
+      const deathUnsavedWords = { ...(state.deathUnsavedWords || {}) }
       const mana = { ...state.mana }
       const practiced = { ...state.practiced }
       const wordProgress = { ...(state.wordProgress || {}) }
       for (const id of action.ids || []) {
         if (!safeMapKey(id) || !DICT[id] || !isTrainableSense(id)) continue
         discovered[id] = true
+        delete deathUnsavedWords[id]
         if ((mana[id] || 0) < 1) mana[id] = 1
         // also cross the form-practice threshold so granted words are testable
         if ((practiced[id] || 0) < FORMS_UNLOCK_THRESHOLD) practiced[id] = FORMS_UNLOCK_THRESHOLD
@@ -2733,6 +2754,7 @@ export function reducer(state, action) {
       return {
         ...state,
         discovered,
+        deathUnsavedWords,
         mana,
         practiced,
         wordProgressVersion: WORD_PROGRESS_VERSION,
@@ -2818,8 +2840,8 @@ export function reducer(state, action) {
       }
 
     case 'CONTINUE':
-      // finished an ending: play again, but KEEP what you've learned — your
-      // discovered words AND tokens carry over (only the run itself restarts)
+      // Finished a bad ending: rebuild the run. Training evidence and tokens
+      // remain; only a literal death can unsave weak vocabulary.
       if (state.ended !== 'bad') return state
       if (STORY[state.nodeId]?.end !== 'bad') return state
       if (state.embodying && !isEmbodimentEnding(state.embodying, state.nodeId)) return state
@@ -2876,8 +2898,8 @@ export function reducer(state, action) {
 
     case 'RESET':
       // hard new run (top-right button or game over): back to the start with
-      // a fresh world attempt; keep the coherent learner profile, achievements,
-      // and the lasting physical consequences of tales already completed.
+      // a fresh world attempt. A living restart keeps the saved-word list;
+      // death applies the recoverable weak-word consequence described above.
       if (state.embodying && state.hearts > 0) return state
       return restartStoryRun(state)
 
