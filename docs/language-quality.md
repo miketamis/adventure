@@ -233,8 +233,10 @@ should proceed as follows:
    recording disagreements and dialect decisions.
 4. Keep every registry line pinned to its exact Albanian rendering; a changed
    line must fail the audit until its reading is reviewed again.
-5. Keep reviewed action English distinct from the labelled word-by-word token
-   row, and review any newly authored action before updating the registry seal.
+5. Keep reviewed action English distinct from local token glosses, and review
+   every newly authored action at its stable address. The audit checks each
+   record against the exact live Albanian action and reports that address when
+   its source pin, reading, or review disposition is stale.
 6. Re-run the language audit, quote checker, story audit, and production build
    after every completed tale.
 

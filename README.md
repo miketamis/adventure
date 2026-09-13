@@ -2,13 +2,14 @@
 
 A roguelike, choose-your-own-adventure word game for learning Albanian (fluent
 language: English). The story is written in Albanian. Unknown clickable words
-begin as literal English glosses and flip to Albanian as they are discovered;
-a separate reviewed whole-line reading keeps each sentence understandable in
-natural English.
+begin as local English glosses and flip to Albanian as they are discovered.
+Fluent whole-line English readings are editorial metadata and remain available
+only in debug mode, so ordinary play never prints the completed answer beside
+the Albanian.
 
 ## Run
 
-Requires Node.js 20.19+ (or 22.12+).
+Requires Node.js 22.12+.
 
 ```bash
 npm install
@@ -20,20 +21,23 @@ npm run certify  # all strict declared-scope certification gates
 
 ## How it plays
 
-- **Story** (`📖`): each passage has two English aids. Unknown clickable words
-  appear as literal word-for-word glosses, e.g. *"you are in a forest of big"*
-  for `ti je në një pyll të madh`; beneath the line, a reviewed natural-English
-  reading gives the complete sentence's meaning. The token gloss deliberately
-  preserves Albanian structure. Even grammatical particles (`të` → *of/to*,
-  `i` → *the*) are real, learnable words; only punctuation isn't clickable.
-- **Discover**: click any word to discover that *sense*. Discovered words render
-  in Albanian everywhere they appear (`ti` → `ti`). You can never undiscover.
+- **Story** (`📖`): unknown clickable words appear as local word glosses while
+  preserving Albanian structure. Even grammatical particles (`të` → *of/to*,
+  `i` → *the*) are real, learnable words; only punctuation is not clickable.
+  The complete natural-English reading is debug-only.
+- **Discover**: click any word to save that *sense*. Saved words render in
+  Albanian everywhere they appear (`ti` → `ti`). Starting a living new run
+  preserves them. Death may unsave only weak, scarcely practised vocabulary;
+  its tokens and exact Train progress remain intact for rediscovery.
 - **Hover hints**: hovering an *undiscovered* word shows its Albanian. Hovering
   or focusing a discovered word shows its tokenised Albanian dictionary
   definition; hovering or clicking also replays its pronunciation.
-- **Train** (`🎯`): multiple-choice on your discovered words (Albanian→English or
-  English→Albanian). Each correct answer mints a **training token** (◆, your mana)
-  for that word.
+- **Train** (`🎯`): adaptive practice independently develops meaning, listening,
+  grammatical-form, agreement, construction, spelling, phrase and retention
+  evidence. Activities range from matching and staged form decisions to audio
+  construction, cloze, ordering, speaking rehearsal and independent production.
+  A focused activity rewards only its target; each correct target answer mints
+  a **training token** (◆) for that word.
 - **Continue the story**: to take a path, you must have discovered *every* word in
   that answer **and** hold ≥1 token for each. Choosing it spends one token per word.
 - **Hidden path**: some passages have a secret option (`secret: true`). It's obscured
@@ -43,10 +47,11 @@ npm run certify  # all strict declared-scope certification gates
   *take the bread*). To **use** an item you must "say" its Albanian use-phrase —
   e.g. `ha bukë` (*eat bread*) — so every word must be discovered and you
   spend one token per word, exactly like choosing a path.
-- **New run**: `⟳ new run` returns you to the opening with a fresh traveller
-  (location, inventory, hearts, and word-discovery gates reset). Training tokens,
-  practice, places and stories already encountered, achievements, and lasting
-  world changes carry across runs.
+- **New run**: `⟳ new run` returns you to the opening with a fresh world attempt
+  (location, inventory, hearts, visits and run-local observations reset). Saved
+  vocabulary, training tokens, aspect/form/phrase progress, achievements and
+  lasting world changes carry across living restarts. Death applies the narrow
+  weak-word consequence described above without erasing learning evidence.
 - **Character tales** (`🎭`): entering a named role requires confirmation. You
   remain that person until the tale ends; unrelated roles, private scenes and
   incompatible deeds stay locked. Public roads remain explorable, with a focus

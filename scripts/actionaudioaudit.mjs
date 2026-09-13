@@ -197,6 +197,38 @@ await check('missing MP3 stays silent without browser speech synthesis and mute 
   }
 })
 
+await check('a stalled MP3 fails safely instead of leaving the story inert forever', async () => {
+  const originalAudio = globalThis.Audio
+  const originalSetTimeout = globalThis.setTimeout
+  const originalClearTimeout = globalThis.clearTimeout
+  class StalledRecording {
+    constructor() {
+      this.duration = 1
+      this.currentTime = 0
+    }
+    pause() {}
+    play() {
+      this.onloadedmetadata?.()
+      return Promise.resolve()
+    }
+  }
+  globalThis.Audio = StalledRecording
+  globalThis.setTimeout = (callback) => {
+    queueMicrotask(callback)
+    return 1
+  }
+  globalThis.clearTimeout = () => {}
+  try {
+    setMuted(false)
+    assert.equal(await playActionPhrase('audio watchdog audit'), false)
+  } finally {
+    if (originalAudio === undefined) delete globalThis.Audio
+    else globalThis.Audio = originalAudio
+    globalThis.setTimeout = originalSetTimeout
+    globalThis.clearTimeout = originalClearTimeout
+  }
+})
+
 const failed = checks.filter((result) => !result.ok)
 if (failed.length) {
   console.error(`\n${failed.length} committed-action audio contract(s) failed.`)

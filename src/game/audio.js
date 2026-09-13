@@ -62,6 +62,15 @@ export function subscribeMute(fn) {
 const cache = new Map()
 let activeAudio = null
 let activePlayback = null
+const PLAYBACK_START_TIMEOUT_MS = 30_000
+const PLAYBACK_END_GRACE_MS = 3_000
+
+function clearPlaybackWatchdog(playback) {
+  if (playback?.watchdog != null) {
+    clearTimeout(playback.watchdog)
+    playback.watchdog = null
+  }
+}
 
 function stopActivePlayback() {
   if (activePlayback) {
@@ -69,8 +78,10 @@ function stopActivePlayback() {
     activePlayback = null
     playback.audio.onended = null
     playback.audio.onerror = null
+    playback.audio.onabort = null
     playback.audio.ontimeupdate = null
     playback.audio.onloadedmetadata = null
+    clearPlaybackWatchdog(playback)
     try {
       playback.audio.pause()
       playback.audio.currentTime = 0
@@ -102,12 +113,14 @@ function playSurface(al, { onProgress } = {}) {
   }
   stopActivePlayback()
   return new Promise((resolve) => {
-    const playback = { audio: a, resolve }
+    const playback = { audio: a, resolve, watchdog: null }
     const settle = (completed) => {
       if (activePlayback !== playback) return
       activePlayback = null
+      clearPlaybackWatchdog(playback)
       a.onended = null
       a.onerror = null
+      a.onabort = null
       a.ontimeupdate = null
       a.onloadedmetadata = null
       if (activeAudio === a) activeAudio = null
@@ -119,6 +132,10 @@ function playSurface(al, { onProgress } = {}) {
         })
       }
       resolve(completed)
+    }
+    const armWatchdog = (delayMs) => {
+      clearPlaybackWatchdog(playback)
+      playback.watchdog = setTimeout(() => settle(false), delayMs)
     }
     const reportProgress = () => {
       const duration = Number(a.duration)
@@ -133,12 +150,19 @@ function playSurface(al, { onProgress } = {}) {
     try {
       activeAudio = a
       activePlayback = playback
+      armWatchdog(PLAYBACK_START_TIMEOUT_MS)
       a.currentTime = 0
       onProgress?.(0, { currentTimeMs: 0, durationMs: null })
       a.ontimeupdate = reportProgress
-      a.onloadedmetadata = reportProgress
+      a.onloadedmetadata = () => {
+        reportProgress()
+        const duration = Number(a.duration)
+        if (Number.isFinite(duration) && duration > 0)
+          armWatchdog((duration * 1000) + PLAYBACK_END_GRACE_MS)
+      }
       a.onended = () => settle(true)
       a.onerror = () => settle(false)
+      a.onabort = () => settle(false)
       Promise.resolve(a.play()).catch(() => settle(false))
     } catch {
       settle(false)

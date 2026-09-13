@@ -6,10 +6,10 @@ import { OPTION_READINGS_STATIC } from './optionsStatic.js'
 
 // This is a fully materialized editorial registry. Every action has its own
 // stable address, exact Albanian pin, English phrase and explicit review state.
-// The SHA-256 seal is checked in scripts/languageaudit.mjs after all candidates
-// have been inspected. `internal-editorial` never claims native-speaker review.
+// scripts/languageaudit.mjs checks every record against its exact live Albanian
+// action, so failures identify the specific stale or incomplete address.
+// `internal-editorial` never claims native-speaker review.
 export const REVIEWED_OPTION_COUNT = 1839
-export const OPTION_READING_REVIEW_HASH = 'sha256:070768e900d0543bf370adb58969d6851487c1a8899d0cccff2a760e2ef9a35b'
 
 const merged = {}
 for (const tranche of [OPTION_READINGS_A, OPTION_READINGS_B, OPTION_READINGS_C, OPTION_READINGS_STATIC]) {
@@ -33,13 +33,6 @@ export function normalizeOptionEnglish(text, albanian = '') {
   }
   return out
 }
-
-export const optionReviewPayload = () => Object.entries(REVIEWED_OPTION_READINGS).map(([address, review]) => [
-  address,
-  review.al,
-  review.en,
-  review.review,
-])
 
 function phraseAt(address, story, items, heartLevels) {
   let match = /^(.+)\.options\[(\d+)\]$/.exec(address)
