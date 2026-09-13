@@ -86,8 +86,8 @@ export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
 
 export const TRAIN_WORD_FORM_POLICY = deepFreeze({
   practiceWinsRequired: 0,
-  lexicalStageRequired: 2,
-  lexicalPrerequisite: 'Complete meaning recognition and both internal variants of controlled lemma retrieval.',
+  lexicalStageRequired: 1,
+  lexicalPrerequisite: 'Complete two successful meaning-recognition rounds; then introduce a reviewed form and its grammatical job before spelling.',
   steps: TRAIN_EXERCISE_FAMILIES.wordForms.variants,
   correction: TRAIN_EXERCISE_FAMILIES.nounCorrection,
   nonNounCoverageFloor: 'reviewed playable surfaces only; no speculative conjugation generation',

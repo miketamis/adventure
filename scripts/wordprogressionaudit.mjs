@@ -24,12 +24,12 @@ import {
 } from '../src/game/wordProgression.js'
 
 assert.deepEqual(WORD_STAGE_DEFINITIONS.map(({ id }) => id), [
-  'meaning-recognition', 'controlled-lemma-retrieval', 'reviewed-form-contrast',
+  'meaning-recognition', 'reviewed-form-contrast', 'controlled-lemma-retrieval',
   'contextual-form-selection', 'word-form-construction', 'contextual-typed-recall',
   'strict-spaced-recall',
 ])
 assert.equal(WORD_PROGRESSION_POLICY.productionBeginsAt, 'word-form-construction')
-assert.deepEqual(WORD_STAGE_DEFINITIONS[1].variants.map(({ id }) => id), [
+assert.deepEqual(WORD_STAGE_DEFINITIONS[2].variants.map(({ id }) => id), [
   'controlled-retrieval-two-choice', 'controlled-retrieval-four-choice',
 ])
 assert.ok(WORD_STAGE_DEFINITIONS.slice(0, 4).every(({ evidenceTrack }) => evidenceTrack !== 'production'))
@@ -129,6 +129,12 @@ assert.equal(simpleSnapshot.hasReviewedFormLane, false)
 assert.equal(simpleSnapshot.capabilities['reviewed-form-awareness'].status, 'inapplicable')
 assert.equal(simpleSnapshot.capabilities['contextual-form-selection'].status, 'inapplicable')
 assert.equal(simpleSnapshot.capabilities['word-form-construction'].status, 'pending')
+
+const earlyFormPlan = wordCapabilitySnapshot({ wins: { 'meaning-recognition': 2 } }, 4, nounOptions)
+assert.equal(earlyFormPlan.nextStageId, 'reviewed-form-contrast',
+  'a reviewed form did not appear immediately after two base-word recognition wins')
+assert.equal(earlyFormPlan.progress.wins['controlled-lemma-retrieval'], undefined,
+  'the early form gate was made to depend on later lemma retrieval')
 
 // A noun may move from its lemma to another reviewed spelling without changing
 // sense ID. The real scheduler must skip that exact surface for one round and

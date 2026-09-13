@@ -157,7 +157,7 @@ check('the word walkthrough and builder share the exact lexical stage registry',
   const entry = wordProgressionSnapshot(null, 0, exampleOptions)
   assert.equal(entry.stages.length, WORD_STAGE_DEFINITIONS.length)
   assert.equal(WORD_STAGE_DEFINITIONS[0].id, 'meaning-recognition')
-  assert.match(WORD_PROGRESSION_POLICY.principle, /Train begins with four-choice meaning recognition/)
+  assert.match(WORD_PROGRESSION_POLICY.principle, /After two meaning recognitions/)
   assert.equal(WORD_PROGRESSION_POLICY.productionBeginsAt, 'word-form-construction')
   entry.stages.forEach((stage, index) => assert.equal(stage.definition, WORD_STAGE_DEFINITIONS[index]))
   const question = buildWordQuestion({ discoveredIds: ['fshat'], currentRound: 0, rng: () => 0.2 })
@@ -215,10 +215,10 @@ check('the word walkthrough and builder share the exact lexical stage registry',
   assert.deepEqual(observed, [
     'marked-context-recognition',
     'marked-context-recognition',
-    'mirrored-controlled-retrieval',
-    'mirrored-controlled-retrieval',
-    'mirrored-controlled-retrieval',
     'class-specific-form-contrast',
+    'mirrored-controlled-retrieval',
+    'mirrored-controlled-retrieval',
+    'mirrored-controlled-retrieval',
     'reviewed-form-in-context',
     'unmarked-context-recognition',
     'letter-and-chunk-construction',

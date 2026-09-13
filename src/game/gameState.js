@@ -1103,13 +1103,16 @@ export function normalizeSavedState(saved, fresh) {
   // proof IDs and explicitly remapped repair tier can be preserved. Version 2
   // also preserves its lexical proofs but starts with no invented context proof.
   const hasCurrentWordProgress = saved.wordProgressVersion === WORD_PROGRESS_VERSION
+  // v6 changes only the order in which the same proof IDs are requested. Keep
+  // every exact v5 proof; do not punish an existing learner for the new ramp.
+  const hasWordProgressV5 = saved.wordProgressVersion === 5
   const hasWordProgressV4 = saved.wordProgressVersion === 4
   const hasWordProgressV3 = saved.wordProgressVersion === 3
   const hasWordProgressV2 = saved.wordProgressVersion === 2
   const hasWordProgressV1 = saved.wordProgressVersion === 1
   next.wordProgressVersion = WORD_PROGRESS_VERSION
   next.wordProgress = wordProgressRecord(
-    hasCurrentWordProgress || hasWordProgressV4 || hasWordProgressV3 || hasWordProgressV2 || hasWordProgressV1 ? saved.wordProgress : {},
+    hasCurrentWordProgress || hasWordProgressV5 || hasWordProgressV4 || hasWordProgressV3 || hasWordProgressV2 || hasWordProgressV1 ? saved.wordProgress : {},
     next.trainRound,
     hasWordProgressV3
       ? migrateWordProgressV3

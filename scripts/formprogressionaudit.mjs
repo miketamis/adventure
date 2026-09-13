@@ -11,6 +11,14 @@ let lanes = 0
 let exactTargets = 0
 let skipped = 0
 
+const earlyFshat = wordProgressPlan(
+  { wins: { 'meaning-recognition': 2 } },
+  3,
+  wordProgressionOptionsForSense('fshat'),
+)
+assert.equal(earlyFshat.stageId, 'reviewed-form-contrast',
+  'form-role practice waits beyond two successful base-word recognitions')
+
 for (const [id, entry] of Object.entries(DICT)) {
   if (!isTrainableSense(id)) continue
   const options = wordProgressionOptionsForSense(id)

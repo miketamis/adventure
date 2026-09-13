@@ -28,8 +28,8 @@ import {
 
 const EXPECTED_STAGE_ORDER = [
   'meaning-recognition',
-  'controlled-lemma-retrieval',
   'reviewed-form-contrast',
+  'controlled-lemma-retrieval',
   'contextual-form-selection',
   'word-form-construction',
   'contextual-typed-recall',
@@ -272,6 +272,9 @@ assert.ok(firstFormQuestion.formTarget.context.alGap.includes('__'))
 assert.ok(firstFormQuestion.options.length >= 2 && firstFormQuestion.options.length <= 4)
 assert.equal(new Set(firstFormQuestion.options.map(({ label }) => label)).size, firstFormQuestion.options.length)
 assert.ok(firstFormQuestion.options.every(({ label }) => !label.includes('→')), 'noun roles were presented as an arrow ladder')
+assert.deepEqual(reached.observed.map(({ wordStageId }) => wordStageId), [
+  'meaning-recognition', 'meaning-recognition', 'reviewed-form-contrast',
+], 'the first reviewed form did not follow two successful base-word recognitions')
 
 const forgedForm = reducer(noun, resultAction(firstFormQuestion, true, {
   targetFormKey: 'fshat::not-the-reviewed-target',
@@ -285,6 +288,13 @@ assert.equal(noun.wordProgress.fshat.wins['reviewed-form-contrast'], undefined,
 
 due = nextDueQuestion(noun, 'fshat')
 noun = due.state
+for (let retrievalRound = 0; retrievalRound < 3; retrievalRound++) {
+  assert.equal(due.question.wordStageId, 'controlled-lemma-retrieval')
+  assert.equal(due.question.targetFormKey, null)
+  noun = answerQuestion(noun, due.question)
+  due = nextDueQuestion(noun, 'fshat')
+  noun = due.state
+}
 assert.equal(due.question.wordStageId, 'contextual-form-selection')
 assert.equal(due.question.targetFormKey, firstFormKey)
 assert.ok(due.question.context.alGap.includes('__'))

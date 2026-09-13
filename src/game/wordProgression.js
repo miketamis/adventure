@@ -18,7 +18,7 @@ const deepFreeze = (value) => {
   return Object.freeze(value)
 }
 
-export const WORD_PROGRESS_VERSION = 5
+export const WORD_PROGRESS_VERSION = 6
 export const WORD_MIN_INTERVENING_ROUNDS = 1
 export const WORD_INITIAL_REVIEW_GAP = 6
 export const WORD_MAX_REVIEW_GAP = 64
@@ -28,9 +28,9 @@ export const WORD_CONTEXT_LATE_PROOF = 'unmarked-context-recognition'
 
 export const WORD_CAPABILITY_DEFINITIONS = deepFreeze([
   { id: 'meaning-recognition', label: 'Recognise meaning', stageId: 'meaning-recognition' },
+  { id: 'reviewed-form-awareness', label: 'Distinguish a reviewed form and job', stageId: 'reviewed-form-contrast', conditional: 'reviewed-form-lane' },
   { id: 'controlled-retrieval-supported', label: 'Retrieve from two choices', stageId: 'controlled-lemma-retrieval' },
   { id: 'controlled-retrieval-expanded', label: 'Retrieve from four choices', stageId: 'controlled-lemma-retrieval' },
-  { id: 'reviewed-form-awareness', label: 'Distinguish a reviewed form and job', stageId: 'reviewed-form-contrast', conditional: 'reviewed-form-lane' },
   { id: 'contextual-form-selection', label: 'Select the reviewed form in context', stageId: 'contextual-form-selection', conditional: 'reviewed-form-lane' },
   { id: 'word-form-construction', label: 'Construct the word or form', stageId: 'word-form-construction' },
   { id: 'contextual-typed-recall', label: 'Type it in context with beginner leeway', stageId: 'contextual-typed-recall' },
@@ -110,6 +110,20 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
   },
   {
     tier: 1,
+    id: 'reviewed-form-contrast',
+    label: 'reviewed form contrast',
+    familyId: 'word-forms',
+    mode: 'choice',
+    direction: 'form2role',
+    evidenceTrack: 'form-awareness',
+    conditional: 'reviewed-form-lane',
+    variant: { id: 'class-specific-form-contrast', choiceRange: [2, 4], distractors: { min: 1, max: 3 } },
+    gate: { wins: 1 },
+    capabilityIds: ['reviewed-form-awareness'],
+    proves: 'distinguishes the exact reviewed form and its grammatical job',
+  },
+  {
+    tier: 2,
     id: 'controlled-lemma-retrieval',
     label: 'controlled lemma retrieval',
     familyId: 'word-meaning',
@@ -124,20 +138,6 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     gate: { wins: 3 },
     capabilityIds: ['controlled-retrieval-supported', 'controlled-retrieval-expanded'],
     proves: 'retrieves the Albanian lemma from a controlled set; selection is not production',
-  },
-  {
-    tier: 2,
-    id: 'reviewed-form-contrast',
-    label: 'reviewed form contrast',
-    familyId: 'word-forms',
-    mode: 'choice',
-    direction: 'form2role',
-    evidenceTrack: 'form-awareness',
-    conditional: 'reviewed-form-lane',
-    variant: { id: 'class-specific-form-contrast', choiceRange: [2, 4], distractors: { min: 1, max: 3 } },
-    gate: { wins: 1 },
-    capabilityIds: ['reviewed-form-awareness'],
-    proves: 'distinguishes the exact reviewed form and its grammatical job',
   },
   {
     tier: 3,
@@ -199,14 +199,14 @@ const STAGE_BY_ID = Object.freeze(Object.fromEntries(WORD_STAGE_DEFINITIONS.map(
 
 export const WORD_PROGRESSION_POLICY = deepFreeze({
   version: WORD_PROGRESS_VERSION,
-  principle: 'Saving supplies guided recognition. Train begins with four-choice meaning recognition; controlled selection remains retrieval, and production begins only when the learner constructs a form.',
+  principle: 'Saving supplies guided recognition. After two meaning recognitions, an inflecting word immediately introduces one reviewed form and its grammatical job; controlled selection remains retrieval, and production begins only when the learner constructs a form.',
   stageOrder: WORD_STAGE_DEFINITIONS.map(({ id }) => id),
   productionBeginsAt: 'word-form-construction',
   controlledRetrievalVariants: STAGE_BY_ID['controlled-lemma-retrieval'].variants,
   formLane: {
     conditionalCapabilities: ['reviewed-form-awareness', 'contextual-form-selection'],
     source: 'reviewed forms only',
-    rule: 'Inflecting senses practise exact reviewed form-and-role records. Non-inflecting senses skip only the two form-specific capabilities.',
+    rule: 'After two successful lemma recognitions, inflecting senses immediately practise an exact reviewed form-and-role record. Non-inflecting senses skip only the two form-specific capabilities.',
   },
   contextVariant: {
     exerciseConceptId: WORD_CONTEXT_EXERCISE_CONCEPT,
@@ -332,7 +332,9 @@ const normalizedFormProofs = (value) => {
     if (!key || key.length > 240 || !proof || typeof proof !== 'object' || Array.isArray(proof)) continue
     const reviewGap = Math.max(WORD_INITIAL_REVIEW_GAP, Math.min(WORD_MAX_REVIEW_GAP, safeCount(proof.reviewGap) || WORD_INITIAL_REVIEW_GAP))
     next[key] = {
-      wins: normalizedWins(proof.wins, WORD_STAGE_DEFINITIONS.slice(2).map(({ id }) => id)),
+      wins: normalizedWins(proof.wins, WORD_STAGE_DEFINITIONS
+        .filter(({ id }) => !['meaning-recognition', 'controlled-lemma-retrieval'].includes(id))
+        .map(({ id }) => id)),
       strictWins: safeCount(proof.strictWins),
       dueAfterRound: safeRound(proof.dueAfterRound),
       reviewGap,
@@ -434,12 +436,21 @@ const retrievalVariant = (progress) => {
 const basePlan = (progress, options = {}) => {
   const forms = normalizedReviewedForms(options)
   const hasReviewedFormLane = forms.length > 0 || options.hasReviewedFormLane === true
-  for (const definition of WORD_STAGE_DEFINITIONS.slice(0, 2)) {
-    if (!proofPassed(progress, definition)) return { definition, formTarget: null, forms, hasReviewedFormLane }
-  }
+  const meaning = STAGE_BY_ID['meaning-recognition']
+  if (!proofPassed(progress, meaning)) return { definition: meaning, formTarget: null, forms, hasReviewedFormLane }
   const formTarget = selectedForm(progress, forms)
   if (hasReviewedFormLane && formTarget) {
-    for (const definition of WORD_STAGE_DEFINITIONS.slice(2)) {
+    const awareness = STAGE_BY_ID['reviewed-form-contrast']
+    if (!proofPassed(progress, awareness, formTarget.key)) {
+      return { definition: awareness, formTarget, forms, hasReviewedFormLane }
+    }
+  }
+  const retrieval = STAGE_BY_ID['controlled-lemma-retrieval']
+  if (!proofPassed(progress, retrieval)) {
+    return { definition: retrieval, formTarget: null, forms, hasReviewedFormLane }
+  }
+  if (hasReviewedFormLane && formTarget) {
+    for (const definition of WORD_STAGE_DEFINITIONS.slice(3)) {
       if (!proofPassed(progress, definition, formTarget.key)) return { definition, formTarget, forms, hasReviewedFormLane }
     }
     return { definition: STAGE_BY_ID['strict-spaced-recall'], formTarget, forms, hasReviewedFormLane }
@@ -570,9 +581,21 @@ const remediationForFailure = (plan, nextRound) => {
   // Back off exactly one applicable rung. This preserves the target form and
   // gives relevant support (selection before construction; construction before
   // typing) instead of dropping every production miss back to a lemma quiz.
-  const stageId = plan.definition.tier === 4 && !plan.hasReviewedFormLane
-    ? 'controlled-lemma-retrieval'
-    : WORD_STAGE_DEFINITIONS[plan.definition.tier - 1].id
+  const previousStageById = plan.hasReviewedFormLane ? {
+    'reviewed-form-contrast': 'meaning-recognition',
+    'controlled-lemma-retrieval': 'meaning-recognition',
+    'contextual-form-selection': 'reviewed-form-contrast',
+    'word-form-construction': 'contextual-form-selection',
+    'contextual-typed-recall': 'word-form-construction',
+    'strict-spaced-recall': 'contextual-typed-recall',
+  } : {
+    'controlled-lemma-retrieval': 'meaning-recognition',
+    'word-form-construction': 'controlled-lemma-retrieval',
+    'contextual-typed-recall': 'word-form-construction',
+    'strict-spaced-recall': 'contextual-typed-recall',
+  }
+  const stageId = previousStageById[plan.definition.id]
+  if (!stageId) return null
   return {
     stageId,
     returnStageId: plan.definition.id,
@@ -712,7 +735,9 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
   const target = plan.formTarget || selectedForm(progress, forms)
   const targetProof = target ? progress.formProofs[target.key] || emptyFormProof() : progress
   const stageRows = WORD_STAGE_DEFINITIONS.map((definition) => {
-    const formKey = definition.tier >= 2 ? target?.key || null : null
+    const formKey = ['reviewed-form-contrast', 'contextual-form-selection', 'word-form-construction',
+      'contextual-typed-recall', 'strict-spaced-recall'].includes(definition.id)
+      ? target?.key || null : null
     const conditionalSkipped = Boolean(definition.conditional && !plan.hasReviewedFormLane)
     const passed = conditionalSkipped || proofPassed(progress, definition, formKey)
     return {
