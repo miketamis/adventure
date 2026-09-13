@@ -24,6 +24,7 @@ import { lexicalTrainability } from '../src/game/lexicalTrainability.js'
 import { newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
 import { trainQuestionWordKeys } from '../src/game/phrasePractice.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
+import { REVIEWED_WORD_CONTEXTS } from '../src/game/reviewedWordContexts.js'
 import { WORD_CAPABILITY_DEFINITIONS, wordCapabilitySnapshot } from '../src/game/wordProgression.js'
 import { analyzeDiscovery, sensesOf } from './lib/discovery.mjs'
 
@@ -42,7 +43,14 @@ const check = (label, fn) => {
 const focusSenseIds = [...new Set(CEFR_PREPARATION_ACTIVITIES.flatMap(({ focusSenseIds: ids }) => ids))]
 const capabilityIndex = new Map(WORD_CAPABILITY_DEFINITIONS.map(({ id }, index) => [id, index]))
 const DISJOINT_SUPPORT_SENSE_IDS = ['pershendetje', 'jo', 'si', 'cfare', 'pse', 'kush']
-const discoverySenseIds = [...new Set([...focusSenseIds, ...DISJOINT_SUPPORT_SENSE_IDS])]
+const reviewedContextSupportIds = [...new Set(Object.values(REVIEWED_WORD_CONTEXTS)
+  .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
+  .flatMap(({ requires = [] }) => requires))]
+const discoverySenseIds = [...new Set([
+  ...focusSenseIds,
+  ...DISJOINT_SUPPORT_SENSE_IDS,
+  ...reviewedContextSupportIds,
+])]
 const requiredCapabilityBySense = new Map(focusSenseIds.map((senseId) => {
   const capabilities = CEFR_PREPARATION_ACTIVITIES
     .filter(({ focusSenseIds: ids }) => ids.includes(senseId))
@@ -230,14 +238,33 @@ const completeWordCapabilities = (initial) => {
       ]
         .filter((id, index, values) => id !== senseId && values.indexOf(id) === index)
         .slice(0, 14)
+      const knownIds = Object.keys(state.discovered).filter((id) => state.discovered[id])
       let question = buildWordQuestion({
-        discoveredIds: [senseId, ...support],
+        discoveredIds: knownIds,
         mana: state.mana,
         wordProgress: state.wordProgress,
         currentRound: state.trainRound,
         excludeWords: state.trainLastWords,
+        targetId: senseId,
         rng: () => 0,
       })
+      // A target can be legitimately spaced or excluded by the preceding
+      // round. Advance one real, disjoint support target while retaining the
+      // complete known-word set used to validate reviewed context questions.
+      if (!question) {
+        for (const supportId of support) {
+          question = buildWordQuestion({
+            discoveredIds: knownIds,
+            mana: state.mana,
+            wordProgress: state.wordProgress,
+            currentRound: state.trainRound,
+            excludeWords: state.trainLastWords,
+            targetId: supportId,
+            rng: () => 0,
+          })
+          if (question) break
+        }
+      }
       assert.ok(question, `the real disjoint Train scheduler deadlocked while preparing ${senseId}`)
       const next = reducer(state, {
         type: 'PRACTICE_WORD_RESULT',
