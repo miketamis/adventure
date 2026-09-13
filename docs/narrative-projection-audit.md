@@ -158,4 +158,4 @@ scores. Release certification should fail only when an item lacks a disposition,
 when the playable projection contradicts its source, or when an implemented
 scene/location cannot be traced back to the selected witness. A future scope
 expansion must update the scene mapping, place anchor, embodiment contract,
-calendar semantics and projection-review snapshot together.
+calendar semantics and the affected item-level projection context together.

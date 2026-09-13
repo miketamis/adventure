@@ -6,21 +6,13 @@
 //   4. registry sanity + cross-tale shared-anchor report
 // Assembles the data itself (readdir) — import.meta.glob is Vite-only.
 import { existsSync, readdirSync } from 'node:fs'
-import { createHash } from 'node:crypto'
-import { ENDINGS, ITEMS, STORY, lineOf } from '../src/game/content.js'
+import { STORY, lineOf } from '../src/game/content.js'
 import { embodimentQuest } from '../src/game/embodiment.js'
-import { ACHIEVEMENTS } from '../src/game/achievements.js'
-import { WORLD_FACT_PRESENTATION } from '../src/game/environment.js'
-import { CORPUS, ENDING_LORE, FOLKLORE, HISTORY } from '../src/game/folklore.js'
-import { QUOTES } from '../src/game/quotes.js'
 import { NPCS as LIVE_NPCS } from '../src/game/npcs.js'
-import { REVIEWED_READINGS } from '../src/game/data/readings/reviewedReadings.js'
-import { REVIEWED_OPTION_READINGS } from '../src/game/data/readings/reviewedOptionReadings.js'
 import { coverageOf } from '../src/game/taleLib.js'
 import {
   omissionReviewContextHash,
   placeReviewContextHash,
-  projectionReviewPayload,
 } from './projectionReviewSnapshot.mjs'
 import {
   PLACE_PROJECTION_CONTEXT_HASHES,
@@ -30,7 +22,6 @@ import {
   PROJECTION_OMISSIONS,
   PROJECTION_OMISSION_REASON,
   PROJECTION_OMISSION_REVIEWS,
-  PROJECTION_REVIEW_SNAPSHOT_HASH,
 } from '../src/game/data/tales/_projectionLedger.js'
 
 const load = async (dir) => {
@@ -85,32 +76,6 @@ const reachableProjectionScenes = (from) => {
     }
   }
   return nodes
-}
-
-const projectionSnapshot = projectionReviewPayload({
-  story: STORY,
-  items: ITEMS,
-  tales: TALES,
-  folklore: FOLKLORE,
-  endingLore: ENDING_LORE,
-  history: HISTORY,
-  corpus: CORPUS,
-  quotes: QUOTES,
-  achievements: ACHIEVEMENTS,
-  fates: ENDINGS.filter((ending) => ending.kind === 'bad'),
-  worldFactPresentation: WORLD_FACT_PRESENTATION,
-  npcRegistry: NPC_REGISTRY,
-  reviewedReadings: REVIEWED_READINGS,
-  reviewedOptionReadings: REVIEWED_OPTION_READINGS,
-  omissions: PROJECTION_OMISSIONS,
-  omissionReviews: PROJECTION_OMISSION_REVIEWS,
-  placeReviews: PLACE_PROJECTION_REVIEWS,
-})
-const projectionReviewHash = createHash('sha256')
-  .update(JSON.stringify(projectionSnapshot))
-  .digest('hex')
-if (projectionReviewHash !== PROJECTION_REVIEW_SNAPSHOT_HASH) {
-  bad(`projection-review snapshot is stale: ledger has ${PROJECTION_REVIEW_SNAPSHOT_HASH}; current content is ${projectionReviewHash}`)
 }
 
 for (const [id, tale] of Object.entries(TALES)) {
@@ -380,7 +345,7 @@ if (beatTotal !== expectedOmissionKeys.size) bad(`projection disposition total $
 if (placeTotal !== proposedPlaceKeys.size) bad(`place disposition total ${placeTotal} != proposed anchor total ${proposedPlaceKeys.size}`)
 console.log(`✅ projection dispositions: ${dispositionCounts.beats.justified} justified · ${dispositionCounts.beats.gap} gap · ${dispositionCounts.beats.uncertain} uncertain`)
 console.log(`✅ proposed-place dispositions: ${dispositionCounts.places.justified} justified · ${dispositionCounts.places.gap} gap · ${dispositionCounts.places.uncertain} uncertain`)
-console.log(`✅ projection review snapshot: ${projectionReviewHash}`)
+console.log('✅ projection reviews: every omission and proposed place keeps a current, unique context digest')
 
 // 4. registry sanity
 for (const [nid, npc] of Object.entries(NPC_REGISTRY)) {

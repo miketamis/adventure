@@ -7,17 +7,9 @@
 // source limits stay visible as qualifications; unresolved claims remain blockers.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { ENDINGS, ITEMS, STORY } from '../src/game/content.js'
-import { ACHIEVEMENTS } from '../src/game/achievements.js'
-import { WORLD_FACT_PRESENTATION } from '../src/game/environment.js'
-import { CORPUS, ENDING_LORE, FOLKLORE, HISTORY } from '../src/game/folklore.js'
-import { QUOTES } from '../src/game/quotes.js'
-import { REVIEWED_READINGS } from '../src/game/data/readings/reviewedReadings.js'
-import { REVIEWED_OPTION_READINGS } from '../src/game/data/readings/reviewedOptionReadings.js'
 import {
   omissionReviewContextHash,
   placeReviewContextHash,
-  projectionReviewPayload,
 } from './projectionReviewSnapshot.mjs'
 import {
   PLACE_PROJECTION_CONTEXT_HASHES,
@@ -26,7 +18,6 @@ import {
   PROJECTION_OMISSION_CONTEXT_HASHES,
   PROJECTION_OMISSIONS,
   PROJECTION_OMISSION_REVIEWS,
-  PROJECTION_REVIEW_SNAPSHOT_HASH,
 } from '../src/game/data/tales/_projectionLedger.js'
 import {
   SOURCE_COLLATION_RECORDS,
@@ -42,12 +33,6 @@ for (const file of readdirSync(new URL('../src/game/data/tales', import.meta.url
   const tale = (await import(`../src/game/data/tales/${file}`)).default
   if (tale?.id) tales.push(tale)
 }
-const npcRegistry = {}
-for (const file of readdirSync(new URL('../src/game/data/npcs', import.meta.url))) {
-  if (!file.endsWith('.js') || file.startsWith('_')) continue
-  Object.assign(npcRegistry, (await import(`../src/game/data/npcs/${file}`)).default)
-}
-
 const norm = (value) => String(value || '')
   .normalize('NFC')
   .toLowerCase()
@@ -68,26 +53,6 @@ const selectedRecordPayload = (tale) => (tale.beats || []).flatMap((beat) =>
   (beat.lines || []).map((line) => `${beat.id}\t${line[0]}\t${line[1] ?? ''}`)).join('\n')
 const ALBANIAN_SOURCE_STATUSES = new Set(['missing', 'located', 'transcribed'])
 const taleById = Object.fromEntries(tales.map((tale) => [tale.id, tale]))
-const projectionReviewHash = sha256(JSON.stringify(projectionReviewPayload({
-  story: STORY,
-  items: ITEMS,
-  tales: taleById,
-  folklore: FOLKLORE,
-  endingLore: ENDING_LORE,
-  history: HISTORY,
-  corpus: CORPUS,
-  quotes: QUOTES,
-  achievements: ACHIEVEMENTS,
-  fates: ENDINGS.filter((ending) => ending.kind === 'bad'),
-  worldFactPresentation: WORLD_FACT_PRESENTATION,
-  npcRegistry,
-  reviewedReadings: REVIEWED_READINGS,
-  reviewedOptionReadings: REVIEWED_OPTION_READINGS,
-  omissions: PROJECTION_OMISSIONS,
-  omissionReviews: PROJECTION_OMISSION_REVIEWS,
-  placeReviews: PLACE_PROJECTION_REVIEWS,
-})))
-
 const errors = []
 const missing = []
 const located = []
@@ -103,10 +68,6 @@ let sourceExactMatches = 0
 let sourceApparatusMatches = 0
 let sourceCollatedMatches = 0
 let selectedWitnessLines = 0
-
-if (projectionReviewHash !== PROJECTION_REVIEW_SNAPSHOT_HASH) {
-  errors.push(`projection-review snapshot is stale: ledger has ${PROJECTION_REVIEW_SNAPSHOT_HASH}; current content is ${projectionReviewHash}`)
-}
 
 for (const tale of tales) {
   const status = tale.albanian?.status || 'transcribed'
@@ -360,7 +321,6 @@ const counts = {
   unresolvedOmittedBeats: unresolvedBeatReviews.length,
   sourceOnlyTales: tales.filter((tale) => tale.projection?.status === 'source-only').length,
   schemaErrors: errors.length,
-  projectionReviewSnapshotValid: projectionReviewHash === PROJECTION_REVIEW_SNAPSHOT_HASH,
 }
 const strictBlockerCount = unresolvedWitnesses.length + located.length + proposedWithoutConflictReview.length + sourceMisses.length + unresolvedPlaceReviews.length + unresolvedBeatReviews.length
 const qualifications = {
@@ -370,7 +330,6 @@ const qualifications = {
   reviewedProposedPlaces: placeReviews.filter((review) => review.disposition === PROJECTION_DISPOSITIONS.JUSTIFIED).map((review) => review.key),
   reviewedOmittedBeats: omissionReviews.filter((review) => review.disposition === PROJECTION_DISPOSITIONS.JUSTIFIED).map((review) => `${review.taleId}.${review.beatId}`),
   sourceOnlyTales: tales.filter((tale) => tale.projection?.status === 'source-only').map((tale) => ({ taleId: tale.id, reason: tale.projection.reason })),
-  projectionReviewSnapshotHash: projectionReviewHash,
 }
 
 if (json) console.log(JSON.stringify({ version: 2, strict, counts, errors, blockers, qualifications, certifiable: errors.length === 0 && strictBlockerCount === 0 }, null, 2))

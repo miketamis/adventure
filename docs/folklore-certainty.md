@@ -44,26 +44,12 @@ location. This prevents both padding the map with decorative dots and hiding a
 real missing scene behind the word “proposal.”
 
 Every individual omission and proposal has a disposition in
-`src/game/data/tales/_projectionLedger.js`. One SHA-256 snapshot binds the full
-current tale records, story nodes, inventory lore, folklore and ending cards,
-history, source-corpus metadata, the quote evidence register, achievements and
-bad-ending fates, NPC registry and backstories, persistent world-memory text,
-places, disposition ledgers, the application shell, runtime state, route,
-region, reveal, live-NPC, language and comprehension models; the complete merged
-reviewed-reading and reviewed-action registries; and the selected guide, token,
-comprehension, map, story, achievement and environment renderers that turn those
-records into visible geography, translations, accepted answers and consequences.
-A contradiction cannot drift into a neighbouring player-facing layer unnoticed:
-any relevant edit invalidates the snapshot until the changed projection is
-compared with its evidence and dispositions and the digest is consciously
-renewed. A matching digest proves identity with the sealed payload; it does not
-prove who inspected it, external expert approval, or semantic truth.
-
-The global snapshot is not the only seal. Every omitted beat and proposed
-place has a separate context digest over its exact source/projection or
+`src/game/data/tales/_projectionLedger.js`. Every omitted beat and proposed
+place has a narrow context digest over its exact source/projection or
 anchor/geography fields. The audits recompute all 362 item digests, require
 one-to-one key parity and reject copied values. This keeps “justified” from
-becoming a blanket label that survives a changed source beat or place plan.
+becoming a blanket label that survives a changed source beat or place plan,
+without blocking unrelated releases behind a manually renewed whole-project hash.
 
 ## Source-evidence ladder
 
@@ -148,7 +134,7 @@ it changes.
 
 - missing line coverage or a duplicate source-unit assignment;
 - an unverified, stale, missing, or located-but-unaligned witness;
-- a stale record, local-evidence, source-collation, or projection-review hash;
+- a stale record, local-evidence, source-collation, or individual projection-context hash;
 - English editorial apparatus presented as source-language quotation;
 - an unknown scene, beat, place, cast member, source-only status, or NPC link;
 - a scene outside its declared entry–finale span, a beat classified as both

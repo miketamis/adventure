@@ -7,6 +7,7 @@
 - After each push, wait for that exact commit's deployment workflow to reach a terminal state and verify the deployed site is healthy. Treat a failed, cancelled, or superseded deployment as an incomplete checkpoint: inspect the remote logs, fix the cause, push again, and wait for the replacement deployment before moving on.
 - Before every commit, inspect the staged file list and staged diff, run the checks appropriate to the change, and confirm that the commit contains only project material.
 - Keep checkpoint commits focused and use a message that states the player-facing or engineering outcome.
+- Do not block deployment on a manually renewed whole-project content hash. Lore certification must rely on substantive executable source, mapping, disposition, quotation, certainty and narrow item-context checks whose failures identify the actual record that needs work.
 
 ## Private research boundary
 

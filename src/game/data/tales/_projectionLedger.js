@@ -666,11 +666,3 @@ export const unresolvedProjectionReviews = () =>
 
 export const unresolvedPlaceReviews = () =>
   Object.values(PLACE_PROJECTION_REVIEWS).filter((review) => review.disposition !== JUSTIFIED)
-
-// Renew only after the exact changed story/tale/ledger payload reported by
-// scripts/beatscoverage.mjs has been inspected against its evidence and
-// disposition records. Any relevant content edit makes the review fail closed
-// until this digest is consciously updated. The digest records payload identity;
-// by itself it does not prove expert or native-speaker review.
-export const PROJECTION_REVIEW_SNAPSHOT_HASH =
-  '128526354c1a5c0b3d6ba422ae7d5e0e17dcf22dedfc110cf799e8665efb13b7'

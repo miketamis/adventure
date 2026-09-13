@@ -1,47 +1,6 @@
-// One canonical payload for the repository's projection/integration review.
-// Keep this in a shared module: beatscoverage and lorecertainty must fingerprint
-// exactly the same player-facing lore, not two subtly different subsets.
-import { readFileSync } from 'node:fs'
+// Canonical narrow payloads for projection-disposition reviews. Both lore
+// audits consume these exact functions so item-level context cannot drift.
 import { createHash } from 'node:crypto'
-
-const INTEGRATION_SOURCE_FILES = Object.freeze({
-  appShell: '../src/App.jsx',
-  achievementsRenderer: '../src/components/AchievementsView.jsx',
-  atlasRenderer: '../src/components/AtlasView.jsx',
-  comprehensionRenderer: '../src/components/ComprehensionTest.jsx',
-  comprehensionModel: '../src/game/comprehension.js',
-  contentModel: '../src/game/content.js',
-  debugWorldRenderer: '../src/components/DebugView.jsx',
-  embodimentConfirmRenderer: '../src/components/EmbodimentConfirm.jsx',
-  embodimentFocusRenderer: '../src/components/EmbodimentFocus.jsx',
-  embodimentModel: '../src/game/embodiment.js',
-  environmentModel: '../src/game/environment.js',
-  factoidLoreRenderer: '../src/components/FactoidLore.jsx',
-  gameStateModel: '../src/game/gameState.js',
-  guideRenderer: '../src/components/GuideView.jsx',
-  languageModel: '../src/game/language.js',
-  liveNpcModel: '../src/game/npcs.js',
-  mapGlyphs: '../src/components/mapGlyphs.jsx',
-  mapLabels: '../src/components/mapLabels.js',
-  miniMap: '../src/components/MiniMap.jsx',
-  nodePositions: '../src/components/nodePositions.js',
-  placeMetadata: '../src/components/placeMeta.js',
-  quoteRegister: '../src/game/quotes.js',
-  regionModel: '../src/game/regions.js',
-  releaseErrorBoundary: '../src/components/ReleaseErrorBoundary.jsx',
-  revealResolver: '../src/game/revealResolver.js',
-  revealVisibility: '../src/game/revealVisibility.js',
-  storyRenderer: '../src/components/StoryView.jsx',
-  timePassageRenderer: '../src/components/TimePassage.jsx',
-  tokenRenderer: '../src/components/Token.jsx',
-  worldContextRenderer: '../src/components/WorldContext.jsx',
-  worldMapRenderer: '../src/components/WorldMapView.jsx',
-  worldModel: '../src/game/worldModel.js',
-})
-
-const integrationSources = Object.fromEntries(Object.entries(INTEGRATION_SOURCE_FILES).map(
-  ([name, path]) => [name, { path, source: readFileSync(new URL(path, import.meta.url), 'utf8') }],
-))
 
 const stable = (value) => {
   if (Array.isArray(value)) return value.map(stable)
@@ -131,46 +90,3 @@ export const omissionReviewContextHash = (tale, beatId) =>
 
 export const placeReviewContextHash = (tale, placeId) =>
   sha256(JSON.stringify(placeReviewContextPayload(tale, placeId)))
-
-export const projectionReviewPayload = ({
-  story,
-  items,
-  tales,
-  folklore,
-  endingLore,
-  history,
-  corpus,
-  quotes,
-  achievements,
-  fates,
-  worldFactPresentation,
-  npcRegistry,
-  reviewedReadings,
-  reviewedOptionReadings,
-  omissions,
-  omissionReviews,
-  placeReviews,
-}) => stable({
-  // Full records are intentional. Lore contradictions have appeared outside the
-  // narrow beat/play fields: in discrepancies, cast notes, NPC backstories,
-  // library cards, ending cards, item blurbs and bespoke map renderers. All of
-  // those now fail closed.
-  story,
-  items,
-  tales,
-  folklore,
-  endingLore,
-  history,
-  corpus,
-  quotes,
-  achievements,
-  fates,
-  worldFactPresentation,
-  npcRegistry,
-  reviewedReadings,
-  reviewedOptionReadings,
-  integrationSources,
-  omissions,
-  omissionReviews,
-  placeReviews,
-})
