@@ -256,31 +256,85 @@ export function phraseRewardIds(phrases) {
   return [...new Set(phrases.flatMap((phrase) => phrase?.requires || []).filter(isTrainableSense))]
 }
 
-function weightedChoice(entries, weightOf, rng) {
-  const weights = entries.map((entry) => Math.max(0, weightOf(entry)))
+function weightedChoice(entries, weightOf, rng, trace = null) {
+  const breakdowns = entries.map((entry) => {
+    const result = weightOf(entry)
+    return typeof result === 'number'
+      ? { id: entry.id, weight: Math.max(0, result) }
+      : { id: entry.id, ...result, weight: Math.max(0, result.weight) }
+  })
+  const weights = breakdowns.map(({ weight }) => weight)
   const total = weights.reduce((sum, weight) => sum + weight, 0)
-  if (total <= 0) return entries.at(-1)
-  let roll = rng() * total
+  if (total <= 0) {
+    if (trace) Object.assign(trace, {
+      formula: 'word-token need × mistake repair boost ÷ familiarity',
+      totalWeight: total,
+      candidates: breakdowns,
+      selectedId: entries.at(-1)?.id || null,
+      fallback: 'all weights were zero',
+    })
+    return entries.at(-1)
+  }
+  const random = rng()
+  let roll = random * total
+  const initialRoll = roll
   for (let index = 0; index < entries.length; index++) {
     roll -= weights[index]
-    if (roll <= 0) return entries[index]
+    if (roll <= 0) {
+      if (trace) Object.assign(trace, {
+        formula: 'word-token need × mistake repair boost ÷ familiarity',
+        random,
+        totalWeight: total,
+        roll: initialRoll,
+        candidates: breakdowns,
+        selectedId: entries[index].id,
+      })
+      return entries[index]
+    }
   }
+  if (trace) Object.assign(trace, {
+    formula: 'word-token need × mistake repair boost ÷ familiarity',
+    random,
+    totalWeight: total,
+    roll: initialRoll,
+    candidates: breakdowns,
+    selectedId: entries.at(-1)?.id || null,
+  })
   return entries.at(-1)
 }
 
-function pickTarget(unlocked, mana, practiced, mistakes, rng, targetId) {
+function pickTarget(unlocked, mana, practiced, mistakes, rng, targetId, trace = null) {
   const forced = unlocked.find((entry) => entry.id === targetId)
-  if (forced) return forced
+  if (forced) {
+    if (trace) Object.assign(trace, {
+      forced: true,
+      forcedTargetId: targetId,
+      candidates: unlocked.map(({ id }) => ({ id })),
+      selectedId: forced.id,
+    })
+    return forced
+  }
   return weightedChoice(unlocked, (entry) => {
-    const tokenNeed = phraseRewardIds([entry]).reduce((sum, id) => {
+    const rewardIds = phraseRewardIds([entry])
+    const tokenNeed = rewardIds.reduce((sum, id) => {
       const held = mana[id] || 0
       return sum + (held === 0 ? TRAIN_QUESTION_MIX_POLICY.zeroTokenWeight : 1 / (held + 1))
     }, 0)
     const targeting = TRAIN_QUESTION_MIX_POLICY.phraseTargeting
-    const repair = 1 + Math.min(targeting.mistakeBoostCap, mistakes[entry.id] || 0) * targeting.mistakeBoostPerMiss
-    const familiarity = 1 + Math.min(targeting.familiarityCap, practiced[entry.id] || 0) * targeting.familiarityPerPractice
-    return tokenNeed * repair / familiarity
-  }, rng)
+    const mistakeCount = mistakes[entry.id] || 0
+    const practiceCount = practiced[entry.id] || 0
+    const repair = 1 + Math.min(targeting.mistakeBoostCap, mistakeCount) * targeting.mistakeBoostPerMiss
+    const familiarity = 1 + Math.min(targeting.familiarityCap, practiceCount) * targeting.familiarityPerPractice
+    return {
+      rewardIds,
+      tokenNeed,
+      mistakeCount,
+      repair,
+      practiceCount,
+      familiarity,
+      weight: tokenNeed * repair / familiarity,
+    }
+  }, rng, trace)
 }
 
 function distractorWords(unlocked, distractorPool, target, targetWords, count, rng, excludedWords) {
@@ -561,18 +615,49 @@ function requestedSkill(requestedMode) {
   return 'production'
 }
 
-function skillForQuestion(target, mastery, rng, requestedMode, productionPlan, skillPlans) {
-  if (MODE_SET.has(requestedMode)) return requestedSkill(requestedMode)
+function skillForQuestion(target, mastery, rng, requestedMode, productionPlan, skillPlans, trace = null) {
+  if (MODE_SET.has(requestedMode)) {
+    const selected = requestedSkill(requestedMode)
+    if (trace) Object.assign(trace, { selected, reason: `mode ${requestedMode} was explicitly requested` })
+    return selected
+  }
   // Recognition never proves production. Listening and matching enter the mix
   // only after this exact phrase has passed its cloze and arrangement gates.
-  if (productionPlan.remediation && productionPlan.due) return 'production'
-  if (productionPlan.baseStage < PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage) return 'production'
-  if (productionPlan.due) return 'production'
+  if (productionPlan.remediation && productionPlan.due) {
+    if (trace) Object.assign(trace, { selected: 'production', reason: 'due phrase-specific remediation has priority' })
+    return 'production'
+  }
+  if (productionPlan.baseStage < PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage) {
+    if (trace) Object.assign(trace, { selected: 'production', reason: 'cross-skill listening/matching gate is not yet open' })
+    return 'production'
+  }
+  if (productionPlan.due) {
+    if (trace) Object.assign(trace, { selected: 'production', reason: 'the exact phrase production stage is due' })
+    return 'production'
+  }
   const roll = rng()
-  if (roll < TRAIN_QUESTION_MIX_POLICY.phraseSkill.listeningUpperBound && skillPlans.listening.due) return 'listening'
-  if (skillPlans.matching.due) return 'matching'
-  if (skillPlans.listening.due) return 'listening'
-  return productionPlan.due ? 'production' : null
+  let selected = null
+  let reason = 'no phrase skill is due'
+  if (roll < TRAIN_QUESTION_MIX_POLICY.phraseSkill.listeningUpperBound && skillPlans.listening.due) {
+    selected = 'listening'
+    reason = 'listening is due and the recorded skill-mix roll fell in its range'
+  } else if (skillPlans.matching.due) {
+    selected = 'matching'
+    reason = 'matching is due after the listening-range decision'
+  } else if (skillPlans.listening.due) {
+    selected = 'listening'
+    reason = 'listening is the remaining due cross-skill track'
+  } else if (productionPlan.due) {
+    selected = 'production'
+    reason = 'production is the remaining due track'
+  }
+  if (trace) Object.assign(trace, {
+    selected,
+    reason,
+    random: roll,
+    listeningUpperBound: TRAIN_QUESTION_MIX_POLICY.phraseSkill.listeningUpperBound,
+  })
+  return selected
 }
 
 function skillTier(target, mastery, skill, requestedTier) {
@@ -600,13 +685,38 @@ export function buildPhraseQuestion(
     currentRound = 0,
     nowMs = 0,
     tier: requestedTier,
+    debugTrace = false,
   } = {},
 ) {
   if (!Array.isArray(unlocked) || unlocked.length === 0) return null
   const excluded = excludedWordSet(excludeWords)
+  const trace = debugTrace ? {
+    builder: 'phrase',
+    request: {
+      unlockedPhraseIds: unlocked.map(({ id }) => id),
+      requestedMode: requestedMode || null,
+      requestedTier: requestedTier ?? null,
+      targetId: targetId || null,
+      currentRound,
+      nowMs,
+      excludedWordKeys: [...excluded],
+    },
+    candidates: [],
+    targetSelection: {},
+    skillSelection: {},
+  } : null
   let eligible = excluded.size
     ? unlocked.filter((entry) => !excludesPhraseWords(entry, excluded))
     : unlocked
+  if (trace) {
+    for (const entry of unlocked) {
+      if (!eligible.includes(entry)) trace.candidates.push({
+        id: entry.id,
+        status: 'rejected',
+        reasons: ['shares an Albanian word with the preceding Train activity'],
+      })
+    }
+  }
   const forcedQuestion = Boolean(targetId || MODE_SET.has(requestedMode) || requestedTier != null)
   if (!forcedQuestion) {
     eligible = eligible.filter((entry) => {
@@ -617,19 +727,41 @@ export function buildPhraseQuestion(
         currentRound,
         nowMs,
       )
-      if (plan?.due) return true
-      if (plan?.baseStage < PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage) return false
-      return phraseSkillPlan(
+      const listeningPlan = phraseSkillPlan(
         listeningProgress?.[entry.id] ?? { tier: mastery.listening?.[entry.id] || 0 },
         'listening', currentRound, nowMs,
-      ).due || phraseSkillPlan(
+      )
+      const matchingPlan = phraseSkillPlan(
         matchingProgress?.[entry.id] ?? { tier: mastery.matching?.[entry.id] || 0 },
         'matching', currentRound, nowMs,
-      ).due
+      )
+      const eligibleNow = Boolean(plan?.due || (
+        plan?.baseStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage &&
+        (listeningPlan.due || matchingPlan.due)
+      ))
+      if (trace) trace.candidates.push({
+        id: entry.id,
+        status: eligibleNow ? 'eligible' : 'rejected',
+        reasons: eligibleNow
+          ? ['unlocked, disjoint from the last activity, and at least one eligible phrase track is due']
+          : [plan?.baseStage < PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage
+              ? 'production is not due and cross-skill tracks are not unlocked'
+              : 'production, listening, and matching are not due'],
+        productionPlan: plan,
+        listeningPlan,
+        matchingPlan,
+      })
+      return eligibleNow
+    })
+  } else if (trace) {
+    for (const entry of eligible) trace.candidates.push({
+      id: entry.id,
+      status: 'eligible',
+      reasons: ['explicit target/mode/tier request bypassed ordinary due filtering'],
     })
   }
   if (eligible.length === 0) return null
-  let target = pickTarget(eligible, mana, practiced, mistakes, rng, targetId)
+  let target = pickTarget(eligible, mana, practiced, mistakes, rng, targetId, trace?.targetSelection)
   let productionPlan = phraseProductionPlan(
     productionProgress?.[target.id],
     phraseProductionFocuses(target).map(({ id }) => id),
@@ -646,7 +778,8 @@ export function buildPhraseQuestion(
       'matching', currentRound, nowMs,
     ),
   }
-  let skill = skillForQuestion(target, mastery, rng, requestedMode, productionPlan, skillPlans)
+  if (trace) Object.assign(trace, { selectedTargetId: target.id, productionPlan, skillPlans })
+  let skill = skillForQuestion(target, mastery, rng, requestedMode, productionPlan, skillPlans, trace?.skillSelection)
   if (!skill) return null
   let tier = skill === 'production' && requestedTier == null
     ? productionPlan.stage
@@ -670,7 +803,8 @@ export function buildPhraseQuestion(
       // fall back to this phrase's production ladder instead of showing a
       // meaningless one-card "match" round.
       if (!targetId && matchingTargets.length) {
-        target = pickTarget(matchingTargets, mana, practiced, mistakes, rng)
+        trace && (trace.matchingAdjustment = { reason: 'initial target cannot populate the required same-tier matching board', compatibleTargetIds: matchingTargets.map(({ id }) => id) })
+        target = pickTarget(matchingTargets, mana, practiced, mistakes, rng, null, trace?.targetSelection)
         productionPlan = phraseProductionPlan(
           productionProgress?.[target.id],
           phraseProductionFocuses(target).map(({ id }) => id),
@@ -679,6 +813,7 @@ export function buildPhraseQuestion(
         )
         tier = skillTier(target, mastery, skill, requestedTier)
       } else if (productionPlan.due) {
+        trace && (trace.matchingAdjustment = { reason: 'matching board is undersized; fall back to due production' })
         skill = 'production'
         tier = requestedTier == null ? productionPlan.stage : skillTier(target, mastery, skill)
       } else if (
@@ -686,6 +821,7 @@ export function buildPhraseQuestion(
         productionPlan.baseStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage &&
         skillPlans.listening.due
       ) {
+        trace && (trace.matchingAdjustment = { reason: 'matching board is undersized; fall back to due listening' })
         skill = 'listening'
         tier = skillTier(target, mastery, skill, requestedTier)
       } else {
@@ -715,6 +851,17 @@ export function buildPhraseQuestion(
     typeScope: productionStep?.typeScope,
     remediation: skill === 'production' && productionPlan.remediation,
     remediationReason: skill === 'production' ? productionPlan.remediationReason : null,
+    ...(trace ? { debugSelection: {
+      ...trace,
+      selected: {
+        phraseId: target.id,
+        skill,
+        tier,
+        mode,
+        definition: productionStep || PHRASE_STAGE_DEFINITIONS[skill][tier],
+        reason: 'the recorded target, track, tier, and registry definition produced this activity',
+      },
+    } } : {}),
   }
 
   if (mode === 'match') return buildMatchQuestion(

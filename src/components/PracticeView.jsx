@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { lazy, Suspense, useState, useCallback, useEffect, useRef } from 'react'
 import { DICT } from '../game/content.js'
 import { practiceReturnOption } from '../game/practiceReturn.js'
 import { playPhrase, playWord } from '../game/audio.js'
@@ -32,6 +32,8 @@ import ContextualCompletion, {
 import TrainingActivityShell from './TrainingActivityShell.jsx'
 import CefrCapstone from './CefrCapstone.jsx'
 import { trainMissConsequence } from '../game/consequenceBuilders.js'
+
+const DebugTrainActivityInspector = lazy(() => import('./DebugTrainActivityInspector.jsx'))
 
 // the answer rendered in Albanian (every word is discovered when affordable)
 const albanianPhrase = (tokens) => tokens.map((t) => (t.id ? t.al : t.en)).join(' ')
@@ -110,7 +112,7 @@ export default function PracticeView({ state, dispatch }) {
     // Complete, standard-Albanian chunks own most of the training mix; the
     // remainder keeps word meanings and inflections alive.
     const modeRoll = Math.random()
-    const unstartedWordDue = discoveredIds.some((id) => {
+    const unstartedWordDueIds = discoveredIds.filter((id) => {
       const progressionOptions = wordProgressionOptionsForSense(id)
       if (!progressionOptions.trainability.trainable) return false
       const surface = progressionOptions.context?.al || DICT[id].al
@@ -118,8 +120,35 @@ export default function PracticeView({ state, dispatch }) {
         wordHasNoEvidence(state.wordProgress?.[id]) &&
         wordProgressPlan(state.wordProgress?.[id], state.trainRound || 0, { ...progressionOptions, nowMs }).due
     })
+    const unstartedWordDue = unstartedWordDueIds.length > 0
+    const schedulerTrace = state.debug ? {
+      builder: 'train-family-scheduler',
+      currentRound: state.trainRound || 0,
+      nowMs,
+      modeRoll,
+      phraseShare: TRAIN_QUESTION_MIX_POLICY.phraseShare,
+      excludedWordKeys: [...excludeWords],
+      unlockedPhraseIds: unlockedEverydayPhrases.map(({ id }) => id),
+      unstartedWordDueIds,
+      attempts: [],
+    } : null
+    const attachSchedulerTrace = (question, route, reason) => {
+      if (!question || !schedulerTrace) return question
+      return {
+        ...question,
+        debugSelection: {
+          scheduler: {
+            ...schedulerTrace,
+            selectedRoute: route,
+            reason,
+          },
+          builder: question.debugSelection || null,
+        },
+      }
+    }
     if (!unstartedWordDue && unlockedEverydayPhrases.length && modeRoll < TRAIN_QUESTION_MIX_POLICY.phraseShare) {
-      const phraseQuestion = buildPhraseQuestion(
+      schedulerTrace?.attempts.push({ family: 'phrase', reason: 'no unstarted word is due and the family roll selected the phrase share' })
+      const builtPhraseQuestion = buildPhraseQuestion(
         unlockedEverydayPhrases,
         state.mana,
         state.phrasePracticed,
@@ -136,7 +165,13 @@ export default function PracticeView({ state, dispatch }) {
           matchingProgress: state.phraseMatchingProgress,
           currentRound: state.trainRound,
           nowMs,
+          debugTrace: state.debug,
         },
+      )
+      const phraseQuestion = attachSchedulerTrace(
+        builtPhraseQuestion,
+        'phrase-primary',
+        'No unstarted word was due; the recorded family roll fell below phraseShare.',
       )
       if (phraseQuestion) {
         previousQuestionWords.current = trainQuestionWordKeys(phraseQuestion)
@@ -144,6 +179,12 @@ export default function PracticeView({ state, dispatch }) {
         return
       }
     }
+    schedulerTrace?.attempts.push({
+      family: 'word',
+      reason: unstartedWordDue
+        ? 'at least one unstarted word is due, so word learning takes priority'
+        : 'the phrase-family roll did not yield a buildable phrase question',
+    })
     let nextQuestion = buildWordQuestion({
       discoveredIds,
       mana: state.mana,
@@ -151,13 +192,22 @@ export default function PracticeView({ state, dispatch }) {
       currentRound: state.trainRound,
       nowMs,
       excludeWords,
+      debugTrace: state.debug,
     })
+    nextQuestion = attachSchedulerTrace(
+      nextQuestion,
+      'word',
+      unstartedWordDue
+        ? `${unstartedWordDueIds.length} unstarted due word${unstartedWordDueIds.length === 1 ? '' : 's'} had priority; the word builder then used its recorded weights to choose this target.`
+        : 'The phrase path was not selected or could not build, so the scheduler selected a due word activity.',
+    )
     // With an exceptionally tiny unlocked vocabulary there may be no legal
     // non-repeating word round. Prefer a disjoint phrase even when this roll was
     // allocated to vocabulary; null is retained only when no legal question of
     // either family exists.
     if (!nextQuestion && unlockedEverydayPhrases.length) {
-      nextQuestion = buildPhraseQuestion(
+      schedulerTrace?.attempts.push({ family: 'phrase-fallback', reason: 'no legal disjoint word question could be built' })
+      const fallbackPhrase = buildPhraseQuestion(
         unlockedEverydayPhrases,
         state.mana,
         state.phrasePracticed,
@@ -174,7 +224,13 @@ export default function PracticeView({ state, dispatch }) {
           matchingProgress: state.phraseMatchingProgress,
           currentRound: state.trainRound,
           nowMs,
+          debugTrace: state.debug,
         },
+      )
+      nextQuestion = attachSchedulerTrace(
+        fallbackPhrase,
+        'phrase-fallback',
+        'No legal disjoint word question could be built; a legal due phrase was used instead.',
       )
     }
     // Repeating the same word would defeat both the no-repeat promise and the
@@ -199,6 +255,7 @@ export default function PracticeView({ state, dispatch }) {
     state.phraseMatchingProgress,
     state.trainRound,
     state.trainLastWords,
+    state.debug,
   ])
 
   nextRef.current = next
@@ -525,9 +582,10 @@ export default function PracticeView({ state, dispatch }) {
   if (formsCorrection) {
     const { guide, stage, chosen, lemma, meaning } = formsCorrection
     return (
-      <section className="card practice" aria-labelledby="practice-title">
-        <h2 id="practice-title" className="view-title">Train Albanian</h2>
-        <div ref={questionRef} className="noun-ending-refresher" aria-labelledby="ending-refresher-title" tabIndex={-1}>
+      <>
+        <section className="card practice" aria-labelledby="practice-title">
+          <h2 id="practice-title" className="view-title">Train Albanian</h2>
+          <div ref={questionRef} className="noun-ending-refresher" aria-labelledby="ending-refresher-title" tabIndex={-1}>
           <h3 className="prompt" id="ending-refresher-title">Quick ending refresher</h3>
           <p className="noun-ending-correction" role="status" aria-live="assertive">
             {stage === 'reviewed-form-contrast' ? (
@@ -584,9 +642,15 @@ export default function PracticeView({ state, dispatch }) {
               </div>
             )}
           </div>
-          <button className="btn primary noun-ending-continue" onClick={next}>Continue training</button>
-        </div>
-      </section>
+            <button className="btn primary noun-ending-continue" onClick={next}>Continue training</button>
+          </div>
+        </section>
+        {state.debug && (
+          <Suspense fallback={<p className="debug-train-loading">Loading current activity evidence…</p>}>
+            <DebugTrainActivityInspector question={q} state={state} />
+          </Suspense>
+        )}
+      </>
     )
   }
 
@@ -800,6 +864,11 @@ export default function PracticeView({ state, dispatch }) {
         </div>
       )}
       </section>
+      {state.debug && (
+        <Suspense fallback={<p className="debug-train-loading">Loading current activity evidence…</p>}>
+          <DebugTrainActivityInspector question={q} state={state} />
+        </Suspense>
+      )}
     </>
   )
 }

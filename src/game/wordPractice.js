@@ -2,6 +2,7 @@ import { DICT } from './content.js'
 import { EVERYDAY_CORE_SENSE_SET } from './everydayAlbanian.js'
 import {
   containsExcludedPhraseWord,
+  phraseWordKeys,
   shuffleWith,
 } from './phrasePractice.js'
 import {
@@ -78,23 +79,46 @@ const reviewedContextForRound = (answerId, discoveredIds, currentRound, lastAtte
   return fresh[currentRound % fresh.length]
 }
 
-const weightedPick = (entries, mana, rng) => {
-  const weights = entries.map(({ id, plan }) => {
-    const held = mana[id] || 0
-    const need = held === 0 ? TRAIN_QUESTION_MIX_POLICY.zeroTokenWeight : 1 / (held + 1)
-    const practical = EVERYDAY_CORE_SENSE_SET.has(id)
-      ? TRAIN_QUESTION_MIX_POLICY.practicalWordWeight
-      : 1
-    // Within the due pool, earlier lexical stages stay slightly ahead of
-    // retention work without starving an older word.
-    const foundation = 1 + Math.max(0, 3 - plan.baseStage) * 0.3
-    return need * practical * foundation
-  })
+const wordWeight = ({ id, plan }, mana) => {
+  const held = mana[id] || 0
+  const need = held === 0 ? TRAIN_QUESTION_MIX_POLICY.zeroTokenWeight : 1 / (held + 1)
+  const practical = EVERYDAY_CORE_SENSE_SET.has(id)
+    ? TRAIN_QUESTION_MIX_POLICY.practicalWordWeight
+    : 1
+  // Within the due pool, earlier lexical stages stay slightly ahead of
+  // retention work without starving an older word.
+  const foundation = 1 + Math.max(0, 3 - plan.baseStage) * 0.3
+  return { held, need, practical, foundation, weight: need * practical * foundation }
+}
+
+const weightedPick = (entries, mana, rng, trace = null) => {
+  const breakdowns = entries.map((entry) => ({ id: entry.id, ...wordWeight(entry, mana) }))
+  const weights = breakdowns.map(({ weight }) => weight)
   const total = weights.reduce((sum, weight) => sum + weight, 0)
-  let roll = rng() * total
+  const random = rng()
+  let roll = random * total
+  const initialRoll = roll
   for (let index = 0; index < entries.length; index++) {
     roll -= weights[index]
-    if (roll <= 0) return entries[index]
+    if (roll <= 0) {
+      if (trace) trace.weightedSelection = {
+        formula: 'token need × practical-language priority × earlier-stage priority',
+        random,
+        totalWeight: total,
+        roll: initialRoll,
+        candidates: breakdowns,
+        selectedId: entries[index].id,
+      }
+      return entries[index]
+    }
+  }
+  if (trace) trace.weightedSelection = {
+    formula: 'token need × practical-language priority × earlier-stage priority',
+    random,
+    totalWeight: total,
+    roll: initialRoll,
+    candidates: breakdowns,
+    selectedId: entries.at(-1)?.id || null,
   }
   return entries.at(-1)
 }
@@ -107,7 +131,7 @@ const distractorIds = (
   count,
   excludeWords,
   rng,
-  { contextual = false } = {},
+  { contextual = false, debugTrace = null } = {},
 ) => {
   const localFirst = candidateIds.length > count
     ? candidateIds
@@ -135,6 +159,12 @@ const distractorIds = (
     usedText.add(text)
     distractors.push(id)
     if (distractors.length === count) break
+  }
+  if (debugTrace) debugTrace.distractors = {
+    policy: contextual ? 'reviewed contextual contrast rank' : 'distinct incompatible sense ranked by lexical contrast',
+    requested: count,
+    rankedCandidates: ranked,
+    selectedIds: [...distractors],
   }
   return distractors
 }
@@ -167,7 +197,7 @@ const contextSurfaces = (authored, plan) => {
   }
 }
 
-function buildContextQuestion(answerId, plan, authored, excludeWords, rng) {
+function buildContextQuestion(answerId, plan, authored, excludeWords, rng, debugTrace = null) {
   const { field } = DIRECTION[plan.direction]
   const count = plan.contextVariant.choiceDistractors === 'from-stage'
     ? plan.variant.distractors
@@ -191,6 +221,14 @@ function buildContextQuestion(answerId, plan, authored, excludeWords, rng) {
   // a bare homograph question would erase the very context that identifies the
   // sense being tested.
   if (plan.direction === 'en2al' && distractors.length !== count) return null
+  if (debugTrace) debugTrace.distractors = {
+    policy: plan.direction === 'al2en'
+      ? 'editor-reviewed context-specific sense contrasts'
+      : 'editor-reviewed Albanian retrieval contrasts',
+    requested: count,
+    authoredIds: [...distractors],
+    defensibleAlternativesExcluded: [...defensibleAlternatives],
+  }
   const promptProfile = contextualPromptProfile(answerId, {
     contextPresentation: plan.targetPresentation,
   })
@@ -284,32 +322,111 @@ export function buildWordQuestion({
   targetId = null,
   excludeWords = [],
   rng = Math.random,
+  debugTrace = false,
 } = {}) {
-  const due = (discoveredIds || []).flatMap((id) => {
-    if (targetId && id !== targetId) return []
-    if (!DICT[id] || !isTrainableSense(id)) return []
+  const trace = debugTrace ? {
+    builder: 'word',
+    request: {
+      discoveredIds: [...(discoveredIds || [])],
+      targetId,
+      currentRound,
+      nowMs,
+      excludedWordKeys: phraseWordKeys((excludeWords || []).join(' ')),
+    },
+    candidates: [],
+  } : null
+  const due = []
+  for (const id of discoveredIds || []) {
+    const candidate = trace ? { id, status: 'rejected', reasons: [] } : null
+    if (targetId && id !== targetId) {
+      candidate?.reasons.push(`forced target is ${targetId}`)
+      if (candidate) trace.candidates.push(candidate)
+      continue
+    }
+    if (!DICT[id]) {
+      candidate?.reasons.push('missing dictionary entry')
+      if (candidate) trace.candidates.push(candidate)
+      continue
+    }
+    if (!isTrainableSense(id)) {
+      candidate?.reasons.push('sense is classified as non-trainable')
+      if (candidate) trace.candidates.push(candidate)
+      continue
+    }
     const progressionOptions = wordProgressionOptionsForSense(id)
-    if (!progressionOptions.trainability.trainable) return []
+    candidate && (candidate.trainability = progressionOptions.trainability)
+    if (!progressionOptions.trainability.trainable) {
+      candidate?.reasons.push(progressionOptions.trainability.reason || 'progression options reject this sense')
+      if (candidate) trace.candidates.push(candidate)
+      continue
+    }
     const progress = normalizeWordProgress(wordProgress[id], currentRound)
     const context = reviewedContextForRound(id, discoveredIds, currentRound, progress.lastAttemptKey)
-    if (progressionOptions.context && !context) return []
+    candidate && (candidate.reviewedContextId = context?.id || null)
+    if (progressionOptions.context && !context) {
+      candidate?.reasons.push('no reviewed context is eligible with the currently discovered supporting words')
+      if (candidate) trace.candidates.push(candidate)
+      continue
+    }
     const surface = context?.al || DICT[id].al
-    if (containsExcludedPhraseWord(surface, excludeWords)) return []
+    candidate && (candidate.scheduledSurface = surface)
+    if (containsExcludedPhraseWord(surface, excludeWords)) {
+      candidate?.reasons.push('shares an Albanian word with the preceding Train activity')
+      if (candidate) trace.candidates.push(candidate)
+      continue
+    }
     const plan = wordProgressPlan(progress, currentRound, { ...progressionOptions, context, nowMs })
+    candidate && (candidate.plan = plan)
     // An inflecting word can advance from its lemma to a different reviewed
     // surface while keeping the same sense ID. Apply the no-repeat boundary to
     // that exact scheduled surface too; otherwise the weighted picker may
     // select a form that the form builder must reject, hiding other legal,
     // disjoint due words behind a false caught-up result.
-    if (plan.formTarget?.surface && containsExcludedPhraseWord(plan.formTarget.surface, excludeWords)) return []
-    return plan.due ? [{ id, plan, context }] : []
-  })
+    if (plan.formTarget?.surface && containsExcludedPhraseWord(plan.formTarget.surface, excludeWords)) {
+      candidate?.reasons.push('scheduled reviewed form shares a word with the preceding Train activity')
+      if (candidate) trace.candidates.push(candidate)
+      continue
+    }
+    if (!plan.due) {
+      candidate?.reasons.push('current stage is not due by round/elapsed-spacing policy')
+      if (candidate) trace.candidates.push(candidate)
+      continue
+    }
+    candidate && Object.assign(candidate, {
+      status: 'eligible',
+      reasons: ['discovered, trainable, disjoint from the last activity, and due'],
+    })
+    if (candidate) trace.candidates.push(candidate)
+    due.push({ id, plan, context })
+  }
   if (!due.length) return null
 
-  const { id: answerId, plan, context } = weightedPick(due, mana, rng)
+  const { id: answerId, plan, context } = weightedPick(due, mana, rng, trace)
+  if (trace) trace.selected = {
+    answerId,
+    stageId: plan.stageId,
+    variantId: plan.variantId || plan.contextVariantId || null,
+    due: plan.due,
+    remediation: plan.remediation,
+    reason: 'selected from the eligible due pool by the recorded weighting calculation',
+  }
+  const finish = (question, buildPath, extra = {}) => {
+    if (!question || !trace) return question
+    return {
+      ...question,
+      debugSelection: {
+        ...trace,
+        build: { path: buildPath, ...extra },
+      },
+    }
+  }
   if (!plan.contextReview && (['reviewed-form-contrast', 'contextual-form-selection'].includes(plan.stageId) ||
       (plan.stageId === 'word-form-construction' && plan.targetFormKey))) {
-    return buildFormQuestion({ answerId, plan, excludeWords, currentRound, rng })
+    return finish(
+      buildFormQuestion({ answerId, plan, excludeWords, currentRound, rng }),
+      'reviewed-form-builder',
+      { targetFormKey: plan.targetFormKey },
+    )
   }
   const contextKey = context?.id ? `context-${context.id}` : 'isolated'
   const questionKey = `${answerId}:word:${currentRound}:${plan.tier}:${plan.mode}:${plan.variantId || plan.contextVariantId || 'isolated'}:${contextKey}:${questionSequence++}`
@@ -328,7 +445,7 @@ export function buildWordQuestion({
       context: reviewedProductionContext,
     })
     if (!targetReference.valid) return null
-    return {
+    return finish({
       kind: TRAIN_EXERCISE_FAMILIES.wordConstruction.kind,
       questionKey,
       answerId,
@@ -350,7 +467,7 @@ export function buildWordQuestion({
       answerValue: productionSurface.normalize('NFC').toLocaleLowerCase('sq'),
       rewardIds: [answerId],
       lexicalSurfaces: [productionSurface],
-    }
+    }, 'word-or-form-construction', { targetSurface: productionSurface })
   }
   if (plan.mode === 'type') {
     const typingCue = reviewedProductionContext?.en || senseText(answerId, 'en')
@@ -360,7 +477,7 @@ export function buildWordQuestion({
       context: reviewedProductionContext,
     })
     if (!targetReference.valid) return null
-    return {
+    return finish({
       kind: TRAIN_EXERCISE_FAMILIES.wordSpelling.kind,
       questionKey,
       answerId,
@@ -378,7 +495,7 @@ export function buildWordQuestion({
       targetReference,
       typingAnswer: productionSurface,
       lexicalSurfaces: [productionSurface],
-    }
+    }, 'contextual-typed-recall', { targetSurface: productionSurface, answerTolerance: plan.answerTolerance })
   }
 
   const { field, promptField } = DIRECTION[plan.direction]
@@ -392,8 +509,12 @@ export function buildWordQuestion({
       context,
       excludeWords,
       rng,
+      trace,
     )
-    return contextQuestion ? { ...contextQuestion, questionKey } : null
+    return finish(contextQuestion ? { ...contextQuestion, questionKey } : null, 'reviewed-context-question', {
+      contextId: context?.id || null,
+      direction: plan.direction,
+    })
   }
 
   const distractors = distractorIds(
@@ -404,6 +525,7 @@ export function buildWordQuestion({
     plan.variant.distractors,
     excludeWords,
     rng,
+    { debugTrace: trace },
   )
   const options = shuffleWith([answerId, ...distractors], rng)
   if (!choiceSetIsValid({
@@ -414,7 +536,7 @@ export function buildWordQuestion({
     locale: field === 'al' ? 'sq' : 'en',
     wrongOptionIsValid: (id) => sensesMayShareAnswer(answerId, id),
   })) return null
-  return {
+  return finish({
     kind: TRAIN_EXERCISE_FAMILIES.wordMeaning.kind,
     questionKey,
     answerId,
@@ -430,5 +552,5 @@ export function buildWordQuestion({
     promptText: senseText(answerId, promptField),
     options,
     lexicalSurfaces: [DICT[answerId].al],
-  }
+  }, 'isolated-word-meaning', { direction: plan.direction })
 }
