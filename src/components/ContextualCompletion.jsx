@@ -17,7 +17,19 @@ function ContextLine({ line }) {
             target?.match != null && word === target.match
           )
           let rendered = word
-          if (isTarget && (
+          if (target?.selectable) {
+            rendered = (
+              <button
+                type="button"
+                className="contextual-completion-token-choice"
+                aria-label={`Select “${word}” as the named word`}
+                disabled={target.disabled}
+                onClick={() => target.onSelect(index)}
+              >
+                {word}
+              </button>
+            )
+          } else if (isTarget && (
             target.presentation === CONTEXT_TARGET_PRESENTATION.marked ||
             target.presentation === CONTEXT_TARGET_PRESENTATION.namedMarked
           )) {
@@ -76,26 +88,28 @@ export default function ContextualCompletion({
         {lines.map((line) => <ContextLine line={line} key={line.id} />)}
       </div>
 
-      <div className="answers contextual-completion-answers" role="group" aria-label={answerGroupLabel}>
-        {answers.map((answer) => {
-          let answerClass = 'answer'
-          if (answered && correctIds.has(answer.id)) answerClass += ' correct'
-          else if (answered && answer.id === selectedAnswerId) answerClass += ' wrong'
-          return (
-            <button
-              type="button"
-              className={answerClass}
-              key={answer.id}
-              lang={answer.lang}
-              disabled={answered}
-              aria-pressed={answer.id === selectedAnswerId}
-              onClick={() => onAnswer(answer.id)}
-            >
-              {answer.label}
-            </button>
-          )
-        })}
-      </div>
+      {answers.length > 0 && (
+        <div className="answers contextual-completion-answers" role="group" aria-label={answerGroupLabel}>
+          {answers.map((answer) => {
+            let answerClass = 'answer'
+            if (answered && correctIds.has(answer.id)) answerClass += ' correct'
+            else if (answered && answer.id === selectedAnswerId) answerClass += ' wrong'
+            return (
+              <button
+                type="button"
+                className={answerClass}
+                key={answer.id}
+                lang={answer.lang}
+                disabled={answered}
+                aria-pressed={answer.id === selectedAnswerId}
+                onClick={() => onAnswer(answer.id)}
+              >
+                {answer.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       <div
         className={`feedback ${answered && feedbackTone ? feedbackTone : ''}`}

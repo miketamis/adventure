@@ -85,6 +85,15 @@ export const NOUN_GRAMMAR_ACTIVITY_VARIANTS = deepFreeze({
       { id: 'identify-linking-article-job', task: 'adjective-article-job', completion: 'complete-stage-once' },
     ],
   },
+  linkedAgreementCloze: {
+    id: 'linked-noun-agreement-cloze',
+    label: 'Complete linked demonstrative and adjective agreement',
+    choiceRange: [2, 2],
+    phases: [
+      { id: 'choose-linked-demonstrative', task: 'demonstrative-agreement', completion: 'advance-without-evidence' },
+      { id: 'choose-linked-article', task: 'adjective-article-form', completion: 'complete-stage-once' },
+    ],
+  },
 })
 
 const lower = (value) => String(value || '').normalize('NFC').toLocaleLowerCase('sq')
@@ -97,6 +106,7 @@ export function reviewedNounAgreementSupportIds(frame, kind) {
   if (!frame) return []
   if (kind === 'demonstrative') return ['ky', 'kjo']
   if (kind === 'adjective') return ['i_art', 'e_art', frame.adjective.adjectiveId]
+  if (kind === 'linked') return ['ky', 'kjo', 'i_art', 'e_art', frame.adjective.adjectiveId]
   return []
 }
 

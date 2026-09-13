@@ -1118,14 +1118,14 @@ svg [role="button"]:focus-visible {
 .accepted-answer-review {
   display: grid;
   gap: .9rem;
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 1px solid color-mix(in srgb, var(--mana) 55%, var(--line));
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--mana) 7%, var(--panel));
 }
-.accepted-answer-review h4,
 .accepted-answer-review p { margin: 0; }
+.modal.accepted-answer-dialog {
+  max-width: 620px;
+  border-color: color-mix(in srgb, var(--mana) 58%, var(--line));
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.62);
+}
+.modal.accepted-answer-dialog h2 { color: var(--mana); }
 .accepted-answer-comparison {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1145,7 +1145,6 @@ svg [role="button"]:focus-visible {
   text-transform: uppercase;
 }
 .accepted-answer-comparison strong { color: var(--mana); font-size: 1.15rem; }
-.accepted-answer-review .btn { justify-self: end; }
 @media (max-width: 540px) {
   .accepted-answer-comparison { grid-template-columns: 1fr; }
 }
@@ -1230,6 +1229,28 @@ svg [role="button"]:focus-visible {
   background: transparent;
   color: var(--accent);
   font-weight: 700;
+}
+.contextual-completion-token-choice {
+  appearance: none;
+  margin: -3px -2px;
+  padding: 3px 2px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+.contextual-completion-token-choice:hover {
+  background: color-mix(in srgb, var(--mana) 12%, transparent);
+}
+.contextual-completion-token-choice:focus-visible {
+  outline: 2px solid var(--mana);
+  outline-offset: 2px;
+}
+.contextual-completion-token-choice:disabled {
+  cursor: default;
 }
 .contextual-completion-blank {
   display: inline-block;

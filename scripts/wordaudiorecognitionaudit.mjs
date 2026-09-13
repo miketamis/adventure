@@ -86,6 +86,27 @@ assert.equal(accepted.progress.aspectProofs['lemma|auditory-surface-recognition'
 progress = accepted.progress
 
 question = build(3)
+assert.equal(question.wordStageId, 'auditory-surface-discrimination')
+assert.equal(question.variantId, 'audio-surface-discrimination')
+assert.equal(question.audioRecognitionSubvariantId, 'saved-word-audio-choice')
+const secondSurface = advanceWordProgress(progress, 3, {
+  correct: true,
+  stageId: question.wordStageId,
+  tier: question.tier,
+  mode: question.mode,
+  direction: question.dir,
+  variantId: question.variantId,
+  targetFormKey: null,
+  aspectTargets: question.aspectTargets,
+  audioCompleted: true,
+  questionKey: 'audio-surface-second-completed',
+  round: 4,
+}, progressionOptions)
+assert.equal(secondSurface.accepted, true)
+assert.equal(secondSurface.progress.aspectProofs['lemma|auditory-surface-discrimination'].wins, 1)
+progress = secondSurface.progress
+
+question = build(5)
 assert.equal(question.wordStageId, 'auditory-meaning-recognition')
 assert.equal(question.variantId, 'audio-to-word-meaning')
 assert.equal(question.stimulusMode, 'audio-only')
@@ -99,6 +120,8 @@ assert.equal(claim.level, 'direct')
 assert.ok(claim.equivalents.every(({ value }) => value), 'coverage points at a non-production registry row')
 for (const id of [
   'auditory-surface-recognition', 'audio-to-written-word',
+  'auditory-surface-discrimination', 'audio-surface-discrimination',
+  'reviewed-sound-contrast',
   'auditory-meaning-recognition', 'audio-to-word-meaning',
 ]) assert.ok(TRAIN_EXERCISE_EXAMPLES[id], `Debug Learning lacks ${id}`)
 

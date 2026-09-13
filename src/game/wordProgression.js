@@ -22,6 +22,10 @@ import {
 } from './wordLearningAspects.js'
 import { NOUN_GRAMMAR_ACTIVITY_VARIANTS } from './nounAgreementPractice.js'
 import { sensesMayShareAnswer } from './practiceAnswerValidity.js'
+import {
+  REVIEWED_FORM_ODD_ONE_OUT_VARIANT,
+  reviewedFormOddOneOutPlan,
+} from './reviewedFormOddOneOut.js'
 
 export {
   WORD_ASPECT_REGISTRY_VERSION,
@@ -37,7 +41,7 @@ const deepFreeze = (value) => {
   return Object.freeze(value)
 }
 
-export const WORD_PROGRESS_VERSION = 9
+export const WORD_PROGRESS_VERSION = 12
 export const WORD_MIN_INTERVENING_ROUNDS = 1
 export const WORD_INITIAL_REVIEW_GAP = 6
 export const WORD_MAX_REVIEW_GAP = 64
@@ -48,12 +52,15 @@ export const WORD_CONTEXT_LATE_PROOF = 'unmarked-context-recognition'
 export const WORD_CAPABILITY_DEFINITIONS = deepFreeze([
   { id: 'meaning-recognition', label: 'Recognise meaning', stageId: 'meaning-recognition' },
   { id: 'reviewed-form-awareness', label: 'Distinguish a reviewed form and job', stageId: 'reviewed-form-contrast', conditional: 'reviewed-form-lane' },
+  { id: 'grammatical-form-odd-one-out', label: 'Find the noun form that differs in number or definiteness', stageId: 'grammatical-form-odd-one-out', conditional: 'reviewed-form-odd-one-out' },
   { id: 'auditory-surface-recognition', label: 'Recognise the written word from its audio', stageId: 'auditory-surface-recognition' },
+  { id: 'auditory-surface-discrimination', label: 'Discriminate similar heard words', stageId: 'auditory-surface-discrimination' },
   { id: 'auditory-meaning-recognition', label: 'Recognise meaning from word audio', stageId: 'auditory-meaning-recognition', conditional: 'unambiguous-audio-sense' },
   { id: 'controlled-retrieval-supported', label: 'Retrieve from two choices', stageId: 'controlled-lemma-retrieval' },
   { id: 'controlled-retrieval-expanded', label: 'Retrieve from four choices', stageId: 'controlled-lemma-retrieval' },
   { id: 'demonstrative-noun-agreement', label: 'Choose this + noun agreement', stageId: 'demonstrative-noun-agreement', conditional: 'reviewed-demonstrative-frame' },
   { id: 'adjective-linking-article-agreement', label: 'Choose the adjective linking article', stageId: 'adjective-linking-article-agreement', conditional: 'reviewed-adjective-frame' },
+  { id: 'linked-noun-agreement-cloze', label: 'Complete linked noun-phrase agreement', stageId: 'linked-noun-agreement-cloze', conditional: 'reviewed-linked-agreement-frame' },
   { id: 'contextual-form-selection', label: 'Choose the reviewed ending in context', stageId: 'contextual-form-selection', conditional: 'reviewed-noun-ending-lane' },
   { id: 'reviewed-ending-recall', label: 'Type the reviewed ending in context', stageId: 'reviewed-ending-recall', conditional: 'reviewed-noun-ending-lane' },
   { id: 'auditory-word-construction', label: 'Build the heard word from letter sounds', stageId: 'auditory-word-construction' },
@@ -97,14 +104,14 @@ export const WORD_CONTEXT_VARIANTS = deepFreeze([
     id: WORD_CONTEXT_LATE_PROOF,
     familyId: 'word-context',
     exerciseConceptId: WORD_CONTEXT_EXERCISE_CONCEPT,
-    label: 'Named context · recognise independently',
+    label: 'Unmarked context · locate then recognise',
     direction: 'al2en',
     mode: 'choice',
     choiceDistractors: 3,
     evidenceTrack: 'recognition',
     sourceLanguage: 'sq',
     gapLanguage: 'en',
-    targetPresentation: 'named-marked',
+    targetPresentation: 'unmarked',
     unlock: { kind: 'before-stage', stageId: 'word-form-construction' },
     proofId: WORD_CONTEXT_LATE_PROOF,
     alignmentPolicy: {
@@ -184,6 +191,20 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
   },
   {
     tier: 2,
+    id: 'grammatical-form-odd-one-out',
+    label: 'reviewed form · grammatical odd one out',
+    familyId: 'word-forms',
+    mode: 'choice',
+    direction: 'form2role',
+    evidenceTrack: 'form-awareness',
+    conditional: 'reviewed-form-odd-one-out',
+    variant: REVIEWED_FORM_ODD_ONE_OUT_VARIANT,
+    gate: { wins: 1 },
+    capabilityIds: ['grammatical-form-odd-one-out'],
+    proves: 'distinguishes the number or definiteness of one unambiguous reviewed noun surface from three opposite-category surfaces in the same paradigm',
+  },
+  {
+    tier: 2,
     id: 'auditory-surface-recognition',
     label: 'heard word · choose written Albanian',
     familyId: 'word-audio-recognition',
@@ -199,6 +220,29 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
   },
   {
     tier: 3,
+    id: 'auditory-surface-discrimination',
+    label: 'heard word · discriminate its surface',
+    familyId: 'word-audio-recognition',
+    mode: 'choice',
+    direction: 'audio2al',
+    evidenceTrack: 'listening-orthography',
+    requiresCompletedAudio: true,
+    stimulusMode: 'audio-only',
+    variant: {
+      id: 'audio-surface-discrimination',
+      distractors: 3,
+      choiceRange: [2, 4],
+      subvariants: [
+        { id: 'reviewed-sound-contrast', distractors: 1 },
+        { id: 'saved-word-audio-choice', distractors: 3, fallbackFor: 'reviewed-sound-contrast' },
+      ],
+    },
+    gate: { wins: 1 },
+    capabilityIds: ['auditory-surface-discrimination'],
+    proves: 'discriminates a heard word from a reviewed real-word contrast or a fresh saved-word set',
+  },
+  {
+    tier: 4,
     id: 'auditory-meaning-recognition',
     label: 'heard word · choose meaning',
     familyId: 'word-audio-recognition',
@@ -214,7 +258,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'recognises the meaning of a continuous complete-word MP3 without a visible Albanian transcript',
   },
   {
-    tier: 4,
+    tier: 5,
     id: 'controlled-lemma-retrieval',
     label: 'controlled lemma retrieval',
     familyId: 'word-meaning',
@@ -231,7 +275,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'retrieves the Albanian lemma from a controlled set; selection is not production',
   },
   {
-    tier: 5,
+    tier: 6,
     id: 'demonstrative-noun-agreement',
     label: 'demonstrative + noun agreement',
     familyId: 'word-forms',
@@ -245,7 +289,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'chooses the reviewed gender-marked demonstrative and retrieves the noun in one staged activity',
   },
   {
-    tier: 6,
+    tier: 7,
     id: 'adjective-linking-article-agreement',
     label: 'adjective linking-article agreement',
     familyId: 'word-forms',
@@ -259,7 +303,21 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'identifies the noun before choosing the reviewed i/e article that links its adjective',
   },
   {
-    tier: 7,
+    tier: 8,
+    id: 'linked-noun-agreement-cloze',
+    label: 'linked noun-phrase agreement',
+    familyId: 'word-forms',
+    mode: 'choice',
+    direction: 'form2role',
+    evidenceTrack: 'noun-agreement',
+    conditional: 'reviewed-linked-agreement-frame',
+    variant: NOUN_GRAMMAR_ACTIVITY_VARIANTS.linkedAgreementCloze,
+    gate: { wins: 1 },
+    capabilityIds: ['linked-noun-agreement-cloze'],
+    proves: 'completes the demonstrative and adjective linking article in one reviewed Albanian noun phrase',
+  },
+  {
+    tier: 9,
     id: 'contextual-form-selection',
     label: 'choose the reviewed noun ending',
     familyId: 'word-forms',
@@ -273,7 +331,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'selects only the exact reviewed ending required by a real Albanian context',
   },
   {
-    tier: 8,
+    tier: 10,
     id: 'reviewed-ending-recall',
     label: 'type the reviewed noun ending',
     familyId: 'word-forms',
@@ -288,7 +346,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'recalls and types only the exact reviewed ending required by a real Albanian context',
   },
   {
-    tier: 9,
+    tier: 11,
     id: 'auditory-word-construction',
     label: 'heard word · supplied letters',
     familyId: 'word-audio-construction',
@@ -304,7 +362,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'maps a continuous recorded Albanian word to its exact spelling using supplied letter chunks',
   },
   {
-    tier: 10,
+    tier: 12,
     id: 'auditory-word-spelling',
     label: 'heard word · typed spelling',
     familyId: 'word-audio-spelling',
@@ -320,7 +378,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'maps a continuous recorded Albanian word to an exact independently typed spelling',
   },
   {
-    tier: 11,
+    tier: 13,
     id: 'word-form-construction',
     label: 'word / form construction',
     familyId: 'word-construction',
@@ -334,7 +392,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'constructs the target from Albanian letters or chunks',
   },
   {
-    tier: 12,
+    tier: 14,
     id: 'contextual-typed-recall',
     label: 'beginner-tolerant contextual recall',
     familyId: 'word-spelling',
@@ -347,7 +405,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     proves: 'recalls and types the word or reviewed form in context with beginner leeway',
   },
   {
-    tier: 13,
+    tier: 15,
     id: 'strict-spaced-recall',
     label: 'strict spaced recall',
     familyId: 'word-spelling',
@@ -372,25 +430,25 @@ export const WORD_PROGRESSION_POLICY = deepFreeze({
   controlledRetrievalVariants: STAGE_BY_ID['controlled-lemma-retrieval'].variants,
   auditoryRecognition: {
     familyId: 'word-audio-recognition',
-    stages: ['auditory-surface-recognition', 'auditory-meaning-recognition'],
+    stages: ['auditory-surface-recognition', 'auditory-surface-discrimination', 'auditory-meaning-recognition'],
     source: 'continuous complete-word MP3 only',
-    rule: 'First identify the written Albanian word from audio, then identify its meaning from audio. Every option is an already saved sense; playback must complete before either result is accepted.',
+    rule: 'First identify the written Albanian word from audio. A second proof uses a reviewed real-word sound contrast when its partner is saved, otherwise another distinct saved-word set; only then identify meaning from audio. Playback must complete before any result is accepted.',
   },
   formLane: {
-    conditionalCapabilities: ['reviewed-form-awareness', 'contextual-form-selection', 'reviewed-ending-recall'],
+    conditionalCapabilities: ['reviewed-form-awareness', 'grammatical-form-odd-one-out', 'contextual-form-selection', 'reviewed-ending-recall'],
     source: 'reviewed forms only',
     rule: 'After two successful lemma recognitions, inflecting senses immediately practise an exact reviewed form-and-role record. A noun with a safe exact stem split then chooses and later types the ending for that same form; each form keeps its own evidence.',
   },
   nounAgreement: {
     source: 'explicit reviewed noun-agreement frames only',
     wholeBundleVariant: 'demonstrative-noun-whole-choice',
-    independentlyScoredAspects: ['demonstrative-noun-agreement', 'adjective-linking-article-agreement'],
-    rule: 'The first whole demonstrative+noun choice remains lexical retrieval. Later staged activities separately prove ky/kjo agreement and i/e adjective-linking agreement; neither is inferred from a guessed ending.',
+    independentlyScoredAspects: ['demonstrative-noun-agreement', 'adjective-linking-article-agreement', 'linked-noun-agreement-cloze'],
+    rule: 'The first whole demonstrative+noun choice remains lexical retrieval. Later staged activities separately prove ky/kjo agreement and i/e adjective-linking agreement before one reviewed two-gap phrase combines both decisions; none is inferred from a guessed ending.',
   },
   contextVariant: {
     exerciseConceptId: WORD_CONTEXT_EXERCISE_CONCEPT,
     variants: WORD_CONTEXT_VARIANTS,
-    rule: 'Marked, mirrored and later named-and-marked contexts are aligned recognition/retrieval support; none counts as production. A truly unmarked variant requires a separate target-identification phase.',
+    rule: 'Marked and mirrored contexts provide early recognition/retrieval support. The later variant first names the exact surface to locate in an unmarked Albanian sentence, then marks that selected occurrence and asks for its meaning or job; only the final analysis writes evidence.',
   },
   remediation: {
     delayedByDisjointRounds: WORD_MIN_INTERVENING_ROUNDS,
@@ -400,7 +458,8 @@ export const WORD_PROGRESSION_POLICY = deepFreeze({
     recognition: ['meaning-recognition', 'marked-context-recognition', 'unmarked-context-recognition'],
     listeningRecognition: ['audio-to-written-word', 'audio-to-word-meaning'],
     controlledRetrieval: ['controlled-retrieval-two-choice', 'controlled-retrieval-four-choice', 'mirrored-controlled-retrieval', 'demonstrative-noun-whole-choice'],
-    nounAgreement: ['demonstrative-noun-split-choice', 'adjective-linking-article-staged'],
+    nounAgreement: ['demonstrative-noun-split-choice', 'adjective-linking-article-staged', 'linked-noun-agreement-cloze'],
+    grammaticalContrast: ['reviewed-form-odd-one-out'],
     production: ['word-form-construction', 'contextual-typed-recall', 'strict-spaced-recall'],
     proves: ['word meaning recognition', 'word-level listening recognition', 'controlled lemma retrieval', 'reviewed form/job recognition', 'reviewed ending selection and recall', 'constructed and typed recall'],
     doesNotProve: ['free conversation', 'broad listening comprehension', 'CEFR attainment'],
@@ -767,11 +826,14 @@ const aspectSchedule = (progress, options = {}) => {
   const hasReviewedFormLane = forms.length > 0 || options.hasReviewedFormLane === true
   const formTarget = selectedForm(progress, forms)
   const hasReviewedNounEndingLane = Boolean(formTarget?.endingPractice)
+  const hasReviewedFormOddOneOut = Boolean(reviewedFormOddOneOutPlan(forms, formTarget, { currentRound: options.currentRound }))
   const conditionalAvailability = {
     'reviewed-form-lane': hasReviewedFormLane,
     'reviewed-noun-ending-lane': hasReviewedNounEndingLane,
+    'reviewed-form-odd-one-out': hasReviewedFormOddOneOut,
     'reviewed-demonstrative-frame': Boolean(options.nounAgreementFrame?.demonstrative),
     'reviewed-adjective-frame': Boolean(options.nounAgreementFrame?.adjective),
+    'reviewed-linked-agreement-frame': Boolean(options.nounAgreementFrame?.demonstrative && options.nounAgreementFrame?.adjective),
     'unambiguous-audio-sense': options.unambiguousAudioSense !== false,
   }
   const contextAlignment = wordContextAlignment(options.context, options.answerSurface)
@@ -865,6 +927,8 @@ const aspectSchedule = (progress, options = {}) => {
     forms,
     hasReviewedFormLane,
     hasReviewedNounEndingLane,
+    hasReviewedFormOddOneOut,
+    hasReviewedContextLane: contextAlignment.usable,
   }
 }
 
@@ -916,6 +980,8 @@ const lateContextPlan = (progress, base, currentRound, alignment) => {
     formTarget: base.formTarget,
     hasReviewedFormLane: base.hasReviewedFormLane,
     hasReviewedNounEndingLane: base.hasReviewedNounEndingLane,
+    hasReviewedFormOddOneOut: base.hasReviewedFormOddOneOut,
+    hasReviewedContextLane: base.hasReviewedContextLane,
     aspectId: 'contextual-meaning-inference',
     aspectDefinition: WORD_LEARNING_ASPECT_BY_ID['contextual-meaning-inference'],
     aspectSelection: {
@@ -987,6 +1053,8 @@ export function wordProgressPlan(value, currentRound = 0, options = {}) {
     targetFormKey: formTarget?.key || null,
     hasReviewedFormLane: base.hasReviewedFormLane,
     hasReviewedNounEndingLane: base.hasReviewedNounEndingLane,
+    hasReviewedFormOddOneOut: base.hasReviewedFormOddOneOut,
+    hasReviewedContextLane: base.hasReviewedContextLane,
     nounAgreementFrame: base.nounAgreementFrame,
     aspectId: aspectDefinition?.id || null,
     aspectDefinition,
@@ -1079,6 +1147,8 @@ const remediationForFailure = (plan, nextRound) => {
     'controlled-lemma-retrieval': 'meaning-recognition',
     'demonstrative-noun-agreement': 'controlled-lemma-retrieval',
     'adjective-linking-article-agreement': 'controlled-lemma-retrieval',
+    'grammatical-form-odd-one-out': 'reviewed-form-contrast',
+    'linked-noun-agreement-cloze': 'adjective-linking-article-agreement',
     'contextual-form-selection': 'reviewed-form-contrast',
     'reviewed-ending-recall': 'contextual-form-selection',
     'auditory-word-construction': plan.hasReviewedNounEndingLane ? 'reviewed-ending-recall' : 'meaning-recognition',
@@ -1090,6 +1160,8 @@ const remediationForFailure = (plan, nextRound) => {
     'controlled-lemma-retrieval': 'meaning-recognition',
     'demonstrative-noun-agreement': 'controlled-lemma-retrieval',
     'adjective-linking-article-agreement': 'controlled-lemma-retrieval',
+    'grammatical-form-odd-one-out': 'reviewed-form-contrast',
+    'linked-noun-agreement-cloze': 'adjective-linking-article-agreement',
     'auditory-word-construction': 'meaning-recognition',
     'auditory-word-spelling': 'auditory-word-construction',
     'word-form-construction': 'controlled-lemma-retrieval',
@@ -1226,6 +1298,8 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
       trainability: options.trainability,
       hasReviewedFormLane: false,
       hasReviewedNounEndingLane: false,
+      hasReviewedFormOddOneOut: false,
+      hasReviewedContextLane: false,
       currentStageId: null,
       nextStageId: null,
       progress: normalizeWordProgress(value, currentRound),
@@ -1244,12 +1318,15 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
   const conditionalAvailability = {
     'reviewed-form-lane': plan.hasReviewedFormLane,
     'reviewed-noun-ending-lane': plan.hasReviewedNounEndingLane,
+    'reviewed-form-odd-one-out': plan.hasReviewedFormOddOneOut,
+    'reviewed-context-lane': plan.hasReviewedContextLane,
     'reviewed-demonstrative-frame': Boolean(options.nounAgreementFrame?.demonstrative),
     'reviewed-adjective-frame': Boolean(options.nounAgreementFrame?.adjective),
+    'reviewed-linked-agreement-frame': Boolean(options.nounAgreementFrame?.demonstrative && options.nounAgreementFrame?.adjective),
     'unambiguous-audio-sense': options.unambiguousAudioSense !== false,
   }
   const stageRows = WORD_STAGE_DEFINITIONS.map((definition) => {
-    const formKey = ['reviewed-form-contrast', 'contextual-form-selection', 'reviewed-ending-recall',
+    const formKey = ['reviewed-form-contrast', 'grammatical-form-odd-one-out', 'contextual-form-selection', 'reviewed-ending-recall',
       'auditory-word-construction', 'auditory-word-spelling', 'word-form-construction',
       'contextual-typed-recall', 'strict-spaced-recall'].includes(definition.id)
       ? target?.key || null : null
@@ -1344,6 +1421,8 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
     trainability: options.trainability || { trainable: true, kind: 'lexical' },
     hasReviewedFormLane: plan.hasReviewedFormLane,
     hasReviewedNounEndingLane: plan.hasReviewedNounEndingLane,
+    hasReviewedFormOddOneOut: plan.hasReviewedFormOddOneOut,
+    hasReviewedContextLane: plan.hasReviewedContextLane,
     currentStageId: plan.stageId,
     nextStageId: plan.stageId,
     progress,

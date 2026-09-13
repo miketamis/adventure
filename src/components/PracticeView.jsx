@@ -29,6 +29,7 @@ import PhrasePracticeQuestion from './PhrasePracticeQuestion.jsx'
 import ContextualCompletion, {
   CONTEXT_TARGET_PRESENTATION,
 } from './ContextualCompletion.jsx'
+import { contextualTargetSelection } from '../game/contextQuestionPresentation.js'
 import TrainingActivityShell from './TrainingActivityShell.jsx'
 import WordMatchingQuestion from './WordMatchingQuestion.jsx'
 import CefrCapstone from './CefrCapstone.jsx'
@@ -93,6 +94,7 @@ export default function PracticeView({ state, dispatch }) {
   const [constructedPieceIds, setConstructedPieceIds] = useState([])
   const [formsCorrection, setFormsCorrection] = useState(null)
   const [formPhaseIndex, setFormPhaseIndex] = useState(0)
+  const [contextTargetLocated, setContextTargetLocated] = useState(false)
   const [showCefr, setShowCefr] = useState(false)
   const answerCommitted = useRef(false)
   const questionRef = useRef(null)
@@ -124,6 +126,7 @@ export default function PracticeView({ state, dispatch }) {
     setWordRepair(null)
     setConstructedPieceIds([])
     setFormPhaseIndex(0)
+    setContextTargetLocated(false)
     const nowMs = Date.now()
     const excludeWords = previousQuestionWords.current.length
       ? previousQuestionWords.current
@@ -317,7 +320,7 @@ export default function PracticeView({ state, dispatch }) {
   nextRef.current = next
   const onPhraseComplete = useCallback((result) => {
     const restoresHeart = result.correct && trainCorrectWillRestoreHeart(
-      q.trainHealth || trainHealthPlanForQuestion(state, q),
+      trainHealthPlanForQuestion(state, q),
     )
     setAcceptedLeewayReview(result.acceptedWithLeeway === true)
     setAwaitingRecoveryContinue(restoresHeart)
@@ -367,7 +370,7 @@ export default function PracticeView({ state, dispatch }) {
 
   const onWordMatchComplete = useCallback((result) => {
     const restoresHeart = result.correct && trainCorrectWillRestoreHeart(
-      q.trainHealth || trainHealthPlanForQuestion(state, q),
+      trainHealthPlanForQuestion(state, q),
     )
     setAwaitingRecoveryContinue(restoresHeart)
     const wordKeys = trainQuestionWordKeys(q)
@@ -464,14 +467,16 @@ export default function PracticeView({ state, dispatch }) {
   const isFormIntro = isForms && q.formExerciseMode === 'identify-form'
   const isEndingChoice = isForms && q.formExerciseMode === 'ending-choice'
   const isEndingTyping = isForms && q.formExerciseMode === 'ending-type'
-  const isFormChoice = isFormIntro || isEndingChoice
+  const isFormOddOneOut = isForms && q.formExerciseMode === 'form-odd-one-out'
+  const isFormChoice = isFormIntro || isEndingChoice || isFormOddOneOut
   const isWordConstruction = q.kind === TRAIN_EXERCISE_FAMILIES.wordConstruction.kind
   const isWordSpelling = q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind
   const isAudioWord = q.stimulusMode === 'audio-only'
   const isEverydayPhrase = q.kind === TRAIN_EXERCISE_FAMILIES.phrase.kind
   const isWordMatching = q.kind === TRAIN_EXERCISE_FAMILIES.wordMatching.kind
   const isContextualCompletion = q.kind === TRAIN_EXERCISE_FAMILIES.wordContext.kind
-  const trainHealth = q.trainHealth || trainHealthPlanForQuestion(state, q)
+  const formPhase = isForms ? q.phasePlan?.[formPhaseIndex] : null
+  const trainHealth = trainHealthPlanForQuestion(state, q, { phaseId: formPhase?.id || null })
   const recoveryPlan = trainRecoveryPlanForState(state, trainHealth.maximumHearts)
   const restoredHeart = state.trainRecoveryEvent?.questionKey === q.questionKey
   const isContextualAlbanianRetrieval = isContextualCompletion && q.dir === 'en2al'
@@ -483,7 +488,16 @@ export default function PracticeView({ state, dispatch }) {
       : q.promptProfile?.contextPresentation === CONTEXT_TARGET_PRESENTATION.unmarked
         ? CONTEXT_TARGET_PRESENTATION.unmarked
         : CONTEXT_TARGET_PRESENTATION.marked
-  const contextualInstruction = q.targetReference?.instructionTarget ? (
+  const contextTargetSelectionActive = isContextualCompletion &&
+    q.targetReference?.requiresTargetIdentification === true &&
+    !contextTargetLocated
+  const contextualInstruction = contextTargetSelectionActive ? (
+    <>
+      {q.targetReference.locateInstructionPrefix}
+      <span lang="sq">“{q.targetReference.locateInstructionTarget}”</span>
+      {q.targetReference.locateInstructionSuffix}
+    </>
+  ) : q.targetReference?.instructionTarget ? (
     <>
       {q.targetReference.instructionPrefix}
       <span lang="sq">“{q.targetReference.instructionTarget}”</span>
@@ -494,7 +508,6 @@ export default function PracticeView({ state, dispatch }) {
   const contextualEnglishCue = isContextualCompletion
     ? q.ctx.en.replace('__', senseText(q.answerId, 'en'))
     : ''
-  const formPhase = isForms ? q.phasePlan?.[formPhaseIndex] : null
   const grammarPhaseQuestion = isForms && q.grammarBundle
     ? q.phaseQuestions?.[formPhase?.id] || null
     : null
@@ -512,6 +525,47 @@ export default function PracticeView({ state, dispatch }) {
       : q.answerId
   const answered = picked !== null
   const wasCorrect = picked === correctValue
+
+  const onContextTargetSelect = (tokenIndex) => {
+    if (!contextTargetSelectionActive || answered || answerCommitted.current) return
+    const result = contextualTargetSelection(q.targetReference, tokenIndex)
+    if (!result.eligible) return
+    if (result.correct) {
+      playWord(q.ctx.target)
+      setContextTargetLocated(true)
+      window.requestAnimationFrame(() => questionRef.current?.focus())
+      return
+    }
+
+    answerCommitted.current = true
+    setPicked('__context-target-miss__')
+    const attemptedToken = q.ctx.al.split(/\s+/)[tokenIndex] || ''
+    dispatch({
+      type: 'PRACTICE_WORD_RESULT',
+      correct: false,
+      id: q.answerId,
+      tier: q.tier,
+      mode: q.mode,
+      direction: q.dir,
+      wordStageId: q.wordStageId,
+      variantId: q.variantId,
+      targetFormKey: q.targetFormKey,
+      aspectTargets: q.aspectTargets,
+      questionKey: q.questionKey,
+      wordKeys: trainQuestionWordKeys(q),
+      ...attemptTiming(),
+      consequence: trainMissConsequence({
+        source: 'train-context-target',
+        questionKey: q.questionKey,
+        attemptedAl: attemptedToken,
+        reasonCode: 'wrong-context-target',
+        reason: `“${attemptedToken}” is not the named word “${q.ctx.target}” in this sentence.`,
+        correctAl: q.ctx.target,
+        reasoning: 'First locate the exact Albanian surface named in the instruction; then analyse that marked occurrence.',
+      }),
+    })
+    setTimeout(() => nextRef.current?.(), 0)
+  }
 
   const onPick = (value) => {
     if (answered || answerCommitted.current || (q.requiresCompletedAudio && !wordAudioCompleted)) return
@@ -641,14 +695,19 @@ export default function PracticeView({ state, dispatch }) {
         consequence: correct ? null : trainMissConsequence({
           source: 'train-form',
           questionKey: q.questionKey,
-          attemptedAl: isEnding ? chosen : q.surface,
-          attemptedEn: isEnding ? null : chosen,
-          reasonCode: isEnding ? 'wrong-noun-ending' : 'wrong-form-role',
+          attemptedAl: isEnding || isFormOddOneOut ? chosen : q.surface,
+          attemptedEn: isEnding || isFormOddOneOut ? null : chosen,
+          reasonCode: isEnding ? 'wrong-noun-ending' : isFormOddOneOut ? 'wrong-grammatical-form-odd-one-out' : 'wrong-form-role',
           reason: isEnding
             ? `“${chosen}” is not the ending used by this noun in the displayed Albanian sentence.`
+            : isFormOddOneOut
+              ? `“${chosen}” is ${q.oddOneOut.matchingCategory}, so it belongs with the three matching forms rather than being the exception.`
             : `The selected grammatical job does not match how “${q.surface}” is used in this sentence.`,
-          correctAl: isEnding ? correctOption : q.surface,
-          correctEn: isEnding ? null : correctOption,
+          correctAl: isEnding || isFormOddOneOut ? correctOption : q.surface,
+          correctEn: isEnding || isFormOddOneOut ? null : correctOption,
+          reasoning: isFormOddOneOut
+            ? `The other three reviewed surfaces are ${q.oddOneOut.matchingCategory}; “${q.surface}” is ${q.oddOneOut.targetCategory}.`
+            : null,
           grammarGuide: guide,
         }),
       })
@@ -1040,7 +1099,12 @@ export default function PracticeView({ state, dispatch }) {
                 words: q.ctx.al.split(/\s+/),
                 target: {
                   indices: q.ctx.targetTokenIndices,
-                  presentation: contextualTargetPresentation,
+                  presentation: contextTargetLocated
+                    ? CONTEXT_TARGET_PRESENTATION.marked
+                    : contextualTargetPresentation,
+                  selectable: contextTargetSelectionActive,
+                  disabled: answered || answerCommitted.current,
+                  onSelect: onContextTargetSelect,
                 },
               },
               ...(q.promptProfile?.showEnglishContext === false ? [] : [{
@@ -1055,7 +1119,7 @@ export default function PracticeView({ state, dispatch }) {
                 },
               }]),
             ]}
-            answers={q.options.map((id) => ({
+            answers={(contextTargetSelectionActive ? [] : q.options).map((id) => ({
               id,
               label: q.optionLabels?.[id] || senseText(id, q.field),
               lang: q.field === 'al' ? 'sq' : undefined,
@@ -1085,6 +1149,8 @@ export default function PracticeView({ state, dispatch }) {
                   ? 'Which base word does the marked Albanian form belong to?'
                   : isFormSelectionPhase
                     ? 'Which reviewed form completes this Albanian sentence?'
+                  : isFormOddOneOut
+                    ? q.oddOneOut.prompt
                   : q.promptKind === 'noun-role-in-context'
                     ? 'What grammatical job does the marked form have here?'
                     : 'What grammatical job does the marked form have here?'
@@ -1126,6 +1192,10 @@ export default function PracticeView({ state, dispatch }) {
             ) : isFormSelectionPhase ? (
               <div className="word-form-context">
                 <p lang="sq">{q.context.alGap}</p>
+              </div>
+            ) : isFormOddOneOut ? (
+              <div className="word-form-context form-odd-one-out-prompt">
+                <p>Three forms share the same grammatical feature. Choose the exception.</p>
               </div>
             ) : isForms ? (
               <div className="word-form-context">
@@ -1240,7 +1310,7 @@ export default function PracticeView({ state, dispatch }) {
                     let cls = 'answer'
                     if (answered && option.value === correctValue) cls += ' correct'
                     else if (answered && option.value === picked) cls += ' wrong'
-                    return <button key={option.value || 'zero-ending'} className={cls} lang={isEndingChoice ? 'sq' : undefined} disabled={answered} onClick={() => onPick(option.value)}>{option.label}</button>
+                    return <button key={option.value || 'zero-ending'} className={cls} lang={isEndingChoice || isFormOddOneOut ? 'sq' : undefined} disabled={answered} onClick={() => onPick(option.value)}>{option.label}</button>
                   })
                 : q.options.map((id) => {
                     let cls = 'answer'

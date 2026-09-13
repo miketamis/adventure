@@ -16,15 +16,15 @@ export const REVIEWED_NOUN_PARADIGM_IDS = idSet(`
   erresire familje femije fillim fjale flake fshat fund fuqi furre gjak
   gjarper gje gjendje grua gur hekur hendek hene hije histori
   kafe kale kanal kapidan karkanxholl katallan kazan kembe kemishe kenaqesi kepuce kishe
-  kohe koke krah krah_arm krajl krua kukudh kulle kuptim kuzhinier lahute
+  kohe koke krah krah_arm krajl krua kukudh kulle kuptim kuzhinier lahute hotel
   liber lot luan_noun lugat lume magjistare mal mbremje mbret mbreteresha meme
-  mengjes mik mike mish mjeshter moment motra mulli mur nder nene njeri
+  mengjes mik mike mish mjek mjeshter moment motra mulli mur nder nene njeri
   nuse oda ore pallat para_money pate peme pende pije plak plake
-  porta pranga prift prind pune pus qen qengj qilim qumesht
+  porta pranga prift prind problem pune pus pyetje qen qengj qilim qumesht
   pyll qytet rast roje rrobe rruge sane sapun sherbetore shishe shpate
-  shpelle shqiponje shtepi shtrat shtrige sqep sy tabak takim telashe thike thua
+  shpelle shqiponje shkolle shtepi shtrat shtrige sqep sy tabak takim telashe thike thua
   tiger toke tomorr treg trim trup udhetar uje ujk ure ushqim
-  urime vajze varr vella vend vit vitore zane zjarr zog
+  urime vajze varr vella vend vit vitore zane zjarr zog cante gote ilac peshqir
 `)
 
 // Every reviewed noun candidate without a complete paradigm is named here.
@@ -34,23 +34,23 @@ export const NOUN_PARADIGM_BACKLOG = Object.freeze({
   common: idSet(`
     agim ane are arme argjend armik arsye balle ballokume balte bar bari
     barut bekim berber bese birre bisht bleta bolla bore bresher
-    bretkose bri bujtine burg burrneshe cante cekic dashje dasme
+    bretkose bri bujtine burg burrneshe cekic dashje dasme
     dem_harm dhampir dhimbje dije djathe djalosh dimer dordolec
     dru drithe dylle enderr fakt faj fashe fat feste fe fik filxhan
     fitil flori flutur fole force frike fryme fatura furke
     fushe fytyre gabim gardh gershere gjalpe gjilpere gjinkalla
-    gjume gjysme gjysmegjel gji gju gjuhe gjegjeza goje gomar gote gozhde
-    han hardhi harte here hotel hoxha hu hudher hyrje ide ilac jave jete kafaz
+    gjume gjysme gjysmegjel gji gju gjuhe gjegjeza goje gomar gozhde
+    han hardhi harte here hoxha hu hudher hyrje ide jave jete kafaz
     kafene kafshe kala karroce kashte kenge keshille kopsht
     kose kove kripe kujdes kukull kungull kurban kuror kurth kusur
     laker lajm lek lekure leng lidhje li liqen litar lloj luge lufte
     lule maja mami mejdan menyre merimanga mermer mesdite
-    mesnate mjalte mi miell mjeker mjek mjegull mundim mundesi muaj
+    mesnate mjalte mi miell mjeker mjegull mundim mundesi muaj
     mushkonje muzg nevoje njerke pagezim pasdite pasuri pe
-    perendi perralle pershendetje peshk peshqir pjese pishtar plage plis
-    plumb pluhur polici premte princ problem prove pyetje qiri
+    perendi perralle pershendetje peshk pjese pishtar plage plis
+    plumb pluhur polici premte princ prove qiri
     qiell qoshe raki re rendesi restorant rregull rreze rrufe samar shaka
-    shenje shendet sherues shesh shkolle shkop shok shpetim shi shqiptar
+    shenje shendet sherues shesh shkop shok shpetim shi shqiptar
     shporte shpirt shtojzovalle stuhi teqe thes thesar
     thuper top tregtar tym udhe udhekryq unaze vajtim valle vatra
     vdekje vere vese vrime xhami xhind xhublete yll ylber zambak ze zemer

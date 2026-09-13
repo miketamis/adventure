@@ -40,7 +40,7 @@ export const TOP_1000_EXISTING_FORMS = {
   dil: 'dalë dal dalim doli dalësh',
   cili: 'cilën cilin cilat cilët',
   degjo: 'dëgjoj dëgjoni',
-  problem: 'problemi probleme',
+  pyet: 'pyes',
   njoh: 'njohur',
   ne_we: 'nesh neve',
   edyta: 'dytë',
@@ -60,7 +60,6 @@ export const TOP_1000_EXISTING_FORMS = {
   here: 'njëherë herën hera asnjëherë',
   kthehu: 'kthehemi',
   ky: 'këtij',
-  bie: 'ra',
   shpejt: 'shpejti',
   pjese: 'pjesën pjesa',
   loja: 'lojë',
@@ -129,16 +128,6 @@ export const TOP_1000_CANDIDATES = {
     priority: 'medium',
     reason: 'Everyday “interests/matters”; usable in conversation choices.',
   },
-  çuditshëm: {
-    tokens: 'çuditshme',
-    priority: 'medium',
-    reason: 'Common “strange”; naturally describes supernatural encounters.',
-  },
-  mrekullueshëm: {
-    tokens: 'mrekullueshme',
-    priority: 'medium',
-    reason: 'Positive evaluation “wonderful”; fits greetings and celebrations.',
-  },
   shkak: {
     tokens: 'shkak',
     priority: 'medium',
@@ -184,11 +173,6 @@ export const TOP_1000_CANDIDATES = {
     priority: 'low',
     reason: 'Everyday “bet”; can fit tavern banter but is not survival vocabulary.',
   },
-  qesharak: {
-    tokens: 'qesharake',
-    priority: 'medium',
-    reason: 'Common “funny/ridiculous”; fits humour and teasing.',
-  },
   urrej: {
     tokens: 'urrej',
     priority: 'medium',
@@ -198,11 +182,6 @@ export const TOP_1000_CANDIDATES = {
     tokens: 'vetmi',
     priority: 'low',
     reason: 'Emotion noun “loneliness”; can fit exile and separation lore.',
-  },
-  tmerrshëm: {
-    tokens: 'tmerrshme',
-    priority: 'medium',
-    reason: 'Common “terrible”; natural reaction to danger and loss.',
   },
   madje: {
     tokens: 'madje',
@@ -228,11 +207,6 @@ export const TOP_1000_CANDIDATES = {
     tokens: 'sekonda',
     priority: 'low',
     reason: 'Everyday time unit “seconds”; relevant later than minute/hour vocabulary.',
-  },
-  ndryshoj: {
-    tokens: 'ndryshuar',
-    priority: 'medium',
-    reason: 'Core “change”; useful in state and consequence narration.',
   },
   plan: {
     tokens: 'plan',

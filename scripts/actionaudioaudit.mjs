@@ -12,7 +12,7 @@ import {
   reducer,
   saveState,
 } from '../src/game/gameState.js'
-import { playActionPhrase, setMuted } from '../src/game/audio.js'
+import { AUDIO_PLAYBACK_POLICY, playActionPhrase, setMuted } from '../src/game/audio.js'
 import { storyConfuserConsequence } from '../src/game/consequenceBuilders.js'
 import { optionEnglishReadingOf } from '../src/game/data/readings/reviewedOptionReadings.js'
 import fs from 'node:fs'
@@ -224,6 +224,76 @@ await check('a stalled MP3 fails safely instead of leaving the story inert forev
   } finally {
     if (originalAudio === undefined) delete globalThis.Audio
     else globalThis.Audio = originalAudio
+    globalThis.setTimeout = originalSetTimeout
+    globalThis.clearTimeout = originalClearTimeout
+  }
+})
+
+await check('an MP3 that never reaches metadata releases every audio surface after five seconds', async () => {
+  const originalAudio = globalThis.Audio
+  const originalSetTimeout = globalThis.setTimeout
+  const originalClearTimeout = globalThis.clearTimeout
+  const delays = []
+  class NeverStartedRecording {
+    constructor() {
+      this.duration = Number.NaN
+      this.currentTime = 0
+    }
+    pause() {}
+    play() {
+      return Promise.resolve()
+    }
+  }
+  globalThis.Audio = NeverStartedRecording
+  globalThis.setTimeout = (callback, delayMs) => {
+    delays.push(delayMs)
+    queueMicrotask(callback)
+    return 1
+  }
+  globalThis.clearTimeout = () => {}
+  try {
+    setMuted(false)
+    assert.equal(AUDIO_PLAYBACK_POLICY.startTimeoutMs, 5_000)
+    assert.equal(await playActionPhrase('pre metadata watchdog audit'), false)
+    assert.equal(delays[0], AUDIO_PLAYBACK_POLICY.startTimeoutMs)
+  } finally {
+    if (originalAudio === undefined) delete globalThis.Audio
+    else globalThis.Audio = originalAudio
+    globalThis.setTimeout = originalSetTimeout
+    globalThis.clearTimeout = originalClearTimeout
+  }
+})
+
+await check('a stalled timing manifest fails safely before MP3 playback', async () => {
+  const originalFetch = globalThis.fetch
+  const originalAbortController = globalThis.AbortController
+  const originalSetTimeout = globalThis.setTimeout
+  const originalClearTimeout = globalThis.clearTimeout
+  let aborted = false
+  class AuditAbortController {
+    constructor() {
+      this.signal = {}
+    }
+    abort() {
+      aborted = true
+    }
+  }
+  globalThis.fetch = () => new Promise(() => {})
+  globalThis.AbortController = AuditAbortController
+  globalThis.setTimeout = (callback) => {
+    queueMicrotask(callback)
+    return 1
+  }
+  globalThis.clearTimeout = () => {}
+  try {
+    const timings = await import(new URL(`../src/game/actionAudioTimings.js?watchdog=${Date.now()}`, import.meta.url))
+    assert.equal(await timings.actionAudioTiming('timing manifest watchdog audit'), null)
+    assert.equal(aborted, true)
+  } finally {
+    if (originalFetch === undefined) delete globalThis.fetch
+    else globalThis.fetch = originalFetch
+    if (originalAbortController === undefined) delete globalThis.AbortController
+    else globalThis.AbortController = originalAbortController
     globalThis.setTimeout = originalSetTimeout
     globalThis.clearTimeout = originalClearTimeout
   }

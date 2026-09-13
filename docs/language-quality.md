@@ -192,10 +192,11 @@ ambiguous Albanian surface forms are excluded from isolated-word questions.
 Distractors are real English readings or concise dictionary meanings; the old
 word-swapping distractor generator has been removed.
 
-Every static player action now shows a natural full-phrase English reading and
-keeps its token glosses in a separate row labelled **Word by word**. The two
-layers are deliberately not merged: the action reading explains what the
-choice means, while the token row still teaches how its Albanian parts align.
+Every static player action has a natural full-phrase English reading in the
+editorial registry, but that completed answer and the old **Word by word**
+label are debug-only. Ordinary play shows the Albanian choice and its
+discoverable local token glosses; it never places the fluent English action
+beside the answer before the learner commits.
 The audit refuses publication if an option, item-use phrase, or healing phrase
 is missing from the address-and-Albanian-pinned action registry, remains marked
 as a candidate, or no longer matches the live game text. The generated item

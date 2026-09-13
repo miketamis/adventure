@@ -73,6 +73,40 @@ const persistedMiss = normalizeSavedState(clone(firstMiss), newRun())
 assert.equal(persistedMiss.pendingHeartConsequence?.protected, true)
 assert.equal(persistedMiss.trainStageExposures[firstPlan.exposureKeys[0]], 1)
 
+const supportAspect = {
+  targetId: 'fshat',
+  aspectId: 'lexical-meaning-recognition',
+  level: 'reviewed-form-contrast:lemma',
+}
+const finalAspect = {
+  targetId: 'fshat',
+  aspectId: 'grammatical-form-recognition',
+  level: 'reviewed-form-contrast:form:defNom',
+}
+const stagedQuestion = {
+  aspectTargets: [supportAspect, finalAspect],
+  phaseAspectTargets: {
+    'identify-root-lemma': [supportAspect],
+    'identify-marked-form-job': [supportAspect, finalAspect],
+  },
+}
+const supportExposureKey = trainHealthPlanForQuestion({}, {
+  aspectTargets: [supportAspect],
+}).exposureKeys[0]
+const stagedState = {
+  hearts: 2,
+  trainStageExposures: { [supportExposureKey]: 1 },
+}
+assert.equal(trainHealthPlanForQuestion(stagedState, stagedQuestion).protectedAttempt, true,
+  'the still-unseen final aspect should protect the eventual final phase')
+const supportPhasePlan = trainHealthPlanForQuestion(stagedState, stagedQuestion, {
+  phaseId: 'identify-root-lemma',
+})
+assert.equal(supportPhasePlan.protectedAttempt, false,
+  'an already-attempted support phase was incorrectly protected by a later phase')
+assert.equal(supportPhasePlan.wrongAnswerHeartCost, 1)
+assert.deepEqual(supportPhasePlan.aspectTargets, [supportAspect])
+
 wordState = reducer(firstMiss, {
   type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
   eventId: firstMiss.pendingHeartConsequence.eventId,
@@ -165,6 +199,7 @@ const graph = readFileSync(new URL('../src/components/DebugLearningProgression.j
 assert.match(practice, /trainHeartRiskText\(trainHealth\)/)
 assert.match(practice, /trainRecoveryStatusText\(recoveryPlan\)/)
 assert.match(practice, /trainHealth\.missEndsRun \? '💔'/)
+assert.match(practice, /trainHealthPlanForQuestion\(state, q, \{ phaseId: formPhase\?\.id \|\| null \}\)/)
 assert.match(practice, /one heart restored/)
 assert.match(practice, /Continue training/)
 assert.match(app, /Practice miss — no heart lost/)

@@ -10,10 +10,12 @@ const lower = (value) => value.normalize('NFC').toLocaleLowerCase('sq')
 const baseWins = Object.freeze({
   'meaning-recognition': 2,
   'auditory-surface-recognition': 1,
+  'auditory-surface-discrimination': 1,
   'auditory-meaning-recognition': 1,
   'controlled-lemma-retrieval': 3,
   'demonstrative-noun-agreement': 1,
   'adjective-linking-article-agreement': 1,
+  'linked-noun-agreement-cloze': 1,
 })
 let lanes = 0
 let exactTargets = 0
@@ -104,7 +106,10 @@ for (const [id, entry] of Object.entries(DICT)) {
 
     const selectionProgress = {
       ...contrastProgress,
-      formProofs: { [target.key]: { wins: { 'reviewed-form-contrast': 1 } } },
+      formProofs: { [target.key]: { wins: {
+        'reviewed-form-contrast': 1,
+        'grammatical-form-odd-one-out': 1,
+      } } },
     }
     const selectionPlan = wordProgressPlan(selectionProgress, 50, options)
     assert.equal(selectionPlan.stageId, 'contextual-form-selection')
@@ -122,6 +127,7 @@ for (const [id, entry] of Object.entries(DICT)) {
       ...selectionProgress,
       formProofs: { [target.key]: { wins: {
         'reviewed-form-contrast': 1,
+        'grammatical-form-odd-one-out': 1,
         'contextual-form-selection': 1,
       } } },
     }
@@ -139,6 +145,7 @@ for (const [id, entry] of Object.entries(DICT)) {
       ...recallProgress,
       formProofs: { [target.key]: { wins: {
         'reviewed-form-contrast': 1,
+        'grammatical-form-odd-one-out': 1,
         'contextual-form-selection': 1,
         'reviewed-ending-recall': 1,
         'auditory-word-construction': 1,

@@ -62,8 +62,14 @@ export function subscribeMute(fn) {
 const cache = new Map()
 let activeAudio = null
 let activePlayback = null
-const PLAYBACK_START_TIMEOUT_MS = 30_000
-const PLAYBACK_END_GRACE_MS = 3_000
+// One runtime policy covers word, phrase and accepted-action recordings because
+// they all pass through playSurface. In particular, an MP3 that never reaches
+// metadata must release any blocking caller promptly rather than leaving the
+// game inert behind a silent transition.
+export const AUDIO_PLAYBACK_POLICY = Object.freeze({
+  startTimeoutMs: 5_000,
+  endGraceMs: 3_000,
+})
 
 function clearPlaybackWatchdog(playback) {
   if (playback?.watchdog != null) {
@@ -150,7 +156,7 @@ function playSurface(al, { onProgress } = {}) {
     try {
       activeAudio = a
       activePlayback = playback
-      armWatchdog(PLAYBACK_START_TIMEOUT_MS)
+      armWatchdog(AUDIO_PLAYBACK_POLICY.startTimeoutMs)
       a.currentTime = 0
       onProgress?.(0, { currentTimeMs: 0, durationMs: null })
       a.ontimeupdate = reportProgress
@@ -158,7 +164,7 @@ function playSurface(al, { onProgress } = {}) {
         reportProgress()
         const duration = Number(a.duration)
         if (Number.isFinite(duration) && duration > 0)
-          armWatchdog((duration * 1000) + PLAYBACK_END_GRACE_MS)
+          armWatchdog((duration * 1000) + AUDIO_PLAYBACK_POLICY.endGraceMs)
       }
       a.onended = () => settle(true)
       a.onerror = () => settle(false)

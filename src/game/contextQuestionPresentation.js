@@ -67,14 +67,51 @@ export function contextualTargetReference({
     })
   }
 
-  // A genuinely unmarked activity must first ask the learner to locate the
-  // relevant word. Until that two-phase interaction exists, fail closed rather
-  // than naming an allegedly hidden target or making the referent ambiguous.
   if (presentation === CONTEXT_TARGET_PRESENTATION.unmarked) {
-    return Object.freeze({ valid: false, referenceMode: 'requires-target-identification-phase' })
+    return Object.freeze({
+      valid: true,
+      referenceMode: 'locate-then-analyse',
+      requiresTargetIdentification: true,
+      targetTokenIndex: uniqueIndices[0],
+      locateInstructionPrefix: 'First tap ',
+      locateInstructionTarget: surface,
+      locateInstructionSuffix: ' in the Albanian sentence',
+      locateInstruction: `First tap ${quoted(surface)} in the Albanian sentence`,
+      instructionPrefix: grammatical ? 'What job does ' : 'What does ',
+      instructionTarget: surface,
+      instructionSuffix: grammatical ? ' do here?' : ' mean here?',
+      instruction: grammatical
+        ? `What job does ${quoted(surface)} do here?`
+        : `What does ${quoted(surface)} mean here?`,
+      directionLabel: grammatical ? 'Albanian → grammatical job' : 'Albanian → meaning',
+      answerGroupLabel: grammatical
+        ? 'Choose the located word’s grammatical job'
+        : 'Choose the located word’s meaning',
+    })
   }
 
   return Object.freeze({ valid: false, referenceMode: 'invalid' })
+}
+
+// The locate phase is part of the shared contextual-question contract rather
+// than a view-only quiz. A correct tap reveals the existing analysis phase but
+// is deliberately not a completed learning result; a wrong tap ends the
+// activity as a miss so the learner cannot find the answer by tapping every
+// token.
+export function contextualTargetSelection(reference, selectedTokenIndex) {
+  const eligible = reference?.valid === true &&
+    reference.referenceMode === 'locate-then-analyse' &&
+    reference.requiresTargetIdentification === true &&
+    Number.isInteger(reference.targetTokenIndex)
+  const correct = eligible && selectedTokenIndex === reference.targetTokenIndex
+  return Object.freeze({
+    eligible,
+    correct,
+    revealAnalysis: correct,
+    completesActivity: eligible && !correct,
+    recordsSuccessfulEvidence: false,
+    expectedTokenIndex: eligible ? reference.targetTokenIndex : null,
+  })
 }
 
 export function wordProductionTargetReference({ mode, meaningCue, context } = {}) {

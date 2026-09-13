@@ -19,6 +19,8 @@ const root = new URL('../', import.meta.url)
 const source = (path) => readFileSync(new URL(path, root), 'utf8')
 const phraseComponent = source('src/components/PhrasePracticeQuestion.jsx')
 const practice = source('src/components/PracticeView.jsx')
+const acceptedReview = source('src/components/AcceptedAnswerReview.jsx')
+const blockingModal = source('src/components/BlockingModal.jsx')
 
 const stringsOf = (value, path = 'question', out = []) => {
   if (typeof value === 'string') out.push([path, value])
@@ -63,6 +65,15 @@ assert.doesNotMatch(phraseComponent, /q\.typeScope === 'word' \? q\.typingAnswer
 assert.match(practice, /onContinue=\{next\}/)
 assert.match(practice, /result\.correct && !result\.acceptedWithLeeway && !restoresHeart/)
 assert.doesNotMatch(practice, /result\.correct \? 1800 : 0/)
+assert.match(acceptedReview, /<BlockingModal/)
+assert.match(acceptedReview, /onClick=\{onContinue\}>Continue/)
+assert.doesNotMatch(acceptedReview, /onDismiss=/)
+assert.match(acceptedReview, /appMain\?\.setAttribute\('inert', ''\)/)
+assert.match(acceptedReview, /appMain\?\.setAttribute\('aria-hidden', 'true'\)/)
+assert.match(blockingModal, /createPortal\(/)
+assert.match(blockingModal, /role="dialog"/)
+assert.match(blockingModal, /aria-modal="true"/)
+assert.match(blockingModal, /document\.addEventListener\('keydown', onKeyDown\)/)
 
 const protectedPlan = trainHealthPlanForQuestion({ hearts: 2 }, {
   aspectTargets: [{ targetId: 'fshat', aspectId: 'spelling', level: 'first' }],

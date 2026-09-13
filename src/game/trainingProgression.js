@@ -45,6 +45,7 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
     id: 'word-audio-recognition', kind: 'normal', label: 'Recognise a heard word', role: 'progression',
     variants: [
       WORD_STAGE_BY_ID['auditory-surface-recognition'],
+      WORD_STAGE_BY_ID['auditory-surface-discrimination'],
       WORD_STAGE_BY_ID['auditory-meaning-recognition'],
     ],
   },
@@ -75,10 +76,12 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
     id: 'word-forms', kind: 'forms', label: 'Reviewed form and ending', role: 'progression', choiceDistractors: 3,
     variants: [
       WORD_STAGE_BY_ID['reviewed-form-contrast'],
+      WORD_STAGE_BY_ID['grammatical-form-odd-one-out'],
       WORD_STAGE_BY_ID['contextual-form-selection'],
       WORD_STAGE_BY_ID['reviewed-ending-recall'],
       WORD_STAGE_BY_ID['demonstrative-noun-agreement'],
       WORD_STAGE_BY_ID['adjective-linking-article-agreement'],
+      WORD_STAGE_BY_ID['linked-noun-agreement-cloze'],
     ],
   },
   nounCorrection: {

@@ -537,7 +537,6 @@ export const LATE_READINGS = {
   "fshatiDitelindje.text[2]": { al: "fëmijë pyet: kur do të vijnë miqtë? në mesditë.", en: "The child asks, “When will the guests come?” “At noon.”" },
   "fshatiDitelindjeUrim.text[0]": { al: "ti thua: urime! gëzuar ditëlindjen!", en: "You say, “Congratulations! Happy birthday!”" },
   "fshatiDitelindjeUrim.text[1]": { al: "ky është një urim për fëmijën.", en: "This is a birthday wish for the child." },
-  "fshatiDitelindjeUrim.text[2]": { al: "fëmijë thotë: faleminderit shumë!", en: "The child answers, “Thank you very much!”" },
   "sheshiPlak2.text[0]": { al: "plaku thotë: djali im është larg, nëntë vjet, por motrat e tij rrinë këtu.", en: "The old man says, “My son has been far away for nine years, but his sisters stay here.”" },
   "sheshiPlak2.text[1]": { al: "tani, të gjitha këto vatra janë të ftohta.", en: "“Now all these hearths are cold.”" },
   "sheshiPlak2.text[2]": { al: "plaku tregon vatra e ftohta. pa ujë, ashtu është jeta këtu; uji është i rëndësishëm për ne të gjithë.", en: "The old man points to the cold hearths. “Without water, life is like that here; water is important to all of us.”" },
@@ -648,4 +647,5 @@ export const LATE_READINGS = {
   "rrugaDielli2.text[7]": { al: "ti dhe vajza jeni afër fshatit.", en: "You and the maiden are near the village." },
   "bukuraKthim.text[3]": { al: "por uji qëndron në botë.", en: "But the water remains in the world." },
   "ujiShpella.text[0]": { al: "ti ecën në një shpellë.", en: "You walk into a cave." },
+  "fshatiDitelindjeUrim.text[2]": { al: "fëmijë thotë: faleminderit shumë! kjo është një ditë e mrekullueshme.", en: "The child answers, “Thank you very much! This is a wonderful day.”" },
 }

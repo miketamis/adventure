@@ -42,6 +42,37 @@ assert.ok(!eligible.includes('contextual-form-selection'), 'ending choice bypass
 assert.ok(!eligible.includes('reviewed-ending-recall'), 'typed ending bypassed ending selection')
 assert.equal(branched.next.aspectSelection.strategy, 'highest scored due weak aspect; registry order breaks exact ties')
 
+const contextDependentOptions = {
+  ...wordProgressionOptionsForSense('po_prog'),
+  reviewedForms: [],
+}
+const beforeContextProof = wordProgressionSnapshot({ aspectProofs: {
+  'lemma|lexical-meaning-recognition': { wins: 2, attempts: 2, correctAttempts: 2 },
+  'lemma|auditory-surface-recognition': { wins: 1, attempts: 1, correctAttempts: 1 },
+  'lemma|auditory-surface-discrimination': { wins: 1, attempts: 1, correctAttempts: 1 },
+  'lemma|auditory-meaning-recognition': { wins: 1, attempts: 1, correctAttempts: 1 },
+  'lemma|controlled-lemma-retrieval': { wins: 3, attempts: 3, correctAttempts: 3 },
+  'lemma|auditory-form-construction': { wins: 1, attempts: 1, correctAttempts: 1 },
+  'lemma|auditory-typed-recall': { wins: 1, attempts: 1, correctAttempts: 1 },
+} }, 20, contextDependentOptions)
+const constructionBeforeContext = beforeContextProof.aspects.find(({ aspect }) => aspect.id === 'orthographic-construction')
+assert.equal(beforeContextProof.hasReviewedContextLane, true)
+assert.equal(constructionBeforeContext.eligible, false,
+  'context-dependent construction bypassed independent contextual-meaning proof')
+assert.ok(constructionBeforeContext.prerequisites.some(({ aspectId, passed }) =>
+  aspectId === 'contextual-meaning-inference' && passed === false))
+
+const afterContextProof = wordProgressionSnapshot({ aspectProofs: {
+  ...beforeContextProof.progress.aspectProofs,
+  'lemma|contextual-meaning-inference': { wins: 1, attempts: 1, correctAttempts: 1 },
+} }, 20, contextDependentOptions)
+const constructionAfterContext = afterContextProof.aspects.find(({ aspect }) => aspect.id === 'orthographic-construction')
+assert.equal(constructionAfterContext.eligible, true,
+  'context-dependent construction remained locked after independent contextual-meaning proof')
+assert.ok(wordAspectTargetsForPlan('po_prog', afterContextProof.next).some(({ aspectId, evidenceMode }) =>
+  aspectId === 'contextual-meaning-inference' && evidenceMode === 'prerequisite'),
+'activity evidence omitted the reviewed-context prerequisite consumed by the scheduler')
+
 const initial = wordProgressionSnapshot(null, 0, options)
 const result = advanceWordProgress(null, 0, {
   correct: true,

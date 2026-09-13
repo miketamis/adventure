@@ -42,6 +42,18 @@ export const SPRING_GIRL_APPEARANCE = defineNpcFirstEncounter({
   embedded: true,
 })
 
+export const GJON_GUEST_APPEARANCE = portrait({
+  npcId: 'gjonMik', nodeId: 'sofraMikut2',
+  presence: 'runtime',
+  details: ['clothing', 'carried-object', 'condition'],
+  practicalWordIds: ['rroba', 'cante', 'lagur'],
+  placement: { kind: 'insert-after', lineIndex: 2 },
+  portraitLines: [
+    { known: false, line: R('The traveller has wet clothes, and a leather bag rests beside him.', w('udhetar', 'udhëtari', 'the traveller'), w('ka'), w('rroba'), w('te_link'), w('lagur', 'lagura', 'wet'), p(','), w('dhe'), w('nje'), w('cante', 'çantë', 'bag'), w('prej'), w('lekure', 'lëkure', 'leather'), w('rri'), w('prane'), w('tij'), p('.')) },
+    { known: true, line: R('Gjon has wet clothes, and a leather bag rests beside him.', w('gjon'), w('ka'), w('rroba'), w('te_link'), w('lagur', 'lagura', 'wet'), p(','), w('dhe'), w('nje'), w('cante', 'çantë', 'bag'), w('prej'), w('lekure', 'lëkure', 'leather'), w('rri'), w('prane'), w('tij'), p('.')) },
+  ],
+})
+
 export const FOREST_CRONE_APPEARANCE = portrait({
   npcId: 'plakaPyllit', nodeId: 'pylliLoop',
   presence: 'runtime',
@@ -139,6 +151,7 @@ export default Object.freeze({
   elira: ELIRA_APPEARANCE,
   gruaUji: WATER_CARRIER_APPEARANCE,
   vajzaKroi: SPRING_GIRL_APPEARANCE,
+  gjonMik: GJON_GUEST_APPEARANCE,
   plakaPyllit: FOREST_CRONE_APPEARANCE,
   plakuSheshit: SQUARE_ELDER_APPEARANCE,
   bari: SHEPHERD_APPEARANCE,

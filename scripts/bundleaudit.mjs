@@ -148,10 +148,11 @@ for (const rule of AREA_ACHIEVEMENT_RULES) {
 // browser still has to fetch every member of the static closure before play.
 const SHELL_RAW_BUDGET = 160 * KiB
 const SHELL_GZIP_BUDGET = 56 * KiB
-// The lexical evidence state machine, death-retention boundary, and compact
-// mixed-matching registry are first-play behavior, not optional tooling. Keep
-// a narrow measured allowance for them while retaining the gzip ceiling below.
-const BOOTSTRAP_RAW_BUDGET = 1_360 * KiB
+// The lexical evidence state machine, death-retention boundary, compact
+// mixed-matching registry, and exact reviewed noun paradigms are first-play
+// behavior, not optional tooling. Keep a narrow measured allowance for them
+// while retaining the stricter gzip ceiling below.
+const BOOTSTRAP_RAW_BUDGET = 1_375 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data

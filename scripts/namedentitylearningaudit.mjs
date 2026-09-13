@@ -143,6 +143,32 @@ for (const id of NON_TRAINABLE_NAMED_ENTITY_IDS) {
   }, id), false, `${id}: named entity unlocked form practice`)
 }
 
+// A named entity still belongs to the token stream even though it is not a
+// vocabulary target: Token's named-entity branch is what makes it playable for
+// pronunciation.  Rendering an exact registered name as structural punctuation
+// would silently turn it into inert prose.  Check the complete story tree so a
+// newly revealed NPC cannot regress to that shortcut in only some later lines.
+const namedSurfaces = new Map(NON_TRAINABLE_NAMED_ENTITY_IDS
+  .map((id) => [DICT[id]?.al?.toLocaleLowerCase('sq'), id])
+  .filter(([surface]) => surface))
+const rawNamedEntityTokens = []
+const inspectStoryValue = (value, path) => {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => inspectStoryValue(item, `${path}[${index}]`))
+    return
+  }
+  if (!value || typeof value !== 'object') return
+  if (value.paren && typeof value.en === 'string') {
+    const senseId = namedSurfaces.get(value.en.toLocaleLowerCase('sq'))
+    if (senseId) rawNamedEntityTokens.push(`${path}: ${value.en} (${senseId})`)
+    return
+  }
+  for (const [key, child] of Object.entries(value)) inspectStoryValue(child, `${path}.${key}`)
+}
+inspectStoryValue(STORY, 'STORY')
+assert.deepEqual(rawNamedEntityTokens, [],
+  `registered names were rendered as inert structural prose:\n${rawNamedEntityTokens.join('\n')}`)
+
 // Old saves are cleaned rather than treating historical UI exposure as proof.
 const base = newRun()
 const dirtyNames = Object.fromEntries(NON_TRAINABLE_NAMED_ENTITY_IDS.map((id) => [id, true]))

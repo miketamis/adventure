@@ -27,6 +27,18 @@ export default {
     folklore: [],
     location: { status: 'walking', route: ['kroi1', 'fshatiLumi', 'fshatiSheshi'], encounters: ['gruaUji1'] },
   },
+  gjonMik: {
+    name: 'Gjon', glyph: '🧳', kind: 'human',
+    identity: {
+      mode: 'discoverable',
+      descriptor: 'the traveller from Gjakova',
+      reason: 'The traveller is first known by his journey and gives the name Gjon only when the player asks him.',
+    },
+    role: 'Elira’s guest and a market worker travelling home from Gjakova',
+    backstory: 'He arrives wet and tired for Elira’s evening meal, answers only the questions the player chooses to ask, and brings the first grounded report that the Kulshedra has taken the village water.',
+    folklore: ['kulshedra'],
+    location: { status: 'walking', route: ['sofraMikut2'] },
+  },
   vajzaKroi: {
     name: 'vajza e kroit', glyph: '🪣', kind: 'human',
     identity: {

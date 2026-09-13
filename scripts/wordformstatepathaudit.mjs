@@ -31,11 +31,14 @@ import {
 const EXPECTED_STAGE_ORDER = [
   'meaning-recognition',
   'reviewed-form-contrast',
+  'grammatical-form-odd-one-out',
   'auditory-surface-recognition',
+  'auditory-surface-discrimination',
   'auditory-meaning-recognition',
   'controlled-lemma-retrieval',
   'demonstrative-noun-agreement',
   'adjective-linking-article-agreement',
+  'linked-noun-agreement-cloze',
   'contextual-form-selection',
   'reviewed-ending-recall',
   'auditory-word-construction',
@@ -199,7 +202,7 @@ for (const supportId of ['dje', 'neser', 'mengjes']) {
   simple = persisted(reducer(simple, { type: 'DISCOVER', id: supportId }))
 }
 const simpleQuestions = []
-for (let index = 0; index < 7; index++) {
+for (let index = 0; index < 8; index++) {
   const due = nextDueQuestion(simple, 'tani')
   simple = due.state
   simpleQuestions.push(due.question)
@@ -209,23 +212,25 @@ assert.deepEqual(simpleQuestions.map(({ wordStageId }) => wordStageId), [
   'meaning-recognition',
   'meaning-recognition',
   'auditory-surface-recognition',
+  'auditory-surface-discrimination',
   'auditory-meaning-recognition',
   'controlled-lemma-retrieval',
   'auditory-word-construction',
   'auditory-word-spelling',
 ])
-assert.deepEqual(simpleQuestions.map(({ options }) => options?.length || null), [4, 4, 4, 4, 2, null, null])
+assert.deepEqual(simpleQuestions.map(({ options }) => options?.length || null), [4, 4, 4, 4, 4, 2, null, null])
 assert.deepEqual(simpleQuestions.map(({ variantId }) => variantId), [
   'four-choice-meaning',
   'four-choice-meaning',
   'audio-to-written-word',
+  'audio-surface-discrimination',
   'audio-to-word-meaning',
   'controlled-retrieval-two-choice',
   'audio-letter-construction',
   'audio-typed-spelling',
 ])
 assert.deepEqual(simpleQuestions.filter(({ requiresCompletedAudio }) => requiresCompletedAudio).map(({ stimulusMode, requiresCompletedAudio }) => [stimulusMode, requiresCompletedAudio]), [
-  ['audio-only', true], ['audio-only', true], ['audio-only', true], ['audio-only', true],
+  ['audio-only', true], ['audio-only', true], ['audio-only', true], ['audio-only', true], ['audio-only', true],
 ])
 
 for (let retrievalRound = 0; retrievalRound < 2; retrievalRound++) {
@@ -357,7 +362,9 @@ assert.equal(noun.wordProgress.fshat.wins['reviewed-form-contrast'], undefined,
   'form proof leaked into word-global evidence')
 
 for (const expectedStage of [
+  'grammatical-form-odd-one-out',
   'auditory-surface-recognition',
+  'auditory-surface-discrimination',
   'auditory-meaning-recognition',
   'controlled-lemma-retrieval',
 ]) {
@@ -410,6 +417,7 @@ for (const expectedStage of [
   'controlled-lemma-retrieval',
   'demonstrative-noun-agreement',
   'adjective-linking-article-agreement',
+  'linked-noun-agreement-cloze',
 ]) {
   due = nextDueQuestion(noun, 'fshat')
   noun = due.state
@@ -476,6 +484,7 @@ const lexicalProof = {
   wins: {
     'meaning-recognition': 2,
     'auditory-surface-recognition': 1,
+    'auditory-surface-discrimination': 1,
     'auditory-meaning-recognition': 1,
     'controlled-lemma-retrieval': 3,
   },

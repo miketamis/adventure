@@ -1,21 +1,40 @@
+import { useEffect } from 'react'
+import BlockingModal from './BlockingModal.jsx'
+
 export default function AcceptedAnswerReview({ comparison, onContinue, reward = null }) {
+  useEffect(() => {
+    if (!comparison) return undefined
+    const appMain = document.querySelector('.app-main')
+    appMain?.setAttribute('inert', '')
+    appMain?.setAttribute('aria-hidden', 'true')
+    return () => {
+      appMain?.removeAttribute('inert')
+      appMain?.removeAttribute('aria-hidden')
+    }
+  }, [comparison])
+
   if (!comparison) return null
   return (
-    <section className="accepted-answer-review" aria-labelledby="accepted-answer-title">
-      <h4 id="accepted-answer-title">Close enough at this level — check the exact spelling</h4>
-      <div className="accepted-answer-comparison">
-        <div>
-          <span>Your answer</span>
-          <strong lang="sq">{comparison.attempt}</strong>
+    <BlockingModal
+      id="accepted-answer-title"
+      title="Close enough at this level — check the exact spelling"
+      className="accepted-answer-dialog"
+      actions={<button type="button" className="btn primary" onClick={onContinue}>Continue</button>}
+    >
+      <div className="accepted-answer-review">
+        <div className="accepted-answer-comparison">
+          <div>
+            <span>Your answer</span>
+            <strong lang="sq">{comparison.attempt}</strong>
+          </div>
+          <div>
+            <span>Correct Albanian</span>
+            <strong lang="sq">{comparison.answer}</strong>
+          </div>
         </div>
-        <div>
-          <span>Correct Albanian</span>
-          <strong lang="sq">{comparison.answer}</strong>
-        </div>
+        <p>{comparison.explanation}</p>
+        {reward}
       </div>
-      <p>{comparison.explanation}</p>
-      {reward}
-      <button type="button" className="btn primary" onClick={onContinue}>Continue</button>
-    </section>
+    </BlockingModal>
   )
 }

@@ -355,9 +355,20 @@ for (const status of [
   const readings = assertNamedElira('eliraShesh', status)
   if (status === 'rendezvous:eliraSquare:late') {
     const reaction = readings.findIndex((reading) => reading.startsWith('Elira asks, “Why were you late?'))
-    const apology = readings.findIndex((reading) => reading.startsWith('You say, “Sorry.'))
-    const request = readings.findIndex((reading) => reading.startsWith('Then Elira asks,'))
-    assert.ok(reaction < apology && apology < request, 'Elira’s late-meeting reaction, apology and request are out of order')
+    assert.ok(reaction >= 0, 'Elira’s late-meeting reaction disappeared')
+    assert.equal(readings.some((reading) => reading.startsWith('Then Elira asks,')), false,
+      'Elira asks for help before the player chooses whether to apologise')
+    const apology = STORY.eliraShesh.options.find((option) =>
+      albanianTextOf(option.text) === 'më fal. kam gabuar.')
+    assert.ok(apology && apology.intent === 'speech',
+      'the late-meeting apology is not an explicit player speech choice')
+    const afterApology = visibleLines(STORY.eliraShesh, (id) => new Set([
+      npcIdentityConditionId('elira'), status, 'flag:eliraLateApologyGiven',
+    ]).has(id)).map(englishReadingOf)
+    const reassurance = afterApology.findIndex((reading) => reading.startsWith('Elira says, “Do not worry.'))
+    const request = afterApology.findIndex((reading) => reading.startsWith('Then Elira asks,'))
+    assert.ok(reaction < reassurance && reassurance < request,
+      'Elira’s late-meeting reaction, chosen apology consequence and request are out of order')
   }
 }
 

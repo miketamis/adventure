@@ -256,6 +256,12 @@ export const LEARNING_ACTIVITY_EQUIVALENCE_CLAIMS = deepFreeze([
     note: 'The shared staged form card identifies the root sense, selects the exact reviewed inflected surface for an Albanian context, and only then identifies its grammatical job; no phase displays the complete English sentence answer.',
   },
   {
+    id: 'grammatical-form-odd-one-out', label: 'Find the noun form that differs in number or definiteness',
+    level: 'direct', sourceIds: ['teachingMethod'],
+    refs: [train('word-forms'), aspect('grammatical-form-odd-one-out')],
+    note: 'After exact form recognition, one reviewed-paradigm card presents three unambiguous surfaces sharing number or definiteness and one opposite surface. Syncretic surfaces spanning both categories are excluded rather than marked wrong.',
+  },
+  {
     id: 'ending-before-whole-spelling', label: 'Select or type the inflectional ending before spelling the complete form',
     level: 'direct', sourceIds: ['writing', 'teachingMethod'],
     refs: [train('word-forms'), aspect('contextual-form-selection'), aspect('reviewed-ending-recall')],
@@ -269,18 +275,21 @@ export const LEARNING_ACTIVITY_EQUIVALENCE_CLAIMS = deepFreeze([
   },
   {
     id: 'albanian-sound-contrast', label: 'Discriminate reviewed Albanian sound contrasts in real words',
-    level: 'missingCandidate', sourceIds: ['listening', 'speaking'], refs: [],
-    note: 'Good candidate only for linguistically reviewed, meaning-bearing Albanian contrasts with recorded audio; arbitrary near-spellings or synthetic speech would not qualify.',
+    level: 'direct', sourceIds: ['listening', 'speaking'],
+    refs: [train('word-audio-recognition'), aspect('auditory-surface-discrimination')],
+    note: 'After one general sound-to-spelling proof, a saved reviewed real-word pair narrows the next MP3-only choice to an explicit Albanian sound contrast. No synthetic speech or invented near-spelling is used.',
   },
   {
     id: 'multi-gap-agreement-cloze', label: 'Complete two linked agreement decisions in one Albanian context',
-    level: 'missingCandidate', sourceIds: ['writing', 'immersion'], refs: [],
-    note: 'Good later candidate after each component is independently proven; the answer set must accept every grammatically and semantically valid completion.',
+    level: 'direct', sourceIds: ['writing', 'immersion'],
+    refs: [train('word-forms'), aspect('linked-noun-agreement-cloze')],
+    note: 'After ky/kjo and i/e are independently proven, one staged Albanian-only card completes both gaps around the same reviewed noun; no intermediate phase awards evidence.',
   },
   {
     id: 'point-to-target-before-analysis', label: 'Identify the target word in an unmarked Albanian context before analysing it',
-    level: 'missingCandidate', sourceIds: ['immersion'], refs: [],
-    note: 'Required prerequisite for a genuinely unmarked context variant. Until this exists, an instruction that names a surface keeps that exact surface visibly marked.',
+    level: 'direct', sourceIds: ['immersion'],
+    refs: [train('word-context'), aspect('contextual-meaning-inference')],
+    note: 'The late contextual variant names the exact Albanian surface, requires the learner to tap its unmarked occurrence, then marks it and asks for its meaning or job. Only the final phase writes evidence.',
   },
   {
     id: 'handwriting-or-script-tracing', label: 'Handwrite or trace a non-Latin writing system',

@@ -25,9 +25,37 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',
     choices: ['village', 'bridge', 'river', 'house'], response: 'Choose “village” among three plausible meanings.',
   },
+  'grammatical-form-odd-one-out': {
+    instruction: 'Which Albanian noun form is not plural?', prompt: 'Three forms share one reviewed grammatical feature.', promptLang: 'sq',
+    choices: ['fshatra', 'fshatrat', 'fshatrave', 'fshatin'], response: 'Choose “fshatin”; the other three are plural while it is singular.',
+  },
+  'reviewed-form-odd-one-out': {
+    instruction: 'Which Albanian noun form does not belong?', prompt: 'Use the reviewed number or definiteness contrast.', promptLang: 'sq',
+    choices: ['fshatra', 'fshatrat', 'fshatrave', 'fshatin'], response: 'Choose the one exact surface with the opposite reviewed category.',
+  },
+  'number-odd-one-out': {
+    instruction: 'Which Albanian noun form is not plural?', prompt: 'Three plural forms and one singular form.', promptLang: 'sq',
+    choices: ['fshatra', 'fshatrat', 'fshatrave', 'fshatin'], response: 'Choose “fshatin”.',
+  },
+  'definiteness-odd-one-out': {
+    instruction: 'Which Albanian noun form is not definite?', prompt: 'Three definite forms and one indefinite form.', promptLang: 'sq',
+    choices: ['fshatin', 'fshatit', 'fshatrat', 'fshat'], response: 'Choose “fshat”.',
+  },
   'auditory-surface-recognition': {
     instruction: 'Listen, then choose the written Albanian word.', prompt: 'continuous complete-word MP3', audio: 'fshat',
     choices: ['fshat', 'urë', 'rrugë', 'shtëpi'], response: 'After the recording finishes, choose “fshat”. No transcript appears before the answer.',
+  },
+  'reviewed-sound-contrast': {
+    instruction: 'Listen carefully, then choose the Albanian word you hear.', prompt: '🔊 complete-word MP3', promptLang: 'sq',
+    choices: ['çaj', 'qaj'], response: 'Choose the recorded real word; both options are saved and the reviewed contrast is ç / q at the start.',
+  },
+  'auditory-surface-discrimination': {
+    instruction: 'Listen carefully, then choose the Albanian word you hear.', prompt: 'continuous complete-word MP3', audio: 'çaj',
+    choices: ['çaj', 'qaj'], response: 'Choose “çaj”; this proof is separate from the earlier general sound-to-spelling match.',
+  },
+  'audio-surface-discrimination': {
+    instruction: 'Listen carefully, then choose the Albanian word you hear.', prompt: 'continuous complete-word MP3', audio: 'çaj',
+    choices: ['çaj', 'qaj'], response: 'Use the reviewed real-word sound contrast when its partner is saved; otherwise use a fresh four-word saved set.',
   },
   'audio-to-written-word': {
     instruction: 'Listen, then choose the written Albanian word.', prompt: 'continuous complete-word MP3', audio: 'fshat',
@@ -107,6 +135,15 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     ],
     response: 'No English sentence is displayed; the later phases ask for the reviewed Albanian form and why it fits.',
   },
+  'linked-noun-agreement-cloze': {
+    instruction: 'Complete both agreement gaps in the same Albanian noun phrase.', prompt: '__ libër __ mirë', promptLang: 'sq',
+    choices: ['ky', 'kjo'],
+    phases: [
+      { id: 'choose-linked-demonstrative', prompt: '__ libër __ mirë', choices: ['ky', 'kjo'], response: 'Choose “ky”; no evidence is recorded yet.' },
+      { id: 'choose-linked-article', prompt: 'ky libër __ mirë', choices: ['i', 'e'], response: 'Choose “i”; completing both linked decisions records one result.' },
+    ],
+    response: 'The card combines two previously proved agreement decisions without displaying an English answer.',
+  },
   'reviewed-form-contrast': {
     instruction: 'Identify the base word, choose the exact reviewed form, then identify its grammatical job.', prompt: '[Fshati] është këtu.', promptLang: 'sq',
     choices: ['a village · after a direction', 'the village · subject', 'the village · object', 'of / to / from the village'],
@@ -173,8 +210,13 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     choices: ['fshat', 'urë', 'lumë', 'shtëpi'], response: 'Choose “fshat” for the Albanian gap.',
   },
   'unmarked-context-recognition': {
-    instruction: 'What does “fshat” mean here?', prompt: 'Po shkoj në fshat.', promptLang: 'sq',
-    choices: ['village', 'bridge', 'river', 'house'], response: 'The persisted legacy ID says “unmarked”, but the production presentation is named-and-marked: “fshat” is underlined in green because the instruction names it. Choose “village”.',
+    instruction: 'First tap “fshat” in the Albanian sentence.', prompt: 'Po shkoj në fshat.', promptLang: 'sq',
+    choices: ['Po', 'shkoj', 'në', 'fshat'],
+    phases: [
+      { id: 'locate-context-target', response: 'Tap “fshat”; no evidence is recorded and the same occurrence is now marked in green.' },
+      { id: 'analyse-context-target', choices: ['village', 'bridge', 'river', 'house'], response: 'Choose “village”; only this completed analysis records contextual evidence.' },
+    ],
+    response: 'Locate the exact named surface before analysing its meaning; a wrong token fails the activity rather than allowing unlimited guessing.',
   },
   'independent-word-recognition': {
     instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',

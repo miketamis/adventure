@@ -42,6 +42,7 @@ const guide = read('src/components/GuideView.jsx')
 const debug = read('src/components/DebugView.jsx')
 const debugLearning = read('src/components/DebugLearningProgression.jsx')
 const app = read('src/App.jsx')
+const blockingModal = read('src/components/BlockingModal.jsx')
 const main = read('src/main.jsx')
 const errorBoundary = read('src/components/ReleaseErrorBoundary.jsx')
 const worldMap = read('src/components/WorldMapView.jsx')
@@ -159,7 +160,12 @@ check('ending focus announces fate without leaking comprehension-gated lore',
     'Achievement ending reached: The Road Home. Complete the comprehension test to reveal its tale.' &&
   !sceneAnnouncement({ ending: 'secret', title: 'Hidden Path', summary: 'secret answer', loreHidden: true }).includes('secret answer'))
 check('story no longer emulates buttons with generic elements', !story.includes('role="button"'))
-check('every blocking overlay uses modal semantics and isolates the app', app.includes('function BlockingModal') && app.includes('role="dialog"') && app.includes('aria-modal="true"') && app.includes('inert={blockingOverlay'))
+check('every blocking overlay uses modal semantics and isolates the app',
+  app.includes("import BlockingModal from './components/BlockingModal.jsx'") &&
+  blockingModal.includes('role="dialog"') &&
+  blockingModal.includes('aria-modal="true"') &&
+  blockingModal.includes('createPortal(') &&
+  app.includes('inert={blockingOverlay'))
 check('game sections are named navigation and expose the current page', app.includes('<nav className="tabs" aria-label="Game sections">') && app.includes("aria-current={state.view === view ? 'page' : undefined}"))
 check('the map navigation and atlas renderer are both debug-gated',
   app.includes("{state.debug && tab('map', '🗺 Map')}") &&
@@ -239,7 +245,9 @@ check('word context and phrase cloze share one accessible mirrored completion su
   contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.marked') &&
   contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.blank') &&
   contextQuestionPresentation.includes("unmarked: 'unmarked'") &&
-  contextQuestionPresentation.includes("referenceMode: 'requires-target-identification-phase'") &&
+  contextQuestionPresentation.includes("referenceMode: 'locate-then-analyse'") &&
+  contextualCompletion.includes('className="contextual-completion-token-choice"') &&
+  contextualCompletion.includes('aria-label={`Select “${word}” as the named word`}') &&
   !phrasePractice.includes('CONTEXT_TARGET_PRESENTATION.unmarked'))
 check('word construction and spelling render one shared explicit target reference',
   contextQuestionPresentation.includes('wordProductionTargetReference') &&
@@ -296,8 +304,8 @@ check('phrase results announce feedback and itemise every earned word token',
   phrasePractice.includes('aria-live="polite"') &&
   phrasePractice.includes('<RewardChips ids={q.rewardIds} />') &&
   phrasePractice.includes('word tokens earned'))
-check('dismissible reset dialog returns focus to its trigger', app.includes('returnFocusRef={resetButtonRef}') && app.includes('const target = returnFocusRef?.current || previous'))
-check('blocking dialogs place and contain keyboard focus', app.includes('headingRef.current?.focus()') && app.includes("event.key !== 'Tab'") && app.includes('document.addEventListener(\'keydown\''))
+check('dismissible reset dialog returns focus to its trigger', app.includes('returnFocusRef={resetButtonRef}') && blockingModal.includes('const target = returnFocusRef?.current || previous'))
+check('blocking dialogs place and contain keyboard focus', blockingModal.includes('headingRef.current?.focus()') && blockingModal.includes("event.key !== 'Tab'") && blockingModal.includes('document.addEventListener(\'keydown\''))
 check('character confirmation blocks commitment until its exact tale and source record load',
   embodimentConfirm.includes("const taleReady = loadState === 'ready' && tale?.id === pending?.taleId") &&
   embodimentConfirm.includes('disabled={!taleReady}') &&

@@ -35,6 +35,7 @@ assert.equal(
   false,
   'adjective agreement did not fail closed when support words were unknown',
 )
+assert.equal(reviewedNounAgreementGate(REVIEWED_NOUN_AGREEMENT_FRAMES[0], discoveredIds, 'linked').eligible, true)
 
 const whole = buildDemonstrativeWholeChoice({
   answerId: 'liber', candidateIds: discoveredIds, optionCount: 2, rng: () => 0.25,
@@ -58,6 +59,7 @@ const options = { ...wordProgressionOptionsForSense('liber'), reviewedForms: [] 
 let progress = normalizeWordProgress({ aspectProofs: Object.fromEntries([
   aspectProof('lexical-meaning-recognition', 2),
   aspectProof('auditory-surface-recognition'),
+  aspectProof('auditory-surface-discrimination'),
   aspectProof('auditory-meaning-recognition'),
   aspectProof('controlled-lemma-retrieval', 3),
 ]) })
@@ -92,6 +94,7 @@ assert.equal(advanced.progress.aspectProofs['lemma|demonstrative-noun-agreement'
 progress = normalizeWordProgress({ aspectProofs: Object.fromEntries([
   aspectProof('lexical-meaning-recognition', 2),
   aspectProof('auditory-surface-recognition'),
+  aspectProof('auditory-surface-discrimination'),
   aspectProof('auditory-meaning-recognition'),
   aspectProof('controlled-lemma-retrieval', 3),
   aspectProof('demonstrative-noun-agreement'),
@@ -116,12 +119,51 @@ assert.deepEqual(
   ['adjective-linking-article-agreement'],
 )
 
+progress = normalizeWordProgress({ aspectProofs: Object.fromEntries([
+  aspectProof('lexical-meaning-recognition', 2),
+  aspectProof('auditory-surface-recognition'),
+  aspectProof('auditory-surface-discrimination'),
+  aspectProof('auditory-meaning-recognition'),
+  aspectProof('controlled-lemma-retrieval', 3),
+  aspectProof('demonstrative-noun-agreement'),
+  aspectProof('adjective-linking-article-agreement'),
+]) })
+plan = wordProgressPlan(progress, 10, options)
+assert.equal(plan.stageId, 'linked-noun-agreement-cloze')
+const linked = buildNounAgreementQuestion({
+  answerId: 'liber', plan, candidateIds: discoveredIds, currentRound: 10, rng: () => 0.25,
+})
+assert.equal(linked.phaseQuestions['choose-linked-demonstrative'].prompt, '__ libër __ mirë')
+assert.equal(linked.phaseQuestions['choose-linked-demonstrative'].answerValue, 'ky')
+assert.equal(linked.phaseQuestions['choose-linked-article'].prompt, 'ky libër __ mirë')
+assert.equal(linked.phaseQuestions['choose-linked-article'].answerValue, 'i')
+assert.deepEqual(linked.phaseAspectTargets['choose-linked-demonstrative'].filter(({ evidenceMode }) => evidenceMode === 'write'), [])
+assert.deepEqual(
+  linked.phaseAspectTargets['choose-linked-article'].filter(({ evidenceMode }) => evidenceMode === 'write').map(({ aspectId }) => aspectId),
+  ['linked-noun-agreement-cloze'],
+)
+const linkedAdvanced = advanceWordProgress(progress, 10, {
+  correct: true,
+  stageId: linked.wordStageId,
+  tier: linked.tier,
+  mode: linked.mode,
+  direction: linked.dir,
+  variantId: linked.variantId,
+  targetFormKey: null,
+  aspectTargets: linked.phaseAspectTargets['choose-linked-article'],
+  questionKey: linked.questionKey,
+  round: 11,
+}, options)
+assert.equal(linkedAdvanced.accepted, true)
+assert.equal(linkedAdvanced.progress.aspectProofs['lemma|linked-noun-agreement-cloze'].wins, 1)
+
 for (const id of [
   'demonstrative-noun-whole-choice',
   'demonstrative-noun-agreement',
   'demonstrative-noun-split-choice',
   'adjective-linking-article-agreement',
   'adjective-linking-article-staged',
+  'linked-noun-agreement-cloze',
 ]) assert.ok(TRAIN_EXERCISE_EXAMPLES[id], `Debug Learning lacks ${id}`)
 
 const viewSource = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
@@ -131,4 +173,4 @@ assert.match(viewSource, /train-noun-agreement/)
 const inspectorSource = readFileSync(new URL('../src/game/debugTrainActivity.js', import.meta.url), 'utf8')
 assert.match(inspectorSource, /stagedGrammarOccurrences/)
 
-console.log(`✓ ${REVIEWED_NOUN_AGREEMENT_FRAMES.length} reviewed noun frames support whole-bundle retrieval, split demonstrative agreement and meaning-first i\/e adjective agreement.`)
+console.log(`✓ ${REVIEWED_NOUN_AGREEMENT_FRAMES.length} reviewed noun frames support whole-bundle retrieval, split demonstrative agreement, meaning-first i\/e agreement and a later two-gap combination.`)

@@ -25,9 +25,11 @@ import {
 
 assert.deepEqual(WORD_STAGE_DEFINITIONS.map(({ id }) => id), [
   'meaning-recognition', 'reviewed-form-contrast',
-  'auditory-surface-recognition', 'auditory-meaning-recognition',
+  'grammatical-form-odd-one-out',
+  'auditory-surface-recognition', 'auditory-surface-discrimination', 'auditory-meaning-recognition',
   'controlled-lemma-retrieval',
   'demonstrative-noun-agreement', 'adjective-linking-article-agreement',
+  'linked-noun-agreement-cloze',
   'contextual-form-selection', 'reviewed-ending-recall',
   'auditory-word-construction', 'auditory-word-spelling',
   'word-form-construction', 'contextual-typed-recall',
@@ -90,10 +92,10 @@ assert.deepEqual(early.seen.slice(0, 5).map(({ variantId }) => variantId), [
   'marked-context-recognition', 'marked-context-recognition',
   // Bare “po” has several reviewed senses, so audio alone cannot identify its
   // meaning; only the orthographic listening phase is applicable here.
-  'audio-to-written-word',
-  'mirrored-controlled-retrieval', 'unmarked-context-recognition',
+  'audio-to-written-word', 'audio-surface-discrimination',
+  'mirrored-controlled-retrieval',
 ])
-assert.deepEqual(early.seen.slice(0, 5).map(({ options }) => options.length), [4, 4, 4, 2, 4])
+assert.deepEqual(early.seen.slice(0, 5).map(({ options }) => options.length), [4, 4, 4, 4, 2])
 assert.equal(early.question.variantId, WORD_CONTEXT_LATE_PROOF)
 assert.equal(early.question.contextReview, true)
 assert.equal(early.question.evidenceTrack, 'recognition')

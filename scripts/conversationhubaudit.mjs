@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict'
 import { STORY, lineOf, visibleLines } from '../src/game/content.js'
 import { CONVERSATION_HUBS } from '../src/game/conversationHub.js'
-import { albanianTextOf } from '../src/game/language.js'
+import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import { npcIdentityKnowledgeId } from '../src/game/npcIdentity.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
 
@@ -63,7 +63,13 @@ for (const hub of Object.values(CONVERSATION_HUBS)) {
     }
   }
   assert.equal(exits[0].to, hub.exitTo, `${hub.id}: exit does not return to the declared scene`)
-  assert.equal(exits[0].durationHours, 0, `${hub.id}: saying goodbye advances time`)
+  if (PLACE_OF[hub.nodeId] === PLACE_OF[hub.exitTo]) {
+    assert.equal(exits[0].durationHours, 0, `${hub.id}: same-place goodbye advances time`)
+  } else {
+    assert.ok(exits[0].durationHours > 0, `${hub.id}: cross-place exit silently teleports the player`)
+    assert.equal(exits[0].intent, 'movement', `${hub.id}: cross-place exit is not classified as movement`)
+    assert.deepEqual(exits[0].playerIntents, ['movement'], `${hub.id}: cross-place exit bundles another intention`)
+  }
 
   const openingLines = visibleLines(node, (conditionId) => conditionId === 'npc:placeholder')
   assert.ok(openingLines.length <= 3,
@@ -79,6 +85,47 @@ assert.ok(nameOption.effects.some((effect) =>
   effect.type === 'learn' && effect.id === npcIdentityKnowledgeId('gruaUji')),
 'asking the water-carrier her name does not persist Mira’s identity')
 assert.equal(albanianTextOf(nameOption.text), 'si quhesh?')
+
+// The guest meal is the second canonical hub: the initial scene stays short,
+// the player chooses which ordinary topics to ask about, and only hearing the
+// news unlocks the two responses to the dry-well dilemma.
+const guestHub = CONVERSATION_HUBS['guest-meal']
+assert.ok(guestHub, 'the guest meal regressed to a supplied monologue')
+assert.deepEqual(Object.keys(guestHub.questions), ['mealWish', 'nameOrigin', 'drink', 'home', 'work', 'family', 'journey', 'news'])
+const guestNameOption = STORY.sofraMikut2.options.find((option) =>
+  option.conversationHub?.questionId === 'nameOrigin')
+assert.ok(guestNameOption.effects.some((effect) =>
+  effect.type === 'learn' && effect.id === npcIdentityKnowledgeId('gjonMik')),
+'asking the traveller his name does not persist Gjon’s identity')
+const guestNewsCondition = guestHub.questions.news.askedCondition
+const guestDecisions = STORY.sofraMikut2.options.filter((option) =>
+  ['po, jam dakord.', 'nuk jam dakord. mendoj se duhet të pyesim plakën.']
+    .includes(albanianTextOf(option.text)))
+assert.equal(guestDecisions.length, 2, 'the guest news does not lead to two player-owned responses')
+for (const option of guestDecisions) {
+  assert.ok([].concat(option.requires || []).includes(guestNewsCondition),
+    'a dry-well response appears before the player asks for the news')
+  assert.equal(PLACE_OF.sofraMikut2, PLACE_OF[option.to],
+    'responding to the guest also starts the journey')
+}
+assert.equal(STORY.sofraMikut2.tells, undefined,
+  'entering the guest-room reveals the dry-well route before the player asks for news')
+for (const nodeId of ['sofraVendimPlaka', 'sofraVendimPusi']) {
+  assert.ok(STORY[nodeId].tells?.includes('pusiThate'), `${nodeId}: heard news does not reveal the dry well`)
+}
+assert.deepEqual(STORY.sofraMikut2.text
+  .map((entry) => englishReadingOf(lineOf(entry)))
+  .filter((reading) => /^You (?:say|ask|answer|reply|tell)\b/u.test(reading)), [],
+'the guest meal still speaks or asks on the player’s behalf')
+
+const lateApology = STORY.eliraShesh.options.find((option) =>
+  albanianTextOf(option.text) === 'më fal. kam gabuar.')
+assert.ok(lateApology, 'the late rendezvous gives the player no apology choice')
+assert.equal(lateApology.intent, 'speech', 'the late apology is not one speech intention')
+assert.ok([].concat(lateApology.requires || []).includes('rendezvous:eliraSquare:late'))
+assert.equal(STORY.eliraShesh.text.some((entry) =>
+  /^You say, “Sorry\. I was wrong\.”$/u.test(englishReadingOf(lineOf(entry)))), false,
+'the late rendezvous still apologises on the player’s behalf')
 
 // An NPC may ask, but the authored line may not also decide what the player
 // says. These known legacy cases form an explicit migration queue; exact
@@ -117,6 +164,10 @@ assert.ok(STORY.sofraMikut2.options.some((option) =>
   albanianTextOf(option.text) === 'po, merre.'
   && option.effects?.some((effect) => effect.type === 'flag' && effect.id === 'gaveGuestBread')),
 'the guest’s bread request has no optional explicit reply')
+assert.ok(STORY.sofraMikut2.options.some((option) =>
+  albanianTextOf(option.text) === 'të bëftë mirë!'
+  && option.conversationHub?.questionId === 'mealWish'),
+'the meal has no optional culturally natural good-appetite exchange')
 const dryWellAgreement = STORY.sofraMikut2.options.find((option) =>
   albanianTextOf(option.text) === 'po, jam dakord.')
 assert.ok(dryWellAgreement, 'the dry-well plan is not an explicit player reply')
@@ -129,6 +180,9 @@ assert.ok(STORY[dryWellAgreement.to].options.some((option) => option.to === 'pus
   'the response has no later explicit journey to the dry well')
 assert.ok(STORY[dryWellAgreement.to].options.some((option) => option.to === 'fshatiSheshi'),
   'the response traps the player into the dry-well journey')
+const guestExit = STORY.sofraMikut2.options.find((option) => option.conversationHub?.kind === 'exit')
+assert.equal(guestExit?.intent, 'movement', 'the cross-place guest-hub exit is not one explicit movement intention')
+assert.equal(guestExit?.durationHours, 1, 'the cross-place guest-hub exit consumes no travel time')
 assert.ok(!suppliedPlayerReplies.some((address) => address.startsWith('kroi1.')),
   'the spring girl still supplies the player’s reply')
 assert.ok(STORY.kroi1.options.some((option) => albanianTextOf(option.text) === 'dua ujë, të lutem.'),

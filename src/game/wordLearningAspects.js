@@ -2,7 +2,7 @@
 // more than one component, but it must declare exactly which components it
 // reads as prerequisites and which component its completed result may update.
 
-export const WORD_ASPECT_REGISTRY_VERSION = 5
+export const WORD_ASPECT_REGISTRY_VERSION = 8
 
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
@@ -31,6 +31,16 @@ export const WORD_LEARNING_ASPECTS = deepFreeze([
     evidence: 'Identifies the exact reviewed surface and its grammatical job.',
   },
   {
+    id: 'grammatical-form-odd-one-out',
+    label: 'Grammatical odd one out',
+    dimension: 'morphosyntax',
+    scope: 'reviewed-form',
+    stageId: 'grammatical-form-odd-one-out',
+    conditional: 'reviewed-form-odd-one-out',
+    prerequisites: [{ aspectId: 'grammatical-form-recognition', scope: 'same-form' }],
+    evidence: 'Finds the one unambiguous noun surface whose reviewed number or definiteness differs from three others in the same paradigm.',
+  },
+  {
     id: 'auditory-surface-recognition',
     label: 'Heard-word recognition',
     dimension: 'listening-orthography',
@@ -40,13 +50,22 @@ export const WORD_LEARNING_ASPECTS = deepFreeze([
     evidence: 'Recognises the written Albanian word after its complete recorded MP3 finishes.',
   },
   {
+    id: 'auditory-surface-discrimination',
+    label: 'Heard-word discrimination',
+    dimension: 'listening-orthography',
+    scope: 'lemma',
+    stageId: 'auditory-surface-discrimination',
+    prerequisites: [{ aspectId: 'auditory-surface-recognition', scope: 'lemma' }],
+    evidence: 'Discriminates a heard Albanian word from a reviewed real-word contrast when available, otherwise from a fresh saved-word set.',
+  },
+  {
     id: 'auditory-meaning-recognition',
     label: 'Heard-meaning recognition',
     dimension: 'listening-comprehension',
     scope: 'lemma',
     stageId: 'auditory-meaning-recognition',
     conditional: 'unambiguous-audio-sense',
-    prerequisites: [{ aspectId: 'auditory-surface-recognition', scope: 'lemma' }],
+    prerequisites: [{ aspectId: 'auditory-surface-discrimination', scope: 'lemma' }],
     evidence: 'Recognises the meaning of a complete recorded Albanian word without seeing its transcript.',
   },
   {
@@ -77,6 +96,19 @@ export const WORD_LEARNING_ASPECTS = deepFreeze([
     conditional: 'reviewed-adjective-frame',
     prerequisites: [{ aspectId: 'controlled-lemma-retrieval', scope: 'lemma' }],
     evidence: 'Identifies the noun, then supplies the reviewed i/e article that links its adjective.',
+  },
+  {
+    id: 'linked-noun-agreement-cloze',
+    label: 'Linked noun-phrase agreement',
+    dimension: 'morphosyntax',
+    scope: 'lemma',
+    stageId: 'linked-noun-agreement-cloze',
+    conditional: 'reviewed-linked-agreement-frame',
+    prerequisites: [
+      { aspectId: 'demonstrative-noun-agreement', scope: 'lemma' },
+      { aspectId: 'adjective-linking-article-agreement', scope: 'lemma' },
+    ],
+    evidence: 'Completes both the demonstrative and adjective linking article in one reviewed Albanian noun phrase.',
   },
   {
     id: 'contextual-form-selection',
@@ -190,9 +222,13 @@ export const WORD_STAGE_ASPECT_BINDINGS = deepFreeze({
     writes: ['auditory-surface-recognition'],
     reads: ['lexical-meaning-recognition'],
   },
+  'auditory-surface-discrimination': {
+    writes: ['auditory-surface-discrimination'],
+    reads: ['auditory-surface-recognition'],
+  },
   'auditory-meaning-recognition': {
     writes: ['auditory-meaning-recognition'],
-    reads: ['auditory-surface-recognition'],
+    reads: ['auditory-surface-discrimination'],
   },
   'reviewed-form-contrast': {
     writes: ['grammatical-form-recognition'],
@@ -202,6 +238,10 @@ export const WORD_STAGE_ASPECT_BINDINGS = deepFreeze({
       'choose-reviewed-form': { writes: [], reads: ['grammatical-form-recognition'] },
       'identify-marked-form-job': { writes: ['grammatical-form-recognition'], reads: ['lexical-meaning-recognition'] },
     },
+  },
+  'grammatical-form-odd-one-out': {
+    writes: ['grammatical-form-odd-one-out'],
+    reads: ['grammatical-form-recognition'],
   },
   'controlled-lemma-retrieval': {
     writes: ['controlled-lemma-retrieval'],
@@ -222,6 +262,20 @@ export const WORD_STAGE_ASPECT_BINDINGS = deepFreeze({
       'identify-agreement-noun': { writes: [], reads: ['lexical-meaning-recognition'] },
       'choose-linking-article': { writes: [], reads: ['controlled-lemma-retrieval'] },
       'identify-linking-article-job': { writes: ['adjective-linking-article-agreement'], reads: ['controlled-lemma-retrieval'] },
+    },
+  },
+  'linked-noun-agreement-cloze': {
+    writes: ['linked-noun-agreement-cloze'],
+    reads: ['demonstrative-noun-agreement', 'adjective-linking-article-agreement'],
+    phases: {
+      'choose-linked-demonstrative': {
+        writes: [],
+        reads: ['demonstrative-noun-agreement', 'adjective-linking-article-agreement'],
+      },
+      'choose-linked-article': {
+        writes: ['linked-noun-agreement-cloze'],
+        reads: ['demonstrative-noun-agreement', 'adjective-linking-article-agreement'],
+      },
     },
   },
   'contextual-form-selection': {
@@ -251,7 +305,7 @@ export const WORD_STAGE_ASPECT_BINDINGS = deepFreeze({
     writes: ['orthographic-construction'],
     reads: ['controlled-lemma-retrieval', 'auditory-form-construction'],
     conditionalReads: {
-      'reviewed-form-lane': ['contextual-meaning-inference'],
+      'reviewed-context-lane': ['contextual-meaning-inference'],
       'reviewed-noun-ending-lane': ['reviewed-ending-recall'],
     },
   },
@@ -299,6 +353,7 @@ export function wordAspectTargetsForPlan(targetId, plan, phaseId = null) {
   const conditionalReads = [
     ...(plan.hasReviewedFormLane ? active.conditionalReads?.['reviewed-form-lane'] || [] : []),
     ...(plan.hasReviewedNounEndingLane ? active.conditionalReads?.['reviewed-noun-ending-lane'] || [] : []),
+    ...(plan.hasReviewedContextLane ? active.conditionalReads?.['reviewed-context-lane'] || [] : []),
   ]
   return [
     ...[...(active.reads || []), ...conditionalReads]

@@ -13,6 +13,7 @@ import {
   reviewedNounAgreementFrame,
   reviewedNounAgreementGate,
 } from './nounAgreementPractice.js'
+import { reviewedFormOddOneOutPlan } from './reviewedFormOddOneOut.js'
 
 let formQuestionSequence = 0
 const lower = (value) => value.normalize('NFC').toLocaleLowerCase('sq')
@@ -277,6 +278,40 @@ export function buildFormQuestion({
     }
   }
 
+  if (plan.stageId === 'grammatical-form-odd-one-out') {
+    const oddOneOut = reviewedFormOddOneOutPlan(forms, target, { currentRound })
+    if (!oddOneOut) return null
+    const options = shuffleWith(oddOneOut.rows, rng).map((row) => ({
+      value: row.value,
+      label: row.surface,
+      role: row.role,
+      category: row.category,
+      odd: row.odd,
+    }))
+    if (!choiceSetIsValid({
+      answerValue: oddOneOut.answerValue,
+      optionValues: options.map(({ value }) => value),
+      labelOf: (value) => options.find((option) => option.value === value)?.label,
+      expectedOptionCount: 4,
+      locale: 'sq',
+    })) return null
+    return {
+      ...base,
+      kind: TRAIN_EXERCISE_FAMILIES.wordForms.kind,
+      familyId: TRAIN_EXERCISE_FAMILIES.wordForms.id,
+      formExerciseMode: 'form-odd-one-out',
+      promptKind: 'reviewed-form-odd-one-out',
+      context: null,
+      contextGate,
+      targetTokenIndices: [],
+      options,
+      answerValue: oddOneOut.answerValue,
+      oddOneOut,
+      lexicalSurfaces: options.map(({ label }) => label),
+      distractorPolicy: `three unambiguous ${oddOneOut.matchingCategory} surfaces from the same reviewed noun paradigm; one exact ${oddOneOut.targetCategory} odd surface (${oddOneOut.dimension} contrast)`,
+    }
+  }
+
   if (plan.stageId === 'contextual-form-selection') {
     if (!target.endingPractice) return null
     const options = endingOptions(target, rng)
@@ -387,9 +422,9 @@ const agreementNounOptions = (answerId, candidateIds, rng) => {
   }) ? ids : null
 }
 
-// Both agreement exercises reuse the staged `word-forms` family. The first
-// phase is support only and cannot write evidence; completing the second phase
-// records exactly the independently scheduled agreement aspect.
+// Agreement exercises reuse the staged `word-forms` family. Support phases do
+// not write evidence; only completing the final phase records the independently
+// scheduled agreement aspect.
 export function buildNounAgreementQuestion({
   answerId,
   plan,
@@ -399,8 +434,14 @@ export function buildNounAgreementQuestion({
   rng = Math.random,
 } = {}) {
   const frame = reviewedNounAgreementFrame(answerId)
-  if (!frame || !['demonstrative-noun-agreement', 'adjective-linking-article-agreement'].includes(plan?.stageId)) return null
-  const kind = plan.stageId === 'demonstrative-noun-agreement' ? 'demonstrative' : 'adjective'
+  if (!frame || ![
+    'demonstrative-noun-agreement',
+    'adjective-linking-article-agreement',
+    'linked-noun-agreement-cloze',
+  ].includes(plan?.stageId)) return null
+  const kind = plan.stageId === 'demonstrative-noun-agreement'
+    ? 'demonstrative'
+    : plan.stageId === 'adjective-linking-article-agreement' ? 'adjective' : 'linked'
   const contextGate = reviewedNounAgreementGate(frame, candidateIds, kind)
   if (!contextGate.eligible) return null
   const base = agreementQuestionBase(answerId, frame, plan, currentRound)
@@ -458,6 +499,60 @@ export function buildNounAgreementQuestion({
       lexicalSurfaces: [frame.demonstrative.phrase, ...nounOptions.map(({ label }) => label)],
       contextGate,
       distractorPolicy: 'binary reviewed ky/kjo contrast followed by distinct saved reviewed nouns',
+    }
+  }
+
+  if (kind === 'linked') {
+    const phrase = `${frame.demonstrative.surface} ${frame.demonstrative.nounSurface} ${frame.adjective.article} ${frame.adjective.adjective}`
+    const twoGaps = `__ ${frame.demonstrative.nounSurface} __ ${frame.adjective.adjective}`
+    const articleOptions = [
+      { value: 'i', label: 'i', lang: 'sq' },
+      { value: 'e', label: 'e', lang: 'sq' },
+    ]
+    const demonstrativeOptions = [
+      { value: 'ky', label: 'ky', lang: 'sq' },
+      { value: 'kjo', label: 'kjo', lang: 'sq' },
+    ]
+    if (containsExcludedPhraseWord(phrase, excludeWords)) return null
+    return {
+      ...base,
+      kind: TRAIN_EXERCISE_FAMILIES.wordForms.kind,
+      grammarBundle: true,
+      grammarVariantId: NOUN_GRAMMAR_ACTIVITY_VARIANTS.linkedAgreementCloze.id,
+      surface: frame.demonstrative.nounSurface,
+      answerValue: frame.adjective.article,
+      options: articleOptions,
+      phaseQuestions: {
+        'choose-linked-demonstrative': {
+          instruction: 'Complete the first gap in this Albanian noun phrase',
+          prompt: twoGaps,
+          promptLang: 'sq',
+          options: demonstrativeOptions,
+          answerValue: frame.demonstrative.surface,
+          miss: {
+            reasonCode: 'wrong-linked-demonstrative-agreement',
+            reason: `The reviewed ${frame.gender} noun “${frame.demonstrative.nounSurface}” takes “${frame.demonstrative.surface}” here.`,
+            correctAl: phrase,
+            reasoning: 'The demonstrative and linking article must both agree with the same noun phrase.',
+          },
+        },
+        'choose-linked-article': {
+          instruction: 'Now complete the remaining gap in the same noun phrase',
+          prompt: `${frame.demonstrative.surface} ${frame.demonstrative.nounSurface} __ ${frame.adjective.adjective}`,
+          promptLang: 'sq',
+          options: articleOptions,
+          answerValue: frame.adjective.article,
+          miss: {
+            reasonCode: 'wrong-linked-adjective-article',
+            reason: `After “${frame.demonstrative.surface} ${frame.demonstrative.nounSurface}”, the reviewed ${frame.gender} phrase uses “${frame.adjective.article}” to link the adjective.`,
+            correctAl: phrase,
+            reasoning: 'Both gaps express agreement with the same noun; neither choice is an isolated vocabulary answer.',
+          },
+        },
+      },
+      lexicalSurfaces: [phrase],
+      contextGate,
+      distractorPolicy: 'linked binary ky/kjo and i/e contrasts after both component agreement aspects are proven',
     }
   }
 

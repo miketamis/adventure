@@ -267,8 +267,10 @@ for (const [file, entries] of catalogs) {
   if (gaps.length) gapsByFile.push(`${file}: ${gaps.join(', ')}`)
 }
 
-assert.equal(broadCandidateCount, 276, 'broad individual NPC inventory changed; review the portrait scope')
-assert.equal(locatedCandidateCount, 115, 'located individual NPC inventory changed; review the portrait scope')
+// Gjon is a recurring, discoverable guest at the village meal rather than an
+// anonymous one-scene speaker, so the reviewed individual inventory grows by one.
+assert.equal(broadCandidateCount, 277, 'broad individual NPC inventory changed; review the portrait scope')
+assert.equal(locatedCandidateCount, 116, 'located individual NPC inventory changed; review the portrait scope')
 assert.equal(plannedCandidateCount, 161, 'planned individual NPC inventory changed; review the portrait scope')
 assert.equal(covered.size, locatedCandidateCount,
   `every placed/walking individual needs a reviewed first encounter:\n${gapsByFile.join('\n')}`)

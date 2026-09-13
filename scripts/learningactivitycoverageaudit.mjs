@@ -57,19 +57,15 @@ for (const implemented of [
   'demonstrative-gender-bundle',
   'adjective-linking-article-agreement',
   'paired-form-meaning-contrast',
+  'grammatical-form-odd-one-out',
   'ending-before-whole-spelling',
   'audio-written-meaning-match',
-]) {
-  assert.notEqual(rows.find(({ id }) => id === implemented)?.level, 'missingCandidate',
-    `${implemented}: implemented production mechanic is still labelled as missing`)
-}
-for (const requiredCandidate of [
   'albanian-sound-contrast',
   'multi-gap-agreement-cloze',
   'point-to-target-before-analysis',
 ]) {
-  assert.equal(rows.find(({ id }) => id === requiredCandidate)?.level, 'missingCandidate',
-    `${requiredCandidate}: useful missing mechanic is not honestly visible in the debug matrix`)
+  assert.notEqual(rows.find(({ id }) => id === implemented)?.level, 'missingCandidate',
+    `${implemented}: implemented production mechanic is still labelled as missing`)
 }
 assert.equal(rows.find(({ id }) => id === 'handwriting-or-script-tracing')?.level, 'notAppropriate')
 

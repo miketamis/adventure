@@ -76,11 +76,14 @@ add('option-grounding (act-on-thing present)', Object.entries(STORY).flatMap(([i
   if (n.end) return []
   const grounded = textIds(n)
   return realOpts(n).flatMap((o) => {
-    // Observation actions are themselves reviewed perception affordances: their
-    // canonical beat metadata, same-place effect and hidden lines are validated
-    // together by observationaudit. For ordinary options, test only noun-like
-    // things; particles, directions and manner words are not acted-on objects.
+    // Observation actions and conversation topics carry their own reviewed
+    // affordance metadata. A question may naturally introduce an abstract topic
+    // (work, family, news) which need not already be a visible physical object;
+    // conversationhubaudit verifies that it stays local and receives a response.
+    // For ordinary options, test only noun-like things; particles, directions
+    // and manner words are not acted-on objects.
     if (isCanonicalObservationAction(id, o)) return []
+    if (o.conversationHub?.kind === 'question') return []
     const miss = [...new Set((o.text || [])
       .filter((t) => t?.id && isThingSense(t.id) &&
         !WL.has(t.id) && !ALLOW.has(t.id) && !grounded.has(t.id))

@@ -195,7 +195,19 @@ for (const [arrivalClock, expected] of [[28, 'late'], [31, 'missed']]) {
       ? /u vonove.*prita/
       : /u vonove kaq shumë.*mendova se kishim një takim/,
   )
-  assert.match(visibleText(state), /a mund të më ndihmosh/, `${expected} arrival offers help without first asking for it`)
+  if (expected === 'late') {
+    assert.doesNotMatch(visibleText(state), /a mund të më ndihmosh/,
+      'a late arrival receives the request before the player answers Elira')
+    const apology = atChoice(state, 'eliraShesh', (option) =>
+      albanian(option.text) === 'më fal. kam gabuar.')
+    assert.ok(apology, 'a late arrival has no explicit apology response')
+    state = choose(state, 'eliraShesh', (option) => option === apology)
+    assert.match(visibleText(state), /mos u shqetëso.*a mund të më ndihmosh/,
+      'Elira does not acknowledge the chosen apology before asking for help')
+  } else {
+    assert.match(visibleText(state), /a mund të më ndihmosh/,
+      'a missed appointment does not continue to the help request')
+  }
 }
 
 {

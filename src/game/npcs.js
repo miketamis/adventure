@@ -77,6 +77,20 @@ export const NPCS = {
     activePhases: ['dawn', 'day', 'dusk'],
   },
 
+  // The guest who arrives for Elira's meal stays in the guest-room. His name
+  // is not narration trivia: the player learns it only by choosing to ask.
+  gjonMik: {
+    name: 'Gjon',
+    glyph: '🧳',
+    identity: {
+      mode: 'discoverable',
+      descriptor: 'the traveller from Gjakova',
+      reason: 'The traveller is first known by his journey and gives the name Gjon only when the player asks him.',
+    },
+    route: ['sofraMikut2'],
+    stepHours: 24,
+  },
+
   // The girl who offers water at the spring is identified by that hospitable
   // role. She has no concealed personal name to reveal.
   vajzaKroi: {

@@ -47,6 +47,7 @@ import {
   distractorDifficultyBandForPlan,
   planSenseDistractors,
 } from './distractorPlanning.js'
+import { reviewedSoundContrastFor } from './wordSoundContrasts.js'
 
 const DIRECTION = Object.freeze({
   al2en: { field: 'en', promptField: 'al' },
@@ -452,8 +453,10 @@ export function buildWordQuestion({
         continue
       }
     }
-    if (['demonstrative-noun-agreement', 'adjective-linking-article-agreement'].includes(plan.stageId)) {
-      const agreementKind = plan.stageId === 'demonstrative-noun-agreement' ? 'demonstrative' : 'adjective'
+    if (['demonstrative-noun-agreement', 'adjective-linking-article-agreement', 'linked-noun-agreement-cloze'].includes(plan.stageId)) {
+      const agreementKind = plan.stageId === 'demonstrative-noun-agreement'
+        ? 'demonstrative'
+        : plan.stageId === 'adjective-linking-article-agreement' ? 'adjective' : 'linked'
       const agreementGate = reviewedNounAgreementGate(plan.nounAgreementFrame, discoveredIds, agreementKind)
       candidate && (candidate.nounAgreementGate = agreementGate)
       if (!agreementGate.eligible) {
@@ -462,16 +465,23 @@ export function buildWordQuestion({
         continue
       }
     }
-    if (['auditory-surface-recognition', 'auditory-meaning-recognition'].includes(plan.stageId)) {
-      const optionField = plan.stageId === 'auditory-surface-recognition' ? 'al' : 'en'
-      const neededDistractors = plan.variant?.distractors || 3
+    if (['auditory-surface-recognition', 'auditory-surface-discrimination', 'auditory-meaning-recognition'].includes(plan.stageId)) {
+      const optionField = ['auditory-surface-recognition', 'auditory-surface-discrimination'].includes(plan.stageId) ? 'al' : 'en'
+      const soundContrast = plan.stageId === 'auditory-surface-discrimination'
+        ? reviewedSoundContrastFor(id, discoveredIds, (surface) => containsExcludedPhraseWord(surface, excludeWords))
+        : null
+      const neededDistractors = soundContrast ? 1 : plan.variant?.distractors || 3
       const capacity = audioRecognitionChoiceCapacity(id, discoveredIds, optionField, excludeWords)
       candidate && (candidate.audioRecognitionGate = {
         eligible: capacity >= neededDistractors,
         knownDistinctDistractors: capacity,
         neededDistractors,
+        subvariantId: soundContrast ? 'reviewed-sound-contrast' : 'saved-word-audio-choice',
+        soundContrast,
         reason: capacity >= neededDistractors
-          ? 'enough distinct saved senses for an audio-only choice set'
+          ? soundContrast
+            ? 'reviewed sound-contrast partner is saved and disjoint from the preceding activity'
+            : 'enough distinct saved senses for an audio-only choice set'
           : 'not enough distinct saved senses for an audio-only choice set',
       })
       if (capacity < neededDistractors) {
@@ -520,7 +530,7 @@ export function buildWordQuestion({
       },
     }
   }
-  if (!plan.contextReview && (['reviewed-form-contrast', 'contextual-form-selection', 'reviewed-ending-recall'].includes(plan.stageId) ||
+  if (!plan.contextReview && (['reviewed-form-contrast', 'grammatical-form-odd-one-out', 'contextual-form-selection', 'reviewed-ending-recall'].includes(plan.stageId) ||
       (plan.stageId === 'word-form-construction' && plan.targetFormKey))) {
     return finish(
       buildFormQuestion({ answerId, plan, candidateIds: discoveredIds, excludeWords, currentRound, rng }),
@@ -528,7 +538,7 @@ export function buildWordQuestion({
       { targetFormKey: plan.targetFormKey },
     )
   }
-  if (!plan.contextReview && ['demonstrative-noun-agreement', 'adjective-linking-article-agreement'].includes(plan.stageId)) {
+  if (!plan.contextReview && ['demonstrative-noun-agreement', 'adjective-linking-article-agreement', 'linked-noun-agreement-cloze'].includes(plan.stageId)) {
     return finish(
       buildNounAgreementQuestion({ answerId, plan, candidateIds: discoveredIds, excludeWords, currentRound, rng }),
       'reviewed-noun-agreement-builder',
@@ -545,10 +555,13 @@ export function buildWordQuestion({
   const reviewedProductionContext = isReviewedProductionContext(productionContext)
     ? productionContext
     : null
-  if (!plan.contextReview && ['auditory-surface-recognition', 'auditory-meaning-recognition'].includes(plan.stageId)) {
-    const field = plan.stageId === 'auditory-surface-recognition' ? 'al' : 'en'
+  if (!plan.contextReview && ['auditory-surface-recognition', 'auditory-surface-discrimination', 'auditory-meaning-recognition'].includes(plan.stageId)) {
+    const field = ['auditory-surface-recognition', 'auditory-surface-discrimination'].includes(plan.stageId) ? 'al' : 'en'
     const promptField = field === 'al' ? 'en' : 'al'
-    const distractors = distractorIds(
+    const soundContrast = plan.stageId === 'auditory-surface-discrimination'
+      ? reviewedSoundContrastFor(answerId, discoveredIds, (surface) => containsExcludedPhraseWord(surface, excludeWords))
+      : null
+    const distractors = soundContrast ? [soundContrast.partnerId] : distractorIds(
       answerId,
       discoveredIds,
       field,
@@ -568,11 +581,12 @@ export function buildWordQuestion({
       },
     )
     const options = shuffleWith([answerId, ...distractors], rng)
+    const expectedDistractors = soundContrast ? 1 : plan.variant.distractors
     if (!choiceSetIsValid({
       answerValue: answerId,
       optionValues: options,
       labelOf: (id) => senseText(id, field),
-      expectedOptionCount: plan.variant.distractors + 1,
+      expectedOptionCount: expectedDistractors + 1,
       locale: field === 'al' ? 'sq' : 'en',
       wrongOptionIsValid: (id) => sensesMayShareAnswer(answerId, id),
     })) return null
@@ -586,6 +600,8 @@ export function buildWordQuestion({
       tier: plan.tier,
       wordStageId: plan.stageId,
       variantId: plan.variantId,
+      audioRecognitionSubvariantId: soundContrast ? 'reviewed-sound-contrast' : 'saved-word-audio-choice',
+      soundContrast,
       difficultyLabel: plan.difficultyLabel,
       remediation: plan.remediation,
       targetFormKey: null,
@@ -597,16 +613,22 @@ export function buildWordQuestion({
       targetReference: {
         valid: true,
         instruction: field === 'al'
-          ? 'Listen, then choose the written Albanian word'
+          ? soundContrast
+            ? 'Listen carefully, then choose the Albanian word you hear'
+            : 'Listen, then choose the written Albanian word'
           : 'Listen, then choose what the Albanian word means',
         presentation: 'audio-only',
       },
       lexicalSurfaces: options.map((id) => DICT[id].al),
-      distractorPolicy: 'four distinct saved trainable senses; no transcript before the answer',
+      distractorPolicy: soundContrast
+        ? `reviewed real-word contrast (${soundContrast.focus}); both options are saved; no transcript before the answer`
+        : 'four distinct saved trainable senses; no transcript before the answer',
     }, 'audio-word-recognition', {
       targetSurface: DICT[answerId].al,
       audioRequired: true,
       optionField: field,
+      audioRecognitionSubvariantId: soundContrast ? 'reviewed-sound-contrast' : 'saved-word-audio-choice',
+      soundContrastId: soundContrast?.id || null,
     })
   }
   if (!plan.contextReview && plan.stageId === 'auditory-word-construction') {

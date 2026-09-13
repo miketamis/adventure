@@ -69,6 +69,15 @@ const migratedParadigmSurfaces = Object.freeze({
   kepuce: ['këpucë', 'këpucë', 'këpuce', 'këpuce', 'këpuca', 'këpucën', 'këpucës', 'këpucë', 'këpucët', 'këpucëve', 'këpucësh'],
   buke: ['bukë', 'bukë', 'buke', 'buke', 'buka', 'bukën', 'bukës', 'bukë', 'bukët', 'bukëve', 'bukësh'],
   bilete: ['biletë', 'biletë', 'bilete', 'bilete', 'bileta', 'biletën', 'biletës', 'bileta', 'biletat', 'biletave', 'biletash'],
+  pyetje: ['pyetje', 'pyetje', 'pyetjeje', 'pyetjeje', 'pyetja', 'pyetjen', 'pyetjes', 'pyetje', 'pyetjet', 'pyetjeve', 'pyetjesh'],
+  shkolle: ['shkollë', 'shkollë', 'shkolle', 'shkolle', 'shkolla', 'shkollën', 'shkollës', 'shkolla', 'shkollat', 'shkollave', 'shkollash'],
+  cante: ['çantë', 'çantë', 'çante', 'çante', 'çanta', 'çantën', 'çantës', 'çanta', 'çantat', 'çantave', 'çantash'],
+  gote: ['gotë', 'gotë', 'gote', 'gote', 'gota', 'gotën', 'gotës', 'gota', 'gotat', 'gotave', 'gotash'],
+  hotel: ['hotel', 'hotel', 'hoteli', 'hoteli', 'hoteli', 'hotelin', 'hotelit', 'hotele', 'hotelet', 'hoteleve', 'hotelesh'],
+  problem: ['problem', 'problem', 'problemi', 'problemi', 'problemi', 'problemin', 'problemit', 'probleme', 'problemet', 'problemeve', 'problemesh'],
+  mjek: ['mjek', 'mjek', 'mjeku', 'mjeku', 'mjeku', 'mjekun', 'mjekut', 'mjekë', 'mjekët', 'mjekëve', 'mjekësh'],
+  ilac: ['ilaç', 'ilaç', 'ilaçi', 'ilaçi', 'ilaçi', 'ilaçin', 'ilaçit', 'ilaçe', 'ilaçet', 'ilaçeve', 'ilaçesh'],
+  peshqir: ['peshqir', 'peshqir', 'peshqiri', 'peshqiri', 'peshqiri', 'peshqirin', 'peshqirit', 'peshqirë', 'peshqirët', 'peshqirëve', 'peshqirësh'],
 })
 
 const allRoles = [...singularRoles, ...pluralRoles]
@@ -90,11 +99,7 @@ assert.equal(
 // been reviewed. Pin that classification independently so adding a bare
 // dictionary row cannot make these changing words look non-inflecting.
 const practicalNounBacklogIds = [
-  'gote',
-  'peshqir',
-  'ilac',
   'fashe',
-  'cante',
   'kove',
   'cekic',
   'shporte',

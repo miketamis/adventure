@@ -493,7 +493,7 @@ function ContextGapFamilyCard({ family, contextSnapshot, onExample }) {
     >
       <span className={`dbg-learning-status ${familyStatus}`}>{familyStatus} · shared family</span>
       <h4>Context-gap progression</h4>
-      <p>One context-completion family moves from marked recognition through mirrored Albanian retrieval to a harder named-target proof. A truly unmarked variant remains a candidate until it first asks the learner to point to the target word.</p>
+      <p>One context-completion family moves from marked recognition through mirrored Albanian retrieval to a harder two-phase proof: locate the exact named surface in an unmarked sentence, then analyse the occurrence that becomes marked.</p>
       {WORD_CONTEXT_VARIANTS.map((variant) => {
         const evidence = variantStatus.get(variant.id)
         const status = evidence?.status || 'locked'

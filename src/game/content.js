@@ -576,6 +576,23 @@ const WATER_CARRIER_CONVERSATION = defineConversationHub({
   },
 })
 
+const GUEST_MEAL_CONVERSATION = defineConversationHub({
+  id: 'guest-meal',
+  nodeId: 'sofraMikut2',
+  npcId: 'gjonMik',
+  exitTo: 'fshatiSheshi',
+  questions: {
+    mealWish: { purpose: 'wish the traveller a good meal' },
+    nameOrigin: { purpose: 'ask the traveller his name and where he is from' },
+    drink: { purpose: 'ask what he would like to drink' },
+    home: { purpose: 'ask where he lives' },
+    work: { purpose: 'ask what work he does' },
+    family: { purpose: 'ask about his family' },
+    journey: { purpose: 'ask how his journey went' },
+    news: { purpose: 'ask what news he brings' },
+  },
+})
+
 export const STORY = {
   // =========================================================================
   // ACT I — the thirsting village (the Call)
@@ -602,6 +619,9 @@ export const STORY = {
         w('para'), wf('ti', 'teje', 'you'), p(','), w('nje'), w('ure'),
         wf('kalo', 'kalon', 'crosses'), w('mbi'), wf('lume', 'lumin', 'the river'),
         w('dhe'), w('te_obj'), w('con'), wf('ne', 'në', 'to'), w('fshat'), p('.'))),
+      notFrom('fshatiLumi', R('It rained yesterday; the bridge is still wet.',
+        w('dje'), wf('bie', 'ra', 'rained'), w('shi'), p(';'),
+        wf('ure', 'ura', 'the bridge'), w('eshte'), w('ende'), w('e_art'), w('lagur'), p('.'))),
       R('Behind you lies a forest with a road.', w('mbrapa'), w('eshte'), w('nje'), w('pyll'), w('me'), w('nje'), w('rruge'), p('.')),
       // the hour of the world, told by what the PLACE shows — the black wall of
       // trees, the one far light, the dusk shadows; nightfall itself arrives as
@@ -847,14 +867,14 @@ export const STORY = {
       npcIdentityLine('elira', true, R('Elira asks, “What took you so long? I thought we had a meeting.”', w('elira'), w('pyet'), p(':'), w('pse'), wf('vonohem', 'u vonove kaq shumë', 'were you so late'), p('?'), wf('mendoj', 'mendova', 'thought'), w('se'), wf('ka', 'kishim', 'had'), w('nje'), w('takim'), p('.')), { required: 'rendezvous:eliraSquare:missed' }),
       npcIdentityLine('elira', false, R('Then the woman asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', w('pastaj'), wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')), { excluded: 'rendezvous:eliraSquare:late' }),
       npcIdentityLine('elira', true, R('Then Elira asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', w('pastaj'), w('elira'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')), { excluded: 'rendezvous:eliraSquare:late' }),
-      when('rendezvous:eliraSquare:late', R('You say, “Sorry. I was wrong.”', w('ti'), wf('thote', 'thua', 'say'), p(':'), w('me_obj'), w('fal'), p('.'), wf('ka', 'kam', 'have'), wf('gaboj', 'gabuar', 'mistaken'), p('.'))),
-      npcIdentityLine('elira', false, R('The woman says, “Do not worry. There is no trouble.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('mos'), wf('shqetesohem', 'u shqetëso', 'worry'), p('.'), w('nuk'), w('ka'), wf('telashe', 'telashe', 'trouble'), p('.')), { required: 'rendezvous:eliraSquare:late' }),
-      npcIdentityLine('elira', true, R('Elira says, “Do not worry. There is no trouble.”', w('elira'), w('thote'), p(':'), w('mos'), wf('shqetesohem', 'u shqetëso', 'worry'), p('.'), w('nuk'), w('ka'), wf('telashe', 'telashe', 'trouble'), p('.')), { required: 'rendezvous:eliraSquare:late' }),
-      npcIdentityLine('elira', false, R('Then the woman asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', w('pastaj'), wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')), { required: 'rendezvous:eliraSquare:late' }),
-      npcIdentityLine('elira', true, R('Then Elira asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', w('pastaj'), w('elira'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')), { required: 'rendezvous:eliraSquare:late' }),
+      npcIdentityLine('elira', false, R('The woman says, “Do not worry. There is no trouble.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('mos'), wf('shqetesohem', 'u shqetëso', 'worry'), p('.'), w('nuk'), w('ka'), wf('telashe', 'telashe', 'trouble'), p('.')), { required: ['rendezvous:eliraSquare:late', 'flag:eliraLateApologyGiven'] }),
+      npcIdentityLine('elira', true, R('Elira says, “Do not worry. There is no trouble.”', w('elira'), w('thote'), p(':'), w('mos'), wf('shqetesohem', 'u shqetëso', 'worry'), p('.'), w('nuk'), w('ka'), wf('telashe', 'telashe', 'trouble'), p('.')), { required: ['rendezvous:eliraSquare:late', 'flag:eliraLateApologyGiven'] }),
+      npcIdentityLine('elira', false, R('Then the woman asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', w('pastaj'), wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')), { required: ['rendezvous:eliraSquare:late', 'flag:eliraLateApologyGiven'] }),
+      npcIdentityLine('elira', true, R('Then Elira asks, “Can you help me? A guest is coming tonight. Please bring bread and salt.”', w('pastaj'), w('elira'), w('pyet'), p(':'), w('a_q'), w('mund'), w('te_subj'), w('me_obj'), wf('ndihmo', 'ndihmosh', 'help'), p('?'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')), { required: ['rendezvous:eliraSquare:late', 'flag:eliraLateApologyGiven'] }),
     ],
     options: [
       { text: R('What is your name?', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), unless: npcIdentityConditionId('elira'), effects: [npcIdentityRevealEffect('elira')], to: 'eliraEmriShesh', durationHours: 0 },
+      { text: R('I am sorry. I was wrong.', w('me_obj'), w('fal'), p('.'), wf('ka', 'kam', 'have'), wf('gaboj', 'gabuar', 'mistaken'), p('.')), requires: 'rendezvous:eliraSquare:late', unless: 'flag:eliraLateApologyGiven', effects: [{ type: 'flag', id: 'eliraLateApologyGiven' }], intent: 'speech', playerIntents: ['speech'], to: 'eliraShesh', durationHours: 0 },
       { text: R('Yes, I can help you.', w('po_yes'), p(','), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('accept'), moneyOutcome: ELIRA_ERRAND_MONEY_OUTCOME, to: 'fshatiSheshi', durationHours: 0 },
       { text: R('Not now, sorry.', w('tani'), w('jo'), p(','), w('me_obj'), w('fal'), p('.')), effects: [{ type: 'flag', id: 'eliraOpeningResolved' }], questAction: eliraQuestAction('decline'), to: 'fshatiSheshi', durationHours: 0 },
     ],
@@ -1029,40 +1049,51 @@ export const STORY = {
 
   sofraMikut2: {
     id: 'sofraMikut2',
-    tells: ['pusiThate'],
     text: [
       when('weather:rain', ambient(describesEnvironment('weather', R('Rain taps the guest-room window during the meal.', wf('shi', 'Shiu', 'the rain'), w('troket'), wf('ne', 'në', 'on'), wf('dritare', 'dritaren', 'the window'), w('e_link'), wf('oda', 'odës', 'the guest-room'), w('gjate'), wf('ushqim', 'ushqimit', 'the meal'), p('.'))), 'env:sofraMikut2:rain')),
       npcIdentityLine('elira', false, R('The woman serves bread and salt, and the traveller eats.', wf('grua', 'gruaja', 'the woman'), w('jep'), w('buke'), w('dhe'), w('kripe'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('ha'), p('.'))),
       npcIdentityLine('elira', true, R('Elira serves bread and salt, and the traveller eats.', w('elira'), w('jep'), w('buke'), w('dhe'), w('kripe'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('ha'), p('.'))),
-      R('You say, “Enjoy your meal!”', w('ti'), w('thote'), p(':'), w('te_obj'), wf('bej', 'bëftë', 'do'), w('mire'), p('!')),
-      R('He says, “Thank you, everyone!”', w('ai'), w('thote'), p(':'), w('faleminderit'), w('gjitheve'), p('!')),
-      R('She asks, “Do you want coffee or tea?”', w('ajo'), w('pyet'), p(':'), w('a_q'), w('do'), w('kafe'), w('apo'), w('caj'), p('?')),
-      R('He answers, “I like the tea. I do not like coffee.”', w('ai'), w('thote'), p(':'), w('me_obj'), w('pelqen'), wf('caj', 'çaji', 'tea'), p('.'), w('nuk'), w('me_obj'), w('pelqen'), wf('kafe', 'kafeja', 'coffee'), p('.')),
-      unless('flag:gaveGuestBread', R('The traveller asks, “Give me the bread, please.”', wf('udhetar', 'udhëtari', 'the traveller'), w('pyet'), p(':'), w('me_obj'), w('jep'), wf('buke', 'bukën', 'the bread'), p(','), w('lutem'), p('.'))),
-      R('You ask, “What is your name? Where are you from?” He answers, “My name is Gjon. I am from Gjakova.”', w('ti'), w('pyet'), p(':'), w('si'), wf('quhem', 'quhesh', 'are called'), p('?'), w('nga'), w('je'), p('?'), w('ai'), w('thote'), p(':'), w('quhem'), w('gjon'), p('.'), w('jam'), w('nga'), wf('gjakove', 'Gjakova', 'Gjakova'), p('.')),
-      R('You ask, “Where do you live? What work do you do?”', w('ti'), w('pyet'), p(':'), w('ku'), wf('jeto', 'jeton', 'live'), p('?'), w('cfare'), wf('pune', 'pune', 'work'), wf('bej', 'bën', 'do'), p('?')),
-      R('He says, “I live near the market. I work in the market.”', w('ai'), w('thote'), p(':'), wf('jeto', 'jetoj', 'live'), w('prane'), wf('treg', 'tregut', 'the market'), p('.'), wf('punon', 'punoj', 'work'), wf('ne', 'në', 'in'), w('treg'), p('.')),
-      R('She asks, “How is your family?” He says, “My family is well. My parents are well too; I have one sister and one brother. I miss my family.”', w('ajo'), w('pyet'), p(':'), w('si'), w('eshte'), wf('familje', 'familja', 'the family'), wf('yt', 'jote', 'your'), p('?'), w('ai'), w('thote'), p(':'), wf('familje', 'familja', 'the family'), wf('im', 'ime', 'my'), w('eshte'), w('mire'), p('.'), w('edhe'), wf('prind', 'prindërit', 'the parents'), wf('im', 'e mi', 'my'), wf('je', 'janë', 'are'), w('mire'), p(';'), wf('ka', 'kam', 'have'), w('nje'), w('motra'), w('dhe'), w('nje'), w('vella'), p('.'), w('me_obj'), w('mungon'), wf('familje', 'familja', 'the family'), wf('im', 'ime', 'my'), p('.')),
-      R('You ask, “How was your journey?”', w('ti'), w('pyet'), p(':'), w('si'), w('te_obj'), wf('shko', 'shkoi', 'went'), wf('rruge', 'rruga', 'the road'), p('?')),
-      R('He says, “Yesterday it was raining. It was cold. Last night I was worried. Now I am tired, but I am well.”', w('ai'), w('thote'), p(':'), w('dje'), wf('bie', 'binte', 'was raining'), w('shi'), p('.'), wf('eshte', 'ishte', 'was'), w('ftohte'), p('.'), w('mbreme'), wf('eshte', 'isha', 'I was'), w('i_art'), wf('shqetesohem', 'shqetësuar', 'worried'), p('.'), w('tani'), w('jam'), w('i_art'), w('lodhur'), p(','), w('por'), w('jam'), w('mire'), p('.')),
-      R('She says, “I am sorry. Are you well?”', w('ajo'), w('thote'), p(':'), w('me_obj'), w('vjen'), w('keq'), p('.'), w('a_q'), w('je'), w('mire'), p('?')),
-      R('Then he says, “I have news. There is a problem.”', w('pastaj'), w('ai'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('lajm'), p('.'), w('ka'), w('nje'), w('problem'), p('.')),
-      R('She asks, “Really? Then? Tell me what happened.”', w('ajo'), w('pyet'), p(':'), w('vertet'), p('?'), w('pastaj'), p('?'), w('me_obj'), wf('tregoj', 'trego', 'tell'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('.')),
-      R('His news changes the room: “On the road I heard that the Kulshedra has seized the water. The old woman of the village knows more.”', wf('ne', 'në', 'on'), w('rruge'), w('une'), wf('degjo', 'dëgjova', 'heard'), w('se'), wf('kulshedra', 'Kulshedra', 'the she-dragon'), w('e_obj'), w('ka'), wf('kap', 'zënë', 'seized'), wf('uje', 'ujin', 'the water'), p('.'), wf('plake', 'plaka', 'the old woman'), w('e_link'), wf('fshat', 'fshatit', 'the village'), w('di'), w('me_more'), w('shume'), p('.')),
-      R('She says, “I understand, but I am afraid. I do not believe it.”', w('ajo'), w('thote'), p(':'), w('e_obj'), w('kuptoj'), p(','), w('por'), wf('ka', 'kam', 'have'), w('frike'), p('.'), w('nuk'), w('e_obj'), wf('beso', 'besoj', 'believe'), p('.')),
-      R('The traveller says, “I think you must go to the dry well.” She answers, “I do not agree. In this case, ask the old woman in the house.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('mendoj'), w('se'), w('duhet'), w('te_subj'), wf('shko', 'shkosh', 'go'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.'), w('ajo'), w('thote'), p(':'), w('nuk'), w('jam'), w('dakord'), p('.'), wf('ne', 'në', 'in'), wf('ky', 'këtë', 'this'), w('rast'), p(','), w('pyet'), wf('plake', 'plakën', 'the old woman'), wf('ne', 'në', 'in'), w('shtepi'), p('.')),
-      R('They ask you, “What do you think?”', w('ata'), w('te_obj'), wf('pyet', 'pyesin', 'ask'), p(':'), w('cfare'), wf('mendoj', 'mendon', 'think'), p('?')),
-      R('She says, “Be careful!”', w('ajo'), w('thote'), p(':'), wf('ke', 'ki', 'have'), w('kujdes'), p('!')),
+      npcIdentityLine('gjonMik', false, R('The traveller asks, “Give me the bread, please.”', wf('udhetar', 'udhëtari', 'the traveller'), w('pyet'), p(':'), w('me_obj'), w('jep'), wf('buke', 'bukën', 'the bread'), p(','), w('lutem'), p('.')), { excluded: 'flag:gaveGuestBread' }),
+      npcIdentityLine('gjonMik', true, R('Gjon asks, “Give me the bread, please.”', w('gjon'), w('pyet'), p(':'), w('me_obj'), w('jep'), wf('buke', 'bukën', 'the bread'), p(','), w('lutem'), p('.')), { excluded: 'flag:gaveGuestBread' }),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'mealWish', npcIdentityLine('gjonMik', false, R('The traveller says, “Thank you, everyone!”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('faleminderit'), w('gjitheve'), p('!')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'mealWish', npcIdentityLine('gjonMik', true, R('Gjon says, “Thank you, everyone!”', w('gjon'), w('thote'), p(':'), w('faleminderit'), w('gjitheve'), p('!')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'nameOrigin', R('He says, “My name is Gjon. I am from Gjakova.”', w('ai'), w('thote'), p(':'), w('quhem'), w('gjon'), p('.'), w('jam'), w('nga'), wf('gjakove', 'Gjakova', 'Gjakova'), p('.'))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'drink', npcIdentityLine('gjonMik', false, R('The traveller says, “I like the tea. I do not like coffee.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('me_obj'), w('pelqen'), wf('caj', 'çaji', 'the tea'), p('.'), w('nuk'), w('me_obj'), w('pelqen'), wf('kafe', 'kafeja', 'the coffee'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'drink', npcIdentityLine('gjonMik', true, R('Gjon says, “I like the tea. I do not like coffee.”', w('gjon'), w('thote'), p(':'), w('me_obj'), w('pelqen'), wf('caj', 'çaji', 'the tea'), p('.'), w('nuk'), w('me_obj'), w('pelqen'), wf('kafe', 'kafeja', 'the coffee'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'home', npcIdentityLine('gjonMik', false, R('The traveller says, “I live near the market.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), wf('jeto', 'jetoj', 'live'), w('prane'), wf('treg', 'tregut', 'the market'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'home', npcIdentityLine('gjonMik', true, R('Gjon says, “I live near the market.”', w('gjon'), w('thote'), p(':'), wf('jeto', 'jetoj', 'live'), w('prane'), wf('treg', 'tregut', 'the market'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'work', npcIdentityLine('gjonMik', false, R('The traveller says, “I work in the market.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), wf('punon', 'punoj', 'work'), wf('ne', 'në', 'in'), w('treg'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'work', npcIdentityLine('gjonMik', true, R('Gjon says, “I work in the market.”', w('gjon'), w('thote'), p(':'), wf('punon', 'punoj', 'work'), wf('ne', 'në', 'in'), w('treg'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'family', npcIdentityLine('gjonMik', false, R('The traveller says, “My family is well. My parents are well too. I have one sister and one brother. I miss my family.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), wf('familje', 'familja', 'the family'), wf('im', 'ime', 'my'), w('eshte'), w('mire'), p('.'), wf('prind', 'prindërit', 'the parents'), wf('im', 'e mi', 'my'), wf('je', 'janë', 'are'), w('mire'), w('gjithashtu'), p('.'), wf('ka', 'kam', 'have'), w('nje'), w('motra'), w('dhe'), w('nje'), w('vella'), p('.'), w('me_obj'), w('mungon'), wf('familje', 'familja', 'the family'), wf('im', 'ime', 'my'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'family', npcIdentityLine('gjonMik', true, R('Gjon says, “My family is well. My parents are well too. I have one sister and one brother. I miss my family.”', w('gjon'), w('thote'), p(':'), wf('familje', 'familja', 'the family'), wf('im', 'ime', 'my'), w('eshte'), w('mire'), p('.'), wf('prind', 'prindërit', 'the parents'), wf('im', 'e mi', 'my'), wf('je', 'janë', 'are'), w('mire'), w('gjithashtu'), p('.'), wf('ka', 'kam', 'have'), w('nje'), w('motra'), w('dhe'), w('nje'), w('vella'), p('.'), w('me_obj'), w('mungon'), wf('familje', 'familja', 'the family'), wf('im', 'ime', 'my'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'journey', npcIdentityLine('gjonMik', false, R('The traveller says, “Yesterday it was raining. It was cold. Last night I was worried. Now I am tired, but I am well.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('dje'), wf('bie', 'binte', 'was raining'), w('shi'), p('.'), wf('eshte', 'ishte', 'was'), w('ftohte'), p('.'), w('mbreme'), wf('eshte', 'isha', 'I was'), w('i_art'), wf('shqetesohem', 'shqetësuar', 'worried'), p('.'), w('tani'), w('jam'), w('i_art'), w('lodhur'), p(','), w('por'), w('jam'), w('mire'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'journey', npcIdentityLine('gjonMik', true, R('Gjon says, “Yesterday it was raining. It was cold. Last night I was worried. Now I am tired, but I am well.”', w('gjon'), w('thote'), p(':'), w('dje'), wf('bie', 'binte', 'was raining'), w('shi'), p('.'), wf('eshte', 'ishte', 'was'), w('ftohte'), p('.'), w('mbreme'), wf('eshte', 'isha', 'I was'), w('i_art'), wf('shqetesohem', 'shqetësuar', 'worried'), p('.'), w('tani'), w('jam'), w('i_art'), w('lodhur'), p(','), w('por'), w('jam'), w('mire'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'journey', R('Elira says, “I am sorry. Are you well?”', w('elira'), w('thote'), p(':'), w('me_obj'), w('vjen'), w('keq'), p('.'), w('a_q'), w('je'), w('mire'), p('?'))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', npcIdentityLine('gjonMik', false, R('The traveller says, “I have news. There is a problem. On the road I heard that the Kulshedra has seized the water.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('lajm'), p('.'), w('ka'), w('nje'), w('problem'), p('.'), wf('ne', 'në', 'on'), w('rruge'), wf('degjo', 'dëgjova', 'heard'), w('se'), wf('kulshedra', 'Kulshedra', 'the she-dragon'), w('e_obj'), w('ka'), wf('kap', 'zënë', 'seized'), wf('uje', 'ujin', 'the water'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', npcIdentityLine('gjonMik', true, R('Gjon says, “I have news. There is a problem. On the road I heard that the Kulshedra has seized the water.”', w('gjon'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('lajm'), p('.'), w('ka'), w('nje'), w('problem'), p('.'), wf('ne', 'në', 'on'), w('rruge'), wf('degjo', 'dëgjova', 'heard'), w('se'), wf('kulshedra', 'Kulshedra', 'the she-dragon'), w('e_obj'), w('ka'), wf('kap', 'zënë', 'seized'), wf('uje', 'ujin', 'the water'), p('.')))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', R('Elira asks, “Really? Then? Tell me what happened.” The traveller says the old woman knows more.', w('elira'), w('pyet'), p(':'), w('vertet'), p('?'), w('pastaj'), p('?'), w('me_obj'), wf('tregoj', 'trego', 'tell'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), wf('plake', 'plaka', 'the old woman'), w('e_link'), wf('fshat', 'fshatit', 'the village'), w('di'), w('me_more'), w('shume'), p('.'))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', R('Elira says, “I understand, but I am afraid. I do not believe it.” The traveller says, “I think you must go to the dry well.”', w('elira'), w('thote'), p(':'), w('e_obj'), w('kuptoj'), p(','), w('por'), wf('ka', 'kam', 'have'), w('frike'), p('.'), w('nuk'), w('e_obj'), wf('beso', 'besoj', 'believe'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('mendoj'), w('se'), w('duhet'), w('te_subj'), wf('shko', 'shkosh', 'go'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.'))),
+      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', R('Elira says, “This is terrible. In this case, ask the old woman first: may I enter?” Then they ask, “What do you think? Be careful!”', w('elira'), w('thote'), p(':'), w('kjo'), w('eshte'), w('e_art'), wf('tmerrshem', 'tmerrshme', 'terrible'), p('.'), wf('ne', 'në', 'in'), wf('ky', 'këtë', 'this'), w('rast'), p(','), w('pyet'), wf('plake', 'plakën', 'the old woman'), w('mepare'), p(':'), w('a_q'), w('mund'), w('te_subj'), wf('hyr', 'hyj', 'enter'), p('?'), w('pastaj'), w('ata'), w('te_obj'), wf('pyet', 'pyesin', 'ask'), p(':'), w('cfare'), wf('mendoj', 'mendon', 'think'), p('?'), wf('ke', 'ki', 'have'), w('kujdes'), p('!'))),
     ],
     options: [
-      { text: R('I do not agree. I will ask the old woman, “May I enter?”', w('nuk'), w('jam'), w('dakord'), p('.'), w('do_fut'), w('te_subj'), wf('pyet', 'pyes', 'ask'), wf('plake', 'plakën', 'the old woman'), p(':'), w('a_q'), w('mund'), w('te_subj'), wf('hyr', 'hyj', 'enter'), p('?')), reveal: 'plake', revealOccurrence: 1, to: 'sofraVendimPlaka', durationHours: 0 },
-      { text: R('Yes, I agree.', w('po_yes'), p(','), w('jam'), w('dakord'), p('.')), intent: 'speech', playerIntents: ['speech'], to: 'sofraVendimPusi', durationHours: 0 },
+      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'mealWish', R('Wish him a good meal.', w('te_obj'), wf('bej', 'bëftë', 'do'), w('mire'), p('!'))),
+      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'nameOrigin', R('Ask, “What is your name? Where are you from?”', w('si'), wf('quhem', 'quhesh', 'are called'), p('?'), w('nga'), w('je'), p('?')), { unless: npcIdentityConditionId('gjonMik'), effects: [npcIdentityRevealEffect('gjonMik')] }),
+      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'drink', R('Ask, “Would you like coffee or tea?”', w('a_q'), w('do'), w('kafe'), w('apo'), w('caj'), p('?'))),
+      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'home', R('Ask, “Where do you live?”', w('ku'), wf('jeto', 'jeton', 'live'), p('?'))),
+      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'work', R('Ask, “What work do you do?”', w('cfare'), wf('pune', 'pune', 'work'), wf('bej', 'bën', 'do'), p('?'))),
+      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'family', R('Ask, “How is your family?”', w('si'), w('eshte'), wf('familje', 'familja', 'the family'), wf('yt', 'jote', 'your'), p('?'))),
+      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'journey', R('Ask, “How was your journey?”', w('si'), w('te_obj'), wf('shko', 'shkoi', 'went'), wf('rruge', 'rruga', 'the road'), p('?'))),
+      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'news', R('Ask, “Do you have any news?”', w('a_q'), w('ke'), w('ndonje'), w('lajm'), p('?'))),
+      { text: R('I do not agree. I think we should ask the old woman.', w('nuk'), w('jam'), w('dakord'), p('.'), w('mendoj'), w('se'), w('duhet'), w('te_subj'), wf('pyet', 'pyesim', 'ask'), wf('plake', 'plakën', 'the old woman'), p('.')), requires: GUEST_MEAL_CONVERSATION.questions.news.askedCondition, reveal: 'plake', revealOccurrence: 1, intent: 'speech', playerIntents: ['speech'], to: 'sofraVendimPlaka', durationHours: 0 },
+      { text: R('Yes, I agree.', w('po_yes'), p(','), w('jam'), w('dakord'), p('.')), requires: GUEST_MEAL_CONVERSATION.questions.news.askedCondition, intent: 'speech', playerIntents: ['speech'], to: 'sofraVendimPusi', durationHours: 0 },
       { text: R('Yes, take it.', w('po_yes'), p(','), wf('merr', 'merre', 'take it'), p('.')), unless: 'flag:gaveGuestBread', effects: [{ type: 'flag', id: 'gaveGuestBread' }], to: 'sofraMikut2', durationHours: 0 },
+      conversationExitOption(GUEST_MEAL_CONVERSATION, R('Leave the guest-room.', w('dil'), w('nga'), wf('oda', 'oda', 'the guest-room'), p('.')), { durationHours: 1, intent: 'movement', playerIntents: ['movement'] }),
     ],
   },
 
   sofraVendimPlaka: {
     id: 'sofraVendimPlaka',
+    tells: ['pusiThate'],
     text: [
       R('She says, “All right. Ask the old woman.”', w('ajo'), wf('thote', 'thotë', 'says'), p(':'), wf('ne', 'në', 'in'), wf('rregull', 'rregull', 'all right'), p('.'), w('pyet'), wf('plake', 'plakën', 'the old woman'), p('.')),
     ],
@@ -1075,6 +1106,7 @@ export const STORY = {
 
   sofraVendimPusi: {
     id: 'sofraVendimPusi',
+    tells: ['pusiThate'],
     text: [
       R('She says, “All right. Go to the dry well. The old woman may know more.”', w('ajo'), wf('thote', 'thotë', 'says'), p(':'), wf('ne', 'në', 'in'), wf('rregull', 'rregull', 'all right'), p('.'), w('shko'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.'), wf('plake', 'plaka', 'the old woman'), w('mund'), w('te_subj'), w('di'), w('me_more'), w('shume'), p('.')),
     ],
@@ -3136,7 +3168,7 @@ export const STORY = {
       when('day', describesEnvironment('time', L(wf('diell', 'dielli', 'the sun'), w('eshte'), wf('lart', 'lart', 'high'), p(':'), wf('uje', 'uji', 'the water'), w('i_art'), w('ri'), w('eshte'), wf('si', 'si', 'as'), w('argjend'), p('.')))),
       when('dusk', describesEnvironment('time', L(w('eshte'), w('muzg'), p(':'), wf('uje', 'uji', 'the water'), w('i_art'), w('ri'), w('behet'), w('i_art'), w('kuq'), w('dhe'), w('i_art'), w('arte'), p('.')))),
       when('night', describesEnvironment('time', L(w('naten'), wf('yll', 'yjet', 'the stars'), wf('je', 'janë', 'are'), wf('ne', 'në', 'in'), wf('uje', 'ujin', 'the water'), w('e_art'), w('ri'), p('.')))),
-      L(wf('bote', 'bota', 'the world'), w('ka'), w('uje'), w('tani'), p('.')),
+      R('The world has changed: now it has water.', wf('bote', 'Bota', 'the world'), w('ka'), wf('ndryshon', 'ndryshuar', 'changed'), p(':'), w('tani'), w('ka'), w('uje'), p('.')),
       L(w('ti'), w('sheh'), w('nje'), w('rruge'), p('.')),
     ],
     options: [
@@ -4933,7 +4965,7 @@ export const STORY = {
     id: 'sprova',
     text: [
       L(w('shume'), w('hije'), wf('rri', 'rrinë', 'stay'), w('ketu'), p('.')),
-      R('Nothing moves except for a small light; it moves strangely across the wall.', w('asgje'), w('nuk'), wf('leviz', 'lëviz', 'moves'), w('pervec'), w('nje'), wf('drite', 'drite', 'light'), w('te_link'), w('vogel'), p(';'), w('ajo'), w('leviz'), w('cuditshem'), w('neper'), w('mur'), p('.')),
+      R('Nothing moves except a small light that looks strange on the wall.', w('asgje'), w('nuk'), wf('leviz', 'lëviz', 'moves'), w('pervec'), w('nje'), wf('drite', 'drite', 'light'), w('te_link'), w('vogel'), w('qe'), w('duket'), w('e_art'), wf('cuditshem', 'çuditshme', 'strange'), wf('ne', 'në', 'on'), w('mur'), p('.')),
       L(wf('hije', 'hijet', 'the shadows'), w('nuk'), wf('flet', 'flasin', 'speak'), p(':'), w('asnje'), w('ze'), p(','), w('asnje'), w('fryme'), p('.')),
       L(wf('thote', 'thonë', 'they say'), p(':'), wf('hije', 'hija', 'the shadow'), wf('jeto', 'jeton', 'lives'), w('pas'), wf('njeri', 'njeriut', 'the man'), p('.')),
     ],
@@ -5287,7 +5319,7 @@ export const STORY = {
       R('In a smoke-filled room, a hodja stands beside a cauldron over the fire.', wf('ne', 'Në', 'in'), w('nje'), wf('oda', 'odë', 'room'), w('me'), w('tym'), p(','), w('nje'), wf('hoxha', 'hoxhë', 'hodja'), w('rri'), w('prane'), w('nje'), wf('kazan', 'kazani', 'cauldron'), w('mbi'), w('zjarr'), p('.')),
       L(wf('hoxha', 'hoxha', 'the hodja'), w('thote'), p(':'), wf('kazan', 'kazani', 'the cauldron'), wf('lind', 'lindi', 'gave birth'), w('nje'), w('femije'), p('!')),
       L(w('nje'), w('kuzhinier'), w('vjen'), wf('tek', 'te', 'at'), w('hoxha'), p('.')),
-      R('The cauldron’s child looks ridiculous, but the cook does not laugh.', wf('femije', 'Fëmija', 'the child'), w('i_link'), wf('kazan', 'kazanit', 'the cauldron'), w('duket'), w('qesharak'), p(','), w('por'), wf('kuzhinier', 'kuzhinieri', 'the cook'), w('nuk'), w('qesh'), p('.')),
+      R('The story of the cauldron sounds ridiculous, but the cook does not laugh.', wf('histori', 'Historia'), w('e_link'), wf('kazan', 'kazanit', 'the cauldron'), w('duket'), wf('qesharak', 'qesharake', 'funny or ridiculous'), p(','), w('por'), wf('kuzhinier', 'kuzhinieri', 'the cook'), w('nuk'), w('qesh'), p('.')),
     ],
     options: [
       { text: L(w('merr'), wf('femije', 'fëmijën', 'the child')), to: 'nastradin2', reveal: 'femije', revealOccurrence: 1 },
@@ -6296,7 +6328,7 @@ export const STORY = {
     text: [
       R('You say, “Congratulations! Happy birthday!”', w('ti'), wf('thote', 'thua', 'say'), p(':'), wf('urime', 'urime', 'congratulations'), p('!'), wf('gezuar', 'gëzuar', 'happy'), wf('ditelindje', 'ditëlindjen', 'birthday'), p('!')),
       R('This is a birthday wish for the child.', w('ky'), w('eshte'), w('nje'), w('urime'), w('per'), wf('femije', 'fëmijën', 'the child'), p('.')),
-      R('The child answers, “Thank you very much!”', w('femije'), w('thote'), p(':'), w('faleminderit'), w('shume'), p('!')),
+      R('The child answers, “Thank you very much! This is a wonderful day.”', w('femije'), w('thote'), p(':'), w('faleminderit'), w('shume'), p('!'), w('kjo'), w('eshte'), w('nje'), w('dite'), w('e_art'), wf('mrekullueshem', 'mrekullueshme', 'wonderful'), p('.')),
     ],
     options: [
       { text: R('Say goodbye.', wf('thote', 'thuaj', 'say'), w('mirupafshim'), p('.')), to: 'fshatiSheshi', durationHours: 0 },

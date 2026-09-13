@@ -678,7 +678,6 @@ export const MIDDLE_READINGS = {
   "behuriKullaHumbur.text[1]": { al: "dera mbyllet pas tij.", en: "The door closes behind him." },
   "behuriMejdanHumbur.text[0]": { al: "Mujo dorëzohet. Behuri nuk e lë të ikë.", en: "Mujo gives up. Behuri does not let him go." },
   "behuriMejdanHumbur.text[1]": { al: "dielli bie, dhe rruga në Jutbina bëhet e errët.", en: "The sun goes down, and the road to Jutbina grows dark." },
-  "sprova.text[1]": { al: "asgjë nuk lëviz përveç një drite të vogël; ajo lëviz çuditshëm nëpër mur.", en: "Nothing moves except for a small light; it moves strangely across the wall." },
   "uji.text[0]": { al: "kulshedra mban shumë ujë; askush nuk mund të pijë.", en: "The Kulshedra holds back a great body of water; no one can drink it." },
   "uji.text[1]": { al: "Prende rri pranë ujit, e qetë dhe e bukur.", en: "Prende waits beside the water, calm and beautiful." },
   "uji.text[3]": { al: "Uji vezullon nën ylber.", en: "The water glimmers beneath the rainbow." },
@@ -692,7 +691,6 @@ export const MIDDLE_READINGS = {
   "gjarperRefuz.text[2]": { al: "Pas teje, pallati bëhet i errët dhe dera mbyllet.", en: "Behind you, the palace darkens and the door closes." },
   "gjarperKulshedra.text[5]": { al: "Shiu humbet në detin, dhe uji bëhet me i errët.", en: "Rain vanishes into the sea, and the water grows darker." },
   "nastradin1.text[0]": { al: "Në një odë me tym, një hoxhë rri pranë një kazani mbi zjarr.", en: "In a smoke-filled room, a hodja stands beside a cauldron over the fire." },
-  "nastradin1.text[3]": { al: "Fëmija i kazanit duket qesharak, por kuzhinieri nuk qesh.", en: "The cauldron’s child looks ridiculous, but the cook does not laugh." },
   "gjizar2.text[4]": { al: "një pemë lëkundet në erë, ndërsa një dallëndyshe lufton një gjarpër poshtë saj.", en: "A tree sways in the wind while a swallow fights a serpent below it." },
   "gjizarUdha.text[0]": { al: "ti ecën larg në rrugën që nuk kthehet, dhe kërkon zogun kudo.", en: "You walk far along the road of no return, searching everywhere for the bird." },
   "gjizarPallat.text[4]": { al: "Kafazi vezullon në dritën e qirinjve.", en: "The cage glimmers in the candlelight." },
@@ -730,4 +728,6 @@ export const MIDDLE_READINGS = {
   "tsShpeto.text[3]": { al: "ti mban kosën e Tomorit.", en: "You hold Tomor’s scythe." },
   "foleShpetuar.text[3]": { al: "Shqiponja pret pranë teje.", en: "The eagle waits beside you." },
   "humbur.text[1]": { al: "thonë se çdo njeri ka një Ora për gjithë jetën.", en: "They say that every person has an Ora throughout their life." },
+  "sprova.text[1]": { al: "asgjë nuk lëviz përveç një drite të vogël që duket e çuditshme në mur.", en: "Nothing moves except a small light that looks strange on the wall." },
+  "nastradin1.text[3]": { al: "Historia e kazanit duket qesharake, por kuzhinieri nuk qesh.", en: "The story of the cauldron sounds ridiculous, but the cook does not laugh." },
 }

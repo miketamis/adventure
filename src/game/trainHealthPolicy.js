@@ -175,7 +175,11 @@ export function trainExposureKeysForQuestion(question) {
 }
 
 
-export function trainAspectTargetsForQuestion(question) {
+export function trainAspectTargetsForQuestion(question, phaseId = null) {
+  const phaseTargets = typeof phaseId === 'string'
+    ? normalizeTrainAspectTargets(question?.phaseAspectTargets?.[phaseId])
+    : []
+  if (phaseTargets.length) return phaseTargets
   const explicit = normalizeTrainAspectTargets(question?.aspectTargets)
   if (explicit.length) return explicit
   if (question?.kind === 'word-match') return wordMatchingTrainAspectTargets(question)
@@ -184,8 +188,8 @@ export function trainAspectTargetsForQuestion(question) {
   return []
 }
 
-export function trainHealthPlanForQuestion(state, question) {
-  const aspectTargets = trainAspectTargetsForQuestion(question)
+export function trainHealthPlanForQuestion(state, question, { phaseId = null } = {}) {
+  const aspectTargets = trainAspectTargetsForQuestion(question, phaseId)
   const exposureKeys = trainAspectExposureKeys(aspectTargets)
   const exposures = normalizeTrainStageExposures(state?.trainStageExposures)
   const protectedAttempt = exposureKeys.length > 0 && exposureKeys.some((key) =>
