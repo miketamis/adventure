@@ -1450,6 +1450,38 @@ svg [role="button"]:focus-visible {
   background: color-mix(in srgb, var(--mana) 5%, var(--panel-2));
   outline: none;
 }
+.noun-ending-refresher.consequence-refresher {
+  max-width: none;
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.noun-ending-refresher.consequence-refresher > .prompt {
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+.noun-ending-test-explanation {
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--mana) 48%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--mana) 7%, var(--panel-2));
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.noun-ending-test-explanation h3 {
+  margin: 0 0 8px;
+  color: var(--mana);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.noun-ending-test-explanation p { margin: 0 0 8px; }
+.noun-ending-test-explanation p:last-child { margin-bottom: 0; }
+.noun-ending-table-key {
+  margin: -5px 0 12px;
+  color: var(--muted);
+  font: 13px/1.45 ui-sans-serif, system-ui, sans-serif;
+}
 .noun-ending-refresher:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--mana) 28%, transparent); }
 .noun-ending-correction,
 .noun-ending-pattern {
@@ -1480,13 +1512,39 @@ svg [role="button"]:focus-visible {
   border-left: 3px solid var(--line);
   background: color-mix(in srgb, var(--panel) 70%, transparent);
 }
-.noun-ending-row.missed { border-left-color: var(--mana); }
-.noun-ending-row dt { display: flex; align-items: center; gap: 8px; font-size: 19px; }
+.noun-ending-row.missed,
+.noun-ending-row.in-question { border-left-color: color-mix(in srgb, var(--mana) 65%, var(--line)); }
+.noun-ending-row.selected { background: color-mix(in srgb, var(--danger) 8%, var(--panel)); }
+.noun-ending-row.answer {
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+}
+.noun-ending-row dt { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 19px; }
+.noun-ending-row-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.noun-ending-badge {
+  padding: 3px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font: 700 9px/1 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.noun-ending-badge.in-question { border-color: var(--mana); color: var(--mana); }
+.noun-ending-badge.selected { border-color: var(--danger); color: var(--danger); }
+.noun-ending-badge.answer { border-color: var(--accent); color: var(--accent); }
 .noun-ending-row dd { display: grid; gap: 7px; margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; }
 .noun-ending-job,
 .noun-ending-example { display: flex; justify-content: space-between; gap: 12px; }
 .noun-ending-job { color: var(--muted); font-size: 13px; }
 .noun-ending-job span:last-child { color: var(--ink); text-align: right; }
+.noun-ending-category {
+  color: var(--muted);
+  font: 11px/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.noun-ending-category b { color: var(--ink); }
 .noun-ending-example {
   padding-top: 6px;
   border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
@@ -1727,6 +1785,7 @@ svg [role="button"]:focus-visible {
   border-color: color-mix(in srgb, var(--danger) 72%, var(--line));
   box-shadow: 0 24px 90px rgba(0, 0, 0, 0.62);
 }
+.modal.heart-consequence.has-ending-refresher { max-width: 900px; }
 .modal.heart-consequence h2 { color: var(--danger); }
 .heart-consequence-section {
   margin-top: 12px;

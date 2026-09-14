@@ -1,5 +1,6 @@
 import { NOUN_FORMS } from './nounForms.js'
 import { TRAIN_NOUN_ENDING_CORRECTION_POLICY } from './trainingProgression.js'
+import { reviewedFormDefiniteness, reviewedFormNumber } from './reviewedFormOddOneOut.js'
 
 // Learner-facing labels stay deliberately short: the authored gloss carries the
 // noun's exact meaning, while this label explains why that shape is being used.
@@ -190,6 +191,13 @@ const enrichForm = (form, forms) => ({
   example: exampleFor(form, forms),
 })
 
+const roleIndex = (tag) => {
+  const index = ROLE_ORDER.indexOf(tag)
+  return index === -1 ? ROLE_ORDER.length : index
+}
+
+const sortByRole = (a, b) => roleIndex(a.tag) - roleIndex(b.tag)
+
 const commonPrefix = (surfaces) => {
   let prefix = surfaces[0] || ''
   for (const surface of surfaces.slice(1)) {
@@ -359,9 +367,7 @@ const rowsFor = (forms, target) => {
   const selected = forms.filter(targetFamily)
   if (!selected.includes(target)) selected.push(target)
   return selected.sort((a, b) => {
-    const ai = ROLE_ORDER.indexOf(a.tag)
-    const bi = ROLE_ORDER.indexOf(b.tag)
-    return (ai === -1 ? ROLE_ORDER.length : ai) - (bi === -1 ? ROLE_ORDER.length : bi)
+    return sortByRole(a, b)
   })
 }
 
@@ -391,6 +397,62 @@ export function buildNounEndingRefresher(id, surface, expectedGloss) {
       endings: [...signature.endings],
     } : null,
     peer,
+    allRows: [...forms].sort(sortByRole).map((form) => enrichForm(form, forms)),
     rows: rowsFor(forms, target).map((form) => ({ ...enrichForm(form, forms), missed: form === target })),
+  }
+}
+
+/**
+ * Turn a scored odd-one-out plan into one complete, inspectable correction.
+ * The learner sees the noun's whole reviewed paradigm, while exact role keys
+ * identify the four rows that were actually offered. This is intentionally
+ * role-aware: two Albanian jobs may share a spelling without becoming the
+ * same reviewed form.
+ */
+export function buildNounOddOneOutRefresher(id, plan, chosenValue) {
+  if (!plan?.target?.surface || !Array.isArray(plan.rows)) return null
+  const guide = buildNounEndingRefresher(id, plan.target.surface, plan.target.gloss)
+  if (!guide) return null
+
+  const testByKey = new Map(plan.rows.map((row) => [row.value, row]))
+  const keyFor = (row) => `${lower(row.al)}::${row.tag}`
+  const chosen = plan.rows.find((row) => row.value === chosenValue)
+  const answer = plan.rows.find((row) => row.value === plan.answerValue && row.odd)
+  if (!chosen || !answer || chosen.odd) return null
+
+  const rows = guide.allRows.map((row) => {
+    const test = testByKey.get(keyFor(row))
+    const category = plan.dimension === 'number'
+      ? reviewedFormNumber(row.tag)
+      : reviewedFormDefiniteness(row.tag)
+    return {
+      ...row,
+      category: test?.category || category,
+      inQuestion: Boolean(test),
+      selected: test?.value === chosenValue,
+      answer: test?.value === plan.answerValue,
+    }
+  })
+  if (rows.filter(({ inQuestion }) => inQuestion).length !== plan.rows.length) return null
+
+  return {
+    ...guide,
+    rows,
+    test: {
+      kind: 'odd-one-out',
+      dimension: plan.dimension,
+      matchingCategory: plan.matchingCategory,
+      targetCategory: plan.targetCategory,
+      chosen: {
+        al: chosen.surface,
+        role: NOUN_FORM_ROLE_LABELS[chosen.role],
+        category: chosen.category,
+      },
+      answer: {
+        al: answer.surface,
+        role: NOUN_FORM_ROLE_LABELS[answer.role],
+        category: answer.category,
+      },
+    },
   }
 }

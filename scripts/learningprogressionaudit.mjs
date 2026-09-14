@@ -370,7 +370,8 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordConstruction/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordSpelling/)
   assert.match(practice, /buildWordQuestion/)
-  assert.match(practice, /formsCorrection/)
+  assert.match(practice, /buildNounOddOneOutRefresher/)
+  assert.doesNotMatch(practice, /formsCorrection/)
   assert.match(practice, /WORD_ALBANIAN_TO_ENGLISH\.id/)
   assert.match(practice, /TRAIN_QUESTION_MIX_POLICY\.phraseShare/)
   assert.equal(TRAIN_QUESTION_MIX_POLICY.formShareWithinWordRounds, 0)
@@ -379,8 +380,8 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.doesNotMatch(practice, /albanianToEnglishShare/)
   assert.deepEqual(
     [...practice.matchAll(/kind:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]),
-    ['forms-correction', 'forms-correction', 'forms-correction'],
-    'only the registered noun-remediation surface may use a literal local kind',
+    [],
+    'noun remediation must stay inside the shared blocking consequence instead of a local question kind',
   )
 
   const phrasePractice = read('src/game/phrasePractice.js')

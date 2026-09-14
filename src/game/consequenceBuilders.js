@@ -26,8 +26,16 @@ export function trainMissConsequence({
     ...(reasoning ? { reasoning } : {}),
     ...(grammarGuide?.pattern ? {
       grammar: {
+        id: grammarGuide.id,
         pattern: grammarGuide.pattern,
-        target: reading(grammarGuide.target?.al, grammarGuide.target?.learnerMeaning),
+        target: {
+          ...reading(grammarGuide.target?.al, grammarGuide.target?.learnerMeaning),
+          tag: grammarGuide.target?.tag,
+          role: grammarGuide.target?.role,
+        },
+        rows: grammarGuide.rows,
+        peer: grammarGuide.peer,
+        test: grammarGuide.test,
       },
     } : {}),
   }

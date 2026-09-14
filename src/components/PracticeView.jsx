@@ -12,6 +12,7 @@ import {
 } from '../game/everydayAlbanian.js'
 import {
   buildNounEndingRefresher,
+  buildNounOddOneOutRefresher,
   phraseNounEndingRefresher,
 } from '../game/nounEndingRefresher.js'
 import {
@@ -92,7 +93,6 @@ export default function PracticeView({ state, dispatch }) {
   const [wordAudioError, setWordAudioError] = useState('')
   const [wordRepair, setWordRepair] = useState(null)
   const [constructedPieceIds, setConstructedPieceIds] = useState([])
-  const [formsCorrection, setFormsCorrection] = useState(null)
   const [formPhaseIndex, setFormPhaseIndex] = useState(0)
   const [contextTargetLocated, setContextTargetLocated] = useState(false)
   const [showCefr, setShowCefr] = useState(false)
@@ -112,7 +112,6 @@ export default function PracticeView({ state, dispatch }) {
 
   const next = useCallback(() => {
     answerCommitted.current = false
-    setFormsCorrection(null)
     if (discoveredIds.length === 0) {
       setQ(null)
       return
@@ -353,17 +352,6 @@ export default function PracticeView({ state, dispatch }) {
       grammarGuide: guide,
     })
     dispatch({ type: 'PRACTICE_PHRASE_RESULT', ...result, consequence })
-    if (guide) {
-      setFormsCorrection({
-        kind: 'forms-correction',
-        guide,
-        stage: 'phrase-production',
-        chosen: result.diagnostic.answerSurface || 'a different form',
-        lemma: DICT[result.diagnostic.focusId].al,
-        meaning: senseText(result.diagnostic.focusId, 'en'),
-      })
-      return
-    }
     if (result.correct && !result.acceptedWithLeeway && !restoresHeart) setTimeout(() => nextRef.current?.(), 1900)
     else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
   }, [dispatch, q, state])
@@ -412,7 +400,7 @@ export default function PracticeView({ state, dispatch }) {
       else questionRef.current?.focus()
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [q, formsCorrection])
+  }, [q])
 
   if (showCefr) {
     return <CefrCapstone state={state} dispatch={dispatch} onClose={() => setShowCefr(false)} />
@@ -667,7 +655,9 @@ export default function PracticeView({ state, dispatch }) {
       const restoresHeart = correct && trainCorrectWillRestoreHeart(trainHealth)
       setAwaitingRecoveryContinue(restoresHeart)
       const guide = !correct && q.formTarget?.wordClass === 'noun'
-        ? buildNounEndingRefresher(q.answerId, q.surface, q.formTarget.gloss)
+        ? isFormOddOneOut
+          ? buildNounOddOneOutRefresher(q.answerId, q.oddOneOut, value)
+          : buildNounEndingRefresher(q.answerId, q.surface, q.formTarget.gloss)
         : null
       dispatch({
         type: 'PRACTICE_WORD_RESULT',
@@ -702,16 +692,7 @@ export default function PracticeView({ state, dispatch }) {
           grammarGuide: guide,
         }),
       })
-      if (guide) {
-        setFormsCorrection({
-          kind: 'forms-correction',
-          guide,
-          stage: q.wordStageId,
-          chosen,
-          lemma: DICT[q.answerId].al,
-          meaning: senseText(q.answerId, 'en'),
-        })
-      } else if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1200)
+      if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1200)
       else if (!correct) setTimeout(() => nextRef.current?.(), 0)
       return
     }
@@ -834,17 +815,6 @@ export default function PracticeView({ state, dispatch }) {
         grammarGuide: guide,
       }),
     })
-    if (guide) {
-      setFormsCorrection({
-        kind: 'forms-correction',
-        guide,
-        stage: q.wordStageId,
-        chosen: typedWord.trim(),
-        lemma: DICT[q.answerId].al,
-        meaning: senseText(q.answerId, 'en'),
-      })
-      return
-    }
     if (result.correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1600)
     else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
   }
@@ -909,81 +879,6 @@ export default function PracticeView({ state, dispatch }) {
     })
     if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1500)
     else if (!correct) setTimeout(() => nextRef.current?.(), 0)
-  }
-
-  if (formsCorrection) {
-    const { guide, stage, chosen, lemma, meaning } = formsCorrection
-    return (
-      <>
-        <section className="card practice" aria-labelledby="practice-title">
-          <h2 id="practice-title" className="view-title">Train Albanian</h2>
-          <div ref={questionRef} className="noun-ending-refresher" aria-labelledby="ending-refresher-title" tabIndex={-1}>
-          <h3 className="prompt" id="ending-refresher-title">Quick ending refresher</h3>
-          <p className="noun-ending-correction" role="status" aria-live="assertive">
-            {stage === 'reviewed-form-contrast' ? (
-              <>
-                You chose “{chosen}”. <b lang="sq">{guide.target.al}</b> belongs to{' '}
-                <b lang="sq">{lemma}</b> ({meaning}); this form means “{guide.target.learnerMeaning}”.
-              </>
-            ) : stage === 'phrase-production' ? (
-              <>
-                In that phrase you wrote “{chosen}”. The needed form was{' '}
-                <b lang="sq">{guide.target.al}</b> from <b lang="sq">{lemma}</b> ({meaning});
-                here it means “{guide.target.learnerMeaning}”.
-              </>
-            ) : (
-              <>
-                You chose “{chosen}”. Here <b lang="sq">{guide.target.al}</b> means{' '}
-                “{guide.target.learnerMeaning}”.
-              </>
-            )}
-          </p>
-          <div className="noun-ending-layer-label">This noun</div>
-          <h4 className="noun-ending-same-noun">Same noun, different job</h4>
-          <dl className="noun-ending-rows">
-            {guide.rows.map((row) => (
-              <div className={row.missed ? 'noun-ending-row missed' : 'noun-ending-row'} key={`${row.tag}-${row.al}`}>
-                <dt>
-                  <b lang="sq">{row.al}</b>
-                  {row.missed && <span className="noun-ending-this">this form</span>}
-                </dt>
-                <dd>
-                  <div className="noun-ending-job"><span>{row.role}</span><span>{row.learnerMeaning}</span></div>
-                  <div className="noun-ending-example">
-                    <span lang="sq">{row.example.al}</span>
-                    <span>{row.example.en}</span>
-                  </div>
-                </dd>
-              </div>
-            ))}
-          </dl>
-          <div className="noun-ending-rule">
-            <h4>Pattern to reuse</h4>
-            <p className="noun-ending-pattern">{guide.pattern}</p>
-            {guide.peer && (
-              <div className="noun-ending-peer">
-                <b>Same pattern:</b>
-                <div className="noun-ending-peer-forms" lang="sq">
-                  {guide.peer.rows.map((row) => (
-                    <span key={`${row.tag}-${row.al}`}>
-                      <strong>{row.al}</strong>
-                      <small>{row.role}</small>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-            <button className="btn primary noun-ending-continue" onClick={next}>Continue training</button>
-          </div>
-        </section>
-        {state.debug && (
-          <Suspense fallback={<p className="debug-train-loading">Loading current activity evidence…</p>}>
-            <DebugTrainActivityInspector question={q} state={state} currentPhase={Array.isArray(q.phasePlan) ? { index: formPhaseIndex, total: q.phasePlan.length, id: formPhase?.id } : null} />
-          </Suspense>
-        )}
-      </>
-    )
   }
 
   // Only the exact story option whose Train button opened this view may offer

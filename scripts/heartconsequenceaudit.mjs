@@ -285,7 +285,7 @@ check('source inventory has no player decrement outside the shared wrappers', ()
   assert.match(app, /Why the heart was lost/)
   assert.match(app, /Practice miss — no heart lost/)
   assert.match(app, /Why the answer was wrong/)
-  assert.match(app, />\s*Return to game\s*</)
+  assert.match(app, /\? 'Continue training'[\s\S]+: 'Return to game'/)
   assert.match(app, /inert=\{blockingOverlay/)
 })
 

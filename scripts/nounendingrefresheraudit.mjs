@@ -60,6 +60,11 @@ for (const [id, sourceForms] of Object.entries(NOUN_FORMS)) {
       sheet.rows.some((row) => row.missed && exactKey(row) === exactKey(target)),
       `${id}/${target.al}: highlighted row is not the missed form`,
     )
+    assert.deepEqual(
+      new Set(sheet.allRows.map(exactKey)),
+      sourceKeys,
+      `${id}/${target.al}: complete reviewed paradigm is missing from the refresher data`,
+    )
     for (const row of sheet.rows) {
       assert.ok(sourceKeys.has(exactKey(row)), `${id}/${target.al}: invented row ${row.al}/${row.tag}`)
       assert.equal(row.role, NOUN_FORM_ROLE_LABELS[row.tag], `${id}/${row.al}: missing exact role label`)
@@ -233,27 +238,30 @@ assert.equal(
   'a different noun was misdiagnosed as an ending error',
 )
 
-const refresherUi = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+const practiceUi = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+const refresherUi = readFileSync(new URL('../src/components/NounEndingRefresher.jsx', import.meta.url), 'utf8')
+const appUi = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
 const refresherLogic = readFileSync(new URL('../src/game/nounEndingRefresher.js', import.meta.url), 'utf8')
-const refresherMarkupStart = refresherUi.indexOf('className="noun-ending-refresher"')
-const refresherMarkupEnd = refresherUi.indexOf('// Only the exact story option', refresherMarkupStart)
-assert.ok(refresherMarkupStart >= 0 && refresherMarkupEnd > refresherMarkupStart, 'noun refresher markup boundary is missing')
+const refresherMarkupStart = refresherUi.indexOf('className="noun-ending-refresher consequence-refresher"')
+const refresherMarkupEnd = refresherUi.lastIndexOf('\n}')
+assert.ok(refresherMarkupStart >= 0 && refresherMarkupEnd > refresherMarkupStart, 'shared noun refresher markup boundary is missing')
 const refresherMarkup = refresherUi.slice(refresherMarkupStart, refresherMarkupEnd)
 assert.ok(refresherUi.includes('Same noun, different job'), 'plain same-noun framing is missing')
+assert.ok(refresherUi.includes('Every reviewed form'), 'complete reviewed paradigm framing is missing')
+assert.ok(refresherUi.includes('in this question'), 'question-membership badge is missing')
+assert.ok(refresherUi.includes('your choice'), 'learner-choice badge is missing')
+assert.ok(refresherUi.includes('odd one out'), 'correct exception badge is missing')
 assert.ok(refresherUi.includes('Pattern to reuse'), 'transferable pattern is not separated from the exact noun')
 assert.ok(!refresherUi.includes('noun-ending-chain'), 'misleading form ladder remains in the UI')
 assert.ok(!refresherUi.includes('noun-ending-arrow'), 'unlabelled ending arrows remain in the UI')
 assert.ok(!refresherMarkup.includes('→') && !refresherLogic.includes('→'), 'noun refresher still implies a required sequence')
 assert.match(
-  refresherUi,
-  /const guide = phraseNounEndingRefresher\(q, result\)[\s\S]+stage: 'phrase-production'/,
-  'wrong noun forms in phrase production do not open the shared next-screen refresher',
+  practiceUi,
+  /const guide = phraseNounEndingRefresher\(q, result\)[\s\S]+grammarGuide: guide/,
+  'wrong noun forms in phrase production do not enter the shared blocking refresher',
 )
-assert.match(
-  refresherUi,
-  /In that phrase you wrote[\s\S]+The needed form was/,
-  'phrase correction does not connect the learner answer to the exact required form',
-)
+assert.ok(!practiceUi.includes('formsCorrection'), 'a second standalone noun correction screen still follows the blocking miss')
+assert.ok(appUi.includes('<NounEndingRefresher'), 'the blocking miss does not render the shared quick refresher')
 
 assert.equal(buildNounEndingRefresher('vajze', 'invented form'), null)
 assert.equal(buildNounEndingRefresher('not-a-noun', 'vajzën'), null)

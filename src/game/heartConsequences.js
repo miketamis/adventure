@@ -30,11 +30,74 @@ const cleanReading = (value) => {
   return al || en ? { ...(al ? { al } : {}), ...(en ? { en } : {}) } : null
 }
 
+const cleanGrammarRow = (value) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const al = cleanText(value.al)
+  const tag = cleanText(value.tag)
+  const role = cleanText(value.role)
+  const learnerMeaning = cleanText(value.learnerMeaning)
+  if (!al || !tag || !role || !learnerMeaning) return null
+  const example = cleanReading(value.example)
+  return {
+    al,
+    tag,
+    role,
+    learnerMeaning,
+    ...(cleanText(value.gloss) ? { gloss: cleanText(value.gloss) } : {}),
+    ...(example ? { example } : {}),
+    ...(cleanText(value.category) ? { category: cleanText(value.category) } : {}),
+    ...(value.missed === true ? { missed: true } : {}),
+    ...(value.inQuestion === true ? { inQuestion: true } : {}),
+    ...(value.selected === true ? { selected: true } : {}),
+    ...(value.answer === true ? { answer: true } : {}),
+  }
+}
+
+const cleanOddOneOutEntry = (value) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const al = cleanText(value.al)
+  const role = cleanText(value.role)
+  const category = cleanText(value.category)
+  return al && role && category ? { al, role, category } : null
+}
+
 const cleanGrammar = (value) => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const pattern = cleanText(value.pattern)
   const target = cleanReading(value.target)
-  return pattern ? { pattern, ...(target ? { target } : {}) } : null
+  if (!pattern) return null
+  const rows = Array.isArray(value.rows)
+    ? value.rows.slice(0, 32).map(cleanGrammarRow).filter(Boolean)
+    : []
+  const peerRows = Array.isArray(value.peer?.rows)
+    ? value.peer.rows.slice(0, 16).map(cleanGrammarRow).filter(Boolean)
+    : []
+  const chosen = cleanOddOneOutEntry(value.test?.chosen)
+  const answer = cleanOddOneOutEntry(value.test?.answer)
+  const test = value.test?.kind === 'odd-one-out' && chosen && answer
+    ? {
+        kind: 'odd-one-out',
+        dimension: cleanText(value.test.dimension),
+        matchingCategory: cleanText(value.test.matchingCategory),
+        targetCategory: cleanText(value.test.targetCategory),
+        chosen,
+        answer,
+      }
+    : null
+  return {
+    ...(cleanText(value.id) ? { id: cleanText(value.id) } : {}),
+    pattern,
+    ...(target ? {
+      target: {
+        ...target,
+        ...(cleanText(value.target?.tag) ? { tag: cleanText(value.target.tag) } : {}),
+        ...(cleanText(value.target?.role) ? { role: cleanText(value.target.role) } : {}),
+      },
+    } : {}),
+    ...(rows.length ? { rows } : {}),
+    ...(peerRows.length ? { peer: { id: cleanText(value.peer?.id), rows: peerRows } } : {}),
+    ...(test?.dimension && test.matchingCategory && test.targetCategory ? { test } : {}),
+  }
 }
 
 // Validation is intentionally semantic rather than merely shape-based. A
