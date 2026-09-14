@@ -41,6 +41,10 @@ import { phraseProductionFocusIds, phraseSurfaceWordKeys } from './phraseFocus.j
 import { normalizeTrainingTarget, resolveTrainingTarget } from './trainingTarget.js'
 import { TRAIN_WORD_FORM_POLICY } from './trainingProgression.js'
 import {
+  normalizeTrainActivityHistory,
+  recordTrainActivity,
+} from './trainActivityHistory.js'
+import {
   NON_TRAINABLE_NAMED_ENTITY_IDS,
   isTrainableSense,
   lexicalTrainability,
@@ -1132,6 +1136,7 @@ export function normalizeSavedState(saved, fresh) {
   next.trainLastQuestionKey = typeof saved.trainLastQuestionKey === 'string'
     ? saved.trainLastQuestionKey.slice(0, 200)
     : null
+  next.trainActivityHistory = normalizeTrainActivityHistory(saved.trainActivityHistory)
   next.wordExposureVersion = WORD_EXPOSURE_VERSION
   next.wordExposure = normalizeWordExposure(saved.wordExposure)
   next.wordExposureReceipts = normalizeWordExposureReceipts(saved.wordExposureReceipts)
@@ -1547,6 +1552,7 @@ const emptyLearnerProfile = () => ({
     trainRound: 0,
     trainLastWords: [],
     trainLastQuestionKey: null,
+    trainActivityHistory: [],
     trainHealthPolicyVersion: TRAIN_HEALTH_POLICY_VERSION,
     trainStageExposures: {},
     wordMatchingProgressVersion: WORD_MATCHING_PROGRESS_VERSION,
@@ -2424,6 +2430,20 @@ export function reducer(state, action) {
         hearts: lvl + 1,
         healedAt: { ...state.healedAt, [lvl]: true },
       }, spec.heal.phrase)
+    }
+
+    case 'RECORD_TRAIN_ACTIVITY_PRESENTED': {
+      const currentActivityHistory = normalizeTrainActivityHistory(state.trainActivityHistory)
+      if (currentActivityHistory.at(-1) === action.activityTypeId) return state
+      const trainActivityHistory = recordTrainActivity(
+        currentActivityHistory,
+        action.activityTypeId,
+      )
+      if (
+        trainActivityHistory.length === currentActivityHistory.length &&
+        trainActivityHistory.every((value, index) => value === currentActivityHistory[index])
+      ) return state
+      return { ...state, trainActivityHistory }
     }
 
     case 'PRACTICE_CORRECT': {

@@ -4,7 +4,6 @@ import { practiceReturnOption } from '../game/practiceReturn.js'
 import { playPhrase, playWord } from '../game/audio.js'
 import {
   buildPhraseQuestion,
-  containsExcludedPhraseWord,
   trainQuestionWordKeys,
 } from '../game/phrasePractice.js'
 import {
@@ -17,13 +16,18 @@ import {
 } from '../game/nounEndingRefresher.js'
 import {
   TRAIN_EXERCISE_FAMILIES,
-  TRAIN_QUESTION_MIX_POLICY,
   TRAIN_SCHEDULER_SAFEGUARDS,
 } from '../game/trainingProgression.js'
-import { wordProgressPlan } from '../game/wordProgression.js'
-import { buildWordQuestion, wordHasNoEvidence } from '../game/wordPractice.js'
+import { buildWordQuestion } from '../game/wordPractice.js'
 import { planWordMatchingRound } from '../game/wordMatching.js'
-import { wordProgressionOptionsForSense } from '../game/formInventory.js'
+import {
+  pickBalancedTrainActivity,
+  trainActivityTypeId,
+} from '../game/trainActivityBalance.js'
+import {
+  normalizeTrainActivityHistory,
+  recordTrainActivity,
+} from '../game/trainActivityHistory.js'
 import { cefrProfile } from '../game/cefrAssessment.js'
 import { isTrainableSense } from '../game/lexicalTrainability.js'
 import PhrasePracticeQuestion from './PhrasePracticeQuestion.jsx'
@@ -98,6 +102,7 @@ export default function PracticeView({ state, dispatch }) {
   const questionRef = useRef(null)
   const wordInputRef = useRef(null)
   const previousQuestionWords = useRef([])
+  const activityHistory = useRef(normalizeTrainActivityHistory(state.trainActivityHistory))
   const nextRef = useRef(null)
   const questionStartedAt = useRef(Date.now())
   const attemptTiming = () => {
@@ -127,27 +132,16 @@ export default function PracticeView({ state, dispatch }) {
     const excludeWords = previousQuestionWords.current.length
       ? previousQuestionWords.current
       : state.trainLastWords || []
-    // Complete, standard-Albanian chunks own most of the training mix; the
-    // remainder keeps word meanings and inflections alive.
-    const modeRoll = Math.random()
-    const unstartedWordDueIds = discoveredIds.filter((id) => {
-      const progressionOptions = wordProgressionOptionsForSense(id)
-      if (!progressionOptions.trainability.trainable) return false
-      const surface = progressionOptions.context?.al || DICT[id].al
-      return !containsExcludedPhraseWord(surface, excludeWords) &&
-        wordHasNoEvidence(state.wordProgress?.[id]) &&
-        wordProgressPlan(state.wordProgress?.[id], state.trainRound || 0, { ...progressionOptions, nowMs }).due
-    })
-    const unstartedWordDue = unstartedWordDueIds.length > 0
+    const recentActivityHistory = activityHistory.current.length
+      ? activityHistory.current
+      : normalizeTrainActivityHistory(state.trainActivityHistory)
     const schedulerTrace = state.debug ? {
       builder: 'train-family-scheduler',
       currentRound: state.trainRound || 0,
       nowMs,
-      modeRoll,
-      phraseShare: TRAIN_QUESTION_MIX_POLICY.phraseShare,
       excludedWordKeys: [...excludeWords],
+      recentActivityHistory,
       unlockedPhraseIds: unlockedEverydayPhrases.map(({ id }) => id),
-      unstartedWordDueIds,
       attempts: [],
     } : null
     const attachSchedulerTrace = (question, route, reason) => {
@@ -169,9 +163,9 @@ export default function PracticeView({ state, dispatch }) {
         },
       }
     }
-    if (!unstartedWordDue && unlockedEverydayPhrases.length && modeRoll < TRAIN_QUESTION_MIX_POLICY.phraseShare) {
-      schedulerTrace?.attempts.push({ family: 'phrase', reason: 'no unstarted word is due and the family roll selected the phrase share' })
-      const builtPhraseQuestion = buildPhraseQuestion(
+    const candidates = []
+    if (unlockedEverydayPhrases.length) {
+      const phraseQuestion = buildPhraseQuestion(
         unlockedEverydayPhrases,
         state.mana,
         state.phrasePracticed,
@@ -188,54 +182,22 @@ export default function PracticeView({ state, dispatch }) {
           matchingProgress: state.phraseMatchingProgress,
           currentRound: state.trainRound,
           nowMs,
+          activityHistory: recentActivityHistory,
           debugTrace: state.debug,
         },
       )
-      const phraseQuestion = attachSchedulerTrace(
-        builtPhraseQuestion,
-        'phrase-primary',
-        'No unstarted word was due; the recorded family roll fell below phraseShare.',
-      )
-      if (phraseQuestion) {
-        previousQuestionWords.current = trainQuestionWordKeys(phraseQuestion)
-        setQ(phraseQuestion)
-        return
-      }
-    }
-    if (!unstartedWordDue && modeRoll < TRAIN_QUESTION_MIX_POLICY.phraseShare + TRAIN_QUESTION_MIX_POLICY.wordMatchingShare) {
-      const matchingPlan = planWordMatchingRound({
-        discoveredIds,
-        wordProgress: state.wordProgress,
-        wordMatchingProgress: state.wordMatchingProgress,
-        practiced: state.practiced,
-        excludeWords,
-        currentRound: state.trainRound,
-        rng: Math.random,
-        debugTrace: state.debug,
-      })
       schedulerTrace?.attempts.push({
-        family: 'word-matching',
-        reason: matchingPlan.trace.outcome.reason || 'the family roll selected a complete mixed-difficulty matching board',
-        trace: matchingPlan.trace,
+        family: 'phrase',
+        status: phraseQuestion ? 'eligible' : 'unavailable',
+        activityTypeId: trainActivityTypeId(phraseQuestion),
+        reason: phraseQuestion
+          ? 'a due disjoint phrase activity survived the activity-repeat boundary'
+          : 'no due disjoint phrase activity with a different activity type could be built',
       })
-      const matchingQuestion = attachSchedulerTrace(
-        matchingPlan.question,
-        'word-matching',
-        'No unstarted word was due; the family roll selected mixed saved-word matching.',
-      )
-      if (matchingQuestion) {
-        previousQuestionWords.current = trainQuestionWordKeys(matchingQuestion)
-        setQ(matchingQuestion)
-        return
-      }
+      if (phraseQuestion) candidates.push({ route: 'phrase', question: phraseQuestion, activityTypeId: phraseQuestion.activityTypeId })
     }
-    schedulerTrace?.attempts.push({
-      family: 'word',
-      reason: unstartedWordDue
-        ? 'at least one unstarted word is due, so word learning takes priority'
-        : 'the phrase-family roll did not yield a buildable phrase question',
-    })
-    let nextQuestion = buildWordQuestion({
+
+    const wordQuestion = buildWordQuestion({
       discoveredIds,
       mana: state.mana,
       practiced: state.practiced,
@@ -244,53 +206,72 @@ export default function PracticeView({ state, dispatch }) {
       currentRound: state.trainRound,
       nowMs,
       excludeWords,
+      activityHistory: recentActivityHistory,
       debugTrace: state.debug,
     })
-    nextQuestion = attachSchedulerTrace(
-      nextQuestion,
-      'word',
-      unstartedWordDue
-        ? `${unstartedWordDueIds.length} unstarted due word${unstartedWordDueIds.length === 1 ? '' : 's'} had priority; the word builder then used its recorded weights to choose this target.`
-        : 'The phrase path was not selected or could not build, so the scheduler selected a due word activity.',
-    )
-    // With an exceptionally tiny unlocked vocabulary there may be no legal
-    // non-repeating word round. Prefer a disjoint phrase even when this roll was
-    // allocated to vocabulary; null is retained only when no legal question of
-    // either family exists.
-    if (!nextQuestion && unlockedEverydayPhrases.length) {
-      schedulerTrace?.attempts.push({ family: 'phrase-fallback', reason: 'no legal disjoint word question could be built' })
-      const fallbackPhrase = buildPhraseQuestion(
-        unlockedEverydayPhrases,
-        state.mana,
-        state.phrasePracticed,
-        state.phraseMistakes,
-        {
-          distractorPool: EVERYDAY_PHRASE_DRILLS,
+    schedulerTrace?.attempts.push({
+      family: 'word',
+      status: wordQuestion ? 'eligible' : 'unavailable',
+      activityTypeId: trainActivityTypeId(wordQuestion),
+      reason: wordQuestion
+        ? 'the least-represented due word activity type survived the word and activity-repeat boundaries'
+        : 'no due disjoint word activity with a different activity type could be built',
+    })
+    if (wordQuestion) candidates.push({ route: 'word', question: wordQuestion, activityTypeId: wordQuestion.activityTypeId })
+
+    const matchingActivityTypeId = trainActivityTypeId({ kind: TRAIN_EXERCISE_FAMILIES.wordMatching.kind })
+    const matchingPlan = recentActivityHistory.at(-1) === matchingActivityTypeId
+      ? { question: null, trace: { outcome: { status: 'unavailable', reason: 'word matching was the immediately previous activity type' } } }
+      : planWordMatchingRound({
+          discoveredIds,
+          wordProgress: state.wordProgress,
+          wordMatchingProgress: state.wordMatchingProgress,
+          practiced: state.practiced,
           excludeWords,
-          mastery: {
-            listening: state.phraseListeningMastery,
-            matching: state.phraseMatchingMastery,
-          },
-          productionProgress: state.phraseProductionProgress,
-          listeningProgress: state.phraseListeningProgress,
-          matchingProgress: state.phraseMatchingProgress,
           currentRound: state.trainRound,
-          nowMs,
+          rng: Math.random,
           debugTrace: state.debug,
-        },
-      )
-      nextQuestion = attachSchedulerTrace(
-        fallbackPhrase,
-        'phrase-fallback',
-        'No legal disjoint word question could be built; a legal due phrase was used instead.',
-      )
+        })
+    const matchingQuestion = matchingPlan.question
+      ? { ...matchingPlan.question, activityTypeId: matchingActivityTypeId }
+      : null
+    schedulerTrace?.attempts.push({
+      family: 'word-matching',
+      status: matchingQuestion ? 'eligible' : 'unavailable',
+      activityTypeId: matchingActivityTypeId,
+      reason: matchingPlan.trace.outcome.reason || 'a complete mixed-difficulty board is due and legal',
+      trace: matchingPlan.trace,
+    })
+    if (matchingQuestion) candidates.push({ route: 'word-matching', question: matchingQuestion, activityTypeId: matchingActivityTypeId })
+
+    const balanced = pickBalancedTrainActivity(candidates, recentActivityHistory, Math.random)
+    if (schedulerTrace) schedulerTrace.activityBalance = {
+      ...balanced.plan,
+      randomBoundary: balanced.randomBoundary,
+      selectedRoute: balanced.candidate?.route || null,
+      selectedActivityTypeId: balanced.activityTypeId,
     }
-    // Repeating the same word would defeat both the no-repeat promise and the
-    // disjoint delay used by remediation. A tiny unlocked pool pauses cleanly.
+    let nextQuestion = balanced.candidate
+      ? attachSchedulerTrace(
+          balanced.candidate.question,
+          balanced.candidate.route,
+          `Selected ${balanced.activityTypeId}, the least-represented currently eligible activity type; the immediately previous type was excluded.`,
+        )
+      : null
+    // Repeating either the same Albanian word or the same activity type would
+    // defeat the spacing promise. A tiny eligible pool therefore pauses cleanly.
     if (!nextQuestion && !TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists) {
       nextQuestion = { kind: TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome }
     }
-    if (nextQuestion) previousQuestionWords.current = trainQuestionWordKeys(nextQuestion)
+    if (nextQuestion && nextQuestion.kind !== TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) {
+      previousQuestionWords.current = trainQuestionWordKeys(nextQuestion)
+      activityHistory.current = recordTrainActivity(recentActivityHistory, nextQuestion.activityTypeId)
+      dispatch({
+        type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+        questionKey: nextQuestion.questionKey,
+        activityTypeId: nextQuestion.activityTypeId,
+      })
+    }
     setQ(nextQuestion)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -309,6 +290,7 @@ export default function PracticeView({ state, dispatch }) {
     state.wordMatchingProgress,
     state.trainRound,
     state.trainLastWords,
+    state.trainActivityHistory,
     state.trainStageExposures,
     state.debug,
   ])

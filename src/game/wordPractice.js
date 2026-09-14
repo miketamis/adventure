@@ -10,6 +10,10 @@ import {
   TRAIN_QUESTION_MIX_POLICY,
 } from './trainingProgression.js'
 import {
+  trainActivityBalancePlan,
+  trainActivityTypeId,
+} from './trainActivityBalance.js'
+import {
   normalizeWordProgress,
   wordProgressPlan,
 } from './wordProgression.js'
@@ -378,6 +382,7 @@ export function buildWordQuestion({
   nowMs = 0,
   targetId = null,
   excludeWords = [],
+  activityHistory = [],
   rng = Math.random,
   debugTrace = false,
 } = {}) {
@@ -389,6 +394,7 @@ export function buildWordQuestion({
       currentRound,
       nowMs,
       excludedWordKeys: phraseWordKeys((excludeWords || []).join(' ')),
+      activityHistory,
     },
     candidates: [],
   } : null
@@ -500,11 +506,31 @@ export function buildWordQuestion({
       reasons: ['discovered, trainable, disjoint from the last activity, and due'],
     })
     if (candidate) trace.candidates.push(candidate)
-    due.push({ id, plan, context })
+    due.push({
+      id,
+      plan,
+      context,
+      activityTypeId: trainActivityTypeId({
+        familyId: plan.familyId,
+        variantId: plan.contextVariantId || plan.variantId,
+        wordStageId: plan.stageId,
+        mode: plan.mode,
+      }),
+    })
   }
   if (!due.length) return null
 
-  const { id: answerId, plan, context } = weightedPick(due, mana, wordExposure, rng, trace)
+  const activityBalance = trainActivityBalancePlan(due, activityHistory)
+  if (trace) trace.activityBalance = activityBalance
+  if (!activityBalance.balanced.length) return null
+  const balancedDue = activityBalance.balanced.map(({ candidate }) => candidate)
+  const { id: answerId, plan, context, activityTypeId } = weightedPick(
+    balancedDue,
+    mana,
+    wordExposure,
+    rng,
+    trace,
+  )
   if (trace) trace.selected = {
     answerId,
     stageId: plan.stageId,
@@ -517,6 +543,7 @@ export function buildWordQuestion({
     if (!question) return question
     const withAspects = {
       ...question,
+      activityTypeId,
       aspectTargets: question.aspectTargets || wordAspectTargetsForPlan(answerId, plan),
       aspectRegistryVersion: plan.aspectSelection?.registryVersion || null,
     }

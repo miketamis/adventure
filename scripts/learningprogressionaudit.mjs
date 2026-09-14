@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
-import { FORMS_UNLOCK_THRESHOLD } from '../src/game/gameState.js'
+import { FORMS_UNLOCK_THRESHOLD, newRun, reducer } from '../src/game/gameState.js'
 import {
   PHRASE_EXERCISE_MODES,
   buildPhraseProgressionSnapshot,
@@ -28,6 +28,12 @@ import {
   debugLearningLanes,
 } from '../src/game/trainingProgression.js'
 import { TRAIN_EXERCISE_EXAMPLES } from '../src/game/trainingExampleRegistry.js'
+import {
+  TRAIN_ACTIVITY_BALANCE_POLICY,
+  pickBalancedTrainActivity,
+  trainActivityTypeId,
+} from '../src/game/trainActivityBalance.js'
+import { recordTrainActivity } from '../src/game/trainActivityHistory.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
 import { wordProgressionOptionsForSense } from '../src/game/formInventory.js'
 import {
@@ -364,7 +370,8 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.noImmediateSharedWords, true)
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists, false)
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome, 'caught-up')
-  assert.ok(TRAIN_QUESTION_MIX_POLICY.phraseShare > 0 && TRAIN_QUESTION_MIX_POLICY.phraseShare < 1)
+  assert.equal(TRAIN_QUESTION_MIX_POLICY.activityBalance, TRAIN_ACTIVITY_BALANCE_POLICY)
+  assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.noImmediateActivityTypeRepeat, true)
   assert.equal(TRAIN_QUESTION_MIX_POLICY.wordDirection.source, 'word-stage-definition')
 
   const practice = read('src/components/PracticeView.jsx')
@@ -378,8 +385,8 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.match(practice, /buildNounOddOneOutRefresher/)
   assert.doesNotMatch(practice, /formsCorrection/)
   assert.match(practice, /WORD_ALBANIAN_TO_ENGLISH\.id/)
-  assert.match(practice, /TRAIN_QUESTION_MIX_POLICY\.phraseShare/)
-  assert.equal(TRAIN_QUESTION_MIX_POLICY.formShareWithinWordRounds, 0)
+  assert.match(practice, /pickBalancedTrainActivity/)
+  assert.match(practice, /RECORD_TRAIN_ACTIVITY_PRESENTED/)
   assert.match(practice, /TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome/)
   assert.doesNotMatch(practice, /modeRoll < 0\.65|Math\.random\(\) < 0\.35|ZERO_TOKEN_BOOST/)
   assert.doesNotMatch(practice, /albanianToEnglishShare/)
@@ -391,7 +398,7 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
 
   const phrasePractice = read('src/game/phrasePractice.js')
   assert.match(phrasePractice, /TRAIN_EXERCISE_FAMILIES\.phrase\.kind/)
-  assert.match(phrasePractice, /TRAIN_QUESTION_MIX_POLICY\.phraseSkill/)
+  assert.match(phrasePractice, /pickBalancedTrainActivity/)
   assert.match(phrasePractice, /PHRASE_STAGE_DEFINITIONS\.listening\[tier\]\.variant\.distractors/)
   assert.match(phrasePractice, /PHRASE_STAGE_DEFINITIONS\.matching\[tier\].*variant\.pairs/s)
   assert.doesNotMatch(phrasePractice, /\[2, 3, 5\]|\[2, 3, 4\]|roll < 0\.62|roll < 0\.84/)
@@ -399,6 +406,48 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
     [...phrasePractice.matchAll(/kind:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]).sort(),
     ['broad', 'order', 'word'],
     'an unregistered literal question kind entered the phrase builder',
+  )
+})
+
+check('activity formats are evenly rotated and never repeat immediately', () => {
+  const formats = [
+    { kind: 'everyday-phrase', mode: 'cloze' },
+    { kind: 'everyday-phrase', mode: 'arrange' },
+    { kind: 'word-match' },
+  ]
+  let history = []
+  const selected = []
+  for (let round = 0; round < 9; round += 1) {
+    const pick = pickBalancedTrainActivity(formats, history, () => 0)
+    assert.ok(pick.candidate, `round ${round + 1} has an eligible format`)
+    assert.notEqual(pick.activityTypeId, selected.at(-1), 'the immediately previous format repeated')
+    selected.push(pick.activityTypeId)
+    history = recordTrainActivity(history, pick.activityTypeId)
+  }
+  const counts = Object.values(selected.reduce((result, id) => ({
+    ...result,
+    [id]: (result[id] || 0) + 1,
+  }), {}))
+  assert.ok(Math.max(...counts) - Math.min(...counts) <= 1, 'eligible activity formats drifted out of balance')
+  assert.equal(trainActivityTypeId({ kind: 'everyday-phrase', mode: 'type', typeScope: 'word' }), 'phrase:type-word')
+  assert.equal(trainActivityTypeId({ familyId: 'word-forms', variantId: 'reviewed-ending-choice' }), 'word-forms:reviewed-ending-choice')
+  const onlyRepeat = pickBalancedTrainActivity([{ kind: 'word-match' }], ['word:matching-board'], () => 0)
+  assert.equal(onlyRepeat.candidate, null)
+  assert.equal(onlyRepeat.plan.outcome, 'caught-up')
+
+  const fresh = newRun()
+  const recorded = reducer(fresh, {
+    type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+    activityTypeId: 'phrase:cloze',
+  })
+  assert.deepEqual(recorded.trainActivityHistory, ['phrase:cloze'])
+  assert.equal(
+    reducer(recorded, {
+      type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+      activityTypeId: 'phrase:cloze',
+    }),
+    recorded,
+    'the reducer accepted an immediate duplicate activity type',
   )
 })
 

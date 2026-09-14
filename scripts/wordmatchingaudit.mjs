@@ -4,6 +4,7 @@ import { buildDebugTrainActivity } from '../src/game/debugTrainActivity.js'
 import { hasHonestWordMatchingSpread, planWordMatchingRound } from '../src/game/wordMatching.js'
 import { WORD_MATCHING_POLICY } from '../src/game/wordMatchingPolicy.js'
 import { TRAIN_EXERCISE_FAMILIES, TRAIN_QUESTION_MIX_POLICY } from '../src/game/trainingProgression.js'
+import { TRAIN_ACTIVITY_BALANCE_POLICY } from '../src/game/trainActivityBalance.js'
 
 const ids = ['fshat', 'ure', 'rruge', 'shtepi', 'uje', 'buke', 'kripe', 'dritare', 'liber', 'shishe', 'cakmak', 'mal']
 const discovered = Object.fromEntries(ids.map((id) => [id, true]))
@@ -102,14 +103,14 @@ const debugModel = buildDebugTrainActivity(first.question, {
 assert.equal(debugModel.family, TRAIN_EXERCISE_FAMILIES.wordMatching)
 assert.deepEqual(debugModel.words.map(({ id }) => id).sort(), first.question.wordIds.toSorted())
 assert.ok(debugModel.occurrences.every(({ source }) => source === 'word matching board'))
-assert.equal(TRAIN_QUESTION_MIX_POLICY.wordMatchingShare, WORD_MATCHING_POLICY.schedulerShare)
+assert.equal(TRAIN_QUESTION_MIX_POLICY.activityBalance, TRAIN_ACTIVITY_BALANCE_POLICY)
 
 const practice = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
 const question = readFileSync(new URL('../src/components/WordMatchingQuestion.jsx', import.meta.url), 'utf8')
 const graph = readFileSync(new URL('../src/components/DebugLearningProgression.jsx', import.meta.url), 'utf8')
 const styles = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 assert.match(practice, /planWordMatchingRound/)
-assert.match(practice, /TRAIN_QUESTION_MIX_POLICY\.wordMatchingShare/)
+assert.match(practice, /pickBalancedTrainActivity/)
 assert.match(practice, /<WordMatchingQuestion/)
 assert.match(practice, /type: 'PRACTICE_WORD_MATCH_RESULT'/)
 assert.doesNotMatch(practice, /completeRound: false/)

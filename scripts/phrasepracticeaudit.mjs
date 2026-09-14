@@ -276,9 +276,11 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
   assert.match(practiceSource, /buildWordQuestion\(\{[\s\S]+excludeWords/)
   assert.match(
     practiceSource,
-    /let nextQuestion = buildWordQuestion\(\{[\s\S]+excludeWords,[\s\S]+\}\)/,
+    /const wordQuestion = buildWordQuestion\(\{[\s\S]+excludeWords,[\s\S]+activityHistory: recentActivityHistory,[\s\S]+\}\)/,
     'the unified aspect-driven word builder did not receive the shared no-repeat boundary',
   )
+  assert.match(practiceSource, /pickBalancedTrainActivity\(candidates, recentActivityHistory/)
+  assert.match(practiceSource, /RECORD_TRAIN_ACTIVITY_PRESENTED/)
   assert.match(
     practiceSource,
     /nextQuestion = \{ kind: TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome \}/,

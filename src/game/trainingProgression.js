@@ -6,6 +6,7 @@ import {
 } from './wordProgression.js'
 import { WORD_MATCHING_POLICY } from './wordMatchingPolicy.js'
 import { NOUN_GRAMMAR_ACTIVITY_VARIANTS } from './nounAgreementPractice.js'
+import { TRAIN_ACTIVITY_BALANCE_POLICY } from './trainActivityHistory.js'
 
 export { TRAIN_HEALTH_POLICY } from './trainHealthPolicy.js'
 
@@ -97,13 +98,10 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
 })
 
 export const TRAIN_QUESTION_MIX_POLICY = deepFreeze({
-  phraseShare: 0.65,
-  wordMatchingShare: WORD_MATCHING_POLICY.schedulerShare,
-  formShareWithinWordRounds: 0,
+  activityBalance: TRAIN_ACTIVITY_BALANCE_POLICY,
   // Word direction and choice count are no longer random knobs: the exact
   // word-evidence stage owns both through WORD_STAGE_DEFINITIONS.
   wordDirection: { source: 'word-stage-definition' },
-  phraseSkill: { productionDuePriority: true, productionWhenDueUpperBound: 1, listeningUpperBound: 0.84 },
   practicalWordWeight: 3,
   zeroTokenWeight: 8,
   phraseTargeting: {
@@ -140,6 +138,7 @@ export const TRAIN_NOUN_ENDING_CORRECTION_POLICY = deepFreeze({
 
 export const TRAIN_SCHEDULER_SAFEGUARDS = deepFreeze({
   noImmediateSharedWords: true,
+  noImmediateActivityTypeRepeat: true,
   repeatWhenNoDisjointTargetExists: false,
   exhaustedPoolOutcome: 'caught-up',
   remediationUsesDisjointRound: true,

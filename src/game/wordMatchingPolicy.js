@@ -24,5 +24,4 @@ export const WORD_MATCHING_POLICY = deepFreeze({
     wins: 2,
   },
   evidenceTrack: 'matching-reinforcement',
-  schedulerShare: 0.14,
 })

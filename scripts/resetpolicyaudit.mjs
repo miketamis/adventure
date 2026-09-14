@@ -101,6 +101,7 @@ const resettableAttemptFixture = (profile) => ({
   practiceTarget: { kind: 'option', nodeId: START_NODE, optionIndex: 0 },
   trainLastWords: ['po', 'shkoj', 'në', 'fshat'],
   trainLastQuestionKey: 'audit:open-question',
+  trainActivityHistory: ['phrase:cloze', 'word:matching-board'],
   // The blocking correction modal must be acknowledged before any navigation,
   // including reset. Its clearing behavior is exercised directly above.
   pendingHeartConsequence: null,
@@ -137,6 +138,7 @@ check('reset policy categories are explicit, disjoint, and consumed by their hel
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('discovered'))
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('deathUnsavedWords'))
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('trainStageExposures'))
+  assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('trainActivityHistory'))
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('wordMatchingProgress'))
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('cefrEvidence'))
   assert.ok(STORY_RUN_RESET_POLICY.durableChronicle.includes('npcPortraitsSeen'))
@@ -316,7 +318,7 @@ check('a genuinely new learner begins without inherited run or learning state', 
     else if (field === 'trainRound') assert.equal(fresh[field], 0)
     else if (field === 'learningResearchConsent') assert.equal(fresh[field], false)
     else if (field === 'learningTelemetrySequence') assert.equal(fresh[field], 0)
-    else if (['cefrEvidence', 'learningTelemetryEvents'].includes(field)) assert.deepEqual(fresh[field], [])
+    else if (['cefrEvidence', 'learningTelemetryEvents', 'trainActivityHistory'].includes(field)) assert.deepEqual(fresh[field], [])
     else if (field === 'wordMatchingProgress') assert.deepEqual(fresh[field], { family: {}, words: {} })
     else assert.deepEqual(fresh[field], {}, `${field}: new learner inherited evidence`)
   }

@@ -32,6 +32,7 @@ export const STORY_RUN_RESET_POLICY = Object.freeze({
     'phraseListeningProgress',
     'phraseMatchingProgress',
     'trainRound',
+    'trainActivityHistory',
     'trainHealthPolicyVersion',
     'trainStageExposures',
     'wordMatchingProgressVersion',
