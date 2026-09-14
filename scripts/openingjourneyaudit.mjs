@@ -98,6 +98,9 @@ const opening = () => {
 
 const beginFollow = () => {
   let state = opening()
+  const comingNow = atChoice(state, 'bisedaFollowAgree')
+  assert.equal(albanian(comingNow?.text), 'po vij tani.', 'the early journey lost its explicit coming-now update')
+  assert.deepEqual(comingNow.playerIntents, ['speech'], 'the coming-now update is not one focused speech act')
   state = choose(state, 'bisedaFollowAgree')
   state = choose(state, 'bisedaShesh')
   assert.equal(state.clock, START_CLOCK, 'agreeing to follow consumed travel time')
@@ -159,6 +162,10 @@ const beginFollow = () => {
 
 const scheduleMeeting = () => {
   let state = opening()
+  const reschedule = atChoice(state, 'bisedaKroi')
+  assert.equal(albanian(reschedule?.text), 'nuk mund të vij tani. takohemi nesër?',
+    'the early journey lost its explicit inability and tomorrow proposal')
+  assert.deepEqual(reschedule.playerIntents, ['speech'], 'the reschedule is not one focused speech act')
   state = choose(state, 'bisedaKroi')
   state = choose(state, 'start', (option) => option.rendezvous?.id === 'eliraSquare')
   assert.equal(state.nodeId, 'start', 'agreeing to meet teleported the player')

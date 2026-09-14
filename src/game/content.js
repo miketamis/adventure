@@ -706,12 +706,16 @@ export const STORY = {
     ],
     options: [
       {
-        text: R('I am coming with you.', w('po_prog'), wf('vjen', 'vij', 'come'), w('me'), wf('ti', 'ty', 'you'), p('.')),
+        text: R('I am coming now.', w('po_prog'), wf('vjen', 'vij', 'come'), w('tani'), p('.')),
+        intent: 'speech',
+        playerIntents: ['speech'],
         to: 'bisedaFollowAgree',
         durationHours: 0,
       },
       {
-        text: R('We will meet later.', wf('takohem', 'takohemi', 'meet'), w('me_vone'), p('.')),
+        text: R('I cannot come now. Shall we meet tomorrow?', w('nuk'), w('mund'), w('te_subj'), wf('vjen', 'vij', 'come'), w('tani'), p('.'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), p('?')),
+        intent: 'speech',
+        playerIntents: ['speech'],
         to: 'bisedaKroi',
         durationHours: 0,
       },

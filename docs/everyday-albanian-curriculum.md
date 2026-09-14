@@ -8,13 +8,13 @@ The opening conversation now teaches a transferable interaction skeleton in its 
 
 1. greet someone and answer “How are you?”;
 2. say where you are going;
-3. accept or decline a plan;
+3. say you are coming now, or explain that you cannot and propose tomorrow;
 4. ask someone to wait, admit “I don’t know,” and choose a meeting place;
 5. agree on today or tomorrow and a time.
 
 The first village errand continues the same conversation instead of resetting into a lesson. The player agrees to help prepare for a guest, follows an instruction, asks where the market and guest-room are, follows left/right directions, asks a fast speaker to slow down or repeat, buys bread and salt, and welcomes a traveller. The supper then becomes a genuine social scene: permission to enter, offering food and water, a small favour, introductions, home and work, family, missing home, the journey, weather, tiredness, sympathy, news, follow-up questions, disbelief, fear, opinions, disagreement and a consequential decision. That decision opens the Kulshedra trail. The square’s birthday gathering teaches wishes, natural reactions and an explicit joke marker. The café carries work, sleep and next-day talk. Later, the established Gjakova inn, stalls and healer carry morning and evening greetings, welcoming and closing a visit, good-night wishes, room, price, coffee, pain, help, and doctor language without importing a modern airport, bus, or phone into the folktale world.
 
-This gives the player the main intent and routine phrases in the private birthday-chat sample during the first village visit. It does not promise instant comprehension of names, code-switching, one-off misspellings, or a vulgar wordplay punchline. Those are genuine parts of chat literacy, but they should not displace reusable Albanian.
+This gives the player the main intent and routine phrases in the private conversation research during the first village visit. An aggregate review of the current ignored extract particularly reinforced movement updates and changing a plan; the public lines are independently authored standard Albanian. It does not promise instant comprehension of names, code-switching, one-off misspellings, or private-reference humour. Those are genuine parts of chat literacy, but they should not displace reusable Albanian.
 
 ## Curriculum contract
 
@@ -24,7 +24,7 @@ against the live registries by `scripts/conversationaudit.mjs`):
 - 15 opening targets; <!-- curriculum:opening=15 -->
 - 58 first-session targets; <!-- curriculum:session=58 -->
 - 173 practice-priority senses; <!-- curriculum:core=173 -->
-- 118 whole-phrase drills; <!-- curriculum:phrases=118 -->
+- 120 whole-phrase drills; <!-- curriculum:phrases=120 -->
 - 24 story-grounded can-do groups. <!-- curriculum:groups=24 -->
 
 Every whole-phrase drill must be found in a playable story line or action. `scripts/conversationaudit.mjs` rejects an ungrounded drill, a missing first-session target, an unknown sense, or an underfilled can-do group.
@@ -41,8 +41,8 @@ The audit is organized around what a person can do with language, not around arb
 | move through the day and return visits naturally | morning/evening stalls, inn, café and guest-room |
 | introduce yourself; ask name, origin, home and work | guest supper and the foreign traveller |
 | ask about family and say someone is missed | guest supper, kurbet and family legends |
-| locate people and make plans | opening bridge exchange, square and café |
-| invite, accept, decline and ask permission | bridge plan and guest-room threshold |
+| locate people, report movement and make or change plans | opening bridge exchange, square and café |
+| invite, accept, decline, reschedule and ask permission | bridge plan and guest-room threshold |
 | catch up, exchange news and ask what happened | guest supper, café and village spring |
 | keep a conversation moving | `Vërtet?`, `Pastaj?`, `Më trego…`, `Nuk e di` and repair phrases |
 | express hunger, thirst, tiredness, fear, pain and concern | supper, road danger and healer |
