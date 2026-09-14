@@ -28,7 +28,7 @@ export const WORD_LEARNING_ASPECTS = deepFreeze([
     stageId: 'reviewed-form-contrast',
     conditional: 'reviewed-form-lane',
     prerequisites: [{ aspectId: 'lexical-meaning-recognition', scope: 'lemma' }],
-    evidence: 'Identifies the exact reviewed surface and its grammatical job.',
+    evidence: 'Confirms a marked reviewed form’s meaning, then identifies its grammatical job.',
   },
   {
     id: 'grammatical-form-odd-one-out',
@@ -234,8 +234,7 @@ export const WORD_STAGE_ASPECT_BINDINGS = deepFreeze({
     writes: ['grammatical-form-recognition'],
     reads: ['lexical-meaning-recognition'],
     phases: {
-      'identify-root-lemma': { writes: [], reads: ['lexical-meaning-recognition'] },
-      'choose-reviewed-form': { writes: [], reads: ['grammatical-form-recognition'] },
+      'identify-form-meaning': { writes: [], reads: ['lexical-meaning-recognition'] },
       'identify-marked-form-job': { writes: ['grammatical-form-recognition'], reads: ['lexical-meaning-recognition'] },
     },
   },

@@ -330,10 +330,15 @@ assert.ok(firstFormQuestion.formTarget.context.en)
 assert.ok(firstFormQuestion.formTarget.context.alGap.includes('__'))
 assert.ok(firstFormQuestion.options.length >= 2 && firstFormQuestion.options.length <= 4)
 assert.strictEqual(firstFormQuestion.phasePlan, STAGE['reviewed-form-contrast'].variant.phases)
-assert.deepEqual(firstFormQuestion.phasePlan.map(({ task }) => task), ['lemma-identification', 'reviewed-form-selection', 'grammatical-role'])
+assert.deepEqual(firstFormQuestion.phasePlan.map(({ task }) => task), ['meaning-identification', 'grammatical-role'])
 assert.equal(firstFormQuestion.lexicalCheck.answerId, 'fshat')
 assert.equal(firstFormQuestion.lexicalCheck.options.length, 4)
 assert.ok(firstFormQuestion.lexicalCheck.options.includes('fshat'))
+assert.ok(firstFormQuestion.lexicalCheck.options.every((id) =>
+  firstFormQuestion.lexicalCheck.optionLabels[id] === (DICT[id].enAll ?? DICT[id].en)),
+'the first phase choices are not English-only dictionary meanings')
+assert.equal(firstFormQuestion.formSelectionCheck, undefined,
+  'the staged meaning-and-job card still contains a sentence-gap form-selection phase')
 assert.equal(new Set(firstFormQuestion.options.map(({ label }) => label)).size, firstFormQuestion.options.length)
 assert.ok(firstFormQuestion.options.every(({ label }) => !label.includes('→')), 'noun roles were presented as an arrow ladder')
 assert.deepEqual(reached.observed.map(({ wordStageId }) => wordStageId), [

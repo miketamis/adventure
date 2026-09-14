@@ -37,7 +37,7 @@ The research supports the underlying principles, not the project's current numer
 
 1. Passive story exposure is familiarity only. It may prevent an unfair unseen-word question or help select an introductory task, but never unlocks an aspect, counts as mastery, or supplies CEFR evidence.
 2. Each activity declares its target aspect or aspects. Incidental words are prerequisites and context, not rewarded targets.
-3. Recognition precedes controlled retrieval; reviewed form recognition precedes form-role selection; supported orthographic construction precedes typed contextual recall; strict exact recall is delayed and separately spaced.
+3. Recognition precedes controlled retrieval; identifying a marked reviewed form’s meaning precedes identifying its grammatical role; supported orthographic construction precedes typed contextual recall; strict exact recall is delayed and separately spaced.
 4. Listening-to-spelling is its own evidence path. Continuous generated MP3 completion is required; a play click, interrupted clip, browser text-to-speech, or knowledge gained through reading cannot substitute for auditory transcription evidence.
 5. Prerequisites form a directed acyclic graph. Registry order may break ties among eligible tasks, but it must not secretly become the prerequisite model.
 6. A miss schedules targeted, easier support after disjoint language rather than erasing unrelated proof or causing immediate oscillation.

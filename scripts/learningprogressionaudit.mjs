@@ -125,10 +125,9 @@ check('every learning question step opens a structured example dialog', () => {
     }
   }
   const reviewedForm = WORD_STAGE_DEFINITIONS.find(({ id }) => id === 'reviewed-form-contrast')
-  assert.deepEqual(reviewedForm.variant.phases.map(({ task }) => task), ['lemma-identification', 'reviewed-form-selection', 'grammatical-role'])
+  assert.deepEqual(reviewedForm.variant.phases.map(({ task }) => task), ['meaning-identification', 'grammatical-role'])
   assert.equal(reviewedForm.variant.phases[0].completion, 'advance-without-evidence')
-  assert.equal(reviewedForm.variant.phases[1].completion, 'advance-without-evidence')
-  assert.equal(reviewedForm.variant.phases[2].completion, 'complete-stage-once')
+  assert.equal(reviewedForm.variant.phases[1].completion, 'complete-stage-once')
   assert.deepEqual(
     TRAIN_EXERCISE_EXAMPLES['reviewed-form-contrast'].phases.map(({ id }) => id),
     reviewedForm.variant.phases.map(({ id }) => id),

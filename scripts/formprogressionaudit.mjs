@@ -84,20 +84,23 @@ for (const [id, entry] of Object.entries(DICT)) {
     assert.equal(contrast.answerValue, target.key)
     assert.strictEqual(contrast.phasePlan, contrastPlan.definition.variant.phases,
       `${id}/${target.key}: the question copied or replaced the shared staged-activity plan`)
-    assert.deepEqual(contrast.phasePlan.map(({ task }) => task), ['lemma-identification', 'reviewed-form-selection', 'grammatical-role'])
+    assert.deepEqual(contrast.phasePlan.map(({ task }) => task), ['meaning-identification', 'grammatical-role'])
     assert.equal(contrast.lexicalCheck.answerId, id)
     assert.equal(contrast.lexicalCheck.options.length, 4)
     assert.ok(contrast.lexicalCheck.options.includes(id))
-    assert.equal(new Set(contrast.lexicalCheck.options.map((optionId) => DICT[optionId].enAll ?? DICT[optionId].en)).size, 4,
+    assert.equal(new Set(contrast.lexicalCheck.options.map((optionId) => contrast.lexicalCheck.optionLabels[optionId])).size, 4,
       `${id}/${target.key}: meaning phase has duplicate learner-facing answers`)
+    assert.ok(contrast.lexicalCheck.options.every((optionId) =>
+      contrast.lexicalCheck.optionLabels[optionId] === (DICT[optionId].enAll ?? DICT[optionId].en)),
+    `${id}/${target.key}: meaning option is not an English-only dictionary meaning`)
     assert.ok(contrast.options.length >= 2 && contrast.options.length <= 4)
     assert.equal(new Set(contrast.options.map(({ label }) => label)).size, contrast.options.length)
     assert.ok(contrast.options.some(({ value }) => value === target.key))
-    assert.equal(contrast.formSelectionCheck.answerValue, target.surface)
-    assert.ok(contrast.formSelectionCheck.options.some(({ value }) => value === target.surface))
+    assert.equal(contrast.formSelectionCheck, undefined,
+      `${id}/${target.key}: the meaning-and-job card still contains a sentence-gap form-selection phase`)
 
     // The scored grammatical phase is Albanian-only. English meanings are
-    // confined to the prior base-word identification options and may never be
+    // confined to the prior marked-form meaning options and may never be
     // rendered beside the role question as an article/number clue.
     assert.equal(contrast.roleEnglishCue, undefined)
     assert.equal(contrast.learnerMeaning, undefined)
@@ -190,8 +193,7 @@ const tabakQuestion = buildFormQuestion({
 })
 assert.ok(tabakQuestion, 'tabak/base-indefinite staged form card cannot build')
 assert.deepEqual(tabakQuestion.phasePlan.map(({ id }) => id), [
-  'identify-root-lemma',
-  'choose-reviewed-form',
+  'identify-form-meaning',
   'identify-marked-form-job',
 ])
 assert.equal(tabakQuestion.context.al, 'një tabak')

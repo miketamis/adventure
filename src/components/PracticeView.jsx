@@ -511,15 +511,12 @@ export default function PracticeView({ state, dispatch }) {
   const grammarPhaseQuestion = isForms && q.grammarBundle
     ? q.phaseQuestions?.[formPhase?.id] || null
     : null
-  const isFormIdentityPhase = isFormIntro && formPhase?.task === 'lemma-identification'
-  const isFormSelectionPhase = isFormIntro && formPhase?.task === 'reviewed-form-selection'
-  const isFormSupportPhase = isFormIdentityPhase || isFormSelectionPhase
+  const isFormIdentityPhase = isFormIntro && formPhase?.task === 'meaning-identification'
+  const isFormSupportPhase = isFormIdentityPhase
   const correctValue = grammarPhaseQuestion
     ? grammarPhaseQuestion.answerValue
     : isFormIdentityPhase
     ? q.lexicalCheck.answerId
-    : isFormSelectionPhase
-      ? q.formSelectionCheck.answerValue
     : isFormChoice
       ? q.answerValue
       : q.answerId
@@ -630,10 +627,8 @@ export default function PracticeView({ state, dispatch }) {
     setPicked(value)
 
     if (isFormSupportPhase) {
-      const chosen = isFormIdentityPhase
-        ? q.lexicalCheck.optionLabels[value]
-        : q.formSelectionCheck.options.find((option) => option.value === value)?.label || String(value)
-      const correctMeaning = isFormIdentityPhase ? q.lexicalCheck.optionLabels[q.answerId] : null
+      const chosen = q.lexicalCheck.optionLabels[value]
+      const correctMeaning = q.lexicalCheck.optionLabels[q.answerId]
       dispatch({
         type: 'PRACTICE_WORD_RESULT',
         correct: false,
@@ -653,15 +648,11 @@ export default function PracticeView({ state, dispatch }) {
           source: 'train-form',
           questionKey: q.questionKey,
           attemptedEn: chosen,
-          reasonCode: isFormIdentityPhase ? 'wrong-marked-form-lemma' : 'wrong-contextual-form',
-          reason: isFormIdentityPhase
-            ? `“${chosen}” is not the base word and meaning of the marked form “${q.surface}”.`
-            : `“${chosen}” is not the reviewed form required by this Albanian sentence.`,
-          correctAl: isFormIdentityPhase ? DICT[q.answerId].al : q.surface,
+          reasonCode: 'wrong-marked-form-meaning',
+          reason: `“${chosen}” is not the meaning of the marked form “${q.surface}”.`,
+          correctAl: q.surface,
           correctEn: correctMeaning,
-          reasoning: isFormIdentityPhase
-            ? 'Identify the base word before deciding which inflected form the sentence needs.'
-            : 'Use the Albanian context to choose the exact reviewed form before naming its grammatical job.',
+          reasoning: 'Identify what the marked Albanian form means before deciding what grammatical job it has here.',
         }),
       })
       setTimeout(() => nextRef.current?.(), 0)
@@ -1146,9 +1137,7 @@ export default function PracticeView({ state, dispatch }) {
                     ? 'Type only the ending that completes the marked noun'
                 : isForms
                 ? isFormIdentityPhase
-                  ? 'Which base word does the marked Albanian form belong to?'
-                  : isFormSelectionPhase
-                    ? 'Which reviewed form completes this Albanian sentence?'
+                  ? 'What does the marked Albanian form mean?'
                   : isFormOddOneOut
                     ? q.oddOneOut.prompt
                   : q.promptKind === 'noun-role-in-context'
@@ -1188,10 +1177,6 @@ export default function PracticeView({ state, dispatch }) {
                   <mark aria-label="Missing noun ending">__</mark>
                   {q.endingPrompt.split('__')[1]}
                 </p>
-              </div>
-            ) : isFormSelectionPhase ? (
-              <div className="word-form-context">
-                <p lang="sq">{q.context.alGap}</p>
               </div>
             ) : isFormOddOneOut ? (
               <div className="word-form-context form-odd-one-out-prompt">
@@ -1298,13 +1283,6 @@ export default function PracticeView({ state, dispatch }) {
                     else if (answered && id === picked) cls += ' wrong'
                     return <button key={id} className={cls} disabled={answered} onClick={() => onPick(id)}>{q.lexicalCheck.optionLabels[id]}</button>
                   })
-                : isFormSelectionPhase
-                  ? q.formSelectionCheck.options.map((option) => {
-                      let cls = 'answer'
-                      if (answered && option.value === correctValue) cls += ' correct'
-                      else if (answered && option.value === picked) cls += ' wrong'
-                      return <button key={option.value} className={cls} lang="sq" disabled={answered} onClick={() => onPick(option.value)}>{option.label}</button>
-                    })
                 : isFormChoice
                 ? q.options.map((option) => {
                     let cls = 'answer'

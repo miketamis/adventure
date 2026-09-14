@@ -253,7 +253,7 @@ export const LEARNING_ACTIVITY_EQUIVALENCE_CLAIMS = deepFreeze([
     id: 'paired-form-meaning-contrast', label: 'Contrast forms such as a village, the village and villages before spelling',
     level: 'direct', sourceIds: ['teachingMethod'],
     refs: [train('word-forms'), aspect('grammatical-form-recognition')],
-    note: 'The shared staged form card identifies the root sense, selects the exact reviewed inflected surface for an Albanian context, and only then identifies its grammatical job; no phase displays the complete English sentence answer.',
+    note: 'The shared staged form card identifies the marked Albanian form from English-only meanings, then asks for that same visible form’s grammatical job; the separate ending activities later test selecting or producing the exact inflected surface.',
   },
   {
     id: 'grammatical-form-odd-one-out', label: 'Find the noun form that differs in number or definiteness',

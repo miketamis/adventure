@@ -76,7 +76,7 @@ assert.equal(persistedMiss.trainStageExposures[firstPlan.exposureKeys[0]], 1)
 const supportAspect = {
   targetId: 'fshat',
   aspectId: 'lexical-meaning-recognition',
-  level: 'reviewed-form-contrast:lemma',
+  level: 'reviewed-form-contrast:meaning',
 }
 const finalAspect = {
   targetId: 'fshat',
@@ -86,7 +86,7 @@ const finalAspect = {
 const stagedQuestion = {
   aspectTargets: [supportAspect, finalAspect],
   phaseAspectTargets: {
-    'identify-root-lemma': [supportAspect],
+    'identify-form-meaning': [supportAspect],
     'identify-marked-form-job': [supportAspect, finalAspect],
   },
 }
@@ -100,7 +100,7 @@ const stagedState = {
 assert.equal(trainHealthPlanForQuestion(stagedState, stagedQuestion).protectedAttempt, true,
   'the still-unseen final aspect should protect the eventual final phase')
 const supportPhasePlan = trainHealthPlanForQuestion(stagedState, stagedQuestion, {
-  phaseId: 'identify-root-lemma',
+  phaseId: 'identify-form-meaning',
 })
 assert.equal(supportPhasePlan.protectedAttempt, false,
   'an already-attempted support phase was incorrectly protected by a later phase')

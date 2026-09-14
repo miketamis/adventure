@@ -91,12 +91,6 @@ const contrastOptions = (forms, target, rng) => {
   }))
 }
 
-const surfaceOptions = (forms, target, rng, excludeWords = []) => uniqueBy(
-  [target, ...shuffleWith(forms.filter((form) =>
-    form.key !== target.key && !containsExcludedPhraseWord(form.surface, excludeWords)), rng)],
-  (form) => lower(form.surface),
-).slice(0, 4).map((form) => ({ value: form.surface, label: form.surface }))
-
 const endingOptions = (target, rng) => {
   const source = target?.endingPractice?.options || []
   const answer = source.find(({ value }) => value === target.endingPractice.answer)
@@ -223,21 +217,14 @@ export function buildFormQuestion({
 
   if (plan.stageId === 'reviewed-form-contrast') {
     const phasePlan = plan.definition.variant.phases
-    const identityPhase = phasePlan.find(({ task }) => task === 'lemma-identification')
+    const identityPhase = phasePlan.find(({ task }) => task === 'meaning-identification')
     const lexicalOptions = meaningOptions(answerId, candidateIds, identityPhase.choiceDistractors, rng, excludeWords)
-    const formOptions = surfaceOptions(forms, target, rng, excludeWords)
     const options = contrastOptions(forms, target, rng)
-    if (!lexicalOptions || formOptions.length < 2 || options.length < 2 || !choiceSetIsValid({
+    if (!lexicalOptions || options.length < 2 || !choiceSetIsValid({
       answerValue: target.key,
       optionValues: options.map(({ value }) => value),
       labelOf: (value) => options.find((option) => option.value === value)?.label,
       expectedOptionCount: options.length,
-    }) || !choiceSetIsValid({
-      answerValue: target.surface,
-      optionValues: formOptions.map(({ value }) => value),
-      labelOf: (value) => value,
-      expectedOptionCount: formOptions.length,
-      locale: 'sq',
     })) return null
     return {
       ...base,
@@ -253,15 +240,9 @@ export function buildFormQuestion({
         options: lexicalOptions,
         optionLabels: Object.fromEntries(lexicalOptions.map((id) => [
           id,
-          `${DICT[id].al} · ${senseText(id)}`,
+          senseText(id),
         ])),
         distractorPolicy: 'distinct incompatible sense ranked by lexical contrast',
-      },
-      formSelectionCheck: {
-        phaseId: 'choose-reviewed-form',
-        answerValue: target.surface,
-        options: formOptions,
-        distractorPolicy: 'same-word exact reviewed surfaces',
       },
       context: target.context,
       contextGate,
@@ -271,8 +252,6 @@ export function buildFormQuestion({
       lexicalSurfaces: [
         target.context?.al,
         target.surface,
-        ...lexicalOptions.map((id) => DICT[id].al),
-        ...formOptions.map(({ label }) => label),
       ].filter(Boolean),
       distractorPolicy: target.wordClass === 'noun' ? 'same-noun-reviewed-roles' : 'same-word-reviewed-uses',
     }

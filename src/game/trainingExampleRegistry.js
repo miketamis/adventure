@@ -145,14 +145,13 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     response: 'The card combines two previously proved agreement decisions without displaying an English answer.',
   },
   'reviewed-form-contrast': {
-    instruction: 'Identify the base word, choose the exact reviewed form, then identify its grammatical job.', prompt: '[Fshati] është këtu.', promptLang: 'sq',
-    choices: ['a village · after a direction', 'the village · subject', 'the village · object', 'of / to / from the village'],
+    instruction: 'Identify what the marked Albanian form means, then identify its grammatical job.', prompt: '[Fshati] është këtu.', promptLang: 'sq',
+    choices: ['the noun · subject', 'the noun · object', 'of / to / from the noun', 'the nouns · plural'],
     phases: [
-      { id: 'identify-root-lemma', choices: ['fshat · village', 'urë · bridge', 'lumë · river', 'shtëpi · house'], response: 'Choose “fshat · village”.' },
-      { id: 'choose-reviewed-form', prompt: '__ është këtu.', choices: ['fshat', 'fshati', 'fshatin', 'fshatit'], response: 'Choose “fshati”.' },
-      { id: 'identify-marked-form-job', choices: ['a village · after a direction', 'the village · subject', 'the village · object', 'of / to / from the village'], response: 'Choose the reviewed grammatical job.' },
+      { id: 'identify-form-meaning', choices: ['village', 'bridge', 'river', 'house'], response: 'Choose “village”; no evidence is recorded yet.' },
+      { id: 'identify-marked-form-job', choices: ['the noun · subject', 'the noun · object', 'of / to / from the noun', 'the nouns · plural'], response: 'Choose “the noun · subject”.' },
     ],
-    response: 'Complete all three phases; the first two record nothing, and only the complete chain records exact per-form evidence and awards one target token.',
+    response: 'Complete both phases; the first records nothing, and only the complete meaning-and-job activity records exact per-form evidence and awards one target token.',
   },
   'contextual-form-selection': {
     instruction: 'Choose only the ending that completes the marked noun.', prompt: 'Fshat__ është këtu.', promptLang: 'sq',
