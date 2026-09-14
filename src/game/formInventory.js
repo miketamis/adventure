@@ -397,7 +397,7 @@ export function reviewedContextEligibilityForSense(id) {
   const defensibleRetrievalIds = Object.keys(defensibleRationales.en2al || {})
   const gaps = []
   if (context?.quality !== REVIEWED_CONTEXT_QUALITY) gaps.push(`ctx.quality must be “${REVIEWED_CONTEXT_QUALITY}”`)
-  if (!alignment.usable || !alignment.unmarkedSafe) gaps.push(`context alignment: ${alignment.reason || 'target is not uniquely aligned'}`)
+  if (!alignment.usable || !alignment.uniqueTarget) gaps.push(`context alignment: ${alignment.reason || 'target is not uniquely aligned'}`)
   if (!alignment.mirrorSafe) gaps.push('reviewed full-English retrieval cue is missing or misaligned')
   if (missingSiblingIds.length) gaps.push(`unreviewed same-surface contrasts: ${missingSiblingIds.join(', ')}`)
   if (missingSiblingOptions.length) gaps.push(`same-surface senses absent from recognition options: ${missingSiblingOptions.join(', ')}`)

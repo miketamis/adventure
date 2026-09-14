@@ -209,13 +209,9 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     choices: ['fshat', 'urë', 'lumë', 'shtëpi'], response: 'Choose “fshat” for the Albanian gap.',
   },
   'unmarked-context-recognition': {
-    instruction: 'First tap “fshat” in the Albanian sentence.', prompt: 'Po shkoj në fshat.', promptLang: 'sq',
-    choices: ['Po', 'shkoj', 'në', 'fshat'],
-    phases: [
-      { id: 'locate-context-target', response: 'Tap “fshat”; no evidence is recorded and the same occurrence is now marked in green.' },
-      { id: 'analyse-context-target', choices: ['village', 'bridge', 'river', 'house'], response: 'Choose “village”; only this completed analysis records contextual evidence.' },
-    ],
-    response: 'Locate the exact named surface before analysing its meaning; a wrong token fails the activity rather than allowing unlimited guessing.',
+    instruction: 'Choose what the marked word means here.', prompt: 'Po shkoj në [fshat].', promptLang: 'sq',
+    choices: ['village', 'bridge', 'river', 'house'],
+    response: 'Choose “village” for the marked word in this fresh reviewed context; this completed transfer check records contextual evidence.',
   },
   'independent-word-recognition': {
     instruction: 'What does this Albanian word mean?', prompt: 'fshat', promptLang: 'sq',

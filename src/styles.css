@@ -1230,28 +1230,6 @@ svg [role="button"]:focus-visible {
   color: var(--accent);
   font-weight: 700;
 }
-.contextual-completion-token-choice {
-  appearance: none;
-  margin: -3px -2px;
-  padding: 3px 2px;
-  border: 0;
-  border-radius: 5px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  line-height: inherit;
-  cursor: pointer;
-}
-.contextual-completion-token-choice:hover {
-  background: color-mix(in srgb, var(--mana) 12%, transparent);
-}
-.contextual-completion-token-choice:focus-visible {
-  outline: 2px solid var(--mana);
-  outline-offset: 2px;
-}
-.contextual-completion-token-choice:disabled {
-  cursor: default;
-}
 .contextual-completion-blank {
   display: inline-block;
   min-width: 82px;

@@ -104,19 +104,19 @@ export const WORD_CONTEXT_VARIANTS = deepFreeze([
     id: WORD_CONTEXT_LATE_PROOF,
     familyId: 'word-context',
     exerciseConceptId: WORD_CONTEXT_EXERCISE_CONCEPT,
-    label: 'Unmarked context · locate then recognise',
+    label: 'Marked context · transfer check',
     direction: 'al2en',
     mode: 'choice',
     choiceDistractors: 3,
     evidenceTrack: 'recognition',
     sourceLanguage: 'sq',
     gapLanguage: 'en',
-    targetPresentation: 'unmarked',
+    targetPresentation: 'marked',
     unlock: { kind: 'before-stage', stageId: 'word-form-construction' },
     proofId: WORD_CONTEXT_LATE_PROOF,
     alignmentPolicy: {
-      namedTargetRequiresExactlyOneTarget: true,
-      missingOrAmbiguousTarget: 'retain-marking',
+      markedTargetRequiresExactlyOneTarget: true,
+      missingOrAmbiguousTarget: 'skip-context-variant',
       malformedGapPair: 'skip-context-variant',
     },
   },
@@ -440,7 +440,7 @@ export const WORD_PROGRESSION_POLICY = deepFreeze({
   contextVariant: {
     exerciseConceptId: WORD_CONTEXT_EXERCISE_CONCEPT,
     variants: WORD_CONTEXT_VARIANTS,
-    rule: 'Marked and mirrored contexts provide early recognition/retrieval support. The later variant first names the exact surface to locate in an unmarked Albanian sentence, then marks that selected occurrence and asks for its meaning or job; only the final analysis writes evidence.',
+    rule: 'Marked and mirrored contexts provide early recognition/retrieval support. The later transfer check keeps the exact target visibly marked and asks directly for its meaning or grammatical job in a fresh reviewed Albanian situation.',
   },
   remediation: {
     delayedByDisjointRounds: WORD_MIN_INTERVENING_ROUNDS,
@@ -474,11 +474,11 @@ export function wordContextAlignment(value, answerSurface = null) {
   const en = typeof context?.en === 'string' ? context.en.trim() : ''
   const focus = typeof context?.focus === 'string' ? context.focus.trim() : ''
   if (!al || !en || !focus) {
-    return { usable: false, unmarkedSafe: false, mirrorSafe: false, reason: 'missing-context-field', targetMatches: 0, gapCount: 0 }
+    return { usable: false, uniqueTarget: false, mirrorSafe: false, reason: 'missing-context-field', targetMatches: 0, gapCount: 0 }
   }
   const gapCount = en.split('__').length - 1
   if (gapCount !== 1) {
-    return { usable: false, unmarkedSafe: false, mirrorSafe: false, reason: 'malformed-gap-pair', targetMatches: 0, gapCount }
+    return { usable: false, uniqueTarget: false, mirrorSafe: false, reason: 'malformed-gap-pair', targetMatches: 0, gapCount }
   }
   const targetRanges = []
   // Sentence-initial targets are routinely capitalised in real dialogue. The
@@ -498,7 +498,7 @@ export function wordContextAlignment(value, answerSurface = null) {
     cursor = start + Math.max(1, focus.length)
   }
   if (!targetRanges.length) {
-    return { usable: false, unmarkedSafe: false, mirrorSafe: false, reason: 'missing-target', targetMatches: 0, gapCount }
+    return { usable: false, uniqueTarget: false, mirrorSafe: false, reason: 'missing-target', targetMatches: 0, gapCount }
   }
   const exact = targetRanges.length === 1
   const reviewedAnswer = typeof answerSurface === 'string' ? answerSurface.trim() : null
@@ -507,7 +507,7 @@ export function wordContextAlignment(value, answerSurface = null) {
     typeof context.retrieval.en === 'string' && Boolean(context.retrieval.en.trim())
   return {
     usable: true,
-    unmarkedSafe: exact,
+    uniqueTarget: exact,
     mirrorSafe: exact && answerSurfaceAligned && retrievalCueReviewed,
     reason: !exact ? 'ambiguous-target' : !answerSurfaceAligned
       ? 'answer-surface-mismatch' : retrievalCueReviewed ? null : 'unreviewed-retrieval-cue',
@@ -943,7 +943,7 @@ const lateContextPlan = (progress, base, currentRound, alignment) => {
   if (base.selectedAspect?.aspect.id !== 'contextual-meaning-inference') return null
   if (!alignment.usable) return null
   const requested = CONTEXT_VARIANT_BY_ID[WORD_CONTEXT_LATE_PROOF]
-  const variant = progress.contextSupportRequired || !alignment.unmarkedSafe
+  const variant = progress.contextSupportRequired || !alignment.uniqueTarget
     ? CONTEXT_VARIANT_BY_ID['marked-context-recognition'] : requested
   return {
     stage: base.definition.tier,

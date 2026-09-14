@@ -17,19 +17,7 @@ function ContextLine({ line }) {
             target?.match != null && word === target.match
           )
           let rendered = word
-          if (target?.selectable) {
-            rendered = (
-              <button
-                type="button"
-                className="contextual-completion-token-choice"
-                aria-label={`Select “${word}” as the named word`}
-                disabled={target.disabled}
-                onClick={() => target.onSelect(index)}
-              >
-                {word}
-              </button>
-            )
-          } else if (isTarget && (
+          if (isTarget && (
             target.presentation === CONTEXT_TARGET_PRESENTATION.marked ||
             target.presentation === CONTEXT_TARGET_PRESENTATION.namedMarked
           )) {

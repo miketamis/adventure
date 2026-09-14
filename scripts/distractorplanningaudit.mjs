@@ -84,8 +84,8 @@ const inspector = readFileSync(new URL('../src/components/DebugTrainActivityInsp
 const contextQuestionPresentation = readFileSync(new URL('../src/game/contextQuestionPresentation.js', import.meta.url), 'utf8')
 assert.match(practice, /q\.promptProfile\?\.contextPresentation === CONTEXT_TARGET_PRESENTATION\.namedMarked/,
   'a named contextual target is not using the shared named-and-marked presentation')
-assert.match(contextQuestionPresentation, /referenceMode: 'locate-then-analyse'/,
-  'a genuinely unmarked target is not routed through the shared identification phase')
+assert.doesNotMatch(contextQuestionPresentation, /locate-then-analyse|First tap/,
+  'the fake named-target locate phase is still present')
 assert.match(inspector, /data-debug-distractor-plan/)
 assert.match(inspector, /Learner-aware distractor decision/)
 assert.match(inspector, /Registry link:/)

@@ -286,12 +286,6 @@ export const LEARNING_ACTIVITY_EQUIVALENCE_CLAIMS = deepFreeze([
     note: 'After ky/kjo and i/e are independently proven, one staged Albanian-only card completes both gaps around the same reviewed noun; no intermediate phase awards evidence.',
   },
   {
-    id: 'point-to-target-before-analysis', label: 'Identify the target word in an unmarked Albanian context before analysing it',
-    level: 'direct', sourceIds: ['immersion'],
-    refs: [train('word-context'), aspect('contextual-meaning-inference')],
-    note: 'The late contextual variant names the exact Albanian surface, requires the learner to tap its unmarked occurrence, then marks it and asks for its meaning or job. Only the final phase writes evidence.',
-  },
-  {
     id: 'handwriting-or-script-tracing', label: 'Handwrite or trace a non-Latin writing system',
     level: 'notAppropriate', sourceIds: ['writing'], refs: [],
     note: 'Albanian uses the Latin alphabet. Accurate ë/ç, digraph recognition and typing are relevant; a script-tracing clone would add interface work without a matching Albanian learning need.',

@@ -62,7 +62,6 @@ for (const implemented of [
   'audio-written-meaning-match',
   'albanian-sound-contrast',
   'multi-gap-agreement-cloze',
-  'point-to-target-before-analysis',
 ]) {
   assert.notEqual(rows.find(({ id }) => id === implemented)?.level, 'missingCandidate',
     `${implemented}: implemented production mechanic is still labelled as missing`)

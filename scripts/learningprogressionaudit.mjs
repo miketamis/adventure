@@ -345,6 +345,11 @@ check('debug graph derives the shared context-gap family from production variant
     WORD_CONTEXT_VARIANTS.find(({ id }) => id === 'unmarked-context-recognition').unlock.stageId,
     'word-form-construction',
   )
+  assert.equal(
+    WORD_CONTEXT_VARIANTS.find(({ id }) => id === 'unmarked-context-recognition').targetPresentation,
+    'marked',
+    'the persisted late-proof ID restored its obsolete fake locate presentation',
+  )
   assert.match(component, /WORD_CONTEXT_EXERCISE_CONCEPT/)
   assert.match(component, /WORD_CONTEXT_VARIANTS\.map/)
   assert.match(component, /variant\.unlock/)

@@ -136,12 +136,12 @@ export const WORD_LEARNING_ASPECTS = deepFreeze([
   },
   {
     id: 'contextual-meaning-inference',
-    label: 'Independent contextual meaning',
+    label: 'Contextual meaning transfer',
     dimension: 'lexical-context',
     scope: 'lemma',
     stageId: 'contextual-meaning-inference',
     prerequisites: [{ aspectId: 'lexical-meaning-recognition', scope: 'lemma' }],
-    evidence: 'Infers the target sense in an authored context without a marked answer.',
+    evidence: 'Infers the marked target’s sense or grammatical job in a fresh authored Albanian context.',
   },
   {
     id: 'auditory-form-construction',

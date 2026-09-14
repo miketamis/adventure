@@ -244,10 +244,10 @@ check('word context and phrase cloze share one accessible mirrored completion su
   contextualCompletion.includes('className="sr-only"') &&
   contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.marked') &&
   contextualCompletion.includes('target.presentation === CONTEXT_TARGET_PRESENTATION.blank') &&
-  contextQuestionPresentation.includes("unmarked: 'unmarked'") &&
-  contextQuestionPresentation.includes("referenceMode: 'locate-then-analyse'") &&
-  contextualCompletion.includes('className="contextual-completion-token-choice"') &&
-  contextualCompletion.includes('aria-label={`Select “${word}” as the named word`}') &&
+  !contextQuestionPresentation.includes("unmarked: 'unmarked'") &&
+  !contextQuestionPresentation.includes("referenceMode: 'locate-then-analyse'") &&
+  !contextualCompletion.includes('contextual-completion-token-choice') &&
+  practice.includes('presentation: contextualTargetPresentation') &&
   !phrasePractice.includes('CONTEXT_TARGET_PRESENTATION.unmarked'))
 check('word construction and spelling render one shared explicit target reference',
   contextQuestionPresentation.includes('wordProductionTargetReference') &&

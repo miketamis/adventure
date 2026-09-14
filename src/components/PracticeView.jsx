@@ -30,7 +30,6 @@ import PhrasePracticeQuestion from './PhrasePracticeQuestion.jsx'
 import ContextualCompletion, {
   CONTEXT_TARGET_PRESENTATION,
 } from './ContextualCompletion.jsx'
-import { contextualTargetSelection } from '../game/contextQuestionPresentation.js'
 import TrainingActivityShell from './TrainingActivityShell.jsx'
 import WordMatchingQuestion from './WordMatchingQuestion.jsx'
 import CefrCapstone from './CefrCapstone.jsx'
@@ -94,7 +93,6 @@ export default function PracticeView({ state, dispatch }) {
   const [wordRepair, setWordRepair] = useState(null)
   const [constructedPieceIds, setConstructedPieceIds] = useState([])
   const [formPhaseIndex, setFormPhaseIndex] = useState(0)
-  const [contextTargetLocated, setContextTargetLocated] = useState(false)
   const [showCefr, setShowCefr] = useState(false)
   const answerCommitted = useRef(false)
   const questionRef = useRef(null)
@@ -125,7 +123,6 @@ export default function PracticeView({ state, dispatch }) {
     setWordRepair(null)
     setConstructedPieceIds([])
     setFormPhaseIndex(0)
-    setContextTargetLocated(false)
     const nowMs = Date.now()
     const excludeWords = previousQuestionWords.current.length
       ? previousQuestionWords.current
@@ -473,19 +470,8 @@ export default function PracticeView({ state, dispatch }) {
     ? CONTEXT_TARGET_PRESENTATION.blank
     : q.promptProfile?.contextPresentation === CONTEXT_TARGET_PRESENTATION.namedMarked
       ? CONTEXT_TARGET_PRESENTATION.namedMarked
-      : q.promptProfile?.contextPresentation === CONTEXT_TARGET_PRESENTATION.unmarked
-        ? CONTEXT_TARGET_PRESENTATION.unmarked
-        : CONTEXT_TARGET_PRESENTATION.marked
-  const contextTargetSelectionActive = isContextualCompletion &&
-    q.targetReference?.requiresTargetIdentification === true &&
-    !contextTargetLocated
-  const contextualInstruction = contextTargetSelectionActive ? (
-    <>
-      {q.targetReference.locateInstructionPrefix}
-      <span lang="sq">“{q.targetReference.locateInstructionTarget}”</span>
-      {q.targetReference.locateInstructionSuffix}
-    </>
-  ) : q.targetReference?.instructionTarget ? (
+      : CONTEXT_TARGET_PRESENTATION.marked
+  const contextualInstruction = q.targetReference?.instructionTarget ? (
     <>
       {q.targetReference.instructionPrefix}
       <span lang="sq">“{q.targetReference.instructionTarget}”</span>
@@ -510,47 +496,6 @@ export default function PracticeView({ state, dispatch }) {
       : q.answerId
   const answered = picked !== null
   const wasCorrect = picked === correctValue
-
-  const onContextTargetSelect = (tokenIndex) => {
-    if (!contextTargetSelectionActive || answered || answerCommitted.current) return
-    const result = contextualTargetSelection(q.targetReference, tokenIndex)
-    if (!result.eligible) return
-    if (result.correct) {
-      playWord(q.ctx.target)
-      setContextTargetLocated(true)
-      window.requestAnimationFrame(() => questionRef.current?.focus())
-      return
-    }
-
-    answerCommitted.current = true
-    setPicked('__context-target-miss__')
-    const attemptedToken = q.ctx.al.split(/\s+/)[tokenIndex] || ''
-    dispatch({
-      type: 'PRACTICE_WORD_RESULT',
-      correct: false,
-      id: q.answerId,
-      tier: q.tier,
-      mode: q.mode,
-      direction: q.dir,
-      wordStageId: q.wordStageId,
-      variantId: q.variantId,
-      targetFormKey: q.targetFormKey,
-      aspectTargets: q.aspectTargets,
-      questionKey: q.questionKey,
-      wordKeys: trainQuestionWordKeys(q),
-      ...attemptTiming(),
-      consequence: trainMissConsequence({
-        source: 'train-context-target',
-        questionKey: q.questionKey,
-        attemptedAl: attemptedToken,
-        reasonCode: 'wrong-context-target',
-        reason: `“${attemptedToken}” is not the named word “${q.ctx.target}” in this sentence.`,
-        correctAl: q.ctx.target,
-        reasoning: 'First locate the exact Albanian surface named in the instruction; then analyse that marked occurrence.',
-      }),
-    })
-    setTimeout(() => nextRef.current?.(), 0)
-  }
 
   const onPick = (value) => {
     if (answered || answerCommitted.current || (q.requiresCompletedAudio && !wordAudioCompleted)) return
@@ -985,12 +930,7 @@ export default function PracticeView({ state, dispatch }) {
                 words: q.ctx.al.split(/\s+/),
                 target: {
                   indices: q.ctx.targetTokenIndices,
-                  presentation: contextTargetLocated
-                    ? CONTEXT_TARGET_PRESENTATION.marked
-                    : contextualTargetPresentation,
-                  selectable: contextTargetSelectionActive,
-                  disabled: answered || answerCommitted.current,
-                  onSelect: onContextTargetSelect,
+                  presentation: contextualTargetPresentation,
                 },
               },
               ...(q.promptProfile?.showEnglishContext === false ? [] : [{
@@ -1005,7 +945,7 @@ export default function PracticeView({ state, dispatch }) {
                 },
               }]),
             ]}
-            answers={(contextTargetSelectionActive ? [] : q.options).map((id) => ({
+            answers={q.options.map((id) => ({
               id,
               label: q.optionLabels?.[id] || senseText(id, q.field),
               lang: q.field === 'al' ? 'sq' : undefined,

@@ -337,8 +337,8 @@ function buildContextQuestion(answerId, plan, authored, excludeWords, rng, debug
     promptProfile: {
       ...promptProfile,
       // Presentation and direction are progression evidence, not a UI-level
-      // guess. In particular, a second recognition win alone cannot unmark a
-      // target before the independent Albanian-retrieval proof exists.
+      // guess. The later transfer check remains visibly marked while requiring
+      // the learner to interpret the target in a fresh reviewed situation.
       contextPresentation: plan.targetPresentation,
       direction: plan.direction,
       sourceLanguage: plan.contextVariant.sourceLanguage,

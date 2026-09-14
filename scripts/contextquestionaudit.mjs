@@ -136,20 +136,18 @@ for (const id of requiredContextIds) {
         `${id}/${question.variantId}: contextual question does not identify exactly one target`)
       assert.equal(question.targetReference?.valid, true,
         `${id}/${question.variantId}: contextual target reference is invalid`)
-      assert.ok(['visual-mark', 'named-and-marked-surface', 'locate-then-analyse', 'single-gap'].includes(question.targetReference.referenceMode),
+      assert.ok(['visual-mark', 'named-and-marked-surface', 'single-gap'].includes(question.targetReference.referenceMode),
         `${id}/${question.variantId}: contextual target has no learner-visible reference mode`)
+      if (question.promptProfile.contextPresentation === 'marked') {
+        assert.equal(question.targetReference.referenceMode, 'visual-mark')
+      }
       if (question.promptProfile.contextPresentation === 'named-marked') {
         assert.equal(question.targetReference.referenceMode, 'named-and-marked-surface')
         assert.ok(question.targetReference.instruction.includes(`“${question.ctx.target}”`),
           `${id}/${question.variantId}: named-and-marked prompt does not name its exact target`)
       }
-      if (question.promptProfile.contextPresentation === 'unmarked') {
-        assert.equal(question.targetReference.referenceMode, 'locate-then-analyse')
-        assert.equal(question.targetReference.requiresTargetIdentification, true)
-        assert.equal(question.targetReference.targetTokenIndex, question.ctx.targetTokenIndices[0])
-        assert.ok(question.targetReference.locateInstruction.includes(`“${question.ctx.target}”`),
-          `${id}/${question.variantId}: locate prompt does not name its exact target`)
-      }
+      assert.notEqual(question.promptProfile.contextPresentation, 'unmarked',
+        `${id}/${question.variantId}: the removed fake locate presentation was emitted`)
       assert.equal(question.options.length, question.dir === 'en2al' && emitted.length === 3 ? 2 : 4,
         `${id}/${question.variantId}: wrong real choice range`)
       assert.equal(new Set(Object.values(question.optionLabels)).size, question.options.length,

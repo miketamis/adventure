@@ -3,60 +3,58 @@ import { readFileSync } from 'node:fs'
 import {
   CONTEXT_TARGET_PRESENTATION,
   contextualTargetReference,
-  contextualTargetSelection,
 } from '../src/game/contextQuestionPresentation.js'
+import {
+  WORD_CONTEXT_LATE_PROOF,
+  WORD_CONTEXT_VARIANTS,
+} from '../src/game/wordProgression.js'
 
 const reference = contextualTargetReference({
   direction: 'al2en',
   targetKind: 'grammatical-function',
-  presentation: CONTEXT_TARGET_PRESENTATION.unmarked,
+  presentation: CONTEXT_TARGET_PRESENTATION.marked,
   targetSurface: 'po',
-  targetTokenIndices: [0],
+  targetTokenIndices: [1],
 })
 assert.equal(reference.valid, true)
-assert.equal(reference.referenceMode, 'locate-then-analyse')
-assert.equal(reference.requiresTargetIdentification, true)
-assert.equal(reference.targetTokenIndex, 0)
-assert.equal(reference.locateInstruction, 'First tap “po” in the Albanian sentence')
-assert.equal(reference.instruction, 'What job does “po” do here?')
+assert.equal(reference.referenceMode, 'visual-mark')
+assert.equal(reference.instruction, 'What job does the marked word do here?')
+assert.equal(reference.answerGroupLabel, 'Choose the marked word’s grammatical job')
 
-const correctLocate = contextualTargetSelection(reference, 0)
-assert.deepEqual(correctLocate, {
-  eligible: true,
-  correct: true,
-  revealAnalysis: true,
-  completesActivity: false,
-  recordsSuccessfulEvidence: false,
-  expectedTokenIndex: 0,
-})
-const wrongLocate = contextualTargetSelection(reference, 2)
-assert.equal(wrongLocate.correct, false)
-assert.equal(wrongLocate.revealAnalysis, false)
-assert.equal(wrongLocate.completesActivity, true)
-assert.equal(wrongLocate.recordsSuccessfulEvidence, false)
+const lateVariant = WORD_CONTEXT_VARIANTS.find(({ id }) => id === WORD_CONTEXT_LATE_PROOF)
+assert.ok(lateVariant, 'the persisted late contextual proof ID disappeared')
+assert.equal(lateVariant.targetPresentation, CONTEXT_TARGET_PRESENTATION.marked)
+assert.match(lateVariant.label, /marked context .* transfer check/i)
 
 const ambiguous = contextualTargetReference({
   direction: 'al2en',
-  presentation: CONTEXT_TARGET_PRESENTATION.unmarked,
+  presentation: CONTEXT_TARGET_PRESENTATION.marked,
   targetSurface: 'po',
   targetTokenIndices: [0, 3],
 })
-assert.equal(ambiguous.valid, false, 'an ambiguous unmarked surface did not fail closed')
-assert.equal(contextualTargetSelection(ambiguous, 0).eligible, false)
+assert.equal(ambiguous.valid, false, 'an ambiguous marked surface did not fail closed')
+assert.equal(contextualTargetReference({
+  direction: 'al2en',
+  presentation: 'unmarked',
+  targetSurface: 'po',
+  targetTokenIndices: [0],
+}).valid, false, 'the removed fake locate presentation is still accepted')
 
 const practice = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
 const completion = readFileSync(new URL('../src/components/ContextualCompletion.jsx', import.meta.url), 'utf8')
-const styles = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
-assert.match(practice, /const \[contextTargetLocated, setContextTargetLocated\] = useState\(false\)/)
-assert.match(practice, /const result = contextualTargetSelection\(q\.targetReference, tokenIndex\)/)
-assert.match(practice, /if \(result\.correct\) \{[\s\S]*setContextTargetLocated\(true\)[\s\S]*return[\s\S]*type: 'PRACTICE_WORD_RESULT'/,
-  'the successful locate phase is not separated from the final evidence dispatch')
-assert.match(practice, /answers=\{\(contextTargetSelectionActive \? \[\] : q\.options\)/,
-  'analysis choices are visible before the target is located')
-assert.match(practice, /presentation: contextTargetLocated[\s\S]*CONTEXT_TARGET_PRESENTATION\.marked/,
-  'the located occurrence does not receive the shared green target treatment')
-assert.match(completion, /className="contextual-completion-token-choice"/)
-assert.match(completion, /onClick=\{\(\) => target\.onSelect\(index\)\}/)
-assert.match(styles, /\.contextual-completion-token-choice:focus-visible/)
+const presentation = readFileSync(new URL('../src/game/contextQuestionPresentation.js', import.meta.url), 'utf8')
+const progression = readFileSync(new URL('../src/game/wordProgression.js', import.meta.url), 'utf8')
+const examples = readFileSync(new URL('../src/game/trainingExampleRegistry.js', import.meta.url), 'utf8')
 
-console.log('✓ unmarked context questions name one exact Albanian surface, require a keyboard-accessible locate phase, reveal marked analysis only after the correct tap, and award no successful evidence before final analysis.')
+for (const [label, source] of Object.entries({ practice, completion, presentation, progression, examples })) {
+  assert.doesNotMatch(source, /First tap\s+[“"']/i, `${label} restored a fake named locate step`)
+  assert.doesNotMatch(source, /locateInstruction|requiresTargetIdentification|locate-then-analyse/,
+    `${label} retained dead locate-step state`)
+}
+assert.match(practice, /presentation: contextualTargetPresentation/)
+assert.match(practice, /answers=\{q\.options\.map/)
+assert.doesNotMatch(practice, /contextTargetLocated|onContextTargetSelect|contextualTargetSelection/)
+assert.match(completion, /<mark className="contextual-completion-target"/)
+assert.doesNotMatch(completion, /contextual-completion-token-choice|target\.onSelect/)
+
+console.log('✓ contextual Train questions ask the real marked-target question directly; fake named locate phases are rejected and the late proof keeps its persisted ID.')
