@@ -241,6 +241,7 @@ assert.equal(
 const practiceUi = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
 const refresherUi = readFileSync(new URL('../src/components/NounEndingRefresher.jsx', import.meta.url), 'utf8')
 const appUi = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
+const heartModalUi = readFileSync(new URL('../src/components/HeartConsequenceModal.jsx', import.meta.url), 'utf8')
 const refresherLogic = readFileSync(new URL('../src/game/nounEndingRefresher.js', import.meta.url), 'utf8')
 const refresherMarkupStart = refresherUi.indexOf('className="noun-ending-refresher consequence-refresher"')
 const refresherMarkupEnd = refresherUi.lastIndexOf('\n}')
@@ -261,7 +262,8 @@ assert.match(
   'wrong noun forms in phrase production do not enter the shared blocking refresher',
 )
 assert.ok(!practiceUi.includes('formsCorrection'), 'a second standalone noun correction screen still follows the blocking miss')
-assert.ok(appUi.includes('<NounEndingRefresher'), 'the blocking miss does not render the shared quick refresher')
+assert.ok(appUi.includes('<HeartConsequenceModal'), 'the app does not render the shared blocking consequence surface')
+assert.ok(heartModalUi.includes('<NounEndingRefresher'), 'the blocking miss does not render the shared quick refresher')
 
 assert.equal(buildNounEndingRefresher('vajze', 'invented form'), null)
 assert.equal(buildNounEndingRefresher('not-a-noun', 'vajzën'), null)

@@ -262,6 +262,7 @@ check('source inventory has no player decrement outside the shared wrappers', ()
   const story = source('src/components/StoryView.jsx')
   const comprehension = source('src/components/ComprehensionTest.jsx')
   const app = source('src/App.jsx')
+  const heartModal = source('src/components/HeartConsequenceModal.jsx')
 
   const rawReducerDecrements = [...gameState.matchAll(/Math\.max\(0,\s*state\.hearts\s*-\s*1\)/g)]
   assert.equal(rawReducerDecrements.length, 1, 'a new raw reducer decrement bypasses the shared contract')
@@ -282,10 +283,15 @@ check('source inventory has no player decrement outside the shared wrappers', ()
   assert.match(story, /consequence: storyConfuserConsequence/)
   assert.match(comprehension, /onDone\(false, comprehensionMissConsequence/)
   assert.match(app, /state\.pendingHeartConsequence/)
-  assert.match(app, /Why the heart was lost/)
-  assert.match(app, /Practice miss — no heart lost/)
-  assert.match(app, /Why the answer was wrong/)
-  assert.match(app, /\? 'Continue training'[\s\S]+: 'Return to game'/)
+  assert.match(app, /const HeartConsequenceModal = lazy\(/)
+  assert.match(heartModal, /Why the heart was lost/)
+  assert.match(heartModal, /Practice miss — no heart lost/)
+  assert.match(heartModal, /Why the answer was wrong/)
+  assert.match(
+    heartModal,
+    /isTrain\s*\?\s*'Continue training'\s*:\s*'Return to game'/,
+    'the blocking acknowledgement does not return Train misses to training and story misses to the game',
+  )
   assert.match(app, /inert=\{blockingOverlay/)
 })
 

@@ -12,7 +12,6 @@ import { isMuted, toggleMute, subscribeMute } from './game/audio.js'
 import { ACHIEVEMENT_IDS } from './game/achievementRules.js'
 import { STORY } from './game/content.js'
 import { attachReviewedEnglishReadings } from './game/language.js'
-import { TRAIN_HEALTH_POLICY } from './game/trainHealthPolicy.js'
 import ReleaseErrorBoundary from './components/ReleaseErrorBoundary.jsx'
 import BlockingModal from './components/BlockingModal.jsx'
 
@@ -34,7 +33,7 @@ const MiniMap = lazy(() => import('./components/MiniMap.jsx'))
 const TimePassage = lazy(() => import('./components/TimePassage.jsx'))
 const EmbodimentConfirm = lazy(() => import('./components/EmbodimentConfirm.jsx'))
 const ActionKaraoke = lazy(() => import('./components/ActionKaraoke.jsx'))
-const NounEndingRefresher = lazy(() => import('./components/NounEndingRefresher.jsx'))
+const HeartConsequenceModal = lazy(() => import('./components/HeartConsequenceModal.jsx'))
 const BUILD_COMMIT = __BUILD_COMMIT__
 const SPOKEN_ACTION_TYPES = ['CHOOSE', 'CONFUSE', 'USE_ITEM', 'HEAL', 'CONFIRM_EMBODIMENT']
 
@@ -327,94 +326,15 @@ export default function App() {
       )}
 
       {state.pendingHeartConsequence && (
-        <BlockingModal
-          id="heart-consequence-title"
-          title={state.pendingHeartConsequence.protected
-            ? '🛡 Practice miss — no heart lost'
-            : state.pendingHeartConsequence.loss === 1
-              ? '💔 You lost one heart'
-              : `💔 You lost ${state.pendingHeartConsequence.loss} hearts`}
-          className={`heart-consequence ${state.pendingHeartConsequence.grammar?.rows?.length ? 'has-ending-refresher' : ''}`}
-          onDismiss={() => dispatch({
-            type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
-            eventId: state.pendingHeartConsequence.eventId,
-          })}
-          actions={(
-            <button
-              className="btn primary"
-              onClick={() => dispatch({
-                type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
-                eventId: state.pendingHeartConsequence.eventId,
-              })}
-            >
-              {state.pendingHeartConsequence.source.startsWith('train-')
-                ? 'Continue training'
-                : 'Return to game'}
-            </button>
-          )}
-        >
-          {state.pendingHeartConsequence.grammar?.rows?.length ? (
-            <Suspense fallback={<div className="heart-consequence-section" role="status">Opening the ending refresher…</div>}>
-              <NounEndingRefresher
-                guide={state.pendingHeartConsequence.grammar}
-                attempted={state.pendingHeartConsequence.attempted}
-                correction={state.pendingHeartConsequence.correction}
-                reason={state.pendingHeartConsequence.reason.text}
-                reasoning={state.pendingHeartConsequence.reasoning}
-              />
-            </Suspense>
-          ) : (
-            <>
-              <div className="heart-consequence-section">
-                <h3>Your attempt</h3>
-                {state.pendingHeartConsequence.attempted.al && (
-                  <p className="heart-consequence-al" lang="sq">{state.pendingHeartConsequence.attempted.al}</p>
-                )}
-                {state.pendingHeartConsequence.attempted.en && (
-                  <p>{state.pendingHeartConsequence.attempted.en}</p>
-                )}
-              </div>
-              <div className="heart-consequence-section">
-                <h3>{state.pendingHeartConsequence.protected ? 'Why the answer was wrong' : 'Why the heart was lost'}</h3>
-                <p>{state.pendingHeartConsequence.reason.text}</p>
-              </div>
-              {(state.pendingHeartConsequence.correction || state.pendingHeartConsequence.reasoning) && (
-                <div className="heart-consequence-section correction">
-                  <h3>{state.pendingHeartConsequence.correction ? 'What fits here' : 'What to notice'}</h3>
-                  {state.pendingHeartConsequence.correction?.al && (
-                    <p className="heart-consequence-al" lang="sq">{state.pendingHeartConsequence.correction.al}</p>
-                  )}
-                  {state.pendingHeartConsequence.correction?.en && (
-                    <p>{state.pendingHeartConsequence.correction.en}</p>
-                  )}
-                  {state.pendingHeartConsequence.reasoning && (
-                    <p>{state.pendingHeartConsequence.reasoning}</p>
-                  )}
-                </div>
-              )}
-              {state.pendingHeartConsequence.grammar && (
-                <div className="heart-consequence-section grammar">
-                  <h3>Ending pattern to reuse</h3>
-                  {state.pendingHeartConsequence.grammar.target?.al && (
-                    <p className="heart-consequence-al" lang="sq">
-                      {state.pendingHeartConsequence.grammar.target.al}
-                      {state.pendingHeartConsequence.grammar.target.en
-                        ? ` — ${state.pendingHeartConsequence.grammar.target.en}`
-                        : ''}
-                    </p>
-                  )}
-                  <p>{state.pendingHeartConsequence.grammar.pattern}</p>
-                </div>
-              )}
-            </>
-          )}
-          {state.pendingHeartConsequence.source.startsWith('train-') && (
-            <div className="heart-consequence-section train-combo-reset">
-              <h3>Correct combo reset</h3>
-              <p>0/{TRAIN_HEALTH_POLICY.recoveryCorrectCompletions} · Build a new correct-answer combo to restore a heart.</p>
-            </div>
-          )}
-        </BlockingModal>
+        <Suspense fallback={<div className="blocking-modal-overlay" aria-hidden="true" />}>
+          <HeartConsequenceModal
+            consequence={state.pendingHeartConsequence}
+            onDismiss={() => dispatch({
+              type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
+              eventId: state.pendingHeartConsequence.eventId,
+            })}
+          />
+        </Suspense>
       )}
 
       {state.hearts <= 0 && !state.pendingHeartConsequence && !state.timePassage && !state.pendingEmbodiment && (
