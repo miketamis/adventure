@@ -8,7 +8,7 @@
 // add every surface as a separate dictionary card.
 
 export const TOP_1000_EXISTING_FORMS = {
-  bej: 'bësh bëjë bëni bëra bëje bënte',
+  bej: 'bësh bëjë bëra bëje bënte',
   thote: 'thënë thoni thoja thash thanë thoshte themi them',
   vete: 'veten',
   eshte: 'jesh jem qoftë qenka',
@@ -28,14 +28,14 @@ export const TOP_1000_EXISTING_FORMS = {
   dikush: 'dikë',
   ke: 'kesh',
   kujtoj: 'kujtohet',
-  merr: 'marrim merrni mora',
+  merr: 'marrim mora',
   tuaj: 'tuaja',
   ata: 'atyre',
   gjej: 'gjejmë gjesh gjeni',
   mallko: 'mallkuar',
   ane: 'ana',
   le: 'lëre',
-  mban: 'mbaje mbajtur mbani',
+  mban: 'mbajtur mbani',
   kerko: 'kërkuar',
   dil: 'dalë dal dalim doli dalësh',
   cili: 'cilën cilin cilat cilët',

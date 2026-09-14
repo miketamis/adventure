@@ -17,18 +17,18 @@ export const PROMISED_MAIDEN_APPEARANCE = portrait({
 
 export const BLACK_PALACE_QUEEN_APPEARANCE = portrait({
   npcId: 'mbretereshaZeze', nodeId: 'pallatiZi',
-  details: ['clothing', 'location', 'face', 'condition'],
-  practicalWordIds: ['mbreteresha', 'rroba', 'zi', 'dritare', 'fytyre', 'lodhur'],
+  details: ['clothing', 'location', 'face', 'condition', 'posture'],
+  practicalWordIds: ['mbreteresha', 'shami', 'zi', 'dere', 'mbyllur', 'fytyre', 'lodhur'],
   placement: { kind: 'insert-after', lineIndex: 0 },
-  portraitLines: [{ line: R('Inside, a queen in black clothes sits beside the window; her face is tired.', w('brenda'), p(','), w('nje'), w('mbreteresha'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza', 'black'), w('rri'), w('prane'), w('dritare', 'dritares'), p(';'), w('fytyre', 'fytyra'), w('e_link'), w('saj'), w('eshte'), w('e_art'), w('lodhur'), p('.')) }],
+  portraitLines: [{ line: R('Inside, the queen sits beside a locked door with a black headscarf drawn across her tired face.', w('brenda'), p(','), w('mbreteresha', 'mbretëresha'), w('rri'), w('prane'), w('nje'), w('dere'), w('te_link'), w('mbyllur'), p(','), w('me'), w('nje'), w('shami'), w('te_link'), w('zi', 'zezë', 'black'), w('mbi'), w('fytyre', 'fytyrën'), w('e_link'), w('saj'), w('te_link'), w('lodhur'), p('.')) }],
 })
 
 export const SUN_HOUSE_KULSHEDRA_APPEARANCE = portrait({
   npcId: 'kulshedraDiellit', nodeId: 'diellShtepi1',
-  details: ['build', 'colour', 'face'],
-  practicalWordIds: ['kulshedra', 'madh', 'zi', 'goje'],
+  details: ['build', 'colour', 'face', 'posture', 'location'],
+  practicalWordIds: ['kulshedra', 'madh', 'zi', 'goje', 'prag', 'vajze'],
   placement: { kind: 'replace', lineIndex: 2 },
-  portraitLines: [{ line: R('The great black Kulshedra waits at the threshold; she has a large mouth.', w('kulshedra', 'Kulshedra'), w('e_art'), w('madh', 'madhe'), w('dhe'), w('e_art'), w('zi', 'zezë', 'black'), w('rri'), w('tek'), w('prag', 'pragu'), p(';'), w('ajo'), w('ka'), w('nje'), w('goje'), w('te_link'), w('madh', 'madhe'), p('.')) }],
+  portraitLines: [{ line: R('The great black Kulshedra stands at the threshold, her mouth open toward the girl.', w('kulshedra', 'Kulshedra'), w('e_art'), w('madh', 'madhe'), w('dhe'), w('e_art'), w('zi', 'zezë', 'black'), w('rri'), w('tek'), w('prag', 'pragu'), w('me'), w('goje', 'gojën'), w('hapur'), w('drejt'), w('vajze', 'vajzës'), p('.')) }],
 })
 
 export const SUN_ROAD_STAG_APPEARANCE = portrait({

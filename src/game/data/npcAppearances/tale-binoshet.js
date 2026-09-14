@@ -15,9 +15,9 @@ export const HANDA_APPEARANCE = portrait({
 })
 
 export const HUT_ELDER_APPEARANCE = portrait({
-  npcId: 'plakuKasolles', nodeId: 'binoshetKasollja', details: ['age', 'hair', 'carried-object'],
-  practicalWordIds: ['plak', 'mjeker', 'bardhe', 'shkop'], placement: { kind: 'replace', lineIndex: 3 },
-  portraitLines: [{ line: R('An old man with a white beard leans on a staff and warns you to turn back.', w('nje'), w('plak'), w('me'), w('mjeker'), w('te_link'), w('bardhe'), w('rri'), w('mbi'), w('nje'), w('shkop'), w('dhe'), w('te_obj'), w('thote'), p(':'), w('kthehu'), p('.')) }],
+  npcId: 'plakuKasolles', nodeId: 'binoshetKasollja', details: ['age', 'carried-object', 'posture', 'location'],
+  practicalWordIds: ['plak', 'shkop', 'gjate', 'uje'], placement: { kind: 'replace', lineIndex: 3 },
+  portraitLines: [{ line: R('Beside the water, an old man holds a long staff before you and says, “Turn back.”', w('prane'), w('uje', 'ujit'), p(','), w('nje'), w('plak'), w('mban'), w('nje'), w('shkop'), w('te_link'), w('gjate'), w('para'), w('ti', 'teje'), w('dhe'), w('te_obj'), w('thote'), p(':'), w('kthehu'), p('.')) }],
 })
 
 export const HEDGE_CRONE_APPEARANCE = portrait({

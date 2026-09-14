@@ -903,4 +903,9 @@ export const EARLY_READINGS = {
   "sofraMikut2.text[23]": { al: "Elira thotë: kjo është e tmerrshme. në këtë rast, pyet plakën më parë: a mund të hyj? pastaj ata të pyesin: çfarë mendon? ki kujdes!", en: "Elira says, “This is terrible. In this case, ask the old woman first: may I enter?” Then they ask, “What do you think? Be careful!”" },
   "siperfaqja.text[6]": { al: "Bota ka ndryshuar: tani ka ujë.", en: "The world has changed: now it has water." },
   "start.text[2]": { al: "dje ra shi; ura është ende e lagur.", en: "It rained yesterday; the bridge is still wet." },
+  "eliraBiseda.text[0]": { al: "Gruaja ndalon pranë teje dhe të dëgjon.", en: "The woman pauses beside you and listens." },
+  "eliraBiseda.text[2]": { al: "ajo thotë: jam mirë, por kam shumë punë sot.", en: "She says, “I am well, but I have a lot of work today.”" },
+  "eliraBiseda.text[1]": { al: "Elira ndalon pranë teje dhe të dëgjon.", en: "Elira pauses beside you and listens." },
+  "eliraBiseda.text[3]": { al: "ajo thotë: po bëj gati darkën.", en: "She says, “I am getting dinner ready.”" },
+  "eliraBiseda.text[4]": { al: "ajo thotë: jam këtu çdo mëngjes.", en: "She says, “I am here every morning.”" },
 }

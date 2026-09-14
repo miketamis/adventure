@@ -11,9 +11,9 @@ export const ARNAUT_OSMANI_APPEARANCE = portrait({
 
 export const SOKOL_HALILI_APPEARANCE = portrait({
   npcId: 'sokolHalili', nodeId: 'haliliDeka',
-  details: ['age', 'clothing', 'carried-object'], practicalWordIds: ['ri', 'plis', 'bardhe', 'shpate'],
+  details: ['age', 'clothing', 'carried-object', 'movement'], practicalWordIds: ['ri', 'plis', 'bardhe', 'shpate', 'koke'],
   placement: { kind: 'replace', lineIndex: 0 },
-  portraitLines: [{ line: R('You are young Halili in Jutbina, with a white felt cap and a sword in your hand.', w('ti'), w('je'), w('halil', 'Halili'), w('i_art'), w('ri'), w('ne'), w('jutbina'), p(','), w('me'), w('nje'), w('plis'), w('te_link'), w('bardhe'), w('dhe'), w('nje'), w('shpate'), w('ne'), w('dore'), p('.')) }],
+  portraitLines: [{ line: R('You are young Halili in Jutbina; you wear a white felt cap on your head and hold a sword as Osmani approaches.', w('ti'), w('je'), w('halil', 'Halili'), w('i_art'), w('ri'), w('ne'), w('jutbina'), p(';'), w('mban'), w('nje'), w('plis'), w('te_link'), w('bardhe'), w('ne'), w('koke'), w('dhe'), w('nje'), w('shpate'), w('ne'), w('dore'), w('kur'), w('osman', 'Osmani'), w('vjen'), p('.')) }],
 })
 
 export default Object.freeze({ arnautOsmani: ARNAUT_OSMANI_APPEARANCE, sokolHalili: SOKOL_HALILI_APPEARANCE })

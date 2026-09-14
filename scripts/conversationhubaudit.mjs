@@ -76,6 +76,37 @@ for (const hub of Object.values(CONVERSATION_HUBS)) {
     `${hub.id}: conversation opens with ${openingLines.length} lines before the player asks anything`)
 }
 
+// The first-village conversation sweep gives each recurring neighbour a
+// player-led, same-place exchange instead of using them only as quest or shop
+// interfaces. Keep the exact topic inventory reviewed: changing it is an
+// editorial language change, not a silent data-count increase.
+const VILLAGE_CONVERSATION_TOPICS = {
+  'elira-neighbour': ['today', 'work', 'availability'],
+  'spring-girl': ['water', 'routine', 'village'],
+  'forest-guest': ['cold', 'destination', 'alone'],
+  'square-elder': ['well', 'water', 'help'],
+  'village-shepherd': ['goats', 'help', 'return'],
+  'gjakova-trader': ['cheaper', 'road', 'opening'],
+  'gjakova-healer': ['return', 'work', 'bandage'],
+  'gjakova-innkeeper': ['hotWater', 'breakfast', 'bag'],
+  'rain-children': ['activity', 'join', 'reason'],
+  'village-wedding': ['start', 'bride', 'dance'],
+}
+for (const [hubId, questionIds] of Object.entries(VILLAGE_CONVERSATION_TOPICS)) {
+  const hub = CONVERSATION_HUBS[hubId]
+  assert.ok(hub, `${hubId}: reviewed village conversation was removed`)
+  assert.deepEqual(Object.keys(hub.questions), questionIds,
+    `${hubId}: reviewed village topics changed without editorial review`)
+  assert.ok(Object.entries(STORY).some(([sourceId, node]) =>
+    sourceId !== hub.nodeId && node.options.some((option) => option.to === hub.nodeId)),
+  `${hubId}: conversation exists but is unreachable from ordinary play`)
+  const questions = STORY[hub.nodeId].options.filter((option) =>
+    option.conversationHub?.hubId === hubId && option.conversationHub.kind === 'question')
+  assert.ok(questions.every((option) =>
+    option.intent === 'speech' && JSON.stringify(option.playerIntents) === JSON.stringify(['speech'])),
+  `${hubId}: a topic is not exactly one player-owned speech intention`)
+}
+
 // Pin the water-carrier migration that established the contract.
 const waterHub = CONVERSATION_HUBS['water-carrier-bank']
 assert.ok(waterHub, 'water-carrier conversation was removed from the shared hub registry')

@@ -41,21 +41,21 @@ export const YOUNGEST_BROTHER_APPEARANCE = portrait({
 
 export const ELDEST_WIFE_APPEARANCE = portrait({
   npcId: 'gruaMadhe', nodeId: 'kalaMengjes',
-  details: ['clothing', 'colour', 'condition'],
-  practicalWordIds: ['grua', 'vella', 'shami', 'bardhe', 'fytyre', 'lodhur'],
+  details: ['condition', 'posture', 'location'],
+  practicalWordIds: ['grua', 'vella', 'shtrihet', 'shtrat', 'eshte', 'semure'],
   placement: inMorningHouse,
   portraitLines: [
-    { line: R('The eldest brother’s wife has a white headscarf and a tired face.', w('grua', 'gruaja', 'the woman'), w('e_link'), w('vella', 'vëllait', 'the brother'), w('te_link'), w('madh'), w('ka'), w('nje'), w('shami'), w('te_link'), w('bardhe'), w('dhe'), w('nje'), w('fytyre'), w('te_link'), w('lodhur'), p('.')) },
+    { line: R('The eldest brother’s wife lies down in bed and says that she is ill.', w('grua', 'gruaja', 'the woman'), w('e_link'), w('vella', 'vëllait', 'the brother'), w('te_link'), w('madh'), w('shtrihet'), w('ne', 'në', 'in'), w('shtrat'), w('dhe'), w('thote'), w('se'), w('eshte'), w('e_art'), w('semure', 'sëmurë'), p('.')) },
   ],
 })
 
 export const MIDDLE_WIFE_APPEARANCE = portrait({
   npcId: 'gruaMesit', nodeId: 'kalaMengjes',
-  details: ['carried-object', 'posture', 'clothing'],
-  practicalWordIds: ['grua', 'shporte', 'rroba', 'paster', 'dere'],
+  details: ['carried-object', 'posture', 'location'],
+  practicalWordIds: ['grua', 'shporte', 'dere', 'sheh', 'rruge', 'drejt', 'prind'],
   placement: inMorningHouse,
   portraitLines: [
-    { line: R('The other wife, in clean clothes, holds a basket beside the door.', w('grua', 'gruaja', 'the woman'), w('tjeter'), p(','), w('me'), w('rroba'), w('te_link'), w('paster', 'pastra', 'clean'), p(','), w('mban'), w('nje'), w('shporte'), w('prane'), w('dere', 'derës', 'the door'), p('.')) },
+    { line: R('The other wife holds her basket by the door and watches the road toward her parents.', w('grua', 'gruaja', 'the woman'), w('tjeter'), w('mban'), w('shporte', 'shportën'), w('prane'), w('dere', 'derës', 'the door'), w('dhe'), w('sheh'), w('rruge', 'rrugën'), w('drejt'), w('prind', 'prindërve'), p('.')) },
   ],
 })
 
@@ -71,21 +71,21 @@ export const BROTHERS_MOTHER_APPEARANCE = portrait({
 
 export const ROZAFA_SON_APPEARANCE = portrait({
   npcId: 'djaliRozafes', nodeId: 'kalaNgjitje',
-  details: ['age', 'posture', 'memorable-feature'],
-  practicalWordIds: ['femije', 'vogel', 'djep', 'nene'],
+  details: ['age', 'posture', 'location'],
+  practicalWordIds: ['femije', 'vogel', 'fle', 'djep', 'gji', 'nene'],
   placement: { kind: 'insert-after', lineIndex: 2 },
   portraitLines: [
-    { line: R('The small child sleeps in a cradle beside his mother.', w('femije', 'fëmija', 'the child'), w('i_art'), w('vogel'), w('fle'), w('ne', 'në', 'in'), w('nje'), w('djep'), w('prane'), w('nene', 'nënës', 'the mother'), p('.')) },
+    { line: R('The small child sleeps in the cradle, close to his mother’s breast.', w('femije', 'fëmija', 'the child'), w('i_art'), w('vogel'), w('fle'), w('ne', 'në', 'in'), w('djep', 'djepin'), p(','), w('prane'), w('gji', 'gjirit'), w('te_link'), w('nene', 'nënës', 'the mother'), p('.')) },
   ],
 })
 
 export const CASTLE_OLD_MAN_APPEARANCE = portrait({
   npcId: 'plakuKalase', nodeId: 'kalaMjegull',
-  details: ['face', 'colour', 'carried-object'],
-  practicalWordIds: ['plak', 'mjeker', 'bardhe', 'shkop', 'mur'],
+  details: ['face', 'colour', 'carried-object', 'movement'],
+  practicalWordIds: ['mjegull', 'vjen', 'plak', 'mjeker', 'bardhe', 'shkop', 'mur'],
   placement: { kind: 'insert-after', lineIndex: 11 },
   portraitLines: [
-    { line: R('An old man with a white beard holds a staff and watches the wall.', w('nje'), w('plak'), w('me'), w('mjeker'), w('te_link'), w('bardhe'), w('mban'), w('nje'), w('shkop'), w('dhe'), w('sheh'), w('mur', 'murin', 'the wall'), p('.')) },
+    { line: R('From the mist comes an old man with a white beard; he holds his staff beside the wall.', w('nga', 'Nga', 'from'), w('mjegull', 'mjegulla', 'the mist'), w('vjen'), w('nje'), w('plak'), w('me'), w('mjeker'), w('te_link'), w('bardhe'), p(';'), w('mban'), w('shkop', 'shkopin'), w('prane'), w('mur', 'murit', 'the wall'), p('.')) },
   ],
 })
 

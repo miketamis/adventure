@@ -12,12 +12,12 @@ export const ELIRA_APPEARANCE = portrait({
   // Elira's opening approach is authored before her one-shot walking route is
   // started, so the scene itself—not route position—owns her presence here.
   presence: 'authored',
-  details: ['hair', 'clothing', 'colour'],
-  practicalWordIds: ['flok', 'rroba', 'zi', 'kuq'],
+  details: ['movement', 'carried-object', 'colour'],
+  practicalWordIds: ['ec', 'shpejt', 'cante', 'kuq', 'krah_arm'],
   placement: { kind: 'insert-after', lineIndex: 1 },
   portraitLines: [
-    { known: false, excluded: 'flag:eliraDeparted', line: R('The woman approaching from the village has black hair and red clothes.', w('grua', 'gruaja', 'the woman'), w('qe'), w('vjen'), w('nga'), w('fshat'), w('ka'), w('flok'), w('te_link'), w('zi', 'zeza', 'black'), w('dhe'), w('rroba'), w('te_link'), w('kuq', 'kuqe', 'red'), p('.')) },
-    { known: true, excluded: 'flag:eliraDeparted', line: R('Elira, approaching from the village, has black hair and red clothes.', w('elira'), p(','), w('qe'), w('vjen'), w('nga'), w('fshat'), p(','), w('ka'), w('flok'), w('te_link'), w('zi', 'zeza', 'black'), w('dhe'), w('rroba'), w('te_link'), w('kuq', 'kuqe', 'red'), p('.')) },
+    { known: false, excluded: 'flag:eliraDeparted', line: R('The woman coming from the village walks quickly across the bridge, with a red bag on her arm.', w('grua', 'gruaja', 'the woman'), w('qe'), w('vjen'), w('nga'), w('fshat', 'fshati'), w('ec', 'ecën'), w('shpejt'), w('mbi'), w('ure', 'urë'), p(','), w('me'), w('nje'), w('cante'), w('te_link'), w('kuq', 'kuqe', 'red'), w('ne'), w('krah_arm'), p('.')) },
+    { known: true, excluded: 'flag:eliraDeparted', line: R('Elira, coming from the village, walks quickly across the bridge, with a red bag on her arm.', w('elira'), p(','), w('qe'), w('vjen'), w('nga'), w('fshat', 'fshati'), p(','), w('ec', 'ecën'), w('shpejt'), w('mbi'), w('ure', 'urë'), p(','), w('me'), w('nje'), w('cante'), w('te_link'), w('kuq', 'kuqe', 'red'), w('ne'), w('krah_arm'), p('.')) },
   ],
 })
 
@@ -68,22 +68,22 @@ export const FOREST_CRONE_APPEARANCE = portrait({
 export const SQUARE_ELDER_APPEARANCE = portrait({
   npcId: 'plakuSheshit', nodeId: 'fshatiSheshi',
   presence: 'runtime',
-  details: ['hair', 'carried-object', 'posture'],
-  practicalWordIds: ['mjeker', 'bardhe', 'shkop', 'dore'],
+  details: ['hair', 'carried-object', 'posture', 'location'],
+  practicalWordIds: ['mjeker', 'bardhe', 'shkop', 'pus', 'thate'],
   placement: { kind: 'replace', lineIndex: 20 },
   portraitLines: [
-    { line: R('An old man with a white beard leans on a long staff and watches you.', w('nje'), w('plak'), w('me'), w('mjeker'), w('te_link'), w('bardhe'), w('mban'), w('nje'), w('shkop'), w('te_link'), w('gjate'), w('ne', 'në', 'in'), w('dore'), w('dhe'), w('te_obj'), w('sheh'), p('.')) },
+    { line: R('An old man with a white beard holds a long staff and watches the dry well.', w('nje'), w('plak'), w('me'), w('mjeker'), w('te_link'), w('bardhe'), w('mban'), w('nje'), w('shkop'), w('te_link'), w('gjate'), w('dhe'), w('sheh'), w('pus', 'pusin'), w('e_art'), w('thate'), p('.')) },
   ],
 })
 
 export const SHEPHERD_APPEARANCE = portrait({
   npcId: 'bari', nodeId: 'bariu',
   presence: 'runtime',
-  details: ['clothing', 'carried-object', 'work-marks'],
-  practicalWordIds: ['rroba', 'vjeter', 'shkop', 'dhi'],
+  details: ['voice', 'carried-object', 'work-marks'],
+  practicalWordIds: ['fishkellen', 'dhi', 'shkop', 'kepuce', 'balte'],
   placement: { kind: 'replace', lineIndex: 0 },
   portraitLines: [
-    { line: R('The shepherd wears old clothes and carries a long staff among the goats.', w('bari', 'bariu', 'the shepherd'), w('vesh'), w('rroba'), w('te_link'), w('vjeter', 'vjetra', 'old'), w('dhe'), w('mban'), w('nje'), w('shkop'), w('te_link'), w('gjate'), w('mes'), w('dhi', 'dhive', 'the goats'), p('.')) },
+    { line: R('The shepherd whistles among the goats and carries a long staff; his shoes are muddy.', w('bari', 'bariu', 'the shepherd'), w('fishkellen'), w('mes'), w('dhi', 'dhive', 'the goats'), w('dhe'), w('mban'), w('nje'), w('shkop'), w('te_link'), w('gjate'), p(';'), w('kepuce', 'këpucët'), w('e_link'), w('tij'), w('ka', 'kanë'), w('balte'), p('.')) },
   ],
 })
 
@@ -109,31 +109,31 @@ export const AGA_YMER_APPEARANCE = portrait({
 
 export const TRADER_APPEARANCE = portrait({
   npcId: 'tregtari', nodeId: 'tregtari',
-  details: ['clothing', 'carried-object', 'hands'],
-  practicalWordIds: ['rroba', 'paster', 'cante', 'para_money'],
+  details: ['carried-object', 'hands', 'work-marks'],
+  practicalWordIds: ['buke', 'kripe', 'cante', 'para_money', 'dore'],
   placement: { kind: 'replace', lineIndex: 0 },
   portraitLines: [
-    { line: R('The trader, in clean clothes with a money bag in his hand, says:', w('tregtar', 'tregtari', 'the trader'), p(','), w('me'), w('rroba'), w('te_link'), w('paster', 'pastra', 'clean'), w('dhe'), w('nje'), w('cante'), w('me'), w('para_money'), w('ne', 'në', 'in'), w('dore'), p(','), w('thote'), p(':')) },
+    { line: R('The trader holds bread and salt in one hand and a money bag in the other, then says:', w('tregtar', 'tregtari', 'the trader'), w('mban'), w('buke'), w('dhe'), w('kripe'), w('ne', 'në', 'in'), w('nje'), w('dore'), w('dhe'), w('nje'), w('cante'), w('me'), w('para_money'), w('ne', 'në', 'in'), w('dore', 'dorën'), w('tjeter', 'tjetër'), p(','), w('pastaj'), w('thote'), p(':')) },
   ],
 })
 
 export const HEALER_APPEARANCE = portrait({
   npcId: 'sheruesi', nodeId: 'sheruesi',
-  details: ['clothing', 'carried-object', 'hands'],
-  practicalWordIds: ['kemishe', 'paster', 'fashe', 'dore'],
+  details: ['carried-object', 'hands', 'work-marks'],
+  practicalWordIds: ['sherues', 'lidh', 'fashe', 'paster', 'krah_arm', 'udhetar'],
   placement: { kind: 'replace', lineIndex: 0 },
   portraitLines: [
-    { line: R('The healer, in a clean white shirt with a bandage in his hand, says:', w('sherues', 'shëruesi', 'the healer'), p(','), w('me'), w('nje'), w('kemishe', 'këmishë', 'shirt'), w('te_link'), w('bardhe'), w('dhe'), w('te_link'), w('paster'), w('me'), w('nje'), w('fashe'), w('ne', 'në', 'in'), w('dore'), p(','), w('thote'), p(':')) },
+    { line: R("The healer binds a clean bandage around a traveller's arm, then says:", w('sherues', 'shëruesi', 'the healer'), w('lidh'), w('nje'), w('fashe'), w('te_link'), w('paster'), w('rreth'), w('krah_arm', 'krahut'), w('te_link'), w('nje'), w('udhetar', 'udhëtari'), p(','), w('pastaj'), w('thote'), p(':')) },
   ],
 })
 
 export const INNKEEPER_APPEARANCE = portrait({
   npcId: 'bujtinari', nodeId: 'bujtina',
-  details: ['clothing', 'carried-object', 'posture'],
-  practicalWordIds: ['grua', 'kemishe', 'bardhe', 'celes'],
+  details: ['carried-object', 'hands', 'location'],
+  practicalWordIds: ['zjarr', 'celes', 'dhome', 'filxhan', 'kafe'],
   placement: { kind: 'replace', lineIndex: 2 },
   portraitLines: [
-    { line: R('A woman in a white shirt stands beside the fire with the room keys and says:', w('nje'), w('grua'), w('me'), w('nje'), w('kemishe', 'këmishë', 'shirt'), w('te_link'), w('bardhe'), w('rri'), w('prane'), w('zjarr'), w('me'), w('celes', 'çelësat', 'the keys'), w('e_link'), w('dhome', 'dhomave', 'the rooms'), w('dhe'), w('thote'), p(':')) },
+    { line: R('Beside the fire, the woman holds the room keys and a cup of coffee, then says:', w('prane'), w('zjarr', 'zjarrit'), p(','), w('grua', 'gruaja', 'the woman'), w('mban'), w('celes', 'çelësat', 'the keys'), w('e_link'), w('dhome', 'dhomave', 'the rooms'), w('dhe'), w('nje'), w('filxhan'), w('kafe'), p(','), w('pastaj'), w('thote'), p(':')) },
   ],
 })
 

@@ -6,23 +6,23 @@
 export const EVERYDAY_CORE_SENSE_IDS = Object.freeze([
   // people, identity and the verbs that carry most conversation
   'ti', 'ju', 'une', 'ne_we', 'ai', 'ajo', 'ata',
-  'jam', 'je', 'eshte', 'ka', 'ke', 'bej', 'vjen', 'shko', 'rri', 'prit',
+  'jam', 'je', 'eshte', 'ka', 'ke', 'bej', 'vjen', 'shko', 'rri', 'prit', 'merr', 'le',
   'nisem', 'takohem', 'mbaroj', 'di', 'mund', 'duhet', 'do_fut', 'dot',
 
   // yes/no, questions and conversational glue
   'po_yes', 'po_prog', 'po_turn', 'jo', 'nuk', 'a_q',
-  'kush', 'cfare', 'ku', 'kur', 'pse', 'si', 'sa',
+  'kush', 'cfare', 'ku', 'kur', 'pse', 'si', 'sa', 'cdo',
   'dhe', 'edhe', 'apo', 'se', 'nese', 'per', 'me', 'ne', 'tek', 'nga',
-  'shume', 'pak', 'mire', 'keq', 'rregull',
+  'shume', 'pak', 'mire', 'keq', 'rregull', 'dicka',
 
   // time, place and ordinary needs
   'tani', 'sot', 'sonte', 'neser', 'dje', 'mengjes', 'mesdite', 'pasdite', 'mbremje', 'naten',
   'pranvere', 'vere', 'vjeshte', 'dimer', 'vone', 'akoma',
-  'ketu', 'atje', 'shtepi', 'pune', 'njeri', 'mik', 'familje', 'motra', 'vella', 'nje',
+  'ketu', 'atje', 'shtepi', 'pune', 'njeri', 'mik', 'familje', 'motra', 'vella', 'nje', 'dite',
   'uje', 'ushqim', 'buke', 'kafe',
 
   // the turns that make a conversation continue instead of becoming a phrase list
-  'quhem', 'jeto', 'punon', 'yt', 'im', 'prane',
+  'quhem', 'jeto', 'punon', 'fol', 'yt', 'im', 'prane',
   'mendoj', 'dakord', 'drejte', 'lajm', 'tregoj', 'vertet', 'pastaj', 'problem',
   'lodhur', 'etur', 'frike', 'mungon', 'shi', 'bie', 're', 'bore', 'stuhi', 'ftohte', 'kujdes', 'harron', 'sjell',
   'qesh', 'shaka',
@@ -33,11 +33,11 @@ export const EVERYDAY_CORE_SENSE_IDS = Object.freeze([
 
   // concrete can-do actions: repair, directions, food and simple transactions
   'ha', 'pi', 'ndihmo', 'kuptoj', 'perserit', 'ngadale', 'pelqen', 'nevoje', 'dhemb',
-  'majtas', 'djathtas', 'drejt', 'afer', 'treg', 'dyqan', 'blej', 'kushton',
+  'majtas', 'djathtas', 'drejt', 'afer', 'gjej', 'treg', 'dyqan', 'blej', 'kushton', 'lire', 'mbyll',
   'lek', 'kripe', 'oda', 'bujtine', 'dhome', 'shtrat', 'fle',
   'cakmak', 'shishe', 'cader', 'litar', 'batanije', 'sapun', 'peshqir',
   'gote', 'luge', 'ilac', 'fashe', 'cante', 'kove', 'cekic', 'shporte',
-  'mbush', 'hap', 'laj', 'perdor', 'lidh', 'godit',
+  'mbush', 'hap', 'laj', 'perdor', 'lidh', 'godit', 'mban', 'ta', 'ngrohte', 'valle',
   'mjek', 'sherues', 'semur', 'dhimbje', 'shok',
 ])
 
@@ -82,6 +82,14 @@ export const FIRST_SESSION_PHRASES = Object.freeze([
   { al: 'faleminderit shumë!', maxDepth: 4 },
   { al: 'a do kafe apo çaj?', maxDepth: 7 },
   { al: 'a mund të më ndihmosh?', maxDepth: 3 },
+  { al: 'a mund të flasim?', maxDepth: 2 },
+  { al: 'si je sot?', maxDepth: 4 },
+  { al: 'çfarë po bën sot?', maxDepth: 4 },
+  { al: 'kur mund të të gjej këtu?', maxDepth: 4 },
+  { al: 'a është uji i ftohtë?', maxDepth: 3 },
+  { al: 'a vjen këtu çdo ditë?', maxDepth: 3 },
+  { al: 'ku mund të gjej ujë?', maxDepth: 3 },
+  { al: 'a ke nevojë për ndihmë?', maxDepth: 4 },
   { al: 'kush do të vijë?', maxDepth: 3 },
   { al: 'ku është tregu?', maxDepth: 3 },
   { al: 'majtas apo djathtas?', maxDepth: 3 },
@@ -135,6 +143,10 @@ export const FIRST_SESSION_PHRASES = Object.freeze([
 // for combinations the learner can actually construct, complete or translate.
 export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
   { id: 'how-are-you', al: 'si je?', en: 'How are you?', requires: ['si', 'je'] },
+  { id: 'can-we-talk', al: 'a mund të flasim?', en: 'Can we talk?', requires: ['a_q', 'mund', 'te_subj', 'fol'] },
+  { id: 'how-today', al: 'si je sot?', en: 'How are you today?', requires: ['si', 'je', 'sot'] },
+  { id: 'what-do-today', al: 'çfarë po bën sot?', en: 'What are you doing today?', requires: ['cfare', 'po_prog', 'bej', 'sot'] },
+  { id: 'when-find-you-here', al: 'kur mund të të gjej këtu?', en: 'When can I find you here?', requires: ['kur', 'mund', 'te_subj', 'te_obj', 'gjej', 'ketu'] },
   { id: 'well-thanks-you', al: 'jam mirë, faleminderit. po ti?', en: 'I am well, thank you. What about you?', requires: ['jam', 'mire', 'faleminderit', 'po_turn', 'ti'] },
   { id: 'where-going', al: 'ku po shkon?', en: 'Where are you going?', requires: ['ku', 'po_prog', 'shko'] },
   {
@@ -170,6 +182,11 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
   { id: 'all-right-later', al: 'në rregull. shihemi më vonë.', en: 'All right. See you later.', requires: ['ne', 'rregull', 'sheh', 'me_more', 'vone'] },
   { id: 'what-want', al: 'çfarë do?', en: 'What do you want?', requires: ['cfare', 'do'] },
   { id: 'want-water', al: 'dua ujë, të lutem.', en: 'I want water, please.', requires: ['do', 'uje', 'lutem'] },
+  { id: 'is-water-cold', al: 'a është uji i ftohtë?', en: 'Is the water cold?', requires: ['a_q', 'eshte', 'uje', 'i_art', 'ftohte'] },
+  { id: 'come-every-day', al: 'a vjen këtu çdo ditë?', en: 'Do you come here every day?', requires: ['a_q', 'vjen', 'ketu', 'cdo', 'dite'] },
+  { id: 'find-water', al: 'ku mund të gjej ujë?', en: 'Where can I find water?', requires: ['ku', 'mund', 'te_subj', 'gjej', 'uje'] },
+  { id: 'need-help-question', al: 'a ke nevojë për ndihmë?', en: 'Do you need help?', requires: ['a_q', 'ke', 'nevoje', 'per', 'ndihmo'] },
+  { id: 'return-village', al: 'kur kthehesh në fshat?', en: 'When do you return to the village?', requires: ['kur', 'kthehu', 'ne', 'fshat'] },
   { id: 'what-should-bring', al: 'çfarë duhet të sjell?', en: 'What should I bring?', requires: ['cfare', 'duhet', 'te_subj', 'sjell'] },
   { id: 'bread-and-cheese', al: 'bukë dhe djathë.', en: 'Bread and cheese.', requires: ['buke', 'dhe', 'djathe'] },
   { id: 'when-guests-come', al: 'kur do të vijnë miqtë?', en: 'When will the guests come?', requires: ['kur', 'do_fut', 'te_subj', 'vjen', 'mik'] },
@@ -229,6 +246,8 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
   { id: 'open-umbrella', al: 'hap çadrën.', en: 'Open the umbrella.', requires: ['hap', 'cader'] },
   { id: 'wash-hands-soap', al: 'laj duart me sapun.', en: 'Wash your hands with soap.', requires: ['laj', 'dore', 'me', 'sapun'] },
   { id: 'how-much-together', al: 'sa kushtojnë?', en: 'How much are they?', requires: ['sa', 'kushton'] },
+  { id: 'anything-cheaper', al: 'a keni diçka më të lirë?', en: 'Do you have anything cheaper?', requires: ['a_q', 'ke', 'dicka', 'me_more', 'lire'] },
+  { id: 'shop-opening', al: 'kur hapet dyqani?', en: 'When does the shop open?', requires: ['kur', 'hap', 'dyqan'] },
   { id: 'going-guest-room', al: 'po shkoj në odë.', en: 'I am going to the guest-room.', requires: ['po_prog', 'shko', 'ne', 'oda'] },
   { id: 'what-doing', al: 'çfarë po bëjmë?', en: 'What are we doing?', requires: ['cfare', 'po_prog', 'bej'] },
   { id: 'have-eaten', al: 'a ke ngrënë?', en: 'Have you eaten?', requires: ['a_q', 'ke', 'ha'] },
@@ -240,9 +259,15 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
   { id: 'need-doctor', al: 'kam nevojë për një mjek.', en: 'I need a doctor.', requires: ['ka', 'nevoje', 'per', 'nje', 'mjek'] },
   { id: 'hurts-here', al: 'më dhemb këtu.', en: 'It hurts here.', requires: ['me_obj', 'dhemb', 'ketu'] },
   { id: 'need-help', al: 'kam nevojë për ndihmë.', en: 'I need help.', requires: ['ka', 'nevoje', 'per', 'ndihmo'] },
+  { id: 'care-return', al: 'kur duhet të kthehem?', en: 'When should I return?', requires: ['kur', 'duhet', 'te_subj', 'kthehu'] },
+  { id: 'keep-bandage', al: 'a duhet ta mbaj fashën?', en: 'Should I keep the bandage on?', requires: ['a_q', 'duhet', 'ta', 'mban', 'fashe'] },
   { id: 'need-room-tonight', al: 'kam nevojë për një dhomë sonte.', en: 'I need a room tonight.', requires: ['ka', 'nevoje', 'per', 'nje', 'dhome', 'sonte'] },
   { id: 'night-price', al: 'sa kushton një natë?', en: 'How much does one night cost?', requires: ['sa', 'kushton', 'nje', 'naten'] },
   { id: 'sleep-here', al: 'a mund të fle këtu?', en: 'Can I sleep here?', requires: ['a_q', 'mund', 'te_subj', 'fle', 'ketu'] },
+  { id: 'hot-water', al: 'a ka ujë të ngrohtë?', en: 'Is there hot water?', requires: ['a_q', 'ka', 'uje', 'te_link', 'ngrohte'] },
+  { id: 'breakfast-time', al: 'kur është mëngjesi?', en: 'When is breakfast?', requires: ['kur', 'eshte', 'mengjes'] },
+  { id: 'leave-my-bag', al: 'a mund të lë çantën time këtu?', en: 'Can I leave my bag here?', requires: ['a_q', 'mund', 'te_subj', 'le', 'cante', 'im', 'ketu'] },
+  { id: 'join-dance', al: 'a mund të hyj në valle?', en: 'Can I join the dance?', requires: ['a_q', 'mund', 'te_subj', 'hyr', 'ne', 'valle'] },
   { id: 'coffee-please', al: 'dua kafe, të lutem.', en: 'I would like coffee, please.', requires: ['do', 'kafe', 'lutem'] },
   // The living clock and weather are narrated inside every playable scene.
   // These chunks turn that changing atmosphere into practical language rather
@@ -280,28 +305,29 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
 // The whole-phrase bank must not become a shapeless list. These groups state
 // the practical outcomes it has to keep covering as story content grows.
 export const EVERYDAY_CAN_DO_GROUPS = Object.freeze([
-  { id: 'social', label: 'greet, respond and read social tone', minimum: 8, drillIds: ['how-are-you', 'well-thanks-you', 'thanks-very-much', 'yes-thank-you', 'welcome-enter', 'thanks-come-again', 'thanks-goodbye', 'sorry-sympathy', 'all-right-later', 'good-luck'] },
+  { id: 'social', label: 'greet, respond and read social tone', minimum: 10, drillIds: ['how-are-you', 'can-we-talk', 'how-today', 'well-thanks-you', 'thanks-very-much', 'yes-thank-you', 'welcome-enter', 'thanks-come-again', 'thanks-goodbye', 'sorry-sympathy', 'all-right-later', 'good-luck'] },
+  { id: 'small-talk', label: 'open a conversation and ask about someone’s day or routine', minimum: 8, drillIds: ['can-we-talk', 'how-today', 'what-do-today', 'when-find-you-here', 'come-every-day', 'is-water-cold', 'need-help-question', 'breakfast-time'] },
   { id: 'introduce', label: 'introduce yourself and learn about someone', minimum: 6, drillIds: ['your-name', 'where-from', 'where-live', 'what-work', 'from-gjakova', 'live-near-market', 'work-market'] },
   { id: 'family', label: 'ask about family and answer', minimum: 4, drillIds: ['how-family', 'family-well', 'have-siblings', 'miss-family'] },
-  { id: 'coordinate', label: 'locate people, report movement and make or change plans', minimum: 10, drillIds: ['where-going', 'setting-off-coming', 'coming-now', 'cannot-come-now-meet-tomorrow', 'meet-later', 'meet-tomorrow-question', 'accept-tomorrow-square', 'where-are-you', 'when-finish', 'all-right-later', 'who-will-come', 'going-guest-room', 'when-guests-come', 'at-noon'] },
-  { id: 'invite', label: 'invite, accept, decline and propose another time', minimum: 7, drillIds: ['setting-off-coming', 'yes-coming', 'coming-now', 'cannot-come', 'cannot-come-now-meet-tomorrow', 'come-eat-with-us', 'may-enter'] },
+  { id: 'coordinate', label: 'locate people, report movement and make or change plans', minimum: 12, drillIds: ['where-going', 'setting-off-coming', 'coming-now', 'cannot-come-now-meet-tomorrow', 'meet-later', 'when-find-you-here', 'meet-tomorrow-question', 'accept-tomorrow-square', 'where-are-you', 'when-finish', 'return-village', 'all-right-later', 'who-will-come', 'going-guest-room', 'when-guests-come', 'at-noon'] },
+  { id: 'invite', label: 'invite, accept, decline and propose another time', minimum: 8, drillIds: ['setting-off-coming', 'yes-coming', 'coming-now', 'cannot-come', 'cannot-come-now-meet-tomorrow', 'come-eat-with-us', 'may-enter', 'join-dance'] },
   { id: 'catch-up', label: 'exchange news and ask what happened', minimum: 6, drillIds: ['how-road-went', 'where-were-you', 'still-not-slept', 'news-problem', 'really-then', 'tell-what-happened', 'dont-believe-it'] },
   { id: 'respond', label: 'keep a conversation moving', minimum: 4, drillIds: ['dont-know', 'really-then', 'tell-what-happened', 'dont-believe-it', 'well-thanks-you'] },
   { id: 'feelings', label: 'describe and understand everyday states', minimum: 6, drillIds: ['well-thanks-you', 'am-hungry', 'am-thirsty', 'tired-but-well', 'understand-afraid', 'miss-family', 'sorry-sympathy', 'are-you-well', 'hurts-here'] },
   { id: 'opinions', label: 'ask for an opinion, give one and disagree', minimum: 3, drillIds: ['what-think', 'dont-agree', 'think-go-dry-well'] },
-  { id: 'favours', label: 'ask, respond and give a simple instruction', minimum: 4, drillIds: ['bring-bread-salt', 'give-bread', 'yes-take-it', 'can-help-me', 'yes-help-you'] },
+  { id: 'favours', label: 'ask, respond and give a simple instruction', minimum: 5, drillIds: ['bring-bread-salt', 'give-bread', 'yes-take-it', 'can-help-me', 'need-help-question', 'yes-help-you'] },
   { id: 'care', label: 'show concern and respond to a problem', minimum: 4, drillIds: ['are-you-well', 'sorry-sympathy', 'be-careful', 'need-help', 'hurts-here'] },
-  { id: 'routine', label: 'talk about food, sleep and work', minimum: 7, drillIds: ['have-eaten', 'have-slept', 'still-not-slept', 'sleep-good-night', 'at-work', 'when-finish', 'what-doing', 'going-guest-room'] },
+  { id: 'routine', label: 'talk about food, sleep, work and daily schedules', minimum: 11, drillIds: ['have-eaten', 'have-slept', 'still-not-slept', 'sleep-good-night', 'at-work', 'when-finish', 'what-doing', 'what-do-today', 'come-every-day', 'shop-opening', 'breakfast-time', 'going-guest-room'] },
   { id: 'weather', label: 'understand ordinary weather talk', minimum: 8, drillIds: ['rained-yesterday', 'it-was-cold', 'when-rain-coming', 'clear-weather', 'cloudy-weather', 'raining-now', 'storm-now', 'snowing-now'] },
   { id: 'repair', label: 'repair a conversation', minimum: 4, drillIds: ['dont-know', 'dont-understand', 'speak-slowly', 'repeat-please', 'what-does-it-mean'] },
-  { id: 'help', label: 'ask for and offer help', minimum: 2, drillIds: ['can-help-me', 'yes-help-you'] },
-  { id: 'directions', label: 'ask and follow directions', minimum: 4, drillIds: ['where-market', 'where-guest-room', 'left-or-right', 'straight-then-right'] },
-  { id: 'buy', label: 'make a simple purchase', minimum: 4, drillIds: ['have-bread', 'bread-salt-please', 'lighter-please', 'how-much-together'] },
+  { id: 'help', label: 'ask for, check and offer help', minimum: 3, drillIds: ['can-help-me', 'need-help-question', 'yes-help-you'] },
+  { id: 'directions', label: 'ask and follow directions', minimum: 5, drillIds: ['where-market', 'where-guest-room', 'find-water', 'left-or-right', 'straight-then-right'] },
+  { id: 'buy', label: 'make a simple purchase and compare an option', minimum: 6, drillIds: ['have-bread', 'bread-salt-please', 'lighter-please', 'how-much-together', 'anything-cheaper', 'shop-opening'] },
   { id: 'everyday-items', label: 'buy and use ordinary carried objects', minimum: 5, drillIds: ['lighter-please', 'fill-bottle', 'drink-from-bottle', 'open-umbrella', 'wash-hands-soap'] },
   { id: 'food', label: 'eat, drink, offer and express preference', minimum: 8, drillIds: ['what-want', 'want-water', 'want-water-question', 'yes-thank-you', 'have-eaten', 'am-hungry', 'am-thirsty', 'come-eat-with-us', 'bon-appetit', 'like-tea', 'dont-like-coffee', 'coffee-please'] },
-  { id: 'health', label: 'ask for care and describe pain', minimum: 3, drillIds: ['need-doctor', 'hurts-here', 'need-help'] },
-  { id: 'lodging', label: 'ask for a room and a price', minimum: 3, drillIds: ['need-room-tonight', 'night-price', 'sleep-here'] },
-  { id: 'daily-rhythm', label: 'part, make plans and check in across a day', minimum: 12, drillIds: ['meet-tomorrow-question', 'accept-tomorrow-square', 'at-noon', 'is-morning', 'is-noon', 'is-afternoon', 'is-evening', 'is-night', 'is-spring', 'is-summer', 'is-autumn', 'is-winter', 'where-were-you', 'have-slept', 'sleep-good-night', 'still-not-slept', 'all-right-later', 'good-luck'] },
+  { id: 'health', label: 'ask for care, describe pain and confirm aftercare', minimum: 5, drillIds: ['need-doctor', 'hurts-here', 'need-help', 'care-return', 'keep-bandage'] },
+  { id: 'lodging', label: 'ask for a room, amenities and daily arrangements', minimum: 6, drillIds: ['need-room-tonight', 'night-price', 'sleep-here', 'hot-water', 'breakfast-time', 'leave-my-bag'] },
+  { id: 'daily-rhythm', label: 'part, make plans and check in across a day', minimum: 15, drillIds: ['how-today', 'when-find-you-here', 'meet-tomorrow-question', 'accept-tomorrow-square', 'at-noon', 'is-morning', 'is-noon', 'is-afternoon', 'is-evening', 'is-night', 'is-spring', 'is-summer', 'is-autumn', 'is-winter', 'where-were-you', 'have-slept', 'sleep-good-night', 'still-not-slept', 'return-village', 'shop-opening', 'breakfast-time', 'all-right-later', 'good-luck'] },
   { id: 'hospitality', label: 'welcome a guest and close a visit warmly', minimum: 4, drillIds: ['welcome-enter', 'come-eat-with-us', 'thanks-come-again', 'thanks-goodbye'] },
   { id: 'thoughts-plans', label: 'share a feeling, idea or near-future concern', minimum: 4, drillIds: ['happy-going-home', 'have-an-idea', 'what-think', 'take-care-tonight', 'good-luck'] },
 ])

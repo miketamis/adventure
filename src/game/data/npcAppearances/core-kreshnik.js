@@ -9,10 +9,10 @@ const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'core-kr
 
 export const HALILI_APPEARANCE = portrait({
   npcId: 'halili', nodeId: 'jutbina',
-  details: ['age', 'clothing', 'carried-object'],
-  practicalWordIds: ['ri', 'plis', 'bardhe', 'shpate'],
+  details: ['age', 'clothing', 'carried-object', 'posture'],
+  practicalWordIds: ['ri', 'plis', 'bardhe', 'shpate', 'rruge'],
   placement: { kind: 'replace', lineIndex: 13 },
-  portraitLines: [{ line: R('Beside Mujo stands the younger Halili, with a white felt cap and a sword in his hand.', w('prane'), w('mujo', 'Mujit'), w('rri'), w('halil', 'Halili'), w('i_art'), w('ri'), p(','), w('me'), w('nje'), w('plis'), w('te_link'), w('bardhe'), w('dhe'), w('nje'), w('shpate'), w('ne'), w('dore'), p('.')) }],
+  portraitLines: [{ line: R('Young Halili stands beside Mujo in a white felt cap; he holds his sword and watches the road.', w('halil', 'Halili'), w('i_art'), w('ri'), w('rri'), w('prane'), w('mujo', 'Mujit'), w('me'), w('nje'), w('plis'), w('te_link'), w('bardhe'), p(';'), w('ai'), w('mban'), w('shpate', 'shpatën'), w('e_link'), w('tij'), w('dhe'), w('sheh'), w('rruge', 'rrugën'), p('.')) }],
 })
 
 export const ZUKU_APPEARANCE = portrait({
@@ -25,10 +25,10 @@ export const ZUKU_APPEARANCE = portrait({
 
 export const MUJO_COURSER_APPEARANCE = portrait({
   npcId: 'gjogu', nodeId: 'jutbina',
-  details: ['colour', 'build', 'movement'],
-  practicalWordIds: ['kale', 'bardhe', 'madh', 'qete'],
+  details: ['build', 'movement', 'location', 'memorable-feature'],
+  practicalWordIds: ['kale', 'madh', 'kulle', 'godit', 'toke', 'kembe', 'degjo', 'ze'],
   placement: { kind: 'insert-after', lineIndex: 2 },
-  portraitLines: [{ line: R('Mujo’s great white horse waits quietly beside the tower.', w('kale', 'Kali'), w('i_art'), w('madh'), w('dhe'), w('bardhe'), w('i_art'), w('mujo', 'Mujit'), w('prit', 'pret'), w('i_art'), w('qete'), w('prane'), w('kulle', 'kullës'), p('.')) }],
+  portraitLines: [{ line: R("Mujo's great horse waits beside the tower; it strikes the ground with one hoof and listens to every sound.", w('kale', 'Kali'), w('i_art'), w('madh'), w('i_art'), w('mujo', 'Mujit'), w('prit', 'pret'), w('prane'), w('kulle', 'kullës'), p(';'), w('godit', 'godet'), w('toke', 'tokën'), w('me'), w('nje'), w('kembe'), w('dhe'), w('degjo', 'dëgjon'), w('cdo'), w('ze'), p('.')) }],
 })
 
 export default Object.freeze({

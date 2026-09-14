@@ -19,11 +19,11 @@ export const SOPOT_SERPENT_APPEARANCE = portrait({
 
 export const TINDER_ELDER_APPEARANCE = portrait({
   npcId: 'plakuEshkes', nodeId: 'udhaSyri',
-  details: ['clothing', 'carried-object', 'posture'],
-  practicalWordIds: ['plak', 'plis', 'bardhe', 'dru', 'gomar'],
+  details: ['clothing', 'carried-object', 'hands', 'companion'],
+  practicalWordIds: ['plak', 'plis', 'bardhe', 'vendos', 'dru', 'zjarr', 'samar', 'gomar'],
   placement: { kind: 'insert-after', lineIndex: 0 },
   portraitLines: [
-    { line: R('An old man in a white felt cap holds wood; a donkey stands beside him.', w('nje'), w('plak'), w('me'), w('nje'), w('plis'), w('te_link'), w('bardhe'), w('mban'), w('dru'), p(';'), w('prane'), w('tij'), w('rri'), w('nje'), w('gomar'), p('.')) },
+    { line: R('An old man in a white felt cap places burning wood on the donkey’s packsaddle.', w('nje'), w('plak'), w('me'), w('nje'), w('plis'), w('te_link'), w('bardhe'), w('vendos'), w('dru'), w('ne', 'në', 'in'), w('zjarr'), w('mbi'), w('samar', 'samarin'), w('e_link'), w('gomar', 'gomarit'), p('.')) },
   ],
 })
 

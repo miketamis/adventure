@@ -19,11 +19,11 @@ export const TORTOISE_CRONE_APPEARANCE = portrait({
 
 export const HUNGRY_GUEST_APPEARANCE = portrait({
   npcId: 'mikuUritur', nodeId: 'breshka1',
-  details: ['clothing', 'condition', 'work-marks'],
-  practicalWordIds: ['mik', 'rroba', 'vjeter', 'pluhur', 'kepuce'],
+  details: ['clothing', 'condition', 'location'],
+  practicalWordIds: ['mik', 'uritur', 'prit', 'dere', 'shi', 'lagur', 'rroba'],
   placement: { kind: 'replace', lineIndex: 2 },
   portraitLines: [
-    { line: R('A hungry guest comes to the door in old clothes, with dust on his shoes.', w('nje'), w('mik'), w('i_art'), w('uritur'), w('vjen'), w('ne', 'te', 'at'), w('dere', 'dera', 'the door'), w('me'), w('rroba'), w('te_link'), w('vjeter', 'vjetra', 'old'), p(','), w('me'), w('pluhur'), w('ne', 'në', 'on'), w('kepuce'), p('.')) },
+    { line: R('A hungry guest waits at the door; the rain has soaked his clothes.', w('nje'), w('mik'), w('i_art'), w('uritur'), w('prit', 'pret'), w('ne', 'te', 'at'), w('dere', 'dera', 'the door'), p(';'), w('shi', 'shiu', 'the rain'), w('i_obj'), w('ka'), w('lagur'), w('rroba', 'rrobat'), p('.')) },
   ],
 })
 

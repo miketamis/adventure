@@ -12,7 +12,7 @@ The opening conversation now teaches a transferable interaction skeleton in its 
 4. ask someone to wait, admit “I don’t know,” and choose a meeting place;
 5. agree on today or tomorrow and a time.
 
-The first village errand continues the same conversation instead of resetting into a lesson. The player agrees to help prepare for a guest, follows an instruction, asks where the market and guest-room are, follows left/right directions, asks a fast speaker to slow down or repeat, buys bread and salt, and welcomes a traveller. The supper then becomes a genuine social scene: permission to enter, offering food and water, a small favour, introductions, home and work, family, missing home, the journey, weather, tiredness, sympathy, news, follow-up questions, disbelief, fear, opinions, disagreement and a consequential decision. That decision opens the Kulshedra trail. The square’s birthday gathering teaches wishes, natural reactions and an explicit joke marker. The café carries work, sleep and next-day talk. Later, the established Gjakova inn, stalls and healer carry morning and evening greetings, welcoming and closing a visit, good-night wishes, room, price, coffee, pain, help, and doctor language without importing a modern airport, bus, or phone into the folktale world.
+The first village errand continues the same conversation instead of resetting into a lesson. The player agrees to help prepare for a guest, follows an instruction, asks where the market and guest-room are, follows left/right directions, asks a fast speaker to slow down or repeat, buys bread and salt, and welcomes a traveller. The neighbours now remain people after their first plot function: the player can open a conversation, ask how someone is today, ask about work and routine, arrange another meeting, check whether someone needs help, and ask about cold water or the way to a well. The supper then becomes a genuine social scene: permission to enter, offering food and water, a small favour, introductions, home and work, family, missing home, the journey, weather, tiredness, sympathy, news, follow-up questions, disbelief, fear, opinions, disagreement and a consequential decision. That decision opens the Kulshedra trail. The square’s birthday gathering teaches wishes, natural reactions and an explicit joke marker. The café carries work, sleep and next-day talk. Later, the established Gjakova inn, stalls and healer carry comparing a cheaper option, opening hours, hot water, breakfast time, leaving a bag, pain, aftercare, help, and doctor language without importing a modern airport, bus, or phone into the folktale world.
 
 This gives the player the main intent and routine phrases in the private conversation research during the first village visit. An aggregate review of the current ignored extract particularly reinforced movement updates and changing a plan; the public lines are independently authored standard Albanian. It does not promise instant comprehension of names, code-switching, one-off misspellings, or private-reference humour. Those are genuine parts of chat literacy, but they should not displace reusable Albanian.
 
@@ -22,10 +22,10 @@ The public curriculum currently contains (the hidden markers are checked
 against the live registries by `scripts/conversationaudit.mjs`):
 
 - 15 opening targets; <!-- curriculum:opening=15 -->
-- 58 first-session targets; <!-- curriculum:session=58 -->
-- 173 practice-priority senses; <!-- curriculum:core=173 -->
-- 120 whole-phrase drills; <!-- curriculum:phrases=120 -->
-- 24 story-grounded can-do groups. <!-- curriculum:groups=24 -->
+- 66 first-session targets; <!-- curriculum:session=66 -->
+- 186 practice-priority senses; <!-- curriculum:core=186 -->
+- 137 whole-phrase drills; <!-- curriculum:phrases=137 -->
+- 25 story-grounded can-do groups. <!-- curriculum:groups=25 -->
 
 Every whole-phrase drill must be found in a playable story line or action. `scripts/conversationaudit.mjs` rejects an ungrounded drill, a missing first-session target, an unknown sense, or an underfilled can-do group.
 
@@ -38,6 +38,7 @@ The audit is organized around what a person can do with language, not around arb
 | Conversational job | Where it belongs in the story |
 |---|---|
 | greet, thank, apologize and say goodbye | bridge, market, guest-room and square |
+| open a conversation and ask about someone’s day or routine | Elira, spring, shepherd and forest encounters |
 | move through the day and return visits naturally | morning/evening stalls, inn, café and guest-room |
 | introduce yourself; ask name, origin, home and work | guest supper and the foreign traveller |
 | ask about family and say someone is missed | guest supper, kurbet and family legends |
@@ -53,6 +54,7 @@ The audit is organized around what a person can do with language, not around arb
 | ask for help or care | opening errand, healer and danger scenes |
 | ask and follow directions | market errand, roads, gates and signs |
 | buy, compare prices and handle simple services | market, inn, gate and healer |
+| ask about opening times, amenities and aftercare | trader, innkeeper and healer conversations |
 | offer, order and discuss food preferences | guest table, market, inn and feasts |
 | find lodging | Gjakova inn |
 | understand celebration and playful tone | birthday gathering, wedding and Nastradin stories |

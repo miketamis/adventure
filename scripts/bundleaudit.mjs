@@ -146,13 +146,16 @@ for (const rule of AREA_ACHIEVEMENT_RULES) {
 // budget includes its statically imported story graph and authored catalogs.
 // This distinguishes a useful cache boundary from pretend byte savings: the
 // browser still has to fetch every member of the static closure before play.
-const SHELL_RAW_BUDGET = 160 * KiB
+// The shared grammar-consequence route adds a measured 2.8 KiB of loader and
+// routing code while its refresher body remains deferred in a lazy chunk.
+const SHELL_RAW_BUDGET = 165 * KiB
 const SHELL_GZIP_BUDGET = 56 * KiB
 // The lexical evidence state machine, death-retention boundary, compact
-// mixed-matching registry, and exact reviewed noun paradigms are first-play
-// behavior, not optional tooling. Keep a narrow measured allowance for them
-// while retaining the stricter gzip ceiling below.
-const BOOTSTRAP_RAW_BUDGET = 1_375 * KiB
+// mixed-matching registry, exact reviewed noun paradigms, and the first-village
+// conversation hubs are first-play behavior, not optional tooling. The ten
+// player-led hubs add a measured 19 KiB to the story closure; keep a narrow
+// allowance for that authored interaction while retaining the gzip ceiling.
+const BOOTSTRAP_RAW_BUDGET = 1_400 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
@@ -166,8 +169,11 @@ const AUDIO_FILE_BUDGET = 64 * KiB
 // Word-level timestamps are loaded only after an accepted action starts its
 // continuous MP3. Budget the independently cached manifest as well as the
 // clips so alignment metadata cannot grow without a release review.
-const ACTION_TIMINGS_RAW_BUDGET = 1_024 * KiB
-const ACTION_TIMINGS_GZIP_BUDGET = 130 * KiB
+// The new village conversations add 89 continuous Albanian recordings and
+// their exact waveform-correlated word boundaries. Keep narrow measured raw
+// and compressed allowances for that release-safety data.
+const ACTION_TIMINGS_RAW_BUDGET = 1_050 * KiB
+const ACTION_TIMINGS_GZIP_BUDGET = 132 * KiB
 // Every accepted story action now has one continuous, on-demand MP3 so action
 // karaoke never falls back to stitched word clips or browser TTS. Keep a
 // measured ceiling over that complete 4,486-clip archive; none is eager-loaded.

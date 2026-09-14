@@ -8,9 +8,9 @@ export const CUCKOO_SISTER_APPEARANCE = portrait({
 })
 
 export const NIGHT_BIRD_GJON_APPEARANCE = portrait({
-  npcId: 'gjonZogu', nodeId: 'cuckooFund', details: ['build', 'colour', 'voice'],
-  practicalWordIds: ['zog', 'vogel', 'zi', 'ze'], placement: { kind: 'replace', lineIndex: 2 },
-  portraitLines: [{ line: R('The other Gjon is a small dark bird with a loud voice.', w('gjon', 'Gjoni'), w('tjeter'), w('eshte'), w('nje'), w('zog'), w('i_art'), w('vogel'), w('dhe'), w('i_art'), w('zi'), w('me'), w('nje'), w('ze'), w('te_link'), w('madh'), p('.')) }],
+  npcId: 'gjonZogu', nodeId: 'cuckooFund', details: ['build', 'colour', 'voice', 'memorable-feature'],
+  practicalWordIds: ['zog', 'vogel', 'zi', 'ze', 'krah', 'peme'], placement: { kind: 'replace', lineIndex: 2 },
+  portraitLines: [{ line: R('The other Gjon is a small dark bird alone in a tree; his wings move when he calls in a loud voice.', w('gjon', 'Gjoni'), w('tjeter'), w('eshte'), w('nje'), w('zog'), w('i_art'), w('vogel'), w('dhe'), w('i_art'), w('zi'), w('qe'), w('rri'), w('vetem'), w('ne'), w('nje'), w('peme'), p(';'), w('krah', 'krahët'), w('e_link'), w('tij'), w('leviz', 'lëvizin'), w('kur'), w('ai'), w('thote'), w('me'), w('nje'), w('ze'), w('te_link'), w('madh'), p('.')) }],
 })
 
 export default Object.freeze({ qyqjaMotra: CUCKOO_SISTER_APPEARANCE, gjonZogu: NIGHT_BIRD_GJON_APPEARANCE })

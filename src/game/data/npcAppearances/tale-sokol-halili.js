@@ -9,21 +9,21 @@ const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'tale-so
 
 export const ZADRAN_APPEARANCE = portrait({
   npcId: 'zadraniTetoves', nodeId: 'haliliMejdan',
-  details: ['build', 'clothing', 'colour', 'carried-object'],
-  practicalWordIds: ['burre', 'gjate', 'rroba', 'zi', 'shpate', 'dore'],
+  details: ['build', 'clothing', 'collective-contrast', 'carried-object'],
+  practicalWordIds: ['burre', 'gjate', 'rroba', 'zi', 'vetem', 'shpate', 'drejt', 'perpara'],
   placement: { kind: 'insert-after', lineIndex: 0 },
   portraitLines: [
-    { line: R('A tall man in black clothes waits in the arena with a sword in his hand.', w('nje'), w('burre'), w('i_art'), w('gjate'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza', 'black'), w('rri'), w('ne', 'në', 'in'), w('mejdan'), w('me'), w('nje'), w('shpate'), w('ne', 'në', 'in'), w('dore'), p('.')) },
+    { line: R('A tall man in black stands alone in the arena, holding his sword straight forward.', w('nje'), w('burre'), w('i_art'), w('gjate'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza', 'black'), w('rri'), w('vetem'), w('ne', 'në', 'in'), w('mejdan'), p(','), w('me'), w('shpate', 'shpatën'), w('drejt'), w('perpara'), p('.')) },
   ],
 })
 
 export const JEALOUS_OSMAN_APPEARANCE = portrait({
   npcId: 'osmaniZilise', nodeId: 'haliliDeka',
-  details: ['clothing', 'face', 'memorable-feature'],
-  practicalWordIds: ['aga', 'rroba', 'kuq', 'sy', 'ftohte'],
+  details: ['face', 'posture', 'memorable-feature'],
+  practicalWordIds: ['aga', 'buzeqesh', 'sy', 'ftohte', 'sheh', 'drejt', 'mejdan'],
   placement: { kind: 'insert-after', lineIndex: 1 },
   portraitLines: [
-    { line: R('An aga in red clothes smiles, but has cold eyes.', w('nje'), w('aga'), w('me'), w('rroba'), w('te_link'), w('kuq', 'kuqe', 'red'), w('buzeqesh'), p(','), w('por'), w('ka'), w('sy'), w('te_link'), w('ftohte'), p('.')) },
+    { line: R('An aga smiles, but his cold eyes look straight toward the arena.', w('nje'), w('aga'), w('buzeqesh'), p(','), w('por'), w('sy', 'sytë'), w('e_link'), w('ftohte'), w('sheh', 'shohin'), w('drejt'), w('mejdan', 'mejdanit'), p('.')) },
   ],
 })
 

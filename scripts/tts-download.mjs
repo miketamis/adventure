@@ -19,7 +19,9 @@ import { audioSlug } from '../src/game/audio.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { CEFR_TASKS } from '../src/game/cefrTasks.js'
 import { CEFR_PREPARATION_ACTIVITIES } from '../src/game/cefrPreparation.js'
+import { npcPortraitLines } from '../src/game/npcAppearance.js'
 import { collectAudioSurfaces } from './lib/audio-surfaces.mjs'
+import { loadNpcAppearancePartitions } from './lib/loadnpcappearances.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -124,6 +126,7 @@ async function main() {
     console.log('Speaking-rate, pitch and character-label variants do not count as additional acoustic voices.')
     return
   }
+  await loadNpcAppearancePartitions()
   mkdirSync(OUT_DIR, { recursive: true })
   const authoredSurfaces = collectAudioSurfaces(
     DICT,
@@ -131,7 +134,7 @@ async function main() {
     EVERYDAY_PHRASE_DRILLS,
     CEFR_TASKS,
     CEFR_PREPARATION_ACTIVITIES,
-    { items: ITEMS, heartLevels: HEART_LEVELS },
+    { items: ITEMS, heartLevels: HEART_LEVELS, additionalLanguage: npcPortraitLines() },
   )
   const cefrVoiceBySlug = new Map()
   for (const task of CEFR_TASKS) {

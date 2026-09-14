@@ -10,11 +10,11 @@ import { buildRouteGraph, tokenIds } from '../src/game/worldModel.js'
 export const DISTRIBUTION_THRESHOLDS = Object.freeze({
   localRadius: 80,
   maxLocalPlaces: 10,
-  // Short, same-place conversation turns now make the opening bridge a richer
-  // social place without adding physical destinations. The location-card and
-  // scene-presentation gates still prevent this authored density becoming a
-  // crowded map or an unreadable story card.
-  maxLocalScenes: 35,
+  // Twelve reviewed conversation hubs now make the bridge, square, spring,
+  // mill-road and nearby homes richer social places without adding false map
+  // destinations. Each remains one continuous, short card; the location-card
+  // and scene-presentation gates still prevent unreadable story surfaces.
+  maxLocalScenes: 37,
   sparseReviewDistance: 300,
   hardIsolationDistance: 400,
   longLeafRoute: 600,

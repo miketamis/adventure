@@ -17,10 +17,10 @@ export const AGA_YMER_BRIDE_APPEARANCE = portrait({
 
 export const CAPTOR_KING_APPEARANCE = portrait({
   npcId: 'mbretiZaptor', nodeId: 'agaYmer1',
-  details: ['clothing', 'carried-object', 'hands'],
-  practicalWordIds: ['mbret', 'rroba', 'celes', 'burg'],
+  details: ['carried-object', 'hands', 'posture', 'location'],
+  practicalWordIds: ['mbret', 'celes', 'hekur', 'burg', 'trim', 'sy'],
   placement: { kind: 'insert-after', lineIndex: 6 },
-  portraitLines: [{ line: R('The king, in black clothes, holds the prison key in his hand.', w('mbret', 'Mbreti'), p(','), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza', 'black'), p(','), w('mban'), w('celes', 'çelësin'), w('e_link'), w('burg', 'burgut'), w('ne'), w('dore'), p('.')) }],
+  portraitLines: [{ line: R('The king holds the iron prison key; his eyes remain fixed on the hero.', w('mbret', 'Mbreti'), w('mban'), w('celes', 'çelësin'), w('e_link'), w('burg', 'burgut'), w('prej'), w('hekur', 'hekuri'), p(';'), w('sy', 'sytë'), w('e_link'), w('tij'), w('rri', 'rrijnë'), w('mbi'), w('trim', 'trimin'), p('.')) }],
 })
 
 export const KING_DAUGHTER_APPEARANCE = portrait({

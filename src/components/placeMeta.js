@@ -114,7 +114,7 @@ export const PLACE_META = {
   tregtari: {
     name: "pazari — the trader's stall",
     happenings: [
-      { title: 'trade with the merchant', nodes: ['tregtari'] },
+      { title: 'trade and talk with the merchant', nodes: ['tregtari', 'tregtariBiseda'] },
       { title: 'buy bread and salt', nodes: ['blerjaBuke', 'blerjaKripe'] },
       { title: 'sell mountain tea', nodes: ['shitjaCaj'] },
     ],
@@ -131,7 +131,7 @@ export const PLACE_META = {
   bujtina: {
     name: 'bujtina — the inn',
     happenings: [
-      { title: 'a bed for the night', nodes: ['bujtina', 'gjumiBujtina'] },
+      { title: 'a room and practical questions for the innkeeper', nodes: ['bujtina', 'bujtinariBiseda', 'gjumiBujtina'] },
       { title: 'coffee with the innkeeper', nodes: ['kafeja1', 'kafejaFund'] },
       { title: 'the fortune in the cup', nodes: ['fallFund'] },
       { title: 'raki and a toast', nodes: ['gezuarFund'] },
@@ -182,7 +182,7 @@ export const PLACE_META = {
     happenings: [
       { title: 'the village square', nodes: ['fshatiSheshi'] },
       { title: 'birthday wishes at the family table', nodes: ['fshatiDitelindje', 'fshatiDitelindjeUrim'] },
-      { title: 'meeting Elira at the agreed place', nodes: ['eliraShesh', 'eliraEmriShesh', 'eliraBanore', 'eliraEmriBanore', 'eliraPorosiaDorezuar'] },
+      { title: 'meeting and catching up with Elira', nodes: ['eliraShesh', 'eliraEmriShesh', 'eliraBanore', 'eliraEmriBanore', 'eliraBiseda', 'eliraPorosiaDorezuar'] },
       { title: "the guest's bread-and-salt errand", nodes: ['porosiaShesh', 'pazariFshatit', 'pazariPerserit', 'porosiaBlerje', 'porosiaBlerjePergjigje'] },
       { title: "the old man's bench", nodes: ['sheshiPlak', 'sheshiPlak2', 'sheshiPlak3'] },
       { title: 'coffee at the square', nodes: ['kafeneja', 'kafeneja2'] },
@@ -191,7 +191,7 @@ export const PLACE_META = {
   dasma1: {
     name: 'oborri i dasmës — the wedding yard',
     happenings: [
-      { title: 'the wedding and the round-dance', nodes: ['dasma1', 'dasmaFund', 'valleFund'] },
+      { title: 'the wedding, its neighbours and the round-dance', nodes: ['dasma1', 'dasmaBiseda', 'dasmaFund', 'valleFund'] },
     ],
   },
   kopshtMermer1: {
@@ -319,7 +319,7 @@ export const PLACE_META = {
     name: 'kroi i fshatit — the village spring',
     densityReason: 'The water errand, women’s conversation and a drink from the spring are successive encounters at the same village water source.',
     happenings: [
-      { title: 'water, news and the guest’s errand at the village spring', nodes: ['kroi1', 'kroiGrate', 'kroiGrate2', 'kroiFund'] },
+      { title: 'water, everyday questions and the guest’s errand at the village spring', nodes: ['kroi1', 'vajzaKroiBiseda', 'kroiGrate', 'kroiGrate2', 'kroiFund'] },
     ],
   },
   xhindMulli: {

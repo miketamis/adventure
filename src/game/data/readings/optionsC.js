@@ -59,15 +59,15 @@ export const OPTION_READINGS_C = Object.freeze({
   "bukuraLirim.options[2]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 1122
   "bukuraLirim.options[3]": { al: "lufto hekurin", en: "Fight the iron.", review: 'internal-editorial' }, // 1123
   "dordolec1.options[0]": { al: "këndo me fëmijët", en: "Sing with the children.", review: 'internal-editorial' }, // 1123
-  "dordolec1.options[1]": { al: "shiko shtëpinë", en: "Look at the house.", review: 'internal-editorial' }, // 1124
-  "dordolec1.options[2]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 1125
-  "dordolec1.options[3]": { al: "kërko fshatin", en: "Look for the village.", review: 'internal-editorial' }, // 1126
+  "dordolec1.options[2]": { al: "shiko shtëpinë", en: "Look at the house.", review: 'internal-editorial' }, // 1124
+  "dordolec1.options[3]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 1125
+  "dordolec1.options[4]": { al: "kërko fshatin", en: "Look for the village.", review: 'internal-editorial' }, // 1126
   "dasma1.options[0]": { al: "hyr në valle", en: "Join the round dance.", review: 'internal-editorial' }, // 1127
   "dasma1.options[1]": { al: "shiko nusen", en: "Look at the bride.", review: 'internal-editorial' }, // 1128
-  "dasma1.options[2]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1129
-  "dasma1.options[3]": { al: "hyr në kalë", en: "Enter the horse.", review: 'internal-editorial' }, // 1130
-  "dasma1.options[4]": { al: "këndo kalë", en: "Sing about a horse.", review: 'internal-editorial' }, // 1131
-  "dasma1.options[5]": { al: "shiko sot", en: "Look today.", review: 'internal-editorial' }, // 1132
+  "dasma1.options[3]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1129
+  "dasma1.options[4]": { al: "hyr në kalë", en: "Enter the horse.", review: 'internal-editorial' }, // 1130
+  "dasma1.options[5]": { al: "këndo kalë", en: "Sing about a horse.", review: 'internal-editorial' }, // 1131
+  "dasma1.options[6]": { al: "shiko sot", en: "Look today.", review: 'internal-editorial' }, // 1132
   "dordolec2.options[0]": { al: "shko me fëmijët", en: "Go with the children.", review: 'internal-editorial' }, // 1133
   "dordolec2.options[1]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 1134
   "dordolec2.options[2]": { al: "hidh diellin", en: "Throw the sun.", review: 'internal-editorial' }, // 1135
@@ -517,9 +517,9 @@ export const OPTION_READINGS_C = Object.freeze({
   "maroKopshti.options[4]": { al: "ec në kopsht", en: "Walk in the garden.", review: 'internal-editorial' }, // 1571
   "kroi1.options[0]": { al: "dua ujë, të lutem.", en: "I want water, please.", review: 'internal-editorial' }, // 1572
   "kroi1.options[1]": { al: "dëgjo gratë", en: "Listen to the women.", review: 'internal-editorial' }, // 1573
-  "kroi1.options[2]": { al: "kthehu në lumin", en: "Return to the river.", review: 'internal-editorial' }, // 1574
-  "kroi1.options[3]": { al: "merr kroin", en: "Take the spring.", review: 'internal-editorial' }, // 1575
-  "kroi1.options[4]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1576
+  "kroi1.options[3]": { al: "kthehu në lumin", en: "Return to the river.", review: 'internal-editorial' }, // 1574
+  "kroi1.options[4]": { al: "merr kroin", en: "Take the spring.", review: 'internal-editorial' }, // 1575
+  "kroi1.options[5]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1576
   "tabaket1.options[0]": { al: "fol me tabakun", en: "Speak with the tanner.", review: 'internal-editorial' }, // 1577
   "tabaket1.options[1]": { al: "bëj punë", en: "Do some work.", review: 'internal-editorial' }, // 1578
   "tabaket1.options[2]": { al: "kthehu te lumi", en: "Return to the river.", review: 'internal-editorial' }, // 1579
@@ -543,4 +543,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "varret1.options[5]": { al: "rri në qiriun", en: "Stay in the candle.", review: 'internal-editorial' }, // 1597
   "besaBekim.options[3]": { al: "merr plakën", en: "Take the old woman.", review: 'internal-editorial' },
   "maroLitani3.options[4]": { al: "pres erën", en: "Cut the wind.", review: 'internal-editorial' },
+  "dordolec1.options[1]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
+  "dasma1.options[2]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
+  "kroi1.options[2]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
 })

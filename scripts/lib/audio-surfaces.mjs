@@ -12,7 +12,7 @@ export function collectAudioSurfaces(
   phrases = [],
   cefrTasks = [],
   cefrPreparation = [],
-  { items = {}, heartLevels = {} } = {},
+  { items = {}, heartLevels = {}, additionalLanguage = [] } = {},
 ) {
   const surfaces = new Set()
   const add = (al) => {
@@ -44,6 +44,7 @@ export function collectAudioSurfaces(
     }
   }
   walk(story)
+  walk(additionalLanguage)
   // Committed actions play as one fluent utterance before the reducer changes
   // scene. Their complete surfaces therefore need their own recordings; the
   // individual token clips gathered by walk(story) cannot be stitched.

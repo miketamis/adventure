@@ -9,18 +9,18 @@ const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'tale-mu
 
 export const AJKUNA_APPEARANCE = portrait({
   npcId: 'ajkuna', nodeId: 'mujoKale',
-  details: ['carried-object', 'clothing', 'location'],
-  practicalWordIds: ['grua', 'celes', 'ahur', 'thes'],
+  details: ['carried-object', 'hands', 'location', 'condition'],
+  practicalWordIds: ['grua', 'prit', 'ahur', 'mbyllur', 'celes', 'dore', 'sane', 'thes'],
   placement: { kind: 'insert-after', lineIndex: 0 },
-  portraitLines: [{ line: R('Before the long road, Mujo’s wife waited beside the stable with its key and a sack of hay.', w('para', 'Para', 'before'), w('rruge', 'rrugës', 'the road'), p(','), w('grua', 'gruaja'), w('e_link'), w('mujo', 'Mujit'), w('prit', 'priste', 'waited'), w('prane'), w('ahur', 'ahurit'), w('me'), w('celes', 'çelësin'), w('dhe'), w('nje'), w('thes'), w('me'), w('sane'), p('.')) }],
+  portraitLines: [{ line: R('Mujo’s wife waits beside the locked stable, its key in her hand and hay in a sack.', w('grua', 'Gruaja', 'the woman'), w('e_link'), w('mujo', 'Mujit'), w('prit', 'pret'), w('prane'), w('ahur', 'ahurit'), w('te_link'), w('mbyllur'), p(','), w('me'), w('celes', 'çelësin'), w('ne', 'në', 'in'), w('dore'), w('dhe'), w('sane'), w('ne', 'në', 'in'), w('nje'), w('thes'), p('.')) }],
 })
 
 export const RASPODINI_APPEARANCE = portrait({
   npcId: 'raspodini', nodeId: 'mujoKale',
-  details: ['clothing', 'carried-object', 'work-marks'],
-  practicalWordIds: ['bari', 'rroba', 'plis', 'shkop'],
+  details: ['memorable-feature', 'clothing', 'carried-object'],
+  practicalWordIds: ['bari', 'duket', 'rroba', 'vjeter', 'plis', 'shkop', 'gjate'],
   placement: { kind: 'insert-after', lineIndex: 1 },
-  portraitLines: [{ line: R('On the road, a shepherd wore old clothes and carried a felt cap and a long staff.', w('ne', 'Në', 'on'), w('rruge'), p(','), w('nje'), w('bari'), w('vesh', 'vishte'), w('rroba'), w('te_link'), w('vjeter', 'vjetra', 'old'), w('dhe'), w('mban', 'mbante'), w('nje'), w('plis'), w('dhe'), w('nje'), w('shkop'), w('te_link'), w('gjate'), p('.')) }],
+  portraitLines: [{ line: R('On the road, a shepherd looks like Mujo; he carries a felt cap, old clothes and a long staff.', w('ne', 'Në', 'on'), w('rruge'), p(','), w('nje'), w('bari'), w('duket'), w('si', 'si', 'as'), w('mujo'), p(';'), w('mban'), w('nje'), w('plis'), p(','), w('rroba'), w('te_link'), w('vjeter', 'vjetra', 'old'), w('dhe'), w('nje'), w('shkop'), w('te_link'), w('gjate'), p('.')) }],
 })
 
 export default Object.freeze({

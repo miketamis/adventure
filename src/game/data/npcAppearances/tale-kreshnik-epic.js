@@ -9,10 +9,10 @@ const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'tale-kr
 
 export const CAPTAIN_KRAJL_APPEARANCE = portrait({
   npcId: 'krajli', nodeId: 'kreshnikRrembimiBurg',
-  details: ['clothing', 'carried-object', 'posture'],
-  practicalWordIds: ['krajl', 'rroba', 'zi', 'shpate'],
+  details: ['carried-object', 'posture', 'location', 'material'],
+  practicalWordIds: ['krajl', 'dere', 'hekurt', 'kulle', 'shpate', 'celes'],
   placement: { kind: 'insert-after', lineIndex: 0 },
-  portraitLines: [{ line: R('The Krajl stands by the tower in black clothes, with a sword at his side.', w('krajl', 'Krajli'), w('rri'), w('prane'), w('kulle', 'kullës'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza', 'black'), p(','), w('me'), w('nje'), w('shpate'), w('prane'), w('trup', 'trupit'), p('.')) }],
+  portraitLines: [{ line: R('The Krajl guards the tower’s iron door, with a sword at his side and the prison key in his hand.', w('krajl', 'Krajli'), w('ruan'), w('dere', 'derën'), w('e_art'), w('hekurt'), w('te_link'), w('kulle', 'kullës'), p(','), w('me'), w('nje'), w('shpate'), w('prane'), w('trup', 'trupit'), w('dhe'), w('celes', 'çelësin'), w('e_link'), w('burg', 'burgut'), w('ne'), w('dore'), p('.')) }],
 })
 
 export const MEHREME_APPEARANCE = portrait({

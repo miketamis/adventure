@@ -25,34 +25,34 @@ export const BOLLA_APPEARANCE = portrait({
 
 export const THRESHOLD_SERPENT_APPEARANCE = portrait({
   npcId: 'gjarpri', nodeId: 'gjarpri',
-  details: ['build', 'face', 'colour'],
-  practicalWordIds: ['gjarper', 'madh', 'sy', 'verdhe'],
+  details: ['build', 'face', 'colour', 'movement'],
+  practicalWordIds: ['gjarper', 'madh', 'sy', 'verdhe', 'trup', 'leviz'],
   placement: { kind: 'replace', lineIndex: 0 },
-  portraitLines: [{ line: R('A great serpent lies around the stone; its eyes are yellow.', w('nje'), w('gjarper'), w('i_art'), w('madh'), w('rri'), w('rreth'), w('gur'), p(';'), w('sy', 'sytë'), w('e_link'), w('tij'), w('je', 'janë'), w('te_link'), w('verdhe'), p('.')) }],
+  portraitLines: [{ line: R('A great serpent lies around the stone; its yellow eyes watch you, but its body does not move.', w('nje'), w('gjarper'), w('i_art'), w('madh'), w('rri'), w('rreth'), w('gur', 'gurit'), p(';'), w('sy', 'sytë'), w('e_link'), w('tij'), w('te_link'), w('verdhe'), w('te_obj'), w('sheh', 'shohin'), p(','), w('por'), w('trup', 'trupi'), w('nuk'), w('leviz'), p('.')) }],
 })
 
 export const GREAT_KULSHEDRA_APPEARANCE = portrait({
   npcId: 'kulshedraMadhe', nodeId: 'kulshedra1',
-  details: ['build', 'hair', 'colour'],
-  practicalWordIds: ['kulshedra', 'koke', 'flok', 'kuq'],
+  details: ['build', 'hair', 'colour', 'memorable-feature'],
+  practicalWordIds: ['kulshedra', 'koke', 'goje', 'zjarr', 'flok', 'kuq'],
   placement: { kind: 'replace', lineIndex: 0 },
-  portraitLines: [{ line: R('The great Kulshedra has many heads and red hair.', w('kulshedra'), w('e_art'), w('madh'), w('ka'), w('shume'), w('koke', 'koka'), w('dhe'), w('flok'), w('te_link'), w('kuq', 'kuq'), p('.')) }],
+  portraitLines: [{ line: R('The great Kulshedra raises many heads; fire comes from every mouth, and its red hair moves.', w('kulshedra'), w('e_art'), w('madh', 'madhe'), w('ngre'), w('shume'), w('koke', 'koka'), p(';'), w('nga'), w('cdo'), w('goje'), w('dil', 'del'), w('zjarr'), p(','), w('dhe'), w('flok', 'flokët'), w('e_art'), w('kuq', 'kuq'), w('leviz', 'lëvizin'), p('.')) }],
 })
 
 export const EARTHLY_BEAUTY_APPEARANCE = portrait({
   npcId: 'bukuraDheut', nodeId: 'bukura1',
-  details: ['hair', 'clothing', 'colour'],
-  practicalWordIds: ['flok', 'gjate', 'ar', 'bardhe'],
+  details: ['hair', 'clothing', 'colour', 'posture'],
+  practicalWordIds: ['qete', 'flok', 'gjate', 'ar', 'toke', 'bardhe'],
   placement: { kind: 'replace', lineIndex: 0 },
-  portraitLines: [{ line: R('The Earthly Beauty has long golden hair and white clothes.', w('bukura'), w('e_link'), w('dhe_earth', 'Dheut'), w('ka'), w('flok'), w('te_link'), w('gjate'), w('si'), w('ar'), w('dhe'), w('rroba'), w('te_link'), w('bardhe'), p('.')) }],
+  portraitLines: [{ line: R('The Earthly Beauty sits calmly; her long golden hair falls to the ground over her white clothes.', w('bukura'), w('e_link'), w('dhe_earth', 'Dheut'), w('rri'), w('e_art'), w('qete'), p(';'), w('flok', 'flokët'), w('e_link'), w('saj'), w('te_link'), w('gjate'), w('si'), w('ar'), w('bie', 'bien'), w('deri'), w('ne'), w('toke'), w('mbi'), w('rroba', 'rrobat'), w('e_art'), w('bardhe', 'bardha'), p('.')) }],
 })
 
 export const SEA_BEAUTY_APPEARANCE = portrait({
   npcId: 'bukuraDetit', nodeId: 'detiThelle2',
-  details: ['hair', 'clothing', 'colour'],
-  practicalWordIds: ['flok', 'arte', 'rroba', 'kalter'],
+  details: ['hair', 'clothing', 'colour', 'location', 'movement'],
+  practicalWordIds: ['rroba', 'kalter', 'uje', 'kembe', 'lekundet', 'flok', 'arte', 'vezullon'],
   placement: { kind: 'replace', lineIndex: 1 },
-  portraitLines: [{ line: R('The Beauty of the Sea waits in blue clothes, with long golden hair.', w('bukura'), w('e_link'), w('det', 'Detit'), w('prit', 'pret'), w('me'), w('rroba'), w('te_link'), w('kalter'), p(','), w('me'), w('flok'), w('te_link'), w('gjate'), w('dhe'), w('te_link'), w('arte'), p('.')) }],
+  portraitLines: [{ line: R("The Beauty of the Sea waits in blue clothes; water ripples around her feet and her golden hair shimmers.", w('bukura'), w('e_link'), w('det', 'Detit'), w('prit', 'pret'), w('me'), w('rroba'), w('te_link'), w('kalter', 'kaltra'), p(';'), w('uje', 'uji'), w('lekundet'), w('rreth'), w('kembe', 'këmbëve'), w('te_link'), w('saj'), w('dhe'), w('flok', 'flokët'), w('e_art'), w('arte'), w('vezullon', 'vezullojnë'), p('.')) }],
 })
 
 export const SEA_CHAMPION_APPEARANCE = portrait({
@@ -81,10 +81,10 @@ export const GJERGJ_SISTER_APPEARANCE = portrait({
 
 export const MUJO_APPEARANCE = portrait({
   npcId: 'mujo', nodeId: 'mujo1',
-  details: ['build', 'clothing', 'carried-object'],
-  practicalWordIds: ['madh', 'forte', 'rroba', 'shpate'],
+  details: ['build', 'hands', 'carried-object', 'memorable-feature'],
+  practicalWordIds: ['shpate', 'dore', 'tjeter', 'ngre', 'gur', 'madh'],
   placement: { kind: 'replace', lineIndex: 1 },
-  portraitLines: [{ line: R('Mujo is a great strong hero in mountain clothes, with a sword in his hand.', w('mujo'), w('eshte'), w('nje'), w('trim'), w('i_art'), w('madh'), w('dhe'), w('i_art'), w('forte'), w('me'), w('rroba'), w('e_link'), w('mal'), w('dhe'), w('nje'), w('shpate'), w('ne'), w('dore'), p('.')) }],
+  portraitLines: [{ line: R('Mujo holds a sword in one hand; with the other, he lifts a great stone.', w('mujo'), w('mban'), w('nje'), w('shpate'), w('ne'), w('nje'), w('dore'), p(';'), w('me'), w('dore', 'dorën'), w('tjeter', 'tjetër'), p(','), w('ai'), w('ngre'), w('nje'), w('gur'), w('te_link'), w('madh'), p('.')) }],
 })
 
 export const THREE_FATES_APPEARANCE = portrait({
@@ -105,18 +105,18 @@ export const NIGHT_WITCH_APPEARANCE = portrait({
 
 export const SUN_APPEARANCE = portrait({
   npcId: 'dielli', nodeId: 'diellShtepi1',
-  details: ['face', 'clothing', 'colour'],
-  practicalWordIds: ['diell', 'fytyre', 'drite', 'arte'],
+  details: ['face', 'clothing', 'colour', 'location'],
+  practicalWordIds: ['diell', 'shtepi', 'rroba', 'arte', 'shkelqen', 'fytyre', 'drite'],
   placement: { kind: 'replace', lineIndex: 1 },
-  portraitLines: [{ line: R('The Sun stands in his house full of light, with golden clothes and light around his face.', w('diell', 'Dielli'), w('rri'), w('ne'), w('shtepi'), w('e_link'), w('tij'), w('plot'), w('me'), w('drite'), p(','), w('me'), w('rroba'), w('te_link'), w('arte'), w('dhe'), w('drite'), w('rreth'), w('fytyre'), p('.')) }],
+  portraitLines: [{ line: R('The Sun stands in his house; his golden clothes shine, and light falls around his face.', w('diell', 'Dielli'), w('rri'), w('ne'), w('shtepi', 'shtëpinë'), w('e_link'), w('tij'), p(';'), w('rroba', 'rrobat'), w('e_link'), w('tij'), w('te_link'), w('arte', 'arta'), w('shkelqen', 'shkëlqejnë'), p(','), w('dhe'), w('drite', 'drita'), w('bie'), w('rreth'), w('fytyre', 'fytyrës'), w('te_link', 'së'), w('tij'), p('.')) }],
 })
 
 export const MOON_APPEARANCE = portrait({
   npcId: 'hena', nodeId: 'henaPaqe',
-  details: ['hair', 'clothing', 'colour'],
-  practicalWordIds: ['hene', 'flok', 'argjend', 'bardhe'],
+  details: ['hair', 'clothing', 'colour', 'posture'],
+  practicalWordIds: ['hene', 'qete', 'flok', 'argjend', 'vezullon', 'rroba', 'bardhe'],
   placement: { kind: 'replace', lineIndex: 0 },
-  portraitLines: [{ line: R('The Moon has silver hair and white clothes.', w('hene', 'Hëna'), w('ka'), w('flok'), w('prej'), w('argjend'), w('dhe'), w('rroba'), w('te_link'), w('bardhe'), p('.')) }],
+  portraitLines: [{ line: R('The Moon sits quietly in the light; her silver hair shimmers over her white clothes.', w('hene', 'Hëna'), w('rri'), w('e_art'), w('qete'), w('ne'), w('drite'), p(';'), w('flok', 'flokët'), w('e_link'), w('saj'), w('prej'), w('argjend', 'argjendi'), w('vezullon', 'vezullojnë'), w('mbi'), w('rroba', 'rrobat'), w('e_link'), w('saj'), w('te_link'), w('bardhe', 'bardha'), p('.')) }],
 })
 
 export const PRENDE_APPEARANCE = portrait({

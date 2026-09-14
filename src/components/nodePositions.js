@@ -197,6 +197,7 @@ export const NODE_AT = {
   lemoshaFund: 'sheshi',
   lemoshaBuke: 'sheshi', // the bread-alms beat — the same doorway on the square
   tregtari: [80, 980],
+  tregtariBiseda: 'tregtari',
   blerjaBuke: 'tregtari',
   blerjaKripe: 'tregtari',
   shitjaCaj: 'tregtari',
@@ -206,12 +207,14 @@ export const NODE_AT = {
   plisiFund: 'tregtari2',
   xhubletaFund: 'tregtari2',
   bujtina: [50, 1065],
+  bujtinariBiseda: 'bujtina',
   gjumiBujtina: 'bujtina',
   kafeja1: 'bujtina',
   kafejaFund: 'bujtina',
   fallFund: 'bujtina',
   gezuarFund: 'bujtina',
   sheruesi: [-30, 1050],
+  sheruesiBiseda: 'sheruesi',
   kopshtiBar: [-70, 1090], // the healer's herb garden behind the house
   sherimiBar: 'sheruesi',
   besimeFund: 'sheruesi',
@@ -237,6 +240,7 @@ export const NODE_AT = {
   oraZeze: 'humbur',
   eaten: 'pylliThelle',
   pylliLoop: [-440, 540],
+  plakaPyllitBiseda: 'pylliLoop',
   shtojzovalle1: [-460, 800],
   shtojzovalle2: 'shtojzovalle1',
   shtojzovalleVallja: 'shtojzovalle1',
@@ -361,6 +365,7 @@ export const NODE_AT = {
   eliraEmriShesh: 'fshatiSheshi',
   eliraBanore: 'fshatiSheshi',
   eliraEmriBanore: 'fshatiSheshi',
+  eliraBiseda: 'fshatiSheshi',
   eliraPorosiaDorezuar: 'fshatiSheshi',
   porosiaShesh: 'fshatiSheshi',
   pazariFshatit: 'fshatiSheshi',
@@ -368,6 +373,7 @@ export const NODE_AT = {
   porosiaBlerje: 'fshatiSheshi',
   porosiaBlerjePergjigje: 'fshatiSheshi',
   dasma1: [598, 448], // the wedding yard — the feast-house ground east of the square (krushqit ride here)
+  dasmaBiseda: 'dasma1',
   dasmaFund: 'dasma1',
   valleFund: 'dasma1',
   sheshiPlak: 'fshatiSheshi',
@@ -475,6 +481,7 @@ export const NODE_AT = {
   qilim: [288, 468],
   qilimNena: 'qilim', // the mother speaks at the loom — same spot as the qilim scene
   bariu: [300, 560],
+  bariuBiseda: 'bariu',
   punaBariu: 'bariu',
   gjysmegjel1: [392, 566],
   gjysmegjel2: 'gjysmegjel1',
@@ -520,6 +527,7 @@ export const NODE_AT = {
   nenaShtrige: 'ktheu2',
   bukuraLirim: 'bukura1',
   dordolec1: [554, 480],
+  dordolecBiseda: 'dordolec1',
   dordolec2: 'dordolec1',
   dordolecSyriFund: 'dordolec1',
   dordolecFund: [540, 430],
@@ -667,6 +675,7 @@ export const NODE_AT = {
   xhindMulliFund: 'xhindMulli',
   xhindMulliKeq: 'xhindMulli',
   kroi1: [180, 672],
+  vajzaKroiBiseda: 'kroi1',
   kroiFund: 'kroi1',
   // the tanners' bank under the old bridge (Ura e Tabakëve) — its own spot on
   // the water, downstream of the stonebridge glyph

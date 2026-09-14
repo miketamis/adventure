@@ -84,6 +84,8 @@ export const clearConversationResponseEffects = (hub) =>
 export function conversationQuestionOption(hub, questionId, text, option = {}) {
   const question = conversationQuestionSpec(hub, questionId)
   return {
+    intent: 'speech',
+    playerIntents: ['speech'],
     ...option,
     text,
     to: option.to || hub.nodeId,

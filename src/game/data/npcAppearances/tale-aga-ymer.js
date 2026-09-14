@@ -4,9 +4,9 @@ const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'tale-ag
 
 export const YMER_MOTHER_APPEARANCE = portrait({
   npcId: 'nenaYmerit', nodeId: 'agaYmer1',
-  details: ['age', 'hair', 'condition'], practicalWordIds: ['nene', 'vjeter', 'flok', 'bardhe'],
+  details: ['age', 'hair', 'carried-object', 'hands', 'location'], practicalWordIds: ['nene', 'vjeter', 'flok', 'bardhe', 'uje', 'dore', 'burim'],
   placement: { kind: 'insert-after', lineIndex: 5 },
-  portraitLines: [{ line: R('At home his old mother waits too, with white hair and tired eyes.', w('ne', 'Në'), w('shtepi'), w('prit', 'pret'), w('edhe'), w('nene', 'nëna'), w('e_link'), w('tij'), w('e_art'), w('vjeter'), p(','), w('me'), w('flok'), w('te_link'), w('bardhe'), w('dhe'), w('sy'), w('te_link'), w('lodhur'), p('.')) }],
+  portraitLines: [{ line: R('At the spring, his old mother holds water in her hands; beneath her white hair, she does not recognise her son.', w('tek', 'Te'), w('burim', 'burimi'), p(','), w('nene', 'nëna'), w('e_link'), w('tij'), w('e_art'), w('vjeter'), w('mban'), w('uje'), w('ne'), w('dore', 'duar'), p(';'), w('nen'), w('flok'), w('te_link'), w('bardhe'), p(','), w('ajo'), w('nuk'), w('e_obj'), w('njoh', 'njeh'), w('bir', 'birin'), w('e_link'), w('saj'), p('.')) }],
 })
 
 export const YMER_BRIDE_APPEARANCE = portrait({

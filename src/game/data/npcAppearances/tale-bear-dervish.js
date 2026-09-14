@@ -18,9 +18,9 @@ export const BEAR_APPEARANCE = portrait({
 
 export const CHURCH_PRIEST_APPEARANCE = portrait({
   npcId: 'prifti', nodeId: 'kisha1',
-  details: ['age', 'hair', 'carried-object', 'location'], practicalWordIds: ['prift', 'mjeker', 'bardhe', 'liber', 'hapur'],
+  details: ['carried-object', 'hands', 'movement', 'location'], practicalWordIds: ['prift', 'liber', 'hapur', 'dore', 'ngre', 'bekim'],
   placement: { kind: 'replace', lineIndex: 4 },
-  portraitLines: [{ line: R('An old priest with a white beard holds an open book at the church door.', w('nje'), w('prift'), w('i_art'), w('vjeter'), w('me'), w('mjeker'), w('te_link'), w('bardhe'), w('mban'), w('nje'), w('liber'), w('te_link'), w('hapur'), w('tek', 'te'), w('dere'), w('e_link'), w('kishe', 'kishës'), p('.')) }],
+  portraitLines: [{ line: R('At the church door, the priest holds his book open and raises one hand in blessing.', w('tek', 'Te'), w('dere'), w('e_link'), w('kishe', 'kishës'), p(','), w('prift', 'prifti'), w('mban'), w('liber', 'librin'), w('te_link'), w('hapur'), w('dhe'), w('ngre'), w('nje'), w('dore'), w('per'), w('bekim'), p('.')) }],
 })
 
 export default Object.freeze({ dervishi: DERVISH_APPEARANCE, arusha: BEAR_APPEARANCE, prifti: CHURCH_PRIEST_APPEARANCE })
