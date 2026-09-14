@@ -761,6 +761,6 @@ export const FINAL_READINGS = {
   "kisha1.text[6]": { al: "njerëzit shkojnë në kishë dhe në teqe.", en: "People go to church and to the Bektashi lodge." },
   "vajzaKroiBiseda.text[0]": { al: "Vajza vendos kovën mbi një gur dhe të dëgjon.", en: "The girl sets the bucket on a stone and listens to you." },
   "vajzaKroiBiseda.text[3]": { al: "ajo thotë: jo. Fshati është lart, pranë lumit.", en: "She says, “No. The village is uphill, beside the river.”" },
-  "vajzaKroiBiseda.text[1]": { al: "ajo thotë: po. Uji vjen nga mali dhe është i ftohtë.", en: "She says, “Yes. The water comes from the mountain and it is cold.”" },
   "vajzaKroiBiseda.text[2]": { al: "ajo thotë: po. Vij këtu çdo mëngjes me kovën. atëherë uji është i qetë.", en: "She says, “Yes. I come here every morning with the bucket. Then the water is calm.”" },
+  "vajzaKroiBiseda.text[1]": { al: "ajo thotë: Normal! Uji është i ftohtë sepse vjen nga mali.", en: "She says, “Of course! The water is cold because it comes from the mountain.”" },
 }

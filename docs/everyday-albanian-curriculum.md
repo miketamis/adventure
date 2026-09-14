@@ -12,7 +12,7 @@ The opening conversation now teaches a transferable interaction skeleton in its 
 4. ask someone to wait, admit “I don’t know,” and choose a meeting place;
 5. agree on today or tomorrow and a time.
 
-The first village errand continues the same conversation instead of resetting into a lesson. The player agrees to help prepare for a guest, follows an instruction, asks where the market and guest-room are, follows left/right directions, asks a fast speaker to slow down or repeat, buys bread and salt, and welcomes a traveller. The neighbours now remain people after their first plot function: the player can open a conversation, ask how someone is today, ask about work and routine, arrange another meeting, check whether someone needs help, and ask about cold water or the way to a well. The supper then becomes a genuine social scene: permission to enter, offering food and water, a small favour, introductions, home and work, family, missing home, the journey, weather, tiredness, sympathy, news, follow-up questions, disbelief, fear, opinions, disagreement and a consequential decision. That decision opens the Kulshedra trail. The square’s birthday gathering teaches wishes, natural reactions and an explicit joke marker. The café carries work, sleep and next-day talk. Later, the established Gjakova inn, stalls and healer carry comparing a cheaper option, opening hours, hot water, breakfast time, leaving a bag, pain, aftercare, help, and doctor language without importing a modern airport, bus, or phone into the folktale world.
+The first village errand continues the same conversation instead of resetting into a lesson. The player agrees to help prepare for a guest, follows an instruction, asks where the market and guest-room are, follows left/right directions, asks a fast speaker to slow down or repeat, buys bread and salt, and welcomes a traveller. The neighbours now remain people after their first plot function: the player can open a conversation, ask how someone is today, ask about work and routine, arrange another meeting, check whether someone needs help, and ask about cold water or the way to a well. Elira’s familiar greeting, the elder’s rumour and clarification turns, the children’s playful disagreement, and the innkeeper’s exact-time and bag instructions also introduce ordinary informal register without flattening every speaker into the same voice. The supper then becomes a genuine social scene: permission to enter, offering food and water, a small favour, introductions, home and work, family, missing home, the journey, weather, tiredness, sympathy, news, follow-up questions, disbelief, fear, opinions, disagreement and a consequential decision. That decision opens the Kulshedra trail. The square’s birthday gathering teaches wishes, natural reactions and an explicit joke marker. The café carries work, sleep and next-day talk. Later, the established Gjakova inn, stalls and healer carry comparing a cheaper option, opening hours, hot water, breakfast time, leaving a bag, pain, aftercare, help, and doctor language without importing a modern airport, bus, or phone into the folktale world.
 
 This gives the player the main intent and routine phrases in the private conversation research during the first village visit. An aggregate review of the current ignored extract particularly reinforced movement updates and changing a plan; the public lines are independently authored standard Albanian. It does not promise instant comprehension of names, code-switching, one-off misspellings, or private-reference humour. Those are genuine parts of chat literacy, but they should not displace reusable Albanian.
 
@@ -22,14 +22,14 @@ The public curriculum currently contains (the hidden markers are checked
 against the live registries by `scripts/conversationaudit.mjs`):
 
 - 15 opening targets; <!-- curriculum:opening=15 -->
-- 66 first-session targets; <!-- curriculum:session=66 -->
-- 186 practice-priority senses; <!-- curriculum:core=186 -->
-- 137 whole-phrase drills; <!-- curriculum:phrases=137 -->
-- 25 story-grounded can-do groups. <!-- curriculum:groups=25 -->
+- 72 first-session targets; <!-- curriculum:session=72 -->
+- 200 practice-priority senses; <!-- curriculum:core=200 -->
+- 145 whole-phrase drills; <!-- curriculum:phrases=145 -->
+- 26 story-grounded can-do groups. <!-- curriculum:groups=26 -->
 
 Every whole-phrase drill must be found in a playable story line or action. `scripts/conversationaudit.mjs` rejects an ungrounded drill, a missing first-session target, an unknown sense, or an underfilled can-do group.
 
-Practice prioritizes complete useful chunks and the common words inside them. It teaches the clear, uncompressed form a learner can speak and write. Texting abbreviations do not consume practice time; once the learner knows the underlying language, real conversations can supply those local habits naturally.
+Practice prioritizes complete useful chunks and the common words inside them. It keeps a clear standard form as the learner’s anchor, then admits reviewed informal forms where a relationship and scene make their force clear. Coarse dismissals, comic exaggerations, and expressions whose meaning changes sharply with intonation remain story-only recognition and pronunciation knowledge; they cannot become bare production prompts. Texting abbreviations do not consume practice time; once the learner knows the underlying language, real conversations can supply those local habits naturally. `scripts/colloquialexpressionaudit.mjs` enforces those register boundaries and pins every reviewed expression to public story content.
 
 ## Breadth audit
 
@@ -84,7 +84,7 @@ Topic coverage is checked against natural conversation rather than imagined phra
 
 Whole phrases receive heavy practice because formulaic sequences are processed faster and with fewer errors than matched non-formulaic language in Jiang and Nekrasova’s study, [“The Processing of Formulaic Sequences by Second Language Speakers”](https://onlinelibrary.wiley.com/doi/10.1111/j.1540-4781.2007.00589.x). Tasks are embedded in story consequences because beginner task-based work can be built around meaning-focused input; see Rod Ellis, [“Using tasks with beginner-level learners”](https://benjamins.com/catalog/ltyl.19005.ell).
 
-The game teaches clear standard forms while accepting that real Albanian varies by speaker and region. Mozilla’s [Spontaneous Speech Dataset for Gheg Albanian](https://mozilladatacollective.com/datasets/cmqi2ikzm006cmf07yam3i21d) is useful research evidence for that variation, but dialect compression is not a required practice track in the game.
+The game teaches clear standard forms while accepting that real Albanian varies by speaker and region. Familiar reductions such as `ça` are presented beside—not as replacements for—the standard `çfarë`, while socially risky phrases remain receptive. Mozilla’s [Spontaneous Speech Dataset for Gheg Albanian](https://mozilladatacollective.com/datasets/cmqi2ikzm006cmf07yam3i21d) is useful research evidence for that variation, but dialect compression is not a required practice track in the game.
 
 ## Measurement
 

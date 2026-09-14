@@ -604,6 +604,7 @@ const ELIRA_NEIGHBOUR_CONVERSATION = defineConversationHub({
     today: { purpose: 'ask how Elira is today' },
     work: { purpose: 'ask what Elira is doing today' },
     availability: { purpose: 'ask when Elira is usually in the square' },
+    waitQuestion: { purpose: 'ask Elira to wait for one more question' },
   },
 })
 
@@ -631,12 +632,18 @@ const SQUARE_ELDER_CONVERSATION = defineConversationHub({
     well: { purpose: 'ask what happened to the well' },
     water: { purpose: 'ask where to find water' },
     help: { purpose: 'ask how to help the village' },
+    seriously: { purpose: 'check whether the well story is serious' },
+    meaning: { purpose: 'ask what the elder means by the rumor' },
+    clarify: { purpose: 'ask the elder to clarify the rumor' },
+    repair: { purpose: 'ask the elder to repeat the water directions' },
+    agree: { purpose: 'agree that the village needs help' },
   },
 })
 
 const SHEPHERD_CONVERSATION = defineConversationHub({
   id: 'village-shepherd', nodeId: 'bariuBiseda', npcId: 'bari', exitTo: 'bariu',
   questions: {
+    today: { purpose: 'ask what the shepherd is doing today' },
     goats: { purpose: 'ask how many goats the shepherd has' },
     help: { purpose: 'offer practical help with the flock' },
     return: { purpose: 'ask when the shepherd returns to the village' },
@@ -667,6 +674,7 @@ const INNKEEPER_CONVERSATION = defineConversationHub({
     hotWater: { purpose: 'ask whether hot water is available' },
     breakfast: { purpose: 'ask when breakfast is served' },
     bag: { purpose: 'ask where to leave a bag' },
+    leaveBag: { purpose: 'check whether the bag can stay behind' },
   },
 })
 
@@ -676,6 +684,7 @@ const CHILDREN_CONVERSATION = defineConversationHub({
     activity: { purpose: 'ask what the children are doing' },
     join: { purpose: 'ask to join their song' },
     reason: { purpose: 'ask why the children are calling for rain' },
+    nonsense: { purpose: 'playfully challenge the rain-child claim' },
   },
 })
 
@@ -1042,13 +1051,15 @@ export const STORY = {
       npcIdentityLine('elira', false, R('The woman pauses beside you and listens.', wf('grua', 'Gruaja', 'the woman'), wf('ndalo', 'ndalon', 'stops'), w('prane'), wf('ti', 'teje', 'you'), w('dhe'), w('te_obj'), wf('degjo', 'dëgjon', 'listens'), p('.'))),
       npcIdentityLine('elira', true, R('Elira pauses beside you and listens.', w('elira'), wf('ndalo', 'ndalon', 'stops'), w('prane'), wf('ti', 'teje', 'you'), w('dhe'), w('te_obj'), wf('degjo', 'dëgjon', 'listens'), p('.'))),
       conversationResponseLine(ELIRA_NEIGHBOUR_CONVERSATION, 'today', R('She says, “I am well, but I have a lot of work today.”', w('ajo'), w('thote'), p(':'), w('jam'), w('mire'), p(','), w('por'), wf('ka', 'kam', 'have'), w('shume'), w('pune'), w('sot'), p('.'))),
-      conversationResponseLine(ELIRA_NEIGHBOUR_CONVERSATION, 'work', R('She says, “I am getting dinner ready.”', w('ajo'), w('thote'), p(':'), w('po_prog'), w('bej'), w('gati'), wf('darke', 'darkën', 'the dinner'), p('.'))),
-      conversationResponseLine(ELIRA_NEIGHBOUR_CONVERSATION, 'availability', R('She says, “I am here every morning.”', w('ajo'), w('thote'), p(':'), w('jam'), w('ketu'), w('cdo'), w('mengjes'), p('.'))),
+      conversationResponseLine(ELIRA_NEIGHBOUR_CONVERSATION, 'work', R('She says, “I am getting dinner ready. Anyway, I need to keep working.”', w('ajo'), w('thote'), p(':'), w('po_prog'), w('bej'), w('gati'), wf('darke', 'darkën', 'the dinner'), p('.'), wf('nejse', 'Nejse', 'anyway'), p(','), w('duhet'), w('te_subj'), wf('vazhdo', 'vazhdoj', 'continue'), wf('pune', 'punën', 'the work'), p('.'))),
+      conversationResponseLine(ELIRA_NEIGHBOUR_CONVERSATION, 'availability', R('She says, “I am here every morning—I mean, from seven o’clock.”', w('ajo'), w('thote'), p(':'), w('jam'), w('ketu'), w('cdo'), w('mengjes'), p(','), wf('domethene', 'domethënë', 'I mean'), w('nga'), wf('ore', 'ora', 'the hour'), w('shtate'), p('.'))),
+      conversationResponseLine(ELIRA_NEIGHBOUR_CONVERSATION, 'waitQuestion', R('“Do not worry,” she says. “I am listening.”', wf('mos', 'Mos', 'do not'), wf('shqetesohem', 'u shqetëso', 'worry'), p(','), w('thote'), w('ajo'), p('.'), wf('po_prog', 'Po', 'progressive marker'), w('te_obj'), wf('degjo', 'dëgjoj', 'am listening'), p('.'))),
     ],
     options: [
-      conversationQuestionOption(ELIRA_NEIGHBOUR_CONVERSATION, 'today', R('How are you today?', w('si'), w('je'), w('sot'), p('?'))),
-      conversationQuestionOption(ELIRA_NEIGHBOUR_CONVERSATION, 'work', R('What are you doing today?', w('cfare'), w('po_prog'), wf('bej', 'bën', 'do'), w('sot'), p('?'))),
+      conversationQuestionOption(ELIRA_NEIGHBOUR_CONVERSATION, 'today', R("How are things? How are you today?", wf('ckemi', "Ç'kemi", 'how are things'), p('?'), wf('si', 'Si', 'how'), w('je'), w('sot'), p('?'))),
+      conversationQuestionOption(ELIRA_NEIGHBOUR_CONVERSATION, 'work', R('What are you doing?', wf('cfare', 'Ça', 'what'), w('po_prog'), wf('bej', 'bën', 'do'), p('?'))),
       conversationQuestionOption(ELIRA_NEIGHBOUR_CONVERSATION, 'availability', R('When can I find you here?', w('kur'), w('mund'), w('te_subj'), w('te_obj'), wf('gjej', 'gjej', 'find'), w('ketu'), p('?'))),
+      conversationQuestionOption(ELIRA_NEIGHBOUR_CONVERSATION, 'waitQuestion', R('Wait a moment; I have a question.', wf('prit', 'Prit', 'wait'), w('pak'), p(';'), wf('ka', 'kam', 'have'), w('nje'), w('pyetje'), p('.'))),
       conversationExitOption(ELIRA_NEIGHBOUR_CONVERSATION, R('See you later.', wf('sheh', 'shihemi', 'see each other'), w('me_vone'), p('.')), { intent: 'speech', playerIntents: ['speech'] }),
     ],
   },
@@ -3814,7 +3825,7 @@ export const STORY = {
       R('The trader sets down the money bag and listens to you.', wf('tregtar', 'Tregtari', 'the trader'), wf('le', 'lë', 'sets down'), wf('cante', 'çantën', 'the bag'), w('me'), w('para_money'), w('dhe'), w('te_obj'), wf('degjo', 'dëgjon', 'listens'), p('.')),
       conversationResponseLine(TRADER_CONVERSATION, 'cheaper', R('He says, “Yes. Bread is cheaper than meat.”', w('ai'), w('thote'), p(':'), w('po_yes'), p('.'), wf('buke', 'Buka', 'the bread'), w('eshte'), w('me_more'), wf('lire', 'e lirë', 'cheap'), w('se'), wf('mish', 'mishi', 'the meat'), p('.'))),
       conversationResponseLine(TRADER_CONVERSATION, 'road', R('He says, “Take bread and water; the road is long.”', w('ai'), w('thote'), p(':'), wf('merr', 'Merrni', 'take'), w('buke'), w('dhe'), w('uje'), p(';'), wf('rruge', 'rruga', 'the road'), w('eshte'), w('e_art'), w('gjate'), p('.'))),
-      conversationResponseLine(TRADER_CONVERSATION, 'opening', R('He says, “The shop opens in the morning.”', w('ai'), w('thote'), p(':'), wf('dyqan', 'Dyqani', 'the shop'), wf('hap', 'hapet', 'opens'), wf('ne', 'në', 'in'), w('mengjes'), p('.'))),
+      conversationResponseLine(TRADER_CONVERSATION, 'opening', R('He says, “The shop opens at exactly seven o’clock.”', w('ai'), w('thote'), p(':'), wf('dyqan', 'Dyqani', 'the shop'), wf('hap', 'hapet', 'opens'), w('fiks'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('shtate'), p('.'))),
     ],
     options: [
       conversationQuestionOption(TRADER_CONVERSATION, 'cheaper', R('Do you have something cheaper?', w('a_q'), wf('ke', 'keni', 'have'), w('dicka'), w('me_more'), wf('lire', 'të lirë', 'cheap'), p('?'))),
@@ -3982,13 +3993,15 @@ export const STORY = {
     text: [
       R('The innkeeper sets the keys beside the fire and listens to you.', wf('grua', 'Gruaja', 'the innkeeper'), wf('vendos', 'vendos', 'place'), wf('celes', 'çelësat', 'the keys'), w('prane'), wf('zjarr', 'zjarrit', 'the fire'), w('dhe'), w('te_obj'), wf('degjo', 'dëgjon', 'listens'), p('.')),
       conversationResponseLine(INNKEEPER_CONVERSATION, 'hotWater', R('She says, “Yes. The hot water is beside the fire.”', w('ajo'), w('thote'), p(':'), w('po_yes'), p('.'), wf('uje', 'Uji', 'the water'), w('i_art'), w('ngrohte'), w('eshte'), w('prane'), wf('zjarr', 'zjarrit', 'the fire'), p('.'))),
-      conversationResponseLine(INNKEEPER_CONVERSATION, 'breakfast', R('She says, “Breakfast is at seven o’clock.”', w('ajo'), w('thote'), p(':'), wf('mengjes', 'Mëngjesi', 'the breakfast'), w('eshte'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('shtate'), p('.'))),
+      conversationResponseLine(INNKEEPER_CONVERSATION, 'breakfast', R('She says, “Breakfast starts at exactly seven o’clock.”', w('ajo'), w('thote'), p(':'), wf('mengjes', 'Mëngjesi', 'the breakfast'), wf('filloj', 'fillon', 'starts'), w('fiks'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('shtate'), p('.'))),
       conversationResponseLine(INNKEEPER_CONVERSATION, 'bag', R('She says, “Yes. Leave the bag beside the door.”', w('ajo'), w('thote'), p(':'), w('po_yes'), p('.'), wf('le', 'Lëreni', 'leave'), wf('cante', 'çantën', 'the bag'), w('prane'), wf('dere', 'derës', 'the door'), p('.'))),
+      conversationResponseLine(INNKEEPER_CONVERSATION, 'leaveBag', R('The innkeeper shakes her head. “No. Leave it here. It is safe.”', wf('grua', 'Gruaja', 'the innkeeper'), wf('tund', 'tund', 'shake'), wf('koke', 'kokën', 'the head'), p('.'), wf('jo', 'Jo', 'no'), p('.'), wf('le', 'Lëreni', 'leave'), w('ketu'), p('.'), wf('eshte', 'Është', 'is'), w('e_art'), w('sigurt'), p('.'))),
     ],
     options: [
       conversationQuestionOption(INNKEEPER_CONVERSATION, 'hotWater', R('Is there hot water?', w('a_q'), w('ka'), w('uje'), w('te_link'), w('ngrohte'), p('?'))),
       conversationQuestionOption(INNKEEPER_CONVERSATION, 'breakfast', R('When is breakfast?', w('kur'), w('eshte'), wf('mengjes', 'mëngjesi', 'the breakfast'), p('?'))),
       conversationQuestionOption(INNKEEPER_CONVERSATION, 'bag', R('Can I leave my bag here?', w('a_q'), w('mund'), w('te_subj'), wf('le', 'lë', 'leave'), wf('cante', 'çantën', 'the bag'), wf('im', 'time', 'my'), w('ketu'), p('?'))),
+      conversationQuestionOption(INNKEEPER_CONVERSATION, 'leaveBag', R('Should I keep the bag with me?', w('a_q'), w('duhet'), w('te_subj'), wf('mban', 'mbaj', 'keep'), wf('cante', 'çantën', 'the bag'), w('me'), wf('vete', 'vete', 'myself'), p('?')), { requires: INNKEEPER_CONVERSATION.questions.bag.askedCondition }),
       conversationExitOption(INNKEEPER_CONVERSATION, R('Thank you. Goodbye.', w('faleminderit'), p('.'), w('mirupafshim'), p('.')), { intent: 'speech', playerIntents: ['speech'] }),
     ],
   },
@@ -6528,16 +6541,27 @@ export const STORY = {
     id: 'sheshiPlak',
     text: [
       R('An old gentleman holds his staff beside the well and listens to you.', w('nje'), w('zoteri'), w('i_art'), wf('vjeter', 'vjetër', 'old'), w('mban'), wf('shkop', 'shkopin', 'the staff'), w('prane'), wf('pus', 'pusit', 'the well'), w('dhe'), w('te_obj'), wf('degjo', 'dëgjon', 'listens'), p('.')),
-      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'well', unless('fact:villageWellsRestored', R('The old man touches the well stone. “The water stopped. Nobody knows why.”', wf('plak', 'Plaku', 'the old man'), w('prek'), wf('gur', 'gurin', 'the stone'), w('e_link'), wf('pus', 'pusit', 'the well'), p('.'), wf('uje', 'Uji', 'the water'), wf('ndalo', 'ndaloi', 'stopped'), p('.'), w('askush'), w('nuk'), w('e_obj'), w('di'), w('pse'), p('.')))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'well', unless('fact:villageWellsRestored', R('The old man touches the well stone. “The water stopped. Who knows why. Supposedly it happened by itself, but nobody believes that.”', wf('plak', 'Plaku', 'the old man'), w('prek'), wf('gur', 'gurin', 'the stone'), w('e_link'), wf('pus', 'pusit', 'the well'), p('.'), wf('uje', 'Uji', 'the water'), wf('ndalo', 'ndaloi', 'stopped'), p('.'), wf('kushedi', 'Kushedi', 'who knows'), w('pse'), p('.'), wf('gjoja', 'Gjoja', 'supposedly'), w('kjo'), wf('ndodh', 'ndodhi', 'happened'), w('vete'), p(','), w('por'), w('askush'), w('nuk'), w('e_obj'), wf('beso', 'beson', 'believes'), p('.')))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'well', when('fact:villageWellsRestored', R('He smiles. “The water has returned. The village is alive again.”', w('buzeqesh'), p('.'), wf('uje', 'Uji', 'the water'), wf('kthehu', 'është kthyer', 'has returned'), p('.'), wf('fshat', 'Fshati', 'the village'), w('eshte'), w('i_art'), w('gjalle'), w('perseri'), p('.')))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'water', unless('fact:villageWellsRestored', R('With his staff, he points downhill. “The spring is beside the river.”', w('me'), wf('shkop', 'shkopin', 'the staff'), p(','), wf('tregoj', 'tregon', 'points'), w('poshte'), p('.'), wf('krua', 'Kroi', 'the spring'), w('eshte'), w('prane'), wf('lume', 'lumit', 'the river'), p('.')))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'water', when('fact:villageWellsRestored', R('He points to the well. “Now there is water here, in the well.”', w('ai'), wf('tregoj', 'tregon', 'points to'), wf('pus', 'pusin', 'the well'), p('.'), w('tani'), w('ka'), w('uje'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('pus'), p('.')))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'help', R('He raises his hand toward the spring road. “Ask the woman who carries water every day.”', w('ngre'), wf('dore', 'dorën', 'the hand'), w('drejt'), wf('rruge', 'rrugës', 'the road'), w('e_link'), wf('krua', 'kroit', 'the spring'), p('.'), w('pyet'), wf('grua', 'gruan', 'the woman'), w('qe'), wf('sjell', 'sjell', 'carries'), w('uje'), w('cdo'), w('dite'), p('.'))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'seriously', R('The old man smiles. “Yes. The whole village knows it.”', wf('plak', 'Plaku', 'the old man'), w('buzeqesh'), p('.'), w('po_yes'), p('.'), w('i_art'), w('gjithe'), wf('fshat', 'fshati', 'the village'), w('e_obj'), w('di'), p('.'))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'meaning', R('He says, “It means that people say so, but I do not believe them.”', w('ai'), w('thote'), p(':'), wf('domethene', 'Domethënë', 'that means'), w('se'), wf('njeri', 'njerëzit', 'the people'), wf('thote', 'thonë', 'say'), w('keshtu'), p(','), w('por'), w('une'), w('nuk'), w('i_obj'), wf('beso', 'besoj', 'believe'), p('.'))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'clarify', R('He says, “I mean: the water stopped and nobody knows why.”', w('ai'), w('thote'), p(':'), wf('do', 'Dua', 'want'), w('te_subj'), wf('thote', 'them', 'say'), p(':'), wf('uje', 'uji', 'the water'), wf('ndalo', 'ndaloi', 'stopped'), w('dhe'), w('askush'), w('nuk'), w('e_obj'), w('di'), w('pse'), p('.'))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'repair', unless('fact:villageWellsRestored', R('The old man repeats slowly, “The spring is downhill, beside the river.”', wf('plak', 'Plaku', 'the old man'), w('e_obj'), wf('perserit', 'përsërit', 'repeats'), w('ngadale'), p(':'), wf('krua', 'Kroi', 'the spring'), w('eshte'), w('poshte'), p(','), w('prane'), wf('lume', 'lumit', 'the river'), p('.')))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'repair', when('fact:villageWellsRestored', R('The old man repeats slowly, “Now there is water here, in the well.”', wf('plak', 'Plaku', 'the old man'), w('e_obj'), wf('perserit', 'përsërit', 'repeats'), w('ngadale'), p(':'), w('tani'), w('ka'), w('uje'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('pus'), p('.')))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'agree', R('The old man smiles. “Well, all right. Thank you.”', wf('plak', 'Plaku', 'the old man'), w('buzeqesh'), p('.'), wf('epo', 'Epo', 'well'), w('mire'), p('.'), w('faleminderit'), p('.'))),
     ],
     options: [
-      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'well', R('What happened to the well?', w('cfare'), wf('ndodh', 'ndodhi', 'happened'), w('me'), wf('pus', 'pusin', 'the well'), p('?'))),
+      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'well', R('What happened?', wf('cfare', 'Çfarë', 'what'), wf('ndodh', 'ndodhi', 'happened'), p('?'))),
       conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'water', R('Where can I find water?', w('ku'), w('mund'), w('te_subj'), wf('gjej', 'gjej', 'find'), w('uje'), p('?'))),
       conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'help', R('How can I help?', w('si'), w('mund'), w('te_subj'), wf('ndihmo', 'ndihmoj', 'help'), p('?'))),
+      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'seriously', R('Seriously?', wf('seriozisht', 'Seriozisht', 'seriously'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.well.askedCondition }),
+      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'meaning', R('What do you mean?', wf('si', 'Si', 'how'), wf('domethene', 'domethënë', 'that means'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.well.askedCondition, unless: 'fact:villageWellsRestored' }),
+      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'clarify', R('What do you mean?', wf('cfare', 'Çfarë', 'what'), w('do'), w('te_subj'), wf('thote', 'thuash', 'say'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.well.askedCondition, unless: 'fact:villageWellsRestored' }),
+      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'repair', R('I do not understand. Can you repeat it, please?', wf('nuk', 'Nuk', 'not'), w('e_obj'), w('kuptoj'), p('.'), wf('mund', 'Mund', 'can'), w('ta'), wf('perserit', 'përsërisësh', 'repeat'), p(','), w('lutem'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.water.askedCondition }),
+      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'agree', R('You are right. We must help.', wf('ke', 'Ke', 'have'), wf('drejte', 'të drejtë', 'right'), p('.'), wf('duhet', 'Duhet', 'must'), w('te_subj'), wf('ndihmo', 'ndihmojmë', 'help'), p('.')), { requires: SQUARE_ELDER_CONVERSATION.questions.help.askedCondition }),
       { text: R('Tell me more about the village.', wf('tregoj', 'Më trego', 'tell me'), w('me_more'), w('shume'), w('per'), wf('fshat', 'fshatin', 'the village'), p('.')), intent: 'speech', playerIntents: ['speech'], to: 'sheshiPlak2', durationHours: 0 },
       conversationExitOption(SQUARE_ELDER_CONVERSATION, R('Thank you. Goodbye.', w('faleminderit'), p('.'), w('mirupafshim'), p('.')), { intent: 'speech', playerIntents: ['speech'] }),
     ],
@@ -7450,8 +7474,9 @@ export const STORY = {
       L(wf('ne', 'në', 'in'), w('nje'), w('qoshe'), w('e_link'), wf('kafene', 'kafenesë', 'the coffee-house'), p(','), wf('baba', 'babai', 'the father'), w('rri'), w('me'), wf('djale', 'djalin', 'the boy'), w('e_link'), w('tij'), p('.')),
       R('The father says, “Boy, I told you to stay here, but you said no. Why?”', wf('baba', 'babai', 'the father'), w('thote'), p(':'), w('o'), wf('djale', 'djalë', 'boy'), p(','), w('te_obj'), wf('thote', 'thashë', 'said'), w('te_subj'), wf('rri', 'rrije', 'stay'), w('ketu'), p(','), w('por'), w('ti'), wf('thote', 'the', 'said'), p(':'), w('jo'), p('.'), w('perse'), p('?')),
       R('“I waited for you all night. Now it is late. Where were you? What happened?”', w('une'), w('te_obj'), wf('prit', 'prita', 'waited'), w('gjithe'), w('naten'), p('.'), w('tani'), w('eshte'), w('vone'), p('.'), w('ku'), wf('jam', 'ishe', 'were'), p('?'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('?')),
-      L(wf('djale', 'djali', 'the boy'), w('thote'), p(':'), w('une'), wf('do', 'doja', 'wanted'), w('vetem'), w('uje'), p('.')),
-      R('The father says, “What am I to do with you? I have spoken enough.”', wf('baba', 'babai', 'the father'), w('thote'), p(':'), w('cfare'), w('te_subj'), wf('bej', 'bëj', 'do'), w('me'), wf('ti', 'ty', 'you'), p('?'), w('te_obj'), wf('ka', 'kam', 'have'), wf('flet', 'folur', 'spoken'), w('mjaft'), p('.')),
+      R('The son says, “I went crazy. I looked for water all night.”', wf('djale', 'Djali', 'the son'), w('thote'), p(':'), wf('u_cmenda_hyperbole', 'U çmenda', 'I went crazy'), p('.'), wf('kerko', 'Kërkova', 'looked for'), w('uje'), w('gjithe'), w('naten'), p('.')),
+      R('The father gives him coffee. “To hell with it. Enough about the water. You are here now.”', wf('baba', 'Babai', 'the father'), w('i_obj'), w('jep'), w('kafe'), p('.'), wf('vari_leshte', 'Vari leshtë', 'to hell with it'), p('.'), w('mjaft'), w('me'), wf('uje', 'ujin', 'the water'), p('.'), w('ti'), w('je'), w('ketu'), w('tani'), p('.')),
+      R('The father calls through the coffeehouse, “My son is here!” A man at the next table shakes his head: “Who cares!” The father answers, “Stop bothering me.”', wf('baba', 'Babai', 'the father'), wf('thirr', 'thërret', 'calls'), wf('neper', 'nëpër', 'through'), w('kafene'), p(':'), wf('djale', 'Djali', 'the son'), w('im'), w('eshte'), w('ketu'), p('!'), w('nje'), w('burre'), w('nga'), wf('sofer', 'sofra', 'the table'), w('tjeter'), w('tund'), wf('koke', 'kokën', 'the head'), p(':'), wf('na_plasi', 'Na plasi', 'who cares'), p('!'), wf('baba', 'Babai', 'the father'), w('i_obj'), w('pergjigjet'), p(':'), wf('mos_me_ca_koken', 'Mos më ça kokën', 'stop bothering me'), p('.')),
       R('The father asks, “Have you slept?” The boy says, “No, I still have not slept.”', wf('baba', 'babai', 'the father'), w('pyet'), p(':'), w('a_q'), w('ke'), wf('fle', 'fjetur', 'slept'), p('?'), wf('djale', 'djali', 'the boy'), w('thote'), p(':'), w('jo'), p(','), w('akoma'), w('nuk'), wf('ka', 'kam', 'have'), wf('fle', 'fjetur', 'slept'), p('.')),
     ],
     options: [
@@ -7603,11 +7628,13 @@ export const STORY = {
     id: 'bariuBiseda',
     text: [
       R('The shepherd stands among the goats and listens to you.', wf('bari', 'Bariu', 'the shepherd'), wf('qendroj', 'qëndron', 'stand'), w('mes'), wf('dhi', 'dhive', 'the goats'), w('dhe'), w('te_obj'), wf('degjo', 'dëgjon', 'listens'), p('.')),
+      conversationResponseLine(SHEPHERD_CONVERSATION, 'today', R('“Today I am watching the goats,” he says.', wf('sot', 'Sot', 'today'), w('po_prog'), wf('ruan', 'ruaj', 'watch'), wf('dhi', 'dhitë', 'the goats'), p(','), w('thote'), w('ai'), p('.'))),
       conversationResponseLine(SHEPHERD_CONVERSATION, 'goats', R('He says, “I have twelve goats: six white and six black.”', w('ai'), w('thote'), p(':'), wf('ka', 'Kam', 'have'), w('dymbedhjete'), w('dhi'), p(':'), w('gjashte'), wf('te_link', 'të', 'the'), wf('bardhe', 'bardha', 'white'), w('dhe'), w('gjashte'), wf('te_link', 'të', 'the'), wf('zi', 'zeza', 'black'), p('.'))),
-      conversationResponseLine(SHEPHERD_CONVERSATION, 'help', R('He says, “Yes. Guard the goats until evening, please.”', w('ai'), w('thote'), p(':'), w('po_yes'), p('.'), wf('ruan', 'Ruaji', 'guard'), wf('dhi', 'dhitë', 'the goats'), w('deri'), wf('ne', 'në', 'to'), w('mbremje'), p(','), w('lutem'), p('.'))),
+      conversationResponseLine(SHEPHERD_CONVERSATION, 'help', R("He says, “Yes. Guard the goats until evening, please. If it is difficult, it is all right; try it.”", w('ai'), w('thote'), p(':'), w('po_yes'), p('.'), wf('ruan', 'Ruaji', 'guard'), wf('dhi', 'dhitë', 'the goats'), w('deri'), wf('ne', 'në', 'to'), w('mbremje'), p(','), w('lutem'), p('.'), wf('nese', 'Nëse', 'if'), w('eshte'), w('e_art'), w('veshtire'), p(','), wf('ka', "s'ka", 'there is no'), w('gje'), p(';'), wf('provo', 'provoje', 'try it'), p('.'))),
       conversationResponseLine(SHEPHERD_CONVERSATION, 'return', R('He says, “I return to the village at dusk.”', w('ai'), w('thote'), p(':'), wf('kthehu', 'Kthehem', 'return'), wf('ne', 'në', 'to'), w('fshat'), wf('ne', 'në', 'at'), w('muzg'), p('.'))),
     ],
     options: [
+      conversationQuestionOption(SHEPHERD_CONVERSATION, 'today', R('What are you doing today?', wf('cfare', 'Çfarë', 'what'), w('po_prog'), wf('bej', 'bën', 'do'), w('sot'), p('?'))),
       conversationQuestionOption(SHEPHERD_CONVERSATION, 'goats', R('How many goats do you have?', w('sa'), w('dhi'), w('ke'), p('?'))),
       conversationQuestionOption(SHEPHERD_CONVERSATION, 'help', R('Do you need help?', w('a_q'), w('ke'), w('nevoje'), w('per'), wf('ndihmo', 'ndihmë', 'help'), p('?'))),
       conversationQuestionOption(SHEPHERD_CONVERSATION, 'return', R('When do you return to the village?', w('kur'), wf('kthehu', 'kthehesh', 'return'), wf('ne', 'në', 'to'), w('fshat'), p('?'))),
@@ -8311,13 +8338,15 @@ export const STORY = {
     text: [
       R('The children stop and turn toward you.', wf('femije', 'Fëmijët', 'the children'), wf('ndalo', 'ndalojnë', 'stop'), w('dhe'), wf('kthehu', 'kthehen', 'turn'), w('drejt'), wf('ti', 'teje', 'you'), p('.')),
       conversationResponseLine(CHILDREN_CONVERSATION, 'activity', R('A child says, “We are making the rain-child. My dad says the village needs rain; we simply sing.”', w('nje'), w('femije'), w('thote'), p(':'), w('po_prog'), wf('bej', 'bëjmë', 'make'), wf('dordolec', 'dordolecin', 'the rain-child'), p('.'), wf('babi', 'Babi', 'dad'), w('im'), w('thote'), w('se'), wf('fshat', 'fshati', 'the village'), w('ka'), w('nevoje'), w('per'), w('shi'), p(';'), w('ne_we'), w('thjesht'), wf('kendo', 'këndojmë', 'sing'), p('.'))),
-      conversationResponseLine(CHILDREN_CONVERSATION, 'join', R('They say, “Yes. Come with us and sing.”', w('ata'), wf('thote', 'thonë', 'say'), p(':'), w('po_yes'), p('.'), wf('vjen', 'Eja', 'come'), w('me'), w('ne_we'), w('dhe'), w('kendo'), p('.'))),
+      conversationResponseLine(CHILDREN_CONVERSATION, 'join', R('They say, “Why not? Well, go on. Sing with us.”', w('ata'), wf('thote', 'thonë', 'say'), p(':'), wf('pse', 'Pse', 'why'), w('jo'), p('?'), wf('he_repeated', 'Hë, hë', 'well, go on'), p('.'), wf('kendo', 'Këndo', 'sing'), w('me'), w('ne_we'), p('.'))),
       conversationResponseLine(CHILDREN_CONVERSATION, 'reason', R('They say, “The well is dry and the village needs water. If the rain is late, the well stays dry.”', w('ata'), wf('thote', 'thonë', 'say'), p(':'), wf('pus', 'Pusi', 'the well'), w('eshte'), w('i_art'), w('thate'), w('dhe'), wf('fshat', 'fshati', 'the village'), w('ka'), w('nevoje'), w('per'), w('uje'), p('.'), w('nese'), wf('shi', 'shiu', 'the rain'), w('vonon'), p(','), wf('pus', 'pusi', 'the well'), wf('mbetem', 'mbetet', 'remain'), w('i_art'), w('thate'), p('.'))),
+      conversationResponseLine(CHILDREN_CONVERSATION, 'nonsense', R('The children laugh. One says, “Come on! You are talking nonsense too.” The other says, “Forget it.” A third child laughs, “I died laughing!”', wf('femije', 'Fëmijët', 'the children'), wf('qesh', 'qeshin', 'laugh'), p('.'), w('nje'), w('thote'), p(':'), wf('hajde', 'Hajt', 'come on'), p(','), w('mo_discourse'), p('!'), w('edhe'), w('ti'), w('po_prog'), w('flet'), w('kot'), p('.'), wf('tjeter', 'Tjetri', 'the other'), w('thote'), p(':'), wf('le', 'Lëre', 'leave'), w('fare'), p('.'), w('nje'), w('femije'), w('tjeter'), w('qesh'), p(':'), wf('vdiqa_hyperbole', 'Vdiqa së qeshuri', 'I died laughing'), p('!'))),
     ],
     options: [
       conversationQuestionOption(CHILDREN_CONVERSATION, 'activity', R('What are you doing?', w('cfare'), w('po_prog'), wf('bej', 'bëni', 'do'), p('?'))),
       conversationQuestionOption(CHILDREN_CONVERSATION, 'join', R('Can I sing with you?', w('a_q'), w('mund'), w('te_subj'), wf('kendo', 'këndoj', 'sing'), w('me'), w('ju'), p('?'))),
       conversationQuestionOption(CHILDREN_CONVERSATION, 'reason', R('Why are you asking for rain?', w('pse'), wf('kerko', 'kërkoni', 'ask for'), w('shi'), p('?'))),
+      conversationQuestionOption(CHILDREN_CONVERSATION, 'nonsense', R('You are talking nonsense.', wf('po_prog', 'Po', 'progressive marker'), w('flet'), wf('kot', 'kot', 'nonsense'), p('.')), { requires: CHILDREN_CONVERSATION.questions.activity.askedCondition }),
       conversationExitOption(CHILDREN_CONVERSATION, R('See you later.', wf('sheh', 'shihemi', 'see each other'), w('me_vone'), p('.')), { intent: 'speech', playerIntents: ['speech'] }),
     ],
   },
@@ -11404,7 +11433,7 @@ export const STORY = {
     id: 'vajzaKroiBiseda',
     text: [
       R('The girl sets the bucket on a stone and listens to you.', wf('vajze', 'Vajza', 'the girl'), wf('vendos', 'vendos', 'place'), wf('kove', 'kovën', 'the bucket'), w('mbi'), w('nje'), w('gur'), w('dhe'), w('te_obj'), wf('degjo', 'dëgjon', 'listens'), p('.')),
-      conversationResponseLine(SPRING_GIRL_CONVERSATION, 'water', R('She says, “Yes. The water comes from the mountain and it is cold.”', w('ajo'), w('thote'), p(':'), w('po_yes'), p('.'), wf('uje', 'Uji', 'the water'), w('vjen'), w('nga'), wf('mal', 'mali', 'the mountain'), w('dhe'), w('eshte'), w('i_art'), w('ftohte'), p('.'))),
+      conversationResponseLine(SPRING_GIRL_CONVERSATION, 'water', R('She says, “Of course! The water is cold because it comes from the mountain.”', w('ajo'), w('thote'), p(':'), wf('normal_response', 'Normal', 'of course'), p('!'), wf('uje', 'Uji', 'the water'), w('eshte'), w('i_art'), w('ftohte'), w('sepse'), w('vjen'), w('nga'), wf('mal', 'mali', 'the mountain'), p('.'))),
       conversationResponseLine(SPRING_GIRL_CONVERSATION, 'routine', R('She says, “Yes. I come here every morning with the bucket. Then the water is calm.”', w('ajo'), w('thote'), p(':'), w('po_yes'), p('.'), wf('vjen', 'Vij', 'come'), w('ketu'), w('cdo'), w('mengjes'), w('me'), wf('kove', 'kovën', 'the bucket'), p('.'), w('atehere'), wf('uje', 'uji', 'the water'), w('eshte'), w('i_art'), w('qete'), p('.'))),
       conversationResponseLine(SPRING_GIRL_CONVERSATION, 'village', R('She says, “No. The village is uphill, beside the river.”', w('ajo'), w('thote'), p(':'), w('jo'), p('.'), wf('fshat', 'Fshati', 'the village'), w('eshte'), w('lart'), p(','), w('prane'), wf('lume', 'lumit', 'the river'), p('.'))),
     ],
@@ -11809,7 +11838,7 @@ const CONFUSERS = {
   lamtumira: L(w('jep'), wf('det', 'detin', 'the sea')), // give the sea away — you cannot
   guriUdhes: L(w('rri'), w('mbi'), w('det')), // sit on the sea — you cannot
   kafeneja: L(w('pyet'), wf('kafene', 'kafenenë', 'the coffee-house')), // ask the coffee-house — it cannot answer
-  kafeneja2: L(wf('bej', 'bëj', 'make'), wf('naten', 'natën', 'the night')), // make the night — you cannot
+  kafeneja2: R('Drink the night.', w('pi'), wf('naten', 'natën', 'the night')), // drink the night — you cannot
   kroiGrate: L(w('jep'), wf('fat', 'fatin', 'the luck')), // give the luck — you cannot hand it over
   dilFrike: L(w('merr'), wf('frike', 'frikën', 'the fear')), // take the fear — you cannot pick it up
   lumiMjeshter: L(w('tregoj'), wf('mulli', 'mullirin', 'the mill')), // tell the mill — it cannot listen
@@ -14302,4 +14331,17 @@ export const DEFS = {
   ndryshon: L(w('nje'), w('gje'), w('nuk'), w('rri'), w('e_art'), w('njejte'), p(';'), w('behet'), w('ndryshe')),
   permes: L(w('nga'), wf('nje', 'njëra', 'one'), w('ane'), w('e_link'), w('nje'), wf('vend', 'vendi', 'place'), w('deri'), w('ne'), wf('ane', 'anën', 'the side'), w('tjeter')),
   goxha: L(w('shume'), p(','), w('por'), w('jo'), w('teper')),
+  he_repeated: L(w('fjale'), w('qe'), wf('thote', 'thuhen', 'are said'), w('per'), w('te_subj'), wf('kerko', 'kërkuar', 'ask for'), w('qe'), w('dikush'), w('te_subj'), wf('vazhdo', 'vazhdojë', 'continue')),
+  kot: L(w('pa'), w('arsye'), w('ose'), w('pa'), w('kuptim')),
+  kushedi: L(w('nuk'), w('e_obj'), w('di'), p(';'), w('ndoshta'), w('eshte'), w('keshtu')),
+  gjoja: L(w('sikur'), w('eshte'), w('e_art'), w('vertete'), p(','), w('por'), w('ndoshta'), w('jo')),
+  normal_response: L(w('po_yes'), p(','), w('sigurisht'), p(';'), w('kjo'), w('nuk'), w('eshte'), w('e_art'), wf('cuditshem', 'çuditshme', 'strange')),
+  fiks: L(w('pikerisht'), w('ashtu'), p(','), w('pa'), w('gabim')),
+  domethene: L(w('e_obj'), w('perdor'), w('per'), w('te_subj'), wf('thote', 'thënë', 'say'), w('me_more'), w('qarte'), wf('ai', 'atë', 'that'), w('qe'), w('do_fut'), w('te_subj'), wf('thote', 'thuash', 'say')),
+  mo_discourse: L(w('fjale'), w('e_art'), w('forte'), w('qe'), wf('thote', 'thuhet', 'is said'), w('pas'), w('hajde')),
+  vari_leshte: L(w('fjale'), w('te_link'), wf('forte', 'forta', 'strong'), w('per'), w('te_subj'), wf('thote', 'thënë', 'say'), p(':'), wf('le', 'lëre', 'leave'), w('fare')),
+  na_plasi: L(w('fjale'), w('te_link'), wf('forte', 'forta', 'strong'), w('qe'), wf('thote', 'thonë', 'say'), p(':'), w('kjo'), w('nuk'), w('ka'), w('rendesi'), w('per'), w('ne_we')),
+  vdiqa_hyperbole: L(w('e_obj'), wf('thote', 'thua', 'say'), w('si'), w('shaka'), w('kur'), w('je'), w('shume'), w('i_art'), w('lodhur'), w('ose'), w('kur'), w('qesh'), w('shume')),
+  u_cmenda_hyperbole: L(w('e_obj'), wf('thote', 'thua', 'say'), w('si'), w('shaka'), w('kur'), w('nuk'), w('mund'), w('te_subj'), wf('mendoj', 'mendosh', 'think'), w('qarte')),
+  mos_me_ca_koken: L(w('fjale'), w('te_link'), wf('forte', 'forta', 'strong'), w('per'), w('te_subj'), wf('thote', 'thënë', 'say'), p(':'), p('mos më shqetëso')),
 }

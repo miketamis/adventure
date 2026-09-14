@@ -49,9 +49,9 @@ for (const targetId of trainableIds) {
   }
 }
 
-assert.equal(reviewed, 897)
-assert.equal(contextOnly, 72)
-assert.equal(links, 4218)
+assert.equal(reviewed, 895)
+assert.equal(contextOnly, 80)
+assert.equal(links, 4210)
 
 // Every source must influence the real planner, not merely exist as dead data.
 for (const targetId of ['fshat', 'mund', 'qen']) {

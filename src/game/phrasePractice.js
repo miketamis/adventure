@@ -98,6 +98,9 @@ function excludedWordSet(values) {
   return new Set(surfaces.flatMap((value) => phraseWordKeys(value)))
 }
 
+const surfaceSharesBlockedWord = (value, blockedWords) =>
+  phraseWordKeys(value).some((word) => blockedWords.has(word))
+
 // Typing checks spelling and Albanian diacritics, but do not punish sentence
 // capitalization, curly apostrophes, or punctuation entered on a phone.
 export const normalizePhraseAnswer = (value) => phraseWords(value)
@@ -360,7 +363,7 @@ function distractorWords(unlocked, distractorPool, target, targetWords, count, r
   const seen = new Set()
   const addCandidate = (candidate) => {
     const word = normalizedWord(candidate.word)
-    if (!word || blocked.has(word) || seen.has(word)) return
+    if (!word || surfaceSharesBlockedWord(candidate.word, blocked) || seen.has(word)) return
     const rankedTargets = targetFocuses
       .filter((focus) => !sensesMayShareAnswer(focus.focusId, candidate.focusId))
       .map((focus) => ({
@@ -428,7 +431,7 @@ function distractorWords(unlocked, distractorPool, target, targetWords, count, r
       if (phrase.id === target.id) continue
       for (const candidate of phraseProductionFocuses(phrase)) {
         const word = normalizedWord(candidate.word)
-        if (!word || blocked.has(word) || seen.has(word)) continue
+        if (!word || surfaceSharesBlockedWord(candidate.word, blocked) || seen.has(word)) continue
         const targetFocus = targetFocuses.find((focus) =>
           !sensesMayShareAnswer(focus.focusId, candidate.id))
         if (!targetFocus) continue
@@ -556,7 +559,7 @@ function buildClozeBank(unlocked, distractorPool, target, focus, count, rng, exc
       if (phrase.id === target.id) continue
       for (const candidate of phraseProductionFocuses(phrase)) {
         const word = normalizedWord(candidate.word)
-        if (blocked.has(word) || seen.has(word)) continue
+        if (surfaceSharesBlockedWord(candidate.word, blocked) || seen.has(word)) continue
         const formTag = phraseNounRole(phrase.id, candidate.id)
         if (sensesMayShareAnswer(focus.focusId, candidate.id)) continue
         const rank = phraseClozeContrastRank(focus, {
@@ -584,7 +587,7 @@ function buildClozeBank(unlocked, distractorPool, target, focus, count, rng, exc
       : [{ al: entry.al, tag: null }]
     for (const surface of surfaces) {
       const word = normalizedWord(surface.al)
-      if (blocked.has(word) || seen.has(word)) continue
+      if (surfaceSharesBlockedWord(surface.al, blocked) || seen.has(word)) continue
       const candidate = { focusId, formTag: surface.tag || null }
       if (sensesMayShareAnswer(focus.focusId, focusId)) continue
       const rank = phraseClozeContrastRank(focus, candidate)

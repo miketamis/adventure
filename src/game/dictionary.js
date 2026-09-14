@@ -554,7 +554,11 @@ export const DICT = {
   ju:        { al: 'ju',        en: 'you' },   // you (plural / formal)
   na:        { al: 'na',        en: 'us' },
   kush:      { al: 'kush',      en: 'who' },
-  cfare:     { al: 'çfarë',     en: 'what' },
+  cfare:     { al: 'çfarë',     en: 'what', forms: [
+    { al: 'çfarë', tag: 'standardInterrogativeFragment', gloss: 'what', trainable: false },
+    { al: 'ça', tag: 'informalInterrogativeFragment', gloss: 'what', trainable: false },
+    { al: "ç'", tag: 'elidedInterrogativeFragment', gloss: 'what', trainable: false },
+  ] },
   pse:       { al: 'pse',       en: 'why' },
   sa:        { al: 'sa',        en: 'how much' },
   kur:       { al: 'kur',       en: 'when' },
@@ -663,7 +667,9 @@ export const DICT = {
   yt:        { al: 'yt',        en: 'your' },       // #131 (tënde = your, fem.)
   ma:        { al: 'ma',        en: 'it to me' },   // clitic cluster më + e/a: ma jep = give it to me
   // --- top 151-200 spoken-frequency fill ---
-  hajde:     { al: 'hajde',     en: 'come on' },    // #153 (interjection)
+  hajde:     { al: 'hajde',     en: 'come on', forms: [
+    { al: 'hajt', tag: 'informalImperativeFragment', gloss: 'come on', trainable: false },
+  ] },    // #153 (interjection)
   prej:      { al: 'prej',      en: 'from' },       // #155
   ia:        { al: 'ia',        en: 'it to him or her' }, // clitic cluster i + e/a
   aq:        { al: 'aq',        en: 'that much' },   // #157 (aq … sa = as … as)
@@ -775,7 +781,9 @@ export const DICT = {
   ndonjehere:{ al: 'ndonjëherë',en: 'sometimes' },  // #274
   cili:      { al: 'cili',      en: 'which' },      // #275
   pershendetje:{al:'përshëndetje',en:'hello' },     // #277
-  ckemi:     { al: 'çkemi',      en: 'how are things' },
+  ckemi:     { al: 'çkemi',      en: 'how are things', forms: [
+    { al: "ç'kemi", tag: 'apostropheSpellingFragment', gloss: 'how are things', trainable: false },
+  ] },
   shqetesohem: { al: 'shqetësohem', en: 'worry', forms: [
     { al: 'u shqetëso', tag: 'negativeImperativeFragment', gloss: 'worry', trainable: false },
     { al: 'shqetësohu', tag: '2sgImperative', gloss: 'worry' },
@@ -1151,6 +1159,24 @@ export const DICT = {
   ndryshon:       { al: 'ndryshon',       en: 'changes' },
   permes:         { al: 'përmes',         en: 'through' },
   goxha:          { al: 'goxha',          en: 'quite or rather' },
+  kot:            { al: 'kot',            en: 'for nothing', enAll: 'for nothing / nonsense' },
+  kushedi:        { al: 'kushedi',        en: 'who knows' },
+  gjoja:          { al: 'gjoja',          en: 'supposedly' },
+  normal_response:{ al: 'normal',         en: 'of course' },
+  fiks:           { al: 'fiks',           en: 'exactly' },
+  domethene:      { al: 'domethënë',      en: 'that means', enAll: 'that means / I mean' },
+
+  // Prosody- and relationship-sensitive colloquial expressions are playable
+  // pronunciation knowledge, not isolated Train targets. Their dedicated
+  // sense ids prevent a fluent idiom from being misread as the sum of its
+  // literal component glosses.
+  he_repeated:           { al: 'hë, hë',            en: 'well, go on (intonation-sensitive)' },
+  mo_discourse:         { al: 'mo',                en: 'informal discourse particle' },
+  vari_leshte:          { al: 'vari leshtë',       en: 'forget it (coarse)' },
+  na_plasi:             { al: 'na plasi',          en: "we couldn't care less" },
+  vdiqa_hyperbole:      { al: 'vdiqa',             en: 'I died (exaggeration)' },
+  u_cmenda_hyperbole:   { al: 'u çmenda',         en: 'I went crazy (exaggeration)' },
+  mos_me_ca_koken:      { al: 'mos më ça kokën', en: "don't bother me" },
 }
 
 // Context-sensitive teaching data is reviewed as one coherent registry so a

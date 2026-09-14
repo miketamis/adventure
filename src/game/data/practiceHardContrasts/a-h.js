@@ -522,6 +522,10 @@ const CONTEXT_ONLY = Object.freeze({
   gezohem: 'The fixed first-person expression needs an authored social context, not decontextualised lexical foils.',
   gezuar: 'The social formula has several situation-dependent readings; use a birthday/toast context.',
   betohem: 'The first-person fixed form should be tested in a reviewed oath clause, not against unrelated bare verbs.',
+  ckemi: 'The greeting checks how things are going; its conversational function belongs in the reviewed greeting situation rather than a bare hard-contrast bank.',
+  domethene: 'This discourse marker clarifies or reformulates a preceding thought, so its meaning must be identified in the complete reviewed utterance.',
+  fiks: 'Conversational fiks can express exactness or confirmation; the reviewed time statement fixes its intended everyday meaning safely.',
+  gjoja: 'Gjoja distances the speaker from a claim and can carry irony; only the authored claim context identifies that stance reliably.',
 })
 
 const registry = {}

@@ -215,6 +215,25 @@ check('consecutive phrase rounds share no Albanian words, including matching rou
       assert.ok(!previousWords.includes(phraseWordKeys(tile.text)[0]), `${mode} repeated ${tile.text} in its bank`)
     }
   }
+
+  const previousWordMatchingWords = trainQuestionWordKeys({
+    kind: 'word-match',
+    lexicalSurfaces: ['të lutem'],
+  })
+  assert.deepEqual(previousWordMatchingWords, ['të', 'lutem'])
+  const afterWordMatching = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, {}, {}, {}, {
+    rng: steadyRng,
+    mode: 'cloze',
+    tier: tierForMode.cloze,
+    targetId: 'dont-agree',
+    excludeWords: previousWordMatchingWords,
+    distractorPool: EVERYDAY_PHRASE_DRILLS,
+  })
+  assert.ok(afterWordMatching, 'cloze found no bank after saved-word matching')
+  assert.ok(
+    phraseQuestionWordKeys(afterWordMatching).every((word) => !previousWordMatchingWords.includes(word)),
+    'a multiword distractor surface reused a saved-word matching word',
+  )
 })
 
 check('word, context and endings rounds carry the same no-repeat boundary', () => {

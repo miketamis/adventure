@@ -917,7 +917,6 @@ export const REVIEWED_GENERATED_FORM_SURFACES = Object.freeze({
   pranvere: Object.freeze(['pranvere']),
   vjeshte: Object.freeze(['vjeshte', 'vjeshta']),
   dimer: Object.freeze(['dimri']),
-  vete: Object.freeze(['vete']),
 })
 
 const reviewedFormPracticeKey = (state, id, surface) => {

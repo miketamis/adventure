@@ -4,6 +4,8 @@ import { DICT } from './dictionary.js'
 // This ledger is intentionally imported only by lazy Train/debug code: the
 // core game-state path needs phrase focus ids for rewards, not correction UI.
 export const PHRASE_NOUN_ROLES = Object.freeze({
+  'wait-have-question': { pyetje: 'indefAcc' },
+  'breakfast-exact': { mengjes: 'defNom', ore: 'defAcc' },
   'going-village': { fshat: 'indefAcc' },
   'meet-tomorrow-question': { ore: 'defAcc' },
   'accept-tomorrow-square': { ore: 'defAcc' },

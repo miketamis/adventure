@@ -80,7 +80,11 @@ export default function Token({ token, discovered, onDiscover, tokenCount }) {
 
   const trainability = lexicalTrainability(token.id)
   if (!trainability.trainable) {
-    const entityLabel = trainability.kind === 'place-name' ? 'Place name' : 'Personal name'
+    const pronunciationOnlyLabel = trainability.kind === 'place-name'
+      ? 'Place name'
+      : trainability.kind === 'personal-name'
+        ? 'Personal name'
+        : 'Receptive expression'
     return (
       <button
         type="button"
@@ -88,7 +92,7 @@ export default function Token({ token, discovered, onDiscover, tokenCount }) {
         onClick={activate()}
         onMouseEnter={playWithPointer}
         onMouseLeave={resetPointerAudio}
-        aria-label={`${token.al}. ${entityLabel}. Play pronunciation; not a vocabulary target.`}
+        aria-label={`${token.al}. ${pronunciationOnlyLabel}. Play pronunciation; not a vocabulary target.`}
       >
         <span className="known-word" lang="sq" aria-hidden="true">{token.al}</span>
       </button>

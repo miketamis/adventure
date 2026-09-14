@@ -48,7 +48,9 @@ const collect = (tokens, location) => {
     const declaration = (DICT[token.id].forms || []).find((form) => lower(form.al) === lower(token.al))
     if (declaration?.trainable === false) {
       assert.match(declaration.tag, /Fragment$/, `${location}: non-trainable ${token.al} needs a fragment tag`)
-      assert.equal(lower(tokens[index - 1]?.al || ''), 'mos', `${location}: ${token.al} escaped its reviewed negative-imperative context`)
+      if (declaration.tag === 'negativeImperativeFragment') {
+        assert.equal(lower(tokens[index - 1]?.al || ''), 'mos', `${location}: ${token.al} escaped its reviewed negative-imperative context`)
+      }
     }
     independentlyUsed.get(token.id).add(lower(token.al))
   }
@@ -162,6 +164,7 @@ for (const [id, entry] of Object.entries(DICT)) {
 
   const inventorySurfaces = new Set(inventory.map((form) => lower(form.al)))
   const quizSurfaces = new Set(quiz.map((form) => lower(form.al)))
+  const hasTrainableVariant = [...quizSurfaces].some((surface) => surface !== lemma)
   assert.ok(inventorySurfaces.has(lemma), `${id}: lemma absent from inventory`)
   for (const surface of usedVariants) {
     assert.ok(inventorySurfaces.has(surface), `${id}/${surface}: playable surface is undeclared`)
@@ -172,7 +175,7 @@ for (const [id, entry] of Object.entries(DICT)) {
       assert.ok(quizSurfaces.has(surface), `${id}/${surface}: playable surface is not quiz-reachable for its sense`)
     }
   }
-  if (usedVariants.length && isTrainableSense(id)) {
+  if (usedVariants.length && isTrainableSense(id) && hasTrainableVariant) {
     assert.equal(
       formsUnlocked({
         practiced: { [id]: FORMS_UNLOCK_THRESHOLD },
@@ -187,14 +190,14 @@ for (const [id, entry] of Object.entries(DICT)) {
       `${id}: lifetime rewards bypassed the lexical-production gate`,
     )
   }
-  if (usedVariants.length && !isTrainableSense(id)) {
+  if (usedVariants.length && (!isTrainableSense(id) || !hasTrainableVariant)) {
     assert.equal(
       formsUnlocked({
         practiced: { [id]: FORMS_UNLOCK_THRESHOLD },
         wordProgress: { [id]: completedWordProgress() },
       }, id),
       false,
-      `${id}: a proper name entered Train through its reviewed story forms`,
+      `${id}: a receptive-only form entered Train through its reviewed story surfaces`,
     )
   }
   for (const form of entry.forms || []) {

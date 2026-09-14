@@ -337,7 +337,7 @@ export const hasAuthoredEnglishReading = (line) => Boolean(
 const READING_BLOCKERS = [
   ['agreement after you', /\byou\s+(?:is|has|does|says|comes|goes|stays|waits|walks|sees|finds|gives|takes|wants|becomes|falls|dies|lives|speaks|brings|fights|kills|eats|sings|makes|touches|crosses)\b/i],
   ['agreement after I', /\bI\s+(?:is|has|does|says|comes|goes|stays|waits|walks|sees|finds|gives|takes|wants|becomes|falls|dies|lives|speaks|brings|fights|kills|eats|sings|makes|touches|crosses)\b/],
-  ['raw Albanian negation order', /\b(?:you|I|they|he|she|it|(?!(?:Do|Does|Did|Can|Could|Should|Would|Will|Must)\b)[A-Z][\w-]*) not\b/],
+  ['raw Albanian negation order', /\b(?:you|I|they|he|she|it|(?!(?:Do|Does|Did|Can|Could|Should|Would|Will|Must|Why)\b)[A-Z][\w-]*) not\b/],
   ['raw object-clitic order', /\b(?:mother|father|king|queen|man|woman|guest|hero|serpent|dragon|enemy|Ora|Zana) (?:you|me|him|her|them) (?:give|gives|wait|waits|kill|kills|eat|eats|help|helps|see|sees|touch|touches|strike|strikes|bring|brings)\b/i],
   ['article before adjective predicate', /\b(?:is|are|becomes|become|stay|stays) (?:the|of) (?:big|small|beautiful|black|white|red|dark|cold|warm|calm|strong|old|new|hungry|tired|healthy|sick|blind|wild|holy|deep|long|alive|dead)\b(?!\s+one\b)/i],
   ['postposed possessive', /\b(?:horse|house|wife|husband|mother|father|brother|sister|ring|sword|hand|road|name|heart|eyes?) (?:my|your|his|her|our|their)\b/i],

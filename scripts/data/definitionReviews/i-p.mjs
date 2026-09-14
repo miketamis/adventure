@@ -70,6 +70,7 @@ export const DEFINITION_REVIEWS_I_P = Object.freeze({
   "kose": "me të pritet shumë bar me një lëvizje",
   "kostandin": "vëlla që mban besë pas vdekjes",
   "kotor": "qyteti ku luftojnë Osmani dhe Behuri",
+  "kot": "pa arsye ose pa kuptim",
   "kove": "mban ujë dhe përdoret te pusi",
   "krah": "me të zogu fluturon",
   "krah_arm": "pjesë e trupit që mbaron te dora; me të njeriu ngre dhe mban gjëra",
@@ -102,6 +103,7 @@ export const DEFINITION_REVIEWS_I_P = Object.freeze({
   "kurre": "unë ___ nuk ik.",
   "kusur": "para që tregtari të jep prapa kur ke paguar më shumë se duhet",
   "kush": "___ është ai?",
+  "kushedi": "nuk e di; ndoshta është kështu",
   "kushton": "tregon sa lekë duhet të paguaj për një gjë",
   "kuzhinier": "ai që bën ushqimin",
   "ky": "___ fshat është i vogël",
@@ -165,6 +167,8 @@ export const DEFINITION_REVIEWS_I_P = Object.freeze({
   "maro": "vajza e varfër që jeton me njerkën",
   "marto": "dy njerëz bëhen burrë dhe grua, dhe jetojnë bashkë",
   "mashallah": "fjalë bekimi që thuhet kur sheh diçka të bukur",
+  "mo_discourse": "fjalë e fortë që thuhet pas hajde",
+  "mos_me_ca_koken": "fjalë të forta për të thënë : mos më shqetëso",
   "mashtro": "i thua dikujt diçka që nuk është e vërtetë",
   "matane": "në anën tjetër të urës",
   "mban": "ka diçka në dorë, në trup ose me vete; nuk e lë të ik",
@@ -248,9 +252,11 @@ export const DEFINITION_REVIEWS_I_P = Object.freeze({
   "mushkonje": "kafshë shumë e vogël me krahë që pi gjak",
   "muzg": "kohë kur dielli bie dhe nata vjen",
   "na": "ajo ___ sheh; unë dhe ti jemi këtu",
+  "na_plasi": "fjalë të forta që thonë : kjo nuk ka rëndësi për ne",
   "naten": "në kohën e errët, nga muzgu deri në agim",
   "natenmire": "e thua kur dikush shkon të flejë",
   "natyrisht": "patjetër; kështu duhet të jetë",
+  "normal_response": "po, sigurisht; kjo nuk është e çuditshme",
   "ndahet": "ikën nga të tjerët dhe shkon vetëm",
   "ndalo": "mos lëviz",
   "ndalohet": "nuk duhet ta bësh",
@@ -614,6 +620,10 @@ export const GLOSS_REVIEWS_I_P = Object.freeze({
   "kotor": {
     "en": "Kotor"
   },
+  "kot": {
+    "en": "for nothing",
+    "enAll": "for nothing / nonsense"
+  },
   "kove": {
     "en": "bucket"
   },
@@ -709,6 +719,9 @@ export const GLOSS_REVIEWS_I_P = Object.freeze({
   },
   "kush": {
     "en": "who"
+  },
+  "kushedi": {
+    "en": "who knows"
   },
   "kushton": {
     "en": "costs"
@@ -900,6 +913,12 @@ export const GLOSS_REVIEWS_I_P = Object.freeze({
   },
   "mashallah": {
     "en": "mashallah"
+  },
+  "mo_discourse": {
+    "en": "informal discourse particle"
+  },
+  "mos_me_ca_koken": {
+    "en": "don't bother me"
   },
   "mashtro": {
     "en": "trick"
@@ -1153,6 +1172,9 @@ export const GLOSS_REVIEWS_I_P = Object.freeze({
   "na": {
     "en": "us"
   },
+  "na_plasi": {
+    "en": "we couldn't care less"
+  },
   "naten": {
     "en": "at night or the night"
   },
@@ -1160,6 +1182,9 @@ export const GLOSS_REVIEWS_I_P = Object.freeze({
     "en": "good night"
   },
   "natyrisht": {
+    "en": "of course"
+  },
+  "normal_response": {
     "en": "of course"
   },
   "ndahet": {

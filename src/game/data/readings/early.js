@@ -906,6 +906,7 @@ export const EARLY_READINGS = {
   "eliraBiseda.text[0]": { al: "Gruaja ndalon pranë teje dhe të dëgjon.", en: "The woman pauses beside you and listens." },
   "eliraBiseda.text[2]": { al: "ajo thotë: jam mirë, por kam shumë punë sot.", en: "She says, “I am well, but I have a lot of work today.”" },
   "eliraBiseda.text[1]": { al: "Elira ndalon pranë teje dhe të dëgjon.", en: "Elira pauses beside you and listens." },
-  "eliraBiseda.text[3]": { al: "ajo thotë: po bëj gati darkën.", en: "She says, “I am getting dinner ready.”" },
-  "eliraBiseda.text[4]": { al: "ajo thotë: jam këtu çdo mëngjes.", en: "She says, “I am here every morning.”" },
+  "eliraBiseda.text[5]": { al: "Mos u shqetëso, thotë ajo. Po të dëgjoj.", en: "“Do not worry,” she says. “I am listening.”" },
+  "eliraBiseda.text[3]": { al: "ajo thotë: po bëj gati darkën. Nejse, duhet të vazhdoj punën.", en: "She says, “I am getting dinner ready. Anyway, I need to keep working.”" },
+  "eliraBiseda.text[4]": { al: "ajo thotë: jam këtu çdo mëngjes, domethënë nga ora shtatë.", en: "She says, “I am here every morning—I mean, from seven o’clock.”" },
 }

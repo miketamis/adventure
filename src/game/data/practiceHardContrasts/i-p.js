@@ -225,5 +225,8 @@ notApplicable('o', 'Vocative o has no independent lexical translation and must b
 notApplicable('ma ia', 'Clitic clusters require a complete clause; bare pronoun choices cannot safely identify their grammatical role.')
 notApplicable('pasi', 'Pasi has temporal and causal clause uses; a hard distinction requires the authored clause.')
 notApplicable('piqet', 'This deliberately proverb-specific sense should only be tested inside its reviewed proverb context.')
+notApplicable('kot', 'Kot changes force with the action it modifies; the reviewed speaking context distinguishes pointless or nonsensical talk from ordinary manner adverbs.')
+notApplicable('kushedi', 'Kushedi is a complete uncertainty formula whose force comes from the unanswered question that follows, not from a safe bare lexical opposition.')
+notApplicable('normal_response', 'Standalone conversational normal is an informal affirmative response; its reviewed promise context keeps it distinct from the ordinary adjective and standard synonyms.')
 
 export const HARD_CONTRAST_REVIEWS_I_P = Object.freeze(registry)

@@ -10,6 +10,7 @@
 export const LEXICAL_TRAINABILITY_KIND = Object.freeze({
   LEXICAL: 'lexical',
   LEXICAL_TITLE: 'lexical-title',
+  RECEPTIVE_COLLOQUIAL: 'receptive-colloquial',
   PERSONAL_NAME: 'personal-name',
   PLACE_NAME: 'place-name',
 })
@@ -31,6 +32,15 @@ export const TRAINABLE_LEXICAL_TITLE_IDS = Object.freeze(ids(`
   aga bukura dervish flocka lubia ora perendi peri stihi verbti xhind
 `))
 
+// These expressions are useful world language, but their force depends on
+// prosody, relationship, and conversational register. Players may hear and
+// replay them in context; the word ladder must not turn them into bare,
+// context-free production targets.
+export const RECEPTIVE_COLLOQUIAL_IDS = Object.freeze(ids(`
+  he_repeated mo_discourse mos_me_ca_koken na_plasi u_cmenda_hyperbole vari_leshte
+  vdiqa_hyperbole
+`))
+
 const descriptions = Object.freeze({
   [LEXICAL_TRAINABILITY_KIND.PERSONAL_NAME]:
     'Personal name: pronounce and recognise it in the story; it is world knowledge, not a translatable vocabulary target.',
@@ -38,6 +48,8 @@ const descriptions = Object.freeze({
     'Place name: pronounce and recognise it in the story; it is world knowledge, not a translatable vocabulary target.',
   [LEXICAL_TRAINABILITY_KIND.LEXICAL_TITLE]:
     'Meaning-bearing Albanian title or mythic kind: this is reusable vocabulary and remains trainable.',
+  [LEXICAL_TRAINABILITY_KIND.RECEPTIVE_COLLOQUIAL]:
+    'Receptive colloquial expression: hear and recognise it in its story situation; it remains pronunciation-only because prosody and relationship determine its force.',
 })
 
 const classified = {}
@@ -51,6 +63,7 @@ const declare = (senseIds, kind, trainable) => {
 declare(PERSONAL_NAME_IDS, LEXICAL_TRAINABILITY_KIND.PERSONAL_NAME, false)
 declare(PLACE_NAME_IDS, LEXICAL_TRAINABILITY_KIND.PLACE_NAME, false)
 declare(TRAINABLE_LEXICAL_TITLE_IDS, LEXICAL_TRAINABILITY_KIND.LEXICAL_TITLE, true)
+declare(RECEPTIVE_COLLOQUIAL_IDS, LEXICAL_TRAINABILITY_KIND.RECEPTIVE_COLLOQUIAL, false)
 
 export const REVIEWED_LEXICAL_TRAINABILITY = Object.freeze(classified)
 export const NON_TRAINABLE_NAMED_ENTITY_IDS = Object.freeze([

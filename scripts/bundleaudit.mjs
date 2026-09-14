@@ -153,9 +153,11 @@ const SHELL_GZIP_BUDGET = 56 * KiB
 // The lexical evidence state machine, death-retention boundary, compact
 // mixed-matching registry, exact reviewed noun paradigms, and the first-village
 // conversation hubs are first-play behavior, not optional tooling. The ten
-// player-led hubs add a measured 19 KiB to the story closure; keep a narrow
-// allowance for that authored interaction while retaining the gzip ceiling.
-const BOOTSTRAP_RAW_BUDGET = 1_400 * KiB
+// player-led hubs add a measured 19 KiB to the story closure. The reviewed
+// colloquial follow-ups and their six contextual Train cards bring that same
+// first-play closure to 1408.3 KiB; keep a narrow ceiling above the measured
+// payload while retaining the stricter gzip limit.
+const BOOTSTRAP_RAW_BUDGET = 1_410 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
@@ -163,16 +165,20 @@ const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
 // the bytes a first-time player actually downloads.
 const BOOTSTRAP_CHUNK_RAW_BUDGET = 800 * KiB
 const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
-const READING_CHUNK_RAW_BUDGET = 350 * KiB
-const READING_CHUNK_GZIP_BUDGET = 100 * KiB
+// The added NPC replies keep their reviewed English metadata deferred from
+// ordinary play. Their measured corpus chunk is 350.2 KiB raw / 102.5 KiB
+// gzip, so retain only a narrow allowance around that lazy boundary.
+const READING_CHUNK_RAW_BUDGET = 351 * KiB
+const READING_CHUNK_GZIP_BUDGET = 103 * KiB
 const AUDIO_FILE_BUDGET = 64 * KiB
 // Word-level timestamps are loaded only after an accepted action starts its
 // continuous MP3. Budget the independently cached manifest as well as the
 // clips so alignment metadata cannot grow without a release review.
-// The new village conversations add 89 continuous Albanian recordings and
-// their exact waveform-correlated word boundaries. Keep narrow measured raw
-// and compressed allowances for that release-safety data.
-const ACTION_TIMINGS_RAW_BUDGET = 1_050 * KiB
+// The expanded village conversations add their continuous Albanian recordings
+// and exact waveform-correlated word boundaries. The resulting complete
+// manifest is 1053.8 KiB; keep narrow measured raw and compressed allowances
+// for that release-safety data.
+const ACTION_TIMINGS_RAW_BUDGET = 1_055 * KiB
 const ACTION_TIMINGS_GZIP_BUDGET = 132 * KiB
 // Every accepted story action now has one continuous, on-demand MP3 so action
 // karaoke never falls back to stitched word clips or browser TTS. Keep a

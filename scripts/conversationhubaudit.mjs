@@ -71,7 +71,15 @@ for (const hub of Object.values(CONVERSATION_HUBS)) {
     assert.deepEqual(exits[0].playerIntents, ['movement'], `${hub.id}: cross-place exit bundles another intention`)
   }
 
-  const openingLines = visibleLines(node, (conditionId) => conditionId === 'npc:placeholder')
+  // Conditional response variants can carry ordinary world-state gates in
+  // addition to their inactive topic flag. Exclude reviewed response entries
+  // structurally before projecting the opening so those variants never count
+  // as scene-opening prose merely because an unrelated `unless` is true.
+  const openingNode = {
+    ...node,
+    text: node.text.filter((entry) => entry.conversationHub?.kind !== 'response'),
+  }
+  const openingLines = visibleLines(openingNode, (conditionId) => conditionId === 'npc:placeholder')
   assert.ok(openingLines.length <= 3,
     `${hub.id}: conversation opens with ${openingLines.length} lines before the player asks anything`)
 }
@@ -81,16 +89,82 @@ for (const hub of Object.values(CONVERSATION_HUBS)) {
 // interfaces. Keep the exact topic inventory reviewed: changing it is an
 // editorial language change, not a silent data-count increase.
 const VILLAGE_CONVERSATION_TOPICS = {
-  'elira-neighbour': ['today', 'work', 'availability'],
+  'elira-neighbour': ['today', 'work', 'availability', 'waitQuestion'],
   'spring-girl': ['water', 'routine', 'village'],
   'forest-guest': ['cold', 'destination', 'alone'],
-  'square-elder': ['well', 'water', 'help'],
-  'village-shepherd': ['goats', 'help', 'return'],
+  'square-elder': ['well', 'water', 'help', 'seriously', 'meaning', 'clarify', 'repair', 'agree'],
+  'village-shepherd': ['today', 'goats', 'help', 'return'],
   'gjakova-trader': ['cheaper', 'road', 'opening'],
   'gjakova-healer': ['return', 'work', 'bandage'],
-  'gjakova-innkeeper': ['hotWater', 'breakfast', 'bag'],
-  'rain-children': ['activity', 'join', 'reason'],
+  'gjakova-innkeeper': ['hotWater', 'breakfast', 'bag', 'leaveBag'],
+  'rain-children': ['activity', 'join', 'reason', 'nonsense'],
   'village-wedding': ['start', 'bride', 'dance'],
+}
+
+// These reviewed surfaces are the learner-facing anchors for the village's
+// new everyday functions. Pin both the wording and the intended dictionary
+// sense so punctuation, informal register, and same-spelling contrasts cannot
+// drift silently while the hub inventory still happens to pass.
+const REVIEWED_HUB_SURFACES = [
+  ['elira-neighbour', 'today', 'question', "Ç'kemi? Si je sot?", ['ckemi']],
+  ['elira-neighbour', 'work', 'question', 'Ça po bën?', ['cfare']],
+  ['elira-neighbour', 'waitQuestion', 'question', 'Prit pak; kam një pyetje.', ['prit', 'pyetje']],
+  ['square-elder', 'well', 'question', 'Çfarë ndodhi?', ['cfare', 'ndodh']],
+  ['square-elder', 'seriously', 'question', 'Seriozisht?', ['seriozisht']],
+  ['square-elder', 'meaning', 'question', 'Si domethënë?', ['domethene']],
+  ['square-elder', 'clarify', 'question', 'Çfarë do të thuash?', ['cfare', 'thote']],
+  ['square-elder', 'repair', 'question', 'Nuk e kuptoj. Mund ta përsërisësh, të lutem?', ['kuptoj', 'perserit']],
+  ['square-elder', 'agree', 'question', 'Ke të drejtë. Duhet të ndihmojmë.', ['drejte', 'ndihmo']],
+  ['gjakova-innkeeper', 'bag', 'response', 'ajo thotë: po. Lëreni çantën pranë derës.', ['le', 'cante']],
+  ['gjakova-innkeeper', 'leaveBag', 'response', 'Gruaja tund kokën. Jo. Lëreni këtu. Është e sigurt.', ['le']],
+  ['rain-children', 'nonsense', 'question', 'Po flet kot.', ['kot']],
+  ['spring-girl', 'water', 'response', 'ajo thotë: Normal! Uji është i ftohtë sepse vjen nga mali.', ['normal_response']],
+  ['gjakova-trader', 'opening', 'response', 'ai thotë: Dyqani hapet fiks në orën shtatë.', ['fiks']],
+  ['gjakova-innkeeper', 'breakfast', 'response', 'ajo thotë: Mëngjesi fillon fiks në orën shtatë.', ['fiks']],
+  ['village-shepherd', 'today', 'question', 'Çfarë po bën sot?', ['cfare', 'bej', 'sot']],
+  ['village-shepherd', 'help', 'response', "ai thotë: po. Ruaji dhitë deri në mbrëmje, të lutem. Nëse është e vështirë, s'ka gjë; provoje.", ['provo']],
+]
+
+for (const [hubId, questionId, kind, expectedText, expectedIds] of REVIEWED_HUB_SURFACES) {
+  const hub = CONVERSATION_HUBS[hubId]
+  const entries = kind === 'question' ? STORY[hub.nodeId].options : STORY[hub.nodeId].text
+  const entry = entries.find((candidate) =>
+    candidate.conversationHub?.hubId === hubId
+      && candidate.conversationHub?.questionId === questionId
+      && candidate.conversationHub?.kind === kind)
+  assert.ok(entry, `${hubId}/${questionId}: reviewed ${kind} is missing`)
+  const line = kind === 'question' ? entry.text : lineOf(entry)
+  assert.equal(albanianTextOf(line), expectedText,
+    `${hubId}/${questionId}: reviewed Albanian surface drifted`)
+  for (const id of expectedIds) {
+    assert.ok(idsOf(line).includes(id),
+      `${hubId}/${questionId}: reviewed surface lost dictionary sense ${id}`)
+  }
+}
+
+const REVIEWED_DEPENDENT_TOPICS = [
+  ['square-elder', 'seriously', 'well'],
+  ['square-elder', 'meaning', 'well'],
+  ['square-elder', 'clarify', 'well'],
+  ['square-elder', 'repair', 'water'],
+  ['square-elder', 'agree', 'help'],
+  ['gjakova-innkeeper', 'leaveBag', 'bag'],
+  ['rain-children', 'nonsense', 'activity'],
+]
+for (const [hubId, questionId, prerequisiteId] of REVIEWED_DEPENDENT_TOPICS) {
+  const hub = CONVERSATION_HUBS[hubId]
+  const option = STORY[hub.nodeId].options.find((candidate) =>
+    candidate.conversationHub?.hubId === hubId
+      && candidate.conversationHub?.questionId === questionId)
+  assert.ok([].concat(option.requires || []).includes(hub.questions[prerequisiteId].askedCondition),
+    `${hubId}/${questionId}: appears before the ${prerequisiteId} context establishes it`)
+}
+for (const questionId of ['meaning', 'clarify']) {
+  const option = STORY.sheshiPlak.options.find((candidate) =>
+    candidate.conversationHub?.hubId === 'square-elder'
+      && candidate.conversationHub?.questionId === questionId)
+  assert.ok([].concat(option.unless || []).includes('fact:villageWellsRestored'),
+    `square-elder/${questionId}: dry-well rumor follow-up remains visible after the wells are restored`)
 }
 for (const [hubId, questionIds] of Object.entries(VILLAGE_CONVERSATION_TOPICS)) {
   const hub = CONVERSATION_HUBS[hubId]
