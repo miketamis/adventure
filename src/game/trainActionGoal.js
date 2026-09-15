@@ -64,12 +64,18 @@ export function beginTrainActionGoalSession(state, target) {
   return normalizeTrainActionGoalSession(null, { ...state, practiceTarget: target })
 }
 
-export function trainActionGoalEmergencyTargetIds(state) {
+export function trainActionGoalPriorityTargetIds(state) {
   const goal = trainActionGoalForState(state)
   const session = normalizeTrainActionGoalSession(state?.trainGoalSession, state)
-  return goal && session &&
+  return goal && session ? goal.remainingWordIds : []
+}
+
+export function trainActionGoalEmergencyTargetIds(state) {
+  const priorityTargetIds = trainActionGoalPriorityTargetIds(state)
+  const session = normalizeTrainActionGoalSession(state?.trainGoalSession, state)
+  return priorityTargetIds.length && session &&
     session.activitiesSinceGoalOpportunity >= TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity
-    ? goal.remainingWordIds
+    ? priorityTargetIds
     : []
 }
 

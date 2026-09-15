@@ -51,8 +51,8 @@ import {
 } from '../game/trainFuturePlanner.js'
 import {
   normalizeTrainActionGoalSession,
-  trainActionGoalEmergencyTargetIds,
   trainActionGoalForState,
+  trainActionGoalPriorityTargetIds,
 } from '../game/trainActionGoal.js'
 import { resolveTrainingTarget } from '../game/trainingTarget.js'
 
@@ -156,7 +156,7 @@ export default function PracticeView({ state, dispatch }) {
       state,
       discoveredIds,
       unlockedPhrases: unlockedEverydayPhrases,
-      forceGoalTargetIds: trainActionGoalEmergencyTargetIds(state),
+      forceGoalTargetIds: trainActionGoalPriorityTargetIds(state),
       nowMs,
       debugTrace: state.debug,
     })

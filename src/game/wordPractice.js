@@ -548,7 +548,7 @@ export function buildWordQuestion({
     candidate && Object.assign(candidate, {
       status: 'eligible',
       reasons: [goalEmergency && !plan.due
-        ? 'discovered, trainable, disjoint from the last activity, and forced by the eight-activity action-goal guarantee'
+        ? 'discovered, trainable, disjoint from the last activity, and kept eligible for the zero-token story-action fallback'
         : 'discovered, trainable, disjoint from the last activity, and due'],
     })
     if (candidate) trace.candidates.push(candidate)

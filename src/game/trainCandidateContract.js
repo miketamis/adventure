@@ -50,7 +50,7 @@ export const TRAIN_CANDIDATE_ENUMERATION_POLICY = deepFreeze({
     strategy: 'bounded diverse board proposals because the complete board combination space is exponential',
     maximumProposals: 8,
   },
-  actionGoalEmergency: 'the eighth-activity guarantee may enumerate a still-locked-by-spacing word stage early, but never bypasses reviewed content or the consecutive-word boundary',
+  actionGoalPriority: 'a missing action word stays enumerable through a spacing override so caught-up cannot hide it; the eighth-activity deadline may also force its selection, but neither rule bypasses reviewed content or the consecutive-word boundary',
   deterministicSeed: 'learner scheduling state plus stable candidate identity',
   rejectionAccounting: 'every builder miss is counted by family and target in the debug-only enumeration trace',
 })

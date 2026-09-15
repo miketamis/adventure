@@ -20,8 +20,8 @@ import { practiceReturnOption } from '../src/game/practiceReturn.js'
 import { trainQuestionWordKeys } from '../src/game/phrasePractice.js'
 import { enumerateTrainActivityCandidates } from '../src/game/trainCandidateContract.js'
 import {
-  TRAIN_ACTION_GOAL_POLICY,
   trainActionGoalEmergencyTargetIds,
+  trainActionGoalPriorityTargetIds,
 } from '../src/game/trainActionGoal.js'
 import {
   optionTrainingIdentity,
@@ -215,7 +215,7 @@ check('Train returns only to the exact story option that opened it', () => {
   assert.match(storySource, /type: 'BEGIN_OPTION_TRAINING'/)
 })
 
-check('the eighth Train activity forces a real token opportunity for the requested action', () => {
+check('a zero-token action word preempts caught-up even while ordinarily spaced', () => {
   const option = STORY[START_NODE].options.find((candidate) => candidate.to === 'fshatiLumi')
   const target = trainingTargetForOption(START_NODE, option)
   const discoveredIds = ['kalo', 'ure', 'rruge', 'shtepi', 'uje', 'buke']
@@ -239,22 +239,19 @@ check('the eighth Train activity forces a real token opportunity for the request
   assert.equal(state.practiceTarget.optionIdentity, target.optionIdentity)
   state = {
     ...state,
-    trainGoalSession: {
-      ...state.trainGoalSession,
-      activitiesSinceGoalOpportunity: TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity,
-    },
   }
-  assert.deepEqual(trainActionGoalEmergencyTargetIds(state), ['ure'])
+  assert.deepEqual(trainActionGoalPriorityTargetIds(state), ['ure'])
+  assert.deepEqual(trainActionGoalEmergencyTargetIds(state), [])
 
   const enumeration = enumerateTrainActivityCandidates({
     state,
     discoveredIds,
     nowMs: 1,
-    forceGoalTargetIds: trainActionGoalEmergencyTargetIds(state),
+    forceGoalTargetIds: trainActionGoalPriorityTargetIds(state),
     debugTrace: true,
   })
   const forced = enumeration.proposals.find(({ rewardIds }) => rewardIds.includes('ure'))
-  assert.ok(forced, 'due spacing hid the action word after its seven-activity deadline')
+  assert.ok(forced, 'due spacing produced caught-up while the requested action still had a zero-token word')
   const question = forced.materialize()
   assert.equal(question.goalEmergency, true)
   state = reducer(state, {

@@ -9,6 +9,7 @@ export const TRAIN_ACTION_GOAL_POLICY = Object.freeze({
   minimumInterveningActivities: 1,
   maximumActivitiesPerTokenOpportunity: 8,
   maximumNonGoalActivitiesBeforeForcedOpportunity: 7,
+  zeroTokenFallback: 'a buildable missing action word remains eligible even when ordinary spacing would otherwise show caught-up',
   budgetRule: 'after seven completed activities without a question that can award a missing action token, the eighth question must target one of those words',
   emergencyOverrides: Object.freeze([
     'elapsed and round due spacing',
