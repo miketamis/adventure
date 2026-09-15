@@ -16,7 +16,7 @@ export const TRAIN_HEALTH_POLICY = deepFreeze({
   protectedAttemptsPerStep: 1,
   recoveryCorrectCompletions: 7,
   maximumHearts: 3,
-  protectionRule: 'The first completed attempt at each exact target-and-stage step is protected.',
+  protectionRule: 'The first completed attempt at each exact target, aspect, level, form, and activity configuration is protected; success or failure consumes it.',
   recoveryRule: 'Seven consecutive completed correct Train rounds restore one heart, up to the maximum; any miss resets the streak.',
 })
 
@@ -99,7 +99,7 @@ export function trainRecoveryStatusText(plan) {
 export function trainHeartRiskText(plan) {
   if (!plan) return ''
   const held = `${plan.hearts} of ${plan.maximumHearts} ${plan.maximumHearts === 1 ? 'heart' : 'hearts'} left.`
-  if (plan.protectedAttempt) return `${held} Protected first try — a wrong answer will not cost a heart.`
+  if (plan.protectedAttempt) return `${held} New skill step protected — a wrong answer will not cost a heart.`
   if (plan.missEndsRun) return `${held} A wrong answer costs one heart and ends this run.`
   return `${held} A wrong answer costs one heart; ${plan.heartsAfterWrong} would remain.`
 }

@@ -21,7 +21,10 @@ import {
   pickBalancedTrainActivity,
   trainActivityBalancePlan,
   trainActivityTypeId,
+  trainTargetBalancePlan,
+  trainWordTargetKeys,
 } from './trainActivityBalance.js'
+import { latestTrainTargetEntry } from './trainActivityHistory.js'
 import {
   phraseClozeContrastRank,
   phraseClozeDistractorPolicy,
@@ -497,14 +500,18 @@ function buildWordBank(unlocked, distractorPool, target, answerWords, rng, reque
 const matchPairCount = (tier) => PHRASE_STAGE_DEFINITIONS.matching[tier]?.variant.pairs ??
   PHRASE_STAGE_DEFINITIONS.matching.at(-1).variant.pairs
 
-function buildMatchQuestion(base, unlocked, rng, tier, mastery, forcedTier) {
+function buildMatchQuestion(base, unlocked, rng, tier, mastery, forcedTier, targetHistory = []) {
   const pairCount = matchPairCount(tier)
   const candidates = shuffleWith(
     unlocked.filter((entry) => entry.id !== base.target.id && (
       forcedTier || phraseSkillTier(mastery.matching?.[entry.id], 'matching') === tier
     )),
     rng,
-  )
+  ).sort((left, right) => {
+    const count = (phrase) => targetHistory.filter((entry) =>
+      entry.includes(`phrase:${phrase.id}`)).length
+    return count(left) - count(right)
+  })
   const companions = []
   const usedAlbanian = new Set([normalizedChoiceText(base.target.al, 'sq')])
   const usedEnglish = new Set([normalizedChoiceText(base.target.en, 'en')])
@@ -522,6 +529,7 @@ function buildMatchQuestion(base, unlocked, rng, tier, mastery, forcedTier) {
   return {
     ...base,
     phraseIds: phrases.map((phrase) => phrase.id),
+    targetKeys: phrases.map((phrase) => `phrase:${phrase.id}`),
     phrases,
     left: shuffleWith(phrases.map((phrase) => ({
       id: phrase.id,
@@ -729,6 +737,7 @@ export function buildPhraseQuestion(
     nowMs = 0,
     tier: requestedTier,
     activityHistory = [],
+    targetHistory = [],
     debugTrace = false,
   } = {},
 ) {
@@ -745,6 +754,7 @@ export function buildPhraseQuestion(
       nowMs,
       excludedWordKeys: [...excluded],
       activityHistory,
+      targetHistory,
     },
     candidates: [],
     targetSelection: {},
@@ -764,6 +774,16 @@ export function buildPhraseQuestion(
   }
   const forcedQuestion = Boolean(targetId || MODE_SET.has(requestedMode) || requestedTier != null)
   if (!forcedQuestion) {
+    const previousPhraseTargets = new Set(latestTrainTargetEntry(targetHistory, 'phrase:'))
+    eligible = eligible.filter((entry) => {
+      const repeated = previousPhraseTargets.has(`phrase:${entry.id}`)
+      if (repeated && trace) trace.candidates.push({
+        id: entry.id,
+        status: 'rejected',
+        reasons: ['appeared in the previous phrase activity, even if word activities intervened'],
+      })
+      return !repeated
+    })
     eligible = eligible.filter((entry) => {
       const focuses = phraseProductionFocuses(entry)
       const plan = phraseProductionPlan(
@@ -843,6 +863,9 @@ export function buildPhraseQuestion(
       ? entryProductionPlan.stage
       : skillTier(entry, mastery, entrySkill, requestedTier)
     const definition = PHRASE_STAGE_DEFINITIONS[entrySkill][entryTier]
+    const focusedWord = entrySkill === 'production' && (
+      definition.mode === 'cloze' || (definition.mode === 'type' && definition.typeScope === 'word')
+    ) ? entryProductionPlan.focusId : null
     return {
       target: entry,
       productionPlan: entryProductionPlan,
@@ -854,6 +877,10 @@ export function buildPhraseQuestion(
         mode: definition.mode,
         typeScope: definition.typeScope,
       }),
+      targetKeys: [
+        `phrase:${entry.id}`,
+        ...(focusedWord ? trainWordTargetKeys(focusedWord, DICT[focusedWord]?.al) : []),
+      ],
       skillTrace,
     }
   }
@@ -862,7 +889,15 @@ export function buildPhraseQuestion(
     ? { balanced: targetPlans.map((candidate) => ({ candidate })) }
     : trainActivityBalancePlan(targetPlans, activityHistory)
   if (!activityBalance.balanced.length) return null
-  const balancedTargetIds = new Set(activityBalance.balanced.map(({ candidate }) => candidate.target.id))
+  const activityBalancedTargets = activityBalance.balanced.map(({ candidate }) => candidate)
+  const targetBalance = forcedQuestion
+    ? { balanced: activityBalancedTargets.map((candidate) => ({ candidate })), outcome: 'forced-target' }
+    : trainTargetBalancePlan(activityBalancedTargets, targetHistory, {
+        excludePreviousPhrase: true,
+        remediationOf: (candidate) => candidate.productionPlan?.remediation === true,
+      })
+  if (!targetBalance.balanced.length) return null
+  const balancedTargetIds = new Set(targetBalance.balanced.map(({ candidate }) => candidate.target.id))
   target = pickTarget(
     eligible.filter(({ id }) => balancedTargetIds.has(id)),
     mana,
@@ -882,7 +917,7 @@ export function buildPhraseQuestion(
     trace && (trace.skillSelection = selectedTargetPlan.skillTrace)
   }
   if (!target || !productionPlan || !skillPlans || !skill) return null
-  if (trace) Object.assign(trace, { selectedTargetId: target.id, productionPlan, skillPlans, activityBalance })
+  if (trace) Object.assign(trace, { selectedTargetId: target.id, productionPlan, skillPlans, activityBalance, targetBalance })
   let tier = skill === 'production' && requestedTier == null
     ? productionPlan.stage
     : skillTier(target, mastery, skill, requestedTier)
@@ -906,7 +941,21 @@ export function buildPhraseQuestion(
       // meaningless one-card "match" round.
       if (!targetId && matchingTargets.length) {
         trace && (trace.matchingAdjustment = { reason: 'initial target cannot populate the required same-tier matching board', compatibleTargetIds: matchingTargets.map(({ id }) => id) })
-        target = pickTarget(matchingTargets, mana, practiced, mistakes, rng, null, trace?.targetSelection)
+        const matchingBalance = trainTargetBalancePlan(
+          matchingTargets.map((entry) => ({ entry, targetKeys: [`phrase:${entry.id}`] })),
+          targetHistory,
+          { excludePreviousPhrase: true },
+        )
+        if (!matchingBalance.balanced.length) return null
+        target = pickTarget(
+          matchingBalance.balanced.map(({ candidate }) => candidate.entry),
+          mana,
+          practiced,
+          mistakes,
+          rng,
+          null,
+          trace?.targetSelection,
+        )
         productionPlan = phraseProductionPlan(
           productionProgress?.[target.id],
           phraseProductionFocuses(target).map(({ id }) => id),
@@ -948,6 +997,7 @@ export function buildPhraseQuestion(
     difficultyLabel: productionStep?.label || PHRASE_STAGE_DEFINITIONS[skill][tier].label,
     target,
     phraseIds: [target.id],
+    targetKeys: [`phrase:${target.id}`],
     answerWords,
     activityTypeId: trainActivityTypeId({
       kind: TRAIN_EXERCISE_FAMILIES.phrase.kind,
@@ -978,6 +1028,7 @@ export function buildPhraseQuestion(
     tier,
     mastery,
     requestedTier != null,
+    targetHistory,
   )
   if (mode === 'type') {
     const step = productionStep || PHRASE_STAGE_DEFINITIONS.production[PHRASE_SKILL_MAX_TIER.production]
@@ -985,6 +1036,7 @@ export function buildPhraseQuestion(
       const focus = wordFocusFor(target, answerWords, rng, productionPlan.focusId)
       return {
         ...base,
+        targetKeys: [`phrase:${target.id}`, ...trainWordTargetKeys(focus.focusId, DICT[focus.focusId]?.al)],
         typeScope: 'word',
         focusId: focus.focusId,
         expectedNounFormTag: focus.formTag || null,
@@ -1024,6 +1076,7 @@ export function buildPhraseQuestion(
     if (!bank) return null
     return {
       ...base,
+      targetKeys: [`phrase:${target.id}`, ...trainWordTargetKeys(focus.focusId, DICT[focus.focusId]?.al)],
       blankIndex,
       correctWord,
       exactAnswerAl: correctWord,

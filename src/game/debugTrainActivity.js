@@ -20,7 +20,10 @@ import {
   TRAIN_QUESTION_MIX_POLICY,
   TRAIN_SCHEDULER_SAFEGUARDS,
 } from './trainingProgression.js'
-import { normalizeTrainActivityHistory } from './trainActivityHistory.js'
+import {
+  normalizeTrainActivityHistory,
+  normalizeTrainTargetHistory,
+} from './trainActivityHistory.js'
 import {
   normalizeWordProgress,
   wordCapabilitySnapshot,
@@ -417,6 +420,7 @@ export function buildDebugTrainActivity(question, state = {}, nowMs = Date.now()
       trainLastWords: state.trainLastWords || [],
       trainLastQuestionKey: state.trainLastQuestionKey || null,
       trainActivityHistory: normalizeTrainActivityHistory(state.trainActivityHistory),
+      trainTargetHistory: normalizeTrainTargetHistory(state.trainTargetHistory),
       trainStageExposures: normalizeTrainStageExposures(state.trainStageExposures),
       trainHealingStreak: normalizeTrainHealingStreak(state.trainHealingStreak),
       wordMatchingProgress: normalizeWordMatchingProgress(state.wordMatchingProgress),

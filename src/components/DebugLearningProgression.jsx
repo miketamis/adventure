@@ -785,6 +785,7 @@ export default function DebugLearningProgression() {
               <li><b>Cold-start estimate:</b> {PHRASE_PROGRESSION_POLICY.adaptation.classification}. Its feature schema is shared with runtime ({PHRASE_PROGRESSION_POLICY.adaptation.featureSchema.join(', ')}); high uncertainty can add support or shorten a later interval, but never skip a prerequisite or award mastery.</li>
               <li><b>Evidence boundary:</b> the word-aspect graph proves {WORD_PROGRESSION_POLICY.evidenceBoundary.proves.join(', ')}. It does not by itself prove {WORD_PROGRESSION_POLICY.evidenceBoundary.doesNotProve.join(', ')}.</li>
               <li><b>Heart protection:</b> {TRAIN_HEALTH_POLICY.protectionRule} Exposure is keyed by the exact target, independent learning aspect, and that aspect’s difficulty level—not by a global tier or token total.</li>
+              <li><b>Target variety:</b> {TRAIN_QUESTION_MIX_POLICY.targetBalance.distribution}. An exact word needs {TRAIN_QUESTION_MIX_POLICY.targetBalance.exactWordInterveningTargets} intervening targets, a shared spelling needs {TRAIN_QUESTION_MIX_POLICY.targetBalance.surfaceInterveningTargets}, and one spelling may appear at most {TRAIN_QUESTION_MIX_POLICY.targetBalance.maximumSurfaceAppearances} times in the rolling {TRAIN_QUESTION_MIX_POLICY.targetBalance.historyWindow}-question window. A phrase from the previous phrase activity remains blocked even when word activities intervene.</li>
               <li><b>Train recovery:</b> {TRAIN_HEALTH_POLICY.recoveryRule}</li>
             </ul>
           </section>

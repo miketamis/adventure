@@ -30,10 +30,17 @@ import {
 import { TRAIN_EXERCISE_EXAMPLES } from '../src/game/trainingExampleRegistry.js'
 import {
   TRAIN_ACTIVITY_BALANCE_POLICY,
+  TRAIN_TARGET_BALANCE_POLICY,
   pickBalancedTrainActivity,
   trainActivityTypeId,
+  trainTargetBalancePlan,
+  trainWordTargetKeys,
 } from '../src/game/trainActivityBalance.js'
-import { recordTrainActivity } from '../src/game/trainActivityHistory.js'
+import {
+  normalizeTrainTargetHistory,
+  recordTrainActivity,
+  recordTrainTargets,
+} from '../src/game/trainActivityHistory.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
 import { wordProgressionOptionsForSense } from '../src/game/formInventory.js'
 import {
@@ -449,6 +456,93 @@ check('activity formats are evenly rotated and never repeat immediately', () => 
     recorded,
     'the reducer accepted an immediate duplicate activity type',
   )
+})
+
+check('tested targets rotate by exact sense and shared Albanian spelling', () => {
+  assert.equal(TRAIN_TARGET_BALANCE_POLICY.historyWindow, 10)
+  const poYes = { id: 'po_yes', targetKeys: trainWordTargetKeys('po_yes', 'po') }
+  const poProgressive = { id: 'po_prog', targetKeys: trainWordTargetKeys('po_prog', 'po') }
+  const poTurn = { id: 'po_turn', targetKeys: trainWordTargetKeys('po_turn', 'po') }
+  const ku = { id: 'ku', targetKeys: trainWordTargetKeys('ku', 'ku') }
+  let history = recordTrainTargets([], poYes.targetKeys)
+  let plan = trainTargetBalancePlan([poProgressive, ku], history)
+  assert.deepEqual(plan.balanced.map(({ candidate }) => candidate.id), ['ku'],
+    'a sibling po sense bypassed the shared-spelling cooldown')
+
+  history = [
+    poYes.targetKeys,
+    trainWordTargetKeys('ku', 'ku'),
+    trainWordTargetKeys('fshat', 'fshat'),
+    poProgressive.targetKeys,
+    trainWordTargetKeys('uje', 'ujë'),
+    trainWordTargetKeys('buke', 'bukë'),
+  ]
+  plan = trainTargetBalancePlan([poTurn, ku], history)
+  assert.equal(plan.candidates.find(({ targetKeys }) => targetKeys.includes('word:po_turn')).status,
+    'rejected-target-cooldown', 'the rolling two-in-ten po cap was not enforced')
+
+  const remediationPlan = trainTargetBalancePlan([
+    { ...poProgressive, plan: { remediation: true } },
+    poTurn,
+  ], history)
+  assert.deepEqual(remediationPlan.balanced.map(({ candidate }) => candidate.id), ['po_prog'],
+    'the exact failed po target did not return after a disjoint round')
+
+  const homographQuestion = buildWordQuestion({
+    discoveredIds: [
+      'po_yes', 'po_prog', 'po_but', 'po_turn', 'a_q', 'je', 'mire',
+      'do', 'te_subj', 'vjen', 'nuk', 'mund', 'une', 'jam', 'ti',
+      'ku', 'fshat', 'rruge', 'uje', 'buke',
+    ],
+    currentRound: 0,
+    rng: () => 0.2,
+    debugTrace: true,
+  })
+  const poGroup = homographQuestion.debugSelection.weightedSelection.surfaceGroups
+    .find(({ surfaceKey }) => surfaceKey === 'surface:po')
+  assert.ok(poGroup)
+  assert.ok(poGroup.senseIds.length >= 3)
+  assert.equal(
+    homographQuestion.debugSelection.weightedSelection.surfaceGroups
+      .filter(({ surfaceKey }) => surfaceKey === 'surface:po').length,
+    1,
+    'homographic po senses received multiple weighted lottery tickets',
+  )
+
+  const retainedPhrase = normalizeTrainTargetHistory([
+    ['phrase:going-village', 'word:fshat', 'surface:fshat'],
+    ...Array.from({ length: 12 }, (_, index) => [`word:audit_${index}`, `surface:audit_${index}`]),
+  ])
+  assert.ok(retainedPhrase.some((entry) => entry.includes('phrase:going-village')),
+    'intervening word questions erased the previous-phrase repeat boundary')
+  assert.equal(retainedPhrase.flat().includes('word:fshat'), false,
+    'retaining the phrase boundary also retained an expired word cooldown')
+})
+
+check('presented target history is canonical, persistent, and rejects a repeated phrase', () => {
+  const first = reducer(newRun(), {
+    type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+    activityTypeId: 'phrase:cloze',
+    targetKeys: ['phrase:going-village', 'word:fshat', 'surface:fshat'],
+  })
+  assert.deepEqual(first.trainTargetHistory.at(-1), ['phrase:going-village', 'word:fshat', 'surface:fshat'])
+  const interveningWord = reducer(first, {
+    type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+    activityTypeId: 'word:meaning-recognition',
+    targetKeys: ['word:ku', 'surface:ku'],
+  })
+  assert.equal(interveningWord.trainTargetHistory.length, 2)
+  assert.equal(reducer(interveningWord, {
+    type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+    activityTypeId: 'phrase:arrange',
+    targetKeys: ['phrase:going-village'],
+  }), interveningWord, 'an intervening word card allowed the same phrase target to repeat')
+  const rotated = reducer(interveningWord, {
+    type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+    activityTypeId: 'phrase:arrange',
+    targetKeys: ['phrase:meet-tomorrow-question'],
+  })
+  assert.equal(rotated.trainTargetHistory.at(-1)[0], 'phrase:meet-tomorrow-question')
 })
 
 check('the player-facing app cannot eagerly load the debug learning graph', () => {

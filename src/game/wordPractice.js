@@ -12,6 +12,8 @@ import {
 import {
   trainActivityBalancePlan,
   trainActivityTypeId,
+  trainTargetBalancePlan,
+  trainWordTargetKeys,
 } from './trainActivityBalance.js'
 import {
   normalizeWordProgress,
@@ -138,34 +140,65 @@ const wordWeight = ({ id, plan }, mana, wordExposure) => {
 
 const weightedPick = (entries, mana, wordExposure, rng, trace = null) => {
   const breakdowns = entries.map((entry) => ({ id: entry.id, ...wordWeight(entry, mana, wordExposure) }))
-  const weights = breakdowns.map(({ weight }) => weight)
+  const breakdownById = new Map(breakdowns.map((entry) => [entry.id, entry]))
+  const groups = [...entries.reduce((result, entry) => {
+    const surfaceKey = entry.targetKeys?.find((key) => key.startsWith('surface:')) || `word:${entry.id}`
+    const group = result.get(surfaceKey) || { surfaceKey, entries: [] }
+    group.entries.push(entry)
+    result.set(surfaceKey, group)
+    return result
+  }, new Map()).values()].map((group) => ({
+    ...group,
+    weight: Math.max(...group.entries.map(({ id }) => breakdownById.get(id)?.weight || 0)),
+  }))
+  const weights = groups.map(({ weight }) => weight)
   const total = weights.reduce((sum, weight) => sum + weight, 0)
   const random = rng()
   let roll = random * total
   const initialRoll = roll
-  for (let index = 0; index < entries.length; index++) {
+  for (let index = 0; index < groups.length; index++) {
     roll -= weights[index]
     if (roll <= 0) {
+      const selected = [...groups[index].entries].sort((left, right) => {
+        if (Boolean(left.plan?.remediation) !== Boolean(right.plan?.remediation)) {
+          return left.plan?.remediation ? -1 : 1
+        }
+        return (breakdownById.get(right.id)?.weight || 0) - (breakdownById.get(left.id)?.weight || 0)
+      })[0]
       if (trace) trace.weightedSelection = {
-        formula: 'token need × practical-language priority × weak-aspect priority × bounded passive-exposure retrieval boost',
+        formula: 'one canonical Albanian-surface ticket × strongest due sense weight; then remediation and weakest-sense priority inside a homograph group',
         random,
         totalWeight: total,
         roll: initialRoll,
         candidates: breakdowns,
-        selectedId: entries[index].id,
+        surfaceGroups: groups.map(({ surfaceKey, entries: grouped, weight }) => ({
+          surfaceKey,
+          senseIds: grouped.map(({ id }) => id),
+          weight,
+        })),
+        selectedSurfaceKey: groups[index].surfaceKey,
+        selectedId: selected.id,
       }
-      return entries[index]
+      return selected
     }
   }
+  const fallbackGroup = groups.at(-1)
+  const fallback = fallbackGroup?.entries[0]
   if (trace) trace.weightedSelection = {
-    formula: 'token need × practical-language priority × weak-aspect priority × bounded passive-exposure retrieval boost',
+    formula: 'one canonical Albanian-surface ticket × strongest due sense weight; then remediation and weakest-sense priority inside a homograph group',
     random,
     totalWeight: total,
     roll: initialRoll,
     candidates: breakdowns,
-    selectedId: entries.at(-1)?.id || null,
+    surfaceGroups: groups.map(({ surfaceKey, entries: grouped, weight }) => ({
+      surfaceKey,
+      senseIds: grouped.map(({ id }) => id),
+      weight,
+    })),
+    selectedSurfaceKey: fallbackGroup?.surfaceKey || null,
+    selectedId: fallback?.id || null,
   }
-  return entries.at(-1)
+  return fallback
 }
 
 const distractorIds = (
@@ -383,6 +416,7 @@ export function buildWordQuestion({
   targetId = null,
   excludeWords = [],
   activityHistory = [],
+  targetHistory = [],
   rng = Math.random,
   debugTrace = false,
 } = {}) {
@@ -395,6 +429,7 @@ export function buildWordQuestion({
       nowMs,
       excludedWordKeys: phraseWordKeys((excludeWords || []).join(' ')),
       activityHistory,
+      targetHistory,
     },
     candidates: [],
   } : null
@@ -510,6 +545,7 @@ export function buildWordQuestion({
       id,
       plan,
       context,
+      targetKeys: trainWordTargetKeys(id, DICT[id].al),
       activityTypeId: trainActivityTypeId({
         familyId: plan.familyId,
         variantId: plan.contextVariantId || plan.variantId,
@@ -523,7 +559,13 @@ export function buildWordQuestion({
   const activityBalance = trainActivityBalancePlan(due, activityHistory)
   if (trace) trace.activityBalance = activityBalance
   if (!activityBalance.balanced.length) return null
-  const balancedDue = activityBalance.balanced.map(({ candidate }) => candidate)
+  const activityBalancedDue = activityBalance.balanced.map(({ candidate }) => candidate)
+  const targetBalance = targetId
+    ? { balanced: activityBalancedDue.map((candidate) => ({ candidate })), outcome: 'forced-target' }
+    : trainTargetBalancePlan(activityBalancedDue, targetHistory)
+  if (trace) trace.targetBalance = targetBalance
+  if (!targetBalance.balanced.length) return null
+  const balancedDue = targetBalance.balanced.map(({ candidate }) => candidate)
   const { id: answerId, plan, context, activityTypeId } = weightedPick(
     balancedDue,
     mana,
@@ -544,6 +586,7 @@ export function buildWordQuestion({
     const withAspects = {
       ...question,
       activityTypeId,
+      targetKeys: trainWordTargetKeys(answerId, DICT[answerId].al),
       aspectTargets: question.aspectTargets || wordAspectTargetsForPlan(answerId, plan),
       aspectRegistryVersion: plan.aspectSelection?.registryVersion || null,
     }

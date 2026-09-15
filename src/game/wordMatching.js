@@ -7,6 +7,10 @@ import { TRAIN_EXERCISE_FAMILIES } from './trainingProgression.js'
 import { normalizeWordProgress, WORD_STAGE_DEFINITIONS } from './wordProgression.js'
 import { WORD_MATCHING_POLICY } from './wordMatchingPolicy.js'
 import { normalizeWordMatchingProgress } from './wordMatchingProgress.js'
+import {
+  trainTargetBalancePlan,
+  trainWordTargetKeys,
+} from './trainActivityBalance.js'
 
 const meaningGate = WORD_STAGE_DEFINITIONS.find(({ id }) => id === WORD_MATCHING_POLICY.unlock.stageId)
 let questionSequence = 0
@@ -86,6 +90,7 @@ export function planWordMatchingRound({
   wordMatchingProgress = {},
   practiced = {},
   excludeWords = [],
+  targetHistory = [],
   currentRound = 0,
   rng = Math.random,
   debugTrace = false,
@@ -93,7 +98,7 @@ export function planWordMatchingRound({
   const trace = {
     builder: 'word-matching',
     policy: WORD_MATCHING_POLICY,
-    request: { currentRound, excludedWordKeys: [...excludeWords] },
+    request: { currentRound, excludedWordKeys: [...excludeWords], targetHistory },
     candidates: [],
   }
   const matchingEvidence = normalizeWordMatchingProgress(wordMatchingProgress)
@@ -105,6 +110,10 @@ export function planWordMatchingRound({
     if (DICT[id] && !isTrainableSense(id)) reasons.push('sense is not trainable')
     if (!surfaceOf(id) || !meaningOf(id)) reasons.push('missing Albanian or concise English matching surface')
     if (containsExcludedPhraseWord(surfaceOf(id), excludeWords)) reasons.push('shares an Albanian word with the preceding Train activity')
+    const targetBalance = DICT[id]
+      ? trainTargetBalancePlan([{ id, targetKeys: trainWordTargetKeys(id, surfaceOf(id)) }], targetHistory)
+      : null
+    if (targetBalance && !targetBalance.balanced.length) reasons.push('word or shared Albanian surface is inside the rolling target cooldown')
     const meaningWins = progress.wins?.[WORD_MATCHING_POLICY.unlock.stageId] || 0
     if (meaningWins < WORD_MATCHING_POLICY.unlock.wins) reasons.push(`meaning recognition is ${meaningWins}/${WORD_MATCHING_POLICY.unlock.wins}`)
     trace.candidates.push({ id, status: reasons.length ? 'rejected' : 'eligible', reasons, meaningWins })
@@ -182,6 +191,7 @@ export function planWordMatchingRound({
       variantId: WORD_MATCHING_POLICY.id,
       difficultyLabel: 'mixed adaptive board',
       wordIds,
+      targetKeys: wordIds.flatMap((id) => trainWordTargetKeys(id, surfaceOf(id))),
       rewardIds: wordIds,
       pairs,
       left: shuffleWith(pairs.map(({ id, al }) => ({ id, text: al })), rng),

@@ -236,6 +236,44 @@ check('consecutive phrase rounds share no Albanian words, including matching rou
   )
 })
 
+check('phrase targets rotate across intervening word activities', () => {
+  const targetHistory = [
+    ['phrase:going-village', 'word:fshat', 'surface:fshat'],
+    ['word:ku', 'surface:ku'],
+  ]
+  const rotated = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, {}, {}, {}, {
+    rng: steadyRng,
+    currentRound: 0,
+    targetHistory,
+    distractorPool: EVERYDAY_PHRASE_DRILLS,
+  })
+  assert.ok(rotated)
+  assert.notEqual(rotated.target.id, 'going-village',
+    'the previous phrase repeated after an intervening word activity')
+  assert.ok(rotated.targetKeys.includes(`phrase:${rotated.target.id}`))
+
+  const caughtUp = buildPhraseQuestion([
+    EVERYDAY_PHRASE_DRILLS.find(({ id }) => id === 'going-village'),
+  ], {}, {}, {}, {
+    rng: steadyRng,
+    currentRound: 0,
+    targetHistory,
+    distractorPool: EVERYDAY_PHRASE_DRILLS,
+  })
+  assert.equal(caughtUp, null, 'a one-phrase pool silently repeated its previous phrase')
+
+  const forcedDebugExample = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, {}, {}, {}, {
+    rng: steadyRng,
+    targetId: 'going-village',
+    mode: 'cloze',
+    tier: tierForMode.cloze,
+    targetHistory,
+    distractorPool: EVERYDAY_PHRASE_DRILLS,
+  })
+  assert.equal(forcedDebugExample.target.id, 'going-village',
+    'an explicit deterministic debug example was incorrectly blocked by live target history')
+})
+
 check('word, context and endings rounds carry the same no-repeat boundary', () => {
   assert.deepEqual(
     trainQuestionWordKeys({ kind: 'normal', lexicalSurfaces: ['MIRË!'] }),
@@ -281,6 +319,9 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
   )
   assert.match(practiceSource, /pickBalancedTrainActivity\(candidates, recentActivityHistory/)
   assert.match(practiceSource, /RECORD_TRAIN_ACTIVITY_PRESENTED/)
+  assert.match(practiceSource, /targetHistory: recentTargetHistory/)
+  assert.match(practiceSource, /targetKeys = trainQuestionTargetKeys\(nextQuestion\)/)
+  assert.match(practiceSource, /targetKeys,/)
   assert.match(
     practiceSource,
     /nextQuestion = \{ kind: TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome \}/,

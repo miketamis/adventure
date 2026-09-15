@@ -41,7 +41,7 @@ assert.equal(firstPlan.aspectTargets[0].targetId, 'tani')
 assert.equal(firstPlan.aspectTargets[0].aspectId, 'lexical-meaning-recognition')
 assert.equal(
   trainHeartRiskText(firstPlan),
-  '3 of 3 hearts left. Protected first try — a wrong answer will not cost a heart.',
+  '3 of 3 hearts left. New skill step protected — a wrong answer will not cost a heart.',
 )
 
 const wordAction = (question, correct) => ({
@@ -68,6 +68,11 @@ assert.equal(firstMiss.wordProgress.tani.lastAttemptKey, wordQuestion.questionKe
   'protected miss did not retain real remediation evidence')
 assert.equal(firstMiss.trainHealingStreak, 0)
 assert.equal(firstMiss.trainStageExposures[firstPlan.exposureKeys[0]], 1)
+assert.equal(
+  trainHealthPlanForQuestion(firstMiss, wordQuestion).protectedAttempt,
+  false,
+  'the same exact target/aspect/level/configuration stayed protected after its failed first attempt',
+)
 
 const persistedMiss = normalizeSavedState(clone(firstMiss), newRun())
 assert.equal(persistedMiss.pendingHeartConsequence?.protected, true)

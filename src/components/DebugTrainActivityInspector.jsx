@@ -86,7 +86,7 @@ export default function DebugTrainActivityInspector({ question, state, currentPh
         <div><dt>Live phase</dt><dd>{currentPhase ? `${currentPhase.index + 1}/${currentPhase.total} · ${currentPhase.id}` : 'single-phase activity'}</dd></div>
         <div><dt>Target</dt><dd><code>{show(model.question.answerId || model.question.focusId)}</code> · form {show(model.question.targetFormKey)}</dd></div>
         <div><dt>Evidence rewarded</dt><dd>{model.question.rewardIds.length ? model.question.rewardIds.join(', ') : 'none'}</dd></div>
-        <div><dt>Rules in force</dt><dd>round {model.currentRound} · previous words {model.relevantPersistedState.trainLastWords.join(', ') || 'none'} · recent activity types {model.relevantPersistedState.trainActivityHistory.join(' → ') || 'none yet'}</dd></div>
+        <div><dt>Rules in force</dt><dd>round {model.currentRound} · previous words {model.relevantPersistedState.trainLastWords.join(', ') || 'none'} · recent activity types {model.relevantPersistedState.trainActivityHistory.join(' → ') || 'none yet'} · recent tested targets {model.relevantPersistedState.trainTargetHistory.map((entry) => entry.join(' + ')).join(' → ') || 'none yet'}</dd></div>
       </dl>
 
       <details open className="debug-train-decision">

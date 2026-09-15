@@ -41,8 +41,11 @@ import { phraseProductionFocusIds, phraseSurfaceWordKeys } from './phraseFocus.j
 import { normalizeTrainingTarget, resolveTrainingTarget } from './trainingTarget.js'
 import { TRAIN_WORD_FORM_POLICY } from './trainingProgression.js'
 import {
+  latestTrainTargetEntry,
   normalizeTrainActivityHistory,
+  normalizeTrainTargetHistory,
   recordTrainActivity,
+  recordTrainTargets,
 } from './trainActivityHistory.js'
 import {
   NON_TRAINABLE_NAMED_ENTITY_IDS,
@@ -1137,6 +1140,15 @@ export function normalizeSavedState(saved, fresh) {
     ? saved.trainLastQuestionKey.slice(0, 200)
     : null
   next.trainActivityHistory = normalizeTrainActivityHistory(saved.trainActivityHistory)
+  next.trainTargetHistory = normalizeTrainTargetHistory(saved.trainTargetHistory)
+    .map((targetKeys) => targetKeys.filter((key) => {
+      const [kind, ...idParts] = key.split(':')
+      const id = idParts.join(':')
+      return kind === 'phrase'
+        ? EVERYDAY_PHRASE_BY_ID.has(id)
+        : kind === 'surface' || (kind === 'word' && Boolean(DICT[id]) && isTrainableSense(id))
+    }))
+    .filter((targetKeys) => targetKeys.length > 0)
   next.wordExposureVersion = WORD_EXPOSURE_VERSION
   next.wordExposure = normalizeWordExposure(saved.wordExposure)
   next.wordExposureReceipts = normalizeWordExposureReceipts(saved.wordExposureReceipts)
@@ -1553,6 +1565,7 @@ const emptyLearnerProfile = () => ({
     trainLastWords: [],
     trainLastQuestionKey: null,
     trainActivityHistory: [],
+    trainTargetHistory: [],
     trainHealthPolicyVersion: TRAIN_HEALTH_POLICY_VERSION,
     trainStageExposures: {},
     wordMatchingProgressVersion: WORD_MATCHING_PROGRESS_VERSION,
@@ -2435,6 +2448,20 @@ export function reducer(state, action) {
     case 'RECORD_TRAIN_ACTIVITY_PRESENTED': {
       const currentActivityHistory = normalizeTrainActivityHistory(state.trainActivityHistory)
       if (currentActivityHistory.at(-1) === action.activityTypeId) return state
+      const hasTargetKeys = action.targetKeys != null
+      if (hasTargetKeys && !Array.isArray(action.targetKeys)) return state
+      const targetKeys = hasTargetKeys ? normalizeTrainTargetHistory([action.targetKeys])[0] : null
+      if (hasTargetKeys && (!targetKeys || targetKeys.length !== new Set(action.targetKeys).size)) return state
+      if (targetKeys?.some((key) => {
+        const [kind, ...idParts] = key.split(':')
+        const id = idParts.join(':')
+        return kind === 'phrase'
+          ? !EVERYDAY_PHRASE_BY_ID.has(id)
+          : kind !== 'surface' && (!DICT[id] || !isTrainableSense(id))
+      })) return state
+      const currentTargetHistory = normalizeTrainTargetHistory(state.trainTargetHistory)
+      const previousPhraseTargets = new Set(latestTrainTargetEntry(currentTargetHistory, 'phrase:'))
+      if (targetKeys?.some((key) => key.startsWith('phrase:') && previousPhraseTargets.has(key))) return state
       const trainActivityHistory = recordTrainActivity(
         currentActivityHistory,
         action.activityTypeId,
@@ -2443,7 +2470,13 @@ export function reducer(state, action) {
         trainActivityHistory.length === currentActivityHistory.length &&
         trainActivityHistory.every((value, index) => value === currentActivityHistory[index])
       ) return state
-      return { ...state, trainActivityHistory }
+      return {
+        ...state,
+        trainActivityHistory,
+        trainTargetHistory: targetKeys
+          ? recordTrainTargets(currentTargetHistory, targetKeys)
+          : currentTargetHistory,
+      }
     }
 
     case 'PRACTICE_CORRECT': {

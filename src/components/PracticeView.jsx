@@ -23,10 +23,13 @@ import { planWordMatchingRound } from '../game/wordMatching.js'
 import {
   pickBalancedTrainActivity,
   trainActivityTypeId,
+  trainQuestionTargetKeys,
 } from '../game/trainActivityBalance.js'
 import {
   normalizeTrainActivityHistory,
+  normalizeTrainTargetHistory,
   recordTrainActivity,
+  recordTrainTargets,
 } from '../game/trainActivityHistory.js'
 import { cefrProfile } from '../game/cefrAssessment.js'
 import { isTrainableSense } from '../game/lexicalTrainability.js'
@@ -103,6 +106,7 @@ export default function PracticeView({ state, dispatch }) {
   const wordInputRef = useRef(null)
   const previousQuestionWords = useRef([])
   const activityHistory = useRef(normalizeTrainActivityHistory(state.trainActivityHistory))
+  const targetHistory = useRef(normalizeTrainTargetHistory(state.trainTargetHistory))
   const nextRef = useRef(null)
   const questionStartedAt = useRef(Date.now())
   const attemptTiming = () => {
@@ -135,12 +139,16 @@ export default function PracticeView({ state, dispatch }) {
     const recentActivityHistory = activityHistory.current.length
       ? activityHistory.current
       : normalizeTrainActivityHistory(state.trainActivityHistory)
+    const recentTargetHistory = targetHistory.current.length
+      ? targetHistory.current
+      : normalizeTrainTargetHistory(state.trainTargetHistory)
     const schedulerTrace = state.debug ? {
       builder: 'train-family-scheduler',
       currentRound: state.trainRound || 0,
       nowMs,
       excludedWordKeys: [...excludeWords],
       recentActivityHistory,
+      recentTargetHistory,
       unlockedPhraseIds: unlockedEverydayPhrases.map(({ id }) => id),
       attempts: [],
     } : null
@@ -183,6 +191,7 @@ export default function PracticeView({ state, dispatch }) {
           currentRound: state.trainRound,
           nowMs,
           activityHistory: recentActivityHistory,
+          targetHistory: recentTargetHistory,
           debugTrace: state.debug,
         },
       )
@@ -207,6 +216,7 @@ export default function PracticeView({ state, dispatch }) {
       nowMs,
       excludeWords,
       activityHistory: recentActivityHistory,
+      targetHistory: recentTargetHistory,
       debugTrace: state.debug,
     })
     schedulerTrace?.attempts.push({
@@ -228,6 +238,7 @@ export default function PracticeView({ state, dispatch }) {
           wordMatchingProgress: state.wordMatchingProgress,
           practiced: state.practiced,
           excludeWords,
+          targetHistory: recentTargetHistory,
           currentRound: state.trainRound,
           rng: Math.random,
           debugTrace: state.debug,
@@ -266,10 +277,13 @@ export default function PracticeView({ state, dispatch }) {
     if (nextQuestion && nextQuestion.kind !== TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) {
       previousQuestionWords.current = trainQuestionWordKeys(nextQuestion)
       activityHistory.current = recordTrainActivity(recentActivityHistory, nextQuestion.activityTypeId)
+      const targetKeys = trainQuestionTargetKeys(nextQuestion)
+      targetHistory.current = recordTrainTargets(recentTargetHistory, targetKeys)
       dispatch({
         type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
         questionKey: nextQuestion.questionKey,
         activityTypeId: nextQuestion.activityTypeId,
+        targetKeys,
       })
     }
     setQ(nextQuestion)
@@ -291,6 +305,7 @@ export default function PracticeView({ state, dispatch }) {
     state.trainRound,
     state.trainLastWords,
     state.trainActivityHistory,
+    state.trainTargetHistory,
     state.trainStageExposures,
     state.debug,
   ])
