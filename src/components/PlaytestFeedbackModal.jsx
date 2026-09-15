@@ -37,6 +37,7 @@ export default function PlaytestFeedbackModal({ trigger, context, onSubmit, onDi
   const [difficulty, setDifficulty] = useState('about-right')
   const [continueIntent, setContinueIntent] = useState('maybe')
   const [friction, setFriction] = useState([])
+  const [comment, setComment] = useState('')
 
   const toggleFriction = (id) => setFriction((current) => {
     if (id === 'none') return current.includes('none') ? [] : ['none']
@@ -66,14 +67,15 @@ export default function PlaytestFeedbackModal({ trigger, context, onSubmit, onDi
               difficulty_rating: difficulty,
               continue_intent: continueIntent,
               friction_tags: friction.length ? friction : ['not-specified'],
+              ...(comment.trim() ? { feedback_text: comment.trim() } : {}),
             })}
           >
-            Send anonymous feedback
+            Send feedback
           </button>
         </>
       )}
     >
-      <p>This short check-in contains only ratings and categories—there is no open-text response.</p>
+      <p>The ratings are quick, and the written response at the end is optional.</p>
       <Rating legend="Enjoyment from 1 (not enjoying it) to 5 (really enjoying it)" value={enjoyment} onChange={setEnjoyment} />
       <fieldset className="feedback-choices">
         <legend>How difficult has the Albanian felt?</legend>
@@ -103,6 +105,20 @@ export default function PlaytestFeedbackModal({ trigger, context, onSubmit, onDi
           </label>
         ))}
       </fieldset>
+      <label className="feedback-text-field">
+        <span>Anything else? <small>(optional)</small></span>
+        <textarea
+          className="feedback-text"
+          data-private-response
+          value={comment}
+          maxLength={1000}
+          rows={4}
+          autoComplete="off"
+          placeholder="Tell us what felt fun, confusing, unfair, slow, or broken."
+          onChange={(event) => setComment(event.target.value)}
+        />
+        <small>{comment.length}/1000 · Please leave out names or contact details.</small>
+      </label>
     </BlockingModal>
   )
 }

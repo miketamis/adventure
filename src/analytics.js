@@ -157,7 +157,7 @@ const allowedPropertyKeys = new Set([
   'asset_kind', 'asset_id', 'playback_outcome', 'playback_duration_ms', 'muted',
   'issue_type', 'boundary', 'active_view',
   'trigger', 'engaged_minutes', 'meaningful_actions', 'enjoyment_rating', 'difficulty_rating',
-  'continue_intent', 'friction_tags',
+  'continue_intent', 'friction_tags', 'feedback_text',
   'target_saved', 'target_tokens', 'target_practice_wins', 'target_passive_exposure',
   'target_remediation',
 ])
@@ -185,6 +185,12 @@ const sanitizeProperties = (properties = {}) => {
   const output = {}
   for (const [key, value] of Object.entries(properties)) {
     if (!allowedPropertyKeys.has(key)) continue
+    if (key === 'feedback_text') {
+      if (typeof value !== 'string') continue
+      const feedback = value.normalize('NFC').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 1000)
+      if (feedback) output[key] = feedback
+      continue
+    }
     const safeValue = sanitizeValue(value)
     if (safeValue !== undefined) output[key] = safeValue
   }

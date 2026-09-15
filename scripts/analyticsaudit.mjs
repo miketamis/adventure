@@ -48,7 +48,12 @@ assert.match(trainAnalyticsSource, /distractorRelationForAnalytics/,
   'the lazy Train analytics route must retain production distractor relations')
 assert.match(practiceSource, /from '\.\.\/game\/trainPlaytestAnalytics\.js'/,
   'Train must load its detailed analytics only with the Train surface')
-assert.ok(!feedbackSource.includes('<textarea'), 'playtest feedback must remain categorical unless separately consented')
+assert.match(feedbackSource, /<textarea[\s\S]+data-private-response[\s\S]+maxLength=\{1000\}/,
+  'optional feedback text must stay bounded and excluded from visual replay')
+assert.match(feedbackSource, /feedback_text: comment\.trim\(\)/,
+  'the optional written response must accompany only an explicit feedback submission')
+assert.match(analyticsSource, /key === 'feedback_text'[\s\S]+slice\(0, 1000\)/,
+  'the feedback property needs its own bounded free-text sanitizer')
 assert.match(learningTelemetrySource, /['"]word-matching['"]/, 'word matching must survive local telemetry normalization')
 
 const state = newRun()
@@ -104,4 +109,4 @@ const replay = verifyStructuredReplay([
 assert.equal(replay.valid, true, JSON.stringify(replay.issues))
 assert.equal(replay.runs[0].timeline[1].actionType, 'SET_VIEW')
 
-console.log('✅ playtest analytics: consent, masking, categorical feedback, checkpoints, and hashes verified')
+console.log('✅ playtest analytics: consent, masking, bounded feedback, checkpoints, and hashes verified')

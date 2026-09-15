@@ -43,7 +43,8 @@ export default function AnalyticsPreferencesModal({ consent, onSave, onDismiss }
             <b>Anonymous gameplay research</b>
             <small>
               Sends scene and question IDs, categorical option choices, timing, outcomes, and safe game-state changes.
-              Typed answers, microphone audio, names, messages, and private text are never sent.
+              It also sends an optional written note only when you submit the feedback form. Typed learning answers
+              and microphone audio are never sent.
             </small>
           </span>
         </label>

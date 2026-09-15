@@ -149,9 +149,10 @@ for (const rule of AREA_ACHIEVEMENT_RULES) {
 // The shared grammar-consequence route adds a measured 2.8 KiB of loader and
 // routing code while its refresher body remains deferred in a lazy chunk.
 // The pre-consented playtest instrumentation adds the privacy controls,
-// categorical feedback check-in and safe structured-replay encoder to the
-// application shell. PostHog itself remains a deferred vendor chunk.
-const SHELL_RAW_BUDGET = 189 * KiB
+// bounded feedback check-in and safe structured-replay encoder to the
+// application shell. The optional written check-in brings the measured shell
+// to 189.2 KiB raw / 63.2 KiB gzip. PostHog itself remains deferred.
+const SHELL_RAW_BUDGET = 190 * KiB
 const SHELL_GZIP_BUDGET = 66 * KiB
 // The lexical evidence state machine, death-retention boundary, compact
 // mixed-matching registry, exact reviewed noun paradigms, and the first-village
@@ -163,9 +164,9 @@ const SHELL_GZIP_BUDGET = 66 * KiB
 // are also first-play behavior, bringing the measured closure to 1418.1 KiB.
 // Persistent story-action goal accounting adds 4.0 KiB while the complete
 // rolling-horizon planner remains in the lazy Train chunk. The playtest shell
-// brings the measured closure to 1447.0 KiB raw / 354.6 KiB gzip; keep narrow
+// brings the measured closure to 1449.1 KiB raw / 355.2 KiB gzip; keep narrow
 // ceilings above it.
-const BOOTSTRAP_RAW_BUDGET = 1_449 * KiB
+const BOOTSTRAP_RAW_BUDGET = 1_450 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 356 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data

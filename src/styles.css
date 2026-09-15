@@ -1872,6 +1872,22 @@ svg [role="button"]:focus-visible {
 .feedback-rating input:checked + span { background: var(--mana); border-color: var(--mana); color: white; }
 .feedback-choices { display: grid; gap: 8px; }
 .feedback-choices label { color: var(--ink); cursor: pointer; }
+.feedback-text-field { color: var(--ink); display: grid; font-weight: 700; gap: 7px; margin-top: 16px; }
+.feedback-text-field > span small,
+.feedback-text-field > small { color: var(--muted); font-weight: 400; }
+.feedback-text {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.45;
+  min-height: 96px;
+  padding: 10px 12px;
+  resize: vertical;
+  width: 100%;
+}
+.feedback-text:focus-visible { outline: 3px solid var(--mana); outline-offset: 2px; }
 
 .modal.heart-consequence {
   max-width: 600px;

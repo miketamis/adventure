@@ -15,7 +15,7 @@ Recruitment consent is handled by the playtest organiser before the link is shar
 
 The client intentionally disables PostHog autocapture, automatic page views, exception autocapture, console capture, heatmaps, dead-click autocapture, performance capture and person profiles. With the organiser-managed consent default in force, it sends one explicit `$pageview` for the anonymous browser session and clean path, allowing PostHog Web Analytics to count visitors without capturing query parameters or enabling automatic interaction collection. It starts replay programmatically and stops it immediately if the player opts out.
 
-Every form value is masked. Textareas, rendered learner responses, accepted-answer comparisons, feedback controls and microphone areas are blocked from replay. Structured events contain IDs, categories, booleans, bounded counts and timings; they never contain typed answers, learner audio, transcripts, prompts, names, phone numbers, email addresses, private conversations, exception messages or stack traces.
+Every form value is masked. Textareas, rendered learner responses, accepted-answer comparisons, feedback controls and microphone areas are blocked from replay. Structured events contain IDs, categories, booleans, bounded counts and timings. The one exception is the clearly labelled optional `feedback_text` field: it is submitted only with the feedback form, limited to 1,000 characters and never included in visual replay or game-state checkpoints. The client never sends typed learning answers, learner audio, transcripts, prompts, exception messages or stack traces.
 
 Changing both preferences to off stops recording and opts the browser out of PostHog capture. This stops future collection; deleting already-received research data remains an operational PostHog task.
 
@@ -87,9 +87,10 @@ The check-in records only:
 - perceived Albanian difficulty;
 - intent to continue;
 - zero or more predefined friction categories;
+- an optional written response of at most 1,000 characters;
 - engaged minutes, meaningful-action count and current scene context.
 
-It has no open text field and is itself excluded from visual replay.
+The entire check-in, including the optional written response, is excluded from visual replay. The UI asks players not to include names or contact details; research owners should still review and redact written responses before sharing exports.
 
 ## Distractor analysis
 
@@ -225,9 +226,9 @@ content change is not confused with a learner difference.
 - Are conclusions based on enough independent players and exposures, rather than many events from one player?
 - Which findings are descriptive correlations, and which require a randomized content or distractor experiment before making a causal claim?
 
-The protocol deliberately does not collect demographics, names, free-text feedback, typed answers or
-microphone audio. Questions requiring those inputs need a separately designed study rather than an
-extra property silently added to this stream.
+The protocol deliberately does not collect demographics, names, typed learning answers or microphone
+audio. Free text is confined to the explicit optional feedback field; questions requiring other open
+responses need a separately designed study rather than an extra property silently added to this stream.
 
 ## Operational retention
 
