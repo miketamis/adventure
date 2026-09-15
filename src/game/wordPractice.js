@@ -18,6 +18,7 @@ import {
 import {
   normalizeWordProgress,
   wordProgressPlan,
+  wordProgressRouteAspectIds,
 } from './wordProgression.js'
 import {
   contextualChoiceLabel,
@@ -103,7 +104,7 @@ export function eligibleReviewedContexts(answerId, discoveredIds = []) {
     context.requires.every((id) => id === answerId || discovered.has(id)))
 }
 
-const reviewedContextForRound = (answerId, discoveredIds, currentRound, lastAttemptKey) => {
+export const reviewedContextForRound = (answerId, discoveredIds, currentRound, lastAttemptKey) => {
   const eligible = eligibleReviewedContexts(answerId, discoveredIds)
   if (!eligible.length) return null
   const previousId = typeof lastAttemptKey === 'string'
@@ -406,6 +407,29 @@ export function wordHasNoEvidence(value) {
     progress.strictWins === 0 && !progress.remediation
 }
 
+export function wordQuestionRouteAspectIds({
+  discoveredIds = [],
+  wordProgress = {},
+  currentRound = 0,
+  nowMs = 0,
+  targetId,
+  allowEarlyDueForGoal = false,
+} = {}) {
+  if (!targetId || !DICT[targetId] || !isTrainableSense(targetId)) return []
+  const progressionOptions = wordProgressionOptionsForSense(targetId)
+  if (!progressionOptions.trainability.trainable) return []
+  const progress = normalizeWordProgress(wordProgress[targetId], currentRound)
+  const context = reviewedContextForRound(targetId, discoveredIds, currentRound, progress.lastAttemptKey)
+  if (progressionOptions.context && !context) return []
+  return wordProgressRouteAspectIds(progress, currentRound, {
+    ...progressionOptions,
+    context,
+    nowMs,
+    discoveredIds,
+    includeSpaced: allowEarlyDueForGoal,
+  })
+}
+
 export function buildWordQuestion({
   discoveredIds,
   mana = {},
@@ -415,6 +439,7 @@ export function buildWordQuestion({
   currentRound = 0,
   nowMs = 0,
   targetId = null,
+  targetAspectId = null,
   allowEarlyDueForGoal = false,
   excludeWords = [],
   activityHistory = [],
@@ -427,6 +452,7 @@ export function buildWordQuestion({
     request: {
       discoveredIds: [...(discoveredIds || [])],
       targetId,
+      targetAspectId,
       allowEarlyDueForGoal,
       currentRound,
       nowMs,
@@ -481,8 +507,14 @@ export function buildWordQuestion({
       context,
       nowMs,
       discoveredIds,
+      targetAspectId,
     })
     candidate && (candidate.plan = plan)
+    if (targetAspectId && plan.aspectId !== targetAspectId) {
+      candidate?.reasons.push(`requested capability-graph route ${targetAspectId} is not eligible`)
+      if (candidate) trace.candidates.push(candidate)
+      continue
+    }
     // An inflecting word can advance from its lemma to a different reviewed
     // surface while keeping the same sense ID. Apply the no-repeat boundary to
     // that exact scheduled surface too; otherwise the weighted picker may

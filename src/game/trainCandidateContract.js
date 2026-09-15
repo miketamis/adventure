@@ -11,7 +11,7 @@ import {
 } from './phraseProgression.js'
 import { buildPhraseQuestion, trainQuestionWordKeys } from './phrasePractice.js'
 import { trainActivityTypeId, trainQuestionTargetKeys } from './trainActivityBalance.js'
-import { buildWordQuestion } from './wordPractice.js'
+import { buildWordQuestion, wordQuestionRouteAspectIds } from './wordPractice.js'
 import { planWordMatchingRound } from './wordMatching.js'
 
 const deepFreeze = (value) => {
@@ -43,8 +43,8 @@ export const TRAIN_CANDIDATE_CONTRACT = deepFreeze({
 })
 
 export const TRAIN_CANDIDATE_ENUMERATION_POLICY = deepFreeze({
-  version: 1,
-  wordCandidates: 'one fully buildable proposal for every due discovered word target',
+  version: 2,
+  wordCandidates: 'one fully buildable proposal for every eligible due capability-graph route of every discovered word target',
   phraseCandidates: 'one fully buildable proposal for every due target and unlocked evidence track',
   matchingBoards: {
     strategy: 'bounded diverse board proposals because the complete board combination space is exponential',
@@ -216,6 +216,7 @@ export function createTrainCandidateProposal({ question, route, nowMs = 0 } = {}
     descriptor.route,
     descriptor.activityTypeId,
     [...descriptor.targetKeys].sort().join('+'),
+    [...descriptor.aspectIds].sort().join('+'),
     descriptor.difficulty.variantId,
   ].join('|')
   return {
@@ -310,19 +311,31 @@ export function enumerateTrainActivityCandidates({
   }
 
   for (const id of discoveredIds) {
-    add(buildWordQuestion({
+    const routeAspectIds = wordQuestionRouteAspectIds({
       discoveredIds,
-      mana: state?.mana,
-      practiced: state?.practiced,
       wordProgress: state?.wordProgress,
-      wordExposure: state?.wordExposure,
       currentRound,
       nowMs,
       targetId: id,
       allowEarlyDueForGoal: forcedGoalTargets.has(id),
-      rng: seededTrainRng(`${seed}|word|${id}`),
-      debugTrace: true,
-    }), 'word', id)
+    })
+    for (const targetAspectId of routeAspectIds) {
+      const routeId = targetAspectId || 'remediation'
+      add(buildWordQuestion({
+        discoveredIds,
+        mana: state?.mana,
+        practiced: state?.practiced,
+        wordProgress: state?.wordProgress,
+        wordExposure: state?.wordExposure,
+        currentRound,
+        nowMs,
+        targetId: id,
+        targetAspectId,
+        allowEarlyDueForGoal: forcedGoalTargets.has(id),
+        rng: seededTrainRng(`${seed}|word|${id}|${routeId}`),
+        debugTrace: true,
+      }), 'word', `${id}:${routeId}`)
+    }
   }
 
   for (const entry of unlockedPhrases) {

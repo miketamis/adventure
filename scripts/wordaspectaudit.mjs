@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { wordProgressionOptionsForSense } from '../src/game/formInventory.js'
-import { buildWordQuestion } from '../src/game/wordPractice.js'
+import { enumerateTrainActivityCandidates } from '../src/game/trainCandidateContract.js'
+import { buildWordQuestion, wordQuestionRouteAspectIds } from '../src/game/wordPractice.js'
 import {
   WORD_ASPECT_REGISTRY_VERSION,
   WORD_LEARNING_ASPECTS,
@@ -41,6 +42,68 @@ assert.ok(!eligible.includes('auditory-form-construction'), 'whole-form sound co
 assert.ok(!eligible.includes('contextual-form-selection'), 'ending choice bypassed exact form/job recognition')
 assert.ok(!eligible.includes('reviewed-ending-recall'), 'typed ending bypassed ending selection')
 assert.equal(branched.next.aspectSelection.strategy, 'highest scored due weak aspect; registry order breaks exact ties')
+
+const discoveredForGraph = [
+  'fshat', 'qytet', 'shtepi', 'treg', 'po_yes', 'jo', 'uje', 'buke',
+  'nje', 'sheh', 'prane', 'eshte', 'ketu', 'jam', 'disa', 'pas', 'shume',
+  'ky', 'mire', 'i_art',
+]
+const routeAspectIds = wordQuestionRouteAspectIds({
+  discoveredIds: discoveredForGraph,
+  wordProgress: { fshat: foundation },
+  currentRound: 10,
+  targetId: 'fshat',
+})
+for (const id of [
+  'grammatical-form-recognition',
+  'noun-paradigm-matching',
+  'auditory-surface-recognition',
+  'controlled-lemma-retrieval',
+  'contextual-meaning-inference',
+]) assert.ok(routeAspectIds.includes(id), `${id} was not exposed as a schedulable graph route`)
+
+const enumeration = enumerateTrainActivityCandidates({
+  state: {
+    trainRound: 10,
+    mana: {},
+    practiced: {},
+    wordExposure: {},
+    wordProgress: { fshat: foundation },
+    trainActivityHistory: [],
+    trainTargetHistory: [],
+  },
+  discoveredIds: discoveredForGraph,
+  debugTrace: true,
+})
+const fshatRoutes = enumeration.proposals.filter(({ rewardIds }) => rewardIds.includes('fshat'))
+assert.ok(fshatRoutes.length >= 5, 'candidate enumeration collapsed fshat back to one selected aspect')
+const controlledRoute = fshatRoutes.find(({ aspectIds: routeAspects }) =>
+  routeAspects.includes('controlled-lemma-retrieval'))
+assert.ok(controlledRoute, 'controlled retrieval was absent from the buildable graph proposals')
+const controlledQuestion = controlledRoute.materialize({ debug: true })
+const controlledResult = advanceWordProgress(foundation, 10, {
+  correct: true,
+  stageId: controlledQuestion.wordStageId,
+  tier: controlledQuestion.tier,
+  mode: controlledQuestion.mode,
+  direction: controlledQuestion.dir,
+  variantId: controlledQuestion.variantId,
+  targetFormKey: controlledQuestion.targetFormKey,
+  aspectTargets: controlledQuestion.aspectTargets,
+  questionKey: controlledQuestion.questionKey,
+  round: 11,
+}, { ...options, discoveredIds: discoveredForGraph })
+assert.equal(controlledResult.accepted, true, 'reducer rejected the planner-selected non-default graph route')
+assert.equal(
+  controlledResult.progress.aspectProofs['lemma|controlled-lemma-retrieval'].wins,
+  1,
+  'non-default graph route did not record its own capability proof',
+)
+assert.equal(
+  controlledResult.progress.aspectProofs['form:fshat::indefNom|grammatical-form-recognition'],
+  undefined,
+  'one graph route silently filled a different capability branch',
+)
 
 const contextDependentOptions = {
   ...wordProgressionOptionsForSense('po_prog'),

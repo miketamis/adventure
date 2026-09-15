@@ -435,7 +435,7 @@ const STAGE_BY_ID = Object.freeze(Object.fromEntries(WORD_STAGE_DEFINITIONS.map(
 
 export const WORD_PROGRESSION_POLICY = deepFreeze({
   version: WORD_PROGRESS_VERSION,
-  principle: 'Saving supplies guided recognition. After two meaning recognitions, independently evidenced aspects compete from their own prerequisites: a reviewed form meaning-and-job card receives the first exact-tie priority, then complete-word audio recognition, exact ending choice and recall, controlled retrieval, authored noun agreement, sound-led spelling and later production. This registry order is only a deterministic tie-break, never a mastery ladder.',
+  principle: 'Saving supplies guided recognition. After two meaning recognitions, every independently evidenced aspect whose own prerequisites pass becomes a schedulable graph route: reviewed forms, complete-word audio, controlled retrieval, authored context and noun agreement can branch before sound-led spelling and later production. The future planner receives every buildable due route; registry order is only a deterministic tie-break, never a mastery ladder.',
   stageOrder: WORD_STAGE_DEFINITIONS.map(({ id }) => id),
   productionBeginsAt: 'word-form-construction',
   controlledRetrievalVariants: STAGE_BY_ID['controlled-lemma-retrieval'].variants,
@@ -924,8 +924,13 @@ const aspectSchedule = (progress, options = {}) => {
   // Registry order is only the final deterministic tie-break for equal scores.
   const ranked = (rows) => [...rows].sort((left, right) =>
     right.selectionScore - left.selectionScore || left.priority - right.priority)
-  const selected = ranked(candidates.filter(({ eligible, due, needsPractice }) =>
-    eligible && due && needsPractice))[0] ||
+  const requested = options.targetAspectId
+    ? candidates.find(({ aspect }) => aspect.id === options.targetAspectId)
+    : null
+  const requestedEligible = requested?.eligible && requested?.needsPractice
+  const selected = (requestedEligible ? requested : null) ||
+    ranked(candidates.filter(({ eligible, due, needsPractice }) =>
+      eligible && due && needsPractice))[0] ||
     ranked(candidates.filter(({ eligible, needsPractice }) => eligible && needsPractice))[0] ||
     candidates.find(({ aspect }) => aspect.id === 'spaced-exact-recall')
   const selectedStageId = selected?.aspect.id === 'contextual-meaning-inference'
@@ -945,10 +950,25 @@ const aspectSchedule = (progress, options = {}) => {
     hasReviewedNounFormMatching,
     nounFormMatchingPlan,
     hasReviewedContextLane: contextAlignment.usable,
+    selectionStrategy: requestedEligible
+      ? 'requested eligible capability-graph route'
+      : 'highest scored due weak aspect; registry order breaks exact ties',
   }
 }
 
 const basePlan = aspectSchedule
+
+export function wordProgressRouteAspectIds(value, currentRound = 0, options = {}) {
+  const progress = normalizeWordProgress(value, currentRound)
+  if (progress.remediation) return [null]
+  const base = basePlan(progress, { ...options, currentRound })
+  const due = base.aspectCandidates.filter(({ eligible, due: isDue, needsPractice }) =>
+    eligible && isDue && needsPractice)
+  const routes = due.length || options.includeSpaced !== true
+    ? due
+    : base.aspectCandidates.filter(({ eligible, needsPractice }) => eligible && needsPractice)
+  return routes.map(({ aspect }) => aspect.id)
+}
 
 export function wordProgressStage(value, options = {}) {
   return basePlan(normalizeWordProgress(value), options).definition.tier
@@ -1004,7 +1024,7 @@ const lateContextPlan = (progress, base, currentRound, alignment) => {
     aspectDefinition: WORD_LEARNING_ASPECT_BY_ID['contextual-meaning-inference'],
     aspectSelection: {
       registryVersion: WORD_ASPECT_REGISTRY_VERSION,
-      strategy: 'highest scored due weak aspect; registry order breaks exact ties',
+      strategy: base.selectionStrategy,
       candidates: base.aspectCandidates,
       selectedAspectId: 'contextual-meaning-inference',
     },
@@ -1082,7 +1102,7 @@ export function wordProgressPlan(value, currentRound = 0, options = {}) {
       registryVersion: WORD_ASPECT_REGISTRY_VERSION,
       strategy: progress.remediation
         ? 'explicit remediation aspect'
-        : 'highest scored due weak aspect; registry order breaks exact ties',
+        : base.selectionStrategy,
       candidates: base.aspectCandidates,
       selectedAspectId: aspectDefinition?.id || null,
     },
@@ -1217,7 +1237,14 @@ export function advanceWordProgress(value, currentRound = 0, result = {}, option
   if (options.trainability?.trainable === false) {
     return { accepted: false, reason: 'not-trainable', progress, plan: null }
   }
-  const plan = wordProgressPlan(progress, currentRound, { ...options, nowMs: result.attemptedAtMs })
+  const targetAspectId = Array.isArray(result.aspectTargets)
+    ? result.aspectTargets.find(({ evidenceMode }) => evidenceMode === 'write')?.aspectId || null
+    : null
+  const plan = wordProgressPlan(progress, currentRound, {
+    ...options,
+    nowMs: result.attemptedAtMs,
+    targetAspectId,
+  })
   const questionKey = safeString(result.questionKey)
   if (!plan.due && options.allowEarlyDueForGoal !== true) {
     return { accepted: false, reason: 'not-due', progress, plan }
