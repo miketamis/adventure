@@ -13148,8 +13148,10 @@ export const ALL_SENSE_IDS = (() => {
 
 // ---------------------------------------------------------------------------
 // STEMS — the invariant root of each sense, computed as the longest common
-// prefix of every surface form it takes across the content. The remainder of a
-// surface is its inflectional ending, which we render faded.
+// prefix of every surface form it takes across the content. Surface comparison
+// is case-insensitive because sentence-initial capitalization does not change a
+// word's morphology. The remainder of a surface is its inflectional ending,
+// which we render faded.
 //   ujk / ujku          -> stem "ujk",     endings ""/"u"
 // ---------------------------------------------------------------------------
 export const STEMS = (() => {
@@ -13166,8 +13168,9 @@ export const STEMS = (() => {
   for (const id of Object.keys(DICT)) (surfaces[id] ||= new Set()).add(DICT[id].al)
 
   const commonPrefix = (words) => {
-    let p = words[0] || ''
-    for (const w of words) {
+    const foldedWords = words.map((word) => word.toLocaleLowerCase('sq'))
+    let p = foldedWords[0] || ''
+    for (const w of foldedWords) {
       let i = 0
       while (i < p.length && i < w.length && p[i] === w[i]) i++
       p = p.slice(0, i)
@@ -13184,7 +13187,7 @@ export const STEMS = (() => {
 // Split an Albanian surface into [stem, ending] for a given sense.
 export function splitStem(id, surface) {
   const stem = STEMS[id]
-  if (stem && surface.startsWith(stem) && stem.length < surface.length) {
+  if (stem && surface.toLocaleLowerCase('sq').startsWith(stem) && stem.length < surface.length) {
     return [surface.slice(0, stem.length), surface.slice(stem.length)]
   }
   return [surface, '']

@@ -21,6 +21,7 @@ import {
   STORY,
   itemConfuserActionOf,
   lineOf,
+  splitStem,
 } from '../src/game/content.js'
 import { REVIEWED_READINGS } from '../src/game/data/readings/reviewedReadings.js'
 import {
@@ -69,6 +70,13 @@ const contextualObservationOptions = options.filter(({ option }) => option.conte
 const failures = []
 const fail = (message) => failures.push(message)
 const assert = (condition, message) => { if (!condition) fail(message) }
+
+// Sentence-initial capitalization is presentational, not morphological. Keep
+// the same root/ending treatment for a noun wherever it appears in a line.
+const [waterObjectStem, waterObjectEnding] = splitStem('uje', 'ujin')
+const [sentenceWaterStem, sentenceWaterEnding] = splitStem('uje', 'Uji')
+assert(waterObjectStem === 'uj' && waterObjectEnding === 'in', 'ujin is not rendered as stem “uj” + ending “in”')
+assert(sentenceWaterStem === 'Uj' && sentenceWaterEnding === 'i', 'sentence-initial Uji is not rendered as stem “Uj” + ending “i”')
 
 for (const [address, review] of Object.entries(REVIEWED_READINGS)) {
   assert(review && typeof review === 'object', `${address}: registry review must be an object`)
