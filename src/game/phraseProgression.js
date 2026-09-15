@@ -36,7 +36,7 @@ export const PHRASE_STAGE_DEFINITIONS = deepFreeze({
     },
     {
       skill: 'production', tier: 1, id: 'whole-arrangement', label: 'guided production',
-      mode: 'arrange', typeScope: 'phrase',
+      mode: 'arrange', typeScope: 'phrase', answerTolerance: 'guided-order',
       variant: { distractors: 3 },
       gate: { kind: 'whole-phrase-arrangement', wins: 1 },
       transition: { correct: 'record-arrangement-proof', gateMet: 2, wrongRemediation: 0 },

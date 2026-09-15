@@ -94,6 +94,33 @@ check('phrase tokenization keeps Albanian words and contractions, not punctuatio
     false,
     'a missing word passed as spacing tolerance',
   )
+  assert.deepEqual(
+    phraseAnswerResult(
+      'nuk mund të vij tani nesër takohemi',
+      'Nuk mund të vij tani. Takohemi nesër?',
+      'guided-order',
+    ),
+    { correct: true, usedLeeway: true },
+    'one adjacent word-order slip did not pass guided arrangement with review',
+  )
+  assert.equal(
+    phraseAnswerIsCorrect(
+      'nuk mund të vij nesër tani takohemi',
+      'Nuk mund të vij tani. Takohemi nesër?',
+      'guided-order',
+    ),
+    false,
+    'a broad reordering passed the bounded guided-order tolerance',
+  )
+  assert.equal(
+    phraseAnswerIsCorrect(
+      'nuk mund të vij tani takohemi',
+      'Nuk mund të vij tani. Takohemi nesër?',
+      'guided-order',
+    ),
+    false,
+    'a missing word passed guided-order tolerance',
+  )
   assert.deepEqual(phraseWordKeys(" S’KA, GJE\u0308! "), ["s'ka", 'gjë'])
   assert.notDeepEqual(phraseWordKeys('cka gje'), phraseWordKeys('çka gjë'), 'Albanian letters were folded')
 

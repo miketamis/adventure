@@ -160,6 +160,21 @@ function beginnerNearMatch(answer, target) {
   return totalEdits > 0
 }
 
+// Guided arrangement is practice, so one local transposition may pass with a
+// blocking exact-order review. The identical word inventory keeps this from
+// accepting omissions, additions, substitutions, or broad re-orderings.
+export function guidedOrderNearMatch(answer, target) {
+  const answerWords = phraseWords(answer).map(normalizedWord)
+  const targetWords = phraseWords(target).map(normalizedWord)
+  if (answerWords.length !== targetWords.length || answerWords.length < 2) return false
+  const mismatches = targetWords
+    .map((word, index) => answerWords[index] === word ? -1 : index)
+    .filter((index) => index >= 0)
+  if (mismatches.length !== 2 || mismatches[1] !== mismatches[0] + 1) return false
+  const [left, right] = mismatches
+  return answerWords[left] === targetWords[right] && answerWords[right] === targetWords[left]
+}
+
 const isReviewedNounAlternative = (id, answerSurface, expectedSurface) => {
   if (!id || !answerSurface || !expectedSurface || DICT[id]?.formTrack !== 'noun') return false
   // Missing ë/ç remains beginner orthography help even when the resulting
@@ -191,6 +206,8 @@ export function hasReviewedNounFormSubstitution(answer, target, context = null) 
 export function phraseAnswerResult(answer, target, tolerance = 'strict', context = null) {
   const canonical = normalizePhraseAnswer(answer) === normalizePhraseAnswer(target)
   if (canonical) return { correct: true, usedLeeway: false }
+  const guidedOrder = tolerance === 'guided-order' && guidedOrderNearMatch(answer, target)
+  if (guidedOrder) return { correct: true, usedLeeway: true }
   const beginner = tolerance === 'beginner' &&
     !hasReviewedNounFormSubstitution(answer, target, context) &&
     beginnerNearMatch(answer, target)
@@ -1017,6 +1034,7 @@ export function buildPhraseQuestion(
     }),
     rewardIds: phraseRewardIds([target]),
     typeScope: productionStep?.typeScope,
+    answerTolerance: productionStep?.answerTolerance,
     remediation: skill === 'production' && productionPlan.remediation,
     remediationReason: skill === 'production' ? productionPlan.remediationReason : null,
     ...(trace ? { debugSelection: {

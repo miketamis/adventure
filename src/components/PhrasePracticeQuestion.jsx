@@ -3,7 +3,6 @@ import { DICT } from '../game/content.js'
 import { playPhrase, playWord } from '../game/audio.js'
 import {
   phraseAnswerDiagnostic,
-  phraseAnswerIsCorrect,
   phraseAnswerResult,
   phraseQuestionExactAnswer,
   trainQuestionWordKeys,
@@ -132,13 +131,13 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
   const checkConstruction = () => {
     if (q.mode === 'listen' && !listeningCompleted) return
     const answer = selectedTiles.map((tile) => tile.text).join(' ')
-    const correct = phraseAnswerIsCorrect(answer, q.target.al)
+    const result = phraseAnswerResult(answer, q.target.al, q.answerTolerance, q)
     commit(
-      correct,
+      result.correct,
       q.phraseIds,
       q.target.al,
-      false,
-      correct ? null : phraseAnswerDiagnostic(answer, q.target.al, q.target),
+      result.usedLeeway,
+      result.correct ? null : phraseAnswerDiagnostic(answer, q.target.al, q.target),
       { al: answer },
       { selectedOptionIds: selectedIds },
     )

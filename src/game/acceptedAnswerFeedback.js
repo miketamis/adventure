@@ -12,6 +12,10 @@ export function acceptedAnswerComparison(attemptValue, answerValue) {
   if (!attempt || !answer) return null
   const attemptedWords = words(attempt)
   const answerWords = words(answer)
+  const normalizedAttemptedWords = attemptedWords.map((word) => word.normalize('NFC').toLocaleLowerCase('sq'))
+  const normalizedAnswerWords = answerWords.map((word) => word.normalize('NFC').toLocaleLowerCase('sq'))
+  const sameWordInventory = normalizedAttemptedWords.length === normalizedAnswerWords.length &&
+    [...normalizedAttemptedWords].sort().join('\u0000') === [...normalizedAnswerWords].sort().join('\u0000')
   const differences = []
   if (attemptedWords.length === answerWords.length) {
     for (let index = 0; index < answerWords.length; index++) {
@@ -23,9 +27,21 @@ export function acceptedAnswerComparison(attemptValue, answerValue) {
       })
     }
   }
-  const explanation = differences.length
-    ? differences.map(({ position, attempted, answer: expected }) =>
+  const kind = sameWordInventory ? 'order' : 'spelling'
+  const explanation = kind === 'order'
+    ? 'All the words are here. Compare their positions with the natural Albanian order shown below.'
+    : differences.length
+      ? differences.map(({ position, attempted, answer: expected }) =>
         `Word ${position}: “${attempted}” should be “${expected}”.`).join(' ')
-    : 'Compare the exact Albanian spelling, accents and punctuation shown below.'
-  return { attempt, answer, differences, explanation }
+      : 'Compare the exact Albanian spelling, accents and punctuation shown below.'
+  return {
+    attempt,
+    answer,
+    differences,
+    explanation,
+    kind,
+    title: kind === 'order'
+      ? 'Close enough at this level — check the exact word order'
+      : 'Close enough at this level — check the exact spelling',
+  }
 }
