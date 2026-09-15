@@ -81,6 +81,7 @@ export const TRAIN_EXERCISE_FAMILIES = deepFreeze({
     variants: [
       WORD_STAGE_BY_ID['reviewed-form-contrast'],
       WORD_STAGE_BY_ID['grammatical-form-odd-one-out'],
+      WORD_STAGE_BY_ID['noun-paradigm-matching'],
       WORD_STAGE_BY_ID['contextual-form-selection'],
       WORD_STAGE_BY_ID['reviewed-ending-recall'],
       WORD_STAGE_BY_ID['demonstrative-noun-agreement'],

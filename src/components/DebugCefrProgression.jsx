@@ -68,7 +68,11 @@ const countBy = (items, keyFor) => items.reduce((counts, item) => {
 }, {})
 
 function simulateWord() {
-  const options = wordProgressionOptionsForSense(EXAMPLE_WORD_ID)
+  const baseOptions = wordProgressionOptionsForSense(EXAMPLE_WORD_ID)
+  const options = {
+    ...baseOptions,
+    discoveredIds: [...new Set(baseOptions.reviewedForms.flatMap(({ context }) => context?.requires || []))],
+  }
   const snapshots = [{
     id: 'word-entry', label: 'word saved', note: 'Saving the word completed guided recognition; the real next task is four-choice independent Albanian-to-English recognition.',
     value: wordProgressionSnapshot(null, 0, options), round: 0,

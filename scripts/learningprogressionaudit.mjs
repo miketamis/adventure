@@ -175,7 +175,11 @@ check('every learning question step opens a structured example dialog', () => {
 check('the word walkthrough and builder share the exact lexical stage registry', () => {
   const guide = read('src/components/GuideView.jsx')
   const component = read('src/components/DebugLearningProgression.jsx')
-  const exampleOptions = wordProgressionOptionsForSense('fshat')
+  const baseExampleOptions = wordProgressionOptionsForSense('fshat')
+  const exampleOptions = {
+    ...baseExampleOptions,
+    discoveredIds: [...new Set(baseExampleOptions.reviewedForms.flatMap(({ context }) => context?.requires || []))],
+  }
   const entry = wordProgressionSnapshot(null, 0, exampleOptions)
   assert.equal(entry.stages.length, WORD_STAGE_DEFINITIONS.length)
   assert.equal(WORD_STAGE_DEFINITIONS[0].id, 'meaning-recognition')
@@ -248,6 +252,7 @@ check('the word walkthrough and builder share the exact lexical stage registry',
   }
   for (const aspectId of [
     'lexical-meaning-recognition', 'grammatical-form-recognition',
+    'noun-paradigm-matching',
     'controlled-lemma-retrieval', 'contextual-form-selection',
     'reviewed-ending-recall',
     'contextual-meaning-inference', 'auditory-form-construction',

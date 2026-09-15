@@ -50,7 +50,10 @@ export function buildLearningEvidenceInspector(state = {}, nowMs = 0) {
   }
 
   const words = LEARNING_INSPECTOR_WORDS.map((mapping) => {
-    const options = wordProgressionOptionsForSense(mapping.id)
+    const options = {
+      ...wordProgressionOptionsForSense(mapping.id),
+      discoveredIds: Object.keys(state.discovered || {}).filter((senseId) => state.discovered[senseId]),
+    }
     const forms = options.reviewedForms
     const trainability = options.trainability
     const progress = normalizeWordProgress(state.wordProgress?.[mapping.id], currentRound)

@@ -100,12 +100,12 @@ for (const id of allTrainableIds) {
 for (const id of allTrainableIds) {
   let progress = null
   let round = 0
-  const options = wordProgressionOptionsForSense(id)
   // This is a whole-bank validity audit rather than a cold-start scheduler
   // fixture. Make every trainable option known so later Albanian-choice stages
   // can exercise their hardest legal banks; separate progression audits pin the
   // real all-other-words-known gate and fail-closed caught-up behaviour.
   const discoveredIds = allTrainableIds
+  const options = { ...wordProgressionOptionsForSense(id), discoveredIds }
   for (let attempt = 0; attempt < 12; attempt += 1) {
     const question = buildWordQuestion({
       discoveredIds, targetId: id, wordProgress: { [id]: progress }, currentRound: round, rng: steadyRng,

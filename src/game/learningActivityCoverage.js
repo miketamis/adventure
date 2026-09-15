@@ -209,7 +209,7 @@ export const LEARNING_ACTIVITY_EQUIVALENCE_CLAIMS = deepFreeze([
     id: 'grammar-patterns', label: 'Notice a form, identify its job, then use it in meaning',
     level: 'composed', sourceIds: ['teachingMethod'],
     refs: [
-      train('word-forms'), train('noun-correction'), preparation('a1-slot-recombination'),
+      train('word-forms'), train('noun-correction'), aspect('noun-paradigm-matching'), preparation('a1-slot-recombination'),
       preparation('a2-meaning-switch-forms'), preparation('a2-register-pragmatics'),
       preparation('a2-temporal-sequencing'), preparation('a2-connector-links'),
     ],
@@ -260,6 +260,12 @@ export const LEARNING_ACTIVITY_EQUIVALENCE_CLAIMS = deepFreeze([
     level: 'direct', sourceIds: ['teachingMethod'],
     refs: [train('word-forms'), aspect('grammatical-form-odd-one-out')],
     note: 'After exact form recognition, one reviewed-paradigm card presents three unambiguous surfaces sharing number or definiteness and one opposite surface. Syncretic surfaces spanning both categories are excluded rather than marked wrong.',
+  },
+  {
+    id: 'same-root-grammar-matching', label: 'Match several forms of one noun to their grammatical jobs',
+    level: 'direct', sourceIds: ['teachingMethod'],
+    refs: [train('word-forms'), aspect('noun-paradigm-matching')],
+    note: 'One five-pair board reuses a single reviewed noun root in five short Albanian contexts. The marked noun is matched to a distinct grammatical job; context disambiguates identical spellings and no English sentence translation is shown.',
   },
   {
     id: 'ending-before-whole-spelling', label: 'Select or type the inflectional ending before spelling the complete form',

@@ -2,7 +2,7 @@
 // more than one component, but it must declare exactly which components it
 // reads as prerequisites and which component its completed result may update.
 
-export const WORD_ASPECT_REGISTRY_VERSION = 8
+export const WORD_ASPECT_REGISTRY_VERSION = 9
 
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
@@ -39,6 +39,16 @@ export const WORD_LEARNING_ASPECTS = deepFreeze([
     conditional: 'reviewed-form-odd-one-out',
     prerequisites: [{ aspectId: 'grammatical-form-recognition', scope: 'same-form' }],
     evidence: 'Finds the one unambiguous noun surface whose reviewed number or definiteness differs from three others in the same paradigm.',
+  },
+  {
+    id: 'noun-paradigm-matching',
+    label: 'One-noun grammar matching',
+    dimension: 'morphosyntax',
+    scope: 'lemma',
+    stageId: 'noun-paradigm-matching',
+    conditional: 'reviewed-noun-paradigm-matching',
+    prerequisites: [{ aspectId: 'lexical-meaning-recognition', scope: 'lemma' }],
+    evidence: 'After the first form-focused work becomes available, matches five contextual uses of one reviewed noun root to five distinct grammatical jobs.',
   },
   {
     id: 'auditory-surface-recognition',
@@ -241,6 +251,10 @@ export const WORD_STAGE_ASPECT_BINDINGS = deepFreeze({
   'grammatical-form-odd-one-out': {
     writes: ['grammatical-form-odd-one-out'],
     reads: ['grammatical-form-recognition'],
+  },
+  'noun-paradigm-matching': {
+    writes: ['noun-paradigm-matching'],
+    reads: ['lexical-meaning-recognition'],
   },
   'controlled-lemma-retrieval': {
     writes: ['controlled-lemma-retrieval'],

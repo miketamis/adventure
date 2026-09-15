@@ -26,6 +26,7 @@ import {
 assert.deepEqual(WORD_STAGE_DEFINITIONS.map(({ id }) => id), [
   'meaning-recognition', 'reviewed-form-contrast',
   'grammatical-form-odd-one-out',
+  'noun-paradigm-matching',
   'auditory-surface-recognition', 'auditory-surface-discrimination', 'auditory-meaning-recognition',
   'controlled-lemma-retrieval',
   'demonstrative-noun-agreement', 'adjective-linking-article-agreement',

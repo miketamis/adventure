@@ -2528,7 +2528,10 @@ export function reducer(state, action) {
           attemptedAtMs: action.attemptedAtMs,
           responseDurationMs: action.responseDurationMs,
         },
-        wordProgressionOptionsForSense(action.id),
+        {
+          ...wordProgressionOptionsForSense(action.id),
+          discoveredIds: Object.keys(state.discovered || {}).filter((id) => state.discovered[id]),
+        },
       )
       if (!transition.accepted) return state
       const wordProgress = {

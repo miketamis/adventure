@@ -32,6 +32,7 @@ const EXPECTED_STAGE_ORDER = [
   'meaning-recognition',
   'reviewed-form-contrast',
   'grammatical-form-odd-one-out',
+  'noun-paradigm-matching',
   'auditory-surface-recognition',
   'auditory-surface-discrimination',
   'auditory-meaning-recognition',
@@ -77,6 +78,7 @@ const optionsFor = (id) => ({
   answerSurface: DICT[id].al,
   reviewedForms: reviewedFormTargets(id),
   trainability: lexicalTrainability(id),
+  discoveredIds: [...new Set(reviewedFormTargets(id).flatMap(({ context }) => context?.requires || []))],
 })
 
 const persisted = (state) => normalizeSavedState(clone(state), newRun())
@@ -112,7 +114,11 @@ const nextDueQuestion = (startingState, id) => {
     const question = questionFor(state, id)
     if (question) return { state, question }
     const plan = wordProgressPlan(state.wordProgress[id], state.trainRound, optionsFor(id))
-    const scheduledSurfaces = [DICT[id].al, plan.formTarget?.surface].filter(Boolean)
+    const scheduledSurfaces = [
+      DICT[id].al,
+      plan.formTarget?.surface,
+      ...(plan.nounFormMatchingPlan?.rows || []).map(({ context }) => context),
+    ].filter(Boolean)
     const targetExcluded = (state.trainLastWords || []).some((word) =>
       scheduledSurfaces.some((surface) => lower(surface).split(/\s+/u).includes(lower(word))),
     )
@@ -368,6 +374,7 @@ assert.equal(noun.wordProgress.fshat.wins['reviewed-form-contrast'], undefined,
 
 for (const expectedStage of [
   'grammatical-form-odd-one-out',
+  'noun-paradigm-matching',
   'auditory-surface-recognition',
   'auditory-surface-discrimination',
   'auditory-meaning-recognition',

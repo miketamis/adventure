@@ -213,6 +213,15 @@ export function trainActivityWordOccurrences(question) {
     }
     return occurrences
   }
+  if (question.formExerciseMode === 'same-root-grammar-matching') {
+    for (const [index, pair] of (question.pairs || []).entries()) {
+      occurrences.push(...genericTextOccurrences(pair.context, `same-root grammar matching:${index}`, {
+        targetId: question.answerId,
+        targetSurface: pair.surface,
+      }))
+    }
+    return occurrences
+  }
   if (question.kind === TRAIN_EXERCISE_FAMILIES.phrase.kind) {
     const phrases = question.mode === 'match' ? question.phrases || [] : [question.target].filter(Boolean)
     for (const phrase of phrases) occurrences.push(...phraseOccurrences(phrase, `phrase:${phrase.id}`))
@@ -268,7 +277,10 @@ const relevantFormRewards = (state, id) => Object.fromEntries(Object.entries(sta
 function wordRecord(id, occurrences, state, currentRound, nowMs) {
   const entry = DICT[id]
   const definition = DEFS[id] || null
-  const progressionOptions = wordProgressionOptionsForSense(id)
+  const progressionOptions = {
+    ...wordProgressionOptionsForSense(id),
+    discoveredIds: Object.keys(state.discovered || {}).filter((senseId) => state.discovered[senseId]),
+  }
   const normalizedProgress = normalizeWordProgress(state.wordProgress?.[id], currentRound)
   return {
     id,

@@ -1401,6 +1401,13 @@ svg [role="button"]:focus-visible {
   opacity: 0.72;
 }
 .phrase-match-progress { margin-top: 12px; text-align: center; }
+.noun-form-match-context mark {
+  color: inherit;
+  background: color-mix(in srgb, var(--accent, #69bce8) 24%, transparent);
+  border-bottom: 3px solid var(--accent, #69bce8);
+  border-radius: .2rem;
+  padding: 0 .08em;
+}
 .phrase-rewards {
   display: flex;
   flex-wrap: wrap;

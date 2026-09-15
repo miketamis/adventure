@@ -14,6 +14,7 @@ import {
   reviewedNounAgreementGate,
 } from './nounAgreementPractice.js'
 import { reviewedFormOddOneOutPlan } from './reviewedFormOddOneOut.js'
+import { reviewedNounFormMatchingPlan } from './nounFormMatching.js'
 
 let formQuestionSequence = 0
 const lower = (value) => value.normalize('NFC').toLocaleLowerCase('sq')
@@ -363,6 +364,61 @@ export function buildFormQuestion({
   }
 
   return null
+}
+
+export function buildNounFormMatchingQuestion({
+  answerId,
+  plan,
+  candidateIds = [],
+  excludeWords = [],
+  currentRound = 0,
+  rng = Math.random,
+} = {}) {
+  if (!DICT[answerId] || !isTrainableSense(answerId) || plan?.stageId !== 'noun-paradigm-matching') return null
+  const matching = reviewedNounFormMatchingPlan(reviewedFormTargets(answerId), candidateIds, { currentRound })
+  if (!matching || matching.rows.some(({ context }) => containsExcludedPhraseWord(context, excludeWords))) return null
+  const pairs = matching.rows.map((row) => ({
+    id: row.formKey,
+    formKey: row.formKey,
+    context: row.context,
+    surface: row.surface,
+    targetTokenIndex: row.targetTokenIndex,
+    role: row.role,
+    roleLabel: row.roleLabel,
+    gloss: row.gloss,
+  }))
+  return {
+    questionKey: `${answerId}:word:${currentRound}:${plan.tier}:${plan.variantId}:${formQuestionSequence++}`,
+    answerId,
+    answerValue: answerId,
+    dir: plan.direction,
+    mode: plan.mode,
+    tier: plan.tier,
+    wordStageId: plan.stageId,
+    variantId: plan.variantId,
+    difficultyLabel: plan.difficultyLabel,
+    remediation: plan.remediation,
+    targetFormKey: null,
+    surface: DICT[answerId].al,
+    kind: TRAIN_EXERCISE_FAMILIES.wordForms.kind,
+    familyId: TRAIN_EXERCISE_FAMILIES.wordForms.id,
+    formExerciseMode: 'same-root-grammar-matching',
+    pairs,
+    left: shuffleWith(pairs.map(({ id, context, surface, targetTokenIndex }) => ({
+      id, text: context, surface, targetTokenIndex,
+    })), rng),
+    right: shuffleWith(pairs.map(({ id, roleLabel }) => ({ id, text: roleLabel })), rng),
+    rewardIds: [answerId],
+    lexicalSurfaces: pairs.map(({ context }) => context),
+    aspectTargets: wordAspectTargetsForPlan(answerId, plan),
+    contextGate: {
+      eligible: true,
+      reason: 'every supporting word in all five reviewed contexts is saved',
+      requiredIds: matching.requiredIds,
+      missingIds: [],
+    },
+    distractorPolicy: 'five distinct reviewed grammatical jobs for five contextual uses of one noun root; context disambiguates syncretic spellings',
+  }
 }
 
 const agreementQuestionBase = (answerId, frame, plan, currentRound) => ({

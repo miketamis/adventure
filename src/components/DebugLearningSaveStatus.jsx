@@ -27,7 +27,11 @@ export default function DebugLearningSaveStatus({ state }) {
   const wordSnapshot = wordProgressionSnapshot(
     state.wordProgress?.[EXAMPLE_WORD_ID],
     state.trainRound || 0,
-    { ...wordProgressionOptionsForSense(EXAMPLE_WORD_ID), nowMs: Date.now() },
+    {
+      ...wordProgressionOptionsForSense(EXAMPLE_WORD_ID),
+      discoveredIds: Object.keys(state.discovered || {}).filter((id) => state.discovered[id]),
+      nowMs: Date.now(),
+    },
   )
   const correctRounds = state.phrasePracticed?.[phrase.id] || 0
   const missedRounds = state.phraseMistakes?.[phrase.id] || 0

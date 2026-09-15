@@ -155,10 +155,11 @@ const SHELL_GZIP_BUDGET = 56 * KiB
 // conversation hubs are first-play behavior, not optional tooling. The
 // player-led hubs add a measured 19 KiB to the story closure. The reviewed
 // colloquial follow-ups, the broader everyday-expression registry and five
-// reviewed Train phrases bring that same first-play closure to 1413.3 KiB;
-// keep a narrow ceiling above the measured payload while retaining the
-// stricter gzip limit.
-const BOOTSTRAP_RAW_BUDGET = 1_415 * KiB
+// reviewed Train phrases bring that same first-play closure to 1413.3 KiB.
+// The production one-noun grammar-matching planner and its aspect scheduler
+// are also first-play behavior, bringing the measured closure to 1418.1 KiB;
+// keep a narrow ceiling above it while retaining the stricter gzip limit.
+const BOOTSTRAP_RAW_BUDGET = 1_420 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data

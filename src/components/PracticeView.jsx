@@ -39,6 +39,7 @@ import ContextualCompletion, {
 } from './ContextualCompletion.jsx'
 import TrainingActivityShell from './TrainingActivityShell.jsx'
 import WordMatchingQuestion from './WordMatchingQuestion.jsx'
+import NounFormMatchingQuestion from './NounFormMatchingQuestion.jsx'
 import CefrCapstone from './CefrCapstone.jsx'
 import { trainMissConsequence } from '../game/consequenceBuilders.js'
 import {
@@ -381,6 +382,48 @@ export default function PracticeView({ state, dispatch }) {
     else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
   }, [dispatch, q, state])
 
+  const onNounFormMatchComplete = useCallback((result) => {
+    const restoresHeart = result.correct && trainCorrectWillRestoreHeart(
+      trainHealthPlanForQuestion(state, q),
+    )
+    setAwaitingRecoveryContinue(restoresHeart)
+    const correction = result.correction
+    dispatch({
+      type: 'PRACTICE_WORD_RESULT',
+      correct: result.correct,
+      id: q.answerId,
+      tier: q.tier,
+      mode: q.mode,
+      direction: q.dir,
+      wordStageId: q.wordStageId,
+      variantId: q.variantId,
+      targetFormKey: null,
+      aspectTargets: q.aspectTargets,
+      questionKey: q.questionKey,
+      wordKeys: trainQuestionWordKeys(q),
+      attemptedAtMs: result.attemptedAtMs,
+      responseDurationMs: result.responseDurationMs,
+      consequence: result.correct ? null : trainMissConsequence({
+        source: 'train-noun-form-matching',
+        questionKey: q.questionKey,
+        attemptedAl: result.attempted?.context,
+        attemptedEn: result.attempted?.roleLabel,
+        reasonCode: 'wrong-noun-form-job-match',
+        reason: `“${result.attempted?.roleLabel || 'that job'}” does not describe how “${result.attempted?.surface || q.surface}” is used in this Albanian sentence.`,
+        correctAl: correction?.context,
+        correctEn: correction?.roleLabel,
+        reasoning: correction
+          ? `In “${correction.context}”, the marked noun has the job “${correction.roleLabel}”. The surrounding Albanian words make this role unambiguous.`
+          : null,
+        grammarGuide: correction
+          ? buildNounEndingRefresher(q.answerId, correction.surface, correction.gloss)
+          : null,
+      }),
+    })
+    if (result.correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1800)
+    else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
+  }, [dispatch, q, state])
+
   useEffect(() => {
     if (!q && discoveredIds.length > 0) next()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -450,6 +493,7 @@ export default function PracticeView({ state, dispatch }) {
   const isEndingChoice = isForms && q.formExerciseMode === 'ending-choice'
   const isEndingTyping = isForms && q.formExerciseMode === 'ending-type'
   const isFormOddOneOut = isForms && q.formExerciseMode === 'form-odd-one-out'
+  const isNounFormMatching = isForms && q.formExerciseMode === 'same-root-grammar-matching'
   const isFormChoice = isFormIntro || isEndingChoice || isFormOddOneOut
   const isWordConstruction = q.kind === TRAIN_EXERCISE_FAMILIES.wordConstruction.kind
   const isWordSpelling = q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind
@@ -870,7 +914,16 @@ export default function PracticeView({ state, dispatch }) {
           )}
         </div>
       )}
-      {isWordMatching ? (
+      {isNounFormMatching ? (
+        <div ref={questionRef} className="practice-question" tabIndex={-1}>
+          <NounFormMatchingQuestion
+            key={q.questionKey}
+            q={q}
+            debug={state.debug}
+            onComplete={onNounFormMatchComplete}
+          />
+        </div>
+      ) : isWordMatching ? (
         <div ref={questionRef} className="practice-question" tabIndex={-1}>
           <WordMatchingQuestion
             key={q.questionKey}

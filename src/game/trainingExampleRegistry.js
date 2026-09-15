@@ -33,6 +33,28 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     instruction: 'Which Albanian noun form does not belong?', prompt: 'Use the reviewed number or definiteness contrast.', promptLang: 'sq',
     choices: ['fshatra', 'fshatrat', 'fshatrave', 'fshatin'], response: 'Choose the one exact surface with the opposite reviewed category.',
   },
+  'noun-paradigm-matching': {
+    instruction: 'Match each use of “fshat” to its grammatical job.', prompt: 'Five short Albanian contexts; only the noun is marked.', promptLang: 'sq',
+    pairs: [
+      { al: 'një [fshat]', en: 'base form · one / a' },
+      { al: '[Fshati] është këtu.', en: 'the noun · subject' },
+      { al: 'Shoh [fshatin].', en: 'the noun · object' },
+      { al: 'Pranë [fshatit].', en: 'of / to / from the noun' },
+      { al: 'Disa [fshatra].', en: 'plural · general' },
+    ],
+    response: 'Match all five contextual noun uses to their distinct reviewed jobs; one completion records one lemma-level grammar-matching proof.',
+  },
+  'same-root-grammar-matching': {
+    instruction: 'Match each use of “fshat” to its grammatical job.', prompt: 'Five short Albanian contexts; only the noun is marked.', promptLang: 'sq',
+    pairs: [
+      { al: 'një [fshat]', en: 'base form · one / a' },
+      { al: '[Fshati] është këtu.', en: 'the noun · subject' },
+      { al: 'Shoh [fshatin].', en: 'the noun · object' },
+      { al: 'Pranë [fshatit].', en: 'of / to / from the noun' },
+      { al: 'Disa [fshatra].', en: 'plural · general' },
+    ],
+    response: 'Use the Albanian context to match each marked form to its exact grammatical job; no English sentence translation is displayed.',
+  },
   'number-odd-one-out': {
     instruction: 'Which Albanian noun form is not plural?', prompt: 'Three plural forms and one singular form.', promptLang: 'sq',
     choices: ['fshatra', 'fshatrat', 'fshatrave', 'fshatin'], response: 'Choose “fshatin”.',

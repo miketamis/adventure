@@ -26,6 +26,10 @@ import {
   REVIEWED_FORM_ODD_ONE_OUT_VARIANT,
   reviewedFormOddOneOutPlan,
 } from './reviewedFormOddOneOut.js'
+import {
+  NOUN_FORM_MATCHING_VARIANT,
+  reviewedNounFormMatchingPlan,
+} from './nounFormMatching.js'
 
 export {
   WORD_ASPECT_REGISTRY_VERSION,
@@ -41,7 +45,7 @@ const deepFreeze = (value) => {
   return Object.freeze(value)
 }
 
-export const WORD_PROGRESS_VERSION = 12
+export const WORD_PROGRESS_VERSION = 13
 export const WORD_MIN_INTERVENING_ROUNDS = 1
 export const WORD_INITIAL_REVIEW_GAP = 6
 export const WORD_MAX_REVIEW_GAP = 64
@@ -53,6 +57,7 @@ export const WORD_CAPABILITY_DEFINITIONS = deepFreeze([
   { id: 'meaning-recognition', label: 'Recognise meaning', stageId: 'meaning-recognition' },
   { id: 'reviewed-form-awareness', label: 'Distinguish a reviewed form and job', stageId: 'reviewed-form-contrast', conditional: 'reviewed-form-lane' },
   { id: 'grammatical-form-odd-one-out', label: 'Find the noun form that differs in number or definiteness', stageId: 'grammatical-form-odd-one-out', conditional: 'reviewed-form-odd-one-out' },
+  { id: 'noun-paradigm-matching', label: 'Match one noun’s uses to grammatical jobs', stageId: 'noun-paradigm-matching', conditional: 'reviewed-noun-paradigm-matching' },
   { id: 'auditory-surface-recognition', label: 'Recognise the written word from its audio', stageId: 'auditory-surface-recognition' },
   { id: 'auditory-surface-discrimination', label: 'Discriminate similar heard words', stageId: 'auditory-surface-discrimination' },
   { id: 'auditory-meaning-recognition', label: 'Recognise meaning from word audio', stageId: 'auditory-meaning-recognition', conditional: 'unambiguous-audio-sense' },
@@ -194,6 +199,20 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
     gate: { wins: 1 },
     capabilityIds: ['grammatical-form-odd-one-out'],
     proves: 'distinguishes the number or definiteness of one unambiguous reviewed noun surface from three opposite-category surfaces in the same paradigm',
+  },
+  {
+    tier: 2,
+    id: 'noun-paradigm-matching',
+    label: 'one noun · grammar matching',
+    familyId: 'word-forms',
+    mode: 'match',
+    direction: 'form2role',
+    evidenceTrack: 'form-awareness',
+    conditional: 'reviewed-noun-paradigm-matching',
+    variant: NOUN_FORM_MATCHING_VARIANT,
+    gate: { wins: 1 },
+    capabilityIds: ['noun-paradigm-matching'],
+    proves: 'matches five contextual uses of one reviewed noun root to five distinct grammatical jobs without an English sentence translation',
   },
   {
     tier: 2,
@@ -411,7 +430,7 @@ export const WORD_STAGE_DEFINITIONS = deepFreeze([
   },
 ])
 
-export const WORD_SKILL_MAX_TIER = WORD_STAGE_DEFINITIONS.length - 1
+export const WORD_SKILL_MAX_TIER = Math.max(...WORD_STAGE_DEFINITIONS.map(({ tier }) => tier))
 const STAGE_BY_ID = Object.freeze(Object.fromEntries(WORD_STAGE_DEFINITIONS.map((stage) => [stage.id, stage])))
 
 export const WORD_PROGRESSION_POLICY = deepFreeze({
@@ -427,7 +446,7 @@ export const WORD_PROGRESSION_POLICY = deepFreeze({
     rule: 'First identify the written Albanian word from audio. A second proof uses a reviewed real-word sound contrast when its partner is saved, otherwise another distinct saved-word set; only then identify meaning from audio. Playback must complete before any result is accepted.',
   },
   formLane: {
-    conditionalCapabilities: ['reviewed-form-awareness', 'grammatical-form-odd-one-out', 'contextual-form-selection', 'reviewed-ending-recall'],
+    conditionalCapabilities: ['reviewed-form-awareness', 'grammatical-form-odd-one-out', 'noun-paradigm-matching', 'contextual-form-selection', 'reviewed-ending-recall'],
     source: 'reviewed forms only',
     rule: 'After two successful lemma recognitions, inflecting senses immediately practise an exact reviewed form-and-role record. A noun with a safe exact stem split then chooses and later types the ending for that same form; each form keeps its own evidence.',
   },
@@ -451,7 +470,7 @@ export const WORD_PROGRESSION_POLICY = deepFreeze({
     listeningRecognition: ['audio-to-written-word', 'audio-to-word-meaning'],
     controlledRetrieval: ['controlled-retrieval-two-choice', 'controlled-retrieval-four-choice', 'mirrored-controlled-retrieval', 'demonstrative-noun-whole-choice'],
     nounAgreement: ['demonstrative-noun-split-choice', 'adjective-linking-article-staged', 'linked-noun-agreement-cloze'],
-    grammaticalContrast: ['reviewed-form-odd-one-out'],
+    grammaticalContrast: ['reviewed-form-odd-one-out', 'same-root-grammar-matching'],
     production: ['word-form-construction', 'contextual-typed-recall', 'strict-spaced-recall'],
     proves: ['word meaning recognition', 'word-level listening recognition', 'controlled lemma retrieval', 'reviewed form/job recognition', 'reviewed ending selection and recall', 'constructed and typed recall'],
     doesNotProve: ['free conversation', 'broad listening comprehension', 'CEFR attainment'],
@@ -819,10 +838,13 @@ const aspectSchedule = (progress, options = {}) => {
   const formTarget = selectedForm(progress, forms)
   const hasReviewedNounEndingLane = Boolean(formTarget?.endingPractice)
   const hasReviewedFormOddOneOut = Boolean(reviewedFormOddOneOutPlan(forms, formTarget, { currentRound: options.currentRound }))
+  const nounFormMatchingPlan = reviewedNounFormMatchingPlan(forms, options.discoveredIds, { currentRound: options.currentRound })
+  const hasReviewedNounFormMatching = Boolean(nounFormMatchingPlan)
   const conditionalAvailability = {
     'reviewed-form-lane': hasReviewedFormLane,
     'reviewed-noun-ending-lane': hasReviewedNounEndingLane,
     'reviewed-form-odd-one-out': hasReviewedFormOddOneOut,
+    'reviewed-noun-paradigm-matching': hasReviewedNounFormMatching,
     'reviewed-demonstrative-frame': Boolean(options.nounAgreementFrame?.demonstrative),
     'reviewed-adjective-frame': Boolean(options.nounAgreementFrame?.adjective),
     'reviewed-linked-agreement-frame': Boolean(options.nounAgreementFrame?.demonstrative && options.nounAgreementFrame?.adjective),
@@ -920,6 +942,8 @@ const aspectSchedule = (progress, options = {}) => {
     hasReviewedFormLane,
     hasReviewedNounEndingLane,
     hasReviewedFormOddOneOut,
+    hasReviewedNounFormMatching,
+    nounFormMatchingPlan,
     hasReviewedContextLane: contextAlignment.usable,
   }
 }
@@ -973,6 +997,8 @@ const lateContextPlan = (progress, base, currentRound, alignment) => {
     hasReviewedFormLane: base.hasReviewedFormLane,
     hasReviewedNounEndingLane: base.hasReviewedNounEndingLane,
     hasReviewedFormOddOneOut: base.hasReviewedFormOddOneOut,
+    hasReviewedNounFormMatching: base.hasReviewedNounFormMatching,
+    nounFormMatchingPlan: base.nounFormMatchingPlan,
     hasReviewedContextLane: base.hasReviewedContextLane,
     aspectId: 'contextual-meaning-inference',
     aspectDefinition: WORD_LEARNING_ASPECT_BY_ID['contextual-meaning-inference'],
@@ -1046,6 +1072,8 @@ export function wordProgressPlan(value, currentRound = 0, options = {}) {
     hasReviewedFormLane: base.hasReviewedFormLane,
     hasReviewedNounEndingLane: base.hasReviewedNounEndingLane,
     hasReviewedFormOddOneOut: base.hasReviewedFormOddOneOut,
+    hasReviewedNounFormMatching: base.hasReviewedNounFormMatching,
+    nounFormMatchingPlan: base.nounFormMatchingPlan,
     hasReviewedContextLane: base.hasReviewedContextLane,
     nounAgreementFrame: base.nounAgreementFrame,
     aspectId: aspectDefinition?.id || null,
@@ -1140,6 +1168,7 @@ const remediationForFailure = (plan, nextRound) => {
     'demonstrative-noun-agreement': 'controlled-lemma-retrieval',
     'adjective-linking-article-agreement': 'controlled-lemma-retrieval',
     'grammatical-form-odd-one-out': 'reviewed-form-contrast',
+    'noun-paradigm-matching': 'reviewed-form-contrast',
     'linked-noun-agreement-cloze': 'adjective-linking-article-agreement',
     'contextual-form-selection': 'reviewed-form-contrast',
     'reviewed-ending-recall': 'contextual-form-selection',
@@ -1153,6 +1182,7 @@ const remediationForFailure = (plan, nextRound) => {
     'demonstrative-noun-agreement': 'controlled-lemma-retrieval',
     'adjective-linking-article-agreement': 'controlled-lemma-retrieval',
     'grammatical-form-odd-one-out': 'reviewed-form-contrast',
+    'noun-paradigm-matching': 'reviewed-form-contrast',
     'linked-noun-agreement-cloze': 'adjective-linking-article-agreement',
     'auditory-word-construction': 'meaning-recognition',
     'auditory-word-spelling': 'auditory-word-construction',
@@ -1291,6 +1321,7 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
       hasReviewedFormLane: false,
       hasReviewedNounEndingLane: false,
       hasReviewedFormOddOneOut: false,
+      hasReviewedNounFormMatching: false,
       hasReviewedContextLane: false,
       currentStageId: null,
       nextStageId: null,
@@ -1311,6 +1342,7 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
     'reviewed-form-lane': plan.hasReviewedFormLane,
     'reviewed-noun-ending-lane': plan.hasReviewedNounEndingLane,
     'reviewed-form-odd-one-out': plan.hasReviewedFormOddOneOut,
+    'reviewed-noun-paradigm-matching': plan.hasReviewedNounFormMatching,
     'reviewed-context-lane': plan.hasReviewedContextLane,
     'reviewed-demonstrative-frame': Boolean(options.nounAgreementFrame?.demonstrative),
     'reviewed-adjective-frame': Boolean(options.nounAgreementFrame?.adjective),
@@ -1414,6 +1446,7 @@ export function wordProgressionSnapshot(value, currentRound = 0, options = {}) {
     hasReviewedFormLane: plan.hasReviewedFormLane,
     hasReviewedNounEndingLane: plan.hasReviewedNounEndingLane,
     hasReviewedFormOddOneOut: plan.hasReviewedFormOddOneOut,
+    hasReviewedNounFormMatching: plan.hasReviewedNounFormMatching,
     hasReviewedContextLane: plan.hasReviewedContextLane,
     currentStageId: plan.stageId,
     nextStageId: plan.stageId,

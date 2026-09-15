@@ -101,7 +101,7 @@ for (const id of requiredContextIds) {
   let progress = null
   let round = 0
   const emitted = []
-  const progressionOptions = wordProgressionOptionsForSense(id)
+  const baseProgressionOptions = wordProgressionOptionsForSense(id)
   // This loop certifies every late context variant, rather than simulating a
   // one-word cold start. Keep a full saved option bank so the intervening
   // aspect-driven recognition and retrieval questions can form valid banks;
@@ -109,8 +109,9 @@ for (const id of requiredContextIds) {
   const discoveredIds = [...new Set([id, ...allTrainableIds,
     ...(DICT[id].ctx.requires || []),
     ...(DICT[id].ctx.variants || []).flatMap(({ requires = [] }) => requires),
-    ...(progressionOptions.reviewedForms || []).flatMap(({ context }) => context?.requires || []),
+    ...(baseProgressionOptions.reviewedForms || []).flatMap(({ context }) => context?.requires || []),
   ])]
+  const progressionOptions = { ...baseProgressionOptions, discoveredIds }
   assert.equal(progressionOptions.trainability.trainable, true, `${id}: reviewed sense stayed excluded from Train`)
 
   for (let attempt = 0; attempt < 40; attempt++) {

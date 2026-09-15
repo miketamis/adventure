@@ -38,7 +38,13 @@ import { WORD_MATCHING_POLICY } from '../game/wordMatchingPolicy.js'
 const EXAMPLE_PHRASE_ID = 'going-village'
 const EXAMPLE_WORD_ID = 'fshat'
 
-const exampleWordProgressionOptions = () => wordProgressionOptionsForSense(EXAMPLE_WORD_ID)
+const exampleWordProgressionOptions = () => {
+  const options = wordProgressionOptionsForSense(EXAMPLE_WORD_ID)
+  return {
+    ...options,
+    discoveredIds: [...new Set(options.reviewedForms.flatMap(({ context }) => context?.requires || []))],
+  }
+}
 
 const wordPlanCheckpoint = (plan) => [
   plan.aspectId,

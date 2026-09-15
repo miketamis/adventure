@@ -58,6 +58,7 @@ for (const implemented of [
   'adjective-linking-article-agreement',
   'paired-form-meaning-contrast',
   'grammatical-form-odd-one-out',
+  'same-root-grammar-matching',
   'ending-before-whole-spelling',
   'audio-written-meaning-match',
   'albanian-sound-contrast',

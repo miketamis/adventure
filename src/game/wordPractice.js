@@ -32,6 +32,7 @@ import {
 import {
   buildConstructionPieces,
   buildFormQuestion,
+  buildNounFormMatchingQuestion,
   buildNounAgreementQuestion,
   reviewedFormContextGate,
 } from './formPractice.js'
@@ -473,7 +474,12 @@ export function buildWordQuestion({
       if (candidate) trace.candidates.push(candidate)
       continue
     }
-    const plan = wordProgressPlan(progress, currentRound, { ...progressionOptions, context, nowMs })
+    const plan = wordProgressPlan(progress, currentRound, {
+      ...progressionOptions,
+      context,
+      nowMs,
+      discoveredIds,
+    })
     candidate && (candidate.plan = plan)
     // An inflecting word can advance from its lemma to a different reviewed
     // surface while keeping the same sense ID. Apply the no-repeat boundary to
@@ -599,6 +605,13 @@ export function buildWordQuestion({
         build: { path: buildPath, ...extra },
       },
     }
+  }
+  if (!plan.contextReview && plan.stageId === 'noun-paradigm-matching') {
+    return finish(
+      buildNounFormMatchingQuestion({ answerId, plan, candidateIds: discoveredIds, excludeWords, currentRound, rng }),
+      'same-root-noun-grammar-matching-builder',
+      { pairCount: plan.nounFormMatchingPlan?.rows?.length || 0 },
+    )
   }
   if (!plan.contextReview && (['reviewed-form-contrast', 'grammatical-form-odd-one-out', 'contextual-form-selection', 'reviewed-ending-recall'].includes(plan.stageId) ||
       (plan.stageId === 'word-form-construction' && plan.targetFormKey))) {
