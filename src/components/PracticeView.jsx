@@ -775,10 +775,11 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         attemptedEn: q.field === 'en' ? chosenLabel : null,
         reasonCode: isContextualCompletion ? 'wrong-contextual-meaning' : 'wrong-word-meaning',
         reason: isContextualCompletion
-          ? 'The selected word or meaning does not fit the job marked by this exact sentence.'
-          : 'The selected answer does not match the tested Albanian word and sense.',
+          ? `“${chosenLabel}” does not fit the job that this sentence marks.`
+          : `“${chosenLabel}” does not match the tested Albanian word and sense.`,
         correctAl: q.field === 'al' ? correctLabel : DICT[q.answerId].al,
         correctEn: q.field === 'en' ? correctLabel : senseText(q.answerId, 'en'),
+        reasoning: isContextualCompletion ? q.contrastRationales?.[value] || null : null,
       }),
     })
     if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1200)
