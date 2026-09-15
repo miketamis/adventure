@@ -99,6 +99,8 @@ assert.equal(ordinaryQuestion.debugSelection, undefined, 'normal play retained t
 const practiceSource = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
 assert.match(practiceSource, /state\.debug && \([\s\S]*?<DebugTrainActivityInspector question=\{q\} state=\{state\}/)
 assert.match(practiceSource, /debugTrace: state\.debug/)
+assert.match(practiceSource, /state\.debug \? planTrainFutureExact\(/)
+assert.match(practiceSource, /trainPlannerOracleReport\(future, exactOracle, planningState\)/)
 const inspectorSource = readFileSync(new URL('../src/components/DebugTrainActivityInspector.jsx', import.meta.url), 'utf8')
 for (const label of [
   'Every Albanian word occurrence',

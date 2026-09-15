@@ -9,8 +9,8 @@ const deepFreeze = (value) => {
 }
 
 export const TRAIN_FUTURE_PLANNER_POLICY = deepFreeze({
-  version: 1,
-  algorithm: 'state-deduplicated beam dynamic programming with iterative horizon expansion',
+  version: 2,
+  algorithm: 'state-deduplicated beam dynamic programming with iterative horizon expansion and a bounded exhaustive oracle',
   execution: 'plan as far as the explicit budgets permit, present one activity, observe its outcome, then replan',
   outcomes: ['correct', 'miss'],
   outcomeAggregation: 'a miss only adds a remediation route, so dominance pruning uses the correct branch as the robust lower bound and separately plans the miss branch',
@@ -22,6 +22,14 @@ export const TRAIN_FUTURE_PLANNER_POLICY = deepFreeze({
     branchLimitAfterRoot: 14,
     beamWidth: 64,
     rootIncludesEveryEligibleCandidate: true,
+  },
+  exactOracle: {
+    purpose: 'exhaustively verify planner choice and lexicographic regret on small complete state spaces',
+    maximumCandidates: 9,
+    maximumDepth: 10,
+    maximumStates: 250000,
+    maximumMilliseconds: 1000,
+    use: 'audit and debug verification; larger live pools retain the rolling-horizon beam budget',
   },
   hardConstraints: [
     'builder-certified question',
@@ -46,8 +54,24 @@ export const TRAIN_FUTURE_PLANNER_POLICY = deepFreeze({
     'distinct activity formats',
     'distinct difficulty bands',
     'diminishing-return novelty across every dimension',
+    'local expected learning gain',
+    'local uncertainty reduction',
     'estimated forgetting risk',
     'deterministic seeded tie-break',
   ],
+  scoreVectorObjectives: [
+    'goal-complete', 'goal-progress', 'goal-deadline', 'rounds-to-goal',
+    'first-goal-progress', 'robust-depth', 'remediation', 'branching-reserve',
+    'distinct-targets', 'distinct-words', 'distinct-aspects', 'distinct-evidence-tracks',
+    'distinct-modalities', 'distinct-families', 'distinct-activity-types',
+    'distinct-difficulties', 'novelty', 'expected-learning-gain',
+    'uncertainty-reduction', 'forgetting-risk', 'avoid-repeated-activities',
+  ],
+  personalization: {
+    source: 'local per-capability attempts, correctness, lapses, elapsed time, support and difficulty only',
+    policy: 'soft late objective after goal safety and diversity; never proof, never a prerequisite, and never a hard-constraint override',
+    expectedGain: 'four times estimated recall times one minus estimated recall',
+    uncertaintyValues: { high: 1, medium: 0.55, lower: 0.2, unknown: 0 },
+  },
   caughtUpProof: 'every certified proposal must carry an explicit hard-constraint rejection when no root activity is legal',
 })

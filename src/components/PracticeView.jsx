@@ -47,7 +47,9 @@ import {
 } from '../game/trainCandidateContract.js'
 import {
   initialTrainPlanningState,
+  planTrainFutureExact,
   planTrainFuture,
+  trainPlannerOracleReport,
 } from '../game/trainFuturePlanner.js'
 import {
   normalizeTrainActionGoalSession,
@@ -171,19 +173,28 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
       activityHistory: recentActivityHistory,
       targetHistory: recentTargetHistory,
     })
+    const planningState = initialTrainPlanningState({
+      currentRound: state.trainRound,
+      activityHistory: recentActivityHistory,
+      targetHistory: recentTargetHistory,
+      lastWordKeys: excludeWords,
+      goalRemaining: actionGoal?.remainingWordIds,
+      goalMaximumDiversionRounds: actionGoal?.maximumDiversionRounds,
+      goalDiversionsUsed: goalSession?.activitiesSinceGoalOpportunity,
+    })
     const future = planTrainFuture({
       proposals: enumeration.proposals,
-      planningState: initialTrainPlanningState({
-        currentRound: state.trainRound,
-        activityHistory: recentActivityHistory,
-        targetHistory: recentTargetHistory,
-        lastWordKeys: excludeWords,
-        goalRemaining: actionGoal?.remainingWordIds,
-        goalMaximumDiversionRounds: actionGoal?.maximumDiversionRounds,
-        goalDiversionsUsed: goalSession?.activitiesSinceGoalOpportunity,
-      }),
+      planningState,
       seed: plannerSeed,
     })
+    const exactOracle = state.debug ? planTrainFutureExact({
+      proposals: enumeration.proposals,
+      planningState,
+      seed: plannerSeed,
+    }) : null
+    const oracleReport = state.debug
+      ? trainPlannerOracleReport(future, exactOracle, planningState)
+      : null
     const selectedProposal = future.candidate
     const schedulerTrace = {
       builder: 'train-future-planner',
@@ -202,7 +213,11 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         session: goalSession,
       } : null,
       enumeration: enumeration.trace,
-      future: future.trace,
+      future: {
+        ...future.trace,
+        exactOracle: exactOracle?.trace || null,
+        oracleReport,
+      },
       selected: trainCandidateDebugRecord(selectedProposal),
     }
     const analyticsCandidates = enumeration.proposals.map((proposal) => ({

@@ -216,6 +216,8 @@ export function trainPlanScore(path, initialState, minimumBranching = 0) {
   const goalExcessDiversions = Math.max(0, goalDiversions - (initialState.goalMaximumDiversionRounds || 0))
   const remediation = path.filter((proposal) => proposal.remediation || proposal.projectedRemediation).length
   const forgettingRisk = path.reduce((sum, proposal) => sum + (proposal.urgency?.forgettingRisk || 0), 0)
+  const expectedLearningGain = path.reduce((sum, proposal) => sum + (proposal.urgency?.expectedLearningGain || 0), 0)
+  const uncertaintyReduction = path.reduce((sum, proposal) => sum + (proposal.urgency?.uncertaintyReduction || 0), 0)
   const score = {
     goalActive,
     goalComplete: goalActive && goalRemaining.size === 0,
@@ -237,6 +239,8 @@ export function trainPlanScore(path, initialState, minimumBranching = 0) {
     distinctActivityTypes: distinctCount(path, 'activity'),
     distinctDifficulties: distinctCount(path, 'difficulty'),
     novelty: noveltyForPlan(path, initialState),
+    expectedLearningGain,
+    uncertaintyReduction,
     forgettingRisk,
     repeatedActivities: repeatedActivityCount(path, initialState),
   }
@@ -258,6 +262,8 @@ export function trainPlanScore(path, initialState, minimumBranching = 0) {
     score.distinctActivityTypes,
     score.distinctDifficulties,
     Math.round(score.novelty * 1e6),
+    Math.round(score.expectedLearningGain * 1e6),
+    Math.round(score.uncertaintyReduction * 1e6),
     Math.round(score.forgettingRisk * 1e6),
     -score.repeatedActivities,
   ]
@@ -335,6 +341,7 @@ function beamDynamicProgram({
   branchLimit,
   beamWidth,
   rootIncludesEveryCandidate = false,
+  deduplicateStates = true,
 }) {
   let layer = [{ state: startState, path: [], minimumBranching: Infinity }]
   let best = { path: [], score: trainPlanScore([], scoreOrigin, 0), minimumBranching: 0 }
@@ -382,7 +389,13 @@ function beamDynamicProgram({
           minimumBranching,
           score: trainPlanScore(path, scoreOrigin, minimumBranching),
         }
-        const signature = stateSignature(nextState)
+        // Beam search merges equivalent scheduler states to stretch its live
+        // horizon. The exact oracle deliberately keeps every distinct path:
+        // novelty depends on the complete path, not only the truncated recent
+        // histories in the scheduler state.
+        const signature = deduplicateStates
+          ? stateSignature(nextState)
+          : path.map(({ candidateId }) => candidateId).join('\u0000')
         const existing = nextByState.get(signature)
         if (!existing || compareSolutions(candidate, existing, seed) > 0) {
           if (existing) memoHits++
@@ -405,6 +418,137 @@ function beamDynamicProgram({
     completedDepth = step + 1
   }
   return { solution: best, completedDepth, stopReason, memoHits }
+}
+
+export function trainPlanConstraintReport(path = [], planningState = initialTrainPlanningState()) {
+  let state = planningState
+  const violations = []
+  path.forEach((proposal, index) => {
+    const eligibility = trainCandidateEligibility(state, proposal)
+    if (!eligibility.eligible) violations.push({
+      round: index + 1,
+      candidateId: proposal?.candidateId || null,
+      reasons: eligibility.reasons,
+    })
+    state = transitionTrainPlanningState(state, proposal, 'correct')
+  })
+  return { valid: violations.length === 0, violations, finalState: state }
+}
+
+export function planTrainFutureExact({
+  proposals = [],
+  planningState = initialTrainPlanningState(),
+  seed = '',
+  maximumDepth = TRAIN_FUTURE_PLANNER_POLICY.exactOracle.maximumDepth,
+  maximumStates = TRAIN_FUTURE_PLANNER_POLICY.exactOracle.maximumStates,
+  maximumMilliseconds = TRAIN_FUTURE_PLANNER_POLICY.exactOracle.maximumMilliseconds,
+} = {}) {
+  const startedAt = Date.now()
+  const policy = TRAIN_FUTURE_PLANNER_POLICY.exactOracle
+  if (proposals.length > policy.maximumCandidates) return {
+    available: false,
+    reason: 'candidate-limit',
+    candidate: null,
+    plan: [],
+    score: null,
+    trace: { candidateCount: proposals.length, maximumCandidates: policy.maximumCandidates },
+  }
+  const depth = Math.max(1, Math.min(policy.maximumDepth, Number(maximumDepth) || policy.maximumDepth))
+  const rootEligibility = eligibleTrainCandidates(planningState, proposals)
+  if (!rootEligibility.eligible.length) return {
+    available: true,
+    reason: proposals.length ? 'natural-exhaustion' : 'no-buildable-proposals',
+    candidate: null,
+    plan: [],
+    score: trainPlanScore([], planningState, 0),
+    trace: {
+      candidateCount: proposals.length,
+      rootEligibleCount: 0,
+      completedDepth: 0,
+      statesExplored: 0,
+      elapsedMilliseconds: Date.now() - startedAt,
+    },
+  }
+  const budget = {
+    maximumStates: Math.max(1, Math.min(policy.maximumStates, Number(maximumStates) || policy.maximumStates)),
+    deadline: startedAt + Math.max(1, Math.min(policy.maximumMilliseconds, Number(maximumMilliseconds) || policy.maximumMilliseconds)),
+    states: 0,
+  }
+  const exact = beamDynamicProgram({
+    proposals,
+    startState: planningState,
+    scoreOrigin: planningState,
+    depth,
+    seed,
+    budget,
+    branchLimit: Math.max(1, proposals.length),
+    beamWidth: budget.maximumStates,
+    rootIncludesEveryCandidate: true,
+    deduplicateStates: false,
+  })
+  const complete = exact.stopReason === 'natural-exhaustion' ||
+    (exact.stopReason === 'maximum-depth' && exact.completedDepth === depth)
+  return {
+    available: complete,
+    reason: complete ? 'exact' : exact.stopReason,
+    candidate: complete ? exact.solution.path[0] || null : null,
+    plan: complete ? exact.solution.path : [],
+    score: complete ? exact.solution.score : null,
+    trace: {
+      candidateCount: proposals.length,
+      rootEligibleCount: rootEligibility.eligible.length,
+      requestedDepth: depth,
+      completedDepth: exact.completedDepth,
+      stopReason: exact.stopReason,
+      statesExplored: budget.states,
+      memoHits: exact.memoHits,
+      elapsedMilliseconds: Date.now() - startedAt,
+    },
+  }
+}
+
+export function trainPlannerOracleReport(approximate, oracle, planningState = initialTrainPlanningState()) {
+  if (!oracle?.available) return {
+    available: false,
+    reason: oracle?.reason || 'oracle-unavailable',
+  }
+  const approximateScore = approximate?.score || trainPlanScore([], planningState, 0)
+  const oracleScore = oracle.score || trainPlanScore([], planningState, 0)
+  const approximateDepth = approximate?.trace?.completedDepth ?? approximate?.plan?.length ?? 0
+  const oracleDepth = oracle?.trace?.completedDepth ?? oracle?.plan?.length ?? 0
+  const scoreComparable = approximateDepth === oracleDepth
+  const firstDifference = scoreComparable
+    ? TRAIN_FUTURE_PLANNER_POLICY.scoreVectorObjectives.findIndex((_, index) =>
+      (approximateScore.vector[index] || 0) !== (oracleScore.vector[index] || 0))
+    : -1
+  const oracleAdvantage = scoreComparable ? compareVectors(oracleScore.vector, approximateScore.vector) : null
+  const constraints = trainPlanConstraintReport(approximate?.plan || [], planningState)
+  const diversityKeys = [
+    'distinctTargets', 'distinctWords', 'distinctAspects', 'distinctEvidenceTracks',
+    'distinctModalities', 'distinctFamilies', 'distinctActivityTypes', 'distinctDifficulties',
+  ]
+  return {
+    available: true,
+    firstChoiceMatch: (approximate?.candidate?.candidateId || null) === (oracle.candidate?.candidateId || null),
+    avoidableCaughtUp: !approximate?.candidate && Boolean(oracle.candidate),
+    hardConstraintViolations: constraints.violations,
+    hardConstraintsValid: constraints.valid,
+    scoreComparable,
+    comparedDepth: scoreComparable ? oracleDepth : null,
+    approximateDepth,
+    oracleDepth,
+    scoreParity: scoreComparable ? oracleAdvantage === 0 : null,
+    lexicographicRegret: oracleAdvantage > 0 && firstDifference >= 0 ? {
+      objective: TRAIN_FUTURE_PLANNER_POLICY.scoreVectorObjectives[firstDifference],
+      approximate: approximateScore.vector[firstDifference] || 0,
+      oracle: oracleScore.vector[firstDifference] || 0,
+      delta: (oracleScore.vector[firstDifference] || 0) - (approximateScore.vector[firstDifference] || 0),
+    } : null,
+    diversityDelta: scoreComparable ? Object.fromEntries(diversityKeys.map((key) => [key,
+      (oracleScore[key] || 0) - (approximateScore[key] || 0)])) : null,
+    approximateCandidateId: approximate?.candidate?.candidateId || null,
+    oracleCandidateId: oracle.candidate?.candidateId || null,
+  }
 }
 
 const rejectionSummary = (decisions) => decisions.reduce((summary, { proposal, eligibility }) => {

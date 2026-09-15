@@ -20,6 +20,9 @@ export const PHRASE_PROGRESSION_RESEARCH = deepFreeze([
   { id: 'learning-efficiency-2024', label: 'Trials needed to reach criterion predict delayed productive and receptive retention.', url: 'https://doi.org/10.1017/S095834402400020X' },
   { id: 'directional-transfer-2024', label: 'Receptive and productive retrieval transfer only partially, so both directions still need practice.', url: 'https://doi.org/10.1080/09658211.2024.2397043' },
   { id: 'content-aware-scheduling-2024', label: 'Content-aware learner models can improve recall calibration and learning efficiency.', url: 'https://aclanthology.org/2024.emnlp-main.784/' },
+  { id: 'rolling-horizon-control-2025', label: 'Model-predictive control repeatedly optimizes a bounded future horizon and commits only the first decision.', url: 'https://proceedings.mlr.press/v291/gast25a.html' },
+  { id: 'diverse-plan-beam-search-2024', label: 'Bi-criteria beam search can trade computational budget for plan quality and diversity while remaining much cheaper than exact optimization.', url: 'https://ojs.aaai.org/index.php/SOCS/article/view/31557' },
+  { id: 'constrained-contextual-bandits-2025', label: 'Contextual online learning can optimize uncertain rewards subject to explicit general constraints.', url: 'https://proceedings.mlr.press/v267/guo25v.html' },
   { id: 'uncertainty-deferral-2026', label: 'Knowledge tracers should expose uncertainty and defer unreliable predictions.', url: 'https://proceedings.mlr.press/v339/mitton26a.html' },
   { id: 'difficulty-caveat', label: 'The 85% result concerns binary classification learning; it is a warning against very-low-success tasks, not a hard language-learning target.', url: 'https://doi.org/10.1038/s41467-019-12552-4' },
 ])
@@ -57,6 +60,16 @@ export const PHRASE_PROGRESSION_RESEARCH_ALIGNMENT = deepFreeze([
     id: 'content-aware-selection', status: 'implemented',
     evidenceIds: ['content-aware-scheduling-2024'],
     systemResponse: 'Scheduling uses the phrase’s actual lexical focus, practical-vocabulary weight, task demand and word overlap instead of treating cards as anonymous IDs.',
+  },
+  {
+    id: 'future-aware-diverse-planning', status: 'implemented',
+    evidenceIds: ['rolling-horizon-control-2025', 'diverse-plan-beam-search-2024'],
+    systemResponse: 'Train enumerates every builder-certified current graph route, plans up to twenty-four rounds with state-deduplicated beam dynamic programming, commits one activity, observes the real result and replans. A bounded exhaustive oracle measures first-choice parity and lexicographic regret on small complete spaces.',
+  },
+  {
+    id: 'constrained-local-personalization', status: 'calibration-needed',
+    evidenceIds: ['half-life-regression', 'constrained-contextual-bandits-2025'],
+    systemResponse: 'Local expected-gain and uncertainty signals are late soft objectives only. Story-goal deadlines, remediation, reviewed prerequisites, no-repeat rules and all diversity objectives outrank them; representative consented outcomes are still required before learning a contextual policy.',
   },
   {
     id: 'forgetting-model', status: 'calibration-needed',

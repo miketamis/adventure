@@ -13,6 +13,8 @@ The production source of truth is split deliberately:
 - `src/game/wordExposure.js` owns replay-safe passive familiarity evidence, which is never mastery;
 - `src/game/phraseProgression.js` owns phrase production, listening and matching stages;
 - `src/game/adaptiveLearning.js` owns the shared temporal evidence, elapsed-time rule and interpretable cold-start feature schema;
+- `src/game/trainCandidateContract.js` enumerates every builder-certified route before selection;
+- `src/game/trainFuturePlanner.js` owns hard constraints, the rolling-horizon diversity objective and the bounded exact oracle;
 - builders and Debug Learning consume those registries rather than copying thresholds into components.
 
 ## Current decision rule
@@ -29,6 +31,8 @@ The displayed cold-start estimate combines:
 - exercise mode.
 
 Its output always says `calibrated: false` and includes a wide uncertainty interval when evidence is sparse. High uncertainty fails soft: the scheduler keeps the registry stage, offers targeted support after a miss and refuses to skip prerequisites or manufacture mastery.
+
+Selection uses a receding-horizon plan: Train simulates as far as its explicit 24-round, state and time budgets permit, commits only the first activity, observes the actual answer and replans. Hard feasibility and the story-action token deadline come first. The remaining objective is lexicographic across target, word, learning-aspect, evidence-track, modality, family, activity-format and difficulty diversity, followed by diminishing-return novelty. Local expected learning gain and uncertainty reduction are deliberately late soft terms. For small candidate spaces, a separate exhaustive dynamic-programming oracle reports hard-constraint violations, avoidable caught-up states, first-choice parity, diversity deltas and the first objective where the bounded beam loses to exact search.
 
 ## Evidence tracks
 
@@ -52,7 +56,7 @@ It stores no answer, prompt, transcript, audio, free response, person name, phon
 
 ## Research basis
 
-The feature contract is informed by multidimensional word knowledge and contextual encounters ([Webb, 2007](https://doi.org/10.1093/applin/aml048)), the limited early form/form–meaning gains produced by incidental exposure ([Malone, 2018](https://doi.org/10.1017/S0272263117000341)), multi-skill knowledge-component modelling ([Pardos & Dadu, 2018](https://jedm.educationaldatamining.org/index.php/JEDM/article/view/314)), retrieval practice ([Karpicke & Roediger, 2008](https://doi.org/10.1126/science.1152408)), trainable half-life regression for language learning ([Settles & Meeder, 2016](https://aclanthology.org/P16-1174/)), content-aware adaptive practice ([KARL, EMNLP 2024](https://aclanthology.org/2024.emnlp-main.784/)), second-language spacing evidence ([Nakata et al.](https://doi.org/10.1111/lang.12479)) and recent work on exposing uncertainty rather than silently trusting a knowledge tracer ([Mitton et al., 2026](https://proceedings.mlr.press/v339/mitton26a.html)). None of those sources validates the current coefficients for Albanian beginners.
+The feature contract is informed by multidimensional word knowledge and contextual encounters ([Webb, 2007](https://doi.org/10.1093/applin/aml048)), the limited early form/form–meaning gains produced by incidental exposure ([Malone, 2018](https://doi.org/10.1017/S0272263117000341)), multi-skill knowledge-component modelling ([Pardos & Dadu, 2018](https://jedm.educationaldatamining.org/index.php/JEDM/article/view/314)), retrieval practice ([Karpicke & Roediger, 2008](https://doi.org/10.1126/science.1152408)), trainable half-life regression for language learning ([Settles & Meeder, 2016](https://aclanthology.org/P16-1174/)), content-aware adaptive practice ([KARL, EMNLP 2024](https://aclanthology.org/2024.emnlp-main.784/)), rolling-horizon control ([Gast & Narasimha, 2025](https://proceedings.mlr.press/v291/gast25a.html)), quality-and-diversity beam planning ([Zhong, Shati & Cohen, 2024](https://ojs.aaai.org/index.php/SOCS/article/view/31557)), constrained contextual bandits ([Guo, Zu & Liu, 2025](https://proceedings.mlr.press/v267/guo25v.html)), second-language spacing evidence ([Nakata et al.](https://doi.org/10.1111/lang.12479)) and recent work on exposing uncertainty rather than silently trusting a knowledge tracer ([Mitton et al., 2026](https://proceedings.mlr.press/v339/mitton26a.html)). None of those sources validates the current coefficients for Albanian beginners.
 
 ## Required validation before calibration
 

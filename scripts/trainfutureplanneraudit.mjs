@@ -3,8 +3,11 @@ import {
   TRAIN_FUTURE_PLANNER_POLICY,
   eligibleTrainCandidates,
   initialTrainPlanningState,
+  planTrainFutureExact,
   planTrainFuture,
+  trainPlanConstraintReport,
   trainCandidateEligibility,
+  trainPlannerOracleReport,
   transitionTrainPlanningState,
 } from '../src/game/trainFuturePlanner.js'
 import { TRAIN_ACTION_GOAL_POLICY } from '../src/game/trainActionGoal.js'
@@ -19,6 +22,8 @@ const proposal = (id, {
   aspects = [`aspect:${id}`],
   remediation = false,
   forgettingRisk = 0,
+  expectedLearningGain = 0,
+  uncertaintyReduction = 0,
 } = {}) => ({
   candidateId: id,
   route: family === 'phrase' ? 'phrase' : 'word',
@@ -32,7 +37,7 @@ const proposal = (id, {
   modality,
   difficulty: { tier: 0, label: 'test', variantId: id },
   remediation,
-  urgency: { remediation, forgettingRisk },
+  urgency: { remediation, forgettingRisk, expectedLearningGain, uncertaintyReduction },
   buildabilityCertificate: { valid: true },
   outcomeDeltas: {
     correct: { clearsRemediationFor: targets, advancesRound: 1 },
@@ -41,7 +46,7 @@ const proposal = (id, {
   materialize: () => ({ questionKey: id }),
 })
 
-assert.equal(TRAIN_FUTURE_PLANNER_POLICY.algorithm, 'state-deduplicated beam dynamic programming with iterative horizon expansion')
+assert.equal(TRAIN_FUTURE_PLANNER_POLICY.algorithm, 'state-deduplicated beam dynamic programming with iterative horizon expansion and a bounded exhaustive oracle')
 assert.equal(TRAIN_FUTURE_PLANNER_POLICY.maximumDepth, 24)
 assert.deepEqual(TRAIN_FUTURE_PLANNER_POLICY.outcomes, ['correct', 'miss'])
 assert.equal(TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity, 8)
@@ -66,6 +71,62 @@ assert.equal(planned.trace.completedDepth, 2)
 assert.equal(planned.trace.stopReason, 'natural-exhaustion')
 assert.ok(planned.outcomePlans.correct.path.length >= 1)
 assert.ok(planned.outcomePlans.miss.path.length >= 1)
+
+const exactTrap = planTrainFutureExact({
+  proposals: [isolatedTrap, bridgeB, bridgeC],
+  planningState: initial,
+  seed: 'future-not-greedy',
+  maximumDepth: 3,
+})
+assert.equal(exactTrap.available, true)
+assert.notEqual(exactTrap.candidate.candidateId, 'trap')
+const trapOracleReport = trainPlannerOracleReport(planned, exactTrap, initial)
+assert.equal(trapOracleReport.firstChoiceMatch, true)
+assert.equal(trapOracleReport.scoreParity, true)
+assert.equal(trapOracleReport.hardConstraintsValid, true)
+assert.equal(trapOracleReport.avoidableCaughtUp, false)
+assert.equal(exactTrap.trace.memoHits, 0, 'the exact oracle merged path-dependent novelty states')
+
+const deliberatelyNarrow = planTrainFuture({
+  proposals: [isolatedTrap, bridgeB, bridgeC],
+  planningState: initial,
+  seed: 'future-not-greedy',
+  maximumDepth: 3,
+  maximumMilliseconds: 1000,
+  maximumStates: 10000,
+  branchLimit: 1,
+  beamWidth: 1,
+})
+const narrowReport = trainPlannerOracleReport(deliberatelyNarrow, exactTrap, initial)
+assert.equal(narrowReport.hardConstraintsValid, true)
+assert.equal(narrowReport.avoidableCaughtUp, false)
+assert.equal(narrowReport.firstChoiceMatch, false)
+assert.equal(narrowReport.scoreComparable, false,
+  'plans with different completed horizons were incorrectly compared as equal-length scores')
+const lowerScore = {
+  ...exactTrap.score,
+  distinctTargets: exactTrap.score.distinctTargets - 1,
+  vector: [...exactTrap.score.vector],
+}
+lowerScore.vector[8] -= 1
+const regretReport = trainPlannerOracleReport({
+  candidate: exactTrap.candidate,
+  plan: exactTrap.plan,
+  score: lowerScore,
+  trace: { completedDepth: exactTrap.trace.completedDepth },
+}, exactTrap, initial)
+assert.equal(regretReport.lexicographicRegret.objective, 'distinct-targets')
+const horizonMismatchReport = trainPlannerOracleReport(planTrainFuture({
+  proposals: [isolatedTrap, bridgeB, bridgeC],
+  planningState: initial,
+  seed: 'future-not-greedy',
+  maximumDepth: 1,
+  maximumMilliseconds: 1000,
+}), exactTrap, initial)
+assert.equal(horizonMismatchReport.scoreComparable, false)
+assert.equal(horizonMismatchReport.scoreParity, null)
+assert.equal(horizonMismatchReport.lexicographicRegret, null)
+assert.equal(horizonMismatchReport.diversityDelta, null)
 
 const selectedState = transitionTrainPlanningState(initial, bridgeB, 'miss')
 assert.equal(selectedState.pendingRemediations.length, 1)
@@ -140,6 +201,50 @@ assert.ok(deep.score.distinctTargets >= 8)
 assert.ok(deep.score.distinctActivityTypes >= 4)
 assert.ok(deep.score.distinctModalities >= 3)
 assert.equal(eligibleTrainCandidates(initial, pool).eligible.length, pool.length)
+const exactDiversity = planTrainFutureExact({
+  proposals: pool.slice(0, 6),
+  planningState: initial,
+  seed: 'iterative-depth',
+  maximumDepth: 6,
+})
+assert.equal(exactDiversity.available, true)
+assert.equal(trainPlanConstraintReport(exactDiversity.plan, initial).valid, true)
+const diversityApproximation = planTrainFuture({
+  proposals: pool.slice(0, 6),
+  planningState: initial,
+  seed: 'iterative-depth',
+  maximumDepth: 6,
+  maximumMilliseconds: 1000,
+  maximumStates: 100000,
+  branchLimit: 6,
+  beamWidth: 100000,
+})
+const diversityOracleReport = trainPlannerOracleReport(diversityApproximation, exactDiversity, initial)
+assert.equal(diversityOracleReport.scoreParity, true)
+assert.equal(diversityOracleReport.firstChoiceMatch, true)
+
+const personalizedLow = proposal('personalized-low', {
+  expectedLearningGain: 0.2,
+  uncertaintyReduction: 0.2,
+})
+const personalizedHigh = proposal('personalized-high', {
+  expectedLearningGain: 0.9,
+  uncertaintyReduction: 1,
+})
+const personalized = planTrainFuture({
+  proposals: [personalizedLow, personalizedHigh],
+  planningState: initial,
+  seed: 'local-personalization-tie',
+  maximumDepth: 1,
+  maximumMilliseconds: 1000,
+})
+assert.equal(personalized.candidate.candidateId, 'personalized-high',
+  'local expected gain did not break an otherwise equal diversity tie')
+assert.equal(
+  trainCandidateEligibility(initialTrainPlanningState({ lastWordKeys: ['personalized-high'] }), personalizedHigh).eligible,
+  false,
+  'a personalization signal overrode the consecutive-word constraint',
+)
 
 const goal = proposal('goal', { words: ['goal'], targets: ['word:goal', 'surface:goal'] })
 const tempting = proposal('tempting', {
@@ -150,6 +255,8 @@ const tempting = proposal('tempting', {
   evidence: 'different-track',
   aspects: ['different-aspect'],
   forgettingRisk: 1,
+  expectedLearningGain: 1,
+  uncertaintyReduction: 1,
 })
 const directGoal = planTrainFuture({
   proposals: [tempting, goal],
@@ -248,4 +355,8 @@ assert.equal(opportunityRounds.length, 2)
 assert.ok(opportunityRounds[0] <= 8 && opportunityRounds[1] <= 16,
   `two missing goal tokens were not offered inside 16 activities: ${opportunityRounds.join(', ')}`)
 
-console.log(`✓ robust dynamic programming planned ${deep.plan.length} rounds ahead across correct/miss branches, enforced the eight-activity token guarantee, and retained explicit caught-up proofs.`)
+const oracleGuard = planTrainFutureExact({ proposals: pool, planningState: initial })
+assert.equal(oracleGuard.available, false)
+assert.equal(oracleGuard.reason, 'candidate-limit')
+
+console.log(`✓ robust dynamic programming planned ${deep.plan.length} rounds ahead across correct/miss branches; the bounded exhaustive oracle measured hard-constraint parity, diversity regret, caught-up safety, and the eight-activity token guarantee.`)

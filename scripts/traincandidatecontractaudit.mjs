@@ -12,7 +12,8 @@ import {
 } from '../src/game/trainCandidateContract.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
 
-assert.equal(TRAIN_CANDIDATE_CONTRACT.version, 2)
+assert.equal(TRAIN_CANDIDATE_CONTRACT.version, 3)
+assert.equal(TRAIN_CANDIDATE_ENUMERATION_POLICY.version, 2)
 assert.equal(TRAIN_CANDIDATE_ENUMERATION_POLICY.matchingBoards.maximumProposals, 8)
 
 const deterministicA = Array.from({ length: 8 }, () => seededTrainRng('same-seed')())
@@ -38,6 +39,10 @@ assert.equal(proposal.buildabilityCertificate.valid, true)
 assert.equal(proposal.activityTypeId, 'word-meaning:four-choice-meaning')
 assert.ok(proposal.targetKeys.includes('word:ure'))
 assert.ok(proposal.wordKeys.includes('urë'))
+assert.ok(Number.isFinite(proposal.urgency.expectedLearningGain))
+assert.ok(proposal.urgency.expectedLearningGain >= 0 && proposal.urgency.expectedLearningGain <= 1)
+assert.ok(Number.isFinite(proposal.urgency.uncertaintyReduction))
+assert.equal(proposal.urgency.modelId, 'interpretable-cold-start-v1')
 assert.equal(typeof proposal.materialize, 'function')
 assert.equal(proposal.materialize().debugSelection, undefined)
 assert.equal(proposal.materialize({ debug: true }).debugSelection.builder, 'word')

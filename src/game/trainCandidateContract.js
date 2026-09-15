@@ -21,7 +21,7 @@ const deepFreeze = (value) => {
 }
 
 export const TRAIN_CANDIDATE_CONTRACT = deepFreeze({
-  version: 2,
+  version: 3,
   sourceOfTruth: 'fully buildable questions emitted by production exercise builders',
   selectionBoundary: 'builders enumerate; the shared planner selects; only the selected proposal materializes',
   requiredDimensions: [
@@ -118,6 +118,15 @@ const selectedTemporal = (question) => {
   return null
 }
 
+const localPersonalization = (adaptation) => {
+  const estimatedRecall = Number.isFinite(adaptation?.estimate) ? adaptation.estimate : null
+  const expectedLearningGain = estimatedRecall == null
+    ? 0
+    : Number((4 * estimatedRecall * (1 - estimatedRecall)).toFixed(6))
+  const uncertaintyReduction = ({ high: 1, medium: 0.55, lower: 0.2 })[adaptation?.uncertainty] || 0
+  return { estimatedRecall, expectedLearningGain, uncertaintyReduction }
+}
+
 const aspectIdsForQuestion = (question) => [...new Set((question?.aspectTargets || [])
   .map((target) => target?.aspectId)
   .filter(Boolean))]
@@ -178,6 +187,7 @@ export function createTrainCandidateProposal({ question, route, nowMs = 0 } = {}
   const aspectIds = aspectIdsForQuestion(question)
   const adaptation = selectedAdaptation(question)
   const temporal = selectedTemporal(question)
+  const personalization = localPersonalization(adaptation)
   const descriptor = {
     contractVersion: TRAIN_CANDIDATE_CONTRACT.version,
     route: safeId(route),
@@ -197,8 +207,10 @@ export function createTrainCandidateProposal({ question, route, nowMs = 0 } = {}
     remediation: question.remediation === true,
     urgency: {
       remediation: question.remediation === true,
-      estimatedRecall: Number.isFinite(adaptation?.estimate) ? adaptation.estimate : null,
-      forgettingRisk: Number.isFinite(adaptation?.estimate) ? 1 - adaptation.estimate : 0,
+      estimatedRecall: personalization.estimatedRecall,
+      expectedLearningGain: personalization.expectedLearningGain,
+      uncertaintyReduction: personalization.uncertaintyReduction,
+      forgettingRisk: personalization.estimatedRecall == null ? 0 : 1 - personalization.estimatedRecall,
       uncertainty: adaptation?.uncertainty || 'unknown',
       dueAtMs: Number.isSafeInteger(temporal?.dueAtMs) ? temporal.dueAtMs : 0,
       overdueMs: Number.isSafeInteger(temporal?.dueAtMs) && temporal.dueAtMs > 0
