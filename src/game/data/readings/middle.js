@@ -739,4 +739,5 @@ export const MIDDLE_READINGS = {
   "bujtinariBiseda.text[3]": { al: "Gruaja tregon derën. Ja pra. Lëreni çantën pranë derës.", en: "The innkeeper points to the door. “There you are. Leave the bag beside the door.”" },
   "bujtinariBiseda.text[4]": { al: "Gruaja buzëqesh. Pa merak. Lëreni këtu; është e sigurt.", en: "The innkeeper smiles. “No worries. Leave it here; it is safe.”" },
   "bujtinariBiseda.text[1]": { al: "ajo thotë: po. ka mjaft ujë të ngrohtë pranë zjarrit.", en: "She says, “Yes. There is enough hot water beside the fire.”" },
+  "gjarpri.text[2]": { al: "gjarpri ruan rrugën për kulshedrën.", en: "The serpent guards the road for the Kulshedra." },
 }
