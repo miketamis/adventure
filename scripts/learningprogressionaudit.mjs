@@ -42,6 +42,10 @@ import {
   recordTrainTargets,
 } from '../src/game/trainActivityHistory.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
+import {
+  TRAIN_CANDIDATE_CONTRACT,
+  enumerateTrainActivityCandidates,
+} from '../src/game/trainCandidateContract.js'
 import { wordProgressionOptionsForSense } from '../src/game/formInventory.js'
 import {
   WORD_CONTEXT_EXERCISE_CONCEPT,
@@ -498,6 +502,28 @@ check('fresh disjoint words survive a repeated first-stage activity format', () 
   assert.equal(second.answerId, 'rruge')
   assert.equal(second.activityTypeId, first.activityTypeId)
   assert.equal(second.debugSelection.activityBalance.usesRepeatFallback, true)
+})
+
+check('the shared candidate contract exhaustively exposes buildable targets before selection', () => {
+  const discoveredIds = ['ure', 'rruge', 'shtepi', 'uje', 'buke']
+  const state = {
+    ...newRun(),
+    discovered: Object.fromEntries(discoveredIds.map((id) => [id, true])),
+  }
+  const first = enumerateTrainActivityCandidates({ state, discoveredIds, nowMs: 0, debugTrace: true })
+  const second = enumerateTrainActivityCandidates({ state, discoveredIds, nowMs: 0, debugTrace: true })
+  assert.equal(TRAIN_CANDIDATE_CONTRACT.selectionBoundary,
+    'builders enumerate; the shared planner selects; only the selected proposal materializes')
+  assert.equal(first.proposals.length, discoveredIds.length)
+  assert.deepEqual(first.proposals.map(({ candidateId }) => candidateId), second.proposals.map(({ candidateId }) => candidateId))
+  assert.equal(new Set(first.proposals.map(({ candidateId }) => candidateId)).size, first.proposals.length)
+  for (const proposal of first.proposals) {
+    assert.equal(proposal.buildabilityCertificate.valid, true)
+    assert.equal(proposal.materialize().debugSelection, undefined)
+    for (const dimension of TRAIN_CANDIDATE_CONTRACT.requiredDimensions) {
+      assert.notEqual(proposal[dimension], undefined, `${proposal.candidateId} omitted ${dimension}`)
+    }
+  }
 })
 
 check('tested targets rotate by exact sense and shared Albanian spelling', () => {

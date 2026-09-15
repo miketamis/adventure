@@ -740,6 +740,7 @@ export function buildPhraseQuestion(
     currentRound = 0,
     nowMs = 0,
     tier: requestedTier,
+    respectDueWhenForced = false,
     activityHistory = [],
     targetHistory = [],
     debugTrace = false,
@@ -754,6 +755,7 @@ export function buildPhraseQuestion(
       requestedMode: requestedMode || null,
       requestedTier: requestedTier ?? null,
       targetId: targetId || null,
+      respectDueWhenForced,
       currentRound,
       nowMs,
       excludedWordKeys: [...excluded],
@@ -777,7 +779,7 @@ export function buildPhraseQuestion(
     }
   }
   const forcedQuestion = Boolean(targetId || MODE_SET.has(requestedMode) || requestedTier != null)
-  if (!forcedQuestion) {
+  if (!forcedQuestion || respectDueWhenForced) {
     const previousPhraseTargets = new Set(latestTrainTargetEntry(targetHistory, 'phrase:'))
     eligible = eligible.filter((entry) => {
       const repeated = previousPhraseTargets.has(`phrase:${entry.id}`)
@@ -804,15 +806,20 @@ export function buildPhraseQuestion(
         matchingProgress?.[entry.id] ?? { tier: mastery.matching?.[entry.id] || 0 },
         'matching', currentRound, nowMs,
       )
-      const eligibleNow = Boolean(plan?.due || (
-        plan?.baseStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage &&
-        (listeningPlan.due || matchingPlan.due)
-      ))
+      const crossSkillsUnlocked = plan?.baseStage >= PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage
+      const forcedSkill = MODE_SET.has(requestedMode) ? requestedSkill(requestedMode) : null
+      const eligibleNow = forcedSkill === 'production'
+        ? Boolean(plan?.due)
+        : forcedSkill === 'listening'
+          ? Boolean(crossSkillsUnlocked && listeningPlan.due)
+          : forcedSkill === 'matching'
+            ? Boolean(crossSkillsUnlocked && matchingPlan.due)
+            : Boolean(plan?.due || (crossSkillsUnlocked && (listeningPlan.due || matchingPlan.due)))
       if (trace) trace.candidates.push({
         id: entry.id,
         status: eligibleNow ? 'eligible' : 'rejected',
         reasons: eligibleNow
-          ? ['unlocked, disjoint from the last activity, and at least one eligible phrase track is due']
+          ? [`unlocked, disjoint from the last activity, and ${forcedSkill || 'at least one'} phrase track is due`]
           : [plan?.baseStage < PHRASE_PROGRESSION_POLICY.crossSkillUnlock.productionStage
               ? 'production is not due and cross-skill tracks are not unlocked'
               : 'production, listening, and matching are not due'],
