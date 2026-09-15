@@ -439,14 +439,18 @@ export default function PracticeView({ state, dispatch }) {
     return () => window.cancelAnimationFrame(frame)
   }, [q])
 
-  if (showCefr) {
+  useEffect(() => {
+    if (!state.debug) setShowCefr(false)
+  }, [state.debug])
+
+  if (state.debug && showCefr) {
     return <CefrCapstone state={state} dispatch={dispatch} onClose={() => setShowCefr(false)} />
   }
 
   if (discoveredIds.length === 0) {
     return (
       <>
-        <CefrEntry state={state} onOpen={() => setShowCefr(true)} />
+        {state.debug && <CefrEntry state={state} onOpen={() => setShowCefr(true)} />}
         <section className="card practice" aria-labelledby="practice-title">
           <h2 id="practice-title" className="view-title">Train Albanian</h2>
           <p className="empty">
@@ -462,7 +466,7 @@ export default function PracticeView({ state, dispatch }) {
   if (!q) {
     return (
       <>
-        <CefrEntry state={state} onOpen={() => setShowCefr(true)} />
+        {state.debug && <CefrEntry state={state} onOpen={() => setShowCefr(true)} />}
         <section className="card practice" aria-labelledby="practice-title">
           <h2 id="practice-title" className="view-title">Train Albanian</h2>
           <p className="empty" role="status">Preparing the next question…</p>
@@ -474,7 +478,7 @@ export default function PracticeView({ state, dispatch }) {
   if (q.kind === TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) {
     return (
       <>
-        <CefrEntry state={state} onOpen={() => setShowCefr(true)} />
+        {state.debug && <CefrEntry state={state} onOpen={() => setShowCefr(true)} />}
         <section className="card practice" aria-labelledby="practice-title">
           <h2 id="practice-title" className="view-title">Train Albanian</h2>
           <p className="empty" role="status">
@@ -890,7 +894,7 @@ export default function PracticeView({ state, dispatch }) {
 
   return (
     <>
-      <CefrEntry state={state} onOpen={() => setShowCefr(true)} />
+      {state.debug && <CefrEntry state={state} onOpen={() => setShowCefr(true)} />}
       {returnOption && (
         <div className="ready-banner">
           <span>

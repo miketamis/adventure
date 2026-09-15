@@ -762,6 +762,7 @@ const hasOwn = (record, id) => Object.prototype.hasOwnProperty.call(record || {}
 const safeMapKey = (id) => typeof id === 'string' && id.length > 0 && id.trim() === id &&
   !['__proto__', 'prototype', 'constructor'].includes(id)
 const VIEWS = new Set(['story', 'practice', 'dictionary', 'map', 'endings', 'guide', 'debug'])
+const DEBUG_ONLY_VIEWS = new Set(['map', 'endings', 'guide', 'debug'])
 const EVERYDAY_PHRASE_BY_ID = new Map(EVERYDAY_PHRASE_DRILLS.map((phrase) => [phrase.id, phrase]))
 const PUBLIC_FREE_ROAM_NODE_SET = new Set(PUBLIC_FREE_ROAM_NODES)
 const truthRecord = (...values) => {
@@ -1326,10 +1327,10 @@ export function normalizeSavedState(saved, fresh) {
     ? [...new Set(saved.trail.filter((id) => STORY[id] && id !== next.nodeId))].slice(0, TRAIL_LEN)
     : []
   const savedView = saved.view === 'achievements' ? 'endings' : VIEWS.has(saved.view) ? saved.view : fresh.view
-  // The atlas and diagnostic screen are authoring/debug instruments, not
-  // player destinations. Old saves made while either was public must resume
-  // in the story unless that same save explicitly has debug mode enabled.
-  next.view = ['map', 'debug'].includes(savedView) && saved.debug !== true ? fresh.view : savedView
+  // These secondary surfaces are authoring/debug instruments for now, not
+  // player destinations. Old saves made while one was public must resume in
+  // the story unless that same save explicitly has debug mode enabled.
+  next.view = DEBUG_ONLY_VIEWS.has(savedView) && saved.debug !== true ? fresh.view : savedView
   // Ending state is a property of the current canonical scene, never a second
   // caller-controlled truth that can disagree with it after a partial write.
   const savedEnding = ['good', 'bad', 'secret'].includes(saved.ended) ? saved.ended : null
@@ -2970,8 +2971,8 @@ export function reducer(state, action) {
 
     case 'SET_VIEW':
       // UI gating is not a sufficient boundary: stale saves and manually
-      // dispatched actions must not be able to render the atlas in normal play.
-      if (['map', 'debug'].includes(action.view) && !state.debug) {
+      // dispatched actions must not open debug-only surfaces in normal play.
+      if (DEBUG_ONLY_VIEWS.has(action.view) && !state.debug) {
         return state.view === 'story' && !state.practiceTarget
           ? state
           : { ...state, view: 'story', practiceTarget: null }
@@ -2990,9 +2991,9 @@ export function reducer(state, action) {
       return {
         ...state,
         debug,
-        // Leaving debug from either diagnostic surface returns to playable
+        // Leaving debug from any hidden secondary surface returns to playable
         // story instead of stranding normal play on a hidden tab.
-        view: !debug && ['map', 'debug'].includes(state.view) ? 'story' : state.view,
+        view: !debug && DEBUG_ONLY_VIEWS.has(state.view) ? 'story' : state.view,
       }
     }
 

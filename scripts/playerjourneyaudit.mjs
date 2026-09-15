@@ -280,10 +280,37 @@ check('bad fates are optional and cannot block anthology completion', () => {
   assert.match(achievementsView, /Bad fates are\s*\n?\s*optional records/)
 })
 
-check('the first-turn guide explains every step the opening controls require', () => {
+check('the onboarding, collection, guide and readiness journey are debug-only for now', () => {
   const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
+  const practice = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+  const gameState = readFileSync(new URL('../src/game/gameState.js', import.meta.url), 'utf8')
   const guide = readFileSync(new URL('../src/components/GuideView.jsx', import.meta.url), 'utf8')
-  assert.match(app, /state\.turn <= 2/)
+  assert.match(app, /state\.debug && tab\('endings'/)
+  assert.match(app, /state\.debug && tab\('guide'/)
+  assert.match(app, /state\.debug && state\.view === 'story' && state\.turn <= 2/)
+  assert.match(app, /state\.debug && state\.view === 'endings' && <AchievementsView/)
+  assert.match(app, /state\.debug && state\.view === 'guide' && <GuideView/)
+  assert.equal((practice.match(/state\.debug && <CefrEntry/g) || []).length, 4)
+  assert.match(practice, /if \(state\.debug && showCefr\)/)
+  assert.match(gameState, /DEBUG_ONLY_VIEWS = new Set\(\['map', 'endings', 'guide', 'debug'\]\)/)
+
+  const normal = stateAt(START_NODE)
+  for (const view of ['map', 'endings', 'guide', 'debug']) {
+    assert.equal(reducer(normal, { type: 'SET_VIEW', view }), normal, `normal play opened ${view}`)
+    assert.equal(
+      normalizeSavedState({ ...normal, view }, stateAt(START_NODE)).view,
+      'story',
+      `normal save resumed on ${view}`,
+    )
+  }
+
+  const debug = stateAt(START_NODE, { debug: true })
+  for (const view of ['map', 'endings', 'guide', 'debug']) {
+    const opened = reducer(debug, { type: 'SET_VIEW', view })
+    assert.equal(opened.view, view, `debug could not open ${view}`)
+    assert.equal(reducer(opened, { type: 'TOGGLE_DEBUG' }).view, 'story', `debug off stranded ${view}`)
+  }
+
   for (const phrase of ['Discover a word', 'Train it', 'Choose a path', 'Character tales', 'Finishing the anthology', 'Folklore and sources']) {
     assert.ok(guide.includes(phrase), `guide omits '${phrase}'`)
   }

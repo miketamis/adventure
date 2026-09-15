@@ -16,9 +16,9 @@ import ReleaseErrorBoundary from './components/ReleaseErrorBoundary.jsx'
 import BlockingModal from './components/BlockingModal.jsx'
 
 // Story is the first and dominant surface. The larger study, collection and
-// cartography tools are loaded only when the player asks for them; in
-// particular, the source-rich Debug view should not delay an ordinary first
-// visit to the bridge.
+// cartography tools are loaded only when they are opened; the collection and
+// guide are debug-only for now, and none of these secondary surfaces should
+// delay an ordinary first visit to the bridge.
 const StoryView = lazy(() => import('./components/StoryView.jsx'))
 const PracticeView = lazy(() => import('./components/PracticeView.jsx'))
 const DictionaryView = lazy(() => import('./components/DictionaryView.jsx'))
@@ -276,13 +276,13 @@ export default function App() {
         {tab('practice', '🎯 Train')}
         {tab('dictionary', '📚 Dictionary')}
         {state.debug && tab('map', '🗺 Map')}
-        {tab('endings', `🏆 Achievements (${achievementsGot}/${ACHIEVEMENT_IDS.length})`)}
-        {tab('guide', '❔ Guide')}
+        {state.debug && tab('endings', `🏆 Achievements (${achievementsGot}/${ACHIEVEMENT_IDS.length})`)}
+        {state.debug && tab('guide', '❔ Guide')}
         {state.debug && tab('debug', '🛠 Debug')}
       </nav>
 
       <main id="main-content" tabIndex={-1}>
-      {state.view === 'story' && state.turn <= 2 && !activeQuest && (
+      {state.debug && state.view === 'story' && state.turn <= 2 && !activeQuest && (
         <section className="onboarding-banner" aria-label="First steps">
           <span>
             <b>First steps:</b> activate an English word to reveal its Albanian form, then use
@@ -302,8 +302,8 @@ export default function App() {
           {state.view === 'practice' && <PracticeView state={state} dispatch={dispatch} />}
           {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
           {state.debug && state.view === 'map' && <AtlasView state={state} />}
-          {state.view === 'endings' && <AchievementsView state={state} dispatch={dispatch} />}
-          {state.view === 'guide' && <GuideView />}
+          {state.debug && state.view === 'endings' && <AchievementsView state={state} dispatch={dispatch} />}
+          {state.debug && state.view === 'guide' && <GuideView />}
           {state.debug && state.view === 'debug' && <DebugView state={state} dispatch={dispatch} />}
 
           {/* debug minimap: the world map docked right, expandable to full screen.
