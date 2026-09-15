@@ -388,7 +388,8 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists, false)
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome, 'caught-up')
   assert.equal(TRAIN_QUESTION_MIX_POLICY.activityBalance, TRAIN_ACTIVITY_BALANCE_POLICY)
-  assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.noImmediateActivityTypeRepeat, true)
+  assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.preferDifferentActivityType, true)
+  assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.allowSameActivityTypeForDisjointFallback, true)
   assert.equal(TRAIN_QUESTION_MIX_POLICY.wordDirection.source, 'word-stage-definition')
 
   const practice = read('src/components/PracticeView.jsx')
@@ -426,7 +427,7 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   )
 })
 
-check('activity formats are evenly rotated and never repeat immediately', () => {
+check('activity formats rotate evenly and repeat only as a disjoint fallback', () => {
   const formats = [
     { kind: 'everyday-phrase', mode: 'cloze' },
     { kind: 'everyday-phrase', mode: 'arrange' },
@@ -449,8 +450,9 @@ check('activity formats are evenly rotated and never repeat immediately', () => 
   assert.equal(trainActivityTypeId({ kind: 'everyday-phrase', mode: 'type', typeScope: 'word' }), 'phrase:type-word')
   assert.equal(trainActivityTypeId({ familyId: 'word-forms', variantId: 'reviewed-ending-choice' }), 'word-forms:reviewed-ending-choice')
   const onlyRepeat = pickBalancedTrainActivity([{ kind: 'word-match' }], ['word:matching-board'], () => 0)
-  assert.equal(onlyRepeat.candidate, null)
-  assert.equal(onlyRepeat.plan.outcome, 'caught-up')
+  assert.ok(onlyRepeat.candidate)
+  assert.equal(onlyRepeat.activityTypeId, 'word:matching-board')
+  assert.equal(onlyRepeat.plan.usesRepeatFallback, true)
 
   const fresh = newRun()
   const recorded = reducer(fresh, {
@@ -458,14 +460,44 @@ check('activity formats are evenly rotated and never repeat immediately', () => 
     activityTypeId: 'phrase:cloze',
   })
   assert.deepEqual(recorded.trainActivityHistory, ['phrase:cloze'])
-  assert.equal(
-    reducer(recorded, {
-      type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
-      activityTypeId: 'phrase:cloze',
-    }),
-    recorded,
-    'the reducer accepted an immediate duplicate activity type',
-  )
+  assert.equal(reducer(recorded, {
+    type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+    activityTypeId: 'phrase:cloze',
+  }), recorded, 'the reducer accepted an unverifiable duplicate activity type')
+
+  const repeatedFormat = reducer(recorded, {
+    type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+    activityTypeId: 'phrase:cloze',
+    targetKeys: ['word:ure', 'surface:urë'],
+  })
+  assert.deepEqual(repeatedFormat.trainActivityHistory, ['phrase:cloze', 'phrase:cloze'])
+  assert.deepEqual(repeatedFormat.trainTargetHistory.at(-1), ['word:ure', 'surface:urë'])
+  assert.equal(reducer(repeatedFormat, {
+    type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+    activityTypeId: 'phrase:cloze',
+    targetKeys: ['word:ure', 'surface:urë'],
+  }), repeatedFormat, 'the same-format fallback accepted a repeated Albanian target')
+})
+
+check('fresh disjoint words survive a repeated first-stage activity format', () => {
+  const discoveredIds = ['ure', 'rruge', 'shtepi', 'uje', 'buke']
+  const first = buildWordQuestion({ discoveredIds, currentRound: 0, rng: () => 0 })
+  assert.equal(first?.answerId, 'ure')
+  assert.equal(first?.activityTypeId, 'word-meaning:four-choice-meaning')
+
+  const second = buildWordQuestion({
+    discoveredIds,
+    currentRound: 0,
+    excludeWords: ['urë'],
+    activityHistory: [first.activityTypeId],
+    targetHistory: [trainWordTargetKeys(first.answerId, 'urë')],
+    rng: () => 0,
+    debugTrace: true,
+  })
+  assert.ok(second, 'same-format rotation hid every newly saved word behind a false caught-up state')
+  assert.equal(second.answerId, 'rruge')
+  assert.equal(second.activityTypeId, first.activityTypeId)
+  assert.equal(second.debugSelection.activityBalance.usesRepeatFallback, true)
 })
 
 check('tested targets rotate by exact sense and shared Albanian spelling', () => {

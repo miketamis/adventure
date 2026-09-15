@@ -267,11 +267,13 @@ export default function PracticeView({ state, dispatch }) {
       ? attachSchedulerTrace(
           balanced.candidate.question,
           balanced.candidate.route,
-          `Selected ${balanced.activityTypeId}, the least-represented currently eligible activity type; the immediately previous type was excluded.`,
+          balanced.plan.usesRepeatFallback
+            ? `Selected ${balanced.activityTypeId} as the only buildable format, using a disjoint Albanian target.`
+            : `Selected ${balanced.activityTypeId}, the least-represented currently eligible activity type; the immediately previous type was excluded.`,
         )
       : null
-    // Repeating either the same Albanian word or the same activity type would
-    // defeat the spacing promise. A tiny eligible pool therefore pauses cleanly.
+    // Repeating Albanian language would defeat the spacing promise. Repeating
+    // only the card format is safe when a fresh, disjoint target is available.
     if (!nextQuestion && !TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists) {
       nextQuestion = { kind: TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome }
     }

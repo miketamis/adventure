@@ -2,12 +2,12 @@
 // Startup state code needs only these small validation helpers.
 
 export const TRAIN_ACTIVITY_BALANCE_POLICY = Object.freeze({
-  version: 1,
+  version: 2,
   historyWindow: 24,
   recordAt: 'question-presented',
   distribution: 'least-represented currently eligible activity type',
-  immediateRepeat: 'forbidden',
-  unavailableAlternative: 'caught-up',
+  immediateRepeat: 'fallback only when no different due activity type can be built',
+  unavailableAlternative: 'use a disjoint target in the same activity type',
   tieBreak: 'random among tied activity types; existing learner-priority weights choose the target within that type',
 })
 

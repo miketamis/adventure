@@ -2448,11 +2448,15 @@ export function reducer(state, action) {
 
     case 'RECORD_TRAIN_ACTIVITY_PRESENTED': {
       const currentActivityHistory = normalizeTrainActivityHistory(state.trainActivityHistory)
-      if (currentActivityHistory.at(-1) === action.activityTypeId) return state
+      const repeatsActivityType = currentActivityHistory.at(-1) === action.activityTypeId
       const hasTargetKeys = action.targetKeys != null
       if (hasTargetKeys && !Array.isArray(action.targetKeys)) return state
       const targetKeys = hasTargetKeys ? normalizeTrainTargetHistory([action.targetKeys])[0] : null
       if (hasTargetKeys && (!targetKeys || targetKeys.length !== new Set(action.targetKeys).size)) return state
+      // A same-format fallback is legal only when its concrete language target
+      // proves that this is a new question. Without target metadata, retain the
+      // old fail-closed behavior instead of recording an unverifiable repeat.
+      if (repeatsActivityType && !targetKeys) return state
       if (targetKeys?.some((key) => {
         const [kind, ...idParts] = key.split(':')
         const id = idParts.join(':')
@@ -2461,6 +2465,8 @@ export function reducer(state, action) {
           : kind !== 'surface' && (!DICT[id] || !isTrainableSense(id))
       })) return state
       const currentTargetHistory = normalizeTrainTargetHistory(state.trainTargetHistory)
+      const previousTargetKeys = new Set(currentTargetHistory.at(-1) || [])
+      if (targetKeys?.some((key) => previousTargetKeys.has(key))) return state
       const previousPhraseTargets = new Set(latestTrainTargetEntry(currentTargetHistory, 'phrase:'))
       if (targetKeys?.some((key) => key.startsWith('phrase:') && previousPhraseTargets.has(key))) return state
       const trainActivityHistory = recordTrainActivity(

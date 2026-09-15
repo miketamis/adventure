@@ -671,8 +671,10 @@ function skillForQuestion(
     if (trace) Object.assign(trace, {
       selected: balanced.candidate?.skill || null,
       reason: balanced.candidate
-        ? 'due phrase-specific remediation is legal and does not repeat the previous activity type'
-        : 'due remediation would repeat the previous activity type; another disjoint activity must intervene',
+        ? balanced.plan.usesRepeatFallback
+          ? 'due phrase-specific remediation is the only buildable format and has a disjoint target'
+          : 'due phrase-specific remediation is legal and does not repeat the previous activity type'
+        : 'due phrase-specific remediation has no disjoint target',
       activityBalance: balanced.plan,
       randomBoundary: balanced.randomBoundary,
     })
@@ -700,8 +702,10 @@ function skillForQuestion(
   const balanced = pickBalancedTrainActivity(activities, activityHistory, rng)
   const selected = balanced.candidate?.skill || null
   const reason = selected
-    ? 'selected the least-represented due phrase activity type without repeating the previous type'
-    : 'every due track for this phrase would repeat the previous activity type'
+    ? balanced.plan.usesRepeatFallback
+      ? 'selected the only due phrase activity type with a disjoint target'
+      : 'selected the least-represented due phrase activity type without repeating the previous type'
+    : 'this phrase has no due buildable track'
   if (trace) Object.assign(trace, {
     selected,
     reason,

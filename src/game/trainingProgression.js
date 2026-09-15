@@ -143,7 +143,8 @@ export const TRAIN_NOUN_ENDING_CORRECTION_POLICY = deepFreeze({
 
 export const TRAIN_SCHEDULER_SAFEGUARDS = deepFreeze({
   noImmediateSharedWords: true,
-  noImmediateActivityTypeRepeat: true,
+  preferDifferentActivityType: true,
+  allowSameActivityTypeForDisjointFallback: true,
   noImmediatePhraseTargetRepeat: true,
   repeatWhenNoDisjointTargetExists: false,
   exhaustedPoolOutcome: 'caught-up',

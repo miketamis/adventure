@@ -54,12 +54,24 @@ export function trainActivityBalancePlan(candidates, history = [], {
     const activityTypeId = trainActivityTypeId(candidate)
     return activityTypeId ? [{ candidate, index, activityTypeId }] : []
   })
-  const repeatRejected = excludeImmediate && previousActivityTypeId
+  const repeatedTypeCandidates = excludeImmediate && previousActivityTypeId
     ? identified.filter(({ activityTypeId }) => activityTypeId === previousActivityTypeId)
     : []
-  const eligible = excludeImmediate && previousActivityTypeId
+  const alternateTypes = excludeImmediate && previousActivityTypeId
     ? identified.filter(({ activityTypeId }) => activityTypeId !== previousActivityTypeId)
     : identified
+  // Format rotation is a preference, not a reason to deadlock Train. Fresh
+  // saved words normally begin on the same meaning-recognition card, so a hard
+  // activity-type ban made every newly added word invisible after the first.
+  // The target scheduler still enforces the real safety boundary: the fallback
+  // must use disjoint Albanian language.
+  const usesRepeatFallback = Boolean(
+    excludeImmediate && previousActivityTypeId && !alternateTypes.length && identified.length,
+  )
+  const eligible = alternateTypes.length || !usesRepeatFallback
+    ? alternateTypes
+    : identified
+  const repeatRejected = usesRepeatFallback ? [] : repeatedTypeCandidates
   const minimumRecentCount = eligible.length
     ? Math.min(...eligible.map(({ activityTypeId }) => counts[activityTypeId] || 0))
     : null
@@ -75,8 +87,10 @@ export function trainActivityBalancePlan(candidates, history = [], {
       index,
       activityTypeId,
       recentCount: counts[activityTypeId] || 0,
-      status: excludeImmediate && activityTypeId === previousActivityTypeId
+      status: excludeImmediate && activityTypeId === previousActivityTypeId && !usesRepeatFallback
         ? 'rejected-immediate-repeat'
+        : excludeImmediate && activityTypeId === previousActivityTypeId
+          ? 'fallback-only-format'
         : (counts[activityTypeId] || 0) === minimumRecentCount
           ? 'balanced-eligible'
           : 'deferred-overrepresented',
@@ -84,6 +98,7 @@ export function trainActivityBalancePlan(candidates, history = [], {
     repeatRejected: repeatRejected.map(({ index, activityTypeId }) => ({ index, activityTypeId })),
     eligible,
     balanced,
+    usesRepeatFallback,
     minimumRecentCount,
     outcome: balanced.length ? 'eligible' : 'caught-up',
   }
