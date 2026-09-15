@@ -920,7 +920,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   return (
     <>
       {state.debug && <CefrEntry state={state} onOpen={() => setShowCefr(true)} />}
-      {activeActionGoal && !activeActionGoal.complete && activeActionOption && (
+      {state.debug && activeActionGoal && !activeActionGoal.complete && activeActionOption && (
         <div className="train-goal-banner" role="status">
           <span>
             Training toward <b lang="sq">“{albanianPhrase(activeActionOption.text)}”</b>

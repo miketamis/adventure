@@ -265,6 +265,9 @@ check('normal Train hides internal progression badges while debug retains them',
   phrasePractice.includes('debug = false') &&
   phrasePractice.includes('debugMeta={<span className="phrase-label">') &&
   trainingActivityShell.includes('debug && debugMeta'))
+check('normal Train hides the story-action planning banner while debug retains it',
+  practice.includes('state.debug && activeActionGoal && !activeActionGoal.complete && activeActionOption && (') &&
+  practice.includes('className="train-goal-banner"'))
 check('CEFR journeys are labelled and keep Albanian assessment surfaces language-tagged',
   cefrCapstone.includes('aria-labelledby="cefr-title"') &&
   cefrCapstone.includes('aria-labelledby="cefr-task-title"') &&
