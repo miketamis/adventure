@@ -340,7 +340,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "fshatiLumi.options[12]": { al: "merr urën", en: "Take the bridge.", review: 'internal-editorial' }, // 1399
   "fshatiLumi.options[13]": { al: "merr mullirin", en: "Take the mill.", review: 'internal-editorial' }, // 1400
   "gruaUji1.options[0]": { al: "si quhesh?", en: "What is your name?", review: 'internal-editorial' },
-  "gruaUji1.options[1]": { al: "pse është pusi i thatë?", en: "Why is the well dry?", review: 'internal-editorial' },
   "gruaUji1.options[2]": { al: "kush të thirri?", en: "Who called you?", review: 'internal-editorial' },
   "gruaUji1.options[3]": { al: "ku është kroi?", en: "Where is the spring?", review: 'internal-editorial' },
   "gruaUji1.options[4]": { al: "a mund të të ndihmoj?", en: "Can I help you?", review: 'internal-editorial' },
@@ -546,4 +545,5 @@ export const OPTION_READINGS_C = Object.freeze({
   "dordolec1.options[1]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
   "dasma1.options[2]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
   "kroi1.options[2]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
+  "gruaUji1.options[1]": { al: "pse nuk e përdor pusin?", en: "Why don’t you use the well?", review: 'internal-editorial' },
 })

@@ -196,6 +196,31 @@ for (const [hubId, questionIds] of Object.entries(VILLAGE_CONVERSATION_TOPICS)) 
 const waterHub = CONVERSATION_HUBS['water-carrier-bank']
 assert.ok(waterHub, 'water-carrier conversation was removed from the shared hub registry')
 assert.deepEqual(Object.keys(waterHub.questions), ['name', 'dryWell', 'caller', 'spring', 'help'])
+const waterProblemOption = STORY.gruaUji1.options.find((option) =>
+  option.conversationHub?.questionId === 'dryWell')
+assert.ok(waterProblemOption, 'the grounded water-carrier question was removed')
+assert.equal(albanianTextOf(waterProblemOption.text), 'pse nuk e përdor pusin?',
+  'the water-carrier question again assumes that the learner knows the well is dry')
+const waterProblemSetup = STORY.gruaUji1.text.find((entry) =>
+  englishReadingOf(lineOf(entry)).includes('I cannot use the village well.'))
+assert.ok(waterProblemSetup,
+  'the water-carrier does not establish why the learner can ask about using the village well')
+assert.ok(englishReadingOf(lineOf(waterProblemSetup)).includes('all the way to the spring for water'),
+  'the water-carrier setup no longer conveys the burden that motivates the learner’s question')
+assert.equal(albanianTextOf(lineOf(waterProblemSetup)),
+  'Zëri i një fëmije vjen nga lart. Ajo tund kokën. Çdo ditë duhet të vij deri te kroi për ujë; nuk mund ta përdor pusin e fshatit.',
+  'the water-carrier’s reviewed Albanian setup drifted')
+for (const conditionId of [waterHub.questions.dryWell.askedCondition, 'fact:villageWellsRestored']) {
+  assert.ok([].concat(waterProblemSetup.none || []).includes(conditionId),
+    `the water-carrier setup remains visible after ${conditionId}`)
+  assert.ok([].concat(waterProblemOption.unless || []).includes(conditionId),
+    `the water-carrier question remains available after ${conditionId}`)
+}
+const waterProblemResponses = STORY.gruaUji1.text.filter((entry) =>
+  entry.conversationHub?.questionId === 'dryWell')
+assert.ok(waterProblemResponses.every((entry) =>
+  [].concat(entry.none || []).includes('fact:villageWellsRestored')),
+'the water-carrier can still say that the well is dry after its water returns')
 const nameOption = STORY.gruaUji1.options.find((option) => option.conversationHub?.questionId === 'name')
 assert.ok(nameOption.effects.some((effect) =>
   effect.type === 'learn' && effect.id === npcIdentityKnowledgeId('gruaUji')),
