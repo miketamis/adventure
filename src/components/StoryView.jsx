@@ -79,6 +79,7 @@ import {
 import { storyConfuserConsequence } from '../game/consequenceBuilders.js'
 import '../game/npcAppearanceRegistry.js'
 import { isTrainableSense } from '../game/lexicalTrainability.js'
+import { captureStoryChoicesPresented } from '../game/playtestAnalytics.js'
 
 const FactoidLore = lazy(() => import('./FactoidLore.jsx'))
 attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
@@ -91,7 +92,7 @@ const QUOTE_TIER_LABEL = {
   oral: 'oral attribution',
 }
 
-export default function StoryView({ state, dispatch }) {
+export default function StoryView({ state, dispatch, analyticsEnabled = false }) {
   const node = STORY[state.nodeId]
   const [endingCopy, setEndingCopy] = useState(null)
   const [richAchievementById, setRichAchievementById] = useState(null)
@@ -323,6 +324,7 @@ export default function StoryView({ state, dispatch }) {
       interaction,
       effectAvailability,
       route: transitionInfo(state.nodeId, opt),
+      targetNodeId: opt.to,
       date: opt.date || null,
       targetPhase: opt.time || null,
       targetHour: opt.atHour ?? null,
@@ -332,9 +334,10 @@ export default function StoryView({ state, dispatch }) {
       roleReason: roleAccess.reason,
       ok: canChoose(storyState, opt) && roleAccess.ok,
       onSelect: () => opt.become && !state.embodying
-        ? dispatch({ type: 'REQUEST_EMBODIMENT', optionIndex: i })
+        ? dispatch({ type: 'REQUEST_EMBODIMENT', optionId: `opt-${i}`, optionIndex: i })
         : dispatch({
             type: 'CHOOSE', option: opt, targetNode: STORY[opt.to],
+            optionId: `opt-${i}`, optionIndex: i,
             fromNodeId: state.nodeId, fromTurn: state.turn,
           }),
     })
@@ -354,7 +357,7 @@ export default function StoryView({ state, dispatch }) {
       effectAvailability,
       ok,
       onSelect: () => dispatch({
-        type: 'USE_ITEM', item: it, expectedCount: state.inventory[id],
+        type: 'USE_ITEM', item: it, optionId: `use-${id}`, expectedCount: state.inventory[id],
       }),
     })
   })
@@ -371,7 +374,7 @@ export default function StoryView({ state, dispatch }) {
       allDiscovered,
       enoughMana,
       ok,
-      onSelect: () => dispatch({ type: 'HEAL', expectedHearts: state.hearts }),
+      onSelect: () => dispatch({ type: 'HEAL', expectedHearts: state.hearts, optionId: 'heal' }),
     })
   }
   // confusers — always shown (the comprehension trap)
@@ -400,6 +403,8 @@ export default function StoryView({ state, dispatch }) {
         ok: allDiscovered && enoughMana,
         onSelect: () => dispatch({
           type: 'CONFUSE',
+          optionId: key,
+          optionIndex: i,
           expectedHearts: state.hearts,
           actionText: opt.text,
           consequence: storyConfuserConsequence({
@@ -428,6 +433,7 @@ export default function StoryView({ state, dispatch }) {
         ok: allDiscovered && enoughMana,
         onSelect: () => dispatch({
           type: 'CONFUSE',
+          optionId: key,
           expectedHearts: state.hearts,
           actionText: toks,
           consequence: storyConfuserConsequence({
@@ -443,6 +449,21 @@ export default function StoryView({ state, dispatch }) {
     })
   }
   const shuffledEntries = stableShuffle(entries, state.nodeId + ':' + state.turn)
+  const choiceAnalyticsKey = shuffledEntries.map((entry) => [
+    entry.key,
+    entry.allDiscovered,
+    entry.enoughMana,
+    entry.affordable,
+    entry.interaction?.ok,
+    entry.effectAvailability?.ok,
+    entry.ok,
+  ].join(':')).join('|')
+  useEffect(() => {
+    captureStoryChoicesPresented(state, shuffledEntries)
+    // `choiceAnalyticsKey` changes only when the visible option set or a
+    // categorical availability state changes at this scene presentation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analyticsEnabled, state.nodeId, state.turn, state.storyRunSequence, choiceAnalyticsKey])
 
   // Telegraph the load-bearing sentences: a line whose full discovery will OPEN a
   // currently-hidden path gets a 📜 cue, so the player knows where discovery pays off.

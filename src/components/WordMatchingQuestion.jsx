@@ -19,6 +19,8 @@ export default function WordMatchingQuestion({ q, debug = false, onComplete }) {
       setOutcome({ correct: false })
       onComplete({
         correct: false,
+        selectedTargetId: selectedLeft,
+        selectedOptionId: rightId,
         attempted: { al: selectedPair?.al, en: chosenMeaning },
         correction: selectedPair ? `${selectedPair.al} — ${selectedPair.en}` : null,
         attemptedAtMs: Date.now(),

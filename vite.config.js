@@ -14,6 +14,11 @@ const buildCommit = process.env.GITHUB_SHA || execFileSync(
 // one-line UI repair invalidating the whole anthology payload.
 const authoredChunk = (id) => {
   const path = id.replaceAll('\\', '/')
+  // PostHog starts after the application shell. Keep it out of the eager React
+  // vendor chunk so its replay runtime remains an independently cached asset.
+  if (path.includes('/node_modules/posthog-js/') || path.includes('/node_modules/@posthog/')) {
+    return 'analytics-vendor'
+  }
   if (path.includes('/node_modules/')) return 'react-vendor'
   if (path.endsWith('/src/game/content.js')) return 'story-graph'
   if (path.endsWith('/src/components/nodePositions.js')) return 'world-layout'

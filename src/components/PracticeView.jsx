@@ -55,6 +55,11 @@ import {
   trainActionGoalPriorityTargetIds,
 } from '../game/trainActionGoal.js'
 import { resolveTrainingTarget } from '../game/trainingTarget.js'
+import { analyticsOptionId } from '../game/playtestAnalytics.js'
+import {
+  captureTrainQuestionPresented,
+  captureTrainSchedulerDecision,
+} from '../game/trainPlaytestAnalytics.js'
 
 const DebugTrainActivityInspector = lazy(() => import('./DebugTrainActivityInspector.jsx'))
 
@@ -91,7 +96,7 @@ const CefrEntry = ({ state, onOpen }) => {
   )
 }
 
-export default function PracticeView({ state, dispatch }) {
+export default function PracticeView({ state, dispatch, analyticsEnabled = false }) {
   const discoveredIds = Object.keys(state.discovered).filter((id) => state.discovered[id] && isTrainableSense(id))
   const unlockedEverydayPhrases = EVERYDAY_PHRASE_DRILLS.filter((entry) =>
     entry.requires.filter(isTrainableSense).every((id) => state.discovered[id]),
@@ -200,6 +205,25 @@ export default function PracticeView({ state, dispatch }) {
       future: future.trace,
       selected: trainCandidateDebugRecord(selectedProposal),
     }
+    const analyticsCandidates = enumeration.proposals.map((proposal) => ({
+      route: proposal.route,
+      question: { targetKeys: proposal.targetKeys },
+    }))
+    captureTrainSchedulerDecision({
+      state,
+      candidates: analyticsCandidates,
+      balanced: {
+        candidate: selectedProposal ? {
+          route: selectedProposal.route,
+          question: { questionKey: selectedProposal.materialize()?.questionKey },
+        } : null,
+        activityTypeId: selectedProposal?.activityTypeId || null,
+        randomBoundary: null,
+        plan: {
+          usesRepeatFallback: recentActivityHistory.at(-1) === selectedProposal?.activityTypeId,
+        },
+      },
+    })
     let nextQuestion = null
     if (selectedProposal) {
       const question = selectedProposal.materialize({
@@ -295,7 +319,7 @@ export default function PracticeView({ state, dispatch }) {
       correctEn: q.target.en,
       grammarGuide: guide,
     })
-    dispatch({ type: 'PRACTICE_PHRASE_RESULT', ...result, consequence })
+    dispatch({ type: 'PRACTICE_PHRASE_RESULT', activityTypeId: q.activityTypeId, ...result, consequence })
     if (result.correct && !result.acceptedWithLeeway && !restoresHeart) setTimeout(() => nextRef.current?.(), 1900)
     else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
   }, [dispatch, q, state])
@@ -309,6 +333,7 @@ export default function PracticeView({ state, dispatch }) {
     const correctPair = q.pairs.find(({ al }) => al === result.attempted?.al)
     dispatch({
       type: 'PRACTICE_WORD_MATCH_RESULT',
+      activityTypeId: q.activityTypeId,
       correct: result.correct,
       variantId: q.variantId,
       wordIds: q.wordIds,
@@ -316,6 +341,8 @@ export default function PracticeView({ state, dispatch }) {
       wordKeys,
       attemptedAtMs: result.attemptedAtMs,
       responseDurationMs: result.responseDurationMs,
+      selectedTargetId: result.selectedTargetId,
+      selectedOptionId: result.selectedOptionId,
       consequence: result.correct ? null : trainMissConsequence({
         source: 'train-word-matching',
         questionKey: q.questionKey,
@@ -339,6 +366,7 @@ export default function PracticeView({ state, dispatch }) {
     const correction = result.correction
     dispatch({
       type: 'PRACTICE_WORD_RESULT',
+      activityTypeId: q.activityTypeId,
       correct: result.correct,
       id: q.answerId,
       tier: q.tier,
@@ -352,6 +380,8 @@ export default function PracticeView({ state, dispatch }) {
       wordKeys: trainQuestionWordKeys(q),
       attemptedAtMs: result.attemptedAtMs,
       responseDurationMs: result.responseDurationMs,
+      selectedTargetId: result.selectedTargetId,
+      selectedOptionId: result.selectedOptionId,
       consequence: result.correct ? null : trainMissConsequence({
         source: 'train-noun-form-matching',
         questionKey: q.questionKey,
@@ -387,6 +417,14 @@ export default function PracticeView({ state, dispatch }) {
     })
     return () => window.cancelAnimationFrame(frame)
   }, [q])
+
+  useEffect(() => {
+    if (!q || q.kind === TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) return
+    captureTrainQuestionPresented(q, state)
+    // Re-run when consent is granted over an already-mounted saved question;
+    // stable event receipts prevent duplicate impressions on ordinary renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analyticsEnabled, q?.questionKey])
 
   useEffect(() => {
     if (!state.debug) setShowCefr(false)
@@ -539,6 +577,7 @@ export default function PracticeView({ state, dispatch }) {
       const miss = grammarPhaseQuestion.miss || {}
       dispatch({
         type: 'PRACTICE_WORD_RESULT',
+        activityTypeId: q.activityTypeId,
         correct,
         id: q.answerId,
         tier: q.tier,
@@ -551,6 +590,7 @@ export default function PracticeView({ state, dispatch }) {
         aspectTargets: q.phaseAspectTargets?.[formPhase.id] || q.aspectTargets,
         questionKey: q.questionKey,
         wordKeys: trainQuestionWordKeys(q),
+        selectedOptionId: analyticsOptionId(value),
         ...attemptTiming(),
         consequence: correct ? null : trainMissConsequence({
           source: 'train-noun-agreement',
@@ -585,6 +625,7 @@ export default function PracticeView({ state, dispatch }) {
       const correctMeaning = q.lexicalCheck.optionLabels[q.answerId]
       dispatch({
         type: 'PRACTICE_WORD_RESULT',
+        activityTypeId: q.activityTypeId,
         correct: false,
         id: q.answerId,
         tier: q.tier,
@@ -597,6 +638,7 @@ export default function PracticeView({ state, dispatch }) {
         aspectTargets: q.phaseAspectTargets?.[formPhase.id] || [],
         questionKey: q.questionKey,
         wordKeys: trainQuestionWordKeys(q),
+        selectedOptionId: analyticsOptionId(value),
         ...attemptTiming(),
         consequence: trainMissConsequence({
           source: 'train-form',
@@ -627,6 +669,7 @@ export default function PracticeView({ state, dispatch }) {
         : null
       dispatch({
         type: 'PRACTICE_WORD_RESULT',
+        activityTypeId: q.activityTypeId,
         correct,
         id: q.answerId,
         tier: q.tier,
@@ -638,6 +681,7 @@ export default function PracticeView({ state, dispatch }) {
         aspectTargets: q.aspectTargets,
         questionKey: q.questionKey,
         wordKeys: trainQuestionWordKeys(q),
+        selectedOptionId: analyticsOptionId(value),
         ...attemptTiming(),
         consequence: correct ? null : trainMissConsequence({
           source: 'train-form',
@@ -672,6 +716,7 @@ export default function PracticeView({ state, dispatch }) {
     setAwaitingRecoveryContinue(restoresHeart)
     dispatch({
       type: 'PRACTICE_WORD_RESULT',
+      activityTypeId: q.activityTypeId,
       correct,
       id: q.answerId,
       tier: q.tier,
@@ -684,6 +729,7 @@ export default function PracticeView({ state, dispatch }) {
       audioCompleted: q.requiresCompletedAudio ? wordAudioCompleted : undefined,
       questionKey: q.questionKey,
       wordKeys,
+      selectedOptionId: analyticsOptionId(value),
       ...attemptTiming(),
       consequence: correct ? null : trainMissConsequence({
         source: 'train-word',
@@ -753,6 +799,7 @@ export default function PracticeView({ state, dispatch }) {
       : null
     dispatch({
       type: 'PRACTICE_WORD_RESULT',
+      activityTypeId: q.activityTypeId,
       correct: result.correct,
       id: q.answerId,
       tier: q.tier,
@@ -765,6 +812,7 @@ export default function PracticeView({ state, dispatch }) {
       audioCompleted: q.requiresCompletedAudio ? wordAudioCompleted : undefined,
       questionKey: q.questionKey,
       wordKeys: trainQuestionWordKeys(q),
+      selectedOptionId: result.correct ? 'typed-correct' : 'typed-incorrect',
       ...attemptTiming(),
       consequence: result.correct ? null : trainMissConsequence({
         source: q.targetFormKey ? 'train-form' : 'train-word',
@@ -818,6 +866,7 @@ export default function PracticeView({ state, dispatch }) {
     playWord(q.surface)
     dispatch({
       type: 'PRACTICE_WORD_RESULT',
+      activityTypeId: q.activityTypeId,
       correct,
       id: q.answerId,
       tier: q.tier,
@@ -830,6 +879,7 @@ export default function PracticeView({ state, dispatch }) {
       audioCompleted: q.requiresCompletedAudio ? wordAudioCompleted : undefined,
       questionKey: q.questionKey,
       wordKeys: trainQuestionWordKeys(q),
+      selectedOptionIds: constructedPieceIds.map(analyticsOptionId),
       ...attemptTiming(),
       consequence: correct ? null : trainMissConsequence({
         source: q.targetFormKey ? 'train-form' : 'train-word',

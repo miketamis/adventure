@@ -127,6 +127,21 @@ const relationFor = (answerId, candidateId, contextual, editorialHardContrast = 
   }
 }
 
+// Analytics needs the same relationship dimensions that rank real options,
+// but never the learner-visible labels, editorial prose or private responses.
+export function distractorRelationForAnalytics(answerId, candidateId, contextual = false) {
+  if (!DICT[answerId] || !DICT[candidateId]) return null
+  const hardContrast = !contextual ? practiceHardContrastLink(answerId, candidateId) : null
+  const relation = relationFor(answerId, candidateId, contextual, hardContrast)
+  return {
+    type: relation.type,
+    contrastRank: relation.contrastRank,
+    sameAlbanianSurface: relation.sameAlbanianSurface,
+    orthographicSimilarity: relation.orthographicSimilarity,
+    confusability: relation.confusability,
+  }
+}
+
 const compareForBand = (band) => (left, right) => {
   // If Albanian is visible in the answer choices, a known option always beats
   // an unseen shortcut. Relation then controls the intended difficulty.

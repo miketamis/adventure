@@ -14,6 +14,22 @@ import { STORY } from './game/content.js'
 import { attachReviewedEnglishReadings } from './game/language.js'
 import ReleaseErrorBoundary from './components/ReleaseErrorBoundary.jsx'
 import BlockingModal from './components/BlockingModal.jsx'
+import AnalyticsPreferencesModal from './components/AnalyticsPreferencesModal.jsx'
+import PlaytestFeedbackModal from './components/PlaytestFeedbackModal.jsx'
+import {
+  captureConsentPageview,
+  captureEvent,
+  getAnalyticsConsent,
+  getAnalyticsSessionId,
+  initializePostHog,
+  setAnalyticsConsent,
+  subscribeAnalyticsConsent,
+} from './analytics.js'
+import {
+  captureCommittedTransition,
+  captureRunCheckpoint,
+  captureSurfacePresented,
+} from './game/playtestAnalytics.js'
 
 // Story is the first and dominant surface. The larger study, collection and
 // cartography tools are loaded only when they are opened; the collection and
@@ -36,6 +52,9 @@ const ActionKaraoke = lazy(() => import('./components/ActionKaraoke.jsx'))
 const HeartConsequenceModal = lazy(() => import('./components/HeartConsequenceModal.jsx'))
 const BUILD_COMMIT = __BUILD_COMMIT__
 const SPOKEN_ACTION_TYPES = ['CHOOSE', 'CONFUSE', 'USE_ITEM', 'HEAL', 'CONFIRM_EMBODIMENT']
+const FEEDBACK_MINIMUM_ENGAGED_MINUTES = 5
+const FEEDBACK_MINIMUM_MEANINGFUL_ACTIONS = 12
+const FEEDBACK_STATUS_KEY = `aventura.playtest-feedback.v1:${BUILD_COMMIT}`
 
 const ViewFallback = () => (
   <div className="card view-fallback" role="status" aria-live="polite">Opening the journey…</div>
@@ -49,19 +68,88 @@ const TIME_UI = {
   night: { icon: '🌙', al: 'natë', en: 'night' },
 }
 
+const feedbackStatus = () => {
+  try {
+    return localStorage.getItem(FEEDBACK_STATUS_KEY) || 'unseen'
+  } catch {
+    return 'unseen'
+  }
+}
+
+const saveFeedbackStatus = (status) => {
+  try {
+    localStorage.setItem(FEEDBACK_STATUS_KEY, status)
+  } catch {
+    /* optional feedback must never block play */
+  }
+}
+
+function useEngagedMinutes() {
+  const [minutes, setMinutes] = useState(0)
+  useEffect(() => {
+    let accumulatedMs = 0
+    let lastTick = Date.now()
+    let lastActivity = lastTick
+    const active = () => { lastActivity = Date.now() }
+    const tick = () => {
+      const now = Date.now()
+      if (document.visibilityState === 'visible' && now - lastActivity <= 60_000) {
+        accumulatedMs += Math.max(0, now - lastTick)
+      }
+      lastTick = now
+      setMinutes(Math.floor(accumulatedMs / 60_000))
+    }
+    const interval = window.setInterval(tick, 10_000)
+    for (const eventName of ['pointerdown', 'keydown', 'scroll', 'touchstart']) {
+      window.addEventListener(eventName, active, { passive: true })
+    }
+    document.addEventListener('visibilitychange', tick)
+    return () => {
+      window.clearInterval(interval)
+      for (const eventName of ['pointerdown', 'keydown', 'scroll', 'touchstart']) {
+        window.removeEventListener(eventName, active)
+      }
+      document.removeEventListener('visibilitychange', tick)
+    }
+  }, [])
+  return minutes
+}
+
 export default function App() {
   const [state, baseDispatch] = useReducer(reducer, undefined, loadState)
   const stateRef = useRef(state)
   stateRef.current = state
+  const analyticsConsent = useSyncExternalStore(
+    subscribeAnalyticsConsent,
+    getAnalyticsConsent,
+    getAnalyticsConsent,
+  )
+  const [analyticsPreferencesOpen, setAnalyticsPreferencesOpen] = useState(false)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const [feedbackTrigger, setFeedbackTrigger] = useState('manual')
+  const [feedbackPromptStatus, setFeedbackPromptStatus] = useState(feedbackStatus)
+  const engagedMinutes = useEngagedMinutes()
+  const engagedMinutesRef = useRef(engagedMinutes)
+  engagedMinutesRef.current = engagedMinutes
   const [actionTransition, setActionTransition] = useState(null)
   const actionTransitionRef = useRef(null)
+  const commitAcceptedAction = useCallback((action, before, after) => {
+    if (after === before) return false
+    baseDispatch(action)
+    // React may batch consecutive actions. Keep the imperative validation
+    // boundary aligned with the reducer state that was just accepted.
+    stateRef.current = after
+    captureCommittedTransition(action, before, after)
+    return true
+  }, [])
   const dispatch = useCallback((action) => {
     // Keep the current scene visible while the accepted Albanian action plays.
     // The reducer remains the authority for validity: only an action whose
     // preview emits a new committed-speech event receives this transition.
     if (actionTransitionRef.current) return
     if (!SPOKEN_ACTION_TYPES.includes(action?.type)) {
-      baseDispatch(action)
+      const current = stateRef.current
+      commitAcceptedAction(action, current, reducer(current, action))
       return
     }
     const current = stateRef.current
@@ -70,21 +158,22 @@ export default function App() {
       ? preview.actionSpeech
       : null
     if (!event?.al) {
-      baseDispatch(action)
+      commitAcceptedAction(action, current, preview)
       return
     }
     const transition = { id: event.id, al: event.al, action }
     actionTransitionRef.current = transition
     setActionTransition(transition)
-  }, [])
+  }, [commitAcceptedAction])
   const finishActionTransition = useCallback((transition) => {
     if (actionTransitionRef.current?.id !== transition.id) return
     // Nothing else can dispatch while the overlay is active, so the same
     // action is still valid against the unchanged source scene.
-    baseDispatch(transition.action)
+    const current = stateRef.current
+    commitAcceptedAction(transition.action, current, reducer(current, transition.action))
     actionTransitionRef.current = null
     setActionTransition(null)
-  }, [])
+  }, [commitAcceptedAction])
   const [, setReadingCorpusVersion] = useState(0)
   const readingCorpusPromise = useRef(null)
   const [confirmReset, setConfirmReset] = useState(false)
@@ -110,10 +199,74 @@ export default function App() {
   const timeUi = TIME_UI[phase]
   const activeQuest = embodimentQuest(state.embodying)
   const activeIdentity = embodimentIdentity(state)
-  const blockingOverlay = Boolean(
+  const gameBlockingOverlay = Boolean(
     state.pendingHeartConsequence || state.timePassage || state.pendingEmbodiment ||
     state.hearts <= 0 || confirmReset || actionTransition,
   )
+  const blockingOverlay = gameBlockingOverlay || analyticsPreferencesOpen || feedbackOpen
+  const meaningfulActions = Math.max(0, Number(state.turn || 1) - 1) +
+    Number(state.trainRound || 0) + Object.keys(state.discovered || {}).length
+
+  useEffect(() => {
+    if (!analyticsConsent.structured && !analyticsConsent.replay) return undefined
+    void initializePostHog()
+    if (!analyticsConsent.structured) return undefined
+    const analyticsSessionId = getAnalyticsSessionId()
+    captureConsentPageview()
+    captureEvent('playtest_session_started', {
+      game_run_id: `${analyticsSessionId}:run-${stateRef.current.storyRunSequence || 1}`,
+      story_run_sequence: stateRef.current.storyRunSequence,
+      node_id: stateRef.current.nodeId,
+      view: stateRef.current.view,
+      turn: stateRef.current.turn,
+    }, { receipt: `session-start:${analyticsSessionId}` })
+    captureRunCheckpoint(stateRef.current, 'session-start')
+    const finishSession = () => captureEvent('playtest_session_ended', {
+      game_run_id: `${analyticsSessionId}:run-${stateRef.current.storyRunSequence || 1}`,
+      story_run_sequence: stateRef.current.storyRunSequence,
+      node_id: stateRef.current.nodeId,
+      view: stateRef.current.view,
+      turn: stateRef.current.turn,
+      engaged_minutes: engagedMinutesRef.current,
+      meaningful_actions: Math.max(0, Number(stateRef.current.turn || 1) - 1) +
+        Number(stateRef.current.trainRound || 0) + Object.keys(stateRef.current.discovered || {}).length,
+    }, { receipt: `session-end:${analyticsSessionId}`, sendInstantly: true })
+    window.addEventListener('pagehide', finishSession)
+    return () => window.removeEventListener('pagehide', finishSession)
+  }, [analyticsConsent.replay, analyticsConsent.structured])
+
+  useEffect(() => {
+    captureSurfacePresented(state)
+  }, [analyticsConsent.structured, state.view, state.nodeId, state.turn, state.trainRound, state.storyRunSequence])
+
+  useEffect(() => {
+    if (!analyticsConsent.structured || analyticsPreferencesOpen || gameBlockingOverlay || feedbackOpen) return
+    if (feedbackPromptStatus !== 'unseen' || state.view !== 'story') return
+    if (engagedMinutes < FEEDBACK_MINIMUM_ENGAGED_MINUTES || meaningfulActions < FEEDBACK_MINIMUM_MEANINGFUL_ACTIONS) return
+    setFeedbackTrigger('milestone')
+    setFeedbackOpen(true)
+    setFeedbackPromptStatus('prompted')
+    saveFeedbackStatus('prompted')
+    captureEvent('playtest_feedback_prompted', {
+      trigger: 'milestone',
+      engaged_minutes: engagedMinutes,
+      meaningful_actions: meaningfulActions,
+      view: state.view,
+      node_id: state.nodeId,
+      turn: state.turn,
+    }, { receipt: `feedback-prompt:${BUILD_COMMIT}` })
+  }, [
+    analyticsConsent.structured,
+    analyticsPreferencesOpen,
+    gameBlockingOverlay,
+    feedbackOpen,
+    feedbackPromptStatus,
+    state.view,
+    state.nodeId,
+    state.turn,
+    engagedMinutes,
+    meaningfulActions,
+  ])
   // Fluent whole-line English is an editorial/debug aid, never normal-play
   // scaffolding. Fetch its substantial corpus only when debug is actually
   // opened, validate every address/source pair, then rerender against it.
@@ -261,6 +414,31 @@ export default function App() {
           {muted ? '🔇 muted' : '🔊 sound'}
         </button>
         <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            if (!analyticsConsent.structured) {
+              setAnalyticsPreferencesOpen(true)
+              return
+            }
+            setFeedbackTrigger('manual')
+            setFeedbackOpen(true)
+          }}
+          title={analyticsConsent.structured
+            ? 'Share a short anonymous playtest rating'
+            : 'Anonymous feedback requires gameplay-research consent'}
+        >
+          💬 feedback
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => setAnalyticsPreferencesOpen(true)}
+          title="Choose anonymous analytics and replay preferences"
+        >
+          🔒 privacy
+        </button>
+        <button
           ref={resetButtonRef}
           className="btn"
           onClick={() => setConfirmReset(true)}
@@ -298,8 +476,12 @@ export default function App() {
         leaveLabel={state.view === 'story' ? 'Open the guide' : 'Return to the story'}
       >
         <Suspense fallback={<ViewFallback />}>
-          {state.view === 'story' && <StoryView state={state} dispatch={dispatch} />}
-          {state.view === 'practice' && <PracticeView state={state} dispatch={dispatch} />}
+          {state.view === 'story' && (
+            <StoryView state={state} dispatch={dispatch} analyticsEnabled={analyticsConsent.structured} />
+          )}
+          {state.view === 'practice' && (
+            <PracticeView state={state} dispatch={dispatch} analyticsEnabled={analyticsConsent.structured} />
+          )}
           {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
           {state.debug && state.view === 'map' && <AtlasView state={state} />}
           {state.debug && state.view === 'endings' && <AchievementsView state={state} dispatch={dispatch} />}
@@ -315,7 +497,54 @@ export default function App() {
 
       </div>
 
-      {actionTransition && (
+      {analyticsPreferencesOpen && (
+        <AnalyticsPreferencesModal
+          consent={analyticsConsent}
+          onDismiss={analyticsConsent.decided ? () => setAnalyticsPreferencesOpen(false) : undefined}
+          onSave={(nextConsent) => {
+            setAnalyticsConsent(nextConsent)
+            setAnalyticsPreferencesOpen(false)
+          }}
+        />
+      )}
+
+      {feedbackOpen && analyticsConsent.structured && (
+        <PlaytestFeedbackModal
+          trigger={feedbackTrigger}
+          context={{
+            engaged_minutes: engagedMinutes,
+            meaningful_actions: meaningfulActions,
+            view: state.view,
+            node_id: state.nodeId,
+            turn: state.turn,
+          }}
+          onSubmit={(feedback) => {
+            captureEvent('playtest_feedback_submitted', feedback, {
+              receipt: `feedback:${BUILD_COMMIT}:${Date.now()}`,
+            })
+            setFeedbackOpen(false)
+            setFeedbackPromptStatus('submitted')
+            saveFeedbackStatus('submitted')
+          }}
+          onDismiss={(trigger) => {
+            captureEvent('playtest_feedback_dismissed', {
+              trigger,
+              engaged_minutes: engagedMinutes,
+              meaningful_actions: meaningfulActions,
+              view: state.view,
+              node_id: state.nodeId,
+              turn: state.turn,
+            }, { receipt: `feedback-dismissed:${BUILD_COMMIT}:${Date.now()}` })
+            setFeedbackOpen(false)
+            if (trigger === 'milestone') {
+              setFeedbackPromptStatus('dismissed')
+              saveFeedbackStatus('dismissed')
+            }
+          }}
+        />
+      )}
+
+      {!analyticsPreferencesOpen && !feedbackOpen && actionTransition && (
         <Suspense fallback={<div className="action-karaoke-overlay" aria-hidden="true" />}>
           <ActionKaraoke
             action={actionTransition}
@@ -325,7 +554,7 @@ export default function App() {
         </Suspense>
       )}
 
-      {state.pendingHeartConsequence && (
+      {!analyticsPreferencesOpen && !feedbackOpen && state.pendingHeartConsequence && (
         <Suspense fallback={<div className="blocking-modal-overlay" aria-hidden="true" />}>
           <HeartConsequenceModal
             consequence={state.pendingHeartConsequence}
@@ -337,7 +566,7 @@ export default function App() {
         </Suspense>
       )}
 
-      {state.hearts <= 0 && !state.pendingHeartConsequence && !state.timePassage && !state.pendingEmbodiment && (
+      {!analyticsPreferencesOpen && !feedbackOpen && state.hearts <= 0 && !state.pendingHeartConsequence && !state.timePassage && !state.pendingEmbodiment && (
         <BlockingModal
           id="gameover-title"
           title="💔 Game over"
@@ -362,7 +591,7 @@ export default function App() {
         </BlockingModal>
       )}
 
-      {confirmReset && state.hearts > 0 && !state.pendingHeartConsequence && !state.timePassage && !state.pendingEmbodiment && (
+      {!analyticsPreferencesOpen && !feedbackOpen && confirmReset && state.hearts > 0 && !state.pendingHeartConsequence && !state.timePassage && !state.pendingEmbodiment && (
         <BlockingModal
           id="new-run-title"
           title="Start a new run?"
@@ -396,10 +625,10 @@ export default function App() {
       )}
 
       <Suspense fallback={<div className="card view-fallback" role="status">Preparing the next story beat…</div>}>
-        {state.timePassage && !state.pendingHeartConsequence && (
+        {!analyticsPreferencesOpen && !feedbackOpen && state.timePassage && !state.pendingHeartConsequence && (
           <TimePassage key={state.timePassage.id} passage={state.timePassage} dispatch={dispatch} />
         )}
-        {state.pendingEmbodiment && !state.pendingHeartConsequence && !state.timePassage && (
+        {!analyticsPreferencesOpen && !feedbackOpen && state.pendingEmbodiment && !state.pendingHeartConsequence && !state.timePassage && (
           <EmbodimentConfirm pending={state.pendingEmbodiment} dispatch={dispatch} />
         )}
       </Suspense>

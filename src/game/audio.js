@@ -1,4 +1,7 @@
 // ---------------------------------------------------------------------------
+import { captureEvent } from '../analytics.js'
+
+// ---------------------------------------------------------------------------
 // WORD AUDIO
 // Each Albanian surface has a pre-generated TTS clip in public/audio/.
 // The filename is a deterministic, filesystem-safe slug of the surface so the
@@ -95,31 +98,59 @@ function stopActivePlayback() {
       /* ignore */
     }
     if (activeAudio === playback.audio) activeAudio = null
+    captureEvent('audio_playback_completed', {
+      asset_kind: playback.assetKind,
+      asset_id: playback.assetId,
+      playback_outcome: 'interrupted',
+      playback_duration_ms: Math.max(0, Date.now() - playback.startedAt),
+      muted,
+    })
     playback.resolve(false)
   }
 }
 
 export function playWord(al) {
-  if (!al || muted) return
-  void playSurface(al)
+  if (!al) return
+  if (muted) {
+    captureEvent('audio_playback_completed', {
+      asset_kind: 'word', asset_id: audioSlug(al), playback_outcome: 'muted', muted: true,
+    })
+    return
+  }
+  void playSurface(al, { assetKind: 'word' })
 }
 
-function playSurface(al, { onProgress } = {}) {
-  if (!al || muted) return Promise.resolve(false)
+function playSurface(al, { onProgress, assetKind = 'phrase' } = {}) {
+  if (!al) return Promise.resolve(false)
+  const assetId = audioSlug(al)
+  if (muted) {
+    captureEvent('audio_playback_completed', {
+      asset_kind: assetKind, asset_id: assetId, playback_outcome: 'muted', muted: true,
+    })
+    return Promise.resolve(false)
+  }
   let a = cache.get(al)
   if (!a) {
     try {
-      if (typeof Audio !== 'function') return Promise.resolve(false)
+      if (typeof Audio !== 'function') {
+        captureEvent('audio_playback_completed', {
+          asset_kind: assetKind, asset_id: assetId, playback_outcome: 'unsupported', muted: false,
+        })
+        return Promise.resolve(false)
+      }
       a = new Audio(audioUrl(al))
       a.preload = 'auto'
       cache.set(al, a)
     } catch {
+      captureEvent('audio_playback_completed', {
+        asset_kind: assetKind, asset_id: assetId, playback_outcome: 'initialization-failed', muted: false,
+      })
       return Promise.resolve(false)
     }
   }
   stopActivePlayback()
   return new Promise((resolve) => {
-    const playback = { audio: a, resolve, watchdog: null }
+    const playback = { audio: a, resolve, watchdog: null, assetKind, assetId, startedAt: Date.now() }
     const settle = (completed) => {
       if (activePlayback !== playback) return
       activePlayback = null
@@ -130,6 +161,13 @@ function playSurface(al, { onProgress } = {}) {
       a.ontimeupdate = null
       a.onloadedmetadata = null
       if (activeAudio === a) activeAudio = null
+      captureEvent('audio_playback_completed', {
+        asset_kind: assetKind,
+        asset_id: assetId,
+        playback_outcome: completed ? 'completed' : 'failed',
+        playback_duration_ms: Math.max(0, Date.now() - playback.startedAt),
+        muted,
+      })
       if (completed) {
         const duration = Number(a.duration)
         onProgress?.(1, {
@@ -180,12 +218,12 @@ function playSurface(al, { onProgress } = {}) {
 // sentence rhythm and coarticulation instead of inserting a load/ended gap
 // between separately generated word recordings.
 export function playPhrase(al) {
-  return playSurface(al)
+  return playSurface(al, { assetKind: 'phrase' })
 }
 
 // Accepted actions use only the generated continuous MP3. Runtime browser TTS
 // is intentionally not a fallback: a missing/rejected asset stays silent and
 // non-blocking rather than changing voice, rhythm or pronunciation quality.
 export function playActionPhrase(al, options) {
-  return playSurface(al, options)
+  return playSurface(al, { ...options, assetKind: 'accepted-action' })
 }

@@ -1826,6 +1826,53 @@ svg [role="button"]:focus-visible {
 .modal p b { color: var(--ink); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 
+.modal.analytics-preferences,
+.modal.playtest-feedback { max-width: 660px; }
+.analytics-consent-options,
+.feedback-choices,
+.feedback-rating {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin: 16px 0;
+  padding: 14px;
+}
+.analytics-consent-options legend,
+.feedback-choices legend,
+.feedback-rating legend {
+  color: var(--ink);
+  font-weight: 700;
+  padding: 0 6px;
+}
+.analytics-consent-options > label {
+  align-items: flex-start;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+.analytics-consent-options input,
+.feedback-choices input,
+.feedback-rating input { margin-top: 3px; }
+.analytics-consent-options span { display: grid; gap: 3px; }
+.analytics-consent-options small,
+.analytics-consent-note { color: var(--muted); line-height: 1.5; }
+.feedback-rating > div { display: flex; gap: 8px; margin-top: 10px; }
+.feedback-rating label { cursor: pointer; }
+.feedback-rating label span {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: inline-flex;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+.feedback-rating input { position: absolute; opacity: 0; }
+.feedback-rating input:focus-visible + span { outline: 3px solid var(--mana); outline-offset: 2px; }
+.feedback-rating input:checked + span { background: var(--mana); border-color: var(--mana); color: white; }
+.feedback-choices { display: grid; gap: 8px; }
+.feedback-choices label { color: var(--ink); cursor: pointer; }
+
 .modal.heart-consequence {
   max-width: 600px;
   max-height: calc(100dvh - 40px);

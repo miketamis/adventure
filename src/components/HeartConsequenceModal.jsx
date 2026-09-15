@@ -32,7 +32,7 @@ export default function HeartConsequenceModal({ consequence, onDismiss }) {
         />
       ) : (
         <>
-          <div className="heart-consequence-section">
+          <div className="heart-consequence-section" data-private-response>
             <h3>Your attempt</h3>
             {consequence.attempted.al && (
               <p className="heart-consequence-al" lang="sq">{consequence.attempted.al}</p>

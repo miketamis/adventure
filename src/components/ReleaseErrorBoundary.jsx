@@ -1,4 +1,5 @@
 import { Component, createRef } from 'react'
+import { captureException } from '../analytics.js'
 
 // React deliberately leaves exception recovery to an error boundary. Keep one
 // at the root and another around demand-loaded views so a corrupt render or a
@@ -14,6 +15,10 @@ export default class ReleaseErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     console.error('Aventura Shqip recovered from a rendering failure.', error, info)
+    captureException(error, {
+      boundary: this.props.root ? 'root' : 'view',
+      active_view: this.props.resetKey || null,
+    })
     window.requestAnimationFrame(() => this.headingRef.current?.focus())
   }
 

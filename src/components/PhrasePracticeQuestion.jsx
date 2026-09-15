@@ -103,6 +103,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
     acceptedWithLeeway = false,
     diagnostic = null,
     attempted = null,
+    analyticsSelection = {},
   ) => {
     if (committed.current) return
     committed.current = true
@@ -124,6 +125,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
       attemptedAtMs: Date.now(),
       responseDurationMs: Math.max(0, Date.now() - startedAt.current),
       audioCompleted: q.mode !== 'listen' || listeningCompleted,
+      ...analyticsSelection,
     })
   }
 
@@ -138,6 +140,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
       false,
       correct ? null : phraseAnswerDiagnostic(answer, q.target.al, q.target),
       { al: answer },
+      { selectedOptionIds: selectedIds },
     )
   }
 
@@ -158,6 +161,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
         answerSurface: tile.text,
       },
       { al: tile.text },
+      { selectedOptionId: tile.id },
     )
   }
 
@@ -183,6 +187,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
       result.usedLeeway,
       diagnostic,
       { al: typed.trim() },
+      { selectedOptionId: result.correct ? 'typed-correct' : 'typed-incorrect' },
     )
   }
 
@@ -210,6 +215,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
         false,
         null,
         { al: phrase?.al, en: chosenMeaning },
+        { selectedTargetId: matchLeft, selectedOptionId: rightId },
       )
       return
     }

@@ -12,7 +12,7 @@ export const LEARNING_TELEMETRY_POLICY = Object.freeze({
   forbiddenContent: Object.freeze(['answer text', 'prompt text', 'audio', 'transcript', 'open response', 'name', 'phone number']),
 })
 
-const TRACKS = new Set(['word', 'form', 'phrase-production', 'phrase-listening', 'phrase-matching'])
+const TRACKS = new Set(['word', 'form', 'word-matching', 'phrase-production', 'phrase-listening', 'phrase-matching'])
 const safeId = (value, max = 160) => typeof value === 'string' && /^[a-z0-9][a-z0-9:_-]*$/i.test(value)
   ? value.slice(0, max) : null
 const safeCount = (value) => Number.isSafeInteger(Number(value)) && Number(value) >= 0

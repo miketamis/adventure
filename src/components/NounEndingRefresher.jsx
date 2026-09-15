@@ -35,7 +35,7 @@ export default function NounEndingRefresher({
       {test ? (
         <OddOneOutExplanation test={test} />
       ) : (
-        <div className="noun-ending-test-explanation">
+        <div className="noun-ending-test-explanation" data-private-response>
           <h3>What happened</h3>
           <p>
             {attempted?.al && <>You used <b lang="sq">“{attempted.al}”</b>. </>}

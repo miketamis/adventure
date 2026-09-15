@@ -29,6 +29,8 @@ export default function NounFormMatchingQuestion({ q, debug = false, onComplete 
       setOutcome({ correct: false })
       onComplete({
         correct: false,
+        selectedTargetId: selectedLeft,
+        selectedOptionId: rightId,
         attempted: { context: selectedPair?.context, surface: selectedPair?.surface, roleLabel: chosenJob },
         correction: selectedPair,
         attemptedAtMs: Date.now(),

@@ -10,8 +10,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "analytics:replay": "node scripts/playtestreplay.mjs",
     "sync:readings": "node scripts/reviewedreadingsync.mjs --write",
-    "audit:privacy": "node scripts/privacyboundaryaudit.mjs",
+    "audit:privacy": "node scripts/privacyboundaryaudit.mjs && node scripts/analyticsaudit.mjs",
     "audit:adaptive": "node scripts/adaptivelearningaudit.mjs && node scripts/auditorywordspellingaudit.mjs && npm run audit:audio-recognition && npm run audit:context-target-identification && npm run audit:form-odd-one-out && node scripts/nounformmatchingaudit.mjs",
     "audit:audio-recognition": "node scripts/wordaudiorecognitionaudit.mjs && node scripts/wordsoundcontrastaudit.mjs",
     "audit:context-target-identification": "node scripts/contexttargetidentificationaudit.mjs",
@@ -32,6 +33,7 @@
     "certify": "node scripts/certify.mjs"
   },
   "dependencies": {
+    "posthog-js": "^1.433.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

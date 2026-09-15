@@ -18,7 +18,7 @@ export default function AcceptedAnswerReview({ comparison, onContinue, reward = 
     <BlockingModal
       id="accepted-answer-title"
       title="Close enough at this level — check the exact spelling"
-      className="accepted-answer-dialog"
+      className="accepted-answer-dialog ph-no-capture"
       actions={<button type="button" className="btn primary" onClick={onContinue}>Continue</button>}
     >
       <div className="accepted-answer-review">
