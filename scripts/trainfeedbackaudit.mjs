@@ -98,6 +98,8 @@ assert.match(trainRecoveryStatusText(recovery), new RegExp(`${TRAIN_HEALTH_POLIC
 assert.match(practice, /trainHeartRiskText\(trainHealth\)/)
 assert.match(practice, /trainHealth\.missEndsRun/)
 assert.match(practice, /trainRecoveryStatusText\(recoveryPlan\)/)
+assert.match(practice, /className={`card practice train-card \$\{trainRiskClass\}`}/)
+assert.match(practice, /role="progressbar"/)
 assert.match(practice, /Continue training/)
 
 // A scored form-role phase may show only Albanian context before the answer.

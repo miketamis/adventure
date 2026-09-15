@@ -1070,34 +1070,100 @@ svg [role="button"]:focus-visible {
 .practice-question { width: 100%; min-width: 0; }
 .practice-question[tabindex="-1"]:focus { outline: none; }
 
-.train-heart-risk {
+.train-card {
+  --train-risk-color: rgba(222, 105, 86, .72);
+  --train-risk-glow: rgba(222, 83, 64, .18);
+}
+.train-card .training-activity-shell {
+  border-color: var(--train-risk-color);
+  box-shadow: 0 0 0 1px var(--train-risk-glow), 0 16px 48px rgba(0, 0, 0, .16);
+}
+.train-card.train-risk-protected {
+  --train-risk-color: rgba(108, 190, 226, .72);
+  --train-risk-glow: rgba(75, 164, 205, .16);
+}
+.train-card.train-risk-damaging {
+  --train-risk-color: rgba(235, 75, 58, .8);
+  --train-risk-glow: rgba(235, 75, 58, .22);
+}
+.train-card.train-risk-pulse-slow .training-activity-shell { animation: train-risk-pulse 2.8s ease-in-out infinite; }
+.train-card.train-risk-pulse-fast .training-activity-shell { animation: train-risk-pulse 1.05s ease-in-out infinite; }
+
+@keyframes train-risk-pulse {
+  0%, 100% {
+    border-color: rgba(235, 75, 58, .62);
+    box-shadow: 0 0 0 1px rgba(235, 75, 58, .1), 0 16px 48px rgba(0, 0, 0, .16);
+  }
+  50% {
+    border-color: rgba(255, 107, 87, 1);
+    box-shadow: 0 0 0 2px rgba(235, 75, 58, .24), 0 0 26px rgba(235, 75, 58, .34), 0 16px 48px rgba(0, 0, 0, .16);
+  }
+}
+
+.train-status-strip {
   display: flex;
   align-items: center;
-  gap: .55rem;
-  width: fit-content;
-  max-width: 100%;
-  margin: .35rem 0 1rem;
-  padding: .55rem .8rem;
-  border: 1px solid rgba(201, 192, 172, .28);
-  border-radius: 999px;
-  color: var(--muted);
-  font: 600 .84rem/1.25 var(--sans);
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin: .15rem 0 1.15rem;
 }
-.train-heart-risk.protected {
-  border-color: rgba(108, 190, 226, .55);
-  color: #b9dfef;
-  background: rgba(45, 105, 133, .14);
-}
-.train-heart-risk.at-risk {
-  border-color: rgba(222, 105, 86, .45);
+.train-risk-key {
+  display: flex;
+  align-items: center;
+  gap: .42rem;
+  margin: 0;
   color: #efb2a6;
-  background: rgba(122, 48, 40, .12);
+  font: 700 .78rem/1.25 var(--sans);
 }
-.train-heart-risk.lethal {
-  border-color: rgba(235, 75, 58, .72);
-  color: #ffb0a3;
-  background: rgba(144, 34, 25, .2);
-  box-shadow: 0 0 0 2px rgba(235, 75, 58, .08);
+.train-risk-key strong { color: var(--ink); }
+.train-risk-protected .train-risk-key {
+  color: #b9dfef;
+}
+.train-combo-meter {
+  width: min(250px, 46%);
+  min-width: 190px;
+  color: var(--muted);
+  font: 700 .7rem/1.2 var(--sans);
+}
+.train-combo-label {
+  display: flex;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .32rem;
+  color: #c6bbab;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+.train-combo-label strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.train-combo-track {
+  height: 7px;
+  overflow: hidden;
+  border: 1px solid rgba(201, 192, 172, .25);
+  border-radius: 999px;
+  background: rgba(7, 6, 5, .44);
+}
+.train-combo-track > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5c9b65, #86cf86);
+  box-shadow: 0 0 10px rgba(111, 174, 111, .38);
+  transition: width 280ms ease-out;
+}
+.train-combo-meter.hearts-full .train-combo-track > span {
+  background: linear-gradient(90deg, #9d8150, #d6b66d);
+  box-shadow: 0 0 10px rgba(214, 182, 109, .3);
+}
+.train-combo-caption {
+  display: block;
+  margin-top: .3rem;
+  text-align: right;
+  color: var(--muted);
+  font-weight: 600;
 }
 .train-heart-recovery {
   display: flex;
@@ -1110,11 +1176,6 @@ svg [role="button"]:focus-visible {
   font-weight: 700;
 }
 .train-heart-recovery p { margin: 0; }
-.train-recovery-status {
-  margin: -.45rem 0 1rem;
-  color: var(--muted);
-  font: 650 .84rem/1.35 var(--sans);
-}
 .accepted-answer-review {
   display: grid;
   gap: .9rem;
@@ -2004,6 +2065,8 @@ svg [role="button"]:focus-visible {
   .time-passage-moon { animation: none; }
   .time-passage-sun { left: 24%; }
   .time-passage-moon { right: 24%; }
+  .train-card.train-risk-pulse-slow .training-activity-shell,
+  .train-card.train-risk-pulse-fast .training-activity-shell { animation: none; }
 }
 
 @media (max-width: 560px) {
@@ -2027,6 +2090,8 @@ svg [role="button"]:focus-visible {
   .embodiment-focus-actions { margin-left: 0; }
   .embodiment-focus-actions .btn { width: 100%; }
   .practice .answers { grid-template-columns: 1fr; }
+  .train-status-strip { align-items: stretch; flex-direction: column; gap: .8rem; }
+  .train-combo-meter { width: 100%; min-width: 0; }
   .modal-overlay { padding: 10px; }
   .modal { max-height: calc(100dvh - 20px); overflow-y: auto; padding: 20px 16px; }
   .modal-actions { flex-direction: column-reverse; }

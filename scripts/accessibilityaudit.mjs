@@ -69,10 +69,11 @@ check('context choices and correction feedback use reviewed grammatical-job labe
 check('every Train question announces its exact heart risk before interaction',
   practice.includes('role="note"') &&
   practice.includes('aria-label={trainHeartRiskText(trainHealth)}') &&
-  practice.includes("trainHealth.missEndsRun ? '💔'") &&
-  practice.includes('{trainRecoveryStatusText(recoveryPlan)}') &&
-  practice.indexOf('className={`train-heart-risk') < practice.indexOf('{isNounFormMatching ? (') &&
-  practice.indexOf('className={`train-heart-risk') < practice.indexOf(') : isWordMatching ? ('))
+  practice.includes('aria-label={trainRecoveryStatusText(recoveryPlan)}') &&
+  practice.includes('role="progressbar"') &&
+  practice.includes('aria-valuenow={recoveryPlan.correctStreak}') &&
+  practice.indexOf('className="train-status-strip"') < practice.indexOf('{isNounFormMatching ? (') &&
+  practice.indexOf('className="train-status-strip"') < practice.indexOf(') : isWordMatching ? ('))
 check('keyboard focus exposes the same word hint as hover', token.includes('onFocus={() => setShowHint(true)}') && token.includes('role="tooltip"'))
 check('saved-word hints reuse dictionary definitions without nested controls',
   token.includes('const definition = DEFS[token.id]') &&

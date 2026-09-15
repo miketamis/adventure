@@ -504,6 +504,22 @@ export default function PracticeView({ state, dispatch }) {
   const formPhase = isForms ? q.phasePlan?.[formPhaseIndex] : null
   const trainHealth = trainHealthPlanForQuestion(state, q, { phaseId: formPhase?.id || null })
   const recoveryPlan = trainRecoveryPlanForState(state, trainHealth.maximumHearts)
+  const trainRiskClass = trainHealth.protectedAttempt
+    ? 'train-risk-protected'
+    : trainHealth.missEndsRun
+      ? 'train-risk-damaging train-risk-pulse-fast'
+      : trainHealth.heartsAfterWrong === 1
+        ? 'train-risk-damaging train-risk-pulse-slow'
+        : 'train-risk-damaging'
+  const trainRiskSummary = trainHealth.protectedAttempt
+    ? 'Protected'
+    : trainHealth.missEndsRun
+      ? 'Miss −1 · run ends'
+      : 'Miss −1 heart'
+  const recoveryPercent = `${Math.round((recoveryPlan.correctStreak / recoveryPlan.recoveryCorrectCompletions) * 100)}%`
+  const recoveryCaption = recoveryPlan.atMaximumHearts
+    ? 'Hearts full'
+    : `${recoveryPlan.correctUntilRecovery} correct to restore ♥`
   const restoredHeart = state.trainRecoveryEvent?.questionKey === q.questionKey
   const isContextualAlbanianRetrieval = isContextualCompletion && q.dir === 'en2al'
   const contextualTargetKind = q.promptProfile?.targetKind || 'lexical-meaning'
@@ -890,19 +906,33 @@ export default function PracticeView({ state, dispatch }) {
         </div>
       )}
 
-      <section className="card practice" aria-labelledby="practice-title">
+      <section className={`card practice train-card ${trainRiskClass}`} aria-labelledby="practice-title">
       <h2 id="practice-title" className="view-title">Train Albanian</h2>
-      <div
-        className={`train-heart-risk ${trainHealth.protectedAttempt ? 'protected' : trainHealth.missEndsRun ? 'lethal' : 'at-risk'}`}
-        role="note"
-        aria-label={trainHeartRiskText(trainHealth)}
-      >
-        <span aria-hidden="true">{trainHealth.protectedAttempt ? '🛡' : trainHealth.missEndsRun ? '💔' : '♥'}</span>
-        <span>{trainHeartRiskText(trainHealth)}</span>
+      <div className="train-status-strip">
+        <p className="train-risk-key" role="note" aria-label={trainHeartRiskText(trainHealth)}>
+          <span aria-hidden="true">{trainHealth.protectedAttempt ? '🛡' : trainHealth.missEndsRun ? '💔' : '♥'}</span>
+          <strong>{trainHealth.hearts}/{trainHealth.maximumHearts}</strong>
+          <span aria-hidden="true">·</span>
+          <span>{trainRiskSummary}</span>
+        </p>
+        <div className={`train-combo-meter ${recoveryPlan.atMaximumHearts ? 'hearts-full' : ''}`}>
+          <div className="train-combo-label" aria-hidden="true">
+            <span>Correct combo</span>
+            <strong>{recoveryPlan.correctStreak}/{recoveryPlan.recoveryCorrectCompletions}</strong>
+          </div>
+          <div
+            className="train-combo-track"
+            role="progressbar"
+            aria-label={trainRecoveryStatusText(recoveryPlan)}
+            aria-valuemin="0"
+            aria-valuemax={recoveryPlan.recoveryCorrectCompletions}
+            aria-valuenow={recoveryPlan.correctStreak}
+          >
+            <span style={{ width: recoveryPercent }} />
+          </div>
+          <span className="train-combo-caption" aria-hidden="true">{recoveryCaption}</span>
+        </div>
       </div>
-      <p className="train-recovery-status" role="note">
-        {trainRecoveryStatusText(recoveryPlan)}
-      </p>
       {restoredHeart && (
         <div className="train-heart-recovery" role="status" aria-live="polite">
           <p>
