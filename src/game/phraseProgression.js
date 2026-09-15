@@ -22,6 +22,7 @@ export const PHRASE_PROGRESS_VERSION = 3
 export const PHRASE_MIN_INTERVENING_ROUNDS = 1
 export const PHRASE_INITIAL_REVIEW_GAP = 4
 export const PHRASE_MAX_REVIEW_GAP = 64
+export const PHRASE_MATCH_MINIMUM_PAIRS = 4
 
 export const PHRASE_STAGE_DEFINITIONS = deepFreeze({
   production: [
@@ -83,19 +84,19 @@ export const PHRASE_STAGE_DEFINITIONS = deepFreeze({
   matching: [
     {
       skill: 'matching', tier: 0, id: 'guided-matching', label: 'guided matching', mode: 'match',
-      variant: { pairs: 2 }, gate: { kind: 'correct-completion', wins: 1 },
+      variant: { pairs: PHRASE_MATCH_MINIMUM_PAIRS }, gate: { kind: 'correct-completion', wins: 1 },
       availability: { kind: 'same-tier-board', pairCountFrom: 'variant.pairs' },
       transition: { correct: 1, wrong: 0 },
     },
     {
       skill: 'matching', tier: 1, id: 'independent-matching', label: 'independent matching', mode: 'match',
-      variant: { pairs: 3 }, gate: { kind: 'correct-completion', wins: 1 },
+      variant: { pairs: PHRASE_MATCH_MINIMUM_PAIRS + 1 }, gate: { kind: 'correct-completion', wins: 1 },
       availability: { kind: 'same-tier-board', pairCountFrom: 'variant.pairs' },
       transition: { correct: 2, wrong: 1 },
     },
     {
       skill: 'matching', tier: 2, id: 'mastered-matching', label: 'mastered matching', mode: 'match',
-      variant: { pairs: 4 }, gate: { kind: 'retention-repetition', wins: 1 },
+      variant: { pairs: PHRASE_MATCH_MINIMUM_PAIRS + 2 }, gate: { kind: 'retention-repetition', wins: 1 },
       availability: { kind: 'same-tier-board', pairCountFrom: 'variant.pairs' },
       transition: { correct: 2, wrong: 2, maxTierRepeat: true },
     },

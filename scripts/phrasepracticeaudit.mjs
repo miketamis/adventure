@@ -20,6 +20,8 @@ import {
 import {
   PHRASE_PROGRESS_VERSION,
   PHRASE_INITIAL_REVIEW_GAP,
+  PHRASE_MATCH_MINIMUM_PAIRS,
+  PHRASE_STAGE_DEFINITIONS,
   emptyPhraseProductionProgress,
 } from '../src/game/phraseProgression.js'
 import {
@@ -47,7 +49,9 @@ import { trainHealthPlanForQuestion } from '../src/game/trainHealthPolicy.js'
 import { sensesMayShareAnswer } from '../src/game/practiceAnswerValidity.js'
 
 const failures = []
+let checks = 0
 const check = (name, fn) => {
+  checks += 1
   try {
     fn()
     console.log(`✓ ${name}`)
@@ -105,6 +109,13 @@ check('phrase tokenization keeps Albanian words and contractions, not punctuatio
     'indefAcc',
     'the syncretic village surface lost its authored contextual noun role',
   )
+})
+
+check('every phrase matching board has at least four pairs', () => {
+  assert.equal(PHRASE_MATCH_MINIMUM_PAIRS, 4)
+  assert.ok(PHRASE_STAGE_DEFINITIONS.matching.every(
+    ({ variant }) => variant.pairs >= PHRASE_MATCH_MINIMUM_PAIRS,
+  ))
 })
 
 check('beginner leeway never turns a reviewed noun-form substitution into mastery', () => {
@@ -521,9 +532,10 @@ check('all five suitable phrase exercise families are generated', () => {
     })
     assert.equal(q.mode, mode)
     if (mode === 'match') {
-      assert.equal(q.phrases.length, 4)
-      assert.equal(new Set(q.left.map((entry) => entry.id)).size, 4)
-      assert.equal(new Set(q.right.map((entry) => entry.id)).size, 4)
+      const expectedPairs = PHRASE_STAGE_DEFINITIONS.matching[tierForMode.match].variant.pairs
+      assert.equal(q.phrases.length, expectedPairs)
+      assert.equal(new Set(q.left.map((entry) => entry.id)).size, expectedPairs)
+      assert.equal(new Set(q.right.map((entry) => entry.id)).size, expectedPairs)
     }
   }
 })
@@ -684,7 +696,7 @@ check('listening and matching tighten on independent axes without lowering produ
   }
   assert.equal(state.phraseListeningMastery[target.id], PHRASE_SKILL_MAX_TIER.listening)
 
-  for (const [tier, pairs] of [[0, 2], [1, 3], [2, 4]]) {
+  for (const [tier, pairs] of [[0, 4], [1, 5], [2, 6]]) {
     state = {
       ...state,
       phraseMatchingMastery: Object.fromEntries(phrases.map((phrase) => [phrase.id, tier])),
@@ -785,7 +797,7 @@ check('every reward id still belongs to the public dictionary', () => {
   for (const id of phraseRewardIds(EVERYDAY_PHRASE_DRILLS)) assert.ok(DICT[id], id)
 })
 
-console.log(`\n${12 - failures.length}/12 phrase-practice contracts pass.`)
+console.log(`\n${checks - failures.length}/${checks} phrase-practice contracts pass.`)
 if (failures.length) {
   for (const failure of failures) console.log(`  - ${failure}`)
   process.exitCode = 1

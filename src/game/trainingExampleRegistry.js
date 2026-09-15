@@ -311,8 +311,10 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
     pairs: [
       { al: 'po shkoj në fshat.', en: 'I am going to the village.' },
       { al: 'takohemi më vonë.', en: 'We will meet later.' },
+      { al: 'më duhet ujë.', en: 'I need water.' },
+      { al: 'prit pak, të lutem.', en: 'Wait a moment, please.' },
     ],
-    response: 'Match both Albanian lines to their English meanings.',
+    response: 'Match all four Albanian lines to their English meanings.',
   },
   'independent-matching': {
     instruction: 'Match each Albanian phrase to its meaning.', prompt: 'Larger phrase board', promptLang: 'sq',
@@ -320,8 +322,10 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
       { al: 'po shkoj në fshat.', en: 'I am going to the village.' },
       { al: 'takohemi më vonë.', en: 'We will meet later.' },
       { al: 'më duhet ujë.', en: 'I need water.' },
+      { al: 'prit pak, të lutem.', en: 'Wait a moment, please.' },
+      { al: 'sa kushton kjo?', en: 'How much does this cost?' },
     ],
-    response: 'Match all three phrase pairs.',
+    response: 'Match all five phrase pairs.',
   },
   'mastered-matching': {
     instruction: 'Match each Albanian phrase to its meaning.', prompt: 'Largest phrase board', promptLang: 'sq',
@@ -330,7 +334,9 @@ export const TRAIN_EXERCISE_EXAMPLES = deepFreeze({
       { al: 'takohemi më vonë.', en: 'We will meet later.' },
       { al: 'më duhet ujë.', en: 'I need water.' },
       { al: 'prit pak, të lutem.', en: 'Wait a moment, please.' },
+      { al: 'sa kushton kjo?', en: 'How much does this cost?' },
+      { al: 'më falni, ku është tregu?', en: 'Excuse me, where is the market?' },
     ],
-    response: 'Match all four phrase pairs.',
+    response: 'Match all six phrase pairs.',
   },
 })
