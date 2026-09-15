@@ -13147,14 +13147,11 @@ export const ALL_SENSE_IDS = (() => {
 })()
 
 // ---------------------------------------------------------------------------
-// STEMS — the invariant root of each sense, computed as the longest common
-// prefix of every surface form it takes across the content. Surface comparison
-// is case-insensitive because sentence-initial capitalization does not change a
-// word's morphology. The remainder of a surface is its inflectional ending,
-// which we render faded.
-//   ujk / ujku          -> stem "ujk",     endings ""/"u"
+// ATTESTED SURFACE FAMILIES — evidence for the lazy learner-facing morphology
+// renderer. Exact adjective surfaces must occur here before their reviewed
+// boundary can be displayed; nouns additionally require a reviewed paradigm.
 // ---------------------------------------------------------------------------
-export const STEMS = (() => {
+export const ATTESTED_SURFACES = (() => {
   const surfaces = {} // id -> Set of surface forms
   const add = (t) => {
     if (!t.id) return
@@ -13167,31 +13164,15 @@ export const STEMS = (() => {
   for (const item of Object.values(ITEMS)) if (item.use) for (const t of item.use.phrase) add(t)
   for (const id of Object.keys(DICT)) (surfaces[id] ||= new Set()).add(DICT[id].al)
 
-  const commonPrefix = (words) => {
-    const foldedWords = words.map((word) => word.toLocaleLowerCase('sq'))
-    let p = foldedWords[0] || ''
-    for (const w of foldedWords) {
-      let i = 0
-      while (i < p.length && i < w.length && p[i] === w[i]) i++
-      p = p.slice(0, i)
-      if (!p) break
-    }
-    return p
+  const families = {}
+  for (const [id, values] of Object.entries(surfaces)) {
+    const forms = [...values]
+    families[id] = Object.freeze({
+      forms: Object.freeze(forms),
+    })
   }
-
-  const stems = {}
-  for (const id of Object.keys(surfaces)) stems[id] = commonPrefix([...surfaces[id]])
-  return stems
+  return Object.freeze(families)
 })()
-
-// Split an Albanian surface into [stem, ending] for a given sense.
-export function splitStem(id, surface) {
-  const stem = STEMS[id]
-  if (stem && surface.toLocaleLowerCase('sq').startsWith(stem) && stem.length < surface.length) {
-    return [surface.slice(0, stem.length), surface.slice(stem.length)]
-  }
-  return [surface, '']
-}
 
 // ---------------------------------------------------------------------------
 // FORMS ("endings" drill) — a word's declension is authored once as DICT[id].forms
@@ -13220,7 +13201,7 @@ export const FORM_TAGS = {
 }
 
 // FORM_FREQ[id] -> Map<surface(lower), count>: how often each surface of a sense
-// appears across the same corpus STEMS walks (story text/options + item-use
+// appears across the same corpus ATTESTED_SURFACES walks (story text/options + item-use
 // phrases). Every reviewed noun surface remains drillable; this count is only a
 // tie-breaker between forms on the same mastery layer.
 export const FORM_FREQ = (() => {

@@ -21,7 +21,6 @@ import {
   STORY,
   itemConfuserActionOf,
   lineOf,
-  splitStem,
 } from '../src/game/content.js'
 import { REVIEWED_READINGS } from '../src/game/data/readings/reviewedReadings.js'
 import {
@@ -42,6 +41,7 @@ import {
 import { npcPortraitLines } from '../src/game/npcAppearance.js'
 import { loadNpcAppearancePartitions } from './lib/loadnpcappearances.mjs'
 import { QUOTES } from '../src/game/quotes.js'
+import { splitStem } from '../src/game/surfaceMorphology.js'
 
 attachReviewedEnglishReadings(STORY, REVIEWED_READINGS)
 attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)

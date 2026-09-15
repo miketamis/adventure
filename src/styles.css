@@ -332,7 +332,7 @@ svg [role="button"]:focus-visible {
   padding: 0 4px;
   cursor: pointer;
 }
-/* root of the word stands out; inflectional ending is gently faded */
+/* reviewed word stem stands out; its exact ending is gently faded */
 .token.known .ending { opacity: 0.7; }
 /* per-word token tally shown under answer words */
 .token.known.has-count {

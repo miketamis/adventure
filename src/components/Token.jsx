@@ -1,7 +1,8 @@
 import { useId, useRef, useState } from 'react'
-import { DEFS, splitStem } from '../game/content.js'
+import { DEFS } from '../game/content.js'
 import { playWord } from '../game/audio.js'
 import { lexicalTrainability } from '../game/lexicalTrainability.js'
+import { splitStem } from '../game/surfaceMorphology.js'
 
 function definitionText(tokens, discovered) {
   return tokens
@@ -26,7 +27,7 @@ function StaticDefinition({ tokens, discovered }) {
           return <span key={index} className="token gloss">{entry.en}</span>
         }
 
-        const [stem, ending] = splitStem(entry.id, entry.al)
+        const [stem, ending] = splitStem(entry.id, entry.al, entry.formTag)
         return (
           <span key={index} className="token known">
             <span className="known-word" lang="sq">
@@ -133,7 +134,7 @@ export default function Token({ token, discovered, onDiscover, tokenCount }) {
   }
 
   const showCount = tokenCount != null
-  const [stem, ending] = splitStem(token.id, token.al)
+  const [stem, ending] = splitStem(token.id, token.al, token.formTag)
   const definition = DEFS[token.id]
   const accessibleDefinition = definition ? definitionText(definition, discovered) : null
   return (
