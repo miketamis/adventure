@@ -95,7 +95,10 @@ function buildWordWalkthroughSteps() {
     if (nextCheckpoint !== previousCheckpoint) {
       previousCheckpoint = nextCheckpoint
       steps.push({
-        id: `${after.next.definition.id}:${after.next.contextVariantId || 'isolated'}`,
+        // A stage/variant can recur for distinct aspect and form targets. Keep
+        // the walkthrough row identity tied to the complete scheduler
+        // checkpoint so React never aliases two real checkpoints.
+        id: `word-${steps.length}-${nextCheckpoint}`,
         label: after.next.difficultyLabel,
         detail: after.next.contextReview
           ? `The earlier lexical proofs are complete; ${after.next.difficultyLabel} now records its own context evidence.`

@@ -175,6 +175,11 @@ check('every learning question step opens a structured example dialog', () => {
 check('the word walkthrough and builder share the exact lexical stage registry', () => {
   const guide = read('src/components/GuideView.jsx')
   const component = read('src/components/DebugLearningProgression.jsx')
+  assert.match(
+    component,
+    /id: `word-\$\{steps\.length\}-\$\{nextCheckpoint\}`/,
+    'debug word checkpoints can collapse distinct scheduler targets into duplicate React keys',
+  )
   const baseExampleOptions = wordProgressionOptionsForSense('fshat')
   const exampleOptions = {
     ...baseExampleOptions,
