@@ -43,6 +43,7 @@ export function initialTrainPlanningState({
   lastWordKeys = [],
   pendingRemediations = [],
   goalRemaining = [],
+  alternateGoalRemaining = [],
   goalMaximumDiversionRounds = 0,
   goalDiversionsUsed = 0,
 } = {}) {
@@ -53,6 +54,7 @@ export function initialTrainPlanningState({
     lastWordKeys: [...new Set(lastWordKeys || [])].sort(),
     pendingRemediations: normalizePendingRemediations(pendingRemediations),
     goalRemaining: [...new Set(goalRemaining || [])].filter(Boolean).sort(),
+    alternateGoalRemaining: [...new Set(alternateGoalRemaining || [])].filter(Boolean).sort(),
     goalMaximumDiversionRounds: Math.max(0, Number(goalMaximumDiversionRounds) || 0),
     goalDiversionsUsed: Math.max(0, Number(goalDiversionsUsed) || 0),
   }
@@ -145,6 +147,9 @@ export function transitionTrainPlanningState(state, proposal, outcome) {
     goalRemaining: correct
       ? state.goalRemaining.filter((id) => !(proposal.rewardIds || []).includes(id))
       : state.goalRemaining,
+    alternateGoalRemaining: correct
+      ? state.alternateGoalRemaining.filter((id) => !(proposal.rewardIds || []).includes(id))
+      : state.alternateGoalRemaining,
     goalMaximumDiversionRounds: state.goalMaximumDiversionRounds,
     goalDiversionsUsed: offersGoalToken ? 0 : state.goalDiversionsUsed + 1,
   })
@@ -196,8 +201,10 @@ const repeatedActivityCount = (path, initialState) => {
 export function trainPlanScore(path, initialState, minimumBranching = 0) {
   const originalGoal = new Set(initialState.goalRemaining || [])
   const goalRemaining = new Set(originalGoal)
+  const alternateGoalRemaining = new Set(initialState.alternateGoalRemaining || [])
   let roundsToGoal = goalRemaining.size ? null : 0
   let firstGoalProgressRound = null
+  let firstAlternateGoalProgressRound = null
   let goalProgressRounds = 0
   path.forEach((proposal, index) => {
     const before = goalRemaining.size
@@ -205,6 +212,11 @@ export function trainPlanScore(path, initialState, minimumBranching = 0) {
     if (goalRemaining.size < before) {
       goalProgressRounds++
       if (firstGoalProgressRound == null) firstGoalProgressRound = index + 1
+    }
+    const alternateBefore = alternateGoalRemaining.size
+    for (const id of proposal.rewardIds || []) alternateGoalRemaining.delete(id)
+    if (alternateGoalRemaining.size < alternateBefore && firstAlternateGoalProgressRound == null) {
+      firstAlternateGoalProgressRound = index + 1
     }
     if (roundsToGoal == null && goalRemaining.size === 0) roundsToGoal = index + 1
   })
@@ -225,6 +237,7 @@ export function trainPlanScore(path, initialState, minimumBranching = 0) {
     goalRequired: originalGoal.size,
     roundsToGoal,
     firstGoalProgressRound,
+    firstAlternateGoalProgressRound,
     goalDiversions,
     goalExcessDiversions,
     robustDepth: path.length,
@@ -250,6 +263,9 @@ export function trainPlanScore(path, initialState, minimumBranching = 0) {
     score.goalActive ? -score.goalExcessDiversions : 0,
     score.goalActive ? -(score.roundsToGoal ?? 1000000) : 0,
     score.goalActive ? -(score.firstGoalProgressRound ?? 1000000) : 0,
+    (initialState.alternateGoalRemaining || []).length
+      ? -(score.firstAlternateGoalProgressRound ?? 1000000)
+      : 0,
     score.robustDepth,
     score.remediation,
     score.minimumBranching,
@@ -304,6 +320,7 @@ const stateSignature = (state) => JSON.stringify([
   state.lastWordKeys,
   state.pendingRemediations,
   state.goalRemaining,
+  state.alternateGoalRemaining,
   state.goalMaximumDiversionRounds,
   state.goalDiversionsUsed,
 ])

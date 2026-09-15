@@ -9,7 +9,7 @@ const deepFreeze = (value) => {
 }
 
 export const TRAIN_FUTURE_PLANNER_POLICY = deepFreeze({
-  version: 2,
+  version: 3,
   algorithm: 'state-deduplicated beam dynamic programming with iterative horizon expansion and a bounded exhaustive oracle',
   execution: 'plan as far as the explicit budgets permit, present one activity, observe its outcome, then replan',
   outcomes: ['correct', 'miss'],
@@ -41,7 +41,7 @@ export const TRAIN_FUTURE_PLANNER_POLICY = deepFreeze({
     'a missing story-action word receives a token opportunity within every eight completed activities',
   ],
   lexicographicObjectives: [
-    'shortest safe completion of the requested story action within its grind budget',
+    'shortest safe completion of the requested story action, then another same-node action whose words are saved',
     'maximum robust reachable depth',
     'serve due remediation',
     'preserve the smallest future branching reserve',
@@ -61,7 +61,7 @@ export const TRAIN_FUTURE_PLANNER_POLICY = deepFreeze({
   ],
   scoreVectorObjectives: [
     'goal-complete', 'goal-progress', 'goal-deadline', 'rounds-to-goal',
-    'first-goal-progress', 'robust-depth', 'remediation', 'branching-reserve',
+    'first-goal-progress', 'first-alternate-action-progress', 'robust-depth', 'remediation', 'branching-reserve',
     'distinct-targets', 'distinct-words', 'distinct-aspects', 'distinct-evidence-tracks',
     'distinct-modalities', 'distinct-families', 'distinct-activity-types',
     'distinct-difficulties', 'novelty', 'expected-learning-gain',

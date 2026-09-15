@@ -43,7 +43,7 @@ import {
   beginTrainActionGoalSession,
   normalizeTrainActionGoalSession,
   recordTrainActionGoalRound,
-  trainActionGoalPriorityTargetIds,
+  trainActionPracticeTargetIds,
 } from './trainActionGoal.js'
 import { TRAIN_WORD_FORM_POLICY } from './trainingProgression.js'
 import {
@@ -2558,7 +2558,7 @@ export function reducer(state, action) {
         {
           ...wordProgressionOptionsForSense(action.id),
           discoveredIds: Object.keys(state.discovered || {}).filter((id) => state.discovered[id]),
-          allowEarlyDueForGoal: trainActionGoalPriorityTargetIds(state).includes(action.id),
+          allowEarlyDueForGoal: trainActionPracticeTargetIds(state).includes(action.id),
         },
       )
       if (!transition.accepted) return state

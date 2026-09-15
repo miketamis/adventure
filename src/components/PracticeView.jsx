@@ -53,8 +53,9 @@ import {
 } from '../game/trainFuturePlanner.js'
 import {
   normalizeTrainActionGoalSession,
+  TRAIN_ACTION_GOAL_POLICY,
   trainActionGoalForState,
-  trainActionGoalPriorityTargetIds,
+  trainActionPracticeQueue,
 } from '../game/trainActionGoal.js'
 import { resolveTrainingTarget } from '../game/trainingTarget.js'
 import { analyticsOptionId } from '../game/playtestAnalytics.js'
@@ -159,11 +160,12 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
       : normalizeTrainTargetHistory(state.trainTargetHistory)
     const actionGoal = trainActionGoalForState(state)
     const goalSession = normalizeTrainActionGoalSession(state.trainGoalSession, state)
+    const actionPracticeQueue = trainActionPracticeQueue(state)
     const enumeration = enumerateTrainActivityCandidates({
       state,
       discoveredIds,
       unlockedPhrases: unlockedEverydayPhrases,
-      forceGoalTargetIds: trainActionGoalPriorityTargetIds(state),
+      forceGoalTargetIds: actionPracticeQueue.allRemainingWordIds,
       nowMs,
       debugTrace: state.debug,
     })
@@ -178,9 +180,14 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
       activityHistory: recentActivityHistory,
       targetHistory: recentTargetHistory,
       lastWordKeys: excludeWords,
-      goalRemaining: actionGoal?.remainingWordIds,
-      goalMaximumDiversionRounds: actionGoal?.maximumDiversionRounds,
-      goalDiversionsUsed: goalSession?.activitiesSinceGoalOpportunity,
+      goalRemaining: actionPracticeQueue.priorityRemainingWordIds,
+      alternateGoalRemaining: actionPracticeQueue.currentRemainingWordIds.length
+        ? actionPracticeQueue.otherRemainingWordIds
+        : [],
+      goalMaximumDiversionRounds: actionPracticeQueue.maximumDiversionRounds,
+      goalDiversionsUsed: actionGoal?.remainingTokenCount
+        ? goalSession?.activitiesSinceGoalOpportunity
+        : 0,
     })
     const future = planTrainFuture({
       proposals: enumeration.proposals,
@@ -199,8 +206,10 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     const schedulerTrace = {
       builder: 'train-future-planner',
       reason: selectedProposal
-        ? actionGoal?.remainingTokenCount
+        ? actionPracticeQueue.currentRemainingWordIds.length
           ? `Selected the strongest future route toward the requested story action while preserving legal target and activity diversity.`
+          : actionPracticeQueue.otherRemainingWordIds.length
+            ? `Selected the strongest future route toward another same-node story action whose words are already saved.`
           : `Selected the strongest future route across every currently buildable Train family.`
         : `Every currently buildable proposal was rejected by an explicit hard constraint.`,
       currentRound: state.trainRound || 0,
@@ -212,6 +221,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         ...actionGoal,
         session: goalSession,
       } : null,
+      actionPracticeQueue,
       enumeration: enumeration.trace,
       future: {
         ...future.trace,
@@ -257,7 +267,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     } else if (!TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists) {
       nextQuestion = {
         kind: TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome,
-        caughtUpForGoal: Boolean(actionGoal && !actionGoal.complete),
+        needsMoreWords: actionPracticeQueue.needsMoreWords,
         debugSelection: state.debug ? { scheduler: schedulerTrace } : undefined,
       }
     }
@@ -484,9 +494,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         <section className="card practice" aria-labelledby="practice-title">
           <h2 id="practice-title" className="view-title">Train Albanian</h2>
           <p className="empty" role="status">
-            {q.caughtUpForGoal
-              ? 'Your action’s next word needs a different-word round first, but no legal bridge is available yet. Return to the story and discover another word.'
-              : 'You’re caught up for now. Discover another word or come back after your next story beat.'}
+            {TRAIN_ACTION_GOAL_POLICY.terminalMessage}
           </p>
           <button className="btn primary" onClick={() => dispatch({ type: 'SET_VIEW', view: 'story' })}>
             Return to story

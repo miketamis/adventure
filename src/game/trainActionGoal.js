@@ -3,8 +3,9 @@
 // The future planner uses this contract before general diversity objectives so
 // variety never turns a focused hand-off into an indefinite grind.
 
+import { STORY } from './content.js'
 import { isTrainableSense } from './lexicalTrainability.js'
-import { resolveTrainingTarget } from './trainingTarget.js'
+import { resolveTrainingTarget, trainingTargetForOption } from './trainingTarget.js'
 import { TRAIN_ACTION_GOAL_POLICY } from './trainActionGoalPolicy.js'
 
 export { TRAIN_ACTION_GOAL_POLICY } from './trainActionGoalPolicy.js'
@@ -69,6 +70,46 @@ export function trainActionGoalPriorityTargetIds(state) {
   const session = normalizeTrainActionGoalSession(state?.trainGoalSession, state)
   return goal && session ? goal.remainingWordIds : []
 }
+
+const actionWordIds = (option) => [...new Set((option?.text || [])
+  .map((token) => token?.id)
+  .filter((id) => typeof id === 'string' && isTrainableSense(id)))]
+
+// Once the exact hand-off action is funded, Train should keep serving words
+// that unlock another authored action at the same story node. Only actions
+// whose complete trainable vocabulary is already saved qualify: this fallback
+// never reveals a new word or invents a target outside the story graph.
+export function trainActionPracticeQueue(state) {
+  const goal = trainActionGoalForState(state)
+  const currentOption = goal ? resolveTrainingTarget(goal.target) : null
+  const currentRemainingWordIds = goal?.remainingWordIds || []
+  const otherActions = (STORY[state?.nodeId]?.options || []).flatMap((option, optionIndex) => {
+    if (option?.confuser || option === currentOption) return []
+    const requiredWordIds = actionWordIds(option)
+    if (!requiredWordIds.length || !requiredWordIds.every((id) => state?.discovered?.[id])) return []
+    const remainingWordIds = requiredWordIds.filter((id) => (state?.mana?.[id] || 0) < 1)
+    if (!remainingWordIds.length) return []
+    const target = trainingTargetForOption(state.nodeId, option)
+    return target ? [{ optionIndex, target, requiredWordIds, remainingWordIds }] : []
+  })
+  const otherRemainingWordIds = [...new Set(otherActions.flatMap(({ remainingWordIds }) => remainingWordIds))]
+  const priorityRemainingWordIds = currentRemainingWordIds.length
+    ? currentRemainingWordIds
+    : otherRemainingWordIds
+  return {
+    policyVersion: TRAIN_ACTION_GOAL_POLICY.version,
+    currentTarget: goal?.target || null,
+    currentRemainingWordIds,
+    otherActions,
+    otherRemainingWordIds,
+    priorityRemainingWordIds,
+    allRemainingWordIds: [...new Set([...currentRemainingWordIds, ...otherRemainingWordIds])],
+    maximumDiversionRounds: TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity,
+    needsMoreWords: priorityRemainingWordIds.length === 0,
+  }
+}
+
+export const trainActionPracticeTargetIds = (state) => trainActionPracticeQueue(state).allRemainingWordIds
 
 export function trainActionGoalEmergencyTargetIds(state) {
   const priorityTargetIds = trainActionGoalPriorityTargetIds(state)

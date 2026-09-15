@@ -20,9 +20,15 @@ import { practiceReturnOption } from '../src/game/practiceReturn.js'
 import { trainQuestionWordKeys } from '../src/game/phrasePractice.js'
 import { enumerateTrainActivityCandidates } from '../src/game/trainCandidateContract.js'
 import {
+  TRAIN_ACTION_GOAL_POLICY,
   trainActionGoalEmergencyTargetIds,
   trainActionGoalPriorityTargetIds,
+  trainActionPracticeQueue,
 } from '../src/game/trainActionGoal.js'
+import {
+  initialTrainPlanningState,
+  planTrainFuture,
+} from '../src/game/trainFuturePlanner.js'
 import {
   optionTrainingIdentity,
   resolveTrainingTarget,
@@ -278,6 +284,124 @@ check('a zero-token action word preempts caught-up even while ordinarily spaced'
   const restored = normalizeSavedState(JSON.parse(JSON.stringify(state)), newRun())
   assert.equal(restored.trainGoalSession.activitiesSinceGoalOpportunity, 0,
     'the action-goal service window did not survive reload')
+})
+
+check('a blocked requested word uses another saved action before asking for more words', () => {
+  const node = STORY[START_NODE]
+  const bridge = node.options.find((candidate) => candidate.to === 'fshatiLumi')
+  const greeting = node.options.find((candidate) => candidate.to === 'bisedaUra1')
+  const discoveredIds = ['kalo', 'ure', 'pershendetje', 'rruge', 'shtepi', 'uje', 'buke']
+  let state = {
+    ...newRun(),
+    nodeId: START_NODE,
+    discovered: Object.fromEntries(discoveredIds.map((id) => [id, true])),
+    mana: { kalo: 1 },
+    practiced: { kalo: 1, ure: 1, pershendetje: 1 },
+    trainRound: 3,
+    trainLastWords: ['urë'],
+    wordProgress: {
+      ure: {
+        wins: { 'meaning-recognition': 1 }, dueAfterRound: 99,
+        lastAttemptRound: 2, lastAttemptKey: 'ure:prior',
+      },
+      pershendetje: {
+        wins: { 'meaning-recognition': 1 }, dueAfterRound: 99,
+        lastAttemptRound: 1, lastAttemptKey: 'pershendetje:prior',
+      },
+    },
+  }
+  state = reducer(state, {
+    type: 'BEGIN_OPTION_TRAINING',
+    target: trainingTargetForOption(START_NODE, bridge),
+  })
+  const queue = trainActionPracticeQueue(state)
+  assert.deepEqual(queue.currentRemainingWordIds, ['ure'])
+  assert.deepEqual(queue.otherRemainingWordIds, ['pershendetje'])
+  assert.equal(queue.otherActions[0].target.optionIdentity, optionTrainingIdentity(greeting))
+  assert.deepEqual(queue.allRemainingWordIds, ['ure', 'pershendetje'])
+
+  const enumeration = enumerateTrainActivityCandidates({
+    state,
+    discoveredIds,
+    forceGoalTargetIds: queue.allRemainingWordIds,
+    nowMs: 1,
+    debugTrace: true,
+  })
+  const plan = planTrainFuture({
+    proposals: enumeration.proposals,
+    planningState: initialTrainPlanningState({
+      currentRound: state.trainRound,
+      lastWordKeys: state.trainLastWords,
+      goalRemaining: queue.priorityRemainingWordIds,
+      alternateGoalRemaining: queue.otherRemainingWordIds,
+      goalMaximumDiversionRounds: queue.maximumDiversionRounds,
+    }),
+    seed: 'alternate-action-bridge',
+  })
+  assert.ok(plan.candidate, 'the scheduler fell through to the add-more-words screen')
+  assert.ok(plan.candidate.rewardIds.includes('pershendetje'),
+    'the saved sibling action did not supply the bridge activity')
+  assert.ok(!plan.candidate.wordKeys.includes('urë'), 'the previous Albanian word was repeated')
+  assert.ok(plan.plan.some(({ rewardIds }) => rewardIds.includes('ure')),
+    'the future plan lost the requested action after its legal bridge')
+
+  const bridgeQuestion = plan.candidate.materialize()
+  const afterBridge = reducer(state, {
+    type: 'PRACTICE_WORD_RESULT',
+    correct: true,
+    id: bridgeQuestion.answerId,
+    tier: bridgeQuestion.tier,
+    mode: bridgeQuestion.mode,
+    direction: bridgeQuestion.dir,
+    wordStageId: bridgeQuestion.wordStageId,
+    variantId: bridgeQuestion.variantId,
+    targetFormKey: bridgeQuestion.targetFormKey,
+    aspectTargets: bridgeQuestion.aspectTargets,
+    questionKey: bridgeQuestion.questionKey,
+    wordKeys: trainQuestionWordKeys(bridgeQuestion),
+    attemptedAtMs: 1,
+    responseDurationMs: 1000,
+  })
+  assert.equal(afterBridge.mana.pershendetje, 1,
+    'the reducer rejected the sibling action\'s early-due token reward')
+
+  const requestedActionDoneState = {
+    ...state,
+    mana: { ...state.mana, ure: 1 },
+  }
+  const siblingQueue = trainActionPracticeQueue(requestedActionDoneState)
+  assert.deepEqual(siblingQueue.currentRemainingWordIds, [])
+  assert.deepEqual(siblingQueue.priorityRemainingWordIds, ['pershendetje'])
+  const siblingEnumeration = enumerateTrainActivityCandidates({
+    state: requestedActionDoneState,
+    discoveredIds,
+    forceGoalTargetIds: siblingQueue.allRemainingWordIds,
+    nowMs: 1,
+  })
+  const siblingPlan = planTrainFuture({
+    proposals: siblingEnumeration.proposals,
+    planningState: initialTrainPlanningState({
+      currentRound: requestedActionDoneState.trainRound,
+      lastWordKeys: requestedActionDoneState.trainLastWords,
+      goalRemaining: siblingQueue.priorityRemainingWordIds,
+      goalMaximumDiversionRounds: siblingQueue.maximumDiversionRounds,
+    }),
+    seed: 'requested-action-complete',
+  })
+  assert.ok(siblingPlan.candidate?.rewardIds.includes('pershendetje'),
+    'the completed requested action did not hand priority to another saved action')
+
+  const completedQueue = trainActionPracticeQueue({
+    ...state,
+    mana: { ...state.mana, ure: 1, pershendetje: 1 },
+  })
+  assert.equal(completedQueue.needsMoreWords, true)
+  assert.deepEqual(completedQueue.priorityRemainingWordIds, [])
+  assert.equal(TRAIN_ACTION_GOAL_POLICY.terminalMessage, 'Add more words in Story to keep training.')
+
+  const practiceSource = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+  assert.doesNotMatch(practiceSource, /needs a different-word round first/)
+  assert.match(practiceSource, /TRAIN_ACTION_GOAL_POLICY\.terminalMessage/)
 })
 
 check('authored story-option training identities are unambiguous', () => {

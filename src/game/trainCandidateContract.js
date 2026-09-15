@@ -43,14 +43,14 @@ export const TRAIN_CANDIDATE_CONTRACT = deepFreeze({
 })
 
 export const TRAIN_CANDIDATE_ENUMERATION_POLICY = deepFreeze({
-  version: 2,
+  version: 3,
   wordCandidates: 'one fully buildable proposal for every eligible due capability-graph route of every discovered word target',
   phraseCandidates: 'one fully buildable proposal for every due target and unlocked evidence track',
   matchingBoards: {
     strategy: 'bounded diverse board proposals because the complete board combination space is exponential',
     maximumProposals: 8,
   },
-  actionGoalPriority: 'a missing action word stays enumerable through a spacing override so caught-up cannot hide it; the eighth-activity deadline may also force its selection, but neither rule bypasses reviewed content or the consecutive-word boundary',
+  actionGoalPriority: 'missing words from the requested action, then other same-node actions whose words are saved, stay enumerable through spacing overrides before Train asks for more words; reviewed content and the consecutive-word boundary remain hard',
   deterministicSeed: 'learner scheduling state plus stable candidate identity',
   rejectionAccounting: 'every builder miss is counted by family and target in the debug-only enumeration trace',
 })

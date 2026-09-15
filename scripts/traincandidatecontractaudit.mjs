@@ -13,7 +13,7 @@ import {
 import { buildWordQuestion } from '../src/game/wordPractice.js'
 
 assert.equal(TRAIN_CANDIDATE_CONTRACT.version, 3)
-assert.equal(TRAIN_CANDIDATE_ENUMERATION_POLICY.version, 2)
+assert.equal(TRAIN_CANDIDATE_ENUMERATION_POLICY.version, 3)
 assert.equal(TRAIN_CANDIDATE_ENUMERATION_POLICY.matchingBoards.maximumProposals, 8)
 
 const deterministicA = Array.from({ length: 8 }, () => seededTrainRng('same-seed')())

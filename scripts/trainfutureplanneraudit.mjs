@@ -108,7 +108,7 @@ const lowerScore = {
   distinctTargets: exactTrap.score.distinctTargets - 1,
   vector: [...exactTrap.score.vector],
 }
-lowerScore.vector[8] -= 1
+lowerScore.vector[9] -= 1
 const regretReport = trainPlannerOracleReport({
   candidate: exactTrap.candidate,
   plan: exactTrap.plan,
