@@ -70,7 +70,7 @@ export default function HeartConsequenceModal({ consequence, onDismiss }) {
       {isTrain && (
         <div className="heart-consequence-section train-combo-reset">
           <h3>Correct combo reset</h3>
-          <p>0/{TRAIN_HEALTH_POLICY.recoveryCorrectCompletions} · Build a new correct-answer combo to restore a heart.</p>
+          <p>Your correct-answer combo is back to zero. Answer {TRAIN_HEALTH_POLICY.recoveryCorrectCompletions} questions in a row correctly to restore one heart.</p>
         </div>
       )}
     </BlockingModal>

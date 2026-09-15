@@ -400,6 +400,7 @@ function buildContextQuestion(answerId, plan, authored, excludeWords, rng, debug
     },
     options,
     optionLabels,
+    contrastRationales: authored.contrastRationales || null,
     audioSurface: authored.audio === true ? authored.al : null,
     lexicalSurfaces: [authored.al],
   }
