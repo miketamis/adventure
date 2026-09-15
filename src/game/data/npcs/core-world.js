@@ -7,7 +7,7 @@ export default {
     name: 'Zana e lumit', glyph: '🌙', kind: 'mythic',
     role: 'the Zana of the river stretch',
     backstory: 'The mountain-fairy of the game\'s river: her trials, her fole, her gifts. Cross her fairly and she arms you; cross her wrongly and the river remembers.',
-    folklore: ['zana', 'zana-e-malit'],
+    folklore: ['zana-e-malit'],
     location: { status: 'placed', node: 'zana1' },
   },
   bolla: {
@@ -20,8 +20,8 @@ export default {
   gjarpri: {
     name: 'gjarpri i portës së botës', glyph: '🐉', kind: 'creature',
     role: 'the great serpent of the world below\'s threshold',
-    backstory: 'The guardian coiled where the dark road narrows — the world below tests its visitors before the dead city, and the serpent is the test.',
-    folklore: ['gjarpri-vitore'],
+    backstory: 'The guardian coiled where the dark road narrows — set on the road by the Kulshedra to test visitors before they can enter the world below. NOT the household Vitore or Gjarpri i Shtëpisë: this fire-breathing serpent guards no family hearth or ancestral fortune.',
+    folklore: ['kulshedra'],
     location: { status: 'placed', node: 'gjarpri' },
   },
   kulshedraMadhe: {
@@ -71,14 +71,14 @@ export default {
     name: 'Muji', glyph: '⚔️', kind: 'human',
     role: 'kreshnik of Jutbina',
     backstory: 'The oxherd the zanas gave strength — first of the frontier warriors of the Jutbina hamlet on the mountain shelf. His songs, his mejdan, his brothers\' cycle live on the mountain.',
-    folklore: ['muji-halili'],
+    folklore: ['kreshnik-epic'],
     location: { status: 'placed', node: 'mujo1' },
   },
   fatet: {
     name: 'të tria Fatitë', glyph: '🕯️', kind: 'mythic',
     role: 'the three Fates of the world below',
     backstory: 'Third night after a birth they speak a life; in the world below they weigh the lost. The "humbur" wanderers stand before them.',
-    folklore: ['fatia', 'ora'],
+    folklore: ['fatia-mira', 'ora'],
     location: { status: 'placed', node: 'djepi2' },
   },
   shtriga: {

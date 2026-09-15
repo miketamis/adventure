@@ -12,7 +12,11 @@ export default {
     },
     role: 'the traveller’s first acquaintance and a resident of the village square',
     backstory: 'Elira meets the traveller at the old bridge while leaving the village. She keeps a promise to wait briefly on the far bank or meet at an agreed hour in the square, then continues along the real river road and remains a familiar face in the village.',
-    folklore: [],
+    folklore: ['mikpritja-oda'],
+    loreAnchor: {
+      folklore: 'mikpritja-oda', scene: 'sofraMikut2',
+      relationship: 'Elira turns the first practical errand into a bread-and-salt welcome at the guest table.',
+    },
     location: { status: 'walking', route: ['start', 'fshatiLumi', 'fshatiSheshi'] },
   },
   gruaUji: {
@@ -24,7 +28,11 @@ export default {
     },
     role: 'the water-carrier of the village',
     backstory: 'When the old well went dry she became the village\'s water: every daylight hour she walks spring → river bank → square with the full jugs and back down with the empty ones. At night the spring is quiet, and so is she.',
-    folklore: [],
+    folklore: ['kulshedra'],
+    loreAnchor: {
+      folklore: 'kulshedra', scene: 'gruaUji1',
+      relationship: 'Mira makes the stolen-water crisis human and immediate through the daily walk forced by the dry village well.',
+    },
     location: { status: 'walking', route: ['kroi1', 'fshatiLumi', 'fshatiSheshi'], encounters: ['gruaUji1'] },
   },
   gjonMik: {
@@ -37,6 +45,10 @@ export default {
     role: 'Elira’s guest and a market worker travelling home from Gjakova',
     backstory: 'He arrives wet and tired for Elira’s evening meal, answers only the questions the player chooses to ask, and brings the first grounded report that the Kulshedra has taken the village water.',
     folklore: ['kulshedra'],
+    loreAnchor: {
+      folklore: 'kulshedra', scene: 'sofraMikut2',
+      relationship: 'Gjon brings the grounded report that connects the village water shortage to the Kulshedra.',
+    },
     location: { status: 'walking', route: ['sofraMikut2'] },
   },
   vajzaKroi: {
@@ -47,7 +59,11 @@ export default {
     },
     role: 'the girl who offers water to travellers at the village spring',
     backstory: 'She sits beside the working spring with a bucket and welcomes thirsty travellers while the village carries water uphill.',
-    folklore: ['mikpritja-oda'],
+    folklore: ['mikpritja-oda', 'hospitality'],
+    loreAnchor: {
+      folklore: 'hospitality', scene: 'kroiFund',
+      relationship: 'The spring girl offers a thirsty stranger water and lets the player enact ordinary sacred hospitality.',
+    },
     location: { status: 'walking', route: ['kroi1'] },
   },
   krushqit: {
@@ -59,6 +75,10 @@ export default {
     role: 'the wedding train, riding the bride in',
     backstory: 'An old dasma runs for days and the riding never stops: the krushqit go out over the tanners\' bridge and bring the bride in on horseback, up through the river quarter to the square and the long feast.',
     folklore: ['dasma'],
+    loreAnchor: {
+      folklore: 'dasma', scene: 'dasmaFund',
+      relationship: 'The wedding party carries the bride through the village and opens the playable wedding celebration.',
+    },
     location: { status: 'walking', route: ['start', 'fshatiLumi', 'fshatiSheshi', 'dasma1'] },
   },
   plakaPyllit: {
@@ -70,6 +90,10 @@ export default {
     role: 'the cold old woman of the night forest',
     backstory: 'At nightfall she comes out of the deep wood to the road-end clearing; a burning fire draws her to sit, and the guest arc opens. The tales hold she is an Ora in an old woman\'s shape — wait beside her too long and she may prove a Shtriga instead. NOT the crossroads crone (plakaUdhekryqit) — this one never leaves the trees.',
     folklore: ['ora', 'shtriga'],
+    loreAnchor: {
+      folklore: 'ora', scene: 'lendina',
+      relationship: 'The cold forest guest gives the night-fire encounter its uncertain Ora-or-Shtriga danger.',
+    },
     location: { status: 'walking', route: ['pylliLoop', 'lendina'] },
   },
   xhindet: {
@@ -80,7 +104,11 @@ export default {
     },
     role: 'the unseen ones of the dark hours',
     backstory: 'Out of the dry well\'s mouth after dark, across the sleeping square and river quarter to the mill, then back before light. The village never sees them; a night-walking stranger might.',
-    folklore: ['xhindet'],
+    folklore: ['xhindi'],
+    loreAnchor: {
+      folklore: 'xhindi', scene: 'xhindMulliFund',
+      relationship: 'The night walkers lead from the dry well to the mill and into the Xhindi tradition enacted there.',
+    },
     location: { status: 'walking', route: ['pusiThate', 'fshatiSheshi', 'fshatiLumi', 'mulli1'] },
   },
   plakuSheshit: {
@@ -92,6 +120,10 @@ export default {
     role: 'the old man of the square — and the oda\'s evening host',
     backstory: 'He keeps a fixed day you can set a clock by: mornings on the square watching the dry well, every evening in the oda among the men. The oda\'s welcome, the travellers\' tales, the long nights of the lahutë — his hearth hosts them all.',
     folklore: ['mikpritja-oda'],
+    loreAnchor: {
+      folklore: 'mikpritja-oda', scene: 'oda1',
+      relationship: 'The square elder becomes the evening oda host through whom hospitality, law and sung stories are shared.',
+    },
     location: { status: 'walking', route: ['fshatiSheshi', 'oda1'] },
   },
   bari: {
@@ -103,6 +135,10 @@ export default {
     role: 'the shepherd of the village flock',
     backstory: 'At the homes around first light, out at the pasture with the goats through the working day (his guard-the-flock wage lives there), home again at dusk.',
     folklore: ['stani'],
+    loreAnchor: {
+      folklore: 'stani', scene: 'bariu',
+      relationship: 'The shepherd gives the player ordinary flock work inside the seasonal life of the mountain pasture.',
+    },
     location: { status: 'walking', route: ['fshatiJeta', 'bariu'] },
   },
   femijet: {
@@ -113,7 +149,11 @@ export default {
     },
     role: 'the children with the rain-child',
     backstory: 'They roam between the square and the back lanes with their dordolec rain-game — help them wherever you catch them.',
-    folklore: ['dordoleci'],
+    folklore: ['dodola'],
+    loreAnchor: {
+      folklore: 'dodola', scene: 'dordolecFund',
+      relationship: 'The children invite the player into the leaf-dressed Dodola rain-calling rite rather than merely describing it.',
+    },
     location: { status: 'walking', route: ['fshatiSheshi', 'fshatiLanes'] },
   },
 
@@ -123,6 +163,10 @@ export default {
     role: 'the old woman at the gate of Aga Ymer\'s kulla',
     backstory: 'She keeps the gate of the tower where, in the village\'s prose telling, Aga Ymer\'s wife waited nine years and nine days. She has watched one faith kept to its exact sworn deadline; she does not expect yours to be shorter.',
     folklore: ['aga-ymer'],
+    loreAnchor: {
+      folklore: 'aga-ymer', scene: 'plaka',
+      relationship: 'The gatekeeper stands at Aga Ymer’s own kulla and opens the village telling of his exact nine-year promise.',
+    },
     location: { status: 'placed', node: 'plaka' },
   },
   agaYmer: {
@@ -130,6 +174,10 @@ export default {
     role: 'the man who came back after nine years and nine days',
     backstory: 'Married one night before the Sultan\'s war-letter reached him, he fought, lost his horse, took a wound, and was held prisoner in a foreign king\'s land for a ransom his own Sultan never sent. This village arc follows Kuteli\'s prose telling: his wife waits exactly nine years and nine days. The separately recorded sung Ulcinj ballad followed by “Kostandini i Vogël” gives a three-year vow; these are named variants, not one blurred chronology. Freed on nothing but his sworn word, he rode home the very day his wife was to be remarried, was known by the scar on his arm, then rode straight back into the captor\'s cell; the astonished king freed him outright. The kulla in the back lanes is his. NOT Gjergj Elez Alia (bregu) and NOT the dead brother of Constantine and Doruntine — a living captive\'s ransom-word, not a dead brother\'s besa sworn to the grave.',
     folklore: ['aga-ymer', 'besa'],
+    loreAnchor: {
+      folklore: 'aga-ymer', scene: 'agaYmer1',
+      relationship: 'Aga Ymer is the returned husband at the centre of the playable promise-and-return legend.',
+    },
     location: { status: 'placed', node: 'agaYmer1' },
     tales: { 'aga-ymer': 'ymer', 'kostandini-i-vogel': 'agaYmer' },
   },
@@ -137,28 +185,44 @@ export default {
     name: 'tregtari', glyph: '⚖️', kind: 'human',
     role: 'the merchant of the surface Gjakova pazar stall',
     backstory: 'Bread, salt, a lahutë on the wall, and a fair price for mountain tea — Gjakova\'s standing trade outside the cavern. He buys what the roads bring and sells what the roads need.',
-    folklore: [],
+    folklore: ['lahuta-cifteli', 'plisi', 'xhubleta'],
+    loreAnchor: {
+      folklore: 'lahuta-cifteli', scene: 'blerjaLahuta',
+      relationship: 'The merchant puts a lahutë into the traveller’s hands and sends its songs of heroes back onto the road.',
+    },
     location: { status: 'placed', node: 'tregtari' },
   },
   sheruesi: {
     name: 'sheruesi', glyph: '🌿', kind: 'human',
     role: 'the healer of living surface Gjakova',
     backstory: 'Outside the cavern, in living Gjakova, a healer keeps herbs for travellers and townspeople. Ask, pay, be whole; the dead city below has no healer and no inhabitants.',
-    folklore: [],
+    folklore: ['besime-popullore'],
+    loreAnchor: {
+      folklore: 'besime-popullore', scene: 'besimeFund',
+      relationship: 'The healer distinguishes practical care from the small household signs and sayings the player can ask to hear.',
+    },
     location: { status: 'placed', node: 'sheruesi' },
   },
   bujtinari: {
     name: 'bujtinari', glyph: '🛏️', kind: 'human',
     role: 'the innkeeper of the surface Gjakova bujtina',
     backstory: 'A bed for the night, coffee with the guest, a fortune read in the cup — his inn serves travellers in living Gjakova, outside the cavern whose ancient city below has no inhabitants.',
-    folklore: [],
+    folklore: ['fall-kafeja', 'mikpritja-oda'],
+    loreAnchor: {
+      folklore: 'fall-kafeja', scene: 'fallFund',
+      relationship: 'The innkeeper serves coffee, turns the cup and performs the social fortune-reading tradition with the player.',
+    },
     location: { status: 'placed', node: 'bujtina' },
   },
   kostandini: {
     name: 'Kostandini', glyph: '🐎', kind: 'mythic',
     role: 'the dead rider who kept his besa',
     backstory: 'He promised his mother he would bring his sister home, and the grave did not excuse him: Kostandin i vdekur rode by night with Doruntina behind him, and lay back down when the word was kept. His stone stands by the church.',
-    folklore: ['kostandin-doruntina', 'besa'],
+    folklore: ['constantine-doruntine', 'besa'],
+    loreAnchor: {
+      folklore: 'constantine-doruntine', scene: 'kostandin2',
+      relationship: 'The dead rider is encountered at his church stone as the brother who kept his promise beyond death.',
+    },
     location: { status: 'placed', node: 'kostandin2' },
   },
 

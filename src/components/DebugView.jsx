@@ -1203,6 +1203,14 @@ function Npcs({ focus, goWorld, goLore, goBeats }) {
                     <span className="dbg-npc-plan">📋 {n.location.plan}</span>
                   )}
                 </div>
+                {n.loreAnchor && (
+                  <div className="dbg-lore-ends dbg-related">
+                    <span className="dbg-lore-ends-label">lore anchor:</span>
+                    <NodeChip node={n.loreAnchor.scene} label={`🧭 ${n.loreAnchor.scene}`} goWorld={goWorld}
+                              title="open the reviewed player-facing lore beat" intro={`📖 ${n.name} — ${n.loreAnchor.relationship}`} />
+                    <span>{n.loreAnchor.relationship}</span>
+                  </div>
+                )}
                 {(n.folklore?.length > 0 || n.tales) && (
                   <div className="dbg-lore-ends dbg-related">
                     <span className="dbg-lore-ends-label">appears in:</span>

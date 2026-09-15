@@ -57,7 +57,7 @@ export default {
     role: 'the fierce trio who guard the golden-horned goats of the Green Valleys',
     backstory:
       'Three "zana t\'idhta" — bitter, fierce zanas — who take their rest by turns in the shady meadows of the high pasture above Jutbina and turn to stone anyone who lingers there to sing, revel, or sleep. Their entire power is hidden in three wild goats with horns of gold ducats, kept in the hidden Green Valleys beyond a lightless beech gorge: catch the goats, and the zanas\' own strength drains away to nothing. Hostile on first meeting — unlike the gentler cradle-mother PAIR of mujo-strength\'s zanatShkembit, met by night and quick to reward a kindness — this trio yields to Mujo only when he holds their goats hostage, and swears him a besa in the end. NOT Zana e lumit (the single named Zana of the game\'s own river, zana1) — a different triad entirely, met only on this one mountainside.',
-    folklore: ['zana', 'mujo-zanas'],
+    folklore: ['zana-e-malit', 'mujo-zanas'],
     location: { status: 'planning', plan: 'their own shady meadows in the Green Valleys, when the Mujo-and-zanas tale becomes playable' },
     tales: { 'mujo-zanas': 'zanat' },
   },
@@ -66,7 +66,7 @@ export default {
     role: 'the youngest of the three — the only merciful voice among them',
     backstory:
       'The youngest of the trio at the Green Valleys, and the one crack of mercy in an otherwise fierce sisterhood: when her sisters spring to freeze the captive bride for asking after their power, she alone steps between them and talks them down, then lets the secret of the golden-horned goats slip. Later, when Mujo refuses to trade the goats for anything, she is the one who breaks from her sisters, wipes her own tears in the hair of her brow, takes his hand, and swears him a besa — safe passage forever after in bride-winning, in war with a Baloz, in revelry on their own pastures. Bound now by her own sworn word, she sings the besa\'s fulfillment hand in hand with the eldest zana at the tale\'s close.',
-    folklore: ['zana', 'mujo-zanas'],
+    folklore: ['zana-e-malit', 'mujo-zanas'],
     location: { status: 'planning', plan: 'among her sisters in the Green Valleys, when the Mujo-and-zanas tale becomes playable' },
     tales: { 'mujo-zanas': 'zanaVogel' },
   },
@@ -75,7 +75,7 @@ export default {
     role: 'Mujo\'s younger brother — the kreshnik cycle\'s second hero',
     backstory:
       'Mujo\'s younger brother — the "djali" (the youngster) Mujo calls on by name the instant the little zana\'s besa is sworn, to open the pen and set the golden-horned goats free. The wider cycle (Kângë Kreshnikësh) knows him as Sokol Halili, Mujo\'s constant second — the one who later rides alone into the Krajl\'s land to free his captured brother, wins his own bride, and is avenged by Mujo in turn — but none of that is staged in this song, which only needs him standing at Jutbina, ready to his brother\'s word. NOT a fresh core figure: two sibling tales (halil-marriage, mujo-avenges-halil) already keep their own `halili` registry entries for their own fuller portraits — this one is kept separately (as `haliliZanas`) rather than colliding with either.',
-    folklore: ['muji-halili', 'mujo-zanas'],
+    folklore: ['kreshnik-epic', 'mujo-zanas'],
     location: { status: 'planning', plan: 'Mujo\'s goat pen in Jutbina, when the Mujo-and-zanas tale becomes playable' },
     tales: { 'mujo-zanas': 'halili' },
   },

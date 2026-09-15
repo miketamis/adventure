@@ -15,7 +15,7 @@ export default {
     backstory: 'The lord of the castle above the bazaar. His friendship is a gift that costs: he lends and expects, tests and takes offence, and Nastradin must out-think the powerful without ever seeming to. The Vezir is the straight man the joke is built against.',
     folklore: ['nastradin'],
     location: { status: 'planning', plan: 'rules the Vezir\'s fortress (reuses kala1); the bazaar sits under his walls — staged when the Nastradin cycle is built' },
-    tales: { 'nastradin': 'veziriKalase' },
+    tales: { 'nastradin': 'veziri' },
   },
   gjindjaPazarit: {
     name: 'gjindja e pazarit', glyph: '👥', kind: 'collective',
@@ -23,7 +23,7 @@ export default {
     backstory: 'The townsfolk under the fortress who witness each of Nastradin\'s turns and always ask the one question that lets him land the punchline. They are the chorus of the anecdote cycle — the reason a private joke becomes a proverb.',
     folklore: ['nastradin'],
     location: { status: 'planning', plan: 'the proposed bazaar under the castle (near kala1); the same pazar the tregtari trades in — staged when the cycle is built' },
-    tales: { 'nastradin': 'gjindjaPazarit' },
+    tales: { 'nastradin': 'gjindja' },
   },
   treZotnit: {
     name: 'tre zotnitë', glyph: '💰', kind: 'collective',

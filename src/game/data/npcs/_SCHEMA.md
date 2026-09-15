@@ -17,6 +17,15 @@ npcId: {
               agree with this. Note distinctions from similar figures
               ("NOT the forest crone — this one keeps the crossroads").',
   folklore: ['lore-card-ids'],
+  // Required for each standing village NPC. This pins the particular
+  // player-reachable scene where that person embodies, introduces or carries
+  // the listed tradition; a loose tag without a lived story beat is not
+  // enough. Tale-owned casts use their validated tale/cast link instead.
+  loreAnchor: {
+    folklore: 'primary-lore-card-id',
+    scene: 'reachableStoryNodeId',
+    relationship: 'how this person makes that tradition present in play',
+  },
   // Required for every recurring runtime NPC. A proper name that the player
   // can learn is discoverable; a role, title or collective that is apparent
   // from the encounter is known by context. Discoverable identities require

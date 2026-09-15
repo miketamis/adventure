@@ -5180,6 +5180,7 @@ export const STORY = {
     text: [
       L(w('nje'), w('gjarper'), w('i_art'), w('madh'), w('rri'), w('ketu'), p(','), w('i_art'), w('qete'), wf('si', 'si', 'as'), w('gur'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('ka'), w('zjarr'), p(':'), w('e_obj'), w('nxjerr'), w('nga'), wf('goje', 'goja', 'the mouth'), p('.')),
+      L(wf('gjarper', 'gjarpri', 'the serpent'), w('ruan'), wf('rruge', 'rrugën', 'the road'), w('per'), wf('kulshedra', 'kulshedrën', 'the she-dragon'), p('.')),
     ],
     options: [
       { text: L(w('lufto'), wf('gjarper', 'gjarprin', 'the serpent')), requires: 'shpate', to: 'bota2', reveal: 'gjarper', revealOccurrence: 2 },

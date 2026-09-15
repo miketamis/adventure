@@ -10,7 +10,7 @@ export default {
     role: 'the two mountain-fairy mothers of the cradle-cliff',
     backstory:
       'A pair of Zana, white as moonlight, whose twin infants lay crying in cradles by a boulder on the high pastures above Jutbina — met once, the night young Mujo (still an unknown cowherd) stopped to rock the children to sleep. In thanks they nursed him themselves, milk-drop by milk-drop, until he could shoulder a thousand-okë stone, then bound him their probatin (blood brother) forever after. NOT the single named Zana of the game\'s own river (zana1, "Zana e lumit") and NOT the larger unnamed troupe who dance and sing for travellers in the garden above Jutbina (binoshet\'s kopshtiZanave) — this is one specific PAIR, mothers first, met only this once, and never again staged.',
-    folklore: ['zana', 'mujo-strength'],
+    folklore: ['zana-e-malit', 'mujo-strength'],
     location: { status: 'placed', node: 'mujiZana1' },
     tales: { 'mujo-strength': 'zanat' },
   },

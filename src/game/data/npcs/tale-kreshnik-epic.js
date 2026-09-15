@@ -54,7 +54,7 @@ export default {
     role: "the mountain zanas who nursed Mujo his strength — his sworn blood-sisters",
     backstory:
       "Presumed the same zanas who once nursed the boy Mujo three drops of milk at a time and bound him their probatin (blood-kin) at a cliffside cradle — the song Fuqija e Mujit tells it in full, and it is that very oath Mujo calls in on now, chained in a locked room across the frontier: \"I've been captured, sister zanas... take word to Halili.\" They hear his lahutë carry clean over the mountains, and keep the old bargain: whenever he is pressed, they come — even if, this once, it only means waking his brother. A separate registry entry from mujo-strength's own zanatShkembit only because each tale keeps its own file under this schema; nothing here contradicts that earlier telling.",
-    folklore: ['kreshnik-epic', 'mujo-strength', 'zana'],
+    folklore: ['kreshnik-epic', 'mujo-strength', 'zana-e-malit'],
     location: { status: 'placed', node: 'mujiZana1' },
     tales: { 'kreshnik-epic': 'zanat' },
   },

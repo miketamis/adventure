@@ -60,7 +60,7 @@ export default {
     role: 'the zanas who answer Mujo\'s old blood-oath',
     backstory:
       'The wider host of mountain-fairies Mujo bound himself to as their probatin (blood brother) the night they nursed him his strength — sworn to come whenever he is "pressed." This is that oath\'s first payment: three of them see Halili surrounded in the cave and fly at once to Mujo\'s bedside, shame him awake, bind his wounds, and send him to break the siege. NOT `zanatShkembit`, the one specific PAIR of cradle-mothers met just once at the cliff and never restaged — this is the broader sisterhood their gratitude opened the door to, called on this one time the debt comes due.',
-    folklore: ['mujo-avenges-halil', 'zana', 'mujo-strength'],
+    folklore: ['mujo-avenges-halil', 'zana-e-malit', 'mujo-strength'],
     location: { status: 'placed', node: 'mali1' },
     tales: { 'mujo-avenges-halil': 'zanat' },
   },

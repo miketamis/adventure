@@ -8,6 +8,7 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { STORY, lineOf } from '../src/game/content.js'
 import { embodimentQuest } from '../src/game/embodiment.js'
+import { ENDING_LORE, FOLKLORE } from '../src/game/folklore.js'
 import { NPCS as LIVE_NPCS } from '../src/game/npcs.js'
 import { coverageOf } from '../src/game/taleLib.js'
 import {
@@ -56,6 +57,7 @@ const dispositionCounts = {
 }
 const proposedPlaceKeys = new Set()
 const ALBANIAN_SOURCE_STATUSES = new Set(['missing', 'located', 'transcribed'])
+const FOLKLORE_IDS = new Set(FOLKLORE.map((entry) => entry.id))
 
 // A projection claim must at least sit on an authored choice route from the
 // declared threshold. Runtime role/item/time gates are exhaustively exercised
@@ -76,6 +78,22 @@ const reachableProjectionScenes = (from) => {
     }
   }
   return nodes
+}
+
+const distanceToScene = (starts, target) => {
+  const queue = [...new Set(starts)].map((nodeId) => [nodeId, 0])
+  const seen = new Set(queue.map(([nodeId]) => nodeId))
+  while (queue.length) {
+    const [nodeId, distance] = queue.shift()
+    if (nodeId === target) return distance
+    if (STORY[nodeId]?.end) continue
+    for (const option of STORY[nodeId]?.options || []) {
+      if (option.confuser || !STORY[option.to] || seen.has(option.to)) continue
+      seen.add(option.to)
+      queue.push([option.to, distance + 1])
+    }
+  }
+  return null
 }
 
 for (const [id, tale] of Object.entries(TALES)) {
@@ -348,13 +366,62 @@ console.log(`✅ proposed-place dispositions: ${dispositionCounts.places.justifi
 console.log('✅ projection reviews: every omission and proposed place keeps a current, unique context digest')
 
 // 4. registry sanity
+let loreLinkedNpcs = 0
 for (const [nid, npc] of Object.entries(NPC_REGISTRY)) {
   const loc = npc.location
   if (!loc) { bad(`npc ${nid}: no location`); continue }
   if (loc.status === 'placed' && !STORY[loc.node]) bad(`npc ${nid}: placed at unknown node "${loc.node}"`)
   if (loc.status === 'walking' && (loc.route || []).some((n) => !STORY[n])) bad(`npc ${nid}: route has unknown nodes`)
   if (loc.status === 'planning' && !loc.plan) bad(`npc ${nid}: planning but no plan`)
+
+  const folkloreIds = npc.folklore || []
+  if (new Set(folkloreIds).size !== folkloreIds.length) bad(`npc ${nid}: duplicate folklore link`)
+  for (const folkloreId of folkloreIds) {
+    if (!FOLKLORE_IDS.has(folkloreId)) bad(`npc ${nid}: unknown folklore card "${folkloreId}"`)
+  }
+
+  const claimedTales = Object.entries(npc.tales || {})
+  for (const [taleId, castId] of claimedTales) {
+    const tale = TALES[taleId]
+    if (!tale) { bad(`npc ${nid}: claims unknown tale "${taleId}"`); continue }
+    const cast = (tale.cast || []).find((member) => member.id === castId)
+    if (!cast) bad(`npc ${nid}: claims missing cast role ${taleId}.${castId}`)
+    else if (cast.npc && cast.npc !== nid) bad(`npc ${nid}: claims ${taleId}.${castId}, assigned to ${cast.npc}`)
+  }
+  const castTales = Object.entries(NPC_OF_CAST)
+    .filter(([, cast]) => Object.values(cast).includes(nid))
+    .map(([taleId]) => taleId)
+  if (!folkloreIds.length && !castTales.length) bad(`npc ${nid}: no folklore card or tale-cast relationship`)
+  else loreLinkedNpcs += 1
+
+  // Standing village people need a concrete, nearby playable beat—not merely
+  // a plausible library tag. Tale-owned casts get this evidence from their
+  // validated source timeline; placed mythic figures embody their own card.
+  if ((npcDefs[nid] || []).includes('core-village.js')) {
+    const anchor = npc.loreAnchor
+    if (!anchor) { bad(`npc ${nid}: standing village NPC has no reviewed lore anchor`); continue }
+    if (!folkloreIds.includes(anchor.folklore)) {
+      bad(`npc ${nid}: lore anchor ${anchor.folklore} is absent from its folklore links`)
+    }
+    if (!FOLKLORE_IDS.has(anchor.folklore)) bad(`npc ${nid}: lore anchor names unknown card "${anchor.folklore}"`)
+    if (!STORY[anchor.scene]) bad(`npc ${nid}: lore anchor names unknown scene "${anchor.scene}"`)
+    if ((anchor.relationship || '').length < 60) bad(`npc ${nid}: lore-anchor relationship is too thin`)
+    const starts = [loc.node, ...(loc.route || []), ...(loc.encounters || [])].filter(Boolean)
+    const distance = STORY[anchor.scene] ? distanceToScene(starts, anchor.scene) : null
+    if (distance === null || distance > 4) {
+      bad(`npc ${nid}: lore anchor ${anchor.scene} is not within four choices of the NPC's real location`)
+    }
+    if (STORY[anchor.scene]?.end && ENDING_LORE[anchor.scene] !== anchor.folklore) {
+      bad(`npc ${nid}: ending ${anchor.scene} resolves to ${ENDING_LORE[anchor.scene] || 'no lore card'}, not ${anchor.folklore}`)
+    }
+  }
 }
+
+const gateSerpentLoreLine = STORY.gjarpri?.text?.some((entry) => {
+  const ids = new Set(lineOf(entry).map((token) => token.id).filter(Boolean))
+  return ['gjarper', 'ruan', 'rruge', 'kulshedra'].every((id) => ids.has(id))
+})
+if (!gateSerpentLoreLine) bad('npc gjarpri: encounter no longer establishes that the serpent guards the road for the Kulshedra')
 // The research/debug registry is player-visible documentation of the moving
 // figures whose actual clock routes live in game/npcs.js. Compare the exact
 // set of stops (runtime arrays repeat dwell nodes) so neither surface can
@@ -383,7 +450,7 @@ for (const [nid, live] of Object.entries(LIVE_NPCS)) {
 for (const [id, files] of Object.entries(npcDefs)) {
   if (files.length > 1) bad(`npc id "${id}" defined in ${files.length} files (${files.join(', ')}) — glob-merge silently keeps one; rename the distinct figures or consolidate the shared one`)
 }
-console.log(`✅ NPC registry: ${Object.keys(NPC_REGISTRY).length} entries, locations and all ${Object.keys(LIVE_NPCS).length} live clock routes valid`)
+console.log(`✅ NPC registry: ${Object.keys(NPC_REGISTRY).length} entries, ${loreLinkedNpcs} lore-linked, locations and all ${Object.keys(LIVE_NPCS).length} live clock routes valid`)
 
 // cross-tale shared anchors — not an error, but every share needs compatible molds
 const byNode = {}
