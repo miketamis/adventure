@@ -21,13 +21,14 @@ const deepFreeze = (value) => {
 }
 
 export const TRAIN_CANDIDATE_CONTRACT = deepFreeze({
-  version: 1,
+  version: 2,
   sourceOfTruth: 'fully buildable questions emitted by production exercise builders',
   selectionBoundary: 'builders enumerate; the shared planner selects; only the selected proposal materializes',
   requiredDimensions: [
     'familyId',
     'activityTypeId',
     'targetKeys',
+    'rewardIds',
     'wordKeys',
     'aspectIds',
     'evidenceTrack',
@@ -120,6 +121,12 @@ const aspectIdsForQuestion = (question) => [...new Set((question?.aspectTargets 
   .map((target) => target?.aspectId)
   .filter(Boolean))]
 
+const rewardIdsForQuestion = (question) => [...new Set([
+  ...(question?.rewardIds || []),
+  ...(question?.wordIds || []),
+  ...(question?.answerId ? [question.answerId] : []),
+].filter(Boolean))]
+
 const evidenceTrackForQuestion = (question) => safeId(
   question?.evidenceTrack || question?.skill || question?.debugSelection?.selected?.plan?.evidenceTrack,
   question?.kind === 'word-match' ? 'word-matching' : 'unknown',
@@ -166,6 +173,7 @@ export function createTrainCandidateProposal({ question, route, nowMs = 0 } = {}
   const activityTypeId = trainActivityTypeId(question)
   const targetKeys = trainQuestionTargetKeys(question)
   const wordKeys = trainQuestionWordKeys(question)
+  const rewardIds = rewardIdsForQuestion(question)
   const aspectIds = aspectIdsForQuestion(question)
   const adaptation = selectedAdaptation(question)
   const temporal = selectedTemporal(question)
@@ -175,6 +183,7 @@ export function createTrainCandidateProposal({ question, route, nowMs = 0 } = {}
     familyId: familyForQuestion(question, route),
     activityTypeId,
     targetKeys,
+    rewardIds,
     wordKeys,
     aspectIds,
     evidenceTrack: evidenceTrackForQuestion(question),
@@ -196,7 +205,7 @@ export function createTrainCandidateProposal({ question, route, nowMs = 0 } = {}
       modelId: adaptation?.modelId || null,
     },
     outcomeDeltas: {
-      correct: { clearsRemediationFor: targetKeys, advancesRound: 1 },
+      correct: { clearsRemediationFor: targetKeys, awardsTokensFor: rewardIds, advancesRound: 1 },
       miss: { schedulesRemediationFor: targetKeys, afterDisjointRounds: 1, advancesRound: 1 },
     },
   }

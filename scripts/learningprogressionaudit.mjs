@@ -46,6 +46,11 @@ import {
   TRAIN_CANDIDATE_CONTRACT,
   enumerateTrainActivityCandidates,
 } from '../src/game/trainCandidateContract.js'
+import {
+  TRAIN_FUTURE_PLANNER_POLICY,
+  initialTrainPlanningState,
+  planTrainFuture,
+} from '../src/game/trainFuturePlanner.js'
 import { wordProgressionOptionsForSense } from '../src/game/formInventory.js'
 import {
   WORD_CONTEXT_EXERCISE_CONCEPT,
@@ -524,6 +529,40 @@ check('the shared candidate contract exhaustively exposes buildable targets befo
       assert.notEqual(proposal[dimension], undefined, `${proposal.candidateId} omitted ${dimension}`)
     }
   }
+})
+
+check('the registered scheduler plans correct and miss continuations with dynamic programming', () => {
+  const makeProposal = (id, wordKeys) => ({
+    candidateId: id,
+    route: 'word',
+    familyId: 'word-meaning',
+    activityTypeId: 'word-meaning:four-choice-meaning',
+    targetKeys: [`word:${id}`, `surface:${id}`],
+    wordKeys,
+    aspectIds: ['lexical-meaning-recognition'],
+    evidenceTrack: 'recognition',
+    modality: 'choice',
+    difficulty: { tier: 0, label: 'meaning recognition', variantId: 'four-choice-meaning' },
+    remediation: false,
+    urgency: { forgettingRisk: 0 },
+    buildabilityCertificate: { valid: true },
+  })
+  const trap = makeProposal('trap', ['b', 'c'])
+  const b = makeProposal('b', ['b'])
+  const c = makeProposal('c', ['c'])
+  const future = planTrainFuture({
+    proposals: [trap, b, c],
+    planningState: initialTrainPlanningState(),
+    seed: 'learning-progression-audit',
+    maximumDepth: 3,
+    maximumMilliseconds: 1000,
+    maximumStates: 10000,
+  })
+  assert.equal(TRAIN_FUTURE_PLANNER_POLICY.maximumDepth, 24)
+  assert.notEqual(future.candidate.candidateId, 'trap')
+  assert.equal(future.plan.length, 2)
+  assert.ok(future.outcomePlans.correct)
+  assert.ok(future.outcomePlans.miss)
 })
 
 check('tested targets rotate by exact sense and shared Albanian spelling', () => {
