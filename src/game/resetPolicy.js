@@ -4,6 +4,7 @@
 
 const TRAINING_SESSION_DEFAULTS = Object.freeze({
   practiceTarget: null,
+  trainGoalSession: null,
   trainLastWords: Object.freeze([]),
   trainLastQuestionKey: null,
   pendingHeartConsequence: null,

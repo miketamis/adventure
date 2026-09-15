@@ -50,6 +50,7 @@ export const TRAIN_CANDIDATE_ENUMERATION_POLICY = deepFreeze({
     strategy: 'bounded diverse board proposals because the complete board combination space is exponential',
     maximumProposals: 8,
   },
+  actionGoalEmergency: 'the eighth-activity guarantee may enumerate a still-locked-by-spacing word stage early, but never bypasses reviewed content or the consecutive-word boundary',
   deterministicSeed: 'learner scheduling state plus stable candidate identity',
   rejectionAccounting: 'every builder miss is counted by family and target in the debug-only enumeration trace',
 })
@@ -273,6 +274,7 @@ export function enumerateTrainActivityCandidates({
   state,
   discoveredIds = [],
   unlockedPhrases = [],
+  forceGoalTargetIds = [],
   nowMs = 0,
   debugTrace = false,
 } = {}) {
@@ -284,6 +286,7 @@ export function enumerateTrainActivityCandidates({
     targetHistory: state?.trainTargetHistory || [],
   })
   const proposals = []
+  const forcedGoalTargets = new Set(forceGoalTargetIds || [])
   const seenCandidateIds = new Set()
   const trace = {
     contract: TRAIN_CANDIDATE_CONTRACT,
@@ -316,6 +319,7 @@ export function enumerateTrainActivityCandidates({
       currentRound,
       nowMs,
       targetId: id,
+      allowEarlyDueForGoal: forcedGoalTargets.has(id),
       rng: seededTrainRng(`${seed}|word|${id}`),
       debugTrace: true,
     }), 'word', id)

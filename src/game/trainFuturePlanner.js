@@ -41,6 +41,7 @@ export const TRAIN_FUTURE_PLANNER_POLICY = deepFreeze({
     'phrase target cannot repeat its preceding phrase activity',
     'exact-word and shared-surface cooldowns',
     'remediation may return only after a disjoint round',
+    'a missing story-action word receives a token opportunity within every eight completed activities',
   ],
   lexicographicObjectives: [
     'shortest safe completion of the requested story action within its grind budget',
@@ -127,15 +128,18 @@ export function trainCandidateEligibility(state, proposal) {
   const targetStatus = targetPlan?.candidates?.[0]?.status || null
   const targetDecision = targetPlan?.candidates?.[0] || null
   const contributesToGoal = intersects(proposal?.rewardIds, state.goalRemaining)
+  const goalEmergency = state.goalRemaining.length > 0 &&
+    state.goalMaximumDiversionRounds > 0 &&
+    state.goalDiversionsUsed >= state.goalMaximumDiversionRounds
   const goalBridgeReady = contributesToGoal &&
     targetDecision?.exactWordInterveningTargets >= TRAIN_ACTION_GOAL_POLICY.minimumInterveningActivities &&
     targetDecision?.surfaceInterveningTargets >= TRAIN_ACTION_GOAL_POLICY.minimumInterveningActivities
   if (targetStatus === 'rejected-previous-phrase-activity') reasons.push('repeats-previous-phrase-target')
-  if (targetStatus === 'rejected-target-cooldown' && !goalBridgeReady) reasons.push('target-cooldown')
+  if (targetStatus === 'rejected-target-cooldown' && !goalBridgeReady && !goalEmergency) reasons.push('target-cooldown')
   if (
     state.goalRemaining.length &&
     state.goalMaximumDiversionRounds > 0 &&
-    state.goalDiversionsUsed >= state.goalMaximumDiversionRounds &&
+    goalEmergency &&
     !contributesToGoal
   ) reasons.push('goal-grind-budget-exhausted')
 
@@ -145,7 +149,8 @@ export function trainCandidateEligibility(state, proposal) {
     targetStatus,
     projectedRemediation: projectedRemediation(state, proposal),
     goalContribution: contributesToGoal,
-    goalCooldownOverride: targetStatus === 'rejected-target-cooldown' && goalBridgeReady,
+    goalEmergency,
+    goalCooldownOverride: targetStatus === 'rejected-target-cooldown' && (goalBridgeReady || goalEmergency),
   }
 }
 
@@ -162,7 +167,7 @@ export function eligibleTrainCandidates(state, proposals) {
 
 export function transitionTrainPlanningState(state, proposal, outcome) {
   const correct = outcome === 'correct'
-  const advancesGoal = correct && intersects(proposal.rewardIds, state.goalRemaining)
+  const offersGoalToken = intersects(proposal.rewardIds, state.goalRemaining)
   const nextPending = []
   for (const pending of state.pendingRemediations) {
     if (correct && intersects(pending.targetKeys, proposal.targetKeys)) continue
@@ -188,7 +193,7 @@ export function transitionTrainPlanningState(state, proposal, outcome) {
       ? state.goalRemaining.filter((id) => !(proposal.rewardIds || []).includes(id))
       : state.goalRemaining,
     goalMaximumDiversionRounds: state.goalMaximumDiversionRounds,
-    goalDiversionsUsed: advancesGoal ? 0 : state.goalDiversionsUsed + 1,
+    goalDiversionsUsed: offersGoalToken ? 0 : state.goalDiversionsUsed + 1,
   })
 }
 

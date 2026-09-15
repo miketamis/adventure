@@ -99,6 +99,14 @@ const resettableAttemptFixture = (profile) => ({
   hearts: 0,
   view: 'practice',
   practiceTarget: { kind: 'option', nodeId: START_NODE, optionIndex: 0 },
+  trainGoalSession: {
+    policyVersion: 2,
+    target: { kind: 'option', nodeId: START_NODE, optionIndex: 0 },
+    startedAtRound: 30,
+    completedRounds: 2,
+    progressRounds: 1,
+    activitiesSinceGoalOpportunity: 1,
+  },
   trainLastWords: ['po', 'shkoj', 'në', 'fshat'],
   trainLastQuestionKey: 'audit:open-question',
   trainActivityHistory: ['phrase:cloze', 'word:matching-board'],
@@ -158,6 +166,7 @@ check('reset policy categories are explicit, disjoint, and consumed by their hel
   ].sort())
   const cleared = clearStoryRunTrainingSession(source)
   assert.equal(cleared.practiceTarget, null)
+  assert.equal(cleared.trainGoalSession, null)
   assert.deepEqual(cleared.trainLastWords, [])
   assert.equal(cleared.trainLastQuestionKey, null)
   assert.equal(cleared.pendingHeartConsequence, null)

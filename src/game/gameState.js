@@ -39,6 +39,12 @@ import {
 } from './learningTelemetry.js'
 import { phraseProductionFocusIds, phraseSurfaceWordKeys } from './phraseFocus.js'
 import { normalizeTrainingTarget, resolveTrainingTarget } from './trainingTarget.js'
+import {
+  beginTrainActionGoalSession,
+  normalizeTrainActionGoalSession,
+  recordTrainActionGoalRound,
+  trainActionGoalEmergencyTargetIds,
+} from './trainActionGoal.js'
 import { TRAIN_WORD_FORM_POLICY } from './trainingProgression.js'
 import {
   latestTrainTargetEntry,
@@ -1464,6 +1470,7 @@ export function normalizeSavedState(saved, fresh) {
   next.practiceTarget = next.view === 'practice'
     ? normalizeTrainingTarget(saved.practiceTarget, next.nodeId)
     : null
+  next.trainGoalSession = normalizeTrainActionGoalSession(saved.trainGoalSession, next)
   return reconcileLearnerEvidence(next)
 }
 
@@ -1521,6 +1528,7 @@ function baseRun() {
     worldFacts: {}, // lasting changes caused by completed tales (rain, restored water, spared places)
     view: 'story', // 'story' | 'practice' | 'dictionary' | 'map' | 'endings' | 'guide'
     practiceTarget: null, // exact story option whose Train button opened practice
+    trainGoalSession: null, // bounded progress/diversion ledger for that exact hand-off
     ended: null, // null | 'good' | 'bad' | 'secret'
     embodying: null, // explicit tale-role contract; kept through its ending screen
     embodimentOriginNode: null, // overworld threshold where the role began
@@ -2026,7 +2034,12 @@ export function reducer(state, action) {
       // Accept only the same state in which Story renders its Train control:
       // every word is known, but at least one required token is still missing.
       if (state.view !== 'story' || !option || !speech?.allDiscovered || speech.enoughMana) return state
-      return { ...state, view: 'practice', practiceTarget }
+      return {
+        ...state,
+        view: 'practice',
+        practiceTarget,
+        trainGoalSession: beginTrainActionGoalSession(state, practiceTarget),
+      }
     }
 
     case 'REQUEST_EMBODIMENT': {
@@ -2082,6 +2095,7 @@ export function reducer(state, action) {
         embodimentArrivalSnapshot: arrivalSnapshotOf(state, state.nodeId),
         view: 'story',
         practiceTarget: null,
+        trainGoalSession: null,
       }
     }
 
@@ -2106,6 +2120,7 @@ export function reducer(state, action) {
         embodimentArrivalSnapshot: null,
         view: 'story',
         practiceTarget: null,
+        trainGoalSession: null,
       }
     }
 
@@ -2347,6 +2362,7 @@ export function reducer(state, action) {
         pendingEmbodiment: null,
         ended: targetNode?.end || null,
         practiceTarget: null,
+        trainGoalSession: null,
       }, option.text)
       // Entering another character's tale establishes that role's authored
       // starting health; it is not damage to the traveller and therefore does
@@ -2492,7 +2508,7 @@ export function reducer(state, action) {
     case 'PRACTICE_CORRECT': {
       if (!safeMapKey(action.id) || !isTrainableSense(action.id) || !state.discovered[action.id]) return state
       const completeRound = action.completeRound !== false
-      return {
+      const resultState = {
         ...state,
         mana: { ...state.mana, [action.id]: (state.mana[action.id] || 0) + 1 },
         // monotonic (never spent) — this is what unlocks reviewed-form practice
@@ -2503,6 +2519,7 @@ export function reducer(state, action) {
           ? action.questionKey.slice(0, 200)
           : state.trainLastQuestionKey,
       }
+      return completeRound ? recordTrainActionGoalRound(state, resultState, [action.id]) : resultState
     }
 
     case 'RECORD_WORD_EXPOSURE': {
@@ -2541,6 +2558,7 @@ export function reducer(state, action) {
         {
           ...wordProgressionOptionsForSense(action.id),
           discoveredIds: Object.keys(state.discovered || {}).filter((id) => state.discovered[id]),
+          allowEarlyDueForGoal: trainActionGoalEmergencyTargetIds(state).includes(action.id),
         },
       )
       if (!transition.accepted) return state
@@ -2581,7 +2599,8 @@ export function reducer(state, action) {
       })
       // The miss, its durable remediation/exposure transition, its exact
       // correction and either protection or health cost are one transaction.
-      return healthResult ? withLearningEvent(healthResult, event) : state
+      const completedState = healthResult ? withLearningEvent(healthResult, event) : null
+      return completedState ? recordTrainActionGoalRound(state, completedState, [action.id]) : state
     }
 
     case 'PRACTICE_WORD_MATCH_RESULT': {
@@ -2645,7 +2664,7 @@ export function reducer(state, action) {
         responseDurationMs: action.responseDurationMs,
         support: false,
       }))
-      return withLearningEvents(healthResult, events)
+      return recordTrainActionGoalRound(state, withLearningEvents(healthResult, events), wordIds)
     }
 
     case 'PRACTICE_FORM_CORRECT': {
@@ -2654,7 +2673,7 @@ export function reducer(state, action) {
       if (action.questionKey === state.trainLastQuestionKey) return state
       const formKey = reviewedFormPracticeKey(state, action.id, action.formSurface)
       if (!formKey) return state
-      return {
+      return recordTrainActionGoalRound(state, {
         ...state,
         formPracticed: {
           ...state.formPracticed,
@@ -2665,25 +2684,28 @@ export function reducer(state, action) {
         trainLastQuestionKey: typeof action.questionKey === 'string'
           ? action.questionKey.slice(0, 200)
           : null,
-      }
+      }, [])
     }
 
     case 'PRACTICE_WRONG':
       if (action.formId != null && !isTrainableSense(action.formId)) return state
-      return applyExplainedHeartLoss({
+      {
+        const resultState = applyExplainedHeartLoss({
         ...state,
         trainRound: (state.trainRound || 0) + 1,
         trainLastWords: normalizedTrainWords(action.wordKeys),
         trainLastQuestionKey: typeof action.questionKey === 'string' ? action.questionKey.slice(0, 200) : null,
-      }, action.consequence, 1) || state
+        }, action.consequence, 1)
+        return resultState ? recordTrainActionGoalRound(state, resultState, [action.formId].filter(Boolean)) : state
+      }
 
     case 'TRAIN_ROUND_COMPLETE':
-      return {
+      return recordTrainActionGoalRound(state, {
         ...state,
         trainRound: (state.trainRound || 0) + 1,
         trainLastWords: normalizedTrainWords(action.wordKeys),
         trainLastQuestionKey: typeof action.questionKey === 'string' ? action.questionKey.slice(0, 200) : null,
-      }
+      }, action.rewardIds || [])
 
     case 'CEFR_RECORD_EVIDENCE': {
       const cefrEvidence = mergeStoredCefrEvidence(state.cefrEvidence, action.evidence)
@@ -2821,7 +2843,8 @@ export function reducer(state, action) {
             questionKey: action.questionKey,
             consequence: action.consequence,
           })
-          return healthResult ? withLearningEvent(healthResult, event) : state
+          const completedState = healthResult ? withLearningEvent(healthResult, event) : null
+          return completedState ? recordTrainActionGoalRound(state, completedState, rewardIds) : state
         }
         const mana = { ...state.mana }
         const practiced = { ...state.practiced }
@@ -2848,7 +2871,10 @@ export function reducer(state, action) {
           exposureKeys: trainAspectExposureKeys(phraseTrainAspectTargets(action)),
           questionKey: action.questionKey,
         })
-        return healthResult ? withPhraseCoExposure(withLearningEvent(healthResult, event)) : state
+        const completedState = healthResult
+          ? withPhraseCoExposure(withLearningEvent(healthResult, event))
+          : null
+        return completedState ? recordTrainActionGoalRound(state, completedState, rewardIds) : state
       }
 
       if (!masteryField) return state
@@ -2918,7 +2944,8 @@ export function reducer(state, action) {
           questionKey: action.questionKey,
           consequence: action.consequence,
         })
-        return healthResult ? withLearningEvents(healthResult, events) : state
+        const completedState = healthResult ? withLearningEvents(healthResult, events) : null
+        return completedState ? recordTrainActionGoalRound(state, completedState, rewardIds) : state
       }
 
       const phrasePracticed = { ...(state.phrasePracticed || {}) }
@@ -2945,7 +2972,10 @@ export function reducer(state, action) {
         exposureKeys: trainAspectExposureKeys(phraseTrainAspectTargets(action)),
         questionKey: action.questionKey,
       })
-      return healthResult ? withPhraseCoExposure(withLearningEvents(healthResult, events)) : state
+      const completedState = healthResult
+        ? withPhraseCoExposure(withLearningEvents(healthResult, events))
+        : null
+      return completedState ? recordTrainActionGoalRound(state, completedState, rewardIds) : state
     }
 
     case 'CONFUSE':
@@ -2984,9 +3014,9 @@ export function reducer(state, action) {
       if (DEBUG_ONLY_VIEWS.has(action.view) && !state.debug) {
         return state.view === 'story' && !state.practiceTarget
           ? state
-          : { ...state, view: 'story', practiceTarget: null }
+          : { ...state, view: 'story', practiceTarget: null, trainGoalSession: null }
       }
-      return { ...state, view: action.view, practiceTarget: null }
+      return { ...state, view: action.view, practiceTarget: null, trainGoalSession: null }
 
     case 'SET_LEARNING_RESEARCH_CONSENT':
       return {
@@ -3166,6 +3196,7 @@ export function reducer(state, action) {
         pendingEmbodiment: null,
         ended: null,
         practiceTarget: null,
+        trainGoalSession: null,
       }
 
     case 'RESET':

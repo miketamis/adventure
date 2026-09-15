@@ -2,10 +2,7 @@ import { lazy, Suspense, useState, useCallback, useEffect, useRef } from 'react'
 import { DICT } from '../game/content.js'
 import { practiceReturnOption } from '../game/practiceReturn.js'
 import { playPhrase, playWord } from '../game/audio.js'
-import {
-  buildPhraseQuestion,
-  trainQuestionWordKeys,
-} from '../game/phrasePractice.js'
+import { trainQuestionWordKeys } from '../game/phrasePractice.js'
 import {
   EVERYDAY_PHRASE_DRILLS,
 } from '../game/everydayAlbanian.js'
@@ -18,13 +15,6 @@ import {
   TRAIN_EXERCISE_FAMILIES,
   TRAIN_SCHEDULER_SAFEGUARDS,
 } from '../game/trainingProgression.js'
-import { buildWordQuestion } from '../game/wordPractice.js'
-import { planWordMatchingRound } from '../game/wordMatching.js'
-import {
-  pickBalancedTrainActivity,
-  trainActivityTypeId,
-  trainQuestionTargetKeys,
-} from '../game/trainActivityBalance.js'
 import {
   normalizeTrainActivityHistory,
   normalizeTrainTargetHistory,
@@ -50,6 +40,21 @@ import {
   trainRecoveryStatusText,
 } from '../game/trainHealthPolicy.js'
 import { wordSpellingAttempt, wordSpellingRepairMessage } from '../game/wordSpellingPolicy.js'
+import {
+  enumerateTrainActivityCandidates,
+  trainCandidateDebugRecord,
+  trainPlannerSeed,
+} from '../game/trainCandidateContract.js'
+import {
+  initialTrainPlanningState,
+  planTrainFuture,
+} from '../game/trainFuturePlanner.js'
+import {
+  normalizeTrainActionGoalSession,
+  trainActionGoalEmergencyTargetIds,
+  trainActionGoalForState,
+} from '../game/trainActionGoal.js'
+import { resolveTrainingTarget } from '../game/trainingTarget.js'
 
 const DebugTrainActivityInspector = lazy(() => import('./DebugTrainActivityInspector.jsx'))
 
@@ -91,6 +96,8 @@ export default function PracticeView({ state, dispatch }) {
   const unlockedEverydayPhrases = EVERYDAY_PHRASE_DRILLS.filter((entry) =>
     entry.requires.filter(isTrainableSense).every((id) => state.discovered[id]),
   )
+  const activeActionGoal = trainActionGoalForState(state)
+  const activeActionOption = activeActionGoal ? resolveTrainingTarget(activeActionGoal.target) : null
   const [q, setQ] = useState(null)
   const [picked, setPicked] = useState(null)
   const [typedWord, setTypedWord] = useState('')
@@ -143,149 +150,82 @@ export default function PracticeView({ state, dispatch }) {
     const recentTargetHistory = targetHistory.current.length
       ? targetHistory.current
       : normalizeTrainTargetHistory(state.trainTargetHistory)
-    const schedulerTrace = state.debug ? {
-      builder: 'train-family-scheduler',
+    const actionGoal = trainActionGoalForState(state)
+    const goalSession = normalizeTrainActionGoalSession(state.trainGoalSession, state)
+    const enumeration = enumerateTrainActivityCandidates({
+      state,
+      discoveredIds,
+      unlockedPhrases: unlockedEverydayPhrases,
+      forceGoalTargetIds: trainActionGoalEmergencyTargetIds(state),
+      nowMs,
+      debugTrace: state.debug,
+    })
+    const plannerSeed = trainPlannerSeed({
+      currentRound: state.trainRound,
+      discoveredIds,
+      activityHistory: recentActivityHistory,
+      targetHistory: recentTargetHistory,
+    })
+    const future = planTrainFuture({
+      proposals: enumeration.proposals,
+      planningState: initialTrainPlanningState({
+        currentRound: state.trainRound,
+        activityHistory: recentActivityHistory,
+        targetHistory: recentTargetHistory,
+        lastWordKeys: excludeWords,
+        goalRemaining: actionGoal?.remainingWordIds,
+        goalMaximumDiversionRounds: actionGoal?.maximumDiversionRounds,
+        goalDiversionsUsed: goalSession?.activitiesSinceGoalOpportunity,
+      }),
+      seed: plannerSeed,
+    })
+    const selectedProposal = future.candidate
+    const schedulerTrace = {
+      builder: 'train-future-planner',
+      reason: selectedProposal
+        ? actionGoal?.remainingTokenCount
+          ? `Selected the strongest future route toward the requested story action while preserving legal target and activity diversity.`
+          : `Selected the strongest future route across every currently buildable Train family.`
+        : `Every currently buildable proposal was rejected by an explicit hard constraint.`,
       currentRound: state.trainRound || 0,
       nowMs,
       excludedWordKeys: [...excludeWords],
       recentActivityHistory,
       recentTargetHistory,
-      unlockedPhraseIds: unlockedEverydayPhrases.map(({ id }) => id),
-      attempts: [],
-    } : null
-    const attachSchedulerTrace = (question, route, reason) => {
-      if (!question) return question
+      actionGoal: actionGoal ? {
+        ...actionGoal,
+        session: goalSession,
+      } : null,
+      enumeration: enumeration.trace,
+      future: future.trace,
+      selected: trainCandidateDebugRecord(selectedProposal),
+    }
+    let nextQuestion = null
+    if (selectedProposal) {
+      const question = selectedProposal.materialize({
+        debug: state.debug,
+        plannerTrace: schedulerTrace,
+      })
       const phaseTrainHealth = Object.fromEntries((question.phasePlan || []).map((phase) => [
         phase.id,
         trainHealthPlanForQuestion(state, question, { phaseId: phase.id }),
       ]))
-      const plannedQuestion = {
+      nextQuestion = {
         ...question,
         trainHealth: trainHealthPlanForQuestion(state, question),
         phaseTrainHealth,
       }
-      if (!schedulerTrace) return plannedQuestion
-      return {
-        ...plannedQuestion,
-        debugSelection: {
-          scheduler: {
-            ...schedulerTrace,
-            selectedRoute: route,
-            reason,
-          },
-          builder: question.debugSelection || null,
-        },
+    } else if (!TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists) {
+      nextQuestion = {
+        kind: TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome,
+        caughtUpForGoal: Boolean(actionGoal && !actionGoal.complete),
+        debugSelection: state.debug ? { scheduler: schedulerTrace } : undefined,
       }
     }
-    const candidates = []
-    if (unlockedEverydayPhrases.length) {
-      const phraseQuestion = buildPhraseQuestion(
-        unlockedEverydayPhrases,
-        state.mana,
-        state.phrasePracticed,
-        state.phraseMistakes,
-        {
-          distractorPool: EVERYDAY_PHRASE_DRILLS,
-          excludeWords,
-          mastery: {
-            listening: state.phraseListeningMastery,
-            matching: state.phraseMatchingMastery,
-          },
-          productionProgress: state.phraseProductionProgress,
-          listeningProgress: state.phraseListeningProgress,
-          matchingProgress: state.phraseMatchingProgress,
-          currentRound: state.trainRound,
-          nowMs,
-          activityHistory: recentActivityHistory,
-          targetHistory: recentTargetHistory,
-          debugTrace: state.debug,
-        },
-      )
-      schedulerTrace?.attempts.push({
-        family: 'phrase',
-        status: phraseQuestion ? 'eligible' : 'unavailable',
-        activityTypeId: trainActivityTypeId(phraseQuestion),
-        reason: phraseQuestion
-          ? 'a due disjoint phrase activity survived the activity-repeat boundary'
-          : 'no due disjoint phrase activity with a different activity type could be built',
-      })
-      if (phraseQuestion) candidates.push({ route: 'phrase', question: phraseQuestion, activityTypeId: phraseQuestion.activityTypeId })
-    }
-
-    const wordQuestion = buildWordQuestion({
-      discoveredIds,
-      mana: state.mana,
-      practiced: state.practiced,
-      wordProgress: state.wordProgress,
-      wordExposure: state.wordExposure,
-      currentRound: state.trainRound,
-      nowMs,
-      excludeWords,
-      activityHistory: recentActivityHistory,
-      targetHistory: recentTargetHistory,
-      debugTrace: state.debug,
-    })
-    schedulerTrace?.attempts.push({
-      family: 'word',
-      status: wordQuestion ? 'eligible' : 'unavailable',
-      activityTypeId: trainActivityTypeId(wordQuestion),
-      reason: wordQuestion
-        ? 'the least-represented due word activity type survived the word and activity-repeat boundaries'
-        : 'no due disjoint word activity with a different activity type could be built',
-    })
-    if (wordQuestion) candidates.push({ route: 'word', question: wordQuestion, activityTypeId: wordQuestion.activityTypeId })
-
-    const matchingActivityTypeId = trainActivityTypeId({ kind: TRAIN_EXERCISE_FAMILIES.wordMatching.kind })
-    const matchingPlan = recentActivityHistory.at(-1) === matchingActivityTypeId
-      ? { question: null, trace: { outcome: { status: 'unavailable', reason: 'word matching was the immediately previous activity type' } } }
-      : planWordMatchingRound({
-          discoveredIds,
-          wordProgress: state.wordProgress,
-          wordMatchingProgress: state.wordMatchingProgress,
-          practiced: state.practiced,
-          excludeWords,
-          targetHistory: recentTargetHistory,
-          currentRound: state.trainRound,
-          rng: Math.random,
-          debugTrace: state.debug,
-        })
-    const matchingQuestion = matchingPlan.question
-      ? { ...matchingPlan.question, activityTypeId: matchingActivityTypeId }
-      : null
-    schedulerTrace?.attempts.push({
-      family: 'word-matching',
-      status: matchingQuestion ? 'eligible' : 'unavailable',
-      activityTypeId: matchingActivityTypeId,
-      reason: matchingPlan.trace.outcome.reason || 'a complete mixed-difficulty board is due and legal',
-      trace: matchingPlan.trace,
-    })
-    if (matchingQuestion) candidates.push({ route: 'word-matching', question: matchingQuestion, activityTypeId: matchingActivityTypeId })
-
-    const balanced = pickBalancedTrainActivity(candidates, recentActivityHistory, Math.random)
-    if (schedulerTrace) schedulerTrace.activityBalance = {
-      ...balanced.plan,
-      randomBoundary: balanced.randomBoundary,
-      selectedRoute: balanced.candidate?.route || null,
-      selectedActivityTypeId: balanced.activityTypeId,
-    }
-    let nextQuestion = balanced.candidate
-      ? attachSchedulerTrace(
-          balanced.candidate.question,
-          balanced.candidate.route,
-          balanced.plan.usesRepeatFallback
-            ? `Selected ${balanced.activityTypeId} as the only buildable format, using a disjoint Albanian target.`
-            : `Selected ${balanced.activityTypeId}, the least-represented currently eligible activity type; the immediately previous type was excluded.`,
-        )
-      : null
-    // Repeating Albanian language would defeat the spacing promise. Repeating
-    // only the card format is safe when a fresh, disjoint target is available.
-    if (!nextQuestion && !TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists) {
-      nextQuestion = { kind: TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome }
-    }
     if (nextQuestion && nextQuestion.kind !== TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) {
-      previousQuestionWords.current = trainQuestionWordKeys(nextQuestion)
+      previousQuestionWords.current = selectedProposal.wordKeys
       activityHistory.current = recordTrainActivity(recentActivityHistory, nextQuestion.activityTypeId)
-      const targetKeys = trainQuestionTargetKeys(nextQuestion)
+      const targetKeys = selectedProposal.targetKeys
       targetHistory.current = recordTrainTargets(recentTargetHistory, targetKeys)
       dispatch({
         type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
@@ -315,6 +255,8 @@ export default function PracticeView({ state, dispatch }) {
     state.trainActivityHistory,
     state.trainTargetHistory,
     state.trainStageExposures,
+    state.practiceTarget,
+    state.trainGoalSession,
     state.debug,
   ])
 
@@ -489,12 +431,19 @@ export default function PracticeView({ state, dispatch }) {
         <section className="card practice" aria-labelledby="practice-title">
           <h2 id="practice-title" className="view-title">Train Albanian</h2>
           <p className="empty" role="status">
-            You’re caught up for now. Discover another word or come back after your next story beat.
+            {q.caughtUpForGoal
+              ? 'Your action’s next word needs a different-word round first, but no legal bridge is available yet. Return to the story and discover another word.'
+              : 'You’re caught up for now. Discover another word or come back after your next story beat.'}
           </p>
           <button className="btn primary" onClick={() => dispatch({ type: 'SET_VIEW', view: 'story' })}>
             Return to story
           </button>
         </section>
+        {state.debug && (
+          <Suspense fallback={<p className="debug-train-loading">Loading caught-up evidence…</p>}>
+            <DebugTrainActivityInspector question={q} state={state} />
+          </Suspense>
+        )}
       </>
     )
   }
@@ -906,6 +855,17 @@ export default function PracticeView({ state, dispatch }) {
   return (
     <>
       {state.debug && <CefrEntry state={state} onOpen={() => setShowCefr(true)} />}
+      {activeActionGoal && !activeActionGoal.complete && activeActionOption && (
+        <div className="train-goal-banner" role="status">
+          <span>
+            Training toward <b lang="sq">“{albanianPhrase(activeActionOption.text)}”</b>
+          </span>
+          <small>
+            {activeActionGoal.remainingTokenCount} {activeActionGoal.remainingTokenCount === 1 ? 'word token' : 'word tokens'} left.
+            {' '}The shortest legal route gets priority, and every missing word gets a token opportunity within eight activities.
+          </small>
+        </div>
+      )}
       {returnOption && (
         <div className="ready-banner">
           <span>

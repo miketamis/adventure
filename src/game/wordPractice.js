@@ -415,6 +415,7 @@ export function buildWordQuestion({
   currentRound = 0,
   nowMs = 0,
   targetId = null,
+  allowEarlyDueForGoal = false,
   excludeWords = [],
   activityHistory = [],
   targetHistory = [],
@@ -426,6 +427,7 @@ export function buildWordQuestion({
     request: {
       discoveredIds: [...(discoveredIds || [])],
       targetId,
+      allowEarlyDueForGoal,
       currentRound,
       nowMs,
       excludedWordKeys: phraseWordKeys((excludeWords || []).join(' ')),
@@ -537,14 +539,17 @@ export function buildWordQuestion({
         continue
       }
     }
-    if (!plan.due) {
+    const goalEmergency = allowEarlyDueForGoal === true && targetId === id
+    if (!plan.due && !goalEmergency) {
       candidate?.reasons.push('current stage is not due by round/elapsed-spacing policy')
       if (candidate) trace.candidates.push(candidate)
       continue
     }
     candidate && Object.assign(candidate, {
       status: 'eligible',
-      reasons: ['discovered, trainable, disjoint from the last activity, and due'],
+      reasons: [goalEmergency && !plan.due
+        ? 'discovered, trainable, disjoint from the last activity, and forced by the eight-activity action-goal guarantee'
+        : 'discovered, trainable, disjoint from the last activity, and due'],
     })
     if (candidate) trace.candidates.push(candidate)
     due.push({
@@ -592,6 +597,7 @@ export function buildWordQuestion({
     const withAspects = {
       ...question,
       activityTypeId,
+      goalEmergency: allowEarlyDueForGoal === true && !plan.due,
       targetKeys: trainWordTargetKeys(answerId, DICT[answerId].al),
       aspectTargets: question.aspectTargets || wordAspectTargetsForPlan(answerId, plan),
       aspectRegistryVersion: plan.aspectSelection?.registryVersion || null,

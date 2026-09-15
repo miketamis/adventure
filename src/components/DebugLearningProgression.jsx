@@ -15,6 +15,8 @@ import {
 } from '../game/phraseProgressionResearch.js'
 import {
   TRAIN_EXERCISE_FAMILIES,
+  TRAIN_ACTION_GOAL_POLICY,
+  TRAIN_FUTURE_PLANNER_POLICY,
   TRAIN_HEALTH_POLICY,
   TRAIN_NOUN_ENDING_CORRECTION_POLICY,
   TRAIN_QUESTION_MIX_POLICY,
@@ -784,7 +786,9 @@ export default function DebugLearningProgression() {
           <section className="dbg-learning-rules dbg-learning-foot" aria-labelledby="dbg-learning-scheduling-title">
             <h3 id="dbg-learning-scheduling-title">Selection, spacing and backoff</h3>
             <ul>
-              <li>The scheduler compares the last {TRAIN_QUESTION_MIX_POLICY.activityBalance.historyWindow} activity formats and chooses one of the least-shown formats that is genuinely due now. It prefers a different format, but when none can be built it may reuse the format with disjoint Albanian language; Train reports that you are caught up only when no disjoint target exists.</li>
+              <li><b>Future planner:</b> {TRAIN_FUTURE_PLANNER_POLICY.algorithm}. It simulates up to {TRAIN_FUTURE_PLANNER_POLICY.maximumDepth} rounds within {TRAIN_FUTURE_PLANNER_POLICY.runtime.maximumStates.toLocaleString()} states, commits one real card, observes the result, and replans. Every buildable root candidate is considered before beam pruning.</li>
+              <li><b>Story-action goal:</b> {TRAIN_ACTION_GOAL_POLICY.priority}. Every missing word receives a token opportunity within {TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity} completed activities; after {TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity} non-goal rounds, ordinary spacing and diversity rules yield to the goal while the consecutive-word and builder-validity boundaries remain hard.</li>
+              <li>The planner uses the last {TRAIN_QUESTION_MIX_POLICY.activityBalance.historyWindow} activity formats as diversity history. It may reuse a format only with disjoint Albanian language; Train reports that you are caught up only when every certified proposal has an explicit hard-constraint rejection.</li>
               <li>Phrase cloze, arrangement, focused typing, whole-phrase typing, listening and matching are separate formats. Word meaning, context, audio, construction, spelling, noun-form and mixed-board activities are likewise balanced by their real registered variant rather than hidden under one broad “word” bucket.</li>
               <li>Targeting weights practical vocabulary ×{TRAIN_QUESTION_MIX_POLICY.practicalWordWeight} and zero-token needs ×{TRAIN_QUESTION_MIX_POLICY.zeroTokenWeight}; failures and weak aspects raise priority. Repeated passive exposure gives an unproven aspect a bounded retrieval-priority boost, but never supplies proof, unlocks an activity, changes heart risk or claims CEFR evidence.</li>
               <li>{TRAIN_SCHEDULER_SAFEGUARDS.noImmediateSharedWords && 'Consecutive questions never share an Albanian word.'} {!TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists && `If the legal pool is exhausted, Train reports ${TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome} instead of repeating.`}</li>

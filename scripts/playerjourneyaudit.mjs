@@ -11,11 +11,18 @@ import {
   START_CLOCK,
   canChoose,
   canSpeak,
+  newRun,
   normalizeSavedState,
   phraseSenses,
   reducer,
 } from '../src/game/gameState.js'
 import { practiceReturnOption } from '../src/game/practiceReturn.js'
+import { trainQuestionWordKeys } from '../src/game/phrasePractice.js'
+import { enumerateTrainActivityCandidates } from '../src/game/trainCandidateContract.js'
+import {
+  TRAIN_ACTION_GOAL_POLICY,
+  trainActionGoalEmergencyTargetIds,
+} from '../src/game/trainActionGoal.js'
 import {
   optionTrainingIdentity,
   resolveTrainingTarget,
@@ -206,6 +213,74 @@ check('Train returns only to the exact story option that opened it', () => {
   assert.match(practiceSource, /const returnOption = practiceReturnOption\(state\)/)
   assert.doesNotMatch(practiceSource, /const affordable =/)
   assert.match(storySource, /type: 'BEGIN_OPTION_TRAINING'/)
+})
+
+check('the eighth Train activity forces a real token opportunity for the requested action', () => {
+  const option = STORY[START_NODE].options.find((candidate) => candidate.to === 'fshatiLumi')
+  const target = trainingTargetForOption(START_NODE, option)
+  const discoveredIds = ['kalo', 'ure', 'rruge', 'shtepi', 'uje', 'buke']
+  let state = {
+    ...newRun(),
+    nodeId: START_NODE,
+    discovered: Object.fromEntries(discoveredIds.map((id) => [id, true])),
+    mana: { kalo: 1 },
+    practiced: { kalo: 1, ure: 1 },
+    trainRound: 2,
+    wordProgress: {
+      ure: {
+        wins: { 'meaning-recognition': 1 },
+        dueAfterRound: 99,
+        lastAttemptRound: 1,
+        lastAttemptKey: 'ure:prior',
+      },
+    },
+  }
+  state = reducer(state, { type: 'BEGIN_OPTION_TRAINING', target })
+  assert.equal(state.practiceTarget.optionIdentity, target.optionIdentity)
+  state = {
+    ...state,
+    trainGoalSession: {
+      ...state.trainGoalSession,
+      activitiesSinceGoalOpportunity: TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity,
+    },
+  }
+  assert.deepEqual(trainActionGoalEmergencyTargetIds(state), ['ure'])
+
+  const enumeration = enumerateTrainActivityCandidates({
+    state,
+    discoveredIds,
+    nowMs: 1,
+    forceGoalTargetIds: trainActionGoalEmergencyTargetIds(state),
+    debugTrace: true,
+  })
+  const forced = enumeration.proposals.find(({ rewardIds }) => rewardIds.includes('ure'))
+  assert.ok(forced, 'due spacing hid the action word after its seven-activity deadline')
+  const question = forced.materialize()
+  assert.equal(question.goalEmergency, true)
+  state = reducer(state, {
+    type: 'PRACTICE_WORD_RESULT',
+    correct: true,
+    id: question.answerId,
+    tier: question.tier,
+    mode: question.mode,
+    direction: question.dir,
+    wordStageId: question.wordStageId,
+    variantId: question.variantId,
+    targetFormKey: question.targetFormKey,
+    aspectTargets: question.aspectTargets,
+    questionKey: question.questionKey,
+    wordKeys: trainQuestionWordKeys(question),
+    attemptedAtMs: 1,
+    responseDurationMs: 1000,
+  })
+  assert.equal(state.mana.ure, 1, 'the forced goal question did not award its real canonical token')
+  assert.equal(state.trainGoalSession.progressRounds, 1)
+  assert.equal(state.trainGoalSession.activitiesSinceGoalOpportunity, 0)
+  assert.equal(practiceReturnOption(state), option)
+
+  const restored = normalizeSavedState(JSON.parse(JSON.stringify(state)), newRun())
+  assert.equal(restored.trainGoalSession.activitiesSinceGoalOpportunity, 0,
+    'the action-goal service window did not survive reload')
 })
 
 check('authored story-option training identities are unambiguous', () => {

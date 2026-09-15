@@ -7,6 +7,7 @@ import {
   trainCandidateEligibility,
   transitionTrainPlanningState,
 } from '../src/game/trainFuturePlanner.js'
+import { TRAIN_ACTION_GOAL_POLICY } from '../src/game/trainActionGoal.js'
 
 const proposal = (id, {
   words = [id],
@@ -43,6 +44,8 @@ const proposal = (id, {
 assert.equal(TRAIN_FUTURE_PLANNER_POLICY.algorithm, 'state-deduplicated beam dynamic programming with iterative horizon expansion')
 assert.equal(TRAIN_FUTURE_PLANNER_POLICY.maximumDepth, 24)
 assert.deepEqual(TRAIN_FUTURE_PLANNER_POLICY.outcomes, ['correct', 'miss'])
+assert.equal(TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity, 8)
+assert.equal(TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity, 7)
 
 const initial = initialTrainPlanningState()
 const isolatedTrap = proposal('trap', { words: ['b', 'c'], activity: 'activity:tempting', forgettingRisk: 1 })
@@ -186,4 +189,63 @@ const exhaustedGoal = transitionTrainPlanningState(
 assert.ok(trainCandidateEligibility(exhaustedGoal, proposal('third-diversion', { words: ['third'] })).reasons
   .includes('goal-grind-budget-exhausted'))
 
-console.log(`✓ robust dynamic programming planned ${deep.plan.length} rounds ahead across correct/miss branches with ${deep.score.distinctTargets} targets and explicit caught-up proofs.`)
+const emergencyGoalState = initialTrainPlanningState({
+  targetHistory: [
+    ['word:goal', 'surface:goal'],
+    ['word:other', 'surface:other'],
+  ],
+  lastWordKeys: ['other'],
+  goalRemaining: ['goal'],
+  goalMaximumDiversionRounds: TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity,
+  goalDiversionsUsed: TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity,
+})
+const emergencyPlan = planTrainFuture({
+  proposals: [tempting, goal],
+  planningState: emergencyGoalState,
+  seed: 'eighth-activity-guarantee',
+  maximumDepth: 3,
+  maximumMilliseconds: 1000,
+})
+assert.equal(emergencyPlan.candidate.candidateId, 'goal',
+  'the eighth activity did not override ordinary cooldown/diversity for the missing action word')
+assert.equal(trainCandidateEligibility(emergencyGoalState, tempting).eligible, false)
+assert.equal(trainCandidateEligibility(emergencyGoalState, goal).goalEmergency, true)
+assert.equal(
+  transitionTrainPlanningState(emergencyGoalState, goal, 'miss').goalDiversionsUsed,
+  0,
+  'a missed token opportunity did not begin a fresh eight-activity window',
+)
+
+let twoTokenState = initialTrainPlanningState({
+  goalRemaining: ['goal-a', 'goal-b'],
+  goalMaximumDiversionRounds: TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity,
+})
+const twoTokenPool = [
+  proposal('goal-a', { targets: ['word:goal-a', 'surface:goal-a'] }),
+  proposal('goal-b', { targets: ['word:goal-b', 'surface:goal-b'] }),
+  ...Array.from({ length: 10 }, (_, index) => proposal(`diversion-${index}`)),
+]
+let completedActivities = 0
+const opportunityRounds = []
+while (twoTokenState.goalRemaining.length && completedActivities < 16) {
+  const turn = planTrainFuture({
+    proposals: twoTokenPool,
+    planningState: twoTokenState,
+    seed: `two-token-bound:${completedActivities}`,
+    maximumDepth: 8,
+    maximumMilliseconds: 1000,
+    maximumStates: 100000,
+  })
+  assert.ok(turn.candidate, 'the two-token guarantee reached a false caught-up state')
+  completedActivities++
+  if (turn.candidate.rewardIds.some((id) => twoTokenState.goalRemaining.includes(id))) {
+    opportunityRounds.push(completedActivities)
+  }
+  twoTokenState = transitionTrainPlanningState(twoTokenState, turn.candidate, 'correct')
+}
+assert.deepEqual(twoTokenState.goalRemaining, [])
+assert.equal(opportunityRounds.length, 2)
+assert.ok(opportunityRounds[0] <= 8 && opportunityRounds[1] <= 16,
+  `two missing goal tokens were not offered inside 16 activities: ${opportunityRounds.join(', ')}`)
+
+console.log(`✓ robust dynamic programming planned ${deep.plan.length} rounds ahead across correct/miss branches, enforced the eight-activity token guarantee, and retained explicit caught-up proofs.`)

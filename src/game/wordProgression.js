@@ -1219,7 +1219,9 @@ export function advanceWordProgress(value, currentRound = 0, result = {}, option
   }
   const plan = wordProgressPlan(progress, currentRound, { ...options, nowMs: result.attemptedAtMs })
   const questionKey = safeString(result.questionKey)
-  if (!plan.due) return { accepted: false, reason: 'not-due', progress, plan }
+  if (!plan.due && options.allowEarlyDueForGoal !== true) {
+    return { accepted: false, reason: 'not-due', progress, plan }
+  }
   if (!questionKey) return { accepted: false, reason: 'missing-question-key', progress, plan }
   if (questionKey === progress.lastAttemptKey) return { accepted: false, reason: 'duplicate-question', progress, plan }
   if (!resultMatchesPlan(result, plan)) return { accepted: false, reason: 'plan-mismatch', progress, plan }

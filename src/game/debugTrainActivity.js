@@ -43,6 +43,8 @@ import {
   trainHealthPlanForQuestion,
 } from './trainHealthPolicy.js'
 import { normalizeWordMatchingProgress } from './wordMatchingProgress.js'
+import { TRAIN_ACTION_GOAL_POLICY } from './trainActionGoal.js'
+import { TRAIN_FUTURE_PLANNER_POLICY } from './trainFuturePlanner.js'
 
 const lower = (value) => String(value || '').normalize('NFC').toLocaleLowerCase('sq')
 const cleanSurface = (value) => lower(value).replace(/^[^\p{L}\p{M}]+|[^\p{L}\p{M}]+$/gu, '')
@@ -427,6 +429,8 @@ export function buildDebugTrainActivity(question, state = {}, nowMs = Date.now()
       wordStageAspectBindings: WORD_STAGE_ASPECT_BINDINGS,
       trainHealthPolicy: TRAIN_HEALTH_POLICY,
       wordSpellingSupportPolicy: WORD_SPELLING_SUPPORT_POLICY,
+      actionGoalPolicy: TRAIN_ACTION_GOAL_POLICY,
+      futurePlannerPolicy: TRAIN_FUTURE_PLANNER_POLICY,
     },
     relevantPersistedState: {
       trainRound: currentRound,
@@ -434,6 +438,7 @@ export function buildDebugTrainActivity(question, state = {}, nowMs = Date.now()
       trainLastQuestionKey: state.trainLastQuestionKey || null,
       trainActivityHistory: normalizeTrainActivityHistory(state.trainActivityHistory),
       trainTargetHistory: normalizeTrainTargetHistory(state.trainTargetHistory),
+      trainGoalSession: state.trainGoalSession || null,
       trainStageExposures: normalizeTrainStageExposures(state.trainStageExposures),
       trainHealingStreak: normalizeTrainHealingStreak(state.trainHealingStreak),
       trainCorrectCombo: normalizeTrainCorrectCombo(state.trainCorrectCombo),
