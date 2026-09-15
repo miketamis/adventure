@@ -315,34 +315,28 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
   const practiceSource = fs.readFileSync('src/components/PracticeView.jsx', 'utf8')
   assert.match(practiceSource, /<ContextualCompletion/)
   assert.match(practiceSource, /const excludeWords = previousQuestionWords\.current\.length/)
-  assert.match(practiceSource, /excludeWords,/)
-  assert.match(practiceSource, /previousQuestionWords\.current = trainQuestionWordKeys\(nextQuestion\)/)
+  assert.match(practiceSource, /lastWordKeys: excludeWords/)
+  assert.match(practiceSource, /previousQuestionWords\.current = selectedProposal\.wordKeys/)
   assert.match(
     practiceSource,
-    /buildWordQuestion\(\{[\s\S]+discoveredIds,[\s\S]+mana: state\.mana,[\s\S]+excludeWords,[\s\S]+\}\)/,
-    'the staged word builder did not receive the shared no-repeat boundary',
+    /enumerateTrainActivityCandidates\(\{[\s\S]+state,[\s\S]+discoveredIds,[\s\S]+unlockedPhrases: unlockedEverydayPhrases/,
+    'the certified activity enumerator is not fed the live learner state',
   )
-  assert.match(practiceSource, /buildWordQuestion\(\{[\s\S]+excludeWords/)
   assert.match(
     practiceSource,
-    /const wordQuestion = buildWordQuestion\(\{[\s\S]+excludeWords,[\s\S]+activityHistory: recentActivityHistory,[\s\S]+\}\)/,
-    'the unified aspect-driven word builder did not receive the shared no-repeat boundary',
+    /initialTrainPlanningState\(\{[\s\S]+activityHistory: recentActivityHistory,[\s\S]+targetHistory: recentTargetHistory,[\s\S]+lastWordKeys: excludeWords/,
+    'the future planner did not receive the shared word, activity and target history boundaries',
   )
-  assert.match(practiceSource, /pickBalancedTrainActivity\(candidates, recentActivityHistory/)
+  assert.match(practiceSource, /planTrainFuture\(\{[\s\S]+proposals: enumeration\.proposals/)
   assert.match(practiceSource, /RECORD_TRAIN_ACTIVITY_PRESENTED/)
-  assert.match(practiceSource, /targetHistory: recentTargetHistory/)
-  assert.match(practiceSource, /targetKeys = trainQuestionTargetKeys\(nextQuestion\)/)
+  assert.match(practiceSource, /const targetKeys = selectedProposal\.targetKeys/)
   assert.match(practiceSource, /targetKeys,/)
   assert.match(
     practiceSource,
-    /nextQuestion = \{ kind: TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome \}/,
+    /kind: TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome/,
     'an exhausted schedule did not pause without repeating a word',
   )
-  assert.doesNotMatch(
-    practiceSource,
-    /buildWordQuestion\(\{(?:(?!excludeWords)[\s\S])*?\}\)/,
-    'a word question bypasses the shared no-repeat boundary',
-  )
+  assert.doesNotMatch(practiceSource, /pickBalancedTrainActivity\(/)
 
   const questionSource = fs.readFileSync('src/components/PhrasePracticeQuestion.jsx', 'utf8')
   assert.match(questionSource, /wordKeys: trainQuestionWordKeys\(q\)/)
