@@ -37,6 +37,7 @@ import {
 import { wordExposureFor } from './wordExposure.js'
 import {
   TRAIN_HEALTH_POLICY,
+  normalizeTrainCorrectCombo,
   normalizeTrainHealingStreak,
   normalizeTrainStageExposures,
   trainHealthPlanForQuestion,
@@ -435,6 +436,7 @@ export function buildDebugTrainActivity(question, state = {}, nowMs = Date.now()
       trainTargetHistory: normalizeTrainTargetHistory(state.trainTargetHistory),
       trainStageExposures: normalizeTrainStageExposures(state.trainStageExposures),
       trainHealingStreak: normalizeTrainHealingStreak(state.trainHealingStreak),
+      trainCorrectCombo: normalizeTrainCorrectCombo(state.trainCorrectCombo),
       wordMatchingProgress: normalizeWordMatchingProgress(state.wordMatchingProgress),
     },
     rawQuestion: question,

@@ -3,7 +3,7 @@
 // attempt, and the reducer derives the same exposure keys from the accepted
 // result rather than trusting presentation metadata.
 
-export const TRAIN_HEALTH_POLICY_VERSION = 2
+export const TRAIN_HEALTH_POLICY_VERSION = 3
 
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
@@ -17,7 +17,7 @@ export const TRAIN_HEALTH_POLICY = deepFreeze({
   recoveryCorrectCompletions: 7,
   maximumHearts: 3,
   protectionRule: 'The first completed attempt at each exact target, aspect, level, form, and activity configuration is protected; success or failure consumes it.',
-  recoveryRule: 'Seven consecutive completed correct Train rounds restore one heart, up to the maximum; any miss resets the streak.',
+  recoveryRule: 'Seven consecutive completed correct Train rounds restore one heart, up to the maximum; the visible correct combo keeps rising at full health, and any miss resets both.',
 })
 
 const canonicalHearts = (value, maximumHearts = TRAIN_HEALTH_POLICY.maximumHearts) => {
@@ -71,15 +71,22 @@ export const normalizeTrainHealingStreak = (value) => {
     : 0
 }
 
+export const normalizeTrainCorrectCombo = (value) => {
+  const numeric = Number(value)
+  return Number.isSafeInteger(numeric) && numeric >= 0 ? numeric : 0
+}
+
 // Player-facing health and recovery copy consumes this projection rather than
 // re-deriving either the heart delta or the combo threshold in a component.
 export function trainRecoveryPlanForState(state, maximumHearts = TRAIN_HEALTH_POLICY.maximumHearts) {
   const { hearts, maximum } = canonicalHearts(state?.hearts, maximumHearts)
   const correctStreak = normalizeTrainHealingStreak(state?.trainHealingStreak)
+  const correctCombo = normalizeTrainCorrectCombo(state?.trainCorrectCombo ?? correctStreak)
   return {
     hearts,
     maximumHearts: maximum,
     correctStreak,
+    correctCombo,
     recoveryCorrectCompletions: TRAIN_HEALTH_POLICY.recoveryCorrectCompletions,
     correctUntilRecovery: TRAIN_HEALTH_POLICY.recoveryCorrectCompletions - correctStreak,
     canRecoverHeart: hearts < maximum,
@@ -89,11 +96,12 @@ export function trainRecoveryPlanForState(state, maximumHearts = TRAIN_HEALTH_PO
 
 export function trainRecoveryStatusText(plan) {
   if (!plan) return ''
+  const combo = `${plan.correctCombo} correct ${plan.correctCombo === 1 ? 'answer' : 'answers'} in a row.`
   if (plan.atMaximumHearts) {
-    return `Correct combo: ${plan.correctStreak}/${plan.recoveryCorrectCompletions} · hearts are full.`
+    return `Correct combo: ${combo} Hearts are full.`
   }
   const rounds = plan.correctUntilRecovery
-  return `Correct combo: ${plan.correctStreak}/${plan.recoveryCorrectCompletions} · ${rounds} more correct ${rounds === 1 ? 'round' : 'rounds'} restores one heart.`
+  return `Correct combo: ${combo} Recovery: ${plan.correctStreak}/${plan.recoveryCorrectCompletions} · ${rounds} more correct ${rounds === 1 ? 'round' : 'rounds'} restores one heart.`
 }
 
 export function trainHeartRiskText(plan) {
@@ -231,6 +239,7 @@ export function applyTrainHealthResult(state, {
         trainHealthPolicyVersion: TRAIN_HEALTH_POLICY_VERSION,
         trainStageExposures: exposures,
         trainHealingStreak: 0,
+        trainCorrectCombo: 0,
         trainRecoveryEvent: null,
       },
       protectedAttempt,
@@ -238,9 +247,16 @@ export function applyTrainHealthResult(state, {
     }
   }
 
-  const nextStreak = normalizeTrainHealingStreak(state?.trainHealingStreak) + 1
-  const completedRecovery = nextStreak >= TRAIN_HEALTH_POLICY.recoveryCorrectCompletions
   const safeMaximum = Number.isSafeInteger(maximumHearts) && maximumHearts > 0 ? maximumHearts : 3
+  const atMaximumHearts = (state.hearts || 0) >= safeMaximum
+  const nextStreak = atMaximumHearts
+    ? 0
+    : normalizeTrainHealingStreak(state?.trainHealingStreak) + 1
+  const nextCombo = Math.min(
+    Number.MAX_SAFE_INTEGER,
+    normalizeTrainCorrectCombo(state?.trainCorrectCombo ?? state?.trainHealingStreak) + 1,
+  )
+  const completedRecovery = nextStreak >= TRAIN_HEALTH_POLICY.recoveryCorrectCompletions
   const canHeal = completedRecovery && (state.hearts || 0) < safeMaximum
   const hearts = canHeal ? Math.min(safeMaximum, (state.hearts || 0) + 1) : state.hearts
   return {
@@ -250,6 +266,7 @@ export function applyTrainHealthResult(state, {
       trainHealthPolicyVersion: TRAIN_HEALTH_POLICY_VERSION,
       trainStageExposures: exposures,
       trainHealingStreak: completedRecovery ? 0 : nextStreak,
+      trainCorrectCombo: nextCombo,
       trainRecoveryEvent: canHeal && typeof questionKey === 'string'
         ? { questionKey: questionKey.slice(0, 200), hearts }
         : null,

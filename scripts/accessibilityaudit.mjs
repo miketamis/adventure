@@ -67,11 +67,12 @@ check('context choices and correction feedback use reviewed grammatical-job labe
   practice.includes("label: q.optionLabels?.[id] || senseText(id, q.field)") &&
   practice.includes("q.optionLabels?.[q.answerId] || senseText(q.answerId, q.field)"))
 check('every Train question announces its exact heart risk before interaction',
-  practice.includes('role="note"') &&
-  practice.includes('aria-label={trainHeartRiskText(trainHealth)}') &&
+  practice.includes('aria-describedby="train-risk-description"') &&
+  practice.includes('id="train-risk-description" className="sr-only"') &&
+  practice.includes('{trainHeartRiskText(trainHealth)}') &&
   practice.includes('aria-label={trainRecoveryStatusText(recoveryPlan)}') &&
   practice.includes('role="progressbar"') &&
-  practice.includes('aria-valuenow={recoveryPlan.correctStreak}') &&
+  practice.includes('aria-valuenow={recoveryMeterValue}') &&
   practice.indexOf('className="train-status-strip"') < practice.indexOf('{isNounFormMatching ? (') &&
   practice.indexOf('className="train-status-strip"') < practice.indexOf(') : isWordMatching ? ('))
 check('keyboard focus exposes the same word hint as hover', token.includes('onFocus={() => setShowHint(true)}') && token.includes('role="tooltip"'))

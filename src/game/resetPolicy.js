@@ -8,6 +8,7 @@ const TRAINING_SESSION_DEFAULTS = Object.freeze({
   trainLastQuestionKey: null,
   pendingHeartConsequence: null,
   trainHealingStreak: 0,
+  trainCorrectCombo: 0,
   trainRecoveryEvent: null,
 })
 

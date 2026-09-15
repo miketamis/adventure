@@ -1103,24 +1103,12 @@ svg [role="button"]:focus-visible {
 .train-status-strip {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1.25rem;
   margin: .15rem 0 1.15rem;
 }
-.train-risk-key {
-  display: flex;
-  align-items: center;
-  gap: .42rem;
-  margin: 0;
-  color: #efb2a6;
-  font: 700 .78rem/1.25 var(--sans);
-}
-.train-risk-key strong { color: var(--ink); }
-.train-risk-protected .train-risk-key {
-  color: #b9dfef;
-}
 .train-combo-meter {
-  width: min(250px, 46%);
+  width: min(360px, 100%);
   min-width: 190px;
   color: var(--muted);
   font: 700 .7rem/1.2 var(--sans);

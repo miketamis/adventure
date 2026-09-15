@@ -162,6 +162,7 @@ check('reset policy categories are explicit, disjoint, and consumed by their hel
   assert.equal(cleared.trainLastQuestionKey, null)
   assert.equal(cleared.pendingHeartConsequence, null)
   assert.equal(cleared.trainHealingStreak, 0)
+  assert.equal(cleared.trainCorrectCombo, 0)
   assert.equal(cleared.trainRecoveryEvent, null)
 })
 

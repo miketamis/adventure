@@ -155,9 +155,14 @@ export default function PracticeView({ state, dispatch }) {
     } : null
     const attachSchedulerTrace = (question, route, reason) => {
       if (!question) return question
+      const phaseTrainHealth = Object.fromEntries((question.phasePlan || []).map((phase) => [
+        phase.id,
+        trainHealthPlanForQuestion(state, question, { phaseId: phase.id }),
+      ]))
       const plannedQuestion = {
         ...question,
         trainHealth: trainHealthPlanForQuestion(state, question),
+        phaseTrainHealth,
       }
       if (!schedulerTrace) return plannedQuestion
       return {
@@ -508,7 +513,13 @@ export default function PracticeView({ state, dispatch }) {
   const isWordMatching = q.kind === TRAIN_EXERCISE_FAMILIES.wordMatching.kind
   const isContextualCompletion = q.kind === TRAIN_EXERCISE_FAMILIES.wordContext.kind
   const formPhase = isForms ? q.phasePlan?.[formPhaseIndex] : null
-  const trainHealth = trainHealthPlanForQuestion(state, q, { phaseId: formPhase?.id || null })
+  // The result reducer consumes protection as soon as an answer is submitted,
+  // while this card intentionally remains visible for its feedback beat. Use
+  // the plan captured when the activity appeared so the border cannot flash
+  // to the next risk state before the next activity replaces it.
+  const trainHealth = q.phaseTrainHealth?.[formPhase?.id]
+    || q.trainHealth
+    || trainHealthPlanForQuestion(state, q, { phaseId: formPhase?.id || null })
   const recoveryPlan = trainRecoveryPlanForState(state, trainHealth.maximumHearts)
   const trainRiskClass = trainHealth.protectedAttempt
     ? 'train-risk-protected'
@@ -517,12 +528,10 @@ export default function PracticeView({ state, dispatch }) {
       : trainHealth.heartsAfterWrong === 1
         ? 'train-risk-damaging train-risk-pulse-slow'
         : 'train-risk-damaging'
-  const trainRiskSummary = trainHealth.protectedAttempt
-    ? 'Protected'
-    : trainHealth.missEndsRun
-      ? 'Miss −1 · run ends'
-      : 'Miss −1 heart'
-  const recoveryPercent = `${Math.round((recoveryPlan.correctStreak / recoveryPlan.recoveryCorrectCompletions) * 100)}%`
+  const recoveryMeterValue = recoveryPlan.atMaximumHearts
+    ? Math.min(recoveryPlan.correctCombo, recoveryPlan.recoveryCorrectCompletions)
+    : recoveryPlan.correctStreak
+  const recoveryPercent = `${Math.round((recoveryMeterValue / recoveryPlan.recoveryCorrectCompletions) * 100)}%`
   const recoveryCaption = recoveryPlan.atMaximumHearts
     ? 'Hearts full'
     : `${recoveryPlan.correctUntilRecovery} correct to restore ♥`
@@ -912,19 +921,18 @@ export default function PracticeView({ state, dispatch }) {
         </div>
       )}
 
-      <section className={`card practice train-card ${trainRiskClass}`} aria-labelledby="practice-title">
+      <section
+        className={`card practice train-card ${trainRiskClass}`}
+        aria-labelledby="practice-title"
+        aria-describedby="train-risk-description"
+      >
       <h2 id="practice-title" className="view-title">Train Albanian</h2>
+      <p id="train-risk-description" className="sr-only">{trainHeartRiskText(trainHealth)}</p>
       <div className="train-status-strip">
-        <p className="train-risk-key" role="note" aria-label={trainHeartRiskText(trainHealth)}>
-          <span aria-hidden="true">{trainHealth.protectedAttempt ? '🛡' : trainHealth.missEndsRun ? '💔' : '♥'}</span>
-          <strong>{trainHealth.hearts}/{trainHealth.maximumHearts}</strong>
-          <span aria-hidden="true">·</span>
-          <span>{trainRiskSummary}</span>
-        </p>
         <div className={`train-combo-meter ${recoveryPlan.atMaximumHearts ? 'hearts-full' : ''}`}>
           <div className="train-combo-label" aria-hidden="true">
             <span>Correct combo</span>
-            <strong>{recoveryPlan.correctStreak}/{recoveryPlan.recoveryCorrectCompletions}</strong>
+            <strong>{recoveryPlan.correctCombo} in a row</strong>
           </div>
           <div
             className="train-combo-track"
@@ -932,7 +940,7 @@ export default function PracticeView({ state, dispatch }) {
             aria-label={trainRecoveryStatusText(recoveryPlan)}
             aria-valuemin="0"
             aria-valuemax={recoveryPlan.recoveryCorrectCompletions}
-            aria-valuenow={recoveryPlan.correctStreak}
+            aria-valuenow={recoveryMeterValue}
           >
             <span style={{ width: recoveryPercent }} />
           </div>

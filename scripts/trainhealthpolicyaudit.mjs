@@ -156,7 +156,7 @@ assert.equal(lethalPlan.missEndsRun, true)
 assert.match(trainHeartRiskText(lethalPlan), /wrong answer costs one heart and ends this run/)
 assert.equal(
   trainRecoveryStatusText(trainRecoveryPlanForState({ hearts: 2, trainHealingStreak: 6 })),
-  'Correct combo: 6/7 · 1 more correct round restores one heart.',
+  'Correct combo: 6 correct answers in a row. Recovery: 6/7 · 1 more correct round restores one heart.',
 )
 const matchingAction = (correct, index) => ({
   type: 'PRACTICE_WORD_MATCH_RESULT',
@@ -210,11 +210,17 @@ assert.match(practice, /train-risk-damaging train-risk-pulse-fast/)
 assert.match(practice, /train-risk-damaging train-risk-pulse-slow/)
 assert.match(practice, /role="progressbar"/)
 assert.match(practice, /aria-valuemax=\{recoveryPlan\.recoveryCorrectCompletions\}/)
-assert.match(practice, /aria-valuenow=\{recoveryPlan\.correctStreak\}/)
+assert.match(practice, /aria-valuenow=\{recoveryMeterValue\}/)
 assert.match(styles, /\.train-card\.train-risk-protected/)
 assert.match(styles, /\.train-card\.train-risk-pulse-slow \.training-activity-shell/)
 assert.match(styles, /\.train-card\.train-risk-pulse-fast \.training-activity-shell/)
+assert.match(practice, /q\.phaseTrainHealth\?\.\[formPhase\?\.id\]/,
+  'the visible card does not retain its phase risk until the next activity replaces it')
+assert.match(practice, /q\.trainHealth\s*\n\s*\|\| trainHealthPlanForQuestion/,
+  'the visible card recomputes its risk after the result consumes protection')
 assert.match(practice, /trainHealthPlanForQuestion\(state, q, \{ phaseId: formPhase\?\.id \|\| null \}\)/)
+assert.doesNotMatch(practice, /className="train-risk-key"/,
+  'the redundant shield and heart-count key is still visible above the activity')
 assert.match(practice, /one heart restored/)
 assert.match(practice, /Continue training/)
 assert.match(app, /const HeartConsequenceModal = lazy\(/)
@@ -230,9 +236,22 @@ let policyResult = applyTrainHealthResult(policyState, {
 })
 assert.equal(policyResult.state.hearts, 3)
 assert.equal(policyResult.state.trainHealingStreak, 0)
+assert.equal(policyResult.state.trainCorrectCombo, TRAIN_HEALTH_POLICY.recoveryCorrectCompletions)
+for (let index = 0; index < 3; index++) {
+  policyResult = applyTrainHealthResult(policyResult.state, {
+    exposureKeys: [`aspect:a:b:full-${index}`], correct: true, questionKey: `full-${index}`, maximumHearts: 3,
+  })
+}
+assert.equal(policyResult.state.trainCorrectCombo, TRAIN_HEALTH_POLICY.recoveryCorrectCompletions + 3,
+  'a full-health combo stopped at the recovery threshold')
+assert.equal(
+  trainRecoveryStatusText(trainRecoveryPlanForState(policyResult.state)),
+  `Correct combo: ${TRAIN_HEALTH_POLICY.recoveryCorrectCompletions + 3} correct answers in a row. Hearts are full.`,
+)
 policyResult = applyTrainHealthResult({ ...policyResult.state, trainHealingStreak: 4 }, {
   exposureKeys: ['aspect:a:b:d'], correct: false, questionKey: 'miss', maximumHearts: 3,
 })
 assert.equal(policyResult.state.trainHealingStreak, 0)
+assert.equal(policyResult.state.trainCorrectCombo, 0)
 
-console.log(`✓ Train health uses one protected attempt per exact aspect/level and restores one heart after ${TRAIN_HEALTH_POLICY.recoveryCorrectCompletions} consecutive correct rounds.`)
+console.log(`✓ Train health freezes each activity's risk, restores a heart after ${TRAIN_HEALTH_POLICY.recoveryCorrectCompletions} correct rounds, and retains a visible full-health combo.`)

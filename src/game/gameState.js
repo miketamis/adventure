@@ -177,6 +177,7 @@ import {
 import {
   TRAIN_HEALTH_POLICY_VERSION,
   applyTrainHealthResult,
+  normalizeTrainCorrectCombo,
   normalizeTrainHealingStreak,
   normalizeTrainAspectTargets,
   normalizeTrainStageExposures,
@@ -1156,6 +1157,7 @@ export function normalizeSavedState(saved, fresh) {
   next.trainHealthPolicyVersion = TRAIN_HEALTH_POLICY_VERSION
   next.trainStageExposures = normalizeTrainStageExposures(saved.trainStageExposures)
   next.trainHealingStreak = normalizeTrainHealingStreak(saved.trainHealingStreak)
+  next.trainCorrectCombo = normalizeTrainCorrectCombo(saved.trainCorrectCombo ?? saved.trainHealingStreak)
   next.trainRecoveryEvent = isRecord(saved.trainRecoveryEvent) &&
     typeof saved.trainRecoveryEvent.questionKey === 'string' &&
     Number.isSafeInteger(saved.trainRecoveryEvent.hearts)
@@ -1536,6 +1538,7 @@ function baseRun() {
     timePassage: null, // persisted interstitial for a committed multi-day transition
     pendingHeartConsequence: null, // blocking post-attempt explanation paired atomically with health loss
     trainHealingStreak: 0, // consecutive correct Train rounds in this story run
+    trainCorrectCombo: 0, // visible consecutive Train successes, retained while hearts are full
     trainRecoveryEvent: null, // one just-completed Train round that restored a heart
     actionSpeechSequence: 0, // monotonic id for committed player-action speech
     storyRunSequence: 1, // stable exposure receipt domain; increments on each story restart

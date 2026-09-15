@@ -98,6 +98,7 @@ assert.match(trainRecoveryStatusText(recovery), new RegExp(`${TRAIN_HEALTH_POLIC
 assert.match(practice, /trainHeartRiskText\(trainHealth\)/)
 assert.match(practice, /trainHealth\.missEndsRun/)
 assert.match(practice, /trainRecoveryStatusText\(recoveryPlan\)/)
+assert.match(practice, /recoveryPlan\.correctCombo\} in a row/)
 assert.match(practice, /className={`card practice train-card \$\{trainRiskClass\}`}/)
 assert.match(practice, /role="progressbar"/)
 assert.match(practice, /Continue training/)
