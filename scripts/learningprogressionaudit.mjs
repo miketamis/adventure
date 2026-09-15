@@ -51,6 +51,7 @@ import {
   initialTrainPlanningState,
   planTrainFuture,
 } from '../src/game/trainFuturePlanner.js'
+import { TRAIN_ACTION_GOAL_POLICY } from '../src/game/trainActionGoalPolicy.js'
 import { wordProgressionOptionsForSense } from '../src/game/formInventory.js'
 import {
   WORD_CONTEXT_EXERCISE_CONCEPT,
@@ -399,9 +400,8 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.equal(TRAIN_QUESTION_MIX_POLICY.activityBalance, TRAIN_ACTIVITY_BALANCE_POLICY)
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.preferDifferentActivityType, true)
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.allowSameActivityTypeForDisjointFallback, true)
-  assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.planner, TRAIN_FUTURE_PLANNER_POLICY)
-  assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.actionGoal.maximumActivitiesPerTokenOpportunity, 8)
-  assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.actionGoal.maximumNonGoalActivitiesBeforeForcedOpportunity, 7)
+  assert.equal(TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity, 8)
+  assert.equal(TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity, 7)
   assert.equal(TRAIN_QUESTION_MIX_POLICY.wordDirection.source, 'word-stage-definition')
 
   const practice = read('src/components/PracticeView.jsx')

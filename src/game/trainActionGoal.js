@@ -5,28 +5,9 @@
 
 import { isTrainableSense } from './lexicalTrainability.js'
 import { resolveTrainingTarget } from './trainingTarget.js'
+import { TRAIN_ACTION_GOAL_POLICY } from './trainActionGoalPolicy.js'
 
-export const TRAIN_ACTION_GOAL_POLICY = Object.freeze({
-  version: 2,
-  priority: 'shortest safe path to fund the exact requested story action, then diversity',
-  tokenRequirement: 'one available token for every distinct trainable sense in the action',
-  minimumInterveningActivities: 1,
-  maximumActivitiesPerTokenOpportunity: 8,
-  maximumNonGoalActivitiesBeforeForcedOpportunity: 7,
-  budgetRule: 'after seven completed activities without a question that can award a missing action token, the eighth question must target one of those words',
-  emergencyOverrides: Object.freeze([
-    'elapsed and round due spacing',
-    'target cooldown',
-    'surface frequency cap',
-    'activity-format balance',
-    'general diversity score',
-  ]),
-  emergencyNeverOverrides: Object.freeze([
-    'builder validity and reviewed content',
-    'no consecutive shared Albanian word',
-  ]),
-  completion: 'the existing canonical canSpeak and practice-return checks remain authoritative',
-})
+export { TRAIN_ACTION_GOAL_POLICY } from './trainActionGoalPolicy.js'
 
 const safeCount = (value) => Number.isSafeInteger(value) && value >= 0 ? value : 0
 const targetIdentity = (target) => target && typeof target === 'object'

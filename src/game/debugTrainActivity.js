@@ -43,8 +43,8 @@ import {
   trainHealthPlanForQuestion,
 } from './trainHealthPolicy.js'
 import { normalizeWordMatchingProgress } from './wordMatchingProgress.js'
-import { TRAIN_ACTION_GOAL_POLICY } from './trainActionGoal.js'
-import { TRAIN_FUTURE_PLANNER_POLICY } from './trainFuturePlanner.js'
+import { TRAIN_ACTION_GOAL_POLICY } from './trainActionGoalPolicy.js'
+import { TRAIN_FUTURE_PLANNER_POLICY } from './trainFuturePlannerPolicy.js'
 
 const lower = (value) => String(value || '').normalize('NFC').toLocaleLowerCase('sq')
 const cleanSurface = (value) => lower(value).replace(/^[^\p{L}\p{M}]+|[^\p{L}\p{M}]+$/gu, '')

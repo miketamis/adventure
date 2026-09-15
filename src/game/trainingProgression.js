@@ -10,12 +10,8 @@ import {
   TRAIN_ACTIVITY_BALANCE_POLICY,
   TRAIN_TARGET_BALANCE_POLICY,
 } from './trainActivityHistory.js'
-import { TRAIN_ACTION_GOAL_POLICY } from './trainActionGoal.js'
-import { TRAIN_FUTURE_PLANNER_POLICY } from './trainFuturePlanner.js'
 
 export { TRAIN_HEALTH_POLICY } from './trainHealthPolicy.js'
-export { TRAIN_ACTION_GOAL_POLICY } from './trainActionGoal.js'
-export { TRAIN_FUTURE_PLANNER_POLICY } from './trainFuturePlanner.js'
 
 export {
   WORD_CONTEXT_VARIANTS,
@@ -146,8 +142,6 @@ export const TRAIN_NOUN_ENDING_CORRECTION_POLICY = deepFreeze({
 })
 
 export const TRAIN_SCHEDULER_SAFEGUARDS = deepFreeze({
-  planner: TRAIN_FUTURE_PLANNER_POLICY,
-  actionGoal: TRAIN_ACTION_GOAL_POLICY,
   noImmediateSharedWords: true,
   preferDifferentActivityType: true,
   allowSameActivityTypeForDisjointFallback: true,

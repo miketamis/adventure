@@ -157,9 +157,11 @@ const SHELL_GZIP_BUDGET = 56 * KiB
 // colloquial follow-ups, the broader everyday-expression registry and five
 // reviewed Train phrases bring that same first-play closure to 1413.3 KiB.
 // The production one-noun grammar-matching planner and its aspect scheduler
-// are also first-play behavior, bringing the measured closure to 1418.1 KiB;
-// keep a narrow ceiling above it while retaining the stricter gzip limit.
-const BOOTSTRAP_RAW_BUDGET = 1_420 * KiB
+// are also first-play behavior, bringing the measured closure to 1418.1 KiB.
+// Persistent story-action goal accounting adds 4.0 KiB while the complete
+// rolling-horizon planner remains in the lazy Train chunk; keep a narrow
+// ceiling above that measured 1422.1 KiB closure and retain the gzip limit.
+const BOOTSTRAP_RAW_BUDGET = 1_424 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data

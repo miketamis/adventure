@@ -15,14 +15,14 @@ import {
 } from '../game/phraseProgressionResearch.js'
 import {
   TRAIN_EXERCISE_FAMILIES,
-  TRAIN_ACTION_GOAL_POLICY,
-  TRAIN_FUTURE_PLANNER_POLICY,
   TRAIN_HEALTH_POLICY,
   TRAIN_NOUN_ENDING_CORRECTION_POLICY,
   TRAIN_QUESTION_MIX_POLICY,
   TRAIN_SCHEDULER_SAFEGUARDS,
   debugLearningLanes,
 } from '../game/trainingProgression.js'
+import { TRAIN_ACTION_GOAL_POLICY } from '../game/trainActionGoalPolicy.js'
+import { TRAIN_FUTURE_PLANNER_POLICY } from '../game/trainFuturePlannerPolicy.js'
 import { TRAIN_EXERCISE_EXAMPLES } from '../game/trainingExampleRegistry.js'
 import { NOUN_FORM_ROLE_LABELS } from '../game/nounEndingRefresher.js'
 import { wordProgressionOptionsForSense } from '../game/formInventory.js'
