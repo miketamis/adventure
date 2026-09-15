@@ -22,6 +22,7 @@ import { enumerateTrainActivityCandidates } from '../src/game/trainCandidateCont
 import {
   TRAIN_ACTION_GOAL_POLICY,
   trainActionGoalEmergencyTargetIds,
+  trainActionLastResortProposal,
   trainActionGoalPriorityTargetIds,
   trainActionPracticeQueue,
 } from '../src/game/trainActionGoal.js'
@@ -402,6 +403,122 @@ check('a blocked requested word uses another saved action before asking for more
   const practiceSource = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
   assert.doesNotMatch(practiceSource, /needs a different-word round first/)
   assert.match(practiceSource, /TRAIN_ACTION_GOAL_POLICY\.terminalMessage/)
+})
+
+check('the water-carrier action exhausts e and me before the Train terminal screen', () => {
+  const node = STORY.gruaUji1
+  const eAction = node.options.find((option) =>
+    (option.text || []).some((token) => token.id === 'e_obj'))
+  const meAction = node.options.find((option) =>
+    option.confuser && (option.text || []).some((token) => token.id === 'me'))
+  assert.ok(eAction && meAction, 'the screenshot actions are missing from the water-carrier scene')
+
+  const discoveredIds = [...new Set(node.options.flatMap((option) => option.text || [])
+    .map((token) => token.id).filter(Boolean))]
+  let state = {
+    ...newRun(),
+    nodeId: 'gruaUji1',
+    discovered: Object.fromEntries(discoveredIds.map((id) => [id, true])),
+    mana: Object.fromEntries(discoveredIds.map((id) => [id, 1])),
+    practiced: Object.fromEntries(discoveredIds.map((id) => [id, 1])),
+  }
+  state.mana = { ...state.mana, e_obj: 0, me: 0 }
+  state = reducer(state, {
+    type: 'BEGIN_OPTION_TRAINING',
+    target: trainingTargetForOption('gruaUji1', eAction),
+  })
+
+  const completeNextRequiredWord = (expectedId) => {
+    const queue = trainActionPracticeQueue(state)
+    assert.equal(queue.needsMoreWords, false,
+      `Train reached its terminal state before testing ${expectedId}`)
+    const enumeration = enumerateTrainActivityCandidates({
+      state,
+      discoveredIds,
+      forceGoalTargetIds: queue.allRemainingWordIds,
+      nowMs: 1,
+      debugTrace: true,
+    })
+    const planningState = initialTrainPlanningState({
+      currentRound: state.trainRound,
+      lastWordKeys: state.trainLastWords,
+      goalRemaining: queue.priorityRemainingWordIds,
+      alternateGoalRemaining: queue.currentRemainingWordIds.length
+        ? queue.otherRemainingWordIds : [],
+      goalMaximumDiversionRounds: queue.maximumDiversionRounds,
+    })
+    const future = planTrainFuture({
+      proposals: enumeration.proposals,
+      planningState,
+      seed: `water-carrier-${expectedId}`,
+    })
+    const proposal = future.candidate || trainActionLastResortProposal(
+      enumeration.proposals,
+      queue.priorityRemainingWordIds,
+    )
+    assert.ok(proposal?.rewardIds.includes(expectedId),
+      `${expectedId} did not outrank the terminal screen`)
+    const targetTrace = proposal.builderTrace?.candidates?.find(({ id }) => id === expectedId)
+    assert.equal(targetTrace?.contextSupport?.goalOverride, true)
+    assert.ok(targetTrace.contextSupport.undiscoveredIds.length > 0,
+      `${expectedId} fixture no longer exercises the unsaved support-word gate`)
+    const question = proposal.materialize()
+    assert.equal(question.kind, 'ctx', `${expectedId} lost its reviewed disambiguating context`)
+    state = reducer(state, {
+      type: 'PRACTICE_WORD_RESULT',
+      correct: true,
+      id: question.answerId,
+      tier: question.tier,
+      mode: question.mode,
+      direction: question.dir,
+      wordStageId: question.wordStageId,
+      variantId: question.variantId,
+      targetFormKey: question.targetFormKey,
+      aspectTargets: question.aspectTargets,
+      questionKey: question.questionKey,
+      wordKeys: trainQuestionWordKeys(question),
+      attemptedAtMs: 1,
+      responseDurationMs: 1000,
+    })
+    assert.equal(state.mana[expectedId], 1, `${expectedId} did not receive its action token`)
+  }
+
+  const openingQueue = trainActionPracticeQueue(state)
+  assert.deepEqual(openingQueue.currentRemainingWordIds, ['e_obj'])
+  assert.deepEqual(openingQueue.otherRemainingWordIds, ['me'])
+  assert.equal(openingQueue.otherActions[0].confuser, true,
+    'the visible impossible action was still excluded from action-word practice')
+
+  completeNextRequiredWord('e_obj')
+  assert.deepEqual(trainActionPracticeQueue(state).priorityRemainingWordIds, ['me'])
+  completeNextRequiredWord('me')
+  assert.equal(trainActionPracticeQueue(state).needsMoreWords, true,
+    'Train did not reach its terminal state after both visible-action deficits were funded')
+
+  const repeatQueue = { priorityRemainingWordIds: ['me'] }
+  const repeatEnumeration = enumerateTrainActivityCandidates({
+    state: { ...state, mana: { ...state.mana, me: 0 } },
+    discoveredIds,
+    forceGoalTargetIds: ['me'],
+    nowMs: 1,
+  })
+  const meProposal = repeatEnumeration.proposals.find(({ rewardIds }) => rewardIds.includes('me'))
+  assert.ok(meProposal)
+  const blockedFuture = planTrainFuture({
+    proposals: [meProposal],
+    planningState: initialTrainPlanningState({
+      currentRound: state.trainRound,
+      lastWordKeys: meProposal.wordKeys,
+      goalRemaining: ['me'],
+      goalMaximumDiversionRounds: 7,
+    }),
+    seed: 'water-carrier-last-resort',
+  })
+  assert.equal(blockedFuture.candidate, null,
+    'the fixture no longer reaches the ordinary no-shared-word rejection')
+  assert.equal(trainActionLastResortProposal(
+    [meProposal], repeatQueue.priorityRemainingWordIds,
+  ), meProposal, 'the last missing visible-action token lost to a false terminal screen')
 })
 
 check('authored story-option training identities are unambiguous', () => {

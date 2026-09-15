@@ -93,19 +93,27 @@ const mergedReviewedContext = (base, variant = null) => {
   }
 }
 
-export function eligibleReviewedContexts(answerId, discoveredIds = []) {
+export function eligibleReviewedContexts(answerId, discoveredIds = [], {
+  allowUndiscoveredSupport = false,
+} = {}) {
   const base = DICT[answerId]?.ctx
   if (!base) return []
   const variants = Array.isArray(base.variants) && base.variants.length
     ? base.variants.map((variant) => mergedReviewedContext(base, variant))
     : [base]
   const discovered = new Set(discoveredIds)
-  return variants.filter((context) => !Array.isArray(context.requires) ||
+  return variants.filter((context) => allowUndiscoveredSupport || !Array.isArray(context.requires) ||
     context.requires.every((id) => id === answerId || discovered.has(id)))
 }
 
-export const reviewedContextForRound = (answerId, discoveredIds, currentRound, lastAttemptKey) => {
-  const eligible = eligibleReviewedContexts(answerId, discoveredIds)
+export const reviewedContextForRound = (
+  answerId,
+  discoveredIds,
+  currentRound,
+  lastAttemptKey,
+  { allowUndiscoveredSupport = false } = {},
+) => {
+  const eligible = eligibleReviewedContexts(answerId, discoveredIds, { allowUndiscoveredSupport })
   if (!eligible.length) return null
   const previousId = typeof lastAttemptKey === 'string'
     ? eligible.find(({ id }) => lastAttemptKey.includes(`:context-${id}:`))?.id
@@ -419,7 +427,13 @@ export function wordQuestionRouteAspectIds({
   const progressionOptions = wordProgressionOptionsForSense(targetId)
   if (!progressionOptions.trainability.trainable) return []
   const progress = normalizeWordProgress(wordProgress[targetId], currentRound)
-  const context = reviewedContextForRound(targetId, discoveredIds, currentRound, progress.lastAttemptKey)
+  const context = reviewedContextForRound(targetId, discoveredIds, currentRound, progress.lastAttemptKey, {
+    // A zero-token action word must remain testable even when the learner has
+    // not saved every supporting word in its reviewed situation. The card
+    // still uses the exact reviewed, sense-discriminating context and rewards
+    // only the requested target; it never falls back to a bare homograph.
+    allowUndiscoveredSupport: allowEarlyDueForGoal,
+  })
   if (progressionOptions.context && !context) return []
   return wordProgressRouteAspectIds(progress, currentRound, {
     ...progressionOptions,
@@ -488,8 +502,19 @@ export function buildWordQuestion({
       continue
     }
     const progress = normalizeWordProgress(wordProgress[id], currentRound)
-    const context = reviewedContextForRound(id, discoveredIds, currentRound, progress.lastAttemptKey)
+    const context = reviewedContextForRound(id, discoveredIds, currentRound, progress.lastAttemptKey, {
+      allowUndiscoveredSupport: allowEarlyDueForGoal && targetId === id,
+    })
     candidate && (candidate.reviewedContextId = context?.id || null)
+    if (candidate && context) {
+      const discovered = new Set(discoveredIds || [])
+      candidate.contextSupport = {
+        requiredIds: [...(context.requires || [])],
+        undiscoveredIds: (context.requires || []).filter((requiredId) =>
+          requiredId !== id && !discovered.has(requiredId)),
+        goalOverride: allowEarlyDueForGoal && targetId === id,
+      }
+    }
     if (progressionOptions.context && !context) {
       candidate?.reasons.push('no reviewed context is eligible with the currently discovered supporting words')
       if (candidate) trace.candidates.push(candidate)

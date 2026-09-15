@@ -76,21 +76,29 @@ const actionWordIds = (option) => [...new Set((option?.text || [])
   .filter((id) => typeof id === 'string' && isTrainableSense(id)))]
 
 // Once the exact hand-off action is funded, Train should keep serving words
-// that unlock another authored action at the same story node. Only actions
-// whose complete trainable vocabulary is already saved qualify: this fallback
+// that unlock another authored action at the same story node. Deliberately
+// impossible/confuser actions still count: they are visible action-shaped
+// goals whose words the learner deliberately saved. Only actions whose
+// complete trainable vocabulary is already saved qualify, so this fallback
 // never reveals a new word or invents a target outside the story graph.
 export function trainActionPracticeQueue(state) {
   const goal = trainActionGoalForState(state)
   const currentOption = goal ? resolveTrainingTarget(goal.target) : null
   const currentRemainingWordIds = goal?.remainingWordIds || []
   const otherActions = (STORY[state?.nodeId]?.options || []).flatMap((option, optionIndex) => {
-    if (option?.confuser || option === currentOption) return []
+    if (option === currentOption) return []
     const requiredWordIds = actionWordIds(option)
     if (!requiredWordIds.length || !requiredWordIds.every((id) => state?.discovered?.[id])) return []
     const remainingWordIds = requiredWordIds.filter((id) => (state?.mana?.[id] || 0) < 1)
     if (!remainingWordIds.length) return []
     const target = trainingTargetForOption(state.nodeId, option)
-    return target ? [{ optionIndex, target, requiredWordIds, remainingWordIds }] : []
+    return target ? [{
+      optionIndex,
+      target,
+      confuser: option?.confuser === true,
+      requiredWordIds,
+      remainingWordIds,
+    }] : []
   })
   const otherRemainingWordIds = [...new Set(otherActions.flatMap(({ remainingWordIds }) => remainingWordIds))]
   const priorityRemainingWordIds = currentRemainingWordIds.length
@@ -110,6 +118,26 @@ export function trainActionPracticeQueue(state) {
 }
 
 export const trainActionPracticeTargetIds = (state) => trainActionPracticeQueue(state).allRemainingWordIds
+
+// This is deliberately narrower than the normal future planner. It runs only
+// when every ordinarily legal root candidate was rejected, and prevents a
+// false terminal screen while a buildable action-token question still exists.
+// Target order is meaningful: current-action words precede sibling-action
+// words, and authored token order breaks ties before capability metadata.
+export function trainActionLastResortProposal(proposals = [], priorityTargetIds = []) {
+  for (const targetId of [...new Set(priorityTargetIds || [])]) {
+    const candidates = (proposals || []).filter((proposal) =>
+      proposal?.buildabilityCertificate?.valid && proposal.rewardIds?.includes(targetId))
+    if (!candidates.length) continue
+    return [...candidates].sort((left, right) =>
+      Number(Boolean(right.remediation)) - Number(Boolean(left.remediation)) ||
+      (right.urgency?.overdueMs || 0) - (left.urgency?.overdueMs || 0) ||
+      (right.urgency?.expectedLearningGain || 0) - (left.urgency?.expectedLearningGain || 0) ||
+      String(left.candidateId).localeCompare(String(right.candidateId))
+    )[0]
+  }
+  return null
+}
 
 export function trainActionGoalEmergencyTargetIds(state) {
   const priorityTargetIds = trainActionGoalPriorityTargetIds(state)

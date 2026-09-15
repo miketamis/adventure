@@ -227,6 +227,16 @@ assert.ok(poProgressContextSources.size >= 3, 'po progressive repeated one sente
 assert.equal(buildWordQuestion({
   discoveredIds: ['po_prog', 'bie'], targetId: 'po_prog', currentRound: 0, rng: () => 0,
 }), null, 'Po bie shi was scheduled before shi was saved')
+const forcedActionContext = buildWordQuestion({
+  discoveredIds: ['me'],
+  targetId: 'me',
+  currentRound: 0,
+  allowEarlyDueForGoal: true,
+  rng: () => 0,
+})
+assert.equal(forcedActionContext?.ctx?.authoredAl, DICT.me.ctx.al,
+  'a missing visible-action token could not use its reviewed context when its support words were unsaved')
+assert.equal(forcedActionContext?.kind, 'ctx')
 const rainContext = buildWordQuestion({
   discoveredIds: ['po_prog', 'bie', 'shi'], targetId: 'po_prog', currentRound: 0, rng: () => 0,
 })

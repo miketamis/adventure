@@ -402,6 +402,11 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.equal(TRAIN_SCHEDULER_SAFEGUARDS.allowSameActivityTypeForDisjointFallback, true)
   assert.equal(TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity, 8)
   assert.equal(TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity, 7)
+  assert.ok(TRAIN_ACTION_GOAL_POLICY.emergencyOverrides.some((rule) =>
+    rule.includes('consecutive shared Albanian word')))
+  assert.deepEqual(TRAIN_ACTION_GOAL_POLICY.emergencyNeverOverrides, [
+    'builder validity and reviewed content',
+  ])
   assert.equal(TRAIN_QUESTION_MIX_POLICY.wordDirection.source, 'word-stage-definition')
 
   const practice = read('src/components/PracticeView.jsx')
@@ -414,6 +419,7 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.match(practice, /enumerateTrainActivityCandidates/)
   assert.match(practice, /initialTrainPlanningState/)
   assert.match(practice, /planTrainFuture/)
+  assert.match(practice, /trainActionLastResortProposal/)
   assert.match(practice, /buildNounOddOneOutRefresher/)
   assert.doesNotMatch(practice, /formsCorrection/)
   assert.match(practice, /WORD_ALBANIAN_TO_ENGLISH\.id/)

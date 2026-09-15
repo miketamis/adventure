@@ -55,6 +55,7 @@ import {
   normalizeTrainActionGoalSession,
   TRAIN_ACTION_GOAL_POLICY,
   trainActionGoalForState,
+  trainActionLastResortProposal,
   trainActionPracticeQueue,
 } from '../game/trainActionGoal.js'
 import { resolveTrainingTarget } from '../game/trainingTarget.js'
@@ -202,15 +203,24 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     const oracleReport = state.debug
       ? trainPlannerOracleReport(future, exactOracle, planningState)
       : null
-    const selectedProposal = future.candidate
+    const actionLastResort = future.candidate ? null : trainActionLastResortProposal(
+      enumeration.proposals,
+      actionPracticeQueue.priorityRemainingWordIds,
+    )
+    // The future planner owns every ordinary decision. If all of its roots are
+    // blocked, a still-missing visible action word owns the final decision and
+    // may break the immediate-repeat boundary rather than show a false end.
+    const selectedProposal = future.candidate || actionLastResort
     const schedulerTrace = {
       builder: 'train-future-planner',
       reason: selectedProposal
-        ? actionPracticeQueue.currentRemainingWordIds.length
-          ? `Selected the strongest future route toward the requested story action while preserving legal target and activity diversity.`
-          : actionPracticeQueue.otherRemainingWordIds.length
-            ? `Selected the strongest future route toward another same-node story action whose words are already saved.`
-          : `Selected the strongest future route across every currently buildable Train family.`
+        ? actionLastResort
+          ? `Every ordinary future route was blocked, so Train used the reviewed last-resort card for a still-missing visible action word.`
+          : actionPracticeQueue.currentRemainingWordIds.length
+            ? `Selected the strongest future route toward the requested story action while preserving legal target and activity diversity.`
+            : actionPracticeQueue.otherRemainingWordIds.length
+              ? `Selected the strongest future route toward another same-node story action whose words are already saved.`
+              : `Selected the strongest future route across every currently buildable Train family.`
         : `Every currently buildable proposal was rejected by an explicit hard constraint.`,
       currentRound: state.trainRound || 0,
       nowMs,
@@ -225,6 +235,10 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
       enumeration: enumeration.trace,
       future: {
         ...future.trace,
+        actionLastResort: actionLastResort ? {
+          reason: 'a buildable visible-action target outranks the terminal screen after ordinary constraints exhaust the root pool',
+          candidate: trainCandidateDebugRecord(actionLastResort),
+        } : null,
         exactOracle: exactOracle?.trace || null,
         oracleReport,
       },
