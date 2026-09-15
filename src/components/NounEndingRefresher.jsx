@@ -56,14 +56,13 @@ export default function NounEndingRefresher({
 
       <div className="noun-ending-layer-label">This noun</div>
       <h4 className="noun-ending-same-noun">
-        {test ? 'Every reviewed form' : 'Same noun, different job'} ·{' '}
+        Every reviewed form ·{' '}
         <span lang="sq">{baseFormOf(guide)}</span>
       </h4>
-      {test && (
-        <p className="noun-ending-table-key">
-          The table includes every reviewed form. Badges mark the four forms used in this question.
-        </p>
-      )}
+      <p className="noun-ending-table-key">
+        Each row is a grammatical job. The same spelling can appear more than once when context gives it a different job.
+        {test && ' Badges mark the four forms used in this question.'}
+      </p>
 
       <dl className="noun-ending-rows">
         {guide.rows.map((row) => {

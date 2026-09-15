@@ -77,17 +77,6 @@ export function phraseNounEndingRefresher(question, result) {
   return buildNounEndingRefresher(id, expectedSurface, target.gloss)
 }
 
-const SINGULAR_TAGS = new Set([
-  'indefNom',
-  'indefAcc',
-  'defNom',
-  'defAcc',
-  'defDat',
-  'defDatTosk',
-  'indefDat',
-  'ablIndef',
-])
-
 const ROLE_ORDER = [
   'indefNom',
   'indefAcc',
@@ -197,6 +186,7 @@ const roleIndex = (tag) => {
 }
 
 const sortByRole = (a, b) => roleIndex(a.tag) - roleIndex(b.tag)
+const exactForm = (left, right) => left.al === right.al && left.tag === right.tag && left.gloss === right.gloss
 
 const commonPrefix = (surfaces) => {
   let prefix = surfaces[0] || ''
@@ -345,32 +335,6 @@ const patternFor = (forms, target, signature, peer) => {
   return `These reviewed nouns share this narrow singular pattern: ${endingNames}. Use it only when all four jobs match.`
 }
 
-const rowsFor = (forms, target) => {
-  const targetFamily = target.tag.startsWith('pl')
-    ? (form) => form.tag.startsWith('pl') || form.tag === 'indefNom'
-    : target.tag === 'adj' || target.tag === 'adjPl'
-      ? (form) => form.tag === 'indefNom' || form.tag === 'adj' || form.tag === 'adjPl'
-      : target.tag === 'voc'
-        ? (form) => form.tag === 'indefNom' || form.tag === 'voc'
-        : target.tag === 'elided'
-          ? (form) => form.tag === 'indefNom' || form.tag === 'elided'
-          : CORE_CLASS_TAGS.includes(target.tag)
-            ? (form) => CORE_CLASS_TAGS.includes(form.tag)
-            : target.tag === 'indefAcc'
-              ? (form) => ['indefNom', 'indefAcc', 'defAcc'].includes(form.tag)
-              : target.tag === 'indefDat' || target.tag === 'ablIndef'
-                ? (form) => ['indefNom', 'indefDat', 'ablIndef', 'defDat'].includes(form.tag)
-                : target.tag === 'defDatTosk'
-                  ? (form) => [...CORE_CLASS_TAGS, 'defDatTosk'].includes(form.tag)
-                  : (form) => SINGULAR_TAGS.has(form.tag)
-
-  const selected = forms.filter(targetFamily)
-  if (!selected.includes(target)) selected.push(target)
-  return selected.sort((a, b) => {
-    return sortByRole(a, b)
-  })
-}
-
 /**
  * Build a correction sheet only from the reviewed paradigm for `id`.
  * `expectedGloss` disambiguates duplicate surfaces if a paradigm ever contains
@@ -388,6 +352,7 @@ export function buildNounEndingRefresher(id, surface, expectedGloss) {
   const signature = CORE_CLASS_TAGS.includes(target.tag) ? classSignature(forms) : null
   const peer = peerFor(id, signature)
 
+  const allRows = [...forms].sort(sortByRole).map((form) => enrichForm(form, forms))
   return {
     id,
     target: enrichForm(target, forms),
@@ -397,8 +362,11 @@ export function buildNounEndingRefresher(id, surface, expectedGloss) {
       endings: [...signature.endings],
     } : null,
     peer,
-    allRows: [...forms].sort(sortByRole).map((form) => enrichForm(form, forms)),
-    rows: rowsFor(forms, target).map((form) => ({ ...enrichForm(form, forms), missed: form === target })),
+    allRows,
+    // A correction must never make a complete reviewed noun look like a
+    // four-form mini-paradigm. Syncretic spellings remain separate rows because
+    // their grammatical jobs are separate even when the visible form is equal.
+    rows: allRows.map((form) => ({ ...form, missed: exactForm(form, target) })),
   }
 }
 

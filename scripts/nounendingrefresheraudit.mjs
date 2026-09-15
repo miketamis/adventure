@@ -65,6 +65,11 @@ for (const [id, sourceForms] of Object.entries(NOUN_FORMS)) {
       sourceKeys,
       `${id}/${target.al}: complete reviewed paradigm is missing from the refresher data`,
     )
+    assert.deepEqual(
+      new Set(sheet.rows.map(exactKey)),
+      sourceKeys,
+      `${id}/${target.al}: learner-facing refresher truncates the reviewed paradigm`,
+    )
     for (const row of sheet.rows) {
       assert.ok(sourceKeys.has(exactKey(row)), `${id}/${target.al}: invented row ${row.al}/${row.tag}`)
       assert.equal(row.role, NOUN_FORM_ROLE_LABELS[row.tag], `${id}/${row.al}: missing exact role label`)
@@ -114,7 +119,7 @@ for (const [id, sourceForms] of Object.entries(NOUN_FORMS)) {
 
 const feminineExample = buildNounEndingRefresher('vajze', 'vajzën', 'the maiden (object)')
 assert.deepEqual(
-  feminineExample.rows.map((row) => row.al),
+  feminineExample.rows.filter(({ tag }) => coreTags.includes(tag)).map((row) => row.al),
   ['vajzë', 'vajza', 'vajzën', 'vajzës'],
   'common feminine -ë correction lost its useful four-form chain',
 )
@@ -129,7 +134,7 @@ assert.deepEqual(
 
 const bridge = buildNounEndingRefresher('ure', 'urën', 'the bridge (object)')
 assert.deepEqual(
-  bridge.rows.map(({ al, role, learnerMeaning, example }) => ({ al, role, learnerMeaning, example })),
+  bridge.rows.filter(({ tag }) => coreTags.includes(tag)).map(({ al, role, learnerMeaning, example }) => ({ al, role, learnerMeaning, example })),
   [
     { al: 'urë', role: 'base form · one / a', learnerMeaning: 'a bridge', example: { al: 'një urë', en: 'a bridge', requires: ['nje'] } },
     { al: 'ura', role: 'the noun · subject', learnerMeaning: 'the bridge', example: { al: 'Ura është këtu.', en: 'The bridge is here.', requires: ['eshte', 'ketu'] } },
@@ -153,9 +158,9 @@ const phraseBridge = phraseNounEndingRefresher(
 )
 assert.equal(phraseBridge.target.al, 'urën', 'phrase remediation did not use its exact contextual noun form')
 assert.deepEqual(
-  phraseBridge.rows.map((row) => row.al),
-  ['urë', 'ura', 'urën', 'urës'],
-  'phrase remediation did not reuse the exact noun/general-pattern sheet',
+  phraseBridge.rows.map(exactKey),
+  buildNounEndingRefresher('ure', 'urën', 'the bridge (object)').allRows.map(exactKey),
+  'phrase remediation did not reuse the complete exact noun paradigm sheet',
 )
 const focusSpellingBridge = phraseNounEndingRefresher(
   { focusId: 'ure', skill: 'production', tier: 2, mode: 'type', typeScope: 'word' },
@@ -247,8 +252,8 @@ const refresherMarkupStart = refresherUi.indexOf('className="noun-ending-refresh
 const refresherMarkupEnd = refresherUi.lastIndexOf('\n}')
 assert.ok(refresherMarkupStart >= 0 && refresherMarkupEnd > refresherMarkupStart, 'shared noun refresher markup boundary is missing')
 const refresherMarkup = refresherUi.slice(refresherMarkupStart, refresherMarkupEnd)
-assert.ok(refresherUi.includes('Same noun, different job'), 'plain same-noun framing is missing')
 assert.ok(refresherUi.includes('Every reviewed form'), 'complete reviewed paradigm framing is missing')
+assert.ok(refresherUi.includes('same spelling can appear more than once'), 'syncretic-role explanation is missing')
 assert.ok(refresherUi.includes('in this question'), 'question-membership badge is missing')
 assert.ok(refresherUi.includes('your choice'), 'learner-choice badge is missing')
 assert.ok(refresherUi.includes('odd one out'), 'correct exception badge is missing')
