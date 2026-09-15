@@ -196,6 +196,7 @@ export const DEFINITION_REVIEWS_I_P = Object.freeze({
   "mend": "pjesa e njeriut që mendon dhe kujton",
   "mendoj": "përdor mendjen para se të zgjedh",
   "menjehere": "pa pritur fare",
+  "merak": "frikë për një njeri ose një gjë",
   "merimanga": "kafshë e vogël me tetë këmbë",
   "mermer": "gur i bardhë që shkëlqen në pallat",
   "merr": "e sjell në dorën tënde ose dikush ta jep",
@@ -269,6 +270,7 @@ export const DEFINITION_REVIEWS_I_P = Object.freeze({
   "ndonje": "a ka ___ shtëpi këtu?",
   "ndonjehere": "disa herë, por jo gjithmonë",
   "ndoshta": "mund të jetë po, mund të jetë jo",
+  "obobo": "fjalë që thua kur sheh diçka shumë të mirë ose shumë të keqe",
   "ndryshe": "jo kështu; në një mënyrë tjetër",
   "ndryshon": "një gjë nuk rri e njëjtë; bëhet ndryshe",
   "ne_we": "unë dhe ti bashkë",
@@ -1002,6 +1004,9 @@ export const GLOSS_REVIEWS_I_P = Object.freeze({
   "menjehere": {
     "en": "at once"
   },
+  "merak": {
+    "en": "worry or concern"
+  },
   "merimanga": {
     "en": "spider"
   },
@@ -1222,6 +1227,9 @@ export const GLOSS_REVIEWS_I_P = Object.freeze({
   },
   "ndoshta": {
     "en": "maybe"
+  },
+  "obobo": {
+    "en": "oh no or oh wow (emotional reaction)"
   },
   "ndryshe": {
     "en": "differently"

@@ -618,6 +618,39 @@ const BASE_REVIEWED_WORD_CONTEXTS = Object.freeze({
   // Common conversational words whose exact force is clearest in one lived
   // utterance. These contexts teach the ordinary meaning without promoting
   // the more prosody-sensitive receptive expressions into bare-word Train.
+  merak: reviewed({
+    al: 'Mos ki merak; unë do të vij.',
+    en: 'Do not have __; I will come.',
+    focus: 'merak',
+    retrievalEn: 'Do not worry; I will come.',
+    distractorIds: ['frike', 'problem', 'kujdes'],
+    retrievalDistractorIds: ['frike', 'problem', 'kujdes'],
+    cueTokens: ['Mos', 'ki', 'vij'],
+    rationale: 'In the reassurance mos ki merak, merak names the worry or concern the listener should put aside.',
+  }),
+  boll: reviewed({
+    al: 'Boll, tani pusho pak.',
+    en: '__, now rest a little.',
+    focus: 'boll',
+    retrievalEn: 'Enough, now rest a little.',
+    distractorIds: ['vazhdo', 'perseri', 'pak'],
+    retrievalDistractorIds: ['vazhdo', 'perseri', 'pak'],
+    cueTokens: ['tani', 'pusho', 'pak'],
+    rationale: 'Before the request to rest, boll tells the listener that the present amount or action should stop.',
+    defensibleAlternativeRationales: { en2al: {
+      mjaft: 'Mjaft is a standard and natural synonym for “enough” in this request to stop and rest.',
+    } },
+  }),
+  shyqyr: reviewed({
+    al: 'Shyqyr, uji u kthye.',
+    en: '__, the water returned.',
+    focus: 'shyqyr',
+    retrievalEn: 'Thank goodness, the water returned.',
+    distractorIds: ['ndoshta', 'gjoja', 'kushedi'],
+    retrievalDistractorIds: ['ndoshta', 'gjoja', 'kushedi'],
+    cueTokens: ['uji', 'u kthye'],
+    rationale: 'The welcome return of the water makes shyqyr an expression of relief, not uncertainty about what happened.',
+  }),
   kot: reviewed({
     al: 'Ai flet kot.',
     en: 'He is talking __.',
@@ -703,14 +736,14 @@ const BASE_REVIEWED_WORD_CONTEXTS = Object.freeze({
     rationale: 'After an explicit yes, seriozisht confirms that the speaker is not joking or pretending.',
   }),
   ckemi: reviewed({
-    al: 'Hej, çkemi?',
+    al: "Hej, ç'kemi?",
     en: 'Hey, __?',
-    focus: 'çkemi',
+    focus: "ç'kemi",
     retrievalEn: 'Hey, how are things?',
     distractorIds: ['mirupafshim', 'faleminderit', 'lutem'],
     retrievalDistractorIds: ['mirupafshim', 'faleminderit', 'lutem'],
     cueTokens: ['Hej'],
-    rationale: 'After hej, çkemi is a friendly conversational check on how things are going.',
+    rationale: "After hej, ç'kemi is a friendly conversational check on how things are going.",
   }),
 
   // High-frequency function words also require a lived context even when no

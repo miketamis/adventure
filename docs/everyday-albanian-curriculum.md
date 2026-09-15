@@ -24,7 +24,7 @@ against the live registries by `scripts/conversationaudit.mjs`):
 - 15 opening targets; <!-- curriculum:opening=15 -->
 - 72 first-session targets; <!-- curriculum:session=72 -->
 - 200 practice-priority senses; <!-- curriculum:core=200 -->
-- 145 whole-phrase drills; <!-- curriculum:phrases=145 -->
+- 150 whole-phrase drills; <!-- curriculum:phrases=150 -->
 - 26 story-grounded can-do groups. <!-- curriculum:groups=26 -->
 
 Every whole-phrase drill must be found in a playable story line or action. `scripts/conversationaudit.mjs` rejects an ungrounded drill, a missing first-session target, an unknown sense, or an underfilled can-do group.

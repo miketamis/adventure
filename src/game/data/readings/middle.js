@@ -724,7 +724,6 @@ export const MIDDLE_READINGS = {
   "nastradin1.text[3]": { al: "Historia e kazanit duket qesharake, por kuzhinieri nuk qesh.", en: "The story of the cauldron sounds ridiculous, but the cook does not laugh." },
   "tregtariBiseda.text[0]": { al: "Tregtari lë çantën me para dhe të dëgjon.", en: "The trader sets down the money bag and listens to you." },
   "bujtinariBiseda.text[0]": { al: "Gruaja vendos çelësat pranë zjarrit dhe të dëgjon.", en: "The innkeeper sets the keys beside the fire and listens to you." },
-  "bujtinariBiseda.text[1]": { al: "ajo thotë: po. Uji i ngrohtë është pranë zjarrit.", en: "She says, “Yes. The hot water is beside the fire.”" },
   "sheruesiBiseda.text[0]": { al: "Shëruesi lan duart dhe të dëgjon.", en: "The healer washes his hands and listens to you." },
   "sheruesiBiseda.text[2]": { al: "ai thotë: po, por bëj kujdes me dorën tënde.", en: "He says, “Yes, but be careful with your hand.”" },
   "sheruesiBiseda.text[3]": { al: "ai thotë: po. Mbaje fashën të pastër dhe të thatë.", en: "He says, “Yes. Keep the bandage clean and dry.”" },
@@ -737,6 +736,7 @@ export const MIDDLE_READINGS = {
   "sheruesiBiseda.text[1]": { al: "ai thotë: Kthehu nesër në mëngjes.", en: "He says, “Come back tomorrow morning.”" },
   "tregtariBiseda.text[3]": { al: "ai thotë: Dyqani hapet fiks në orën shtatë.", en: "He says, “The shop opens at exactly seven o’clock.”" },
   "bujtinariBiseda.text[2]": { al: "ajo thotë: Mëngjesi fillon fiks në orën shtatë.", en: "She says, “Breakfast starts at exactly seven o’clock.”" },
-  "bujtinariBiseda.text[3]": { al: "ajo thotë: po. Lëreni çantën pranë derës.", en: "She says, “Yes. Leave the bag beside the door.”" },
-  "bujtinariBiseda.text[4]": { al: "Gruaja tund kokën. Jo. Lëreni këtu. Është e sigurt.", en: "The innkeeper shakes her head. “No. Leave it here. It is safe.”" },
+  "bujtinariBiseda.text[3]": { al: "Gruaja tregon derën. Ja pra. Lëreni çantën pranë derës.", en: "The innkeeper points to the door. “There you are. Leave the bag beside the door.”" },
+  "bujtinariBiseda.text[4]": { al: "Gruaja buzëqesh. Pa merak. Lëreni këtu; është e sigurt.", en: "The innkeeper smiles. “No worries. Leave it here; it is safe.”" },
+  "bujtinariBiseda.text[1]": { al: "ajo thotë: po. ka mjaft ujë të ngrohtë pranë zjarrit.", en: "She says, “Yes. There is enough hot water beside the fire.”" },
 }

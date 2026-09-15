@@ -21,7 +21,7 @@ export const TOP_1000_EXISTING_FORMS = {
   fol: 'flas flasësh',
   dua: 'doni doja doje don duash',
   ndodh: 'ndodhur ndodhet',
-  kuptoj: 'kupton kuptova kuptove kuptoni',
+  kuptoj: 'kupton kuptove kuptoni',
   ai: 'atij',
   ajo: 'asaj',
   shiko: 'shikoni shikoj shikoje shikosh',

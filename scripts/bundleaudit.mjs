@@ -152,12 +152,13 @@ const SHELL_RAW_BUDGET = 165 * KiB
 const SHELL_GZIP_BUDGET = 56 * KiB
 // The lexical evidence state machine, death-retention boundary, compact
 // mixed-matching registry, exact reviewed noun paradigms, and the first-village
-// conversation hubs are first-play behavior, not optional tooling. The ten
+// conversation hubs are first-play behavior, not optional tooling. The
 // player-led hubs add a measured 19 KiB to the story closure. The reviewed
-// colloquial follow-ups and their six contextual Train cards bring that same
-// first-play closure to 1408.3 KiB; keep a narrow ceiling above the measured
-// payload while retaining the stricter gzip limit.
-const BOOTSTRAP_RAW_BUDGET = 1_410 * KiB
+// colloquial follow-ups, the broader everyday-expression registry and five
+// reviewed Train phrases bring that same first-play closure to 1413.3 KiB;
+// keep a narrow ceiling above the measured payload while retaining the
+// stricter gzip limit.
+const BOOTSTRAP_RAW_BUDGET = 1_415 * KiB
 const BOOTSTRAP_GZIP_BUDGET = 350 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
@@ -176,10 +177,10 @@ const AUDIO_FILE_BUDGET = 64 * KiB
 // clips so alignment metadata cannot grow without a release review.
 // The expanded village conversations add their continuous Albanian recordings
 // and exact waveform-correlated word boundaries. The resulting complete
-// manifest is 1053.8 KiB; keep narrow measured raw and compressed allowances
-// for that release-safety data.
-const ACTION_TIMINGS_RAW_BUDGET = 1_055 * KiB
-const ACTION_TIMINGS_GZIP_BUDGET = 132 * KiB
+// manifest is 1055.5 KiB raw / 132.1 KiB gzip; keep narrow measured raw and
+// compressed allowances for that release-safety data.
+const ACTION_TIMINGS_RAW_BUDGET = 1_057 * KiB
+const ACTION_TIMINGS_GZIP_BUDGET = 133 * KiB
 // Every accepted story action now has one continuous, on-demand MP3 so action
 // karaoke never falls back to stitched word clips or browser TTS. Keep a
 // measured ceiling over that complete 4,486-clip archive; none is eager-loaded.

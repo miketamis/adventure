@@ -44,7 +44,7 @@ export const NOUN_PARADIGM_BACKLOG = Object.freeze({
     kafene kafshe kala karroce kashte kenge keshille kopsht
     kose kove kripe kujdes kukull kungull kurban kuror kurth kusur
     laker lajm lek lekure leng lidhje li liqen litar lloj luge lufte
-    lule maja mami mejdan menyre merimanga mermer mesdite
+    lule maja mami mejdan menyre merak merimanga mermer mesdite
     mesnate mjalte mi miell mjeker mjegull mundim mundesi muaj
     mushkonje muzg nevoje njerke pagezim pasdite pasuri pe
     perendi perralle pershendetje peshk pjese pishtar plage plis

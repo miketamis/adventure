@@ -206,7 +206,7 @@ actions must also keep identical English across registry files. The audit pins
 two narrow contextual exceptions: *rrugës* can be a road or a village lane,
 and *diellin* can name either the physical sun or the personified Sun.
 
-The audit simulates 50 salted attempts for every one of the 145
+The audit simulates 50 salted attempts for every one of the 150
 achievements: 7,250 attempts and 29,000 questions. It requires four questions
 per attempt, three unique options per question, the correct option to be
 present, and every sentence answer to resolve to approved whole-line metadata.

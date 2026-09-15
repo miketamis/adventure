@@ -251,5 +251,6 @@ contextOnly('tjeter', 'Tjetër changes form and meaning with its noun and can me
 contextOnly('tille', 'Tillë expresses “such” through agreement with an understood or stated noun; its exact form and force require an authored noun phrase.')
 contextOnly('vjec', 'Vjeç occurs in an age expression with a number and copular frame; it should not be treated as a freely translatable bare adjective.')
 contextOnly('seriozisht', 'Seriozisht distinguishes a sincere assertion from joking or pretending only in a complete conversational situation, so its hard alternatives must remain context-bound.')
+contextOnly('shyqyr', 'Shyqyr expresses relief at welcome news; it needs the reviewed outcome context so uncertainty and other reaction formulas remain clearly wrong.')
 
 export const HARD_CONTRAST_REVIEWS_Q_Z = Object.freeze(registry)

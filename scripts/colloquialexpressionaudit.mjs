@@ -62,6 +62,18 @@ const REQUIRED_SURFACES = [
   'Pse jo?',
   'Epo mirë.',
   'Nejse.',
+  'Po pra.',
+  'Ja pra.',
+  'Me gjithë mend?',
+  'Po bëj shaka.',
+  'Tani e kuptova.',
+  'Pa merak.',
+  'Shyqyr.',
+  'Aman!',
+  'Obobo!',
+  'Boll më.',
+  'Mirë, mirë.',
+  'Patjetër.',
 ]
 
 const lower = (value) => String(value || '')
@@ -202,6 +214,10 @@ for (const review of COLLOQUIAL_EXPRESSION_REVIEWS) {
   if (review.trainPolicy === COLLOQUIAL_TRAIN_POLICIES.PRODUCTIVE) {
     assert.ok(review.phraseIds.length > 0 || review.focalSenseIds.some(isTrainableSense),
       `${review.id}: productive policy has no real Train route`)
+    if (wordSequence(review.al).length > 1) {
+      assert.ok(review.phraseIds.length > 0,
+        `${review.id}: productive multiword expression has no reviewed whole-phrase activity`)
+    }
   }
   if (review.trainPolicy === COLLOQUIAL_TRAIN_POLICIES.STORY_ONLY) {
     assert.equal(review.phraseIds.length, 0, `${review.id}: story-only review names a phrase drill`)

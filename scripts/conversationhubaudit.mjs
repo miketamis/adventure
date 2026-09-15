@@ -92,12 +92,12 @@ const VILLAGE_CONVERSATION_TOPICS = {
   'elira-neighbour': ['today', 'work', 'availability', 'waitQuestion'],
   'spring-girl': ['water', 'routine', 'village'],
   'forest-guest': ['cold', 'destination', 'alone'],
-  'square-elder': ['well', 'water', 'help', 'seriously', 'meaning', 'clarify', 'repair', 'agree'],
+  'square-elder': ['well', 'water', 'help', 'seriously', 'meaning', 'clarify', 'repair', 'understood', 'agree'],
   'village-shepherd': ['today', 'goats', 'help', 'return'],
   'gjakova-trader': ['cheaper', 'road', 'opening'],
   'gjakova-healer': ['return', 'work', 'bandage'],
   'gjakova-innkeeper': ['hotWater', 'breakfast', 'bag', 'leaveBag'],
-  'rain-children': ['activity', 'join', 'reason', 'nonsense'],
+  'rain-children': ['activity', 'join', 'reason', 'really', 'nonsense'],
   'village-wedding': ['start', 'bride', 'dance'],
 }
 
@@ -114,10 +114,14 @@ const REVIEWED_HUB_SURFACES = [
   ['square-elder', 'meaning', 'question', 'Si domethënë?', ['domethene']],
   ['square-elder', 'clarify', 'question', 'Çfarë do të thuash?', ['cfare', 'thote']],
   ['square-elder', 'repair', 'question', 'Nuk e kuptoj. Mund ta përsërisësh, të lutem?', ['kuptoj', 'perserit']],
+  ['square-elder', 'understood', 'question', 'Tani e kuptova.', ['tani', 'e_obj', 'kuptoj']],
+  ['square-elder', 'understood', 'response', 'Buzëqesh. Po pra. Tani e di rrugën.', ['po_yes', 'pra']],
   ['square-elder', 'agree', 'question', 'Ke të drejtë. Duhet të ndihmojmë.', ['drejte', 'ndihmo']],
-  ['gjakova-innkeeper', 'bag', 'response', 'ajo thotë: po. Lëreni çantën pranë derës.', ['le', 'cante']],
-  ['gjakova-innkeeper', 'leaveBag', 'response', 'Gruaja tund kokën. Jo. Lëreni këtu. Është e sigurt.', ['le']],
+  ['gjakova-innkeeper', 'bag', 'response', 'Gruaja tregon derën. Ja pra. Lëreni çantën pranë derës.', ['ja', 'pra', 'le', 'cante']],
+  ['gjakova-innkeeper', 'leaveBag', 'response', 'Gruaja buzëqesh. Pa merak. Lëreni këtu; është e sigurt.', ['merak', 'le']],
+  ['rain-children', 'really', 'question', 'Me gjithë mend?', ['me', 'gjithe', 'mend']],
   ['rain-children', 'nonsense', 'question', 'Po flet kot.', ['kot']],
+  ['rain-children', 'nonsense', 'response', 'Fëmijët qeshin. Një fëmijë thotë: Hajt, mo! Po bëj shaka. Një tjetër thotë: Aman! Lëre fare. Vdiqa së qeshuri!', ['aman_appeal', 'shaka']],
   ['spring-girl', 'water', 'response', 'ajo thotë: Normal! Uji është i ftohtë sepse vjen nga mali.', ['normal_response']],
   ['gjakova-trader', 'opening', 'response', 'ai thotë: Dyqani hapet fiks në orën shtatë.', ['fiks']],
   ['gjakova-innkeeper', 'breakfast', 'response', 'ajo thotë: Mëngjesi fillon fiks në orën shtatë.', ['fiks']],
@@ -149,6 +153,8 @@ const REVIEWED_DEPENDENT_TOPICS = [
   ['square-elder', 'repair', 'water'],
   ['square-elder', 'agree', 'help'],
   ['gjakova-innkeeper', 'leaveBag', 'bag'],
+  ['square-elder', 'understood', 'repair'],
+  ['rain-children', 'really', 'reason'],
   ['rain-children', 'nonsense', 'activity'],
 ]
 for (const [hubId, questionId, prerequisiteId] of REVIEWED_DEPENDENT_TOPICS) {
@@ -166,6 +172,11 @@ for (const questionId of ['meaning', 'clarify']) {
   assert.ok([].concat(option.unless || []).includes('fact:villageWellsRestored'),
     `square-elder/${questionId}: dry-well rumor follow-up remains visible after the wells are restored`)
 }
+const childrenReallyOption = STORY.dordolecBiseda.options.find((candidate) =>
+  candidate.conversationHub?.hubId === 'rain-children'
+    && candidate.conversationHub?.questionId === 'really')
+assert.ok([].concat(childrenReallyOption.unless || []).includes('fact:villageWellsRestored'),
+  'rain-children/really: dry-well follow-up remains visible after the wells are restored')
 for (const [hubId, questionIds] of Object.entries(VILLAGE_CONVERSATION_TOPICS)) {
   const hub = CONVERSATION_HUBS[hubId]
   assert.ok(hub, `${hubId}: reviewed village conversation was removed`)

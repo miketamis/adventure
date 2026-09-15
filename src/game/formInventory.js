@@ -274,9 +274,11 @@ export function playableContextForSense(id, surface = DICT[id]?.al) {
 const genericRoleLabel = (form, wordClass) => {
   if (NOUN_FORM_ROLE_LABELS[form.tag]) return NOUN_FORM_ROLE_LABELS[form.tag]
   const reviewedNonNounRoles = {
+    '1sgPast': 'I · completed past action',
     '2plImp': 'a polite command to you / a command to you all',
     '3sgPast': 'he / she / it · completed past action',
     '3sgPres': 'he / she / it · present action',
+    '3sgPresPassive': 'it · present passive action',
     part: 'past participle · used with have / be',
   }
   if (wordClass !== WORD_CLASS.NOUN) return reviewedNonNounRoles[form.tag] || null

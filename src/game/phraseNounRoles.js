@@ -6,6 +6,7 @@ import { DICT } from './dictionary.js'
 export const PHRASE_NOUN_ROLES = Object.freeze({
   'wait-have-question': { pyetje: 'indefAcc' },
   'breakfast-exact': { mengjes: 'defNom', ore: 'defAcc' },
+  'thank-goodness-water-returned': { uje: 'defNom' },
   'going-village': { fshat: 'indefAcc' },
   'meet-tomorrow-question': { ore: 'defAcc' },
   'accept-tomorrow-square': { ore: 'defAcc' },

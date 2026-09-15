@@ -774,15 +774,20 @@ export const DICT = {
   // --- top 251-300 spoken-frequency fill ---
   deshiron:  { al: 'dëshiron',  en: 'wants' },      // #254
   kujdes:    { al: 'kujdes',    en: 'care' },       // #261 (ki kujdes = be careful)
-  kuptoj:    { al: 'kuptoj',    en: 'understand' }, // #262
+  kuptoj:    { al: 'kuptoj',    en: 'understand', forms: [
+    { al: 'kuptova', tag: '1sgPast', gloss: 'I understood' },
+    { al: 'kuptohet', tag: '3sgPresPassive', gloss: 'is understood' },
+    { al: 'kuptuar', tag: 'part', gloss: 'understood' },
+  ] }, // #262
   problem:   { al: 'problem',   en: 'problem' },    // #263
   fare:      { al: 'fare',      en: 'at all' },     // #267
   menyre:    { al: 'mënyrë',    en: 'way' },        // #272
   ndonjehere:{ al: 'ndonjëherë',en: 'sometimes' },  // #274
   cili:      { al: 'cili',      en: 'which' },      // #275
   pershendetje:{al:'përshëndetje',en:'hello' },     // #277
-  ckemi:     { al: 'çkemi',      en: 'how are things', forms: [
-    { al: "ç'kemi", tag: 'apostropheSpellingFragment', gloss: 'how are things', trainable: false },
+  ckemi:     { al: "ç'kemi",     en: 'how are things', forms: [
+    { al: "ç'kemi", tag: 'greetingFormula', gloss: 'how are things' },
+    { al: 'çkemi', tag: 'unapostrophizedSpellingFragment', gloss: 'how are things', trainable: false },
   ] },
   shqetesohem: { al: 'shqetësohem', en: 'worry', forms: [
     { al: 'u shqetëso', tag: 'negativeImperativeFragment', gloss: 'worry', trainable: false },
@@ -1165,6 +1170,9 @@ export const DICT = {
   normal_response:{ al: 'normal',         en: 'of course' },
   fiks:           { al: 'fiks',           en: 'exactly' },
   domethene:      { al: 'domethënë',      en: 'that means', enAll: 'that means / I mean' },
+  merak:          { al: 'merak',          en: 'worry or concern' },
+  boll:           { al: 'boll',           en: 'enough' },
+  shyqyr:         { al: 'shyqyr',         en: 'thank goodness' },
 
   // Prosody- and relationship-sensitive colloquial expressions are playable
   // pronunciation knowledge, not isolated Train targets. Their dedicated
@@ -1177,6 +1185,8 @@ export const DICT = {
   vdiqa_hyperbole:      { al: 'vdiqa',             en: 'I died (exaggeration)' },
   u_cmenda_hyperbole:   { al: 'u çmenda',         en: 'I went crazy (exaggeration)' },
   mos_me_ca_koken:      { al: 'mos më ça kokën', en: "don't bother me" },
+  aman_appeal:          { al: 'aman',              en: 'please (emotional appeal)' },
+  obobo:                { al: 'obobo',             en: 'oh no or oh wow (emotional reaction)' },
 }
 
 // Context-sensitive teaching data is reviewed as one coherent registry so a

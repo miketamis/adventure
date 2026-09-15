@@ -37,8 +37,8 @@ export const TRAINABLE_LEXICAL_TITLE_IDS = Object.freeze(ids(`
 // replay them in context; the word ladder must not turn them into bare,
 // context-free production targets.
 export const RECEPTIVE_COLLOQUIAL_IDS = Object.freeze(ids(`
-  he_repeated mo_discourse mos_me_ca_koken na_plasi u_cmenda_hyperbole vari_leshte
-  vdiqa_hyperbole
+  aman_appeal he_repeated mo_discourse mos_me_ca_koken na_plasi obobo
+  u_cmenda_hyperbole vari_leshte vdiqa_hyperbole
 `))
 
 const descriptions = Object.freeze({
