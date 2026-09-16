@@ -134,15 +134,27 @@ const stripStoryReadings = (code, ast) => {
   for (const candidate of readingCalls.values()) {
     const reading = candidate.arguments[0]
     const firstToken = candidate.arguments[1]
+    const composedLineCall = (
+      firstToken?.type === 'CallExpression' &&
+      firstToken.callee?.type === 'Identifier' &&
+      ['L', 'Q'].includes(firstToken.callee.name)
+    )
+    // R(reading, Q(...)) and R(reading, L(...)) can become the inner line
+    // verbatim. Q already owns its quote metadata, and L already owns the
+    // array; retaining R('', ...) would add an empty debug-only property to the
+    // production graph for no player-facing benefit.
+    if (candidate.arguments.length === 2 && composedLineCall) {
+      replacements.push([candidate.start, candidate.end, code.slice(firstToken.start, firstToken.end)])
+      continue
+    }
     const directTokenCall = (
       firstToken?.type === 'CallExpression' &&
       firstToken.callee?.type === 'Identifier' &&
       ['w', 'wf', 'p'].includes(firstToken.callee.name)
     )
     // Direct R(reading, token...) calls need no production metadata wrapper at
-    // all: turn them into ordinary L(token...) lines. Composed R(reading, Q())
-    // and R(reading, L()) calls retain R with an empty reading so their existing
-    // array/quote metadata semantics remain intact.
+    // all: turn them into ordinary L(token...) lines. Other unusual composed
+    // calls retain R with an empty reading so their array semantics stay intact.
     const canBecomePlainLine = (
       candidate.arguments.length > 2 ||
       directTokenCall ||

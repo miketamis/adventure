@@ -5,10 +5,10 @@ import { FINAL_READINGS } from './final.js'
 
 const merged = {}
 for (const tranche of [EARLY_READINGS, MIDDLE_READINGS, LATE_READINGS, FINAL_READINGS]) {
-  for (const [address, review] of Object.entries(tranche)) {
+  for (const [address, [al, en]] of Object.entries(tranche)) {
     if (Object.hasOwn(merged, address))
       throw new Error(`Duplicate reviewed-reading address: ${address}`)
-    merged[address] = review
+    merged[address] = { al, en }
   }
 }
 
