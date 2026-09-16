@@ -22,6 +22,7 @@ const DebugLearningEvidenceInspector = lazy(() => import('./DebugLearningEvidenc
 const DebugLearningActivityCoverage = lazy(() => import('./DebugLearningActivityCoverage.jsx'))
 const DebugCefrProgression = lazy(() => import('./DebugCefrProgression.jsx'))
 const DebugAuthoringLab = lazy(() => import('./DebugAuthoringLab.jsx'))
+const DebugPerformance = lazy(() => import('./DebugPerformance.jsx'))
 
 // ===========================================================================
 // DEBUG VIEW — a review console, only reachable in debug mode (click the title
@@ -1641,10 +1642,11 @@ export default function DebugView({ state, dispatch }) {
         <button className={'btn' + (sub === 'learning' ? ' active' : '')} onClick={() => setSub('learning')}>🧠 Learning</button>
         <button className={'btn' + (sub === 'activity-coverage' ? ' active' : '')} onClick={() => setSub('activity-coverage')}>🧩 Activity Coverage</button>
         <button className={'btn' + (sub === 'cefr' ? ' active' : '')} onClick={() => setSub('cefr')}>🏁 CEFR Path</button>
+        <button className={'btn' + (sub === 'performance' ? ' active' : '')} data-performance-id="debug-subtab:performance" onClick={() => setSub('performance')}>⏱ Performance</button>
         <button className={'btn' + (sub === 'history' ? ' active' : '')} onClick={() => setSub('history')}>📜 History</button>
         <button className={'btn' + (sub === 'sources' ? ' active' : '')} onClick={() => setSub('sources')}>📚 Sources</button>
       </div>
-      {!['learning', 'activity-coverage', 'cefr', 'authoring'].includes(sub) && (
+      {!['learning', 'activity-coverage', 'cefr', 'authoring', 'performance'].includes(sub) && (
         <div className="dbg-legend">
           {Object.entries(KIND_LABEL).map(([k, label]) => (
             <span key={k}><i style={{ background: KIND_COLOR[k] }} /> {label}</span>
@@ -1679,6 +1681,11 @@ export default function DebugView({ state, dispatch }) {
       {sub === 'cefr' && (
         <Suspense fallback={<p className="dbg-note" role="status">Loading CEFR progression…</p>}>
           <DebugCefrProgression state={state} />
+        </Suspense>
+      )}
+      {sub === 'performance' && (
+        <Suspense fallback={<p className="dbg-note" role="status">Loading performance monitor…</p>}>
+          <DebugPerformance />
         </Suspense>
       )}
       {sub === 'history' && <History focus={histFocus} goLore={goLore} goSource={goSource} />}

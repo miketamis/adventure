@@ -57,7 +57,11 @@ export default function BlockingModal({
   }, [])
 
   return createPortal(
-    <div className="modal-overlay" onMouseDown={() => dismissRef.current?.()}>
+    <div
+      className="modal-overlay"
+      data-performance-surface={`modal:${id}`}
+      onMouseDown={() => dismissRef.current?.()}
+    >
       <section
         ref={dialogRef}
         className={`modal ${className}`.trim()}

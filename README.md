@@ -13,8 +13,10 @@ Requires Node.js 22.12+.
 
 ```bash
 npm install
+npx playwright install chromium # once, for the real-browser performance gate
 npm run dev      # http://localhost:5173
 npm run build    # production build into dist/
+npm run test:performance # input-to-paint budgets across normal and debug play
 npm run check    # graph, world, language, accessibility, assets and bundle gates
 npm run certify  # all strict declared-scope certification gates
 ```
@@ -103,7 +105,9 @@ stick.
 - `src/components/PracticeView.jsx` — training questions
 - `src/components/WorldMapView.jsx` — debug-only world-map renderer
 - `src/components/ReleaseErrorBoundary.jsx` — safe recovery for shell and lazy-view failures
+- `src/performance.js` — delegated interaction, reducer, persistence and long-task monitor
 - `src/App.jsx` — shell, top bar, tabs, role state and blocking passages
+- `tests/performance/` — production-build browser responsiveness suite
 - `scripts/bundleaudit.mjs` — production bootstrap, lazy-chunk and on-demand asset budgets
 - `scripts/certify.mjs` — aggregate strict release certificate
 

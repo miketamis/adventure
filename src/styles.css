@@ -173,6 +173,42 @@ svg [role="button"]:focus-visible {
 .btn.primary:hover { background: var(--accent); color: #11140f; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+.debug-performance { font-family: ui-sans-serif, system-ui, sans-serif; }
+.debug-performance-header { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+.debug-performance-header h3 { margin: 0 0 6px; color: var(--discovered); }
+.debug-performance-header p { max-width: 620px; margin: 0; color: var(--muted); line-height: 1.5; }
+.debug-performance-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 18px 0 24px;
+}
+.debug-performance-summary > div { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); }
+.debug-performance-summary span { display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; }
+.debug-performance-summary b { font-size: 19px; }
+.debug-performance h4 { margin: 24px 0 8px; color: var(--ink); }
+.debug-performance-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.debug-performance table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.debug-performance th,
+.debug-performance td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.debug-performance tr:last-child td { border-bottom: 0; }
+.debug-performance th { color: var(--muted); background: #181411; }
+.debug-performance tr.warn,
+.debug-performance tr.needs-attention,
+.debug-performance-summary .warn { background: #332b19; color: #f1cc72; }
+.debug-performance tr.bad,
+.debug-performance tr.slow,
+.debug-performance tr.poor,
+.debug-performance-summary .bad { background: #351c1a; color: #f09a8a; }
+.debug-performance tr.good,
+.debug-performance tr.responsive,
+.debug-performance-summary .good { color: #9ed19e; }
+
+@media (max-width: 620px) {
+  .debug-performance-header { display: block; }
+  .debug-performance-header .btn { margin-top: 12px; }
+}
+
 .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
 .tabs .btn.active { background: var(--accent-2); border-color: var(--accent); }
 

@@ -21,6 +21,7 @@ jobs:
           node-version: '22.12'
           cache: npm
       - run: npm ci
+      - run: npx playwright install --with-deps chromium
       # Certification includes the production build and blocks deployment on
       # structural, lore, language, reveal, audio, accessibility or bundle drift.
       - run: npm run certify

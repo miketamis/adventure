@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { VillageMap, buildGraph } from './WorldMapView.jsx'
 import { environmentSnapshot, fireStateOf, liveNpcs } from '../game/gameState.js'
 
@@ -9,7 +9,7 @@ import { environmentSnapshot, fireStateOf, liveNpcs } from '../game/gameState.js
 // Only mounted in debug mode, and only outside the full Debug tab (where the
 // same map already fills the page).
 // ===========================================================================
-export default function MiniMap({ state, dispatch }) {
+export function MiniMap({ state, dispatch }) {
   const g = useMemo(buildGraph, [])
   const [open, setOpen] = useState(true)
   const [expanded, setExpanded] = useState(false)
@@ -27,7 +27,10 @@ export default function MiniMap({ state, dispatch }) {
   }
 
   return (
-    <div className={'minimap' + (expanded ? ' expanded' : '')}>
+    <div
+      className={'minimap' + (expanded ? ' expanded' : '')}
+      data-performance-surface="debug-minimap"
+    >
       <div className="minimap-bar">
         <span className="minimap-title" title={[phase, weather, season].filter(Boolean).join(' · ')}>
           🗺 map · {phase}{weather ? ` · ${weather}` : ''}
@@ -47,3 +50,26 @@ export default function MiniMap({ state, dispatch }) {
     </div>
   )
 }
+
+// The map contains thousands of SVG nodes. Train answers, dictionary changes,
+// modal state and view switches do not alter it, so keep that tree out of those
+// commits. Every canonical input that can change map content remains explicit
+// in this comparator.
+const sameMapState = (left, right) => (
+  left.nodeId === right.nodeId &&
+  left.clock === right.clock &&
+  left.conditionClock === right.conditionClock &&
+  left.embodying === right.embodying &&
+  left.embodimentClock === right.embodimentClock &&
+  left.embodimentPaused === right.embodimentPaused &&
+  left.embodimentFocusNode === right.embodimentFocusNode &&
+  left.worldFacts === right.worldFacts &&
+  left.fixtures === right.fixtures &&
+  left.npcStarted === right.npcStarted &&
+  left.heard === right.heard &&
+  left.visited === right.visited
+)
+
+export default memo(MiniMap, (before, after) => (
+  before.dispatch === after.dispatch && sameMapState(before.state, after.state)
+))

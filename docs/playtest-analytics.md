@@ -13,7 +13,9 @@ The semantic event stream is the durable research record. Visual replay is a sho
 
 Recruitment consent is handled by the playtest organiser before the link is shared. For a fresh browser, anonymous gameplay research and visual replay therefore start enabled with no first-visit interruption. A player may independently disable either class at any time from the normal-play Privacy button, and a previously saved opt-out remains respected. The app remains playable when both are disabled.
 
-The client intentionally disables PostHog autocapture, automatic page views, exception autocapture, console capture, heatmaps, dead-click autocapture, performance capture and person profiles. With the organiser-managed consent default in force, it sends one explicit `$pageview` for the anonymous browser session and clean path, allowing PostHog Web Analytics to count visitors without capturing query parameters or enabling automatic interaction collection. It starts replay programmatically and stops it immediately if the player opts out.
+The client intentionally disables PostHog autocapture, automatic page views, exception autocapture, console capture, heatmaps, dead-click autocapture, PostHog's generic performance capture and person profiles. With the organiser-managed consent default in force, it sends one explicit `$pageview` for the anonymous browser session and clean path, allowing PostHog Web Analytics to count visitors without capturing query parameters or enabling automatic interaction collection. It starts replay programmatically and stops it immediately if the player opts out.
+
+The game owns a smaller performance monitor with an explicit privacy boundary. It observes every interactive control through delegated browser Event Timing, React commit timing, reducer timing, persistence timing and long-task entries. Only interactions above the reviewed slow threshold emit `interaction_performance_observed`; that event contains a developer-authored surface/control identifier and numeric timing breakdown. The identifier builder is forbidden from reading visible text, accessible labels, titles, input values or placeholders, so an Albanian answer or learner response cannot become performance telemetry. Complete rolling measurements remain local and are available in the debug Performance panel.
 
 Every form value is masked. Textareas, rendered learner responses, accepted-answer comparisons, feedback controls and microphone areas are blocked from replay. Structured events contain IDs, categories, booleans, bounded counts and timings. The one exception is the clearly labelled optional `feedback_text` field: it is submitted only with the feedback form, limited to 1,000 characters and never included in visual replay or game-state checkpoints. The client never sends typed learning answers, learner audio, transcripts, prompts, exception messages or stack traces.
 
@@ -64,6 +66,7 @@ The primary events are:
 - `train_attempt_completed`
 - `audio_playback_completed`
 - `playtest_feedback_prompted`, `playtest_feedback_submitted`, and `playtest_feedback_dismissed`
+- `interaction_performance_observed` for consented, slow input-to-next-paint samples
 - `technical_issue_occurred`
 
 All accepted game mutations pass through the canonical reducer before capture. Rejected, stale, locked and duplicate actions do not become committed transitions. Each committed transition includes before/after safe-state hashes and an allowlisted action payload. A checkpoint is emitted at session/run start, every 25 structured transitions, and at an ending.

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useReducer, useState, useEffect, useRef, useSyncExternalStore } from 'react'
+import { lazy, Suspense, useCallback, useState, useEffect, useRef, useSyncExternalStore } from 'react'
 import {
   currentStoryState,
   loadState,
@@ -30,6 +30,7 @@ import {
   captureRunCheckpoint,
   captureSurfacePresented,
 } from './game/playtestAnalytics.js'
+import { measurePerformanceOperation } from './performance.js'
 
 // Story is the first and dominant surface. The larger study, collection and
 // cartography tools are loaded only when they are opened; the collection and
@@ -55,6 +56,13 @@ const SPOKEN_ACTION_TYPES = ['CHOOSE', 'CONFUSE', 'USE_ITEM', 'HEAL', 'CONFIRM_E
 const FEEDBACK_MINIMUM_ENGAGED_MINUTES = 5
 const FEEDBACK_MINIMUM_MEANINGFUL_ACTIONS = 12
 const FEEDBACK_STATUS_KEY = `aventura.playtest-feedback.v1:${BUILD_COMMIT}`
+
+const reduceWithTiming = (state, action) => measurePerformanceOperation(
+  'reducer',
+  action?.type || 'unknown-action',
+  state?.view || 'unknown',
+  () => reducer(state, action),
+)
 
 const ViewFallback = () => (
   <div className="card view-fallback" role="status" aria-live="polite">Opening the journey…</div>
@@ -116,7 +124,10 @@ function useEngagedMinutes() {
 }
 
 export default function App() {
-  const [state, baseDispatch] = useReducer(reducer, undefined, loadState)
+  // Every public dispatch is validated below before it reaches React. Publish
+  // that already-computed state directly so a button never pays for the full
+  // game reducer a second time during React's render phase.
+  const [state, publishState] = useState(loadState)
   const stateRef = useRef(state)
   stateRef.current = state
   const analyticsConsent = useSyncExternalStore(
@@ -135,11 +146,16 @@ export default function App() {
   const actionTransitionRef = useRef(null)
   const commitAcceptedAction = useCallback((action, before, after) => {
     if (after === before) return false
-    baseDispatch(action)
+    publishState(after)
     // React may batch consecutive actions. Keep the imperative validation
     // boundary aligned with the reducer state that was just accepted.
     stateRef.current = after
-    captureCommittedTransition(action, before, after)
+    measurePerformanceOperation(
+      'analytics',
+      'committed-transition',
+      after.view,
+      () => captureCommittedTransition(action, before, after),
+    )
     return true
   }, [])
   const dispatch = useCallback((action) => {
@@ -149,11 +165,11 @@ export default function App() {
     if (actionTransitionRef.current) return
     if (!SPOKEN_ACTION_TYPES.includes(action?.type)) {
       const current = stateRef.current
-      commitAcceptedAction(action, current, reducer(current, action))
+      commitAcceptedAction(action, current, reduceWithTiming(current, action))
       return
     }
     const current = stateRef.current
-    const preview = reducer(current, action)
+    const preview = reduceWithTiming(current, action)
     const event = preview !== current && preview.actionSpeech?.id !== current.actionSpeech?.id
       ? preview.actionSpeech
       : null
@@ -170,7 +186,7 @@ export default function App() {
     // Nothing else can dispatch while the overlay is active, so the same
     // action is still valid against the unchanged source scene.
     const current = stateRef.current
-    commitAcceptedAction(transition.action, current, reducer(current, transition.action))
+    commitAcceptedAction(transition.action, current, reduceWithTiming(current, transition.action))
     actionTransitionRef.current = null
     setActionTransition(null)
   }, [commitAcceptedAction])
@@ -298,12 +314,12 @@ export default function App() {
 
   // persist the whole state every change — reloading resumes exactly where you were
   useEffect(() => {
-    saveState(state)
+    measurePerformanceOperation('persistence', 'game-state', state.view, () => saveState(state))
   }, [state])
 
   // also keep the achievement collection under its own durable key
   useEffect(() => {
-    saveAchievements(state)
+    measurePerformanceOperation('persistence', 'achievements', state.view, () => saveAchievements(state))
   }, [state.earned, state.eligible, state.attempts])
 
   const setView = (view) => dispatch({ type: 'SET_VIEW', view })
@@ -311,6 +327,7 @@ export default function App() {
     <button
       type="button"
       className={'btn' + (state.view === view ? ' active' : '')}
+      data-performance-id={`tab:${view}`}
       onClick={() => setView(view)}
       aria-current={state.view === view ? 'page' : undefined}
     >
@@ -326,8 +343,8 @@ export default function App() {
         aria-hidden={blockingOverlay ? 'true' : undefined}
       >
       <a className="skip-link" href="#main-content">Skip to current view</a>
-      <header className="topbar">
-        <h1 className="title" onClick={onTitleClick} title="Aventura Shqip">
+      <header className="topbar" data-performance-surface="header">
+        <h1 className="title" data-performance-id="debug-toggle" onClick={onTitleClick} title="Aventura Shqip">
           Aventura Shqip <small>· learn Albanian</small>
         </h1>
         {state.debug && (
@@ -407,6 +424,7 @@ export default function App() {
         )}
         <button
           className={'btn' + (muted ? ' active' : '')}
+          data-performance-id="sound-toggle"
           onClick={toggleMute}
           title={muted ? 'Word audio off — click to unmute' : 'Word audio on — click to mute'}
           aria-pressed={muted}
@@ -416,6 +434,7 @@ export default function App() {
         <button
           type="button"
           className="btn"
+          data-performance-id="feedback-open"
           onClick={() => {
             if (!analyticsConsent.structured) {
               setAnalyticsPreferencesOpen(true)
@@ -433,6 +452,7 @@ export default function App() {
         <button
           type="button"
           className="btn"
+          data-performance-id="privacy-open"
           onClick={() => setAnalyticsPreferencesOpen(true)}
           title="Choose anonymous analytics and replay preferences"
         >
@@ -441,6 +461,7 @@ export default function App() {
         <button
           ref={resetButtonRef}
           className="btn"
+          data-performance-id="new-run-open"
           onClick={() => setConfirmReset(true)}
           disabled={Boolean(activeQuest && state.hearts > 0)}
           title={activeQuest ? `Finish ${activeIdentity}'s tale before starting another run` : 'Start a new run'}
@@ -449,7 +470,7 @@ export default function App() {
         </button>
       </header>
 
-      <nav className="tabs" aria-label="Game sections">
+      <nav className="tabs" aria-label="Game sections" data-performance-surface="navigation">
         {tab('story', '📖 Story')}
         {tab('practice', '🎯 Train')}
         {tab('dictionary', '📚 Dictionary')}
@@ -459,7 +480,7 @@ export default function App() {
         {state.debug && tab('debug', '🛠 Debug')}
       </nav>
 
-      <main id="main-content" tabIndex={-1}>
+      <main id="main-content" tabIndex={-1} data-performance-surface={state.view}>
       {state.debug && state.view === 'story' && state.turn <= 2 && !activeQuest && (
         <section className="onboarding-banner" aria-label="First steps">
           <span>

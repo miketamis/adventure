@@ -169,15 +169,17 @@ check('every blocking overlay uses modal semantics and isolates the app',
   blockingModal.includes('aria-modal="true"') &&
   blockingModal.includes('createPortal(') &&
   app.includes('inert={blockingOverlay'))
-check('game sections are named navigation and expose the current page', app.includes('<nav className="tabs" aria-label="Game sections">') && app.includes("aria-current={state.view === view ? 'page' : undefined}"))
+check('game sections are named navigation and expose the current page',
+  /<nav\b(?=[^>]*className="tabs")(?=[^>]*aria-label="Game sections")[^>]*>/.test(app) &&
+  app.includes("aria-current={state.view === view ? 'page' : undefined}"))
 check('the map navigation and atlas renderer are both debug-gated',
   app.includes("{state.debug && tab('map', '🗺 Map')}") &&
   app.includes("{state.debug && state.view === 'map' && <AtlasView state={state} />}") &&
   !app.includes("\n        {tab('map', '🗺 Map')}") &&
   !app.includes("\n          {state.view === 'map' && <AtlasView"))
 check('the application exposes header, navigation, main and a visible-on-focus skip link',
-  app.includes('<header className="topbar">') &&
-  app.includes('<main id="main-content" tabIndex={-1}>') &&
+  /<header\b(?=[^>]*className="topbar")[^>]*>/.test(app) &&
+  /<main\b(?=[^>]*id="main-content")(?=[^>]*tabIndex=\{-1\})[^>]*>/.test(app) &&
   app.includes('<a className="skip-link" href="#main-content">') &&
   styles.includes('.skip-link:focus'))
 check('every lazy top-level view exposes a level-two heading and labelled region',

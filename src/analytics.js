@@ -127,6 +127,7 @@ const allowedEvents = new Set([
   'playtest_feedback_prompted',
   'playtest_feedback_submitted',
   'playtest_feedback_dismissed',
+  'interaction_performance_observed',
   'technical_issue_occurred',
 ])
 
@@ -156,6 +157,9 @@ const allowedPropertyKeys = new Set([
   'transposition_count', 'diacritic_only', 'selected_option_ids',
   'asset_kind', 'asset_id', 'playback_outcome', 'playback_duration_ms', 'muted',
   'issue_type', 'boundary', 'active_view',
+  'performance_schema_version', 'control_id', 'interaction_type', 'measurement_source',
+  'duration_ms', 'duration_band', 'input_delay_ms', 'processing_duration_ms',
+  'presentation_delay_ms',
   'trigger', 'engaged_minutes', 'meaningful_actions', 'enjoyment_rating', 'difficulty_rating',
   'continue_intent', 'friction_tags', 'feedback_text',
   'target_saved', 'target_tokens', 'target_practice_wins', 'target_passive_exposure',
