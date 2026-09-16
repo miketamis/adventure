@@ -1186,7 +1186,7 @@ export const STORY = {
     options: [
       { text: R("I don't understand. Speak slowly, please.", w('nuk'), w('kuptoj'), p('.'), w('fol'), w('ngadale'), p(','), w('lutem'), p('.')), to: 'pazariPerserit', durationHours: 0 },
       {
-        text: R('I would like to buy bread and salt, please.', wf('do', 'dua', 'want'), w('te_subj'), w('blej'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.')),
+        text: R('I would like bread and salt, please.', wf('do', 'dua', 'want'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.')),
         playerIntents: ['transaction'], reveal: 'lek', requires: eliraQuestCondition('active'), effects: [{ type: 'inventory', id: 'buke', delta: 1 }, { type: 'inventory', id: 'kripe', delta: 1 }], lek: -errandPurchaseTotal, moneyOutcome: ERRAND_PURCHASE_MONEY_OUTCOME, to: 'porosiaBlerje', durationHours: 0,
       },
       { text: C(LEAVE_MARKET), to: 'pusiThate', durationHours: 0 },
@@ -1202,7 +1202,7 @@ export const STORY = {
     options: [
       { text: R('Repeat that, please.', w('perserit'), p(','), w('lutem'), p('.')), to: 'pazariPerserit', durationHours: 0 },
       {
-        text: R('I would like to buy bread and salt, please.', wf('do', 'dua', 'want'), w('te_subj'), w('blej'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.')),
+        text: R('I would like bread and salt, please.', wf('do', 'dua', 'want'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.')),
         playerIntents: ['transaction'], reveal: 'lek', requires: eliraQuestCondition('active'), effects: [{ type: 'inventory', id: 'buke', delta: 1 }, { type: 'inventory', id: 'kripe', delta: 1 }], lek: -errandPurchaseTotal, moneyOutcome: ERRAND_PURCHASE_MONEY_OUTCOME, to: 'porosiaBlerje', durationHours: 0,
       },
       { text: C(LEAVE_MARKET), to: 'pusiThate', durationHours: 0 },
@@ -11814,7 +11814,6 @@ const CONFUSERS = {
   eliraPorosiaDorezuar: L(wf('oda', 'oda', 'the guest-room'), w('merr'), wf('grua', 'gruan', 'the woman')), // the room cannot take the woman
   fshatiDitelindje: L(wf('sofer', 'sofra', 'the table'), wf('sjell', 'sjell', 'brings'), wf('familje', 'familjen', 'the family')),
   fshatiDitelindjeUrim: L(wf('ditelindje', 'ditëlindja', 'the birthday'), w('thote'), w('faleminderit')),
-  pazariFshatit: L(w('blej'), wf('treg', 'tregun', 'the market')), // buy the whole market — not today's errand
   pazariPerserit: L(w('kuptoj'), wf('kripe', 'kripën', 'the salt')), // understand the salt — not a request
   porosiaBlerje: L(w('merr'), wf('tregtar', 'tregtarin', 'the trader')), // take the trader — impossible
   porosiaBlerjePergjigje: L(wf('treg', 'tregu', 'the market'), w('thote'), p(':'), w('mire')), // the market cannot speak
