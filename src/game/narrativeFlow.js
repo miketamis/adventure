@@ -69,7 +69,7 @@ export const REVIEWED_NARRATIVE_CORRIDORS = Object.freeze([
   }),
   Object.freeze({
     id: 'market-answer-and-departure',
-    nodes: ['porosiaBlerje', 'porosiaBlerjePergjigje', 'fshatiSheshi'],
+    nodes: ['porosiaBlerje', 'porosiaBlerjePergjigje', 'pusiThate'],
     category: 'information-dialogue',
     disposition: 'agency-restored',
     agencyAt: ['porosiaBlerjePergjigje'],
@@ -175,9 +175,9 @@ export const REVIEWED_UNGATED_AGENCY_CHOICES = Object.freeze({
   porosiaBlerjePergjigje: Object.freeze({
     corridors: ['market-answer-and-departure'],
     options: Object.freeze([
-      Object.freeze({ to: 'fshatiSheshi', purpose: 'exit' }),
+      Object.freeze({ to: 'pusiThate', purpose: 'exit' }),
       Object.freeze({ to: 'pazariFshatit', purpose: 'stay' }),
     ]),
-    reason: 'Once the child has answered, leaving and staying are equally immediate navigation intentions; neither should be hidden behind decoding unrelated response prose or forced by the conversation.',
+    reason: 'Once the child has answered, leaving for the well and staying at the market are equally immediate navigation intentions; neither should be hidden behind decoding unrelated response prose or forced by the conversation.',
   }),
 })

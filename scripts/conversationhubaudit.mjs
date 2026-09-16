@@ -10,6 +10,10 @@ import { CONVERSATION_HUBS } from '../src/game/conversationHub.js'
 import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import { npcIdentityKnowledgeId } from '../src/game/npcIdentity.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
+import {
+  GROUNDED_DIRECTION_CONTRACTS,
+  LOCATION_QUESTION_REVIEWS,
+} from '../src/game/groundedDirections.js'
 
 const rawFlagId = (conditionId) => conditionId.replace(/^flag:/, '')
 const idsOf = (line) => line.filter((token) => token.id).map((token) => token.id)
@@ -305,8 +309,8 @@ const marketAnswer = STORY.porosiaBlerje.options.find((option) =>
 assert.ok(marketAnswer, 'the child’s market question has no explicit answer')
 assert.equal(PLACE_OF.porosiaBlerje, PLACE_OF[marketAnswer.to],
   'answering the child also relocates the player')
-assert.ok(STORY[marketAnswer.to].options.some((option) => option.to === 'fshatiSheshi'),
-  'the child’s response does not offer an independent return to the square')
+assert.ok(STORY[marketAnswer.to].options.some((option) => option.to === 'pusiThate'),
+  'the child’s response does not offer an independent exit to the well')
 assert.ok(STORY.sheruesi.options.some((option) =>
   albanianTextOf(option.text) === 'më dhemb këtu. kam nevojë për ndihmë.'
   && option.effects?.some((effect) => effect.type === 'flag' && effect.id === 'askedForHelp')),
@@ -339,5 +343,111 @@ assert.ok(!suppliedPlayerReplies.some((address) => address.startsWith('kroi1.'))
 assert.ok(STORY.kroi1.options.some((option) => albanianTextOf(option.text) === 'dua ujë, të lutem.'),
   'the spring girl’s question has no explicit player response')
 
+// Asking for an actionable location must create a real information gap. The
+// answer contributes Albanian route cues, the conversation ends in place, and
+// ordinary world choices—not a revealed destination button—carry the learner
+// to the destination. Plausible wrong turns move somewhere real and stay out
+// of the heart-loss confuser pipeline.
+const conditionsOf = (value) => [].concat(value || [])
+const rawConditionId = (conditionId) => conditionId.replace(/^flag:/, '')
+const includesEvery = (actual, expected) => expected.every((id) => actual.includes(id))
+const realOptions = (nodeId) => STORY[nodeId].options.filter((option) => !option.confuser)
+const locationQuestionOptions = []
+
+for (const [nodeId, node] of Object.entries(STORY)) {
+  for (const option of node.options || []) {
+    if (option.confuser) continue
+    const ids = idsOf(lineOf(option.text))
+    const asksLocation = ids.includes('ku')
+      || (ids.includes('a_q') && ids.includes('larg'))
+      || (ids.includes('quhem') && ids.includes('nga') && ids.includes('je'))
+    if (asksLocation) locationQuestionOptions.push({ nodeId, option, ids })
+  }
+}
+
+for (const candidate of locationQuestionOptions) {
+  const reviews = LOCATION_QUESTION_REVIEWS.filter((review) =>
+    review.nodeId === candidate.nodeId && includesEvery(candidate.ids, review.cueIds))
+  assert.equal(reviews.length, 1,
+    `${candidate.nodeId} “${albanianTextOf(lineOf(candidate.option.text))}”: location question needs one grounded-route or non-navigation review`)
+  const review = reviews[0]
+  if (review.disposition === 'grounded-route') {
+    assert.ok(Object.values(GROUNDED_DIRECTION_CONTRACTS).some((entry) => entry.id === review.contractId),
+      `${candidate.nodeId}: missing grounded route ${review.contractId}`)
+  } else {
+    assert.ok(review.reason?.trim(), `${candidate.nodeId}: non-navigation location review needs a reason`)
+  }
+}
+
+for (const review of LOCATION_QUESTION_REVIEWS) {
+  assert.ok(locationQuestionOptions.some((candidate) =>
+    candidate.nodeId === review.nodeId && includesEvery(candidate.ids, review.cueIds)),
+  `${review.nodeId}/${review.cueIds.join('+')}: stale location-question review`)
+}
+
+for (const directions of Object.values(GROUNDED_DIRECTION_CONTRACTS)) {
+  for (const question of directions.questions) {
+    const options = realOptions(question.nodeId).filter((option) =>
+      includesEvery(idsOf(lineOf(option.text)), question.cueIds))
+    assert.equal(options.length, 1, `${directions.id}: ${question.nodeId} needs one reviewed direction question`)
+    assert.ok(options[0].effects?.some((effect) =>
+      effect.type === 'flag'
+      && effect.id === rawConditionId(directions.askedCondition)
+      && effect.value !== false),
+    `${directions.id}: asking at ${question.nodeId} does not persist the information gap`)
+  }
+
+  const answerEntries = STORY[directions.responseNodeId].text.filter((entry) => {
+    const ids = idsOf(lineOf(entry))
+    return conditionsOf(entry?.cond).includes(directions.responseCondition)
+      && includesEvery(ids, directions.responseCueIds)
+  })
+  assert.ok(answerEntries.length > 0,
+    `${directions.id}: response does not supply reviewed route cues ${directions.responseCueIds.join(', ')}`)
+  const answerCueIds = new Set(answerEntries.flatMap((entry) => idsOf(lineOf(entry))))
+
+  const exits = realOptions(directions.responseNodeId).filter((option) => option.to === directions.exitTo)
+  assert.ok(exits.length > 0, `${directions.id}: answer has no explicit conversation exit to ${directions.exitTo}`)
+  assert.equal(realOptions(directions.responseNodeId).some((option) =>
+    option.to === directions.destinationNodeId), false,
+  `${directions.id}: answer still exposes a direct destination shortcut`)
+  assert.equal(STORY[directions.responseNodeId].options.some((option) =>
+    option.confuser && conditionsOf(option.requires).includes(directions.responseCondition)), false,
+  `${directions.id}: response still turns a plausible direction into a heart-taking confuser`)
+
+  let routeNodeId = directions.exitTo
+  for (const step of directions.route) {
+    assert.equal(step.nodeId, routeNodeId, `${directions.id}: route is discontinuous at ${step.nodeId}`)
+    const options = realOptions(step.nodeId).filter((option) =>
+      option.to === step.to && includesEvery(idsOf(lineOf(option.text)), step.cueIds))
+    assert.equal(options.length, 1,
+      `${directions.id}: ${step.nodeId}->${step.to} must expose exactly one physical cue choice`)
+    assert.ok(step.cueIds.every((id) => answerCueIds.has(id)),
+      `${directions.id}: route step ${step.nodeId}->${step.to} is not recoverable from the answer`)
+    for (const required of step.requires) {
+      assert.ok(conditionsOf(options[0].requires).includes(required),
+        `${directions.id}: ${step.nodeId}->${step.to} bypasses ${required}`)
+    }
+    for (const wrongTurn of step.wrongTurns) {
+      const wrongOptions = realOptions(wrongTurn.nodeId).filter((option) =>
+        option.to === wrongTurn.to && includesEvery(idsOf(lineOf(option.text)), wrongTurn.cueIds))
+      assert.equal(wrongOptions.length, 1,
+        `${directions.id}: plausible ${wrongTurn.cueIds.join('+')} turn must move to ${wrongTurn.to}`)
+      assert.notEqual(PLACE_OF[wrongTurn.nodeId], PLACE_OF[wrongTurn.to],
+        `${directions.id}: plausible wrong turn does not physically go anywhere`)
+    }
+    routeNodeId = step.to
+  }
+  assert.equal(routeNodeId, directions.destinationNodeId,
+    `${directions.id}: reviewed route does not reach ${directions.destinationNodeId}`)
+
+  if (directions.route.length > 1) {
+    assert.equal(realOptions(directions.exitTo).some((option) =>
+      option.to === directions.destinationNodeId), false,
+    `${directions.id}: free-roam exit still skips the reviewed route`)
+  }
+}
+
 console.log(`Conversation hub audit passed: ${Object.keys(CONVERSATION_HUBS).length} hub(s); ` +
-  `${LEGACY_SUPPLIED_REPLY_BACKLOG.length} legacy supplied replies remain explicitly queued.`)
+  `${LEGACY_SUPPLIED_REPLY_BACKLOG.length} legacy supplied replies remain explicitly queued; ` +
+  `${Object.keys(GROUNDED_DIRECTION_CONTRACTS).length} grounded direction route(s) verified.`)

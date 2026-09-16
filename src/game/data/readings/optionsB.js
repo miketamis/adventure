@@ -290,7 +290,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "ngjitja3.options[2]": { al: "hap derën", en: "Open the door.", review: 'internal-editorial' }, // 819
   "fshatiSheshi.options[0]": { al: "fol me plakun", en: "Speak with the old man.", review: 'internal-editorial' }, // 820
   "fshatiSheshi.options[1]": { al: "hyr në shtëpi", en: "Enter the house.", review: 'internal-editorial' }, // 821
-  "fshatiSheshi.options[2]": { al: "po shkoj në odë.", en: "I am going to the guest-room.", review: 'internal-editorial' }, // 822
   "fshatiSheshi.options[3]": { al: "hyr në kafene", en: "Enter the coffeehouse.", review: 'internal-editorial' }, // 823
   "fshatiSheshi.options[4]": { al: "ndihmo fëmijët", en: "Help the children.", review: 'internal-editorial' }, // 824
   "fshatiSheshi.options[5]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' }, // 825
@@ -323,8 +322,8 @@ export const OPTION_READINGS_B = Object.freeze({
   "pusiThate.options[1]": { al: "merr gur", en: "Take a stone.", review: 'internal-editorial' }, // 844
   "pusiThate.options[2]": { al: "hidh gur në pus", en: "Throw a stone into the well.", review: 'internal-editorial' }, // 845
   "pusiThate.options[3]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 846
-  "pusiThate.options[4]": { al: "dëgjo ujin", en: "Listen to the water.", review: 'internal-editorial' }, // 847
-  "pusiThate.options[5]": { al: "dëgjo pusin", en: "Listen to the well.", review: 'internal-editorial' }, // 848
+  "pusiThate.options[5]": { al: "dëgjo ujin", en: "Listen to the water.", review: 'internal-editorial' }, // 847
+  "pusiThate.options[6]": { al: "dëgjo pusin", en: "Listen to the well.", review: 'internal-editorial' }, // 848
   "pusiGuri.options[0]": { al: "shiko lart", en: "Look up.", review: 'internal-editorial' }, // 849
   "pusiGuri.options[1]": { al: "hidh pusin", en: "Throw the well.", review: 'internal-editorial' }, // 850
   "pusiGuri.options[2]": { al: "bie në botë", en: "Fall into the world.", review: 'internal-editorial' }, // 851
@@ -554,4 +553,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "kafeneja2.options[1]": { al: "pi natën", en: "Drink the night.", review: 'internal-editorial' },
   "sheshiPlak.options[7]": { al: "Tani e kuptova.", en: "Now I understand.", review: 'internal-editorial' },
   "sheshiPlak.options[9]": { al: "Çfarë duhet të di për pyllin natën?", en: "What should I know about the forest at night?", review: 'internal-editorial' },
+  "fshatiSheshi.options[2]": { al: "shko drejt përpara.", en: "Go straight ahead.", review: 'internal-editorial' },
+  "pusiThate.options[4]": { al: "shko në treg.", en: "Go to the market.", review: 'internal-editorial' },
 })

@@ -563,8 +563,6 @@ export const EARLY_READINGS = {
   "porosiaShesh.text[3]": ["Elira e përsërit ngadalë: një mik po vjen sonte. sill bukë dhe kripë, të lutem.", "Elira repeats slowly, “A guest is coming tonight. Bring bread and salt, please.”"],
   "porosiaShesh.text[4]": ["gruaja thotë: një udhëtar nga Gjakovë.", "The woman says, “A traveller from Gjakova.”"],
   "porosiaShesh.text[5]": ["Elira thotë: një udhëtar nga Gjakovë.", "Elira says, “A traveller from Gjakova.”"],
-  "porosiaShesh.text[6]": ["gruaja thotë: tregu është këtu, në shesh. në treg thuaj: dua bukë dhe kripë, ju lutem.", "The woman says, “The market is here in the square. At the market say: I would like bread and salt, please.”"],
-  "porosiaShesh.text[7]": ["Elira thotë: tregu është këtu, në shesh. në treg thuaj: dua bukë dhe kripë, ju lutem.", "Elira says, “The market is here in the square. At the market say: I would like bread and salt, please.”"],
   "porosiaShesh.text[8]": ["gruaja thotë: drejt përpara, pastaj djathtas.", "The woman says, “Straight ahead, then right.”"],
   "porosiaShesh.text[9]": ["Elira thotë: drejt përpara, pastaj djathtas.", "Elira says, “Straight ahead, then right.”"],
   "pazariFshatit.text[0]": ["Shiu bie mbi shesh, dhe njerëzit ecin shpejt në treg.", "Rain falls across the square, and people walk quickly through the market."],
@@ -918,4 +916,6 @@ export const EARLY_READINGS = {
   "bisedaUra3.text[4]": ["po bëj gati darkën.", "“I am preparing dinner.”"],
   "bisedaUra3.text[6]": ["quhem Elira. jam nga fshati.", "“My name is Elira. I am from the village.”"],
   "bisedaUra3.text[5]": ["natën, duhet të kthehesh në fshat.", "“At night, you must return to the village.”"],
+  "porosiaShesh.text[6]": ["gruaja thotë: tregu është pranë pusit.", "The woman says, “The market is beside the well.”"],
+  "porosiaShesh.text[7]": ["Elira thotë: tregu është pranë pusit.", "Elira says, “The market is beside the well.”"],
 }

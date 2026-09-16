@@ -107,6 +107,7 @@ const VILLAGE_PLACES = [
   { id: 'kostandin1', x: 336, y: 256, type: 'roadmark', label: 'road past graves', lh: 15 },
   // the square (the heart) — a real cobbled plaza with the buildings around it
   { id: 'fshatiSheshi', x: 499, y: 432, type: 'square', label: 'the square', lh: 92 },
+  { id: 'rrugaOdes', x: 415, y: 415, type: 'roadmark', label: 'oda road', lh: 12 },
   { id: 'pusiThate', x: 480, y: 444, type: 'well', label: 'the dry well', lh: 24 },
   { id: 'nenaDiell1', x: 516, y: 400, type: 'claydoll', label: 'the girls', lh: 12 },
   { id: 'veraDite1', x: 458, y: 484, type: 'bonfire', label: 'the festival', lh: 16 },

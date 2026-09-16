@@ -156,7 +156,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "udhetaret.options[6]": { al: "këndo me lahutën", en: "Sing with the lute.", review: 'internal-editorial' }, // 1218
   "udhetaret.options[7]": { al: "lër udhëtarët", en: "Leave the travellers.", review: 'internal-editorial' }, // 1219
   "udhetaret.options[8]": { al: "sheh fshatin", en: "See the village.", review: 'internal-editorial' }, // 1220
-  "udhetaret.options[9]": { al: "dëgjo shtëpinë", en: "Listen to the house.", review: 'internal-editorial' }, // 1221
   "udhetaret.options[10]": { al: "dëgjo në fshatin", en: "Listen in the village.", review: 'internal-editorial' }, // 1222
   "kengaLahute.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1223
   "kengaLahute.options[1]": { al: "këndo për lek", en: "Sing for a lek.", review: 'internal-editorial' }, // 1224
@@ -169,7 +168,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "udhetaretBisede2.options[1]": { al: "lufto rrugën", en: "Fight the road.", review: 'internal-editorial' }, // 1231
   "tregMal.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1232
   "tregMal.options[1]": { al: "ngjit fshatin", en: "Climb the village.", review: 'internal-editorial' }, // 1233
-  "tregMal.options[2]": { al: "dëgjo shtëpinë", en: "Listen to the house.", review: 'internal-editorial' }, // 1234
   "tregMal.options[3]": { al: "ngjit demin", en: "Climb the bull.", review: 'internal-editorial' }, // 1235
   "tregDet.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1236
   "tregDet.options[1]": { al: "merr fshatin", en: "Take the village.", review: 'internal-editorial' }, // 1237
@@ -179,7 +177,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "tregMujo.options[1]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1241
   "tregMujo.options[2]": { al: "lufto fshatin", en: "Fight the village.", review: 'internal-editorial' }, // 1242
   "tregMujo.options[3]": { al: "lufto lahutën", en: "Fight the lute.", review: 'internal-editorial' }, // 1243
-  "tregMujo.options[4]": { al: "dëgjo shtëpinë", en: "Listen to the house.", review: 'internal-editorial' }, // 1244
   "lahuta1.options[0]": { al: "dëgjo këngët", en: "Listen to the songs.", review: 'internal-editorial' }, // 1245
   "lahuta1.options[1]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1246
   "lahuta1.options[2]": { al: "këndo udhëtarin", en: "Sing of the traveller.", review: 'internal-editorial' }, // 1247
@@ -199,7 +196,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "burrnesha1.options[4]": { al: "premto armën", en: "Promise the weapon.", review: 'internal-editorial' }, // 1263
   "tregDragua.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1264
   "tregDragua.options[1]": { al: "sheh fshatin", en: "See the village.", review: 'internal-editorial' }, // 1265
-  "tregDragua.options[2]": { al: "vrit shtëpinë", en: "Kill the house.", review: 'internal-editorial' }, // 1266
   "tregDragua.options[3]": { al: "dëgjo dragoin", en: "Listen to the dragon.", review: 'internal-editorial' }, // 1267
   "oda2.options[0]": { al: "dëgjo plakun", en: "Listen to the old man.", review: 'internal-editorial' }, // 1268
   "oda2.options[1]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 1269
@@ -328,7 +324,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "fshatiLumi.options[2]": { al: "shko te ura tjetër", en: "Go to the other bridge.", review: 'internal-editorial' }, // 1392
   "fshatiLumi.options[3]": { al: "shko te tabakët", en: "Go to the tanners.", review: 'internal-editorial' }, // 1393
   "fshatiLumi.options[4]": { al: "shko në mulli", en: "Go to the mill.", review: 'internal-editorial' }, // 1394
-  "fshatiLumi.options[5]": { al: "shko në krua", en: "Go to the spring.", review: 'internal-editorial' }, // 1395
   "fshatiLumi.options[6]": { al: "ngjit te shtëpitë", en: "Go up to the houses.", review: 'internal-editorial' }, // 1396
   "fshatiLumi.options[7]": { al: "ngjit në fshat", en: "Go up to the village.", review: 'internal-editorial' }, // 1397
   "fshatiLumi.options[8]": { al: "shko me gruan", en: "Go with the woman.", review: 'internal-editorial' },
@@ -544,4 +539,9 @@ export const OPTION_READINGS_C = Object.freeze({
   "dasma1.options[2]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
   "kroi1.options[2]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
   "gruaUji1.options[1]": { al: "pse nuk e përdor pusin?", en: "Why don’t you use the well?", review: 'internal-editorial' },
+  "fshatiLumi.options[5]": { al: "zbrit poshtë.", en: "Go down.", review: 'internal-editorial' },
+  "udhetaret.options[9]": { al: "fol me lahutën", en: "Speak with the lute.", review: 'internal-editorial' },
+  "tregMal.options[2]": { al: "ngjit mjekrën", en: "Climb the beard.", review: 'internal-editorial' },
+  "tregMujo.options[4]": { al: "dëgjo dragoin", en: "Listen to the dragon.", review: 'internal-editorial' },
+  "tregDragua.options[2]": { al: "vrit fshatin", en: "Kill the village.", review: 'internal-editorial' },
 })

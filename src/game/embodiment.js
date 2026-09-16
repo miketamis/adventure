@@ -182,7 +182,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
 // Ymer projection, not a second body the player can switch into.
 export const EMBODIMENT_ALIASES = Object.freeze({ 'kostandini-i-vogel': 'aga-ymer' })
 
-// The world chart contains 210 authored physical places, including sealed
+// The world chart contains 211 authored physical places, including sealed
 // underworld chambers, endings and private tale projections. “The whole open
 // world” during a role means this smaller, non-committal travel network: the
 // exact physical places reachable from the public crossroads without starting
@@ -197,12 +197,12 @@ export const PUBLIC_FREE_ROAM_PLACES = Object.freeze([
   'lendina', 'libriDiell', 'lumi', 'lumiHumbur', 'maja', 'mali1', 'mali2',
   'mali3', 'maliHumbur', 'maroShtepi', 'mejdan1', 'mulli1',
   'nastradin1', 'odaJutbina', 'pallatiZi', 'plaka', 'pusiThate', 'pylli1',
-  'pylliHumbur', 'pylliLoop', 'pylliThelle', 'qiell1', 'qiellErera1', 'shtojzovalle1',
+  'pylliHumbur', 'pylliLoop', 'pylliThelle', 'qiell1', 'qiellErera1', 'rrugaOdes', 'shtojzovalle1',
   'start', 'stihi1', 'tabaket1', 'udhekryq', 'ura', 'uraArtes1', 'uraFshaj',
   'varret1', 'vatra',
 ])
 
-// Exact scene nodes that form those 55 places. Three are intentional aliases:
+// Exact scene nodes that form those 56 places. Three are intentional aliases:
 // oda1 is the guest-room place libriDiell, uraTjeter1 is the Artë bridge place,
 // and maliStuhi is the reviewed same-ledge pass-through below. Keeping nodes as
 // well as places prevents a private tale scene at a public coordinate from
@@ -216,7 +216,7 @@ export const PUBLIC_FREE_ROAM_NODES = Object.freeze([
   'maliHumbur', 'maliStuhi', 'maroShtepi', 'mejdan1', 'mulli1',
   'nastradin1', 'oda1', 'odaJutbina', 'pallatiZi', 'plaka', 'pusiThate',
   'pylli1', 'pylliHumbur', 'pylliLoop', 'pylliThelle', 'qiell1', 'qiellErera1',
-  'shtojzovalle1', 'start', 'stihi1', 'tabaket1', 'udhekryq', 'ura',
+  'rrugaOdes', 'shtojzovalle1', 'start', 'stihi1', 'tabaket1', 'udhekryq', 'ura',
   'uraFshaj', 'uraTjeter1', 'varret1', 'vatra',
 ])
 

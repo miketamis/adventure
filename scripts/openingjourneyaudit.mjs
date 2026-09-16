@@ -281,7 +281,7 @@ const asksErrandQuestion = (id) => (option) =>
 
 const ERRAND_QUESTIONS = [
   { asked: 'eliraErrandAskedGuest', response: 'eliraErrandResponseGuest', answer: /udhëtar nga Gjakovë/ },
-  { asked: 'eliraErrandAskedMarket', response: 'eliraErrandResponseMarket', answer: /tregu është këtu, në shesh/ },
+  { asked: 'eliraErrandAskedMarket', response: 'eliraErrandResponseMarket', answer: /tregu është pranë pusit/ },
   { asked: 'eliraErrandAskedGuestRoom', response: 'eliraErrandResponseGuestRoom', answer: /drejt përpara, pastaj djathtas/ },
 ]
 
@@ -372,7 +372,8 @@ for (const knowsElira of [false, true]) {
 
     const asked = new Set([firstQuestion.asked])
     for (const question of remainingOrder) {
-      assert.ok(atChoice(state, 'pazariFshatit'), 'market exit disappeared before all questions were asked')
+      assert.equal(Boolean(atChoice(state, 'pazariFshatit')), false,
+        'information conversation exposed a direct market shortcut')
       assert.ok(atChoice(state, 'fshatiSheshi'), 'free-roam exit disappeared before all questions were asked')
       assert.ok(atChoice(state, 'porosiaShesh', asksErrandQuestion(question.asked)),
         `${question.asked}: unasked option is unavailable`)
@@ -399,8 +400,25 @@ for (const knowsElira of [false, true]) {
 
     const remaining = STORY.porosiaShesh.options.filter((option) =>
       !option.confuser && hasRequiredItem(state, option))
-    assert.deepEqual(remaining.map((option) => option.to).sort(), ['fshatiSheshi', 'pazariFshatit'].sort(),
+    assert.deepEqual(remaining.map((option) => option.to), ['fshatiSheshi'],
       'completed optional questions leave extra branches or a dead end')
+
+    // The answers are applied through the physical world. The market clue
+    // leads via the well, while the oda clue becomes straight-then-right. A
+    // plausible left turn reaches the homes and never enters the confuser or
+    // heart-loss path.
+    const square = choose(state, 'fshatiSheshi')
+    const well = choose(square, 'pusiThate')
+    const market = choose(well, 'pazariFshatit')
+    const marketExit = choose(market, 'pusiThate')
+    const squareAgain = choose(marketExit, 'fshatiSheshi')
+    const odaRoad = choose(squareAgain, 'rrugaOdes')
+    const homes = choose(odaRoad, 'fshatiJeta')
+    assert.equal(homes.hearts, state.hearts, 'a plausible left turn cost a heart')
+    const squareAfterWrongTurn = choose(homes, 'fshatiSheshi')
+    const retriedRoad = choose(squareAfterWrongTurn, 'rrugaOdes')
+    const oda = choose(retriedRoad, 'oda1')
+    assert.equal(PLACE_OF[oda.nodeId], PLACE_OF.oda1, 'straight-then-right did not reach the oda')
   }
 }
 

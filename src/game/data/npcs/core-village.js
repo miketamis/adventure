@@ -124,7 +124,7 @@ export default {
       folklore: 'mikpritja-oda', scene: 'oda1',
       relationship: 'The square elder becomes the evening oda host through whom hospitality, law and sung stories are shared.',
     },
-    location: { status: 'walking', route: ['fshatiSheshi', 'oda1'] },
+    location: { status: 'walking', route: ['fshatiSheshi', 'rrugaOdes', 'oda1'] },
   },
   bari: {
     name: 'bariu me dhitë', glyph: '🐐', kind: 'human',

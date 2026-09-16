@@ -16,6 +16,16 @@ import {
   defineConversationHub,
 } from './conversationHub.js'
 import {
+  ELIRA_GUEST_ROOM_ASKED_CONDITION,
+  ELIRA_GUEST_ROOM_RESPONSE_CONDITION,
+  ELIRA_MARKET_ASKED_CONDITION,
+  ELIRA_MARKET_RESPONSE_CONDITION,
+  RIVER_SPRING_ASKED_CONDITION,
+  RIVER_SPRING_RESPONSE_CONDITION,
+  SQUARE_WATER_ASKED_CONDITION,
+  SQUARE_WATER_RESPONSE_CONDITION,
+} from './groundedDirectionConditions.js'
+import {
   npcFirstEncounterLine,
 } from './npcAppearance.js'
 import {
@@ -290,17 +300,16 @@ const ELIRA_ERRAND_MONEY_OUTCOME = {
 
 const eliraQuestCondition = (status) => `quest:${ELIRA_BREAD_SALT_QUEST_ID}:${status}`
 const eliraQuestAction = (action) => ({ id: ELIRA_BREAD_SALT_QUEST_ID, action })
-
 const ELIRA_ERRAND_QUESTION_FLAGS = Object.freeze({
   guest: 'flag:eliraErrandAskedGuest',
-  market: 'flag:eliraErrandAskedMarket',
-  guestRoom: 'flag:eliraErrandAskedGuestRoom',
+  market: ELIRA_MARKET_ASKED_CONDITION,
+  guestRoom: ELIRA_GUEST_ROOM_ASKED_CONDITION,
 })
 
 const ELIRA_ERRAND_RESPONSE_FLAGS = Object.freeze({
   guest: 'flag:eliraErrandResponseGuest',
-  market: 'flag:eliraErrandResponseMarket',
-  guestRoom: 'flag:eliraErrandResponseGuestRoom',
+  market: ELIRA_MARKET_RESPONSE_CONDITION,
+  guestRoom: ELIRA_GUEST_ROOM_RESPONSE_CONDITION,
 })
 const ELIRA_ERRAND_REPAIR_FLAG = 'flag:eliraErrandAskedSlowly'
 
@@ -320,11 +329,20 @@ const errandRepairEffects = () => [
 
 // The errand is a conversation, not an exposition dump. Every node offers the
 // same immediate exit and the questions which the player has not yet asked.
+// Directions are applied only after leaving: the answer supplies route cues,
+// while the physical world supplies the steps instead of a destination button.
 // Returning fresh objects keeps each node's canonical reducer choices local.
 const eliraErrandConversationOptions = () => [
   {
-    text: R('Go to the market.', w('shko'), wf('ne', 'në', 'to'), w('treg'), p('.')),
-    to: 'pazariFshatit',
+    text: R('I am going to the guest-room.', w('po_prog'), wf('shko', 'shkoj', 'am going'), wf('ne', 'në', 'to'), w('oda'), p('.')),
+    requires: ELIRA_ERRAND_RESPONSE_FLAGS.guestRoom,
+    to: 'fshatiSheshi',
+    durationHours: 0,
+  },
+  {
+    text: R('See you later.', wf('sheh', 'shihemi', 'see each other'), w('me_vone'), p('.')),
+    unless: ELIRA_ERRAND_RESPONSE_FLAGS.guestRoom,
+    to: 'fshatiSheshi',
     durationHours: 0,
   },
   {
@@ -349,31 +367,11 @@ const eliraErrandConversationOptions = () => [
     durationHours: 0,
   },
   {
-    text: R('I will return to the square now.', w('do_fut'), w('te_subj'), wf('kthehu', 'kthehem', 'return'), wf('ne', 'në', 'to'), w('shesh'), w('tani'), p('.')),
-    to: 'fshatiSheshi',
-    durationHours: 0,
-  },
-  {
     text: R("I don't understand. Speak slowly, please.", w('nuk'), w('kuptoj'), p('.'), w('fol'), w('ngadale'), p(','), w('lutem'), p('.')),
     unless: ELIRA_ERRAND_REPAIR_FLAG,
     effects: errandRepairEffects(),
     to: 'porosiaShesh',
     durationHours: 0,
-  },
-  {
-    text: R('I am going to Gjakova.', w('po_prog'), wf('shko', 'shkoj', 'go'), wf('ne', 'në', 'to'), wf('gjakove', 'Gjakovë', 'Gjakova'), p('.')),
-    requires: ELIRA_ERRAND_RESPONSE_FLAGS.guest,
-    confuser: true,
-  },
-  {
-    text: R('I am going to the square.', w('po_prog'), wf('shko', 'shkoj', 'go'), wf('ne', 'në', 'to'), w('shesh'), p('.')),
-    requires: ELIRA_ERRAND_RESPONSE_FLAGS.market,
-    confuser: true,
-  },
-  {
-    text: R('I am going left.', w('po_prog'), wf('shko', 'shkoj', 'go'), w('majtas'), p('.')),
-    requires: ELIRA_ERRAND_RESPONSE_FLAGS.guestRoom,
-    confuser: true,
   },
 ]
 
@@ -571,7 +569,11 @@ const WATER_CARRIER_CONVERSATION = defineConversationHub({
     name: { purpose: 'learn who the water-carrier is' },
     dryWell: { purpose: 'ask why she cannot use the village well' },
     caller: { purpose: 'ask who called from uphill' },
-    spring: { purpose: 'ask where the working spring is' },
+    spring: {
+      purpose: 'ask where the working spring is',
+      askedCondition: RIVER_SPRING_ASKED_CONDITION,
+      responseCondition: RIVER_SPRING_RESPONSE_CONDITION,
+    },
     help: { purpose: 'offer practical help' },
   },
 })
@@ -648,7 +650,11 @@ const SQUARE_ELDER_CONVERSATION = defineConversationHub({
   id: 'square-elder', nodeId: 'sheshiPlak', npcId: 'plakuSheshit', exitTo: 'fshatiSheshi',
   questions: {
     well: { purpose: 'ask what happened to the well' },
-    water: { purpose: 'ask where to find water' },
+    water: {
+      purpose: 'ask where to find water',
+      askedCondition: SQUARE_WATER_ASKED_CONDITION,
+      responseCondition: SQUARE_WATER_RESPONSE_CONDITION,
+    },
     help: { purpose: 'ask how to help the village' },
     seriously: { purpose: 'check whether the well story is serious' },
     meaning: { purpose: 'ask what the elder means by the rumor' },
@@ -1161,8 +1167,8 @@ export const STORY = {
       npcIdentityLine('elira', true, R('Elira repeats slowly, “A guest is coming tonight. Bring bread and salt, please.”', w('elira'), w('e_obj'), wf('perserit', 'përsërit', 'repeats'), w('ngadale'), p(':'), w('nje'), w('mik'), w('po_prog'), w('vjen'), w('sonte'), p('.'), wf('sjell', 'sill', 'bring'), w('buke'), w('dhe'), w('kripe'), p(','), w('lutem'), p('.')), { required: ELIRA_ERRAND_REPAIR_FLAG, excluded: Object.values(ELIRA_ERRAND_RESPONSE_FLAGS) }),
       npcIdentityLine('elira', false, R('The woman says, “A traveller from Gjakova.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('nje'), w('udhetar'), w('nga'), w('gjakove'), p('.')), { required: ELIRA_ERRAND_RESPONSE_FLAGS.guest }),
       npcIdentityLine('elira', true, R('Elira says, “A traveller from Gjakova.”', w('elira'), w('thote'), p(':'), w('nje'), w('udhetar'), w('nga'), w('gjakove'), p('.')), { required: ELIRA_ERRAND_RESPONSE_FLAGS.guest }),
-      npcIdentityLine('elira', false, R('The woman says, “The market is here in the square. At the market say: I would like bread and salt, please.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('treg', 'tregu', 'the market'), w('eshte'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('shesh'), p('.'), wf('ne', 'në', 'at'), w('treg'), wf('thote', 'thuaj', 'say'), p(':'), wf('do', 'dua', 'want'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.')), { required: ELIRA_ERRAND_RESPONSE_FLAGS.market }),
-      npcIdentityLine('elira', true, R('Elira says, “The market is here in the square. At the market say: I would like bread and salt, please.”', w('elira'), w('thote'), p(':'), wf('treg', 'tregu', 'the market'), w('eshte'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('shesh'), p('.'), wf('ne', 'në', 'at'), w('treg'), wf('thote', 'thuaj', 'say'), p(':'), wf('do', 'dua', 'want'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.')), { required: ELIRA_ERRAND_RESPONSE_FLAGS.market }),
+      npcIdentityLine('elira', false, R('The woman says, “The market is beside the well.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('treg', 'tregu', 'the market'), w('eshte'), w('prane'), wf('pus', 'pusit', 'the well'), p('.')), { required: ELIRA_ERRAND_RESPONSE_FLAGS.market }),
+      npcIdentityLine('elira', true, R('Elira says, “The market is beside the well.”', w('elira'), w('thote'), p(':'), wf('treg', 'tregu', 'the market'), w('eshte'), w('prane'), wf('pus', 'pusit', 'the well'), p('.')), { required: ELIRA_ERRAND_RESPONSE_FLAGS.market }),
       npcIdentityLine('elira', false, R('The woman says, “Straight ahead, then right.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('drejt'), w('perpara'), p(','), w('pastaj'), w('djathtas'), p('.')), { required: ELIRA_ERRAND_RESPONSE_FLAGS.guestRoom }),
       npcIdentityLine('elira', true, R('Elira says, “Straight ahead, then right.”', w('elira'), w('thote'), p(':'), w('drejt'), w('perpara'), p(','), w('pastaj'), w('djathtas'), p('.')), { required: ELIRA_ERRAND_RESPONSE_FLAGS.guestRoom }),
     ],
@@ -1183,7 +1189,7 @@ export const STORY = {
         text: R('I would like to buy bread and salt, please.', wf('do', 'dua', 'want'), w('te_subj'), w('blej'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.')),
         playerIntents: ['transaction'], reveal: 'lek', requires: eliraQuestCondition('active'), effects: [{ type: 'inventory', id: 'buke', delta: 1 }, { type: 'inventory', id: 'kripe', delta: 1 }], lek: -errandPurchaseTotal, moneyOutcome: ERRAND_PURCHASE_MONEY_OUTCOME, to: 'porosiaBlerje', durationHours: 0,
       },
-      { text: C(LEAVE_MARKET), to: 'fshatiSheshi', durationHours: 0 },
+      { text: C(LEAVE_MARKET), to: 'pusiThate', durationHours: 0 },
     ],
   },
 
@@ -1199,7 +1205,7 @@ export const STORY = {
         text: R('I would like to buy bread and salt, please.', wf('do', 'dua', 'want'), w('te_subj'), w('blej'), w('buke'), w('dhe'), w('kripe'), p(','), w('ju'), wf('lutem', 'lutem', 'please'), p('.')),
         playerIntents: ['transaction'], reveal: 'lek', requires: eliraQuestCondition('active'), effects: [{ type: 'inventory', id: 'buke', delta: 1 }, { type: 'inventory', id: 'kripe', delta: 1 }], lek: -errandPurchaseTotal, moneyOutcome: ERRAND_PURCHASE_MONEY_OUTCOME, to: 'porosiaBlerje', durationHours: 0,
       },
-      { text: C(LEAVE_MARKET), to: 'fshatiSheshi', durationHours: 0 },
+      { text: C(LEAVE_MARKET), to: 'pusiThate', durationHours: 0 },
     ],
   },
 
@@ -1221,7 +1227,7 @@ export const STORY = {
       R('The child says, “Good. She is waiting.”', wf('femije', 'fëmija', 'the child'), w('thote'), p(':'), w('mire'), p('.'), w('ajo'), w('po_prog'), wf('prit', 'pret', 'waits'), p('.')),
     ],
     options: [
-      { text: C(LEAVE_MARKET), to: 'fshatiSheshi', durationHours: 0 },
+      { text: C(LEAVE_MARKET), to: 'pusiThate', durationHours: 0 },
       { text: R('Stay at the market.', w('rri'), wf('ne', 'në', 'at'), w('treg'), p('.')), to: 'pazariFshatit', durationHours: 0 },
     ],
   },
@@ -6580,7 +6586,7 @@ export const STORY = {
     options: [
       { text: L(w('fol'), w('me'), wf('plak', 'plakun', 'the old man')), requires: 'npc:plakuSheshit', to: 'sheshiPlak', reveal: 'plak' },
       { text: L(w('hyr'), wf('ne', 'në', 'to'), w('shtepi')), to: 'plaka', reveal: 'shtepi', revealOccurrence: 1 },
-      { text: R('I am going to the guest-room.', w('po_prog'), wf('shko', 'shkoj', 'go'), wf('ne', 'në', 'to'), wf('oda', 'odë', 'guest-room'), p('.')), intent: 'movement', playerIntents: ['movement'], to: 'oda1', reveal: 'oda' },
+      { text: R('Go straight ahead.', w('shko'), w('drejt'), w('perpara'), p('.')), intent: 'movement', playerIntents: ['movement'], to: 'rrugaOdes' },
       { text: L(w('hyr'), wf('ne', 'në', 'in'), w('kafene')), unless: 'night', to: 'kafeneja', reveal: 'kafene' },
       { text: L(w('ndihmo'), wf('femije', 'fëmijët', 'the children')), requires: 'npc:femijet', to: 'dordolec1', reveal: 'dordolec' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('pus')), to: 'pusiThate', reveal: 'thate', revealOccurrence: 1 },
@@ -6638,6 +6644,23 @@ export const STORY = {
       npcIdentityOption('elira', false, { text: R('Speak with the woman.', w('fol'), w('me'), wf('grua', 'gruan', 'the woman')), requires: ['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:missed'], unless: 'flag:eliraOpeningResolved', to: 'eliraShesh', durationHours: 0 }),
       npcIdentityOption('elira', true, { text: R('Speak with Elira.', w('fol'), w('me'), wf('elira', 'Elirën', 'Elira')), requires: ['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:missed'], unless: 'flag:eliraOpeningResolved', to: 'eliraShesh', durationHours: 0 }),
       { text: R('Speak with the family.', w('fol'), w('me'), wf('familje', 'familjen', 'the family')), unless: 'night', to: 'fshatiDitelindje', reveal: 'familje' },
+    ],
+  },
+
+  // The oda is not a destination button. Elira's “straight ahead, then right”
+  // becomes two ordinary physical choices here; taking the plausible left turn
+  // reaches the homes instead of being rejected as a language mistake.
+  rrugaOdes: {
+    id: 'rrugaOdes',
+    text: [
+      from('fshatiSheshi', R('You go straight. The road forks: left or right.', w('ti'), wf('shko', 'shkon', 'go'), w('drejt'), p('.'), wf('rruge', 'Rruga', 'the road'), w('ndahet'), p(':'), w('majtas'), w('ose'), w('djathtas'), p('.'))),
+      from('oda1', R('You leave the guest-room. The road forks: left or right.', w('ti'), wf('dil', 'del', 'leave'), w('nga'), w('oda'), p('.'), wf('rruge', 'Rruga', 'the road'), w('ndahet'), p(':'), w('majtas'), w('ose'), w('djathtas'), p('.'))),
+      R('No one speaks with you here.', w('ketu'), w('nuk'), wf('fol', 'flet', 'speaks'), w('njeri'), w('me'), wf('ti', 'ty', 'you'), p('.')),
+    ],
+    options: [
+      { text: R('Go left.', w('shko'), w('majtas')), to: 'fshatiJeta' },
+      { text: R('Go right.', w('shko'), w('djathtas')), to: 'oda1' },
+      { text: R('Return to the square.', w('kthehu'), wf('ne', 'në', 'to'), w('shesh')), to: 'fshatiSheshi' },
     ],
   },
 
@@ -6764,6 +6787,7 @@ export const STORY = {
       { text: L(w('merr'), w('gur')), grant: 'gur', unless: 'gur', to: 'pusiThate', reveal: 'gur' },
       { text: L(w('hidh'), w('gur'), wf('ne', 'në', 'in'), w('pus')), requires: 'gur', consumes: 'gur', to: 'pusiGuri' },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
+      { text: R('Go to the market.', w('shko'), wf('ne', 'në', 'to'), w('treg'), p('.')), requires: [ELIRA_ERRAND_QUESTION_FLAGS.market, eliraQuestCondition('active')], to: 'pazariFshatit', durationHours: 0 },
     ],
   },
 
@@ -7547,7 +7571,8 @@ export const STORY = {
     text: [
       // the climb up from the river-quarter to the living homes
       from('fshatiLumi', L(w('ti'), w('ngjit'), w('nga'), wf('lume', 'lumi', 'the river'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpitë', 'the homes'), p('.'))),
-      notFrom('fshatiLumi', L(w('ketu'), wf('rri', 'rrinë', 'stand'), wf('shtepi', 'shtëpitë', 'the homes'), p('.'))),
+      from('rrugaOdes', R('You go left to the homes.', w('ti'), wf('shko', 'shkon', 'go'), w('majtas'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpitë', 'the homes'), p('.'))),
+      notFrom(['fshatiLumi', 'rrugaOdes'], L(w('ketu'), wf('rri', 'rrinë', 'stand'), wf('shtepi', 'shtëpitë', 'the homes'), p('.'))),
       when('season:spring', describesEnvironment('season', R('In spring, the trees have flowers and butterflies flutter among them.', wf('ne', 'Në', 'in'), w('pranvere'), p(','), wf('peme', 'pemët', 'tree'), wf('ka', 'kanë', 'have'), w('lule'), w('dhe'), wf('flutur', 'fluturat', 'butterflies'), wf('fluturo', 'fluturojnë', 'fly'), w('mes'), wf('tyre', 'tyre', 'them'), p('.')))),
       // hearth-light only reads when the light is low — hidden in full daylight (ditë)
       unless('day', L(w('nga'), w('nje'), w('dere'), wf('dil', 'del', 'comes out'), wf('drite', 'drita', 'the light'), w('e_link'), w('nje'), wf('vatra', 'vatre', 'hearth'), p('.'))),
@@ -9126,7 +9151,7 @@ export const STORY = {
     text: [
       // you ENTER only from the square; from the book, the talkers, or waking
       // at dawn you are already inside
-      from('fshatiSheshi', L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'to'), w('nje'), w('oda'), p('.'))),
+      from(['fshatiSheshi', 'rrugaOdes'], L(w('ti'), wf('hyr', 'hyn', 'enter'), wf('ne', 'në', 'to'), w('nje'), w('oda'), p('.'))),
       when('weather:rain', describesEnvironment('weather', R('Rain taps the guest-room window.', wf('shi', 'shiu', 'the rain'), w('troket'), wf('ne', 'në', 'on'), wf('dritare', 'dritaren', 'the window'), w('e_link'), wf('oda', 'odës', 'the guest-room'), p('.')))),
       // the canonical greeting-pair of the threshold — the Kanun (§620) commands
       // the first; the second is the guest's set reply
@@ -9134,7 +9159,7 @@ export const STORY = {
         wf('plak', 'plaku', 'the old man'), w('thote'), p(':'), w('mire'), w('se'), wf('vjen', 'erdhe', 'came'), p('!')),
       Q('përgjigjja e mikut — urim i moçëm',
         w('ti'), wf('thote', 'thua', 'say'), p(':'), w('mire'), w('se'), w('ju'), wf('gjen', 'gjeta', 'found'), p('!')),
-      notFrom('fshatiSheshi', L(w('ti'), w('je'), w('perseri'), wf('ne', 'në', 'in'), w('oda'), p('.'))),
+      notFrom(['fshatiSheshi', 'rrugaOdes'], L(w('ti'), w('je'), w('perseri'), wf('ne', 'në', 'in'), w('oda'), p('.'))),
       // the night's sleep among the men ends with the light at the windows
       became('dawn', L(w('tani'), w('eshte'), w('agim'), p('.'))),
       L(wf('plak', 'plaku', 'the old man'), w('jep'), w('buke'), w('dhe'), w('kripe'), p(':'), w('ti'), w('je'), w('nje'), w('mik'), p('.')),
@@ -9160,7 +9185,7 @@ export const STORY = {
       { text: L(w('sheh'), wf('liber', 'librin', 'the book')), to: 'libriDiell', reveal: 'liber' },
       // the oda is where travellers bed down — the town's rest-jump to morning
       { text: L(w('fle'), w('ketu')), unless: 'dawn', to: 'oda1', time: 'dawn', reveal: 'udhetar', revealOccurrence: 1 },
-      { text: L(w('dil'), w('jashte')), to: 'fshatiSheshi' },
+      { text: L(w('dil'), w('jashte')), to: 'rrugaOdes' },
     ],
   },
 
@@ -10451,7 +10476,7 @@ export const STORY = {
       { text: L(w('shko'), wf('tek', 'te', 'to'), wf('ure', 'ura', 'the bridge'), w('tjeter')), to: 'uraTjeter1', reveal: 'tjeter', revealOccurrence: 1 },
       { text: L(w('shko'), wf('tek', 'te', 'to'), wf('tabak', 'tabakët', 'the tanners')), to: 'tabaket1', reveal: 'tabak' },
       { text: L(w('shko'), wf('ne', 'në', 'to'), w('mulli')), to: 'mulli1', reveal: 'mulli' },
-      { text: L(w('shko'), wf('ne', 'në', 'to'), w('krua')), to: 'kroi1', reveal: 'krua', revealOccurrence: 1 },
+      { text: R('Go down.', w('zbrit'), w('poshte'), p('.')), to: 'kroi1', reveal: 'krua', revealOccurrence: 1 },
       { text: L(w('ngjit'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpitë', 'the homes')), to: 'fshatiJeta', reveal: 'rruge', revealOccurrence: 1 },
       { text: L(w('ngjit'), wf('ne', 'në', 'to'), w('fshat')), to: 'fshatiSheshi', durationHours: 1 },
       npcIdentityOption('elira', false, { text: R('Go with the woman.', w('shko'), w('me'), wf('grua', 'gruan', 'the woman')), requires: ['npc:elira', 'flag:eliraFollowPlan', 'rendezvous:eliraFollow:fulfilled'], unless: 'flag:eliraOpeningResolved', to: 'eliraBreg', durationHours: 0 }),
@@ -11784,6 +11809,8 @@ const CONFUSERS = {
   eliraEmriShesh: L(wf('fshat', 'fshati', 'the village'), wf('ndihmo', 'ndihmon', 'helps'), wf('elira', 'Elirën', 'Elira')),
   eliraBanore: L(wf('grua', 'gruaja', 'the woman'), w('pyet'), wf('fshat', 'fshatin', 'the village')),
   eliraEmriBanore: L(w('elira'), wf('quhem', 'quhet', 'is called'), w('fshat')),
+  porosiaShesh: R('Speak with the bread.', w('fol'), w('me'), wf('buke', 'bukën', 'the bread')),
+  rrugaOdes: R('The square goes left.', wf('shesh', 'Sheshi', 'the square'), wf('shko', 'shkon', 'goes'), w('majtas')),
   eliraPorosiaDorezuar: L(wf('oda', 'oda', 'the guest-room'), w('merr'), wf('grua', 'gruan', 'the woman')), // the room cannot take the woman
   fshatiDitelindje: L(wf('sofer', 'sofra', 'the table'), wf('sjell', 'sjell', 'brings'), wf('familje', 'familjen', 'the family')),
   fshatiDitelindjeUrim: L(wf('ditelindje', 'ditëlindja', 'the birthday'), w('thote'), w('faleminderit')),
@@ -12191,6 +12218,8 @@ const CONFUSERS = {
 const CONFUSERS2 = {
   pylliHumbur: R('Listen to the road.', w('degjo'), wf('rruge', 'rrugën', 'the road')), // it cannot answer
   shtrigaLufta: R('Listen to the fire.', w('degjo'), wf('zjarr', 'zjarrin', 'the fire')), // it cannot answer
+  porosiaShesh: R('Speak with the salt.', w('fol'), w('me'), wf('kripe', 'kripën', 'the salt')),
+  rrugaOdes: R('The guest-room divides.', wf('oda', 'Oda', 'the guest-room'), w('ndahet')),
   pazariFshatit: L(w('kuptoj'), wf('kripe', 'kripën', 'the salt')), // understand the salt — impossible
   pazariPerserit: L(w('kuptoj'), wf('tregtar', 'tregtarin', 'the trader')), // understand the trader as an object — absurd
   porosiaBlerje: L(w('jep'), wf('tregtar', 'tregtarin', 'the trader')), // give the trader — impossible
@@ -12364,8 +12393,8 @@ const CONFUSERS2 = {
   pusiGuri: L(w('bie'), wf('ne', 'në', 'to'), wf('bote', 'botë', 'world')), // fall into the world (below) — the well is not a door
   fshatiJeta: L(w('bej'), wf('dhi', 'dhinë', 'the goat')), // make the goat — you cannot
   shtojzovalle2: L(w('jep'), wf('lot', 'lotët', 'the tears')), // give the tears — you cannot
-  udhetaret: L(w('degjo'), wf('shtepi', 'shtëpinë', 'the house')), // listen to the house — none here
-  tregMal: L(w('degjo'), wf('shtepi', 'shtëpinë', 'the house')), // listen to the house — none here
+  udhetaret: R('Speak with the lute.', w('fol'), w('me'), wf('lahute', 'lahutën', 'the lute')), // the lute cannot answer
+  tregMal: R('Climb the beard.', w('ngjit'), wf('mjeker', 'mjekrën', 'the beard')), // climb the old man's beard — impossible
   tregDet: L(w('degjo'), wf('det', 'detin', 'the sea')), // listen to the sea — it cannot speak
   tregMujo: L(w('lufto'), wf('lahute', 'lahutën', 'the lute')), // fight the lute — you cannot
   lahuta1: L(w('degjo'), wf('koke', 'kokën', 'the head')), // listen to the head — it does not sing
@@ -12375,7 +12404,7 @@ const CONFUSERS2 = {
   djepi3: L(w('merr'), w('fund')), // take the end — it is not a thing to carry
   skender1: L(w('lufto'), wf('kala', 'kalanë', 'the castle')), // fight the castle — you cannot
   burrnesha1: L(w('degjo'), wf('arme', 'armën', 'the weapon')), // listen to the weapon — it cannot speak
-  tregDragua: L(w('vrit'), wf('shtepi', 'shtëpinë', 'the house')), // kill the house — none here
+  tregDragua: R('Kill the village.', w('vrit'), wf('fshat', 'fshatin', 'the village')), // impossible
   qilim: L(w('degjo'), wf('diell', 'diellin', 'the Sun')), // listen to the Sun — it cannot answer
   qilimNena: L(w('kap'), w('zili')), // catch the envy — you cannot hold it
   gjysmegjel2: L(w('ha'), wf('mbret', 'mbretin', 'the king')), // eat the king — you cannot
@@ -12449,6 +12478,8 @@ const CONFUSERS2 = {
 // thing, or fly), distinct from the other two for that node.
 const CONFUSERS3 = {
   qilimNena: L(w('degjo'), wf('gjarper', 'gjarprin', 'the serpent')), // listen to the woven serpent — it cannot speak
+  porosiaShesh: R('Bring the guest-room.', wf('sjell', 'sill', 'bring'), wf('oda', 'odën', 'the guest-room')),
+  rrugaOdes: R('Speak with the village.', w('fol'), w('me'), wf('fshat', 'fshatin', 'the village')),
   pazariFshatit: L(wf('do', 'dua', 'want'), wf('tregtar', 'tregtarin', 'the trader')), // want the trader — absurd
   pazariPerserit: L(w('perserit'), wf('buke', 'bukën', 'the bread')), // repeat the bread — impossible
   porosiaBlerje: L(w('pyet'), wf('buke', 'bukën', 'the bread')), // ask the bread — it cannot answer
@@ -12526,7 +12557,7 @@ const CONFUSERS3 = {
   udhetaret: L(w('degjo'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), // listen in the village — none here
   tregMal: L(w('ngjit'), wf('dem', 'demin', 'the bull')), // climb the bull — you cannot
   tregDet: L(w('merr'), wf('udhetar', 'udhëtarin', 'the traveller')), // take the traveller — none here
-  tregMujo: L(w('degjo'), wf('shtepi', 'shtëpinë', 'the house')), // listen to the house — none here
+  tregMujo: R('Listen to the dragon.', w('degjo'), wf('dragua', 'dragoin', 'the dragon')), // it is only being discussed
   lahuta1: L(w('luan'), wf('koke', 'kokën', 'the head')), // play the head — it is no instrument
   kafeja1: L(w('bej'), w('nje'), w('fat')), // make a fate — you cannot
   dasma1: L(w('shiko'), w('sot')), // look at today — it is not a thing to see

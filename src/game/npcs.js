@@ -160,9 +160,8 @@ export const NPCS = {
     activePhases: ['night'],
   },
 
-  // The old man of the square keeps a fixed day (8 × 3h = 24h timetable):
-  // mornings watching the dry well from the square, every evening in the oda
-  // among the men — find him at the same place at the same hour, any day.
+  // The old man of the square keeps a fixed 24-hour timetable: mornings at the
+  // dry well, evenings in the oda, and the real oda road on both daily walks.
   plakuSheshit: {
     name: 'plaku i sheshit',
     glyph: '👴',
@@ -170,8 +169,13 @@ export const NPCS = {
       mode: 'known-by-context',
       reason: 'The square elder is identified by his visible social role and location.',
     },
-    route: ['fshatiSheshi', 'fshatiSheshi', 'fshatiSheshi', 'fshatiSheshi', 'oda1', 'oda1', 'oda1', 'oda1'],
-    stepHours: 3,
+    route: [
+      'fshatiSheshi', 'fshatiSheshi', 'fshatiSheshi', 'fshatiSheshi',
+      'rrugaOdes',
+      'oda1', 'oda1', 'oda1', 'oda1', 'oda1',
+      'rrugaOdes', 'fshatiSheshi',
+    ],
+    stepHours: 2,
   },
 
   // The shepherd's day (24h timetable + nights offstage): at the homes around

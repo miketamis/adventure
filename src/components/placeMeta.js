@@ -183,9 +183,22 @@ export const PLACE_META = {
       { title: 'the village square', nodes: ['fshatiSheshi'] },
       { title: 'birthday wishes at the family table', nodes: ['fshatiDitelindje', 'fshatiDitelindjeUrim'] },
       { title: 'meeting and catching up with Elira', nodes: ['eliraShesh', 'eliraEmriShesh', 'eliraBanore', 'eliraEmriBanore', 'eliraBiseda', 'eliraPorosiaDorezuar'] },
-      { title: "the guest's bread-and-salt errand", nodes: ['porosiaShesh', 'pazariFshatit', 'pazariPerserit', 'porosiaBlerje', 'porosiaBlerjePergjigje'] },
+      { title: "Elira's bread-and-salt directions", nodes: ['porosiaShesh'] },
       { title: "the old man's bench", nodes: ['sheshiPlak', 'sheshiPlak2', 'sheshiPlak3'] },
       { title: 'coffee at the square', nodes: ['kafeneja', 'kafeneja2'] },
+    ],
+  },
+  rrugaOdes: {
+    name: 'rruga e odës — the guest-room road',
+    happenings: [
+      { title: 'the left-or-right turn from Elira’s directions', nodes: ['rrugaOdes'] },
+    ],
+  },
+  pusiThate: {
+    name: 'pusi i thatë — the dry well',
+    happenings: [
+      { title: 'the dry well and its deep shaft', nodes: ['pusiThate', 'pusiGuri'] },
+      { title: "the market beside the well", nodes: ['pazariFshatit', 'pazariPerserit', 'porosiaBlerje', 'porosiaBlerjePergjigje'] },
     ],
   },
   dasma1: {

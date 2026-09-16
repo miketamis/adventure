@@ -580,10 +580,10 @@ check('a role remains through its own ending and clears only when that ending cl
 check('the pinned public-place inventory exactly matches an independent graph derivation', () => {
   const pinned = new Set(PUBLIC_FREE_ROAM_PLACES)
   const pinnedNodes = new Set(PUBLIC_FREE_ROAM_NODES)
-  assert.equal(PUBLIC_FREE_ROAM_PLACES.length, 55)
+  assert.equal(PUBLIC_FREE_ROAM_PLACES.length, 56)
   assert.equal(pinned.size, PUBLIC_FREE_ROAM_PLACES.length, 'duplicate public place')
   assert.deepEqual(PUBLIC_FREE_ROAM_PLACES, [...PUBLIC_FREE_ROAM_PLACES].sort(), 'public places are not sorted')
-  assert.equal(PUBLIC_FREE_ROAM_NODES.length, 56)
+  assert.equal(PUBLIC_FREE_ROAM_NODES.length, 57)
   assert.equal(pinnedNodes.size, PUBLIC_FREE_ROAM_NODES.length, 'duplicate public node')
   assert.deepEqual(PUBLIC_FREE_ROAM_NODES, [...PUBLIC_FREE_ROAM_NODES].sort(), 'public nodes are not sorted')
   for (const place of pinned) assert.ok(PLACE_NODES[place]?.length, `unknown public place ${place}`)
@@ -593,7 +593,7 @@ check('the pinned public-place inventory exactly matches an independent graph de
 
   const derivedNodes = reachableBy(WORLD_HUB, isIndependentPublicEdge)
   const derivedPlaces = new Set([...derivedNodes].map((nodeId) => PLACE_OF[nodeId]).filter(Boolean))
-  assert.equal(derivedNodes.size, 56, 'public graph node inventory drifted')
+  assert.equal(derivedNodes.size, 57, 'public graph node inventory drifted')
   assert.ok(
     sameSet(derivedNodes, pinnedNodes),
     `public-node drift: missing ${[...pinnedNodes].filter((id) => !derivedNodes.has(id)).join(', ') || 'none'}; ` +
@@ -616,7 +616,7 @@ check('the pinned public-place inventory exactly matches an independent graph de
 })
 
 const roleCoverage = []
-check('every paused role reaches exactly all 55 public places and no private tale place', () => {
+check('every paused role reaches exactly all 56 public places and no private tale place', () => {
   const publicPlaces = new Set(PUBLIC_FREE_ROAM_PLACES)
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     const returnTo = quest.returnTo || quest.entryFrom
@@ -655,7 +655,7 @@ check('every paused role reaches exactly all 55 public places and no private tal
   }
 })
 
-check('all 27 roles can physically traverse all 55 public places from every starting hour', () => {
+check('all 27 roles can physically traverse all 56 public places from every starting hour', () => {
   const publicPlaces = new Set(PUBLIC_FREE_ROAM_PLACES)
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     const returnTo = quest.returnTo || quest.entryFrom
@@ -683,7 +683,7 @@ check('all 27 roles can physically traverse all 55 public places from every star
       }
       assert.ok(
         sameSet(places, publicPlaces),
-        `${id} from hour ${startingHour}: reached ${places.size}/55; missing ` +
+        `${id} from hour ${startingHour}: reached ${places.size}/56; missing ` +
           `${[...publicPlaces].filter((place) => !places.has(place)).join(', ') || 'none'}`,
       )
     }

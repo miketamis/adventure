@@ -27,7 +27,7 @@ export const WORLD_CHART = Object.freeze({
 // seen from the two sides (this file assigns/excludes them; DebugView lays them
 // out). Village nodes are handled apart from the ringed outer regions.
 export const VILLAGE_ANCHOR_IDS = [
-  'udhekryq', 'kisha1', 'varret1', 'kostandin1', 'fshatiSheshi', 'pusiThate',
+  'udhekryq', 'kisha1', 'varret1', 'kostandin1', 'fshatiSheshi', 'rrugaOdes', 'pusiThate',
   'nenaDiell1', 'veraDite1', 'dordolec1', 'plaka', 'oda1', 'fshatiLanes',
   'kulle1', 'djepi1', 'pallatiZi', 'kopshtMermer1', 'fshatiJeta', 'vatra',
   'qilim', 'bariu', 'gjysmegjel1', 'syriKeq1', 'breshka1', 'fshatiLumi',
