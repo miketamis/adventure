@@ -182,7 +182,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
 // Ymer projection, not a second body the player can switch into.
 export const EMBODIMENT_ALIASES = Object.freeze({ 'kostandini-i-vogel': 'aga-ymer' })
 
-// The world chart contains 199 authored physical places, including sealed
+// The world chart contains 210 authored physical places, including sealed
 // underworld chambers, endings and private tale projections. “The whole open
 // world” during a role means this smaller, non-committal travel network: the
 // exact physical places reachable from the public crossroads without starting
@@ -192,12 +192,12 @@ export const EMBODIMENT_ALIASES = Object.freeze({ 'kostandini-i-vogel': 'aga-yme
 export const PUBLIC_FREE_ROAM_PLACES = Object.freeze([
   'bregu', 'dasma1', 'deti1', 'detiThelle1', 'detiThelle2', 'flocka1',
   'fshatiBesa', 'fshatiDil', 'fshatiJeta', 'fshatiLanes', 'fshatiLumi',
-  'fshatiSheshi', 'gjizar1', 'gjizar2', 'humbur', 'jutbina', 'katallan1',
+  'fshatiSheshi', 'gjizar1', 'gjizar2', 'jutbina', 'katallan1',
   'kisha1', 'kopshtMermer1', 'kostandin1', 'kripore1', 'kroi1', 'kulle1',
   'lendina', 'libriDiell', 'lumi', 'lumiHumbur', 'maja', 'mali1', 'mali2',
   'mali3', 'maliHumbur', 'maroShtepi', 'mejdan1', 'mulli1',
   'nastradin1', 'odaJutbina', 'pallatiZi', 'plaka', 'pusiThate', 'pylli1',
-  'pylliLoop', 'pylliThelle', 'qiell1', 'qiellErera1', 'shtojzovalle1',
+  'pylliHumbur', 'pylliLoop', 'pylliThelle', 'qiell1', 'qiellErera1', 'shtojzovalle1',
   'start', 'stihi1', 'tabaket1', 'udhekryq', 'ura', 'uraArtes1', 'uraFshaj',
   'varret1', 'vatra',
 ])
@@ -210,12 +210,12 @@ export const PUBLIC_FREE_ROAM_PLACES = Object.freeze([
 export const PUBLIC_FREE_ROAM_NODES = Object.freeze([
   'bregu', 'dasma1', 'deti1', 'detiThelle1', 'detiThelle2', 'flocka1',
   'fshatiBesa', 'fshatiDil', 'fshatiJeta', 'fshatiLanes', 'fshatiLumi',
-  'fshatiSheshi', 'gjizar1', 'gjizar2', 'humbur', 'jutbina', 'katallan1',
+  'fshatiSheshi', 'gjizar1', 'gjizar2', 'jutbina', 'katallan1',
   'kisha1', 'kopshtMermer1', 'kostandin1', 'kripore1', 'kroi1', 'kulle1',
   'lendina', 'lumi', 'lumiHumbur', 'maja', 'mali1', 'mali2', 'mali3',
   'maliHumbur', 'maliStuhi', 'maroShtepi', 'mejdan1', 'mulli1',
   'nastradin1', 'oda1', 'odaJutbina', 'pallatiZi', 'plaka', 'pusiThate',
-  'pylli1', 'pylliLoop', 'pylliThelle', 'qiell1', 'qiellErera1',
+  'pylli1', 'pylliHumbur', 'pylliLoop', 'pylliThelle', 'qiell1', 'qiellErera1',
   'shtojzovalle1', 'start', 'stihi1', 'tabaket1', 'udhekryq', 'ura',
   'uraFshaj', 'uraTjeter1', 'varret1', 'vatra',
 ])

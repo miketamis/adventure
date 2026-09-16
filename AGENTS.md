@@ -33,6 +33,14 @@
 - A normal story scene is one continuous browser-scroll surface: never paginate it, and never silently discard core prose. Mark only genuinely optional atmosphere with `ambient(...)`; an ambient line may fill spare room in a compact scene but may not extend an already crowded scroll or displace a reveal-bearing line. Debug mode must retain the full source prose and expose the normal-play projection.
 - Prefer one short sensory environmental sentence that naturally conveys time, season, or weather. When authored prose already conveys a dimension, mark that exact dimension with `describesEnvironment(...)` so the generic fallback disappears; do not pile a second weather/status sentence on top.
 
+## Player causality and knowledge provenance
+
+- Every accepted story action must resolve into prose that names or visibly demonstrates the exact action, obstacle, and immediate consequence. Do not route unrelated fights, failed answers, animal interactions, or escapes through a generic failure scene; preserve the canonical physical place and use explicit zero-time transitions for immediate reactions.
+- A shared consequence node needs predecessor-specific arrival prose for every playable incoming edge. A new edge without an authored causal beat fails closed in `scripts/playercausalityaudit.mjs`.
+- Keep player choice outcomes after the choice. Setup may show the material and danger needed to decide, but it must not narrate the chosen speech, gift, concealment, attack, ignition, travel, or result before the player acts.
+- Playable lore needs an identifiable source in the scene: a named or described speaker, audible voices, an inscription, or directly observable evidence. Never begin a story line with an unattributed plural `thonë` ("they say"). Important actionable knowledge should be discoverable from more than one believable NPC conversation when the world has multiple relevant people.
+- A same-place self-loop may update conversation, time, inventory, or observation, but arrival and movement prose must be gated by the real predecessor so it does not replay after the local action.
+
 ## Immersive environment narration
 
 - Prefer authored scene prose that reveals the current time, season, or weather through what the player sees happening in that place.

@@ -37,7 +37,8 @@ function loadManifest() {
 
 export async function actionAudioTiming(al) {
   const manifest = await loadManifest()
+  if (manifest?.method !== 'azure-word-boundary-correlated-to-stored-mp3') return null
   const timing = manifest?.entries?.[audioSlug(al)] || null
-  if (!timing || timing.method !== 'azure-word-boundary-correlated-to-stored-mp3') return null
+  if (!timing) return null
   return timing
 }

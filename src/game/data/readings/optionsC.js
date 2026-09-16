@@ -191,9 +191,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "skender1.options[3]": { al: "lufto kalanë", en: "Fight the castle.", review: 'internal-editorial' }, // 1253
   "skender1.options[4]": { al: "lufto qirinj", en: "Fight candles.", review: 'internal-editorial' }, // 1254
   "skender2.options[0]": { al: "ndiz qirinjtë", en: "Light the candles.", review: 'internal-editorial' }, // 1255
-  "skender2.options[1]": { al: "merr zjarrin", en: "Take the fire.", review: 'internal-editorial' }, // 1256
-  "skender2.options[2]": { al: "merr kalanë", en: "Take the castle.", review: 'internal-editorial' }, // 1257
-  "skender2.options[3]": { al: "merr natën", en: "Take the night.", review: 'internal-editorial' }, // 1258
+  "skender2.options[1]": { al: "merr natën", en: "Take the night.", review: 'internal-editorial' }, // 1258
   "burrnesha1.options[0]": { al: "dëgjo burrneshën", en: "Listen to the sworn virgin.", review: 'internal-editorial' }, // 1259
   "burrnesha1.options[1]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1260
   "burrnesha1.options[2]": { al: "vesh besën", en: "Wear the besa.", review: 'internal-editorial' }, // 1261

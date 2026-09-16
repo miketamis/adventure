@@ -88,6 +88,8 @@ export const REGION_OVERRIDES = Object.freeze({
   // emerging river source: the dry bed, the spring and the hand-cut channel.
   udha: 'forest', udheOra: 'forest', udhaThate: 'forest', ujkuUje: 'forest',
   lubia1: 'forest', lubiaKoke: 'forest', lubiaFund: 'forest',
+  pylliHumbur: 'forest', shtrigaLufta: 'forest',
+  oraPyllBardhe: 'forest', oraPyllVerdhe: 'forest', oraPyllZeze: 'forest',
   udhaSyri: 'river', syriKanali: 'river', syriFund: 'river',
   halilGarria1: 'mountain', halilGarriaFund: 'mountain', halilGarriaKeq: 'mountain',
   mujoKale: 'mountain', mujoKaleFund: 'mountain', mujoKaleLarg: 'mountain',
@@ -118,7 +120,8 @@ export const REGION_OVERRIDES = Object.freeze({
   // These scenes are physically inside the sealed lower realm. Leaving them
   // to graph-seed order made the cave ascent inherit `sea` and the explicit
   // lost-below scene inherit `river`, exposing surface horizons underground.
-  kthimi: 'underworld', botaHumbur: 'underworld',
+  kthimi: 'underworld', botaHumbur: 'underworld', humbur: 'underworld',
+  oraBardhe: 'underworld', oraZeze: 'underworld', oraVerdhe: 'underworld',
   // Hold the sea-well/eagle/black-water chain and the upper cavern junction in
   // their authored regions: new lower-realm seeds must not pull them through
   // a breadth-first tie. (The cave junction is below the river-country mouth;
@@ -138,7 +141,7 @@ export const REGION_OVERRIDES = Object.freeze({
 
 // "wander" links = flee / return / get-lost fallbacks, NOT spatial journeys.
 const WANDER_VERB = new Set(['ik', 'kthehu', 'zgjohu', 'dil'])
-const WANDER_TO = new Set(['pylliLoop', 'humbur', 'gjumi'])
+const WANDER_TO = new Set(['pylliLoop', 'gjumi'])
 export const isWander = (o) => WANDER_VERB.has((o.text || []).find((t) => t && t.id)?.id) || WANDER_TO.has(o.to)
 
 // multi-source BFS over PROGRESSION edges only (ignore wander), so a node isn't

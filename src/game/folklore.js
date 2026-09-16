@@ -1877,6 +1877,9 @@ export const ENDING_LORE = {
   oraBardhe: 'ora',
   oraZeze: 'ora',
   oraVerdhe: 'ora',
+  oraPyllBardhe: 'ora',
+  oraPyllVerdhe: 'ora',
+  oraPyllZeze: 'ora',
   djepiFund: 'ora',
   djepiKeq: 'ora',
 

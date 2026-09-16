@@ -313,7 +313,7 @@ export const OPTION_READINGS_B = Object.freeze({
   "fshatiSheshi.options[22]": { al: "fol me Elirën", en: "Speak with Elira.", review: 'internal-editorial' },
   "fshatiSheshi.options[23]": { al: "fol me familjen", en: "Speak with the family.", review: 'internal-editorial' },
   "fshatiSheshi.options[24]": { al: "bëj pusin", en: "Make the well.", review: 'internal-editorial' }, // 834
-  "sheshiPlak.options[11]": { al: "ndihmo pusin", en: "Help the well.", review: 'internal-editorial' }, // 837
+  "sheshiPlak.options[12]": { al: "ndihmo pusin", en: "Help the well.", review: 'internal-editorial' }, // 837
   "sheshiPlak2.options[0]": { al: "dëgjo plakun", en: "Listen to the old man.", review: 'internal-editorial' }, // 838
   "sheshiPlak2.options[1]": { al: "lër plakun", en: "Leave the old man.", review: 'internal-editorial' }, // 839
   "sheshiPlak2.options[2]": { al: "lufto vatrat", en: "Fight the hearths.", review: 'internal-editorial' }, // 840
@@ -542,8 +542,8 @@ export const OPTION_READINGS_B = Object.freeze({
   "foleShpetuar.options[3]": { al: "merr shqiponjën", en: "Take the eagle.", review: 'internal-editorial' },
   "sheshiPlak.options[1]": { al: "ku mund të gjej ujë?", en: "Where can I find water?", review: 'internal-editorial' },
   "sheshiPlak.options[2]": { al: "si mund të ndihmoj?", en: "How can I help?", review: 'internal-editorial' },
-  "sheshiPlak.options[9]": { al: "Më trego më shumë për fshatin.", en: "Tell me more about the village.", review: 'internal-editorial' },
-  "sheshiPlak.options[10]": { al: "faleminderit. mirupafshim.", en: "Thank you. Goodbye.", review: 'internal-editorial' },
+  "sheshiPlak.options[10]": { al: "Më trego më shumë për fshatin.", en: "Tell me more about the village.", review: 'internal-editorial' },
+  "sheshiPlak.options[11]": { al: "faleminderit. mirupafshim.", en: "Thank you. Goodbye.", review: 'internal-editorial' },
   "bariu.options[1]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
   "sheshiPlak.options[0]": { al: "Çfarë ndodhi?", en: "What happened?", review: 'internal-editorial' },
   "sheshiPlak.options[3]": { al: "Seriozisht?", en: "Seriously?", review: 'internal-editorial' },
@@ -553,4 +553,5 @@ export const OPTION_READINGS_B = Object.freeze({
   "sheshiPlak.options[8]": { al: "Ke të drejtë. Duhet të ndihmojmë.", en: "You are right. We must help.", review: 'internal-editorial' },
   "kafeneja2.options[1]": { al: "pi natën", en: "Drink the night.", review: 'internal-editorial' },
   "sheshiPlak.options[7]": { al: "Tani e kuptova.", en: "Now I understand.", review: 'internal-editorial' },
+  "sheshiPlak.options[9]": { al: "Çfarë duhet të di për pyllin natën?", en: "What should I know about the forest at night?", review: 'internal-editorial' },
 })

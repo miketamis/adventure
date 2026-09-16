@@ -58,8 +58,7 @@ section(Boolean(brothersConversation) && PLACE_OF.pylli1 === PLACE_OF.kordha1,
 // ---- 1. region containment ---------------------------------------------------
 // A node should sit inside (or on the fringe of) the region the BFS assigns it.
 // Known-fine outliers (each explicitly documented below):
-//   humbur/ora*/botaHumbur — "you got lost" wander-sinks, region comes from the
-//     fallback BFS and is arbitrary; they're drawn in the dark on purpose.
+//   botaHumbur — an authored underworld detour drawn at the dark boundary.
 //   kthimi — walks the underworld toward the well-exit whose cluster surfaces at
 //     the COAST; anchoring it underworld would drag pusi2/shqiponja/ngjitja down.
 //   rrugaDielli2 — the sun-quest tail: the stag's escape ENDS at the village,
@@ -73,7 +72,7 @@ section(Boolean(brothersConversation) && PLACE_OF.pylli1 === PLACE_OF.kordha1,
 //   gjarperKulshedra/KulVdes/BurrFund — "ti je në detin": the snake-husband
 //     search ends BEYOND the sea; the tale's region stays underworld (where it
 //     is told) — anchoring them sea would pull gjarperKerkim off the dark road.
-const CONTAIN_ALLOW = new Set(['humbur', 'oraBardhe', 'oraZeze', 'oraVerdhe', 'botaHumbur', 'kthimi', 'rrugaDielli2', 'start', 'balozMotra', 'balozTribut', 'balozZgjedh', 'balozFitore', 'shtepia', 'gjarperKulshedra', 'gjarperKulVdes', 'gjarperBurrFund'])
+const CONTAIN_ALLOW = new Set(['botaHumbur', 'kthimi', 'rrugaDielli2', 'start', 'balozMotra', 'balozTribut', 'balozZgjedh', 'balozFitore', 'shtepia', 'gjarperKulshedra', 'gjarperKulVdes', 'gjarperBurrFund'])
 const outliers = []
 for (const id of ids) {
   const p = NODE_POS[id], r = RG[reg(id)]

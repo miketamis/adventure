@@ -244,6 +244,18 @@ export const ENDING_COPY = Object.freeze({
     "title": "The Black Ora",
     "blurb": "You fled the light, deeper into the dark. There are three Fates; the one that found you there was e Zeza, the Black — the Fate who decides death."
   },
+  "oraPyllBardhe": {
+    "title": "Led Back to the Forest Road",
+    "blurb": "Driven from the known path, you met an Ora between the trees and answered her with hospitality. Her light went before you until the forest road appeared again. The old people say an Ora may walk as a woman, bird, beast or serpent and watch over one human life; yours found you before the night could close around you."
+  },
+  "oraPyllVerdhe": {
+    "title": "The Forest Road Lost",
+    "blurb": "You stopped to hear the Ora in the trees, but her voice came from every road at once. Then her light was gone, the forest folded around you again, and no path returned."
+  },
+  "oraPyllZeze": {
+    "title": "Away from the Light",
+    "blurb": "You turned from the only light among the trees and ran farther into the forest. Branch after branch hid the road until even the direction of the clearing was gone."
+  },
   "eaten": {
     "title": "Eaten by the Wolf",
     "blurb": "A starving wolf is all teeth, and the only thing that gentles it is bread — shared, not withheld. With a loaf in hand you might have won a companion instead of a grave; with empty hands, your legs would have served you better than your fists. You chose to fight, and a hungry wolf does not lose. The songs are older and crueller than the village tells."
@@ -570,7 +582,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "oraVerdhe": {
     "title": "The Yellow Ora",
-    "blurb": "You had no offering for her, but you did not flee her either. The Fate who met you in the dark was e Verdha, the Yellow — of the three Fates, the one who deals out bad luck and hard spells. She let you keep your life; but hers is the cold gift, and ill-fortune followed you out of the dark."
+    "blurb": "You had no offering for her, but you did not flee her either. The Fate who met you in the dark was e Verdha, the Yellow — of the three Fates, the one who deals out bad luck and hard spells. Her voice came from every road, her light vanished, and the darkness offered no single way out."
   },
   "nastradinUrte": {
     "title": "If a Cauldron Can Be Born",

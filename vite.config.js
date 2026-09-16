@@ -67,7 +67,7 @@ const memberExpressionRoot = (node) => {
 }
 
 const stripStoryReadings = (code, ast) => {
-  const ranges = new Map()
+  const readingCalls = new Map()
   const collectReadings = (node) => walkAst(node, (candidate) => {
     const reading = candidate.arguments?.[0]
     const isStaticReading = (
@@ -80,20 +80,38 @@ const stripStoryReadings = (code, ast) => {
       candidate.callee?.type === 'Identifier' &&
       candidate.callee.name === 'R' &&
       isStaticReading
-    ) ranges.set(reading.start, reading.end)
+    ) readingCalls.set(candidate.start, candidate)
   })
 
-  // Readings in each node's authored text array.
+  // Readings in each node's authored text and option arrays. Static actions
+  // already have address-pinned copies in the deferred reviewed-option
+  // registry, which StoryView attaches before it renders. Keeping their second
+  // copy in the eager graph wastes bootstrap bytes and exposes debug-only
+  // metadata before the debug surface requests it.
   walkAst(ast, (candidate) => {
     if (candidate.type !== 'VariableDeclarator' || candidate.id?.name !== 'STORY') return
     for (const storyNode of candidate.init?.properties || []) {
       if (storyNode.type !== 'Property' || storyNode.value?.type !== 'ObjectExpression') continue
       for (const field of storyNode.value.properties) {
-        if (field.type === 'Property' && astPropertyName(field.key) === 'text') {
+        if (
+          field.type === 'Property' &&
+          ['text', 'options'].includes(astPropertyName(field.key))
+        ) {
           collectReadings(field.value)
         }
       }
     }
+  })
+
+  // Reused story fragments live outside the STORY literal so the production
+  // graph stores them once. Their readings remain deferred under the same
+  // normal-play boundary as inline node text and actions.
+  walkAst(ast, (candidate) => {
+    if (
+      candidate.type === 'VariableDeclarator' &&
+      candidate.id?.type === 'Identifier' &&
+      candidate.id.name.startsWith('FOREST_ORA_')
+    ) collectReadings(candidate.init)
   })
 
   // Reviewed text appended after the main object, including additions made in
@@ -112,16 +130,43 @@ const stripStoryReadings = (code, ast) => {
     ) candidate.arguments.forEach(collectReadings)
   })
 
+  const replacements = []
+  for (const candidate of readingCalls.values()) {
+    const reading = candidate.arguments[0]
+    const firstToken = candidate.arguments[1]
+    const directTokenCall = (
+      firstToken?.type === 'CallExpression' &&
+      firstToken.callee?.type === 'Identifier' &&
+      ['w', 'wf', 'p'].includes(firstToken.callee.name)
+    )
+    // Direct R(reading, token...) calls need no production metadata wrapper at
+    // all: turn them into ordinary L(token...) lines. Composed R(reading, Q())
+    // and R(reading, L()) calls retain R with an empty reading so their existing
+    // array/quote metadata semantics remain intact.
+    const canBecomePlainLine = (
+      candidate.arguments.length > 2 ||
+      directTokenCall ||
+      firstToken?.type === 'SpreadElement'
+    )
+    if (canBecomePlainLine) {
+      replacements.push([candidate.callee.start, candidate.callee.end, 'L'])
+      replacements.push([reading.start, firstToken.start, ''])
+    } else {
+      replacements.push([reading.start, reading.end, "''"])
+    }
+  }
+
   let transformed = code
-  for (const [start, end] of [...ranges.entries()].sort(([left], [right]) => right - left)) {
-    transformed = `${transformed.slice(0, start)}''${transformed.slice(end)}`
+  for (const [start, end, replacement] of replacements.sort(([left], [right]) => right - left)) {
+    transformed = `${transformed.slice(0, start)}${replacement}${transformed.slice(end)}`
   }
   return transformed
 }
 
-// Source and audit runs retain R('English', tokens). Production removes only
-// reviewed STORY-text literals from the eager graph; debug mode hydrates those
-// readings from the deferred corpus. Dynamic/generated readings remain intact.
+// Source and audit runs retain R('English', tokens). Production removes
+// reviewed STORY text/action literals from the eager graph; debug mode hydrates
+// those readings from the deferred corpora. Dynamic/generated readings remain
+// intact.
 const deferStoryReadings = () => ({
   name: 'defer-reviewed-story-readings',
   apply: 'build',

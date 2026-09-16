@@ -175,20 +175,20 @@ const BOOTSTRAP_GZIP_BUDGET = 356 * KiB
 const BOOTSTRAP_CHUNK_RAW_BUDGET = 800 * KiB
 const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
 // The added NPC replies keep their reviewed English metadata deferred from
-// ordinary play. Their measured corpus chunk is 350.2 KiB raw / 102.5 KiB
-// gzip, so retain only a narrow allowance around that lazy boundary.
-const READING_CHUNK_RAW_BUDGET = 351 * KiB
-const READING_CHUNK_GZIP_BUDGET = 103 * KiB
+// ordinary play. Shared record construction keeps the complete measured corpus
+// at 336.9 KiB raw / 98.6 KiB gzip without dropping any reviewed reading.
+const READING_CHUNK_RAW_BUDGET = 338 * KiB
+const READING_CHUNK_GZIP_BUDGET = 100 * KiB
 const AUDIO_FILE_BUDGET = 64 * KiB
 // Word-level timestamps are loaded only after an accepted action starts its
 // continuous MP3. Budget the independently cached manifest as well as the
 // clips so alignment metadata cannot grow without a release review.
 // The expanded village conversations add their continuous Albanian recordings
 // and exact waveform-correlated word boundaries. The resulting complete
-// manifest is 1055.5 KiB raw / 132.1 KiB gzip; keep narrow measured raw and
-// compressed allowances for that release-safety data.
-const ACTION_TIMINGS_RAW_BUDGET = 1_057 * KiB
-const ACTION_TIMINGS_GZIP_BUDGET = 133 * KiB
+// manifest stores its common method once and is 983.1 KiB raw / 131.5 KiB
+// gzip; keep narrow measured allowances for that release-safety data.
+const ACTION_TIMINGS_RAW_BUDGET = 985 * KiB
+const ACTION_TIMINGS_GZIP_BUDGET = 132 * KiB
 // Every accepted story action now has one continuous, on-demand MP3 so action
 // karaoke never falls back to stitched word clips or browser TTS. Keep a
 // measured ceiling over that complete 4,486-clip archive; none is eager-loaded.

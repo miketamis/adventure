@@ -26,7 +26,7 @@ for (const transcript of surfaces) {
     entry.audioSha256,
     `${transcript}: timing was not aligned against the exact deployed MP3`,
   )
-  assert.equal(entry.method, manifest.method)
+  assert.equal(entry.method, undefined, `${transcript}: repeats the manifest-wide alignment method`)
   assert.ok(entry.alignmentCorrelation >= 0.96, `${transcript}: weak waveform alignment`)
   assert.ok(Number.isFinite(entry.alignmentOffsetMs), `${transcript}: missing measured timing offset`)
   assert.ok(entry.storedDurationMs > 0, `${transcript}: invalid stored duration`)

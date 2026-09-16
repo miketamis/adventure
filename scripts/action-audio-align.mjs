@@ -20,6 +20,7 @@ const AUDIO_DIR = resolve(ROOT, 'public/audio')
 const OUTPUT = resolve(AUDIO_DIR, 'action-timings.json')
 const CONCURRENCY = Math.max(1, Number(process.env.ACTION_ALIGN_CONCURRENCY) || 8)
 const ONLY = process.argv.find((value) => value.startsWith('--surface='))?.slice(10) || null
+const ALIGNMENT_METHOD = 'azure-word-boundary-correlated-to-stored-mp3'
 
 function loadEnv() {
   const result = {}
@@ -156,7 +157,7 @@ async function main() {
         if (
           entries[slug]?.transcript === transcript &&
           entries[slug]?.audioSha256 === storedHash &&
-          entries[slug]?.method === 'azure-word-boundary-correlated-to-stored-mp3'
+          previous.method === ALIGNMENT_METHOD
         ) {
           complete++
           continue
@@ -177,7 +178,6 @@ async function main() {
           referenceDurationMs: alignment.referenceDurationMs,
           alignmentOffsetMs: alignment.offsetMs,
           alignmentCorrelation: alignment.correlation,
-          method: 'azure-word-boundary-correlated-to-stored-mp3',
           words: wordUnits(transcript, reference.boundaries, alignment),
         }
         complete++
@@ -199,7 +199,7 @@ async function main() {
     )
     writeFileSync(OUTPUT, `${JSON.stringify({
       version: 1,
-      method: 'azure-word-boundary-correlated-to-stored-mp3',
+      method: ALIGNMENT_METHOD,
       entries: currentEntries,
     })}\n`)
     if (failures.length) {

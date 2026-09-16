@@ -422,14 +422,10 @@ export function crossingFor(from, to) {
   return null
 }
 
-// `humbur` is a shared, liminal darkness reached by failures in several
-// regions. It deliberately keeps the forest branch's region identity for
-// progression, but its map point is a sealed fate-space: it has no surface
-// weather or horizon. Ordinary caves use their surrounding macro-region unless
-// they descend into the explicitly underworld-assigned core.
-const ENCLOSED_SCENES = new Set(['humbur'])
-export const isEnclosedScene = (nodeId) =>
-  NODE_REGION[nodeId] === 'underworld' || ENCLOSED_SCENES.has(nodeId)
+// Underground scenes have no surface weather or horizon. Caves use their
+// surrounding macro-region unless they descend into the explicitly
+// underworld-assigned core.
+export const isEnclosedScene = (nodeId) => NODE_REGION[nodeId] === 'underworld'
 
 function horizonAt(nodeId, environment = {}) {
   const env = environment.environment || environment.world || environment

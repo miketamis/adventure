@@ -194,6 +194,13 @@ export const PLACE_META = {
       { title: 'the wedding, its neighbours and the round-dance', nodes: ['dasma1', 'dasmaBiseda', 'dasmaFund', 'valleFund'] },
     ],
   },
+  mali3: {
+    name: 'shtegu i lartë — the high mountain path',
+    happenings: [
+      { title: 'the last climb and the storm on the heights', nodes: ['mali3', 'maliStuhi'] },
+      { title: "Mujo's wary horse accepts a listener and flees a grasping hand", nodes: ['kali1', 'kaliFund', 'kaliIkur'] },
+    ],
+  },
   kopshtMermer1: {
     name: 'kopshti i mermertë — the marble garden',
     happenings: [
