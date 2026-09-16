@@ -16,6 +16,7 @@ import {
   FIRST_SESSION_PHRASES,
   RECYCLED_EARLY_CHUNKS,
 } from '../src/game/everydayAlbanian.js'
+import { ALBANIAN_ONION_CORE } from './data/early_language_policy.mjs'
 
 const strict = process.argv.includes('--strict')
 const normalize = (value) => String(value || '')
@@ -92,6 +93,7 @@ const documentedCounts = {
   opening: FIRST_MINUTES_PHRASES.length,
   session: FIRST_SESSION_PHRASES.length,
   core: EVERYDAY_CORE_SENSE_IDS.length,
+  onion: ALBANIAN_ONION_CORE.length,
   phrases: EVERYDAY_PHRASE_DRILLS.length,
   groups: EVERYDAY_CAN_DO_GROUPS.length,
 }
@@ -170,6 +172,7 @@ console.log('=== Everyday Albanian curriculum ===')
 console.log(`opening targets: ${reachedTargets}/${FIRST_MINUTES_PHRASES.length}`)
 console.log(`first-session targets: ${FIRST_SESSION_PHRASES.length}`)
 console.log(`practice-priority senses: ${EVERYDAY_CORE_SENSE_IDS.length}`)
+console.log(`onion-centre functions: ${ALBANIAN_ONION_CORE.length}`)
 console.log(`whole-phrase drills: ${EVERYDAY_PHRASE_DRILLS.length}`)
 console.log(`story-grounded can-do groups: ${EVERYDAY_CAN_DO_GROUPS.length}`)
 console.log(`recycled early chunks: ${RECYCLED_EARLY_CHUNKS.length}`)

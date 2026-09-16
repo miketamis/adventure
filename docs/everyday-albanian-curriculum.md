@@ -12,6 +12,53 @@ The opening conversation now teaches a transferable interaction skeleton in its 
 4. ask someone to wait, admit “I don’t know,” and choose a meeting place;
 5. agree on today or tomorrow and a time.
 
+## The Albanian language onion
+
+This is an Albanian adaptation of Robert Venter's Layers Method, not a literal
+copy of its Spanish conjugations. The public explanation presents a centre of
+eight high-leverage functions, prioritises the “I” and “you” forms, and builds
+outward through the most useful 300 words with spaced retrieval
+([part 1](https://www.youtube.com/watch?v=6nbh48WchyA),
+[part 2](https://www.youtube.com/watch?v=hG2vO_-1Nis)).
+
+| Original function | Spanish anchor | Albanian opening anchor | Adaptation |
+|---|---|---|---|
+| want | *quiero / quieres* | **dua / do; dua të… / do të…** | desire plus a noun, or desire plus a subjunctive action |
+| go | *voy / vas* | **shkoj / shkon** | movement and plans |
+| have | *tengo / tienes* | **kam / ke** | possession and common “have” expressions |
+| have to | *tengo que / tienes que* | **duhet të…** | Albanian uses the invariant modal **duhet** plus a personal subjunctive, not a literal copy of Spanish “have” |
+| can | *puedo / puedes* | **mund të…** | invariant **mund** plus a personal subjunctive |
+| do / make | *hago / haces* | **bëj / bën** | ordinary actions and making things |
+| be: identity or origin | *soy / eres* | **jam / je** | names, roles and origin |
+| be: state or location | *estoy / estás* | **jam / je** | condition, judgement and location |
+
+The final two rows deliberately share **jam**. Standard Albanian does not make
+the Spanish *ser/estar* lexical split, but the learner still practises those as
+two separate communicative jobs. **Vij** (“come”) remains an early, heavily
+recycled movement verb in the next layer rather than being used to manufacture
+an eighth Albanian headword.
+
+All eight functions must first occur in player-owned speech or action by three
+choices from the opening, and each must occur in at least four player actions
+within the five-choice opening graph. They must then recur at least twice along
+each of the bridge-conversation, village and forest openings.
+
+The surrounding frequency layer uses the repository's reviewed top-300
+Albanian surface list. Seven isolated one-letter clitic shards and two already
+reviewed exclusions are not treated as beginner vocabulary cards, leaving 291
+useful targets. Within twelve choices, without retreating through the opening
+bridgehead, every initial direction must expose at least 260 of those targets;
+at least 280 must occur in two directions and 290 across the three-route union.
+An exact form, a spelling variant, or the early appearance of its reviewed
+dictionary family can satisfy this exposure check. This prevents a raw subtitle
+inflection from being taught as a fake standalone word while still making the
+underlying high-frequency language early and route-independent.
+
+`scripts/earlylanguageaudit.mjs` enforces the core-action and top-300 route
+floors. The existing Train scheduler supplies spaced retrieval, separate
+recognition and production evidence, and disjoint-round remediation after the
+story supplies meaningful encounters.
+
 The first village errand continues the same conversation instead of resetting into a lesson. The player agrees to help prepare for a guest, follows an instruction, asks where the market and guest-room are, follows left/right directions, asks a fast speaker to slow down or repeat, buys bread and salt, and welcomes a traveller. The neighbours now remain people after their first plot function: the player can open a conversation, ask how someone is today, ask about work and routine, arrange another meeting, check whether someone needs help, and ask about cold water or the way to a well. Elira’s familiar greeting, the elder’s rumour and clarification turns, the children’s playful disagreement, and the innkeeper’s exact-time and bag instructions also introduce ordinary informal register without flattening every speaker into the same voice. The supper then becomes a genuine social scene: permission to enter, offering food and water, a small favour, introductions, home and work, family, missing home, the journey, weather, tiredness, sympathy, news, follow-up questions, disbelief, fear, opinions, disagreement and a consequential decision. That decision opens the Kulshedra trail. The square’s birthday gathering teaches wishes, natural reactions and an explicit joke marker. The café carries work, sleep and next-day talk. Later, the established Gjakova inn, stalls and healer carry comparing a cheaper option, opening hours, hot water, breakfast time, leaving a bag, pain, aftercare, help, and doctor language without importing a modern airport, bus, or phone into the folktale world.
 
 This gives the player the main intent and routine phrases in the private conversation research during the first village visit. An aggregate review of the current ignored extract particularly reinforced movement updates and changing a plan; the public lines are independently authored standard Albanian. It does not promise instant comprehension of names, code-switching, one-off misspellings, or private-reference humour. Those are genuine parts of chat literacy, but they should not displace reusable Albanian.
@@ -21,9 +68,10 @@ This gives the player the main intent and routine phrases in the private convers
 The public curriculum currently contains (the hidden markers are checked
 against the live registries by `scripts/conversationaudit.mjs`):
 
-- 15 opening targets; <!-- curriculum:opening=15 -->
+- 20 opening targets; <!-- curriculum:opening=20 -->
 - 72 first-session targets; <!-- curriculum:session=72 -->
-- 200 practice-priority senses; <!-- curriculum:core=200 -->
+- 202 practice-priority senses; <!-- curriculum:core=202 -->
+- 8 onion-centre functions; <!-- curriculum:onion=8 -->
 - 150 whole-phrase drills; <!-- curriculum:phrases=150 -->
 - 26 story-grounded can-do groups. <!-- curriculum:groups=26 -->
 

@@ -913,4 +913,9 @@ export const EARLY_READINGS = {
   "fitorja.text[0]": ["ti pret kokë me zjarr.", "You sever one of the heads with fire."],
   "fitorja.text[1]": ["kulshedra bie.", "The Kulshedra falls."],
   "shtepia.text[3]": ["Njerëzit thonë: të lumtë krahu!", "The people call out, “Bless your arm!”"],
+  "bisedaUra3.text[2]": ["po. po të dëgjoj.", "“Yes. I am listening.”"],
+  "bisedaUra3.text[3]": ["kroi është pranë lumit.", "“The spring is beside the river.”"],
+  "bisedaUra3.text[4]": ["po bëj gati darkën.", "“I am preparing dinner.”"],
+  "bisedaUra3.text[6]": ["quhem Elira. jam nga fshati.", "“My name is Elira. I am from the village.”"],
+  "bisedaUra3.text[5]": ["natën, duhet të kthehesh në fshat.", "“At night, you must return to the village.”"],
 }

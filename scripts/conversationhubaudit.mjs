@@ -84,11 +84,12 @@ for (const hub of Object.values(CONVERSATION_HUBS)) {
     `${hub.id}: conversation opens with ${openingLines.length} lines before the player asks anything`)
 }
 
-// The first-village conversation sweep gives each recurring neighbour a
-// player-led, same-place exchange instead of using them only as quest or shop
-// interfaces. Keep the exact topic inventory reviewed: changing it is an
-// editorial language change, not a silent data-count increase.
-const VILLAGE_CONVERSATION_TOPICS = {
+// The opening practical-conversation sweep gives the bridge meeting and each
+// recurring neighbour a player-led, same-place exchange instead of using them
+// only as quest or shop interfaces. Keep the exact topic inventory reviewed:
+// changing it is an editorial language change, not a silent data-count increase.
+const REVIEWED_CONVERSATION_TOPICS = {
+  'bridge-core': ['waitQuestion', 'water', 'today', 'forest', 'identity'],
   'elira-neighbour': ['today', 'work', 'availability', 'waitQuestion'],
   'spring-girl': ['water', 'routine', 'village'],
   'forest-guest': ['cold', 'destination', 'alone'],
@@ -106,6 +107,11 @@ const VILLAGE_CONVERSATION_TOPICS = {
 // sense so punctuation, informal register, and same-spelling contrasts cannot
 // drift silently while the hub inventory still happens to pass.
 const REVIEWED_HUB_SURFACES = [
+  ['bridge-core', 'waitQuestion', 'question', 'Prit pak; kam një pyetje.', ['ka', 'pyetje']],
+  ['bridge-core', 'water', 'question', 'dua ujë, të lutem.', ['do', 'uje']],
+  ['bridge-core', 'today', 'question', 'Çfarë po bën sot?', ['cfare', 'bej', 'sot']],
+  ['bridge-core', 'forest', 'question', 'Çfarë duhet të di për pyllin natën?', ['duhet', 'di', 'pyll']],
+  ['bridge-core', 'identity', 'question', 'si quhesh? nga je?', ['quhem', 'nga', 'je']],
   ['elira-neighbour', 'today', 'question', "Ç'kemi? Si je sot?", ['ckemi']],
   ['elira-neighbour', 'work', 'question', 'Ça po bën?', ['cfare']],
   ['elira-neighbour', 'waitQuestion', 'question', 'Prit pak; kam një pyetje.', ['prit', 'pyetje']],
@@ -181,7 +187,7 @@ const childrenReallyOption = STORY.dordolecBiseda.options.find((candidate) =>
     && candidate.conversationHub?.questionId === 'really')
 assert.ok([].concat(childrenReallyOption.unless || []).includes('fact:villageWellsRestored'),
   'rain-children/really: dry-well follow-up remains visible after the wells are restored')
-for (const [hubId, questionIds] of Object.entries(VILLAGE_CONVERSATION_TOPICS)) {
+for (const [hubId, questionIds] of Object.entries(REVIEWED_CONVERSATION_TOPICS)) {
   const hub = CONVERSATION_HUBS[hubId]
   assert.ok(hub, `${hubId}: reviewed village conversation was removed`)
   assert.deepEqual(Object.keys(hub.questions), questionIds,

@@ -7,7 +7,7 @@ export const EVERYDAY_CORE_SENSE_IDS = Object.freeze([
   // people, identity and the verbs that carry most conversation
   'ti', 'ju', 'une', 'ne_we', 'ai', 'ajo', 'ata',
   'jam', 'je', 'eshte', 'ka', 'ke', 'bej', 'vjen', 'shko', 'rri', 'prit', 'merr', 'le',
-  'nisem', 'takohem', 'mbaroj', 'di', 'mund', 'duhet', 'do_fut', 'dot',
+  'nisem', 'takohem', 'mbaroj', 'di', 'mund', 'duhet', 'do', 'dua', 'do_fut', 'dot',
 
   // yes/no, questions and conversational glue
   'po_yes', 'po_prog', 'po_turn', 'jo', 'nuk', 'a_q',
@@ -56,6 +56,11 @@ export const FIRST_MINUTES_PHRASES = Object.freeze([
   { al: 'po nisem tani. a vjen me mua, apo takohemi më vonë?', maxDepth: 3 },
   { al: 'po vij tani.', maxDepth: 3, interactive: true },
   { al: 'nuk mund të vij tani. takohemi nesër?', maxDepth: 3, interactive: true },
+  { al: 'prit pak; kam një pyetje.', maxDepth: 3, interactive: true },
+  { al: 'dua ujë, të lutem.', maxDepth: 3, interactive: true },
+  { al: 'çfarë po bën sot?', maxDepth: 3, interactive: true },
+  { al: 'çfarë duhet të di për pyllin natën?', maxDepth: 3, interactive: true },
+  { al: 'si quhesh? nga je?', maxDepth: 3, interactive: true },
   { al: 'si quhesh?', maxDepth: 3, interactive: true },
   { al: 'unë quhem Elira.', maxDepth: 4 },
   { al: 'në rregull. eja me mua.', maxDepth: 4 },

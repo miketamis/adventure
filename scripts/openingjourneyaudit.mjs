@@ -111,7 +111,9 @@ const beginFollow = () => {
 
 {
   let state = opening()
-  state = choose(state, 'bisedaUraPlan')
+  state = choose(state, 'bisedaUra3', (option) =>
+    option.conversationHub?.hubId === 'bridge-core'
+      && option.conversationHub?.questionId === 'identity')
   assertEliraNaming(state, true, 'authored bridge introduction')
   state = choose(state, 'bisedaFollowAgree')
   assert.doesNotMatch(visibleText(state), /qëndro/, 'agreeing to follow still tells the player to wait before leaving')
@@ -222,11 +224,13 @@ for (const [arrivalClock, expected] of [[28, 'late'], [31, 'missed']]) {
   assert.equal(hasCond(state, ELIRA_IDENTITY_CONDITION), false)
   assert.equal(knowsNpcIdentity(state, 'elira'), false)
   assert.equal(npcIdentityReference(state, 'elira'), 'the woman from the bridge')
-  state = choose(state, 'bisedaUraPlan')
+  state = choose(state, 'bisedaUra3', (option) =>
+    option.conversationHub?.hubId === 'bridge-core'
+      && option.conversationHub?.questionId === 'identity')
   assert.equal(hasCond(state, ELIRA_IDENTITY_CONDITION), true, 'asking did not learn Elira’s name')
   assert.equal(knowsNpcIdentity(state, 'elira'), true)
   assert.equal(npcIdentityReference(state, 'elira'), 'Elira')
-  assert.equal(state.knowledge[ELIRA_KNOWLEDGE_ID].source, 'bisedaUra3->bisedaUraPlan',
+  assert.equal(state.knowledge[ELIRA_KNOWLEDGE_ID].source, 'bisedaUra3->bisedaUra3',
     'the authored identity reveal lost its provenance')
   assert.match(visibleText(state), /Elira/)
   const restored = normalizeSavedState(JSON.parse(JSON.stringify(state)), newRun())
@@ -243,7 +247,8 @@ for (const [arrivalClock, expected] of [[28, 'late'], [31, 'missed']]) {
   assertEliraNaming(restarted, true, 'known second bridge exchange after reset')
   restarted = choose(restarted, 'bisedaUra3')
   assertEliraNaming(restarted, true, 'known travel-plan exchange after reset')
-  assert.equal(Boolean(atChoice(restarted, 'bisedaUraPlan')), false,
+  assert.equal(STORY.bisedaUra3.options.some((option) =>
+    option.conversationHub?.questionId === 'identity' && hasRequiredItem(restarted, option)), false,
     'the player can ask Elira’s name again after that identity persisted')
 }
 
