@@ -130,6 +130,18 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   const activityHistory = useRef(normalizeTrainActivityHistory(state.trainActivityHistory))
   const targetHistory = useRef(normalizeTrainTargetHistory(state.trainTargetHistory))
   const nextRef = useRef(null)
+  const scheduleNextQuestion = useCallback((delayMs) => {
+    const advance = () => nextRef.current?.()
+    if (delayMs > 0) {
+      window.setTimeout(advance, delayMs)
+      return
+    }
+    // A miss opens blocking feedback. Let that feedback paint before the
+    // future planner builds the following card, so answer input stays fast.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(advance)
+    })
+  }, [])
   const questionStartedAt = useRef(Date.now())
   const attemptTiming = () => {
     const attemptedAtMs = Date.now()
@@ -365,9 +377,9 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
       grammarGuide: guide,
     })
     dispatch({ type: 'PRACTICE_PHRASE_RESULT', activityTypeId: q.activityTypeId, ...result, consequence })
-    if (result.correct && !result.acceptedWithLeeway && !restoresHeart) setTimeout(() => nextRef.current?.(), 1900)
-    else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
-  }, [dispatch, q, state])
+    if (result.correct && !result.acceptedWithLeeway && !restoresHeart) scheduleNextQuestion(1900)
+    else if (!result.correct) scheduleNextQuestion(0)
+  }, [dispatch, q, scheduleNextQuestion, state])
 
   const onWordMatchComplete = useCallback((result) => {
     const restoresHeart = result.correct && trainCorrectWillRestoreHeart(
@@ -399,9 +411,9 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         correctEn: correctPair?.en,
       }),
     })
-    if (result.correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1800)
-    else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
-  }, [dispatch, q, state])
+    if (result.correct && !restoresHeart) scheduleNextQuestion(1800)
+    else if (!result.correct) scheduleNextQuestion(0)
+  }, [dispatch, q, scheduleNextQuestion, state])
 
   const onNounFormMatchComplete = useCallback((result) => {
     const restoresHeart = result.correct && trainCorrectWillRestoreHeart(
@@ -444,9 +456,9 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           : null,
       }),
     })
-    if (result.correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1800)
-    else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
-  }, [dispatch, q, state])
+    if (result.correct && !restoresHeart) scheduleNextQuestion(1800)
+    else if (!result.correct) scheduleNextQuestion(0)
+  }, [dispatch, q, scheduleNextQuestion, state])
 
   useEffect(() => {
     if (!q && discoveredIds.length > 0) next()
@@ -648,8 +660,8 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         }),
       })
       playWord(q.surface)
-      if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1200)
-      else if (!correct) setTimeout(() => nextRef.current?.(), 0)
+      if (correct && !restoresHeart) scheduleNextQuestion(1200)
+      else if (!correct) scheduleNextQuestion(0)
       return
     }
 
@@ -694,7 +706,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           reasoning: 'Identify what the marked Albanian form means before deciding what grammatical job it has here.',
         }),
       })
-      setTimeout(() => nextRef.current?.(), 0)
+      scheduleNextQuestion(0)
       return
     }
 
@@ -745,8 +757,8 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           grammarGuide: guide,
         }),
       })
-      if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1200)
-      else if (!correct) setTimeout(() => nextRef.current?.(), 0)
+      if (correct && !restoresHeart) scheduleNextQuestion(1200)
+      else if (!correct) scheduleNextQuestion(0)
       return
     }
 
@@ -787,8 +799,8 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         correctEn: q.field === 'en' ? correctLabel : senseText(q.answerId, 'en'),
       }),
     })
-    if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1200)
-    else if (!correct) setTimeout(() => nextRef.current?.(), 0)
+    if (correct && !restoresHeart) scheduleNextQuestion(1200)
+    else if (!correct) scheduleNextQuestion(0)
   }
 
   const insertWordLetter = (letter) => {
@@ -872,8 +884,8 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         grammarGuide: guide,
       }),
     })
-    if (result.correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1600)
-    else if (!result.correct) setTimeout(() => nextRef.current?.(), 0)
+    if (result.correct && !restoresHeart) scheduleNextQuestion(1600)
+    else if (!result.correct) scheduleNextQuestion(0)
   }
 
   const constructedText = isWordConstruction
@@ -936,8 +948,8 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         correctEn: q.typingCue || q.context?.en,
       }),
     })
-    if (correct && !restoresHeart) setTimeout(() => nextRef.current?.(), 1500)
-    else if (!correct) setTimeout(() => nextRef.current?.(), 0)
+    if (correct && !restoresHeart) scheduleNextQuestion(1500)
+    else if (!correct) scheduleNextQuestion(0)
   }
 
   // Only the exact story option whose Train button opened this view may offer
@@ -955,7 +967,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           </span>
           <small>
             {activeActionGoal.remainingTokenCount} {activeActionGoal.remainingTokenCount === 1 ? 'word token' : 'word tokens'} left.
-            {' '}Each opportunity follows at least two other activities when they are available, and every missing word gets a token opportunity within eight activities.
+            {' '}Each opportunity follows six other activities when they are available—about seven activities per missing token, and never more than eight.
           </small>
         </div>
       )}

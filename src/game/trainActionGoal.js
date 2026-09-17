@@ -1,7 +1,7 @@
 // A Train session opened from a locked story action has an explicit destination:
 // earn one token for each still-unfunded word in that exact Albanian action.
 // The future planner uses this contract before general diversity objectives so
-// a small amount of varied practice precedes each token opportunity without
+// a bounded run of varied practice precedes each token opportunity without
 // letting that focused hand-off turn into an indefinite grind.
 
 import { STORY } from './content.js'

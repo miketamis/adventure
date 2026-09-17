@@ -3,16 +3,16 @@
 // from pulling the complete story graph into the state-mechanics chunk.
 
 export const TRAIN_ACTION_GOAL_POLICY = Object.freeze({
-  version: 4,
-  priority: 'practice two other saved-word activities before each requested-action token opportunity, then fund the exact requested story action, then every other same-node action with saved words',
+  version: 5,
+  priority: 'practice six other saved-word activities before each requested-action token opportunity, then fund the exact requested story action, then every other same-node action with saved words',
   tokenRequirement: 'one available token for every distinct trainable sense in the action',
   minimumInterveningActivities: 1,
-  minimumNonGoalActivitiesBeforeTokenOpportunity: 2,
+  minimumNonGoalActivitiesBeforeTokenOpportunity: 6,
   maximumActivitiesPerTokenOpportunity: 8,
   maximumNonGoalActivitiesBeforeForcedOpportunity: 7,
   zeroTokenFallback: 'missing words from the requested action and then every other same-node action remain eligible before Train asks the player to add words, including authored impossible choices',
   terminalMessage: 'Add more words in Story to keep training.',
-  pacingRule: 'when other legal activities exist, complete two of them before each question that can award a missing action token',
+  pacingRule: 'when other legal activities exist, complete six of them before each question that can award a missing action token, yielding about seven completed activities per missing token',
   budgetRule: 'after seven completed activities without a question that can award a missing action token, the eighth question must target one of those words',
   emergencyOverrides: Object.freeze([
     'elapsed and round due spacing',

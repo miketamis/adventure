@@ -89,6 +89,10 @@ assert.equal((practiceSource.match(/selectedProposal\?\.materialize\(/g) || []).
   'Train must materialize the selected exercise exactly once')
 assert.match(practiceSource, /const discoveredIds = useMemo\(/)
 assert.match(practiceSource, /const unlockedEverydayPhrases = useMemo\(/)
+assert.match(practiceSource, /const scheduleNextQuestion = useCallback\([\s\S]+window\.requestAnimationFrame\(\(\) => \{[\s\S]+window\.requestAnimationFrame\(advance\)/,
+  'Train misses must paint their blocking feedback before planning the following card')
+assert.doesNotMatch(practiceSource, /setTimeout\(\(\) => nextRef\.current\?\.\(\), 0\)/,
+  'Train still performs immediate wrong-answer replanning inside the answer interaction')
 
 assert.match(miniMapSource, /export default memo\(MiniMap/)
 for (const input of ['nodeId', 'clock', 'worldFacts', 'fixtures', 'npcStarted', 'heard', 'visited']) {

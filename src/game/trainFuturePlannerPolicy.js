@@ -9,7 +9,7 @@ const deepFreeze = (value) => {
 }
 
 export const TRAIN_FUTURE_PLANNER_POLICY = deepFreeze({
-  version: 4,
+  version: 5,
   algorithm: 'state-deduplicated beam dynamic programming with iterative horizon expansion and a bounded exhaustive oracle',
   execution: 'plan as far as the explicit budgets permit, present one activity, observe its outcome, then replan',
   outcomes: ['correct', 'miss'],
@@ -38,7 +38,7 @@ export const TRAIN_FUTURE_PLANNER_POLICY = deepFreeze({
     'phrase target cannot repeat its preceding phrase activity',
     'exact-word and shared-surface cooldowns',
     'remediation may return only after a disjoint round',
-    'when alternatives exist, two non-goal activities precede each missing story-action token opportunity',
+    'when alternatives exist, six non-goal activities precede each missing story-action token opportunity',
     'a missing story-action word receives a token opportunity within every eight completed activities',
   ],
   lexicographicObjectives: [
