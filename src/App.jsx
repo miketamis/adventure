@@ -50,7 +50,8 @@ const MiniMap = lazy(() => import('./components/MiniMap.jsx'))
 const TimePassage = lazy(() => import('./components/TimePassage.jsx'))
 const EmbodimentConfirm = lazy(() => import('./components/EmbodimentConfirm.jsx'))
 const ActionKaraoke = lazy(() => import('./components/ActionKaraoke.jsx'))
-const HeartConsequenceModal = lazy(() => import('./components/HeartConsequenceModal.jsx'))
+const loadHeartConsequenceModal = () => import('./components/HeartConsequenceModal.jsx')
+const HeartConsequenceModal = lazy(loadHeartConsequenceModal)
 const BUILD_COMMIT = __BUILD_COMMIT__
 const SPOKEN_ACTION_TYPES = ['CHOOSE', 'CONFUSE', 'USE_ITEM', 'HEAL', 'CONFIRM_EMBODIMENT']
 const FEEDBACK_MINIMUM_ENGAGED_MINUTES = 5
@@ -361,6 +362,13 @@ export default function App() {
   useEffect(() => {
     captureSurfacePresented(state)
   }, [analyticsConsent.structured, state.view, state.nodeId, state.turn, state.trainRound, state.storyRunSequence])
+
+  // A miss is blocking feedback, so it must paint within the answer click's
+  // interaction budget. Warm its lazy presentation while the learner reads the
+  // Train card instead of fetching and evaluating it after an answer is chosen.
+  useEffect(() => {
+    if (state.view === 'practice') void loadHeartConsequenceModal()
+  }, [state.view])
 
   useEffect(() => {
     if (!analyticsConsent.structured || analyticsPreferencesOpen || gameBlockingOverlay || feedbackOpen) return

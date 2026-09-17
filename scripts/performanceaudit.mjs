@@ -81,6 +81,9 @@ assert.match(appSource, /document\.addEventListener\('visibilitychange', onVisib
 assert.match(appSource, /queueStatePersistence\(after\)\s+publishState\(after\)/)
 assert.match(appSource, /data-performance-surface=\{state\.view\}/)
 assert.match(appSource, /data-performance-id=\{`tab:\$\{view\}`\}/)
+assert.match(appSource, /const HeartConsequenceModal = lazy\(loadHeartConsequenceModal\)/)
+assert.match(appSource, /state\.view === 'practice'\) void loadHeartConsequenceModal\(\)/,
+  'Train does not warm its blocking miss feedback before the answer interaction')
 
 assert.match(tokenSource, /export default memo\(Token, tokenPropsMatch\)/)
 assert.match(storySource, /onDiscover=\{discoverWord\}/)
