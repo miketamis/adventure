@@ -9,13 +9,28 @@ import {
   resetPerformanceMonitoring,
 } from '../src/performance.js'
 
-const [performanceSource, mainSource, appSource, miniMapSource, analyticsSource, debugSource] = await Promise.all([
+const [
+  performanceSource,
+  mainSource,
+  appSource,
+  miniMapSource,
+  analyticsSource,
+  debugSource,
+  tokenSource,
+  storySource,
+  dictionarySource,
+  practiceSource,
+] = await Promise.all([
   readFile(new URL('../src/performance.js', import.meta.url), 'utf8'),
   readFile(new URL('../src/main.jsx', import.meta.url), 'utf8'),
   readFile(new URL('../src/App.jsx', import.meta.url), 'utf8'),
   readFile(new URL('../src/components/MiniMap.jsx', import.meta.url), 'utf8'),
   readFile(new URL('../src/analytics.js', import.meta.url), 'utf8'),
   readFile(new URL('../src/components/DebugPerformance.jsx', import.meta.url), 'utf8'),
+  readFile(new URL('../src/components/Token.jsx', import.meta.url), 'utf8'),
+  readFile(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8'),
+  readFile(new URL('../src/components/DictionaryView.jsx', import.meta.url), 'utf8'),
+  readFile(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8'),
 ])
 
 assert.equal(performancePercentile([40, 10, 30, 20], 0.5), 20)
@@ -23,7 +38,7 @@ assert.equal(performancePercentile([40, 10, 30, 20], 0.95), 40)
 assert.equal(performanceBand(100), 'responsive')
 assert.equal(performanceBand(101), 'needs-attention')
 assert.equal(performanceBand(501), 'poor')
-assert.ok(PERFORMANCE_BUDGETS.browserSteadyInteractionMaxMs <= 300,
+assert.ok(PERFORMANCE_BUDGETS.browserSteadyInteractionMaxMs <= 200,
   'the automated steady-interaction ceiling became too loose')
 
 resetPerformanceMonitoring({ keepCoverage: false })
@@ -59,8 +74,21 @@ assert.match(appSource, /publishState\(after\)/)
 assert.doesNotMatch(appSource, /useReducer/)
 assert.match(appSource, /reduceWithTiming\(current, action\)/)
 assert.match(appSource, /measurePerformanceOperation\('persistence', 'game-state'/)
+assert.match(appSource, /requestIdleCallback\(run, \{ timeout: IDLE_PERSISTENCE_TIMEOUT_MS \}\)/)
+assert.match(appSource, /if \(pending\.current\) return/)
+assert.match(appSource, /window\.addEventListener\('pagehide', flushNow\)/)
+assert.match(appSource, /document\.addEventListener\('visibilitychange', onVisibilityChange\)/)
+assert.match(appSource, /queueStatePersistence\(after\)\s+publishState\(after\)/)
 assert.match(appSource, /data-performance-surface=\{state\.view\}/)
 assert.match(appSource, /data-performance-id=\{`tab:\$\{view\}`\}/)
+
+assert.match(tokenSource, /export default memo\(Token, tokenPropsMatch\)/)
+assert.match(storySource, /onDiscover=\{discoverWord\}/)
+assert.match(dictionarySource, /onDiscover=\{discoverWord\}/)
+assert.equal((practiceSource.match(/selectedProposal\?\.materialize\(/g) || []).length, 1,
+  'Train must materialize the selected exercise exactly once')
+assert.match(practiceSource, /const discoveredIds = useMemo\(/)
+assert.match(practiceSource, /const unlockedEverydayPhrases = useMemo\(/)
 
 assert.match(miniMapSource, /export default memo\(MiniMap/)
 for (const input of ['nodeId', 'clock', 'worldFacts', 'fixtures', 'npcStarted', 'heard', 'visited']) {

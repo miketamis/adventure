@@ -1,12 +1,14 @@
+import { useCallback, useMemo } from 'react'
 import Token from './Token.jsx'
 import { DICT, DEFS } from '../game/content.js'
 
 // All discovered words, shown with an Albanian definition. Undiscovered words
 // inside a definition are glossed to English, exactly like the story.
 export default function DictionaryView({ state, dispatch }) {
-  const ids = Object.keys(state.discovered)
+  const discoverWord = useCallback((id) => dispatch({ type: 'DISCOVER', id }), [dispatch])
+  const ids = useMemo(() => Object.keys(state.discovered)
     .filter((id) => state.discovered[id])
-    .sort((a, b) => DICT[a].al.localeCompare(DICT[b].al, 'sq'))
+    .sort((a, b) => DICT[a].al.localeCompare(DICT[b].al, 'sq')), [state.discovered])
 
   if (ids.length === 0) {
     return (
@@ -46,7 +48,7 @@ export default function DictionaryView({ state, dispatch }) {
                     key={j}
                     token={tok}
                     discovered={state.discovered}
-                    onDiscover={(sid) => dispatch({ type: 'DISCOVER', id: sid })}
+                    onDiscover={discoverWord}
                   />
                 ))
               ) : (

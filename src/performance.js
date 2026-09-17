@@ -13,7 +13,7 @@ export const PERFORMANCE_BUDGETS = Object.freeze({
   reducerMs: 50,
   persistenceMs: 50,
   reactCommitMs: 80,
-  browserSteadyInteractionMaxMs: 300,
+  browserSteadyInteractionMaxMs: 200,
   browserSteadyOperationMaxMs: 150,
   browserLongTaskMaxMs: 250,
 })

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useCallback, useEffect, useRef } from 'react'
+import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { DICT } from '../game/content.js'
 import { practiceReturnOption } from '../game/practiceReturn.js'
 import { playPhrase, playWord } from '../game/audio.js'
@@ -101,9 +101,14 @@ const CefrEntry = ({ state, onOpen }) => {
 }
 
 export default function PracticeView({ state, dispatch, analyticsEnabled = false }) {
-  const discoveredIds = Object.keys(state.discovered).filter((id) => state.discovered[id] && isTrainableSense(id))
-  const unlockedEverydayPhrases = EVERYDAY_PHRASE_DRILLS.filter((entry) =>
-    entry.requires.filter(isTrainableSense).every((id) => state.discovered[id]),
+  const discoveredIds = useMemo(
+    () => Object.keys(state.discovered).filter((id) => state.discovered[id] && isTrainableSense(id)),
+    [state.discovered],
+  )
+  const unlockedEverydayPhrases = useMemo(
+    () => EVERYDAY_PHRASE_DRILLS.filter((entry) =>
+      entry.requires.filter(isTrainableSense).every((id) => state.discovered[id])),
+    [state.discovered],
   )
   const activeActionGoal = trainActionGoalForState(state)
   const activeActionOption = activeActionGoal ? resolveTrainingTarget(activeActionGoal.target) : null
@@ -248,13 +253,17 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
       route: proposal.route,
       question: { targetKeys: proposal.targetKeys },
     }))
+    const materializedQuestion = selectedProposal?.materialize({
+      debug: state.debug,
+      plannerTrace: schedulerTrace,
+    }) || null
     captureTrainSchedulerDecision({
       state,
       candidates: analyticsCandidates,
       balanced: {
         candidate: selectedProposal ? {
           route: selectedProposal.route,
-          question: { questionKey: selectedProposal.materialize()?.questionKey },
+          question: { questionKey: materializedQuestion?.questionKey },
         } : null,
         activityTypeId: selectedProposal?.activityTypeId || null,
         randomBoundary: null,
@@ -264,11 +273,8 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
       },
     })
     let nextQuestion = null
-    if (selectedProposal) {
-      const question = selectedProposal.materialize({
-        debug: state.debug,
-        plannerTrace: schedulerTrace,
-      })
+    if (materializedQuestion) {
+      const question = materializedQuestion
       const phaseTrainHealth = Object.fromEntries((question.phasePlan || []).map((phase) => [
         phase.id,
         trainHealthPlanForQuestion(state, question, { phaseId: phase.id }),

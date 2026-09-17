@@ -123,6 +123,111 @@ function useEngagedMinutes() {
   return minutes
 }
 
+const IDLE_PERSISTENCE_TIMEOUT_MS = 750
+const FALLBACK_PERSISTENCE_DELAY_MS = 50
+
+// Storage is durable but synchronous. Keep JSON serialization and localStorage
+// writes out of the click-to-paint path, coalesce bursts of state changes, and
+// flush immediately when the document is leaving or becoming hidden.
+function useDeferredPersistence(state) {
+  const latestState = useRef(state)
+  const latestAchievements = useRef(state)
+  const gameStateDirty = useRef(false)
+  const achievementsDirty = useRef(false)
+  const pending = useRef(null)
+  latestState.current = state
+  latestAchievements.current = state
+
+  const flush = useCallback(() => {
+    const current = latestState.current
+    if (gameStateDirty.current) {
+      gameStateDirty.current = false
+      measurePerformanceOperation('persistence', 'game-state', current.view, () => saveState(current))
+    }
+    if (achievementsDirty.current) {
+      achievementsDirty.current = false
+      measurePerformanceOperation(
+        'persistence',
+        'achievements',
+        current.view,
+        () => saveAchievements(latestAchievements.current),
+      )
+    }
+  }, [])
+
+  const cancelPending = useCallback(() => {
+    if (!pending.current) return
+    const scheduled = pending.current
+    pending.current = null
+    if (scheduled.kind === 'idle') window.cancelIdleCallback?.(scheduled.id)
+    else window.clearTimeout(scheduled.id)
+  }, [])
+
+  const flushNow = useCallback(() => {
+    cancelPending()
+    flush()
+  }, [cancelPending, flush])
+
+  const schedule = useCallback(() => {
+    if (pending.current) return
+    const run = () => {
+      pending.current = null
+      flush()
+    }
+    if (typeof window.requestIdleCallback === 'function') {
+      pending.current = {
+        kind: 'idle',
+        id: window.requestIdleCallback(run, { timeout: IDLE_PERSISTENCE_TIMEOUT_MS }),
+      }
+    } else {
+      pending.current = {
+        kind: 'timeout',
+        id: window.setTimeout(run, FALLBACK_PERSISTENCE_DELAY_MS),
+      }
+    }
+  }, [flush])
+
+  const queueAcceptedState = useCallback((nextState) => {
+    const previousAchievements = latestAchievements.current
+    latestState.current = nextState
+    latestAchievements.current = nextState
+    gameStateDirty.current = true
+    if (
+      nextState.earned !== previousAchievements.earned ||
+      nextState.eligible !== previousAchievements.eligible ||
+      nextState.attempts !== previousAchievements.attempts
+    ) {
+      achievementsDirty.current = true
+    }
+    schedule()
+  }, [schedule])
+
+  useEffect(() => {
+    gameStateDirty.current = true
+    schedule()
+  }, [state, schedule])
+
+  useEffect(() => {
+    achievementsDirty.current = true
+    schedule()
+  }, [state.earned, state.eligible, state.attempts, schedule])
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') flushNow()
+    }
+    window.addEventListener('pagehide', flushNow)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      window.removeEventListener('pagehide', flushNow)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      flushNow()
+    }
+  }, [flushNow])
+
+  return queueAcceptedState
+}
+
 export default function App() {
   // Every public dispatch is validated below before it reaches React. Publish
   // that already-computed state directly so a button never pays for the full
@@ -144,8 +249,10 @@ export default function App() {
   engagedMinutesRef.current = engagedMinutes
   const [actionTransition, setActionTransition] = useState(null)
   const actionTransitionRef = useRef(null)
+  const queueStatePersistence = useDeferredPersistence(state)
   const commitAcceptedAction = useCallback((action, before, after) => {
     if (after === before) return false
+    queueStatePersistence(after)
     publishState(after)
     // React may batch consecutive actions. Keep the imperative validation
     // boundary aligned with the reducer state that was just accepted.
@@ -157,7 +264,7 @@ export default function App() {
       () => captureCommittedTransition(action, before, after),
     )
     return true
-  }, [])
+  }, [queueStatePersistence])
   const dispatch = useCallback((action) => {
     // Keep the current scene visible while the accepted Albanian action plays.
     // The reducer remains the authority for validity: only an action whose
@@ -311,16 +418,6 @@ export default function App() {
   }, [phase])
   // the tab badge counts UNLOCKED achievements (gate passed), not the bad "fates"
   const achievementsGot = ACHIEVEMENT_IDS.filter((id) => state.earned?.[id]).length
-
-  // persist the whole state every change — reloading resumes exactly where you were
-  useEffect(() => {
-    measurePerformanceOperation('persistence', 'game-state', state.view, () => saveState(state))
-  }, [state])
-
-  // also keep the achievement collection under its own durable key
-  useEffect(() => {
-    measurePerformanceOperation('persistence', 'achievements', state.view, () => saveAchievements(state))
-  }, [state.earned, state.eligible, state.attempts])
 
   const setView = (view) => dispatch({ type: 'SET_VIEW', view })
   const tab = (view, label) => (

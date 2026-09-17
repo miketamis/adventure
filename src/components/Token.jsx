@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from 'react'
+import { memo, useId, useRef, useState } from 'react'
 import { DEFS } from '../game/content.js'
 import { playWord } from '../game/audio.js'
 import { lexicalTrainability } from '../game/lexicalTrainability.js'
@@ -51,7 +51,7 @@ function StaticDefinition({ tokens, discovered }) {
 //                       definition and hover/click replays pronunciation.
 // `tokenCount` (a number) shows a little token-tally circle under a discovered
 // word — used in the answer/option rows so you can see your tokens in context.
-export default function Token({ token, discovered, onDiscover, tokenCount }) {
+function Token({ token, discovered, onDiscover, tokenCount }) {
   const [showHint, setShowHint] = useState(false)
   const tooltipId = useId()
   const controlLabelId = `${tooltipId}-control`
@@ -180,3 +180,22 @@ export default function Token({ token, discovered, onDiscover, tokenCount }) {
     </button>
   )
 }
+
+const relevantDiscoveryStateMatches = (token, left = {}, right = {}) => {
+  if (left === right) return true
+  const ids = new Set([
+    token.id,
+    ...(DEFS[token.id] || []).map((entry) => entry.id).filter(Boolean),
+  ])
+  for (const id of ids) if (Boolean(left[id]) !== Boolean(right[id])) return false
+  return true
+}
+
+const tokenPropsMatch = (left, right) => (
+  left.token === right.token &&
+  left.onDiscover === right.onDiscover &&
+  left.tokenCount === right.tokenCount &&
+  relevantDiscoveryStateMatches(right.token, left.discovered, right.discovered)
+)
+
+export default memo(Token, tokenPropsMatch)

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, useMemo, useRef } from 'react'
+import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Token from './Token.jsx'
 import {
   STORY,
@@ -93,6 +93,7 @@ const QUOTE_TIER_LABEL = {
 }
 
 export default function StoryView({ state, dispatch, analyticsEnabled = false }) {
+  const discoverWord = useCallback((id) => dispatch({ type: 'DISCOVER', id }), [dispatch])
   const node = STORY[state.nodeId]
   const [endingCopy, setEndingCopy] = useState(null)
   const [richAchievementById, setRichAchievementById] = useState(null)
@@ -673,7 +674,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
             key={j}
             token={tok}
             discovered={state.discovered}
-            onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
+            onDiscover={discoverWord}
           />
         ))}
         {revealsPath && (
@@ -986,7 +987,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
                           key={j}
                           token={tok}
                           discovered={state.discovered}
-                          onDiscover={(id) => dispatch({ type: 'DISCOVER', id })}
+                          onDiscover={discoverWord}
                           tokenCount={tok.id ? state.mana[tok.id] || 0 : undefined}
                         />
                       ))}

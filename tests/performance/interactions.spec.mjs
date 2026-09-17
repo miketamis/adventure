@@ -30,8 +30,10 @@ const assertSteadyBudgets = (snapshot, { interactionMaxMs } = {}) => {
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
+    if (window.name === '__aventura_performance_test__') return
     window.localStorage.clear()
     window.sessionStorage.clear()
+    window.name = '__aventura_performance_test__'
   })
   await page.goto('./')
   await expect(page.getByRole('heading', { name: 'Aventura Shqip · learn Albanian', exact: true })).toBeVisible()
@@ -93,6 +95,30 @@ test('core story discovery and Train answer paths stay inside the interaction bu
   expect(answerSnapshot.interactions.some(({ surface }) => surface === 'practice')).toBe(true)
   expect(answerSnapshot.operations.some(({ kind }) => kind === 'reducer')).toBe(true)
   assertSteadyBudgets(answerSnapshot)
+})
+
+test('bursty discoveries coalesce storage work and remain durable across reload', async ({ page }) => {
+  await resetMonitor(page)
+  const undiscoveredWords = page.locator('main button.token.gloss')
+  await expect(undiscoveredWords).not.toHaveCount(0)
+
+  await undiscoveredWords.evaluateAll((controls) => {
+    for (const control of controls.slice(0, 6)) control.click()
+  })
+  const immediateSnapshot = await monitorSnapshot(page)
+  expect(immediateSnapshot.operations.filter(({ kind, id }) => kind === 'persistence' && id === 'game-state').length)
+    .toBeLessThanOrEqual(1)
+
+  const settledSnapshot = await settleMonitor(page)
+  expect(settledSnapshot.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'DISCOVER'))
+    .toHaveLength(6)
+  expect(settledSnapshot.operations.filter(({ kind, id }) => kind === 'persistence' && id === 'game-state').length)
+    .toBeLessThanOrEqual(1)
+
+  const knownBeforeReload = await page.locator('main button.token.known').count()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Aventura Shqip · learn Albanian', exact: true })).toBeVisible()
+  await expect(page.locator('main button.token.known')).toHaveCount(knownBeforeReload)
 })
 
 test('debug map does not re-render for unrelated primary-surface clicks', async ({ page }) => {
