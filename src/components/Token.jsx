@@ -15,9 +15,9 @@ function definitionText(tokens, discovered) {
 // from, while remaining inert inside a word's tooltip. In particular, an
 // unfamiliar definition word keeps its dashed English gloss and a familiar one
 // keeps its Albanian stem/ending treatment, but neither becomes a nested button.
-function StaticDefinition({ tokens, discovered }) {
+export function StaticDefinition({ tokens, discovered, ariaHidden = true }) {
   return (
-    <span className="static-definition" aria-hidden="true">
+    <span className="static-definition" aria-hidden={ariaHidden}>
       {tokens.map((entry, index) => {
         if (entry.paren) {
           return <span key={index} className="token particle">{entry.en}</span>

@@ -409,6 +409,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         reason: `“${result.attempted?.en || 'that meaning'}” belongs to a different Albanian word on this board.`,
         correctAl: correctPair?.al,
         correctEn: correctPair?.en,
+        targetWordId: result.selectedTargetId,
       }),
     })
     if (result.correct && !restoresHeart) scheduleNextQuestion(1800)
@@ -656,6 +657,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           reason: miss.reason || 'That choice does not agree with the reviewed Albanian noun phrase.',
           correctAl: miss.correctAl || q.agreementFrame?.demonstrative?.phrase || q.agreementFrame?.adjective?.phrase,
           correctEn: miss.correctEn || null,
+          targetWordId: q.answerId,
           reasoning: miss.reasoning || null,
         }),
       })
@@ -703,6 +705,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           reason: `“${chosen}” is not the meaning of the marked form “${q.surface}”.`,
           correctAl: q.surface,
           correctEn: correctMeaning,
+          targetWordId: q.answerId,
           reasoning: 'Identify what the marked Albanian form means before deciding what grammatical job it has here.',
         }),
       })
@@ -797,6 +800,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           : 'The selected answer does not match the tested Albanian word and sense.',
         correctAl: q.field === 'al' ? correctLabel : DICT[q.answerId].al,
         correctEn: q.field === 'en' ? correctLabel : senseText(q.answerId, 'en'),
+        targetWordId: q.answerId,
       }),
     })
     if (correct && !restoresHeart) scheduleNextQuestion(1200)
@@ -881,6 +885,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           : 'The spelling does not yet match the Albanian word requested.',
         correctAl: isEndingTyping ? q.endingPractice.label : q.typingAnswer,
         correctEn: isEndingTyping ? null : q.typingCue,
+        targetWordId: q.answerId,
         grammarGuide: guide,
       }),
     })
@@ -946,6 +951,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           : 'The selected letter chunks do not build the Albanian word requested.',
         correctAl: q.surface,
         correctEn: q.typingCue || q.context?.en,
+        targetWordId: q.answerId,
       }),
     })
     if (correct && !restoresHeart) scheduleNextQuestion(1500)

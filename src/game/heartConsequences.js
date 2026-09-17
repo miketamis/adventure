@@ -114,6 +114,7 @@ export function normalizeHeartConsequence(value, loss = value?.loss) {
   const correction = cleanReading(value.correction)
   const reasoning = cleanText(value.reasoning)
   const grammar = cleanGrammar(value.grammar)
+  const targetWordId = cleanText(value.targetWordId)
   const safeLoss = Number.isSafeInteger(loss) && loss > 0 && loss <= 3 ? loss : null
   if (!source || !eventId || !attempted || !reasonCode || !reasonText || !safeLoss ||
       (!correction && !reasoning && !grammar)) return null
@@ -126,6 +127,7 @@ export function normalizeHeartConsequence(value, loss = value?.loss) {
     ...(correction ? { correction } : {}),
     ...(reasoning ? { reasoning } : {}),
     ...(grammar ? { grammar } : {}),
+    ...(targetWordId ? { targetWordId } : {}),
     loss: safeLoss,
   }
 }

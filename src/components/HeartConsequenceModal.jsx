@@ -1,10 +1,17 @@
 import BlockingModal from './BlockingModal.jsx'
 import NounEndingRefresher from './NounEndingRefresher.jsx'
+import { StaticDefinition } from './Token.jsx'
+import { DEFS, DICT } from '../game/content.js'
 import { TRAIN_HEALTH_POLICY } from '../game/trainHealthPolicy.js'
 
-export default function HeartConsequenceModal({ consequence, onDismiss }) {
+export default function HeartConsequenceModal({ consequence, discovered = {}, onDismiss }) {
   const isTrain = consequence.source.startsWith('train-')
   const hasEndingRefresher = Boolean(consequence.grammar?.rows?.length)
+  const hasTargetWord = isTrain && Object.hasOwn(DICT, consequence.targetWordId || '')
+  const targetDefinition = hasTargetWord && Object.hasOwn(DEFS, consequence.targetWordId)
+    ? DEFS[consequence.targetWordId]
+    : null
+  const targetWord = hasTargetWord ? DICT[consequence.targetWordId] : null
 
   return (
     <BlockingModal
@@ -50,6 +57,20 @@ export default function HeartConsequenceModal({ consequence, onDismiss }) {
                 <p className="heart-consequence-al" lang="sq">{consequence.correction.al}</p>
               )}
               {consequence.correction?.en && <p>{consequence.correction.en}</p>}
+              {targetDefinition && (
+                <div className="heart-consequence-definition">
+                  <h4>
+                    Definition of <span lang="sq">{targetWord.al}</span>
+                  </h4>
+                  <p lang="sq">
+                    <StaticDefinition
+                      tokens={targetDefinition}
+                      discovered={discovered}
+                      ariaHidden={false}
+                    />
+                  </p>
+                </div>
+              )}
               {consequence.reasoning && <p>{consequence.reasoning}</p>}
             </div>
           )}

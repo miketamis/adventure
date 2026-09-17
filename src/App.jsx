@@ -676,6 +676,7 @@ export default function App() {
         <Suspense fallback={<div className="blocking-modal-overlay" aria-hidden="true" />}>
           <HeartConsequenceModal
             consequence={state.pendingHeartConsequence}
+            discovered={state.discovered}
             onDismiss={() => dispatch({
               type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
               eventId: state.pendingHeartConsequence.eventId,

@@ -14,6 +14,7 @@ export function trainMissConsequence({
   reason,
   correctAl,
   correctEn,
+  targetWordId,
   reasoning,
   grammarGuide,
 }) {
@@ -23,6 +24,7 @@ export function trainMissConsequence({
     attempted: reading(attemptedAl, attemptedEn),
     reason: { code: reasonCode, text: reason },
     ...(correctAl || correctEn ? { correction: reading(correctAl, correctEn) } : {}),
+    ...(targetWordId ? { targetWordId } : {}),
     ...(reasoning ? { reasoning } : {}),
     ...(grammarGuide?.pattern ? {
       grammar: {

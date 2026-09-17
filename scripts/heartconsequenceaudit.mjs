@@ -4,7 +4,7 @@
 
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
-import { STORY, ITEMS, itemConfuserActionOf } from '../src/game/content.js'
+import { DEFS, STORY, ITEMS, itemConfuserActionOf } from '../src/game/content.js'
 import { ACHIEVEMENTS } from '../src/game/achievements.js'
 import { alignedEnglishOf, albanianTextOf } from '../src/game/language.js'
 import {
@@ -158,7 +158,7 @@ check('Train and comprehension builders carry attempted answer, reason and corre
   const word = trainMissConsequence({
     source: 'train-word', questionKey: 'word-1', attemptedEn: 'river',
     reasonCode: 'wrong-word-meaning', reason: 'The answer does not match this word.',
-    correctAl: 'fshat', correctEn: 'village',
+    correctAl: 'fshat', correctEn: 'village', targetWordId: 'fshat',
   })
   const form = trainMissConsequence({
     source: 'train-form', questionKey: 'form-1', attemptedAl: 'urë',
@@ -176,6 +176,8 @@ check('Train and comprehension builders carry attempted answer, reason and corre
   for (const consequence of [word, form, phrase, comprehension]) {
     assert.ok(normalizeHeartConsequence(consequence, 1))
   }
+  assert.equal(normalizeHeartConsequence(word, 1).targetWordId, 'fshat')
+  assert.ok(DEFS[word.targetWordId]?.length, 'the word-miss target has no dictionary definition')
   assert.equal(form.grammar.target.al, 'urën')
 })
 
@@ -295,6 +297,7 @@ check('pending consequences survive valid reloads and malformed ones are discard
     source: 'train-word', eventId: 'save-roundtrip', attempted: { en: 'wrong answer' },
     reason: { code: 'wrong-word-meaning', text: 'The answer does not match this word.' },
     correction: { al: 'fshat', en: 'village' },
+    targetWordId: 'fshat',
   }, 1)
   const restored = normalizeSavedState(JSON.parse(JSON.stringify(lost)), newRun())
   assert.deepEqual(restored.pendingHeartConsequence, lost.pendingHeartConsequence)
@@ -340,6 +343,14 @@ check('source inventory has no player decrement outside the shared wrappers', ()
   assert.match(heartModal, /Why the heart was lost/)
   assert.match(heartModal, /Practice miss — no heart lost/)
   assert.match(heartModal, /Why the answer was wrong/)
+  assert.match(practice, /targetWordId:\s*q\.answerId/,
+    'ordinary word misses do not identify the tested dictionary sense')
+  assert.match(heartModal, /DEFS\[consequence\.targetWordId\]/,
+    'the miss modal does not resolve the tested word definition')
+  assert.match(heartModal, /<StaticDefinition/,
+    'the miss modal does not render the tested word definition')
+  assert.match(app, /discovered=\{state\.discovered\}/,
+    'the miss definition does not preserve the dictionary known-word presentation')
   assert.match(
     heartModal,
     /isTrain\s*\?\s*'Continue training'\s*:\s*'Return to game'/,

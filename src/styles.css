@@ -1962,6 +1962,28 @@ svg [role="button"]:focus-visible {
   color: var(--discovered) !important;
   font: 700 22px/1.35 Georgia, 'Times New Roman', serif !important;
 }
+.heart-consequence-definition {
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+}
+.heart-consequence-definition h4 {
+  margin: 0 0 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.heart-consequence-definition h4 span { color: var(--discovered); }
+.heart-consequence-definition p {
+  margin: 0;
+  color: var(--ink);
+  font: 16px/1.7 Georgia, 'Times New Roman', serif;
+}
+.heart-consequence-definition .token {
+  min-height: 0;
+  margin: 0 1px;
+  padding: 0 2px;
+}
+.heart-consequence-definition .token.gloss { cursor: default; }
 
 .embodiment-confirm { border-color: #765b98; box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5); }
 .embodiment-confirm h2:focus { outline: none; }
