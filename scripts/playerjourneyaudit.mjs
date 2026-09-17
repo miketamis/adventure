@@ -29,6 +29,7 @@ import {
 import {
   initialTrainPlanningState,
   planTrainFuture,
+  transitionTrainPlanningState,
 } from '../src/game/trainFuturePlanner.js'
 import {
   optionTrainingIdentity,
@@ -328,23 +329,52 @@ check('a blocked requested word uses another saved action before asking for more
     nowMs: 1,
     debugTrace: true,
   })
+  const planningState = initialTrainPlanningState({
+    currentRound: state.trainRound,
+    lastWordKeys: state.trainLastWords,
+    goalRemaining: queue.priorityRemainingWordIds,
+    alternateGoalRemaining: queue.otherRemainingWordIds,
+    goalMaximumDiversionRounds: queue.maximumDiversionRounds,
+  })
   const plan = planTrainFuture({
     proposals: enumeration.proposals,
-    planningState: initialTrainPlanningState({
-      currentRound: state.trainRound,
-      lastWordKeys: state.trainLastWords,
-      goalRemaining: queue.priorityRemainingWordIds,
-      alternateGoalRemaining: queue.otherRemainingWordIds,
-      goalMaximumDiversionRounds: queue.maximumDiversionRounds,
-    }),
+    planningState,
     seed: 'alternate-action-bridge',
   })
   assert.ok(plan.candidate, 'the scheduler fell through to the add-more-words screen')
   assert.ok(plan.candidate.rewardIds.includes('pershendetje'),
     'the saved sibling action did not supply the bridge activity')
   assert.ok(!plan.candidate.wordKeys.includes('urë'), 'the previous Albanian word was repeated')
-  assert.ok(plan.plan.some(({ rewardIds }) => rewardIds.includes('ure')),
-    'the future plan lost the requested action after its legal bridge')
+
+  let requestedPlanningState = transitionTrainPlanningState(
+    planningState,
+    plan.candidate,
+    'correct',
+  )
+  let requestedGoalRound = 1
+  while (requestedPlanningState.goalRemaining.length &&
+    requestedGoalRound < TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity) {
+    const nextPlan = planTrainFuture({
+      proposals: enumeration.proposals,
+      planningState: requestedPlanningState,
+      seed: `alternate-action-requested:${requestedGoalRound}`,
+    })
+    assert.ok(nextPlan.candidate,
+      'the requested action fell through to add-more-words during its practice window')
+    requestedGoalRound++
+    requestedPlanningState = transitionTrainPlanningState(
+      requestedPlanningState,
+      nextPlan.candidate,
+      'correct',
+    )
+  }
+  assert.deepEqual(requestedPlanningState.goalRemaining, [],
+    'the requested action was not served by repeated production replanning')
+  assert.ok(
+    requestedGoalRound >= TRAIN_ACTION_GOAL_POLICY.minimumNonGoalActivitiesBeforeTokenOpportunity + 1 &&
+      requestedGoalRound <= TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity,
+    `the requested action token was not paced inside its bounded window (round ${requestedGoalRound})`,
+  )
 
   const bridgeQuestion = plan.candidate.materialize()
   const afterBridge = reducer(state, {
@@ -379,20 +409,31 @@ check('a blocked requested word uses another saved action before asking for more
     forceGoalTargetIds: siblingQueue.allRemainingWordIds,
     nowMs: 1,
   })
-  const siblingPlan = planTrainFuture({
-    proposals: siblingEnumeration.proposals,
-    planningState: initialTrainPlanningState({
-      currentRound: requestedActionDoneState.trainRound,
-      lastWordKeys: requestedActionDoneState.trainLastWords,
-      goalRemaining: siblingQueue.priorityRemainingWordIds,
-      goalMaximumDiversionRounds: siblingQueue.maximumDiversionRounds,
-    }),
-    seed: 'requested-action-complete',
+  let siblingPlanningState = initialTrainPlanningState({
+    currentRound: requestedActionDoneState.trainRound,
+    lastWordKeys: requestedActionDoneState.trainLastWords,
+    goalRemaining: siblingQueue.priorityRemainingWordIds,
+    goalMaximumDiversionRounds: siblingQueue.maximumDiversionRounds,
   })
-  const siblingGoalRound = siblingPlan.plan.findIndex(({ rewardIds }) =>
-    rewardIds.includes('pershendetje')) + 1
-  assert.ok(!siblingPlan.candidate?.rewardIds.includes('pershendetje'),
-    'the sibling action token bypassed the practice floor')
+  let siblingGoalRound = 0
+  while (siblingPlanningState.goalRemaining.length &&
+    siblingGoalRound < TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity) {
+    const siblingPlan = planTrainFuture({
+      proposals: siblingEnumeration.proposals,
+      planningState: siblingPlanningState,
+      seed: `requested-action-complete:${siblingGoalRound}`,
+    })
+    assert.ok(siblingPlan.candidate,
+      'the sibling action fell through to add-more-words during its practice window')
+    siblingGoalRound++
+    siblingPlanningState = transitionTrainPlanningState(
+      siblingPlanningState,
+      siblingPlan.candidate,
+      'correct',
+    )
+  }
+  assert.deepEqual(siblingPlanningState.goalRemaining, [],
+    'the sibling action was not served by repeated production replanning')
   assert.ok(
     siblingGoalRound >= TRAIN_ACTION_GOAL_POLICY.minimumNonGoalActivitiesBeforeTokenOpportunity + 1 &&
       siblingGoalRound <= TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity,
