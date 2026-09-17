@@ -103,7 +103,7 @@ const chunkNamed = (prefix) => {
 // These are intentional long-lived cache boundaries, not arbitrary filenames.
 // If Rollup ever folds one back into the shell, the shell-only budget might
 // catch it, but this assertion explains the architectural regression directly.
-for (const prefix of ['react-vendor', 'story-graph', 'dictionary-catalog', 'state-mechanics']) {
+for (const prefix of ['react-vendor', 'story-graph', 'language-runtime', 'dictionary-catalog', 'state-mechanics']) {
   const chunk = chunkNamed(prefix)
   assert.ok(bootstrapNames.has(chunk.name), `${prefix} must remain in the initial static closure`)
 }
@@ -165,31 +165,37 @@ const SHELL_GZIP_BUDGET = 68 * KiB
 // are also first-play behavior, bringing the measured closure to 1418.1 KiB.
 // Persistent story-action goal accounting adds 4.0 KiB while the complete
 // rolling-horizon planner remains in the lazy Train chunk. The playtest shell
-// plus the privacy-safe interaction monitor brings the measured closure to
-// 1460.9 KiB raw / 358.7 KiB gzip; keep narrow ceilings above it.
-const BOOTSTRAP_RAW_BUDGET = 1_462 * KiB
-const BOOTSTRAP_GZIP_BUDGET = 360 * KiB
+// plus the privacy-safe interaction monitor brings the earlier measured
+// closure to 1460.9 KiB raw / 358.7 KiB gzip. The audited conversation-hub,
+// action-provenance and visible-affordance work adds real first-play Albanian
+// and consequences, bringing the measured closure to 1493.6 KiB raw /
+// 367.3 KiB gzip after its audit-only metadata is stripped. Keep narrow
+// ceilings above that player-facing payload.
+const BOOTSTRAP_RAW_BUDGET = 1_495 * KiB
+const BOOTSTRAP_GZIP_BUDGET = 368 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
 // warning limit; the stricter aggregate and gzip ceilings below still measure
 // the bytes a first-time player actually downloads.
-const BOOTSTRAP_CHUNK_RAW_BUDGET = 800 * KiB
+const BOOTSTRAP_CHUNK_RAW_BUDGET = 805 * KiB
 const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
 // The added NPC replies keep their reviewed English metadata deferred from
-// ordinary play. Shared record construction keeps the complete measured corpus
-// at 336.9 KiB raw / 98.6 KiB gzip without dropping any reviewed reading.
-const READING_CHUNK_RAW_BUDGET = 338 * KiB
-const READING_CHUNK_GZIP_BUDGET = 100 * KiB
+// ordinary play. Shared record construction plus the new conversation and
+// continuity readings keep the complete measured corpus at 346.8 KiB raw /
+// 102.8 KiB gzip without dropping any reviewed reading.
+const READING_CHUNK_RAW_BUDGET = 348 * KiB
+const READING_CHUNK_GZIP_BUDGET = 104 * KiB
 const AUDIO_FILE_BUDGET = 64 * KiB
 // Word-level timestamps are loaded only after an accepted action starts its
 // continuous MP3. Budget the independently cached manifest as well as the
 // clips so alignment metadata cannot grow without a release review.
-// The expanded village conversations add their continuous Albanian recordings
-// and exact waveform-correlated word boundaries. The resulting complete
-// manifest stores its common method once and is 983.1 KiB raw / 131.5 KiB
-// gzip; keep narrow measured allowances for that release-safety data.
-const ACTION_TIMINGS_RAW_BUDGET = 985 * KiB
-const ACTION_TIMINGS_GZIP_BUDGET = 132 * KiB
+// The expanded village conversations and continuity actions add their
+// continuous Albanian recordings and exact waveform-correlated word
+// boundaries. The resulting complete manifest stores its common method once
+// and is 1002.1 KiB raw / 134.8 KiB gzip; keep narrow measured allowances for
+// that release-safety data.
+const ACTION_TIMINGS_RAW_BUDGET = 1_004 * KiB
+const ACTION_TIMINGS_GZIP_BUDGET = 136 * KiB
 // Every accepted story action now has one continuous, on-demand MP3 so action
 // karaoke never falls back to stitched word clips or browser TTS. Keep a
 // measured ceiling over that complete 4,486-clip archive; none is eager-loaded.

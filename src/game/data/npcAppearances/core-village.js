@@ -70,7 +70,7 @@ export const SQUARE_ELDER_APPEARANCE = portrait({
   presence: 'runtime',
   details: ['hair', 'carried-object', 'posture', 'location'],
   practicalWordIds: ['mjeker', 'bardhe', 'shkop', 'pus', 'thate'],
-  placement: { kind: 'replace', lineIndex: 20 },
+  placement: { kind: 'replace', lineIndex: 22 },
   portraitLines: [
     { line: R('An old man with a white beard holds a long staff and watches the dry well.', w('nje'), w('plak'), w('me'), w('mjeker'), w('te_link'), w('bardhe'), w('mban'), w('nje'), w('shkop'), w('te_link'), w('gjate'), w('dhe'), w('sheh'), w('pus', 'pusin'), w('e_art'), w('thate'), p('.')) },
   ],

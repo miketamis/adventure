@@ -89,7 +89,7 @@ check('true outdoor hubs, thresholds and courtyards remain exposed to local sky 
     'deti1',
     'kroi1',
     'pallatiZi',
-    'pallatRojeZi',
+    'pallatRoje',
     'kordhaPallat',
     'kordhaProva',
   ]) {

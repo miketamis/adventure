@@ -20,6 +20,8 @@ import {
 } from '../src/game/consequenceBuilders.js'
 import { newRun, normalizeSavedState, phraseSenses, reducer } from '../src/game/gameState.js'
 import { itemUseEffectsOption, optionEffectsOf } from '../src/game/stateMechanics.js'
+import { consequenceForStoryConfuser, storyConfuserCandidates } from '../src/game/storyConfusers.js'
+import { testFor } from '../src/game/comprehension.js'
 
 const root = new URL('../', import.meta.url)
 const source = (path) => fs.readFileSync(new URL(path, root), 'utf8')
@@ -176,14 +178,22 @@ check('Train and comprehension builders carry attempted answer, reason and corre
 check('the reducer loses health and blocks play only with a valid explanation', () => {
   const initial = newRun()
   assert.strictEqual(reducer(initial, { type: 'CONFUSE', expectedHearts: initial.hearts }), initial,
-    'CONFUSE did not fail closed without explanation metadata')
-  const consequence = storyConfuserConsequence({
-    nodeId: initial.nodeId, turn: initial.turn, key: 'audit',
-    tokens: [{ al: 'pi urën', en: 'drink the bridge' }],
-    english: 'Drink the bridge.',
+    'CONFUSE did not fail closed without canonical identity metadata')
+  const confuser = storyConfuserCandidates(initial).find((candidate) => candidate.kind === 'authored')
+  assert.ok(confuser)
+  let ready = { ...initial, discovered: { ...initial.discovered }, mana: { ...initial.mana } }
+  for (const id of phraseSenses(confuser.tokens)) {
+    ready.discovered[id] = true
+    ready.mana[id] = 2
+  }
+  const lost = reducer(ready, {
+    type: 'CONFUSE', optionId: confuser.key, optionIndex: confuser.optionIndex,
+    expectedHearts: ready.hearts, fromNodeId: ready.nodeId, fromTurn: ready.turn,
+    consequence: { source: 'story-confuser', eventId: 'forged' },
   })
-  const lost = reducer(initial, { type: 'CONFUSE', expectedHearts: initial.hearts, consequence })
   assert.equal(lost.hearts, initial.hearts - 1)
+  assert.deepEqual(lost.pendingHeartConsequence,
+    applyExplainedHeartLoss(ready, consequenceForStoryConfuser(ready, confuser), 1).pendingHeartConsequence)
   assert.equal(lost.pendingHeartConsequence.afterHearts, lost.hearts)
   assert.strictEqual(reducer(lost, { type: 'SET_VIEW', view: 'guide' }), lost,
     'an unrelated action bypassed the blocking consequence')
@@ -193,6 +203,15 @@ check('the reducer loses health and blocks play only with a valid explanation', 
   })
   assert.equal(resumed.pendingHeartConsequence, null)
   assert.equal(resumed.hearts, lost.hearts)
+  const repeated = reducer(resumed, {
+    type: 'CONFUSE', optionId: confuser.key, optionIndex: confuser.optionIndex,
+    expectedHearts: resumed.hearts, fromNodeId: resumed.nodeId, fromTurn: resumed.turn,
+  })
+  assert.notEqual(repeated.pendingHeartConsequence.eventId, lost.pendingHeartConsequence.eventId,
+    'a repeated same-scene confuser reused a consequence identity')
+  assert.strictEqual(reducer(repeated, {
+    type: 'ACKNOWLEDGE_HEART_CONSEQUENCE', eventId: lost.pendingHeartConsequence.eventId,
+  }), repeated, 'a stale acknowledgement dismissed a later repeated consequence')
 })
 
 check('a comprehension miss records its failed gate and explanation atomically', () => {
@@ -205,19 +224,42 @@ check('a comprehension miss records its failed gate and explanation atomically',
   assert.strictEqual(reducer(initial, {
     type: 'COMP_WRONG', id: achievement.id,
   }), initial, 'a comprehension failure landed without its explanation')
-  const consequence = comprehensionMissConsequence({
-    id: 'audit-comprehension',
-    albanian: 'Ura është e mbyllur.',
-    correct: 'The bridge is closed.',
-  }, 'The bridge is open.')
-  const lost = reducer(initial, {
-    type: 'COMP_WRONG', id: achievement.id, consequence,
-  })
+  const questionIndex = 0
+  const question = testFor(achievement, 0)[questionIndex]
+  const attemptedEnglish = question.options.find((option) => option !== question.correct)
+  const missAction = {
+    type: 'COMP_WRONG', id: achievement.id, expectedAttempt: 0,
+    questionIndex, attemptedEnglish,
+    consequence: { source: 'comprehension', eventId: 'forged' },
+  }
+  const lost = reducer(initial, missAction)
   assert.equal(lost.hearts, initial.hearts - 1)
   assert.equal(lost.attempts[achievement.id], 1)
   assert.equal(lost.dismissedTests[achievement.id], true)
   assert.equal(lost.pendingTest, null)
   assert.equal(lost.pendingHeartConsequence.source, 'comprehension')
+  assert.deepEqual(lost.pendingHeartConsequence,
+    applyExplainedHeartLoss(initial, comprehensionMissConsequence(
+      question, attemptedEnglish, `${achievement.id}:attempt-0`,
+    ), 1)
+      .pendingHeartConsequence,
+    'caller-controlled comprehension correction replaced the canonical question')
+  const acknowledged = reducer(lost, {
+    type: 'ACKNOWLEDGE_HEART_CONSEQUENCE', eventId: lost.pendingHeartConsequence.eventId,
+  })
+  assert.strictEqual(reducer(acknowledged, missAction), acknowledged,
+    'a stale comprehension miss charged a later attempt')
+  const nextQuestion = testFor(achievement, 1)[0]
+  const nextAttemptedEnglish = nextQuestion.options.find((option) => option !== nextQuestion.correct)
+  const nextMiss = reducer(acknowledged, {
+    type: 'COMP_WRONG', id: achievement.id, expectedAttempt: 1,
+    questionIndex: 0, attemptedEnglish: nextAttemptedEnglish,
+  })
+  assert.notEqual(nextMiss.pendingHeartConsequence.eventId, lost.pendingHeartConsequence.eventId,
+    'a later comprehension attempt reused a consequence identity')
+  assert.strictEqual(reducer(nextMiss, {
+    type: 'ACKNOWLEDGE_HEART_CONSEQUENCE', eventId: lost.pendingHeartConsequence.eventId,
+  }), nextMiss, 'a stale acknowledgement dismissed a later comprehension miss')
 })
 
 check('a real damaging story choice commits movement/effects and consequence atomically', () => {
@@ -280,8 +322,12 @@ check('source inventory has no player decrement outside the shared wrappers', ()
     'typed heart effects disappeared from the canonical effect projector')
   assert.doesNotMatch(practice, /💔\s*−1 heart/)
   assert.doesNotMatch(phrases, /💔\s*−1 heart/)
-  assert.match(story, /consequence: storyConfuserConsequence/)
-  assert.match(comprehension, /onDone\(false, comprehensionMissConsequence/)
+  assert.match(story, /storyConfuserCandidates\(state\)/)
+  assert.doesNotMatch(story, /consequence: storyConfuserConsequence/)
+  assert.match(comprehension, /onDone\(false, \{ questionIndex: step, attemptedEnglish: opt \}\)/)
+  assert.doesNotMatch(comprehension, /comprehensionMissConsequence/)
+  assert.match(gameState, /comprehensionMissConsequence\(/)
+  assert.match(gameState, /attempt-\$\{action\.expectedAttempt\}/)
   assert.match(app, /state\.pendingHeartConsequence/)
   assert.match(app, /const HeartConsequenceModal = lazy\(/)
   assert.match(heartModal, /Why the heart was lost/)

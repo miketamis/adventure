@@ -175,6 +175,7 @@ export const NODE_AT = {
   kalaMur: [300, 1360],
   kalaMjegull: 'kalaMur',
   kalaPlak: 'kalaMur',
+  kalaBesa: 'kalaMur',
   kalaNgjitje: 'kalaMur',
   kalaLutje: 'kalaMur',
   kalaFundBesa: 'kalaMur',
@@ -241,9 +242,13 @@ export const NODE_AT = {
   eaten: 'pylliThelle',
   pylliLoop: [-440, 540],
   pylliHumbur: [-620, 650],
-  shtrigaLufta: [-520, 510],
+  // The witch's chase and both gifts resolve where the road was lost. Only a
+  // later, explicit movement choice can carry the player away from this spot.
+  shtrigaLufta: 'pylliHumbur',
+  oraPyllBuke: 'pylliHumbur',
+  oraPyllKripe: 'pylliHumbur',
   oraPyllBardhe: 'pylliLoop',
-  oraPyllVerdhe: [-700, 700],
+  oraPyllVerdhe: 'pylliHumbur',
   oraPyllZeze: [-740, 650],
   plakaPyllitBiseda: 'pylliLoop',
   shtojzovalle1: [-460, 800],
@@ -375,7 +380,6 @@ export const NODE_AT = {
   eliraPorosiaDorezuar: 'fshatiSheshi',
   porosiaShesh: 'fshatiSheshi',
   pazariFshatit: 'pusiThate',
-  pazariPerserit: 'pusiThate',
   porosiaBlerje: 'pusiThate',
   porosiaBlerjePergjigje: 'pusiThate',
   dasma1: [598, 448], // the wedding yard — the feast-house ground east of the square (krushqit ride here)
@@ -441,8 +445,6 @@ export const NODE_AT = {
   arushe2: 'pylli1',
   pallatiZi: [768, 448],
   pallatRoje: 'pallatiZi',
-  pallatRojeZi: 'pallatiZi',
-  pallatRojePse: 'pallatiZi',
   libriDiell: [418, 392],
   sofraMikut: 'libriDiell',
   sofraMikut2: 'libriDiell',
@@ -501,8 +503,10 @@ export const NODE_AT = {
   udheNate: 'udha',
   udheLugat: 'udha',
   udheOra: 'udha',
-  kalaNate: 'udhaKthimit',
-  kalaMengjes: 'udhaKthimit',
+  // The brothers' house is beside the homeward road, but is a distinct place:
+  // sharing the road's exact point falsely merges unrelated scene affordances.
+  kalaNate: [220, 1240],
+  kalaMengjes: 'kalaNate',
   kulshLufte1: 'kulshedra1',
   bijaHene1: [500, 2400],
   bijaHeneFund: [500, 2470],
@@ -679,7 +683,9 @@ export const NODE_AT = {
   punaMulli: 'mulli1',
   mulliFund: 'mulli1',
   mulliKeq: 'mulli1',
-  xhindMulli: [146, 584],
+  // Crossing the threshold changes what is perceived inside the same mill; it
+  // is not a second destination beside the building.
+  xhindMulli: 'mulli1',
   xhindMulliFund: 'xhindMulli',
   xhindMulliKeq: 'xhindMulli',
   kroi1: [180, 672],

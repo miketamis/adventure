@@ -1,15 +1,20 @@
-import { albanianTextOf, alignedEnglishOf } from '../../language.js'
+import { albanianTextOf } from '../../language.js'
 import { OPTION_READINGS_A } from './optionsA.js'
 import { OPTION_READINGS_B } from './optionsB.js'
 import { OPTION_READINGS_C } from './optionsC.js'
 import { OPTION_READINGS_STATIC } from './optionsStatic.js'
+export {
+  dynamicItemConfuserEnglish,
+  normalizeOptionEnglish,
+  optionEnglishReadingOf,
+} from './optionReadingHelpers.js'
 
 // This is a fully materialized editorial registry. Every action has its own
 // stable address, exact Albanian pin, English phrase and explicit review state.
 // scripts/languageaudit.mjs checks every record against its exact live Albanian
 // action, so failures identify the specific stale or incomplete address.
 // `internal-editorial` never claims native-speaker review.
-export const REVIEWED_OPTION_COUNT = 1943
+export const REVIEWED_OPTION_COUNT = 1967
 
 const merged = {}
 for (const tranche of [OPTION_READINGS_A, OPTION_READINGS_B, OPTION_READINGS_C, OPTION_READINGS_STATIC]) {
@@ -20,19 +25,6 @@ for (const tranche of [OPTION_READINGS_A, OPTION_READINGS_B, OPTION_READINGS_C, 
   }
 }
 export const REVIEWED_OPTION_READINGS = Object.freeze(merged)
-
-const terminalPunctuation = /[.!?…][”»"]?$/
-
-export function normalizeOptionEnglish(text, albanian = '') {
-  let out = String(text || '').replace(/\s+/g, ' ').trim()
-  if (!out) return ''
-  out = out.replace(/[A-Za-z]/, (letter) => letter.toUpperCase())
-  if (!terminalPunctuation.test(out)) {
-    const al = String(albanian || '').trim()
-    out += al.endsWith('?') ? '?' : al.endsWith('!') ? '!' : '.'
-  }
-  return out
-}
 
 function phraseAt(address, story, items, heartLevels) {
   let match = /^(.+)\.options\[(\d+)\]$/.exec(address)
@@ -71,24 +63,4 @@ export function attachReviewedOptionReadings(story, items, heartLevels) {
   if (Object.keys(REVIEWED_OPTION_READINGS).length !== REVIEWED_OPTION_COUNT)
     throw new Error(`Reviewed-option inventory changed: expected ${REVIEWED_OPTION_COUNT}, found ${Object.keys(REVIEWED_OPTION_READINGS).length}`)
   return attached
-}
-
-export function optionEnglishReadingOf(tokens) {
-  if (tokens?.optionReading) return tokens.optionReading
-  return normalizeOptionEnglish(alignedEnglishOf(tokens), albanianTextOf(tokens))
-}
-
-// Dynamic item distractors are intentionally absurd, but never malformed.
-// The action is constrained to one verb plus one known item, so the audit can
-// exhaust every possible rendering without pretending these generated traps
-// received the same address-pinned review as static story actions.
-export function dynamicItemConfuserEnglish(item, action) {
-  const name = String(item?.name || '').trim()
-  if (!name) throw new Error('Dynamic item confuser has no item name')
-  if (!['drink', 'fight'].includes(action))
-    throw new Error(`Dynamic item confuser has unsupported action: ${action}`)
-  const object = /^(?:a|an|the)\b/i.test(name)
-    ? name
-    : `the ${name[0].toLocaleLowerCase('en')}${name.slice(1)}`
-  return `${action === 'fight' ? 'Fight' : 'Drink'} ${object}.`
 }

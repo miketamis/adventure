@@ -111,7 +111,7 @@ available as lore while the audit verifies that the separation is deliberate.
   node(s) where that backstory is discovered; the Beats view renders each as a
   🗺 link that jumps to the node on the World map. `nodeId` must exist in STORY,
   the `beatId` must be a real beat (usually a prologue one). e.g. Maiden:
-  `learn: { vow: [['pallatRojePse', 'the palace guard names the vow']], taken: [['pallatRojeZi', 'the guard: the queen dyes the palace black']], houseGuest: [['diellShtepi1', 'you witness the Kulshedra scent her']] }`.
+  `learn: { vow: [['pallatRoje', 'the palace guard names the vow']], taken: [['pallatRoje', 'the guard: the queen dyes the palace black']], houseGuest: [['diellShtepi1', 'you witness the Kulshedra scent her']] }`.
 
 - **`from` / `ending` / `scenes`** — OPTIONAL, power the **🎭 playthrough** view,
   which lays the game's shortest route to the good ending beside the source

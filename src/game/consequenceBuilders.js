@@ -45,16 +45,19 @@ export function storyConfuserConsequence({
   nodeId,
   turn,
   key,
+  attemptId,
   tokens,
   english,
   greeting,
   correctGreeting,
   dynamicItem,
 }) {
+  const attemptSuffix = typeof attemptId === 'string' && attemptId ? `:${attemptId}` : ''
+  const eventId = `confuser:${nodeId}:${turn}:${key}${attemptSuffix}`
   if (greeting) {
     return {
       source: 'story-confuser',
-      eventId: `confuser:${nodeId}:${turn}:${key}`,
+      eventId,
       attempted: reading(albanianTextOf(tokens), english),
       reason: {
         code: 'wrong-time-greeting',
@@ -69,7 +72,7 @@ export function storyConfuserConsequence({
 
   return {
     source: 'story-confuser',
-    eventId: `confuser:${nodeId}:${turn}:${key}`,
+    eventId,
     attempted: reading(albanianTextOf(tokens), english),
     reason: {
       code: dynamicItem ? 'impossible-item-action' : 'impossible-scene-action',
@@ -81,10 +84,11 @@ export function storyConfuserConsequence({
   }
 }
 
-export function comprehensionMissConsequence(question, attemptedEnglish) {
+export function comprehensionMissConsequence(question, attemptedEnglish, attemptId = null) {
+  const attemptSuffix = typeof attemptId === 'string' && attemptId ? `:${attemptId}` : ''
   return {
     source: 'comprehension',
-    eventId: `comprehension:${question.id || question.albanian}:${attemptedEnglish}`,
+    eventId: `comprehension:${question.id || question.albanian}:${attemptedEnglish}${attemptSuffix}`,
     attempted: reading(null, attemptedEnglish),
     reason: {
       code: 'reading-mismatch',

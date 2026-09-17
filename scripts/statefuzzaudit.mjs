@@ -12,6 +12,7 @@ import {
   WORLD_HUB,
   itemHasAffordance,
   itemHasTag,
+  lineOf,
 } from '../src/game/content.js'
 import { ACHIEVEMENTS, ACHIEVEMENT_BY_ID } from '../src/game/achievements.js'
 import { EMBODIMENT_QUESTS, embodimentOptionAccess } from '../src/game/embodiment.js'
@@ -19,9 +20,12 @@ import {
   START_CLOCK,
   START_HEARTS,
   canChoose,
+  canSpeak,
   civilHourAtClock,
   currentStoryState,
   hasCond,
+  hasRequiredItem,
+  isOptionRevealed,
   loadAchievements,
   loadState,
   normalizeSavedState,
@@ -30,6 +34,8 @@ import {
   reducer,
   trainablePhraseSenses,
 } from '../src/game/gameState.js'
+import { albanianTextOf } from '../src/game/language.js'
+import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { TIMED_WORLD_FIXTURES, parseFixtureCondition } from '../src/game/worldFixtures.js'
 import { optionEffectsOf } from '../src/game/stateMechanics.js'
 import {
@@ -108,6 +114,46 @@ function fixtureActivationFor(id, clock) {
   return null
 }
 
+// Reveal sentences can have their own visibility condition, distinct from the
+// choice's execution condition (for example, a conversation response reveals
+// the next reply). Seed the simple persistent predicates here so the exhaustive
+// reducer walk exercises the same visible edge a player would see. Clock,
+// weather, festival and NPC predicates remain owned by the clock search below.
+function seedRevealCondition(state, id, present) {
+  if (typeof id !== 'string' || !id) return
+  if (id.startsWith('flag:')) {
+    if (present) state.flags[id.slice(5)] = true
+    else delete state.flags[id.slice(5)]
+  } else if (id.startsWith('fact:')) {
+    if (present) state.worldFacts[id.slice(5)] = { atClock: state.clock, source: 'fuzz' }
+    else delete state.worldFacts[id.slice(5)]
+  } else if (id.startsWith('visited:')) {
+    const nodes = id.slice(8).split('|')
+    if (present) state.visited[nodes[0]] = true
+    else for (const nodeId of nodes) delete state.visited[nodeId]
+  } else if (id.startsWith('heard:')) {
+    if (present) state.heard[id.slice(6)] = true
+    else delete state.heard[id.slice(6)]
+  } else if (id.startsWith('knows:')) {
+    if (present) state.knowledge[id.slice(6)] = { atClock: state.clock, source: 'fuzz' }
+    else delete state.knowledge[id.slice(6)]
+  } else if (id.startsWith('observed:')) {
+    if (present) state.observations[id.slice(9)] = { atClock: state.clock, nodeId: state.nodeId }
+    else delete state.observations[id.slice(9)]
+  } else if (id.startsWith('from:')) {
+    const origins = id.slice(5).split('|')
+    if (present) state.cameFrom = origins[0]
+    else if (origins.includes(state.cameFrom)) state.cameFrom = null
+  } else if (id === 'again') {
+    state.familiar = present
+  } else if (id === 'rumor') {
+    state.rumor = present
+  } else if (ITEMS[id]) {
+    if (present) state.inventory[id] = Math.max(2, state.inventory[id] || 0)
+    else delete state.inventory[id]
+  }
+}
+
 function seedConditions(input, option) {
   const state = {
     ...input,
@@ -164,7 +210,27 @@ function seedConditions(input, option) {
     }
   }
   seedInventoryEffects(state, option)
-  for (const id of trainablePhraseSenses(option.text)) {
+  const node = STORY[state.nodeId]
+  const reveal = option.reveal
+    ? resolveRevealLine(node?.text?.map(lineOf), option)
+    : { line: null, index: -1 }
+  const revealEntry = node?.text?.[reveal.index]
+  if (revealEntry && !Array.isArray(revealEntry)) {
+    for (const id of list(revealEntry.cond)) {
+      seedRevealCondition(state, id, !revealEntry.negate)
+    }
+    for (const id of list(revealEntry.none)) seedRevealCondition(state, id, false)
+  }
+  if (reveal.line?.observation?.id) {
+    state.observations[reveal.line.observation.id] = {
+      atClock: state.clock,
+      nodeId: state.nodeId,
+    }
+  }
+  for (const id of new Set([
+    ...trainablePhraseSenses(option.text),
+    ...phraseSenses(reveal.line || []),
+  ])) {
     state.discovered[id] = true
     state.mana[id] = Math.max(3, state.mana[id] || 0)
   }
@@ -191,7 +257,8 @@ function readyFor(input, option) {
         delete candidate.fixtures[condition.fixtureId]
       }
     }
-    if (canChoose(candidate, option) && embodimentOptionAccess(candidate, option, STORY[option.to]).ok) return candidate
+    if (isOptionRevealed(candidate, option) && canChoose(candidate, option) &&
+        embodimentOptionAccess(candidate, option, STORY[option.to]).ok) return candidate
   }
   return null
 }
@@ -200,6 +267,17 @@ const choose = (state, option, extra = {}) => reducer(state, {
   type: 'CHOOSE', option, targetNode: STORY[option.to],
   fromNodeId: state.nodeId, fromTurn: state.turn, ...extra,
 })
+const requestAndConfirmEmbodiment = (state, option) => {
+  const optionIndex = STORY[state.nodeId]?.options?.indexOf(option) ?? -1
+  const pending = reducer(state, {
+    type: 'REQUEST_EMBODIMENT', optionId: `opt-${optionIndex}`, optionIndex,
+    fromNodeId: state.nodeId, fromTurn: state.turn,
+  })
+  return pending === state ? state : reducer(pending, { type: 'CONFIRM_EMBODIMENT' })
+}
+const commitChoice = (state, option) => option.become && !state.embodying
+  ? requestAndConfirmEmbodiment(state, option)
+  : choose(state, option)
 const dismissPassage = (state) => reducer(state, {
   type: 'DISMISS_TIME_PASSAGE',
   passageId: state.timePassage?.id,
@@ -221,9 +299,15 @@ check('every feasible authored choice ignores forged targets and rejects stale r
       const action = {
         type: 'CHOOSE', option, targetNode: forgedEnding,
         fromNodeId: before.nodeId, fromTurn: before.turn,
-        embodimentConfirmed: Boolean(option.become),
       }
-      const after = reducer(before, action)
+      const direct = reducer(before, option.become
+        ? { ...action, embodimentConfirmed: true }
+        : action)
+      if (option.become) {
+        assert.strictEqual(direct, before,
+          `${nodeId}->${option.to}: caller forged character-role confirmation`)
+      }
+      const after = option.become ? requestAndConfirmEmbodiment(before, option) : direct
       assert.equal(after.nodeId, option.to, `${nodeId}->${option.to}: forged target controlled movement`)
       assert.equal(after.ended, STORY[option.to].end || null, `${nodeId}->${option.to}: forged target controlled ending`)
       assert.equal(after.clock, expectedClock, `${nodeId}->${option.to}: wrong clock commit`)
@@ -236,6 +320,62 @@ check('every feasible authored choice ignores forged targets and rejects stale r
   }
   assert.ok(covered >= 700, `only ${covered} choices reached adversarial commit coverage`)
   return `${covered} authored transitions`
+})
+
+check('every feasible confuser is canonical, provenance-bound and caller-tamper-proof', () => {
+  let authored = 0
+  let accepted = 0
+  for (const [nodeId, node] of Object.entries(STORY)) {
+    for (const [optionIndex, option] of (node.options || []).entries()) {
+      if (!option.confuser) continue
+      authored++
+      const seeded = seedConditions(stateAt(nodeId), option)
+      let before = null
+      for (let clock = seeded.clock; clock < seeded.clock + 370 * 24; clock++) {
+        const candidate = { ...seeded, clock }
+        if (hasRequiredItem(currentStoryState(candidate), option) && canSpeak(candidate, option.text).ok) {
+          before = candidate
+          break
+        }
+      }
+      if (!before) continue
+      const action = {
+        type: 'CONFUSE', optionId: `opt-${optionIndex}`, optionIndex,
+        expectedHearts: before.hearts,
+        fromNodeId: before.nodeId,
+        fromTurn: before.turn,
+        actionText: [{ al: 'forged action' }],
+        consequence: {
+          source: 'story-confuser', eventId: 'forged',
+          attempted: { al: 'forged attempt' },
+        },
+      }
+      const after = reducer(before, action)
+      assert.notEqual(after, before, `${nodeId}/${optionIndex}: feasible confuser was rejected`)
+      assert.equal(after.hearts, before.hearts - 1, `${nodeId}/${optionIndex}: heart loss drifted`)
+      assert.equal(after.actionSpeech?.al, albanianTextOf(option.text),
+        `${nodeId}/${optionIndex}: caller controlled spoken action`)
+      assert.equal(after.pendingHeartConsequence?.attempted?.al, albanianTextOf(option.text),
+        `${nodeId}/${optionIndex}: caller controlled attempted-action explanation`)
+      assert.equal(after.pendingHeartConsequence?.eventId,
+        `confuser:${nodeId}:${before.turn}:opt-${optionIndex}:run-${before.storyRunSequence || 1}:action-${(before.actionSpeechSequence || 0) + 1}`,
+        `${nodeId}/${optionIndex}: canonical event provenance drifted`)
+      for (const id of trainablePhraseSenses(option.text)) {
+        assert.equal(after.mana[id], before.mana[id] - 1,
+          `${nodeId}/${optionIndex}: ${id} was not spent exactly once`)
+      }
+      assert.equal(reducer(before, { ...action, optionIndex: optionIndex + 1 }), before,
+        `${nodeId}/${optionIndex}: tampered option identity was accepted`)
+      assert.equal(reducer(before, { ...action, fromTurn: before.turn - 1 }), before,
+        `${nodeId}/${optionIndex}: stale turn was accepted`)
+      assert.equal(reducer(before, { ...action, fromNodeId: START_NODE === nodeId ? 'fshatiLumi' : START_NODE }), before,
+        `${nodeId}/${optionIndex}: stale node was accepted`)
+      accepted++
+    }
+  }
+  assert.ok(authored > 0)
+  assert.equal(accepted, authored, `${authored - accepted} authored confusers could not reach canonical acceptance`)
+  return `${accepted} authored confuser surfaces`
 })
 
 check('attention actions are exhaustive in either order and cannot consume time or replay', () => {
@@ -277,7 +417,10 @@ check('every character threshold confirms atomically, pauses, resumes, and close
       if (!option.become) continue
       const before = readyFor(stateAt(from, { inventory: { lek: 17, buke: 2 } }), option)
       assert.ok(before, `${from}->${option.to}: threshold cannot be prepared`)
-      const pending = reducer(before, { type: 'REQUEST_EMBODIMENT', optionIndex })
+      const pending = reducer(before, {
+        type: 'REQUEST_EMBODIMENT', optionId: `opt-${optionIndex}`, optionIndex,
+        fromNodeId: before.nodeId, fromTurn: before.turn,
+      })
       assert.equal(pending.nodeId, before.nodeId)
       assert.deepEqual(pending.inventory, before.inventory)
       const entered = reducer(pending, { type: 'CONFIRM_EMBODIMENT' })
@@ -346,7 +489,7 @@ check('long and calendar transitions persist one exact dismissible passage', () 
       if ((option.durationHours ?? 0) < 24 && !option.date) continue
       const before = readyFor(stateAt(nodeId), option)
       if (!before) continue
-      const after = choose(before, option, { embodimentConfirmed: Boolean(option.become) })
+      const after = commitChoice(before, option)
       assert.ok(after.timePassage, `${nodeId}->${option.to}: passage not persisted`)
       assert.equal(after.timePassage.toNodeId, after.nodeId)
       assert.equal(after.timePassage.toClock, after.clock)
@@ -547,24 +690,39 @@ check('every repeat-sensitive UI commit has an immediate same-render lock', () =
   assert.equal(effectLockText({ ok: false, reason: 'missing-item', itemId: 'buke', need: 1 }), 'need 1 buke')
   assert.equal(effectLockText({ ok: false, reason: 'insufficient-lek', need: 3 }), 'need 3 more lek')
   assert.equal(effectLockText({ ok: false, reason: 'fixture-out-of-reach' }), 'you must be beside it')
-  assert.ok((story.match(/type: 'CONFUSE'/g) || []).length >= 2)
-  assert.ok((story.match(/consequence: storyConfuserConsequence/g) || []).length >= 2)
+  assert.match(story, /storyConfuserCandidates\(state\)/)
+  assert.ok((story.match(/type: 'CONFUSE'/g) || []).length >= 1)
+  assert.doesNotMatch(story, /consequence: storyConfuserConsequence/)
 
-  const confuse = stateAt(START_NODE, { hearts: 3 })
+  const optionIndex = STORY[START_NODE].options.findIndex((option) => option.confuser)
+  const option = STORY[START_NODE].options[optionIndex]
+  const confuse = seedConditions(stateAt(START_NODE, { hearts: 3 }), option)
   const action = {
     type: 'CONFUSE',
+    optionId: `opt-${optionIndex}`,
+    optionIndex,
     expectedHearts: confuse.hearts,
+    fromNodeId: confuse.nodeId,
+    fromTurn: confuse.turn,
+    actionText: [{ al: 'forged speech' }],
     consequence: {
       source: 'story-confuser',
-      eventId: 'state-fuzz:confuser',
-      attempted: { al: 'pi urën' },
-      reason: { code: 'impossible-scene-action', text: 'A bridge is not something the player can drink.' },
-      reasoning: 'Choose an action that the object in this scene can physically support.',
+      eventId: 'state-fuzz:forged',
+      attempted: { al: 'forged attempt' },
     },
   }
   const once = reducer(confuse, action)
   assert.equal(once.hearts, 2)
+  assert.equal(once.pendingHeartConsequence.attempted.al,
+    option.text.map((token) => token.al || token.en).join(' ').replace(/\s+([.,!?:;…])/g, '$1'))
   assert.equal(reducer(once, action), once, 'a stale confuser activation charged a second heart')
+  for (const missing of ['optionId', 'optionIndex', 'expectedHearts', 'fromNodeId', 'fromTurn']) {
+    const incomplete = { ...action }
+    delete incomplete[missing]
+    assert.equal(reducer(confuse, incomplete), confuse, `CONFUSE accepted without ${missing}`)
+  }
+  assert.equal(reducer(confuse, { ...action, fromTurn: confuse.turn - 1 }), confuse)
+  assert.equal(reducer(confuse, { ...action, fromNodeId: 'stale-node' }), confuse)
 
   const healIds = new Set([
     ...phraseSenses(HEART_LEVELS[1].line),

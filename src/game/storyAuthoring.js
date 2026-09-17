@@ -10,6 +10,8 @@ import {
 } from './gameState.js'
 import { englishReadingOf } from './language.js'
 import { choiceSemanticsIssues, compoundIntentIssues } from './choiceSemantics.js'
+import { actionSemanticContinuityIssues } from './actionSemantics.js'
+import { playerActionProvenanceIssues } from './playerActionProvenance.js'
 import { PLACE_OF } from '../components/nodePositions.js'
 import {
   WORLD_ENTITIES,
@@ -28,7 +30,11 @@ export const albanianTextOf = (line = []) => tidy(line
   .join(' '))
 
 export function authoringSchemaIssues(story = STORY) {
-  const issues = [...worldEntityRegistryIssues()]
+  const issues = [
+    ...worldEntityRegistryIssues(),
+    ...actionSemanticContinuityIssues(story, { placeOf: PLACE_OF }),
+    ...playerActionProvenanceIssues(story).issues,
+  ]
   for (const [nodeId, node] of Object.entries(story || {})) {
     const at = (message) => issues.push(`${nodeId}: ${message}`)
     if (node?.id !== nodeId) at('registry key and node.id differ')
@@ -111,10 +117,20 @@ export function simulateAuthoringChoice(state, optionIndex, { vocabularyAssist =
       event: Object.freeze({ from: node.id, optionIndex, choice: albanianTextOf(option.text) }),
     })
   }
-  const next = reducer(ready, {
-    type: 'CHOOSE', option, fromNodeId: ready.nodeId, fromTurn: ready.turn,
-    embodimentConfirmed: true,
-  })
+  const requested = option.become && !ready.embodying
+    ? reducer(ready, {
+        type: 'REQUEST_EMBODIMENT',
+        optionId: `opt-${optionIndex}`,
+        optionIndex,
+        fromNodeId: ready.nodeId,
+        fromTurn: ready.turn,
+      })
+    : ready
+  const next = option.become && !ready.embodying
+    ? reducer(requested, { type: 'CONFIRM_EMBODIMENT' })
+    : reducer(ready, {
+        type: 'CHOOSE', option, fromNodeId: ready.nodeId, fromTurn: ready.turn,
+      })
   if (next === ready) {
     return Object.freeze({ ok: false, reason: 'reducer-rejected-choice', state: ready })
   }

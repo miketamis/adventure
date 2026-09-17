@@ -4,6 +4,7 @@
 // a claim of metaphysical certainty or of access to manuscripts that do not
 // survive in a usable form.
 import { spawnSync } from 'node:child_process'
+import { childProcessFailed } from './lib/child-process-result.mjs'
 
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 const stages = [
@@ -18,7 +19,7 @@ const failed = []
 for (const [label, args] of stages) {
   console.log(`\n=== ${label} ===`)
   const result = spawnSync(npm, args, { stdio: 'inherit' })
-  if (result.error || result.status !== 0) failed.push(label)
+  if (childProcessFailed(result)) failed.push(label)
 }
 
 if (failed.length) {

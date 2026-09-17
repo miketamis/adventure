@@ -140,7 +140,7 @@ export const PLACE_META = {
   kalaMur: {
     name: 'kalaja e Rozafës',
     happenings: [
-      { title: 'the wall that will not hold', nodes: ['kalaMjegull', 'kalaPlak'] },
+      { title: 'the wall that will not hold and the brothers\' vow', nodes: ['kalaMjegull', 'kalaPlak', 'kalaBesa'] },
       { title: 'the climb, the plea, the walling of Rozafa', nodes: ['kalaNgjitje', 'kalaLutje', 'kalaMur'] },
       { title: 'the brothers keep or break their word', nodes: ['kalaFundBesa', 'kalaFundTurp'] },
     ],
@@ -149,6 +149,11 @@ export const PLACE_META = {
     name: 'udha nën Rozafë — the road below the castle',
     happenings: [
       { title: 'the homeward road and the castle vista', nodes: ['udhaKthimit'] },
+    ],
+  },
+  kalaNate: {
+    name: 'shtëpia e ndërtuesve — the builders\' house',
+    happenings: [
       { title: "the builders' house before dawn", nodes: ['kalaNate', 'kalaMengjes'] },
     ],
   },
@@ -198,7 +203,7 @@ export const PLACE_META = {
     name: 'pusi i thatë — the dry well',
     happenings: [
       { title: 'the dry well and its deep shaft', nodes: ['pusiThate', 'pusiGuri'] },
-      { title: "the market beside the well", nodes: ['pazariFshatit', 'pazariPerserit', 'porosiaBlerje', 'porosiaBlerjePergjigje'] },
+      { title: "the market beside the well", nodes: ['pazariFshatit', 'porosiaBlerje', 'porosiaBlerjePergjigje'] },
     ],
   },
   dasma1: {
@@ -307,6 +312,14 @@ export const PLACE_META = {
       { title: 'the dervish and the bear', nodes: ['arushe1', 'arushe2', 'arushePeme', 'arusheNate', 'arusheFund'] },
     ],
   },
+  pylliHumbur: {
+    name: 'rruga e humbur — the lost forest road',
+    happenings: [
+      { title: 'the road vanishes and the Ora offers her light', nodes: ['pylliHumbur', 'shtrigaLufta'] },
+      { title: 'bread or salt is given before the traveller chooses light or darkness', nodes: ['oraPyllBuke', 'oraPyllKripe'] },
+      { title: 'the Ora’s voice circles through every road', nodes: ['oraPyllVerdhe'] },
+    ],
+  },
   udha: {
     name: 'udha buzë lumit — the riverside road',
     happenings: [
@@ -333,6 +346,7 @@ export const PLACE_META = {
     distributionReason: 'The working mill, its night threshold, the women’s spring and Maro’s separate mill all cluster along the same watercourse; their distinct location cards preserve those neighboring social and story sites without spreading them artificially.',
     happenings: [
       { title: 'work at the millstones', nodes: ['mulli1', 'punaMulli', 'mulliFund', 'mulliKeq'] },
+      { title: 'the unseen night workers', nodes: ['xhindMulli', 'xhindMulliFund', 'xhindMulliKeq'] },
     ],
   },
   kroi1: {
@@ -340,12 +354,6 @@ export const PLACE_META = {
     densityReason: 'The water errand, women’s conversation and a drink from the spring are successive encounters at the same village water source.',
     happenings: [
       { title: 'water, everyday questions and the guest’s errand at the village spring', nodes: ['kroi1', 'vajzaKroiBiseda', 'kroiGrate', 'kroiGrate2', 'kroiFund'] },
-    ],
-  },
-  xhindMulli: {
-    name: 'pragu i mullirit — the mill at night',
-    happenings: [
-      { title: 'the unseen night workers', nodes: ['xhindMulli', 'xhindMulliFund', 'xhindMulliKeq'] },
     ],
   },
   maroMulli1: {
@@ -613,7 +621,7 @@ export const PLACE_META = {
   pallatiZi: {
     name: 'pallati i zi — the black palace',
     happenings: [
-      { title: 'the locked gate and its guard', nodes: ['pallatiZi', 'pallatRoje', 'pallatRojeZi', 'pallatRojePse'] },
+      { title: 'the locked gate and its guard', nodes: ['pallatiZi', 'pallatRoje'] },
       { title: 'the return to the palace', nodes: ['pallatiKthim'] },
     ],
   },

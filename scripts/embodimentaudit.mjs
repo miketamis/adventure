@@ -11,6 +11,7 @@ import {
   fixtureStateOf,
   hasCond,
   hasRequiredItem,
+  isOptionRevealed,
   npcNodeOf,
   normalizeSavedState,
   phaseAtClock,
@@ -38,6 +39,7 @@ import { transitionInfo } from '../src/game/worldModel.js'
 import { NPCS } from '../src/game/npcs.js'
 import { ACHIEVEMENTS } from '../src/game/achievements.js'
 import { optionEffectsOf } from '../src/game/stateMechanics.js'
+import { resolveRevealLine } from '../src/game/revealResolver.js'
 
 const checks = []
 const check = (name, fn) => {
@@ -53,6 +55,7 @@ const stateAt = (nodeId, extra = {}) => ({
   nodeId, clock: START_CLOCK, cameFrom: null, cameFromPhase: null, familiar: false,
   heard: {}, rumor: false, trail: [], discovered: {}, inventory: {}, mana: {}, practiced: {},
   flags: {}, knowledge: {}, interactions: {},
+  observations: {},
   visited: {}, earned: {}, eligible: {}, attempts: {}, dismissedTests: {}, pendingTest: null,
   hearts: 3, healedAt: {}, turn: 1, fixtures: {}, npcStarted: {}, worldFacts: {},
   view: 'story', ended: null, embodying: null, embodimentOriginNode: null,
@@ -105,26 +108,58 @@ const reachableBy = (start, accept) => {
 const withSpeech = (state, option) => {
   const discovered = { ...state.discovered }
   const mana = { ...state.mana }
-  for (const id of phraseSenses(option.text)) {
+  const observations = { ...state.observations }
+  const revealLine = option.reveal
+    ? resolveRevealLine(STORY[state.nodeId]?.text?.map(lineOf), option).line
+    : null
+  if (revealLine?.observation?.id) {
+    observations[revealLine.observation.id] = {
+      atClock: state.clock,
+      nodeId: state.nodeId,
+    }
+  }
+  for (const id of new Set([
+    ...phraseSenses(option.text),
+    ...phraseSenses(revealLine || []),
+  ])) {
     discovered[id] = true
     mana[id] = Math.max(1, mana[id] || 0)
   }
-  return { ...state, discovered, mana }
+  return { ...state, discovered, mana, observations }
+}
+
+const choose = (state, option, extra = {}) => reducer(state, {
+  type: 'CHOOSE', option, targetNode: STORY[option.to],
+  fromNodeId: state.nodeId, fromTurn: state.turn, ...extra,
+})
+
+const requestAndConfirmEmbodiment = (state, option) => {
+  const optionIndex = STORY[state.nodeId]?.options?.indexOf(option) ?? -1
+  const pending = reducer(state, {
+    type: 'REQUEST_EMBODIMENT', optionId: `opt-${optionIndex}`, optionIndex,
+    fromNodeId: state.nodeId, fromTurn: state.turn,
+  })
+  return pending === state ? state : reducer(pending, { type: 'CONFIRM_EMBODIMENT' })
 }
 
 const withOptionConditions = (state, option) => {
   const inventory = { ...state.inventory }
+  const flags = { ...state.flags }
   let cameFrom = state.cameFrom
   let familiar = state.familiar
   let rumor = state.rumor
   for (const id of asList(option.requires)) {
     if (typeof id !== 'string') continue
     if (id.startsWith('from:')) cameFrom = id.slice(5).split('|')[0]
+    else if (id.startsWith('flag:')) flags[id.slice(5)] = true
     else if (id === 'again') familiar = true
     else if (id === 'rumor') rumor = true
-    else inventory[id] = Math.max(1, inventory[id] || 0)
+    else if (ITEMS[id]) inventory[id] = Math.max(1, inventory[id] || 0)
+    else if (!['dawn', 'day', 'dusk', 'night', 'embodying'].includes(id) && !id.includes(':')) {
+      flags[id] = true
+    }
   }
-  return withSpeech({ ...state, inventory, cameFrom, familiar, rumor }, option)
+  return withSpeech({ ...state, inventory, flags, cameFrom, familiar, rumor }, option)
 }
 
 const sceneSignature = (state) => {
@@ -160,18 +195,13 @@ const enterRole = (roleId, inventory = {}, hearts = 3) => {
   const threshold = thresholdForRole(roleId)
   assert.ok(threshold, `${roleId}: no threshold`)
   for (let hour = 0; hour < 24; hour++) {
-    const before = withSpeech(stateAt(threshold.from, {
+    const before = withOptionConditions(stateAt(threshold.from, {
       clock: 24 * 100 + hour,
       inventory: { ...inventory },
       hearts,
     }), threshold.option)
     if (!hasRequiredItem(before, threshold.option)) continue
-    const entered = reducer(before, {
-      type: 'CHOOSE',
-      option: threshold.option,
-      targetNode: STORY[threshold.option.to],
-      embodimentConfirmed: true,
-    })
+    const entered = requestAndConfirmEmbodiment(before, threshold.option)
     if (entered === before) continue
     return entered.timePassage
       ? reducer(entered, {
@@ -316,9 +346,24 @@ check('role entry exposes every tale reference directly and promises no hidden l
 check('entry confirmation happens before movement or token spending', () => {
   const optionIndex = STORY.agaYmer1.options.findIndex((option) => option.become === 'aga-ymer')
   const option = STORY.agaYmer1.options[optionIndex]
+  const actionOnlyIds = phraseSenses(option.text)
+  const actionOnly = stateAt('agaYmer1', {
+    inventory: { buke: 1, lek: 7 },
+    discovered: Object.fromEntries(actionOnlyIds.map((id) => [id, true])),
+    mana: Object.fromEntries(actionOnlyIds.map((id) => [id, 1])),
+  })
+  assert.equal(isOptionRevealed(actionOnly, option), false)
+  assert.strictEqual(reducer(actionOnly, {
+    type: 'REQUEST_EMBODIMENT', optionId: `opt-${optionIndex}`, optionIndex,
+    fromNodeId: actionOnly.nodeId, fromTurn: actionOnly.turn,
+  }), actionOnly, 'a hidden character threshold opened its confirmation screen')
+
   const initial = withSpeech(stateAt('agaYmer1', { inventory: { buke: 1, lek: 7 } }), option)
-  assert.equal(reducer(initial, { type: 'CHOOSE', option, targetNode: STORY[option.to] }), initial)
-  const requested = reducer(initial, { type: 'REQUEST_EMBODIMENT', optionIndex })
+  assert.equal(choose(initial, option), initial)
+  const requested = reducer(initial, {
+    type: 'REQUEST_EMBODIMENT', optionId: `opt-${optionIndex}`, optionIndex,
+    fromNodeId: initial.nodeId, fromTurn: initial.turn,
+  })
   assert.equal(requested.nodeId, initial.nodeId)
   assert.deepEqual(requested.mana, initial.mana)
   assert.equal(requested.pendingEmbodiment.taleId, 'aga-ymer')
@@ -461,7 +506,7 @@ check('Maro may travel but cannot steal the miller ending or use the traveller p
   })
   const millEnding = STORY.mulli1.options.find((option) => option.to === 'mulliFund')
   const blocked = withSpeech(base, millEnding)
-  assert.equal(reducer(blocked, { type: 'CHOOSE', option: millEnding, targetNode: STORY.mulliFund }), blocked)
+  assert.equal(choose(blocked, millEnding), blocked)
   assert.equal(blocked.eligible.mulliFund, undefined)
   assert.equal(reducer(blocked, { type: 'USE_ITEM', item: { id: 'buke' } }), blocked)
   assert.equal(reducer(blocked, { type: 'HEAL' }), blocked)
@@ -469,7 +514,8 @@ check('Maro may travel but cannot steal the miller ending or use the traveller p
   assert.equal(reducer(blocked, { type: 'RESET' }), blocked)
 
   const travel = STORY.mulli1.options.find((option) => option.to === 'fshatiLumi')
-  const wandered = reducer(withSpeech(base, travel), { type: 'CHOOSE', option: travel, targetNode: STORY.fshatiLumi })
+  const readyTravel = withSpeech(base, travel)
+  const wandered = choose(readyTravel, travel)
   assert.equal(wandered.nodeId, 'fshatiLumi')
   assert.equal(wandered.embodying, 'maro-perhitura')
   assert.equal(wandered.embodimentPaused, true)
@@ -533,7 +579,7 @@ check('every active role blocks every become threshold and unrelated ending', ()
           assert.equal(embodimentOptionAccess(active, option, target).ok, false, `${id}: ${from}->${option.to}`)
           const ready = withSpeech(active, option)
           assert.equal(
-            reducer(ready, { type: 'CHOOSE', option, targetNode: target }),
+            choose(ready, option),
             ready,
             `${id}: reducer accepted role threshold ${from}->${option.to}`,
           )
@@ -548,7 +594,7 @@ check('every active role blocks every become threshold and unrelated ending', ()
         if (target?.end && !isEmbodimentEnding(id, option.to)) {
           const ready = withSpeech({ ...active, embodimentPaused: false }, option)
           assert.equal(
-            reducer(ready, { type: 'CHOOSE', option, targetNode: target }),
+            choose(ready, option),
             ready,
             `${id}: reducer accepted unrelated ending ${from}->${option.to}`,
           )
@@ -565,9 +611,8 @@ check('a role remains through its own ending and clears only when that ending cl
     embodimentInventorySnapshot: { buke: 1, lek: 7 },
   })
   const endingOption = STORY.agaYmer2.options.find((option) => option.to === 'agaYmerFund')
-  const atEnding = reducer(withSpeech(start, endingOption), {
-    type: 'CHOOSE', option: endingOption, targetNode: STORY.agaYmerFund,
-  })
+  const atEndingReady = withSpeech(start, endingOption)
+  const atEnding = choose(atEndingReady, endingOption)
   assert.equal(atEnding.embodying, 'aga-ymer')
   assert.equal(atEnding.ended, 'secret')
   const earned = reducer(atEnding, { type: 'EARN_ACHIEVEMENT', id: 'agaYmerFund' })
@@ -715,7 +760,7 @@ check('paused tale actions, private journeys and forged backtracks cannot bypass
           assert.equal(access.ok, false, `${id}: paused tale action allowed ${from}->${option.to}`)
           const ready = withSpeech(paused, option)
           assert.equal(
-            reducer(ready, { type: 'CHOOSE', option, targetNode: STORY[option.to] }),
+            choose(ready, option),
             ready,
             `${id}: paused reducer advanced ${from}->${option.to}`,
           )
@@ -735,7 +780,7 @@ check('paused tale actions, private journeys and forged backtracks cannot bypass
     embodimentPaused: true, inventory: { furke: 1, drithe: 1 },
   }), privateMill)
   assert.equal(embodimentOptionAccess(atMill, privateMill, STORY.maroMulli1).ok, false)
-  assert.equal(reducer(atMill, { type: 'CHOOSE', option: privateMill, targetNode: STORY.maroMulli1 }), atMill)
+  assert.equal(choose(atMill, privateMill), atMill)
 
   const child = STORY.fshatiJeta.options.find((option) => option.to === 'syriKeq1')
   const forged = withSpeech(stateAt('fshatiJeta', {
@@ -745,7 +790,7 @@ check('paused tale actions, private journeys and forged backtracks cannot bypass
   }), child)
   assert.equal(transitionInfo('fshatiJeta', child).kind, 'scene-shift')
   assert.equal(embodimentOptionAccess(forged, child, STORY.syriKeq1).ok, false)
-  assert.equal(reducer(forged, { type: 'CHOOSE', option: child, targetNode: STORY.syriKeq1 }), forged)
+  assert.equal(choose(forged, child), forged)
 
   for (const [from, node] of Object.entries(STORY)) {
     for (const option of node.options || []) {
@@ -876,7 +921,7 @@ check('every non-ending focus at every hour survives pause, detour, save and exa
           const ready = withSpeech(paused, option)
           const access = embodimentOptionAccess(ready, option, STORY[option.to])
           if (access.kind !== 'detour' || !hasRequiredItem(ready, option)) continue
-          const candidate = reducer(ready, { type: 'CHOOSE', option, targetNode: STORY[option.to] })
+          const candidate = choose(ready, option)
           if (candidate !== ready) {
             detoured = candidate
             break
@@ -937,12 +982,12 @@ check('every feasible tale edge at every starting hour advances the two clocks b
           })
           const ready = withOptionConditions(base, option)
           const projected = currentStoryState(ready)
-          if (!hasRequiredItem(projected, option)) continue
+          if (!hasRequiredItem(projected, option) || !isOptionRevealed(projected, option)) continue
           const access = embodimentOptionAccess(projected, option, STORY[option.to])
           assert.equal(access.kind, 'quest', `${id}: ${from}->${option.to} was not a tale edge`)
           const expectedTaleClock = projectedClockForOption(projected, option)
           const expectedElapsed = expectedTaleClock - taleClock
-          const after = reducer(ready, { type: 'CHOOSE', option, targetNode: STORY[option.to] })
+          const after = choose(ready, option)
           assert.notEqual(after, ready, `${id}: feasible ${from}->${option.to}@${hour} was rejected`)
           assert.equal(after.embodimentClock, expectedTaleClock)
           assert.equal(after.clock, ready.clock + expectedElapsed)
@@ -1004,11 +1049,12 @@ check('every executable public detour at every hour advances only the living clo
         })
         for (const option of STORY[from]?.options || []) {
           if (option.confuser) continue
-          const ready = withSpeech(paused, option)
+          const ready = withOptionConditions(paused, option)
           const access = embodimentOptionAccess(ready, option, STORY[option.to])
-          if (!['detour', 'wait'].includes(access.kind) || !hasRequiredItem(ready, option)) continue
+          if (!['detour', 'wait'].includes(access.kind) || !hasRequiredItem(ready, option) ||
+              !isOptionRevealed(ready, option)) continue
           const expectedWorldClock = projectedClockForOption(ready, option)
-          const after = reducer(ready, { type: 'CHOOSE', option, targetNode: STORY[option.to] })
+          const after = choose(ready, option)
           assert.notEqual(after, ready, `${id}: rejected ${access.kind} ${from}->${option.to}@${hour}`)
           assert.equal(after.clock, expectedWorldClock)
           assert.equal(after.embodimentClock, taleClock)

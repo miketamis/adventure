@@ -10,7 +10,7 @@ import { buildRouteGraph, tokenIds } from '../src/game/worldModel.js'
 export const DISTRIBUTION_THRESHOLDS = Object.freeze({
   localRadius: 80,
   maxLocalPlaces: 10,
-  // Twelve reviewed conversation hubs now make the bridge, square, spring,
+  // Reviewed conversation hubs make the bridge, square, spring, palace gate,
   // mill-road and nearby homes richer social places without adding false map
   // destinations. Each remains one continuous, short card; the location-card
   // and scene-presentation gates still prevent unreadable story surfaces.

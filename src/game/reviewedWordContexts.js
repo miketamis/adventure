@@ -38,12 +38,12 @@ export const PO_PROGRESS_CONTEXT_VARIANTS = Object.freeze([
     en: 'Where __ you going?', cueTokens: ['shkon'],
   }),
   phraseContext({
-    phraseId: 'going-guest-room',
-    en: 'I __ going to the guest-room.', cueTokens: ['shkoj', 'odë'],
+    phraseId: 'coming-now',
+    en: 'I __ coming now.', cueTokens: ['vij', 'tani'],
   }),
   phraseContext({
-    phraseId: 'what-doing',
-    en: 'What __ we doing?', cueTokens: ['bëjmë'],
+    phraseId: 'what-do-today',
+    en: 'What __ you doing today?', cueTokens: ['bën', 'sot'],
   }),
   phraseContext({
     phraseId: 'yes-coming',

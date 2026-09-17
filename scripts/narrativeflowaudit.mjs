@@ -16,8 +16,11 @@ import coreVillageNpcs from '../src/game/data/npcs/core-village.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
 import { EMBODIMENT_QUESTS } from '../src/game/embodiment.js'
 import {
+  ORDINARY_RESULT_CATEGORIES,
   REVIEWED_NARRATIVE_CORRIDORS,
+  REVIEWED_ORDINARY_RESULT_EXCEPTIONS,
   REVIEWED_UNGATED_AGENCY_CHOICES,
+  REVIEWED_UNGATED_RESULT_CHOICES,
 } from '../src/game/narrativeFlow.js'
 import {
   NPC_IDENTITY_MODES,
@@ -46,7 +49,12 @@ const excludedOf = (entry) => {
 // be true in the same rendered scene. `from:a|b` values are alternatives, so
 // two route requirements remain compatible only when their sets overlap.
 const exclusiveSlot = (id) => {
-  let match = id.match(/^flag:([^:]+):(morning|day|evening|night)$/)
+  // The reducer exposes exactly one accepted action receipt for the current
+  // arrival. Distinct action-bound consequence lines therefore cannot render
+  // together, even when they lead back to the same physical scene.
+  let match = id.match(/^arrival:action:(.+)$/)
+  if (match) return ['arrival-action', match[1]]
+  match = id.match(/^flag:([^:]+):(morning|day|evening|night)$/)
   if (match) return [`greeting-result:${match[1]}`, match[2]]
   match = id.match(/^greeting:(.+)$/)
   if (match) return ['greeting', match[1]]
@@ -154,8 +162,8 @@ for (let start = 0; start <= openingEntries.length - 3; start += 1) {
   assert.equal(fragmented, false, 'the opening splits bridge, river and village into separate fact lines')
 }
 
-const assertNamedElira = (nodeId, status) => {
-  const active = new Set([npcIdentityConditionId('elira'), status])
+const assertNamedElira = (nodeId, status, arrivalConditions = []) => {
+  const active = new Set([npcIdentityConditionId('elira'), status, ...arrivalConditions])
   const lines = visibleLines(STORY[nodeId], (id) => active.has(id))
   const readings = lines.map(englishReadingOf)
   const anonymousSpeech = readings.filter((reading) => /^(?:Then )?(?:She|The woman) (?:says|asks)\b/.test(reading))
@@ -232,6 +240,145 @@ const consequenceSignature = (option) => JSON.stringify({
   effects: option.effects || [],
   questAction: option.questAction || null,
 })
+
+// Ordinary results are detected from the action that produced them, not from
+// node names or English copy. This keeps shopping, rewards, quest hand-ins,
+// healing, lodging, gifts and authored social results on one graph contract,
+// while endings and unrelated physical narration remain outside its scope.
+const ordinaryResultCategoryValues = new Set(Object.values(ORDINARY_RESULT_CATEGORIES))
+assert.deepEqual([...ordinaryResultCategoryValues].sort(), [
+  'dialogue', 'gift', 'healing', 'information', 'lodging', 'reward', 'shopping', 'task',
+], 'ordinary-result categories changed without a narrative-flow review')
+
+const optionTokenIds = (option) => new Set((option?.text || [])
+  .map((token) => token.id)
+  .filter(Boolean))
+
+const ordinaryResultCategoryOf = (sourceId, option) => {
+  if (option?.ordinaryResultCategory) return option.ordinaryResultCategory
+  const tokenIds = optionTokenIds(option)
+  if ((option?.lek || 0) < 0 && (option.time || option.atHour != null)) {
+    return ORDINARY_RESULT_CATEGORIES.LODGING
+  }
+  if (Number(option?.hearts) > 0) return ORDINARY_RESULT_CATEGORIES.HEALING
+  if ((option?.lek || 0) < 0) return ORDINARY_RESULT_CATEGORIES.SHOPPING
+  if ((option?.lek || 0) > 0 || option?.earns) return ORDINARY_RESULT_CATEGORIES.REWARD
+  if (option?.questAction) return ORDINARY_RESULT_CATEGORIES.TASK
+  if (option?.playerIntents?.includes('transfer') || (tokenIds.has('jep') && option?.consumes)) {
+    return ORDINARY_RESULT_CATEGORIES.GIFT
+  }
+  if (option?.intent === 'speech' || option?.playerIntents?.includes('speech')) {
+    return option.to !== sourceId ? ORDINARY_RESULT_CATEGORIES.DIALOGUE : null
+  }
+  return null
+}
+
+const choiceEntry = (option) => ({
+  cond: [].concat(option.requires || []),
+  none: [].concat(option.unless || []),
+})
+const hasConsequenceDistinctChoicePair = (options) => options.some((left, index) =>
+  options.slice(index + 1).some((right) =>
+    canAppearTogether([choiceEntry(left), choiceEntry(right)])
+      && consequenceSignature(left) !== consequenceSignature(right)))
+
+const exceptionIds = REVIEWED_ORDINARY_RESULT_EXCEPTIONS.map((entry) => entry.id)
+assert.equal(new Set(exceptionIds).size, exceptionIds.length,
+  'ordinary-result exception ids are not unique')
+const exceptionKeys = new Set()
+for (const exception of REVIEWED_ORDINARY_RESULT_EXCEPTIONS) {
+  const label = `ordinary-result exception ${exception.id}`
+  for (const field of ['id', 'rule', 'category', 'sourceNode', 'resultNode', 'rationale', 'evidence', 'owner', 'reviewTrigger']) {
+    assert.ok(typeof exception[field] === 'string' && exception[field].trim(), `${label}: missing ${field}`)
+  }
+  assert.equal(exception.rule, 'ordinary-result-agency', `${label}: wrong rule`)
+  assert.ok(ordinaryResultCategoryValues.has(exception.category), `${label}: unknown category`)
+  assert.ok(exception.rationale.length >= 100, `${label}: rationale is not concrete enough`)
+  assert.ok(exception.evidence.length >= 80, `${label}: evidence is not concrete enough`)
+  assert.ok(exception.reviewTrigger.length >= 50, `${label}: review trigger is not concrete enough`)
+  assert.ok(Number.isInteger(exception.maxGenuineContinuations) && exception.maxGenuineContinuations >= 1,
+    `${label}: continuation bound must be a positive integer`)
+  assert.ok(STORY[exception.sourceNode], `${label}: missing source node`)
+  assert.ok(STORY[exception.resultNode], `${label}: missing result node`)
+  const key = `${exception.category}:${exception.sourceNode}->${exception.resultNode}`
+  assert.equal(exceptionKeys.has(key), false, `${label}: duplicate exception scope ${key}`)
+  exceptionKeys.add(key)
+}
+
+const usedOrdinaryResultExceptions = new Set()
+const ordinaryResultFailures = []
+for (const [sourceId, source] of Object.entries(STORY)) {
+  for (const [optionIndex, option] of (source.options || []).entries()) {
+    if (option.confuser || !option.to || !STORY[option.to] || STORY[option.to].end) continue
+    const category = ordinaryResultCategoryOf(sourceId, option)
+    if (!category) continue
+    assert.ok(ordinaryResultCategoryValues.has(category),
+      `${sourceId}.options[${optionIndex}]: unknown ordinary-result category ${JSON.stringify(category)}`)
+
+    const resultOptions = realOptionsOf(option.to)
+    if (hasConsequenceDistinctChoicePair(resultOptions)) continue
+    const exception = REVIEWED_ORDINARY_RESULT_EXCEPTIONS.find((entry) =>
+      entry.category === category
+      && entry.sourceNode === sourceId
+      && entry.resultNode === option.to)
+    if (exception) {
+      assert.equal(resultOptions.length, exception.maxGenuineContinuations,
+        `${exception.id}: result no longer matches its exact reviewed continuation scope`)
+      usedOrdinaryResultExceptions.add(exception.id)
+      continue
+    }
+    ordinaryResultFailures.push(
+      `${category}: ${sourceId}.options[${optionIndex}] -> ${option.to} has ` +
+      `${resultOptions.length} genuine continuation(s) and no simultaneous consequence-distinct pair`,
+    )
+  }
+}
+assert.deepEqual(ordinaryResultFailures, [],
+  `ordinary result screen(s) remove agency:\n${ordinaryResultFailures.join('\n')}`)
+assert.deepEqual([...usedOrdinaryResultExceptions].sort(), [...exceptionIds].sort(),
+  'ordinary-result exceptions are stale, unused, or no longer describe a linear result')
+
+const ungatedResultReviewIds = REVIEWED_UNGATED_RESULT_CHOICES.map((review) => review.id)
+assert.equal(new Set(ungatedResultReviewIds).size, ungatedResultReviewIds.length,
+  'ungated-result review ids are not unique')
+const ungatedResultScopes = new Set()
+const ungatedResultPurposes = new Set(['accept', 'browse', 'return', 'stay', 'travel'])
+for (const review of REVIEWED_UNGATED_RESULT_CHOICES) {
+  const label = `ungated-result review ${review.id}`
+  for (const field of ['id', 'rule', 'category', 'sourceNode', 'resultNode', 'rationale', 'evidence', 'owner', 'reviewTrigger']) {
+    assert.ok(typeof review[field] === 'string' && review[field].trim(), `${label}: missing ${field}`)
+  }
+  assert.equal(review.rule, 'ungated-result-agency', `${label}: wrong rule`)
+  assert.ok(ordinaryResultCategoryValues.has(review.category), `${label}: unknown category`)
+  assert.ok(review.rationale.length >= 100, `${label}: rationale is not concrete enough`)
+  assert.ok(review.evidence.length >= 80, `${label}: evidence is not concrete enough`)
+  assert.ok(review.reviewTrigger.length >= 50, `${label}: review trigger is not concrete enough`)
+  assert.ok(STORY[review.sourceNode], `${label}: missing source node`)
+  assert.ok(STORY[review.resultNode], `${label}: missing result node`)
+  const scope = `${review.category}:${review.sourceNode}->${review.resultNode}`
+  assert.equal(ungatedResultScopes.has(scope), false, `${label}: duplicate review scope ${scope}`)
+  ungatedResultScopes.add(scope)
+
+  const incoming = realOptionsOf(review.sourceNode).filter((option) => option.to === review.resultNode)
+  assert.equal(incoming.length, 1, `${label}: exact reviewed incoming edge changed`)
+  assert.equal(ordinaryResultCategoryOf(review.sourceNode, incoming[0]), review.category,
+    `${label}: incoming action no longer has its reviewed result category`)
+
+  assert.ok(Array.isArray(review.options) && review.options.length >= 2,
+    `${label}: reviewed option scope must contain at least two choices`)
+  const options = realOptionsOf(review.resultNode)
+  assert.equal(options.length, review.options.length, `${label}: reviewed choice count changed`)
+  assert.ok(new Set(options.map(consequenceSignature)).size >= 2,
+    `${label}: reviewed result no longer has consequence-distinct agency`)
+  options.forEach((option, index) => {
+    const expected = review.options[index]
+    assert.deepEqual(Object.keys(expected || {}).sort(), ['purpose', 'to'],
+      `${label}[${index}]: option review must pin only exact destination and purpose`)
+    assert.ok(ungatedResultPurposes.has(expected.purpose), `${label}[${index}]: unknown option purpose`)
+    assert.equal(option.reveal, undefined, `${label}[${index}]: reviewed result choice gained a reveal gate`)
+    assert.equal(option.to, expected.to, `${label}[${index}]: reviewed result destination changed`)
+  })
+}
 
 for (const review of REVIEWED_NARRATIVE_CORRIDORS) {
   assert.equal(review.nodes.length, 3, `${review.id}: review must name the full three-node chain`)
@@ -341,9 +488,8 @@ const contentSource = readFileSync(fileURLToPath(new URL('../src/game/content.js
 assert.equal(contentSource.includes("'knows:npcName:elira'"), false,
   'story content bypasses the generic NPC identity helper with an Elira-specific condition')
 
-for (const status of ['rendezvous:eliraFollow:on-time', 'rendezvous:eliraFollow:late']) {
-  assertNamedElira('eliraBreg', status)
-}
+assertNamedElira('eliraBreg', 'rendezvous:eliraFollow:on-time', ['from:fshatiLumi'])
+assertNamedElira('eliraBreg', 'rendezvous:eliraFollow:late')
 for (const status of [
   'rendezvous:eliraFollow:on-time',
   'rendezvous:eliraFollow:late',

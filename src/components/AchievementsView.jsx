@@ -21,7 +21,7 @@ export default function AchievementsView({ state, dispatch }) {
   const earned = state.earned || {}
   const eligible = state.eligible || {}
   const [open, setOpen] = useState(null) // id of the expanded earned achievement
-  const [testing, setTesting] = useState(null) // { id, questions } of an open retake
+  const [testing, setTesting] = useState(null) // { id, questions, attempt } of an open retake
   const [failedId, setFailedId] = useState(null) // row showing a just-failed note
   const activeIdentity = embodimentIdentity(state)
   const roleTestLocked = Boolean(activeIdentity)
@@ -48,7 +48,7 @@ export default function AchievementsView({ state, dispatch }) {
       return
     }
     setFailedId(null)
-    setTesting({ id: a.id, questions })
+    setTesting({ id: a.id, questions, attempt: state.attempts?.[a.id] || 0 })
   }
 
   return (
@@ -151,13 +151,16 @@ export default function AchievementsView({ state, dispatch }) {
                 {isTesting && (
                   <ComprehensionTest
                     questions={testing.questions}
-                    onDone={(passed, consequence) => {
+                    onDone={(passed, miss) => {
                       setTesting(null)
                       if (passed) {
                         dispatch({ type: 'EARN_ACHIEVEMENT', id: a.id })
                         setOpen(a.id)
                       } else {
-                        dispatch({ type: 'COMP_WRONG', id: a.id, consequence })
+                        dispatch({
+                          type: 'COMP_WRONG', id: a.id, expectedAttempt: testing.attempt,
+                          questionIndex: miss.questionIndex, attemptedEnglish: miss.attemptedEnglish,
+                        })
                         setFailedId(a.id)
                       }
                     }}

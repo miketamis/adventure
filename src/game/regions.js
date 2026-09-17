@@ -65,7 +65,7 @@ export const REGION_OVERRIDES = Object.freeze({
   eliraShesh: 'village', eliraEmriShesh: 'village',
   eliraBanore: 'village', eliraEmriBanore: 'village', eliraPorosiaDorezuar: 'village',
   porosiaShesh: 'village',
-  pazariFshatit: 'village', pazariPerserit: 'village', porosiaBlerje: 'village', porosiaBlerjePergjigje: 'village',
+  pazariFshatit: 'village', porosiaBlerje: 'village', porosiaBlerjePergjigje: 'village',
   sofraMikut: 'village', sofraMikut2: 'village',
   prespaPyll: 'lake', prespaLiri: 'lake', prespaFund: 'lake',
   aliPashaLiqen: 'lake', aliPashaVdes: 'lake', aliPashaRob: 'lake',
@@ -88,7 +88,7 @@ export const REGION_OVERRIDES = Object.freeze({
   // emerging river source: the dry bed, the spring and the hand-cut channel.
   udha: 'forest', udheOra: 'forest', udhaThate: 'forest', ujkuUje: 'forest',
   lubia1: 'forest', lubiaKoke: 'forest', lubiaFund: 'forest',
-  pylliHumbur: 'forest', shtrigaLufta: 'forest',
+  pylliHumbur: 'forest', shtrigaLufta: 'forest', oraPyllBuke: 'forest', oraPyllKripe: 'forest',
   oraPyllBardhe: 'forest', oraPyllVerdhe: 'forest', oraPyllZeze: 'forest',
   udhaSyri: 'river', syriKanali: 'river', syriFund: 'river',
   halilGarria1: 'mountain', halilGarriaFund: 'mountain', halilGarriaKeq: 'mountain',

@@ -494,19 +494,28 @@ check('a correct greeting records the spoken reply and an incorrect one costs on
     state.discovered[id] = true
     state.mana[id] = 1
   }
+  for (const id of phraseSenses(wrong.text)) {
+    state.discovered[id] = true
+    state.mana[id] = 1
+  }
   const answered = reducer(state, {
     type: 'CHOOSE', option: correct, targetNode: STORY.tregtari,
     fromNodeId: state.nodeId, fromTurn: state.turn,
   })
   assert.equal(answered.flags.greetedTrader, true)
-  assert.equal(answered.flags['greetedTrader:evening'], true)
+  assert.equal(answered.flags['greetedTrader:evening'], undefined,
+    'the completed greeting persisted an obsolete period-specific flag')
   assert.equal(answered.clock, state.clock, 'a spoken response consumed an invented hour')
   assert.equal(STORY.tregtari.options.filter((option) =>
     option.contextGreeting && hasRequiredItem(answered, option),
   ).length, 0, 'the completed greeting remained in the action list')
   assert.equal(reducer(state, {
     type: 'CONFUSE',
+    optionId: `opt-${STORY.tregtari.options.indexOf(wrong)}`,
+    optionIndex: STORY.tregtari.options.indexOf(wrong),
     expectedHearts: state.hearts,
+    fromNodeId: state.nodeId,
+    fromTurn: state.turn,
     consequence: {
       source: 'story-confuser',
       eventId: 'story-context:greeting-miss',

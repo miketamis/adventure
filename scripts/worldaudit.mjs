@@ -24,13 +24,11 @@ import {
   DISTANCE_WORDS,
   MOVEMENT_VERBS,
   ROUTE_THRESHOLDS,
-  STRUCTURAL_EXCEPTIONS,
   WORLD_AXES,
   WORLD_MODEL_VERSION,
   buildRouteGraph,
   crossingFor,
   distantSightlineFor,
-  exceptionFor,
   isEnclosedScene,
   isDistantLineVisible,
   reconstructChart,
@@ -39,6 +37,11 @@ import {
   tokenIds,
   transitionInfo,
 } from '../src/game/worldModel.js'
+import {
+  STRUCTURAL_EXCEPTIONS,
+  exceptionFor,
+  structuralExceptionRegistryIssues,
+} from '../src/game/worldStructuralExceptions.js'
 
 const diagnostics = []
 const strict = process.argv.includes('--strict')
@@ -528,14 +531,12 @@ else ok('prose.sightline-coverage', `all ${horizonLines.length} attributable dis
   individuallyAuthoredConditions: `${conditionedFar.length}/${farLines.length}`,
 })
 
-// 9. Every exception has enough evidence to be reviewed and names real edges.
-const malformedExceptions = []
-for (const entry of STRUCTURAL_EXCEPTIONS) {
-  for (const field of ['id', 'rule', 'reason', 'source', 'owner', 'review']) if (!entry[field]) malformedExceptions.push(`${entry.id || '?'}: missing ${field}`)
-  for (const edge of entry.edges || []) if (!routeByEdge.has(edge)) malformedExceptions.push(`${entry.id}: unknown edge ${edge}`)
-}
+// 9. Every exception is an exact, bounded record with a stable owner, source,
+// review trigger and live node/edge target. mapaudit additionally proves that
+// each target still suppresses the precise violation named by its rule.
+const malformedExceptions = structuralExceptionRegistryIssues()
 if (malformedExceptions.length) fail('exceptions.invalid', 'structural exception records are incomplete', malformedExceptions)
-else ok('exceptions.valid', `all ${STRUCTURAL_EXCEPTIONS.length} structural exceptions are attributable and reviewable`)
+else ok('exceptions.valid', `all ${STRUCTURAL_EXCEPTIONS.length} structural exception records are attributable, bounded and referentially live`)
 
 // 10. Lore traceability beyond line coverage: playable scene mappings must be
 // complete enough to trace each projection to an original beat. Absence and

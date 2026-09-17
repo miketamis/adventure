@@ -79,15 +79,14 @@ export default {
       learn: {
         vow: [
           ['odaPlak', 'the old man of the oda'],
-          ['pallatRojePse', 'the palace guard'],
+          ['pallatRoje', 'the palace guard'],
         ],
         schoolRoad: [
           ['diellKopshtFol', 'the maiden recounts it in the garden'],
         ],
         taken: [
           ['odaPlak', 'the old man of the oda'],
-          ['pallatRojePse', 'the palace guard'],
-          ['pallatRojeZi', 'the guard · black walls'],
+          ['pallatRoje', 'the palace guard · black walls'],
         ],
         houseGuest: [
           ['diellShtepi1', 'witnessed in the Sun\'s house'],

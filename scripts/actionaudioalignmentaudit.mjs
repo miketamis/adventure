@@ -7,10 +7,37 @@ import {
   actionTranscriptWords,
   collectAcceptedActionSurfaces,
 } from './lib/action-audio-surfaces.mjs'
+import { STORY } from '../src/game/content.js'
+import { newRun } from '../src/game/gameState.js'
+import {
+  CERTIFIED_DYNAMIC_ITEM_CONFUSER_ITEM_IDS,
+  certifiedDynamicItemConfuserSurfaces,
+  storyConfuserCandidates,
+} from '../src/game/storyConfusers.js'
+import { albanianTextOf } from '../src/game/language.js'
 
 const ROOT = resolve(import.meta.dirname, '..')
 const manifest = JSON.parse(readFileSync(resolve(ROOT, 'public/audio/action-timings.json'), 'utf8'))
 const surfaces = collectAcceptedActionSurfaces()
+const surfaceSet = new Set(surfaces)
+
+let confuserCount = 0
+for (const [nodeId, node] of Object.entries(STORY)) {
+  const candidates = storyConfuserCandidates({ ...newRun(), nodeId })
+  assert.equal(candidates.filter((candidate) => candidate.kind === 'authored').length,
+    (node.options || []).filter((option) => option.confuser).length,
+    `${nodeId}: accepted confuser enumeration omitted an authored surface`)
+  for (const candidate of candidates) {
+    assert.ok(surfaceSet.has(albanianTextOf(candidate.tokens)),
+      `${nodeId}/${candidate.key}: canonical confuser omitted from audio enumeration`)
+    confuserCount++
+  }
+}
+assert.equal(
+  certifiedDynamicItemConfuserSurfaces().length,
+  CERTIFIED_DYNAMIC_ITEM_CONFUSER_ITEM_IDS.length,
+  'certified generated-confuser registry does not map one-to-one to exact surfaces',
+)
 
 assert.equal(manifest.version, 1)
 assert.equal(manifest.method, 'azure-word-boundary-correlated-to-stored-mp3')
@@ -67,4 +94,4 @@ assert.match(component, /word\.endMs/)
 assert.doesNotMatch(component, /--karaoke-progress|boundedProgress/,
   'runtime fell back to an unaligned whole-line sweep')
 
-console.log(`✓ ${surfaces.length} accepted actions use hash-bound, waveform-correlated word timing; unreliable syllable splits are omitted.`)
+console.log(`✓ ${surfaces.length} accepted actions (${confuserCount} canonical confusers) use hash-bound, waveform-correlated word timing; unreliable syllable splits are omitted.`)

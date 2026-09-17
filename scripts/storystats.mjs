@@ -1,7 +1,11 @@
 // Story validation + depth stats. Run: node scripts/storystats.mjs
 import { STORY, START_NODE, DICT, DEFS, ITEMS, lineOf, moneyOutcomeLinesOf } from '../src/game/content.js'
 import { RICH_ENDING_BY_ID } from '../src/game/endingCatalog.js'
-import { REVIEWED_UNGATED_AGENCY_CHOICES } from '../src/game/narrativeFlow.js'
+import {
+  ORDINARY_RESULT_CATEGORIES,
+  REVIEWED_UNGATED_AGENCY_CHOICES,
+  REVIEWED_UNGATED_RESULT_CHOICES,
+} from '../src/game/narrativeFlow.js'
 import { analyzeDiscovery, sensesOf } from './lib/discovery.mjs'
 
 const nodes = STORY
@@ -171,12 +175,78 @@ for (const id of nonEnd) {
   for (const o of real) { const n = phraseNoun(o.text); if (n && textIds.has(n)) { gateableTotal++; if (o.reveal) gateableGated++ } }
 }
 
+// An ordinary result may intentionally expose all of its next routes: the
+// purchase, gift, stay or cure has already been decoded and committed. Keep
+// those decisions in exact structured records so a new option, destination,
+// reveal gate, source edge or result category cannot inherit a broad bypass.
+const ungatedResultReviewErrors = []
+const ungatedResultReviewByNode = new Map()
+const ungatedResultReviewIds = new Set()
+const ungatedResultReviewScopes = new Set()
+const ungatedResultCategories = new Set(Object.values(ORDINARY_RESULT_CATEGORIES))
+const ungatedResultPurposes = new Set(['accept', 'browse', 'return', 'stay', 'travel'])
+const requiredUngatedResultFields = [
+  'id', 'rule', 'category', 'sourceNode', 'resultNode',
+  'rationale', 'evidence', 'owner', 'reviewTrigger',
+]
+for (const review of REVIEWED_UNGATED_RESULT_CHOICES) {
+  const label = `ungated-result review ${review?.id || '(missing id)'}`
+  for (const field of requiredUngatedResultFields) {
+    if (typeof review?.[field] !== 'string' || !review[field].trim()) {
+      ungatedResultReviewErrors.push(`${label}: missing ${field}`)
+    }
+  }
+  if (review?.rule !== 'ungated-result-agency') ungatedResultReviewErrors.push(`${label}: wrong rule`)
+  if (!ungatedResultCategories.has(review?.category)) ungatedResultReviewErrors.push(`${label}: unknown category`)
+  if ((review?.rationale || '').length < 100) ungatedResultReviewErrors.push(`${label}: rationale is not concrete enough`)
+  if ((review?.evidence || '').length < 80) ungatedResultReviewErrors.push(`${label}: evidence is not concrete enough`)
+  if ((review?.reviewTrigger || '').length < 50) ungatedResultReviewErrors.push(`${label}: review trigger is not concrete enough`)
+  if (ungatedResultReviewIds.has(review?.id)) ungatedResultReviewErrors.push(`${label}: duplicate id`)
+  ungatedResultReviewIds.add(review?.id)
+
+  const scope = `${review?.category}:${review?.sourceNode}->${review?.resultNode}`
+  if (ungatedResultReviewScopes.has(scope)) ungatedResultReviewErrors.push(`${label}: duplicate scope ${scope}`)
+  ungatedResultReviewScopes.add(scope)
+  if (ungatedResultReviewByNode.has(review?.resultNode)) {
+    ungatedResultReviewErrors.push(`${label}: result node ${review?.resultNode} already has a review`)
+  }
+  ungatedResultReviewByNode.set(review?.resultNode, review)
+
+  const source = nodes[review?.sourceNode]
+  const result = nodes[review?.resultNode]
+  if (!source) ungatedResultReviewErrors.push(`${label}: missing source node ${review?.sourceNode}`)
+  if (!result || result.end) ungatedResultReviewErrors.push(`${label}: missing or ending result node ${review?.resultNode}`)
+  const incoming = (source?.options || []).filter((option) => !option.confuser && option.to === review?.resultNode)
+  if (incoming.length !== 1) ungatedResultReviewErrors.push(`${label}: exact reviewed incoming edge changed`)
+
+  if (!Array.isArray(review?.options) || review.options.length < 2) {
+    ungatedResultReviewErrors.push(`${label}: option scope must pin at least two choices`)
+    continue
+  }
+  const liveOptions = (result?.options || []).filter((option) => !option.confuser)
+  if (liveOptions.length !== review.options.length) {
+    ungatedResultReviewErrors.push(`${label}: choice count grew or shrank (${liveOptions.length} != ${review.options.length})`)
+  }
+  review.options.forEach((expected, index) => {
+    if (Object.keys(expected || {}).sort().join(',') !== 'purpose,to') {
+      ungatedResultReviewErrors.push(`${label}[${index}]: review must pin only exact destination and purpose`)
+    }
+    if (!ungatedResultPurposes.has(expected?.purpose)) ungatedResultReviewErrors.push(`${label}[${index}]: unknown purpose`)
+    const actual = liveOptions[index]
+    if (!actual) return
+    if (actual.reveal != null) ungatedResultReviewErrors.push(`${label}[${index}]: choice gained a reveal gate`)
+    if (actual.to !== expected?.to) ungatedResultReviewErrors.push(`${label}[${index}]: destination changed`)
+  })
+}
+
 // Riddle answers and mutually-exclusive resolution buttons should all remain
 // visible. They are deliberately not sentence-reveal puzzles on top of the
 // comprehension/state puzzle already being resolved.
 const REVIEWED_UNGATED_ONLY = Object.freeze({
   ...Object.fromEntries(Object.entries(REVIEWED_UNGATED_AGENCY_CHOICES)
     .map(([nodeId, review]) => [nodeId, review.reason])),
+  ...Object.fromEntries(REVIEWED_UNGATED_RESULT_CHOICES
+    .map((review) => [review.resultNode, review.rationale])),
   shpellaRruget: 'three-road comprehension riddle',
   tsBeteje: 'mutually-exclusive ending resolution based on embodied mountain',
   djepi3: 'three-answer comprehension riddle',
@@ -184,12 +254,23 @@ const REVIEWED_UNGATED_ONLY = Object.freeze({
   bisedaUraPlan: 'the learner makes a real location choice after decoding the same planning question',
   bisedaShesh: 'today and tomorrow are mutually-exclusive practical time answers',
   bisedaKroi: 'today and tomorrow are mutually-exclusive practical time answers',
+  bisedaFollowAgree: 'confirming the new follow plan and deferring it are both immediately available speech choices',
   eliraBreg: 'name, help and polite-decline responses remain visible as one natural conversation turn',
   eliraEmriBreg: 'accepting or declining the errand remains a direct conversational choice',
   eliraShesh: 'name, help and polite-decline responses remain visible as one natural conversation turn',
   eliraEmriShesh: 'accepting or declining the errand remains a direct conversational choice',
   eliraBanore: 'the available quest response and asking a recurring NPC her name remain visible together',
   porosiaShesh: 'the learner may leave immediately or ask one of three optional errand questions before applying the answer in the world',
+  porosiaBlerje: 'the learner may answer the child or leave the market without being forced to speak after buying',
+  sofraMikut: 'accepting the hospitality and returning to the square are both immediate choices at the guest-room door',
+  punaKripe: 'after being paid, the worker may stay by the salt pans or return to the village without a vocabulary gate',
+  shitjaCaj: 'after the sale, returning to the trader or walking into the square must both remain immediately available',
+  kengaJutbina: 'after a paid performance, staying among the towers or returning to the summit are ordinary visible routes',
+  punaBariu: 'after a paid shift, the traveller may remain with the shepherd or return to the village immediately',
+  kengaLahute: 'after a paid song, staying with the travellers or leaving them must both remain immediately available',
+  punaMulli: 'after the mill wage, the worker may stay inside or step back to the river without another reveal gate',
+  punaTabak: 'after the tannery wage, the worker may remain by the hides or return to the river immediately',
+  uraArtes2: 'the learner chooses between two distinct bridge-building materials already established in the scene',
   rrugaOdes: 'left and right remain ordinary physical choices so the learner applies remembered directions without a reveal gate',
   gruaUji1: 'the learner chooses which optional question to ask; discovery gates must not prescribe a conversation order',
   eliraBiseda: 'conversation topics stay mutually available until the player chooses one',
@@ -273,7 +354,8 @@ if (brokenGates.length) console.log('   BROKEN:\n   ' + brokenGates.join('\n   '
 console.log(`${ok(!noUngated.length)} every node keeps >=1 ungated option:${noUngated.length ? ' VIOLATIONS -> ' + noUngated.join(', ') : ' yes'}`)
 console.log(`${ok(!unreviewedUngatedOnly.length && !staleUngatedReviews.length)} multi-option nodes with no reveal gate are reviewed: ${ungatedOnly.length}` +
   (unreviewedUngatedOnly.length ? `\n   UNREVIEWED: ${unreviewedUngatedOnly.join(', ')}` : '') +
-  (staleUngatedReviews.length ? `\n   STALE REVIEWS: ${staleUngatedReviews.join(', ')}` : ''))
+  (staleUngatedReviews.length ? `\n   STALE REVIEWS: ${staleUngatedReviews.join(', ')}` : '') +
+  (ungatedResultReviewErrors.length ? `\n   MALFORMED RESULT REVIEWS:\n   ${ungatedResultReviewErrors.join('\n   ')}` : ''))
 console.log(`   options gated: ${gatedReal}/${totalReal} (${(100*gatedReal/totalReal).toFixed(0)}% of all); of options that act on something described in the scene, ${gateableGated}/${gateableTotal} (${(100*gateableGated/gateableTotal).toFixed(0)}%) gated`)
 console.log('')
 console.log('--- DISTRACTOR LEGIBILITY (confusers built from already-discovered words) ---')
@@ -282,6 +364,6 @@ console.log(`${ok(!climbDistractors.length)} no "climb a climbable thing" distra
 
 if (deadLinks.length || unreachable.length || deadEnds.length || missingDict.size || missingDefs.length || noConfuser.length ||
     brokenGates.length || noUngated.length || unreviewedCompact.length || staleCompactReviews.length || abruptCompact.length ||
-    unreviewedUngatedOnly.length || staleUngatedReviews.length || illegibleConfusers.length || climbDistractors.length) {
+    unreviewedUngatedOnly.length || staleUngatedReviews.length || ungatedResultReviewErrors.length || illegibleConfusers.length || climbDistractors.length) {
   process.exitCode = 1
 }

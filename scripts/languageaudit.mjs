@@ -117,12 +117,11 @@ for (const [address, review] of Object.entries(REVIEWED_OPTION_READINGS)) {
 }
 
 // The same Albanian action should not acquire different English merely because
-// it landed in another generated registry tranche. Two phrases genuinely
-// depend on scene context; pin their complete allowed sets so this exception
+// it landed in another generated registry tranche. One phrase genuinely
+// depends on scene context; pin its complete allowed set so this exception
 // list cannot become a blanket bypass for future drift.
 const CONTEXT_SENSITIVE_OPTION_READINGS = new Map([
   ['ec rrugës', new Set(['Walk along the road.', 'Walk along the lane.'])],
-  ['merr diellin', new Set(['Take the sun.', 'Take the Sun.'])],
 ])
 const optionEnglishByAlbanian = new Map()
 for (const review of Object.values(REVIEWED_OPTION_READINGS)) {
@@ -231,11 +230,11 @@ for (const [id, item] of Object.entries(ITEMS)) {
 const KNOWN_OPTION_REPAIRS = {
   'binoshetDasma.options[0]': 'Stay at the celebration for nine days.',
   'gjarperBurr1.options[0]': 'Stay calm.',
-  'gjizarUdha.options[0]': 'Stay with the sisters for three months.',
+  'gjizarUdha.options[4]': 'Stay with the sisters for three months.',
   'ngjitja1.options[0]': 'Stay calm.',
   'karkanxholl1.options[0]': 'Stay calm.',
   'pallatRoje.options[0]': 'Why is the palace black?',
-  'patatGruaja.options[1]': 'Stay calm.',
+  'patatGruaja.options[2]': 'Stay calm.',
   'qeniGate.options[0]': 'The Ora helps you.',
   'kordha2.options[1]': 'Stay calm.',
   'uraVellezerit.options[0]': 'Say: “I am Kiço, your brother.”',

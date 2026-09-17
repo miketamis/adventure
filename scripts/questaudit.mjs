@@ -199,7 +199,10 @@ check('turn-in completes in place; following to the guest-room remains a separat
   assert.equal(questStatusOf(after, Q), 'completed')
   assert.equal(after.quests[Q].completedAtClock, after.quests[Q].turnedInAtClock)
   assert.equal(questActionEffectsOf(option).some((effect) => effect.type === 'resource'), false)
-  const duplicate = reducer(after, { type: 'CHOOSE', option, targetNode: STORY[option.to] })
+  const duplicate = reducer(after, {
+    type: 'CHOOSE', option, targetNode: STORY[option.to],
+    fromNodeId: after.nodeId, fromTurn: after.turn,
+  })
   assert.equal(duplicate, after)
   assert.equal(duplicate.inventory.buke, 1)
   assert.equal(duplicate.inventory.kripe, 2)

@@ -1,13 +1,11 @@
 // Whole-graph agency gate for the one-intention-per-choice contract.
 //
-// Structural and explicitly authored bundles fail the release. Older choices
-// whose English editorial reading merely suggests a possible bundle are
-// printed as review candidates: those readings help migration, but are not a
-// trustworthy enough source of truth to reject playable content by themselves.
+// Structural, explicitly authored, and editorially inferred bundles all fail
+// the release. A conservative lexical candidate must be resolved by splitting
+// the action or by declaring one reviewed player intention.
 import assert from 'node:assert/strict'
 import { STORY } from '../src/game/content.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
-import { englishReadingOf } from '../src/game/language.js'
 import {
   choiceSemanticsIssues,
   compoundIntentIssues,
@@ -15,7 +13,6 @@ import {
 } from '../src/game/choiceSemantics.js'
 
 const failures = []
-const candidates = []
 let choices = 0
 let explicit = 0
 
@@ -54,15 +51,40 @@ assert.ok(
   }, fixturePlaceOf).candidatePairs.includes('acquisition+observation'),
   'lexical inspect-and-take candidate disappeared',
 )
-assert.deepEqual(
-  compoundIntentReview('here', {
+assert.ok(
+  compoundIntentIssues('here', {
+    choiceReading: 'Inspect the box, then take the key.',
+    to: 'here',
+  }, fixturePlaceOf).length > 0,
+  'a lexical compound-intent candidate did not fail the release',
+)
+assert.ok(
+  compoundIntentIssues('here', {
     choiceReading: 'Inspect the box, then take the key.',
     playerIntents: ['observation'],
     effects: [{ type: 'inventory', id: 'key', delta: 1 }],
     to: 'here',
-  }, fixturePlaceOf).candidatePairs,
+  }, fixturePlaceOf).length > 0,
+  'a reviewed single intention incorrectly suppressed an acquisition effect',
+)
+assert.deepEqual(
+  compoundIntentIssues('here', {
+    choiceReading: 'Wait a moment; I have a question.',
+    playerIntents: ['speech'],
+    to: 'here',
+  }, fixturePlaceOf),
   [],
-  'a reviewed single intention did not suppress lexical/effect-only review noise',
+  'speech content was mistaken for an independently performed wait',
+)
+assert.deepEqual(
+  compoundIntentIssues('here', {
+    choiceReading: 'Please give me the bread.',
+    playerIntents: ['transaction'],
+    effects: [{ type: 'inventory', id: 'bread', delta: 1 }],
+    to: 'here',
+  }, fixturePlaceOf),
+  [],
+  'the inseparable request-and-receipt inside a local transaction was rejected',
 )
 assert.ok(
   compoundIntentIssues('here', {
@@ -84,21 +106,8 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     for (const issue of compoundIntentIssues(nodeId, option, PLACE_OF)) {
       failures.push(`${label}: ${issue}`)
     }
-    if (review.candidatePairs.length) candidates.push({
-      label,
-      pairs: review.candidatePairs.join(', '),
-      reading: englishReadingOf(option.text),
-    })
   }
 }
 
 assert.deepEqual(failures, [], `compound-intent release failures:\n${failures.join('\n')}`)
-
-if (candidates.length) {
-  console.log(`ℹ️ ${candidates.length} non-blocking compound-intent review candidate(s):`)
-  for (const candidate of candidates.slice(0, 20)) {
-    console.log(`  ${candidate.label} [${candidate.pairs}] ${candidate.reading}`)
-  }
-  if (candidates.length > 20) console.log(`  … ${candidates.length - 20} more; add explicit playerIntents while editing those choices`)
-}
-console.log(`✅ ${choices} choices checked: no definite compound intentions (${explicit} explicitly classified)`)
+console.log(`✅ ${choices} choices checked: no compound intentions (${explicit} explicitly classified)`)

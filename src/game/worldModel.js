@@ -8,8 +8,9 @@
 import { STORY } from './content.js'
 import { NODE_POS, PLACE_OF } from '../components/nodePositions.js'
 import { NODE_REGION, REGIONS, isWander } from './regions.js'
+import { isProjectionBoundary } from './worldProjectionBoundaries.js'
 
-export const WORLD_MODEL_VERSION = 3
+export const WORLD_MODEL_VERSION = 4
 
 // This is a mythic composite chart, not a survey map of Albania. Its axes are
 // narrative: the forest is to the left, the sea-road to the right, the divine
@@ -107,46 +108,6 @@ export const WORLD_BARRIERS = Object.freeze([
   },
 ])
 
-// Exceptions are records, not silent allowlists.  An exception must say what
-// invariant it relaxes, why the story needs it and who should review it.
-export const STRUCTURAL_EXCEPTIONS = Object.freeze([
-  {
-    id: 'wolf-drags-fallen-sleeper-to-den',
-    rule: 'interaction-distance',
-    edges: ['gjumi->eaten'],
-    reason: 'The fatal struggle begins at the sleeping place; after the player falls, the wolf drags them to its deep-forest den.',
-    source: 'content: gjumi outcome prose',
-    owner: 'narrative',
-    review: 'if the fatal outcome gains an explicit intermediate consequence scene',
-  },
-  {
-    id: 'sun-stag-carries-maiden-home',
-    rule: 'interaction-distance',
-    edges: ['pemaDielli->rrugaDielli2'],
-    reason: 'The player speaks at the tree and the stag then carries the maiden over the entire road home before the target scene opens.',
-    source: 'content: pemaDielli option and rrugaDielli2 arrival',
-    owner: 'narrative',
-    review: 'when the flight home gains intermediate journey scenes',
-  },
-  {
-    id: 'winds-hollow-on-sky-lip',
-    rule: 'direction-language',
-    edges: ['qiell1->qiellErera1'],
-    reason: 'The ascent language describes the route through the sky realm; the intermediate winds hollow is drawn on the plateau lip before the route reaches the higher storm node.',
-    source: 'content: qiell1 and qiellErera1 sky-route prose',
-    owner: 'world-map',
-    review: 'when the winds route gains an intermediate ascent coordinate',
-  },
-  {
-    id: 'embodied-tale-projections',
-    rule: 'interaction-distance',
-    edges: ['pylli1->prespaPyll', 'pusi->sari1', 'sari1->pusi', 'maja->argjiroKala', 'deti1->aliPashaLiqen'],
-    reason: 'These choices deliberately cross from the overworld frame into an embodied folklore projection at its geographically distinct setting.',
-    source: 'tale play metadata: legjenda-e-prespes, sari-salltek and argjiro-gjirokastra',
-    owner: 'lore',
-    review: 'when projection entrances receive a dedicated transition treatment',
-  },
-])
 
 export const tokenIds = (tokens = []) => tokens.filter((token) => token && token.id).map((token) => token.id)
 
@@ -234,8 +195,7 @@ export function routeForChoice(from, option) {
   const movementVerbId = ids.find((id) => MOVEMENT_VERBS.has(id)) || null
   const movementVerb = Boolean(movementVerbId)
   const interactionVerb = INTERACTION_VERBS.has(verb)
-  const edge = `${from}->${to}`
-  const projection = exceptionFor('interaction-distance', edge)?.id === 'embodied-tale-projections'
+  const projection = isProjectionBoundary(from, to)
   // Physical identity comes from PLACE_OF, never from a distance threshold.
   // Two nearby coordinates remain two places; otherwise a player following
   // the prose would quietly lose sixteen shops, banks, thresholds and paths.
@@ -407,9 +367,6 @@ export function reconstructChart(routes = buildRouteGraph()) {
   }
 }
 
-export function exceptionFor(rule, edge) {
-  return STRUCTURAL_EXCEPTIONS.find((entry) => entry.rule === rule && entry.edges.includes(edge)) || null
-}
 
 export function crossingFor(from, to) {
   const regions = new Set([NODE_REGION[from] || 'village', NODE_REGION[to] || 'village'])

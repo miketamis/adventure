@@ -21,6 +21,7 @@ const authoredChunk = (id) => {
   }
   if (path.includes('/node_modules/')) return 'react-vendor'
   if (path.endsWith('/src/game/content.js')) return 'story-graph'
+  if (path.endsWith('/src/game/language.js')) return 'language-runtime'
   if (path.endsWith('/src/components/nodePositions.js')) return 'world-layout'
   if (
     path.endsWith('/src/game/stateMechanics.js') ||
@@ -64,6 +65,36 @@ const memberExpressionRoot = (node) => {
   let current = node
   while (current?.type === 'MemberExpression') current = current.object
   return current
+}
+
+const stripStoryAuditMetadata = (code, ast) => {
+  const replacements = []
+  walkAst(ast, (candidate) => {
+    if (
+      candidate.type === 'CallExpression' &&
+      candidate.callee?.type === 'Identifier' &&
+      candidate.callee.name === 'S' &&
+      candidate.arguments?.[0]
+    ) {
+      const line = candidate.arguments[0]
+      replacements.push([candidate.start, candidate.end, code.slice(line.start, line.end)])
+    }
+    if (candidate.type !== 'ObjectExpression') return
+    const properties = candidate.properties || []
+    for (const [index, property] of properties.entries()) {
+      if (property.type !== 'Property' || astPropertyName(property.key) !== 'actionSemantics') continue
+      const next = properties[index + 1]
+      const previous = properties[index - 1]
+      if (next) replacements.push([property.start, next.start, ''])
+      else if (previous) replacements.push([previous.end, property.end, ''])
+      else replacements.push([property.start, property.end, ''])
+    }
+  })
+  let transformed = code
+  for (const [start, end, replacement] of replacements.sort(([left], [right]) => right - left)) {
+    transformed = `${transformed.slice(0, start)}${replacement}${transformed.slice(end)}`
+  }
+  return transformed
 }
 
 const stripStoryReadings = (code, ast) => {
@@ -185,7 +216,11 @@ const deferStoryReadings = () => ({
   transform(code, rawId) {
     const id = rawId.split('?')[0].replaceAll('\\', '/')
     if (!id.endsWith('/src/game/content.js')) return null
-    return { code: stripStoryReadings(code, this.parse(code)), map: null }
+    const withoutAuditMetadata = stripStoryAuditMetadata(code, this.parse(code))
+    return {
+      code: stripStoryReadings(withoutAuditMetadata, this.parse(withoutAuditMetadata)),
+      map: null,
+    }
   },
 })
 
@@ -204,6 +239,8 @@ export default defineConfig({
     // raw and gzip release budgets live in scripts/bundleaudit.mjs; this limit
     // keeps Vite's generic warning useful for chunks the project has not
     // explicitly measured.
-    chunkSizeWarningLimit: 800,
+    // Decimal-kB counterpart to the binary 805 KiB authored-chunk release
+    // ceiling in bundleaudit.mjs.
+    chunkSizeWarningLimit: 824,
   },
 })

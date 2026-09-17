@@ -58,7 +58,6 @@ export const PHRASE_NOUN_ROLES = Object.freeze({
   'drink-from-bottle': { uje: 'indefAcc', shishe: 'defNom' },
   'open-umbrella': { cader: 'defAcc' },
   'wash-hands-soap': { dore: 'plDef', sapun: 'indefAcc' },
-  'going-guest-room': { oda: 'indefAcc' },
   'happy-going-home': { shtepi: 'indefAcc' },
   'take-care-tonight': { rruge: 'defDat' },
 })

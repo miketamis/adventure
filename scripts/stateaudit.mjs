@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { ITEMS, STORY } from '../src/game/content.js'
+import { ITEMS, STORY, lineOf, visibleLines } from '../src/game/content.js'
 import {
   FESTIVAL_IDS,
   START_CLOCK,
@@ -58,6 +58,7 @@ import {
   scheduleRendezvous,
 } from '../src/game/stateMechanics.js'
 import { NPCS } from '../src/game/npcs.js'
+import { resolveRevealLine } from '../src/game/revealResolver.js'
 import coreVillageNpcs from '../src/game/data/npcs/core-village.js'
 import {
   knowsNpcIdentity,
@@ -546,6 +547,18 @@ check('flags and learned knowledge are separate, save-safe state', () => {
   assert.deepEqual(continued.flags, {})
 })
 
+check('retired answer pages migrate into their in-place conversations', () => {
+  const fresh = newRun()
+  for (const [nodeId, targetNodeId] of Object.entries({
+    pallatRojeZi: 'pallatRoje',
+    pallatRojePse: 'pallatRoje',
+    pazariPerserit: 'pazariFshatit',
+  })) {
+    const restored = normalizeSavedState({ ...fresh, nodeId }, fresh)
+    assert.equal(restored.nodeId, targetNodeId, `${nodeId} save fell back to the story opening`)
+  }
+})
+
 check('identified interactions enforce scene, day, tale, run, cooldown, and reducer limits', () => {
   // Scene means authored-node lifetime within this run, not a transient visit.
   // Leaving and returning to the same node must not silently reset it.
@@ -611,18 +624,18 @@ check('identified interactions enforce scene, day, tale, run, cooldown, and redu
 
   // Exercise the actual reducer boundary with a harmless authored self-loop;
   // restore the imported content object even if an assertion fails.
-  const repeat = STORY.pazariPerserit.options.find((option) => option.to === 'pazariPerserit')
+  const repeat = STORY.pazariFshatit.options.find((option) => option.conversationHub?.questionId === 'repair')
   const prior = repeat.interaction
   try {
     repeat.interaction = { id: 'audit-repeat', scope: 'run', once: true }
     const ids = phraseSenses(repeat.text)
-    const ready = stateAt('pazariPerserit', 30, {
+    const ready = stateAt('pazariFshatit', 30, {
       discovered: Object.fromEntries(ids.map((id) => [id, true])),
       mana: Object.fromEntries(ids.map((id) => [id, 2])),
     })
     assert.equal(interactionAvailabilityForOption(ready, repeat).ok, true)
     const action = {
-      type: 'CHOOSE', option: repeat, targetNode: STORY.pazariPerserit,
+      type: 'CHOOSE', option: repeat, targetNode: STORY.pazariFshatit,
       fromNodeId: ready.nodeId, fromTurn: ready.turn,
     }
     const chosen = reducer(ready, action)
@@ -724,12 +737,18 @@ check('rendezvous promises keep their clock, classify arrivals, walk real NPCs, 
     })
     assert.equal(optionNpcStartsAreValid(agreement), true)
     assert.equal(rendezvousAvailabilityForOption(state, agreement).ok, true)
-    state = reducer(state, { type: 'CHOOSE', option: agreement, targetNode: STORY.start })
+    state = reducer(state, {
+      type: 'CHOOSE', option: agreement, targetNode: STORY.start,
+      fromNodeId: state.nodeId, fromTurn: state.turn,
+    })
     assert.equal(state.nodeId, 'start', 'agreeing to a rendezvous moved the player')
     assert.equal(state.clock, 13, 'agreeing to a rendezvous advanced the player clock')
     assert.equal(state.npcStarted[npcId], 13)
     assert.equal(npcNodeOf(state, npcId), 'start')
-    state = reducer(state, { type: 'CHOOSE', option: crossing, targetNode: STORY.fshatiLumi })
+    state = reducer(state, {
+      type: 'CHOOSE', option: crossing, targetNode: STORY.fshatiLumi,
+      fromNodeId: state.nodeId, fromTurn: state.turn,
+    })
     assert.equal(state.nodeId, 'fshatiLumi')
     assert.equal(state.clock, 14)
     assert.equal(npcNodeOf(state, npcId), 'fshatiLumi')
@@ -799,7 +818,16 @@ check('playable content exercises limits, hidden knowledge, and fixture actions 
   const paidDaily = authored.find(({ option }) =>
     option.interaction?.scope === 'day' && (option.lek || 0) > 0)
   assert.ok(paidDaily, 'no paid daily interaction is playable')
-  const wageIds = phraseSenses(paidDaily.option.text)
+  const wageReveal = resolveRevealLine(
+    STORY[paidDaily.nodeId].text.map(lineOf),
+    paidDaily.option,
+  )
+  assert.ok(['unique', 'selected'].includes(wageReveal.status),
+    'paid daily interaction has no exact authored reveal')
+  const wageIds = [...new Set([
+    ...phraseSenses(paidDaily.option.text),
+    ...phraseSenses(wageReveal.line),
+  ])]
   const wageBefore = stateAt(paidDaily.nodeId, 27, {
     inventory: { lahute: 1 },
     observations: paidDaily.option.attentionGate
@@ -1174,11 +1202,13 @@ check('every multi-day or calendar jump has a sourced, semantically honest passa
   assert.ok(festivalPassage.elapsedHours > 300 * 24, 'next-year festival wait did not disclose its full elapsed span')
 
   const speechIds = phraseSenses(feast.text)
-  const advanced = reducer(stateAt('binoshetDasma', 240, {
+  const feastState = stateAt('binoshetDasma', 240, {
     discovered: Object.fromEntries(speechIds.map((id) => [id, true])),
     mana: Object.fromEntries(speechIds.map((id) => [id, 1])),
-  }), {
+  })
+  const advanced = reducer(feastState, {
     type: 'CHOOSE', option: feast, targetNode: STORY.binoshetKuvendi,
+    fromNodeId: feastState.nodeId, fromTurn: feastState.turn,
   })
   assert.equal(advanced.nodeId, 'binoshetKuvendi')
   assert.equal(advanced.timePassage?.fromClock, 240)
@@ -1279,6 +1309,40 @@ check('social greetings follow the current civil period at every hour', () => {
       assert.equal(correct[0].contextGreeting.response, expectedGreeting, `kroiGrate2 at ${civilHour}:00 accepts a contradictory greeting`)
     }
   }
+})
+
+check('player speech belongs only to the exact arriving action, not its durable flag', () => {
+  const clock = [...Array(24).keys()].find((candidate) => greetingPeriodAtClock(candidate) === 'morning')
+  const greetingIndex = STORY.tregtari.options.findIndex((option) =>
+    option.contextGreeting?.period === 'morning' && !option.confuser,
+  )
+  assert.notEqual(greetingIndex, -1, 'the trader has no playable morning greeting')
+  const greeting = STORY.tregtari.options[greetingIndex]
+  const actionCondition = `arrival:action:${greeting.playerAction.id}`
+  const reply = STORY.tregtari.text.find((entry) => entry?.cond === actionCondition)
+  assert.ok(reply, 'the trader greeting reply is not bound to its exact arrival action')
+
+  const durableGreetingFlags = { greetedTrader: true }
+  const immediate = stateAt('tregtari', clock, {
+    cameFrom: 'tregtari',
+    choiceIndex: greetingIndex,
+    flags: durableGreetingFlags,
+  })
+  assert.equal(hasCond(immediate, actionCondition), true, 'the accepted greeting lost its immediate reply')
+  assert.ok(visibleLines(STORY.tregtari, (id) => hasCond(immediate, id)).includes(lineOf(reply)),
+    'the accepted greeting reply is not visible on its own arrival')
+
+  const returnIndex = STORY.blerjaBuke.options.findIndex((option) => option.to === 'tregtari')
+  assert.notEqual(returnIndex, -1, 'the bread-purchase scene has no reachable return to the trader')
+  const returned = stateAt('tregtari', clock, {
+    cameFrom: 'blerjaBuke',
+    choiceIndex: returnIndex,
+    flags: durableGreetingFlags,
+  })
+  assert.equal(hasCond(returned, actionCondition), false,
+    'a later return reused durable greeting state as if the player had just spoken')
+  assert.ok(!visibleLines(STORY.tregtari, (id) => hasCond(returned, id)).includes(lineOf(reply)),
+    'a later return replayed the old player-owned greeting')
 })
 
 check('embodiment starts after declared backstory spans', () => {
@@ -1541,7 +1605,10 @@ check('old and partial saves are normalized before play', () => {
 check('damage cannot push hearts below zero', () => {
   const state = stateAt('maroZogu', 100, { hearts: 0 })
   const option = { text: [], to: 'maroZogu', hearts: -1 }
-  assert.equal(reducer(state, { type: 'CHOOSE', option, targetNode: STORY.maroZogu }).hearts, 0)
+  assert.equal(reducer(state, {
+    type: 'CHOOSE', option, targetNode: STORY.maroZogu,
+    fromNodeId: state.nodeId, fromTurn: state.turn,
+  }).hearts, 0)
 })
 
 check('self-loops cannot farm permanent state without a cost or exit', () => {

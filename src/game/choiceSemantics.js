@@ -3,8 +3,9 @@ import { optionEffectsOf } from './stateMechanics.js'
 // Shared choice-intent contract. The game stays choice-driven, but authoring
 // tools and release audits still need to know whether a button is speech,
 // travel, an observation, or a physical act. Explicit metadata wins; the
-// conservative English-reading classifier keeps the existing corpus covered
-// while content is migrated gradually.
+// conservative English-reading classifier keeps the existing corpus covered.
+// Its candidates are release-blocking until an author declares and preserves
+// one intention, so editorial ambiguity cannot silently survive elsewhere.
 
 export const CHOICE_INTENTS = Object.freeze([
   'speech',
@@ -194,8 +195,9 @@ function allPairs(intents) {
 function lexicalPlayerIntents(option) {
   const reading = readingOf(option)
   const intents = []
-  // These are editorial leads, never the sole basis of a release failure. The
-  // durable gate uses explicit metadata and structural state transitions.
+  // These are conservative editorial leads. A reviewed single playerIntents
+  // declaration suppresses their noise; otherwise every forbidden pair must
+  // fail closed and be resolved by content or explicit authoring metadata.
   if (SPEECH_OPENING.test(reading)) intents.push('speech')
   if (MOVEMENT_OPENING.test(reading)) intents.push('movement')
   if (WAIT_OPENING.test(reading)) intents.push('wait')
@@ -240,28 +242,35 @@ function intentPairs(intents) {
 }
 
 // Definite issues are based on explicit author declarations or structural
-// world transitions. English editorial readings only create non-blocking
-// review candidates, so an unusual translation cannot silently break a build.
+// world transitions. English readings add conservative candidates. Both are
+// release-blocking; candidatePairs remains separate only to show authors which
+// evidence still needs review.
 export function compoundIntentReview(fromNodeId, option, placeOf) {
   const explicit = explicitPlayerIntentsOf(option)
   const structural = structuralPlayerIntents(fromNodeId, option, placeOf)
   const effects = effectPlayerIntentEvidence(option)
-  const lexical = lexicalPlayerIntents(option)
-  const hasReviewedSingleIntent = explicit.length === 1 && choiceSemanticsIssues(option).length === 0
+  const rawLexical = lexicalPlayerIntents(option)
+  // A reviewed utterance can contain action words without performing them
+  // (for example, “Wait a moment; I have a question”). Likewise, ordinary
+  // transaction wording may ask a seller to hand over the purchased object.
+  // These narrow normalizations never suppress structural movement or actual
+  // inventory/fixture effects, so metadata cannot hide a second real action.
+  const lexical = rawLexical.filter((intent) => {
+    if (explicit.length === 1 && explicit[0] === 'speech') return intent === 'speech'
+    if (explicit.includes('transaction') && ['speech', 'acquisition', 'transfer'].includes(intent)) return false
+    return true
+  })
   const hardPerceptualOrSpeech = unique([...explicit, ...structural])
     .filter((intent) => ['observation', 'speech'].includes(intent))
   const definitePairs = unique([
     ...allPairs(explicit),
     ...intentPairs(unique([...explicit, ...structural])),
-    ...(hasReviewedSingleIntent ? [] : intentPairs(unique([...hardPerceptualOrSpeech, ...effects]))),
+    ...intentPairs(unique([...hardPerceptualOrSpeech, ...effects])),
   ])
-  // A valid, explicit single intention is the editor's reviewed statement that
-  // grants, costs, or wording detected by heuristics are consequences of that
-  // one action. Real structural facts remain authoritative: declaring speech
-  // cannot excuse a cross-place transition, or a quest acceptance that moves.
-  const candidateEvidence = hasReviewedSingleIntent
-    ? unique([...explicit, ...structural])
-    : unique([...explicit, ...structural, ...effects, ...lexical])
+  // Author declarations are evidence, not exemptions. Keep lexical and effect
+  // evidence in the review even when one playerIntents label is present so a
+  // bare label cannot conceal another reversible act.
+  const candidateEvidence = unique([...explicit, ...structural, ...effects, ...lexical])
   const candidatePairs = intentPairs(candidateEvidence)
     .filter((pair) => !definitePairs.includes(pair))
 
@@ -288,6 +297,6 @@ export function compoundIntentReview(fromNodeId, option, placeOf) {
 
 export function compoundIntentIssues(fromNodeId, option, placeOf) {
   const review = compoundIntentReview(fromNodeId, option, placeOf)
-  return review.definitePairs.map((pair) =>
+  return unique([...review.definitePairs, ...review.candidatePairs]).map((pair) =>
     `choice combines independently reversible player intentions (${pair}); split them into separate choices`)
 }

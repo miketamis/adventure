@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { comprehensionMissConsequence } from '../game/consequenceBuilders.js'
 
 // The HARD comprehension gate on every achievement: reviewed Albanian sentences
 // from the story the player lived, supplemented by unambiguous words encountered
@@ -46,10 +45,9 @@ export default function ComprehensionTest({ questions, onDone }) {
                 advanceCommitted.current = false
                 setPick(opt)
                 if (opt !== q.correct) {
-                  // The owner knows which achievement this question belongs
-                  // to, so it commits the failed gate and explained heart loss
-                  // together rather than issuing two reducer transactions.
-                  onDone(false, comprehensionMissConsequence(q, opt))
+                  // The owner adds the achievement and attempt provenance; the
+                  // reducer rebuilds this exact question and owns the correction.
+                  onDone(false, { questionIndex: step, attemptedEnglish: opt })
                 }
               }}
             >

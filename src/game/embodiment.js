@@ -112,7 +112,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
   'rozafa': quest({
     identity: 'one of the three brothers', stance: 'embodied', entryFrom: 'udhaKthimit', entryFroms: 'maja', entryTo: 'kalaMjegull', returnTo: 'udhekryq',
     objective: 'learn why the castle wall falls and decide what your besa means',
-    nodes: 'kalaMjegull kalaPlak kalaNate kalaMengjes kalaNgjitje kalaLutje kalaMur kalaFundBesa kalaFundTurp',
+    nodes: 'kalaMjegull kalaPlak kalaBesa kalaNate kalaMengjes kalaNgjitje kalaLutje kalaMur kalaFundBesa kalaFundTurp',
     endings: 'kalaFundBesa kalaFundTurp',
   }),
   'sons-of-eagle': quest({
@@ -182,7 +182,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
 // Ymer projection, not a second body the player can switch into.
 export const EMBODIMENT_ALIASES = Object.freeze({ 'kostandini-i-vogel': 'aga-ymer' })
 
-// The world chart contains 211 authored physical places, including sealed
+// The world chart contains 209 authored physical places, including sealed
 // underworld chambers, endings and private tale projections. “The whole open
 // world” during a role means this smaller, non-committal travel network: the
 // exact physical places reachable from the public crossroads without starting
@@ -254,7 +254,7 @@ export const embodimentIdentity = (state) => {
     if (state.embodimentFocusNode !== 'tsHyrje') return 'Baba Tomor'
   }
   if (canonicalEmbodimentId(state.embodying) === 'rozafa' &&
-      !['kalaMjegull', 'kalaPlak', 'kalaNate'].includes(state.embodimentFocusNode)) {
+      !['kalaMjegull', 'kalaPlak', 'kalaBesa', 'kalaNate'].includes(state.embodimentFocusNode)) {
     return state.flags?.besaMbajtur ? 'the youngest brother' : 'one of the elder brothers'
   }
   return quest.identity

@@ -2,7 +2,7 @@
 // a dialogue menu which teleports the player. These reducer-level journeys pin
 // the follow/meeting clocks, physical locations, name knowledge and save data.
 import assert from 'node:assert/strict'
-import { STORY, visibleLines } from '../src/game/content.js'
+import { STORY, lineOf, visibleLines } from '../src/game/content.js'
 import {
   START_CLOCK,
   hasCond,
@@ -14,6 +14,7 @@ import {
   reducer,
 } from '../src/game/gameState.js'
 import { englishReadingOf } from '../src/game/language.js'
+import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
 import {
   ELIRA_BREAD_SALT_QUEST_ID,
@@ -35,7 +36,13 @@ const albanian = (line) => (line || []).map((token) => token.al || token.en || '
   .replace(/\s+([.,!?;:])/g, '$1')
 
 const ready = (state, option) => {
-  const ids = phraseSenses(option.text)
+  const revealLine = option.reveal
+    ? resolveRevealLine(STORY[state.nodeId]?.text?.map(lineOf), option).line
+    : null
+  const ids = [...new Set([
+    ...phraseSenses(option.text),
+    ...phraseSenses(revealLine || []),
+  ])]
   return {
     ...state,
     discovered: { ...state.discovered, ...Object.fromEntries(ids.map((id) => [id, true])) },
@@ -344,8 +351,11 @@ for (const knowsElira of [false, true]) {
   for (const order of permutations(ERRAND_QUESTIONS)) {
     let state = activeConversation(knowsElira)
     const [firstQuestion, ...remainingOrder] = order
+    const openConversation = atChoice(state, 'porosiaShesh')
+    assert.ok(openConversation, `${firstQuestion.asked}: no optional route into the information conversation`)
+    state = choose(state, 'porosiaShesh', (option) => option === openConversation)
     const openQuestions = atChoice(state, 'porosiaShesh', asksErrandQuestion(firstQuestion.asked))
-    assert.ok(openQuestions, `${firstQuestion.asked}: no optional route into the information conversation`)
+    assert.ok(openQuestions, `${firstQuestion.asked}: question is unavailable after opening the conversation`)
     state = choose(state, 'porosiaShesh', (option) => option === openQuestions)
     const conversationClock = state.clock
     assert.equal(state.inventory.lek, 808, 'opening optional information changed the quest advance')

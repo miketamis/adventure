@@ -231,9 +231,25 @@ for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
 
 // Regression contracts for the lore-shaped gaps fixed in this review.
 assert.equal(EMBODIMENT_QUESTS['gjeto-basho-muji'].startingHearts, 1)
-assert.equal(edge('odaJutbina', 'gbMuji1')?.grant, 'qumesht')
+// Companion/item acquisition is local and complete before the independent
+// movement edge. These pairs guard against silently bundling the effects back
+// into travel choices.
+assert.equal(edge('odaJutbina', 'odaJutbina')?.grant, 'qumesht')
+assert.equal(edge('odaJutbina', 'gbMuji1')?.grant, undefined)
+assert.ok(asList(edge('odaJutbina', 'gbMuji1')?.requires).includes('flag:gbMujiMilkTaken'))
 assert.equal(edge('gbMuji1', 'gbMujiFund')?.consumes, 'qumesht')
 assert.equal(edge('gbMuji1', 'gbMujiFund')?.hearts, 3)
+assert.equal(edge('rrugaDielli2', 'rrugaDielli2')?.grant, 'vajza')
+assert.equal(edge('rrugaDielli2', 'fshatiLanes')?.grant, undefined)
+assert.ok(asList(edge('rrugaDielli2', 'fshatiLanes')?.requires).includes('vajza'))
+assert.equal(edge('qiellDem1', 'qiellDem1')?.grant, 'dem')
+assert.equal(edge('qiellDem1', 'qiell2')?.grant, undefined)
+assert.ok(asList(edge('qiellDem1', 'qiell2')?.requires).includes('dem'))
+assert.ok(STORY.pylliThelle.options
+  .filter((option) => option.to === 'shokuUjk')
+  .every((option) => option.grant === 'ujk'))
+assert.equal(edge('shokuUjk', 'udheNate')?.grant, undefined)
+assert.ok(asList(edge('shokuUjk', 'udheNate')?.requires).includes('ujk'))
 assert.equal(edge('shqipe3', 'shqipeBarter')?.grant, 'zogShqiponje')
 assert.equal(edge('shqipeBarter', 'shqipeFund')?.consumes, 'zogShqiponje')
 // Reaching the coast and picking up the salt are separate intentions: the

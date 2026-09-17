@@ -7,6 +7,7 @@
 // bypass the learning loop.
 import assert from 'node:assert/strict'
 import { ITEMS, STORY } from '../src/game/content.js'
+import { albanianTextOf } from '../src/game/language.js'
 import {
   canChoose,
   effectAvailabilityForOption,
@@ -17,6 +18,11 @@ import {
   reducer,
   rendezvousAvailabilityForOption,
 } from '../src/game/gameState.js'
+import {
+  canonicalStoryConfuser,
+  storyConfuserCandidates,
+} from '../src/game/storyConfusers.js'
+import { collectAcceptedActionSurfaces } from './lib/action-audio-surfaces.mjs'
 
 const checks = []
 const check = (name, test) => {
@@ -139,6 +145,59 @@ check('rejected and stale choices are identity-stable no-ops', () => {
     fromTurn: ready.turn,
   })
   assert.strictEqual(stale, accepted, 'stale replay allocated or mutated state')
+  for (const omitted of ['fromNodeId', 'fromTurn']) {
+    const action = {
+      type: 'CHOOSE', option,
+      fromNodeId: ready.nodeId,
+      fromTurn: ready.turn,
+    }
+    delete action[omitted]
+    assert.strictEqual(reducer(ready, action), ready, `choice committed without ${omitted}`)
+  }
+  assert.strictEqual(reducer(fresh, { type: 'CONFIRM_EMBODIMENT' }), fresh,
+    'a confirmation with no pending threshold allocated state')
+  const stalePending = {
+    ...fresh,
+    pendingEmbodiment: {
+      taleId: 'stale', fromNodeId: fresh.nodeId,
+      fromTurn: fresh.turn - 1, optionIndex: 0,
+    },
+  }
+  assert.strictEqual(reducer(stalePending, { type: 'CONFIRM_EMBODIMENT' }), stalePending,
+    'a stale confirmation mutated pending state')
+})
+
+check('canonical confusers own every accepted surface and ignore caller payloads', () => {
+  const audioSurfaces = new Set(collectAcceptedActionSurfaces())
+  let authored = 0
+  for (const [nodeId, node] of Object.entries(STORY)) {
+    const state = { ...newRun(), nodeId }
+    const candidates = storyConfuserCandidates(state)
+    assert.equal(candidates.filter((candidate) => candidate.kind === 'authored').length,
+      node.options.filter((option) => option.confuser).length,
+      `${nodeId}: canonical confuser enumeration omitted authored options`)
+    assert.equal(candidates.some((candidate) => candidate.kind === 'dynamic-item'), false,
+      `${nodeId}: uncertified generated confuser entered the action surface`)
+    for (const candidate of candidates) {
+      const transcript = albanianTextOf(candidate.tokens)
+      assert.ok(audioSurfaces.has(transcript), `${nodeId}/${candidate.key}: missing accepted audio surface`)
+      const action = {
+        type: 'CONFUSE', optionId: candidate.key, optionIndex: candidate.optionIndex,
+        expectedHearts: state.hearts, fromNodeId: nodeId, fromTurn: state.turn,
+        actionText: [{ al: 'forged action' }],
+        consequence: { source: 'story-confuser', eventId: 'forged' },
+      }
+      const resolved = canonicalStoryConfuser(state, action)
+      assert.equal(resolved?.key, candidate.key, `${nodeId}/${candidate.key}: canonical key drifted`)
+      assert.equal(resolved?.option, candidate.option,
+        `${nodeId}/${candidate.key}: canonical option drifted`)
+      assert.equal(canonicalStoryConfuser(state, { ...action, optionIndex: -1 }), null,
+        `${nodeId}/${candidate.key}: tampered identity resolved`)
+      authored++
+    }
+  }
+  assert.ok(authored > 0)
+  return `${authored} authored confusers; zero uncertified generated actions`
 })
 
 const failed = checks.filter((result) => !result.ok)

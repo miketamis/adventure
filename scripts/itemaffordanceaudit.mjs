@@ -19,6 +19,10 @@ import {
   itemUseEffectsOf,
 } from '../src/game/content.js'
 import { dynamicItemConfuserEnglish } from '../src/game/data/readings/reviewedOptionReadings.js'
+import {
+  CERTIFIED_DYNAMIC_ITEM_CONFUSER_ITEM_IDS,
+  storyConfuserCandidates,
+} from '../src/game/storyConfusers.js'
 
 const itemEntries = Object.entries(ITEMS)
 assert.ok(itemEntries.length > 0, 'ITEMS must not be empty')
@@ -79,7 +83,25 @@ assert.equal(
 )
 
 const storyViewSource = await readFile(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
-assert.match(storyViewSource, /itemConfuserActionOf\(featured\)/, 'StoryView must derive confusers from item affordances')
+const storyConfusersSource = await readFile(new URL('../src/game/storyConfusers.js', import.meta.url), 'utf8')
+assert.match(storyViewSource, /storyConfuserCandidates\(state\)/,
+  'StoryView must consume the canonical confuser registry')
+assert.doesNotMatch(storyViewSource, /itemConfuserActionOf/,
+  'StoryView must not reconstruct generated item confusers')
 assert.doesNotMatch(storyViewSource, /LIQUID_ITEMS/, 'StoryView must not keep an item-id liquid allowlist')
+assert.match(storyConfusersSource, /itemConfuserActionOf\(item\)/,
+  'the canonical confuser registry must derive generated actions from item affordances')
+assert.ok(CERTIFIED_DYNAMIC_ITEM_CONFUSER_ITEM_IDS.every((id) => ITEMS[id]),
+  'the certified dynamic-item confuser registry contains an unknown item')
 
-console.log(`✓ item affordances: ${itemEntries.length} items classified; confusers and use effects are metadata-driven`)
+const uncertifiedInventory = Object.fromEntries(itemEntries.map(([id]) => [id, 1]))
+const runtimeDynamic = storyConfuserCandidates({
+  nodeId: 'start',
+  inventory: uncertifiedInventory,
+  discovered: {},
+  hearts: 3,
+}).filter((candidate) => candidate.kind === 'dynamic-item')
+assert.deepEqual(runtimeDynamic, [],
+  'uncertified generated item actions must fail closed before reaching ordinary play')
+
+console.log(`✓ item affordances: ${itemEntries.length} items classified; generated confusers are metadata-driven and certification-gated`)

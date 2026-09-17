@@ -18,10 +18,11 @@ import {
 
 const freezeList = (value) => Object.freeze([...(value || [])])
 
-const routeStep = ({ nodeId, to, cueIds, requires = [], wrongTurns = [] }) => Object.freeze({
+const routeStep = ({ nodeId, to, cueIds, sourceEvidenceIds, requires = [], wrongTurns = [] }) => Object.freeze({
   nodeId,
   to,
   cueIds: freezeList(cueIds),
+  sourceEvidenceIds: freezeList(sourceEvidenceIds),
   requires: freezeList(requires),
   wrongTurns: Object.freeze((wrongTurns || []).map((turn) => Object.freeze({
     nodeId: turn.nodeId || nodeId,
@@ -59,7 +60,6 @@ export const GROUNDED_DIRECTION_CONTRACTS = Object.freeze({
   eliraMarket: contract({
     id: 'elira-market',
     questions: [
-      { nodeId: 'eliraBanore', cueIds: ['ku', 'treg'] },
       { nodeId: 'porosiaShesh', cueIds: ['ku', 'treg'] },
     ],
     askedCondition: ELIRA_MARKET_ASKED_CONDITION,
@@ -69,11 +69,12 @@ export const GROUNDED_DIRECTION_CONTRACTS = Object.freeze({
     responseCueIds: ['prane', 'pus'],
     destinationNodeId: 'pazariFshatit',
     route: [
-      { nodeId: 'fshatiSheshi', to: 'pusiThate', cueIds: ['pus'] },
+      { nodeId: 'fshatiSheshi', to: 'pusiThate', cueIds: ['pus'], sourceEvidenceIds: ['pus'] },
       {
         nodeId: 'pusiThate',
         to: 'pazariFshatit',
         cueIds: ['treg'],
+        sourceEvidenceIds: ['treg'],
         requires: ['flag:eliraErrandAskedMarket', 'quest:elira-bread-salt:active'],
       },
     ],
@@ -81,7 +82,6 @@ export const GROUNDED_DIRECTION_CONTRACTS = Object.freeze({
   eliraGuestRoom: contract({
     id: 'elira-guest-room',
     questions: [
-      { nodeId: 'eliraBanore', cueIds: ['ku', 'oda', 'majtas', 'djathtas'] },
       { nodeId: 'porosiaShesh', cueIds: ['ku', 'oda', 'majtas', 'djathtas'] },
     ],
     askedCondition: ELIRA_GUEST_ROOM_ASKED_CONDITION,
@@ -95,11 +95,13 @@ export const GROUNDED_DIRECTION_CONTRACTS = Object.freeze({
         nodeId: 'fshatiSheshi',
         to: 'rrugaOdes',
         cueIds: ['drejt', 'perpara'],
+        sourceEvidenceIds: ['drejt', 'perpara'],
       },
       {
         nodeId: 'rrugaOdes',
         to: 'oda1',
         cueIds: ['djathtas'],
+        sourceEvidenceIds: ['djathtas'],
         wrongTurns: [{ to: 'fshatiJeta', cueIds: ['majtas'] }],
       },
     ],
@@ -114,8 +116,8 @@ export const GROUNDED_DIRECTION_CONTRACTS = Object.freeze({
     responseCueIds: ['poshte', 'lume'],
     destinationNodeId: 'kroi1',
     route: [
-      { nodeId: 'fshatiSheshi', to: 'fshatiLumi', cueIds: ['lume'] },
-      { nodeId: 'fshatiLumi', to: 'kroi1', cueIds: ['poshte'] },
+      { nodeId: 'fshatiSheshi', to: 'fshatiLumi', cueIds: ['lume'], sourceEvidenceIds: ['lume'] },
+      { nodeId: 'fshatiLumi', to: 'kroi1', cueIds: ['poshte'], sourceEvidenceIds: ['poshte'] },
     ],
   }),
   riverSpring: contract({
@@ -127,7 +129,7 @@ export const GROUNDED_DIRECTION_CONTRACTS = Object.freeze({
     exitTo: 'fshatiLumi',
     responseCueIds: ['poshte', 'lume'],
     destinationNodeId: 'kroi1',
-    route: [{ nodeId: 'fshatiLumi', to: 'kroi1', cueIds: ['poshte'] }],
+    route: [{ nodeId: 'fshatiLumi', to: 'kroi1', cueIds: ['poshte'], sourceEvidenceIds: ['poshte'] }],
   }),
 })
 

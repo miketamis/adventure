@@ -9,6 +9,7 @@ import { STORY, lineOf, visibleLines } from '../src/game/content.js'
 import { CONVERSATION_HUBS } from '../src/game/conversationHub.js'
 import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import { npcIdentityKnowledgeId } from '../src/game/npcIdentity.js'
+import { observationConditionId, observationIdOfLine } from '../src/game/observations.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
 import {
   GROUNDED_DIRECTION_CONTRACTS,
@@ -17,6 +18,58 @@ import {
 
 const rawFlagId = (conditionId) => conditionId.replace(/^flag:/, '')
 const idsOf = (line) => line.filter((token) => token.id).map((token) => token.id)
+const isQuestionLine = (line) => line.some((token) => token.paren && token.en === '?')
+
+// A legacy “question page” leaves the physical scene only in graph terms: the
+// answer node has one genuine action and that action returns to the question
+// menu. Two or more such topics are a conversation hub authored as a page
+// chain. Detect that structure from story topology and token punctuation; no
+// English label or node allowlist can make a new instance pass.
+const forcedSamePlaceReturnPath = (story, placeOf, sourceId, startId) => {
+  const path = []
+  const seen = new Set()
+  let currentId = startId
+  for (let depth = 0; depth < 6; depth += 1) {
+    if (currentId === sourceId) return path
+    if (seen.has(currentId) || placeOf[currentId] !== placeOf[sourceId]) return null
+    seen.add(currentId)
+    const node = story[currentId]
+    if (!node) return null
+    const genuine = (node.options || []).filter((candidate) => !candidate.confuser)
+    if (genuine.length !== 1) return null
+    path.push(currentId)
+    currentId = genuine[0].to
+  }
+  return null
+}
+
+const legacyQuestionPageChains = (story, placeOf) => Object.entries(story).flatMap(([sourceId, source]) => {
+  const miniPages = source.options.filter((option) => {
+    if (option.confuser || option.conversationHub || option.to === sourceId || !isQuestionLine(option.text)) return false
+    if (placeOf[sourceId] !== placeOf[option.to]) return false
+    return forcedSamePlaceReturnPath(story, placeOf, sourceId, option.to) !== null
+  })
+  return miniPages.length < 2
+    ? []
+    : [`${sourceId}: ${miniPages.map((option) => {
+      const path = forcedSamePlaceReturnPath(story, placeOf, sourceId, option.to)
+      return `${option.to}${path.length > 1 ? ` via ${path.slice(1).join(' -> ')}` : ''}`
+    }).sort().join(', ')}`]
+})
+
+// A same-node question menu is still a conversation hub even when it avoids
+// separate answer pages. Require the shared contract so topic retirement,
+// latest-answer replacement and an always-available exit are all audited.
+const unregisteredSameNodeTopicMenus = (story) => Object.entries(story).flatMap(([nodeId, node]) => {
+  const questions = (node.options || []).filter((option) =>
+    !option.confuser
+    && !option.conversationHub
+    && option.to === nodeId
+    && isQuestionLine(option.text))
+  return questions.length < 2
+    ? []
+    : [`${nodeId}: ${questions.map((option) => albanianTextOf(option.text)).join(' | ')}`]
+})
 
 assert.ok(Object.keys(CONVERSATION_HUBS).length > 0, 'no conversation hubs are registered')
 
@@ -32,6 +85,11 @@ for (const hub of Object.values(CONVERSATION_HUBS)) {
   assert.equal(questions.length, Object.keys(hub.questions).length,
     `${hub.id}: every declared question needs one authored option`)
   assert.equal(exits.length, 1, `${hub.id}: conversation needs one explicit exit`)
+  assert.equal(Boolean(exits[0]?.confuser), false, `${hub.id}: exit is a confuser rather than a genuine action`)
+  assert.deepEqual([].concat(exits[0]?.requires || []), [], `${hub.id}: exit is conditional on a requirement`)
+  assert.deepEqual([].concat(exits[0]?.unless || []), [], `${hub.id}: exit is conditionally hidden`)
+  assert.equal(exits[0]?.reveal, undefined, `${hub.id}: exit is gated by vocabulary discovery`)
+  assert.equal(exits[0]?.revealOccurrence, undefined, `${hub.id}: exit is gated by a reveal occurrence`)
 
   for (const [questionId, spec] of Object.entries(hub.questions)) {
     const option = questions.find((candidate) => candidate.conversationHub.questionId === questionId)
@@ -88,9 +146,49 @@ for (const hub of Object.values(CONVERSATION_HUBS)) {
     `${hub.id}: conversation opens with ${openingLines.length} lines before the player asks anything`)
 }
 
-// The opening practical-conversation sweep gives the bridge meeting and each
-// recurring neighbour a player-led, same-place exchange instead of using them
-// only as quest or shop interfaces. Keep the exact topic inventory reviewed:
+assert.deepEqual(legacyQuestionPageChains(STORY, PLACE_OF), [],
+  'multi-topic conversations still use answer pages with a forced return action')
+assert.deepEqual(unregisteredSameNodeTopicMenus(STORY), [],
+  'same-place multi-topic conversations bypass the shared conversation-hub contract')
+assert.deepEqual(legacyQuestionPageChains({
+  sample: {
+    options: [
+      { text: [{ en: '?', paren: true }], to: 'answerOne' },
+      { text: [{ en: '?', paren: true }], to: 'answerTwo' },
+    ],
+  },
+  answerOne: { options: [{ text: [], to: 'sample' }] },
+  answerTwo: { options: [{ text: [], to: 'sample' }] },
+}, { sample: 'room', answerOne: 'room', answerTwo: 'room' }), ['sample: answerOne, answerTwo'],
+'the legacy question-page regression fixture no longer exercises the topology gate')
+assert.deepEqual(legacyQuestionPageChains({
+  sample: {
+    options: [
+      { text: [{ en: '?', paren: true }], to: 'answerOne' },
+      { text: [{ en: '?', paren: true }], to: 'answerTwo' },
+    ],
+  },
+  answerOne: { options: [{ text: [], to: 'returnOne' }] },
+  returnOne: { options: [{ text: [], to: 'sample' }] },
+  answerTwo: { options: [{ text: [], to: 'returnTwo' }] },
+  returnTwo: { options: [{ text: [], to: 'sample' }] },
+}, {
+  sample: 'room', answerOne: 'room', returnOne: 'room', answerTwo: 'room', returnTwo: 'room',
+}), ['sample: answerOne via returnOne, answerTwo via returnTwo'],
+'the legacy question-page gate no longer follows forced intermediate return pages')
+assert.deepEqual(unregisteredSameNodeTopicMenus({
+  sample: {
+    options: [
+      { text: [{ en: '?', paren: true, al: '?' }], to: 'sample' },
+      { text: [{ en: '?', paren: true, al: '?' }], to: 'sample' },
+    ],
+  },
+}), ['sample: ? | ?'],
+'the unregistered same-node topic-menu fixture no longer exercises the contract gate')
+
+// The practical-conversation sweep gives recurring neighbours, traders and
+// story informants a player-led, same-place exchange instead of using them
+// only as quest, shop or lore-page interfaces. Keep the topic inventory reviewed:
 // changing it is an editorial language change, not a silent data-count increase.
 const REVIEWED_CONVERSATION_TOPICS = {
   'bridge-core': ['waitQuestion', 'water', 'today', 'forest', 'identity'],
@@ -104,6 +202,9 @@ const REVIEWED_CONVERSATION_TOPICS = {
   'gjakova-innkeeper': ['hotWater', 'breakfast', 'bag', 'leaveBag'],
   'rain-children': ['activity', 'join', 'reason', 'really', 'nonsense'],
   'village-wedding': ['start', 'bride', 'dance'],
+  'palace-guard': ['blackPalace', 'blockedEntry'],
+  'elira-errand': ['guest', 'market', 'guestRoom', 'repair'],
+  'market-stall': ['bread', 'prices', 'repair', 'meaning'],
 }
 
 // These reviewed surfaces are the learner-facing anchors for the village's
@@ -141,6 +242,21 @@ const REVIEWED_HUB_SURFACES = [
   ['gjakova-innkeeper', 'breakfast', 'response', 'ajo thotë: Mëngjesi fillon fiks në orën shtatë.', ['fiks']],
   ['village-shepherd', 'today', 'question', 'Çfarë po bën sot?', ['cfare', 'bej', 'sot']],
   ['village-shepherd', 'help', 'response', "ai thotë: po. Ruaji dhitë deri në mbrëmje, të lutem. Nëse është e vështirë, s'ka gjë; provoje.", ['provo']],
+  ['palace-guard', 'blackPalace', 'question', 'pse pallati është i zi?', ['pse', 'pallat', 'zi']],
+  ['palace-guard', 'blackPalace', 'response', 'Roja thotë: mbretëresha vajton, prandaj ajo bën pallatin të zi.', ['roje', 'mbreteresha', 'vajto', 'pallat']],
+  ['palace-guard', 'blockedEntry', 'question', 'pse nuk hyj?', ['pse', 'hyr']],
+  ['palace-guard', 'blockedEntry', 'response', 'Roja thotë: dera nuk hapet për askënd. mbretëresha pa fëmijë premtoi bijën Diellit. Dielli mori bijën, dhe mbretëresha vajton.', ['roje', 'dere', 'hap', 'askush', 'mbreteresha', 'premto', 'bije', 'diell']],
+  ['elira-errand', 'market', 'question', 'ku është tregu?', ['ku', 'treg']],
+  ['elira-errand', 'guestRoom', 'question', 'ku është oda? majtas apo djathtas?', ['ku', 'oda', 'majtas', 'djathtas']],
+  ['elira-errand', 'repair', 'question', 'nuk kuptoj. fol ngadalë, të lutem.', ['kuptoj', 'fol', 'ngadale']],
+  ['market-stall', 'bread', 'question', 'keni bukë?', ['ka', 'buke']],
+  ['market-stall', 'bread', 'response', 'tregtari thotë: po, kam bukë.', ['tregtar', 'po_yes', 'ka', 'buke']],
+  ['market-stall', 'prices', 'question', 'sa kushtojnë?', ['sa', 'kushton']],
+  ['market-stall', 'prices', 'response', 'tregtari thotë: buka kushton njëqind lekë, dhe kripa kushton njëqind lekë.', ['tregtar', 'buke', 'kushton', 'kripe']],
+  ['market-stall', 'repair', 'question', 'nuk kuptoj. Përsërit, të lutem.', ['kuptoj', 'perserit', 'lutem']],
+  ['market-stall', 'repair', 'response', 'Tregtari thotë: me kënaqësi. Ai flet ngadalë: një bukë kushton njëqind lekë. kripë kushton njëqind lekë.', ['tregtar', 'kenaqesi', 'ngadale', 'buke', 'kushton', 'kripe']],
+  ['market-stall', 'meaning', 'question', 'çfarë do të thotë?', ['cfare', 'thote']],
+  ['market-stall', 'meaning', 'response', 'Tregtari thotë: kushton do të thotë: sa para?', ['tregtar', 'kushton', 'thote', 'para_money']],
 ]
 
 for (const [hubId, questionId, kind, expectedText, expectedIds] of REVIEWED_HUB_SURFACES) {
@@ -170,6 +286,7 @@ const REVIEWED_DEPENDENT_TOPICS = [
   ['square-elder', 'understood', 'repair'],
   ['rain-children', 'really', 'reason'],
   ['rain-children', 'nonsense', 'activity'],
+  ['market-stall', 'meaning', 'repair'],
 ]
 for (const [hubId, questionId, prerequisiteId] of REVIEWED_DEPENDENT_TOPICS) {
   const hub = CONVERSATION_HUBS[hubId]
@@ -354,6 +471,100 @@ const includesEvery = (actual, expected) => expected.every((id) => actual.includ
 const realOptions = (nodeId) => STORY[nodeId].options.filter((option) => !option.confuser)
 const locationQuestionOptions = []
 
+const fromConditionIncludes = (conditionId, predecessorId) =>
+  Boolean(predecessorId
+    && String(conditionId).startsWith('from:')
+    && String(conditionId).slice('from:'.length).split('|').includes(predecessorId))
+
+const sourceEvidenceIsEntailed = (entry, option, predecessorId) => {
+  const line = lineOf(entry)
+  if (line?.scenePriority === 'ambient') return false
+  const required = new Set(conditionsOf(option?.requires).filter(Boolean))
+  const excluded = new Set(conditionsOf(option?.unless).filter(Boolean))
+  const observationId = observationIdOfLine(line)
+  if (observationId && !required.has(observationConditionId(observationId))) return false
+  if (Array.isArray(entry)) return true
+
+  const positive = conditionsOf(entry.cond).filter(Boolean)
+  if (entry.negate) {
+    // A negated all-of condition is guaranteed only when the option itself
+    // excludes at least one member. Merely failing to require a condition is
+    // not proof that it will be absent in a real saved game.
+    if (!positive.some((id) => excluded.has(id))) return false
+  } else if (!positive.every((id) =>
+    required.has(id) || fromConditionIncludes(id, predecessorId))) {
+    return false
+  }
+  return conditionsOf(entry.none).filter(Boolean).every((id) => excluded.has(id))
+}
+
+const unresolvedEvidenceLiteral = (entry, option, predecessorId) => {
+  const line = lineOf(entry)
+  if (line?.scenePriority === 'ambient' || Array.isArray(entry)) return null
+  const required = new Set(conditionsOf(option?.requires).filter(Boolean))
+  const excluded = new Set(conditionsOf(option?.unless).filter(Boolean))
+  const literals = []
+  const observationId = observationIdOfLine(line)
+  if (observationId) {
+    const conditionId = observationConditionId(observationId)
+    if (!required.has(conditionId)) literals.push(`+${conditionId}`)
+  }
+
+  const positive = conditionsOf(entry.cond).filter(Boolean)
+  if (entry.negate) {
+    if (positive.some((id) => excluded.has(id))) return null
+    const unresolved = positive.filter((id) =>
+      !required.has(id) && !fromConditionIncludes(id, predecessorId))
+    // `unless([a,b])` means not(a && b), which is not one literal unless all
+    // but one members are already known true at this edge.
+    if (unresolved.length === 1) literals.push(`-${unresolved[0]}`)
+    else if (unresolved.length > 1) return undefined
+  } else {
+    for (const id of positive) {
+      if (!required.has(id) && !fromConditionIncludes(id, predecessorId)) literals.push(`+${id}`)
+    }
+  }
+  for (const id of conditionsOf(entry.none).filter(Boolean)) {
+    if (!excluded.has(id)) literals.push(`-${id}`)
+  }
+  return literals.length === 0 ? null : literals.length === 1 ? literals[0] : undefined
+}
+
+const sourceEvidenceIsGuaranteed = (entries, option, predecessorId) => {
+  if (entries.some((entry) => sourceEvidenceIsEntailed(entry, option, predecessorId))) return true
+  const literals = new Set(entries
+    .map((entry) => unresolvedEvidenceLiteral(entry, option, predecessorId))
+    .filter((literal) => typeof literal === 'string'))
+  return [...literals].some((literal) => {
+    const opposite = literal.startsWith('+') ? `-${literal.slice(1)}` : `+${literal.slice(1)}`
+    return literals.has(opposite)
+  })
+}
+
+assert.equal(sourceEvidenceIsEntailed(
+  { cond: 'flag:route-known', line: [{ id: 'road' }] },
+  { requires: 'flag:route-known' },
+  null,
+), true, 'grounded-route evidence no longer accepts an entailed condition')
+assert.equal(sourceEvidenceIsEntailed(
+  { cond: 'flag:route-known', line: [{ id: 'road' }] },
+  {},
+  null,
+), false, 'grounded-route evidence accepts a condition the route choice does not entail')
+assert.equal(sourceEvidenceIsEntailed(
+  { cond: 'from:crossroads', line: [{ id: 'road' }] },
+  {},
+  'crossroads',
+), true, 'grounded-route evidence no longer follows the actual predecessor')
+assert.equal(sourceEvidenceIsGuaranteed([
+  { cond: 'fact:restored', line: [{ id: 'well' }] },
+  { cond: 'fact:restored', negate: true, line: [{ id: 'well' }] },
+], {}, null), true, 'complementary route-evidence variants no longer prove continuous visibility')
+const ambientEvidenceFixture = [{ id: 'road' }]
+ambientEvidenceFixture.scenePriority = 'ambient'
+assert.equal(sourceEvidenceIsEntailed(ambientEvidenceFixture, {}, null), false,
+  'optional ambient prose can establish a required route affordance')
+
 for (const [nodeId, node] of Object.entries(STORY)) {
   for (const option of node.options || []) {
     if (option.confuser) continue
@@ -416,8 +627,13 @@ for (const directions of Object.values(GROUNDED_DIRECTION_CONTRACTS)) {
   `${directions.id}: response still turns a plausible direction into a heart-taking confuser`)
 
   let routeNodeId = directions.exitTo
+  let predecessorId = directions.responseNodeId
   for (const step of directions.route) {
     assert.equal(step.nodeId, routeNodeId, `${directions.id}: route is discontinuous at ${step.nodeId}`)
+    assert.ok(step.sourceEvidenceIds.length > 0,
+      `${directions.id}: ${step.nodeId}->${step.to} has no reviewed visible source evidence`)
+    assert.equal(new Set(step.sourceEvidenceIds).size, step.sourceEvidenceIds.length,
+      `${directions.id}: ${step.nodeId}->${step.to} repeats a source-evidence id`)
     const options = realOptions(step.nodeId).filter((option) =>
       option.to === step.to && includesEvery(idsOf(lineOf(option.text)), step.cueIds))
     assert.equal(options.length, 1,
@@ -428,6 +644,14 @@ for (const directions of Object.values(GROUNDED_DIRECTION_CONTRACTS)) {
       assert.ok(conditionsOf(options[0].requires).includes(required),
         `${directions.id}: ${step.nodeId}->${step.to} bypasses ${required}`)
     }
+    const undeclaredRequirements = conditionsOf(options[0].requires)
+      .filter((required) => !step.requires.includes(required))
+    assert.deepEqual(undeclaredRequirements, [],
+      `${directions.id}: ${step.nodeId}->${step.to} has route requirements missing from the grounded-direction contract`)
+    const evidenceEntries = STORY[step.nodeId].text.filter((entry) =>
+      includesEvery(idsOf(lineOf(entry)), step.sourceEvidenceIds))
+    assert.ok(sourceEvidenceIsGuaranteed(evidenceEntries, options[0], predecessorId),
+      `${directions.id}: ${step.nodeId}->${step.to} presupposes ${step.sourceEvidenceIds.join('+')} without visible, condition-entailed scene evidence`)
     for (const wrongTurn of step.wrongTurns) {
       const wrongOptions = realOptions(wrongTurn.nodeId).filter((option) =>
         option.to === wrongTurn.to && includesEvery(idsOf(lineOf(option.text)), wrongTurn.cueIds))
@@ -436,6 +660,7 @@ for (const directions of Object.values(GROUNDED_DIRECTION_CONTRACTS)) {
       assert.notEqual(PLACE_OF[wrongTurn.nodeId], PLACE_OF[wrongTurn.to],
         `${directions.id}: plausible wrong turn does not physically go anywhere`)
     }
+    predecessorId = step.nodeId
     routeNodeId = step.to
   }
   assert.equal(routeNodeId, directions.destinationNodeId,

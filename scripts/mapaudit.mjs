@@ -19,7 +19,17 @@ import { REGIONS, NODE_REGION, VILLAGE_ANCHOR_IDS, isWander } from '../src/game/
 import { NPCS } from '../src/game/npcs.js'
 import { npcNodeOf, TIME_PHASES } from '../src/game/gameState.js'
 import { optionEffectsOf, rendezvousSpecOf } from '../src/game/stateMechanics.js'
-import { exceptionFor, transitionInfo } from '../src/game/worldModel.js'
+import {
+  transitionInfo,
+} from '../src/game/worldModel.js'
+import {
+  STRUCTURAL_EXCEPTION_RULES,
+  exceptionFor,
+  exceptionTargetsFor,
+  structuralExceptionKey,
+  structuralExceptionRegistryIssues,
+  structuralExceptionUsageIssues,
+} from '../src/game/worldStructuralExceptions.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -34,6 +44,12 @@ const section = (ok, title, lines = []) => {
   checks++
   if (!ok) failures++
 }
+const usedExceptionClaims = new Set()
+const reviewedException = (rule, target) => {
+  const record = exceptionFor(rule, target)
+  if (record) usedExceptionClaims.add(structuralExceptionKey(rule, target))
+  return record
+}
 
 // every real (non-confuser) edge, with geometry
 const edges = []
@@ -42,6 +58,7 @@ for (const id of ids) for (const o of STORY[id].options || []) {
   const a = NODE_POS[id], b = NODE_POS[o.to]
   if (!a || !b) continue
   edges.push({ from: id, to: o.to, o, dx: b[0] - a[0], dy: b[1] - a[1], len: Math.hypot(b[0] - a[0], b[1] - a[1]), wander: isWander(o) })
+  reviewedException('projection-boundary', `${id}->${o.to}`)
 }
 
 // ---- 0. every node is placed --------------------------------------------------
@@ -57,28 +74,15 @@ section(Boolean(brothersConversation) && PLACE_OF.pylli1 === PLACE_OF.kordha1,
 
 // ---- 1. region containment ---------------------------------------------------
 // A node should sit inside (or on the fringe of) the region the BFS assigns it.
-// Known-fine outliers (each explicitly documented below):
-//   botaHumbur — an authored underworld detour drawn at the dark boundary.
-//   kthimi — walks the underworld toward the well-exit whose cluster surfaces at
-//     the COAST; anchoring it underworld would drag pusi2/shqiponja/ngjitja down.
-//   rrugaDielli2 — the sun-quest tail: the stag's escape ENDS at the village,
-//     but it belongs to the sky quest for area factoids.
-//   start — the bridgehead before the city, seeded as a forest anchor.
-//   balozMotra/Tribut/Zgjedh/Fitore — Gjergj Elez Alia's tower stands on the
-//     SHORE of the Drin bay (west of the sea ellipse) but the arc is a sea tale.
-//   shtepia — "Home Again" is drawn at your village hearth; its region stays
-//     castle (it's reached down the castle road) — do NOT anchor it village, or
-//     its BFS wave would drag the ktheu walk-home chain out of the sea.
-//   gjarperKulshedra/KulVdes/BurrFund — "ti je në detin": the snake-husband
-//     search ends BEYOND the sea; the tale's region stays underworld (where it
-//     is told) — anchoring them sea would pull gjarperKerkim off the dark road.
-const CONTAIN_ALLOW = new Set(['botaHumbur', 'kthimi', 'rrugaDielli2', 'start', 'balozMotra', 'balozTribut', 'balozZgjedh', 'balozFitore', 'shtepia', 'gjarperKulshedra', 'gjarperKulVdes', 'gjarperBurrFund'])
+// Exact reviewed outliers live in the shared structural-exception registry.
 const outliers = []
 for (const id of ids) {
   const p = NODE_POS[id], r = RG[reg(id)]
-  if (!p || !r || !r.rx || CONTAIN_ALLOW.has(id)) continue
+  if (!p || !r || !r.rx) continue
   const d = Math.hypot((p[0] - r.cx) / r.rx, (p[1] - r.cy) / r.ry)
-  if (d > 1.35) outliers.push(`${id} @ [${p}] assigned=${reg(id)} dist=${d.toFixed(2)}`)
+  if (d > 1.35 && !reviewedException('region-containment', id)) {
+    outliers.push(`${id} @ [${p}] assigned=${reg(id)} dist=${d.toFixed(2)}`)
+  }
 }
 section(!outliers.length, 'region containment (node sits in its assigned region)', outliers)
 
@@ -87,17 +91,15 @@ section(!outliers.length, 'region containment (node sits in its assigned region)
 // short hops are exempt (|dy|<=100 — local scene movement, not a journey).
 const UP = new Set(['lart', 'ngjit', 'ngjitu', 'ngjitem', 'hip'])
 const DOWN = new Set(['poshte', 'zbrit', 'zbres', 'zbrite'])
-// qiell1->qiellErera1: the winds' hollow hangs on the sky-plateau's east lip —
-// the terrSky art anchors it there; the storm road still ends UP at qiell2.
-const VERT_ALLOW = new Set(['qiell1->qiellErera1'])
 const vertBad = []
 for (const e of edges) {
-  if (e.wander || VERT_ALLOW.has(`${e.from}->${e.to}`)) continue
+  if (e.wander) continue
   const toks = idsOf(e.o.text)
   const up = toks.some((t) => UP.has(t)), down = toks.some((t) => DOWN.has(t))
   if (up === down || Math.abs(e.dy) <= 100) continue // no/conflicting direction, or local
-  if (up && e.dy > 0) vertBad.push(`UP-word but goes DOWN ${e.dy}: ${e.from} -> ${e.to} ("${toks.join(' ')}")`)
-  if (down && e.dy < 0) vertBad.push(`DOWN-word but goes UP ${e.dy}: ${e.from} -> ${e.to} ("${toks.join(' ')}")`)
+  const key = `${e.from}->${e.to}`
+  if (up && e.dy > 0 && !reviewedException('direction-language', key)) vertBad.push(`UP-word but goes DOWN ${e.dy}: ${e.from} -> ${e.to} ("${toks.join(' ')}")`)
+  if (down && e.dy < 0 && !reviewedException('direction-language', key)) vertBad.push(`DOWN-word but goes UP ${e.dy}: ${e.from} -> ${e.to} ("${toks.join(' ')}")`)
 }
 section(!vertBad.length, 'vertical language (lart/ngjit up, poshtë/zbrit down)', vertBad)
 
@@ -114,9 +116,12 @@ const INTERACT_MAX = 400
 //     the maiden the whole road home to the village.
 const farInteract = []
 for (const e of edges) {
-  if (e.wander || exceptionFor('interaction-distance', `${e.from}->${e.to}`)) continue
+  if (e.wander) continue
   const v = idsOf(e.o.text)[0]
-  if (INTERACT.has(v) && e.len > INTERACT_MAX) farInteract.push(`${Math.round(e.len)} ${e.from} -> ${e.to} ("${idsOf(e.o.text).join(' ')}")`)
+  const key = `${e.from}->${e.to}`
+  if (INTERACT.has(v) && e.len > INTERACT_MAX && !reviewedException('interaction-distance', key)) {
+    farInteract.push(`${Math.round(e.len)} ${e.from} -> ${e.to} ("${idsOf(e.o.text).join(' ')}")`)
+  }
 }
 section(!farInteract.length, `interaction verbs stay local (<= ${INTERACT_MAX})`, farInteract)
 
@@ -181,18 +186,14 @@ section(!splitGroups.length, 'same-spot groups are story-connected', splitGroups
 // A node whose EVERY story neighbour (in or out, wander included) is far away
 // was probably dropped in the wrong place.
 const STRAND_MAX = 800
-// henaPaqe — the Moon's terrace stands across the sky from the Sun by design;
-// "kerko hene" is a deliberate journey over the cloud-plateau.
-// gjizarFund — after the Beauty retrieves the youngest from the well, the
-// ending resumes in the king's mosque courtyard; the intervening homeward
-// journey is narrated in the ending rather than exposed as another choice.
-const STRAND_ALLOW = new Set(['henaPaqe', 'gjizarFund'])
 const stranded = []
 for (const id of ids) {
   const p = NODE_POS[id]
-  if (!p || !adj[id].size || STRAND_ALLOW.has(id)) continue
+  if (!p || !adj[id].size) continue
   const dmin = Math.min(...[...adj[id]].map((n) => NODE_POS[n] ? Math.hypot(NODE_POS[n][0] - p[0], NODE_POS[n][1] - p[1]) : Infinity))
-  if (dmin > STRAND_MAX) stranded.push(`${id} @ [${p}] nearest story neighbour ${Math.round(dmin)} away`)
+  if (dmin > STRAND_MAX && !reviewedException('stranded-node', id)) {
+    stranded.push(`${id} @ [${p}] nearest story neighbour ${Math.round(dmin)} away`)
+  }
 }
 section(!stranded.length, `no stranded nodes (some neighbour within ${STRAND_MAX})`, stranded)
 
@@ -206,67 +207,17 @@ section(!stranded.length, `no stranded nodes (some neighbour within ${STRAND_MAX
 // Inside the town walls the bar is tighter: village streets are all short, so a
 // village↔village edge over 400 is a mislaid street — and there even
 // wander/return edges count (walking home across town is still walking; only
-// outside town does "wander" mean a narrative you-got-lost teleport).
-const JOURNEY_ALLOW = new Set([
-  'tomorZbritje->pusi',      // the descent from Tomorr to the well's mouth
-  'rrethi->dhia1',           // "ec lart" — up the mountainside to the stone wedding
-  'ktheu3->udhaKthimit',     // the coast-road vista begins the long inland way home
-  'fshatiDil->pylli1',       // leaving the village into the great forest
-  'mali1->qiell1',           // the ascent into the sky realm
-  'qiell1->mali1',           // and the climb back down to Tomorr (the sky is not a trap)
-  'rrethi->pusi',            // down to the well the zana pointed out
-  'lumi->deti1',             // following the dry river down to the sea
-  'udhekryq->lumi',          // crossroads down to the river
-  'shpellaHyrje->qyteti',    // Durham's cavern "runs miles underground" to the dead city
-  'shpellaRruget->qyteti',   // the middle road of the cavern fork — same miles-long passage
-  'fshatiCaul->mali1',       // village up the mountain road
-  'maroLajmi->maroTetua',    // across the whole village to the aunt's house in the far lanes
-  'maroTetua->maroLajmi',    // and back (leaving the aunt without the coach)
-  'maroTetua->maroHani',     // the pumpkin coach's night ride out to the crossroads han
-  'maroHani->maroIkja',      // the midnight flight home, riders behind
-  'maroMesnata->maroKrushqit', // the on-foot walk home after the stroke, and the waiting days
-  'maroKrushqit->maroPallati', // the bridal journey to the prince's own land
-  'rrugaDielli2->fshatiLanes', // the stag's run ends at the back lanes
-  'mali1->udhekryq',         // mountain road back to the crossroads
-  'udhekryq->mali1',         // and out again
-  'gjarperKerkim->gjarperKulshedra', // the wife's search for her snake-husband, beyond the sea
-  'shqipe1->shtepia',        // walking on home from the eagle's tree (an "ec larg" keeper)
-  'lumi->flocka1',           // "larg është një liqen" — the far walk down to Lake Shkodra
-  // same-region journeys (invisible before check 6 went region-blind):
-  'kthimi->pusi2',           // the climb out of the world below, up the well shaft (see CROSS_ALLOW)
-  'pemaDielli->rrugaDielli2', // the stag carries the maiden the whole road home (see STRUCTURAL_EXCEPTIONS)
-  'qiellDiell->henaPaqe',    // "kerko hene" — the deliberate search across the sky (see STRAND_ALLOW)
-  'qiell2->qiellPrende',     // "bie ne toke" — the FALL from Zojz's storm-peak, not a stroll
-  'qiellErera2->qiell2',     // "mbyll sy" — you shut your eyes and the winds carry you
-  'siperfaqja->bregu',       // surfaced from the world below, the walk down to the shore
-  'tomor3->tomorZbritje',    // the narrated descent of Tomorr ("ti zbret poshtë në mal")
-  'tomorBekim->tomorZbritje', // decline the fuller warning and begin that same explicit descent immediately
-  'start->lendina',          // "hyr ne pyll" — the forest road from the bridgehead to the glade
-  'lendina->start',          // and back out the same road
-  'deti1->detiThelle1',      // the dive from the surface to the deep
-  'detiThelle1->deti1',      // and the swim back up
-  'maja->jutbina',           // from the bare peak down to the kreshnik hamlet
-  'maja->kalaMjegull',       // the castle is explicitly far below the summit: a journey, not a teleport
-  'gjizar2->gjizarUdha',     // the explicitly far no-return road into the world below
-  'gjizarTradheti->gjizarFund', // the Beauty's narrated rescue and return to the king's town
-  'binoshetFund->binoshetKasollja', // Zjerma retraces Handa's long trail to the streamside hut
-  'binoshetKasollja->binoshetKopshtiZanave', // the warned road climbs through the forest to the Field of the Ladies
-  'binoshetKuvendi->binoshetLuftaFillon', // after the ninth feast-day, the revived company marches to reclaim the ancestral crown
-  'binoshetNata->binoshetZjarri', // recovered, Zjerma crosses the bridge from the ancestral kingdom to the dawn recognition
-  'binoshetZjarri->binoshetTeNena', // after the fire ordeal, the reunited company travels from the river kingdom to the twins' mother
-  'binoshetTeNena->binoshetDyKurorat', // after the stated three-month stay, Zjerma and Bardhakuqja ride back for the river king's staff and crown
-])
+// outside town does "wander" mean a narrative you-got-lost teleport). Exact
+// reviewed journeys live in the shared registry with bounded family scopes.
 const oddNew = []
 for (const e of edges) {
   const town = reg(e.from) === 'village' && reg(e.to) === 'village'
   if (e.wander && !town) continue
   if (e.len <= (town ? 400 : 500)) continue
   const key = `${e.from}->${e.to}`
-  if (!JOURNEY_ALLOW.has(key)
-    && !exceptionFor('interaction-distance', key)
-    && !exceptionFor('route-distance', key)) oddNew.push(`${Math.round(e.len)} ${key} (${reg(e.from)} -> ${reg(e.to)}${town ? ', in-town limit 400' : ''})`)
+  if (!reviewedException('route-distance', key)) oddNew.push(`${Math.round(e.len)} ${key} (${reg(e.from)} -> ${reg(e.to)}${town ? ', in-town limit 400' : ''})`)
 }
-section(!oddNew.length, `odd links: every long edge (>500, in-town >400) is a verified journey (${JOURNEY_ALLOW.size} known)`, oddNew)
+section(!oddNew.length, `odd links: every long edge (>500, in-town >400) is a verified journey (${exceptionTargetsFor('route-distance').length} reviewed)`, oddNew)
 
 // ---- 7. no near-collisions -----------------------------------------------------
 // Two DISTINCT places closer than 16px render as an unreadable smudge — either
@@ -348,21 +299,19 @@ const DEST_REGION = {
   qiell: ['sky'], kala: ['castle'], fshat: ['village'], liqen: ['lake'],
   jutbina: ['mountain'], maja: ['mountain', 'sky'], tomor: ['mountain', 'sky'],
 }
-// Verified journey-legs where the goal lies BEYOND the flagged stop:
-const DEST_ALLOW = new Set([
-  'ktheu3->udhaKthimit',     // "shko në fshat" — the last leg of the road home; the village is past the castle
-])
 const MOVE = new Set(['shko', 'ec', 'kthehu', 'zbrit', 'ngjit', 'kalo', 'hyr', 'vrapo', 'hip', 'ndiq'])
 const nodeWords = (id) => new Set((STORY[id].text || []).flatMap((e) => idsOf(Array.isArray(e) ? e : e.line)))
 const destBad = []
 for (const e of edges) {
-  if (DEST_ALLOW.has(`${e.from}->${e.to}`)) continue
   const toks = idsOf(e.o.text)
   if (!MOVE.has(toks[0])) continue
   const shown = nodeWords(e.to)
   for (const t of toks.slice(1)) {
     const want = DEST_REGION[t]
-    if (want && !want.includes(reg(e.to)) && !shown.has(t)) destBad.push(`"${toks.join(' ')}": ${e.from} -> ${e.to} lands in ${reg(e.to)}, not ${want.join('/')}, and the scene doesn't show a ${t}`)
+    const key = `${e.from}->${e.to}`
+    if (want && !want.includes(reg(e.to)) && !shown.has(t) && !reviewedException('named-destination', key)) {
+      destBad.push(`"${toks.join(' ')}": ${e.from} -> ${e.to} lands in ${reg(e.to)}, not ${want.join('/')}, and the scene doesn't show a ${t}`)
+    }
   }
 }
 section(!destBad.length, 'named destinations land in the named region (or the scene shows the thing)', destBad)
@@ -372,8 +321,6 @@ section(!destBad.length, 'named destinations land in the named region (or the sc
 // sea, the world below, or the sky — you cannot stroll through open water, solid
 // rock, or the air. (Edges touching the realm itself are that realm's business.)
 const IMPASSABLE = ['sea', 'underworld', 'sky']
-// kthimi->pusi2: the climb OUT of the world below, up the well shaft to the coast.
-const CROSS_ALLOW = new Set(['kthimi->pusi2'])
 const segDistToOrigin = (ax, ay, bx, by) => {
   const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1
   const t = Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2))
@@ -381,13 +328,14 @@ const segDistToOrigin = (ax, ay, bx, by) => {
 }
 const crossBad = []
 for (const e of edges) {
-  if (e.wander || CROSS_ALLOW.has(`${e.from}->${e.to}`)) continue
+  if (e.wander) continue
   const a = NODE_POS[e.from], b = NODE_POS[e.to]
   for (const key of IMPASSABLE) {
     if (reg(e.from) === key || reg(e.to) === key) continue
     const r = RG[key]
     const d = segDistToOrigin((a[0] - r.cx) / r.rx, (a[1] - r.cy) / r.ry, (b[0] - r.cx) / r.rx, (b[1] - r.cy) / r.ry)
-    if (d < 0.6) crossBad.push(`${e.from} -> ${e.to} cuts through the ${key} core (${d.toFixed(2)})`)
+    const edgeKey = `${e.from}->${e.to}`
+    if (d < 0.6 && !reviewedException('realm-crossing', edgeKey)) crossBad.push(`${e.from} -> ${e.to} cuts through the ${key} core (${d.toFixed(2)})`)
   }
 }
 section(!crossBad.length, 'journeys avoid impassable realm cores (sea/underworld/sky)', crossBad)
@@ -404,9 +352,12 @@ if (seaCoastX) {
     const p = NODE_POS[id]
     if (!p) continue
     const coast = seaCoastX(p[1])
-    if (CONTAIN_ALLOW.has(id)) continue // documented coast/realm exceptions above
-    if (reg(id) !== 'sea' && p[0] > coast + 40) coastBad.push(`${id} @ [${p}] (${reg(id)}) is ${Math.round(p[0] - coast)} into open water`)
-    if (reg(id) === 'sea' && p[0] < coast - 150) coastBad.push(`${id} @ [${p}] (sea) is ${Math.round(coast - p[0])} inland of the coast`)
+    if (reg(id) !== 'sea' && p[0] > coast + 40 && !reviewedException('coastline-placement', id)) {
+      coastBad.push(`${id} @ [${p}] (${reg(id)}) is ${Math.round(p[0] - coast)} into open water`)
+    }
+    if (reg(id) === 'sea' && p[0] < coast - 150 && !reviewedException('coastline-placement', id)) {
+      coastBad.push(`${id} @ [${p}] (sea) is ${Math.round(coast - p[0])} inland of the coast`)
+    }
   }
 }
 section(!!seaCoastX && !coastBad.length, 'land nodes on land, sea nodes at sea (drawn coastline)', seaCoastX ? coastBad : ['could not extract seaCoastX from WorldMapView.jsx'])
@@ -415,11 +366,8 @@ section(!!seaCoastX && !coastBad.length, 'land nodes on land, sea nodes at sea (
 // Two options from one node to the SAME target with identical gating AND identical
 // effects (grant/consume/reveal) are one choice wearing two labels (the old
 // jutbina 'kerko zanat'/'kerko fuqi' bug). Differing effects = a real choice.
-// riddle1: both WRONG riddle answers stray off the path together — intended.
-const DUP_ALLOW = new Set(['riddle1'])
 const dupBad = []
 for (const id of ids) {
-  if (DUP_ALLOW.has(id)) continue
   const seen = {}
   for (const o of STORY[id].options || []) {
     if (o.confuser || !o.to || !STORY[o.to]) continue
@@ -432,7 +380,7 @@ for (const id of ids) {
       o.questAction ?? null,
       effects,
     ])
-    if (seen[key]) dupBad.push(`${id}: "${idsOf(seen[key].text).join(' ')}" and "${idsOf(o.text).join(' ')}" both -> ${o.to} with identical gates+effects`)
+    if (seen[key] && !reviewedException('duplicate-route', id)) dupBad.push(`${id}: "${idsOf(seen[key].text).join(' ')}" and "${idsOf(o.text).join(' ')}" both -> ${o.to} with identical gates+effects`)
     else seen[key] = o
   }
 }
@@ -466,18 +414,14 @@ section(!lureBad.length, '"larg" lures point somewhere actually far (>= 120)', l
 // A scene line asserting WHERE YOU ARE ("ti je … në <landmark>") must be drawn
 // in (or on the fringe of) that landmark's region. POSITION-based, deliberately
 // NOT assignment-based: prose describes where you STAND; a node's region
-// assignment may legitimately differ (factoid semantics — see CONTAIN_ALLOW).
+// assignment may legitimately differ (factoid semantics are separately reviewed).
 // A line naming several landmarks passes if ANY of them fits ("një fshat të
 // det" — a sea-village — passes at the coast).
 const PLACE_REGION = { ...DEST_REGION, bote: ['underworld'] }
-// fshatiLumi — the village RIVER-QUARTER: the river as drawn runs through town
-// (the start bridge crosses it); the 'river' REGION ellipse only covers the
-// Zana stretch downstream, so the ellipse test can't see the in-town bank.
-const PROSE_ALLOW = new Set(['fshatiLumi'])
 const proseBad = []
 for (const id of ids) {
   const p = NODE_POS[id]
-  if (!p || PROSE_ALLOW.has(id)) continue
+  if (!p) continue
   for (const e of STORY[id].text || []) {
     const t = idsOf(Array.isArray(e) ? e : e.line)
     if (t[0] !== 'ti' || t[1] !== 'je') continue
@@ -487,7 +431,7 @@ for (const id of ids) {
       const r = RG[key]
       return r && r.rx && Math.hypot((p[0] - r.cx) / r.rx, (p[1] - r.cy) / r.ry) <= 1.35
     }))
-    if (!ok) proseBad.push(`${id} @ [${p}]: says "ti je … ${nouns.join('/')}" but stands nowhere near ${nouns.map((n) => PLACE_REGION[n].join('/')).join(', ')}`)
+    if (!ok && !reviewedException('stated-place', id)) proseBad.push(`${id} @ [${p}]: says "ti je … ${nouns.join('/')}" but stands nowhere near ${nouns.map((n) => PLACE_REGION[n].join('/')).join(', ')}`)
   }
 }
 section(!proseBad.length, '"ti je në X" prose stands where it says', proseBad)
@@ -613,26 +557,27 @@ section(!npcBad.length, `NPC routes walk real roads & npc conditions can fire ($
 // and SHOW the gesture's premise in the scene text (pusiGuri narrates the
 // down-stare "ti shikon poshtë në pus" so «shiko lart» isn't sky-gazing).
 // Bare «kthehu» (turn back — names no place) is honest and allowed.
-const RETURN_OK = {
-  'kafeneja->fshatiSheshi': 'stepping OUT of the coffee-house interior onto the square is a real crossing',
-  'kafeneja2->fshatiSheshi': 'same interior->square crossing',
-  'aliBajr1->aliBajrFund': "«kthehu dhe vrit krajlin» — the ballad's return-and-strike beat, not a travel label",
-}
 const retBad = []
 for (const e of edges) {
   const t = idsOf(e.o.text)
   if (t[0] !== 'kthehu' || t.length === 1) continue
   if (PLACE_OF[e.from] !== PLACE_OF[e.to]) continue
-  if (RETURN_OK[`${e.from}->${e.to}`]) continue
-  retBad.push(`${e.from} -> ${e.to}: «kthehu …» but both stand at '${PLACE_OF[e.from]}' — you never left; relabel with the moment-ending gesture (or RETURN_OK with a reason)`)
+  if (reviewedException('same-place-return', `${e.from}->${e.to}`)) continue
+  retBad.push(`${e.from} -> ${e.to}: «kthehu …» but both stand at '${PLACE_OF[e.from]}' — you never left; relabel with the moment-ending gesture or add an exact reviewed exception`)
 }
-for (const key of Object.keys(RETURN_OK)) {
-  const [a, b] = key.split('->')
-  const edge = edges.find((e) => e.from === a && e.to === b)
-  if (!edge) retBad.push(`RETURN_OK stale: ${key} is no longer a story edge`)
-  else if (idsOf(edge.o.text)[0] !== 'kthehu' || PLACE_OF[a] !== PLACE_OF[b]) retBad.push(`RETURN_OK stale: ${key} no longer needs sanctioning`)
-}
-section(!retBad.length, `departure truthfulness: no same-spot «kthehu <place>» exits (${Object.keys(RETURN_OK).length} sanctioned)`, retBad)
+section(!retBad.length, `departure truthfulness: no same-spot «kthehu <place>» exits (${exceptionTargetsFor('same-place-return').length} reviewed)`, retBad)
+
+// ---- shared exception-registry integrity -------------------------------------
+// All records must be well formed, exact and actually consumed by the rule they
+// claim to relax. This catches deleted targets, duplicate sanctions, copied
+// broad scopes and exceptions whose underlying violation disappeared.
+const exceptionIssues = [
+  ...structuralExceptionRegistryIssues(),
+  ...structuralExceptionUsageIssues(usedExceptionClaims, Object.keys(STRUCTURAL_EXCEPTION_RULES)),
+]
+section(!exceptionIssues.length,
+  `reviewed structural exceptions are valid, bounded and live (${usedExceptionClaims.size} exact claims)`,
+  exceptionIssues)
 
 console.log(failures ? `\n❌ ${failures} map check(s) failing` : `\n✅ all ${checks} map checks pass — also run: node scripts/audit.mjs`)
 process.exitCode = failures ? 1 : 0

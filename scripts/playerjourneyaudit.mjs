@@ -120,7 +120,10 @@ check('a fresh learner can discover, train and spend the opening bridge phrase',
   state = trainOnce(state, option.text)
   assert.equal(canChoose(state, option), true)
   const before = Object.fromEntries(phraseSenses(option.text).map((id) => [id, state.mana[id]]))
-  state = reducer(state, { type: 'CHOOSE', option, targetNode: STORY[option.to] })
+  state = reducer(state, {
+    type: 'CHOOSE', option, targetNode: STORY[option.to],
+    fromNodeId: state.nodeId, fromTurn: state.turn,
+  })
   assert.equal(state.nodeId, 'fshatiLumi')
   assert.equal(state.visited.fshatiLumi, true)
   assert.equal(state.turn, 2)
@@ -148,13 +151,40 @@ check('the opening forest path unlocks from its signpost sentence, not a later f
     true,
     'an immediate retreat stopped being available',
   )
+
+  // Knowing and funding the action text alone must not let a stale or forged
+  // caller bypass the signpost sentence that the Story screen still hides.
+  const actionKnown = discover(state, option.text)
+  const hiddenTrainingTarget = trainingTargetForOption(START_NODE, option)
+  assert.strictEqual(reducer(actionKnown, {
+    type: 'BEGIN_OPTION_TRAINING', target: hiddenTrainingTarget,
+  }), actionKnown, 'Train advertised an action before its reveal sentence was known')
+
+  const actionReady = trainOnce(actionKnown, option.text)
+  assert.equal(canChoose(actionReady, option), true)
+  assert.strictEqual(reducer(actionReady, {
+    type: 'CHOOSE', option, targetNode: STORY[option.to],
+    fromNodeId: actionReady.nodeId, fromTurn: actionReady.turn,
+  }), actionReady, 'the reducer accepted a route before its reveal sentence was known')
+
+  // A real immediate retreat is the sole reveal bypass; it remains usable at
+  // the state boundary so the player cannot be stranded after crossing here.
+  const retreatReady = { ...actionReady, cameFrom: 'lendina' }
+  assert.equal(reducer(retreatReady, {
+    type: 'CHOOSE', option, targetNode: STORY[option.to],
+    fromNodeId: retreatReady.nodeId, fromTurn: retreatReady.turn,
+  }).nodeId, 'lendina')
+
   state = discover(state, resolution.line)
   assert.equal(ids.every((id) => state.discovered[id]), true)
   assert.equal(isOptionRevealed(state, option, node), true)
   state = discover(state, option.text)
   state = trainOnce(state, option.text)
   assert.equal(canChoose(state, option), true)
-  assert.equal(reducer(state, { type: 'CHOOSE', option, targetNode: STORY[option.to] }).nodeId, 'lendina')
+  assert.equal(reducer(state, {
+    type: 'CHOOSE', option, targetNode: STORY[option.to],
+    fromNodeId: state.nodeId, fromTurn: state.turn,
+  }).nodeId, 'lendina')
 })
 
 check('training recommendations use the same reveal boundary as the Story screen', () => {

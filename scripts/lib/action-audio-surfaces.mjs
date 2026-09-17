@@ -1,5 +1,6 @@
 import { HEART_LEVELS, ITEMS, STORY } from '../../src/game/content.js'
 import { albanianTextOf } from '../../src/game/language.js'
+import { certifiedDynamicItemConfuserSurfaces } from '../../src/game/storyConfusers.js'
 
 export const actionTranscriptWords = (transcript) =>
   String(transcript || '').match(/\p{L}+(?:['’]\p{L}+)*/gu) || []
@@ -19,5 +20,6 @@ export function collectAcceptedActionSurfaces({
   }
   for (const item of Object.values(items)) add(item.use?.phrase)
   for (const level of Object.values(heartLevels)) add(level.heal?.phrase)
+  for (const transcript of certifiedDynamicItemConfuserSurfaces({ items })) surfaces.add(transcript)
   return [...surfaces].sort((left, right) => left.localeCompare(right, 'sq'))
 }

@@ -7,6 +7,7 @@
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
+import { childProcessFailed } from './lib/child-process-result.mjs'
 import {
   STORY,
   STORY_OBSERVATION_BEATS,
@@ -477,4 +478,4 @@ console.log(`\n${failed ? '❌ ' + failed + ' check(s) failed' : '✅ all ' + ch
 // here automatically so a story edit can never silently drift off the map.
 console.log('')
 const map = spawnSync(process.execPath, [join(dirname(fileURLToPath(import.meta.url)), 'mapaudit.mjs')], { stdio: 'inherit' })
-process.exit(failed || map.status ? 1 : 0)
+process.exit(failed || childProcessFailed(map) ? 1 : 0)

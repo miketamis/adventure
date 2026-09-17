@@ -84,6 +84,163 @@ export const REVIEWED_NARRATIVE_CORRIDORS = Object.freeze([
   }),
 ])
 
+// Ordinary service and social results restore agency immediately. The audit
+// derives these categories from canonical option effects (money, healing,
+// quest and transfer semantics) and accepts explicit `ordinaryResultCategory`
+// metadata for dialogue/information boundaries that have no mechanical effect.
+// A physical beat can remain linear only through the exact, attributable
+// exception contract below; endings are outside this contract by definition.
+export const ORDINARY_RESULT_CATEGORIES = Object.freeze({
+  SHOPPING: 'shopping',
+  DIALOGUE: 'dialogue',
+  INFORMATION: 'information',
+  REWARD: 'reward',
+  TASK: 'task',
+  HEALING: 'healing',
+  LODGING: 'lodging',
+  GIFT: 'gift',
+})
+
+export const REVIEWED_ORDINARY_RESULT_EXCEPTIONS = Object.freeze([
+  Object.freeze({
+    id: 'eagle-well-ascent-is-one-physical-beat',
+    rule: 'ordinary-result-agency',
+    category: ORDINARY_RESULT_CATEGORIES.GIFT,
+    sourceNode: 'ngjitja2',
+    resultNode: 'ngjitja3',
+    rationale: 'Feeding the exhausted eagle happens during one uninterrupted ascent; the next and only act is climbing over the well rim at dawn, not choosing a new ordinary service or conversation.',
+    evidence: 'ngjitja3 visibly establishes the end of night and the illuminated well rim before the player completes the same ascent to siperfaqja.',
+    owner: 'narrative-flow',
+    reviewTrigger: 'when ngjitja3 gains another action, moves away from the well rim, or separates feeding from the ascent',
+    maxGenuineContinuations: 1,
+  }),
+  Object.freeze({
+    id: 'arta-warning-resolves-as-an-ending-beat',
+    rule: 'ordinary-result-agency',
+    category: ORDINARY_RESULT_CATEGORIES.DIALOGUE,
+    sourceNode: 'uraNata',
+    resultNode: 'uraMengjes',
+    rationale: 'Warning the bride is the tale-defining moral choice: dawn visibly confirms that she stayed home, and the sole applicable route closes that chosen ending instead of beginning an ordinary conversation hub.',
+    evidence: 'uraMengjes preserves two mutually exclusive causal branches: only the warned-bride branch reaches uraArtesShpetim, while keeping the besa sends her toward uraGropa and the later ring-trick decision.',
+    owner: 'narrative-flow',
+    reviewTrigger: 'when either dawn branch gains an intervening activity, the warning no longer leads directly to its ending, or the conditional routes cease to be mutually exclusive',
+    maxGenuineContinuations: 2,
+  }),
+])
+
+// Result screens do not create a second vocabulary puzzle merely to leave the
+// completed beat. These reviews are deliberately separate from the corridor
+// reviews below: each record pins the exact incoming result, category, and
+// complete set of genuine ungated continuations. Adding, removing, gating, or
+// redirecting an option invalidates the record instead of silently widening it.
+export const REVIEWED_UNGATED_RESULT_CHOICES = Object.freeze([
+  Object.freeze({
+    id: 'bread-alms-result-keeps-square-agency-visible',
+    rule: 'ungated-result-agency',
+    category: ORDINARY_RESULT_CATEGORIES.GIFT,
+    sourceNode: 'sheshi',
+    resultNode: 'lemoshaBuke',
+    rationale: 'Giving away the loaf has already completed its vocabulary-gated action; the player must then be free either to cross the same square to the trader or remain where the grateful man is eating.',
+    evidence: 'The result visibly shows the man eating the given bread at the square, while its two continuations remain ordinary same-square positioning choices with distinct destinations.',
+    owner: 'narrative-flow',
+    reviewTrigger: 'when the bread gift, square location, trader route, stay route, or either destination changes',
+    options: Object.freeze([
+      Object.freeze({ to: 'tregtari', purpose: 'travel' }),
+      Object.freeze({ to: 'sheshi', purpose: 'stay' }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'bread-purchase-result-keeps-market-agency-visible',
+    rule: 'ungated-result-agency',
+    category: ORDINARY_RESULT_CATEGORIES.SHOPPING,
+    sourceNode: 'tregtari',
+    resultNode: 'blerjaBuke',
+    rationale: 'The loaf purchase is already complete and charged before this screen; staying at the stall or stepping back into the square are ordinary post-transaction choices, not another test of the bought noun.',
+    evidence: 'The result joins the exact bread payment to the acquired loaf and the trader’s thanks, then offers only the trader and square routes from that same market stall.',
+    owner: 'narrative-flow',
+    reviewTrigger: 'when the bread transaction, trader location, square exit, option count, or either destination changes',
+    options: Object.freeze([
+      Object.freeze({ to: 'tregtari', purpose: 'stay' }),
+      Object.freeze({ to: 'sheshi', purpose: 'return' }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'salt-purchase-result-keeps-market-agency-visible',
+    rule: 'ungated-result-agency',
+    category: ORDINARY_RESULT_CATEGORIES.SHOPPING,
+    sourceNode: 'tregtari',
+    resultNode: 'blerjaKripe',
+    rationale: 'The salt purchase is already complete and charged before this screen; staying at the stall or stepping back into the square are ordinary post-transaction choices, not another test of the bought noun.',
+    evidence: 'The result joins the exact salt payment to the acquired salt and the trader’s thanks, then offers only the trader and square routes from that same market stall.',
+    owner: 'narrative-flow',
+    reviewTrigger: 'when the salt transaction, trader location, square exit, option count, or either destination changes',
+    options: Object.freeze([
+      Object.freeze({ to: 'tregtari', purpose: 'stay' }),
+      Object.freeze({ to: 'sheshi', purpose: 'return' }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'lahuta-purchase-result-keeps-shop-agency-visible',
+    rule: 'ungated-result-agency',
+    category: ORDINARY_RESULT_CATEGORIES.SHOPPING,
+    sourceNode: 'tregtari2',
+    resultNode: 'blerjaLahuta',
+    rationale: 'Buying the lahuta has already resolved the expensive shop action; browsing the remaining practical goods or leaving for the square are the next independent choices and must not depend on rediscovering the purchase.',
+    evidence: 'The result joins the exact lahuta payment to the instrument and the trader’s invitation to sing, then offers the shop shelf and square as two consequence-distinct destinations.',
+    owner: 'narrative-flow',
+    reviewTrigger: 'when the lahuta transaction, practical-goods shelf, square exit, option count, or either destination changes',
+    options: Object.freeze([
+      Object.freeze({ to: 'sendetDites', purpose: 'browse' }),
+      Object.freeze({ to: 'sheshi', purpose: 'return' }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'inn-night-result-keeps-morning-agency-visible',
+    rule: 'ungated-result-agency',
+    category: ORDINARY_RESULT_CATEGORIES.LODGING,
+    sourceNode: 'bujtina',
+    resultNode: 'gjumiBujtina',
+    rationale: 'The paid sleep has already advanced the clock and restored health; at dawn the player may accept the coffee visibly being made or leave for the square without another reveal gate trapping the morning exit.',
+    evidence: 'The result visibly establishes dawn in the room and the woman making coffee, while the two exact continuations either accept that offered drink or return to the city square.',
+    owner: 'narrative-flow',
+    reviewTrigger: 'when the paid night no longer ends at dawn, coffee is not visibly offered, or either continuation changes',
+    options: Object.freeze([
+      Object.freeze({ to: 'kafeja1', purpose: 'accept' }),
+      Object.freeze({ to: 'sheshi', purpose: 'return' }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'healing-result-keeps-clinic-agency-visible',
+    rule: 'ungated-result-agency',
+    category: ORDINARY_RESULT_CATEGORIES.HEALING,
+    sourceNode: 'kopshtiBar',
+    resultNode: 'sherimiBar',
+    rationale: 'Taking the paid medicine has already completed the healing action; staying with the healer for further care or returning to the square are ordinary next movements and should not be hidden behind the remedy just consumed.',
+    evidence: 'The result visibly names the healer, medicine, spoon, and recovery before offering exactly one same-clinic return and one route back to the square.',
+    owner: 'narrative-flow',
+    reviewTrigger: 'when the medicine no longer heals here, the healer or square route changes, or the result gains another option',
+    options: Object.freeze([
+      Object.freeze({ to: 'sheruesi', purpose: 'stay' }),
+      Object.freeze({ to: 'sheshi', purpose: 'return' }),
+    ]),
+  }),
+  Object.freeze({
+    id: 'serpent-offering-result-keeps-house-agency-visible',
+    rule: 'ungated-result-agency',
+    category: ORDINARY_RESULT_CATEGORIES.HEALING,
+    sourceNode: 'vatra',
+    resultNode: 'vatraGjarpri',
+    rationale: 'Giving the serpent milk has already consumed the gift and resolved the healing consequence; the player may then remain beside the hearth or step back into the adjoining family room without repeating that gate.',
+    evidence: 'The result visibly shows the serpent drinking the milk at the hearth and names the house before offering exactly the hearth and family-room destinations.',
+    owner: 'narrative-flow',
+    reviewTrigger: 'when the milk offering, hearth location, adjoining room, healing consequence, or either continuation changes',
+    options: Object.freeze([
+      Object.freeze({ to: 'vatra', purpose: 'stay' }),
+      Object.freeze({ to: 'fshatiJeta', purpose: 'return' }),
+    ]),
+  }),
+])
+
 // These decision points deliberately keep every real response visible. They
 // are agency boundaries, not sentence-reveal puzzles: hiding the refusal,
 // escape, descent or request-to-listen would turn a choice back into a forced

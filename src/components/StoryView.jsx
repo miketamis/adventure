@@ -4,8 +4,6 @@ import {
   STORY,
   ITEMS,
   HEART_LEVELS,
-  itemConfuserActionOf,
-  w,
   wf,
   p,
   lineOf,
@@ -76,7 +74,7 @@ import {
   sceneAnnouncement,
   storyReadingVisible,
 } from './storyMechanicsPresentation.js'
-import { storyConfuserConsequence } from '../game/consequenceBuilders.js'
+import { storyConfuserCandidates } from '../game/storyConfusers.js'
 import '../game/npcAppearanceRegistry.js'
 import { isTrainableSense } from '../game/lexicalTrainability.js'
 import { captureStoryChoicesPresented } from '../game/playtestAnalytics.js'
@@ -222,7 +220,12 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
       setAreaTest({ ach: pendingAch, questions: null, result: 'passed' })
       return
     }
-    setAreaTest({ ach: pendingAch, questions, result: null })
+    setAreaTest({
+      ach: pendingAch,
+      questions,
+      attempt: state.attempts?.[pendingAch.id] || 0,
+      result: null,
+    })
   }
 
   const lineDiscovered = (line) => line.every((t) => !t.id || state.discovered[t.id])
@@ -263,32 +266,10 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
   // Currency has its own dynamic "ti ke 5 lek" story sentence below, so it is
   // not mistaken for a singular object in the "ti ke një X" carry-line.
   // Authored story flags live in state.flags, never in this physical inventory.
-  const itemIds = visibleOwnedIds.filter((id) => ITEMS[id] && !ITEMS[id].companion && !ITEMS[id].currency)
   const companionIds = visibleOwnedIds.filter((id) => ITEMS[id]?.companion)
   const usableOwned = state.embodying ? [] : visibleOwnedIds.filter((id) => ITEMS[id]?.use)
   const arrivalOption = arrivalOptionOf(state)
   const moneyOutcome = resolvedMoneyOutcomeLine(state, arrivalOption)
-
-  // One deliberately impossible but grammatically rendered action built from
-  // an item you carry. Authored confusers already provide the scene-specific
-  // distractors; the former "outside + item + noun" word stack was not English.
-  const itemConfusers = []
-  if (itemIds.length > 0) {
-    const hash = [...state.nodeId].reduce((a, c) => a + c.charCodeAt(0), 0)
-    const featured = itemIds[hash % itemIds.length]
-    const fw = ITEMS[featured].word || featured
-    const confuserAction = itemConfuserActionOf(featured)
-    const confuser = [w(confuserAction === 'fight' ? 'lufto' : 'pi'), w(fw)]
-    confuser.dynamicOptionReading = dynamicItemConfuserEnglish(ITEMS[featured], confuserAction)
-    itemConfusers.push(confuser)
-  }
-  const seenPhrase = new Set()
-  for (const o of node.options) seenPhrase.add(o.text.map((t) => t.id || t.en).join(' '))
-  for (const id of usableOwned) seenPhrase.add(ITEMS[id].use.phrase.map((t) => t.id || t.en).join(' '))
-  if (healRevealed) seenPhrase.add(heartLevel.heal.phrase.map((t) => t.id || t.en).join(' '))
-  const dynamicConfusers = itemConfusers.filter(
-    (toks) => !seenPhrase.has(toks.map((t) => t.id || t.en).join(' ')),
-  )
 
   const entries = []
   const actionableHeldIds = new Set(usableOwned)
@@ -335,7 +316,10 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
       roleReason: roleAccess.reason,
       ok: canChoose(storyState, opt) && roleAccess.ok,
       onSelect: () => opt.become && !state.embodying
-        ? dispatch({ type: 'REQUEST_EMBODIMENT', optionId: `opt-${i}`, optionIndex: i })
+        ? dispatch({
+            type: 'REQUEST_EMBODIMENT', optionId: `opt-${i}`, optionIndex: i,
+            fromNodeId: state.nodeId, fromTurn: state.turn,
+          })
         : dispatch({
             type: 'CHOOSE', option: opt, targetNode: STORY[opt.to],
             optionId: `opt-${i}`, optionIndex: i,
@@ -380,71 +364,37 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
   }
   // confusers — always shown (the comprehension trap)
   if (!state.embodying) {
-    node.options.forEach((opt, i) => {
-      if (!opt.confuser) return
+    storyConfuserCandidates(state).forEach((confuser) => {
+      const opt = confuser.option
+      const reading = confuser.kind === 'dynamic-item'
+        ? dynamicItemConfuserEnglish(ITEMS[confuser.itemId], confuser.action)
+        : optionEnglishReadingOf(confuser.tokens)
       // Contextual confusers can belong to an hour, season, weather or other
       // ordinary story condition. A dawn "good night" must disappear when the
       // clock reaches day just as its correct counterpart does.
-      if (!hasRequiredItem(storyState, opt)) return
-      const { allDiscovered, enoughMana } = canSpeak(state, opt.text)
-      const key = 'opt-' + i
-      const correctGreeting = opt.contextGreeting && node.options.find((candidate) =>
-        candidate.contextGreeting?.challengeId === opt.contextGreeting.challengeId &&
-        candidate.contextGreeting?.period === opt.contextGreeting.period &&
-        candidate.contextGreeting?.correct,
-      )
+      if (opt && !hasRequiredItem(storyState, opt)) return
+      const { allDiscovered, enoughMana } = canSpeak(state, confuser.tokens)
       entries.push({
-        key,
-        trainingTarget: trainingTargetForOption(state.nodeId, opt),
-        tokens: opt.text,
-        reading: optionEnglishReadingOf(opt.text),
-        readingReviewed: ['internal-editorial', 'generated-world-item', 'generated-observation'].includes(opt.text.optionReadingReview),
+        key: confuser.key,
+        ...(opt ? { trainingTarget: trainingTargetForOption(state.nodeId, opt) } : {}),
+        tokens: confuser.tokens,
+        reading,
+        readingReviewed: confuser.kind !== 'dynamic-item' && [
+          'internal-editorial',
+          'generated-world-item',
+          'generated-observation',
+        ].includes(confuser.tokens.optionReadingReview),
+        dynamicConfuser: confuser.kind === 'dynamic-item',
         allDiscovered,
         enoughMana,
         ok: allDiscovered && enoughMana,
         onSelect: () => dispatch({
           type: 'CONFUSE',
-          optionId: key,
-          optionIndex: i,
+          optionId: confuser.key,
+          ...(confuser.optionIndex == null ? {} : { optionIndex: confuser.optionIndex }),
           expectedHearts: state.hearts,
-          actionText: opt.text,
-          consequence: storyConfuserConsequence({
-            nodeId: state.nodeId,
-            turn: state.turn,
-            key,
-            tokens: opt.text,
-            english: optionEnglishReadingOf(opt.text),
-            greeting: opt.contextGreeting,
-            correctGreeting,
-          }),
-        }),
-      })
-    })
-    dynamicConfusers.forEach((toks, k) => {
-      const { allDiscovered, enoughMana } = canSpeak(state, toks)
-      const key = 'dyn-' + k
-      entries.push({
-        key,
-        tokens: toks,
-        reading: toks.dynamicOptionReading,
-        readingReviewed: false,
-        dynamicConfuser: true,
-        allDiscovered,
-        enoughMana,
-        ok: allDiscovered && enoughMana,
-        onSelect: () => dispatch({
-          type: 'CONFUSE',
-          optionId: key,
-          expectedHearts: state.hearts,
-          actionText: toks,
-          consequence: storyConfuserConsequence({
-            nodeId: state.nodeId,
-            turn: state.turn,
-            key,
-            tokens: toks,
-            english: toks.dynamicOptionReading,
-            dynamicItem: true,
-          }),
+          fromNodeId: state.nodeId,
+          fromTurn: state.turn,
         }),
       })
     })
@@ -773,12 +723,15 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
             endQuestions && (
               <ComprehensionTest
                 questions={endQuestions}
-                onDone={(passed, consequence) => {
+                onDone={(passed, miss) => {
                   if (passed) {
                     dispatch({ type: 'EARN_ACHIEVEMENT', id: node.id })
                     setEndResult('passed')
                   } else {
-                    dispatch({ type: 'COMP_WRONG', id: node.id, consequence })
+                    dispatch({
+                      type: 'COMP_WRONG', id: node.id, expectedAttempt: endAttempt,
+                      questionIndex: miss.questionIndex, attemptedEnglish: miss.attemptedEnglish,
+                    })
                     setEndResult('failed')
                   }
                 }}
@@ -836,9 +789,12 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
           {areaTest.result === null ? (
             <ComprehensionTest
               questions={areaTest.questions}
-              onDone={(passed, consequence) => {
+              onDone={(passed, miss) => {
                 if (passed) dispatch({ type: 'EARN_ACHIEVEMENT', id: areaTest.ach.id })
-                else dispatch({ type: 'COMP_WRONG', id: areaTest.ach.id, consequence })
+                else dispatch({
+                  type: 'COMP_WRONG', id: areaTest.ach.id, expectedAttempt: areaTest.attempt,
+                  questionIndex: miss.questionIndex, attemptedEnglish: miss.attemptedEnglish,
+                })
                 setAreaTest({ ...areaTest, result: passed ? 'passed' : 'failed' })
               }}
             />

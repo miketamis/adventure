@@ -8,10 +8,15 @@ import {
   ITEMS,
   itemHasAffordance,
   itemHasTag,
+  lineOf,
   moneyOutcomeLineOf,
   visibleLines,
 } from './content.js'
 import { formPracticeKey } from './formProgression.js'
+import {
+  canonicalPlayerActionId,
+  playerActionIdFromCondition,
+} from './playerActionRuntime.js'
 import { wordProgressionOptionsForSense } from './formInventory.js'
 import {
   ACHIEVEMENT_RULE_BY_ID as ACHIEVEMENT_BY_ID,
@@ -85,7 +90,8 @@ import {
   normalizeCefrPreparationState,
   recordCefrPreparationAttempt,
 } from './cefrPreparationEvidenceState.js'
-import { transitionInfo } from './worldModel.js'
+import { isDistantLineVisible, transitionInfo } from './worldModel.js'
+import { resolveRevealLine } from './revealResolver.js'
 import { NODE_REGION } from './regions.js'
 import {
   canonicalEmbodimentId,
@@ -174,6 +180,12 @@ import {
   normalizeNpcPortraitsSeen,
   planNpcFirstEncounterLines,
 } from './npcAppearance.js'
+import {
+  canonicalStoryConfuser,
+  consequenceForStoryConfuser,
+} from './storyConfusers.js'
+import { testFor } from './comprehension.js'
+import { comprehensionMissConsequence } from './consequenceBuilders.js'
 import {
   applyExplainedHeartLoss,
   attachProtectedTrainMiss,
@@ -513,6 +525,11 @@ export const hasCond = (state, id) => {
     return Object.prototype.hasOwnProperty.call(state.observations || {}, observationId)
   }
   if (id === 'arrival:money') return Boolean(arrivalOptionOf(state)?.moneyOutcome)
+  const playerActionId = playerActionIdFromCondition(id)
+  if (playerActionId) {
+    const option = arrivalOptionOf(state)
+    return Boolean(option && canonicalPlayerActionId(state.cameFrom, option) === playerActionId)
+  }
   if (isTimeId(id)) return timeOfDay(state) === id
   if (isEnvironmentId(id)) return hasEnvironmentCond(state, id)
   if (isFixtureId(id)) return fixtureConditionMatches(id, state.fixtures, storyClockOf(state))
@@ -574,6 +591,33 @@ export const hasCond = (state, id) => {
   return ITEMS[id]
     ? (state.inventory?.[id] || 0) > 0
     : hasStoryFlag(state, id) || (state.inventory?.[id] || 0) > 0
+}
+
+// One player-visibility rule owns both presentation and reducer acceptance.
+// A route cannot be invoked from a stale/forged caller before its exact visible
+// signpost sentence is known. A genuine recent retreat remains available so a
+// player is never trapped behind a route they just crossed.
+export function isOptionRevealed(
+  state,
+  option,
+  node = STORY[state.nodeId],
+  renderedLines = null,
+) {
+  if (!option?.reveal) return true
+  if (!node) return false
+  if (isBacktrack(state, option.to)) return true
+
+  const resolution = resolveRevealLine(node.text.map(lineOf), option)
+  // Missing, out-of-range, or ambiguous authoring is not a runtime permission.
+  // The strict whole-bank audit names the broken edge; play fails closed until
+  // the author selects one exact visible sentence.
+  if (!['unique', 'selected'].includes(resolution.status)) return false
+  const revealLine = resolution.line
+  const lines = renderedLines || visibleLines(node, (id) => hasCond(state, id)).filter((line) =>
+    isDistantLineVisible(state.nodeId, line, environmentSnapshot(state)),
+  )
+  return lines.includes(revealLine) &&
+    revealLine.every((token) => !token.id || state.discovered[token.id])
 }
 
 // The renderer and reducer consume this exact plan. That handshake prevents a
@@ -1097,6 +1141,12 @@ const canonicalSavedPassage = (savedPassage, next, activeQuest) => {
 // otherwise one `null` inventory/visited map can make a valid old save crash on
 // its first choice. This is exported so the migration contract is auditable
 // without pretending Node has a browser localStorage.
+const RETIRED_STORY_NODE_MIGRATIONS = Object.freeze({
+  pallatRojeZi: 'pallatRoje',
+  pallatRojePse: 'pallatRoje',
+  pazariPerserit: 'pazariFshatit',
+})
+
 export function normalizeSavedState(saved, fresh) {
   saved = isRecord(saved) ? saved : {}
   const next = { ...fresh, ...saved }
@@ -1114,7 +1164,8 @@ export function normalizeSavedState(saved, fresh) {
     ? saved.storyRunSequence
     : 1
   for (const key of RETIRED_SHADOW_STATE_KEYS) delete next[key]
-  next.nodeId = STORY[saved.nodeId] ? saved.nodeId : fresh.nodeId
+  const migratedNodeId = RETIRED_STORY_NODE_MIGRATIONS[saved.nodeId] || saved.nodeId
+  next.nodeId = STORY[migratedNodeId] ? migratedNodeId : fresh.nodeId
   for (const key of ['heard', 'discovered', 'deathUnsavedWords', 'visited', 'dismissedTests', 'healedAt', 'flags']) {
     next[key] = truthRecord(fresh[key], saved[key])
   }
@@ -1455,10 +1506,14 @@ export function normalizeSavedState(saved, fresh) {
     ? STORY[pending.fromNodeId]?.options?.[pending.optionIndex]
     : null
   next.pendingEmbodiment = !activeQuest && !next.ended && pendingOption?.become &&
-    isKnownEmbodiment(pendingOption.become) && canChoose(next, pendingOption)
+    Number.isSafeInteger(pending.fromTurn) && pending.fromTurn === next.turn &&
+    isKnownEmbodiment(pendingOption.become) &&
+    isOptionRevealed(next, pendingOption, STORY[pending.fromNodeId]) &&
+    canChoose(next, pendingOption)
     ? {
         taleId: canonicalEmbodimentId(pendingOption.become),
         fromNodeId: pending.fromNodeId,
+        fromTurn: pending.fromTurn,
         optionIndex: pending.optionIndex,
       }
     : null
@@ -1688,6 +1743,7 @@ const isArrivalSensitiveId = (id) =>
   isTimeId(id) ||
   (typeof id === 'string' &&
     (id.startsWith('season:') ||
+      id.startsWith('arrival:action:') ||
       id.startsWith('greeting:') ||
       id.startsWith('weather:') ||
       id.startsWith('festival:') ||
@@ -1935,6 +1991,12 @@ function withCommittedActionSpeech(state, line) {
   }
 }
 
+// Entering another character's tale is a two-step reducer transaction. Keep
+// the confirmation capability private to this module: a caller may request a
+// threshold and confirm the reducer-owned pending record, but it cannot forge a
+// CHOOSE payload that skips the blocking confirmation screen.
+const EMBODIMENT_CONFIRMATION = Symbol('embodiment-confirmation')
+
 export function reducer(state, action) {
   // A heart consequence is an acknowledged learning beat, not a toast. Keep
   // every underlying surface inert at the state boundary until the learner
@@ -2031,9 +2093,12 @@ export function reducer(state, action) {
       const practiceTarget = normalizeTrainingTarget(action.target, state.nodeId)
       const option = practiceTarget && resolveTrainingTarget(practiceTarget)
       const speech = option && canSpeak(state, option.text)
+      const practiceState = currentStoryState(state)
       // Accept only the same state in which Story renders its Train control:
       // every word is known, but at least one required token is still missing.
-      if (state.view !== 'story' || !option || !speech?.allDiscovered || speech.enoughMana) return state
+      if (state.view !== 'story' || !option ||
+          !isOptionRevealed(practiceState, option, STORY[practiceTarget.nodeId]) ||
+          !speech?.allDiscovered || speech.enoughMana) return state
       return {
         ...state,
         view: 'practice',
@@ -2044,13 +2109,17 @@ export function reducer(state, action) {
 
     case 'REQUEST_EMBODIMENT': {
       if (state.embodying || state.pendingEmbodiment || state.ended) return state
+      if (action.fromNodeId !== state.nodeId || action.fromTurn !== state.turn) return state
       const option = STORY[state.nodeId]?.options?.[action.optionIndex]
-      if (!option?.become || !isKnownEmbodiment(option.become) || !canChoose(state, option)) return state
+      if (action.optionId !== `opt-${action.optionIndex}`) return state
+      if (!option?.become || !isKnownEmbodiment(option.become) ||
+          !isOptionRevealed(state, option) || !canChoose(state, option)) return state
       return {
         ...state,
         pendingEmbodiment: {
           taleId: canonicalEmbodimentId(option.become),
           fromNodeId: state.nodeId,
+          fromTurn: state.turn,
           optionIndex: action.optionIndex,
         },
       }
@@ -2061,15 +2130,25 @@ export function reducer(state, action) {
 
     case 'CONFIRM_EMBODIMENT': {
       const pending = state.pendingEmbodiment
-      const option = pending && pending.fromNodeId === state.nodeId
+      if (!pending || pending.fromNodeId !== state.nodeId || pending.fromTurn !== state.turn) return state
+      const option = pending.fromNodeId === state.nodeId
         ? STORY[pending.fromNodeId]?.options?.[pending.optionIndex]
         : null
       if (!option?.become || canonicalEmbodimentId(option.become) !== pending?.taleId) {
-        return { ...state, pendingEmbodiment: null }
+        return state
       }
       return reducer(
         { ...state, pendingEmbodiment: null },
-        { type: 'CHOOSE', option, targetNode: STORY[option.to], embodimentConfirmed: true },
+        {
+          type: 'CHOOSE',
+          option,
+          targetNode: STORY[option.to],
+          [EMBODIMENT_CONFIRMATION]: true,
+          optionId: `opt-${pending.optionIndex}`,
+          optionIndex: pending.optionIndex,
+          fromNodeId: pending.fromNodeId,
+          fromTurn: pending.fromTurn,
+        },
       )
     }
 
@@ -2130,8 +2209,7 @@ export function reducer(state, action) {
       // commit. This rejects stale double-clicks after navigation and prevents
       // a caller from attaching another node's ending/world effects to a road.
       if (state.hearts <= 0 || state.ended || state.timePassage || state.pendingEmbodiment) return state
-      if (action.fromNodeId != null && action.fromNodeId !== state.nodeId) return state
-      if (action.fromTurn != null && action.fromTurn !== state.turn) return state
+      if (action.fromNodeId !== state.nodeId || action.fromTurn !== state.turn) return state
       if (!STORY[state.nodeId]?.options?.includes(option)) return state
       const targetNode = STORY[option.to]
       if (!targetNode) return state
@@ -2142,8 +2220,9 @@ export function reducer(state, action) {
       // this same projection, so a resumed night scene cannot display an
       // available action that the reducer then rejects against daytime.
       const choiceState = roleAccess.kind === 'quest' ? currentStoryState(state) : state
+      if (!isOptionRevealed(choiceState, option)) return state
       if (!canChoose(choiceState, option)) return state
-      if (option.become && !state.embodying && !action.embodimentConfirmed) return state
+      if (option.become && !state.embodying && action[EMBODIMENT_CONFIRMATION] !== true) return state
       const interactionUse = interactionAvailabilityForOption(choiceState, option)
       const rendezvousUse = rendezvousAvailabilityForOption(state, option)
       const questUse = questActionAvailability(choiceState, option)
@@ -2980,14 +3059,26 @@ export function reducer(state, action) {
 
     case 'CONFUSE':
       // picked an option that can't happen in this part of the story
-      if (action.expectedHearts != null && action.expectedHearts !== state.hearts) return state
-      if (state.embodying) return state
+      if (!Number.isSafeInteger(action.expectedHearts) || action.expectedHearts !== state.hearts) return state
+      if (action.fromNodeId !== state.nodeId || action.fromTurn !== state.turn) return state
+      if (state.embodying || state.ended || state.timePassage ||
+          state.pendingEmbodiment || state.hearts <= 0) return state
       {
-        const consequenceState = applyExplainedHeartLoss(state, action.consequence, 1)
+        const confuser = canonicalStoryConfuser(state, action)
+        if (!confuser) return state
+        const storyState = currentStoryState(state)
+        if (confuser.option && !hasRequiredItem(storyState, confuser.option)) return state
+        const speech = canSpeak(state, confuser.tokens)
+        if (!speech.ok) return state
+        const consequenceState = applyExplainedHeartLoss(
+          { ...state, mana: spend(state.mana, speech.ids) },
+          consequenceForStoryConfuser(state, confuser),
+          1,
+        )
         return consequenceState
           ? withCommittedActionSpeech(
               consequenceState,
-              action.actionText || action.consequence?.attempted?.al,
+              confuser.tokens,
             )
           : state
       }
@@ -3001,12 +3092,27 @@ export function reducer(state, action) {
         isEmbodimentEnding(state.embodying, state.nodeId)
       )) return state
       if (!ACHIEVEMENT_BY_ID[action.id] || !state.eligible?.[action.id] || state.earned?.[action.id]) return state
-      return applyExplainedHeartLoss({
-        ...state,
-        attempts: { ...state.attempts, [action.id]: (state.attempts[action.id] || 0) + 1 },
-        pendingTest: state.pendingTest === action.id ? null : state.pendingTest,
-        dismissedTests: { ...state.dismissedTests, [action.id]: true },
-      }, action.consequence, 1) || state
+      if (!Number.isSafeInteger(action.expectedAttempt) ||
+          action.expectedAttempt !== (state.attempts?.[action.id] || 0) ||
+          !Number.isSafeInteger(action.questionIndex)) return state
+      {
+        const questions = testFor(ACHIEVEMENT_BY_ID[action.id], action.expectedAttempt)
+        const question = questions?.[action.questionIndex]
+        if (!question || typeof action.attemptedEnglish !== 'string' ||
+            action.attemptedEnglish === question.correct ||
+            !question.options.includes(action.attemptedEnglish)) return state
+        const consequence = comprehensionMissConsequence(
+          question,
+          action.attemptedEnglish,
+          `${action.id}:attempt-${action.expectedAttempt}`,
+        )
+        return applyExplainedHeartLoss({
+          ...state,
+          attempts: { ...state.attempts, [action.id]: action.expectedAttempt + 1 },
+          pendingTest: state.pendingTest === action.id ? null : state.pendingTest,
+          dismissedTests: { ...state.dismissedTests, [action.id]: true },
+        }, consequence, 1) || state
+      }
 
     case 'SET_VIEW':
       // UI gating is not a sufficient boundary: stale saves and manually

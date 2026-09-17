@@ -56,6 +56,55 @@ check('every continuing money change owns transaction prose', () => {
   }
 })
 
+check('every positive reward narrates the earning action before payment', () => {
+  for (const { nodeId, optionIndex, option } of moneyOptions.filter(({ option }) => option.lek > 0)) {
+    assert.ok(typeof option.earns === 'string' && option.earns,
+      `${nodeId}.options[${optionIndex}] positive reward has no canonical earning action`)
+    for (const outcome of moneyOutcomeLinesOf(option)) {
+      const ids = (outcome || []).map((token) => token?.id).filter(Boolean)
+      const lekIndex = ids.indexOf('lek')
+      assert.ok(lekIndex > 0, `${nodeId}.options[${optionIndex}] reward outcome has no payment point`)
+      const earning = outcome.rewardEarning
+      assert.equal(earning?.id, option.earns,
+        `${nodeId}.options[${optionIndex}] reward outcome is not bound to its canonical earning action`)
+      assert.ok(Array.isArray(earning?.witnesses) && earning.witnesses.length >= 2,
+        `${nodeId}.options[${optionIndex}] earning action has no exact visible witnesses`)
+      const beforePayment = ids.slice(0, lekIndex)
+      for (const witness of earning.witnesses) {
+        assert.ok(beforePayment.includes(witness),
+          `${nodeId}.options[${optionIndex}] pays before showing earning witness '${witness}'`)
+      }
+      assert.ok((option.text || []).some((token) => earning.witnesses.includes(token?.id)),
+        `${nodeId}.options[${optionIndex}] reward consequence does not match the selected work/performance`)
+    }
+  }
+})
+
+check('every ordinary reward result restores a genuine player choice', () => {
+  for (const { nodeId, optionIndex, option, target } of moneyOptions.filter(({ option }) => option.lek > 0)) {
+    assert.ok(target && !target.end,
+      `${nodeId}.options[${optionIndex}] pays into a missing or terminal result scene`)
+    // Count the agency the player actually has immediately after payment, not
+    // raw authored branches that remain hidden behind vocabulary or state.
+    const choices = (target.options || []).filter((candidate) =>
+      !candidate.confuser
+      && !candidate.reveal
+      && !candidate.requires
+      && !candidate.unless)
+    assert.ok(choices.length >= 2,
+      `${option.to}: paid ordinary work/performance leaves fewer than two immediately available continuations`)
+    const outcomes = new Set(choices.map((choice) => JSON.stringify({
+      to: choice.to,
+      effects: choice.effects || [],
+      questAction: choice.questAction || null,
+      grant: choice.grant || null,
+      consumes: choice.consumes || null,
+    })))
+    assert.ok(outcomes.size >= 2,
+      `${option.to}: apparent alternatives do not produce distinct consequences`)
+  }
+})
+
 check('every Elira acceptance grants exactly 800 and narrates the atomic resulting purse', () => {
   const origins = ['eliraBreg', 'eliraEmriBreg', 'eliraShesh', 'eliraEmriShesh']
   for (const nodeId of origins) {

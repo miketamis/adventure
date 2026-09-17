@@ -13,8 +13,7 @@ import {
   saveState,
 } from '../src/game/gameState.js'
 import { AUDIO_PLAYBACK_POLICY, playActionPhrase, setMuted } from '../src/game/audio.js'
-import { storyConfuserConsequence } from '../src/game/consequenceBuilders.js'
-import { optionEnglishReadingOf } from '../src/game/data/readings/reviewedOptionReadings.js'
+import { canonicalStoryConfuser } from '../src/game/storyConfusers.js'
 import fs from 'node:fs'
 
 const checks = []
@@ -98,8 +97,10 @@ await check('locked choices and preview requests emit no action speech', () => {
   if (embody) {
     const owner = Object.values(STORY).find((node) => node.options?.includes(embody))
     const ownerState = grant({ ...fresh, nodeId: owner.id }, embody.text)
+    const optionIndex = owner.options.indexOf(embody)
     const preview = reducer(ownerState, {
-      type: 'REQUEST_EMBODIMENT', optionIndex: owner.options.indexOf(embody),
+      type: 'REQUEST_EMBODIMENT', optionId: `opt-${optionIndex}`, optionIndex,
+      fromNodeId: ownerState.nodeId, fromTurn: ownerState.turn,
     })
     assert.equal(preview.actionSpeech, null)
   }
@@ -117,21 +118,23 @@ await check('item, healing and committed distractor actions use the same boundar
   assert.equal(healed.actionSpeech.al, albanianTextOf(HEART_LEVELS[2].heal.phrase))
 
   const option = STORY.start.options.find((candidate) => candidate.confuser)
+  const optionIndex = STORY.start.options.indexOf(option)
   let confused = grant(newRun(), option.text)
-  confused = reducer(confused, {
+  const action = {
     type: 'CONFUSE',
+    optionId: `opt-${optionIndex}`,
+    optionIndex,
     expectedHearts: confused.hearts,
-    actionText: option.text,
-    consequence: storyConfuserConsequence({
-      nodeId: confused.nodeId,
-      turn: confused.turn,
-      key: 'audit-confuser',
-      tokens: option.text,
-      english: optionEnglishReadingOf(option.text),
-    }),
-  })
+    fromNodeId: confused.nodeId,
+    fromTurn: confused.turn,
+    actionText: [{ al: 'forged speech' }],
+    consequence: { source: 'story-confuser', eventId: 'forged' },
+  }
+  assert.equal(canonicalStoryConfuser(confused, action)?.option, option)
+  confused = reducer(confused, action)
   assert.equal(confused.actionSpeech.al, albanianTextOf(option.text))
   assert.ok(confused.pendingHeartConsequence, 'heart consequence displaced action speech')
+  assert.equal(confused.pendingHeartConsequence.attempted.al, albanianTextOf(option.text))
 
   const damaging = STORY.maroZogu.options.find((candidate) => (candidate.hearts || 0) < 0)
   let danger = grant({ ...newRun(), nodeId: 'maroZogu' }, damaging.text)
