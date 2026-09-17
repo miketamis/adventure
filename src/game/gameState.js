@@ -617,7 +617,8 @@ export function isOptionRevealed(
     isDistantLineVisible(state.nodeId, line, environmentSnapshot(state)),
   )
   return lines.includes(revealLine) &&
-    revealLine.every((token) => !token.id || state.discovered[token.id])
+    revealLine.every((token) =>
+      !token.id || !isTrainableSense(token.id) || state.discovered[token.id])
 }
 
 // The renderer and reducer consume this exact plan. That handshake prevents a

@@ -38,6 +38,7 @@ import {
 } from '../src/game/trainingTarget.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { isOptionRevealed } from '../src/game/revealVisibility.js'
+import { isTrainableSense } from '../src/game/lexicalTrainability.js'
 import { optionReadingVisible, storyReadingVisible } from '../src/components/storyMechanicsPresentation.js'
 
 const checks = []
@@ -185,6 +186,31 @@ check('the opening forest path unlocks from its signpost sentence, not a later f
     type: 'CHOOSE', option, targetNode: STORY[option.to],
     fromNodeId: state.nodeId, fromTurn: state.turn,
   }).nodeId, 'lendina')
+})
+
+check('a signpost sentence ignores personal names but still requires every vocabulary sense', () => {
+  const node = STORY.uraVellezerit
+  const option = node.options.find((candidate) => candidate.become === 'ura-e-artes')
+  const resolution = resolveRevealLine(node.text.map(lineOf), option)
+  assert.equal(resolution.status, 'unique')
+
+  const ids = phraseSenses(resolution.line)
+  const nameIds = ids.filter((id) => !isTrainableSense(id))
+  const vocabularyIds = ids.filter(isTrainableSense)
+  assert.deepEqual(nameIds, ['pano', 'kico'], 'the Kiço signpost no longer exercises its two personal names')
+
+  let state = stateAt(node.id)
+  state = discover(state, resolution.line)
+  assert.ok(vocabularyIds.every((id) => state.discovered[id]), 'a signpost vocabulary sense was not discovered')
+  assert.ok(nameIds.every((id) => state.discovered[id] == null), 'a personal name became discoverable vocabulary')
+  assert.equal(isOptionRevealed(state, option, node), true,
+    'personal names permanently blocked a fully discovered signpost sentence')
+
+  const [missingId] = vocabularyIds
+  const discovered = { ...state.discovered }
+  delete discovered[missingId]
+  assert.equal(isOptionRevealed({ ...state, discovered }, option, node), false,
+    'the signpost opened without every trainable vocabulary sense')
 })
 
 check('training recommendations use the same reveal boundary as the Story screen', () => {
