@@ -1,4 +1,3 @@
-import { STORY } from './content.js'
 import { PROJECTION_BOUNDARY_EDGES } from './worldProjectionBoundaries.js'
 
 // Every structural exception is an exact, reviewable record. `targetKind`
@@ -171,22 +170,12 @@ export const STRUCTURAL_EXCEPTIONS = Object.freeze([
   reviewedStructuralException({
     id: 'river-network-long-roads',
     rule: 'route-distance',
-    targets: ['lumi->deti1', 'udhekryq->lumi', 'lumi->flocka1', 'flocka1->lumi'],
-    maximumTargets: 4,
-    rationale: 'These exact roads follow the river between the crossroads, distant sea and lake, with each choice naming the long journey; the lake branch includes its explicit reciprocal walk back to the river.',
-    source: 'content: lumi, flocka1 and udhekryq travel choices and arrival prose; nodePositions: river-network vectors',
+    targets: ['lumi->deti1', 'udhekryq->lumi', 'lumi->flocka1'],
+    maximumTargets: 3,
+    rationale: 'These exact roads follow the river from the crossroads toward the distant sea and lake, with each choice naming the long journey.',
+    source: 'content: lumi and udhekryq travel choices; nodePositions: river-network vectors',
     owner: 'world-map',
     reviewTrigger: 'when the river, sea or lake road receives an intermediate place',
-  }),
-  reviewedStructuralException({
-    id: 'dead-city-cavern-passages',
-    rule: 'route-distance',
-    targets: ['shpellaRruget->qyteti'],
-    maximumTargets: 1,
-    rationale: 'The selected middle road traverses the tale’s explicitly miles-long cavern passage before reaching the dead city.',
-    source: 'content: shpellaRruget choice plus qyteti arrival; nodePositions: exact vector',
-    owner: 'world-map',
-    reviewTrigger: 'when the long cavern receives an intermediate underground scene',
   }),
   reviewedStructuralException({
     id: 'village-crossroads-mountain-roads',
@@ -201,10 +190,10 @@ export const STRUCTURAL_EXCEPTIONS = Object.freeze([
   reviewedStructuralException({
     id: 'sun-stag-homeward-flight',
     rule: 'route-distance',
-    targets: ['pemaDielli->rrugaDielli2', 'rrugaDielli2->fshatiLanes'],
-    maximumTargets: 2,
-    rationale: 'The stag carries the maiden from the sun tree over the long road home and then completes the run into the village lanes.',
-    source: 'content: pemaDielli and rrugaDielli2 carried-return prose; nodePositions: exact vectors',
+    targets: ['rrugaDielli2->fshatiLanes'],
+    maximumTargets: 1,
+    rationale: 'The stag completes the already established carried return by running with the maiden from the long road into the village lanes.',
+    source: 'content: rrugaDielli2 carried-return prose; nodePositions: exact vector',
     owner: 'narrative',
     reviewTrigger: 'when the stag’s carried return gains an intermediate playable stop',
   }),
@@ -219,26 +208,6 @@ export const STRUCTURAL_EXCEPTIONS = Object.freeze([
     reviewTrigger: 'when the beyond-sea search gains a separate voyage scene',
   }),
   reviewedStructuralException({
-    id: 'eagle-tree-walk-home',
-    rule: 'route-distance',
-    targets: ['shqipe1->udhekryq'],
-    maximumTargets: 1,
-    rationale: 'The option explicitly sends the traveller far from the eagle’s tree to the crossroads, and the destination confirms that arrival.',
-    source: 'content: shqipe1 far-crossroads choice and udhekryq arrival; nodePositions: exact vector',
-    owner: 'narrative',
-    reviewTrigger: 'when the eagle-tree return gains an intermediate road scene or a different destination',
-  }),
-  reviewedStructuralException({
-    id: 'restored-spring-well-road',
-    rule: 'route-distance',
-    targets: ['springReturn->pusi2'],
-    maximumTargets: 1,
-    rationale: 'After the spring returns in the lower realm, the solo exit explicitly climbs the long path to the bottom of the distant well; the destination confirms the completed climb.',
-    source: 'content: springReturn solo climb and pusi2 predecessor-specific arrival; nodePositions: exact vector',
-    owner: 'narrative',
-    reviewTrigger: 'when the restored-spring route gains an intermediate underworld path scene',
-  }),
-  reviewedStructuralException({
     id: 'well-shaft-ascent-distance',
     rule: 'route-distance',
     targets: ['kthimi->pusi2'],
@@ -251,10 +220,10 @@ export const STRUCTURAL_EXCEPTIONS = Object.freeze([
   reviewedStructuralException({
     id: 'sky-realm-extraordinary-passages',
     rule: 'route-distance',
-    targets: ['qiell2->qiellPrende', 'qiellErera2->qiell2'],
-    maximumTargets: 2,
-    rationale: 'These exact sky passages are the fall from the storm peak and the winds carrying the player upward with closed eyes. Seeking the Moon is now a local encounter rather than an invented long crossing.',
-    source: 'content: qiell2 and qiellErera2 transition prose; nodePositions: exact vectors',
+    targets: ['qiell2->qiellPrende'],
+    maximumTargets: 1,
+    rationale: 'This exact sky passage is the narrated fall from the storm peak into the distant Saint Prende encounter.',
+    source: 'content: qiell2 transition prose; nodePositions: exact vector',
     owner: 'world-map',
     reviewTrigger: 'when any extraordinary sky passage gains an intermediate scene',
   }),
@@ -311,10 +280,10 @@ export const STRUCTURAL_EXCEPTIONS = Object.freeze([
   reviewedStructuralException({
     id: 'gjizar-underworld-and-return-roads',
     rule: 'route-distance',
-    targets: ['gjizar2->gjizarUdha', 'gjizarTradheti->gjizarFund'],
-    maximumTargets: 2,
-    rationale: 'The first edge takes the explicitly far road into the world below; the second compresses the Beauty’s narrated rescue and return to the king’s town.',
-    source: 'content: gjizar2, gjizarUdha, gjizarTradheti and gjizarFund prose; nodePositions: exact vectors',
+    targets: ['gjizarTradheti->gjizarFund'],
+    maximumTargets: 1,
+    rationale: 'This edge compresses the Beauty’s narrated rescue of Gjizar and their return from the world below to the king’s town.',
+    source: 'content: gjizarTradheti and gjizarFund rescue-and-return prose; nodePositions: exact vector',
     owner: 'narrative',
     reviewTrigger: 'when either Gjizar long passage gains an intermediate playable scene',
   }),
@@ -335,10 +304,10 @@ export const STRUCTURAL_EXCEPTIONS = Object.freeze([
   reviewedStructuralException({
     id: 'projection-entrance-route-distances',
     rule: 'route-distance',
-    targets: ['pylli1->prespaPyll', 'pusi->sari1', 'maja->argjiroKala', 'deti1->aliPashaLiqen'],
-    maximumTargets: 4,
+    targets: ['pylli1->prespaPyll', 'maja->argjiroKala', 'deti1->aliPashaLiqen'],
+    maximumTargets: 3,
     rationale: 'These chart-length vectors cross into embodied folklore projections and locate their settings without representing ordinary walked distance.',
-    source: 'tale play metadata: Prespa, Sari Salltëk, Argjiro and Ali Pasha projections',
+    source: 'tale play metadata: Prespa, Argjiro and Ali Pasha projections',
     owner: 'lore',
     reviewTrigger: 'when a projection entrance becomes an ordinary physical route',
   }),
@@ -396,94 +365,3 @@ export const STRUCTURAL_EXCEPTIONS = Object.freeze([
     reviewTrigger: 'when the return-and-strike beat is split into separate actions',
   }),
 ])
-
-export const structuralExceptionKey = (rule, target) => `${rule}\u0000${target}`
-
-export function exceptionFor(rule, target) {
-  return STRUCTURAL_EXCEPTIONS.find((entry) => entry.rule === rule && entry.targets.includes(target)) || null
-}
-
-export function exceptionTargetsFor(rule) {
-  return STRUCTURAL_EXCEPTIONS
-    .filter((entry) => entry.rule === rule)
-    .flatMap((entry) => entry.targets)
-}
-
-// Referential and review-quality validation is deliberately reusable by every
-// release gate. Domain-specific audits additionally report which exact targets
-// they consumed, allowing stale sanctions to fail instead of living forever.
-export function structuralExceptionRegistryIssues() {
-  const issues = []
-  const ids = new Set()
-  const claims = new Map()
-  const realEdges = new Set()
-  for (const [from, node] of Object.entries(STORY)) {
-    for (const option of node.options || []) {
-      if (!option.confuser && option.to && STORY[option.to]) realEdges.add(`${from}->${option.to}`)
-    }
-  }
-
-  for (const entry of STRUCTURAL_EXCEPTIONS) {
-    const label = entry?.id || '?'
-    for (const field of ['id', 'rule', 'rationale', 'source', 'owner', 'reviewTrigger']) {
-      if (typeof entry?.[field] !== 'string' || !entry[field].trim()) issues.push(`${label}: missing ${field}`)
-    }
-    if (entry?.id && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.id)) issues.push(`${label}: id is not stable kebab-case`)
-    if (ids.has(entry?.id)) issues.push(`${label}: duplicate exception id`)
-    ids.add(entry?.id)
-
-    const rule = STRUCTURAL_EXCEPTION_RULES[entry?.rule]
-    if (!rule) issues.push(`${label}: unknown rule '${entry?.rule}'`)
-    if (!Array.isArray(entry?.targets) || entry.targets.length === 0) issues.push(`${label}: targets must be a non-empty array`)
-    if (entry?.rationale?.trim().length < 40) issues.push(`${label}: rationale is not concrete enough`)
-    if (entry?.source?.trim().length < 20) issues.push(`${label}: source is not specific enough`)
-    if (entry?.reviewTrigger?.trim().length < 30) issues.push(`${label}: review trigger is not concrete enough`)
-    if (entry?.scope?.kind !== 'exact-targets' || !Number.isInteger(entry?.scope?.maximumTargets) || entry.scope.maximumTargets < 1) {
-      issues.push(`${label}: missing exact bounded scope`)
-    } else if ((entry.targets?.length ?? 0) > entry.scope.maximumTargets) {
-      issues.push(`${label}: scope grew beyond its reviewed ${entry.scope.maximumTargets}-target bound`)
-    }
-
-    const localTargets = new Set()
-    for (const target of entry?.targets || []) {
-      if (typeof target !== 'string' || !target.trim()) {
-        issues.push(`${label}: contains an empty target`)
-        continue
-      }
-      if (localTargets.has(target)) issues.push(`${label}: repeats target '${target}'`)
-      localTargets.add(target)
-      const claim = structuralExceptionKey(entry.rule, target)
-      if (claims.has(claim)) issues.push(`${label}: duplicates ${entry.rule} target '${target}' already owned by ${claims.get(claim)}`)
-      else claims.set(claim, label)
-
-      if (rule?.targetKind === 'node' && !STORY[target]) issues.push(`${label}: unknown node target '${target}'`)
-      if (rule?.targetKind === 'edge' && !realEdges.has(target)) issues.push(`${label}: unknown playable edge target '${target}'`)
-    }
-  }
-  const runtimeProjectionTargets = [...PROJECTION_BOUNDARY_EDGES].sort()
-  const reviewedProjectionTargets = exceptionTargetsFor('projection-boundary').sort()
-  if (JSON.stringify(runtimeProjectionTargets) !== JSON.stringify(reviewedProjectionTargets)) {
-    issues.push('projection-boundary: runtime edges differ from the reviewed structural exception targets')
-  }
-  return issues
-}
-
-export function structuralExceptionUsageIssues(usedClaims, rules = Object.keys(STRUCTURAL_EXCEPTION_RULES)) {
-  const used = usedClaims instanceof Set ? usedClaims : new Set(usedClaims || [])
-  const reviewedRules = new Set(rules)
-  const issues = []
-  for (const entry of STRUCTURAL_EXCEPTIONS) {
-    if (!reviewedRules.has(entry.rule)) continue
-    for (const target of entry.targets) {
-      const key = structuralExceptionKey(entry.rule, target)
-      if (!used.has(key)) issues.push(`${entry.id}: unused or stale ${entry.rule} target '${target}'`)
-    }
-  }
-  for (const key of used) {
-    const separator = key.indexOf('\u0000')
-    const rule = key.slice(0, separator)
-    const target = key.slice(separator + 1)
-    if (reviewedRules.has(rule) && !exceptionFor(rule, target)) issues.push(`unregistered used exception ${rule} target '${target}'`)
-  }
-  return issues
-}

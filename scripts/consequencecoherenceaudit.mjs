@@ -18,6 +18,14 @@ import {
   TIMED_WORLD_FIXTURES,
   parseFixtureCondition,
 } from '../src/game/worldFixtures.js'
+import {
+  auditExceptionClaimKey,
+  auditExceptionFor,
+  auditExceptionRegistryIssues,
+  auditExceptionTargetsFor,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
 
 const asList = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
 const own = (object, key) => object != null && Object.hasOwn(object, key)
@@ -155,7 +163,12 @@ const CRITICAL_WEATHER_REVIEWS = Object.freeze({
 // explanation of why persistence has no meaningful downstream expression.
 // Keep the default empty: adding a new fixture should first prompt an authored
 // callback outside its activation scene.
-const LOCAL_ONLY_FIXTURE_REVIEWS = Object.freeze({})
+const LOCAL_ONLY_FIXTURE_EXCEPTIONS = defineAuditExceptionRegistry({
+  rules: {
+    'timed-fixture-without-downstream-consumer': { targetKind: 'timed world fixture id' },
+  },
+  entries: [],
+})
 
 const failures = []
 const fail = (area, message) => failures.push(`[${area}] ${message}`)
@@ -324,6 +337,7 @@ for (const [nodeId, node] of Object.entries(STORY)) {
   }
 }
 
+const usedLocalOnlyFixtureExceptions = new Set()
 for (const [fixtureId, fixture] of Object.entries(TIMED_WORLD_FIXTURES)) {
   const activationNodes = fixtureActivationNodes.get(fixtureId)
   const consumers = fixtureConsumerNodes.get(fixtureId)
@@ -333,15 +347,36 @@ for (const [fixtureId, fixture] of Object.entries(TIMED_WORLD_FIXTURES)) {
   }
   const downstream = [...consumers].filter((nodeId) => !activationNodes.has(nodeId))
   if (downstream.length === 0) {
-    const justification = LOCAL_ONLY_FIXTURE_REVIEWS[fixtureId]
-    if (typeof justification !== 'string' || justification.trim().length < 60) {
+    const exception = auditExceptionFor(
+      LOCAL_ONLY_FIXTURE_EXCEPTIONS,
+      'timed-fixture-without-downstream-consumer',
+      fixtureId,
+    )
+    if (typeof exception?.rationale !== 'string' || exception.rationale.trim().length < 60) {
       fail('fixture-callback', `${fixtureId} has no fixture-state consumer outside activation node(s) ${[...activationNodes].join(', ') || '(none)'}`)
+    } else {
+      usedLocalOnlyFixtureExceptions.add(auditExceptionClaimKey(
+        'timed-fixture-without-downstream-consumer',
+        fixtureId,
+      ))
     }
   }
 }
-for (const fixtureId of Object.keys(LOCAL_ONLY_FIXTURE_REVIEWS)) {
+for (const fixtureId of auditExceptionTargetsFor(
+  LOCAL_ONLY_FIXTURE_EXCEPTIONS,
+  'timed-fixture-without-downstream-consumer',
+)) {
   if (!TIMED_WORLD_FIXTURES[fixtureId]) fail('fixture-review', `${fixtureId} is a stale local-only fixture review`)
 }
+for (const issue of auditExceptionRegistryIssues(LOCAL_ONLY_FIXTURE_EXCEPTIONS, {
+  validTargetsByRule: {
+    'timed-fixture-without-downstream-consumer': new Set(Object.keys(TIMED_WORLD_FIXTURES)),
+  },
+})) fail('fixture-review', issue)
+for (const issue of auditExceptionUsageIssues(
+  LOCAL_ONLY_FIXTURE_EXCEPTIONS,
+  usedLocalOnlyFixtureExceptions,
+)) fail('fixture-review', issue)
 
 // First validate every authored override generically, then enforce the small
 // source-critical registry. Exact equality prevents an atmospheric event from

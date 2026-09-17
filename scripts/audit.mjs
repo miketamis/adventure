@@ -111,7 +111,6 @@ const DEEP_AUDIT_EXCEPTIONS = defineAuditExceptionRegistry({
       id: 'movement-actions-name-their-destination',
       rule: EXCEPTION_RULES.OPTION_GROUNDING,
       targets: [
-        'syriKanali.options[1]->ura:burim',
         'bisedaUra2.options[0]->bisedaUra3:fshat',
         'agaYmer1.options[1]->fshatiSheshi:fshat',
         'syriKeq1.options[1]->fshatiJeta:fshat',
@@ -146,7 +145,6 @@ const DEEP_AUDIT_EXCEPTIONS = defineAuditExceptionRegistry({
         'dhelpra2.options[2]->pylliLoop:pyll',
         'kordhaUdha.options[1]->pylli1:pyll',
         'besaBekim.options[1]->pylliLoop:pyll',
-        'gjizar2.options[0]->gjizarUdha:rruge',
         'djepi1.options[1]->fshatiLanes:rruge',
         'djepi2.options[1]->fshatiLanes:rruge',
         'djepi3.options[3]->fshatiLanes:rruge',
@@ -180,7 +178,7 @@ const DEEP_AUDIT_EXCEPTIONS = defineAuditExceptionRegistry({
       evidence: 'Every target is an exact live STORY edge also covered by map, world, action-presupposition and player-causality release gates.',
       owner: 'world-navigation',
       reviewTrigger: 'when a listed source scene, destination, option phrase or route-continuity contract changes',
-      scope: { kind: 'exact-targets', maximumTargets: 64 },
+      scope: { kind: 'exact-targets', maximumTargets: 62 },
     },
     {
       id: 'player-supplied-speech-content',

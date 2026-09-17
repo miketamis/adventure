@@ -8,7 +8,6 @@ const REQUIRED_FIELDS = Object.freeze([
   'id',
   'rule',
   'rationale',
-  'evidence',
   'owner',
   'reviewTrigger',
 ])
@@ -33,6 +32,12 @@ export function defineAuditExceptionRegistry({ rules, entries }) {
 export function auditExceptionFor(registry, rule, target) {
   return registry.entries.find((entry) =>
     entry.rule === rule && entry.targets.includes(target)) || null
+}
+
+export function auditExceptionTargetsFor(registry, rule) {
+  return registry.entries
+    .filter((entry) => entry.rule === rule)
+    .flatMap((entry) => entry.targets)
 }
 
 export function auditExceptionRegistryIssues(registry, { validTargetsByRule = {} } = {}) {
@@ -64,10 +69,16 @@ export function auditExceptionRegistryIssues(registry, { validTargetsByRule = {}
     ids.add(entry?.id)
 
     if (!rules[entry?.rule]) issues.push(`${label}: unknown rule '${entry?.rule}'`)
+    const evidence = typeof entry?.evidence === 'string' && entry.evidence.trim()
+      ? entry.evidence
+      : entry?.source
+    if (typeof evidence !== 'string' || !evidence.trim()) {
+      issues.push(`${label}: missing evidence/source`)
+    }
     if ((entry?.rationale?.trim().length || 0) < 60) {
       issues.push(`${label}: rationale is not concrete enough`)
     }
-    if ((entry?.evidence?.trim().length || 0) < 40) {
+    if ((evidence?.trim().length || 0) < 40) {
       issues.push(`${label}: evidence is not specific enough`)
     }
     if ((entry?.reviewTrigger?.trim().length || 0) < 40) {
@@ -80,8 +91,8 @@ export function auditExceptionRegistryIssues(registry, { validTargetsByRule = {}
         !Number.isInteger(entry?.scope?.maximumTargets) ||
         entry.scope.maximumTargets < 1) {
       issues.push(`${label}: missing exact bounded scope`)
-    } else if ((entry.targets?.length || 0) > entry.scope.maximumTargets) {
-      issues.push(`${label}: scope grew beyond its reviewed ${entry.scope.maximumTargets}-target bound`)
+    } else if ((entry.targets?.length || 0) !== entry.scope.maximumTargets) {
+      issues.push(`${label}: exact scope has ${entry.targets?.length || 0} targets instead of its reviewed ${entry.scope.maximumTargets}`)
     }
 
     const localTargets = new Set()

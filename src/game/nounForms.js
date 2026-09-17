@@ -1,24 +1,6 @@
 // Inflected noun surfaces are static authored language data. Keeping this table
 // in its own cacheable module bounds the playable story-graph chunk without
 // changing the dictionary or runtime validation contract.
-// These are deliberately mass/abstract senses for which a plural drill would
-// be unnatural in this curriculum. Keeping the decision beside the paradigms
-// makes absence explicit and auditable rather than silently incomplete.
-export const NOUN_PLURAL_EXEMPTIONS = Object.freeze({
-  ar: 'mass noun: gold',
-  dhe_earth: 'mass noun: earth/soil',
-  erresire: 'abstract mass noun: darkness',
-  gjak: 'mass noun: blood',
-  mish: 'mass noun in this curriculum: generic edible meat/flesh',
-  qumesht: 'mass noun: milk',
-  sane: 'mass noun: hay',
-  tomorr: 'proper geographic name: Mount Tomorr',
-})
-
-export const NOUN_SINGULAR_EXEMPTIONS = Object.freeze({
-  para_money: 'plural-only noun: money',
-  pranga: 'plural-only noun: shackles',
-})
 
 export const NOUN_FORMS = {
   pyetje: [ /* question */

@@ -10,7 +10,7 @@ import { NODE_AT, NODE_POS, PLACE_OF, PLACE_NODES } from '../src/components/node
 import { PLACE_META } from '../src/components/placeMeta.js'
 import { playerMapLabel } from '../src/components/mapLabels.js'
 import { NODE_REGION, REGION_NODES, REGIONS, REGION_OVERRIDES } from '../src/game/regions.js'
-import { worldDistribution } from './worldmetrics.mjs'
+import { DISTRIBUTION_THRESHOLDS, worldDistribution } from './worldmetrics.mjs'
 import {
   PLACE_PROJECTION_REVIEWS,
   PROJECTION_DISPOSITIONS,
@@ -39,9 +39,15 @@ import {
 } from '../src/game/worldModel.js'
 import {
   STRUCTURAL_EXCEPTIONS,
-  exceptionFor,
-  structuralExceptionRegistryIssues,
+  STRUCTURAL_EXCEPTION_RULES,
 } from '../src/game/worldStructuralExceptions.js'
+import {
+  auditExceptionClaimKey,
+  auditExceptionFor,
+  auditExceptionRegistryIssues,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
 
 const diagnostics = []
 const strict = process.argv.includes('--strict')
@@ -52,6 +58,117 @@ const fail = (code, message, data) => add('error', code, message, data)
 
 const ids = Object.keys(STORY)
 const routes = buildRouteGraph()
+const STRUCTURAL_EXCEPTION_REGISTRY = defineAuditExceptionRegistry({
+  rules: STRUCTURAL_EXCEPTION_RULES,
+  entries: STRUCTURAL_EXCEPTIONS.map((entry) => ({
+    ...entry,
+    evidence: `Canonical structural source: ${entry.source}`,
+  })),
+})
+const placeReasonException = ({ id, rule, target, field, evidence, reviewTrigger }) => ({
+  id,
+  rule,
+  targets: [target],
+  rationale: PLACE_META[target]?.[field],
+  evidence,
+  owner: 'world-map',
+  reviewTrigger,
+  scope: { kind: 'exact-targets', maximumTargets: 1 },
+})
+const WORLD_LAYOUT_EXCEPTION_RULES = Object.freeze({
+  'dense-single-site': { targetKind: 'place' },
+  'sparse-place': { targetKind: 'place' },
+  'long-leaf-route': { targetKind: 'place' },
+})
+const WORLD_LAYOUT_EXCEPTION_REGISTRY = defineAuditExceptionRegistry({
+  rules: WORLD_LAYOUT_EXCEPTION_RULES,
+  entries: [
+    placeReasonException({
+      id: 'river-shared-encounter-density',
+      rule: 'dense-single-site',
+      target: 'lumi',
+      field: 'densityReason',
+      evidence: 'PLACE_META.lumi enumerates the exact ten serial river-bank scenes grouped into six non-simultaneous happenings.',
+      reviewTrigger: 'when the river place gains or loses scenes, happenings or physical sub-locations',
+    }),
+    placeReasonException({
+      id: 'guest-room-evening-density',
+      rule: 'dense-single-site',
+      target: 'libriDiell',
+      field: 'densityReason',
+      evidence: 'PLACE_META.libriDiell enumerates the exact guest-room scenes as separate conversations during one shared evening.',
+      reviewTrigger: 'when the guest-room membership, conversation grouping or physical-room model changes',
+    }),
+    placeReasonException({
+      id: 'village-square-crossroads-density',
+      rule: 'dense-single-site',
+      target: 'fshatiSheshi',
+      field: 'densityReason',
+      evidence: 'PLACE_META.fshatiSheshi enumerates the exact square, market, errand and coffeehouse happenings at the crossroads.',
+      reviewTrigger: 'when the square membership, nested interiors or crossroads layout changes',
+    }),
+    placeReasonException({
+      id: 'storm-path-encounter-density',
+      rule: 'dense-single-site',
+      target: 'mali3',
+      field: 'densityReason',
+      evidence: 'PLACE_META.mali3 enumerates the exact successive storm encounter scenes on one exposed mountainside path.',
+      reviewTrigger: 'when the storm encounter, mountain path membership or choice staging changes',
+    }),
+    placeReasonException({
+      id: 'roadside-shelter-density',
+      rule: 'dense-single-site',
+      target: 'udha',
+      field: 'densityReason',
+      evidence: 'PLACE_META.udha enumerates the exact road, shelter, revenant and miser-ghost happenings at one stopping place.',
+      reviewTrigger: 'when the roadside membership, shelter identity or encounter sequence changes',
+    }),
+    placeReasonException({
+      id: 'inner-mill-vigil-density',
+      rule: 'dense-single-site',
+      target: 'maroMulli1',
+      field: 'densityReason',
+      evidence: 'PLACE_META.maroMulli1 enumerates all ten vigil scenes as four successive happenings on one inner millstone floor.',
+      reviewTrigger: 'when the mill-vigil membership, floor identity or happening groups change',
+    }),
+    placeReasonException({
+      id: 'deep-sea-wide-water-spacing',
+      rule: 'sparse-place',
+      target: 'detiThelle1',
+      field: 'distributionReason',
+      evidence: 'PLACE_META.detiThelle1 and the canonical chart identify the exact wide-water leg between coast and deep palace.',
+      reviewTrigger: 'when the coast-to-palace route, deep-sea coordinate or intermediate places change',
+    }),
+    placeReasonException({
+      id: 'flocka-distant-leaf-route',
+      rule: 'long-leaf-route',
+      target: 'flocka1',
+      field: 'distributionReason',
+      evidence: 'PLACE_META.flocka1 and the canonical chart identify the exact distant lake-shore branch from the river.',
+      reviewTrigger: 'when the Floçka route, lake coordinate, return edge or intermediate places change',
+    }),
+    placeReasonException({
+      id: 'over-sea-climax-leaf-route',
+      rule: 'long-leaf-route',
+      target: 'gjarperKulshedra',
+      field: 'distributionReason',
+      evidence: 'PLACE_META.gjarperKulshedra and the canonical chart identify the exact isolated over-sea climax destination.',
+      reviewTrigger: 'when the over-sea search route, climax coordinate or intermediate places change',
+    }),
+  ],
+})
+const usedExceptionClaims = new Set()
+const reviewedException = (rule, target) => {
+  const record = auditExceptionFor(STRUCTURAL_EXCEPTION_REGISTRY, rule, target)
+  if (record) usedExceptionClaims.add(auditExceptionClaimKey(rule, target))
+  return record
+}
+const usedWorldLayoutExceptionClaims = new Set()
+const reviewedWorldLayoutException = (rule, target) => {
+  const record = auditExceptionFor(WORLD_LAYOUT_EXCEPTION_REGISTRY, rule, target)
+  if (record) usedWorldLayoutExceptionClaims.add(auditExceptionClaimKey(rule, target))
+  return record
+}
 const realOptions = Object.values(STORY).flatMap((node) => (node.options || []).filter((option) => !option.confuser))
 const storyViewSource = readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
 const worldContextSource = readFileSync(new URL('../src/components/WorldContext.jsx', import.meta.url), 'utf8')
@@ -250,7 +367,7 @@ const hasAny = (ids, words) => words.some((word) => ids.includes(word))
 const directionalErrors = []
 const directionalAmbiguous = []
 for (const route of routes) {
-  if (!route.valid || route.wander || route.distance <= ROUTE_THRESHOLDS.local) continue
+  if (!route.valid || route.distance <= ROUTE_THRESHOLDS.local) continue
   const t = route.tokenIds
   const checks = [
     ['left', hasAny(t, DIRECTION_WORDS.left), route.dx, -1],
@@ -266,7 +383,7 @@ for (const route of routes) {
     if (!present) continue
     const item = { edge: `${route.from}->${route.to}`, word, dx: route.dx, dy: route.dy, option: t.join(' ') }
     if (Math.abs(delta) <= ROUTE_THRESHOLDS.local) directionalAmbiguous.push(item)
-    else if (Math.sign(delta) !== expectedSign && !exceptionFor('direction-language', item.edge)) directionalErrors.push(item)
+    else if (Math.sign(delta) !== expectedSign && !reviewedException('direction-language', item.edge)) directionalErrors.push(item)
   }
 }
 if (directionalErrors.length) fail('prose.direction', `${directionalErrors.length} directional choices contradict their coordinates`, directionalErrors)
@@ -316,9 +433,9 @@ else ok('barrier.crossings', 'every movement across a named barrier uses an auth
 // transition describes how the destination changes.
 const farInteractions = []
 for (const route of routes) {
-  if (!route.valid || route.wander || !route.interactionVerb || route.distance <= 400) continue
+  if (!route.valid || !route.interactionVerb || route.distance <= 400) continue
   const edge = `${route.from}->${route.to}`
-  if (!exceptionFor('interaction-distance', edge)) farInteractions.push({ edge, distance: Math.round(route.distance), option: route.tokenIds.join(' ') })
+  if (!reviewedException('interaction-distance', edge)) farInteractions.push({ edge, distance: Math.round(route.distance), option: route.tokenIds.join(' ') })
 }
 if (farInteractions.length) fail('route.far-interaction', `${farInteractions.length} interactions teleport to distant places without a recorded narrative transition`, farInteractions)
 else ok('route.far-interaction', 'distant post-interaction scene changes are explicitly documented')
@@ -330,8 +447,12 @@ const placeRows = Object.entries(PLACE_NODES).map(([place, members]) => ({
   scenes: members.filter((id) => STORY[id]).length,
   hasLocationCard: Boolean(PLACE_META[place]),
 })).filter((row) => row.scenes)
-const unstructuredCrowds = placeRows.filter((row) =>
-  row.scenes > 8 && (!row.hasLocationCard || !PLACE_META[row.place]?.densityReason))
+const denseSingleSiteCandidates = new Set()
+const unstructuredCrowds = placeRows.filter((row) => {
+  if (row.scenes <= 8) return false
+  denseSingleSiteCandidates.add(row.place)
+  return !row.hasLocationCard || !reviewedWorldLayoutException('dense-single-site', row.place)
+})
 if (unstructuredCrowds.length) fail('density.unstructured-place', 'places with more than eight scenes need a location card and an explicit single-site reason', unstructuredCrowds)
 else ok('density.location-cards', 'every place above the hard density limit has a reviewed single-site reason',
   placeRows.filter((row) => row.scenes > 8).map((row) => ({ ...row, reason: PLACE_META[row.place].densityReason })))
@@ -365,10 +486,20 @@ if (distributionViolations.hardIsolates.length) {
   fail('distribution.hard-isolate', `places may not be more than ${distribution.thresholds.hardIsolationDistance} chart units from every other place`, distributionViolations.hardIsolates)
 } else ok('distribution.hard-isolate', 'no authored place is spatially detached from the rest of the chart')
 
-const unreviewedSparse = [
-  ...distributionViolations.unreviewedSparsePlaces,
-  ...distributionViolations.unreviewedLongLeaves,
-]
+const sparsePlaceCandidates = new Set()
+const longLeafRouteCandidates = new Set()
+const unreviewedSparse = []
+for (const row of distribution.placeRows) {
+  if (row.nearestDistance > DISTRIBUTION_THRESHOLDS.sparseReviewDistance) {
+    sparsePlaceCandidates.add(row.place)
+    if (!reviewedWorldLayoutException('sparse-place', row.place)) unreviewedSparse.push(row)
+  }
+  if (!row.allTerminal && row.routeDegree <= 1 && row.shortestPhysicalRoute != null &&
+      row.shortestPhysicalRoute > DISTRIBUTION_THRESHOLDS.longLeafRoute) {
+    longLeafRouteCandidates.add(row.place)
+    if (!reviewedWorldLayoutException('long-leaf-route', row.place)) unreviewedSparse.push(row)
+  }
+}
 if (unreviewedSparse.length) {
   fail('distribution.sparse-review', 'remote places and long nonterminal leaf routes require a location card with an authored distribution reason', unreviewedSparse)
 } else {
@@ -534,9 +665,40 @@ else ok('prose.sightline-coverage', `all ${horizonLines.length} attributable dis
 // 9. Every exception is an exact, bounded record with a stable owner, source,
 // review trigger and live node/edge target. mapaudit additionally proves that
 // each target still suppresses the precise violation named by its rule.
-const malformedExceptions = structuralExceptionRegistryIssues()
-if (malformedExceptions.length) fail('exceptions.invalid', 'structural exception records are incomplete', malformedExceptions)
-else ok('exceptions.valid', `all ${STRUCTURAL_EXCEPTIONS.length} structural exception records are attributable, bounded and referentially live`)
+const liveStructuralEdges = new Set(routes
+  .filter((route) => route.valid)
+  .map((route) => `${route.from}->${route.to}`))
+const validStructuralTargetsByRule = Object.fromEntries(
+  Object.entries(STRUCTURAL_EXCEPTION_RULES).map(([rule, definition]) => [
+    rule,
+    definition.targetKind === 'node' ? new Set(ids) : liveStructuralEdges,
+  ]),
+)
+const worldOwnedExceptionRules = ['direction-language', 'interaction-distance']
+const malformedExceptions = [
+  ...auditExceptionRegistryIssues(STRUCTURAL_EXCEPTION_REGISTRY, {
+    validTargetsByRule: validStructuralTargetsByRule,
+  }),
+  ...auditExceptionUsageIssues(
+    STRUCTURAL_EXCEPTION_REGISTRY,
+    usedExceptionClaims,
+    worldOwnedExceptionRules,
+  ),
+  ...auditExceptionRegistryIssues(WORLD_LAYOUT_EXCEPTION_REGISTRY, {
+    validTargetsByRule: {
+      'dense-single-site': denseSingleSiteCandidates,
+      'sparse-place': sparsePlaceCandidates,
+      'long-leaf-route': longLeafRouteCandidates,
+    },
+  }),
+  ...auditExceptionUsageIssues(
+    WORLD_LAYOUT_EXCEPTION_REGISTRY,
+    usedWorldLayoutExceptionClaims,
+    Object.keys(WORLD_LAYOUT_EXCEPTION_RULES),
+  ),
+]
+if (malformedExceptions.length) fail('exceptions.invalid', 'structural exception records are incomplete, stale or unused', malformedExceptions)
+else ok('exceptions.valid', `all ${STRUCTURAL_EXCEPTIONS.length} canonical structural records are attributable and bounded; ${usedExceptionClaims.size + usedWorldLayoutExceptionClaims.size} audit-owned claims are exact and live`)
 
 // 10. Lore traceability beyond line coverage: playable scene mappings must be
 // complete enough to trace each projection to an original beat. Absence and

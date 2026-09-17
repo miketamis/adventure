@@ -6,7 +6,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "botaHumbur.options[2]": { al: "kthehu në botë", en: "Return to the world.", review: 'internal-editorial' }, // 1070
   "botaHumbur.options[3]": { al: "dëgjo botën", en: "Listen to the world.", review: 'internal-editorial' }, // 1071
   "udhaSyri.options[0]": { al: "pi ujë", en: "Drink water.", review: 'internal-editorial' }, // 1072
-  "udhaSyri.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 1073
   "udhaSyri.options[2]": { al: "ha gjarprin", en: "Eat the serpent.", review: 'internal-editorial' }, // 1074
   "udhaSyri.options[3]": { al: "pi zjarrin", en: "Drink the fire.", review: 'internal-editorial' }, // 1075
   "uraFshaj.options[0]": { al: "kalo urën", en: "Cross the bridge.", review: 'internal-editorial' }, // 1076
@@ -293,7 +292,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "qiellDiell.options[1]": { al: "kërko hënë", en: "Look for the moon.", review: 'internal-editorial' }, // 1383
   "qiellDiell.options[2]": { al: "prit natën", en: "Wait for night.", review: 'internal-editorial' }, // 1384
   "qiellDiell.options[3]": { al: "prit agim", en: "Wait for dawn.", review: 'internal-editorial' }, // 1385
-  "qiellDiell.options[4]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 1386
   "qiellDiell.options[5]": { al: "jep malin", en: "Give the mountain.", review: 'internal-editorial' }, // 1387
   "qiellDiell.options[6]": { al: "jep diellin", en: "Give the sun.", review: 'internal-editorial' }, // 1388
   "qiellDiell.options[7]": { al: "kërko plakun", en: "Look for the old man.", review: 'internal-editorial' }, // 1389
@@ -552,4 +550,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "maroNjerka.options[2]": { al: "kush punon për ju?", en: "Who works for you?", review: 'internal-editorial' },
   "maroLitani3.options[1]": { al: "Lëre miellin.", en: "Leave the flour.", review: 'internal-editorial' },
   "maroLajmi.options[1]": { al: "shko drejt në han.", en: "Go directly to the inn.", review: 'internal-editorial' },
+  "udhaSyri.options[1]": { al: "kthehu nga Syri i kaltër nëpër rrugën e lumit te ura e vjetër.", en: "Return from the Blue Eye by the river road to the old bridge.", review: 'internal-editorial' },
+  "qiellDiell.options[4]": { al: "zbrit nga qielli nëpër rrugën e malit të shenjtë te udhëkryqi.", en: "Descend from the sky along the sacred mountain road to the crossroads.", review: 'internal-editorial' },
 })

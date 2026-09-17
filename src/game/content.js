@@ -5106,7 +5106,9 @@ export const STORY = {
     text: [
       // crossing back from the Fshaj side opens with the crossing
       from('uraFshaj', L(w('ti'), wf('kalo', 'kalon', 'cross'), wf('ure', 'urën', 'the bridge'), w('mbrapa'), p('.'))),
-      notFrom('uraFshaj', L(w('ti'), w('je'), wf('ne', 'në', 'on'), w('nje'), w('ure'), p('.'))),
+      from('udhaSyri', R('You return from the Blue Eye along the river road and arrive at the old bridge.', w('ti'), wf('kthehu', 'kthehesh', 'return'), w('nga'), wf('sy', 'Syri', 'the Eye'), w('i_art'), wf('kalter', 'kaltër', 'blue'), wf('neper', 'nëpër', 'along'), wf('rruge', 'rrugën', 'the road'), w('e_link'), wf('lume', 'lumit', 'the river'), w('dhe'), wf('arrij', 'arrin', 'arrive'), wf('tek', 'te', 'at'), wf('ure', 'ura', 'the bridge'), w('e_art'), wf('vjeter', 'vjetër', 'old'), p('.'))),
+      from('syriKanali', R('You leave the spring, follow the river road and arrive at the old bridge.', w('ti'), wf('ik', 'ikën', 'leave'), w('nga'), wf('burim', 'burimi', 'the spring'), p(','), wf('ec', 'ecën', 'walk'), wf('neper', 'nëpër', 'along'), wf('rruge', 'rrugën', 'the road'), w('e_link'), wf('lume', 'lumit', 'the river'), w('dhe'), wf('arrij', 'arrin', 'arrive'), wf('tek', 'te', 'at'), wf('ure', 'ura', 'the bridge'), w('e_art'), wf('vjeter', 'vjetër', 'old'), p('.'))),
+      notFrom(['uraFshaj', 'udhaSyri', 'syriKanali'], L(w('ti'), w('je'), wf('ne', 'në', 'on'), w('nje'), w('ure'), p('.'))),
       unless('fact:riverRestored', L(wf('lume', 'lumi', 'the river'), w('poshte'), w('eshte'), w('i_art'), w('thate'), p('.'))),
       when('fact:riverRestored', R('Below, water moves through the river again.', wf('poshte', 'Poshtë', 'below'), p(','), wf('uje', 'uji', 'the water'), wf('leviz', 'lëviz', 'moves'), w('ne'), wf('lume', 'lumë', 'the river'), w('perseri'), p('.'))),
       ambient(when('weather:rain', describesEnvironment('weather', R('Rain falls on the old bridge and darkens its stones.', wf('shi', 'Shiu', 'the rain'), w('bie'), w('mbi'), wf('ure', 'urën', 'the bridge'), w('e_art'), w('vjeter'), w('dhe'), wf('bej', 'bën', 'makes'), wf('gur', 'gurët', 'the stones'), wf('te_link', 'të', 'the'), w('erret'), p('.')))), 'old-bridge-rain'),
@@ -5813,10 +5815,11 @@ export const STORY = {
       L(wf('gjarper', 'gjarpri', 'the serpent'), wf('zgjohu', 'zgjohet', 'wakes'), p('.')),
       L(wf('gjarper', 'gjarpri', 'the serpent'), w('do'), w('te_subj'), wf('ha', 'hajë', 'eat'), wf('zog', 'zogun', 'chick'), p('!')),
       R('The nest sways beneath your feet.', wf('fole', 'Foleja', 'the nest'), w('lekundet'), wf('nen', 'nën', 'beneath'), wf('kembe', 'këmbët', 'the feet'), w('e_link'), wf('yt', 'tua', 'your'), p('.')),
+      R('Below the nest, the long road leads to the crossroads.', wf('poshte', 'Poshtë', 'below'), wf('fole', 'folesë', 'the nest'), p(','), wf('rruge', 'rruga', 'the road'), w('e_art'), wf('gjate', 'gjatë', 'long'), wf('shko', 'shkon', 'goes'), wf('tek', 'te', 'to'), wf('udhekryq', 'udhëkryqi', 'the crossroads'), p('.')),
     ],
     options: [
       { text: L(w('vrit'), wf('gjarper', 'gjarprin', 'the serpent')), to: 'shqipe3', reveal: 'gjarper', revealOccurrence: 3 },
-      { text: L(w('ik'), w('shpejt')), to: 'udhekryq' },
+      { text: R('Leave the nest and walk toward the crossroads.', w('dil'), wf('nga', 'nga', 'from'), wf('fole', 'foleja', 'the nest'), w('dhe'), w('ec'), w('drejt'), wf('udhekryq', 'udhëkryqit', 'the crossroads'), p('.')), intent: 'movement', playerIntents: ['movement'], to: 'udhekryq' },
     ],
   },
 
@@ -5974,10 +5977,11 @@ export const STORY = {
       L(wf('ere', 'era', 'wind'), w('te_obj'), wf('thirr', 'thërret', 'calls'), p('.')),
       L(wf('ere', 'era', 'wind'), w('thote'), p(':'), w('ai'), w('eshte'), wf('ne', 'në', 'in'), wf('det', 'detin', 'the sea'), p('.')),
       R('A cloud covers the sea with shadow.', w('nje'), w('re'), w('vesh'), wf('det', 'detin', 'the sea'), w('me'), w('hije'), p('.')),
+      R('Behind you, the long road returns to the crossroads.', w('mbrapa'), p(','), wf('rruge', 'rruga', 'the road'), w('e_art'), wf('gjate', 'gjatë', 'long'), wf('kthehu', 'kthehet', 'returns'), wf('ne', 'në', 'to'), wf('udhekryq', 'udhëkryq', 'the crossroads'), p('.')),
     ],
     options: [
       { text: L(w('shko'), wf('ne', 'në', 'to'), wf('det', 'detin', 'the sea')), to: 'gjarperKulshedra', reveal: 'det', revealOccurrence: 1 },
-      { text: L(w('kthehu')), to: 'udhekryq' },
+      { text: R('Return to the crossroads by the long road.', w('kthehu'), wf('ne', 'në', 'to'), wf('udhekryq', 'udhëkryq'), wf('neper', 'nëpër', 'by'), wf('rruge', 'rrugën', 'the road'), w('e_art'), wf('gjate', 'gjatë', 'long'), p('.')), intent: 'movement', playerIntents: ['movement'], to: 'udhekryq' },
     ],
   },
 
@@ -6177,7 +6181,8 @@ export const STORY = {
   gjizar2: {
     id: 'gjizar2',
     text: [
-      R('The mother says, “A king wants a bird for a mosque.”', wf('nene', 'nëna', 'the mother'), w('thote'), p(':'), w('nje'), w('mbret'), w('do'), w('nje'), w('zog'), w('per'), w('nje'), w('xhami'), p('.')),
+      from('gjizarUdha', R('You return along the long road and reach the old mother at its beginning.', w('ti'), wf('kthehu', 'kthehesh', 'return'), wf('neper', 'nëpër', 'along'), wf('rruge', 'rrugën', 'the road'), w('e_art'), wf('gjate', 'gjatë', 'long'), w('dhe'), wf('arrij', 'arrin', 'reach'), wf('tek', 'te', 'to'), wf('nene', 'nëna', 'the mother'), w('e_art'), wf('vjeter', 'vjetër', 'old'), wf('ne', 'në', 'at'), w('fillim'), wf('te_link', 'të', 'of the'), wf('rruge', 'rrugës', 'road'), p('.'))),
+      notFrom('gjizarUdha', R('The mother says, “A king wants a bird for a mosque.”', wf('nene', 'nëna', 'the mother'), w('thote'), p(':'), w('nje'), w('mbret'), w('do'), w('nje'), w('zog'), w('per'), w('nje'), w('xhami'), p('.'))),
       L(wf('zog', 'zogu', 'bird'), w('eshte'), w('larg'), p('.')),
       L(wf('zog', 'zogu', 'bird'), w('eshte'), wf('ne', 'në', 'in'), wf('pallat', 'pallatin', 'the palace'), w('e_link'), wf('bukura', 'Bukurës', 'the Beauty'), p('.')),
       R('From far away comes a voice: “Gjon!”', w('nga'), w('larg'), w('vjen'), w('nje'), wf('ze', 'zë', 'a voice'), p(':'), w('gjon'), p('!')),
@@ -6195,6 +6200,7 @@ export const STORY = {
     id: 'gjizarUdha',
     text: [
       from('gjizar2', R('You walk far along the road of no return, searching everywhere for the bird.', w('ti'), wf('ec', 'ecën', 'walk'), w('larg'), wf('ne', 'në', 'on'), wf('rruge', 'rrugën', 'the road'), w('qe'), w('nuk'), wf('kthehu', 'kthehet', 'returns'), p(','), w('dhe'), wf('kerko', 'kërkon', 'search'), wf('zog', 'zogun', 'bird'), w('kudo'), p('.'))),
+      R('Behind you, the long road returns to the old mother at its beginning.', w('mbrapa'), p(','), wf('rruge', 'rruga', 'the road'), w('e_art'), wf('gjate', 'gjatë', 'long'), wf('kthehu', 'kthehet', 'returns'), wf('tek', 'te', 'to'), wf('nene', 'nëna', 'the mother'), w('e_art'), wf('vjeter', 'vjetër', 'old'), wf('ne', 'në', 'at'), w('fillim'), wf('te_link', 'të', 'of the'), wf('rruge', 'rrugës', 'road'), p('.')),
       unless('flag:gjizarWomanHelped', L(w('nje'), w('grua'), w('e_art'), w('eger'), w('ka'), w('morra'), wf('ne', 'në', 'in'), w('flok'), p('.'))),
       when('flag:gjizarWomanHelped', R('Her hair is free of lice, and she points along the road to the tiger’s house.', wf('flok', 'Flokët', 'the hair'), w('e_link'), w('saj'), wf('je', 'janë', 'are'), w('pa'), w('morra'), p(','), w('dhe'), w('ajo'), wf('tregoj', 'tregon', 'points out'), wf('rruge', 'rrugën', 'the road'), wf('tek', 'te', 'to'), wf('shtepi', 'shtëpia', 'the house'), w('e_link'), wf('tiger', 'tigrit', 'the tiger'), p('.'))),
       whenUnless('flag:gjizarWomanHelped', 'flag:gjizarTigerHelped', R('At the tiger’s house, the woman burns herself when she opens the oven fire; dry leaves lie beside it.', wf('ne', 'Në', 'in'), wf('shtepi', 'shtëpinë', 'the house'), w('e_link'), wf('tiger', 'tigrit', 'the tiger'), p(','), wf('grua', 'gruaja', 'the woman'), w('digjet'), w('kur'), w('hap'), wf('zjarr', 'zjarrin', 'the fire'), w('e_link'), wf('furre', 'furrës', 'the oven'), p(';'), w('gjethe'), w('te_link'), wf('thate', 'thata', 'dry'), wf('rri', 'rrinë', 'lie'), w('prane'), p('.'))),
@@ -6267,7 +6273,7 @@ export const STORY = {
           }],
         },
       },
-      { text: L(w('kthehu')), to: 'gjizar2' },
+      { text: R('Return along the long road to the old mother.', w('kthehu'), wf('neper', 'nëpër', 'along'), wf('rruge', 'rrugën', 'the road'), w('e_art'), wf('gjate', 'gjatë', 'long'), wf('tek', 'te', 'to'), wf('nene', 'nëna', 'the mother'), w('e_art'), wf('vjeter', 'vjetër', 'old'), p('.')), intent: 'movement', playerIntents: ['movement'], to: 'gjizar2' },
     ],
   },
 
@@ -8761,11 +8767,12 @@ export const STORY = {
       L(wf('uje', 'uji', 'the water'), w('eshte'), w('i_art'), w('thelle'), w('dhe'), w('i_art'), w('kalter'), p('.')),
       L(wf('njeri', 'njerëzit', 'the people'), wf('quhem', 'e quajnë', 'call'), wf('uje', 'ujin', 'the water'), p(':'), wf('sy', 'Syri', 'the Eye'), w('i_art'), w('kalter'), p('.')),
       when('fact:blueEyeChannelOpened', R('The channel carries spring water toward the village.', wf('kanal', 'kanali', 'the channel'), w('merr'), w('uje'), w('nga'), wf('burim', 'burimi', 'the spring'), wf('ne', 'në', 'to'), w('fshat'), p('.'))),
+      R('The river road leads from the Blue Eye to the old bridge.', wf('rruge', 'Rruga', 'the road'), w('e_link'), wf('lume', 'lumit', 'the river'), wf('shko', 'shkon', 'goes'), w('nga'), wf('sy', 'Syri', 'the Eye'), w('i_art'), wf('kalter', 'kaltër', 'blue'), wf('tek', 'te', 'to'), wf('ure', 'ura', 'the bridge'), w('e_art'), wf('vjeter', 'vjetër', 'old'), p('.')),
       ambient(when('season:autumn', describesEnvironment('season', R('Autumn leaves fall on the blue water.', wf('gjethe', 'Gjethet', 'the leaves'), w('e_link'), wf('vjeshte', 'vjeshtës', 'of autumn'), wf('bie', 'bien', 'fall'), w('mbi'), wf('uje', 'ujin', 'the water'), w('e_art'), w('kalter'), p('.')))), 'blue-eye-autumn-leaves'),
     ],
     options: [
       { text: L(w('pi'), w('uje')), to: 'syriKanali', reveal: 'uje', revealOccurrence: 2 },
-      { text: L(w('ik'), w('shpejt')), to: 'ura' },
+      { text: R('Return from the Blue Eye by the river road to the old bridge.', w('kthehu'), w('nga'), wf('sy', 'Syri', 'the Eye'), w('i_art'), wf('kalter', 'kaltër', 'blue'), wf('neper', 'nëpër', 'by'), wf('rruge', 'rrugën', 'the road'), w('e_link'), wf('lume', 'lumit', 'the river'), wf('tek', 'te', 'to'), wf('ure', 'ura', 'the bridge'), w('e_art'), wf('vjeter', 'vjetër', 'old'), p('.')), intent: 'movement', playerIntents: ['movement'], to: 'ura' },
     ],
   },
 
@@ -8775,10 +8782,11 @@ export const STORY = {
       R('The water is cold and clear. The village is far away.', wf('uje', 'uji', 'the water'), w('eshte'), w('i_art'), w('ftohte'), w('dhe'), w('i_art'), wf('paster', 'pastër', 'clear'), p('.'), wf('fshat', 'fshati', 'the village'), w('eshte'), w('larg'), p('.')),
       unless('fact:blueEyeChannelOpened', R('An old man looks toward the distant village and asks, “Where will the water go?”', w('nje'), w('plak'), w('sheh'), w('drejt'), wf('fshat', 'fshatit', 'the village'), w('qe'), w('eshte'), w('larg'), w('dhe'), w('te_obj'), w('pyet'), p(':'), w('ku'), w('do'), w('te_subj'), wf('shko', 'shkojë', 'go'), wf('uje', 'uji', 'the water'), p('?'))),
       when('fact:blueEyeChannelOpened', R('The channel is open. Water runs toward the village.', wf('kanal', 'kanali', 'the channel'), w('eshte'), w('i_art'), w('hapur'), p('.'), wf('uje', 'uji', 'the water'), wf('shko', 'shkon', 'go'), wf('ne', 'në', 'to'), w('fshat'), p('.'))),
+      R('Behind you, the river road returns from the spring to the old bridge.', w('mbrapa'), p(','), wf('rruge', 'rruga', 'the road'), w('e_link'), wf('lume', 'lumit', 'the river'), wf('kthehu', 'kthehet', 'returns'), w('nga'), wf('burim', 'burimi', 'the spring'), wf('tek', 'te', 'to'), wf('ure', 'ura', 'the bridge'), w('e_art'), wf('vjeter', 'vjetër', 'old'), p('.')),
     ],
     options: [
       { text: R('To the village. We will open a channel together.', wf('ne', 'Në', 'to'), w('fshat'), p('.'), w('ne_we'), w('do'), w('te_subj'), wf('hap', 'hapim', 'open'), w('nje'), w('kanal'), w('bashke'), p('.')), speechAct: 'say', to: 'syriFund', durationHours: 8, reveal: 'kanal', revealOccurrence: 1, unless: 'fact:blueEyeChannelOpened' },
-      { text: R('Leave the spring.', w('ik'), wf('nga', 'nga', 'from'), wf('burim', 'burimi', 'the spring'), p('.')), to: 'ura' },
+      { text: R('Return from the spring by the river road to the old bridge.', w('kthehu'), w('nga'), wf('burim', 'burimi', 'the spring'), wf('neper', 'nëpër', 'by'), wf('rruge', 'rrugën', 'the road'), w('e_link'), wf('lume', 'lumit', 'the river'), wf('tek', 'te', 'to'), wf('ure', 'ura', 'the bridge'), w('e_art'), wf('vjeter', 'vjetër', 'old'), p('.')), intent: 'movement', playerIntents: ['movement'], to: 'ura' },
     ],
   },
 
@@ -10591,6 +10599,10 @@ export const STORY = {
       from('mali1', L(w('ti'), w('zbrit'), w('nga'), wf('mal', 'mali', 'the mountain'), p('.'))),
       from('fshatiSheshi', L(w('ti'), w('vjen'), w('nga'), wf('fshat', 'fshati', 'the village'), p('.'))),
       from(['maliHumbur', 'lumiHumbur', 'botaHumbur'], L(w('ti'), w('gjen'), wf('rruge', 'rrugën', 'the road'), w('perseri'), p('.'))),
+      from('shqipe1', R('You walk far from the eagle tree and arrive at the crossroads.', w('ti'), wf('ec', 'ecën', 'walk'), w('larg'), wf('nga', 'nga', 'from'), wf('peme', 'pema', 'tree'), w('e_link'), wf('shqiponje', 'shqiponjës', 'the eagle'), w('dhe'), wf('arrij', 'arrin', 'arrive'), wf('ne', 'në', 'at'), wf('udhekryq', 'udhëkryq', 'crossroads'), p('.'))),
+      from('shqipe2', R('You leave the eagle nest, walk along the long road and arrive at the crossroads.', w('ti'), wf('dil', 'del', 'leave'), w('nga'), wf('fole', 'foleja', 'the nest'), w('e_link'), wf('shqiponje', 'shqiponjës', 'the eagle'), p(','), wf('ec', 'ecën', 'walk'), wf('neper', 'nëpër', 'along'), wf('rruge', 'rrugën', 'the road'), w('e_art'), wf('gjate', 'gjatë', 'long'), w('dhe'), wf('arrij', 'arrin', 'arrive'), wf('ne', 'në', 'at'), wf('udhekryq', 'udhëkryq', 'crossroads'), p('.'))),
+      from('gjarperKerkim', R('You return along the long road and arrive at the crossroads.', w('ti'), wf('kthehu', 'kthehesh', 'return'), wf('neper', 'nëpër', 'along'), wf('rruge', 'rrugën', 'the road'), w('e_art'), wf('gjate', 'gjatë', 'long'), w('dhe'), wf('arrij', 'arrin', 'arrive'), wf('ne', 'në', 'at'), wf('udhekryq', 'udhëkryq', 'crossroads'), p('.'))),
+      from('qiellDiell', R('You descend from the sky along the sacred mountain road and arrive at the crossroads.', w('ti'), wf('zbrit', 'zbret', 'descend'), w('nga'), wf('qiell', 'qielli', 'the sky'), wf('neper', 'nëpër', 'along'), wf('rruge', 'rrugën', 'the road'), w('e_link'), wf('mal', 'malit', 'the mountain'), w('te_link'), wf('shenjte', 'shenjtë', 'sacred'), w('dhe'), wf('arrij', 'arrin', 'arrive'), wf('ne', 'në', 'at'), wf('udhekryq', 'udhëkryq', 'crossroads'), p('.'))),
       when('weather:cloud', describesEnvironment('weather', R('Clouds move above the crossroads.', wf('re', 'Retë', 'the clouds'), wf('leviz', 'lëvizin', 'move'), w('mbi'), wf('udhekryq', 'udhëkryqin', 'the crossroads'), p('.')))),
       // the open sky over the crossroads tells the hour — in what the LAND does
       // with it: dawn reddens the holy peak, noon whitens the dust of the road,
@@ -10609,7 +10621,6 @@ export const STORY = {
       R('The words on a stone say, “Mountains do not meet, but people do.”', Q('mali-me-mal',
         wf('fjale', 'Fjalët', 'the words'), wf('ne', 'në', 'on'), w('nje'), w('gur'), wf('thote', 'thonë', 'say'), p(':'), wf('mal', 'mali', 'the mountain'), w('me'), w('mal'), w('nuk'), w('piqet'), p(','), wf('njeri', 'njeriu', 'the person'), w('me'), wf('njeri', 'njeriun', 'the person'), w('piqet'), p('.'))),
       L(w('ti'), wf('mendoj', 'mendon', 'think'), p(':'), w('ku'), w('te_subj'), wf('shko', 'shkosh', 'go'), p('?')),
-      from('shqipe1', R('You walk far from the eagle tree and arrive at the crossroads.', w('ti'), wf('ec', 'ecën', 'walk'), w('larg'), wf('nga', 'nga', 'from'), wf('peme', 'pema', 'tree'), w('e_link'), wf('shqiponje', 'shqiponjës', 'the eagle'), w('dhe'), wf('arrij', 'arrin', 'arrive'), wf('ne', 'në', 'at'), wf('udhekryq', 'udhëkryq', 'crossroads'), p('.'))),
     ],
     options: [
       { text: L(w('ec'), wf('ne', 'në', 'to'), w('fshat')), to: 'fshatiSheshi' },
@@ -10808,6 +10819,7 @@ export const STORY = {
       became('night', L(wf('naten', 'nata', 'the night'), w('vjen'), p('.'))),
       became('dawn', L(wf('diell', 'dielli', 'the sun'), w('vjen'), p('.'))),
       when('night', describesEnvironment('time', R('The Sun is gone; the Moon is high and gives a quiet light.', wf('diell', 'Dielli', 'the sun'), wf('ik', 'ikën', 'is gone'), p(';'), wf('hene', 'hëna', 'the moon'), w('eshte'), wf('lart', 'lart', 'high'), w('dhe'), w('jep'), w('drite'), w('e_art'), w('qete'), p('.')))),
+      R('Below you, the sacred mountain road descends to the crossroads.', wf('poshte', 'Poshtë', 'below'), wf('ti', 'teje', 'you'), p(','), wf('rruge', 'rruga', 'the road'), w('e_link'), wf('mal', 'malit', 'the mountain'), w('te_link'), wf('shenjte', 'shenjtë', 'sacred'), wf('zbrit', 'zbret', 'descends'), wf('tek', 'te', 'to'), wf('udhekryq', 'udhëkryqi', 'the crossroads'), p('.')),
     ],
     options: [
       // stand in the Sun's full light — only while he is in the sky
@@ -10818,7 +10830,7 @@ export const STORY = {
       { text: L(w('prit'), wf('naten', 'natën', 'night')), unless: 'night', to: 'qiellDiell', time: 'night' },
       // linger until the Sun climbs again
       { text: L(w('prit'), w('agim')), requires: 'night', to: 'qiellDiell', time: 'dawn' },
-      { text: L(w('ik'), w('shpejt')), to: 'udhekryq' },
+      { text: R('Descend from the sky along the sacred mountain road to the crossroads.', w('zbrit'), w('nga'), wf('qiell', 'qielli', 'the sky'), wf('neper', 'nëpër', 'along'), wf('rruge', 'rrugën', 'the road'), w('e_link'), wf('mal', 'malit', 'the mountain'), w('te_link'), wf('shenjte', 'shenjtë', 'sacred'), wf('tek', 'te', 'to'), wf('udhekryq', 'udhëkryqi', 'the crossroads'), p('.')), intent: 'movement', playerIntents: ['movement'], to: 'udhekryq' },
     ],
   },
 

@@ -496,7 +496,7 @@ export const LATE_READINGS = {
   "lumiHumbur.text[4]": ["Shiu godet ujin dhe fsheh rrugën.", "Rain strikes the water and hides the road."],
   "botaHumbur.text[0]": ["ti je poshtë, në botën tjetër; errësira është kudo dhe ti nuk sheh rrugën.", "Below in the other world, darkness is everywhere and you cannot see the path."],
   "udhaSyri.text[6]": ["kanali merr ujë nga burimi në fshat.", "The channel carries spring water toward the village."],
-  "udhaSyri.text[7]": ["Gjethet e vjeshtës bien mbi ujin e kaltër.", "Autumn leaves fall on the blue water."],
+  "udhaSyri.text[8]": ["Gjethet e vjeshtës bien mbi ujin e kaltër.", "Autumn leaves fall on the blue water."],
   "syriKanali.text[0]": ["uji është i ftohtë dhe i pastër. fshati është larg.", "The water is cold and clear. The village is far away."],
   "syriKanali.text[1]": ["një plak sheh drejt fshatit që është larg dhe të pyet: ku do të shkojë uji?", "An old man looks toward the distant village and asks, “Where will the water go?”"],
   "syriKanali.text[2]": ["kanali është i hapur. uji shkon në fshat.", "The channel is open. Water runs toward the village."],
@@ -661,4 +661,6 @@ export const LATE_READINGS = {
   "thesarLeave.text[3]": ["Në agim, drita zbardh hyrjen e shpellës para teje.", "At dawn, light brightens the cave entrance ahead of you."],
   "dasma1.text[8]": ["njerëzit thonë: u trashëgofshin!", "The people say, “May they have heirs!”"],
   "burrnesha1.text[10]": ["njeriu mban një armë.", "The person carries a weapon."],
+  "udhaSyri.text[7]": ["Rruga e lumit shkon nga Syri i kaltër te ura e vjetër.", "The river road leads from the Blue Eye to the old bridge."],
+  "syriKanali.text[3]": ["mbrapa, rruga e lumit kthehet nga burimi te ura e vjetër.", "Behind you, the river road returns from the spring to the old bridge."],
 }

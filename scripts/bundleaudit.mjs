@@ -10,6 +10,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { basename, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
+import { NOUN_NUMBER_POLICIES } from './lib/noun-number-policies.mjs'
 
 const DIST = resolve('dist')
 const ASSETS = resolve(DIST, 'assets')
@@ -55,6 +56,13 @@ const jsFiles = readdirSync(ASSETS)
   .filter((name) => name.endsWith('.js'))
   .map((name) => ({ name, ...sizeOf(resolve(ASSETS, name)) }))
   .sort((a, b) => b.raw - a.raw)
+const emittedJavaScript = jsFiles
+  .map(({ name }) => readFileSync(resolve(ASSETS, name), 'utf8'))
+  .join('\n')
+for (const [senseId, policy] of Object.entries(NOUN_NUMBER_POLICIES)) {
+  assert.ok(!emittedJavaScript.includes(policy.rationale),
+    `${senseId}: audit-only noun-number rationale leaked into a production JavaScript bundle`)
+}
 const taleNames = readdirSync(resolve('src/game/data/tales'))
   .filter((name) => name.endsWith('.js') && !name.startsWith('_'))
   .map((name) => name.slice(0, -3))
@@ -173,20 +181,23 @@ const SHELL_GZIP_BUDGET = 68 * KiB
 // action-provenance and visible-affordance sweep adds real first-play Albanian,
 // conversation replies, alternate exits and consequences, bringing the
 // measured closure to 1547.2 KiB raw / 377.5 KiB gzip after its audit-only
-// metadata is stripped. Keep narrow ceilings above that player-facing payload.
-const BOOTSTRAP_RAW_BUDGET = 1_549 * KiB
-const BOOTSTRAP_GZIP_BUDGET = 379 * KiB
+// metadata is stripped. Six formerly waived long routes now carry a visible
+// source cue, an endpoint-naming action, and exact predecessor arrival prose;
+// that player-facing continuity repair measures 1552.9 KiB raw / 379.0 KiB
+// gzip. Keep narrow ceilings above that substantive payload.
+const BOOTSTRAP_RAW_BUDGET = 1_554 * KiB
+const BOOTSTRAP_GZIP_BUDGET = 380 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
 // warning limit; the stricter aggregate and gzip ceilings below still measure
 // the bytes a first-time player actually downloads.
-const BOOTSTRAP_CHUNK_RAW_BUDGET = 856 * KiB
+const BOOTSTRAP_CHUNK_RAW_BUDGET = 861 * KiB
 const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
 // The added NPC replies keep their reviewed English metadata deferred from
 // ordinary play. Shared record construction plus the new conversation and
-// continuity readings keep the complete measured corpus at 367.8 KiB raw /
-// 108.3 KiB gzip without dropping any reviewed reading.
-const READING_CHUNK_RAW_BUDGET = 369 * KiB
+// six exact journey/arrival readings keep the complete measured corpus at
+// 369.7 KiB raw / 108.4 KiB gzip without dropping any reviewed reading.
+const READING_CHUNK_RAW_BUDGET = 371 * KiB
 const READING_CHUNK_GZIP_BUDGET = 110 * KiB
 const AUDIO_FILE_BUDGET = 64 * KiB
 // Word-level timestamps are loaded only after an accepted action starts its
@@ -194,14 +205,14 @@ const AUDIO_FILE_BUDGET = 64 * KiB
 // clips so alignment metadata cannot grow without a release review.
 // The expanded village conversations and continuity actions add their
 // continuous Albanian recordings and exact waveform-correlated word
-// boundaries. The resulting complete manifest stores its common method once
-// and is 1056.8 KiB raw / 141.6 KiB gzip; keep narrow measured allowances for
-// that release-safety data.
-const ACTION_TIMINGS_RAW_BUDGET = 1_058 * KiB
+// boundaries. The six newly explicit long journeys bring the complete
+// manifest to 1068.0 KiB raw / 143.0 KiB gzip; keep narrow measured
+// allowances for that release-safety data.
+const ACTION_TIMINGS_RAW_BUDGET = 1_069 * KiB
 const ACTION_TIMINGS_GZIP_BUDGET = 143 * KiB
 // Every accepted story action now has one continuous, on-demand MP3 so action
 // karaoke never falls back to stitched word clips or browser TTS. Keep a
-// measured ceiling over that complete 4,845-clip archive; none is eager-loaded.
+// measured ceiling over that complete 4,852-clip archive; none is eager-loaded.
 const AUDIO_TOTAL_BUDGET = 48 * 1024 * KiB
 const actionTimings = sizeOf(ACTION_TIMINGS)
 

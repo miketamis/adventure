@@ -40,11 +40,20 @@ test('rejects malformed, duplicate, broad and scope-growing records', () => {
     validRecord(),
   ])
   const issues = auditExceptionRegistryIssues(subject)
-  assert.ok(issues.some((issue) => issue.includes('missing evidence')))
+  assert.ok(issues.some((issue) => issue.includes('missing evidence/source')))
   assert.ok(issues.some((issue) => issue.includes('duplicate exception id')))
   assert.ok(issues.some((issue) => issue.includes('not exact')))
-  assert.ok(issues.some((issue) => issue.includes('scope grew beyond')))
+  assert.ok(issues.some((issue) => issue.includes('exact scope has')))
   assert.ok(issues.some((issue) => issue.includes('duplicates sample-rule target')))
+})
+
+test('accepts source as evidence and rejects a padded maximum scope', () => {
+  const sourceBacked = validRecord({ evidence: undefined, source: 'src/game/exampleRegistry.js: reviewed exact edge record' })
+  assert.deepEqual(auditExceptionRegistryIssues(registry([sourceBacked])), [])
+
+  const padded = validRecord({ scope: { kind: 'exact-targets', maximumTargets: 2 } })
+  assert.ok(auditExceptionRegistryIssues(registry([padded]))
+    .some((issue) => issue.includes('exact scope has 1 targets instead of its reviewed 2')))
 })
 
 test('rejects stale, unused and unregistered exception use', () => {

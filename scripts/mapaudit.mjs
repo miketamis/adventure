@@ -9,27 +9,34 @@
 // The map is a non-cardinal mythic Albanian tale-chart: sky/Tomorr at NEGATIVE
 // y (top), the underworld at LARGE y (bottom). Thus "up" (lart/ngjit) must
 // DECREASE y and "down" (poshtë/zbrit) must INCREASE it, even below ground.
+import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { STORY } from '../src/game/content.js'
+import { DICT, STORY } from '../src/game/content.js'
 import { NODE_AT, NODE_POS, PLACE_OF, PLACE_NODES } from '../src/components/nodePositions.js'
 import { PLACE_META } from '../src/components/placeMeta.js'
 import { REGIONS, NODE_REGION, VILLAGE_ANCHOR_IDS, isWander } from '../src/game/regions.js'
 import { NPCS } from '../src/game/npcs.js'
 import { npcNodeOf, TIME_PHASES } from '../src/game/gameState.js'
 import { optionEffectsOf, rendezvousSpecOf } from '../src/game/stateMechanics.js'
+import { WORD_CLASS, wordClassOf } from '../src/game/wordClassPolicy.js'
 import {
   transitionInfo,
 } from '../src/game/worldModel.js'
 import {
+  STRUCTURAL_EXCEPTIONS,
   STRUCTURAL_EXCEPTION_RULES,
-  exceptionFor,
-  exceptionTargetsFor,
-  structuralExceptionKey,
-  structuralExceptionRegistryIssues,
-  structuralExceptionUsageIssues,
 } from '../src/game/worldStructuralExceptions.js'
+import { PROJECTION_BOUNDARY_EDGES } from '../src/game/worldProjectionBoundaries.js'
+import {
+  auditExceptionClaimKey,
+  auditExceptionFor,
+  auditExceptionRegistryIssues,
+  auditExceptionTargetsFor,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -37,6 +44,294 @@ const RG = Object.fromEntries(REGIONS.map((r) => [r.key, r]))
 const reg = (id) => NODE_REGION[id] || 'village'
 const ids = Object.keys(STORY)
 const idsOf = (toks) => (toks || []).filter((t) => t && t.id).map((t) => t.id)
+const JOURNEY_MOVEMENT_IDS = new Set([
+  'ec', 'shko', 'kthehu', 'zbrit', 'ngjit', 'kalo', 'hyr', 'dil', 'ik', 'vjen', 'vrapo', 'hip', 'ndiq', 'fluturo',
+])
+const JOURNEY_ROUTE_RELATION_IDS = new Set([
+  'drejt', 'nga', 'ne', 'neper', 'tek', 'per', 'mbi', 'poshte', 'lart',
+])
+const GENERIC_ROUTE_NOUN_IDS = new Set(['rruge', 'udhe', 'shteg'])
+const isNounSense = (id) => wordClassOf(id, DICT[id], {
+  hasAttestedVariant: Boolean(DICT[id]?.forms?.length),
+}) === WORD_CLASS.NOUN
+const exactConditionLines = (entries, condition) => (entries || []).flatMap((entry) => {
+  if (Array.isArray(entry)) return exactConditionLines(entry, condition)
+  return entry?.cond === condition && Array.isArray(entry.line) ? [entry.line] : []
+})
+const visibleJourneyEndpointNoun = (option) => {
+  const tokenIds = idsOf(option?.text)
+  if (tokenIds.length < 3 || !tokenIds.some((id) => JOURNEY_MOVEMENT_IDS.has(id))) return null
+  const endpointCandidates = tokenIds.flatMap((id, index) => {
+    if (!JOURNEY_ROUTE_RELATION_IDS.has(id)) return []
+    const noun = tokenIds.slice(index + 1, index + 4).find(isNounSense)
+    return noun && !GENERIC_ROUTE_NOUN_IDS.has(noun) ? [noun] : []
+  })
+  return endpointCandidates.at(-1) || null
+}
+const lineSubstantivelyShowsArrival = (line, endpointNoun) => {
+  const tokenIds = idsOf(line)
+  return tokenIds.length >= 5 &&
+    tokenIds.includes('ti') &&
+    tokenIds.some((id) => JOURNEY_MOVEMENT_IDS.has(id)) &&
+    tokenIds.includes(endpointNoun)
+}
+const hasAuthoredLongJourneyContract = (sourceId, option, destinationText) => {
+  const endpointNoun = visibleJourneyEndpointNoun(option)
+  return option?.intent === 'movement' &&
+    Array.isArray(option?.playerIntents) &&
+    option.playerIntents.includes('movement') &&
+    Boolean(endpointNoun) &&
+    exactConditionLines(destinationText, `from:${sourceId}`)
+      .some((line) => lineSubstantivelyShowsArrival(line, endpointNoun))
+}
+
+// Positive-contract regression fixtures: metadata, visible route wording and
+// a substantive exact-predecessor arrival are independently necessary.
+const fixtureTokens = (...tokenIds) => tokenIds.map((id) => ({ id }))
+const movementContractFixture = {
+  intent: 'movement',
+  playerIntents: ['movement'],
+  text: fixtureTokens('shko', 'ne', 'fshat'),
+}
+const arrivalContractFixture = [{
+  cond: 'from:fixture-source',
+  line: fixtureTokens('ti', 'ec', 'neper', 'rruge', 'dhe', 'arrij', 'ne', 'fshat'),
+}]
+assert.equal(hasAuthoredLongJourneyContract(
+  'fixture-source', movementContractFixture, arrivalContractFixture), true)
+assert.equal(hasAuthoredLongJourneyContract('fixture-source', movementContractFixture, []), false)
+assert.equal(hasAuthoredLongJourneyContract('fixture-source', {}, arrivalContractFixture), false)
+assert.equal(hasAuthoredLongJourneyContract(
+  'fixture-source', movementContractFixture, [{ cond: 'from:fixture-source', line: [] }]), false)
+assert.equal(hasAuthoredLongJourneyContract(
+  'fixture-source', movementContractFixture,
+  [{ cond: 'from:fixture-source', line: fixtureTokens('ti', 'eshte', 'ketu') }]), false)
+assert.equal(hasAuthoredLongJourneyContract(
+  'fixture-source', { ...movementContractFixture, text: fixtureTokens('shko') }, arrivalContractFixture), false)
+assert.equal(hasAuthoredLongJourneyContract(
+  'fixture-source',
+  { ...movementContractFixture, text: fixtureTokens('shko', 'ne', 'rruge') },
+  [{ cond: 'from:fixture-source', line: fixtureTokens('ti', 'ec', 'neper', 'rruge', 'dhe', 'arrij', 'ne', 'fshat') }]), false)
+assert.equal(hasAuthoredLongJourneyContract(
+  'fixture-source',
+  { ...movementContractFixture, text: fixtureTokens('shko', 'ne', 'qytet') },
+  [{ cond: 'from:fixture-source', line: fixtureTokens('ti', 'ec', 'neper', 'rruge', 'dhe', 'arrij', 'ne', 'fshat') }]), false)
+assert.equal(hasAuthoredLongJourneyContract(
+  'fixture-source', movementContractFixture, [{ cond: 'from:fixture-source-nearby', line: [] }]), false)
+const STRUCTURAL_EXCEPTION_REGISTRY = defineAuditExceptionRegistry({
+  rules: STRUCTURAL_EXCEPTION_RULES,
+  entries: STRUCTURAL_EXCEPTIONS.map((entry) => ({
+    ...entry,
+    evidence: `Canonical structural source: ${entry.source}`,
+  })),
+})
+const MAP_LAYOUT_EXCEPTION_RULES = Object.freeze({
+  'same-place-connectivity': { targetKind: 'place' },
+  'dense-single-site': { targetKind: 'place' },
+  'legacy-long-route': { targetKind: 'edge' },
+  'long-wander-route': { targetKind: 'edge' },
+})
+const MAP_LAYOUT_EXCEPTION_REGISTRY = defineAuditExceptionRegistry({
+  rules: MAP_LAYOUT_EXCEPTION_RULES,
+  entries: [
+    {
+      id: 'river-serial-tale-place-connectivity',
+      rule: 'same-place-connectivity',
+      targets: ['lumi'],
+      rationale: PLACE_META.lumi.continuityReason,
+      evidence: 'PLACE_META.lumi happenings and PLACE_NODES.lumi pin the exact disconnected serial tale beats at the shared river site.',
+      owner: 'world-map',
+      reviewTrigger: 'when the river place membership, tale chronology or story edges between its happenings change',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'lower-court-serial-telling-connectivity',
+      rule: 'same-place-connectivity',
+      targets: ['bukura1'],
+      rationale: PLACE_META.bukura1.continuityReason,
+      evidence: 'PLACE_META.bukura1 happenings and PLACE_NODES.bukura1 pin the two non-overlapping tellings at one mythic court.',
+      owner: 'world-map',
+      reviewTrigger: 'when the lower-court place membership, tale separation or story edges between its tellings change',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'river-shared-encounter-density',
+      rule: 'dense-single-site',
+      targets: ['lumi'],
+      rationale: PLACE_META.lumi.densityReason,
+      evidence: 'PLACE_META.lumi enumerates the exact ten serial river-bank scenes grouped into six non-simultaneous happenings.',
+      owner: 'world-map',
+      reviewTrigger: 'when the river place gains or loses scenes, happenings or physical sub-locations',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'guest-room-evening-density',
+      rule: 'dense-single-site',
+      targets: ['libriDiell'],
+      rationale: PLACE_META.libriDiell.densityReason,
+      evidence: 'PLACE_META.libriDiell enumerates the exact guest-room scenes as separate conversations during one shared evening.',
+      owner: 'world-map',
+      reviewTrigger: 'when the guest-room membership, conversation grouping or physical-room model changes',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'village-square-crossroads-density',
+      rule: 'dense-single-site',
+      targets: ['fshatiSheshi'],
+      rationale: PLACE_META.fshatiSheshi.densityReason,
+      evidence: 'PLACE_META.fshatiSheshi enumerates the exact square, market, errand and coffeehouse happenings at the crossroads.',
+      owner: 'world-map',
+      reviewTrigger: 'when the square membership, nested interiors or crossroads layout changes',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'storm-path-encounter-density',
+      rule: 'dense-single-site',
+      targets: ['mali3'],
+      rationale: PLACE_META.mali3.densityReason,
+      evidence: 'PLACE_META.mali3 enumerates the exact successive storm encounter scenes on one exposed mountainside path.',
+      owner: 'world-map',
+      reviewTrigger: 'when the storm encounter, mountain path membership or choice staging changes',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'roadside-shelter-density',
+      rule: 'dense-single-site',
+      targets: ['udha'],
+      rationale: PLACE_META.udha.densityReason,
+      evidence: 'PLACE_META.udha enumerates the exact road, shelter, revenant and miser-ghost happenings at one stopping place.',
+      owner: 'world-map',
+      reviewTrigger: 'when the roadside membership, shelter identity or encounter sequence changes',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'inner-mill-vigil-density',
+      rule: 'dense-single-site',
+      targets: ['maroMulli1'],
+      rationale: PLACE_META.maroMulli1.densityReason,
+      evidence: 'PLACE_META.maroMulli1 enumerates all ten vigil scenes as four successive happenings on one inner millstone floor.',
+      owner: 'world-map',
+      reviewTrigger: 'when the mill-vigil membership, floor identity or happening groups change',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'middle-cavern-road-to-dead-city',
+      rule: 'legacy-long-route',
+      targets: ['shpellaRruget->qyteti'],
+      rationale: 'The choice selects the middle cavern road rather than naming the dead city endpoint, while the destination demonstrates the miles-long underground passage and city arrival.',
+      evidence: 'content.js shpellaRruget names the middle road and qyteti opens with the completed miles-long passage into the dead city.',
+      owner: 'world-map',
+      reviewTrigger: 'when the cavern choice names the city endpoint or its arrival receives an intermediate underground scene',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'gjizar-road-as-long-route-destination',
+      rule: 'legacy-long-route',
+      targets: ['gjizar2->gjizarUdha'],
+      rationale: 'The exact choice enters the road itself as the next playable place, so its generic road noun is intentionally both route and destination rather than a named endpoint.',
+      evidence: 'content.js gjizar2 offers the far road and gjizarUdha has exact predecessor prose establishing the long search along that road.',
+      owner: 'world-map',
+      reviewTrigger: 'when the Gjizar road gains a named endpoint, an intermediate place or different predecessor-specific arrival prose',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'forest-bridge-return-routes',
+      rule: 'long-wander-route',
+      targets: ['pylli1->start', 'pylliLoop->start'],
+      rationale: 'Both exact forest exits visibly establish the road to the bridge before the player chooses to return or leave the forest, and the bridge scene visibly receives that arrival.',
+      evidence: 'content.js pylli1 and pylliLoop name the road to the bridge; start opens with crossing back over that same bridge.',
+      owner: 'world-map',
+      reviewTrigger: 'when either forest exit, the bridge arrival prose or their chart coordinates change',
+      scope: { kind: 'exact-targets', maximumTargets: 2 },
+    },
+    {
+      id: 'regional-hub-backtrack-routes',
+      rule: 'long-wander-route',
+      targets: [
+        'lumi->udhekryq',
+        'deti1->lumi',
+        'maliHumbur->udhekryq',
+        'lumiHumbur->udhekryq',
+        'botaHumbur->udhekryq',
+      ],
+      rationale: 'These exact backtracks name the known hub they return to, while each lost scene also visibly points toward that hub and the destination re-establishes the traveller there.',
+      evidence: 'content.js pins the named return choices and the visible crossroads or river cues at every listed source and destination.',
+      owner: 'world-map',
+      reviewTrigger: 'when a listed hub return loses its named destination, visible route cue, arrival prose or chart position',
+      scope: { kind: 'exact-targets', maximumTargets: 5 },
+    },
+    {
+      id: 'homeward-village-return-routes',
+      rule: 'long-wander-route',
+      targets: ['siperfaqja->shtepia', 'udhaKthimit->shtepia', 'ktheu1->shtepia'],
+      rationale: 'Each exact source presents the long road back to the village and offers a named homeward return; the destination immediately states that the traveller returned to the village.',
+      evidence: 'content.js siperfaqja, udhaKthimit and ktheu1 provide the homeward choices, while shtepia names the completed return.',
+      owner: 'world-map',
+      reviewTrigger: 'when a homeward source, shtepia arrival, route wording or chart position changes',
+      scope: { kind: 'exact-targets', maximumTargets: 3 },
+    },
+    {
+      id: 'underworld-cave-backtrack-route',
+      rule: 'long-wander-route',
+      targets: ['qyteti->shpellaRruget'],
+      rationale: 'The exact choice names the return to the cave, and the destination visibly says the traveller returns to the three cave roads with the same torch still burning.',
+      evidence: 'content.js qyteti supplies “kthehu në shpellë”; shpellaRruget supplies the matching three-road cave arrival.',
+      owner: 'world-map',
+      reviewTrigger: 'when the silent-city exit, cave arrival prose or their chart positions change',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'jutbina-summit-return-routes',
+      rule: 'long-wander-route',
+      targets: ['jutbina->maja', 'kengaJutbina->maja'],
+      rationale: 'Both exact Jutbina scenes offer a named return to the summit, one after the town hub and one after the performance where the climbing road is visible.',
+      evidence: 'content.js pins both “kthehu në majë” actions and the maja destination opens by narrating the climb onto the summit.',
+      owner: 'world-map',
+      reviewTrigger: 'when either Jutbina return, summit arrival prose or mountain chart position changes',
+      scope: { kind: 'exact-targets', maximumTargets: 2 },
+    },
+    {
+      id: 'twins-river-return-route',
+      rule: 'long-wander-route',
+      targets: ['binoshetKasollja->binoshetFund'],
+      rationale: 'The exact hut scene says the traveller follows the same road as Handa and then offers a named return to the river where the waiting tale conflict resumes.',
+      evidence: 'content.js binoshetKasollja pins the same-road setup and “kthehu në lumi” action; binoshetFund is the river consequence.',
+      owner: 'world-map',
+      reviewTrigger: 'when the hut road, named river return, river consequence or chart coordinates change',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'maro-prince-departure-route',
+      rule: 'long-wander-route',
+      targets: ['maroKrushqit->maroPrincesha'],
+      rationale: 'The exact source establishes that the prince is beside the traveller ready to leave for the palace, and the selected silent departure is named again in the palace consequence.',
+      evidence: 'content.js maroKrushqit names the prince and palace departure; maroPrincesha opens with the matching departure with him.',
+      owner: 'world-map',
+      reviewTrigger: 'when the prince presence, palace departure, consequence prose or route coordinates change',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+    {
+      id: 'mountain-flee-to-lost-consequences',
+      rule: 'long-wander-route',
+      targets: ['maliStuhi->maliHumbur', 'tomorZbritje->maliHumbur'],
+      rationale: 'Both exact flee choices begin inside the same mountain storm country and resolve into the visible lost-on-the-mountain consequence rather than an unrelated remote place.',
+      evidence: 'content.js keeps both sources and maliHumbur in the stormed mountain setting, with the destination explicitly hiding the road.',
+      owner: 'world-map',
+      reviewTrigger: 'when either flee action, lost consequence, mountain place identity or chart coordinate changes',
+      scope: { kind: 'exact-targets', maximumTargets: 2 },
+    },
+    {
+      id: 'well-descent-flee-consequence',
+      rule: 'long-wander-route',
+      targets: ['rrethi->botaHumbur'],
+      rationale: 'The exact source visibly establishes the dark road descending into the deep well and says the traveller has begun that descent before fleeing into the lost lower-world consequence.',
+      evidence: 'content.js rrethi pins the well descent immediately before “ik shpejt”; botaHumbur visibly establishes the world below.',
+      owner: 'world-map',
+      reviewTrigger: 'when the well descent, flee action, lower-world consequence or chart positions change',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+  ],
+})
 let failures = 0, checks = 0
 const section = (ok, title, lines = []) => {
   console.log(`${ok ? '✅' : '❌'} ${title}`)
@@ -46,10 +341,18 @@ const section = (ok, title, lines = []) => {
 }
 const usedExceptionClaims = new Set()
 const reviewedException = (rule, target) => {
-  const record = exceptionFor(rule, target)
-  if (record) usedExceptionClaims.add(structuralExceptionKey(rule, target))
+  const record = auditExceptionFor(STRUCTURAL_EXCEPTION_REGISTRY, rule, target)
+  if (record) usedExceptionClaims.add(auditExceptionClaimKey(rule, target))
   return record
 }
+const usedMapLayoutExceptionClaims = new Set()
+const reviewedMapLayoutException = (rule, target) => {
+  const record = auditExceptionFor(MAP_LAYOUT_EXCEPTION_REGISTRY, rule, target)
+  if (record) usedMapLayoutExceptionClaims.add(auditExceptionClaimKey(rule, target))
+  return record
+}
+const reviewedTargetsFor = (rule) => auditExceptionTargetsFor(STRUCTURAL_EXCEPTION_REGISTRY, rule)
+const projectionBoundaryEdges = new Set(PROJECTION_BOUNDARY_EDGES)
 
 // every real (non-confuser) edge, with geometry
 const edges = []
@@ -58,7 +361,8 @@ for (const id of ids) for (const o of STORY[id].options || []) {
   const a = NODE_POS[id], b = NODE_POS[o.to]
   if (!a || !b) continue
   edges.push({ from: id, to: o.to, o, dx: b[0] - a[0], dy: b[1] - a[1], len: Math.hypot(b[0] - a[0], b[1] - a[1]), wander: isWander(o) })
-  reviewedException('projection-boundary', `${id}->${o.to}`)
+  const edge = `${id}->${o.to}`
+  if (projectionBoundaryEdges.has(edge)) reviewedException('projection-boundary', edge)
 }
 
 // ---- 0. every node is placed --------------------------------------------------
@@ -93,7 +397,6 @@ const UP = new Set(['lart', 'ngjit', 'ngjitu', 'ngjitem', 'hip'])
 const DOWN = new Set(['poshte', 'zbrit', 'zbres', 'zbrite'])
 const vertBad = []
 for (const e of edges) {
-  if (e.wander) continue
   const toks = idsOf(e.o.text)
   const up = toks.some((t) => UP.has(t)), down = toks.some((t) => DOWN.has(t))
   if (up === down || Math.abs(e.dy) <= 100) continue // no/conflicting direction, or local
@@ -116,7 +419,6 @@ const INTERACT_MAX = 400
 //     the maiden the whole road home to the village.
 const farInteract = []
 for (const e of edges) {
-  if (e.wander) continue
   const v = idsOf(e.o.text)[0]
   const key = `${e.from}->${e.to}`
   if (INTERACT.has(v) && e.len > INTERACT_MAX && !reviewedException('interaction-distance', key)) {
@@ -171,6 +473,7 @@ const adj = {}
 for (const id of ids) adj[id] = new Set()
 for (const e of edges) { adj[e.from].add(e.to); adj[e.to].add(e.from) }
 const splitGroups = []
+const splitGroupCandidates = new Set()
 for (const [k, group] of Object.entries(byPlace)) {
   if (group.length < 2) continue
   const halo = new Set(group)
@@ -178,7 +481,12 @@ for (const [k, group] of Object.entries(byPlace)) {
   const seen = new Set([group[0]]), q = [group[0]]
   while (q.length) for (const n of adj[q.pop()]) if (halo.has(n) && !seen.has(n)) { seen.add(n); q.push(n) }
   const missing = group.filter((id) => !seen.has(id))
-  if (missing.length && !PLACE_META[k]?.continuityReason) splitGroups.push(`@ '${k}' [${NODE_POS[k]}]: [${group.join(', ')}] — unlinked: ${missing.join(', ')}`)
+  if (missing.length) {
+    splitGroupCandidates.add(k)
+    if (!reviewedMapLayoutException('same-place-connectivity', k)) {
+      splitGroups.push(`@ '${k}' [${NODE_POS[k]}]: [${group.join(', ')}] — unlinked: ${missing.join(', ')}`)
+    }
+  }
 }
 section(!splitGroups.length, 'same-spot groups are story-connected', splitGroups)
 
@@ -208,16 +516,32 @@ section(!stranded.length, `no stranded nodes (some neighbour within ${STRAND_MAX
 // village↔village edge over 400 is a mislaid street — and there even
 // wander/return edges count (walking home across town is still walking; only
 // outside town does "wander" mean a narrative you-got-lost teleport). Exact
-// reviewed journeys live in the shared registry with bounded family scopes.
+// A new long journey passes positively only when the player-owned option names
+// movement and the destination contains exact predecessor-specific arrival
+// prose. Older authored routes without that pair need an exact reviewed record.
 const oddNew = []
+const legacyLongRouteCandidates = new Set()
+const longWanderRouteCandidates = new Set()
+const positiveAuthoredLongJourneys = new Set()
 for (const e of edges) {
   const town = reg(e.from) === 'village' && reg(e.to) === 'village'
-  if (e.wander && !town) continue
   if (e.len <= (town ? 400 : 500)) continue
   const key = `${e.from}->${e.to}`
-  if (!reviewedException('route-distance', key)) oddNew.push(`${Math.round(e.len)} ${key} (${reg(e.from)} -> ${reg(e.to)}${town ? ', in-town limit 400' : ''})`)
+  if (hasAuthoredLongJourneyContract(e.from, e.o, STORY[e.to]?.text)) {
+    positiveAuthoredLongJourneys.add(key)
+    continue
+  }
+  if (reviewedException('route-distance', key)) continue
+  legacyLongRouteCandidates.add(key)
+  if (reviewedMapLayoutException('legacy-long-route', key)) continue
+  if (e.wander) {
+    longWanderRouteCandidates.add(key)
+    if (reviewedException('projection-boundary', key) ||
+        reviewedMapLayoutException('long-wander-route', key)) continue
+  }
+  oddNew.push(`${Math.round(e.len)} ${key} (${reg(e.from)} -> ${reg(e.to)}${town ? ', in-town limit 400' : ''})`)
 }
-section(!oddNew.length, `odd links: every long edge (>500, in-town >400) is a verified journey (${exceptionTargetsFor('route-distance').length} reviewed)`, oddNew)
+section(!oddNew.length, `odd links: every long edge (>500, in-town >400) has an authored movement/arrival contract or exact review (${positiveAuthoredLongJourneys.size} positive)`, oddNew)
 
 // ---- 7. no near-collisions -----------------------------------------------------
 // Two DISTINCT places closer than 16px render as an unreadable smudge — either
@@ -268,22 +592,27 @@ section(!Object.keys(NODE_POS).some((id) => !STORY[id]) && !REGIONS.some((rg) =>
     ...REGIONS.flatMap((rg) => rg.anchors.filter((a) => !STORY[a]).map((a) => `region '${rg.key}' anchors missing node '${a}'`)),
   ])
 
-// ---- WARN: whole areas hiding in one dot ----------------------------------------
-// >8 scenes on one coordinate usually means an explorable AREA is invisible on
-// the map — spread it into drawn sub-places (like the Sun's compound, Jutbina,
-// or the underworld living quarter), unless it truly is ONE room.
-const bigStacks = Object.entries(byPlace).filter(([k, v]) => v.length > 8 && !PLACE_META[k]?.densityReason)
-if (bigStacks.length) {
-  console.log('')
-  for (const [k, v] of bigStacks) console.log(`⚠ ${v.length} scenes share '${k}' [${NODE_POS[k]}] — draw it out into sub-places or add a reviewed densityReason to its location card: ${v.join(', ')}`)
+// ---- 11b. whole areas may not hide in one coordinate ----------------------------
+// More than eight scenes on one coordinate usually means an explorable area is
+// invisible on the map. The few genuine single-site sequences are exact,
+// reviewed exceptions; a new density reason in PLACE_META cannot bypass this
+// check without a bounded record here.
+const oversizedPlaceCandidates = new Set()
+const oversizedStacks = []
+for (const [place, members] of Object.entries(byPlace)) {
+  if (members.length <= 8) continue
+  oversizedPlaceCandidates.add(place)
+  if (!reviewedMapLayoutException('dense-single-site', place)) {
+    oversizedStacks.push(`${members.length} scenes share '${place}' [${NODE_POS[place]}]: ${members.join(', ')}`)
+  }
 }
+section(!oversizedStacks.length, 'oversized coordinate stacks are exact reviewed single sites', oversizedStacks)
 
 // ---- 12. "ketu" (here) options stay put -----------------------------------------
 // "prit ketu" / "fle ketu" / "rri ketu" happen AT this spot — the edge must be
 // (near-)zero length. Sharper than check 3: the word itself asserts locality.
 const ketuBad = []
 for (const e of edges) {
-  if (e.wander) continue
   if (idsOf(e.o.text).includes('ketu') && e.len > 150) ketuBad.push(`${Math.round(e.len)} ${e.from} -> ${e.to} ("${idsOf(e.o.text).join(' ')}")`)
 }
 section(!ketuBad.length, '"ketu" options stay put (<= 150)', ketuBad)
@@ -328,7 +657,6 @@ const segDistToOrigin = (ax, ay, bx, by) => {
 }
 const crossBad = []
 for (const e of edges) {
-  if (e.wander) continue
   const a = NODE_POS[e.from], b = NODE_POS[e.to]
   for (const key of IMPASSABLE) {
     if (reg(e.from) === key || reg(e.to) === key) continue
@@ -565,18 +893,52 @@ for (const e of edges) {
   if (reviewedException('same-place-return', `${e.from}->${e.to}`)) continue
   retBad.push(`${e.from} -> ${e.to}: «kthehu …» but both stand at '${PLACE_OF[e.from]}' — you never left; relabel with the moment-ending gesture or add an exact reviewed exception`)
 }
-section(!retBad.length, `departure truthfulness: no same-spot «kthehu <place>» exits (${exceptionTargetsFor('same-place-return').length} reviewed)`, retBad)
+section(!retBad.length, `departure truthfulness: no same-spot «kthehu <place>» exits (${reviewedTargetsFor('same-place-return').length} reviewed)`, retBad)
 
 // ---- shared exception-registry integrity -------------------------------------
 // All records must be well formed, exact and actually consumed by the rule they
 // claim to relax. This catches deleted targets, duplicate sanctions, copied
 // broad scopes and exceptions whose underlying violation disappeared.
+const liveStructuralEdges = new Set(Object.entries(STORY).flatMap(([from, node]) =>
+  (node.options || [])
+    .filter((option) => !option.confuser && option.to && STORY[option.to])
+    .map((option) => `${from}->${option.to}`)))
+const validStructuralTargetsByRule = Object.fromEntries(
+  Object.entries(STRUCTURAL_EXCEPTION_RULES).map(([rule, definition]) => [
+    rule,
+    definition.targetKind === 'node' ? new Set(ids) : liveStructuralEdges,
+  ]),
+)
+const registeredProjectionBoundaries = [...reviewedTargetsFor('projection-boundary')].sort()
+const runtimeProjectionBoundaries = [...PROJECTION_BOUNDARY_EDGES].sort()
 const exceptionIssues = [
-  ...structuralExceptionRegistryIssues(),
-  ...structuralExceptionUsageIssues(usedExceptionClaims, Object.keys(STRUCTURAL_EXCEPTION_RULES)),
+  ...auditExceptionRegistryIssues(STRUCTURAL_EXCEPTION_REGISTRY, {
+    validTargetsByRule: validStructuralTargetsByRule,
+  }),
+  ...auditExceptionUsageIssues(
+    STRUCTURAL_EXCEPTION_REGISTRY,
+    usedExceptionClaims,
+    Object.keys(STRUCTURAL_EXCEPTION_RULES),
+  ),
+  ...(JSON.stringify(registeredProjectionBoundaries) === JSON.stringify(runtimeProjectionBoundaries)
+    ? []
+    : ['projection-boundary: runtime edges differ from the reviewed structural exception targets']),
+  ...auditExceptionRegistryIssues(MAP_LAYOUT_EXCEPTION_REGISTRY, {
+    validTargetsByRule: {
+      'same-place-connectivity': splitGroupCandidates,
+      'dense-single-site': oversizedPlaceCandidates,
+      'legacy-long-route': legacyLongRouteCandidates,
+      'long-wander-route': longWanderRouteCandidates,
+    },
+  }),
+  ...auditExceptionUsageIssues(
+    MAP_LAYOUT_EXCEPTION_REGISTRY,
+    usedMapLayoutExceptionClaims,
+    Object.keys(MAP_LAYOUT_EXCEPTION_RULES),
+  ),
 ]
 section(!exceptionIssues.length,
-  `reviewed structural exceptions are valid, bounded and live (${usedExceptionClaims.size} exact claims)`,
+  `reviewed structural exceptions are valid, bounded and live (${usedExceptionClaims.size + usedMapLayoutExceptionClaims.size} exact claims)`,
   exceptionIssues)
 
 console.log(failures ? `\n❌ ${failures} map check(s) failing` : `\n✅ all ${checks} map checks pass — also run: node scripts/audit.mjs`)

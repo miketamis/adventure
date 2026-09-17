@@ -3,11 +3,8 @@
 // to be reviewed, but it does not demand that every job have a different suffix.
 import assert from 'node:assert/strict'
 import { DICT } from '../src/game/dictionary.js'
-import {
-  NOUN_FORMS,
-  NOUN_PLURAL_EXEMPTIONS,
-  NOUN_SINGULAR_EXEMPTIONS,
-} from '../src/game/nounForms.js'
+import { NOUN_FORMS } from '../src/game/nounForms.js'
+import { NOUN_NUMBER_POLICIES } from './lib/noun-number-policies.mjs'
 import {
   NOUN_PARADIGM_BACKLOG,
   NOUN_PARADIGM_BACKLOG_IDS,
@@ -90,9 +87,9 @@ for (const [id, surfaces] of Object.entries(migratedParadigmSurfaces)) {
   )
 }
 assert.equal(
-  NOUN_PLURAL_EXEMPTIONS.mish,
-  'mass noun in this curriculum: generic edible meat/flesh',
-  'mish: curriculum-sense plural exemption drifted',
+  NOUN_NUMBER_POLICIES.mish.rationale,
+  'Mass noun in this curriculum: generic edible meat or flesh.',
+  'mish: curriculum-sense number policy drifted',
 )
 
 // Practical-object additions are still nouns before their declensions have
@@ -114,6 +111,7 @@ for (const id of practicalNounBacklogIds) {
 let forms = 0
 let pluralParadigms = 0
 const paradigmIds = new Set(Object.keys(NOUN_FORMS))
+const numberPolicyDispositions = new Set(['singular-only', 'plural-only'])
 
 for (const [label, ids] of [
   ['verb', VERB_SENSE_IDS],
@@ -167,20 +165,28 @@ for (const [id, paradigm] of Object.entries(NOUN_FORMS)) {
     forms += 1
   }
 
-  const singularExemption = NOUN_SINGULAR_EXEMPTIONS[id]
   const hasSingular = paradigm.some((form) => singularRoles.includes(form.tag))
-  assert.ok(hasSingular || singularExemption, `${id}: noun has no singular roles or explicit plural-only exemption`)
-  assert.ok(!(hasSingular && singularExemption), `${id}: singular paradigm still carries a stale exemption`)
+  const hasPlural = paradigm.some((form) => form.tag.startsWith('pl'))
+  const numberPolicy = NOUN_NUMBER_POLICIES[id]
+  if (numberPolicy) {
+    assert.ok(numberPolicyDispositions.has(numberPolicy.disposition),
+      `${id}: unknown noun-number disposition ${numberPolicy.disposition}`)
+    assert.ok(typeof numberPolicy.rationale === 'string' && numberPolicy.rationale.trim().length >= 20,
+      `${id}: noun-number policy needs a concrete linguistic rationale`)
+    assert.equal(numberPolicy.disposition === 'singular-only', hasSingular && !hasPlural,
+      `${id}: singular-only policy does not exactly match its reviewed roles`)
+    assert.equal(numberPolicy.disposition === 'plural-only', !hasSingular && hasPlural,
+      `${id}: plural-only policy does not exactly match its reviewed roles`)
+  } else {
+    assert.ok(hasSingular && hasPlural,
+      `${id}: incomplete number inventory has no exact noun-number policy`)
+  }
   if (hasSingular) {
     for (const role of singularRoles) {
       assert.ok(paradigm.some((form) => form.tag === role), `${id}: missing reviewed ${role} role`)
     }
   }
 
-  const hasPlural = paradigm.some((form) => form.tag.startsWith('pl'))
-  const pluralExemption = NOUN_PLURAL_EXEMPTIONS[id]
-  assert.ok(hasPlural || pluralExemption, `${id}: count noun has no reviewed plural paradigm or explicit mass-noun exemption`)
-  assert.ok(!(hasPlural && pluralExemption), `${id}: plural paradigm still carries a stale exemption`)
   if (hasPlural) {
     pluralParadigms += 1
     for (const role of pluralRoles) {
@@ -189,11 +195,8 @@ for (const [id, paradigm] of Object.entries(NOUN_FORMS)) {
   }
 }
 
-for (const id of Object.keys(NOUN_PLURAL_EXEMPTIONS)) {
-  assert.ok(NOUN_FORMS[id], `${id}: plural exemption has no noun paradigm`)
-}
-for (const id of Object.keys(NOUN_SINGULAR_EXEMPTIONS)) {
-  assert.ok(NOUN_FORMS[id], `${id}: singular exemption has no noun paradigm`)
+for (const id of Object.keys(NOUN_NUMBER_POLICIES)) {
+  assert.ok(NOUN_FORMS[id], `${id}: noun-number policy has no noun paradigm`)
 }
 
 for (const [id, entry] of Object.entries(DICT)) {

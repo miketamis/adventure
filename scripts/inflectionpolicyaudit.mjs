@@ -19,6 +19,12 @@ import { FORMS_UNLOCK_THRESHOLD, formsUnlocked } from '../src/game/formInventory
 import { completedWordProgress } from '../src/game/wordProgression.js'
 import { isTrainableSense } from '../src/game/lexicalTrainability.js'
 import {
+  auditExceptionClaimKey,
+  auditExceptionRegistryIssues,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
+import {
   ENVIRONMENT_DIMENSIONS,
   ENVIRONMENT_NARRATION_SETTINGS,
   companionStoryLine,
@@ -137,6 +143,31 @@ for (const [id, entry] of Object.entries(DICT)) {
 }
 const allowedGeneratedPairs = Object.entries(REVIEWED_GENERATED_FORM_SURFACES)
   .flatMap(([id, surfaces]) => surfaces.map((surface) => `${id}:${lower(surface)}`))
+const GENERATED_FORM_EXCEPTIONS = defineAuditExceptionRegistry({
+  rules: {
+    'generated-form-without-authored-or-paradigm-evidence': { targetKind: 'dictionary sense and normalized Albanian surface pair' },
+  },
+  entries: [{
+    id: 'environment-generated-form-delta',
+    rule: 'generated-form-without-authored-or-paradigm-evidence',
+    targets: ['vere:vere', 'pranvere:pranvere', 'vjeshte:vjeshte', 'vjeshte:vjeshta', 'dimer:dimri'],
+    rationale: 'Core state must recognize these exact generated environment forms without importing the large lazy Train inventory, although they lack authored FORM_FREQ or dictionary-paradigm evidence.',
+    evidence: 'src/game/storyContext.js emits the five surfaces; REVIEWED_GENERATED_FORM_SURFACES is the production reducer boundary checked here.',
+    owner: 'learning-systems',
+    reviewTrigger: 'Re-review when environment generation, FORM_FREQ, dictionary paradigms, or reducer form validation changes.',
+    scope: { kind: 'exact-targets', maximumTargets: 5 },
+  }],
+})
+assert.deepEqual(auditExceptionRegistryIssues(GENERATED_FORM_EXCEPTIONS, {
+  validTargetsByRule: {
+    'generated-form-without-authored-or-paradigm-evidence': new Set(generatedOnlyPairs),
+  },
+}), [])
+assert.deepEqual(auditExceptionUsageIssues(
+  GENERATED_FORM_EXCEPTIONS,
+  new Set(allowedGeneratedPairs.map((target) =>
+    auditExceptionClaimKey('generated-form-without-authored-or-paradigm-evidence', target))),
+), [])
 assert.deepEqual(
   allowedGeneratedPairs.sort(),
   generatedOnlyPairs.sort(),

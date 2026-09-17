@@ -17,7 +17,6 @@ import { PLACE_OF } from '../src/components/nodePositions.js'
 import {
   ORDINARY_RESULT_CATEGORIES,
   REVIEWED_NARRATIVE_CORRIDORS,
-  REVIEWED_ORDINARY_RESULT_EXCEPTIONS,
   REVIEWED_UNGATED_AGENCY_CHOICES,
   REVIEWED_UNGATED_RESULT_CHOICES,
 } from '../src/game/narrativeFlow.js'
@@ -27,6 +26,70 @@ import {
   npcIdentityKnowledgeId,
   npcIdentityPolicy,
 } from '../src/game/npcIdentity.js'
+import {
+  auditExceptionClaimKey,
+  auditExceptionFor,
+  auditExceptionRegistryIssues,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
+
+const continuousCorridorTarget = (nodes) => `mandatory-corridor:${nodes.join('>')}`
+const ordinaryResultExceptionTarget = (category, sourceNode, resultNode) =>
+  `ordinary-result:${category}:${sourceNode}->${resultNode}`
+
+// Positive agency restorations stay in the production narrative registry.
+// These are the only true waivers: one indivisible combat consequence and two
+// exact ordinary-result edges whose bounded continuations are still causal.
+const NARRATIVE_FLOW_EXCEPTIONS = defineAuditExceptionRegistry({
+  rules: {
+    'continuous-narrative-corridor': { targetKind: 'exact live three-node mandatory corridor' },
+    'ordinary-result-agency': { targetKind: 'exact categorized source-to-result edge' },
+  },
+  entries: [
+    {
+      id: 'kulshedra-finishing-blow',
+      rule: 'continuous-narrative-corridor',
+      targets: [continuousCorridorTarget(['kulshLufte2', 'fitorja', 'springReturn'])],
+      rationale: 'Cutting the final head, seeing the Kulshedra fall and watching the released water run are one immediate physical consequence where an unrelated action cannot plausibly intervene.',
+      evidence: 'The live graph contains exactly kulshLufte2 to fitorja to springReturn, and the first two nodes preserve the same combat-resolution place before the water release.',
+      owner: 'narrative-flow',
+      reviewTrigger: 'Review whenever any node, edge, physical place, option count or immediate combat consequence changes.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      category: 'combat-resolution',
+      nodes: ['kulshLufte2', 'fitorja', 'springReturn'],
+      maximumEdges: 2,
+    },
+    {
+      id: 'eagle-well-ascent-is-one-physical-beat',
+      rule: 'ordinary-result-agency',
+      targets: [ordinaryResultExceptionTarget(ORDINARY_RESULT_CATEGORIES.GIFT, 'ngjitja2', 'ngjitja3')],
+      rationale: 'Feeding the exhausted eagle happens during one uninterrupted ascent; the next and only act is climbing over the well rim at dawn, not choosing a new service or conversation.',
+      evidence: 'ngjitja3 visibly establishes the end of night and the illuminated well rim before the player completes the same ascent to siperfaqja.',
+      owner: 'narrative-flow',
+      reviewTrigger: 'Review when ngjitja3 gains another action, moves away from the well rim, or separates feeding from the ascent.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      category: ORDINARY_RESULT_CATEGORIES.GIFT,
+      sourceNode: 'ngjitja2',
+      resultNode: 'ngjitja3',
+      maximumGenuineContinuations: 1,
+    },
+    {
+      id: 'arta-warning-resolves-as-an-ending-beat',
+      rule: 'ordinary-result-agency',
+      targets: [ordinaryResultExceptionTarget(ORDINARY_RESULT_CATEGORIES.DIALOGUE, 'uraNata', 'uraMengjes')],
+      rationale: 'Warning the bride is the tale-defining moral choice: dawn visibly confirms that she stayed home, and the applicable route closes that ending instead of beginning an ordinary conversation hub.',
+      evidence: 'uraMengjes preserves two mutually exclusive causal branches: the warned-bride branch reaches uraArtesShpetim, while keeping the besa proceeds toward uraGropa.',
+      owner: 'narrative-flow',
+      reviewTrigger: 'Review when either dawn branch gains an intervening activity, stops leading directly to its ending, or ceases to be mutually exclusive.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      category: ORDINARY_RESULT_CATEGORIES.DIALOGUE,
+      sourceNode: 'uraNata',
+      resultNode: 'uraMengjes',
+      maximumGenuineContinuations: 2,
+    },
+  ],
+})
 
 const RUN_LENGTH = 4
 
@@ -284,16 +347,39 @@ assert.deepEqual(spatialLinearCorridorsOf({
 'the spatial funnel regression fixture no longer detects a multi-edge forced relocation')
 
 const liveSpatialCorridors = spatialLinearCorridorsOf(STORY, PLACE_OF)
-const reviewedSpatialCorridors = REVIEWED_NARRATIVE_CORRIDORS
-  .filter((review) => review.disposition === 'continuous-beat')
-  .map((review) => review.nodes)
-assert.deepEqual(liveSpatialCorridors, reviewedSpatialCorridors,
-  `unreviewed or stale multi-edge spatial funnels:\nactual ${JSON.stringify(liveSpatialCorridors)}\nreviewed ${JSON.stringify(reviewedSpatialCorridors)}`)
+const liveContinuousCorridorTargets = new Set([
+  ...liveLinearCorridors.map(continuousCorridorTarget),
+  ...liveSpatialCorridors.map(continuousCorridorTarget),
+])
+const usedNarrativeFlowExceptionClaims = new Set()
+const assertReviewedContinuousCorridor = (nodes, scanner) => {
+  const target = continuousCorridorTarget(nodes)
+  const review = auditExceptionFor(
+    NARRATIVE_FLOW_EXCEPTIONS,
+    'continuous-narrative-corridor',
+    target,
+  )
+  assert.ok(review, `${scanner}: unreviewed mandatory corridor ${nodes.join(' -> ')}`)
+  assert.deepEqual(review.nodes, nodes, `${review.id}: reviewed corridor nodes changed`)
+  assert.equal(review.maximumEdges, nodes.length - 1,
+    `${review.id}: reviewed corridor edge bound changed`)
+  assert.equal(review.category, 'combat-resolution',
+    `${review.id}: only an immediate combat resolution may remain linear`)
+  for (const nodeId of review.nodes) {
+    assert.ok(STORY[nodeId], `${review.id}: missing reviewed node ${nodeId}`)
+  }
+  usedNarrativeFlowExceptionClaims.add(
+    auditExceptionClaimKey('continuous-narrative-corridor', target),
+  )
+}
+for (const nodes of liveSpatialCorridors) {
+  assertReviewedContinuousCorridor(nodes, 'multi-place scan')
+}
 
 const reviewIds = REVIEWED_NARRATIVE_CORRIDORS.map((review) => review.id)
 assert.equal(new Set(reviewIds).size, reviewIds.length, 'narrative corridor review ids are not unique')
-assert.equal(REVIEWED_NARRATIVE_CORRIDORS.length, 10,
-  'the ten individually reviewed baseline corridors changed without a migration review')
+assert.equal(REVIEWED_NARRATIVE_CORRIDORS.length, 9,
+  'the nine positive agency-restoration corridor reviews changed without a migration review')
 
 const consequenceSignature = (option) => JSON.stringify({
   to: option.to,
@@ -438,30 +524,23 @@ const hasConsequenceDistinctChoicePair = (options) => options.some((left, index)
     canAppearTogether([choiceEntry(left), choiceEntry(right)])
       && consequenceSignature(left) !== consequenceSignature(right)))
 
-const exceptionIds = REVIEWED_ORDINARY_RESULT_EXCEPTIONS.map((entry) => entry.id)
-assert.equal(new Set(exceptionIds).size, exceptionIds.length,
-  'ordinary-result exception ids are not unique')
-const exceptionKeys = new Set()
-for (const exception of REVIEWED_ORDINARY_RESULT_EXCEPTIONS) {
-  const label = `ordinary-result exception ${exception.id}`
-  for (const field of ['id', 'rule', 'category', 'sourceNode', 'resultNode', 'rationale', 'evidence', 'owner', 'reviewTrigger']) {
-    assert.ok(typeof exception[field] === 'string' && exception[field].trim(), `${label}: missing ${field}`)
-  }
-  assert.equal(exception.rule, 'ordinary-result-agency', `${label}: wrong rule`)
-  assert.ok(ordinaryResultCategoryValues.has(exception.category), `${label}: unknown category`)
-  assert.ok(exception.rationale.length >= 100, `${label}: rationale is not concrete enough`)
-  assert.ok(exception.evidence.length >= 80, `${label}: evidence is not concrete enough`)
-  assert.ok(exception.reviewTrigger.length >= 50, `${label}: review trigger is not concrete enough`)
-  assert.ok(Number.isInteger(exception.maxGenuineContinuations) && exception.maxGenuineContinuations >= 1,
-    `${label}: continuation bound must be a positive integer`)
-  assert.ok(STORY[exception.sourceNode], `${label}: missing source node`)
-  assert.ok(STORY[exception.resultNode], `${label}: missing result node`)
-  const key = `${exception.category}:${exception.sourceNode}->${exception.resultNode}`
-  assert.equal(exceptionKeys.has(key), false, `${label}: duplicate exception scope ${key}`)
-  exceptionKeys.add(key)
+for (const exception of NARRATIVE_FLOW_EXCEPTIONS.entries
+  .filter((entry) => entry.rule === 'ordinary-result-agency')) {
+  assert.ok(ordinaryResultCategoryValues.has(exception.category),
+    `${exception.id}: unknown ordinary-result category`)
+  assert.ok(STORY[exception.sourceNode], `${exception.id}: missing source node`)
+  assert.ok(STORY[exception.resultNode], `${exception.id}: missing result node`)
+  assert.deepEqual(exception.targets, [ordinaryResultExceptionTarget(
+    exception.category,
+    exception.sourceNode,
+    exception.resultNode,
+  )], `${exception.id}: target does not exactly match its categorized edge`)
+  assert.ok(Number.isInteger(exception.maximumGenuineContinuations)
+    && exception.maximumGenuineContinuations >= 1,
+  `${exception.id}: continuation bound must be a positive integer`)
 }
 
-const usedOrdinaryResultExceptions = new Set()
+const ordinaryResultExceptionTargets = new Set()
 const ordinaryResultFailures = []
 for (const [sourceId, source] of Object.entries(STORY)) {
   for (const [optionIndex, option] of (source.options || []).entries()) {
@@ -473,14 +552,19 @@ for (const [sourceId, source] of Object.entries(STORY)) {
 
     const resultOptions = realOptionsOf(option.to)
     if (hasConsequenceDistinctChoicePair(resultOptions)) continue
-    const exception = REVIEWED_ORDINARY_RESULT_EXCEPTIONS.find((entry) =>
-      entry.category === category
-      && entry.sourceNode === sourceId
-      && entry.resultNode === option.to)
+    const target = ordinaryResultExceptionTarget(category, sourceId, option.to)
+    ordinaryResultExceptionTargets.add(target)
+    const exception = auditExceptionFor(
+      NARRATIVE_FLOW_EXCEPTIONS,
+      'ordinary-result-agency',
+      target,
+    )
     if (exception) {
-      assert.equal(resultOptions.length, exception.maxGenuineContinuations,
+      assert.equal(resultOptions.length, exception.maximumGenuineContinuations,
         `${exception.id}: result no longer matches its exact reviewed continuation scope`)
-      usedOrdinaryResultExceptions.add(exception.id)
+      usedNarrativeFlowExceptionClaims.add(
+        auditExceptionClaimKey('ordinary-result-agency', target),
+      )
       continue
     }
     ordinaryResultFailures.push(
@@ -491,8 +575,6 @@ for (const [sourceId, source] of Object.entries(STORY)) {
 }
 assert.deepEqual(ordinaryResultFailures, [],
   `ordinary result screen(s) remove agency:\n${ordinaryResultFailures.join('\n')}`)
-assert.deepEqual([...usedOrdinaryResultExceptions].sort(), [...exceptionIds].sort(),
-  'ordinary-result exceptions are stale, unused, or no longer describe a linear result')
 
 const ungatedResultReviewIds = REVIEWED_UNGATED_RESULT_CHOICES.map((review) => review.id)
 assert.equal(new Set(ungatedResultReviewIds).size, ungatedResultReviewIds.length,
@@ -541,23 +623,18 @@ for (const review of REVIEWED_NARRATIVE_CORRIDORS) {
   for (const nodeId of review.nodes) assert.ok(STORY[nodeId], `${review.id}: missing reviewed node ${nodeId}`)
   assert.ok(typeof review.reason === 'string' && review.reason.trim().length >= 80,
     `${review.id}: corridor decision needs a concrete written reason`)
-
-  if (review.disposition === 'agency-restored') {
-    assert.ok(review.agencyAt?.length, `${review.id}: agency restoration names no decision node`)
-    for (const nodeId of review.agencyAt) {
-      assert.ok(review.nodes.includes(nodeId), `${review.id}: agency node ${nodeId} is outside the reviewed chain`)
-      const options = realOptionsOf(nodeId)
-      assert.ok(options.length >= 2, `${review.id}/${nodeId}: mandatory corridor returned`)
-      assert.ok(new Set(options.map(consequenceSignature)).size >= 2,
-        `${review.id}/${nodeId}: choices do not produce distinct consequences`)
-    }
-    assert.equal(liveLinearCorridors.some((nodes) => nodes.join('>') === review.nodes.join('>')), false,
-      `${review.id}: reviewed mandatory corridor returned`)
-  } else {
-    assert.equal(review.disposition, 'continuous-beat', `${review.id}: unknown corridor disposition`)
-    assert.equal(review.category, 'combat-resolution',
-      `${review.id}: only an immediate embodied action resolution may remain linear`)
+  assert.equal(review.disposition, 'agency-restored',
+    `${review.id}: a true corridor waiver leaked into the positive restoration registry`)
+  assert.ok(review.agencyAt?.length, `${review.id}: agency restoration names no decision node`)
+  for (const nodeId of review.agencyAt) {
+    assert.ok(review.nodes.includes(nodeId), `${review.id}: agency node ${nodeId} is outside the reviewed chain`)
+    const options = realOptionsOf(nodeId)
+    assert.ok(options.length >= 2, `${review.id}/${nodeId}: mandatory corridor returned`)
+    assert.ok(new Set(options.map(consequenceSignature)).size >= 2,
+      `${review.id}/${nodeId}: choices do not produce distinct consequences`)
   }
+  assert.equal(liveLinearCorridors.some((nodes) => nodes.join('>') === review.nodes.join('>')), false,
+    `${review.id}: reviewed mandatory corridor returned`)
 }
 
 const corridorAgencyNodes = [...new Set(REVIEWED_NARRATIVE_CORRIDORS
@@ -584,12 +661,24 @@ for (const [nodeId, review] of Object.entries(REVIEWED_UNGATED_AGENCY_CHOICES)) 
   })
 }
 
-const allowedContinuousBeats = REVIEWED_NARRATIVE_CORRIDORS
-  .filter((review) => review.disposition === 'continuous-beat')
-  .map((review) => review.nodes.join('>'))
-  .sort()
-assert.deepEqual(liveLinearCorridors.map((nodes) => nodes.join('>')).sort(), allowedContinuousBeats,
-  `unreviewed mandatory same-place corridor(s):\n${liveLinearCorridors.map((nodes) => nodes.join(' -> ')).join('\n')}`)
+for (const nodes of liveLinearCorridors) {
+  assertReviewedContinuousCorridor(nodes, 'same-place scan')
+}
+assert.deepEqual(
+  auditExceptionRegistryIssues(NARRATIVE_FLOW_EXCEPTIONS, {
+    validTargetsByRule: {
+      'continuous-narrative-corridor': liveContinuousCorridorTargets,
+      'ordinary-result-agency': ordinaryResultExceptionTargets,
+    },
+  }),
+  [],
+  'narrative-flow exception registry is malformed, stale, duplicate or out of scope',
+)
+assert.deepEqual(
+  auditExceptionUsageIssues(NARRATIVE_FLOW_EXCEPTIONS, usedNarrativeFlowExceptionClaims),
+  [],
+  'narrative-flow exceptions are unused, stale or unregistered',
+)
 
 // Every person or group that physically recurs on the live NPC clock must say
 // whether its label is learned in dialogue or simply visible from context.

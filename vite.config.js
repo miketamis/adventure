@@ -243,8 +243,8 @@ export default defineConfig({
     // raw and gzip release budgets live in scripts/bundleaudit.mjs; this limit
     // keeps Vite's generic warning useful for chunks the project has not
     // explicitly measured.
-    // Decimal-kB counterpart to the binary 805 KiB authored-chunk release
+    // Decimal-kB counterpart to the binary 861 KiB authored-chunk release
     // ceiling in bundleaudit.mjs.
-    chunkSizeWarningLimit: 824,
+    chunkSizeWarningLimit: 882,
   },
 })

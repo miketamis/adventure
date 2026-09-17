@@ -86,7 +86,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "shqipe1.options[2]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 621
   "shqipe1.options[3]": { al: "dëgjo pemën", en: "Listen to the tree.", review: 'internal-editorial' }, // 622
   "shqipe2.options[0]": { al: "vrit gjarprin", en: "Kill the serpent.", review: 'internal-editorial' }, // 623
-  "shqipe2.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 624
   "shqipe2.options[2]": { al: "dëgjo pemën", en: "Listen to the tree.", review: 'internal-editorial' }, // 625
   "shqipe2.options[3]": { al: "dëgjo folenë", en: "Listen to the nest.", review: 'internal-editorial' }, // 626
   "shqipe3.options[0]": { al: "merr zogun", en: "Take the chick.", review: 'internal-editorial' }, // 627
@@ -111,7 +110,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "gjarperBurr2.options[1]": { al: "merr kulshedrën", en: "Take the she-dragon.", review: 'internal-editorial' }, // 646
   "gjarperBurr2.options[2]": { al: "kërko kulshedrën", en: "Look for the she-dragon.", review: 'internal-editorial' }, // 647
   "gjarperKerkim.options[0]": { al: "shko në detin", en: "Go to the sea.", review: 'internal-editorial' }, // 648
-  "gjarperKerkim.options[1]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 649
   "gjarperOrigin.options[0]": { al: "martohet gjarprin", en: "Marry the serpent.", review: 'internal-editorial' }, // 651
   "gjarperOrigin.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 652
   "gjarperOrigin.options[2]": { al: "martohet pallatin", en: "Marry the palace.", review: 'internal-editorial' }, // 653
@@ -141,7 +139,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "gjizar2.options[2]": { al: "ndihmo dallëndyshen", en: "Help the swallow.", review: 'internal-editorial' }, // 679
   "gjizar2.options[3]": { al: "lufto gjarprin", en: "Fight the serpent.", review: 'internal-editorial' }, // 680
   "gjizar2.options[4]": { al: "kërko xhaminë", en: "Look for the mosque.", review: 'internal-editorial' }, // 681
-  "gjizarUdha.options[6]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 683
   "gjizarUdha.options[7]": { al: "ngre shtëpinë", en: "Lift the house.", review: 'internal-editorial' }, // 684
   "gjizarPallat.options[4]": { al: "thirr zogun", en: "Call the bird.", review: 'internal-editorial' }, // 686
   "gjizarPallat.options[5]": { al: "merr qiriun", en: "Take the candle.", review: 'internal-editorial' }, // 687
@@ -577,4 +574,7 @@ export const OPTION_READINGS_B = Object.freeze({
   "kafeneja2.options[1]": { al: "përse kërkoi ujë?", en: "Why did he look for water?", review: 'internal-editorial' },
   "gjizarTradheti.options[1]": { al: "Lëri unazat.", en: "Leave the rings.", review: 'internal-editorial' },
   "gjizarTradheti.options[3]": { al: "jo.", en: "No.", review: 'internal-editorial' },
+  "gjarperKerkim.options[1]": { al: "kthehu në udhëkryq nëpër rrugën e gjatë.", en: "Return to the crossroads by the long road.", review: 'internal-editorial' },
+  "gjizarUdha.options[6]": { al: "kthehu nëpër rrugën e gjatë te nëna e vjetër.", en: "Return along the long road to the old mother.", review: 'internal-editorial' },
+  "shqipe2.options[1]": { al: "dil nga foleja dhe ec drejt udhëkryqit.", en: "Leave the nest and walk toward the crossroads.", review: 'internal-editorial' },
 })

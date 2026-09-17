@@ -40,6 +40,13 @@ import {
 } from '../src/game/language.js'
 import { npcPortraitLines } from '../src/game/npcAppearance.js'
 import { loadNpcAppearancePartitions } from './lib/loadnpcappearances.mjs'
+import {
+  auditExceptionClaimKey,
+  auditExceptionFor,
+  auditExceptionRegistryIssues,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
 import { QUOTES } from '../src/game/quotes.js'
 import { splitStem } from '../src/game/surfaceMorphology.js'
 
@@ -117,34 +124,49 @@ for (const [address, review] of Object.entries(REVIEWED_OPTION_READINGS)) {
 }
 
 // The same Albanian action should not acquire different English merely because
-// it landed in another generated registry tranche. One phrase genuinely
-// depends on scene context; pin its complete allowed set so this exception
-// list cannot become a blanket bypass for future drift.
-const CONTEXT_SENSITIVE_OPTION_READINGS = new Map([
-  ['ec rrugës', new Set(['Walk along the road.', 'Walk along the lane.'])],
-])
+// it landed in another generated registry tranche. This one contextual
+// exception stays independently reviewable, exact, bounded and live.
+const OPTION_READING_EXCEPTIONS = defineAuditExceptionRegistry({
+  rules: {
+    'same-albanian-action-one-reading': { targetKind: 'normalized Albanian action phrase' },
+  },
+  entries: [{
+    id: 'ec-rruges-road-or-lane',
+    rule: 'same-albanian-action-one-reading',
+    targets: ['ec rrugës'],
+    rationale: 'The exact Albanian movement phrase remains the same while its concrete path is a road in seven scenes and the village lane in one scene.',
+    evidence: 'REVIEWED_OPTION_READINGS: fshatiSheshi.options[13] says lane; the seven other exact ec rrugës actions say road.',
+    owner: 'language-curriculum',
+    reviewTrigger: 'Re-review if any ec rrugës option, scene path identity, or English action reading changes.',
+    scope: { kind: 'exact-targets', maximumTargets: 1 },
+    allowedReadings: Object.freeze(['Walk along the road.', 'Walk along the lane.']),
+  }],
+})
 const optionEnglishByAlbanian = new Map()
 for (const review of Object.values(REVIEWED_OPTION_READINGS)) {
   if (!optionEnglishByAlbanian.has(review.al)) optionEnglishByAlbanian.set(review.al, new Set())
   optionEnglishByAlbanian.get(review.al).add(review.en)
 }
 const sameSet = (left, right) => left?.size === right?.size && [...left].every((value) => right.has(value))
+const duplicateOptionTargets = new Set([...optionEnglishByAlbanian]
+  .filter(([, readings]) => readings.size > 1)
+  .map(([albanian]) => albanian))
+for (const issue of auditExceptionRegistryIssues(OPTION_READING_EXCEPTIONS, {
+  validTargetsByRule: { 'same-albanian-action-one-reading': duplicateOptionTargets },
+})) fail(`option-reading exception registry: ${issue}`)
+const usedOptionReadingExceptions = new Set()
 for (const [albanian, readings] of optionEnglishByAlbanian) {
   if (readings.size <= 1) continue
-  const allowed = CONTEXT_SENSITIVE_OPTION_READINGS.get(albanian)
-  assert(Boolean(allowed), `duplicate Albanian option has inconsistent English: ${albanian} -> ${[...readings].join(' / ')}`)
-  if (allowed) assert(
-    sameSet(readings, allowed),
+  usedOptionReadingExceptions.add(auditExceptionClaimKey('same-albanian-action-one-reading', albanian))
+  const exception = auditExceptionFor(OPTION_READING_EXCEPTIONS, 'same-albanian-action-one-reading', albanian)
+  assert(Boolean(exception), `duplicate Albanian option has inconsistent English: ${albanian} -> ${[...readings].join(' / ')}`)
+  if (exception) assert(
+    sameSet(readings, new Set(exception.allowedReadings || [])),
     `context-sensitive option left its pinned English set: ${albanian} -> ${[...readings].join(' / ')}`,
   )
 }
-for (const [albanian, allowed] of CONTEXT_SENSITIVE_OPTION_READINGS) {
-  const readings = optionEnglishByAlbanian.get(albanian)
-  assert(
-    sameSet(readings, allowed),
-    `context-sensitive option exception is stale: ${albanian}`,
-  )
-}
+for (const issue of auditExceptionUsageIssues(OPTION_READING_EXCEPTIONS, usedOptionReadingExceptions))
+  fail(`option-reading exception usage: ${issue}`)
 
 for (const { address, option } of reviewedStoryOptions) {
   const review = REVIEWED_OPTION_READINGS[address]

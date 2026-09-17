@@ -9,6 +9,13 @@ import { CEFR_CAPSTONE_TASK_FAMILIES, CEFR_LEVEL_GATES } from '../src/game/cefrP
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import { PLAYABLE_FORM_INVENTORY } from '../src/game/formInventory.js'
 import {
+  auditExceptionClaimKey,
+  auditExceptionFor,
+  auditExceptionRegistryIssues,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
+import {
   CEFR_ACOUSTIC_VOICES,
   CEFR_AUTHORED_TASK_COUNTS,
   CEFR_OPEN_RESPONSE_FOCUS_SENSE_IDS,
@@ -410,23 +417,62 @@ for (const entry of Object.values(DICT)) {
   for (const form of entry.forms || []) addTaughtSurface(form.al)
 }
 for (const forms of Object.values(PLAYABLE_FORM_INVENTORY)) for (const form of forms) addTaughtSurface(form.al)
-// Only proper names and place names may bypass the taught-surface inventory.
-// Digits and punctuation never enter `wordTokens`, so there is no hidden
-// lexical allowlist for ordinary Albanian words.
-const lexicalAllowlist = new Set(['elira', 'elirën', 'elirës', 'mihal', 'mihali', 'mihalin', 'mihalit', 'korçë'])
+// Proper names are world knowledge rather than ordinary vocabulary targets.
+// Case-marked name surfaces absent from the playable form inventory therefore
+// need an exact reviewed exception; ordinary Albanian remains in the backlog.
+const CEFR_LEXICAL_EXCEPTIONS = defineAuditExceptionRegistry({
+  rules: {
+    'untaught-named-entity-surface': { targetKind: 'normalized Albanian CEFR task token' },
+  },
+  entries: [
+    {
+      id: 'mihal-cefr-case-surfaces',
+      rule: 'untaught-named-entity-surface',
+      targets: ['mihali', 'mihalin'],
+      rationale: 'These two case-marked Mihal surfaces are required to identify the recurring person in held-out tasks, not to claim lexical mastery.',
+      evidence: 'src/game/lexicalTrainability.js classifies mihal as a personal name; CEFR tasks use Mihali and Mihalin as person references.',
+      owner: 'assessment',
+      reviewTrigger: 'Re-review when Mihal task wording, named-entity policy, or the playable form inventory changes.',
+      scope: { kind: 'exact-targets', maximumTargets: 2 },
+    },
+    {
+      id: 'korce-cefr-place-surface',
+      rule: 'untaught-named-entity-surface',
+      targets: ['korçë'],
+      rationale: 'Korçë is a real destination name needed for route comprehension in the held-out bank, not an ordinary translatable vocabulary target.',
+      evidence: 'src/game/cefrTasks.js uses Korçë only as the named route destination in four reception tasks.',
+      owner: 'assessment',
+      reviewTrigger: 'Re-review when the Korçë task routes, place-name policy, or taught surface inventory changes.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+    },
+  ],
+})
 const lexicalUnknowns = new Map()
+const untaughtTaskSurfaces = new Set()
+const usedLexicalExceptions = new Set()
 for (const task of CEFR_TASKS) {
   for (const text of sqStringsOf(task)) {
     for (const token of wordTokens(text)) {
-      if (taughtSurfaces.has(token) || lexicalAllowlist.has(token)) continue
+      if (taughtSurfaces.has(token)) continue
+      untaughtTaskSurfaces.add(token)
+      if (auditExceptionFor(CEFR_LEXICAL_EXCEPTIONS, 'untaught-named-entity-surface', token)) {
+        usedLexicalExceptions.add(auditExceptionClaimKey('untaught-named-entity-surface', token))
+        continue
+      }
       const tasks = lexicalUnknowns.get(token) || new Set()
       tasks.add(task.id)
       lexicalUnknowns.set(token, tasks)
     }
   }
 }
+check('named-entity lexical exceptions are exact, live and bounded', () => {
+  assert.deepEqual(auditExceptionRegistryIssues(CEFR_LEXICAL_EXCEPTIONS, {
+    validTargetsByRule: { 'untaught-named-entity-surface': untaughtTaskSurfaces },
+  }), [])
+  assert.deepEqual(auditExceptionUsageIssues(CEFR_LEXICAL_EXCEPTIONS, usedLexicalExceptions), [])
+})
 if (strict) {
-  check('all Albanian task surfaces are taught before the held-out assessment', () => {
+  check('ordinary Albanian task surfaces are taught and named entities are reviewed', () => {
     assert.equal(lexicalUnknowns.size, 0, [...lexicalUnknowns].map(([token, tasks]) => `${token} (${[...tasks].join(', ')})`).join('; '))
   })
 }
@@ -442,7 +488,7 @@ if (lexicalUnknowns.size) {
   console.log([...lexicalUnknowns].map(([token]) => token).sort((a, b) => a.localeCompare(b, 'sq')).join(', '))
   if (!strict) console.log('△ Run with --strict when the A2 teaching tranche lands; unknown task surfaces will then block release.')
 } else {
-  console.log('lexical prerequisites: every Albanian task surface is in the taught dictionary/form inventory')
+  console.log(`lexical prerequisites: every ordinary Albanian task surface is taught; ${usedLexicalExceptions.size} exact named-entity surfaces are reviewed separately`)
 }
 
 if (failures.length) {

@@ -1,7 +1,6 @@
 // Reviewed cases where two consecutive choices formerly acted like a single
-// “continue” corridor at one place. Most now restore a meaningful decision at
-// the named node(s). A continuous-beat exception is deliberately rare and must
-// describe why stopping between the two actions would be less coherent.
+// “continue” corridor at one place. Every production record here is a positive
+// agency restoration; the release audit separately owns any narrow waiver.
 export const REVIEWED_NARRATIVE_CORRIDORS = Object.freeze([
   Object.freeze({
     id: 'opening-social-check-in',
@@ -75,21 +74,14 @@ export const REVIEWED_NARRATIVE_CORRIDORS = Object.freeze([
     agencyAt: ['porosiaBlerjePergjigje'],
     reason: 'Answering the child about the purchased food resolves at the market; afterward the traveller may leave for the square or remain at the market instead of being relocated by the spoken answer.',
   }),
-  Object.freeze({
-    id: 'kulshedra-finishing-blow',
-    nodes: ['kulshLufte2', 'fitorja', 'springReturn'],
-    category: 'combat-resolution',
-    disposition: 'continuous-beat',
-    reason: 'Cutting the final head, seeing the Kulshedra fall and watching the released water run are one immediate physical consequence; an unrelated action cannot plausibly intervene between blow and result.',
-  }),
 ])
 
 // Ordinary service and social results restore agency immediately. The audit
 // derives these categories from canonical option effects (money, healing,
 // quest and transfer semantics) and accepts explicit `ordinaryResultCategory`
 // metadata for dialogue/information boundaries that have no mechanical effect.
-// A physical beat can remain linear only through the exact, attributable
-// exception contract below; endings are outside this contract by definition.
+// The release audit owns the narrow exception contract for an indivisible
+// physical beat; endings are outside this result-category contract by design.
 export const ORDINARY_RESULT_CATEGORIES = Object.freeze({
   SHOPPING: 'shopping',
   DIALOGUE: 'dialogue',
@@ -100,33 +92,6 @@ export const ORDINARY_RESULT_CATEGORIES = Object.freeze({
   LODGING: 'lodging',
   GIFT: 'gift',
 })
-
-export const REVIEWED_ORDINARY_RESULT_EXCEPTIONS = Object.freeze([
-  Object.freeze({
-    id: 'eagle-well-ascent-is-one-physical-beat',
-    rule: 'ordinary-result-agency',
-    category: ORDINARY_RESULT_CATEGORIES.GIFT,
-    sourceNode: 'ngjitja2',
-    resultNode: 'ngjitja3',
-    rationale: 'Feeding the exhausted eagle happens during one uninterrupted ascent; the next and only act is climbing over the well rim at dawn, not choosing a new ordinary service or conversation.',
-    evidence: 'ngjitja3 visibly establishes the end of night and the illuminated well rim before the player completes the same ascent to siperfaqja.',
-    owner: 'narrative-flow',
-    reviewTrigger: 'when ngjitja3 gains another action, moves away from the well rim, or separates feeding from the ascent',
-    maxGenuineContinuations: 1,
-  }),
-  Object.freeze({
-    id: 'arta-warning-resolves-as-an-ending-beat',
-    rule: 'ordinary-result-agency',
-    category: ORDINARY_RESULT_CATEGORIES.DIALOGUE,
-    sourceNode: 'uraNata',
-    resultNode: 'uraMengjes',
-    rationale: 'Warning the bride is the tale-defining moral choice: dawn visibly confirms that she stayed home, and the sole applicable route closes that chosen ending instead of beginning an ordinary conversation hub.',
-    evidence: 'uraMengjes preserves two mutually exclusive causal branches: only the warned-bride branch reaches uraArtesShpetim, while keeping the besa sends her toward uraGropa and the later ring-trick decision.',
-    owner: 'narrative-flow',
-    reviewTrigger: 'when either dawn branch gains an intervening activity, the warning no longer leads directly to its ending, or the conditional routes cease to be mutually exclusive',
-    maxGenuineContinuations: 2,
-  }),
-])
 
 // Result screens do not create a second vocabulary puzzle merely to leave the
 // completed beat. These reviews are deliberately separate from the corridor

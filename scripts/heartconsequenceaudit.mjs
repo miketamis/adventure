@@ -26,6 +26,33 @@ import {
   storyConfuserCandidates,
 } from '../src/game/storyConfusers.js'
 import { testFor } from '../src/game/comprehension.js'
+import {
+  auditExceptionClaimKey,
+  auditExceptionFor,
+  auditExceptionRegistryIssues,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
+
+const rawHeartDecrementTarget = (caseId) =>
+  `src/game/gameState.js:${caseId}:Math.max(0,state.hearts-1)`
+
+const HEART_CONSEQUENCE_EXCEPTIONS = defineAuditExceptionRegistry({
+  rules: {
+    'debug-only-raw-heart-decrement': { targetKind: 'exact reducer case and decrement expression' },
+  },
+  entries: [{
+    id: 'debug-hurt-control-bypasses-player-consequence',
+    rule: 'debug-only-raw-heart-decrement',
+    targets: [rawHeartDecrementTarget('DEBUG_HURT')],
+    rationale: 'The debug heart control deliberately previews wounded health surfaces without pretending that the player attempted or failed an in-world action.',
+    evidence: 'The only live raw decrement is the DEBUG_HURT reducer case, exposed solely by the authoring toolbar for testing the three-heart display ladder.',
+    owner: 'health-consequence',
+    reviewTrigger: 'Review whenever the reducer case, decrement expression, debug-only reachability or consequence-preview purpose changes.',
+    scope: { kind: 'exact-targets', maximumTargets: 1 },
+    maximumMatches: 1,
+  }],
+})
 
 const root = new URL('../', import.meta.url)
 const source = (path) => fs.readFileSync(new URL(path, root), 'utf8')
@@ -320,6 +347,40 @@ check('source inventory has no player decrement outside the shared wrappers', ()
   assert.equal(rawReducerDecrements.length, 1, 'a new raw reducer decrement bypasses the shared contract')
   assert.match(gameState.slice(Math.max(0, rawReducerDecrements[0].index - 100), rawReducerDecrements[0].index), /DEBUG_HURT/,
     'the sole raw decrement is not the explicit debug-only exemption')
+  const liveRawDecrementTargets = new Set()
+  const usedRawDecrementClaims = new Set()
+  for (const match of rawReducerDecrements) {
+    const precedingCases = [...gameState.slice(0, match.index).matchAll(/\bcase '([^']+)':/g)]
+    const caseId = precedingCases.at(-1)?.[1] || 'outside-reducer-case'
+    const target = rawHeartDecrementTarget(caseId)
+    liveRawDecrementTargets.add(target)
+    const exception = auditExceptionFor(
+      HEART_CONSEQUENCE_EXCEPTIONS,
+      'debug-only-raw-heart-decrement',
+      target,
+    )
+    assert.ok(exception, `${target}: raw heart decrement has no exact audited exception`)
+    assert.equal(exception.maximumMatches, 1,
+      `${exception.id}: raw decrement exception is not bounded to one live expression`)
+    usedRawDecrementClaims.add(auditExceptionClaimKey(
+      'debug-only-raw-heart-decrement',
+      target,
+    ))
+  }
+  assert.deepEqual(
+    auditExceptionRegistryIssues(HEART_CONSEQUENCE_EXCEPTIONS, {
+      validTargetsByRule: {
+        'debug-only-raw-heart-decrement': liveRawDecrementTargets,
+      },
+    }),
+    [],
+    'heart-consequence exception registry is malformed, stale, duplicate or out of scope',
+  )
+  assert.deepEqual(
+    auditExceptionUsageIssues(HEART_CONSEQUENCE_EXCEPTIONS, usedRawDecrementClaims),
+    [],
+    'heart-consequence exceptions are unused, stale or unregistered',
+  )
   for (const actionCase of ['PRACTICE_WORD_RESULT', 'PRACTICE_WORD_MATCH_RESULT', 'PRACTICE_WRONG', 'PRACTICE_PHRASE_RESULT', 'CONFUSE', 'COMP_WRONG']) {
     const start = gameState.indexOf(`case '${actionCase}'`)
     const end = gameState.indexOf("\n    case '", start + 10)

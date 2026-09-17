@@ -145,7 +145,6 @@ export const OPTION_READINGS_STATIC = Object.freeze({
   "udheNate.options[6]": { al: "jep shtëpinë", en: "Give the house.", review: 'internal-editorial' },
   "udheLugat.options[6]": { al: "sheh zjarrin", en: "See the fire.", review: 'internal-editorial' },
   "udheOra.options[3]": { al: "jep ditën", en: "Give the day.", review: 'internal-editorial' },
-  "syriKanali.options[1]": { al: "ik nga burimi.", en: "Leave the spring.", review: 'internal-editorial' },
   "syriKanali.options[2]": { al: "uji është larg", en: "The water is far away.", review: 'internal-editorial' },
   "syriKanali.options[3]": { al: "fshati është ujë", en: "The village is water.", review: 'internal-editorial' },
   "syriKanali.options[4]": { al: "ne hapim fshatin", en: "We open the village.", review: 'internal-editorial' },
@@ -315,4 +314,5 @@ export const OPTION_READINGS_STATIC = Object.freeze({
   "behuriKulla.options[5]": { al: "kthehu te kroi.", en: "Return to the spring.", review: 'internal-editorial' },
   "eliraBiseda.options[4]": { al: "a ke fjetur?", en: "Have you slept?", review: 'internal-editorial' },
   "eliraBiseda.options[5]": { al: "ku ishe?", en: "Where were you?", review: 'internal-editorial' },
+  "syriKanali.options[1]": { al: "kthehu nga burimi nëpër rrugën e lumit te ura e vjetër.", en: "Return from the spring by the river road to the old bridge.", review: 'internal-editorial' },
 })

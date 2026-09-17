@@ -39,7 +39,7 @@ export const RULE_GATE_MANIFEST = Object.freeze([
     process('checkpoint.focused-outcome-message', 9, '84895a3a3b326008', 'release-engineering'),
     executable('checkpoint.release-gate-reachability', 10, '1984083c8a537f75', 'release-engineering', ['releasegatecoverage']),
     executable('checkpoint.substantive-lore-certification', 11, '9bafa66f94e61c1b', 'lore', ['source']),
-    process('checkpoint.structured-audit-exceptions', 12, '5f999e0bbf2942cb', 'release-engineering'),
+    executable('checkpoint.structured-audit-exceptions', 12, '5f999e0bbf2942cb', 'release-engineering', ['auditexceptioncoverage']),
   ]),
   ...section('Private research boundary', [
     executable('privacy.no-private-material-in-repository', 16, 'f6462267896e46c2', 'privacy', ['privacyboundary']),

@@ -12,6 +12,13 @@ import { albanianTextOf } from '../src/game/language.js'
 import { observationIdOfLine } from '../src/game/observations.js'
 import { PLACE_NODES, PLACE_OF } from '../src/components/nodePositions.js'
 import { NODE_REGION } from '../src/game/regions.js'
+import {
+  auditExceptionClaimKey,
+  auditExceptionFor,
+  auditExceptionRegistryIssues,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
 
 // These are reviewed floors, raised only after a whole-story pass. Region
 // floors stop a richly described village from masking an empty sky realm or
@@ -67,25 +74,134 @@ const WORLD_TEXTURE_REVIEW = Object.freeze({
   }),
 })
 
-// A brief state-transition formula can appropriately recur because it names
-// the same event. These are explicit exceptions, not a blanket duplicate
-// allowance for interchangeable atmospheric templates.
-const REVIEWED_REPEATABLE_ENVIRONMENT_SURFACES = Object.freeze({
-  'nata vjen.': { maximumPlaces: 12, reason: 'canonical transition into night' },
-  'dielli vjen.': { maximumPlaces: 8, reason: 'canonical transition into daylight' },
-  'çadra të mban të thatë.': { maximumPlaces: 8, reason: 'shared umbrella affordance in rain' },
-  'çadra të mban të thatë në stuhi.': { maximumPlaces: 8, reason: 'shared umbrella affordance in a storm' },
-})
+const repeatedSurfaceTarget = (surface) => `environment-surface:${surface}`
+const repeatedPatternTarget = (pattern) =>
+  `one-token-environment-signature:${pattern.replaceAll('*', '<variable-token>')}`
 
-// A one-token wildcard catches the common template failure where an author
-// changes only the final place noun. Existing beginner constructions are
-// capped at the reviewed baseline; a new place cannot silently copy them.
-const REVIEWED_REPEATABLE_ENVIRONMENT_PATTERNS = Object.freeze({
-  'diell|*|.': { maximumPlaces: 6, reason: 'reviewed daylight-transition baseline; do not extend it to new places' },
-  'eshte|agim|:|nje|drite|e_art|arte|bie|mbi|*|.': { maximumPlaces: 5, reason: 'reviewed beginner dawn construction; freeze rather than reward further noun swaps' },
-  'eshte|muzg|:|qiell|behet|i_art|kuq|mbi|*|.': { maximumPlaces: 4, reason: 'reviewed beginner dusk construction; freeze rather than reward further noun swaps' },
-  'diell|eshte|mbi|*|.': { maximumPlaces: 3, reason: 'reviewed beginner daylight location frame; no further place substitutions' },
-  'eshte|muzg|:|qiell|mbi|*|behet|i_art|kuq|dhe|i_art|arte|.': { maximumPlaces: 3, reason: 'reviewed red-and-gold dusk frame; no further place substitutions' },
+// These are the only reviewed duplicate-texture waivers. Each claim pins the
+// exact live places (and, for structural signatures, exact authored surfaces)
+// so neither a new noun substitution nor a same-sized place swap can hide
+// behind a historical maximum.
+const WORLD_TEXTURE_EXCEPTIONS = defineAuditExceptionRegistry({
+  rules: {
+    'repeated-environment-surface': { targetKind: 'exact Albanian environment surface' },
+    'repeated-environment-pattern': { targetKind: 'exact one-variable token signature' },
+  },
+  entries: [
+    {
+      id: 'night-arrival-transition-repeats',
+      rule: 'repeated-environment-surface',
+      targets: [repeatedSurfaceTarget('nata vjen.')],
+      rationale: 'This short line names the same transition into night in every location, so variation would imply a different event rather than add useful local texture.',
+      evidence: 'The authored surface is currently live at exactly ten canonical places spanning the village, mountain, castle, river, sky and tale routes.',
+      owner: 'world-texture',
+      reviewTrigger: 'Review whenever the exact surface or any member of its pinned canonical-place set changes.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      maximumPlaces: 10,
+      reviewedPlaces: ['fshatiSheshi', 'jutbina', 'kalaNate', 'katallan1', 'lendina', 'lumi', 'maja', 'qiellDiell', 'udha', 'uraNata'],
+    },
+    {
+      id: 'daylight-arrival-transition-repeats',
+      rule: 'repeated-environment-surface',
+      targets: [repeatedSurfaceTarget('dielli vjen.')],
+      rationale: 'This short line names the same transition into daylight in each scene, and its repetition is event language rather than interchangeable local atmosphere.',
+      evidence: 'The authored surface is currently live at exactly five canonical places: kalaNate, lendina, qiellDiell, tsHyrje and uraNata.',
+      owner: 'world-texture',
+      reviewTrigger: 'Review whenever the exact surface or any member of its pinned canonical-place set changes.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      maximumPlaces: 5,
+      reviewedPlaces: ['kalaNate', 'lendina', 'qiellDiell', 'tsHyrje', 'uraNata'],
+    },
+    {
+      id: 'umbrella-rain-affordance-repeats',
+      rule: 'repeated-environment-surface',
+      targets: [repeatedSurfaceTarget('çadra të mban të thatë.')],
+      rationale: 'The repeated sentence communicates one inventory affordance under rain, so the stable wording reinforces the same usable umbrella consequence across routes.',
+      evidence: 'The surface is currently live at exactly six canonical places: fshatiLumi, fshatiSheshi, pusiThate, rrugaDetit, sheshi and udhekryq.',
+      owner: 'world-texture',
+      reviewTrigger: 'Review whenever the umbrella behavior, exact surface, or pinned canonical-place set changes.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      maximumPlaces: 6,
+      reviewedPlaces: ['fshatiLumi', 'fshatiSheshi', 'pusiThate', 'rrugaDetit', 'sheshi', 'udhekryq'],
+    },
+    {
+      id: 'umbrella-storm-affordance-repeats',
+      rule: 'repeated-environment-surface',
+      targets: [repeatedSurfaceTarget('çadra të mban të thatë në stuhi.')],
+      rationale: 'The repeated sentence communicates the same umbrella affordance during a storm, where stable wording reinforces one concrete inventory consequence.',
+      evidence: 'The surface is currently live at exactly six canonical places: fshatiLumi, fshatiSheshi, pusiThate, rrugaDetit, sheshi and udhekryq.',
+      owner: 'world-texture',
+      reviewTrigger: 'Review whenever the umbrella behavior, exact surface, or pinned canonical-place set changes.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      maximumPlaces: 6,
+      reviewedPlaces: ['fshatiLumi', 'fshatiSheshi', 'pusiThate', 'rrugaDetit', 'sheshi', 'udhekryq'],
+    },
+    {
+      id: 'daylight-transition-one-token-pattern',
+      rule: 'repeated-environment-pattern',
+      targets: [repeatedPatternTarget('diell|*|.')],
+      rationale: 'The two daylight-transition surfaces share one beginner construction, but this exact six-place baseline is frozen so another verb substitution cannot extend it.',
+      evidence: 'The signature covers “dielli vjen” and “dielli kthehet” at kalaNate, lendina, qiellDiell, tsHyrje, uraNata and veraDite1.',
+      owner: 'world-texture',
+      reviewTrigger: 'Review whenever a covered surface or canonical place changes, even if the total remains six.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      maximumPlaces: 6,
+      reviewedPlaces: ['kalaNate', 'lendina', 'qiellDiell', 'tsHyrje', 'uraNata', 'veraDite1'],
+      reviewedSurfaces: ['dielli kthehet.', 'dielli vjen.'],
+    },
+    {
+      id: 'dawn-light-one-token-pattern',
+      rule: 'repeated-environment-pattern',
+      targets: [repeatedPatternTarget('eshte|agim|:|nje|drite|e_art|arte|bie|mbi|*|.')],
+      rationale: 'This beginner dawn frame varies only its final landmark, so its exact existing places are accepted but any additional noun-swapped copy must fail review.',
+      evidence: 'The signature currently covers five canonical places and four exact surfaces naming kullat, malet, pemët and ujin.',
+      owner: 'world-texture',
+      reviewTrigger: 'Review whenever a covered dawn surface or canonical place changes, or another landmark is substituted.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      maximumPlaces: 5,
+      reviewedPlaces: ['jutbina', 'kroi1', 'mali1', 'mali3', 'pylliLoop'],
+      reviewedSurfaces: ['është agim: një dritë e artë bie mbi kullat.', 'është agim: një dritë e artë bie mbi malet.', 'është agim: një dritë e artë bie mbi pemët.', 'është agim: një dritë e artë bie mbi ujin.'],
+    },
+    {
+      id: 'red-sky-dusk-one-token-pattern',
+      rule: 'repeated-environment-pattern',
+      targets: [repeatedPatternTarget('eshte|muzg|:|qiell|behet|i_art|kuq|mbi|*|.')],
+      rationale: 'This dusk construction varies only its final landmark; the exact four-place baseline is accepted while any further noun substitution remains a release failure.',
+      evidence: 'The signature currently covers bariu, ktheu3, lumi and udhaKthimit through the exact kalanë, malet and malin surfaces.',
+      owner: 'world-texture',
+      reviewTrigger: 'Review whenever a covered dusk surface or canonical place changes, or another landmark is substituted.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      maximumPlaces: 4,
+      reviewedPlaces: ['bariu', 'ktheu3', 'lumi', 'udhaKthimit'],
+      reviewedSurfaces: ['është muzg: qielli bëhet i kuq mbi kalanë.', 'është muzg: qielli bëhet i kuq mbi malet.', 'është muzg: qielli bëhet i kuq mbi malin.'],
+    },
+    {
+      id: 'sun-over-landmark-one-token-pattern',
+      rule: 'repeated-environment-pattern',
+      targets: [repeatedPatternTarget('diell|eshte|mbi|*|.')],
+      rationale: 'This daylight location frame differs only in its final landmark, so the current three places are the complete reviewed scope rather than a reusable template.',
+      evidence: 'The signature currently covers deti1, ktheu1 and mali1 through the exact botën, detin and majë surfaces.',
+      owner: 'world-texture',
+      reviewTrigger: 'Review whenever a covered daylight surface or canonical place changes, or another landmark is substituted.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      maximumPlaces: 3,
+      reviewedPlaces: ['deti1', 'ktheu1', 'mali1'],
+      reviewedSurfaces: ['dielli është mbi botën.', 'dielli është mbi detin.', 'dielli është mbi majë.'],
+    },
+    {
+      id: 'red-gold-dusk-one-token-pattern',
+      rule: 'repeated-environment-pattern',
+      targets: [repeatedPatternTarget('eshte|muzg|:|qiell|mbi|*|behet|i_art|kuq|dhe|i_art|arte|.')],
+      rationale: 'This red-and-gold dusk frame varies only one landmark, so its three exact places are frozen and cannot silently grow through another noun swap.',
+      evidence: 'The signature currently covers bregu, mali1 and mali3 through the exact detin and malet authored surfaces.',
+      owner: 'world-texture',
+      reviewTrigger: 'Review whenever a covered dusk surface or canonical place changes, or another landmark is substituted.',
+      scope: { kind: 'exact-targets', maximumTargets: 1 },
+      maximumPlaces: 3,
+      reviewedPlaces: ['bregu', 'mali1', 'mali3'],
+      reviewedSurfaces: ['është muzg: qielli mbi detin bëhet i kuq dhe i artë.', 'është muzg: qielli mbi malet bëhet i kuq dhe i artë.'],
+    },
+  ],
 })
 
 const idsOf = (value) => value == null ? [] : [].concat(value)
@@ -283,15 +399,31 @@ for (const [region, maximum] of Object.entries(WORLD_TEXTURE_REVIEW.maximumUntex
   )
 }
 
+const usedWorldTextureExceptionClaims = new Set()
+const repeatedSurfaceTargets = new Set()
 for (const [surface, places] of environmentSurfacePlaces) {
   if (places.size <= 2) continue
-  const review = REVIEWED_REPEATABLE_ENVIRONMENT_SURFACES[surface]
-  assert.ok(review, `authored environment template repeats at ${places.size} places: “${surface}”`)
-  assert.ok(
-    places.size <= review.maximumPlaces,
-    `reviewed environment formula exceeds its ${review.maximumPlaces}-place limit: “${surface}”`,
+  const target = repeatedSurfaceTarget(surface)
+  repeatedSurfaceTargets.add(target)
+  const review = auditExceptionFor(
+    WORLD_TEXTURE_EXCEPTIONS,
+    'repeated-environment-surface',
+    target,
   )
-  assert.ok(review.reason.length >= 30, `repeat exception has no concrete rationale: “${surface}”`)
+  assert.ok(review, `authored environment template repeats at ${places.size} places: “${surface}”`)
+  assert.equal(
+    review.maximumPlaces,
+    review.reviewedPlaces.length,
+    `${review.id}: place limit is not the exact reviewed place set`,
+  )
+  assert.deepEqual(
+    [...places].sort(),
+    [...review.reviewedPlaces].sort(),
+    `${review.id}: repeated surface changed its exact reviewed canonical-place set`,
+  )
+  usedWorldTextureExceptionClaims.add(
+    auditExceptionClaimKey('repeated-environment-surface', target),
+  )
 }
 
 const environmentWildcardPatterns = new Map()
@@ -306,20 +438,59 @@ for (const entry of environmentPatternEntries) {
     environmentWildcardPatterns.set(pattern, record)
   }
 }
+const repeatedPatternTargets = new Set()
 for (const [pattern, record] of environmentWildcardPatterns) {
   if (record.places.size <= 2 || record.surfaces.size <= 1) continue
   const everySurfaceIsReviewed = [...record.surfaces].every(
-    (surface) => REVIEWED_REPEATABLE_ENVIRONMENT_SURFACES[surface],
+    (surface) => usedWorldTextureExceptionClaims.has(auditExceptionClaimKey(
+      'repeated-environment-surface',
+      repeatedSurfaceTarget(surface),
+    )),
   )
   if (everySurfaceIsReviewed) continue
-  const review = REVIEWED_REPEATABLE_ENVIRONMENT_PATTERNS[pattern]
-  assert.ok(review, `one-token environment template repeats at ${record.places.size} places: “${pattern}”`)
-  assert.ok(
-    record.places.size <= review.maximumPlaces,
-    `reviewed environment pattern exceeds its ${review.maximumPlaces}-place limit: “${pattern}”`,
+  const target = repeatedPatternTarget(pattern)
+  repeatedPatternTargets.add(target)
+  const review = auditExceptionFor(
+    WORLD_TEXTURE_EXCEPTIONS,
+    'repeated-environment-pattern',
+    target,
   )
-  assert.ok(review.reason.length >= 40, `repeat-pattern exception has no concrete rationale: “${pattern}”`)
+  assert.ok(review, `one-token environment template repeats at ${record.places.size} places: “${pattern}”`)
+  assert.equal(
+    review.maximumPlaces,
+    review.reviewedPlaces.length,
+    `${review.id}: place limit is not the exact reviewed place set`,
+  )
+  assert.deepEqual(
+    [...record.places].sort(),
+    [...review.reviewedPlaces].sort(),
+    `${review.id}: repeated pattern changed its exact reviewed canonical-place set`,
+  )
+  assert.deepEqual(
+    [...record.surfaces].sort(),
+    [...review.reviewedSurfaces].sort(),
+    `${review.id}: repeated pattern changed its exact reviewed authored surfaces`,
+  )
+  usedWorldTextureExceptionClaims.add(
+    auditExceptionClaimKey('repeated-environment-pattern', target),
+  )
 }
+
+assert.deepEqual(
+  auditExceptionRegistryIssues(WORLD_TEXTURE_EXCEPTIONS, {
+    validTargetsByRule: {
+      'repeated-environment-surface': repeatedSurfaceTargets,
+      'repeated-environment-pattern': repeatedPatternTargets,
+    },
+  }),
+  [],
+  'world-texture exception registry is malformed, stale, duplicate or out of scope',
+)
+assert.deepEqual(
+  auditExceptionUsageIssues(WORLD_TEXTURE_EXCEPTIONS, usedWorldTextureExceptionClaims),
+  [],
+  'world-texture exceptions are unused, stale or unregistered',
+)
 
 for (const [id, review] of Object.entries(LIVED_WORLD_VOCABULARY)) {
   assert.ok(DICT[id], `${id}: lived-world ledger points at no dictionary sense`)
