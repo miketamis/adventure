@@ -9,6 +9,13 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { childProcessFailed } from './lib/child-process-result.mjs'
 import {
+  auditExceptionClaimKey,
+  auditExceptionFor,
+  auditExceptionRegistryIssues,
+  auditExceptionUsageIssues,
+  defineAuditExceptionRegistry,
+} from './lib/audit-exceptions.mjs'
+import {
   STORY,
   STORY_OBSERVATION_BEATS,
   DICT,
@@ -51,23 +58,204 @@ const WL = new Set(
     .concat('lart larg poshte jashte brenda ketu shpejt ngadale bashke naten dite agim mengjes muzg sonte deri vetem vogel madh forte ri vjeter bardhe zi gjelber qete gati sigurt thate erret ftohte uritur bukur krenar shenjte thelle nente dy tre shtate nevoje'.split(' '))
     .concat('ec shko ngjit zbrit kthehu ik fle prit dil hyr bie vazhdo vazhdon degjo ndihmo merr jep lufto vrit shpeto sheh shiko beso thirr hidh prek kalo kerko ndiz premto fal fol pyet perserit kuptoj kushton hajde mban godit mbyll sulmo tund kendo vesh vajto mashtro lind ha pi bej fluturo zgjohu rri leviz behet vjen flet thote gjen luan ruan verbo humbet vdes pre mbaroi hap mbush laj meso ngre zgjedh sjell marto mallko le fsheh nxjerr varros shes blej shtyj terheq dorezohem quhem nisem gezohem'.split(' '))
 )
-// Things legitimately absent from the scene: carried ITEMS, COMPANIONS, DESTINATIONS, riddle answers, created.
-// (Extend as new items/places are added.)
-const ALLOW = new Set([
-  ...'buke kripe gur uje fuqi bekim shqiponje ujk ora zjarr fshat shesh krua burim udhekryq mal lume jutbina maja pyll det breshka gjarper toke bese dem flok vatra qilim bari oda kulle rruge shtepi pus lubia kemishe valle pallat kopsht vella kufi shpelle pishtar treg qytet lek lahute mik mjek dyqan'.split(' '),
-  ...Object.keys(ITEM_CATALOG),
-])
-
 // Currency affordability is enforced by the resource transaction itself, not
 // by a redundant `requires: 'lek'` item gate. Keep the state-mismatch check on
 // carried physical things and companions only.
 const ITEMS = new Set(Object.values(ITEM_CATALOG)
   .filter((item) => !item.currency && item.kind !== 'currency')
   .map((item) => item.id))
-const ECLARG_KEEPERS = new Set(['thesarLeave', 'shtepia', 'nastradinFund']) // leaving IS the beat
-// Endings whose item-action is gated UPSTREAM (not on the immediate edge), listed as explicit exceptions:
-//   besaFire <- besaBekim ("sleep here"), and besaBekim is reachable ONLY via the bread-gated "jep buke".
-const STATE_OK = new Set(['besaFire', 'breshkaMire', 'periFund', 'periKeq'])  // breshkaMire: the bread is BAKED in breshka1, not a carried item
+
+const EXCEPTION_RULES = Object.freeze({
+  OPTION_GROUNDING: 'option-grounding',
+  PLACELESS_TRANSITION: 'placeless-transition',
+  ENDING_ITEM_GATE: 'ending-item-gate',
+  EARNED_POSSESSION: 'earned-possession',
+  WITNESSED_OATH: 'witnessed-oath',
+})
+
+const DEEP_AUDIT_EXCEPTIONS = defineAuditExceptionRegistry({
+  rules: {
+    [EXCEPTION_RULES.OPTION_GROUNDING]: { targetKind: 'option-token-occurrence' },
+    [EXCEPTION_RULES.PLACELESS_TRANSITION]: { targetKind: 'option-edge' },
+    [EXCEPTION_RULES.ENDING_ITEM_GATE]: { targetKind: 'ending-node' },
+    [EXCEPTION_RULES.EARNED_POSSESSION]: { targetKind: 'story-line' },
+    [EXCEPTION_RULES.WITNESSED_OATH]: { targetKind: 'story-line' },
+  },
+  entries: [
+    {
+      id: 'canonical-holdings-name-their-action-object',
+      rule: EXCEPTION_RULES.OPTION_GROUNDING,
+      targets: [
+        'kulshedra1.options[3]->kulshLufte1:bekim',
+        'sofraMikut.options[0]->sofraMikut2:buke',
+        'pylliThelle.options[0]->shokuUjk:buke',
+        'humbur.options[0]->oraBardhe:buke',
+        'pylliHumbur.options[0]->oraPyllBuke:buke',
+        'shtrigaLufta.options[0]->oraPyllBuke:buke',
+        'gjumi.options[0]->gjumiUjkShok:buke',
+        'varret1.options[6]->varretFund:cakmak',
+        'kulshedra1.options[2]->kulshLufte1:fuqi',
+        'kulshedra1.options[1]->dranguasi:gur',
+        'humbur.options[1]->oraBardhe:kripe',
+        'pylliHumbur.options[1]->oraPyllKripe:kripe',
+        'shtrigaLufta.options[1]->oraPyllKripe:kripe',
+        'udhaThate.options[3]->ujkuUje:ujk',
+      ],
+      rationale: 'Each exact action names a carried resource, earned capability or companion supplied by canonical state, so the noun need not be repeated in the current scene prose.',
+      evidence: 'The listed options carry exact inventory, quest, fact or companion gates in content.js and are checked by state and inventory audits.',
+      owner: 'narrative-state',
+      reviewTrigger: 'when any listed option, prerequisite, inventory effect or companion lifecycle changes',
+      scope: { kind: 'exact-targets', maximumTargets: 14 },
+    },
+    {
+      id: 'movement-actions-name-their-destination',
+      rule: EXCEPTION_RULES.OPTION_GROUNDING,
+      targets: [
+        'syriKanali.options[1]->ura:burim',
+        'bisedaUra2.options[0]->bisedaUra3:fshat',
+        'agaYmer1.options[1]->fshatiSheshi:fshat',
+        'syriKeq1.options[1]->fshatiJeta:fshat',
+        'kripore1.options[2]->deti1:fshat',
+        'pusiThate.options[3]->fshatiSheshi:fshat',
+        'nenaDiell1.options[1]->fshatiSheshi:fshat',
+        'pallatiZi.options[2]->fshatiLanes:fshat',
+        'kopshtMermer1.options[1]->fshatiLanes:fshat',
+        'gjysmegjel1.options[1]->fshatiJeta:fshat',
+        'vajtim1.options[2]->jutbina:jutbina',
+        'mujoHak1.options[2]->jutbina:jutbina',
+        'mejdan1.options[2]->jutbina:jutbina',
+        'behuriMejdanKeshilla.options[1]->behuriFund:jutbina',
+        'mujiZana1.options[1]->jutbina:jutbina',
+        'rusha1.options[2]->jutbina:jutbina',
+        'zuku1.options[1]->jutbina:jutbina',
+        'mujo2.options[1]->jutbina:jutbina',
+        'mujo3.options[1]->jutbina:jutbina',
+        'mujo4.options[1]->jutbina:jutbina',
+        'behuriKulla.options[5]->behuriBurimi:krua',
+        'eliraEmriBreg.options[3]->fshatiLumi:lume',
+        'binoshetKasollja.options[1]->binoshetFund:lume',
+        'flocka1.options[1]->lumi:lume',
+        'fshehur.options[4]->lumi:lume',
+        'kroi1.options[3]->fshatiLumi:lume',
+        'tabaket1.options[2]->fshatiLumi:lume',
+        'jutbina.options[10]->maja:maja',
+        'diellShtepi1.options[1]->maja:maja',
+        'peri1.options[2]->mali1:mal',
+        'stihi1.options[2]->pylliLoop:pyll',
+        'dhelpra1.options[1]->pylliLoop:pyll',
+        'dhelpra2.options[2]->pylliLoop:pyll',
+        'kordhaUdha.options[1]->pylli1:pyll',
+        'besaBekim.options[1]->pylliLoop:pyll',
+        'gjizar2.options[0]->gjizarUdha:rruge',
+        'djepi1.options[1]->fshatiLanes:rruge',
+        'djepi2.options[1]->fshatiLanes:rruge',
+        'djepi3.options[3]->fshatiLanes:rruge',
+        'besaBekim.options[1]->pylliLoop:rruge',
+        'eliraPorosiaDorezuar.options[1]->fshatiSheshi:shesh',
+        'sofraMikut.options[1]->fshatiSheshi:shesh',
+        'sofraVendimPlaka.options[2]->fshatiSheshi:shesh',
+        'sofraVendimPusi.options[2]->fshatiSheshi:shesh',
+        'sheshiMjek.options[1]->sheshi:shesh',
+        'blerjaBuke.options[1]->sheshi:shesh',
+        'blerjaKripe.options[1]->sheshi:shesh',
+        'blerjaLahuta.options[1]->sheshi:shesh',
+        'gjumiBujtina.options[1]->sheshi:shesh',
+        'sherimiBar.options[1]->sheshi:shesh',
+        'rrugaOdes.options[2]->fshatiSheshi:shesh',
+        'qyteti.options[1]->shpellaRruget:shpelle',
+        'sofraVendimPusi.options[1]->plaka:shtepi',
+        'sherimiBar.options[0]->sheruesi:shtepi',
+        'diellKopsht.options[1]->diellShtepi1:shtepi',
+        'diellOda.options[1]->diellShtepi1:shtepi',
+        'rrugaDielli1.options[1]->diellShtepi1:shtepi',
+        'qiell2.options[2]->qiellPrende:toke',
+        'porosiaBlerje.options[1]->pusiThate:treg',
+        'porosiaBlerjePergjigje.options[0]->pusiThate:treg',
+        'porosiaBlerjePergjigje.options[1]->pazariFshatit:treg',
+        'udha.options[1]->lendina:zjarr',
+        'udheLugat.options[1]->udheOra:zjarr',
+        'udhaThate.options[4]->lendina:zjarr',
+      ],
+      rationale: 'These exact movement choices name their source, destination or established return landmark rather than an acted-on object at the current place; route audits separately verify the physical edge and continuity.',
+      evidence: 'Every target is an exact live STORY edge also covered by map, world, action-presupposition and player-causality release gates.',
+      owner: 'world-navigation',
+      reviewTrigger: 'when a listed source scene, destination, option phrase or route-continuity contract changes',
+      scope: { kind: 'exact-targets', maximumTargets: 64 },
+    },
+    {
+      id: 'player-supplied-speech-content',
+      rule: EXCEPTION_RULES.OPTION_GROUNDING,
+      targets: [
+        'riddle1.options[0]->riddleFund:breshka',
+        'riddle1.options[2]->riddleGabim:gjarper',
+        'porosiaBlerje.options[0]->porosiaBlerjePergjigje:mik',
+        'sheshi.options[2]->sheshiMjek:mjek',
+      ],
+      rationale: 'These exact nouns are player-supplied answers or utterance content, not claims that the named person or riddle candidate is physically present before the player speaks.',
+      evidence: 'The listed options are speech-intent choices in content.js and their destinations render the matching answer or conversational consequence.',
+      owner: 'conversation',
+      reviewTrigger: 'when any listed option stops being an explicit player utterance or gains a different speech consequence',
+      scope: { kind: 'exact-targets', maximumTargets: 4 },
+    },
+    {
+      id: 'departure-is-the-ending-beat',
+      rule: EXCEPTION_RULES.PLACELESS_TRANSITION,
+      targets: [
+        'thesarOra.options[1]->thesarLeave',
+        'nastradin2.options[0]->nastradinFund',
+      ],
+      rationale: 'In these two exact edges, walking away is itself the authored ending beat, so the choice truthfully ends the encounter without naming a later destination.',
+      evidence: 'content.js pins “ti ecën larg” at thesarLeave and the Nasreddin departure directly resolves the cauldron exchange at nastradinFund.',
+      owner: 'narrative',
+      reviewTrigger: 'when either ending gains a destination, intermediate travel scene or different outgoing action',
+      scope: { kind: 'exact-targets', maximumTargets: 2 },
+    },
+    {
+      id: 'tale-local-bread-is-not-inventory-gated',
+      rule: EXCEPTION_RULES.ENDING_ITEM_GATE,
+      targets: ['periFund', 'periKeq'],
+      rationale: 'The Peri scene visibly supplies its own bread before the choice, so giving or throwing that local prop does not require a carried-inventory prerequisite on either exact ending edge.',
+      evidence: 'content.js peri1 lines establish “këtu është bukë” immediately before the choices to periFund and periKeq.',
+      owner: 'narrative-state',
+      reviewTrigger: 'when peri1 bread presentation, either bread action or inventory ownership semantics changes',
+      scope: { kind: 'exact-targets', maximumTargets: 2 },
+    },
+    {
+      id: 'possession-is-the-immediate-earned-result',
+      rule: EXCEPTION_RULES.EARNED_POSSESSION,
+      targets: [
+        'shokuUjk.text[2]',
+        'gjarperVrare.text[1]',
+        'zanaDije.text[0]',
+        'zana1.text[7]',
+        'zana1.text[8]',
+        'mujiFund.text[1]',
+      ],
+      rationale: 'Each exact “you have” line is the immediate visible payoff of the incoming feeding, victory, revelation or gift, rather than unearned background knowledge or a standing ledger.',
+      evidence: 'The predecessor choices and the listed consequence lines in content.js establish friend, treasure, knowledge, dragua traits and strength at the moment they are gained.',
+      owner: 'narrative-causality',
+      reviewTrigger: 'when any listed line, incoming earning action, arrival condition or reward effect changes',
+      scope: { kind: 'exact-targets', maximumTargets: 6 },
+    },
+    {
+      id: 'oath-is-witnessed-in-the-current-consequence',
+      rule: EXCEPTION_RULES.WITNESSED_OATH,
+      targets: ['zuku2.text[2]', 'dhiaFund.text[1]'],
+      rationale: 'These exact oaths are sworn in front of the protagonist as the immediate consequence of healing the hero or freeing the people, so they are witnessed rather than off-screen lore.',
+      evidence: 'content.js zuku2 and dhiaFund place the protagonist in the action and narrate each oath inside that same visible consequence.',
+      owner: 'knowledge-provenance',
+      reviewTrigger: 'when either oath moves scenes, loses its triggering action or changes speaker/presence semantics',
+      scope: { kind: 'exact-targets', maximumTargets: 2 },
+    },
+  ],
+})
+
+const usedExceptionClaims = new Set()
+const reviewedExceptionApplies = (rule, target) => {
+  if (!auditExceptionFor(DEEP_AUDIT_EXCEPTIONS, rule, target)) return false
+  usedExceptionClaims.add(auditExceptionClaimKey(rule, target))
+  return true
+}
 
 const checks = []
 const add = (name, fails) => checks.push({ name, fails })
@@ -76,7 +264,8 @@ const add = (name, fails) => checks.push({ name, fails })
 add('option-grounding (act-on-thing present)', Object.entries(STORY).flatMap(([id, n]) => {
   if (n.end) return []
   const grounded = textIds(n)
-  return realOpts(n).flatMap((o) => {
+  return (n.options || []).flatMap((o, optionIndex) => {
+    if (o.confuser) return []
     // Observation actions and conversation topics carry their own reviewed
     // affordance metadata. A question may naturally introduce an abstract topic
     // (work, family, news) which need not already be a visible physical object;
@@ -87,7 +276,11 @@ add('option-grounding (act-on-thing present)', Object.entries(STORY).flatMap(([i
     if (o.conversationHub?.kind === 'question') return []
     const miss = [...new Set((o.text || [])
       .filter((t) => t?.id && isThingSense(t.id) &&
-        !WL.has(t.id) && !ALLOW.has(t.id) && !grounded.has(t.id))
+        !WL.has(t.id) && !grounded.has(t.id) &&
+        !reviewedExceptionApplies(
+          EXCEPTION_RULES.OPTION_GROUNDING,
+          `${id}.options[${optionIndex}]->${o.to}:${t.id}`,
+        ))
       .map((t) => t.id))]
     return miss.length ? [`[${id}] "${gl(o.text)}" -> ${o.to}  MISSING:${miss.join(',')}`] : []
   })
@@ -121,19 +314,26 @@ add('natural next action (help/save follows a shown need)', Object.entries(STORY
 
 // 3. PLACELESS TRANSITIONS — no "ec larg" except the keepers (where leaving IS the beat).
 add('placeless "ec larg" (only keepers allowed)', Object.entries(STORY).flatMap(([id, n]) =>
-  realOpts(n).flatMap((o) => {
+  (n.options || []).flatMap((o, optionIndex) => {
+    if (o.confuser) return []
     const t = (o.text || []).map((x) => x && x.id)
-    return t.length === 2 && t[0] === 'ec' && t[1] === 'larg' && !ECLARG_KEEPERS.has(o.to) ? [`[${id}] ec-larg -> ${o.to}`] : []
+    const target = `${id}.options[${optionIndex}]->${o.to}`
+    return t.length === 2 && t[0] === 'ec' && t[1] === 'larg' &&
+      !reviewedExceptionApplies(EXCEPTION_RULES.PLACELESS_TRANSITION, target)
+      ? [`[${id}] ec-larg -> ${o.to}`]
+      : []
   })
 ))
 
 // 4. PERCEPTION/POV — unconditional "you have X" must be EARNED (paid off in this node).
-const EARNED = new Set(['shokuUjk', 'gjarperVrare', 'zanaDije', 'zana1', 'mujiFund']) // payoff nodes where "you have X" is the result (zana1: the Zana REVEALS your innate dragua traits — caul, wings, golden heart)
 add('POV (no unearned "you have X")', Object.entries(STORY).flatMap(([id, n]) =>
-  (n.text || []).flatMap((e) => {
+  (n.text || []).flatMap((e, lineIndex) => {
     if (!Array.isArray(e)) return []
     const ids = e.filter((t) => t.id).map((t) => t.id)
-    return ids[0] === 'ti' && ids[1] === 'ke' && !EARNED.has(id) ? [`[${id}] ${gl(e)}`] : []
+    return ids[0] === 'ti' && ids[1] === 'ke' &&
+      !reviewedExceptionApplies(EXCEPTION_RULES.EARNED_POSSESSION, `${id}.text[${lineIndex}]`)
+      ? [`[${id}] ${gl(e)}`]
+      : []
   })
 ))
 
@@ -182,10 +382,12 @@ for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.to)
   (incomingGatedByItem[o.to] = incomingGatedByItem[o.to] || []).push(reqIds(o).some((i) => ITEMS.has(i)))
 }
 add('state-match (item-asserting endings are item-gated)', Object.entries(STORY).flatMap(([id, n]) => {
-  if (!n.end || STATE_OK.has(id)) return []
+  if (!n.end) return []
   const asserts = (n.text || []).some((e) => { if (!Array.isArray(e)) return false; const ids = e.filter((t) => t.id).map((t) => t.id); return ids[0] === 'ti' && ['jep', 'hidh'].includes(ids[1]) && ids.some((x) => ITEMS.has(x)) })
   const allGated = (incomingGatedByItem[id] || []).length && incomingGatedByItem[id].every(Boolean)
-  return asserts && !allGated ? [`[${id}] asserts item-action but reachable without the item`] : []
+  return asserts && !allGated && !reviewedExceptionApplies(EXCEPTION_RULES.ENDING_ITEM_GATE, id)
+    ? [`[${id}] asserts item-action but reachable without the item`]
+    : []
 }))
 
 // 8. ENDING PROSE — every ending has a title + a substantial, unique, typo-free blurb.
@@ -445,24 +647,52 @@ add('folklore figures explainable (opaque name ⟹ has a DEF)', Object.entries(D
 // has no source for. (diellVajza: the maiden now SAYS it; the besa-tales — agaYmer/kostandin/
 // kalaRozafa/mujo — became their teller's reported speech.) Same principle covers an ABSENT
 // party's private wish — those are judged in review (too varied to script).
-// WITNESSED_OK = the oath is sworn TO the protagonist, in their presence, here and now
-// (you heal blind Zuku and he swears; you free the people and the zana swears) — perceived,
-// not assumed. NOT a "known legend" exemption — that escape hatch is gone.
-const WITNESSED_OK = new Set(['zuku2', 'dhiaFund'])
 add('POV (no narrated off-screen oath)', Object.entries(STORY).flatMap(([id, n]) => {
-  if (WITNESSED_OK.has(id)) return []
-  const lines = (n.text || []).map((e) => (Array.isArray(e) ? e : e.line))
   let inSpeech = false; const out = []
-  for (const l of lines) {
+  for (const [lineIndex, entry] of (n.text || []).entries()) {
+    const l = Array.isArray(entry) ? entry : entry.line
     const w = (l || []).filter((t) => t && t.id).map((t) => t.id)
     const attributes = w.includes('thote') || w.includes('thone')
     const subjYou = w[0] === 'ti' || w[0] === 'une'
-    if (w.includes('premto') && !inSpeech && !attributes && !subjYou)
-      out.push(`[${id}] narrates an oath outside speech: "${gl(l)}" — have the swearer SAY it (X thotë:), make it witnessed, or allowlist WITNESSED_OK`)
+    if (w.includes('premto') && !inSpeech && !attributes && !subjYou &&
+        !reviewedExceptionApplies(EXCEPTION_RULES.WITNESSED_OATH, `${id}.text[${lineIndex}]`)) {
+      out.push(`[${id}] narrates an oath outside speech: "${gl(l)}" — have the swearer say it, make it visibly witnessed, or register the exact witnessed line`)
+    }
     if (attributes) inSpeech = true
   }
   return out
 }))
+
+const validOptionTokenTargets = new Set()
+const validOptionEdgeTargets = new Set()
+const validStoryLineTargets = new Set()
+const validEndingTargets = new Set()
+for (const [nodeId, node] of Object.entries(STORY)) {
+  if (node.end) validEndingTargets.add(nodeId)
+  for (const [lineIndex] of (node.text || []).entries()) {
+    validStoryLineTargets.add(`${nodeId}.text[${lineIndex}]`)
+  }
+  for (const [optionIndex, option] of (node.options || []).entries()) {
+    if (option.confuser) continue
+    validOptionEdgeTargets.add(`${nodeId}.options[${optionIndex}]->${option.to}`)
+    for (const token of option.text || []) {
+      if (token?.id) validOptionTokenTargets.add(`${nodeId}.options[${optionIndex}]->${option.to}:${token.id}`)
+    }
+  }
+}
+
+add('structured deep-audit exceptions are exact, bounded and live', [
+  ...auditExceptionRegistryIssues(DEEP_AUDIT_EXCEPTIONS, {
+    validTargetsByRule: {
+      [EXCEPTION_RULES.OPTION_GROUNDING]: validOptionTokenTargets,
+      [EXCEPTION_RULES.PLACELESS_TRANSITION]: validOptionEdgeTargets,
+      [EXCEPTION_RULES.ENDING_ITEM_GATE]: validEndingTargets,
+      [EXCEPTION_RULES.EARNED_POSSESSION]: validStoryLineTargets,
+      [EXCEPTION_RULES.WITNESSED_OATH]: validStoryLineTargets,
+    },
+  }),
+  ...auditExceptionUsageIssues(DEEP_AUDIT_EXCEPTIONS, usedExceptionClaims),
+])
 
 // ---- report -----------------------------------------------------------------
 let failed = 0

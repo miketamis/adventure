@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "analytics:replay": "node scripts/playtestreplay.mjs",
     "sync:readings": "node scripts/reviewedreadingsync.mjs --write && node scripts/reviewedoptionreadingsync.mjs --write",
-    "audit:release-gates": "node scripts/releasegatecoverageaudit.mjs",
+    "audit:release-gates": "node scripts/releasegatecoverageaudit.mjs && node scripts/rulegatecoverageaudit.mjs && node --test scripts/lib/audit-exceptions.test.mjs",
     "audit:privacy": "node scripts/privacyboundaryaudit.mjs && node scripts/analyticsaudit.mjs",
     "audit:performance": "node scripts/performanceaudit.mjs",
     "audit:adaptive": "node scripts/adaptivelearningaudit.mjs && node scripts/auditorywordspellingaudit.mjs && node scripts/traincandidatecontractaudit.mjs && node scripts/trainfutureplanneraudit.mjs && npm run audit:audio-recognition && npm run audit:context-target-identification && npm run audit:form-odd-one-out && node scripts/nounformmatchingaudit.mjs",
