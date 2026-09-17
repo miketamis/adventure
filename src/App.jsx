@@ -37,7 +37,19 @@ import { measurePerformanceOperation } from './performance.js'
 // guide are debug-only for now, and none of these secondary surfaces should
 // delay an ordinary first visit to the bridge.
 const StoryView = lazy(() => import('./components/StoryView.jsx'))
-const PracticeView = lazy(() => import('./components/PracticeView.jsx'))
+const loadHeartConsequenceModal = () => import('./components/HeartConsequenceModal.jsx')
+// A Train miss must paint its complete blocking feedback inside the answer
+// interaction. Load that small surface alongside the much larger Train route,
+// so answer controls never become available while their miss UI is still on
+// the network or waiting to be evaluated.
+const loadPracticeView = async () => {
+  const [practiceModule] = await Promise.all([
+    import('./components/PracticeView.jsx'),
+    loadHeartConsequenceModal(),
+  ])
+  return practiceModule
+}
+const PracticeView = lazy(loadPracticeView)
 const DictionaryView = lazy(() => import('./components/DictionaryView.jsx'))
 const AchievementsView = lazy(() => import('./components/AchievementsView.jsx'))
 const GuideView = lazy(() => import('./components/GuideView.jsx'))
@@ -50,7 +62,8 @@ const MiniMap = lazy(() => import('./components/MiniMap.jsx'))
 const TimePassage = lazy(() => import('./components/TimePassage.jsx'))
 const EmbodimentConfirm = lazy(() => import('./components/EmbodimentConfirm.jsx'))
 const ActionKaraoke = lazy(() => import('./components/ActionKaraoke.jsx'))
-const loadHeartConsequenceModal = () => import('./components/HeartConsequenceModal.jsx')
+// Story keeps this consequence surface lazy; the Train route above primes it
+// before presenting any answer controls.
 const HeartConsequenceModal = lazy(loadHeartConsequenceModal)
 const BUILD_COMMIT = __BUILD_COMMIT__
 const SPOKEN_ACTION_TYPES = ['CHOOSE', 'CONFUSE', 'USE_ITEM', 'HEAL', 'CONFIRM_EMBODIMENT']
@@ -362,13 +375,6 @@ export default function App() {
   useEffect(() => {
     captureSurfacePresented(state)
   }, [analyticsConsent.structured, state.view, state.nodeId, state.turn, state.trainRound, state.storyRunSequence])
-
-  // A miss is blocking feedback, so it must paint within the answer click's
-  // interaction budget. Warm its lazy presentation while the learner reads the
-  // Train card instead of fetching and evaluating it after an answer is chosen.
-  useEffect(() => {
-    if (state.view === 'practice') void loadHeartConsequenceModal()
-  }, [state.view])
 
   useEffect(() => {
     if (!analyticsConsent.structured || analyticsPreferencesOpen || gameBlockingOverlay || feedbackOpen) return
