@@ -50,6 +50,7 @@ assert.equal(TRAIN_FUTURE_PLANNER_POLICY.algorithm, 'state-deduplicated beam dyn
 assert.equal(TRAIN_FUTURE_PLANNER_POLICY.maximumDepth, 24)
 assert.deepEqual(TRAIN_FUTURE_PLANNER_POLICY.outcomes, ['correct', 'miss'])
 assert.equal(TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity, 8)
+assert.equal(TRAIN_ACTION_GOAL_POLICY.minimumNonGoalActivitiesBeforeTokenOpportunity, 2)
 assert.equal(TRAIN_ACTION_GOAL_POLICY.maximumNonGoalActivitiesBeforeForcedOpportunity, 7)
 
 const initial = initialTrainPlanningState()
@@ -258,19 +259,28 @@ const tempting = proposal('tempting', {
   expectedLearningGain: 1,
   uncertaintyReduction: 1,
 })
-const directGoal = planTrainFuture({
-  proposals: [tempting, goal],
+const secondDiversion = proposal('second-diversion', {
+  words: ['second-diversion'],
+  targets: ['word:second-diversion', 'surface:second-diversion'],
+})
+const pacedGoal = planTrainFuture({
+  proposals: [tempting, secondDiversion, goal],
   planningState: initialTrainPlanningState({
     goalRemaining: ['goal'],
-    goalMaximumDiversionRounds: 2,
+    goalMaximumDiversionRounds: 7,
   }),
-  seed: 'goal-first',
-  maximumDepth: 2,
+  seed: 'goal-after-practice-floor',
+  maximumDepth: 3,
   maximumMilliseconds: 1000,
 })
-assert.equal(directGoal.candidate.candidateId, 'goal', 'general diversity delayed an immediately reachable story-action token')
-assert.equal(directGoal.score.goalComplete, true)
-assert.equal(directGoal.score.roundsToGoal, 1)
+assert.notEqual(pacedGoal.candidate.candidateId, 'goal', 'the first Train activity skipped the action-token practice floor')
+assert.deepEqual(pacedGoal.plan.map(({ candidateId }) => candidateId).slice(2), ['goal'])
+assert.equal(pacedGoal.score.goalComplete, true)
+assert.equal(pacedGoal.score.roundsToGoal, 3)
+assert.ok(trainCandidateEligibility(initialTrainPlanningState({
+  goalRemaining: ['goal'],
+  goalMaximumDiversionRounds: 7,
+}), goal).reasons.includes('goal-practice-floor'))
 
 const goalCooldown = initialTrainPlanningState({
   targetHistory: [['word:goal', 'surface:goal']],
@@ -279,15 +289,15 @@ const goalCooldown = initialTrainPlanningState({
   goalMaximumDiversionRounds: 2,
 })
 const bridgeToGoal = planTrainFuture({
-  proposals: [tempting, goal],
+  proposals: [tempting, secondDiversion, goal],
   planningState: goalCooldown,
   seed: 'one-safe-bridge',
   maximumDepth: 3,
   maximumMilliseconds: 1000,
 })
-assert.equal(bridgeToGoal.candidate.candidateId, 'tempting')
-assert.deepEqual(bridgeToGoal.plan.map(({ candidateId }) => candidateId).slice(0, 2), ['tempting', 'goal'])
-assert.equal(bridgeToGoal.score.roundsToGoal, 2)
+assert.notEqual(bridgeToGoal.candidate.candidateId, 'goal')
+assert.equal(bridgeToGoal.plan[2].candidateId, 'goal')
+assert.equal(bridgeToGoal.score.roundsToGoal, 3)
 const exhaustedGoal = transitionTrainPlanningState(
   transitionTrainPlanningState(goalCooldown, tempting, 'miss'),
   proposal('second-diversion', { words: ['second'] }),
@@ -352,6 +362,8 @@ while (twoTokenState.goalRemaining.length && completedActivities < 16) {
 }
 assert.deepEqual(twoTokenState.goalRemaining, [])
 assert.equal(opportunityRounds.length, 2)
+assert.ok(opportunityRounds[0] >= 3 && opportunityRounds[1] - opportunityRounds[0] >= 3,
+  `needed tokens bypassed the two-activity practice floor: ${opportunityRounds.join(', ')}`)
 assert.ok(opportunityRounds[0] <= 8 && opportunityRounds[1] <= 16,
   `two missing goal tokens were not offered inside 16 activities: ${opportunityRounds.join(', ')}`)
 

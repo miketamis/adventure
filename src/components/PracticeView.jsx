@@ -955,7 +955,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           </span>
           <small>
             {activeActionGoal.remainingTokenCount} {activeActionGoal.remainingTokenCount === 1 ? 'word token' : 'word tokens'} left.
-            {' '}The shortest legal route gets priority, and every missing word gets a token opportunity within eight activities.
+            {' '}Each opportunity follows at least two other activities when they are available, and every missing word gets a token opportunity within eight activities.
           </small>
         </div>
       )}

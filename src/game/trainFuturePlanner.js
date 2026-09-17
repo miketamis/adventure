@@ -86,11 +86,15 @@ export function trainCandidateEligibility(state, proposal) {
   const goalEmergency = state.goalRemaining.length > 0 &&
     state.goalMaximumDiversionRounds > 0 &&
     state.goalDiversionsUsed >= state.goalMaximumDiversionRounds
+  const goalPracticeFloor = contributesToGoal &&
+    state.goalMaximumDiversionRounds > 0 &&
+    state.goalDiversionsUsed < TRAIN_ACTION_GOAL_POLICY.minimumNonGoalActivitiesBeforeTokenOpportunity
   const goalBridgeReady = contributesToGoal &&
     targetDecision?.exactWordInterveningTargets >= TRAIN_ACTION_GOAL_POLICY.minimumInterveningActivities &&
     targetDecision?.surfaceInterveningTargets >= TRAIN_ACTION_GOAL_POLICY.minimumInterveningActivities
   if (targetStatus === 'rejected-previous-phrase-activity') reasons.push('repeats-previous-phrase-target')
   if (targetStatus === 'rejected-target-cooldown' && !goalBridgeReady && !goalEmergency) reasons.push('target-cooldown')
+  if (goalPracticeFloor && !goalEmergency) reasons.push('goal-practice-floor')
   if (
     state.goalRemaining.length &&
     state.goalMaximumDiversionRounds > 0 &&
@@ -104,6 +108,7 @@ export function trainCandidateEligibility(state, proposal) {
     targetStatus,
     projectedRemediation: projectedRemediation(state, proposal),
     goalContribution: contributesToGoal,
+    goalPracticeFloor,
     goalEmergency,
     goalCooldownOverride: targetStatus === 'rejected-target-cooldown' && (goalBridgeReady || goalEmergency),
   }

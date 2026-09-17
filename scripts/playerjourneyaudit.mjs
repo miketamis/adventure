@@ -389,8 +389,15 @@ check('a blocked requested word uses another saved action before asking for more
     }),
     seed: 'requested-action-complete',
   })
-  assert.ok(siblingPlan.candidate?.rewardIds.includes('pershendetje'),
-    'the completed requested action did not hand priority to another saved action')
+  const siblingGoalRound = siblingPlan.plan.findIndex(({ rewardIds }) =>
+    rewardIds.includes('pershendetje')) + 1
+  assert.ok(!siblingPlan.candidate?.rewardIds.includes('pershendetje'),
+    'the sibling action token bypassed the practice floor')
+  assert.ok(
+    siblingGoalRound >= TRAIN_ACTION_GOAL_POLICY.minimumNonGoalActivitiesBeforeTokenOpportunity + 1 &&
+      siblingGoalRound <= TRAIN_ACTION_GOAL_POLICY.maximumActivitiesPerTokenOpportunity,
+    `the sibling action token was not paced inside its bounded window (round ${siblingGoalRound})`,
+  )
 
   const completedQueue = trainActionPracticeQueue({
     ...state,
@@ -446,6 +453,7 @@ check('the water-carrier action exhausts e and me before the Train terminal scre
       alternateGoalRemaining: queue.currentRemainingWordIds.length
         ? queue.otherRemainingWordIds : [],
       goalMaximumDiversionRounds: queue.maximumDiversionRounds,
+      goalDiversionsUsed: TRAIN_ACTION_GOAL_POLICY.minimumNonGoalActivitiesBeforeTokenOpportunity,
     })
     const future = planTrainFuture({
       proposals: enumeration.proposals,

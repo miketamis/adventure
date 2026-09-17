@@ -1,7 +1,8 @@
 // A Train session opened from a locked story action has an explicit destination:
 // earn one token for each still-unfunded word in that exact Albanian action.
 // The future planner uses this contract before general diversity objectives so
-// variety never turns a focused hand-off into an indefinite grind.
+// a small amount of varied practice precedes each token opportunity without
+// letting that focused hand-off turn into an indefinite grind.
 
 import { STORY } from './content.js'
 import { isTrainableSense } from './lexicalTrainability.js'
@@ -122,6 +123,7 @@ export const trainActionPracticeTargetIds = (state) => trainActionPracticeQueue(
 // This is deliberately narrower than the normal future planner. It runs only
 // when every ordinarily legal root candidate was rejected, and prevents a
 // false terminal screen while a buildable action-token question still exists.
+// It may also waive the practice floor when no legal diversion exists.
 // Target order is meaningful: current-action words precede sibling-action
 // words, and authored token order breaks ties before capability metadata.
 export function trainActionLastResortProposal(proposals = [], priorityTargetIds = []) {
