@@ -103,7 +103,7 @@ const chunkNamed = (prefix) => {
 // These are intentional long-lived cache boundaries, not arbitrary filenames.
 // If Rollup ever folds one back into the shell, the shell-only budget might
 // catch it, but this assertion explains the architectural regression directly.
-for (const prefix of ['react-vendor', 'story-graph', 'language-runtime', 'dictionary-catalog', 'state-mechanics']) {
+for (const prefix of ['react-vendor', 'playtest-analytics', 'story-graph', 'language-runtime', 'dictionary-catalog', 'state-mechanics']) {
   const chunk = chunkNamed(prefix)
   assert.ok(bootstrapNames.has(chunk.name), `${prefix} must remain in the initial static closure`)
 }

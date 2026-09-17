@@ -20,6 +20,10 @@ const authoredChunk = (id) => {
     return 'analytics-vendor'
   }
   if (path.includes('/node_modules/')) return 'react-vendor'
+  // Replay-safe transition encoding is required from first play, but it is a
+  // stable subsystem rather than shell/UI code. Keep it in the eager closure
+  // without making every small App edit invalidate or inflate the shell.
+  if (path.endsWith('/src/game/playtestAnalytics.js')) return 'playtest-analytics'
   if (path.endsWith('/src/game/content.js')) return 'story-graph'
   if (path.endsWith('/src/game/language.js')) return 'language-runtime'
   if (path.endsWith('/src/components/nodePositions.js')) return 'world-layout'

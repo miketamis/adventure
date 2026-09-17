@@ -80,7 +80,7 @@ assert.match(appSource, /window\.addEventListener\('pagehide', flushNow\)/)
 assert.match(appSource, /document\.addEventListener\('visibilitychange', onVisibilityChange\)/)
 assert.match(appSource, /queueStatePersistence\(after\)\s+publishState\(after\)/)
 assert.match(appSource, /function useDeferredTransitionAnalytics\(\)/)
-assert.match(appSource, /window\.requestAnimationFrame\(\(\) => \{[\s\S]+window\.setTimeout\(\(\) => \{[\s\S]+flush\(\)/,
+assert.match(appSource, /window\.requestAnimationFrame\(\(\) => \{[\s\S]+window\.setTimeout\(flush, 0\)/,
   'transition analytics still extends the accepted-action paint')
 assert.match(appSource, /queueTransitionAnalytics\(action, before, after\)/)
 assert.match(appSource, /reserveCommittedTransitionSequence\(action, before, after\)[\s\S]+queued\.current\.push\(\{ action, before, after, sequence \}\)/,

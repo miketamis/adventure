@@ -248,10 +248,10 @@ function useDeferredPersistence(state) {
 // making the learner's click wait for work that is invisible to the response.
 function useDeferredTransitionAnalytics() {
   const queued = useRef([])
-  const frame = useRef(null)
-  const timer = useRef(null)
+  const scheduled = useRef(false)
 
   const flush = useCallback(() => {
+    scheduled.current = false
     const transitions = queued.current.splice(0)
     for (const { action, before, after, sequence } of transitions) {
       measurePerformanceOperation(
@@ -263,23 +263,13 @@ function useDeferredTransitionAnalytics() {
     }
   }, [])
 
-  const cancelPending = useCallback(() => {
-    if (frame.current !== null) window.cancelAnimationFrame(frame.current)
-    if (timer.current !== null) window.clearTimeout(timer.current)
-    frame.current = null
-    timer.current = null
-  }, [])
-
   const schedule = useCallback(() => {
-    if (frame.current !== null || timer.current !== null) return
-    frame.current = window.requestAnimationFrame(() => {
-      frame.current = null
+    if (scheduled.current) return
+    scheduled.current = true
+    window.requestAnimationFrame(() => {
       // A task queued from the animation frame runs after the accepted state
       // has had its paint opportunity, outside the input-to-feedback path.
-      timer.current = window.setTimeout(() => {
-        timer.current = null
-        flush()
-      }, 0)
+      window.setTimeout(flush, 0)
     })
   }, [flush])
 
@@ -293,10 +283,7 @@ function useDeferredTransitionAnalytics() {
   }, [schedule])
 
   useEffect(() => {
-    const flushNow = () => {
-      cancelPending()
-      flush()
-    }
+    const flushNow = () => flush()
     const onVisibilityChange = () => {
       if (document.visibilityState === 'hidden') flushNow()
     }
@@ -307,7 +294,7 @@ function useDeferredTransitionAnalytics() {
       document.removeEventListener('visibilitychange', onVisibilityChange)
       flushNow()
     }
-  }, [cancelPending, flush])
+  }, [flush])
 
   return queueTransition
 }
