@@ -1,3 +1,5 @@
+import { authoredPlayerAction } from './playerActionRuntime.js'
+
 // Stateful conversation hubs keep ordinary NPC talk under the player's control.
 // A hub starts with a short lived beat, exposes specific questions in any order,
 // shows only the latest answer, and always leaves an explicit way to end the
@@ -23,6 +25,9 @@ const defaultAskedCondition = (hubId, questionId) =>
   `flag:conversation:${hubId}:asked:${questionId}`
 const defaultResponseCondition = (hubId, questionId) =>
   `flag:conversation:${hubId}:response:${questionId}`
+const kebabPart = (value) => String(value).replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
+const defaultActionId = (hubId, questionId) =>
+  `conversation:${hubId}:${kebabPart(questionId)}`
 
 export function defineConversationHub({
   id,
@@ -30,12 +35,16 @@ export function defineConversationHub({
   npcId,
   questions,
   exitTo,
+  defaultSpeechAct,
   substantial = true,
 }) {
   stablePart(id, 'conversation hub id')
   stablePart(nodeId, 'conversation hub node id')
   stablePart(npcId, 'conversation hub NPC id')
   stablePart(exitTo, 'conversation hub exit node id')
+  if (!['ask', 'answer', 'tell', 'say'].includes(defaultSpeechAct)) {
+    throw new Error(`Conversation hub '${id}' needs an explicit defaultSpeechAct`)
+  }
   if (HUBS[id]) throw new Error(`Duplicate conversation hub id: ${id}`)
 
   const normalizedQuestions = Object.fromEntries(Object.entries(questions || {}).map(([questionId, spec]) => {
@@ -44,7 +53,9 @@ export function defineConversationHub({
       id: questionId,
       askedCondition: spec?.askedCondition || defaultAskedCondition(id, questionId),
       responseCondition: spec?.responseCondition || defaultResponseCondition(id, questionId),
+      actionId: spec?.actionId || defaultActionId(id, questionId),
       purpose: spec?.purpose || questionId,
+      speechAct: spec?.speechAct || defaultSpeechAct,
     })]
   }))
   if (Object.keys(normalizedQuestions).length < 2) {
@@ -86,6 +97,8 @@ export function conversationQuestionOption(hub, questionId, text, option = {}) {
   return {
     intent: 'speech',
     playerIntents: ['speech'],
+    speechAct: question.speechAct,
+    playerAction: authoredPlayerAction(question.actionId),
     ...option,
     text,
     to: option.to || hub.nodeId,
@@ -103,9 +116,16 @@ export function conversationQuestionOption(hub, questionId, text, option = {}) {
 
 export function conversationResponseLine(hub, questionId, lineOrEntry) {
   const entry = Array.isArray(lineOrEntry) ? { line: lineOrEntry } : lineOrEntry
+  const inheritedRequired = entry.negate ? [] : list(entry.cond)
+  const inheritedExcluded = [...list(entry.none), ...(entry.negate ? list(entry.cond) : [])]
   return {
     ...entry,
-    cond: [...list(entry.cond), conversationResponseCondition(hub, questionId)],
+    cond: [
+      ...inheritedRequired,
+      conversationResponseCondition(hub, questionId),
+    ],
+    none: inheritedExcluded,
+    negate: false,
     conversationHub: Object.freeze({ hubId: hub.id, kind: 'response', questionId }),
   }
 }

@@ -475,7 +475,6 @@ export const DISTANT_SIGHTLINES = Object.freeze([
   { id: 'mountain-lost-crossroads', node: 'maliHumbur', target: 'udhekryq', requires: ['larg', 'poshte', 'udhekryq'] },
   { id: 'river-lost-crossroads', node: 'lumiHumbur', target: 'udhekryq', requires: ['larg', 'udhekryq'] },
   { id: 'moat-road-palace', node: 'kordhaUdha', target: 'kordhaPallat', requires: ['larg', 'pallat', 'bukura'] },
-  { id: 'market-sea', node: 'tregDet', target: 'deti1', requires: ['larg', 'det'] },
   { id: 'crossroads-village', node: 'udhekryq', target: 'fshatiSheshi', requires: ['larg', 'fshat'] },
   { id: 'sky-cloud-summit', node: 'qiellDem1', target: 'maja', requires: ['larg', 'lart', 're', 'maja'] },
 ])

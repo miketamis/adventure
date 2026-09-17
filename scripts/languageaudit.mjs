@@ -235,10 +235,10 @@ const KNOWN_OPTION_REPAIRS = {
   'karkanxholl1.options[0]': 'Stay calm.',
   'pallatRoje.options[0]': 'Why is the palace black?',
   'patatGruaja.options[2]': 'Stay calm.',
-  'qeniGate.options[0]': 'The Ora helps you.',
+  'qeniGate.options[0]': 'Call the Ora.',
   'kordha2.options[1]': 'Stay calm.',
-  'uraVellezerit.options[0]': 'Say: “I am Kiço, your brother.”',
-  'uraGropa.options[0]': 'Say: “My ring is down below.”',
+  'uraVellezerit.options[0]': 'I am Kiço, your brother.',
+  'uraGropa.options[0]': 'My ring is down below.',
   'xhindMulli.options[0]': 'Stay calm.',
 }
 for (const [address, expected] of Object.entries(KNOWN_OPTION_REPAIRS))

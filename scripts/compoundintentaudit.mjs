@@ -4,17 +4,26 @@
 // the release. A conservative lexical candidate must be resolved by splitting
 // the action or by declaring one reviewed player intention.
 import assert from 'node:assert/strict'
-import { STORY } from '../src/game/content.js'
+import { HEART_LEVELS, ITEMS, STORY } from '../src/game/content.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
+import { attachReviewedOptionReadings } from '../src/game/data/readings/reviewedOptionReadings.js'
 import {
   choiceSemanticsIssues,
   compoundIntentIssues,
   compoundIntentReview,
 } from '../src/game/choiceSemantics.js'
 
+// The production content keeps fluent English option readings in a lazy
+// registry. Editorial classifiers must attach that registry before inspecting
+// wording; otherwise almost every unannotated choice looks blank and silently
+// bypasses the very candidates this gate claims to review.
+attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
+
 const failures = []
 let choices = 0
 let explicit = 0
+let playableChoices = 0
+const missingReviewedReadings = []
 
 const fixturePlaceOf = Object.freeze({ here: 'room', there: 'road' })
 assert.deepEqual(
@@ -71,6 +80,7 @@ assert.deepEqual(
   compoundIntentIssues('here', {
     choiceReading: 'Wait a moment; I have a question.',
     playerIntents: ['speech'],
+    speechAct: 'say',
     to: 'here',
   }, fixturePlaceOf),
   [],
@@ -86,6 +96,16 @@ assert.deepEqual(
   [],
   'the inseparable request-and-receipt inside a local transaction was rejected',
 )
+assert.deepEqual(
+  compoundIntentIssues('here', {
+    choiceReading: 'Take the middle road.',
+    intent: 'movement',
+    playerIntents: ['movement'],
+    to: 'there',
+  }, fixturePlaceOf),
+  [],
+  'an explicitly reviewed movement idiom was mistaken for acquisition',
+)
 assert.ok(
   compoundIntentIssues('here', {
     choiceReading: 'Answer yes.',
@@ -94,11 +114,65 @@ assert.ok(
   }, fixturePlaceOf).length > 0,
   'a reviewed single intention incorrectly suppressed a structural movement conflict',
 )
+assert.ok(
+  compoundIntentIssues('here', {
+    choiceReading: 'Do the work.',
+    playerIntents: ['physical'],
+    to: 'there',
+  }, fixturePlaceOf).length > 0,
+  'a generic physical label incorrectly suppressed structural movement',
+)
+assert.ok(
+  compoundIntentIssues('here', {
+    choiceReading: 'Buy the bread.',
+    playerIntents: ['transaction'],
+    to: 'there',
+  }, fixturePlaceOf).length > 0,
+  'a transaction label incorrectly suppressed structural movement',
+)
+assert.ok(
+  compoundIntentIssues('here', {
+    choiceReading: 'Go to the gate, then fight the wolf.',
+    playerIntents: ['movement'],
+    to: 'here',
+  }, fixturePlaceOf).length > 0,
+  'a singleton movement declaration incorrectly suppressed a second lexical physical act',
+)
+assert.ok(
+  compoundIntentIssues('here', {
+    choiceReading: 'Take the road, then fight the wolf.',
+    playerIntents: ['movement'],
+    to: 'here',
+  }, fixturePlaceOf).length > 0,
+  'the take-the-road idiom resolution incorrectly hid a later physical act',
+)
+assert.ok(
+  compoundIntentIssues('here', {
+    choiceReading: 'Please give me the bread, then leave.',
+    playerIntents: ['transaction'],
+    to: 'here',
+  }, fixturePlaceOf).length > 0,
+  'the transaction-request idiom resolution incorrectly hid a later movement act',
+)
+assert.deepEqual(
+  compoundIntentReview('here', {
+    choiceReading: 'Answer, cut the cord, and leap over the hedge.',
+    to: 'here',
+  }, fixturePlaceOf).candidatePairs.toSorted(),
+  ['movement+speech', 'movement+use', 'speech+use'],
+  'a comma-separated three-act choice escaped the lexical compound-intent gate',
+)
 
 for (const [nodeId, node] of Object.entries(STORY)) {
   for (const [index, option] of (node.options || []).entries()) {
     choices++
     const label = `${nodeId}.options[${index}]`
+    if (!option.confuser && option.to && STORY[option.to]) {
+      playableChoices++
+      if (!String(option.text?.optionReading || option.text?.reading || '').trim()) {
+        missingReviewedReadings.push(label)
+      }
+    }
     const schemaIssues = choiceSemanticsIssues(option)
     for (const issue of schemaIssues) failures.push(`${label}: ${issue}`)
     const review = compoundIntentReview(nodeId, option, PLACE_OF)
@@ -109,5 +183,7 @@ for (const [nodeId, node] of Object.entries(STORY)) {
   }
 }
 
+assert.deepEqual(missingReviewedReadings, [],
+  `playable choices missing their reviewed reading during compound-intent analysis:\n${missingReviewedReadings.join('\n')}`)
 assert.deepEqual(failures, [], `compound-intent release failures:\n${failures.join('\n')}`)
-console.log(`✅ ${choices} choices checked: no compound intentions (${explicit} explicitly classified)`)
+console.log(`✅ ${choices} choices checked (${playableChoices} playable with reviewed readings): no compound intentions (${explicit} explicitly classified)`)

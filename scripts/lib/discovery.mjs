@@ -14,9 +14,10 @@
 //                   the real option texts. The player can read/discover these now.
 //
 //   legible(n)    = guaranteed(n) ∪ visible(n)  — every word the player can be
-//                   expected to read when choosing at n. A good distractor uses
-//                   only these; an illegible one slips in a word seen nowhere but
-//                   inside the distractor itself.
+//                   expected to encounter naturally when choosing at n. This is
+//                   the preferred authoring pool for a distractor. Runtime safety
+//                   is stricter: the canonical confuser registry withholds the
+//                   whole action until every trainable sense is discovered.
 //
 // Note: `start` forces nothing (no step taken yet), so guaranteed(start)=∅ — only
 // `visible` makes legibility satisfiable there. That's why visible must count.

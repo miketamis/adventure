@@ -8,18 +8,18 @@
 // add every surface as a separate dictionary card.
 
 export const TOP_1000_EXISTING_FORMS = {
-  bej: 'bësh bëjë bëra bëje bënte',
-  thote: 'thënë thoni thoja thash thanë thoshte themi',
+  bej: 'bërë bëra bëre bëja bënte',
+  thote: 'the thënë thoni thoja thash thanë thoshte themi',
   vete: 'veten',
-  eshte: 'jesh jem qoftë qenka',
+  eshte: 'jenë jesh jem qoftë qenka',
   behet: 'bëhem',
   vjen: 'ardhur vini',
   fal: 'falni',
-  di: 'dini din dinë ditur dinte dija',
+  di: 'dimë dish dini din dinë ditur dinte dija',
   ka: 'kem kishin',
   mund: 'mundem mundet mundemi',
   fol: 'flas flasësh',
-  dua: 'doni doja doje don duash',
+  dua: 'duam doni doja doje don duash',
   ndodh: 'ndodhur ndodhet',
   kuptoj: 'kupton kuptove kuptoni',
   ai: 'atij',
@@ -40,7 +40,7 @@ export const TOP_1000_EXISTING_FORMS = {
   degjo: 'dëgjoni',
   pyet: 'pyes',
   njoh: 'njohur',
-  ne_we: 'nesh neve',
+  ne_we: 'neve',
   edyta: 'dytë',
   jete: 'jetës',
   minuta: 'minutë',
@@ -52,7 +52,7 @@ export const TOP_1000_EXISTING_FORMS = {
   pak: 'paktën',
   meso: 'mësuar',
   vetem: 'vetmja',
-  duhet: 'duhur',
+  duhet: 'duhej duhur',
   tregoj: 'treguar tregosh',
   here: 'njëherë herën hera asnjëherë',
   ky: 'këtij',
@@ -64,7 +64,6 @@ export const TOP_1000_EXISTING_FORMS = {
   mend: 'mendjen mendja',
   ndiej: 'ndihem ndihesh ndjej',
   gjithmone: 'gjithnjë',
-  ik: 'ikur',
   mo_discourse: 'more',
   cfare: 'çfarëdo',
   sjell: 'sjellë',
@@ -92,6 +91,8 @@ export const TOP_1000_EXISTING_FORMS = {
   ndalo: 'ndal',
   mbaroj: 'mbaruar',
   zoteri: 'zotërinj',
+  tjeter: 'tjerët',
+  ide: 'idenë',
   leviz: 'lëvizni',
   ulu: 'ulur',
   arsye: 'arsyeja',
@@ -99,6 +100,7 @@ export const TOP_1000_EXISTING_FORMS = {
 }
 
 export const TOP_1000_ORTHOGRAPHIC_VARIANTS = {
+  bej: 'bere',
   sigurt: 'sigurtë',
   thjesht: 'thjeshtë',
   bashke: 'bashku',
@@ -134,11 +136,6 @@ export const TOP_1000_CANDIDATES = {
     tokens: 'siguri',
     priority: 'medium',
     reason: 'Everyday noun “safety/certainty”; distinct from adjective sigurt.',
-  },
-  ndaj: {
-    tokens: 'ndaj',
-    priority: 'medium',
-    reason: 'Common preposition/conjunction “toward/therefore”; fits relations and consequences.',
   },
   kapiten: {
     tokens: 'kapiten',

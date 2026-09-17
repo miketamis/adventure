@@ -107,7 +107,7 @@ check('whole-action English is debug-only while word-by-word learning remains av
   !optionReadingVisible(false) && optionReadingVisible(true))
 check('route controls announce Albanian rather than leaking the English answer',
   story.includes('const accessibleOptionPhrase = state.debug') &&
-  story.includes(': albanianTextOf(e.tokens)') &&
+  story.includes(': [e.speechLabel, albanianTextOf(e.tokens)].filter(Boolean).join(\' \')') &&
   story.includes('aria-label={`${e.ok ? \'Choose\' : \'Locked\'}: ${accessibleOptionPhrase}`}'))
 check('normal choices conceal future rewards while debug exposes exact effects',
   optionMoneyEffectText(800) === null &&

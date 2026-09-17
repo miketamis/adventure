@@ -12,6 +12,7 @@ import {
   accompanimentLeadReview,
   accompanimentSemantics,
   actionSemanticContinuityIssues,
+  ordinaryActionTargetReview,
   semanticFact,
   sharedActionSemantics,
   soloNavigationAffordanceReview,
@@ -185,6 +186,145 @@ delete entailedConditionalTake.here.options[0].unless
 assert.equal(actionSemanticContinuityIssues(entailedConditionalTake).some((issue) => issue.includes('acquisition')), false,
   'an acquisition rejected source evidence entailed by its own visibility gate')
 
+const destinationOnlyListener = {
+  hall: {
+    id: 'hall', text: [], options: [{
+      text: Object.assign([token('degjo'), token('lahute')], { optionReading: 'Listen to the lute.' }),
+      to: 'song',
+    }],
+  },
+  song: { id: 'song', text: [[token('lahute')]], options: [] },
+}
+assert.ok(ordinaryActionTargetReview(
+  destinationOnlyListener,
+  'hall',
+  destinationOnlyListener.hall.options[0],
+).issues.some((issue) => issue.includes("listen target 'lahute'")),
+'a listen target first revealed at the destination bypassed source continuity')
+
+const prefixedDestinationOnlyListener = structuredClone(destinationOnlyListener)
+prefixedDestinationOnlyListener.hall.options[0].text = Object.assign(
+  [token('tani'), token('degjo'), token('lahute')],
+  { optionReading: 'Listen to the lute now.' },
+)
+assert.ok(ordinaryActionTargetReview(
+  prefixedDestinationOnlyListener,
+  'hall',
+  prefixedDestinationOnlyListener.hall.options[0],
+).issues.some((issue) => issue.includes("listen target 'lahute'")),
+'a discourse prefix hid a named ordinary-action target')
+
+const contextDestinationOnlyListener = structuredClone(destinationOnlyListener)
+contextDestinationOnlyListener.hall.options[0].contextObservation = true
+assert.ok(ordinaryActionTargetReview(
+  contextDestinationOnlyListener,
+  'hall',
+  contextDestinationOnlyListener.hall.options[0],
+).issues.some((issue) => issue.includes("listen target 'lahute'")),
+'context-observation metadata waived the visible-source requirement')
+
+const observationGatedSpeaker = structuredClone(destinationOnlyListener)
+observationGatedSpeaker.hall.text = [Object.assign([token('lahute')], {
+  observation: Object.freeze({ id: 'hidden-lute', beat: 'hidden lute', index: 0, total: 1 }),
+  sceneRole: 'observation-gated',
+})]
+observationGatedSpeaker.hall.options[0] = {
+  text: Object.assign([token('fol'), token('me'), token('lahute')], { optionReading: 'Speak with the lute.' }),
+  requires: 'observed:hidden-lute',
+  attentionGate: { id: 'hidden-lute', beat: 'hidden lute' },
+  to: 'song',
+}
+assert.deepEqual(ordinaryActionTargetReview(
+  observationGatedSpeaker,
+  'hall',
+  observationGatedSpeaker.hall.options[0],
+).issues, [], 'a target and choice hidden behind the same observation were rejected')
+
+const mismatchedObservationSpeaker = structuredClone(observationGatedSpeaker)
+mismatchedObservationSpeaker.hall.options[0].attentionGate.id = 'different-observation'
+assert.ok(ordinaryActionTargetReview(
+  mismatchedObservationSpeaker,
+  'hall',
+  mismatchedObservationSpeaker.hall.options[0],
+).issues.some((issue) => issue.includes("speech target 'lahute'")),
+'an unrelated observation gate was accepted as source evidence')
+
+const ambientOnlySpeaker = structuredClone(destinationOnlyListener)
+ambientOnlySpeaker.hall.text = [Object.assign([token('guide')], { scenePriority: 'ambient' })]
+ambientOnlySpeaker.hall.options[0] = {
+  text: Object.assign([token('fol'), token('me'), token('guide')], { optionReading: 'Speak with the guide.' }),
+  to: 'song',
+}
+assert.ok(ordinaryActionTargetReview(
+  ambientOnlySpeaker,
+  'hall',
+  ambientOnlySpeaker.hall.options[0],
+).issues.some((issue) => issue.includes("speech target 'guide'")),
+'optional ambient prose incorrectly established a conversation target')
+
+const visibleFightTarget = structuredClone(destinationOnlyListener)
+visibleFightTarget.hall.text = [[token('serpent')]]
+visibleFightTarget.hall.options[0] = {
+  text: Object.assign([token('lufto'), token('serpent')], { optionReading: 'Fight the serpent.' }),
+  to: 'song',
+}
+assert.deepEqual(ordinaryActionTargetReview(
+  visibleFightTarget,
+  'hall',
+  visibleFightTarget.hall.options[0],
+).issues, [], 'a visible ordinary action target was rejected')
+
+const missingTransferObject = structuredClone(destinationOnlyListener)
+missingTransferObject.hall.text = [[token('fates')]]
+missingTransferObject.hall.options[0] = {
+  text: Object.assign([token('jep'), token('bread'), token('fates')], { optionReading: 'Give bread to the Fates.' }),
+  to: 'song',
+}
+assert.ok(ordinaryActionTargetReview(
+  missingTransferObject,
+  'hall',
+  missingTransferObject.hall.options[0],
+).issues.some((issue) => issue.includes("transfer target 'bread'")),
+'a transfer could name an object absent from current scene and canonical state')
+
+const transferWithSourceAdjunct = structuredClone(destinationOnlyListener)
+transferWithSourceAdjunct.hall.text = [[token('child')]]
+transferWithSourceAdjunct.hall.options[0] = {
+  text: Object.assign(
+    [token('jep'), token('bread'), token('child'), token('nga'), token('pack')],
+    { optionReading: 'Give the bread to the child from the pack.' },
+  ),
+  requires: 'bread',
+  to: 'song',
+}
+assert.deepEqual(ordinaryActionTargetReview(
+  transferWithSourceAdjunct,
+  'hall',
+  transferWithSourceAdjunct.hall.options[0],
+).issues, [], 'a transfer source adjunct was mistaken for another direct target')
+
+const canonicalQuestTurnIn = structuredClone(destinationOnlyListener)
+canonicalQuestTurnIn.hall.text = [[token('guide')]]
+canonicalQuestTurnIn.hall.options[0] = {
+  text: Object.assign([token('jep'), token('buke'), token('kripe')], { optionReading: 'Give bread and salt.' }),
+  questAction: { id: 'elira-bread-salt', action: 'turn-in' },
+  to: 'song',
+}
+assert.deepEqual(ordinaryActionTargetReview(
+  canonicalQuestTurnIn,
+  'hall',
+  canonicalQuestTurnIn.hall.options[0],
+).issues, [], 'a canonical quest turn-in did not count its objective gate as item ownership')
+
+const unknownQuestTurnIn = structuredClone(canonicalQuestTurnIn)
+unknownQuestTurnIn.hall.options[0].questAction.id = 'unregistered-supplies'
+assert.ok(ordinaryActionTargetReview(
+  unknownQuestTurnIn,
+  'hall',
+  unknownQuestTurnIn.hall.options[0],
+).issues.some((issue) => issue.includes("transfer target 'buke'")),
+'an unregistered quest turn-in bypassed current-scene and canonical-state evidence')
+
 const consequenceFreeTake = structuredClone(validFixture)
 consequenceFreeTake.here.text = [[token('knife')]]
 consequenceFreeTake.here.options[0] = {
@@ -340,6 +480,9 @@ const navigationReviews = Object.entries(STORY).flatMap(([nodeId, node]) =>
     option,
     { placeOf: PLACE_OF },
   ))).filter((review) => review.candidate)
+const ordinaryTargetReviews = Object.entries(STORY).flatMap(([nodeId, node]) =>
+  (node.options || []).map((option) => ordinaryActionTargetReview(STORY, nodeId, option)))
+  .filter((review) => review.candidate)
 const navigationEvidenceCounts = Object.fromEntries(NAVIGATION_AFFORDANCE_EVIDENCE_KINDS.map((kind) => [
   kind,
   navigationReviews.filter((review) => review.evidenceKinds.includes(kind)).length,
@@ -348,5 +491,6 @@ console.log(
   `✅ action semantic continuity audited: ${classified} structured choice(s); `
   + `${navigationReviews.length} solo-navigation choice(s) `
   + `(${NAVIGATION_AFFORDANCE_EVIDENCE_KINDS.map((kind) => `${kind}=${navigationEvidenceCounts[kind]}`).join(', ')}); `
-  + 'every joint-movement lead and solo route affordance resolved',
+  + `${ordinaryTargetReviews.length} ordinary targeted action(s); `
+  + 'every joint-movement lead, ordinary target, and solo route affordance resolved',
 )

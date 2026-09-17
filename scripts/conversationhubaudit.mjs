@@ -5,8 +5,11 @@
 // and the story supplies the player's answer without a choice.
 
 import assert from 'node:assert/strict'
-import { STORY, lineOf, visibleLines } from '../src/game/content.js'
+import { readFile } from 'node:fs/promises'
+import { HEART_LEVELS, ITEMS, STORY, lineOf, visibleLines } from '../src/game/content.js'
 import { CONVERSATION_HUBS } from '../src/game/conversationHub.js'
+import { PLAYER_ACTION_CONDITION_PREFIX } from '../src/game/playerActionRuntime.js'
+import { attachReviewedOptionReadings } from '../src/game/data/readings/reviewedOptionReadings.js'
 import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import { npcIdentityKnowledgeId } from '../src/game/npcIdentity.js'
 import { observationConditionId, observationIdOfLine } from '../src/game/observations.js'
@@ -15,6 +18,20 @@ import {
   GROUNDED_DIRECTION_CONTRACTS,
   LOCATION_QUESTION_REVIEWS,
 } from '../src/game/groundedDirections.js'
+import {
+  SPEECH_CHOICE_ACTS,
+  hasSpeechVerbSurface,
+  isDirectUtteranceChoice,
+  nonPlayerSpeechSubjectIds,
+  speechChoiceActOf,
+  speechChoiceLabelOf,
+} from '../src/game/speechChoices.js'
+
+// The release scan must inspect the editorial whole-choice reading used by
+// debug/review tooling, not token-by-token dictionary glosses. Otherwise a
+// direct utterance can look like an innocuous action summary and evade the
+// player-speaker label merely because its fluent reading is deferred.
+attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
 
 const rawFlagId = (conditionId) => conditionId.replace(/^flag:/, '')
 const idsOf = (line) => line.filter((token) => token.id).map((token) => token.id)
@@ -71,6 +88,22 @@ const unregisteredSameNodeTopicMenus = (story) => Object.entries(story).flatMap(
     : [`${nodeId}: ${questions.map((option) => albanianTextOf(option.text)).join(' | ')}`]
 })
 
+// A generic “speak with …” control must not dump the player onto a substantial
+// same-place NPC monologue whose only control is leave/return. That structure
+// offers no conversational agency even though it has only one entry topic and
+// therefore evades the multi-topic page-chain detector above.
+const genericTalkMonologuePages = (story, placeOf) => Object.entries(story).flatMap(([sourceId, source]) =>
+  (source.options || []).flatMap((option) => {
+    if (option.confuser || option.conversationHub || option.to === sourceId) return []
+    if (!(option.text || []).some((token) => token.id === 'fol')) return []
+    if (placeOf[sourceId] !== placeOf[option.to]) return []
+    const destination = story[option.to]
+    if (!destination || (destination.text || []).length < 4) return []
+    const genuine = (destination.options || []).filter((candidate) => !candidate.confuser)
+    if (genuine.length !== 1 || genuine.some((candidate) => candidate.conversationHub)) return []
+    return [`${sourceId} -> ${option.to}: ${albanianTextOf(option.text)}`]
+  }))
+
 assert.ok(Object.keys(CONVERSATION_HUBS).length > 0, 'no conversation hubs are registered')
 
 for (const hub of Object.values(CONVERSATION_HUBS)) {
@@ -113,6 +146,9 @@ for (const hub of Object.values(CONVERSATION_HUBS)) {
     for (const entry of responses) {
       assert.ok([].concat(entry.cond || []).includes(spec.responseCondition),
         `${hub.id}/${questionId}: response is not gated by the current topic`)
+      assert.equal([].concat(entry.cond || []).some((conditionId) =>
+        conditionId.startsWith(PLAYER_ACTION_CONDITION_PREFIX)), false,
+      `${hub.id}/${questionId}: current answer disappears with transient action provenance`)
     }
   }
 
@@ -150,6 +186,8 @@ assert.deepEqual(legacyQuestionPageChains(STORY, PLACE_OF), [],
   'multi-topic conversations still use answer pages with a forced return action')
 assert.deepEqual(unregisteredSameNodeTopicMenus(STORY), [],
   'same-place multi-topic conversations bypass the shared conversation-hub contract')
+assert.deepEqual(genericTalkMonologuePages(STORY, PLACE_OF), [],
+  'a generic talk action opens a substantial same-place monologue with only one exit')
 assert.deepEqual(legacyQuestionPageChains({
   sample: {
     options: [
@@ -185,6 +223,130 @@ assert.deepEqual(unregisteredSameNodeTopicMenus({
   },
 }), ['sample: ? | ?'],
 'the unregistered same-node topic-menu fixture no longer exercises the contract gate')
+assert.deepEqual(genericTalkMonologuePages({
+  room: { options: [{ text: [{ id: 'fol', al: 'fol' }], to: 'talk' }] },
+  talk: { text: [[], [], [], []], options: [{ text: [], to: 'room' }] },
+}, { room: 'house', talk: 'house' }), ['room -> talk: fol'],
+'the generic-talk monologue regression fixture no longer exercises the agency gate')
+
+// Direct utterance is a presentation contract, not a synonym for the broad
+// gameplay `speech` intent. Only exact words spoken by the player get a label;
+// controls such as “Speak with the trader”, “Call the eagle”, and “Promise an
+// oath” remain ordinary action summaries. This keeps actor ownership explicit
+// without putting a fluent English answer beside the active Albanian choice.
+const speechChoices = []
+const speechConfusers = []
+const malformedSpeechChoices = []
+for (const [nodeId, node] of Object.entries(STORY)) {
+  for (const [optionIndex, option] of (node.options || []).entries()) {
+    const address = `${nodeId}.options[${optionIndex}]`
+    const declaredAct = option.speechAct ?? option.text?.speechAct
+    if (declaredAct != null && !SPEECH_CHOICE_ACTS.includes(declaredAct)) {
+      malformedSpeechChoices.push(`${address}: ${String(declaredAct)}`)
+    }
+    if (isDirectUtteranceChoice(option)) {
+      if (option.confuser) speechConfusers.push({ address, option })
+      else speechChoices.push({ address, option })
+    }
+  }
+}
+assert.deepEqual(malformedSpeechChoices, [],
+  'a direct utterance declares an unknown speech act')
+for (const { address, option } of [...speechChoices, ...speechConfusers]) {
+  assert.ok(SPEECH_CHOICE_ACTS.includes(speechChoiceActOf(option)),
+    `${address}: direct utterance has no reviewed player speech act`)
+  assert.match(speechChoiceLabelOf(option) || '', /^You (?:ask|answer|tell|say):$/,
+    `${address}: direct utterance has no explicit player-owned UI label`)
+}
+const speechVerbConfusers = []
+for (const [nodeId, node] of Object.entries(STORY)) {
+  for (const [optionIndex, option] of (node.options || []).entries()) {
+    if (option.confuser && hasSpeechVerbSurface(option)) {
+      speechVerbConfusers.push({ address: `${nodeId}.options[${optionIndex}]`, option })
+    }
+  }
+}
+for (const { address, option } of speechVerbConfusers) {
+  assert.deepEqual(nonPlayerSpeechSubjectIds(option), [],
+    `${address}: selectable speech confuser assigns the speech to a non-player subject`)
+}
+
+const directReading = /^(?:i\b|i'm\b|i’ll\b|yes\b|no\b|good (?:morning|day|evening|night)\b|goodbye\b|see you\b|thank\b|thanks\b|sorry\b|what\b|who\b|where\b|when\b|why\b|how\b|do you\b|can you\b|can we\b|may i\b|will you\b|have you\b|are you\b|is there\b|of course\b|all right\b|not now\b|please\b)/iu
+const albanianInstructionWrapper = /^(?:thuaj|pyet|trego|përgjigju|premto|thirr)\b[^.!?;]*:/iu
+const exactWordsReading = (option) => englishReadingOf(option.text).trim()
+const likelyUnmarkedDirectUtterances = []
+const labelledActionSummaries = []
+for (const [nodeId, node] of Object.entries(STORY)) {
+  for (const [optionIndex, option] of (node.options || []).entries()) {
+    if (option.confuser) continue
+    const address = `${nodeId}.options[${optionIndex}]`
+    const reading = exactWordsReading(option)
+    const labelled = isDirectUtteranceChoice(option)
+    if (labelled && albanianInstructionWrapper.test(albanianTextOf(option.text))) {
+      labelledActionSummaries.push(`${address}: ${albanianTextOf(option.text)}`)
+    }
+    if (!labelled && directReading.test(reading)) {
+      likelyUnmarkedDirectUtterances.push(`${address}: ${reading}`)
+    }
+  }
+}
+assert.deepEqual(labelledActionSummaries, [],
+  'an action-summary control is incorrectly presented as the player’s exact words')
+assert.deepEqual(likelyUnmarkedDirectUtterances, [],
+  'likely direct player utterances are missing explicit speechAct metadata')
+
+const embeddedMentionFixture = {
+  text: Object.assign([{ id: 'mendoj' }, { id: 'pyet' }], { optionReading: 'I think we should ask the old woman.' }),
+  speechAct: 'say',
+}
+assert.equal(speechChoiceLabelOf(embeddedMentionFixture), 'You say:',
+  'an embedded mention of asking overrides the authored outer speech act')
+assert.equal(speechChoiceLabelOf({
+  text: Object.assign([{ id: 'cfare' }], { optionReading: 'What happened?' }),
+  speechAct: 'ask',
+}), 'You ask:', 'a direct question no longer uses the authored ask label')
+assert.equal(speechChoiceLabelOf({
+  text: Object.assign([{ id: 'po_yes' }], { optionReading: 'Yes.' }),
+  speechAct: 'answer',
+}), 'You answer:', 'a direct reply no longer uses the authored answer label')
+assert.equal(speechChoiceLabelOf({
+  text: Object.assign([{ id: 'buke' }], { optionReading: 'Bread and salt for the guest.' }),
+  speechAct: 'tell',
+}), 'You tell:', 'a direct report no longer uses the authored tell label')
+assert.equal(speechChoiceLabelOf({
+  text: Object.assign([{ id: 'fol' }], { optionReading: 'Speak with the trader.' }),
+  intent: 'speech', playerIntents: ['speech'],
+}), null, 'a meta-conversation control is incorrectly labelled as exact dialogue')
+
+const speechActCounts = Object.fromEntries(SPEECH_CHOICE_ACTS.map((act) => [act, 0]))
+for (const { option } of speechChoices) speechActCounts[speechChoiceActOf(option)] += 1
+for (const act of ['ask', 'answer', 'tell', 'say']) {
+  assert.ok(speechActCounts[act] > 0, `no ordinary choice exercises the '${act}' speech label`)
+}
+const storyViewSource = await readFile(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
+assert.match(storyViewSource, /speechLabel:\s*speechChoiceLabelOf\(opt\)/,
+  'real story choices do not resolve their player speech label through the shared contract')
+assert.match(storyViewSource, /speechLabel:\s*speechChoiceLabelOf\(opt \|\| \{ text: confuser\.tokens \}\)/,
+  'story confusers do not resolve their player speech label through the shared contract')
+assert.match(storyViewSource, /\[e\.speechLabel, albanianTextOf\(e\.tokens\)\]/,
+  'normal accessible names do not include the player speech label plus Albanian')
+assert.match(storyViewSource, /option-speaker-label[^}]*\{e\.speechLabel\}/,
+  'the visible story choice omits the player speech label')
+
+assert.equal(STORY.eliraEmriBanore, undefined,
+  'Elira still sends one name question through a detached response page')
+const eliraNameOption = STORY.eliraBanore.options.find((option) =>
+  option.effects?.some((effect) => effect.type === 'flag' && effect.id === 'eliraBanoreNameAsked'))
+assert.ok(eliraNameOption, 'Elira has no in-place player-owned name question')
+assert.equal(eliraNameOption.to, 'eliraBanore', 'asking Elira her name leaves the current conversation')
+assert.equal(eliraNameOption.durationHours, 0, 'asking Elira her name advances time')
+assert.ok(eliraNameOption.effects.some((effect) =>
+  effect.type === 'learn' && effect.id === npcIdentityKnowledgeId('elira')),
+'Elira’s in-place name answer does not persist her identity')
+assert.ok(STORY.eliraBanore.text.some((entry) =>
+  [].concat(entry?.cond || []).includes('flag:eliraBanoreNameAsked')
+  && englishReadingOf(lineOf(entry)).includes('My name is Elira.')),
+'Elira’s in-place name question has no gated visible answer')
 
 // The practical-conversation sweep gives recurring neighbours, traders and
 // story informants a player-led, same-place exchange instead of using them
@@ -192,10 +354,13 @@ assert.deepEqual(unregisteredSameNodeTopicMenus({
 // changing it is an editorial language change, not a silent data-count increase.
 const REVIEWED_CONVERSATION_TOPICS = {
   'bridge-core': ['waitQuestion', 'water', 'today', 'forest', 'identity'],
-  'elira-neighbour': ['today', 'work', 'availability', 'waitQuestion'],
+  'elira-neighbour': ['today', 'work', 'availability', 'waitQuestion', 'sleep', 'whereWereYou'],
   'spring-girl': ['water', 'routine', 'village'],
   'forest-guest': ['cold', 'destination', 'alone'],
-  'square-elder': ['well', 'water', 'help', 'seriously', 'meaning', 'clarify', 'repair', 'understood', 'agree', 'forestLore'],
+  'forest-road-mother': ['son', 'rumor', 'help'],
+  'coffeehouse-father': ['happened', 'water', 'rest'],
+  'square-elder': ['well', 'water', 'help', 'seriously', 'meaning', 'clarify', 'repair', 'understood', 'agree', 'forestLore', 'villagePast', 'elderMemory'],
+  'travellers-fire': ['mountain', 'sea', 'homeRoad', 'soldier', 'dragua'],
   'village-shepherd': ['today', 'goats', 'help', 'return'],
   'gjakova-trader': ['cheaper', 'road', 'opening'],
   'gjakova-healer': ['return', 'work', 'bandage', 'forestLore'],
@@ -205,6 +370,7 @@ const REVIEWED_CONVERSATION_TOPICS = {
   'palace-guard': ['blackPalace', 'blockedEntry'],
   'elira-errand': ['guest', 'market', 'guestRoom', 'repair'],
   'market-stall': ['bread', 'prices', 'repair', 'meaning'],
+  'maro-stepmother': ['house', 'daughters', 'work'],
 }
 
 // These reviewed surfaces are the learner-facing anchors for the village's
@@ -220,6 +386,9 @@ const REVIEWED_HUB_SURFACES = [
   ['elira-neighbour', 'today', 'question', "Ç'kemi? Si je sot?", ['ckemi']],
   ['elira-neighbour', 'work', 'question', 'Ça po bën?', ['cfare']],
   ['elira-neighbour', 'waitQuestion', 'question', 'Prit pak; kam një pyetje.', ['prit', 'pyetje']],
+  ['elira-neighbour', 'sleep', 'question', 'a ke fjetur?', ['a_q', 'ke', 'fle']],
+  ['elira-neighbour', 'sleep', 'response', 'ajo thotë: jo, akoma nuk kam fjetur. unë kam një ide. do të fle pas darkës.', ['jo', 'akoma', 'fle', 'ide']],
+  ['elira-neighbour', 'whereWereYou', 'question', 'ku ishe?', ['ku', 'jam']],
   ['square-elder', 'well', 'question', 'Çfarë ndodhi?', ['cfare', 'ndodh']],
   ['square-elder', 'seriously', 'question', 'Seriozisht?', ['seriozisht']],
   ['square-elder', 'meaning', 'question', 'Si domethënë?', ['domethene']],
@@ -282,6 +451,7 @@ const REVIEWED_DEPENDENT_TOPICS = [
   ['square-elder', 'clarify', 'well'],
   ['square-elder', 'repair', 'water'],
   ['square-elder', 'agree', 'help'],
+  ['square-elder', 'elderMemory', 'villagePast'],
   ['gjakova-innkeeper', 'leaveBag', 'bag'],
   ['square-elder', 'understood', 'repair'],
   ['rain-children', 'really', 'reason'],
@@ -386,7 +556,9 @@ for (const nodeId of ['sofraVendimPlaka', 'sofraVendimPusi']) {
   assert.ok(STORY[nodeId].tells?.includes('pusiThate'), `${nodeId}: heard news does not reveal the dry well`)
 }
 assert.deepEqual(STORY.sofraMikut2.text
-  .map((entry) => englishReadingOf(lineOf(entry)))
+  .map((entry) => lineOf(entry))
+  .filter((line) => !line?.playerActionConsequence)
+  .map((line) => englishReadingOf(line))
   .filter((reading) => /^You (?:say|ask|answer|reply|tell)\b/u.test(reading)), [],
 'the guest meal still speaks or asks on the player’s behalf')
 
@@ -415,11 +587,13 @@ for (const [nodeId, node] of Object.entries(STORY)) {
 const LEGACY_SUPPLIED_REPLY_BACKLOG = []
 assert.deepEqual(suppliedPlayerReplies.sort(), LEGACY_SUPPLIED_REPLY_BACKLOG.sort(),
   `NPC-question lines changed without updating the player-agency migration queue:\n${suppliedPlayerReplies.join('\n')}`)
-assert.equal(albanianTextOf(lineOf(STORY.behuriKulla.text[2])), 'Mujo pyet: cila derë?',
+assert.ok(STORY.behuriKulla.text.some((entry) =>
+  albanianTextOf(lineOf(entry)) === 'Mujo pyet: cila derë?'),
   'Mujo’s door question again supplies the answer')
 assert.ok(STORY.behuriKulla.options.some((option) => albanianTextOf(option.text) === 'dera e ahurit.'),
   'the stable-door reply is not an explicit choice')
-assert.equal(albanianTextOf(lineOf(STORY.porosiaBlerje.text[2])), 'fëmija pyet: çfarë ke marrë?',
+assert.ok(STORY.porosiaBlerje.text.some((entry) =>
+  albanianTextOf(lineOf(entry)) === 'fëmija pyet: çfarë ke marrë?'),
   'the child’s market question again supplies the answer')
 const marketAnswer = STORY.porosiaBlerje.options.find((option) =>
   albanianTextOf(option.text) === 'bukë dhe kripë për mikun.')
@@ -674,5 +848,6 @@ for (const directions of Object.values(GROUNDED_DIRECTION_CONTRACTS)) {
 }
 
 console.log(`Conversation hub audit passed: ${Object.keys(CONVERSATION_HUBS).length} hub(s); ` +
+  `${speechChoices.length} player speech choices and ${speechConfusers.length} speech confusers visibly owned; ` +
   `${LEGACY_SUPPLIED_REPLY_BACKLOG.length} legacy supplied replies remain explicitly queued; ` +
   `${Object.keys(GROUNDED_DIRECTION_CONTRACTS).length} grounded direction route(s) verified.`)

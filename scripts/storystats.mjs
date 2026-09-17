@@ -6,7 +6,12 @@ import {
   REVIEWED_UNGATED_AGENCY_CHOICES,
   REVIEWED_UNGATED_RESULT_CHOICES,
 } from '../src/game/narrativeFlow.js'
-import { analyzeDiscovery, sensesOf } from './lib/discovery.mjs'
+import {
+  authoredStoryConfusers,
+  confuserLegibility,
+  confuserPrerequisiteSenseIds,
+  storyConfuserCandidates,
+} from '../src/game/storyConfusers.js'
 
 const nodes = STORY
 const ids = Object.keys(nodes)
@@ -289,17 +294,44 @@ const unreviewedUngatedOnly = ungatedOnly.filter((id) => !REVIEWED_UNGATED_ONLY[
 const staleUngatedReviews = Object.keys(REVIEWED_UNGATED_ONLY).filter((id) => !ungatedOnly.includes(id))
 
 // ---- distractor legibility ---------------------------------------------------
-// A confuser (distractor) should only use words the player can already read when
-// they reach the node: force-discovered on the way in (guaranteed-on-arrival) or
-// visible right now in the scene / real options. A word seen nowhere but inside the
-// distractor itself can't tempt anyone — it's just noise. See scripts/lib/discovery.mjs.
-const { reachable: legReach, legible } = analyzeDiscovery(STORY, START_NODE)
-const illegibleConfusers = []
+// Impossible actions test comprehension; they must never be the first surface
+// from which a learner can discover a word. The canonical runtime registry hides
+// each authored confuser until every trainable sense in it is already discovered.
+// Audit both sides of that boundary across the whole bank: one missing discovery
+// keeps the action absent, while the complete set makes the exact action eligible.
+const confuserLegibilityErrors = []
+let discoveryGatedConfusers = 0
+const confuserState = (nodeId, discovered) => ({
+  nodeId,
+  discovered,
+  inventory: {},
+  hearts: 3,
+  healedAt: {},
+  embodying: null,
+  ended: null,
+  timePassage: null,
+  pendingEmbodiment: null,
+})
 for (const id of ids) {
-  if (nodes[id].end || !legReach.has(id)) continue
-  for (const o of (nodes[id].options || []).filter((o) => o.confuser)) {
-    const bad = sensesOf(o.text).filter((s) => !legible[id].has(s))
-    if (bad.length) illegibleConfusers.push(`${id}: "${o.text.map((t) => t.al || t.en).join(' ')}" — not yet legible: ${bad.join(', ')}`)
+  for (const candidate of authoredStoryConfusers(nodes[id])) {
+    const required = confuserPrerequisiteSenseIds(candidate.tokens)
+    const readyDiscoveries = Object.fromEntries(required.map((senseId) => [senseId, true]))
+    const readyState = confuserState(id, readyDiscoveries)
+    if (!confuserLegibility(readyState, candidate.tokens).legible) {
+      confuserLegibilityErrors.push(`${id}/${candidate.key}: complete discovery set is still illegible`)
+      continue
+    }
+    if (!storyConfuserCandidates(readyState).some((entry) => entry.key === candidate.key)) {
+      confuserLegibilityErrors.push(`${id}/${candidate.key}: complete discovery set did not reveal the confuser`)
+    }
+    if (required.length === 0) continue
+    discoveryGatedConfusers++
+    const missingId = required[0]
+    const missingState = confuserState(id,
+      Object.fromEntries(required.slice(1).map((senseId) => [senseId, true])))
+    if (storyConfuserCandidates(missingState).some((entry) => entry.key === candidate.key)) {
+      confuserLegibilityErrors.push(`${id}/${candidate.key}: visible before '${missingId}' was discovered`)
+    }
   }
 }
 
@@ -359,11 +391,16 @@ console.log(`${ok(!unreviewedUngatedOnly.length && !staleUngatedReviews.length)}
 console.log(`   options gated: ${gatedReal}/${totalReal} (${(100*gatedReal/totalReal).toFixed(0)}% of all); of options that act on something described in the scene, ${gateableGated}/${gateableTotal} (${(100*gateableGated/gateableTotal).toFixed(0)}%) gated`)
 console.log('')
 console.log('--- DISTRACTOR LEGIBILITY (confusers built from already-discovered words) ---')
-console.log(`${ok(!illegibleConfusers.length)} every confuser uses only legible words:${illegibleConfusers.length ? ' VIOLATIONS -> ' + illegibleConfusers.length + '\n   ' + illegibleConfusers.slice(0, 30).join('\n   ') + (illegibleConfusers.length > 30 ? `\n   ... and ${illegibleConfusers.length - 30} more` : '') : ' yes'}`)
+const confuserLegibilityDetail = confuserLegibilityErrors.length
+  ? ' VIOLATIONS -> ' + confuserLegibilityErrors.length + '\n   ' +
+    confuserLegibilityErrors.slice(0, 30).join('\n   ') +
+    (confuserLegibilityErrors.length > 30 ? `\n   ... and ${confuserLegibilityErrors.length - 30} more` : '')
+  : ` yes (${discoveryGatedConfusers} authored confusers fail closed until their vocabulary is discovered)`
+console.log(`${ok(!confuserLegibilityErrors.length)} every presented confuser uses only already-discovered words:${confuserLegibilityDetail}`)
 console.log(`${ok(!climbDistractors.length)} no "climb a climbable thing" distractor:${climbDistractors.length ? ' VIOLATIONS -> ' + climbDistractors.length + '\n   ' + climbDistractors.join('\n   ') : ' yes'}`)
 
 if (deadLinks.length || unreachable.length || deadEnds.length || missingDict.size || missingDefs.length || noConfuser.length ||
     brokenGates.length || noUngated.length || unreviewedCompact.length || staleCompactReviews.length || abruptCompact.length ||
-    unreviewedUngatedOnly.length || staleUngatedReviews.length || ungatedResultReviewErrors.length || illegibleConfusers.length || climbDistractors.length) {
+    unreviewedUngatedOnly.length || staleUngatedReviews.length || ungatedResultReviewErrors.length || confuserLegibilityErrors.length || climbDistractors.length) {
   process.exitCode = 1
 }

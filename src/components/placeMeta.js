@@ -16,11 +16,14 @@ export const PLACE_META = {
   lumi: {
     name: 'qyteti i lumit — the river city',
     continuityReason: 'The opening rescue and interrupted crowning occur here; after the complete hut, Field, hedge and kingdom journey, Handa returns on the promised day, Zjerma crosses the bridge at dawn for the sword-and-fire recognition, and the couple later return after three months with the twins’ mother.',
+    densityReason: 'The river is a genuine shared encounter site: the twins’ saga, the visible Zana and the sleeping Bolla occur at different times on the same bank rather than in invented nearby places.',
     happenings: [
       { title: 'the dry river and its surrounding roads', nodes: ['lumi'] },
       { title: 'Bardhakuqja, the kulshedra and Wolfbelly', nodes: ['binoshetLumi', 'binoshetFund', 'binoshetHije'] },
       { title: 'Zjerma sees the night-long sword and Bardhakuqja crosses the fire', nodes: ['binoshetZjarri'] },
       { title: 'the river king gives Zjerma his staff and crown', nodes: ['binoshetDyKurorat'] },
+      { title: 'the Zana beside the river', nodes: ['zana1'] },
+      { title: 'the sleeping Bolla and Shëngjergj', nodes: ['bolla1', 'bolla2', 'bollaFund'] },
     ],
   },
   binoshetKasollja: {
@@ -69,7 +72,7 @@ export const PLACE_META = {
       { title: 'the book of the Sun', nodes: ['libriDiell'] },
       { title: "the old man's welcome", nodes: ['oda1', 'odaPlak', 'oda2'] },
       { title: 'a song for the lord of the house', nodes: ['kengaLahute'] },
-      { title: "the travellers' tales", nodes: ['udhetaret', 'udhetaretBisede', 'udhetaretBisede2', 'tregMal', 'tregDet', 'tregMujo', 'tregDragua'] },
+      { title: "the travellers' tales", nodes: ['udhetaret', 'tregMujo'] },
       { title: 'the sworn virgin', nodes: ['burrnesha1', 'burrneshaFund'] },
       { title: "Skanderbeg's goats", nodes: ['skender1', 'skender2', 'skenderFund', 'skenderKeq'] },
       { title: 'the lute plays all night', nodes: ['lahuta1', 'lahutaFund'] },
@@ -90,7 +93,7 @@ export const PLACE_META = {
   gjizarTradheti: {
     name: 'pusi i tradhtisë — the betrayal well',
     happenings: [
-      { title: 'the brothers take the nightingale', nodes: ['gjizarTradheti', 'gjizarPus'] },
+      { title: 'the rings and the brothers’ choice', nodes: ['gjizarTradheti', 'gjizarUnazatLena', 'gjizarVellezerRefuz', 'gjizarPus'] },
     ],
   },
   gjizarFund: {
@@ -109,6 +112,13 @@ export const PLACE_META = {
     name: 'streha e dallëndyshes — the swallow\'s eaves',
     happenings: [
       { title: 'the swallow and the serpent', nodes: ['dallendyshe1', 'dallendysheFund', 'dallendysheGjak'] },
+    ],
+  },
+  sheshi: {
+    name: 'sheshi i Gjakovës — the living city square',
+    happenings: [
+      { title: 'the market square, its healer direction and the old gate', nodes: ['sheshi', 'sheshiMjek', 'udhaShenja', 'udhaUdhetari'] },
+      { title: 'bread and alms at the gate', nodes: ['lemoshaFund', 'lemoshaBuke'] },
     ],
   },
   tregtari: {
@@ -187,9 +197,9 @@ export const PLACE_META = {
     happenings: [
       { title: 'the village square', nodes: ['fshatiSheshi'] },
       { title: 'birthday wishes at the family table', nodes: ['fshatiDitelindje', 'fshatiDitelindjeUrim'] },
-      { title: 'meeting and catching up with Elira', nodes: ['eliraShesh', 'eliraEmriShesh', 'eliraBanore', 'eliraEmriBanore', 'eliraBiseda', 'eliraPorosiaDorezuar'] },
+      { title: 'meeting and catching up with Elira', nodes: ['eliraShesh', 'eliraEmriShesh', 'eliraBanore', 'eliraBiseda', 'eliraPorosiaDorezuar'] },
       { title: "Elira's bread-and-salt directions", nodes: ['porosiaShesh'] },
-      { title: "the old man's bench", nodes: ['sheshiPlak', 'sheshiPlak2', 'sheshiPlak3'] },
+      { title: "the old man's bench", nodes: ['sheshiPlak'] },
       { title: 'coffee at the square', nodes: ['kafeneja', 'kafeneja2'] },
     ],
   },
@@ -214,9 +224,27 @@ export const PLACE_META = {
   },
   mali3: {
     name: 'shtegu i lartë — the high mountain path',
+    densityReason: 'The high path holds one continuous storm encounter: the traveller, Shurdhi, i Verbti and Mujo’s horse all remain on the same exposed mountainside while the player chooses whom to heed.',
     happenings: [
       { title: 'the last climb and the storm on the heights', nodes: ['mali3', 'maliStuhi'] },
+      { title: 'Shurdhi and the hailstorm', nodes: ['shurdhi1', 'shurdhiFund'] },
       { title: "Mujo's wary horse accepts a listener and flees a grasping hand", nodes: ['kali1', 'kaliFund', 'kaliIkur'] },
+      { title: 'i Verbti in the storm-fire', nodes: ['verbti1', 'verbtiFund', 'verbtiVdes'] },
+    ],
+  },
+  vajtim1: {
+    name: 'shtëpia e vajtimit — the lament house',
+    happenings: [
+      { title: 'the sickbed, the lahuta and the final lament', nodes: ['vajtim1', 'vajtimFund'] },
+      { title: "the lahuta's account of Mujo's vengeance", nodes: ['mujoHak1', 'mujoHakFund', 'mujoHakKeq'] },
+    ],
+  },
+  zanaProva: {
+    name: 'prova e Zanës — the Zana’s river trial',
+    happenings: [
+      { title: 'the stone, the cradle and the offered gifts', nodes: ['zanaProva', 'zanaProva2'] },
+      { title: 'the gift of strength and salt', nodes: ['zanaQumesht', 'zanaKripe'] },
+      { title: 'gold or knowledge', nodes: ['zanaGold', 'zanaDije'] },
     ],
   },
   kopshtMermer1: {
@@ -227,17 +255,12 @@ export const PLACE_META = {
       { title: 'the goose-girl and the king', nodes: ['patatGruaja', 'mbretiDrejtesi', 'patatHesht'] },
     ],
   },
-  tomor1: {
+  maja: {
     name: 'Baba Tomorr',
     happenings: [
-      { title: "the mountain-father's road", nodes: ['tomor1', 'tomor2', 'tomor3'] },
+      { title: "the summit and the mountain-father's road", nodes: ['maja', 'tomor1', 'tomor2', 'tomor3'] },
       { title: 'the eagles of the summit', nodes: ['majaEagle'] },
       { title: 'the blessing', nodes: ['tomorBekim'] },
-    ],
-  },
-  tomorProva: {
-    name: 'shtegu i stuhisë — the storm path',
-    happenings: [
       { title: "the mountain-father's trials", nodes: ['tomorProva', 'tomorStuhi'] },
     ],
   },
@@ -248,9 +271,15 @@ export const PLACE_META = {
     ],
   },
   shpirag1: {
-    name: 'Mount Shpirag — Berat in the gorge',
+    name: 'Mount Shpirag — the rival ridge',
     happenings: [
-      { title: 'the rival giant', nodes: ['shpirag1', 'tsRast'] },
+      { title: 'the rival giant', nodes: ['shpirag1'] },
+    ],
+  },
+  tsRast: {
+    name: 'rruga mbi Berat — the road above Berat',
+    happenings: [
+      { title: 'Shpirag descends for his cudgel', nodes: ['tsRast'] },
       { title: 'the duel of the mountains', nodes: ['tsBeteje', 'tsFundTomor', 'shpiragFund'] },
     ],
   },
@@ -290,17 +319,12 @@ export const PLACE_META = {
       { title: 'the blinding of the giant', nodes: ['katallanVerbim', 'katallanFund', 'katallanVdes'] },
     ],
   },
-  kordha2: {
-    name: 'ndalesa në pyll — the woodland halt',
-    happenings: [
-      { title: 'the brothers choose their road', nodes: ['kordha2'] },
-    ],
-  },
   kordhaPallat: {
     name: "pallati i të Bukurës — the Beauty's palace",
     happenings: [
       { title: 'the palace of the Beauty of the Earth', nodes: ['kordhaPallat', 'kordhaZjarr'] },
       { title: "the she-dragon's trials", nodes: ['kordhaProva', 'kordhaProvaVdes'] },
+      { title: 'the brothers choose their road', nodes: ['kordha2'] },
       { title: 'the sword and the sea', nodes: ['kordhaFund', 'kordhaDeti'] },
     ],
   },
@@ -322,9 +346,10 @@ export const PLACE_META = {
   },
   udha: {
     name: 'udha buzë lumit — the riverside road',
+    densityReason: 'The road, night shelter and its successive revenant and miser-ghost encounters occupy one continuous roadside stopping place rather than invented destinations reached by listening.',
     happenings: [
       { title: 'the road by the river', nodes: ['udha', 'udheNate', 'udheOra'] },
-      { title: 'the revenant at night', nodes: ['udheLugat'] },
+      { title: 'the revenant at night', nodes: ['udheLugat', 'karkanxholl1', 'karkanxhollFund', 'karkanxhollKeq'] },
       { title: 'the miser-ghost', nodes: ['kukudh1', 'kukudhFund'] },
     ],
   },
@@ -335,17 +360,11 @@ export const PLACE_META = {
       { title: "the maiden's shirt", nodes: ['shtojzovalleNuse'] },
     ],
   },
-  lumiMjeshter: {
-    name: 'oborri i mullirit — the mill yard',
-    happenings: [
-      { title: 'the master of the mill', nodes: ['lumiMjeshter'] },
-    ],
-  },
   mulli1: {
     name: 'mulliri — the working mill',
     distributionReason: 'The working mill, its night threshold, the women’s spring and Maro’s separate mill all cluster along the same watercourse; their distinct location cards preserve those neighboring social and story sites without spreading them artificially.',
     happenings: [
-      { title: 'work at the millstones', nodes: ['mulli1', 'punaMulli', 'mulliFund', 'mulliKeq'] },
+      { title: 'the master and work at the millstones', nodes: ['mulli1', 'lumiMjeshter', 'punaMulli', 'mulliFund', 'mulliKeq'] },
       { title: 'the unseen night workers', nodes: ['xhindMulli', 'xhindMulliFund', 'xhindMulliKeq'] },
     ],
   },
@@ -368,22 +387,19 @@ export const PLACE_META = {
   },
   maroShtepi: {
     name: 'shtëpia e njerkës — the poor house',
+    continuityReason: 'These are successive tale-time visits to the same poor house; chronology deliberately prevents the player from reopening an earlier household beat after the midnight return.',
     happenings: [
       { title: 'the njerka and her daughters', nodes: ['maroShtepi', 'maroNjerka'] },
       { title: 'answering to the name (Maro Përhitura)', nodes: ['maroNisja', 'maroLiloNis', 'maroLiloKthim'] },
       { title: 'news of the prince', nodes: ['maroLajmi'] },
+      { title: 'home after the midnight feast', nodes: ['maroKthyerShtepi'] },
+      { title: 'the wedding party reaches the house', nodes: ['maroKrushqit'] },
     ],
   },
   maroIkja: {
     name: 'udha e mesnatës — the midnight road',
     happenings: [
       { title: 'the flight from the feast', nodes: ['maroIkja'] },
-    ],
-  },
-  maroKrushqit: {
-    name: 'udha e krushqve — the wedding road',
-    happenings: [
-      { title: 'the wedding party reaches the house', nodes: ['maroKrushqit'] },
     ],
   },
   maroPrincesha: {
@@ -452,12 +468,13 @@ export const PLACE_META = {
     happenings: [
       { title: 'the hamlet and its song', nodes: ['jutbina', 'kengaJutbina'] },
       { title: 'Halil Garria returns home', nodes: ['halilGarriaFund'] },
+      { title: "Halili's summons and refusal", nodes: ['haliliDeka', 'haliliJeton'] },
     ],
   },
   odaJutbina: {
     name: 'oda e Jutbinës — the great guest-room',
     happenings: [
-      { title: "Halili's wound and duel", nodes: ['odaJutbina', 'haliliDeka', 'haliliJeton'] },
+      { title: 'the guest-room', nodes: ['odaJutbina'] },
       { title: "Mujo's dawn coffee and Behuri muster", nodes: ['behuriJutbina'] },
     ],
   },
@@ -579,6 +596,7 @@ export const PLACE_META = {
     name: 'strofulla e kulshedrës — the she-dragon’s lair',
     happenings: [
       { title: 'the duel with the Kulshedra', nodes: ['kulshedra1', 'kulshLufte1', 'kulshLufte2', 'fitorja'] },
+      { title: 'the lightning-maiden descends into the duel', nodes: ['bijaHene1', 'bijaHeneFund'] },
       { title: 'the dragua intervenes', nodes: ['dranguasi'] },
     ],
   },
@@ -644,6 +662,7 @@ export const PLACE_META = {
     happenings: [
       { title: 'the journey for Tanusha', nodes: ['mujo1', 'mujo2', 'mujo3'] },
       { title: 'captivity and rescue', nodes: ['mujo4', 'mujoFund'] },
+      { title: "Omer's story in Mujo's tower", nodes: ['omer1', 'omer2', 'omerFund'] },
     ],
   },
   detiThelle1: {

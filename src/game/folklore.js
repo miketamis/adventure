@@ -1935,6 +1935,8 @@ export const ENDING_LORE = {
 
   // Gjizar the Nightingale
   gjizarKap: 'gjizar',
+  gjizarUnazatLena: 'gjizar',
+  gjizarVellezerRefuz: 'gjizar',
   gjizarPus: 'gjizar',
   gjizarFund: 'gjizar',
 

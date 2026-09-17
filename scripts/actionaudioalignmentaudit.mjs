@@ -8,11 +8,10 @@ import {
   collectAcceptedActionSurfaces,
 } from './lib/action-audio-surfaces.mjs'
 import { STORY } from '../src/game/content.js'
-import { newRun } from '../src/game/gameState.js'
 import {
   CERTIFIED_DYNAMIC_ITEM_CONFUSER_ITEM_IDS,
+  authoredStoryConfusers,
   certifiedDynamicItemConfuserSurfaces,
-  storyConfuserCandidates,
 } from '../src/game/storyConfusers.js'
 import { albanianTextOf } from '../src/game/language.js'
 
@@ -23,8 +22,8 @@ const surfaceSet = new Set(surfaces)
 
 let confuserCount = 0
 for (const [nodeId, node] of Object.entries(STORY)) {
-  const candidates = storyConfuserCandidates({ ...newRun(), nodeId })
-  assert.equal(candidates.filter((candidate) => candidate.kind === 'authored').length,
+  const candidates = authoredStoryConfusers(node)
+  assert.equal(candidates.length,
     (node.options || []).filter((option) => option.confuser).length,
     `${nodeId}: accepted confuser enumeration omitted an authored surface`)
   for (const candidate of candidates) {
@@ -63,7 +62,13 @@ for (const transcript of surfaces) {
   let previousStart = -1
   for (const [index, word] of entry.words.entries()) {
     assert.equal(word.text.toLocaleLowerCase('sq'), expectedWords[index].toLocaleLowerCase('sq'))
-    assert.equal(transcript.slice(word.charStart, word.charEnd), word.text)
+    // Capitalisation variants intentionally share one pronunciation file and
+    // timing entry. Character offsets must still select the exact same letters
+    // in the rendered action; casing is presentation-only for this comparison.
+    assert.equal(
+      transcript.slice(word.charStart, word.charEnd).toLocaleLowerCase('sq'),
+      word.text.toLocaleLowerCase('sq'),
+    )
     assert.ok(word.startMs >= previousStart, `${transcript}: word boundaries are not monotonic`)
     assert.ok(word.endMs > word.startMs, `${transcript}: zero-length word boundary`)
     assert.ok(word.endMs <= entry.storedDurationMs, `${transcript}: word exceeds MP3 duration`)

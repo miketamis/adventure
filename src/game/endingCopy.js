@@ -368,6 +368,14 @@ export const ENDING_COPY = Object.freeze({
     "title": "Caught in the Palace",
     "blurb": "You woke the Earthly Beauty. In her own palace, far down the road of no return, she keeps Gjizar the nightingale in a golden cage — and the thief who reaches for it loudly, instead of slipping the cage away after lighting the four unlit lamps and extinguishing the four dying ones while she sleeps, she catches in her own hands. Some birds are only won quietly."
   },
+  "gjizarUnazatLena": {
+    "title": "The Rings Beneath the Stone",
+    "blurb": "You left the three rings where they lay. Without that proof, your brothers did not recognize the traveller who had won Gjizar, and the bird remained silent among strangers. The road of no return ended beside the stones."
+  },
+  "gjizarVellezerRefuz": {
+    "title": "The Brothers Refused",
+    "blurb": "You recognized your brothers but refused their invitation. They left without Gjizar, while the three eagle-sisters kept watch beside the stones. At dawn the nightingale sang for the one who had truly won him, beyond the betrayal that would otherwise have waited on the homeward road."
+  },
   "gjizarPus": {
     "title": "Silent in the Cage",
     "blurb": "You stayed in the well, and let your brothers carry Gjizar off and claim him for the king. But the nightingale will not sing for the false hands that stole him from the one who truly won him — so they had a silent bird in a golden cage, and you the dark at the bottom of a well. A bird won by treachery never sings."
@@ -750,7 +758,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "maroPrincesha": {
     "title": "The Wary Princess",
-    "blurb": "The shoes fit, the golden clothes fit, and the prince named you his before the whole road — and when your stepmother's daughters wept their big dry-eyed tears and begged to be taken along, you looked at the hands that had loaded you for the xhindet's mill and left without a word. In the tale, Maro forgives: she brings them near, and her mercy carries a bewitched needle to her childbed. You were warier than the tale, and no needle ever came near your boy. The old people would say you lost a little of her goodness and kept all of her gold — the story is kinder, but yours is safer, and both are true of the same night at the mill."
+    "blurb": "The shoes fit, the golden clothes fit, and the prince named you his before the whole road. But when your stepmother tried to follow you into palace life, you kept her at a distance. In the tale, Maro forgives: she brings the family near, and her mercy carries a bewitched needle to her childbed. You were warier than the tale, and no needle ever came near your boy. The old people would say you lost a little of her goodness and kept all of her gold — the story is kinder, but yours is safer, and both are true of the same night at the mill."
   },
   "maroFundi": {
     "title": "To This Very Day",

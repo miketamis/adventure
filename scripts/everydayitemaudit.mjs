@@ -18,6 +18,7 @@ import { hasCond, newRun } from '../src/game/gameState.js'
 import { EVERYDAY_GOOD_PRICES } from '../src/game/economy.js'
 import { albanianTextOf } from '../src/game/language.js'
 import { observationIdFromCondition } from '../src/game/observations.js'
+import { playerActionConditionId } from '../src/game/playerActionRuntime.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { optionEffectsOf, optionLekDelta } from '../src/game/stateMechanics.js'
 
@@ -160,18 +161,20 @@ for (const [itemId, price] of Object.entries(EVERYDAY_GOOD_PRICES)) {
 const campfire = action('lendina', 'light-campfire')
 assert.equal(requirementIncludes(campfire, 'cakmak'), true, 'lighter cannot light the campfire')
 assert.equal(effectsInclude(campfire, 'fixture', 'campfire'), true, 'lighter does not activate the generic campfire fixture')
-const lighterFireConsequence = consequence('lendina', 'flag:fireLitWithLighter')
+const lighterActionCondition = playerActionConditionId('world-item:light-campfire')
+const lighterFireConsequence = consequence('lendina', lighterActionCondition)
 assert.ok(lighterFireConsequence, 'campfire lighter action has no story consequence')
 assert.equal(condIncludes(lighterFireConsequence, 'fixture:campfire:live'), true, 'lighter consequence outlives the timed fire')
 const lighterFireLine = lineOf(lighterFireConsequence)
-const litCamp = { ...newRun(), nodeId: 'lendina', clock: 13, flags: { fireLitWithLighter: true }, fixtures: { campfire: 13 } }
+const campfireChoiceIndex = STORY.lendina.options.indexOf(campfire)
+const litCamp = { ...newRun(), nodeId: 'lendina', cameFrom: 'lendina', choiceIndex: campfireChoiceIndex, clock: 13, fixtures: { campfire: 13 } }
 const coldCamp = { ...litCamp, clock: 21 }
 assert.equal(visibleLines(STORY.lendina, (id) => hasCond(litCamp, id)).includes(lighterFireLine), true, 'lighter consequence is missing while its fire burns')
 assert.equal(visibleLines(STORY.lendina, (id) => hasCond(coldCamp, id)).includes(lighterFireLine), false, 'lighter consequence remains present after its fire expires')
 const vigil = action('varret1', 'light-vigil-candle')
 assert.equal(requirementIncludes(vigil, 'cakmak'), true, 'lighter cannot light the vigil candle')
-assert.equal(effectsInclude(vigil, 'flag', 'vigilLitWithLighter'), true, 'vigil action records no lasting consequence')
-assert.match(albanianTextOf(lineOf(consequence('varretFund', 'flag:vigilLitWithLighter'))), /çakmaku ndez qiriun/, 'vigil consequence does not mention the lighter lighting the candle')
+assert.equal(vigil.playerAction?.id, 'grave-light-vigil-candle-with-lighter', 'vigil action has no exact arrival receipt')
+assert.match(albanianTextOf(lineOf(consequence('varretFund', playerActionConditionId(vigil.playerAction.id)))), /ti përdor çakmakun dhe ndez qiriun/, 'vigil consequence does not mention the player using the lighter to light the candle')
 
 for (const [nodeId, id] of [['kroi1', 'fill-bottle-at-spring'], ['pusiThate', 'draw-bottle-from-well']]) {
   const fill = action(nodeId, id)

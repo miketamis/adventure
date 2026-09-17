@@ -9,6 +9,15 @@ import {
   ACTION_SEMANTIC_KINDS,
   SEMANTIC_FACT_KINDS,
 } from './actionSemanticsRuntime.js'
+import {
+  canonicalPlayerActionId,
+  playerActionConditionId,
+} from './playerActionRuntime.js'
+import {
+  observationConditionId,
+  observationIdOfLine,
+} from './observations.js'
+import { questDefinitionOf } from './quests.js'
 export {
   ACTION_SEMANTIC_KINDS,
   SEMANTIC_FACT_KINDS,
@@ -51,9 +60,37 @@ const navigationGraphCache = new WeakMap()
 
 const ACCOMPANIMENT_READING = /(?:\bfollow\b|\baccompan(?:y|ies|ied|ying)\b|\bjoin\b|\bgo\b[^.!?]*\balongside\b|\bset out\b[^.!?]*\bbeside\b|\b(?:go|walk|come|climb|leave|return|fly|sail|ride|run|travel|cross|descend|ascend)\b[^.!?]*(?:\bwith\b|\btogether\b)|(?:\bwith\b|\btogether\b)[^.!?]*\b(?:go|walk|come|climb|leave|return|fly|sail|ride|run|travel|cross|descend|ascend)\b)/i
 const NON_ACCOMPANIMENT_JOIN_READING = /\bjoin\b[^.!?]*\b(?:dance|fight|battle|game|song|feast|circle)\b/i
-const SPOKEN_DEPARTURE_AGREEMENT_READING = /\bI\s+(?:(?:am|'m)\s+|(?:will|'ll)\s+)?(?:come|coming|go|going|walk|walking|follow|following|join|joining|accompany|accompanying|leave|leaving|travel|travelling|traveling)\b/i
+const SPOKEN_DEPARTURE_AGREEMENT_READING = /(?:\b(?:I|we)\s+(?:(?:am|'m|are|'re)\s+|(?:will|'ll)\s+)?|\blet us\s+)(?:come|coming|go|going|walk|walking|follow|following|join|joining|accompany|accompanying|leave|leaving|travel|travelling|traveling)\b/i
 const ACQUISITION_READING = /^(?:take|pick up|collect|gather|receive|keep)\b/i
 const ACQUISITION_TOKEN_IDS = new Set(['merr', 'mbledh'])
+const ORDINARY_TARGET_ACTIONS = Object.freeze({
+  degjo: { kind: 'listen', reading: /^Listen to (?!what\b|their\b)/i },
+  fol: { kind: 'speech', reading: /^Speak (?:with|to)\b/i },
+  thirr: { kind: 'speech', reading: /^Call\b/i },
+  jep: { kind: 'transfer', reading: /^Give\b/i },
+  perdor: { kind: 'use', reading: /^Use\b/i },
+  lufto: { kind: 'combat', reading: /^Fight (?!with\b)/i },
+  ndihmo: { kind: 'help', reading: /^Help\b/i },
+  prek: { kind: 'use', reading: /^Touch\b/i },
+  hap: { kind: 'use', reading: /^Open\b/i },
+  kap: { kind: 'use', reading: /^Catch\b/i },
+  kerko: { kind: 'search', reading: /^(?:Look|Search) for\b/i },
+  shiko: { kind: 'observe', reading: /^(?:Look at (?!what\b|how\b|where\b)|Watch (?!what\b|how\b|where\b)|Examine\b)/i },
+  // Bare English “see” is often a social farewell (“See you later”) or a
+  // clause-taking cognition (“See what happens”), neither of which names an
+  // object that must already be present. Keep only direct perceptual readings.
+  sheh: { kind: 'observe', reading: /^(?:Look at (?!what\b|how\b|where\b)|Watch (?!what\b|how\b|where\b)|Examine\b)/i },
+})
+const ORDINARY_TARGET_GRAMMAR_IDS = new Set([
+  'ti', 'ju', 'une', 'nje', 'e_art', 'i_art', 'e_link', 'i_link', 'te_link', 'te_obj',
+  'te_subj', 'ne', 'nga', 'tek', 'me', 'dhe', 'ose', 'per', 'pa', 'tani', 'pak',
+  'shume', 'pasi', 'drejt', 'lart', 'poshte', 'bashke',
+  ...Object.keys(ORDINARY_TARGET_ACTIONS),
+])
+const NON_ENTITY_ORDINARY_TARGET_IDS = new Set([
+  'cfare', 'kujdes', 'perseri', 'tjeter', 'tyre', 'mire', 'keq', 'fuqi', 'bekim',
+  'prit', 'pasi', 'laj', 'dore',
+])
 const NON_TARGET_TOKEN_IDS = new Set([
   'ti', 'ju', 'une', 'nje', 'e_art', 'i_art', 'te_link', 'te_obj', 'te_subj',
   'ne', 'nga', 'tek', 'me', 'dhe', 'ose', 'tani', 'pak', 'shume',
@@ -157,9 +194,14 @@ function visibilityConditions(entry) {
 
 function optionEntailsLine(option, entry) {
   if (lineOf(entry)?.scenePriority === 'ambient') return false
-  const lineConditions = visibilityConditions(entry)
   const optionRequired = new Set([].concat(option?.requires || []).filter(Boolean))
   const optionExcluded = new Set([].concat(option?.unless || []).filter(Boolean))
+  const observationId = observationIdOfLine(lineOf(entry))
+  if (observationId && (
+    option?.attentionGate?.id !== observationId
+    || !optionRequired.has(observationConditionId(observationId))
+  )) return false
+  const lineConditions = visibilityConditions(entry)
   return lineConditions.required.every((id) => optionRequired.has(id))
     && lineConditions.excluded.every((id) => optionExcluded.has(id))
 }
@@ -219,8 +261,13 @@ function sourceCueEvidence(story, nodeId, node, option, targetIds) {
     const retiresIntoLearnedRoute = !Array.isArray(entry)
       && entry.negate
       && [].concat(entry.cond || []).includes(`visited:${option?.to}`)
+    const observationId = observationIdOfLine(lineOf(entry))
+    const sharesObservationGate = observationId
+      && [].concat(option?.requires || []).includes(observationConditionId(observationId))
+      && option?.attentionGate?.id === observationId
     if (entry === revealEntry
       || optionEntailsLine(option, entry)
+      || sharesObservationGate
       || complementaryCoverage
       || retiresIntoLearnedRoute
       || sourceLineGuaranteedByIngress(story, nodeId, option, entry)) {
@@ -228,6 +275,91 @@ function sourceCueEvidence(story, nodeId, node, option, targetIds) {
     }
   }
   return Object.freeze(matches)
+}
+
+// Ordinary target-bearing actions use the same source-evidence rule as named
+// movement. A listener cannot choose a lute that only appears on the answer
+// page; a speaker, fighter, giver, or tool user likewise needs the named
+// person/object to be visible now or established by canonical state. Keep the
+// candidate boundary deliberately grammatical and based on reviewed option
+// readings: broad verb matching would mistake “listen carefully” and “fight
+// with strength” for actions naming a physical target.
+export function ordinaryActionTargetReview(story, nodeId, option) {
+  if (!option || option.confuser) {
+    return Object.freeze({ candidate: false, issues: Object.freeze([]) })
+  }
+  // Exact utterances can contain imperatives and object verbs inside the
+  // words the player chooses to say (for example “Give me bread, please”).
+  // They are governed by the speaker/actor contract, not by the physical
+  // target contract for actually giving, fighting, opening, or touching.
+  if (option.intent === 'speech' || option.playerIntents?.includes('speech')) {
+    return Object.freeze({ candidate: false, issues: Object.freeze([]) })
+  }
+  const ids = (option.text || []).map((token) => token?.id).filter(Boolean)
+  // Locate the actual governed action rather than assuming it is the first
+  // content token. Discourse and timing leads such as “tani dëgjo …” must not
+  // hide the target, and context-observation metadata does not waive the
+  // visible-source requirement for a named person or object.
+  const actionId = ids.find((id) => ORDINARY_TARGET_ACTIONS[id])
+  const spec = ORDINARY_TARGET_ACTIONS[actionId]
+  const reviewedReading = option.text?.optionReading || option.text?.reading || ''
+  if (!spec || !spec.reading.test(reviewedReading)) {
+    return Object.freeze({ candidate: false, issues: Object.freeze([]) })
+  }
+
+  const actionIndex = ids.indexOf(actionId)
+  const unboundedTail = ids.slice(actionIndex + 1)
+  // A source/origin adjunct is context for the transfer, not another thing
+  // being given ("give the bread from the pack", "take it from the king").
+  // Stop before it instead of treating every content word in the sentence as
+  // a direct object or recipient.
+  const adjunctIndex = spec.kind === 'transfer'
+    ? unboundedTail.findIndex((id) => id === 'nga' || id === 'prej')
+    : -1
+  const directTail = adjunctIndex >= 0 ? unboundedTail.slice(0, adjunctIndex) : unboundedTail
+  const candidates = unique(directTail.filter((id) =>
+    !ORDINARY_TARGET_GRAMMAR_IDS.has(id) && !NON_ENTITY_ORDINARY_TARGET_IDS.has(id)))
+  // Direct speech/listen/combat/use actions name one target. Transfers may
+  // name both the object and recipient, and both presuppositions matter.
+  const targetIds = spec.kind === 'transfer' ? candidates : candidates.slice(0, 1)
+  const node = story?.[nodeId]
+  const stateIds = new Set([
+    ...[].concat(option.requires || []).filter(Boolean),
+    ...[].concat(option.consumes || []).filter(Boolean),
+  ])
+  const turnInQuest = spec.kind === 'transfer' && option.questAction?.action === 'turn-in'
+    ? questDefinitionOf(option.questAction.id)
+    : null
+  const turnInObjectiveItems = new Set((turnInQuest?.objectives || [])
+    .filter((objective) => objective?.predicate?.type === 'inventory')
+    .map((objective) => objective.predicate.id))
+  const evidence = targetIds.map((targetId) => {
+    const scene = sourceCueEvidence(story, nodeId, node, option, [targetId])
+    const state = stateIds.has(targetId)
+      || stateIds.has(`npc:${targetId}`)
+      || (targetId === 'lek' && Number(option.lek) < 0)
+      // A canonical quest turn-in is offered only when its registered
+      // objectives are held. Do not require prose to pretend the handed-over
+      // objects are lying in the room as well.
+      || turnInObjectiveItems.has(targetId)
+    return Object.freeze({ targetId, scene, state })
+  })
+  const issues = []
+  if (!targetIds.length) {
+    issues.push(`${spec.kind} action has no identifiable target`)
+  }
+  for (const target of evidence) {
+    if (!target.scene.length && !target.state) {
+      issues.push(`${spec.kind} target '${target.targetId}' is not established by visible current-scene evidence or canonical state`)
+    }
+  }
+  return Object.freeze({
+    candidate: true,
+    kind: spec.kind,
+    targetIds: Object.freeze(targetIds),
+    evidence: Object.freeze(evidence),
+    issues: Object.freeze(issues),
+  })
 }
 
 function persistentRouteConditions(option) {
@@ -413,6 +545,7 @@ function destinationLineEntailed(option, entry, sourceId) {
   }
   if (option?.grant) required.add(option.grant)
   if (option?.consumes) excluded.add(option.consumes)
+  required.add(playerActionConditionId(canonicalPlayerActionId(sourceId, option)))
   return lineConditions.required.every((id) => conditionEntailed(id, required, sourceId))
     && lineConditions.excluded.every((id) => excluded.has(id))
 }
@@ -598,6 +731,8 @@ export function actionSemanticContinuityIssues(story, {
       const candidate = isAccompanimentCandidate(option)
       const semantic = option?.actionSemantics
       issues.push(...genericAffordanceIssues(label, nodeId, node, option, story))
+      const ordinaryTargetReview = ordinaryActionTargetReview(story, nodeId, option)
+      issues.push(...ordinaryTargetReview.issues.map((issue) => `${label}: ${issue}`))
       const navigationReview = soloNavigationAffordanceReview(story, nodeId, option, { placeOf })
       issues.push(...navigationReview.issues.map((issue) => `${label}: ${issue}`))
       if (option.semanticLeadClassification) {

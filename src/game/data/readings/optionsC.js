@@ -24,11 +24,12 @@ export const OPTION_READINGS_C = Object.freeze({
   "zbritjaThelle.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 1088
   "zbritjaThelle.options[2]": { al: "lufto dragoin", en: "Fight the dragon.", review: 'internal-editorial' }, // 1089
   "zbritjaThelle.options[3]": { al: "dëgjo errësirën", en: "Listen to the darkness.", review: 'internal-editorial' }, // 1090
-  "qeniGate.options[0]": { al: "Ora të ndihmon", en: "The Ora helps you.", review: 'internal-editorial' }, // 1091
+  "qeniGate.options[0]": { al: "thirr Orën.", en: "Call the Ora.", review: 'internal-editorial' }, // 1091
   "qeniGate.options[1]": { al: "jep bukë qenit", en: "Give bread to the dog.", review: 'internal-editorial' }, // 1092
   "qeniGate.options[2]": { al: "kalo qenin", en: "Pass the dog.", review: 'internal-editorial' }, // 1093
-  "qeniGate.options[3]": { al: "lufto derën", en: "Fight the door.", review: 'internal-editorial' }, // 1094
-  "qeniGate.options[4]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 1095
+  "qeniGate.options[3]": { al: "kalo nëpër derën.", en: "Pass through the doorway.", review: 'internal-editorial' },
+  "qeniGate.options[4]": { al: "lufto derën", en: "Fight the door.", review: 'internal-editorial' }, // 1094
+  "qeniGate.options[5]": { al: "zbrit në pusin", en: "Go down into the well.", review: 'internal-editorial' }, // 1095
   "majaEagle.options[0]": { al: "dëgjo Tomor", en: "Listen to Tomorr.", review: 'internal-editorial' }, // 1096
   "majaEagle.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 1097
   "majaEagle.options[2]": { al: "ngjit shqiponjën", en: "Climb the eagle.", review: 'internal-editorial' }, // 1098
@@ -70,7 +71,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "dordolec2.options[0]": { al: "shko me fëmijët", en: "Go with the children.", review: 'internal-editorial' }, // 1133
   "dordolec2.options[2]": { al: "hidh diellin", en: "Throw the sun.", review: 'internal-editorial' }, // 1135
   "bolla1.options[0]": { al: "prit Shëngjergjin", en: "Wait for St George’s Day.", review: 'internal-editorial' }, // 1136
-  "bolla1.options[1]": { al: "kthehu në lumë", en: "Return to the river.", review: 'internal-editorial' }, // 1137
   "bolla1.options[2]": { al: "hap lumin", en: "Open the river.", review: 'internal-editorial' }, // 1138
   "bolla2.options[0]": { al: "vrit bollën", en: "Kill the bolla.", review: 'internal-editorial' }, // 1139
   "bolla2.options[1]": { al: "ik shpejt", en: "Flee quickly.", review: 'internal-editorial' }, // 1140
@@ -143,34 +143,17 @@ export const OPTION_READINGS_C = Object.freeze({
   "oda1.options[6]": { al: "fle këtu", en: "Sleep here.", review: 'internal-editorial' }, // 1207
   "oda1.options[7]": { al: "dil jashtë", en: "Go outside.", review: 'internal-editorial' }, // 1208
   "oda1.options[8]": { al: "dëgjo bukën", en: "Listen to the bread.", review: 'internal-editorial' }, // 1209
-  "odaPlak.options[0]": { al: "thuaj: faleminderit", en: "Say, “Thank you.”", review: 'internal-editorial' }, // 1210
   "odaPlak.options[1]": { al: "lut fëmijën", en: "Plead with the child.", review: 'internal-editorial' }, // 1211
-  "udhetaret.options[0]": { al: "dëgjo për mal", en: "Hear about the mountain.", review: 'internal-editorial' }, // 1212
-  "udhetaret.options[1]": { al: "dëgjo për det", en: "Hear about the sea.", review: 'internal-editorial' }, // 1213
-  "udhetaret.options[2]": { al: "dëgjo për Mujo", en: "Hear about Mujo.", review: 'internal-editorial' }, // 1214
-  "udhetaret.options[3]": { al: "dëgjo për trimin", en: "Hear about the hero.", review: 'internal-editorial' }, // 1215
-  "udhetaret.options[4]": { al: "dëgjo plakën", en: "Listen to the old woman.", review: 'internal-editorial' }, // 1216
-  "udhetaret.options[5]": { al: "fol me udhëtarin", en: "Speak with the traveller.", review: 'internal-editorial' }, // 1217
-  "udhetaret.options[6]": { al: "këndo me lahutën", en: "Sing with the lute.", review: 'internal-editorial' }, // 1218
-  "udhetaret.options[7]": { al: "lër udhëtarët", en: "Leave the travellers.", review: 'internal-editorial' }, // 1219
-  "udhetaret.options[8]": { al: "sheh detin", en: "See the sea.", review: 'internal-editorial' }, // 1220
-  "udhetaret.options[10]": { al: "dëgjo në det", en: "Listen in the sea.", review: 'internal-editorial' }, // 1222
+  "udhetaret.options[5]": { al: "dëgjo për Mujo", en: "Hear about Mujo.", review: 'internal-editorial' }, // 1214
+  "udhetaret.options[6]": { al: "dëgjo për trimin", en: "Hear about the hero.", review: 'internal-editorial' }, // 1215
+  "udhetaret.options[7]": { al: "këndo me lahutën", en: "Sing with the lute.", review: 'internal-editorial' }, // 1218
+  "udhetaret.options[8]": { al: "lër udhëtarët", en: "Leave the travellers.", review: 'internal-editorial' }, // 1219
+  "udhetaret.options[9]": { al: "sheh detin", en: "See the sea.", review: 'internal-editorial' }, // 1220
+  "udhetaret.options[11]": { al: "dëgjo në det", en: "Listen in the sea.", review: 'internal-editorial' }, // 1222
   "kengaLahute.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1223
   "kengaLahute.options[2]": { al: "këndo për lek", en: "Sing for a lek.", review: 'internal-editorial' }, // 1224
   "kengaLahute.options[3]": { al: "jep burra", en: "Give men.", review: 'internal-editorial' }, // 1225
   "kengaLahute.options[4]": { al: "dëgjo tetëqind", en: "Listen to eight hundred.", review: 'internal-editorial' }, // 1226
-  "udhetaretBisede.options[0]": { al: "dëgjo udhëtarin", en: "Listen to the traveller.", review: 'internal-editorial' }, // 1227
-  "udhetaretBisede.options[1]": { al: "dëgjo të tjerët", en: "Listen to the others.", review: 'internal-editorial' }, // 1228
-  "udhetaretBisede.options[2]": { al: "shko idenë", en: "Go to the idea.", review: 'internal-editorial' }, // 1229
-  "udhetaretBisede2.options[0]": { al: "dëgjo të tjerët", en: "Listen to the others.", review: 'internal-editorial' }, // 1230
-  "udhetaretBisede2.options[1]": { al: "lufto rrugën", en: "Fight the road.", review: 'internal-editorial' }, // 1231
-  "tregMal.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1232
-  "tregMal.options[1]": { al: "shko në mjekrën", en: "Go into the beard.", review: 'internal-editorial' }, // 1233
-  "tregMal.options[3]": { al: "ngjit demin", en: "Climb the bull.", review: 'internal-editorial' }, // 1235
-  "tregDet.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1236
-  "tregDet.options[1]": { al: "merr detin", en: "Take the sea.", review: 'internal-editorial' }, // 1237
-  "tregDet.options[2]": { al: "dëgjo detin", en: "Listen to the sea.", review: 'internal-editorial' }, // 1238
-  "tregDet.options[3]": { al: "merr udhëtarin", en: "Take the traveller.", review: 'internal-editorial' }, // 1239
   "tregMujo.options[0]": { al: "dëgjo lahutën", en: "Listen to the lute.", review: 'internal-editorial' }, // 1240
   "tregMujo.options[1]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1241
   "tregMujo.options[2]": { al: "lufto Jutbinën", en: "Fight Jutbina.", review: 'internal-editorial' }, // 1242
@@ -192,10 +175,6 @@ export const OPTION_READINGS_C = Object.freeze({
   "burrnesha1.options[2]": { al: "vesh besën", en: "Wear the besa.", review: 'internal-editorial' }, // 1261
   "burrnesha1.options[3]": { al: "dëgjo armën", en: "Listen to the weapon.", review: 'internal-editorial' }, // 1262
   "burrnesha1.options[4]": { al: "premto armën", en: "Promise the weapon.", review: 'internal-editorial' }, // 1263
-  "tregDragua.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1264
-  "tregDragua.options[1]": { al: "sheh këmishën", en: "See the birth caul.", review: 'internal-editorial' }, // 1265
-  "tregDragua.options[3]": { al: "dëgjo dragoin", en: "Listen to the dragon.", review: 'internal-editorial' }, // 1267
-  "oda2.options[0]": { al: "dëgjo plakun", en: "Listen to the old man.", review: 'internal-editorial' }, // 1268
   "oda2.options[1]": { al: "kthehu në fshatin", en: "Return to the village.", review: 'internal-editorial' }, // 1269
   "oda2.options[2]": { al: "ha lotët", en: "Eat the tears.", review: 'internal-editorial' }, // 1270
   "mujo1.options[0]": { al: "ndihmo Halili", en: "Help Halil.", review: 'internal-editorial' }, // 1271
@@ -292,11 +271,11 @@ export const OPTION_READINGS_C = Object.freeze({
   "qiellErera1.options[4]": { al: "godit erën", en: "Strike the wind.", review: 'internal-editorial' }, // 1361
   "qiellErera1.options[5]": { al: "lufto majën", en: "Fight the summit.", review: 'internal-editorial' }, // 1362
   "qiellErera2.options[0]": { al: "mbyll sy", en: "Close your eyes.", review: 'internal-editorial' }, // 1363
-  "qiellErera2.options[1]": { al: "shih i Verbti", en: "Look at the Blind One.", review: 'internal-editorial' }, // 1364
-  "qiellErera2.options[2]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1365
-  "qiellErera2.options[3]": { al: "godit malin", en: "Strike the mountain.", review: 'internal-editorial' }, // 1366
-  "qiellErera2.options[4]": { al: "godit zjarrin", en: "Strike the fire.", review: 'internal-editorial' }, // 1367
-  "qiellErera2.options[5]": { al: "sheh breshrin", en: "See the hail.", review: 'internal-editorial' }, // 1368
+  "qiellErera2.options[2]": { al: "shih i Verbti", en: "Look at the Blind One.", review: 'internal-editorial' }, // 1364
+  "qiellErera2.options[3]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 1365
+  "qiellErera2.options[4]": { al: "godit malin", en: "Strike the mountain.", review: 'internal-editorial' }, // 1366
+  "qiellErera2.options[5]": { al: "godit zjarrin", en: "Strike the fire.", review: 'internal-editorial' }, // 1367
+  "qiellErera2.options[6]": { al: "sheh breshrin", en: "See the hail.", review: 'internal-editorial' }, // 1368
   "qiell2.options[0]": { al: "jep dem", en: "Give a bull.", review: 'internal-editorial' }, // 1369
   "qiell2.options[1]": { al: "fal gjak", en: "Forgive the blood debt.", review: 'internal-editorial' }, // 1370
   "qiell2.options[2]": { al: "bie në tokë", en: "Fall to the ground.", review: 'internal-editorial' }, // 1371
@@ -337,9 +316,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "gruaUji1.options[5]": { al: "mirupafshim.", en: "Goodbye.", review: 'internal-editorial' },
   "gruaUji1.options[6]": { al: "fol me pusin", en: "Speak with the well.", review: 'internal-editorial' }, // 1402
   "lumiMjeshter.options[0]": { al: "ec me plakun", en: "Walk with the old man.", review: 'internal-editorial' }, // 1403
-  "lumiMjeshter.options[1]": { al: "kthehu te mulli", en: "Return to the mill.", review: 'internal-editorial' }, // 1404
   "lumiMjeshter.options[2]": { al: "tregoj mullirin", en: "Tell the mill.", review: 'internal-editorial' }, // 1405
-  "fushaMulli.options[0]": { al: "merr punën", en: "Take the work.", review: 'internal-editorial' }, // 1406
   "fushaMulli.options[1]": { al: "kthehu te mulli", en: "Return to the mill.", review: 'internal-editorial' }, // 1407
   "fushaMulli.options[2]": { al: "merr fushat", en: "Take the fields.", review: 'internal-editorial' }, // 1408
   "uraTjeter1.options[0]": { al: "fol me vëllezërit", en: "Speak with the brothers.", review: 'internal-editorial' }, // 1409
@@ -348,12 +325,10 @@ export const OPTION_READINGS_C = Object.freeze({
   "uraTjeter1.options[3]": { al: "ndalo lumin", en: "Stop the river.", review: 'internal-editorial' }, // 1412
   "uraTjeter1.options[4]": { al: "ndalo diellin", en: "Stop the sun.", review: 'internal-editorial' }, // 1413
   "uraTjeter1.options[5]": { al: "fol me lumin", en: "Speak with the river.", review: 'internal-editorial' }, // 1414
-  "uraVellezerit.options[0]": { al: "thuaj: unë jam Kiço, vëllai juaj", en: "Say: “I am Kiço, your brother.”", review: 'internal-editorial' }, // 1415
   "uraVellezerit.options[1]": { al: "lër vëllezërit", en: "Leave the brothers.", review: 'internal-editorial' }, // 1416
   "uraVellezerit.options[2]": { al: "fol me urën", en: "Speak with the bridge.", review: 'internal-editorial' }, // 1417
   "uraVellezerit.options[3]": { al: "bëj natën", en: "Make it night.", review: 'internal-editorial' }, // 1418
   "uraArtes1.options[0]": { al: "puno në urën", en: "Work on the bridge.", review: 'internal-editorial' }, // 1419
-  "uraArtes1.options[1]": { al: "thuaj: urë, çka do ti?", en: "Say, “Bridge, what do you want?”", review: 'internal-editorial' }, // 1420
   "uraArtes1.options[2]": { al: "ndalo natën", en: "Stop the night.", review: 'internal-editorial' }, // 1421
   "uraArtes1.options[3]": { al: "bëj diell", en: "Make the sun.", review: 'internal-editorial' }, // 1422
   "uraArtes1.options[4]": { al: "merr urën", en: "Take the bridge.", review: 'internal-editorial' }, // 1423
@@ -370,19 +345,16 @@ export const OPTION_READINGS_C = Object.freeze({
   "uraMengjes.options[2]": { al: "merr diellin", en: "Take the sun.", review: 'internal-editorial' }, // 1435
   "uraMengjes.options[3]": { al: "sjell diellin", en: "Bring the sun.", review: 'internal-editorial' }, // 1436
   "uraMengjes.options[4]": { al: "merr shtëpinë", en: "Take the house.", review: 'internal-editorial' }, // 1437
-  "uraGropa.options[0]": { al: "thuaj: unaza ime është poshtë", en: "Say: “My ring is down below.”", review: 'internal-editorial' }, // 1438
-  "uraGropa.options[1]": { al: "thuaj: ik!", en: "Say, “Flee!”", review: 'internal-editorial' }, // 1439
   "uraGropa.options[2]": { al: "jep botën", en: "Give the world.", review: 'internal-editorial' }, // 1440
   "uraMurim.options[0]": { al: "dëgjo nusen", en: "Listen to the bride.", review: 'internal-editorial' }, // 1441
   "uraMurim.options[1]": { al: "dëgjo unazën", en: "Listen to the ring.", review: 'internal-editorial' }, // 1442
   "mulli1.options[0]": { al: "merr pak miell", en: "Take a little flour.", review: 'internal-editorial' }, // 1443
   "mulli1.options[1]": { al: "merr shumë miell", en: "Take a lot of flour.", review: 'internal-editorial' }, // 1444
-  "mulli1.options[2]": { al: "bëj punë", en: "Do some work.", review: 'internal-editorial' }, // 1445
-  "mulli1.options[3]": { al: "dëgjo plakun", en: "Listen to the old man.", review: 'internal-editorial' }, // 1446
-  "mulli1.options[5]": { al: "hyr në mulli natën", en: "Enter the mill at night.", review: 'internal-editorial' }, // 1448
-  "mulli1.options[6]": { al: "kthehu në lumin", en: "Return to the river.", review: 'internal-editorial' }, // 1449
-  "mulli1.options[7]": { al: "merr mullirin", en: "Take the mill.", review: 'internal-editorial' }, // 1450
-  "mulli1.options[8]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1451
+  "mulli1.options[4]": { al: "dëgjo plakun", en: "Listen to the old man.", review: 'internal-editorial' }, // 1446
+  "mulli1.options[6]": { al: "hyr në mulli natën", en: "Enter the mill at night.", review: 'internal-editorial' }, // 1448
+  "mulli1.options[7]": { al: "kthehu në lumin", en: "Return to the river.", review: 'internal-editorial' }, // 1449
+  "mulli1.options[8]": { al: "merr mullirin", en: "Take the mill.", review: 'internal-editorial' }, // 1450
+  "mulli1.options[9]": { al: "merr lumin", en: "Take the river.", review: 'internal-editorial' }, // 1451
   "punaMulli.options[0]": { al: "lër punën", en: "Leave the work.", review: 'internal-editorial' }, // 1452
   "punaMulli.options[1]": { al: "kthehu në lumin", en: "Return to the river.", review: 'internal-editorial' },
   "punaMulli.options[3]": { al: "jep plakun", en: "Give the old man.", review: 'internal-editorial' }, // 1454
@@ -394,22 +366,19 @@ export const OPTION_READINGS_C = Object.freeze({
   "xhindMulli.options[4]": { al: "hap gurin", en: "Open the stone.", review: 'internal-editorial' }, // 1460
   "xhindMulli.options[5]": { al: "merr mullirin", en: "Take the mill.", review: 'internal-editorial' }, // 1461
   "maroShtepi.options[0]": { al: "fol me njerkën", en: "Speak with the stepmother.", review: 'internal-editorial' }, // 1462
-  "maroShtepi.options[1]": { al: "thuaj: unë jam Maro", en: "Say, “I am Maro.”", review: 'internal-editorial' }, // 1463
-  "maroShtepi.options[2]": { al: "thuaj: unë jam Maro", en: "Say, “I am Maro.”", review: 'internal-editorial' }, // 1464
-  "maroShtepi.options[3]": { al: "trego: xhindët japin flori", en: "Say, “The night-spirits give gold.”", review: 'internal-editorial' }, // 1465
   "maroShtepi.options[4]": { al: "kthehu te shtëpitë", en: "Return to the homes.", review: 'internal-editorial' }, // 1466
   "maroShtepi.options[5]": { al: "fol me qenin", en: "Speak with the dog.", review: 'internal-editorial' }, // 1467
   "maroShtepi.options[6]": { al: "fol me shtëpinë", en: "Speak with the house.", review: 'internal-editorial' }, // 1468
   "maroShtepi.options[7]": { al: "fle me derën", en: "Sleep with the door.", review: 'internal-editorial' }, // 1469
-  "maroNjerka.options[0]": { al: "lër njerkën", en: "Leave the stepmother.", review: 'internal-editorial' }, // 1470
-  "maroNjerka.options[1]": { al: "mban shtëpinë", en: "Carry the house.", review: 'internal-editorial' }, // 1471
-  "maroNjerka.options[2]": { al: "mban djemtë", en: "Carry the boys.", review: 'internal-editorial' }, // 1472
-  "maroNjerka.options[3]": { al: "lër ujin", en: "Leave the water.", review: 'internal-editorial' }, // 1473
-  "maroNisja.options[0]": { al: "merr furkën dhe lirin", en: "Take the distaff and the flax.", review: 'internal-editorial' }, // 1474
-  "maroNisja.options[1]": { al: "shko në mulli natën", en: "Go to the mill at night.", review: 'internal-editorial' }, // 1475
-  "maroNisja.options[2]": { al: "ha thesin", en: "Eat the sack.", review: 'internal-editorial' }, // 1476
-  "maroNisja.options[3]": { al: "merr kukudhin", en: "Take the miser-ghost.", review: 'internal-editorial' }, // 1477
-  "maroNisja.options[4]": { al: "zbrit në thes", en: "Go down into the sack.", review: 'internal-editorial' }, // 1478
+  "maroNjerka.options[3]": { al: "lër njerkën", en: "Leave the stepmother.", review: 'internal-editorial' }, // 1470
+  "maroNjerka.options[4]": { al: "mban shtëpinë", en: "Carry the house.", review: 'internal-editorial' }, // 1471
+  "maroNjerka.options[5]": { al: "mban djemtë", en: "Carry the boys.", review: 'internal-editorial' }, // 1472
+  "maroNjerka.options[6]": { al: "lër ujin", en: "Leave the water.", review: 'internal-editorial' }, // 1473
+  "maroNisja.options[1]": { al: "merr furkën dhe lirin", en: "Take the distaff and the flax.", review: 'internal-editorial' }, // 1474
+  "maroNisja.options[2]": { al: "shko në mulli natën", en: "Go to the mill at night.", review: 'internal-editorial' }, // 1475
+  "maroNisja.options[3]": { al: "ha thesin", en: "Eat the sack.", review: 'internal-editorial' }, // 1476
+  "maroNisja.options[4]": { al: "merr kukudhin", en: "Take the miser-ghost.", review: 'internal-editorial' }, // 1477
+  "maroNisja.options[5]": { al: "zbrit në thes", en: "Go down into the sack.", review: 'internal-editorial' }, // 1478
   "maroMulli1.options[0]": { al: "ndiz dritën", en: "Turn on the light.", review: 'internal-editorial' }, // 1479
   "maroMulli1.options[1]": { al: "vër drithin në mulli", en: "Put the grain in the mill.", review: 'internal-editorial' }, // 1480
   "maroMulli1.options[2]": { al: "tirr lirin", en: "Spin the flax.", review: 'internal-editorial' }, // 1481
@@ -418,43 +387,36 @@ export const OPTION_READINGS_C = Object.freeze({
   "maroMulli1.options[5]": { al: "ndiz ujin", en: "Light the water.", review: 'internal-editorial' }, // 1484
   "maroMulli1.options[6]": { al: "tirr gurin", en: "Spin the stone.", review: 'internal-editorial' }, // 1485
   "maroMulli1.options[7]": { al: "ndiz mur", en: "Light a wall.", review: 'internal-editorial' }, // 1486
-  "maroXhindet1.options[0]": { al: "thuaj: kjo ka shumë mundim", en: "Say, “This involves much toil.”", review: 'internal-editorial' }, // 1487
-  "maroXhindet1.options[1]": { al: "thuaj: li është! nuk sheh?", en: "Say, “It is flax! Can’t you see?”", review: 'internal-editorial' }, // 1488
   "maroXhindet1.options[2]": { al: "qesh me xhindët", en: "Laugh at the night-spirits.", review: 'internal-editorial' }, // 1489
   "maroXhindet1.options[3]": { al: "sheh xhindët", en: "See the night-spirits.", review: 'internal-editorial' }, // 1490
   "maroXhindet1.options[4]": { al: "tirr zërat", en: "Spin the sounds.", review: 'internal-editorial' }, // 1491
   "maroXhindet1.options[5]": { al: "qesh me furkën", en: "Laugh at the distaff.", review: 'internal-editorial' }, // 1492
   "maroLitani1.options[0]": { al: "vazhdo: trego furkën", en: "Continue: describe the distaff.", review: 'internal-editorial' }, // 1493
-  "maroLitani1.options[1]": { al: "thuaj: mos pyesni më", en: "Say, “Do not ask any more.”", review: 'internal-editorial' }, // 1494
   "maroLitani1.options[2]": { al: "mbjell xhindët", en: "Sow the night-spirits.", review: 'internal-editorial' }, // 1495
   "maroLitani1.options[3]": { al: "lidh fushën", en: "Bind the field.", review: 'internal-editorial' }, // 1496
   "maroLitani1.options[4]": { al: "lidh gojën", en: "Bind the mouth.", review: 'internal-editorial' }, // 1497
   "maroLitani2.options[0]": { al: "vazhdo: trego si bëhet rroba", en: "Continue: explain how the garment is made.", review: 'internal-editorial' }, // 1498
-  "maroLitani2.options[1]": { al: "thuaj: mos pyesni më", en: "Say, “Do not ask any more.”", review: 'internal-editorial' }, // 1499
   "maroLitani2.options[2]": { al: "vër natën në furkë", en: "Put the night on the distaff.", review: 'internal-editorial' }, // 1500
   "maroLitani2.options[3]": { al: "tirr floririn", en: "Spin the gold.", review: 'internal-editorial' }, // 1501
   "maroLitani2.options[4]": { al: "tirr xhindët", en: "Spin the night-spirits.", review: 'internal-editorial' }, // 1502
   "maroLitani3.options[0]": { al: "merr miellin.", en: "Take the flour.", review: 'internal-editorial' },
-  "maroLitani3.options[1]": { al: "shko në shtëpi.", en: "Go home.", review: 'internal-editorial' },
-  "maroLitani3.options[2]": { al: "laj gjelin", en: "Wash the rooster.", review: 'internal-editorial' },
-  "maroLitani3.options[3]": { al: "qep dritën", en: "Sew the light.", review: 'internal-editorial' },
-  "maroShtremberDore.options[0]": { al: "thuaj: mos pyesni më", en: "Say, “Do not ask any more.”", review: 'internal-editorial' }, // 1507
+  "maroLitani3.options[2]": { al: "shko në shtëpi.", en: "Go home.", review: 'internal-editorial' },
+  "maroLitani3.options[3]": { al: "laj gjelin", en: "Wash the rooster.", review: 'internal-editorial' },
+  "maroLitani3.options[4]": { al: "qep dritën", en: "Sew the light.", review: 'internal-editorial' },
   "maroShtremberDore.options[1]": { al: "rri pa fjalë deri në agim", en: "Remain silent until dawn.", review: 'internal-editorial' }, // 1508
   "maroShtremberDore.options[2]": { al: "trego mundimin e lirit", en: "Describe the toil of the flax.", review: 'internal-editorial' }, // 1509
   "maroShtremberDore.options[3]": { al: "merr agimin", en: "Take the dawn.", review: 'internal-editorial' }, // 1510
   "maroShtremberDore.options[4]": { al: "merr dru", en: "Take some wood.", review: 'internal-editorial' }, // 1511
   "maroShtremberDore.options[5]": { al: "trego agimin", en: "Tell the dawn.", review: 'internal-editorial' }, // 1512
-  "maroLiloNis.options[0]": { al: "fli deri nesër", en: "Sleep until tomorrow.", review: 'internal-editorial' }, // 1513
-  "maroLiloNis.options[2]": { al: "fle me furkën", en: "Sleep with the distaff.", review: 'internal-editorial' }, // 1515
-  "maroLiloNis.options[3]": { al: "merr Lilon", en: "Take Lilo.", review: 'internal-editorial' }, // 1516
-  "maroLiloKthim.options[0]": { al: "puno dhe prit ditët", en: "Work and wait out the days.", review: 'internal-editorial' }, // 1517
-  "maroLiloKthim.options[1]": { al: "qaj me njerkën", en: "Weep with the stepmother.", review: 'internal-editorial' }, // 1518
-  "maroLiloKthim.options[2]": { al: "puno me kalin", en: "Work with the horse.", review: 'internal-editorial' }, // 1519
-  "maroLiloKthim.options[3]": { al: "ndihmo dorën e shtrembër", en: "Help the crooked hand.", review: 'internal-editorial' }, // 1520
+  "maroLiloNis.options[3]": { al: "fle me furkën", en: "Sleep with the distaff.", review: 'internal-editorial' }, // 1515
+  "maroLiloNis.options[4]": { al: "merr Lilon", en: "Take Lilo.", review: 'internal-editorial' }, // 1516
+  "maroLiloKthim.options[3]": { al: "qaj me njerkën", en: "Weep with the stepmother.", review: 'internal-editorial' }, // 1518
+  "maroLiloKthim.options[4]": { al: "puno me kalin", en: "Work with the horse.", review: 'internal-editorial' }, // 1519
+  "maroLiloKthim.options[5]": { al: "ndihmo dorën e shtrembër", en: "Help the crooked hand.", review: 'internal-editorial' }, // 1520
   "maroLajmi.options[0]": { al: "shko te tetua", en: "Go to your aunt.", review: 'internal-editorial' }, // 1521
-  "maroLajmi.options[1]": { al: "qesh me princin", en: "Laugh at the prince.", review: 'internal-editorial' }, // 1522
-  "maroLajmi.options[2]": { al: "vesh këpucën", en: "Put on the shoe.", review: 'internal-editorial' }, // 1523
-  "maroLajmi.options[3]": { al: "ik me princin", en: "Flee with the prince.", review: 'internal-editorial' }, // 1524
+  "maroLajmi.options[2]": { al: "qesh me princin", en: "Laugh at the prince.", review: 'internal-editorial' }, // 1522
+  "maroLajmi.options[3]": { al: "vesh këpucën", en: "Put on the shoe.", review: 'internal-editorial' }, // 1523
+  "maroLajmi.options[4]": { al: "ik me princin", en: "Flee with the prince.", review: 'internal-editorial' }, // 1524
   "maroTetua.options[0]": { al: "kap dy minj", en: "Catch two mice.", review: 'internal-editorial' }, // 1525
   "maroTetua.options[1]": { al: "merr një kungull", en: "Take a pumpkin.", review: 'internal-editorial' }, // 1526
   "maroTetua.options[2]": { al: "hip në karrocë dhe shko në han", en: "Get into the coach and go to the roadside inn.", review: 'internal-editorial' }, // 1527
@@ -467,26 +429,22 @@ export const OPTION_READINGS_C = Object.freeze({
   "maroHani.options[2]": { al: "merr hanin", en: "Take the inn.", review: 'internal-editorial' }, // 1534
   "maroHani.options[3]": { al: "nxirr mesnatën", en: "Bring out midnight.", review: 'internal-editorial' }, // 1535
   "maroHani.options[4]": { al: "sheh ëndrrën", en: "See the dream.", review: 'internal-editorial' }, // 1536
-  "maroIkja.options[0]": { al: "shko në shtëpi dhe prit", en: "Go home and wait.", review: 'internal-editorial' }, // 1537
   "maroIkja.options[1]": { al: "mbaj mesnatën", en: "Hold back midnight.", review: 'internal-editorial' }, // 1538
   "maroIkja.options[2]": { al: "shko në kungull", en: "Go into the pumpkin.", review: 'internal-editorial' }, // 1539
   "maroIkja.options[3]": { al: "prit mesnatën", en: "Wait until midnight.", review: 'internal-editorial' }, // 1540
-  "maroMesnata.options[0]": { al: "shko në shtëpi dhe prit", en: "Go home and wait.", review: 'internal-editorial' }, // 1541
   "maroMesnata.options[1]": { al: "sheh mesnatën", en: "See midnight.", review: 'internal-editorial' }, // 1542
   "maroMesnata.options[2]": { al: "mban mend mesnatën", en: "Remember midnight.", review: 'internal-editorial' }, // 1543
-  "maroKrushqit.options[0]": { al: "premto: motrat vijnë afër", en: "Promise that the sisters will come nearby.", review: 'internal-editorial' }, // 1545
-  "maroKrushqit.options[1]": { al: "ik pa fjalë", en: "Flee without a word.", review: 'internal-editorial' }, // 1546
-  "maroKrushqit.options[2]": { al: "merr zhurmën", en: "Take the noise.", review: 'internal-editorial' }, // 1547
-  "maroKrushqit.options[3]": { al: "qaj me lot të thatë", en: "Weep dry tears.", review: 'internal-editorial' }, // 1548
-  "maroKrushqit.options[4]": { al: "merr lot", en: "Take tears.", review: 'internal-editorial' }, // 1549
-  "maroPallati.options[0]": { al: "jep njëqind para dhe prit", en: "Give one hundred coins and wait.", review: 'internal-editorial' }, // 1550
-  "maroPallati.options[1]": { al: "merr ditën", en: "Take the day.", review: 'internal-editorial' }, // 1551
-  "maroPallati.options[2]": { al: "merr fjalët", en: "Take the words.", review: 'internal-editorial' }, // 1552
-  "maroPallati.options[3]": { al: "rri nën zemrën", en: "Stay under the heart.", review: 'internal-editorial' }, // 1553
+  "maroKrushqit.options[2]": { al: "ik pa fjalë", en: "Flee without a word.", review: 'internal-editorial' }, // 1546
+  "maroKrushqit.options[3]": { al: "merr zhurmën", en: "Take the noise.", review: 'internal-editorial' }, // 1547
+  "maroKrushqit.options[4]": { al: "qaj me lot të thatë", en: "Weep dry tears.", review: 'internal-editorial' }, // 1548
+  "maroKrushqit.options[5]": { al: "merr lot", en: "Take tears.", review: 'internal-editorial' }, // 1549
+  "maroPallati.options[4]": { al: "merr ditën", en: "Take the day.", review: 'internal-editorial' }, // 1551
+  "maroPallati.options[5]": { al: "merr fjalët", en: "Take the words.", review: 'internal-editorial' }, // 1552
+  "maroPallati.options[6]": { al: "rri nën zemrën", en: "Stay under the heart.", review: 'internal-editorial' }, // 1553
   "maroGjilpera.options[0]": { al: "thirr maminë", en: "Call the midwife.", review: 'internal-editorial' }, // 1554
-  "maroGjilpera.options[1]": { al: "merr ditët", en: "Take the days.", review: 'internal-editorial' }, // 1555
-  "maroGjilpera.options[2]": { al: "merr zemrën", en: "Take the heart.", review: 'internal-editorial' }, // 1556
-  "maroGjilpera.options[3]": { al: "rri nën zemrën", en: "Stay under the heart.", review: 'internal-editorial' }, // 1557
+  "maroGjilpera.options[3]": { al: "merr ditët", en: "Take the days.", review: 'internal-editorial' }, // 1555
+  "maroGjilpera.options[4]": { al: "merr zemrën", en: "Take the heart.", review: 'internal-editorial' }, // 1556
+  "maroGjilpera.options[5]": { al: "rri nën zemrën", en: "Stay under the heart.", review: 'internal-editorial' }, // 1557
   "maroLindja.options[0]": { al: "fluturo nga dritarja", en: "Fly out of the window.", review: 'internal-editorial' }, // 1558
   "maroLindja.options[1]": { al: "lind gjilpërën", en: "Give birth to the needle.", review: 'internal-editorial' }, // 1559
   "maroLindja.options[2]": { al: "vër njerkën në shtrat", en: "Put the stepmother in bed.", review: 'internal-editorial' }, // 1560
@@ -528,26 +486,70 @@ export const OPTION_READINGS_C = Object.freeze({
   "varret1.options[4]": { al: "ndiz besën", en: "Light the oath.", review: 'internal-editorial' }, // 1596
   "varret1.options[5]": { al: "rri në qiriun", en: "Stay in the candle.", review: 'internal-editorial' }, // 1597
   "besaBekim.options[3]": { al: "merr plakën", en: "Take the old woman.", review: 'internal-editorial' },
-  "maroLitani3.options[4]": { al: "pres erën", en: "Cut the wind.", review: 'internal-editorial' },
+  "maroLitani3.options[5]": { al: "pres erën", en: "Cut the wind.", review: 'internal-editorial' },
   "dordolec1.options[1]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
   "dasma1.options[2]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
   "kroi1.options[2]": { al: "a mund të flasim?", en: "Can we talk?", review: 'internal-editorial' },
   "gruaUji1.options[1]": { al: "pse nuk e përdor pusin?", en: "Why don’t you use the well?", review: 'internal-editorial' },
   "fshatiLumi.options[5]": { al: "zbrit poshtë.", en: "Go down.", review: 'internal-editorial' },
-  "udhetaret.options[9]": { al: "fol me lahutën", en: "Speak with the lute.", review: 'internal-editorial' },
-  "tregMal.options[2]": { al: "ngjit mjekrën", en: "Climb the beard.", review: 'internal-editorial' },
+  "udhetaret.options[10]": { al: "fol me lahutën", en: "Speak with the lute.", review: 'internal-editorial' },
   "tregMujo.options[4]": { al: "dëgjo dragoin", en: "Listen to the dragon.", review: 'internal-editorial' },
-  "tregDragua.options[2]": { al: "vrit bekimin", en: "Kill the blessing.", review: 'internal-editorial' },
   "kengaLahute.options[1]": { al: "lër udhëtarët", en: "Leave the travellers.", review: 'internal-editorial' },
   "uraArtes2.options[0]": { al: "Premto besë.", en: "Swear the besa.", review: 'internal-editorial' },
   "uraArtes2.options[1]": { al: "shko në shtëpi.", en: "Go home.", review: 'internal-editorial' },
-  "uraArtes2.options[2]": { al: "Thuaj: jo.", en: "Refuse the besa.", review: 'internal-editorial' },
-  "mulli1.options[4]": { al: "Hyr në mulli.", en: "Enter the mill.", review: 'internal-editorial' },
+  "mulli1.options[5]": { al: "Hyr në mulli.", en: "Enter the mill.", review: 'internal-editorial' },
   "punaMulli.options[2]": { al: "jep miellin", en: "Give away flour you do not carry.", review: 'internal-editorial' },
   "punaTabak.options[1]": { al: "kthehu te lumi", en: "Return to the river.", review: 'internal-editorial' },
-  "maroLiloNis.options[1]": { al: "merr gurin", en: "Take the stone.", review: 'internal-editorial' },
+  "maroLiloNis.options[2]": { al: "merr gurin", en: "Take the stone.", review: 'internal-editorial' },
   "maroMesnata.options[3]": { al: "vjen pas mesnatës", en: "Come after midnight.", review: 'internal-editorial' },
   "dordolec1.options[3]": { al: "kthehu në shesh.", en: "Return to the square.", review: 'internal-editorial' },
   "dordolec2.options[1]": { al: "kthehu në shesh.", en: "Return to the square.", review: 'internal-editorial' },
   "fshatiLumi.options[7]": { al: "ngjit në shesh.", en: "Climb to the square.", review: 'internal-editorial' },
+  "bolla1.options[1]": { al: "largohu nga bolla.", en: "Leave the Bolla.", review: 'internal-editorial' },
+  "odaPlak.options[0]": { al: "faleminderit.", en: "Thank you.", review: 'internal-editorial' },
+  "udhetaret.options[0]": { al: "Më trego për mal.", en: "Tell me about the mountain.", review: 'internal-editorial' },
+  "udhetaret.options[1]": { al: "Më trego për det.", en: "Tell me about the sea.", review: 'internal-editorial' },
+  "udhetaret.options[2]": { al: "nga cila rrugë do të shkosh në shtëpi?", en: "Which road will you take home?", review: 'internal-editorial' },
+  "udhetaret.options[3]": { al: "Më trego për luftë.", en: "Tell me about the war.", review: 'internal-editorial' },
+  "udhetaret.options[4]": { al: "çfarë di për dragua?", en: "What do you know about the dragua?", review: 'internal-editorial' },
+  "oda2.options[0]": { al: "ec me plakun te pusi i thatë.", en: "Go with the old man to the dry well.", review: 'internal-editorial' },
+  "qiellErera2.options[1]": { al: "ngjit në majë.", en: "Climb to the summit.", review: 'internal-editorial' },
+  "fushaMulli.options[0]": { al: "merr punën.", en: "Accept the work.", review: 'internal-editorial' },
+  "uraVellezerit.options[0]": { al: "unë jam Kiço, vëllai juaj.", en: "I am Kiço, your brother.", review: 'internal-editorial' },
+  "uraArtes1.options[1]": { al: "Urë, çka do ti?", en: "Bridge, what do you want?", review: 'internal-editorial' },
+  "uraArtes2.options[2]": { al: "jo.", en: "No.", review: 'internal-editorial' },
+  "uraGropa.options[0]": { al: "Unaza ime është poshtë.", en: "My ring is down below.", review: 'internal-editorial' },
+  "uraGropa.options[1]": { al: "Ik!", en: "Go away!", review: 'internal-editorial' },
+  "mulli1.options[2]": { al: "merr punën nga plaku.", en: "Accept the old man’s work offer.", review: 'internal-editorial' },
+  "mulli1.options[3]": { al: "bëj punë në mulli.", en: "Do the work at the mill.", review: 'internal-editorial' },
+  "maroShtepi.options[1]": { al: "unë jam Maro.", en: "I am Maro.", review: 'internal-editorial' },
+  "maroShtepi.options[2]": { al: "unë jam Maro.", en: "I am Maro.", review: 'internal-editorial' },
+  "maroShtepi.options[3]": { al: "xhindët japin flori.", en: "The night-spirits give gold.", review: 'internal-editorial' },
+  "maroNisja.options[0]": { al: "merr thesin me drithë.", en: "Take the sack of grain.", review: 'internal-editorial' },
+  "maroXhindet1.options[0]": { al: "kjo ka shumë mundim.", en: "This takes much toil.", review: 'internal-editorial' },
+  "maroXhindet1.options[1]": { al: "li është! nuk sheh?", en: "It is flax! Can’t you see?", review: 'internal-editorial' },
+  "maroLitani1.options[1]": { al: "mos pyesni më.", en: "Do not ask any more.", review: 'internal-editorial' },
+  "maroLitani2.options[1]": { al: "mos pyesni më.", en: "Do not ask any more.", review: 'internal-editorial' },
+  "maroShtremberDore.options[0]": { al: "mos pyesni më.", en: "Do not ask any more.", review: 'internal-editorial' },
+  "maroLiloKthim.options[0]": { al: "Mbaro punën.", en: "Finish the work.", review: 'internal-editorial' },
+  "maroLiloKthim.options[2]": { al: "prit lajm.", en: "Wait for news.", review: 'internal-editorial' },
+  "maroIkja.options[0]": { al: "shko në shtëpi.", en: "Go home.", review: 'internal-editorial' },
+  "maroMesnata.options[0]": { al: "shko në shtëpi.", en: "Go home.", review: 'internal-editorial' },
+  "maroKrushqit.options[0]": { al: "Premto: motrat dhe njerka vijnë afër.", en: "Promise that the family may live nearby.", review: 'internal-editorial' },
+  "maroKrushqit.options[1]": { al: "shko me princin në pallat.", en: "Go with the prince to the palace.", review: 'internal-editorial' },
+  "maroPallati.options[0]": { al: "jep njerkës njëqind para nga pallati.", en: "Give the stepmother one hundred palace coins.", review: 'internal-editorial' },
+  "maroPallati.options[1]": { al: "jo.", en: "No.", review: 'internal-editorial' },
+  "maroPallati.options[2]": { al: "Ik nga pallat me djalin tënd.", en: "Leave the palace safely with your son.", review: 'internal-editorial' },
+  "maroPallati.options[3]": { al: "prit dhjetë ditë.", en: "Wait ten days.", review: 'internal-editorial' },
+  "maroLiloNis.options[0]": { al: "Fli deri nesër.", en: "Sleep until tomorrow.", review: 'internal-editorial' },
+  "maroLiloNis.options[1]": { al: "mos shko në mulli sonte.", en: "Do not go to the mill tonight.", review: 'internal-editorial' },
+  "maroLiloKthim.options[1]": { al: "prit deri në mbrëmje.", en: "Wait until evening.", review: 'internal-editorial' },
+  "lumiMjeshter.options[1]": { al: "Largohu nga plaku.", en: "End the conversation.", review: 'internal-editorial' },
+  "maroGjilpera.options[1]": { al: "jo.", en: "No.", review: 'internal-editorial' },
+  "maroGjilpera.options[2]": { al: "ik nga pallat me djalin tënd.", en: "Leave the palace with your son.", review: 'internal-editorial' },
+  "maroNjerka.options[0]": { al: "kush e mban shtëpinë?", en: "Who keeps the house?", review: 'internal-editorial' },
+  "maroNjerka.options[1]": { al: "kush janë Lilo dhe Lena?", en: "Who are Lilo and Lena?", review: 'internal-editorial' },
+  "maroNjerka.options[2]": { al: "kush punon për ju?", en: "Who works for you?", review: 'internal-editorial' },
+  "maroLitani3.options[1]": { al: "Lëre miellin.", en: "Leave the flour.", review: 'internal-editorial' },
+  "maroLajmi.options[1]": { al: "shko drejt në han.", en: "Go directly to the inn.", review: 'internal-editorial' },
 })

@@ -473,6 +473,12 @@ svg [role="button"]:focus-visible {
   text-transform: uppercase;
 }
 .option-text { max-width: 100%; overflow-wrap: anywhere; }
+.option-speaker-label {
+  display: inline-block;
+  margin-right: 0.45em;
+  color: var(--muted);
+  font: 600 0.72em/1.4 ui-sans-serif, system-ui, sans-serif;
+}
 .option-cost-wrap { display: inline-flex; align-items: center; min-width: 0; }
 .option-select {
   min-width: 88px;

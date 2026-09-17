@@ -9,6 +9,7 @@ import {
   canonicalPlayerActionId,
   playerActionConditionId,
   playerActionProvenanceIssues,
+  sharedActionDestinationIssues,
   withPlayerActionConsequence,
 } from '../src/game/playerActionProvenance.js'
 
@@ -59,6 +60,92 @@ const mismatchedActions = {
 }
 assert.ok(playerActionProvenanceIssues(mismatchedActions).issues.some((issue) => issue.includes('do not match')),
   'one unconditional consequence accepted two different player actions')
+const annotatedSharedActions = structuredClone(mismatchedActions)
+annotatedSharedActions.source.options[0].playerAction = authoredPlayerAction('witch-fight')
+annotatedSharedActions.source.options[1].playerAction = authoredPlayerAction('witch-listen')
+assert.equal(sharedActionDestinationIssues(annotatedSharedActions).issues.length, 2,
+  'distinct actions sharing one destination were allowed to omit edge-specific consequences')
+
+const exactSharedActions = structuredClone(annotatedSharedActions)
+exactSharedActions.result.text = [
+  { cond: playerActionConditionId('witch-fight'), line: line('You strike at the witch.', 'ti', 'godit', 'shtrige') },
+  { cond: playerActionConditionId('witch-listen'), line: line('You listen to the witch.', 'ti', 'degjo', 'shtrige') },
+]
+assert.deepEqual(sharedActionDestinationIssues(exactSharedActions).issues, [],
+  'exact action-bound consequences did not resolve a shared destination')
+
+const persistentConversationResponses = {
+  hub: {
+    id: 'hub', text: [], options: [
+      choice('Ask about bread.', ['pyet', 'buke'], 'hub', {
+        playerAction: authoredPlayerAction('conversation:test:bread'),
+        conversationHub: { hubId: 'test', kind: 'question', questionId: 'bread' },
+        effects: [{ type: 'flag', id: 'conversation:test:response:bread' }],
+      }),
+      choice('Ask about salt.', ['pyet', 'kripe'], 'hub', {
+        playerAction: authoredPlayerAction('conversation:test:salt'),
+        conversationHub: { hubId: 'test', kind: 'question', questionId: 'salt' },
+        effects: [{ type: 'flag', id: 'conversation:test:response:salt' }],
+      }),
+    ],
+  },
+}
+persistentConversationResponses.hub.text = [
+  {
+    cond: 'flag:conversation:test:response:bread',
+    conversationHub: { hubId: 'test', kind: 'response', questionId: 'bread' },
+    line: line('The trader answers about bread.', 'tregtar', 'pergjigjet', 'buke'),
+  },
+  {
+    cond: 'flag:conversation:test:response:salt',
+    conversationHub: { hubId: 'test', kind: 'response', questionId: 'salt' },
+    line: line('The trader answers about salt.', 'tregtar', 'pergjigjet', 'kripe'),
+  },
+]
+assert.deepEqual(sharedActionDestinationIssues(persistentConversationResponses).issues, [],
+  'a topic-owned persistent conversation response was not accepted as an exact consequence')
+const mismatchedConversationResponse = structuredClone(persistentConversationResponses)
+mismatchedConversationResponse.hub.text[0].conversationHub.questionId = 'salt'
+assert.equal(sharedActionDestinationIssues(mismatchedConversationResponse).issues.length, 1,
+  'a response carrying the wrong conversation topic counted as an exact consequence')
+
+const unannotatedSharedActions = structuredClone(mismatchedActions)
+assert.equal(sharedActionDestinationIssues(unannotatedSharedActions).issues.length, 2,
+  'unannotated canonical choice actions escaped shared-destination review')
+
+const subsetActions = {
+  source: {
+    id: 'source', text: [], options: [
+      choice('Give bread.', ['jep', 'buke'], 'result'),
+      choice('Give bread to the child.', ['jep', 'buke', 'femije'], 'result'),
+    ],
+  },
+  result: { id: 'result', text: [], options: [] },
+}
+assert.equal(sharedActionDestinationIssues(subsetActions).issues.length, 2,
+  'a more-specific action surface was subset-collapsed into its shorter sibling')
+
+const durableOrUnrelatedIsNotConsequence = structuredClone(annotatedSharedActions)
+durableOrUnrelatedIsNotConsequence.source.options[0].effects = [{ type: 'flag', id: 'fought-witch' }]
+durableOrUnrelatedIsNotConsequence.source.options[1].effects = [{ type: 'flag', id: 'heard-witch' }]
+durableOrUnrelatedIsNotConsequence.result.text = [
+  { cond: 'flag:fought-witch', line: line('The road is open.', 'rruge', 'hap') },
+  { cond: playerActionConditionId('witch-listen'), line: line('You strike at the witch.', 'ti', 'godit', 'shtrige') },
+]
+assert.equal(sharedActionDestinationIssues(durableOrUnrelatedIsNotConsequence).issues.length, 2,
+  'a durable edge flag or exact-bound but unrelated prose counted as an action consequence')
+
+const exactMoneyOutcome = structuredClone(annotatedSharedActions)
+exactMoneyOutcome.source.options[0].text = line('Buy bread.', 'blej', 'buke')
+exactMoneyOutcome.source.options[0].moneyOutcome = line('You pay for the bread.', 'ti', 'paguaj', 'buke')
+exactMoneyOutcome.source.options[1].text = line('Buy salt.', 'blej', 'kripe')
+exactMoneyOutcome.source.options[1].moneyOutcome = line('You pay for the salt.', 'ti', 'paguaj', 'kripe')
+assert.deepEqual(sharedActionDestinationIssues(exactMoneyOutcome).issues, [],
+  'option-owned semantically matching money outcomes were not treated as exact arrival consequences')
+
+exactMoneyOutcome.source.options[1].moneyOutcome = line('You pay for the bread.', 'ti', 'paguaj', 'buke')
+assert.equal(sharedActionDestinationIssues(exactMoneyOutcome).issues.length, 1,
+  'an exact option money outcome with the wrong object counted as its action consequence')
 
 const singleMovementSpeaks = {
   source: { id: 'source', text: [], options: [choice('Fly from the window.', ['fluturo', 'dritare'], 'result', { playerIntents: ['movement'] })] },
@@ -145,5 +232,8 @@ assert.equal(stableAfter, stableBefore, 'canonical action id depends on option i
 
 const production = playerActionProvenanceIssues(STORY)
 assert.deepEqual(production.issues, [], `player-action provenance failures:\n${production.issues.join('\n')}`)
+const sharedDestinations = sharedActionDestinationIssues(STORY)
+assert.deepEqual(sharedDestinations.issues, [],
+  `shared-action destination failures:\n${sharedDestinations.issues.join('\n')}`)
 
-console.log(`✅ player-action provenance audited: ${production.candidateCount} player-owned consequence lines bind to stable actions and exact feasible arrivals`)
+console.log(`✅ player-action provenance audited: ${production.candidateCount} player-owned consequence lines and ${sharedDestinations.candidateCount} shared-destination actions bind to exact feasible arrivals`)

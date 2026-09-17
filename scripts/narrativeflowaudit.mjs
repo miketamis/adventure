@@ -14,7 +14,6 @@ import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import { NPCS } from '../src/game/npcs.js'
 import coreVillageNpcs from '../src/game/data/npcs/core-village.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
-import { EMBODIMENT_QUESTS } from '../src/game/embodiment.js'
 import {
   ORDINARY_RESULT_CATEGORIES,
   REVIEWED_NARRATIVE_CORRIDORS,
@@ -54,6 +53,12 @@ const exclusiveSlot = (id) => {
   // together, even when they lead back to the same physical scene.
   let match = id.match(/^arrival:action:(.+)$/)
   if (match) return ['arrival-action', match[1]]
+  // A conversation question first clears every response flag in its hub and
+  // then sets exactly one current response. Treat those generated conditions
+  // as one exclusive slot so density checks model the real hub reducer instead
+  // of pretending that answers to several different questions render at once.
+  match = id.match(/^flag:conversation:([^:]+):response:(.+)$/)
+  if (match) return [`conversation-response:${match[1]}`, match[2]]
   match = id.match(/^flag:([^:]+):(morning|day|evening|night)$/)
   if (match) return [`greeting-result:${match[1]}`, match[2]]
   match = id.match(/^greeting:(.+)$/)
@@ -213,20 +218,77 @@ assert.ok(identityPairCounts.size > 0, 'no authored NPC identity surfaces were a
 
 // A scene may hold the player for a brief, indivisible physical result, but it
 // must not turn ordinary dialogue, shopping, travel, rewards or information
-// into a run of mandatory “continue” buttons. Scan the full non-embodied story
-// graph so new corridors cannot appear without a written narrative review.
-const embodiedNodes = new Set(Object.values(EMBODIMENT_QUESTS).flatMap((quest) => quest.nodes || []))
+// into a run of mandatory “continue” buttons. Scan the whole story graph,
+// including embodied tales: tale identity cannot exempt a forced corridor.
 const liveLinearCorridors = []
 for (const [nodeId, node] of Object.entries(STORY)) {
-  if (node.end || embodiedNodes.has(nodeId)) continue
+  if (node.end) continue
   const firstOptions = realOptionsOf(nodeId)
   if (firstOptions.length !== 1) continue
   const middleId = firstOptions[0].to
-  if (STORY[middleId]?.end || embodiedNodes.has(middleId) || PLACE_OF[nodeId] !== PLACE_OF[middleId]) continue
+  if (STORY[middleId]?.end || PLACE_OF[nodeId] !== PLACE_OF[middleId]) continue
   const middleOptions = realOptionsOf(middleId)
   if (middleOptions.length !== 1) continue
   liveLinearCorridors.push([nodeId, middleId, middleOptions[0].to])
 }
+
+// Same-place scans miss the more disorienting version of the problem: a run
+// of mandatory buttons that walks the player through several graph locations
+// without ever restoring agency. Discover maximal multi-edge chains across
+// canonical places. Every surviving chain must be the exact node sequence of
+// a reviewed continuous physical beat; adding a node or redirecting an edge
+// invalidates that review instead of silently widening it.
+const spatialLinearCorridorsOf = (story, placeOf, excludedNodes = new Set()) => {
+  const realOptions = (nodeId) => (story[nodeId]?.options || [])
+    .filter((option) => !option.confuser && option.to && story[option.to])
+  const incoming = new Map(Object.keys(story).map((nodeId) => [nodeId, []]))
+  for (const nodeId of Object.keys(story)) {
+    for (const option of realOptions(nodeId)) incoming.get(option.to)?.push(nodeId)
+  }
+  const corridors = []
+  for (const [nodeId, node] of Object.entries(story)) {
+    if (node.end || excludedNodes.has(nodeId) || realOptions(nodeId).length !== 1) continue
+    const predecessors = incoming.get(nodeId) || []
+    if (predecessors.length === 1
+      && !story[predecessors[0]]?.end
+      && !excludedNodes.has(predecessors[0])
+      && realOptions(predecessors[0]).length === 1) continue
+
+    const nodes = [nodeId]
+    const seen = new Set(nodes)
+    let currentId = nodeId
+    while (realOptions(currentId).length === 1) {
+      const destinationId = realOptions(currentId)[0].to
+      if (!destinationId
+        || seen.has(destinationId)
+        || story[destinationId]?.end
+        || excludedNodes.has(destinationId)) break
+      nodes.push(destinationId)
+      seen.add(destinationId)
+      currentId = destinationId
+    }
+    if (nodes.length < 3) continue
+    const crossesPlace = nodes.slice(1).some((id, index) => placeOf[id] !== placeOf[nodes[index]])
+    if (crossesPlace) corridors.push(nodes)
+  }
+  return corridors
+}
+
+assert.deepEqual(spatialLinearCorridorsOf({
+  a: { options: [{ to: 'b' }] },
+  b: { options: [{ to: 'c' }] },
+  c: { options: [{ to: 'd' }, { to: 'e' }] },
+  d: { options: [] },
+  e: { options: [] },
+}, { a: 'road', b: 'road', c: 'market', d: 'market', e: 'market' }), [['a', 'b', 'c']],
+'the spatial funnel regression fixture no longer detects a multi-edge forced relocation')
+
+const liveSpatialCorridors = spatialLinearCorridorsOf(STORY, PLACE_OF)
+const reviewedSpatialCorridors = REVIEWED_NARRATIVE_CORRIDORS
+  .filter((review) => review.disposition === 'continuous-beat')
+  .map((review) => review.nodes)
+assert.deepEqual(liveSpatialCorridors, reviewedSpatialCorridors,
+  `unreviewed or stale multi-edge spatial funnels:\nactual ${JSON.stringify(liveSpatialCorridors)}\nreviewed ${JSON.stringify(reviewedSpatialCorridors)}`)
 
 const reviewIds = REVIEWED_NARRATIVE_CORRIDORS.map((review) => review.id)
 assert.equal(new Set(reviewIds).size, reviewIds.length, 'narrative corridor review ids are not unique')
@@ -239,7 +301,101 @@ const consequenceSignature = (option) => JSON.stringify({
   consumes: option.consumes || null,
   effects: option.effects || [],
   questAction: option.questAction || null,
+  playerAction: option.playerAction?.id || null,
 })
+
+// Raw authored option counts can hide a forced sequence when flags reveal one
+// button at a time on a same-node loop. Explore the flags that those local
+// actions themselves mutate and inspect every reachable stage. Requirements
+// outside that local flag set are treated as already satisfied: the question
+// here is whether, once the player reaches this interaction, it ever reduces
+// to a disguised Continue button.
+const localFlagEffectsOf = (option) => (option.effects || [])
+  .filter((effect) => effect.type === 'flag' && typeof effect.id === 'string')
+  .map((effect) => ({ id: `flag:${effect.id}`, value: effect.value !== false }))
+
+const stagedSingleChoiceStatesOf = (story) => {
+  const failures = []
+  for (const [nodeId, node] of Object.entries(story)) {
+    const genuine = (node.options || []).filter((option) =>
+      !option.confuser && option.to && story[option.to])
+    // A completed conversation hub is deliberately allowed to retire every
+    // question and leave only its voluntary exit. That is closure, not a
+    // disguised Continue corridor, and its own contract audits the exit.
+    if (genuine.some((option) => option.conversationHub)) continue
+    const localFlags = new Set(genuine
+      .filter((option) => option.to === nodeId)
+      .flatMap(localFlagEffectsOf)
+      .map((effect) => effect.id))
+    if (!localFlags.size || genuine.length < 2) continue
+
+    const queue = [{ flags: new Set(), depth: 0 }]
+    const seen = new Set()
+    const stages = []
+    let maximumMutationDepth = 0
+    while (queue.length) {
+      const { flags, depth } = queue.shift()
+      const key = [...flags].sort().join('|')
+      if (seen.has(key)) continue
+      seen.add(key)
+      maximumMutationDepth = Math.max(maximumMutationDepth, depth)
+      const visible = genuine.filter((option) => (
+        [].concat(option.requires || []).every((id) => !localFlags.has(id) || flags.has(id))
+        && [].concat(option.unless || []).every((id) => !localFlags.has(id) || !flags.has(id))
+      ))
+      stages.push({ key, visible })
+      for (const option of visible.filter((candidate) => candidate.to === nodeId)) {
+        const next = new Set(flags)
+        for (const effect of localFlagEffectsOf(option)) {
+          if (effect.value) next.add(effect.id)
+          else next.delete(effect.id)
+        }
+        if ([...next].some((id) => !flags.has(id)) || [...flags].some((id) => !next.has(id))) {
+          queue.push({ flags: next, depth: depth + 1 })
+        }
+      }
+    }
+    // One optional local action followed by an exit is common and does not by
+    // itself form a corridor. Two or more consecutive state mutations are the
+    // structural case that static option-count audits used to miss.
+    if (maximumMutationDepth < 2) continue
+    for (const { key, visible } of stages) {
+      if (visible.length === 1) {
+        failures.push(`${nodeId} [${key || 'initial'}] -> ${visible[0].to}: ${albanianTextOf(visible[0].text)}`)
+      }
+    }
+  }
+  return failures
+}
+
+assert.deepEqual(stagedSingleChoiceStatesOf({
+  trial: {
+    options: [
+      { text: [{ al: 'first' }], unless: 'flag:firstDone', effects: [{ type: 'flag', id: 'firstDone' }], to: 'trial' },
+      { text: [{ al: 'second' }], requires: 'flag:firstDone', unless: 'flag:secondDone', effects: [{ type: 'flag', id: 'secondDone' }], to: 'trial' },
+      { text: [{ al: 'finish' }], requires: 'flag:secondDone', to: 'finish' },
+    ],
+  },
+  finish: { end: 'good', options: [] },
+}), [
+  'trial [initial] -> trial: first',
+  'trial [flag:firstDone] -> trial: second',
+  'trial [flag:firstDone|flag:secondDone] -> finish: finish',
+],
+'the conditional-corridor regression fixture no longer sees one-button flag stages')
+assert.deepEqual(stagedSingleChoiceStatesOf({
+  optional: {
+    options: [
+      { text: [{ al: 'take' }], unless: 'flag:taken', effects: [{ type: 'flag', id: 'taken' }], to: 'optional' },
+      { text: [{ al: 'leave' }], to: 'finish' },
+    ],
+  },
+  finish: { end: 'good', options: [] },
+}), [], 'one optional local action plus an exit is incorrectly treated as a forced corridor')
+
+const stagedSingleChoiceStates = stagedSingleChoiceStatesOf(STORY)
+assert.deepEqual(stagedSingleChoiceStates, [],
+  `flag-sequenced interaction(s) expose only one genuine action at a reachable stage:\n${stagedSingleChoiceStates.join('\n')}`)
 
 // Ordinary results are detected from the action that produced them, not from
 // node names or English copy. This keeps shopping, rewards, quest hand-ins,

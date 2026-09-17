@@ -166,6 +166,12 @@ export const LOCATION_QUESTION_REVIEWS = Object.freeze([
     reason: 'The player asks about the forest guest’s own destination, not for a route to follow.',
   }),
   Object.freeze({
+    nodeId: 'eliraBiseda',
+    cueIds: freezeList(['ku', 'jam']),
+    disposition: 'non-navigation',
+    reason: 'The player asks where Elira was earlier; her past whereabouts are conversational history, not a request for directions or a destination shortcut.',
+  }),
+  Object.freeze({
     nodeId: 'dasmaBiseda',
     cueIds: freezeList(['ku', 'eshte', 'nuse']),
     disposition: 'observable-person-location',

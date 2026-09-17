@@ -76,12 +76,55 @@ const sameSet = (left, right) =>
   left.size === right.size && [...left].every((value) => right.has(value))
 const edgeOf = (from, option) => `${from}->${option?.to}`
 
+// A private story boundary is reversible only when the player can take a real,
+// ordinary return immediately—not a confuser, hidden condition, vocabulary
+// reveal, state mutation, ending, or another story commitment. Keeping this
+// pure lets adversarial fixtures prove that metadata cannot make an unusable
+// edge look like an escape hatch.
+const playablePublicReturns = (
+  story,
+  privateNodeId,
+  publicNodeId,
+  publicNodes,
+  routeInfo = transitionInfo,
+) => (story[privateNodeId]?.options || []).filter((candidate) => {
+  const target = story[candidate?.to]
+  if (!candidate || candidate.confuser || candidate.to !== publicNodeId || !target) return false
+  if (!publicNodes.has(candidate.to) || target.end || candidate.become || candidate.freeRoamBoundary) return false
+  if (asList(candidate.requires).length || asList(candidate.unless).length || candidate.reveal) return false
+  if (candidate.interaction != null || optionEffectsOf(candidate).length || target.worldEffects?.length) return false
+  const route = routeInfo(privateNodeId, candidate)
+  return Boolean(route.valid && route.spatial && !route.projection && (route.kind === 'journey' || route.wander))
+})
+
+const boundaryFixtureStory = {
+  public: { options: [], worldEffects: [] },
+  private: { options: [{ to: 'public' }], worldEffects: [] },
+}
+const boundaryFixtureRoute = () => ({ valid: true, spatial: true, projection: false, kind: 'journey' })
+assert.equal(playablePublicReturns(
+  boundaryFixtureStory, 'private', 'public', new Set(['public']), boundaryFixtureRoute,
+).length, 1, 'an ordinary public return was rejected')
+for (const blockedReturn of [
+  { to: 'public', confuser: true },
+  { to: 'public', requires: 'key' },
+  { to: 'public', unless: 'night' },
+  { to: 'public', reveal: 'road' },
+  { to: 'public', effects: [{ type: 'flag', id: 'escaped' }] },
+]) {
+  const fixture = { ...boundaryFixtureStory, private: { options: [blockedReturn], worldEffects: [] } }
+  assert.equal(playablePublicReturns(
+    fixture, 'private', 'public', new Set(['public']), boundaryFixtureRoute,
+  ).length, 0, `an unavailable boundary return was accepted: ${JSON.stringify(blockedReturn)}`)
+}
+
 // Derive the public graph without consulting embodimentOptionAccess or the
 // pinned place list. Time/weather gates can eventually be met on the living
 // clock; a role requirement is private by definition and is never public.
 const isIndependentPublicEdge = (from, option) => {
   const target = STORY[option?.to]
   if (!option || option.confuser || !target || target.end || option.become || changesWorld(option)) return false
+  if (option.freeRoamBoundary) return false
   if (asList(option.requires).some((id) => String(id).startsWith('embodying:'))) return false
   const route = transitionInfo(from, option)
   const reviewedTransit = PUBLIC_FREE_ROAM_TRANSITS[edgeOf(from, option)]
@@ -214,6 +257,54 @@ const enterRole = (roleId, inventory = {}, hearts = 3) => {
   assert.fail(`${roleId}: no feasible threshold hour`)
 }
 
+const settleBlockingStoryState = (state) => {
+  let settled = state
+  for (let guard = 0; guard < 4; guard++) {
+    if (settled.pendingHeartConsequence) {
+      settled = reducer(settled, {
+        type: 'ACKNOWLEDGE_HEART_CONSEQUENCE',
+        eventId: settled.pendingHeartConsequence.eventId,
+      })
+      continue
+    }
+    if (settled.timePassage) {
+      settled = reducer(settled, {
+        type: 'DISMISS_TIME_PASSAGE',
+        passageId: settled.timePassage.id,
+        expectedStep: settled.timePassage.step,
+      })
+      continue
+    }
+    break
+  }
+  return settled
+}
+
+const boundedRecord = (record) => Object.fromEntries(
+  Object.entries(record || {}).sort(([left], [right]) => left.localeCompare(right)).map(([key, value]) => [
+    key,
+    typeof value === 'number' ? Math.min(value, 3) : value,
+  ]),
+)
+
+const roleSearchSignature = (state) => JSON.stringify({
+  nodeId: state.nodeId,
+  focus: state.embodimentFocusNode,
+  hour: storyClockOf(currentStoryState(state)) % 24,
+  cameFrom: state.cameFrom,
+  familiar: state.familiar,
+  rumor: state.rumor,
+  hearts: state.hearts,
+  ended: state.ended,
+  inventory: boundedRecord(state.inventory),
+  flags: boundedRecord(state.flags),
+  knowledge: boundedRecord(state.knowledge),
+  interactions: boundedRecord(state.interactions),
+  observations: Object.keys(state.observations || {}).sort(),
+  visited: Object.keys(state.visited || {}).sort(),
+  worldFacts: boundedRecord(state.worldFacts),
+})
+
 const taleDir = new URL('../src/game/data/tales/', import.meta.url)
 const tales = []
 for (const file of (await readdir(taleDir)).filter((name) => name.endsWith('.js') && !name.startsWith('_'))) {
@@ -303,6 +394,41 @@ check('contracts contain only real nodes and list every terminal outcome', () =>
   }
 })
 
+check('every declared role ending is executable from the real confirmed threshold', () => {
+  for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
+    const first = settleBlockingStoryState(enterRole(id))
+    const seen = new Set([roleSearchSignature(first)])
+    const queue = [first]
+    const reached = new Set()
+    while (queue.length) {
+      const state = queue.shift()
+      if (quest.endings.includes(state.nodeId) && STORY[state.nodeId]?.end) {
+        reached.add(state.nodeId)
+        continue
+      }
+      for (const option of STORY[state.nodeId]?.options || []) {
+        if (option.confuser || !quest.nodes.includes(option.to)) continue
+        const ready = withSpeech(state, option)
+        const projected = currentStoryState(ready)
+        if (!hasRequiredItem(projected, option) || !isOptionRevealed(projected, option)) continue
+        if (embodimentOptionAccess(projected, option, STORY[option.to]).kind !== 'quest') continue
+        const after = settleBlockingStoryState(choose(ready, option))
+        if (after === ready || after.nodeId !== option.to) continue
+        const signature = roleSearchSignature(after)
+        if (seen.has(signature)) continue
+        seen.add(signature)
+        queue.push(after)
+        assert.ok(seen.size < 20000, `${id}: dynamic role search did not converge`)
+      }
+    }
+    assert.deepEqual(
+      [...reached].sort(),
+      [...quest.endings].sort(),
+      `${id}: declared endings not executable from the threshold`,
+    )
+  }
+})
+
 check('every possible role-focus destination has a natural player-facing map label', () => {
   const authoringIds = new Set([...Object.keys(STORY), ...Object.keys(PLACE_NODES)])
   const focusSource = uiText('../src/components/EmbodimentFocus.jsx')
@@ -386,11 +512,15 @@ check('every role isolates arbitrary traveller possessions and health, then rest
 
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     const threshold = thresholdForRole(id)
+    const transferIds = threshold.option.embodimentInventoryTransfer || []
     const expectedLocal = threshold.option.grant ? { [threshold.option.grant]: 1 } : {}
+    for (const itemId of transferIds) expectedLocal[itemId] = 1
+    const expectedSnapshot = { ...arbitraryPack }
+    for (const itemId of transferIds) expectedSnapshot[itemId]--
     const clean = enterRole(id, {}, 3)
     for (let travellerHearts = 1; travellerHearts <= 3; travellerHearts++) {
       const entered = enterRole(id, arbitraryPack, travellerHearts)
-      assert.deepEqual(entered.embodimentInventorySnapshot, arbitraryPack, `${id}: pack snapshot drift`)
+      assert.deepEqual(entered.embodimentInventorySnapshot, expectedSnapshot, `${id}: pack snapshot drift`)
       assert.deepEqual(entered.inventory, expectedLocal, `${id}: traveller item leaked into tale`)
       assert.equal(entered.embodimentInventoryIsolated, true)
       assert.equal(entered.embodimentHeartsSnapshot, travellerHearts)
@@ -432,17 +562,63 @@ check('every role isolates arbitrary traveller possessions and health, then rest
         timePassage: null,
       }
       const returned = reducer(endingState, { type: 'RETURN_TO_WORLD' })
-      assert.deepEqual(returned.inventory, arbitraryPack, `${id}: surviving ending lost the traveller pack`)
+      assert.deepEqual(returned.inventory, expectedSnapshot, `${id}: surviving ending lost the traveller pack`)
       assert.equal(returned.hearts, travellerHearts, `${id}: surviving ending changed traveller health`)
       assert.equal(returned.embodying, null, `${id}: surviving ending did not release the role`)
     }
   }
 })
 
+check('declared role-item transfers are narrow, required, saved and usable inside the tale', () => {
+  const transfers = []
+  for (const [from, node] of Object.entries(STORY)) {
+    for (const option of node.options || []) {
+      if (option.embodimentInventoryTransfer == null) continue
+      const ids = option.embodimentInventoryTransfer
+      assert.ok(option.become, `${from}->${option.to}: item transfer without a role threshold`)
+      assert.ok(Array.isArray(ids) && ids.length, `${from}->${option.to}: malformed transfer list`)
+      assert.equal(new Set(ids).size, ids.length, `${from}->${option.to}: duplicate transfer item`)
+      for (const itemId of ids) {
+        assert.ok(ITEMS[itemId], `${from}->${option.to}: unknown transfer item ${itemId}`)
+        assert.ok(asList(option.requires).includes(itemId), `${from}->${option.to}: ${itemId} is not required`)
+      }
+      transfers.push({ from, option, ids })
+    }
+  }
+  assert.deepEqual(
+    transfers.map(({ from, option, ids }) => `${from}->${option.to}:${ids.join(',')}`),
+    ['odaJutbina->gbMuji1:qumesht'],
+    'the reviewed transfer surface changed',
+  )
+
+  const entered = enterRole('gjeto-basho-muji', { qumesht: 2, buke: 3 }, 2)
+  assert.deepEqual(entered.inventory, { qumesht: 1 }, 'the milk did not enter Muji’s isolated inventory')
+  assert.deepEqual(entered.embodimentInventorySnapshot, { qumesht: 1, buke: 3 },
+    'the transferred milk remained duplicated in the waiting pack')
+  const saved = normalizeSavedState(JSON.parse(JSON.stringify(entered)), stateAt('start'))
+  assert.deepEqual(saved.inventory, { qumesht: 1 }, 'save migration discarded the transferred milk')
+  const drink = STORY.gbMuji1.options.find((option) => option.to === 'gbMujiFund')
+  const ready = withSpeech(saved, drink)
+  const finished = choose(ready, drink)
+  assert.notEqual(finished, ready, 'Muji could not drink the carried milk')
+  assert.equal(finished.nodeId, 'gbMujiFund')
+  assert.equal(finished.inventory.qumesht || 0, 0, 'drunk milk survived in the role inventory')
+  const returned = reducer(finished, { type: 'RETURN_TO_WORLD' })
+  assert.deepEqual(returned.inventory, { qumesht: 1, buke: 3 },
+    'returning restored the consumed transfer as a duplicate')
+  assert.equal(returned.hearts, 2)
+})
+
 check('role-save migration isolates legacy packs once and scrubs forged local state', () => {
   const fresh = stateAt('start')
   const threshold = thresholdForRole('maro-perhitura')
-  assert.ok(threshold?.option.grant === 'drithe')
+  assert.ok(threshold?.option, 'Maro threshold is missing')
+  assert.equal(threshold.option.grant, undefined,
+    'Maro again receives the grain before the player explicitly takes the sack')
+  const grainChoices = STORY.maroNisja.options.filter((option) =>
+    option.to === 'maroNisja' && option.grant === 'drithe')
+  assert.equal(grainChoices.length, 1,
+    'Maro needs one explicit same-place choice to take the grain sack')
 
   const travellerPack = { buke: 2, drithe: 7, lek: 11 }
   const legacy = normalizeSavedState(stateAt('maroNisja', {
@@ -622,6 +798,41 @@ check('a role remains through its own ending and clears only when that ending cl
   assert.deepEqual(returned.inventory, { buke: 1, lek: 7 })
 })
 
+check('every surviving role ending returns to its exact authored world location', () => {
+  let nonHubReturns = 0
+  for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
+    const entered = enterRole(id, { buke: 2 }, 2)
+    for (const endingId of quest.endings.filter((candidate) =>
+      ['good', 'secret'].includes(STORY[candidate]?.end))) {
+      const authored = STORY[endingId].returnTo
+      const expected = STORY[authored]
+        ? authored
+        : STORY[quest.returnTo]
+          ? quest.returnTo
+          : WORLD_HUB
+      if (expected !== WORLD_HUB) nonHubReturns++
+      const endingState = {
+        ...entered,
+        nodeId: endingId,
+        embodimentFocusNode: endingId,
+        ended: STORY[endingId].end,
+        visited: { ...entered.visited, [expected]: true },
+        timePassage: null,
+      }
+      const returned = reducer(endingState, {
+        type: 'RETURN_TO_WORLD',
+        // A UI or stale caller may suggest a destination, but authored content
+        // and the role contract alone own physical continuity.
+        to: expected === WORLD_HUB ? quest.entryFrom : WORLD_HUB,
+      })
+      assert.equal(returned.nodeId, expected, `${id}.${endingId}: returned to the wrong place`)
+      assert.equal(returned.familiar, true, `${id}.${endingId}: target visit history was ignored`)
+      assert.equal(returned.embodying, null, `${id}.${endingId}: role remained active after return`)
+    }
+  }
+  assert.ok(nonHubReturns >= 8, `only ${nonHubReturns} surviving endings preserve a non-hub return`)
+})
+
 check('the pinned public-place inventory exactly matches an independent graph derivation', () => {
   const pinned = new Set(PUBLIC_FREE_ROAM_PLACES)
   const pinnedNodes = new Set(PUBLIC_FREE_ROAM_NODES)
@@ -635,6 +846,37 @@ check('the pinned public-place inventory exactly matches an independent graph de
   for (const nodeId of pinnedNodes) assert.ok(STORY[nodeId], `unknown public node ${nodeId}`)
   assert.equal(pinned.has('maroMulli1'), false, 'Maro night-vigil is private, not public')
   assert.equal(pinnedNodes.has('maroMulli1'), false, 'Maro night-vigil node is private, not public')
+
+  const boundaryKeys = ['storyId', 'rationale', 'source', 'owner', 'reviewTrigger']
+  const boundaries = []
+  for (const [from, node] of Object.entries(STORY)) {
+    for (const option of node.options || []) {
+      if (!option.freeRoamBoundary) continue
+      boundaries.push({ from, option, boundary: option.freeRoamBoundary })
+    }
+  }
+  assert.ok(boundaries.length > 0, 'no authored free-roam boundary exercises the contract')
+  const storyIds = new Set()
+  for (const { from, option, boundary } of boundaries) {
+    assert.equal(typeof boundary, 'object', `${from}->${option.to}: free-roam boundary must be a record`)
+    assert.deepEqual(Object.keys(boundary).sort(), [...boundaryKeys].sort(), `${from}->${option.to}: malformed free-roam boundary`)
+    for (const key of boundaryKeys) {
+      assert.ok(typeof boundary[key] === 'string' && boundary[key].trim().length >= (key === 'owner' ? 3 : 12),
+        `${from}->${option.to}: free-roam boundary needs concrete ${key}`)
+    }
+    assert.equal(storyIds.has(boundary.storyId), false, `${from}->${option.to}: duplicate free-roam story boundary ${boundary.storyId}`)
+    storyIds.add(boundary.storyId)
+    const route = transitionInfo(from, option)
+    assert.ok(route.valid && route.spatial && !route.projection && (route.kind === 'journey' || route.wander),
+      `${from}->${option.to}: free-roam boundary is not an ordinary spatial route`)
+    assert.equal(changesWorld(option), false, `${from}->${option.to}: state-changing route does not need a free-roam boundary`)
+    assert.equal(Boolean(option.become || STORY[option.to]?.end), false,
+      `${from}->${option.to}: tale entry or ending already closes the public route`)
+    assert.ok(pinnedNodes.has(from), `${from}->${option.to}: free-roam boundary does not leave a public node`)
+    assert.equal(pinnedNodes.has(option.to), false, `${from}->${option.to}: free-roam boundary hides a public destination`)
+    assert.ok(playablePublicReturns(STORY, option.to, from, pinnedNodes).length > 0,
+      `${from}->${option.to}: free-roam boundary has no ordinary playable public return`)
+  }
 
   const derivedNodes = reachableBy(WORLD_HUB, isIndependentPublicEdge)
   const derivedPlaces = new Set([...derivedNodes].map((nodeId) => PLACE_OF[nodeId]).filter(Boolean))

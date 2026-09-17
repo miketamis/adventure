@@ -33,7 +33,9 @@ const WORLD_TEXTURE_REVIEW = Object.freeze({
     lake: 4,
     mountain: 35,
     princeland: 1,
-    river: 23,
+    // Canonical-place consolidation removed three invented river locations.
+    // The remaining 22 physical places are all now textured.
+    river: 22,
     sea: 11,
     sky: 8,
     underworld: 12,

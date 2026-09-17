@@ -426,7 +426,15 @@ check('every character threshold confirms atomically, pauses, resumes, and close
       const entered = reducer(pending, { type: 'CONFIRM_EMBODIMENT' })
       assert.equal(entered.nodeId, option.to)
       assert.ok(entered.embodying)
-      assert.deepEqual(entered.embodimentInventorySnapshot, before.inventory)
+      const expectedSnapshot = { ...before.inventory }
+      for (const itemId of list(option.embodimentInventoryTransfer)) {
+        expectedSnapshot[itemId] -= 1
+        if (expectedSnapshot[itemId] <= 0) delete expectedSnapshot[itemId]
+        assert.equal(entered.inventory[itemId], 1,
+          `${from}->${option.to}: transferred ${itemId} did not enter the isolated role`)
+      }
+      assert.deepEqual(entered.embodimentInventorySnapshot, expectedSnapshot,
+        `${from}->${option.to}: role entry duplicated or lost a transferred item`)
       const paused = reducer(entered, { type: 'PAUSE_EMBODIMENT' })
       assert.equal(paused.embodimentPaused, true)
       const resumed = reducer(paused, { type: 'RESUME_EMBODIMENT' })
@@ -473,7 +481,8 @@ check('every character threshold confirms atomically, pauses, resumes, and close
       assert.equal(state.nodeId, START_NODE)
     } else {
       state = reducer(state, { type: 'RETURN_TO_WORLD', to: 'start' })
-      assert.equal(state.nodeId, STORY[ending].returnTo || WORLD_HUB, `${id}: caller spoofed return destination`)
+      assert.equal(state.nodeId, STORY[ending].returnTo || quest.returnTo || WORLD_HUB,
+        `${id}: caller spoofed return destination`)
       assert.deepEqual(state.inventory, pack, `${id}: traveller pack not restored`)
     }
     assert.equal(state.embodying, null, `${id}: role survived closure`)

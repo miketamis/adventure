@@ -1,11 +1,12 @@
 import { optionEffectsOf } from './stateMechanics.js'
+import { isDirectUtteranceChoice } from './speechChoices.js'
 
 // Shared choice-intent contract. The game stays choice-driven, but authoring
 // tools and release audits still need to know whether a button is speech,
-// travel, an observation, or a physical act. Explicit metadata wins; the
-// conservative English-reading classifier keeps the existing corpus covered.
-// Its candidates are release-blocking until an author declares and preserves
-// one intention, so editorial ambiguity cannot silently survive elsewhere.
+// travel, an observation, or a physical act. Explicit metadata is evidence;
+// the conservative English-reading classifier independently keeps the
+// existing corpus covered. Its candidates are release-blocking until the
+// content itself demonstrates one intention, so a label cannot hide another.
 
 export const CHOICE_INTENTS = Object.freeze([
   'speech',
@@ -39,7 +40,7 @@ export const PLAYER_INTENTS = Object.freeze([
 ])
 
 const SPEECH_OPENING = /^(?:say|tell|ask|answer|reply|greet|wish|call out|i\b|i['’]m\b|i am\b|i will\b|i['’]ll\b|we\b|we['’]ll\b|my\b|yes\b|no\b|hello\b|good (?:morning|evening|night)\b|thank|thanks|please\b|sorry\b|what\b|who\b|where\b|when\b|why\b|how\b|do you\b|can you\b|may i\b|will you\b|have you\b|are you\b|is there\b|of course\b|all right\b)/i
-const MOVEMENT_OPENING = /^(?:(?:go|walk|ride|run|climb|descend|cross|enter|leave|return|follow|come to|step|swim|sail|fly)\b|take the (?:road|path|track|way)\b|head (?:to|toward)\b|set out\b)/i
+const MOVEMENT_OPENING = /^(?:(?:go|walk|ride|run|jump|leap|climb|descend|cross|enter|leave|return|follow|come to|step|swim|sail|fly)\b|take the (?:road|path|track|way)\b|head (?:to|toward)\b|set out\b)/i
 const WAIT_OPENING = /^(?:wait|rest|sleep|stay|sit|stand still)/i
 const TRANSACTION_OPENING = /^(?:buy|sell|pay|give .* lek|take the bill)/i
 const ACQUISITION_OPENING = /^(?:take|pick up|collect|gather|receive|keep)\b/i
@@ -50,14 +51,22 @@ const COMMITMENT_OPENING = /^(?:accept|agree|promise|swear|choose|decide|yes\b|n
 
 const FOLLOWUP_INTENT_MENTIONS = Object.freeze({
   speech: /(?:\bthen\b|[.;]|\band\b)\s*(?:i (?:will |shall )?)?(?:say|tell|ask|answer|reply|greet|call out)\b/i,
-  movement: /(?:\bthen\b|[.;]|\band\b)\s*(?:i (?:will |shall )?|let us )?(?:go|walk|ride|run|climb|descend|cross|enter|leave|return|follow|come|step|swim|sail|fly|head toward|set out)\b/i,
+  movement: /(?:\bthen\b|[.;,]|\band\b)\s*(?:i (?:will |shall )?|let us )?(?:go|walk|ride|run|jump|leap|climb|descend|cross|enter|leave|return|follow|come|step|swim|sail|fly|head toward|set out)\b/i,
   observation: /(?:\bthen\b|[.;]|\band\b)\s*(?:i (?:will |shall )?)?(?:look|listen|inspect|examine|watch|read|smell|feel|search)\b/i,
   acquisition: /(?:\bthen\b|[.;]|\band\b)\s*(?:i (?:will |shall )?)?(?:take|pick up|collect|gather|receive|keep)\b/i,
   transfer: /(?:\bthen\b|[.;]|\band\b)\s*(?:i (?:will |shall )?)?(?:give|hand|offer|pay|sell)\b/i,
-  use: /(?:\bthen\b|[.;]|\band\b)\s*(?:i (?:will |shall )?)?(?:use|light|extinguish|refuel|unlock|open|close|put|throw|wash|dry|bandage|drink|eat|strike|cut)\b/i,
+  use: /(?:\bthen\b|[.;,]|\band\b)\s*(?:i (?:will |shall )?)?(?:use|light|extinguish|refuel|unlock|open|close|put|throw|wash|dry|bandage|drink|eat|strike|cut)\b/i,
   commitment: /(?:\bthen\b|[.;]|\band\b)\s*(?:i (?:will |shall )?)?(?:accept|agree|promise|swear|choose|decide)\b/i,
   wait: /(?:\bthen\b|[.;]|\band\b)\s*(?:i (?:will |shall )?)?(?:wait|rest|sleep|stay|sit|stand still)\b/i,
+  physical: /(?:\bthen\b|[.;,]|\band\b)\s*(?:i (?:will |shall )?)?(?:attack|battle|fight|wrestle)\b/i,
 })
+
+// English action readings are an editorial aid, not a parser. Resolve only
+// constructions whose grammar fixes one meaning. A singleton playerIntents
+// declaration must never become a blanket escape hatch for a second verb.
+const MOVEMENT_TAKE_IDIOM = /^take the (?:[a-z'-]+ ){0,2}(?:road|path|track|way)\b/i
+const TRANSACTION_REQUEST_IDIOM = /^please (?:bring|give|hand|sell)\b/i
+const DIRECT_RECEIPT_REQUEST_IDIOM = /^(?:please )?(?:bring|give|hand) me\b/i
 
 const readingOf = (option) => String(
   option?.choiceReading || option?.text?.optionReading || option?.text?.reading || '',
@@ -166,14 +175,22 @@ const FORBIDDEN_COMPOUND_PAIRS = Object.freeze(new Set([
   'movement+observation',
   'movement+speech',
   'movement+transfer',
+  'movement+transaction',
   'movement+use',
   'movement+wait',
   'observation+transfer',
+  'observation+physical',
+  'observation+transaction',
   'observation+use',
   'observation+wait',
+  'physical+speech',
+  'movement+physical',
+  'physical+wait',
   'speech+transfer',
+  'speech+transaction',
   'speech+use',
   'speech+wait',
+  'transaction+wait',
   'transfer+wait',
   'use+wait',
 ]))
@@ -194,10 +211,18 @@ function allPairs(intents) {
 
 function lexicalPlayerIntents(option) {
   const reading = readingOf(option)
+  // Exact dialogue can mention any number of actions without performing them.
+  // The explicit speechAct is the proof that the entire surface is quoted
+  // player speech; structural transitions and effects are still checked below.
+  if (isDirectUtteranceChoice(option)) {
+    if (explicitPlayerIntentsOf(option).includes('transaction')) return ['transaction']
+    if (option?.grant && DIRECT_RECEIPT_REQUEST_IDIOM.test(reading)) return ['acquisition']
+    return ['speech']
+  }
   const intents = []
-  // These are conservative editorial leads. A reviewed single playerIntents
-  // declaration suppresses their noise; otherwise every forbidden pair must
-  // fail closed and be resolved by content or explicit authoring metadata.
+  // These are conservative editorial leads. Every forbidden pair fails closed
+  // unless a narrow grammar-level idiom below proves two readings are really
+  // one action; a singleton author declaration never suppresses a second verb.
   if (SPEECH_OPENING.test(reading)) intents.push('speech')
   if (MOVEMENT_OPENING.test(reading)) intents.push('movement')
   if (WAIT_OPENING.test(reading)) intents.push('wait')
@@ -209,7 +234,15 @@ function lexicalPlayerIntents(option) {
   for (const [intent, pattern] of Object.entries(FOLLOWUP_INTENT_MENTIONS)) {
     if (pattern.test(reading)) intents.push(intent)
   }
-  return unique(intents)
+  const resolved = unique(intents)
+  if (MOVEMENT_TAKE_IDIOM.test(reading)) {
+    return resolved.filter((intent) => intent !== 'acquisition')
+  }
+  if (TRANSACTION_REQUEST_IDIOM.test(reading)
+    && explicitPlayerIntentsOf(option).includes('transaction')) {
+    return resolved.filter((intent) => !['speech', 'transfer'].includes(intent))
+  }
+  return resolved
 }
 
 function structuralPlayerIntents(fromNodeId, option, placeOf) {
@@ -249,17 +282,7 @@ export function compoundIntentReview(fromNodeId, option, placeOf) {
   const explicit = explicitPlayerIntentsOf(option)
   const structural = structuralPlayerIntents(fromNodeId, option, placeOf)
   const effects = effectPlayerIntentEvidence(option)
-  const rawLexical = lexicalPlayerIntents(option)
-  // A reviewed utterance can contain action words without performing them
-  // (for example, “Wait a moment; I have a question”). Likewise, ordinary
-  // transaction wording may ask a seller to hand over the purchased object.
-  // These narrow normalizations never suppress structural movement or actual
-  // inventory/fixture effects, so metadata cannot hide a second real action.
-  const lexical = rawLexical.filter((intent) => {
-    if (explicit.length === 1 && explicit[0] === 'speech') return intent === 'speech'
-    if (explicit.includes('transaction') && ['speech', 'acquisition', 'transfer'].includes(intent)) return false
-    return true
-  })
+  const lexical = lexicalPlayerIntents(option)
   const hardPerceptualOrSpeech = unique([...explicit, ...structural])
     .filter((intent) => ['observation', 'speech'].includes(intent))
   const definitePairs = unique([

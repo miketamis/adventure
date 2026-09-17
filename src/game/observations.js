@@ -1,3 +1,9 @@
+import {
+  authoredPlayerAction,
+  playerActionConditionId,
+  withPlayerActionConsequence,
+} from './playerActionRuntime.js'
+
 // Progressive perception is authored as a small, reusable story contract.
 // A scene may keep one or two coherent details behind an attention action;
 // choosing it records one observation and reveals its related lines in place.
@@ -93,6 +99,8 @@ export function buildObservationOption({ id, beat, nodeId, text, reading, kind =
     text,
     to: nodeId,
     durationHours: OBSERVATION_POLICY.durationHours,
+    playerAction: authoredPlayerAction(`observation:${id}`),
+    playerIntents: ['observation'],
     unless: addCondition(option.unless, condition),
     effects: [...(option.effects || []), { type: 'observe', id }],
     observation: Object.freeze({ id, beat, kind }),
@@ -102,6 +110,7 @@ export function buildObservationOption({ id, beat, nodeId, text, reading, kind =
 
 export function installObservationBeats(story, beats) {
   const seen = new Set()
+  const immediateLines = new Map()
   for (const spec of beats || []) {
     const { id, nodeId, lineIndices, optionIndices = [] } = spec || {}
     const node = story?.[nodeId]
@@ -126,6 +135,33 @@ export function installObservationBeats(story, beats) {
       total: lines.length,
     }))
     const condition = observationConditionId(id)
+    const actionId = `observation:${id}`
+    const actionCondition = playerActionConditionId(actionId)
+    const firstLineIndex = lineIndices[0]
+    const firstEntry = node.text[firstLineIndex]
+    const firstLine = Array.isArray(firstEntry) ? firstEntry : firstEntry.line
+    const inheritedRequired = firstEntry?.negate
+      ? []
+      : addCondition(firstEntry?.cond, condition)
+    const inheritedExcluded = [...new Set([
+      ...[].concat(firstEntry?.none || []),
+      ...(firstEntry?.negate ? [].concat(firstEntry.cond || []) : []),
+    ])]
+    node.text[firstLineIndex] = Array.isArray(firstEntry)
+      ? { cond: [], none: [actionCondition], line: firstEntry }
+      : { ...firstEntry, none: addCondition(firstEntry.none, actionCondition) }
+    const immediateLine = withPlayerActionConsequence(
+      Object.assign([...firstLine], firstLine),
+      actionId,
+    )
+    const additions = immediateLines.get(nodeId) || []
+    additions.push({
+      cond: addCondition(inheritedRequired, actionCondition),
+      none: inheritedExcluded,
+      negate: false,
+      line: immediateLine,
+    })
+    immediateLines.set(nodeId, additions)
     for (const index of optionIndices) {
       const option = node.options?.[index]
       if (!Number.isSafeInteger(index) || index < 0 || !option || option.confuser) {
@@ -137,6 +173,7 @@ export function installObservationBeats(story, beats) {
     node.options.push(buildObservationOption({ ...spec, text: spec.action() }))
     seen.add(id)
   }
+  for (const [nodeId, entries] of immediateLines) story[nodeId].text.push(...entries)
   return story
 }
 

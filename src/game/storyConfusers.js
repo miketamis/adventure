@@ -7,6 +7,7 @@ import {
 } from './content.js'
 import { storyConfuserConsequence } from './consequenceBuilders.js'
 import { albanianTextOf } from './language.js'
+import { isTrainableSense } from './lexicalTrainability.js'
 
 // Generated item confusers may enter play only after their exact continuous
 // phrase recording and waveform-correlated timing have been certified. There
@@ -33,7 +34,23 @@ function dynamicItemConfuser(itemId, items = ITEMS) {
   }
 }
 
-function authoredConfusers(node) {
+export function confuserPrerequisiteSenseIds(tokens) {
+  return [...new Set((tokens || [])
+    .filter((token) => token?.id && isTrainableSense(token.id))
+    .map((token) => token.id))]
+}
+
+export function confuserLegibility(state, tokens) {
+  const required = confuserPrerequisiteSenseIds(tokens)
+  const missing = required.filter((id) => !state?.discovered?.[id])
+  return Object.freeze({ required: Object.freeze(required), missing: Object.freeze(missing), legible: missing.length === 0 })
+}
+
+// Keep complete authored enumeration separate from runtime eligibility. Audio,
+// consequence and authoring audits must cover every surface that can eventually
+// be accepted, while ordinary play must not let an impossible action become a
+// learner's first exposure to any of its vocabulary.
+export function authoredStoryConfusers(node) {
   return (node?.options || []).flatMap((option, optionIndex) => {
     if (!option.confuser) return []
     const correctGreeting = option.contextGreeting && node.options.find((candidate) =>
@@ -85,9 +102,9 @@ export function storyConfuserCandidates(state, {
   const node = story[state?.nodeId]
   if (!node) return []
   return [
-    ...authoredConfusers(node),
+    ...authoredStoryConfusers(node),
     ...dynamicConfusersForState(state, node, items, heartLevels),
-  ]
+  ].filter((candidate) => confuserLegibility(state, candidate.tokens).legible)
 }
 
 export function canonicalStoryConfuser(state, action) {

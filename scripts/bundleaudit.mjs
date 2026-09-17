@@ -151,9 +151,12 @@ for (const rule of AREA_ACHIEVEMENT_RULES) {
 // The pre-consented playtest instrumentation adds the privacy controls,
 // bounded feedback check-in and safe structured-replay encoder to the
 // application shell. The optional written check-in and global interaction
-// monitor bring the measured shell to 198.2 KiB raw / 66.3 KiB gzip. PostHog
-// itself and the diagnostics panel remain deferred.
-const SHELL_RAW_BUDGET = 200 * KiB
+// monitor bring the earlier measured shell to 198.2 KiB raw / 66.3 KiB gzip.
+// Canonical heard-effects, role-inventory transfer, and the shared direct-
+// utterance classifier bring it to 200.3 KiB raw / 66.3 KiB gzip. These are
+// reducer and choice-integrity contracts needed before the first action;
+// PostHog and the diagnostics panel remain deferred.
+const SHELL_RAW_BUDGET = 201 * KiB
 const SHELL_GZIP_BUDGET = 68 * KiB
 // The lexical evidence state machine, death-retention boundary, compact
 // mixed-matching registry, exact reviewed noun paradigms, and the first-village
@@ -167,24 +170,24 @@ const SHELL_GZIP_BUDGET = 68 * KiB
 // rolling-horizon planner remains in the lazy Train chunk. The playtest shell
 // plus the privacy-safe interaction monitor brings the earlier measured
 // closure to 1460.9 KiB raw / 358.7 KiB gzip. The audited conversation-hub,
-// action-provenance and visible-affordance work adds real first-play Albanian
-// and consequences, bringing the measured closure to 1493.6 KiB raw /
-// 367.3 KiB gzip after its audit-only metadata is stripped. Keep narrow
-// ceilings above that player-facing payload.
-const BOOTSTRAP_RAW_BUDGET = 1_495 * KiB
-const BOOTSTRAP_GZIP_BUDGET = 368 * KiB
+// action-provenance and visible-affordance sweep adds real first-play Albanian,
+// conversation replies, alternate exits and consequences, bringing the
+// measured closure to 1547.2 KiB raw / 377.5 KiB gzip after its audit-only
+// metadata is stripped. Keep narrow ceilings above that player-facing payload.
+const BOOTSTRAP_RAW_BUDGET = 1_549 * KiB
+const BOOTSTRAP_GZIP_BUDGET = 379 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
 // warning limit; the stricter aggregate and gzip ceilings below still measure
 // the bytes a first-time player actually downloads.
-const BOOTSTRAP_CHUNK_RAW_BUDGET = 805 * KiB
+const BOOTSTRAP_CHUNK_RAW_BUDGET = 856 * KiB
 const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
 // The added NPC replies keep their reviewed English metadata deferred from
 // ordinary play. Shared record construction plus the new conversation and
-// continuity readings keep the complete measured corpus at 346.8 KiB raw /
-// 102.8 KiB gzip without dropping any reviewed reading.
-const READING_CHUNK_RAW_BUDGET = 348 * KiB
-const READING_CHUNK_GZIP_BUDGET = 104 * KiB
+// continuity readings keep the complete measured corpus at 367.8 KiB raw /
+// 108.3 KiB gzip without dropping any reviewed reading.
+const READING_CHUNK_RAW_BUDGET = 369 * KiB
+const READING_CHUNK_GZIP_BUDGET = 110 * KiB
 const AUDIO_FILE_BUDGET = 64 * KiB
 // Word-level timestamps are loaded only after an accepted action starts its
 // continuous MP3. Budget the independently cached manifest as well as the
@@ -192,13 +195,13 @@ const AUDIO_FILE_BUDGET = 64 * KiB
 // The expanded village conversations and continuity actions add their
 // continuous Albanian recordings and exact waveform-correlated word
 // boundaries. The resulting complete manifest stores its common method once
-// and is 1002.1 KiB raw / 134.8 KiB gzip; keep narrow measured allowances for
+// and is 1056.8 KiB raw / 141.6 KiB gzip; keep narrow measured allowances for
 // that release-safety data.
-const ACTION_TIMINGS_RAW_BUDGET = 1_004 * KiB
-const ACTION_TIMINGS_GZIP_BUDGET = 136 * KiB
+const ACTION_TIMINGS_RAW_BUDGET = 1_058 * KiB
+const ACTION_TIMINGS_GZIP_BUDGET = 143 * KiB
 // Every accepted story action now has one continuous, on-demand MP3 so action
 // karaoke never falls back to stitched word clips or browser TTS. Keep a
-// measured ceiling over that complete 4,486-clip archive; none is eager-loaded.
+// measured ceiling over that complete 4,845-clip archive; none is eager-loaded.
 const AUDIO_TOTAL_BUDGET = 48 * 1024 * KiB
 const actionTimings = sizeOf(ACTION_TIMINGS)
 

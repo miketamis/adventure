@@ -56,6 +56,7 @@ const ACTION_TOKEN_IDS = Object.freeze({
   commitment: new Set(['zgjedh', 'pranoj', 'premto', 'betohem', 'marto']),
   transaction: new Set(['blej', 'paguaj', 'kushton']),
 })
+const ALL_ACTION_TOKEN_IDS = new Set(Object.values(ACTION_TOKEN_IDS).flatMap((ids) => [...ids]))
 const ACTION_SURFACE_FILLERS = new Set([
   'ti', 'ju', 'une', 'ne_we', 'nje', 'e_art', 'i_art', 'te_link', 'te_obj',
   'te_subj', 'dhe', 'ose', 'me', 'ne', 'nga', 'tek', 'per',
@@ -148,14 +149,41 @@ function optionEstablishedConditions(option, sourceNodeId = null) {
     if (effect?.type === 'flag') {
       const id = String(effect.id || '')
       const condition = id.startsWith('flag:') ? id : `flag:${id}`
-      if (effect.value === false) excluded.add(condition)
-      else established.add(condition)
+      if (effect.value === false) {
+        established.delete(condition)
+        excluded.add(condition)
+      } else {
+        excluded.delete(condition)
+        established.add(condition)
+      }
     }
-    if (effect?.type === 'inventory' && effect.delta > 0) established.add(effect.id)
-    if (effect?.type === 'inventory' && effect.delta < 0) excluded.add(effect.id)
+    if (effect?.type === 'inventory' && effect.delta > 0) {
+      excluded.delete(effect.id)
+      established.add(effect.id)
+    }
+    if (effect?.type === 'inventory' && effect.delta < 0) {
+      established.delete(effect.id)
+      excluded.add(effect.id)
+    }
+    if (effect?.type === 'observe' && effect.id) {
+      const condition = `observed:${effect.id}`
+      excluded.delete(condition)
+      established.add(condition)
+    }
   }
-  if (option?.grant) established.add(option.grant)
-  if (option?.consumes) excluded.add(option.consumes)
+  if (option?.grant) {
+    excluded.delete(option.grant)
+    established.add(option.grant)
+  }
+  if (option?.consumes) {
+    established.delete(option.consumes)
+    excluded.add(option.consumes)
+  }
+  if (option?.activateFixture) {
+    const condition = `fixture:${option.activateFixture}:live`
+    excluded.delete(condition)
+    established.add(condition)
+  }
   if (Number(option?.lek || 0) !== 0 || option?.moneyOutcome) established.add('arrival:money')
   if (sourceNodeId) {
     established.add(playerActionConditionId(canonicalPlayerActionId(sourceNodeId, option)))
@@ -182,6 +210,25 @@ function consequenceVisibleAfter(entry, sourceNodeId, option) {
     } else if (!excluded.has(condition)) {
       // A negated line may be visible in the default state. It is guaranteed
       // only when the action itself establishes that exclusion.
+      return false
+    }
+  }
+  return true
+}
+
+function consequenceCanBeVisibleAfter(entry, sourceNodeId, option) {
+  const { established, excluded } = optionEstablishedConditions(option, sourceNodeId)
+  for (const condition of requiredConditionsOf(entry)) {
+    if (String(condition).startsWith('from:')) {
+      if (!routeAllowsSource(condition, sourceNodeId)) return false
+    } else if (excluded.has(condition)) {
+      return false
+    }
+  }
+  for (const condition of excludedConditionsOf(entry)) {
+    if (String(condition).startsWith('from:')) {
+      if (routeAllowsSource(condition, sourceNodeId)) return false
+    } else if (established.has(condition)) {
       return false
     }
   }
@@ -230,16 +277,74 @@ function semanticActionSurface(option) {
   return unique(tokenIdsOf(option?.text).filter((id) => !ACTION_SURFACE_FILLERS.has(id)))
 }
 
-function subsetOf(left, right) {
-  const rightSet = new Set(right)
-  return left.every((value) => rightSet.has(value))
-}
-
 function sameSemanticAction(left, right) {
   if (primaryActionSignature(left) !== primaryActionSignature(right)) return false
   const leftSurface = semanticActionSurface(left)
   const rightSurface = semanticActionSurface(right)
-  return subsetOf(leftSurface, rightSurface) || subsetOf(rightSurface, leftSurface)
+  if (leftSurface.length !== rightSurface.length) return false
+  const rightSet = new Set(rightSurface)
+  return leftSurface.every((value) => rightSet.has(value))
+}
+
+function consequenceSemanticallyMatches(option, entry) {
+  const optionConversation = option?.conversationHub
+  const entryConversation = entry?.conversationHub
+  if (optionConversation?.kind === 'question'
+      && entryConversation?.kind === 'response'
+      && optionConversation.hubId === entryConversation.hubId
+      && optionConversation.questionId === entryConversation.questionId) {
+    return true
+  }
+  const line = lineOf(entry) || []
+  if (option?.observation?.id && option.observation.id === line?.observation?.id) return true
+  const optionEntities = semanticActionSurface(option)
+    .filter((id) => !ALL_ACTION_TOKEN_IDS.has(id))
+  const consequenceEntities = unique(tokenIdsOf(line)
+    .filter((id) => !ACTION_SURFACE_FILLERS.has(id) && !ALL_ACTION_TOKEN_IDS.has(id)))
+  const declared = line.playerActionConsequence
+  if (option?.playerAction?.id
+      && declared?.actorId === 'player'
+      && declared.actionIds?.includes(option.playerAction.id)
+      && (!optionEntities.length || optionEntities.some((id) => consequenceEntities.includes(id)))) {
+    return true
+  }
+  const optionKinds = optionKindsOf(option)
+  let consequenceKinds = consequenceKindsOf(entry)
+  const reading = englishReadingOf(line).trim()
+  // Some authored consequences lead with the means or obstacle before naming
+  // the player ("With the strength, you throw..."). An exact arrival-action
+  // binding makes that clause safe to inspect, but the line must still contain
+  // a player subject and an action from the same semantic family.
+  if (!consequenceKinds.length && /\b(?:you|your)\b/i.test(reading)) {
+    consequenceKinds = actionKindsOf(reading, line)
+  }
+  if (!intersects(optionKinds, consequenceKinds)) return false
+
+  // An action-family match alone is too weak: "give salt" must not satisfy
+  // "give bread". Compare the meaningful non-action participants/objects when
+  // the option names any; token ids already normalize inflected surfaces.
+  if (!optionEntities.length) return true
+  return optionEntities.some((id) => consequenceEntities.includes(id))
+}
+
+function moneyOutcomeLinesOf(option) {
+  const outcome = option?.moneyOutcome
+  if (!outcome) return []
+  if (Array.isArray(outcome)) return [outcome]
+  return (outcome.variants || []).map((variant) => variant?.line).filter(Array.isArray)
+}
+
+function isExactConversationResponse(option, entry) {
+  const question = option?.conversationHub
+  const response = entry?.conversationHub
+  if (question?.kind !== 'question'
+      || response?.kind !== 'response'
+      || question.hubId !== response.hubId
+      || question.questionId !== response.questionId) return false
+  const producedFlags = new Set((option.effects || [])
+    .filter((effect) => effect?.type === 'flag' && effect.value !== false)
+    .map((effect) => `flag:${effect.id}`))
+  return requiredConditionsOf(entry).some((condition) => producedFlags.has(condition))
 }
 
 export function playerActionProvenanceIssues(story) {
@@ -352,5 +457,73 @@ export function playerActionProvenanceIssues(story) {
     }
   }
 
+  return Object.freeze({ issues: Object.freeze(issues), candidateCount })
+}
+
+// When player actions all enter the same result node, that result must not
+// flatten materially different acts into one generic outcome. Every canonical
+// choice action participates, whether or not an author supplied a stable id.
+// Each edge needs a semantically matching consequence bound to its exact
+// arrival-action receipt. A registered conversation response is the narrow
+// persistent equivalent: its question writes one response flag, its metadata
+// identifies that exact topic, and choosing another topic clears it. Other
+// durable flags, prerequisites, and unrelated prose cannot prove what the
+// player just did.
+export function sharedActionDestinationIssues(story) {
+  const issues = []
+  let candidateCount = 0
+  const optionsCanAppearTogether = (left, right) => {
+    const leftRequired = new Set([].concat(left?.requires || []).filter(Boolean))
+    const rightRequired = new Set([].concat(right?.requires || []).filter(Boolean))
+    const leftExcluded = new Set([].concat(left?.unless || []).filter(Boolean))
+    const rightExcluded = new Set([].concat(right?.unless || []).filter(Boolean))
+    return ![...leftRequired].some((condition) => rightExcluded.has(condition))
+      && ![...rightRequired].some((condition) => leftExcluded.has(condition))
+  }
+  for (const [sourceNodeId, node] of Object.entries(story || {})) {
+    const byDestination = new Map()
+    for (const [optionIndex, option] of (node?.options || []).entries()) {
+      if (!option || option.confuser || !option.to || !story[option.to]) continue
+      if (optionActorId(option) !== 'player' || !optionKindsOf(option).length) continue
+      const edges = byDestination.get(option.to) || []
+      edges.push({ sourceNodeId, optionIndex, option, actionId: canonicalPlayerActionId(sourceNodeId, option) })
+      byDestination.set(option.to, edges)
+    }
+    for (const [destinationNodeId, edges] of byDestination) {
+      const materiallyDistinctEdges = edges.filter((edge) => edges.some((candidate) =>
+        candidate !== edge
+        && optionsCanAppearTogether(edge.option, candidate.option)
+        && !sameSemanticAction(edge.option, candidate.option)))
+      const representatives = []
+      for (const edge of materiallyDistinctEdges) {
+        if (!representatives.some((candidate) => sameSemanticAction(candidate.option, edge.option))) {
+          representatives.push(edge)
+        }
+      }
+      if (representatives.length < 2) continue
+      candidateCount += representatives.length
+      const destination = story[destinationNodeId]
+      for (const edge of representatives) {
+        const exactCondition = playerActionConditionId(edge.actionId)
+        const hasDestinationConsequence = (destination?.text || []).some((entry) => {
+          if (!consequenceCanBeVisibleAfter(entry, sourceNodeId, edge.option)) return false
+          if (lineOf(entry)?.scenePriority === 'ambient') return false
+          const required = requiredConditionsOf(entry)
+          return consequenceSemanticallyMatches(edge.option, entry)
+            && (required.includes(exactCondition) || isExactConversationResponse(edge.option, entry))
+        })
+        // Money outcome prose is selected from the exact arrival option by the
+        // renderer, so it already has a stronger edge binding than a durable
+        // story flag. It still has to describe the same action: merely paying
+        // or receiving money cannot launder unrelated choice prose.
+        const hasExactMoneyConsequence = moneyOutcomeLinesOf(edge.option)
+          .some((line) => consequenceSemanticallyMatches(edge.option, { line }))
+        const hasBoundConsequence = hasDestinationConsequence || hasExactMoneyConsequence
+        if (!hasBoundConsequence) {
+          issues.push(`${sourceNodeId}.options[${edge.optionIndex}] -> ${destinationNodeId}: distinct shared-destination action '${edge.actionId}' has no exact action-bound semantically matching visible consequence`)
+        }
+      }
+    }
+  }
   return Object.freeze({ issues: Object.freeze(issues), candidateCount })
 }

@@ -78,6 +78,7 @@ import { storyConfuserCandidates } from '../game/storyConfusers.js'
 import '../game/npcAppearanceRegistry.js'
 import { isTrainableSense } from '../game/lexicalTrainability.js'
 import { captureStoryChoicesPresented } from '../game/playtestAnalytics.js'
+import { speechChoiceLabelOf } from '../game/speechChoices.js'
 
 const FactoidLore = lazy(() => import('./FactoidLore.jsx'))
 attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
@@ -295,6 +296,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
       key: 'opt-' + i,
       trainingTarget: trainingTargetForOption(state.nodeId, opt),
       tokens: opt.text,
+      speechLabel: speechChoiceLabelOf(opt),
       reading: optionEnglishReadingOf(opt.text),
       readingReviewed: ['internal-editorial', 'generated-world-item', 'generated-observation'].includes(opt.text.optionReadingReview),
       real: true,
@@ -362,7 +364,9 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
       onSelect: () => dispatch({ type: 'HEAL', expectedHearts: state.hearts, optionId: 'heal' }),
     })
   }
-  // confusers — always shown (the comprehension trap)
+  // Confusers become visible only after every trainable sense in the phrase has
+  // already been discovered. The canonical registry owns that fail-closed gate,
+  // so an impossible action can test comprehension but never teach new words.
   if (!state.embodying) {
     storyConfuserCandidates(state).forEach((confuser) => {
       const opt = confuser.option
@@ -378,6 +382,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
         key: confuser.key,
         ...(opt ? { trainingTarget: trainingTargetForOption(state.nodeId, opt) } : {}),
         tokens: confuser.tokens,
+        speechLabel: speechChoiceLabelOf(opt || { text: confuser.tokens }),
         reading,
         readingReviewed: confuser.kind !== 'dynamic-item' && [
           'internal-editorial',
@@ -915,7 +920,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
               const optionPhrase = e.reading || optionEnglishReadingOf(e.tokens)
               const accessibleOptionPhrase = state.debug
                 ? optionPhrase
-                : albanianTextOf(e.tokens)
+                : [e.speechLabel, albanianTextOf(e.tokens)].filter(Boolean).join(' ')
               return (
                 <div
                   key={e.key}
@@ -938,6 +943,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
                       </span>
                     )}
                     <span className="option-text">
+                      {e.speechLabel && <span className="option-speaker-label">{e.speechLabel}</span>}
                       {e.tokens.map((tok, j) => (
                         <Token
                           key={j}

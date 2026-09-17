@@ -63,7 +63,7 @@ export const REGION_OVERRIDES = Object.freeze({
   bisedaShesh: 'village', bisedaKroi: 'village',
   eliraBreg: 'village', eliraEmriBreg: 'village',
   eliraShesh: 'village', eliraEmriShesh: 'village',
-  eliraBanore: 'village', eliraEmriBanore: 'village', eliraPorosiaDorezuar: 'village',
+  eliraBanore: 'village', eliraPorosiaDorezuar: 'village',
   porosiaShesh: 'village',
   pazariFshatit: 'village', porosiaBlerje: 'village', porosiaBlerjePergjigje: 'village',
   sofraMikut: 'village', sofraMikut2: 'village',
@@ -97,7 +97,7 @@ export const REGION_OVERRIDES = Object.freeze({
   tsHyrje: 'mountain', tsNuse: 'mountain', tsRoje: 'mountain',
   tsZgjim: 'mountain', tsShpeto: 'mountain', tsFundTomor: 'mountain',
   tomorProva: 'mountain', tomorStuhi: 'mountain',
-  maroIkja: 'village', maroMesnata: 'village', maroKrushqit: 'village',
+  maroIkja: 'village', maroMesnata: 'village', maroKthyerShtepi: 'village', maroKrushqit: 'village',
   cuckoo1: 'village', cuckooFund: 'village', cuckooLule: 'village',
   dallendyshe1: 'village', dallendysheFund: 'village', dallendysheGjak: 'village',
   maroPrincesha: 'princeland',
@@ -120,6 +120,7 @@ export const REGION_OVERRIDES = Object.freeze({
   // These scenes are physically inside the sealed lower realm. Leaving them
   // to graph-seed order made the cave ascent inherit `sea` and the explicit
   // lost-below scene inherit `river`, exposing surface horizons underground.
+  fitorja: 'underworld', springReturn: 'underworld',
   kthimi: 'underworld', botaHumbur: 'underworld', humbur: 'underworld',
   oraBardhe: 'underworld', oraZeze: 'underworld', oraVerdhe: 'underworld',
   // Hold the sea-well/eagle/black-water chain and the upper cavern junction in

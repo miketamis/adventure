@@ -91,7 +91,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
   'muji-e-behuri': quest({
     identity: "Mujo's trusted road-companion", stance: 'companion', entryFrom: 'odaJutbina', entryTo: 'behuriJutbina', returnTo: 'jutbina',
     objective: 'heed the courser and Ora, enter Behuri’s tower and help Mujo survive the final mejdan',
-    nodes: 'behuriJutbina behuriNdarja behuriBurimi behuriKulla behuriMejdan behuriFund behuriKotorHumbur behuriBurimHumbur behuriKullaHumbur behuriMejdanHumbur',
+    nodes: 'behuriJutbina behuriNdarja behuriBurimi behuriKulla behuriMejdan behuriMejdanKeshilla behuriFund behuriKotorHumbur behuriBurimHumbur behuriKullaHumbur behuriMejdanHumbur',
     endings: 'behuriFund behuriKotorHumbur behuriBurimHumbur behuriKullaHumbur behuriMejdanHumbur',
   }),
   'halil-garria': quest({
@@ -140,8 +140,8 @@ export const EMBODIMENT_QUESTS = Object.freeze({
   gjizar: quest({
     identity: 'the youngest prince', stance: 'embodied', entryFrom: 'gjizar2', entryTo: 'gjizarUdha', returnTo: 'gjizar1',
     objective: 'follow the road of no return in search of Gjizar',
-    nodes: 'gjizarUdha gjizarPallat gjizarKap gjizarTradheti gjizarPus gjizarFund',
-    endings: 'gjizarKap gjizarPus gjizarFund',
+    nodes: 'gjizarUdha gjizarPallat gjizarKap gjizarTradheti gjizarUnazatLena gjizarVellezerRefuz gjizarPus gjizarFund',
+    endings: 'gjizarKap gjizarUnazatLena gjizarVellezerRefuz gjizarPus gjizarFund',
   }),
   cuckoo: quest({
     identity: "Qyqja, Gjon's sister", stance: 'embodied', entryFrom: 'gjizar2', entryTo: 'cuckoo1', returnTo: 'gjizar1',
@@ -173,7 +173,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
   'maro-perhitura': quest({
     identity: 'Maro Përhitura', stance: 'embodied', entryFrom: 'maroShtepi', entryTo: 'maroNisja',
     objective: 'carry the grain to the night mill',
-    nodes: 'maroNisja mulli1 maroMulli1 maroXhindet1 maroLitani1 maroLitani2 maroLitani3 maroShtremberDore maroDoraShtember maroDoraFalje maroShtrember maroNataHumbur maroShtepi maroLiloNis maroLiloKthim maroLajmi maroTetua maroHani maroIkja maroMesnata maroKrushqit maroPrincesha maroPallati maroGjilpera maroLindja maroZogu maroKopshti maroFundi maroCiuCiu',
+    nodes: 'maroNisja mulli1 maroMulli1 maroXhindet1 maroLitani1 maroLitani2 maroLitani3 maroShtremberDore maroDoraShtember maroDoraFalje maroShtrember maroNataHumbur maroShtepi maroLiloNis maroLiloKthim maroLajmi maroTetua maroHani maroIkja maroMesnata maroKthyerShtepi maroKrushqit maroPrincesha maroPallati maroGjilpera maroLindja maroZogu maroKopshti maroFundi maroCiuCiu',
     endings: 'maroDoraShtember maroDoraFalje maroShtrember maroNataHumbur maroPrincesha maroFundi maroCiuCiu',
   }),
 })
@@ -316,6 +316,17 @@ export function embodimentOptionAccess(state, option, targetNode = STORY[option?
       ok: false,
       kind: 'paused-quest',
       reason: `Resume ${identity}'s tale before taking its next story action.`,
+    }
+  }
+
+  // A spatially ordinary road can still be the authored threshold into a
+  // private story route. Keep that commitment explicit on the exact choice:
+  // geometry alone must not let a paused role wander into another episode.
+  if (option.freeRoamBoundary) {
+    return {
+      ok: false,
+      kind: 'story-entry',
+      reason: `Finish ${identity}'s tale before entering another story route.`,
     }
   }
 

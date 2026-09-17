@@ -20,7 +20,11 @@ import {
 } from '../src/game/consequenceBuilders.js'
 import { newRun, normalizeSavedState, phraseSenses, reducer } from '../src/game/gameState.js'
 import { itemUseEffectsOption, optionEffectsOf } from '../src/game/stateMechanics.js'
-import { consequenceForStoryConfuser, storyConfuserCandidates } from '../src/game/storyConfusers.js'
+import {
+  authoredStoryConfusers,
+  consequenceForStoryConfuser,
+  storyConfuserCandidates,
+} from '../src/game/storyConfusers.js'
 import { testFor } from '../src/game/comprehension.js'
 
 const root = new URL('../', import.meta.url)
@@ -179,13 +183,16 @@ check('the reducer loses health and blocks play only with a valid explanation', 
   const initial = newRun()
   assert.strictEqual(reducer(initial, { type: 'CONFUSE', expectedHearts: initial.hearts }), initial,
     'CONFUSE did not fail closed without canonical identity metadata')
-  const confuser = storyConfuserCandidates(initial).find((candidate) => candidate.kind === 'authored')
-  assert.ok(confuser)
+  const declared = authoredStoryConfusers(STORY[initial.nodeId])[0]
+  assert.ok(declared)
   let ready = { ...initial, discovered: { ...initial.discovered }, mana: { ...initial.mana } }
-  for (const id of phraseSenses(confuser.tokens)) {
+  for (const id of phraseSenses(declared.tokens)) {
     ready.discovered[id] = true
     ready.mana[id] = 2
   }
+  const confuser = storyConfuserCandidates(ready)
+    .find((candidate) => candidate.kind === 'authored' && candidate.key === declared.key)
+  assert.ok(confuser)
   const lost = reducer(ready, {
     type: 'CONFUSE', optionId: confuser.key, optionIndex: confuser.optionIndex,
     expectedHearts: ready.hearts, fromNodeId: ready.nodeId, fromTurn: ready.turn,

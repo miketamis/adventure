@@ -1,18 +1,20 @@
 // Distractor-vocabulary helper for hand-writing confusers.
 //   node scripts/distractorwords.mjs <nodeId> [--trace]
 //
-// A confuser at a node should be built only from words the player can already read
-// when they arrive — otherwise the wrong choice is illegible and can't tempt anyone.
+// Prefer a confuser built from words the player can already read when they arrive.
+// The canonical runtime additionally fails closed: an authored confuser stays
+// absent until every trainable word in it has actually been discovered.
 // This prints that vocabulary, in tiers, and audits the node's existing confusers
-// against the same rule storystats.mjs enforces. See scripts/lib/discovery.mjs.
+// against the preferred structural pool. See scripts/lib/discovery.mjs.
 //
 //   GUARANTEED — forced on the way in (intersection over every path). Safest: known
 //                no matter which route the player took here.
 //   VISIBLE    — on screen now: the scene text + the real option texts. Readable, but
 //                only because it's in front of them at this node.
-//   LEGIBLE    = GUARANTEED ∪ VISIBLE — the full set a confuser may draw from.
-//   POSSIBLE   — known on SOME path but not all, and not visible here. NOT legible:
-//                a confuser using these is illegible to players who came another way.
+//   LEGIBLE    = GUARANTEED ∪ VISIBLE — the preferred set for an immediately
+//                relevant confuser.
+//   POSSIBLE   — known on SOME path but not all, and not visible here. A confuser
+//                using these remains hidden until this run has discovered them.
 import { STORY, START_NODE, DICT } from '../src/game/content.js'
 import { analyzeDiscovery, sensesOf } from './lib/discovery.mjs'
 
@@ -54,7 +56,7 @@ for (const c of confusers) {
   const illegible = words.filter((s) => !A.legible[target].has(s))
   const onlyVisible = words.filter((s) => !guaranteed.has(s) && A.visible[target].has(s))
   const al = (c.text || []).map((t) => t.al || t.en).join(' ')
-  const tag = illegible.length ? `❌ illegible: ${illegible.join(', ')}`
+  const tag = illegible.length ? `⏳ runtime discovery-gated: ${illegible.join(', ')}`
     : onlyVisible.length ? `✅ legible (relies on visible: ${onlyVisible.join(', ')})`
     : '✅ all guaranteed'
   console.log(`   "${al}"  ${tag}`)

@@ -19,7 +19,9 @@ import {
   rendezvousAvailabilityForOption,
 } from '../src/game/gameState.js'
 import {
+  authoredStoryConfusers,
   canonicalStoryConfuser,
+  confuserPrerequisiteSenseIds,
   storyConfuserCandidates,
 } from '../src/game/storyConfusers.js'
 import { collectAcceptedActionSurfaces } from './lib/action-audio-surfaces.mjs'
@@ -172,13 +174,27 @@ check('canonical confusers own every accepted surface and ignore caller payloads
   let authored = 0
   for (const [nodeId, node] of Object.entries(STORY)) {
     const state = { ...newRun(), nodeId }
-    const candidates = storyConfuserCandidates(state)
-    assert.equal(candidates.filter((candidate) => candidate.kind === 'authored').length,
-      node.options.filter((option) => option.confuser).length,
-      `${nodeId}: canonical confuser enumeration omitted authored options`)
-    assert.equal(candidates.some((candidate) => candidate.kind === 'dynamic-item'), false,
+    const declared = authoredStoryConfusers(node)
+    assert.equal(declared.length, node.options.filter((option) => option.confuser).length,
+      `${nodeId}: canonical authored-confuser enumeration omitted options`)
+    assert.equal(storyConfuserCandidates(state).some((candidate) => candidate.kind === 'dynamic-item'), false,
       `${nodeId}: uncertified generated confuser entered the action surface`)
-    for (const candidate of candidates) {
+    for (const candidate of declared) {
+      const required = confuserPrerequisiteSenseIds(candidate.tokens)
+      assert.ok(required.length > 0, `${nodeId}/${candidate.key}: confuser has no vocabulary to comprehend`)
+      const ready = {
+        ...state,
+        discovered: Object.fromEntries(required.map((id) => [id, true])),
+      }
+      const candidates = storyConfuserCandidates(ready)
+      assert.ok(candidates.some((entry) => entry.key === candidate.key),
+        `${nodeId}/${candidate.key}: fully discovered confuser stayed hidden`)
+      const missingOne = {
+        ...ready,
+        discovered: Object.fromEntries(required.slice(1).map((id) => [id, true])),
+      }
+      assert.equal(storyConfuserCandidates(missingOne).some((entry) => entry.key === candidate.key), false,
+        `${nodeId}/${candidate.key}: confuser appeared before ${required[0]} was discovered`)
       const transcript = albanianTextOf(candidate.tokens)
       assert.ok(audioSurfaces.has(transcript), `${nodeId}/${candidate.key}: missing accepted audio surface`)
       const action = {
@@ -187,11 +203,11 @@ check('canonical confusers own every accepted surface and ignore caller payloads
         actionText: [{ al: 'forged action' }],
         consequence: { source: 'story-confuser', eventId: 'forged' },
       }
-      const resolved = canonicalStoryConfuser(state, action)
+      const resolved = canonicalStoryConfuser(ready, action)
       assert.equal(resolved?.key, candidate.key, `${nodeId}/${candidate.key}: canonical key drifted`)
       assert.equal(resolved?.option, candidate.option,
         `${nodeId}/${candidate.key}: canonical option drifted`)
-      assert.equal(canonicalStoryConfuser(state, { ...action, optionIndex: -1 }), null,
+      assert.equal(canonicalStoryConfuser(ready, { ...action, optionIndex: -1 }), null,
         `${nodeId}/${candidate.key}: tampered identity resolved`)
       authored++
     }

@@ -5,6 +5,7 @@ import {
   EVERYDAY_GOOD_PRICES,
   LEK_ECONOMY,
   OLD_LEK_MULTIPLIER,
+  ORDINARY_WORK_WAGE,
   oldLekQuoteFor,
 } from '../src/game/economy.js'
 import { STORY, lineOf, moneyOutcomeLineOf, moneyOutcomeLinesOf } from '../src/game/content.js'
@@ -103,6 +104,34 @@ check('every ordinary reward result restores a genuine player choice', () => {
     assert.ok(outcomes.size >= 2,
       `${option.to}: apparent alternatives do not produce distinct consequences`)
   }
+})
+
+check('the miller offer cannot pay before the player performs the work', () => {
+  const acceptances = ['fushaMulli', 'mulli1'].map((nodeId) => ({
+    nodeId,
+    option: STORY[nodeId].options.find((candidate) =>
+      candidate.effects?.some((effect) => effect?.type === 'flag' && effect.id === 'millWorkAccepted')),
+  }))
+  const work = STORY.mulli1.options.find((option) => option.earns === 'mill-work')
+
+  for (const { nodeId, option: acceptance } of acceptances) {
+    assert.ok(acceptance, `${nodeId} has no explicit work-acceptance action`)
+    assert.equal(acceptance.to, nodeId, `${nodeId}: accepting the mill job moved past the work`)
+    assert.equal(acceptance.lek, undefined, `${nodeId}: accepting the mill job paid before work`)
+    assert.equal(acceptance.earns, undefined, `${nodeId}: accepting the mill job falsely counted as completed work`)
+    assert.equal(
+      optionEffectsOf(acceptance).some((effect) => effect?.type === 'resource' && effect.id === 'lek'),
+      false,
+      `${nodeId}: accepting the mill job hid a money grant in its canonical effects`,
+    )
+  }
+
+  assert.ok(work, 'mulli1 has no player-chosen completed-work action')
+  assert.ok([].concat(work.requires || []).includes('flag:millWorkAccepted'),
+    'the paid work action is available before accepting the job')
+  assert.equal(work.lek, ORDINARY_WORK_WAGE, 'the completed mill work does not own the wage')
+  assert.ok(moneyOutcomeLinesOf(work).length > 0,
+    'the completed mill work does not join its earning and payment prose')
 })
 
 check('every Elira acceptance grants exactly 800 and narrates the atomic resulting purse', () => {

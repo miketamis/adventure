@@ -57,6 +57,10 @@ function canonicalTypedEffect(raw) {
     const id = nonEmptyId(raw.id)
     return id ? { type: 'observe', id } : null
   }
+  if (raw.type === 'heard') {
+    const id = nonEmptyId(raw.id)
+    return id ? { type: 'heard', id } : null
+  }
   if (raw.type === 'resource') {
     const id = ['hearts', 'lek'].includes(raw.id) ? raw.id : null
     const delta = exactInteger(raw.delta)
@@ -110,12 +114,19 @@ export function optionEffectsOf(option) {
   return effects
 }
 
-export function optionEffectsAreValid(option, isFixture = () => true) {
+export function optionEffectsAreValid(option, isFixture = () => true, context = {}) {
   if (option?.effects != null && !Array.isArray(option.effects)) return false
   const effects = optionEffectsOf(option)
   if (effects.some((effect) => effect == null)) return false
-  return effects.every((effect) => effect.type !== 'fixture' ||
-    (isFixture(effect.id) && fixtureSupportsAction(effect.id, effect.action)))
+  return effects.every((effect) => {
+    if (effect.type === 'fixture') {
+      return isFixture(effect.id) && fixtureSupportsAction(effect.id, effect.action)
+    }
+    if (effect.type === 'heard' && context.isHeardDestination) {
+      return context.isHeardDestination(effect.id)
+    }
+    return true
+  })
 }
 
 export function optionInventoryIds(option) {
@@ -188,7 +199,7 @@ export function canApplyOptionEffects(state, option, isFixture = () => true, con
 // text. Authors therefore cannot add a new typed effect which silently leaves
 // a grey button with no explanation.
 export function optionEffectAvailability(state, option, isFixture = () => true, context = {}) {
-  if (!optionEffectsAreValid(option, isFixture)) {
+  if (!optionEffectsAreValid(option, isFixture, context)) {
     return { ok: false, reason: 'invalid-effect' }
   }
   const lekAvailability = optionLekAvailability(state, option)
@@ -256,6 +267,7 @@ export function applyOptionEffects(state, option, context = {}) {
   let flags = state.flags || {}
   let knowledge = state.knowledge || {}
   let observations = state.observations || {}
+  let heard = state.heard || {}
   let fixtures = state.fixtures || {}
   let hearts = state.hearts
 
@@ -283,6 +295,11 @@ export function applyOptionEffects(state, option, context = {}) {
       })
       continue
     }
+    if (effect.type === 'heard') {
+      if (heard === state.heard) heard = { ...heard }
+      heard[effect.id] = true
+      continue
+    }
     if (effect.type === 'fixture') {
       if ((!context.canActOnFixture || context.canActOnFixture(effect.id)) &&
           fixtureSupportsAction(effect.id, effect.action)) {
@@ -305,7 +322,7 @@ export function applyOptionEffects(state, option, context = {}) {
       continue
     }
   }
-  return { ...state, inventory, flags, knowledge, observations, fixtures, hearts }
+  return { ...state, inventory, flags, knowledge, observations, heard, fixtures, hearts }
 }
 
 // On embodiment entry the traveller's pack is suspended. Preserve only new

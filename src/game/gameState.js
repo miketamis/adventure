@@ -1050,6 +1050,39 @@ const normalizedArrivalSnapshot = (value, state, focusNode) => {
   }
 }
 
+// A threshold may move an already-held story prop into the isolated role
+// inventory. Keep this narrow and explicit: arbitrary traveller possessions
+// still wait outside, while the transferred unit is removed from the snapshot
+// that will be restored when the tale closes.
+const embodimentInventoryTransferIdsOf = (option) => {
+  const raw = option?.embodimentInventoryTransfer
+  if (raw == null) return []
+  if (!Array.isArray(raw) || raw.length === 0 ||
+      raw.some((id) => typeof id !== 'string' || !ITEMS[id]) ||
+      new Set(raw).size !== raw.length) return null
+  return raw
+}
+
+const embodimentEntryInventory = (option, sourceInventory) => {
+  const inventory = entryInventoryFromOption(option)
+  const transferIds = embodimentInventoryTransferIdsOf(option)
+  if (!transferIds) return null
+  for (const id of transferIds) inventory[id] = 1
+  return inventory
+}
+
+const embodimentTravellerSnapshot = (sourceInventory, option) => {
+  const snapshot = { ...sourceInventory }
+  const transferIds = embodimentInventoryTransferIdsOf(option)
+  if (!transferIds) return null
+  for (const id of transferIds) {
+    const remaining = (snapshot[id] || 0) - 1
+    if (remaining > 0) snapshot[id] = remaining
+    else delete snapshot[id]
+  }
+  return snapshot
+}
+
 const embodimentInventoryIds = (embodimentId, quest) => {
   const ids = new Set()
   for (const nodeId of quest?.nodes || []) {
@@ -1062,6 +1095,7 @@ const embodimentInventoryIds = (embodimentId, quest) => {
     for (const option of STORY[entryFrom]?.options || []) {
       if (canonicalEmbodimentId(option.become) !== embodimentId) continue
       for (const id of optionInventoryIds(option)) ids.add(id)
+      for (const id of embodimentInventoryTransferIdsOf(option) || []) ids.add(id)
       if (optionLekDelta(option)) ids.add('lek')
     }
   }
@@ -1838,6 +1872,7 @@ export const effectAvailabilityForOption = (state, option) => optionEffectAvaila
   {
     fixtureClock: projectedClockForOption(state, option),
     canActOnFixture: canActOnFixtureAt(state),
+    isHeardDestination: (id) => Boolean(STORY[id]),
   },
 )
 
@@ -1867,6 +1902,7 @@ export const canUseItem = (state, item) => {
   const effectAvailability = optionEffectAvailability(state, effectOption, isTimedWorldFixture, {
     fixtureClock: worldClockOf(state),
     canActOnFixture: canActOnFixtureAt(state),
+    isHeardDestination: (id) => Boolean(STORY[id]),
   })
   return {
     ...speech,
@@ -1874,7 +1910,9 @@ export const canUseItem = (state, item) => {
     ok: !state.embodying && !state.ended && !state.timePassage &&
       !state.pendingEmbodiment && state.hearts > 0 && speech.ok &&
       (state.inventory?.[item.id] || 0) > 0 &&
-      optionEffectsAreValid(effectOption, isTimedWorldFixture) &&
+      optionEffectsAreValid(effectOption, isTimedWorldFixture, {
+        isHeardDestination: (id) => Boolean(STORY[id]),
+      }) &&
       effectAvailability.ok,
   }
 }
@@ -2223,6 +2261,8 @@ export function reducer(state, action) {
       if (!isOptionRevealed(choiceState, option)) return state
       if (!canChoose(choiceState, option)) return state
       if (option.become && !state.embodying && action[EMBODIMENT_CONFIRMATION] !== true) return state
+      const roleTransferIds = option.become ? embodimentInventoryTransferIdsOf(option) : []
+      if (roleTransferIds == null || roleTransferIds.some((id) => (state.inventory?.[id] || 0) < 1)) return state
       const interactionUse = interactionAvailabilityForOption(choiceState, option)
       const rendezvousUse = rendezvousAvailabilityForOption(state, option)
       const questUse = questActionAvailability(choiceState, option)
@@ -2323,6 +2363,10 @@ export function reducer(state, action) {
       const flags = effectState.flags
       const knowledge = effectState.knowledge
       const observations = effectState.observations
+      // Question-owned rumor effects are applied by the same canonical effect
+      // reducer as inventory and flags. Preserve any destination `tells` facts
+      // already collected above while merging the chosen question's new fact.
+      if (effectState.heard !== state.heard) heard = { ...heard, ...effectState.heard }
       const fixtures = effectState.fixtures
       const heartsAfterEffects = effectState.hearts
       const interactions = recordInteractionUse(state.interactions, interactionUse, choiceToClock)
@@ -2371,12 +2415,12 @@ export function reducer(state, action) {
         embodimentWorldNode = embodimentQuest(embodying)?.returnTo || state.nodeId
         embodimentPaused = false
         embodimentClock = clock
-        embodimentInventorySnapshot = { ...state.inventory }
+        embodimentInventorySnapshot = embodimentTravellerSnapshot(state.inventory, option)
         embodimentFlagsSnapshot = { ...state.flags }
         // The traveller's pack waits outside the role. Begin with a clean tale
         // inventory, then keep only state explicitly granted by the threshold
         // itself (currently Maro's grain). Closure restores the exact snapshot.
-        inventory = entryInventoryFromOption(option)
+        inventory = embodimentEntryInventory(option, state.inventory)
         embodimentInventoryIsolated = true
         embodimentHeartsSnapshot = state.hearts
         hearts = Math.max(1, Math.min(START_HEARTS,
@@ -3255,7 +3299,7 @@ export function reducer(state, action) {
       if (state.embodying && !isEmbodimentEnding(state.embodying, state.nodeId)) return state
       return restartStoryRun(state)
 
-    case 'RETURN_TO_WORLD':
+    case 'RETURN_TO_WORLD': {
       // finished a good OR secret ending: don't restart — drop straight back into
       // the open world and keep the whole run going (words, tokens, items, hearts).
       // Only a BAD ending restarts from the beginning. The arc you just closed is
@@ -3263,6 +3307,13 @@ export function reducer(state, action) {
       if (!['good', 'secret'].includes(state.ended)) return state
       if (state.embodying && !isEmbodimentEnding(state.embodying, state.nodeId)) return state
       if (STORY[state.nodeId]?.end !== state.ended && worldEffectsForEnding(state.nodeId).length === 0) return state
+      const questReturnTo = embodimentQuest(state.embodying)?.returnTo
+      const authoredReturnTo = STORY[state.nodeId]?.returnTo
+      const returnTo = STORY[authoredReturnTo]
+        ? authoredReturnTo
+        : STORY[questReturnTo]
+          ? questReturnTo
+          : WORLD_HUB
       return {
         ...state,
         // Migration-safe: an older save may already be sitting on an ending
@@ -3273,10 +3324,10 @@ export function reducer(state, action) {
           state.clock ?? START_CLOCK,
           state.nodeId,
         ),
-        nodeId: STORY[STORY[state.nodeId]?.returnTo] ? STORY[state.nodeId].returnTo : WORLD_HUB,
+        nodeId: returnTo,
         cameFrom: null,
         cameFromPhase: null,
-        familiar: !!state.visited[STORY[STORY[state.nodeId]?.returnTo] ? STORY[state.nodeId].returnTo : WORLD_HUB],
+        familiar: !!state.visited[returnTo],
         rumor: false,
         trail: [], // fresh footing on re-entry — nowhere is "just behind you" (see BACKTRACK)
         inventory: state.embodying && state.embodimentInventorySnapshot
@@ -3304,6 +3355,7 @@ export function reducer(state, action) {
         practiceTarget: null,
         trainGoalSession: null,
       }
+    }
 
     case 'RESET':
       // hard new run (top-right button or game over): back to the start with

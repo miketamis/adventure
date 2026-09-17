@@ -201,6 +201,45 @@ check('discoverable NPC identity is generic, authored knowledge that survives sa
   assert.equal(hasCond(knowsMira, npcIdentityConditionId('gruaUji')), true)
 })
 
+check('a chosen conversation answer can add hearsay without leaving its hub', () => {
+  const seaQuestion = STORY.udhetaret.options.find((option) =>
+    option.conversationHub?.questionId === 'sea')
+  assert.ok(seaQuestion, 'travellers hub lost its sea question')
+  assert.equal(seaQuestion.to, 'udhetaret', 'asking about the sea leaves the conversation hub')
+  assert.ok(seaQuestion.effects.some((effect) => effect.type === 'heard' && effect.id === 'deti1'),
+    'the sea answer does not own its hearsay effect')
+
+  const ids = phraseSenses(seaQuestion.text)
+  const ready = stateAt('udhetaret', 30, {
+    discovered: Object.fromEntries(ids.map((id) => [id, true])),
+    mana: Object.fromEntries(ids.map((id) => [id, 3])),
+  })
+  const chosen = reducer(ready, {
+    type: 'CHOOSE', option: seaQuestion, targetNode: STORY.udhetaret,
+    fromNodeId: ready.nodeId, fromTurn: ready.turn,
+  })
+  assert.notStrictEqual(chosen, ready, 'the travellers question was rejected')
+  assert.equal(chosen.nodeId, 'udhetaret')
+  assert.equal(chosen.heard.deti1, true, 'the chosen answer did not persist its hearsay')
+})
+
+check('every authored hearsay receipt names a real story destination', () => {
+  const bad = []
+  for (const [nodeId, node] of Object.entries(STORY)) {
+    for (const toldId of node.tells || []) {
+      if (!STORY[toldId]) bad.push(`${nodeId}.tells -> ${toldId}`)
+    }
+    for (const [optionIndex, option] of (node.options || []).entries()) {
+      for (const effect of optionEffectsOf(option)) {
+        if (effect?.type === 'heard' && !STORY[effect.id]) {
+          bad.push(`${nodeId}.options[${optionIndex}] -> ${effect.id}`)
+        }
+      }
+    }
+  }
+  assert.deepEqual(bad, [], `non-story hearsay destination(s): ${bad.join(', ')}`)
+})
+
 check('typed effects compose while legacy choice fields keep their behavior', () => {
   const before = stateAt('start', 40, {
     inventory: { buke: 2, lek: 9 },
@@ -304,6 +343,20 @@ check('typed effects compose while legacy choice fields keep their behavior', ()
   assert.equal(optionEffectsAreValid({ effects: [{ type: 'resource', id: 'peak', delta: 1 }] }), false)
   assert.equal(optionEffectsAreValid({ effects: 'not-an-array' }), false)
   assert.equal(optionEffectsAreValid({ effects: [{ type: 'fixture', id: 'invented' }] }, () => false), false)
+  const heardContext = { isHeardDestination: (id) => Boolean(STORY[id]) }
+  assert.equal(optionEffectsAreValid(
+    { effects: [{ type: 'heard', id: 'deti1' }] },
+    () => true,
+    heardContext,
+  ), true, 'a real hearsay destination was rejected')
+  assert.equal(optionEffectsAreValid(
+    { effects: [{ type: 'heard', id: 'deti-typo' }] },
+    () => true,
+    heardContext,
+  ), false, 'a non-story hearsay destination was accepted')
+  assert.equal(optionEffectAvailability(before, {
+    effects: [{ type: 'heard', id: 'deti-typo' }],
+  }, () => true, heardContext).reason, 'invalid-effect', 'availability did not fail closed on a bad hearsay id')
   assert.equal(canAfford(before, { effects: [{ type: 'resource', id: 'lek', set: 0 }] }), true)
   assert.equal(canAfford(before, {
     lek: -5,
@@ -1039,26 +1092,34 @@ check('phase and festival waits include the road before the wait', () => {
 })
 
 check('authored long waits advance the narrated interval', () => {
-  const gjizarWait = STORY.gjizarUdha.options.find((option) => option.to === 'gjizarPallat')
-  assert.equal(gjizarWait.durationHours, 2161)
-  const gjizarArrival = projectedClockForOption(stateAt('gjizarUdha', 240), gjizarWait)
+  const gjizarWait = STORY.gjizarUdha.options.find((option) =>
+    option.to === 'gjizarUdha' && option.effects?.some((effect) => effect.id === 'gjizarThreeMonthsStayed'))
+  const gjizarFlight = STORY.gjizarUdha.options.find((option) => option.to === 'gjizarPallat')
+  assert.equal(gjizarWait.durationHours, 2160)
+  assert.equal(gjizarFlight.durationHours, 1)
+  const afterStay = projectedClockForOption(stateAt('gjizarUdha', 240), gjizarWait)
+  const gjizarArrival = projectedClockForOption(stateAt('gjizarUdha', afterStay), gjizarFlight)
   assert.ok(gjizarArrival >= 240 + 2161 && gjizarArrival < 240 + 2161 + 24)
   assert.equal(phaseAtClock(gjizarArrival), 'night', 'the 90-day flight no longer finds the sleeping palace at night')
 
   for (const from of ['maroIkja', 'maroMesnata']) {
-    const weddingWait = STORY[from].options.find((option) => option.to === 'maroKrushqit')
-    assert.equal(weddingWait.durationHours, 2 * 30 * 24, `${from}: the source's “about two months” preparation was not represented`)
+    const homeward = STORY[from].options.find((option) => option.to === 'maroKthyerShtepi')
+    assert.equal(homeward.durationHours, 1, `${from}: returning home is not a separate ordinary journey`)
   }
+  const weddingWait = STORY.maroKthyerShtepi.options.find((option) => option.to === 'maroKrushqit')
+  assert.equal(weddingWait.durationHours, 2 * 30 * 24,
+    'Maro reaches home before the source’s “about two months” wedding preparation begins')
   const familyWait = STORY.maroKrushqit.options.find((option) => option.to === 'maroPallati')
   assert.equal(familyWait.durationHours, 2 * 30 * 24, 'Maro brought her family near without representing the source\'s approximate two-month wait')
   const needleWait = STORY.maroPallati.options.find((option) => option.to === 'maroGjilpera')
   assert.equal(needleWait.durationHours, 10 * 24, "the sorceress's source-specified ten days were collapsed")
 
   const maroStart = 240
-  const maroArrival = projectedClockForOption(stateAt('maroIkja', maroStart), STORY.maroIkja.options[0])
+  const maroHome = projectedClockForOption(stateAt('maroIkja', maroStart), STORY.maroIkja.options[0])
+  const maroArrival = projectedClockForOption(stateAt('maroKthyerShtepi', maroHome), weddingWait)
   const familyArrival = projectedClockForOption(stateAt('maroKrushqit', maroArrival), familyWait)
   const needleReady = projectedClockForOption(stateAt('maroPallati', familyArrival), needleWait)
-  assert.equal(needleReady - maroStart, (2 + 2) * 30 * 24 + 10 * 24)
+  assert.equal(needleReady - maroStart, 1 + (2 + 2) * 30 * 24 + 10 * 24)
 
   const vigilFirst = STORY.kopshtMermer2.options.find((option) => option.to === 'mermerZgjim')
   const vigilLast = STORY.mermerZgjim.options.find((option) => option.to === 'mermerTradheti')
@@ -1181,7 +1242,8 @@ check('every multi-day or calendar jump has a sourced, semantically honest passa
   // dates source-exact.
   const exactMonthModels = [
     STORY.binoshetTeNena.options.find((option) => option.to === 'binoshetDyKurorat'),
-    STORY.gjizarUdha.options.find((option) => option.to === 'gjizarPallat'),
+    STORY.gjizarUdha.options.find((option) =>
+      option.to === 'gjizarUdha' && option.effects?.some((effect) => effect.id === 'gjizarThreeMonthsStayed')),
   ]
   for (const option of exactMonthModels) {
     const monthSegment = option.timePassage.segments.find((segment) => /month/i.test(segment.label))
@@ -1248,7 +1310,9 @@ check('night narration is reached at night', () => {
     assert.equal(phaseAtClock(projectedClockForOption(stateAt('skender1', 5), option)), 'night')
   }
   const coffeeTalk = STORY.kafeneja.options.find((option) => option.to === 'kafeneja2')
-  assert.equal(phaseAtClock(projectedClockForOption(stateAt('kafeneja', 5), coffeeTalk)), 'night')
+  assert.equal(coffeeTalk.durationHours, 0, 'opening a same-place conversation advances time')
+  assert.equal(projectedClockForOption(stateAt('kafeneja', 5), coffeeTalk), 5,
+    'opening the coffeehouse conversation changes the civil hour')
   const mountainWatch = STORY.tsNuse.options.find((option) => option.to === 'tsRoje')
   assert.equal(phaseAtClock(projectedClockForOption(stateAt('tsNuse', 5), mountainWatch)), 'night')
   const fates = STORY.djepi1.options.find((option) => option.to === 'djepi2')
