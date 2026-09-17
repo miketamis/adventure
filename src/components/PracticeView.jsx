@@ -130,17 +130,18 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   const activityHistory = useRef(normalizeTrainActivityHistory(state.trainActivityHistory))
   const targetHistory = useRef(normalizeTrainTargetHistory(state.trainTargetHistory))
   const nextRef = useRef(null)
+  const advanceAfterConsequence = useRef(false)
   const scheduleNextQuestion = useCallback((delayMs) => {
     const advance = () => nextRef.current?.()
     if (delayMs > 0) {
       window.setTimeout(advance, delayMs)
       return
     }
-    // A miss opens blocking feedback. Let that feedback paint before the
-    // future planner builds the following card, so answer input stays fast.
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(advance)
-    })
+    // A miss owns the completed source card until its blocking correction is
+    // acknowledged. Do not build or publish the following card behind the
+    // modal: that work can otherwise join the answer interaction on a slow
+    // browser whose next paint has not happened yet.
+    advanceAfterConsequence.current = true
   }, [])
   const questionStartedAt = useRef(Date.now())
   const attemptTiming = () => {
@@ -483,6 +484,28 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     // stable event receipts prevent duplicate impressions on ordinary renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [analyticsEnabled, q?.questionKey])
+
+  useEffect(() => {
+    if (state.pendingHeartConsequence || !advanceAfterConsequence.current) return undefined
+    if (state.hearts <= 0) {
+      advanceAfterConsequence.current = false
+      return undefined
+    }
+    // First paint the acknowledged source card without the modal. Planning is
+    // substantial on a mature profile, so start it in a later task rather than
+    // extending the modal button interaction.
+    let timer = null
+    const frame = window.requestAnimationFrame(() => {
+      timer = window.setTimeout(() => {
+        advanceAfterConsequence.current = false
+        nextRef.current?.()
+      }, 0)
+    })
+    return () => {
+      window.cancelAnimationFrame(frame)
+      if (timer !== null) window.clearTimeout(timer)
+    }
+  }, [state.hearts, state.pendingHeartConsequence])
 
   useEffect(() => {
     if (!state.debug) setShowCefr(false)

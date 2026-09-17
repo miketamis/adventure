@@ -39,7 +39,7 @@ await check('the app keeps the source scene inert until karaoke playback settles
   const previewAt = app.indexOf('const preview = reduceWithTiming(current, action)')
   const mountAt = app.indexOf('<ActionKaraoke')
   assert.ok(previewAt >= 0 && mountAt > previewAt, 'accepted action is not previewed before karaoke mounts')
-  assert.match(app, /const commitAcceptedAction = useCallback\([\s\S]*?publishState\(after\)[\s\S]*?captureCommittedTransition\(action, before, after\)/)
+  assert.match(app, /const commitAcceptedAction = useCallback\([\s\S]*?publishState\(after\)[\s\S]*?queueTransitionAnalytics\(action, before, after\)/)
   assert.match(app, /const finishActionTransition = useCallback\([\s\S]*?commitAcceptedAction\(transition\.action, current, reduceWithTiming\(current, transition\.action\)\)/)
   assert.match(app, /confirmReset \|\| actionTransition/)
   assert.match(app, /inert=\{blockingOverlay \? '' : undefined\}/)

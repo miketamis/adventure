@@ -92,9 +92,19 @@ test('core story discovery and Train answer paths stay inside the interaction bu
 
   await answers.first().click()
   const answerSnapshot = await settleMonitor(page)
+  await expect(page.getByRole('dialog')).toBeVisible()
   expect(answerSnapshot.interactions.some(({ surface }) => surface === 'practice')).toBe(true)
   expect(answerSnapshot.operations.some(({ kind }) => kind === 'reducer')).toBe(true)
+  expect(answerSnapshot.operations.some(({ id }) => id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toBe(false)
   assertSteadyBudgets(answerSnapshot)
+
+  await resetMonitor(page)
+  await click(page, 'Continue training')
+  const continueSnapshot = await settleMonitor(page)
+  expect(continueSnapshot.operations.some(({ kind, id }) =>
+    kind === 'reducer' && id === 'ACKNOWLEDGE_HEART_CONSEQUENCE')).toBe(true)
+  expect(continueSnapshot.operations.some(({ id }) => id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toBe(true)
+  assertSteadyBudgets(continueSnapshot)
 })
 
 test('bursty discoveries coalesce storage work and remain durable across reload', async ({ page }) => {

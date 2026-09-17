@@ -29,6 +29,7 @@ import {
   captureCommittedTransition,
   captureRunCheckpoint,
   captureSurfacePresented,
+  reserveCommittedTransitionSequence,
 } from './game/playtestAnalytics.js'
 import { measurePerformanceOperation } from './performance.js'
 
@@ -242,6 +243,75 @@ function useDeferredPersistence(state) {
   return queueAcceptedState
 }
 
+// Replay-safe transition records hash and sanitize a deliberately broad state
+// projection. Preserve that evidence, its order and its unload flush without
+// making the learner's click wait for work that is invisible to the response.
+function useDeferredTransitionAnalytics() {
+  const queued = useRef([])
+  const frame = useRef(null)
+  const timer = useRef(null)
+
+  const flush = useCallback(() => {
+    const transitions = queued.current.splice(0)
+    for (const { action, before, after, sequence } of transitions) {
+      measurePerformanceOperation(
+        'analytics',
+        'committed-transition',
+        after.view,
+        () => captureCommittedTransition(action, before, after, sequence),
+      )
+    }
+  }, [])
+
+  const cancelPending = useCallback(() => {
+    if (frame.current !== null) window.cancelAnimationFrame(frame.current)
+    if (timer.current !== null) window.clearTimeout(timer.current)
+    frame.current = null
+    timer.current = null
+  }, [])
+
+  const schedule = useCallback(() => {
+    if (frame.current !== null || timer.current !== null) return
+    frame.current = window.requestAnimationFrame(() => {
+      frame.current = null
+      // A task queued from the animation frame runs after the accepted state
+      // has had its paint opportunity, outside the input-to-feedback path.
+      timer.current = window.setTimeout(() => {
+        timer.current = null
+        flush()
+      }, 0)
+    })
+  }, [flush])
+
+  const queueTransition = useCallback((action, before, after) => {
+    // Reserve the sequence synchronously so later surface events observe the
+    // accepted transition's canonical order even though its expensive state
+    // hashing and sanitization run after paint.
+    const sequence = reserveCommittedTransitionSequence(action, before, after)
+    queued.current.push({ action, before, after, sequence })
+    schedule()
+  }, [schedule])
+
+  useEffect(() => {
+    const flushNow = () => {
+      cancelPending()
+      flush()
+    }
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') flushNow()
+    }
+    window.addEventListener('pagehide', flushNow)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      window.removeEventListener('pagehide', flushNow)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      flushNow()
+    }
+  }, [cancelPending, flush])
+
+  return queueTransition
+}
+
 export default function App() {
   // Every public dispatch is validated below before it reaches React. Publish
   // that already-computed state directly so a button never pays for the full
@@ -264,6 +334,7 @@ export default function App() {
   const [actionTransition, setActionTransition] = useState(null)
   const actionTransitionRef = useRef(null)
   const queueStatePersistence = useDeferredPersistence(state)
+  const queueTransitionAnalytics = useDeferredTransitionAnalytics()
   const commitAcceptedAction = useCallback((action, before, after) => {
     if (after === before) return false
     queueStatePersistence(after)
@@ -271,14 +342,9 @@ export default function App() {
     // React may batch consecutive actions. Keep the imperative validation
     // boundary aligned with the reducer state that was just accepted.
     stateRef.current = after
-    measurePerformanceOperation(
-      'analytics',
-      'committed-transition',
-      after.view,
-      () => captureCommittedTransition(action, before, after),
-    )
+    queueTransitionAnalytics(action, before, after)
     return true
-  }, [queueStatePersistence])
+  }, [queueStatePersistence, queueTransitionAnalytics])
   const dispatch = useCallback((action) => {
     // Keep the current scene visible while the accepted Albanian action plays.
     // The reducer remains the authority for validity: only an action whose

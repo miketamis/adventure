@@ -79,6 +79,18 @@ assert.match(appSource, /if \(pending\.current\) return/)
 assert.match(appSource, /window\.addEventListener\('pagehide', flushNow\)/)
 assert.match(appSource, /document\.addEventListener\('visibilitychange', onVisibilityChange\)/)
 assert.match(appSource, /queueStatePersistence\(after\)\s+publishState\(after\)/)
+assert.match(appSource, /function useDeferredTransitionAnalytics\(\)/)
+assert.match(appSource, /window\.requestAnimationFrame\(\(\) => \{[\s\S]+window\.setTimeout\(\(\) => \{[\s\S]+flush\(\)/,
+  'transition analytics still extends the accepted-action paint')
+assert.match(appSource, /queueTransitionAnalytics\(action, before, after\)/)
+assert.match(appSource, /reserveCommittedTransitionSequence\(action, before, after\)[\s\S]+queued\.current\.push\(\{ action, before, after, sequence \}\)/,
+  'deferred transition analytics no longer reserves accepted-state order synchronously')
+const acceptedActionSource = appSource.slice(
+  appSource.indexOf('const commitAcceptedAction'),
+  appSource.indexOf('const dispatch'),
+)
+assert.doesNotMatch(acceptedActionSource, /captureCommittedTransition/,
+  'accepted actions still hash their analytics state inside the input handler')
 assert.match(appSource, /data-performance-surface=\{state\.view\}/)
 assert.match(appSource, /data-performance-id=\{`tab:\$\{view\}`\}/)
 assert.match(appSource, /const HeartConsequenceModal = lazy\(loadHeartConsequenceModal\)/)
@@ -93,8 +105,10 @@ assert.equal((practiceSource.match(/selectedProposal\?\.materialize\(/g) || []).
   'Train must materialize the selected exercise exactly once')
 assert.match(practiceSource, /const discoveredIds = useMemo\(/)
 assert.match(practiceSource, /const unlockedEverydayPhrases = useMemo\(/)
-assert.match(practiceSource, /const scheduleNextQuestion = useCallback\([\s\S]+window\.requestAnimationFrame\(\(\) => \{[\s\S]+window\.requestAnimationFrame\(advance\)/,
-  'Train misses must paint their blocking feedback before planning the following card')
+assert.match(practiceSource, /advanceAfterConsequence\.current = true/,
+  'Train misses do not preserve the completed card until blocking feedback is acknowledged')
+assert.match(practiceSource, /if \(state\.pendingHeartConsequence \|\| !advanceAfterConsequence\.current\) return undefined[\s\S]+window\.requestAnimationFrame\([\s\S]+window\.setTimeout\([\s\S]+nextRef\.current\?\.\(\)/,
+  'Train plans the following card before the acknowledged consequence has painted')
 assert.doesNotMatch(practiceSource, /setTimeout\(\(\) => nextRef\.current\?\.\(\), 0\)/,
   'Train still performs immediate wrong-answer replanning inside the answer interaction')
 

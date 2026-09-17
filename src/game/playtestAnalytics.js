@@ -158,9 +158,11 @@ const transitionDelta = (before, after) => ({
   ended: before.ended === after.ended ? null : after.ended,
 })
 
-export function captureRunCheckpoint(state, reason = 'interval') {
+export function captureRunCheckpoint(state, reason = 'interval', reservedSequence = null) {
   const checkpoint = replayCheckpointState(state)
-  const sequence = currentAnalyticsStateSequence()
+  const sequence = Number.isInteger(reservedSequence) && reservedSequence >= 0
+    ? reservedSequence
+    : currentAnalyticsStateSequence()
   return captureEvent('run_checkpoint_recorded', {
     game_run_id: playtestGameRunId(state),
     state_sequence: sequence,
@@ -174,9 +176,16 @@ export function captureRunCheckpoint(state, reason = 'interval') {
   }, { receipt: `checkpoint:${playtestGameRunId(state)}:${reason}:${sequence}` })
 }
 
-export function captureCommittedTransition(action, before, after) {
+export function reserveCommittedTransitionSequence(action, before, after) {
   if (!action?.type || before === after || before?.debug || after?.debug) return false
-  const sequence = nextAnalyticsStateSequence()
+  return nextAnalyticsStateSequence()
+}
+
+export function captureCommittedTransition(action, before, after, reservedSequence = null) {
+  if (!action?.type || before === after || before?.debug || after?.debug) return false
+  const sequence = Number.isInteger(reservedSequence) && reservedSequence > 0
+    ? reservedSequence
+    : nextAnalyticsStateSequence()
   const properties = {
     game_run_id: playtestGameRunId(after),
     state_sequence: sequence,
@@ -234,9 +243,9 @@ export function captureCommittedTransition(action, before, after) {
     }, { receipt: `attempt:${action.questionKey}:${action.aspectPhaseId || 'complete'}` })
   }
 
-  if (sequence > 0 && sequence % PLAYTEST_CHECKPOINT_INTERVAL === 0) captureRunCheckpoint(after, 'interval')
-  if (before.storyRunSequence !== after.storyRunSequence) captureRunCheckpoint(after, 'run-start')
-  if (before.ended !== after.ended && after.ended) captureRunCheckpoint(after, 'ending')
+  if (sequence > 0 && sequence % PLAYTEST_CHECKPOINT_INTERVAL === 0) captureRunCheckpoint(after, 'interval', sequence)
+  if (before.storyRunSequence !== after.storyRunSequence) captureRunCheckpoint(after, 'run-start', sequence)
+  if (before.ended !== after.ended && after.ended) captureRunCheckpoint(after, 'ending', sequence)
   return captured
 }
 
