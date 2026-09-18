@@ -56,7 +56,7 @@ const DictionaryView = lazyView(() => import('./components/DictionaryView.jsx'))
 const AchievementsView = lazyView(() => import('./components/AchievementsView.jsx'))
 const GuideView = lazyView(() => import('./components/GuideView.jsx'))
 const AtlasView = lazyView(() => import('./components/AtlasView.jsx'))
-const DebugView = lazyView(() => import('./components/DebugView.jsx'))
+const DebugView = lazy(() => import('./components/DebugView.jsx'))
 const MiniMap = lazyView(() => import('./components/MiniMap.jsx'))
 // These blocking surfaces are reached only after an authored time jump or
 // embodied-tale choice. Keep their sizeable presentation logic out of the
