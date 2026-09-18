@@ -1,0 +1,300 @@
+{
+  "sourceCommit": "77f9bcb7050bb3d5cac3066e04f5d2e1bb600883",
+  "sourceVerification": "292 production/projection files byte-identical to source commit",
+  "entryPolicy": "Production choices from the public odaJutbina, bregu or gjizar2 threshold; only exact vocabulary/reveal senses supplied as backed learner resources.",
+  "routes": [
+    {
+      "from": "odaJutbina",
+      "index": 11,
+      "to": "odaJutbina",
+      "actionId": "observation:jutbina-krajl-talk",
+      "al": "dëgjo burrat."
+    },
+    {
+      "from": "odaJutbina",
+      "index": 0,
+      "to": "rusha1",
+      "actionId": "odajutbina:shko-tek-rusha-ne-kulle-e-link-krajl",
+      "al": "shko te Rusha në kullën e krajlit."
+    },
+    {
+      "from": "rusha1",
+      "index": 0,
+      "to": "rushaFund",
+      "actionId": "rusha1:premto-bese",
+      "al": "Premto besë."
+    },
+    {
+      "from": "bregu",
+      "index": 5,
+      "to": "bregu",
+      "actionId": "observation:coast-tower",
+      "al": "shiko larg."
+    },
+    {
+      "from": "bregu",
+      "index": 0,
+      "to": "balozMotra",
+      "actionId": "bregu:degjo-motra",
+      "al": "dëgjo motrën"
+    },
+    {
+      "from": "balozMotra",
+      "index": 0,
+      "to": "balozTribut",
+      "actionId": "balozmotra:degjo-motra",
+      "al": "dëgjo motrën"
+    },
+    {
+      "from": "balozTribut",
+      "index": 0,
+      "to": "balozZgjedh",
+      "actionId": "baloztribut:degjo-motra",
+      "al": "dëgjo motrën"
+    },
+    {
+      "from": "balozZgjedh",
+      "index": 0,
+      "to": "balozZgjedh",
+      "actionId": "balozzgjedh:jep-shpate-trim",
+      "al": "jep shpatën trimit."
+    },
+    {
+      "from": "balozZgjedh",
+      "index": 1,
+      "to": "balozLufte",
+      "actionId": "balozzgjedh:shko-ne-det-me-trim",
+      "al": "shko në deti me trimin."
+    },
+    {
+      "from": "balozLufte",
+      "index": 0,
+      "to": "balozKoke",
+      "actionId": "balozlufte:vrapo-mes-trim-dhe-gur",
+      "al": "vrapo mes trimit dhe gurit."
+    },
+    {
+      "from": "balozKoke",
+      "index": 0,
+      "to": "balozFitore",
+      "actionId": "balozkoke:kthehu-ne-kulle",
+      "al": "kthehu në kullë"
+    },
+    {
+      "from": "gjizar2",
+      "index": 0,
+      "to": "gjizarUdha",
+      "actionId": "gjizar2:shko-larg-ne-rruge",
+      "al": "shko larg në rrugën."
+    },
+    {
+      "from": "gjizarUdha",
+      "index": 0,
+      "to": "gjizarUdha",
+      "actionId": "gjizarudha:heq-morra-nga-flok-e-link-saj",
+      "al": "Hiq morra nga flokët e saj."
+    },
+    {
+      "from": "gjizarUdha",
+      "index": 1,
+      "to": "gjizarUdha",
+      "actionId": "story:gjizar-udha:hap-zjarr-e_link-furre-me-gjethe",
+      "al": "hap zjarrin e furrës me gjethe."
+    },
+    {
+      "from": "gjizarUdha",
+      "index": 2,
+      "to": "gjizarUdha",
+      "actionId": "gjizarudha:ngre-sy-e-link-luan-noun",
+      "al": "ngre sytë e luanit."
+    },
+    {
+      "from": "gjizarUdha",
+      "index": 3,
+      "to": "gjizarUdha",
+      "actionId": "story:gjizar-udha:lufto-shqiponje",
+      "al": "lufto shqiponjat."
+    },
+    {
+      "from": "gjizarUdha",
+      "index": 4,
+      "to": "gjizarUdha",
+      "actionId": "gjizar-three-month-stay",
+      "al": "rri tre muaj me motrat."
+    },
+    {
+      "from": "gjizarUdha",
+      "index": 5,
+      "to": "gjizarPallat",
+      "actionId": "gjizarudha:fluturo-me-motra-tek-pallat",
+      "al": "fluturo me motrat te pallati."
+    },
+    {
+      "from": "gjizarPallat",
+      "index": 0,
+      "to": "gjizarPallat",
+      "actionId": "story:gjizar-pallat:ndiz-kater-qiri",
+      "al": "ndiz katër qirinj."
+    },
+    {
+      "from": "gjizarPallat",
+      "index": 1,
+      "to": "gjizarPallat",
+      "actionId": "gjizarpallat:shuaj-kater-qiri",
+      "al": "shuaj katër qirinj."
+    },
+    {
+      "from": "gjizarPallat",
+      "index": 2,
+      "to": "gjizarPallat",
+      "actionId": "story:gjizar-pallat:merr-kafaz-ngadale",
+      "al": "merr kafazin ngadalë."
+    },
+    {
+      "from": "gjizarPallat",
+      "index": 3,
+      "to": "gjizarTradheti",
+      "actionId": "gjizarpallat:kthehu-me-tre-shqiponje-tek-gur",
+      "al": "kthehu me tre shqiponjat te gurët."
+    },
+    {
+      "from": "gjizarTradheti",
+      "index": 0,
+      "to": "gjizarTradheti",
+      "actionId": "gjizartradheti:merr-unaze",
+      "al": "merr unazat."
+    },
+    {
+      "from": "gjizarTradheti",
+      "index": 2,
+      "to": "gjizarTradheti",
+      "actionId": "gjizar-agree-with-brothers",
+      "al": "po. unë do të shkoj me ju te babai juaj."
+    },
+    {
+      "from": "gjizarTradheti",
+      "index": 4,
+      "to": "gjizarTradheti",
+      "actionId": "gjizar-go-with-brothers",
+      "al": "shko me vëllezërit te babai i tyre."
+    },
+    {
+      "from": "gjizarTradheti",
+      "index": 5,
+      "to": "gjizarFund",
+      "actionId": "gjizar-climb-king-rope",
+      "al": "ngjit lart nëpër litarin nga pusi."
+    }
+  ],
+  "saves": {
+    "rusha": {
+      "nodeId": "rushaFund",
+      "cameFrom": "rusha1",
+      "choiceIndex": 0,
+      "ended": "good",
+      "turn": 4,
+      "clock": 15,
+      "inventory": {},
+      "flags": {},
+      "worldFacts": {},
+      "embodying": "zuku-bajraktar",
+      "embodimentClock": 15,
+      "embodimentOriginNode": "odaJutbina",
+      "embodimentFocusNode": "rushaFund",
+      "embodimentWorldNode": "odaJutbina",
+      "embodimentPaused": false,
+      "embodimentInventorySnapshot": {},
+      "embodimentInventoryIsolated": true,
+      "embodimentFlagsSnapshot": {},
+      "embodimentHeartsSnapshot": 3,
+      "embodimentArrivalSnapshot": null
+    },
+    "baloz-koke": {
+      "nodeId": "balozKoke",
+      "cameFrom": "balozLufte",
+      "choiceIndex": 0,
+      "ended": null,
+      "turn": 8,
+      "clock": 25,
+      "inventory": {},
+      "flags": {
+        "balozSwordGiven": true
+      },
+      "worldFacts": {},
+      "embodying": null,
+      "embodimentClock": null,
+      "embodimentOriginNode": null,
+      "embodimentFocusNode": null,
+      "embodimentWorldNode": null,
+      "embodimentPaused": false,
+      "embodimentInventorySnapshot": null,
+      "embodimentInventoryIsolated": null,
+      "embodimentFlagsSnapshot": null,
+      "embodimentHeartsSnapshot": null,
+      "embodimentArrivalSnapshot": null
+    },
+    "baloz-fitore": {
+      "nodeId": "balozFitore",
+      "cameFrom": "balozKoke",
+      "choiceIndex": 0,
+      "ended": "good",
+      "turn": 9,
+      "clock": 27,
+      "inventory": {},
+      "flags": {
+        "balozSwordGiven": true
+      },
+      "worldFacts": {
+        "coastalBalozDefeated": {
+          "atClock": 27,
+          "source": "balozFitore"
+        }
+      },
+      "embodying": null,
+      "embodimentClock": null,
+      "embodimentOriginNode": null,
+      "embodimentFocusNode": null,
+      "embodimentWorldNode": null,
+      "embodimentPaused": false,
+      "embodimentInventorySnapshot": null,
+      "embodimentInventoryIsolated": null,
+      "embodimentFlagsSnapshot": null,
+      "embodimentHeartsSnapshot": null,
+      "embodimentArrivalSnapshot": null
+    },
+    "gjizar": {
+      "nodeId": "gjizarFund",
+      "cameFrom": "gjizarTradheti",
+      "choiceIndex": 5,
+      "ended": "secret",
+      "turn": 16,
+      "clock": 2192,
+      "inventory": {},
+      "flags": {
+        "gjizarWomanHelped": true,
+        "gjizarTigerHelped": true,
+        "gjizarLionHelped": true,
+        "gjizarEaglesDefeated": true,
+        "gjizarThreeMonthsStayed": true,
+        "gjizarCandlesLit": true,
+        "gjizarCandlesBalanced": true,
+        "gjizarCageTaken": true,
+        "gjizarRingsTaken": true,
+        "gjizarBrothersAgreement": true,
+        "gjizarWentWithBrothers": true
+      },
+      "worldFacts": {},
+      "embodying": "gjizar",
+      "embodimentClock": 2192,
+      "embodimentOriginNode": "gjizar2",
+      "embodimentFocusNode": "gjizarFund",
+      "embodimentWorldNode": "gjizar1",
+      "embodimentPaused": false,
+      "embodimentInventorySnapshot": {},
+      "embodimentInventoryIsolated": true,
+      "embodimentFlagsSnapshot": {},
+      "embodimentHeartsSnapshot": 3,
+      "embodimentArrivalSnapshot": null
+    }
+  }
+}

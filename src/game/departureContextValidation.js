@@ -1,5 +1,6 @@
 import { canonicalPlayerActionId } from './playerActionRuntime.js'
-import { DEPARTURE_CONTEXTS, departureContextForChoice, isUnchartedStoryNode } from './departureContexts.js'
+import { DEPARTURE_CONTEXTS, departureContextForChoice } from './departureContexts.js'
+import { unchartedSiteIssues } from './unchartedSiteValidation.js'
 
 export function departureContextIssues(story) {
   const issues = []
@@ -19,7 +20,7 @@ export function departureContextIssues(story) {
     if (options[0]?.durationHours != null && options[0].durationHours !== entry.durationHours) issues.push(`${entry.id}: departure timing disagrees with authored action`)
   }
   for (const [from, node] of Object.entries(story || {})) for (const option of node.options || []) {
-    if (!option.confuser && isUnchartedStoryNode(option.to) && !departureContextForChoice(from, option, story)) issues.push(`${from}->${option.to}: unregistered departure action`)
+    if (!option.confuser && DEPARTURE_CONTEXTS.some(({ to }) => to === option.to) && !departureContextForChoice(from, option, story)) issues.push(`${from}->${option.to}: unregistered departure action`)
   }
-  return issues
+  return [...issues, ...unchartedSiteIssues(story)]
 }

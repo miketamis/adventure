@@ -83,7 +83,7 @@ export const TOP_1000_EXISTING_FORMS = {
   dergon: 'dërguar',
   mendoj: 'mendo mendoni menduar',
   harron: 'harruar',
-  shok: 'shoku shokë shokët',
+  shok: 'shoku shokë',
   forte: 'fort',
   kap: 'kapur',
   takohem: 'takuar takoj',

@@ -123,7 +123,8 @@ export default {
     },
     divergences: [
       { beat: 'dungeon', note: 'The tale opens witnessed — an old woman tells it with the Tosk formula "Iç mos iç" — and then you step into Aga Ymer himself at the recognition (agaYmer2 is already in his own voice). The battles, the ransom and the wedding-party are compressed into the setup; the crux the game plays is the besa.' },
-      { beat: 'freedom', note: 'The ballad\'s own words are slotted verbatim as Q() quotes — the welcome «Mirë se erdhe, Imer Aga!» and the crowd\'s «majte besën qi ke dhanë!» ("you kept the besa you gave") — and the tale closes on the tellers\' formula «U mplak e u trashëgua». Keeping the besa (riding back to the cell) is the honoured path; staying home is the bad ending agaYmerStay.' },
+      { beat: 'returnVow', note: 'The good result first shows the chosen return to captivity; release and the final homecoming follow it. The stay route performs no return. The mother at the fountain is framed as narration and has no physical presence in the listening room.' },
+      { beat: 'freedom', note: 'The result condenses the prose return, daughter and captive companions with the sung welcome; their precise circumstances differ between witnesses as documented above. The ballad\'s own words are slotted verbatim as Q() quotes — the welcome «Mirë se erdhe, Imer Aga!» and the crowd\'s «majte besën qi ke dhanë!» ("you kept the besa you gave") — and the tale closes on the tellers\' formula «U mplak e u trashëgua». Keeping the besa (riding back to the cell) is the honoured path; staying home is the bad ending agaYmerStay.' },
       { note: 'The same game arc tells two source-ballads at once: the Albanian «Aga Ymeri i Ulqinit» and the pan-Balkan «Little Constantine, the returning captive» (the tale kostandini-i-vogel), both the returning-husband-and-the-besa story — reuses kalaMur (Ulcinj) and the lahutë.' },
     ],
   },

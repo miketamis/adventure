@@ -33,7 +33,7 @@ export const DEFINITION_REVIEWS_Q_Z = Object.freeze({
   "roje": "njeri që ruan një vend ose një derë",
   "rozafa": "nënë brenda murit të kalasë që i jep gji fëmijës",
   "ruan": "mban një njeri, vend ose gjë larg nga rreziku",
-  "rusha": "vajza e Krajlit që i jep besën Mujit",
+  "rusha": "vajza e Krajlit; Zuku kërkon besën e saj",
   "rregull": "diçka që tregon si duhet të bëhet një punë ose një lojë; “në rregull” do të thotë se gjithçka është mirë",
   "rreth": "në çdo anë të shtëpisë",
   "rrethoj": "mbyll një vend nga të gjitha anët",

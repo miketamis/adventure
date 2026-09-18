@@ -13,10 +13,20 @@ export function npcDepictionIssues(spec, npc, tales, story) {
     : npc?.tales?.[tale.id] === entry.id)
   if (cast.length !== 1) issues.push('narrated depiction has no unique source cast identity')
   const place = tale.places.find((entry) => entry.id === depiction.placeId)
-  if (place?.anchor?.status !== 'existing' || !story[place?.anchor?.node]) {
-    issues.push('narrated source place has no existing canonical anchor')
-  } else if (npc?.location?.status !== 'placed' || npc.location.node !== place.anchor.node) {
-    issues.push('narrated source place differs from the catalogue physical home')
+  if (place?.anchor?.status === 'proposed' && story[place.anchor.node]) {
+    // A proposed source place is not the nearest built node named by its
+    // planning record. A narrated portrait may introduce that cast member
+    // without inventing a physical occupant or borrowing nearby geometry.
+    if (npc?.location?.status !== 'planning' || !npc.location.plan?.trim()
+      || ['node', 'route', 'encounters'].some((key) => Object.hasOwn(npc.location, key))) {
+      issues.push('unbuilt narrated source place requires an unlocated planning identity')
+    }
+  } else if (place?.anchor?.status === 'existing' && story[place.anchor.node]) {
+    if (npc?.location?.status !== 'placed' || npc.location.node !== place.anchor.node) {
+      issues.push('narrated source place differs from the catalogue physical home')
+    }
+  } else {
+    issues.push('narrated source place has no reviewed existing or proposed anchor')
   }
   if (!story[spec.nodeId] || !tale.play?.scenes?.[spec.nodeId]) {
     issues.push('narrated portrait is outside the tale’s authored scene projection')

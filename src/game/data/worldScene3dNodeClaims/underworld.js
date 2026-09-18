@@ -5923,7 +5923,7 @@ export default Object.freeze([
     "nodeId": "gjizarTradheti",
     "lineIndex": 0,
     "placeId": "gjizarTradheti",
-    "text": "ti përgjigjesh: po. unë do të shkoj me ju te babai juaj.",
+    "text": "ti përgjigjesh: po. unë do të shkoj me ju te babai ynë.",
     "conditions": {
       "all": [
         "arrival:action:gjizar-agree-with-brothers"
@@ -6065,7 +6065,9 @@ export default Object.freeze([
         "flag:gjizarRingsTaken"
       ],
       "negate": false,
-      "none": [],
+      "none": [
+        "flag:gjizarWentWithBrothers"
+      ],
       "observationId": null
     },
     "objects": [],
@@ -6079,7 +6081,7 @@ export default Object.freeze([
     "nodeId": "gjizarTradheti",
     "lineIndex": 5,
     "placeId": "gjizarTradheti",
-    "text": "Vëllezërit njohin unazat. dhe thonë: shkojmë bashkë te babai.",
+    "text": "Vëllezërit njohin unazat. dhe thonë: shkojmë bashkë te babai ynë.",
     "conditions": {
       "all": [
         "flag:gjizarRingsTaken"
@@ -6121,7 +6123,7 @@ export default Object.freeze([
     "nodeId": "gjizarTradheti",
     "lineIndex": 6,
     "placeId": "gjizarTradheti",
-    "text": "Vëllezërit përgjigjen: eja; ne shkojmë tani te babai. ata presin pranë teje te rruga.",
+    "text": "Vëllezërit përgjigjen: eja; ne shkojmë tani te babai ynë. ata presin pranë teje te rruga.",
     "conditions": {
       "all": [
         "flag:gjizarBrothersAgreement"
@@ -6162,7 +6164,7 @@ export default Object.freeze([
     "nodeId": "gjizarTradheti",
     "lineIndex": 7,
     "placeId": "gjizarTradheti",
-    "text": "ti shkon nga gurët me vëllezërit te babai. Në rrugë, ata kërkojnë ujë, marrin Gjizar dhe të hedhin në një pus.",
+    "text": "ti shkon nga gurët me vëllezërit te babai yt. Në rrugë, ata kërkojnë ujë, marrin Gjizar dhe të hedhin në një pus.",
     "conditions": {
       "all": [
         "from:gjizarTradheti",
@@ -6173,24 +6175,6 @@ export default Object.freeze([
       "observationId": null
     },
     "objects": [
-      {
-        "key": "gjizar-brothers",
-        "asset": "human",
-        "label": "Two brothers",
-        "zone": "near",
-        "attributes": {},
-        "count": 2,
-        "persistence": "scene"
-      },
-      {
-        "key": "gjizar-bird",
-        "asset": "bird",
-        "label": "Gjizar",
-        "zone": "front",
-        "attributes": {},
-        "count": 1,
-        "persistence": "scene"
-      },
       {
         "key": "deep-well",
         "asset": "well",
@@ -6205,8 +6189,8 @@ export default Object.freeze([
     ],
     "states": [],
     "relations": [],
-    "disposition": "physical",
-    "rationale": "The journey ends with the brothers taking Gjizar and throwing the player into the well."
+    "disposition": "mixed",
+    "rationale": "The journey culminates in the well after the brothers take the bird; the arrival does not place either brother or Gjizar at the trapped player’s level."
   },
   {
     "id": "description:gjizarTradheti:8",
@@ -6251,47 +6235,7 @@ export default Object.freeze([
     "nodeId": "gjizarTradheti",
     "lineIndex": 9,
     "placeId": "gjizarTradheti",
-    "text": "zogu nuk flet.",
-    "conditions": {
-      "all": [
-        "flag:gjizarWentWithBrothers"
-      ],
-      "negate": false,
-      "none": [],
-      "observationId": null
-    },
-    "objects": [],
-    "states": [],
-    "relations": [],
-    "disposition": "nonvisual",
-    "rationale": "Bird silence does not prove line of sight from the well to the brothers."
-  },
-  {
-    "id": "description:gjizarTradheti:10",
-    "nodeId": "gjizarTradheti",
-    "lineIndex": 10,
-    "placeId": "gjizarTradheti",
-    "text": "Bukura kërkon zogun.",
-    "conditions": {
-      "all": [
-        "flag:gjizarWentWithBrothers"
-      ],
-      "negate": false,
-      "none": [],
-      "observationId": null
-    },
-    "objects": [],
-    "states": [],
-    "relations": [],
-    "disposition": "reported",
-    "rationale": "The Beauty’s search is reported while the player is trapped."
-  },
-  {
-    "id": "description:gjizarTradheti:11",
-    "nodeId": "gjizarTradheti",
-    "lineIndex": 11,
-    "placeId": "gjizarTradheti",
-    "text": "Mbreti arrin te pusi me Bukurën dhe ul një litar.",
+    "text": "ti je në ujë.",
     "conditions": {
       "all": [
         "flag:gjizarWentWithBrothers"
@@ -6302,28 +6246,50 @@ export default Object.freeze([
     },
     "objects": [
       {
-        "key": "actor:king",
-        "asset": "human",
-        "label": "King",
-        "zone": "near",
+        "key": "gjizar-well-water",
+        "asset": "water",
+        "label": "Water in the well",
+        "zone": "below",
         "attributes": {},
         "count": 1,
         "persistence": "scene"
-      },
+      }
+    ],
+    "states": [],
+    "relations": [],
+    "disposition": "physical",
+    "rationale": "The trapped player is in water at the bottom of the well."
+  },
+  {
+    "id": "description:gjizarTradheti:10",
+    "nodeId": "gjizarTradheti",
+    "lineIndex": 10,
+    "placeId": "gjizarTradheti",
+    "text": "Njerëzit e mbretit rrinë mbi pusin. një ul një litar.",
+    "conditions": {
+      "all": [
+        "flag:gjizarWentWithBrothers"
+      ],
+      "negate": false,
+      "none": [],
+      "observationId": null
+    },
+    "objects": [
       {
-        "key": "actor:bukura",
+        "key": "gjizar-rescuers",
         "asset": "human",
-        "label": "Beauty of the Earth",
-        "zone": "near",
+        "label": "The king’s men above the well",
+        "zone": "above",
         "attributes": {},
-        "count": 1,
-        "persistence": "scene"
+        "count": 2,
+        "persistence": "scene",
+        "countExact": false
       },
       {
         "key": "rescue-rope",
         "asset": "rope",
-        "label": "Lowered rope",
-        "zone": "front",
+        "label": "Lowered rescue rope",
+        "zone": "above",
         "attributes": {
           "hanging": true
         },
@@ -6334,7 +6300,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes King, Beauty of the Earth, Lowered rope; only the represented moment is staged."
+    "rationale": "The king’s men are visibly above the shaft and one lowers the rescue rope; neither the king nor Bukura is asserted at the rim."
   },
   {
     "id": "description:gjizarUnazatLena:0",
@@ -6590,7 +6556,7 @@ export default Object.freeze([
     "nodeId": "gjizarPus",
     "lineIndex": 1,
     "placeId": "gjizarTradheti",
-    "text": "vëllezërit marrin zogun.",
+    "text": "Vëllezërit kanë zogun tani.",
     "conditions": {
       "all": [],
       "negate": false,

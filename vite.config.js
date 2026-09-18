@@ -75,7 +75,49 @@ const memberExpressionRoot = (node) => {
 
 const stripStoryAuditMetadata = (code, ast) => {
   const replacements = []
+  const removeProperty = (properties, index) => {
+    const property = properties[index]
+    const next = properties[index + 1]
+    const previous = properties[index - 1]
+    if (next) replacements.push([property.start, next.start, ''])
+    else if (previous) replacements.push([previous.end, property.end, ''])
+    else replacements.push([property.start, property.end, ''])
+  }
+  // These notes explain authored conversation topics to source audits. They
+  // have no browser consumer; operational topic fields remain untouched.
+  // Require explicit literals so a new indirection cannot silently evade this
+  // boundary. Other objects' `purpose` fields are runtime data, not this contract.
+  const explicitProperties = (node, label) => {
+    if (node?.type !== 'ObjectExpression') throw new Error(`${label} requires an explicit object`)
+    const seen = new Set()
+    for (const property of node.properties) {
+      const name = astPropertyName(property.key)
+      if (property.type !== 'Property' || property.computed || property.method ||
+          property.kind !== 'init' || !name || seen.has(name)) {
+        throw new Error(`${label} requires unique explicit properties`)
+      }
+      seen.add(name)
+    }
+    return node.properties
+  }
   walkAst(ast, (candidate) => {
+    if (candidate.type === 'CallExpression' && candidate.callee?.type === 'Identifier' &&
+        candidate.callee.name === 'defineConversationHub') {
+      if (candidate.arguments.length !== 1) throw new Error('defineConversationHub requires one explicit object')
+      const hub = explicitProperties(candidate.arguments[0], 'defineConversationHub')
+      const questions = explicitProperties(hub.find((property) => astPropertyName(property.key) === 'questions')?.value,
+        'defineConversationHub questions')
+      for (const question of questions) {
+        const fields = explicitProperties(question.value, 'defineConversationHub question')
+        for (const [index, field] of fields.entries()) {
+          if (astPropertyName(field.key) !== 'purpose') continue
+          if (field.value?.type !== 'Literal' || typeof field.value.value !== 'string' || !field.value.value.trim()) {
+            throw new Error('defineConversationHub question purpose requires a nonempty static string')
+          }
+          removeProperty(fields, index)
+        }
+      }
+    }
     if (
       candidate.type === 'CallExpression' &&
       candidate.callee?.type === 'Identifier' &&
@@ -89,11 +131,7 @@ const stripStoryAuditMetadata = (code, ast) => {
     const properties = candidate.properties || []
     for (const [index, property] of properties.entries()) {
       if (property.type !== 'Property' || astPropertyName(property.key) !== 'actionSemantics') continue
-      const next = properties[index + 1]
-      const previous = properties[index - 1]
-      if (next) replacements.push([property.start, next.start, ''])
-      else if (previous) replacements.push([previous.end, property.end, ''])
-      else replacements.push([property.start, property.end, ''])
+      removeProperty(properties, index)
     }
   })
   let transformed = code

@@ -46,7 +46,8 @@ const report = {
     modes,
   },
   places: rows,
-  unchartedDepartures: allRoutes.filter((route) => route.charted === false).map(({ from, to, departureId, fromPlace, duration }) => ({ from, to, departureId, fromPlace, destination: null, duration })),
+  unchartedDepartures: allRoutes.filter((route) => route.departureId).map(({ from, to, departureId, fromPlace, duration }) => ({ from, to, departureId, fromPlace, destination: null, duration })),
+  unchartedSiteRoutes: allRoutes.filter((route) => route.siteTransitionId).map(({ from, to, siteId, siteTransitionId, samePlace, duration }) => ({ from, to, siteId, siteTransitionId, samePlace, position: null, duration })),
   projectionLinks: reconstruction.constraints
     .filter((edge) => edge.kind === 'projection')
     .map(({ edge, from, to, dx, dy }) => ({ edge, from, to, dx, dy })),
@@ -97,7 +98,7 @@ if (process.argv.includes('--json')) {
   console.log(
     `worldreconstruct: ${broken ? 'FAILED' : 'exact'} — ${report.counts.places} places, ` +
     `${report.counts.constraints} route constraints, ${report.counts.components} component; ` +
-    `${report.unchartedDepartures.length} uncharted departures excluded, ${report.distribution.totals.locationCards} location cards, ${distributionBroken ? 'distribution violations' : 'distribution within policy'}`,
+    `${report.unchartedDepartures.length} uncharted departures and ${report.unchartedSiteRoutes.length} uncharted site routes excluded, ${report.distribution.totals.locationCards} location cards, ${distributionBroken ? 'distribution violations' : 'distribution within policy'}`,
   )
 } else {
   console.log('# Blind world-chart reconstruction')

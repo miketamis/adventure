@@ -304,6 +304,39 @@ for (const changed of [
 assert.ok(npcDepictionIssues(serpent, { ...serpentNpc, location: { status: 'placed', node: 'mujoHak1' } }, depictedTales, STORY).length,
   'moving the catalogue home into the listener room passed validation')
 
+// Ymer's mother belongs to the narrated spring at still-unbuilt source Ulqin.
+// Neither its nearby map proposal nor the listener's room locates her body.
+const ymerMother = NPC_FIRST_ENCOUNTERS.nenaYmerit
+const ymerMotherNpc = catalogs.get(npcOwners.get('nenaYmerit')).nenaYmerit
+assert.equal(ymerMotherNpc.location.status, 'planning')
+assert.equal(ymerMotherNpc.location.node, undefined)
+assert.equal(ymerMother.depiction.placeId, 'ulqin')
+assert.equal(depictedTales['aga-ymer'].places.find(({ id }) => id === 'ulqin').anchor.status, 'proposed')
+let ymerNarration = { ...newRun(), nodeId: 'agaYmer1', clock: 9 }
+assert.match(normalText(ymerNarration), /Në këngë, nëna e tij.*burimi.*nuk e njeh birin/)
+ymerNarration = rememberPortraits(ymerNarration)
+for (const state of [ymerNarration, reloadPortraits(ymerNarration)]) {
+  assert.ok(normalLines(state).some((line) => line.npcAppearance?.npcId === 'nenaYmerit'))
+  assert.equal(hasCond(state, 'npc:nenaYmerit'), false, 'narration created a physical mother in the room')
+}
+const leftYmer = rememberPortraits({ ...ymerNarration, nodeId: clearNodeId, turn: ymerNarration.turn + 1 })
+const revisitedYmer = reloadPortraits({ ...leftYmer, nodeId: 'agaYmer1', turn: leftYmer.turn + 1 })
+assert.ok(normalLines(revisitedYmer).every((line) => line.npcAppearance?.npcId !== 'nenaYmerit'))
+for (const location of [
+  { status: 'placed', node: 'agaYmer1' },
+  { status: 'placed', node: 'kalaRozafa' },
+  { status: 'planning', plan: '' },
+  { ...ymerMotherNpc.location, node: 'agaYmer1' },
+  { ...ymerMotherNpc.location, encounters: ['agaYmer1'] },
+  { ...ymerMotherNpc.location, route: [] },
+]) assert.ok(npcDepictionIssues(ymerMother, { ...ymerMotherNpc, location }, depictedTales, STORY).length,
+  'an unlocated narrated identity borrowed physical geometry')
+for (const depiction of [
+  { ...ymerMother.depiction, placeId: 'captivity' },
+  { ...ymerMother.depiction, beatIds: ['dungeon'] },
+]) assert.ok(npcDepictionIssues({ ...ymerMother, depiction }, ymerMotherNpc, depictedTales, STORY).length,
+  'the unlocated mother lost her exact source spring beat')
+
 let woundedMujo = { ...newRun(), nodeId: 'gbMuji1', clock: 9 }
 const woundLine = lineOf(STORY.gbMuji1.text[2])
 const woundedLines = normalLines(woundedMujo)
@@ -382,6 +415,8 @@ const gapsByFile = []
 let broadCandidateCount = 0
 let locatedCandidateCount = 0
 let plannedCandidateCount = 0
+let locatedCoveredCount = 0
+let narratedPlannedCount = 0
 for (const [file, entries] of catalogs) {
   const individualEntries = Object.entries(entries)
     .filter(([, npc]) => ['human', 'mythic', 'creature'].includes(npc.kind))
@@ -389,6 +424,9 @@ for (const [file, entries] of catalogs) {
     .filter(([, npc]) => ['placed', 'walking'].includes(npc.location?.status))
   broadCandidateCount += individualEntries.length
   locatedCandidateCount += locatedEntries.length
+  locatedCoveredCount += locatedEntries.filter(([npcId]) => covered.has(npcId)).length
+  narratedPlannedCount += individualEntries.filter(([npcId, npc]) =>
+    npc.location?.status === 'planning' && NPC_FIRST_ENCOUNTERS[npcId]?.depiction).length
   plannedCandidateCount += individualEntries
     .filter(([, npc]) => npc.location?.status === 'planning').length
   const gaps = locatedEntries
@@ -401,11 +439,13 @@ for (const [file, entries] of catalogs) {
 // Gjon and the unnamed sea-road companion are distinct recurring identities.
 // The latter reuses his existing voice portrait as his canonical introduction.
 assert.equal(broadCandidateCount, 278, 'broad individual NPC inventory changed; review the portrait scope')
-assert.equal(locatedCandidateCount, 117, 'located individual NPC inventory changed; review the portrait scope')
-assert.equal(plannedCandidateCount, 161, 'planned individual NPC inventory changed; review the portrait scope')
-assert.equal(covered.size, locatedCandidateCount,
+assert.equal(locatedCandidateCount, 116, 'located individual NPC inventory changed; review the portrait scope')
+assert.equal(plannedCandidateCount, 162, 'planned individual NPC inventory changed; review the portrait scope')
+assert.equal(narratedPlannedCount, 1, 'review the source-bound unlocated portrait inventory')
+assert.equal(covered.size, locatedCoveredCount + narratedPlannedCount, 'a portrait lacks a reviewed physical or narrated-only identity')
+assert.equal(locatedCoveredCount, locatedCandidateCount,
   `every placed/walking individual needs a reviewed first encounter:\n${gapsByFile.join('\n')}`)
-console.log(`NPC first-encounter audit passed: ${covered.size}/${locatedCandidateCount} currently located identities reviewed; ` +
+console.log(`NPC first-encounter audit passed: ${locatedCoveredCount}/${locatedCandidateCount} currently located identities reviewed; ${narratedPlannedCount} narrated-only unlocated identity; ` +
   `${broadCandidateCount} broad candidates = ${locatedCandidateCount} placed/walking + ${plannedCandidateCount} planned.`)
 console.log(`Located appearance migration inventory (${gapsByFile.length} file partitions):`)
 for (const line of gapsByFile) console.log(`- ${line}`)

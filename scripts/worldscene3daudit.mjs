@@ -36,6 +36,7 @@ import {
   WORLD_SCENE_3D_VERSION,
   WORLD_SCENE_3D_ENVIRONMENT_CASES,
   buildWorldScene3d,
+  departureElementId,
   validateWorldScene3d,
   worldScene3dApproachConditionConflicts,
 } from '../src/game/worldScene3d.js'
@@ -215,7 +216,7 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     assert.equal(description.source.kind, 'story-line', `${id}: incorrect source family`)
     assert.equal(description.text, albanianTextOf(lineOf(entry)), `${id}: source text drift`)
     if (isUnchartedStoryNode(nodeId)) {
-      assert.ok(description.elementIds.includes(`departure-context:${nodeId}`), `${id}: missing uncharted departure context`)
+      assert.ok(description.elementIds.includes(departureElementId(nodeId)), `${id}: missing exact uncharted context`)
       assert.equal(description.placeId, null)
       assert.equal(description.regionId, null)
       assert.ok(description.elementIds.every((elementId) => elements.get(elementId)?.catalogue), `${id}: uncharted ending gained a physical destination`)
@@ -236,7 +237,7 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     expectedRouteIds.push(id)
     const route = routes.get(id)
     assert.ok(route, `${id}: authored action omitted from 3D route index`)
-    assert.equal(route.fromElementId, `place:${canonical.fromPlace}`, `${id}: wrong source place`)
+    assert.equal(route.fromElementId, canonical.fromPlace ? `place:${canonical.fromPlace}` : null, `${id}: wrong source place`)
     assert.equal(route.toElementId, canonical.toPlace ? `place:${canonical.toPlace}` : null, `${id}: wrong destination place`)
     if (canonical.charted === false) assert.deepEqual(route.points, [], `${id}: uncharted departure invents route geometry`)
     assert.equal(route.spatial, canonical.spatial, `${id}: projection changed into a physical road`)

@@ -17,7 +17,7 @@ export default {
     role: 'Aga Ymer\'s mother, who did not know her own son at the fountain',
     backstory: 'Kept the household at Ulqin through nine years without her son. Meeting a long-haired stranger at her own roadside spring, she asked after her boy and was told, by her own boy, that he had died three weeks before — and wept for him without ever learning otherwise on the page.',
     folklore: ['aga-ymer'],
-    location: { status: 'placed', node: 'agaYmer1' },
+    location: { status: 'planning', plan: 'the spring at source Ulqin, whose place remains proposed; she is described within the song at agaYmer1, not physically present in that room' },
     tales: { 'aga-ymer': 'mother' },
   },
   mbretiHuaj: {

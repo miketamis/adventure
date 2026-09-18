@@ -6,6 +6,12 @@
 // mapaudit validates: every key is a real place anchor, every node belongs to
 // that place, and no node appears in two happenings.
 export const PLACE_META = {
+  balozLufte: {
+    name: 'mejdani pranë detit — the shore battlefield',
+    happenings: [
+      { title: 'the mounted duel and the fallen Baloz', nodes: ['balozLufte', 'balozKoke'] },
+    ],
+  },
   start: {
     name: 'ura para fshatit — the village bridgehead',
     happenings: [
@@ -96,10 +102,11 @@ export const PLACE_META = {
       { title: 'the rings and the brothers’ choice', nodes: ['gjizarTradheti', 'gjizarUnazatLena', 'gjizarVellezerRefuz', 'gjizarPus'] },
     ],
   },
-  gjizarFund: {
-    name: 'oborri i xhamisë — the mosque courtyard',
+  gjizarKthim: {
+    name: 'shtëpia e mbretit — the king’s home',
+    distributionReason: 'The king’s men bring the rescued prince home from the distant well. He recovers here, then may ride to the Beauty’s ship, whose location the source leaves uncharted. The ordinary tale-pause control permits public exploration without inventing a neighboring road or relocating the house.',
     happenings: [
-      { title: 'Gjizar sings for the rightful winner', nodes: ['gjizarFund'] },
+      { title: 'recovery, the returning song and the ride to the ship', nodes: ['gjizarKthim'] },
     ],
   },
   cuckoo1: {
@@ -629,6 +636,7 @@ export const PLACE_META = {
     happenings: [
       { title: 'the wounded hero and his sister', nodes: ['bregu', 'balozMotra', 'balozTribut', 'balozZgjedh'] },
       { title: 'the night before the tribute', nodes: ['bregFle'] },
+      { title: 'the hero’s return, the embrace and the shared grave', nodes: ['balozFitore'] },
     ],
   },
   pallatiZi: {

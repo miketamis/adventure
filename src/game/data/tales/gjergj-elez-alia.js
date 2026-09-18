@@ -42,7 +42,7 @@ export default {
     'THE CLOSING BOAST (¶11.9): AL «Se ktu i thonë-o Gjergj Elez Ali!» — the name-boast closes Gjergj\'s own speech; Elsie recasts it as narration ("Thus spoke his challenge…"). Beats keep it in his mouth.',
     'TWELVE PASH (¶12.3): AL «Dymbëdhetë pash» — twelve arm-spans into the meadow and twelve of dust straight up; Elsie converts the unit to "twenty-four yards" (1 pash ≈ 2 yards). Beats keep the pash.',
     'THE WELL (¶13.2): AL «Me gjithë at m\'nji bunar e ka mbytun» — the trunk is drowned in a WELL (bunar), together with the baloz\'s own steed (at); Elsie gives "a lake" and "the courser". Beats follow the well — the place bunari.',
-    'STONE vs CUDGEL (staged vignette): the game\'s balozLufte scene and the lore-card summary arm the baloz with a hurled STONE (gur), where this Nikaj text gives both champions a topuz (cudgel) — variants of the same exchanged blow; the beats follow the text.',
+    'WEAPON VOCABULARY: the playable duel uses the broad Albanian armë for the source topuz (cudgel). It preserves the horse dropping to its knees, the Baloz throwing first and Gjergj striking back before drawing his sword; the broad word does not assert another variant.',
     'AMANET (¶14.4): AL «Amanet motra e Gjergj Elez Alisë!» — the sister is left to the companions as an amanet, a sacred trust of the besa-world; Elsie\'s "assign you" flattens it. Beats keep the amanet.',
   ],
   // 17 strophes of the English translation; sentence counts per strophe
@@ -109,7 +109,7 @@ export default {
     stance: 'companion',
     with: 'gjergj',
     role:
-      'You climb to the shore-tower of Gjergj Elez Alia — nine years bedridden of nine wounds, kept alive only by his devoted sister, who washes them with spring water and dries the blood with her own hair. When the black Baloz risen from the sea demands the coast\'s tribute, and the sister herself, you help Gjergj rise one last time: you put the sword in his hand and stand with him as he goes down to the dawn field and beheads the sea-monster. The danger past, brother and sister embrace and both hearts stop in the same breath, and you lay the two of them in a single grave under one stone.',
+      'You climb to the shore-tower of Gjergj Elez Alia — nine years bedridden of nine wounds, kept alive only by his devoted sister, who washes them with spring water and dries the blood with her own hair. When the black Baloz risen from the sea demands the coast\'s tribute, and the sister herself, you help Gjergj rise one last time: you put the sword in his hand and stand with him as he goes down to the dawn field and beheads the sea-monster. The danger past, brother and sister embrace and both hearts stop in the same breath, and the ending recalls their shared grave. You do not perform their burial.',
     enter: 'you reach the shore-tower where the nine-wounded hero lies abed',
     from: 'bregu',
     ending: 'balozFitore',
@@ -123,9 +123,9 @@ export default {
       balozFitore: 'twoHearts',
     },
     divergences: [
-      { beat: 'cudgels', note: 'The staged duel and the ending blurb arm the Baloz with a hurled STONE that Gjergj dodges; the Nikaj song gives both champions a topuz (cudgel), buried twelve pash deep in the meadow. Same exchanged blow, two variants — no second monster.' },
+      { beat: 'cudgels', note: 'After the player chooses to remain beside the hero, the Baloz throws his weapon, the horse drops to its knees, and Gjergj counters with his own weapon before drawing his sword. Armë is a lexical simplification of the source topuz; the deep burial of the missed cudgel remains unstaged.' },
       { beat: 'beheading', note: 'The song hauls the headless trunk to a well and drowns it, steed and all, fouling the river black for three years; the game ends the fight at the beheading and simply frees the coast of its tribute — the bunar and the three-year stench are dropped.' },
-      { note: 'The outer frame vanishes: the sister\'s ride to the two farriers, the bequest of halls and goods, the sister left to the companions as amanet, and the mourning cuckoo of the coda. The player, not Gjergj\'s scattered men, digs the single grave under one stone.' },
+      { note: 'The outer frame vanishes: the sister\'s ride to the two farriers, the bequest of halls and goods, the sister left to the companions as amanet, and the mourning cuckoo of the coda. The shared grave is recalled without assigning its digging to the player; the companions\' burial remains in the source timeline.' },
     ],
   },
   beats: [

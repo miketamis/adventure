@@ -113,6 +113,7 @@ import { isDistantLineVisible, transitionInfo } from './worldModel.js'
 import { resolveRevealLine } from './revealResolver.js'
 import { NODE_REGION } from './regions.js'
 import {
+  canPauseEmbodiment,
   canonicalEmbodimentId,
   embodimentEntryNodes,
   embodimentOptionAccess,
@@ -2436,10 +2437,8 @@ export function reducer(state, action) {
     }
 
     case 'PAUSE_EMBODIMENT': {
+      if (!canPauseEmbodiment(state)) return state
       const quest = embodimentQuest(state.embodying)
-      if (!quest || state.ended || state.embodimentPaused || state.timePassage ||
-          state.nodeId !== state.embodimentFocusNode || !quest.nodes.includes(state.nodeId) ||
-          STORY[state.nodeId]?.end) return state
       const to = safePublicNode(
         quest, state.embodimentWorldNode, quest.returnTo, state.embodimentOriginNode,
         ...embodimentEntryNodes(quest),

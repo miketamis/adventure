@@ -318,4 +318,8 @@ export const OPTION_READINGS_STATIC = Object.freeze({
   "kreshnikRrembimiBurg.options[1]": { al: "ik nga roja.", en: "Flee from the guard.", review: 'internal-editorial' },
   "sofraVendimPlaka.options[1]": { al: "shko te pusi.", en: "Go to the well.", review: 'internal-editorial' },
   "sofraVendimPusi.options[0]": { al: "shko te pusi.", en: "Go to the well.", review: 'internal-editorial' },
+  "gjizarKthim.options[0]": { al: "Shko me kalë te anija.", en: "Ride to the ship.", review: 'internal-editorial' },
+  "gjizarAnija.options[0]": { al: "Trego të drejtën.", en: "Tell the truth.", review: 'internal-editorial' },
+  "gjizarKthim.options[1]": { al: "pi qilimin.", en: "Drink the carpet.", review: 'internal-editorial' },
+  "gjizarAnija.options[1]": { al: "pi anijen.", en: "Drink the ship.", review: 'internal-editorial' },
 })

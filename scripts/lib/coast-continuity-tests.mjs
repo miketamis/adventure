@@ -48,7 +48,7 @@ const journey = () => {
     'baloztribut:degjo-motra',
     'balozzgjedh:jep-shpate-trim',
     'balozzgjedh:shko-ne-det-me-trim',
-    'balozlufte:vrapo-mes-trim-dhe-gur',
+    'baloz-stand-by-hero',
     'balozkoke:kthehu-ne-kulle',
   ]) {
     before.set(state.nodeId, state)

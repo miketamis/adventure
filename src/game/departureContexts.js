@@ -1,4 +1,5 @@
 import { canonicalPlayerActionId } from './playerActionRuntime.js'
+import { UNCHARTED_SITE_NODES } from './unchartedSites.js'
 
 // An ending may leave a known place without naming another charted place.
 // These exact incoming actions preserve that distinction without saved shadow
@@ -11,7 +12,7 @@ export const DEPARTURE_CONTEXTS = Object.freeze([
   { id: 'maro-son-departure', from: 'maroGjilpera', to: 'maroPrincesha', actionId: 'maro-leave-with-son', durationHours: 1,
     reason: 'One-hour departure with her son; destination unspecified.' },
 ].map((entry) => Object.freeze(entry)))
-export const UNCHARTED_STORY_NODES = Object.freeze([...new Set(DEPARTURE_CONTEXTS.map(({ to }) => to))])
+export const UNCHARTED_STORY_NODES = Object.freeze([...new Set(DEPARTURE_CONTEXTS.map(({ to }) => to)), ...UNCHARTED_SITE_NODES])
 export const isUnchartedStoryNode = (nodeId) => UNCHARTED_STORY_NODES.includes(nodeId)
 
 export function departureContextForChoice(from, option, story) {

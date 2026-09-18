@@ -17,12 +17,12 @@ export const ENDING_COPY = Object.freeze({
     "blurb": "You gave the hungry guest bread and salt, but hid the meat simmering in your earthen pot and kept the richer food for yourself. His cry carried the broken heart of hospitality to heaven. God — not the guest — pronounced the sentence: the pot fixed itself to your back as a shell, and you became the first tortoise, carrying forever the house and meal you would not truly share."
   },
   "agaYmerStay": {
-    "title": "The Broken Word",
-    "blurb": "You stayed. After nine years in chains, who could blame you for taking your wife’s hand and your own hearth again? But a besa is a besa, and word spread that Aga Ymer had given his sworn word to return and had not — and in the old country a man is only as good as his besa. You lived out your days warm and fed and quietly unforgiven, your name left out of the songs that should have carried it forever. Some prisons have no walls."
+    "title": "At Home",
+    "blurb": "Aga Ymer remains at home while his promise to return is unfulfilled."
   },
   "agaYmerFund": {
-    "title": "Aga Ymer’s Besa",
-    "blurb": "His wife had sworn to wait for him nine years and nine days; held captive far from home, Aga Ymer of Ulcinj was freed at last only on his besa to return. He reached his door as that vow ran out and she was about to be wed to another, and an old scar on his arm proved who he was — and then, his word unbroken, he mounted and rode all the way back to his chains — and the captor-king, awed that a man would ride back to prison to keep his word, set him free for good. Not even a homecoming outweighs a sworn besa; and a besa kept can open even a prison door."
+    "title": "Aga Ymer’s Return",
+    "blurb": "Aga Ymer returns to captivity, is released, and reaches home a free man."
   },
   "prespaLiri": {
     "title": "The Warning Heeded",
@@ -366,23 +366,23 @@ export const ENDING_COPY = Object.freeze({
   },
   "gjizarKap": {
     "title": "Caught in the Palace",
-    "blurb": "You woke the Earthly Beauty. In her own palace, far down the road of no return, she keeps Gjizar the nightingale in a golden cage — and the thief who reaches for it loudly, instead of slipping the cage away after lighting the four unlit lamps and extinguishing the four dying ones while she sleeps, she catches in her own hands. Some birds are only won quietly."
+    "blurb": "The Beauty is awake, and the prince is her captive inside the palace."
   },
   "gjizarUnazatLena": {
     "title": "The Rings Beneath the Stone",
-    "blurb": "You left the three rings where they lay. Without that proof, your brothers did not recognize the traveller who had won Gjizar, and the bird remained silent among strangers. The road of no return ended beside the stones."
+    "blurb": "The three rings remain beneath the stone, and Gjizar stays silent."
   },
   "gjizarVellezerRefuz": {
     "title": "The Brothers Refused",
-    "blurb": "You recognized your brothers but refused their invitation. They left without Gjizar, while the three eagle-sisters kept watch beside the stones. At dawn the nightingale sang for the one who had truly won him, beyond the betrayal that would otherwise have waited on the homeward road."
+    "blurb": "At dawn, Gjizar sings beside the stones while the three eagle-sisters keep watch."
   },
   "gjizarPus": {
     "title": "Silent in the Cage",
-    "blurb": "You stayed in the well, and let your brothers carry Gjizar off and claim him for the king. But the nightingale will not sing for the false hands that stole him from the one who truly won him — so they had a silent bird in a golden cage, and you the dark at the bottom of a well. A bird won by treachery never sings."
+    "blurb": "The prince remains in the dark well, while the stolen bird stays silent."
   },
   "gjizarFund": {
     "title": "Gjizar the Nightingale",
-    "blurb": "A king’s three sons sought Gjizar the nightingale for his mosque. Down the road of no return, you combed the lice from a wild woman’s hair, saved the tiger-wife from the oven’s embers by moving them with leaves, befriended the tiger, and opened the blind lion’s eyes. Three eagles attacked; you cut a wing, a leg and a beak. Their mother hid you in her field-house, where you saw them bathe into three maidens. Each swore by the stranger who had wounded her. Pedersen’s source makes their price a month as husband to each; this age-suitable staging says plainly that you stay one month with each sister before their one-hour flight. You lit the Beauty’s four unlit lamps, extinguished the four that were dying, and quietly took Gjizar. The sisters returned you to the three stones; the rings led you to one brother’s barber shop and the other’s coffee house. On the road home they cut the well-rope, stole the cage and lied. Gjizar fell silent. The Earthly Beauty came by warship, disproved the eldest brother’s cypress-tree claim, had him killed, and fired a cannon into half the palace until the frightened middle brother confessed. The king pulled you from the well; when you could speak, Gjizar sang. You told the Beauty exactly how you won the bird, and married her. (Pedersen, pp. 30–35; Elsie tale 14.) A nightingale sings only for the one who truly won it."
+    "blurb": "The rescued prince recovers his voice; Gjizar sings, and the prince and the Beauty marry."
   },
   "tsFundTomor": {
     "title": "The Mountain That Remains",
@@ -398,7 +398,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "balozFitore": {
     "title": "Gjergj Elez Alia",
-    "blurb": "You found Gjergj Elez Alia in his tower as the oldest song tells it: nine years bedridden with nine wounds, kept alive only by his sister, who for nine years washed his wounds and dried his blood with her own hair. When the Black Baloz that had taken the coast’s yearly tribute of a maiden from each house came at last for her, her tears woke him, and though his nine wounds still bled he rose, took the sword you put in his hand, and went down to the shore himself. The sea-ogre mocked him for a dead man come from the grave; he dodged its hurled stone and struck its head from its shoulders, and freed the coast of its tribute forever. Then, the danger past, brother and sister embraced — and in that one breath both their hearts stopped together, the way the song says they must, and you laid the two of them in a single grave under one stone. The lahutë sang Gjergj and his faithful sister for five hundred years; now it sings you beside them."
+    "blurb": "The Baloz is dead. Gjergj and his sister lie together in one grave."
   },
   "bregFle": {
     "title": "The Sea’s Tribute",
@@ -406,7 +406,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "bregHumb": {
     "title": "Lost to the Sea",
-    "blurb": "You fled instead of standing by Gjergj, and the Baloz caught you at the water’s edge. The sea is older than any hero, and it keeps what it takes."
+    "blurb": "The Baloz catches and devours the traveller beside the sea; this journey ends on the shore."
   },
   "zanaGold": {
     "title": "The Lesser Gifts",
@@ -453,12 +453,12 @@ export const ENDING_COPY = Object.freeze({
     "blurb": "You took the cook’s side and made the poor man pay real gold for a smell he could not help breathing. The cook went home rich on nothing, and a hungry man went home poorer — the very injustice Nastradin’s ringing coin was invented to mock. Some judgments cost more than they settle."
   },
   "rushaFund": {
-    "title": "Rusha of the Krajl",
-    "blurb": "Like Zuku Bajraktar in the old song, you rode into the Krajl’s tower for Rusha, his daughter across the frontier; and when she brought you coffee you would not take her away until she swore you the besa — God’s own oath — that she came of her free will. She gave her word, climbed up behind you, and you rode for Jutbina — a bride won not by the sword but by the sworn word. (What Muji made of it when you came home, the old singers leave for another night.)"
+    "title": "Rusha’s Oath",
+    "blurb": "Rusha has sworn before God in the tower. The cup of coffee still stands before her guest."
   },
   "rushaKeq": {
     "title": "Taken Without the Oath",
-    "blurb": "You reached for Rusha without waiting for her besa, and a maiden carried off by force from the Krajl’s tower is a war, not a wedding. Her cry brought the Krajl and all his guard; you were cut down on his own stair, your boast unkept and your head left behind just as you swore it would be. The kreshnik wins the enemy’s daughter by binding her with the sacred oath — never by the grab that any brigand could make."
+    "blurb": "The Krajl strikes down the traveller in the tower, bringing this encounter with Rusha to a fatal end."
   },
   "pallatiKthim": {
     "title": "The Maiden Brought Home",
@@ -558,23 +558,23 @@ export const ENDING_COPY = Object.freeze({
   },
   "kordhaMoatVdes": {
     "title": "The Moat",
-    "blurb": "The king’s moat was too wide for any man to clear alone — that was the whole cruelty of his challenge, and the heads along his wall proved it. Ylli the Star could have carried all of you over in a single leap; you tried it on your own, and the dark water closed over your head. A sworn brother’s gift is no use to the one too proud to take it."
+    "blurb": "Kordha is lost in the moat’s dark water below the king’s wall. His journey ends there."
   },
   "kordhaZjarr": {
     "title": "The Palace Guard",
-    "blurb": "The Earthly Beauty’s palace was guarded by a Kulshedra and her brood, and no single sword could pass them — which is exactly why heroes go to win her sworn together, not alone. You rushed the gate by yourself, and the she-dragon’s fire was the last thing you saw."
+    "blurb": "The fire at the Beauty’s guarded palace kills Kordha; the entrance remains in the dragon’s keeping."
   },
   "kordhaProvaVdes": {
     "title": "The Trial of the Spring",
-    "blurb": "The Earthly Beauty is not won by force but by passing her trials her own way — and the first is to drink from her spring without ever touching it with your hands. You reached in with both hands like any thirsty man, and the palace closed over you. Her hand is earned by the one who heeds her rule, not the one who grabs."
+    "blurb": "The palace takes Kordha at the spring, ending his journey beside its cold water."
   },
   "kordhaFund": {
-    "title": "The Three Sworn Brothers",
-    "blurb": "You held your tongue. The crone never learned that, like Kordha of the old tale, a hero may keep his very life hidden in his blade — so no one could steal your strength and cast it in the sea. Kordha the Sword, Ylli the Star who clears the castle moat with all three on his back, and Deti the Sea who dives to its floor swore you brotherhood, and four such men go down against the Kulshedra as one."
+    "title": "The Secret Kept",
+    "blurb": "Kordha’s blade remains with him, and the life held within it stays safe."
   },
   "kordhaDeti": {
-    "title": "Deti’s Dive",
-    "blurb": "You told the crone where your strength was kept — as Kordha, in the old tale, once let his own secret slip — and she stole the blade and flung it into the sea, and you sickened unto death. But Deti, the brother who can dive to the floor of any water, went down into the dark and brought your soul back to you. You live, barely, and you have learned the oldest rule of the heroes: never tell a living soul where your own is hidden."
+    "title": "The Blade Returned",
+    "blurb": "The diving brother brings the blade back from the sea, and Kordha wakes whole again."
   },
   "shurdhiFund": {
     "title": "Shurdhi’s Storm",
@@ -665,16 +665,16 @@ export const ENDING_COPY = Object.freeze({
     "blurb": "The lugat walks invisible, and only the dhampir can see it — the half-living son a revenant fathered on a widow, \"the dhampir knows the lugat.\" (Where no dhampir is at hand, the lugat’s grave is found by leading a virgin boy on a white stallion through the churchyard: the horse balks at the unquiet grave.) He knew the undead thing by sight, wrestled it down in the dark, and unmade it; and the night road was clean again."
   },
   "gjinkallaFund": {
-    "title": "Sing Until You Die",
-    "blurb": "Your mother lay very sick and called you, and you answered that you could not break off your song. \"Sing, then,\" she said — \"sing until you die of it.\" And so you are the cicada: you sing your one long song through the summer and die of it, dried out, your back fastened to a little stem of grass — the daughter who would not set down her own pleasure to tend the one who bore her."
+    "title": "The Cicada",
+    "blurb": "The cicada sings all summer until she dies; her mother’s words have made that song her fate."
   },
   "bletaFund": {
     "title": "The Bee",
-    "blurb": "A very old, sick mother called her three daughters, and the dutiful one came, tended her and baked a little cake that comforted her. The mother blessed her: “you shall be the light of the ancestors and the food of the living.” So the bee was made — honey for the living and wax for the candles of the dead — and that is why one must never blaspheme in a house that keeps a hive."
+    "blurb": "The mother’s blessing gives the tale its bee, with honey for the living and wax for candles."
   },
   "merimangaFund": {
     "title": "The Spider",
-    "blurb": "The sister who would not leave her loom, and the idle one, earned the mother’s other word: one became the spider, condemned to spin a web she can never finish, the other the cicada, to sing her one summer and die parched on a stem. Only the dutiful sister was blessed as the bee. Idleness earns a thankless thread."
+    "blurb": "The spider keeps weaving without ever finishing, bound by her mother’s words to endless work."
   },
   "dallendysheFund": {
     "title": "The Swallow, Friend of Man",
@@ -892,6 +892,91 @@ export const ENDING_COPY_VARIANTS = Object.freeze({
   shqipeFund: Object.freeze([
     variant('eaglet-returned', 'shqipeBarter', 'shqipebarter:jep-zog',
       'You saved the eaglet from the serpent and took it with you. When its mother offered her bargain, you gave the young bird back. She gives you her sight and strength; the young eagle flies above you. You become king and take the eagle’s name: Son of the Eagle.'),
+  ]),
+  kordhaMoatVdes: Object.freeze([
+    variant("solo-moat-leap", "kordhaMoat", "kordhamoat:kerce-vetem",
+      "You try to leap across the moat alone. You fall into its dark water."),
+  ]),
+  kordhaZjarr: Object.freeze([
+    variant("palace-alone", "kordhaPallat", "kordhapallat:hyr-vetem",
+      "You enter the guarded palace alone. The fire kills you."),
+  ]),
+  kordhaProvaVdes: Object.freeze([
+    variant("spring-hands", "kordhaProva", "kordhaprova:pi-me-dore",
+      "You drink from the spring with your hand, despite the rule you were given. The palace takes you.",
+      {"required": ["shpataKordhes"]}),
+  ]),
+  kordhaFund: Object.freeze([
+    variant("blade-secret-kept", "kordha2", "kordha2:rri-i-art-qete",
+      "You keep quiet when the Beauty asks where your strength lies. The secret stays with you, and the blade that holds your life remains safe. You are Kordha, one of the three sworn brothers.",
+      {"required": ["shpataKordhes", "flag:kordhaBesaSworn"]}),
+  ]),
+  kordhaDeti: Object.freeze([
+    variant("blade-returned", "kordha2", "kordha2:fol-per-fuqi",
+      "You tell the Beauty that your strength is in your blade. She passes on the secret; the crone steals the blade and throws it into the sea, and you collapse. Blood on the feather brings your two brothers back. The diving brother retrieves the blade, and you wake whole again.",
+      {"required": ["shpataKordhes", "flag:kordhaBesaSworn"]}),
+  ]),
+  gjizarKap: Object.freeze([
+    variant("palace-call", "gjizarPallat", "gjizarpallat:thirr-zog",
+      "You call to the bird. The Beauty wakes and catches you in her palace."),
+  ]),
+  gjizarUnazatLena: Object.freeze([
+    variant("rings-left", "gjizarTradheti", "gjizar-leave-rings",
+      "You leave the three rings beneath the stone. Without them, your brothers do not recognize you, and Gjizar remains silent.",
+      {"excluded": ["flag:gjizarRingsTaken", "flag:gjizarWentWithBrothers"]}),
+  ]),
+  gjizarVellezerRefuz: Object.freeze([
+    variant("brothers-declined", "gjizarTradheti", "gjizar-refuse-brothers",
+      "You refuse your brothers’ invitation and stay beside the stones with Gjizar. They leave without the bird, and the three eagle-sisters keep watch. At dawn, Gjizar sings for you.",
+      {"required": ["flag:gjizarRingsTaken"], "excluded": ["flag:gjizarWentWithBrothers"]}),
+  ]),
+  gjizarPus: Object.freeze([
+    variant("well-stayed", "gjizarTradheti", "gjizartradheti:rri-ne-pus",
+      "You stay in the dark well. Your brothers have already taken Gjizar, but the bird still will not sing.",
+      {"required": ["flag:gjizarWentWithBrothers"]}),
+  ]),
+  gjizarFund: Object.freeze([
+    variant("nightingale-restored", "gjizarAnija", "gjizar-tell-truth",
+      "You climb the rope with help from the king’s men. They take you home, still unable to speak. There you hear how the Beauty exposed your brothers’ claims and the truth of the well was revealed. After a day or two, your voice returns; your first words make Gjizar sing. You ride with the bird to the Beauty’s ship. There she asks how you took Gjizar; you tell her the truth, and you marry her.",
+      {"required": ["flag:gjizarWentWithBrothers"]}),
+  ]),
+  bletaFund: Object.freeze([
+    variant("chosen-care", "bleta1", "bleta1:ndihmo-nene",
+      "You answer your sick mother’s call and help her. She blesses you, and you become the bee: honey for the living and wax for candles."),
+  ]),
+  merimangaFund: Object.freeze([
+    variant("chosen-weaving", "bleta1", "bleta1:bej-nje-qilim",
+      "You make your carpet while your sick mother calls. Her answer turns you into a spider, still weaving its web."),
+  ]),
+  gjinkallaFund: Object.freeze([
+    variant("chosen-song", "bleta1", "bleta1:kendo",
+      "You sing while your sick mother calls. She tells you to keep singing, and you become the cicada."),
+  ]),
+  agaYmerFund: Object.freeze([
+    variant("oath-return", "agaYmer2", "agaymer2:mban-bese",
+      "You keep your promise and return to captivity. The king’s daughter and your fellow captives welcome you; the king then releases you. Only afterward do you return home free to your wife."),
+  ]),
+  agaYmerStay: Object.freeze([
+    variant("stay-home", "agaYmer2", "agaymer2:rri-ne-shtepi",
+      "You stay at home with your wife instead of returning to captivity. The promise you gave remains unkept; this branch ends there."),
+  ]),
+  rushaFund: Object.freeze([
+    variant("rusha-oath-request", "rusha1", "rusha-request-besa",
+      "You ask Rusha for an oath before drinking her coffee. She swears before God to do as you say. The cup remains before you in the tower.",
+      {"required": ["flag:rushaOathRequested"]}),
+  ]),
+  rushaKeq: Object.freeze([
+    variant("rusha-seizure", "rusha1", "rusha1:merr-rusha-pa-bese",
+      "You seize Rusha without an oath. The Krajl strikes you down. This is the game’s alternate branch, not the outcome of the collected song."),
+  ]),
+  balozFitore: Object.freeze([
+    variant("coast-victory", "balozKoke", "balozkoke:kthehu-ne-kulle",
+      "You return to the tower after standing beside Gjergj. His horse knelt beneath the Baloz’s thrown weapon, and Gjergj struck and beheaded the monster. At the tower he embraces his sister; both their hearts stop. They lie together in one grave, and the coast is free of the Baloz’s tribute.",
+      {"required": ["fact:coastalBalozDefeated", "flag:stoodByGjergj"]}),
+  ]),
+  bregHumb: Object.freeze([
+    variant("coast-flight", "balozLufte", "balozlufte:ik-shpejt",
+      "You flee from the fight. The Baloz catches and eats you."),
   ]),
 })
 

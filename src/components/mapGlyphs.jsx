@@ -1136,8 +1136,8 @@ export const WORLD_LANDMARKS = [
   { id: 'bregu', glyph: 'gFishingCoast', label: 'the shore village', x: 780, y: 1080 },
   { id: 'balozMotra', glyph: 'gSister', label: 'the devoted sister', x: 780, y: 1080 },
   { id: 'balozLufte', glyph: 'gBaloz', label: 'the Baloz', x: 880, y: 1130 },
-  { id: 'balozKoke', glyph: 'gGjergj', label: 'Gjergj Elez Alia', x: 960, y: 1200 },
-  { id: 'balozFitore', glyph: 'gGraveLahuta', label: 'the single grave', x: 640, y: 1100 },
+  { id: 'balozKoke', glyph: 'gGjergj', label: 'Gjergj Elez Alia', x: 880, y: 1130 },
+  { id: 'balozFitore', glyph: 'gGraveLahuta', label: 'the single grave', x: 780, y: 1080 },
   { id: 'detiThelle2', glyph: 'gBukuraDetit', label: 'E Bukura e Detit', x: 1680, y: 1420 },
   { id: 'shqiponja1', glyph: 'gEagleNest', label: 'the eagle of the deep', x: 1560, y: 1640 },
   // the great forest (west, across the river)

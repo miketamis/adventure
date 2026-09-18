@@ -246,7 +246,7 @@ function WorldAtlasScene3dView({ state }) {
   }
 
   return <div className="world3d" data-testid="world3d-view">
-    {location.kind !== 'charted' && <p role="status">Current location is uncharted.{location.originPlaceId ? ` Departure origin: ${elementsById.get(`place:${location.originPlaceId}`)?.label || location.originPlaceId}.` : ' The departure origin is unknown.'} This reference has no physical destination or route mesh.</p>}
+    {location.kind !== 'charted' && <p role="status">Current location is uncharted.{location.siteLabel ? ` Story setting: ${location.siteLabel}. No world coordinates or route mesh are assigned.` : <>{location.originPlaceId ? ` Departure origin: ${elementsById.get(`place:${location.originPlaceId}`)?.label || location.originPlaceId}.` : ' The departure origin is unknown.'} This reference has no physical destination or route mesh.</>}</p>}
     <div className="world3d-heading">
       <div><span className="world3d-eyebrow">WORLD BUILDER · STORY AUDIT</span><h3>A world you can trace</h3></div>
       <div className="world3d-actions">

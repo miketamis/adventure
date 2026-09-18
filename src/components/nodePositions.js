@@ -326,8 +326,8 @@ export const NODE_AT = {
   // Gjizar is an embodied journey, not seven pages heard without leaving the
   // back lane. The no-return road reaches the world below, the theft occurs
   // at the established Earthly Beauty's court, and the brothers' betrayal has
-  // its own well on the long homeward road. Only the resolved ending returns
-  // to the king's town where the tale began.
+  // its own well on the long homeward road. The rescue returns to the king's
+  // town for recovery. The later ship has source-backed identity, but no chart coordinate.
   gjizarUdha: [360, 2320],
   gjizarPallat: 'bukura1',
   gjizarKap: 'bukura1',
@@ -335,7 +335,7 @@ export const NODE_AT = {
   gjizarUnazatLena: 'gjizarTradheti',
   gjizarVellezerRefuz: 'gjizarTradheti',
   gjizarPus: 'gjizarTradheti',
-  gjizarFund: [755, 125],
+  gjizarKthim: [755, 125],
   // Tomor & Shpirag embodied arc — Tomor's slopes share tomor1; Shpirag's ridge
   // (Berat at its foot) gets its OWN spot below the summit, fixing the old bug of
   // Berat resolving onto the sacred summit (maja).
@@ -368,8 +368,10 @@ export const NODE_AT = {
   balozTribut: 'balozMotra',
   balozZgjedh: 'balozMotra',
   balozLufte: [880, 1130],
-  balozKoke: [960, 1200],
-  balozFitore: [640, 1100],
+  // Standing beside the hero and witnessing the battle's outcome do not move
+  // the player away from the shore-field where the duel began.
+  balozKoke: 'balozLufte',
+  balozFitore: 'bregu', // return to the same hero's tower, followed by the shared grave
   bregFle: 'bregu',
   bregHumb: [1000, 1080],
   zanaProva: [410, 1040],

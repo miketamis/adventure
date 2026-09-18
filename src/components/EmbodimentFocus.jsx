@@ -6,7 +6,7 @@ import {
   timeOfDay,
   worldClockOf,
 } from '../game/gameState.js'
-import { embodimentIdentity, embodimentQuest } from '../game/embodiment.js'
+import { canPauseEmbodiment, embodimentIdentity, embodimentQuest } from '../game/embodiment.js'
 import { normalizeOptionEnglish, optionEnglishReadingOf } from '../game/data/readings/reviewedOptionReadings.js'
 import { NODE_POS } from './nodePositions.js'
 import { playerMapLabel } from './mapLabels.js'
@@ -61,7 +61,7 @@ export default function EmbodimentFocus({ state, dispatch }) {
         </div>
         <div className="embodiment-focus-actions">
           {onCourse ? (
-            <button className="btn" onClick={() => dispatch({ type: 'PAUSE_EMBODIMENT' })}>
+            <button className="btn" disabled={!canPauseEmbodiment(state)} onClick={() => dispatch({ type: 'PAUSE_EMBODIMENT' })}>
               Explore public roads for now
             </button>
           ) : (
@@ -106,7 +106,7 @@ export default function EmbodimentFocus({ state, dispatch }) {
       </div>
       <div className="embodiment-focus-actions">
         {onCourse ? (
-          <button className="btn" onClick={() => dispatch({ type: 'PAUSE_EMBODIMENT' })}>
+          <button className="btn" disabled={!canPauseEmbodiment(state)} onClick={() => dispatch({ type: 'PAUSE_EMBODIMENT' })}>
             🗺 Explore public roads for now
           </button>
         ) : (

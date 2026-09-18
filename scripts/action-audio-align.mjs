@@ -10,6 +10,7 @@ import { join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import sdk from 'microsoft-cognitiveservices-speech-sdk'
 import { audioSlug } from '../src/game/audio.js'
+import { ACTION_TIMING_METHOD, decodeActionTimingManifest, encodeActionTimingManifest } from '../src/game/actionTimingStorage.js'
 import {
   actionTranscriptWords,
   collectAcceptedActionSurfaces,
@@ -20,7 +21,7 @@ const AUDIO_DIR = resolve(ROOT, 'public/audio')
 const OUTPUT = resolve(AUDIO_DIR, 'action-timings.json')
 const CONCURRENCY = Math.max(1, Number(process.env.ACTION_ALIGN_CONCURRENCY) || 8)
 const ONLY = process.argv.find((value) => value.startsWith('--surface='))?.slice(10) || null
-const ALIGNMENT_METHOD = 'azure-word-boundary-correlated-to-stored-mp3'
+const ALIGNMENT_METHOD = ACTION_TIMING_METHOD
 
 function loadEnv() {
   const result = {}
@@ -134,7 +135,7 @@ async function retry(task, attempts = 4) {
 }
 
 async function main() {
-  const previous = existsSync(OUTPUT) ? JSON.parse(readFileSync(OUTPUT, 'utf8')) : { entries: {} }
+  const previous = existsSync(OUTPUT) ? decodeActionTimingManifest(JSON.parse(readFileSync(OUTPUT, 'utf8'))) : { entries: {} }
   const surfaces = collectAcceptedActionSurfaces().filter((surface) => !ONLY || surface === ONLY)
   if (ONLY && surfaces.length !== 1) throw new Error(`Unknown accepted action surface: ${ONLY}`)
   const scratch = mkdtempSync(join(tmpdir(), 'language-adventure-action-align-'))
@@ -197,11 +198,11 @@ async function main() {
     const currentEntries = Object.fromEntries(
       Object.entries(entries).filter(([slug]) => validSlugs.has(slug)),
     )
-    writeFileSync(OUTPUT, `${JSON.stringify({
+    writeFileSync(OUTPUT, `${JSON.stringify(encodeActionTimingManifest({
       version: 1,
       method: ALIGNMENT_METHOD,
       entries: currentEntries,
-    })}\n`)
+    }))}\n`)
     if (failures.length) {
       throw new Error(`${failures.length} action alignments failed:\n${failures.join('\n')}`)
     }

@@ -69,7 +69,10 @@ Every cast member of every tale MUST resolve to a registry entry
 
 A portrait rendered inside a song may use the first-encounter presentation
 without moving its character into the listener's room. Keep `location.node`
-at the existing source-place anchor; do not add the narration scene to
+at the existing source-place anchor. If that source place is still proposed,
+keep the identity `planning` with a concrete `plan` and no `node`, `route` or
+`encounters`; the proposed anchor’s nearby built node is not the NPC’s home.
+Do not add the narration scene to
 `location.encounters`. In `data/npcAppearances`, declare the rendering `nodeId`
 and an explicit `depiction` record:
 

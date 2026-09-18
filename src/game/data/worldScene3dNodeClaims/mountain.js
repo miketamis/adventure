@@ -16962,7 +16962,9 @@ export default Object.freeze([
         "asset": "interior",
         "label": "Interior of the Krajl’s tower",
         "zone": "around",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -16970,9 +16972,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "krajl-tower-room"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Interior of the Krajl’s tower; the camera remains at the canonical place."
+    "rationale": "The player enters the Krajl’s tower: the room encloses the first-person viewpoint instead of standing beside it."
   },
   {
     "id": "description:rusha1:1",
@@ -17015,9 +17023,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:rusha",
+        "kind": "inside",
+        "target": "krajl-tower-room"
+      },
+      {
+        "subject": "rusha-coffee",
+        "kind": "inside",
+        "target": "krajl-tower-room"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Rusha, Coffee offered by Rusha; the camera remains at the canonical place."
+    "rationale": "Rusha offers coffee inside the same tower room; both the present speaker and cup stay within its walls."
   },
   {
     "id": "description:rusha1:2",
@@ -17056,7 +17075,7 @@ export default Object.freeze([
     "nodeId": "rusha1",
     "lineIndex": 3,
     "placeId": "rusha1",
-    "text": "Rusha thotë: a premton një besë? vjen me zemër, ose rri.",
+    "text": "Kafeja pret para teje; Rusha ende nuk ka dhënë fjalën.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -17076,12 +17095,25 @@ export default Object.freeze([
         "countExact": true,
         "persistence": "scene",
         "role": "participant"
+      },
+      {
+        "key": "rusha-coffee",
+        "asset": "cup",
+        "label": "Coffee offered by Rusha",
+        "zone": "near",
+        "attributes": {
+          "contents": "coffee"
+        },
+        "count": 1,
+        "countExact": true,
+        "persistence": "scene",
+        "role": "prop"
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "Rusha invites a freely chosen oath; leaving is still a future action."
+    "rationale": "The coffee remains offered and Rusha has not yet sworn; no free invitation or completed oath is inferred."
   },
   {
     "id": "description:rusha1:4",
@@ -17157,7 +17189,42 @@ export default Object.freeze([
     "nodeId": "rushaFund",
     "lineIndex": 0,
     "placeId": "rusha1",
-    "text": "Rusha jep një besë.",
+    "text": "ti kërkon një besë nga Rusha: para Perëndisë, ajo duhet të bëjë si i thua ti.",
+    "conditions": {
+      "all": [
+        "arrival:action:rusha-request-besa",
+        "flag:rushaOathRequested"
+      ],
+      "negate": false,
+      "none": [],
+      "observationId": null
+    },
+    "objects": [
+      {
+        "key": "actor:rusha",
+        "asset": "human",
+        "label": "Rusha",
+        "zone": "near",
+        "attributes": {
+          "variant": "woman"
+        },
+        "count": 1,
+        "countExact": true,
+        "persistence": "scene",
+        "role": "participant"
+      }
+    ],
+    "states": [],
+    "relations": [],
+    "disposition": "mixed",
+    "rationale": "The exact guarded action requests Rusha’s oath; it does not depict drinking, a companion journey or marriage."
+  },
+  {
+    "id": "description:rushaFund:1",
+    "nodeId": "rushaFund",
+    "lineIndex": 1,
+    "placeId": "rusha1",
+    "text": "Rusha të jep fjalën para Perëndisë.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -17182,46 +17249,14 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "Rusha speaks her oath."
-  },
-  {
-    "id": "description:rushaFund:1",
-    "nodeId": "rushaFund",
-    "lineIndex": 1,
-    "placeId": "rusha1",
-    "text": "Rusha vjen me ty.",
-    "conditions": {
-      "all": [],
-      "negate": false,
-      "none": [],
-      "observationId": null
-    },
-    "objects": [
-      {
-        "key": "actor:rusha",
-        "asset": "human",
-        "label": "Rusha",
-        "zone": "near",
-        "attributes": {
-          "variant": "woman"
-        },
-        "count": 1,
-        "countExact": true,
-        "persistence": "scene",
-        "role": "participant"
-      }
-    ],
-    "states": [],
-    "relations": [],
-    "disposition": "physical",
-    "rationale": "This visible moment establishes Rusha; the camera remains at the canonical place."
+    "rationale": "Rusha gives her word before God; no divine figure or travel is rendered."
   },
   {
     "id": "description:rushaFund:2",
     "nodeId": "rushaFund",
     "lineIndex": 2,
     "placeId": "rusha1",
-    "text": "ti dhe Rusha ecni në Jutbina.",
+    "text": "Filxhani me kafe rri para teje.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -17230,34 +17265,23 @@ export default Object.freeze([
     },
     "objects": [
       {
-        "key": "actor:rusha",
-        "asset": "human",
-        "label": "Rusha",
+        "key": "rusha-coffee",
+        "asset": "cup",
+        "label": "Coffee offered by Rusha",
         "zone": "near",
         "attributes": {
-          "variant": "woman"
+          "contents": "coffee"
         },
         "count": 1,
         "countExact": true,
         "persistence": "scene",
-        "role": "participant"
-      },
-      {
-        "key": "jutbina-towers",
-        "asset": "tower",
-        "label": "Jutbina towers",
-        "zone": "far",
-        "attributes": {},
-        "count": 3,
-        "countExact": false,
-        "persistence": "place",
-        "role": "setting"
+        "role": "prop"
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "Rusha remains the same companion on arrival at Jutbina."
+    "rationale": "The coffee cup still stands before the player in the tower; no Jutbina towers or consumed coffee appear."
   },
   {
     "id": "description:rushaKeq:0",
@@ -17296,7 +17320,7 @@ export default Object.freeze([
     "nodeId": "rushaKeq",
     "lineIndex": 1,
     "placeId": "rusha1",
-    "text": "krajli të godit.",
+    "text": "Krajli të godet dhe ti vdes.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -17321,7 +17345,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "This visible moment establishes The Krajl; the camera remains at the canonical place."
+    "rationale": "The Krajl strikes and kills the player after the unpromised taking; no invented weapon is supplied."
   },
   {
     "id": "description:rushaKeq:2",

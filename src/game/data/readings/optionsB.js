@@ -123,7 +123,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "kostandin3.options[1]": { al: "sjell rrugën", en: "Bring the road.", review: 'internal-editorial' }, // 671
   "kostandin3.options[2]": { al: "dëgjo rrugën", en: "Listen to the road.", review: 'internal-editorial' }, // 672
   "gjizar1.options[0]": { al: "kthehu", en: "Return.", review: 'internal-editorial' }, // 673
-  "gjizar1.options[1]": { al: "ndihmo nënën", en: "Help the mother.", review: 'internal-editorial' }, // 674
   "gjizar1.options[2]": { al: "ec rrugës", en: "Walk along the road.", review: 'internal-editorial' }, // 675
   "gjizar1.options[3]": { al: "ndihmo rrugën", en: "Help the road.", review: 'internal-editorial' }, // 676
   "gjizar2.options[3]": { al: "lufto gjarprin", en: "Fight the serpent.", review: 'internal-editorial' }, // 680
@@ -492,7 +491,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "gjizarUdha.options[2]": { al: "ngre sytë e luanit.", en: "Lift the lion’s eyelids.", review: 'internal-editorial' },
   "gjizarUdha.options[3]": { al: "lufto shqiponjat.", en: "Defend yourself against the eagles.", review: 'internal-editorial' },
   "gjizarTradheti.options[0]": { al: "merr unazat.", en: "Take the rings.", review: 'internal-editorial' },
-  "rusha1.options[0]": { al: "Premto besë.", en: "Swear the besa.", review: 'internal-editorial' },
   "patatGruaja.options[0]": { al: "fol me gurin.", en: "Speak to the stone.", review: 'internal-editorial' },
   "punaBariu.options[1]": { al: "kthehu në fshat", en: "Return to the village.", review: 'internal-editorial' },
   "gjarperKerkim.options[2]": { al: "vesh detin", en: "Wear the sea.", review: 'internal-editorial' },
@@ -518,7 +516,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "udhetimi2.options[0]": { al: "shko me dashin e bardhë.", en: "Go with the white ram.", review: 'internal-editorial' },
   "udhetimi2.options[1]": { al: "shko me dashin e zi.", en: "Go with the black ram.", review: 'internal-editorial' },
   "balozZgjedh.options[0]": { al: "jep shpatën trimit.", en: "Give the sword to the hero.", review: 'internal-editorial' },
-  "balozZgjedh.options[1]": { al: "shko në deti me trimin.", en: "Go to the sea with the hero.", review: 'internal-editorial' },
   "foleShpetuar.options[0]": { al: "merr shqiponjën me ty.", en: "Take the eagle with you.", review: 'internal-editorial' },
   "sheshiPlak.options[11]": { al: "Çfarë ndodhi pastaj?", en: "What happened after that?", review: 'internal-editorial' },
   "karkanxholl1.options[1]": { al: "po.", en: "Yes.", review: 'internal-editorial' },
@@ -548,7 +545,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "shqipe2.options[1]": { al: "dil nga foleja dhe ec drejt udhëkryqit.", en: "Leave the nest and walk toward the crossroads.", review: 'internal-editorial' },
   "sari1.options[1]": { al: "kthehu te pusi.", en: "Return to the well.", review: 'internal-editorial' },
   "sari2.options[1]": { al: "kthehu te pusi.", en: "Return to the well.", review: 'internal-editorial' },
-  "gjizarTradheti.options[2]": { al: "po. unë do të shkoj me ju te babai juaj.", en: "Yes. I will go with you to your father.", review: 'internal-editorial' },
   "sari1.options[0]": { al: "shko me dervishin para mbretit.", en: "Go with the dervish before the king.", review: 'internal-editorial' },
   "sari2.options[0]": { al: "shiko shtatë gjuhët dhe shtatë kokat.", en: "Look at the seven tongues and the seven heads.", review: 'internal-editorial' },
   "maja.options[5]": { al: "shko te kalaja larg.", en: "Go to the distant castle.", review: 'internal-editorial' },
@@ -560,7 +556,6 @@ export const OPTION_READINGS_B = Object.freeze({
   "gjizar2.options[2]": { al: "shko nën pemën.", en: "Go beneath the tree.", review: 'internal-editorial' },
   "tsBeteje.options[1]": { al: "lufto me shkopin.", en: "Fight with the cudgel.", review: 'internal-editorial' },
   "tsBeteje.options[2]": { al: "kthehu te mali tjetër.", en: "Return to the other mountain.", review: 'internal-editorial' },
-  "balozLufte.options[0]": { al: "vrapo mes trimit dhe gurit.", en: "Run between the hero and the stone.", review: 'internal-editorial' },
   "fshatiSheshi.options[4]": { al: "shko me fëmijët te dordolec.", en: "Go with the children to the rain-child.", review: 'internal-editorial' },
   "fshatiSheshi.options[6]": { al: "shko te festa e verës.", en: "Go to the Summer Day feast.", review: 'internal-editorial' },
   "fshatiSheshi.options[8]": { al: "shko te vajzat.", en: "Go to the girls’ spring rite.", review: 'internal-editorial' },
@@ -577,10 +572,15 @@ export const OPTION_READINGS_B = Object.freeze({
   "udheLugat.options[3]": { al: "ik në pyll.", en: "Flee into the forest.", review: 'internal-editorial' },
   "maja.options[3]": { al: "shko te dy malet e tjera.", en: "Go to the other two mountains.", review: 'internal-editorial' },
   "gjizarTradheti.options[3]": { al: "jo. unë do të rri këtu me Gjizar.", en: "No. I will stay here with Gjizar.", review: 'internal-editorial' },
-  "gjizarTradheti.options[4]": { al: "shko me vëllezërit te babai i tyre.", en: "Go with the brothers toward their father.", review: 'internal-editorial' },
   "gjizarTradheti.options[5]": { al: "ngjit lart nëpër litarin nga pusi.", en: "Climb the rope out of the well.", review: 'internal-editorial' },
   "tsRast.options[5]": { al: "shko nga rruga në luftë.", en: "Go from the road to the battle.", review: 'internal-editorial' },
   "arushe2.options[1]": { al: "vrapo nga arusha në pyll.", en: "Run from the bear into the forest.", review: 'internal-editorial' },
   "diellThirrKul.options[0]": { al: "thirr një kafshë.", en: "Call an animal.", review: 'internal-editorial' },
   "fshatiSheshi.options[28]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' },
+  "gjizar1.options[1]": { al: "Shko te nëna.", en: "Go to the mother.", review: 'internal-editorial' },
+  "gjizarTradheti.options[2]": { al: "po. unë do të shkoj me ju te babai ynë.", en: "Yes. I will go with you to our father.", review: 'internal-editorial' },
+  "gjizarTradheti.options[4]": { al: "shko me vëllezërit te babai yt.", en: "Go with the brothers to your father.", review: 'internal-editorial' },
+  "balozZgjedh.options[1]": { al: "shko në det me trimin.", en: "Go to the sea with the hero.", review: 'internal-editorial' },
+  "balozLufte.options[0]": { al: "Rri pranë trimit.", en: "Stay beside the hero.", review: 'internal-editorial' },
+  "rusha1.options[0]": { al: "Kërko një besë nga Rusha.", en: "Ask Rusha for a besa.", review: 'internal-editorial' },
 })

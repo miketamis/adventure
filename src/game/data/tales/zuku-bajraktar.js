@@ -70,7 +70,7 @@ export default {
   discrepancies: [
     'THE UNCLE, NOT THE GRANDFATHER (¶9.1): AL «Si nuk je ma trim se axha» — axha is the paternal UNCLE; Elsie\'s translation gives "your granddad." The beats follow the Albanian and keep "uncle."',
     'WHOSE EYES, AT LINE 105 OF SONG 1 (¶12.2): the Albanian\'s dative pronoun (“…ja verbon”) is genuinely ambiguous on the page as to father/it; the courser\'s own laments in the very next lines confirm it is the COURSER blinded alongside Zuku, matching Elsie\'s reading. Noted here only because the raw text invites the misreading.',
-    'THE BESA RUSHA SWEARS (¶48.2): the game\'s existing folklore card glosses this as Zuku refusing "to carry her off until she swore that she came of her own free will" — but the verse itself has him demand only «besën e zotit, qi si t\'tham ke me m\'ndigjue» ("your besa that you\'ll do just as I tell you") — an oath of OBEDIENCE, not a stated free choice. The beats follow the verse\'s own wording; the free-will reading is the frame later tellings (including this game\'s own rushaFund blurb) put on it.',
+    'THE BESA RUSHA SWEARS (¶48.2): an earlier game folklore card glossed this as Zuku refusing "to carry her off until she swore that she came of her own free will" — but the verse itself has him demand only «besën e zotit, qi si t\'tham ke me m\'ndigjue» ("your besa that you\'ll do just as I tell you") — an oath of OBEDIENCE, not a stated free choice. The beats, current folklore card and playable oath now follow the verse\'s own wording without presenting obedience as consent.',
     'WHAT A "BALOZ" IS HERE: nothing in either song calls Baloz Sedelija a sea-monster or gives him any monstrous trait — he rides, talks, plots and dies exactly like the human shkja captain he is introduced as. The game\'s own pre-existing zukuFund side-quest blurb borrows the sea-monster image from the core Balozi i Detit / Gjergj-Elez-Alia baloz; this tale\'s Baloz Sedelija is a distinct, fully human enemy captain — "baloz" names a RANK here, not a species (see balozSedelija\'s NPC entry).',
   ],
   // Song 1 "Zuku Bajraktar": 30 strophes (¶1-30). Song 2 "Zuku merr Rushën"
@@ -130,7 +130,7 @@ export default {
         proposal: 'draw a meadow just outside jutbina\'s own towers for the Agas\' fire' } },
     { id: 'kullaRusha', emoji: '🏰', name: 'Rusha\'s kulla', note: 'the Krajl\'s tower across the frontier',
       anchor: { status: 'existing', node: 'rusha1', mirror: 'the Krajl\'s tower where Rusha waits — the game\'s own rusha1 node already stages exactly this',
-        mold: 'this tale IS the full song the game\'s rusha1/rushaFund/rushaKeq side-quest condenses into one choice; the full song has Zuku demand Rusha\'s besa of obedience before he\'ll drink her coffee, and she gives it freely',
+        mold: 'this tale IS the full song the game\'s rusha1/rushaFund/rushaKeq side-quest condenses into one choice; the full song has Zuku demand Rusha\'s besa of obedience before he\'ll drink her coffee, and she gives her word',
         sharedWith: ['the staged rusha1/rushaFund/rushaKeq side-quest'] } },
     { id: 'oborriKadiut', emoji: '⚖️', name: 'the cadi\'s seat', note: 'where a judge is threatened by both sides of a dispute',
       anchor: { status: 'proposed', node: 'jutbina', mirror: 'a judge\'s seat somewhere near the frontier hamlet — its own bench, apart from any household or the open meadow',
@@ -156,7 +156,7 @@ export default {
     entry: 'besa',
     stance: 'embodied',
     as: 'zuku',
-    role: 'You are Zuku Bajraktari, boy standard-bearer of Jutbina — so strong that your own mother had you blinded and left for dead on the mountain, until an ora\'s flower gave back your sight for a sworn vow of vengeance. Healed, you ride by night into the Krajl\'s land to win Rusha, the daughter across the frontier, on the strength of a boast you made among the thirty Agas. It all turns on a single besa: bind her with God\'s own oath before you carry her home and the bride is yours; reach for her without it, and a bride seized by force is war, and your head stays behind on the Krajl\'s stair.',
+    role: 'You are Zuku Bajraktari in the Krajl’s tower. Rusha offers coffee. You may ask for her besa before God to do as you say, seize her without it, or return to Jutbina. The oath route ends with her word in the tower; it does not enact drinking, staying overnight or carrying her away.',
     enter: 'rusha pours you coffee in the krajl\'s tower, and you will not drink until she swears you the besa',
     from: 'rusha1',
     ending: 'rushaFund',
@@ -167,8 +167,8 @@ export default {
     scenes: { rusha1: 'besa', rushaFund: 'besa' },
     divergences: [
       { note: 'The record links two separate Kreshnik songs, but only the Rusha song is embodied. A separate open-world helper vignette encounters the already-blinded hero at the mountain; the player helps him as an outsider, so the blinding and healing are registered as learned prologue routes, not claimed as embodied scenes. The first song\'s captured Baloz, midnight disguise, household reckoning and fiery execution remain source-timeline lore.' },
-      { beat: 'besa', note: 'The game splits the oath into a moral fork the song never offers: demand Rusha\'s besa and win her (rushaFund), or seize her without it and die on the Krajl\'s stair (rushaKeq). In the song she simply gives her word — an oath to obey, which the ending reframes as her coming \'of her free will.\'' },
-      { beat: 'race', note: 'The song\'s whole second half — Mujo\'s rival claim to Rusha, the cadi trapped between two death-threats, and the courser-race where Mujo\'s own mount shies at the last instant so Zuku catches the bride — is cut. The game ends the moment Rusha rides home behind you.' },
+      { beat: 'besa', note: 'The request stages lines 48.1–48.3 only through Rusha’s oath of obedience before God. The offered cup remains before the player. Drinking, the day and night of rest, dressing and the ride to Jutbina in the remainder of this beat are not enacted. Seizing Rusha and dying is a declared game counterfactual, absent from the song; returning voluntarily remains available.' },
+      { beat: 'race', note: 'Mujo’s rival claim, the threatened cadi and the deciding horse-race remain later source events. The playable episode ends at the oath in the tower, without claiming this later resolution or treating obedience as consent.' },
     ],
   },
   beats: [

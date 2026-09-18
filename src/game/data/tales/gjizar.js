@@ -277,9 +277,9 @@ const tale = {
         mold: 'a wayside well deep enough to swallow a betrayal and shallow enough to keep a head above water — the gjizarTradheti/gjizarPus scenes already stage the rope, the cut and the silence',
         conflicts: 'NOT pusi — that well is the mouth of the world below, a passage, not a puddle; NOT pusiThate — the village\'s dry well belongs to the Xhindet and holds no water at all',
         sharedWith: ['gjizarTradheti', 'gjizarPus'] } },
-    { id: 'harbor', emoji: '⛵', name: 'the war-harbour', note: 'the Beauty\'s warship offshore, out past the map\'s edge; a red cloth run from the palace gate to meet her gangplank',
+    { id: 'harbor', emoji: '⛵', name: 'the war-harbour', note: 'the Beauty\'s warship, reached by riding the red cloth from the palace gate; playable in gjizarAnija/gjizarFund without a charted position',
       anchor: { status: 'offstage', mirror: 'the queen\'s fleet standing off an Ottoman harbour town of the south — the same Vlora coast kingCity\'s own mirror names, reached from open water rather than tied up in the lane itself',
-        mold: 'kingCity\'s own anchor (gjizar2) sits in the map\'s INLAND village region (regions.js), sharing that back lane with three other bird-tales (cuckoo1, dallendyshe1) — no quay or warship can be built fused onto it without turning the whole shared lane coastal. The war-harbour stays OFFSTAGE instead: the cannon-siege, the caning and the wedding-boarding remain narrated action reaching the king\'s town from off the map, cannons and all, exactly as Pedersen tells it — just never drawn as a second spot beside gjizar2',
+        mold: 'kingCity\'s own anchor (gjizar2) sits in the map\'s INLAND village region (regions.js), sharing that back lane with three other bird-tales (cuckoo1, dallendyshe1) — no quay or warship can be built fused onto it without turning the whole shared lane coastal. Offstage here means uncharted geometry: the earlier cannon-siege and caning are reported at home, then the player explicitly rides to the ship in gjizarAnija for the Beauty\'s question and answers in gjizarFund. These playable scenes have a shared source-bound uncharted site, never an invented position beside gjizar2.',
         conflicts: 'NOT gjizar2 — an earlier draft proposed the quay there, but a built seaport would falsify the map for every co-tenant of that inland lane; dropped in favor of keeping the fleet offstage' } },
   ],
   items: [
@@ -307,7 +307,9 @@ const tale = {
       gjizarUdha: ['egershania', 'furra', 'shqiponjat', 'shtepiaFushes', 'betimi'],
       gjizarPallat: 'vjedhja',
       gjizarTradheti: ['pusi', 'unazat'],
-      gjizarFund: ['topat', 'kenga'],
+      gjizarKthim: ['topat', 'kenga'],
+      gjizarAnija: 'kenga',
+      gjizarFund: 'kenga',
     },
     divergences: [
       { beat: 'egershania', note: 'You explicitly become the youngest prince at the shared bird-tales fork gjizar1/gjizar2. The wilderness helper chain is explicit in gjizarUdha, while its several households remain a narrated road montage rather than separate destinations.' },
@@ -317,8 +319,8 @@ const tale = {
       { beat: 'betimi', note: 'The maidens swear by their wounds and require three months, one month with each sister, in exchange for the one-hour flight. Pedersen\'s explicitly marital/sexual term is preserved in the source record and ending but rendered as age-suitable "stay with" in playable Albanian.' },
       { beat: 'vjedhja', note: 'The quiet-theft scene keeps the sleeping Beauty and Pedersen\'s exact exchange: four unlit lamps are lit and four dying ones extinguished before the youth lifts the cage.' },
       { beat: 'unazat', note: 'gjizarTradheti now explicitly has the eagle-sisters return the youth to the three stones, the rings prove the brothers returned, and the youth finds them in separate barber and coffee-house towns before all three start home.' },
-      { beat: 'topat', note: 'gjizarFund directly narrates the Beauty\'s claim test, the eldest\'s false tree answer and death, the cannon breaking half the palace, the middle brother\'s confession and the king pulling the youngest from the well.' },
-      { beat: 'kenga', note: 'The stolen nightingale falls silent in the brothers\' false hands and sings the instant its true winner can speak again. The restored conclusion follows Pedersen through the Beauty\'s final question and marriage, without inventing a later mosque performance.' },
+      { beat: 'topat', note: 'The king\'s men lower a rope and take the rescued youngest home. There his father explicitly reports the earlier claim test, eldest brother\'s false tree answer and death, cannon breaking half the palace and middle brother\'s confession; these events are not a new war after the rescue. The accepted rescue advances two days through home recovery, selecting the upper bound of the Albanian source\'s one-or-two-day interval at 11.1; it is not a two-day rope climb.' },
+      { beat: 'kenga', note: 'After one or two days at home, as the attached Albanian witness specifies, the prince regains his voice and his speech causes the bird to sing. A separate player choice rides from gjizarKthim to the Beauty\'s ship in gjizarAnija; only there does she welcome and question him. The source\'s long red cloth spread from the palace gate to the ship is rendered with the existing learner word qilim (red carpet), preserving its walkway function without claiming a literal source rug. The crowd\'s fear remains unstaged. Only the separate choice to tell the truth reaches gjizarFund and the marriage; the ordinary tale-pause control remains available before riding or answering. The ship has no invented charted location. The game does not invent a later mosque performance.' },
     ],
   },
   beats: [

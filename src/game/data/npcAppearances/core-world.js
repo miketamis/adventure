@@ -68,9 +68,9 @@ export const SEA_BEAUTY_APPEARANCE = portrait({
 export const SEA_CHAMPION_APPEARANCE = portrait({
   npcId: 'balozi', nodeId: 'balozLufte',
   details: ['build', 'clothing', 'carried-object'],
-  practicalWordIds: ['baloz', 'madh', 'rroba', 'gur'],
+  practicalWordIds: ['baloz', 'madh', 'rroba', 'arme'],
   placement: { kind: 'replace', lineIndex: 0 },
-  portraitLines: [{ line: R('At dawn a huge sea-champion in black clothes comes from the sea with a stone in his hand.', w('ne', 'Në'), w('agim'), w('nje'), w('baloz'), w('i_art'), w('madh'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza'), w('vjen'), w('nga'), w('det'), w('me'), w('nje'), w('gur'), w('ne'), w('dore'), p('.')) }],
+  portraitLines: [{ line: R('At dawn a huge sea-champion in black clothes comes from the sea with a weapon in his hand.', w('ne', 'Në'), w('agim'), w('nje'), w('baloz'), w('i_art'), w('madh'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza'), w('vjen'), w('nga'), w('det'), w('me'), w('nje'), w('arme'), w('ne'), w('dore'), p('.')) }],
 })
 
 export const GJERGJ_ELEZ_APPEARANCE = portrait({

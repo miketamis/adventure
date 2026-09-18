@@ -2,6 +2,7 @@
 // supply only vocabulary/practice resources; every story flag, role, item and
 // arrival used as evidence below comes from a canonical player action.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { STORY, lineOf } from '../src/game/content.js'
 import {
   canChoose, currentStoryState, durationHoursOf, hasCond, isOptionRevealed, newRun, normalizeSavedState,
@@ -27,6 +28,8 @@ import { commitProjectedOption, settleProjectedState } from './lib/story-project
 
 import { ENDING_LORE, FOLKLORE } from '../src/game/folklore.js'
 import maroTale from '../src/game/data/tales/maro-perhitura.js'
+import { checkKordhaGjizarCausality } from './lib/kordha-gjizar-causality-tests.mjs'
+import { checkFourArcsCausality } from './lib/four-arcs-causality-tests.mjs'
 
 // Earned outcomes must open this tale's source, including its optional exits.
 // A creature card about the early mill episode cannot replace Maro's record.
@@ -238,10 +241,78 @@ const auntMidwife = walk(auntWedding, [
 ])
 finish('maro-recognition-with-coach', recognition(auntMidwife))
 
+// These source-specific helpers walk real choices and check the whole normal
+// presentation, including portraits. Reuse their exact routes for the ending
+// receipts/copy contract; synthetic terminal flags cannot stand in for a walk.
+const causalExpectedVariants = {
+  "kordhaMoatVdes": "solo-moat-leap",
+  "kordhaZjarr": "palace-alone",
+  "kordhaProvaVdes": "spring-hands",
+  "kordhaFund": "blade-secret-kept",
+  "kordhaDeti": "blade-returned",
+  "gjizarKap": "palace-call",
+  "gjizarUnazatLena": "rings-left",
+  "gjizarVellezerRefuz": "brothers-declined",
+  "gjizarPus": "well-stayed",
+  "gjizarFund": "nightingale-restored",
+  "bletaFund": "chosen-care",
+  "merimangaFund": "chosen-weaving",
+  "gjinkallaFund": "chosen-song",
+  "agaYmerFund": "oath-return",
+  "agaYmerStay": "stay-home",
+  "rushaFund": "rusha-oath-request",
+  "rushaKeq": "rusha-seizure",
+  "balozFitore": "coast-victory",
+  "bregHumb": "coast-flight"
+}
+const causalCompleted = new Map()
+const checkCausalArc = (label, run) => {
+  try { run() } catch (error) { throw new Error(`Tale causality: ${label}`, { cause: error }) }
+}
+for (const inspect of [checkKordhaGjizarCausality, checkFourArcsCausality]) {
+  const result = await inspect(checkCausalArc)
+  assert.ok(result?.completed instanceof Map && result?.visitedEdges instanceof Set,
+    'causal arc audit did not return its real routes and edges')
+  for (const [label, state] of result.completed) {
+    assert.ok(!completed.has(label) && !causalCompleted.has(label), `${label}: duplicate route fixture`)
+    assert.ok(causalExpectedVariants[state.nodeId], `${label}: unexpected causal ending`)
+    causalCompleted.set(label, state)
+    finish(label, state)
+  }
+  for (const edge of result.visitedEdges) visitedEdges.add(edge)
+}
+assert.deepEqual([...new Set([...causalCompleted.values()].map((state) => state.nodeId))].sort(),
+  Object.keys(causalExpectedVariants).sort(), 'causal ending review omitted a branch')
+
 // The lazy resolver/copy contract is checked below, once all independent route
 // fixtures have demonstrated that production can actually reach each outcome.
 const { endingCopyForState } = await import('../src/game/endingCopyForState.js')
 const { ENDING_COPY, ENDING_COPY_VARIANTS, ENDING_COPY_REVIEWED_IDS } = await import('../src/game/endingCopy.js')
+
+// Real public-route saves from the previous release must not reinterpret an
+// old choice index as a newly authored act. Keep their world outcome, but use
+// common recaps where these saves cannot prove the new request or stance.
+const legacy77 = JSON.parse(readFileSync(new URL('./fixtures/story-causality-legacy77.json', import.meta.url), 'utf8'))
+assert.equal(legacy77.sourceCommit, '77f9bcb7050bb3d5cac3066e04f5d2e1bb600883')
+for (const [label, saved] of Object.entries(legacy77.saves)) {
+  let state = normalizeSavedState({ ...newRun(), ...saved }, newRun())
+  for (let pass = 0; pass < 3; pass++) {
+    assert.equal(state.nodeId, saved.nodeId, `${label}: legacy location changed`)
+    assert.equal(state.ended, saved.ended, `${label}: legacy outcome changed`)
+    assert.deepEqual(state.worldFacts, saved.worldFacts, `${label}: legacy world consequence changed`)
+    assert.equal(Boolean(state.flags.rushaOathRequested), false, `${label}: invented oath request`)
+    assert.equal(Boolean(state.flags.stoodByGjergj), false, `${label}: invented stance`)
+    assert.doesNotMatch(albanian(state), /ti kërkon një besë|ti rri pranë trimit/i,
+      `${label}: legacy choice index narrated the replacement act`)
+    if (saved.ended) assert.equal(endingCopyForState(state).variantId, 'common', `${label}: unproved live recap`)
+    if (label === 'gjizar') {
+      assert.match(albanian(state), /Gjizar këndon, dhe përralla mbaron me një dasmë\./, 'old Gjizar save has no neutral Albanian outcome')
+      assert.doesNotMatch(albanian(state), /ti i tregon Bukurës|ti shkon me kalë|hipën në anije/i, 'old Gjizar save claims a newly authored answer or ride')
+      assert.equal(worldLocationForState(state).kind, 'unknown', 'old Gjizar save invented the newly authored ship arrival')
+    }
+    state = reload(state)
+  }
+}
 
 console.log(`Ending truth route fixtures: ${completed.size} real paths, ${visitedEdges.size} canonical edges`)
 
@@ -249,10 +320,12 @@ const reviewedIds = [
   'prespaFund', 'prespaLiri', 'gjarperBurrFund', 'gjarperBurrVdes', 'gjarperKulVdes',
   'kalaFundTurp', 'maroPrincesha', 'maroFundi', 'uraArtesShpetim', 'katallanVdes',
   'detiNuse', 'detiUp', 'shqipeFund',
+  ...Object.keys(causalExpectedVariants),
 ]
 assert.deepEqual([...ENDING_COPY_REVIEWED_IDS].sort(), [...reviewedIds].sort(),
   'ending truth review scope changed without route fixtures')
 const expectedVariants = {
+  ...Object.fromEntries([...causalCompleted].map(([label, state]) => [label, causalExpectedVariants[state.nodeId]])),
   'prespa-free-without-proposal': 'leave-nereida',
   'prespa-free-after-proposal': 'leave-nereida',
   'prespa-voluntary-wedding': 'accepted-marriage',
@@ -398,6 +471,62 @@ for (const label of ['sea-requested-help', 'sea-well-rescue', 'eagle-without-res
   excludes(label, [/drought|restor.*(?:water|spring|river|well)|broke.*thirst/i])
 }
 includes('eagle-without-restored-water', [/saved the eaglet/i, /gave the young bird back/i, /Son of the Eagle/i])
+
+// Keep recap claims within the enacted arc. These checks deliberately name
+// the earlier semantic errors, rather than snapshotting a whole prose bank.
+const causalByEnding = new Map([...causalCompleted.values()].map((state) => [state.nodeId, state]))
+const causalCopy = (id) => endingCopyForState(causalByEnding.get(id)).blurb
+const orderedCopy = (id, expressions) => {
+  const copy = causalCopy(id)
+  let offset = 0
+  for (const expression of expressions) {
+    const match = expression.exec(copy.slice(offset))
+    assert.ok(match, `${id}: missing/out-of-order recap event ${expression}`)
+    offset += match.index + match[0].length
+  }
+}
+orderedCopy('kordhaDeti', [/tell the Beauty/i, /crone steals/i, /collapse/i,
+  /feather/i, /two brothers/i, /retrieves the blade/i, /wake whole/i])
+assert.match(causalCopy('kordhaFund'), /one of the three sworn brothers/i)
+assert.doesNotMatch(causalCopy('kordhaFund'), /four|like Kordha|new battle|fight again/i)
+assert.doesNotMatch(causalCopy('kordhaZjarr'), /no single sword|any lone sword|only together/i)
+orderedCopy('gjizarFund', [/climb the rope/i, /king.s men/i, /home/i, /unable to speak/i,
+  /hear how/i, /day or two/i, /voice returns/i, /Gjizar sing/i, /ride with the bird/i, /Beauty.s ship/i, /she asks/i, /tell her the truth/i, /marry/i])
+assert.doesNotMatch(causalCopy('gjizarFund'), /king pulled|Beauty.*(?:pulls|rescues)|age.suitable|Pedersen|pp\./i)
+assert.match(causalCopy('gjizarPus'), /already taken Gjizar/i)
+for (const id of ['bletaFund', 'merimangaFund', 'gjinkallaFund']) {
+  assert.doesNotMatch(causalCopy(id), /mother.*(?:dies|dead)|cake|baked|\bother.*(?:spider|cicada|bee)/i)
+}
+orderedCopy('bletaFund', [/help her/i, /blesses/i, /become the bee/i])
+orderedCopy('merimangaFund', [/make your carpet/i, /turns you into a spider/i])
+orderedCopy('gjinkallaFund', [/You sing/i, /tells you/i, /become the cicada/i])
+orderedCopy('agaYmerFund', [/return to captivity/i, /welcome/i, /releases/i, /return home/i])
+assert.doesNotMatch(causalCopy('agaYmerStay'), /lived out|unforgiven|name left out|word spread|songs/i)
+orderedCopy('rushaFund', [/ask Rusha/i, /She swears/i, /do as you say/i, /cup remains/i, /tower/i])
+assert.doesNotMatch(causalCopy('rushaFund'), /free will|freely|consent|ride|Jutbina|marry|you swear|you (?:then )?drink/i)
+assert.doesNotMatch(causalCopy('rushaKeq'), /cry|guard|stair|head left|singers.*say/i)
+orderedCopy('balozFitore', [/horse knelt/i, /Gjergj struck/i, /embraces/i, /hearts stop/i, /one grave/i])
+assert.doesNotMatch(causalCopy('balozFitore'), /you (?:laid|buried|intercept|beheaded)|hurled stone|dodged.*stone/i)
+for (const id of Object.keys(causalExpectedVariants)) {
+  assert.doesNotMatch(ENDING_COPY[id].blurb, /\byou(?:r)?\b/i,
+    `${id}: common catalog copy attributes an unproved player act`)
+  const state = causalByEnding.get(id)
+  const row = ENDING_COPY_VARIANTS[id][0]
+  for (const condition of row.required) {
+    let missing
+    if (condition.startsWith('flag:')) missing = { ...state, flags: { ...state.flags, [condition.slice(5)]: false } }
+    else if (condition.startsWith('fact:')) missing = { ...state, worldFacts: { ...state.worldFacts, [condition.slice(5)]: false } }
+    else missing = { ...state, inventory: { ...state.inventory, [condition]: 0 } }
+    assert.equal(endingCopyForState(missing).variantId, 'common',
+      `${id}: missing ${condition} still authorizes a route claim`)
+  }
+  for (const condition of row.excluded) {
+    assert.ok(condition.startsWith('flag:'), `${id}: add exact contradiction probe for ${condition}`)
+    const contradicted = { ...state, flags: { ...state.flags, [condition.slice(5)]: true } }
+    assert.equal(endingCopyForState(contradicted).variantId, 'common',
+      `${id}: contradictory ${condition} still authorizes a route claim`)
+  }
+}
 
 // Inspect the same normal projected Albanian prose the player sees, not just
 // the replacement English ending panel. A kept oath cannot show a broken-oath

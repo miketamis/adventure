@@ -2,9 +2,17 @@ import { STORY } from './content.js'
 import { NODE_POS, PLACE_OF } from '../components/nodePositions.js'
 import { NODE_REGION } from './regions.js'
 import { departureContextForChoice, isUnchartedStoryNode } from './departureContexts.js'
+import { unchartedSiteOfNode, unchartedSiteContextForState } from './unchartedSites.js'
 
 export function worldLocationForState(state) {
   const nodeId = state?.nodeId
+  if (unchartedSiteOfNode(nodeId)) {
+    const context = unchartedSiteContextForState(state, STORY)
+    return { kind: context ? 'uncharted' : 'unknown', nodeId,
+      placeId: null, regionId: null, position: null, departureId: null,
+      originNodeId: null, originPlaceId: null, originRegionId: null,
+      siteId: context?.site.id || null, siteLabel: context?.site.label || null }
+  }
   const departure = departureContextForState(state, STORY)
   if (isUnchartedStoryNode(nodeId)) return {
     kind: departure ? 'uncharted' : 'unknown', nodeId,

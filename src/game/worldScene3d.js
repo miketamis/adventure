@@ -1,4 +1,5 @@
 import { UNCHARTED_STORY_NODES, isUnchartedStoryNode } from './departureContexts.js'
+import { unchartedSiteOfNode } from './unchartedSites.js'
 // A debug-only, inspectable 3D chart. Canonical topology lives in NODE_POS /
 // PLACE_OF and worldModel; this adapter never changes the playable world.
 // Every authored line has a reverse-indexed scene-context link. Only explicit
@@ -44,17 +45,21 @@ const unique = (values) => [...new Set(values)]
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const finiteVector = (value) => Array.isArray(value) && value.length === 3 && value.every(Number.isFinite)
 const hasConditions = (conditions) => Boolean(conditions?.all?.length || conditions?.none?.length || conditions?.observationId)
-const isContextBinding = (type) => type === 'scene-context' || type === 'region-context' || type === 'departure-context'
+const isContextBinding = (type) => type === 'scene-context' || type === 'region-context' || type === 'departure-context' || type === 'uncharted-site-context'
 const descriptionId = (nodeId, lineIndex) => `description:${nodeId}:${lineIndex}`
 const placeElementId = (nodeId) => PLACE_OF[nodeId] ? `place:${PLACE_OF[nodeId]}` : null
-export const departureElementId = (nodeId) => isUnchartedStoryNode(nodeId) ? `departure-context:${nodeId}` : null
+export const departureElementId = (nodeId) => unchartedSiteOfNode(nodeId) ? `site-context:${unchartedSiteOfNode(nodeId).id}` : isUnchartedStoryNode(nodeId) ? `departure-context:${nodeId}` : null
+const unchartedContextNodes = UNCHARTED_STORY_NODES.filter((id, index, nodes) => nodes.findIndex((other) => departureElementId(other) === departureElementId(id)) === index)
+const contextTypeOf = (nodeId) => unchartedSiteOfNode(nodeId) ? 'uncharted-site-context' : isUnchartedStoryNode(nodeId) ? 'departure-context' : 'scene-context'
 const contextElementId = (nodeId) => departureElementId(nodeId) || placeElementId(nodeId)
 const departureElement = (nodeId, index) => ({
-  id: departureElementId(nodeId), kind: 'catalogue', label: 'Departure — destination uncharted', catalogue: true,
-  placeId: null, regionId: null, nodeIds: [nodeId],
+  id: departureElementId(nodeId), kind: 'catalogue', label: unchartedSiteOfNode(nodeId) ? `${unchartedSiteOfNode(nodeId).label} — world position uncharted` : 'Departure — destination uncharted', catalogue: true,
+  placeId: null, regionId: null, nodeIds: unchartedSiteOfNode(nodeId)?.nodes || [nodeId],
   position: [Math.min(...Object.values(NODE_POS).map(([x]) => x)) - 180, 8, Math.min(...Object.values(NODE_POS).map(([, z]) => z)) + index * 30],
   geometry: { shape: 'box', size: [12, 12, 12] },
-  source: { file: 'src/game/departureContexts.js', authority: 'DEPARTURE_CONTEXTS', key: nodeId },
+  source: unchartedSiteOfNode(nodeId)
+    ? { file: 'src/game/unchartedSites.js', authority: 'UNCHARTED_SITES', key: unchartedSiteOfNode(nodeId).id }
+    : { file: 'src/game/departureContexts.js', authority: 'DEPARTURE_CONTEXTS', key: nodeId },
 })
 const positionAt = (nodeId, height = 0, offset = [0, 0, 0]) => [
   NODE_POS[nodeId]?.[0] + offset[0], height + offset[1], NODE_POS[nodeId]?.[1] + offset[2],
@@ -283,16 +288,18 @@ export function buildWorldScene3d() {
       interpretation: 'Canonical physical-place anchor. The plinth is a location marker, not a building.',
     })
   }
-  for (const [index, nodeId] of UNCHARTED_STORY_NODES.entries()) addElement({
+  for (const [index, nodeId] of unchartedContextNodes.entries()) addElement({
     ...departureElement(nodeId, index), descriptionIds: [],
-    interpretation: 'An unlocated departure reference, outside the physical chart. Only the exact arrival action establishes its origin; the destination stays unknown.',
+    interpretation: unchartedSiteOfNode(nodeId)
+      ? 'A source-bound site catalogue reference outside the physical chart. Exact actions establish continuity aboard the same ship without asserting its world position.'
+      : 'An unlocated departure reference, outside the physical chart. Only the exact arrival action establishes its origin; the destination stays unknown.',
   })
   for (const [nodeId, node] of Object.entries(STORY)) {
     for (const [lineIndex, entry] of (node.text || []).entries()) {
       const description = sourceDescription(nodeId, entry, lineIndex)
       descriptions.push(description)
       descriptionById.set(description.id, description)
-      if (isUnchartedStoryNode(nodeId)) bind(description, departureElementId(nodeId), 'departure-context', 'The departure origin depends on the exact incoming action; no destination position is asserted.')
+      if (isUnchartedStoryNode(nodeId)) bind(description, departureElementId(nodeId), contextTypeOf(nodeId), unchartedSiteOfNode(nodeId) ? 'Source-bound site identity; no chart position or region is asserted.' : 'The departure origin depends on the exact incoming action; no destination position is asserted.')
       else bind(description, placeElementId(nodeId), 'scene-context', 'The canonical physical place of this story line; no object-presence claim.')
       if (!isUnchartedStoryNode(nodeId)) bind(description, `region:${NODE_REGION[nodeId]}`, 'region-context', 'Canonical region membership; not a separate terrain assertion.')
     }
@@ -594,7 +601,7 @@ export function validateWorldScene3d(model) {
       for (const key of ['nodeId', 'lineIndex', 'placeId', 'regionId', 'source', 'text', 'tokenIds', 'conditions', 'role', 'environmentDimensions', 'observationId', 'npcIdentity']) {
         if (!equal(actual[key], expected[key])) problem(expected.id, `stale source ${key}`)
       }
-      const contextType = isUnchartedStoryNode(nodeId) ? 'departure-context' : 'scene-context'
+      const contextType = contextTypeOf(nodeId)
       if (!actual.elementIds?.includes(contextElementId(nodeId))) problem(expected.id, 'canonical story context is missing')
       if (!actual.bindings?.some(({ type, elementId }) => type === contextType && elementId === contextElementId(nodeId))) problem(expected.id, 'canonical story-context binding is missing')
       if (!isUnchartedStoryNode(nodeId) && !actual.bindings?.some(({ type, elementId }) => type === 'region-context' && elementId === `region:${NODE_REGION[nodeId]}`)) problem(expected.id, 'canonical region-context binding is missing')
@@ -644,8 +651,8 @@ export function validateWorldScene3d(model) {
       if (!description.elementIds?.includes(binding.elementId)) fail(`binding ${binding.elementId} has no forward link`)
       const element = elements.get(binding.elementId)
       if (!element) continue
-      if (binding.type === 'departure-context') {
-        if (!isUnchartedStoryNode(description.nodeId) || binding.elementId !== departureElementId(description.nodeId) || !element.catalogue || element.placeId !== null || element.regionId !== null) fail('departure context must remain explicitly unlocated')
+      if (binding.type === 'departure-context' || binding.type === 'uncharted-site-context') {
+        if (!isUnchartedStoryNode(description.nodeId) || binding.type !== contextTypeOf(description.nodeId) || binding.elementId !== departureElementId(description.nodeId) || !element.catalogue || element.placeId !== null || element.regionId !== null) fail('uncharted context must remain explicitly unlocated')
       } else if (binding.type === 'scene-context') {
         if (binding.elementId !== placeElementId(description.nodeId)) fail('context binding targets another physical place')
       } else if (binding.type === 'region-context') {
@@ -707,7 +714,7 @@ export function validateWorldScene3d(model) {
     }
   }
   for (const id of routes.keys()) if (!expectedRoutes.has(id)) problem(id, 'route has no playable source option')
-  for (const [index, nodeId] of UNCHARTED_STORY_NODES.entries()) requireElement(departureElementId(nodeId), departureElement(nodeId, index))
+  for (const [index, nodeId] of unchartedContextNodes.entries()) requireElement(departureElementId(nodeId), departureElement(nodeId, index))
   for (const [anchor, nodes] of Object.entries(PLACE_NODES)) {
     requireElement(`place:${anchor}`, {
       kind: 'place', placeId: anchor, regionId: NODE_REGION[anchor],

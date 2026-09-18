@@ -21,6 +21,7 @@ import {
   auditExceptionUsageIssues,
   defineAuditExceptionRegistry,
 } from './lib/audit-exceptions.mjs'
+import { proveOrdinaryTalePauses } from './lib/tale-pause-affordance-tests.mjs'
 
 const nodes = STORY
 const ids = Object.keys(nodes)
@@ -196,11 +197,12 @@ for (const id of nonEnd)
 const gatedNodes = [...new Set(revealGates)]
 
 // GOAL LINT (gating is explicitly authored, so we verify the design goals here instead of in
-// the engine): (1) every non-ending node must keep >= 1 UNGATED real option, so there is
-// always a path you can take without first decoding a sentence; (2) MOST options gate.
+// the engine): (1) every non-ending node keeps an UNGATED real choice or the
+// proven ordinary Pause control, so leaving never requires decoding a sentence;
+// (2) MOST story options gate. Pause preserves the tale rather than resolving it.
 // Also flag a reveal that points at a word missing from the node (a typo, gated forever).
 let totalReal = 0, gatedReal = 0, gateableTotal = 0, gateableGated = 0
-const noUngated = []
+const sentenceOnlyNodes = []
 const ungatedOnly = []
 for (const id of nonEnd) {
   const real = (nodes[id].options || []).filter((o) => !o.confuser)
@@ -208,11 +210,13 @@ for (const id of nonEnd) {
   const ungated = real.filter((o) => !o.reveal).length
   totalReal += real.length
   gatedReal += real.length - ungated
-  if (ungated === 0) noUngated.push(id)
+  if (ungated === 0) sentenceOnlyNodes.push(id)
   if (ungated === real.length && real.length > 1) ungatedOnly.push(id) // a multi-option node gating nothing
   const textIds = new Set(nodes[id].text.flatMap((e) => lineOf(e)).map((t) => t.id).filter(Boolean))
   for (const o of real) { const n = phraseNoun(o.text); if (n && textIds.has(n)) { gateableTotal++; if (o.reveal) gateableGated++ } }
 }
+const provenPauseNodes = proveOrdinaryTalePauses(sentenceOnlyNodes)
+const noUngated = sentenceOnlyNodes.filter((id) => !provenPauseNodes.has(id))
 
 // An ordinary result may intentionally expose all of its next routes: the
 // purchase, gift, stay or cure has already been decoded and committed. Keep
@@ -989,7 +993,7 @@ console.log('')
 console.log('--- DESIGNED REVEAL GATES (authored sentence-unlocks) ---')
 console.log(`${ok(!brokenGates.length)} authored reveal gates: ${revealGates.length} on ${gatedNodes.length} nodes`)
 if (brokenGates.length) console.log('   BROKEN:\n   ' + brokenGates.join('\n   '))
-console.log(`${ok(!noUngated.length)} every node keeps >=1 ungated option:${noUngated.length ? ' VIOLATIONS -> ' + noUngated.join(', ') : ' yes'}`)
+console.log(`${ok(!noUngated.length)} every node keeps an ungated choice or proven ordinary Pause:${noUngated.length ? ' VIOLATIONS -> ' + noUngated.join(', ') : ` yes (${provenPauseNodes.size} real-route Pause proofs)`}`)
 console.log(`${ok(!unreviewedUngatedOnly.length && !staleUngatedReviews.length && !ungatedResultReviewErrors.length)} multi-option nodes with no reveal gate are reviewed: ${ungatedOnly.length}` +
   (unreviewedUngatedOnly.length ? `\n   UNREVIEWED: ${unreviewedUngatedOnly.join(', ')}` : '') +
   (staleUngatedReviews.length ? `\n   STALE REVIEWS: ${staleUngatedReviews.join(', ')}` : '') +

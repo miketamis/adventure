@@ -407,7 +407,7 @@ export const FOLKLORE = [
     title: 'Gjergj Elez Alia — the wounded hero and the Baloz',
     category: 'Legend',
     summary:
-      'A hero lies bedridden nine years with nine wounds, tended by his devoted sister. From the sea rises Balozi i Zi, the Black Baloz, a giant sea-monster that lays a heavy tribute on the coast — a maiden and a roast from every household — and at last demands Gjergj\'s own sister. Hearing this, the dying hero rises, arms himself, meets the Baloz, dodges its hurled stone and beheads it, freeing his people. He rides home; as brother and sister embrace with joy, both their hearts stop at once and they die together, buried in a single grave.',
+      'A hero lies bedridden nine years with nine wounds, tended by his devoted sister. From the sea rises Balozi i Zi, the Black Baloz, a giant sea-monster that lays a heavy tribute on the coast — a maiden and a roast from every household — and at last demands Gjergj\'s own sister. Hearing this, the dying hero rises, arms himself, meets the Baloz, whose thrown cudgel passes overhead as Gjergj’s horse drops to its knees. Gjergj strikes back with his own cudgel, then beheads the Baloz with his sword, freeing his people. He rides home; as brother and sister embrace with joy, both their hearts stop at once and they die together, buried in a single grave.',
     sources: [
       { label: 'Gjergj Elez Alia (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Gjergj_Elez_Alia' },
       { label: 'Baloz (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Baloz' },
@@ -523,7 +523,7 @@ export const FOLKLORE = [
     title: 'Zuku Bajraktar — the standard-bearer and the bride won by besa',
     category: 'Epic',
     summary:
-      'Zuk the standard-bearer is the hero of two distinct frontier songs. In "Zuku Bajraktar" (Palaj–Kurti no. 11) his own mother, in league with a Baloz her son had captured, has the too-strong Zuk blinded; an Ora heals his eyes with a mountain herb and he returns to slay the Baloz and burn the traitress. In "Zuku Captures Rusha" (no. 18) he rides into the Krajl\'s tower for Rusha across the frontier and will not carry her off until she swears him a besa that she comes of her free will — a bride won not by the sword but by the sworn word, for a maiden taken by force is a war, not a wedding.',
+      'Zuk the standard-bearer is the hero of two distinct frontier songs. In "Zuku Bajraktar" (Palaj–Kurti no. 11) his own mother, in league with a Baloz her son had captured, has the too-strong Zuk blinded; an Ora heals his eyes with a mountain herb and he returns to slay the Baloz and burn the traitress. In "Zuku Captures Rusha" (no. 18) he rides to Rusha in the Krajl\'s tower and refuses her coffee until she swears before God to do as he says. She gives her word; he drinks, and later they ride to Jutbina. Mujo\'s rival claim leads to a threatened cadi and a horse-race. The playable tower episode ends at her oath; these later events remain in the source record.',
     sources: [
       {
         label: 'Kângë Kreshnikësh (Wikipedia)',

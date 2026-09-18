@@ -108,6 +108,14 @@ export async function runWorldSceneInventoryAssertions(model) {
     }
   }
   assert.equal(model.inventory.coverage.portraitDescriptions, portraitLines)
+  // Ulqin remains a proposal. Ymer's mother is a source-bound narrated
+  // identity, with neither the listening room nor the nearby proposal anchor
+  // supplying a physical body on the map.
+  assert.equal(NPC_REGISTRY.nenaYmerit.location.status, 'planning')
+  assert.deepEqual(records.get('npc:nenaYmerit').declarations, [])
+  assert.deepEqual(records.get('npc:nenaYmerit').elementIds, ['reference:npc:nenaYmerit'])
+  assert.deepEqual(records.get('portrait:nenaYmerit').elementIds, ['reference:portrait:nenaYmerit'])
+  assert.ok(model.elements.every(({ id }) => !id.startsWith('actor:nenaYmerit:')))
 
   for (const item of Object.values(ITEMS)) {
     requireRecord(`item:${item.id}`, 'item')
@@ -192,6 +200,9 @@ export async function runWorldSceneInventoryAssertions(model) {
   rejects('narrated source context erased', (scene) => { delete description(scene, 'description:portrait:gjarpriShtratit:0').depiction }, 'depiction')
   rejects('narrated description physically located', (scene) => { description(scene, 'description:portrait:gjarpriShtratit:0').placeId = PLACE_OF.mujoHak1 }, 'placeId')
   rejects('narrated source anchor forged', (scene) => { record(scene, 'portrait:gjarpriShtratit').metadata.depiction.placeId = 'kunora' }, 'metadata')
+  rejects('unbuilt narrated mother borrowed a physical room', (scene) => {
+    description(scene, 'description:portrait:nenaYmerit:0').placeId = PLACE_OF.agaYmer1
+  }, 'placeId')
   rejects('missing item action', (scene) => { const id = scene.inventory.records.find(({ category }) => category === 'item-action').id; scene.inventory.records = scene.inventory.records.filter((entry) => entry.id !== id) }, 'canonical inventory record is missing')
   rejects('item action destination altered', (scene) => { scene.inventory.records.find(({ category }) => category === 'item-action').metadata.to = 'start' }, 'metadata')
   rejects('item action existence gated by wrong state', (scene) => { scene.descriptions.find(({ source }) => source.kind === 'item-action').conditions.all = ['fact:invented'] }, 'conditions')

@@ -103,8 +103,7 @@ export const OPTION_READINGS_C = Object.freeze({
   "zuku2.options[0]": { al: "dëgjo trimin", en: "Listen to the hero.", review: 'internal-editorial' }, // 1168
   "zuku2.options[1]": { al: "dëgjo malin", en: "Listen to the mountain.", review: 'internal-editorial' }, // 1169
   "kordha1.options[0]": { al: "premto një besë", en: "Pledge a besa.", review: 'internal-editorial' }, // 1170
-  "kordha1.options[2]": { al: "largohu nga vëllezërit", en: "Walk away from the brothers.", review: 'internal-editorial' },
-  "kordha1.options[3]": { al: "fol shpatën", en: "Speak to the sword.", review: 'internal-editorial' }, // 1172
+  "kordha1.options[2]": { al: "fol shpatën", en: "Speak to the sword.", review: 'internal-editorial' }, // 1172
   "kordha2.options[0]": { al: "fol për fuqi", en: "Speak about power.", review: 'internal-editorial' }, // 1173
   "kordha2.options[1]": { al: "rri i qetë", en: "Stay calm.", review: 'internal-editorial' }, // 1174
   "kordha2.options[2]": { al: "fol me shpatën", en: "Speak with the sword.", review: 'internal-editorial' }, // 1175

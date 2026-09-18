@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { runCausalArcSceneClaimAssertions } from './causal-arc-scene-claims.test.mjs'
 import { STORY, lineOf } from '../../src/game/content.js'
 import { albanianTextOf } from '../../src/game/language.js'
 import { newRun, storyScenePresentationForState } from '../../src/game/gameState.js'
@@ -28,7 +29,7 @@ export function runWorldNodeSceneAssertions() {
   assert.deepEqual(expectedSources.filter((id) => !byId.has(id)), [], 'story lines missing physical review')
   assert.deepEqual(rows.filter(({ id }) => !expectedSources.includes(id)).map(({ id }) => id), [], 'physical review for nonexistent story sources')
   assert.deepEqual(validateWorldNodeClaims(), [], 'the complete physical source ledger must validate')
-  let witnessViews = 0, modeledObjects = 0, reciprocalLinks = 0, corruptions = 0
+  let witnessViews = 0, modeledObjects = 0, reciprocalLinks = 0, corruptions = runCausalArcSceneClaimAssertions().corruptions
   const inspect = (scene) => {
     assert.deepEqual(validateWorldNodeScene(scene), [], `${scene.nodeId}: invalid node scene`)
     assert.equal(scene.descriptions.length, STORY[scene.nodeId].text.length)

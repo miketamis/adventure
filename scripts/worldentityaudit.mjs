@@ -1,5 +1,6 @@
 import { departureContextIssues } from '../src/game/departureContextValidation.js'
 import { DEPARTURE_CONTEXTS, isUnchartedStoryNode } from '../src/game/departureContexts.js'
+import { runUnchartedSiteAssertions } from './lib/uncharted-sites.test.mjs'
 // Typed perceivable-world release gate. This proves the general entity layer
 // is a read-only projection of the same state and affordances used by play.
 import assert from 'node:assert/strict'
@@ -21,6 +22,7 @@ import {
 assert.equal(WORLD_ENTITY_SCHEMA_VERSION, 1)
 assert.deepEqual(departureContextIssues(STORY), [])
 assert.deepEqual(worldEntityRegistryIssues(), [], 'typed world entity registry is invalid')
+runUnchartedSiteAssertions()
 
 for (const anchor of Object.keys(PLACE_NODES)) {
   assert.equal(WORLD_ENTITIES[`place:${anchor}`]?.authority.channel, 'nodeId', `${anchor}: missing place entity`)
@@ -41,8 +43,8 @@ for (const [nodeId, node] of Object.entries(STORY)) {
   for (const [index, option] of (node.options || []).entries()) {
     assert.deepEqual(worldActionIssues(nodeId, option), [], `${nodeId}.options[${index}] has an invalid entity action`)
     const action = worldActionOfOption(nodeId, option)
-    if (option.to && !action.departure && PLACE_OF[nodeId] !== PLACE_OF[option.to]) {
-      assert.ok(action.targets.includes(`place:${PLACE_OF[option.to]}`), `${nodeId}->${option.to}: route target absent`)
+    if (option.to && !action.departure && action.from !== action.to) {
+      assert.ok(action.to && action.targets.includes(action.to), `${nodeId}->${option.to}: route target absent`)
     }
     actions++
   }

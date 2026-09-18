@@ -107,7 +107,8 @@ export default {
       bletaFund: 'bleta',
     },
     divergences: [
-      { beat: 'motrat', note: 'The folktale fixes each daughter\'s nature (vain eldest, careless second, dutiful youngest); the game makes it a three-way fork and your ONE answer to the sick mother assigns which sister you are — tend her → the bee (the good ending), weave on → the spider (endless web), sing on → the cicada (sing until you die). The two neglectful fates are the mother\'s curse; only the bee is her blessing.' },
+      { beat: 'motrat', note: 'The folktale fixes each daughter\'s nature (vain eldest, careless second, dutiful youngest); the game makes it a three-way fork and your ONE answer to the sick mother assigns which sister you are — tend her → the bee (a blessing), weave on → the spider (endless web), sing on → the cicada (sing until you die). The two neglectful fates are the mother\'s curse; only the bee is her blessing.' },
+      { beat: 'kulaci', note: 'The chosen help comforts the living mother before her blessing. Baking the little cake is not a separate player action and remains source material.' },
       { beat: 'bleta', note: 'You embody "a daughter"; the mother\'s spoken blessing is the transformation. The game keeps her comforted and alive, and stages the bee\'s gift as wax for the dead\'s candles and honey for the living.' },
       { beat: 'kosherja', note: 'The framing devotion — that in a house which keeps a hive no one will ever blaspheme — is kept in the tale record rather than staged as a scene; the hive itself is the proposed, unshown home of the blessed bee.' },
     ],

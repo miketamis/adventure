@@ -3765,7 +3765,7 @@ export default Object.freeze([
     "nodeId": "balozZgjedh",
     "lineIndex": 6,
     "placeId": "bregu",
-    "text": "Trimi merr shpatën dhe thotë: eja me mua në deti.",
+    "text": "Trimi merr shpatën dhe thotë: eja me mua në det.",
     "conditions": {
       "all": [
         "flag:balozSwordGiven"
@@ -3854,7 +3854,7 @@ export default Object.freeze([
     "nodeId": "balozLufte",
     "lineIndex": 1,
     "placeId": "balozLufte",
-    "text": "ti vjen në deti me trimin; trimi lufton balozin.",
+    "text": "ti vjen në det me trimin; trimi lufton balozin.",
     "conditions": {
       "all": [
         "from:balozZgjedh"
@@ -3968,7 +3968,7 @@ export default Object.freeze([
     "nodeId": "balozLufte",
     "lineIndex": 4,
     "placeId": "balozLufte",
-    "text": "balozi hedh një gur!",
+    "text": "Trimi është mbi kalë. Dy trimat mbajnë armë.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -3976,6 +3976,17 @@ export default Object.freeze([
       "observationId": null
     },
     "objects": [
+      {
+        "key": "actor:gjergj-elez-alia",
+        "asset": "human",
+        "label": "Gjergj Elez Alia",
+        "zone": "near",
+        "attributes": {
+          "wounds": 9
+        },
+        "count": 1,
+        "persistence": "scene"
+      },
       {
         "key": "actor:baloz",
         "asset": "giant",
@@ -3988,9 +3999,27 @@ export default Object.freeze([
         "persistence": "scene"
       },
       {
-        "key": "baloz-stone",
-        "asset": "rock",
-        "label": "Thrown stone",
+        "key": "alia-horse",
+        "asset": "horse",
+        "label": "The hero’s horse",
+        "zone": "near",
+        "attributes": {},
+        "count": 1,
+        "persistence": "scene"
+      },
+      {
+        "key": "alia-held-weapon",
+        "asset": "weapon",
+        "label": "The hero’s weapon",
+        "zone": "near",
+        "attributes": {},
+        "count": 1,
+        "persistence": "scene"
+      },
+      {
+        "key": "baloz-held-weapon",
+        "asset": "weapon",
+        "label": "Baloz’s weapon",
         "zone": "front",
         "attributes": {},
         "count": 1,
@@ -3998,19 +4027,36 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:gjergj-elez-alia",
+        "kind": "on",
+        "target": "alia-horse"
+      },
+      {
+        "subject": "actor:gjergj-elez-alia",
+        "kind": "holds",
+        "target": "alia-held-weapon"
+      },
+      {
+        "subject": "actor:baloz",
+        "kind": "holds",
+        "target": "baloz-held-weapon"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Baloz sea-monster, Thrown stone; only the represented moment is staged."
+    "rationale": "The hero is on his horse and the two combatants hold weapons; the player is not an additional armed hero."
   },
   {
     "id": "description:balozKoke:0",
     "nodeId": "balozKoke",
     "lineIndex": 0,
-    "placeId": "balozKoke",
-    "text": "ti vrapo mes trimit dhe gurit; ai bie jashtë, dhe trimi pret kokën e balozit.",
+    "placeId": "balozLufte",
+    "text": "ti rri pranë trimit.",
     "conditions": {
       "all": [
-        "from:balozLufte"
+        "arrival:action:baloz-stand-by-hero",
+        "flag:stoodByGjergj"
       ],
       "negate": false,
       "none": [],
@@ -4020,33 +4066,11 @@ export default Object.freeze([
       {
         "key": "actor:gjergj-elez-alia",
         "asset": "human",
-        "label": "Victorious hero",
+        "label": "Gjergj Elez Alia",
         "zone": "near",
         "attributes": {
-          "wounds": 9,
-          "held": "sword"
+          "wounds": 9
         },
-        "count": 1,
-        "persistence": "scene"
-      },
-      {
-        "key": "actor:baloz",
-        "asset": "giant",
-        "label": "Decapitated monster",
-        "zone": "front",
-        "attributes": {
-          "pose": "dead",
-          "headless": true
-        },
-        "count": 1,
-        "persistence": "scene"
-      },
-      {
-        "key": "baloz-stone",
-        "asset": "rock",
-        "label": "Stone fallen aside",
-        "zone": "right",
-        "attributes": {},
         "count": 1,
         "persistence": "scene"
       }
@@ -4054,14 +4078,14 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Victorious hero, Decapitated monster, Stone fallen aside; only the represented moment is staged."
+    "rationale": "The player’s exact guarded choice is to stand beside Gjergj; it does not intercept a stone or behead the monster."
   },
   {
     "id": "description:balozKoke:1",
     "nodeId": "balozKoke",
     "lineIndex": 1,
-    "placeId": "balozKoke",
-    "text": "balozi vdes.",
+    "placeId": "balozLufte",
+    "text": "Balozi hedh armën; kali i trimit bie në gjunjë dhe arma kalon mbi kokën e trimit.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -4070,28 +4094,126 @@ export default Object.freeze([
     },
     "objects": [
       {
+        "key": "actor:gjergj-elez-alia",
+        "asset": "human",
+        "label": "Gjergj Elez Alia",
+        "zone": "near",
+        "attributes": {
+          "wounds": 9
+        },
+        "count": 1,
+        "persistence": "scene"
+      },
+      {
         "key": "actor:baloz",
         "asset": "giant",
-        "label": "Dead sea-monster",
+        "label": "Baloz sea-monster",
         "zone": "front",
         "attributes": {
-          "pose": "dead",
-          "headless": true
+          "color": "#46586b"
         },
+        "count": 1,
+        "persistence": "scene"
+      },
+      {
+        "key": "alia-horse",
+        "asset": "horse",
+        "label": "The hero’s horse",
+        "zone": "near",
+        "attributes": {},
+        "count": 1,
+        "persistence": "scene"
+      },
+      {
+        "key": "baloz-thrown-weapon",
+        "asset": "weapon",
+        "label": "Weapon passing above the hero",
+        "zone": "above",
+        "attributes": {},
         "count": 1,
         "persistence": "scene"
       }
     ],
-    "states": [],
-    "relations": [],
+    "states": [
+      {
+        "key": "alia-horse",
+        "property": "pose",
+        "value": "kneeling"
+      }
+    ],
+    "relations": [
+      {
+        "subject": "actor:gjergj-elez-alia",
+        "kind": "on",
+        "target": "alia-horse"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Dead sea-monster; only the represented moment is staged."
+    "rationale": "Baloz throws a weapon and the hero’s horse kneels so it passes overhead; no stone interception by the player occurs."
   },
   {
     "id": "description:balozKoke:2",
     "nodeId": "balozKoke",
     "lineIndex": 2,
-    "placeId": "balozKoke",
+    "placeId": "balozLufte",
+    "text": "Trimi godet balozin me armën e tij; pastaj nxjerr shpatën dhe pret kokën e balozit. Balozi vdes.",
+    "conditions": {
+      "all": [],
+      "negate": false,
+      "none": [],
+      "observationId": null
+    },
+    "objects": [
+      {
+        "key": "actor:gjergj-elez-alia",
+        "asset": "human",
+        "label": "Gjergj Elez Alia",
+        "zone": "near",
+        "attributes": {
+          "wounds": 9
+        },
+        "count": 1,
+        "persistence": "scene"
+      },
+      {
+        "key": "actor:baloz",
+        "asset": "giant",
+        "label": "Dead, beheaded Baloz",
+        "zone": "front",
+        "attributes": {
+          "color": "#46586b",
+          "pose": "dead",
+          "headless": true
+        },
+        "count": 1,
+        "persistence": "scene"
+      },
+      {
+        "key": "alia-sword",
+        "asset": "sword",
+        "label": "Gjergj’s sword",
+        "zone": "near",
+        "attributes": {},
+        "count": 1,
+        "persistence": "scene"
+      }
+    ],
+    "states": [],
+    "relations": [
+      {
+        "subject": "actor:gjergj-elez-alia",
+        "kind": "holds",
+        "target": "alia-sword"
+      }
+    ],
+    "disposition": "physical",
+    "rationale": "Gjergj strikes then draws his sword and beheads Baloz; the final visible result is the dead, headless monster."
+  },
+  {
+    "id": "description:balozKoke:3",
+    "nodeId": "balozKoke",
+    "lineIndex": 3,
+    "placeId": "balozLufte",
     "text": "fshati është i sigurt.",
     "conditions": {
       "all": [],
@@ -4103,42 +4225,14 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "nonvisual",
-    "rationale": "The village’s safety is a consequence, not a newly appearing village at the fight."
-  },
-  {
-    "id": "description:balozKoke:3",
-    "nodeId": "balozKoke",
-    "lineIndex": 3,
-    "placeId": "balozKoke",
-    "text": "rruga mbrapa kthehet në kullë.",
-    "conditions": {
-      "all": [],
-      "negate": false,
-      "none": [],
-      "observationId": null
-    },
-    "objects": [
-      {
-        "key": "alia-return-road",
-        "asset": "road",
-        "label": "Road back to the tower",
-        "zone": "back",
-        "attributes": {},
-        "count": 1,
-        "persistence": "place"
-      }
-    ],
-    "states": [],
-    "relations": [],
-    "disposition": "physical",
-    "rationale": "The visible beat establishes Road back to the tower; only the represented moment is staged."
+    "rationale": "Village safety is the consequence of the victory, not a village appearing at the seashore."
   },
   {
     "id": "description:balozFitore:0",
     "nodeId": "balozFitore",
     "lineIndex": 0,
-    "placeId": "balozFitore",
-    "text": "ti kthehesh në kullë.",
+    "placeId": "bregu",
+    "text": "ti kthehesh në kullë, ku trimi dhe motra janë bashkë.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -4159,14 +4253,14 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Gjergj Elez Alia’s tower-house; only the represented moment is staged."
+    "rationale": "The player returns to the tower; the hero and sister are reunited there before their final embrace."
   },
   {
     "id": "description:balozFitore:1",
     "nodeId": "balozFitore",
     "lineIndex": 1,
-    "placeId": "balozFitore",
-    "text": "zemra e trimit dhe zemra e motrës vdesin bashkë.",
+    "placeId": "bregu",
+    "text": "Trimi përqafon motrën, dhe zemra e trimit dhe zemra e motrës ndalojnë bashkë.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -4202,13 +4296,13 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Dead hero, Dead sister; only the represented moment is staged."
+    "rationale": "The hero embraces his sister and both die; the final state belongs to those two siblings, not the player."
   },
   {
     "id": "description:balozFitore:2",
     "nodeId": "balozFitore",
     "lineIndex": 2,
-    "placeId": "balozFitore",
+    "placeId": "bregu",
     "text": "një varr për dy.",
     "conditions": {
       "all": [],
@@ -4236,7 +4330,7 @@ export default Object.freeze([
     "id": "description:balozFitore:3",
     "nodeId": "balozFitore",
     "lineIndex": 3,
-    "placeId": "balozFitore",
+    "placeId": "bregu",
     "text": "lahuta këndon trimin dhe motrën.",
     "conditions": {
       "all": [],
@@ -4254,7 +4348,7 @@ export default Object.freeze([
     "id": "description:balozFitore:4",
     "nodeId": "balozFitore",
     "lineIndex": 4,
-    "placeId": "balozFitore",
+    "placeId": "bregu",
     "text": "Trim mbi trima ai Gjergj Elez Alia!",
     "conditions": {
       "all": [],
@@ -4359,7 +4453,7 @@ export default Object.freeze([
     "nodeId": "bregHumb",
     "lineIndex": 0,
     "placeId": "bregHumb",
-    "text": "ti ik, por deti është më i shpejtë.",
+    "text": "ti ikën, por Balozi është më i shpejtë; ai të kap pranë detit.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -4391,14 +4485,14 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The failed escape ends with the sea-monster at the viewpoint."
+    "rationale": "The failed escape ends with Baloz catching the player at the sea; it does not silently move elsewhere."
   },
   {
     "id": "description:bregHumb:1",
     "nodeId": "bregHumb",
     "lineIndex": 1,
     "placeId": "bregHumb",
-    "text": "balozi të ha.",
+    "text": "Balozi të ha.",
     "conditions": {
       "all": [],
       "negate": false,
@@ -4430,7 +4524,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The failed escape ends with the sea-monster at the viewpoint."
+    "rationale": "Baloz kills the player after the failed flight; this is the actual fatal encounter, not reported lore."
   },
   {
     "id": "description:bregHumb:2",
@@ -5481,5 +5575,6 @@ export default Object.freeze([
     "relations": [],
     "disposition": "physical",
     "rationale": "The completed observation reveals the local tower; only its declared observation branch depicts it."
-  }
+  },
+{"id":"description:balozKoke:4","nodeId":"balozKoke","lineIndex":4,"placeId":"balozLufte","text":"rruga mbrapa kthehet në kullë.","conditions":{"all":[],"negate":false,"none":[],"observationId":null},"objects":[{"key":"alia-return-road","asset":"road","label":"Road back to the tower","zone":"back","attributes":{},"count":1,"persistence":"place"}],"states":[],"relations":[],"disposition":"physical","rationale":"The ordinary return road leads back toward the existing tower."}
 ])

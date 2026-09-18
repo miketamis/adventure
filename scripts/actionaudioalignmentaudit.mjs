@@ -14,9 +14,13 @@ import {
   certifiedDynamicItemConfuserSurfaces,
 } from '../src/game/storyConfusers.js'
 import { albanianTextOf } from '../src/game/language.js'
+import { decodeActionTimingManifest } from '../src/game/actionTimingStorage.js'
+import { runActionTimingStorageAssertions } from './lib/action-timing-storage.test.mjs'
 
 const ROOT = resolve(import.meta.dirname, '..')
-const manifest = JSON.parse(readFileSync(resolve(ROOT, 'public/audio/action-timings.json'), 'utf8'))
+const storedManifest = JSON.parse(readFileSync(resolve(ROOT, 'public/audio/action-timings.json'), 'utf8'))
+const manifest = decodeActionTimingManifest(storedManifest)
+runActionTimingStorageAssertions(manifest, storedManifest)
 const surfaces = collectAcceptedActionSurfaces()
 const surfaceSet = new Set(surfaces)
 

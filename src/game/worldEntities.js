@@ -1,5 +1,6 @@
 import { departureContextForState } from './worldLocation.js'
 import { departureContextForChoice } from './departureContexts.js'
+import { UNCHARTED_SITES, unchartedSiteOfNode, unchartedSiteContextForState, unchartedSiteTransitionForChoice } from './unchartedSites.js'
 import {
   ITEMS,
   STORY,
@@ -52,7 +53,7 @@ export const WORLD_STATE_AUTHORITIES = Object.freeze([
 ])
 
 const entity = (definition) => Object.freeze({ ...definition })
-const placeEntityId = (nodeId) => PLACE_OF[nodeId] ? `place:${PLACE_OF[nodeId]}` : null
+const placeEntityId = (nodeId) => PLACE_OF[nodeId] ? `place:${PLACE_OF[nodeId]}` : unchartedSiteOfNode(nodeId) ? `site:${unchartedSiteOfNode(nodeId).id}` : null
 
 function placeName(anchor) {
   return PLACE_META[anchor]?.name || anchor
@@ -85,6 +86,11 @@ export function buildWorldEntityRegistry() {
       affordances: Object.freeze(['enter', 'leave', 'observe']),
     }))
   }
+  for (const site of UNCHARTED_SITES) entries.push(entity({
+    id: `site:${site.id}`, kind: 'place', name: site.label, charted: false,
+    authority: Object.freeze({ channel: 'nodeId', key: site.id }), nodes: site.nodes,
+    affordances: Object.freeze(['enter', 'leave', 'observe']),
+  }))
 
   for (const item of Object.values(ITEMS)) {
     entries.push(entity({
@@ -154,7 +160,7 @@ export function worldEntityRegistryIssues(registry = WORLD_ENTITIES) {
 
 export function worldRelationsForState(state, { npcNodeOf, clock } = {}) {
   const relations = []
-  const currentPlace = placeEntityId(state?.nodeId)
+  const currentPlace = !unchartedSiteOfNode(state?.nodeId) || unchartedSiteContextForState(state, STORY) ? placeEntityId(state?.nodeId) : null
   if (currentPlace) relations.push(Object.freeze({ subject: 'actor:player', type: 'at', target: currentPlace }))
 
   const departure = departureContextForState(state, STORY)
@@ -187,6 +193,7 @@ export function worldRelationsForState(state, { npcNodeOf, clock } = {}) {
 }
 
 export function perceivableEntitiesAt(state, nodeId = state?.nodeId, adapters = {}) {
+  if (unchartedSiteOfNode(nodeId) && (nodeId !== state?.nodeId || !unchartedSiteContextForState(state, STORY))) return Object.freeze([])
   const placeId = placeEntityId(nodeId)
   if (!placeId) return Object.freeze([])
   const related = new Set([placeId])
@@ -217,6 +224,7 @@ export function worldActionOfOption(fromNodeId, option) {
     from: fromPlace,
     to: toPlace,
     departure: departureContextForChoice(fromNodeId, option, STORY),
+    siteTransition: unchartedSiteTransitionForChoice(fromNodeId, option, STORY)?.transition || null,
     targets: Object.freeze([...new Set(targets)]),
     effects: Object.freeze(effects.map(({ legacy: _legacy, ...effect }) => Object.freeze(effect))),
   })
@@ -227,6 +235,8 @@ export function worldActionIssues(fromNodeId, option) {
   const action = worldActionOfOption(fromNodeId, option)
   if (!action.from) issues.push('source node has no canonical physical place')
   if (option?.to && !action.to && !action.departure) issues.push('destination node has no canonical physical place')
+  const stationaryConfuser = option?.confuser && !option.to && STORY[fromNodeId]?.options.includes(option)
+  if ((unchartedSiteOfNode(fromNodeId) || unchartedSiteOfNode(option?.to)) && !action.siteTransition && !stationaryConfuser) issues.push('uncharted site action has no exact canonical binding')
   for (const target of action.targets) if (!WORLD_ENTITIES[target]) issues.push(`unknown entity target '${target}'`)
   if (action.intent === 'observation' && action.from !== action.to) {
     issues.push('observation action leaves its physical place')

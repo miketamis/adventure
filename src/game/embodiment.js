@@ -79,7 +79,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
   }),
   'zuku-bajraktar': quest({
     identity: 'Zuku Bajraktari', stance: 'embodied', entryFrom: 'odaJutbina', entryTo: 'rusha1',
-    objective: "win Rusha by her freely sworn besa", nodes: 'rusha1 rushaFund rushaKeq',
+    objective: "ask Rusha for her besa before the offered coffee", nodes: 'rusha1 rushaFund rushaKeq',
     endings: 'rushaFund rushaKeq',
   }),
   'arnaut-osmani': quest({
@@ -140,7 +140,7 @@ export const EMBODIMENT_QUESTS = Object.freeze({
   gjizar: quest({
     identity: 'the youngest prince', stance: 'embodied', entryFrom: 'gjizar2', entryTo: 'gjizarUdha', returnTo: 'gjizar1',
     objective: 'follow the road of no return in search of Gjizar',
-    nodes: 'gjizarUdha gjizarPallat gjizarKap gjizarTradheti gjizarUnazatLena gjizarVellezerRefuz gjizarPus gjizarFund',
+    nodes: 'gjizarUdha gjizarPallat gjizarKap gjizarTradheti gjizarUnazatLena gjizarVellezerRefuz gjizarPus gjizarKthim gjizarAnija gjizarFund',
     endings: 'gjizarKap gjizarUnazatLena gjizarVellezerRefuz gjizarPus gjizarFund',
   }),
   cuckoo: quest({
@@ -266,6 +266,13 @@ export const embodimentEntryNodes = (idOrQuest) => {
 export const isKnownEmbodiment = (id) => Boolean(embodimentQuest(id))
 export const isEmbodimentNode = (id, nodeId) => Boolean(embodimentQuest(id)?.nodes.includes(nodeId))
 export const isEmbodimentEnding = (id, nodeId) => Boolean(embodimentQuest(id)?.endings.includes(nodeId))
+// This ordinary, ungated control is shared by the rendered tale controls and
+// the reducer. A stale focus, blocking passage or completed tale cannot pause.
+export const canPauseEmbodiment = (state) => Boolean(
+  state && !state.ended && !state.embodimentPaused && !state.timePassage &&
+  state.nodeId === state.embodimentFocusNode &&
+  isEmbodimentNode(state.embodying, state.nodeId) && !STORY[state.nodeId]?.end,
+)
 export const embodimentIdentity = (state) => {
   const quest = embodimentQuest(state?.embodying)
   if (!quest) return null

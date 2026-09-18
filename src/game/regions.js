@@ -109,7 +109,7 @@ export const REGION_OVERRIDES = Object.freeze({
   kordhaFund: 'forest', kordhaDeti: 'forest',
   gjizarUdha: 'underworld', gjizarPallat: 'underworld', gjizarKap: 'underworld',
   gjizarTradheti: 'underworld', gjizarPus: 'underworld',
-  gjizarFund: 'village',
+  gjizarKthim: 'village',
   // The last coast-road vista stands on the dry shore before the route turns
   // inland. The homeward road, builders' house and eagle-tree episode then sit
   // below Rozafa; graph proximity to Tomorr must not pull them into the mountain.

@@ -132,7 +132,7 @@ export default {
       stance: 'embodied',
       as: 'kordha',
       role:
-        'You are Kordha — «the Sabre» — the widow\'s son whose very life is hidden in his own blade. With your sworn brothers Ylli, «the Star» who leaps any moat carrying all three of you, and Deti, «the Sea» who dives to any depth, you set out to win the Earthly Beauty from her Kulshedra. Every crossing is a choice: lean on your brothers or go it alone, guard the secret of the sabre or let love loosen your tongue. Betray it, and it is Deti\'s dive that drags your drowned life back up from the sea.',
+        'You are Kordha — «the Sabre» — the widow\'s son whose very life is hidden in his own blade. With your sworn brothers Ylli, «the Star» who leaps any moat carrying both other brothers, and Deti, «the Sea» who dives to any depth, you set out to win the Earthly Beauty from her Kulshedra. Every crossing is a choice: lean on your brothers or go it alone, guard the secret of the sabre or let love loosen your tongue. Betray it, and it is Deti\'s dive that drags your drowned life back up from the sea.',
       enter: 'you stand on the road with the leaper and the diver, three strangers about to swear the besa that binds your fates',
       from: 'kordha1',
       ending: 'kordhaDeti',
@@ -147,12 +147,12 @@ export default {
         kordhaProvaVdes: 'tests',
         kordha2: 'secret',
         kordhaFund: 'secret',
-        kordhaDeti: 'dive',
+        kordhaDeti: ['theft', 'alarm', 'dive'],
       },
       divergences: [
-        { beat: 'deti', note: 'The game skips Kordha\'s whole origin — the widow\'s bare cottage, the rusted sabre scrubbed to a shine, taking the name «Sabre», and meeting Ylli then Deti one by one on the road. You open at the oath itself, the three already sworn and the life-in-the-blade already the stakes.' },
+        { beat: 'deti', note: 'The game skips Kordha\'s whole origin — the widow\'s bare cottage, the rusted sabre scrubbed to a shine, taking the name «Sabre», and meeting Ylli then Deti one by one on the road. You open before the oath: the other two men ask for it, and only your chosen promise makes the three sworn brothers. The life-in-your-blade is already at stake.' },
         { note: 'Death-branches the source never has: go it alone and you fall. Leap the moat without Ylli and you drown (kordhaMoatVdes); enter the she-dragon\'s gate alone and you burn (kordhaZjarr); drink at the spring with your hands and you lose the palace (kordhaProvaVdes). The hero\'s guaranteed triumphs become a survival gauntlet that rewards the besa.' },
-        { beat: 'dive', note: 'Both endings compress the source\'s long finale — Ylli\'s wedding and the moat-king\'s refusal, the crone\'s theft, the 24-day siege, the seven-hundred rout, and crowning Deti king. The game keeps only the external-soul choice: guard the secret and your brothers fight for you (kordhaFund), or let it slip and Deti\'s dive recovers the drowned sabre (kordhaDeti).' },
+        { beat: 'dive', note: 'The game omits the long siege, rout and royal aftermath. Silence is a counterfactual prevention branch: your sword stays with you (kordhaFund). Disclosure goes first to the Beauty, then the crone steals and drowns the blade; the bloody feather calls the brothers and Deti\'s dive restores your health (kordhaDeti). The brothers explicitly report what happened while you were unconscious. The moat leap follows the selected translation\'s Ylli, with the Albanian witness\'s different leaper retained in the source record; the guardian fight is cooperative in play, with your blade making the kill.' },
       ],
     },
     beats: [

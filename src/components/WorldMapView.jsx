@@ -2364,7 +2364,7 @@ export function VillageMap({ state, g, current, objective = null, goGraph, compa
 
   return (
     <div className="dbg-map">
-      {currentLocation.kind !== 'charted' && <p role="status">Current location is uncharted.{currentLocation.originNodeId ? ` Departed from ${richPlayerMapLabel(currentLocation.originNodeId)}.` : ' The departure origin is unknown.'} No current-position marker is shown.</p>}
+      {currentLocation.kind !== 'charted' && <p role="status">Current location is uncharted.{currentLocation.siteLabel ? ` Story setting: ${currentLocation.siteLabel}; its world position is unspecified.` : currentLocation.originNodeId ? ` Departed from ${richPlayerMapLabel(currentLocation.originNodeId)}.` : ' The departure origin is unknown.'} No current-position marker is shown.</p>}
       {!compact && (
         <p className="dbg-note">
           The whole world on one map — <b>drag</b> to pan, <b>scroll</b> to zoom. This is a <b>{WORLD_CHART.kind.replace('-', ' ')}</b>,

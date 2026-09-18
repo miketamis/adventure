@@ -1,4 +1,5 @@
 import { audioSlug } from './audio.js'
+import { decodeActionTimingManifest } from './actionTimingStorage.js'
 
 let manifestPromise = null
 export const ACTION_TIMING_FETCH_TIMEOUT_MS = 5000
@@ -29,6 +30,7 @@ function loadManifest() {
         }, ACTION_TIMING_FETCH_TIMEOUT_MS)
         Promise.resolve(fetch(actionTimingUrl(), controller ? { signal: controller.signal } : undefined))
           .then((response) => response.ok ? response.json() : null)
+          .then(decodeActionTimingManifest)
           .then(finish, () => finish(null))
       })
   }
@@ -37,7 +39,6 @@ function loadManifest() {
 
 export async function actionAudioTiming(al) {
   const manifest = await loadManifest()
-  if (manifest?.method !== 'azure-word-boundary-correlated-to-stored-mp3') return null
   const timing = manifest?.entries?.[audioSlug(al)] || null
   if (!timing) return null
   return timing

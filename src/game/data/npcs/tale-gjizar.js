@@ -40,9 +40,9 @@ export default {
   djaliGjizar: {
     name: 'djali i vogël i mbretit', glyph: '🕯️', kind: 'human',
     role: 'the youngest prince — the quiet thief who truly won the nightingale',
-    backstory: 'He chose the stone that promised no return and paid kindness down the whole road: a comb for the savage woman, leaves for the tiger\'s oven, a son\'s mouth for the lioness, lifted eyelids for the blind lion, three months for three eagle-brides. In the Beauty\'s chamber he lit four unlit lamps and extinguished four dying ones before taking the cage — the signature of a thief with manners. The bird fell silent when his rope was cut and sang again at his first word; the Beauty married him for the true telling. His staged arc is the village\'s back-lane vignette (gjizar2 → gjizarUdha → gjizarPallat → gjizarTradheti → gjizarFund).',
+    backstory: 'He chose the stone that promised no return and paid kindness down the whole road: a comb for the savage woman, leaves for the tiger\'s oven, a son\'s mouth for the lioness, lifted eyelids for the blind lion, three months for three eagle-brides. In the Beauty\'s chamber he lit four unlit lamps and extinguished four dying ones before taking the cage — the signature of a thief with manners. The bird fell silent when his rope was cut and sang again at his first word; the Beauty married him for the true telling. His staged arc is the village\'s back-lane vignette (gjizar2 → gjizarUdha → gjizarPallat → gjizarTradheti → gjizarKthim → gjizarFund).',
     folklore: ['gjizar'],
-    location: { status: 'walking', route: ['gjizar1', 'gjizar2', 'gjizarUdha', 'gjizarPallat', 'gjizarTradheti', 'gjizarFund'] },
+    location: { status: 'walking', route: ['gjizar1', 'gjizar2', 'gjizarUdha', 'gjizarPallat', 'gjizarTradheti', 'gjizarKthim', 'gjizarFund'] },
     tales: { gjizar: 'youngest' },
   },
   egershania: {

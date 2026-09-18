@@ -182,6 +182,17 @@ const WORLD_LAYOUT_EXCEPTION_REGISTRY = defineAuditExceptionRegistry({
       evidence: 'PLACE_META.sari1 and the canonical chart identify the exact dervish-led Krujë cave witness branch and its explicit return.',
       reviewTrigger: 'when the Sari Salltëk cave route, coordinate, return edge or intermediate places change',
     }),
+    {
+      ...placeReasonException({
+        id: 'gjizar-recovery-home-leaf-route',
+        rule: 'long-leaf-route',
+        target: 'gjizarKthim',
+        field: 'distributionReason',
+        evidence: 'Gjizar topat 10.9–10 sends the king’s men to bring the prince home; content gjizarKthim.text[0..1] enacts that exact return. This home contains recovery and the ship-departure opportunity; the ship has no source-supported chart position. PAUSE_EMBODIMENT provides ordinary public exploration.',
+        reviewTrigger: 'when this home gains or loses scenes, its well-return edge or source changes, or the ordinary pause/resume alternative stops being available',
+      }),
+      scope: { kind: 'exact-targets', maximumTargets: 1, maximumScenes: 1, sceneIds: ['gjizarKthim'] },
+    },
   ],
 })
 const usedExceptionClaims = new Set()
@@ -221,7 +232,7 @@ else ok('map.alias-target', 'every same-place alias resolves to an authored anch
 const routeContractMissing = routes.filter((route) => route.valid && (
   !route.kind || !route.reason || !route.duration ||
   (route.charted === false
-    ? !route.departureId || route.vector !== null || route.dx !== null || route.dy !== null || route.toPlace !== null || route.toRegion !== null || route.distance !== null
+    ? !(route.departureId || route.siteTransitionId) || route.vector !== null || route.dx !== null || route.dy !== null || route.toPlace !== null || route.toRegion !== null || route.distance !== null
     : !route.vector || route.vector.dx !== route.dx || route.vector.dy !== route.dy) ||
   (route.distance > 0 && !route.direction)
 ))
@@ -753,6 +764,14 @@ const malformedExceptions = [
     },
   }),
   ...WORLD_LAYOUT_EXCEPTION_REGISTRY.entries.filter(({ rule }) => rule === 'source-bounded-region').flatMap((record) => sourceBoundedRegionIssues(record)),
+  ...WORLD_LAYOUT_EXCEPTION_REGISTRY.entries.filter(({ scope }) => scope.sceneIds).flatMap((record) => {
+    const actual = (PLACE_NODES[record.targets[0]] || []).filter((id) => STORY[id]).sort()
+    const expected = record.scope.sceneIds
+    return record.targets.length !== 1 || !Array.isArray(expected) ||
+      expected.length !== record.scope.maximumScenes || new Set(expected).size !== expected.length ||
+      JSON.stringify(actual) !== JSON.stringify([...expected].sort())
+      ? [`${record.id}: exact reviewed place membership changed`] : []
+  }),
   ...auditExceptionUsageIssues(
     WORLD_LAYOUT_EXCEPTION_REGISTRY,
     usedWorldLayoutExceptionClaims,

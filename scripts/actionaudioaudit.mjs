@@ -12,7 +12,8 @@ import {
   reducer,
   saveState,
 } from '../src/game/gameState.js'
-import { AUDIO_PLAYBACK_POLICY, playActionPhrase, setMuted } from '../src/game/audio.js'
+import { AUDIO_PLAYBACK_POLICY, audioSlug, playActionPhrase, setMuted } from '../src/game/audio.js'
+import { decodeActionTimingManifest } from '../src/game/actionTimingStorage.js'
 import { canonicalStoryConfuser } from '../src/game/storyConfusers.js'
 import fs from 'node:fs'
 
@@ -300,6 +301,44 @@ await check('a stalled timing manifest fails safely before MP3 playback', async 
     else globalThis.AbortController = originalAbortController
     globalThis.setTimeout = originalSetTimeout
     globalThis.clearTimeout = originalClearTimeout
+  }
+})
+
+await check('stored v2 and cached v1 timing manifests yield the exact canonical playback intervals', async () => {
+  const originalFetch = globalThis.fetch
+  const stored = JSON.parse(fs.readFileSync(new URL('../public/audio/action-timings.json', import.meta.url), 'utf8'))
+  const canonical = decodeActionTimingManifest(stored)
+  const entry = Object.values(canonical.entries)[0]
+  try {
+    for (const manifest of [stored, canonical]) {
+      let requests = 0
+      globalThis.fetch = async () => { requests++; return { ok: true, json: async () => manifest } }
+      const timings = await import(new URL(`../src/game/actionAudioTimings.js?storage-version=${manifest.version}`, import.meta.url))
+      assert.deepEqual(await timings.actionAudioTiming(entry.transcript), canonical.entries[audioSlug(entry.transcript)])
+      assert.deepEqual(await timings.actionAudioTiming(entry.transcript), entry)
+      assert.equal(requests, 1, 'decoded timing retains the existing single-fetch cache')
+      assert.equal(await timings.actionAudioTiming('missing timing fixture'), null)
+    }
+  } finally {
+    if (originalFetch === undefined) delete globalThis.fetch
+    else globalThis.fetch = originalFetch
+  }
+})
+
+await check('unknown or malformed timing storage fails safely without preventing continuous audio', async () => {
+  const originalFetch = globalThis.fetch
+  try {
+    for (const [index, manifest] of [{ version: 99 }, { version: 2, method: 'invented', entries: {} }, null].entries()) {
+      globalThis.fetch = async () => ({ ok: true, json: async () => manifest })
+      const timings = await import(new URL(`../src/game/actionAudioTimings.js?malformed-storage=${index}`, import.meta.url))
+      assert.equal(await timings.actionAudioTiming('timing storage audit'), null)
+    }
+    const karaoke = fs.readFileSync(new URL('../src/components/ActionKaraoke.jsx', import.meta.url), 'utf8')
+    assert.match(karaoke, /setTimingStatus\(exactTiming \? 'aligned' : 'unavailable'\)[\s\S]*?await playActionPhrase\(action\.al/,
+      'unavailable timing must still play the complete recorded action')
+  } finally {
+    if (originalFetch === undefined) delete globalThis.fetch
+    else globalThis.fetch = originalFetch
   }
 })
 

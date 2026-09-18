@@ -14,7 +14,7 @@ export {
 // scripts/languageaudit.mjs checks every record against its exact live Albanian
 // action, so failures identify the specific stale or incomplete address.
 // `internal-editorial` never claims native-speaker review.
-export const REVIEWED_OPTION_COUNT = 2031
+export const REVIEWED_OPTION_COUNT = 2034
 
 const merged = {}
 for (const tranche of [OPTION_READINGS_A, OPTION_READINGS_B, OPTION_READINGS_C, OPTION_READINGS_STATIC]) {

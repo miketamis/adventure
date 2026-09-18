@@ -15,6 +15,8 @@ import { runInNewContext } from 'node:vm'
 import { parseAst } from 'vite'
 import viteConfig from '../vite.config.js'
 import { NOUN_NUMBER_POLICIES } from './lib/noun-number-policies.mjs'
+import { assertReviewedReadingStorage } from './lib/reviewed-readings-contract.mjs'
+import { assertConversationPurposeDeferral } from './lib/story-build-metadata-contract.mjs'
 
 const DIST = resolve('dist')
 const ASSETS = resolve(DIST, 'assets')
@@ -205,6 +207,21 @@ for (const { name, lines } of reviewedMaps) {
 const emittedStoryModule = await import(pathToFileURL(resolve(ASSETS, chunkNamed('story-graph').name)))
 const emittedStory = Object.values(emittedStoryModule).find((value) => value?.start?.id === 'start' && value?.sofraMikut2)
 assert.ok(emittedStory, 'the emitted story graph could not be inspected')
+// Compare all operational content, including non-index array properties. Only
+// the existing deferred readings and explicitly source-only semantic notes may
+// differ; purpose deferral must not alter a token, gate, effect, or action.
+const operationalStoryValue = (value) => {
+  if (value == null || typeof value !== 'object') return value
+  const fields = Object.fromEntries(Object.entries(value)
+    .filter(([key]) => !['reading', 'readingReview', 'actionSemantics', 'semanticFacts'].includes(key))
+    .map(([key, child]) => [key, operationalStoryValue(child)]))
+  return Array.isArray(value) ? { length: value.length, fields } : fields
+}
+assert.deepEqual(Object.keys(emittedStory), Object.keys(STORY), 'production graph changed story node order')
+for (const [nodeId, node] of Object.entries(STORY)) {
+  assert.deepEqual(operationalStoryValue(emittedStory[nodeId]), operationalStoryValue(node),
+    `${nodeId}: production transform changed operational story content`)
+}
 const bootstrapSource = bootstrap.map(({ name }) => readFileSync(resolve(ASSETS, name), 'utf8')).join('\n')
 const emittedLine = ({ nodeId, field, index }) => field === 'text'
   ? lineOf(emittedStory[nodeId].text[index]) : emittedStory[nodeId].options[index].text
@@ -228,7 +245,12 @@ for (const excerpt of [
   'Water is important to all of us; perhaps the Lord sees us.',
   'Someone said, ‘I am leaving.’ I do not know why.',
 ]) assert.ok(!bootstrapSource.includes(excerpt), `computed reviewed English leaked into bootstrap: ${excerpt}`)
-language.attachReviewedEnglishReadings(emittedStory, REVIEWED_READINGS)
+const emittedReadingModule = await import(pathToFileURL(resolve(ASSETS, chunkNamed('reviewedReadings').name)))
+const readingAddress = Object.keys(REVIEWED_READINGS)[0]
+const emittedReadings = Object.values(emittedReadingModule).find((value) => value?.[readingAddress]?.al)
+assert.ok(emittedReadings && Object.isFrozen(emittedReadings), 'compiled reviewed-reading facade is missing or unfrozen')
+assert.deepEqual(emittedReadings, REVIEWED_READINGS, 'compiled grouped corpus changed an exact addressed reading')
+language.attachReviewedEnglishReadings(emittedStory, emittedReadings)
 attachReviewedOptionReadings(emittedStory, ITEMS, HEART_LEVELS)
 for (const call of factoryCalls) {
   const review = (call.field === 'text' ? REVIEWED_READINGS : REVIEWED_OPTION_READINGS)[`${call.nodeId}.${call.field}[${call.index}]`]
@@ -251,6 +273,17 @@ const boundaryFixture = [
   'const probe = { reviewed: reviewed(true), map: lines.start, unmarkedMap: unmarkedLines.start, payment: payment(37), other: otherRuntime() };',
 ].join('\n')
 const transformer = viteConfig.plugins.find(({ name }) => name === 'defer-reviewed-story-readings')
+assertConversationPurposeDeferral(readFileSync(resolve('src/game/content.js'), 'utf8'), transformer, parseAst, bootstrapSource)
+const readingTranches = (await Promise.all(['early', 'middle', 'late', 'final']
+  .map((name) => import(`../src/game/data/readings/${name}.js`)))).flatMap(Object.entries)
+const { corpus: groupedCorpus } = assertReviewedReadingStorage(readingTranches, STORY, language)
+assert.deepEqual(groupedCorpus, REVIEWED_READINGS, 'grouped partitions disagree with the public corpus facade')
+for (const [address, review] of Object.entries(REVIEWED_READINGS)) {
+  const [, nodeId, index] = /^(.+)\.text\[(\d+)]$/.exec(address)
+  const line = lineOf(emittedStory[nodeId].text[Number(index)])
+  assert.equal(line.reading, review.en, `${address}: emitted graph lost its hydrated reading`)
+  assert.equal(language.albanianTextOf(line), review.al, `${address}: emitted graph changed its Albanian pin`)
+}
 const transformedFixture = transformer.transform.call({ parse: parseAst }, boundaryFixture, '/src/game/content.js').code
 const boundary = runInNewContext(`${transformedFixture}\nprobe`)
 assert.equal(boundary.reviewed.reading, undefined, 'marked computed reading was not deferred')

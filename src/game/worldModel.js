@@ -1,4 +1,5 @@
 import { departureContextForChoice } from './departureContexts.js'
+import { unchartedSiteTransitionForChoice } from './unchartedSites.js'
 // Canonical structural vocabulary for the world.
 //
 // NODE_AT remains the source of authored coordinates and REGIONS remains the
@@ -141,7 +142,8 @@ export function routeForChoice(from, option) {
     return { from, to, valid: false, kind: 'invalid', reason: 'choice has no real story destination', tokenIds: ids }
   }
   const departure = departureContextForChoice(from, option, STORY)
-  if (!start || (!finish && !departure)) {
+  const siteContext = unchartedSiteTransitionForChoice(from, option, STORY)
+  if (!siteContext && (!start || (!finish && !departure))) {
     return { from, to, valid: false, kind: 'unplaced', reason: 'one or both story nodes have no coordinate', tokenIds: ids }
   }
   const movementVerbId = ids.find((id) => MOVEMENT_VERBS.has(id)) || null
@@ -150,7 +152,20 @@ export function routeForChoice(from, option) {
   const shared = {
     from, to, valid: true, tokenIds: ids, verb,
     movementVerbId, movementVerb, interactionVerb, wander: isWander(option),
-    fromPlace: PLACE_OF[from], fromRegion: NODE_REGION[from] || 'village',
+    fromPlace: PLACE_OF[from] || null, fromRegion: NODE_REGION[from] || null,
+  }
+  if (siteContext) {
+    const { site, transition } = siteContext
+    const samePlace = site.nodes.includes(from)
+    return { ...shared, kind: samePlace ? 'local' : 'uncharted-site',
+      reason: samePlace ? `both scenes take place aboard ${site.label}` : `the authored journey reaches ${site.label}, whose world position is unspecified`,
+      siteId: site.id, siteLabel: site.label, siteTransitionId: transition.id,
+      fromSiteId: samePlace ? site.id : null, toSiteId: site.id,
+      charted: false, projection: false, spatial: true, samePlace,
+      toPlace: null, toRegion: null,
+      dx: null, dy: null, distance: null, distanceBand: samePlace ? 'same-place' : 'unknown', direction: null, vector: null,
+      duration: { kind: 'hours', hours: transition.durationHours },
+    }
   }
   if (departure && start) return {
     ...shared, kind: 'uncharted-departure', reason: departure.reason,
@@ -218,6 +233,7 @@ export function transitionInfo(from, option) {
     kind: route.kind,
     charted: route.charted !== false,
     departureId: route.departureId || null,
+    siteId: route.siteId || null,
     direction: route.direction?.label || 'here',
     distanceBand: route.distanceBand || 'unknown',
     fromPlace: route.fromPlace || null,
@@ -233,7 +249,7 @@ export function transitionInfo(from, option) {
     targetHour: route.duration?.targetHour ?? null,
     label: route.valid
       ? route.charted === false
-        ? `departure from ${route.fromPlace}; destination uncharted`
+        ? route.siteId ? `${route.samePlace ? 'aboard' : 'journey to'} ${route.siteLabel}; world position uncharted` : `departure from ${route.fromPlace}; destination uncharted`
         : route.samePlace
         ? `here at ${route.fromPlace}`
         : `${route.projection ? 'tale projection' : route.kind === 'scene-shift' ? 'narrated shift' : route.distanceBand}, ${route.direction?.label || 'unoriented'}; ${route.vector.label}`
