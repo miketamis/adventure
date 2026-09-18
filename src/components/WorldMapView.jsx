@@ -1,5 +1,8 @@
+import { currentStoryState, hasCond } from '../game/gameState.js'
+import { isUnchartedStoryNode } from '../game/departureContexts.js'
+import { worldLocationForState } from '../game/worldLocation.js'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { STORY, START_NODE, lineOf } from '../game/content.js'
+import { STORY, START_NODE, lineOf, visibleLines } from '../game/content.js'
 import { RICH_ENDING_BY_ID } from '../game/endingCatalog.js'
 import { REGIONS, WORLD_CHART, isWander, assignRegions } from '../game/regions.js'
 import { WORLD_GLYPH, WORLD_LANDMARKS, genericGlyph } from './mapGlyphs.jsx'
@@ -1887,7 +1890,7 @@ const REGION_LABEL_POS = {
 }
 
 // `world` carries live world-state for state-drawn glyphs (world.fire = fireStateOf)
-export function VillageMap({ g, current, objective = null, goGraph, compact, follow, world, npcs, rumors, jumpTo, player = false, known = [] }) {
+export function VillageMap({ state, g, current, objective = null, goGraph, compact, follow, world, npcs, rumors, jumpTo, player = false, known = [] }) {
   const waterRestored = world?.hydrology && Object.values(world.hydrology).some(Boolean)
   const worldStatus = [world?.phase, world?.weather, world?.season, waterRestored ? 'water restored' : null].filter(Boolean).join(' · ')
   const scatter = useMemo(() => {
@@ -2103,7 +2106,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
     // Nodes added to the story AFTER NODE_POS was last updated get a graceful
     // fallback near their placed neighbours (or their region centre), so the map
     // stays complete. Re-run scripts/nodeplace*.mjs to hand-place them for real.
-    const unplaced = g.ids.filter((id) => !pos[id])
+    const unplaced = g.ids.filter((id) => !pos[id] && !isUnchartedStoryNode(id))
     for (const id of unplaced) {
       const nb = []
       for (const o of (STORY[id].options || [])) if (o.to && NODE_POS[o.to]) nb.push(NODE_POS[o.to])
@@ -2179,11 +2182,16 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
     for (const e of edges) { if (e[4] === focus) s.add(e[5]); if (e[5] === focus) s.add(e[4]) }
     return s
   }, [focus, edges])
+  const unchartedPreview = isUnchartedStoryNode(sel)
+    ? state?.nodeId === sel
+      ? visibleLines(STORY[sel], (id) => hasCond(currentStoryState(state), id)).map(englishOf).find(Boolean) || RICH_ENDING_BY_ID[sel]?.blurb || ''
+      : RICH_ENDING_BY_ID[sel]?.blurb || ''
+    : null
   const info = sel && STORY[sel] ? {
     n: STORY[sel],
     exits: (STORY[sel].options || []).filter((o) => !o.confuser && o.to && STORY[o.to]).map((o) => ({ t: englishOf(lineOf(o.text)), to: o.to })),
     incoming: g.ids.filter((id) => (g.adj[id] || []).includes(sel)),
-    firstLine: STORY[sel].text && STORY[sel].text.length ? englishOf(lineOf(STORY[sel].text[0])) : '',
+    firstLine: unchartedPreview ?? (STORY[sel].text && STORY[sel].text.length ? englishOf(lineOf(STORY[sel].text[0])) : ''),
   } : null
   // the LOCATION CARD — click a shared place and see what can happen there.
   // Explicit happenings (placeMeta.js), with a derived one-row-per-scene
@@ -2213,6 +2221,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
 
   const [view, setView] = useState(MAP_VIEWS.village)
   const [showOdd, setShowOdd] = useState(false)
+  const currentLocation = worldLocationForState(state || { nodeId: current })
   const knownSet = useMemo(() => new Set([current, objective, ...known].filter(Boolean)), [current, objective, known])
   const placeOf = (id) => id ? (PLACE_OF[id] || id) : null
   const isCurrentPlace = (id) => Boolean(current) && placeOf(id) === placeOf(current)
@@ -2262,7 +2271,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
       role: 'button',
       tabIndex: keyboardMarkerRef.current
         ? (keyboardMarkerRef.current === markerId ? 0 : -1)
-        : (placeOf(sceneId) === placeOf(current || sel || START_NODE) ? 0 : -1),
+        : (placeOf(sceneId) === placeOf(pos[current] ? current : pos[sel] ? sel : START_NODE) ? 0 : -1),
       'data-map-marker': 'true',
       'data-map-id': markerId,
       'data-map-x': x,
@@ -2355,6 +2364,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
 
   return (
     <div className="dbg-map">
+      {currentLocation.kind !== 'charted' && <p role="status">Current location is uncharted.{currentLocation.originNodeId ? ` Departed from ${richPlayerMapLabel(currentLocation.originNodeId)}.` : ' The departure origin is unknown.'} No current-position marker is shown.</p>}
       {!compact && (
         <p className="dbg-note">
           The whole world on one map — <b>drag</b> to pan, <b>scroll</b> to zoom. This is a <b>{WORLD_CHART.kind.replace('-', ' ')}</b>,
@@ -2363,7 +2373,7 @@ export function VillageMap({ g, current, objective = null, goGraph, compact, fol
           {' '}through the centre, the <b>sea-road</b> right, and — down through the well — the world below.
           {' '}Keyboard: <b>Tab</b> into the map, use the <b>arrow keys</b> to move between nearby places, and press <b>Enter</b> to inspect one.
           {player
-            ? <> The bright ring marks where you are; story paths appear here as you visit or hear about them.{objective && <> The violet double ring marks where your character&apos;s tale is waiting: <b>{richPlayerMapLabel(objective)}</b>.</>}</>
+            ? <> {currentLocation.kind === 'charted' ? 'The bright ring marks where you are;' : 'Your current location has no map coordinates;'} story paths appear here as you visit or hear about them.{objective && <> The violet double ring marks where your character&apos;s tale is waiting: <b>{richPlayerMapLabel(objective)}</b>.</>}</>
             : <> Every <b>dot</b> is a scene; click any dot or building to open it in the Story Graph.</>}
           {' '}With a keyboard, Tab into the map, use the arrow keys to move between nearby places, and press Enter to select.
         </p>

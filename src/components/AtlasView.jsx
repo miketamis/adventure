@@ -54,7 +54,7 @@ export default function AtlasView({ state }) {
       </header>
       {mode === '3d' ? <Suspense fallback={<p role="status">Building the 3D world…</p>}>
         <WorldScene3dView state={state} />
-      </Suspense> : <VillageMap
+      </Suspense> : <VillageMap state={state}
         g={graph}
         current={state.nodeId}
         objective={objective}

@@ -26,11 +26,11 @@ export const ENDING_COPY = Object.freeze({
   },
   "prespaLiri": {
     "title": "The Warning Heeded",
-    "blurb": "Nereida the forest-nymph warned the king’s son that if he married her a great water would drown his whole country. Where the prince of the old legend would not hear it — had her seized, wed her, and lost his town to the flood that made Lake Prespa — you let her go back into her woods. You never won her, and you ruled alone; but the great town by the water stood, and your people lived out their ordinary days, and no lake ever closed over their roofs. Some loves are a country, and cost one."
+    "blurb": "Nereida returns to the forest. The town remains standing, and its people continue their lives."
   },
   "prespaFund": {
     "title": "The Lake Where the Town Was",
-    "blurb": "You would not hear Nereida’s warning. Blinded by love, you had the forest-nymph seized and held in your town until she consented, and you married her — and no sooner were you wed than the sky broke open, and the rain would not stop until the whole town lay underwater and every last soul had drowned: you, your father the king, and all your people together. That water stands there yet, and men call it Lake Prespa; and the old people say Nereida, the one life the flood spared, keeps the lake to this day."
+    "blurb": "Rain floods the town, and its people die. The water covering the town is called Prespa."
   },
   "argjiroFund": {
     "title": "Argjiro’s Leap",
@@ -150,7 +150,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "detiNuse": {
     "title": "The Bride of the Sea",
-    "blurb": "e Bukura e Detit — the Beauty of the Sea, sister of the Earthly and the Sky Beauties, the sea-fairy of beauty and danger and mystery, kin to all the maidens of the water. You did not seize her gold nor force her hand; you took a single strand of her golden hair, and it was the gentleness itself that won her: she rose with you out of the deep into the light. The sea yields up its Beauty only to the hand that will not grab."
+    "blurb": "The traveller and the Beauty reach dry land together. They marry there, and she gives him a golden hair."
   },
   "detiStuhi": {
     "title": "Drowned in the Storm",
@@ -165,8 +165,8 @@ export const ENDING_COPY = Object.freeze({
     "blurb": "You were the youngest — the one brother who kept his besa — so it was your own wife, never warned, who climbed the hill with the morning meal, and your own hands that sealed her into the wall she asked only to go on nursing her son from. The castle rose that day and never fell again. Low on its stone the wall still runs damp to this hour, with her milk and her tears for the boy she left below. You kept your word, and it cost you everything you had; but the fortress carries her name — Rozafat — and the old songs will remember that a man once loved his besa more than his own life."
   },
   "kalaFundTurp": {
-    "title": "The Word Broken",
-    "blurb": "You warned your wife in the night, and at dawn she pleaded illness and stayed by the hearth — so it was the youngest brother, who alone kept his besa, whose wife came with the meal and went into the wall. Your own wife lives. But you broke the word you swore under the old man's eye, and you stood on the scaffold while another man's wife was sealed in stone for it. The castle stands, and the songs will name the youngest the honourable one and give his wife's name to the walls — and they will not remember you at all."
+    "title": "Away from the Wall",
+    "blurb": "Rozafa is sealed into the wall. The castle stands and carries her name."
   },
   "shtepia": {
     "title": "Home Again",
@@ -230,7 +230,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "detiUp": {
     "title": "The Beauty of the Sea",
-    "blurb": "At the bottom of the black water you found Bukura e Detit, the Beauty of the Sea, and she bore you up through the dark to the light and set you again upon the living earth. You did not climb out a conqueror — the eagle’s road was never yours — but you came up alive, and the springs the Kulshedra once hoarded were already running green through the valleys above. Some heroes are carried home by the deep itself; the sea, this once, was merciful."
+    "blurb": "The traveller reaches the light again with the Beauty of the Sea. Above the black water, the air is fresh."
   },
   "detiNgrene": {
     "title": "The Black Sea",
@@ -330,7 +330,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "shqipeFund": {
     "title": "Son of the Eagle",
-    "blurb": "On the long road home you came upon what the family story begins with: a great eagle carrying an apparently dead serpent to its nest and flying off — and the serpent not dead at all, but ready to kill the chick. You killed it as the hunter in the legend did, carried the young eagle off — and when the mother caught you on the road and offered her bargain, you gave her child back. So she gave you the sharpness of her eyes and the strength of her wings. The rescued eagle stayed bound to you and, when both of you were grown, followed over your hunts and battles. You became king and bore the eagle’s name — Shqiptar, Son of the Eagle — in Shqipëria, the Land of Eagles. You had already broken the drought; this was the blessing that named the hero you became."
+    "blurb": "The eagle gives the traveller her sight and strength. The young eagle flies above him, and he becomes king and takes the eagle’s name."
   },
   "shqipeKapur": {
     "title": "A Hunter, No More",
@@ -342,7 +342,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "gjarperBurrVdes": {
     "title": "The Broken Silence",
-    "blurb": "You could not hold your tongue, and his secret was spoken aloud. The spell snapped shut: the youth was a serpent again, and slid away into the dark to stay one forever. Some secrets a bride — or a friend — must carry to the grave."
+    "blurb": "The secret is spoken, and the man disappears again. His return is not part of this ending."
   },
   "gjarperRefuz": {
     "title": "The Suitor Refused",
@@ -350,11 +350,11 @@ export const ENDING_COPY = Object.freeze({
   },
   "gjarperKulVdes": {
     "title": "Beyond the Sea",
-    "blurb": "The Kulshedra who held your husband beyond the sea was never going to fall to a sword — she is older than the heroes, and the tale frees him not by force but by wit, by answering her impossible chores with cleverer tricks. You drew steel instead, and the sea kept you both."
+    "blurb": "The Kulshedra eats the traveller. This ending does not show the captive man escaping."
   },
   "gjarperBurrFund": {
     "title": "The Serpent Bridegroom",
-    "blurb": "By night the serpent shed his skin and stood as Shpejti, a young man who begged you never to tell. Later, goaded at a wedding, you blurted out his secret and he vanished. You put on iron shoes and searched through the houses of the Sun, Moon and Wind until you found him captive beyond the sea. There Shpejti supplied every saving trick: the bread-crust sweep, salt water for cauldrons of tears, and finally the coffin in which he trapped and burned the Kulshedra. Your long search found him; his wit freed you both; together you came home, and he remained a man for good."
+    "blurb": "The captive man tricks the Kulshedra with salt water. She lets him go, and he returns home safely."
   },
   "nastradinFund": {
     "title": "Nastradin’s Cauldron",
@@ -546,7 +546,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "katallanVdes": {
     "title": "Eaten by the Katallan",
-    "blurb": "You raised your blade to a giant twice your height, and he simply ate you. The Katallan is never beaten with strength — only the cunning that blinds his one eye and rides out under his ram. Force was the wrong answer, as it always is with the one-eyed giant."
+    "blurb": "The Katallan catches the traveller and eats him. This journey ends here."
   },
   "gjakFund": {
     "title": "The Peacemaker",
@@ -729,8 +729,8 @@ export const ENDING_COPY = Object.freeze({
     "blurb": "You turned from the burning Sun and asked instead for the Moon — Hëna, who rides the night as the Sun rides the day, mother of the lightning-maiden, the cool eye that does not judge but only watches. She gave you no blessing and no fortune, only quiet: a night without fear, and the road home shown to you in silver — for the old people sowed by the waxing moon and reaped by the full, and carved her crescent beside the sun on their grave-stones. Some who climb all the way to heaven do not want its fire — only to come down again in peace."
   },
   "uraArtesShpetim": {
-    "title": "The Bride Warned",
-    "blurb": "You were Kiço, the youngest of the three masons of Lluri — the one brother the ballad says was faithful — and you broke the besa anyway. Whether you whispered it in the night as your brothers did to their own wives, or cried out at the pit's very edge with the ring-lie already on your tongue, the price was the same: a besa that buys a bridge with an innocent life is no besa at all, and the old people honoured mercy above stone. The bridge of Arta never stood in this telling. Travellers ford the Arachthos and curse the crossing; the forty apprentices scattered to other work; and no song was ever made — for songs grow from graves, and your wife has none. She raised your son with both her hands free, and only you know what the river was never given."
+    "title": "The Unbuilt Bridge",
+    "blurb": "The bride lives, and her son has his mother. The bridge of Arta remains unbuilt."
   },
   "uraArtesMur": {
     "title": "The Bridge of Arta",
@@ -757,12 +757,12 @@ export const ENDING_COPY = Object.freeze({
     "blurb": "One rude word to the unseen ones, and your hand bent like old wood. But where the tale's Lilo cursed on to her ruin, you swallowed the second insult and gave them instead the whole patient toil of flax, sowing to shirt, and the xhindet listened to the end without a sound. They laid no gold on you — insolence has no wage — but when the rooster sang and they fled, the hand they had bent was straight again. The unseen ones weigh every answer, the old people say, and they can unmake what they make: a humble tongue bought your hand back."
   },
   "maroPrincesha": {
-    "title": "The Wary Princess",
-    "blurb": "The shoes fit, the golden clothes fit, and the prince named you his before the whole road. But when your stepmother tried to follow you into palace life, you kept her at a distance. In the tale, Maro forgives: she brings the family near, and her mercy carries a bewitched needle to her childbed. You were warier than the tale, and no needle ever came near your boy. The old people would say you lost a little of her goodness and kept all of her gold — the story is kinder, but yours is safer, and both are true of the same night at the mill."
+    "title": "Maro’s Departure",
+    "blurb": "Maro leaves, and this path through her tale comes to a close."
   },
   "maroFundi": {
     "title": "To This Very Day",
-    "blurb": "You lived the whole of it — the name answered at dusk, the night mill and the litany that gilded you, the pumpkin coach and the shoes cut to a dream, the mercy that brought your stepmother near, the needle in the childbed and the wings it gave you. You sang «ciu-ciu, djal' i mëmës» at your own son's window while another slept in your bed, fled the guns your husband raised at you, and then — when he walked out unarmed — you crossed the whole distance of the tale and landed in his open hands. He felt the needle under his stroking fingers and drew it out, and his wife stood in his arms. In the tale the four who did it — stepmother, sister, sorceress and midwife — are put living into the earth to their necks; the prince's justice here is no gentler, and the teller does not flinch from it. And they lived, as every teller of this tale has always ended it, to this very day."
+    "blurb": "The prince finds and removes the needle from the bird’s head. He recognizes Maro, and the tale closes with her restored."
   },
   "maroCiuCiu": {
     "title": "Cheep, Cheep",
@@ -796,3 +796,103 @@ export const ENDING_COPY = Object.freeze({
 
 const EMPTY_ENDING_COPY = Object.freeze({ title: '', blurb: '' })
 export const endingCopyFor = (id) => ENDING_COPY[id] || EMPTY_ENDING_COPY
+
+// Catalog entries above state only the ending's shared outcome. Live recaps
+// may name the player's particular action only when its canonical arrival and
+// the listed surviving branch conditions match. Historical collection views
+// must not apply a later run's flags to an earlier ending.
+const variant = (id, from, actionId, blurb, { title, required = [], excluded = [] } = {}) => Object.freeze({
+  id,
+  from,
+  actionId,
+  required: Object.freeze(required),
+  excluded: Object.freeze(excluded),
+  ...(title ? { title } : {}),
+  blurb,
+})
+
+export const ENDING_COPY_VARIANTS = Object.freeze({
+  prespaLiri: Object.freeze([
+    variant('leave-nereida', 'prespaPyll', 'prespapyll:le-nereida',
+      'You leave Nereida to the forest instead of taking the road to the wedding. The town remains standing, and its people continue their lives.'),
+  ]),
+  prespaFund: Object.freeze([
+    variant('accepted-marriage', 'prespaPyll', 'prespapyll:shko-me-nereida-ne-dasme',
+      'You proposed marriage, and Nereida agreed and invited you to the wedding. Despite her warning, you take that road with her. You reach the town together and marry; then rain floods the town, its people die, and the water is called Prespa.',
+      { required: ['flag:prespaMarriageAccepted'] }),
+  ]),
+  gjarperBurrFund: Object.freeze([
+    variant('salt-water-escape', 'gjarperKulshedra', 'gjarperkulshedra:jep-uje-me-kripe',
+      'You kept the man’s secret, but the Kulshedra took him away. You searched for him: the Sun and Moon had not seen him, and the Wind pointed toward the sea. Now you give salt water to the captive man, as he proposed. He uses it in place of tears to trick the Kulshedra; she lets him go, and he returns home safely.'),
+  ]),
+  gjarperBurrVdes: Object.freeze([
+    variant('secret-spoken', 'gjarperBurr1', 'gjarperburr1:fol-per-njeri',
+      'You speak about the man after he asked you to keep his secret. He disappears again, and this path ends with his absence.'),
+  ]),
+  gjarperKulVdes: Object.freeze([
+    variant('fight-kulshedra', 'gjarperKulshedra', 'gjarperkulshedra:lufto-kulshedra',
+      'You fight the Kulshedra who holds the man captive. She eats you. This ending does not show what becomes of the captive man.'),
+  ]),
+  kalaFundTurp: Object.freeze([
+    variant('youngest-withdrawal', 'kalaNgjitje', 'kalangjitje:ik-nga-mur',
+      'You kept silent in the night. When Rozafa arrives with the meal and the brothers name the wall’s demand, you leave the wall. Your departure does not undo what follows: Rozafa is sealed into the stone, and the castle carries her name.',
+      { title: 'Away from the Wall', required: ['flag:besaMbajtur'], excluded: ['flag:rozafaWifeWarned'] }),
+    variant('elder-withdrawal', 'kalaNgjitje', 'kalangjitje:ik-nga-mur',
+      'You warned your wife in the night, and she stayed at the hearth. When Rozafa arrives at the castle, you leave the wall. You do not stay for her plea or help with the later walling; Rozafa is sealed into the stone, and the castle carries her name.',
+      { title: 'Leaving the Wall', required: ['flag:rozafaWifeWarned'], excluded: ['flag:besaMbajtur'] }),
+    variant('elder-after-walling', 'kalaMur', 'kalamur:shko-nga-mur',
+      'You warned your wife in the night, and she stayed at the hearth. Rozafa came with the meal instead. You heard her plea and helped at the wall before leaving it. The castle stands, sealed around her, and carries her name.',
+      { title: 'After the Walling', required: ['flag:rozafaWifeWarned'], excluded: ['flag:besaMbajtur'] }),
+  ]),
+  maroPrincesha: Object.freeze([
+    variant('leave-wedding', 'maroKrushqit', 'marokrushqit:ik-pa-fjale',
+      'You leave the wedding train alone, without promising to bring the stepfamily near. The prince does not follow you, and the stepmother remains at the house. This path ends before a journey to the palace.',
+      { title: 'Leaving the Wedding Train', excluded: ['flag:maroFamilyPromised'] }),
+    variant('leave-before-birth', 'maroPallati', 'maropallati:ik-nga-pallat-para-se-femije-te-subj-lind',
+      'You married and brought the stepfamily near, but refused the palace payment. You leave the palace before your child is born. The stepmother has no palace money, no strange midwife comes near you, and the child is born safely away from the palace.',
+      { title: 'Away Before the Birth', required: ['flag:maroPaymentRefused'] }),
+    variant('leave-with-son', 'maroGjilpera', 'maro-leave-with-son',
+      'You had given the palace money, then refused the strange midwife. Your son is born safely. You leave the palace with him, while the midwife remains far away.',
+      { title: 'Leaving with Your Son', required: ['flag:maroStrangeMidwifeRefused'] }),
+  ]),
+  maroFundi: Object.freeze([
+    variant('needle-removed', 'maroKopshti', 'marokopshti:fluturo-ne-dore-e-link-tij',
+      'You fly into the prince’s open hands. He touches your head, finds the needle and removes it. He recognizes you as his wife and learns what happened. Maro is restored, and the tale ends with its familiar words: they are there to this very day.'),
+  ]),
+  uraArtesShpetim: Object.freeze([
+    variant('oath-refused', 'uraArtes2', 'uraartes2:jo',
+      'You refuse the old man’s demand before swearing the oath. The brothers do not follow his words, and no bride comes to the bridge. The mother lives, her son has her, and the bridge of Arta remains unbuilt.',
+      { title: 'The Oath Refused', excluded: ['flag:artaOathSworn'] }),
+    variant('warning-at-night', 'uraMengjes', 'uramengjes:shko-tek-ure',
+      'You swore the oath, then warned your wife in the night. She stays home with your son while you return to the bridge. She lives, and the bridge of Arta remains unbuilt.',
+      { title: 'The Warning at Night', required: ['flag:artaOathSworn'], excluded: ['flag:besaArtes'] }),
+    variant('warning-at-pit', 'uraGropa', 'uragropa:ik',
+      'You kept the night’s silence, but at the pit you tell your wife to go away. She leaves with the bread. You do not send her down for a ring; she lives, her son has his mother, and the bridge of Arta remains unbuilt.',
+      { title: 'The Warning at the Pit', required: ['flag:artaOathSworn', 'flag:besaArtes'] }),
+  ]),
+  katallanVdes: Object.freeze([
+    variant('fight-giant', 'katallan1', 'katallan1:lufto-katallan',
+      'You fight the Katallan. He catches you in one hand and eats you.'),
+    variant('escape-alone', 'katallanVerbim', 'katallanverbim:ik-vetem',
+      'The Katallan has been blinded, but he still guards the doorway. You try to escape alone. He finds you at the door and eats you.'),
+  ]),
+  detiNuse: Object.freeze([
+    variant('marriage-then-gift', 'detiThelle2', 'detithelle2:dil-nga-det-me-bukura',
+      'You asked the Beauty of the Sea to marry you, and she agreed. You leave the castle with her, cross the sea together and reach dry land. There you marry, and afterward she gives you a golden hair.',
+      { required: ['flag:seaBeautyMarriageAccepted'] }),
+  ]),
+  detiUp: Object.freeze([
+    variant('castle-ascent', 'detiThelle2', 'detithelle2:shko-lart-me-bukura',
+      'The Beauty agreed to help you. You climb from the castle with her and reach the light again. Above the black water, the air is fresh.',
+      { required: ['flag:seaBeautyHelpAccepted'] }),
+    variant('black-water-ascent', 'rene', 'rene:shko-lart-me-bukura',
+      'You come up from the black water with the Beauty of the Sea. You see the light again, and the air above the water is fresh.',
+      { required: ['flag:heardSeaBeautyRescue'] }),
+  ]),
+  shqipeFund: Object.freeze([
+    variant('eaglet-returned', 'shqipeBarter', 'shqipebarter:jep-zog',
+      'You saved the eaglet from the serpent and took it with you. When its mother offered her bargain, you gave the young bird back. She gives you her sight and strength; the young eagle flies above you. You become king and take the eagle’s name: Son of the Eagle.'),
+  ]),
+})
+
+export const ENDING_COPY_REVIEWED_IDS = Object.freeze(Object.keys(ENDING_COPY_VARIANTS))

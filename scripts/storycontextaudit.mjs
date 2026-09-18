@@ -580,6 +580,44 @@ check('opening and authored weather scenes prefer their visible immersive descri
   }
 })
 
+check('Rozafa withdrawal describes dawn only for the wife who stayed home', () => {
+  for (const clock of [0, 6]) {
+    for (const kept of [false, true]) {
+      const state = {
+        ...newRun(), nodeId: 'kalaFundTurp', cameFrom: 'kalaNgjitje', clock,
+        flags: kept ? { besaMbajtur: true } : { rozafaWifeWarned: true },
+      }
+      const lines = storyScenePresentationForState(state).normalEntries.map(({ line }) => line)
+      const prose = lines.map(albanianTextOf).join('\n')
+      const dimensions = [...authoredEnvironmentDimensions(lines)]
+      const describesDawn = clock === 0 && !kept
+      assert.deepEqual(dimensions, describesDawn ? ['time'] : [])
+      assert.equal(prose.includes('në agim gruaja rri te vatra.'), describesDawn)
+      assert.equal(prose.includes('Gruaja jote rri te vatra në shtëpi.'), clock === 6 && !kept)
+      assert.equal(prose.includes('Besa është mbajtur. Rozafa është gruaja jote.'), kept)
+      const environment = { clock, season: 'spring', weather: 'rain' }
+      const plan = planEnvironmentNarration(environment, undefined, {
+        nodeId: state.nodeId, turn: state.turn, authoredDimensions: dimensions,
+      })
+      assert.deepEqual(plan.fallbackDimensions, describesDawn
+        ? ['season', 'weather'] : ['time', 'season', 'weather'])
+      assert.equal(albanianTextOf(environmentStoryLine(environment, { omit: plan.omitDimensions })),
+        describesDawn ? 'në këtë pranverë, po bie shi.'
+          : clock === 0 ? 'në këtë mëngjes pranvere, po bie shi.'
+            : 'në këtë mesditë pranvere, po bie shi.')
+      const restored = normalizeSavedState(JSON.parse(JSON.stringify(state)), newRun())
+      const restoredLines = storyScenePresentationForState(restored).normalEntries.map(({ line }) => line)
+      assert.deepEqual([...authoredEnvironmentDimensions(restoredLines)], dimensions)
+      const restoredProse = restoredLines.map(albanianTextOf).join('\n')
+      for (const branchLine of ['në agim gruaja rri te vatra.', 'Gruaja jote rri te vatra në shtëpi.',
+        'Besa është mbajtur. Rozafa është gruaja jote.']) {
+        assert.equal(restoredProse.includes(branchLine), prose.includes(branchLine),
+          'reload changed the wife or dawn branch')
+      }
+    }
+  }
+})
+
 check('every authored environment line is reachable and preserves undeclared fallbacks', () => {
   const fallbackByOmission = Object.freeze({
     '': 'në këtë mëngjes pranvere, po bie shi.',

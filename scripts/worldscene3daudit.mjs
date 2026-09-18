@@ -1,3 +1,4 @@
+import { isUnchartedStoryNode } from '../src/game/departureContexts.js'
 // The 3D renderer and this gate consume the same scene contract. Coverage is
 // independently enumerated from production STORY/place/route registries; the
 // mutation probes exercise the validator rather than trusting a success count.
@@ -7,7 +8,8 @@ import { canChoose, hasCond, isOptionRevealed, newRun } from '../src/game/gameSt
 import { albanianTextOf } from '../src/game/language.js'
 import { NODE_POS, PLACE_NODES, PLACE_OF } from '../src/components/nodePositions.js'
 import { NODE_REGION } from '../src/game/regions.js'
-import { DISTANT_SIGHTLINES, WORLD_BARRIERS, routeForChoice } from '../src/game/worldModel.js'
+import { DISTANT_SIGHTLINES, routeForChoice } from '../src/game/worldModel.js'
+import { WORLD_BARRIERS } from '../src/game/worldBarriers.js'
 import { WORLD_SCENE_3D_FEATURES } from '../src/game/data/worldScene3dFeatures.js'
 import { SEASONS, WEATHER_TYPES, civilDayPartAtClock } from '../src/game/environment.js'
 import { ENVIRONMENT_DIMENSIONS, ENVIRONMENT_NARRATION_SETTINGS } from '../src/game/environmentNarration.js'
@@ -201,8 +203,15 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     assert.equal(description.lineIndex, lineIndex, `${id}: wrong source index`)
     assert.equal(description.source.kind, 'story-line', `${id}: incorrect source family`)
     assert.equal(description.text, albanianTextOf(lineOf(entry)), `${id}: source text drift`)
-    assert.ok(description.elementIds.includes(`place:${PLACE_OF[nodeId]}`), `${id}: missing canonical place context`)
-    assert.ok(elements.get(`place:${PLACE_OF[nodeId]}`).regionIds.includes(NODE_REGION[nodeId]), `${id}: scene's physical place disappears from its canonical region filter`)
+    if (isUnchartedStoryNode(nodeId)) {
+      assert.ok(description.elementIds.includes(`departure-context:${nodeId}`), `${id}: missing uncharted departure context`)
+      assert.equal(description.placeId, null)
+      assert.equal(description.regionId, null)
+      assert.ok(description.elementIds.every((elementId) => elements.get(elementId)?.catalogue), `${id}: uncharted ending gained a physical destination`)
+    } else {
+      assert.ok(description.elementIds.includes(`place:${PLACE_OF[nodeId]}`), `${id}: missing canonical place context`)
+      assert.ok(elements.get(`place:${PLACE_OF[nodeId]}`).regionIds.includes(NODE_REGION[nodeId]), `${id}: scene's physical place disappears from its canonical region filter`)
+    }
     assert.ok(description.bindings.length, `${id}: missing relationship classification`)
     for (const elementId of description.elementIds) {
       assert.ok(elements.get(elementId)?.descriptionIds.includes(id), `${id}: ${elementId} has no reciprocal source link`)
@@ -217,7 +226,8 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     const route = routes.get(id)
     assert.ok(route, `${id}: authored action omitted from 3D route index`)
     assert.equal(route.fromElementId, `place:${canonical.fromPlace}`, `${id}: wrong source place`)
-    assert.equal(route.toElementId, `place:${canonical.toPlace}`, `${id}: wrong destination place`)
+    assert.equal(route.toElementId, canonical.toPlace ? `place:${canonical.toPlace}` : null, `${id}: wrong destination place`)
+    if (canonical.charted === false) assert.deepEqual(route.points, [], `${id}: uncharted departure invents route geometry`)
     assert.equal(route.spatial, canonical.spatial, `${id}: projection changed into a physical road`)
   }
 }
@@ -367,6 +377,12 @@ rejectsMutation('unknown element source', model.elements[0].id, (changed) => { c
 rejectsMutation('missing physical place', `place:${PLACE_OF.start}`, (changed) => {
   const index = changed.elements.findIndex((element) => element.id === `place:${PLACE_OF.start}`)
   changed.elements.splice(index, 1)
+})
+rejectsMutation('uncharted departure assigned a physical place', 'departure-context:maroPrincesha', (changed) => {
+  changed.elements.find(({ id }) => id === 'departure-context:maroPrincesha').placeId = 'maroPallati'
+})
+rejectsMutation('uncharted departure given a route mesh', model.routes.find((route) => route.charted === false).id, (changed) => {
+  changed.routes.find((route) => route.charted === false).points = [[252, 0, 410], [850, 0, 80]]
 })
 rejectsMutation('chart coordinate drift', `place:${PLACE_OF.start}`, (changed) => {
   changed.elements.find((element) => element.id === `place:${PLACE_OF.start}`).position[0] += 1

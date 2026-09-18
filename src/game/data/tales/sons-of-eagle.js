@@ -128,7 +128,7 @@ export default {
       { beat: 'crag', note: 'The climb and discovery share the shqipe2 scene with the snake rescue; one playable node covers both consecutive source beats.' },
       { beat: 'bargain', note: 'The legend\'s hunter always gives the eaglet back — that honour IS the point. The game makes it a real choice and adds the branch he never takes (keep the eaglet → the secret ending "A Hunter, No More"): you can forfeit the eagle\'s bargain, and with it the name that would have made your people the Sons of the Eagle.' },
       { beat: 'crowned', note: 'You embody “the hunter”; earning the eagle\'s name is the identity you become. His later reign and the naming of the land are compressed into the closing tableau rather than played out as a separate city or reign.' },
-      { note: 'The tale names no region — it is a pan-Albanian national origin/etymology legend. The game sites it on the northern road home toward the Buna/Rozafa crossing (a placeless legend does not contradict the siting), and frames it as the drought-hero\'s epilogue: decline the eagle and you simply go home victorious from the drought.' },
+      { note: 'The tale names no region — it is a pan-Albanian national origin/etymology legend. The game sites it on the northern road home toward the Buna/Rozafa crossing. This episode requires no earlier victory over the drought: the entry mentions restored water only when the actual world state supports it, and the eagle\'s bargain depends on returning her eaglet, not on water-restoration deeds.' },
       { beat: 'crowned', note: 'The eagle\'s “gift” is eyesight and wing-strength — a blessing, never a carried item. The two-headed-emblem gloss from the later encyclopedia expansion is not part of this projection.' },
     ],
   },

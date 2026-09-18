@@ -173,18 +173,17 @@ export default {
   ],
   // how the game stages this tale — the embodied projection (see _SCHEMA.md). You are
   // the bride of the serpent who by night sheds his skin and stands a young man and begs
-  // you never to tell. The secret slips out and a Kulshedra carries him off beyond the
-  // sea — and because you never wronged him you may follow: iron shoes on your feet, you
-  // ask the Sun, the Moon and the Wind, cross the water and outwit the she-dragon to win
-  // him back a man for good. The marriage threshold now establishes the bride explicitly;
-  // the shared sky/underworld remains explorable while her exact scene waits. "It is never silence that frees the snake-husband — it
-  // is the long, faithful search after he is lost."
+  // you never to tell. The success path keeps that silence, then follows the captive
+  // husband through a shortened search and one salt-water trick. The marriage
+  // threshold establishes the bride explicitly; the shared sky/underworld remains
+  // explorable while her exact scene waits. The full source's disclosure, iron kit,
+  // earlier chores and coffin victory are source context, not deeds played here.
   play: {
     entry: 'kushtet',
     stance: 'embodied',
     as: 'bride',
     role:
-      'You are wed to a serpent who by night sheds his skin and stands as Swift, and who begs you never to speak of it. Goaded at a wedding, you blurt out the secret and he vanishes. Iron-shod, you search through the houses of the Sun, Moon and Wind until you find him beyond the sea; there Swift supplies the tricks that defeat the Kulshedra, while your faithful journey brings you both home.',
+      'You are the serpent\'s bride. He asks you to keep his secret: disclosure ends with his disappearance, while keeping silent opens the search after the Kulshedra takes him. You hear guidance from the Sun, Moon and Wind, find him, and can give him the salt water he proposes. He uses the substitute to deceive the Kulshedra and returns safely. Fighting her is a separate fatal branch.',
     enter: 'a serpent has built a palace and asked the king for a daughter; if you marry him, the promise he asks you to keep begins tonight',
     from: 'gjarperBurr1',
     ending: 'gjarperBurrFund',
@@ -194,9 +193,9 @@ export default {
       gjarperBurrFund: 'kthimi',
     },
     divergences: [
-      { beat: 'kushtet', note: 'You explicitly embody the bride at the marriage threshold; the quest reuses the Sun-quest\'s sky and the underworld as shared places without loosening her role. The game\'s "good" path is faithful silence (betray him and he is lost at once, the bad ending gjarperBurrVdes); but as the tale insists, even faithful silence does not keep him — the loss and the long search come regardless.' },
-      { beat: 'hekurat', note: 'The iron-shoes quest to the mothers of the Sun, the Moon and the Wind — worn out asking each where he is until the Wind points past the sea — reuses the sky region of the Sun-maiden\'s world (the Sun\'s house, the Moon\'s peace, the winds).' },
-      { beat: 'prova', note: 'The Kulshedra\'s many trials beyond the sea are compressed into the salted-cauldron scene and the ending\'s account of the rest. Agency stays source-faithful: the wife performs the task, but Swift supplies the salt-water answer and later traps the Kulshedra in his coffin.' },
+      { beat: 'kushtet', note: 'You embody the bride at the marriage threshold. Unlike the full source\'s wedding disclosure followed by a search, the playable success path keeps the secret; the Kulshedra then takes the man and the bride follows. Disclosure instead ends at his disappearance, without establishing a permanent serpent form or a later search.' },
+      { beat: 'hekurat', note: 'The search reuses the Sun-quest\'s sky and underworld and gives guidance from the Sun, Moon and Wind. The source\'s iron shoes and other iron equipment are not acquired or worn in the playable sequence; they remain in the source account.' },
+      { beat: 'prova', note: 'Only a shortened salt-water trick is enacted: the bride gives water with salt to the man, he deceives the Kulshedra, and she lets him go. The bread-crust chore, coffin trap and burning are omitted from this adaptation, not supplied as player deeds by the ending. The alternative fight ends with the Kulshedra eating the player; it does not establish the captive man\'s death.' },
     ],
   },
   beats: [

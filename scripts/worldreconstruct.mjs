@@ -13,7 +13,8 @@ import {
 } from '../src/game/worldModel.js'
 import { worldDistribution } from './worldmetrics.mjs'
 
-const reconstruction = reconstructChart(buildRouteGraph())
+const allRoutes = buildRouteGraph()
+const reconstruction = reconstructChart(allRoutes)
 const distributionModel = worldDistribution()
 const root = reconstruction.roots[0]
 const rows = reconstruction.places
@@ -45,6 +46,7 @@ const report = {
     modes,
   },
   places: rows,
+  unchartedDepartures: allRoutes.filter((route) => route.charted === false).map(({ from, to, departureId, fromPlace, duration }) => ({ from, to, departureId, fromPlace, destination: null, duration })),
   projectionLinks: reconstruction.constraints
     .filter((edge) => edge.kind === 'projection')
     .map(({ edge, from, to, dx, dy }) => ({ edge, from, to, dx, dy })),
@@ -95,7 +97,7 @@ if (process.argv.includes('--json')) {
   console.log(
     `worldreconstruct: ${broken ? 'FAILED' : 'exact'} — ${report.counts.places} places, ` +
     `${report.counts.constraints} route constraints, ${report.counts.components} component; ` +
-    `${report.distribution.totals.locationCards} location cards, ${distributionBroken ? 'distribution violations' : 'distribution within policy'}`,
+    `${report.unchartedDepartures.length} uncharted departures excluded, ${report.distribution.totals.locationCards} location cards, ${distributionBroken ? 'distribution violations' : 'distribution within policy'}`,
   )
 } else {
   console.log('# Blind world-chart reconstruction')

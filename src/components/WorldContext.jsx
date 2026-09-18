@@ -1,6 +1,7 @@
+import { worldLocationForState } from '../game/worldLocation.js'
 import { environmentSnapshot } from '../game/gameState.js'
 import { festivalLabel } from '../game/environment.js'
-import { NODE_REGION, REGIONS } from '../game/regions.js'
+import { REGIONS } from '../game/regions.js'
 import { isEnclosedScene, sightlinesFrom } from '../game/worldModel.js'
 
 const WEATHER = {
@@ -30,13 +31,14 @@ export default function WorldContext({ state, worldClock = state.clock }) {
     ? environmentSnapshot({ ...state, clock: worldClock, conditionClock: undefined })
     : environment
   const { calendar, phase, season, weather, memories } = environment
-  const regionKey = NODE_REGION[state.nodeId] || 'village'
+  const location = worldLocationForState(state)
+  const regionKey = location.regionId
   const region = REGIONS.find((entry) => entry.key === regionKey)
   // The clock still advances underground, but calling its deterministic
   // sentinel weather "sunny" would put a visible sky inside a sealed cavern.
   const enclosedBelow = isEnclosedScene(state.nodeId)
-  const placeLabel = state.nodeId === 'humbur' ? "the Ora's darkness" : region?.label || 'the lived village'
-  const weatherUi = enclosedBelow ? ['🪨', 'sheltered below'] : WEATHER[weather] || ['◌', weather]
+  const placeLabel = location.kind !== 'charted' ? 'uncharted location' : state.nodeId === 'humbur' ? "the Ora's darkness" : region?.label || 'the lived village'
+  const weatherUi = location.kind !== 'charted' ? ['◌', 'local weather unknown'] : enclosedBelow ? ['🪨', 'sheltered below'] : WEATHER[weather] || ['◌', weather]
   const visible = sightlinesFrom(state.nodeId, environment)
     .filter((line) => line.visible && line.key !== regionKey)
     .sort((a, b) => a.distance - b.distance)
@@ -76,6 +78,8 @@ export default function WorldContext({ state, worldClock = state.clock }) {
         <b>Horizon:</b>{' '}
         {visible.length > 0
           ? visible.map((line) => `${line.direction?.label || 'along the chart'}, ${line.label}`).join('; ') + '.'
+          : location.kind !== 'charted'
+            ? 'the destination is uncharted; no horizon is inferred.'
           : enclosedBelow
             ? 'rock and earth seal away every surface horizon.'
             : `the ${weatherUi[1]} ${phase} closes the distant view.`}

@@ -277,7 +277,11 @@ export const embodimentIdentity = (state) => {
   }
   if (canonicalEmbodimentId(state.embodying) === 'rozafa' &&
       !['kalaMjegull', 'kalaPlak', 'kalaBesa', 'kalaNate'].includes(state.embodimentFocusNode)) {
-    return state.flags?.besaMbajtur ? 'the youngest brother' : 'one of the elder brothers'
+    const kept = Boolean(state.flags?.besaMbajtur || state.inventory?.besaMbajtur)
+    const warned = Boolean(state.flags?.rozafaWifeWarned || state.inventory?.rozafaWifeWarned)
+    if (kept && !warned) return 'the youngest brother'
+    if (warned && !kept) return 'one of the elder brothers'
+    return quest.identity
   }
   return quest.identity
 }

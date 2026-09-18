@@ -1,3 +1,5 @@
+import { departureContextForState } from './worldLocation.js'
+import { departureContextForChoice } from './departureContexts.js'
 import {
   ITEMS,
   STORY,
@@ -35,6 +37,7 @@ export const WORLD_ENTITY_KINDS = Object.freeze([
 
 export const SPATIAL_RELATIONS = Object.freeze([
   'at',
+  'departed-from',
   'carried-by',
   'contains',
   'connects-to',
@@ -154,6 +157,9 @@ export function worldRelationsForState(state, { npcNodeOf, clock } = {}) {
   const currentPlace = placeEntityId(state?.nodeId)
   if (currentPlace) relations.push(Object.freeze({ subject: 'actor:player', type: 'at', target: currentPlace }))
 
+  const departure = departureContextForState(state, STORY)
+  if (departure) relations.push(Object.freeze({ subject: 'actor:player', type: 'departed-from', target: placeEntityId(departure.from), departureId: departure.id }))
+
   for (const [itemId, count] of Object.entries(state?.inventory || {})) {
     if (!ITEMS[itemId] || !Number.isSafeInteger(count) || count <= 0) continue
     relations.push(Object.freeze({
@@ -185,7 +191,7 @@ export function perceivableEntitiesAt(state, nodeId = state?.nodeId, adapters = 
   if (!placeId) return Object.freeze([])
   const related = new Set([placeId])
   for (const relation of worldRelationsForState(state, adapters)) {
-    if (relation.target === placeId) related.add(relation.subject)
+    if (relation.target === placeId && relation.type === 'at') related.add(relation.subject)
     if (relation.target === 'actor:player' && relation.type === 'carried-by') related.add(relation.subject)
   }
   for (const entry of Object.values(WORLD_ENTITIES)) {
@@ -210,6 +216,7 @@ export function worldActionOfOption(fromNodeId, option) {
     intent: choiceIntentOf(option),
     from: fromPlace,
     to: toPlace,
+    departure: departureContextForChoice(fromNodeId, option, STORY),
     targets: Object.freeze([...new Set(targets)]),
     effects: Object.freeze(effects.map(({ legacy: _legacy, ...effect }) => Object.freeze(effect))),
   })
@@ -219,7 +226,7 @@ export function worldActionIssues(fromNodeId, option) {
   const issues = []
   const action = worldActionOfOption(fromNodeId, option)
   if (!action.from) issues.push('source node has no canonical physical place')
-  if (option?.to && !action.to) issues.push('destination node has no canonical physical place')
+  if (option?.to && !action.to && !action.departure) issues.push('destination node has no canonical physical place')
   for (const target of action.targets) if (!WORLD_ENTITIES[target]) issues.push(`unknown entity target '${target}'`)
   if (action.intent === 'observation' && action.from !== action.to) {
     issues.push('observation action leaves its physical place')

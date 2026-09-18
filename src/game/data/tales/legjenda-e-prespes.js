@@ -73,7 +73,7 @@ export default {
   // FROM SCRATCH (nodes prespaPyll → prespaLiri / prespaFund). You are the king's son;
   // you meet the forest-nymph Nereida and court her, but she warns that marrying her
   // will drown your whole country. The CHOICE: heed her and let her go (your town
-  // stands, you rule alone — the good ending), or seize her and wed her (the flood
+  // stands — the good ending), or propose and follow her accepted invitation (the flood
   // comes, the town drowns, and the water is Lake Prespa — the etiology, the secret
   // ending). become:'legjenda-e-prespes' on the forest threshold (pylli1 "fol me zanën").
   play: {
@@ -81,7 +81,7 @@ export default {
     stance: 'embodied',
     as: 'princi',
     role:
-      'You are the king\'s son, and out walking the woods above your father\'s great town you come face to face with Nereida, a forest-nymph lovelier than any girl you have seen. You court her with every treasure of the kingdom, but she refuses and warns you: marry her, and a great water will drown your whole country. Heed her and let her go, or, blinded by love, seize her and wed her — and lose the town to the flood that becomes Lake Prespa.',
+      'You are the king\'s son, and in the woods above your father\'s town you meet Nereida. She warns that marrying her will drown the town. You may leave her in the forest, or propose marriage; in this adaptation she answers yes and invites you to the wedding. Following that invitation brings the warned-of flood. You may still leave instead of taking the wedding road after she has accepted.',
     enter:
       'out walking the woods above your father\'s great town, you come face to face with the forest-nymph Nereida — lovelier than any girl you have ever seen',
     from: 'prespaPyll',
@@ -92,8 +92,8 @@ export default {
       prespaFund: 'theFlood',
     },
     divergences: [
-      { beat: 'herWarning', note: 'The legend\'s prince never heeds the warning — that is why Lake Prespa exists. The game makes it a real choice and adds the path he never takes: let Nereida go, and your town stands and your people live (the good ending "The Warning Heeded"), though you rule alone and never win her. Seizing her enacts the etiology.' },
-      { beat: 'theFlood', note: 'Built from scratch: the great town, the courting visits, the seizing-and-holding until she consents, and the wedding-night deluge are compressed into the forest meeting and the choice; the flood, the whole town and court drowned, and the water named Lake Prespa are the secret ending.' },
+      { beat: 'herWarning', note: 'The game adds a departure the source prince never takes: leave Nereida in the forest and the town remains standing. This choice is available before a proposal and after her acceptance, so departure does not prove that no proposal was made or that the prince later ruled alone.' },
+      { beat: 'theFlood', note: 'The selected source has the prince seize and hold Nereida until she consents. The playable adaptation replaces that coercion with an explicit proposal, her voluntary yes, and her invitation to the wedding. Only the subsequent chosen journey reaches the wedding-night flood; the source coercion remains in the source beats and is not a player deed.' },
       { beat: 'greatTown', note: 'The playable chart now gives the Prespa woodland and drowned town distinct markers in its lake country. Their relative placement records the tale\'s topology (wood above town/lake) while remaining explicitly not to real-world scale.' },
     ],
   },

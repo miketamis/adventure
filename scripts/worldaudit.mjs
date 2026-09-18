@@ -1,3 +1,6 @@
+import { crossingFor } from '../src/game/worldBarriers.js'
+import { departureContextIssues } from '../src/game/departureContextValidation.js'
+import { isUnchartedStoryNode } from '../src/game/departureContexts.js'
 // Structural world audit. Readable output is the default; pass --json for CI.
 // Ordinary runs fail on contradictions/integrity errors and keep explicitly
 // recorded design debt visible as warnings. `--strict` is the release claim:
@@ -27,7 +30,6 @@ import {
   WORLD_AXES,
   WORLD_MODEL_VERSION,
   buildRouteGraph,
-  crossingFor,
   distantSightlineFor,
   isEnclosedScene,
   isDistantLineVisible,
@@ -79,10 +81,27 @@ const WORLD_LAYOUT_EXCEPTION_RULES = Object.freeze({
   'dense-single-site': { targetKind: 'place' },
   'sparse-place': { targetKind: 'place' },
   'long-leaf-route': { targetKind: 'place' },
+  'source-bounded-region': { targetKind: 'region' },
 })
 const WORLD_LAYOUT_EXCEPTION_REGISTRY = defineAuditExceptionRegistry({
   rules: WORLD_LAYOUT_EXCEPTION_RULES,
   entries: [
+    {
+      id: 'maro-princeland-two-authored-places',
+      rule: 'source-bounded-region',
+      targets: ['princeland'],
+      rationale: 'The playable prince-country sequence establishes the palace and its garden wood, with four scenes at the palace and three in the wood. Maro’s optional departures leave their destination unspecified; adding a third place to meet a density floor would invent geography.',
+      evidence: 'src/game/data/tales/maro-perhitura.js: pregnancy/birthNeedle stage the palace; birdGarden (33.1–33.5) and needlePulled (34.5) distinguish the garden from the palace. PLACE_META.maroPallati and PLACE_META.maroKopshti enumerate the exact seven scenes; departureContexts.js keeps the three optional exits uncharted.',
+      owner: 'world-map',
+      reviewTrigger: 'Re-review when princeland gains or loses a scene or physical place, either location card changes membership, or a Maro departure receives an authored destination.',
+      scope: {
+        kind: 'exact-targets', maximumTargets: 1, placeCount: 2, sceneCount: 7,
+        membership: Object.freeze({
+          maroPallati: Object.freeze(['maroPallati', 'maroGjilpera', 'maroLindja', 'maroZogu']),
+          maroKopshti: Object.freeze(['maroKopshti', 'maroFundi', 'maroCiuCiu']),
+        }),
+      },
+    },
     placeReasonException({
       id: 'river-shared-encounter-density',
       rule: 'dense-single-site',
@@ -183,12 +202,15 @@ const worldContextSource = readFileSync(new URL('../src/components/WorldContext.
 
 // 1. Referential and coordinate integrity.
 const badRefs = routes.filter((route) => !route.valid)
-if (badRefs.length) fail('route.invalid', `${badRefs.length} real choices lack a valid, placed destination`, badRefs)
-else ok('route.valid', `all ${routes.length} real choices resolve to placed story destinations`)
+if (badRefs.length) fail('route.invalid', `${badRefs.length} real choices lack a valid charted route or registered uncharted departure`, badRefs)
+else ok('route.valid', `all ${routes.length} real choices resolve to charted destinations or exact uncharted departures`)
 
-const missingPositions = ids.filter((id) => !NODE_POS[id])
+const missingPositions = ids.filter((id) => !NODE_POS[id] && !isUnchartedStoryNode(id))
+const departureIssues = departureContextIssues(STORY)
+if (departureIssues.length) fail('departure.contract', 'invalid uncharted departure registry', departureIssues)
+else ok('departure.contract', 'all uncharted endings have exact incoming action identities and reviewed timing')
 if (missingPositions.length) fail('map.unplaced', `${missingPositions.length} story nodes are unplaced`, missingPositions)
-else ok('map.placed', `all ${ids.length} story nodes have canonical coordinates`)
+else ok('map.placed', `all charted story nodes have canonical coordinates`)
 
 const badAliases = Object.entries(NODE_AT).filter(([, value]) => typeof value === 'string' && !NODE_AT[value])
 if (badAliases.length) fail('map.alias-target', 'map aliases point at unknown anchors', badAliases)
@@ -197,8 +219,10 @@ else ok('map.alias-target', 'every same-place alias resolves to an authored anch
 // 2. Every transition has an inspectable route contract, including explicit
 // non-spatial reasons for the large number of same-place scene changes.
 const routeContractMissing = routes.filter((route) => route.valid && (
-  !route.kind || !route.reason || !route.duration || !route.vector ||
-  route.vector.dx !== route.dx || route.vector.dy !== route.dy ||
+  !route.kind || !route.reason || !route.duration ||
+  (route.charted === false
+    ? !route.departureId || route.vector !== null || route.dx !== null || route.dy !== null || route.toPlace !== null || route.toRegion !== null || route.distance !== null
+    : !route.vector || route.vector.dx !== route.dx || route.vector.dy !== route.dy) ||
   (route.distance > 0 && !route.direction)
 ))
 if (routeContractMissing.length) fail('route.contract', `${routeContractMissing.length} choices lack route classification`, routeContractMissing)
@@ -247,7 +271,7 @@ const explicitJourneyErrors = []
 const explicitJourneys = Object.entries(STORY).flatMap(([from, node]) => (
   (node.options || []).filter((option) => !option.confuser && Number.isFinite(option.durationHours))
     .map((option) => ({ route: routeForChoice(from, option), option }))
-)).filter(({ route }) => route.valid && !route.samePlace)
+)).filter(({ route }) => route.valid && !route.samePlace && route.charted !== false)
 for (const { route, option } of explicitJourneys) {
   if (!option || option.durationHours <= 0 || route.movementVerb || option.timePassage) continue
   const openingNarratesMovement = (STORY[route.to]?.text || []).slice(0, 2).some((entry) => (
@@ -334,7 +358,7 @@ for (const [from, node] of Object.entries(STORY)) {
     const route = routeForChoice(from, option)
     const info = transitionInfo(from, option)
     if (!route.valid || !info.valid) continue
-    if (info.dx !== route.dx || info.dy !== route.dy || info.vectorCode !== route.vector.code || info.vectorLabel !== route.vector.label) {
+    if (info.dx !== route.dx || info.dy !== route.dy || info.vectorCode !== (route.vector?.code || null) || info.vectorLabel !== (route.vector?.label || null)) {
       transitionVectorErrors.push({ edge: `${from}->${option.to}`, route: route.vector, runtime: info })
     }
   }
@@ -470,9 +494,37 @@ const regionRows = REGIONS.map((region) => {
   const places = new Set(nodes.map((id) => PLACE_OF[id]).filter(Boolean))
   return { region: region.key, scenes: nodes.length, places: places.size }
 })
-const thinRegions = regionRows.filter((row) => row.region !== 'sky' && (row.scenes < 7 || row.places < 3))
+const sourceBoundedRegionIssues = (record, regionNodes = REGION_NODES, placeOf = PLACE_OF, placeMeta = PLACE_META) => {
+  const scope = record.scope || {}
+  const membership = scope.membership
+  const issues = []
+  const expectedKeys = ['kind', 'maximumTargets', 'placeCount', 'sceneCount', 'membership']
+  if (Object.keys(scope).length !== expectedKeys.length || Object.keys(scope).some((key) => !expectedKeys.includes(key)) ||
+      !Number.isInteger(scope.placeCount) || scope.placeCount < 1 || !Number.isInteger(scope.sceneCount) || scope.sceneCount < 1 ||
+      !membership || typeof membership !== 'object' || Array.isArray(membership)) return [`${record.id}: malformed exact region footprint`]
+  const entries = Object.entries(membership)
+  if (entries.length !== scope.placeCount || entries.some(([, nodes]) => !Array.isArray(nodes) || !nodes.length || nodes.some((id) => typeof id !== 'string'))) return [`${record.id}: invalid reviewed place membership`]
+  const expectedNodes = entries.flatMap(([, nodes]) => nodes).sort()
+  const actualNodes = [...(regionNodes[record.targets[0]] || [])].sort()
+  if (expectedNodes.length !== scope.sceneCount || new Set(expectedNodes).size !== expectedNodes.length || JSON.stringify(actualNodes) !== JSON.stringify(expectedNodes)) issues.push(`${record.id}: region scene membership changed beyond its exact reviewed scope`)
+  for (const [place, nodes] of entries) {
+    const actual = actualNodes.filter((id) => placeOf[id] === place).sort()
+    const card = (placeMeta[place]?.happenings || []).flatMap((entry) => entry.nodes).sort()
+    const expected = [...nodes].sort()
+    if (JSON.stringify(actual) !== JSON.stringify(expected) || JSON.stringify(card) !== JSON.stringify(expected)) issues.push(`${record.id}: ${place} physical membership or location card differs from its reviewed footprint`)
+  }
+  return issues
+}
+const thinRegionCandidates = regionRows.filter((row) => row.region !== 'sky' && (row.scenes < 7 || row.places < 3))
+const thinRegions = thinRegionCandidates.filter((row) => {
+  const record = auditExceptionFor(WORLD_LAYOUT_EXCEPTION_REGISTRY, 'source-bounded-region', row.region)
+  if (!record || sourceBoundedRegionIssues(record).length) return true
+  reviewedWorldLayoutException('source-bounded-region', row.region)
+  ok('density.source-bounded-region', `${row.region}: exactly ${row.scenes} scenes in ${row.places} source-grounded places; uncharted departures add no invented destination`, record)
+  return false
+})
 if (thinRegions.length) warn('density.thin-region', `${thinRegions.length} regions are below the content-floor target (7 scenes / 3 places)`, thinRegions)
-else ok('density.region-floor', 'every region meets the minimum content presence target')
+else ok('density.region-floor', 'every region meets its content presence target or exact reviewed source footprint')
 
 // Region totals do not reveal whether the player's immediate surroundings are
 // empty or unreadably crowded. Apply the same fixed walking-scale policy used
@@ -551,7 +603,7 @@ if (distributionViolations.regionDensityRatio > distribution.thresholds.maxRegio
 // a useful authorship metric, but generated route prose closes the structural
 // gap now rather than waiting for hundreds of duplicated hand annotations.
 const journeys = routes.filter((route) => route.valid && route.kind === 'journey' && route.movementVerb)
-const placedTransitions = routes.filter((route) => route.valid && !route.samePlace)
+const placedTransitions = routes.filter((route) => route.valid && !route.samePlace && route.charted !== false)
 const wordedJourneys = journeys.filter((route) => {
   const vocabulary = Object.values(DIRECTION_WORDS).flat()
   return route.tokenIds.some((id) => vocabulary.includes(id) || DISTANCE_WORDS.has(id))
@@ -697,8 +749,10 @@ const malformedExceptions = [
       'dense-single-site': denseSingleSiteCandidates,
       'sparse-place': sparsePlaceCandidates,
       'long-leaf-route': longLeafRouteCandidates,
+      'source-bounded-region': new Set(thinRegionCandidates.map(({ region }) => region)),
     },
   }),
+  ...WORLD_LAYOUT_EXCEPTION_REGISTRY.entries.filter(({ rule }) => rule === 'source-bounded-region').flatMap((record) => sourceBoundedRegionIssues(record)),
   ...auditExceptionUsageIssues(
     WORLD_LAYOUT_EXCEPTION_REGISTRY,
     usedWorldLayoutExceptionClaims,

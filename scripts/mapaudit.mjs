@@ -1,3 +1,5 @@
+import { departureContextIssues } from '../src/game/departureContextValidation.js'
+import { isUnchartedStoryNode } from '../src/game/departureContexts.js'
 // MAP AUDIT — THE RULE: the map and the story stay accurate to one another,
 // and everything explorable is represented on the map. Mechanically enforced:
 // these checks read the story graph (content.js) against the hand-placed map
@@ -301,16 +303,6 @@ const MAP_LAYOUT_EXCEPTION_REGISTRY = defineAuditExceptionRegistry({
       scope: { kind: 'exact-targets', maximumTargets: 1 },
     },
     {
-      id: 'maro-prince-departure-route',
-      rule: 'long-wander-route',
-      targets: ['maroKrushqit->maroPrincesha'],
-      rationale: 'The exact source establishes that the prince is beside the traveller ready to leave for the palace, and the selected silent departure is named again in the palace consequence.',
-      evidence: 'content.js maroKrushqit names the prince and palace departure; maroPrincesha opens with the matching departure with him.',
-      owner: 'world-map',
-      reviewTrigger: 'when the prince presence, palace departure, consequence prose or route coordinates change',
-      scope: { kind: 'exact-targets', maximumTargets: 1 },
-    },
-    {
       id: 'mountain-flee-to-lost-consequences',
       rule: 'long-wander-route',
       targets: ['maliStuhi->maliHumbur', 'tomorZbritje->maliHumbur'],
@@ -366,8 +358,12 @@ for (const id of ids) for (const o of STORY[id].options || []) {
 }
 
 // ---- 0. every node is placed --------------------------------------------------
-const unplaced = ids.filter((id) => !NODE_POS[id])
-section(!unplaced.length, `every story node has a map position (${ids.length - unplaced.length}/${ids.length})`, unplaced.map((id) => 'UNPLACED: ' + id))
+const unplaced = ids.filter((id) => !NODE_POS[id] && !isUnchartedStoryNode(id))
+const departureIssues = departureContextIssues(STORY)
+section(!departureIssues.length, 'exact uncharted departure actions retain reviewed provenance and timing', departureIssues)
+const falselyPlaced = ids.filter((id) => isUnchartedStoryNode(id) && (NODE_POS[id] || PLACE_OF[id] || NODE_REGION[id] || PLACE_META[id]))
+section(!falselyPlaced.length, 'uncharted departures do not invent physical destinations', falselyPlaced)
+section(!unplaced.length, `every charted story node has a map position (${ids.filter((id) => !isUnchartedStoryNode(id)).length - unplaced.length}/${ids.filter((id) => !isUnchartedStoryNode(id)).length}); ${ids.filter(isUnchartedStoryNode).length} explicitly uncharted`, unplaced.map((id) => 'UNPLACED: ' + id))
 
 const brothersConversation = STORY.pylli1.options.find((option) => option.to === 'kordha1')
 section(Boolean(brothersConversation) && PLACE_OF.pylli1 === PLACE_OF.kordha1,
@@ -560,6 +556,7 @@ const glyphsSrc = readFileSync(join(ROOT, 'src/components/mapGlyphs.jsx'), 'utf8
 const mapSrc = readFileSync(join(ROOT, 'src/components/WorldMapView.jsx'), 'utf8')
 const LANDMARKS = [...glyphsSrc.matchAll(/\{ id: '([^']+)', glyph: '(\w+)', label: [^,]+, x: (-?\d+), y: (-?\d+) \}/g)]
   .map((m) => ({ id: m[1], glyph: m[2], x: +m[3], y: +m[4] }))
+section(!LANDMARKS.some((landmark) => isUnchartedStoryNode(landmark.id)), 'uncharted departures have no fixed map glyph', LANDMARKS.filter((landmark) => isUnchartedStoryNode(landmark.id)).map(({ id }) => id))
 const VILLAGE_PLACE_IDS = [...mapSrc.matchAll(/^\s*\{ id: '([^']+)', x: -?\d+, y: -?\d+, type: '/gm)].map((m) => m[1])
 
 // 8. a landmark whose id isn't a STORY node NEVER renders (the old 'ujk'/'treg' bug)

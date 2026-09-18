@@ -1,3 +1,4 @@
+import { UNCHARTED_STORY_NODES, isUnchartedStoryNode } from './departureContexts.js'
 // A debug-only, inspectable 3D chart. Canonical topology lives in NODE_POS /
 // PLACE_OF and worldModel; this adapter never changes the playable world.
 // Every authored line has a reverse-indexed scene-context link. Only explicit
@@ -7,7 +8,8 @@ import { albanianTextOf } from './language.js'
 import { NODE_POS, PLACE_NODES, PLACE_OF } from '../components/nodePositions.js'
 import { PLACE_META } from '../components/placeMeta.js'
 import { NODE_REGION, REGIONS } from './regions.js'
-import { WORLD_AXES, WORLD_BARRIERS, DISTANT_SIGHTLINES, routeForChoice } from './worldModel.js'
+import { WORLD_AXES, DISTANT_SIGHTLINES, routeForChoice } from './worldModel.js'
+import { WORLD_BARRIERS } from './worldBarriers.js'
 import { WORLD_ENTITIES } from './worldEntities.js'
 import { TIMED_WORLD_FIXTURES, parseFixtureCondition } from './worldFixtures.js'
 import { observationIdOfLine, sceneLineRoleOf } from './observations.js'
@@ -32,9 +34,18 @@ const unique = (values) => [...new Set(values)]
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const finiteVector = (value) => Array.isArray(value) && value.length === 3 && value.every(Number.isFinite)
 const hasConditions = (conditions) => Boolean(conditions?.all?.length || conditions?.none?.length || conditions?.observationId)
-const isContextBinding = (type) => type === 'scene-context' || type === 'region-context'
+const isContextBinding = (type) => type === 'scene-context' || type === 'region-context' || type === 'departure-context'
 const descriptionId = (nodeId, lineIndex) => `description:${nodeId}:${lineIndex}`
-const placeElementId = (nodeId) => `place:${PLACE_OF[nodeId] || nodeId}`
+const placeElementId = (nodeId) => PLACE_OF[nodeId] ? `place:${PLACE_OF[nodeId]}` : null
+export const departureElementId = (nodeId) => isUnchartedStoryNode(nodeId) ? `departure-context:${nodeId}` : null
+const contextElementId = (nodeId) => departureElementId(nodeId) || placeElementId(nodeId)
+const departureElement = (nodeId, index) => ({
+  id: departureElementId(nodeId), kind: 'catalogue', label: 'Departure — destination uncharted', catalogue: true,
+  placeId: null, regionId: null, nodeIds: [nodeId],
+  position: [Math.min(...Object.values(NODE_POS).map(([x]) => x)) - 180, 8, Math.min(...Object.values(NODE_POS).map(([, z]) => z)) + index * 30],
+  geometry: { shape: 'box', size: [12, 12, 12] },
+  source: { file: 'src/game/departureContexts.js', authority: 'DEPARTURE_CONTEXTS', key: nodeId },
+})
 const positionAt = (nodeId, height = 0, offset = [0, 0, 0]) => [
   NODE_POS[nodeId]?.[0] + offset[0], height + offset[1], NODE_POS[nodeId]?.[1] + offset[2],
 ]
@@ -130,7 +141,7 @@ function sourceDescription(nodeId, entry, lineIndex) {
   const line = lineOf(entry)
   return {
     id: descriptionId(nodeId, lineIndex), nodeId, lineIndex,
-    placeId: PLACE_OF[nodeId], regionId: NODE_REGION[nodeId],
+    placeId: PLACE_OF[nodeId] || null, regionId: NODE_REGION[nodeId] || null,
     source: textSource(nodeId, lineIndex), text: albanianTextOf(line),
     // English stays within the lazy debug atlas and is not a validation input:
     // production loads reviewed readings separately, after the base story.
@@ -262,13 +273,18 @@ export function buildWorldScene3d() {
       interpretation: 'Canonical physical-place anchor. The plinth is a location marker, not a building.',
     })
   }
+  for (const [index, nodeId] of UNCHARTED_STORY_NODES.entries()) addElement({
+    ...departureElement(nodeId, index), descriptionIds: [],
+    interpretation: 'An unlocated departure reference, outside the physical chart. Only the exact arrival action establishes its origin; the destination stays unknown.',
+  })
   for (const [nodeId, node] of Object.entries(STORY)) {
     for (const [lineIndex, entry] of (node.text || []).entries()) {
       const description = sourceDescription(nodeId, entry, lineIndex)
       descriptions.push(description)
       descriptionById.set(description.id, description)
-      bind(description, placeElementId(nodeId), 'scene-context', 'The canonical physical place of this story line; no object-presence claim.')
-      bind(description, `region:${NODE_REGION[nodeId]}`, 'region-context', 'Canonical region membership; not a separate terrain assertion.')
+      if (isUnchartedStoryNode(nodeId)) bind(description, departureElementId(nodeId), 'departure-context', 'The departure origin depends on the exact incoming action; no destination position is asserted.')
+      else bind(description, placeElementId(nodeId), 'scene-context', 'The canonical physical place of this story line; no object-presence claim.')
+      if (!isUnchartedStoryNode(nodeId)) bind(description, `region:${NODE_REGION[nodeId]}`, 'region-context', 'Canonical region membership; not a separate terrain assertion.')
     }
     for (const [optionIndex, option] of (node.options || []).entries()) {
       if (option.confuser) continue
@@ -378,7 +394,7 @@ export function buildWorldScene3d() {
       addElement({
         ...baseElement(id, 'barrier', crossing.structure, from, shape('box', [14, 5, 12])),
         position: a && b ? [(a[0] + b[0]) / 2, 5, (a[2] + b[2]) / 2] : [],
-        source: { file: 'src/game/worldModel.js', authority: 'WORLD_BARRIERS', key: barrier.id, crossingIndex },
+        source: { file: 'src/game/worldBarriers.js', authority: 'WORLD_BARRIERS', key: barrier.id, crossingIndex },
         interpretation: 'Registered crossing symbol between exact route endpoints. The barrier’s uncharted course is not invented.',
       })
       relations.push({
@@ -387,7 +403,7 @@ export function buildWorldScene3d() {
         from, to, sides: [...barrier.sides], reason: crossing.reason,
         routeIds: routes.filter((route) => (route.from === from && route.to === to) || (route.from === to && route.to === from)).map(({ id: routeId }) => routeId),
         points: a && b ? [[...a], [...b]] : [],
-        source: { file: 'src/game/worldModel.js', authority: 'WORLD_BARRIERS', key: barrier.id, crossingIndex },
+        source: { file: 'src/game/worldBarriers.js', authority: 'WORLD_BARRIERS', key: barrier.id, crossingIndex },
       })
     }
   }
@@ -536,9 +552,10 @@ export function validateWorldScene3d(model) {
       for (const key of ['nodeId', 'lineIndex', 'placeId', 'regionId', 'source', 'text', 'tokenIds', 'conditions', 'role', 'environmentDimensions', 'observationId', 'npcIdentity']) {
         if (!equal(actual[key], expected[key])) problem(expected.id, `stale source ${key}`)
       }
-      if (!actual.elementIds?.includes(placeElementId(nodeId))) problem(expected.id, 'canonical scene-context place is missing')
-      if (!actual.bindings?.some(({ type, elementId }) => type === 'scene-context' && elementId === placeElementId(nodeId))) problem(expected.id, 'canonical scene-context binding is missing')
-      if (!actual.bindings?.some(({ type, elementId }) => type === 'region-context' && elementId === `region:${NODE_REGION[nodeId]}`)) problem(expected.id, 'canonical region-context binding is missing')
+      const contextType = isUnchartedStoryNode(nodeId) ? 'departure-context' : 'scene-context'
+      if (!actual.elementIds?.includes(contextElementId(nodeId))) problem(expected.id, 'canonical story context is missing')
+      if (!actual.bindings?.some(({ type, elementId }) => type === contextType && elementId === contextElementId(nodeId))) problem(expected.id, 'canonical story-context binding is missing')
+      if (!isUnchartedStoryNode(nodeId) && !actual.bindings?.some(({ type, elementId }) => type === 'region-context' && elementId === `region:${NODE_REGION[nodeId]}`)) problem(expected.id, 'canonical region-context binding is missing')
     }
     for (const [optionIndex, option] of (node.options || []).entries()) {
       if (option.confuser) continue
@@ -555,7 +572,7 @@ export function validateWorldScene3d(model) {
       if (!equal(actual.source, optionSource(nodeId, optionIndex))) problem(id, 'route source is stale')
       if (actual.text !== albanianTextOf(option.text)) problem(id, 'route choice text is stale')
       if (actual.fromElementId !== placeElementId(nodeId) || actual.toElementId !== placeElementId(option.to)) problem(id, 'route has incorrect physical endpoint IDs')
-      const points = [elements.get(actual.fromElementId)?.position, elements.get(actual.toElementId)?.position]
+      const points = canonical.charted === false ? [] : [elements.get(actual.fromElementId)?.position, elements.get(actual.toElementId)?.position]
       if (points.some((point) => !finiteVector(point)) || !equal(actual.points, points)) problem(id, 'route geometry does not join the exact canonical endpoints')
     }
   }
@@ -585,7 +602,9 @@ export function validateWorldScene3d(model) {
       if (!description.elementIds?.includes(binding.elementId)) fail(`binding ${binding.elementId} has no forward link`)
       const element = elements.get(binding.elementId)
       if (!element) continue
-      if (binding.type === 'scene-context') {
+      if (binding.type === 'departure-context') {
+        if (!isUnchartedStoryNode(description.nodeId) || binding.elementId !== departureElementId(description.nodeId) || !element.catalogue || element.placeId !== null || element.regionId !== null) fail('departure context must remain explicitly unlocated')
+      } else if (binding.type === 'scene-context') {
         if (binding.elementId !== placeElementId(description.nodeId)) fail('context binding targets another physical place')
       } else if (binding.type === 'region-context') {
         if (binding.elementId !== `region:${NODE_REGION[description.nodeId]}`) fail('region context does not match canonical membership')
@@ -636,6 +655,7 @@ export function validateWorldScene3d(model) {
     }
   }
   for (const id of routes.keys()) if (!expectedRoutes.has(id)) problem(id, 'route has no playable source option')
+  for (const [index, nodeId] of UNCHARTED_STORY_NODES.entries()) requireElement(departureElementId(nodeId), departureElement(nodeId, index))
   for (const [anchor, nodes] of Object.entries(PLACE_NODES)) {
     requireElement(`place:${anchor}`, {
       kind: 'place', placeId: anchor, regionId: NODE_REGION[anchor],
@@ -796,12 +816,12 @@ export function validateWorldScene3d(model) {
       requireElement(`crossing:${barrier.id}:${crossingIndex}`, {
         kind: 'barrier', label: crossing.structure, placeId: PLACE_OF[from], regionId: NODE_REGION[PLACE_OF[from]],
         position: [(a[0] + b[0]) / 2, 5, (a[1] + b[1]) / 2], geometry: shape('box', [14, 5, 12]),
-        source: { file: 'src/game/worldModel.js', authority: 'WORLD_BARRIERS', key: barrier.id, crossingIndex },
+        source: { file: 'src/game/worldBarriers.js', authority: 'WORLD_BARRIERS', key: barrier.id, crossingIndex },
       })
       expectedRelations.add(id)
       const relation = relations.get(id)
       if (!relation) { problem(id, 'registered barrier crossing is missing'); continue }
-      if (!equal(relation.source, { file: 'src/game/worldModel.js', authority: 'WORLD_BARRIERS', key: barrier.id, crossingIndex })) problem(id, 'crossing source authority differs')
+      if (!equal(relation.source, { file: 'src/game/worldBarriers.js', authority: 'WORLD_BARRIERS', key: barrier.id, crossingIndex })) problem(id, 'crossing source authority differs')
       const ids = [...routes.values()].filter((route) => (route.from === from && route.to === to) || (route.from === to && route.to === from)).map(({ id: routeId }) => routeId)
       if (relation.kind !== 'barrier-crossing' || relation.from !== from || relation.to !== to || !equal(relation.sides, barrier.sides) || !equal(relation.routeIds, ids) || !ids.length) problem(id, 'barrier crossing does not cover the canonical playable edge')
       if (relation.fromElementId !== placeElementId(from) || relation.toElementId !== placeElementId(to) || !equal(relation.points, [elements.get(placeElementId(from))?.position, elements.get(placeElementId(to))?.position])) problem(id, 'barrier crossing geometry has incorrect endpoints')

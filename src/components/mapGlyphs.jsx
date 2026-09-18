@@ -1087,7 +1087,6 @@ export const WORLD_LANDMARKS = [
   { id: 'maroKopshti', glyph: 'gGardenTree', label: "the prince's garden wood", x: 980, y: 100 },
   { id: 'maroIkja', glyph: 'gWaySign', label: "Maro's midnight road", x: 500, y: 340 },
   { id: 'maroKrushqit', glyph: 'gKreshnik', label: 'the wedding party at the house', x: 252, y: 410 },
-  { id: 'maroPrincesha', glyph: 'gWaySign', label: "the prince's road", x: 850, y: 80 },
   { id: 'cuckoo1', glyph: 'gCuckoo', label: "Gjon's cuckoo-field", x: 755, y: 225 },
   { id: 'dallendyshe1', glyph: 'gSwallow', label: "the swallow's eaves", x: 805, y: 215 },
   { id: 'mujoHak1', glyph: 'gKreshnik', label: 'Mujo', x: 478, y: -390 },

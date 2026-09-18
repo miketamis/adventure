@@ -1,3 +1,4 @@
+import { isUnchartedStoryNode } from './departureContexts.js'
 import {
   START_NODE,
   STORY,
@@ -395,7 +396,7 @@ export const isTimeId = (id) => TIME_PHASES.includes(id)
 export const calendarOf = (state) => calendarAtClock(storyClockOf(state))
 export const seasonOf = (state) => seasonAtClock(storyClockOf(state))
 export const weatherOf = (state, scene = STORY[state.nodeId]) =>
-  WEATHER_TYPES.includes(scene?.sceneWeather)
+  isUnchartedStoryNode(state.nodeId) ? null : WEATHER_TYPES.includes(scene?.sceneWeather)
     ? scene.sceneWeather
     : weatherAtClock(
         storyClockOf(state),
@@ -406,7 +407,7 @@ export const hydrologyOf = (state) => hydrologyFromFacts(state.worldFacts)
 export const hasWorldFact = (state, id) =>
   state.worldFacts?.[id] != null && state.worldFacts[id] !== false
 export const environmentSnapshot = (state) => {
-  const region = NODE_REGION[state.nodeId] || 'village'
+  const region = isUnchartedStoryNode(state.nodeId) ? null : NODE_REGION[state.nodeId] || 'village'
   return {
     clock: storyClockOf(state),
     region,
@@ -3475,9 +3476,9 @@ export function reducer(state, action) {
       }
     }
 
-    // Jump to the folklore library focused on a tale (from an ending's link).
+    // The folklore library is an authoring view; normal play keeps source links.
     case 'OPEN_LORE':
-      return { ...state, view: 'debug', loreFocus: action.lore }
+      return state.debug ? { ...state, view: 'debug', loreFocus: action.lore } : state
 
     // Passed an achievement's comprehension gate — every question right:
     // unlock it, restore all hearts, and clear any pending banner offer.

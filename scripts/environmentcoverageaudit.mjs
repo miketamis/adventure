@@ -20,6 +20,7 @@ import {
 import { planScenePresentation, SCENE_SCROLL_POLICY } from '../src/game/scenePresentation.js'
 import { isEnclosedScene } from '../src/game/worldModel.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
+import { isUnchartedStoryNode } from '../src/game/departureContexts.js'
 
 const failures = []
 const check = (name, fn) => {
@@ -103,13 +104,15 @@ check('authored sensory context reaches the wider travelled world, not just repe
     ['time', 'weather', 'season'].map((dimension) => [dimension, new Set()]),
   )
   for (const [nodeId, node] of Object.entries(STORY)) {
+    if (isUnchartedStoryNode(nodeId)) continue
     const dimensions = authoredEnvironmentDimensions(node.text.map(lineOf))
     if (!dimensions.size) continue
     authoredNodes.push(nodeId)
-    const place = PLACE_OF[nodeId] || nodeId
+    const place = PLACE_OF[nodeId]
+    assert.ok(place, `${nodeId}: authored environment has no canonical physical place`)
     for (const dimension of dimensions) placesByDimension[dimension].add(place)
   }
-  const authoredPlaces = new Set(authoredNodes.map((nodeId) => PLACE_OF[nodeId] || nodeId))
+  const authoredPlaces = new Set(authoredNodes.map((nodeId) => PLACE_OF[nodeId]))
   assert.ok(
     authoredPlaces.size >= AUTHORED_ENVIRONMENT_COVERAGE.minimumPlaces,
     `only ${authoredPlaces.size} distinct places have authored environment prose`,

@@ -41,7 +41,7 @@ export function MiniMap({ state, dispatch }) {
                 onClick={() => { setExpanded(false); setOpen(false) }}>✕</button>
       </div>
       <div className="minimap-body">
-        <VillageMap g={g} current={state.nodeId}
+        <VillageMap state={state} g={g} current={state.nodeId}
           objective={state.embodying && state.embodimentPaused ? state.embodimentFocusNode : null}
           goGraph={goGraph} compact follow
           world={{ ...environment, fire: fireStateOf(state) }} npcs={liveNpcs(state)}
@@ -57,6 +57,8 @@ export function MiniMap({ state, dispatch }) {
 // in this comparator.
 const sameMapState = (left, right) => (
   left.nodeId === right.nodeId &&
+  left.cameFrom === right.cameFrom &&
+  left.choiceIndex === right.choiceIndex &&
   left.clock === right.clock &&
   left.conditionClock === right.conditionClock &&
   left.embodying === right.embodying &&

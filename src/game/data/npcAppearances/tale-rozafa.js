@@ -7,7 +7,7 @@ import {
 
 const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'tale-rozafa', ...config })
 const withBrothers = { kind: 'insert-after', lineIndex: 3 }
-const inMorningHouse = { kind: 'insert-after', lineIndex: 0 }
+const inMorningHouse = { kind: 'insert-after', lineIndex: 3 }
 
 export const ELDEST_BROTHER_APPEARANCE = portrait({
   npcId: 'vellaMadh', nodeId: 'kalaMjegull',
@@ -63,7 +63,7 @@ export const BROTHERS_MOTHER_APPEARANCE = portrait({
   npcId: 'nenaVellezerve', nodeId: 'kalaMengjes',
   details: ['age', 'carried-object', 'hands'],
   practicalWordIds: ['nene', 'vjeter', 'shporte', 'buke', 'dore'],
-  placement: { kind: 'replace', lineIndex: 1 },
+  placement: { kind: 'replace', lineIndex: 3 },
   portraitLines: [
     { line: R('The old mother brings a basket of bread in her hands.', w('nene', 'nëna', 'the mother'), w('e_art'), w('vjeter'), w('sjell'), w('nje'), w('shporte'), w('me'), w('buke'), w('ne', 'në', 'in'), w('dore', 'duar', 'hands'), p('.')) },
   ],

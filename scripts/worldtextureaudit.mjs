@@ -10,6 +10,8 @@ import { LIVED_WORLD_VOCABULARY } from '../src/game/data/livedWorldVocabulary.js
 import { authoredEnvironmentDimensions } from '../src/game/environmentNarration.js'
 import { albanianTextOf } from '../src/game/language.js'
 import { observationIdOfLine } from '../src/game/observations.js'
+import { DEPARTURE_CONTEXTS, isUnchartedStoryNode } from '../src/game/departureContexts.js'
+import { departureContextIssues } from '../src/game/departureContextValidation.js'
 import { PLACE_NODES, PLACE_OF } from '../src/components/nodePositions.js'
 import { NODE_REGION } from '../src/game/regions.js'
 import {
@@ -253,7 +255,21 @@ const tokenPatternOf = (line) => line.map((token) => token?.id || token?.en || '
 
 const physicalPlaces = Object.keys(PLACE_NODES)
 const physicalPlaceSet = new Set(physicalPlaces)
+assert.deepEqual(departureContextIssues(STORY), [],
+  'uncharted outcomes have malformed, stale or unregistered canonical departures')
+for (const departure of DEPARTURE_CONTEXTS) {
+  assert.ok(physicalPlaceSet.has(PLACE_OF[departure.from]),
+    `${departure.id}: departure origin has no canonical physical place`)
+}
+const unchartedNodes = Object.keys(STORY).filter(isUnchartedStoryNode)
 for (const nodeId of Object.keys(STORY)) {
+  if (isUnchartedStoryNode(nodeId)) {
+    assert.equal(PLACE_OF[nodeId], undefined, `${nodeId}: uncharted outcome was assigned a physical place`)
+    assert.equal(NODE_REGION[nodeId], undefined, `${nodeId}: uncharted outcome was assigned a physical region`)
+    assert.ok(!physicalPlaceSet.has(nodeId) && !Object.values(PLACE_NODES).some((members) => members.includes(nodeId)),
+      `${nodeId}: uncharted outcome contributes to physical-place coverage`)
+    continue
+  }
   assert.ok(PLACE_OF[nodeId], `${nodeId}: story node has no canonical physical place`)
   assert.ok(physicalPlaceSet.has(PLACE_OF[nodeId]), `${nodeId}: canonical place ${PLACE_OF[nodeId]} is absent`)
 }
@@ -278,6 +294,9 @@ const addTokenPlace = (map, id, place) => {
 }
 
 for (const [nodeId, node] of Object.entries(STORY)) {
+  // Departure prose can describe an outcome without establishing another
+  // travelled physical place. It earns no place, texture or vocabulary breadth.
+  if (isUnchartedStoryNode(nodeId)) continue
   const place = PLACE_OF[nodeId]
   for (const entry of node.text || []) {
     const line = lineOf(entry)
@@ -513,6 +532,7 @@ for (const [id, review] of Object.entries(LIVED_WORLD_VOCABULARY)) {
 
 console.log('=== Aventura Shqip — whole-world texture ===')
 console.log(`physical places: ${physicalPlaces.length}`)
+console.log(`uncharted outcomes excluded: ${unchartedNodes.length} · validated canonical departures: ${DEPARTURE_CONTEXTS.length}`)
 console.log(`environment communicated (including greetings): ${communicatedEnvironmentPlaces.size}`)
 console.log(`authored environment: ${environmentPlaces.size}`)
 console.log(`state/route responsive: ${responsivePlaces.size}`)

@@ -1,8 +1,9 @@
+import { departureContextForChoice } from './departureContexts.js'
 // Canonical structural vocabulary for the world.
 //
 // NODE_AT remains the source of authored coordinates and REGIONS remains the
 // source of region membership.  This module adds the missing *meaning* of
-// those coordinates: axes, route classes, barriers, sightlines and documented
+// those coordinates: axes, route classes, sightlines and documented
 // exceptions.  Both runtime features and the CI audit can therefore ask the
 // same questions instead of inventing their own distance/direction rules.
 import { STORY } from './content.js'
@@ -10,7 +11,7 @@ import { NODE_POS, PLACE_OF } from '../components/nodePositions.js'
 import { NODE_REGION, REGIONS, isWander } from './regions.js'
 import { isProjectionBoundary } from './worldProjectionBoundaries.js'
 
-export const WORLD_MODEL_VERSION = 4
+export const WORLD_MODEL_VERSION = 5
 
 // This is a mythic composite chart, not a survey map of Albania. Its axes are
 // narrative: the forest is to the left, the sea-road to the right, the divine
@@ -62,52 +63,6 @@ export const DIRECTION_WORDS = Object.freeze({
 })
 
 export const DISTANCE_WORDS = new Set(['larg', 'afer', 'gjate', 'shpejt'])
-
-// A barrier crossing is an authored piece of geography, not merely a line
-// which happens to connect two sides of a river.  `sides` deliberately names
-// region identities instead of relying on a brittle x-coordinate cutoff.
-export const WORLD_BARRIERS = Object.freeze([
-  {
-    id: 'central-river',
-    label: 'the river between the forest roads and the settled village',
-    sides: ['forest', 'village'],
-    crossings: [
-      {
-        edge: ['start', 'fshatiLumi'],
-        structure: 'Ura e Tabakeve bridgehead',
-        reason: 'The opening prose explicitly crosses the bridge in both directions.',
-      },
-    ],
-  },
-  {
-    id: 'fshaj-river',
-    label: 'the dry river at the Fshaj bridge',
-    sides: ['river', 'castle'],
-    crossings: [
-      {
-        edge: ['ura', 'uraFshaj'],
-        structure: 'Ura e Fshajt',
-        reason: 'Both shores are joined by the named bridge scene.',
-      },
-      {
-        edge: ['binoshetNata', 'binoshetZjarri'],
-        structure: 'the river-city road bridge',
-        reason: 'After recovering in the ancestral kingdom, Zjerma explicitly crosses the bridge to reach Bardhakuqja\'s river city at dawn.',
-      },
-      {
-        edge: ['binoshetZjarri', 'binoshetTeNena'],
-        structure: 'the river-city road bridge',
-        reason: 'After Bardhakuqja\'s fire ordeal, the couple explicitly crosses the same bridge on the road to the twins\' mother in the ancestral kingdom.',
-      },
-      {
-        edge: ['binoshetTeNena', 'binoshetDyKurorat'],
-        structure: 'the river-city road bridge',
-        reason: 'After the three-month stay, the couple explicitly recrosses the bridge to reach Bardhakuqja\'s father in the river kingdom.',
-      },
-    ],
-  },
-])
-
 
 export const tokenIds = (tokens = []) => tokens.filter((token) => token && token.id).map((token) => token.id)
 
@@ -185,16 +140,30 @@ export function routeForChoice(from, option) {
   if (!to || !STORY[to]) {
     return { from, to, valid: false, kind: 'invalid', reason: 'choice has no real story destination', tokenIds: ids }
   }
-  if (!start || !finish) {
+  const departure = departureContextForChoice(from, option, STORY)
+  if (!start || (!finish && !departure)) {
     return { from, to, valid: false, kind: 'unplaced', reason: 'one or both story nodes have no coordinate', tokenIds: ids }
+  }
+  const movementVerbId = ids.find((id) => MOVEMENT_VERBS.has(id)) || null
+  const movementVerb = Boolean(movementVerbId)
+  const interactionVerb = INTERACTION_VERBS.has(verb)
+  const shared = {
+    from, to, valid: true, tokenIds: ids, verb,
+    movementVerbId, movementVerb, interactionVerb, wander: isWander(option),
+    fromPlace: PLACE_OF[from], fromRegion: NODE_REGION[from] || 'village',
+  }
+  if (departure && start) return {
+    ...shared, kind: 'uncharted-departure', reason: departure.reason,
+    departureId: departure.id, charted: false,
+    projection: false, spatial: true, samePlace: false,
+    toPlace: null, toRegion: null,
+    dx: null, dy: null, distance: null, distanceBand: 'unknown', direction: null, vector: null,
+    duration: { kind: 'hours', hours: departure.durationHours },
   }
   const dx = finish[0] - start[0]
   const dy = finish[1] - start[1]
   const distance = Math.hypot(dx, dy)
   const samePlace = PLACE_OF[from] === PLACE_OF[to]
-  const movementVerbId = ids.find((id) => MOVEMENT_VERBS.has(id)) || null
-  const movementVerb = Boolean(movementVerbId)
-  const interactionVerb = INTERACTION_VERBS.has(verb)
   const projection = isProjectionBoundary(from, to)
   // Physical identity comes from PLACE_OF, never from a distance threshold.
   // Two nearby coordinates remain two places; otherwise a player following
@@ -208,9 +177,8 @@ export function routeForChoice(from, option) {
         : 'scene-shift'
   const vector = chartVector(dx, dy)
   return {
-    from,
-    to,
-    valid: true,
+    ...shared,
+    charted: true,
     kind,
     reason: samePlace
       ? `both scenes share the authored place '${PLACE_OF[from]}'`
@@ -221,18 +189,10 @@ export function routeForChoice(from, option) {
           : interactionVerb
             ? `the interaction is followed by a narrated transition`
             : 'story transition between distinct mapped places',
-    tokenIds: ids,
-    verb,
-    movementVerbId,
-    movementVerb,
-    interactionVerb,
     projection,
     spatial: !projection,
-    wander: isWander(option),
     samePlace,
-    fromPlace: PLACE_OF[from],
     toPlace: PLACE_OF[to],
-    fromRegion: NODE_REGION[from] || 'village',
     toRegion: NODE_REGION[to] || 'village',
     dx,
     dy,
@@ -256,6 +216,8 @@ export function transitionInfo(from, option) {
   return {
     valid: route.valid,
     kind: route.kind,
+    charted: route.charted !== false,
+    departureId: route.departureId || null,
     direction: route.direction?.label || 'here',
     distanceBand: route.distanceBand || 'unknown',
     fromPlace: route.fromPlace || null,
@@ -270,7 +232,9 @@ export function transitionInfo(from, option) {
     targetPhase: route.duration?.targetPhase || null,
     targetHour: route.duration?.targetHour ?? null,
     label: route.valid
-      ? route.samePlace
+      ? route.charted === false
+        ? `departure from ${route.fromPlace}; destination uncharted`
+        : route.samePlace
         ? `here at ${route.fromPlace}`
         : `${route.projection ? 'tale projection' : route.kind === 'scene-shift' ? 'narrated shift' : route.distanceBand}, ${route.direction?.label || 'unoriented'}; ${route.vector.label}`
       : route.reason,
@@ -300,7 +264,7 @@ export function reconstructChart(routes = buildRouteGraph()) {
   const adjacency = new Map(places.map((place) => [place, []]))
   const constraints = []
   for (const route of routes) {
-    if (!route.valid || route.samePlace) continue
+    if (!route.valid || route.samePlace || route.charted === false) continue
     const constraint = {
       edge: `${route.from}->${route.to}`,
       from: route.fromPlace,
@@ -367,17 +331,6 @@ export function reconstructChart(routes = buildRouteGraph()) {
   }
 }
 
-
-export function crossingFor(from, to) {
-  const regions = new Set([NODE_REGION[from] || 'village', NODE_REGION[to] || 'village'])
-  for (const barrier of WORLD_BARRIERS) {
-    if (!barrier.sides.every((side) => regions.has(side))) continue
-    const crossing = barrier.crossings.find(({ edge }) =>
-      (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from))
-    return { barrier, crossing: crossing || null }
-  }
-  return null
-}
 
 // Underground scenes have no surface weather or horizon. Caves use their
 // surrounding macro-region unless they descend into the explicitly

@@ -14,7 +14,8 @@
 // brides in turn) → uraGropa (the ring-lie at the pit; the last-chance mercy)
 // → uraMurim (the walling and the verbatim curse) → uraArtesMur (the jamanet:
 // breast, spring, fig — the bridge stands and trembles), with uraArtesShpëtim
-// as the mercy ending from either hinge. These beats are the canon under it.
+// as the rescue ending from refusal, the night warning or the pit warning.
+// These source beats are the canon under that branching adaptation.
 //
 // No Elsie page exists for this legend (it is not in his Legends index) — the
 // FOLKLORE card instead cites Wikipedia (Kadare's novel, thin on the folk
@@ -128,8 +129,8 @@ export default {
   ],
   // how the game stages this tale — the embodied projection (see _SCHEMA.md). ROZAFA'S
   // TWIN, deliberately its MERCY counterpoint: you become Kiço the youngest brother;
-  // the besa choice is warn your wife (mercy — the bridge stays unbuilt, the GOOD
-  // ending here) or keep silent (your own wife walled, the bridge of Arta stands).
+  // refusal or warning can leave mother and son alive and the bridge unbuilt;
+  // accepting the ring deception continues to the source walling outcome.
   // At Rozafa the same silence is the honourable good ending — the game stages both
   // readings of the walling legend. Day/night = the build-by-day / fall-by-night engine.
   play: {
@@ -137,7 +138,7 @@ export default {
     stance: 'embodied',
     as: 'kico',
     role:
-      'You are Kiço, the youngest of three brothers raising the bridge of Arta — and it will not stand until a living soul is walled into its foundation. The old man\'s besa binds you all to say nothing and let the wall take whichever wife brings tomorrow\'s bread first — and it will be yours. Warn her and spare her though the bridge never stands, or keep your word and give her to the stone.',
+      'You are Kiço, the youngest of three brothers raising the bridge of Arta. The old man asks for a life in its foundation and an oath of silence. You may refuse that oath, swear and then warn your wife at night, or keep silent until she comes to the pit. At the pit you may still tell her to flee, or choose the ring deception that leads to the walling. The three rescue branches leave mother and son alive and the bridge unbuilt.',
     enter:
       'you and your brothers are raising the bridge of Arta and it will not stand; an old man is about to name the price — a wife walled alive — and it is your own wife the wall means to take',
     from: 'uraArtes1',
@@ -155,7 +156,7 @@ export default {
     },
     divergences: [
       { beat: 'gathering', note: "The ballad has all three brothers building from its first line. The game's staging empties the youngest's place until the player claims it: visited un-embodied (uraTjeter1/uraVellezerit), the yard shows only Pano and Mihal, who say their little brother Kiço is not here — and answering their 'who are you?' with «unë jam Kiço, vëllai juaj» is the become-threshold that steps you into the mold. Once embodied, the tale proceeds with its three brothers as sung." },
-      { beat: 'besa', note: "You embody Kiço, and the besa choice assigns the tale's moral to YOUR hand — but with the opposite valence to Rozafa: here warning your wife (mercy) is the GOOD ending and keeping the besa (your own wife walled) is the BAD one, where at Rozafa keeping the same silence is the honourable good ending. The game deliberately stages both readings of the same Balkan walling legend. Two mercy exits reach the good ending: break the silence in the night as your brothers did, or cry out at the pit's very edge." },
+      { beat: 'besa', note: "The game adds three rescue departures to the ballad: refuse to swear at uraArtes2, swear but warn the bride at night, or keep silence until warning her at the pit. Refusal is not a broken oath; the pit warning does not include the unchosen ring deception. These branches share a living mother and son and an unbuilt bridge. Their good-ending classification is the game's adaptation, not a claim that the selected ballad or its elders endorse an alternative outcome." },
       { beat: 'ringTrick', note: "Fully staged: the mother sends the three brides in turn (the elder begging off with a sick child, the middle with her bread-making), your own promise to settle the boy frees your wife to go, and the ring-lie at the pit is the player's own spoken option. A bird startling off the bridge as she arrives nods to the Greek tradition's talking-bird omen without contradicting the Çam ballad's old wayfarer." },
       { beat: 'blessing', note: "The bride's curse is slotted verbatim as a Q() inscription — «të dridhesh si dridhem unë» — and her dying wishes play as the walling ending's text: the breast left free outside the wall, the silver spring that raises her son and gives life, the white fig tree over the pier, the bridge that stands and trembles. The build-by-day / fall-by-night rhythm is played on tale time, from the tale's own 'all day we build, all night it falls'; while you act inside the tale, the living-world clock advances by the same intervals." },
     ],

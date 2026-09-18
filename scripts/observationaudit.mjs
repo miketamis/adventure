@@ -24,6 +24,7 @@ import {
   sceneLineRoleOf,
 } from '../src/game/observations.js'
 import { WORLD_ENTITIES, worldActionOfOption } from '../src/game/worldEntities.js'
+import { albanianTextOf } from '../src/game/language.js'
 
 const checks = []
 const check = (name, test) => {
@@ -60,6 +61,19 @@ check('the authored audit covers the forest, dancers and a broad cross-section o
   assert.equal(forestListen.text.optionReading, 'Listen to what the moon-dancers are singing.')
   assert.equal(danceListen.text.optionReadingAlbanian, 'dëgjo këngën e tyre.')
   assert.equal(danceListen.text.optionReading, 'Listen to their song.')
+})
+
+check('the Rozafa road observation reveals the road after the night warning was expanded', () => {
+  const beat = STORY_OBSERVATION_BEATS.find(({ id }) => id === 'rozafa-dawn-road')
+  assert.ok(beat)
+  assert.equal(beat.nodeId, 'kalaMengjes')
+  const [index] = beat.lineIndices
+  const line = lineOf(STORY.kalaMengjes.text[index])
+  assert.equal(albanianTextOf(line), 'Në agim, rruga nga shtëpia në kala është e lagësht.')
+  assert.equal(observationIdOfLine(line), beat.id)
+  const required = observationConditionId(beat.id)
+  assert.ok(!visibleLines(STORY.kalaMengjes, () => false).includes(line))
+  assert.ok(visibleLines(STORY.kalaMengjes, (condition) => condition === required).includes(line))
 })
 
 check('every line has exactly one reusable presentation role', () => {

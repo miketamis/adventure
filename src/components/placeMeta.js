@@ -402,12 +402,6 @@ export const PLACE_META = {
       { title: 'the flight from the feast', nodes: ['maroIkja'] },
     ],
   },
-  maroPrincesha: {
-    name: 'piruni i udhës — the road fork',
-    happenings: [
-      { title: 'the true and false brides part ways', nodes: ['maroPrincesha'] },
-    ],
-  },
   maroTetua: {
     name: 'shtëpia e tetos — the auntie\'s house',
     happenings: [

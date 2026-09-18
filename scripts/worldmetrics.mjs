@@ -36,7 +36,7 @@ export function worldDistribution() {
   const places = Object.keys(PLACE_NODES).filter((place) => STORY[place]).sort()
   const physicalAdjacency = new Map(places.map((place) => [place, new Map()]))
   for (const route of routes) {
-    if (route.kind === 'projection') continue
+    if (route.kind === 'projection' || route.charted === false) continue
     const forward = physicalAdjacency.get(route.fromPlace)
     const reverse = physicalAdjacency.get(route.toPlace)
     forward?.set(route.toPlace, Math.min(forward.get(route.toPlace) ?? Infinity, route.distance))

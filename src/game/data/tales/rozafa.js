@@ -118,7 +118,7 @@ export default {
     stance: 'embodied',
     as: 'husband',   // the youngest — the canonical keep-besa spine; the elder path is the alternate secret ending
     role:
-      'You are one of three brothers raising a wall that will not hold. The price the old man names, and the besa you swear on it, decide which brother you are — the youngest who keeps his word and walls his own wife, or an elder who breaks it and is spared while another man\'s wife goes into the stone.',
+      'You are one of three brothers raising a wall that will not hold. Keeping silence makes you the youngest brother, whose wife Rozafa comes to the wall; warning your wife makes you an elder, whose wife stays home. You may later leave the wall or continue through Rozafa\'s plea and the building work. That later choice does not change which brother you became, and the castle\'s tragic foundation remains the tale\'s outcome.',
     enter: 'the wall you and your brothers raise keeps falling by night, and an old man is about to name the terrible price of making it hold',
     from: 'kalaMjegull',
     ending: 'kalaFundBesa',
@@ -128,7 +128,7 @@ export default {
     },
     divergences: [
       { beat: 'besa', note: 'You embody "a brother" and your besa choice assigns which one — the folktale fixes each brother\'s role (two break the oath, the youngest keeps it); the game lets your choice decide whether you are the honourable youngest or a spared elder.' },
-      { beat: 'walled', note: 'The wall always takes a wife — the game will not change the legend\'s outcome, only who you are and what you carry. Keep the besa and it is your own wife; break it and you stand by as the youngest\'s wife is walled.' },
+      { beat: 'walled', note: 'The wall still takes Rozafa. The game adds withdrawal at kalaNgjitje, before the plea and building work: a youngest brother who kept silent may leave there without having warned his wife, and an elder who warned may leave without doing the later work. An elder may also leave after helping at kalaMur. The night choice fixes the brother\'s identity throughout; withdrawal neither rescues Rozafa nor retroactively breaks a kept oath.' },
       { beat: 'fog', note: 'The build-by-day / fall-by-night rhythm is played on tale time: you work the wall, night falls and it comes down, dawn shows it fallen again — until a life is sealed in and, the first night after, the wall no longer falls. While you act inside the tale, the living-world clock advances by the same intervals.' },
       { beat: 'walled', note: 'The white milk still seeping from the stone follows the oral/lore reading; Elsie\'s printed text ends on the mother\'s tears alone.' },
     ],

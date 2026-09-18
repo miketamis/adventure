@@ -109,21 +109,19 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
       ...(supportId ? { supportId } : {}),
     })
   }
-  const [endingCopy, setEndingCopy] = useState(null)
+  const [endingCopyModule, setEndingCopyModule] = useState(null)
+  const endingCopy = state.ended ? endingCopyModule?.endingCopyForState(state) : null
   const [richAchievementById, setRichAchievementById] = useState(null)
   const hasAvailableReadingChecks = Object.keys(state.eligible || {}).some((id) =>
     ACHIEVEMENT_RULE_BY_ID[id] && !state.earned?.[id])
   useEffect(() => {
-    if (!state.ended) {
-      setEndingCopy(null)
-      return undefined
-    }
+    if (!state.ended || endingCopyModule) return undefined
     let live = true
-    import('../game/endingCopy.js').then(({ ENDING_COPY }) => {
-      if (live) setEndingCopy(ENDING_COPY[state.nodeId] || null)
+    import('../game/endingCopyForState.js').then((module) => {
+      if (live) setEndingCopyModule(module)
     }).catch((error) => console.error('Could not load ending copy.', error))
     return () => { live = false }
-  }, [state.ended, state.nodeId])
+  }, [state.ended, endingCopyModule])
   useEffect(() => {
     if ((!state.ended || state.ended === 'bad') && !hasAvailableReadingChecks) {
       setRichAchievementById(null)
@@ -791,7 +789,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
               )}
               {endingCopy?.blurb && <p className="ending-desc">{endingCopy.blurb}</p>}
               <Suspense fallback={<p className="hint" role="status">Opening the tale&apos;s sources…</p>}>
-                <FactoidLore loreId={richAchievementById?.[node.id]?.lore} dispatch={dispatch} />
+                <FactoidLore loreId={richAchievementById?.[node.id]?.lore} dispatch={state.debug ? dispatch : undefined} />
               </Suspense>
               {endResult === 'passed' && <p className="hearts-restored">❤️ Hearts restored to full.</p>}
               <p className="hint">
@@ -890,7 +888,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
               <div className="feedback good" role="status">✓ Reading check complete — the achievement is yours.</div>
               {areaTest.ach.blurb && <p className="ending-desc">{areaTest.ach.blurb}</p>}
               <Suspense fallback={<p className="hint" role="status">Opening the achievement&apos;s sources…</p>}>
-                <FactoidLore loreId={areaTest.ach.lore} dispatch={dispatch} />
+                <FactoidLore loreId={areaTest.ach.lore} dispatch={state.debug ? dispatch : undefined} />
               </Suspense>
               <p className="hearts-restored">❤️ Hearts restored to full.</p>
             </>

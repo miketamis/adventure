@@ -1,3 +1,4 @@
+import { isUnchartedStoryNode } from './departureContexts.js'
 // ===========================================================================
 // THE WORLD'S REGIONS — the single source of truth for which story node belongs
 // to which region of the tale chart (the sky, Mount Tomorr, the forest, river, …).
@@ -100,7 +101,6 @@ export const REGION_OVERRIDES = Object.freeze({
   maroIkja: 'village', maroMesnata: 'village', maroKthyerShtepi: 'village', maroKrushqit: 'village',
   cuckoo1: 'village', cuckooFund: 'village', cuckooLule: 'village',
   dallendyshe1: 'village', dallendysheFund: 'village', dallendysheGjak: 'village',
-  maroPrincesha: 'princeland',
   maroPallati: 'princeland', maroLindja: 'princeland', maroZogu: 'princeland',
   maroKopshti: 'princeland', maroFundi: 'princeland', maroCiuCiu: 'princeland',
   kordha1: 'forest', kordha2: 'forest', kordhaMoat: 'forest',
@@ -151,11 +151,12 @@ export const isWander = (o) => WANDER_VERB.has((o.text || []).find((t) => t && t
 // array indexed by REGIONS position → the node ids in that region (village nodes
 // excluded, they are handled separately).
 export function assignRegions(ids = Object.keys(STORY)) {
+  ids = ids.filter((id) => !isUnchartedStoryNode(id))
   const village = new Set(VILLAGE_ANCHOR_IDS)
   const prog = {}, full = {}
   for (const id of ids) { prog[id] = new Set(); full[id] = new Set() }
   for (const id of ids) for (const o of (STORY[id].options || [])) {
-    if (o.confuser || !o.to || !STORY[o.to]) continue
+    if (o.confuser || !o.to || !full[o.to]) continue
     full[id].add(o.to); full[o.to].add(id)
     if (!isWander(o)) { prog[id].add(o.to); prog[o.to].add(id) }
   }

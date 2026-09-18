@@ -1,3 +1,5 @@
+import { departureContextIssues } from '../src/game/departureContextValidation.js'
+import { DEPARTURE_CONTEXTS, isUnchartedStoryNode } from '../src/game/departureContexts.js'
 // Typed perceivable-world release gate. This proves the general entity layer
 // is a read-only projection of the same state and affordances used by play.
 import assert from 'node:assert/strict'
@@ -17,6 +19,7 @@ import {
 } from '../src/game/worldEntities.js'
 
 assert.equal(WORLD_ENTITY_SCHEMA_VERSION, 1)
+assert.deepEqual(departureContextIssues(STORY), [])
 assert.deepEqual(worldEntityRegistryIssues(), [], 'typed world entity registry is invalid')
 
 for (const anchor of Object.keys(PLACE_NODES)) {
@@ -34,11 +37,11 @@ for (const fixtureId of Object.keys(TIMED_WORLD_FIXTURES)) {
 
 let actions = 0
 for (const [nodeId, node] of Object.entries(STORY)) {
-  assert.ok(PLACE_OF[nodeId], `${nodeId}: no physical place projection`)
+  assert.ok(PLACE_OF[nodeId] || isUnchartedStoryNode(nodeId), `${nodeId}: no physical place projection`)
   for (const [index, option] of (node.options || []).entries()) {
     assert.deepEqual(worldActionIssues(nodeId, option), [], `${nodeId}.options[${index}] has an invalid entity action`)
     const action = worldActionOfOption(nodeId, option)
-    if (option.to && PLACE_OF[nodeId] !== PLACE_OF[option.to]) {
+    if (option.to && !action.departure && PLACE_OF[nodeId] !== PLACE_OF[option.to]) {
       assert.ok(action.targets.includes(`place:${PLACE_OF[option.to]}`), `${nodeId}->${option.to}: route target absent`)
     }
     actions++
@@ -60,3 +63,10 @@ assert.ok(visible.some((entry) => entry.id === 'fixture:campfire'))
 assert.ok(visible.some((entry) => entry.id === 'item:cader'))
 
 console.log(`✅ ${Object.keys(WORLD_ENTITIES).length} typed world entities project ${actions} authored choices through canonical state`)
+
+for (const entry of DEPARTURE_CONTEXTS) {
+  const choiceIndex = STORY[entry.from].options.findIndex((option) => option.to === entry.to)
+  const relations = worldRelationsForState({ nodeId: entry.to, cameFrom: entry.from, choiceIndex })
+  assert.equal(relations.some((relation) => relation.subject === 'actor:player' && relation.type === 'at'), false)
+  assert.ok(relations.some((relation) => relation.type === 'departed-from' && relation.target === `place:${PLACE_OF[entry.from]}` && relation.departureId === entry.id))
+}

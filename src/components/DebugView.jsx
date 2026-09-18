@@ -1655,7 +1655,7 @@ export default function DebugView({ state, dispatch }) {
         </div>
       )}
       {sub === 'graph' && <StoryGraph g={g} sel={sel} setSel={setSel} goLore={goLore} />}
-      {sub === 'village' && <VillageMap g={g} current={state.nodeId} goGraph={goGraph}
+      {sub === 'village' && <VillageMap state={state} g={g} current={state.nodeId} goGraph={goGraph}
         world={{ ...environment, fire: fireStateOf(state) }}
         npcs={liveNpcs(state)} jumpTo={worldFocus} />}
       {sub === 'map' && <WorldMap g={g} current={state.nodeId} setSel={setSel} goGraph={goGraph} />}

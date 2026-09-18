@@ -100,7 +100,9 @@ const itemTagGates = new Set()
 const affordanceGates = new Set()
 
 assert.equal(tales.length, 47, 'the review baseline must cover all 47 full tale records')
-assert.equal(FOLKLORE.length, 140, 'the lore-library baseline changed; review its mechanics disposition')
+// Maro now has its own earned source card; its mechanics remain covered by the
+// existing full-tale review instead of borrowing the night spirits' lore card.
+assert.equal(FOLKLORE.length, 141, 'the lore-library baseline changed; review its mechanics disposition')
 assert.deepEqual(new Set(Object.keys(REVIEW)), taleIds, 'every full tale must have exactly one mechanics review')
 
 // Keep the standalone mechanics review self-sufficient: capability gates are

@@ -628,6 +628,17 @@ export const FOLKLORE = [
     related: ['bukura-e-dheut', 'lubia', 'scurfhead'],
   },
   {
+    id: 'maro-perhitura',
+    title: 'Maro Përhitura — the Ash-Girl',
+    category: 'Folktale',
+    summary:
+      'In the telling printed in Pralla popullore shqiptare (1954), Maro answers the unseen spirits at the night mill, receives golden clothes and later marries a prince. Her stepmother puts a bewitched needle into her head, turning her into a bird. Maro returns to her son’s window and then to the palace garden, where the prince removes the needle and restores her. The game also offers departures from the wedding and palace that are alternatives to this source sequence.',
+    sources: [
+      { label: 'Pralla popullore shqiptare (1954), pp. 100–110 — selected Maro Përhitura witness', url: 'https://doczz.net/doc/2729503/pralla-popullore-shqiptare' },
+    ],
+    related: ['xhindi'],
+  },
+  {
     id: 'snake-bridegroom',
     title: 'The Snake and the King\'s Daughter — the serpent bridegroom',
     category: 'Folktale',
@@ -1900,13 +1911,13 @@ export const ENDING_LORE = {
   periFund: 'peri',
   periKeq: 'peri',
   // Maro Përhitura — the xhindet's night mill + the full four-act tale
-  maroNataHumbur: 'xhindi',
-  maroDoraShtember: 'xhindi',
-  maroDoraFalje: 'xhindi',
-  maroShtrember: 'xhindi',
-  maroPrincesha: 'xhindi',
-  maroFundi: 'xhindi',
-  maroCiuCiu: 'xhindi',
+  maroNataHumbur: 'maro-perhitura',
+  maroDoraShtember: 'maro-perhitura',
+  maroDoraFalje: 'maro-perhitura',
+  maroShtrember: 'maro-perhitura',
+  maroPrincesha: 'maro-perhitura',
+  maroFundi: 'maro-perhitura',
+  maroCiuCiu: 'maro-perhitura',
 
   // Shtriga
   shtrigaIkur: 'shtriga',

@@ -514,7 +514,6 @@ export const OPTION_READINGS_A = Object.freeze({
   "porta1.options[3]": { al: "kalo nëpër derën e hapur.", en: "Pass through the open door.", review: 'internal-editorial' },
   "kalaPlak.options[1]": { al: "pyet murin", en: "Ask the wall.", review: 'internal-editorial' },
   "kalaPlak.options[2]": { al: "fol me gurin", en: "Speak with the stone.", review: 'internal-editorial' },
-  "kalaNate.options[1]": { al: "Grua.", en: "Wife.", review: 'internal-editorial' },
   "kalaNate.options[4]": { al: "fol me natën", en: "Speak with the night.", review: 'internal-editorial' },
   "shpellaRruget.options[1]": { al: "shko në rrugën e mes.", en: "Go on the middle road.", review: 'internal-editorial' },
   "rene.options[1]": { al: "shko lart me Bukurën.", en: "Go up with the Beauty.", review: 'internal-editorial' },
@@ -572,4 +571,5 @@ export const OPTION_READINGS_A = Object.freeze({
   "shtrigaNate.options[1]": { al: "lufto për të hysh në pyllin e errët.", en: "Fight your way into the dark forest.", review: 'internal-editorial' },
   "prespaPyll.options[1]": { al: "a do të martohesh me mua?", en: "Will you marry me?", review: 'internal-editorial' },
   "detiThelle2.options[0]": { al: "a do të martohesh me mua?", en: "Will you marry me?", review: 'internal-editorial' },
+  "kalaNate.options[1]": { al: "Mos shko në kala në mëngjes.", en: "Do not go to the castle in the morning.", review: 'internal-editorial' },
 })

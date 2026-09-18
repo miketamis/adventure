@@ -1,3 +1,4 @@
+// Explicitly uncharted endings are owned by game/departureContexts.js; never add guessed coordinates.
 // EXPLICIT map placement — one physical spot, ONE coordinate.
 // Each entry is either
 //   id: [x, y]       the node stands at its OWN spot (most nodes), or
@@ -431,7 +432,6 @@ export const NODE_AT = {
   maroMesnata: 'maroHani', // midnight strikes AT the han — the walk home is its exit edge
   maroKthyerShtepi: 'maroShtepi', // the explicit arrival home before the long wait
   maroKrushqit: 'maroShtepi', // the wedding party surrounds the same house where Maro waits
-  maroPrincesha: [850, 80], // the bridal road into the prince's country
   maroPallati: [1050, -40],
   maroGjilpera: 'maroPallati',
   maroLindja: 'maroPallati',

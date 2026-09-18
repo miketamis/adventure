@@ -1,3 +1,6 @@
+import { departureContextIssues } from './departureContextValidation.js'
+import { isUnchartedStoryNode } from './departureContexts.js'
+import { worldLocationForState } from './worldLocation.js'
 import { STORY, lineOf, visibleLines } from './content.js'
 import {
   canChoose,
@@ -35,6 +38,7 @@ export const albanianTextOf = (line = []) => tidy(line
 export function authoringSchemaIssues(story = STORY) {
   const issues = [
     ...worldEntityRegistryIssues(),
+    ...departureContextIssues(story),
     ...actionSemanticContinuityIssues(story, { placeOf: PLACE_OF }),
     ...playerActionProvenanceIssues(story).issues,
     ...sharedActionDestinationIssues(story).issues,
@@ -42,7 +46,7 @@ export function authoringSchemaIssues(story = STORY) {
   for (const [nodeId, node] of Object.entries(story || {})) {
     const at = (message) => issues.push(`${nodeId}: ${message}`)
     if (node?.id !== nodeId) at('registry key and node.id differ')
-    if (!PLACE_OF[nodeId]) at('node has no canonical physical place')
+    if (!PLACE_OF[nodeId] && !isUnchartedStoryNode(nodeId)) at('node has no canonical physical place')
     if (!Array.isArray(node?.text)) at('text must be an array')
     if (!Array.isArray(node?.options)) at('options must be an array')
     for (const [index, entry] of (node?.text || []).entries()) {
@@ -64,6 +68,7 @@ export function authoringStateDigest(state) {
   return Object.freeze({
     nodeId: state.nodeId,
     placeId: PLACE_OF[state.nodeId] || null,
+    location: worldLocationForState(state),
     clock: state.clock,
     taleClock: state.conditionClock ?? null,
     turn: state.turn,

@@ -1,5 +1,8 @@
+import { worldLocationForState } from '../game/worldLocation.js'
+import { hasCond, currentStoryState } from '../game/gameState.js'
+import { visibleLines, lineOf, STORY } from '../game/content.js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { buildWorldScene3d, validateWorldScene3d } from '../game/worldScene3d.js'
+import { buildWorldScene3d, validateWorldScene3d, departureElementId } from '../game/worldScene3d.js'
 import { PLACE_OF } from './nodePositions.js'
 import {
   defaultCameraForScene, drawWorldScene3d, hitTestWorldScene3d,
@@ -24,11 +27,16 @@ function downloadScene(model) {
 export default function WorldScene3dView({ state }) {
   const model = useMemo(() => buildWorldScene3d(), [])
   const elementsById = useMemo(() => new Map(model.elements.map((element) => [element.id, element])), [model])
-  const initialId = `place:${PLACE_OF[state.nodeId]}`
-  const initialRegion = elementsById.get(initialId)?.regionId || 'village'
+  const location = worldLocationForState(state)
+  const initialId = departureElementId(state.nodeId) || `place:${PLACE_OF[state.nodeId]}`
+  const initialRegion = elementsById.get(initialId)?.regionId || ''
+  const currentLines = useMemo(() => {
+    const projected = currentStoryState(state)
+    return new Set(visibleLines(STORY[state.nodeId], (id) => hasCond(projected, id)))
+  }, [state])
   const [selectedId, setSelectedId] = useState(initialId)
   const [regionId, setRegionId] = useState(initialRegion)
-  const [camera, setCamera] = useState(() => defaultCameraForScene(model, { regionId: initialRegion }))
+  const [camera, setCamera] = useState(() => defaultCameraForScene(model, departureElementId(state.nodeId) ? { elementId: initialId } : { regionId: initialRegion }))
   const [showRoutes, setShowRoutes] = useState(true)
   const [showSightlines, setShowSightlines] = useState(false)
   const [showLabels, setShowLabels] = useState(true)
@@ -52,6 +60,7 @@ export default function WorldScene3dView({ state }) {
   const descriptions = useMemo(() => {
     const search = query.trim().toLocaleLowerCase()
     return model.descriptions.filter((description) => {
+      if (departureElementId(state.nodeId) && description.nodeId === state.nodeId && sourceScope === 'selection' && !currentLines.has(lineOf(STORY[state.nodeId].text[description.lineIndex]))) return false
       if (sourceScope.startsWith('kind:')) {
         if (description.source?.kind !== sourceScope.slice(5)) return false
       } else if (sourceScope !== 'selection' && sourceScope !== 'all' && description.classification !== sourceScope) return false
@@ -59,7 +68,7 @@ export default function WorldScene3dView({ state }) {
         ? `${description.nodeId || ''} ${description.text} ${description.reading || ''} ${description.id} ${description.source?.path || ''}`.toLocaleLowerCase().includes(search)
         : sourceScope === 'selection' ? description.elementIds.includes(selectedId) : true
     })
-  }, [model, selectedId, query, sourceScope])
+  }, [model, selectedId, query, sourceScope, state.nodeId, currentLines])
 
   const draw = useCallback(() => {
     if (!canvasRef.current) return
@@ -75,6 +84,16 @@ export default function WorldScene3dView({ state }) {
     return () => { cancelAnimationFrame(frame); observer.disconnect() }
   }, [draw])
   useEffect(() => { setDescriptionLimit(30) }, [query, selectedId, sourceScope])
+  useEffect(() => {
+    setSelectedId(initialId)
+    setRegionId(initialRegion)
+    setCamera(defaultCameraForScene(model, departureElementId(state.nodeId) ? { elementId: initialId } : { regionId: initialRegion }))
+    setFocusedDescriptionId(null)
+  }, [state.nodeId, state.cameFrom, state.choiceIndex, initialId, initialRegion, model])
+  useEffect(() => {
+    if (sourceScope === 'selection' && departureElementId(state.nodeId) && focusedDescription?.nodeId === state.nodeId &&
+        !currentLines.has(lineOf(STORY[state.nodeId].text[focusedDescription.lineIndex]))) setFocusedDescriptionId(null)
+  }, [state.nodeId, currentLines, focusedDescription, sourceScope])
 
   const selectElement = (id, focus = false) => {
     setSelectedId(id)
@@ -144,6 +163,7 @@ export default function WorldScene3dView({ state }) {
   }
 
   return <div className="world3d" data-testid="world3d-view">
+    {location.kind !== 'charted' && <p role="status">Current location is uncharted.{location.originPlaceId ? ` Departure origin: ${elementsById.get(`place:${location.originPlaceId}`)?.label || location.originPlaceId}.` : ' The departure origin is unknown.'} This reference has no physical destination or route mesh.</p>}
     <div className="world3d-heading">
       <div><span className="world3d-eyebrow">WORLD BUILDER · STORY AUDIT</span><h3>A world you can trace</h3></div>
       <div className="world3d-actions">
@@ -207,7 +227,7 @@ export default function WorldScene3dView({ state }) {
             <div>{selectedRoutes.map((route) => <article key={route.id}>
               <code>{route.source.path}</code><p lang="sq">{route.text}</p>
               <span>{route.samePlace ? 'Same place' : route.projection ? 'Tale projection' : route.kind} → </span>
-              <button className="world3d-binding" onClick={() => { setFocusedDescriptionId(null); selectElement(route.toElementId, true) }}>{elementsById.get(route.toElementId)?.label || route.to}</button>
+              <button className="world3d-binding" onClick={() => { setFocusedDescriptionId(null); selectElement(route.toElementId || departureElementId(route.to), true) }}>{elementsById.get(route.toElementId || departureElementId(route.to))?.label || route.to}</button>
             </article>)}</div>
           </details>}
         </>}
