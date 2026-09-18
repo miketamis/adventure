@@ -45,6 +45,8 @@ const authoredChunk = (id) => {
   if (path.endsWith('/src/game/folklore.js')) return 'folklore-catalog'
   if (path.endsWith('/src/game/quotes.js')) return 'quote-register'
   if (path.includes('/src/game/data/npcs/')) return 'npc-catalog'
+  // Exact physical source ledgers are debug-only and partitioned for caching.
+  if (path.includes('/src/game/data/worldScene3dNodeClaims/')) return `world-node-claims-${path.split('/').at(-1).replace(/\.js$/, '')}`
   return undefined
 }
 

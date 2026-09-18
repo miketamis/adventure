@@ -1,7 +1,7 @@
 import { worldLocationForState } from '../game/worldLocation.js'
 import { hasCond, currentStoryState } from '../game/gameState.js'
 import { visibleLines, lineOf, STORY } from '../game/content.js'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildWorldScene3d, validateWorldScene3d, departureElementId } from '../game/worldScene3d.js'
 import { PLACE_OF } from './nodePositions.js'
 import {
@@ -10,6 +10,8 @@ import {
   orbitWorldSceneCamera, panWorldSceneCamera, zoomWorldSceneCamera,
 } from './worldScene3dRenderer.js'
 import './worldScene3d.css'
+
+const WorldNode3dView = lazy(() => import('./WorldNode3dView.jsx'))
 
 const sourceAddress = (description) => description.nodeId && Number.isInteger(description.lineIndex)
   ? `STORY.${description.nodeId}.text[${description.lineIndex}]`
@@ -35,6 +37,18 @@ function downloadScene(model) {
 }
 
 export default function WorldScene3dView({ state }) {
+  const [mode, setMode] = useState('world')
+  return <>
+    <div className="atlas-mode" role="group" aria-label="3D audit display">
+      <button className="btn" aria-pressed={mode === 'world'} onClick={() => setMode('world')}>World survey</button>
+      <button className="btn" aria-pressed={mode === 'nodes'} onClick={() => setMode('nodes')}>Node scene renders</button>
+    </div>
+    {mode === 'nodes' ? <Suspense fallback={<p role="status">Building the node scene…</p>}><WorldNode3dView state={state} /></Suspense>
+      : <WorldAtlasScene3dView state={state} />}
+  </>
+}
+
+function WorldAtlasScene3dView({ state }) {
   const model = useMemo(() => buildWorldScene3d(), [])
   const elementsById = useMemo(() => new Map(model.elements.map((element) => [element.id, element])), [model])
   const location = worldLocationForState(state)

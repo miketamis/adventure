@@ -539,7 +539,7 @@ export const FINAL_READINGS = {
   "maroLitani3.text[0]": ["pa e lajmë, pa e presim, pa e qepim, pa e veshim.", "We wash it, cut it, sew it, and wear it."],
   "maroTetua.text[9]": ["kur të bjerë mesnata, kuajt bëhen minj, karroca bëhet kungull.", "When midnight strikes, the horses become mice and the coach becomes a pumpkin."],
   "maroFundi.text[4]": ["edhe janë sot e gjithë ditën.", "And they remain so to this very day."],
-  "agaYmer1.text[0]": ["natën, burgu bëhet më i ftohtë rreth plakës.", "At night, the prison grows colder around the old woman."],
+  "agaYmer1.text[0]": ["natën, shtëpia bëhet më e ftohtë rreth plakës.", "At night, the house grows colder around the old woman."],
   "agaYmer1.text[1]": ["plaka thotë:", "The old woman begins her tale:"],
   "agaYmer1.text[3]": ["një trim është larg nëntë vjet dhe nëntë ditë.", "A hero has been away for nine years and nine days."],
   "agaYmer1.text[4]": ["trimi quhet aga Ymer.", "The hero is called Aga Ymer."],

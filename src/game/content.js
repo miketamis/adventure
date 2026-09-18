@@ -1677,7 +1677,7 @@ export const STORY = {
   agaYmer1: {
     id: 'agaYmer1',
     text: [
-      when('night', ambient(describesEnvironment('time', R('At night, the prison grows colder around the old woman.', w('naten'), p(','), wf('burg', 'burgu', 'the prison'), wf('behet', 'bëhet', 'becomes'), w('me_more'), w('i_art'), w('ftohte'), w('rreth'), wf('plake', 'plakës', 'the old woman'), p('.'))), 'env:agaYmer1:night')),
+      when('night', ambient(describesEnvironment('time', R('At night, the house grows colder around the old woman.', w('naten'), p(','), wf('shtepi', 'shtëpia', 'the house'), wf('behet', 'bëhet', 'becomes'), w('me_more'), w('e_art'), w('ftohte'), w('rreth'), wf('plake', 'plakës', 'the old woman'), p('.'))), 'env:agaYmer1:night')),
       R('The old woman begins her tale:', wf('plake', 'plaka', 'the old woman'), w('thote'), p(':')),
       // the classic Tosk tale-opener, exactly as the tellers begin (Dozon prints
       // it "Iç mos iç" and calls it the initial formula of the tales)
@@ -1703,7 +1703,7 @@ export const STORY = {
     id: 'syriKeq1',
     text: [
       from('fshatiJeta', R('You walk from the homes to the child in front of the house.', w('ti'), wf('ec', 'ecën', 'walk'), w('nga'), wf('shtepi', 'shtëpitë', 'the homes'), wf('tek', 'te', 'to'), wf('femije', 'fëmija', 'the child'), wf('para', 'para', 'in front of'), wf('shtepi', 'shtëpisë', 'the house'), p('.'))),
-      when('dusk', ambient(describesEnvironment('time', R('At dusk, the room darkens around the child.', wf('ne', 'Në', 'at'), w('muzg'), p(','), wf('dhome', 'dhoma', 'the room'), wf('behet', 'bëhet', 'becomes'), w('e_art'), w('erret'), w('rreth'), wf('femije', 'fëmijës', 'the child'), p('.'))), 'env:syriKeq1:dusk')),
+      when('dusk', ambient(describesEnvironment('time', R('At dusk, it grows dark in front of the house.', wf('ne', 'Në', 'at'), w('muzg'), p(','), wf('behet', 'bëhet', 'becomes'), w('erret'), wf('para', 'para', 'in front of'), wf('shtepi', 'shtëpisë', 'the house'), p('.'))), 'env:syriKeq1:dusk')),
       R('Someone sees the beautiful child and exclaims, “Beautiful!”', w('nje'), w('njeri'), w('sheh'), wf('femije', 'fëmijën', 'the child'), w('e_art'), w('bukur'), w('dhe'), w('thote'), p(':'), w('i_art'), w('bukur'), p('!')),
       R('Then the child falls ill and grows feverish.', w('pastaj'), wf('femije', 'fëmija', 'the child'), w('semure'), p('.'), wf('femije', 'fëmija', 'the child'), w('eshte'), w('i_art'), w('ngrohte'), p('.')),
       R('The mother hurries over with garlic in her hand.', wf('nene', 'nëna', 'the mother'), w('vjen'), w('shpejt'), w('me'), w('hudher'), wf('ne', 'në', 'in'), w('dore'), p('.')),

@@ -1,0 +1,132 @@
+import { expect, test } from '@playwright/test'
+import { STORY } from '../../src/game/content.js'
+import { buildWorldNodeScene, buildWorldNodeSceneIndex } from '../../src/game/worldScene3dNodes.js'
+
+async function openNodeRenders(page) {
+  await page.goto('./')
+  await expect(page.getByTestId('world-node-view')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Node scene renders', exact: true })).toHaveCount(0)
+  await page.locator('[data-performance-id="debug-toggle"]').click({ clickCount: 5 })
+  await page.getByRole('button', { name: '🗺 Map', exact: true }).click()
+  await page.getByRole('button', { name: 'Node scene renders', exact: true }).click()
+  await expect(page.getByTestId('world-node-canvas')).toBeVisible()
+}
+
+async function downloadBytes(download) {
+  const stream = await download.createReadStream(), parts = []
+  for await (const part of stream) parts.push(part)
+  return Buffer.concat(parts)
+}
+
+test('node scenes place a navigable physical render beside every source and keep conditional witnesses separate', async ({ page }) => {
+  const errors = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  const index = buildWorldNodeSceneIndex()
+  expect(index.map(({ nodeId }) => nodeId).sort()).toEqual(Object.keys(STORY).sort())
+  await openNodeRenders(page)
+  const picker = page.getByRole('combobox', { name: 'Story node render', exact: true })
+  await expect(picker.locator('option')).toHaveCount(index.length)
+  await expect(picker).toHaveValue('start')
+  const scene = buildWorldNodeScene('bujtina')
+  await picker.selectOption('bujtina')
+  await expect(page.locator('.worldnode-prose article')).toHaveCount(scene.descriptions.length)
+  const canvas = page.getByTestId('world-node-canvas')
+  const before = await canvas.screenshot()
+  await page.getByRole('button', { name: 'Look right', exact: true }).click()
+  await expect(async () => expect((await canvas.screenshot()).equals(before)).toBe(false)).toPass()
+  await page.getByRole('combobox', { name: 'Node camera mode' }).selectOption('orbit')
+  await expect(page.locator('.worldnode-camera-note')).toContainText('External inspection')
+  await page.getByRole('button', { name: 'Reset viewpoint', exact: true }).click()
+  await expect(page.getByRole('combobox', { name: 'Node camera mode' })).toHaveValue('first-person')
+  const sourcedObject = scene.objects.find((object) => object.descriptionIds?.some((id) => scene.descriptions.some((description) => description.id === id)))
+  expect(sourcedObject).toBeTruthy()
+  await page.getByRole('combobox', { name: 'Node scene object', exact: true }).selectOption(sourcedObject.id)
+  await expect(page.getByTestId('world-node-object')).toContainText(sourcedObject.id)
+  await expect(page.locator('.worldnode-prose article.is-selected')).not.toHaveCount(0)
+  await page.getByTestId('world-node-object').getByRole('button').first().click()
+  await expect(page.locator('.worldnode-mode')).toContainText('STORY.')
+  await canvas.screenshot({ path: '/tmp/language-adventure-node-inn.png' })
+
+  await picker.selectOption('lumi')
+  const inactive = page.locator('.worldnode-prose article.is-inactive').first()
+  await expect(inactive).toBeVisible()
+  await inactive.getByRole('button', { name: 'Inspect this condition', exact: true }).click()
+  await expect(page.locator('.worldnode-mode')).toContainText('Conditional witness')
+  await expect(page.locator('.worldnode-prose article.is-selected')).toHaveCount(1)
+  const imageDownload = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export 360° PNG', exact: true }).click()
+  const png = await downloadBytes(await imageDownload)
+  expect(png.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a')
+  expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1024, 512])
+  await page.getByRole('combobox', { name: 'Node scene projection' }).selectOption('panorama')
+  await expect(canvas).toHaveClass('is-panorama')
+  await expect(page.locator('.worldnode-camera-note')).toContainText('360° × 180°')
+
+  await picker.selectOption('maroPrincesha')
+  await expect(page.locator('.worldnode-mode')).toContainText('Unlocated local 360°')
+  await expect(page.locator('.worldnode-mode')).toContainText('Representative authored condition')
+  await page.locator('[data-description-id="description:maroPrincesha:2"]').getByRole('button').click()
+  await expect(page.getByRole('combobox', { name: 'Node scene object', exact: true }).locator('option')).not.toHaveCount(1)
+  await page.getByRole('button', { name: 'Behind', exact: true }).click()
+  await canvas.screenshot({ path: '/tmp/language-adventure-node-uncharted.png' })
+  await page.getByRole('searchbox', { name: 'Find a story node' }).fill('bujtina')
+  await picker.selectOption('bujtina')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(canvas).toBeVisible()
+  expect(await page.getByTestId('world-node-view').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+  await page.locator('.worldnode-prose article').first().screenshot({ path: '/tmp/language-adventure-node-prose-mobile.png' })
+  await page.getByRole('button', { name: 'Current story node', exact: true }).click()
+  await expect(picker).toHaveValue('start')
+  await expect(page.locator('.worldnode-mode')).toContainText('Current run')
+  expect(errors).toEqual([])
+})
+
+test('all-node export is cancellable and produces a real render plus source manifest for every story node', async ({ page }) => {
+  test.setTimeout(180_000)
+  await openNodeRenders(page)
+  const total = Object.keys(STORY).length
+  const start = page.getByRole('button', { name: `Render all ${total} nodes & export ZIP`, exact: true })
+  await start.click()
+  await expect(page.getByTestId('world-node-export-progress')).toContainText('rendering')
+  await page.getByRole('button', { name: 'Cancel batch render', exact: true }).click()
+  await expect(page.getByTestId('world-node-export-progress')).toContainText('cancelled')
+  await expect(start).toBeEnabled()
+  const pendingDownload = page.waitForEvent('download', { timeout: 150_000 })
+  await start.click()
+  const download = await Promise.race([pendingDownload, page.getByRole('alert').waitFor({ state: 'visible', timeout: 150_000 }).then(async () => { throw new Error(await page.getByRole('alert').innerText()) })])
+  expect(download.suggestedFilename()).toBe('aventura-all-node-renders.zip')
+  const zip = await downloadBytes(download)
+  await download.saveAs('/tmp/language-adventure-all-node-renders.zip')
+  const entries = new Map()
+  let cursor = 0
+  while (zip.readUInt32LE(cursor) === 0x04034b50) {
+    expect(zip.readUInt16LE(cursor + 8)).toBe(0)
+    const size = zip.readUInt32LE(cursor + 18), nameLength = zip.readUInt16LE(cursor + 26), extraLength = zip.readUInt16LE(cursor + 28)
+    const name = zip.subarray(cursor + 30, cursor + 30 + nameLength).toString('utf8')
+    const startOfData = cursor + 30 + nameLength + extraLength
+    expect(entries.has(name)).toBe(false)
+    entries.set(name, zip.subarray(startOfData, startOfData + size))
+    cursor = startOfData + size
+  }
+  expect(zip.readUInt32LE(cursor)).toBe(0x02014b50)
+  const manifest = JSON.parse(entries.get('scene-audit.json').toString('utf8'))
+  expect(manifest.complete).toBe(true)
+  expect(manifest.nodeCount).toBe(total)
+  expect(manifest.nodes.map(({ nodeId }) => nodeId).sort()).toEqual(Object.keys(STORY).sort())
+  expect([...entries.keys()].filter((name) => name.startsWith('nodes/'))).toHaveLength(total)
+  for (const node of manifest.nodes) {
+    expect(entries.get(node.image)?.subarray(0, 8).toString('hex'), node.nodeId).toBe('89504e470d0a1a0a')
+    expect(entries.has(node.contactSheet), node.nodeId).toBe(true)
+    expect(node.projection).toBe('equirectangular-360')
+    expect([node.width, node.height]).toEqual([1024, 512])
+    expect(node.descriptions.length, node.nodeId).toBe(STORY[node.nodeId].text.length)
+  }
+  const uncharted = manifest.nodes.find(({ nodeId }) => nodeId === 'maroPrincesha')
+  expect(uncharted.location.kind).not.toBe('charted')
+  expect(uncharted.objects.some(({ key, attributes }) => key === 'maro-son' && attributes.age === 'baby')).toBe(true)
+  expect(uncharted.representativeDescriptionId).toBeTruthy()
+  expect(uncharted.descriptions.some((description) => description.physicalClaims.length > 0)).toBe(true)
+  expect(uncharted.camera.space).toBe('unlocated-local')
+  expect(uncharted.localOnly).toBe(true)
+  await expect(page.getByTestId('world-node-export-progress')).toContainText(`${total} / ${total} · complete`)
+})

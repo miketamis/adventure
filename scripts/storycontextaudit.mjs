@@ -623,6 +623,21 @@ check('Rozafa withdrawal describes dawn only for the wife who stayed home', () =
   }
 })
 
+check('3D review keeps environmental prose in the actual house and outdoor scene', () => {
+  const cases = [
+    ['agaYmer1', 0, 'night', 'natën, shtëpia bëhet më e ftohtë rreth plakës.'],
+    ['syriKeq1', 1, 'dusk', 'Në muzg, bëhet errët para shtëpisë.'],
+  ]
+  for (const [nodeId, index, condition, text] of cases) {
+    const target = lineOf(STORY[nodeId].text[index])
+    assert.equal(albanianTextOf(target), text)
+    assert.ok(visibleLines(STORY[nodeId], (id) => id === condition).includes(target))
+    assert.deepEqual([...authoredEnvironmentDimensions([target])], ['time'])
+    assert.equal(albanianTextOf(environmentStoryLine({ clock: 0, season: 'spring', weather: 'rain' },
+      { omit: authoredEnvironmentDimensions([target]) })), 'në këtë pranverë, po bie shi.')
+  }
+})
+
 check('every authored environment line is reachable and preserves undeclared fallbacks', () => {
   const fallbackByOmission = Object.freeze({
     '': 'në këtë mëngjes pranvere, po bie shi.',

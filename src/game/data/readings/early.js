@@ -593,7 +593,7 @@ export const EARLY_READINGS = {
   "plaka.text[5]": ["plaka thotë: bukë e kripë e zemër.", "The old woman says, “Bread, salt, and heart.”"],
   "plaka.text[6]": ["plaka thotë: kulshedra ka ujë dhe Bukurën.", "The old woman says, “The Kulshedra holds the water and the Beauty.”"],
   "plaka.text[7]": ["plaka thotë: kjo histori fillon me një besë.", "The old woman says, “This story begins with an oath.”"],
-  "syriKeq1.text[1]": ["Në muzg, dhoma bëhet e errët rreth fëmijës.", "At dusk, the room darkens around the child."],
+  "syriKeq1.text[1]": ["Në muzg, bëhet errët para shtëpisë.", "At dusk, it grows dark in front of the house."],
   "syriKeq1.text[2]": ["një njeri sheh fëmijën e bukur dhe thotë: i bukur!", "Someone sees the beautiful child and exclaims, “Beautiful!”"],
   "syriKeq1.text[3]": ["pastaj fëmija sëmuret. fëmija është i ngrohtë.", "Then the child falls ill and grows feverish."],
   "syriKeq1.text[4]": ["nëna vjen shpejt me hudhër në dorë.", "The mother hurries over with garlic in her hand."],
