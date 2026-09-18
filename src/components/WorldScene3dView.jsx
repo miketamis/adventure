@@ -41,8 +41,10 @@ export default function WorldScene3dView({ state }) {
   const hitsRef = useRef([])
   const dragRef = useRef(null)
   const selected = elementsById.get(selectedId)
-  const selectedRoutes = useMemo(() => model.routes.filter((route) => selected?.placeId
-    && route.fromElementId === `place:${selected.placeId}`), [model, selected])
+  const selectedRoutes = useMemo(() => {
+    const places = new Set([selected?.placeId, ...(selected?.placeIds || [])].filter(Boolean).map((id) => `place:${id}`))
+    return model.routes.filter((route) => places.has(route.fromElementId))
+  }, [model, selected])
   const focusedDescription = model.descriptions.find(({ id }) => id === focusedDescriptionId)
   const regions = useMemo(() => [...new Set(model.elements.map((element) => element.regionId).filter(Boolean))].sort(), [model])
   const scopedElements = useMemo(() => model.elements.filter((element) =>
@@ -83,7 +85,11 @@ export default function WorldScene3dView({ state }) {
   }
   const focusDescription = (description) => {
     setFocusedDescriptionId(description.id)
-    selectElement(description.elementIds.find((id) => !['place', 'region'].includes(elementsById.get(id)?.kind)) || description.elementIds[0], true)
+    const references = description.elementIds.filter((id) => elementsById.get(id)?.catalogue)
+    const elementIds = references.length ? references : description.elementIds.filter((id) => elementsById.get(id)?.kind !== 'region')
+    setSelectedId(elementIds.find((id) => elementsById.get(id)?.kind !== 'place') || elementIds[0])
+    setRegionId('')
+    setCamera(defaultCameraForScene(model, { elementIds }))
   }
   const fitWorld = () => {
     setRegionId('')
@@ -194,6 +200,8 @@ export default function WorldScene3dView({ state }) {
             <dt>Story links</dt><dd>{selected.descriptionIds?.length || 0} authored lines</dd></dl>
           <button className="btn" onClick={() => selectElement(selected.id, true)}>Focus this element</button>
           {selected.source && <details><summary>Construction source</summary><pre>{pretty(selected.source)}</pre></details>}
+          {selected.placeIds?.length > 0 && <p className="world3d-small">Connects {selected.placeIds.map((id) => elementsById.get(`place:${id}`)?.label || id).join(' ↔ ')}</p>}
+          {selected.relations?.length > 0 && <details open><summary>Checked spatial relationships</summary><pre>{pretty(selected.relations)}</pre></details>}
           {selected.interpretation && <p className="world3d-small">{selected.interpretation}</p>}
           {selectedRoutes.length > 0 && <details className="world3d-route-list"><summary>{selectedRoutes.length} outgoing story choices</summary>
             <div>{selectedRoutes.map((route) => <article key={route.id}>

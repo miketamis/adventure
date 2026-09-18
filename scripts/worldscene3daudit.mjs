@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { ITEMS, STORY, lineOf } from '../src/game/content.js'
 import { albanianTextOf } from '../src/game/language.js'
 import { NODE_POS, PLACE_NODES, PLACE_OF } from '../src/components/nodePositions.js'
+import { NODE_REGION } from '../src/game/regions.js'
 import { DISTANT_SIGHTLINES, WORLD_BARRIERS, routeForChoice } from '../src/game/worldModel.js'
 import { WORLD_SCENE_3D_FEATURES } from '../src/game/data/worldScene3dFeatures.js'
 import { SEASONS, WEATHER_TYPES, civilDayPartAtClock } from '../src/game/environment.js'
@@ -12,10 +13,14 @@ import { ENVIRONMENT_DIMENSIONS, ENVIRONMENT_NARRATION_SETTINGS } from '../src/g
 import { environmentStoryLine } from '../src/game/storyContext.js'
 import {
   defaultCameraForScene,
+  drawWorldScene3d,
+  highlightedWorldSceneElements,
+  hitTestWorldScene3d,
   orbitWorldSceneCamera,
   panWorldSceneCamera,
   projectWorldScenePoint,
   visibleWorldSceneElements,
+  worldScene3dMesh,
   zoomWorldSceneCamera,
 } from '../src/components/worldScene3dRenderer.js'
 import {
@@ -53,6 +58,71 @@ assert.ok(Math.hypot(zoomed.x - 480, zoomed.y - 320) > Math.hypot(projected.x - 
 const panned = panWorldSceneCamera(camera, 30, 20, 960, 640)
 assert.ok(panned.target.every(Number.isFinite), 'pan must retain a finite camera target')
 assert.notDeepEqual(panned.target, camera.target, 'pan must move the inspected scene')
+
+// Only positive location predicates establish actor geometry. Name knowledge
+// also annotates absence, a person across the bridge, and a departed person.
+for (const description of model.descriptions) {
+  for (const binding of description.bindings.filter(({ type }) => type === 'actor-metadata')) {
+    assert.equal(description.conditions.negate, false, `${description.id}: negated conjunction cannot establish an actor's location`)
+    assert.ok(description.conditions.all.includes(binding.evidence.evidence), `${description.id}: identity or excluded presence cannot establish actor geometry`)
+  }
+}
+for (const id of ['description:fshatiSheshi:24', 'description:fshatiSheshi:25', 'description:bisedaShesh:2', 'description:bisedaShesh:7']) {
+  const description = descriptions.get(id)
+  assert.ok(description.npcIdentity?.npcId === 'elira', `${id}: retain identity metadata even when location is unproved`)
+  assert.equal(description.bindings.some(({ type }) => type === 'actor-metadata'), false, `${id}: absent, distant or departed Elira must not be depicted at the observer's place`)
+  assert.equal(visibleWorldSceneElements(model, { focusedDescriptionId: id }).some(({ kind }) => kind === 'actor'), false, `${id}: source focus must not make absent actors appear`)
+}
+const springSighting = model.descriptions.find((description) => description.nodeId === 'fshatiLumi' && description.conditions.all.includes('npcAt:gruaUji:kroi1'))
+assert.ok(springSighting?.bindings.some(({ type, elementId }) => type === 'actor-metadata' && elementId === 'actor:gruaUji:kroi1'), 'explicit distant actor location must remain mapped to the spring')
+
+const bridgeHighlights = highlightedWorldSceneElements(model, { focusedDescriptionId: 'description:start:1' })
+assert.ok(bridgeHighlights.has('feature:village-bridge'), 'reviewed bridge source must highlight the bridge')
+assert.equal(bridgeHighlights.has('region:forest'), false, 'source scene context must not highlight the whole forest as an asserted object')
+assert.equal(bridgeHighlights.has('place:start'), false, 'source scene context must not promote the place plinth to a physical feature')
+
+// Test the renderer's actual mesh, so correct metadata cannot conceal an
+// unrotated deck or a bridge that stops short of its authored shores.
+for (const feature of WORLD_SCENE_3D_FEATURES.filter(({ placement }) => placement?.kind === 'crossing')) {
+  const element = elements.get(`feature:${feature.id}`)
+  const crossing = WORLD_BARRIERS.find(({ id }) => id === feature.placement.barrierId).crossings[feature.placement.crossingIndex]
+  assert.equal(element.placeId, null, `${element.id}: a crossing is not located exclusively on one shore`)
+  assert.deepEqual(element.placeIds, [...new Set(crossing.edge.map((nodeId) => PLACE_OF[nodeId]))], `${element.id}: both shores must be inspectable`)
+  const faces = worldScene3dMesh(element)
+  const faceCenters = faces.map(({ vertices }) => [0, 1, 2].map((axis) => vertices.reduce((sum, vertex) => sum + vertex[axis], 0) / vertices.length))
+  for (const nodeId of crossing.edge) {
+    const [x, z] = NODE_POS[nodeId]
+    assert.ok(faceCenters.some((center) => Math.hypot(center[0] - x, center[1] - element.position[1], center[2] - z) < 1e-6), `${element.id}: rendered deck does not reach ${nodeId}`)
+  }
+}
+assert.equal(elements.has('feature:old-bridge'), false, 'Fshaj bridge must not be duplicated at its first shore')
+assert.ok(elements.get('feature:fshaj-bridge').descriptionIds.includes('description:ura:3'), 'first-shore bridge prose must still map to the single crossing')
+assert.equal(elements.has('feature:dry-well-shaft'), false, 'village well and its shaft must share one physical element')
+assert.equal(elements.get('feature:square-well').placeId, 'pusiThate', 'the square observes the well at its actual destination')
+assert.equal(elements.get('feature:sea-village').placeId, 'bregu', 'shoreline description must refer to the village destination')
+
+const skylineElements = descriptions.get('description:fshatiSheshi:10').elementIds.filter((id) => elements.get(id).kind !== 'region')
+const skylineCamera = defaultCameraForScene(model, { elementIds: skylineElements })
+for (const id of skylineElements) {
+  for (const vertex of worldScene3dMesh(elements.get(id)).flatMap(({ vertices }) => vertices)) {
+    const point = projectWorldScenePoint(vertex, skylineCamera, 960, 640)
+    assert.ok(point && point.x >= 0 && point.x <= 960 && point.y >= 0 && point.y <= 640, `${id}: source focus camera must include both observer and distant skyline geometry`)
+  }
+}
+
+// Use the production draw path to test selecting a contained object through
+// its inspection cutaway, not a fabricated set of hit boxes.
+const innScene = { ...model, elements: model.elements.filter(({ id }) => ['place:bujtina', 'feature:inn-building', 'feature:inn-bed'].includes(id)) }
+const innCamera = defaultCameraForScene(innScene)
+const mockContext = new Proxy({ createLinearGradient: () => ({ addColorStop() {} }), measureText: () => ({ width: 0 }) }, {
+  get: (object, key) => object[key] ?? (() => {}),
+})
+const drawnInn = drawWorldScene3d({ getContext: () => mockContext, getBoundingClientRect: () => ({ width: 960, height: 640 }) }, innScene, {
+  camera: innCamera, selectedId: 'feature:inn-bed', showLabels: false, showRoutes: false, showSightlines: false,
+})
+assert.equal(drawnInn.find(({ id }) => id === 'feature:inn-building')?.transparent, true, 'inspected bed must expose a cutaway through its enclosing inn')
+const bedPoint = projectWorldScenePoint(elements.get('feature:inn-bed').position, innCamera, 960, 640)
+assert.equal(hitTestWorldScene3d(drawnInn, bedPoint.x, bedPoint.y)?.id, 'feature:inn-bed', 'the visible interior bed must remain pickable through its transparent inn')
 
 // The dry and restored river are opposite authored world states. Browsing a
 // place must not show both as if they existed together; exact source focus
@@ -93,6 +163,7 @@ for (const [nodeId, node] of Object.entries(STORY)) {
     assert.equal(description.source.kind, 'story-line', `${id}: incorrect source family`)
     assert.equal(description.text, albanianTextOf(lineOf(entry)), `${id}: source text drift`)
     assert.ok(description.elementIds.includes(`place:${PLACE_OF[nodeId]}`), `${id}: missing canonical place context`)
+    assert.ok(elements.get(`place:${PLACE_OF[nodeId]}`).regionIds.includes(NODE_REGION[nodeId]), `${id}: scene's physical place disappears from its canonical region filter`)
     assert.ok(description.bindings.length, `${id}: missing relationship classification`)
     for (const elementId of description.elementIds) {
       assert.ok(elements.get(elementId)?.descriptionIds.includes(id), `${id}: ${elementId} has no reciprocal source link`)
@@ -219,6 +290,7 @@ function rejectsMutation(label, target, mutate) {
   assert.ok(issues.every((issue) => typeof issue === 'string' && issue.trim()), `${label}: missing actionable diagnostics`)
   assert.ok(issues.some((issue) => issue.startsWith(`${target}:`)), `${label}: missing record-specific failure for ${target}; summary drift alone is insufficient`)
   mutationCount++
+  return issues
 }
 
 const firstDescriptionId = model.descriptions[0].id
@@ -235,6 +307,18 @@ rejectsMutation('wrong scene provenance', firstDescriptionId, (changed) => { cha
 rejectsMutation('changed source visibility conditions', firstDescriptionId, (changed) => { changed.descriptions[0].conditions.all = ['__unauthored_condition__'] })
 rejectsMutation('malformed source visibility conditions', firstDescriptionId, (changed) => { changed.descriptions[0].conditions = ['__unauthored_condition__'] })
 rejectsMutation('unmapped source line', firstDescriptionId, (changed) => { changed.descriptions[0].elementIds = [] })
+rejectsMutation('duplicate relationship evidence', firstDescriptionId, (changed) => {
+  changed.descriptions[0].bindings.push(structuredClone(changed.descriptions[0].bindings[0]))
+})
+rejectsMutation('absent actor depicted as present', 'description:fshatiSheshi:25', (changed) => {
+  const description = changed.descriptions.find(({ id }) => id === 'description:fshatiSheshi:25')
+  const element = changed.elements.find(({ id }) => id === 'actor:elira:fshatiSheshi')
+  description.elementIds.push(element.id)
+  description.bindings.push({ elementId: element.id, type: 'actor-metadata', evidence: { npcId: 'elira', nodeId: 'fshatiSheshi', evidence: 'npc:elira' } })
+  element.descriptionIds.push(description.id)
+  element.witnessConditions.push({ descriptionId: description.id, conditions: description.conditions })
+  description.classification = 'canonical-metadata'
+})
 rejectsMutation('missing reverse provenance', firstDescriptionId, (changed) => {
   const description = changed.descriptions[0]
   const element = changed.elements.find((entry) => entry.id === description.elementIds[0])
@@ -248,12 +332,18 @@ rejectsMutation('missing physical place', `place:${PLACE_OF.start}`, (changed) =
 rejectsMutation('chart coordinate drift', `place:${PLACE_OF.start}`, (changed) => {
   changed.elements.find((element) => element.id === `place:${PLACE_OF.start}`).position[0] += 1
 })
+rejectsMutation('scene region alias omitted from physical place', 'place:start', (changed) => {
+  changed.elements.find(({ id }) => id === 'place:start').regionIds = ['forest']
+})
 rejectsMutation('physical place hidden as an unlocated reference', `place:${PLACE_OF.start}`, (changed) => {
   changed.elements.find((element) => element.id === `place:${PLACE_OF.start}`).catalogue = true
 })
 rejectsMutation('non-finite geometry', model.elements[0].id, (changed) => { changed.elements[0].position[1] = Number.NaN })
 rejectsMutation('missing authored route', firstRouteId, (changed) => changed.routes.splice(0, 1))
 rejectsMutation('false route endpoint', firstRouteId, (changed) => { changed.routes[0].toElementId = 'place:__missing_place__' })
+rejectsMutation('forged route direction', firstRouteId, (changed) => { changed.routes[0].direction = '__invented_direction__' })
+rejectsMutation('forged route region', firstRouteId, (changed) => { changed.routes[0].fromRegion = '__invented_region__' })
+rejectsMutation('wrong route source option index', firstRouteId, (changed) => { changed.routes[0].optionIndex += 1 })
 rejectsMutation('route geometry detached from its source place', firstRouteId, (changed) => {
   const route = changed.routes.find((entry) => entry.points?.length >= 2)
   assert.ok(route, 'production 3D model must expose route geometry')
@@ -292,6 +382,38 @@ rejectsMutation('forged feature witness source', firstFeatureDescriptionId, (cha
 const firstFixtureId = model.elements.find((element) => element.kind === 'fixture').id
 rejectsMutation('fixture geometry detached from canonical place', firstFixtureId, (changed) => {
   changed.elements.find((element) => element.id === firstFixtureId).position[0] += 100
+})
+assert.ok(rejectsMutation('bridge detached from its shores', 'feature:fshaj-bridge', (changed) => {
+  changed.elements.find(({ id }) => id === 'feature:fshaj-bridge').geometry.rotationY = 0
+}).some((issue) => issue.includes('bridge deck must span both exact crossing endpoints')), 'bridge mismatch must explain the failed physical relationship')
+assert.ok(rejectsMutation('bridge stops short of its shores', 'feature:village-bridge', (changed) => {
+  changed.elements.find(({ id }) => id === 'feature:village-bridge').geometry.size[0] = 20
+}).some((issue) => issue.includes('bridge deck must span both exact crossing endpoints')), 'short bridge must fail its span constraint')
+assert.ok(rejectsMutation('bed outside the inn', 'feature:inn-bed', (changed) => {
+  changed.elements.find(({ id }) => id === 'feature:inn-bed').position[0] += 30
+}).some((issue) => issue.includes('contained feature must fit inside feature:inn-building')), 'bed mismatch must explain containment rather than only blueprint drift')
+assert.ok(rejectsMutation('well shaft erected above ground', 'feature:square-well', (changed) => {
+  changed.elements.find(({ id }) => id === 'feature:square-well').position[1] = 4.5
+}).some((issue) => issue.includes('shaft must extend below ground')), 'well mismatch must explain the depth constraint')
+assert.ok(rejectsMutation('river above its bridge', 'feature:fshaj-river-below', (changed) => {
+  changed.elements.find(({ id }) => id === 'feature:fshaj-river-below').position[1] = 20
+}).some((issue) => issue.includes('feature must lie below feature:fshaj-bridge')), 'river mismatch must explain the vertical relationship')
+assert.ok(rejectsMutation('river misses its bridge', 'feature:fshaj-river-below', (changed) => {
+  changed.elements.find(({ id }) => id === 'feature:fshaj-river-below').position[0] += 100
+}).some((issue) => issue.includes('feature must overlap the ground footprint')), 'river mismatch must explain the missing crossing')
+rejectsMutation('unreviewed distant feature mapping', 'description:deti1:5', (changed) => {
+  changed.descriptions.find(({ id }) => id === 'description:deti1:5').bindings.find(({ type }) => type === 'reviewed-feature').evidence.location.route.to = 'start'
+})
+rejectsMutation('missing containment provenance', 'feature:inn-bed', (changed) => {
+  changed.elements.find(({ id }) => id === 'feature:inn-bed').relations = []
+})
+const firstObservationDescriptionId = model.descriptions.find((description) => description.bindings.some(({ type }) => type === 'observation-metadata')).id
+rejectsMutation('forged observation evidence', firstObservationDescriptionId, (changed) => {
+  changed.descriptions.find(({ id }) => id === firstObservationDescriptionId).bindings.find(({ type }) => type === 'observation-metadata').evidence.observationId = '__invented_observation__'
+})
+const firstSightlineDescriptionId = model.descriptions.find((description) => description.bindings.some(({ type }) => type === 'distant-sightline')).id
+rejectsMutation('forged sightline evidence', firstSightlineDescriptionId, (changed) => {
+  changed.descriptions.find(({ id }) => id === firstSightlineDescriptionId).bindings.find(({ type }) => type === 'distant-sightline').evidence.requires = ['__invented_sense__']
 })
 rejectsMutation('conditional feature presented as unconditional', dryRiver.id, (changed) => {
   changed.elements.find((element) => element.id === dryRiver.id).conditional = false

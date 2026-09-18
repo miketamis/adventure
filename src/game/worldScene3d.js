@@ -16,7 +16,7 @@ import { SEASONS, WEATHER_TYPES, civilDayPartAtClock } from './environment.js'
 import { ENVIRONMENT_DIMENSIONS, ENVIRONMENT_NARRATION_SETTINGS } from './environmentNarration.js'
 import { environmentStoryLine } from './storyContext.js'
 
-export const WORLD_SCENE_3D_VERSION = 1
+export const WORLD_SCENE_3D_VERSION = 2
 export const WORLD_SCENE_3D_COORDINATES = Object.freeze({
   order: Object.freeze(['chart-x', 'illustrative-height', 'chart-y']),
   chartAxes: WORLD_AXES,
@@ -136,12 +136,65 @@ const baseElement = (id, kind, label, nodeId, geometry, offset = [0, 0, 0]) => (
   descriptionIds: [], source: null,
 })
 
+const crossingForFeature = (feature) => ['crossing', 'crossing-center'].includes(feature.placement?.kind)
+  ? WORLD_BARRIERS.find(({ id }) => id === feature.placement.barrierId)?.crossings[feature.placement.crossingIndex]
+  : null
+const regionMemberships = (element) => unique([
+  element.regionId,
+  ...(element.placeIds || [element.placeId]).flatMap((placeId) => (PLACE_NODES[placeId] || []).map((nodeId) => NODE_REGION[nodeId])),
+].filter(Boolean))
+
+function featureSpatialProperties(feature) {
+  const crossing = crossingForFeature(feature)
+  const geometry = shape(feature.geometry.shape, feature.geometry.size)
+  if (!crossing) return {
+    placeId: PLACE_OF[feature.nodeId], regionId: NODE_REGION[PLACE_OF[feature.nodeId]],
+    position: positionAt(feature.nodeId, 0, feature.offset), geometry,
+  }
+  const [from, to] = crossing.edge
+  const a = NODE_POS[from], b = NODE_POS[to]
+  if (feature.placement.kind === 'crossing') {
+    geometry.size[0] = Math.hypot(b[0] - a[0], b[1] - a[1])
+    geometry.rotationY = -Math.atan2(b[1] - a[1], b[0] - a[0])
+  }
+  return {
+    placeId: null, placeIds: unique(crossing.edge.map((nodeId) => PLACE_OF[nodeId])),
+    regionId: NODE_REGION[PLACE_OF[from]],
+    position: [(a[0] + b[0]) / 2, feature.offset[1], (a[1] + b[1]) / 2], geometry,
+  }
+}
+
+const featureLocalPoint = (element, point) => {
+  const angle = element.geometry.rotationY || 0
+  const dx = point[0] - element.position[0], dz = point[2] - element.position[2]
+  return [Math.cos(angle) * dx - Math.sin(angle) * dz, point[1] - element.position[1], Math.sin(angle) * dx + Math.cos(angle) * dz]
+}
+const featureCorners = (element) => {
+  const angle = element.geometry.rotationY || 0
+  return [-1, 1].flatMap((x) => [-1, 1].flatMap((y) => [-1, 1].map((z) => {
+    const [dx, dy, dz] = element.geometry.size.map((size, axis) => size * [x, y, z][axis] / 2)
+    return [element.position[0] + Math.cos(angle) * dx + Math.sin(angle) * dz,
+      element.position[1] + dy, element.position[2] - Math.sin(angle) * dx + Math.cos(angle) * dz]
+  })))
+}
+const overlappingFootprints = (a, b) => [a, b].every((element) => {
+  const angle = element.geometry.rotationY || 0
+  return [[Math.cos(angle), -Math.sin(angle)], [Math.sin(angle), Math.cos(angle)]].every(([x, z]) => {
+    const project = (target) => featureCorners(target).map((point) => point[0] * x + point[2] * z)
+    const pa = project(a), pb = project(b)
+    return Math.max(...pa) >= Math.min(...pb) && Math.max(...pb) >= Math.min(...pa)
+  })
+})
+
 function actorReferences(description) {
   const references = []
-  if (description.npcIdentity?.npcId) {
-    references.push({ npcId: description.npcIdentity.npcId, nodeId: description.nodeId, evidence: 'npcIdentity' })
-  }
-  for (const condition of [...list(description.conditions?.all), ...list(description.conditions?.none)]) {
+  // A name/descriptor annotation identifies who prose is about; it does not
+  // say where they stand. It also annotates departures and absent people.
+  // Likewise, excluded conditions and a negated conjunction cannot establish
+  // positive presence. Keep those facts on the source without inventing an
+  // actor at the observer's position when that source is inspected.
+  if (description.conditions?.negate) return references
+  for (const condition of list(description.conditions?.all)) {
     if (typeof condition !== 'string') continue
     const parts = condition.split(':')
     if (parts[0] === 'npc' && parts.length === 2) references.push({ npcId: parts[1], nodeId: description.nodeId, evidence: condition })
@@ -219,6 +272,9 @@ export function buildWorldScene3d() {
     const id = `feature:${feature.id}`
     const element = addElement({
       ...baseElement(id, 'feature', feature.label, feature.nodeId, shape(feature.geometry.shape, feature.geometry.size), feature.offset),
+      ...featureSpatialProperties(feature),
+      placement: feature.placement || { kind: 'at-place', nodeId: feature.nodeId },
+      relations: feature.relations || [],
       featureId: feature.id, source: { file: 'src/game/data/worldScene3dFeatures.js', authority: 'WORLD_SCENE_3D_FEATURES', key: feature.id },
       interpretation: feature.interpretation,
       witnesses: feature.witnesses.map((witness) => ({ ...witness, requires: [...witness.requires], descriptionId: descriptionId(witness.nodeId, witness.lineIndex) })),
@@ -226,6 +282,7 @@ export function buildWorldScene3d() {
     for (const witness of element.witnesses) {
       bind(descriptionById.get(witness.descriptionId), id, 'reviewed-feature', {
         featureId: feature.id, requires: [...witness.requires], source: textSource(witness.nodeId, witness.lineIndex),
+        ...(witness.location ? { location: witness.location } : {}),
       })
     }
   }
@@ -355,6 +412,7 @@ export function buildWorldScene3d() {
         : 'context-only'
   }
   for (const element of elements) {
+    element.regionIds = regionMemberships(element)
     element.witnessConditions = element.descriptionIds.map((id) => ({ descriptionId: id, conditions: descriptionById.get(id).conditions }))
     // Never depict mutually exclusive states as simultaneous world facts.
     // Explicit selection may reveal their audit geometry with its predicates.
@@ -371,6 +429,7 @@ export function buildWorldScene3d() {
       'A scene-context link locates prose but does not validate its physical assertions. Context-only lines remain visible modeling gaps.',
       'Reviewed feature witnesses establish the named feature, not its illustrative size, local offset, material or architectural accuracy.',
       'Conditions, observations and NPC route stops describe alternatives. This atlas is a survey of authored possibilities, not a simultaneous world state.',
+      'Actor geometry requires positive location predicates. Name knowledge, absence and departure prose retain their source metadata but do not establish an actor at the observer’s place.',
       'Geometry validates canonical place/route continuity, registered crossings, sightlines and exact supported feature witnesses. It cannot prove arbitrary prose or lore true.',
       'Item blurbs use unlocated catalogue symbols. Generated environment coverage enumerates every single-dimension opening/transition template; combined runtime sentence composition remains owned by the production builder.',
     ],
@@ -430,9 +489,12 @@ export function validateWorldScene3d(model) {
   for (const element of elements.values()) {
     const fail = (message) => problem(element.id, message)
     if (Boolean(element.catalogue) !== (element.kind === 'catalogue')) fail('catalogue visibility must match the canonical element kind')
+    if (element.placeIds !== undefined && !(element.kind === 'feature' && ['crossing', 'crossing-center'].includes(element.placement?.kind))) fail('multiple physical places require a reviewed crossing feature')
     if (!finiteVector(element.position)) fail('position must contain three finite coordinates')
+    if (!equal(element.regionIds, regionMemberships(element))) fail('region memberships omit or invent canonical scene aliases')
     if (!allowedShapes.includes(element.geometry?.shape)) fail('unsupported or missing geometry shape')
     if (!finiteVector(element.geometry?.size) || element.geometry.size.some((value) => value <= 0)) fail('geometry dimensions must be positive finite values')
+    if (element.geometry?.rotationY != null && !Number.isFinite(element.geometry.rotationY)) fail('geometry rotation must be finite radians')
     if (!element.source?.file || !element.source?.authority) fail('geometry has no source authority')
     if (!Array.isArray(element.descriptionIds) || unique(element.descriptionIds).length !== element.descriptionIds.length) fail('reverse description links must be a unique array')
     for (const id of element.descriptionIds || []) {
@@ -470,9 +532,10 @@ export function validateWorldScene3d(model) {
       const canonical = routeForChoice(nodeId, option)
       if (!actual) { problem(id, 'playable route is missing'); continue }
       if (!canonical.valid) problem(id, `canonical route is invalid: ${canonical.reason}`)
-      for (const key of ['from', 'to', 'valid', 'kind', 'spatial', 'projection', 'samePlace', 'fromPlace', 'toPlace', 'dx', 'dy', 'distance', 'duration', 'vector']) {
-        if (!equal(actual[key], canonical[key])) problem(id, `canonical route ${key} differs`)
+      for (const [key, value] of Object.entries(canonical)) {
+        if (!equal(actual[key], value)) problem(id, `canonical route ${key} differs`)
       }
+      if (actual.optionIndex !== optionIndex) problem(id, 'route option index differs from its source')
       if (!equal(actual.source, optionSource(nodeId, optionIndex))) problem(id, 'route source is stale')
       if (actual.text !== albanianTextOf(option.text)) problem(id, 'route choice text is stale')
       if (actual.fromElementId !== placeElementId(nodeId) || actual.toElementId !== placeElementId(option.to)) problem(id, 'route has incorrect physical endpoint IDs')
@@ -496,6 +559,7 @@ export function validateWorldScene3d(model) {
     if (!expectedDescriptions.has(description.id)) fail('description has no authored source')
     if (!Array.isArray(description.elementIds) || !description.elementIds.length || unique(description.elementIds).length !== description.elementIds.length) fail('element links must be a non-empty unique array')
     if (!Array.isArray(description.bindings)) { fail('typed bindings are missing'); continue }
+    if (unique(description.bindings.map(({ elementId, type }) => `${elementId}:${type}`)).length !== description.bindings.length) fail('typed bindings must be unique per element and relationship')
     for (const id of description.elementIds || []) {
       if (!elements.has(id)) fail(`mapping targets missing element ${id}`)
       else if (!elements.get(id).descriptionIds?.includes(description.id)) fail(`element ${id} has no reciprocal description link`)
@@ -513,7 +577,8 @@ export function validateWorldScene3d(model) {
         const feature = WORLD_SCENE_3D_FEATURES.find(({ id }) => id === binding.evidence?.featureId)
         const witness = feature?.witnesses.find(({ nodeId, lineIndex }) => nodeId === description.nodeId && lineIndex === description.lineIndex)
         if (!witness || binding.elementId !== `feature:${feature.id}` || !equal(binding.evidence.requires, witness.requires)
-          || !equal(binding.evidence.source, textSource(witness.nodeId, witness.lineIndex))) fail('reviewed feature binding has no exact witness')
+          || !equal(binding.evidence.source, textSource(witness.nodeId, witness.lineIndex))
+          || !equal(binding.evidence.location, witness.location)) fail('reviewed feature binding has no exact witness')
       } else if (binding.type === 'environment-metadata') {
         const dimension = binding.evidence?.dimension
         if (!description.environmentDimensions?.includes(dimension) || binding.elementId !== `environment:${description.placeId}:${dimension}`) fail('environment binding is not backed by exact metadata')
@@ -522,12 +587,13 @@ export function validateWorldScene3d(model) {
         const parsed = parseFixtureCondition(condition)
         if (!parsed || ![...list(description.conditions?.all), ...list(description.conditions?.none)].includes(condition) || binding.elementId !== `fixture:${parsed.fixtureId}` || binding.evidence?.stateId !== parsed.stateId) fail('fixture binding is not backed by its state condition')
       } else if (binding.type === 'observation-metadata') {
-        if (!description.observationId || binding.elementId !== `perception:${description.observationId}`) fail('observation binding has no matching reveal metadata')
+        if (!description.observationId || binding.elementId !== `perception:${description.observationId}` || binding.evidence?.observationId !== description.observationId) fail('observation binding has no matching reveal metadata')
       } else if (binding.type === 'actor-metadata') {
         if (!actorReferences(description).some((reference) => equal(reference, binding.evidence) && binding.elementId === `actor:${reference.npcId}:${PLACE_OF[reference.nodeId]}`)) fail('actor binding has no canonical identity/location evidence')
       } else if (binding.type === 'distant-sightline') {
         const relation = relations.get(binding.evidence?.relationId)
-        if (relation?.kind !== 'sightline' || relation.toElementId !== binding.elementId || !relation.descriptionIds?.includes(description.id)) fail('sightline binding lacks its exact relation')
+        if (relation?.kind !== 'sightline' || relation.toElementId !== binding.elementId || !relation.descriptionIds?.includes(description.id)
+          || !equal(binding.evidence?.requires, relation.requires)) fail('sightline binding lacks its exact relation')
       } else if (binding.type === 'catalogue-item') {
         if (description.source?.kind !== 'item-blurb' || binding.elementId !== `item:${description.itemId}` || binding.evidence?.itemId !== description.itemId || !ITEMS[description.itemId]) fail('item catalogue binding has no canonical item')
       } else if (binding.type === 'generated-environment') {
@@ -570,20 +636,63 @@ export function validateWorldScene3d(model) {
   }
   for (const feature of WORLD_SCENE_3D_FEATURES) {
     requireElement(`feature:${feature.id}`, {
-      kind: 'feature', label: feature.label, featureId: feature.id, regionId: NODE_REGION[feature.nodeId],
+      kind: 'feature', label: feature.label, featureId: feature.id,
+      ...featureSpatialProperties(feature),
+      placement: feature.placement || { kind: 'at-place', nodeId: feature.nodeId },
+      relations: feature.relations || [],
       source: { file: 'src/game/data/worldScene3dFeatures.js', authority: 'WORLD_SCENE_3D_FEATURES', key: feature.id },
     })
     const element = elements.get(`feature:${feature.id}`)
     if (!element) { problem(`feature:${feature.id}`, 'reviewed feature geometry is missing'); continue }
-    if (element.kind !== 'feature' || element.placeId !== PLACE_OF[feature.nodeId] || !equal(element.position, positionAt(feature.nodeId, 0, feature.offset)) || !equal(element.geometry, shape(feature.geometry.shape, feature.geometry.size))) problem(element.id, 'reviewed geometry/placement differs from feature authority')
+    const crossing = crossingForFeature(feature)
+    if (feature.placement && (!['crossing', 'crossing-center'].includes(feature.placement.kind) || !crossing
+      || !Number.isInteger(feature.placement.crossingIndex) || feature.offset[0] !== 0 || feature.offset[2] !== 0)) problem(element.id, 'crossing placement must use a registered crossing with no horizontal displacement')
+    if (!crossing && element.placeIds !== undefined) problem(element.id, 'a local feature may not invent extra physical places')
+    if (crossing && !crossing.edge.some((nodeId) => PLACE_OF[nodeId] === PLACE_OF[feature.nodeId])) problem(element.id, 'crossing feature source anchor must be one of its physical shores')
+    if (feature.placement?.kind === 'crossing' && finiteVector(element.position) && finiteVector(element.geometry?.size)) {
+      const endpoints = crossing?.edge.map((nodeId) => NODE_POS[nodeId]) || []
+      const local = endpoints.map(([x, z]) => featureLocalPoint(element, [x, element.position[1], z]))
+      if (local.length !== 2 || !local.every(([x, , z]) => Math.abs(Math.abs(x) - element.geometry.size[0] / 2) < 1e-6 && Math.abs(z) < 1e-6)
+        || local[0][0] * local[1][0] >= 0) problem(element.id, 'bridge deck must span both exact crossing endpoints')
+    }
     const expectedWitnesses = feature.witnesses.map((witness) => ({ ...witness, requires: [...witness.requires], descriptionId: descriptionId(witness.nodeId, witness.lineIndex) }))
     if (!equal(element.witnesses, expectedWitnesses)) problem(element.id, 'reviewed witnesses are missing or stale')
     for (const witness of expectedWitnesses) {
       const description = descriptions.get(witness.descriptionId)
       if (!description || !witness.requires.every((id) => description.tokenIds.includes(id))) problem(element.id, `${witness.descriptionId} no longer establishes ${witness.requires.join(', ')}`)
       if (!description || description.text !== witness.text || !equal(description.conditions, witness.conditions)) problem(element.id, `${witness.descriptionId} differs from its reviewed physical witness; review this exact feature's text and conditions`)
-      if (PLACE_OF[witness.nodeId] !== element.placeId) problem(element.id, 'feature witness belongs to another physical place')
+      if (!witness.location) {
+        if (PLACE_OF[witness.nodeId] !== element.placeId) problem(element.id, 'feature witness belongs to another physical place without reviewed visibility evidence')
+      } else if (witness.location.kind === 'visible-from') {
+        const route = witness.location.route
+        const option = STORY[route?.nodeId]?.options?.[route?.optionIndex]
+        const canonical = option && routeForChoice(route.nodeId, option)
+        if (!route || route.nodeId !== witness.nodeId || !Number.isInteger(route.optionIndex) || option?.confuser || option?.to !== route.to
+          || !canonical?.valid || !canonical.spatial || canonical.samePlace || canonical.fromPlace !== PLACE_OF[witness.nodeId]
+          || canonical.toPlace !== element.placeId) problem(element.id, `${witness.descriptionId} visible-from witness has no exact ordinary approach to this feature's place`)
+      } else if (witness.location.kind === 'crossing-endpoint') {
+        if (!crossing || !crossing.edge.some((nodeId) => PLACE_OF[nodeId] === PLACE_OF[witness.nodeId])) problem(element.id, `${witness.descriptionId} is not an endpoint witness of this registered crossing`)
+      } else problem(element.id, `${witness.descriptionId} has an unsupported feature-location relationship`)
       if (!description?.bindings?.some(({ type, elementId }) => type === 'reviewed-feature' && elementId === element.id)) problem(element.id, `missing exact source binding ${witness.descriptionId}`)
+    }
+    for (const relation of feature.relations || []) {
+      if (!finiteVector(element.position) || !finiteVector(element.geometry?.size)) continue
+      if (relation.kind === 'below-ground') {
+        if (element.position[1] + element.geometry.size[1] / 2 > 0) problem(element.id, 'reviewed shaft must extend below ground with its top at or below the local datum')
+        continue
+      }
+      const target = elements.get(`feature:${relation.targetId}`)
+      if (!target || target.id === element.id || !finiteVector(target.position) || !finiteVector(target.geometry?.size)) {
+        problem(element.id, `physical ${relation.kind} relation has no valid distinct feature target ${relation.targetId}`)
+        continue
+      }
+      if (relation.kind === 'inside') {
+        if (element.placeId !== target.placeId || !featureCorners(element).every((point) => featureLocalPoint(target, point).every((value, axis) => Math.abs(value) <= target.geometry.size[axis] / 2 + 1e-6))) problem(element.id, `contained feature must fit inside ${target.id} at the same physical place`)
+      } else if (relation.kind === 'below') {
+        if (element.position[1] + element.geometry.size[1] / 2 > target.position[1] - target.geometry.size[1] / 2) problem(element.id, `feature must lie below ${target.id}`)
+        if (relation.overlap && !overlappingFootprints(element, target)) problem(element.id, `feature must overlap the ground footprint of ${target.id}`)
+        if (relation.alignedCenter && (element.position[0] !== target.position[0] || element.position[2] !== target.position[2])) problem(element.id, `feature must share the crossing center of ${target.id}`)
+      } else problem(element.id, `unsupported physical feature relation ${relation.kind}`)
     }
   }
   for (const [fixtureId, fixture] of Object.entries(TIMED_WORLD_FIXTURES)) {

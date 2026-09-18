@@ -12,6 +12,7 @@ import {
   normalizeSavedState,
   phraseSenses,
   reducer,
+  storyScenePresentationForState,
 } from '../src/game/gameState.js'
 import { albanianTextOf } from '../src/game/language.js'
 import {
@@ -324,6 +325,71 @@ check('health prose appears on change and remains while wounded or healable', ()
     nodeId: 'fshatiSheshi', turn: 4, keepVisible: false,
   })
   assert.equal(healedMove.visible, false, 'full health remained permanent after its change beat')
+})
+
+check('restored village wells keep people and consequences consistent with the visible water', () => {
+  const prose = (state) => storyScenePresentationForState(state).entries.map(({ line }) => albanianTextOf(line))
+  for (const restored of [false, true]) {
+    const worldFacts = restored ? { villageWellsRestored: true } : {}
+    for (const known of [false, true]) {
+      for (const resolved of [false, true]) {
+        const state = {
+          ...newRun(), nodeId: 'fshatiSheshi', clock: 3, worldFacts,
+          npcStarted: { elira: 0 },
+          knowledge: known ? { 'npcName:elira': true } : {},
+          flags: resolved ? { eliraOpeningResolved: true } : { eliraFollowPlan: true },
+          rendezvous: { eliraFollow: { metAtClock: 3 } },
+        }
+        const lines = prose(state)
+        const person = known ? 'Elira' : 'gruaja'
+        const expected = resolved
+          ? known ? 'Elira rri afër pusit.' : 'gruaja që takove te ura rri afër pusit.'
+          : `${person} të sheh dhe pret afër pusit.`
+        assert.ok(lines.includes(expected), `square/${restored}/${known}/${resolved}: Elira lost her well-side position`)
+        assert.equal(lines.some((line) => /pus.*thatë/.test(line)), !restored,
+          `square/${restored}/${known}/${resolved}: well description contradicts its canonical water state`)
+        assert.equal(lines.includes('ti je në shesh: uji është përsëri në pus.'), restored)
+      }
+    }
+
+    const wellState = { ...newRun(), nodeId: 'pusiThate', clock: 3, worldFacts, flags: { heardDryWellWoman: true } }
+    assert.ok(prose(wellState).includes('një plakë rri pranë pusit.'),
+      `well/${restored}: the speaking old woman has no visible introduction`)
+    assert.equal(prose({ ...wellState, clock: 16 }).some((line) => /plak[ëa]/.test(line)), false,
+      `well/${restored}: the daytime woman remained after nightfall`)
+
+    const umbrella = STORY.pusiThate.options.find((option) =>
+      albanianTextOf(option.text) === 'hap çadrën.' && [].concat(option.requires || []).includes('weather:rain'))
+    assert.ok(umbrella, 'well: missing canonical rain umbrella action')
+    const sheltered = { ...wellState, cameFrom: 'pusiThate', choiceIndex: STORY.pusiThate.options.indexOf(umbrella) }
+    assert.ok(prose(sheltered).includes('ti hap çadrën pranë pusit; ajo të mban të thatë.'),
+      `well/${restored}: umbrella consequence assigns stale dryness to the well`)
+  }
+})
+
+check('the children explain their rain song without undoing restored village water', () => {
+  const question = STORY.dordolecBiseda.options.find((option) => option.conversationHub?.questionId === 'reason')
+  assert.ok(question, 'missing rain-song explanation question')
+  for (const restored of [false, true]) {
+    const state = {
+      ...newRun(), nodeId: 'dordolecBiseda', clock: 3,
+      worldFacts: restored ? { villageWellsRestored: true } : {},
+    }
+    for (const id of phraseSenses(question.text)) {
+      state.discovered[id] = true
+      state.mana[id] = 1
+    }
+    const answered = reducer(state, {
+      type: 'CHOOSE', option: question, targetNode: STORY.dordolecBiseda,
+      fromNodeId: state.nodeId, fromTurn: state.turn,
+    })
+    assert.notEqual(answered, state, `children/${restored}: rain-song question was rejected`)
+    const lines = storyScenePresentationForState(answered).entries.map(({ line }) => albanianTextOf(line))
+    assert.ok(lines.includes('ata thonë: Fshati ka nevojë për shi. nëse shiu vonon, toka mbetet e thatë.'),
+      `children/${restored}: the requested rain explanation was not shown`)
+    assert.equal(lines.some((line) => /[Pp]usi.*thatë/.test(line)), false,
+      `children/${restored}: the answer claimed that the well is still dry`)
+  }
 })
 
 check('opening and authored weather scenes prefer their visible immersive descriptions', () => {

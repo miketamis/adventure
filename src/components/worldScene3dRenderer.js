@@ -30,10 +30,10 @@ function safeCamera(camera = {}) {
   }
 }
 
-export function defaultCameraForScene(model, { regionId, elementId } = {}) {
+export function defaultCameraForScene(model, { regionId, elementId, elementIds } = {}) {
   const elements = model.elements || []
   const focused = elementId && elements.find((element) => element.id === elementId)
-  let scope = focused ? [focused] : elements.filter((element) => (
+  let scope = elementIds?.length ? elements.filter((element) => elementIds.includes(element.id)) : focused ? [focused] : elements.filter((element) => (
     elementInRegion(element, regionId) && element.kind !== 'region' && !element.catalogue
   ))
   if (!scope.length) scope = elements.filter((element) => !element.catalogue)
@@ -41,7 +41,10 @@ export function defaultCameraForScene(model, { regionId, elementId } = {}) {
   const bounds = [[Infinity, -Infinity], [Infinity, -Infinity], [Infinity, -Infinity]]
   for (const element of scope) {
     element.position.forEach((value, axis) => {
-      const radius = (element.geometry?.size?.[axis] || 0) / 2
+      const size = element.geometry?.size || [0, 0, 0]
+      const yaw = finite(element.geometry?.rotationY, 0)
+      const radius = (axis === 0 ? Math.abs(Math.cos(yaw)) * size[0] + Math.abs(Math.sin(yaw)) * size[2]
+        : axis === 2 ? Math.abs(Math.sin(yaw)) * size[0] + Math.abs(Math.cos(yaw)) * size[2] : size[1]) / 2
       bounds[axis][0] = Math.min(bounds[axis][0], value - radius)
       bounds[axis][1] = Math.max(bounds[axis][1], value + radius)
     })
@@ -105,7 +108,7 @@ function polygonNormal(vertices) {
   return normal.map((value) => value / length)
 }
 
-function meshFor(element) {
+export function worldScene3dMesh(element) {
   if (meshCache.has(element)) return meshCache.get(element)
   const [width, height, depth] = element.geometry?.size || [16, 12, 16]
   const [x, y, z] = element.position
@@ -133,10 +136,14 @@ function meshFor(element) {
     polygons = [[0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [3, 7, 4, 0], [4, 7, 6, 5], [0, 1, 2, 3]]
       .map((indices) => indices.map((index) => v[index]))
   }
-  const mesh = polygons.map((vertices) => ({
-    vertices: vertices.map(([vx, vy, vz]) => [x + vx, y + vy, z + vz]),
-    normal: polygonNormal(vertices),
-  }))
+  const yaw = finite(element.geometry?.rotationY, 0)
+  const mesh = polygons.map((vertices) => {
+    const rotated = vertices.map(([vx, vy, vz]) => [
+      x + vx * Math.cos(yaw) + vz * Math.sin(yaw), y + vy,
+      z - vx * Math.sin(yaw) + vz * Math.cos(yaw),
+    ])
+    return { vertices: rotated, normal: polygonNormal(rotated) }
+  })
   meshCache.set(element, mesh)
   return mesh
 }
@@ -167,7 +174,9 @@ function pointInPolygon(x, y, polygon) {
 
 /** Nearer geometry wins; small markers also have a usable minimum hit radius. */
 export function hitTestWorldScene3d(hits, x, y) {
-  const ordered = hits.filter((hit) => hit.element.kind !== 'region').sort((a, b) => a.depth - b.depth)
+  const priority = (hit) => hit.transparent ? 2 : hit.element.kind === 'place' ? 1 : 0
+  const ordered = hits.filter((hit) => hit.element.kind !== 'region')
+    .sort((a, b) => priority(a) - priority(b) || a.depth - b.depth)
   const exact = ordered.find((hit) => hit.polygons.some((polygon) => pointInPolygon(x, y, polygon)))
   if (exact) return exact
   return ordered.find((hit) => Math.hypot(hit.x - x, hit.y - y) <= hit.radius)
@@ -187,7 +196,7 @@ export function visibleWorldSceneElements(model, options = {}) {
   if (options.focusedDescriptionId && focusedReferences.length) return focusedReferences
   if (!options.focusedDescriptionId && selected?.catalogue) return [selected]
   const selectedPlace = selected?.placeId
-  return elements.filter((element) => {
+  const visible = elements.filter((element) => {
     if (element.catalogue) return false
     if (!elementInRegion(element, options.regionId)) return false
     const focused = element.id === options.selectedId
@@ -198,6 +207,25 @@ export function visibleWorldSceneElements(model, options = {}) {
     return !['environment', 'perception', 'actor'].includes(element.kind) || options.showDetailMarkers
       || focused || (selectedPlace && element.placeId === selectedPlace)
   })
+  const ids = new Set(visible.map(({ id }) => id))
+  for (const element of visible.slice()) {
+    for (const relation of element.relations || []) {
+      if (relation.kind !== 'inside') continue
+      const id = relation.targetId.startsWith('feature:') ? relation.targetId : `feature:${relation.targetId}`
+      const container = elements.find((candidate) => candidate.id === id)
+      if (container && !ids.has(id)) { visible.push(container); ids.add(id) }
+    }
+  }
+  return visible
+}
+
+// A scene/region context link identifies where a sentence is told. Highlighting
+// that whole region as an asserted object would erase the audit distinction.
+export function highlightedWorldSceneElements(model, options = {}) {
+  const description = model.descriptions?.find(({ id }) => id === options.focusedDescriptionId)
+  return new Set([options.selectedId, ...(description?.bindings || [])
+    .filter(({ type }) => !['scene-context', 'region-context'].includes(type))
+    .map(({ elementId }) => elementId)].filter(Boolean))
 }
 
 /**
@@ -225,14 +253,14 @@ export function drawWorldScene3d(canvas, model, options = {}) {
   const camera = safeCamera(options.camera || defaultCameraForScene(model, options))
   const project = makeProjector(camera, width, height)
   const elements = visibleWorldSceneElements(model, options)
-  if (elements.some((element) => element.catalogue)) {
-    context.fillStyle = '#a8c7c0'
-    context.font = '600 11px system-ui, sans-serif'
-    context.fillText('UNLOCATED REFERENCE · symbolic catalogue geometry', 18, 27)
-  }
+  const catalogueView = elements.some((element) => element.catalogue)
   const ids = new Set(elements.map((element) => element.id))
-  const highlighted = new Set(elements.filter((element) => element.id === options.selectedId
-    || (options.focusedDescriptionId && element.descriptionIds?.includes(options.focusedDescriptionId))).map((element) => element.id))
+  const highlighted = highlightedWorldSceneElements(model, options)
+  const inspectedContainers = new Set(elements.filter((element) => highlighted.has(element.id))
+    .flatMap((element) => (element.relations || []).filter(({ kind }) => kind === 'inside')
+      .map(({ targetId }) => targetId.startsWith('feature:') ? targetId : `feature:${targetId}`)))
+  const cutawayView = elements.some((element) => highlighted.has(element.id)
+    && element.position[1] - (element.geometry?.size?.[1] || 0) / 2 < -3 && element.kind !== 'region')
   const hits = []
   const primitives = []
 
@@ -244,8 +272,9 @@ export function drawWorldScene3d(canvas, model, options = {}) {
       : element.kind === 'feature' && element.geometry?.shape === 'pyramid' ? '#aeb5c7' : null
     const color = element.color || element.geometry?.color || featureColor || KIND_COLORS[element.kind]
       || REGION_COLORS[element.regionId] || '#a3bbaa'
-    const hit = { id: element.id, elementId: element.id, element, polygons: [], ...center, radius: 8 }
-    for (const face of meshFor(element)) {
+    const hit = { id: element.id, elementId: element.id, element, polygons: [], ...center, radius: 8,
+      transparent: inspectedContainers.has(element.id) }
+    for (const face of worldScene3dMesh(element)) {
       const projected = face.vertices.map(project)
       if (projected.some((point) => !point)) continue
       // Keep polygons crossing the viewport even when their centers are offscreen.
@@ -257,7 +286,7 @@ export function drawWorldScene3d(canvas, model, options = {}) {
         type: 'face', points: projected, depth: projected.reduce((sum, p) => sum + p.depth, 0) / projected.length,
         element, active, color: shade(active ? '#e9e1ad' : color,
           lighting * (element.kind === 'region' ? face.normal[1] > 0.5 ? 0.62 : 0.44 : 1),
-          element.kind === 'region' ? 0.82 : 1),
+          element.kind === 'region' ? 0.82 : inspectedContainers.has(element.id) ? 0.18 : 1),
       })
     }
     if (hit.polygons.length) hits.push(hit)
@@ -281,7 +310,7 @@ export function drawWorldScene3d(canvas, model, options = {}) {
 
   // Terrain slabs are the schematic support layer. Draw their complete meshes
   // first so a broad top face cannot cover a small place through painter-sort
-  // imprecision; all places and authored feature bases lie on/above this layer.
+  // imprecision. Below-ground features remain visible as an explicit cutaway.
   primitives.sort((a, b) => Number(b.element?.kind === 'region') - Number(a.element?.kind === 'region') || b.depth - a.depth)
   for (const primitive of primitives) {
     if (primitive.type === 'face') {
@@ -359,6 +388,16 @@ export function drawWorldScene3d(canvas, model, options = {}) {
     context.fillText(label, box.x + 8, box.y + 9.5, labelWidth - 16)
     hit.polygons.push([{ x: box.x, y: box.y }, { x: box.x + box.w, y: box.y },
       { x: box.x + box.w, y: box.y + box.h }, { x: box.x, y: box.y + box.h }])
+  }
+  const note = catalogueView ? 'UNLOCATED REFERENCE · symbolic catalogue geometry'
+    : cutawayView ? 'CUTAWAY · below-ground geometry shown through the chart' : null
+  if (note) {
+    context.font = '600 11px system-ui, sans-serif'
+    context.textBaseline = 'middle'
+    context.fillStyle = 'rgba(11,24,34,.92)'
+    context.fillRect(10, 13, Math.min(width - 20, context.measureText(note).width + 16), 24)
+    context.fillStyle = '#a8c7c0'
+    context.fillText(note, 18, 25, Math.max(1, width - 36))
   }
   return hits
 }

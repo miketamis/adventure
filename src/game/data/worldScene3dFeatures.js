@@ -66,7 +66,7 @@ const REVIEWED_FEATURE_WITNESSES = Object.freeze({
     }
   },
   "square-church": {
-    "text": "një kishë, një xhami dhe një kullë e orës rrinë bashkë; kulla tregon orët dhe minutat.",
+    "text": "Nga sheshi sheh kishën lart mbi fshat; pranë teje rrinë një xhami dhe një kullë e orës, që tregon orët dhe minutat.",
     "conditions": {
       "all": [
         "again"
@@ -77,7 +77,7 @@ const REVIEWED_FEATURE_WITNESSES = Object.freeze({
     }
   },
   "square-mosque": {
-    "text": "një kishë, një xhami dhe një kullë e orës rrinë bashkë; kulla tregon orët dhe minutat.",
+    "text": "Nga sheshi sheh kishën lart mbi fshat; pranë teje rrinë një xhami dhe një kullë e orës, që tregon orët dhe minutat.",
     "conditions": {
       "all": [
         "again"
@@ -88,7 +88,7 @@ const REVIEWED_FEATURE_WITNESSES = Object.freeze({
     }
   },
   "square-clock-tower": {
-    "text": "një kishë, një xhami dhe një kullë e orës rrinë bashkë; kulla tregon orët dhe minutat.",
+    "text": "Nga sheshi sheh kishën lart mbi fshat; pranë teje rrinë një xhami dhe një kullë e orës, që tregon orët dhe minutat.",
     "conditions": {
       "all": [
         "again"
@@ -332,38 +332,83 @@ const REVIEWED_FEATURE_WITNESSES = Object.freeze({
   }
 })
 
-const feature = (id, label, nodeId, lineIndex, requires, shape, size, offset = [0, 0, 0]) => Object.freeze({
-  id, label, nodeId, witnesses: Object.freeze([{ nodeId, lineIndex, requires, ...REVIEWED_FEATURE_WITNESSES[id] }]),
+const witness = (id, nodeId, lineIndex, requires, location) => Object.freeze({
+  nodeId, lineIndex, requires, ...REVIEWED_FEATURE_WITNESSES[id], ...(location ? { location } : {}),
+})
+const localWitness = (nodeId, lineIndex, requires, text, conditions = { all: [], negate: false, none: [], observationId: null }, location) => Object.freeze({
+  nodeId, lineIndex, requires, text, conditions, ...(location ? { location } : {}),
+})
+const visibleFrom = (nodeId, optionIndex, to) => ({ kind: 'visible-from', route: { nodeId, optionIndex, to } })
+const crossingEndpoint = Object.freeze({ kind: 'crossing-endpoint' })
+const feature = (id, label, nodeId, lineIndex, requires, shape, size, offset = [0, 0, 0], options = {}) => Object.freeze({
+  id, label, nodeId, witnesses: Object.freeze(options.witnesses || [witness(id, nodeId, lineIndex, requires)]),
   geometry: Object.freeze({ shape, size }), offset,
   interpretation: 'Reviewed physical feature; dimensions and local offset are illustrative.',
+  ...(options.placement ? { placement: Object.freeze(options.placement) } : {}),
+  ...(options.relations ? { relations: Object.freeze(options.relations) } : {}),
 })
 
 export const WORLD_SCENE_3D_FEATURES = Object.freeze([
-  feature('village-bridge', 'Bridge at the village approach', 'start', 1, ['ure', 'lume', 'fshat'], 'box', [34, 7, 12], [0, 7, -10]),
+  feature('village-bridge', 'Bridge between the forest approach and village bank', 'start', 1, ['ure', 'lume', 'fshat'], 'box', [34, 7, 12], [0, 7, 0], {
+    placement: { kind: 'crossing', barrierId: 'central-river', crossingIndex: 0 },
+    witnesses: [witness('village-bridge', 'start', 1, ['ure', 'lume', 'fshat'], crossingEndpoint)],
+  }),
   feature('bridgehead-forest', 'Forest behind the bridgehead', 'start', 3, ['mbrapa', 'pyll', 'rruge'], 'cone', [22, 30, 22], [-18, 15, 12]),
   feature('clearing-forest', 'Forest around the clearing', 'lendina', 3, ['pyll', 'thelle'], 'cone', [26, 36, 26], [-14, 18, 12]),
   feature('forest-canopy', 'Trees above the forest floor', 'pylli1', 2, ['nen', 'peme', 'erret'], 'cone', [30, 40, 30], [0, 20, 0]),
   feature('deep-forest-trees', 'Trees in the deep forest', 'pylliLoop', 4, ['pyll', 'peme', 'ere'], 'cone', [32, 46, 32], [0, 23, 0]),
-  feature('square-well', 'Well in the village square', 'fshatiSheshi', 0, ['shesh', 'pus', 'thate'], 'cylinder', [12, 6, 12], [12, 3, 10]),
-  feature('square-church', 'Church by the square', 'fshatiSheshi', 10, ['kishe', 'xhami', 'kulle'], 'box', [15, 18, 20], [-18, 9, -15]),
+  feature('square-well', 'Village well and its descending shaft', 'pusiThate', 4, ['pus', 'poshte', 'thelle'], 'cylinder', [16, 9, 16], [0, -4.5, 0], {
+    witnesses: [
+      witness('dry-well-shaft', 'pusiThate', 4, ['pus', 'poshte', 'thelle']),
+      witness('square-well', 'fshatiSheshi', 0, ['shesh', 'pus', 'thate'], visibleFrom('fshatiSheshi', 5, 'pusiThate')),
+      localWitness('fshatiSheshi', 1, ['shesh', 'uje', 'pus'], 'ti je në shesh: uji është përsëri në pus.',
+        { all: ['fact:villageWellsRestored'], negate: false, none: [], observationId: null }, visibleFrom('fshatiSheshi', 5, 'pusiThate')),
+      localWitness('pusiThate', 0, ['pus', 'thate'], 'një pus është i thatë.',
+        { all: ['fact:villageWellsRestored'], negate: true, none: [], observationId: null }),
+      localWitness('pusiThate', 1, ['pus', 'uje'], 'pusi ka ujë përsëri.',
+        { all: ['fact:villageWellsRestored'], negate: false, none: [], observationId: null }),
+    ],
+    relations: [{ kind: 'below-ground' }],
+  }),
+  feature('square-church', 'Church above the village, visible from the square', 'kisha1', 2, ['kishe', 'lart', 'fshat'], 'box', [15, 18, 20], [0, 9, 0], {
+    witnesses: [
+      witness('square-church', 'fshatiSheshi', 10, ['kishe', 'xhami', 'kulle'], visibleFrom('fshatiSheshi', 11, 'kisha1')),
+      localWitness('kisha1', 2, ['kishe', 'lart', 'fshat'], 'Kisha rri lart mbi fshatin; afër rri një teqe.'),
+    ],
+  }),
   feature('square-mosque', 'Mosque by the square', 'fshatiSheshi', 10, ['kishe', 'xhami', 'kulle'], 'box', [18, 15, 18], [2, 7.5, -18]),
   feature('square-clock-tower', 'Clock tower by the square', 'fshatiSheshi', 10, ['kulle', 'ore', 'minuta'], 'box', [9, 35, 9], [22, 17.5, -15]),
   feature('spring-basin', 'Cold water at the village spring', 'kroi1', 3, ['uje', 'ftohte', 'rrjedh', 'krua'], 'cylinder', [20, 5, 20], [0, 2.5, 0]),
-  feature('dry-well-shaft', 'Deep shaft of the dry well', 'pusiThate', 4, ['pus', 'poshte', 'thelle'], 'cylinder', [16, 9, 16], [0, 4.5, 0]),
   feature('inn-building', 'Inn with eight rooms', 'bujtina', 8, ['bujtine', 'tete', 'dhome'], 'box', [34, 23, 25], [0, 11.5, 0]),
-  feature('inn-bed', 'Bed in the inn room', 'bujtina', 8, ['dhome', 'shtrat'], 'box', [9, 3, 15], [22, 1.5, 4]),
+  feature('inn-bed', 'Bed in the inn room', 'bujtina', 8, ['dhome', 'shtrat'], 'box', [9, 3, 15], [5, 1.5, 0], {
+    relations: [{ kind: 'inside', targetId: 'inn-building' }],
+  }),
   feature('working-mill', 'Water-powered village mill', 'mulli1', 6, ['uje', 'mulli', 'miell'], 'box', [27, 22, 23], [0, 11, 0]),
   feature('night-mill-door', 'Open door of the night mill', 'maroMulli1', 2, ['dere', 'hap', 'brenda'], 'box', [12, 19, 3], [0, 9.5, -8]),
   feature('river-bed', 'River bed, dry until restored', 'lumi', 1, ['lume', 'thate'], 'plane', [43, 1, 15], [0, 0.5, 12]),
   feature('river-water-restored', 'Water moving in the restored river', 'lumi', 2, ['uje', 'leviz', 'lume', 'perseri'], 'plane', [43, 1, 15], [0, 1.5, 12]),
-  feature('old-bridge', 'Old river bridge', 'ura', 3, ['ure'], 'box', [34, 8, 13], [0, 8, 0]),
-  feature('fshaj-bridge', 'Passable Fshaj bridge', 'uraFshaj', 5, ['ure', 'forte', 'kalo'], 'box', [34, 8, 13], [0, 8, 0]),
-  feature('fshaj-river-below', 'River below the Fshaj bridge', 'uraFshaj', 6, ['lume', 'poshte', 'ure'], 'plane', [42, 1, 19], [0, 0.5, 0]),
+  feature('fshaj-bridge', 'Fshaj bridge joining both shores', 'uraFshaj', 5, ['ure', 'forte', 'kalo'], 'box', [34, 8, 13], [0, 8, 0], {
+    placement: { kind: 'crossing', barrierId: 'fshaj-river', crossingIndex: 0 },
+    witnesses: [
+      witness('old-bridge', 'ura', 3, ['ure'], crossingEndpoint),
+      witness('fshaj-bridge', 'uraFshaj', 5, ['ure', 'forte', 'kalo'], crossingEndpoint),
+    ],
+  }),
+  feature('fshaj-river-below', 'River below the Fshaj bridge', 'uraFshaj', 6, ['lume', 'poshte', 'ure'], 'plane', [42, 1, 19], [0, 0.5, 0], {
+    placement: { kind: 'crossing-center', barrierId: 'fshaj-river', crossingIndex: 0 },
+    witnesses: [witness('fshaj-river-below', 'uraFshaj', 6, ['lume', 'poshte', 'ure'], crossingEndpoint)],
+    relations: [{ kind: 'below', targetId: 'fshaj-bridge', overlap: true, alignedCenter: true }],
+  }),
   feature('tomorr-summit', 'Tomorr summit', 'maja', 2, ['lart', 'mal'], 'pyramid', [40, 53, 40], [0, 26.5, 0]),
   feature('rozafa-wall', 'Rozafa in the stone wall', 'kalaMur', 0, ['mur', 'rozafa', 'gur'], 'box', [35, 28, 7], [0, 14, 0]),
   feature('lake-surface', 'Lake of the Floçka', 'flocka1', 0, ['liqen', 'flocka'], 'plane', [48, 1, 35], [0, 0.5, 0]),
   feature('sea-river-mouth', 'River meeting the sea', 'deti1', 2, ['lume', 'det'], 'plane', [48, 1, 34], [0, 0.5, 0]),
-  feature('sea-village', 'Village beside the sea', 'deti1', 5, ['fshat', 'afer', 'uje'], 'box', [16, 15, 15], [20, 7.5, -14]),
+  feature('sea-village', 'Village beside the sea', 'bregu', 0, ['fshat', 'det'], 'box', [16, 15, 15], [0, 7.5, 0], {
+    witnesses: [
+      witness('sea-village', 'deti1', 5, ['fshat', 'afer', 'uje'], visibleFrom('deti1', 0, 'bregu')),
+      localWitness('bregu', 0, ['fshat', 'det'], 'ti je në një fshat të detit.'),
+    ],
+  }),
   feature('sacred-sky-mountain', 'Sacred mountain of the sky threshold', 'qiell1', 0, ['mal', 'shenjte'], 'pyramid', [35, 48, 35], [0, 24, 0]),
   feature('underworld-door', 'Great door in the dark world below', 'bota1', 0, ['bote', 'poshte', 'dere', 'madh'], 'box', [22, 32, 5], [0, 16, 0]),
   feature('well-bottom', 'Large deep well around its bottom', 'pusi2', 1, ['pus', 'madh', 'thelle'], 'cylinder', [30, 15, 30], [0, 7.5, 0]),

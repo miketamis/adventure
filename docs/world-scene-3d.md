@@ -20,6 +20,10 @@ against the canonical story and world registries. Geometry must never become
 a second authority for the player's location, route availability, inventory,
 NPC presence or weather.
 
+Export version 2 adds crossing-spanning features with `placeIds`, mesh rotation,
+explicit physical relationships and provenance for descriptions seen from
+another place. A crossing has no single `placeId`.
+
 The horizontal coordinates preserve the existing mythic chart exactly:
 scene X is chart X and scene Z is chart Y. Scene Y supplies illustrative relief.
 It is not a surveyed altitude. Forestward/sea-roadward and highward/deepward
@@ -69,6 +73,21 @@ specific feature. The renderer and inspector must preserve the distinction betwe
 reviewed feature and a context-only line. A sentence being indexed is not
 evidence that its physical meaning has been independently reviewed.
 
+Mentioning an NPC's name is not proof that the NPC stands at the observer's
+location. Actor markers require an explicit positive presence predicate;
+absence and identity-only descriptions retain their metadata without creating
+a person in the scene. Places shared by scenes in different narrative regions
+retain those memberships without acquiring a second physical location.
+
+A feature seen from another place records the exact source-to-landmark route.
+The village well, hillside church and coastal village are built at their
+canonical destinations. A bridge uses one mesh spanning the registered shores,
+with its length, midpoint and rotation derived from that crossing. Source lines
+from either shore link to the same bridge. Local relationship contracts check
+that the inn bed is inside the inn, the well shaft descends below ground, and
+the river lies below the bridge. When inspecting the bed its enclosing building
+is translucent; below-ground inspection is labelled as a schematic cutaway.
+
 Routes retain their exact incoming choice identity and canonical endpoints.
 Projection entries, local transitions and physical journeys remain distinct;
 a line across the chart must not turn a tale projection into a walkable road.
@@ -90,6 +109,9 @@ content, valid scene and place identities, finite geometry, reciprocal
 description links, exact route identities and endpoints, named crossing
 coverage and registered sightline mappings. Mutation regressions deliberately
 remove or corrupt these records and require the validator to reject them.
+Spatial checks evaluate the actual dimensions and transformed bridge vertices,
+not just whether the model copied a declared blueprint. Context-only links do
+not highlight a whole region as if the sentence had asserted its geometry.
 Failures identify the affected record; no manually renewed content hash or
 blanket exception can make a mismatch pass.
 

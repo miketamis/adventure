@@ -553,7 +553,6 @@ export const LATE_READINGS = {
   "bariuBiseda.text[2]": ["ai thotë: Kam dymbëdhjetë dhi: gjashtë të bardha dhe gjashtë të zeza.", "He says, “I have twelve goats: six white and six black.”"],
   "dordolecBiseda.text[0]": ["Fëmijët ndalojnë dhe kthehen drejt teje.", "The children stop and turn toward you."],
   "dordolecBiseda.text[1]": ["një fëmijë thotë: po bëjmë dordolecin. Babi im thotë se fshati ka nevojë për shi; ne thjesht këndojmë.", "A child says, “We are making the rain-child. My dad says the village needs rain; we simply sing.”"],
-  "dordolecBiseda.text[3]": ["ata thonë: Pusi është i thatë dhe fshati ka nevojë për ujë. nëse shiu vonon, pusi mbetet i thatë.", "They say, “The well is dry and the village needs water. If the rain is late, the well stays dry.”"],
   "dasmaBiseda.text[0]": ["një grua nga dasma vjen drejt teje dhe të dëgjon.", "A woman from the wedding comes toward you and listens."],
   "dasmaBiseda.text[2]": ["ajo thotë: Nusja është pranë nënës së saj.", "She says, “The bride is beside her mother.”"],
   "sheshiPlak.text[7]": ["ai thotë: Domethënë se njerëzit thonë kështu, por unë nuk i besoj.", "He says, “It means that people say so, but I do not believe them.”"],
@@ -678,4 +677,5 @@ export const LATE_READINGS = {
   "dordolec1.text[1]": ["ti ecën me fëmijët nga rruga në fushë.", "You walk with the children from the lane to the open ground."],
   "kordhaMoat.text[0]": ["ti ecën me tre vëllezërit nga pyll te hendeku i mbretit.", "You go with the three brothers from the forest to the king’s moat."],
   "kafeneja2.text[3]": ["Djali thotë: U çmenda. sapo erdhi nata, kërkova ujë.", "The son says, “I went crazy. As soon as night came, I looked for water.”"],
+  "dordolecBiseda.text[3]": ["ata thonë: Fshati ka nevojë për shi. nëse shiu vonon, toka mbetet e thatë.", "They say, “The village needs rain. If the rain is late, the ground stays dry.”"],
 }
