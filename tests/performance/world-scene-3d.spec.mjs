@@ -1,4 +1,7 @@
 import { expect, test } from '@playwright/test'
+import { STORY, lineOf } from '../../src/game/content.js'
+import { newRun, normalizeSavedState, trainablePhraseSenses } from '../../src/game/gameState.js'
+import { albanianTextOf } from '../../src/game/language.js'
 
 test('3D atlas renders, navigates, traces prose, validates and exports without entering normal play', async ({ page }) => {
   const errors = []
@@ -82,4 +85,46 @@ test('3D atlas renders, navigates, traces prose, validates and exports without e
   expect(await page.getByTestId('world3d-view').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
   await page.getByTestId('world3d-view').screenshot({ path: '/tmp/language-adventure-3d-mobile.png' })
   expect(errors).toEqual([])
+})
+
+test('restored well remains reachable in normal play after reloading the square', async ({ page }) => {
+  const option = STORY.fshatiSheshi.options.find((entry) => entry.to === 'pusiThate' && entry.requires === 'fact:villageWellsRestored')
+  expect(option).toBeTruthy()
+  const source = lineOf(STORY.fshatiSheshi.text[1])
+  const seed = {
+    ...newRun(), nodeId: 'fshatiSheshi', cameFrom: 'udhekryq', clock: 6,
+    worldFacts: { villageWellsRestored: { atClock: 4, source: 'dordolecFund' } },
+  }
+  // Exercise the rendered route with a narrow, durable vocabulary fixture.
+  // storycontextaudit walks here through every real restoration ending.
+  for (const id of [...trainablePhraseSenses(source), ...trainablePhraseSenses(option.text)]) {
+    seed.discovered[id] = true
+    seed.mana[id] = 3
+    seed.practiced[id] = 3
+  }
+  await page.addInitScript((state) => {
+    if (window.name === '__restored_well_audit__') return
+    localStorage.clear()
+    localStorage.setItem('aventura.state.v1', JSON.stringify(state))
+    localStorage.setItem('aventura.muted.v1', '1')
+    localStorage.setItem('aventura.analytics-consent.v1', JSON.stringify({
+      version: 1, decided: true, structured: false, replay: false,
+    }))
+    window.name = '__restored_well_audit__'
+  }, normalizeSavedState(JSON.parse(JSON.stringify(seed)), newRun()))
+  await page.goto('./')
+  const wellRoute = page.getByRole('button', { name: `Choose: ${albanianTextOf(option.text)}`, exact: true })
+  await expect(wellRoute).toHaveCount(1)
+  await expect(wellRoute).toBeEnabled()
+  await page.reload()
+  await expect(wellRoute).toHaveCount(1)
+  await expect(wellRoute).toBeEnabled()
+  await expect(page.locator('.story-reading')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: '🗺 Map', exact: true })).toHaveCount(0)
+  await wellRoute.click()
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('aventura.state.v1'))?.nodeId)).toBe('pusiThate')
+  await page.reload()
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('aventura.state.v1'))?.nodeId)).toBe('pusiThate')
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('aventura.state.v1'))?.worldFacts?.villageWellsRestored)).toBeTruthy()
+  await expect(page.locator('.action-karaoke-overlay')).toHaveCount(0)
 })

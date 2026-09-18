@@ -2,7 +2,8 @@
 // independently enumerated from production STORY/place/route registries; the
 // mutation probes exercise the validator rather than trusting a success count.
 import assert from 'node:assert/strict'
-import { ITEMS, STORY, lineOf } from '../src/game/content.js'
+import { ITEMS, STORY, lineOf, visibleLines } from '../src/game/content.js'
+import { canChoose, hasCond, isOptionRevealed, newRun } from '../src/game/gameState.js'
 import { albanianTextOf } from '../src/game/language.js'
 import { NODE_POS, PLACE_NODES, PLACE_OF } from '../src/components/nodePositions.js'
 import { NODE_REGION } from '../src/game/regions.js'
@@ -28,6 +29,7 @@ import {
   WORLD_SCENE_3D_ENVIRONMENT_CASES,
   buildWorldScene3d,
   validateWorldScene3d,
+  worldScene3dApproachConditionConflicts,
 } from '../src/game/worldScene3d.js'
 
 const model = buildWorldScene3d()
@@ -100,6 +102,43 @@ assert.ok(elements.get('feature:fshaj-bridge').descriptionIds.includes('descript
 assert.equal(elements.has('feature:dry-well-shaft'), false, 'village well and its shaft must share one physical element')
 assert.equal(elements.get('feature:square-well').placeId, 'pusiThate', 'the square observes the well at its actual destination')
 assert.equal(elements.get('feature:sea-village').placeId, 'bregu', 'shoreline description must refer to the village destination')
+
+// Verify the reviewed square views can actually reach the well in their own
+// water state. Discover exactly the source and action words, with no visited
+// destination that could bypass the sentence-reveal gate.
+const squareWellViews = WORLD_SCENE_3D_FEATURES.find(({ id }) => id === 'square-well').witnesses
+  .filter(({ nodeId, location }) => nodeId === 'fshatiSheshi' && location?.kind === 'visible-from')
+assert.deepEqual(squareWellViews.map(({ lineIndex }) => lineIndex).sort(), [0, 1], 'well audit must retain both exact dry and restored square views')
+for (const witness of squareWellViews) {
+  const route = witness.location.route
+  const node = STORY[witness.nodeId]
+  const source = lineOf(node.text[witness.lineIndex])
+  const option = STORY[route.nodeId].options[route.optionIndex]
+  for (const restored of [false, true]) {
+    const state = { ...newRun(), nodeId: witness.nodeId, clock: 3, worldFacts: restored ? { villageWellsRestored: true } : {} }
+    for (const { id } of [...source, ...option.text]) {
+      if (id) { state.discovered[id] = true; state.mana[id] = 1 }
+    }
+    const visible = visibleLines(node, (condition) => hasCond(state, condition)).includes(source)
+    const shouldBeVisible = witness.lineIndex === 1 ? restored : !restored
+    const target = `${witness.nodeId}.text[${witness.lineIndex}]/restored=${restored}`
+    assert.equal(visible, shouldBeVisible, `${target}: witness water state no longer matches its exact source`)
+    assert.equal(isOptionRevealed(state, option, node), shouldBeVisible, `${target}: reviewed approach must use the visible sentence rather than its hidden water-state twin`)
+    assert.equal(canChoose(state, option), shouldBeVisible, `${target}: discovered landmark must have a legal approach in its own water state`)
+  }
+}
+
+const restoredFact = 'fact:villageWellsRestored'
+assert.ok(worldScene3dApproachConditionConflicts({ all: [restoredFact], negate: false, none: [] }, { unless: restoredFact }).length,
+  'positive source state must reject an approach excluding that state')
+assert.ok(worldScene3dApproachConditionConflicts({ all: [], negate: false, none: [restoredFact] }, { requires: [restoredFact] }).length,
+  'explicit source exclusion must reject an approach requiring that state')
+assert.ok(worldScene3dApproachConditionConflicts({ all: [restoredFact], negate: true, none: [] }, { requires: restoredFact }).length,
+  'negated single source condition must reject an approach requiring it')
+assert.deepEqual(worldScene3dApproachConditionConflicts({ all: [restoredFact, 'night'], negate: true, none: [] }, { requires: restoredFact }), [],
+  'a negated conjunction does not prove that any individual member is absent')
+assert.deepEqual(worldScene3dApproachConditionConflicts({ all: [restoredFact], negate: true, none: [] }, { unless: restoredFact }), [],
+  'compatible dry source and dry approach must stay legal')
 
 const skylineElements = descriptions.get('description:fshatiSheshi:10').elementIds.filter((id) => elements.get(id).kind !== 'region')
 const skylineCamera = defaultCameraForScene(model, { elementIds: skylineElements })
@@ -404,6 +443,12 @@ assert.ok(rejectsMutation('river misses its bridge', 'feature:fshaj-river-below'
 rejectsMutation('unreviewed distant feature mapping', 'description:deti1:5', (changed) => {
   changed.descriptions.find(({ id }) => id === 'description:deti1:5').bindings.find(({ type }) => type === 'reviewed-feature').evidence.location.route.to = 'start'
 })
+assert.ok(rejectsMutation('restored well mapped through its dry-only approach', 'description:fshatiSheshi:1', (changed) => {
+  const dryRoute = squareWellViews.find(({ lineIndex }) => lineIndex === 0).location.route
+  const wetView = changed.descriptions.find(({ id }) => id === 'description:fshatiSheshi:1')
+  wetView.bindings.find(({ type, elementId }) => type === 'reviewed-feature' && elementId === 'feature:square-well').evidence.location.route = { ...dryRoute }
+}).some((issue) => issue.startsWith('description:fshatiSheshi:1:') && issue.includes('approach excludes') && issue.includes(restoredFact)),
+'wrong wet-to-dry mapping must name the contradictory world condition, not only stale registry metadata')
 rejectsMutation('missing containment provenance', 'feature:inn-bed', (changed) => {
   changed.elements.find(({ id }) => id === 'feature:inn-bed').relations = []
 })

@@ -110,6 +110,22 @@ export function worldScene3dLineConditions(entry) {
   }
 }
 
+// A reviewed sight of a landmark cannot use an approach which is explicitly
+// forbidden in that source's state. This is a narrow contradiction check, not
+// a second evaluator for the game's world predicates. In particular, unless
+// [a,b] does not prove that either individual condition is absent.
+export function worldScene3dApproachConditionConflicts(conditions, option) {
+  const all = list(conditions?.all)
+  const positive = conditions?.negate ? [] : all
+  const negative = [...list(conditions?.none), ...(conditions?.negate && all.length === 1 ? all : [])]
+  const required = list(option?.requires)
+  const excluded = list(option?.unless)
+  return unique([
+    ...positive.filter((condition) => excluded.includes(condition)).map((condition) => `approach excludes the source's required condition ${condition}`),
+    ...negative.filter((condition) => required.includes(condition)).map((condition) => `approach requires the source's excluded condition ${condition}`),
+  ])
+}
+
 function sourceDescription(nodeId, entry, lineIndex) {
   const line = lineOf(entry)
   return {
@@ -579,6 +595,11 @@ export function validateWorldScene3d(model) {
         if (!witness || binding.elementId !== `feature:${feature.id}` || !equal(binding.evidence.requires, witness.requires)
           || !equal(binding.evidence.source, textSource(witness.nodeId, witness.lineIndex))
           || !equal(binding.evidence.location, witness.location)) fail('reviewed feature binding has no exact witness')
+        if (binding.evidence?.location?.kind === 'visible-from') {
+          const route = binding.evidence.location.route
+          const option = STORY[route?.nodeId]?.options?.[route?.optionIndex]
+          for (const conflict of worldScene3dApproachConditionConflicts(description.conditions, option)) fail(`visible-from ${conflict}`)
+        }
       } else if (binding.type === 'environment-metadata') {
         const dimension = binding.evidence?.dimension
         if (!description.environmentDimensions?.includes(dimension) || binding.elementId !== `environment:${description.placeId}:${dimension}`) fail('environment binding is not backed by exact metadata')
@@ -670,6 +691,7 @@ export function validateWorldScene3d(model) {
         if (!route || route.nodeId !== witness.nodeId || !Number.isInteger(route.optionIndex) || option?.confuser || option?.to !== route.to
           || !canonical?.valid || !canonical.spatial || canonical.samePlace || canonical.fromPlace !== PLACE_OF[witness.nodeId]
           || canonical.toPlace !== element.placeId) problem(element.id, `${witness.descriptionId} visible-from witness has no exact ordinary approach to this feature's place`)
+        for (const conflict of worldScene3dApproachConditionConflicts(witness.conditions, option)) problem(element.id, `${witness.descriptionId} visible-from ${conflict}`)
       } else if (witness.location.kind === 'crossing-endpoint') {
         if (!crossing || !crossing.edge.some((nodeId) => PLACE_OF[nodeId] === PLACE_OF[witness.nodeId])) problem(element.id, `${witness.descriptionId} is not an endpoint witness of this registered crossing`)
       } else problem(element.id, `${witness.descriptionId} has an unsupported feature-location relationship`)

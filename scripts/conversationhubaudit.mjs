@@ -14,6 +14,8 @@ import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import { npcIdentityKnowledgeId } from '../src/game/npcIdentity.js'
 import { observationConditionId, observationIdOfLine } from '../src/game/observations.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
+import { resolveRevealLine } from '../src/game/revealResolver.js'
+import { canChoose, hasCond, isOptionRevealed, newRun, reducer } from '../src/game/gameState.js'
 import {
   GROUNDED_DIRECTION_CONTRACTS,
   LOCATION_QUESTION_REVIEWS,
@@ -724,6 +726,50 @@ const sourceEvidenceIsGuaranteed = (entries, option, predecessorId) => {
   })
 }
 
+// A route can have two reviewed surfaces for one binary world condition. The
+// branches must cover exactly presence and absence, keep every shared gate,
+// and reveal from their own visible source. Other duplicate choices still fail.
+const checkedRouteChoices = (step, options, predecessorId, node = STORY[step.nodeId]) => {
+  const label = `${step.nodeId}->${step.to}`
+  const sorted = (value) => [...conditionsOf(value)].sort()
+  const baseRequired = sorted(step.requires)
+  const baseExcluded = sorted(step.unless)
+  assert.equal(baseRequired.some((id) => baseExcluded.includes(id)), false, `${label}: shared route conditions contradict each other`)
+  if (!step.stateVariants) {
+    assert.equal(options.length, 1, `${label}: must expose exactly one physical cue choice unless state variants are explicitly reviewed`)
+    assert.deepEqual(sorted(options[0].requires), baseRequired, `${label}: route requirements differ from the grounded-direction contract`)
+    assert.deepEqual(sorted(options[0].unless), baseExcluded, `${label}: route exclusions differ from the grounded-direction contract`)
+    return options.map((option) => ({ option, sourceEntries: node.text.filter((entry) => includesEvery(idsOf(lineOf(entry)), step.sourceEvidenceIds)) }))
+  }
+  const variants = step.stateVariants
+  assert.deepEqual(Object.keys(variants).sort(), ['absentSourceLineIndex', 'condition', 'presentSourceLineIndex'], `${label}: state variant contract has unsupported or missing fields`)
+  assert.ok(typeof variants.condition === 'string' && variants.condition.trim(), `${label}: state variants need an exact condition`)
+  assert.equal([...baseRequired, ...baseExcluded].includes(variants.condition), false, `${label}: shared gates suppress one reviewed state variant`)
+  assert.ok(Number.isInteger(variants.absentSourceLineIndex) && variants.absentSourceLineIndex >= 0
+    && Number.isInteger(variants.presentSourceLineIndex) && variants.presentSourceLineIndex >= 0
+    && variants.absentSourceLineIndex !== variants.presentSourceLineIndex, `${label}: state variants need two distinct exact source lines`)
+  assert.equal(options.length, 2, `${label}: state variants must have exactly two complementary choices`)
+  return [false, true].map((present) => {
+    const required = [...baseRequired, ...(present ? [variants.condition] : [])].sort()
+    const excluded = [...baseExcluded, ...(present ? [] : [variants.condition])].sort()
+    const matching = options.filter((option) => JSON.stringify(sorted(option.requires)) === JSON.stringify(required)
+      && JSON.stringify(sorted(option.unless)) === JSON.stringify(excluded))
+    assert.equal(matching.length, 1, `${label}: ${present ? 'present' : 'absent'} state needs exactly one choice with its complete required/excluded predicates`)
+    const option = matching[0]
+    const index = present ? variants.presentSourceLineIndex : variants.absentSourceLineIndex
+    const entry = node.text[index]
+    assert.ok(entry && includesEvery(idsOf(lineOf(entry)), step.sourceEvidenceIds), `${label}: variant source ${index} omits the reviewed route cues`)
+    const sourcePositive = !Array.isArray(entry) && !entry.negate && conditionsOf(entry.cond).includes(variants.condition)
+    const sourceNegative = !Array.isArray(entry) && (conditionsOf(entry.none).includes(variants.condition)
+      || (entry.negate && conditionsOf(entry.cond).length === 1 && conditionsOf(entry.cond)[0] === variants.condition))
+    assert.equal(Boolean(present ? sourcePositive : sourceNegative), true, `${label}: variant source ${index} does not establish its declared state`)
+    assert.ok(sourceEvidenceIsEntailed(entry, option, predecessorId), `${label}: variant source ${index} is not guaranteed visible under its exact choice predicates`)
+    const reveal = resolveRevealLine(node.text.map(lineOf), option)
+    assert.ok(['unique', 'selected'].includes(reveal.status) && reveal.index === index, `${label}: variant choice must reveal from exact source line ${index}`)
+    return { option, sourceEntries: [entry] }
+  })
+}
+
 assert.equal(sourceEvidenceIsEntailed(
   { cond: 'flag:route-known', line: [{ id: 'road' }] },
   { requires: 'flag:route-known' },
@@ -819,22 +865,12 @@ for (const directions of Object.values(GROUNDED_DIRECTION_CONTRACTS)) {
       `${directions.id}: ${step.nodeId}->${step.to} repeats a source-evidence id`)
     const options = realOptions(step.nodeId).filter((option) =>
       option.to === step.to && includesEvery(idsOf(lineOf(option.text)), step.cueIds))
-    assert.equal(options.length, 1,
-      `${directions.id}: ${step.nodeId}->${step.to} must expose exactly one physical cue choice`)
     assert.ok(step.cueIds.every((id) => answerCueIds.has(id)),
       `${directions.id}: route step ${step.nodeId}->${step.to} is not recoverable from the answer`)
-    for (const required of step.requires) {
-      assert.ok(conditionsOf(options[0].requires).includes(required),
-        `${directions.id}: ${step.nodeId}->${step.to} bypasses ${required}`)
+    for (const { option, sourceEntries } of checkedRouteChoices(step, options, predecessorId)) {
+      assert.ok(sourceEvidenceIsGuaranteed(sourceEntries, option, predecessorId),
+        `${directions.id}: ${step.nodeId}->${step.to} presupposes ${step.sourceEvidenceIds.join('+')} without visible, condition-entailed scene evidence`)
     }
-    const undeclaredRequirements = conditionsOf(options[0].requires)
-      .filter((required) => !step.requires.includes(required))
-    assert.deepEqual(undeclaredRequirements, [],
-      `${directions.id}: ${step.nodeId}->${step.to} has route requirements missing from the grounded-direction contract`)
-    const evidenceEntries = STORY[step.nodeId].text.filter((entry) =>
-      includesEvery(idsOf(lineOf(entry)), step.sourceEvidenceIds))
-    assert.ok(sourceEvidenceIsGuaranteed(evidenceEntries, options[0], predecessorId),
-      `${directions.id}: ${step.nodeId}->${step.to} presupposes ${step.sourceEvidenceIds.join('+')} without visible, condition-entailed scene evidence`)
     for (const wrongTurn of step.wrongTurns) {
       const wrongOptions = realOptions(wrongTurn.nodeId).filter((option) =>
         option.to === wrongTurn.to && includesEvery(idsOf(lineOf(option.text)), wrongTurn.cueIds))
@@ -854,6 +890,68 @@ for (const directions of Object.values(GROUNDED_DIRECTION_CONTRACTS)) {
       option.to === directions.destinationNodeId), false,
     `${directions.id}: free-roam exit still skips the reviewed route`)
   }
+}
+
+// Corrupt the actual reviewed pair, so state variants cannot become a blanket
+// exemption for duplicate choices, extra requirements or a hidden signpost.
+const marketDirections = GROUNDED_DIRECTION_CONTRACTS.eliraMarket
+const wellStep = marketDirections.route[0]
+const wellOptions = realOptions(wellStep.nodeId).filter((option) => option.to === wellStep.to
+  && includesEvery(idsOf(lineOf(option.text)), wellStep.cueIds))
+const rejectRouteVariant = (label, mutate, diagnostic) => {
+  const input = { step: structuredClone(wellStep), options: structuredClone(wellOptions), node: structuredClone(STORY[wellStep.nodeId]) }
+  mutate(input)
+  assert.throws(() => checkedRouteChoices(input.step, input.options, marketDirections.responseNodeId, input.node), diagnostic, label)
+}
+rejectRouteVariant('unclassified duplicate route choices', ({ step }) => { delete step.stateVariants }, /exactly one physical cue choice/)
+rejectRouteVariant('missing complementary route', ({ options }) => options.pop(), /exactly two complementary choices/)
+rejectRouteVariant('duplicate wet branch', ({ options }) => { options[0] = structuredClone(options[1]) }, /absent state needs exactly one choice/)
+rejectRouteVariant('dry branch loses its exclusion', ({ options }) => { delete options[0].unless }, /absent state needs exactly one choice/)
+rejectRouteVariant('wet branch adds undeclared requirement', ({ options }) => { options[1].requires = [...conditionsOf(options[1].requires), 'flag:unreviewed-route-lock'] }, /present state needs exactly one choice/)
+rejectRouteVariant('wet branch uses hidden dry signpost', ({ options }) => { options[1].revealOccurrence = options[0].revealOccurrence }, /exact source line 1/)
+rejectRouteVariant('variant source changes its world condition', ({ node }) => { node.text[1].cond = 'fact:unreviewed-water-state' }, /does not establish its declared state/)
+rejectRouteVariant('malformed variant review', ({ step }) => { step.stateVariants.extra = true }, /unsupported or missing fields/)
+rejectRouteVariant('both branches claim one source', ({ step }) => { step.stateVariants.presentSourceLineIndex = 0 }, /two distinct exact source lines/)
+
+// Traverse the real question, answer exit and physical route in both states.
+// Only this fixture's existing errand is seeded; every route selection still
+// passes the production vocabulary, reveal, condition and reducer boundaries.
+const prepareRouteChoice = (state, option) => {
+  const ready = { ...state, discovered: { ...state.discovered }, mana: { ...state.mana } }
+  const source = visibleLines(STORY[state.nodeId], (id) => hasCond(state, id)).flat()
+  for (const id of idsOf([...source, ...lineOf(option.text)])) {
+    ready.discovered[id] = true
+    ready.mana[id] = Math.max(ready.mana[id] || 0, 1)
+  }
+  return ready
+}
+const takeRouteChoice = (state, candidates, label) => {
+  const available = candidates.map((option) => ({ option, ready: prepareRouteChoice(state, option) }))
+    .filter(({ option, ready }) => isOptionRevealed(ready, option) && canChoose(ready, option))
+  assert.equal(available.length, 1, `${label}: production must offer exactly one legal route action`)
+  const { option, ready } = available[0]
+  const next = reducer(ready, { type: 'CHOOSE', option, fromNodeId: ready.nodeId, fromTurn: ready.turn })
+  assert.notStrictEqual(next, ready, `${label}: canonical reducer rejected the grounded route`)
+  assert.equal(next.nodeId, option.to, `${label}: canonical route did not reach its authored destination`)
+  return next
+}
+for (const restored of [false, true]) {
+  let state = {
+    ...newRun(), nodeId: marketDirections.responseNodeId, clock: 3,
+    worldFacts: restored ? { villageWellsRestored: true } : {},
+    quests: { 'elira-bread-salt': { status: 'active', acceptedAtClock: 3 } },
+    flags: { eliraOpeningResolved: true }, npcStarted: { elira: 0 },
+  }
+  const question = marketDirections.questions[0]
+  state = takeRouteChoice(state, realOptions(question.nodeId).filter((option) => includesEvery(idsOf(lineOf(option.text)), question.cueIds)), `market directions/restored=${restored}/ask`)
+  assert.ok(hasCond(state, marketDirections.responseCondition), 'asking for market directions must display its canonical answer')
+  state = takeRouteChoice(state, realOptions(state.nodeId).filter((option) => option.to === marketDirections.exitTo), `market directions/restored=${restored}/exit`)
+  for (const step of marketDirections.route) {
+    state = takeRouteChoice(state, realOptions(state.nodeId).filter((option) => option.to === step.to
+      && includesEvery(idsOf(lineOf(option.text)), step.cueIds)), `market directions/restored=${restored}/${step.nodeId}->${step.to}`)
+  }
+  assert.equal(state.nodeId, marketDirections.destinationNodeId, `market directions/restored=${restored}: physical route failed to reach the market`)
+  assert.equal(Boolean(state.worldFacts.villageWellsRestored), restored, 'using grounded directions changed the well state')
 }
 
 console.log(`Conversation hub audit passed: ${Object.keys(CONVERSATION_HUBS).length} hub(s); ` +

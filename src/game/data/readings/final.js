@@ -875,4 +875,6 @@ export const FINAL_READINGS = {
   "fshatiSheshi.text[32]": ["gruaja që takove te ura rri afër pusit.", "The woman you met at the bridge is standing near the well."],
   "fshatiSheshi.text[33]": ["Elira rri afër pusit.", "Elira is standing near the well."],
   "fshatiSheshi.text[10]": ["Nga sheshi sheh kishën lart mbi fshat; pranë teje rrinë një xhami dhe një kullë e orës, që tregon orët dhe minutat.", "From the square you see the church above the village; beside you stand a mosque and a clock tower, which shows the hours and minutes."],
+  "oda2.text[11]": ["Plaku buzëqesh dhe thotë: Pusi ka ujë përsëri.", "The old man smiles and says, “The well has water again.”"],
+  "oda2.text[12]": ["Plaku ngrihet dhe thotë: eja me mua te pusi.", "The old man rises and says, “Come with me to the well.”"],
 }

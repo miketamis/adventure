@@ -362,7 +362,7 @@ export const WORLD_SCENE_3D_FEATURES = Object.freeze([
       witness('dry-well-shaft', 'pusiThate', 4, ['pus', 'poshte', 'thelle']),
       witness('square-well', 'fshatiSheshi', 0, ['shesh', 'pus', 'thate'], visibleFrom('fshatiSheshi', 5, 'pusiThate')),
       localWitness('fshatiSheshi', 1, ['shesh', 'uje', 'pus'], 'ti je në shesh: uji është përsëri në pus.',
-        { all: ['fact:villageWellsRestored'], negate: false, none: [], observationId: null }, visibleFrom('fshatiSheshi', 5, 'pusiThate')),
+        { all: ['fact:villageWellsRestored'], negate: false, none: [], observationId: null }, visibleFrom('fshatiSheshi', 28, 'pusiThate')),
       localWitness('pusiThate', 0, ['pus', 'thate'], 'një pus është i thatë.',
         { all: ['fact:villageWellsRestored'], negate: true, none: [], observationId: null }),
       localWitness('pusiThate', 1, ['pus', 'uje'], 'pusi ka ujë përsëri.',

@@ -582,4 +582,5 @@ export const OPTION_READINGS_B = Object.freeze({
   "tsRast.options[5]": { al: "shko nga rruga në luftë.", en: "Go from the road to the battle.", review: 'internal-editorial' },
   "arushe2.options[1]": { al: "vrapo nga arusha në pyll.", en: "Run from the bear into the forest.", review: 'internal-editorial' },
   "diellThirrKul.options[0]": { al: "thirr një kafshë.", en: "Call an animal.", review: 'internal-editorial' },
+  "fshatiSheshi.options[28]": { al: "shko në pus", en: "Go to the well.", review: 'internal-editorial' },
 })

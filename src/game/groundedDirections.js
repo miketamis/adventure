@@ -18,12 +18,14 @@ import {
 
 const freezeList = (value) => Object.freeze([...(value || [])])
 
-const routeStep = ({ nodeId, to, cueIds, sourceEvidenceIds, requires = [], wrongTurns = [] }) => Object.freeze({
+const routeStep = ({ nodeId, to, cueIds, sourceEvidenceIds, requires = [], unless = [], stateVariants, wrongTurns = [] }) => Object.freeze({
   nodeId,
   to,
   cueIds: freezeList(cueIds),
   sourceEvidenceIds: freezeList(sourceEvidenceIds),
   requires: freezeList(requires),
+  unless: freezeList(unless),
+  ...(stateVariants ? { stateVariants: Object.freeze({ ...stateVariants }) } : {}),
   wrongTurns: Object.freeze((wrongTurns || []).map((turn) => Object.freeze({
     nodeId: turn.nodeId || nodeId,
     to: turn.to,
@@ -69,7 +71,12 @@ export const GROUNDED_DIRECTION_CONTRACTS = Object.freeze({
     responseCueIds: ['prane', 'pus'],
     destinationNodeId: 'pazariFshatit',
     route: [
-      { nodeId: 'fshatiSheshi', to: 'pusiThate', cueIds: ['pus'], sourceEvidenceIds: ['pus'] },
+      {
+        nodeId: 'fshatiSheshi', to: 'pusiThate', cueIds: ['pus'], sourceEvidenceIds: ['pus'],
+        // Both states preserve the same navigable landmark. Each approach is
+        // revealed by its own currently visible description of the well.
+        stateVariants: { condition: 'fact:villageWellsRestored', absentSourceLineIndex: 0, presentSourceLineIndex: 1 },
+      },
       {
         nodeId: 'pusiThate',
         to: 'pazariFshatit',

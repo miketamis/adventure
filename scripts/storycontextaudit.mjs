@@ -5,14 +5,19 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { STORY, describesEnvironment, lineOf, moneyOutcomeLineOf, visibleLines, w } from '../src/game/content.js'
 import {
+  arrivalOptionOf,
+  canChoose,
+  currentStoryState,
   hasCond,
   hasRequiredItem,
+  isOptionRevealed,
   environmentNarrationScopeOf,
   newRun,
   normalizeSavedState,
   phraseSenses,
   reducer,
   storyScenePresentationForState,
+  trainablePhraseSenses,
 } from '../src/game/gameState.js'
 import { albanianTextOf } from '../src/game/language.js'
 import {
@@ -26,6 +31,7 @@ import { civilDayPartAtClock, civilHourAtClock, greetingPeriodAtClock } from '..
 import { storyReadingVisible } from '../src/components/storyMechanicsPresentation.js'
 import { observationConditionId, observationIdOfLine } from '../src/game/observations.js'
 import { normalizeHealthNarrationState, planHealthNarration } from '../src/game/healthNarration.js'
+import { resolveRevealLine } from '../src/game/revealResolver.js'
 
 const failures = []
 let checkCount = 0
@@ -389,6 +395,152 @@ check('the children explain their rain song without undoing restored village wat
       `children/${restored}: the requested rain explanation was not shown`)
     assert.equal(lines.some((line) => /[Pp]usi.*thatë/.test(line)), false,
       `children/${restored}: the answer claimed that the well is still dry`)
+  }
+})
+
+check('dry and restored well routes require every sense in their exact visible signpost', () => {
+  for (const restored of [false, true]) {
+    const state = {
+      ...newRun(), nodeId: 'fshatiSheshi', clock: 6, cameFrom: 'udhekryq', trail: [],
+      visited: { pusiThate: true },
+      worldFacts: restored ? { villageWellsRestored: { atClock: 4, source: 'syriFund' } } : {},
+    }
+    const variants = STORY.fshatiSheshi.options.filter((option) => option.to === 'pusiThate')
+    const live = variants.filter((option) => hasRequiredItem(currentStoryState(state), option))
+    assert.equal(live.length, 1, `well/${restored}: expected exactly one state-appropriate route`)
+    const option = live[0]
+    const source = resolveRevealLine(STORY.fshatiSheshi.text.map(lineOf), option).line
+    assert.equal(source, lineOf(STORY.fshatiSheshi.text[restored ? 1 : 0]),
+      `well/${restored}: the route uses a different source sentence`)
+    assert.ok(storyScenePresentationForState(state).sourceLines.includes(source),
+      `well/${restored}: the route source is hidden`)
+    for (const id of [...trainablePhraseSenses(source), ...trainablePhraseSenses(option.text)]) {
+      state.discovered[id] = true
+      state.mana[id] = 20
+    }
+    assert.equal(isOptionRevealed(currentStoryState(state), option), true)
+    for (const id of trainablePhraseSenses(source)) {
+      const missing = { ...state, discovered: { ...state.discovered } }
+      delete missing.discovered[id]
+      assert.equal(isOptionRevealed(currentStoryState(missing), option), false,
+        `well/${restored}: visited destination bypassed the undiscovered source sense ${id}`)
+      assert.equal(reducer(missing, {
+        type: 'CHOOSE', option, targetNode: STORY.pusiThate,
+        fromNodeId: missing.nodeId, fromTurn: missing.turn,
+      }), missing, `well/${restored}: reducer accepted an undiscovered signpost sense ${id}`)
+    }
+    for (const stale of variants.filter((entry) => entry !== option)) {
+      assert.equal(canChoose(currentStoryState(state), stale), false)
+      assert.equal(reducer(state, {
+        type: 'CHOOSE', option: stale, targetNode: STORY.pusiThate,
+        fromNodeId: state.nodeId, fromTurn: state.turn,
+      }), state, `well/${restored}: stale water-state route was accepted`)
+    }
+    const arrived = reducer(state, {
+      type: 'CHOOSE', option, targetNode: STORY.pusiThate,
+      fromNodeId: state.nodeId, fromTurn: state.turn,
+    })
+    assert.equal(arrived.nodeId, 'pusiThate', `well/${restored}: learned current route was rejected`)
+    assert.equal(arrived.actionSpeech?.al, 'shko në pus', 'well route changed its recorded Albanian')
+  }
+})
+
+check('restored-water choices preserve saved square action arrivals', () => {
+  // These are the compiled choice addresses persisted before the restored
+  // routes were added. A same-place target match alone cannot detect a shifted
+  // bottle/umbrella choice, so pin both the action identity and visible outcome.
+  const arrivals = [
+    [25, 'world-item:drink-bottle-fshati-sheshi', 'ti pi ujin nga shishja.', { shishe: 1 }, {}],
+    [26, 'world-item:open-umbrella-fshati-sheshi-rain', 'ti hap çadrën në sheshin e fshatit; ajo të mban të thatë.', { cader: 1 }, { 'umbrellaOpen:fshatiSheshi': true }],
+    [27, 'world-item:open-umbrella-fshati-sheshi-storm', 'ti hap çadrën në sheshin e fshatit; ajo të mban të thatë.', { cader: 1 }, { 'umbrellaOpen:fshatiSheshi': true }],
+  ]
+  for (const [choiceIndex, actionId, outcome, inventory, flags] of arrivals) {
+    for (const restored of [false, true]) {
+      const saved = {
+        ...newRun(), nodeId: 'fshatiSheshi', cameFrom: 'fshatiSheshi', choiceIndex,
+        clock: 6, turn: 2, inventory, flags,
+        worldFacts: restored ? { villageWellsRestored: { atClock: 4, source: 'syriFund' } } : {},
+      }
+      const loaded = normalizeSavedState(JSON.parse(JSON.stringify(saved)), newRun())
+      assert.equal(loaded.choiceIndex, choiceIndex, `${actionId}: saved arrival was discarded`)
+      assert.equal(arrivalOptionOf(loaded)?.playerAction?.id, actionId,
+        `${actionId}: saved index resolves to a different accepted action`)
+      const prose = storyScenePresentationForState(loaded).entries.map(({ line }) => albanianTextOf(line))
+      assert.ok(prose.includes(outcome), `${actionId}: saved action lost its visible consequence`)
+      assert.equal(prose.includes('ti pi ujin nga shishja.'), choiceIndex === 25,
+        `${actionId}: reload narrates drinking water for an umbrella action`)
+      assert.equal(loaded.actionSpeech, null, `${actionId}: reload replayed accepted-action audio`)
+    }
+  }
+})
+
+check('returning from each water-restoring ending keeps the old man and well story current', () => {
+  const prose = (state) => storyScenePresentationForState(state).entries.map(({ line }) => albanianTextOf(line))
+  const prepare = (state) => {
+    const next = { ...state, discovered: { ...state.discovered }, mana: { ...state.mana } }
+    const node = STORY[state.nodeId]
+    for (const line of [...node.text.map(lineOf), ...node.options.map((option) => option.text)]) {
+      for (const id of trainablePhraseSenses(line)) {
+        next.discovered[id] = true
+        next.mana[id] = 50
+      }
+    }
+    return next
+  }
+  const travel = (state, destination) => {
+    const ready = prepare(state)
+    const options = STORY[ready.nodeId].options.filter((option) => !option.confuser && option.to === destination &&
+      canChoose(currentStoryState(ready), option) && isOptionRevealed(currentStoryState(ready), option))
+    assert.equal(options.length, 1, `${ready.nodeId} -> ${destination}: no unique playable route`)
+    const option = options[0]
+    const next = reducer(ready, {
+      type: 'CHOOSE', option, targetNode: STORY[destination],
+      fromNodeId: ready.nodeId, fromTurn: ready.turn,
+    })
+    assert.equal(next.nodeId, destination, `${ready.nodeId} -> ${destination}: reducer rejected route`)
+    return next
+  }
+  // RETURN_TO_WORLD uses each real ending's production effects. In particular,
+  // the Blue Eye restores wells without proving watered fields or a dead dragon.
+  const restoringEndings = Object.values(STORY).filter((node) => node.worldEffects?.includes('villageWellsRestored'))
+  assert.ok(restoringEndings.length >= 4, 'water-restoration coverage omitted production endings')
+  for (const endingId of [null, ...restoringEndings.map((node) => node.id)]) {
+    let state = endingId
+      ? reducer({ ...newRun(), nodeId: endingId, clock: 4, ended: STORY[endingId].end }, { type: 'RETURN_TO_WORLD' })
+      : { ...newRun(), nodeId: 'udhekryq', clock: 4 }
+    const restored = Boolean(state.worldFacts.villageWellsRestored)
+    const defeated = Boolean(state.worldFacts.kulshedraDefeated)
+    state = normalizeSavedState(JSON.parse(JSON.stringify(state)), newRun())
+    for (const destination of ['fshatiSheshi', 'rrugaOdes', 'oda1', 'oda2']) state = travel(state, destination)
+    assert.equal(state.embodying, null, `${endingId}: review accidentally entered a frozen tale`)
+    const atGuestRoom = prose(state)
+    assert.equal(atGuestRoom.includes('fshati është i thatë.'), !restored)
+    assert.equal(atGuestRoom.includes('sepse nuk ka ujë, gjithë fshati im vdes.'), !restored)
+    assert.equal(atGuestRoom.includes('Plaku buzëqesh dhe thotë: Pusi ka ujë përsëri.'), restored)
+    if (restored) assert.equal(atGuestRoom.some((line) => /gjelbër|gjelbra|gjelbërta/.test(line)), false,
+      `${endingId}: well restoration invented an independent field condition`)
+    const ready = prepare(state)
+    const follow = STORY.oda2.options.find((option) => option.to === 'fshatiBesa' && hasRequiredItem(ready, option))
+    const invitation = resolveRevealLine(STORY.oda2.text.map(lineOf), follow).line
+    assert.ok(storyScenePresentationForState(ready).sourceLines.includes(invitation),
+      `${endingId}: accompaniment is bound to a hidden invitation`)
+    assert.ok(invitation.some((token) => token.id === 'ngre') && invitation.some((token) => token.id === 'vjen'),
+      `${endingId}: accompaniment is not bound to the old man's offered departure`)
+    state = travel(state, 'fshatiBesa')
+    const atWell = prose(state)
+    assert.ok(atWell.includes('ti ecën me plakun te pusi. ai tregon dhe thotë:'))
+    assert.equal(atWell.includes('kulshedra poshtë mban ujin dhe Bukurën.'), !restored && !defeated)
+    assert.equal(atWell.includes('Uji është përsëri në fshat, por kulshedra ende mban Bukurën poshtë.'), restored && !defeated)
+    assert.equal(atWell.includes('Kulshedra ka vdekur.'), defeated)
+    assert.equal(atWell.includes('Plaku thotë: mbaj fjalën, gjithmonë.'), defeated)
+    assert.equal(atWell.some((line) => /Bukur[ae].*sigurt/.test(line)), false,
+      `${endingId}: dragon defeat invented proof that the Beauty is safe`)
+    assert.equal(atWell.some((line) => /pus.*thatë/.test(line)), false,
+      `${endingId}: the well's fixed location carried a stale water state`)
+    const afterReload = normalizeSavedState(JSON.parse(JSON.stringify(state)), newRun())
+    assert.deepEqual(prose(afterReload), atWell, `${endingId}: reload changed the narrated world outcome`)
+    assert.equal(travel(state, 'fshatiCaul').nodeId, 'fshatiCaul', `${endingId}: the besa choice lost its consequence`)
+    assert.equal(travel(state, 'nastradin1').nodeId, 'nastradin1', `${endingId}: the ordinary exit disappeared`)
   }
 })
 

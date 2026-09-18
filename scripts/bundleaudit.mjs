@@ -108,6 +108,22 @@ const chunkNamed = (prefix) => {
   return found[0]
 }
 
+// Static actions appended for save-compatible indices keep their English in
+// the same deferred corpus as inline choices. Exercise the actual emitted
+// chunk and exact live/deferred readings, not just the build-transform source.
+const [{ STORY }, { REVIEWED_OPTION_READINGS }] = await Promise.all([
+  import('../src/game/content.js'),
+  import('../src/game/data/readings/reviewedOptionReadings.js'),
+])
+const storyGraphSource = readFileSync(resolve(ASSETS, chunkNamed('story-graph').name), 'utf8')
+for (const [nodeId, index] of [['tsRast', 5], ['pazariFshatit', 6], ['pazariFshatit', 7], ['fshatiSheshi', 28], ['oda2', 3]]) {
+  const address = `${nodeId}.options[${index}]`
+  const reading = STORY[nodeId].options[index].text.reading
+  assert.ok(reading, `${address}: static appended action lost its editorial reading`)
+  assert.equal(REVIEWED_OPTION_READINGS[address]?.en, reading, `${address}: deferred action reading differs from source`)
+  assert.ok(!storyGraphSource.includes(reading), `${address}: duplicate debug English remained in the eager story graph`)
+}
+
 // These are intentional long-lived cache boundaries, not arbitrary filenames.
 // If Rollup ever folds one back into the shell, the shell-only budget might
 // catch it, but this assertion explains the architectural regression directly.

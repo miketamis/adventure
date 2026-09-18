@@ -892,6 +892,9 @@ const C = (line) => Object.assign([...line], {
   ...(line.speechAct ? { speechAct: line.speechAct } : {}),
 })
 
+// One water-state predicate binds the village's descriptions and affordances.
+const VILLAGE_WELLS_RESTORED = 'fact:villageWellsRestored'
+
 export const STORY = {
   // =========================================================================
   // ACT I — the thirsting village (the Call)
@@ -7160,8 +7163,8 @@ export const STORY = {
   fshatiSheshi: {
     id: 'fshatiSheshi',
     text: [
-      unless('fact:villageWellsRestored', L(w('ti'), w('je'), wf('ne', 'në', 'in'), w('shesh'), p(':'), wf('fshat', 'fshati', 'the village'), w('rri'), w('rreth'), wf('ti', 'teje', 'you'), p(','), w('dhe'), w('nje'), w('pus'), w('eshte'), w('i_art'), w('thate'), p('.'))),
-      when('fact:villageWellsRestored', L(w('ti'), w('je'), wf('ne', 'në', 'in'), w('shesh'), p(':'), wf('uje', 'uji', 'the water'), w('eshte'), w('perseri'), wf('ne', 'në', 'in'), w('pus'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, L(w('ti'), w('je'), wf('ne', 'në', 'in'), w('shesh'), p(':'), wf('fshat', 'fshati', 'the village'), w('rri'), w('rreth'), wf('ti', 'teje', 'you'), p(','), w('dhe'), w('nje'), w('pus'), w('eshte'), w('i_art'), w('thate'), p('.'))),
+      when(VILLAGE_WELLS_RESTORED, L(w('ti'), w('je'), wf('ne', 'në', 'in'), w('shesh'), p(':'), wf('uje', 'uji', 'the water'), w('eshte'), w('perseri'), wf('ne', 'në', 'in'), w('pus'), p('.'))),
       R('From the square, one road goes straight ahead and another descends to the river.', wf('nga', 'Nga', 'from'), w('shesh'), p(','), w('nje'), w('rruge'), w('shko'), w('drejt'), w('perpara'), w('dhe'), w('nje'), w('tjeter'), wf('zbrit', 'zbret', 'descends'), wf('tek', 'te', 'to'), w('lume'), p('.')),
       R('At the edge of the square, one road leads to the crossroads and another to the Summer Day feast.', wf('ne', 'Në', 'at'), w('fund'), wf('te_link', 'të', 'the'), wf('shesh', 'sheshit', 'the square'), p(','), w('nje'), w('rruge'), wf('shko', 'shkon', 'leads'), wf('tek', 'te', 'to'), wf('udhekryq', 'udhëkryqi', 'the crossroads'), w('dhe'), w('nje'), w('tjeter'), wf('tek', 'te', 'to'), wf('feste', 'festa', 'the feast'), w('e_link'), wf('vere', 'verës', 'summer'), p('.')),
       when('fact:fieldsWatered', R('The fields are green now.', wf('are', 'arat', 'the fields'), wf('je', 'janë', 'are'), w('gjelber'), w('tani'), p('.'))),
@@ -7224,8 +7227,8 @@ export const STORY = {
       npcIdentityLine('elira', false, R('The woman from the bridge sees you in the square.', wf('grua', 'gruaja', 'the woman'), w('nga'), wf('ure', 'ura', 'the bridge'), w('te_obj'), wf('shiko', 'sheh', 'sees'), wf('ne', 'në', 'in'), w('shesh'), p('.')), { required: ['flag:eliraFollowPlan', 'rendezvous:eliraFollow:missed', 'npc:elira'], excluded: 'flag:eliraOpeningResolved' }),
       npcIdentityLine('elira', true, R('Elira sees you in the square.', w('elira'), w('te_obj'), wf('shiko', 'sheh', 'sees'), wf('ne', 'në', 'in'), w('shesh'), p('.')), { required: ['flag:eliraFollowPlan', 'rendezvous:eliraFollow:missed', 'npc:elira'], excluded: 'flag:eliraOpeningResolved' }),
       npcIdentityLine('gruaUji', true, R('Mira carries water up from the spring.', w('miraEmri'), w('sjell'), w('uje'), w('nga'), wf('krua', 'kroi', 'the spring'), p('.')), { required: 'npc:gruaUji' }),
-      ambient(whenUnless('weather:rain', 'fact:villageWellsRestored', describesEnvironment('weather', R('Rain falls in the square, but the dry well still has no water.', wf('shi', 'Shiu', 'the rain'), w('bie'), wf('ne', 'në', 'in'), w('shesh'), p(','), w('por'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), w('ende'), w('nuk'), w('ka'), w('uje'), p('.')))), 'dry-square-rain'),
-      ambient(when(['weather:rain', 'fact:villageWellsRestored'], describesEnvironment('weather', R('Rain falls in the square and into the restored well.', wf('shi', 'Shiu', 'the rain'), w('bie'), wf('ne', 'në', 'in'), w('shesh'), w('dhe'), wf('ne', 'në', 'in'), w('pus'), p('.')))), 'restored-square-rain'),
+      ambient(whenUnless('weather:rain', VILLAGE_WELLS_RESTORED, describesEnvironment('weather', R('Rain falls in the square, but the dry well still has no water.', wf('shi', 'Shiu', 'the rain'), w('bie'), wf('ne', 'në', 'in'), w('shesh'), p(','), w('por'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), w('ende'), w('nuk'), w('ka'), w('uje'), p('.')))), 'dry-square-rain'),
+      ambient(when(['weather:rain', VILLAGE_WELLS_RESTORED], describesEnvironment('weather', R('Rain falls in the square and into the restored well.', wf('shi', 'Shiu', 'the rain'), w('bie'), wf('ne', 'në', 'in'), w('shesh'), w('dhe'), wf('ne', 'në', 'in'), w('pus'), p('.')))), 'restored-square-rain'),
     ],
     options: [
       { text: L(w('fol'), w('me'), wf('plak', 'plakun', 'the old man')), requires: 'npc:plakuSheshit', to: 'sheshiPlak', reveal: 'plak' },
@@ -7233,7 +7236,7 @@ export const STORY = {
       { text: R('Go straight ahead.', w('shko'), w('drejt'), w('perpara'), p('.')), intent: 'movement', playerIntents: ['movement'], to: 'rrugaOdes' },
       { text: L(w('hyr'), wf('ne', 'në', 'in'), w('kafene')), unless: 'night', to: 'kafeneja', reveal: 'kafene' },
       { text: R('Go with the children to the rain-child.', w('shko'), w('me'), wf('femije', 'fëmijët', 'the children'), wf('tek', 'te', 'to'), w('dordolec'), p('.')), requires: 'npc:femijet', actionSemantics: accompanimentSemantics('children-square-rain-child', ['square-children']), to: 'dordolec1', reveal: 'dordolec' },
-      { text: L(w('shko'), wf('ne', 'në', 'to'), w('pus')), to: 'pusiThate', reveal: 'thate', revealOccurrence: 1 },
+      { text: L(w('shko'), wf('ne', 'në', 'to'), w('pus')), unless: VILLAGE_WELLS_RESTORED, to: 'pusiThate', reveal: 'pus', revealOccurrence: 1 },
       {
         text: R('Go to the Summer Day feast.', w('shko'), wf('tek', 'te', 'to'), wf('feste', 'festa', 'the feast'), w('e_link'), wf('vere', 'verës', 'summer'), p('.')),
         intent: 'movement', playerIntents: ['movement'],
@@ -7348,16 +7351,16 @@ export const STORY = {
     id: 'sheshiPlak',
     text: [
       R('An old gentleman holds his staff beside the well and listens to you.', w('nje'), w('zoteri'), w('i_art'), wf('vjeter', 'vjetër', 'old'), w('mban'), wf('shkop', 'shkopin', 'the staff'), w('prane'), wf('pus', 'pusit', 'the well'), w('dhe'), w('te_obj'), wf('degjo', 'dëgjon', 'listens'), p('.')),
-      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'well', unless('fact:villageWellsRestored', R('The old man touches the well stone. “Oh no! The water stopped. Who knows why. Supposedly it happened by itself, but nobody believes that.”', wf('plak', 'Plaku', 'the old man'), w('prek'), wf('gur', 'gurin', 'the stone'), w('e_link'), wf('pus', 'pusit', 'the well'), p('.'), wf('obobo', 'Obobo'), p('!'), wf('uje', 'Uji', 'the water'), wf('ndalo', 'ndaloi', 'stopped'), p('.'), wf('kushedi', 'Kushedi', 'who knows'), w('pse'), p('.'), wf('gjoja', 'Gjoja', 'supposedly'), w('kjo'), wf('ndodh', 'ndodhi', 'happened'), w('vete'), p(','), w('por'), w('askush'), w('nuk'), w('e_obj'), wf('beso', 'beson', 'believes'), p('.')))),
-      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'well', when('fact:villageWellsRestored', R('He smiles. “Thank goodness the water has returned. The village is alive again.”', w('buzeqesh'), p('.'), wf('shyqyr', 'Shyqyr'), w('qe'), wf('uje', 'uji', 'the water'), wf('kthehu', 'është kthyer', 'has returned'), p('.'), wf('fshat', 'Fshati', 'the village'), w('eshte'), w('i_art'), w('gjalle'), w('perseri'), p('.')))),
-      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'water', unless('fact:villageWellsRestored', R('With his staff, he points downhill. “The spring is beside the river.”', w('me'), wf('shkop', 'shkopin', 'the staff'), p(','), wf('tregoj', 'tregon', 'points'), w('poshte'), p('.'), wf('krua', 'Kroi', 'the spring'), w('eshte'), w('prane'), wf('lume', 'lumit', 'the river'), p('.')))),
-      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'water', when('fact:villageWellsRestored', R('He points to the well. “Now there is water here, in the well.”', w('ai'), wf('tregoj', 'tregon', 'points to'), wf('pus', 'pusin', 'the well'), p('.'), w('tani'), w('ka'), w('uje'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('pus'), p('.')))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'well', unless(VILLAGE_WELLS_RESTORED, R('The old man touches the well stone. “Oh no! The water stopped. Who knows why. Supposedly it happened by itself, but nobody believes that.”', wf('plak', 'Plaku', 'the old man'), w('prek'), wf('gur', 'gurin', 'the stone'), w('e_link'), wf('pus', 'pusit', 'the well'), p('.'), wf('obobo', 'Obobo'), p('!'), wf('uje', 'Uji', 'the water'), wf('ndalo', 'ndaloi', 'stopped'), p('.'), wf('kushedi', 'Kushedi', 'who knows'), w('pse'), p('.'), wf('gjoja', 'Gjoja', 'supposedly'), w('kjo'), wf('ndodh', 'ndodhi', 'happened'), w('vete'), p(','), w('por'), w('askush'), w('nuk'), w('e_obj'), wf('beso', 'beson', 'believes'), p('.')))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'well', when(VILLAGE_WELLS_RESTORED, R('He smiles. “Thank goodness the water has returned. The village is alive again.”', w('buzeqesh'), p('.'), wf('shyqyr', 'Shyqyr'), w('qe'), wf('uje', 'uji', 'the water'), wf('kthehu', 'është kthyer', 'has returned'), p('.'), wf('fshat', 'Fshati', 'the village'), w('eshte'), w('i_art'), w('gjalle'), w('perseri'), p('.')))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'water', unless(VILLAGE_WELLS_RESTORED, R('With his staff, he points downhill. “The spring is beside the river.”', w('me'), wf('shkop', 'shkopin', 'the staff'), p(','), wf('tregoj', 'tregon', 'points'), w('poshte'), p('.'), wf('krua', 'Kroi', 'the spring'), w('eshte'), w('prane'), wf('lume', 'lumit', 'the river'), p('.')))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'water', when(VILLAGE_WELLS_RESTORED, R('He points to the well. “Now there is water here, in the well.”', w('ai'), wf('tregoj', 'tregon', 'points to'), wf('pus', 'pusin', 'the well'), p('.'), w('tani'), w('ka'), w('uje'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('pus'), p('.')))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'help', R('He raises his hand toward the spring road. “Ask the woman who carries water every day.”', w('ngre'), wf('dore', 'dorën', 'the hand'), w('drejt'), wf('rruge', 'rrugës', 'the road'), w('e_link'), wf('krua', 'kroit', 'the spring'), p('.'), w('pyet'), wf('grua', 'gruan', 'the woman'), w('qe'), wf('sjell', 'sjell', 'carries'), w('uje'), w('cdo'), w('dite'), p('.'))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'seriously', R('The old man smiles. “Yes. The whole village knows it.”', wf('plak', 'Plaku', 'the old man'), w('buzeqesh'), p('.'), w('po_yes'), p('.'), w('i_art'), w('gjithe'), wf('fshat', 'fshati', 'the village'), w('e_obj'), w('di'), p('.'))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'meaning', R('He says, “It means that people say so, but I do not believe them.”', w('ai'), w('thote'), p(':'), wf('domethene', 'Domethënë', 'that means'), w('se'), wf('njeri', 'njerëzit', 'the people'), wf('thote', 'thonë', 'say'), w('keshtu'), p(','), w('por'), w('une'), w('nuk'), w('i_obj'), wf('beso', 'besoj', 'believe'), p('.'))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'clarify', R('He says, “I mean: the water stopped and nobody knows why.”', w('ai'), w('thote'), p(':'), wf('do', 'Dua', 'want'), w('te_subj'), wf('thote', 'them', 'say'), p(':'), wf('uje', 'uji', 'the water'), wf('ndalo', 'ndaloi', 'stopped'), w('dhe'), w('askush'), w('nuk'), w('e_obj'), w('di'), w('pse'), p('.'))),
-      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'repair', unless('fact:villageWellsRestored', R('He repeats slowly, “All right, all right. The spring is downhill, beside the river.”', wf('perserit', 'Përsërit', 'repeats'), w('ngadale'), p(':'), wf('mire', 'Mirë', 'well or good'), p(','), w('mire'), p('.'), wf('krua', 'Kroi', 'the spring'), w('eshte'), w('poshte'), p(','), w('prane'), wf('lume', 'lumit', 'the river'), p('.')))),
-      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'repair', when('fact:villageWellsRestored', R('He repeats slowly, “All right, all right. Now there is water here, in the well.”', wf('perserit', 'Përsërit', 'repeats'), w('ngadale'), p(':'), wf('mire', 'Mirë', 'well or good'), p(','), w('mire'), p('.'), wf('tani', 'Tani', 'now'), w('ka'), w('uje'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('pus'), p('.')))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'repair', unless(VILLAGE_WELLS_RESTORED, R('He repeats slowly, “All right, all right. The spring is downhill, beside the river.”', wf('perserit', 'Përsërit', 'repeats'), w('ngadale'), p(':'), wf('mire', 'Mirë', 'well or good'), p(','), w('mire'), p('.'), wf('krua', 'Kroi', 'the spring'), w('eshte'), w('poshte'), p(','), w('prane'), wf('lume', 'lumit', 'the river'), p('.')))),
+      conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'repair', when(VILLAGE_WELLS_RESTORED, R('He repeats slowly, “All right, all right. Now there is water here, in the well.”', wf('perserit', 'Përsërit', 'repeats'), w('ngadale'), p(':'), wf('mire', 'Mirë', 'well or good'), p(','), w('mire'), p('.'), wf('tani', 'Tani', 'now'), w('ka'), w('uje'), w('ketu'), p(','), wf('ne', 'në', 'in'), w('pus'), p('.')))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'understood', R('He smiles. “Yes, exactly. Now you know the road.”', wf('buzeqesh', 'Buzëqesh', 'smiles'), p('.'), wf('po_yes', 'Po', 'yes'), w('pra'), p('.'), wf('tani', 'Tani', 'now'), w('e_obj'), w('di'), wf('rruge', 'rrugën', 'the road'), p('.'))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'agree', R('He smiles again. “Well, all right. Thank you.”', wf('buzeqesh', 'Buzëqesh', 'smiles'), w('perseri'), p('.'), wf('epo', 'Epo', 'well'), w('mire'), p('.'), w('faleminderit'), p('.'))),
       conversationResponseLine(SQUARE_ELDER_CONVERSATION, 'forestLore', R('The old man says, “At night, a witch flees from salt cast into the fire. Every person has an Ora.”', wf('plak', 'Plaku', 'the old man'), w('thote'), p(':'), w('naten'), p(','), w('nje'), w('shtrige'), wf('ik', 'ikën', 'flees'), w('nga'), wf('kripe', 'kripa', 'the salt'), w('qe'), wf('hidh', 'hidhet', 'is thrown'), wf('ne', 'në', 'in'), w('zjarr'), p('.'), w('cdo'), w('njeri'), w('ka'), w('nje'), w('ora'), p('.'))),
@@ -7371,8 +7374,8 @@ export const STORY = {
       conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'water', R('Where can I find water?', w('ku'), w('mund'), w('te_subj'), wf('gjej', 'gjej', 'find'), w('uje'), p('?'))),
       conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'help', R('How can I help?', w('si'), w('mund'), w('te_subj'), wf('ndihmo', 'ndihmoj', 'help'), p('?'))),
       conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'seriously', R('Seriously?', wf('seriozisht', 'Seriozisht', 'seriously'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.well.askedCondition }),
-      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'meaning', R('What do you mean?', wf('si', 'Si', 'how'), wf('domethene', 'domethënë', 'that means'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.well.askedCondition, unless: 'fact:villageWellsRestored' }),
-      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'clarify', R('What do you mean?', wf('cfare', 'Çfarë', 'what'), w('do'), w('te_subj'), wf('thote', 'thuash', 'say'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.well.askedCondition, unless: 'fact:villageWellsRestored' }),
+      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'meaning', R('What do you mean?', wf('si', 'Si', 'how'), wf('domethene', 'domethënë', 'that means'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.well.askedCondition, unless: VILLAGE_WELLS_RESTORED }),
+      conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'clarify', R('What do you mean?', wf('cfare', 'Çfarë', 'what'), w('do'), w('te_subj'), wf('thote', 'thuash', 'say'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.well.askedCondition, unless: VILLAGE_WELLS_RESTORED }),
       conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'repair', R('I do not understand. Can you repeat it, please?', wf('nuk', 'Nuk', 'not'), w('e_obj'), w('kuptoj'), p('.'), wf('mund', 'Mund', 'can'), w('ta'), wf('perserit', 'përsërisësh', 'repeat'), p(','), w('lutem'), p('?')), { requires: SQUARE_ELDER_CONVERSATION.questions.water.askedCondition }),
       conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'understood', R('Now I understand.', wf('tani', 'Tani', 'now'), w('e_obj'), wf('kuptoj', 'kuptova', 'understood'), p('.')), { requires: SQUARE_ELDER_CONVERSATION.questions.repair.askedCondition }),
       conversationQuestionOption(SQUARE_ELDER_CONVERSATION, 'agree', R('You are right. We must help.', wf('ke', 'Ke', 'have'), wf('drejte', 'të drejtë', 'right'), p('.'), wf('duhet', 'Duhet', 'must'), w('te_subj'), wf('ndihmo', 'ndihmojmë', 'help'), p('.')), { requires: SQUARE_ELDER_CONVERSATION.questions.help.askedCondition }),
@@ -7390,8 +7393,8 @@ export const STORY = {
   pusiThate: {
     id: 'pusiThate',
     text: [
-      unless('fact:villageWellsRestored', L(w('nje'), w('pus'), w('eshte'), w('i_art'), w('thate'), p('.'))),
-      when('fact:villageWellsRestored', L(wf('pus', 'pusi', 'the well'), w('ka'), w('uje'), w('perseri'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, L(w('nje'), w('pus'), w('eshte'), w('i_art'), w('thate'), p('.'))),
+      when(VILLAGE_WELLS_RESTORED, L(wf('pus', 'pusi', 'the well'), w('ka'), w('uje'), w('perseri'), p('.'))),
       // the old woman keeps the dry well by day; at night no one sits here
       unless('night', R('An old woman sits beside the well.', w('nje'), w('plake'), w('rri'), w('prane'), wf('pus', 'pusit', 'the well'), p('.'))),
       whenUnless(['flag:heardDryWellWoman'], ['night', 'fact:kulshedraDefeated'], L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('kulshedra'), w('poshte'), w('ka'), w('uje'), p('.'))),
@@ -7399,7 +7402,7 @@ export const STORY = {
       // a loose stone lies at the rim — so the well's dare ("throw one and
       // listen") is the PLAYER's deed, not narration: merr gur → hidh gur në pus
       unless('gur', L(w('ketu'), w('rri'), w('nje'), w('gur'), p('.'))),
-      whenUnless(['flag:heardDryWellWoman'], ['night', 'fact:villageWellsRestored'], R('The old woman says, “At night, the Xhind come out of the well.”', wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('naten'), wf('xhind', 'Xhindët', 'the night-spirits'), wf('dil', 'dalin', 'come out'), w('nga'), wf('pus', 'pusi', 'the well'), p('.'))),
+      whenUnless(['flag:heardDryWellWoman'], ['night', VILLAGE_WELLS_RESTORED], R('The old woman says, “At night, the Xhind come out of the well.”', wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('naten'), wf('xhind', 'Xhindët', 'the night-spirits'), wf('dil', 'dalin', 'come out'), w('nga'), wf('pus', 'pusi', 'the well'), p('.'))),
       // the plaka's pointer: their gathering is the MILL — the played encounter
       // lives there now (Maro Përhitura), the dry well is only their doorway
       whenUnless('flag:heardDryWellWoman', 'night', L(wf('plake', 'plaka', 'the old woman'), w('thote'), p(':'), w('naten'), wf('xhind', 'Xhindët', 'the night-spirits'), wf('shko', 'shkojnë', 'go'), wf('tek', 'te', 'to'), wf('mulli', 'mulliri', 'the mill'), p('.'))),
@@ -8571,14 +8574,17 @@ export const STORY = {
   fshatiBesa: {
     id: 'fshatiBesa',
     text: [
-      from('oda2', S(R('You walk with the old man to the dry well. He points to it and says:', w('ti'), wf('ec', 'ecën', 'walk'), w('me'), wf('plak', 'plakun', 'the old man'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.'), w('ai'), wf('tregoj', 'tregon', 'points to'), w('dhe'), w('thote'), p(':')),
+      from('oda2', S(R('You walk with the old man to the well. He points to it and says:', w('ti'), wf('ec', 'ecën', 'walk'), w('me'), wf('plak', 'plakun', 'the old man'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), p('.'), w('ai'), wf('tregoj', 'tregon', 'points to'), w('dhe'), w('thote'), p(':')),
         ['participant', 'old-man', 'plak'],
         ['motion', 'old-man-dry-well-walk', 'ec', 'me'])),
-      notFrom('oda2', R('At the dry well, the old man points to it and says:', wf('tek', 'Te', 'at'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p(','), wf('plak', 'plaku', 'the old man'), wf('tregoj', 'tregon', 'points to'), w('dhe'), w('thote'), p(':'))),
-      L(w('kulshedra'), w('poshte'), w('mban'), wf('uje', 'ujin', 'the water'), w('dhe'), wf('bukura', 'Bukurën', 'the Beauty'), p('.')),
-      L(w('nje'), w('dragua'), w('mund'), w('te_subj'), wf('vrit', 'vrasë', 'kill'), wf('kulshedra', 'kulshedrën', 'the she-dragon'), p('.')),
+      notFrom('oda2', R('At the well, the old man points to it and says:', wf('tek', 'Te', 'at'), wf('pus', 'pusi', 'the well'), p(','), wf('plak', 'plaku', 'the old man'), wf('tregoj', 'tregon', 'points to'), w('dhe'), w('thote'), p(':'))),
+      whenUnless([], [VILLAGE_WELLS_RESTORED, 'fact:kulshedraDefeated'], L(w('kulshedra'), w('poshte'), w('mban'), wf('uje', 'ujin', 'the water'), w('dhe'), wf('bukura', 'Bukurën', 'the Beauty'), p('.'))),
+      unless('fact:kulshedraDefeated', L(w('nje'), w('dragua'), w('mund'), w('te_subj'), wf('vrit', 'vrasë', 'kill'), wf('kulshedra', 'kulshedrën', 'the she-dragon'), p('.'))),
+      whenUnless(VILLAGE_WELLS_RESTORED, 'fact:kulshedraDefeated', R('The water has returned to the village, but the Kulshedra still holds the Beauty below.', wf('uje', 'Uji', 'the water'), w('eshte'), w('perseri'), wf('ne', 'në', 'in'), w('fshat'), p(','), w('por'), w('kulshedra'), w('ende'), w('mban'), wf('bukura', 'Bukurën', 'the Beauty'), w('poshte'), p('.'))),
+      when('fact:kulshedraDefeated', R('The Kulshedra is dead.', wf('kulshedra', 'Kulshedra', 'the she-dragon'), w('ka'), wf('vdes', 'vdekur', 'died'), p('.'))),
+      when('fact:kulshedraDefeated', R('The old man says, “Keep your word, always.”', wf('plak', 'Plaku', 'the old man'), w('thote'), p(':'), wf('mban', 'mbaj', 'keep'), wf('fjale', 'fjalën', 'the word'), p(','), w('gjithmone'), p('.'))),
       L(wf('plak', 'plaku', 'the old man'), w('do'), w('nje'), w('bese'), p('.')),
-      R('The village lies beyond the dry well.', wf('fshat', 'fshati', 'the village'), w('rri'), w('pas'), wf('pus', 'pusit', 'the well'), w('te_link'), w('thate'), p('.')),
+      R('The village lies beyond the well.', wf('fshat', 'fshati', 'the village'), w('rri'), w('pas'), wf('pus', 'pusit', 'the well'), p('.')),
     ],
     options: [
       { text: L(w('premto'), w('bese')), to: 'fshatiCaul', reveal: 'bese' },
@@ -9187,14 +9193,14 @@ export const STORY = {
       conversationResponseLine(CHILDREN_CONVERSATION, 'activity', R('A child says, “We are making the rain-child. My dad says the village needs rain; we simply sing.”', w('nje'), w('femije'), w('thote'), p(':'), w('po_prog'), wf('bej', 'bëjmë', 'make'), wf('dordolec', 'dordolecin', 'the rain-child'), p('.'), wf('babi', 'Babi', 'dad'), w('im'), w('thote'), w('se'), wf('fshat', 'fshati', 'the village'), w('ka'), w('nevoje'), w('per'), w('shi'), p(';'), w('ne_we'), w('thjesht'), wf('kendo', 'këndojmë', 'sing'), p('.'))),
       conversationResponseLine(CHILDREN_CONVERSATION, 'join', R('They say, “Why not? Well, go on. Sing with us.”', w('ata'), wf('thote', 'thonë', 'say'), p(':'), wf('pse', 'Pse', 'why'), w('jo'), p('?'), wf('he_repeated', 'Hë, hë', 'well, go on'), p('.'), wf('kendo', 'Këndo', 'sing'), w('me'), w('ne_we'), p('.'))),
       conversationResponseLine(CHILDREN_CONVERSATION, 'reason', R('They say, “The village needs rain. If the rain is late, the ground stays dry.”', w('ata'), wf('thote', 'thonë', 'say'), p(':'), wf('fshat', 'Fshati', 'the village'), w('ka'), w('nevoje'), w('per'), w('shi'), p('.'), w('nese'), wf('shi', 'shiu', 'the rain'), w('vonon'), p(','), wf('toke', 'toka', 'the ground'), wf('mbetem', 'mbetet', 'remain'), w('e_art'), w('thate'), p('.'))),
-      conversationResponseLine(CHILDREN_CONVERSATION, 'really', unless('fact:villageWellsRestored', R('A child points to the well. “Yes. The well really is dry.”', wf('nje', 'Një', 'a'), w('femije'), wf('tregoj', 'tregon', 'points to'), wf('pus', 'pusin', 'the well'), p('.'), wf('po_yes', 'Po', 'yes'), p('.'), wf('pus', 'Pusi', 'the well'), w('eshte'), w('vertet'), w('i_art'), w('thate'), p('.')))),
+      conversationResponseLine(CHILDREN_CONVERSATION, 'really', unless(VILLAGE_WELLS_RESTORED, R('A child points to the well. “Yes. The well really is dry.”', wf('nje', 'Një', 'a'), w('femije'), wf('tregoj', 'tregon', 'points to'), wf('pus', 'pusin', 'the well'), p('.'), wf('po_yes', 'Po', 'yes'), p('.'), wf('pus', 'Pusi', 'the well'), w('eshte'), w('vertet'), w('i_art'), w('thate'), p('.')))),
       conversationResponseLine(CHILDREN_CONVERSATION, 'nonsense', R('The children laugh. One says, “Come on! I am joking.” Another says, “Please! Forget it. I died laughing!”', wf('femije', 'Fëmijët', 'the children'), wf('qesh', 'qeshin', 'laugh'), p('.'), wf('nje', 'Një', 'a'), w('femije'), w('thote'), p(':'), wf('hajde', 'Hajt', 'come on'), p(','), w('mo_discourse'), p('!'), wf('po_prog', 'Po', 'progressive marker'), wf('bej', 'bëj', 'make'), w('shaka'), p('.'), wf('nje', 'Një', 'one'), w('tjeter'), w('thote'), p(':'), wf('aman_appeal', 'Aman'), p('!'), wf('le', 'Lëre', 'leave'), w('fare'), p('.'), wf('vdiqa_hyperbole', 'Vdiqa së qeshuri', 'I died laughing'), p('!'))),
     ],
     options: [
       conversationQuestionOption(CHILDREN_CONVERSATION, 'activity', R('What are you doing?', w('cfare'), w('po_prog'), wf('bej', 'bëni', 'do'), p('?'))),
       conversationQuestionOption(CHILDREN_CONVERSATION, 'join', R('Can I sing with you?', w('a_q'), w('mund'), w('te_subj'), wf('kendo', 'këndoj', 'sing'), w('me'), w('ju'), p('?'))),
       conversationQuestionOption(CHILDREN_CONVERSATION, 'reason', R('Why are you asking for rain?', w('pse'), wf('kerko', 'kërkoni', 'ask for'), w('shi'), p('?'))),
-      conversationQuestionOption(CHILDREN_CONVERSATION, 'really', R('Do you really mean it?', wf('me', 'Me', 'with'), w('gjithe'), w('mend'), p('?')), { requires: CHILDREN_CONVERSATION.questions.reason.askedCondition, unless: 'fact:villageWellsRestored' }),
+      conversationQuestionOption(CHILDREN_CONVERSATION, 'really', R('Do you really mean it?', wf('me', 'Me', 'with'), w('gjithe'), w('mend'), p('?')), { requires: CHILDREN_CONVERSATION.questions.reason.askedCondition, unless: VILLAGE_WELLS_RESTORED }),
       conversationQuestionOption(CHILDREN_CONVERSATION, 'nonsense', R('You are talking nonsense.', wf('po_prog', 'Po', 'progressive marker'), w('flet'), wf('kot', 'kot', 'nonsense'), p('.')), { requires: CHILDREN_CONVERSATION.questions.activity.askedCondition }),
       conversationExitOption(CHILDREN_CONVERSATION, R('See you later.', wf('sheh', 'shihemi', 'see each other'), w('me_vone'), p('.')), { intent: 'speech', playerIntents: ['speech'], speechAct: 'say' }),
     ],
@@ -10141,22 +10147,26 @@ export const STORY = {
   oda2: {
     id: 'oda2',
     text: [
-      L(wf('plak', 'plaku', 'the old man'), w('ka'), w('lot'), p('.')),
-      L(wf('fshat', 'fshati', 'the village'), w('eshte'), w('i_art'), w('thate'), p('.')),
-      L(wf('njeri', 'njerëz', 'people'), wf('vdes', 'vdesin', 'die'), p('.')),
-      L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':')),
-      L(wf('ky', 'kjo', 'this'), w('jete'), w('eshte'), w('e_art'), wf('keq', 'keqe', 'bad'), p('.')),
-      L(w('sepse'), w('nuk'), w('ka'), w('uje'), p(','), w('gjithe'), wf('fshat', 'fshati', 'the village'), w('im'), wf('vdes', 'vdes', 'dies'), p('.')),
-      L(wf('fshat', 'fshati', 'the village'), wf('jam', 'ishte', 'was'), w('i_art'), w('gjelber'), p('.')),
-      L(w('tani'), wf('ka', 'kemi', 'have'), w('pak'), w('uje'), p('.')),
-      L(w('kur'), w('vjen'), wf('shi', 'shiu', 'the rain'), p('?')),
-      L(wf('duket', 'duket', 'seems'), w('se'), wf('perendi', 'Perëndia', 'God'), w('nuk'), wf('degjo', 'dëgjon', 'hears'), p('.')),
-      S(R('The old man rises and says, “Come with me to the dry well.”', wf('plak', 'Plaku', 'the old man'), wf('ngre', 'ngrihet', 'rises'), w('dhe'), w('thote'), p(':'), wf('vjen', 'eja', 'come'), w('me'), wf('une', 'mua', 'me'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.')),
+      unless(VILLAGE_WELLS_RESTORED, L(wf('plak', 'plaku', 'the old man'), w('ka'), w('lot'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, L(wf('fshat', 'fshati', 'the village'), w('eshte'), w('i_art'), w('thate'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, L(wf('njeri', 'njerëz', 'people'), wf('vdes', 'vdesin', 'die'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, L(wf('plak', 'plaku', 'the old man'), w('thote'), p(':'))),
+      unless(VILLAGE_WELLS_RESTORED, L(wf('ky', 'kjo', 'this'), w('jete'), w('eshte'), w('e_art'), wf('keq', 'keqe', 'bad'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, L(w('sepse'), w('nuk'), w('ka'), w('uje'), p(','), w('gjithe'), wf('fshat', 'fshati', 'the village'), w('im'), wf('vdes', 'vdes', 'dies'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, L(wf('fshat', 'fshati', 'the village'), wf('jam', 'ishte', 'was'), w('i_art'), w('gjelber'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, L(w('tani'), wf('ka', 'kemi', 'have'), w('pak'), w('uje'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, L(w('kur'), w('vjen'), wf('shi', 'shiu', 'the rain'), p('?'))),
+      unless(VILLAGE_WELLS_RESTORED, L(wf('duket', 'duket', 'seems'), w('se'), wf('perendi', 'Perëndia', 'God'), w('nuk'), wf('degjo', 'dëgjon', 'hears'), p('.'))),
+      unless(VILLAGE_WELLS_RESTORED, S(R('The old man rises and says, “Come with me to the dry well.”', wf('plak', 'Plaku', 'the old man'), wf('ngre', 'ngrihet', 'rises'), w('dhe'), w('thote'), p(':'), wf('vjen', 'eja', 'come'), w('me'), wf('une', 'mua', 'me'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.')),
         ['participant', 'old-man', 'plak'],
-        ['opportunity', 'old-man-dry-well-walk', 'vjen', 'me']),
+        ['opportunity', 'old-man-dry-well-walk', 'vjen', 'me'])),
+      when(VILLAGE_WELLS_RESTORED, R('The old man smiles and says, “The well has water again.”', wf('plak', 'Plaku', 'the old man'), w('buzeqesh'), w('dhe'), w('thote'), p(':'), wf('pus', 'Pusi', 'the well'), w('ka'), w('uje'), w('perseri'), p('.'))),
+      when(VILLAGE_WELLS_RESTORED, S(R('The old man rises and says, “Come with me to the well.”', wf('plak', 'Plaku', 'the old man'), wf('ngre', 'ngrihet', 'rises'), w('dhe'), w('thote'), p(':'), wf('vjen', 'eja', 'come'), w('me'), wf('une', 'mua', 'me'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), p('.')),
+        ['participant', 'old-man', 'plak'],
+        ['opportunity', 'old-man-dry-well-walk', 'vjen', 'me'])),
     ],
     options: [
-      { text: R('Go with the old man to the dry well.', w('ec'), w('me'), wf('plak', 'plakun', 'the old man'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.')), intent: 'movement', playerIntents: ['movement'], actionSemantics: accompanimentSemantics('old-man-dry-well-walk', ['old-man']), to: 'fshatiBesa', reveal: 'lot' },
+      { text: R('Go with the old man to the dry well.', w('ec'), w('me'), wf('plak', 'plakun', 'the old man'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.')), intent: 'movement', playerIntents: ['movement'], actionSemantics: accompanimentSemantics('old-man-dry-well-walk', ['old-man']), unless: VILLAGE_WELLS_RESTORED, to: 'fshatiBesa', reveal: 'ngre', revealOccurrence: 1 },
       { text: L(w('kthehu'), wf('ne', 'në', 'to'), wf('fshat', 'fshatin', 'the village')), to: 'fshatiSheshi' },
     ],
   },
@@ -11147,12 +11157,12 @@ export const STORY = {
     text: [
       npcFirstEncounterLine(WATER_CARRIER_APPEARANCE, npcIdentityLine('gruaUji', false, R('A woman in a blue headscarf sets a bucket of water down beside you; her hands are wet.', w('nje'), w('grua'), w('me'), w('nje'), w('shami'), wf('te_link', 'të', 'the'), wf('kalter', 'kaltër', 'blue'), w('le'), w('nje'), w('kove'), w('me'), w('uje'), w('prane'), wf('ti', 'teje', 'you'), p(';'), wf('dore', 'duart', 'the hands'), w('e_link'), w('saj'), wf('eshte', 'janë', 'are'), wf('te_link', 'të', 'the'), wf('lagur', 'lagura', 'wet'), p('.')))),
       npcFirstEncounterLine(WATER_CARRIER_APPEARANCE, npcIdentityLine('gruaUji', true, R('Mira, in a blue headscarf, sets a bucket of water down beside you; her hands are wet.', w('miraEmri'), p(','), w('me'), w('nje'), w('shami'), wf('te_link', 'të', 'the'), wf('kalter', 'kaltër', 'blue'), p(','), w('le'), w('nje'), w('kove'), w('me'), w('uje'), w('prane'), wf('ti', 'teje', 'you'), p(';'), wf('dore', 'duart', 'the hands'), w('e_link'), w('saj'), wf('eshte', 'janë', 'are'), wf('te_link', 'të', 'the'), wf('lagur', 'lagura', 'wet'), p('.')))),
-      whenUnless([], [WATER_CARRIER_CONVERSATION.questions.dryWell.askedCondition, 'fact:villageWellsRestored'], R('A child’s voice carries from uphill. She shakes her head. “Every day I must come all the way to the spring for water; I cannot use the village well.”', wf('ze', 'Zëri', 'the voice'), w('i_link'), w('nje'), wf('femije', 'fëmije', 'a child'), w('vjen'), w('nga'), w('lart'), p('.'), wf('ajo', 'Ajo', 'she'), w('tund'), wf('koke', 'kokën', 'her head'), p('.'), wf('cdo', 'Çdo', 'every'), w('dite'), w('duhet'), w('te_subj'), wf('vjen', 'vij', 'come'), w('deri'), wf('tek', 'te', 'to'), wf('krua', 'kroi', 'the spring'), w('per'), w('uje'), p(';'), w('nuk'), w('mund'), w('ta'), w('perdor'), wf('pus', 'pusin', 'the well'), w('e_link'), wf('fshat', 'fshatit', 'the village'), p('.'))),
+      whenUnless([], [WATER_CARRIER_CONVERSATION.questions.dryWell.askedCondition, VILLAGE_WELLS_RESTORED], R('A child’s voice carries from uphill. She shakes her head. “Every day I must come all the way to the spring for water; I cannot use the village well.”', wf('ze', 'Zëri', 'the voice'), w('i_link'), w('nje'), wf('femije', 'fëmije', 'a child'), w('vjen'), w('nga'), w('lart'), p('.'), wf('ajo', 'Ajo', 'she'), w('tund'), wf('koke', 'kokën', 'her head'), p('.'), wf('cdo', 'Çdo', 'every'), w('dite'), w('duhet'), w('te_subj'), wf('vjen', 'vij', 'come'), w('deri'), wf('tek', 'te', 'to'), wf('krua', 'kroi', 'the spring'), w('per'), w('uje'), p(';'), w('nuk'), w('mund'), w('ta'), w('perdor'), wf('pus', 'pusin', 'the well'), w('e_link'), wf('fshat', 'fshatit', 'the village'), p('.'))),
       npcIdentityLine('gruaUji', false, R('The woman waits beside the river with the bucket.', wf('grua', 'gruaja', 'the woman'), w('rri'), w('prane'), wf('lume', 'lumit', 'the river'), w('me'), wf('kove', 'kovën', 'the bucket'), p('.')), { required: 'again' }),
       npcIdentityLine('gruaUji', true, R('Mira waits beside the river with the bucket.', w('miraEmri'), w('rri'), w('prane'), wf('lume', 'lumit', 'the river'), w('me'), wf('kove', 'kovën', 'the bucket'), p('.')), { required: 'again' }),
       conversationResponseLine(WATER_CARRIER_CONVERSATION, 'name', R('She says, “My name is Mira.”', w('ajo'), w('thote'), p(':'), w('une'), w('quhem'), w('miraEmri'), p('.'))),
-      conversationResponseLine(WATER_CARRIER_CONVERSATION, 'dryWell', npcIdentityLine('gruaUji', false, R('The woman says, “Water no longer comes to the well. We carry it up from the spring.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('uje', 'uji', 'the water'), w('nuk'), w('vjen'), w('me_more'), wf('ne', 'në', 'to'), w('pus'), p('.'), w('ne_we'), w('e_obj'), wf('sjell', 'sjellim', 'bring'), w('lart'), w('nga'), wf('krua', 'kroi', 'the spring'), p('.')), { excluded: 'fact:villageWellsRestored' })),
-      conversationResponseLine(WATER_CARRIER_CONVERSATION, 'dryWell', npcIdentityLine('gruaUji', true, R('Mira says, “Water no longer comes to the well. We carry it up from the spring.”', w('miraEmri'), w('thote'), p(':'), wf('uje', 'uji', 'the water'), w('nuk'), w('vjen'), w('me_more'), wf('ne', 'në', 'to'), w('pus'), p('.'), w('ne_we'), w('e_obj'), wf('sjell', 'sjellim', 'bring'), w('lart'), w('nga'), wf('krua', 'kroi', 'the spring'), p('.')), { excluded: 'fact:villageWellsRestored' })),
+      conversationResponseLine(WATER_CARRIER_CONVERSATION, 'dryWell', npcIdentityLine('gruaUji', false, R('The woman says, “Water no longer comes to the well. We carry it up from the spring.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('uje', 'uji', 'the water'), w('nuk'), w('vjen'), w('me_more'), wf('ne', 'në', 'to'), w('pus'), p('.'), w('ne_we'), w('e_obj'), wf('sjell', 'sjellim', 'bring'), w('lart'), w('nga'), wf('krua', 'kroi', 'the spring'), p('.')), { excluded: VILLAGE_WELLS_RESTORED })),
+      conversationResponseLine(WATER_CARRIER_CONVERSATION, 'dryWell', npcIdentityLine('gruaUji', true, R('Mira says, “Water no longer comes to the well. We carry it up from the spring.”', w('miraEmri'), w('thote'), p(':'), wf('uje', 'uji', 'the water'), w('nuk'), w('vjen'), w('me_more'), wf('ne', 'në', 'to'), w('pus'), p('.'), w('ne_we'), w('e_obj'), wf('sjell', 'sjellim', 'bring'), w('lart'), w('nga'), wf('krua', 'kroi', 'the spring'), p('.')), { excluded: VILLAGE_WELLS_RESTORED })),
       conversationResponseLine(WATER_CARRIER_CONVERSATION, 'caller', npcIdentityLine('gruaUji', false, R('The woman says, “A child from the village. The child is waiting for the water.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), w('nje'), w('femije'), w('nga'), wf('fshat', 'fshati', 'the village'), p('.'), wf('femije', 'fëmija', 'the child'), wf('prit', 'pret', 'waits'), wf('uje', 'ujin', 'the water'), p('.')))),
       conversationResponseLine(WATER_CARRIER_CONVERSATION, 'caller', npcIdentityLine('gruaUji', true, R('Mira says, “A child from the village. The child is waiting for the water.”', w('miraEmri'), w('thote'), p(':'), w('nje'), w('femije'), w('nga'), wf('fshat', 'fshati', 'the village'), p('.'), wf('femije', 'fëmija', 'the child'), wf('prit', 'pret', 'waits'), wf('uje', 'ujin', 'the water'), p('.')))),
       conversationResponseLine(WATER_CARRIER_CONVERSATION, 'spring', npcIdentityLine('gruaUji', false, R('The woman says, “The spring is below, beside the river.”', wf('grua', 'gruaja', 'the woman'), w('thote'), p(':'), wf('krua', 'kroi', 'the spring'), w('eshte'), w('poshte'), p(','), w('prane'), wf('lume', 'lumit', 'the river'), p('.')))),
@@ -11162,7 +11172,7 @@ export const STORY = {
     ],
     options: [
       conversationQuestionOption(WATER_CARRIER_CONVERSATION, 'name', R('Ask: “What is your name?”', w('si'), wf('quhem', 'quhesh', 'are called'), p('?')), { unless: npcIdentityConditionId('gruaUji'), effects: [npcIdentityRevealEffect('gruaUji')] }),
-      conversationQuestionOption(WATER_CARRIER_CONVERSATION, 'dryWell', R('Why don’t you use the well?', w('pse'), w('nuk'), w('e_obj'), w('perdor'), wf('pus', 'pusin', 'the well'), p('?')), { unless: 'fact:villageWellsRestored' }),
+      conversationQuestionOption(WATER_CARRIER_CONVERSATION, 'dryWell', R('Why don’t you use the well?', w('pse'), w('nuk'), w('e_obj'), w('perdor'), wf('pus', 'pusin', 'the well'), p('?')), { unless: VILLAGE_WELLS_RESTORED }),
       conversationQuestionOption(WATER_CARRIER_CONVERSATION, 'caller', R('Who called you?', w('kush'), w('te_obj'), wf('thirr', 'thirri', 'called'), p('?'))),
       conversationQuestionOption(WATER_CARRIER_CONVERSATION, 'spring', R('Where is the spring?', w('ku'), w('eshte'), wf('krua', 'kroi', 'the spring'), p('?'))),
       conversationQuestionOption(WATER_CARRIER_CONVERSATION, 'help', R('Can I help you?', w('a_q'), w('mund'), w('te_subj'), w('te_obj'), wf('ndihmo', 'ndihmoj', 'help'), p('?'))),
@@ -13589,7 +13599,7 @@ STORY.kroi1.options.push(worldItemAction(
   L(w('mbush'), wf('shishe', 'shishen', 'the bottle'), w('me'), w('uje'), p('.')),
   { to: 'kroi1', requires: 'shishe', consumes: 'shishe', grant: 'shisheUje', durationHours: 0 },
 ))
-STORY.pusiThate.text.push(when(['fact:villageWellsRestored', 'shisheUje'], R(
+STORY.pusiThate.text.push(when([VILLAGE_WELLS_RESTORED, 'shisheUje'], R(
   'The bottle is full. The rope is still tied.',
   wf('shishe', 'shishja', 'the bottle'), w('eshte'), w('plot'), p('.'), wf('litar', 'litari', 'cord'), w('eshte'), w('ende'), w('i_art'), wf('lidh', 'lidhur', 'tied'), p('.'),
 )))
@@ -13602,7 +13612,7 @@ STORY.pusiThate.options.push(worldItemAction(
   'lidh litarin me shishen dhe mbush shishen me ujë',
   'Tie the rope to the bottle and fill it with water.',
   L(w('lidh'), wf('litar', 'litarin', 'cord'), w('me'), wf('shishe', 'shishen', 'the bottle'), w('dhe'), w('mbush'), wf('shishe', 'shishen', 'the bottle'), w('me'), w('uje')),
-  { to: 'pusiThate', requires: ['fact:villageWellsRestored', 'shishe', 'itemTag:climbing-tool'], consumes: 'shishe', grant: 'shisheUje', durationHours: 0 },
+  { to: 'pusiThate', requires: [VILLAGE_WELLS_RESTORED, 'shishe', 'itemTag:climbing-tool'], consumes: 'shishe', grant: 'shisheUje', durationHours: 0 },
 ))
 
 const WATER_BOTTLE_USE_NODES = Object.freeze([
@@ -13657,6 +13667,19 @@ for (const nodeId of UMBRELLA_NODES) {
     ))
   }
 }
+
+// Append restored-water routes after existing generated choices. Saved arrival
+// receipts and reviewed readings still address those choices by compiled index.
+STORY.fshatiSheshi.options.push({
+  text: R('Go to the well.', w('shko'), wf('ne', 'në', 'to'), w('pus')),
+  requires: VILLAGE_WELLS_RESTORED, to: 'pusiThate', reveal: 'pus', revealOccurrence: 2,
+})
+STORY.oda2.options.push({
+  text: R('Walk with the old man.', w('ec'), w('me'), wf('plak', 'plakun', 'the old man')),
+  requires: VILLAGE_WELLS_RESTORED, intent: 'movement', playerIntents: ['movement'],
+  actionSemantics: accompanimentSemantics('old-man-dry-well-walk', ['old-man']),
+  to: 'fshatiBesa', reveal: 'ngre', revealOccurrence: 2,
+})
 
 // Soap belongs where clean water already runs; the blanket belongs with the
 // shivering guest. Giving warmth adds kindness and prose, but deliberately does
@@ -13718,7 +13741,7 @@ STORY.sheruesi.options.push(worldItemAction(
   { to: 'sheruesi', requires: 'flag:askedForHelp', unless: 'flag:handBandaged', effects: [{ type: 'flag', id: 'handBandaged' }], hearts: 1, durationHours: 0, reveal: 'fashe', revealOccurrence: 1 },
 ))
 
-STORY.pusiThate.text.push(whenUnless(['fact:villageWellsRestored'], ['flag:drewWaterWithBucket'], R(
+STORY.pusiThate.text.push(whenUnless([VILLAGE_WELLS_RESTORED], ['flag:drewWaterWithBucket'], R(
   'A bucket rests beside the well.',
   w('nje'), w('kove'), w('rri'), w('prane'), wf('pus', 'pusit', 'the well'), p('.'),
 )))
@@ -13731,7 +13754,7 @@ STORY.pusiThate.options.push(worldItemAction(
   'ul kovën në pus me litarin',
   'Lower the bucket into the well with the rope.',
   L(w('ul'), wf('kove', 'kovën', 'the bucket'), wf('ne', 'në', 'in'), w('pus'), w('me'), wf('litar', 'litarin', 'rope')),
-  { to: 'pusiThate', requires: ['fact:villageWellsRestored', 'litar'], unless: 'flag:drewWaterWithBucket', effects: [{ type: 'flag', id: 'drewWaterWithBucket' }], durationHours: 0, reveal: 'kove', revealOccurrence: 1 },
+  { to: 'pusiThate', requires: [VILLAGE_WELLS_RESTORED, 'litar'], unless: 'flag:drewWaterWithBucket', effects: [{ type: 'flag', id: 'drewWaterWithBucket' }], durationHours: 0, reveal: 'kove', revealOccurrence: 1 },
 ))
 
 STORY.uraArtes1.text.push(whenUnless(['day'], ['flag:workedWithHammer'], R(

@@ -558,4 +558,5 @@ export const OPTION_READINGS_C = Object.freeze({
   "lumiMjeshter.options[3]": { al: "si punon mulliri?", en: "How does the mill work?", review: 'internal-editorial' },
   "lumiMjeshter.options[4]": { al: "kush e bëri mullirin e parë?", en: "Who made the first mill?", review: 'internal-editorial' },
   "lumiMjeshter.options[6]": { al: "Në rregull. Shihemi më vonë.", en: "All right. See you later.", review: 'internal-editorial' },
+  "oda2.options[3]": { al: "ec me plakun", en: "Walk with the old man.", review: 'internal-editorial' },
 })

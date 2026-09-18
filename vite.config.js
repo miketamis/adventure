@@ -149,8 +149,8 @@ const stripStoryReadings = (code, ast) => {
     ) collectReadings(candidate.init)
   })
 
-  // Reviewed text appended after the main object, including additions made in
-  // loops for responsive weather and item affordances.
+  // Reviewed text and static actions appended after the main object use the
+  // same deferred corpora. Generated readings remain owned by their builders.
   walkAst(ast, (candidate) => {
     if (
       candidate.type !== 'CallExpression' ||
@@ -160,7 +160,7 @@ const stripStoryReadings = (code, ast) => {
     const root = memberExpressionRoot(container?.object)
     if (
       container?.type === 'MemberExpression' &&
-      astPropertyName(container.property) === 'text' &&
+      ['text', 'options'].includes(astPropertyName(container.property)) &&
       root?.type === 'Identifier' && root.name === 'STORY'
     ) candidate.arguments.forEach(collectReadings)
   })
