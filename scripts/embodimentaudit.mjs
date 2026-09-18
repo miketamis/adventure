@@ -40,6 +40,12 @@ import { playerMapLabel } from '../src/components/mapLabels.js'
 import { transitionInfo } from '../src/game/worldModel.js'
 import { NPCS } from '../src/game/npcs.js'
 import { ACHIEVEMENTS } from '../src/game/achievements.js'
+import { testFor } from '../src/game/comprehension.js'
+import {
+  comprehensionContextFor,
+  passedComprehensionAction,
+  recordPresentedStoryReadings,
+} from './lib/comprehension-journeys.mjs'
 import { optionEffectsOf } from '../src/game/stateMechanics.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
 
@@ -725,21 +731,39 @@ check('Maro may travel but cannot steal the miller ending or use the traveller p
 })
 
 check('every active role blocks every unrelated collection test but permits its own ending gate', () => {
+  const checksById = new Map(ACHIEVEMENTS.map((achievement) => {
+    const context = comprehensionContextFor(achievement)
+    const pass = passedComprehensionAction(context, achievement.id)
+    const question = testFor(achievement, pass.expectedAttempt, context)[0]
+    return [achievement.id, {
+      context,
+      pass,
+      miss: {
+        type: 'COMP_WRONG', id: achievement.id, expectedAttempt: pass.expectedAttempt,
+        questionIndex: 0, attemptedEnglish: question.options.find((answer) => answer !== question.correct),
+      },
+    }]
+  }))
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     const active = enterRole(id)
     for (const unrelated of ACHIEVEMENTS.filter((achievement) => !quest.endings.includes(achievement.id))) {
+      const recorded = checksById.get(unrelated.id)
       const eligible = {
         ...active,
         hearts: 1,
         eligible: { ...active.eligible, [unrelated.id]: true },
+        achievementReadings: recorded.context.achievementReadings,
+        attempts: recorded.context.attempts,
         pendingTest: unrelated.id,
       }
-      assert.equal(reducer(eligible, { type: 'EARN_ACHIEVEMENT', id: unrelated.id }), eligible, `${id} earned ${unrelated.id}`)
+      assert.equal(reducer(eligible, recorded.pass), eligible, `${id} earned ${unrelated.id}`)
+      assert.equal(reducer(eligible, recorded.miss), eligible, `${id} took unrelated damage for ${unrelated.id}`)
       assert.equal(reducer(eligible, { type: 'FAIL_TEST', id: unrelated.id }), eligible, `${id} failed ${unrelated.id}`)
     }
     for (const endingId of quest.endings) {
       if (!ACHIEVEMENTS.some((achievement) => achievement.id === endingId)) continue
       const ending = stateAt(endingId, {
+        ...checksById.get(endingId).context,
         embodying: id,
         embodimentOriginNode: quest.entryFrom,
         embodimentFocusNode: endingId,
@@ -749,7 +773,7 @@ check('every active role blocks every unrelated collection test but permits its 
         hearts: 1,
         eligible: { [endingId]: true },
       })
-      const earned = reducer(ending, { type: 'EARN_ACHIEVEMENT', id: endingId })
+      const earned = reducer(ending, passedComprehensionAction(ending, endingId))
       assert.equal(earned.earned[endingId], true, `${id} could not earn ${endingId}`)
       assert.equal(earned.hearts, 3, `${id}.${endingId} did not restore role health`)
     }
@@ -802,11 +826,11 @@ check('a role remains through its own ending and clears only when that ending cl
     embodimentInventorySnapshot: { buke: 1, lek: 7 },
   })
   const endingOption = STORY.agaYmer2.options.find((option) => option.to === 'agaYmerFund')
-  const atEndingReady = withSpeech(start, endingOption)
-  const atEnding = choose(atEndingReady, endingOption)
+  const atEndingReady = recordPresentedStoryReadings(withSpeech(start, endingOption))
+  const atEnding = recordPresentedStoryReadings(choose(atEndingReady, endingOption))
   assert.equal(atEnding.embodying, 'aga-ymer')
   assert.equal(atEnding.ended, 'secret')
-  const earned = reducer(atEnding, { type: 'EARN_ACHIEVEMENT', id: 'agaYmerFund' })
+  const earned = reducer(atEnding, passedComprehensionAction(atEnding, 'agaYmerFund'))
   assert.equal(earned.earned.agaYmerFund, true, 'the bound role could not earn its own ending')
   const returned = reducer(earned, { type: 'RETURN_TO_WORLD', to: STORY.agaYmerFund.returnTo })
   assert.equal(returned.embodying, null)
@@ -1569,7 +1593,7 @@ check('the UI exposes confirmation, persistent identity, guidance and locked rea
   assert.match(worldContext, /Tale scene conditions/)
   assert.match(worldContext, /These conditions wait during a detour/)
   assert.match(worldContext, /worldClock = state\.clock/)
-  assert.match(achievements, /disabled=\{roleTestLocked\}/)
+  assert.match(achievements, /disabled=\{roleTestLocked \|\| !readingCorpusReady\}/)
   assert.match(achievements, /Finish this character&apos;s tale before taking an/)
   assert.match(practice, /practiceReturnOption\(state\)/)
   assert.match(practiceReturn, /embodimentOptionAccess\(state, option, STORY\[option\.to\]\)\.ok/)

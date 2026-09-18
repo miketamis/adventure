@@ -210,7 +210,8 @@ function useDeferredPersistence(state) {
     if (
       nextState.earned !== previousAchievements.earned ||
       nextState.eligible !== previousAchievements.eligible ||
-      nextState.attempts !== previousAchievements.attempts
+      nextState.attempts !== previousAchievements.attempts ||
+      nextState.achievementReadings !== previousAchievements.achievementReadings
     ) {
       achievementsDirty.current = true
     }
@@ -225,7 +226,7 @@ function useDeferredPersistence(state) {
   useEffect(() => {
     achievementsDirty.current = true
     schedule()
-  }, [state.earned, state.eligible, state.attempts, schedule])
+  }, [state.earned, state.eligible, state.attempts, state.achievementReadings, schedule])
 
   useEffect(() => {
     const onVisibilityChange = () => {
@@ -364,7 +365,7 @@ export default function App() {
     actionTransitionRef.current = null
     setActionTransition(null)
   }, [commitAcceptedAction])
-  const [, setReadingCorpusVersion] = useState(0)
+  const [readingCorpusReady, setReadingCorpusReady] = useState(false)
   const readingCorpusPromise = useRef(null)
   const [confirmReset, setConfirmReset] = useState(false)
   const resetButtonRef = useRef(null)
@@ -457,27 +458,32 @@ export default function App() {
     engagedMinutes,
     meaningfulActions,
   ])
-  // Fluent whole-line English is an editorial/debug aid, never normal-play
-  // scaffolding. Fetch its substantial corpus only when debug is actually
-  // opened, validate every address/source pair, then rerender against it.
+  // Load reviewed answer metadata before offering any reading check. Ordinary
+  // story prose still hides English; loading Debug must not change an open
+  // check's questions or invalidate the answers already shown to the learner.
+  const needsReadingCorpus = state.debug || ACHIEVEMENT_IDS.some((id) =>
+    state.eligible?.[id] && !state.earned?.[id])
   useEffect(() => {
-    if (!state.debug) return undefined
+    if (!needsReadingCorpus) return undefined
     let live = true
     if (!readingCorpusPromise.current) {
-      readingCorpusPromise.current = import('./game/data/readings/reviewedReadings.js')
-        .then(({ REVIEWED_READINGS }) => attachReviewedEnglishReadings(STORY, REVIEWED_READINGS))
+      readingCorpusPromise.current = Promise.all([
+        import('./game/data/readings/reviewedReadings.js')
+          .then(({ REVIEWED_READINGS }) => attachReviewedEnglishReadings(STORY, REVIEWED_READINGS)),
+        import('./game/npcAppearanceRegistry.js'),
+      ])
         .catch((error) => {
           readingCorpusPromise.current = null
           throw error
         })
     }
     readingCorpusPromise.current.then(() => {
-      if (live) setReadingCorpusVersion((version) => version + 1)
+      if (live) setReadingCorpusReady(true)
     }).catch((error) => {
       if (live) console.error('Could not load the reviewed English reading corpus.', error)
     })
     return () => { live = false }
-  }, [state.debug])
+  }, [needsReadingCorpus])
   // tint the whole sky (the page background) to the hour
   useEffect(() => {
     for (const p of Object.keys(TIME_UI)) document.body.classList.remove('time-' + p)
@@ -662,14 +668,14 @@ export default function App() {
       >
         <Suspense fallback={<ViewFallback />}>
           {state.view === 'story' && (
-            <StoryView state={state} dispatch={dispatch} analyticsEnabled={analyticsConsent.structured} />
+            <StoryView state={state} dispatch={dispatch} analyticsEnabled={analyticsConsent.structured} readingCorpusReady={readingCorpusReady} />
           )}
           {state.view === 'practice' && (
             <PracticeView state={state} dispatch={dispatch} analyticsEnabled={analyticsConsent.structured} />
           )}
           {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
           {state.debug && state.view === 'map' && <AtlasView state={state} />}
-          {state.debug && state.view === 'endings' && <AchievementsView state={state} dispatch={dispatch} />}
+          {state.debug && state.view === 'endings' && <AchievementsView state={state} dispatch={dispatch} readingCorpusReady={readingCorpusReady} />}
           {state.debug && state.view === 'guide' && <GuideView />}
           {state.debug && state.view === 'debug' && <DebugView state={state} dispatch={dispatch} />}
 

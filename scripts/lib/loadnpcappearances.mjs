@@ -1,6 +1,7 @@
 import { readdir } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { markNpcAppearanceRegistryReady } from '../../src/game/npcAppearance.js'
 
 // Vite eagerly loads these same source-partition modules through
 // npcAppearanceRegistry.js. Node audits use this tiny adapter so both
@@ -10,5 +11,6 @@ export async function loadNpcAppearancePartitions() {
   const root = resolve(import.meta.dirname, '../../src/game/data/npcAppearances')
   const files = (await readdir(root)).filter((name) => name.endsWith('.js')).sort()
   for (const file of files) await import(pathToFileURL(resolve(root, file)))
+  markNpcAppearanceRegistryReady()
   return files
 }

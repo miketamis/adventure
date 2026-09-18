@@ -3,15 +3,23 @@
 // audit has to discover them through one particular route.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { ITEMS, STORY } from '../src/game/content.js'
+import { ITEMS, STORY, lineOf } from '../src/game/content.js'
 import {
   RETIRED_SHADOW_STATE_KEYS,
   environmentSnapshot,
   hasCond,
   newRun,
   normalizeSavedState,
+  phraseSenses,
   reducer,
+  storyScenePresentationForState,
 } from '../src/game/gameState.js'
+import { ACHIEVEMENT_RULE_BY_ID } from '../src/game/achievementRules.js'
+import { testFor } from '../src/game/comprehension.js'
+import { storyReadingReceiptIds } from '../src/game/storyReadings.js'
+import { loadNpcAppearancePartitions } from './lib/loadnpcappearances.mjs'
+import { attachReviewedEnglishReadings } from '../src/game/language.js'
+import { REVIEWED_READINGS } from '../src/game/data/readings/reviewedReadings.js'
 import {
   applyOptionEffects,
   optionEffectAvailability,
@@ -23,6 +31,29 @@ import { NPCS } from '../src/game/npcs.js'
 import { npcIdentityKnowledgeId } from '../src/game/npcIdentity.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
 import { WORLD_ENTITIES, worldRelationsForState } from '../src/game/worldEntities.js'
+
+await loadNpcAppearancePartitions()
+attachReviewedEnglishReadings(STORY, REVIEWED_READINGS)
+
+const recordPresentedReadings = (state) => reducer(state, {
+  type: 'RECORD_STORY_READINGS', nodeId: state.nodeId, turn: state.turn,
+  lineIds: storyReadingReceiptIds(state.nodeId,
+    storyScenePresentationForState(state).normalEntries.map(({ line }) => line)),
+})
+
+const livedPrespaFreedom = () => {
+  let state = { ...newRun(), nodeId: 'prespaPyll', cameFrom: 'pylli1' }
+  const option = STORY.prespaPyll.options.find((candidate) => candidate.to === 'prespaLiri')
+  const optionIndex = STORY.prespaPyll.options.indexOf(option)
+  state = reducer(state, { type: 'DEBUG_GRANT', ids: phraseSenses(option.text) })
+  state = recordPresentedReadings(state)
+  state = reducer(state, {
+    type: 'CHOOSE', option, targetNode: STORY[option.to], optionId: `opt-${optionIndex}`,
+    optionIndex, fromNodeId: state.nodeId, fromTurn: state.turn,
+  })
+  assert.equal(state.nodeId, 'prespaLiri')
+  return recordPresentedReadings(state)
+}
 
 const checks = []
 const check = (name, test) => {
@@ -176,6 +207,69 @@ check('quest state resets per run while learned identity and world consequences 
   assert.deepEqual(reset.flags, {})
   assert.ok(reset.knowledge['npcName:elira'])
   assert.ok(reset.worldFacts.rainReturned)
+})
+
+check('story reading receipts accept only current normal projection and reject stale or hidden surfaces', () => {
+  const state = { ...newRun(), nodeId: 'prespaPyll', cameFrom: 'pylli1' }
+  const plan = storyScenePresentationForState(state)
+  const visible = storyReadingReceiptIds(state.nodeId, plan.normalEntries.map(({ line }) => line))
+  const hidden = storyReadingReceiptIds(state.nodeId, STORY[state.nodeId].text.map(lineOf))
+    .filter((id) => !visible.includes(id))
+  assert.ok(hidden.length, 'Prespa must retain a conditionally hidden proposal/wedding variant')
+  const action = { type: 'RECORD_STORY_READINGS', nodeId: state.nodeId, turn: state.turn, lineIds: visible }
+  const recorded = reducer(state, action)
+  assert.ok(recorded.storyReadings.length)
+  assert.equal(reducer(recorded, action), recorded, 'rerender recounted the same reading')
+  for (const lineIds of [hidden, [...visible, hidden[0]], ['constructor@bad'], ['__proto__@bad'], [null], [{}]]) {
+    assert.equal(reducer(state, { ...action, lineIds }), state, 'non-visible source entered the receipt ledger')
+  }
+  assert.equal(reducer(state, { ...action, turn: state.turn + 1 }), state)
+  assert.equal(reducer(state, { ...action, nodeId: 'prespaLiri' }), state)
+  const crowded = Object.keys(STORY).map((nodeId) => ({ ...newRun(), nodeId }))
+    .map((candidate) => ({ state: candidate, plan: storyScenePresentationForState(candidate) }))
+    .find(({ plan: candidate }) => candidate.omittedAmbient.length)
+  assert.ok(crowded, 'ambient receipt exclusion fixture is missing')
+  const omitted = storyReadingReceiptIds(crowded.state.nodeId, crowded.plan.omittedAmbient.map(({ line }) => line))
+  assert.equal(reducer(crowded.state, {
+    type: 'RECORD_STORY_READINGS', nodeId: crowded.state.nodeId, turn: crowded.state.turn, lineIds: omitted,
+  }), crowded.state, 'debug-only ambient prose entered normal reading evidence')
+})
+
+check('reading achievements require all exact canonical answers from the recorded route', () => {
+  const state = livedPrespaFreedom()
+  const achievement = ACHIEVEMENT_RULE_BY_ID.prespaLiri
+  const questions = testFor(achievement, 0, state)
+  assert.ok(questions?.length)
+  for (const question of questions) {
+    assert.ok(question.sourceLineIds.length)
+    assert.ok(question.sourceLineIds.every((id) => state.achievementReadings.prespaLiri.lineIds.includes(id)))
+  }
+  const action = { type: 'EARN_ACHIEVEMENT', id: achievement.id, expectedAttempt: 0, answers: questions.map(({ correct }) => correct) }
+  assert.equal(reducer(state, { type: 'EARN_ACHIEVEMENT', id: achievement.id }), state)
+  assert.equal(reducer(state, { ...action, expectedAttempt: 1 }), state)
+  assert.equal(reducer(state, { ...action, answers: action.answers.slice(1) }), state)
+  assert.equal(reducer(state, { ...action, answers: action.answers.map(() => 'unproven') }), state)
+  const noReceipts = { ...state, achievementReadings: {} }
+  assert.equal(testFor(achievement, 0, noReceipts), null)
+  assert.equal(reducer(noReceipts, action), noReceipts, 'missing provenance awarded an achievement')
+  const earned = reducer(state, action)
+  assert.equal(earned.earned[achievement.id], true)
+  assert.equal(reducer(earned, action), earned, 'replayed passing answers changed the state')
+  assert.deepEqual(earned.cefrEvidence, state.cefrEvidence, 'reading practice fabricated CEFR evidence')
+})
+
+check('comprehension misses rebuild the same recorded question and apply correction atomically', () => {
+  const state = livedPrespaFreedom()
+  const questions = testFor(ACHIEVEMENT_RULE_BY_ID.prespaLiri, 0, state)
+  const attemptedEnglish = questions[0].options.find((option) => option !== questions[0].correct)
+  const action = { type: 'COMP_WRONG', id: 'prespaLiri', expectedAttempt: 0, questionIndex: 0, attemptedEnglish }
+  assert.equal(reducer(state, { ...action, attemptedEnglish: 'not a rendered choice' }), state)
+  const missed = reducer(state, action)
+  assert.equal(missed.hearts, state.hearts - 1)
+  assert.equal(missed.attempts.prespaLiri, 1)
+  assert.ok(missed.pendingHeartConsequence)
+  assert.equal(reducer(missed, action), missed, 'one miss charged twice')
+  assert.deepEqual(missed.achievementReadings, state.achievementReadings, 'a miss changed its own route provenance')
 })
 
 check('ordinary player components do not render a quest ledger or canonical-state HUD', () => {

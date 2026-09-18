@@ -1,30 +1,30 @@
 import { useEffect, useRef, useState } from 'react'
 
-// The HARD comprehension gate on every achievement: reviewed Albanian sentences
-// from the story the player lived, supplemented by unambiguous words encountered
-// on that path when four reviewed whole-line readings are not yet available.
-// Every answer is real English; no literal-gloss sentence is used. EVERY question must be answered
-// correctly. One wrong answer costs a heart AND ends the attempt on the spot;
-// the parent decides what a pass or a fail means (onDone(passed)). Shared by
-// the ending screen, the area banner and the Achievements codex.
-export default function ComprehensionTest({ questions, onDone }) {
+// An optional reading check uses only reviewed material recorded on the
+// player's route. Its completion is separate from the story consequence.
+// The owner supplies provenance; the reducer validates every submitted answer.
+export default function ComprehensionTest({ questions, onDone, hearts }) {
   const [step, setStep] = useState(0)
   const [pick, setPick] = useState(null)
   const answerCommitted = useRef(false)
   const advanceCommitted = useRef(false)
   const questionRef = useRef(null)
-  const q = questions[step]
-  const wrong = pick !== null && pick !== q.correct
-  const last = step >= questions.length - 1
+  const answers = useRef([])
+  const q = questions?.[step]
+  const wrong = pick !== null && pick !== q?.correct
+  const last = step >= (questions?.length || 0) - 1
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => questionRef.current?.focus())
     return () => window.cancelAnimationFrame(frame)
   }, [step])
+  if (!q || !Array.isArray(q.options) || !q.options.includes(q.correct)) {
+    return <p className="hint" role="status">This reading check is unavailable. No evidence has been awarded.</p>
+  }
   return (
     <div className="comp-quiz">
       <div ref={questionRef} className="comp-question" role="status" aria-live="polite" aria-atomic="true" tabIndex={-1}>
       <p className="comp-q">
-        📖 <span lang="sq">A e kuptove?</span> — comprehension {step + 1} / {questions.length}
+        📖 <span lang="sq">A e kuptove?</span> — reading check {step + 1} / {questions.length}
       </p>
       <p className="hint">{q.prompt}</p>
       <div className="comp-al" lang="sq">{q.albanian}</div>
@@ -43,6 +43,7 @@ export default function ComprehensionTest({ questions, onDone }) {
                 if (answerCommitted.current) return
                 answerCommitted.current = true
                 advanceCommitted.current = false
+                answers.current[step] = opt
                 setPick(opt)
                 if (opt !== q.correct) {
                   // The owner adds the achievement and attempt provenance; the
@@ -58,8 +59,10 @@ export default function ComprehensionTest({ questions, onDone }) {
       </div>
       {pick === null ? (
         <p className="hint">
-          Every answer must be right — one wrong answer costs a ♥ and ends the attempt. You can
-          always retake the test (with fresh questions) from 🏆 Achievements.
+          Every answer must be right. A wrong answer costs one ♥ and ends this attempt.
+          {Number.isInteger(hearts) && ` You have ${hearts} ${hearts === 1 ? 'heart' : 'hearts'}.`}
+          {hearts === 1 && ' A miss ends this run.'}
+          {' '}You can retry here or find the check later under “Revisit a reading” in Story.
         </p>
       ) : (
         <>
@@ -72,13 +75,13 @@ export default function ComprehensionTest({ questions, onDone }) {
             onClick={() => {
               if (advanceCommitted.current) return
               advanceCommitted.current = true
-              if (wrong || last) return onDone(!wrong)
+              if (wrong || last) return onDone(!wrong, undefined, [...answers.current])
               answerCommitted.current = false
               setStep(step + 1)
               setPick(null)
             }}
           >
-            {wrong ? 'The tale slips away →' : last ? '🏆 Unlock the achievement →' : 'Next question →'}
+            {wrong ? 'Review this reading →' : last ? 'Complete the reading check →' : 'Next question →'}
           </button>
         </>
       )}

@@ -3,7 +3,7 @@
 // This certifies the boundaries we can prove mechanically:
 //   * every assessed sentence has an authored whole-line reading (or is an
 //     exact registered quotation with a reviewed translation)
-//   * every generated achievement attempt has four answerable questions
+//   * every presented-route assessment has one to four answerable questions
 //   * all options are unique, grammatical teaching units from reviewed lines
 //     or unambiguous words actually represented in the story dictionary
 //   * quote translations and token/form glosses retain their required metadata
@@ -14,6 +14,8 @@
 
 import { ACHIEVEMENTS } from '../src/game/achievements.js'
 import { testFor } from '../src/game/comprehension.js'
+import { achievementReadingLines } from '../src/game/storyReadings.js'
+import { comprehensionContextFor, comprehensionJourneyContexts } from './lib/comprehension-journeys.mjs'
 import {
   DICT,
   HEART_LEVELS,
@@ -364,16 +366,33 @@ let questionCount = 0
 let sentenceQuestions = 0
 let wordQuestions = 0
 
-for (const achievement of ACHIEVEMENTS) {
+const journeyContexts = comprehensionJourneyContexts()
+let unavailableRegionalChecks = 0
+for (const achievement of ACHIEVEMENTS) comprehensionContextFor(achievement)
+for (const { id, route, state } of journeyContexts) {
+  const achievement = ACHIEVEMENTS.find((entry) => entry.id === id)
+  const presented = achievementReadingLines(state, id)
+  const presentedIds = new Set(presented.map(({ id }) => id))
   for (let attempt = 0; attempt < attemptsPerAchievement; attempt++) {
-    const questions = testFor(achievement, attempt)
-    const where = `${achievement.id} attempt ${attempt}`
+    const questions = testFor(achievement, attempt, state)
+    const where = `${achievement.id} via ${route}, attempt ${attempt}`
+    // A single regional stop is an isolated fixture, not a complete visit
+    // threshold journey. Insufficient material must remain unavailable; each
+    // achievement's full-path availability is checked above.
+    if (!questions && achievement.kind === 'area') { unavailableRegionalChecks++; continue }
     assert(Array.isArray(questions), `${where}: no comprehension test generated`)
     if (!Array.isArray(questions)) continue
-    assert(questions.length === 4, `${where}: generated ${questions.length} questions instead of 4`)
+    assert(questions.length >= 1 && questions.length <= 4, `${where}: generated ${questions.length} questions outside the supported range`)
     for (const [index, question] of questions.entries()) {
       questionCount++
       const qwhere = `${where}, question ${index + 1}`
+      assert(question.sourceLineIds?.length > 0, `${qwhere}: no actual reading provenance`)
+      assert(question.sourceLineIds?.every((id) => presentedIds.has(id)), `${qwhere}: source was not shown on this journey`)
+      const sourceLines = presented.filter(({ id }) => question.sourceLineIds?.includes(id))
+      assert(sourceLines.some(({ line }) => question.kind === 'sentence'
+        ? albanianTextOf(line) === question.albanian && englishReadingOf(line) === question.correct
+        : line.some((token) => token.id === question.senseId && token.al === question.albanian)),
+      `${qwhere}: source receipt does not contain the assessed material`)
       assert(question.kind === 'sentence' || question.kind === 'word', `${qwhere}: unknown kind ${question.kind}`)
       assert(Boolean(question.prompt), `${qwhere}: missing plain-language prompt`)
       assert(Boolean(question.albanian), `${qwhere}: empty Albanian`)
@@ -412,7 +431,7 @@ for (const achievement of ACHIEVEMENTS) {
 // Guard the concrete failure reported during this campaign.
 const evilEye = ACHIEVEMENTS.find((achievement) => achievement.id === 'syriKeqFund')
 if (evilEye) {
-  const rendered = JSON.stringify(testFor(evilEye, 0))
+  const rendered = JSON.stringify(testFor(evilEye, 0, comprehensionContextFor(evilEye)))
   assert(!rendered.includes('His mother stays and wait.'), 'evil-eye quiz still emits "His mother stays and wait."')
   assert(!rendered.includes('You beautiful are.'), 'evil-eye quiz still emits "You beautiful are."')
 }
@@ -426,7 +445,7 @@ console.log(`Reviewed option records checked individually: ${Object.keys(REVIEWE
 console.log(`Literal alignment happens to equal ${reviewedAligned} reviewed readings; equality is allowed only because review metadata exists.`)
 console.log(`Editorial fallback backlog: ${fallbacks.length} lines (${blockedFallbacks.length} with known blocker signatures).`)
 console.log(`Quote translations: ${quoteLines.length}/${quoteLines.length} registered; ${exactQuotes.length} are exact whole-line matches and ${quoteLines.length - exactQuotes.length} include extra framing.`)
-console.log(`Comprehension simulation: ${ACHIEVEMENTS.length * attemptsPerAchievement} attempts, ${questionCount} questions (${sentenceQuestions} sentence; ${wordQuestions} word).`)
+console.log(`Comprehension simulation: ${journeyContexts.length} projected journeys, ${journeyContexts.length * attemptsPerAchievement} attempts, ${questionCount} questions (${sentenceQuestions} sentence; ${wordQuestions} word); ${unavailableRegionalChecks} insufficient regional samples fail closed.`)
 console.log(`Dictionary entries represented in the base answer lexicon: ${dictionaryEnglish.size}.`)
 
 if (STRICT && fallbacks.length)

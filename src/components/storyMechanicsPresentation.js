@@ -81,7 +81,7 @@ export function effectLockText(availability, itemLabel = (id) => id) {
   return 'it cannot be changed in its current state'
 }
 
-export function sceneAnnouncement({ ending, title, summary, loreHidden = false }) {
+export function sceneAnnouncement({ ending, title, summary }) {
   if (!ending) return `New scene. ${summary}`
   const kind = ending === 'bad'
     ? 'Bad fate reached'
@@ -89,7 +89,5 @@ export function sceneAnnouncement({ ending, title, summary, loreHidden = false }
       ? 'Secret ending reached'
       : 'Achievement ending reached'
   const named = title ? `${kind}: ${title}.` : `${kind}.`
-  return loreHidden
-    ? `${named} Complete the comprehension test to reveal its tale.`
-    : `${named} ${summary}`
+  return `${named} ${summary}`
 }

@@ -8,6 +8,9 @@ import { npcIdentityConditionId } from './npcIdentity.js'
 import { NPCS } from './npcs.js'
 
 const APPEARANCES = {}
+let registryReady = false
+export const npcAppearanceRegistryReady = () => registryReady
+export const markNpcAppearanceRegistryReady = () => { registryReady = true }
 const DETAIL_KINDS = new Set([
   'age', 'build', 'clothing', 'colour', 'condition', 'face', 'hair', 'movement',
   'posture', 'carried-object', 'voice', 'work-marks', 'hands', 'memorable-feature',

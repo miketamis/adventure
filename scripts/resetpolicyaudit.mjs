@@ -4,9 +4,19 @@
 // half-finished Train question open, or preserve tokens unsupported by practice.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 import { START_NODE, STORY } from '../src/game/content.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
-import { START_HEARTS, newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
+import {
+  START_HEARTS, loadAchievements, newRun, normalizeSavedState, phraseSenses, reducer,
+  saveAchievements, storyScenePresentationForState,
+} from '../src/game/gameState.js'
+import { testFor } from '../src/game/comprehension.js'
+import { ACHIEVEMENT_RULE_BY_ID } from '../src/game/achievementRules.js'
+import { storyReadingReceiptIds } from '../src/game/storyReadings.js'
+import { loadNpcAppearancePartitions } from './lib/loadnpcappearances.mjs'
+import { attachReviewedEnglishReadings } from '../src/game/language.js'
+import { REVIEWED_READINGS } from '../src/game/data/readings/reviewedReadings.js'
 import {
   DEATH_WORD_RETENTION_POLICY,
   STORY_RUN_RESET_POLICY,
@@ -15,6 +25,27 @@ import {
   storyRunCarryover,
 } from '../src/game/resetPolicy.js'
 import { emptyWordProgress } from '../src/game/wordProgression.js'
+
+await loadNpcAppearancePartitions()
+attachReviewedEnglishReadings(STORY, REVIEWED_READINGS)
+
+const readingFixture = () => {
+  const record = (state) => reducer(state, {
+    type: 'RECORD_STORY_READINGS', nodeId: state.nodeId, turn: state.turn,
+    lineIds: storyReadingReceiptIds(state.nodeId,
+      storyScenePresentationForState(state).normalEntries.map(({ line }) => line)),
+  })
+  let state = { ...newRun(), nodeId: 'breshka1', cameFrom: 'fshatiJeta' }
+  const option = STORY.breshka1.options[0]
+  state = reducer(state, { type: 'DEBUG_GRANT', ids: phraseSenses(option.text) })
+  state = record(state)
+  state = reducer(state, {
+    type: 'CHOOSE', option, targetNode: STORY[option.to], optionId: 'opt-0', optionIndex: 0,
+    fromNodeId: state.nodeId, fromTurn: state.turn,
+  })
+  assert.equal(state.nodeId, 'breshkaMire')
+  return record(state)
+}
 
 const checks = []
 const check = (name, test) => {
@@ -155,6 +186,8 @@ check('reset policy categories are explicit, disjoint, and consumed by their hel
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('wordMatchingProgress'))
   assert.ok(STORY_RUN_RESET_POLICY.learnerProfile.includes('cefrEvidence'))
   assert.ok(STORY_RUN_RESET_POLICY.durableChronicle.includes('npcPortraitsSeen'))
+  assert.ok(STORY_RUN_RESET_POLICY.durableChronicle.includes('achievementReadings'))
+  assert.ok(!fields.includes('storyReadings'), 'run reading visits were made durable')
   assert.ok(!STORY_RUN_RESET_POLICY.durableChronicle.includes('visited'))
   assert.ok(STORY_RUN_RESET_POLICY.clearTrainingSession.includes('pendingHeartConsequence'))
 
@@ -324,6 +357,86 @@ check('a living new run clears visited places without unsaving weak vocabulary',
   assert.deepEqual(after.visited, {})
   assert.equal(after.discovered.ure, true)
   assert.equal(after.deathUnsavedWords.ure, undefined)
+})
+
+check('reading routes survive return, restart, reload and compact achievement backup without awarding proof', () => {
+  const before = readingFixture()
+  const questions = testFor(ACHIEVEMENT_RULE_BY_ID.breshkaMire, 0, before)
+  assert.ok(questions?.length)
+  for (const after of [
+    reducer(before, { type: 'RETURN_TO_WORLD' }),
+    reducer(before, { type: 'RESET' }),
+    normalizeSavedState(clone(before), newRun()),
+  ]) {
+    assert.deepEqual(after.achievementReadings, before.achievementReadings)
+    assert.deepEqual(testFor(ACHIEVEMENT_RULE_BY_ID.breshkaMire, 0, after), questions)
+    assert.equal(after.earned.breshkaMire, undefined)
+    assert.deepEqual(after.cefrEvidence, before.cefrEvidence)
+  }
+  const restarted = reducer(before, { type: 'RESET' })
+  assert.deepEqual(restarted.storyReadings, [])
+  assert.equal(restarted.storyRunSequence, before.storyRunSequence + 1)
+  const storage = globalThis.localStorage
+  const values = new Map()
+  try {
+    globalThis.localStorage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) }
+    saveAchievements(before)
+    const backup = loadAchievements()
+    assert.deepEqual(backup.achievementReadings, before.achievementReadings)
+    const restored = normalizeSavedState({ ...newRun(), achievementReadings: {} }, { ...newRun(), ...backup })
+    assert.deepEqual(restored.achievementReadings, before.achievementReadings)
+    assert.equal(restored.earned.breshkaMire, undefined)
+  } finally {
+    if (storage === undefined) delete globalThis.localStorage
+    else globalThis.localStorage = storage
+  }
+})
+
+check('lazy portrait hydration preserves compact reading IDs and the exact already offered attempt', () => {
+  const before = readingFixture()
+  const expected = testFor(ACHIEVEMENT_RULE_BY_ID.breshkaMire, 0, before)
+  const child = spawnSync(process.execPath, ['--input-type=module', '-e', `
+    import assert from 'node:assert/strict'
+    import { newRun, normalizeSavedState } from './src/game/gameState.js'
+    import { testFor } from './src/game/comprehension.js'
+    import { ACHIEVEMENT_RULE_BY_ID } from './src/game/achievementRules.js'
+    import { NPC_FIRST_ENCOUNTERS } from './src/game/npcAppearance.js'
+    import { STORY } from './src/game/content.js'
+    import { attachReviewedEnglishReadings } from './src/game/language.js'
+    import { REVIEWED_READINGS } from './src/game/data/readings/reviewedReadings.js'
+    import { loadNpcAppearancePartitions } from './scripts/lib/loadnpcappearances.mjs'
+    const { before, expected } = JSON.parse(process.argv[1])
+    assert.equal(NPC_FIRST_ENCOUNTERS.plakaBreshka, undefined, 'fixture hydrated deferred portraits before app boot')
+    const restored = normalizeSavedState(before, newRun())
+    assert.deepEqual(restored.storyReadings, before.storyReadings)
+    assert.deepEqual(restored.achievementReadings, before.achievementReadings)
+    assert.equal(testFor(ACHIEVEMENT_RULE_BY_ID.breshkaMire, 0, restored), null,
+      'unresolved portrait IDs silently changed the offered attempt')
+    await loadNpcAppearancePartitions()
+    assert.equal(testFor(ACHIEVEMENT_RULE_BY_ID.breshkaMire, 0, restored), null,
+      'a reading check opened before its complete English corpus was loaded')
+    attachReviewedEnglishReadings(STORY, REVIEWED_READINGS)
+    assert.deepEqual(testFor(ACHIEVEMENT_RULE_BY_ID.breshkaMire, 0, restored), expected)
+  `, JSON.stringify({ before, expected })], {
+    cwd: new URL('..', import.meta.url), encoding: 'utf8', timeout: 60_000,
+  })
+  assert.ifError(child.error)
+  assert.equal(child.signal, null, `portrait boot regression terminated: ${child.signal}`)
+  assert.equal(child.status, 0, child.stderr || child.stdout || 'portrait boot regression did not complete')
+})
+
+check('missing, malformed or stale reading provenance never migrates into an earned achievement', () => {
+  const before = readingFixture()
+  const receipt = before.achievementReadings.breshkaMire
+  for (const value of [undefined, [], { breshkaMire: null }, { breshkaMire: { ...receipt, version: 99 } },
+    { breshkaMire: { ...receipt, visit: 'forged' } },
+    { breshkaMire: { ...receipt, lineIds: ['constructor@0000000000000000'] } },
+    { breshkaMire: { ...receipt, lineIds: ['breshkaMire@0000000000000000'] } }]) {
+    const restored = normalizeSavedState({ ...before, achievementReadings: value }, newRun())
+    assert.equal(restored.earned.breshkaMire, undefined)
+    assert.equal(testFor(ACHIEVEMENT_RULE_BY_ID.breshkaMire, 0, restored), null)
+    assert.equal(reducer(restored, { type: 'EARN_ACHIEVEMENT', id: 'breshkaMire', expectedAttempt: 0, answers: [] }), restored)
+  }
 })
 
 check('a genuinely new learner begins without inherited run or learning state', () => {

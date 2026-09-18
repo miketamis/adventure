@@ -4,11 +4,13 @@
 
 import {
   NPC_FIRST_ENCOUNTERS,
+  markNpcAppearanceRegistryReady,
   planNpcFirstEncounterLines,
   projectNpcFirstEncounterLines,
 } from './npcAppearance.js'
 
 const modules = import.meta.glob('./data/npcAppearances/*.js', { eager: true })
 void modules
+markNpcAppearanceRegistryReady()
 
 export { NPC_FIRST_ENCOUNTERS, planNpcFirstEncounterLines, projectNpcFirstEncounterLines }

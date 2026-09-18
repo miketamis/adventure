@@ -157,11 +157,29 @@ check('every generalized effect lock has concrete player wording',
 check('civil-hour labels preserve midnight, dawn and late-night targets',
   formatCivilHour(0) === '00:00' && formatCivilHour(6) === '06:00' &&
   formatCivilHour(23) === '23:00' && formatCivilHour(24) === null)
-check('ending focus announces fate without leaking comprehension-gated lore',
-  story.includes('loreHidden: endingLoreHidden') &&
-  sceneAnnouncement({ ending: 'good', title: 'The Road Home', summary: 'secret answer', loreHidden: true }) ===
-    'Achievement ending reached: The Road Home. Complete the comprehension test to reveal its tale.' &&
-  !sceneAnnouncement({ ending: 'secret', title: 'Hidden Path', summary: 'secret answer', loreHidden: true }).includes('secret answer'))
+check('ending focus announces the visible Albanian consequence without an English answer',
+  story.includes('const scenePresentation = storyScenePresentationForState(state)') &&
+  story.includes('const sceneSummary = state.debug && lines[0]') &&
+  !story.includes('endingLoreHidden') &&
+  sceneAnnouncement({ ending: 'good', title: 'The Road Home', summary: 'Albanian story text is ready.' }) ===
+    'Achievement ending reached: The Road Home. Albanian story text is ready.' &&
+  sceneAnnouncement({ ending: 'secret', title: 'Hidden Path', summary: 'Albanian story text is ready.' }) ===
+    'Secret ending reached: Hidden Path. Albanian story text is ready.')
+check('reading checks wait for the reviewed corpus before building any answer set',
+  story.includes('readingCorpusReady = false') &&
+  story.includes('readingCorpusReady && isAchEnd && !alreadyEarned ? testFor(') &&
+  story.includes('if (!readingCorpusReady || !achievement || state.embodying) return') &&
+  achievements.includes('readingCorpusReady = false') &&
+  achievements.includes('if (roleTestLocked || !readingCorpusReady) return') &&
+  app.includes('readingCorpusReady={readingCorpusReady}'))
+check('reading checks are opt-in with a named normal-play retry disclosure',
+  story.includes('const [endTest, setEndTest] = useState(null)') &&
+  story.includes('onClick={openEndingTest}') &&
+  story.includes('<summary>Revisit a reading</summary>') &&
+  story.includes('!state.ended && !state.embodying') &&
+  story.includes('state.eligible?.[achievement.id] && !state.earned?.[achievement.id]') &&
+  story.includes('aria-label="Dismiss this reading check offer"') &&
+  !comprehension.includes('from 🏆 Achievements'))
 check('story no longer emulates buttons with generic elements', !story.includes('role="button"'))
 check('every blocking overlay uses modal semantics and isolates the app',
   app.includes("import BlockingModal from './components/BlockingModal.jsx'") &&
@@ -213,7 +231,7 @@ check('role focus routing survives lazy Story mount and respects reduced motion'
   story.includes("document.activeElement?.classList.contains('embody-badge')") &&
   story.includes("document.getElementById('embodiment-focus') || sceneHeadingRef.current") &&
   app.includes("matchMedia?.('(prefers-reduced-motion: reduce)')"))
-check('achievement retakes are unavailable while a character tale is bound', achievements.includes('disabled={roleTestLocked}') && achievements.includes('Finish this character&apos;s tale'))
+check('achievement retakes are unavailable while a character tale is bound', achievements.includes('disabled={roleTestLocked || !readingCorpusReady}') && achievements.includes('Finish this character&apos;s tale'))
 check('training recommendations match visible, real, role-allowed actions',
   practice.includes('practiceReturnOption(state)') &&
   practiceReturn.includes('option.confuser') &&

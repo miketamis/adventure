@@ -186,8 +186,12 @@ const SHELL_GZIP_BUDGET = 68 * KiB
 // consequences, and reusable conversation replies across every affected
 // branch. That player-facing continuity payload measures 1591.3 KiB raw /
 // 385.0 KiB gzip. Keep narrow ceilings above that substantive payload.
-const BOOTSTRAP_RAW_BUDGET = 1_593 * KiB
-const BOOTSTRAP_GZIP_BUDGET = 386 * KiB
+// Canonical visible-reading receipts, save migration and exact submitted-answer
+// validation add 7.3 KiB raw / 2.8 KiB gzip. The reviewed English corpus and
+// portrait partitions remain lazy; the measured bootstrap is now 1598.6 KiB
+// raw / 387.8 KiB gzip. Keep the allowance tied to this runtime contract.
+const BOOTSTRAP_RAW_BUDGET = 1_600 * KiB
+const BOOTSTRAP_GZIP_BUDGET = 389 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
 // warning limit; the stricter aggregate and gzip ceilings below still measure

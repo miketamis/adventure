@@ -55,6 +55,7 @@ export const STORY_RUN_RESET_POLICY = Object.freeze({
     'earned',
     'eligible',
     'attempts',
+    'achievementReadings',
     'worldFacts',
     'knowledge',
     'npcPortraitsSeen',

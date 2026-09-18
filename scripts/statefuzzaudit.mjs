@@ -15,6 +15,7 @@ import {
   lineOf,
 } from '../src/game/content.js'
 import { ACHIEVEMENTS, ACHIEVEMENT_BY_ID } from '../src/game/achievements.js'
+import { comprehensionContextFor, passedComprehensionAction } from './lib/comprehension-journeys.mjs'
 import { EMBODIMENT_QUESTS, embodimentOptionAccess } from '../src/game/embodiment.js'
 import {
   START_CLOCK,
@@ -648,15 +649,27 @@ check('hard restart clears transient role state but preserves durable learning',
   return 'live-role lock; fatal recovery; repeat-safe fresh run identity'
 })
 
-check('achievement reducer cannot bypass deed gates or redirect ending returns', () => {
+check('achievement reducer requires recorded language, deed and exact answers before awarding', () => {
   const achievement = ACHIEVEMENTS[0]
-  const locked = stateAt()
-  assert.equal(reducer(locked, { type: 'EARN_ACHIEVEMENT', id: achievement.id }), locked)
-  assert.equal(reducer(locked, { type: 'EARN_ACHIEVEMENT', id: 'invented' }), locked)
-  const eligible = stateAt(START_NODE, { hearts: 1, eligible: { [achievement.id]: true } })
-  const earned = reducer(eligible, { type: 'EARN_ACHIEVEMENT', id: achievement.id })
+  const eligible = { ...comprehensionContextFor(achievement), hearts: 1 }
+  const pass = passedComprehensionAction(eligible, achievement.id)
+  const locked = { ...eligible, eligible: {} }
+  assert.equal(reducer(locked, pass), locked, 'correct answers bypassed the deed gate')
+  assert.equal(reducer(locked, { ...pass, id: 'invented' }), locked)
+  const unrecorded = { ...eligible, achievementReadings: {} }
+  assert.equal(reducer(unrecorded, pass), unrecorded, 'unseen story language awarded an achievement')
+  assert.equal(reducer(eligible, { type: 'EARN_ACHIEVEMENT', id: achievement.id }), eligible,
+    'a deed without a submitted check awarded an achievement')
+  assert.equal(reducer(eligible, { ...pass, answers: pass.answers.slice(1) }), eligible,
+    'an incomplete reading check awarded an achievement')
+  assert.equal(reducer(eligible, { ...pass, answers: pass.answers.map(() => 'forged answer') }), eligible,
+    'wrong answers awarded an achievement')
+  assert.equal(reducer(eligible, { ...pass, expectedAttempt: pass.expectedAttempt + 1 }), eligible,
+    'a stale attempt awarded an achievement')
+  const earned = reducer(eligible, pass)
   assert.equal(earned.earned[achievement.id], true)
   assert.equal(earned.hearts, START_HEARTS)
+  assert.equal(reducer(earned, pass), earned, 'a repeated pass applied its reward twice')
   assert.equal(reducer(earned, { type: 'FAIL_TEST', id: achievement.id }), earned)
 
   for (const [id, node] of Object.entries(STORY)) {

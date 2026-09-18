@@ -5,23 +5,25 @@ import { testFor } from '../game/comprehension.js'
 import ComprehensionTest from './ComprehensionTest.jsx'
 import FactoidLore from './FactoidLore.jsx'
 import { embodimentIdentity } from '../game/embodiment.js'
+import '../game/npcAppearanceRegistry.js'
 
 // The player's ACHIEVEMENTS — the lore collection. Every achievement has three
 // states here:
 //   locked   — the deed not yet done: a hint (and, for areas, exploration
 //              progress), the title still a mystery
 //   eligible — the deed is done, the hard comprehension gate unpassed: the
-//              test can be taken (and retaken, with fresh questions) right here
+//              test can be taken (and retaken) right here
 //   earned   — gate passed: title, tale and the deeper lore payload
 // Bad endings are "fates" (game overs) — recorded apart, no gate, no unlock.
 const FATES = RICH_ENDINGS.filter((e) => e.kind === 'bad')
 const ICON = { good: '🏆', secret: '✨', area: '📜' }
 
-export default function AchievementsView({ state, dispatch }) {
+export default function AchievementsView({ state, dispatch, readingCorpusReady = false }) {
   const earned = state.earned || {}
   const eligible = state.eligible || {}
   const [open, setOpen] = useState(null) // id of the expanded earned achievement
   const [testing, setTesting] = useState(null) // { id, questions, attempt } of an open retake
+  const [unavailableId, setUnavailableId] = useState(null)
   const [failedId, setFailedId] = useState(null) // row showing a just-failed note
   const activeIdentity = embodimentIdentity(state)
   const roleTestLocked = Boolean(activeIdentity)
@@ -39,14 +41,13 @@ export default function AchievementsView({ state, dispatch }) {
   const ordered = [...ACHIEVEMENTS].sort((a, b) => rank(a) - rank(b))
 
   const startTest = (a) => {
-    if (roleTestLocked) return
-    const questions = testFor(a, state.attempts?.[a.id] || 0)
-    if (!questions) {
-      // nothing to ask — unlock outright (shouldn't happen with authored content)
-      dispatch({ type: 'EARN_ACHIEVEMENT', id: a.id })
-      setOpen(a.id)
+    if (roleTestLocked || !readingCorpusReady) return
+    const questions = testFor(a, state.attempts?.[a.id] || 0, state)
+    if (!questions?.length) {
+      setUnavailableId(a.id)
       return
     }
+    setUnavailableId(null)
     setFailedId(null)
     setTesting({ id: a.id, questions, attempt: state.attempts?.[a.id] || 0 })
   }
@@ -63,10 +64,11 @@ export default function AchievementsView({ state, dispatch }) {
         Each achievement is a piece of Albanian folklore, earned in two steps: do the deed —
         live a tale to its end, or explore a whole region — then pass the comprehension test.
         The test is strict: every answer must be right, and one wrong costs a ♥ and ends the
-        attempt. The deed is never lost — retake the test here whenever you&apos;re ready
-        (the questions will be new). Unlocking one restores all your hearts.
+        attempt. The deed is never lost — retake the check here whenever you&apos;re ready.
+        Story also keeps unpassed checks under “Revisit a reading”. Unlocking one restores all your hearts.
       </p>
 
+      {!readingCorpusReady && <p className="hint" role="status">Preparing the reading checks…</p>}
       {roleTestLocked && (
         <p className="role-test-lock" role="status">
           🎭 You are {activeIdentity}. Finish this character&apos;s tale before taking an
@@ -126,7 +128,7 @@ export default function AchievementsView({ state, dispatch }) {
             )
           }
           if (!isEarned) {
-            // deed done, gate unpassed — the tale stays hidden until the test is aced
+            // The lived ending stays visible; this check earns its learning reward and source notes.
             const isTesting = testing?.id === a.id
             return (
               <div className="ending-row eligible" key={a.id}>
@@ -134,27 +136,30 @@ export default function AchievementsView({ state, dispatch }) {
                 <span className="ending-body">
                   <span className="ending-title">{a.title}</span>
                   <span className="ending-blurb">
-                    {a.deed} — pass the test to unlock what it means.
-                    {failedId === a.id && ' ✗ The tale slipped away — train the words and try again.'}
+                    {a.deed} — pass the reading check to unlock its source notes.
+                    {failedId === a.id && ' Review the correction and retry when ready.'}
+                    {unavailableId === a.id && ' A reading check is not available for the recorded passage yet; no evidence has been awarded.'}
                   </span>
                 </span>
                 {!isTesting && (
                   <button
                     className="btn primary"
-                    disabled={roleTestLocked}
+                    disabled={roleTestLocked || !readingCorpusReady}
                     title={roleTestLocked ? `Finish ${activeIdentity}'s tale before taking this test` : undefined}
                     onClick={() => startTest(a)}
                   >
-                    📖 Take the test →
+                    📖 Take the reading check →
                   </button>
                 )}
                 {isTesting && (
                   <ComprehensionTest
+                    key={`${a.id}:${testing.attempt}`}
                     questions={testing.questions}
-                    onDone={(passed, miss) => {
+                    hearts={state.hearts}
+                    onDone={(passed, miss, answers) => {
                       setTesting(null)
                       if (passed) {
-                        dispatch({ type: 'EARN_ACHIEVEMENT', id: a.id })
+                        dispatch({ type: 'EARN_ACHIEVEMENT', id: a.id, expectedAttempt: testing.attempt, answers })
                         setOpen(a.id)
                       } else {
                         dispatch({

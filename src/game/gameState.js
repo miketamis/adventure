@@ -185,6 +185,23 @@ import {
   consequenceForStoryConfuser,
 } from './storyConfusers.js'
 import { testFor } from './comprehension.js'
+import {
+  mergeAchievementReadings,
+  normalizeAchievementReadings,
+  normalizeStoryReadings,
+  recordStoryReadings,
+  storyReadingReceiptIds,
+} from './storyReadings.js'
+import { planScenePresentation, SCENE_SCROLL_POLICY } from './scenePresentation.js'
+import {
+  ENVIRONMENT_NARRATION_POLICY,
+  companionStoryLine,
+  departedCompanionStoryLine,
+  heldItemsStoryLine,
+  moneyTransactionStoryLine,
+  purseStoryLine,
+  removedItemsStoryLine,
+} from './storyContext.js'
 import { comprehensionMissConsequence } from './consequenceBuilders.js'
 import {
   applyExplainedHeartLoss,
@@ -637,6 +654,74 @@ export function npcFirstEncounterPlanForState(state) {
     state.activeNpcPortraits,
   )
 }
+
+// The normal-play projection is shared with the renderer and reading receipt
+// validator. A conditionally hidden, distant, replaced or crowded-out ambient
+// sentence can never enter an achievement simply because it exists in STORY.
+export function storyScenePresentationForState(state) {
+  const node = STORY[state.nodeId]
+  if (!node) return planScenePresentation([])
+  const storyState = currentStoryState(state)
+  const environment = environmentSnapshot(storyState)
+  const lines = npcFirstEncounterPlanForState(state).lines.filter((line) =>
+    isDistantLineVisible(state.nodeId, line, environment))
+  const heartLevel = HEART_LEVELS[state.hearts]
+  const healUnused = !state.embodying && Boolean(heartLevel?.heal) && !state.healedAt?.[state.hearts]
+  const lineDiscovered = (line) => line.every((token) => !token.id || state.discovered[token.id])
+  const pinnedLines = []
+  const actionableHeldIds = new Set(state.embodying ? [] : Object.keys(state.inventory || {})
+    .filter((id) => state.inventory[id] > 0 && ITEMS[id]?.use))
+  for (const option of node.options || []) {
+    if (option.confuser || !hasRequiredItem(storyState, option)) continue
+    const revealed = isOptionRevealed(storyState, option, node, lines)
+    const roleAccess = embodimentOptionAccess(state, option, STORY[option.to])
+    if (!revealed) {
+      if (option.reveal && roleAccess.ok) {
+        const line = resolveRevealLine(node.text.map(lineOf), option).line
+        if (line && lines.includes(line)) pinnedLines.push(line)
+      }
+      continue
+    }
+    if (roleAccess.ok && interactionAvailabilityForOption(storyState, option).ok &&
+        effectAvailabilityForOption(storyState, option).ok) {
+      for (const id of requiredInventoryIdsForOption(storyState, option)) actionableHeldIds.add(id)
+    }
+  }
+  if (healUnused && !lineDiscovered(heartLevel.line)) pinnedLines.push(heartLevel.line)
+  const health = planHealthNarration(state.hearts, state.healthNarration, {
+    nodeId: state.nodeId, turn: state.turn, keepVisible: state.hearts <= 2 || healUnused,
+  })
+  const moneyOutcome = resolvedMoneyOutcomeLine(state)
+  const inventory = planInventoryNarration(inventoryNarrationSnapshot(state.inventory, ITEMS), state.inventoryNarration, {
+    nodeId: state.nodeId,
+    turn: state.turn,
+    actionableItemIds: [...actionableHeldIds].filter((id) => !ITEMS[id]?.companion),
+    actionableCompanionIds: [...actionableHeldIds].filter((id) => ITEMS[id]?.companion),
+    transaction: Boolean(moneyOutcome),
+  })
+  const purse = inventory.showPurse
+    ? moneyOutcome
+      ? moneyTransactionStoryLine(moneyOutcome, state.inventory.lek)
+      : purseStoryLine(state.inventory.lek, { includeEmpty: true })
+    : null
+  const entries = []
+  const add = (key, line) => { if (line) entries.push({ key, line, renderKey: key }) }
+  if (!state.ended) {
+    if (health.visible) add('hearts', heartLevel?.line)
+    add('purse', purse)
+    add('removed-items', removedItemsStoryLine(ITEMS, inventory.removedItemIds))
+    add('carry', heldItemsStoryLine(ITEMS, inventory.presentItemIds))
+    add('departed-companions', departedCompanionStoryLine(ITEMS, inventory.removedCompanionIds))
+    add('companions', companionStoryLine(ITEMS, inventory.presentCompanionIds))
+  }
+  lines.forEach((line, index) => entries.push({ key: `authored-${index}`, line, renderKey: index }))
+  const policy = state.ended ? SCENE_SCROLL_POLICY : {
+    ...SCENE_SCROLL_POLICY,
+    maxLines: Math.max(1, SCENE_SCROLL_POLICY.maxLines - 1),
+    maxLexicalTokens: Math.max(1, SCENE_SCROLL_POLICY.maxLexicalTokens - ENVIRONMENT_NARRATION_POLICY.maxLexicalTokens),
+  }
+  return { ...planScenePresentation(entries, { debug: state.debug, pinnedLines, seed: state.turn, policy }), sourceLines: lines }
+}
 // the next hour (at or after `clock`) that falls inside `phase`
 export function advanceToPhase(clock, phase) {
   if (!isTimeId(phase)) return clock
@@ -787,11 +872,17 @@ export function loadAchievements() {
   const earned = truthRecord(legacyEarned, saved?.earned)
   const eligible = truthRecord(legacyEarned, saved?.eligible)
   for (const id of Object.keys(earned)) if (ACHIEVEMENT_BY_ID[id]) eligible[id] = true
-  return { earned, eligible, attempts: countRecord(saved?.attempts) }
+  return {
+    earned, eligible, attempts: countRecord(saved?.attempts),
+    achievementReadings: normalizeAchievementReadings(saved?.achievementReadings),
+  }
 }
-export function saveAchievements({ earned, eligible, attempts }) {
+export function saveAchievements({ earned, eligible, attempts, achievementReadings }) {
   try {
-    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify({ earned, eligible, attempts }))
+    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify({
+      earned, eligible, attempts,
+      achievementReadings: normalizeAchievementReadings(achievementReadings),
+    }))
   } catch {
     /* ignore */
   }
@@ -1347,6 +1438,9 @@ export function normalizeSavedState(saved, fresh) {
   next.eligible = truthRecord(fresh.eligible, saved.eligible)
   for (const id of Object.keys(next.earned)) if (ACHIEVEMENT_BY_ID[id]) next.eligible[id] = true
   next.attempts = maxCountRecords(fresh.attempts, saved.attempts)
+  next.storyReadings = normalizeStoryReadings(saved.storyReadings)
+    .filter((visit) => visit.run === next.storyRunSequence)
+  next.achievementReadings = mergeAchievementReadings(fresh.achievementReadings, saved.achievementReadings)
   next.worldFacts = reconcileWorldFacts(isRecord(saved.worldFacts) ? saved.worldFacts : recordOrEmpty(fresh.worldFacts))
   next.clock = Math.max(0, Math.floor(finiteOr(saved.clock, fresh.clock)))
   next.environmentNarration = normalizeEnvironmentNarrationState(
@@ -1650,6 +1744,7 @@ function baseRun() {
     trainRecoveryEvent: null, // one just-completed Train round that restored a heart
     actionSpeechSequence: 0, // monotonic id for committed player-action speech
     storyRunSequence: 1, // stable exposure receipt domain; increments on each story restart
+    storyReadings: [], // exact normally presented source IDs for this run
     actionSpeech: null, // one-shot Albanian playback request; deliberately omitted from saves
   }
 }
@@ -1714,6 +1809,7 @@ function restartStoryRun(state) {
     earned: {},
     eligible: {},
     attempts: {},
+    achievementReadings: {},
     debug: false,
     loreFocus: null,
     ...storyRunCarryover(state),
@@ -2057,6 +2153,20 @@ export function reducer(state, action) {
       return action.eventId === state.pendingHeartConsequence?.eventId
         ? { ...state, pendingHeartConsequence: null }
         : state
+
+    case 'RECORD_STORY_READINGS': {
+      if (action.nodeId !== state.nodeId || action.turn !== state.turn ||
+          state.view !== 'story' || state.timePassage || state.pendingEmbodiment) return state
+      if (!Array.isArray(action.lineIds)) return state
+      const plan = storyScenePresentationForState(state)
+      const allowed = new Set(storyReadingReceiptIds(state.nodeId, plan.normalEntries.map(({ line }) => line)))
+      // A stale renderer or forged receipt must not smuggle a sibling branch,
+      // hidden portrait, or omitted ambient detail into later questions.
+      if (!action.lineIds.length || action.lineIds.some((id) => !allowed.has(id))) return state
+      return recordStoryReadings(state, action.lineIds, {
+        endingNodeIds: state.embodying ? embodimentQuest(state.embodying)?.nodes : null,
+      })
+    }
 
     case 'NARRATE_ENVIRONMENT': {
       if (action.nodeId !== state.nodeId || action.turn !== state.turn || state.ended) return state
@@ -3152,7 +3262,7 @@ export function reducer(state, action) {
           action.expectedAttempt !== (state.attempts?.[action.id] || 0) ||
           !Number.isSafeInteger(action.questionIndex)) return state
       {
-        const questions = testFor(ACHIEVEMENT_BY_ID[action.id], action.expectedAttempt)
+        const questions = testFor(ACHIEVEMENT_BY_ID[action.id], action.expectedAttempt, state)
         const question = questions?.[action.questionIndex]
         if (!question || typeof action.attemptedEnglish !== 'string' ||
             action.attemptedEnglish === question.correct ||
@@ -3269,6 +3379,14 @@ export function reducer(state, action) {
         isEmbodimentEnding(state.embodying, state.nodeId)
       )) return state
       if (!ACHIEVEMENT_BY_ID[action.id] || !state.eligible?.[action.id] || state.earned?.[action.id]) return state
+      if (!Number.isSafeInteger(action.expectedAttempt) ||
+          action.expectedAttempt !== (state.attempts?.[action.id] || 0) ||
+          !Array.isArray(action.answers)) return state
+      {
+        const questions = testFor(ACHIEVEMENT_BY_ID[action.id], action.expectedAttempt, state)
+        if (!questions?.length || action.answers.length !== questions.length ||
+            questions.some((question, index) => action.answers[index] !== question.correct)) return state
+      }
       return {
         ...state,
         earned: { ...state.earned, [action.id]: true },

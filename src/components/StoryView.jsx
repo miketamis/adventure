@@ -26,25 +26,20 @@ import {
   phraseSenses,
   requiredInventoryIdsForOption,
   resolvedMoneyOutcomeLine,
+  storyScenePresentationForState,
 } from '../game/gameState.js'
 import { albanianTextOf, englishReadingOf, hasAuthoredEnglishReading } from '../game/language.js'
 import { stableShuffle, testFor } from '../game/comprehension.js'
 import { ACHIEVEMENT_RULE_BY_ID } from '../game/achievementRules.js'
+import { storyReadingReceiptIds } from '../game/storyReadings.js'
 import ComprehensionTest from './ComprehensionTest.jsx'
 import WorldContext from './WorldContext.jsx'
 import EmbodimentFocus from './EmbodimentFocus.jsx'
 import { isDistantLineVisible, transitionInfo } from '../game/worldModel.js'
 import {
-  ENVIRONMENT_NARRATION_POLICY,
   authoredEnvironmentDimensions,
-  companionStoryLine,
-  departedCompanionStoryLine,
   environmentStoryLine,
-  heldItemsStoryLine,
-  moneyTransactionStoryLine,
   planEnvironmentNarration,
-  purseStoryLine,
-  removedItemsStoryLine,
 } from '../game/storyContext.js'
 import { festivalLabel } from '../game/environment.js'
 import { embodimentOptionAccess, embodimentQuest } from '../game/embodiment.js'
@@ -54,10 +49,6 @@ import { trainingTargetForOption } from '../game/trainingTarget.js'
 import { narrationSettingForScene } from '../game/sceneEnvironmentSetting.js'
 import { planHealthNarration } from '../game/healthNarration.js'
 import { inventoryNarrationSnapshot, planInventoryNarration } from '../game/inventoryNarration.js'
-import {
-  planScenePresentation,
-  SCENE_SCROLL_POLICY,
-} from '../game/scenePresentation.js'
 import { QUOTES, quoteProofUrl, quoteTier } from '../game/quotes.js'
 import {
   attachReviewedOptionReadings,
@@ -91,11 +82,13 @@ const QUOTE_TIER_LABEL = {
   oral: 'oral attribution',
 }
 
-export default function StoryView({ state, dispatch, analyticsEnabled = false }) {
+export default function StoryView({ state, dispatch, analyticsEnabled = false, readingCorpusReady = false }) {
   const discoverWord = useCallback((id) => dispatch({ type: 'DISCOVER', id }), [dispatch])
   const node = STORY[state.nodeId]
   const [endingCopy, setEndingCopy] = useState(null)
   const [richAchievementById, setRichAchievementById] = useState(null)
+  const hasAvailableReadingChecks = Object.keys(state.eligible || {}).some((id) =>
+    ACHIEVEMENT_RULE_BY_ID[id] && !state.earned?.[id])
   useEffect(() => {
     if (!state.ended) {
       setEndingCopy(null)
@@ -108,7 +101,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
     return () => { live = false }
   }, [state.ended, state.nodeId])
   useEffect(() => {
-    if ((!state.ended || state.ended === 'bad') && !state.pendingTest) {
+    if ((!state.ended || state.ended === 'bad') && !hasAvailableReadingChecks) {
       setRichAchievementById(null)
       return undefined
     }
@@ -117,7 +110,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
       if (live) setRichAchievementById(ACHIEVEMENT_BY_ID)
     }).catch((error) => console.error('Could not load achievement details.', error))
     return () => { live = false }
-  }, [state.ended, state.pendingTest])
+  }, [state.ended, hasAvailableReadingChecks])
   // The active tale scene owns its frozen narrative clock; public roaming
   // scenes own the monotonic world clock. Keep one projected state for prose,
   // horizon and gates so they can never disagree about the hour.
@@ -126,15 +119,15 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
   const environmentNarrationScope = environmentNarrationScopeOf(state)
   const sceneHeadingRef = useRef(null)
   const previousNodeRef = useRef(state.nodeId)
-  // how THIS visit's ending gate went: null (in progress / not applicable),
-  // 'passed' (achievement just unlocked) or 'failed' (the attempt is over)
+  // Consequences belong to the story. A reading check starts only when the
+  // player chooses it; its result controls learning rewards and source notes.
   const [endResult, setEndResult] = useState(null)
-  // an AREA achievement test opened from the banner. The whole attempt lives
-  // here — its questions are drawn once when it opens, and the result survives
-  // the reducer clearing pendingTest on earn/fail.
-  const [areaTest, setAreaTest] = useState(null) // { ach, questions, result }
+  const [endTest, setEndTest] = useState(null)
+  // Any eligible reading check can be revisited from ordinary free roaming.
+  const [areaTest, setAreaTest] = useState(null) // { ach, questions, attempt, result }
   useEffect(() => {
     setEndResult(null)
+    setEndTest(null)
     setAreaTest(null)
   }, [state.nodeId])
 
@@ -155,18 +148,13 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
   // is a debug-only editorial aid, including in the screen-reader focus heading;
   // normal play keeps the accessible announcement useful without giving away a
   // translation that is deliberately absent from the visible story.
-  const endingLoreHidden = ['good', 'secret'].includes(state.ended) &&
-    !alreadyEarned && endResult !== 'passed'
-  const sceneSummary = state.debug && lines[0] && !endingLoreHidden
+  const sceneSummary = state.debug && lines[0]
     ? englishReadingOf(lines[0])
-    : endingLoreHidden
-      ? 'The ending is still hidden.'
-      : 'Albanian story text is ready.'
+    : 'Albanian story text is ready.'
   const sceneStatus = sceneAnnouncement({
     ending: state.ended,
     title: endingCopy?.title || node.id,
     summary: sceneSummary,
-    loreHidden: endingLoreHidden,
   })
 
   // A route choice replaces the scene beneath the user's focus. Put keyboard
@@ -189,43 +177,32 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
     })
     return () => window.cancelAnimationFrame(frame)
   }, [])
-  // the HARD gate on a good/secret ending's achievement: only unearned ones are
-  // tested (a fate needs no proof; an achievement earned on an earlier run is
-  // yours). EVERY question must be answered correctly; one wrong ends the
-  // attempt — but the deed is already recorded (state.eligible), so the test
-  // can be retaken from the Achievements tab with fresh questions.
   const isAchEnd = state.ended === 'good' || state.ended === 'secret'
-  const gateOpen = isAchEnd && !alreadyEarned && endResult === null
   const endAttempt = state.attempts?.[state.nodeId] || 0
   const endQuestions = useMemo(
-    () => (isAchEnd && !alreadyEarned ? testFor(ACHIEVEMENT_RULE_BY_ID[state.nodeId], endAttempt) : null),
-    [state.nodeId, isAchEnd, alreadyEarned, endAttempt],
+    () => (readingCorpusReady && isAchEnd && !alreadyEarned ? testFor(ACHIEVEMENT_RULE_BY_ID[state.nodeId], endAttempt, state) : null),
+    [state.nodeId, isAchEnd, alreadyEarned, endAttempt, state.achievementReadings, readingCorpusReady],
   )
-  // an ending so thin no test can be built proves itself — unlock outright
-  useEffect(() => {
-    if (gateOpen && !endQuestions) {
-      dispatch({ type: 'EARN_ACHIEVEMENT', id: state.nodeId })
-      setEndResult('passed')
-    }
-  }, [gateOpen, endQuestions, state.nodeId, dispatch])
+  const openEndingTest = () => {
+    if (!readingCorpusReady || !endQuestions?.length) return
+    setEndResult(null)
+    setEndTest({ questions: endQuestions, attempt: endAttempt })
+  }
 
-  // an AREA achievement the world is offering right now (only while free-roaming)
-  const pendingAch = !state.ended && !state.embodying && state.pendingTest
-    ? richAchievementById?.[state.pendingTest] || null
-    : null
-  const openAreaTest = () => {
-    const questions = testFor(pendingAch, state.attempts?.[pendingAch.id] || 0)
-    if (!questions) {
-      // nothing to ask (shouldn't happen — quizNodes are authored) — just earn
-      dispatch({ type: 'EARN_ACHIEVEMENT', id: pendingAch.id })
-      setAreaTest({ ach: pendingAch, questions: null, result: 'passed' })
-      return
-    }
+  const availableReadingChecks = !state.ended && !state.embodying
+    ? Object.values(richAchievementById || {}).filter((achievement) =>
+      state.eligible?.[achievement.id] && !state.earned?.[achievement.id])
+    : []
+  const pendingAch = availableReadingChecks.find((achievement) => achievement.id === state.pendingTest) || null
+  const openAreaTest = (achievement) => {
+    if (!readingCorpusReady || !achievement || state.embodying) return
+    const attempt = state.attempts?.[achievement.id] || 0
+    const questions = testFor(achievement, attempt, state)
     setAreaTest({
-      ach: pendingAch,
+      ach: achievement,
       questions,
-      attempt: state.attempts?.[pendingAch.id] || 0,
-      result: null,
+      attempt,
+      result: questions?.length ? null : 'unavailable',
     })
   }
 
@@ -436,7 +413,6 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
   // the health line telegraphs its hidden mend the same way, until it's open
   if (healUnused && !healRevealed) revealLineIdx.add('hearts')
 
-  const storyLinesVisible = !state.ended || state.ended === 'bad' || alreadyEarned || endResult === 'passed'
   const inventoryNarration = planInventoryNarration(
     inventoryNarrationSnapshot(state.inventory, ITEMS),
     state.inventoryNarration,
@@ -448,50 +424,9 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
       transaction: Boolean(moneyOutcome),
     },
   )
-  const purseLine = inventoryNarration.showPurse
-    ? moneyOutcome
-      ? moneyTransactionStoryLine(moneyOutcome, state.inventory.lek)
-      : purseStoryLine(state.inventory.lek, { includeEmpty: true })
-    : null
-  const carriedLine = heldItemsStoryLine(ITEMS, inventoryNarration.presentItemIds)
-  const removedLine = removedItemsStoryLine(ITEMS, inventoryNarration.removedItemIds)
-  const companionsLine = companionStoryLine(ITEMS, inventoryNarration.presentCompanionIds)
-  const departedLine = departedCompanionStoryLine(ITEMS, inventoryNarration.removedCompanionIds)
-  const sceneLineEntries = []
-  if (!state.ended && heartLevel && healthNarration.visible) {
-    sceneLineEntries.push({ key: 'hearts', line: heartLevel.line, renderKey: 'hearts' })
-  }
-  if (!state.ended && purseLine) sceneLineEntries.push({ key: 'purse', line: purseLine, renderKey: 'purse' })
-  if (!state.ended && removedLine) sceneLineEntries.push({ key: 'removed-items', line: removedLine, renderKey: 'removed-items' })
-  if (!state.ended && carriedLine) sceneLineEntries.push({ key: 'carry', line: carriedLine, renderKey: 'carry' })
-  if (!state.ended && departedLine) sceneLineEntries.push({ key: 'departed-companions', line: departedLine, renderKey: 'departed-companions' })
-  if (!state.ended && companionsLine) sceneLineEntries.push({ key: 'companions', line: companionsLine, renderKey: 'companions' })
-  if (storyLinesVisible) {
-    lines.forEach((line, index) => sceneLineEntries.push({
-      key: `authored-${index}`,
-      line,
-      renderKey: index,
-    }))
-  }
-  const pinnedLines = [...revealLineIdx].map((key) =>
-    key === 'hearts' ? heartLevel?.line : lines[key],
-  ).filter(Boolean)
-  // Reserve one compact line for generated context when deciding whether
-  // optional atmosphere still fits. Core prose remains one continuous scroll.
-  const contentScrollPolicy = state.ended ? SCENE_SCROLL_POLICY : {
-    ...SCENE_SCROLL_POLICY,
-    maxLines: Math.max(1, SCENE_SCROLL_POLICY.maxLines - 1),
-    maxLexicalTokens: Math.max(
-      1,
-      SCENE_SCROLL_POLICY.maxLexicalTokens - ENVIRONMENT_NARRATION_POLICY.maxLexicalTokens,
-    ),
-  }
-  const scenePresentation = planScenePresentation(sceneLineEntries, {
-    debug: state.debug,
-    pinnedLines,
-    seed: state.turn,
-    policy: contentScrollPolicy,
-  })
+  // The shared projection keeps reading receipts exact, including conditions,
+  // first portraits and omitted ambient lines. Ending prose is always visible.
+  const scenePresentation = storyScenePresentationForState(state)
   const presentedEntries = scenePresentation.entries
   const presentedEnvironmentDimensions = authoredEnvironmentDimensions(
     presentedEntries.map((entry) => entry.line),
@@ -512,6 +447,19 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
     transitionFrom: environmentNarration.previousSnapshot,
   })
   const exposureLines = [environmentLine, ...scenePresentation.normalEntries.map(({ line }) => line)].filter(Boolean)
+  const readingReceiptIds = storyReadingReceiptIds(
+    state.nodeId, scenePresentation.normalEntries.map(({ line }) => line),
+  )
+  const readingReceiptKey = readingReceiptIds.join('|')
+  useEffect(() => {
+    if (!readingReceiptIds.length) return
+    dispatch({
+      type: 'RECORD_STORY_READINGS',
+      nodeId: state.nodeId,
+      turn: state.turn,
+      lineIds: readingReceiptIds,
+    })
+  }, [state.nodeId, state.turn, readingReceiptKey, dispatch])
   const storyExposureOccurrences = exposureLines.flatMap((line) => line.flatMap((token) =>
     token.id && isTrainableSense(token.id) ? [token.id] : []))
   const storyExposureReceipt = `story:${state.storyRunSequence || 1}:${state.nodeId}:${state.turn}`
@@ -704,13 +652,9 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
           <div className="verdict">
             {state.ended === 'bad'
               ? '💀 Fund i keq'
-              : gateOpen
-                ? '🏆 Achievement within reach — A e kuptove?'
-                : endResult === 'failed'
-                  ? '📜 The tale slips away'
-                  : state.ended === 'good'
-                    ? '🏆 Achievement unlocked'
-                    : '✨ Secret achievement unlocked'}
+              : alreadyEarned
+                ? state.ended === 'good' ? '🏆 Achievement unlocked' : '✨ Secret achievement unlocked'
+                : '📖 Tale complete'}
           </div>
           {endingCopy?.title && <div className="ending-name">{endingCopy.title}</div>}
           {state.ended === 'bad' ? (
@@ -724,42 +668,10 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
                 ⟳ Play again
               </button>
             </>
-          ) : gateOpen ? (
-            endQuestions && (
-              <ComprehensionTest
-                questions={endQuestions}
-                onDone={(passed, miss) => {
-                  if (passed) {
-                    dispatch({ type: 'EARN_ACHIEVEMENT', id: node.id })
-                    setEndResult('passed')
-                  } else {
-                    dispatch({
-                      type: 'COMP_WRONG', id: node.id, expectedAttempt: endAttempt,
-                      questionIndex: miss.questionIndex, attemptedEnglish: miss.attemptedEnglish,
-                    })
-                    setEndResult('failed')
-                  }
-                }}
-              />
-            )
-          ) : endResult === 'failed' ? (
-            <>
-              <p className="hint">
-                The deed is done — this tale now waits, locked, in 🏆 Achievements. Train the
-                words and retake the test any time (the questions will be new); the tale itself
-                stays hidden until you pass.
-              </p>
-              <button
-                className="btn primary"
-                onClick={() => dispatch({ type: 'RETURN_TO_WORLD', to: node.returnTo })}
-              >
-                🚶 Back to the world →
-              </button>
-            </>
-          ) : (
+          ) : alreadyEarned ? (
             <>
               {endResult === 'passed' && (
-                <div className="feedback good">✓ Every answer right — the tale is yours.</div>
+                <div className="feedback good" role="status">✓ Reading check complete — the achievement is yours.</div>
               )}
               {endingCopy?.blurb && <p className="ending-desc">{endingCopy.blurb}</p>}
               <Suspense fallback={<p className="hint" role="status">Opening the tale&apos;s sources…</p>}>
@@ -767,35 +679,89 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
               </Suspense>
               {endResult === 'passed' && <p className="hearts-restored">❤️ Hearts restored to full.</p>}
               <p className="hint">
-                Added to your achievements. This tale is done — step back into the world and
-                keep exploring. {state.embodying
+                This tale is done — step back into the world and keep exploring. {state.embodying
                   ? 'Your traveller’s pack and health return exactly as they were; this role’s props stay with its tale.'
                   : 'Everything you’ve gathered comes with you.'}
               </p>
-              <button
-                className="btn primary"
-                onClick={() => dispatch({ type: 'RETURN_TO_WORLD', to: node.returnTo })}
-              >
-                🚶 Back to the world →
-              </button>
             </>
+          ) : (
+            <>
+              <p className="hint">
+                Your choice has reached its conclusion. An optional reading check earns the
+                achievement and opens its source notes. You can also return to the world and
+                find this check under “Revisit a reading” later.
+              </p>
+              {endTest ? (
+                <ComprehensionTest
+                  key={`${node.id}:${endTest.attempt}`}
+                  questions={endTest.questions}
+                  hearts={state.hearts}
+                  onDone={(passed, miss, answers) => {
+                    if (passed) {
+                      dispatch({
+                        type: 'EARN_ACHIEVEMENT', id: node.id,
+                        expectedAttempt: endTest.attempt, answers,
+                      })
+                      setEndResult('passed')
+                    } else {
+                      dispatch({
+                        type: 'COMP_WRONG', id: node.id, expectedAttempt: endTest.attempt,
+                        questionIndex: miss.questionIndex, attemptedEnglish: miss.attemptedEnglish,
+                      })
+                      setEndResult('failed')
+                    }
+                    setEndTest(null)
+                  }}
+                />
+              ) : (
+                <>
+                  {endResult === 'failed' && (
+                    <p className="hint" role="status">
+                      The deed stands. Review the correction, then retry when you are ready.
+                    </p>
+                  )}
+                  {!readingCorpusReady ? (
+                    <p className="hint" role="status">Preparing the reading check…</p>
+                  ) : endQuestions?.length ? (
+                    <button className="btn primary" onClick={openEndingTest}>
+                      {endAttempt ? 'Retry the reading check →' : 'Take the reading check →'}
+                    </button>
+                  ) : (
+                    <p className="hint" role="status">
+                      A reading check is not available for the recorded passage yet. Keep exploring;
+                      reaching this ending has not awarded reading evidence.
+                    </p>
+                  )}
+                </>
+              )}
+            </>
+          )}
+          {state.ended !== 'bad' && (
+            <button
+              className="btn"
+              onClick={() => dispatch({ type: 'RETURN_TO_WORLD', to: node.returnTo })}
+            >
+              🚶 Back to the world →
+            </button>
           )}
         </div>
       ) : areaTest ? (
         <div className="ending secret">
           <div className="verdict">
-            {areaTest.result === 'passed'
-              ? '🏆 Achievement unlocked'
-              : areaTest.result === 'failed'
-                ? '📜 The tale slips away'
-                : '🏆 Achievement within reach — A e kuptove?'}
+            {areaTest.result === 'passed' && state.earned?.[areaTest.ach.id]
+              ? '🏆 Achievement unlocked' : '📖 Optional reading check'}
           </div>
           <div className="ending-name">{areaTest.ach.title}</div>
           {areaTest.result === null ? (
             <ComprehensionTest
+              key={`${areaTest.ach.id}:${areaTest.attempt}`}
               questions={areaTest.questions}
-              onDone={(passed, miss) => {
-                if (passed) dispatch({ type: 'EARN_ACHIEVEMENT', id: areaTest.ach.id })
+              hearts={state.hearts}
+              onDone={(passed, miss, answers) => {
+                if (passed) dispatch({
+                  type: 'EARN_ACHIEVEMENT', id: areaTest.ach.id,
+                  expectedAttempt: areaTest.attempt, answers,
+                })
                 else dispatch({
                   type: 'COMP_WRONG', id: areaTest.ach.id, expectedAttempt: areaTest.attempt,
                   questionIndex: miss.questionIndex, attemptedEnglish: miss.attemptedEnglish,
@@ -803,51 +769,73 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false })
                 setAreaTest({ ...areaTest, result: passed ? 'passed' : 'failed' })
               }}
             />
-          ) : areaTest.result === 'passed' ? (
+          ) : areaTest.result === 'passed' && state.earned?.[areaTest.ach.id] ? (
             <>
-              <div className="feedback good">✓ Every answer right — the achievement is yours.</div>
+              <div className="feedback good" role="status">✓ Reading check complete — the achievement is yours.</div>
               {areaTest.ach.blurb && <p className="ending-desc">{areaTest.ach.blurb}</p>}
               <Suspense fallback={<p className="hint" role="status">Opening the achievement&apos;s sources…</p>}>
                 <FactoidLore loreId={areaTest.ach.lore} dispatch={dispatch} />
               </Suspense>
               <p className="hearts-restored">❤️ Hearts restored to full.</p>
-              <button className="btn primary" onClick={() => setAreaTest(null)}>
-                🚶 Back to the world →
+            </>
+          ) : areaTest.result === 'failed' ? (
+            <>
+              <p className="hint" role="status">
+                The deed stands. Review the correction, then retry when you are ready.
+              </p>
+              <button className="btn primary" disabled={!readingCorpusReady} onClick={() => openAreaTest(areaTest.ach)}>
+                Retry the reading check →
               </button>
             </>
           ) : (
-            <>
-              <p className="hint">
-                The deed stands — this achievement waits in 🏆 Achievements. Train the words and
-                retake the test any time; the questions will be new.
-              </p>
-              <button className="btn primary" onClick={() => setAreaTest(null)}>
-                🚶 Back to the world →
-              </button>
-            </>
+            <p className="hint" role="status">
+              A reading check is not available for the recorded passage yet. Keep exploring;
+              no reading evidence has been awarded.
+            </p>
           )}
+          <button className="btn" onClick={() => setAreaTest(null)}>
+            🚶 Back to the world →
+          </button>
         </div>
       ) : (
         <>
           {pendingAch && (
             <div className="factoid-banner">
               <span className="factoid-banner-text">
-                🏆 Achievement within reach: <b>{pendingAch.title}</b> — prove you understood
-                what you&apos;ve seen.
+                📖 Optional reading check: <b>{pendingAch.title}</b>
               </span>
               <span className="factoid-banner-actions">
-                <button className="btn primary" onClick={openAreaTest}>
-                  Take the test →
+                <button className="btn primary" disabled={!readingCorpusReady} onClick={() => openAreaTest(pendingAch)}>
+                  Take the reading check →
                 </button>
                 <button
                   className="btn factoid-dismiss"
-                  title="Not now — the test stays available in 🏆 Achievements"
+                  title="Not now — find this later under Revisit a reading"
+                  aria-label="Dismiss this reading check offer"
                   onClick={() => dispatch({ type: 'DISMISS_TEST', id: pendingAch.id })}
                 >
                   ✕
                 </button>
               </span>
             </div>
+          )}
+          {availableReadingChecks.length > 0 && (
+            <details className="reading-checks">
+              <summary>Revisit a reading</summary>
+              <p className="hint">
+                Your completed deeds remain here. Choose an optional reading check when you are ready.
+              </p>
+              {!readingCorpusReady && <p className="hint" role="status">Preparing the reading checks…</p>}
+              <ul>
+                {availableReadingChecks.map((achievement) => (
+                  <li key={achievement.id}>
+                    <button className="btn" disabled={!readingCorpusReady} onClick={() => openAreaTest(achievement)}>
+                      {achievement.title}{state.attempts?.[achievement.id] ? ' — retry' : ''}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
           )}
           <div className="options" role="list" aria-label="Available actions">
             {shuffledEntries.map((e) => {

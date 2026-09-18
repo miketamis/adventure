@@ -1,5 +1,7 @@
 import { DICT, STORY, lineOf } from './content.js'
-import { VERB_IDS, albanianTextOf, englishReadingIssues, englishReadingOf, englishReadingRevision, isComprehensionReadyLine } from './language.js'
+import { VERB_IDS, albanianTextOf, englishReadingIssues, englishReadingOf, englishReadingRevision, hasAuthoredEnglishReading, isComprehensionReadyLine } from './language.js'
+import { achievementReadingLines } from './storyReadings.js'
+import { npcAppearanceRegistryReady, npcPortraitLines } from './npcAppearance.js'
 
 // ---------------------------------------------------------------------------
 // THE COMPREHENSION GATE — question building for achievements.
@@ -73,33 +75,34 @@ const lineEnglish = englishReadingOf
 const lineAlbanian = albanianTextOf
 const isContent = (line) => line.filter((t) => t.id).length >= 2 // >=2 real words
 const richness = (line) => line.filter((t) => t.id && !NON_NOUNS.has(t.id)).length // nouns/verbs
+const contentRevision = () => `${englishReadingRevision()}:${npcPortraitLines().length}`
+const allStoryLines = () => [
+  ...Object.values(STORY).flatMap((node) => node.text.map(lineOf)),
+  ...npcPortraitLines(),
+]
+let readinessRevision = null
+let corpusReady = false
+export function comprehensionReadingsReady() {
+  const revision = englishReadingRevision()
+  if (readinessRevision !== revision) {
+    corpusReady = Object.values(STORY).every((node) => node.text.every((entry) => hasAuthoredEnglishReading(lineOf(entry))))
+    readinessRevision = revision
+  }
+  return corpusReady && npcAppearanceRegistryReady()
+}
 
 // pool of every ending's content lines (English), for plausible distractors — built once
 let _answerPool = null
 let _answerPoolRevision = -1
 const answerPool = () => {
-  const revision = englishReadingRevision()
+  const revision = contentRevision()
   if (!_answerPool || _answerPoolRevision !== revision) {
     const set = new Set()
-    for (const n of Object.values(STORY)) {
-      for (const l of n.text.map(lineOf).filter((line) => isContent(line) && isComprehensionReadyLine(line)))
-        set.add(lineEnglish(l))
-    }
+    for (const line of allStoryLines()) if (isContent(line) && isComprehensionReadyLine(line)) set.add(lineEnglish(line))
     _answerPool = [...set]
     _answerPoolRevision = revision
   }
   return _answerPool
-}
-
-// reverse adjacency: which nodes lead INTO each node (to draw path questions) — built once
-let _preds = null
-const predsOf = (id) => {
-  if (!_preds) {
-    _preds = {}
-    for (const n of Object.values(STORY))
-      for (const o of n.options || []) if (o.to) (_preds[o.to] = _preds[o.to] || []).push(n.id)
-  }
-  return _preds[id] || []
 }
 
 // NEAR-MISS distractors — the test should be genuinely failable without ever
@@ -114,7 +117,7 @@ const contentWords = (s) => s.split(' ').map(stripPunct).filter((w) => w && !STO
 let _sentencePoolsRevision = -1
 let _sentencePools = new Map()
 const sentencePoolsFor = (correct) => {
-  const revision = englishReadingRevision()
+  const revision = contentRevision()
   if (_sentencePoolsRevision !== revision) {
     _sentencePoolsRevision = revision
     _sentencePools = new Map()
@@ -186,28 +189,32 @@ const unambiguousWordCandidates = (tokens) => {
 
 let _wordAnswerPool = null
 let _storySurfaceMeanings = null
+let _wordAnswerPoolRevision = null
+let _storySurfaceMeaningsRevision = null
 const storySurfaceMeanings = () => {
-  if (!_storySurfaceMeanings) {
+  const revision = contentRevision()
+  if (!_storySurfaceMeanings || _storySurfaceMeaningsRevision !== revision) {
     _storySurfaceMeanings = new Map()
-    for (const node of Object.values(STORY)) {
-      for (const entry of node.text) {
-        for (const token of lineOf(entry)) {
+    for (const line of allStoryLines()) {
+        for (const token of line) {
           if (!token?.id || !token.al || !token.en) continue
           const surface = token.al.toLocaleLowerCase('sq')
           if (!_storySurfaceMeanings.has(surface)) _storySurfaceMeanings.set(surface, new Set())
           _storySurfaceMeanings.get(surface).add(cleanWordGloss(token.en).toLocaleLowerCase('en'))
         }
-      }
     }
+    _storySurfaceMeaningsRevision = revision
   }
   return _storySurfaceMeanings
 }
 
 const wordAnswerPool = () => {
-  if (!_wordAnswerPool) {
-    const tokens = Object.values(STORY).flatMap((node) => node.text.flatMap((entry) => lineOf(entry)))
+  const revision = contentRevision()
+  if (!_wordAnswerPool || _wordAnswerPoolRevision !== revision) {
+    const tokens = allStoryLines().flat()
     for (const [id, entry] of Object.entries(DICT)) tokens.push({ id, al: entry.al, en: entry.en })
     _wordAnswerPool = unambiguousWordCandidates(tokens)
+    _wordAnswerPoolRevision = revision
   }
   return _wordAnswerPool
 }
@@ -295,44 +302,27 @@ function comprehensionFromLines(orderedLines, seedKey, count = 3) {
   return qs.length === count ? qs : null
 }
 
-// the test for an ENDING achievement. THE JOURNEY IS THE TEST: questions come
-// from the path that led here (up to three hops back), not from the ending
-// text — which stays HIDDEN until the test is passed, so understanding can't
-// be cribbed off the page.
-function endingComprehension(nodeId, attempt) {
-  const node = STORY[nodeId]
-  if (!node) return null
-  const ordered = []
-  const visited = new Set([nodeId])
-  let frontier = [nodeId]
-  for (let hop = 0; hop < 3; hop++) {
-    const next = []
-    for (const id of frontier) {
-      for (const pid of predsOf(id)) {
-        if (visited.has(pid)) continue
-        visited.add(pid)
-        next.push(pid)
-        for (const l of STORY[pid].text.map(lineOf).sort((a, b) => richness(b) - richness(a))) ordered.push(l)
-      }
-    }
-    frontier = next
+// Reading practice uses only the exact normal-play surfaces recorded for this
+// achievement. The immediate ending is visible before practice and may be
+// included; sibling branches and unseen regional quiz seeds may never enter.
+// These translation questions award an achievement, never A1/A2 readiness.
+export function testFor(ach, attempt = 0, state = null) {
+  if (!ach?.id || !Number.isSafeInteger(attempt) || attempt < 0 || !comprehensionReadingsReady()) return null
+  const recorded = achievementReadingLines(state, ach.id)
+  if (!recorded.length) return null
+  const ordered = recorded.map(({ line }) => line).sort((a, b) => richness(b) - richness(a))
+  // Small scenes deserve a proportionate reading check. Insufficient material
+  // shortens the check; no recorded material never becomes automatic credit.
+  for (let count = 4; count >= 1; count--) {
+    const questions = comprehensionFromLines(ordered, `${ach.id}:a${attempt}`, count)
+    if (!questions) continue
+    return questions.map((question) => ({
+      ...question,
+      sourceLineIds: recorded.filter(({ line }) => question.kind === 'sentence'
+        ? lineAlbanian(line) === question.albanian
+        : line.some((token) => token.id === question.senseId && token.al === question.albanian))
+        .map(({ id }) => id),
+    }))
   }
-  // The ending remains hidden until this gate is passed. Never draw from its
-  // own text: even an isolated-word question must come from earlier scenes,
-  // not reveal the outcome the player is trying to unlock.
-  return comprehensionFromLines(ordered, nodeId + ':a' + attempt, 4)
+  return null
 }
-
-// the test for an AREA achievement: drawn from the region's key scenes (quizNodes).
-function areaComprehension(ach, attempt) {
-  const lines = []
-  for (const id of ach.quizNodes || []) {
-    if (STORY[id]) for (const l of STORY[id].text.map(lineOf)) lines.push(l)
-  }
-  lines.sort((a, b) => richness(b) - richness(a))
-  return comprehensionFromLines(lines, ach.id + ':a' + attempt, 4)
-}
-
-// the gate for any achievement, salted by how many attempts have failed before
-export const testFor = (ach, attempt = 0) =>
-  ach.kind === 'area' ? areaComprehension(ach, attempt) : endingComprehension(ach.id, attempt)

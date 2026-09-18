@@ -26,6 +26,7 @@ import {
   storyConfuserCandidates,
 } from '../src/game/storyConfusers.js'
 import { testFor } from '../src/game/comprehension.js'
+import { comprehensionContextFor } from './lib/comprehension-journeys.mjs'
 import {
   auditExceptionClaimKey,
   auditExceptionFor,
@@ -253,21 +254,30 @@ check('the reducer loses health and blocks play only with a valid explanation', 
 check('a comprehension miss records its failed gate and explanation atomically', () => {
   const achievement = ACHIEVEMENTS[0]
   const initial = {
-    ...newRun(),
-    eligible: { [achievement.id]: true },
+    ...comprehensionContextFor(achievement),
+    hearts: 3,
     pendingTest: achievement.id,
   }
   assert.strictEqual(reducer(initial, {
     type: 'COMP_WRONG', id: achievement.id,
   }), initial, 'a comprehension failure landed without its explanation')
   const questionIndex = 0
-  const question = testFor(achievement, 0)[questionIndex]
+  const question = testFor(achievement, 0, initial)[questionIndex]
   const attemptedEnglish = question.options.find((option) => option !== question.correct)
   const missAction = {
     type: 'COMP_WRONG', id: achievement.id, expectedAttempt: 0,
     questionIndex, attemptedEnglish,
     consequence: { source: 'comprehension', eventId: 'forged' },
   }
+  const unrecorded = { ...initial, achievementReadings: {} }
+  assert.strictEqual(reducer(unrecorded, missAction), unrecorded,
+    'an unseen sentence charged a comprehension heart')
+  assert.strictEqual(reducer(initial, { ...missAction, questionIndex: -1 }), initial,
+    'an invalid question index charged a comprehension heart')
+  assert.strictEqual(reducer(initial, { ...missAction, attemptedEnglish: question.correct }), initial,
+    'the exact correct answer charged a comprehension heart')
+  assert.strictEqual(reducer(initial, { ...missAction, attemptedEnglish: 'not an offered answer' }), initial,
+    'a caller-invented answer charged a comprehension heart')
   const lost = reducer(initial, missAction)
   assert.equal(lost.hearts, initial.hearts - 1)
   assert.equal(lost.attempts[achievement.id], 1)
@@ -285,7 +295,7 @@ check('a comprehension miss records its failed gate and explanation atomically',
   })
   assert.strictEqual(reducer(acknowledged, missAction), acknowledged,
     'a stale comprehension miss charged a later attempt')
-  const nextQuestion = testFor(achievement, 1)[0]
+  const nextQuestion = testFor(achievement, 1, acknowledged)[0]
   const nextAttemptedEnglish = nextQuestion.options.find((option) => option !== nextQuestion.correct)
   const nextMiss = reducer(acknowledged, {
     type: 'COMP_WRONG', id: achievement.id, expectedAttempt: 1,

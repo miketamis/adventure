@@ -6,6 +6,9 @@ import { readFileSync } from 'node:fs'
 import { STORY, START_NODE, WORLD_HUB, DICT, ENDINGS, lineOf } from '../src/game/content.js'
 import { ACHIEVEMENTS } from '../src/game/achievements.js'
 import { testFor } from '../src/game/comprehension.js'
+import { achievementReadingLines } from '../src/game/storyReadings.js'
+import { comprehensionContextFor, recordPresentedStoryReadings } from './lib/comprehension-journeys.mjs'
+import { commitProjectedOption, feasibleOptionProjection } from './lib/story-projections.mjs'
 import { englishReadingIssues } from '../src/game/language.js'
 import {
   START_CLOCK,
@@ -671,7 +674,7 @@ check('every required anthology achievement has a real comprehension gate', () =
   const achievementEndingIds = new Set(ACHIEVEMENTS.filter((achievement) => achievement.kind !== 'area').map((achievement) => achievement.id))
   assert.deepEqual(achievementEndingIds, endingIds, 'non-bad endings and tale achievements differ')
   for (const achievement of ACHIEVEMENTS) {
-    const questions = testFor(achievement, 0)
+    const questions = testFor(achievement, 0, comprehensionContextFor(achievement))
     assert.ok(Array.isArray(questions) && questions.length > 0, `${achievement.id}: no playable comprehension test`)
     for (const [index, question] of questions.entries()) {
       assert.ok(question.albanian && question.correct, `${achievement.id} question ${index + 1}: incomplete prompt/answer`)
@@ -687,6 +690,32 @@ check('every required anthology achievement has a real comprehension gate', () =
       }
     }
   }
+})
+
+check('Prespa freedom assesses only the route actually read, including its immediate ending', () => {
+  const departure = STORY.pylli1.options.find((option) => option.to === 'prespaPyll')
+  let state = recordPresentedStoryReadings(feasibleOptionProjection('pylli1', departure))
+  state = recordPresentedStoryReadings(commitProjectedOption(state, departure))
+  const leave = STORY.prespaPyll.options.find((option) => option.to === 'prespaLiri')
+  assert.ok(leave && !leave.confuser)
+  const trainable = leave.text.filter((token) => token.id && isTrainableSense(token.id))
+  state = discover(state, trainable)
+  state = trainOnce(state, trainable)
+  state = recordPresentedStoryReadings(commitProjectedOption(state, leave))
+  assert.equal(state.nodeId, 'prespaLiri')
+  const achievement = ACHIEVEMENTS.find(({ id }) => id === 'prespaLiri')
+  const sources = achievementReadingLines(state, achievement.id)
+  assert.ok(sources.some(({ id }) => id.startsWith('prespaLiri@')), 'immediate ending was not recorded')
+  assert.ok(sources.every(({ id }) => /^(pylli1|prespaPyll|prespaLiri)@/.test(id)), 'an unvisited proposal entered the reading')
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const questions = testFor(achievement, attempt, state)
+    assert.ok(questions?.length)
+    assert.ok(questions.every(({ sourceLineIds }) => sourceLineIds.length && sourceLineIds.every((id) => sources.some((source) => source.id === id))))
+    assert.doesNotMatch(JSON.stringify(questions.map(({ correct }) => correct)), /wedding|ask.*marry|proposal|answers?,? [“\"]?yes/i)
+  }
+  const reloaded = normalizeSavedState(state, newRun())
+  assert.deepEqual(testFor(achievement, 0, reloaded), testFor(achievement, 0, state))
+  assert.equal(testFor(achievement, 0, { ...state, achievementReadings: {} }), null, 'legacy eligibility silently invented a route')
 })
 
 check('bad fates are optional and cannot block anthology completion', () => {
