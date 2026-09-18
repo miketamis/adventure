@@ -129,8 +129,17 @@ for (const hub of Object.values(CONVERSATION_HUBS)) {
     assert.ok(option, `${hub.id}/${questionId}: question option is missing`)
     assert.equal(option.to, hub.nodeId, `${hub.id}/${questionId}: asking a question moved the player`)
     assert.equal(option.durationHours, 0, `${hub.id}/${questionId}: asking a question advanced time`)
-    assert.ok([].concat(option.unless || []).includes(spec.askedCondition),
-      `${hub.id}/${questionId}: asked question does not retire`)
+    assert.ok([].concat(option.unless || []).includes(
+      option.repeatAfterOtherTopic ? spec.responseCondition : spec.askedCondition),
+      `${hub.id}/${questionId}: current/asked question does not retire`)
+    if (option.repeatAfterOtherTopic) {
+      assert.equal(option.repeatAfterOtherTopic, true)
+      assert.equal([].concat(option.unless || []).includes(spec.askedCondition), false,
+        `${hub.id}/${questionId}: repeatable source stays hidden after changing topic`)
+      assert.ok(node.text.some((entry) => entry.conversationHub?.questionId === questionId &&
+        lineOf(entry)?.storyLearningSource),
+      `${hub.id}/${questionId}: repeatable topic must restore an actual bound learning source`)
+    }
     assert.ok(option.effects.some((effect) =>
       effect.type === 'flag' && effect.id === rawFlagId(spec.askedCondition) && effect.value !== false),
     `${hub.id}/${questionId}: question does not record that it was asked`)

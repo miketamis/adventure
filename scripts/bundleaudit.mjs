@@ -164,7 +164,9 @@ for (const rule of AREA_ACHIEVEMENT_RULES) {
 // utterance classifier bring it to 200.3 KiB raw / 66.3 KiB gzip. These are
 // reducer and choice-integrity contracts needed before the first action;
 // PostHog and the diagnostics panel remain deferred.
-const SHELL_RAW_BUDGET = 201 * KiB
+// Exact live-task permissions add the reducer's begin/support/answer routing.
+// Their response card and the complete A1/A2 preparation banks remain lazy.
+const SHELL_RAW_BUDGET = 205 * KiB
 const SHELL_GZIP_BUDGET = 68 * KiB
 // The lexical evidence state machine, death-retention boundary, compact
 // mixed-matching registry, exact reviewed noun paradigms, and the first-village
@@ -190,8 +192,12 @@ const SHELL_GZIP_BUDGET = 68 * KiB
 // validation add 7.3 KiB raw / 2.8 KiB gzip. The reviewed English corpus and
 // portrait partitions remain lazy; the measured bootstrap is now 1598.6 KiB
 // raw / 387.8 KiB gzip. Keep the allowance tied to this runtime contract.
-const BOOTSTRAP_RAW_BUDGET = 1_600 * KiB
-const BOOTSTRAP_GZIP_BUDGET = 389 * KiB
+// Four bound reading situations, strict shared response validation, exact
+// source/context fingerprints and replay-safe support/permission state add
+// about18 KiB raw /6 KiB gzip. This allowance covers that runtime contract;
+// it does not permit the assessment banks or task UI into the initial closure.
+const BOOTSTRAP_RAW_BUDGET = 1_619 * KiB
+const BOOTSTRAP_GZIP_BUDGET = 395 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
 // warning limit; the stricter aggregate and gzip ceilings below still measure
@@ -230,6 +236,10 @@ assert.ok(bootstrapTotal.raw <= BOOTSTRAP_RAW_BUDGET,
   `bootstrap grew to ${display(bootstrapTotal.raw)} (budget ${display(BOOTSTRAP_RAW_BUDGET)}); inspect eager imports`)
 assert.ok(bootstrapTotal.gzip <= BOOTSTRAP_GZIP_BUDGET,
   `bootstrap gzip grew to ${display(bootstrapTotal.gzip)} (budget ${display(BOOTSTRAP_GZIP_BUDGET)}); inspect eager imports`)
+for (const prefix of ['StoryLearningTask', 'DebugStoryLearning', 'cefrPreparation']) {
+  assert.ok(!bootstrapNames.has(chunkNamed(prefix).name),
+    `${prefix} must stay outside the first-play bootstrap`)
+}
 
 const oversizedBootstrap = bootstrap.filter((file) => file.raw > BOOTSTRAP_CHUNK_RAW_BUDGET)
 assert.deepEqual(oversizedBootstrap, [],

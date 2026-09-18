@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import {
+  canAnswerReceptionTask,
   CEFR_IMPLEMENTATION_BY_FAMILY,
   CEFR_SUPPORTED_RESPONSE_KINDS,
   CEFR_SUPPORTED_STIMULUS_KINDS,
@@ -12,8 +13,11 @@ import {
   openResponseMetrics,
   performanceEvidenceFor,
   receptionEvidenceFor,
+  cefrListeningCompletionFor,
+  cefrReceptionStimulusKey,
   selfReviewedRubric,
 } from '../src/game/cefrAssessment.js'
+import { evaluateControlledSelections } from '../src/game/controlledResponses.js'
 import { CEFR_LEVEL_GATES } from '../src/game/cefrProgression.js'
 import { CEFR_TASKS, CEFR_TASKS_BY_FAMILY } from '../src/game/cefrTasks.js'
 import {
@@ -72,7 +76,76 @@ const correctAnswers = Object.fromEntries(firstListening.questions.map((question
   question.id,
   question.acceptedChoiceIds[0],
 ]))
-const correctReception = receptionEvidenceFor(firstListening, correctAnswers)
+const completedListening = cefrListeningCompletionFor(firstListening, true)
+const correctReception = receptionEvidenceFor(firstListening, correctAnswers, { listeningCompletion: completedListening })
+assert.equal(correctReception.length, firstListening.questions.length,
+  'a fully heard, completely answered task lost its reception evidence')
+assert.deepEqual(receptionEvidenceFor(firstListening, correctAnswers), [],
+  'listening evidence was awarded without whole-clip completion')
+for (const incomplete of [false, null, undefined, 'completed', 1]) {
+  assert.equal(cefrListeningCompletionFor(firstListening, incomplete), null,
+    'a non-completed audio result created listening provenance')
+}
+for (const completion of [
+  null,
+  { ...completedListening, completed: false },
+  { ...completedListening, taskId: 'another-task' },
+  { ...completedListening, audioKey: `${completedListening.audioKey}:stale` },
+  Object.create(completedListening),
+]) {
+  assert.equal(canAnswerReceptionTask(firstListening, completion), false,
+    'an incomplete, stale, cross-task or inherited audio receipt opened answers')
+  assert.deepEqual(receptionEvidenceFor(firstListening, correctAnswers, { listeningCompletion: completion }), [],
+    'invalid audio provenance awarded reception evidence')
+}
+assert.deepEqual(receptionEvidenceFor({ ...firstListening }, correctAnswers, { listeningCompletion: completedListening }), [],
+  'a caller-supplied replacement task was accepted instead of the canonical bank record')
+assert.notEqual(cefrReceptionStimulusKey(firstListening), cefrReceptionStimulusKey(CEFR_TASKS.find((task) =>
+  task.mode === 'listening' && task.id !== firstListening.id)), 'different listening stimuli reused one completion key')
+
+// Enumerate the production bank through the same closed-choice validator used
+// by preparation and story actions. Invalid submissions must not record even
+// a partial first-attempt event, which would consume a still-fresh task.
+for (const task of CEFR_TASKS.filter((entry) => ['listening', 'reading'].includes(entry.mode))) {
+  const selections = Object.fromEntries(task.questions.map((question) => [question.id, question.acceptedChoiceIds[0]]))
+  const context = { listeningCompletion: cefrListeningCompletionFor(task, true) }
+  assert.deepEqual(evaluateControlledSelections(task.questions, selections), { valid: true, correct: true, incorrectIds: [] }, task.id)
+  assert.equal(receptionEvidenceFor(task, selections, context).length, task.questions.length, task.id)
+  const [first] = task.questions
+  const missing = { ...selections }
+  delete missing[first.id]
+  const extraHidden = Object.defineProperty({ ...selections }, 'hidden-slot', { value: first.acceptedChoiceIds[0] })
+  const extraSymbol = { ...selections, [Symbol('slot')]: first.acceptedChoiceIds[0] }
+  let getterReads = 0
+  const accessor = Object.defineProperty({ ...selections }, first.id, { get: () => { getterReads += 1; return first.acceptedChoiceIds[0] } })
+  for (const malformed of [null, [], 'answer', missing, { ...selections, extra: 'answer' },
+    { ...selections, [first.id]: 'not-a-declared-choice' }, { ...selections, [first.id]: undefined },
+    Object.create(selections), extraHidden, extraSymbol, accessor]) {
+    assert.equal(evaluateControlledSelections(task.questions, malformed).valid, false, `${task.id}: malformed selections accepted`)
+    assert.deepEqual(receptionEvidenceFor(task, malformed, context), [], `${task.id}: malformed selections consumed a form`)
+  }
+  assert.equal(getterReads, 0, `${task.id}: validation invoked a response getter`)
+  assert.equal(evaluateControlledSelections(task.questions, Object.assign(Object.create(null), selections)).correct, true,
+    `${task.id}: own null-prototype slots were rejected`)
+  for (const question of task.questions) {
+    const wrong = question.choices.find(({ id }) => !question.acceptedChoiceIds.includes(id))
+    if (!wrong) continue
+    const incorrect = { ...selections, [question.id]: wrong.id }
+    assert.deepEqual(evaluateControlledSelections(task.questions, incorrect),
+      { valid: true, correct: false, incorrectIds: [question.id] }, `${task.id}:${question.id}`)
+    const evidence = receptionEvidenceFor(task, incorrect, context)
+    assert.equal(evidence.filter(({ correct }) => !correct).length, 1, `${task.id}: wrong declared answer was not recorded exactly`)
+  }
+}
+const [sampleQuestion] = firstListening.questions
+for (const malformed of [[], [sampleQuestion, sampleQuestion],
+  [{ ...sampleQuestion, choices: [] }],
+  [{ ...sampleQuestion, choices: [...sampleQuestion.choices, sampleQuestion.choices[0]] }],
+  [{ ...sampleQuestion, acceptedChoiceIds: [] }],
+  [{ ...sampleQuestion, acceptedChoiceIds: ['undeclared-choice'] }],
+  [{ ...sampleQuestion, acceptedChoiceIds: [sampleQuestion.acceptedChoiceIds[0], sampleQuestion.acceptedChoiceIds[0]] }],
+  [{ ...sampleQuestion, acceptedChoiceIds: new Array(1) }],
+]) assert.equal(evaluateControlledSelections(malformed, correctAnswers).valid, false, 'malformed controlled question schema accepted')
 const failedFirst = correctReception.map((event) => ({ ...event, correct: false }))
 const immutableFirstAttempt = mergeCefrEvidence(failedFirst, correctReception)
 assert.ok(immutableFirstAttempt.every((event) => event.correct === false),
@@ -131,7 +204,7 @@ const allEvidence = CEFR_TASKS.flatMap((task) => {
     return receptionEvidenceFor(task, Object.fromEntries(task.questions.map((question) => [
       question.id,
       question.acceptedChoiceIds[0],
-    ])))
+    ])), { listeningCompletion: cefrListeningCompletionFor(task, true) })
   }
   const rubric = Object.fromEntries(task.rubric.dimensions.map((dimension) => [dimension, 2]))
   return performanceEvidenceFor(task, rubric, {
@@ -195,6 +268,25 @@ assert.ok(component.includes('playPhrase(task.stimulus.scriptSq)') &&
   !component.includes('{task.stimulus.scriptSq}') &&
   component.includes('No transcript or translation is revealed.'),
 'listening leaks its transcript/translation or does not use continuous audio')
+const receptionRenderer = component.slice(component.indexOf('function ReceptionTask('), component.indexOf('function Stimulus('))
+assert.match(receptionRenderer, /const selection = evaluateControlledSelections\(task\.questions, answers\)/,
+  'reception controls drifted from the shared controlled response validator')
+assert.match(receptionRenderer, /const canAnswer = canAnswerReceptionTask\(task, listeningCompletion\)/,
+  'reception renderer does not use the same audio completion gate as evidence creation')
+assert.match(receptionRenderer, /if \(completed === true\) \{\s*setListeningCompletion\(cefrListeningCompletionFor\(task, completed\)\)/,
+  'a playback click or failed playback can open reception answers')
+assert.match(receptionRenderer, /\{canAnswer && <div className="cefr-reception-questions">/,
+  'listening answers are exposed before successful continuous playback')
+assert.match(receptionRenderer, /if \(!selection\.valid \|\| !canAnswer \|\| playing \|\| submitted\) return/,
+  'submission can run while audio is incomplete or responses are malformed')
+assert.match(receptionRenderer, /disabled=\{!selection\.valid \|\| !canAnswer \|\| playing \|\| submitted\}/,
+  'the submit button disagrees with canonical reception eligibility')
+assert.match(receptionRenderer, /receptionEvidenceFor\(task, answers, \{ listeningCompletion \}\)/,
+  'renderer did not forward its exact completed stimulus provenance')
+assert.match(receptionRenderer, /if \(evidence\.length !== task\.questions\.length\) return/,
+  'an empty rejected evidence result can masquerade as successful completion')
+assert.match(component, /<ReceptionTask key=\{cefrReceptionStimulusKey\(task\)\}/,
+  'changing a task or its exact stimulus fails to reset its selections and playback completion')
 assert.ok(component.includes('lang="sq">{task.stimulus.textSq}') &&
   component.includes('lang="sq">{stimulus.sourceSq}'),
 'reading and mediation do not preserve their Albanian-only source surface')

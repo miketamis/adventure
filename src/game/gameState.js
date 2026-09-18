@@ -12,6 +12,23 @@ import {
   moneyOutcomeLineOf,
   visibleLines,
 } from './content.js'
+import {
+  STORY_LEARNING_VERSION,
+  STORY_LEARNING_BY_ID,
+  STORY_LEARNING_ENCOUNTERS,
+  emptyStoryLearningState,
+  normalizeStoryLearningEvidence,
+  normalizeStoryLearningScene,
+  storyLearningBindingForOption,
+  storyLearningContext,
+  storyLearningEpisode,
+  storyLearningSourceForLine,
+  storyLearningSourceSignature,
+  reduceStoryLearning,
+  recordStoryLearningDebugSupport,
+  carryCompletedStoryLearning,
+} from './storyLearning.js'
+export { STORY_LEARNING_ENCOUNTERS, storyLearningSourceForLine } from './storyLearning.js'
 import { formPracticeKey } from './formProgression.js'
 import {
   canonicalPlayerActionId,
@@ -1665,7 +1682,10 @@ export function normalizeSavedState(saved, fresh) {
     ? normalizeTrainingTarget(saved.practiceTarget, next.nodeId)
     : null
   next.trainGoalSession = normalizeTrainActionGoalSession(saved.trainGoalSession, next)
-  return reconcileLearnerEvidence(next)
+  next.storyLearningVersion = STORY_LEARNING_VERSION
+  next.storyLearningEvidence = normalizeStoryLearningEvidence(saved)
+  next.storyLearningScene = normalizeStoryLearningScene(next, saved.storyLearningScene, storyLearningTaskForState)
+  return reconcileLearnerEvidence(next.debug ? recordStoryLearningDebugSupport(next) : next)
 }
 
 // the saved run if it's still valid, otherwise a fresh run
@@ -1745,6 +1765,7 @@ function baseRun() {
     actionSpeechSequence: 0, // monotonic id for committed player-action speech
     storyRunSequence: 1, // stable exposure receipt domain; increments on each story restart
     storyReadings: [], // exact normally presented source IDs for this run
+    storyLearningScene: null, // source-bound practice permissions never outlive their run/turn
     actionSpeech: null, // one-shot Albanian playback request; deliberately omitted from saves
   }
 }
@@ -1778,6 +1799,7 @@ const emptyLearnerProfile = () => ({
     wordMatchingProgressVersion: WORD_MATCHING_PROGRESS_VERSION,
     wordMatchingProgress: normalizeWordMatchingProgress(),
     ...emptyLearningTelemetryState(),
+    ...emptyStoryLearningState(),
     ...emptyCefrState(),
     ...emptyCefrPreparationState(),
 })
@@ -1983,9 +2005,88 @@ export const effectAvailabilityForOption = (state, option) => optionEffectAvaila
   },
 )
 
+// Resolve the same four authored tasks for rendering, save validation and the
+// reducer. Neither the UI nor audit fixtures can pass their own correctness or
+// effect payload. Weak caches keep long scenes from repeating the projection.
+const storyLearningSourcesCache = new WeakMap()
+const storyLearningTasksCache = new WeakMap()
+export function storyLearningSourcesForState(state) {
+  if (!STORY_LEARNING_ENCOUNTERS.some((entry) => entry.nodeId === state.nodeId)) return []
+  const signature = storyLearningSourceSignature(state.nodeId)
+  const cached = storyLearningSourcesCache.get(state)
+  if (cached?.signature === signature) return cached.sources
+  const sources = storyScenePresentationForState(state).normalEntries.flatMap(({ line }) => {
+    const source = storyLearningSourceForLine(state, line)
+    return source ? [{ line, ...source }] : []
+  })
+  storyLearningSourcesCache.set(state, { signature, sources })
+  return sources
+}
+
+const storyLearningWorldAvailability = (state, option) => {
+  if (!optionTimingIsValid(option) || !optionNpcStartsAreValid(option)) return { ok: false, reason: 'invalid-action' }
+  if (!hasRequiredItem(state, option)) return { ok: false, reason: 'requirements' }
+  if (!canAfford(state, option)) return { ok: false, reason: 'money' }
+  if (!effectAvailabilityForOption(state, option).ok) return { ok: false, reason: 'effects' }
+  if (!interactionAvailabilityForOption(state, option).ok) return { ok: false, reason: 'interaction' }
+  if (!rendezvousAvailabilityForOption(state, option).ok) return { ok: false, reason: 'rendezvous' }
+  if (!embodimentOptionAccess(state, option, STORY[option.to]).ok) return { ok: false, reason: 'role' }
+  return { ok: true, reason: null }
+}
+
+export function storyLearningTaskForState(state, encounterId = null) {
+  encounterId ||= state.storyLearningScene?.activeEncounterId
+  const entry = STORY_LEARNING_BY_ID[encounterId]
+  if (!entry || entry.nodeId !== state.nodeId) return null
+  let tasks = storyLearningTasksCache.get(state)
+  if (!tasks) { tasks = new Map(); storyLearningTasksCache.set(state, tasks) }
+  const boundOptions = entry.actions.map((binding) => STORY[state.nodeId].options.find((option) =>
+    canonicalPlayerActionId(state.nodeId, option) === binding.id && option.to === binding.to &&
+    storyLearningBindingForOption(state, option) === entry)).filter(Boolean)
+  const contextKey = storyLearningContext(state, entry, boundOptions)
+  if (tasks.has(encounterId) && tasks.get(encounterId).contextKey === contextKey) return tasks.get(encounterId)
+  const sourceLines = storyLearningSourcesForState(state)
+    .filter((source) => source.encounterId === entry.id).map((source) => source.line)
+  const sourceAvailable = sourceLines.length === entry.minimumSourceLines
+  const world = boundOptions.map((option) => storyLearningWorldAvailability(currentStoryState(state), option))
+  const availability = !contextKey ? { ok: false, reason: 'context' }
+    : !sourceAvailable ? { ok: false, reason: 'source' }
+      : world.find((item) => item.ok) || world[0] || { ok: false, reason: 'invalid-action' }
+  const episode = contextKey && sourceAvailable ? storyLearningEpisode(state, entry, contextKey) : null
+  const glosses = [...new Map(sourceLines.flat().filter((token) => token.id)
+    .map((token) => [`${token.id}:${token.al}`, { al: token.al, en: token.en }])).values()]
+  const task = {
+    ...entry, contextKey, sourceAvailable, sourceLines, questions: entry.questions,
+    support: { id: 'word-help', label: 'Word help', glosses }, audio: entry.audio || null,
+    availability, episode,
+    boundActions: boundOptions.map((option) => ({
+      id: canonicalPlayerActionId(state.nodeId, option), optionIndex: STORY[state.nodeId].options.indexOf(option),
+      tokens: option.text, revealed: isOptionRevealed(currentStoryState(state), option),
+      availability: storyLearningWorldAvailability(currentStoryState(state), option),
+    })),
+    debug: { levelAlignment: entry.levelAlignment, mode: entry.mode, capstoneEligible: false,
+      contextKey, evidence: state.storyLearningEvidence?.[entry.id] || null },
+  }
+  tasks.set(encounterId, task)
+  return task
+}
+
+export function choiceLanguageAvailability(state, option) {
+  if (option?.learningEncounter == null) {
+    const speech = canSpeak(state, option?.text || [])
+    return { kind: 'lexical', ok: speech.ok, spendIds: speech.ids, encounterId: null,
+      reason: speech.ok ? null : !speech.allDiscovered ? 'undiscovered' : 'tokens' }
+  }
+  const entry = storyLearningBindingForOption(state, option)
+  const task = entry && storyLearningTaskForState(state, entry.id)
+  const ok = Boolean(task?.availability.ok && task.episode?.phase === 'complete')
+  return { kind: 'encounter', ok, spendIds: [], encounterId: entry?.id || option.learningEncounter,
+    reason: !entry ? 'invalid-binding' : task?.availability.reason || (ok ? null : 'encounter') }
+}
+
 export const canChoose = (state, option) => {
-  const sp = canSpeak(state, option.text)
-  return optionTimingIsValid(option) && sp.ok &&
+  const language = choiceLanguageAvailability(state, option)
+  return optionTimingIsValid(option) && language.ok &&
     optionNpcStartsAreValid(option) &&
     hasRequiredItem(state, option) &&
     canAfford(state, option) &&
@@ -2154,6 +2255,13 @@ export function reducer(state, action) {
         ? { ...state, pendingHeartConsequence: null }
         : state
 
+    case 'BEGIN_STORY_LEARNING':
+    case 'REVEAL_STORY_LEARNING_SUPPORT':
+    case 'STORY_LEARNING_AUDIO_COMPLETE':
+    case 'SUBMIT_STORY_LEARNING':
+    case 'CLOSE_STORY_LEARNING':
+      return reduceStoryLearning(state, action, storyLearningTaskForState(state, action.encounterId))
+
     case 'RECORD_STORY_READINGS': {
       if (action.nodeId !== state.nodeId || action.turn !== state.turn ||
           state.view !== 'story' || state.timePassage || state.pendingEmbodiment) return state
@@ -2255,7 +2363,7 @@ export function reducer(state, action) {
       const practiceState = currentStoryState(state)
       // Accept only the same state in which Story renders its Train control:
       // every word is known, but at least one required token is still missing.
-      if (state.view !== 'story' || !option ||
+      if (state.view !== 'story' || !option || option.learningEncounter != null ||
           !isOptionRevealed(practiceState, option, STORY[practiceTarget.nodeId]) ||
           !speech?.allDiscovered || speech.enoughMana) return state
       return {
@@ -2389,7 +2497,7 @@ export function reducer(state, action) {
       const rendezvousUse = rendezvousAvailabilityForOption(state, option)
       const questUse = questActionAvailability(choiceState, option)
       if (!questUse.ok) return state
-      const { ids } = canSpeak(state, option.text)
+      const { spendIds: ids } = choiceLanguageAvailability(choiceState, option)
       // A BAD ending is recorded at once (a fate met is met). A good/secret
       // ending is an ACHIEVEMENT DEED: reaching it marks the achievement
       // ELIGIBLE (permanently — a failed test never loses the deed). The codex
@@ -2560,8 +2668,9 @@ export function reducer(state, action) {
         embodimentWorldNode = option.to
         embodimentPaused = true
       }
-      const chosenState = withCommittedActionSpeech({
+      let chosenState = withCommittedActionSpeech({
         ...state,
+        storyLearningScene: null,
         mana: spend(state.mana, ids),
         inventory,
         flags,
@@ -2609,10 +2718,12 @@ export function reducer(state, action) {
         practiceTarget: null,
         trainGoalSession: null,
       }, option.text)
+      chosenState = carryCompletedStoryLearning(state, chosenState, option.learningEncounter, storyLearningTaskForState)
       // Entering another character's tale establishes that role's authored
       // starting health; it is not damage to the traveller and therefore does
       // not open the penalty explanation.
-      if (option.become || heartsAfterEffects >= state.hearts) return chosenState
+      if (option.become || heartsAfterEffects >= state.hearts) return chosenState.debug
+        ? recordStoryLearningDebugSupport(chosenState) : chosenState
       const authoredConsequence = option.heartConsequence && {
         ...option.heartConsequence,
         source: 'story-choice',
@@ -3300,7 +3411,7 @@ export function reducer(state, action) {
     case 'TOGGLE_DEBUG': {
       const debug = !state.debug
       return {
-        ...state,
+        ...recordStoryLearningDebugSupport(state),
         debug,
         // Leaving debug from any hidden secondary surface returns to playable
         // story instead of stranding normal play on a hidden tab.

@@ -15,6 +15,7 @@ import {
   cefrWindowIdForTask,
   performanceEvidenceFor,
   receptionEvidenceFor,
+  cefrListeningCompletionFor,
 } from '../src/game/cefrAssessment.js'
 import {
   CEFR_CAPSTONE_TASK_FAMILIES,
@@ -73,7 +74,7 @@ const passingEvidence = (task) => {
     return receptionEvidenceFor(task, Object.fromEntries(task.questions.map((question) => [
       question.id,
       question.acceptedChoiceIds[0],
-    ])))
+    ])), { listeningCompletion: cefrListeningCompletionFor(task, true) })
   }
   return performanceEvidenceFor(
     task,

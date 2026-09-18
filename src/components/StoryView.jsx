@@ -13,6 +13,7 @@ import {
   canChoose,
   canSpeak,
   canUseItem,
+  choiceLanguageAvailability,
   currentStoryState,
   effectAvailabilityForOption,
   environmentNarrationScopeOf,
@@ -27,6 +28,8 @@ import {
   requiredInventoryIdsForOption,
   resolvedMoneyOutcomeLine,
   storyScenePresentationForState,
+  storyLearningSourcesForState,
+  storyLearningTaskForState,
 } from '../game/gameState.js'
 import { albanianTextOf, englishReadingOf, hasAuthoredEnglishReading } from '../game/language.js'
 import { stableShuffle, testFor } from '../game/comprehension.js'
@@ -72,6 +75,7 @@ import { captureStoryChoicesPresented } from '../game/playtestAnalytics.js'
 import { speechChoiceLabelOf } from '../game/speechChoices.js'
 
 const FactoidLore = lazy(() => import('./FactoidLore.jsx'))
+const StoryLearningTask = lazy(() => import('./StoryLearningTask.jsx'))
 attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
 
 const QUOTE_REPO_BLOB = 'https://github.com/miketamis/adventure/blob/main/'
@@ -85,6 +89,26 @@ const QUOTE_TIER_LABEL = {
 export default function StoryView({ state, dispatch, analyticsEnabled = false, readingCorpusReady = false }) {
   const discoverWord = useCallback((id) => dispatch({ type: 'DISCOVER', id }), [dispatch])
   const node = STORY[state.nodeId]
+  const activeStoryTask = useMemo(() => {
+    const task = storyLearningTaskForState(state)
+    return task?.sourceAvailable && task.episode ? task : null
+  }, [state])
+  const protectedSources = useMemo(() => new Map(storyLearningSourcesForState(state)
+    .map((source) => [source.line, source])), [state])
+  const firstLearningSource = useMemo(() => {
+    const first = new Map()
+    for (const [line, source] of protectedSources) if (!first.has(source.encounterId)) first.set(source.encounterId, line)
+    return first
+  }, [protectedSources])
+  const learningSourceDomId = (source) => `learning-source-${source.encounterId}-${source.sourceId}`.replace(/[^a-zA-Z0-9_-]/g, '-')
+  const beginStoryLearning = (encounterId, supportId = null) => {
+    setAreaTest(null)
+    dispatch({
+      type: 'BEGIN_STORY_LEARNING', encounterId,
+      fromNodeId: state.nodeId, fromTurn: state.turn, fromRun: state.storyRunSequence,
+      ...(supportId ? { supportId } : {}),
+    })
+  }
   const [endingCopy, setEndingCopy] = useState(null)
   const [richAchievementById, setRichAchievementById] = useState(null)
   const hasAvailableReadingChecks = Object.keys(state.eligible || {}).some((id) =>
@@ -249,6 +273,11 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
   const arrivalOption = arrivalOptionOf(state)
   const moneyOutcome = resolvedMoneyOutcomeLine(state, arrivalOption)
 
+  const languageByOption = useMemo(() => new Map(node.options.map((option) =>
+    [option, choiceLanguageAvailability(state, option)])), [state, node])
+  const encounterTasks = useMemo(() => new Map([...new Set([...languageByOption.values()]
+    .filter(({ kind }) => kind === 'encounter').map(({ encounterId }) => encounterId))]
+    .map((id) => [id, storyLearningTaskForState(state, id)])), [state, languageByOption])
   const entries = []
   const actionableHeldIds = new Set(usableOwned)
   let hiddenPaths = 0
@@ -266,11 +295,19 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
     const effectAvailability = effectAvailabilityForOption(storyState, opt)
     const roleAccess = embodimentOptionAccess(state, opt, STORY[opt.to])
     const entryQuest = opt.become ? embodimentQuest(opt.become) : null
+    const language = languageByOption.get(opt)
+    const learningTask = language?.kind === 'encounter' ? encounterTasks.get(language.encounterId) : null
+    const canonicalChoiceReady = canChoose(storyState, opt) && roleAccess.ok
+    const canBeginLearning = Boolean(learningTask?.availability?.ok && roleAccess.ok &&
+      affordable && interaction.ok && effectAvailability.ok)
     if (roleAccess.ok && interaction.ok && effectAvailability.ok) {
       for (const id of requiredInventoryIdsForOption(storyState, opt)) actionableHeldIds.add(id)
     }
     entries.push({
       key: 'opt-' + i,
+      optionIndex: i,
+      language,
+      canonicalChoiceReady,
       trainingTarget: trainingTargetForOption(state.nodeId, opt),
       tokens: opt.text,
       speechLabel: speechChoiceLabelOf(opt),
@@ -293,8 +330,10 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
       beginQuest: !state.embodying ? entryQuest : null,
       roleBlocked: !roleAccess.ok,
       roleReason: roleAccess.reason,
-      ok: canChoose(storyState, opt) && roleAccess.ok,
-      onSelect: () => opt.become && !state.embodying
+      ok: canonicalChoiceReady || canBeginLearning,
+      onSelect: () => !canonicalChoiceReady && canBeginLearning
+        ? beginStoryLearning(language.encounterId)
+        : opt.become && !state.embodying
         ? dispatch({
             type: 'REQUEST_EMBODIMENT', optionId: `opt-${i}`, optionIndex: i,
             fromNodeId: state.nodeId, fromTurn: state.turn,
@@ -555,6 +594,41 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
     dispatch,
   ])
 
+  const worldLockForEntry = (entry) => {
+    if (!entry) return 'This action is no longer available. Return to the scene.'
+    if (entry.roleBlocked) return entry.roleReason
+    if (entry.affordable === false) return `You need ${entry.lekAvailability.need} more lek for this purchase. You can choose another action in the scene.`
+    if (entry.interaction?.ok === false) return interactionLockText(entry.interaction)
+    if (entry.effectAvailability?.ok === false) return effectLockText(entry.effectAvailability, (id) => ITEMS[id]?.name || id)
+    return null
+  }
+  const activeLearningActions = activeStoryTask?.boundActions.map((action) => {
+    const option = node.options[action.optionIndex]
+    const entry = entries.find((candidate) => candidate.optionIndex === action.optionIndex)
+    const revealed = option && optionRevealed(option)
+    const roleAccess = option ? embodimentOptionAccess(state, option, STORY[option.to]) : null
+    const lekAvailability = option ? optionLekAvailability(storyState, option) : null
+    const physicalLock = entry ? worldLockForEntry(entry) : option ? worldLockForEntry({
+      roleBlocked: !roleAccess.ok,
+      roleReason: roleAccess.reason,
+      affordable: lekAvailability.ok,
+      lekAvailability,
+      interaction: interactionAvailabilityForOption(storyState, option),
+      effectAvailability: effectAvailabilityForOption(storyState, option),
+    }) : null
+    return {
+      id: action.id,
+      speechLabel: option ? speechChoiceLabelOf(option) : null,
+      ready: Boolean(entry?.canonicalChoiceReady),
+      reason: physicalLock || (!revealed
+        ? 'Save each word in the passage to reveal this action. Word help lets you save them.'
+        : !entry ? 'This action is no longer available in the scene.' : null),
+    }
+  }) || []
+  const activeLearningWorldLock = activeStoryTask?.availability?.ok === false
+    ? activeLearningActions.find(({ reason }) => reason)?.reason || 'The scene has changed. Return to it and choose an available action.'
+    : null
+
   const renderLine = (line, i) => {
     const revealsPath = revealLineIdx.has(i)
     // A Q() line carries reviewed source evidence. Its quote-register record
@@ -566,13 +640,35 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
     const quoteEvidence = quoteRecord ? QUOTE_TIER_LABEL[quoteTier(quoteRecord)] : null
     const quoteDetail = quoteRecord ? `${quoteRecord.fidelity}, ${quoteEvidence}` : 'source-linked wording'
     const reviewedReading = hasAuthoredEnglishReading(line)
-    const showReading = storyReadingVisible(i, state.debug)
+    const protectedSource = protectedSources.get(line)
+    // These lines are active task material. Even the editorial view waits for
+    // controlled support rather than revealing an unrecorded whole answer.
+    const showReading = storyReadingVisible(i, state.debug) && !protectedSource
     return (
       <p
         className={'story-line' + (revealsPath ? ' reveals-path' : '') + (quoteSrc ? ' quote-line' : '')}
         key={i}
       >
-        {line.map((tok, j) => (
+        {protectedSource ? (
+          <>
+            <span id={learningSourceDomId(protectedSource)} className="story-learning-source" lang="sq">{albanianTextOf(line)}</span>
+            {firstLearningSource.get(protectedSource.encounterId) === line && (
+              <span className="story-learning-source-tools">
+                <button className="btn" type="button" onClick={() => beginStoryLearning(protectedSource.encounterId)}>
+                  Respond to this passage
+                </button>
+                <button
+                  className="btn story-learning-help-trigger"
+                  type="button"
+                  onClick={() => beginStoryLearning(protectedSource.encounterId, 'word-help')}
+                  aria-label="Get word help for this Albanian passage"
+                >
+                  Word help
+                </button>
+              </span>
+            )}
+          </>
+        ) : line.map((tok, j) => (
           <Token
             key={j}
             token={tok}
@@ -640,6 +736,26 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
           </p>
         )}
       </div>
+
+      {!state.ended && activeStoryTask && (
+        <Suspense fallback={<p className="hint" role="status">Opening the response…</p>}>
+          <StoryLearningTask
+            key={activeStoryTask.id}
+            state={state}
+            task={activeStoryTask}
+            dispatch={dispatch}
+            sourceDomIds={[...protectedSources.values()].filter(({ encounterId }) => encounterId === activeStoryTask.id).map(learningSourceDomId)}
+            worldLockText={activeLearningWorldLock}
+            actionAvailability={activeLearningActions}
+            onChooseAction={(action) => {
+              const entry = entries.find((candidate) => candidate.optionIndex === action.optionIndex && candidate.language?.encounterId === activeStoryTask.id)
+              if (!entry?.canonicalChoiceReady) return false
+              entry.onSelect()
+              return true
+            }}
+          />
+        </Suspense>
+      )}
 
       {state.debug && scenePresentation.sourceMeasure.lines > 0 && (
         <p className="scene-density-debug">
@@ -859,6 +975,13 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
               let cost
               if (e.roleBlocked) {
                 cost = <span className="option-cost role-locked">🎭 {e.roleReason}</span>
+              } else if (e.language?.kind === 'encounter') {
+                const physicalLock = worldLockForEntry(e)
+                cost = physicalLock
+                  ? <span className="option-cost bad">{physicalLock}</span>
+                  : !e.language.ok
+                    ? <span className="option-cost">Read the passage and respond</span>
+                    : null
               } else if (!e.allDiscovered) {
                 cost = <span className="option-cost bad">discover all words first</span>
               } else if (!e.enoughMana) {
@@ -949,7 +1072,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
                     )}
                   </span>
                   {cost && <span id={costId} className="option-cost-wrap">{cost}</span>}
-                  {state.debug && e.real && !e.ok && !e.roleBlocked &&
+                  {state.debug && e.real && e.language?.kind !== 'encounter' && !e.ok && !e.roleBlocked &&
                     e.interaction?.ok !== false && e.effectAvailability?.ok !== false && (
                     <button
                       type="button"
@@ -985,9 +1108,9 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
             </p>
           )}
           <p className="hint">
-            Click a word to discover it. Discovering a whole sentence reveals the path it names;
-            then hold one token per word to take it. Some choices can&apos;t really happen here —
-            picking one costs a ♥.
+            Click a word to discover it. Discover the whole marked sentence to reveal its path.
+            Most choices use word tokens; passages with “Respond to this passage” ask you to read
+            and respond first. Some choices can&apos;t really happen here — picking one costs a ♥.
           </p>
         </>
       )}

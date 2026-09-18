@@ -12,7 +12,10 @@ export default function GuideView() {
       <section className="guide-section" aria-labelledby="guide-loop">
         <h3 id="guide-loop">The learning loop</h3>
         <ol>
-          <li><b>Read the scene.</b> Unknown words appear as English meanings.</li>
+          <li>
+            <b>Read the scene.</b> Most unknown words appear as English meanings. Passages with
+            a response task stay in Albanian until you choose <b>Word help</b>.
+          </li>
           <li>
             <b>Discover a word.</b> Activate it to hear and reveal its Albanian form. That is the
             guided introduction, so its first Train question asks you to recognise it among four
@@ -20,10 +23,14 @@ export default function GuideView() {
           </li>
           <li>
             <b>Train it.</b> Rebuild, hear, complete, type, and match the everyday phrases you
-            meet in the story. Finishing a phrase earns one token for every different learned word
-            it reinforces; a mistake costs one heart.
+            meet in the story. Correct activities earn tokens for their target words. Each card
+            explains its heart cost before you answer.
           </li>
-          <li><b>Choose a path.</b> A real choice spends one token for each different word it uses.</li>
+          <li>
+            <b>Choose a path.</b> Most choices spend one token for each different word they use.
+            Some scenes ask you to read and respond first; finish that task, then choose your
+            action. Money and other story requirements still apply.
+          </li>
         </ol>
         <p>
           A path marked 📜 is hidden in a described sentence. Discover that complete sentence to

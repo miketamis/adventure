@@ -103,7 +103,7 @@ export function conversationQuestionOption(hub, questionId, text, option = {}) {
     text,
     to: option.to || hub.nodeId,
     durationHours: option.durationHours ?? 0,
-    unless: [...list(option.unless), question.askedCondition],
+    unless: [...list(option.unless), option.repeatAfterOtherTopic ? question.responseCondition : question.askedCondition],
     effects: [
       ...clearConversationResponseEffects(hub),
       { type: 'flag', id: rawFlagId(question.askedCondition) },

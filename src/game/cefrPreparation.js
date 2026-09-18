@@ -11,6 +11,7 @@ import { PHRASE_STAGE_DEFINITIONS } from './phraseProgression.js'
 import { WORD_CAPABILITY_DEFINITIONS } from './wordProgression.js'
 import { WORD_LEARNING_ASPECTS } from './wordLearningAspects.js'
 import { CEFR_PREPARATION_VERSION } from './cefrPreparationEvidenceState.js'
+import { evaluateControlledSelections } from './controlledResponses.js'
 
 export { CEFR_PREPARATION_VERSION }
 
@@ -1344,8 +1345,13 @@ const normalizeAnswer = (value) => String(value || '')
 const equalList = (received, expected) => Array.isArray(received) &&
   received.length === expected.length && received.every((value, index) => value === expected[index])
 
-const equalMap = (received, expected) => received && Object.entries(expected)
-  .every(([key, value]) => received[key] === value)
+const selectedOptionCorrect = (choices, acceptedChoiceIds, optionId) =>
+  evaluateControlledSelections([{ id: 'option', choices, acceptedChoiceIds }], { option: optionId }).correct
+
+const selectedMapCorrect = (received, expected, choicesFor) =>
+  evaluateControlledSelections(Object.entries(expected).map(([id, correctId]) => ({
+    id, choices: choicesFor(id), acceptedChoiceIds: [correctId],
+  })), received).correct
 
 // Controlled preparation can be scored deterministically. Open production is
 // deliberately not inferred here: a recording passes only when the learner
@@ -1354,22 +1360,27 @@ const equalMap = (received, expected) => received && Object.entries(expected)
 export function evaluatePreparationResponse(activityId, answer = {}) {
   const entry = buildPreparationActivity(activityId)
   if (!entry) return { passed: false, reason: 'unknown-activity' }
+  if (!answer || typeof answer !== 'object' ||
+      ![Object.prototype, null].includes(Object.getPrototypeOf(answer)) ||
+      Object.values(Object.getOwnPropertyDescriptors(answer)).some((descriptor) => !Object.hasOwn(descriptor, 'value'))) {
+    return { passed: false, reason: 'invalid-response' }
+  }
   const response = entry.response
   let passed = false
 
   switch (response.kind) {
     case 'single-choice':
-      passed = answer.optionId === response.correctOptionId
+      passed = selectedOptionCorrect(entry.options, [response.correctOptionId], answer.optionId)
       break
     case 'multiple-acceptable-choice':
-      passed = response.acceptedOptionIds.includes(answer.optionId)
+      passed = selectedOptionCorrect(entry.options, response.acceptedOptionIds, answer.optionId)
       break
     case 'ordered-tiles':
       passed = (response.acceptedOrders || [response.correctIds])
         .some((accepted) => equalList(answer.orderedIds, accepted))
       break
     case 'slot-selection':
-      passed = equalMap(answer.selections, response.correctSelections)
+      passed = selectedMapCorrect(answer.selections, response.correctSelections, (id) => entry.slots[id])
       break
     case 'typed-exact':
       passed = response.accepted.some((accepted) => normalizeAnswer(accepted) === normalizeAnswer(answer.text))
@@ -1378,10 +1389,10 @@ export function evaluatePreparationResponse(activityId, answer = {}) {
       passed = response.accepted.some((accepted) => normalizeAnswer(accepted) === normalizeAnswer(answer.text))
       break
     case 'meaning-switch-choice':
-      passed = answer.optionId === response.correctOptionId
+      passed = selectedOptionCorrect(entry.options, [response.correctOptionId], answer.optionId)
       break
     case 'register-appropriate-choice':
-      passed = response.acceptedOptionIds.includes(answer.optionId)
+      passed = selectedOptionCorrect(entry.options, response.acceptedOptionIds, answer.optionId)
       break
     case 'delayed-ordered-chunks':
       passed = response.requiredSignals.every((signal) => answer[signal] === true) &&
@@ -1436,25 +1447,29 @@ export function evaluatePreparationResponse(activityId, answer = {}) {
       }
     }
     case 'scan-and-relay':
-      passed = answer.factId === response.correctFactId && response.acceptedRelayIds.includes(answer.relayId)
+      passed = selectedOptionCorrect(entry.factOptions, [response.correctFactId], answer.factId) &&
+        selectedOptionCorrect(entry.relayOptions, response.acceptedRelayIds, answer.relayId)
       break
     case 'strategy-and-recovery':
-      passed = response.acceptedStrategyIds.includes(answer.strategyId) &&
-        response.acceptedRecoveryIds.includes(answer.recoveryId)
+      passed = selectedOptionCorrect(entry.strategyOptions, response.acceptedStrategyIds, answer.strategyId) &&
+        selectedOptionCorrect(entry.recovery.options, response.acceptedRecoveryIds, answer.recoveryId)
       break
     case 'ordered-rounds':
-      passed = response.requiredRoundIds.every((roundId) => {
-        const round = entry.rounds.find(({ id }) => id === roundId)
-        return answer.byRound?.[roundId] === round?.correctOptionId
-      })
+      passed = evaluateControlledSelections(response.requiredRoundIds.map((id) => {
+        const round = entry.rounds.find((row) => row.id === id)
+        return { id, choices: round?.options, acceptedChoiceIds: [round?.correctOptionId] }
+      }), answer.byRound).correct
       break
     case 'fact-map':
+      passed = selectedMapCorrect(answer.byPrompt, response.correctByPrompt, () => entry.answerCards)
+      break
     case 'connector-map':
-      passed = equalMap(answer.byPrompt || answer.bySentence, response.correctByPrompt || response.correctBySentence)
+      passed = selectedMapCorrect(answer.bySentence, response.correctBySentence, () => entry.connectorOptions)
       break
     case 'reconstruct-and-reply':
       passed = (response.acceptedMessageOrders || [response.correctMessageIds])
-        .some((accepted) => equalList(answer.messageIds, accepted)) && response.acceptedReplyIds.includes(answer.replyId)
+        .some((accepted) => equalList(answer.messageIds, accepted)) &&
+        selectedOptionCorrect(entry.replyOptions, response.acceptedReplyIds, answer.replyId)
       break
     case 'paragraph-plan':
       passed = response.requiredRoles.every((role) => answer.roles?.includes(role)) &&
@@ -1462,7 +1477,7 @@ export function evaluatePreparationResponse(activityId, answer = {}) {
         new Set(answer.connectorSenseIds || []).size >= response.minimumDistinctConnectors
       break
     case 'relay-and-agree':
-      passed = equalMap(answer.byStep, response.correctByStep)
+      passed = selectedMapCorrect(answer.byStep, response.correctByStep, () => entry.responseOptions)
       break
     default:
       return { passed: false, reason: 'unsupported-response-kind' }

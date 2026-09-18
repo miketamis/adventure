@@ -26,7 +26,8 @@ npm run certify  # all strict declared-scope certification gates
 - **Story** (`📖`): unknown clickable words appear as local word glosses while
   preserving Albanian structure. Even grammatical particles (`të` → *of/to*,
   `i` → *the*) are real, learnable words; only punctuation is not clickable.
-  The complete natural-English reading is debug-only.
+  Passages used by a response task stay in Albanian, with explicit **Word help**
+  available. The complete natural-English reading is debug-only.
 - **Discover**: click any word to save that *sense*. Saved words render in
   Albanian everywhere they appear (`ti` → `ti`). Starting a living new run
   preserves them. Death may unsave only weak, scarcely practised vocabulary;
@@ -40,15 +41,19 @@ npm run certify  # all strict declared-scope certification gates
   construction, cloze, ordering, speaking rehearsal and independent production.
   A focused activity rewards only its target; each correct target answer mints
   a **training token** (◆) for that word.
-- **Continue the story**: to take a path, you must have discovered *every* word in
-  that answer **and** hold ≥1 token for each. Choosing it spends one token per word.
+- **Continue the story**: most paths require discovering every word in the action
+  and holding one token for each different trainable word; choosing spends those
+  tokens. Four village encounters—the bread price, a guest's request, water news
+  and a later meeting—use a response task instead. Complete the task, then choose
+  the story action. Money, item, timing and source-word discovery requirements
+  still apply; only the chosen action changes the world.
 - **Hidden path**: some passages have a secret option (`secret: true`). It's obscured
   ("🔒 a hidden path…") until you've discovered *every word in the passage text*, then
   it reveals (✨) and can be pursued like any other path. It leads to a bonus ending.
 - **Inventory** (`🎒`): you start with nothing. Pick items up in the story (e.g.
   *take the bread*). To **use** an item you must "say" its Albanian use-phrase —
   e.g. `ha bukë` (*eat bread*) — so every word must be discovered and you
-  spend one token per word, exactly like choosing a path.
+  spend one token per different word.
 - **New run**: `⟳ new run` returns you to the opening with a fresh world attempt
   (location, inventory, hearts, visits and run-local observations reset). Saved
   vocabulary, training tokens, aspect/form/phrase progress, achievements and

@@ -150,7 +150,8 @@ check('CEFR playback evidence waits for successful audio completion', () => {
   assert.match(componentSource, /if \(completed\) setAnswer/)
   assert.doesNotMatch(componentSource, /playPhrase\([^\n]+\)\n\s*setAnswer/)
   assert.match(capstoneSource, /const completed = await playPhrase\(task\.stimulus\.scriptSq\)/)
-  assert.match(capstoneSource, /if \(completed\) setPlays/)
+  assert.match(capstoneSource, /if \(completed === true\) \{\s*setListeningCompletion\(cefrListeningCompletionFor\(task, completed\)\)\s*setPlays/)
+  assert.match(capstoneSource, /canAnswerReceptionTask\(task, listeningCompletion\)/)
 })
 
 check('preparation completion is normalized and distinct from capstone evidence', () => {

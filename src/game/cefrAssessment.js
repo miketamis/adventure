@@ -5,6 +5,8 @@ import {
   evaluateCefrLevel,
 } from './cefrProgression.js'
 import { CEFR_TASKS, CEFR_TASKS_BY_FAMILY } from './cefrTasks.js'
+import { audioSlug } from './audio.js'
+import { evaluateControlledSelections } from './controlledResponses.js'
 import {
   CEFR_EVIDENCE_VERSION,
   cefrEvidenceKey,
@@ -140,12 +142,40 @@ export function mergeCefrEvidence(current, additions) {
   return [...byKey.values()].slice(-300)
 }
 
-export function receptionEvidenceFor(task, answers) {
+const canonicalReceptionTask = (task) => Boolean(task && taskById.get(task.id) === task &&
+  task.heldOut === true && ['listening', 'reading'].includes(task.mode) && task.response.kind === 'choice')
+
+export function cefrReceptionStimulusKey(task) {
+  if (!canonicalReceptionTask(task)) return null
+  return `${task.id}:${task.mode === 'listening'
+    ? audioSlug(task.stimulus.scriptSq)
+    : task.stimulus.textSq}`
+}
+
+// A local completion receipt, not a claim of tamper-proof audio validation.
+// The renderer calls this only with the continuous player's completed result;
+// debug simulations and audits explicitly supply their synthetic completion.
+export function cefrListeningCompletionFor(task, completed) {
+  if (!canonicalReceptionTask(task) || task.mode !== 'listening' || completed !== true) return null
+  return { taskId: task.id, audioKey: cefrReceptionStimulusKey(task), completed: true }
+}
+
+export function canAnswerReceptionTask(task, listeningCompletion) {
+  if (!canonicalReceptionTask(task)) return false
+  if (task.mode === 'reading') return true
+  return Boolean(listeningCompletion &&
+    Object.hasOwn(listeningCompletion, 'taskId') && listeningCompletion.taskId === task.id &&
+    Object.hasOwn(listeningCompletion, 'audioKey') && listeningCompletion.audioKey === cefrReceptionStimulusKey(task) &&
+    Object.hasOwn(listeningCompletion, 'completed') && listeningCompletion.completed === true)
+}
+
+export function receptionEvidenceFor(task, answers, context = {}) {
+  if (!canAnswerReceptionTask(task, context?.listeningCompletion)) return []
+  const result = evaluateControlledSelections(task.questions, answers)
+  if (!result.valid) return []
   const windowId = cefrWindowIdForTask(task)
-  return (task?.questions || []).flatMap((question) => {
-    const picked = answers?.[question.id]
-    if (typeof picked !== 'string') return []
-    return [{
+  return task.questions.map((question) => {
+    return {
       level: task.level,
       mode: task.mode,
       taskFamily: task.familyId,
@@ -154,9 +184,9 @@ export function receptionEvidenceFor(task, answers) {
       windowId,
       heldOut: true,
       questionKind: question.kind,
-      correct: question.acceptedChoiceIds.includes(picked),
+      correct: !result.incorrectIds.includes(question.id),
       attempt: 1,
-    }]
+    }
   })
 }
 

@@ -10,6 +10,7 @@ import {
   mergeCefrEvidence,
   performanceEvidenceFor,
   receptionEvidenceFor,
+  cefrListeningCompletionFor,
 } from '../game/cefrAssessment.js'
 import {
   CEFR_CAPSTONE_TASK_FAMILIES,
@@ -165,7 +166,10 @@ function simulatePhrase(phrase) {
 function passingEvidence(task) {
   if (RECEPTION_MODES.has(task.mode)) {
     const answers = Object.fromEntries(task.questions.map((question) => [question.id, question.acceptedChoiceIds[0]]))
-    return receptionEvidenceFor(task, answers)
+    // Debug models a completed playback; it never dispatches this fixture.
+    return receptionEvidenceFor(task, answers, {
+      listeningCompletion: cefrListeningCompletionFor(task, true),
+    })
   }
   const rubric = Object.fromEntries(task.rubric.dimensions.map((dimension) => [dimension, 2]))
   return performanceEvidenceFor(task, rubric, {

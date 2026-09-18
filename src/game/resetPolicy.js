@@ -40,6 +40,8 @@ export const STORY_RUN_RESET_POLICY = Object.freeze({
     'trainStageExposures',
     'wordMatchingProgressVersion',
     'wordMatchingProgress',
+    'storyLearningVersion',
+    'storyLearningEvidence',
     'cefrEvidenceVersion',
     'cefrEvidence',
     'cefrPreparationVersion',

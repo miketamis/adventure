@@ -21,6 +21,7 @@ const DebugLearningSaveStatus = lazy(() => import('./DebugLearningSaveStatus.jsx
 const DebugLearningEvidenceInspector = lazy(() => import('./DebugLearningEvidenceInspector.jsx'))
 const DebugLearningActivityCoverage = lazy(() => import('./DebugLearningActivityCoverage.jsx'))
 const DebugCefrProgression = lazy(() => import('./DebugCefrProgression.jsx'))
+const DebugStoryLearning = lazy(() => import('./DebugStoryLearning.jsx'))
 const DebugAuthoringLab = lazy(() => import('./DebugAuthoringLab.jsx'))
 const DebugPerformance = lazy(() => import('./DebugPerformance.jsx'))
 
@@ -1681,6 +1682,7 @@ export default function DebugView({ state, dispatch }) {
       {sub === 'cefr' && (
         <Suspense fallback={<p className="dbg-note" role="status">Loading CEFR progression…</p>}>
           <DebugCefrProgression state={state} />
+          <DebugStoryLearning state={state} />
         </Suspense>
       )}
       {sub === 'performance' && (

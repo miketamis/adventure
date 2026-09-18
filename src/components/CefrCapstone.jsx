@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { playPhrase } from '../game/audio.js'
+import { evaluateControlledSelections } from '../game/controlledResponses.js'
 import {
+  canAnswerReceptionTask,
   cefrFamilyReachability,
+  cefrListeningCompletionFor,
   cefrModeProgress,
   cefrProfile,
+  cefrReceptionStimulusKey,
   combineOpenResponseTurns,
   nextCefrTask,
   openResponseMetrics,
@@ -142,10 +146,12 @@ function ReceptionTask({ task, onComplete }) {
   const [submitted, setSubmitted] = useState(false)
   const [plays, setPlays] = useState(0)
   const [playing, setPlaying] = useState(false)
+  const [listeningCompletion, setListeningCompletion] = useState(null)
   const [audioError, setAudioError] = useState('')
   const mountedRef = useRef(true)
   const replayLimit = task.stimulus.replayPolicy === 'up-to-three' ? 3 : 2
-  const allAnswered = task.questions.every(({ id }) => typeof answers[id] === 'string')
+  const selection = evaluateControlledSelections(task.questions, answers)
+  const canAnswer = canAnswerReceptionTask(task, listeningCompletion)
 
   useEffect(() => {
     mountedRef.current = true
@@ -153,8 +159,9 @@ function ReceptionTask({ task, onComplete }) {
   }, [])
 
   const submit = () => {
-    if (!allAnswered || submitted) return
-    const evidence = receptionEvidenceFor(task, answers)
+    if (!selection.valid || !canAnswer || playing || submitted) return
+    const evidence = receptionEvidenceFor(task, answers, { listeningCompletion })
+    if (evidence.length !== task.questions.length) return
     setSubmitted(true)
     onComplete(evidence, evidence.every(({ correct }) => correct))
   }
@@ -174,7 +181,10 @@ function ReceptionTask({ task, onComplete }) {
               const completed = await playPhrase(task.stimulus.scriptSq)
               if (!mountedRef.current) return
               setPlaying(false)
-              if (completed) setPlays((count) => count + 1)
+              if (completed === true) {
+                setListeningCompletion(cefrListeningCompletionFor(task, completed))
+                setPlays((count) => count + 1)
+              }
               else setAudioError('The message did not finish. Check sound, then play it again; failed playback does not use a play.')
             }}
             aria-label={`Play ${task.voice.character}'s message. ${replayLimit - plays} plays remain.`}
@@ -188,9 +198,9 @@ function ReceptionTask({ task, onComplete }) {
         <blockquote className="cefr-written-stimulus" lang="sq">{task.stimulus.textSq}</blockquote>
       )}
 
-      <div className="cefr-reception-questions">
+      {canAnswer && <div className="cefr-reception-questions">
         {task.questions.map((question, index) => (
-          <fieldset key={question.id} disabled={submitted}>
+          <fieldset key={question.id} disabled={playing || submitted}>
             <legend>{index + 1}. {question.prompt}</legend>
             <div className="cefr-choice-grid">
               {question.choices.map((choice) => {
@@ -203,7 +213,10 @@ function ReceptionTask({ task, onComplete }) {
                       name={question.id}
                       value={choice.id}
                       checked={picked}
-                      onChange={() => setAnswers((current) => ({ ...current, [question.id]: choice.id }))}
+                      onChange={() => {
+                        if (!canAnswer || playing || submitted) return
+                        setAnswers((current) => ({ ...current, [question.id]: choice.id }))
+                      }}
                     />
                     <span lang="sq">{choice.labelSq}</span>
                   </label>
@@ -212,13 +225,14 @@ function ReceptionTask({ task, onComplete }) {
             </div>
           </fieldset>
         ))}
-      </div>
-      <button type="button" className="btn primary cefr-submit" disabled={!allAnswered || submitted} onClick={submit}>
+      </div>}
+      {!canAnswer && <p role="status">Listen to the complete message to open its questions.</p>}
+      <button type="button" className="btn primary cefr-submit" disabled={!selection.valid || !canAnswer || playing || submitted} onClick={submit}>
         Commit this decision
       </button>
       {submitted && (
         <p className="cefr-result" role="status">
-          {task.questions.every((question) => question.acceptedChoiceIds.includes(answers[question.id]))
+          {selection.correct
             ? '✓ You recovered every needed fact from this new message.'
             : 'This message needs another visit. The marked Albanian choice shows the missed fact; the transcript stays hidden.'}
         </p>
@@ -745,7 +759,7 @@ export default function CefrCapstone({ state, dispatch, onClose }) {
 
   if (task) {
     const response = RECEPTION_MODES.has(task.mode)
-      ? <ReceptionTask key={task.id} task={task} onComplete={complete} />
+      ? <ReceptionTask key={cefrReceptionStimulusKey(task)} task={task} onComplete={complete} />
       : SPOKEN_MODES.has(task.mode)
         ? <SpeechTask key={task.id} task={task} onComplete={complete} />
         : <OpenResponseTask key={task.id} task={task} onComplete={complete} />

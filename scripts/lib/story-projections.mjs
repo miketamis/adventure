@@ -15,6 +15,8 @@ import {
   canAfford,
   canChoose,
   canSpeak,
+  choiceLanguageAvailability,
+  storyLearningTaskForState,
   currentStoryState,
   effectAvailabilityForOption,
   environmentSnapshot,
@@ -359,6 +361,19 @@ export function seedOptionProjection(input, option) {
     } else seedCondition(state, id, false)
   }
   seedInventoryEffects(state, option)
+  if (option.learningEncounter) {
+    const sourceEntries = STORY[state.nodeId]?.text.filter((entry) =>
+      lineOf(entry)?.storyLearningSource?.encounterId === option.learningEncounter) || []
+    // Use one speaker variant and every distinct source clause. Required
+    // conversation state comes from its authored condition, never a task mock.
+    const chosenSources = sourceEntries.filter((entry) => !list(entry.cond).some((id) => id.startsWith('knows:')))
+    for (const entry of chosenSources) {
+      if (!Array.isArray(entry)) {
+        for (const id of list(entry.cond)) seedCondition(state, id, !entry.negate)
+        for (const id of list(entry.none)) seedCondition(state, id, false)
+      }
+    }
+  }
 
   const node = STORY[state.nodeId]
   const reveal = option.reveal
@@ -446,8 +461,10 @@ function candidateBlockers(state, option, node, reveal) {
   if (present.length) blockers.push(`present exclusions: ${present.join(', ')}`)
 
   const speech = canSpeak(projected, option.text)
-  if (!speech.allDiscovered) blockers.push(`undiscovered choice senses: ${speech.ids.filter((id) => !projected.discovered[id]).join(', ')}`)
-  if (!speech.enoughMana) blockers.push(`insufficient choice tokens: ${speech.ids.filter((id) => (projected.mana[id] || 0) < 1).join(', ')}`)
+  const language = choiceLanguageAvailability(projected, option)
+  if (language.kind === 'encounter' && !language.ok) blockers.push(`story encounter unavailable: ${language.reason}`)
+  if (language.kind === 'lexical' && !speech.allDiscovered) blockers.push(`undiscovered choice senses: ${speech.ids.filter((id) => !projected.discovered[id]).join(', ')}`)
+  if (language.kind === 'lexical' && !speech.enoughMana) blockers.push(`insufficient choice tokens: ${speech.ids.filter((id) => (projected.mana[id] || 0) < 1).join(', ')}`)
   if (!optionTimingIsValid(option)) blockers.push('invalid timing metadata')
   if (!optionNpcStartsAreValid(option)) blockers.push('invalid startsNpc metadata')
   if (!canAfford(projected, option)) blockers.push('canonical money gate rejects the choice')
@@ -489,14 +506,15 @@ function findFeasibleOptionProjection(nodeId, option, {
     for (const id of reveal.required) seedConditionAtClock(candidate, id, true, clock)
     for (const id of reveal.excluded) seedConditionAtClock(candidate, id, false, clock)
 
-    for (const variant of portraitStateVariants(candidate)) {
+    for (const rawVariant of portraitStateVariants(candidate)) {
+      const variant = completeProjectedStoryEncounter(rawVariant, option)
       const projected = currentStoryState(variant)
       const renderedLines = renderedStoryLines(variant)
       const blockers = candidateBlockers(variant, option, node, reveal)
       if (!blockers.length &&
           isOptionRevealed(projected, option, node, renderedLines) &&
           hasRequiredItem(projected, option) &&
-          canSpeak(projected, option.text).ok &&
+          choiceLanguageAvailability(projected, option).ok &&
           canChoose(projected, option) &&
           embodimentOptionAccess(projected, option, STORY[option.to]).ok) {
         return { state: variant, failure: null }
@@ -526,6 +544,24 @@ export function feasibleOptionProjection(nodeId, option, {
   extraState = {},
 } = {}) {
   return findFeasibleOptionProjection(nodeId, option, { maximumHours, extraState }).state
+}
+
+// Audit setup goes through the exact production attempt evaluator. It never
+// injects a permission, grants independent evidence or fabricates audio.
+export function completeProjectedStoryEncounter(input, option) {
+  if (!option?.learningEncounter) return input
+  let state = input
+  let task = storyLearningTaskForState(state, option.learningEncounter)
+  if (!task?.availability.ok) return state
+  const source = { encounterId: task.id, fromNodeId: state.nodeId,
+    fromTurn: state.turn, fromRun: state.storyRunSequence }
+  state = reducer(state, { type: 'BEGIN_STORY_LEARNING', ...source, supportId: 'word-help' })
+  task = storyLearningTaskForState(state, task.id)
+  if (!task?.episode || task.episode.phase === 'complete') return state
+  state = reducer(state, { type: 'SUBMIT_STORY_LEARNING', ...source,
+    attemptId: task.episode.attemptId,
+    response: { selections: Object.fromEntries(task.questions.map((q) => [q.id, q.acceptedChoiceIds[0]])) } })
+  return state
 }
 
 function requestAndConfirmEmbodiment(state, option) {
@@ -593,9 +629,10 @@ export function visibleProjection(state) {
         vocabularyReady.mana[id] = Math.max(99, vocabularyReady.mana[id] || 0)
       }
     }
-    return isOptionRevealed(vocabularyReady, option, node, lines)
-      && hasRequiredItem(vocabularyReady, option)
-      && canChoose(vocabularyReady, option)
+    const languageReady = completeProjectedStoryEncounter(vocabularyReady, option)
+    return isOptionRevealed(languageReady, option, node, lines)
+      && hasRequiredItem(languageReady, option)
+      && canChoose(languageReady, option)
       && embodimentOptionAccess(vocabularyReady, option, STORY[option.to]).ok
   })
   return Object.freeze({ state: projected, lines: Object.freeze(lines), entries: Object.freeze(entries), options: Object.freeze(options) })

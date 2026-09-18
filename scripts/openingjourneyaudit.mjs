@@ -16,6 +16,7 @@ import {
 import { englishReadingOf } from '../src/game/language.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
+import { completeProjectedStoryEncounter } from './lib/story-projections.mjs'
 import {
   ELIRA_BREAD_SALT_QUEST_ID,
   offerQuests,
@@ -54,7 +55,7 @@ const choose = (state, to, predicate = () => true) => {
   const option = STORY[state.nodeId].options.find((candidate) =>
     !candidate.confuser && candidate.to === to && predicate(candidate) && hasRequiredItem(state, candidate))
   assert.ok(option, `${state.nodeId}: no available real option to ${to}`)
-  const playable = ready(state, option)
+  const playable = completeProjectedStoryEncounter(ready(state, option), option)
   const next = reducer(playable, {
     type: 'CHOOSE', option, fromNodeId: playable.nodeId, fromTurn: playable.turn,
   })

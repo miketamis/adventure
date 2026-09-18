@@ -189,6 +189,41 @@ check('gist precedes detail and detail stays gated by a gist response', () => {
   }
 })
 
+check('controlled maps require every exact own slot and reject forged or inherited selections', () => {
+  const bindings = {
+    'slot-selection': ['selections', 'correctSelections'],
+    'fact-map': ['byPrompt', 'correctByPrompt'],
+    'connector-map': ['bySentence', 'correctBySentence'],
+    'relay-and-agree': ['byStep', 'correctByStep'],
+  }
+  for (const entry of CEFR_PREPARATION_ACTIVITIES) {
+    const binding = bindings[entry.response.kind]
+    if (!binding && entry.response.kind !== 'ordered-rounds') continue
+    const key = binding?.[0] || 'byRound'
+    const selections = binding
+      ? { ...entry.response[binding[1]] }
+      : Object.fromEntries(entry.response.requiredRoundIds.map((id) => [id,
+        entry.rounds.find((round) => round.id === id).correctOptionId]))
+    const [first] = Object.keys(selections)
+    assert.equal(evaluatePreparationResponse(entry.id, { [key]: selections }).passed, true, entry.id)
+    const missing = { ...selections }
+    delete missing[first]
+    let getterReads = 0
+    const accessor = Object.defineProperty({ ...selections }, first, {
+      get: () => { getterReads += 1; return selections[first] },
+    })
+    for (const malformed of [null, [], missing, Object.create(selections),
+      { ...selections, unknown: 'extra' }, { ...selections, [first]: 'forged-choice' },
+      { ...selections, [Symbol('extra')]: 'extra' }, accessor]) {
+      assert.equal(evaluatePreparationResponse(entry.id, { [key]: malformed }).passed, false,
+        `${entry.id}: malformed map passed`)
+    }
+    assert.equal(getterReads, 0, `${entry.id}: response getter was invoked`)
+    assert.equal(evaluatePreparationResponse(entry.id, Object.create({ [key]: selections })).passed, false,
+      `${entry.id}: inherited response envelope passed`)
+  }
+})
+
 check('record/replay/retry is local, non-persistent and makes no pronunciation inference', () => {
   const tasks = CEFR_PREPARATION_ACTIVITIES.filter(({ kind }) => kind === 'local-audio-cycle')
   assert.ok(tasks.some(({ level }) => level === 'A1'))

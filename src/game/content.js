@@ -243,6 +243,13 @@ export const again = (line) => ({ cond: 'again', line })
 export const until = (nodeIds, line) => ({ cond: [].concat(nodeIds).map((n) => 'visited:' + n), negate: true, line })
 export const lineOf = (entry) => (Array.isArray(entry) ? entry : entry.line)
 
+// Stable source identities belong to the authored sentences, including their
+// conditional speaker variants. Runtime tasks match these exact live arrays.
+const learningSource = (encounterId, sourceId, entry) => {
+  Object.assign(lineOf(entry), { storyLearningSource: Object.freeze({ encounterId, sourceId }) })
+  return entry
+}
+
 // Money changes are authored on the choice that causes them, not as a fixed
 // sentence on the destination. The renderer can therefore join the exact
 // transaction to the player's resulting purse balance, including after a
@@ -283,7 +290,7 @@ const numberTokens = (amount) => {
   return ids.split(' ').map(w)
 }
 
-const lekTokens = (amount) => [...numberTokens(amount), wf('lek', 'lekë', 'lek')]
+export const lekTokens = (amount) => [...numberTokens(amount), wf('lek', 'lekë', 'lek')]
 
 const moneyOutcome = (reading, ...tokens) => R(reading, ...tokens)
 const earnedRewardOutcome = (earningActionId, witnesses, reading, ...tokens) => Object.assign(
@@ -1115,12 +1122,13 @@ export const STORY = {
   bisedaKroi: {
     id: 'bisedaKroi',
     text: [
-      npcIdentityLine('elira', false, R('The woman asks, “Shall we meet tomorrow at nine, in the square?”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?'))),
-      npcIdentityLine('elira', true, R('Elira asks, “Shall we meet tomorrow at nine, in the square?”', w('elira'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?'))),
+      learningSource('elira-later-meeting', 'proposal-unknown', npcIdentityLine('elira', false, R('The woman asks, “Shall we meet tomorrow at nine, in the square?”', wf('grua', 'gruaja', 'the woman'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?')))),
+      learningSource('elira-later-meeting', 'proposal-known', npcIdentityLine('elira', true, R('Elira asks, “Shall we meet tomorrow at nine, in the square?”', w('elira'), w('pyet'), p(':'), wf('takohem', 'takohemi', 'shall we meet'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('?')))),
     ],
     options: [
       {
         text: R('Yes. Tomorrow at nine in the square.', w('po_yes'), p('.'), w('neser'), wf('ne', 'në', 'at'), wf('ore', 'orën', 'the hour'), w('nente'), wf('ne', 'në', 'in'), w('shesh'), p('.')),
+        learningEncounter: 'elira-later-meeting',
         speechAct: 'answer',
         effects: [{ type: 'flag', id: 'eliraDeparted' }, { type: 'flag', id: 'eliraMeetingPlan' }],
         startsNpc: 'elira',
@@ -1404,8 +1412,8 @@ export const STORY = {
       when('weather:rain', ambient(describesEnvironment('weather', R('Rain taps the guest-room window during the meal.', wf('shi', 'Shiu', 'the rain'), w('troket'), wf('ne', 'në', 'on'), wf('dritare', 'dritaren', 'the window'), w('e_link'), wf('oda', 'odës', 'the guest-room'), w('gjate'), wf('ushqim', 'ushqimit', 'the meal'), p('.'))), 'env:sofraMikut2:rain')),
       npcIdentityLine('elira', false, R('The woman serves bread and salt, and the traveller eats.', wf('grua', 'gruaja', 'the woman'), w('jep'), w('buke'), w('dhe'), w('kripe'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('ha'), p('.'))),
       npcIdentityLine('elira', true, R('Elira serves bread and salt, and the traveller eats.', w('elira'), w('jep'), w('buke'), w('dhe'), w('kripe'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('ha'), p('.'))),
-      npcIdentityLine('gjonMik', false, R('The traveller asks, “Give me the bread, please.”', wf('udhetar', 'udhëtari', 'the traveller'), w('pyet'), p(':'), w('me_obj'), w('jep'), wf('buke', 'bukën', 'the bread'), p(','), w('lutem'), p('.')), { excluded: 'flag:gaveGuestBread' }),
-      npcIdentityLine('gjonMik', true, R('Gjon asks, “Give me the bread, please.”', w('gjon'), w('pyet'), p(':'), w('me_obj'), w('jep'), wf('buke', 'bukën', 'the bread'), p(','), w('lutem'), p('.')), { excluded: 'flag:gaveGuestBread' }),
+      learningSource('guest-bread-request', 'request-unknown', npcIdentityLine('gjonMik', false, R('The traveller asks, “Give me the bread, please.”', wf('udhetar', 'udhëtari', 'the traveller'), w('pyet'), p(':'), w('me_obj'), w('jep'), wf('buke', 'bukën', 'the bread'), p(','), w('lutem'), p('.')), { excluded: 'flag:gaveGuestBread' })),
+      learningSource('guest-bread-request', 'request-known', npcIdentityLine('gjonMik', true, R('Gjon asks, “Give me the bread, please.”', w('gjon'), w('pyet'), p(':'), w('me_obj'), w('jep'), wf('buke', 'bukën', 'the bread'), p(','), w('lutem'), p('.')), { excluded: 'flag:gaveGuestBread' })),
       conversationResponseLine(GUEST_MEAL_CONVERSATION, 'mealWish', npcIdentityLine('gjonMik', false, R('The traveller says, “Thank you, everyone!”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('faleminderit'), w('gjitheve'), p('!')))),
       conversationResponseLine(GUEST_MEAL_CONVERSATION, 'mealWish', npcIdentityLine('gjonMik', true, R('Gjon says, “Thank you, everyone!”', w('gjon'), w('thote'), p(':'), w('faleminderit'), w('gjitheve'), p('!')))),
       conversationResponseLine(GUEST_MEAL_CONVERSATION, 'nameOrigin', R('He says, “My name is Gjon. I am from Gjakova.”', w('ai'), w('thote'), p(':'), w('quhem'), w('gjon'), p('.'), w('jam'), w('nga'), wf('gjakove', 'Gjakova', 'Gjakova'), p('.'))),
@@ -1420,11 +1428,11 @@ export const STORY = {
       conversationResponseLine(GUEST_MEAL_CONVERSATION, 'journey', npcIdentityLine('gjonMik', false, R('The traveller says, “Yesterday it was raining. It was cold. Last night I was worried. Now I am tired, but I am well.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('dje'), wf('bie', 'binte', 'was raining'), w('shi'), p('.'), wf('eshte', 'ishte', 'was'), w('ftohte'), p('.'), w('mbreme'), wf('eshte', 'isha', 'I was'), w('i_art'), wf('shqetesohem', 'shqetësuar', 'worried'), p('.'), w('tani'), w('jam'), w('i_art'), w('lodhur'), p(','), w('por'), w('jam'), w('mire'), p('.')))),
       conversationResponseLine(GUEST_MEAL_CONVERSATION, 'journey', npcIdentityLine('gjonMik', true, R('Gjon says, “Yesterday it was raining. It was cold. Last night I was worried. Now I am tired, but I am well.”', w('gjon'), w('thote'), p(':'), w('dje'), wf('bie', 'binte', 'was raining'), w('shi'), p('.'), wf('eshte', 'ishte', 'was'), w('ftohte'), p('.'), w('mbreme'), wf('eshte', 'isha', 'I was'), w('i_art'), wf('shqetesohem', 'shqetësuar', 'worried'), p('.'), w('tani'), w('jam'), w('i_art'), w('lodhur'), p(','), w('por'), w('jam'), w('mire'), p('.')))),
       conversationResponseLine(GUEST_MEAL_CONVERSATION, 'journey', R('Elira says, “I am sorry. Are you well?”', w('elira'), w('thote'), p(':'), w('me_obj'), w('vjen'), w('keq'), p('.'), w('a_q'), w('je'), w('mire'), p('?'))),
-      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', npcIdentityLine('gjonMik', false, R('The traveller says, “I have news. There is a problem. On the road I heard that the Kulshedra has seized the water.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('lajm'), p('.'), w('ka'), w('nje'), w('problem'), p('.'), wf('ne', 'në', 'on'), w('rruge'), wf('degjo', 'dëgjova', 'heard'), w('se'), wf('kulshedra', 'Kulshedra', 'the she-dragon'), w('e_obj'), w('ka'), wf('kap', 'zënë', 'seized'), wf('uje', 'ujin', 'the water'), p('.')))),
-      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', npcIdentityLine('gjonMik', true, R('Gjon says, “I have news. There is a problem. On the road I heard that the Kulshedra has seized the water.”', w('gjon'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('lajm'), p('.'), w('ka'), w('nje'), w('problem'), p('.'), wf('ne', 'në', 'on'), w('rruge'), wf('degjo', 'dëgjova', 'heard'), w('se'), wf('kulshedra', 'Kulshedra', 'the she-dragon'), w('e_obj'), w('ka'), wf('kap', 'zënë', 'seized'), wf('uje', 'ujin', 'the water'), p('.')))),
-      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', R('Elira asks, “Really? Then? Tell me what happened.” The traveller says the old woman knows more.', w('elira'), w('pyet'), p(':'), w('vertet'), p('?'), w('pastaj'), p('?'), w('me_obj'), wf('tregoj', 'trego', 'tell'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), wf('plake', 'plaka', 'the old woman'), w('e_link'), wf('fshat', 'fshatit', 'the village'), w('di'), w('me_more'), w('shume'), p('.'))),
-      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', R('Elira says, “I understand, but I am afraid. I do not believe it.” The traveller says, “I think you must go to the dry well.”', w('elira'), w('thote'), p(':'), w('e_obj'), w('kuptoj'), p(','), w('por'), wf('ka', 'kam', 'have'), w('frike'), p('.'), w('nuk'), w('e_obj'), wf('beso', 'besoj', 'believe'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('mendoj'), w('se'), w('duhet'), w('te_subj'), wf('shko', 'shkosh', 'go'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.'))),
-      conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', R('Elira says, “This is terrible. In this case, ask the old woman first: may I enter?” Then they ask, “What do you think? Be careful!”', w('elira'), w('thote'), p(':'), w('kjo'), w('eshte'), w('e_art'), wf('tmerrshem', 'tmerrshme', 'terrible'), p('.'), wf('ne', 'në', 'in'), wf('ky', 'këtë', 'this'), w('rast'), p(','), w('pyet'), wf('plake', 'plakën', 'the old woman'), w('mepare'), p(':'), w('a_q'), w('mund'), w('te_subj'), wf('hyr', 'hyj', 'enter'), p('?'), w('pastaj'), w('ata'), w('te_obj'), wf('pyet', 'pyesin', 'ask'), p(':'), w('cfare'), wf('mendoj', 'mendon', 'think'), p('?'), wf('ke', 'ki', 'have'), w('kujdes'), p('!'))),
+      learningSource('guest-water-news', 'news-unknown', conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', npcIdentityLine('gjonMik', false, R('The traveller says, “I have news. There is a problem. On the road I heard that the Kulshedra has seized the water.”', wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('lajm'), p('.'), w('ka'), w('nje'), w('problem'), p('.'), wf('ne', 'në', 'on'), w('rruge'), wf('degjo', 'dëgjova', 'heard'), w('se'), wf('kulshedra', 'Kulshedra', 'the she-dragon'), w('e_obj'), w('ka'), wf('kap', 'zënë', 'seized'), wf('uje', 'ujin', 'the water'), p('.'))))),
+      learningSource('guest-water-news', 'news-known', conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', npcIdentityLine('gjonMik', true, R('Gjon says, “I have news. There is a problem. On the road I heard that the Kulshedra has seized the water.”', w('gjon'), w('thote'), p(':'), wf('ka', 'kam', 'have'), w('nje'), w('lajm'), p('.'), w('ka'), w('nje'), w('problem'), p('.'), wf('ne', 'në', 'on'), w('rruge'), wf('degjo', 'dëgjova', 'heard'), w('se'), wf('kulshedra', 'Kulshedra', 'the she-dragon'), w('e_obj'), w('ka'), wf('kap', 'zënë', 'seized'), wf('uje', 'ujin', 'the water'), p('.'))))),
+      learningSource('guest-water-news', 'elder-knows', conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', R('Elira asks, “Really? Then? Tell me what happened.” The traveller says the old woman knows more.', w('elira'), w('pyet'), p(':'), w('vertet'), p('?'), w('pastaj'), p('?'), w('me_obj'), wf('tregoj', 'trego', 'tell'), w('cfare'), wf('ndodh', 'ndodhi', 'happened'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), wf('plake', 'plaka', 'the old woman'), w('e_link'), wf('fshat', 'fshatit', 'the village'), w('di'), w('me_more'), w('shume'), p('.')))),
+      learningSource('guest-water-news', 'traveller-advice', conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', R('Elira says, “I understand, but I am afraid. I do not believe it.” The traveller says, “I think you must go to the dry well.”', w('elira'), w('thote'), p(':'), w('e_obj'), w('kuptoj'), p(','), w('por'), wf('ka', 'kam', 'have'), w('frike'), p('.'), w('nuk'), w('e_obj'), wf('beso', 'besoj', 'believe'), p('.'), wf('udhetar', 'udhëtari', 'the traveller'), w('thote'), p(':'), w('mendoj'), w('se'), w('duhet'), w('te_subj'), wf('shko', 'shkosh', 'go'), wf('tek', 'te', 'to'), wf('pus', 'pusi', 'the well'), w('i_art'), w('thate'), p('.')))),
+      learningSource('guest-water-news', 'elira-advice', conversationResponseLine(GUEST_MEAL_CONVERSATION, 'news', R('Elira says, “This is terrible. In this case, ask the old woman first: may I enter?” Then they ask, “What do you think? Be careful!”', w('elira'), w('thote'), p(':'), w('kjo'), w('eshte'), w('e_art'), wf('tmerrshem', 'tmerrshme', 'terrible'), p('.'), wf('ne', 'në', 'in'), wf('ky', 'këtë', 'this'), w('rast'), p(','), w('pyet'), wf('plake', 'plakën', 'the old woman'), w('mepare'), p(':'), w('a_q'), w('mund'), w('te_subj'), wf('hyr', 'hyj', 'enter'), p('?'), w('pastaj'), w('ata'), w('te_obj'), wf('pyet', 'pyesin', 'ask'), p(':'), w('cfare'), wf('mendoj', 'mendon', 'think'), p('?'), wf('ke', 'ki', 'have'), w('kujdes'), p('!')))),
     ],
     options: [
       conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'mealWish', R('Wish him a good meal.', w('te_obj'), wf('bej', 'bëftë', 'do'), w('mire'), p('!'))),
@@ -1434,10 +1442,10 @@ export const STORY = {
       conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'work', R('Ask, “What work do you do?”', w('cfare'), wf('pune', 'pune', 'work'), wf('bej', 'bën', 'do'), p('?'))),
       conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'family', R('Ask, “How is your family?”', w('si'), w('eshte'), wf('familje', 'familja', 'the family'), wf('yt', 'jote', 'your'), p('?'))),
       conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'journey', R('Ask, “How was your journey?”', w('si'), w('te_obj'), wf('shko', 'shkoi', 'went'), wf('rruge', 'rruga', 'the road'), p('?'))),
-      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'news', R('Ask, “Do you have any news?”', w('a_q'), w('ke'), w('ndonje'), w('lajm'), p('?'))),
-      { text: R('I do not agree. I think we should ask the old woman.', w('nuk'), w('jam'), w('dakord'), p('.'), w('mendoj'), w('se'), w('duhet'), w('te_subj'), wf('pyet', 'pyesim', 'ask'), wf('plake', 'plakën', 'the old woman'), p('.')), speechAct: 'say', requires: GUEST_MEAL_CONVERSATION.questions.news.askedCondition, reveal: 'plake', revealOccurrence: 1, intent: 'speech', playerIntents: ['speech'], to: 'sofraVendimPlaka', durationHours: 0 },
-      { text: R('Yes, I agree.', w('po_yes'), p(','), w('jam'), w('dakord'), p('.')), speechAct: 'answer', requires: GUEST_MEAL_CONVERSATION.questions.news.askedCondition, intent: 'speech', playerIntents: ['speech'], to: 'sofraVendimPusi', durationHours: 0 },
-      { text: R('Yes, take it.', w('po_yes'), p(','), wf('merr', 'merre', 'take it'), p('.')), speechAct: 'answer', intent: 'speech', playerIntents: ['speech'], unless: 'flag:gaveGuestBread', effects: [{ type: 'flag', id: 'gaveGuestBread' }], to: 'sofraMikut2', durationHours: 0 },
+      conversationQuestionOption(GUEST_MEAL_CONVERSATION, 'news', R('Ask, “Do you have any news?”', w('a_q'), w('ke'), w('ndonje'), w('lajm'), p('?')), { repeatAfterOtherTopic: true }),
+      { learningEncounter: 'guest-water-news', text: R('I do not agree. I think we should ask the old woman.', w('nuk'), w('jam'), w('dakord'), p('.'), w('mendoj'), w('se'), w('duhet'), w('te_subj'), wf('pyet', 'pyesim', 'ask'), wf('plake', 'plakën', 'the old woman'), p('.')), speechAct: 'say', requires: GUEST_MEAL_CONVERSATION.questions.news.askedCondition, reveal: 'plake', revealOccurrence: 1, intent: 'speech', playerIntents: ['speech'], to: 'sofraVendimPlaka', durationHours: 0 },
+      { learningEncounter: 'guest-water-news', text: R('Yes, I agree.', w('po_yes'), p(','), w('jam'), w('dakord'), p('.')), speechAct: 'answer', requires: GUEST_MEAL_CONVERSATION.questions.news.askedCondition, intent: 'speech', playerIntents: ['speech'], to: 'sofraVendimPusi', durationHours: 0 },
+      { learningEncounter: 'guest-bread-request', text: R('Yes, take it.', w('po_yes'), p(','), wf('merr', 'merre', 'take it'), p('.')), speechAct: 'answer', intent: 'speech', playerIntents: ['speech'], unless: 'flag:gaveGuestBread', effects: [{ type: 'flag', id: 'gaveGuestBread' }], to: 'sofraMikut2', durationHours: 0 },
       conversationExitOption(GUEST_MEAL_CONVERSATION, R('Leave the guest-room.', w('dil'), w('nga'), wf('oda', 'oda', 'the guest-room'), p('.')), { durationHours: 1, intent: 'movement', playerIntents: ['movement'] }),
     ],
   },
@@ -4219,7 +4227,7 @@ export const STORY = {
       when('greeting:night', describesEnvironment('time', L(w('mirembrema'), p('!')))),
       L(w('si'), wf('je', 'jeni', 'are'), p('?'), w('cfare'), wf('deshiron', 'dëshironi', 'would you like'), p('?')),
       L(w('une'), w('shes'), w('mish'), p(','), w('peshk'), p(','), w('perime'), p('.'), w('gjithashtu'), w('shes'), w('gjalpe'), p('.'), wf('mish', 'mishi', 'the meat'), w('eshte'), w('i_art'), w('shtrenjte'), p(','), wf('perime', 'perimet', 'the vegetables'), wf('jam', 'janë', 'are'), w('te_link'), wf('lire', 'lira', 'cheap'), p('.')),
-      L(w('nje'), w('buke'), w('kushton'), ...lekTokens(BREAD_PRICE), p('.')),
+      learningSource('market-bread-price', 'bread-price', L(w('nje'), w('buke'), w('kushton'), ...lekTokens(BREAD_PRICE), p('.'))),
       L(w('sa'), w('kushton'), w('nje'), w('caj'), p('?'), w('nje'), w('caj'), p(','), ...lekTokens(TEA_PRICE), p('.')),
       L(w('nje'), w('birre'), p(','), ...lekTokens(BEER_PRICE), p('.'), w('kripe'), p(','), ...lekTokens(SALT_PRICE), p('.')),
       // the how-to-buy demo is a first-meeting lesson; the stall stays a stall
@@ -4231,7 +4239,7 @@ export const STORY = {
       greetingFarewellHintLine(),
     ],
     options: [
-      { text: L(w('blej'), w('buke')), lek: -BREAD_PRICE, moneyOutcome: BREAD_PURCHASE_MONEY_OUTCOME, grant: 'buke', to: 'blerjaBuke', reveal: 'buke' },
+      { learningEncounter: 'market-bread-price', text: L(w('blej'), w('buke')), lek: -BREAD_PRICE, moneyOutcome: BREAD_PURCHASE_MONEY_OUTCOME, grant: 'buke', to: 'blerjaBuke', reveal: 'buke' },
       { text: L(w('blej'), w('kripe')), lek: -SALT_PRICE, moneyOutcome: SALT_PURCHASE_MONEY_OUTCOME, grant: 'kripe', to: 'blerjaKripe', reveal: 'kripe' },
       { text: L(w('shes'), w('caj')), requires: 'cajMali', consumes: 'cajMali', earns: 'tea-sale', lek: TEA_BUNDLE_PRICE, moneyOutcome: TEA_SALE_MONEY_OUTCOME, to: 'shitjaCaj', reveal: 'caj' },
       { text: L(w('hyr'), wf('ne', 'në', 'in'), w('dyqan')), to: 'tregtari2', reveal: 'dyqan' },

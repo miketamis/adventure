@@ -10,6 +10,7 @@ import {
   cefrProfile,
   performanceEvidenceFor,
   receptionEvidenceFor,
+  cefrListeningCompletionFor,
 } from '../src/game/cefrAssessment.js'
 import {
   CEFR_PREPARATION_ACTIVITIES,
@@ -354,7 +355,7 @@ const completeCapstoneLevel = (initial, level) => {
   for (const task of CEFR_TASKS.filter((entry) => entry.level === level)) {
     const evidence = ['listening', 'reading'].includes(task.mode)
       ? receptionEvidenceFor(task, Object.fromEntries(task.questions.map((question) =>
-        [question.id, question.acceptedChoiceIds[0]])))
+        [question.id, question.acceptedChoiceIds[0]])), { listeningCompletion: cefrListeningCompletionFor(task, true) })
       : performanceEvidenceFor(task, {
         taskFulfilment: 3,
         comprehensibility: 3,
