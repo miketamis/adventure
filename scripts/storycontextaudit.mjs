@@ -1,3 +1,5 @@
+import { checkCoastContinuity } from './lib/coast-continuity-tests.mjs'
+import { checkWaterDialogue } from './lib/water-dialogue-tests.mjs'
 // Release contract for moving player state out of the permanent HUD and into
 // ordinary Albanian story prose, including phase-sensitive greeting choices.
 
@@ -45,6 +47,9 @@ const check = (name, fn) => {
     console.log(`✗ ${name}`)
   }
 }
+
+checkWaterDialogue(check)
+checkCoastContinuity(check)
 
 const periodClock = Object.freeze({ morning: 0, day: 6, evening: 12, night: 16 })
 const greetingScenes = Object.freeze({

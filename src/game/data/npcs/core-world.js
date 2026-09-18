@@ -2,6 +2,21 @@
 // One file per area/tale so parallel agents never collide.
 
 export default {
+  seaRoadTraveller: {
+    name: 'udhëtari i rrugës së detit', glyph: '🧳', kind: 'human',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'The same unnamed road companion walks from the old gate to the waystone; no personal name is introduced.',
+    },
+    role: 'the unnamed companion on the road from Gjakova toward the sea',
+    backstory: 'He speaks quickly outside the cavern, invites the player to the old gate, and pays for his own road ticket. When the player joins his departure, he walks ahead to the waystone, offers bread and water, and continues toward the sea. He is not Gjon, the named guest at the village table.',
+    folklore: ['hospitality'],
+    loreAnchor: {
+      folklore: 'hospitality', scene: 'lamtumira',
+      relationship: 'At the waystone he calls his short-lived walking companion a friend and offers bread and water before their roads part.',
+    },
+    location: { status: 'walking', route: ['udhaUdhetari', 'rrugaDetit', 'lamtumira'], encounters: ['qytetiUdhetar'] },
+  },
   // ── the wider world: placed figures ───────────────────────────────────────
   zana: {
     name: 'Zana e lumit', glyph: '🌙', kind: 'mythic',

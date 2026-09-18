@@ -103,7 +103,8 @@ const stripStoryAuditMetadata = (code, ast) => {
 
 const stripStoryReadings = (code, ast) => {
   const readingCalls = new Map()
-  const collectReadings = (node) => walkAst(node, (candidate) => {
+  const replacements = []
+  const collectReadings = (node, reviewedFactory = false) => walkAst(node, (candidate) => {
     const reading = candidate.arguments?.[0]
     const isStaticReading = (
       reading?.type === 'Literal' && typeof reading.value === 'string'
@@ -114,7 +115,7 @@ const stripStoryReadings = (code, ast) => {
       candidate.type === 'CallExpression' &&
       candidate.callee?.type === 'Identifier' &&
       candidate.callee.name === 'R' &&
-      isStaticReading
+      reading && (isStaticReading || reviewedFactory)
     ) readingCalls.set(candidate.start, candidate)
   })
 
@@ -149,6 +150,34 @@ const stripStoryReadings = (code, ast) => {
     ) collectReadings(candidate.init)
   })
 
+  // Only explicitly marked factories may defer computed English. Their calls
+  // materialize address-reviewed story lines during module construction;
+  // unmarked money/context builders still own their runtime readings.
+  walkAst(ast, (candidate) => {
+    if (candidate.type !== 'CallExpression' || candidate.callee?.name !== 'reviewedStoryLineFactory') return
+    const factory = candidate.arguments[0]
+    if (candidate.arguments.length !== 1 ||
+        !['ArrowFunctionExpression', 'FunctionExpression'].includes(factory?.type)) {
+      throw new Error('reviewedStoryLineFactory requires one explicit function')
+    }
+    collectReadings(factory.body, true)
+    // The marker is an authoring/build contract, not a runtime indirection.
+    replacements.push([candidate.start, factory.start, '('], [factory.end, candidate.end, ')'])
+  })
+
+  // Explicit node-keyed line maps are installed as reviewed confuser options.
+  // Only their static readings are deferred; the release gate resolves every
+  // removed reading to its exact installed option and exercises hydration.
+  walkAst(ast, (candidate) => {
+    if (candidate.type !== 'CallExpression' || candidate.callee?.name !== 'reviewedStoryLineMap') return
+    const lines = candidate.arguments[0]
+    if (candidate.arguments.length !== 1 || lines?.type !== 'ObjectExpression') {
+      throw new Error('reviewedStoryLineMap requires one explicit object')
+    }
+    collectReadings(lines)
+    replacements.push([candidate.start, lines.start, '('], [lines.end, candidate.end, ')'])
+  })
+
   // Reviewed text and static actions appended after the main object use the
   // same deferred corpora. Generated readings remain owned by their builders.
   walkAst(ast, (candidate) => {
@@ -162,10 +191,9 @@ const stripStoryReadings = (code, ast) => {
       container?.type === 'MemberExpression' &&
       ['text', 'options'].includes(astPropertyName(container.property)) &&
       root?.type === 'Identifier' && root.name === 'STORY'
-    ) candidate.arguments.forEach(collectReadings)
+    ) candidate.arguments.forEach((argument) => collectReadings(argument))
   })
 
-  const replacements = []
   for (const candidate of readingCalls.values()) {
     const reading = candidate.arguments[0]
     const firstToken = candidate.arguments[1]

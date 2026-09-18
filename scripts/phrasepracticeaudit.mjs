@@ -5,7 +5,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { DICT } from '../src/game/content.js'
 import { audioSlug } from '../src/game/audio.js'
-import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
+import { EVERYDAY_PHRASE_DRILLS, RETIRED_EVERYDAY_PHRASES } from '../src/game/everydayAlbanian.js'
 import { newRun, normalizeSavedState, reducer } from '../src/game/gameState.js'
 import { trainMissConsequence } from '../src/game/consequenceBuilders.js'
 import {
@@ -812,6 +812,74 @@ check('per-skill phrase tiers survive safe save normalization and clamp forged v
     },
   }, newRun())
   assert.equal(v2.phraseMastery[phrase.id], 2, 'reviewed v2 evidence did not survive normalization')
+})
+
+check('retired water-dialogue phrases preserve history without teaching or transferring proof', () => {
+  const replacements = new Map([['news-problem', 'have-news'], ['think-go-dry-well', 'think-go-well']])
+  assert.equal(new Set(RETIRED_EVERYDAY_PHRASES.map(({ id }) => id)).size, RETIRED_EVERYDAY_PHRASES.length)
+  for (const retired of RETIRED_EVERYDAY_PHRASES) {
+    assert.ok(!EVERYDAY_PHRASE_DRILLS.some(({ id }) => id === retired.id), `${retired.id}: retired drill is schedulable`)
+    assert.ok(retired.al && retired.requires.every((id) => DICT[id]), `${retired.id}: historical target scope is incomplete`)
+    const replacement = EVERYDAY_PHRASE_DRILLS.find(({ id }) => id === replacements.get(retired.id))
+    assert.ok(replacement, `${retired.id}: missing replacement`)
+    assert.notEqual(retired.al, replacement.al)
+    const focusIds = phraseProductionFocusIds(retired)
+    const temporal = { attempts: 5, correct: 4, lapses: 1, lastAttemptAtMs: 1000, lastCorrectAtMs: 900, dueAtMs: 5000 }
+    const saved = {
+      ...newRun(),
+      trainRound: 20,
+      discovered: Object.fromEntries([...retired.requires, 'problem', 'thate', 'lajm'].map((id) => [id, true])),
+      mana: { problem: 1, thate: 1, lajm: 5 }, practiced: { problem: 1, thate: 1, lajm: 5 },
+      wordProgress: { lajm: { wins: { 'meaning-recognition': 2 } } },
+      phrasePracticed: { [retired.id]: 10 }, phraseMistakes: { [retired.id]: 2 },
+      phraseProductionProgress: { [retired.id]: {
+        ...emptyPhraseProductionProgress(), clozeWins: 2, clozeProofs: focusIds,
+        arrangeWins: 1, spellingProofs: focusIds, independentWins: 1, strictWins: 2,
+        dueAfterRound: 25, lastAttemptRound: 18, lastAttemptKey: `${retired.id}:old-proof`,
+        remediation: { stage: 2, focusId: focusIds[0], reason: 'word-form', dueAfterRound: 24 }, temporal,
+      } },
+      phraseListeningProgress: { [retired.id]: { tier: 1, winsAtTier: 1, dueAfterRound: 24, remediation: true, temporal } },
+      phraseMatchingProgress: { [retired.id]: { tier: 1, winsAtTier: 1, dueAfterRound: 23, remediation: true, temporal } },
+      trainTargetHistory: [[`phrase:${retired.id}`]],
+    }
+    const restored = normalizeSavedState(JSON.parse(JSON.stringify(saved)), newRun())
+    assert.equal(restored.phraseMastery[retired.id], 4, `${retired.id}: old production proof was discarded`)
+    assert.ok(restored.trainTargetHistory.some((keys) => keys.includes(`phrase:${retired.id}`)))
+    assert.ok(restored.phraseProductionProgress[retired.id].remediation)
+    assert.equal(restored.phraseProductionProgress[retired.id].temporal.correct, 4)
+    const afterDeath = normalizeSavedState(JSON.parse(JSON.stringify(reducer({ ...restored, hearts: 0 }, { type: 'RESET' }))), newRun())
+    for (const id of ['problem', 'thate']) {
+      assert.equal(afterDeath.deathUnsavedWords[id], true, `${id}: weak retired-target word lost its death marker`)
+      assert.equal(afterDeath.discovered[id], undefined, `${id}: retired history resurrected a death-unsaved word`)
+    }
+    for (const state of [
+      normalizeSavedState(JSON.parse(JSON.stringify(restored)), newRun()),
+      reducer(restored, { type: 'RESET' }),
+      reducer({ ...restored, ended: 'bad' }, { type: 'RESET' }),
+      afterDeath,
+    ]) {
+      for (const field of ['phrasePracticed', 'phraseMistakes', 'phraseProductionProgress', 'phraseMastery',
+        'phraseListeningProgress', 'phraseMatchingProgress', 'phraseListeningMastery', 'phraseMatchingMastery']) {
+        assert.deepEqual(state[field][retired.id], restored[field][retired.id], `${retired.id}/${field}: durable evidence changed`)
+        assert.equal(state[field][replacement.id], undefined, `${replacement.id}/${field}: old proof transferred`)
+      }
+      assert.deepEqual(state.mana, restored.mana, 'retirement lost backed tokens')
+      assert.deepEqual(state.practiced, restored.practiced, 'retirement lost lifetime correct-practice counts')
+      assert.deepEqual(state.wordProgress.lajm, restored.wordProgress.lajm, 'retirement changed an independent word proof')
+      assert.ok(state.trainTargetHistory.some((keys) => keys.includes(`phrase:${retired.id}`)), 'retirement lost target history')
+      assert.equal(reducer(state, { type: 'RECORD_TRAIN_ACTIVITY_PRESENTED', activityTypeId: 'phrase-cloze',
+        targetKeys: [`phrase:${retired.id}`] }), state, 'retired target entered active presentation history')
+      const question = buildPhraseQuestion(EVERYDAY_PHRASE_DRILLS, state.mana, state.phrasePracticed, state.phraseMistakes, {
+        rng: steadyRng, targetId: replacement.id, productionProgress: state.phraseProductionProgress,
+        listeningProgress: state.phraseListeningProgress, matchingProgress: state.phraseMatchingProgress,
+        currentRound: state.trainRound,
+      })
+      assert.equal(question.target.id, replacement.id)
+      assert.equal(question.skill, 'production')
+      assert.equal(question.tier, 0, 'replacement skipped exact phrase prerequisites')
+      assert.equal(finish(state, question, { phraseIds: [retired.id] }), state, 'a retired phrase accepted new practice evidence')
+    }
+  }
 })
 
 check('every reward id still belongs to the public dictionary', () => {

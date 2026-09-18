@@ -572,4 +572,6 @@ export const OPTION_READINGS_A = Object.freeze({
   "prespaPyll.options[1]": { al: "a do të martohesh me mua?", en: "Will you marry me?", review: 'internal-editorial' },
   "detiThelle2.options[0]": { al: "a do të martohesh me mua?", en: "Will you marry me?", review: 'internal-editorial' },
   "kalaNate.options[1]": { al: "Mos shko në kala në mëngjes.", en: "Do not go to the castle in the morning.", review: 'internal-editorial' },
+  "udhaUdhetari.options[3]": { al: "shko vetëm në Gjakovë.", en: "Go alone into Gjakova.", review: 'internal-editorial' },
+  "udhaUdhetari.options[4]": { al: "shko vetëm në Gjakovë.", en: "Go alone into Gjakova.", review: 'internal-editorial' },
 })

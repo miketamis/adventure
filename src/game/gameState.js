@@ -25,6 +25,7 @@ import {
   storyLearningEpisode,
   storyLearningSourceForLine,
   storyLearningSourceSignature,
+  storyLearningSourceIds,
   reduceStoryLearning,
   recordStoryLearningDebugSupport,
   carryCompletedStoryLearning,
@@ -42,7 +43,7 @@ import {
   offerableTest,
 } from './achievementRules.js'
 import { NPCS } from './npcs.js'
-import { EVERYDAY_PHRASE_DRILLS } from './everydayAlbanian.js'
+import { EVERYDAY_PHRASE_DRILLS, RETIRED_EVERYDAY_PHRASES } from './everydayAlbanian.js'
 import {
   PHRASE_PROGRESS_VERSION,
   PHRASE_PROGRESSION_POLICY,
@@ -428,7 +429,8 @@ export const isEnvironmentId = (id) =>
     id.startsWith('weather:') ||
     id.startsWith('festival:') ||
     id.startsWith('weekday:') ||
-    id.startsWith('fact:'))
+    id.startsWith('fact:') ||
+    id.startsWith('hydrology:'))
 
 function hasEnvironmentCond(state, id) {
   const [kind, value] = id.split(':')
@@ -439,6 +441,10 @@ function hasEnvironmentCond(state, id) {
   if (kind === 'festival') return festivalIdsAtClock(storyClockOf(state)).includes(value)
   if (kind === 'weekday') return calendarOf(state).weekday === value
   if (kind === 'fact') return hasWorldFact(state, value)
+  if (kind === 'hydrology') {
+    const water = hydrologyOf(state)
+    return id === `hydrology:${value}` && Object.hasOwn(water, value) && water[value] === true
+  }
   return false
 }
 
@@ -602,6 +608,10 @@ export const hasCond = (state, id) => {
     const requested = condition.slice(separator + 1)
     const entry = state.rendezvous?.[rendezvousId]
     if (!entry) return false
+    if (requested === 'known') return Boolean(normalizeRendezvous(
+      { [rendezvousId]: entry }, worldClockOf(state),
+      { isNpc: (npcId) => Boolean(NPCS[npcId]), isPlace: (nodeId) => Boolean(STORY[nodeId]) },
+    )[rendezvousId])
     if (requested === 'fulfilled') return entry.metAtClock != null
     return rendezvousStatusOf(state.rendezvous, rendezvousId, worldClockOf(state)) === requested
   }
@@ -926,6 +936,8 @@ const safeMapKey = (id) => typeof id === 'string' && id.length > 0 && id.trim() 
 const VIEWS = new Set(['story', 'practice', 'dictionary', 'map', 'endings', 'guide', 'debug'])
 const DEBUG_ONLY_VIEWS = new Set(['map', 'endings', 'guide', 'debug'])
 const EVERYDAY_PHRASE_BY_ID = new Map(EVERYDAY_PHRASE_DRILLS.map((phrase) => [phrase.id, phrase]))
+// Retired targets can preserve durable proofs, but never enter active practice.
+const PHRASE_EVIDENCE_BY_ID = new Map([...EVERYDAY_PHRASE_DRILLS, ...RETIRED_EVERYDAY_PHRASES].map((phrase) => [phrase.id, phrase]))
 const PUBLIC_FREE_ROAM_NODE_SET = new Set(PUBLIC_FREE_ROAM_NODES)
 const truthRecord = (...values) => {
   const next = {}
@@ -951,14 +963,14 @@ const countRecord = (value) => {
 }
 const phraseMasteryRecord = (value, maxTier) => Object.fromEntries(
   Object.entries(countRecord(value))
-    .filter(([id]) => EVERYDAY_PHRASE_BY_ID.has(id))
+    .filter(([id]) => PHRASE_EVIDENCE_BY_ID.has(id))
     .map(([id, tier]) => [id, Math.min(maxTier, tier)]),
 )
 const phraseProductionProgressRecord = (value, currentRound) => {
   if (!isRecord(value)) return {}
   const next = {}
   for (const [id, progress] of Object.entries(value)) {
-    const phrase = EVERYDAY_PHRASE_BY_ID.get(id)
+    const phrase = PHRASE_EVIDENCE_BY_ID.get(id)
     if (!phrase || !isRecord(progress)) continue
     const focusIds = phraseProductionFocusIds(phrase)
     if (!focusIds.length) continue
@@ -971,7 +983,7 @@ const phraseSkillProgressRecord = (value, legacyTiers, skill) => {
   const legacy = phraseMasteryRecord(legacyTiers, PHRASE_SKILL_MAX_TIER[skill])
   const ids = new Set([...Object.keys(source), ...Object.keys(legacy)])
   return Object.fromEntries([...ids].flatMap((id) => {
-    if (!EVERYDAY_PHRASE_BY_ID.has(id)) return []
+    if (!PHRASE_EVIDENCE_BY_ID.has(id)) return []
     return [[id, normalizePhraseSkillProgress(source[id] ?? { tier: legacy[id] || 0 }, skill)]]
   }))
 }
@@ -995,7 +1007,7 @@ const wordProgressRecord = (value, currentRound, normalize = normalizeWordProgre
 }
 const productionTierRecord = (value) => Object.fromEntries(
   Object.entries(isRecord(value) ? value : {}).flatMap(([id, progress]) => {
-    const phrase = EVERYDAY_PHRASE_BY_ID.get(id)
+    const phrase = PHRASE_EVIDENCE_BY_ID.get(id)
     if (!phrase) return []
     return [[id, phraseProductionStage(progress, phraseProductionFocusIds(phrase))]]
   }),
@@ -1042,7 +1054,7 @@ function reconcileLearnerEvidence(state) {
   for (const field of phraseEvidenceFields) {
     const evidence = isRecord(state[field]) ? state[field] : {}
     for (const phraseId of Object.keys(evidence)) {
-      const phrase = EVERYDAY_PHRASE_BY_ID.get(phraseId)
+      const phrase = PHRASE_EVIDENCE_BY_ID.get(phraseId)
       if (!phrase) continue
       for (const id of phrase.requires) {
         if (DICT[id] && isTrainableSense(id) && !deathUnsavedWords[id]) discovered[id] = true
@@ -1358,7 +1370,7 @@ export function normalizeSavedState(saved, fresh) {
       const [kind, ...idParts] = key.split(':')
       const id = idParts.join(':')
       return kind === 'phrase'
-        ? EVERYDAY_PHRASE_BY_ID.has(id)
+        ? PHRASE_EVIDENCE_BY_ID.has(id)
         : kind === 'surface' || (kind === 'word' && Boolean(DICT[id]) && isTrainableSense(id))
     }))
     .filter((targetKeys) => targetKeys.length > 0)
@@ -2015,7 +2027,8 @@ export function storyLearningSourcesForState(state) {
   if (!STORY_LEARNING_ENCOUNTERS.some((entry) => entry.nodeId === state.nodeId)) return []
   const signature = storyLearningSourceSignature(state.nodeId)
   const cached = storyLearningSourcesCache.get(state)
-  if (cached?.signature === signature) return cached.sources
+  if (cached?.signature === signature && cached.sources.every(({ line }) =>
+    STORY[state.nodeId].text.some((entry) => lineOf(entry) === line))) return cached.sources
   const sources = storyScenePresentationForState(state).normalEntries.flatMap(({ line }) => {
     const source = storyLearningSourceForLine(state, line)
     return source ? [{ line, ...source }] : []
@@ -2044,11 +2057,13 @@ export function storyLearningTaskForState(state, encounterId = null) {
   const boundOptions = entry.actions.map((binding) => STORY[state.nodeId].options.find((option) =>
     canonicalPlayerActionId(state.nodeId, option) === binding.id && option.to === binding.to &&
     storyLearningBindingForOption(state, option) === entry)).filter(Boolean)
-  const contextKey = storyLearningContext(state, entry, boundOptions)
-  if (tasks.has(encounterId) && tasks.get(encounterId).contextKey === contextKey) return tasks.get(encounterId)
   const sourceLines = storyLearningSourcesForState(state)
     .filter((source) => source.encounterId === entry.id).map((source) => source.line)
-  const sourceAvailable = sourceLines.length === entry.minimumSourceLines
+  const sourceAvailable = storyLearningSourceIds(entry, sourceLines) !== null
+  const contextKey = storyLearningContext(state, entry, boundOptions, sourceLines)
+  const cached = tasks.get(encounterId)
+  if (contextKey && cached?.contextKey === contextKey &&
+      sourceLines.every((line, index) => line === cached.sourceLines[index])) return cached
   const world = boundOptions.map((option) => storyLearningWorldAvailability(currentStoryState(state), option))
   const availability = !contextKey ? { ok: false, reason: 'context' }
     : !sourceAvailable ? { ok: false, reason: 'source' }

@@ -2,12 +2,12 @@
 // CEFR capstone pass, payment, appointment or story movement by itself.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { STORY } from '../src/game/content.js'
-import { STORY_LEARNING_ENCOUNTERS, storyLearningBindingForOption } from '../src/game/storyLearning.js'
+import { STORY, lineOf } from '../src/game/content.js'
+import { STORY_LEARNING_ENCOUNTERS, STORY_LEARNING_BY_ID, storyLearningBindingForOption, storyLearningSourceIds } from '../src/game/storyLearning.js'
 import { CEFR_PREPARATION_MECHANICS } from '../src/game/cefrPreparation.js'
 import { npcIdentityKnowledgeId } from '../src/game/npcIdentity.js'
 import {
-  canChoose, choiceLanguageAvailability, newRun, normalizeSavedState, reducer,
+  canChoose, choiceLanguageAvailability, isOptionRevealed, newRun, normalizeSavedState, reducer,
   storyLearningTaskForState,
 } from '../src/game/gameState.js'
 import {
@@ -30,7 +30,21 @@ const authoredBindings = Object.entries(STORY).flatMap(([nodeId, node]) => node.
 assert.deepEqual(authoredBindings.map((binding) => binding.join(':')).sort(),
   bindings.flatMap(([id, nodeId, indices]) => indices.map((index) => [id, nodeId, index].join(':'))).sort(),
   'a live learning binding is orphaned or unreviewed')
+const authoredSources = Object.entries(STORY).flatMap(([nodeId, node]) => node.text.flatMap((authored) => {
+  const source = lineOf(authored).storyLearningSource
+  if (!source) return []
+  const entry = STORY_LEARNING_BY_ID[source.encounterId]
+  assert.equal(entry?.nodeId, nodeId, `${nodeId}: orphan or misplaced learning source ${source.encounterId}`)
+  assert.ok(entry.sourceIds.includes(source.sourceId), `${nodeId}: unknown source ${source.sourceId}`)
+  return [`${source.encounterId}:${source.sourceId}`]
+}))
+assert.equal(new Set(authoredSources).size, authoredSources.length, 'authored learning source IDs are not unique')
+assert.deepEqual(authoredSources.sort(), STORY_LEARNING_ENCOUNTERS.flatMap((entry) =>
+  entry.sourceIds.map((id) => `${entry.id}:${id}`)).sort(), 'a declared learning source is absent')
+
 for (const entry of STORY_LEARNING_ENCOUNTERS) {
+  assert.deepEqual(entry.sourceIds, entry.sourceSlots.flat(), `${entry.id}: source IDs drifted from slots`)
+  assert.equal(entry.minimumSourceLines, entry.sourceSlots.length, `${entry.id}: source count drifted from slots`)
   assert.equal(entry.capstoneEligible, false, `${entry.id}: reused story source claims held-out eligibility`)
   for (const mechanicId of entry.preparationMechanicIds) {
     assert.ok(CEFR_PREPARATION_MECHANICS[mechanicId], `${entry.id}: unknown preparation mechanic ${mechanicId}`)
@@ -232,6 +246,190 @@ for (const [id, nodeId, indices] of bindings) {
     'rereading a familiar report manufactured another independent proof')
 }
 
+// The visible source variant, not merely the authored bank or line count,
+// owns a scene permission. Historical practice is immutable across changes.
+let sourceCases = 0
+{
+  const id = 'guest-water-news'
+  const entry = STORY_LEARNING_BY_ID[id]
+  const original = { ...freshFixture(id, 'sofraMikut2', 8), worldFacts: {} }
+  const variants = [
+    [{}, false, ['news-unknown', 'elder-knows', 'traveller-advice', 'elira-advice']],
+    [{}, true, ['news-known', 'elder-knows', 'traveller-advice', 'elira-advice']],
+    [{ villageWellsRestored: true }, false, ['news-restored-unknown', 'elder-knows-restored', 'traveller-advice', 'elira-advice']],
+    [{ villageWellsRestored: true }, true, ['news-restored-known', 'elder-knows-restored', 'traveller-advice', 'elira-advice']],
+    [{ droughtBroken: true }, false, ['news-restored-unknown', 'elder-knows-restored', 'traveller-advice', 'elira-advice']],
+    [{ droughtBroken: true }, true, ['news-restored-known', 'elder-knows-restored', 'traveller-advice', 'elira-advice']],
+  ]
+  for (const [worldFacts, named, expectedIds] of variants) {
+    const state = { ...original, worldFacts, knowledge: { ...original.knowledge,
+      ...(named ? { [npcIdentityKnowledgeId('gjonMik')]: true } : {}) } }
+    const task = storyLearningTaskForState(state, id)
+    assert.deepEqual(storyLearningSourceIds(entry, task.sourceLines), expectedIds, 'wrong live water-news slots')
+    const completed = pass(state, id)
+    assert.deepEqual(worldOf(completed), worldOf(state), 'water-news response changed the world or learner proofs')
+    for (const index of [8, 9]) {
+      const option = STORY.sofraMikut2.options[index]
+      assert.equal(choiceLanguageAvailability(completed, option).ok, true,
+        'understanding restored-water news scored the player’s opinion')
+      assert.equal(isOptionRevealed(completed, option), true, `${expectedIds[0]}: opinion points at a hidden source variant`)
+      const destination = commitProjectedOption(completed, option)
+      assert.notEqual(destination, completed, `${expectedIds[0]}: actual opinion choice was rejected`)
+      assert.equal(destination.nodeId, option.to, `${expectedIds[0]}: opinion went to the wrong consequence`)
+      assert.ok(destination.actionSpeech, `${expectedIds[0]}: accepted opinion skipped its recorded speech`)
+    }
+    assert.equal(storyLearningTaskForState(normalizeSavedState(clone(completed), newRun()), id).episode?.phase, 'complete',
+      'unchanged visible water-news variant lost valid completion on reload')
+    sourceCases++
+  }
+  const started = begin(original, id)
+  const task = storyLearningTaskForState(started, id)
+  const correct = answers(task)
+  const wrong = { ...correct, problem: 'road-closed' }
+  const failed = submit(started, id, wrong)
+  const helped = reducer(started, event(started, id, 'REVEAL_STORY_LEARNING_SUPPORT', { supportId: 'word-help' }))
+  const debugged = begin(reducer(reducer(original, { type: 'TOGGLE_DEBUG' }), { type: 'TOGGLE_DEBUG' }), id)
+  const legacySave = clone(original)
+  delete legacySave.storyLearningVersion
+  const legacy = begin(normalizeSavedState(legacySave, newRun()), id)
+  const phases = [started, helped, debugged, legacy, failed, submit(started, id, correct), pass(failed, id)]
+  const changes = [
+    ['restored', (state) => ({ ...state, worldFacts: { ...state.worldFacts, villageWellsRestored: true } }), false],
+    ['legacy restoration', (state) => ({ ...state, worldFacts: { ...state.worldFacts, droughtBroken: true } }), false],
+    ['known speaker', (state) => ({ ...state, knowledge: { ...state.knowledge, [npcIdentityKnowledgeId('gjonMik')]: true } }), false],
+    ['resolved', (state) => ({ ...state, worldFacts: { ...state.worldFacts, kulshedraDefeated: true } }), true],
+    ['restored and resolved', (state) => ({ ...state, worldFacts: { ...state.worldFacts, villageWellsRestored: true, kulshedraDefeated: true } }), true],
+  ]
+  for (const phase of phases) for (const [label, change, retired] of changes) {
+    const staleSubmit = event(phase, id, 'SUBMIT_STORY_LEARNING', { response: { selections: correct } })
+    const history = clone(phase.storyLearningEvidence)
+    for (const reload of [false, true]) {
+      const changed = change(phase)
+      const state = reload ? normalizeSavedState(clone(changed), newRun()) : changed
+      const live = storyLearningTaskForState(state, id)
+      assert.equal(live.episode, null, `${label}: an old phase survived changed source${reload ? ' and reload' : ''}`)
+      assert.equal(live.sourceAvailable, !retired, `${label}: wrong source availability`)
+      assert.equal(reducer(state, staleSubmit), state, `${label}: stale submit changed state`)
+      for (const index of [8, 9]) {
+        assert.equal(choiceLanguageAvailability(state, STORY.sofraMikut2.options[index]).kind, 'encounter')
+        assert.equal(canChoose(state, STORY.sofraMikut2.options[index]), false, `${label}: stale permission opened an opinion`)
+        assert.equal(commitProjectedOption(state, STORY.sofraMikut2.options[index]), state, `${label}: stale choice committed`)
+      }
+      assert.deepEqual(state.storyLearningEvidence, history, `${label}: invalidation rewrote durable history`)
+      if (reload) assert.equal(state.storyLearningScene, null, `${label}: reload retained stale scene permission`)
+      if (retired) {
+        assert.equal(live.sourceLines.length, 0, `${label}: retired crisis kept tagged source material`)
+        assert.equal(reducer(state, event(state, id, 'BEGIN_STORY_LEARNING')), state, `${label}: retired task began`)
+        assert.ok(storyLearningTaskForState(state, 'guest-bread-request').sourceAvailable, `${label}: retirement erased bread practice`)
+      } else {
+        const restarted = begin(state, id)
+        const current = storyLearningTaskForState(restarted, id)
+        assert.notEqual(current.episode.attemptId, staleSubmit.attemptId, `${label}: new context reused an old attempt`)
+        assert.equal(reducer(restarted, staleSubmit), restarted, `${label}: old event scored the fresh attempt`)
+        assert.deepEqual(current.episode.previousSelections, {}, `${label}: stale answers leaked into the new source`)
+        const completed = submit(restarted, id, answers(current))
+        if (history[id].firstResult) assert.deepEqual(completed.storyLearningEvidence[id].firstResult, history[id].firstResult,
+          `${label}: later source rewrote the first result`)
+        assert.equal(completed.storyLearningEvidence[id].independentCorrect, history[id].firstResult
+          ? history[id].independentCorrect : completed.storyLearningEvidence[id].firstResult.mode === 'independent' ? 1 : 0,
+        `${label}: a new variant manufactured another independent proof`)
+        for (const supportId of history[id].supportIds) assert.ok(completed.storyLearningEvidence[id].supportIds.includes(supportId),
+          `${label}: source change erased ${supportId} support history`)
+      }
+      sourceCases++
+    }
+  }
+  const completed = submit(started, id, correct)
+  for (const fact of ['hearthsRelit', 'riverRestored', 'fieldsWatered', 'rainReturned', 'binoshetKulshedraDefeated', 'krujeKulshedraDefeated']) {
+    const state = { ...completed, worldFacts: { ...completed.worldFacts, [fact]: true } }
+    assert.equal(storyLearningTaskForState(state, id).contextKey, storyLearningTaskForState(completed, id).contextKey,
+      `${fact}: unrelated fact changed the same news context`)
+    assert.equal(storyLearningTaskForState(state, id).episode?.phase, 'complete', `${fact}: unrelated fact erased permission`)
+    sourceCases++
+  }
+  const oldContext = clone(completed)
+  oldContext.storyLearningScene.episodes[id].contextKey = `${id}:v1:prior-authored-content:reported-water:elira-elder-first`
+  oldContext.storyLearningEvidence[id].firstResult.contextKey = oldContext.storyLearningScene.episodes[id].contextKey
+  const oldHistory = clone(oldContext.storyLearningEvidence)
+  const oldReload = normalizeSavedState(oldContext, newRun())
+  assert.equal(oldReload.storyLearningScene, null, 'pre-edit context survived new source binding')
+  assert.deepEqual(oldReload.storyLearningEvidence, oldHistory, 'pre-edit permission invalidation erased historical context or history')
+
+  // Direct malformed projections exercise the shared production validator;
+  // the following authored mutations also exercise warm runtime caches.
+  const lines = task.sourceLines
+  const known = STORY.sofraMikut2.text.map(lineOf).find((line) => line.storyLearningSource?.sourceId === 'news-known')
+  for (const malformed of [null, [], lines.slice(1), [...lines, lines[0]],
+    [lines[0], lines[0], lines[2], lines[3]], [lines[0], known, lines[2], lines[3]],
+    [lines[1], lines[0], lines[2], lines[3]], [Array.from(lines[0]), ...lines.slice(1)]]) {
+    assert.equal(storyLearningSourceIds(entry, malformed), null, 'malformed projected passage passed source slots')
+    sourceCases++
+  }
+  for (const sourceSlots of [[], [null], [['news-unknown'], ['news-unknown']], [['unknown-source']]]) {
+    assert.equal(storyLearningSourceIds({ ...entry, sourceSlots }, lines), null, 'malformed slot registry accepted a source')
+  }
+  const node = STORY.sofraMikut2
+  const authored = node.text
+  const sourceIdOf = (line) => lineOf(line).storyLearningSource?.sourceId
+  const copyTagged = (sourceId) => {
+    const line = Object.assign(lines[0].map((token) => ({ ...token })), {
+      storyLearningSource: { encounterId: id, sourceId },
+    })
+    line[0].al += ' different-authored-variant'
+    return { cond: 'flag:audit-hidden-source', line }
+  }
+  const mutations = [
+    ['duplicate hidden ID', () => [...authored, copyTagged('news-unknown')]],
+    ['unknown hidden ID', () => [...authored, copyTagged('unknown-source')]],
+    ['missing declared ID', () => authored.filter((line) => sourceIdOf(line) !== 'news-known')],
+    ['missing visible slot', () => authored.map((line) => sourceIdOf(line) === 'elder-knows'
+      ? { cond: 'flag:audit-hidden-source', line: lineOf(line) } : line)],
+    ['four lines in wrong slots', () => authored.map((line) => ['news-unknown', 'news-known'].includes(sourceIdOf(line))
+      ? lineOf(line) : sourceIdOf(line) === 'elder-knows' ? { cond: 'flag:audit-hidden-source', line: lineOf(line) } : line)],
+    ['fifth visible line', () => authored.map((line) => sourceIdOf(line) === 'news-known' ? lineOf(line) : line)],
+    ['wrong source order', () => {
+      const changed = [...authored]
+      const first = changed.findIndex((line) => sourceIdOf(line) === 'traveller-advice')
+      const second = changed.findIndex((line) => sourceIdOf(line) === 'elira-advice')
+      const prior = changed[first]
+      changed[first] = changed[second]
+      changed[second] = prior
+      return changed
+    }],
+  ]
+  for (const [label, mutate] of mutations) {
+    assert.equal(storyLearningTaskForState(completed, id).episode?.phase, 'complete', `${label}: fixture was not warm`)
+    try {
+      node.text = mutate()
+      for (const state of [completed, { ...completed }]) {
+        const invalid = storyLearningTaskForState(state, id)
+        assert.equal(invalid.sourceAvailable, false, `${label}: malformed source was available`)
+        assert.equal(invalid.contextKey, null, `${label}: malformed source had context`)
+        assert.equal(invalid.episode, null, `${label}: warm cache retained completed permission`)
+        assert.equal(reducer(state, event(state, id, 'BEGIN_STORY_LEARNING')), state, `${label}: malformed source began an attempt`)
+        assert.equal(reducer(state, event(completed, id, 'SUBMIT_STORY_LEARNING', { response: { selections: correct } })), state,
+          `${label}: malformed source accepted a response`)
+        assert.equal(commitProjectedOption(state, STORY.sofraMikut2.options[8]), state, `${label}: malformed source authorized an action`)
+        assert.deepEqual(state.storyLearningEvidence, completed.storyLearningEvidence, `${label}: malformed source altered history`)
+      }
+      sourceCases++
+    } finally { node.text = authored }
+  }
+  assert.equal(storyLearningTaskForState(completed, id).episode?.phase, 'complete', 'restored authored source failed warm-cache recovery')
+  // An equal authored replacement has the same content identity but must not
+  // leave the projection or task cache pointing at a retired line array.
+  const replacement = Object.assign([...lines[0]], lines[0])
+  try {
+    node.text = authored.map((line) => lineOf(line) === lines[0]
+      ? Array.isArray(line) ? replacement : { ...line, line: replacement } : line)
+    const refreshed = storyLearningTaskForState(completed, id)
+    assert.equal(refreshed.sourceLines[0], replacement, 'equal source replacement retained a retired cached array')
+    assert.equal(refreshed.episode?.phase, 'complete', 'equal source replacement lost the same content permission')
+    sourceCases++
+  } finally { node.text = authored }
+  assert.equal(storyLearningTaskForState(completed, id).sourceLines[0], lines[0], 'source cache failed exact-array restoration')
+}
+
 {
   const id = 'market-bread-price'
   const option = STORY.tregtari.options[0]
@@ -283,4 +481,4 @@ assert.match(ui, /<TrainingActivityShell/, 'story encounter abandoned the shared
 assert.doesNotMatch(ui, /CEFR_RECORD_EVIDENCE|CEFR_PREPARATION_ATTEMPT/, 'public task credited held-out or caller-reviewed evidence')
 const app = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
 assert.doesNotMatch(app, /SPOKEN_ACTION_TYPES[^\n]*SUBMIT_STORY_LEARNING/, 'answer submission became a spoken world action')
-console.log(`Story learning: ${checked} encounters, 5 canonical actions, exact responses, world constraints, retries, save and reset passed.`)
+console.log(`Story learning: ${checked} encounters, 5 canonical actions, ${sourceCases} source-context cases, exact responses, world constraints, retries, save and reset passed.`)

@@ -114,7 +114,7 @@ export default {
     },
     divergences: [
       { beat: 'byOurMother', note: 'The playable setup is now source-faithful at compressed scale: Llabutani wounds Mujo with ten spears, Mujo survives at home, and Halili rides to take the blood.' },
-      { beat: 'guardians', note: 'The ora, serpent, wolf, and long convalescence remain in the full beats and ending prose rather than separate played nodes; the game explicitly keeps Mujo alive and in his own bed.' },
+      { beat: 'guardians', note: 'The lahuta account depicts the serpent and wolf at Mujo’s sickbed through explicitly narrated portraits; they do not occupy the listener’s room. The ora and long convalescence remain in the full beats rather than separate played encounters.' },
       { beat: 'theCave', note: 'The game folds the forty-five-strophe muster, pursuit, siege, healing, and rebukes into one cave fight, but keeps the sourced outcome: Halili kills Llabutani at the cave and returns beside a living Mujo.' },
       { beat: 'inMyStead', note: 'The player accompanying Halili is a game counterfactual. The song gives the revenge ride and cave stand to Halili and the agas already in its cast; companion choices can aid him, but any refusal, defeat, or spared-Llabutani branch is an alternate game fate rather than a second source ending.' },
     ],

@@ -2,9 +2,9 @@ import { defineNpcFirstEncounter, npcPortraitLine as R, npcPunctuation as p, npc
 const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'tale-gjeto-basho-muji', ...config })
 
 export const MEJDAN_OSMANI_APPEARANCE = portrait({
-  npcId: 'arnautOsmaniMejdanit', nodeId: 'gbMuji1', details: ['build', 'clothing', 'carried-object', 'posture'],
-  practicalWordIds: ['trim', 'rroba', 'zi', 'arme', 'dore'], placement: { kind: 'replace', lineIndex: 2 },
-  portraitLines: [{ line: R('Arnaut Osmani, a tall hero in black clothes, strikes you nine times and stands over you with a weapon in his hand.', w('osman', 'Arnaut Osmani'), p(','), w('nje'), w('trim'), w('i_art'), w('gjate'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza'), p(','), w('te_obj'), w('godit', 'godet'), w('nente'), w('here'), w('dhe'), w('rri'), w('mbi'), w('ti', 'ty'), w('me'), w('nje'), w('arme'), w('ne'), w('dore'), p('.')) }],
+  npcId: 'arnautOsmaniMejdanit', nodeId: 'gbMuji1', details: ['clothing', 'carried-object', 'movement', 'companion'],
+  practicalWordIds: ['shok', 'rroba', 'zi', 'vjen', 'prane', 'arme', 'dore'], placement: { kind: 'insert-after', lineIndex: 2 },
+  portraitLines: [{ line: R('Arnaut Osmani, your companion in black clothes, comes beside you with a weapon in his hand.', w('osman', 'Arnaut Osmani'), p(','), w('shok', 'shoku'), w('yt'), w('me'), w('rroba'), w('te_link'), w('zi', 'zeza'), p(','), w('vjen'), w('prane'), w('ti', 'teje'), w('me'), w('nje'), w('arme'), w('ne'), w('dore'), p('.')) }],
 })
 
 export const RESCUE_ZANAS_APPEARANCE = portrait({

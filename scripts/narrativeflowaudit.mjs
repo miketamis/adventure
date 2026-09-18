@@ -12,7 +12,7 @@ import {
 } from '../src/game/content.js'
 import { albanianTextOf, englishReadingOf } from '../src/game/language.js'
 import { NPCS } from '../src/game/npcs.js'
-import coreVillageNpcs from '../src/game/data/npcs/core-village.js'
+import { NPC_REGISTRY } from '../src/game/npcRegistryData.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
 import {
   ORDINARY_RESULT_CATEGORIES,
@@ -691,7 +691,7 @@ for (const [npcId, npc] of Object.entries(NPCS)) {
   assert.ok(identityModes.has(policy.mode), `${npcId}: unknown identity mode ${JSON.stringify(policy.mode)}`)
   assert.ok(typeof policy.reason === 'string' && policy.reason.trim().length >= 24,
     `${npcId}: identity classification needs an explanatory reason`)
-  assert.deepEqual(coreVillageNpcs[npcId]?.identity, policy,
+  assert.deepEqual(NPC_REGISTRY[npcId]?.identity, policy,
     `${npcId}: NPC catalog and runtime identity metadata drifted`)
 
   const knowledgeId = `npcName:${npcId}`

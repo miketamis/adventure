@@ -149,10 +149,8 @@ export const OPTION_READINGS_STATIC = Object.freeze({
   "syriKanali.options[4]": { al: "ne hapim fshatin", en: "We open the village.", review: 'internal-editorial' },
   // Same-place reaction beats keep speech and travel as separate intentions.
   "sofraVendimPlaka.options[0]": { al: "shko te shtëpia e plakës.", en: "Go to the old woman’s house.", review: 'internal-editorial' },
-  "sofraVendimPlaka.options[1]": { al: "shko te pusi i thatë.", en: "Go to the dry well.", review: 'internal-editorial' },
   "sofraVendimPlaka.options[2]": { al: "kthehu në shesh.", en: "Return to the square.", review: 'internal-editorial' },
   "sofraVendimPlaka.options[3]": { al: "pyet pusin", en: "Ask the well.", review: 'internal-editorial' },
-  "sofraVendimPusi.options[0]": { al: "shko te pusi i thatë.", en: "Go to the dry well.", review: 'internal-editorial' },
   "sofraVendimPusi.options[1]": { al: "shko te shtëpia e plakës.", en: "Go to the old woman’s house.", review: 'internal-editorial' },
   "sofraVendimPusi.options[2]": { al: "kthehu në shesh.", en: "Return to the square.", review: 'internal-editorial' },
   "sheshiMjek.options[0]": { al: "shko te shëruesi.", en: "Go to the healer.", review: 'internal-editorial' },
@@ -318,4 +316,6 @@ export const OPTION_READINGS_STATIC = Object.freeze({
   "tabakFund.options[3]": { al: "pi tabakun", en: "Drink the tanner.", review: 'internal-editorial' },
   "tabakFund.options[4]": { al: "dëgjo lëkurën", en: "Listen to the leather.", review: 'internal-editorial' },
   "kreshnikRrembimiBurg.options[1]": { al: "ik nga roja.", en: "Flee from the guard.", review: 'internal-editorial' },
+  "sofraVendimPlaka.options[1]": { al: "shko te pusi.", en: "Go to the well.", review: 'internal-editorial' },
+  "sofraVendimPusi.options[0]": { al: "shko te pusi.", en: "Go to the well.", review: 'internal-editorial' },
 })

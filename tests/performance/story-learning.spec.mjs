@@ -220,3 +220,44 @@ for (const encounter of [
     }
   })
 }
+
+for (const resolved of [false, true]) {
+  test(`a ${resolved ? 'resolved' : 'restored'} water save retires the old response permission and keeps its history`, async ({ page }) => {
+    const id = 'guest-water-news'
+    const opinion = STORY.sofraMikut2.options[8]
+    const approach = { ...feasibleOptionProjection('sofraMikut2', opinion), worldFacts: {} }
+    await install(page, approach, `water-changed-${resolved}`)
+    const task = await openTask(page, id)
+    await selectResponse(page, task, { wrongSlot: 'problem' })
+    await expect(page.locator('.story-learning-feedback')).toBeVisible()
+    await page.getByRole('button', { name: 'Try the response again', exact: true }).click()
+    const repair = await durable(page, (state) => storyLearningTaskForState(state, id)?.episode?.phase === 'answering')
+    await selectResponse(page, storyLearningTaskForState(repair, id))
+    await expect(page.locator('.story-learning-complete')).toBeVisible()
+    const completed = await durable(page, (state) => storyLearningTaskForState(state, id)?.episode?.phase === 'complete')
+    const oldAttempt = storyLearningTaskForState(completed, id).episode.attemptId
+    const changed = { ...completed, worldFacts: { ...completed.worldFacts,
+      villageWellsRestored: true, ...(resolved ? { kulshedraDefeated: true } : {}) } }
+    await page.evaluate((state) => localStorage.setItem('aventura.state.v1', JSON.stringify(state)), changed)
+    await page.reload()
+    await expect(page.locator('.story-learning-task')).toHaveCount(0)
+    const restored = await durable(page, (state) => state?.storyLearningScene === null)
+    expect(restored.storyLearningEvidence).toEqual(completed.storyLearningEvidence)
+    await expectNormalTask(page)
+    if (resolved) {
+      await expect(page.locator(`[id^="learning-source-${id}-"]`)).toHaveCount(0)
+      await expect(page.locator('[id^="learning-source-guest-bread-request-"]')).toHaveCount(1)
+      await expect(page.getByRole('button', { name: `Choose: ${albanianTextOf(opinion.text)}`, exact: true })).toHaveCount(0)
+    } else {
+      await expect(page.locator(`#learning-source-${id}-news-restored-unknown`)).toBeVisible()
+      const fresh = await openTask(page, id)
+      expect(fresh.episode.attemptId).not.toBe(oldAttempt)
+      expect(fresh.episode.supportIds).toContain('correction')
+      await expect(page.locator('.story-learning-task input:checked')).toHaveCount(0)
+      await selectResponse(page, fresh)
+      const practiced = await durable(page, (state) => storyLearningTaskForState(state, id)?.episode?.phase === 'complete')
+      expect(practiced.storyLearningEvidence[id].firstResult).toEqual(completed.storyLearningEvidence[id].firstResult)
+      expect(practiced.storyLearningEvidence[id].independentCorrect).toBe(0)
+    }
+  })
+}

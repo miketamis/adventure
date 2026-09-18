@@ -7,6 +7,7 @@ import { NPC_REGISTRY, NPC_REGISTRY_SOURCE_FILES, NPC_REGISTRY_SOURCES } from '.
 import { TALES, TALES_SOURCE_FILES, TALES_SOURCES } from '../../src/game/taleRegistryData.js'
 import { NPC_FIRST_ENCOUNTERS, NPC_PORTRAIT_SOURCE_FILES } from '../../src/game/worldScene3dPortraitData.js'
 import { PLACE_OF } from '../../src/components/nodePositions.js'
+import { visibleWorldSceneElements } from '../../src/components/worldScene3dRenderer.js'
 import { optionEffectsOf } from '../../src/game/stateMechanics.js'
 import { validateWorldScene3dInventory } from '../../src/game/worldScene3dInventory.js'
 
@@ -57,7 +58,7 @@ export async function runWorldSceneInventoryAssertions(model) {
     const record = requireRecord(`npc:${npcId}`, 'npc')
     const declaredNodes = [...(npc.location?.status === 'placed' ? [npc.location.node] : []),
       ...(npc.location?.status === 'walking' ? npc.location.route : []), ...list(npc.location?.encounters), ...list(NPCS[npcId]?.route),
-      ...NPC_FIRST_ENCOUNTERS[npcId] ? [NPC_FIRST_ENCOUNTERS[npcId].nodeId] : []]
+      ...(NPC_FIRST_ENCOUNTERS[npcId] && !NPC_FIRST_ENCOUNTERS[npcId].depiction ? [NPC_FIRST_ENCOUNTERS[npcId].nodeId] : [])]
     for (const nodeId of declaredNodes) {
       if (!PLACE_OF[nodeId]) continue
       assert.ok(record.elementIds.includes(`actor:${npcId}:${PLACE_OF[nodeId]}`), `${npcId}: declared encounter ${nodeId} disappeared from the map`)
@@ -70,7 +71,20 @@ export async function runWorldSceneInventoryAssertions(model) {
   }
   let portraitLines = 0
   for (const [npcId, portrait] of Object.entries(NPC_FIRST_ENCOUNTERS)) {
-    requireRecord(`portrait:${npcId}`, 'npc-portrait')
+    const record = requireRecord(`portrait:${npcId}`, 'npc-portrait')
+    if (portrait.depiction) {
+      assert.equal(record.authorityScope, 'narrated-portrait', `${npcId}: narration lost its authority scope`)
+      assert.deepEqual(record.metadata.depiction, portrait.depiction, `${npcId}: narrated source provenance was dropped`)
+      assert.deepEqual(record.declarations, [], `${npcId}: the listening scene became a physical declaration`)
+      assert.deepEqual(record.elementIds, [`reference:portrait:${npcId}`], `${npcId}: narrated portrait creates actor geometry`)
+      const reference = elements.get(record.elementIds[0])
+      assert.equal(reference.kind, 'catalogue')
+      assert.equal(reference.placeId, null)
+      assert.equal(reference.regionId, null)
+      assert.match(reference.interpretation, /not a physical encounter/)
+      assert.ok(records.get(`npc:${npcId}`).declarations.every(({ authority }) => authority !== 'NPC_FIRST_ENCOUNTERS'),
+        `${npcId}: depiction leaked into physical NPC placement`)
+    }
     for (const [index, variant] of portrait.portraitLines.entries()) {
       portraitLines++
       const description = descriptions.get(`description:portrait:${npcId}:${index}`)
@@ -81,6 +95,16 @@ export async function runWorldSceneInventoryAssertions(model) {
       assert.equal(description?.portraitConditions?.known, variant.known)
       assert.equal(description?.portraitConditions?.presence, portrait.presence)
       assert.equal(description?.portraitConditions?.firstEncounter, true)
+      if (portrait.depiction) {
+        assert.equal(description.nodeId, portrait.nodeId, `${npcId}: rendering context lost`)
+        assert.equal(description.placeId, null, `${npcId}: rendering context became physical occupancy`)
+        assert.equal(description.regionId, null)
+        assert.equal(description.role, 'narrated-portrait')
+        assert.deepEqual(description.depiction, portrait.depiction)
+        assert.deepEqual(description.elementIds, record.elementIds)
+        assert.deepEqual(visibleWorldSceneElements(model, { focusedDescriptionId: description.id }).map(({ id }) => id),
+          record.elementIds, `${npcId}: focusing a song portrait renders physical scene geometry`)
+      }
     }
   }
   assert.equal(model.inventory.coverage.portraitDescriptions, portraitLines)
@@ -161,6 +185,13 @@ export async function runWorldSceneInventoryAssertions(model) {
   rejects('portrait language altered', (scene) => { description(scene, 'description:portrait:elira:0').language = 'en' }, 'description:portrait:elira:0')
   rejects('portrait absence gate lost', (scene) => { description(scene, 'description:portrait:elira:0').conditions.none = [] }, 'description:portrait:elira:0')
   rejects('portrait first-encounter policy lost', (scene) => { description(scene, 'description:portrait:elira:0').portraitConditions.firstEncounter = false }, 'description:portrait:elira:0')
+  rejects('narrated portrait promoted to physical actor', (scene) => {
+    const entry = element(scene, 'reference:portrait:gjarpriShtratit')
+    entry.kind = 'actor'; entry.catalogue = false; entry.placeId = PLACE_OF.mujoHak1
+  }, 'reference:portrait:gjarpriShtratit')
+  rejects('narrated source context erased', (scene) => { delete description(scene, 'description:portrait:gjarpriShtratit:0').depiction }, 'depiction')
+  rejects('narrated description physically located', (scene) => { description(scene, 'description:portrait:gjarpriShtratit:0').placeId = PLACE_OF.mujoHak1 }, 'placeId')
+  rejects('narrated source anchor forged', (scene) => { record(scene, 'portrait:gjarpriShtratit').metadata.depiction.placeId = 'kunora' }, 'metadata')
   rejects('missing item action', (scene) => { const id = scene.inventory.records.find(({ category }) => category === 'item-action').id; scene.inventory.records = scene.inventory.records.filter((entry) => entry.id !== id) }, 'canonical inventory record is missing')
   rejects('item action destination altered', (scene) => { scene.inventory.records.find(({ category }) => category === 'item-action').metadata.to = 'start' }, 'metadata')
   rejects('item action existence gated by wrong state', (scene) => { scene.descriptions.find(({ source }) => source.kind === 'item-action').conditions.all = ['fact:invented'] }, 'conditions')

@@ -49,7 +49,7 @@ export function worldScene3dInventorySources() {
     for (const [index, nodeId] of list(npc.location?.encounters).entries()) declare(nodeId, `location.encounters[${index}]`)
     for (const [index, nodeId] of list(NPCS[npcId]?.route).entries()) declare(nodeId, `route[${index}]`, 'NPCS')
     const portrait = NPC_FIRST_ENCOUNTERS[npcId]
-    if (portrait) declarations.push({ nodeId: portrait.nodeId, placeId: placeOf(portrait.nodeId), field: 'nodeId', authority: 'NPC_FIRST_ENCOUNTERS',
+    if (portrait && !portrait.depiction) declarations.push({ nodeId: portrait.nodeId, placeId: placeOf(portrait.nodeId), field: 'nodeId', authority: 'NPC_FIRST_ENCOUNTERS',
       source: source(`src/game/data/npcAppearances/${portrait.sourcePartition}.js`, 'NPC_FIRST_ENCOUNTERS', npcId,
         `NPC_FIRST_ENCOUNTERS.${npcId}.nodeId`, 'inventory-npc-encounter', { npcId }) })
     records.push({
@@ -64,18 +64,19 @@ export function worldScene3dInventorySources() {
   for (const [npcId, portrait] of Object.entries(NPC_FIRST_ENCOUNTERS)) {
     const file = `src/game/data/npcAppearances/${portrait.sourcePartition}.js`
     const identityCondition = npcIdentityConditionId(npcId)
-    const declarations = [{ nodeId: portrait.nodeId, placeId: placeOf(portrait.nodeId), authority: 'NPC_FIRST_ENCOUNTERS', field: 'nodeId',
+    // A narrated portrait's node is its listening context, never an actor location.
+    const declarations = portrait.depiction ? [] : [{ nodeId: portrait.nodeId, placeId: placeOf(portrait.nodeId), authority: 'NPC_FIRST_ENCOUNTERS', field: 'nodeId',
       source: source(file, 'NPC_FIRST_ENCOUNTERS', npcId, `NPC_FIRST_ENCOUNTERS.${npcId}.nodeId`, 'inventory-npc-encounter', { npcId }) }]
     records.push({
-      id: `portrait:${npcId}`, category: 'npc-portrait', label: `${NPC_REGISTRY[npcId]?.name || npcId}: first encounter`,
+      id: `portrait:${npcId}`, category: 'npc-portrait', label: `${NPC_REGISTRY[npcId]?.name || npcId}: ${portrait.depiction ? 'narrated portrait' : 'first encounter'}`,
       entityId: `npc:${npcId}`, source: source(file, 'NPC_FIRST_ENCOUNTERS', npcId, `NPC_FIRST_ENCOUNTERS.${npcId}`, 'npc-portrait', { npcId }),
-      authorityScope: 'runtime-portrait', metadata: copy({ npcId, nodeId: portrait.nodeId, sourcePartition: portrait.sourcePartition, details: portrait.details,
+      authorityScope: portrait.depiction ? 'narrated-portrait' : 'runtime-portrait', metadata: copy({ npcId, nodeId: portrait.nodeId, depiction: portrait.depiction, sourcePartition: portrait.sourcePartition, details: portrait.details,
         practicalWordIds: portrait.practicalWordIds, embedded: portrait.embedded, presence: portrait.presence, placement: portrait.placement }),
       declarations,
       statements: portrait.portraitLines.map((variant, variantIndex) => statement(
         `description:portrait:${npcId}:${variantIndex}`, albanianTextOf(variant.line),
         source(file, 'NPC_FIRST_ENCOUNTERS', npcId, `NPC_FIRST_ENCOUNTERS.${npcId}.portraitLines[${variantIndex}].line`, 'npc-portrait', { npcId, variantIndex }),
-        { nodeId: portrait.nodeId, reading: variant.line.reading || null, tokenIds: variant.line.filter((token) => token.id).map((token) => token.id),
+        { nodeId: portrait.nodeId, ...(portrait.depiction ? { depiction: portrait.depiction } : {}), reading: variant.line.reading || null, tokenIds: variant.line.filter((token) => token.id).map((token) => token.id),
           conditions: { all: [...variant.required, ...(portrait.presence === 'runtime' ? [`npc:${npcId}`] : []), ...(identityCondition && variant.known === true ? [identityCondition] : [])],
             negate: false, none: [...variant.excluded, ...(identityCondition && variant.known === false ? [identityCondition] : [])], observationId: null },
           portraitConditions: { required: [...variant.required], excluded: [...variant.excluded], known: variant.known, presence: portrait.presence,
@@ -198,11 +199,13 @@ const markerOffset = (id) => {
 }
 const positionAt = (placeId, offset) => [NODE_POS[placeId][0] + offset[0], offset[1], NODE_POS[placeId][1] + offset[2]]
 const descriptionOf = (record, item) => ({
-  id: item.id, nodeId: item.nodeId || null, lineIndex: null, placeId: placeOf(item.nodeId), regionId: item.nodeId ? NODE_REGION[item.nodeId] || null : null,
+  id: item.id, nodeId: item.nodeId || null, lineIndex: null, placeId: item.depiction ? null : placeOf(item.nodeId),
+  regionId: !item.depiction && item.nodeId ? NODE_REGION[item.nodeId] || null : null,
   text: item.text, source: item.source, language: ['npc-portrait', 'item-action', 'item-use'].includes(record.category) ? 'sq' : 'en', reading: item.reading || null, tokenIds: item.tokenIds || [], conditions: item.conditions,
-  role: record.category === 'npc-portrait' ? 'first-encounter-portrait' : 'reference-catalogue', environmentDimensions: [], observationId: null, npcIdentity: null,
+  role: item.depiction ? 'narrated-portrait' : record.category === 'npc-portrait' ? 'first-encounter-portrait' : 'reference-catalogue', environmentDimensions: [], observationId: null, npcIdentity: null,
   elementIds: [], bindings: [], classification: 'canonical-metadata', inventoryRecordId: record.id, authorityScope: record.authorityScope,
   ...(item.portraitConditions ? { portraitConditions: item.portraitConditions } : {}),
+  ...(item.depiction ? { depiction: item.depiction } : {}),
 })
 
 /** No runtime state is imported. The result enumerates authored possibilities
@@ -244,7 +247,9 @@ export function buildWorldScene3dInventory() {
         ...(catalogue ? { catalogue: true } : {}), descriptionIds: [], source: markerSource, entityId: record.entityId || null,
         authorityScope: record.authorityScope, inventoryRecordIds: [], conditional: true,
         interpretation: catalogue
-          ? 'Unlocated source/reference symbol. Planning, proposed and offstage records do not assert a physical chart location.'
+          ? record.authorityScope === 'narrated-portrait'
+            ? 'A portrait described in a song. Its rendering scene is a listening context, not a physical encounter; source place and beats remain reference metadata.'
+            : 'Unlocated source/reference symbol. Planning, proposed and offstage records do not assert a physical chart location.'
           : record.authorityScope === 'source-timeline'
             ? 'Source-tale location reference across alternative beats, including backstory. This is not a simultaneous living actor or an assertion that this source event is playable.'
             : record.category === 'item-action'
@@ -350,7 +355,7 @@ export function validateWorldScene3dInventory(model) {
       const description = descriptions.get(item.id)
       if (!description) { problem(item.id, 'canonical inventory description is missing'); continue }
       const expectedDescription = descriptionOf(expected, item)
-      for (const field of ['nodeId', 'lineIndex', 'placeId', 'regionId', 'text', 'source', 'language', 'reading', 'tokenIds', 'conditions', 'role', 'environmentDimensions', 'observationId', 'npcIdentity', 'inventoryRecordId', 'authorityScope', 'portraitConditions']) {
+      for (const field of ['nodeId', 'lineIndex', 'placeId', 'regionId', 'text', 'source', 'language', 'reading', 'tokenIds', 'conditions', 'role', 'environmentDimensions', 'observationId', 'npcIdentity', 'inventoryRecordId', 'authorityScope', 'portraitConditions', 'depiction']) {
         if (!same(description[field], expectedDescription[field])) problem(item.id, `canonical description ${field} is stale`)
       }
     }
@@ -393,7 +398,9 @@ export function validateWorldScene3dInventory(model) {
     for (const [field, value] of Object.entries(expected)) if (!same(element[field], value)) problem(id, `inventory marker ${field} differs from its canonical source`)
     if (Boolean(element.catalogue) !== catalogue) problem(id, 'reference catalogue classification differs from the source location')
     const interpretation = catalogue
-      ? 'Unlocated source/reference symbol. Planning, proposed and offstage records do not assert a physical chart location.'
+      ? record.authorityScope === 'narrated-portrait'
+        ? 'A portrait described in a song. Its rendering scene is a listening context, not a physical encounter; source place and beats remain reference metadata.'
+        : 'Unlocated source/reference symbol. Planning, proposed and offstage records do not assert a physical chart location.'
       : record.authorityScope === 'source-timeline'
         ? 'Source-tale location reference across alternative beats, including backstory. This is not a simultaneous living actor or an assertion that this source event is playable.'
         : record.category === 'item-action'

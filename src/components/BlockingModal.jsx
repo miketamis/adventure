@@ -72,7 +72,7 @@ export default function BlockingModal({
       >
         <h2 id={id} ref={headingRef} tabIndex={-1}>{title}</h2>
         {children}
-        <div className="modal-actions">{actions}</div>
+        {actions != null && <div className="modal-actions">{actions}</div>}
       </section>
     </div>,
     document.body,

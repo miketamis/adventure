@@ -5,6 +5,7 @@
 // consequence. New semantic kinds reuse this fact/evidence schema.
 
 import { resolveRevealLine } from './revealResolver.js'
+import { proveStartedNpcArrival } from './npcArrivalProof.js'
 import {
   ACTION_SEMANTIC_KINDS,
   SEMANTIC_FACT_KINDS,
@@ -704,6 +705,7 @@ function schemaIssuesAt(label, semantic) {
 export function actionSemanticContinuityIssues(story, {
   requireRoutedConsequences = true,
   placeOf = {},
+  proveRoutedConsequence = proveStartedNpcArrival,
 } = {}) {
   const issues = []
   for (const [nodeId, node] of Object.entries(story || {})) {
@@ -771,7 +773,8 @@ export function actionSemanticContinuityIssues(story, {
         if (!matches.length) {
           issues.push(`${label}: destination does not visibly establish '${factKey(consequence)}'`)
         } else if (requireRoutedConsequences && !matches.some(({ entry }) =>
-          routeIncludes(entry, nodeId) && destinationLineEntailed(option, entry, nodeId))) {
+          (routeIncludes(entry, nodeId) && destinationLineEntailed(option, entry, nodeId))
+          || proveRoutedConsequence?.({ story, sourceId: nodeId, option, entry, consequence }) === true)) {
           issues.push(`${label}: destination fact '${factKey(consequence)}' is not guaranteed on the routed arrival from '${nodeId}'`)
         }
       }

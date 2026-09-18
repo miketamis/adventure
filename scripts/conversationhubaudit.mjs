@@ -481,7 +481,7 @@ for (const questionId of ['meaning', 'clarify']) {
   const option = STORY.sheshiPlak.options.find((candidate) =>
     candidate.conversationHub?.hubId === 'square-elder'
       && candidate.conversationHub?.questionId === questionId)
-  assert.ok([].concat(option.unless || []).includes('fact:villageWellsRestored'),
+  assert.ok([].concat(option.unless || []).includes('hydrology:villageWellsRestored'),
     `square-elder/${questionId}: dry-well rumor follow-up remains visible after the wells are restored`)
 }
 const childrenReallyOption = STORY.dordolecBiseda.options.find((candidate) =>

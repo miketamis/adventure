@@ -29,7 +29,7 @@ export const STORY_LEARNING_ENCOUNTERS = Object.freeze([
     title: 'Read the price', instruction: 'Choose the price of one bread.',
     levelAlignment: 'A1', mode: 'reading', preparationMechanicIds: ['a1-read-and-act'],
     capstoneFamilyIds: ['a1-unseen-reading'], capstoneEligible: false,
-    sourceIds: ['bread-price'], minimumSourceLines: 1,
+    sourceSlots: [['bread-price']],
     actions: [{ id: 'tregtari:blej-buke', to: 'blerjaBuke' }],
     questions: [question('price', 'Sa kushton një bukë?', [
       choice(`amount-${BREAD_PRICE}`, lekTokens(BREAD_PRICE)),
@@ -43,7 +43,7 @@ export const STORY_LEARNING_ENCOUNTERS = Object.freeze([
     levelAlignment: 'A1', mode: 'supported-reading-response', alwaysSupported: true,
     preparationMechanicIds: ['a1-choice-dialogue', 'a1-audio-meaning'],
     capstoneFamilyIds: [], capstoneEligible: false,
-    sourceIds: ['request-unknown', 'request-known'], minimumSourceLines: 1,
+    sourceSlots: [['request-unknown', 'request-known']],
     actions: [{ id: 'story:sofra-mikut2:po_yes-merr', to: 'sofraMikut2' }],
     audio: optionalAudio('guest-bread-request:v1:request', 'më jep bukën, të lutem.'),
     questions: [question('requestedObject', 'What is he asking for?', [
@@ -58,8 +58,10 @@ export const STORY_LEARNING_ENCOUNTERS = Object.freeze([
     levelAlignment: 'A2', mode: 'reading',
     preparationMechanicIds: ['a2-gist-detail', 'a2-scan-information'],
     capstoneFamilyIds: ['a2-unseen-reading'], capstoneEligible: false,
-    sourceIds: ['news-unknown', 'news-known', 'elder-knows', 'traveller-advice', 'elira-advice'],
-    minimumSourceLines: 4,
+    sourceSlots: [
+      ['news-unknown', 'news-known', 'news-restored-unknown', 'news-restored-known'],
+      ['elder-knows', 'elder-knows-restored'], ['traveller-advice'], ['elira-advice'],
+    ],
     actions: [
       { id: 'soframikut2:nuk-jam-dakord-mendoj-se-duhet-te-subj-pyet-plake', to: 'sofraVendimPlaka' },
       { id: 'soframikut2:po-yes-jam-dakord', to: 'sofraVendimPusi' },
@@ -83,7 +85,7 @@ export const STORY_LEARNING_ENCOUNTERS = Object.freeze([
     levelAlignment: 'A2', mode: 'reading-application', difficultyClaim: 'controlled-two-constraint',
     preparationMechanicIds: ['a2-branching-repair', 'a2-scan-information'],
     capstoneFamilyIds: ['a2-unseen-reading'], capstoneEligible: false,
-    sourceIds: ['proposal-unknown', 'proposal-known'], minimumSourceLines: 1,
+    sourceSlots: [['proposal-unknown', 'proposal-known']],
     actions: [{ id: 'bisedakroi:po-yes-neser-ne-ore-nente-ne-shesh', to: 'start' }],
     questions: [
       question('dayTime', 'When will you meet?', [
@@ -98,7 +100,9 @@ export const STORY_LEARNING_ENCOUNTERS = Object.freeze([
     ],
     feedbackEnglish: 'She proposed tomorrow at nine in the square.',
   },
-].map((entry) => Object.freeze(entry)))
+].map((entry) => Object.freeze({ ...entry,
+  sourceIds: entry.sourceSlots.flat(), minimumSourceLines: entry.sourceSlots.length,
+})))
 
 export const STORY_LEARNING_BY_ID = Object.freeze(Object.fromEntries(
   STORY_LEARNING_ENCOUNTERS.map((entry) => [entry.id, entry]),
@@ -131,6 +135,26 @@ export function storyLearningSourceForLine(state, line) {
     ? source : null
 }
 
+// A stable source ID names one authored sentence, even across mutually
+// exclusive variants. Count alone cannot establish a complete passage.
+export function storyLearningSourceIds(entry, sourceLines) {
+  const slots = entry?.sourceSlots
+  if (!Array.isArray(slots) || !slots.length || slots.some((slot) =>
+    !Array.isArray(slot) || !slot.length || slot.some((id) => typeof id !== 'string' || !id))) return null
+  const ids = slots.flat()
+  if (!Array.isArray(entry.sourceIds) || new Set(ids).size !== ids.length || ids.length !== entry.sourceIds.length ||
+      ids.some((id, index) => id !== entry.sourceIds[index])) return null
+  const authored = STORY[entry.nodeId]?.text.map(lineOf)
+    .filter((line) => line.storyLearningSource?.encounterId === entry.id) || []
+  const authoredIds = authored.map((line) => line.storyLearningSource.sourceId)
+  if (authoredIds.length !== ids.length || new Set(authoredIds).size !== ids.length ||
+      authoredIds.some((id) => !ids.includes(id))) return null
+  if (!Array.isArray(sourceLines) || sourceLines.length !== slots.length ||
+      sourceLines.some((line, index) => !authored.includes(line) ||
+        !slots[index].includes(line.storyLearningSource?.sourceId))) return null
+  return sourceLines.map((line) => line.storyLearningSource.sourceId)
+}
+
 // Automatic, narrow binding identity: no manual seal and no whole-world hash.
 // An edited source, response choice, audio surface or bound action invalidates
 // only that encounter's old permission. No saved record contains this prose.
@@ -145,18 +169,17 @@ export function storyLearningBindingSignature(entry, boundOptions) {
       .map((authored) => ({ source: lineOf(authored).storyLearningSource, authored })),
     questions: entry.questions.map(({ id, prompt, choices, acceptedChoiceIds }) =>
       ({ id, prompt, choices, acceptedChoiceIds })),
-    audio: entry.audio || null, boundOptions,
+    sourceSlots: entry.sourceSlots, audio: entry.audio || null, boundOptions,
   }))
 }
 
 // Context values are recomputed from the live canonical option. A content edit
 // invalidates a stale permission; neither a caller nor a receipt owns a price
 // or a rendezvous. Unsupported future variants fail closed until authored.
-export function storyLearningContext(state, entry, boundOptions) {
+export function storyLearningContext(state, entry, boundOptions, sourceLines) {
   if (!entry || boundOptions.length !== entry.actions.length) return null
-  const sources = STORY[entry.nodeId].text.map(lineOf)
-    .filter((line) => line.storyLearningSource?.encounterId === entry.id)
-  if (!entry.sourceIds.every((id) => sources.some((line) => line.storyLearningSource.sourceId === id))) return null
+  const sourceIds = storyLearningSourceIds(entry, sourceLines)
+  if (!sourceIds) return null
   let objective
   if (entry.id === 'market-bread-price') {
     const option = boundOptions[0]
@@ -177,7 +200,7 @@ export function storyLearningContext(state, entry, boundOptions) {
     objective = JSON.stringify([dueAtClock, plan.id, plan.npcId, plan.placeId,
       plan.atHour, plan.dayOffset, plan.graceHours, plan.leaveAfterHours])
   }
-  return `${entry.id}:v${entry.version}:${storyLearningBindingSignature(entry, boundOptions)}:${objective}`
+  return `${entry.id}:v${entry.version}:${storyLearningBindingSignature(entry, boundOptions)}:${objective}:${JSON.stringify(sourceIds)}`
 }
 
 export function storyLearningSceneMatches(state, scene = state.storyLearningScene) {

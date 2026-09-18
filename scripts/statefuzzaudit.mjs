@@ -1,3 +1,4 @@
+import { HYDROLOGY_FACTS } from '../src/game/environment.js'
 // Deterministic adversarial audit of reducer and save-state boundaries.
 // Unlike the authored-path audits, this deliberately replays stale UI actions,
 // lies about targets, corrupts stored scalar/map types, and walks every role.
@@ -73,7 +74,7 @@ const stateAt = (nodeId = START_NODE, extra = {}) => ({
 const list = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
 const virtual = (id) => typeof id === 'string' && (
   ['dawn', 'day', 'dusk', 'night', 'again', 'rumor', 'embodying'].includes(id) ||
-  /^(fixture|greeting|season|weather|festival|weekday|fact|flag|knows|observed|itemTag|affords|from|became|visited|heard|npc|npcAt|rendezvous|embodying):/.test(id)
+  /^(fixture|greeting|season|weather|festival|weekday|fact|hydrology|flag|knows|observed|itemTag|affords|from|became|visited|heard|npc|npcAt|rendezvous|embodying):/.test(id)
 )
 
 const firstItemMatching = (predicate) => Object.values(ITEMS).find(predicate)?.id
@@ -128,6 +129,10 @@ function seedRevealCondition(state, id, present) {
   } else if (id.startsWith('fact:')) {
     if (present) state.worldFacts[id.slice(5)] = { atClock: state.clock, source: 'fuzz' }
     else delete state.worldFacts[id.slice(5)]
+  } else if (id.startsWith('hydrology:')) {
+    const facts = HYDROLOGY_FACTS[id.slice(10)] || []
+    if (present && facts.length) state.worldFacts[facts[0]] = { atClock: state.clock, source: 'projection-audit' }
+    else for (const fact of facts) delete state.worldFacts[fact]
   } else if (id.startsWith('visited:')) {
     const nodes = id.slice(8).split('|')
     if (present) state.visited[nodes[0]] = true
@@ -166,6 +171,7 @@ function seedConditions(input, option) {
   }
   for (const id of list(option.requires)) {
     if (!virtual(id)) state.inventory[id] = Math.max(2, state.inventory[id] || 0)
+    else if (id.startsWith('hydrology:')) seedRevealCondition(state, id, true)
     else if (id.startsWith('fact:')) state.worldFacts[id.slice(5)] = { atClock: state.clock, source: 'fuzz' }
     else if (id.startsWith('visited:')) state.visited[id.slice(8).split('|')[0]] = true
     else if (id.startsWith('heard:')) state.heard[id.slice(6)] = true
@@ -191,6 +197,7 @@ function seedConditions(input, option) {
   }
   for (const id of list(option.unless)) {
     if (!virtual(id)) delete state.inventory[id]
+    else if (id.startsWith('hydrology:')) seedRevealCondition(state, id, false)
     else if (id.startsWith('fact:')) delete state.worldFacts[id.slice(5)]
     else if (id.startsWith('visited:')) for (const key of id.slice(8).split('|')) delete state.visited[key]
     else if (id.startsWith('heard:')) delete state.heard[id.slice(6)]

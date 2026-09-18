@@ -3,7 +3,12 @@
 // Accompaniment is the first required semantic kind; the fact schema is shared
 // with future participant, object, posture, motion, opportunity, and state uses.
 import assert from 'node:assert/strict'
-import { HEART_LEVELS, ITEMS, STORY } from '../src/game/content.js'
+import { HEART_LEVELS, ITEMS, STORY, lineOf } from '../src/game/content.js'
+import { durationHoursOf, npcNodeOf, storyScenePresentationForState } from '../src/game/gameState.js'
+import { NPCS } from '../src/game/npcs.js'
+import { commitProjectedOption, feasibleOptionProjection, settleProjectedState } from './lib/story-projections.mjs'
+import { initialNpcTravelWindow } from '../src/game/npcRouteTiming.js'
+import { proveStartedNpcArrival as structuralNpcArrival } from '../src/game/npcArrivalProof.js'
 import { attachReviewedOptionReadings } from '../src/game/data/readings/reviewedOptionReadings.js'
 import { albanianTextOf } from '../src/game/language.js'
 import { PLACE_OF } from '../src/components/nodePositions.js'
@@ -468,7 +473,119 @@ for (const line of semanticEvidenceLines) {
   }
 }
 
-const issues = actionSemanticContinuityIssues(STORY, { placeOf: PLACE_OF })
+// Static from: entailment cannot establish a newly started moving actor. This
+// narrow proof joins the exact canonical start action, its initial travel
+// interval, and the real reducer's normal visible destination. An arbitrary
+// projected flag or unrelated NPC line can never waive a missing consequence.
+function proveStartedNpcArrival({ story, sourceId, option, entry, consequence }) {
+  if (story !== STORY || !STORY[sourceId]?.options.includes(option)
+      || !STORY[option.to]?.text.includes(entry) || Array.isArray(entry)
+      || entry.negate || [].concat(entry.none || []).length) return false
+  const conditions = [].concat(entry.cond || [])
+  if (conditions.length !== 1 || !/^npc:[^:]+$/.test(conditions[0])) return false
+  const npcId = conditions[0].slice(4)
+  const npc = NPCS[npcId]
+  if (!npc || npc.activePhases || ![].concat(option.startsNpc || []).includes(npcId)) return false
+  const semantic = option.actionSemantics
+  if (semantic?.kind !== 'accompaniment' || !(
+    consequence.kind === 'participant' && semantic.participantIds.includes(consequence.id)
+    || consequence.kind === 'motion' && semantic.journeyId === consequence.id
+  )) return false
+  const line = lineOf(entry)
+  if (line.scenePriority === 'ambient' || !line.semanticFacts?.some((fact) =>
+    fact.kind === consequence.kind && fact.id === consequence.id)) return false
+  const journey = initialNpcTravelWindow(npcId, npc, STORY,
+    (from, candidate) => durationHoursOf(candidate, from))
+  if (!journey || journey.from !== sourceId || journey.to !== option.to) return false
+  const before = feasibleOptionProjection(sourceId, option)
+  if (!before || before.npcStarted[npcId] != null) return false
+  const after = settleProjectedState(commitProjectedOption(before, option))
+  return after.nodeId === option.to && after.cameFrom === sourceId
+    && after.choiceIndex === STORY[sourceId].options.indexOf(option)
+    && after.npcStarted[npcId] === before.clock
+    && after.clock === before.clock + journey.hours
+    && npcNodeOf(after, npcId) === option.to
+    && storyScenePresentationForState(after).normalEntries.some((shown) => shown.line === line)
+}
+const verifyNpcArrivalProof = (input) => {
+  const actual = proveStartedNpcArrival(input)
+  assert.equal(structuralNpcArrival(input), actual, 'structural NPC timing disagrees with the actual reducer proof')
+  return actual
+}
+const travellerStart = STORY.udhaUdhetari.options[0]
+const travellerEntry = STORY.rrugaDetit.text.find((entry) =>
+  !Array.isArray(entry) && entry.cond === 'npc:seaRoadTraveller' && lineOf(entry).semanticFacts?.length)
+const travellerProof = { story: STORY, sourceId: 'udhaUdhetari', option: travellerStart,
+  entry: travellerEntry, consequence: travellerStart.actionSemantics.consequences[0] }
+assert.equal(verifyNpcArrivalProof(travellerProof), true, 'the exact production actor arrival was not proved')
+assert.equal(verifyNpcArrivalProof({ ...travellerProof, option: { ...travellerStart } }), false,
+  'a copied noncanonical action obtained an actor-arrival proof')
+assert.equal(verifyNpcArrivalProof({ ...travellerProof, entry: { ...travellerEntry,
+  cond: ['npc:seaRoadTraveller', 'flag:unproved'] } }), false,
+  'an unproved additional condition obtained an actor-arrival proof')
+assert.equal(verifyNpcArrivalProof({ ...travellerProof, consequence: {
+  kind: 'participant', id: 'other-actor' } }), false, 'an unrelated actor identity obtained an arrival proof')
+assert.equal(verifyNpcArrivalProof({ ...travellerProof, entry: STORY.rrugaDetit.text[0] }), false,
+  'an unrelated arrival line obtained a moving-actor proof')
+const originalTravellerCondition = travellerEntry.cond
+try {
+  travellerEntry.cond = 'npc:gjon'
+  assert.equal(verifyNpcArrivalProof(travellerProof), false, 'the wrong NPC obtained an actor-arrival proof')
+} finally { travellerEntry.cond = originalTravellerCondition }
+const originalDepartureDuration = travellerStart.durationHours
+try {
+  travellerStart.durationHours = 3
+  assert.equal(verifyNpcArrivalProof(travellerProof), false, 'late arrival after the NPC left obtained an actor proof')
+} finally {
+  if (originalDepartureDuration == null) delete travellerStart.durationHours
+  else travellerStart.durationHours = originalDepartureDuration
+}
+const originalActivePhases = NPCS.seaRoadTraveller.activePhases
+try {
+  NPCS.seaRoadTraveller.activePhases = []
+  assert.equal(verifyNpcArrivalProof(travellerProof), false, 'an offstage NPC obtained an actor-arrival proof')
+} finally {
+  if (originalActivePhases == null) delete NPCS.seaRoadTraveller.activePhases
+  else NPCS.seaRoadTraveller.activePhases = originalActivePhases
+}
+const originalTravellerRoute = NPCS.seaRoadTraveller.route
+try {
+  NPCS.seaRoadTraveller.route = ['udhaUdhetari', 'udhaUdhetari', 'lamtumira', 'rrugaDetit']
+  assert.equal(verifyNpcArrivalProof(travellerProof), false, 'the wrong arrival location obtained an actor proof')
+} finally { NPCS.seaRoadTraveller.route = originalTravellerRoute }
+const travellerLine = lineOf(travellerEntry)
+const originalObservation = travellerLine.observation
+try {
+  travellerLine.observation = { id: 'unseen-arrival', beat: 'Hidden traveller', index: 0, total: 1 }
+  assert.equal(verifyNpcArrivalProof(travellerProof), false,
+    'an unobserved destination actor line obtained a visible arrival proof')
+} finally {
+  if (originalObservation == null) delete travellerLine.observation
+  else travellerLine.observation = originalObservation
+}
+for (const [key, value] of [['time', 'night'], ['date', 'shen-gjergji'], ['atHour', 23], ['become', 'rozafa']]) {
+  const previous = travellerStart[key]
+  try {
+    travellerStart[key] = value
+    assert.equal(structuralNpcArrival(travellerProof), false,
+      `a ${key} clock/role override obtained a living-world fixed-interval proof`)
+  } finally {
+    if (previous == null) delete travellerStart[key]
+    else travellerStart[key] = previous
+  }
+}
+try {
+  NPCS.seaRoadTraveller.route = [...originalTravellerRoute, 'kalaNate']
+  assert.equal(structuralNpcArrival(travellerProof), false,
+    'a route entering a separate tale clock obtained a living-world proof')
+} finally { NPCS.seaRoadTraveller.route = originalTravellerRoute }
+assert.ok(actionSemanticContinuityIssues(STORY, { placeOf: PLACE_OF, proveRoutedConsequence: () => false })
+  .some((issue) => issue.startsWith('udhaUdhetari.options[0]: destination fact')),
+'the default static contract must fail closed without a canonical arrival proof')
+const issues = actionSemanticContinuityIssues(STORY, { placeOf: PLACE_OF,
+  proveRoutedConsequence: verifyNpcArrivalProof })
+assert.deepEqual(actionSemanticContinuityIssues(STORY, { placeOf: PLACE_OF }), issues,
+  'default authoring policy must agree with the independently verified reducer proof')
 assert.deepEqual(issues, [], `action semantic continuity failures:\n${issues.join('\n')}`)
 
 const classified = Object.values(STORY).flatMap((node) => node.options || [])

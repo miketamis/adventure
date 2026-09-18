@@ -153,7 +153,7 @@ export const PROJECTION_OMISSION_CONTEXT_HASHES = Object.freeze({
   "maro-perhitura.sistersReport": "3b371dc242319bc24e12b42e2d8a644750c6613841cdf833021f2dd6111eae45",
   "mujo-avenges-halil.bloodTaken": "b26876398ba90341a3ba28687361dacc876960cad6fb9963fe0c96ee059eec67",
   "mujo-avenges-halil.chooseKing": "1f9f5afda1516ba2ec9830f4ab1f955aba32c73084159526bd380f577f2f8830",
-  "mujo-avenges-halil.guardians": "d7983b76ae0195daa3c02773078c940288dc0fb03c40d8c585d50bea9c3b33ae",
+  "mujo-avenges-halil.guardians": "427cddda31cdb11e6dc3c98b6c6571a439354ce40ec3fa8d2916694e8359f50d",
   "mujo-avenges-halil.highPastures": "8d97d8271aba3705842127b364a2b43566f599a416ce9d5ea1286387d9e04658",
   "mujo-avenges-halil.inMyStead": "9d4f615e15304f37c89d0cce6d553aeeab7191de84ad2f5ac601da2971474515",
   "mujo-avenges-halil.killedLlabutani": "c123557c9dbead2cff0e36fbba345fe961d04a54e732a9304d057092cbf9e59d",
@@ -529,6 +529,13 @@ const PROJECTION_REVIEW_POLICY = {
     disposition: JUSTIFIED,
     basis: 'witnessed-reckoning-montage',
     note: 'Guardians, muster, pursuit and healing are recounted in the ending around the staged facts that Mujo lives and Halili takes his blood.',
+    overrides: {
+      guardians: {
+        disposition: JUSTIFIED,
+        basis: 'narrated-sickbed-portraits',
+        note: 'The mujoHak1 lahuta account explicitly depicts the serpent and wolf at Mujo’s source-house sickbed. This does not enact Dizdar’s discovery, the ora, or the threatened wolf: those events remain in the source beat, and no creature is placed in the listener’s room.',
+      },
+    },
   },
   'mujo-courser': {
     disposition: JUSTIFIED,

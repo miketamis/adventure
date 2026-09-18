@@ -150,7 +150,7 @@ export const WORLD_SCENE_3D_PLACE_FEATURES = Object.freeze([
     {"nodeId":"qyteti","lineIndex":2,"requires":["treg","hapur"],"text":"këtu nuk rri njeri, por një treg rri hapur, pa zhurmë.","conditions":{"all":[],"negate":false,"none":[],"observationId":null}},
     {"shape":"box","size":[27,13,19]}, [0,6.5,0], "#be9870", "market"),
   reviewed("place-qytetiUdhetar-road", "Wet road outside the cavern", "qytetiUdhetar",
-    {"nodeId":"qytetiUdhetar","lineIndex":1,"requires":["rruge","lagesht"],"text":"jashtë shpellës, rruga për në Gjakovën e gjallë është e lagësht.","conditions":{"all":["again"],"negate":true,"none":[],"observationId":null}},
+    {"nodeId":"qytetiUdhetar","lineIndex":1,"requires":["rruge","lagesht"],"text":"jashtë shpellës, rruga për në Gjakovën e gjallë është e lagësht.","conditions":{"all":[],"negate":false,"none":[],"observationId":null}},
     {"shape":"plane","size":[36,1,10]}, [0,0.5,0], "#c4ad86", "road"),
   reviewed("place-sheshi-gate", "Old gate beside Gjakova square", "sheshi",
     {"nodeId":"sheshi","lineIndex":5,"requires":["dere","madh","vjeter"],"text":"një udhëtar vjen prej larg, ndërsa një derë e madhe dhe e vjetër rri mbyllur këtu.","conditions":{"all":[],"negate":false,"none":["arrival:action:observation:city-old-door"],"observationId":"city-old-door"}},

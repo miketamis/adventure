@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import BlockingModal from './BlockingModal.jsx'
 
-export default function AnalyticsPreferencesModal({ consent, onSave, onDismiss }) {
+export default function AnalyticsPreferencesModal({ consent, onSave }) {
   const [structured, setStructured] = useState(consent.structured)
   const [replay, setReplay] = useState(consent.replay)
 
@@ -11,22 +10,7 @@ export default function AnalyticsPreferencesModal({ consent, onSave, onDismiss }
   }, [consent.structured, consent.replay])
 
   return (
-    <BlockingModal
-      id="analytics-preferences-title"
-      title="Help improve Aventura Shqip?"
-      className="analytics-preferences ph-no-capture"
-      onDismiss={onDismiss}
-      actions={(
-        <>
-          <button type="button" className="btn" onClick={() => onSave({ structured: false, replay: false })}>
-            Continue without sharing
-          </button>
-          <button type="button" className="btn primary" onClick={() => onSave({ structured, replay })}>
-            Save my choices
-          </button>
-        </>
-      )}
-    >
+    <>
       <p>
         Your playtest organiser has already handled research consent. These controls let you change
         or stop anonymous collection at any time; the game works normally if you share nothing.
@@ -67,6 +51,14 @@ export default function AnalyticsPreferencesModal({ consent, onSave, onDismiss }
         Playtest recordings are used only to improve this game. The study organiser is responsible for
         confirming any required adult or guardian consent before sharing the playtest link.
       </p>
-    </BlockingModal>
+      <div className="modal-actions">
+        <button type="button" className="btn" onClick={() => onSave({ structured: false, replay: false })}>
+          Continue without sharing
+        </button>
+        <button type="button" className="btn primary" onClick={() => onSave({ structured, replay })}>
+          Save my choices
+        </button>
+      </div>
+    </>
   )
 }

@@ -500,7 +500,7 @@ export function buildWorldScene3d() {
       'A scene-context link locates prose but does not validate its physical assertions. Context-only lines remain visible modeling gaps.',
       'Reviewed feature witnesses establish the named feature, not its illustrative size, local offset, material or architectural accuracy.',
       'Conditions, observations and NPC route stops describe alternatives. This atlas is a survey of authored possibilities, not a simultaneous world state.',
-      'Actor markers require explicit registry, runtime-route or portrait encounter locations. They are possible encounters, never current-presence claims; planning prose stays unlocated.',
+      'Actor markers require explicit registry, runtime-route or physical portrait encounter locations. They are possible encounters, never current-presence claims; planning prose and narrated portraits stay unlocated.',
       'Geometry validates canonical place/route continuity, registered crossings, sightlines and exact supported feature witnesses. It cannot prove arbitrary prose or lore true.',
       'Item blurbs link to portable catalogue symbols and exact action locations. Source-tale cast, objects and places preserve their source-era boundary; proposed/offstage locations stay in the reference gallery.',
     ],

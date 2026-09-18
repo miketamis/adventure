@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useState, useEffect, useRef, useSyncExternalStore } from 'react'
+import { lazy, Suspense, useCallback, useState, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react'
 import {
   currentStoryState,
   loadState,
@@ -14,8 +14,6 @@ import { STORY } from './game/content.js'
 import { attachReviewedEnglishReadings } from './game/language.js'
 import ReleaseErrorBoundary from './components/ReleaseErrorBoundary.jsx'
 import BlockingModal from './components/BlockingModal.jsx'
-import AnalyticsPreferencesModal from './components/AnalyticsPreferencesModal.jsx'
-import PlaytestFeedbackModal from './components/PlaytestFeedbackModal.jsx'
 import {
   captureConsentPageview,
   captureEvent,
@@ -66,6 +64,8 @@ const ActionKaraoke = lazy(() => import('./components/ActionKaraoke.jsx'))
 // Story keeps this consequence surface lazy; the Train route above primes it
 // before presenting any answer controls.
 const HeartConsequenceModal = lazy(loadHeartConsequenceModal)
+const AnalyticsPreferencesModal = lazy(() => import('./components/AnalyticsPreferencesModal.jsx'))
+const PlaytestFeedbackModal = lazy(() => import('./components/PlaytestFeedbackModal.jsx'))
 const BUILD_COMMIT = __BUILD_COMMIT__
 const SPOKEN_ACTION_TYPES = ['CHOOSE', 'CONFUSE', 'USE_ITEM', 'HEAL', 'CONFIRM_EMBODIMENT']
 const FEEDBACK_MINIMUM_ENGAGED_MINUTES = 5
@@ -81,6 +81,32 @@ const reduceWithTiming = (state, action) => measurePerformanceOperation(
 
 const ViewFallback = () => (
   <div className="card view-fallback" role="status" aria-live="polite">Opening the journey…</div>
+)
+
+// Keep one focus-trapping shell mounted while an optional body loads or fails.
+// Consent enforcement stays eager; opening either dialog only fetches its UI.
+const OptionalModalLoading = ({ id, onDismiss }) => {
+  const loadingRef = useRef(null)
+  useLayoutEffect(() => () => {
+    // A keyboard user may have focused Close while the chunk was in flight.
+    if (loadingRef.current?.contains(document.activeElement)) document.getElementById(id)?.focus()
+  }, [id])
+  return (
+    <div ref={loadingRef}>
+      <p role="status">Opening…</p>
+      <div className="modal-actions"><button type="button" className="btn" onClick={onDismiss}>Close</button></div>
+    </div>
+  )
+}
+
+const OptionalModal = ({ id, title, className, onDismiss, children }) => (
+  <BlockingModal id={id} title={title} className={className} onDismiss={onDismiss}>
+    <ReleaseErrorBoundary onLeave={onDismiss} leaveLabel="Close">
+      <Suspense fallback={<OptionalModalLoading id={id} onDismiss={onDismiss} />}>
+        {children}
+      </Suspense>
+    </ReleaseErrorBoundary>
+  </BlockingModal>
 )
 
 // the four phases of the world-day, named in Albanian (they're vocabulary too)
@@ -397,6 +423,21 @@ export default function App() {
   const blockingOverlay = gameBlockingOverlay || analyticsPreferencesOpen || feedbackOpen
   const meaningfulActions = Math.max(0, Number(state.turn || 1) - 1) +
     Number(state.trainRound || 0) + Object.keys(state.discovered || {}).length
+  const dismissFeedback = (trigger = feedbackTrigger) => {
+    captureEvent('playtest_feedback_dismissed', {
+      trigger,
+      engaged_minutes: engagedMinutes,
+      meaningful_actions: meaningfulActions,
+      view: state.view,
+      node_id: state.nodeId,
+      turn: state.turn,
+    }, { receipt: `feedback-dismissed:${BUILD_COMMIT}:${Date.now()}` })
+    setFeedbackOpen(false)
+    if (trigger === 'milestone') {
+      setFeedbackPromptStatus('dismissed')
+      saveFeedbackStatus('dismissed')
+    }
+  }
 
   useEffect(() => {
     if (!analyticsConsent.structured && !analyticsConsent.replay) return undefined
@@ -689,50 +730,49 @@ export default function App() {
       </div>
 
       {analyticsPreferencesOpen && (
-        <AnalyticsPreferencesModal
-          consent={analyticsConsent}
-          onDismiss={analyticsConsent.decided ? () => setAnalyticsPreferencesOpen(false) : undefined}
-          onSave={(nextConsent) => {
-            setAnalyticsConsent(nextConsent)
-            setAnalyticsPreferencesOpen(false)
-          }}
-        />
+        <OptionalModal
+          id="analytics-preferences-title"
+          title="Help improve Aventura Shqip?"
+          className="analytics-preferences ph-no-capture"
+          onDismiss={() => setAnalyticsPreferencesOpen(false)}
+        >
+          <AnalyticsPreferencesModal
+            consent={analyticsConsent}
+            onSave={(nextConsent) => {
+              setAnalyticsConsent(nextConsent)
+              setAnalyticsPreferencesOpen(false)
+            }}
+          />
+        </OptionalModal>
       )}
 
       {feedbackOpen && analyticsConsent.structured && (
-        <PlaytestFeedbackModal
-          trigger={feedbackTrigger}
-          context={{
-            engaged_minutes: engagedMinutes,
-            meaningful_actions: meaningfulActions,
-            view: state.view,
-            node_id: state.nodeId,
-            turn: state.turn,
-          }}
-          onSubmit={(feedback) => {
-            captureEvent('playtest_feedback_submitted', feedback, {
-              receipt: `feedback:${BUILD_COMMIT}:${Date.now()}`,
-            })
-            setFeedbackOpen(false)
-            setFeedbackPromptStatus('submitted')
-            saveFeedbackStatus('submitted')
-          }}
-          onDismiss={(trigger) => {
-            captureEvent('playtest_feedback_dismissed', {
-              trigger,
+        <OptionalModal
+          id="playtest-feedback-title"
+          title="How is the journey feeling?"
+          className="playtest-feedback ph-no-capture"
+          onDismiss={() => dismissFeedback()}
+        >
+          <PlaytestFeedbackModal
+            trigger={feedbackTrigger}
+            context={{
               engaged_minutes: engagedMinutes,
               meaningful_actions: meaningfulActions,
               view: state.view,
               node_id: state.nodeId,
               turn: state.turn,
-            }, { receipt: `feedback-dismissed:${BUILD_COMMIT}:${Date.now()}` })
-            setFeedbackOpen(false)
-            if (trigger === 'milestone') {
-              setFeedbackPromptStatus('dismissed')
-              saveFeedbackStatus('dismissed')
-            }
-          }}
-        />
+            }}
+            onSubmit={(feedback) => {
+              captureEvent('playtest_feedback_submitted', feedback, {
+                receipt: `feedback:${BUILD_COMMIT}:${Date.now()}`,
+              })
+              setFeedbackOpen(false)
+              setFeedbackPromptStatus('submitted')
+              saveFeedbackStatus('submitted')
+            }}
+            onDismiss={dismissFeedback}
+          />
+        </OptionalModal>
       )}
 
       {!analyticsPreferencesOpen && !feedbackOpen && actionTransition && (

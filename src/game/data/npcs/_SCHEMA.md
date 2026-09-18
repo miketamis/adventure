@@ -64,3 +64,29 @@ returns to her palace, each tale its own era).
 
 Every cast member of every tale MUST resolve to a registry entry
 (`node scripts/beatscoverage.mjs` enforces it).
+
+## Narrated portraits are not physical encounters
+
+A portrait rendered inside a song may use the first-encounter presentation
+without moving its character into the listener's room. Keep `location.node`
+at the existing source-place anchor; do not add the narration scene to
+`location.encounters`. In `data/npcAppearances`, declare the rendering `nodeId`
+and an explicit `depiction` record:
+
+```js
+depiction: {
+  kind: 'narrated',
+  taleId: 'source-tale-id',
+  placeId: 'source-place-id',
+  beatIds: ['source-beat-id'],
+}
+```
+
+The portrait must explicitly frame the Albanian as narration, such as
+“Në këngë, …”. The portrait audit joins the NPC to the tale's cast, the cited
+beats to their source place, that place to the catalogue home, and the rendering
+scene to the tale's playable projection. Unknown fields, missing source joins
+and conflicting physical `presence` policies fail closed. The projected
+`line.npcAppearance.depiction` retains this distinction for inspectors.
+This metadata records narrated character exposure only: it grants no live NPC
+presence, map actor, movement route or same-room interaction.

@@ -365,7 +365,7 @@ const isRegisteredQuestCondition = (condition) => {
 const isRegisteredObservationCondition = (condition) => observationConditions.has(condition)
 const isVirtual = (i) => i === 'embodying' || i === 'again' || i === 'rumor' || TIME_PHASES.has(i) ||
   isRegisteredQuestCondition(i) || isRegisteredObservationCondition(i) ||
-  /^(arrival|fixture|npc|npcAt|rendezvous|from|became|embodying|visited|heard|greeting|season|weather|festival|weekday|fact|flag|knows|itemTag|affords):/.test(i)
+  /^(arrival|fixture|npc|npcAt|rendezvous|from|became|embodying|visited|heard|greeting|season|weather|festival|weekday|fact|hydrology|flag|knows|itemTag|affords):/.test(i)
 const reqIds = (o) => (o.requires == null ? [] : [].concat(o.requires))
 const incomingGatedByItem = {}
 for (const n of Object.values(STORY)) for (const o of n.options || []) if (o.to) {

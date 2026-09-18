@@ -21,6 +21,7 @@ import { PLACE_META } from '../src/components/placeMeta.js'
 import { REGIONS, NODE_REGION, VILLAGE_ANCHOR_IDS, isWander } from '../src/game/regions.js'
 import { NPCS } from '../src/game/npcs.js'
 import { npcNodeOf, TIME_PHASES } from '../src/game/gameState.js'
+import { initialNpcTravelWindow } from '../src/game/npcRouteTiming.js'
 import { optionEffectsOf, rendezvousSpecOf } from '../src/game/stateMechanics.js'
 import { WORD_CLASS, wordClassOf } from '../src/game/wordClassPolicy.js'
 import {
@@ -787,13 +788,15 @@ for (const [nid, npc] of Object.entries(NPCS)) {
     else if (STORY[r].end) npcBad.push(`${nid}: route node '${r}' is an ending screen`)
   }
   const steps = npc.once ? npc.route.length - 1 : npc.route.length
+  const initialTravel = initialNpcTravelWindow(nid, npc, STORY,
+    (from, option) => transitionInfo(from, option).hours)
   for (let i = 0; i < steps; i++) {
     const a = npc.route[i], b = npc.route[(i + 1) % npc.route.length]
     if (STORY[a] && STORY[b] && a !== b) {
       const option = STORY[a].options.find((candidate) => !candidate.confuser && candidate.to === b)
       if (!option) npcBad.push(`${nid}: ${a} -> ${b} is not a story edge — NPCs walk the real roads`)
-      else if (transitionInfo(a, option).hours > npc.stepHours) {
-        npcBad.push(`${nid}: ${a} -> ${b} needs ${transitionInfo(a, option).hours}h but its timetable allows ${npc.stepHours}h`)
+      else if (transitionInfo(a, option).hours > (initialTravel?.lastSourceIndex === i ? initialTravel.hours : npc.stepHours)) {
+        npcBad.push(`${nid}: ${a} -> ${b} needs ${transitionInfo(a, option).hours}h but its timetable allows ${initialTravel?.lastSourceIndex === i ? initialTravel.hours : npc.stepHours}h`)
       }
     }
   }
@@ -853,7 +856,7 @@ for (const [id, c] of npcConds) {
     const rendezvousId = separator > 0 ? condition.slice(0, separator) : ''
     const status = separator > 0 ? condition.slice(separator + 1) : ''
     if (!rendezvousIds.has(rendezvousId)) npcBad.push(`${id}: '${c}' names an unscheduled rendezvous`)
-    if (!['scheduled', 'waiting', 'on-time', 'late', 'missed', 'fulfilled'].includes(status)) {
+    if (!['known', 'scheduled', 'waiting', 'on-time', 'late', 'missed', 'fulfilled'].includes(status)) {
       npcBad.push(`${id}: '${c}' names unknown rendezvous status '${status}'`)
     }
     continue

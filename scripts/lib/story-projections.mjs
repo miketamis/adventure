@@ -1,3 +1,4 @@
+import { HYDROLOGY_FACTS } from '../../src/game/environment.js'
 // Shared authoring projection oracle. Audits use the real reducer and the same
 // visibility/condition helpers as play, while seeding only the exact state
 // predicates declared by one option. This gives every authored edge a concrete
@@ -42,7 +43,7 @@ import {
 } from '../../src/game/playerActionRuntime.js'
 import { QUESTS, questActionAvailability } from '../../src/game/quests.js'
 import { resolveRevealLine } from '../../src/game/revealResolver.js'
-import { optionEffectsOf } from '../../src/game/stateMechanics.js'
+import { optionEffectsOf, rendezvousSpecOf } from '../../src/game/stateMechanics.js'
 import { isDistantLineVisible } from '../../src/game/worldModel.js'
 import {
   TIMED_WORLD_FIXTURES,
@@ -52,7 +53,7 @@ import {
 const list = (value) => value == null ? [] : Array.isArray(value) ? value : [value]
 const virtual = (id) => typeof id === 'string' && (
   ['dawn', 'day', 'dusk', 'night', 'again', 'rumor', 'embodying'].includes(id)
-  || /^(fixture|greeting|season|weather|festival|weekday|fact|flag|knows|observed|itemTag|affords|from|became|visited|heard|npc|npcAt|rendezvous|quest|arrival:action|embodying):/.test(id)
+  || /^(fixture|greeting|season|weather|festival|weekday|fact|hydrology|flag|knows|observed|itemTag|affords|from|became|visited|heard|npc|npcAt|rendezvous|quest|arrival:action|embodying):/.test(id)
   || id === 'arrival:money'
 )
 
@@ -224,6 +225,10 @@ function seedCondition(state, id, present) {
   } else if (id.startsWith('fact:')) {
     if (present) state.worldFacts[id.slice(5)] = { atClock: state.clock, source: 'projection-audit' }
     else delete state.worldFacts[id.slice(5)]
+  } else if (id.startsWith('hydrology:')) {
+    const facts = HYDROLOGY_FACTS[id.slice(10)] || []
+    if (present && facts.length) state.worldFacts[facts[0]] = { atClock: state.clock, source: 'projection-audit' }
+    else for (const fact of facts) delete state.worldFacts[fact]
   } else if (id.startsWith('visited:')) {
     const nodes = id.slice(8).split('|')
     if (present) state.visited[nodes[0]] = true
@@ -290,11 +295,16 @@ function seedClockCondition(state, id, present) {
       delete state.rendezvous[rendezvousId]
       return
     }
+    const specs = Object.values(STORY).flatMap((node) => node.options.map(rendezvousSpecOf))
+      .filter((spec) => spec?.id === rendezvousId)
+    const spec = specs[0]
+    if (!spec || specs.some((other) => other.npcId !== spec.npcId ||
+        other.placeId !== spec.placeId || other.kind !== spec.kind)) return
     const base = {
       id: rendezvousId,
-      npcId: 'projection-npc',
-      placeId: state.nodeId,
-      kind: 'meeting',
+      npcId: spec.npcId,
+      placeId: spec.placeId,
+      kind: spec.kind,
       agreedAtClock: Math.max(0, state.clock - 24),
       dueAtClock: state.clock + 1,
       graceHours: 1,

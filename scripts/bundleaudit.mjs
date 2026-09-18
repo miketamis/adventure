@@ -10,6 +10,10 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { basename, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
+import { pathToFileURL } from 'node:url'
+import { runInNewContext } from 'node:vm'
+import { parseAst } from 'vite'
+import viteConfig from '../vite.config.js'
 import { NOUN_NUMBER_POLICIES } from './lib/noun-number-policies.mjs'
 
 const DIST = resolve('dist')
@@ -111,9 +115,11 @@ const chunkNamed = (prefix) => {
 // Static actions appended for save-compatible indices keep their English in
 // the same deferred corpus as inline choices. Exercise the actual emitted
 // chunk and exact live/deferred readings, not just the build-transform source.
-const [{ STORY }, { REVIEWED_OPTION_READINGS }] = await Promise.all([
+const [{ STORY, lineOf, ITEMS, HEART_LEVELS }, { REVIEWED_OPTION_READINGS, attachReviewedOptionReadings, optionEnglishReadingOf }, { REVIEWED_READINGS }, language] = await Promise.all([
   import('../src/game/content.js'),
   import('../src/game/data/readings/reviewedOptionReadings.js'),
+  import('../src/game/data/readings/reviewedReadings.js'),
+  import('../src/game/language.js'),
 ])
 const storyGraphSource = readFileSync(resolve(ASSETS, chunkNamed('story-graph').name), 'utf8')
 for (const [nodeId, index] of [['tsRast', 5], ['pazariFshatit', 6], ['pazariFshatit', 7], ['fshatiSheshi', 28], ['oda2', 3]]) {
@@ -123,6 +129,143 @@ for (const [nodeId, index] of [['tsRast', 5], ['pazariFshatit', 6], ['pazariFsha
   assert.equal(REVIEWED_OPTION_READINGS[address]?.en, reading, `${address}: deferred action reading differs from source`)
   assert.ok(!storyGraphSource.includes(reading), `${address}: duplicate debug English remained in the eager story graph`)
 }
+
+// A factory marker is an explicit promise: all of its calls produce reviewed
+// node-addressed material. Inspect every call site, then exercise the actual
+// emitted graph and deferred corpus rather than trusting a naming convention.
+const visitAst = (node, visit) => {
+  if (!node || typeof node !== 'object') return
+  visit(node)
+  for (const child of Object.values(node)) {
+    if (Array.isArray(child)) child.forEach((entry) => visitAst(entry, visit))
+    else if (child && typeof child.type === 'string') visitAst(child, visit)
+  }
+}
+const contentAst = parseAst(readFileSync(resolve('src/game/content.js'), 'utf8'))
+const reviewedFactories = new Set()
+const reviewedMaps = []
+let storyLiteral
+visitAst(contentAst, (node) => {
+  if (node.type !== 'VariableDeclarator') return
+  if (node.id?.name === 'STORY') storyLiteral = node.init
+  if (node.init?.callee?.name === 'reviewedStoryLineFactory') reviewedFactories.add(node.id.name)
+  if (node.init?.callee?.name === 'reviewedStoryLineMap') reviewedMaps.push({ name: node.id.name, lines: node.init.arguments[0] })
+})
+assert.ok(reviewedFactories.size > 0, 'reviewed factories lost their explicit deferral contract')
+const factoryCalls = []
+for (const node of storyLiteral.properties) for (const field of node.value?.properties || []) {
+  if (!['text', 'options'].includes(field.key?.name)) continue
+  for (const [index, element] of (field.value.elements || []).entries()) visitAst(element, (call) => {
+    if (call.type === 'CallExpression' && reviewedFactories.has(call.callee?.name)) {
+      factoryCalls.push({ start: call.start, factory: call.callee.name,
+        nodeId: node.key.name || node.key.value, field: field.key.name, index })
+    }
+  })
+}
+const addressedCalls = new Set(factoryCalls.map(({ start }) => start))
+visitAst(contentAst, (node) => {
+  if (node.type === 'CallExpression' && reviewedFactories.has(node.callee?.name)) {
+    assert.ok(addressedCalls.has(node.start), `${node.callee.name}: marked factory escapes reviewed STORY addresses`)
+  }
+})
+assert.deepEqual(new Set(factoryCalls.map(({ factory }) => factory)), reviewedFactories,
+  'a marked factory has no reviewed call site')
+// The maps are authored by node ID but installed after the literal's ordinary
+// options. Resolve the actual source option rather than copying its index or
+// guessing where the installer will append it.
+for (const { name, lines } of reviewedMaps) {
+  assert.equal(lines.type, 'ObjectExpression', `${name}: reviewed map must be an explicit object`)
+  const ids = new Set()
+  for (const property of lines.properties) {
+    assert.equal(property.type, 'Property', `${name}: reviewed maps cannot contain spreads`)
+    const nodeId = property.key.name || property.key.value
+    const readings = []
+    visitAst(property.value, (call) => {
+      if (call.type === 'CallExpression' && call.callee?.name === 'R') {
+        const reading = call.arguments[0]
+        assert.ok(reading.type === 'Literal' && typeof reading.value === 'string',
+          `${name}.${nodeId}: map readings must be static authored strings`)
+        readings.push(reading.value)
+      }
+    })
+    assert.ok(readings.length <= 1, `${name}.${nodeId}: map entry contains multiple readings`)
+    // Bare Albanian entries are unchanged by deferral. Validate each removed
+    // English line, including its effective installed target, rather than
+    // treating unrelated historical bare-line entries as deferred content.
+    if (!readings.length) continue
+    assert.ok(!ids.has(nodeId), `${name}: duplicate reviewed node ${nodeId}`)
+    ids.add(nodeId)
+    assert.ok(STORY[nodeId] && !STORY[nodeId].end, `${name}.${nodeId}: no live confuser destination`)
+    const matches = STORY[nodeId].options.flatMap((option, index) =>
+      option.confuser && option.text.reading === readings[0] ? [index] : [])
+    assert.equal(matches.length, 1, `${name}.${nodeId}: reviewed line must resolve exactly one installed confuser`)
+    factoryCalls.push({ factory: name, nodeId, field: 'options', index: matches[0] })
+  }
+}
+const emittedStoryModule = await import(pathToFileURL(resolve(ASSETS, chunkNamed('story-graph').name)))
+const emittedStory = Object.values(emittedStoryModule).find((value) => value?.start?.id === 'start' && value?.sofraMikut2)
+assert.ok(emittedStory, 'the emitted story graph could not be inspected')
+const bootstrapSource = bootstrap.map(({ name }) => readFileSync(resolve(ASSETS, name), 'utf8')).join('\n')
+const emittedLine = ({ nodeId, field, index }) => field === 'text'
+  ? lineOf(emittedStory[nodeId].text[index]) : emittedStory[nodeId].options[index].text
+for (const call of factoryCalls) {
+  const { nodeId, field, index } = call
+  const address = `${nodeId}.${field}[${index}]`
+  const source = field === 'text' ? lineOf(STORY[nodeId].text[index]) : STORY[nodeId].options[index].text
+  const review = (field === 'text' ? REVIEWED_READINGS : REVIEWED_OPTION_READINGS)[address]
+  assert.ok(source.reading, `${address}: marked factory did not emit a reviewed English line`)
+  assert.equal(review?.en, source.reading, `${address}: marked factory reading is missing or stale in the deferred corpus`)
+  assert.equal(review.al, language.albanianTextOf(source), `${address}: deferred Albanian pin is stale`)
+  assert.equal(language.albanianTextOf(emittedLine(call)), review.al, `${address}: build changed authored Albanian`)
+  assert.equal(emittedLine(call).reading, undefined, `${address}: marked factory English leaked into the eager graph`)
+  assert.deepEqual({ ...emittedLine(call) }, Object.fromEntries(Object.entries(source).filter(([key]) => key !== 'reading')),
+    `${address}: deferral changed tokens or non-reading line metadata`)
+}
+// Distinct computed fragments must be absent too: a compiler can retain a
+// template's strings without retaining any one complete evaluated sentence.
+for (const excerpt of [
+  'I have news. On the road I heard', 'My son has been far away for nine years',
+  'Water is important to all of us; perhaps the Lord sees us.',
+  'Someone said, ‘I am leaving.’ I do not know why.',
+]) assert.ok(!bootstrapSource.includes(excerpt), `computed reviewed English leaked into bootstrap: ${excerpt}`)
+language.attachReviewedEnglishReadings(emittedStory, REVIEWED_READINGS)
+attachReviewedOptionReadings(emittedStory, ITEMS, HEART_LEVELS)
+for (const call of factoryCalls) {
+  const review = (call.field === 'text' ? REVIEWED_READINGS : REVIEWED_OPTION_READINGS)[`${call.nodeId}.${call.field}[${call.index}]`]
+  const hydrated = call.field === 'text' ? emittedLine(call).reading : optionEnglishReadingOf(emittedLine(call))
+  assert.equal(hydrated, review.en, `${call.factory}: deferred hydration lost the exact reading`)
+}
+
+// The same production transform must leave unmarked runtime builders intact.
+const boundaryFixture = [
+  'const L = (...tokens) => tokens;',
+  'const R = (reading, ...tokens) => Object.assign(tokens, { reading });',
+  'const w = (al) => ({ al });',
+  'const reviewedStoryLineFactory = (factory) => factory;',
+  'const reviewedStoryLineMap = (lines) => lines;',
+  'const reviewed = reviewedStoryLineFactory((known) => R(`${known ? "Gjon" : "The traveller"} has news.`, w("lajm")));',
+  'const lines = reviewedStoryLineMap({ start: R("An authored confuser.", w("gur")) });',
+  'const unmarkedLines = { start: R("Runtime map detail stays available.", w("dru")) };',
+  'const payment = (amount) => R(`You pay ${amount} lek.`, w("paguaj"));',
+  'const otherRuntime = () => R("Runtime detail stays available.", w("tani"));',
+  'const probe = { reviewed: reviewed(true), map: lines.start, unmarkedMap: unmarkedLines.start, payment: payment(37), other: otherRuntime() };',
+].join('\n')
+const transformer = viteConfig.plugins.find(({ name }) => name === 'defer-reviewed-story-readings')
+const transformedFixture = transformer.transform.call({ parse: parseAst }, boundaryFixture, '/src/game/content.js').code
+const boundary = runInNewContext(`${transformedFixture}\nprobe`)
+assert.equal(boundary.reviewed.reading, undefined, 'marked computed reading was not deferred')
+assert.equal(boundary.reviewed[0].al, 'lajm', 'deferral changed the Albanian token')
+assert.equal(boundary.map.reading, undefined, 'marked map reading was not deferred')
+assert.equal(boundary.map[0].al, 'gur', 'map deferral changed the Albanian token')
+assert.equal(boundary.unmarkedMap.reading, 'Runtime map detail stays available.', 'unmarked map reading was stripped')
+assert.equal(boundary.payment.reading, 'You pay 37 lek.', 'unmarked dynamic payment reading was stripped')
+assert.equal(boundary.other.reading, 'Runtime detail stays available.', 'unmarked static builder reading was stripped')
+for (const [invalid, message] of [
+  ['const bad = reviewedStoryLineFactory({});', /reviewedStoryLineFactory requires one explicit function/],
+  ['const bad = reviewedStoryLineFactory(() => [], () => []);', /reviewedStoryLineFactory requires one explicit function/],
+  ['const bad = reviewedStoryLineMap(() => ({}));', /reviewedStoryLineMap requires one explicit object/],
+  ['const bad = reviewedStoryLineMap({}, {});', /reviewedStoryLineMap requires one explicit object/],
+]) assert.throws(() => transformer.transform.call({ parse: parseAst }, invalid, '/src/game/content.js'), message)
 
 // These are intentional long-lived cache boundaries, not arbitrary filenames.
 // If Rollup ever folds one back into the shell, the shell-only budget might
@@ -143,6 +286,12 @@ assert.ok(!bootstrapNames.has(endingCatalog.name),
 const storyView = chunkNamed('StoryView')
 assert.ok(!staticClosureOf(storyView.name).has(endingCatalog.name),
   'the ordinary story view must not fetch rich ending copy before the player reaches an ending')
+for (const prefix of ['AnalyticsPreferencesModal', 'PlaytestFeedbackModal']) {
+  const dialog = chunkNamed(prefix)
+  assert.ok(!bootstrapNames.has(dialog.name), `${prefix} body must load only when its dialog opens`)
+  assert.ok(!staticClosureOf(storyView.name).has(dialog.name),
+    `${prefix} body must not be fetched by the ordinary story surface`)
+}
 
 // The small synchronous achievement contract must stay equivalent to the rich
 // deferred catalog. This makes the lazy-free boundary reviewable: moving lore

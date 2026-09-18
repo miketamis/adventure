@@ -7,6 +7,16 @@ import {
 
 const portrait = (config) => defineNpcFirstEncounter({ sourcePartition: 'core-world', ...config })
 
+// Retain the already visible voice portrait verbatim; no extra scene line or
+// invented appearance is needed when this companion gains a runtime identity.
+export const SEA_ROAD_TRAVELLER_APPEARANCE = portrait({
+  npcId: 'seaRoadTraveller', nodeId: 'qytetiUdhetar', presence: 'authored',
+  details: ['voice'], practicalWordIds: ['flet', 'shpejt', 'fjale', 'vjen', 'shi'],
+  placement: { kind: 'replace', lineIndex: 3 },
+  portraitLines: [{ excluded: ['rendezvous:seaRoadWalk:known', 'visited:lamtumira'],
+    line: R('The traveller speaks quickly: the words come like rain.', w('udhetar', 'udhëtari', 'the traveller'), w('flet'), w('shpejt'), p(':'), w('fjale', 'fjalët', 'the words'), w('vjen', 'vijnë', 'come'), w('si'), w('shi'), p('.')) }],
+})
+
 export const ZANA_APPEARANCE = portrait({
   npcId: 'zana', nodeId: 'zana1',
   details: ['hair', 'condition', 'carried-object', 'location'],
@@ -68,7 +78,7 @@ export const GJERGJ_ELEZ_APPEARANCE = portrait({
   details: ['condition', 'build', 'work-marks'],
   practicalWordIds: ['trim', 'lodhur', 'trup', 'plage'],
   placement: { kind: 'replace', lineIndex: 6 },
-  portraitLines: [{ line: R('Inside the tower lies a tired hero with nine wounds on his body.', w('brenda'), w('kulle', 'kullës'), w('rri'), w('nje'), w('trim'), w('i_art'), w('lodhur'), w('me'), w('nente'), w('plage'), w('ne'), w('trup'), p('.')) }],
+  portraitLines: [{ excluded: 'fact:coastalBalozDefeated', line: R('Inside the tower lies a tired hero with nine wounds on his body.', w('brenda'), w('kulle', 'kullës'), w('rri'), w('nje'), w('trim'), w('i_art'), w('lodhur'), w('me'), w('nente'), w('plage'), w('ne'), w('trup'), p('.')) }],
 })
 
 export const GJERGJ_SISTER_APPEARANCE = portrait({
@@ -144,6 +154,7 @@ export const ROZAFA_APPEARANCE = portrait({
 })
 
 export default Object.freeze({
+  seaRoadTraveller: SEA_ROAD_TRAVELLER_APPEARANCE,
   zana: ZANA_APPEARANCE,
   bolla: BOLLA_APPEARANCE,
   gjarpri: THRESHOLD_SERPENT_APPEARANCE,

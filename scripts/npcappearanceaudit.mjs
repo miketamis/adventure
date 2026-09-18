@@ -11,17 +11,22 @@ import { STORY, lineOf } from '../src/game/content.js'
 import { DICT } from '../src/game/dictionary.js'
 import {
   NPC_FIRST_ENCOUNTERS,
+  normalizeNpcDepiction,
   normalizeActiveNpcPortraits,
   normalizeNpcPortraitsSeen,
   planNpcFirstEncounterLines,
   projectNpcFirstEncounterLines,
 } from '../src/game/npcAppearance.js'
+import { npcDepictionIssues } from '../src/game/npcDepictionValidation.js'
+import { rendezvousAvailability, scheduleRendezvous } from '../src/game/stateMechanics.js'
+import { albanianTextOf } from '../src/game/language.js'
 import {
   hasCond,
   newRun,
   normalizeSavedState,
   npcFirstEncounterPlanForState,
   reducer,
+  storyScenePresentationForState,
 } from '../src/game/gameState.js'
 
 const root = resolve(import.meta.dirname, '../src/game/data/npcs')
@@ -56,6 +61,15 @@ const appearanceFiles = (await readdir(appearanceRoot)).filter((name) => name.en
 for (const file of appearanceFiles) await import(pathToFileURL(resolve(appearanceRoot, file)))
 
 assert.ok(Object.keys(NPC_FIRST_ENCOUNTERS).length > 0, 'no first-encounter portraits are registered')
+const depictedTales = {}
+for (const spec of Object.values(NPC_FIRST_ENCOUNTERS)) {
+  const id = spec.depiction?.taleId
+  if (id && !depictedTales[id]) {
+    const tale = (await import(pathToFileURL(resolve(root, '../tales', `${id}.js`)))).default
+    assert.equal(tale.id, id, `${id}: narrated tale file names another source`)
+    depictedTales[id] = tale
+  }
+}
 
 for (const spec of Object.values(NPC_FIRST_ENCOUNTERS)) {
   const owner = npcOwners.get(spec.npcId)
@@ -65,7 +79,14 @@ for (const spec of Object.values(NPC_FIRST_ENCOUNTERS)) {
     `${spec.npcId}: portrait partition must match its NPC source file ${owner}`)
   const node = STORY[spec.nodeId]
   assert.ok(node, `${spec.npcId}: portrait node ${spec.nodeId} does not exist`)
-  if (npc.location.status === 'placed') {
+  if (spec.depiction) {
+    assert.deepEqual(npcDepictionIssues(spec, npc, depictedTales, STORY), [],
+      `${spec.npcId}: narrated portrait lost its source/identity/place join`)
+    for (const { line } of spec.portraitLines) {
+      assert.match(albanianTextOf(line), /^Në këngë, /,
+        `${spec.npcId}: narrated portrait reads as physical presence in the listener's room`)
+    }
+  } else if (npc.location.status === 'placed') {
     assert.ok(npc.location.node === spec.nodeId || (npc.location.encounters || []).includes(spec.nodeId),
       `${spec.npcId}: portrait node must be the NPC's canonical placed node or declared encounter scene`)
   } else if (npc.location.status === 'walking') {
@@ -217,6 +238,116 @@ for (const { npcId, nodeId, absentClock, presentClock } of movingPortraitCases) 
   assert.equal(reset.activeNpcPortraits, null, `${npcId}: story restart retained an active encounter`)
 }
 
+// Narrated identities are remembered without becoming physical occupants of
+// the listening room. Test the complete normal composition and real latch.
+const normalLines = (state) => storyScenePresentationForState(state).normalEntries.map(({ line }) => line)
+const normalText = (state) => normalLines(state).map(albanianTextOf).join('\n')
+const rememberPortraits = (state) => reducer(state, {
+  type: 'NARRATE_NPC_APPEARANCES', nodeId: state.nodeId, turn: state.turn,
+})
+const reloadPortraits = (state) => normalizeSavedState(JSON.parse(JSON.stringify(state)), newRun())
+const narratedIds = ['budAlineTali', 'gjarpriShtratit', 'ujkuBesnik']
+const healthyHome = { ...newRun(), nodeId: 'mujo1', clock: 9 }
+assert.doesNotMatch(normalText(healthyHome), /gjarpër|ujku|shtratit|plagët/, 'healthy Mujo household gained sickbed guardians')
+assert.match(normalText(healthyHome), /ngre një gur të madh/, 'healthy Mujo portrait lost its established physical action')
+let sickbed = { ...newRun(), nodeId: 'mujoHak1', clock: 9 }
+const bedLine = lineOf(STORY.mujoHak1.text[3])
+const firstSickbed = normalLines(sickbed)
+assert.match(albanianTextOf(bedLine), /dhjetë plagë.*ende i gjallë.*shtrat/, 'guardian insertion lost its persistent sickbed anchor')
+for (const npcId of narratedIds) {
+  const spec = NPC_FIRST_ENCOUNTERS[npcId]
+  const portrait = firstSickbed.find((line) => line.npcAppearance?.npcId === npcId)
+  assert.ok(portrait, `${npcId}: narrated portrait is absent from normal story composition`)
+  assert.deepEqual(portrait.npcAppearance.depiction, spec.depiction, `${npcId}: projection dropped narration scope`)
+  assert.equal(hasCond(sickbed, `npc:${npcId}`), false, `${npcId}: narrated exposure granted physical NPC presence`)
+  if (npcId !== 'budAlineTali') assert.ok(firstSickbed.indexOf(bedLine) < firstSickbed.indexOf(portrait),
+    `${npcId}: guardian appears before the wounded bed is established`)
+}
+sickbed = rememberPortraits(sickbed)
+for (const state of [sickbed, reloadPortraits(sickbed)]) {
+  for (const npcId of narratedIds) {
+    assert.equal(state.npcPortraitsSeen[npcId], true)
+    assert.ok(normalLines(state).some((line) => line.npcAppearance?.npcId === npcId), `${npcId}: narrated portrait disappears after commit/reload`)
+    assert.equal(hasCond(state, `npc:${npcId}`), false, `${npcId}: persisted depiction became physical presence`)
+  }
+}
+const leftSickbed = rememberPortraits({ ...sickbed, nodeId: clearNodeId, turn: sickbed.turn + 1 })
+const revisitedSickbed = reloadPortraits({ ...leftSickbed, nodeId: 'mujoHak1', turn: leftSickbed.turn + 1 })
+assert.ok(normalLines(revisitedSickbed).every((line) => !narratedIds.includes(line.npcAppearance?.npcId)),
+  'narrated portraits repeated on a later visit')
+const oldWrongLatch = reloadPortraits({ ...sickbed, nodeId: 'mujo1', activeNpcPortraits: {
+  nodeId: 'mujo1', npcIds: ['gjarpriShtratit', 'ujkuBesnik'],
+} })
+assert.doesNotMatch(normalText(oldWrongLatch), /gjarpër|ujku|shtratit|plagët/, 'legacy wrong-room latch resurrected the moved guardians')
+
+const serpent = NPC_FIRST_ENCOUNTERS.gjarpriShtratit
+const serpentNpc = catalogs.get(npcOwners.get(serpent.npcId))[serpent.npcId]
+assert.equal(serpentNpc.location.node, 'mujo1', 'narrated guardian was physically relocated to the listening room')
+assert.equal(catalogs.get(npcOwners.get('ujkuBesnik')).ujkuBesnik.location.node, 'mujo1')
+assert.equal(catalogs.get(npcOwners.get('budAlineTali')).budAlineTali.location.node, 'mali1', 'Tali lost his sourced Kunora anchor')
+for (const depiction of [
+  { ...serpent.depiction, kind: 'physical' },
+  { ...serpent.depiction, region: 'village' },
+  { ...serpent.depiction, beatIds: [] },
+  { ...serpent.depiction, beatIds: ['guardians', 'guardians'] },
+]) assert.throws(() => normalizeNpcDepiction(depiction), /Invalid NPC narrated depiction/)
+for (const changed of [
+  { ...serpent, nodeId: 'mujo1' },
+  { ...serpent, presence: 'authored' },
+  { ...serpent, npcId: 'bari' },
+  { ...serpent, depiction: { ...serpent.depiction, taleId: 'missing-tale' } },
+  { ...serpent, depiction: { ...serpent.depiction, placeId: 'kunora' } },
+  { ...serpent, depiction: { ...serpent.depiction, beatIds: ['missing-beat'] } },
+  { ...serpent, depiction: { ...serpent.depiction, beatIds: ['missingMujo'] } },
+]) assert.ok(npcDepictionIssues(changed, serpentNpc, depictedTales, STORY).length,
+  'a corrupted narrated identity/source/place join passed validation')
+assert.ok(npcDepictionIssues(serpent, { ...serpentNpc, location: { status: 'placed', node: 'mujoHak1' } }, depictedTales, STORY).length,
+  'moving the catalogue home into the listener room passed validation')
+
+let woundedMujo = { ...newRun(), nodeId: 'gbMuji1', clock: 9 }
+const woundLine = lineOf(STORY.gbMuji1.text[2])
+const woundedLines = normalLines(woundedMujo)
+const companionLine = woundedLines.find((line) => line.npcAppearance?.npcId === 'arnautOsmaniMejdanit')
+assert.ok(woundedLines.includes(woundLine), 'Osmani portrait replaced the original attack and fall')
+assert.match(albanianTextOf(woundLine), /armik.*godet nëntë herë.*dy pemë/, 'source wound/twin-tree event changed')
+assert.ok(woundedLines.indexOf(companionLine) > woundedLines.indexOf(woundLine), 'Osmani appears before the wound event')
+assert.match(albanianTextOf(companionLine), /shoku yt.*vjen pranë teje/, 'Osmani is not introduced as the arriving companion')
+assert.doesNotMatch(albanianTextOf(companionLine), /godet|nëntë herë/, 'portrait names Osmani as the attacker')
+woundedMujo = rememberPortraits(woundedMujo)
+assert.ok(normalLines(reloadPortraits(woundedMujo)).includes(woundLine), 'committed/reloaded portrait erased the wound event')
+assert.ok(normalLines({ ...woundedMujo, activeNpcPortraits: null }).includes(woundLine), 'seen portrait erased the source event on revisit')
+
+const coast = { ...newRun(), nodeId: 'bregu', clock: 9,
+  observations: { 'coast-tower': { nodeId: 'bregu', atClock: 9 } } }
+const heroSeen = rememberPortraits(coast)
+assert.ok(normalLines(heroSeen).some((line) => line.npcAppearance?.npcId === 'gjergjElez'), 'before victory the observed hero is missing')
+for (const input of [coast, heroSeen]) {
+  const won = { ...input, worldFacts: { coastalBalozDefeated: { atClock: 9, source: 'balozFitore' } } }
+  for (const state of [won, reloadPortraits(won)]) {
+    assert.ok(normalLines(state).every((line) => line.npcAppearance?.npcId !== 'gjergjElez'), 'victory resurrected an unseen/active hero portrait')
+    assert.doesNotMatch(normalText(state), /motër jep ujë|flokët e motrës|nëntë plagë/, 'returned coast retained the living siblings')
+    assert.match(normalText(state), /Trimi dhe motra e tij janë në një varr\./, 'returned coast lost the shared grave')
+  }
+}
+
+// Giving the existing sea-road traveller a runtime identity must not expand
+// his visible first beat or resurrect the old meeting after he has departed.
+const roadPortrait = NPC_FIRST_ENCOUNTERS.seaRoadTraveller
+assert.equal(albanianTextOf(roadPortrait.portraitLines[0].line), albanianTextOf(lineOf(STORY.qytetiUdhetar.text[3])))
+assert.deepEqual(roadPortrait.portraitLines[0].line.map(({ id, al }) => ({ id, al })),
+  lineOf(STORY.qytetiUdhetar.text[3]).map(({ id, al }) => ({ id, al })), 'traveller voice changed its canonical senses')
+let roadMeeting = { ...newRun(), nodeId: 'qytetiUdhetar', clock: 9 }
+assert.ok(normalLines(roadMeeting).some((line) => line.npcAppearance?.npcId === 'seaRoadTraveller'))
+roadMeeting = rememberPortraits(roadMeeting)
+assert.ok(normalLines(reloadPortraits(roadMeeting)).some((line) => line.npcAppearance?.npcId === 'seaRoadTraveller'))
+for (const departed of [
+  { ...roadMeeting, visited: { ...roadMeeting.visited, lamtumira: true } },
+  { ...roadMeeting, rendezvous: scheduleRendezvous({}, rendezvousAvailability(roadMeeting, STORY.udhaUdhetari.options[0], { clock: roadMeeting.clock })) },
+]) for (const state of [departed, reloadPortraits(departed)]) {
+  assert.ok(normalLines(state).every((line) => line.npcAppearance?.npcId !== 'seaRoadTraveller'),
+    'departed sea-road traveller reappears through his first portrait latch')
+}
+
 // A catalog location is not permission to unload a tale's entire cast into a
 // shared overworld hub. Unconditional portraits must remain a readable first
 // beat: normal tale scenes may introduce a small group, while heavily reused
@@ -267,10 +398,10 @@ for (const [file, entries] of catalogs) {
   if (gaps.length) gapsByFile.push(`${file}: ${gaps.join(', ')}`)
 }
 
-// Gjon is a recurring, discoverable guest at the village meal rather than an
-// anonymous one-scene speaker, so the reviewed individual inventory grows by one.
-assert.equal(broadCandidateCount, 277, 'broad individual NPC inventory changed; review the portrait scope')
-assert.equal(locatedCandidateCount, 116, 'located individual NPC inventory changed; review the portrait scope')
+// Gjon and the unnamed sea-road companion are distinct recurring identities.
+// The latter reuses his existing voice portrait as his canonical introduction.
+assert.equal(broadCandidateCount, 278, 'broad individual NPC inventory changed; review the portrait scope')
+assert.equal(locatedCandidateCount, 117, 'located individual NPC inventory changed; review the portrait scope')
 assert.equal(plannedCandidateCount, 161, 'planned individual NPC inventory changed; review the portrait scope')
 assert.equal(covered.size, locatedCandidateCount,
   `every placed/walking individual needs a reviewed first encounter:\n${gapsByFile.join('\n')}`)

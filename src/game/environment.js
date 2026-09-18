@@ -350,13 +350,17 @@ export function weatherAtClock(clock = 0, worldFacts = {}, region = 'village') {
   return weather
 }
 
+// Derived water conditions share the same factual sources in narration and gates.
+export const HYDROLOGY_FACTS = Object.freeze({
+  riversRestored: Object.freeze(['riverRestored', 'droughtBroken']),
+  villageWellsRestored: Object.freeze(['villageWellsRestored', 'droughtBroken']),
+  fieldsWatered: Object.freeze(['fieldsWatered', 'rainReturned']),
+})
+
 export function hydrologyFromFacts(worldFacts = {}) {
-  // Binoshët's restored river belongs to its embodied tale-city; it must not
-  // silently repair the still-dry river and wells of the main quest.
-  const riversRestored = hasFact(worldFacts, 'riverRestored') || hasFact(worldFacts, 'droughtBroken')
-  const villageWellsRestored = hasFact(worldFacts, 'villageWellsRestored') || hasFact(worldFacts, 'droughtBroken')
-  const fieldsWatered = hasFact(worldFacts, 'fieldsWatered') || hasFact(worldFacts, 'rainReturned')
-  return { riversRestored, villageWellsRestored, fieldsWatered }
+  // A different tale's restored river never repairs the living village.
+  return Object.fromEntries(Object.entries(HYDROLOGY_FACTS).map(([id, facts]) =>
+    [id, facts.some((fact) => hasFact(worldFacts, fact))]))
 }
 
 export function worldMemoriesFromFacts(worldFacts = {}, region = 'village') {

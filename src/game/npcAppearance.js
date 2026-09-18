@@ -71,6 +71,18 @@ const normalizeVariant = (npcId, variant) => {
   })
 }
 
+// A narrated portrait belongs to its source tale/place, not to the listener's
+// physical room. Semantic source joins are checked by the portrait audit.
+export function normalizeNpcDepiction(value) {
+  if (value == null) return null
+  const fields = ['kind', 'taleId', 'placeId', 'beatIds']
+  if (Object.keys(value).length !== fields.length || Object.keys(value).some((key) => !fields.includes(key)) ||
+      value.kind !== 'narrated' || !Array.isArray(value.beatIds) || !value.beatIds.length ||
+      new Set(value.beatIds).size !== value.beatIds.length) throw new Error('Invalid NPC narrated depiction')
+  for (const id of [value.taleId, value.placeId, ...value.beatIds]) stableId(id, 'NPC depiction source id')
+  return Object.freeze({ ...value, beatIds: Object.freeze([...value.beatIds]) })
+}
+
 export function defineNpcFirstEncounter({
   npcId,
   nodeId,
@@ -81,6 +93,7 @@ export function defineNpcFirstEncounter({
   placement = null,
   embedded = false,
   presence = null,
+  depiction = null,
 }) {
   stableId(npcId, 'NPC appearance id')
   stableId(nodeId, 'NPC appearance node id')
@@ -95,7 +108,9 @@ export function defineNpcFirstEncounter({
   if (!embedded && (!placement || !PLACEMENT_KINDS.has(placement.kind))) {
     throw new Error(`NPC '${npcId}' needs a reviewed insert-after/replace placement`)
   }
-  if (!embedded && NPCS[npcId] && !PRESENCE_POLICIES.has(presence)) {
+  const depicted = normalizeNpcDepiction(depiction)
+  if (depicted && presence != null) throw new Error(`NPC '${npcId}' depiction cannot assert physical presence`)
+  if (!embedded && !depicted && NPCS[npcId] && !PRESENCE_POLICIES.has(presence)) {
     throw new Error(`Runtime NPC '${npcId}' needs an explicit authored/runtime portrait presence policy`)
   }
   if (presence != null && !PRESENCE_POLICIES.has(presence)) {
@@ -114,12 +129,18 @@ export function defineNpcFirstEncounter({
     placement: placement ? Object.freeze({ ...placement }) : null,
     embedded: embedded === true,
     presence,
+    depiction: depicted,
   })
   APPEARANCES[npcId] = spec
   return spec
 }
 
 export const NPC_FIRST_ENCOUNTERS = APPEARANCES
+
+const portraitAnnotation = (spec) => Object.freeze({
+  npcId: spec.npcId, kind: 'first-encounter',
+  ...(spec.depiction ? { depiction: spec.depiction } : {}),
+})
 
 export function npcFirstEncounterLine(spec, lineOrEntry) {
   const entry = Array.isArray(lineOrEntry) ? { line: lineOrEntry } : lineOrEntry
@@ -131,7 +152,7 @@ export function npcFirstEncounterLine(spec, lineOrEntry) {
     ...rest,
     cond: negate ? [] : [].concat(cond || []),
     none: [...[].concat(none || []), ...(negate && cond ? [cond] : []), 'again'],
-    npcAppearance: Object.freeze({ npcId: spec.npcId, kind: 'first-encounter' }),
+    npcAppearance: portraitAnnotation(spec),
   }
 }
 
@@ -230,7 +251,7 @@ export function planNpcFirstEncounterLines(
     if (!replacements.length) projected.push(sourceLine)
     for (const { spec, variant } of replacements) {
       Object.assign(variant.line, {
-        npcAppearance: Object.freeze({ npcId: spec.npcId, kind: 'first-encounter' }),
+        npcAppearance: portraitAnnotation(spec),
         scenePriority: 'immediate-essential',
       })
       projected.push(variant.line)
@@ -238,7 +259,7 @@ export function planNpcFirstEncounterLines(
     }
     for (const { spec, variant } of insertions) {
       Object.assign(variant.line, {
-        npcAppearance: Object.freeze({ npcId: spec.npcId, kind: 'first-encounter' }),
+        npcAppearance: portraitAnnotation(spec),
         scenePriority: 'immediate-essential',
       })
       projected.push(variant.line)

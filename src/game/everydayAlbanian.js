@@ -127,13 +127,13 @@ export const FIRST_SESSION_PHRASES = Object.freeze([
   { al: 'si të shkoi rruga?', maxDepth: 7 },
   { al: 'dje binte shi.', maxDepth: 7 },
   { al: 'tani jam i lodhur, por jam mirë.', maxDepth: 7 },
-  { al: 'kam një lajm. ka një problem.', maxDepth: 7 },
+  { al: 'kam një lajm.', maxDepth: 7 },
   { al: 'vërtet? pastaj?', maxDepth: 7 },
   { al: 'më trego çfarë ndodhi.', maxDepth: 7 },
   { al: 'e kuptoj, por kam frikë.', maxDepth: 7 },
   { al: 'çfarë mendon?', maxDepth: 7 },
   { al: 'nuk jam dakord.', maxDepth: 7 },
-  { al: 'mendoj se duhet të shkosh te pusi i thatë.', maxDepth: 7 },
+  { al: 'mendoj se duhet të shkosh te pusi.', maxDepth: 7 },
   { al: 'a mund të hyj?', maxDepth: 6 },
   { al: 'a do ujë?', maxDepth: 6 },
   { al: 'jam i etur.', maxDepth: 6 },
@@ -234,14 +234,14 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
   { id: 'rained-yesterday', al: 'dje binte shi.', en: 'It was raining yesterday.', requires: ['dje', 'bie', 'shi'] },
   { id: 'it-was-cold', al: 'ishte ftohtë.', en: 'It was cold.', requires: ['eshte', 'ftohte'] },
   { id: 'tired-but-well', al: 'tani jam i lodhur, por jam mirë.', en: 'Now I am tired, but I am well.', requires: ['tani', 'jam', 'i_art', 'lodhur', 'por', 'mire'] },
-  { id: 'news-problem', al: 'kam një lajm. ka një problem.', en: 'I have news. There is a problem.', requires: ['ka', 'nje', 'lajm', 'problem'] },
+  { id: 'have-news', al: 'kam një lajm.', en: 'I have news.', requires: ['ka', 'nje', 'lajm'] },
   { id: 'really-then', al: 'vërtet? pastaj?', en: 'Really? Then what?', requires: ['vertet', 'pastaj'] },
   { id: 'tell-what-happened', al: 'më trego çfarë ndodhi.', en: 'Tell me what happened.', requires: ['me_obj', 'tregoj', 'cfare', 'ndodh'] },
   { id: 'understand-afraid', al: 'e kuptoj, por kam frikë.', en: 'I understand, but I am afraid.', requires: ['e_obj', 'kuptoj', 'por', 'ka', 'frike'] },
   { id: 'dont-believe-it', al: 'nuk e besoj.', en: 'I do not believe it.', requires: ['nuk', 'e_obj', 'beso'] },
   { id: 'what-think', al: 'çfarë mendon?', en: 'What do you think?', requires: ['cfare', 'mendoj'] },
   { id: 'dont-agree', al: 'nuk jam dakord.', en: 'I do not agree.', requires: ['nuk', 'jam', 'dakord'] },
-  { id: 'think-go-dry-well', al: 'mendoj se duhet të shkosh te pusi i thatë.', en: 'I think you should go to the dry well.', requires: ['mendoj', 'se', 'duhet', 'te_subj', 'shko', 'tek', 'pus', 'i_art', 'thate'] },
+  { id: 'think-go-well', al: 'mendoj se duhet të shkosh te pusi.', en: 'I think you should go to the well.', requires: ['mendoj', 'se', 'duhet', 'te_subj', 'shko', 'tek', 'pus'] },
   { id: 'may-enter', al: 'a mund të hyj?', en: 'May I come in?', requires: ['a_q', 'mund', 'te_subj', 'hyr'] },
   { id: 'want-water-question', al: 'a do ujë?', en: 'Do you want water?', requires: ['a_q', 'do', 'uje'] },
   { id: 'am-thirsty', al: 'jam i etur.', en: 'I am thirsty.', requires: ['jam', 'i_art', 'etur'] },
@@ -326,6 +326,14 @@ export const EVERYDAY_PHRASE_DRILLS = Object.freeze([
 
 // The whole-phrase bank must not become a shapeless list. These groups state
 // the practical outcomes it has to keep covering as story content grows.
+// Historical targets retain their exact proof scope for save migration only.
+// They are absent from the active bank, can-do groups and audio inventory;
+// evidence for these longer phrases never awards a replacement phrase's stage.
+export const RETIRED_EVERYDAY_PHRASES = Object.freeze([
+  { id: 'news-problem', al: 'kam një lajm. ka një problem.', requires: ['ka', 'nje', 'lajm', 'problem'] },
+  { id: 'think-go-dry-well', al: 'mendoj se duhet të shkosh te pusi i thatë.', requires: ['mendoj', 'se', 'duhet', 'te_subj', 'shko', 'tek', 'pus', 'i_art', 'thate'] },
+])
+
 export const EVERYDAY_CAN_DO_GROUPS = Object.freeze([
   { id: 'social', label: 'greet, respond and read social tone', minimum: 10, drillIds: ['whats-up-today', 'how-are-you', 'can-we-talk', 'how-today', 'well-thanks-you', 'thanks-very-much', 'yes-thank-you', 'welcome-enter', 'thanks-come-again', 'thanks-goodbye', 'sorry-sympathy', 'all-right-later', 'good-luck'] },
   { id: 'small-talk', label: 'open a conversation and ask about someone’s day or routine', minimum: 8, drillIds: ['whats-up-today', 'can-we-talk', 'wait-have-question', 'how-today', 'what-do-today', 'when-find-you-here', 'come-every-day', 'is-water-cold', 'need-help-question', 'breakfast-time'] },
@@ -333,10 +341,10 @@ export const EVERYDAY_CAN_DO_GROUPS = Object.freeze([
   { id: 'family', label: 'ask about family and answer', minimum: 4, drillIds: ['how-family', 'family-well', 'have-siblings', 'miss-family'] },
   { id: 'coordinate', label: 'locate people, report movement and make or change plans', minimum: 12, drillIds: ['where-going', 'setting-off-coming', 'coming-now', 'cannot-come-now-meet-tomorrow', 'meet-later', 'when-find-you-here', 'meet-tomorrow-question', 'accept-tomorrow-square', 'where-are-you', 'when-finish', 'return-village', 'all-right-later', 'who-will-come', 'when-guests-come', 'at-noon'] },
   { id: 'invite', label: 'invite, accept, decline and propose another time', minimum: 8, drillIds: ['setting-off-coming', 'yes-coming', 'coming-now', 'cannot-come', 'cannot-come-now-meet-tomorrow', 'come-eat-with-us', 'may-enter', 'join-dance'] },
-  { id: 'catch-up', label: 'exchange news and ask what happened', minimum: 7, drillIds: ['how-road-went', 'where-were-you', 'still-not-slept', 'news-problem', 'really-then', 'really-mean-it', 'what-happened-short', 'tell-what-happened', 'dont-believe-it'] },
+  { id: 'catch-up', label: 'exchange news and ask what happened', minimum: 7, drillIds: ['how-road-went', 'where-were-you', 'still-not-slept', 'have-news', 'really-then', 'really-mean-it', 'what-happened-short', 'tell-what-happened', 'dont-believe-it'] },
   { id: 'respond', label: 'keep a conversation moving', minimum: 9, drillIds: ['dont-know', 'really-then', 'really-mean-it', 'what-happened-short', 'tell-what-happened', 'dont-believe-it', 'well-thanks-you', 'agree-help', 'just-joking', 'understand-now', 'no-worries', 'thank-goodness-water-returned'] },
   { id: 'feelings', label: 'describe and understand everyday states', minimum: 6, drillIds: ['well-thanks-you', 'am-hungry', 'am-thirsty', 'tired-but-well', 'understand-afraid', 'miss-family', 'sorry-sympathy', 'are-you-well', 'hurts-here'] },
-  { id: 'opinions', label: 'ask for an opinion, give one and disagree', minimum: 4, drillIds: ['what-think', 'dont-agree', 'talking-nonsense', 'agree-help', 'think-go-dry-well', 'really-mean-it', 'just-joking'] },
+  { id: 'opinions', label: 'ask for an opinion, give one and disagree', minimum: 4, drillIds: ['what-think', 'dont-agree', 'talking-nonsense', 'agree-help', 'think-go-well', 'really-mean-it', 'just-joking'] },
   { id: 'favours', label: 'ask, respond and give a simple instruction', minimum: 5, drillIds: ['bring-bread-salt', 'give-bread', 'yes-take-it', 'can-help-me', 'need-help-question', 'yes-help-you'] },
   { id: 'care', label: 'show concern and respond to a problem', minimum: 5, drillIds: ['are-you-well', 'sorry-sympathy', 'be-careful', 'need-help', 'hurts-here', 'no-worries'] },
   { id: 'routine', label: 'talk about food, sleep, work and daily schedules', minimum: 11, drillIds: ['have-eaten', 'have-slept', 'still-not-slept', 'sleep-good-night', 'at-work', 'when-finish', 'what-do-today', 'come-every-day', 'shop-opening', 'breakfast-time', 'breakfast-exact'] },

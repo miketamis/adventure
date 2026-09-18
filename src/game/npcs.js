@@ -91,6 +91,21 @@ export const NPCS = {
     stepHours: 24,
   },
 
+  // The unnamed sea-road companion is distinct from Gjon. The paid gate
+  // crossing starts this one journey: two hours to the road, one to the
+  // waystone, then one short farewell before he continues offstage.
+  seaRoadTraveller: {
+    name: 'udhëtari i rrugës së detit',
+    glyph: '🧳',
+    identity: {
+      mode: 'known-by-context',
+      reason: 'The same unnamed road companion walks from the old gate to the waystone; no personal name is introduced.',
+    },
+    route: ['udhaUdhetari', 'udhaUdhetari', 'rrugaDetit', 'lamtumira'],
+    stepHours: 1,
+    once: true,
+  },
+
   // The girl who offers water at the spring is identified by that hospitable
   // role. She has no concealed personal name to reveal.
   vajzaKroi: {

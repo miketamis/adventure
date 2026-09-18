@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import BlockingModal from './BlockingModal.jsx'
 
 const RATINGS = [1, 2, 3, 4, 5]
 const FRICTION = [
@@ -48,33 +47,7 @@ export default function PlaytestFeedbackModal({ trigger, context, onSubmit, onDi
   })
 
   return (
-    <BlockingModal
-      id="playtest-feedback-title"
-      title="How is the journey feeling?"
-      className="playtest-feedback ph-no-capture"
-      onDismiss={() => onDismiss(trigger)}
-      actions={(
-        <>
-          <button type="button" className="btn" onClick={() => onDismiss(trigger)}>Not now</button>
-          <button
-            type="button"
-            className="btn primary"
-            disabled={enjoyment == null}
-            onClick={() => onSubmit({
-              trigger,
-              ...context,
-              enjoyment_rating: enjoyment,
-              difficulty_rating: difficulty,
-              continue_intent: continueIntent,
-              friction_tags: friction.length ? friction : ['not-specified'],
-              ...(comment.trim() ? { feedback_text: comment.trim() } : {}),
-            })}
-          >
-            Send feedback
-          </button>
-        </>
-      )}
-    >
+    <>
       <p>The ratings are quick, and the written response at the end is optional.</p>
       <Rating legend="Enjoyment from 1 (not enjoying it) to 5 (really enjoying it)" value={enjoyment} onChange={setEnjoyment} />
       <fieldset className="feedback-choices">
@@ -119,6 +92,25 @@ export default function PlaytestFeedbackModal({ trigger, context, onSubmit, onDi
         />
         <small>{comment.length}/1000 · Please leave out names or contact details.</small>
       </label>
-    </BlockingModal>
+      <div className="modal-actions">
+        <button type="button" className="btn" onClick={() => onDismiss(trigger)}>Not now</button>
+        <button
+          type="button"
+          className="btn primary"
+          disabled={enjoyment == null}
+          onClick={() => onSubmit({
+            trigger,
+            ...context,
+            enjoyment_rating: enjoyment,
+            difficulty_rating: difficulty,
+            continue_intent: continueIntent,
+            friction_tags: friction.length ? friction : ['not-specified'],
+            ...(comment.trim() ? { feedback_text: comment.trim() } : {}),
+          })}
+        >
+          Send feedback
+        </button>
+      </div>
+    </>
   )
 }

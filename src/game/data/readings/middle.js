@@ -791,7 +791,7 @@ export const MIDDLE_READINGS = {
   "shtojzovalle2.text[5]": ["por vajza ka lot në sy.", "But the maiden has tears in her eyes."],
   "maja.text[20]": ["larg rrinë kullat e Jutbinës.", "Far away stand the towers of Jutbina."],
   "jutbina.text[15]": ["një lahutë këndon.", "A lute sings."],
-  "bregu.text[11]": ["këtu është një kullë.", "Here stands a tower-house."],
+  "bregu.text[12]": ["këtu është një kullë.", "Here stands a tower-house."],
   "tregtariBiseda.text[1]": ["ai thotë: ti mund të marrësh bukë; është më e lirë se mishi.", "He says, “You can take bread; it is cheaper than meat.”"],
   "ura.text[1]": ["ti kthehesh nga Syri i kaltër nëpër rrugën e lumit dhe arrin te ura e vjetër.", "You return from the Blue Eye along the river road and arrive at the old bridge."],
   "ura.text[2]": ["ti ikën nga burimi, ecën nëpër rrugën e lumit dhe arrin te ura e vjetër.", "You leave the spring, follow the river road and arrive at the old bridge."],
@@ -874,4 +874,5 @@ export const MIDDLE_READINGS = {
   "pusiThate.text[2]": ["një plakë rri pranë pusit.", "An old woman sits beside the well."],
   "pusiThate.text[15]": ["ti hap çadrën pranë pusit; ajo të mban të thatë.", "You open the umbrella beside the well; it keeps you dry."],
   "pusiThate.text[16]": ["ti hap çadrën pranë pusit; ajo të mban të thatë.", "You open the umbrella beside the well; it keeps you dry."],
+  "bregu.text[11]": ["Trimi dhe motra e tij janë në një varr.", "The hero and his sister are in one grave."],
 }

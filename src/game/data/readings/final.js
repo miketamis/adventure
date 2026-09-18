@@ -723,7 +723,7 @@ export const FINAL_READINGS = {
   "rusha1.text[3]": ["Rusha thotë: a premton një besë? vjen me zemër, ose rri.", "Rusha says, “Will you swear a besa? Come willingly, or stay.”"],
   "lumi.text[12]": ["rruga ngjitet përsëri te udhëkryqi.", "The road climbs back to the crossroads."],
   "fshatiLumi.text[18]": ["Lart, një rrugë shkon te shtëpitë dhe një tjetër te shesh.", "Up above, one road goes to the homes and another to the square."],
-  "mulli1.text[16]": ["rruga pranë ujit kthehet te lumi.", "The waterside road returns to the river."],
+  "mulli1.text[18]": ["rruga pranë ujit kthehet te lumi.", "The waterside road returns to the river."],
   "maroLitani3.text[6]": ["Në dritën e ditës, ti sheh rrugën për në shtëpi.", "In the daylight, you see the road home."],
   "maroLajmi.text[5]": ["njerka thotë: ti s' je për atje.", "The stepmother says, “That is no place for you.”"],
   "maroLindja.text[4]": ["ti bëhesh zog. dritarja është e hapur.", "You become a bird. The window is open."],
@@ -886,4 +886,7 @@ export const FINAL_READINGS = {
   "kalaFundTurp.text[4]": ["Gruaja jote rri te vatra në shtëpi.", "Your wife remains by the hearth at home."],
   "uraArtesShpetim.text[3]": ["ti thua: jo. Vëllezërit nuk dëgjojnë fjalët e plakut; asnjë nuse nuk vjen te ura.", "You answer, “No.” The brothers do not heed the old man’s words; no bride comes to the bridge."],
   "maroPrincesha.text[3]": ["ti ikën nga pallat me djalin tënd. tani jeni të sigurt, larg pallatit.", "You leave the palace with your son. Now you are both safe, far from the palace."],
+  "fushaMulli.text[11]": ["Plaku thotë: ti e ke bërë punën. Mielli është gati.", "The old man says, “You have done the work. The flour is ready.”"],
+  "mulli1.text[16]": ["Plaku thotë: ka punë për ty brenda mullirit.", "The old man says, “There is work for you inside the mill.”"],
+  "mulli1.text[17]": ["Plaku thotë: ti e ke bërë punën. Mielli është gati.", "The old man says, “You have done the work. The flour is ready.”"],
 }
