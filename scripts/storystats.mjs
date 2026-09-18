@@ -94,7 +94,6 @@ const COMPACT_ENDING_EXCEPTIONS = defineAuditExceptionRegistry({
     compactEndingException('kroiFund', 'This single-site village-spring custom resolves the exact offering made at the water; another travel beat would not deepen its local consequence.'),
     compactEndingException('mulliFund', 'This single-shift mill-work vignette completes the accepted labour and its consequence at the mill without pretending to be a longer journey.'),
     compactEndingException('shtrigaIkur', 'This time-gated roadside banishment resolves the danger established at the same clearing; extra route padding would weaken the immediate aftermath.'),
-    compactEndingException('tabakFund', 'This single-site tanners-guild vignette completes the entered work and its result beside the hides without manufacturing an unrelated route.'),
   ],
 })
 const reviewedCompactEndingIds = new Set(auditExceptionTargetsFor(
@@ -366,6 +365,14 @@ const UNGATED_CHOICE_REVIEWS = Object.freeze([
     owner: 'narrative-flow',
   }),
   ungatedChoiceReview({
+    nodeId: 'kalaMengjes',
+    rationale: 'At dawn the road already supplies an ordinary route to the castle, while the zero-time road inspection is an optional perception beat; neither action should be hidden behind vocabulary from the other.',
+    evidence: 'The visible choices “shko në kala” and “shiko rrugën” preserve immediate onward travel and a same-place closer look at the damp dawn road before Rozafa reaches the builders.',
+    witnesses: ['shko në kala', 'shiko rrugën'],
+    destinations: ['kalaNgjitje', 'kalaMengjes'],
+    owner: 'world-presentation',
+  }),
+  ungatedChoiceReview({
     nodeId: 'eliraPorosiaDorezuar',
     rationale: 'Handing over the requested bread and salt completes the errand in the square; accompanying Elira to the guest room and remaining outside are separate post-task choices.',
     evidence: 'Elira visibly receives both goods and says the room is ready, after which “shko me të në odën” travels with her while “rri në shesh” preserves the current location.',
@@ -451,14 +458,14 @@ const UNGATED_CHOICE_REVIEWS = Object.freeze([
   }),
   ungatedChoiceReview({
     nodeId: 'tsBeteje',
-    rationale: 'This embodied mountain battle resolves into two mutually exclusive folklore endings, and obscuring either identical-looking observation would conceal the actual outcome selection.',
-    evidence: 'The scene visibly states “qyteti është poshtë” and “katër shqiponjat janë lart”; its two “sheh malet” actions lead to the distinct Tomorr and Shpirag endings.',
+    rationale: 'This embodied mountain battle must keep its state-specific resolution and retreat paths available together: Tomorr can watch the mountains, while Shpirag can fight with the cudgel or withdraw before committing.',
+    evidence: 'The scene visibly establishes “qyteti është poshtë” and “katër shqiponjat janë lart”; the authored actions “sheh malet”, “lufto me shkopin”, and “kthehu te mali tjetër” pin the two resolutions and the retreat.',
     witnesses: ['qyteti është poshtë', 'katër shqiponjat janë lart'],
-    destinations: ['tsFundTomor', 'shpiragFund'],
+    destinations: ['tsFundTomor', 'shpiragFund', 'shpirag1'],
     contract: {
       kind: 'question-options',
       promptWitnesses: ['qyteti është poshtë', 'katër shqiponjat janë lart'],
-      optionSurfaces: ['sheh malet', 'sheh malet'],
+      optionSurfaces: ['sheh malet', 'lufto me shkopin', 'kthehu te mali tjetër'],
     },
   }),
   ungatedChoiceReview({

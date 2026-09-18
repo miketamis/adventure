@@ -81,7 +81,7 @@ export const SHEPHERD_APPEARANCE = portrait({
   presence: 'runtime',
   details: ['voice', 'carried-object', 'work-marks'],
   practicalWordIds: ['fishkellen', 'dhi', 'shkop', 'kepuce', 'balte'],
-  placement: { kind: 'replace', lineIndex: 0 },
+  placement: { kind: 'replace', lineIndex: 1 },
   portraitLines: [
     { line: R('The shepherd whistles among the goats and carries a long staff; his shoes are muddy.', w('bari', 'bariu', 'the shepherd'), w('fishkellen'), w('mes'), w('dhi', 'dhive', 'the goats'), w('dhe'), w('mban'), w('nje'), w('shkop'), w('te_link'), w('gjate'), p(';'), w('kepuce', 'këpucët'), w('e_link'), w('tij'), w('ka', 'kanë'), w('balte'), p('.')) },
   ],

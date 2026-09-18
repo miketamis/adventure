@@ -11,7 +11,10 @@ import {
 import { englishReadingOf } from './language.js'
 import { choiceSemanticsIssues, compoundIntentIssues } from './choiceSemantics.js'
 import { actionSemanticContinuityIssues } from './actionSemantics.js'
-import { playerActionProvenanceIssues } from './playerActionProvenance.js'
+import {
+  playerActionProvenanceIssues,
+  sharedActionDestinationIssues,
+} from './playerActionProvenance.js'
 import { PLACE_OF } from '../components/nodePositions.js'
 import {
   WORLD_ENTITIES,
@@ -34,6 +37,7 @@ export function authoringSchemaIssues(story = STORY) {
     ...worldEntityRegistryIssues(),
     ...actionSemanticContinuityIssues(story, { placeOf: PLACE_OF }),
     ...playerActionProvenanceIssues(story).issues,
+    ...sharedActionDestinationIssues(story).issues,
   ]
   for (const [nodeId, node] of Object.entries(story || {})) {
     const at = (message) => issues.push(`${nodeId}: ${message}`)

@@ -181,38 +181,40 @@ const SHELL_GZIP_BUDGET = 68 * KiB
 // action-provenance and visible-affordance sweep adds real first-play Albanian,
 // conversation replies, alternate exits and consequences, bringing the
 // measured closure to 1547.2 KiB raw / 377.5 KiB gzip after its audit-only
-// metadata is stripped. Six formerly waived long routes now carry a visible
-// source cue, an endpoint-naming action, and exact predecessor arrival prose;
-// that player-facing continuity repair measures 1552.9 KiB raw / 379.0 KiB
-// gzip. Keep narrow ceilings above that substantive payload.
-const BOOTSTRAP_RAW_BUDGET = 1_554 * KiB
-const BOOTSTRAP_GZIP_BUDGET = 380 * KiB
+// metadata is stripped. The whole-graph projected-edge repair now carries
+// explicit predecessor arrivals, separated speech/travel beats, exact action
+// consequences, and reusable conversation replies across every affected
+// branch. That player-facing continuity payload measures 1591.3 KiB raw /
+// 385.0 KiB gzip. Keep narrow ceilings above that substantive payload.
+const BOOTSTRAP_RAW_BUDGET = 1_593 * KiB
+const BOOTSTRAP_GZIP_BUDGET = 386 * KiB
 // The story graph is intentionally a single synchronous world-state payload.
 // Keep its raw cache boundary aligned with Vite's explicit authored-data
 // warning limit; the stricter aggregate and gzip ceilings below still measure
 // the bytes a first-time player actually downloads.
-const BOOTSTRAP_CHUNK_RAW_BUDGET = 861 * KiB
+const BOOTSTRAP_CHUNK_RAW_BUDGET = 899 * KiB
 const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
 // The added NPC replies keep their reviewed English metadata deferred from
 // ordinary play. Shared record construction plus the new conversation and
-// six exact journey/arrival readings keep the complete measured corpus at
-// 369.7 KiB raw / 108.4 KiB gzip without dropping any reviewed reading.
-const READING_CHUNK_RAW_BUDGET = 371 * KiB
-const READING_CHUNK_GZIP_BUDGET = 110 * KiB
+// repaired journeys, action receipts, and conversation-hub replies keep the
+// complete measured corpus at 385.5 KiB raw / 113.0 KiB gzip without dropping
+// any reviewed reading.
+const READING_CHUNK_RAW_BUDGET = 387 * KiB
+const READING_CHUNK_GZIP_BUDGET = 115 * KiB
 const AUDIO_FILE_BUDGET = 64 * KiB
 // Word-level timestamps are loaded only after an accepted action starts its
 // continuous MP3. Budget the independently cached manifest as well as the
 // clips so alignment metadata cannot grow without a release review.
 // The expanded village conversations and continuity actions add their
 // continuous Albanian recordings and exact waveform-correlated word
-// boundaries. The six newly explicit long journeys bring the complete
-// manifest to 1068.0 KiB raw / 143.0 KiB gzip; keep narrow measured
-// allowances for that release-safety data.
-const ACTION_TIMINGS_RAW_BUDGET = 1_069 * KiB
-const ACTION_TIMINGS_GZIP_BUDGET = 143 * KiB
+// boundaries. The projected-edge repairs bring the complete manifest to
+// 1122.7 KiB raw / 150.2 KiB gzip; keep narrow measured allowances for that
+// release-safety data.
+const ACTION_TIMINGS_RAW_BUDGET = 1_124 * KiB
+const ACTION_TIMINGS_GZIP_BUDGET = 151 * KiB
 // Every accepted story action now has one continuous, on-demand MP3 so action
 // karaoke never falls back to stitched word clips or browser TTS. Keep a
-// measured ceiling over that complete 4,852-clip archive; none is eager-loaded.
+// measured ceiling over that complete 4,903-clip archive; none is eager-loaded.
 const AUDIO_TOTAL_BUDGET = 48 * 1024 * KiB
 const actionTimings = sizeOf(ACTION_TIMINGS)
 

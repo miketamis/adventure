@@ -784,10 +784,6 @@ export const ENDING_COPY = Object.freeze({
     "title": "The Girl at the Spring",
     "blurb": "The well in the square is dead and dry, but below the village the old spring still runs cold and clear, and a girl filling her jug gave the thirsty stranger the first cup without being asked. That is mikpritja, the first law of the old country: the guest is sent by God, and is owed bread, salt and heart — fire, water and a bed — at any hour, unasked. You drank, and thanked her and the spring; and the old people say a stranger served so may be more than a stranger, for an Ora walks in homespun, and blesses the hand that pours."
   },
-  "tabakFund": {
-    "title": "The Tanners’ Bridge",
-    "blurb": "The tanner told you plainly what the whole quarter lives by: the herds come in over the old stone bridge, the hides are worked on the bank below it, and the bridge keeps the tanners’ name. That bridge is real. Ura e Tabakëve — the Tanners’ Bridge — still stands in the middle of Tirana: an eighteenth-century Ottoman stone footbridge over the Lana stream, on the old road that brought livestock and produce in from the eastern highlands, named for the guild of tanners whose workshops and slaughterhouses lined the bank beside it. When the Lana was rerouted the bridge was left dry and half-forgotten among the traffic, until it was restored as a footbridge; today you can walk the game’s first crossing yourself — a few steps of humpbacked stone between the ministries and the mosques of the capital."
-  },
   "kishaFund": {
     "title": "The Priest’s Blessing",
     "blurb": "The little church keeps the rise above the village, half between the living houses and the graves behind it, and the priest laid his blessing on the traveller as the old country lays it on everyone who passes — for a road walked with a blessing is a road half-guarded. Whether the call to it was a church-bell or the drum of a teqe, the same grace was asked: that you go and come again in peace, and that the earth of this place remember you kindly."

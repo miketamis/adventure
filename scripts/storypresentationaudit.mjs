@@ -160,8 +160,8 @@ check('the Stihi warning has a visible carrier and no disconnected second moral'
   const prose = STORY.stihi1.text.map(lineOf)
   const albanian = prose.map(albanianTextOf)
   assert.ok(
-    albanian.includes('Njerëzit thonë: kush merr arin, nuk del. kush lë arin, jeton.'),
-    'the contextual gold warning lost its explicit speaker',
+    albanian.includes('Në hyrje janë shkruar këto fjalë: kush merr arin, nuk del. kush lë arin, jeton.'),
+    'the contextual gold warning lost its visible inscription',
   )
   assert.ok(
     albanian.every((text) => !text.includes('Zoti vonon')),

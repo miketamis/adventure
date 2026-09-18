@@ -183,6 +183,12 @@ export const LOCATION_QUESTION_REVIEWS = Object.freeze([
     disposition: 'non-navigation',
     reason: 'The player asks about relative distance after arriving from the village, not for an unknown route.',
   }),
+  Object.freeze({
+    nodeId: 'fshatiLanes',
+    cueIds: freezeList(['ku', 'rri', 'djep']),
+    disposition: 'non-navigation',
+    reason: 'Ku introduces the relative clause identifying the visible cradle house inside a movement command; the player is not asking anyone for directions.',
+  }),
 ])
 
 export const groundedDirectionById = (id) =>

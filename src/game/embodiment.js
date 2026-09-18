@@ -190,35 +190,56 @@ export const EMBODIMENT_ALIASES = Object.freeze({ 'kostandini-i-vogel': 'aga-yme
 // ending. Keep this explicit list as a release contract: embodimentaudit also
 // derives the network independently from the route graph and fails on drift.
 export const PUBLIC_FREE_ROAM_PLACES = Object.freeze([
-  'bregu', 'dasma1', 'deti1', 'detiThelle1', 'detiThelle2', 'flocka1',
+  'bariu', 'bregu', 'dasma1', 'deti1', 'detiThelle1', 'detiThelle2', 'dhelpra1',
+  'djepi1', 'dordolec1', 'flocka1',
   'fshatiBesa', 'fshatiDil', 'fshatiJeta', 'fshatiLanes', 'fshatiLumi',
-  'fshatiSheshi', 'gjizar1', 'gjizar2', 'jutbina', 'katallan1',
+  'fshatiSheshi', 'gjizar1', 'gjizar2', 'gjysmegjel1', 'jutbina', 'katallan1',
   'kisha1', 'kopshtMermer1', 'kostandin1', 'kripore1', 'kroi1', 'kulle1',
   'lendina', 'libriDiell', 'lumi', 'lumiHumbur', 'maja', 'mali1', 'mali2',
-  'mali3', 'maliHumbur', 'maroShtepi', 'mejdan1', 'mulli1',
-  'nastradin1', 'odaJutbina', 'pallatiZi', 'plaka', 'pusiThate', 'pylli1',
-  'pylliHumbur', 'pylliLoop', 'pylliThelle', 'qiell1', 'qiellErera1', 'rrugaOdes', 'shtojzovalle1',
-  'start', 'stihi1', 'tabaket1', 'udhekryq', 'ura', 'uraArtes1', 'uraFshaj',
-  'varret1', 'vatra',
+  'mali3', 'maliHumbur', 'maroShtepi', 'mejdan1', 'mujo1', 'mulli1',
+  'nastradin1', 'nenaDiell1', 'odaJutbina', 'pallatiZi', 'peri1', 'plaka',
+  'pusiThate', 'pylli1', 'pylliHumbur', 'pylliLoop', 'pylliThelle', 'qiell1',
+  'qiellDem1', 'qiellErera1', 'rrugaOdes', 'shtojzovalle1', 'start', 'stihi1',
+  'syriKeq1', 'tabaket1', 'udhekryq', 'ura', 'uraArtes1', 'uraFshaj', 'vajtim1',
+  'varret1', 'vatra', 'veraDite1', 'zuku1',
 ])
 
-// Exact scene nodes that form those 56 places. Three are intentional aliases:
+// Exact scene nodes that form those 69 places. Three are intentional aliases:
 // oda1 is the guest-room place libriDiell, uraTjeter1 is the Artë bridge place,
 // and maliStuhi is the reviewed same-ledge pass-through below. Keeping nodes as
 // well as places prevents a private tale scene at a public coordinate from
 // inheriting free-roam authority merely because PLACE_OF aliases it there.
 export const PUBLIC_FREE_ROAM_NODES = Object.freeze([
-  'bregu', 'dasma1', 'deti1', 'detiThelle1', 'detiThelle2', 'flocka1',
+  'bariu', 'bregu', 'dasma1', 'deti1', 'detiThelle1', 'detiThelle2', 'dhelpra1',
+  'djepi1', 'dordolec1', 'flocka1',
   'fshatiBesa', 'fshatiDil', 'fshatiJeta', 'fshatiLanes', 'fshatiLumi',
-  'fshatiSheshi', 'gjizar1', 'gjizar2', 'jutbina', 'katallan1',
+  'fshatiSheshi', 'gjizar1', 'gjizar2', 'gjysmegjel1', 'jutbina', 'katallan1',
   'kisha1', 'kopshtMermer1', 'kostandin1', 'kripore1', 'kroi1', 'kulle1',
   'lendina', 'lumi', 'lumiHumbur', 'maja', 'mali1', 'mali2', 'mali3',
-  'maliHumbur', 'maliStuhi', 'maroShtepi', 'mejdan1', 'mulli1',
-  'nastradin1', 'oda1', 'odaJutbina', 'pallatiZi', 'plaka', 'pusiThate',
-  'pylli1', 'pylliHumbur', 'pylliLoop', 'pylliThelle', 'qiell1', 'qiellErera1',
-  'rrugaOdes', 'shtojzovalle1', 'start', 'stihi1', 'tabaket1', 'udhekryq', 'ura',
-  'uraFshaj', 'uraTjeter1', 'varret1', 'vatra',
+  'maliHumbur', 'maliStuhi', 'maroShtepi', 'mejdan1', 'mujo1', 'mulli1',
+  'nastradin1', 'nenaDiell1', 'oda1', 'odaJutbina', 'pallatiZi', 'peri1',
+  'plaka', 'pusiThate', 'pylli1', 'pylliHumbur', 'pylliLoop', 'pylliThelle',
+  'qiell1', 'qiellDem1', 'qiellErera1', 'rrugaOdes', 'shtojzovalle1', 'start',
+  'stihi1', 'syriKeq1', 'tabaket1', 'udhekryq', 'ura', 'uraFshaj', 'uraTjeter1',
+  'vajtim1', 'varret1', 'vatra', 'veraDite1', 'zuku1',
 ])
+
+// These exact ordinary-looking journeys cross from the public road network
+// into a story commitment. They live beside the public-node contract so both
+// the runtime and its independent graph audit reject the same narrow boundary.
+// The audit proves each record is complete, used once and still necessary.
+export const PUBLIC_FREE_ROAM_BOUNDARIES = Object.freeze({
+  'odaJutbina->kreshnikRrembimi1': Object.freeze({
+    rule: 'public-free-roam-noncommittal',
+    target: 'odaJutbina->kreshnikRrembimi1',
+    rationale: 'Reaching Halili at midnight opens only the rescue pledge or an ending, so it is story commitment rather than a free-roam visit.',
+    evidence: 'kreshnikRrembimi1 has no ordinary journey back to odaJutbina or another public node.',
+    source: 'The Kreshnik rescue episode begins at Halili’s midnight summons and immediately asks for the traveller’s answer.',
+    owner: 'story-continuity',
+    reviewTrigger: 'Remove this boundary if the doorstep gains an ordinary non-story route back into the public road network.',
+    maxEdges: 1,
+  }),
+})
 
 // One harmless local scene is also a physical pass-through. The old man's
 // warning and the storm occupy the same ledge, so routeForChoice correctly
@@ -233,6 +254,7 @@ export const PUBLIC_FREE_ROAM_TRANSITS = Object.freeze({
 })
 
 const PUBLIC_FREE_ROAM_NODE_SET = new Set(PUBLIC_FREE_ROAM_NODES)
+const PUBLIC_FREE_ROAM_BOUNDARY_SET = new Set(Object.keys(PUBLIC_FREE_ROAM_BOUNDARIES))
 
 export const canonicalEmbodimentId = (id) => EMBODIMENT_ALIASES[id] || id
 export const embodimentQuest = (id) => EMBODIMENT_QUESTS[canonicalEmbodimentId(id)] || null
@@ -322,7 +344,7 @@ export function embodimentOptionAccess(state, option, targetNode = STORY[option?
   // A spatially ordinary road can still be the authored threshold into a
   // private story route. Keep that commitment explicit on the exact choice:
   // geometry alone must not let a paused role wander into another episode.
-  if (option.freeRoamBoundary) {
+  if (option.freeRoamBoundary || PUBLIC_FREE_ROAM_BOUNDARY_SET.has(edge)) {
     return {
       ok: false,
       kind: 'story-entry',

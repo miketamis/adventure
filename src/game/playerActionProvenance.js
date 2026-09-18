@@ -116,6 +116,11 @@ function consequenceKindsOf(entry) {
 
 function optionKindsOf(option) {
   const kinds = actionKindsOf(englishReadingOf(option?.text || []), option?.text)
+  // Direct-utterance surfaces often contain only the quoted words ("No.",
+  // "The stable door.", "Look at the sun."). The reviewed speechAct is the
+  // canonical proof that choosing that surface is still a player speech act;
+  // requiring an extra Albanian "say" token would change what the player says.
+  if (option?.speechAct) kinds.push('speech')
   const declared = [].concat(option?.playerIntents || []).filter(Boolean)
   for (const intent of declared) {
     if (intent === 'physical') kinds.push('use')

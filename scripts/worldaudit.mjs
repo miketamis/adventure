@@ -155,6 +155,14 @@ const WORLD_LAYOUT_EXCEPTION_REGISTRY = defineAuditExceptionRegistry({
       evidence: 'PLACE_META.gjarperKulshedra and the canonical chart identify the exact isolated over-sea climax destination.',
       reviewTrigger: 'when the over-sea search route, climax coordinate or intermediate places change',
     }),
+    placeReasonException({
+      id: 'sari-cave-witness-leaf-route',
+      rule: 'long-leaf-route',
+      target: 'sari1',
+      field: 'distributionReason',
+      evidence: 'PLACE_META.sari1 and the canonical chart identify the exact dervish-led Krujë cave witness branch and its explicit return.',
+      reviewTrigger: 'when the Sari Salltëk cave route, coordinate, return edge or intermediate places change',
+    }),
   ],
 })
 const usedExceptionClaims = new Set()

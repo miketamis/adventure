@@ -8,7 +8,7 @@
 // add every surface as a separate dictionary card.
 
 export const TOP_1000_EXISTING_FORMS = {
-  bej: 'bërë bëra bëre bëja bënte',
+  bej: 'bëra bëja bënte',
   thote: 'the thënë thoni thoja thash thanë thoshte themi',
   vete: 'veten',
   eshte: 'jenë jesh jem qoftë qenka',
@@ -25,6 +25,7 @@ export const TOP_1000_EXISTING_FORMS = {
   ai: 'atij',
   ajo: 'asaj',
   shiko: 'shikoni shikoj shikoje shikosh',
+  sheh: 'pashë',
   dikush: 'dikë',
   ke: 'kesh',
   kujtoj: 'kujtohet',
@@ -35,8 +36,8 @@ export const TOP_1000_EXISTING_FORMS = {
   mallko: 'mallkuar',
   mban: 'mbani',
   kerko: 'kërkuar',
-  dil: 'dalë dal dalim doli dalësh',
-  cili: 'cilën cilin cilat cilët',
+  dil: 'dalë dal dilni doli dalësh',
+  cili: 'cilin cilat cilët',
   degjo: 'dëgjoni',
   pyet: 'pyes',
   njoh: 'njohur',
@@ -50,7 +51,6 @@ export const TOP_1000_EXISTING_FORMS = {
   force: 'forca',
   punon: 'punuar',
   pak: 'paktën',
-  meso: 'mësuar',
   vetem: 'vetmja',
   duhet: 'duhej duhur',
   tregoj: 'treguar tregosh',
@@ -74,7 +74,8 @@ export const TOP_1000_EXISTING_FORMS = {
   faj: 'faji',
   marto: 'martuar',
   im: 'imja sime',
-  jep: 'jepni japësh',
+  jep: 'jepni',
+  pi: 'pirë',
   luan: 'luaj',
   qep: 'qepe',
   fsheh: 'fshehur',
@@ -82,7 +83,7 @@ export const TOP_1000_EXISTING_FORMS = {
   dergon: 'dërguar',
   mendoj: 'mendo mendoni menduar',
   harron: 'harruar',
-  shok: 'shokë shokët',
+  shok: 'shoku shokë shokët',
   forte: 'fort',
   kap: 'kapur',
   takohem: 'takuar takoj',
@@ -95,12 +96,12 @@ export const TOP_1000_EXISTING_FORMS = {
   ide: 'idenë',
   leviz: 'lëvizni',
   ulu: 'ulur',
+  le: 'la',
   arsye: 'arsyeja',
   keto: 'këtyre',
 }
 
 export const TOP_1000_ORTHOGRAPHIC_VARIANTS = {
-  bej: 'bere',
   sigurt: 'sigurtë',
   thjesht: 'thjeshtë',
   bashke: 'bashku',

@@ -459,6 +459,7 @@ export const PLACE_META = {
   },
   sari1: {
     name: 'shpella e Sari Salltëkut — the Krujë cave',
+    distributionReason: 'This remote leaf is the dervish-led Krujë cave encounter: the accompanied ascent, battle, royal proof and explicit return to the well form one compressed witness tale rather than an ordinary through-road.',
     happenings: [
       { title: 'Sari Salltëk and the Kulshedra', nodes: ['sari1', 'sari2', 'sariFund'] },
     ],

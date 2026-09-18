@@ -348,6 +348,7 @@ export function embodimentFocusState(state, nodeId = state.embodimentFocusNode) 
     ...state,
     nodeId,
     cameFrom: arrival.cameFrom,
+    choiceIndex: arrival.choiceIndex,
     cameFromPhase: arrival.cameFromPhase,
     familiar: arrival.familiar,
     rumor: arrival.rumor,
@@ -1015,9 +1016,15 @@ const safePublicNode = (quest, ...candidates) =>
   embodimentEntryNodes(quest).find((nodeId) => PUBLIC_FREE_ROAM_NODE_SET.has(nodeId)) ||
   WORLD_HUB
 
+const arrivalChoiceIndex = (cameFrom, choiceIndex, focusNode) => {
+  if (!STORY[cameFrom] || !Number.isInteger(choiceIndex)) return null
+  return STORY[cameFrom].options?.[choiceIndex]?.to === focusNode ? choiceIndex : null
+}
+
 const arrivalSnapshotOf = (state, focusNode = state.embodimentFocusNode) => ({
   nodeId: focusNode,
   cameFrom: STORY[state.cameFrom] ? state.cameFrom : null,
+  choiceIndex: arrivalChoiceIndex(state.cameFrom, state.choiceIndex, focusNode),
   cameFromPhase: TIME_PHASES.includes(state.cameFromPhase) ? state.cameFromPhase : null,
   familiar: state.familiar === true,
   rumor: state.rumor === true,
@@ -1033,15 +1040,18 @@ const normalizedArrivalSnapshot = (value, state, focusNode) => {
     return {
       nodeId: focusNode,
       cameFrom: null,
+      choiceIndex: null,
       cameFromPhase: null,
       familiar: Boolean(state.visited?.[focusNode]),
       rumor: false,
       trail: [],
     }
   }
+  const cameFrom = STORY[value.cameFrom] ? value.cameFrom : null
   return {
     nodeId: focusNode,
-    cameFrom: STORY[value.cameFrom] ? value.cameFrom : null,
+    cameFrom,
+    choiceIndex: arrivalChoiceIndex(cameFrom, value.choiceIndex, focusNode),
     cameFromPhase: TIME_PHASES.includes(value.cameFromPhase) ? value.cameFromPhase : null,
     familiar: value.familiar === true,
     rumor: value.rumor === true,
@@ -2228,6 +2238,7 @@ export function reducer(state, action) {
         ...state,
         nodeId: to,
         cameFrom: arrival.cameFrom,
+        choiceIndex: arrival.choiceIndex,
         cameFromPhase: arrival.cameFromPhase,
         familiar: arrival.familiar,
         rumor: arrival.rumor,

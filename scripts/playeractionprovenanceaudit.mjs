@@ -235,5 +235,4 @@ assert.deepEqual(production.issues, [], `player-action provenance failures:\n${p
 const sharedDestinations = sharedActionDestinationIssues(STORY)
 assert.deepEqual(sharedDestinations.issues, [],
   `shared-action destination failures:\n${sharedDestinations.issues.join('\n')}`)
-
-console.log(`✅ player-action provenance audited: ${production.candidateCount} player-owned consequence lines and ${sharedDestinations.candidateCount} shared-destination actions bind to exact feasible arrivals`)
+console.log(`✅ player-action provenance audited: ${production.candidateCount} player-owned consequence lines and ${sharedDestinations.candidateCount} same-source shared actions bind to exact feasible arrivals`)

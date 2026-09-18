@@ -7,6 +7,7 @@ import { ITEMS, STORY, WORLD_HUB, lineOf, visibleLines } from '../src/game/conte
 import {
   currentStoryState,
   embodimentClockOf,
+  embodimentFocusState,
   fireStateOf,
   fixtureStateOf,
   hasCond,
@@ -25,6 +26,7 @@ import {
 import {
   EMBODIMENT_ALIASES,
   EMBODIMENT_QUESTS,
+  PUBLIC_FREE_ROAM_BOUNDARIES,
   PUBLIC_FREE_ROAM_NODES,
   PUBLIC_FREE_ROAM_PLACES,
   PUBLIC_FREE_ROAM_TRANSITS,
@@ -119,13 +121,24 @@ for (const blockedReturn of [
 }
 
 // Derive the public graph without consulting embodimentOptionAccess or the
-// pinned place list. Time/weather gates can eventually be met on the living
-// clock; a role requirement is private by definition and is never public.
+// pinned place list. Recurring clock, weather, fixture and NPC conditions can
+// eventually be met in the living world. Inventory, learned fact and authored
+// flag requirements cannot: crossing those gates would first require the local
+// story mutation which free-roam deliberately blocks.
+const PUBLIC_EVENTUAL_REQUIREMENTS = new Set(['day', 'night', 'dawn', 'dusk'])
+const PUBLIC_EVENTUAL_REQUIREMENT_PREFIXES = Object.freeze([
+  'festival:', 'fixture:', 'npc:', 'npcAt:', 'season:', 'weather:', 'weekday:',
+])
+const isIndependentPublicRequirement = (id) =>
+  PUBLIC_EVENTUAL_REQUIREMENTS.has(id) ||
+  PUBLIC_EVENTUAL_REQUIREMENT_PREFIXES.some((prefix) => String(id).startsWith(prefix))
+
 const isIndependentPublicEdge = (from, option) => {
   const target = STORY[option?.to]
   if (!option || option.confuser || !target || target.end || option.become || changesWorld(option)) return false
   if (option.freeRoamBoundary) return false
-  if (asList(option.requires).some((id) => String(id).startsWith('embodying:'))) return false
+  if (PUBLIC_FREE_ROAM_BOUNDARIES[edgeOf(from, option)]) return false
+  if (asList(option.requires).some((id) => !isIndependentPublicRequirement(id))) return false
   const route = transitionInfo(from, option)
   const reviewedTransit = PUBLIC_FREE_ROAM_TRANSITS[edgeOf(from, option)]
   return Boolean(
@@ -677,6 +690,7 @@ check('Maro may travel but cannot steal the miller ending or use the traveller p
     embodying: 'maro-perhitura', embodimentOriginNode: 'maroShtepi',
     embodimentFocusNode: 'mulli1', embodimentWorldNode: 'maroShtepi',
     embodimentClock: 5, cameFrom: 'maroNisja', cameFromPhase: 'night',
+    choiceIndex: 2,
     familiar: true, rumor: true, trail: ['maroNisja', 'maroShtepi'],
     inventory: { buke: 1 }, embodimentInventorySnapshot: { buke: 1 },
   })
@@ -696,13 +710,14 @@ check('Maro may travel but cannot steal the miller ending or use the traveller p
   assert.equal(wandered.embodying, 'maro-perhitura')
   assert.equal(wandered.embodimentPaused, true)
   assert.deepEqual(wandered.embodimentArrivalSnapshot, {
-    nodeId: 'mulli1', cameFrom: 'maroNisja', cameFromPhase: 'night',
+    nodeId: 'mulli1', cameFrom: 'maroNisja', choiceIndex: 2, cameFromPhase: 'night',
     familiar: true, rumor: true, trail: ['maroNisja', 'maroShtepi'],
   })
   const resumed = reducer(wandered, { type: 'RESUME_EMBODIMENT' })
   assert.equal(resumed.nodeId, 'mulli1')
   assert.equal(resumed.embodimentPaused, false)
   assert.equal(resumed.cameFrom, 'maroNisja')
+  assert.equal(resumed.choiceIndex, 2)
   assert.equal(resumed.cameFromPhase, 'night')
   assert.equal(resumed.familiar, true)
   assert.equal(resumed.rumor, true)
@@ -836,10 +851,10 @@ check('every surviving role ending returns to its exact authored world location'
 check('the pinned public-place inventory exactly matches an independent graph derivation', () => {
   const pinned = new Set(PUBLIC_FREE_ROAM_PLACES)
   const pinnedNodes = new Set(PUBLIC_FREE_ROAM_NODES)
-  assert.equal(PUBLIC_FREE_ROAM_PLACES.length, 56)
+  assert.equal(PUBLIC_FREE_ROAM_PLACES.length, 69)
   assert.equal(pinned.size, PUBLIC_FREE_ROAM_PLACES.length, 'duplicate public place')
   assert.deepEqual(PUBLIC_FREE_ROAM_PLACES, [...PUBLIC_FREE_ROAM_PLACES].sort(), 'public places are not sorted')
-  assert.equal(PUBLIC_FREE_ROAM_NODES.length, 57)
+  assert.equal(PUBLIC_FREE_ROAM_NODES.length, 70)
   assert.equal(pinnedNodes.size, PUBLIC_FREE_ROAM_NODES.length, 'duplicate public node')
   assert.deepEqual(PUBLIC_FREE_ROAM_NODES, [...PUBLIC_FREE_ROAM_NODES].sort(), 'public nodes are not sorted')
   for (const place of pinned) assert.ok(PLACE_NODES[place]?.length, `unknown public place ${place}`)
@@ -878,9 +893,38 @@ check('the pinned public-place inventory exactly matches an independent graph de
       `${from}->${option.to}: free-roam boundary has no ordinary playable public return`)
   }
 
+  const reviewedBoundaryKeys = Object.keys(PUBLIC_FREE_ROAM_BOUNDARIES)
+  assert.deepEqual(reviewedBoundaryKeys, ['odaJutbina->kreshnikRrembimi1'],
+    'reviewed public boundary scope grew without an explicit audit review')
+  const reviewedBoundaryFields = [
+    'rule', 'target', 'rationale', 'evidence', 'source', 'owner', 'reviewTrigger', 'maxEdges',
+  ]
+  for (const [edge, boundary] of Object.entries(PUBLIC_FREE_ROAM_BOUNDARIES)) {
+    assert.deepEqual(Object.keys(boundary).sort(), [...reviewedBoundaryFields].sort(),
+      `${edge}: malformed reviewed public boundary`)
+    assert.equal(boundary.rule, 'public-free-roam-noncommittal', `${edge}: unstable boundary rule`)
+    assert.equal(boundary.target, edge, `${edge}: boundary target drifted`)
+    assert.equal(boundary.maxEdges, 1, `${edge}: boundary scope is not one exact edge`)
+    for (const field of ['rationale', 'evidence', 'source', 'owner', 'reviewTrigger']) {
+      assert.ok(typeof boundary[field] === 'string' && boundary[field].trim().length >= (field === 'owner' ? 3 : 24),
+        `${edge}: reviewed public boundary needs concrete ${field}`)
+    }
+    const [from, to] = edge.split('->')
+    const matches = (STORY[from]?.options || []).filter((option) => option.to === to)
+    assert.equal(matches.length, 1, `${edge}: reviewed public boundary is missing, duplicated or stale`)
+    const route = transitionInfo(from, matches[0])
+    assert.ok(route.valid && route.spatial && !route.projection && (route.kind === 'journey' || route.wander),
+      `${edge}: reviewed boundary no longer guards ordinary-looking travel`)
+    assert.equal(changesWorld(matches[0]), false, `${edge}: a state-changing edge does not need this boundary`)
+    assert.ok(pinnedNodes.has(from), `${edge}: reviewed boundary does not leave a public node`)
+    assert.equal(pinnedNodes.has(to), false, `${edge}: reviewed boundary hides a pinned public node`)
+    assert.equal((STORY[to]?.options || []).filter((option) => isIndependentPublicEdge(to, option)).length, 0,
+      `${edge}: boundary is stale because its destination now has an ordinary public exit`)
+  }
+
   const derivedNodes = reachableBy(WORLD_HUB, isIndependentPublicEdge)
   const derivedPlaces = new Set([...derivedNodes].map((nodeId) => PLACE_OF[nodeId]).filter(Boolean))
-  assert.equal(derivedNodes.size, 57, 'public graph node inventory drifted')
+  assert.equal(derivedNodes.size, 70, 'public graph node inventory drifted')
   assert.ok(
     sameSet(derivedNodes, pinnedNodes),
     `public-node drift: missing ${[...pinnedNodes].filter((id) => !derivedNodes.has(id)).join(', ') || 'none'}; ` +
@@ -903,7 +947,7 @@ check('the pinned public-place inventory exactly matches an independent graph de
 })
 
 const roleCoverage = []
-check('every paused role reaches exactly all 56 public places and no private tale place', () => {
+check('every paused role reaches exactly all 69 public places and no private tale place', () => {
   const publicPlaces = new Set(PUBLIC_FREE_ROAM_PLACES)
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     const returnTo = quest.returnTo || quest.entryFrom
@@ -942,7 +986,7 @@ check('every paused role reaches exactly all 56 public places and no private tal
   }
 })
 
-check('all 27 roles can physically traverse all 56 public places from every starting hour', () => {
+check('all 27 roles can physically traverse all 69 public places from every starting hour', () => {
   const publicPlaces = new Set(PUBLIC_FREE_ROAM_PLACES)
   for (const [id, quest] of Object.entries(EMBODIMENT_QUESTS)) {
     const returnTo = quest.returnTo || quest.entryFrom
@@ -970,7 +1014,7 @@ check('all 27 roles can physically traverse all 56 public places from every star
       }
       assert.ok(
         sameSet(places, publicPlaces),
-        `${id} from hour ${startingHour}: reached ${places.size}/56; missing ` +
+        `${id} from hour ${startingHour}: reached ${places.size}/69; missing ` +
           `${[...publicPlaces].filter((place) => !places.has(place)).join(', ') || 'none'}`,
       )
     }
@@ -1024,15 +1068,18 @@ check('paused tale actions, private journeys and forged backtracks cannot bypass
   assert.equal(embodimentOptionAccess(atMill, privateMill, STORY.maroMulli1).ok, false)
   assert.equal(choose(atMill, privateMill), atMill)
 
-  const child = STORY.fshatiJeta.options.find((option) => option.to === 'syriKeq1')
-  const forged = withSpeech(stateAt('fshatiJeta', {
+  const rescueThreshold = STORY.odaJutbina.options.find((option) => option.to === 'kreshnikRrembimi1')
+  const forged = withSpeech(stateAt('odaJutbina', {
     embodying: 'maro-perhitura', embodimentOriginNode: 'maroShtepi',
-    embodimentFocusNode: 'mulli1', embodimentWorldNode: 'fshatiJeta',
-    embodimentPaused: true, cameFrom: 'syriKeq1', trail: ['syriKeq1'],
-  }), child)
-  assert.equal(transitionInfo('fshatiJeta', child).kind, 'scene-shift')
-  assert.equal(embodimentOptionAccess(forged, child, STORY.syriKeq1).ok, false)
-  assert.equal(choose(forged, child), forged)
+    embodimentFocusNode: 'mulli1', embodimentWorldNode: 'odaJutbina',
+    embodimentPaused: true, cameFrom: 'kreshnikRrembimi1', trail: ['kreshnikRrembimi1'],
+  }), rescueThreshold)
+  // The midnight summons is physically a journey but crosses the reviewed
+  // one-way boundary into a forced rescue decision. A forged reverse
+  // breadcrumb must not turn that story threshold into public travel.
+  assert.equal(transitionInfo('odaJutbina', rescueThreshold).kind, 'journey')
+  assert.equal(embodimentOptionAccess(forged, rescueThreshold, STORY.kreshnikRrembimi1).ok, false)
+  assert.equal(choose(forged, rescueThreshold), forged)
 
   for (const [from, node] of Object.entries(STORY)) {
     for (const option of node.options || []) {
@@ -1152,11 +1199,17 @@ check('every non-ending focus at every hour survives pause, detour, save and exa
         assert.deepEqual(paused.embodimentArrivalSnapshot, {
           nodeId: focusNode,
           cameFrom: live.cameFrom,
+          choiceIndex: null,
           cameFromPhase: live.cameFromPhase,
           familiar: live.familiar,
           rumor: live.rumor,
           trail: live.trail,
         })
+        assert.equal(
+          sceneSignature(embodimentFocusState(paused, focusNode)),
+          before,
+          `${id}.${focusNode}@${hour}: focus projection changed on pause`,
+        )
 
         let detoured = null
         for (const option of STORY[paused.nodeId]?.options || []) {
@@ -1181,6 +1234,11 @@ check('every non-ending focus at every hour survives pause, detour, save and exa
         assert.equal(restoredSave.embodimentPaused, true)
         assert.equal(restoredSave.embodimentClock, taleClock)
         assert.deepEqual(restoredSave.embodimentArrivalSnapshot, paused.embodimentArrivalSnapshot)
+        assert.equal(
+          sceneSignature(embodimentFocusState(restoredSave, focusNode)),
+          before,
+          `${id}.${focusNode}@${hour}: focus projection changed across detour`,
+        )
         const resumed = reducer(restoredSave, { type: 'RESUME_EMBODIMENT' })
         assert.equal(resumed.nodeId, focusNode)
         assert.equal(resumed.embodimentPaused, false)
@@ -1273,6 +1331,7 @@ check('every executable public detour at every hour advances only the living clo
         const snapshot = {
           nodeId: quest.entryTo,
           cameFrom: quest.entryFrom,
+          choiceIndex: null,
           cameFromPhase: phaseAtClock(taleClock - 1),
           familiar: hour % 2 === 0,
           rumor: hour % 3 === 0,
