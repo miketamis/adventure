@@ -14,11 +14,21 @@ import { WORLD_ENTITIES } from './worldEntities.js'
 import { TIMED_WORLD_FIXTURES, parseFixtureCondition } from './worldFixtures.js'
 import { observationIdOfLine, sceneLineRoleOf } from './observations.js'
 import { WORLD_SCENE_3D_FEATURES } from './data/worldScene3dFeatures.js'
+import { WORLD_SCENE_3D_PLACE_FEATURES, WORLD_SCENE_3D_PLACE_PROFILES } from './data/worldScene3dPlaceFeatures.js'
+import { validateWorldScene3dPlaceProfiles } from './worldScene3dPlaceProfiles.js'
+import { buildWorldScene3dInventory, validateWorldScene3dInventory } from './worldScene3dInventory.js'
 import { SEASONS, WEATHER_TYPES, civilDayPartAtClock } from './environment.js'
 import { ENVIRONMENT_DIMENSIONS, ENVIRONMENT_NARRATION_SETTINGS } from './environmentNarration.js'
 import { environmentStoryLine } from './storyContext.js'
 
-export const WORLD_SCENE_3D_VERSION = 2
+export const WORLD_SCENE_3D_VERSION = 3
+const ALL_FEATURES = [...WORLD_SCENE_3D_FEATURES, ...WORLD_SCENE_3D_PLACE_FEATURES]
+const featureSource = (feature) => WORLD_SCENE_3D_PLACE_FEATURES.includes(feature)
+  ? { file: 'src/game/data/worldScene3dPlaceFeatures.js', authority: 'WORLD_SCENE_3D_PLACE_FEATURES', key: feature.id }
+  : { file: 'src/game/data/worldScene3dFeatures.js', authority: 'WORLD_SCENE_3D_FEATURES', key: feature.id }
+const inventoryBindingTypes = ['inventory-source', 'inventory-item-location']
+const bindingRecordId = (type, evidence) => inventoryBindingTypes.includes(type) ? evidence?.recordId || '' : ''
+const conditionalKinds = ['fixture', 'perception', 'actor', 'environment', 'catalogue', 'item-action', 'source-reference']
 export const WORLD_SCENE_3D_COORDINATES = Object.freeze({
   order: Object.freeze(['chart-x', 'illustrative-height', 'chart-y']),
   chartAxes: WORLD_AXES,
@@ -250,7 +260,7 @@ export function buildWorldScene3d() {
     if (!description || !element) return
     if (!description.elementIds.includes(elementId)) description.elementIds.push(elementId)
     if (!element.descriptionIds.includes(description.id)) element.descriptionIds.push(description.id)
-    if (!description.bindings.some((binding) => binding.elementId === elementId && binding.type === type)) {
+    if (!description.bindings.some((binding) => binding.elementId === elementId && binding.type === type && bindingRecordId(type, binding.evidence) === bindingRecordId(type, evidence))) {
       description.bindings.push({ elementId, type, evidence })
     }
   }
@@ -300,15 +310,15 @@ export function buildWorldScene3d() {
     }
   }
 
-  for (const feature of WORLD_SCENE_3D_FEATURES) {
+  for (const feature of ALL_FEATURES) {
     const id = `feature:${feature.id}`
     const element = addElement({
       ...baseElement(id, 'feature', feature.label, feature.nodeId, shape(feature.geometry.shape, feature.geometry.size), feature.offset),
       ...featureSpatialProperties(feature),
       placement: feature.placement || { kind: 'at-place', nodeId: feature.nodeId },
       relations: feature.relations || [],
-      featureId: feature.id, source: { file: 'src/game/data/worldScene3dFeatures.js', authority: 'WORLD_SCENE_3D_FEATURES', key: feature.id },
-      interpretation: feature.interpretation,
+      featureId: feature.id, source: featureSource(feature),
+      interpretation: feature.interpretation, color: feature.color, depiction: feature.depiction,
       witnesses: feature.witnesses.map((witness) => ({ ...witness, requires: [...witness.requires], descriptionId: descriptionId(witness.nodeId, witness.lineIndex) })),
     })
     for (const witness of element.witnesses) {
@@ -316,6 +326,16 @@ export function buildWorldScene3d() {
         featureId: feature.id, requires: [...witness.requires], source: textSource(witness.nodeId, witness.lineIndex),
         ...(witness.location ? { location: witness.location } : {}),
       })
+    }
+  }
+
+  for (const profile of WORLD_SCENE_3D_PLACE_PROFILES) {
+    for (const association of profile.associations || []) {
+      bind(descriptionById.get(descriptionId(association.witness.nodeId, association.witness.lineIndex)),
+        `feature:${association.featureId}`, 'reviewed-place-view', {
+          placeId: profile.placeId, featureId: association.featureId,
+          source: textSource(association.witness.nodeId, association.witness.lineIndex), rationale: association.rationale,
+        })
     }
   }
 
@@ -436,8 +456,25 @@ export function buildWorldScene3d() {
       bind(description, `environment-template:${description.dimension}`, 'generated-environment', { templateId: description.templateId, dimension: description.dimension })
     }
   }
+  const inventory = buildWorldScene3dInventory()
+  for (const entry of inventory.elements) {
+    const element = addElement(entry)
+    element.authorityScope = entry.authorityScope
+    element.inventoryRecordIds = entry.inventoryRecordIds
+  }
+  for (const description of inventory.descriptions) {
+    descriptions.push(description)
+    descriptionById.set(description.id, description)
+  }
+  for (const binding of inventory.bindings) bind(descriptionById.get(binding.descriptionId), binding.elementId, binding.type, binding.evidence)
+  for (const description of inventory.descriptions) {
+    for (const condition of [...list(description.conditions?.all), ...list(description.conditions?.none)]) {
+      const fixture = parseFixtureCondition(condition)
+      if (fixture) bind(description, `fixture:${fixture.fixtureId}`, 'fixture-state', { condition, stateId: fixture.stateId })
+    }
+  }
   for (const description of descriptions) {
-    description.classification = description.bindings.some(({ type }) => type === 'reviewed-feature')
+    description.classification = description.bindings.some(({ type }) => ['reviewed-feature', 'reviewed-place-view'].includes(type))
       ? 'reviewed-geometry'
       : description.bindings.some(({ type }) => !isContextBinding(type))
         ? 'canonical-metadata'
@@ -448,7 +485,7 @@ export function buildWorldScene3d() {
     element.witnessConditions = element.descriptionIds.map((id) => ({ descriptionId: id, conditions: descriptionById.get(id).conditions }))
     // Never depict mutually exclusive states as simultaneous world facts.
     // Explicit selection may reveal their audit geometry with its predicates.
-    element.conditional = ['fixture', 'perception', 'actor', 'environment', 'catalogue'].includes(element.kind) ||
+    element.conditional = conditionalKinds.includes(element.kind) ||
       (element.kind === 'feature' && element.witnessConditions.length > 0 && element.witnessConditions.every(({ conditions }) => hasConditions(conditions)))
   }
   const contextOnlyDescriptionIds = descriptions.filter(({ classification }) => classification === 'context-only').map(({ id }) => id)
@@ -456,14 +493,16 @@ export function buildWorldScene3d() {
     version: WORLD_SCENE_3D_VERSION,
     coordinateSystem: WORLD_SCENE_3D_COORDINATES,
     elements, descriptions, routes, relations,
+    placeProfiles: WORLD_SCENE_3D_PLACE_PROFILES.map((profile) => structuredClone(profile)),
+    inventory: { records: inventory.records, coverage: inventory.coverage },
     contextOnlyDescriptionIds,
     limitations: [
       'A scene-context link locates prose but does not validate its physical assertions. Context-only lines remain visible modeling gaps.',
       'Reviewed feature witnesses establish the named feature, not its illustrative size, local offset, material or architectural accuracy.',
       'Conditions, observations and NPC route stops describe alternatives. This atlas is a survey of authored possibilities, not a simultaneous world state.',
-      'Actor geometry requires positive location predicates. Name knowledge, absence and departure prose retain their source metadata but do not establish an actor at the observer’s place.',
+      'Actor markers require explicit registry, runtime-route or portrait encounter locations. They are possible encounters, never current-presence claims; planning prose stays unlocated.',
       'Geometry validates canonical place/route continuity, registered crossings, sightlines and exact supported feature witnesses. It cannot prove arbitrary prose or lore true.',
-      'Item blurbs use unlocated catalogue symbols. Generated environment coverage enumerates every single-dimension opening/transition template; combined runtime sentence composition remains owned by the production builder.',
+      'Item blurbs link to portable catalogue symbols and exact action locations. Source-tale cast, objects and places preserve their source-era boundary; proposed/offstage locations stay in the reference gallery.',
     ],
     statistics: {
       elements: elements.length, places: Object.keys(PLACE_NODES).length,
@@ -471,7 +510,7 @@ export function buildWorldScene3d() {
       storyDescriptions: descriptions.filter(({ source }) => source.kind === 'story-line').length,
       itemDescriptions: descriptions.filter(({ source }) => source.kind === 'item-blurb').length,
       environmentTemplates: WORLD_SCENE_3D_ENVIRONMENT_CASES.length,
-      reviewedFeatures: WORLD_SCENE_3D_FEATURES.length,
+      reviewedFeatures: ALL_FEATURES.length,
       reviewedGeometryDescriptions: descriptions.filter(({ classification }) => classification === 'reviewed-geometry').length,
       metadataDescriptions: descriptions.filter(({ classification }) => classification === 'canonical-metadata').length,
       contextOnlyDescriptions: contextOnlyDescriptionIds.length,
@@ -535,11 +574,14 @@ export function validateWorldScene3d(model) {
     }
     const witnessConditions = (element.descriptionIds || []).filter((id) => descriptions.has(id)).map((id) => ({ descriptionId: id, conditions: descriptions.get(id).conditions }))
     if (!equal(element.witnessConditions, witnessConditions)) fail('geometry witness conditions are missing or stale')
-    const conditional = ['fixture', 'perception', 'actor', 'environment', 'catalogue'].includes(element.kind) ||
+    const conditional = conditionalKinds.includes(element.kind) ||
       (element.kind === 'feature' && witnessConditions.length > 0 && witnessConditions.every(({ conditions }) => hasConditions(conditions)))
     if (element.conditional !== conditional) fail('conditional geometry visibility does not preserve authored alternatives')
   }
-  const expectedDescriptions = new Set()
+  const inventoryDefinition = buildWorldScene3dInventory()
+  for (const element of inventoryDefinition.elements) expectedElementIds.add(element.id)
+  issues.push(...validateWorldScene3dInventory(model), ...validateWorldScene3dPlaceProfiles(model))
+  const expectedDescriptions = new Set(inventoryDefinition.descriptions.map(({ id }) => id))
   const expectedRoutes = new Set()
   const canonicalDescriptions = []
   for (const [nodeId, node] of Object.entries(STORY)) {
@@ -592,7 +634,7 @@ export function validateWorldScene3d(model) {
     if (!expectedDescriptions.has(description.id)) fail('description has no authored source')
     if (!Array.isArray(description.elementIds) || !description.elementIds.length || unique(description.elementIds).length !== description.elementIds.length) fail('element links must be a non-empty unique array')
     if (!Array.isArray(description.bindings)) { fail('typed bindings are missing'); continue }
-    if (unique(description.bindings.map(({ elementId, type }) => `${elementId}:${type}`)).length !== description.bindings.length) fail('typed bindings must be unique per element and relationship')
+    if (unique(description.bindings.map(({ elementId, type, evidence }) => `${elementId}:${type}:${bindingRecordId(type, evidence)}`)).length !== description.bindings.length) fail('typed bindings must be unique per element and relationship')
     for (const id of description.elementIds || []) {
       if (!elements.has(id)) fail(`mapping targets missing element ${id}`)
       else if (!elements.get(id).descriptionIds?.includes(description.id)) fail(`element ${id} has no reciprocal description link`)
@@ -609,7 +651,7 @@ export function validateWorldScene3d(model) {
       } else if (binding.type === 'region-context') {
         if (binding.elementId !== `region:${NODE_REGION[description.nodeId]}`) fail('region context does not match canonical membership')
       } else if (binding.type === 'reviewed-feature') {
-        const feature = WORLD_SCENE_3D_FEATURES.find(({ id }) => id === binding.evidence?.featureId)
+        const feature = ALL_FEATURES.find(({ id }) => id === binding.evidence?.featureId)
         const witness = feature?.witnesses.find(({ nodeId, lineIndex }) => nodeId === description.nodeId && lineIndex === description.lineIndex)
         if (!witness || binding.elementId !== `feature:${feature.id}` || !equal(binding.evidence.requires, witness.requires)
           || !equal(binding.evidence.source, textSource(witness.nodeId, witness.lineIndex))
@@ -619,6 +661,13 @@ export function validateWorldScene3d(model) {
           const option = STORY[route?.nodeId]?.options?.[route?.optionIndex]
           for (const conflict of worldScene3dApproachConditionConflicts(description.conditions, option)) fail(`visible-from ${conflict}`)
         }
+      } else if (binding.type === 'reviewed-place-view') {
+        const profile = WORLD_SCENE_3D_PLACE_PROFILES.find(({ placeId }) => placeId === binding.evidence?.placeId)
+        const association = profile?.associations?.find(({ featureId, witness }) => featureId === binding.evidence?.featureId && witness.nodeId === description.nodeId && witness.lineIndex === description.lineIndex)
+        if (!association || binding.elementId !== `feature:${association.featureId}` || !equal(binding.evidence, {
+          placeId: profile.placeId, featureId: association.featureId,
+          source: textSource(association.witness.nodeId, association.witness.lineIndex), rationale: association.rationale,
+        })) fail('reviewed place view has no exact local source association')
       } else if (binding.type === 'environment-metadata') {
         const dimension = binding.evidence?.dimension
         if (!description.environmentDimensions?.includes(dimension) || binding.elementId !== `environment:${description.placeId}:${dimension}`) fail('environment binding is not backed by exact metadata')
@@ -638,9 +687,12 @@ export function validateWorldScene3d(model) {
         if (description.source?.kind !== 'item-blurb' || binding.elementId !== `item:${description.itemId}` || binding.evidence?.itemId !== description.itemId || !ITEMS[description.itemId]) fail('item catalogue binding has no canonical item')
       } else if (binding.type === 'generated-environment') {
         if (description.source?.kind !== 'generated-environment' || binding.elementId !== `environment-template:${description.dimension}` || binding.evidence?.templateId !== description.templateId || binding.evidence?.dimension !== description.dimension) fail('environment template binding has no canonical dimension/template')
+      } else if (inventoryBindingTypes.includes(binding.type)) {
+        // Independently enumerated and checked, including exact evidence and
+        // duplicate action records, by validateWorldScene3dInventory above.
       } else fail(`unsupported binding type ${binding.type}`)
     }
-    const classification = description.bindings.some(({ type }) => type === 'reviewed-feature') ? 'reviewed-geometry'
+    const classification = description.bindings.some(({ type }) => ['reviewed-feature', 'reviewed-place-view'].includes(type)) ? 'reviewed-geometry'
       : description.bindings.some(({ type }) => !isContextBinding(type)) ? 'canonical-metadata' : 'context-only'
     if (description.classification !== classification) fail('mapping coverage classification is misleading')
     for (const dimension of description.environmentDimensions || []) {
@@ -650,7 +702,7 @@ export function validateWorldScene3d(model) {
     for (const condition of [...list(description.conditions?.all), ...list(description.conditions?.none)]) {
       if (parseFixtureCondition(condition) && !description.bindings.some(({ type, evidence }) => type === 'fixture-state' && evidence.condition === condition)) fail(`missing fixture mapping for ${condition}`)
     }
-    for (const reference of actorReferences(description)) {
+    for (const reference of description.source?.kind === 'story-line' ? actorReferences(description) : []) {
       if (!description.bindings.some(({ type, evidence }) => type === 'actor-metadata' && equal(evidence, reference))) fail(`missing actor mapping for ${reference.npcId}`)
     }
   }
@@ -675,13 +727,13 @@ export function validateWorldScene3d(model) {
     const element = elements.get(`region:${region.key}`)
     if (!element || element.kind !== 'region' || !equal(element.position, [region.cx, -23, region.cy]) || !equal(element.geometry, shape('plane', [region.rx * 2, 40, region.ry * 2]))) problem(`region:${region.key}`, 'region footprint or illustrative slab thickness differs from chart authority')
   }
-  for (const feature of WORLD_SCENE_3D_FEATURES) {
+  for (const feature of ALL_FEATURES) {
     requireElement(`feature:${feature.id}`, {
       kind: 'feature', label: feature.label, featureId: feature.id,
       ...featureSpatialProperties(feature),
       placement: feature.placement || { kind: 'at-place', nodeId: feature.nodeId },
       relations: feature.relations || [],
-      source: { file: 'src/game/data/worldScene3dFeatures.js', authority: 'WORLD_SCENE_3D_FEATURES', key: feature.id },
+      source: featureSource(feature), interpretation: feature.interpretation, color: feature.color, depiction: feature.depiction,
     })
     const element = elements.get(`feature:${feature.id}`)
     if (!element) { problem(`feature:${feature.id}`, 'reviewed feature geometry is missing'); continue }
@@ -835,7 +887,7 @@ export function validateWorldScene3d(model) {
   if (!equal(model.contextOnlyDescriptionIds, contextOnly)) problem('world-scene-3d', 'context-only modeling gaps are hidden or stale')
   const expectedStatistics = {
     elements: model.elements.length, places: Object.keys(PLACE_NODES).length, regions: REGIONS.length,
-    descriptions: model.descriptions.length, routes: model.routes.length, reviewedFeatures: WORLD_SCENE_3D_FEATURES.length,
+    descriptions: model.descriptions.length, routes: model.routes.length, reviewedFeatures: ALL_FEATURES.length,
     storyDescriptions: model.descriptions.filter(({ source }) => source?.kind === 'story-line').length,
     itemDescriptions: model.descriptions.filter(({ source }) => source?.kind === 'item-blurb').length,
     environmentTemplates: WORLD_SCENE_3D_ENVIRONMENT_CASES.length,

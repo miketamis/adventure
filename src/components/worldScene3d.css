@@ -55,5 +55,19 @@
 .world3d-binding { border: 1px solid #436267; background: #213d44; color: #badad1; border-radius: 4px; font-size: .68rem; padding: 5px 7px; cursor: pointer; overflow-wrap: anywhere; }
 .world3d-binding.selected { border-color: #cbad6e; color: #f0d49a; }
 .world3d-focused { border-left: 3px solid #d5b16b; padding: 10px 12px; margin: 14px 0; background: #2f3432; font-size: .8rem; line-height: 1.6; }
+.world3d-layers { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 12px 0 0; padding: 12px; border: 1px solid var(--scene-border); border-radius: 7px; font-size: .75rem; }
+.world3d-layers legend { color: var(--scene-muted); padding: 0 6px; }
+.world3d-layers label { display: inline-flex; align-items: center; gap: 5px; }
+.world3d-layers label span { color: var(--scene-muted); }
+.world3d-coverage-table { display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 10px 0; }
+.world3d-coverage-table b { color: #efd49b; }
+.world3d-inventory { margin-top: 26px; }
+.world3d-inventory .world3d-heading label { display: grid; gap: 7px; width: min(100%, 340px); font-size: .75rem; }
+.world3d-inventory-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.world3d-inventory-list button { display: grid; gap: 6px; text-align: left; padding: 13px; border: 1px solid var(--scene-border); border-radius: 7px; background: #182c34; color: #e4edeb; cursor: pointer; overflow-wrap: anywhere; min-width: 0; }
+.world3d-inventory-list button:hover { border-color: #8bc4b2; background: #203c42; }
+.world3d-inventory-list span { color: var(--scene-muted); font-size: .66rem; }
+@media (max-width: 850px) { .world3d-inventory-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .world3d-inventory-list { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 950px) { .world3d-layout { grid-template-columns: minmax(0, 1fr); } .world3d-inspector { border-left: 0; border-top: 1px solid var(--scene-border); } .world3d-stage { min-height: 460px; } }
 @media (max-width: 600px) { .world3d { padding: 12px; } .world3d-description-list { grid-template-columns: minmax(0, 1fr); } .world3d-stage { min-height: 380px; } .world3d-stage-note { font-size: .62rem; bottom: 53px; } .world3d-legend { font-size: .62rem; gap: 7px; } }

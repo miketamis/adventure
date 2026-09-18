@@ -3,6 +3,10 @@ import { isUnchartedStoryNode } from '../src/game/departureContexts.js'
 // independently enumerated from production STORY/place/route registries; the
 // mutation probes exercise the validator rather than trusting a success count.
 import assert from 'node:assert/strict'
+import { worldScene3dInventorySources } from '../src/game/worldScene3dInventory.js'
+import { runWorldSceneSurveyAssertions } from './lib/world-scene-survey.test.mjs'
+import { runWorldSceneInventoryAssertions } from './lib/world-scene-inventory.test.mjs'
+import { runWorldScenePlaceProfileAssertions } from './lib/world-scene-place-profiles.test.mjs'
 import { ITEMS, STORY, lineOf, visibleLines } from '../src/game/content.js'
 import { canChoose, hasCond, isOptionRevealed, newRun } from '../src/game/gameState.js'
 import { albanianTextOf } from '../src/game/language.js'
@@ -37,6 +41,9 @@ import {
 const model = buildWorldScene3d()
 assert.equal(model.version, WORLD_SCENE_3D_VERSION)
 assert.deepEqual(validateWorldScene3d(model), [], 'production 3D world model is inconsistent')
+const surveyChecks = runWorldSceneSurveyAssertions(model)
+const inventoryChecks = await runWorldSceneInventoryAssertions(model)
+const profileChecks = runWorldScenePlaceProfileAssertions(model)
 
 const descriptions = new Map(model.descriptions.map((record) => [record.id, record]))
 const elements = new Map(model.elements.map((record) => [record.id, record]))
@@ -263,6 +270,7 @@ for (const entry of WORLD_SCENE_3D_ENVIRONMENT_CASES) {
   assert.ok(description.elementIds.includes(`environment-template:${entry.dimension}`), `${id}: missing dimension symbol`)
   assert.equal(description.applicability.mode, entry.mode, `${id}: opening/transition applicability drift`)
 }
+expectedDescriptionIds.push(...worldScene3dInventorySources().flatMap(({ statements }) => statements.map(({ id }) => id)))
 assert.deepEqual([...descriptions.keys()].sort(), expectedDescriptionIds.sort(), 'source description inventory must be exact')
 assert.deepEqual([...routes.keys()].sort(), expectedRouteIds.sort(), 'source route inventory must be exact')
 
@@ -358,6 +366,11 @@ rejectsMutation('malformed source visibility conditions', firstDescriptionId, (c
 rejectsMutation('unmapped source line', firstDescriptionId, (changed) => { changed.descriptions[0].elementIds = [] })
 rejectsMutation('duplicate relationship evidence', firstDescriptionId, (changed) => {
   changed.descriptions[0].bindings.push(structuredClone(changed.descriptions[0].bindings[0]))
+})
+rejectsMutation('duplicate context cannot borrow inventory record identity', firstDescriptionId, (changed) => {
+  const duplicate = structuredClone(changed.descriptions[0].bindings[0])
+  duplicate.evidence = { recordId: 'forged-context-disposition' }
+  changed.descriptions[0].bindings.push(duplicate)
 })
 rejectsMutation('absent actor depicted as present', 'description:fshatiSheshi:25', (changed) => {
   const description = changed.descriptions.find(({ id }) => id === 'description:fshatiSheshi:25')
@@ -510,4 +523,4 @@ rejectsMutation('generated narration loses opening/transition provenance', first
   changed.descriptions.find((description) => description.id === firstEnvironmentDescriptionId).applicability.mode = 'unregistered'
 })
 
-console.log(`✓ 3D world: ${Object.keys(PLACE_NODES).length} places, ${model.descriptions.length} exact source descriptions, ${model.routes.length} routes; ${mutationCount} corruptions rejected`)
+console.log(`✓ 3D world: ${Object.keys(PLACE_NODES).length} places, ${model.descriptions.length} exact source descriptions, ${model.routes.length} routes; ${mutationCount + inventoryChecks.probes + profileChecks.corruptions} corruptions rejected; ${surveyChecks.surveyed} world elements + ${surveyChecks.references} unlocated references rendered`)

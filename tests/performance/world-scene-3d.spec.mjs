@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import { STORY, lineOf } from '../../src/game/content.js'
 import { newRun, normalizeSavedState, trainablePhraseSenses } from '../../src/game/gameState.js'
 import { albanianTextOf } from '../../src/game/language.js'
+import { buildWorldScene3d } from '../../src/game/worldScene3d.js'
 
 test('3D atlas renders, navigates, traces prose, validates and exports without entering normal play', async ({ page }) => {
   const errors = []
@@ -52,6 +53,8 @@ test('3D atlas renders, navigates, traces prose, validates and exports without e
   await page.getByRole('combobox', { name: 'Description mapping scope' }).selectOption('kind:item-blurb')
   await page.locator('.world3d-description-list article').first().getByRole('button', { name: 'Show in 3D' }).click()
   await expect(page.locator('.world3d-focused')).toContainText('ITEMS.')
+  await expect(page.locator('.world3d-id')).toContainText('item-action:')
+  await page.locator('.world3d-description-list article').first().getByRole('button', { name: 'Show unlocated references' }).click()
   await expect(page.locator('.world3d-inspector')).toContainText('Reference display position')
   await canvas.focus()
   await canvas.press('Home')
@@ -84,6 +87,108 @@ test('3D atlas renders, navigates, traces prose, validates and exports without e
   await expect(canvas).toBeVisible()
   expect(await page.getByTestId('world3d-view').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
   await page.getByTestId('world3d-view').screenshot({ path: '/tmp/language-adventure-3d-mobile.png' })
+  expect(errors).toEqual([])
+})
+
+test('complete atlas surveys every layer and opens searchable references without inventing locations', async ({ page }) => {
+  const model = buildWorldScene3d()
+  const world = model.elements.filter((element) => !element.catalogue)
+  const references = model.elements.filter((element) => element.catalogue)
+  const actors = world.filter(({ kind }) => kind === 'actor')
+  const gjon = world.find(({ id }) => id === 'actor:gjonMik:libriDiell')
+  expect(gjon).toBeTruthy()
+  const errors = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  await page.goto('./')
+  await expect(page.getByRole('button', { name: '🗺 Map', exact: true })).toHaveCount(0)
+  await page.locator('[data-performance-id="debug-toggle"]').click({ clickCount: 5 })
+  await page.getByRole('button', { name: '🗺 Map', exact: true }).click()
+  const count = page.getByTestId('world3d-visibility-count')
+  const mode = page.getByRole('combobox', { name: '3D survey mode' })
+  const region = page.getByRole('combobox', { name: '3D map region' })
+  const search = page.getByRole('searchbox', { name: 'Search map elements' })
+  const inspector = page.getByRole('combobox', { name: 'Inspect 3D element' })
+  await expect(mode).toHaveValue('all')
+  await expect(region).toHaveValue('')
+  await expect(count).toContainText(`${world.length} elements in this view`)
+  const characters = page.getByRole('checkbox', { name: /^Characters / })
+  await characters.uncheck()
+  await expect(count).toContainText(`${world.length - actors.length} elements in this view`)
+  await region.selectOption('sea')
+  await search.fill(gjon.id)
+  await page.locator('.world3d-inventory-list button').filter({ hasText: gjon.id }).click()
+  await expect(page.locator('.world3d-id')).toHaveText(gjon.id)
+  await expect(region).toHaveValue('')
+  await expect(characters).toBeChecked()
+  await expect(count).toContainText(`${world.length} elements in this view`)
+
+  // A direct reference selection from complete-survey mode must switch the
+  // rendered view as well as the inspector; the previous UI silently hid it.
+  const item = references.find(({ id }) => id.startsWith('item:'))
+  await inspector.selectOption(item.id)
+  await expect(mode).toHaveValue('references')
+  await expect(count).toContainText(`${references.length} elements in this view`)
+  await expect(page.locator('.world3d-inspector')).toContainText('Unlocated · gallery layout only')
+  await expect(search).toHaveValue('')
+  await mode.selectOption('references')
+  await page.locator('.world3d-layout').screenshot({ path: '/tmp/language-adventure-map-reference-gallery.png' })
+  await search.fill('zzzz-no-such-world-element')
+  await expect(count).toContainText('0 elements in this view')
+  await expect(page.getByText('No map elements match this search.', { exact: true })).toBeVisible()
+  await search.fill(item.id)
+  const displayedReferenceCount = await page.locator('.world3d-inventory-list button').count()
+  expect(displayedReferenceCount).toBeGreaterThan(0)
+  await expect(count).toContainText(`${displayedReferenceCount} elements in this view`)
+  await page.locator('.world3d-inventory-list button').filter({ hasText: item.id }).first().click()
+  await expect(page.locator('.world3d-id')).toHaveText(item.id)
+  await expect(mode).toHaveValue('references')
+  await page.getByRole('button', { name: 'Fit world', exact: true }).click()
+  await expect(mode).toHaveValue('all')
+  await expect(count).toContainText(`${world.length} elements in this view`)
+
+  // Mixed sources must expose their charted evidence before the optional
+  // unlocated gallery; each binding must switch to its own correct surface.
+  const byId = new Map(model.elements.map((element) => [element.id, element]))
+  const mixedSources = [
+    model.descriptions.find((description) => description.source.kind === 'item-blurb'
+      && description.elementIds.some((id) => byId.get(id)?.kind === 'item-action')),
+    model.descriptions.find((description) => description.source.kind === 'tale-cast'
+      && description.elementIds.some((id) => byId.get(id)?.catalogue)
+      && description.elementIds.some((id) => !byId.get(id)?.catalogue && byId.get(id)?.kind !== 'region')),
+  ]
+  const sourceSearch = page.getByRole('searchbox', { name: 'Search all story descriptions' })
+  for (const description of mixedSources) {
+    expect(description).toBeTruthy()
+    await sourceSearch.fill(description.id)
+    const article = page.locator('.world3d-description-list article').filter({ hasText: description.source.path }).first()
+    await article.getByRole('button', { name: 'Show in 3D', exact: true }).click()
+    await expect(mode).toHaveValue('evidence')
+    const referenceId = description.elementIds.find((id) => byId.get(id)?.catalogue)
+    const physicalId = description.elementIds.find((id) => !byId.get(id)?.catalogue && byId.get(id)?.kind !== 'region')
+    await article.getByRole('button', { name: referenceId, exact: true }).click()
+    await expect(mode).toHaveValue('references')
+    await expect(page.locator('.world3d-id')).toHaveText(referenceId)
+    await article.getByRole('button', { name: physicalId, exact: true }).click()
+    await expect(mode).toHaveValue('evidence')
+    await expect(page.locator('.world3d-id')).toHaveText(physicalId)
+    await expect(page.locator('.world3d-focused')).toContainText(description.source.path)
+  }
+
+  // The illustrated debug atlas also exposes places never visited this run.
+  await page.getByRole('button', { name: '2D illustrated map', exact: true }).click()
+  await expect(page.locator('.atlas-view .dbg-world [data-map-id^="landmark-argjiroKala:"]')).toHaveAttribute('role', 'button')
+  await page.getByRole('button', { name: '3D world & audit', exact: true }).click()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.getByTestId('world3d-canvas')).toBeVisible()
+  await expect(page.getByRole('searchbox', { name: 'Search map elements' })).toBeVisible()
+  await page.getByTestId('world3d-canvas').screenshot({ path: '/tmp/language-adventure-map-survey-mobile.png' })
+  await sourceSearch.fill(mixedSources[0].id)
+  const mobileSource = page.locator('.world3d-description-list article').first()
+  await expect(mobileSource.getByRole('button', { name: 'Show in 3D', exact: true })).toBeVisible()
+  await expect(mobileSource.getByRole('button', { name: 'Show unlocated references', exact: true })).toBeVisible()
+  expect(await mobileSource.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+  await mobileSource.screenshot({ path: '/tmp/language-adventure-map-mixed-source-mobile.png' })
+  expect(await page.getByTestId('world3d-view').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
   expect(errors).toEqual([])
 })
 

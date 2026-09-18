@@ -25,15 +25,6 @@ export default function AtlasView({ state }) {
       ? `${direction} on the tale-chart, ${distance} from here`
       : 'at this same place on the tale-chart'
   }, [state.nodeId, objective])
-  const known = useMemo(
-    () => [...new Set([
-      state.nodeId,
-      ...Object.keys(state.visited || {}),
-      ...Object.keys(state.heard || {}),
-    ])],
-    [state.nodeId, state.visited, state.heard],
-  )
-
   return (
     <section className="card atlas-view" aria-labelledby="atlas-title">
       <header className="atlas-header">
@@ -58,9 +49,6 @@ export default function AtlasView({ state }) {
         g={graph}
         current={state.nodeId}
         objective={objective}
-        follow
-        player
-        known={known}
         world={{ ...environment, fire: fireStateOf(state) }}
         npcs={liveNpcs(state)}
         rumors={Object.keys(state.heard || {}).filter((id) => !state.visited?.[id])}

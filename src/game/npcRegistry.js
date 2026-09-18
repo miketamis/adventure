@@ -3,7 +3,9 @@
 // in src/game/data/npcs/*.js (see data/npcs/_SCHEMA.md for the contract):
 //   core-village.js / core-world.js — the standing world cast
 //   tale-<taleId>.js                — each tale's cast, owned by that tale
-// Adding NPCs never edits a shared file, so parallel agents cannot conflict.
+// Edit NPC records in their owning partition. A new or renamed partition
+// must also update npcRegistryData.js; the 3D release gate compares its import
+// manifest with the directory so no partition can silently disappear.
 //
 // Cast→NPC links resolve from BOTH sides so a tale can reuse a core NPC
 // without editing the core file:
@@ -12,12 +14,8 @@
 // ===========================================================================
 import { TALES } from './taleBeats.js'
 
-const modules = import.meta.glob('./data/npcs/*.js', { eager: true })
-
-export const NPC_REGISTRY = {}
-for (const m of Object.values(modules)) {
-  for (const [id, npc] of Object.entries(m.default || {})) NPC_REGISTRY[id] = npc
-}
+import { NPC_REGISTRY } from './npcRegistryData.js'
+export { NPC_REGISTRY } from './npcRegistryData.js'
 
 // reverse lookup: taleId → castId → npcId (Beats cast links resolve with this)
 export const NPC_OF_CAST = {}

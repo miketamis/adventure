@@ -14,6 +14,24 @@ const KIND_COLORS = Object.freeze({
   environment: '#7dcad0', actor: '#eaa78d',
 })
 const meshCache = new WeakMap()
+let referenceLayoutCache = { elements: [], display: [] }
+const hasPosition = (element) => Array.isArray(element.position) && element.position.length === 3 && element.position.every(Number.isFinite)
+
+// References have no geographic coordinates. Lay out a separate, compact
+// gallery using display copies, including records with no authored geometry.
+function referenceDisplayElements(elements) {
+  if (elements.length === referenceLayoutCache.elements.length && elements.every((element, index) => element === referenceLayoutCache.elements[index])) return referenceLayoutCache.display
+  const columns = Math.max(1, Math.ceil(Math.sqrt(elements.length * 1.5)))
+  const rows = Math.ceil(elements.length / columns)
+  const display = elements.map((element, index) => ({
+    ...element,
+    position: [(index % columns - (columns - 1) / 2) * 60, 8, (Math.floor(index / columns) - (rows - 1) / 2) * 54],
+    geometry: { shape: element.geometry?.shape || 'box', size: element.geometry?.size || [12, 12, 12] },
+    displayOnly: true,
+  }))
+  referenceLayoutCache = { elements, display }
+  return display
+}
 
 function elementInRegion(element, regionId) {
   return !regionId || regionId === 'all' || element.regionId === regionId
@@ -30,13 +48,21 @@ function safeCamera(camera = {}) {
   }
 }
 
-export function defaultCameraForScene(model, { regionId, elementId, elementIds } = {}) {
+export function defaultCameraForScene(model, { regionId, elementId, elementIds, catalogueView = false, catalogueIds } = {}) {
   const elements = model.elements || []
   const focused = elementId && elements.find((element) => element.id === elementId)
-  let scope = elementIds?.length ? elements.filter((element) => elementIds.includes(element.id)) : focused ? [focused] : elements.filter((element) => (
+  const referenceFocus = focused?.catalogue || (elementIds?.length && elementIds.every((id) => elements.find((element) => element.id === id)?.catalogue))
+  const referenceIds = catalogueIds ?? (catalogueView ? null : elementIds || (elementId ? [elementId] : null))
+  const referenceSet = referenceIds && new Set(referenceIds)
+  const references = catalogueView || referenceFocus ? referenceDisplayElements(elements.filter((element) => element.catalogue
+    && (!referenceSet || referenceSet.has(element.id)))) : null
+  const basis = references || elements
+  let scope = elementIds?.length ? basis.filter((element) => elementIds.includes(element.id)) : focused ? basis.filter((element) => element.id === focused.id)
+    : references || elements.filter((element) => (
     elementInRegion(element, regionId) && element.kind !== 'region' && !element.catalogue
   ))
-  if (!scope.length) scope = elements.filter((element) => !element.catalogue)
+  scope = scope.filter(hasPosition)
+  if (!scope.length) scope = references || elements.filter((element) => !element.catalogue && hasPosition(element))
   if (!scope.length) return safeCamera()
   const bounds = [[Infinity, -Infinity], [Infinity, -Infinity], [Infinity, -Infinity]]
   for (const element of scope) {
@@ -109,6 +135,7 @@ function polygonNormal(vertices) {
 }
 
 export function worldScene3dMesh(element) {
+  if (!hasPosition(element)) return []
   if (meshCache.has(element)) return meshCache.get(element)
   const [width, height, depth] = element.geometry?.size || [16, 12, 16]
   const [x, y, z] = element.position
@@ -184,21 +211,26 @@ export function hitTestWorldScene3d(hits, x, y) {
     || null
 }
 
-/** An authoring overview does not assert that conditional alternatives coexist. */
+/** Survey mode shows labelled possibilities; evidence mode isolates a witness. */
 export function visibleWorldSceneElements(model, options = {}) {
   const elements = model.elements || []
+  if (options.catalogueView) return elements.filter((element) => element.catalogue
+    && (!options.catalogueIds || options.catalogueIds.includes(element.id)))
   const selected = elements.find((element) => element.id === options.selectedId)
   const focusedReferences = options.focusedDescriptionId
     ? elements.filter((element) => element.catalogue && element.descriptionIds?.includes(options.focusedDescriptionId))
     : []
   // Reference-shelf coordinates are layout only. Never mix these symbols with
   // physical world geometry, or let them expand the overview camera bounds.
-  if (options.focusedDescriptionId && focusedReferences.length) return focusedReferences
-  if (!options.focusedDescriptionId && selected?.catalogue) return [selected]
+  if (options.surveyMode !== 'all' && options.focusedDescriptionId && focusedReferences.length
+    && (!selected || selected.catalogue)) return focusedReferences
+  if (options.surveyMode !== 'all' && !options.focusedDescriptionId && selected?.catalogue) return [selected]
   const selectedPlace = selected?.placeId
   const visible = elements.filter((element) => {
     if (element.catalogue) return false
     if (!elementInRegion(element, options.regionId)) return false
+    if (options.surveyMode === 'all') return !options.enabledKinds
+      || ['region', 'place'].includes(element.kind) || options.enabledKinds.includes(element.kind)
     const focused = element.id === options.selectedId
       || (options.focusedDescriptionId && element.descriptionIds?.includes(options.focusedDescriptionId))
     if (element.conditional) return options.focusedDescriptionId
@@ -217,6 +249,12 @@ export function visibleWorldSceneElements(model, options = {}) {
     }
   }
   return visible
+}
+
+/** Layout-only reference copies; physical elements preserve canonical geometry. */
+export function worldScene3dDisplayElements(model, options = {}) {
+  const visible = visibleWorldSceneElements(model, options)
+  return visible.some((element) => element.catalogue) ? referenceDisplayElements(visible) : visible.filter(hasPosition)
 }
 
 // A scene/region context link identifies where a sentence is told. Highlighting
@@ -252,8 +290,9 @@ export function drawWorldScene3d(canvas, model, options = {}) {
   context.fillRect(0, 0, width, height)
   const camera = safeCamera(options.camera || defaultCameraForScene(model, options))
   const project = makeProjector(camera, width, height)
-  const elements = visibleWorldSceneElements(model, options)
-  const catalogueView = elements.some((element) => element.catalogue)
+  const elements = worldScene3dDisplayElements(model, options)
+  const catalogueView = Boolean(options.catalogueView) || elements.some((element) => element.catalogue)
+  const surveyView = options.surveyMode === 'all' && !catalogueView
   const ids = new Set(elements.map((element) => element.id))
   const highlighted = highlightedWorldSceneElements(model, options)
   const inspectedContainers = new Set(elements.filter((element) => highlighted.has(element.id))
@@ -272,6 +311,9 @@ export function drawWorldScene3d(canvas, model, options = {}) {
       : element.kind === 'feature' && element.geometry?.shape === 'pyramid' ? '#aeb5c7' : null
     const color = element.color || element.geometry?.color || featureColor || KIND_COLORS[element.kind]
       || REGION_COLORS[element.regionId] || '#a3bbaa'
+    // In a survey these meshes stand for authored possibilities, not a claim
+    // that all actor stops, fixture states or conditional structures coexist.
+    const possibility = surveyView && element.conditional
     const hit = { id: element.id, elementId: element.id, element, polygons: [], ...center, radius: 8,
       transparent: inspectedContainers.has(element.id) }
     for (const face of worldScene3dMesh(element)) {
@@ -284,9 +326,9 @@ export function drawWorldScene3d(canvas, model, options = {}) {
       const lighting = clamp(0.72 + face.normal[0] * -0.12 + face.normal[1] * 0.25 + face.normal[2] * -0.16, 0.48, 1.15)
       primitives.push({
         type: 'face', points: projected, depth: projected.reduce((sum, p) => sum + p.depth, 0) / projected.length,
-        element, active, color: shade(active ? '#e9e1ad' : color,
+        element, active, possibility, color: shade(active ? '#e9e1ad' : color,
           lighting * (element.kind === 'region' ? face.normal[1] > 0.5 ? 0.62 : 0.44 : 1),
-          element.kind === 'region' ? 0.82 : inspectedContainers.has(element.id) ? 0.18 : 1),
+          element.kind === 'region' ? 0.82 : inspectedContainers.has(element.id) ? 0.18 : possibility ? 0.48 : 1),
       })
     }
     if (hit.polygons.length) hits.push(hit)
@@ -320,7 +362,9 @@ export function drawWorldScene3d(canvas, model, options = {}) {
       context.strokeStyle = primitive.active ? 'rgba(255,238,173,.72)'
         : primitive.element.kind === 'region' ? 'rgba(155,196,204,.15)' : 'rgba(11,24,31,.24)'
       context.lineWidth = primitive.active ? 1.2 : 0.65
+      context.setLineDash(primitive.possibility ? [3, 3] : [])
       context.stroke()
+      context.setLineDash([])
     } else {
       const sightline = primitive.link.lineKind === 'sightline'
       context.beginPath()
@@ -349,10 +393,14 @@ export function drawWorldScene3d(canvas, model, options = {}) {
   }
 
   const labels = []
+  const localChoiceCounts = new Map()
+  for (const route of model.routes || []) {
+    if (route.samePlace) localChoiceCounts.set(route.fromElementId, (localChoiceCounts.get(route.fromElementId) || 0) + 1)
+  }
   for (const hit of hits) {
     const active = highlighted.has(hit.id)
     const place = hit.element.kind === 'place'
-    if (place || active) {
+    if (place || active || catalogueView || (surveyView && hit.element.kind !== 'region')) {
       const top = project([hit.element.position[0], hit.element.position[1] + (hit.element.geometry?.size?.[1] || 0) / 2, hit.element.position[2]])
       if (!top || top.x < -10 || top.x > width + 10 || top.y < -10 || top.y > height + 10) continue
       const radius = active ? 5 : 2.2
@@ -370,14 +418,29 @@ export function drawWorldScene3d(canvas, model, options = {}) {
       if (active || options.showLabels !== false) labels.push({ hit, top, active })
     }
   }
-  // Selected labels have priority. Suppress overlap, never story or mapping data.
-  labels.sort((a, b) => Number(b.active) - Number(a.active) || a.hit.depth - b.hit.depth)
+  // Keep the place chart legible when every annotation layer is enabled.
+  // Overlap only suppresses labels; the symbols and inventory remain complete.
+  const labelPriority = (kind) => ({ place: 0, feature: 1, barrier: 2, actor: 3, fixture: 4 }[kind] ?? 5)
+  labels.sort((a, b) => Number(b.active) - Number(a.active)
+    || labelPriority(a.hit.element.kind) - labelPriority(b.hit.element.kind) || a.hit.depth - b.hit.depth)
   const occupied = []
   context.font = '500 11px system-ui, sans-serif'
   context.textBaseline = 'middle'
   for (const { hit, top, active } of labels) {
-    const label = hit.element.label || hit.element.id
-    const labelWidth = Math.min(250, context.measureText(label).width + 16)
+    const suffix = surveyView && hit.element.conditional ? ' · possible'
+      : catalogueView ? ' · reference' : ''
+    const localCount = localChoiceCounts.get(hit.id)
+    const countLabel = surveyView && localCount ? ` · ${localCount} local choice${localCount === 1 ? '' : 's'}` : ''
+    const ending = `${suffix}${countLabel}`
+    let name = hit.element.label || hit.element.id
+    const maxLabelWidth = Math.min(250, width - 8)
+    const nameWidth = Math.max(0, maxLabelWidth - 16 - context.measureText(ending).width)
+    if (context.measureText(name).width > nameWidth) {
+      while (name.length && context.measureText(`${name}…`).width > nameWidth) name = name.slice(0, -1)
+      name += '…'
+    }
+    const label = `${name}${ending}`
+    const labelWidth = Math.min(maxLabelWidth, context.measureText(label).width + 16)
     const box = { x: clamp(top.x + 9, 4, Math.max(4, width - labelWidth - 4)), y: top.y - 9, w: labelWidth, h: 19 }
     if (!active && occupied.some((other) => box.x < other.x + other.w + 5 && box.x + box.w + 5 > other.x
       && box.y < other.y + other.h + 3 && box.y + box.h + 3 > other.y)) continue
@@ -390,7 +453,8 @@ export function drawWorldScene3d(canvas, model, options = {}) {
       { x: box.x + box.w, y: box.y + box.h }, { x: box.x, y: box.y + box.h }])
   }
   const note = catalogueView ? 'UNLOCATED REFERENCE · symbolic catalogue geometry'
-    : cutawayView ? 'CUTAWAY · below-ground geometry shown through the chart' : null
+    : cutawayView ? 'CUTAWAY · below-ground geometry shown through the chart'
+      : surveyView ? 'SURVEY · authored possibilities, not a simultaneous state' : null
   if (note) {
     context.font = '600 11px system-ui, sans-serif'
     context.textBaseline = 'middle'

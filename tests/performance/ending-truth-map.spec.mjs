@@ -5,6 +5,8 @@ import { canonicalPlayerActionId } from '../../src/game/playerActionRuntime.js'
 import { resolveRevealLine } from '../../src/game/revealResolver.js'
 import { passedComprehensionAction, recordPresentedStoryReadings } from '../../scripts/lib/comprehension-journeys.mjs'
 import { commitProjectedOption, feasibleOptionProjection, settleProjectedState } from '../../scripts/lib/story-projections.mjs'
+import { buildWorldScene3d } from '../../src/game/worldScene3d.js'
+import { worldLocationForState } from '../../src/game/worldLocation.js'
 
 const departure = STORY.maroKrushqit.options.find(({ to }) => to === 'maroPrincesha')
 const ending = normalizeSavedState(JSON.parse(JSON.stringify(settleProjectedState(
@@ -99,6 +101,11 @@ for (const legacy of [false, true]) test(`Maro's ${legacy ? 'unproven old' : 're
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
   const seed = { ...ending, debug: true, view: 'map', ...(legacy ? { cameFrom: null, choiceIndex: null } : {}) }
+  const model = buildWorldScene3d()
+  const referenceCount = model.elements.filter((element) => element.catalogue).length
+  const worldCount = model.elements.length - referenceCount
+  const origin = worldLocationForState(seed).originPlaceId
+  const expectedWorldSelection = origin ? `place:${origin}` : model.elements.find(({ kind }) => kind === 'place').id
   expect(seed.nodeId).toBe('maroPrincesha')
   await page.addInitScript((state) => {
     if (window.name === '__ending_map_seed__') return
@@ -113,6 +120,8 @@ for (const legacy of [false, true]) test(`Maro's ${legacy ? 'unproven old' : 're
   await expect(atlas).toBeVisible()
   await expect(atlas).toContainText('Current location is uncharted.')
   await expect(page.locator('.world3d-id')).toHaveText('departure-context:maroPrincesha')
+  await expect(page.getByRole('combobox', { name: '3D survey mode' })).toHaveValue('references')
+  await expect(page.getByTestId('world3d-visibility-count')).toContainText(`${referenceCount} elements in this view`)
   await expect(page.getByRole('combobox', { name: '3D map region' })).toHaveValue('')
   await expect(page.locator('.world3d-inspector')).toContainText('Reference display position')
   if (legacy) await expect(atlas).toContainText('The departure origin is unknown.')
@@ -124,10 +133,29 @@ for (const legacy of [false, true]) test(`Maro's ${legacy ? 'unproven old' : 're
   }
   await page.getByRole('button', { name: 'Validate 3D mappings', exact: true }).click()
   await expect(page.locator('.world3d-audit')).toContainText('Structural checks passed.')
+  await page.getByRole('button', { name: 'Fit world', exact: true }).click()
+  await expect(page.getByRole('combobox', { name: '3D survey mode' })).toHaveValue('all')
+  await expect(page.locator('.world3d-id')).toHaveText(expectedWorldSelection)
+  await expect(page.getByTestId('world3d-visibility-count')).toContainText(`${worldCount} elements in this view`)
+  await page.getByRole('button', { name: 'Current place', exact: true }).click()
+  await expect(page.getByRole('combobox', { name: '3D survey mode' })).toHaveValue('references')
+  await expect(page.locator('.world3d-id')).toHaveText('departure-context:maroPrincesha')
+  await expect(page.getByTestId('world3d-visibility-count')).toContainText(`${referenceCount} elements in this view`)
+  await page.getByRole('searchbox', { name: 'Search map elements' }).fill('departure-context:maroPrincesha')
+  await expect(page.getByTestId('world3d-visibility-count')).toContainText('1 elements in this view')
+  await page.getByRole('combobox', { name: 'Description mapping scope' }).selectOption('kind:item-blurb')
+  await page.locator('.world3d-description-list article').first().getByRole('button', { name: 'Show in 3D', exact: true }).click()
+  await expect(page.locator('.world3d-focused')).toContainText('ITEMS.')
+  await page.getByRole('button', { name: 'Current place', exact: true }).click()
+  await page.getByRole('combobox', { name: 'Description mapping scope' }).selectOption('selection')
+  await expect(page.locator('.world3d-id')).toHaveText('departure-context:maroPrincesha')
+  await expect(page.getByRole('combobox', { name: '3D survey mode' })).toHaveValue('references')
   await page.getByRole('combobox', { name: 'Inspect 3D element' }).selectOption('place:maroShtepi')
   await page.locator('.world3d-route-list summary').click()
   await page.locator('.world3d-route-list').getByRole('button', { name: 'Departure — destination uncharted', exact: true }).click()
   await expect(page.locator('.world3d-id')).toHaveText('departure-context:maroPrincesha')
+  await expect(page.getByRole('combobox', { name: '3D survey mode' })).toHaveValue('references')
+  await expect(page.getByTestId('world3d-visibility-count')).toContainText(`${referenceCount} elements in this view`)
   await page.getByRole('button', { name: '2D illustrated map', exact: true }).click()
   const map = page.locator('.atlas-view .dbg-map')
   await expect(map).toContainText('No current-position marker is shown.')
@@ -135,5 +163,7 @@ for (const legacy of [false, true]) test(`Maro's ${legacy ? 'unproven old' : 're
   await page.reload()
   await expect(page.getByTestId('world3d-view')).toContainText('Current location is uncharted.')
   await expect(page.locator('.world3d-id')).toHaveText('departure-context:maroPrincesha')
+  await expect(page.getByRole('combobox', { name: '3D survey mode' })).toHaveValue('references')
+  await expect(page.getByTestId('world3d-visibility-count')).toContainText(`${referenceCount} elements in this view`)
   expect(errors).toEqual([])
 })

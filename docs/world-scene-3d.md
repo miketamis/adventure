@@ -20,7 +20,7 @@ against the canonical story and world registries. Geometry must never become
 a second authority for the player's location, route availability, inventory,
 NPC presence or weather.
 
-Export version 2 adds crossing-spanning features with `placeIds`, mesh rotation,
+The export includes crossing-spanning features with `placeIds`, mesh rotation,
 explicit physical relationships and provenance for descriptions seen from
 another place. A crossing has no single `placeId`.
 
@@ -42,17 +42,28 @@ The source locator uses the compiled story entry, including installed
 observation and portrait lines, rather than a fragile physical source-file line
 number.
 
-The overview hides conditional depictions. Selecting an exact conditional
-element or its source description reveals that authored possibility. For
-example, the dry river and restored water are separately inspectable and are
-never shown together merely because their shared place is selected. This is
-an atlas of authored possibilities, not a simulation of the current save.
+The default **Complete world survey** includes every charted element and every
+region, including conditional fixtures, actors, observations, item actions and
+source-tale references. Dashed translucent markers and possibility labels
+separate alternative states from permanent landmarks. Layer controls and
+region filters narrow the display explicitly. **Inspect one possibility** and
+**Show in 3D** retain exact source-driven inspection, including mutually
+exclusive dry/restored water states.
 
-The index also includes the canonical item catalogue blurbs and the generated
-environment narration templates. Item symbols are explicitly unlocated:
-their gallery position does not claim that the item is lying in that place.
-Selecting an item or template opens an isolated reference view, with physical
-places hidden; catalogue symbols never appear in the whole-world overview.
+**Find anything in the world** searches the complete element inventory, even
+when the canvas is filtered. The **Unlocated reference gallery** contains all
+portable catalogue symbols and unknown, proposed or offstage references.
+Its grid is display layout only; it never supplies canonical world coordinates.
+Same-place actions are shown as counts on place labels and as exact choices in
+the inspector, since coincident route endpoints do not make a visible line.
+
+The inventory joins every public NPC registry entry, runtime route stop,
+first-encounter portrait, portable item/companion, exact item action, source-tale
+place, cast role and object. Registry plans and missing anchors remain visibly
+unlocated. Source-tale locations retain their source timeline and do not become
+claims that a historical event is currently happening. Item blurbs link to both
+the portable reference and every evidenced action location.
+
 Generated narration is indexed as one template per time-of-day, season or
 weather value, for both indoor/outdoor settings and opening/transition wording.
 The runtime may combine these dimensions into one sentence. Its shared
@@ -74,9 +85,9 @@ reviewed feature and a context-only line. A sentence being indexed is not
 evidence that its physical meaning has been independently reviewed.
 
 Mentioning an NPC's name is not proof that the NPC stands at the observer's
-location. Actor markers require an explicit positive presence predicate;
-absence and identity-only descriptions retain their metadata without creating
-a person in the scene. Places shared by scenes in different narrative regions
+location. Actor markers require explicit registry, runtime-route, portrait-location or
+positive-presence evidence. They indicate possible encounters; absence and
+identity-only story descriptions never establish present occupancy. Places shared by scenes in different narrative regions
 retain those memberships without acquiring a second physical location.
 
 A feature seen from another place records the exact source-to-landmark route.
@@ -95,6 +106,14 @@ Named barrier crossings and distant-view endpoints remain tied to their
 canonical registries, with reverse links to supporting descriptions where
 applicable.
 
+Each canonical physical place has an exact depiction profile. Reviewed local
+features retain quotation, senses, conditions and schematic geometry. A nearby
+view of the same landmark links to that one feature rather than duplicating it.
+Where the prose supplies no fixed visible feature, a narrow source-limited
+record explains why; the place, route and descriptions remain in the map.
+Unknown departure endpoints retain their canonical departure provenance instead
+of acquiring invented terrain.
+
 ## What validation establishes
 
 Run the focused gate with:
@@ -107,7 +126,12 @@ It is also a required part of `npm run check`. The audit enumerates the
 production story and verifies complete description coverage, exact source
 content, valid scene and place identities, finite geometry, reciprocal
 description links, exact route identities and endpoints, named crossing
-coverage and registered sightline mappings. Mutation regressions deliberately
+coverage and registered sightline mappings. It also independently enumerates
+the complete people/item/tale inventory, verifies every exact source field and
+location disposition, checks each physical-place profile, and compares shared
+registry import manifests to their actual source directories. The renderer is
+exercised to prove every world/reference element reaches its draw and picking
+path. Source-only references cannot be promoted to physical locations. Mutation regressions deliberately
 remove or corrupt these records and require the validator to reject them.
 Spatial checks evaluate the actual dimensions and transformed bridge vertices,
 not just whether the model copied a declared blueprint. Context-only links do
