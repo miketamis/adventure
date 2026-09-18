@@ -210,6 +210,21 @@ const stripStoryReadings = (code, ast) => {
   return transformed
 }
 
+// Publish the build commit as a tiny, always-fresh manifest. A tab opened
+// before a GitHub Pages deploy reads this to learn a newer build is live and
+// that a reload will pull the new index and its renamed chunks.
+const emitBuildVersion = () => ({
+  name: 'emit-build-version',
+  apply: 'build',
+  generateBundle() {
+    this.emitFile({
+      type: 'asset',
+      fileName: 'version.json',
+      source: JSON.stringify({ commit: buildCommit }),
+    })
+  },
+})
+
 // Source and audit runs retain R('English', tokens). Production removes
 // reviewed STORY text/action literals from the eager graph; debug mode hydrates
 // those readings from the deferred corpora. Dynamic/generated readings remain
@@ -234,7 +249,7 @@ export default defineConfig({
   define: {
     __BUILD_COMMIT__: JSON.stringify(buildCommit),
   },
-  plugins: [deferStoryReadings(), react()],
+  plugins: [deferStoryReadings(), emitBuildVersion(), react()],
   build: {
     rollupOptions: {
       output: { manualChunks: authoredChunk },

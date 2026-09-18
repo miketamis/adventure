@@ -156,7 +156,7 @@ const allowedPropertyKeys = new Set([
   'error_distance', 'length_delta', 'insertion_count', 'deletion_count', 'substitution_count',
   'transposition_count', 'diacritic_only', 'selected_option_ids',
   'asset_kind', 'asset_id', 'playback_outcome', 'playback_duration_ms', 'muted',
-  'issue_type', 'boundary', 'active_view',
+  'issue_type', 'issue_message', 'issue_stack', 'boundary', 'active_view',
   'performance_schema_version', 'control_id', 'interaction_type', 'measurement_source',
   'duration_ms', 'duration_band', 'input_delay_ms', 'processing_duration_ms',
   'presentation_delay_ms',
@@ -193,6 +193,13 @@ const sanitizeProperties = (properties = {}) => {
       if (typeof value !== 'string') continue
       const feedback = value.normalize('NFC').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 1000)
       if (feedback) output[key] = feedback
+      continue
+    }
+    if (key === 'issue_message' || key === 'issue_stack') {
+      if (typeof value !== 'string') continue
+      const limit = key === 'issue_stack' ? 4000 : 500
+      const text = value.normalize('NFC').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, limit)
+      if (text) output[key] = text
       continue
     }
     const safeValue = sanitizeValue(value)
@@ -389,6 +396,8 @@ export function captureException(error, properties = {}) {
   captureEvent('technical_issue_occurred', {
     ...properties,
     issue_type: safeId(error?.name) || 'unknown_error',
+    issue_message: typeof error?.message === 'string' ? error.message : undefined,
+    issue_stack: typeof error?.stack === 'string' ? error.stack : undefined,
   })
 }
 

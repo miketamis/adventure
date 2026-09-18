@@ -32,13 +32,14 @@ import {
   reserveCommittedTransitionSequence,
 } from './game/playtestAnalytics.js'
 import { measurePerformanceOperation } from './performance.js'
+import { importChunk, lazyView } from './chunkRecovery.js'
 
 // Story is the first and dominant surface. The larger study, collection and
 // cartography tools are loaded only when they are opened; the collection and
 // guide are debug-only for now, and none of these secondary surfaces should
 // delay an ordinary first visit to the bridge.
-const StoryView = lazy(() => import('./components/StoryView.jsx'))
-const loadHeartConsequenceModal = () => import('./components/HeartConsequenceModal.jsx')
+const StoryView = lazyView(() => import('./components/StoryView.jsx'))
+const loadHeartConsequenceModal = () => importChunk(() => import('./components/HeartConsequenceModal.jsx'))
 // A Train miss must paint its complete blocking feedback inside the answer
 // interaction. Load that small surface alongside the much larger Train route,
 // so answer controls never become available while their miss UI is still on
@@ -51,18 +52,18 @@ const loadPracticeView = async () => {
   return practiceModule
 }
 const PracticeView = lazy(loadPracticeView)
-const DictionaryView = lazy(() => import('./components/DictionaryView.jsx'))
-const AchievementsView = lazy(() => import('./components/AchievementsView.jsx'))
-const GuideView = lazy(() => import('./components/GuideView.jsx'))
-const AtlasView = lazy(() => import('./components/AtlasView.jsx'))
-const DebugView = lazy(() => import('./components/DebugView.jsx'))
-const MiniMap = lazy(() => import('./components/MiniMap.jsx'))
+const DictionaryView = lazyView(() => import('./components/DictionaryView.jsx'))
+const AchievementsView = lazyView(() => import('./components/AchievementsView.jsx'))
+const GuideView = lazyView(() => import('./components/GuideView.jsx'))
+const AtlasView = lazyView(() => import('./components/AtlasView.jsx'))
+const DebugView = lazyView(() => import('./components/DebugView.jsx'))
+const MiniMap = lazyView(() => import('./components/MiniMap.jsx'))
 // These blocking surfaces are reached only after an authored time jump or
 // embodied-tale choice. Keep their sizeable presentation logic out of the
 // ordinary opening route and fetch it only when that event actually occurs.
-const TimePassage = lazy(() => import('./components/TimePassage.jsx'))
-const EmbodimentConfirm = lazy(() => import('./components/EmbodimentConfirm.jsx'))
-const ActionKaraoke = lazy(() => import('./components/ActionKaraoke.jsx'))
+const TimePassage = lazyView(() => import('./components/TimePassage.jsx'))
+const EmbodimentConfirm = lazyView(() => import('./components/EmbodimentConfirm.jsx'))
+const ActionKaraoke = lazyView(() => import('./components/ActionKaraoke.jsx'))
 // Story keeps this consequence surface lazy; the Train route above primes it
 // before presenting any answer controls.
 const HeartConsequenceModal = lazy(loadHeartConsequenceModal)
