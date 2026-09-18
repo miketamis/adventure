@@ -54,6 +54,8 @@ assert.match(feedbackSource, /feedback_text: comment\.trim\(\)/,
   'the optional written response must accompany only an explicit feedback submission')
 assert.match(analyticsSource, /key === 'feedback_text'[\s\S]+slice\(0, 1000\)/,
   'the feedback property needs its own bounded free-text sanitizer')
+assert.match(analyticsSource, /key === 'issue_message' \|\| key === 'issue_stack'[\s\S]+slice\(0, limit\)/,
+  'exception message and stack need their own bounded free-text sanitizer')
 assert.match(learningTelemetrySource, /['"]word-matching['"]/, 'word matching must survive local telemetry normalization')
 
 const state = newRun()

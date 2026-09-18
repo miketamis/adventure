@@ -86,7 +86,25 @@ const QUOTE_TIER_LABEL = {
   oral: 'oral attribution',
 }
 
-export default function StoryView({ state, dispatch, analyticsEnabled = false, readingCorpusReady = false }) {
+export default function StoryView(props) {
+  // A corrupt or migrated save can point state.nodeId at a scene that no longer
+  // exists. Recover with a clear, resettable screen instead of dereferencing an
+  // undefined node below and surfacing a bare TypeError in the release boundary.
+  if (!STORY[props.state.nodeId]) return <StoryUnavailable dispatch={props.dispatch} />
+  return <StoryScene {...props} />
+}
+
+function StoryUnavailable({ dispatch }) {
+  return (
+    <section className="card story" role="alert" aria-labelledby="story-scene-title">
+      <h2 id="story-scene-title" tabIndex={-1}>This scene could not be found</h2>
+      <p>Your saved words and learning progress are safe. Start a new run to continue the journey.</p>
+      <button className="btn primary" onClick={() => dispatch({ type: 'RESET' })}>⟳ Start a new run</button>
+    </section>
+  )
+}
+
+function StoryScene({ state, dispatch, analyticsEnabled = false, readingCorpusReady = false }) {
   const discoverWord = useCallback((id) => dispatch({ type: 'DISCOVER', id }), [dispatch])
   const node = STORY[state.nodeId]
   const activeStoryTask = useMemo(() => {
