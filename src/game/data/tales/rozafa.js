@@ -127,7 +127,7 @@ export default {
       kalaNgjitje: 'climb', kalaLutje: 'plea', kalaMur: 'walled', kalaFundBesa: 'walled',
     },
     divergences: [
-      { beat: 'besa', note: 'You embody "a brother" and your besa choice assigns which one — the folktale fixes each brother\'s role (two break the oath, the youngest keeps it); the game lets your choice decide whether you are the honourable youngest or a spared elder.' },
+      { beat: 'besa', note: 'You embody "a brother" and your besa choice assigns which one — the folktale fixes each brother\'s role (two break the oath, the youngest keeps it); the game lets your choice decide whether you are the youngest brother who keeps silent or an elder who warns his wife.' },
       { beat: 'walled', note: 'The wall still takes Rozafa. The game adds withdrawal at kalaNgjitje, before the plea and building work: a youngest brother who kept silent may leave there without having warned his wife, and an elder who warned may leave without doing the later work. An elder may also leave after helping at kalaMur. The night choice fixes the brother\'s identity throughout; withdrawal neither rescues Rozafa nor retroactively breaks a kept oath.' },
       { beat: 'fog', note: 'The build-by-day / fall-by-night rhythm is played on tale time: you work the wall, night falls and it comes down, dawn shows it fallen again — until a life is sealed in and, the first night after, the wall no longer falls. While you act inside the tale, the living-world clock advances by the same intervals.' },
       { beat: 'walled', note: 'The white milk still seeping from the stone follows the oral/lore reading; Elsie\'s printed text ends on the mother\'s tears alone.' },

@@ -77,8 +77,9 @@ export default {
   // FROM SCRATCH (nodes argjiroKala → argjiroFund / argjiroRob). You are Princess
   // Argjiro; the enemy besieges your castle and it falls by betrayal from within. The
   // CHOICE: leap from the highest tower with your infant son (you die on the rock but
-  // he lives, the stone weeps milk, and the city takes your name — the good ending) or
-  // wait and be taken alive (the bad ending — no leap, no name). become:'argjiro-
+  // he lives and the stone weeps milk in the selected legend) or wait and be
+  // taken alive in the game's alternative. The name-legend is not historical
+  // etymology. become:'argjiro-
   // gjirokastra' on the summit vista (maja "sheh kalanë"); staged at its own
   // Gjirokastër castle marker rather than on the summit.
   play: {
@@ -86,7 +87,7 @@ export default {
     stance: 'embodied',
     as: 'argjiro',
     role:
-      'You are Princess Argjiro, who ruled Gjirokastër as the prince\'s wife and took up the castle\'s own defense when the Ottoman host laid siege. The walls hold, but the gate does not — the city falls by betrayal from within. Now, rather than be taken alive, climb the highest tower and leap with your infant son held against you: you will die on the rock, but he will live, the stone will weep milk to feed him, and the city will carry your name forever — or wait, and be taken.',
+      'You are Argjiro in the selected siege legend. The castle falls through betrayal while your infant son is with you. The game offers the legend\'s leap and an alternative in which you wait and are captured.',
     enter:
       'the enemy has laid siege to your castle, and though the walls hold, the gate has been opened by betrayal from within — and it is your own defense that has failed',
     from: 'argjiroKala',
@@ -96,9 +97,9 @@ export default {
       argjiroFund: ['leap', 'miracle'],
     },
     divergences: [
-      { beat: 'leap', note: 'Built from scratch. The legend fixes the leap — that is why the city is called Gjirokastër, Argjiro\'s castle. The game makes it a real choice and adds the path she never takes: wait, and be taken alive (the bad ending "Taken Alive"), where no rock weeps milk and the fortress keeps some other name. The heroic canonical leap is the good ending, sacrifice and all.' },
+      { beat: 'leap', note: 'The selected legend fixes the leap and the milk-stone. The game also offers capture without the leap. These are alternate game outcomes, not competing accounts of the city\'s historical name.' },
       { beat: 'miracle', note: 'The rock that weeps milk to keep the fallen princess\'s infant son alive is staged as the good ending\'s turn; the whole first movement (her rule as the prince\'s wife, the siege, the betrayal) is compressed into the setup at the castle.' },
-      { beat: 'debate', note: "The historians' caveat is honoured in the tale record, not the game: the name Gjirokastër is attested from Byzantine times (Kantakouzenos, 1336) long before any Ottoman siege, and is better traced to argyrokastron, \"silver castle\" (the grey stone shimmering like silver in the rain), or to a local tribe, the Argjirët — so the princess-legend is a beloved folk etymology, not the true source. The playable castle has its own chart marker, but that marker remains part of the explicitly not-to-scale composite." },
+      { beat: 'debate', note: 'The name connection belongs to the legend. The local city-history source records the name before the Ottoman conquest; the game does not present Argjiro as its established historical origin.' },
     ],
   },
   beats: [

@@ -28,6 +28,10 @@ import { commitProjectedOption, settleProjectedState } from './lib/story-project
 
 import { ENDING_LORE, FOLKLORE } from '../src/game/folklore.js'
 import maroTale from '../src/game/data/tales/maro-perhitura.js'
+import argjiroTale from '../src/game/data/tales/argjiro-gjirokastra.js'
+import rozafaTale from '../src/game/data/tales/rozafa.js'
+import artaTale from '../src/game/data/tales/ura-e-artes.js'
+import tortoiseTale from '../src/game/data/tales/tortoise.js'
 import { checkKordhaGjizarCausality } from './lib/kordha-gjizar-causality-tests.mjs'
 import { checkFourArcsCausality } from './lib/four-arcs-causality-tests.mjs'
 
@@ -96,6 +100,22 @@ const readings = (state) => storyScenePresentationForState(state).normalEntries
   .map(({ line }) => englishReadingOf(line)).join('\n')
 const albanian = (state) => storyScenePresentationForState(state).normalEntries
   .map(({ line }) => albanianTextOf(line)).join('\n')
+
+// These common recaps name only the played outcome, with source history and
+// game alternatives explicitly distinguished. Enter both roles canonically.
+const tortoise = take(at('fshatiJeta', 6), 'fshatijeta:hyr-ne-shtepi-e-art-ngrohte')
+assert.doesNotMatch(readings(tortoise), /you (?:gave|give|served|serve).*bread.*salt/i,
+  'Tortoise setup invented hospitality before the meat choice')
+const sharedMeat = finish('tortoise-shares-meat', take(tortoise, 'breshka1:jep-mish-mik'))
+const hiddenMeat = finish('tortoise-hides-meat', take(reload(tortoise), 'breshka1:fsheh-mish'))
+assert.match(readings(sharedMeat), /give the guest the meat[\s\S]*guest gives you a blessing/i)
+assert.match(readings(hiddenMeat), /hide the meat[\s\S]*guest calls upon God[\s\S]*God curses you[\s\S]*become a tortoise/i)
+const argjiro = take(at('maja'), 'maja:shko-tek-kala-larg')
+const argjiroLeap = finish('argjiro-legend-leap', take(argjiro, 'argjirokala:kerce-nga-kulle-me-djale'))
+const argjiroCaptured = finish('argjiro-game-capture', take(reload(argjiro), 'argjirokala:prit-armik'))
+assert.match(readings(argjiroLeap), /die upon the rock, but the boy lives[\s\S]*stone gives milk/i)
+assert.match(readings(argjiroCaptured), /enemy takes both you and the castle/i)
+assert.doesNotMatch(readings(argjiroCaptured), /(?:son|boy|infant).*(?:captur|taken|led away)/i)
 
 // Start at public tale thresholds, then enter roles using the real confirmation
 // reducer. No fixture gives itself the oath, marriage, payment or child flags.
@@ -175,6 +195,9 @@ const artaPit = walk(artaNight, [
 ])
 assert.equal(hasCond(artaPit, 'flag:besaArtes'), true)
 finish('arta-pit-warning', take(artaPit, 'uragropa:ik'))
+finish('arta-source-walling', walk(reload(artaPit), [
+  'uragropa:unaze-im-eshte-poshte', 'uramurim:degjo-nuse',
+]))
 
 const giant = at('katallan1')
 finish('katallan-fight', take(giant, 'katallan1:lufto-katallan'))
@@ -231,6 +254,10 @@ const recognition = (state) => walk(state, [
   'marozogu:fluturo-larg-ne-pyll', 'marokopshti:fluturo-ne-dore-e-link-tij',
 ])
 finish('maro-recognition-without-coach', recognition(midwife))
+finish('maro-game-remains-bird', walk(reload(midwife), [
+  'marogjilpera:thirr-mami', 'marolindja:fluturo-nga-dritare',
+  'marozogu:fluturo-larg-ne-pyll', 'marokopshti:rri-larg-mbi-peme',
+]))
 const auntWedding = weddingFromInn(walk(maroNews, [
   'marolajmi:shko-tek-teto', 'story:maro-tetua:kap-dy-mi',
   'story:maro-tetua:merr-nje-kungull', 'marotetua:hip-ne-karroce-dhe-shko-ne-han',
@@ -288,6 +315,81 @@ assert.deepEqual([...new Set([...causalCompleted.values()].map((state) => state.
 // fixtures have demonstrated that production can actually reach each outcome.
 const { endingCopyForState } = await import('../src/game/endingCopyForState.js')
 const { ENDING_COPY, ENDING_COPY_VARIANTS, ENDING_COPY_REVIEWED_IDS } = await import('../src/game/endingCopy.js')
+
+// Narrow, substantive source/claim joins, not a renewable whole-corpus seal.
+const sourceLine = (tale, beatId, lineId) => {
+  const line = tale.beats.find(({ id }) => id === beatId)?.lines.find(([id]) => id === lineId)
+  assert.ok(line, `${tale.id}.${beatId}:${lineId}: selected source evidence disappeared`)
+  return line[1]
+}
+assert.match(sourceLine(argjiroTale, 'debate', '4.2'), /name.*on record from Byzantine times.*before any Ottoman siege/i)
+assert.match(sourceLine(argjiroTale, 'miracle', '2.5'), /boy lived.*stone.*milk/i)
+assert.match(sourceLine(rozafaTale, 'besa', '1.20'), /youngest holds his tongue.*wife.*knowing nothing/i)
+assert.match(sourceLine(artaTale, 'walling', '7.13'), /tremble/i)
+assert.match(sourceLine(maroTale, 'birdGarden', '33.5'), /flies down.*hands/i)
+assert.match(sourceLine(maroTale, 'needlePulled', '34.3'), /needle is out.*wife stands/i)
+assert.match(sourceLine(tortoiseTale, 'dera', '2.2'), /bread and salt/i,
+  'Correcting unplayed gifts must not erase them from the selected source')
+assert.match(argjiroTale.play.role, /selected siege legend.*alternative/i)
+assert.match(argjiroTale.play.divergences.find(({ beat }) => beat === 'debate').note,
+  /name before the Ottoman conquest.*does not present Argjiro as its established historical origin/i)
+assert.doesNotMatch(rozafaTale.play.divergences.find(({ beat }) => beat === 'besa').note, /honourable/i)
+assert.match(artaTale.places.find(({ id }) => id === 'bridge').anchor.mold, /three brothers.*old wayfarer/i)
+assert.doesNotMatch(artaTale.cast.find(({ id }) => id === 'bride').note, /curses then blesses/i)
+assert.match(maroTale.play.divergences.find(({ beat }) => beat === 'birdGarden').note,
+  /game's own.*tale does not contain/i)
+
+const commonLoreCases = [
+  { label: 'argjiro-legend-leap', id: 'argjiroFund', kind: 'good',
+    required: [/legend followed here/i, /boy survives/i, /recorded name is older than the Ottoman siege/i],
+    forbidden: /city has carried your name ever since|remembered for how they would not be taken/i,
+    regression: 'The city has carried your name ever since.' },
+  { label: 'argjiro-game-capture', id: 'argjiroRob', kind: 'bad',
+    required: [/enemy takes Argjiro and the castle/i, /game's alternative/i],
+    forbidden: /you, your son|poets.*someone else|city remembers the leap, not the surrender|fortress.*some other name/i,
+    regression: 'A city remembers the leap, not the surrender.' },
+  { label: 'rozafa-youngest-stays', id: 'kalaFundBesa', kind: 'good',
+    required: [/youngest brother keeps the oath/i, /Rozafa is walled/i, /tears and milk/i],
+    forbidden: /loved his besa more than his own life|hymn to the besa/i,
+    regression: 'He loved his besa more than his own life.' },
+  { label: 'arta-source-walling', id: 'uraArtesMur', kind: 'bad',
+    required: [/Kiço keeps the oath/i, /fallen ring/i, /tremble as she trembles/i, /white fig/i, /silver spring/i],
+    forbidden: /songs of the south|no mason ever sleeps easy|curses then blesses/i,
+    regression: 'The songs of the south do not call him honourable.' },
+  { label: 'maro-game-remains-bird', id: 'maroCiuCiu', kind: 'secret',
+    required: [/remains in the tree/i, /needle remains/i, /game's alternative/i],
+    forbidden: /fear kept you|costs nothing and loses everything|the old people say you can hear her still/i,
+    regression: 'The teller says this costs nothing and loses everything.' },
+  { label: 'tortoise-shares-meat', id: 'breshkaMire', kind: 'good',
+    required: [/guest receives meat/i, /host a blessing/i, /game's alternative/i],
+    forbidden: /gave.*bread and salt|traveller ate|blessed your house and your hand/i,
+    regression: 'You gave the guest bread and salt first.' },
+  { label: 'tortoise-hides-meat', id: 'breshkaFund', kind: 'secret',
+    required: [/host hides the meat/i, /guest calls upon God/i, /divine curse.*tortoise/i, /selected telling.*earthen meat-pot/i],
+    forbidden: /gave.*bread and salt|guest (?:curses|turns|transforms)/i,
+    regression: 'The guest turns her into a tortoise.' },
+]
+const commonLoreIssues = (copy, record) => [
+  ...record.required.filter((pattern) => !pattern.test(copy.blurb)).map(String),
+  ...(record.forbidden.test(copy.blurb) ? ['unsupported source or player claim'] : []),
+]
+assert.equal(ENDING_COPY.breshkaMire.title, 'Food for the Guest')
+for (const record of commonLoreCases) {
+  const state = completed.get(record.label)
+  assert.ok(state && state.nodeId === record.id, `${record.id}: missing real outcome fixture`)
+  assert.equal(STORY[record.id].end, record.kind, `${record.id}: copy edit changed ending mechanics`)
+  assert.equal(ENDING_COPY_VARIANTS[record.id], undefined, `${record.id}: common recap acquired an unnecessary new branch`)
+  const copy = endingCopyForState(state)
+  assert.deepEqual(commonLoreIssues(copy, record), [], `${record.id}: lore claim exceeds the played/selected scope`)
+  assert.ok(commonLoreIssues({ ...copy, blurb: `${copy.blurb} ${record.regression}` }, record).length,
+    `${record.id}: formerly false assertion escaped the reviewed claim check`)
+  assert.equal(copy.variantId, 'common')
+  const restored = reload(state)
+  assert.deepEqual(endingCopyForState(restored), copy, `${record.id}: reload changes the common outcome`)
+  assert.deepEqual(restored.worldFacts, state.worldFacts, `${record.id}: reload changed a canonical world effect`)
+  assert.deepEqual(endingCopyForState({ ...state, cameFrom: null, choiceIndex: null }), copy,
+    `${record.id}: unproved arrival should retain a neutral common outcome`)
+}
 
 // Real public-route saves from the previous release must not reinterpret an
 // old choice index as a newly authored act. Keep their world outcome, but use

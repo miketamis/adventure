@@ -9,7 +9,7 @@ export default {
   id: 'goose-girl',
     title: 'The Goose-Girl and the Marble King',
     references: [
-      { role: 'facsimile', citation: 'Auguste Dozon, Manuel de la langue Chkipe ou Albanaise (Paris, 1879) — University of Toronto scan', url: 'https://archive.org/details/manueldelalangue00dozouoft', note: 'Selected Albanian witness: second movement of chrestomathie tale IX, pp. 41–45.' },
+      { role: 'facsimile', citation: 'Auguste Dozon, Manuel de la langue Chkipe ou Albanaise (Paris, 1879) — University of Toronto scan', url: 'https://archive.org/details/manueldelalangue00dozouoft', note: 'Selected Albanian witness: second movement of chrestomathie tale IX, pp. 40–41.' },
       { role: 'translation', citation: 'Robert Elsie, “The Maiden Who Was Promised to the Sun” — second movement', url: 'http://www.albanianliterature.net/folktales/tale_22.html', note: 'The game separates Dozon’s continuous tale into Maiden and Goose-Girl records.' },
       { role: 'analogue', citation: 'ATU 533, “The Goose Girl” — comparative type overview', url: 'https://en.wikipedia.org/wiki/The_Goose_Girl', note: 'Title/type analogue only; not the source of Dozon’s marble-king episode.' },
     ],
@@ -68,7 +68,7 @@ export default {
           mold: 'a garden of the almost-living: a whole court struck to marble around a king whose open scroll names the one price of waking — three days, three nights, three weeks of vigil',
           sharedWith: ['half-rooster REJECTED it for its cabbage-hunt (its own conflicts note) — the garden belongs to this tale\'s stone court and justice'] } },
       { id: 'gooseHut', emoji: '🪿', name: 'the goose-run and hut', note: 'the kalive the king had built; where the geese and the truth are kept',
-        anchor: { status: 'existing', node: 'patatGruaja', mirror: 'the built goose-tending scene of Act II (the hut, the geese, the listening stone)',
+        anchor: { status: 'existing', node: 'patatGruaja', mirror: 'the built goose-tending scene of Act II: the source\'s hut and geese, with an added listening stone in the game',
           mold: 'the goose-yard at the edge of the waked king\'s court: a hut small enough for one girl and her counted sorrows, near enough the court for a king to overhear' } },
       { id: 'peddlerRoads', emoji: '🧳', name: 'the peddler\'s roads', note: 'wherever maidservants are bought and sold — offstage',
         anchor: { status: 'offstage', mirror: 'the trading roads beyond the village',
@@ -106,7 +106,7 @@ export default {
       },
       divergences: [
         { beat: 'stolenPlace', note: 'Act II of the Sun-maiden\'s tale (Dozon IX / Elsie 22): you embody the SAME maiden — companion of the Sun-quest, embodied here — in the marble-king rescue. The false-bride betrayal is the tale\'s own fixed turn (worn out, you buy a servant to watch and she steals your place); the game adds the fatal alternative of simply sleeping through the vigil (mermerSli), which the tale\'s patient heroine never does.' },
-        { beat: 'counted', note: 'The Grimm goose-girl weeps her woes to an iron stove; here the maiden weeps to a stone that listens, and the good ending turns on whether she SPEAKS her tale aloud where the king overhears (sing to the geese) or keeps it behind her teeth (the bad ending "The Silent Goose-Girl") — a truth never spoken changes nothing.' },
+        { beat: 'counted', note: 'In Dozon\'s selected text the maiden counts her troubles aloud in her hut. The king hears her crying two or three times, asks why, and learns what happened from her reply. The listening stone and the choices to sing to the geese or remain silent are game additions; neither the stone nor those alternative outcomes is Dozon\'s testimony device.' },
         { beat: 'marbleCourt', note: 'Reuses the Sun-quest\'s own world — the black palace (pallatiZi), its grieving queen, and the marble court — as the maiden\'s second movement; the false bride is executed as in Dozon\'s text, and "the patient one is known in the end, however long the lie wears her clothes."' },
       ],
     },

@@ -78,7 +78,7 @@ export default {
   },
   discrepancies: [
     'THE MESSENGER\'S FORM (¶2.1): the Çam ballad quoted here — like its sister Mazrek variant — sends «një plak» (an old man) to name the bridge\'s price. Timo Mërkuri\'s own prose introduction to both variants instead follows the better-known GREEK original, where a talking bird delivers the same warning. Both forms are well attested across the wider walled-bride tradition (ArchiWik: "some kind of supernatural element such as a fairy, or angel... in others, the mason dreams it"), so this is a difference of messenger-SHAPE, not a contradiction. The staged scenes follow the ballad\'s own old wayfarer (uraArtes2: «një plak vjen rrugës» — gone the moment his word is spoken); the Greek tradition\'s bird survives as a wordless omen, startling off the bridge as the bride arrives (uraGropa).',
-    'THE CURSE-THEN-BLESSING (¶7.11-13): Mërkuri\'s prose synopsis states the bride "first pleads, then begins to curse the bridge and the travellers who would walk over it, but afterward changes the curse" into a blessing — the two-step shape behind the FOLKLORE card\'s own "curses then blesses." The ballad text itself never splits it that way: her one line — «të dridhesh si dridhem unë» — moves straight from grief to a single sympathetic tremor, with no separate destructive curse first. These beats follow the ballad\'s own single utterance, which the game\'s staged uraArtesMur ending already renders the same way ("trembles yet").',
+    'THE CURSE-THEN-BLESSING (¶7.11-13): Mërkuri\'s prose synopsis states the bride "first pleads, then begins to curse the bridge and the travellers who would walk over it, but afterward changes the curse" into a blessing — a two-step interpretation of the wider tradition. The ballad text itself never splits it that way: her one line — «të dridhesh si dridhem unë» — moves straight from grief to a single sympathetic tremor, with no separate destructive curse first. These beats follow the ballad\'s own single utterance, which the game\'s staged uraArtesMur ending already renders the same way ("trembles yet").',
     'BIRTH ORDER (¶1.1): the primary variant quoted here ("Urën e Artës ndërtojmë," Rokë-Llur/Fier 1954) introduces the three brothers simply as "Panua, Mihal Guri, Kiçua i vogël," without stating who is eldest beyond marking Kiço the youngest. The second Çam variant printed alongside it ("Ura e Artës kur ishte bënë," Mazrek/Vlorë 1954) is explicit — "Mihë Guri të madhit" (to the eldest, Mihal Guri), "të mesmit Pani" (to the middle, Pano), "i vogli Kiçi" (the little one, Kiço) — and the two variants otherwise agree in full, so these beats take that ordering as settled.',
     'WHAT THE STAGED ARC STILL COMPRESSES (place: bridge): the rebuilt arc (uraArtes1 → uraArtes2 → uraNata → uraMengjes → uraGropa → uraMurim → endings) now stages the three named brothers, the besa kept and broken, the mother\'s testing of the three brides with both excuses, the ring-lie, the walling, the verbatim curse and the jamanet. What remains compressed: the forty apprentices are one scene line, the black bull and black ram are named in the old man\'s price but never staged as animals, and the mother-in-law is rendered simply as «nëna» (the game\'s existing word) rather than a named vjehrra.',
   ],
@@ -89,7 +89,7 @@ export default {
     { id: 'mihalGuri', name: 'Mihal Guri', note: 'eldest of the three brother-masons; breaks the besa to warn his own wife', npc: 'mihalGuri' },
     { id: 'pano', name: 'Pano', note: 'middle brother-mason; breaks the besa to warn his own wife', npc: 'pano' },
     { id: 'kico', name: 'Kiço', note: 'youngest brother-mason; keeps the besa, and so dooms his own unwarned wife', npc: 'kico' },
-    { id: 'bride', name: 'the youngest bride', note: 'Kiço\'s wife, walled alive into the pier; curses then blesses the bridge', npc: 'nusaVogel' },
+    { id: 'bride', name: 'the youngest bride', note: 'Kiço\'s wife, walled alive into the pier; asks the bridge to tremble as she trembles and leaves wishes for her son', npc: 'nusaVogel' },
     { id: 'motherInLaw', name: 'the mother-in-law', note: 'sends the three brides out in turn with the masters\' midday bread', npc: 'vjehrra' },
     { id: 'eldestBride', name: 'the eldest bride', note: 'Mihal Guri\'s wife; excuses herself with a feverish child', npc: 'nusaMadhe' },
     { id: 'middleBride', name: 'the middle bride', note: 'Pano\'s wife; excuses herself with her hands in the dough', npc: 'nusaMesme' },
@@ -105,7 +105,7 @@ export default {
     { id: 'bridge', emoji: '🌉', name: 'the bridge of Arta', note: 'the worksite where the bridge rises by day, falls by night, then finally stands for good',
       anchor: { status: 'existing', node: 'uraArtes1',
         mirror: 'Ura e Artës (Greek: Γεφύρι της Άρτας) — the stone bridge over the Arachthos river a kilometre west of Arta, in Çamëria/Epirus; the standing bridge dates to Ottoman-era (re)building, 1602–1613',
-        mold: 'a bridge that falls every night until a life is walled into its pier: the masters swear a besa of silence, the wife who brings the midday bread is trapped and immured, and cries out against the bridge before her final blessing. The staged scene here (uraArtes1 → uraArtes2 → uraArtesShpëtim/uraArtesMur) already tells this compressed to one generic "mjeshtër" and one "nusja," and already follows the Greek/essay tradition\'s talking bird rather than the Çam ballad\'s old wayfarer for the omen — a difference of messenger-form only (both readings are attested across the tradition), not a contradiction; these beats keep the fuller three-brother telling and its old wayfarer as canon underneath it.',
+        mold: 'The staged Çam telling names three brothers and the old wayfarer who sets the price. The youngest bride is lured into the foundation by the ring story and walled in; her protest, tremor utterance and wishes for her son conclude the scene.',
         conflicts: 'NOT kalaRozafa — the same walled-bride ballad-family, but a DIFFERENT structure (a bridge, not a castle), a DIFFERENT family of three brothers, and a DIFFERENT region (Çamëria/Epirus in the south, not Shkodra in the north); the two immured brides must never be treated as one and the same.' } },
     { id: 'household', emoji: '🏠', name: 'the brothers\' household', note: 'where the three brides live under one roof with the mother-in-law and the little boy',
       anchor: { status: 'existing', node: 'uraNata',
@@ -131,8 +131,8 @@ export default {
   // TWIN, deliberately its MERCY counterpoint: you become Kiço the youngest brother;
   // refusal or warning can leave mother and son alive and the bridge unbuilt;
   // accepting the ring deception continues to the source walling outcome.
-  // At Rozafa the same silence is the honourable good ending — the game stages both
-  // readings of the walling legend. Day/night = the build-by-day / fall-by-night engine.
+  // Rozafa and Arta preserve distinct tellings of the same tragic oath motif.
+  // Day/night follows the build-by-day / fall-by-night engine.
   play: {
     entry: 'gathering',
     stance: 'embodied',

@@ -3,9 +3,9 @@
 // format contract. This file is owned by its tale: agents editing other tales
 // must not touch it.
 //
-// The numbered original here is a MODERN ALBANIAN telling — the legend has no
-// findable 19th-century collected text (see albanian.why). The fullest printed
-// telling is the legend passage of Hajdar Mallaku's essay «Plaka dhe breshka»
+// The numbered witness here is a MODERN ALBANIAN retelling. No reviewed
+// public-domain narrative is imported for this tale (see albanian.why).
+// The selected passage is from Hajdar Mallaku's essay «Plaka dhe breshka»
 // (PrizrenPress, 6 Nov 2022); a Tirana variant (Koha Jonë, 14 July 2021)
 // agrees on the pot-turned-shell and adds the night-theft reading. Both are
 // copyrighted journalism, so all lines are my own-words English paraphrases
@@ -17,7 +17,7 @@ export default {
   id: 'tortoise',
   title: 'Why the Tortoise Carries her House',
   source:
-    'oral etiological legend, pan-Albanian; fullest printed telling: Hajdar Mallaku, «Plaka dhe breshka (Prekja e mitit dhe realitetit)», PrizrenPress (Prizren), 6 Nov 2022 · read in Albanian; all lines paraphrased into my own English. Variant: «Breshka në letërsi, mitologji e bestytni shqiptare», Koha Jonë (Tiranë), 14 July 2021.',
+    'Albanian etiological legend in a selected modern retelling: Hajdar Mallaku, «Plaka dhe breshka (Prekja e mitit dhe realitetit)», PrizrenPress (Prizren), 6 Nov 2022 · read in Albanian; all lines paraphrased into my own English. Distinct modern variant: «Breshka në letërsi, mitologji e bestytni shqiptare», Koha Jonë (Tiranë), 14 July 2021. These publication locations do not establish the oral collection region.',
   references: [
     {
       role: 'selected-witness',
@@ -38,28 +38,25 @@ export default {
       note: 'Documents Anton Çetta’s different chicken-hiding form of the transformation tale; comparative only.',
     },
   ],
-  // where the tale comes from — anchors should prefer this region's mirrors.
-  // The legend is pan-Albanian (the numbered telling is Kosovar Gheg — its
-  // «veksh» is the Gheg earthen pot; the Tirana variant says «vegsh»); the
-  // game ALREADY stages the tale at the player's own village (breshka1), so
-  // the anchors are the village's places, as with the other pan-Albanian
-  // hearth legends.
+  // Publication context is known; an oral informant and collection region
+  // are not established by these records. The village anchors describe the
+  // game's chosen setting, not a claimed place of origin for the legend.
   origin: {
-    region: 'pan-Albanian (numbered telling: Kosovar Gheg, Prizren; a Tirana variant agrees on the pot-shell)',
-    collector: 'no 19th-century collector on record — the legend survives in modern retellings and in the riddle/proverb stock',
+    region: 'modern retellings published in Prizren and Tirana; oral collection region not established here',
+    collector: 'selected modern retelling by Hajdar Mallaku; no oral informant or collection date established in this record',
     published: 'PrizrenPress (Prizren), 6 November 2022',
   },
-  // NO PUBLIC-DOMAIN ALBANIAN FOLK ORIGINAL FOUND — the lines carry no third
-  // element by design.
+  // No reviewed public-domain Albanian narrative is imported into this
+  // project's corpus. Modern Albanian witnesses exist; they are paraphrased.
   albanian: {
     status: 'missing',
     why:
-      'no collected folk text of the legend exists in any findable public-domain source. Local corpora: pralla-popullore-shqiptare-1954 has no breshkë tale (grep «breshk»/OCR variants, 0 hits); Dozon (Contes albanais + Manuel), Jarník and Meyer have nothing; von Hahn\'s Albanesische Studien carries the tortoise only in trade statistics, the lexicon and his riddle list (No. 51, «a wooden bowl with four spoons» — the tortoise), and his Griechische und albanesische Märchen\'s Albanian Sagen (Nos. 95–107, checked at zeno.org) have no tortoise; Lambertz 1922\'s one tortoise tale is a DIFFERENT type (the bishop-tortoise penance of Zadrima, tale 47); Fishta\'s Lahuta has only the shtriga-riding-sea-tortoise image (the «pula e dreqit» epithet\'s home); archive.org FTS: Durham\'s Some Tribal Origins gives tortoise medicine, egg-magic and the proverb «no plain without a tortoise» but no curse legend; Elsie\'s 26 folktales, his Folktales-and-Legends book (FTS 0 hits) and Garnett have none. The legend IS printed in Albanian — Mallaku/PrizrenPress 2022 (the numbered telling, with the curse formula «E bafsh në shpinë vekshin përgjithmonë!») and Koha Jonë 2021 — but both are modern copyrighted journalism, retellings rather than collected folk texts, so none of it may feed the Q() quote system and the lines carry no third element. The one verbatim folk text that touches the tale is the traditional riddle «Kam samar, po s\'jam gomar» (answer: breshka), which the game already asks word-for-word at the dry-river bridge (riddle1).',
+      'No reviewed public-domain Albanian narrative of this legend is imported into the project. This is a limit of the selected corpus, not a claim that no older Albanian witness exists. Modern Albanian witnesses are available: Mallaku/PrizrenPress 2022 supplies the selected telling, and Koha Jonë 2021 supplies a distinct variant. Both are copyrighted journalism; the beat lines are English paraphrases, carry no Albanian third element, and cannot feed the Q() quote system. The traditional tortoise riddle at the dry-river bridge is a separate text, not the missing narrative.',
   },
   // where the tellings (and the game\'s own scene) disagree — which reading
   // the beats follow, per case
   discrepancies: [
-    'BREAD vs THE MEAT-POT (reconciled): the game formerly reduced the sin to refusing bread. It now follows Mallaku\'s subtler telling: the guest receives bread and salt while the host hides the meat-pot for herself. The lore card and both endings use the same distinction and identify the shell as the earthen pot, not a baking-pan.',
+    'BREAD vs THE MEAT-POT: in Mallaku\'s selected telling the guest receives bread and salt while the host withholds the meat. The game begins before any gift: bread and meat are cooking and the hungry guest waits outside. The player may give the guest meat or hide it. Sharing is a game alternative; no earlier gift of bread and salt is performed in either playable branch. The selected source identifies the shell as the earthen pot.',
     'WHO SPEAKS THE CURSE (reconciled): Mallaku gives the sentence to the deity of Albanian hospitality, and the Koha Jonë variant to God. The playable ending now keeps guest and deity distinct: the mortal guest cries out, his case reaches heaven, and Perëndia speaks the curse.',
     'THE NIGHT THEFT (variant): Koha Jonë tells it differently — she sees the guest COMING and pulls the simmering meat off the fire to keep it unshared (naming that one of the nation\'s great shames); at night, with the guest asleep, she rises and eats it alone; God sees, and sticks the vegsh on her back; in the morning she sees herself and feels shame, and ever since she pulls into the shell whenever any creature comes near. The beats follow Mallaku\'s open-table version; the variant\'s shame-etiology (why every tortoise still hides at a footstep) is its own gift and is noted, not staged.',
     'THE CURSE FORMULA: Mallaku prints it verbatim — «E bafsh në shpinë vekshin përgjithmonë!» ("may you bear the pot on your back forever!") — but a 2022 essay is not a collected folk text, so the formula stays here as documentation and enters no line\'s third element (see albanian.why).',
@@ -78,21 +75,21 @@ export default {
     { id: 'perendia', name: 'Perëndia', note: 'the Lord of the folk tellings — Mallaku calls him the deity of hospitality; he hears the cry and speaks the curse', npc: 'zoti' },
   ],
   // anchor = the game location this tale place inhabits (see _SCHEMA.md).
-  // The game ALREADY stages this tale: fshatiJeta\'s «bëj bukë» option leads
+  // The game stages this tale: fshatiJeta's warm-house entry leads
   // to breshka1 (the guest at the door, the choice, the two endings
   // breshkaMire / breshkaFund), and the elder\'s riddle about her waits at
   // the dry-river bridge — so the anchors are those built spots.
   places: [
     { id: 'shtepia', emoji: '🏠', name: 'the stingy wife\'s house', note: 'her hearth, her pot, her one guest — the whole tale plays here',
       anchor: { status: 'existing', node: 'breshka1', mirror: 'a hearth-house in old Tirana\'s village-life quarter — the game\'s village stands in for the legend\'s any-village',
-        mold: 'the house of the tale the game already tells on this spot: the map draws it as a house labeled "the guest", the scene stages bread and salt given but a meat-pot withheld, and it quotes Kanun §602 in gold — the wife of that saying lived HERE, and the two endings (breshkaMire/breshkaFund) are her choice replayed',
+        mold: 'the house of the playable tale: bread and meat cook while a hungry guest waits outside. Kanun §602 frames the encounter. The player chooses to give meat or hide it; no bread or salt has already been given. Sharing leads to the game alternative breshkaMire, while hiding leads to the transformation in breshkaFund',
         conflicts: 'NOT vatra — the vitore hearth-house belongs to its serpent-keeping family and its fire that never dies. NOT gjizar1 — the lane-fork house is the bee tale\'s: an old, sick mother and three daughters. NOT the three-friends widow-cottage proposal at fshatiJeta — a widow who sold the house bare for her son cannot be the crone with a full meat-pot for one.' } },
     { id: 'rruga', emoji: '🛤️', name: 'the guest\'s road', note: 'the roads the hungry traveller walks — arrival and departure land here',
       anchor: { status: 'existing', node: 'start', mirror: 'the road out of old Tirana at the tanners\' bridge',
         mold: 'the open road hosts every traveller and every setting-out — roads accumulate stories, they never clash',
         sharedWith: ['three-friends', 'half-rooster', 'the whole travel spine'] } },
     { id: 'ura', emoji: '🌉', name: 'the dry-river bridge', note: 'where the tale\'s afterlife lives: a breshkë in the bank grass and an elder\'s riddle about her',
-      anchor: { status: 'existing', node: 'ura', mirror: 'a stone bridge over a dry riverbed — every Albanian plain has one, and the proverb Durham heard says no plain is without a tortoise',
+      anchor: { status: 'existing', node: 'ura', mirror: 'the game\'s stone bridge over a dry riverbed, where the elder asks the separate tortoise riddle',
         mold: 'the bridge over the dry river where an old man tells a gjëegjëzë — the riddle scene (riddle1 → riddleFund, "The Tortoise\'s Answer") is ABOUT her: «ka samar por nuk është gomar»; the bank grass below is where a breshkë suns and crawls today, her story asked over her head — the riddle and the riddled-about share one spot by definition',
         sharedWith: ['the river travel spine (ura → uraFshaj crossing)'] } },
     { id: 'qielli', emoji: '☁️', name: 'heaven', note: 'the Lord\'s seat — the tale never climbs there; the curse comes down from it',
@@ -105,18 +102,18 @@ export default {
     { id: 'bukaKripa', emoji: '🍞', name: 'bread and salt', note: 'the guest\'s portion — enough to answer the code\'s letter and break its heart' },
   ],
   // how the game stages this tale — the embodied projection (see _SCHEMA.md). You
-  // become the host at your own fire when a hungry guest comes; the CHOICE — set
-  // bread before him or hide your pot — keeps your roof or curses you to carry it
-  // forever as the first tortoise. The Kanun's §602 is slotted verbatim as a Q()
-  // quote. become:'tortoise' rides the entry (fshatiSheshi "bëj bukë" → breshka1).
+  // become the host while food cooks and a hungry guest waits. The CHOICE —
+  // give meat or hide it — leads to a blessing or the tortoise transformation.
+  // The Kanun's §602 is slotted as a Q()
+  // quote. become:'tortoise' rides the entry (fshatiJeta → breshka1).
   play: {
     entry: 'dera',
     stance: 'embodied',
     as: 'plaka',
     role:
-      'You are the host at your own fire, baking bread, when a hungry guest comes to the door. The Kanun says your house belongs to God and the guest — set bread before him and keep your roof and your name, or hide your full pot and be cursed to carry your house on your back forever, the first tortoise.',
+      'You are the host in a house where bread and meat are cooking. A hungry guest waits outside and asks for food. The game offers a choice to give him meat or hide it: sharing leads to a blessing, while hiding leads to the divine curse and tortoise transformation. No gift has been made before the choice.',
     enter:
-      'you are baking bread at your own fire when a hungry guest comes to the door, and the Kanun\'s oldest law — the house belongs to God and the guest — is about to be tested in you',
+      'you are the host while bread and meat cook, and a hungry guest waits outside asking for food; the saying that the house belongs to God and the guest frames your choice',
     from: 'breshka1',
     ending: 'breshkaFund',
     scenes: {
@@ -124,9 +121,9 @@ export default {
       breshkaFund: ['mallkimi', 'vegshi'],
     },
     divergences: [
-      { beat: 'dera', note: 'The legend is only about the stingy old woman who is cursed; the game gives YOU her choice and adds the path she never takes — set bread before the guest and reach the good ending "Bread for the Guest" (breshkaMire), "her opposite and her answer." Hide your pot and you enact the etiology and become the first tortoise.' },
+      { beat: 'dera', note: 'In Mallaku\'s selected telling the guest receives bread and salt but not the meat. The game starts before any gift and offers a different choice: give meat for "Food for the Guest" (breshkaMire), or hide it and reach the tortoise transformation. The sharing branch is a game alternative, not an ending found in the selected telling.' },
       { beat: 'kodi', note: 'The most famous sentence of the Kanun of Lekë Dukagjini — §602, «Shpija e Shqyptarit âsht e Zotit dhe e mikut», the house of the Albanian belongs to God and the guest — is slotted word-for-word as a Q() quote in the setup, grounding the whole moral test.' },
-      { beat: 'rrashta', note: "The shell-plate's winding lines read as the guilt written where she can never put it down are kept in the ending's image; the deity of hospitality who curses her is the game's zoti (God), played as the unseen judge rather than staged as a figure." },
+      { beat: 'rrashta', note: "The selected source reads the shell's winding lines as a mark of guilt. That detailed shell image remains source commentary rather than an enacted beat: the game shows the divine curse, transformation and house carried on her back. The deity is the game's zoti (God), an unseen judge rather than a staged figure." },
     ],
   },
   beats: [

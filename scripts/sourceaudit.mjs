@@ -9,6 +9,7 @@ import { existsSync, readdirSync } from 'node:fs'
 import { CORPUS, EXTRA_SOURCES, FOLKLORE, HISTORY } from '../src/game/folklore.js'
 import { QUOTES, QUOTE_EVIDENCE_WORKS } from '../src/game/quotes.js'
 import { SELECTED_WITNESS_REVIEWS } from '../src/game/data/tales/_sourceLedger.js'
+import { assertLoreSourceScopeContracts } from './lib/lore-source-scope-contract.mjs'
 
 export const TALE_REFERENCE_ROLES = Object.freeze([
   'selected-witness',
@@ -29,6 +30,7 @@ for (const file of readdirSync(new URL('../src/game/data/tales', import.meta.url
   if (tale?.id) tales.push(tale)
 }
 const taleById = Object.fromEntries(tales.map((tale) => [tale.id, tale]))
+const sourceScopes = assertLoreSourceScopeContracts(taleById)
 const roleSet = new Set(TALE_REFERENCE_ROLES)
 const exactRoles = new Set(['selected-witness', 'source-text', 'facsimile', 'translation'])
 const errors = []
@@ -285,6 +287,8 @@ if (process.argv.includes('--check-links')) {
 }
 
 const counts = {
+  sourceScopeReviews: sourceScopes.scopes,
+  sourceScopeMutationChecks: sourceScopes.mutations,
   tales: tales.length,
   taleReferences: tales.reduce((sum, tale) => sum + (tale.references?.length || 0), 0),
   selectedWitnessReviewLinks: Object.values(SELECTED_WITNESS_REVIEWS)

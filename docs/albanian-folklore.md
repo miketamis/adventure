@@ -124,14 +124,17 @@ The defining myth of Albanian paganism is the **cyclical war of the storm‑hero
 and the drought‑dragon**, a symbol of the seasonal death and rebirth of the world.
 
 ### The Drangue (Drangoni)
-A **semi‑human winged divine hero**, the archetype of light and good.
-- Babies destined to become *drangue* are **born with a caul** (the amniotic
-  membrane over the head) and **two or four wings under the arms**.
-- They wield **thunder and lightning** as weapons, hurling **"thunder‑stones"
-  (kokrra rrufeje)**, uprooted trees and great boulders at the Kulshedra during
-  storms.
-- A Drangue is the protector of the community and the crops; the rumble of a
-  thunderstorm is the Drangue fighting the dragon in the clouds.
+A supernatural fighter against the Kulshedra, described in regional traditions
+in **human and animal forms**. Some human-hero traditions identify a drangue by
+a caul at birth and wings under the arms. Storm battles may involve
+thunder-stones, uprooted trees and boulders.
+
+Durham's *High Albania and its Customs in 1908* (published 1910) records that
+men and male animals can become Drangonis. Nopcsa records a **bull Drangoi that
+cannot leave the ground**, fighting with horns and hooves, while other forms
+fly. These are regional field reports, not one uniform account of every being.
+See the local [Durham article](references/durham-high-albania-1908.en.txt) and
+[Nopcsa, pp. 20–21](references/nopcsa-aus-shala-und-klementi.de.txt).
 
 ### The Kulshedra (Kuçedra)
 A **huge, multi‑headed, fire‑spitting female serpent‑dragon** (also **Lemja /
@@ -142,9 +145,9 @@ drought and disaster, known across the Albanian lands and among the Arbëresh.
 - She spits fire and causes **storms, floods, hail and earthquakes**.
 - She is the mature form of the **Bolla** (see §6).
 
-Their conflict "symbolises the cyclic return in the watery and chthonian world of
-death, accomplishing the cosmic renewal of rebirth." The Drangue (almost) always
-wins; the rains return.
+These conflicts are associated with storms and the protection of people and
+their surroundings. Their outcomes differ: the field-recorded stories below
+include the death of a ram Drangue, not an inevitable victory.
 
 ### How the highlands actually told it (Lambertz's belief‑legends)
 The scholarly fieldwork of **Maximilian Lambertz (1922)** caught the living belief,
@@ -180,12 +183,17 @@ human beings** (similar to the Greek nymphs / the Muses).
 - They figure in **rites of passage**: in some traditions a boy becomes a man
   only after encountering a Zana in the mountains and **receiving her blessing**.
 - They can **bless or curse**; offend them and they may strike you lame or mute.
-- In the epic cycle they **suckle the hero Mujo** and grant him superhuman
-  strength (see §8).
+- In Mujo’s strength song they **suckle the hero Mujo** and grant him superhuman
+  strength (see §8). In [*The Marriage of Gjeto Basho Mujo*, verses 220–225](references/palaj-kurti-martesa-e-mujit.sq.txt),
+  the **three Zanas lose their strength if someone catches their three
+  golden-horned wild goats**. This condition belongs to that song’s trio, not
+  every Zana.
 
 ### Ora — the personal fate‑spirit
-Every Albanian is **born with an Ora**, a female fairy‑like **guardian and
-fate‑weaver** assigned for life — a personal *fortuna*.
+In some Albanian traditions, a person has an **Ora**, a guardian spirit tied to
+their fate. Beliefs vary by region: [Nopcsa, pp. 18–20](references/nopcsa-aus-shala-und-klementi.de.txt)
+records the belief in Shala but reports it unknown in Dibra. Other traditions
+describe female fate-weavers and cradle visitors:
 - The Orë **convene on the third night** after a child's birth to fix its
   destiny.
 - They can take any form — **bird, beast, woman, or serpent** — and travel with
@@ -451,24 +459,26 @@ Sources: [Kângë Kreshnikësh](https://en.wikipedia.org/wiki/Albanian_Songs_of_
 
 ## 8. The great legends
 
-### Rozafa — the walled‑up wife
-Attested as early as **1505** (Marin Barleti, *De obsidione Scodrensi*), the most
-famous Albanian **immurement legend**, attached to **Rozafa Castle at Shkodër**.
+### Rozafa — the walled-up wife
+In the Rozafa telling followed by the game, three brothers swear not to warn
+their wives that the next to bring their meal will be walled into the castle.
+Only the youngest keeps silent, and his wife comes. Rozafa asks that her right
+eye, hand, foot and breast remain free so she can care for her infant son.
+The castle stands; the story remembers her tears and milk in its damp stones.
+Other recorded immurement tellings differ in their figures and details; this
+summary does not equate an early mention of the castle legend with every detail
+of the selected wife-and-brothers version. The [local prose witness](references/rozafa-legjenda-e-rozafes.sq.txt)
+is distinguished from Kuteli’s literary retelling in its provenance notes.
 
-> Three brothers try to build a castle, but **the walls fall every night**. A wise
-> man tells them the building will only stand if a life is **walled into the
-> foundation**. They swear a **besa** to say nothing to their wives, and that
-> **whichever wife brings the next day's meal** will be the sacrifice. The two
-> elder brothers break their oath and warn their wives; only the **youngest keeps
-> his besa** and stays silent. So it is **Rozafa**, the youngest brother's wife,
-> who comes with the food. Learning her fate, she does not protest — but, thinking
-> of her **infant son**, asks that the wall leave open her **right breast to nurse
-> him, right eye to see him, right hand to caress him, and right foot to rock his
-> cradle**. The castle stands. Local people say **Rozafa's milk still seeps from
-> the white stones** of the walls.
-
-The breast‑cult and immurement reflect the older worship of an **earth‑mother
-goddess**; the tale is, at heart, a hymn to the **besa**.
+### Ura e Artës — the selected Çam ballad
+Three brothers cannot make the bridge of Arta stand. An old wayfarer tells them
+to wall a living wife into its foundation. Kiço alone keeps their oath of
+silence. His wife brings the meal and is tricked into the foundation by a
+fallen-ring story. She protests, asks the bridge to tremble as she trembles,
+and leaves wishes for her son. A white fig and a silver spring remain in the
+closing image. This [selected Çam ballad](references/cam-balada-murimit-ura-e-artes.sq.txt)
+has a tremor utterance followed by wishes; a separate introductory synopsis’s
+curse-then-blessing sequence is not silently inserted into it.
 
 ### Constantine and Doruntine — the besa beyond death
 Also sung as a ballad, *The Ballad of Constantine and Dhoqina* (**Dhoqina** is a
@@ -752,7 +762,7 @@ Elsie's verbatim text; ATU tale‑types are given where confident.*
 | 21 | The Grateful Snake and the Magic Case | a rescued snake gives a wish‑granting case (a magic hair); the stolen talisman is recovered when a mouse makes the sleeper sneeze it out (ATU 560) |
 | 22 | The Maiden Who Was Promised to the Sun | a girl vowed to **Dielli** the Sun before birth and abducted by him; a Kulshedra in his house; a **stag** carries her home; a vigil to revive a marble king; a false bride exposed |
 | 23 | Mujo's Strength | the **Zanas' milk** makes the cowherd Mujo stronger than a Drangue |
-| 24 | Mujo and the Zanas | evil Zanas **petrify** his wedding party; their power is hidden in golden‑horned goats; he frees the warriors by forcing a binding oath |
+| 24 | Mujo and the Zanas | evil Zanas **petrify** his wedding party; the three Zanas lose strength if their three golden-horned goats are caught; he frees the warriors by forcing a binding oath |
 | 25 | Halil's Marriage | Halil's bride‑quest for **Tanusha**, daughter of the Christian king; disguise among her maidens; rescue by Mujo's world‑shaking war‑cry |
 | 26 | Mujo and Halil Visit the Sultan | summoned to Istanbul on slander; the giant Mujo overawes the Sultan (and comically drags him off by a snagged hook) |
 | 27 | Mujo Avenges Halil's Death | the dead Halil speaks through a **cuckoo**; Mujo ambushes and kills the grave‑desecrator Kreshto |
@@ -807,6 +817,10 @@ Read verbatim from Elsie so the plots are accurate, not inferred:
   a three‑week vigil to wake him; a treacherous servant steals her place, until the
   king hears the true maiden weeping and weds her.
 
+**Maro Përhitura:** the [selected 1954 telling](references/pralla-1954-maro-perhitura.sq.txt)
+restores Maro when the prince removes the needle. The game’s wedding/palace
+departures and permanent-bird ending are alternatives to that source sequence.
+
 ### The complete von Hahn Albanian canon (Nos. 95–114)
 Von Hahn's *Griechische und albanesische Märchen* (1864) groups the Albanian tales
 as **Nos. 95–114** — the foundation of every later collection. All twenty were read
@@ -857,6 +871,12 @@ tales:
   learns whose blood is sweetest, the swallow **bites out the prying mosquito's
   tongue** so the answer (man's) is never told — and ever after nests "at the head
   of man," under his roof, protected.
+- **Why the tortoise carries her house.** In [Hajdar Mallaku’s modern retelling](https://prizrenpress.com/plaka-dhe-breshka/)
+  (PrizrenPress, 2022), the host gives bread and salt but hides the meat-pot;
+  the guest’s cry reaches heaven, and God fixes the pot to her back. The game
+  starts before any gift and offers sharing the meat as its own alternative.
+  [Koha Jonë’s 2021 account](https://kohajone.com/kuriozitete/breshka-ne-letersi-mitologji-e-bestytni-shqiptare/)
+  is a distinct variant, not an earlier collected source for Mallaku’s wording.
 - **Why the dog and the cat are enemies.** Sent together to recover a stolen magic
   ring, the **cat** races ahead and takes all the credit — winning the warm cushion
   by the fire while the soaked **dog** is sent out into the yard.
@@ -1111,21 +1131,19 @@ mainly as the idiom for a sly trickster, and the **hedgehog (iriqi)** as the
 slow‑but‑shrewd foil.
 
 ### Nastradin Hoxha — the trickster sage
-The great comic figure of Albanian (and pan‑Balkan) oral tradition is **Nastradin
-Hoxha** — the Albanian **Nasreddin Hodja**, hero of the *anekdota* (anecdote) genre,
-naturalised over the Ottoman centuries. He is the wise‑fool whose absurd logic
-turns out to skewer the powerful and the pompous. A few of the anecdotes told in
-Albanian collections:
-- **The cauldron that gave birth — and died.** He returns a borrowed cauldron with
-  a small pot inside ("it gave birth"); next time he keeps it and reports "the
-  cauldron died" — if it can give birth, it can die.
-- **The quilt and the quarrel.** Rolled in his cloak and thrown downstairs in a
-  marital row, he tells the neighbour the noise was "just my cloak falling" — "well,
-  because I was *inside* it."
-- **The donkey ridden backwards** — "it isn't my fault; the donkey turned the wrong
-  way round."
-- **The sermon dodge.** Asked from the pulpit whether the congregation knows what
-  he'll say, he answers "yes/no" both ways to get out of preaching.
+**Nastradin Hoxha** is the Albanian form of the shared Balkan and wider
+Nasreddin comic figure. The [selected 1954 Albanian text](references/pralla-1954-nastradini.sq.txt)
+contains the **mule with a foal, the three figs and the doomsday cow**.
+The game adapts the cauldron and sound-for-smell jokes from the wider repertoire:
+a lender accepts that a pot gave birth but objects when it dies; a cook’s demand
+for payment for a smell is answered by the sound of a coin. These are not the
+three anecdotes in the selected 1954 witness.
+
+[Borrow’s *The Turkish Jester* (1884)](https://www.gutenberg.org/files/16244/16244-h/16244-h.htm)
+is a separately linked **cauldron analogue**, not a source for the coin judgment
+or proof of the selected Albanian text. [UNESCO’s shared telling-tradition record](https://ich.unesco.org/en/RL/telling-tradition-of-nasreddin-hodja-molla-nesreddin-molla-ependi-apendi-afendi-kozhanasyr-anecdotes-01705)
+provides wider context. This source distinction does not claim that no Albanian
+version of either game joke exists.
 
 The other native trickster is the **qose** ("the barefaced/beardless man") — the
 sly deceiver of *The Barefaced Man and the Pasha's Brother* (Elsie #17) — alongside

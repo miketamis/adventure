@@ -9,12 +9,12 @@ export const ENDING_COPY = Object.freeze({
     "blurb": "A child too openly admired, the old people warn, draws the syri i keq — the evil eye, the envious or even the loving gaze that sickens what it praises. So a wise mouth says \"mashallah\" over a fair child, and a wise hand answers the eye with garlic. The mother pressed her garlic into your hand; you gave it to the child, and the fever broke. Never praise a child, a bride, or a fat lamb without a charm — the eye does not mean to harm, and harms all the same."
   },
   "breshkaMire": {
-    "title": "Bread for the Guest",
-    "blurb": "A hungry traveller came to your fire. You gave him the bread and salt owed to every guest, then shared the meat simmering in your earthen pot as well. The old telling remembers the wife who did less: she observed the letter of hospitality but hid the meat for herself, and God made that pot the shell she must carry forever. You chose the heart of hospitality, not merely its minimum. The traveller ate, blessed your house and your hand, and that blessing outlasted the meal."
+    "title": "Food for the Guest",
+    "blurb": "The hungry guest receives meat and gives the host a blessing. This act of sharing is the game's alternative to the selected legend's hidden meat and transformation."
   },
   "breshkaFund": {
     "title": "Why the Tortoise Carries her House",
-    "blurb": "You gave the hungry guest bread and salt, but hid the meat simmering in your earthen pot and kept the richer food for yourself. His cry carried the broken heart of hospitality to heaven. God — not the guest — pronounced the sentence: the pot fixed itself to your back as a shell, and you became the first tortoise, carrying forever the house and meal you would not truly share."
+    "blurb": "The host hides the meat, and the guest calls upon God. A divine curse turns her into a tortoise, carrying her house upon her back. The selected telling identifies the shell with the earthen meat-pot."
   },
   "agaYmerStay": {
     "title": "At Home",
@@ -34,11 +34,11 @@ export const ENDING_COPY = Object.freeze({
   },
   "argjiroFund": {
     "title": "Argjiro’s Leap",
-    "blurb": "Argjiro ruled Gjirokastër as the prince’s wife, and when the Ottoman host laid siege she took up the castle’s defense herself — until it fell, not to arms but to betrayal from within. Rather than be taken alive you climbed the highest tower and leapt with your infant son held against you, the very first road you ever walked together. You struck the rock and were broken, but the boy lived — and the stone itself, as if moved to bless him, wept milk that kept him alive. The city has carried your name ever since: Gjirokastër, Argjiro’s castle. Some are remembered for how they would not be taken."
+    "blurb": "In the legend followed here, Argjiro leaps from the castle with her infant son. She dies on the rock, but the boy survives, nourished by milk flowing from the stone. The telling links the castle's name to hers; the city's recorded name is older than the Ottoman siege."
   },
   "argjiroRob": {
     "title": "Taken Alive",
-    "blurb": "You waited, and the enemy came over the fallen wall and took you alive — you, your son, and the castle whole. In the old legend Argjiro would not be taken: she leapt from the tower and the city kept her name for it. You were led away instead, and the fortress above the city carries some other name now, and no rock ever wept milk, and the poets who might have likened you to the morning star sing of someone else. A city remembers the leap, not the surrender."
+    "blurb": "The enemy takes Argjiro and the castle. This path ends in captivity, without the leap or the milk-bearing stone. It is the game's alternative to the ending of the selected legend."
   },
   "gbMujiFund": {
     "title": "Mujo Rises Again",
@@ -162,7 +162,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "kalaFundBesa": {
     "title": "The Word Kept",
-    "blurb": "You were the youngest — the one brother who kept his besa — so it was your own wife, never warned, who climbed the hill with the morning meal, and your own hands that sealed her into the wall she asked only to go on nursing her son from. The castle rose that day and never fell again. Low on its stone the wall still runs damp to this hour, with her milk and her tears for the boy she left below. You kept your word, and it cost you everything you had; but the fortress carries her name — Rozafat — and the old songs will remember that a man once loved his besa more than his own life."
+    "blurb": "The youngest brother keeps the oath of silence, and his unwarned wife comes with the meal. Rozafa is walled into the castle. Her last request is to keep caring for her infant son through the stone. The castle stands; the telling remembers the damp wall through her tears and milk."
   },
   "kalaFundTurp": {
     "title": "Away from the Wall",
@@ -734,7 +734,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "uraArtesMur": {
     "title": "The Bridge of Arta",
-    "blurb": "You were Kiço, and you were faithful — the only one of the three. Your brothers whispered in the night; you kept the old wayfarer's besa, and so it was your own unwarned wife who came down to the river with the bread when the other two brides begged off. You told her your ring had fallen into the pit, and she climbed down for it gladly, and the stones closed over her protesting — never sick a day, never hurt, buried alive. From inside the wall she cursed the bridge to tremble as she trembled, then left her last wishes like a blessing: her breast free of the stone, a white fig tree over the pier, its first fruit for her son. They honoured all of it. A silver spring runs from the wall to this day — it raised your boy, and the sick who drink it mend — and the bridge of Arta stands on her bones and has never fallen since. It only trembles when the suffering cross. The besa was kept, as at Rozafa's wall; but the songs of the south do not call you honourable for it — they only teach her curse to the children, so no mason ever sleeps easy again."
+    "blurb": "Kiço keeps the oath, and his unwarned wife brings the meal. Tricked into the foundation by the story of a fallen ring, she is walled in alive. She asks the bridge to tremble as she trembles and leaves wishes for her son: her breast free and the first fruit of a white fig. A silver spring flows from the wall, and the bridge stands, still trembling."
   },
   "mulliFund": {
     "title": "The Fair Measure",
@@ -766,7 +766,7 @@ export const ENDING_COPY = Object.freeze({
   },
   "maroCiuCiu": {
     "title": "Cheep, Cheep",
-    "blurb": "The needle made you a bird, and fear kept you one. The prince stood in his garden with open, empty hands, and you watched from the high branch and did not come down — the guns had taught you too well. So the needle stayed in the little feathered head, and the palace kept its false wife, and every morning a bird came to a window where a boy was growing up motherless, and sang the only words it had: «ciu-ciu, djal' i mëmës». The old people say you can hear her still — that is why the song at the window is never chased away, and never answered. Of all the tale's endings, the teller says, this is the one that costs nothing and loses everything: the unseen can be answered, and needles can be drawn, but only by those who light on an open hand."
+    "blurb": "Maro remains in the tree. The prince waits, then goes inside, and the needle remains in her head. Each day the bird returns to the window with its small cry. This is the game's alternative to the source telling, in which she lands on his hands and is restored."
   },
   "maroNataHumbur": {
     "title": "The Lost Night",

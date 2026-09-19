@@ -139,7 +139,7 @@ export default {
     divergences: [
       { note: 'The game makes one invented companion thread through an ANTHOLOGY rather than a single source plot. Two classic paradoxes become puzzles you help Nastradin resolve — the borrowed cauldron that gives birth and later dies, and the smell-of-food trial. The joke-cycle supplies no continuous helper who attends both episodes.' },
       { beat: 'gjyqi', note: 'The signature ruling — a man is dragged before the judge for eating the SMELL of a cook\'s food, and Nastradin has him pay with the SOUND of his coins ("you ate the smell, you hear the gold") — is the good/clever ending "The Sound of the Coin"; hand the cook real gold instead and the fool\'s ending "Paid for the Smell" follows.' },
-      { beat: 'gjyqi', note: 'Letting the player hand over real gold is a game counterfactual used to test the proverb-like logic. In the selected witness Nastradin gives the clever sound-for-smell judgment; the foolish payment is not an alternate source anecdote.' },
+      { beat: 'gjyqi', note: 'The sound-for-smell judgment belongs to the game\'s separately adapted Nastradin repertoire, not the selected 1954 mule, fig and cow anecdotes. No selected local witness for this judgment is established here. Letting the player hand the cook real gold is an authored alternative, not an alternate ending in those three source texts.' },
       { note: 'The wider anthology — the mule due back "with a foal", the ox-cart bearing exactly three figs, old Nastradin\'s one doomsday cow, the townsmen\'s pocketed finery — is kept in the tale record; the Vezir\'s castle reuses kalaMur, the finished Rozafa walls a garrison holds centuries after the walling.' },
     ],
   },

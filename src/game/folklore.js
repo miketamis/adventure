@@ -155,8 +155,9 @@ export const FOLKLORE = [
     title: 'Ora — the personal fate-spirit & the three Fates',
     category: 'Fairy',
     summary:
-      'Every Albanian is born with an Ora, a female guardian-and-fate-weaver assigned for life — a personal fortuna who can take any form (bird, beast, woman, serpent). The Dukagjin highlands speak of three Fates: e Bardha ("the White," good luck), e Verdha ("the Yellow," bad luck and spells), and e Zeza ("the Black," who decides death). Three nights after a birth they convene at the cradle to fix the child\'s destiny; families set out bread so the Fates bless rather than curse. Treasures, too, have a protective Ora, often in serpent form.',
+      'In some Albanian traditions, a person has an Ora, a guardian spirit tied to their fate; beliefs vary by region. Nopcsa records the belief in Shala but reports it unknown in Dibra. Other traditions describe female fate-weavers and three Fates: e Bardha ("the White," good luck), e Verdha ("the Yellow," bad luck and spells), and e Zeza ("the Black," who decides death). They meet at the cradle to fix a child’s destiny. Treasure-guarding Oras may appear as serpents.',
     sources: [
+      { label: 'Nopcsa, Aus Šala und Klementi, pp. 18–21 — regional Ora and Drangoi beliefs', url: 'https://github.com/miketamis/adventure/blob/main/docs/references/nopcsa-aus-shala-und-klementi.de.txt' },
       { label: 'Ora (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Ora_(mythology)' },
     ],
     related: ['shtojzovalle', 'vitore', 'gjakova-cavern', 'zuku-bajraktar', 'hospitality'],
@@ -212,8 +213,10 @@ export const FOLKLORE = [
     title: 'Drangue — the storm-hero',
     category: 'Creature',
     summary:
-      'A semi-human winged divine hero, the archetype of light and good, and the eternal foe of the Kulshedra. Babies destined to become drangue are born with a caul and wings under the arms; they wield thunder and lightning, hurling "thunder-stones" (kokrra rrufeje), uprooted trees and boulders at the dragon during storms (the rumble of a thunderstorm is the Drangue fighting in the clouds). The protector of the community and the crops; he almost always wins, and the rains return.',
+      'A supernatural fighter against the Kulshedra, described in regional traditions in human and animal forms. In some human-hero traditions, a drangue is born with a caul and wings under the arms. Storm battles involve thunder-stones, uprooted trees and boulders; Nopcsa also records a bull form that fights on the ground, unlike the airborne forms. These battles express the defence of people and their surroundings, but the tellings differ in their fighters and outcomes.',
     sources: [
+      { label: 'Durham, High Albania and its Customs in 1908 (1910 article) — human and animal Drangonis', url: 'https://github.com/miketamis/adventure/blob/main/docs/references/durham-high-albania-1908.en.txt' },
+      { label: 'Nopcsa, Aus Šala und Klementi, pp. 18–21 — regional Ora and Drangoi beliefs', url: 'https://github.com/miketamis/adventure/blob/main/docs/references/nopcsa-aus-shala-und-klementi.de.txt' },
       { label: 'Drangue (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Drangue' },
     ],
     related: ['kulshedra', 'bolla', 'wolf', 'bija-hene-diell', 'i-verbti', 'shurdhi'],
@@ -374,8 +377,9 @@ export const FOLKLORE = [
     title: 'Rozafa — the walled-up wife',
     category: 'Legend',
     summary:
-      'The most famous Albanian immurement legend (attested 1505), attached to Rozafa Castle at Shkodër. Three brothers cannot make their castle stand until a life is walled into the foundation; they swear a besa to say nothing to their wives and that whoever brings the next meal will be the sacrifice. Only the youngest keeps his oath, so his wife Rozafa comes. Accepting her fate, she asks that the wall leave open her right breast to nurse her infant son, right eye to see him, right hand to caress him, right foot to rock his cradle. The castle stands; people say her milk still seeps from the white stones. A hymn to the besa.',
+      'In the Rozafa telling followed by the game, three brothers swear not to warn their wives that the next to bring their meal will be walled into the castle. Only the youngest keeps silent, and his wife comes. Rozafa asks that her right eye, hand, foot and breast remain free so she can care for her infant son. The castle stands; the story remembers her tears and milk in its damp stones. Other recorded immurement tellings differ in their figures and details.',
     sources: [
+      { label: 'Legjenda e Rozafës — local Albanian prose witness', url: 'https://github.com/miketamis/adventure/blob/main/docs/references/rozafa-legjenda-e-rozafes.sq.txt' },
       { label: 'Rozafa Castle (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Rozafa_Castle' },
     ],
     related: ['besa', 'tomor-shpirag', 'constantine-doruntine', 'ura-e-artes'],
@@ -632,7 +636,7 @@ export const FOLKLORE = [
     title: 'Maro Përhitura — the Ash-Girl',
     category: 'Folktale',
     summary:
-      'In the telling printed in Pralla popullore shqiptare (1954), Maro answers the unseen spirits at the night mill, receives golden clothes and later marries a prince. Her stepmother puts a bewitched needle into her head, turning her into a bird. Maro returns to her son’s window and then to the palace garden, where the prince removes the needle and restores her. The game also offers departures from the wedding and palace that are alternatives to this source sequence.',
+      'In the telling printed in Pralla popullore shqiptare (1954), Maro answers the unseen spirits at the night mill, receives golden clothes and later marries a prince. Her stepmother puts a bewitched needle into her head, turning her into a bird. Maro returns to her son’s window and then to the palace garden, where the prince removes the needle and restores her. The game also offers departures from the wedding and palace, and an ending in which Maro remains a bird; these are alternatives to the source sequence.',
     sources: [
       { label: 'Pralla popullore shqiptare (1954), pp. 100–110 — selected Maro Përhitura witness', url: 'https://doczz.net/doc/2729503/pralla-popullore-shqiptare' },
     ],
@@ -783,12 +787,10 @@ export const FOLKLORE = [
     title: 'Why the Tortoise Carries her House',
     category: 'Folktale',
     summary:
-      'An etiological tale of hospitality. A stingy wife gives a hungry guest bread and salt but hides the meat simmering in her earthen pot, satisfying the code\'s letter while betraying its heart. The guest\'s cry carries the case to heaven, and God — not the guest — fixes the pot to her back forever, making the first tortoise. The related riddle calls her the creature with a packsaddle who is no donkey.',
+      'In Hajdar Mallaku’s modern retelling, published by PrizrenPress in 2022, a stingy wife gives a hungry guest bread and salt but hides the meat simmering in her earthen pot. The guest’s cry carries the case to heaven, and God — not the guest — fixes the pot to her back forever, making the first tortoise. The game begins before any gift and offers sharing the meat as an alternative to the selected legend. The related packsaddle riddle is separate from Mallaku’s narrative.',
     sources: [
-      {
-        label: 'Albanian proverbs (Wikiquote)',
-        url: 'https://en.wikiquote.org/wiki/Albanian_proverbs',
-      },
+      { label: 'Hajdar Mallaku, Plaka dhe breshka (PrizrenPress, 2022) — selected modern retelling', url: 'https://prizrenpress.com/plaka-dhe-breshka/' },
+      { label: 'Breshka në letërsi, mitologji e bestytni shqiptare (Koha Jonë, 2021) — distinct variant', url: 'https://kohajone.com/kuriozitete/breshka-ne-letersi-mitologji-e-bestytni-shqiptare/' },
     ],
     related: ['hospitality', 'bee-spider-cicada', 'swallow'],
   },
@@ -797,9 +799,11 @@ export const FOLKLORE = [
     title: 'Nastradin Hoxha — the trickster sage',
     category: 'Folktale',
     summary:
-      'The great comic figure of Albanian (and pan-Balkan) oral tradition — the Albanian Nasreddin Hodja, the wise-fool whose absurd logic skewers the powerful. He returns a borrowed cauldron with a small pot inside ("it gave birth"), then keeps it and reports "the cauldron died" — if it can give birth, it can die. As a judge he settles a cook\'s demand to be paid for the smell of his soup by ringing a coin beside the cook\'s ear: the sound of the coin pays for the smell of the food. A debt of nothing, settled with a coin of nothing.',
+      'Nastradin Hoxha is the Albanian form of the shared Balkan and wider Nasreddin comic figure, a wise fool whose absurd logic exposes greed and pretension. The game adapts the cauldron and sound-for-smell jokes from his wider repertoire: a lender accepts that a pot can give birth, then objects when it dies; a cook’s demand for payment for a smell is answered with the sound of a coin. The selected 1954 Albanian text here contains different anecdotes: the mule with a foal, the three figs and the doomsday cow. Borrow is linked here as a cauldron analogue, not as evidence for the coin judgment.',
     sources: [
-      { label: 'Nasreddin (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Nasreddin' },
+      { label: 'Pralla popullore shqiptare (1954), pp. 188–190, 194–196 — selected mule, figs and cow witness', url: 'https://github.com/miketamis/adventure/blob/main/docs/references/pralla-1954-nastradini.sq.txt' },
+      { label: 'George Borrow, The Turkish Jester (1884) — cauldron analogue, not the selected Albanian witness', url: 'https://www.gutenberg.org/files/16244/16244-h/16244-h.htm' },
+      { label: 'UNESCO — shared Nasreddin telling tradition', url: 'https://ich.unesco.org/en/RL/telling-tradition-of-nasreddin-hodja-molla-nesreddin-molla-ependi-apendi-afendi-kozhanasyr-anecdotes-01705' },
     ],
     related: ['kuma-lisa', 'half-rooster', 'bear-dervish'],
   },
@@ -954,8 +958,10 @@ export const FOLKLORE = [
     title: 'Zana e Malit — the mountain fairy',
     category: 'Fairy',
     summary:
-      'The nymph of the highland peaks — cognate with the Illyrian goddess Thana / Roman Diana. Every mountain has its own zana who guards its springs, game and forest; her strength lives in three golden-horned wild goats, and her gaze can turn the intruder to stone. She grants the kreshnik heroes (Mujo) their more-than-human strength — but woe to whoever spies on her bathing.',
+      'The mountain fairy of Albanian tradition, associated with highland springs, game and forests. Zanas can protect heroes or threaten those who cross them; different songs give them different roles. In The Marriage of Gjeto Basho Mujo, the three Zanas lose their strength if someone catches their three golden-horned wild goats. In Mujo’s strength song, the Zanas instead reward his care for their children by giving him their milk and superhuman strength.',
     sources: [
+      { label: 'Palaj and Kurti, Martesa e Gjeto Basho Mujit, verses 220–225 — the three Zanas and their goats', url: 'https://github.com/miketamis/adventure/blob/main/docs/references/palaj-kurti-martesa-e-mujit.sq.txt' },
+      { label: 'Palaj and Kurti, Fuqija e Mujit — the milk-giving Zanas', url: 'https://github.com/miketamis/adventure/blob/main/docs/references/palaj-kurti-fuqia-e-mujit.sq.txt' },
       { label: 'Zana e malit (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Zana_e_malit' },
     ],
     related: ['ora', 'shtojzovalle', 'mujo-strength', 'mujo-zanas', 'bukura-e-dheut'],
@@ -1031,8 +1037,9 @@ export const FOLKLORE = [
     title: 'Ura e Artës — the Bridge of Arta',
     category: 'Legend',
     summary:
-      'The bridge-form of the walled-up-wife ballad: however high the master-builders raise the great bridge, by night it falls, until a voice tells them it will only stand once a living wife is immured in its pier. The youngest, most-loved bride is tricked into the wall; she asks that one breast be left free to suckle her infant, and curses then blesses the bridge so it will "tremble as my heart trembles" yet never fall again. The Balkan-wide sister of Rozafa — castle there, bridge here.',
+      'In the selected Çam ballad, three brothers cannot make the bridge of Arta stand. An old wayfarer tells them to wall a living wife into its foundation. Kiço alone keeps their oath of silence, and his wife brings the meal. Tricked into the foundation by a fallen-ring story, she protests, asks the bridge to tremble as she trembles, and leaves wishes for her son. A white fig and a silver spring remain in the tale’s closing image.',
     sources: [
+      { label: 'Urën e Artës ndërtojmë — selected Çam ballad and separately labelled variant', url: 'https://github.com/miketamis/adventure/blob/main/docs/references/cam-balada-murimit-ura-e-artes.sq.txt' },
       { label: 'The Walled-Up Wife / Bridge (Wikipedia)', url: 'https://en.wikipedia.org/wiki/The_Three-Arched_Bridge' },
       { label: 'Ballad of the Walled-Up Wife (ArchiWik)', url: 'https://www.archiwik.org/index.php/Ballad_of_The_Walled-Up_Wife' },
     ],
@@ -2120,7 +2127,7 @@ export const AREA_ACHIEVEMENTS = [
     region: 'river',
     title: 'The river & the Zana',
     blurb:
-      'You have followed the river through its whole quarter — the dry bed running down from Tomorr, the bridge, the pools where the Zana keep their vigil. The Zana of the mountain is the fierce fairy of the highland peaks, and every mountain has its own: she guards its springs, its game and its forest, her strength lives in three wild goats, and woe to the one who wrongs her. It was zana-milk that suckled the hero Mujo to a strength matched only by a drangue’s. She blesses the one who honours her waters, and woe to the one who does not.',
+      'You have followed the river through its whole quarter — the dry bed running down from Tomorr, the bridge, the pools where the Zana keep their vigil. Mountain Zanas are associated with springs, game and forests. In The Marriage of Gjeto Basho Mujo, the three Zanas lose their strength if someone catches their three golden-horned wild goats. In Mujo’s strength song, the Zanas give him their milk and superhuman strength after he cares for their children.',
     threshold: 0.6,
     quizNodes: ['lumi', 'zana1', 'ura'],
     lore: 'zana-e-malit',
@@ -2376,7 +2383,7 @@ export const CORPUS = [
       { label: 'Internet Archive — full 1909 book scan', url: 'https://archive.org/details/highalbania', fmt: 'html' },
     ],
     local: 'docs/references/durham-high-albania-1908.en.txt',
-    covers: ['gjakova-cavern', 'kanun-blood-feud', 'kanuni', 'besa', 'hospitality', 'ora', 'zana-e-malit', 'rozafa'],
+    covers: ['gjakova-cavern', 'kanun-blood-feud', 'kanuni', 'besa', 'hospitality', 'ora', 'zana-e-malit', 'rozafa', 'drangue'],
   },
   {
     id: 'src-garnett',
@@ -2589,7 +2596,7 @@ export const CORPUS = [
       { label: 'archive.org — plain text', url: 'https://archive.org/download/ausalaundklement00nopc/ausalaundklement00nopc_djvu.txt', fmt: 'txt' },
     ],
     local: 'docs/references/nopcsa-aus-shala-und-klementi.de.txt',
-    covers: ['kanuni', 'kanun-blood-feud', 'burrnesha', 'vellameri', 'gjama-e-burrave'],
+    covers: ['kanuni', 'kanun-blood-feud', 'burrnesha', 'vellameri', 'gjama-e-burrave', 'ora', 'drangue'],
     coversHist: ['nora-of-kelmendi', 'gjakmarrja'],
   },
   {

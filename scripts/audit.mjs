@@ -31,6 +31,7 @@ import { QUESTS, QUEST_STATUSES } from '../src/game/quests.js'
 import { observationConditionId } from '../src/game/observations.js'
 import { WORD_CLASS, wordClassOf } from '../src/game/wordClassPolicy.js'
 import { wordContextAlignment } from '../src/game/wordProgression.js'
+import { reviewedLoreSummaryChecks } from './lib/lore-summary-scope.mjs'
 
 const gl = (t) => (t || []).filter((x) => x && x.id).map((x) => x.en).join(' ')
 const textIds = (n) => {
@@ -249,6 +250,7 @@ const reviewedExceptionApplies = (rule, target) => {
 
 const checks = []
 const add = (name, fails) => checks.push({ name, fails })
+add('selected lore summaries preserve source and variant scope', reviewedLoreSummaryChecks())
 
 // 1. OPTION-GROUNDING — the thing an option acts on must be in the node text.
 add('option-grounding (act-on-thing present)', Object.entries(STORY).flatMap(([id, n]) => {
