@@ -48,6 +48,9 @@ import {
 } from './lib/comprehension-journeys.mjs'
 import { optionEffectsOf } from '../src/game/stateMechanics.js'
 import { resolveRevealLine } from '../src/game/revealResolver.js'
+import { runTaleResourceCacheAssertions } from './lib/tale-resource-cache.test.mjs'
+
+await runTaleResourceCacheAssertions()
 
 const checks = []
 const check = (name, fn) => {

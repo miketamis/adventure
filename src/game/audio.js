@@ -65,6 +65,59 @@ export function subscribeMute(fn) {
 const cache = new Map()
 let activeAudio = null
 let activePlayback = null
+export const AUDIO_PRELOAD_POLICY = Object.freeze({
+  maxSurfacesPerRequest: 6,
+  maxCachedSurfaces: 48,
+})
+
+const cachedAudio = (al) => {
+  const key = audioSlug(al)
+  let audio = cache.get(key)
+  if (audio) cache.delete(key)
+  else {
+    audio = new Audio(audioUrl(al))
+    audio.preload = 'auto'
+  }
+  cache.set(key, audio)
+  while (cache.size > AUDIO_PRELOAD_POLICY.maxCachedSurfaces) {
+    const oldest = [...cache.entries()].find(([, candidate]) => candidate !== activeAudio)
+    if (!oldest) break
+    cache.delete(oldest[0])
+    try {
+      oldest[1].pause?.()
+      oldest[1].removeAttribute?.('src')
+      oldest[1].load?.()
+    } catch {
+      /* releasing an unused recording must never affect active playback */
+    }
+  }
+  return audio
+}
+
+// Download only a small set of imminent complete recordings. Preloading never
+// plays, interrupts active speech, installs completion callbacks, or records
+// listening evidence. The same bounded cache serves subsequent real playback.
+export function preloadAudioSurfaces(surfaces) {
+  if (muted || typeof Audio !== 'function' || !Array.isArray(surfaces)) return 0
+  const selected = new Set()
+  let requested = 0
+  for (const al of surfaces) {
+    if (typeof al !== 'string' || !al) continue
+    const key = audioSlug(al)
+    if (selected.has(key)) continue
+    if (selected.size >= AUDIO_PRELOAD_POLICY.maxSurfacesPerRequest) break
+    selected.add(key)
+    if (cache.has(key)) continue
+    try {
+      cachedAudio(al).load?.()
+      requested++
+    } catch {
+      cache.delete(key)
+      /* speculative downloads are optional; real playback keeps its fallback */
+    }
+  }
+  return requested
+}
 // One runtime policy covers word, phrase and accepted-action recordings because
 // they all pass through playSurface. In particular, an MP3 that never reaches
 // metadata must release any blocking caller promptly rather than leaving the
@@ -129,24 +182,20 @@ function playSurface(al, { onProgress, assetKind = 'phrase' } = {}) {
     })
     return Promise.resolve(false)
   }
-  let a = cache.get(al)
-  if (!a) {
-    try {
-      if (typeof Audio !== 'function') {
-        captureEvent('audio_playback_completed', {
-          asset_kind: assetKind, asset_id: assetId, playback_outcome: 'unsupported', muted: false,
-        })
-        return Promise.resolve(false)
-      }
-      a = new Audio(audioUrl(al))
-      a.preload = 'auto'
-      cache.set(al, a)
-    } catch {
+  let a
+  try {
+    if (typeof Audio !== 'function') {
       captureEvent('audio_playback_completed', {
-        asset_kind: assetKind, asset_id: assetId, playback_outcome: 'initialization-failed', muted: false,
+        asset_kind: assetKind, asset_id: assetId, playback_outcome: 'unsupported', muted: false,
       })
       return Promise.resolve(false)
     }
+    a = cachedAudio(al)
+  } catch {
+    captureEvent('audio_playback_completed', {
+      asset_kind: assetKind, asset_id: assetId, playback_outcome: 'initialization-failed', muted: false,
+    })
+    return Promise.resolve(false)
   }
   stopActivePlayback()
   return new Promise((resolve) => {
@@ -191,6 +240,12 @@ function playSurface(al, { onProgress, assetKind = 'phrase' } = {}) {
         })
       }
     }
+    const useKnownDuration = () => {
+      const duration = Number(a.duration)
+      if (Number.isFinite(duration) && duration > 0) {
+        armWatchdog((duration * 1000) + AUDIO_PLAYBACK_POLICY.endGraceMs)
+      }
+    }
     try {
       activeAudio = a
       activePlayback = playback
@@ -200,13 +255,15 @@ function playSurface(al, { onProgress, assetKind = 'phrase' } = {}) {
       a.ontimeupdate = reportProgress
       a.onloadedmetadata = () => {
         reportProgress()
-        const duration = Number(a.duration)
-        if (Number.isFinite(duration) && duration > 0)
-          armWatchdog((duration * 1000) + AUDIO_PLAYBACK_POLICY.endGraceMs)
+        useKnownDuration()
       }
       a.onended = () => settle(true)
       a.onerror = () => settle(false)
       a.onabort = () => settle(false)
+      // Preloaded and replayed clips already have metadata, so the browser may
+      // never emit loadedmetadata again. Do not time out a long known recording
+      // at the shorter network-start deadline.
+      useKnownDuration()
       Promise.resolve(a.play()).catch(() => settle(false))
     } catch {
       settle(false)

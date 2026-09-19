@@ -806,8 +806,11 @@ check('a correct greeting records the spoken reply and an incorrect one costs on
 check('normal play hides diagnostic counters while debug keeps the inspectors', () => {
   const app = fs.readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
   const story = fs.readFileSync(new URL('../src/components/StoryView.jsx', import.meta.url), 'utf8')
-  assert.match(app, /state\.debug && <span className="stat">turn/)
-  assert.match(app, /\) : state\.debug \? \(/)
+  const debugHeader = fs.readFileSync(new URL('../src/components/DebugHeaderStats.jsx', import.meta.url), 'utf8')
+  assert.match(app, /state\.debug \? \([\s\S]*?<DebugHeaderStats state=\{state\}[^>]+>[\s\S]*?<\/Suspense>\s*\) : activeQuest \? \(/)
+  assert.match(debugHeader, /<span className="stat">turn <b>\{state\.turn\}<\/b>/)
+  assert.doesNotMatch(app, /<span className="stat">turn/,
+    'diagnostic turn counter escaped its lazy debug-only boundary')
   assert.match(story, /state\.debug && <WorldContext/)
   assert.match(story, /setting: narrationSettingForScene\(state\.nodeId\)/)
   assert.match(story, /planEnvironmentNarration\(/)

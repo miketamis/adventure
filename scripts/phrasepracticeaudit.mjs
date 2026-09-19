@@ -355,30 +355,37 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
   assert.equal(containsExcludedPhraseWord('çka', ['cka']), false, 'Albanian diacritics were folded')
 
   const practiceSource = fs.readFileSync('src/components/PracticeView.jsx', 'utf8')
+  const preparationSource = fs.readFileSync('src/trainPreparation.js', 'utf8')
   assert.match(practiceSource, /<ContextualCompletion/)
-  assert.match(practiceSource, /const excludeWords = previousQuestionWords\.current\.length/)
-  assert.match(practiceSource, /lastWordKeys: excludeWords/)
-  assert.match(practiceSource, /previousQuestionWords\.current = selectedProposal\.wordKeys/)
+  assert.match(practiceSource, /lastWordKeys: previousQuestionWords\.current\.length/)
+  assert.match(preparationSource, /lastWordKeys: excludedWordKeys/)
+  assert.match(practiceSource, /previousQuestionWords\.current = prepared\.wordKeys/)
+  assert.match(preparationSource, /wordKeys: selectedProposal\?\.wordKeys \|\| \[\]/)
+  assert.match(practiceSource, /from '\.\.\/trainPreparation\.js'/)
+  assert.match(practiceSource, /preparation\.take\(preparationOptions\(latestState\.current\)\)/)
   assert.match(
-    practiceSource,
-    /completeTrainCandidateWork\(\{[\s\S]+state,[\s\S]+discoveredIds,[\s\S]+unlockedPhrases: unlockedEverydayPhrases/,
+    preparationSource,
+    /await measureAsyncOperation\('enumerate', \(\) => enumerate\(\{[\s\S]+state,[\s\S]+discoveredIds,[\s\S]+unlockedPhrases,/,
     'the certified activity enumerator is not fed the live learner state',
   )
+  assert.match(preparationSource, /const enumeration = await completeTrainCandidateWork\(options, workOptions\)/)
+  assert.match(preparationSource, /createTrainPreparationCache\(\{[\s\S]+enumerate = completeTrainCandidateWork,/)
   assert.match(
-    practiceSource,
-    /initialTrainPlanningState\(\{[\s\S]+activityHistory: recentActivityHistory,[\s\S]+targetHistory: recentTargetHistory,[\s\S]+lastWordKeys: excludeWords/,
+    preparationSource,
+    /initialTrainPlanningState\(\{[\s\S]+activityHistory: recentActivityHistory,[\s\S]+targetHistory: recentTargetHistory,[\s\S]+lastWordKeys: excludedWordKeys/,
     'the future planner did not receive the shared word, activity and target history boundaries',
   )
-  assert.match(practiceSource, /planTrainFuture\(\{[\s\S]+proposals: enumeration\.proposals/)
+  assert.match(preparationSource, /planTrainFuture\(\{[\s\S]+proposals: enumeration\.proposals/)
   assert.match(practiceSource, /RECORD_TRAIN_ACTIVITY_PRESENTED/)
-  assert.match(practiceSource, /const targetKeys = selectedProposal\.targetKeys/)
-  assert.match(practiceSource, /targetKeys,/)
+  assert.match(preparationSource, /targetKeys: selectedProposal\?\.targetKeys \|\| \[\]/)
+  assert.match(practiceSource, /targetKeys: prepared\.targetKeys,/)
   assert.match(
-    practiceSource,
+    preparationSource,
     /kind: TRAIN_SCHEDULER_SAFEGUARDS\.exhaustedPoolOutcome/,
     'an exhausted schedule did not pause without repeating a word',
   )
   assert.doesNotMatch(practiceSource, /pickBalancedTrainActivity\(/)
+  assert.doesNotMatch(preparationSource, /pickBalancedTrainActivity\(/)
 
   const questionSource = fs.readFileSync('src/components/PhrasePracticeQuestion.jsx', 'utf8')
   assert.match(questionSource, /wordKeys: trainQuestionWordKeys\(q\)/)

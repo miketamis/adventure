@@ -22,6 +22,9 @@ function loadManifest() {
           if (settled) return
           settled = true
           clearTimeout(timeoutId)
+          // A failed speculative warmup must not disable alignment for the
+          // remainder of the visit. Successful manifests remain shared.
+          if (!value) manifestPromise = null
           resolve(value)
         }
         const timeoutId = setTimeout(() => {

@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test'
-import { DICT } from '../../src/game/content.js'
-import { newRun } from '../../src/game/gameState.js'
+import { DICT, STORY } from '../../src/game/content.js'
+import { newRun, reducer } from '../../src/game/gameState.js'
 import { isTrainableSense } from '../../src/game/lexicalTrainability.js'
 import { PERFORMANCE_BUDGETS } from '../../src/performance.js'
+import { prepareTrainQuestion } from '../../src/trainPreparation.js'
+import { trainingTargetForOption } from '../../src/game/trainingTarget.js'
 
 // The opening-scene smoke tests cannot expose work that grows with a saved
 // vocabulary. Include the entire public trainable bank and a travelled run.
@@ -16,14 +18,22 @@ const seed = {
 
 const navigation = (page, name) => page.getByRole('navigation', { name: 'Game sections' })
   .getByRole('button', { name, exact: true })
+const readSave = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('aventura.state.v1')))
+const goalOption = STORY.start.options.find((option) => !option.confuser && option.text.some(({ id }) => id === 'kalo'))
+const goalTarget = trainingTargetForOption('start', goalOption)
+const goalControl = (page) => page.locator(`#story-option-start-opt-${STORY.start.options.indexOf(goalOption)}-cost .train-mini`)
 
 // Assertions retry on a backoff schedule, so the time when Playwright notices
 // a card can substantially exceed the time when the browser painted it. Start
 // at the actual navigation event and observe the complete, visible card across
 // a paint opportunity. Keep the host wait as a separate diagnostic, and return
 // explicit timeout samples instead of dropping slow or missing cards.
-const measureTrainReady = async (page) => {
-  await page.evaluate(() => {
+const measureTrainReady = async (page, {
+  control = navigation(page, '🎯 Train'),
+  inputSelector = '[data-performance-id="tab:practice"]',
+  previousCardText = null,
+} = {}) => {
+  await page.evaluate(({ inputSelector, previousCardText }) => {
     const installedAt = performance.now()
     let startedAt = null
     let frame = null
@@ -34,6 +44,7 @@ const measureTrainReady = async (page) => {
     const visibleCard = () => {
       const card = document.querySelector('.training-activity-shell')
       if (!card || !card.getClientRects().length || card.closest('[inert], [aria-hidden="true"]')) return null
+      if (previousCardText !== null && card.textContent === previousCardText) return null
       if (typeof card.checkVisibility === 'function') {
         return card.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }) ? card : null
       }
@@ -69,7 +80,7 @@ const measureTrainReady = async (page) => {
       })
     }
     const onClick = (event) => {
-      if (!event.isTrusted || startedAt !== null || !event.target.closest('[data-performance-id="tab:practice"]')) return
+      if (!event.isTrusted || startedAt !== null || !event.target.closest(inputSelector)) return
       const now = performance.now()
       startedAt = Number.isFinite(event.timeStamp) && Math.abs(event.timeStamp - now) < 60_000
         ? event.timeStamp
@@ -79,10 +90,10 @@ const measureTrainReady = async (page) => {
     document.addEventListener('click', onClick, true)
     timer = setTimeout(() => finish(startedAt === null ? 'missing-input' : 'timeout'), 10_000)
     window.__TRAIN_READY_MEASUREMENT__ = { done, cancel: () => finish('cancelled') }
-  })
+  }, { inputSelector, previousCardText })
   const hostStartedAt = performance.now()
   try {
-    await navigation(page, '🎯 Train').click()
+    await control.click()
     const measurement = await page.evaluate(() => window.__TRAIN_READY_MEASUREMENT__.done)
     return { ...measurement, hostWaitMs: performance.now() - hostStartedAt }
   } finally {
@@ -124,17 +135,38 @@ test('readiness timing includes loading and waits for a visible interactive card
 
 // Measure until a playable card exists, not merely until the loading shell
 // paints. Event Timing alone used to pass despite an eight-second card build.
+const installState = (page, profile) => page.addInitScript((state) => {
+  if (window.name === '__aventura_large_learner_test__') return
+  window.name = '__aventura_large_learner_test__'
+  localStorage.setItem('aventura.state.v1', JSON.stringify(state))
+  localStorage.setItem('aventura.muted.v1', '1')
+  localStorage.setItem('aventura.analytics-consent.v1', JSON.stringify({ version: 1, decided: true, structured: false, replay: false }))
+}, profile)
+
 const install = async (page, profile = seed) => {
-  await page.addInitScript((state) => {
-    localStorage.setItem('aventura.state.v1', JSON.stringify(state))
-    localStorage.setItem('aventura.muted.v1', '1')
-    localStorage.setItem('aventura.analytics-consent.v1', JSON.stringify({ version: 1, decided: true, structured: false, replay: false }))
-  }, profile)
+  await installState(page, profile)
   await page.goto('./')
   await expect(page.locator('.card.story')).toBeVisible()
   await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
   await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.reset())
 }
+
+const watchLoadingPaints = (page) => page.evaluate(() => {
+  window.__WARM_TRAIN_LOADING_PAINTS__ = 0
+  window.__WARM_TRAIN_WATCHING__ = true
+  const inspect = () => {
+    const loading = document.querySelector('.view-fallback') || [...document.querySelectorAll('[role="status"]')]
+      .find((node) => node.textContent === 'Preparing the next question…')
+    if (loading?.getClientRects().length) window.__WARM_TRAIN_LOADING_PAINTS__ += 1
+    if (window.__WARM_TRAIN_WATCHING__) requestAnimationFrame(inspect)
+  }
+  requestAnimationFrame(inspect)
+})
+
+const stopLoadingPaints = (page) => page.evaluate(() => {
+  window.__WARM_TRAIN_WATCHING__ = false
+  return window.__WARM_TRAIN_LOADING_PAINTS__
+})
 
 test('a large learner can open new activities without a growing main-thread freeze', async ({ page }, testInfo) => {
   await install(page)
@@ -150,8 +182,9 @@ test('a large learner can open new activities without a growing main-thread free
   }
   const snapshot = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
   const builds = snapshot.operations.filter(({ kind, id }) => kind === 'train' && id === 'enumerate')
-  expect(builds).toHaveLength(2)
-  expect(snapshot.operations.filter(({ kind, id }) => kind === 'train' && id === 'materialize')).toHaveLength(2)
+  expect(builds.length).toBeGreaterThan(0)
+  expect(snapshot.operations.filter(({ kind, id }) => kind === 'train' && id === 'materialize').length).toBeGreaterThan(0)
+  expect(snapshot.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(2)
   await testInfo.attach('large-learner-timings', { body: JSON.stringify({ words: ids.length, readiness, snapshot }, null, 2), contentType: 'application/json' })
   for (const measurement of readiness) {
     expect(measurement.status, JSON.stringify(measurement)).toBe('ready')
@@ -169,21 +202,278 @@ test('a large learner can open new activities without a growing main-thread free
   }
 })
 
-test('leaving Train during a large build stays responsive and cancels the unseen question', async ({ page }) => {
+test('cancelling a cold Train opening keeps the source scene and never presents the abandoned card', async ({ page }) => {
+  let release
+  const waiting = new Promise((resolve) => { release = resolve })
+  await page.route('**/PracticeView-*.js', async (route) => {
+    await waiting
+    await route.continue()
+  })
   await install(page)
   await navigation(page, '🎯 Train').click()
-  await expect(page.getByText('Preparing the next question…', { exact: true })).toBeVisible()
+  await expect(page.locator('.card.story')).toBeVisible()
+  await expect(page.getByText('Preparing the next question…', { exact: true })).toHaveCount(0)
+  await expect(page.locator('.view-fallback')).toHaveCount(0)
   const started = performance.now()
   await navigation(page, '📖 Story').click()
   await expect(page.locator('.card.story')).toBeVisible()
   expect(performance.now() - started).toBeLessThan(PERFORMANCE_BUDGETS.browserTrainCancelMaxMs)
+  const downloaded = page.waitForResponse((response) => response.url().includes('/PracticeView-'))
+  release()
+  await downloaded
+  await page.waitForFunction(() => window.__AVENTURA_PERFORMANCE__.snapshot().operations.some(({ kind, id }) =>
+    kind === 'train' && id === 'materialize'))
   const snapshot = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await expect(page.locator('.card.story')).toBeVisible()
+  await expect(page.locator('.training-activity-shell')).toHaveCount(0)
   expect(snapshot.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(0)
   expect(snapshot.interactions.filter(({ control }) => control === 'button:tab:story').every(({ durationMs }) => durationMs < PERFORMANCE_BUDGETS.browserSteadyInteractionMaxMs)).toBe(true)
   await navigation(page, '🎯 Train').click()
   await expect(page.locator('.training-activity-shell').first()).toBeVisible()
   const resumed = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
   expect(resumed.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(1)
+})
+
+test('background preparation records nothing and a warmed Train opening shows the complete card immediately', async ({ page }, testInfo) => {
+  await install(page)
+  await page.waitForFunction(() => window.__AVENTURA_PERFORMANCE__.snapshot().operations.some(({ kind, id }) =>
+    kind === 'train' && id === 'materialize'))
+  const prepared = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await expect(page.locator('.card.story')).toBeVisible()
+  await expect(page.locator('.training-activity-shell')).toHaveCount(0)
+  expect(prepared.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(0)
+  const savedBefore = await page.evaluate(() => JSON.parse(localStorage.getItem('aventura.state.v1')))
+  expect(savedBefore.trainActivityHistory).toEqual([])
+  expect(savedBefore.trainTargetHistory).toEqual([])
+  expect(savedBefore.trainRound).toBe(0)
+
+  await watchLoadingPaints(page)
+  const readiness = await measureTrainReady(page)
+  const loadingPaints = await stopLoadingPaints(page)
+  const opened = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await testInfo.attach('warm-learner-readiness', { body: JSON.stringify({ readiness, loadingPaints, prepared, opened }, null, 2), contentType: 'application/json' })
+  expect(readiness.status, JSON.stringify(readiness)).toBe('ready')
+  expect(readiness.readyMs).toBeLessThan(PERFORMANCE_BUDGETS.browserPreparedTrainReadyMaxMs)
+  expect(loadingPaints).toBe(0)
+  expect(opened.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(1)
+  expect(opened.operations.filter(({ kind, id }) => kind === 'train' && id === 'materialize')).toHaveLength(
+    prepared.operations.filter(({ kind, id }) => kind === 'train' && id === 'materialize').length,
+  )
+})
+
+test('the next activity prepares behind the correction and replaces the completed card only after acknowledgement', async ({ page }, testInfo) => {
+  await install(page)
+  await page.waitForFunction(() => window.__AVENTURA_PERFORMANCE__.snapshot().operations.some(({ kind, id }) =>
+    kind === 'train' && id === 'materialize'))
+  await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('aventura.state.v1')))
+  // Use the production planner to identify an actually wrong answer in this
+  // large fresh-learner fixture; never assume option order implies correctness.
+  const { question } = await prepareTrainQuestion({ state: saved })
+  expect(question.mode).toBe('cloze')
+  const wrong = question.bank.find(({ answerIndex }) => answerIndex === null)
+  expect(wrong).toBeTruthy()
+  await navigation(page, '🎯 Train').click()
+  const card = page.locator('.training-activity-shell')
+  await expect(card).toBeVisible()
+  await expect(card.getByRole('button', { name: question.correctWord, exact: true })).toBeVisible()
+  const before = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  const initialMaterializations = before.operations.filter(({ kind, id }) => kind === 'train' && id === 'materialize').length
+  const initialPresentations = before.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED').length
+  expect(initialPresentations).toBe(1)
+  await watchLoadingPaints(page)
+  await card.getByRole('button', { name: wrong.text, exact: true }).click()
+  const correction = page.getByRole('dialog')
+  await expect(correction).toBeVisible()
+  const completedCardText = await card.textContent()
+  await page.waitForFunction((count) => window.__AVENTURA_PERFORMANCE__.snapshot().operations.filter(({ kind, id }) =>
+    kind === 'train' && id === 'materialize').length > count, initialMaterializations)
+  const prepared = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  expect(prepared.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(initialPresentations)
+  await expect(correction).toBeVisible()
+  await expect(card).toBeVisible()
+  expect(await card.textContent()).toBe(completedCardText)
+  expect(await card.evaluate((node) => Boolean(node.closest('[inert]')))).toBe(true)
+  await expect(card.locator('.answers button:not(:disabled)')).toHaveCount(0)
+
+  const readiness = await measureTrainReady(page, {
+    control: correction.getByRole('button', { name: 'Continue training', exact: true }),
+    inputSelector: '.heart-consequence button',
+    previousCardText: completedCardText,
+  })
+  const loadingPaints = await stopLoadingPaints(page)
+  const continued = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await testInfo.attach('next-activity-readiness', { body: JSON.stringify({ readiness, loadingPaints, prepared, continued }, null, 2), contentType: 'application/json' })
+  expect(readiness.status, JSON.stringify(readiness)).toBe('ready')
+  expect(readiness.readyMs).toBeLessThan(PERFORMANCE_BUDGETS.browserPreparedTrainReadyMaxMs)
+  expect(loadingPaints).toBe(0)
+  await expect(correction).toHaveCount(0)
+  expect(await card.textContent()).not.toBe(completedCardText)
+  expect(continued.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(initialPresentations + 1)
+})
+
+test('a warmed story-action handoff reuses the large bank and opens its complete goal card promptly', async ({ page }, testInfo) => {
+  await install(page)
+  expect(await page.locator('.train-mini').count()).toBeGreaterThanOrEqual(2)
+  await page.waitForFunction(() => window.__AVENTURA_PERFORMANCE__.snapshot().operations.some(({ kind, id }) =>
+    kind === 'train' && id === 'materialize'))
+  const prepared = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await watchLoadingPaints(page)
+  const readiness = await measureTrainReady(page, { control: goalControl(page), inputSelector: '.train-mini' })
+  const loadingPaints = await stopLoadingPaints(page)
+  const opened = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await testInfo.attach('warm-goal-readiness', { body: JSON.stringify({ readiness, loadingPaints, prepared, opened }, null, 2), contentType: 'application/json' })
+  expect(readiness.status, JSON.stringify(readiness)).toBe('ready')
+  expect(readiness.readyMs).toBeLessThan(PERFORMANCE_BUDGETS.browserPreparedTrainReadyMaxMs)
+  expect(loadingPaints).toBe(0)
+  expect(opened.operations.filter(({ id }) => id === 'enumerate-slice')).toHaveLength(
+    prepared.operations.filter(({ id }) => id === 'enumerate-slice').length,
+  )
+  expect(opened.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(1)
+  await expect.poll(async () => (await readSave(page)).practiceTarget).toEqual(goalTarget)
+  const saved = await readSave(page)
+  expect(saved.trainGoalSession.target).toEqual(goalTarget)
+  expect(saved.trainGoalSession.completedRounds).toBe(0)
+  // The scheduling goal is retained in state; its token ledger stays debug-only.
+  await expect(page.locator('.train-goal-banner')).toHaveCount(0)
+})
+
+test('reloading a saved correction prepares silently and resumes one complete card with the original goal', async ({ page }, testInfo) => {
+  await install(page)
+  await page.waitForFunction(() => window.__AVENTURA_PERFORMANCE__.snapshot().operations.some(({ kind, id }) =>
+    kind === 'train' && id === 'materialize'))
+  await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  const source = await readSave(page)
+  const goalState = reducer(source, { type: 'BEGIN_OPTION_TRAINING', target: goalTarget })
+  expect(goalState.practiceTarget).toEqual(goalTarget)
+  const { question } = await prepareTrainQuestion({ state: goalState })
+  const labels = question.bank
+    ? question.bank.map((tile) => ({ text: tile.text, correct: tile.answerIndex !== null }))
+    : question.options.map((id) => ({
+      text: question.optionLabels?.[id] || (question.field === 'en' ? DICT[id].enAll ?? DICT[id].en : DICT[id].al),
+      correct: id === question.answerId,
+    }))
+  const wrong = labels.find(({ correct }) => !correct)
+  await goalControl(page).click()
+  const card = page.locator('.training-activity-shell')
+  await expect(card).toBeVisible()
+  await expect(card.getByRole('button', { name: labels.find(({ correct }) => correct).text, exact: true })).toBeVisible()
+  await card.getByRole('button', { name: wrong.text, exact: true }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await expect.poll(async () => Boolean((await readSave(page)).pendingHeartConsequence)).toBe(true)
+  const beforeReload = await readSave(page)
+  expect(beforeReload.practiceTarget).toEqual(goalTarget)
+  expect(beforeReload.trainGoalSession.completedRounds).toBe(1)
+
+  await page.reload()
+  const correction = page.getByRole('dialog')
+  await expect(correction).toBeVisible()
+  await page.waitForFunction(() => window.__AVENTURA_PERFORMANCE__.snapshot().operations.some(({ kind, id }) =>
+    kind === 'train' && id === 'materialize'))
+  const prepared = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await expect(card).toHaveCount(0)
+  await expect(page.getByText('Preparing the next question…', { exact: true })).toHaveCount(0)
+  expect(prepared.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(0)
+  const reloaded = await readSave(page)
+  expect(reloaded.pendingHeartConsequence).toEqual(beforeReload.pendingHeartConsequence)
+  expect(reloaded.practiceTarget).toEqual(beforeReload.practiceTarget)
+  expect(reloaded.trainGoalSession).toEqual(beforeReload.trainGoalSession)
+  expect(reloaded.trainActivityHistory).toEqual(beforeReload.trainActivityHistory)
+  expect(reloaded.trainTargetHistory).toEqual(beforeReload.trainTargetHistory)
+
+  const readiness = await measureTrainReady(page, {
+    control: correction.getByRole('button', { name: 'Continue training', exact: true }),
+    inputSelector: '.heart-consequence button',
+  })
+  const resumed = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await testInfo.attach('saved-correction-readiness', { body: JSON.stringify({ readiness, prepared, resumed }, null, 2), contentType: 'application/json' })
+  expect(readiness.status, JSON.stringify(readiness)).toBe('ready')
+  expect(readiness.readyMs).toBeLessThan(PERFORMANCE_BUDGETS.browserPreparedTrainReadyMaxMs)
+  await expect(correction).toHaveCount(0)
+  await expect(card).toHaveCount(1)
+  await expect(page.getByText('Preparing the next question…', { exact: true })).toHaveCount(0)
+  expect(resumed.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(1)
+  await expect.poll(async () => (await readSave(page)).pendingHeartConsequence).toBeNull()
+  const after = await readSave(page)
+  expect(after.practiceTarget).toEqual(beforeReload.practiceTarget)
+  expect(after.trainGoalSession).toEqual(beforeReload.trainGoalSession)
+  expect(after.trainRound).toBe(beforeReload.trainRound)
+})
+
+test('an optional dialog holds a completed Train card past its advance timer without consuming the next card', async ({ page }, testInfo) => {
+  await install(page)
+  await page.waitForFunction(() => window.__AVENTURA_PERFORMANCE__.snapshot().operations.some(({ kind, id }) =>
+    kind === 'train' && id === 'materialize'))
+  await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  const { question } = await prepareTrainQuestion({ state: await readSave(page) })
+  expect(question.mode).toBe('cloze')
+  await navigation(page, '🎯 Train').click()
+  const card = page.locator('.training-activity-shell')
+  await card.getByRole('button', { name: question.correctWord, exact: true }).click()
+  await expect.poll(async () => (await readSave(page)).trainRound).toBe(1)
+  const completedCardText = await card.textContent()
+  await page.getByRole('button', { name: '🔒 privacy', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Help improve Aventura Shqip?', exact: true })
+  await expect(dialog).toBeVisible()
+  await watchLoadingPaints(page)
+  // The real successful-answer feedback lasts 1.9 seconds. Keep the dialog
+  // open beyond that timer so automatic advance must explicitly defer.
+  await page.waitForTimeout(2200)
+  const prepared = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  expect(prepared.operations.filter(({ kind, id }) => kind === 'train' && id === 'materialize').length).toBeGreaterThanOrEqual(2)
+  expect(prepared.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(1)
+  expect(await card.textContent()).toBe(completedCardText)
+  expect(await card.evaluate((node) => Boolean(node.closest('[inert]')))).toBe(true)
+  await expect(dialog.getByRole('heading', { name: 'Help improve Aventura Shqip?', exact: true })).toBeFocused()
+  const readiness = await measureTrainReady(page, {
+    control: dialog.getByRole('button', { name: 'Save my choices', exact: true }),
+    inputSelector: '[role="dialog"] button',
+    previousCardText: completedCardText,
+  })
+  const loadingPaints = await stopLoadingPaints(page)
+  const resumed = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await testInfo.attach('overlay-deferred-next-card', { body: JSON.stringify({ readiness, loadingPaints, prepared, resumed }, null, 2), contentType: 'application/json' })
+  expect(readiness.status, JSON.stringify(readiness)).toBe('ready')
+  expect(readiness.readyMs).toBeLessThan(PERFORMANCE_BUDGETS.browserPreparedTrainReadyMaxMs)
+  expect(loadingPaints).toBe(0)
+  expect(resumed.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(2)
+  expect((await readSave(page)).trainRound).toBe(1)
+})
+
+test('an optional dialog opened during direct Train reload blocks its first card presentation', async ({ page }, testInfo) => {
+  const goalState = reducer(seed, { type: 'BEGIN_OPTION_TRAINING', target: goalTarget })
+  expect(goalState.view).toBe('practice')
+  await installState(page, goalState)
+  let release
+  const waiting = new Promise((resolve) => { release = resolve })
+  await page.route('**/PracticeView-*.js', async (route) => {
+    await waiting
+    await route.continue()
+  })
+  await page.goto('./')
+  await page.getByRole('button', { name: '🔒 privacy', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Help improve Aventura Shqip?', exact: true })
+  await expect(dialog).toBeVisible()
+  const downloaded = page.waitForResponse((response) => response.url().includes('/PracticeView-'))
+  release()
+  await downloaded
+  await page.waitForFunction(() => window.__AVENTURA_PERFORMANCE__.snapshot().operations.some(({ kind, id }) =>
+    kind === 'train' && id === 'materialize'))
+  const prepared = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await expect(page.locator('.training-activity-shell')).toHaveCount(0)
+  expect(prepared.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(0)
+  await expect(dialog.getByRole('heading', { name: 'Help improve Aventura Shqip?', exact: true })).toBeFocused()
+  const readiness = await measureTrainReady(page, {
+    control: dialog.getByRole('button', { name: 'Save my choices', exact: true }),
+    inputSelector: '[role="dialog"] button',
+  })
+  const resumed = await page.evaluate(() => window.__AVENTURA_PERFORMANCE__.settle())
+  await testInfo.attach('overlay-deferred-first-card', { body: JSON.stringify({ readiness, prepared, resumed }, null, 2), contentType: 'application/json' })
+  expect(readiness.status, JSON.stringify(readiness)).toBe('ready')
+  expect(readiness.readyMs).toBeLessThan(PERFORMANCE_BUDGETS.browserPreparedTrainReadyMaxMs)
+  expect(resumed.operations.filter(({ kind, id }) => kind === 'reducer' && id === 'RECORD_TRAIN_ACTIVITY_PRESENTED')).toHaveLength(1)
+  await expect.poll(async () => (await readSave(page)).practiceTarget).toEqual(goalTarget)
+  expect((await readSave(page)).trainGoalSession).toEqual(goalState.trainGoalSession)
 })
 
 test('experienced learners build mixed matching proposals without a long pause', async ({ page }, testInfo) => {

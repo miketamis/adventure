@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useState, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react'
+import { Suspense, useCallback, useState, useEffect, useRef, useSyncExternalStore } from 'react'
 import {
   currentStoryState,
   loadState,
@@ -30,12 +30,11 @@ import {
   reserveCommittedTransitionSequence,
 } from './game/playtestAnalytics.js'
 import { measurePerformanceOperation } from './performance.js'
+import { afterPaint, preloadedView } from './preloadedView.jsx'
 
-// Story is the first and dominant surface. The larger study, collection and
-// cartography tools are loaded only when they are opened; the collection and
-// guide are debug-only for now, and none of these secondary surfaces should
-// delay an ordinary first visit to the bridge.
-const StoryView = lazy(() => import('./components/StoryView.jsx'))
+// Paint the first story before downloading secondary screens. Ordinary play
+// primes them in the background; large debug tools stay demand-loaded.
+const StoryView = preloadedView(() => import('./components/StoryView.jsx'))
 const loadHeartConsequenceModal = () => import('./components/HeartConsequenceModal.jsx')
 // A Train miss must paint its complete blocking feedback inside the answer
 // interaction. Load that small surface alongside the much larger Train route,
@@ -48,24 +47,28 @@ const loadPracticeView = async () => {
   ])
   return practiceModule
 }
-const PracticeView = lazy(loadPracticeView)
-const DictionaryView = lazy(() => import('./components/DictionaryView.jsx'))
-const AchievementsView = lazy(() => import('./components/AchievementsView.jsx'))
-const GuideView = lazy(() => import('./components/GuideView.jsx'))
-const AtlasView = lazy(() => import('./components/AtlasView.jsx'))
-const DebugView = lazy(() => import('./components/DebugView.jsx'))
-const MiniMap = lazy(() => import('./components/MiniMap.jsx'))
-// These blocking surfaces are reached only after an authored time jump or
-// embodied-tale choice. Keep their sizeable presentation logic out of the
-// ordinary opening route and fetch it only when that event actually occurs.
-const TimePassage = lazy(() => import('./components/TimePassage.jsx'))
-const EmbodimentConfirm = lazy(() => import('./components/EmbodimentConfirm.jsx'))
-const ActionKaraoke = lazy(() => import('./components/ActionKaraoke.jsx'))
-// Story keeps this consequence surface lazy; the Train route above primes it
-// before presenting any answer controls.
-const HeartConsequenceModal = lazy(loadHeartConsequenceModal)
-const AnalyticsPreferencesModal = lazy(() => import('./components/AnalyticsPreferencesModal.jsx'))
-const PlaytestFeedbackModal = lazy(() => import('./components/PlaytestFeedbackModal.jsx'))
+const PracticeView = preloadedView(loadPracticeView)
+const DictionaryView = preloadedView(() => import('./components/DictionaryView.jsx'))
+const AchievementsView = preloadedView(() => import('./components/AchievementsView.jsx'))
+const GuideView = preloadedView(() => import('./components/GuideView.jsx'))
+const AtlasView = preloadedView(() => import('./components/AtlasView.jsx'))
+const DebugView = preloadedView(() => import('./components/DebugView.jsx'))
+const DebugHeaderStats = preloadedView(() => import('./components/DebugHeaderStats.jsx'))
+const MiniMap = preloadedView(() => import('./components/MiniMap.jsx'))
+// Keep these bodies outside the opening bundle, then warm them after paint
+// so a time jump or character choice can present its complete response.
+const TimePassage = preloadedView(() => import('./components/TimePassage.jsx'))
+const EmbodimentConfirm = preloadedView(() => import('./components/EmbodimentConfirm.jsx'))
+const ActionKaraoke = preloadedView(() => import('./components/ActionKaraoke.jsx'))
+// Train also requires its complete correction surface before answer controls
+// can appear; Story primes the same body after its first paint.
+const HeartConsequenceModal = preloadedView(loadHeartConsequenceModal)
+const AnalyticsPreferencesModal = preloadedView(() => import('./components/AnalyticsPreferencesModal.jsx'))
+const PlaytestFeedbackModal = preloadedView(() => import('./components/PlaytestFeedbackModal.jsx'))
+const ROUTE_VIEWS = {
+  story: StoryView, practice: PracticeView, dictionary: DictionaryView,
+  endings: AchievementsView, guide: GuideView, map: AtlasView, debug: DebugView,
+}
 const BUILD_COMMIT = __BUILD_COMMIT__
 const SPOKEN_ACTION_TYPES = ['CHOOSE', 'CONFUSE', 'USE_ITEM', 'HEAL', 'CONFIRM_EMBODIMENT']
 const FEEDBACK_MINIMUM_ENGAGED_MINUTES = 5
@@ -83,39 +86,16 @@ const ViewFallback = () => (
   <div className="card view-fallback" role="status" aria-live="polite">Opening the journey…</div>
 )
 
-// Keep one focus-trapping shell mounted while an optional body loads or fails.
-// Consent enforcement stays eager; opening either dialog only fetches its UI.
-const OptionalModalLoading = ({ id, onDismiss }) => {
-  const loadingRef = useRef(null)
-  useLayoutEffect(() => () => {
-    // A keyboard user may have focused Close while the chunk was in flight.
-    if (loadingRef.current?.contains(document.activeElement)) document.getElementById(id)?.focus()
-  }, [id])
-  return (
-    <div ref={loadingRef}>
-      <p role="status">Opening…</p>
-      <div className="modal-actions"><button type="button" className="btn" onClick={onDismiss}>Close</button></div>
-    </div>
-  )
-}
-
+// The complete optional body is primed before opening its focus-trapping shell.
 const OptionalModal = ({ id, title, className, onDismiss, children }) => (
   <BlockingModal id={id} title={title} className={className} onDismiss={onDismiss}>
     <ReleaseErrorBoundary onLeave={onDismiss} leaveLabel="Close">
-      <Suspense fallback={<OptionalModalLoading id={id} onDismiss={onDismiss} />}>
-        {children}
-      </Suspense>
+      <Suspense fallback={null}>{children}</Suspense>
     </ReleaseErrorBoundary>
   </BlockingModal>
 )
 
-// the four phases of the world-day, named in Albanian (they're vocabulary too)
-const TIME_UI = {
-  dawn: { icon: '🌅', al: 'agim', en: 'dawn' },
-  day: { icon: '☀️', al: 'ditë', en: 'day' },
-  dusk: { icon: '🌆', al: 'muzg', en: 'dusk' },
-  night: { icon: '🌙', al: 'natë', en: 'night' },
-}
+const TIME_PHASES = ['dawn', 'day', 'dusk', 'night']
 
 const feedbackStatus = () => {
   try {
@@ -340,6 +320,35 @@ export default function App() {
   )
   const [analyticsPreferencesOpen, setAnalyticsPreferencesOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const optionalOpenGeneration = useRef(0)
+  const pendingOptionalOpen = useRef(null)
+  const openOptional = useCallback((kind) => {
+    // Opening a dialog supersedes a route that is still being prepared.
+    navigationGeneration.current += 1
+    pendingNavigation.current = null
+    const ticket = ++optionalOpenGeneration.current
+    const View = kind === 'privacy' ? AnalyticsPreferencesModal : PlaytestFeedbackModal
+    const show = () => {
+      if (optionalOpenGeneration.current !== ticket) return
+      pendingOptionalOpen.current = null
+      const current = stateRef.current
+      if (actionTransitionRef.current || presentationPendingRef.current || current.pendingHeartConsequence || current.timePassage || current.pendingEmbodiment || current.hearts <= 0) return
+      if (kind === 'privacy') setAnalyticsPreferencesOpen(true)
+      else setFeedbackOpen(true)
+    }
+    pendingOptionalOpen.current = kind
+    if (View.peek()) show()
+    else void View.preload().then(show, show)
+  }, [])
+  useEffect(() => {
+    const cancelPending = (event) => {
+      if (event.key !== 'Escape' || !pendingOptionalOpen.current) return
+      optionalOpenGeneration.current += 1
+      pendingOptionalOpen.current = null
+    }
+    document.addEventListener('keydown', cancelPending)
+    return () => document.removeEventListener('keydown', cancelPending)
+  }, [])
   const [feedbackTrigger, setFeedbackTrigger] = useState('manual')
   const [feedbackPromptStatus, setFeedbackPromptStatus] = useState(feedbackStatus)
   const engagedMinutes = useEngagedMinutes()
@@ -347,6 +356,8 @@ export default function App() {
   engagedMinutesRef.current = engagedMinutes
   const [actionTransition, setActionTransition] = useState(null)
   const actionTransitionRef = useRef(null)
+  const [presentationPending, setPresentationPending] = useState(false)
+  const presentationPendingRef = useRef(null)
   const queueStatePersistence = useDeferredPersistence(state)
   const queueTransitionAnalytics = useDeferredTransitionAnalytics()
   const commitAcceptedAction = useCallback((action, before, after) => {
@@ -359,18 +370,94 @@ export default function App() {
     queueTransitionAnalytics(action, before, after)
     return true
   }, [queueStatePersistence, queueTransitionAnalytics])
-  const dispatch = useCallback((action) => {
+  const navigationGeneration = useRef(0)
+  const pendingNavigation = useRef(null)
+  const navigate = useCallback((action) => {
+    const ticket = ++navigationGeneration.current
+    optionalOpenGeneration.current += 1
+    pendingOptionalOpen.current = null
+    pendingNavigation.current = ticket
+    const open = async () => {
+      // Revalidate after every await: a newly saved word, restart or different
+      // navigation must never publish a question prepared for an older state.
+      while (ticket === navigationGeneration.current) {
+        const before = stateRef.current
+        const after = reduceWithTiming(before, action)
+        if (after === before) return
+        if (after.view === before.view && after.practiceTarget === before.practiceTarget) {
+          commitAcceptedAction(action, before, after)
+          return
+        }
+        const View = ROUTE_VIEWS[after.view]
+        const readyModule = View?.peek()
+        if (readyModule && (after.view !== 'practice' || readyModule.peekPreparedPractice(after))) {
+          commitAcceptedAction(action, before, after)
+          return
+        }
+        try {
+          const module = await View?.preload()
+          if (ticket !== navigationGeneration.current) return
+          if (after.view === 'practice') await module.preparePractice(after)
+          if (ticket !== navigationGeneration.current) return
+          if (stateRef.current !== before || (after.view === 'practice' && !module.peekPreparedPractice(after))) continue
+          commitAcceptedAction(action, before, after)
+          return
+        } catch {
+          // An actual download failure belongs to the existing error boundary,
+          // which offers recovery without discarding saved progress.
+          if (ticket === navigationGeneration.current && stateRef.current === before) {
+            commitAcceptedAction(action, before, after)
+          }
+          return
+        }
+      }
+    }
+    void open().finally(() => {
+      if (pendingNavigation.current === ticket) pendingNavigation.current = null
+    })
+  }, [commitAcceptedAction])
+  const dispatchRef = useRef(null)
+  const dispatch = useCallback((action, preparedAction = null) => {
     // Keep the current scene visible while the accepted Albanian action plays.
     // The reducer remains the authority for validity: only an action whose
     // preview emits a new committed-speech event receives this transition.
-    if (actionTransitionRef.current) return
+    if (actionTransitionRef.current || presentationPendingRef.current) return
+    if (action?.type === 'SET_VIEW' || action?.type === 'BEGIN_OPTION_TRAINING') {
+      navigate(action)
+      return
+    }
+    if (action?.type === 'RESET' || SPOKEN_ACTION_TYPES.includes(action?.type) || action?.type === 'BEGIN_STORY_LEARNING') {
+      navigationGeneration.current += 1
+      pendingNavigation.current = null
+      optionalOpenGeneration.current += 1
+      pendingOptionalOpen.current = null
+    }
     if (!SPOKEN_ACTION_TYPES.includes(action?.type)) {
       const current = stateRef.current
       commitAcceptedAction(action, current, reduceWithTiming(current, action))
       return
     }
     const current = stateRef.current
-    const preview = reduceWithTiming(current, action)
+    const preview = preparedAction?.before === current
+      ? preparedAction.after
+      : reduceWithTiming(current, action)
+    if (preview.timePassage && !TimePassage.peek() && !preparedAction?.importFailed) {
+      // Keep an accepted action's source visible and inert until its complete
+      // response exists. Reuse the validated preview only for that exact state.
+      const ticket = navigationGeneration.current
+      pendingNavigation.current = ticket
+      presentationPendingRef.current = ticket
+      setPresentationPending(true)
+      const resume = (importFailed = false) => {
+        if (presentationPendingRef.current !== ticket) return
+        presentationPendingRef.current = null
+        pendingNavigation.current = null
+        setPresentationPending(false)
+        dispatchRef.current(action, { before: current, after: preview, importFailed })
+      }
+      void TimePassage.preload().then(() => resume(), () => resume(true))
+      return
+    }
     const event = preview !== current && preview.actionSpeech?.id !== current.actionSpeech?.id
       ? preview.actionSpeech
       : null
@@ -381,7 +468,8 @@ export default function App() {
     const transition = { id: event.id, al: event.al, action, before: current, after: preview }
     actionTransitionRef.current = transition
     setActionTransition(transition)
-  }, [commitAcceptedAction])
+  }, [commitAcceptedAction, navigate])
+  dispatchRef.current = dispatch
   const finishActionTransition = useCallback((transition) => {
     if (actionTransitionRef.current?.id !== transition.id) return
     // Validation already computed the complete destination before playback.
@@ -417,12 +505,11 @@ export default function App() {
   // paused/free-roam scene stay on the monotonic living-world clock.
   const displayState = state.view === 'story' ? currentStoryState(state) : state
   const phase = timeOfDay(displayState)
-  const timeUi = TIME_UI[phase]
   const activeQuest = embodimentQuest(state.embodying)
   const activeIdentity = embodimentIdentity(state)
   const gameBlockingOverlay = Boolean(
     state.pendingHeartConsequence || state.timePassage || state.pendingEmbodiment ||
-    state.hearts <= 0 || confirmReset || actionTransition,
+    state.hearts <= 0 || confirmReset || actionTransition || presentationPending,
   )
   const blockingOverlay = gameBlockingOverlay || analyticsPreferencesOpen || feedbackOpen
   const meaningfulActions = Math.max(0, Number(state.turn || 1) - 1) +
@@ -480,7 +567,7 @@ export default function App() {
     if (feedbackPromptStatus !== 'unseen' || state.view !== 'story') return
     if (engagedMinutes < FEEDBACK_MINIMUM_ENGAGED_MINUTES || meaningfulActions < FEEDBACK_MINIMUM_MEANINGFUL_ACTIONS) return
     setFeedbackTrigger('milestone')
-    setFeedbackOpen(true)
+    openOptional('feedback')
     setFeedbackPromptStatus('prompted')
     saveFeedbackStatus('prompted')
     captureEvent('playtest_feedback_prompted', {
@@ -502,15 +589,14 @@ export default function App() {
     state.turn,
     engagedMinutes,
     meaningfulActions,
+    openOptional,
   ])
   // Load reviewed answer metadata before offering any reading check. Ordinary
   // story prose still hides English; loading Debug must not change an open
   // check's questions or invalidate the answers already shown to the learner.
   const needsReadingCorpus = state.debug || ACHIEVEMENT_IDS.some((id) =>
     state.eligible?.[id] && !state.earned?.[id])
-  useEffect(() => {
-    if (!needsReadingCorpus) return undefined
-    let live = true
+  const prepareReadings = useCallback(() => {
     if (!readingCorpusPromise.current) {
       readingCorpusPromise.current = Promise.all([
         import('./game/data/readings/reviewedReadings.js')
@@ -522,16 +608,59 @@ export default function App() {
           throw error
         })
     }
-    readingCorpusPromise.current.then(() => {
-      if (live) setReadingCorpusReady(true)
-    }).catch((error) => {
-      if (live) console.error('Could not load the reviewed English reading corpus.', error)
+    return readingCorpusPromise.current.then(() => setReadingCorpusReady(true))
+  }, [])
+  useEffect(() => {
+    if (needsReadingCorpus) void prepareReadings().catch((error) => {
+      console.error('Could not load the reviewed English reading corpus.', error)
     })
-    return () => { live = false }
-  }, [needsReadingCorpus])
+  }, [needsReadingCorpus, prepareReadings])
+  // Prime ordinary screens once the current scene has painted. Background
+  // preparation is read-only; a question is recorded only when Train shows it.
+  useEffect(() => afterPaint(() => {
+    void Promise.all([
+      PracticeView.preload(), DictionaryView.preload(), HeartConsequenceModal.preload(),
+      TimePassage.preload(), EmbodimentConfirm.preload(),
+      AnalyticsPreferencesModal.preload(), PlaytestFeedbackModal.preload(),
+    ]).catch(() => { /* foreground opening owns recoverable import errors */ })
+  }), [])
+  useEffect(() => {
+    if (state.view === 'practice' || state.hearts <= 0) return undefined
+    let disposed = false
+    let refresh = null
+    const warm = () => {
+      const current = stateRef.current
+      if (disposed || pendingNavigation.current !== null || current.view === 'practice' || document.visibilityState === 'hidden') return
+      const preview = reducer(current, { type: 'SET_VIEW', view: 'practice' })
+      void PracticeView.preload().then((module) => {
+        if (!disposed && pendingNavigation.current === null && stateRef.current === current) return module.preparePractice(preview)
+        return null
+      }).then((prepared) => {
+        if (!disposed && prepared) {
+          clearTimeout(refresh)
+          refresh = setTimeout(warm, Math.max(1, prepared.validUntilMs - Date.now()))
+        }
+      }).catch(() => { /* navigation retries a failed preparation */ })
+    }
+    const cancelStart = afterPaint(warm)
+    const resume = () => {
+      if (document.visibilityState === 'visible') warm()
+    }
+    document.addEventListener('visibilitychange', resume)
+    return () => {
+      disposed = true
+      cancelStart()
+      clearTimeout(refresh)
+      document.removeEventListener('visibilitychange', resume)
+    }
+  }, [state])
+  const warmView = (view) => {
+    const View = ROUTE_VIEWS[view]
+    void View?.preload().catch(() => {})
+  }
   // tint the whole sky (the page background) to the hour
   useEffect(() => {
-    for (const p of Object.keys(TIME_UI)) document.body.classList.remove('time-' + p)
+    for (const p of TIME_PHASES) document.body.classList.remove('time-' + p)
     document.body.classList.add('time-' + phase)
   }, [phase])
   // the tab badge counts UNLOCKED achievements (gate passed), not the bad "fates"
@@ -543,6 +672,8 @@ export default function App() {
       type="button"
       className={'btn' + (state.view === view ? ' active' : '')}
       data-performance-id={`tab:${view}`}
+      onPointerEnter={() => warmView(view)}
+      onFocus={() => warmView(view)}
       onClick={() => setView(view)}
       aria-current={state.view === view ? 'page' : undefined}
     >
@@ -563,12 +694,9 @@ export default function App() {
           Aventura Shqip <small>· learn Albanian</small>
         </h1>
         {state.debug && (
-          <span
-            className="stat debug-badge"
-            title={`Debug mode is on — build commit ${BUILD_COMMIT}. Click the title 5× to turn it off.`}
-          >
-            🛠 debug · <code>{BUILD_COMMIT.slice(0, 12)}</code>
-          </span>
+          <Suspense fallback={null}>
+            <DebugHeaderStats badgeOnly buildCommit={BUILD_COMMIT} />
+          </Suspense>
         )}
         {activeQuest && (
           <button
@@ -587,56 +715,13 @@ export default function App() {
             🎭 {activeQuest.stance === 'companion' ? 'with ' : 'as '}{activeIdentity}
           </button>
         )}
-        {state.debug && <span className="stat">turn <b>{state.turn}</b></span>}
-        {activeQuest ? (
+        {state.debug ? (
+          <Suspense fallback={null}>
+            <DebugHeaderStats state={state} dispatch={dispatch} activeQuest={activeQuest} phase={phase} />
+          </Suspense>
+        ) : activeQuest ? (
           <span className="stat" title="Your traveller's pack and purse return when this character tale ends">🎒 pack waiting</span>
-        ) : state.debug ? (
-          <span
-            className="stat tip-host clickable"
-            onClick={() => dispatch({ type: 'DEBUG_LEK' })}
-            role="button"
-          >
-            🪙 <b>{state.inventory.lek || 0}</b>
-            <span className="tooltip stat-tip">
-              <b>🪙 Lek</b> — the money in your purse. Earn it with work: the mill, the flock,
-              mountain tea, a song on the lahuta. Spend it at the market, the inn and the
-              healer. Debug: click to add 20.
-            </span>
-          </span>
         ) : null}
-        {/* the hour is told IN the story (phase lines + sky tint), not by a chip;
-            debug keeps the chip because clicking it is the time-skip tool */}
-        {state.debug && (
-          <span
-            className={'stat tip-host time-stat time-' + phase + ' clickable'}
-            onClick={() => dispatch({ type: 'DEBUG_TIME', clockDomain: state.view === 'story' ? 'scene' : 'world' })}
-            role="button"
-          >
-            {timeUi.icon} <b>{timeUi.al}</b>
-            <span className="tooltip stat-tip">
-              <b>{timeUi.icon} Koha</b> — it is <b>{timeUi.en}</b> ({timeUi.al}). The hour drifts
-              as you take turns; sleeping or waiting jumps it. Some paths and scenes only exist
-              at certain hours. Debug: click to skip to the next phase.
-            </span>
-          </span>
-        )}
-        {/* your health is told IN the story (the hearts line + its once-per-level
-            self-heal live in StoryView), not by a chip; debug keeps the chip
-            because clicking it is the take-a-hit testing tool */}
-        {state.debug && (
-          <span
-            className="stat hearts clickable"
-            onClick={() => dispatch({ type: 'DEBUG_HURT' })}
-            role="button"
-            title="Hearts — the story tells your health now. Debug: click to lose one."
-          >
-            {Array.from({ length: 3 }, (_, i) => (
-              <span key={i} className={'heart' + (i < state.hearts ? ' full' : '')}>
-                ♥
-              </span>
-            ))}
-          </span>
-        )}
         <button
           className={'btn' + (muted ? ' active' : '')}
           data-performance-id="sound-toggle"
@@ -652,11 +737,11 @@ export default function App() {
           data-performance-id="feedback-open"
           onClick={() => {
             if (!analyticsConsent.structured) {
-              setAnalyticsPreferencesOpen(true)
+              openOptional('privacy')
               return
             }
             setFeedbackTrigger('manual')
-            setFeedbackOpen(true)
+            openOptional('feedback')
           }}
           title={analyticsConsent.structured
             ? 'Share a short anonymous playtest rating'
@@ -668,7 +753,7 @@ export default function App() {
           type="button"
           className="btn"
           data-performance-id="privacy-open"
-          onClick={() => setAnalyticsPreferencesOpen(true)}
+          onClick={() => openOptional('privacy')}
           title="Choose anonymous analytics and replay preferences"
         >
           🔒 privacy
@@ -677,7 +762,11 @@ export default function App() {
           ref={resetButtonRef}
           className="btn"
           data-performance-id="new-run-open"
-          onClick={() => setConfirmReset(true)}
+          onClick={() => {
+            optionalOpenGeneration.current += 1
+            pendingOptionalOpen.current = null
+            setConfirmReset(true)
+          }}
           disabled={Boolean(activeQuest && state.hearts > 0)}
           title={activeQuest ? `Finish ${activeIdentity}'s tale before starting another run` : 'Start a new run'}
         >
@@ -697,13 +786,7 @@ export default function App() {
 
       <main id="main-content" tabIndex={-1} data-performance-surface={state.view}>
       {state.debug && state.view === 'story' && state.turn <= 2 && !activeQuest && (
-        <section className="onboarding-banner" aria-label="First steps">
-          <span>
-            <b>First steps:</b> activate an English word to reveal its Albanian form, then use
-            Train to earn the word-token a path needs.
-          </span>
-          <button className="btn" onClick={() => setView('guide')}>Open the guide →</button>
-        </section>
+        <Suspense fallback={null}><DebugHeaderStats onboarding dispatch={dispatch} /></Suspense>
       )}
 
       <ReleaseErrorBoundary
@@ -713,10 +796,10 @@ export default function App() {
       >
         <Suspense fallback={<ViewFallback />}>
           {state.view === 'story' && (
-            <StoryView state={state} dispatch={dispatch} analyticsEnabled={analyticsConsent.structured} readingCorpusReady={readingCorpusReady} />
+            <StoryView state={state} dispatch={dispatch} analyticsEnabled={analyticsConsent.structured} readingCorpusReady={readingCorpusReady} onPrepareReadings={prepareReadings} />
           )}
           {state.view === 'practice' && (
-            <PracticeView state={state} dispatch={dispatch} analyticsEnabled={analyticsConsent.structured} />
+            <PracticeView state={state} dispatch={dispatch} analyticsEnabled={analyticsConsent.structured} canPresent={!blockingOverlay} startupFallback={<ViewFallback />} />
           )}
           {state.view === 'dictionary' && <DictionaryView state={state} dispatch={dispatch} />}
           {state.debug && state.view === 'map' && <AtlasView state={state} />}

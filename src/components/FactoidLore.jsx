@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react'
 import { CORPUS, EXTRA_SOURCES, FOLKLORE, HISTORY } from '../game/folklore.js'
+import { hasTale, loadTale, peekTale } from '../game/taleResources.js'
 
 const LORE_BY_ID = new Map([...FOLKLORE, ...HISTORY].map((entry) => [entry.id, entry]))
-const TALE_MODULES = import.meta.glob('../game/data/tales/[!_]*.js')
+const referencesOf = (tale) => (tale?.references || []).map((reference) => ({
+  label: reference.citation,
+  url: reference.url,
+  role: reference.role?.replaceAll('-', ' '),
+  note: reference.note,
+}))
 
 function evidenceLinks(lore, taleReferences) {
   if (!lore) return []
@@ -33,9 +39,9 @@ function evidenceLinks(lore, taleReferences) {
 // Lore codex for every factoid already discovered.
 export default function FactoidLore({ loreId, dispatch }) {
   const lore = loreId && LORE_BY_ID.get(loreId)
-  const [taleReferences, setTaleReferences] = useState([])
-  const [taleReferenceOwner, setTaleReferenceOwner] = useState(null)
-  const [taleLoadState, setTaleLoadState] = useState('idle')
+  const [taleReferences, setTaleReferences] = useState(() => referencesOf(peekTale(loreId)))
+  const [taleReferenceOwner, setTaleReferenceOwner] = useState(() => peekTale(loreId)?.id || null)
+  const [taleLoadState, setTaleLoadState] = useState(() => peekTale(loreId) ? 'ready' : 'idle')
   const [loadAttempt, setLoadAttempt] = useState(0)
 
   // Tale bibliographies stay lazy so an ordinary opening scene does not load
@@ -44,22 +50,14 @@ export default function FactoidLore({ loreId, dispatch }) {
   // evidence instead of being hidden in the research console.
   useEffect(() => {
     let current = true
-    setTaleReferences([])
-    setTaleReferenceOwner(null)
-    const load = loreId && TALE_MODULES[`../game/data/tales/${loreId}.js`]
-    setTaleLoadState(load ? 'loading' : 'idle')
-    load?.().then((module) => {
+    const cached = peekTale(loreId)
+    setTaleReferences(referencesOf(cached))
+    setTaleReferenceOwner(cached?.id || null)
+    setTaleLoadState(cached ? 'ready' : hasTale(loreId) ? 'loading' : 'idle')
+    if (!hasTale(loreId)) return undefined
+    loadTale(loreId).then((tale) => {
       if (!current) return
-      if (module.default?.id !== loreId) {
-        setTaleLoadState('error')
-        return
-      }
-      setTaleReferences((module.default.references || []).map((reference) => ({
-        label: reference.citation,
-        url: reference.url,
-        role: reference.role?.replaceAll('-', ' '),
-        note: reference.note,
-      })))
+      setTaleReferences(referencesOf(tale))
       setTaleReferenceOwner(loreId)
       setTaleLoadState('ready')
     }).catch(() => {
@@ -98,7 +96,6 @@ export default function FactoidLore({ loreId, dispatch }) {
           </ul>
         </div>
       )}
-      {taleLoadState === 'loading' && <p className="lore-source-status" role="status">Loading the tale-specific bibliography…</p>}
       {taleLoadState === 'error' && (
         <p className="lore-source-status error" role="alert">
           The tale-specific bibliography could not be loaded. The direct and corpus sources above remain available.{' '}

@@ -1,12 +1,9 @@
 import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { DICT } from '../game/content.js'
 import { practiceReturnOption } from '../game/practiceReturn.js'
-import { playPhrase, playWord } from '../game/audio.js'
+import { playPhrase, playWord, preloadAudioSurfaces } from '../game/audio.js'
 import { trainCompletionPhrases } from '../game/trainCompletion.js'
 import { trainQuestionWordKeys } from '../game/phrasePractice.js'
-import {
-  EVERYDAY_PHRASE_DRILLS,
-} from '../game/everydayAlbanian.js'
 import {
   buildNounEndingRefresher,
   buildNounOddOneOutRefresher,
@@ -42,30 +39,50 @@ import {
 } from '../game/trainHealthPolicy.js'
 import { wordSpellingAttempt, wordSpellingRepairMessage } from '../game/wordSpellingPolicy.js'
 import {
-  trainCandidateDebugRecord,
-  trainPlannerSeed,
-} from '../game/trainCandidateContract.js'
-import {
-  initialTrainPlanningState,
-  planTrainFutureExact,
-  planTrainFuture,
-  trainPlannerOracleReport,
-} from '../game/trainFuturePlanner.js'
-import {
-  normalizeTrainActionGoalSession,
   TRAIN_ACTION_GOAL_POLICY,
   trainActionGoalForState,
-  trainActionLastResortProposal,
-  trainActionPracticeQueue,
 } from '../game/trainActionGoal.js'
 import { resolveTrainingTarget } from '../game/trainingTarget.js'
 import { analyticsOptionId } from '../game/playtestAnalytics.js'
 import { measureAsyncPerformanceOperation, measurePerformanceOperation } from '../performance.js'
-import { completeTrainCandidateWork } from '../trainCandidateWork.js'
+import { createTrainPreparationCache, createTrainPresentationMemory } from '../trainPreparation.js'
+import { afterPaint } from '../preloadedView.jsx'
 import {
   captureTrainQuestionPresented,
   captureTrainSchedulerDecision,
 } from '../game/trainPlaytestAnalytics.js'
+
+const preparation = createTrainPreparationCache()
+const presentation = createTrainPresentationMemory()
+const sharedPreparationOptions = (state) => ({ state, lastWordKeys: presentation.lastWordKeys(state) })
+const preparationTiming = {
+  measureOperation: (name, work) => measurePerformanceOperation('train', name, 'practice', work),
+  measureAsyncOperation: (name, work) => measureAsyncPerformanceOperation('train', name, 'practice', work),
+  measureSlice: (work) => measurePerformanceOperation('train', 'enumerate-slice', 'practice', work),
+}
+const preparePracticeOptions = (options) => preparation.prepare(options, preparationTiming).then((prepared) => {
+  const question = prepared?.question
+  if (question) preloadAudioSurfaces([
+    question.audioSurface,
+    question.target?.al,
+    ...(question.phrases || []).map(({ al }) => al),
+    question.surface || question.typingAnswer || DICT[question.answerId]?.al,
+  ].filter(Boolean))
+  return prepared
+})
+export const preparePractice = (state) => preparePracticeOptions(sharedPreparationOptions(state))
+export const peekPreparedPractice = (state) => preparation.peek(sharedPreparationOptions(state))
+const questionWithCurrentHealth = (prepared, state) => {
+  const question = prepared?.question
+  if (!question) return null
+  return {
+    ...question,
+    trainHealth: trainHealthPlanForQuestion(state, question),
+    phaseTrainHealth: Object.fromEntries((question.phasePlan || []).map((phase) => [
+      phase.id, trainHealthPlanForQuestion(state, question, { phaseId: phase.id }),
+    ])),
+  }
+}
 
 const DebugTrainActivityInspector = lazy(() => import('./DebugTrainActivityInspector.jsx'))
 
@@ -102,19 +119,46 @@ const CefrEntry = ({ state, onOpen }) => {
   )
 }
 
-export default function PracticeView({ state, dispatch, analyticsEnabled = false }) {
+// Reloading directly into Train has no prior card to retain. Keep the single
+// application boot surface until its first complete card can mount; do not
+// introduce another intermediate Train screen or publish behind a saved miss.
+export default function PracticeView(props) {
+  const { state, canPresent = true, startupFallback = null } = props
+  const [ready, setReady] = useState(() => canPresent && state.hearts > 0 && !state.pendingHeartConsequence && Boolean(peekPreparedPractice(state)))
+  const [error, setError] = useState(null)
+  useEffect(() => {
+    if (ready || state.hearts <= 0) return undefined
+    let live = true
+    const prepare = async () => {
+      try {
+        while (live) {
+          const prepared = await preparePractice(state)
+          if (!live) return
+          if (!prepared) continue
+          if (canPresent && !state.pendingHeartConsequence) setReady(true)
+          return
+        }
+      } catch (failure) {
+        if (live) setError(failure)
+      }
+    }
+    void prepare()
+    return () => { live = false }
+  }, [ready, state, canPresent])
+  if (error) throw error
+  return ready ? <PreparedPracticeView {...props} /> : startupFallback
+}
+
+function PreparedPracticeView({ state, dispatch, analyticsEnabled = false, canPresent = true }) {
   const discoveredIds = useMemo(
     () => Object.keys(state.discovered).filter((id) => state.discovered[id] && isTrainableSense(id)),
     [state.discovered],
   )
-  const unlockedEverydayPhrases = useMemo(
-    () => EVERYDAY_PHRASE_DRILLS.filter((entry) =>
-      entry.requires.filter(isTrainableSense).every((id) => state.discovered[id])),
-    [state.discovered],
-  )
   const activeActionGoal = trainActionGoalForState(state)
   const activeActionOption = activeActionGoal ? resolveTrainingTarget(activeActionGoal.target) : null
-  const [q, setQ] = useState(null)
+  const initialPreparation = useRef(peekPreparedPractice(state))
+  const pendingPresentation = useRef(initialPreparation.current)
+  const [q, setQ] = useState(() => questionWithCurrentHealth(initialPreparation.current, state))
   const [picked, setPicked] = useState(null)
   const [typedWord, setTypedWord] = useState('')
   const [acceptedLeewayReview, setAcceptedLeewayReview] = useState(false)
@@ -137,6 +181,9 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   const mounted = useRef(true)
   const latestState = useRef(state)
   latestState.current = state
+  const presentationAllowed = useRef(canPresent)
+  presentationAllowed.current = canPresent
+  const advanceWhenVisible = useRef(false)
   const [planningError, setPlanningError] = useState(null)
   useEffect(() => {
     mounted.current = true
@@ -148,18 +195,20 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   }, [])
   const advanceAfterConsequence = useRef(false)
   const scheduleNextQuestion = useCallback((delayMs) => {
-    const advance = () => nextRef.current?.()
+    const scheduledGeneration = generation.current
+    const advance = () => {
+      if (mounted.current && generation.current === scheduledGeneration) nextRef.current?.()
+    }
     if (delayMs > 0) {
       window.setTimeout(advance, delayMs)
       return
     }
-    // A miss owns the completed source card until its blocking correction is
-    // acknowledged. Do not build or publish the following card behind the
-    // modal: that work can otherwise join the answer interaction on a slow
-    // browser whose next paint has not happened yet.
+    // Keep the completed card until its correction is acknowledged. The next
+    // card may be prepared silently after this feedback has painted.
     advanceAfterConsequence.current = true
   }, [])
   const questionStartedAt = useRef(Date.now())
+  const lastTimedQuestion = useRef(null)
   const attemptTiming = () => {
     const attemptedAtMs = Date.now()
     return {
@@ -168,197 +217,103 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     }
   }
 
+  const preparationOptions = useCallback((snapshot) => ({
+    state: snapshot,
+    lastWordKeys: previousQuestionWords.current.length
+      ? previousQuestionWords.current : presentation.lastWordKeys(snapshot),
+    activityHistory: activityHistory.current.length
+      ? activityHistory.current : normalizeTrainActivityHistory(snapshot.trainActivityHistory),
+    targetHistory: targetHistory.current.length
+      ? targetHistory.current : normalizeTrainTargetHistory(snapshot.trainTargetHistory),
+  }), [])
+
   const next = useCallback(async () => {
     if (!mounted.current) return
+    if (!presentationAllowed.current) {
+      advanceWhenVisible.current = true
+      return
+    }
+    advanceWhenVisible.current = false
     const ticket = ++generation.current
     planning.current = ticket
     answerCommitted.current = true
-    setQ(null)
     try {
-      if (discoveredIds.length === 0) {
-        planning.current = null
-        return
-      }
-      setPicked(null)
-      setTypedWord('')
-      setAcceptedLeewayReview(false)
-      setAwaitingRecoveryContinue(false)
-      setWordAudioCompleted(false)
-      setWordAudioError('')
-      setWordRepair(null)
-      setConstructedPieceIds([])
-      setFormPhaseIndex(0)
-      const nowMs = Date.now()
-      const excludeWords = previousQuestionWords.current.length
-        ? previousQuestionWords.current
-        : state.trainLastWords || []
-      const recentActivityHistory = activityHistory.current.length
-        ? activityHistory.current
-        : normalizeTrainActivityHistory(state.trainActivityHistory)
-      const recentTargetHistory = targetHistory.current.length
-        ? targetHistory.current
-        : normalizeTrainTargetHistory(state.trainTargetHistory)
-      const actionGoal = trainActionGoalForState(state)
-      const goalSession = normalizeTrainActionGoalSession(state.trainGoalSession, state)
-      const actionPracticeQueue = trainActionPracticeQueue(state)
-      const enumeration = await measureAsyncPerformanceOperation('train', 'enumerate', 'practice', () => completeTrainCandidateWork({
-        state,
-        discoveredIds,
-        unlockedPhrases: unlockedEverydayPhrases,
-        forceGoalTargetIds: actionPracticeQueue.allRemainingWordIds,
-        nowMs,
-        debugTrace: state.debug,
-      }, {
-        isCancelled: () => generation.current !== ticket || latestState.current !== state,
-        measureSlice: (work) => measurePerformanceOperation('train', 'enumerate-slice', 'practice', work),
-      }))
-      if (!enumeration) {
-        if (generation.current === ticket) {
+      while (mounted.current && generation.current === ticket) {
+        const options = preparationOptions(latestState.current)
+        await preparePracticeOptions(options)
+        if (!mounted.current || generation.current !== ticket) return
+        // An optional dialog may have opened while this decision was being
+        // prepared. Leave its cache entry and completed source card intact.
+        if (!presentationAllowed.current) {
+          advanceWhenVisible.current = true
           planning.current = null
-          void nextRef.current?.()
+          return
         }
+        const prepared = preparation.take(preparationOptions(latestState.current))
+        if (!prepared) continue
+        // Keep the source card and its feedback intact throughout preparation.
+        // Reset answer controls only when the complete replacement is ready.
+        setPicked(null)
+        setTypedWord('')
+        setAcceptedLeewayReview(false)
+        setAwaitingRecoveryContinue(false)
+        setWordAudioCompleted(false)
+        setWordAudioError('')
+        setWordRepair(null)
+        setConstructedPieceIds([])
+        setFormPhaseIndex(0)
+        planning.current = null
+        answerCommitted.current = false
+        pendingPresentation.current = prepared
+        setQ(questionWithCurrentHealth(prepared, latestState.current))
         return
       }
-      const plannerSeed = trainPlannerSeed({
-        currentRound: state.trainRound,
-        discoveredIds,
-        activityHistory: recentActivityHistory,
-        targetHistory: recentTargetHistory,
-      })
-      const planningState = initialTrainPlanningState({
-        currentRound: state.trainRound,
-        activityHistory: recentActivityHistory,
-        targetHistory: recentTargetHistory,
-        lastWordKeys: excludeWords,
-        goalRemaining: actionPracticeQueue.priorityRemainingWordIds,
-        alternateGoalRemaining: actionPracticeQueue.currentRemainingWordIds.length
-          ? actionPracticeQueue.otherRemainingWordIds
-          : [],
-        goalMaximumDiversionRounds: actionPracticeQueue.maximumDiversionRounds,
-        goalDiversionsUsed: actionGoal?.remainingTokenCount
-          ? goalSession?.activitiesSinceGoalOpportunity
-          : 0,
-      })
-      const future = measurePerformanceOperation('train', 'plan', 'practice', () => planTrainFuture({
-        proposals: enumeration.proposals,
-        planningState,
-        seed: plannerSeed,
-      }))
-      const exactOracle = state.debug ? planTrainFutureExact({
-        proposals: enumeration.proposals,
-        planningState,
-        seed: plannerSeed,
-      }) : null
-      const oracleReport = state.debug
-        ? trainPlannerOracleReport(future, exactOracle, planningState)
-        : null
-      const actionLastResort = future.candidate ? null : trainActionLastResortProposal(
-        enumeration.proposals,
-        actionPracticeQueue.priorityRemainingWordIds,
-      )
-      // The future planner owns every ordinary decision. If all of its roots are
-      // blocked, a still-missing visible action word owns the final decision and
-      // may break the immediate-repeat boundary rather than show a false end.
-      const selectedProposal = future.candidate || actionLastResort
-      const schedulerTrace = {
-        builder: 'train-future-planner',
-        reason: selectedProposal
-          ? actionLastResort
-            ? `Every ordinary future route was blocked, so Train used the reviewed last-resort card for a still-missing visible action word.`
-            : actionPracticeQueue.currentRemainingWordIds.length
-              ? `Selected the strongest future route toward the requested story action while preserving legal target and activity diversity.`
-              : actionPracticeQueue.otherRemainingWordIds.length
-                ? `Selected the strongest future route toward another same-node story action whose words are already saved.`
-                : `Selected the strongest future route across every currently buildable Train family.`
-          : `Every currently buildable proposal was rejected by an explicit hard constraint.`,
-        currentRound: state.trainRound || 0,
-        nowMs,
-        excludedWordKeys: [...excludeWords],
-        recentActivityHistory,
-        recentTargetHistory,
-        actionGoal: actionGoal ? {
-          ...actionGoal,
-          session: goalSession,
-        } : null,
-        actionPracticeQueue,
-        enumeration: enumeration.trace,
-        future: {
-          ...future.trace,
-          actionLastResort: actionLastResort ? {
-            reason: 'a buildable visible-action target outranks the terminal screen after ordinary constraints exhaust the root pool',
-            candidate: trainCandidateDebugRecord(actionLastResort),
-          } : null,
-          exactOracle: exactOracle?.trace || null,
-          oracleReport,
-        },
-        selected: trainCandidateDebugRecord(selectedProposal),
-      }
-      const analyticsCandidates = enumeration.proposals.map((proposal) => ({
-        route: proposal.route,
-        question: { targetKeys: proposal.targetKeys },
-      }))
-      const materializedQuestion = measurePerformanceOperation('train', 'materialize', 'practice', () => selectedProposal?.materialize({
-        debug: state.debug,
-        plannerTrace: schedulerTrace,
-      }) || null)
-      captureTrainSchedulerDecision({
-        state,
-        candidates: analyticsCandidates,
-        balanced: {
-          candidate: selectedProposal ? {
-            route: selectedProposal.route,
-            question: { questionKey: materializedQuestion?.questionKey },
-          } : null,
-          activityTypeId: selectedProposal?.activityTypeId || null,
-          randomBoundary: null,
-          plan: {
-            usesRepeatFallback: recentActivityHistory.at(-1) === selectedProposal?.activityTypeId,
-          },
-        },
-      })
-      let nextQuestion = null
-      if (materializedQuestion) {
-        const question = materializedQuestion
-        const phaseTrainHealth = Object.fromEntries((question.phasePlan || []).map((phase) => [
-          phase.id,
-          trainHealthPlanForQuestion(state, question, { phaseId: phase.id }),
-        ]))
-        nextQuestion = {
-          ...question,
-          trainHealth: trainHealthPlanForQuestion(state, question),
-          phaseTrainHealth,
-        }
-      } else if (!TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists) {
-        nextQuestion = {
-          kind: TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome,
-          needsMoreWords: actionPracticeQueue.needsMoreWords,
-          debugSelection: state.debug ? { scheduler: schedulerTrace } : undefined,
-        }
-      }
-      planning.current = null
-      answerCommitted.current = false
-      if (nextQuestion && nextQuestion.kind !== TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) {
-        previousQuestionWords.current = selectedProposal.wordKeys
-        activityHistory.current = recordTrainActivity(recentActivityHistory, nextQuestion.activityTypeId)
-        const targetKeys = selectedProposal.targetKeys
-        targetHistory.current = recordTrainTargets(recentTargetHistory, targetKeys)
-        dispatch({
-          type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
-          questionKey: nextQuestion.questionKey,
-          activityTypeId: nextQuestion.activityTypeId,
-          targetKeys,
-        })
-      }
-      setQ(nextQuestion)
     } catch (error) {
-      if (generation.current === ticket) {
+      if (mounted.current && generation.current === ticket) {
         planning.current = null
         setPlanningError(error)
       }
     }
-  }, [discoveredIds, unlockedEverydayPhrases, state, dispatch])
+  }, [preparationOptions])
+
+  useEffect(() => {
+    const prepared = pendingPresentation.current
+    if (!canPresent || !prepared || !q || showCefr) return
+    pendingPresentation.current = null
+    // Consume an initial ready card here, never during render (Strict Mode can
+    // replay initializers). Only mounted, visible cards receive a presentation.
+    if (prepared === initialPreparation.current) preparation.take(sharedPreparationOptions(state))
+    captureTrainSchedulerDecision({ state, ...prepared.analyticsDecision })
+    if (q.kind === TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) return
+    presentation.remember(state, prepared.wordKeys)
+    previousQuestionWords.current = prepared.wordKeys
+    activityHistory.current = recordTrainActivity(prepared.recentActivityHistory, q.activityTypeId)
+    targetHistory.current = recordTrainTargets(prepared.recentTargetHistory, prepared.targetKeys)
+    dispatch({
+      type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+      questionKey: q.questionKey,
+      activityTypeId: q.activityTypeId,
+      targetKeys: prepared.targetKeys,
+    })
+  }, [q, state, dispatch, showCefr, canPresent])
+
+  useEffect(() => {
+    // A completed reducer result is the only safe basis for the next decision.
+    // Preparing it neither advances the card nor consumes presentation history.
+    if (!q?.questionKey || state.trainLastQuestionKey !== q.questionKey || state.hearts <= 0) return undefined
+    return afterPaint(() => {
+      void preparePracticeOptions(preparationOptions(latestState.current))
+        .catch(() => { /* a foreground advance retries and owns any error */ })
+    })
+  }, [state, q, preparationOptions])
 
   nextRef.current = next
+  useEffect(() => {
+    if (!canPresent || !advanceWhenVisible.current) return undefined
+    return afterPaint(() => {
+      if (advanceWhenVisible.current) void nextRef.current?.()
+    })
+  }, [canPresent])
   const onPhraseComplete = useCallback(async (result) => {
     const completionGeneration = generation.current
     const restoresHeart = result.correct && trainCorrectWillRestoreHeart(
@@ -490,25 +445,29 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   }, [discoveredIds.length])
 
   useEffect(() => {
-    if (!q) return undefined
-    questionStartedAt.current = Date.now()
+    if (!q || !canPresent) return undefined
+    if (lastTimedQuestion.current !== q) {
+      lastTimedQuestion.current = q
+      questionStartedAt.current = Date.now()
+    }
     const frame = window.requestAnimationFrame(() => {
+      if (!presentationAllowed.current) return
       if (q.kind === TRAIN_EXERCISE_FAMILIES.wordSpelling.kind || q.formExerciseMode === 'ending-type') wordInputRef.current?.focus()
       else questionRef.current?.focus()
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [q])
+  }, [q, canPresent])
 
   useEffect(() => {
-    if (!q || q.kind === TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) return
+    if (!canPresent || !q || showCefr || q.kind === TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) return
     captureTrainQuestionPresented(q, state)
     // Re-run when consent is granted over an already-mounted saved question;
     // stable event receipts prevent duplicate impressions on ordinary renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [analyticsEnabled, q?.questionKey])
+  }, [analyticsEnabled, q?.questionKey, showCefr, canPresent])
 
   useEffect(() => {
-    if (state.pendingHeartConsequence || !advanceAfterConsequence.current) return undefined
+    if (!canPresent || state.pendingHeartConsequence || !advanceAfterConsequence.current) return undefined
     if (state.hearts <= 0) {
       advanceAfterConsequence.current = false
       return undefined
@@ -527,7 +486,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
       window.cancelAnimationFrame(frame)
       if (timer !== null) window.clearTimeout(timer)
     }
-  }, [state.hearts, state.pendingHeartConsequence])
+  }, [state.hearts, state.pendingHeartConsequence, canPresent])
 
   useEffect(() => {
     if (!state.debug) setShowCefr(false)
@@ -555,17 +514,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     )
   }
 
-  if (!q) {
-    return (
-      <>
-        {state.debug && <CefrEntry state={state} onOpen={() => setShowCefr(true)} />}
-        <section className="card practice" aria-labelledby="practice-title">
-          <h2 id="practice-title" className="view-title">Train Albanian</h2>
-          <p className="empty" role="status">Preparing the next question…</p>
-        </section>
-      </>
-    )
-  }
+  if (!q) throw new Error('The prepared Train activity is unavailable. Please reopen Train.')
 
   if (q.kind === TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) {
     return (

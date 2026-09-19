@@ -737,7 +737,11 @@ check('the onboarding, collection, guide and readiness journey are debug-only fo
   assert.match(app, /state\.debug && state\.view === 'story' && state\.turn <= 2/)
   assert.match(app, /state\.debug && state\.view === 'endings' && <AchievementsView/)
   assert.match(app, /state\.debug && state\.view === 'guide' && <GuideView/)
-  assert.equal((practice.match(/state\.debug && <CefrEntry/g) || []).length, 4)
+  // Empty, caught-up and active Train retain their debug entry. Background
+  // preparation no longer mounts a fourth, intermediate loading screen.
+  const debugEntries = (practice.match(/state\.debug && <CefrEntry/g) || []).length
+  assert.equal(debugEntries, 3)
+  assert.equal((practice.match(/<CefrEntry\b/g) || []).length, debugEntries)
   assert.match(practice, /if \(state\.debug && showCefr\)/)
   assert.match(gameState, /DEBUG_ONLY_VIEWS = new Set\(\['map', 'endings', 'guide', 'debug'\]\)/)
 

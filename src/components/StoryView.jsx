@@ -1,4 +1,8 @@
-import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import { Suspense, useState, useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
+import { afterPaint, preloadedView } from '../preloadedView.jsx'
+import { prewarmActionPlayback } from '../prewarmActionPlayback.js'
+import { isMuted, subscribeMute } from '../game/audio.js'
+import { hasTale, loadTale } from '../game/taleResources.js'
 import Token from './Token.jsx'
 import {
   STORY,
@@ -45,7 +49,7 @@ import {
   planEnvironmentNarration,
 } from '../game/storyContext.js'
 import { festivalLabel } from '../game/environment.js'
-import { embodimentOptionAccess, embodimentQuest } from '../game/embodiment.js'
+import { canonicalEmbodimentId, embodimentOptionAccess, embodimentQuest } from '../game/embodiment.js'
 import { resolveRevealLine } from '../game/revealResolver.js'
 import { isOptionRevealed } from '../game/revealVisibility.js'
 import { trainingTargetForOption } from '../game/trainingTarget.js'
@@ -74,8 +78,8 @@ import { isTrainableSense } from '../game/lexicalTrainability.js'
 import { captureStoryChoicesPresented } from '../game/playtestAnalytics.js'
 import { speechChoiceLabelOf } from '../game/speechChoices.js'
 
-const FactoidLore = lazy(() => import('./FactoidLore.jsx'))
-const StoryLearningTask = lazy(() => import('./StoryLearningTask.jsx'))
+const FactoidLore = preloadedView(() => import('./FactoidLore.jsx'))
+const StoryLearningTask = preloadedView(() => import('./StoryLearningTask.jsx'))
 attachReviewedOptionReadings(STORY, ITEMS, HEART_LEVELS)
 
 const QUOTE_REPO_BLOB = 'https://github.com/miketamis/adventure/blob/main/'
@@ -86,9 +90,33 @@ const QUOTE_TIER_LABEL = {
   oral: 'oral attribution',
 }
 
-export default function StoryView({ state, dispatch, analyticsEnabled = false, readingCorpusReady = false }) {
+export default function StoryView({ state, dispatch, analyticsEnabled = false, readingCorpusReady = false, onPrepareReadings }) {
   const discoverWord = useCallback((id) => dispatch({ type: 'DISCOVER', id }), [dispatch])
   const node = STORY[state.nodeId]
+  const muted = useSyncExternalStore(subscribeMute, isMuted, () => true)
+  const sceneRequest = useRef(0)
+  const mounted = useRef(true)
+  const latestState = useRef(state)
+  latestState.current = state
+  const [sceneResourceError, setSceneResourceError] = useState(null)
+  useEffect(() => {
+    mounted.current = true
+    return () => { mounted.current = false; sceneRequest.current++ }
+  }, [])
+  const prepareSceneAction = async (prepare, commit) => {
+    const ticket = ++sceneRequest.current
+    const source = state
+    const current = () => mounted.current && sceneRequest.current === ticket &&
+      latestState.current.nodeId === source.nodeId && latestState.current.turn === source.turn &&
+      latestState.current.storyRunSequence === source.storyRunSequence && latestState.current.view === source.view
+    setSceneResourceError(null)
+    try {
+      const prepared = await prepare()
+      if (current()) commit(prepared)
+    } catch {
+      if (current()) setSceneResourceError('This part of the scene could not open. Please try that choice again.')
+    }
+  }
   const activeStoryTask = useMemo(() => {
     const task = storyLearningTaskForState(state)
     return task?.sourceAvailable && task.episode ? task : null
@@ -102,11 +130,13 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
   }, [protectedSources])
   const learningSourceDomId = (source) => `learning-source-${source.encounterId}-${source.sourceId}`.replace(/[^a-zA-Z0-9_-]/g, '-')
   const beginStoryLearning = (encounterId, supportId = null) => {
-    setAreaTest(null)
-    dispatch({
-      type: 'BEGIN_STORY_LEARNING', encounterId,
-      fromNodeId: state.nodeId, fromTurn: state.turn, fromRun: state.storyRunSequence,
-      ...(supportId ? { supportId } : {}),
+    void prepareSceneAction(StoryLearningTask.preload, () => {
+      setAreaTest(null)
+      dispatch({
+        type: 'BEGIN_STORY_LEARNING', encounterId,
+        fromNodeId: state.nodeId, fromTurn: state.turn, fromRun: state.storyRunSequence,
+        ...(supportId ? { supportId } : {}),
+      })
     })
   }
   const [endingCopyModule, setEndingCopyModule] = useState(null)
@@ -114,25 +144,29 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
   const [richAchievementById, setRichAchievementById] = useState(null)
   const hasAvailableReadingChecks = Object.keys(state.eligible || {}).some((id) =>
     ACHIEVEMENT_RULE_BY_ID[id] && !state.earned?.[id])
+  const endingWithinReach = Boolean(state.ended || state.embodying || node.options.some((option) => STORY[option.to]?.end))
   useEffect(() => {
-    if (!state.ended || endingCopyModule) return undefined
+    if (!endingWithinReach || endingCopyModule) return undefined
     let live = true
-    import('../game/endingCopyForState.js').then((module) => {
-      if (live) setEndingCopyModule(module)
-    }).catch((error) => console.error('Could not load ending copy.', error))
-    return () => { live = false }
-  }, [state.ended, endingCopyModule])
+    const cancel = afterPaint(() => {
+      import('../game/endingCopyForState.js').then((module) => {
+        if (live) setEndingCopyModule(module)
+      }).catch((error) => console.error('Could not load ending copy.', error))
+    })
+    return () => { live = false; cancel() }
+  }, [endingWithinReach, endingCopyModule])
   useEffect(() => {
-    if ((!state.ended || state.ended === 'bad') && !hasAvailableReadingChecks) {
-      setRichAchievementById(null)
-      return undefined
-    }
+    if ((!endingWithinReach && !hasAvailableReadingChecks) || richAchievementById) return undefined
     let live = true
-    import('../game/achievements.js').then(({ ACHIEVEMENT_BY_ID }) => {
-      if (live) setRichAchievementById(ACHIEVEMENT_BY_ID)
-    }).catch((error) => console.error('Could not load achievement details.', error))
-    return () => { live = false }
-  }, [state.ended, hasAvailableReadingChecks])
+    const cancel = afterPaint(() => {
+      void FactoidLore.preload().catch(() => {})
+      void onPrepareReadings?.()?.catch(() => {})
+      import('../game/achievements.js').then(({ ACHIEVEMENT_BY_ID }) => {
+        if (live) setRichAchievementById(ACHIEVEMENT_BY_ID)
+      }).catch((error) => console.error('Could not load achievement details.', error))
+    })
+    return () => { live = false; cancel() }
+  }, [endingWithinReach, hasAvailableReadingChecks, richAchievementById, onPrepareReadings])
   // The active tale scene owns its frozen narrative clock; public roaming
   // scenes own the monotonic world clock. Keep one projected state for prose,
   // horizon and gates so they can never disagree about the hour.
@@ -148,6 +182,8 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
   // Any eligible reading check can be revisited from ordinary free roaming.
   const [areaTest, setAreaTest] = useState(null) // { ach, questions, attempt, result }
   useEffect(() => {
+    sceneRequest.current++
+    setSceneResourceError(null)
     setEndResult(null)
     setEndTest(null)
     setAreaTest(null)
@@ -205,10 +241,22 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
     () => (readingCorpusReady && isAchEnd && !alreadyEarned ? testFor(ACHIEVEMENT_RULE_BY_ID[state.nodeId], endAttempt, state) : null),
     [state.nodeId, isAchEnd, alreadyEarned, endAttempt, state.achievementReadings, readingCorpusReady],
   )
+  const prepareReadingCheck = async () => {
+    const [, { ACHIEVEMENT_BY_ID }] = await Promise.all([
+      onPrepareReadings?.(), import('../game/achievements.js'),
+    ])
+    return ACHIEVEMENT_BY_ID
+  }
   const openEndingTest = () => {
-    if (!readingCorpusReady || !endQuestions?.length) return
-    setEndResult(null)
-    setEndTest({ questions: endQuestions, attempt: endAttempt })
+    void prepareSceneAction(prepareReadingCheck, (achievements) => {
+      const current = latestState.current
+      if (current.earned?.[current.nodeId]) return
+      const attempt = current.attempts?.[current.nodeId] || 0
+      const questions = testFor(achievements[current.nodeId], attempt, current)
+      if (!questions?.length) return
+      setEndResult(null)
+      setEndTest({ questions, attempt })
+    })
   }
 
   const availableReadingChecks = !state.ended && !state.embodying
@@ -217,14 +265,17 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
     : []
   const pendingAch = availableReadingChecks.find((achievement) => achievement.id === state.pendingTest) || null
   const openAreaTest = (achievement) => {
-    if (!readingCorpusReady || !achievement || state.embodying) return
-    const attempt = state.attempts?.[achievement.id] || 0
-    const questions = testFor(achievement, attempt, state)
-    setAreaTest({
-      ach: achievement,
-      questions,
-      attempt,
-      result: questions?.length ? null : 'unavailable',
+    if (!achievement || state.embodying) return
+    void prepareSceneAction(prepareReadingCheck, (achievements) => {
+      const current = latestState.current
+      const ach = achievements[achievement.id]
+      if (!ach || current.embodying || current.earned?.[ach.id]) return
+      const attempt = current.attempts?.[ach.id] || 0
+      const questions = testFor(ach, attempt, current)
+      setAreaTest({
+        ach, questions, attempt,
+        result: questions?.length ? null : 'unavailable',
+      })
     })
   }
 
@@ -332,10 +383,12 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
       onSelect: () => !canonicalChoiceReady && canBeginLearning
         ? beginStoryLearning(language.encounterId)
         : opt.become && !state.embodying
-        ? dispatch({
+        ? void prepareSceneAction(() => Promise.all([
+            import('./EmbodimentConfirm.jsx'), loadTale(canonicalEmbodimentId(opt.become)),
+          ]), () => dispatch({
             type: 'REQUEST_EMBODIMENT', optionId: `opt-${i}`, optionIndex: i,
             fromNodeId: state.nodeId, fromTurn: state.turn,
-          })
+          }))
         : dispatch({
             type: 'CHOOSE', option: opt, targetNode: STORY[opt.to],
             optionId: `opt-${i}`, optionIndex: i,
@@ -419,6 +472,27 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
     })
   }
   const shuffledEntries = stableShuffle(entries, state.nodeId + ':' + state.turn)
+  const readyActionPhrases = entries.filter((entry) => entry.ok && entry.canonicalChoiceReady !== false)
+    .map((entry) => albanianTextOf(entry.tokens))
+  const readyActionKey = JSON.stringify(readyActionPhrases)
+  useEffect(() => {
+    if (muted || state.ended || !readyActionPhrases.length) return undefined
+    return afterPaint(() => { void prewarmActionPlayback(readyActionPhrases) })
+  }, [muted, state.ended, readyActionKey])
+  const relevantTaleIds = [...new Set([
+    ...(state.embodying ? [canonicalEmbodimentId(state.embodying)] : []),
+    ...entries.filter((entry) => entry.ok && entry.beginQuest)
+      .map((entry) => canonicalEmbodimentId(node.options[entry.optionIndex]?.become)),
+  ].filter((id) => hasTale(id)))].slice(0, 6)
+  const relevantTaleKey = relevantTaleIds.join('|')
+  const hasLearningSource = protectedSources.size > 0
+  useEffect(() => afterPaint(() => {
+    if (hasLearningSource) void StoryLearningTask.preload().catch(() => {})
+    if (relevantTaleIds.length) {
+      void import('./EmbodimentConfirm.jsx').catch(() => {})
+      for (const id of relevantTaleIds) void loadTale(id).catch(() => {})
+    }
+  }), [hasLearningSource, relevantTaleKey])
   const choiceAnalyticsKey = shuffledEntries.map((entry) => [
     entry.key,
     entry.allDiscovered,
@@ -728,9 +802,13 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
           </p>
         )}
       </div>
+      {sceneResourceError && <p className="feedback bad" role="alert">
+        {sceneResourceError}{' '}
+        <button className="btn" onClick={() => window.location.reload()}>Reload saved game</button>
+      </p>}
 
       {!state.ended && activeStoryTask && (
-        <Suspense fallback={<p className="hint" role="status">Opening the response…</p>}>
+        <Suspense fallback={null}>
           <StoryLearningTask
             key={activeStoryTask.id}
             state={state}
@@ -782,7 +860,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
                 <div className="feedback good" role="status">✓ Reading check complete — the achievement is yours.</div>
               )}
               {endingCopy?.blurb && <p className="ending-desc">{endingCopy.blurb}</p>}
-              <Suspense fallback={<p className="hint" role="status">Opening the tale&apos;s sources…</p>}>
+              <Suspense fallback={null}>
                 <FactoidLore loreId={richAchievementById?.[node.id]?.lore} dispatch={state.debug ? dispatch : undefined} />
               </Suspense>
               {endResult === 'passed' && <p className="hearts-restored">❤️ Hearts restored to full.</p>}
@@ -828,9 +906,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
                       The deed stands. Review the correction, then retry when you are ready.
                     </p>
                   )}
-                  {!readingCorpusReady ? (
-                    <p className="hint" role="status">Preparing the reading check…</p>
-                  ) : endQuestions?.length ? (
+                  {!readingCorpusReady || endQuestions?.length ? (
                     <button className="btn primary" onClick={openEndingTest}>
                       {endAttempt ? 'Retry the reading check →' : 'Take the reading check →'}
                     </button>
@@ -881,7 +957,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
             <>
               <div className="feedback good" role="status">✓ Reading check complete — the achievement is yours.</div>
               {areaTest.ach.blurb && <p className="ending-desc">{areaTest.ach.blurb}</p>}
-              <Suspense fallback={<p className="hint" role="status">Opening the achievement&apos;s sources…</p>}>
+              <Suspense fallback={null}>
                 <FactoidLore loreId={areaTest.ach.lore} dispatch={state.debug ? dispatch : undefined} />
               </Suspense>
               <p className="hearts-restored">❤️ Hearts restored to full.</p>
@@ -891,7 +967,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
               <p className="hint" role="status">
                 The deed stands. Review the correction, then retry when you are ready.
               </p>
-              <button className="btn primary" disabled={!readingCorpusReady} onClick={() => openAreaTest(areaTest.ach)}>
+              <button className="btn primary" onClick={() => openAreaTest(areaTest.ach)}>
                 Retry the reading check →
               </button>
             </>
@@ -913,7 +989,7 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
                 📖 Optional reading check: <b>{pendingAch.title}</b>
               </span>
               <span className="factoid-banner-actions">
-                <button className="btn primary" disabled={!readingCorpusReady} onClick={() => openAreaTest(pendingAch)}>
+                <button className="btn primary" onClick={() => openAreaTest(pendingAch)}>
                   Take the reading check →
                 </button>
                 <button
@@ -933,11 +1009,10 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
               <p className="hint">
                 Your completed deeds remain here. Choose an optional reading check when you are ready.
               </p>
-              {!readingCorpusReady && <p className="hint" role="status">Preparing the reading checks…</p>}
               <ul>
                 {availableReadingChecks.map((achievement) => (
                   <li key={achievement.id}>
-                    <button className="btn" disabled={!readingCorpusReady} onClick={() => openAreaTest(achievement)}>
+                    <button className="btn" onClick={() => openAreaTest(achievement)}>
                       {achievement.title}{state.attempts?.[achievement.id] ? ' — retry' : ''}
                     </button>
                   </li>

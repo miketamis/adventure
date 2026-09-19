@@ -97,10 +97,13 @@ const ordinaryQuestion = buildWordQuestion({
 assert.equal(ordinaryQuestion.debugSelection, undefined, 'normal play retained the debug decision payload')
 
 const practiceSource = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
+const preparationSource = readFileSync(new URL('../src/trainPreparation.js', import.meta.url), 'utf8')
+assert.match(practiceSource, /from '\.\.\/trainPreparation\.js'/)
+assert.match(practiceSource, /setQ\(questionWithCurrentHealth\(prepared, latestState\.current\)\)/)
 assert.match(practiceSource, /state\.debug && \([\s\S]*?<DebugTrainActivityInspector question=\{q\} state=\{state\}/)
-assert.match(practiceSource, /debugTrace: state\.debug/)
-assert.match(practiceSource, /state\.debug \? planTrainFutureExact\(/)
-assert.match(practiceSource, /trainPlannerOracleReport\(future, exactOracle, planningState\)/)
+assert.match(preparationSource, /debugTrace: state\.debug/)
+assert.match(preparationSource, /state\.debug \? planTrainFutureExact\(/)
+assert.match(preparationSource, /trainPlannerOracleReport\(future, exactOracle, planningState\)/)
 const inspectorSource = readFileSync(new URL('../src/components/DebugTrainActivityInspector.jsx', import.meta.url), 'utf8')
 for (const label of [
   'Every Albanian word occurrence',

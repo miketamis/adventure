@@ -223,7 +223,7 @@ assert.doesNotMatch(practice, /className="train-risk-key"/,
   'the redundant shield and heart-count key is still visible above the activity')
 assert.match(practice, /one heart restored/)
 assert.match(practice, /Continue training/)
-assert.match(app, /const HeartConsequenceModal = lazy\(/)
+assert.match(app, /const HeartConsequenceModal = preloadedView\(/)
 assert.match(heartModal, /Practice miss — no heart lost/)
 assert.match(heartModal, /Why the answer was wrong/)
 assert.match(graph, /TRAIN_HEALTH_POLICY\.protectionRule/)

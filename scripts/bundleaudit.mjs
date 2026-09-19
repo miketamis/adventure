@@ -378,6 +378,10 @@ for (const rule of AREA_ACHIEVEMENT_RULES) {
 // Their response card and the complete A1/A2 preparation banks remain lazy.
 const SHELL_RAW_BUDGET = 205 * KiB
 const SHELL_GZIP_BUDGET = 68 * KiB
+// Independent caching of shared instrumentation may reduce shell churn but
+// must never hide its cost from the aggregate first-play payload below.
+assert.ok(bootstrapNames.has(chunkNamed('performance-monitor').name),
+  'the interaction monitor must remain inside the measured eager bootstrap')
 // The lexical evidence state machine, death-retention boundary, compact
 // mixed-matching registry, exact reviewed noun paradigms, and the first-village
 // conversation hubs are first-play behavior, not optional tooling. The
@@ -447,7 +451,7 @@ assert.ok(bootstrapTotal.raw <= BOOTSTRAP_RAW_BUDGET,
   `bootstrap grew to ${display(bootstrapTotal.raw)} (budget ${display(BOOTSTRAP_RAW_BUDGET)}); inspect eager imports`)
 assert.ok(bootstrapTotal.gzip <= BOOTSTRAP_GZIP_BUDGET,
   `bootstrap gzip grew to ${display(bootstrapTotal.gzip)} (budget ${display(BOOTSTRAP_GZIP_BUDGET)}); inspect eager imports`)
-for (const prefix of ['StoryLearningTask', 'DebugStoryLearning', 'cefrPreparation']) {
+for (const prefix of ['StoryLearningTask', 'DebugStoryLearning', 'DebugHeaderStats', 'cefrPreparation']) {
   assert.ok(!bootstrapNames.has(chunkNamed(prefix).name),
     `${prefix} must stay outside the first-play bootstrap`)
 }

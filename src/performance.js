@@ -17,6 +17,7 @@ export const PERFORMANCE_BUDGETS = Object.freeze({
   browserSteadyOperationMaxMs: 150,
   browserLongTaskMaxMs: 250,
   browserTrainReadyMaxMs: 2000,
+  browserPreparedTrainReadyMaxMs: 500,
   browserTrainCancelMaxMs: 500,
 })
 

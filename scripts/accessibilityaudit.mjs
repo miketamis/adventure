@@ -168,7 +168,9 @@ check('ending focus announces the visible Albanian consequence without an Englis
 check('reading checks wait for the reviewed corpus before building any answer set',
   story.includes('readingCorpusReady = false') &&
   story.includes('readingCorpusReady && isAchEnd && !alreadyEarned ? testFor(') &&
-  story.includes('if (!readingCorpusReady || !achievement || state.embodying) return') &&
+  story.includes('const [, { ACHIEVEMENT_BY_ID }] = await Promise.all([') &&
+  story.includes("onPrepareReadings?.(), import('../game/achievements.js')") &&
+  story.match(/prepareSceneAction\(prepareReadingCheck,/g)?.length === 2 &&
   achievements.includes('readingCorpusReady = false') &&
   achievements.includes('if (roleTestLocked || !readingCorpusReady) return') &&
   app.includes('readingCorpusReady={readingCorpusReady}'))
@@ -338,7 +340,8 @@ check('character confirmation blocks commitment until its exact tale and source 
   embodimentConfirm.includes('aria-busy={loadState === \'loading\'}') &&
   embodimentConfirm.includes('role="alert"') &&
   embodimentConfirm.includes('Retry loading') &&
-  embodimentConfirm.includes('Tale and source record ready.'))
+  embodimentConfirm.includes('loadTale(pending.taleId)') &&
+  embodimentConfirm.includes('useState(() => peekTale(pending?.taleId))'))
 check('character confirmation restores focus after the inert surface becomes interactive',
   embodimentConfirm.includes('setTimeout(() =>') && embodimentConfirm.includes('previous?.isConnected'))
 check('changing quiz questions and answer results are announced',
@@ -395,7 +398,7 @@ check('a paused role exposes its waiting scene as a named map target with textua
   atlas.includes('Look for its violet double ring') &&
   worldMap.includes('violet double ring marks where your character&apos;s tale is waiting') &&
   worldMap.includes('your character tale waits here'))
-check('ending folklore is loaded on demand', story.includes("lazy(() => import('./FactoidLore.jsx'))") && story.includes('<Suspense'))
+check('ending folklore is prepared on demand without blocking the scene', story.includes("preloadedView(() => import('./FactoidLore.jsx'))") && story.includes('<Suspense'))
 check('root and lazy views recover accessibly from rendering failures', main.includes('<ReleaseErrorBoundary') && app.includes('<ReleaseErrorBoundary') && errorBoundary.includes('componentDidCatch') && errorBoundary.includes('role="alert"') && errorBoundary.includes('Reload safely'))
 check('rendering-failure recovery moves focus to its explanation', errorBoundary.includes('this.headingRef.current?.focus()') && errorBoundary.includes('ref={this.headingRef} tabIndex={-1}'))
 check('one shared resolver drives UI and graph analysis', story.includes("from '../game/revealResolver.js'") && discovery.includes("from '../../src/game/revealResolver.js'"))

@@ -16,6 +16,9 @@ import { AUDIO_PLAYBACK_POLICY, audioSlug, playActionPhrase, setMuted } from '..
 import { decodeActionTimingManifest } from '../src/game/actionTimingStorage.js'
 import { canonicalStoryConfuser } from '../src/game/storyConfusers.js'
 import fs from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import { childProcessFailed } from './lib/child-process-result.mjs'
 
 const checks = []
 async function check(name, test) {
@@ -37,9 +40,15 @@ const grant = (state, line) => reducer(state, {
 await check('the app keeps the source scene inert until karaoke playback settles', () => {
   const app = fs.readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
   const karaoke = fs.readFileSync(new URL('../src/components/ActionKaraoke.jsx', import.meta.url), 'utf8')
-  const previewAt = app.indexOf('const preview = reduceWithTiming(current, action)')
+  const previewAt = app.indexOf('const preview = preparedAction?.before === current')
   const mountAt = app.indexOf('<ActionKaraoke')
   assert.ok(previewAt >= 0 && mountAt > previewAt, 'accepted action is not previewed before karaoke mounts')
+  assert.match(app, /const preview = preparedAction\?\.before === current\s*\? preparedAction\.after\s*: reduceWithTiming\(current, action\)/,
+    'a prepared action may reuse its canonical reducer result only for the same source state')
+  assert.match(app, /if \(actionTransitionRef\.current \|\| presentationPendingRef\.current\) return/,
+    'an accepted action can be replaced while its response is loading or playing')
+  assert.match(app, /confirmReset \|\| actionTransition \|\| presentationPending/,
+    'a cold accepted-action response must keep its source inert')
   assert.match(app, /const commitAcceptedAction = useCallback\([\s\S]*?publishState\(after\)[\s\S]*?queueTransitionAnalytics\(action, before, after\)/)
   assert.match(app, /const transition = \{[^\n]*before: current, after: preview \}/)
   assert.match(app, /const finishActionTransition = useCallback\([\s\S]*?current === transition\.before[\s\S]*?\? transition\.after[\s\S]*?: reduceWithTiming\(current, transition\.action\)[\s\S]*?commitAcceptedAction\(transition\.action, current, after\)/)
@@ -343,6 +352,14 @@ await check('unknown or malformed timing storage fails safely without preventing
     if (originalFetch === undefined) delete globalThis.fetch
     else globalThis.fetch = originalFetch
   }
+})
+
+await check('background playback preparation is silent, bounded, retryable, and preserves completion', () => {
+  const result = spawnSync(process.execPath, ['--test', fileURLToPath(new URL('./lib/audio-prewarm.test.mjs', import.meta.url))], {
+    stdio: 'inherit',
+  })
+  assert.equal(result.signal, null, `audio preload tests terminated by ${result.signal}`)
+  assert.equal(childProcessFailed(result), false, result.error?.message || `audio preload tests failed (${result.status})`)
 })
 
 const failed = checks.filter((result) => !result.ok)

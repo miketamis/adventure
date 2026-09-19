@@ -25,6 +25,11 @@ const authoredChunk = (id) => {
   // stable subsystem rather than shell/UI code. Keep it in the eager closure
   // without making every small App edit invalidate or inflate the shell.
   if (path.endsWith('/src/game/playtestAnalytics.js')) return 'playtest-analytics'
+  // The bounded interaction monitor is shared by the shell and deferred Train
+  // and diagnostics routes. Cache that stable instrumentation independently
+  // from navigation/UI changes. It remains eager: the aggregate bootstrap
+  // budgets still account for every byte and may not be relaxed for this split.
+  if (path.endsWith('/src/performance.js')) return 'performance-monitor'
   if (path.endsWith('/src/game/content.js')) return 'story-graph'
   if (path.endsWith('/src/game/language.js')) return 'language-runtime'
   if (path.endsWith('/src/components/nodePositions.js')) return 'world-layout'

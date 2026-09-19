@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { embodimentQuest } from '../game/embodiment.js'
-
-const TALE_MODULES = import.meta.glob('../game/data/tales/[!_]*.js')
+import { loadTale, peekTale } from '../game/taleResources.js'
 
 export default function EmbodimentConfirm({ pending, dispatch }) {
   const headingRef = useRef(null)
   const dialogRef = useRef(null)
-  const [tale, setTale] = useState(null)
-  const [loadState, setLoadState] = useState('loading')
+  const [tale, setTale] = useState(() => peekTale(pending?.taleId))
+  const [loadState, setLoadState] = useState(() => peekTale(pending?.taleId) ? 'ready' : 'loading')
   const [loadAttempt, setLoadAttempt] = useState(0)
   const quest = embodimentQuest(pending?.taleId)
   const taleReady = loadState === 'ready' && tale?.id === pending?.taleId
@@ -18,17 +17,14 @@ export default function EmbodimentConfirm({ pending, dispatch }) {
   // player download the research archive at the opening bridge.
   useEffect(() => {
     let current = true
-    setTale(null)
-    setLoadState('loading')
+    const cached = peekTale(pending?.taleId)
+    setTale(cached)
+    setLoadState(cached ? 'ready' : 'loading')
     if (pending?.taleId) {
-      const load = TALE_MODULES[`../game/data/tales/${pending.taleId}.js`]
-      if (!load) setLoadState('error')
-      else load().then((module) => {
+      loadTale(pending.taleId).then((loaded) => {
         if (!current) return
-        const loaded = module.default || null
-        const matchesRequest = loaded?.id === pending.taleId
-        setTale(matchesRequest ? loaded : null)
-        setLoadState(matchesRequest ? 'ready' : 'error')
+        setTale(loaded)
+        setLoadState('ready')
       }).catch(() => {
         if (current) setLoadState('error')
       })
@@ -96,8 +92,6 @@ export default function EmbodimentConfirm({ pending, dispatch }) {
         {taleReady && tale.title && <p className="embodiment-tale-title">{tale.title}</p>}
         <p>You are about to step into the role of <b>{quest.identity}</b>: {situation}.</p>
         <p className="embodiment-first-objective"><b>First purpose:</b> {quest.objective}.</p>
-        {loadState === 'loading' && <p className="embodiment-load" role="status">Loading this tale and its source record…</p>}
-        {taleReady && <p className="embodiment-load ready" role="status">Tale and source record ready.</p>}
         {loadState === 'error' && (
           <div className="embodiment-load error" role="alert">
             <span>This tale and its sources could not be loaded. Your role has not begun.</span>
