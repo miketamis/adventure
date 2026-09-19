@@ -8,6 +8,7 @@
 //   node scripts/tts-download.mjs --force    # re-generate everything
 //   node scripts/tts-download.mjs --force-cefr # re-generate held-out listening clips with their assigned voices
 //   node scripts/tts-download.mjs --list-voices # inspect the real sq-AL inventory without generating audio
+//   node scripts/tts-download.mjs --concurrency=4 # bounded parallel generation
 //
 // Credentials come from .env (AZURE_TTS_KEY1 / AZURE_TTS_ENDPOINT).
 // ---------------------------------------------------------------------------
@@ -30,6 +31,10 @@ const FORCE = process.argv.includes('--force')
 const FORCE_CEFR = process.argv.includes('--force-cefr')
 const LIST_VOICES = process.argv.includes('--list-voices')
 const ONLY_SURFACE = process.argv.find((argument) => argument.startsWith('--surface='))?.slice('--surface='.length) || null
+const CONCURRENCY = Number(process.argv.find((argument) => argument.startsWith('--concurrency='))?.split('=')[1] || 1)
+if (!Number.isInteger(CONCURRENCY) || CONCURRENCY < 1 || CONCURRENCY > 4) {
+  throw new Error('--concurrency must be an integer from 1 to 4')
+}
 
 // --- credentials ----------------------------------------------------------
 function loadEnv() {
@@ -176,11 +181,18 @@ async function main() {
   console.log(`Using default voice: ${defaultVoice}; ${new Set(cefrVoiceBySlug.values()).size} assigned CEFR voices`)
 
   let done = 0
-  for (const al of todo) {
+  let failed = 0
+  let cursor = 0
+  let nextRequestAt = 0
+  const generate = async (al) => {
     const file = resolve(OUT_DIR, `${audioSlug(al)}.mp3`)
     let attempt = 0
     for (;;) {
       try {
+        // All workers share the same request-start spacing, including retries.
+        const requestAt = Math.max(Date.now(), nextRequestAt)
+        nextRequestAt = requestAt + 120
+        await sleep(Math.max(0, requestAt - Date.now()))
         const voice = cefrVoiceBySlug.get(audioSlug(al)) || defaultVoice
         const buf = await synth(al, voice)
         writeFileSync(file, buf)
@@ -190,14 +202,18 @@ async function main() {
       } catch (e) {
         attempt++
         if (attempt >= 4) {
+          failed++
           console.error(`  FAILED ${al}: ${e.message}`)
           break
         }
         await sleep(1000 * attempt) // back off (handles 429 throttling)
       }
     }
-    await sleep(120) // be gentle with the free-tier rate limit
   }
+  await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
+    while (cursor < todo.length) await generate(todo[cursor++])
+  }))
+  if (failed) throw new Error(`${failed} audio recordings failed to generate`)
   console.log('Done.')
 }
 

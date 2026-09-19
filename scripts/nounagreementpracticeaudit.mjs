@@ -8,6 +8,7 @@ import {
   validateReviewedNounAgreementFrame,
 } from '../src/game/nounAgreementPractice.js'
 import { buildNounAgreementQuestion } from '../src/game/formPractice.js'
+import { trainCompletionPhrases } from '../src/game/trainCompletion.js'
 import { wordProgressionOptionsForSense } from '../src/game/formInventory.js'
 import {
   advanceWordProgress,
@@ -41,6 +42,7 @@ const whole = buildDemonstrativeWholeChoice({
   answerId: 'liber', candidateIds: discoveredIds, optionCount: 2, rng: () => 0.25,
 })
 assert.equal(whole.promptText, 'this book')
+assert.deepEqual(trainCompletionPhrases(whole), ['ky libër'])
 assert.equal(whole.options.length, 2)
 assert.equal(whole.optionLabels.liber, 'ky libër')
 assert.equal(whole.grammarVariantId, NOUN_GRAMMAR_ACTIVITY_VARIANTS.demonstrativeWholeChoice.id)
@@ -69,6 +71,7 @@ const demonstrative = buildNounAgreementQuestion({
   answerId: 'liber', plan, candidateIds: discoveredIds, currentRound: 10, rng: () => 0.25,
 })
 assert.equal(demonstrative.kind, TRAIN_EXERCISE_FAMILIES.wordForms.kind)
+assert.deepEqual(trainCompletionPhrases(demonstrative), ['ky libër'])
 assert.equal(demonstrative.phaseQuestions['choose-demonstrative'].answerValue, 'ky')
 assert.equal(demonstrative.phaseQuestions['choose-noun'].answerValue, 'liber')
 assert.deepEqual(demonstrative.phaseAspectTargets['choose-demonstrative'].filter(({ evidenceMode }) => evidenceMode === 'write'), [])
@@ -105,6 +108,7 @@ const adjective = buildNounAgreementQuestion({
   answerId: 'liber', plan, candidateIds: discoveredIds, currentRound: 10, rng: () => 0.25,
 })
 assert.equal(adjective.phaseQuestions['identify-agreement-noun'].prompt, 'libri i mirë')
+assert.deepEqual(trainCompletionPhrases(adjective), ['libri i mirë'])
 assert.equal(adjective.phaseQuestions['identify-agreement-noun'].answerValue, 'liber')
 assert.equal(adjective.phaseQuestions['choose-linking-article'].prompt, 'libri __ mirë')
 assert.equal(adjective.phaseQuestions['choose-linking-article'].answerValue, 'i')
@@ -133,6 +137,7 @@ assert.equal(plan.stageId, 'linked-noun-agreement-cloze')
 const linked = buildNounAgreementQuestion({
   answerId: 'liber', plan, candidateIds: discoveredIds, currentRound: 10, rng: () => 0.25,
 })
+assert.deepEqual(trainCompletionPhrases(linked), ['ky libër i mirë'])
 assert.equal(linked.phaseQuestions['choose-linked-demonstrative'].prompt, '__ libër __ mirë')
 assert.equal(linked.phaseQuestions['choose-linked-demonstrative'].answerValue, 'ky')
 assert.equal(linked.phaseQuestions['choose-linked-article'].prompt, 'ky libër __ mirë')

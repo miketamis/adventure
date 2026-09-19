@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { DICT } from '../src/game/content.js'
 import { buildFormQuestion } from '../src/game/formPractice.js'
+import { trainCompletionPhrases } from '../src/game/trainCompletion.js'
 import { reviewedFormTargets, wordProgressionOptionsForSense } from '../src/game/formInventory.js'
 import { isTrainableSense } from '../src/game/lexicalTrainability.js'
 import { WORD_CONTEXT_LATE_PROOF, wordProgressPlan } from '../src/game/wordProgression.js'
@@ -74,6 +75,7 @@ for (const [id, entry] of Object.entries(DICT)) {
     assert.equal(contrastPlan.targetFormKey, target.key)
     const contrast = buildFormQuestion({ answerId: id, plan: contrastPlan, candidateIds: target.context.requires, currentRound: 50, rng: () => 0.271 })
     assert.ok(contrast, `${id}/${target.key}: reviewed contrast cannot build`)
+    assert.deepEqual(trainCompletionPhrases(contrast), [target.context.al])
     assert.equal(contrast.kind, 'forms')
     assert.equal(contrast.targetTokenIndices.length, 1,
       `${id}/${target.key}: reviewed contrast does not mark exactly one target form`)
@@ -118,6 +120,7 @@ for (const [id, entry] of Object.entries(DICT)) {
     assert.equal(selectionPlan.stageId, 'contextual-form-selection')
     const selection = buildFormQuestion({ answerId: id, plan: selectionPlan, candidateIds: target.context.requires, currentRound: 50, rng: () => 0.271 })
     assert.ok(selection, `${id}/${target.key}: contextual form selection cannot build`)
+    assert.deepEqual(trainCompletionPhrases(selection), [target.context.al])
     assert.equal(selection.kind, 'forms')
     assert.equal(selection.formExerciseMode, 'ending-choice')
     assert.equal(selection.endingPrompt.split('__').length - 1, 1,
@@ -138,6 +141,7 @@ for (const [id, entry] of Object.entries(DICT)) {
     assert.equal(recallPlan.stageId, 'reviewed-ending-recall')
     const recall = buildFormQuestion({ answerId: id, plan: recallPlan, candidateIds: target.context.requires, currentRound: 50, rng: () => 0.271 })
     assert.ok(recall, `${id}/${target.key}: typed ending recall cannot build`)
+    assert.deepEqual(trainCompletionPhrases(recall), [target.context.al])
     assert.equal(recall.kind, 'forms')
     assert.equal(recall.formExerciseMode, 'ending-type')
     assert.equal(recall.typingAnswer, target.endingPractice.answer)
@@ -159,6 +163,7 @@ for (const [id, entry] of Object.entries(DICT)) {
     assert.equal(constructionPlan.stageId, 'word-form-construction')
     const construction = buildFormQuestion({ answerId: id, plan: constructionPlan, candidateIds: target.context.requires, currentRound: 50, rng: () => 0.271 })
     assert.ok(construction, `${id}/${target.key}: construction cannot build`)
+    assert.deepEqual(trainCompletionPhrases(construction), [target.context.al])
     assert.equal(construction.kind, 'word-construction')
     assert.equal(construction.targetReference?.valid, true,
       `${id}/${target.key}: construction has no valid target reference`)

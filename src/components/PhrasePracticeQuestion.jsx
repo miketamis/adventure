@@ -145,7 +145,6 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
 
   const chooseCloze = (tile) => {
     if (answered || committed.current) return
-    playWord(tile.text)
     setSelectedIds([tile.id])
     const correct = tile.answerIndex != null
     commit(
@@ -239,8 +238,8 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
       <div>
         Të lumtë!{' '}
         {q.mode === 'match'
-            ? `${q.phrases.length} phrases matched.`
-            : `“${exactAnswer}”`}
+            ? q.phrases.map((phrase) => `“${phrase.al}”`).join(' · ')
+            : `“${q.target.al}”`}
       </div>
       <RewardChips ids={q.rewardIds} />
     </>
@@ -432,7 +431,7 @@ export default function PhrasePracticeQuestion({ q, debug = false, onComplete, o
       {acceptedComparison && (
         <AcceptedAnswerReview
           comparison={acceptedComparison}
-          reward={<RewardChips ids={q.rewardIds} />}
+          reward={<><p lang="sq">{q.target.al}</p><RewardChips ids={q.rewardIds} /></>}
           onContinue={onContinue}
         />
       )}

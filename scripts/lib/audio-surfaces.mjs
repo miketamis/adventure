@@ -5,6 +5,8 @@ import { phraseWords } from '../../src/game/phrasePractice.js'
 import { albanianTextOf } from '../../src/game/language.js'
 import { ALBANIAN_CONSTRUCTION_CHUNKS } from '../../src/game/formPractice.js'
 import { actionTranscriptWords } from './action-audio-surfaces.mjs'
+import { playableContextForSense, reviewedFormTargets } from '../../src/game/formInventory.js'
+import { REVIEWED_NOUN_AGREEMENT_FRAMES } from '../../src/game/nounAgreementPractice.js'
 
 export function collectAudioSurfaces(
   dict,
@@ -25,15 +27,22 @@ export function collectAudioSurfaces(
   // recordings and are never assembled from these sounds.
   for (const chunk of ALBANIAN_CONSTRUCTION_CHUNKS) add(chunk)
 
-  for (const entry of Object.values(dict)) {
+  for (const [id, entry] of Object.entries(dict)) {
     add(entry.al)
-    if (entry.ctx?.audio === true) add(entry.ctx.al)
+    add(entry.ctx?.al)
+    add(playableContextForSense(id)?.al)
+    for (const target of reviewedFormTargets(id)) add(target.context?.al)
     // Train can play every standalone reviewed form, including surfaces that
     // have not yet appeared in story prose. Bound fragments are deliberately
     // excluded because the UI never presents or plays them on their own.
     for (const form of entry.forms || []) {
       if (form.trainable !== false) add(form.al)
     }
+  }
+  for (const frame of REVIEWED_NOUN_AGREEMENT_FRAMES) {
+    add(frame.demonstrative.phrase)
+    add(frame.adjective.phrase)
+    add(`${frame.demonstrative.phrase} ${frame.adjective.article} ${frame.adjective.adjective}`)
   }
 
   const walk = (value) => {

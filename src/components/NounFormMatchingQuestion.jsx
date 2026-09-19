@@ -93,6 +93,9 @@ export default function NounFormMatchingQuestion({ q, debug = false, onComplete 
         {outcome?.correct ? `Të lumtë! All ${q.pairs.length} uses matched.` : `${matched.length} of ${q.pairs.length} matched`}
       </p>
       {outcome?.correct && (
+        <p lang="sq">{q.pairs.map(({ context }) => `“${context}”`).join(' · ')}</p>
+      )}
+      {outcome?.correct && (
         <div className="phrase-rewards" aria-label="One target-word token earned">
           <span className="phrase-reward"><span aria-hidden="true">✦</span> +1 <span lang="sq">{q.surface}</span></span>
         </div>

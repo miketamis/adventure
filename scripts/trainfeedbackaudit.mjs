@@ -5,6 +5,10 @@ import {
   buildPhraseQuestion,
   phraseQuestionExactAnswer,
 } from '../src/game/phrasePractice.js'
+import { trainCompletionPhrases } from '../src/game/trainCompletion.js'
+import { DICT } from '../src/game/dictionary.js'
+import { playableContextForSense, reviewedFormTargets } from '../src/game/formInventory.js'
+import { collectAudioSurfaces } from './lib/audio-surfaces.mjs'
 import { acceptedAnswerComparison } from '../src/game/acceptedAnswerFeedback.js'
 import {
   TRAIN_HEALTH_POLICY,
@@ -32,6 +36,23 @@ const stringsOf = (value, path = 'question', out = []) => {
 }
 
 const steady = () => 0.417
+const completionAudio = new Set(collectAudioSurfaces(DICT, {}))
+for (const id of Object.keys(DICT)) {
+  const contexts = [DICT[id].ctx, playableContextForSense(id), ...reviewedFormTargets(id).map(({ context }) => context)].filter(Boolean)
+  for (const context of contexts) {
+    if (!context.al) continue
+    for (const question of [
+      { ctx: { al: context.alGap || '__', authoredAl: context.al } },
+      { context },
+      { typingContext: context },
+      { formExerciseMode: 'same-root-grammar-matching', pairs: [{ context: context.al }] },
+    ]) {
+      assert.deepEqual(trainCompletionPhrases(question), [context.al], `${id}: completion lost its full context`)
+      assert.ok(completionAudio.has(context.al), `${id}: completed context omitted from generated audio inventory`)
+    }
+  }
+}
+assert.deepEqual(trainCompletionPhrases({ surface: 'libër' }), [], 'Isolated word activities remain word-only')
 let built = 0
 for (const phrase of EVERYDAY_PHRASE_DRILLS) {
   for (const tier of [0, 2, 3, 4]) {
@@ -70,9 +91,78 @@ assert.match(orderComparison.title, /exact word order/)
 assert.match(orderComparison.explanation, /All the words are here/)
 assert.match(phraseComponent, /<AcceptedAnswerReview/)
 assert.match(phraseComponent, /onContinue=\{onContinue\}/)
+assert.ok(phraseComponent.includes(': `“${q.target.al}”`'), 'Phrase success must display the whole Albanian phrase, including cloze and word typing')
+assert.ok(phraseComponent.includes('q.phrases.map((phrase) => `“${phrase.al}”`)'), 'Matched phrase feedback must retain every complete phrase')
+assert.match(practice, /await playPhrase\(phrase\)/)
+assert.match(practice, /generation\.current !== completionGeneration/)
+// Exercise the production completion handler with controlled continuous audio.
+const completionStart = practice.indexOf('const onPhraseComplete = useCallback(')
+const completionEnd = practice.indexOf('\n  }, [dispatch, q, scheduleNextQuestion, state])', completionStart)
+assert.ok(completionStart >= 0 && completionEnd > completionStart)
+const completionBody = practice.slice(practice.indexOf('\n', completionStart), completionEnd)
+const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor
+const runCompletion = new AsyncFunction(
+  'trainCompletionPhrases', 'result', 'q', 'generation', 'mounted', 'state', 'trainCorrectWillRestoreHeart',
+  'trainHealthPlanForQuestion', 'setAcceptedLeewayReview', 'setAwaitingRecoveryContinue',
+  'phraseNounEndingRefresher', 'trainMissConsequence', 'dispatch', 'playPhrase', 'scheduleNextQuestion',
+  completionBody,
+)
+for (const mode of ['cloze', 'type', 'arrange', 'listen', 'match']) {
+  const fullPhrase = EVERYDAY_PHRASE_DRILLS[0]
+  const q = { mode, target: fullPhrase, phrases: mode === 'match' ? [fullPhrase, EVERYDAY_PHRASE_DRILLS[1]] : undefined }
+  const played = []
+  const scheduled = []
+  let finishAudio
+  const pending = runCompletion(
+    trainCompletionPhrases, { correct: true }, q, { current: 1 }, { current: true }, {}, () => false,
+    () => ({}), () => {}, () => {}, () => null, () => null, () => {},
+    (al) => { played.push(al); return new Promise((resolve) => { finishAudio = resolve }) },
+    (delay) => scheduled.push(delay),
+  )
+  assert.deepEqual(played, [fullPhrase.al], `${mode}: completion must play the complete recording`)
+  assert.deepEqual(scheduled, [], `${mode}: must wait for the audio`)
+  finishAudio(true)
+  if (mode === 'match') {
+    await Promise.resolve()
+    assert.deepEqual(played, q.phrases.map(({ al }) => al))
+    assert.deepEqual(scheduled, [])
+    finishAudio(false) // Missing/muted audio must still allow progression.
+  }
+  await pending
+  assert.deepEqual(scheduled, [1900])
+}
+const wordCompletionStart = practice.indexOf('const finishWordActivity = async ')
+const wordCompletionEnd = practice.indexOf('\n  const onPick = ', wordCompletionStart)
+assert.ok(wordCompletionStart >= 0 && wordCompletionEnd > wordCompletionStart)
+const wordCompletionBody = practice.slice(practice.indexOf('\n', wordCompletionStart), wordCompletionEnd).replace(/\n  }\s*$/, '')
+const runWordCompletion = new AsyncFunction(
+  'correct', 'restoresHeart', 'delay', 'generation', 'mounted', 'completionPhrases',
+  'playPhrase', 'playWord', 'scheduleNextQuestion', 'q', 'DICT', wordCompletionBody,
+)
+for (const outcome of ['completed', 'failed', 'unmounted', 'stale', 'restored-heart']) {
+  const played = []
+  const scheduled = []
+  const generation = { current: 1 }
+  const mounted = { current: true }
+  const phrase = EVERYDAY_PHRASE_DRILLS[0].al
+  let finishAudio
+  const pending = runWordCompletion(
+    true, outcome === 'restored-heart', 1200, generation, mounted, [phrase],
+    (al) => { played.push(al); return new Promise((resolve) => { finishAudio = resolve }) },
+    () => assert.fail('A contextual answer must not play an isolated word'),
+    (delay) => scheduled.push(delay), {}, DICT,
+  )
+  assert.deepEqual(played, [phrase])
+  assert.deepEqual(scheduled, [], `${outcome}: contextual activity advanced before audio finished`)
+  if (outcome === 'unmounted') mounted.current = false
+  if (outcome === 'stale') generation.current++
+  finishAudio(outcome !== 'failed')
+  await pending
+  assert.deepEqual(scheduled, ['completed', 'failed'].includes(outcome) ? [1200] : [])
+}
 assert.doesNotMatch(phraseComponent, /q\.typeScope === 'word' \? q\.typingAnswer : q\.target\.al/)
 assert.match(practice, /onContinue=\{next\}/)
-assert.match(practice, /result\.correct && !result\.acceptedWithLeeway && !restoresHeart/)
+assert.match(practice, /if \(!result\.acceptedWithLeeway && !restoresHeart\) scheduleNextQuestion\(1900\)/)
 assert.doesNotMatch(practice, /result\.correct \? 1800 : 0/)
 assert.match(acceptedReview, /<BlockingModal/)
 assert.match(acceptedReview, /title=\{comparison\.title\}/)

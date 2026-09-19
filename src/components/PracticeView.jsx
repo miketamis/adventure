@@ -2,6 +2,7 @@ import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } fro
 import { DICT } from '../game/content.js'
 import { practiceReturnOption } from '../game/practiceReturn.js'
 import { playPhrase, playWord } from '../game/audio.js'
+import { trainCompletionPhrases } from '../game/trainCompletion.js'
 import { trainQuestionWordKeys } from '../game/phrasePractice.js'
 import {
   EVERYDAY_PHRASE_DRILLS,
@@ -358,7 +359,8 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   }, [discoveredIds, unlockedEverydayPhrases, state, dispatch])
 
   nextRef.current = next
-  const onPhraseComplete = useCallback((result) => {
+  const onPhraseComplete = useCallback(async (result) => {
+    const completionGeneration = generation.current
     const restoresHeart = result.correct && trainCorrectWillRestoreHeart(
       trainHealthPlanForQuestion(state, q),
     )
@@ -393,8 +395,13 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
       grammarGuide: guide,
     })
     dispatch({ type: 'PRACTICE_PHRASE_RESULT', activityTypeId: q.activityTypeId, ...result, consequence })
-    if (result.correct && !result.acceptedWithLeeway && !restoresHeart) scheduleNextQuestion(1900)
-    else if (!result.correct) scheduleNextQuestion(0)
+    if (result.correct) {
+      for (const phrase of trainCompletionPhrases(q)) {
+        await playPhrase(phrase)
+        if (!mounted.current || generation.current !== completionGeneration) return
+      }
+      if (!result.acceptedWithLeeway && !restoresHeart) scheduleNextQuestion(1900)
+    } else scheduleNextQuestion(0)
   }, [dispatch, q, scheduleNextQuestion, state])
 
   const onWordMatchComplete = useCallback((result) => {
@@ -473,8 +480,8 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           : null,
       }),
     })
-    if (result.correct && !restoresHeart) scheduleNextQuestion(1800)
-    else if (!result.correct) scheduleNextQuestion(0)
+    if (result.correct) void finishWordActivity(true, restoresHeart, 1800)
+    else scheduleNextQuestion(0)
   }, [dispatch, q, scheduleNextQuestion, state])
 
   useEffect(() => {
@@ -652,6 +659,21 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   const answered = picked !== null
   const wasCorrect = picked === correctValue
 
+  const completionPhrases = trainCompletionPhrases(q)
+  const finishWordActivity = async (correct, restoresHeart, delay) => {
+    const ticket = generation.current
+    if (correct && completionPhrases.length) {
+      for (const phrase of completionPhrases) {
+        await playPhrase(phrase)
+        if (!mounted.current || generation.current !== ticket) return
+      }
+    } else {
+      playWord(q.surface || q.typingAnswer || DICT[q.answerId]?.al)
+    }
+    if (correct && !restoresHeart) scheduleNextQuestion(delay)
+    else if (!correct) scheduleNextQuestion(0)
+  }
+
   const onPick = (value) => {
     if (answered || answerCommitted.current || (q.requiresCompletedAudio && !wordAudioCompleted)) return
     answerCommitted.current = true
@@ -701,9 +723,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           reasoning: miss.reasoning || null,
         }),
       })
-      playWord(q.surface)
-      if (correct && !restoresHeart) scheduleNextQuestion(1200)
-      else if (!correct) scheduleNextQuestion(0)
+      void finishWordActivity(correct, restoresHeart, 1200)
       return
     }
 
@@ -754,7 +774,6 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     }
 
     if (isFormChoice) {
-      playWord(q.surface)
       const chosen = q.options.find((option) => option.value === value)?.label || String(value)
       const correctOption = q.options.find((option) => option.value === correctValue)?.label || q.surface
       const isEnding = isEndingChoice
@@ -800,13 +819,11 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           grammarGuide: guide,
         }),
       })
-      if (correct && !restoresHeart) scheduleNextQuestion(1200)
-      else if (!correct) scheduleNextQuestion(0)
+      void finishWordActivity(correct, restoresHeart, 1200)
       return
     }
 
     // normal / context question
-    playWord(DICT[q.answerId].al)
     const wordKeys = trainQuestionWordKeys(q)
     const chosenLabel = q.optionLabels?.[value] || senseText(value, q.field)
     const correctLabel = q.optionLabels?.[q.answerId] || senseText(q.answerId, q.field)
@@ -843,8 +860,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         targetWordId: q.answerId,
       }),
     })
-    if (correct && !restoresHeart) scheduleNextQuestion(1200)
-    else if (!correct) scheduleNextQuestion(0)
+    void finishWordActivity(correct, restoresHeart, 1200)
   }
 
   const insertWordLetter = (letter) => {
@@ -892,7 +908,6 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     setPicked(result.correct ? q.answerId : '__typed-word-miss__')
     const restoresHeart = result.correct && trainCorrectWillRestoreHeart(trainHealth)
     setAwaitingRecoveryContinue(restoresHeart)
-    playWord(isEndingTyping ? q.surface : q.typingAnswer)
     const guide = !result.correct && isEndingTyping
       ? buildNounEndingRefresher(q.answerId, q.surface, q.formTarget.gloss)
       : null
@@ -929,8 +944,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         grammarGuide: guide,
       }),
     })
-    if (result.correct && !restoresHeart) scheduleNextQuestion(1600)
-    else if (!result.correct) scheduleNextQuestion(0)
+    void finishWordActivity(result.correct, restoresHeart, 1600)
   }
 
   const constructedText = isWordConstruction
@@ -963,7 +977,6 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     setPicked(correct ? q.answerId : '__construction-miss__')
     const restoresHeart = correct && trainCorrectWillRestoreHeart(trainHealth)
     setAwaitingRecoveryContinue(restoresHeart)
-    playWord(q.surface)
     dispatch({
       type: 'PRACTICE_WORD_RESULT',
       activityTypeId: q.activityTypeId,
@@ -994,8 +1007,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
         targetWordId: q.answerId,
       }),
     })
-    if (correct && !restoresHeart) scheduleNextQuestion(1500)
-    else if (!correct) scheduleNextQuestion(0)
+    void finishWordActivity(correct, restoresHeart, 1500)
   }
 
   // Only the exact story option whose Train button opened this view may offer
@@ -1162,7 +1174,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
             onAnswer={onPick}
             feedbackTone={wasCorrect ? 'good' : 'bad'}
             feedback={wasCorrect
-              ? `Të lumtë! +1 token for "${DICT[q.answerId].al}"`
+              ? `Të lumtë! “${completionPhrases[0]}” +1 token for "${DICT[q.answerId].al}"`
               : null}
           />
         </div>
@@ -1340,7 +1352,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
           )}
 
           <div className={'feedback ' + (answered ? (wasCorrect ? 'good' : 'bad') : '')} role="status" aria-live="polite" aria-atomic="true">
-            {answered && wasCorrect && `Të lumtë! +1 token for "${q.surface || DICT[q.answerId].al}"`}
+            {answered && wasCorrect && `Të lumtë! ${completionPhrases.map((phrase) => `“${phrase}”`).join(" · ")} +1 token for "${q.surface || DICT[q.answerId].al}"`}
           </div>
           </TrainingActivityShell>
         </div>

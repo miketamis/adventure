@@ -421,7 +421,8 @@ const LAZY_CHUNK_RAW_BUDGET = 600 * KiB
 // any reviewed reading.
 const READING_CHUNK_RAW_BUDGET = 387 * KiB
 const READING_CHUNK_GZIP_BUDGET = 115 * KiB
-const AUDIO_FILE_BUDGET = 64 * KiB
+// Completed Train contexts include multi-sentence exchanges (largest: 73 KiB).
+const AUDIO_FILE_BUDGET = 76 * KiB
 // Word-level timestamps are loaded only after an accepted action starts its
 // continuous MP3. Budget the independently cached manifest as well as the
 // clips so alignment metadata cannot grow without a release review.
@@ -432,10 +433,10 @@ const AUDIO_FILE_BUDGET = 64 * KiB
 // release-safety data.
 const ACTION_TIMINGS_RAW_BUDGET = 1_124 * KiB
 const ACTION_TIMINGS_GZIP_BUDGET = 151 * KiB
-// Every accepted story action now has one continuous, on-demand MP3 so action
-// karaoke never falls back to stitched word clips or browser TTS. Keep a
-// measured ceiling over that complete 4,903-clip archive; none is eager-loaded.
-const AUDIO_TOTAL_BUDGET = 48 * 1024 * KiB
+// Story actions and all completed Train contexts have continuous, on-demand
+// recordings. The 7,493-clip archive includes the newly voiced contextual word,
+// noun-form and agreement sentences; none is eager-loaded by the shell.
+const AUDIO_TOTAL_BUDGET = 84 * 1024 * KiB
 const actionTimings = sizeOf(ACTION_TIMINGS)
 
 assert.ok(entry.raw <= SHELL_RAW_BUDGET,

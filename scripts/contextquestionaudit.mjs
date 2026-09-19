@@ -14,6 +14,7 @@ import {
   practiceTargetKind,
 } from '../src/game/practiceContrasts.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
+import { trainCompletionPhrases } from '../src/game/trainCompletion.js'
 import { EVERYDAY_PHRASE_DRILLS } from '../src/game/everydayAlbanian.js'
 import {
   WORD_CONTEXT_LATE_PROOF,
@@ -129,6 +130,7 @@ for (const id of requiredContextIds) {
       assert.equal(question.answerId, id)
       const source = question.contextPhraseId ? phraseById[question.contextPhraseId] : DICT[id].ctx
       assert.equal(question.ctx.authoredAl, source.al)
+      assert.deepEqual(trainCompletionPhrases(question), [source.al], `${id}: completion must read the whole authored context`)
       assert.equal(question.ctx.authoredEn, question.contextPhraseId
         ? DICT[id].ctx.variants.find(({ phraseId }) => phraseId === question.contextPhraseId).en
         : source.en)
