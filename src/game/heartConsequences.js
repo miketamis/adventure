@@ -10,6 +10,7 @@ export const HEART_CONSEQUENCE_SOURCES = Object.freeze([
   'train-noun-agreement',
   'train-phrase',
   'train-word-matching',
+  'train-noun-form-matching',
   'story-confuser',
   'story-choice',
   'item-action',

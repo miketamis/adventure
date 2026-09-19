@@ -353,6 +353,11 @@ check('source inventory has no player decrement outside the shared wrappers', ()
   const app = source('src/App.jsx')
   const heartModal = source('src/components/HeartConsequenceModal.jsx')
 
+  for (const [, sourceId] of practice.matchAll(/source:\s*'(train-[^']+)'/g)) {
+    assert.ok(HEART_CONSEQUENCE_SOURCES.includes(sourceId),
+      `${sourceId}: Train submits an unregistered correction source and would strand the completed card`)
+  }
+
   const rawReducerDecrements = [...gameState.matchAll(/Math\.max\(0,\s*state\.hearts\s*-\s*1\)/g)]
   assert.equal(rawReducerDecrements.length, 1, 'a new raw reducer decrement bypasses the shared contract')
   assert.match(gameState.slice(Math.max(0, rawReducerDecrements[0].index - 100), rawReducerDecrements[0].index), /DEBUG_HURT/,
