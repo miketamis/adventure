@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { execFileSync } from 'node:child_process'
+import { factorStoryTokens } from './scripts/lib/factor-story-tokens.mjs'
 
 const buildCommit = process.env.GITHUB_SHA || execFileSync(
   'git',
@@ -296,13 +297,27 @@ const deferStoryReadings = () => ({
   },
 })
 
+// Factor only after the reading pass has recognized the original token calls.
+// This does not move data out of the measured eager closure or change source
+// authoring: each generated factory still allocates through the canonical wf.
+const factorStoryTokenCalls = () => ({
+  name: 'factor-literal-story-tokens',
+  apply: 'build',
+  transform(code, rawId) {
+    const id = rawId.split('?')[0].replaceAll('\\', '/')
+    if (!id.endsWith('/src/game/content.js')) return null
+    const result = factorStoryTokens(code, this.parse(code))
+    return result.code === code ? null : { code: result.code, map: null }
+  },
+})
+
 export default defineConfig({
   // served from https://miketamis.github.io/adventure/
   base: '/adventure/',
   define: {
     __BUILD_COMMIT__: JSON.stringify(buildCommit),
   },
-  plugins: [deferStoryReadings(), react()],
+  plugins: [deferStoryReadings(), factorStoryTokenCalls(), react()],
   build: {
     rollupOptions: {
       output: { manualChunks: authoredChunk },

@@ -9,8 +9,8 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { basename, resolve } from 'node:path'
-import { execFileSync } from 'node:child_process'
-import { pathToFileURL } from 'node:url'
+import { execFileSync, spawnSync } from 'node:child_process'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { runInNewContext } from 'node:vm'
 import { parseAst } from 'vite'
 import viteConfig from '../vite.config.js'
@@ -23,6 +23,18 @@ const ASSETS = resolve(DIST, 'assets')
 const AUDIO = resolve(DIST, 'audio')
 const ACTION_TIMINGS = resolve(AUDIO, 'action-timings.json')
 const KiB = 1024
+
+// Exercise both the factoring boundary and whole-module public exports in the
+// release path. A missing executable, signal or missing status is a failure.
+for (const test of ['lib/factor-story-tokens.test.mjs', 'lib/story-token-export-parity.test.mjs']) {
+  const result = spawnSync(process.execPath, [fileURLToPath(new URL(test, import.meta.url))], {
+    cwd: fileURLToPath(new URL('../', import.meta.url)),
+    stdio: 'inherit',
+  })
+  assert.ifError(result.error)
+  assert.equal(result.signal, null, `${test}: terminated by ${result.signal}`)
+  assert.equal(result.status, 0, `${test}: did not complete successfully (${result.status})`)
+}
 
 assert.ok(existsSync(resolve(DIST, 'index.html')), 'dist/index.html is missing; run `npm run build` first')
 assert.ok(existsSync(ASSETS), 'dist/assets is missing; run `npm run build` first')
