@@ -13,6 +13,7 @@ import { buildPhraseQuestion, trainQuestionWordKeys } from './phrasePractice.js'
 import { trainActivityTypeId, trainQuestionTargetKeys } from './trainActivityBalance.js'
 import { buildWordQuestion, wordQuestionRouteAspectIds } from './wordPractice.js'
 import { createWordMatchingRoundPlanner } from './wordMatching.js'
+import { createDistractorLearnerLookup } from './distractorPlanning.js'
 
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
@@ -303,6 +304,13 @@ export function* enumerateTrainActivityCandidateSteps({
   })
   const proposals = []
   const forcedGoalTargets = new Set(forceGoalTargetIds || [])
+  const learnerLookup = createDistractorLearnerLookup({
+    discoveredIds,
+    mana: state?.mana,
+    practiced: state?.practiced,
+    wordProgress: state?.wordProgress,
+    wordExposure: state?.wordExposure,
+  })
   const seenCandidateIds = new Set()
   const trace = {
     contract: TRAIN_CANDIDATE_CONTRACT,
@@ -342,6 +350,7 @@ export function* enumerateTrainActivityCandidateSteps({
         practiced: state?.practiced,
         wordProgress: state?.wordProgress,
         wordExposure: state?.wordExposure,
+        learnerLookup,
         currentRound,
         nowMs,
         targetId: id,

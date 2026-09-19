@@ -4,6 +4,7 @@ import {
   practiceContrastRole,
   practiceTargetKind,
   wordContrastRank,
+  createWordContrastRanker,
 } from './practiceContrasts.js'
 import { sensesMayShareAnswer } from './practiceAnswerValidity.js'
 import {
@@ -95,6 +96,20 @@ const learnerEvidence = (id, { discovered, mana, practiced, wordProgress, wordEx
   }
 }
 
+// All proposals in one enumeration read the same learner snapshot. Normalize
+// each sense's evidence once for that request, including unseen fallback
+// senses, instead of rebuilding it in every target's distractor pool.
+export function createDistractorLearnerLookup({
+  discoveredIds = [], mana = {}, practiced = {}, wordProgress = {}, wordExposure = {},
+} = {}) {
+  const snapshot = { discovered: new Set(discoveredIds), mana, practiced, wordProgress, wordExposure }
+  const evidence = new Map()
+  return (id) => {
+    if (!evidence.has(id)) evidence.set(id, learnerEvidence(id, snapshot))
+    return evidence.get(id)
+  }
+}
+
 export function distractorDifficultyBandForPlan(plan = {}) {
   if (plan.contextReview || plan.contextVariantId === 'unmarked-context-recognition') return 'challenge'
   if (plan.stageId === 'meaning-recognition') return 'foundation'
@@ -105,8 +120,8 @@ export function distractorDifficultyBandForPlan(plan = {}) {
   return Number(plan.tier) >= 3 ? 'challenge' : 'developing'
 }
 
-const relationFor = (answerId, candidateId, contextual, editorialHardContrast = null) => {
-  const contrastRank = wordContrastRank(answerId, candidateId, { contextual })
+const relationFor = (answerId, candidateId, contextual, editorialHardContrast = null,
+  contrastRank = wordContrastRank(answerId, candidateId, { contextual })) => {
   const targetRole = practiceContrastRole(answerId)
   const candidateRole = practiceContrastRole(candidateId)
   const sameAlbanianSurface = clean(DICT[answerId]?.al) === clean(DICT[candidateId]?.al)
@@ -199,6 +214,7 @@ export function planSenseDistractors({
   practiced = {},
   wordProgress = {},
   wordExposure = {},
+  learnerLookup = null,
   excludeReason = () => null,
   labelOf = (id) => field === 'en' ? (DICT[id]?.enAll ?? DICT[id]?.en) : DICT[id]?.al,
   wrongOptionIsValid = (id) => !contextual && sensesMayShareAnswer(answerId, id),
@@ -214,17 +230,45 @@ export function planSenseDistractors({
   const registryCandidateIds = hardRegistryEnabled
     ? practiceHardContrastCandidateIds(answerId)
     : []
-  const discovered = new Set(discoveredIds)
+  const evidenceFor = learnerLookup || createDistractorLearnerLookup({ discoveredIds, mana, practiced, wordProgress, wordExposure })
   const local = new Set(candidateIds)
   const editorial = new Set(registryCandidateIds)
   const rows = []
   const selectionLeaders = []
   const selectionCompare = compareForBand(band)
+  const rankCandidate = createWordContrastRanker(answerId, { contextual })
+  const optimistic = {
+    fairnessPriority: 0,
+    editorialHardPriority: 0,
+    relation: { contrastRank: null, confusability: { score: 0 } },
+    randomOrder: 0,
+  }
   const usedLabels = new Set([lower(labelOf(answerId), field === 'al' ? 'sq' : 'en')])
   const ids = [...new Set([...candidateIds, ...registryCandidateIds, ...fallbackIds])]
   for (const id of ids) {
-    const rejectionReasons = []
+    let contrastRank
     const hardContrast = editorial.has(id) ? practiceHardContrastLink(answerId, id) : null
+    // Keep the seeded draw for every row, even when a comparator bound proves
+    // the row cannot win. Authoring predicates are pure validity checks; there
+    // is no reason to normalize labels or inspect exclusions for such a row.
+    const randomOrder = rng()
+    let evidence = field === 'al' ? evidenceFor(id) : null
+    const fairnessPriority = field === 'al' && !evidence.knownEnoughForAlbanianDiscrimination ? 1 : 0
+    const editorialHardPriority = hardContrast ? 0 : 1
+    if (!debugTrace && count > 0 && selectionLeaders.length >= count && DICT[id]) {
+      const rank = contrastRank = rankCandidate(id)
+      const reviewedTaskContrast = source.startsWith('editor-reviewed')
+      const scoreBase = !Number.isFinite(rank) && !hardContrast && reviewedTaskContrast
+        ? 0.35
+        : (Number.isFinite(rank) ? (5 - Math.min(5, rank)) / 5 : 0) * 0.75
+      optimistic.fairnessPriority = fairnessPriority
+      optimistic.editorialHardPriority = editorialHardPriority
+      optimistic.relation.contrastRank = Number.isFinite(rank) ? rank : hardContrast || reviewedTaskContrast ? 3 : null
+      optimistic.relation.confusability.score = Number(Math.min(1, scoreBase + (band === 'challenge' ? 0.25 : 0)).toFixed(3))
+      optimistic.randomOrder = randomOrder
+      if (selectionCompare(optimistic, selectionLeaders.at(-1)) >= 0) continue
+    }
+    const rejectionReasons = []
     if (id === answerId) rejectionReasons.push('candidate is the correct answer')
     if (!DICT[id]) rejectionReasons.push('candidate has no dictionary sense')
     if (DICT[id] && !isTrainableSense(id)) rejectionReasons.push('candidate is not trainable lexical material')
@@ -244,36 +288,9 @@ export function planSenseDistractors({
     const labelKey = lower(label, field === 'al' ? 'sq' : 'en')
     if (!labelKey) rejectionReasons.push('candidate has no learner-visible label')
     if (labelKey && usedLabels.has(labelKey)) rejectionReasons.push('candidate duplicates a learner-visible option label')
-    // Every row consumes the same seeded draw, including rejected/pruned rows.
-    // Ordinary cards only need the winning options. Once enough distinct
-    // labels exist, optimistic comparator bounds can prove that a row cannot
-    // win without calculating its edit distance or building its full trace.
-    // Developing uses rank directly; foundation/challenge use the minimum/
-    // maximum possible similarity. Full debug enumeration stays exhaustive.
-    const randomOrder = rng()
     if (!debugTrace && rejectionReasons.length) continue
-    let evidence = field === 'al'
-      ? learnerEvidence(id, { discovered, mana, practiced, wordProgress, wordExposure })
-      : null
-    const fairnessPriority = field === 'al' && !evidence.knownEnoughForAlbanianDiscrimination ? 1 : 0
-    const editorialHardPriority = hardContrast ? 0 : 1
-    if (!debugTrace && count > 0 && selectionLeaders.length >= count && DICT[id]) {
-      const rank = wordContrastRank(answerId, id, { contextual })
-      const reviewedTaskContrast = source.startsWith('editor-reviewed')
-      const scoreBase = !Number.isFinite(rank) && !hardContrast && reviewedTaskContrast
-        ? 0.35
-        : (Number.isFinite(rank) ? (5 - Math.min(5, rank)) / 5 : 0) * 0.75
-      const optimisticScore = Number(Math.min(1, scoreBase + (band === 'challenge' ? 0.25 : 0)).toFixed(3))
-      const optimistic = {
-        fairnessPriority,
-        editorialHardPriority,
-        relation: { contrastRank: Number.isFinite(rank) ? rank : hardContrast || reviewedTaskContrast ? 3 : null, confusability: { score: optimisticScore } },
-        randomOrder,
-      }
-      if (selectionCompare(optimistic, selectionLeaders.at(-1)) >= 0) continue
-    }
-    evidence ||= learnerEvidence(id, { discovered, mana, practiced, wordProgress, wordExposure })
-    let relation = DICT[id] ? relationFor(answerId, id, contextual, hardContrast) : {
+    evidence ||= evidenceFor(id)
+    let relation = DICT[id] ? relationFor(answerId, id, contextual, hardContrast, contrastRank ?? rankCandidate(id)) : {
       type: 'missing', contrastRank: null, targetRole: null, candidateRole: null,
       sameAlbanianSurface: false, orthographicSimilarity: 0,
       confusability: { score: 0, band: 'far' },

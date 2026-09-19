@@ -4,6 +4,7 @@ import {
   DISTRACTOR_PLAN_CALIBRATION,
   DISTRACTOR_PLAN_VERSION,
   planSenseDistractors,
+  createDistractorLearnerLookup,
 } from '../src/game/distractorPlanning.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
 import { DICT } from '../src/game/dictionary.js'
@@ -87,6 +88,21 @@ assert.equal(ordinaryQuestion?.debugSelection, undefined, 'ordinary Train leaked
 // This guards the lower-bound pruning against a subtle difficulty, duplicate
 // label, fairness, or seeded tie-break change.
 const wholeBankIds = Object.keys(DICT).filter(isTrainableSense)
+const evidenceReads = new Map()
+const sharedEvidence = createDistractorLearnerLookup({
+  ...evidence,
+  wordProgress: new Proxy(evidence.wordProgress, {
+    get(target, id) { evidenceReads.set(id, (evidenceReads.get(id) || 0) + 1); return target[id] },
+  }),
+})
+for (const difficultyBand of ['foundation', 'developing', 'challenge']) {
+  const options = { ...evidence, answerId: 'mund', count: 3, difficultyBand, field: 'al', debugTrace: false }
+  const reused = planSenseDistractors({ ...options, learnerLookup: sharedEvidence, rng: seededTrainRng(difficultyBand) })
+  const independent = planSenseDistractors({ ...options, rng: seededTrainRng(difficultyBand) })
+  assert.deepEqual(reused, independent, `${difficultyBand}: sharing the learner snapshot changed a distractor plan`)
+}
+assert.ok(evidenceReads.size >= wholeBankIds.length, 'the shared learner lookup omitted unseen fallback senses')
+assert.ok([...evidenceReads.values()].every((count) => count === 1), 'multiple proposals reread the same learner evidence')
 const compareOptimizedPlan = (options, seed) => {
   const exhaustive = planSenseDistractors({ ...options, rng: seededTrainRng(seed), debugTrace: true })
   const optimized = planSenseDistractors({ ...options, rng: seededTrainRng(seed), debugTrace: false })

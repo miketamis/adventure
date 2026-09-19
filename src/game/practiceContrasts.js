@@ -168,18 +168,40 @@ export function contextualPromptProfile(id, { contextPresentation = 'marked' } =
   }
 }
 
-export function wordContrastRank(answerId, candidateId, { contextual = false } = {}) {
-  if (!DICT[answerId] || !DICT[candidateId] || answerId === candidateId) return Infinity
-  if (contextual && DICT[answerId].al === DICT[candidateId].al) return 0
+const contrastFeaturesById = new Map()
+const contrastFeatures = (id) => {
+  const cached = contrastFeaturesById.get(id)
+  if (cached) return cached
+  if (!DICT[id]) return null
+  const features = {
+    surface: DICT[id].al,
+    kind: practiceTargetKind(id),
+    role: practiceContrastRole(id),
+    wordClass: wordClass(id),
+  }
+  contrastFeaturesById.set(id, features)
+  return features
+}
+
+const contrastRankForFeatures = (answerId, candidateId, answer, candidate, contextual) => {
+  if (!answer || !candidate || answerId === candidateId) return Infinity
+  if (contextual && answer.surface === candidate.surface) return 0
   if (contextual && REVIEWED_CONTEXTUAL_FUNCTION_PEERS[answerId]?.includes(candidateId)) return 1
-  const answerKind = practiceTargetKind(answerId)
-  const candidateKind = practiceTargetKind(candidateId)
-  if (answerKind !== candidateKind) return Infinity
-  if (practiceContrastRole(answerId) === practiceContrastRole(candidateId)) return 1
-  const answerClass = wordClass(answerId)
-  const candidateClass = wordClass(candidateId)
-  if (answerClass === candidateClass && answerClass !== WORD_CLASS.NON_INFLECTING) return 2
-  return answerKind === PRACTICE_TARGET_KIND.function ? 3 : 4
+  if (answer.kind !== candidate.kind) return Infinity
+  if (answer.role === candidate.role) return 1
+  if (answer.wordClass === candidate.wordClass && answer.wordClass !== WORD_CLASS.NON_INFLECTING) return 2
+  return answer.kind === PRACTICE_TARGET_KIND.function ? 3 : 4
+}
+
+export function wordContrastRank(answerId, candidateId, { contextual = false } = {}) {
+  return contrastRankForFeatures(answerId, candidateId, contrastFeatures(answerId), contrastFeatures(candidateId), contextual)
+}
+
+// A target scans many potential options. Bind its fixed classification once;
+// callers still use the same rank policy for every exact candidate sense.
+export function createWordContrastRanker(answerId, { contextual = false } = {}) {
+  const answer = contrastFeatures(answerId)
+  return (candidateId) => contrastRankForFeatures(answerId, candidateId, answer, contrastFeatures(candidateId), contextual)
 }
 
 export function isReviewedClozeSlotPeer(answerId, candidateId) {

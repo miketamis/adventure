@@ -228,6 +228,7 @@ const distractorIds = (
     practiced = {},
     wordProgress = {},
     wordExposure = {},
+    learnerLookup = null,
     strictCandidatePool = false,
   } = {},
 ) => {
@@ -247,6 +248,7 @@ const distractorIds = (
     practiced,
     wordProgress,
     wordExposure,
+    learnerLookup,
     ...(strictCandidatePool ? {
       fallbackIds: [],
       useHardContrastRegistry: false,
@@ -451,6 +453,7 @@ export function buildWordQuestion({
   practiced = {},
   wordProgress = {},
   wordExposure = {},
+  learnerLookup = null,
   currentRound = 0,
   nowMs = 0,
   targetId = null,
@@ -730,6 +733,7 @@ export function buildWordQuestion({
         practiced,
         wordProgress,
         wordExposure,
+        learnerLookup,
         strictCandidatePool: true,
       },
     )
@@ -931,6 +935,7 @@ export function buildWordQuestion({
         practiced,
         wordProgress,
         wordExposure,
+        learnerLookup,
       },
     )
     return finish(contextQuestion ? { ...contextQuestion, questionKey } : null, 'reviewed-context-question', {
@@ -990,6 +995,7 @@ export function buildWordQuestion({
       practiced,
       wordProgress,
       wordExposure,
+      learnerLookup,
     },
   )
   const options = shuffleWith([answerId, ...distractors], rng)

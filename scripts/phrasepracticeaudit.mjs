@@ -68,6 +68,21 @@ const unlockedState = (phrases) => {
   return state
 }
 
+check('authored spelling reuse preserves dictionary, Unicode, and free-response comparison', () => {
+  const expected = (value) => phraseWords(value).map((word) => word.normalize('NFC').toLocaleLowerCase('sq').replace(/’/g, "'")).join(' ')
+  for (const entry of Object.values(DICT)) {
+    for (const form of [entry.al, ...(entry.forms || [])]) {
+      const surface = typeof form === 'string' ? form : form?.al
+      for (const value of [surface, surface?.normalize('NFD'), surface?.toLocaleUpperCase('sq')]) {
+        assert.equal(normalizePhraseAnswer(value), expected(value))
+      }
+    }
+  }
+  for (const value of [" Një përgjigje e re: S’KA! ", 'ç Ë e\u0308 c\u0327', null, 42]) {
+    assert.equal(normalizePhraseAnswer(value), expected(value))
+  }
+})
+
 check('phrase tokenization keeps Albanian words and contractions, not punctuation', () => {
   assert.deepEqual(phraseWords("S'ka gjë. Shihemi nesër!"), ["S'ka", 'gjë', 'Shihemi', 'nesër'])
   assert.equal(normalizePhraseAnswer('  ÇFARË do të thotë?! '), 'çfarë do të thotë')

@@ -53,10 +53,28 @@ export function phraseWords(value) {
   return String(value || '').match(/[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*/gu) || []
 }
 
-const normalizedWord = (value) => String(value || '')
+const normalizeWordSurface = (value) => value
   .normalize('NFC')
   .toLocaleLowerCase('sq')
   .replace(/’/g, "'")
+
+let authoredWordKeys = null
+const normalizedWord = (value) => {
+  // Precompute only public dictionary spellings. This helper also checks typed
+  // answers, so never insert a caller's text into a long-lived cache.
+  if (!authoredWordKeys) {
+    authoredWordKeys = new Map()
+    for (const entry of Object.values(DICT)) {
+      for (const form of [entry.al, ...(entry.forms || [])]) {
+        for (const word of phraseWords(typeof form === 'string' ? form : form?.al)) {
+          if (!authoredWordKeys.has(word)) authoredWordKeys.set(word, normalizeWordSurface(word))
+        }
+      }
+    }
+  }
+  const text = String(value || '')
+  return authoredWordKeys.get(text) ?? normalizeWordSurface(text)
+}
 
 // Consecutive phrase rounds use Albanian orthographic words as their scheduling
 // boundary. Case, surrounding punctuation, decomposed Unicode and apostrophe
