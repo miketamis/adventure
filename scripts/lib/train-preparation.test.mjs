@@ -16,10 +16,12 @@ const words = ['ure', 'rruge', 'shtepi', 'uje', 'buke']
 const fixture = () => ({ ...newRun(), discovered: Object.fromEntries(words.map((id) => [id, true])) })
 const withoutSequence = (value) => JSON.parse(JSON.stringify(value, (key, child) =>
   key === 'questionKey' && typeof child === 'string' ? child.replace(/:\d+$/, ':sequence') : child))
-const withoutTiming = (value) => JSON.parse(JSON.stringify(value, (key, child) =>
-  key === 'elapsedMilliseconds' ? undefined : child))
-
-test('background preparation preserves the canonical bank, seeded choice and debug oracle without recording progress', async () => {
+test('background preparation preserves the canonical bank, seeded choice and debug oracle without recording progress', async (t) => {
+  // Compare scheduler semantics under the same clock. A real deadline can stop
+  // identical searches at different depths on a busy runner; the canonical
+  // state/depth budgets still bound both runs. Candidate slicing continues to
+  // use real performance.now(), so asynchronous yielding remains exercised.
+  t.mock.method(Date, 'now', () => NOW)
   for (const debug of [false, true]) {
     const state = { ...fixture(), debug }
     const before = structuredClone(state)
@@ -58,8 +60,8 @@ test('background preparation preserves the canonical bank, seeded choice and deb
     assert.equal(prepared.validUntilMs, NOW + TRAIN_PREPARATION_MAX_AGE_MS)
     if (debug) {
       const exact = planTrainFutureExact({ proposals: enumeration.proposals, planningState, seed })
-      assert.deepEqual(withoutTiming(prepared.schedulerTrace.future.exactOracle), withoutTiming(exact.trace))
-      assert.deepEqual(withoutTiming(prepared.schedulerTrace.future.oracleReport), withoutTiming(trainPlannerOracleReport(future, exact, planningState)))
+      assert.deepEqual(prepared.schedulerTrace.future.exactOracle, exact.trace)
+      assert.deepEqual(prepared.schedulerTrace.future.oracleReport, trainPlannerOracleReport(future, exact, planningState))
     } else {
       assert.equal(prepared.question.debugSelection, undefined)
     }
@@ -191,15 +193,18 @@ test('canceled preparation leaves no poisoned promise and can be retried', async
 })
 
 const goalFixture = () => {
-  // Keep the exact oracle below its runtime budget: the complete first-action
-  // goal and three other words still exercise bank reuse and goal priority.
+  // The complete first-action goal and three other words exercise bank reuse,
+  // goal priority and normal competing candidates with a small reviewed bank.
   const ids = ['kalo', 'ure', 'rruge', 'buke', 'uje']
   const state = { ...newRun(), discovered: Object.fromEntries(ids.map((id) => [id, true])) }
   const goal = { ...state, practiceTarget: trainingTargetForOption('start', STORY.start.options[1]) }
   return { state, goal }
 }
 
-test('a story-action goal reuses its exact bank and original time while replanning canonical selection', async () => {
+test('a story-action goal reuses its exact bank and original time while replanning canonical selection', async (t) => {
+  // This is an exact semantic comparison, independent of host scheduling. The
+  // cache's separate injected clock below still advances to exercise expiry.
+  t.mock.method(Date, 'now', () => NOW)
   const { state, goal } = goalFixture()
   assert.deepEqual([...trainActionPracticeQueue(state).allRemainingWordIds].sort(),
     [...trainActionPracticeQueue(goal).allRemainingWordIds].sort())
@@ -218,7 +223,7 @@ test('a story-action goal reuses its exact bank and original time while replanni
   assert.equal(focused.schedulerTrace.nowMs, NOW)
   assert.deepEqual(focused.schedulerTrace.actionGoal.target, goal.practiceTarget)
   const independent = await prepareTrainQuestion({ state: goal, nowMs: NOW })
-  assert.deepEqual(withoutTiming(withoutSequence(focused)), withoutTiming(withoutSequence(independent)),
+  assert.deepEqual(withoutSequence(focused), withoutSequence(independent),
     'bank reuse changed the goal decision, complete question, candidate accounting or trace')
   now = generic.validUntilMs
   const refreshed = await cache.prepare({ state: goal })
