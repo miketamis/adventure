@@ -136,7 +136,10 @@ assert.doesNotMatch(practiceSource, /setTimeout\(\(\) => nextRef\.current\?\.\(\
   'Train still performs immediate wrong-answer replanning inside the answer interaction')
 
 assert.match(miniMapSource, /export default memo\(MiniMap/)
-for (const input of ['nodeId', 'clock', 'worldFacts', 'fixtures', 'npcStarted', 'heard', 'visited']) {
+for (const input of ['nodeId', 'clock', 'worldFacts', 'fixtures', 'npcStarted', 'heard', 'visited',
+  'cameFrom', 'choiceIndex', 'embodying', 'embodimentPaused', 'embodimentClock',
+  'inventory', 'flags', 'knowledge', 'observations', 'quests', 'rendezvous',
+  'npcPortraitsSeen', 'activeNpcPortraits', 'discovered', 'healthNarration', 'inventoryNarration']) {
   assert.match(miniMapSource, new RegExp(`left\\.${input} === right\\.${input}`),
     `minimap memo boundary omits ${input}`)
 }

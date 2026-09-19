@@ -2388,7 +2388,7 @@ svg [role="button"]:focus-visible {
 .dbg-pc-chip i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex: none; }
 .dbg-wi-open { margin-top: 10px; width: 100%; }
 
-/* ── debug minimap: the World map docked to the right, expandable to full screen ── */
+/* ── debug current-location 360° view, expandable to full screen ── */
 .minimap {
   position: fixed; top: 76px; right: 16px; z-index: 40;
   width: min(340px, 42vw); height: min(300px, 44vh);
@@ -2404,23 +2404,17 @@ svg [role="button"]:focus-visible {
   display: flex; align-items: center; gap: 6px; padding: 5px 8px;
   background: #171310; border-bottom: 1px solid var(--line);
 }
-.minimap-title { font-size: 12px; color: #cdb6f0; font-weight: 600; margin-right: auto; }
+.minimap-title { font-size: 12px; color: #cdb6f0; font-weight: 600; margin-right: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .minimap-btn {
   background: none; border: 1px solid var(--line); border-radius: 5px; color: #b8c0cc;
   cursor: pointer; font-size: 12px; line-height: 1; padding: 3px 7px; font-family: inherit;
 }
 .minimap-btn:hover { border-color: #b07bff; color: #e8dcff; }
-.minimap-body { flex: 1; min-height: 0; display: flex; }
-.minimap-body .dbg-map { flex: 1; min-height: 0; display: flex; }
-.minimap-body .dbg-worldwrap { flex: 1; min-height: 0; border: none; border-radius: 0; }
-.minimap-body .dbg-world { height: 100%; }
-/* in the small docked map, hide the busy toolbar + info panel (drag & scroll still work) */
-.minimap:not(.expanded) .dbg-worldtools,
-.minimap:not(.expanded) .dbg-worldinfo { display: none; }
-/* the docked map is shrunk to fit — enlarge the place-name & district labels so
-   they read at this size (the edge-lines + scene ids scale via uiScale in JS) */
-.minimap:not(.expanded) .dbg-vlabel { font-size: 21px; stroke-width: 5px; }
-.minimap:not(.expanded) .dbg-vdistrict { font-size: 26px; }
+.minimap-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+.minimap-scene { display: block; width: 100%; height: 100%; min-width: 0; touch-action: none; cursor: grab; }
+.minimap-scene:active { cursor: grabbing; }
+.minimap-scene:focus-visible { outline: 2px solid #b07bff; outline-offset: -3px; }
+.minimap-hint { padding: 5px 8px; font-size: 11px; color: #b8c0cc; background: #171310; }
 .minimap-launch {
   position: fixed; top: 76px; right: 16px; z-index: 40;
   background: #171310; border: 1px solid var(--line); border-radius: 8px;
@@ -2428,6 +2422,12 @@ svg [role="button"]:focus-visible {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 .minimap-launch:hover { border-color: #b07bff; }
+
+@media (max-width: 600px) {
+  .minimap { top: auto; right: 12px; bottom: 12px; width: calc(100vw - 24px); height: min(260px, 40dvh); }
+  .minimap.expanded { top: 12px; width: auto; height: auto; }
+  .minimap-launch { top: auto; right: 12px; bottom: 12px; }
+}
 
 /* node detail panel under the graph */
 .dbg-detail { margin-top: 12px; padding: 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; }

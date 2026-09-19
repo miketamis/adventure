@@ -7,7 +7,7 @@ import { NODE_REGION } from './regions.js'
 import { currentStoryState, environmentSnapshot, storyScenePresentationForState, hasCond } from './gameState.js'
 import { worldLocationForState } from './worldLocation.js'
 import { isUnchartedStoryNode } from './departureContexts.js'
-import { buildWorldScene3d, worldScene3dLineConditions } from './worldScene3d.js'
+import { buildWorldScene3dCore, worldScene3dLineConditions } from './worldScene3dCore.js'
 import { WORLD_NODE_VIEWPOINTS, WORLD_NODE_FEATURE_STAGING } from './data/worldScene3dViewpoints.js'
 import { WORLD_NODE_PLACE_FIXTURES } from './data/worldScene3dPlaceFixtures.js'
 import { WORLD_SCENE_3D_NODE_CLAIMS } from './data/worldScene3dNodeClaims.js'
@@ -39,7 +39,7 @@ const scalar = (value) => typeof value === 'number' ? [value, value, value] : va
 let cache
 function sourceIndex() {
   if (cache) return cache
-  const world = buildWorldScene3d()
+  const world = buildWorldScene3dCore()
   const sources = world.descriptions.filter(({ source }) => source.kind === 'story-line')
   const byNode = new Map(Object.keys(STORY).map((id) => [id, sources.filter((entry) => entry.nodeId === id)]))
   const claims = new Map(WORLD_SCENE_3D_NODE_CLAIMS.map((entry) => [entry.id, entry]))

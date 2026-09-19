@@ -3,6 +3,7 @@ import { isUnchartedStoryNode } from '../src/game/departureContexts.js'
 // independently enumerated from production STORY/place/route registries; the
 // mutation probes exercise the validator rather than trusting a success count.
 import assert from 'node:assert/strict'
+import { buildWorldScene3dCore } from '../src/game/worldScene3dCore.js'
 import { runWorldNodeSceneAssertions } from './lib/world-node-scenes.test.mjs'
 import { runWorldNodeRendererAssertions } from './lib/world-node-renderer.test.mjs'
 import { runWorldNodeSpatialAssertions } from './lib/world-node-spatial.test.mjs'
@@ -52,6 +53,14 @@ const nodeSemanticChecks = runWorldSceneSourceSemanticsAssertions()
 const nodeShipChecks = runWorldShipSceneAssertions()
 const nodeCoastRescueChecks = runWorldCoastRescueSceneAssertions()
 const model = buildWorldScene3d()
+// The floating current-location view must not load the historical inventory,
+// but its story evidence and physical landmarks must match the full atlas.
+const coreModel = buildWorldScene3dCore()
+assert.deepEqual(coreModel.descriptions.filter(({ source }) => source.kind === 'story-line'),
+  model.descriptions.filter(({ source }) => source.kind === 'story-line'), 'live scene source mappings differ from the atlas')
+for (const element of coreModel.elements.filter(({ kind }) => kind === 'feature')) {
+  assert.deepEqual(element, model.elements.find(({ id }) => id === element.id), `${element.id}: live landmark differs from the atlas`)
+}
 assert.equal(model.version, WORLD_SCENE_3D_VERSION)
 assert.deepEqual(validateWorldScene3d(model), [], 'production 3D world model is inconsistent')
 const surveyChecks = runWorldSceneSurveyAssertions(model)
