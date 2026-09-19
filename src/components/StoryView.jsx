@@ -526,24 +526,18 @@ export default function StoryView({ state, dispatch, analyticsEnabled = false, r
     dispatch,
   ])
   useEffect(() => {
-    if (!storyExposureOccurrences.length) return
+    const exposures = [
+      ...(storyExposureOccurrences.length
+        ? [{ receipt: storyExposureReceipt, occurrences: storyExposureOccurrences }]
+        : []),
+      ...storyChoiceExposures,
+    ]
+    if (!exposures.length) return
     dispatch({
       type: 'RECORD_WORD_EXPOSURE',
-      receipt: storyExposureReceipt,
-      source: 'story',
-      occurrences: storyExposureOccurrences,
+      exposures: exposures.map((exposure) => ({ ...exposure, source: 'story' })),
     })
-  }, [storyExposureReceipt, dispatch])
-  useEffect(() => {
-    for (const exposure of storyChoiceExposures) {
-      dispatch({
-        type: 'RECORD_WORD_EXPOSURE',
-        receipt: exposure.receipt,
-        source: 'story',
-        occurrences: exposure.occurrences,
-      })
-    }
-  }, [storyChoiceExposureKey, dispatch])
+  }, [storyExposureReceipt, storyChoiceExposureKey, dispatch])
   useEffect(() => {
     if (state.ended || !healthNarration.needsCommit) return
     dispatch({ type: 'NARRATE_HEALTH', nodeId: state.nodeId, turn: state.turn })

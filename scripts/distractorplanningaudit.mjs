@@ -6,6 +6,9 @@ import {
   planSenseDistractors,
 } from '../src/game/distractorPlanning.js'
 import { buildWordQuestion } from '../src/game/wordPractice.js'
+import { DICT } from '../src/game/dictionary.js'
+import { isTrainableSense } from '../src/game/lexicalTrainability.js'
+import { seededTrainRng } from '../src/game/trainCandidateContract.js'
 
 const evidence = {
   discoveredIds: ['mund', 'eshte', 'di', 'rri', 'shko', 'fshat', 'rruge'],
@@ -78,6 +81,41 @@ const ordinaryQuestion = buildWordQuestion({
   mana: { fshat: 1 }, practiced: { fshat: 1 }, rng: () => 0.3,
 })
 assert.equal(ordinaryQuestion?.debugSelection, undefined, 'ordinary Train leaked the debug distractor trace')
+
+// The optimized ordinary path must select exactly the same options, evidence,
+// and relationships as exhaustive authoring mode over the complete dictionary.
+// This guards the lower-bound pruning against a subtle difficulty, duplicate
+// label, fairness, or seeded tie-break change.
+const wholeBankIds = Object.keys(DICT).filter(isTrainableSense)
+const compareOptimizedPlan = (options, seed) => {
+  const exhaustive = planSenseDistractors({ ...options, rng: seededTrainRng(seed), debugTrace: true })
+  const optimized = planSenseDistractors({ ...options, rng: seededTrainRng(seed), debugTrace: false })
+  assert.equal(optimized.complete, exhaustive.complete, `${seed}: buildability changed`)
+  assert.deepEqual(optimized.selectedIds, exhaustive.selectedIds, `${seed}: selected options changed`)
+  assert.deepEqual(optimized.trace.selected, exhaustive.trace.selected, `${seed}: selected evidence changed`)
+  assert.equal(optimized.trace.candidateCount, exhaustive.trace.candidateCount)
+}
+for (const answerId of wholeBankIds) {
+  for (const difficultyBand of ['foundation', 'developing', 'challenge']) {
+    compareOptimizedPlan({ answerId, count: 3, difficultyBand }, `whole-bank:${difficultyBand}:${answerId}`)
+  }
+}
+for (const count of [0, 1, 4]) {
+  for (const difficultyBand of ['foundation', 'developing', 'challenge']) {
+    compareOptimizedPlan({ answerId: 'fshat', count, difficultyBand }, `option-count:${difficultyBand}:${count}`)
+  }
+}
+for (const answerId of ['mund', 'i_art', 'po_prog', 'fshat', 'rruge']) {
+  for (const difficultyBand of ['foundation', 'developing', 'challenge']) {
+    for (const field of ['en', 'al']) {
+      compareOptimizedPlan({
+        ...evidence, answerId, count: 3, difficultyBand, field,
+        contextual: answerId === 'i_art' || answerId === 'po_prog',
+        source: 'editor-reviewed-parity-fixture',
+      }, `mixed-evidence:${answerId}:${difficultyBand}:${field}`)
+    }
+  }
+}
 
 const practice = readFileSync(new URL('../src/components/PracticeView.jsx', import.meta.url), 'utf8')
 const inspector = readFileSync(new URL('../src/components/DebugTrainActivityInspector.jsx', import.meta.url), 'utf8')

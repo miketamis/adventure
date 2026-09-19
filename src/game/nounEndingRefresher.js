@@ -99,14 +99,18 @@ const ROLE_ORDER = [
 const lower = (value) => value.toLocaleLowerCase('sq')
 const CORE_CLASS_TAGS = ['indefNom', 'defNom', 'defAcc', 'defDat']
 
+const uniqueFormCache = new WeakMap()
 const uniqueForms = (forms) => {
+  if (uniqueFormCache.has(forms)) return uniqueFormCache.get(forms)
   const seen = new Set()
-  return forms.filter((form) => {
+  const unique = forms.filter((form) => {
     const key = `${lower(form.al)}\u0000${form.tag}\u0000${form.gloss}`
     if (seen.has(key)) return false
     seen.add(key)
     return true
   })
+  uniqueFormCache.set(forms, unique)
+  return unique
 }
 
 const first = (forms, tag) => forms.find((form) => form.tag === tag)?.al
@@ -201,7 +205,14 @@ const commonPrefix = (surfaces) => {
 // A class is transferable only when all four singular roles exist once and the
 // exact changes after their shared stem match. That keeps look-alike nouns with
 // a different accusative or dative out of the example slot.
+const classSignatureCache = new WeakMap()
 const classSignature = (forms) => {
+  if (classSignatureCache.has(forms)) return classSignatureCache.get(forms)
+  const signature = buildClassSignature(forms)
+  classSignatureCache.set(forms, signature)
+  return signature
+}
+const buildClassSignature = (forms) => {
   const rows = []
   for (const tag of CORE_CLASS_TAGS) {
     const matches = forms.filter((form) => form.tag === tag)
@@ -242,8 +253,11 @@ export function reviewedNounEndingPractice(id, surface, tag) {
   })
 }
 
+const peerCache = new Map()
 const peerFor = (id, signature) => {
   if (!signature) return null
+  const cacheKey = `${id}\u0000${signature.key}`
+  if (peerCache.has(cacheKey)) return peerCache.get(cacheKey)
   const peers = []
   for (const [candidateId, sourceForms] of Object.entries(NOUN_FORMS)) {
     if (candidateId === id) continue
@@ -256,11 +270,13 @@ const peerFor = (id, signature) => {
   }
   // Prefer the shortest readable example, with an alphabetical tie-break. This
   // is deterministic curriculum logic, not a hand-maintained noun allowlist.
-  return peers.sort((a, b) => {
+  const peer = peers.sort((a, b) => {
     const aLength = a.rows.reduce((sum, row) => sum + row.al.length, 0)
     const bLength = b.rows.reduce((sum, row) => sum + row.al.length, 0)
     return aLength - bLength || a.id.localeCompare(b.id, 'sq')
   })[0] ?? null
+  peerCache.set(cacheKey, peer)
+  return peer
 }
 
 const patternFor = (forms, target, signature, peer) => {

@@ -6,6 +6,7 @@ import {
   TRAIN_CANDIDATE_ENUMERATION_POLICY,
   createTrainCandidateProposal,
   enumerateTrainActivityCandidates,
+  enumerateTrainActivityCandidateSteps,
   seededTrainRng,
   trainCandidateDebugRecord,
   trainPlannerSeed,
@@ -81,6 +82,17 @@ assert.deepEqual(
   second.proposals.map(({ candidateId }) => candidateId),
   'the same scheduling state did not enumerate the same candidate identities',
 )
+const steps = enumerateTrainActivityCandidateSteps({ state, discoveredIds, unlockedPhrases: [phrase], nowMs: 0 })
+let yielded = 0
+let step = steps.next()
+while (!step.done) {
+  yielded++
+  step = steps.next()
+}
+assert.equal(yielded, discoveredIds.length + 1 + TRAIN_CANDIDATE_ENUMERATION_POLICY.matchingBoards.maximumProposals,
+  'browser enumeration must yield after every word, phrase, and matching board')
+assert.deepEqual(step.value.proposals.map(trainCandidateDebugRecord), first.proposals.map(trainCandidateDebugRecord),
+  'yielding or compact diagnostics changed the canonical candidate bank')
 for (const candidate of first.proposals) {
   for (const dimension of TRAIN_CANDIDATE_CONTRACT.requiredDimensions) {
     assert.notEqual(candidate[dimension], undefined, `${candidate.candidateId} omitted ${dimension}`)

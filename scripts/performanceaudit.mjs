@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import { childProcessFailed } from './lib/child-process-result.mjs'
 import {
   PERFORMANCE_BUDGETS,
   getPerformanceSnapshot,
+  measureAsyncPerformanceOperation,
   measurePerformanceOperation,
   performanceBand,
   performancePercentile,
@@ -47,6 +51,19 @@ const snapshot = getPerformanceSnapshot()
 assert.equal(snapshot.operations.length, 1)
 assert.equal(snapshot.operations[0].kind, 'reducer')
 assert.equal(snapshot.operationGroups[0].id, 'reducer/TEST')
+
+const deferredOperation = Promise.withResolvers()
+const measuredOperation = measureAsyncPerformanceOperation('train', 'enumerate', 'practice', () => deferredOperation.promise)
+assert.equal(getPerformanceSnapshot().operations.length, 1, 'async work was measured before it completed')
+deferredOperation.resolve(84)
+assert.equal(await measuredOperation, 84)
+assert.equal(getPerformanceSnapshot().operations.at(-1).id, 'enumerate')
+const asynchronousFailure = new Error('candidate construction failed')
+await assert.rejects(measureAsyncPerformanceOperation('train', 'enumerate-failed', 'practice', async () => {
+  throw asynchronousFailure
+}), (error) => error === asynchronousFailure)
+assert.equal(getPerformanceSnapshot().operations.at(-1).id, 'enumerate-failed',
+  'failed async operations disappeared from performance diagnostics')
 
 assert.match(performanceSource, /PerformanceObserver/)
 assert.match(performanceSource, /observerFor\('event',[\s\S]+durationThreshold: 16/)
@@ -105,6 +122,12 @@ assert.equal((practiceSource.match(/selectedProposal\?\.materialize\(/g) || []).
   'Train must materialize the selected exercise exactly once')
 assert.match(practiceSource, /const discoveredIds = useMemo\(/)
 assert.match(practiceSource, /const unlockedEverydayPhrases = useMemo\(/)
+assert.match(practiceSource, /await measureAsyncPerformanceOperation\('train', 'enumerate', 'practice', \(\) => completeTrainCandidateWork\(/,
+  'Train candidate work no longer yields through the shared asynchronous driver')
+assert.match(practiceSource, /measureSlice: \(work\) => measurePerformanceOperation\('train', 'enumerate-slice', 'practice', work\)/,
+  'Train diagnostics do not distinguish blocking work slices from elapsed enumeration time')
+assert.doesNotMatch(practiceSource, /enumerateTrainActivityCandidates\(/,
+  'Train performs synchronous whole-bank construction on the UI thread')
 assert.match(practiceSource, /advanceAfterConsequence\.current = true/,
   'Train misses do not preserve the completed card until blocking feedback is acknowledged')
 assert.match(practiceSource, /if \(state\.pendingHeartConsequence \|\| !advanceAfterConsequence\.current\) return undefined[\s\S]+window\.requestAnimationFrame\([\s\S]+window\.setTimeout\([\s\S]+nextRef\.current\?\.\(\)/,
@@ -127,5 +150,12 @@ for (const property of [
 }
 assert.match(debugSource, /visible answers and typed text are never read/)
 assert.match(debugSource, /Interaction performance/)
+
+const candidateWorkTest = spawnSync(process.execPath, [
+  '--test', fileURLToPath(new URL('./lib/train-candidate-work.test.mjs', import.meta.url)),
+], { stdio: 'inherit' })
+assert.equal(candidateWorkTest.signal, null, `candidate work tests terminated by ${candidateWorkTest.signal}`)
+assert.equal(childProcessFailed(candidateWorkTest), false,
+  `candidate work tests failed: ${candidateWorkTest.error?.message || candidateWorkTest.status}`)
 
 console.log('✅ performance monitor: global timing, private labels, hot-path budgets, and debug diagnostics verified')

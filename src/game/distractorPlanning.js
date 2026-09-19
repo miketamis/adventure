@@ -22,8 +22,24 @@ export const DISTRACTOR_DIFFICULTY_BANDS = Object.freeze({
   challenge: Object.freeze({ id: 'challenge', relationPreference: 'near', purpose: 'known reviewed near-neighbours require precise discrimination' }),
 })
 
-const lower = (value, locale = 'sq') => String(value || '').normalize('NFC').toLocaleLowerCase(locale)
-const clean = (value, locale = 'sq') => lower(value, locale).replace(/[^\p{L}\p{M}\p{N}]+/gu, '')
+// Inputs here are authored dictionary labels/surfaces, never learner text.
+// Reuse their normalized forms across every target's candidate pool.
+const normalizedDictionaryText = new Map()
+const lower = (value, locale = 'sq') => {
+  const key = `${locale}\u0000${value}`
+  if (normalizedDictionaryText.has(key)) return normalizedDictionaryText.get(key)
+  const normalized = String(value || '').normalize('NFC').toLocaleLowerCase(locale)
+  normalizedDictionaryText.set(key, normalized)
+  return normalized
+}
+const cleanedDictionarySurface = new Map()
+const clean = (value, locale = 'sq') => {
+  const key = `${locale}\u0000${value}`
+  if (cleanedDictionarySurface.has(key)) return cleanedDictionarySurface.get(key)
+  const result = lower(value, locale).replace(/[^\p{L}\p{M}\p{N}]+/gu, '')
+  cleanedDictionarySurface.set(key, result)
+  return result
+}
 
 const editDistance = (left, right) => {
   const a = [...left]
@@ -189,6 +205,7 @@ export function planSenseDistractors({
   source = 'learner-and-registry-pool',
   useHardContrastRegistry = true,
   requireReviewedRelation = true,
+  debugTrace = true,
   rng = Math.random,
 } = {}) {
   const band = DISTRACTOR_DIFFICULTY_BANDS[difficultyBand] ? difficultyBand : 'developing'
@@ -201,6 +218,8 @@ export function planSenseDistractors({
   const local = new Set(candidateIds)
   const editorial = new Set(registryCandidateIds)
   const rows = []
+  const selectionLeaders = []
+  const selectionCompare = compareForBand(band)
   const usedLabels = new Set([lower(labelOf(answerId), field === 'al' ? 'sq' : 'en')])
   const ids = [...new Set([...candidateIds, ...registryCandidateIds, ...fallbackIds])]
   for (const id of ids) {
@@ -225,6 +244,35 @@ export function planSenseDistractors({
     const labelKey = lower(label, field === 'al' ? 'sq' : 'en')
     if (!labelKey) rejectionReasons.push('candidate has no learner-visible label')
     if (labelKey && usedLabels.has(labelKey)) rejectionReasons.push('candidate duplicates a learner-visible option label')
+    // Every row consumes the same seeded draw, including rejected/pruned rows.
+    // Ordinary cards only need the winning options. Once enough distinct
+    // labels exist, optimistic comparator bounds can prove that a row cannot
+    // win without calculating its edit distance or building its full trace.
+    // Developing uses rank directly; foundation/challenge use the minimum/
+    // maximum possible similarity. Full debug enumeration stays exhaustive.
+    const randomOrder = rng()
+    if (!debugTrace && rejectionReasons.length) continue
+    let evidence = field === 'al'
+      ? learnerEvidence(id, { discovered, mana, practiced, wordProgress, wordExposure })
+      : null
+    const fairnessPriority = field === 'al' && !evidence.knownEnoughForAlbanianDiscrimination ? 1 : 0
+    const editorialHardPriority = hardContrast ? 0 : 1
+    if (!debugTrace && count > 0 && selectionLeaders.length >= count && DICT[id]) {
+      const rank = wordContrastRank(answerId, id, { contextual })
+      const reviewedTaskContrast = source.startsWith('editor-reviewed')
+      const scoreBase = !Number.isFinite(rank) && !hardContrast && reviewedTaskContrast
+        ? 0.35
+        : (Number.isFinite(rank) ? (5 - Math.min(5, rank)) / 5 : 0) * 0.75
+      const optimisticScore = Number(Math.min(1, scoreBase + (band === 'challenge' ? 0.25 : 0)).toFixed(3))
+      const optimistic = {
+        fairnessPriority,
+        editorialHardPriority,
+        relation: { contrastRank: Number.isFinite(rank) ? rank : hardContrast || reviewedTaskContrast ? 3 : null, confusability: { score: optimisticScore } },
+        randomOrder,
+      }
+      if (selectionCompare(optimistic, selectionLeaders.at(-1)) >= 0) continue
+    }
+    evidence ||= learnerEvidence(id, { discovered, mana, practiced, wordProgress, wordExposure })
     let relation = DICT[id] ? relationFor(answerId, id, contextual, hardContrast) : {
       type: 'missing', contrastRank: null, targetRole: null, candidateRole: null,
       sameAlbanianSurface: false, orthographicSimilarity: 0,
@@ -244,10 +292,7 @@ export function planSenseDistractors({
     if (DICT[id] && relation.contrastRank == null && requireReviewedRelation) {
       rejectionReasons.push('candidate has no reviewed contrast relation to the target')
     }
-    const evidence = learnerEvidence(id, { discovered, mana, practiced, wordProgress, wordExposure })
-    const fairnessPriority = field === 'al' && !evidence.knownEnoughForAlbanianDiscrimination ? 1 : 0
-    const editorialHardPriority = hardContrast ? 0 : 1
-    rows.push({
+    const row = {
       id,
       label,
       source: hardContrast
@@ -261,8 +306,18 @@ export function planSenseDistractors({
       fairnessPriority,
       editorialHardPriority,
       validity: { accepted: rejectionReasons.length === 0, rejectionReasons },
-      randomOrder: rng(),
-    })
+      randomOrder,
+    }
+    rows.push(row)
+    if (!debugTrace && row.validity.accepted) {
+      const duplicateIndex = selectionLeaders.findIndex((leader) => leader.labelKey === labelKey)
+      if (duplicateIndex < 0 || selectionCompare(row, selectionLeaders[duplicateIndex]) < 0) {
+        if (duplicateIndex >= 0) selectionLeaders.splice(duplicateIndex, 1)
+        selectionLeaders.push({ ...row, labelKey })
+        selectionLeaders.sort(selectionCompare)
+        if (selectionLeaders.length > count) selectionLeaders.pop()
+      }
+    }
   }
 
   const valid = rows.filter(({ validity }) => validity.accepted).sort(compareForBand(band))
@@ -279,7 +334,7 @@ export function planSenseDistractors({
   }
   const finalIds = finalSelected.map(({ id }) => id)
   const finalIdSet = new Set(finalIds)
-  const tracedRows = rows.map((row) => ({
+  const tracedRows = (debugTrace ? rows : rows.filter(({ id }) => finalIdSet.has(id))).map((row) => ({
     ...row,
     randomOrder: undefined,
     fairnessPriority: undefined,
@@ -317,7 +372,7 @@ export function planSenseDistractors({
       requested: count,
       selected: tracedRows.filter(({ id }) => finalIdSet.has(id)),
       rejected: tracedRows.filter(({ id }) => !finalIdSet.has(id)),
-      candidateCount: rows.length,
+      candidateCount: ids.length,
       validityPolicy: requireReviewedRelation
         ? 'every selected option must be unique, trainable, reviewed-related, bare-safe rather than context-only, and not a defensible answer'
         : 'every selected option must come from the caller-reviewed saved pool, be unique and trainable, and not be a defensible answer',

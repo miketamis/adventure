@@ -82,9 +82,14 @@ export function lexicalTrainability(id) {
   return REVIEWED_LEXICAL_TRAINABILITY[id] || ordinaryLexical(id)
 }
 
-export const isTrainableSense = (id) => lexicalTrainability(id).trainable
+// Boolean hot paths need no freshly allocated/frozen description record.
+// The small reviewed registry is fixed; ordinary lexical senses are trainable.
+export const isTrainableSense = (id) => {
+  const reviewed = REVIEWED_LEXICAL_TRAINABILITY[id]
+  return reviewed ? reviewed.trainable : true
+}
 export const isNamedEntitySense = (id) => {
-  const kind = lexicalTrainability(id).kind
+  const kind = REVIEWED_LEXICAL_TRAINABILITY[id]?.kind
   return kind === LEXICAL_TRAINABILITY_KIND.PERSONAL_NAME ||
     kind === LEXICAL_TRAINABILITY_KIND.PLACE_NAME
 }

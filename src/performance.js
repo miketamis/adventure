@@ -16,6 +16,8 @@ export const PERFORMANCE_BUDGETS = Object.freeze({
   browserSteadyInteractionMaxMs: 200,
   browserSteadyOperationMaxMs: 150,
   browserLongTaskMaxMs: 250,
+  browserTrainReadyMaxMs: 2000,
+  browserTrainCancelMaxMs: 500,
 })
 
 const MAX_INTERACTIONS = 240
@@ -359,6 +361,21 @@ export function measurePerformanceOperation(kind, id, surface, operation) {
   const started = now()
   try {
     return operation()
+  } finally {
+    boundedPush(operations, {
+      atMs: round(started),
+      kind: safeIdentifier(kind),
+      id: safeIdentifier(id),
+      surface: safeIdentifier(surface, 'unknown'),
+      durationMs: round(now() - started),
+    }, MAX_OPERATIONS)
+  }
+}
+
+export async function measureAsyncPerformanceOperation(kind, id, surface, operation) {
+  const started = now()
+  try {
+    return await operation()
   } finally {
     boundedPush(operations, {
       atMs: round(started),

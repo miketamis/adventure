@@ -41,7 +41,10 @@ await check('the app keeps the source scene inert until karaoke playback settles
   const mountAt = app.indexOf('<ActionKaraoke')
   assert.ok(previewAt >= 0 && mountAt > previewAt, 'accepted action is not previewed before karaoke mounts')
   assert.match(app, /const commitAcceptedAction = useCallback\([\s\S]*?publishState\(after\)[\s\S]*?queueTransitionAnalytics\(action, before, after\)/)
-  assert.match(app, /const finishActionTransition = useCallback\([\s\S]*?commitAcceptedAction\(transition\.action, current, reduceWithTiming\(current, transition\.action\)\)/)
+  assert.match(app, /const transition = \{[^\n]*before: current, after: preview \}/)
+  assert.match(app, /const finishActionTransition = useCallback\([\s\S]*?current === transition\.before[\s\S]*?\? transition\.after[\s\S]*?: reduceWithTiming\(current, transition\.action\)[\s\S]*?commitAcceptedAction\(transition\.action, current, after\)/)
+  assert.match(app, /if \(!event\?\.al \|\| isMuted\(\)\) \{\s*commitAcceptedAction\(action, current, preview\)/,
+    'muted actions must commit without waiting for an audio chunk or timing download')
   assert.match(app, /confirmReset \|\| actionTransition/)
   assert.match(app, /inert=\{blockingOverlay \? '' : undefined\}/)
   assert.match(app, /<ActionKaraoke[\s\S]*?action=\{actionTransition\}[\s\S]*?onComplete=\{finishActionTransition\}/)

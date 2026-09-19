@@ -98,6 +98,30 @@ check('save normalization removes shadow money, time, location, identity, fact, 
   assert.ok(normalized.worldFacts.rainReturned)
 })
 
+check('batched passive exposure keeps canonical targets, durable counts, and replay-safe receipts', () => {
+  const before = newRun()
+  const exposures = [
+    { receipt: 'audit:scene:prose', source: 'story', occurrences: ['fshat', 'fshat', 'elira', '__proto__'] },
+    { receipt: 'audit:scene:choice', source: 'story', occurrences: ['fshat', 'qytet', 'not-a-dictionary-sense'] },
+    { receipt: 'audit:scene:prose', source: 'story', occurrences: ['qytet'] },
+  ]
+  const action = { type: 'RECORD_WORD_EXPOSURE', exposures }
+  const batched = reducer(before, action)
+  const serial = exposures.reduce((state, entry) => reducer(state, { type: action.type, ...entry }), before)
+  assert.deepEqual(batched, serial)
+  assert.deepEqual(Object.keys(batched.wordExposure).sort(), ['fshat', 'qytet'])
+  assert.equal(batched.wordExposure.fshat.total, 3)
+  assert.equal(batched.wordExposure.qytet.total, 1)
+  for (const field of ['wordProgress', 'discovered', 'mana', 'practiced']) {
+    assert.strictEqual(batched[field], before[field], `passive exposure changed ${field}`)
+  }
+  assert.strictEqual(reducer(batched, action), batched)
+  const reloaded = normalizeSavedState(JSON.parse(JSON.stringify(batched)), newRun())
+  assert.deepEqual(reloaded.wordExposure, batched.wordExposure)
+  assert.strictEqual(reducer(reloaded, action), reloaded, 'reload allowed the scene receipts to count again')
+  assert.strictEqual(reducer(before, { type: action.type, exposures: [null, {}, { occurrences: ['fshat'] }] }), before)
+})
+
 check('physical items cannot be forged through the story-flag channel', () => {
   for (const itemId of Object.keys(ITEMS)) {
     const forged = { ...newRun(), inventory: {}, flags: { [itemId]: true } }

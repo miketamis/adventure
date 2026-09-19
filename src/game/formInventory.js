@@ -289,7 +289,16 @@ const genericRoleLabel = (form, wordClass) => {
 // deduplicates standalone spellings, but a syncretic noun spelling can express
 // several grammatical jobs and must never be presented as a naked "what form?"
 // ladder. Each target therefore owns a role-bearing natural context.
+const reviewedFormTargetCache = new Map()
+
 export function reviewedFormTargets(id) {
+  if (reviewedFormTargetCache.has(id)) return reviewedFormTargetCache.get(id)
+  const targets = buildReviewedFormTargets(id)
+  if (DICT[id]) reviewedFormTargetCache.set(id, targets)
+  return targets
+}
+
+function buildReviewedFormTargets(id) {
   if (!DICT[id] || !isTrainableSense(id)) return []
   const track = formTrackForSense(id)
   // Playable `wf(...)` occurrences prove that a spelling exists, but do not by
@@ -362,10 +371,36 @@ export const hasReviewedFormLane = (id) => reviewedFormTargets(id).length > 0
 export const REVIEWED_CONTEXT_QUALITY = 'sense-discriminating'
 
 const normalizedSenseSurface = (id) => DICT[id]?.al ? lower(DICT[id].al) : null
+// Dictionary content is fixed for the lifetime of this module. Build its
+// spelling index once instead of rescanning every sense for every activity.
+let senseSurfaceIndex = null
+let audioSenseSurfaceCounts = null
+const senseIdsBySurface = () => {
+  if (senseSurfaceIndex) return senseSurfaceIndex
+  senseSurfaceIndex = new Map()
+  for (const id of Object.keys(DICT)) {
+    const surface = normalizedSenseSurface(id)
+    if (!surface) continue
+    const siblings = senseSurfaceIndex.get(surface) || []
+    siblings.push(id)
+    senseSurfaceIndex.set(surface, siblings)
+  }
+  return senseSurfaceIndex
+}
+const trainableAudioSenseCounts = () => {
+  if (audioSenseSurfaceCounts) return audioSenseSurfaceCounts
+  audioSenseSurfaceCounts = new Map()
+  for (const [id, entry] of Object.entries(DICT)) {
+    if (!lexicalTrainability(id).trainable) continue
+    const surface = String(entry?.al || '').normalize('NFC').toLocaleLowerCase('sq').trim()
+    audioSenseSurfaceCounts.set(surface, (audioSenseSurfaceCounts.get(surface) || 0) + 1)
+  }
+  return audioSenseSurfaceCounts
+}
 const siblingSenseIds = (id) => {
   const surface = normalizedSenseSurface(id)
   if (!surface) return []
-  return Object.keys(DICT).filter((candidate) => candidate !== id && normalizedSenseSurface(candidate) === surface)
+  return (senseIdsBySurface().get(surface) || []).filter((candidate) => candidate !== id)
 }
 
 // Context-dependent and same-surface senses fail closed. Until an editor has
@@ -442,7 +477,9 @@ export function reviewedContextEligibilityForSense(id) {
 // One canonical option bundle for every consumer of the lexical state machine.
 // This prevents Train, reducers and debug panels from disagreeing about a
 // sense's lemma context, exact reviewed form lane or name trainability.
+const progressionOptionsCache = new Map()
 export const wordProgressionOptionsForSense = (id) => {
+  if (progressionOptionsCache.has(id)) return progressionOptionsCache.get(id)
   const lexical = lexicalTrainability(id)
   const contextEligibility = reviewedContextEligibilityForSense(id)
   const trainability = lexical.trainable && !contextEligibility.eligible
@@ -455,11 +492,8 @@ export const wordProgressionOptionsForSense = (id) => {
     : lexical
   const answerSurface = DICT[id]?.al || null
   const normalizedAudioSurface = String(answerSurface || '').normalize('NFC').toLocaleLowerCase('sq').trim()
-  const unambiguousAudioSense = Boolean(normalizedAudioSurface) && Object.entries(DICT)
-    .filter(([candidateId, candidate]) => lexicalTrainability(candidateId).trainable &&
-      String(candidate?.al || '').normalize('NFC').toLocaleLowerCase('sq').trim() === normalizedAudioSurface)
-    .length === 1
-  return {
+  const unambiguousAudioSense = Boolean(normalizedAudioSurface) && trainableAudioSenseCounts().get(normalizedAudioSurface) === 1
+  const options = {
     context: contextEligibility.eligible && contextEligibility.requiresReviewedContext ? DICT[id].ctx : null,
     contextEligibility,
     answerSurface,
@@ -468,4 +502,6 @@ export const wordProgressionOptionsForSense = (id) => {
     nounAgreementFrame: reviewedNounAgreementFrame(id),
     trainability,
   }
+  if (DICT[id]) progressionOptionsCache.set(id, options)
+  return options
 }

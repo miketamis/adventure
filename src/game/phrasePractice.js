@@ -93,6 +93,7 @@ export function trainQuestionWordKeys(question) {
 // Export a tiny common predicate so phrase, vocabulary, context and endings
 // builders apply the exact same Albanian comparison at their scheduling edge.
 export function containsExcludedPhraseWord(value, excludeWords = []) {
+  if (!excludeWords || excludeWords.length === 0 || excludeWords.size === 0) return false
   const excluded = excludedWordSet(excludeWords)
   return phraseWordKeys(value).some((word) => excluded.has(word))
 }
@@ -786,6 +787,12 @@ export function buildPhraseQuestion(
   let eligible = excluded.size
     ? unlocked.filter((entry) => !excludesPhraseWords(entry, excluded))
     : unlocked
+  // Explicit production/listening proposals can only select this target.
+  // Matching still needs its complete eligible partner pool, and full debug
+  // builds retain every rejection record for the inspector.
+  if (debugTrace === 'summary' && targetId && MODE_SET.has(requestedMode) && requestedMode !== 'match') {
+    eligible = eligible.filter((entry) => entry.id === targetId)
+  }
   if (trace) {
     for (const entry of unlocked) {
       if (!eligible.includes(entry)) trace.candidates.push({

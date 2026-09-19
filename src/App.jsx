@@ -374,20 +374,24 @@ export default function App() {
     const event = preview !== current && preview.actionSpeech?.id !== current.actionSpeech?.id
       ? preview.actionSpeech
       : null
-    if (!event?.al) {
+    if (!event?.al || isMuted()) {
       commitAcceptedAction(action, current, preview)
       return
     }
-    const transition = { id: event.id, al: event.al, action }
+    const transition = { id: event.id, al: event.al, action, before: current, after: preview }
     actionTransitionRef.current = transition
     setActionTransition(transition)
   }, [commitAcceptedAction])
   const finishActionTransition = useCallback((transition) => {
     if (actionTransitionRef.current?.id !== transition.id) return
-    // Nothing else can dispatch while the overlay is active, so the same
-    // action is still valid against the unchanged source scene.
+    // Validation already computed the complete destination before playback.
+    // Keep it private until playback settles, then publish it once. Only an
+    // unexpected change to the source state requires another validation.
     const current = stateRef.current
-    commitAcceptedAction(transition.action, current, reduceWithTiming(current, transition.action))
+    const after = current === transition.before
+      ? transition.after
+      : reduceWithTiming(current, transition.action)
+    commitAcceptedAction(transition.action, current, after)
     actionTransitionRef.current = null
     setActionTransition(null)
   }, [commitAcceptedAction])

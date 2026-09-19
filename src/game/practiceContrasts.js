@@ -118,9 +118,19 @@ export const REVIEWED_CLOZE_SLOT_PEERS = Object.freeze({
   nje: Object.freeze(ids('dy tre pak')),
 })
 
-const wordClass = (id) => wordClassOf(id, DICT[id], {
-  hasAttestedVariant: Boolean(DICT[id]?.forms?.length),
-})
+// Cache only the fixed dictionary's classifications. Ranking many candidate
+// pairs must not rederive the same noun/verb policy for each pair.
+const classById = new Map()
+const wordClass = (id) => {
+  if (classById.has(id)) return classById.get(id)
+  const result = wordClassOf(id, DICT[id], {
+    hasAttestedVariant: Boolean(DICT[id]?.forms?.length),
+  })
+  if (DICT[id]) classById.set(id, result)
+  return result
+}
+
+const contrastRoleById = new Map()
 
 export function practiceTargetKind(id) {
   return FUNCTION_IDS.has(id) ? PRACTICE_TARGET_KIND.function : PRACTICE_TARGET_KIND.lexical
@@ -135,7 +145,10 @@ export function contextualChoiceLabel(id, fallback) {
 export function practiceContrastRole(id) {
   const reviewed = ROLE_BY_ID.get(id)
   if (reviewed) return reviewed
-  return `lexical:${wordClass(id)}`
+  if (contrastRoleById.has(id)) return contrastRoleById.get(id)
+  const role = `lexical:${wordClass(id)}`
+  if (DICT[id]) contrastRoleById.set(id, role)
+  return role
 }
 
 export function contextualPromptProfile(id, { contextPresentation = 'marked' } = {}) {

@@ -257,6 +257,7 @@ const distractorIds = (
       ? 'candidate shares an Albanian word with the preceding Train activity'
       : null,
     labelOf: choiceText,
+    debugTrace: debugTrace?.detail !== 'summary',
     rng,
   })
   if (debugTrace) debugTrace.distractors = planned.trace
@@ -463,8 +464,9 @@ export function buildWordQuestion({
 } = {}) {
   const trace = debugTrace ? {
     builder: 'word',
+    detail: debugTrace === 'summary' ? 'summary' : 'full',
     request: {
-      discoveredIds: [...(discoveredIds || [])],
+      discoveredIds: debugTrace === 'summary' ? undefined : [...(discoveredIds || [])],
       targetId,
       targetAspectId,
       allowEarlyDueForGoal,
@@ -477,11 +479,16 @@ export function buildWordQuestion({
     candidates: [],
   } : null
   const due = []
-  for (const id of discoveredIds || []) {
+  const requestedIds = targetId && debugTrace === 'summary'
+    ? (discoveredIds || []).filter((id) => id === targetId)
+    : discoveredIds || []
+  for (const id of requestedIds) {
     const candidate = trace ? { id, status: 'rejected', reasons: [] } : null
     if (targetId && id !== targetId) {
-      candidate?.reasons.push(`forced target is ${targetId}`)
-      if (candidate) trace.candidates.push(candidate)
+      if (debugTrace !== 'summary') {
+        candidate?.reasons.push(`forced target is ${targetId}`)
+        if (candidate) trace.candidates.push(candidate)
+      }
       continue
     }
     if (!DICT[id]) {

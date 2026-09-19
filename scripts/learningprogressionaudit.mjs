@@ -417,7 +417,7 @@ check('word-form, mix and no-repeat policies are shared with the real builders',
   assert.doesNotMatch(practice, /TRAIN_EXERCISE_FAMILIES\.wordFormContext/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordConstruction/)
   assert.match(practice, /TRAIN_EXERCISE_FAMILIES\.wordSpelling/)
-  assert.match(practice, /enumerateTrainActivityCandidates/)
+  assert.match(practice, /completeTrainCandidateWork/)
   assert.match(practice, /initialTrainPlanningState/)
   assert.match(practice, /planTrainFuture/)
   assert.match(practice, /trainActionLastResortProposal/)

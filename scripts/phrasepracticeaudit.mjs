@@ -346,7 +346,7 @@ check('word, context and endings rounds carry the same no-repeat boundary', () =
   assert.match(practiceSource, /previousQuestionWords\.current = selectedProposal\.wordKeys/)
   assert.match(
     practiceSource,
-    /enumerateTrainActivityCandidates\(\{[\s\S]+state,[\s\S]+discoveredIds,[\s\S]+unlockedPhrases: unlockedEverydayPhrases/,
+    /completeTrainCandidateWork\(\{[\s\S]+state,[\s\S]+discoveredIds,[\s\S]+unlockedPhrases: unlockedEverydayPhrases/,
     'the certified activity enumerator is not fed the live learner state',
   )
   assert.match(

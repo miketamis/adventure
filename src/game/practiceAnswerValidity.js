@@ -39,13 +39,17 @@ for (const group of POTENTIALLY_EQUIVALENT_GROUPS) {
   }
 }
 
-const glossKeys = (id) => {
+const senseAnswerCache = new Map()
+const answerKeys = (id) => {
+  if (senseAnswerCache.has(id)) return senseAnswerCache.get(id)
   const entry = DICT[id]
-  if (!entry) return new Set()
-  return new Set(String(entry.enAll ?? entry.en ?? '')
+  if (!entry) return { surface: '', glosses: new Set() }
+  const keys = { surface: lower(entry.al, 'sq'), glosses: new Set(String(entry.enAll ?? entry.en ?? '')
     .split('/')
     .map((value) => lower(value))
-    .filter(Boolean))
+    .filter(Boolean)) }
+  senseAnswerCache.set(id, keys)
+  return keys
 }
 
 export const normalizedChoiceText = (value, locale = 'en') => lower(value, locale)
@@ -53,10 +57,12 @@ export const normalizedChoiceText = (value, locale = 'en') => lower(value, local
 export function sensesMayShareAnswer(answerId, candidateId) {
   if (!DICT[answerId] || !DICT[candidateId]) return true
   if (answerId === candidateId) return true
-  if (lower(DICT[answerId].al, 'sq') === lower(DICT[candidateId].al, 'sq')) return true
+  const answer = answerKeys(answerId)
+  const candidate = answerKeys(candidateId)
+  if (answer.surface === candidate.surface) return true
   if (POTENTIALLY_EQUIVALENT_BY_ID.get(answerId)?.has(candidateId)) return true
-  const answerGlosses = glossKeys(answerId)
-  return [...glossKeys(candidateId)].some((key) => answerGlosses.has(key))
+  for (const key of candidate.glosses) if (answer.glosses.has(key)) return true
+  return false
 }
 
 export function choiceSetErrors({

@@ -1,4 +1,4 @@
-import { captureEvent, currentAnalyticsStateSequence } from '../analytics.js'
+import { captureEvent, currentAnalyticsStateSequence, getAnalyticsConsent } from '../analytics.js'
 import { DICT } from './content.js'
 import {
   distractorDifficultyBandForPlan,
@@ -54,7 +54,7 @@ const targetEvidence = (question, state) => {
 }
 
 export function captureTrainQuestionPresented(question, state) {
-  if (!question?.questionKey || state?.debug) return
+  if (!getAnalyticsConsent().structured || !question?.questionKey || state?.debug) return
   const rows = optionRows(question)
   const targetIds = trainQuestionTargetKeys(question)
   const wordIds = trainQuestionWordKeys(question)
@@ -104,7 +104,7 @@ export function captureTrainQuestionPresented(question, state) {
 }
 
 export function captureTrainSchedulerDecision({ state, candidates, balanced }) {
-  if (state?.debug) return
+  if (!getAnalyticsConsent().structured || state?.debug) return
   captureEvent('train_scheduler_decided', {
     game_run_id: playtestGameRunId(state),
     state_sequence: currentAnalyticsStateSequence(),

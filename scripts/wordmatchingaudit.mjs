@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { buildDebugTrainActivity } from '../src/game/debugTrainActivity.js'
-import { hasHonestWordMatchingSpread, planWordMatchingRound } from '../src/game/wordMatching.js'
+import { createWordMatchingRoundPlanner, hasHonestWordMatchingSpread, planWordMatchingRound } from '../src/game/wordMatching.js'
+import { DICT } from '../src/game/dictionary.js'
+import { isTrainableSense } from '../src/game/lexicalTrainability.js'
+import { seededTrainRng } from '../src/game/trainCandidateContract.js'
 import { WORD_MATCHING_POLICY } from '../src/game/wordMatchingPolicy.js'
 import { TRAIN_EXERCISE_FAMILIES, TRAIN_QUESTION_MIX_POLICY } from '../src/game/trainingProgression.js'
 import { TRAIN_ACTIVITY_BALANCE_POLICY } from '../src/game/trainActivityBalance.js'
@@ -92,6 +95,33 @@ assert.equal(undersized.trace.outcome.status, 'unavailable')
 assert.match(undersized.trace.outcome.reason, /needs 5/)
 assert.match(undersized.trace.outcome.fallback, /another due Train activity/)
 
+const matureIds = Object.keys(DICT).filter(isTrainableSense).slice(0, 500)
+const matureProgress = Object.fromEntries(matureIds.map((id) => [id, { wins: { 'meaning-recognition': 2 } }]))
+const matureOptions = {
+  discoveredIds: matureIds,
+  wordProgress: matureProgress,
+  practiced: Object.fromEntries(matureIds.map((id, index) => [id, index % 12])),
+  currentRound: 5000,
+}
+let progressReads = 0
+const batchedPlanner = createWordMatchingRoundPlanner({
+  ...matureOptions,
+  wordProgress: new Proxy(matureProgress, { get(target, id) { progressReads++; return target[id] } }),
+})
+assert.equal(progressReads, matureIds.length, 'matching preparation did not read each target once')
+const withoutSequence = (result) => ({
+  ...result,
+  question: result.question ? { ...result.question, questionKey: 'sequence-independent' } : null,
+})
+for (let index = 0; index < 8; index++) {
+  const seed = `mature-matching:${index}`
+  const shared = batchedPlanner({ rng: seededTrainRng(seed), debugTrace: true })
+  const independent = planWordMatchingRound({ ...matureOptions, rng: seededTrainRng(seed), debugTrace: true })
+  assert.ok(shared.question, `${seed}: representative mature profile lost its matching board`)
+  assert.deepEqual(withoutSequence(shared), withoutSequence(independent), `${seed}: batch reuse changed a seeded board`)
+}
+assert.equal(progressReads, matureIds.length, 'eight seeded boards reread learner eligibility or progress')
+
 const debugModel = buildDebugTrainActivity(first.question, {
   discovered,
   wordProgress,
@@ -110,7 +140,7 @@ const candidates = readFileSync(new URL('../src/game/trainCandidateContract.js',
 const question = readFileSync(new URL('../src/components/WordMatchingQuestion.jsx', import.meta.url), 'utf8')
 const graph = readFileSync(new URL('../src/components/DebugLearningProgression.jsx', import.meta.url), 'utf8')
 const styles = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
-assert.match(candidates, /planWordMatchingRound/)
+assert.match(candidates, /createWordMatchingRoundPlanner/)
 assert.match(candidates, /add\(plan\.question, 'word-matching'/)
 assert.match(practice, /planTrainFuture/)
 assert.doesNotMatch(practice, /pickBalancedTrainActivity/)

@@ -6,11 +6,12 @@ The performance suite measures the player-visible delay from an input to the nex
 
 - input delay, handler time, presentation delay and total interaction duration;
 - reducer, structured-analytics and local-persistence work;
+- elapsed Train enumeration, its individual blocking slices, future planning and selected-card materialization;
 - React commit duration where the active React build exposes profiler timings;
 - browser long tasks, first and largest contentful paint, and layout shift;
 - every performance surface and privacy-safe control group encountered during the session.
 
-Event Timing's duration ends after the next rendering update, so it captures the delay the player actually feels rather than only the JavaScript callback. Browsers without Event Timing use a delegated two-frame fallback. See the [W3C Event Timing specification](https://www.w3.org/TR/event-timing/) for the underlying duration model.
+Event Timing's duration ends after the next rendering update. That measures responsiveness, but an intermediate loading screen can paint before an activity is ready. The large-learner browser gate therefore also times the complete transition to a playable card. Browsers without Event Timing use a delegated two-frame fallback. See the [W3C Event Timing specification](https://www.w3.org/TR/event-timing/) for the underlying duration model.
 
 ## Privacy boundary
 
@@ -36,6 +37,22 @@ npm run test:performance
 - Story word discovery and a real Train answer;
 - the privacy modal and global sound control;
 - debug play with the large world minimap mounted;
-- the live Debug Performance panel.
+- the live Debug Performance panel;
+- the complete saved vocabulary with 5,000 exposure receipts, including leaving Train while a question is being built;
+- muted scene changes with an unavailable timing download, plus exactly one reducer evaluation per accepted spoken action.
 
 The shared budgets live in `PERFORMANCE_BUDGETS` inside `src/performance.js`; the runtime panel, static audit and browser gate consume that same object. The browser harness uses Playwright's supported `webServer` configuration to test the production output. See [Playwright's web-server documentation](https://playwright.dev/docs/test-webserver).
+
+## September 2026 investigation
+
+Local Chromium profiling reproduced Train opening at 4.25 seconds with 500 saved words and 8.30 seconds with all 978 trainable senses. The final build measured 0.85 and 1.35 seconds respectively; the full-vocabulary run's longest browser task fell from 8.18 seconds to 63 ms. The expensive work was repeated dictionary/grammatical-form derivation and distractor ranking. Fixed-content indexes, exact pruning of candidates that cannot win, and omission of unused debug records remove this duplication. Whole-bank audits compare optimized and exhaustive distractor choices; production candidate and question snapshots were also compared against the previous implementation.
+
+The UI now drains the same certified candidate generator with a 12 ms slice budget, yielding between targets through a request-local message channel. Individual targets finish before yielding. It cancels on leaving Train or changing the input state; only a completed, current build may record an activity presentation. The synchronous auditor and asynchronous UI share the complete enumeration order and seeded choices. The two-second full-bank readiness ceiling is separate from the existing 150 ms operation and 250 ms long-task ceilings; it does not permit a two-second browser freeze.
+
+An experienced 500-word profile exposed another repeated cost: eight matching proposals took 653 ms. Preparing eligibility once and retaining compact pairwise facts only within that enumeration reduced this to 59 ms, including preparation. Every seeded board, receipt key and full debug trace was compared against the previous implementation. The largest matching work step fell from 85 to 32 ms. The final browser run loaded an experienced 500-word activity in 1.35 seconds, with a longest task of 58 ms; that profile has its own readiness regression case.
+
+Storage was not the dominant cost: serializing a synthetic 800-word, 2 MB learner save took about 1.8 ms, parsing 3.3 ms, and normalization 9.4 ms. Transition analytics on that profile took 66.4 ms before the fix and 5.0 ms after reusing unchanged projections. Opted-out analytics now skips that work entirely. The save format is unchanged, and receipts still flush on hide/unload.
+
+Scene exposure bookkeeping also scaled poorly with history: 20 exposures with 25,000 existing receipts took 247 ms. One validated batch now takes about 5.2 ms and reuses untouched records. Muted actions bypass audio loading, while audible actions retain the validated destination privately until continuous playback completes or fails safely. Reload, cancellation, exact question parity, receipt deduplication and the audio commit boundary have executable regression coverage.
+
+These are local synthetic-profile measurements, not promises for every device or network. Reproduce the browser coverage with `npm run test:performance -- tests/performance/large-learner.spec.mjs`; its attached timing report includes readiness, operation groups and long tasks.

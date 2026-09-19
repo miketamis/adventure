@@ -98,6 +98,7 @@ import {
   normalizeWordExposure,
   normalizeWordExposureReceipts,
   recordWordExposure,
+  recordWordExposures,
 } from './wordExposure.js'
 import {
   emptyCefrState,
@@ -2894,14 +2895,14 @@ export function reducer(state, action) {
     }
 
     case 'RECORD_WORD_EXPOSURE': {
-      const occurrences = Array.isArray(action.occurrences)
-        ? action.occurrences.filter((id) => safeMapKey(id) && DICT[id] && isTrainableSense(id))
-        : []
-      return recordWordExposure(state, {
-        receipt: action.receipt,
-        source: action.source,
-        occurrences,
-      }) || state
+      const entries = Array.isArray(action.exposures) ? action.exposures : [action]
+      return recordWordExposures(state, entries.map((entry) => ({
+        receipt: entry?.receipt,
+        source: entry?.source,
+        occurrences: Array.isArray(entry?.occurrences)
+          ? entry.occurrences.filter((id) => safeMapKey(id) && DICT[id] && isTrainableSense(id))
+          : [],
+      }))) || state
     }
 
     case 'PRACTICE_WORD_RESULT': {

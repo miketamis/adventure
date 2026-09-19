@@ -12,7 +12,7 @@ import {
 import { buildPhraseQuestion, trainQuestionWordKeys } from './phrasePractice.js'
 import { trainActivityTypeId, trainQuestionTargetKeys } from './trainActivityBalance.js'
 import { buildWordQuestion, wordQuestionRouteAspectIds } from './wordPractice.js'
-import { planWordMatchingRound } from './wordMatching.js'
+import { createWordMatchingRoundPlanner } from './wordMatching.js'
 
 const deepFreeze = (value) => {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value
@@ -283,7 +283,10 @@ const phraseDueRequests = (entry, state, currentRound, nowMs) => {
   return requests
 }
 
-export function enumerateTrainActivityCandidates({
+// The browser may pause between targets to let input and paint proceed. Audits
+// drain this same iterator synchronously, so yielding cannot fork the candidate
+// bank, its eligibility checks, or its seeded random sequence.
+export function* enumerateTrainActivityCandidateSteps({
   state,
   discoveredIds = [],
   unlockedPhrases = [],
@@ -345,9 +348,10 @@ export function enumerateTrainActivityCandidates({
         targetAspectId,
         allowEarlyDueForGoal: forcedGoalTargets.has(id),
         rng: seededTrainRng(`${seed}|word|${id}|${routeId}`),
-        debugTrace: true,
+        debugTrace: debugTrace ? true : 'summary',
       }), 'word', `${id}:${routeId}`)
     }
+    yield
   }
 
   for (const entry of unlockedPhrases) {
@@ -372,23 +376,27 @@ export function enumerateTrainActivityCandidates({
           currentRound,
           nowMs,
           rng: seededTrainRng(`${seed}|phrase|${entry.id}|${request.skill}`),
-          debugTrace: true,
+          debugTrace: debugTrace ? true : 'summary',
         },
       ), 'phrase', `${entry.id}:${request.skill}`)
     }
+    yield
   }
 
+  const planMatchingRound = createWordMatchingRoundPlanner({
+    discoveredIds,
+    wordProgress: state?.wordProgress,
+    wordMatchingProgress: state?.wordMatchingProgress,
+    practiced: state?.practiced,
+    currentRound,
+  })
   for (let index = 0; index < TRAIN_CANDIDATE_ENUMERATION_POLICY.matchingBoards.maximumProposals; index++) {
-    const plan = planWordMatchingRound({
-      discoveredIds,
-      wordProgress: state?.wordProgress,
-      wordMatchingProgress: state?.wordMatchingProgress,
-      practiced: state?.practiced,
-      currentRound,
+    const plan = planMatchingRound({
       rng: seededTrainRng(`${seed}|word-matching|${index}`),
       debugTrace: true,
     })
     add(plan.question, 'word-matching', `board:${index}`)
+    yield
   }
 
   if (!debugTrace) trace.attempts = []
@@ -404,4 +412,11 @@ export function enumerateTrainActivityCandidates({
       candidates: debugTrace ? proposals.map(trainCandidateDebugRecord) : [],
     },
   }
+}
+
+export function enumerateTrainActivityCandidates(options) {
+  const steps = enumerateTrainActivityCandidateSteps(options)
+  let step = steps.next()
+  while (!step.done) step = steps.next()
+  return step.value
 }

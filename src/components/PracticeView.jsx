@@ -41,7 +41,6 @@ import {
 } from '../game/trainHealthPolicy.js'
 import { wordSpellingAttempt, wordSpellingRepairMessage } from '../game/wordSpellingPolicy.js'
 import {
-  enumerateTrainActivityCandidates,
   trainCandidateDebugRecord,
   trainPlannerSeed,
 } from '../game/trainCandidateContract.js'
@@ -60,6 +59,8 @@ import {
 } from '../game/trainActionGoal.js'
 import { resolveTrainingTarget } from '../game/trainingTarget.js'
 import { analyticsOptionId } from '../game/playtestAnalytics.js'
+import { measureAsyncPerformanceOperation, measurePerformanceOperation } from '../performance.js'
+import { completeTrainCandidateWork } from '../trainCandidateWork.js'
 import {
   captureTrainQuestionPresented,
   captureTrainSchedulerDecision,
@@ -130,6 +131,20 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   const activityHistory = useRef(normalizeTrainActivityHistory(state.trainActivityHistory))
   const targetHistory = useRef(normalizeTrainTargetHistory(state.trainTargetHistory))
   const nextRef = useRef(null)
+  const generation = useRef(0)
+  const planning = useRef(null)
+  const mounted = useRef(true)
+  const latestState = useRef(state)
+  latestState.current = state
+  const [planningError, setPlanningError] = useState(null)
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+      generation.current += 1
+      planning.current = null
+    }
+  }, [])
   const advanceAfterConsequence = useRef(false)
   const scheduleNextQuestion = useCallback((delayMs) => {
     const advance = () => nextRef.current?.()
@@ -152,195 +167,195 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
     }
   }
 
-  const next = useCallback(() => {
-    answerCommitted.current = false
-    if (discoveredIds.length === 0) {
-      setQ(null)
-      return
-    }
-    setPicked(null)
-    setTypedWord('')
-    setAcceptedLeewayReview(false)
-    setAwaitingRecoveryContinue(false)
-    setWordAudioCompleted(false)
-    setWordAudioError('')
-    setWordRepair(null)
-    setConstructedPieceIds([])
-    setFormPhaseIndex(0)
-    const nowMs = Date.now()
-    const excludeWords = previousQuestionWords.current.length
-      ? previousQuestionWords.current
-      : state.trainLastWords || []
-    const recentActivityHistory = activityHistory.current.length
-      ? activityHistory.current
-      : normalizeTrainActivityHistory(state.trainActivityHistory)
-    const recentTargetHistory = targetHistory.current.length
-      ? targetHistory.current
-      : normalizeTrainTargetHistory(state.trainTargetHistory)
-    const actionGoal = trainActionGoalForState(state)
-    const goalSession = normalizeTrainActionGoalSession(state.trainGoalSession, state)
-    const actionPracticeQueue = trainActionPracticeQueue(state)
-    const enumeration = enumerateTrainActivityCandidates({
-      state,
-      discoveredIds,
-      unlockedPhrases: unlockedEverydayPhrases,
-      forceGoalTargetIds: actionPracticeQueue.allRemainingWordIds,
-      nowMs,
-      debugTrace: state.debug,
-    })
-    const plannerSeed = trainPlannerSeed({
-      currentRound: state.trainRound,
-      discoveredIds,
-      activityHistory: recentActivityHistory,
-      targetHistory: recentTargetHistory,
-    })
-    const planningState = initialTrainPlanningState({
-      currentRound: state.trainRound,
-      activityHistory: recentActivityHistory,
-      targetHistory: recentTargetHistory,
-      lastWordKeys: excludeWords,
-      goalRemaining: actionPracticeQueue.priorityRemainingWordIds,
-      alternateGoalRemaining: actionPracticeQueue.currentRemainingWordIds.length
-        ? actionPracticeQueue.otherRemainingWordIds
-        : [],
-      goalMaximumDiversionRounds: actionPracticeQueue.maximumDiversionRounds,
-      goalDiversionsUsed: actionGoal?.remainingTokenCount
-        ? goalSession?.activitiesSinceGoalOpportunity
-        : 0,
-    })
-    const future = planTrainFuture({
-      proposals: enumeration.proposals,
-      planningState,
-      seed: plannerSeed,
-    })
-    const exactOracle = state.debug ? planTrainFutureExact({
-      proposals: enumeration.proposals,
-      planningState,
-      seed: plannerSeed,
-    }) : null
-    const oracleReport = state.debug
-      ? trainPlannerOracleReport(future, exactOracle, planningState)
-      : null
-    const actionLastResort = future.candidate ? null : trainActionLastResortProposal(
-      enumeration.proposals,
-      actionPracticeQueue.priorityRemainingWordIds,
-    )
-    // The future planner owns every ordinary decision. If all of its roots are
-    // blocked, a still-missing visible action word owns the final decision and
-    // may break the immediate-repeat boundary rather than show a false end.
-    const selectedProposal = future.candidate || actionLastResort
-    const schedulerTrace = {
-      builder: 'train-future-planner',
-      reason: selectedProposal
-        ? actionLastResort
-          ? `Every ordinary future route was blocked, so Train used the reviewed last-resort card for a still-missing visible action word.`
-          : actionPracticeQueue.currentRemainingWordIds.length
-            ? `Selected the strongest future route toward the requested story action while preserving legal target and activity diversity.`
-            : actionPracticeQueue.otherRemainingWordIds.length
-              ? `Selected the strongest future route toward another same-node story action whose words are already saved.`
-              : `Selected the strongest future route across every currently buildable Train family.`
-        : `Every currently buildable proposal was rejected by an explicit hard constraint.`,
-      currentRound: state.trainRound || 0,
-      nowMs,
-      excludedWordKeys: [...excludeWords],
-      recentActivityHistory,
-      recentTargetHistory,
-      actionGoal: actionGoal ? {
-        ...actionGoal,
-        session: goalSession,
-      } : null,
-      actionPracticeQueue,
-      enumeration: enumeration.trace,
-      future: {
-        ...future.trace,
-        actionLastResort: actionLastResort ? {
-          reason: 'a buildable visible-action target outranks the terminal screen after ordinary constraints exhaust the root pool',
-          candidate: trainCandidateDebugRecord(actionLastResort),
-        } : null,
-        exactOracle: exactOracle?.trace || null,
-        oracleReport,
-      },
-      selected: trainCandidateDebugRecord(selectedProposal),
-    }
-    const analyticsCandidates = enumeration.proposals.map((proposal) => ({
-      route: proposal.route,
-      question: { targetKeys: proposal.targetKeys },
-    }))
-    const materializedQuestion = selectedProposal?.materialize({
-      debug: state.debug,
-      plannerTrace: schedulerTrace,
-    }) || null
-    captureTrainSchedulerDecision({
-      state,
-      candidates: analyticsCandidates,
-      balanced: {
-        candidate: selectedProposal ? {
-          route: selectedProposal.route,
-          question: { questionKey: materializedQuestion?.questionKey },
-        } : null,
-        activityTypeId: selectedProposal?.activityTypeId || null,
-        randomBoundary: null,
-        plan: {
-          usesRepeatFallback: recentActivityHistory.at(-1) === selectedProposal?.activityTypeId,
-        },
-      },
-    })
-    let nextQuestion = null
-    if (materializedQuestion) {
-      const question = materializedQuestion
-      const phaseTrainHealth = Object.fromEntries((question.phasePlan || []).map((phase) => [
-        phase.id,
-        trainHealthPlanForQuestion(state, question, { phaseId: phase.id }),
-      ]))
-      nextQuestion = {
-        ...question,
-        trainHealth: trainHealthPlanForQuestion(state, question),
-        phaseTrainHealth,
+  const next = useCallback(async () => {
+    if (!mounted.current) return
+    const ticket = ++generation.current
+    planning.current = ticket
+    answerCommitted.current = true
+    setQ(null)
+    try {
+      if (discoveredIds.length === 0) {
+        planning.current = null
+        return
       }
-    } else if (!TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists) {
-      nextQuestion = {
-        kind: TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome,
-        needsMoreWords: actionPracticeQueue.needsMoreWords,
-        debugSelection: state.debug ? { scheduler: schedulerTrace } : undefined,
+      setPicked(null)
+      setTypedWord('')
+      setAcceptedLeewayReview(false)
+      setAwaitingRecoveryContinue(false)
+      setWordAudioCompleted(false)
+      setWordAudioError('')
+      setWordRepair(null)
+      setConstructedPieceIds([])
+      setFormPhaseIndex(0)
+      const nowMs = Date.now()
+      const excludeWords = previousQuestionWords.current.length
+        ? previousQuestionWords.current
+        : state.trainLastWords || []
+      const recentActivityHistory = activityHistory.current.length
+        ? activityHistory.current
+        : normalizeTrainActivityHistory(state.trainActivityHistory)
+      const recentTargetHistory = targetHistory.current.length
+        ? targetHistory.current
+        : normalizeTrainTargetHistory(state.trainTargetHistory)
+      const actionGoal = trainActionGoalForState(state)
+      const goalSession = normalizeTrainActionGoalSession(state.trainGoalSession, state)
+      const actionPracticeQueue = trainActionPracticeQueue(state)
+      const enumeration = await measureAsyncPerformanceOperation('train', 'enumerate', 'practice', () => completeTrainCandidateWork({
+        state,
+        discoveredIds,
+        unlockedPhrases: unlockedEverydayPhrases,
+        forceGoalTargetIds: actionPracticeQueue.allRemainingWordIds,
+        nowMs,
+        debugTrace: state.debug,
+      }, {
+        isCancelled: () => generation.current !== ticket || latestState.current !== state,
+        measureSlice: (work) => measurePerformanceOperation('train', 'enumerate-slice', 'practice', work),
+      }))
+      if (!enumeration) {
+        if (generation.current === ticket) {
+          planning.current = null
+          void nextRef.current?.()
+        }
+        return
       }
-    }
-    if (nextQuestion && nextQuestion.kind !== TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) {
-      previousQuestionWords.current = selectedProposal.wordKeys
-      activityHistory.current = recordTrainActivity(recentActivityHistory, nextQuestion.activityTypeId)
-      const targetKeys = selectedProposal.targetKeys
-      targetHistory.current = recordTrainTargets(recentTargetHistory, targetKeys)
-      dispatch({
-        type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
-        questionKey: nextQuestion.questionKey,
-        activityTypeId: nextQuestion.activityTypeId,
-        targetKeys,
+      const plannerSeed = trainPlannerSeed({
+        currentRound: state.trainRound,
+        discoveredIds,
+        activityHistory: recentActivityHistory,
+        targetHistory: recentTargetHistory,
       })
+      const planningState = initialTrainPlanningState({
+        currentRound: state.trainRound,
+        activityHistory: recentActivityHistory,
+        targetHistory: recentTargetHistory,
+        lastWordKeys: excludeWords,
+        goalRemaining: actionPracticeQueue.priorityRemainingWordIds,
+        alternateGoalRemaining: actionPracticeQueue.currentRemainingWordIds.length
+          ? actionPracticeQueue.otherRemainingWordIds
+          : [],
+        goalMaximumDiversionRounds: actionPracticeQueue.maximumDiversionRounds,
+        goalDiversionsUsed: actionGoal?.remainingTokenCount
+          ? goalSession?.activitiesSinceGoalOpportunity
+          : 0,
+      })
+      const future = measurePerformanceOperation('train', 'plan', 'practice', () => planTrainFuture({
+        proposals: enumeration.proposals,
+        planningState,
+        seed: plannerSeed,
+      }))
+      const exactOracle = state.debug ? planTrainFutureExact({
+        proposals: enumeration.proposals,
+        planningState,
+        seed: plannerSeed,
+      }) : null
+      const oracleReport = state.debug
+        ? trainPlannerOracleReport(future, exactOracle, planningState)
+        : null
+      const actionLastResort = future.candidate ? null : trainActionLastResortProposal(
+        enumeration.proposals,
+        actionPracticeQueue.priorityRemainingWordIds,
+      )
+      // The future planner owns every ordinary decision. If all of its roots are
+      // blocked, a still-missing visible action word owns the final decision and
+      // may break the immediate-repeat boundary rather than show a false end.
+      const selectedProposal = future.candidate || actionLastResort
+      const schedulerTrace = {
+        builder: 'train-future-planner',
+        reason: selectedProposal
+          ? actionLastResort
+            ? `Every ordinary future route was blocked, so Train used the reviewed last-resort card for a still-missing visible action word.`
+            : actionPracticeQueue.currentRemainingWordIds.length
+              ? `Selected the strongest future route toward the requested story action while preserving legal target and activity diversity.`
+              : actionPracticeQueue.otherRemainingWordIds.length
+                ? `Selected the strongest future route toward another same-node story action whose words are already saved.`
+                : `Selected the strongest future route across every currently buildable Train family.`
+          : `Every currently buildable proposal was rejected by an explicit hard constraint.`,
+        currentRound: state.trainRound || 0,
+        nowMs,
+        excludedWordKeys: [...excludeWords],
+        recentActivityHistory,
+        recentTargetHistory,
+        actionGoal: actionGoal ? {
+          ...actionGoal,
+          session: goalSession,
+        } : null,
+        actionPracticeQueue,
+        enumeration: enumeration.trace,
+        future: {
+          ...future.trace,
+          actionLastResort: actionLastResort ? {
+            reason: 'a buildable visible-action target outranks the terminal screen after ordinary constraints exhaust the root pool',
+            candidate: trainCandidateDebugRecord(actionLastResort),
+          } : null,
+          exactOracle: exactOracle?.trace || null,
+          oracleReport,
+        },
+        selected: trainCandidateDebugRecord(selectedProposal),
+      }
+      const analyticsCandidates = enumeration.proposals.map((proposal) => ({
+        route: proposal.route,
+        question: { targetKeys: proposal.targetKeys },
+      }))
+      const materializedQuestion = measurePerformanceOperation('train', 'materialize', 'practice', () => selectedProposal?.materialize({
+        debug: state.debug,
+        plannerTrace: schedulerTrace,
+      }) || null)
+      captureTrainSchedulerDecision({
+        state,
+        candidates: analyticsCandidates,
+        balanced: {
+          candidate: selectedProposal ? {
+            route: selectedProposal.route,
+            question: { questionKey: materializedQuestion?.questionKey },
+          } : null,
+          activityTypeId: selectedProposal?.activityTypeId || null,
+          randomBoundary: null,
+          plan: {
+            usesRepeatFallback: recentActivityHistory.at(-1) === selectedProposal?.activityTypeId,
+          },
+        },
+      })
+      let nextQuestion = null
+      if (materializedQuestion) {
+        const question = materializedQuestion
+        const phaseTrainHealth = Object.fromEntries((question.phasePlan || []).map((phase) => [
+          phase.id,
+          trainHealthPlanForQuestion(state, question, { phaseId: phase.id }),
+        ]))
+        nextQuestion = {
+          ...question,
+          trainHealth: trainHealthPlanForQuestion(state, question),
+          phaseTrainHealth,
+        }
+      } else if (!TRAIN_SCHEDULER_SAFEGUARDS.repeatWhenNoDisjointTargetExists) {
+        nextQuestion = {
+          kind: TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome,
+          needsMoreWords: actionPracticeQueue.needsMoreWords,
+          debugSelection: state.debug ? { scheduler: schedulerTrace } : undefined,
+        }
+      }
+      planning.current = null
+      answerCommitted.current = false
+      if (nextQuestion && nextQuestion.kind !== TRAIN_SCHEDULER_SAFEGUARDS.exhaustedPoolOutcome) {
+        previousQuestionWords.current = selectedProposal.wordKeys
+        activityHistory.current = recordTrainActivity(recentActivityHistory, nextQuestion.activityTypeId)
+        const targetKeys = selectedProposal.targetKeys
+        targetHistory.current = recordTrainTargets(recentTargetHistory, targetKeys)
+        dispatch({
+          type: 'RECORD_TRAIN_ACTIVITY_PRESENTED',
+          questionKey: nextQuestion.questionKey,
+          activityTypeId: nextQuestion.activityTypeId,
+          targetKeys,
+        })
+      }
+      setQ(nextQuestion)
+    } catch (error) {
+      if (generation.current === ticket) {
+        planning.current = null
+        setPlanningError(error)
+      }
     }
-    setQ(nextQuestion)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    discoveredIds.length,
-    unlockedEverydayPhrases.length,
-    state.mana,
-    state.practiced,
-    state.wordProgress,
-    state.phrasePracticed,
-    state.phraseMistakes,
-    state.phraseProductionProgress,
-    state.phraseListeningMastery,
-    state.phraseMatchingMastery,
-    state.phraseListeningProgress,
-    state.phraseMatchingProgress,
-    state.wordMatchingProgress,
-    state.trainRound,
-    state.trainLastWords,
-    state.trainActivityHistory,
-    state.trainTargetHistory,
-    state.trainStageExposures,
-    state.practiceTarget,
-    state.trainGoalSession,
-    state.debug,
-  ])
+  }, [discoveredIds, unlockedEverydayPhrases, state, dispatch])
 
   nextRef.current = next
   const onPhraseComplete = useCallback((result) => {
@@ -463,7 +478,7 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   }, [dispatch, q, scheduleNextQuestion, state])
 
   useEffect(() => {
-    if (!q && discoveredIds.length > 0) next()
+    if (!q && planning.current === null && discoveredIds.length > 0) void next()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [discoveredIds.length])
 
@@ -510,6 +525,8 @@ export default function PracticeView({ state, dispatch, analyticsEnabled = false
   useEffect(() => {
     if (!state.debug) setShowCefr(false)
   }, [state.debug])
+
+  if (planningError) throw planningError
 
   if (state.debug && showCefr) {
     return <CefrCapstone state={state} dispatch={dispatch} onClose={() => setShowCefr(false)} />

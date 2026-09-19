@@ -1,6 +1,7 @@
 import {
   captureEvent,
   currentAnalyticsStateSequence,
+  getAnalyticsConsent,
   getAnalyticsSessionId,
   nextAnalyticsStateSequence,
 } from '../analytics.js'
@@ -25,17 +26,18 @@ const stableStringify = (value) => {
   return JSON.stringify(value)
 }
 
-const stateHash = (value) => {
-  const input = stableStringify(value)
+const hashSerializedState = (input) => {
   let left = 2166136261
   let right = 2246822507
-  for (const character of input) {
-    const point = character.codePointAt(0)
+  for (let index = 0; index < input.length; index += 1) {
+    const point = input.codePointAt(index)
+    if (point > 0xffff) index += 1
     left = Math.imul(left ^ point, 16777619)
     right = Math.imul(right ^ point, 3266489909)
   }
   return `${(left >>> 0).toString(16).padStart(8, '0')}${(right >>> 0).toString(16).padStart(8, '0')}`
 }
+const stateHash = (value) => hashSerializedState(stableStringify(value))
 
 const replayValue = (value, depth = 0) => {
   if (depth > 10 || value == null) return value == null ? null : undefined
@@ -88,6 +90,42 @@ export function replayStateHash(state) {
 export function replayCheckpointHash(checkpoint) {
   return stateHash(checkpoint)
 }
+
+// Reducer states and their nested progress maps are immutable. A story move
+// usually changes a few scalar fields while preserving the entire learner
+// profile. Reuse those exact projections and serialized fields; never walk,
+// sort and stringify every word's proofs again for each UI receipt. Weak keys
+// let retired states and replaced maps be collected with the game state.
+// Keep the public replay helpers uncached so external mutable checkpoint data
+// still receives a fresh, independently verifiable hash.
+export function createReplaySnapshotCache() {
+  const states = new WeakMap()
+  const fields = new WeakMap()
+  const orderedFields = [...CHECKPOINT_FIELDS, 'checkpointVersion'].sort()
+  const fieldSnapshot = (value) => {
+    if (value && typeof value === 'object' && fields.has(value)) return fields.get(value)
+    const projected = replayValue(value)
+    const entry = { value: projected, serialized: stableStringify(projected) }
+    if (value && typeof value === 'object') fields.set(value, entry)
+    return entry
+  }
+  return (state) => {
+    if (states.has(state)) return states.get(state)
+    const checkpoint = {}
+    const serialized = []
+    for (const key of orderedFields) {
+      const entry = fieldSnapshot(key === 'checkpointVersion' ? PLAYTEST_CHECKPOINT_VERSION : state?.[key])
+      if (entry.value === undefined) continue
+      checkpoint[key] = entry.value
+      serialized.push(`${JSON.stringify(key)}:${entry.serialized}`)
+    }
+    const snapshot = { checkpoint, hash: hashSerializedState(`{${serialized.join(',')}}`) }
+    states.set(state, snapshot)
+    return snapshot
+  }
+}
+
+const committedReplaySnapshot = createReplaySnapshotCache()
 
 export const playtestGameRunId = (state) => `${getAnalyticsSessionId()}:run-${state?.storyRunSequence || 1}`
 
@@ -159,7 +197,8 @@ const transitionDelta = (before, after) => ({
 })
 
 export function captureRunCheckpoint(state, reason = 'interval', reservedSequence = null) {
-  const checkpoint = replayCheckpointState(state)
+  if (!getAnalyticsConsent().structured) return false
+  const { checkpoint, hash } = committedReplaySnapshot(state)
   const sequence = Number.isInteger(reservedSequence) && reservedSequence >= 0
     ? reservedSequence
     : currentAnalyticsStateSequence()
@@ -171,18 +210,18 @@ export function captureRunCheckpoint(state, reason = 'interval', reservedSequenc
     view: state.view,
     turn: state.turn,
     checkpoint_reason: reason,
-    after_state_hash: stateHash(checkpoint),
+    after_state_hash: hash,
     checkpoint_state: checkpoint,
   }, { receipt: `checkpoint:${playtestGameRunId(state)}:${reason}:${sequence}` })
 }
 
 export function reserveCommittedTransitionSequence(action, before, after) {
-  if (!action?.type || before === after || before?.debug || after?.debug) return false
+  if (!getAnalyticsConsent().structured || !action?.type || before === after || before?.debug || after?.debug) return false
   return nextAnalyticsStateSequence()
 }
 
 export function captureCommittedTransition(action, before, after, reservedSequence = null) {
-  if (!action?.type || before === after || before?.debug || after?.debug) return false
+  if (!getAnalyticsConsent().structured || !action?.type || before === after || before?.debug || after?.debug) return false
   const sequence = Number.isInteger(reservedSequence) && reservedSequence > 0
     ? reservedSequence
     : nextAnalyticsStateSequence()
@@ -209,8 +248,8 @@ export function captureCommittedTransition(action, before, after, reservedSequen
     token_total_before: countTotal(before.mana),
     token_total_after: countTotal(after.mana),
     ended: after.ended || 'active',
-    before_state_hash: replayStateHash(before),
-    after_state_hash: replayStateHash(after),
+    before_state_hash: committedReplaySnapshot(before).hash,
+    after_state_hash: committedReplaySnapshot(after).hash,
     state_delta: transitionDelta(before, after),
   }
   const captured = captureEvent('state_transition_committed', properties, {
@@ -250,7 +289,7 @@ export function captureCommittedTransition(action, before, after, reservedSequen
 }
 
 export function captureSurfacePresented(state) {
-  if (state?.debug) return false
+  if (!getAnalyticsConsent().structured || state?.debug) return false
   return captureEvent('surface_presented', {
     game_run_id: playtestGameRunId(state),
     state_sequence: currentAnalyticsStateSequence(),
@@ -264,7 +303,7 @@ export function captureSurfacePresented(state) {
 }
 
 export function captureStoryChoicesPresented(state, entries) {
-  if (state?.debug) return
+  if (!getAnalyticsConsent().structured || state?.debug) return
   entries.forEach((entry, position) => {
     const availability = entry.roleBlocked ? 'role-blocked'
       : !entry.allDiscovered ? 'undiscovered-words'

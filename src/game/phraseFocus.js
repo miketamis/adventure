@@ -28,8 +28,18 @@ function senseAt(phrase, surfaces, index) {
 // spelling the learner must prove before independent production. Explicit
 // metadata resolves homonyms and editorial exceptions; the conservative
 // fallback maps attested phrase surfaces back to dictionary senses.
+const focusCache = new WeakMap()
 export function phraseProductionFocuses(phrase) {
   if (!phrase || !Array.isArray(phrase.requires)) return []
+  const signature = JSON.stringify([phrase.al, phrase.requires, phrase.productionFocus])
+  const cached = focusCache.get(phrase)
+  if (cached?.signature === signature) return cached.focuses
+  const focuses = buildPhraseProductionFocuses(phrase)
+  focusCache.set(phrase, { signature, focuses })
+  return focuses
+}
+
+function buildPhraseProductionFocuses(phrase) {
   const surfaces = words(phrase.al)
   const mapped = surfaces
     .map((word, index) => ({ id: senseAt(phrase, surfaces, index), index, word }))

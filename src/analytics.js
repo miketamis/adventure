@@ -3,6 +3,7 @@ const SESSION_KEY = 'aventura.analytics-session.v1'
 const STUDY_KEY = 'aventura.analytics-study.v1'
 const RECEIPTS_KEY = 'aventura.analytics-receipts.v1'
 const STATE_SEQUENCE_KEY = 'aventura.analytics-state-sequence.v1'
+const MAX_EVENT_RECEIPTS = 1024
 
 export const ANALYTICS_CONSENT_VERSION = 1
 export const ANALYTICS_EVENT_SCHEMA_VERSION = 1
@@ -23,6 +24,10 @@ const listeners = new Set()
 let client = null
 let initialization = null
 let eventSequence = 0
+let eventReceipts = null
+let receiptPersistence = null
+let receiptsDirty = false
+let pageIsLeaving = false
 
 const inBrowser = () => typeof window !== 'undefined'
 
@@ -328,13 +333,40 @@ export function nextAnalyticsStateSequence() {
   return next
 }
 
+export function flushAnalyticsReceipts() {
+  if (!inBrowser()) return
+  if (receiptPersistence?.kind === 'idle') window.cancelIdleCallback?.(receiptPersistence.id)
+  else if (receiptPersistence) window.clearTimeout(receiptPersistence.id)
+  receiptPersistence = null
+  if (!receiptsDirty) return
+  receiptsDirty = false
+  writeJson(window.sessionStorage, RECEIPTS_KEY, [...eventReceipts])
+}
+
 const seenReceipt = (receipt) => {
   if (!inBrowser()) return false
-  let receipts = readJson(window.sessionStorage, RECEIPTS_KEY)
-  if (!Array.isArray(receipts)) receipts = []
-  if (receipts.includes(receipt)) return true
-  receipts.push(receipt)
-  writeJson(window.sessionStorage, RECEIPTS_KEY, receipts.slice(-1024))
+  if (!eventReceipts) {
+    const stored = readJson(window.sessionStorage, RECEIPTS_KEY)
+    eventReceipts = new Set(Array.isArray(stored)
+      ? stored.filter((value) => typeof value === 'string').slice(-MAX_EVENT_RECEIPTS)
+      : [])
+  }
+  if (eventReceipts.has(receipt)) return true
+  eventReceipts.add(receipt)
+  if (eventReceipts.size > MAX_EVENT_RECEIPTS) eventReceipts.delete(eventReceipts.values().next().value)
+  receiptsDirty = true
+  if (pageIsLeaving || window.document?.visibilityState === 'hidden') {
+    flushAnalyticsReceipts()
+    return false
+  }
+  // A scene can present many choices at once. Deduplicate immediately in
+  // memory, then save their bounded receipt ledger once outside the paint
+  // path, retaining a synchronous flush when the page leaves or hides.
+  if (!receiptPersistence) {
+    receiptPersistence = typeof window.requestIdleCallback === 'function'
+      ? { kind: 'idle', id: window.requestIdleCallback(flushAnalyticsReceipts, { timeout: 750 }) }
+      : { kind: 'timeout', id: window.setTimeout(flushAnalyticsReceipts, 50) }
+  }
   return false
 }
 
@@ -393,6 +425,14 @@ export function captureException(error, properties = {}) {
 }
 
 if (inBrowser()) {
+  window.addEventListener('pagehide', () => {
+    pageIsLeaving = true
+    flushAnalyticsReceipts()
+  })
+  window.addEventListener('pageshow', () => { pageIsLeaving = false })
+  window.document?.addEventListener('visibilitychange', () => {
+    if (window.document.visibilityState === 'hidden') flushAnalyticsReceipts()
+  })
   window.addEventListener('storage', (event) => {
     if (event.key !== CONSENT_KEY) return
     consentSnapshot = normalizeConsent(readJson(window.localStorage, CONSENT_KEY))

@@ -12,7 +12,13 @@ import {
   wordAspectTargetsForPlan,
   wordProgressionSnapshot,
 } from '../src/game/wordProgression.js'
-import { recordWordExposure } from '../src/game/wordExposure.js'
+import {
+  normalizeWordExposure,
+  normalizeWordExposureReceipts,
+  recordWordExposure,
+  recordWordExposures,
+  wordExposureFor,
+} from '../src/game/wordExposure.js'
 
 const ids = WORD_LEARNING_ASPECTS.map(({ id }) => id)
 assert.equal(new Set(ids).size, ids.length, 'word aspect IDs are not unique')
@@ -162,6 +168,42 @@ assert.equal(exposed.wordExposure.fshat.total, 2)
 assert.strictEqual(recordWordExposure(exposed, {
   receipt: 'audit:story:1', source: 'story', occurrences: ['fshat'],
 }), exposed, 'replaying an exposure receipt changed familiarity')
+
+// Scene choices arrive together. They must count exactly like serial receipts,
+// without copying every older receipt and word record once per visible choice.
+const exposureEntries = [
+  { receipt: 'audit:story:2', source: 'story', occurrences: ['qytet', 'qytet'] },
+  { receipt: 'audit:story:3', source: 'phrase-co-exposure', occurrences: ['qytet'] },
+  { receipt: 'audit:story:2', source: 'story', occurrences: ['qytet'] },
+]
+const batchedExposure = recordWordExposures(exposed, exposureEntries)
+const serialExposure = exposureEntries.reduce((state, entry) => recordWordExposure(state, entry) || state, exposed)
+assert.deepEqual(batchedExposure, serialExposure, 'batching changed exact passive-exposure counts')
+assert.equal(batchedExposure.wordExposure.qytet.total, 3)
+assert.strictEqual(batchedExposure.wordExposure.fshat, exposed.wordExposure.fshat,
+  'an unrelated exposure rebuilt an existing word record')
+assert.strictEqual(recordWordExposures(batchedExposure, exposureEntries), batchedExposure,
+  'replaying the scene batch allocated another learner state')
+assert.equal(recordWordExposures(exposed, [null, {}, {
+  receipt: 'audit:invalid', source: 'story', occurrences: [null, '', 'x'.repeat(201)],
+}]), null, 'invalid exposure entries committed a receipt')
+
+// Reading one word must never scan unrelated vocabulary, even on a raw import.
+const inspectedExposure = {
+  fshat: { total: 999, story: '2', 'phrase-co-exposure': 1 },
+  get unrelated() { throw new Error('single-word inspection scanned another word') },
+}
+assert.deepEqual(wordExposureFor({ wordExposure: inspectedExposure }, 'fshat'),
+  { total: 3, story: 2, 'phrase-co-exposure': 1 })
+assert.deepEqual(wordExposureFor({ wordExposure: inspectedExposure }, 'constructor'),
+  { total: 0, story: 0, 'phrase-co-exposure': 0 })
+assert.equal(wordExposureFor({ wordExposure: [{ story: 2 }] }, '0').total, 0,
+  'targeted inspection accepted a malformed exposure map')
+const rawExposure = { fshat: { story: 2 }, malformed: [] }
+const normalizedExposure = normalizeWordExposure(rawExposure)
+rawExposure.fshat.story = 50
+assert.equal(normalizedExposure.fshat.story, 2, 'normalization retained an untrusted imported record')
+assert.deepEqual(normalizeWordExposureReceipts({ good: 'story', bad: 'mastery' }), { good: 'story' })
 assert.deepEqual(
   wordProgressionSnapshot(null, 0, options).next.aspectId,
   wordProgressionSnapshot(null, 0, { ...options, wordExposure: exposed.wordExposure }).next.aspectId,

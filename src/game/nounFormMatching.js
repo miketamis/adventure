@@ -28,11 +28,10 @@ const markedTargetIndex = (form) => {
   return indices.length === 1 ? indices[0] : -1
 }
 
-const rowGate = (form, discoveredIds) => {
+const rowGate = (form, discovered) => {
   if (form?.wordClass !== 'noun' || !form.context?.al || !form.roleLabel) return null
   const requires = Array.isArray(form.context.requires) ? [...new Set(form.context.requires)] : null
   if (!requires || requires.some((id) => !DICT[id])) return null
-  const discovered = new Set(discoveredIds || [])
   const missingIds = requires.filter((id) => id !== form.id && isTrainableSense(id) && !discovered.has(id))
   const targetTokenIndex = markedTargetIndex(form)
   if (missingIds.length || targetTokenIndex < 0) return null
@@ -74,7 +73,8 @@ const chooseRows = (eligible, currentRound = 0) => {
 export function reviewedNounFormMatchingPlan(forms = [], discoveredIds = [], { currentRound = 0 } = {}) {
   const nounIds = [...new Set(forms.map(({ id }) => id).filter(Boolean))]
   if (nounIds.length !== 1) return null
-  const eligible = forms.map((form) => rowGate(form, discoveredIds)).filter(Boolean)
+  const discovered = new Set(discoveredIds || [])
+  const eligible = forms.map((form) => rowGate(form, discovered)).filter(Boolean)
   const rows = chooseRows(eligible, currentRound)
   if (rows.length !== NOUN_FORM_MATCHING_VARIANT.pairCount) return null
   return Object.freeze({

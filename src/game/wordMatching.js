@@ -24,32 +24,31 @@ const completedTier = (progress) => WORD_STAGE_DEFINITIONS.reduce((highest, defi
   return (progress.wins?.[definition.id] || 0) >= required ? Math.max(highest, definition.tier) : highest
 }, -1)
 
-const confusability = (id, pool) => {
-  const ranks = pool
-    .filter((candidateId) => candidateId !== id && !sensesMayShareAnswer(id, candidateId))
-    .map((candidateId) => wordContrastRank(id, candidateId))
-    .filter(Number.isFinite)
-  const closestRank = ranks.length ? Math.min(...ranks) : null
+const confusability = (id, pool, contrastRank) => {
+  let closestRank = null
+  let closePeerCount = 0
+  // This pool has already passed the pairwise answer-compatibility gate.
+  for (const candidateId of pool) {
+    if (candidateId === id) continue
+    const rank = contrastRank(id, candidateId)
+    if (!Number.isFinite(rank)) continue
+    closestRank = closestRank == null ? rank : Math.min(closestRank, rank)
+    if (rank <= 2) closePeerCount++
+  }
   return {
     closestRank,
-    closePeerCount: ranks.filter((rank) => rank <= 2).length,
-    score: closestRank == null ? 0 : Math.max(0, 5 - closestRank) + Math.min(3, ranks.filter((rank) => rank <= 2).length),
+    closePeerCount,
+    score: closestRank == null ? 0 : Math.max(0, 5 - closestRank) + Math.min(3, closePeerCount),
   }
 }
 
-const compatibleWith = (chosen, candidateId) => chosen.every(({ id }) =>
-  normalizedChoiceText(surfaceOf(id), 'sq') !== normalizedChoiceText(surfaceOf(candidateId), 'sq') &&
-  normalizedChoiceText(meaningOf(id), 'en') !== normalizedChoiceText(meaningOf(candidateId), 'en') &&
-  !sensesMayShareAnswer(id, candidateId),
-)
-
-const pickCompatible = (ranked, indexes) => {
+const pickCompatible = (ranked, indexes, compatible) => {
   const chosen = []
   for (const index of indexes) {
     const preferred = ranked[index]
     const alternatives = [preferred, ...ranked]
     const candidate = alternatives.find((entry) => entry &&
-      !chosen.some(({ id }) => id === entry.id) && compatibleWith(chosen, entry.id))
+      !chosen.some(({ id }) => id === entry.id) && chosen.every(({ id }) => compatible(id, entry.id)))
     if (candidate) chosen.push(candidate)
   }
   return chosen
@@ -67,7 +66,7 @@ export function hasHonestWordMatchingSpread(entries) {
   return Math.max(...easy) < Math.min(...middle) && Math.max(...middle) < Math.min(...hard)
 }
 
-function bandedSelection(ranked) {
+function bandedSelection(ranked, compatible) {
   const count = ranked.length
   const hardIndexes = [count - 1, count - 2]
   const availableMiddle = Array.from({ length: count }, (_, index) => index)
@@ -75,7 +74,7 @@ function bandedSelection(ranked) {
     .sort((left, right) => Math.abs(left - (count - 1) / 2) - Math.abs(right - (count - 1) / 2))
     .slice(0, 2)
   const requested = [0, ...availableMiddle, ...hardIndexes]
-  const selected = pickCompatible(ranked, requested)
+  const selected = pickCompatible(ranked, requested, compatible)
   if (selected.length !== WORD_MATCHING_POLICY.pairCount) return null
   const banded = selected.map((entry, index) => ({
     ...entry,
@@ -84,7 +83,7 @@ function bandedSelection(ranked) {
   return hasHonestWordMatchingSpread(banded) ? banded : null
 }
 
-export function planWordMatchingRound({
+export function createWordMatchingRoundPlanner({
   discoveredIds = [],
   wordProgress = {},
   wordMatchingProgress = {},
@@ -92,17 +91,11 @@ export function planWordMatchingRound({
   excludeWords = [],
   targetHistory = [],
   currentRound = 0,
-  rng = Math.random,
-  debugTrace = false,
 } = {}) {
-  const trace = {
-    builder: 'word-matching',
-    policy: WORD_MATCHING_POLICY,
-    request: { currentRound, excludedWordKeys: [...excludeWords], targetHistory },
-    candidates: [],
-  }
+  const candidates = []
   const matchingEvidence = normalizeWordMatchingProgress(wordMatchingProgress)
   const rawEligible = []
+  const prepared = new Map()
   for (const id of discoveredIds) {
     const progress = normalizeWordProgress(wordProgress[id], currentRound)
     const reasons = []
@@ -116,93 +109,136 @@ export function planWordMatchingRound({
     if (targetBalance && !targetBalance.balanced.length) reasons.push('word or shared Albanian surface is inside the rolling target cooldown')
     const meaningWins = progress.wins?.[WORD_MATCHING_POLICY.unlock.stageId] || 0
     if (meaningWins < WORD_MATCHING_POLICY.unlock.wins) reasons.push(`meaning recognition is ${meaningWins}/${WORD_MATCHING_POLICY.unlock.wins}`)
-    trace.candidates.push({ id, status: reasons.length ? 'rejected' : 'eligible', reasons, meaningWins })
-    if (!reasons.length) rawEligible.push(id)
-  }
-
-  // Equivalent/identical bare answers cannot coexist on an unequivocal match
-  // board. Keep the stronger-practised representative, then rank challenge.
-  const orderedForDeduplication = shuffleWith(rawEligible, rng)
-    .sort((left, right) => (practiced[right] || 0) - (practiced[left] || 0))
-  const compatiblePool = []
-  for (const id of orderedForDeduplication) {
-    if (compatibleWith(compatiblePool.map((candidateId) => ({ id: candidateId })), id)) compatiblePool.push(id)
-  }
-
-  const tieOrder = new Map(shuffleWith(compatiblePool, rng).map((id, index) => [id, index]))
-  const ranked = compatiblePool.map((id) => {
-    const progress = normalizeWordProgress(wordProgress[id], currentRound)
-    const contrast = confusability(id, compatiblePool)
-    const familiarity = (practiced[id] || 0) +
-      (matchingEvidence.words[id]?.wins || 0) +
-      (progress.wins?.[WORD_MATCHING_POLICY.unlock.stageId] || 0) +
-      Math.max(0, completedTier(progress))
-    return {
-      id,
-      al: surfaceOf(id),
-      en: meaningOf(id),
-      familiarity,
-      confusability: contrast,
-      // Higher means harder for this learner. Evidence dominates; close
-      // reviewed peers decide ties and increase the challenge within a band.
-      challengeScore: -familiarity * 10 + contrast.score,
-      tieOrder: tieOrder.get(id),
+    candidates.push({ id, status: reasons.length ? 'rejected' : 'eligible', reasons, meaningWins })
+    if (!reasons.length) {
+      rawEligible.push(id)
+      prepared.set(id, {
+        index: prepared.get(id)?.index ?? prepared.size,
+        normalizedAl: normalizedChoiceText(surfaceOf(id), 'sq'),
+        normalizedEn: normalizedChoiceText(meaningOf(id), 'en'),
+        familiarity: (practiced[id] || 0) + (matchingEvidence.words[id]?.wins || 0) + meaningWins + Math.max(0, completedTier(progress)),
+      })
     }
-  }).sort((left, right) =>
-    left.challengeScore - right.challengeScore || left.tieOrder - right.tieOrder)
-
-  const selected = ranked.length >= WORD_MATCHING_POLICY.pairCount
-    ? bandedSelection(ranked)
-    : null
-  trace.pool = {
-    rawEligibleCount: rawEligible.length,
-    compatibleCount: compatiblePool.length,
-    requiredCount: WORD_MATCHING_POLICY.pairCount,
-    ranked,
   }
-  if (!selected) {
+
+  // Request-local compact matrices reuse only invariant pair facts across the
+  // bounded board proposals. RNG-dependent ordering, deduplication and board
+  // selection still run independently for each seed. No learner profile is
+  // retained after this enumeration's planner becomes unreachable.
+  const width = prepared.size
+  const compatibility = new Uint8Array(width * width)
+  const ranks = new Uint8Array(width * width)
+  const compatible = (leftId, rightId) => {
+    const left = prepared.get(leftId), right = prepared.get(rightId)
+    const index = left.index * width + right.index
+    if (!compatibility[index]) {
+      const value = left.normalizedAl !== right.normalizedAl && left.normalizedEn !== right.normalizedEn && !sensesMayShareAnswer(leftId, rightId)
+      compatibility[index] = value ? 2 : 1
+      compatibility[right.index * width + left.index] = compatibility[index]
+    }
+    return compatibility[index] === 2
+  }
+  const contrastRank = (leftId, rightId) => {
+    const index = prepared.get(leftId).index * width + prepared.get(rightId).index
+    if (!ranks[index]) {
+      const rank = wordContrastRank(leftId, rightId)
+      ranks[index] = Number.isFinite(rank) ? rank + 1 : 255
+    }
+    return ranks[index] === 255 ? Infinity : ranks[index] - 1
+  }
+
+  return ({ rng = Math.random, debugTrace = false } = {}) => {
+    const trace = {
+      builder: 'word-matching',
+      policy: WORD_MATCHING_POLICY,
+      request: { currentRound, excludedWordKeys: [...excludeWords], targetHistory },
+      candidates,
+    }
+
+    // Equivalent/identical bare answers cannot coexist on an unequivocal match
+    // board. Keep the stronger-practised representative, then rank challenge.
+    const orderedForDeduplication = shuffleWith(rawEligible, rng)
+      .sort((left, right) => (practiced[right] || 0) - (practiced[left] || 0))
+    const compatiblePool = []
+    for (const id of orderedForDeduplication) {
+      if (compatiblePool.every((candidateId) => compatible(candidateId, id))) compatiblePool.push(id)
+    }
+
+    const tieOrder = new Map(shuffleWith(compatiblePool, rng).map((id, index) => [id, index]))
+    const ranked = compatiblePool.map((id) => {
+      const contrast = confusability(id, compatiblePool, contrastRank)
+      const familiarity = prepared.get(id).familiarity
+      return {
+        id,
+        al: surfaceOf(id),
+        en: meaningOf(id),
+        familiarity,
+        confusability: contrast,
+        // Higher means harder for this learner. Evidence dominates; close
+        // reviewed peers decide ties and increase the challenge within a band.
+        challengeScore: -familiarity * 10 + contrast.score,
+        tieOrder: tieOrder.get(id),
+      }
+    }).sort((left, right) =>
+      left.challengeScore - right.challengeScore || left.tieOrder - right.tieOrder)
+
+    const selected = ranked.length >= WORD_MATCHING_POLICY.pairCount
+      ? bandedSelection(ranked, compatible)
+      : null
+    trace.pool = {
+      rawEligibleCount: rawEligible.length,
+      compatibleCount: compatiblePool.length,
+      requiredCount: WORD_MATCHING_POLICY.pairCount,
+      ranked,
+    }
+    if (!selected) {
+      trace.outcome = {
+        status: 'unavailable',
+        reason: compatiblePool.length < WORD_MATCHING_POLICY.pairCount
+          ? `needs ${WORD_MATCHING_POLICY.pairCount} unambiguous eligible saved words; found ${compatiblePool.length}`
+          : 'the eligible pool does not yet contain genuinely separated easy, medium-hard, and very-hard challenge bands',
+        fallback: 'skip word matching and continue with another due Train activity',
+      }
+      return { question: null, trace }
+    }
+
+    const questionKey = `word-match:${currentRound}:${selected.map(({ id }) => id).join(',')}:${questionSequence++}`
     trace.outcome = {
-      status: 'unavailable',
-      reason: compatiblePool.length < WORD_MATCHING_POLICY.pairCount
-        ? `needs ${WORD_MATCHING_POLICY.pairCount} unambiguous eligible saved words; found ${compatiblePool.length}`
-        : 'the eligible pool does not yet contain genuinely separated easy, medium-hard, and very-hard challenge bands',
-      fallback: 'skip word matching and continue with another due Train activity',
+      status: 'built',
+      selected: selected.map(({ id, difficultyBand, challengeScore }) => ({ id, difficultyBand, challengeScore })),
+      composition: WORD_MATCHING_POLICY.composition,
     }
-    return { question: null, trace }
+    const wordIds = selected.map(({ id }) => id)
+    const pairs = selected.map(({ id, al, en, difficultyBand, challengeScore, familiarity, confusability: contrast }) => ({
+      id, al, en, difficultyBand, challengeScore, familiarity, confusability: contrast,
+    }))
+    return {
+      question: {
+        kind: TRAIN_EXERCISE_FAMILIES.wordMatching.kind,
+        questionKey,
+        mode: 'match',
+        skill: WORD_MATCHING_POLICY.evidenceTrack,
+        tier: null,
+        variantId: WORD_MATCHING_POLICY.id,
+        difficultyLabel: 'mixed adaptive board',
+        wordIds,
+        targetKeys: wordIds.flatMap((id) => trainWordTargetKeys(id, surfaceOf(id))),
+        rewardIds: wordIds,
+        pairs,
+        left: shuffleWith(pairs.map(({ id, al }) => ({ id, text: al })), rng),
+        right: shuffleWith(pairs.map(({ id, en }) => ({ id, text: en })), rng),
+        lexicalSurfaces: pairs.map(({ al }) => al),
+        difficultyComposition: WORD_MATCHING_POLICY.composition,
+        distractorPolicy: 'all unmatched English cards are unambiguous saved-word meanings',
+        ...(debugTrace ? { debugSelection: trace } : {}),
+      },
+      trace,
+    }
   }
+}
 
-  const questionKey = `word-match:${currentRound}:${selected.map(({ id }) => id).join(',')}:${questionSequence++}`
-  trace.outcome = {
-    status: 'built',
-    selected: selected.map(({ id, difficultyBand, challengeScore }) => ({ id, difficultyBand, challengeScore })),
-    composition: WORD_MATCHING_POLICY.composition,
-  }
-  const wordIds = selected.map(({ id }) => id)
-  const pairs = selected.map(({ id, al, en, difficultyBand, challengeScore, familiarity, confusability: contrast }) => ({
-    id, al, en, difficultyBand, challengeScore, familiarity, confusability: contrast,
-  }))
-  return {
-    question: {
-      kind: TRAIN_EXERCISE_FAMILIES.wordMatching.kind,
-      questionKey,
-      mode: 'match',
-      skill: WORD_MATCHING_POLICY.evidenceTrack,
-      tier: null,
-      variantId: WORD_MATCHING_POLICY.id,
-      difficultyLabel: 'mixed adaptive board',
-      wordIds,
-      targetKeys: wordIds.flatMap((id) => trainWordTargetKeys(id, surfaceOf(id))),
-      rewardIds: wordIds,
-      pairs,
-      left: shuffleWith(pairs.map(({ id, al }) => ({ id, text: al })), rng),
-      right: shuffleWith(pairs.map(({ id, en }) => ({ id, text: en })), rng),
-      lexicalSurfaces: pairs.map(({ al }) => al),
-      difficultyComposition: WORD_MATCHING_POLICY.composition,
-      distractorPolicy: 'all unmatched English cards are unambiguous saved-word meanings',
-      ...(debugTrace ? { debugSelection: trace } : {}),
-    },
-    trace,
-  }
+export function planWordMatchingRound(options = {}) {
+  return createWordMatchingRoundPlanner(options)(options)
 }
 
 export const buildWordMatchingQuestion = (options = {}) => planWordMatchingRound(options).question
