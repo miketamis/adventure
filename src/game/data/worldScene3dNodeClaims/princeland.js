@@ -841,10 +841,25 @@ export default Object.freeze([
         "subject": "maro-son",
         "kind": "inside",
         "target": "maro-window-room"
+      },
+      {
+        "subject": "maro-window-room",
+        "kind": "part-of",
+        "target": "maro-palace"
+      },
+      {
+        "subject": "maro-window",
+        "kind": "part-of",
+        "target": "maro-window-room"
+      },
+      {
+        "subject": "actor:lena",
+        "kind": "inside",
+        "target": "maro-window-room"
       }
     ],
     "disposition": "physical",
-    "rationale": "The crying child and Lena are inside the window; the absence of milk does not create a milk container. The word inside establishes a room behind the window; the same child occupies that enclosure."
+    "rationale": "The crying child and Lena are inside the window; the absence of milk does not create a milk container. The word inside establishes a room behind the window; the same child occupies that enclosure. The child’s room and window are parts of the same established palace; its visible opening must reveal the named interior without duplicating or removing the building."
   },
   {
     "id": "description:maroZogu:3",
@@ -872,7 +887,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:maro-stepmother",
+        "kind": "inside",
+        "target": "maro-window-room"
+      }
+    ],
     "disposition": "mixed",
     "rationale": "The stepmother speaks about the embodied bird; the claimed evil shadow is an accusation, not another creature."
   },
@@ -912,7 +933,18 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:maro-prince",
+        "kind": "inside",
+        "target": "maro-window-room"
+      },
+      {
+        "subject": "maro-prince-men",
+        "kind": "inside",
+        "target": "maro-window-room"
+      }
+    ],
     "disposition": "physical",
     "rationale": "The prince and men intend to attack; wanting to kill is not a completed killing."
   },

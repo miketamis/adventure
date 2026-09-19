@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { WORLD_SCENE_3D_ASSET_IDS, buildAssetParts, worldScene3dAssetBounds, worldScene3dAssetAttributeReview } from '../../src/game/worldScene3dAssets.js'
-import { compileWorldNodeGeometry, nodeSceneCamera, turnWorldNodeCamera, lookWorldNodeDirection, projectWorldNodePoint, panoramaWorldDirection, cubeSampleForDirection, hitTestWorldNodeScene, drawWorldNodeScene, renderWorldNodePanorama } from '../../src/components/worldScene3dNodeRenderer.js'
+import { compileWorldNodeGeometry, nodeSceneCamera, turnWorldNodeCamera, lookWorldNodeDirection, projectWorldNodePoint, panoramaWorldDirection, cubeSampleForDirection, hitTestWorldNodeScene, drawWorldNodeScene, renderWorldNodePanorama, worldNodeEnvironmentVisuals, clipWorldNodeFace, rasterizeWorldNodeScene, WORLD_NODE_CUBE_FACES } from '../../src/components/worldScene3dNodeRenderer.js'
 export function runWorldNodeRendererAssertions() {
   const scene={objects:[],camera:{eye:[17,8.7,29],target:[17,8.7,19]}}
   const camera=nodeSceneCamera(scene)
@@ -64,6 +64,81 @@ export function runWorldNodeRendererAssertions() {
   assert.deepEqual(drawWorldNodeScene(darkCanvas,eyesClosed,{width:400,height:200}),[])
   assert.equal(renderWorldNodePanorama(darkCanvas,eyesClosed,{width:400,height:200}).eyesClosed,true)
   assert.equal(fills,2,'Closed eyes expose no visible geometry in either projection')
+  const black={...scene,environment:{light:'black'}}
+  assert.deepEqual(drawWorldNodeScene(darkCanvas,black,{width:400,height:200}),[])
+  assert.equal(renderWorldNodePanorama(darkCanvas,black,{width:400,height:200}).blackout,true,'Authored blackness does not show daylight geometry')
+  const daylight=worldNodeEnvironmentVisuals({environment:{}})
+  for(const phase of ['night','dark','dim','cold-dawn']) {
+    const light=worldNodeEnvironmentVisuals({environment:{light:phase}})
+    assert.ok(light.strength<daylight.strength,phase)
+    assert.ok(light.ground.every((v,i)=>v<daylight.ground[i]),`${phase} must darken the ground as well as the sky`)
+  }
+  for(const phase of ['flash','bright'])assert.ok(worldNodeEnvironmentVisuals({environment:{light:phase}}).strength>daylight.strength)
+  const authoredColors=worldNodeEnvironmentVisuals({environment:{skyColor:'#eeeeec',groundColor:'#e6dfce'}})
+  assert.deepEqual(authoredColors.sky,[238/255,238/255,236/255])
+  assert.deepEqual(authoredColors.ground,[230/255,223/255,206/255])
+  assert.equal(worldNodeEnvironmentVisuals({environment:{weather:'hail'}}).precipitation,'hail')
+  assert.notDeepEqual(worldNodeEnvironmentVisuals({environment:{weather:'cloud'}}).sky,daylight.sky)
+  assert.deepEqual(worldNodeEnvironmentVisuals({environment:{unlocated:true,light:'night'}}).sky,worldNodeEnvironmentVisuals({environment:{light:'night'}}).sky,'Unknown coordinates do not erase authored darkness')
+  const originScene={camera:{eye:[0,1.7,0],target:[0,1.7,-10]},environment:{},objects:[]},originCamera=nodeSceneCamera(originScene)
+  const moatScene={...originScene,environment:{groundHeight:0},objects:[{id:'moat',asset:'moat',position:[0,0,0],attributes:{}}]}
+  const island=rasterizeWorldNodeScene(moatScene,{eye:[0,10,0],forward:[0,-1,0],up:[0,0,-1],fov:90},64,64).data.slice((32*64+32)*4,(32*64+32)*4+3)
+  assert.ok(island[1]>island[0]&&island[1]>island[2],'The moat retains solid green island footing instead of exposing sky through a rectangular ground cutout')
+  const crossing=clipWorldNodeFace([[-2,0,-2],[2,0,-2],[2,0,-20],[-2,0,-20]],{...originCamera,near:3,far:12},64,64)
+  assert.ok(crossing.length>=3,'A polygon crossing near and far planes retains its visible middle')
+  assert.ok(crossing.every((p)=>-p[2]>=3-1e-8&&-p[2]<=12+1e-8))
+  const visibleRock={...originScene,objects:[{id:'red-rock',asset:'rock',position:[0,0,-4],attributes:{color:'#ff0000'}}]}
+  const pixels=rasterizeWorldNodeScene(visibleRock,originCamera,64,64).data,rockPixel=pixels.slice((45*64+32)*4,(45*64+32)*4+4)
+  assert.ok(rockPixel[0]>150&&rockPixel[1]<10,'CPU depth buffer preserves a nearby prop in front of the huge ground plane')
+  const farRock={id:'far-blue',asset:'rock',position:[0,0,-7],attributes:{color:'#0000ff'}}
+  assert.deepEqual(rasterizeWorldNodeScene({...visibleRock,objects:[farRock,...visibleRock.objects]},originCamera,64,64).data,rasterizeWorldNodeScene({...visibleRock,objects:[...visibleRock.objects,farRock]},originCamera,64,64).data,'Opaque surfaces use depth, not object insertion order')
+  const captured={labels:[],images:[]},ctx={setTransform(){},createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),putImageData(image){captured.images.push(image)},measureText:()=>({width:10}),fillRect(){},fillText(text){captured.labels.push(text)}}
+  const testCanvas={width:64,height:64,getContext:()=>ctx}
+  const buried={...originScene,objects:[{id:'buried',label:'Hidden',asset:'rock',position:[0,-4,-8]}]}
+  const buriedHits=drawWorldNodeScene(testCanvas,buried,{width:64,height:64,labels:true})
+  const buriedPosition=projectWorldNodePoint([0,-3.3,-8],originCamera,64,64)
+  assert.equal(hitTestWorldNodeScene(buriedHits,buriedPosition.x,buriedPosition.y),null,'Opaque ground occludes picking beneath it')
+  assert.deepEqual(captured.labels,[],'Opaque ground also hides labels for buried geometry')
+  const hail={...originScene,environment:{weather:'hail'},states:[{key:'environment',property:'weather',claimId:'source:hail'}]}
+  assert.ok(drawWorldNodeScene(testCanvas,hail,{width:64,height:64}).some((h)=>h.partId?.startsWith('hail:')&&h.claimIds.includes('source:hail')),'Hail produces source-linked visible particles')
+  // The same world ray has the same atmosphere on either side of a cube edge.
+  const fogScene={...originScene,environment:{weather:'fog'},objects:[{id:'enclosure',asset:'cave',position:[0,0,0],attributes:{interior:true}}]}
+  const front=rasterizeWorldNodeScene(fogScene,{...originCamera,...WORLD_NODE_CUBE_FACES[5],fov:90},65,65).data
+  const right=rasterizeWorldNodeScene(fogScene,{...originCamera,...WORLD_NODE_CUBE_FACES[0],fov:90},65,65).data
+  const edgeFront=front.slice((32*65+64)*4,(32*65+64)*4+3),edgeRight=right.slice((32*65)*4,(32*65)*4+3)
+  assert.ok(edgeFront.every((v,i)=>Math.abs(v-edgeRight[i])<=3),'Cube-adjacent rays retain consistent distance fog and surface color')
+  const previousOffscreen=globalThis.OffscreenCanvas,blits=[]
+  try {
+    globalThis.OffscreenCanvas=class {constructor(width,height){this.width=width;this.height=height}getContext(kind){return kind==='2d'?{createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),putImageData:(image)=>{this.image=image}}:null}}
+    const hidpi={width:64,height:64,getContext:()=>({setTransform(){},drawImage:(source,...destination)=>blits.push({source,destination})})}
+    const hidpiHits=drawWorldNodeScene(hidpi,visibleRock,{width:64,height:64,pixelRatio:2})
+    assert.equal(hidpi.width,128)
+    assert.equal(blits[0].source.image.data.length,128*128*4,'CPU fallback renders at backing-pixel resolution')
+    assert.deepEqual(blits[0].destination,[0,0,64,64],'High-DPI fallback is scaled exactly once into CSS coordinates')
+    assert.equal(hitTestWorldNodeScene(hidpiHits,32,45)?.objectId,'red-rock','High-DPI picking retains CSS coordinates')
+  } finally {if(previousOffscreen===undefined)delete globalThis.OffscreenCanvas;else globalThis.OffscreenCanvas=previousOffscreen}
+  // Exercise the actual GPU upload path. Kilometre-wide ground triangles must
+  // not straddle the eye: WebGL clip precision otherwise covers nearby floors,
+  // shallow water and roads even though the software depth buffer is correct.
+  const uploads=[],gpu=Object.fromEntries(['shaderSource','compileShader','attachShader','linkProgram','viewport','clearColor','clear','enable','disable','depthFunc','useProgram','uniform3fv','uniform4f','uniform1f','bindBuffer','enableVertexAttribArray','vertexAttribPointer','drawArrays'].map((name)=>[name,()=>{}]))
+  Object.assign(gpu,{createShader:()=>({}),createProgram:()=>({}),createBuffer:()=>({}),getShaderParameter:()=>true,getProgramParameter:()=>true,getUniformLocation:(_program,name)=>name,getAttribLocation:(_program,name)=>name==='position'?0:1,bufferData:(_target,data)=>uploads.push(data)})
+  try {
+    globalThis.OffscreenCanvas=class {constructor(width,height){this.width=width;this.height=height}getContext(kind){return kind==='webgl'?gpu:null}}
+    const gpuCanvas={width:64,height:64,getContext:()=>({setTransform(){},drawImage(){}})}
+    const groundScene={...originScene,camera:{eye:[576,1.7,388],target:[576,1.7,378]},environment:{groundHeight:0}},groundCamera=nodeSceneCamera(groundScene)
+    drawWorldNodeScene(gpuCanvas,groundScene,{width:64,height:64,camera:groundCamera})
+    assert.equal(uploads.length,1)
+    assert.ok(uploads[0].length>0)
+    for(let i=0;i<uploads[0].length;i+=6)assert.ok(groundCamera.eye[2]-uploads[0][i+2]>=groundCamera.near-.0001,'Uploaded ground must be clipped before the GPU sees a behind-eye vertex')
+    drawWorldNodeScene(gpuCanvas,groundScene,{width:64,height:64,camera:lookWorldNodeDirection(groundCamera,1)})
+    assert.equal(uploads.length,2,'Each changed cube direction needs its own correctly clipped ground')
+    for(let i=0;i<uploads[1].length;i+=6)assert.ok(uploads[1][i]-groundCamera.eye[0]>=groundCamera.near-.0001)
+    const shipScene={...originScene,camera:{eye:[0,4.45,0],target:[0,4.45,-10]},objects:[{id:'boarding-ship',asset:'ship',position:[0,0,3.5],scale:[1,1,1],rotationY:0,attributes:{}}]}
+    const shipCamera=nodeSceneCamera(shipScene)
+    drawWorldNodeScene(gpuCanvas,shipScene,{width:64,height:64,camera:shipCamera})
+    assert.ok(uploads[2].length>0)
+    for(let i=0;i<uploads[2].length;i+=6)assert.ok(-uploads[2][i+2]>=shipCamera.near-.0001,'Ship hull and deck must also be clipped; behind-eye physical vertices produced a false waist-high stripe over an on-deck actor')
+  } finally {if(previousOffscreen===undefined)delete globalThis.OffscreenCanvas;else globalThis.OffscreenCanvas=previousOffscreen}
   const polygon=(depth)=>[{x:0,y:0,depth},{x:20,y:0,depth},{x:10,y:20,depth}]
   const hit=hitTestWorldNodeScene([{objectId:'far',polygon:polygon(8)},{objectId:'near',polygon:polygon(3)}],10,5)
   assert.equal(hit.objectId,'near','Picking selects the nearest physical surface')

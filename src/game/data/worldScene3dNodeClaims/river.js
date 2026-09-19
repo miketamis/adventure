@@ -935,11 +935,12 @@ export default Object.freeze([
       {
         "subject": "twins-separating-sword",
         "kind": "between",
-        "target": "actor:handa"
+        "target": "actor:handa",
+        "secondTarget": "actor:bardhakuqja"
       }
     ],
     "disposition": "physical",
-    "rationale": "The witnessed sword lies between the established pair; the player laughs rather than killing them."
+    "rationale": "The sword is between Handa and Bardhakuqja, with both endpoints explicitly identified. The player laughs rather than killing the pair."
   },
   {
     "id": "description:binoshetZjarri:2",
@@ -1151,9 +1152,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       }
@@ -1161,7 +1160,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The player arrives from the crossroads at the river; the source is not relocated."
+    "rationale": "The player arrives from the crossroads at the river; the source is not relocated. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:lumi:1",
@@ -1325,9 +1324,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       }
@@ -1335,7 +1332,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "This observed beat establishes River serpent, River channel at the present location; dimensions and unmeasured offsets are illustrative."
+    "rationale": "This observed beat establishes River serpent, River channel at the present location; dimensions and unmeasured offsets are illustrative. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:lumi:6",
@@ -1357,9 +1354,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       }
@@ -1373,7 +1368,7 @@ export default Object.freeze([
     ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The serpent has left; the empty safe bank is shown without a serpent."
+    "rationale": "The serpent has left; the empty safe bank is shown without a serpent. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:lumi:7",
@@ -1460,9 +1455,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       }
@@ -1476,7 +1469,7 @@ export default Object.freeze([
     ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "At night the elder is explicitly absent."
+    "rationale": "At night the elder is explicitly absent. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:lumi:10",
@@ -1663,9 +1656,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       },
@@ -1693,7 +1684,7 @@ export default Object.freeze([
     ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "Moonlight whitens the water surface."
+    "rationale": "Moonlight whitens the water surface. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:lumi:16",
@@ -1760,9 +1751,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       }
@@ -1770,7 +1759,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "Visible light falls onto the river water."
+    "rationale": "Visible light falls onto the river water. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:lumi:18",
@@ -1830,9 +1819,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       }
@@ -1840,7 +1827,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The return leaves the lake behind and reaches the river again."
+    "rationale": "The return leaves the lake behind and reaches the river again. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:lumi:20",
@@ -1955,9 +1942,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       },
@@ -1975,7 +1960,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "Three goats are visible; the Zana’s power is not an extra object."
+    "rationale": "Three goats are visible; the Zana’s power is not an extra object. Guarding water does not assert flowing water or restore the river; its dry/restored state follows the canonical river condition."
   },
   {
     "id": "description:zana1:2",
@@ -4586,7 +4571,7 @@ export default Object.freeze([
         "asset": "sea",
         "key": "place:deti",
         "label": "Sea direction on the right",
-        "zone": "far",
+        "zone": "right",
         "attributes": {},
         "count": 1,
         "persistence": "scene"
@@ -5581,7 +5566,7 @@ export default Object.freeze([
         "asset": "sea",
         "key": "place:deti",
         "label": "Distant sea",
-        "zone": "far",
+        "zone": "right",
         "attributes": {},
         "count": 1,
         "persistence": "scene"
@@ -5745,7 +5730,7 @@ export default Object.freeze([
         "asset": "human",
         "key": "gjakova-women",
         "label": "Women talking",
-        "zone": "right",
+        "zone": "near",
         "attributes": {
           "gender": "woman"
         },
@@ -5784,7 +5769,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "This observed beat establishes Men talking, Women talking, Gjakova merchant, Meat for sale, Vegetables for sale at the present location; dimensions and unmeasured offsets are illustrative."
+    "rationale": "This observed beat establishes Men talking, Women talking, Gjakova merchant, Meat for sale, Vegetables for sale at the present location; dimensions and unmeasured offsets are illustrative. The women speaking in the public gathering are staged in the open foreground, not behind the unrelated nearby inn."
   },
   {
     "id": "description:sheshi:3",
@@ -7483,7 +7468,9 @@ export default Object.freeze([
         "key": "merchant-shop-room",
         "label": "Merchant’s shop interior",
         "zone": "center",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "persistence": "place"
       },
@@ -7498,7 +7485,18 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "merchant-shop-room"
+      },
+      {
+        "subject": "actor:gjakova-merchant",
+        "kind": "inside",
+        "target": "merchant-shop-room"
+      }
+    ],
     "disposition": "physical",
     "rationale": "This observed beat establishes Merchant’s shop interior, Gjakova merchant at the present location; dimensions and unmeasured offsets are illustrative."
   },
@@ -7522,7 +7520,9 @@ export default Object.freeze([
         "key": "merchant-shop-room",
         "label": "Merchant’s shop interior",
         "zone": "center",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "persistence": "place"
       },
@@ -7537,7 +7537,18 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "merchant-shop-room"
+      },
+      {
+        "subject": "actor:gjakova-merchant",
+        "kind": "inside",
+        "target": "merchant-shop-room"
+      }
+    ],
     "disposition": "physical",
     "rationale": "This observed beat establishes Merchant’s shop interior, Gjakova merchant at the present location; dimensions and unmeasured offsets are illustrative."
   },
@@ -8240,7 +8251,9 @@ export default Object.freeze([
         "key": "inn-room",
         "label": "Inn interior",
         "zone": "center",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "persistence": "place"
       },
@@ -8257,9 +8270,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "inn-room"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This observed beat establishes Inn interior, Innkeeper at the present location; dimensions and unmeasured offsets are illustrative."
+    "rationale": "This observed beat establishes Inn interior, Innkeeper at the present location; dimensions and unmeasured offsets are illustrative. The player is in this inn room; its enclosure surrounds the actual viewpoint rather than standing as a detached room ahead."
   },
   {
     "id": "description:bujtina:1",
@@ -8281,7 +8300,9 @@ export default Object.freeze([
         "key": "inn-room",
         "label": "Inn interior",
         "zone": "center",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "persistence": "place"
       },
@@ -8298,9 +8319,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "inn-room"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This observed beat establishes Inn interior, Innkeeper at the present location; dimensions and unmeasured offsets are illustrative."
+    "rationale": "This observed beat establishes Inn interior, Innkeeper at the present location; dimensions and unmeasured offsets are illustrative. The player is in this inn room; its enclosure surrounds the actual viewpoint rather than standing as a detached room ahead."
   },
   {
     "id": "description:bujtina:2",
@@ -8508,7 +8535,9 @@ export default Object.freeze([
         "key": "inn-room",
         "label": "Inn interior",
         "zone": "center",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "persistence": "place"
       },
@@ -8528,10 +8557,15 @@ export default Object.freeze([
         "subject": "inn-bed",
         "kind": "inside",
         "target": "inn-room"
+      },
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "inn-room"
       }
     ],
     "disposition": "physical",
-    "rationale": "The inn has eight rooms but this view is one room with one bed; the other rooms are source-level building capacity, not eight beds here."
+    "rationale": "The inn has eight rooms but this view is one room with one bed; the other rooms are source-level building capacity, not eight beds here. The player is in this inn room; its enclosure surrounds the actual viewpoint rather than standing as a detached room ahead."
   },
   {
     "id": "description:bujtina:9",
@@ -9240,7 +9274,9 @@ export default Object.freeze([
         "key": "inn-room",
         "label": "Inn interior",
         "zone": "center",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "persistence": "place"
       },
@@ -9266,7 +9302,18 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "inn-room"
+      },
+      {
+        "subject": "inn-bed",
+        "kind": "inside",
+        "target": "inn-room"
+      }
+    ],
     "disposition": "physical",
     "rationale": "The paid sleep occurs in the guest bed; the player is not duplicated as another sleeper."
   },
@@ -9306,7 +9353,9 @@ export default Object.freeze([
         "key": "inn-room",
         "label": "Inn interior",
         "zone": "center",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "persistence": "place"
       },
@@ -9327,7 +9376,18 @@ export default Object.freeze([
         "value": "dawn"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "inn-room"
+      },
+      {
+        "subject": "inn-bed",
+        "kind": "inside",
+        "target": "inn-room"
+      }
+    ],
     "disposition": "physical",
     "rationale": "Dawn enters the same guest room."
   },
@@ -9787,15 +9847,6 @@ export default Object.freeze([
         "attributes": {},
         "count": 1,
         "persistence": "scene"
-      },
-      {
-        "asset": "interior",
-        "key": "healer-room",
-        "label": "Herbs sheltered indoors",
-        "zone": "center",
-        "attributes": {},
-        "count": 1,
-        "persistence": "place"
       }
     ],
     "states": [
@@ -9805,9 +9856,15 @@ export default Object.freeze([
         "value": "rain"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "healer-herbs",
+        "kind": "inside",
+        "target": "town-healer-house"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "During rain the healer keeps the herbs inside."
+    "rationale": "During rain the healer keeps herbs inside the same house whose garden is described later in this scene. The stored herbs do not place the viewer indoors or create a separate overlapping shelter."
   },
   {
     "id": "description:sheruesi:2",
@@ -13576,10 +13633,21 @@ export default Object.freeze([
         "persistence": "scene"
       }
     ],
-    "states": [],
+    "states": [
+      {
+        "key": "blue-eye-donkey",
+        "property": "present",
+        "value": false
+      },
+      {
+        "key": "blue-eye-bait-fire",
+        "property": "present",
+        "value": false
+      }
+    ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The serpent has eaten the donkey and died; a live intact donkey is not duplicated after consumption."
+    "rationale": "The serpent has consumed the fire-bearing donkey and died. The completed visible outcome removes the intact donkey and its separate carried fire; the dead serpent remains."
   },
   {
     "id": "description:udhaSyri:3",
@@ -14345,9 +14413,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       }
@@ -14355,7 +14421,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "This observed beat establishes River serpent, River channel at the present location; dimensions and unmeasured offsets are illustrative."
+    "rationale": "This observed beat establishes River serpent, River channel at the present location; dimensions and unmeasured offsets are illustrative. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:bolla1:1",
@@ -14420,9 +14486,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       }
@@ -14430,7 +14494,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The serpent lives in the river; the instruction to run is advice rather than a completed escape."
+    "rationale": "The serpent lives in the river; the instruction to run is advice rather than a completed escape. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:bolla1:4",
@@ -14452,9 +14516,7 @@ export default Object.freeze([
         "key": "river:main",
         "label": "River channel",
         "zone": "front",
-        "attributes": {
-          "dry": false
-        },
+        "attributes": {},
         "count": 1,
         "persistence": "place"
       },
@@ -14477,7 +14539,7 @@ export default Object.freeze([
     ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "Moonlight shivers across the still water."
+    "rationale": "Moonlight shivers across the still water. This line names the river without asserting restored water; the canonical dry or restored channel state remains authoritative."
   },
   {
     "id": "description:bolla2:0",

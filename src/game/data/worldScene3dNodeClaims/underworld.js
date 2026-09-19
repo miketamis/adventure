@@ -1829,7 +1829,7 @@ export default Object.freeze([
         "key": "market-gold",
         "asset": "gold",
         "label": "Gold",
-        "zone": "front",
+        "zone": "near",
         "attributes": {},
         "count": 1,
         "persistence": "scene"
@@ -1838,7 +1838,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Empty market, Gold; only the represented moment is staged."
+    "rationale": "The visible beat establishes Empty market, Gold; only the represented moment is staged. The guardian and accessible treasure occupy illustrative open ground before the market wall, not the wall’s masonry."
   },
   {
     "id": "description:thesar2:1",
@@ -1857,7 +1857,7 @@ export default Object.freeze([
         "key": "market-torch",
         "asset": "torch",
         "label": "Torch",
-        "zone": "front",
+        "zone": "near",
         "attributes": {},
         "count": 1,
         "persistence": "scene"
@@ -1866,7 +1866,7 @@ export default Object.freeze([
         "key": "market-gold",
         "asset": "gold",
         "label": "Gold",
-        "zone": "front",
+        "zone": "near",
         "attributes": {},
         "count": 1,
         "persistence": "scene"
@@ -1875,8 +1875,10 @@ export default Object.freeze([
         "key": "guardian-serpent",
         "asset": "snake",
         "label": "Guardian serpent",
-        "zone": "front",
-        "attributes": {},
+        "zone": "near",
+        "attributes": {
+          "large": true
+        },
         "count": 1,
         "persistence": "scene"
       }
@@ -1884,7 +1886,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Torch, Gold, Guardian serpent; only the represented moment is staged."
+    "rationale": "The visible beat establishes Torch, Gold, Guardian serpent; only the represented moment is staged. The guardian and accessible treasure occupy illustrative open ground before the market wall, not the wall’s masonry."
   },
   {
     "id": "description:thesar2:2",
@@ -1903,8 +1905,10 @@ export default Object.freeze([
         "key": "guardian-serpent",
         "asset": "snake",
         "label": "Guardian serpent",
-        "zone": "front",
-        "attributes": {},
+        "zone": "near",
+        "attributes": {
+          "large": true
+        },
         "count": 1,
         "persistence": "scene"
       }
@@ -1912,7 +1916,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The already visible serpent is identified as an Ora."
+    "rationale": "The already visible serpent is identified as an Ora. The guardian and accessible treasure occupy illustrative open ground before the market wall, not the wall’s masonry."
   },
   {
     "id": "description:thesar2:3",
@@ -2055,9 +2059,10 @@ export default Object.freeze([
         "key": "guardian-serpent",
         "asset": "snake",
         "label": "Guardian serpent",
-        "zone": "front",
+        "zone": "near",
         "attributes": {
-          "dead": true
+          "dead": true,
+          "large": true
         },
         "count": 1,
         "persistence": "scene"
@@ -2066,7 +2071,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Sword, Guardian serpent; only the represented moment is staged."
+    "rationale": "The visible beat establishes Sword, Guardian serpent; only the represented moment is staged. The guardian and accessible treasure occupy illustrative open ground before the market wall, not the wall’s masonry."
   },
   {
     "id": "description:gjarperVrare:1",
@@ -2189,7 +2194,7 @@ export default Object.freeze([
         "key": "market-torch",
         "asset": "torch",
         "label": "Extinguished torch",
-        "zone": "front",
+        "zone": "near",
         "attributes": {
           "burning": false
         },
@@ -2200,8 +2205,10 @@ export default Object.freeze([
         "key": "guardian-serpent",
         "asset": "snake",
         "label": "Guardian serpent",
-        "zone": "front",
-        "attributes": {},
+        "zone": "near",
+        "attributes": {
+          "large": true
+        },
         "count": 1,
         "persistence": "scene"
       }
@@ -2215,7 +2222,7 @@ export default Object.freeze([
     ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "Torch goes out during the attack."
+    "rationale": "Torch goes out during the attack. The guardian and accessible treasure occupy illustrative open ground before the market wall, not the wall’s masonry."
   },
   {
     "id": "description:gjarperNgrene:2",
@@ -3957,7 +3964,7 @@ export default Object.freeze([
         "key": "actor:serpent-man",
         "asset": "snake",
         "label": "Serpent son",
-        "zone": "front",
+        "zone": "near",
         "attributes": {},
         "count": 1,
         "persistence": "scene"
@@ -3985,7 +3992,7 @@ export default Object.freeze([
         "key": "actor:serpent-man",
         "asset": "snake",
         "label": "Serpent son",
-        "zone": "front",
+        "zone": "near",
         "attributes": {},
         "count": 1,
         "persistence": "scene"
@@ -4013,7 +4020,7 @@ export default Object.freeze([
         "key": "actor:serpent-man",
         "asset": "snake",
         "label": "Serpent son",
-        "zone": "front",
+        "zone": "near",
         "attributes": {},
         "count": 1,
         "persistence": "scene"
@@ -4031,7 +4038,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Serpent son, Palace; only the represented moment is staged."
+    "rationale": "The visible beat establishes Serpent son, Palace; only the represented moment is staged. The builder is staged on open ground beside the newly made palace, not embedded in its raised floor; unmeasured offsets are illustrative."
   },
   {
     "id": "description:gjarperOrigin:3",
@@ -4620,30 +4627,22 @@ export default Object.freeze([
       "none": [],
       "observationId": null
     },
-    "objects": [
+    "objects": [],
+    "states": [
       {
         "key": "actor:serpent-man",
-        "asset": "human",
-        "label": "Man",
-        "zone": "near",
-        "attributes": {},
-        "count": 1,
-        "persistence": "scene"
+        "property": "present",
+        "value": false
       },
       {
-        "key": "serpent-home",
-        "asset": "house",
-        "label": "Home",
-        "zone": "front",
-        "attributes": {},
-        "count": 1,
-        "persistence": "place"
+        "key": "salt-water",
+        "property": "present",
+        "value": false
       }
     ],
-    "states": [],
     "relations": [],
-    "disposition": "physical",
-    "rationale": "The visible beat establishes Man, Home; only the represented moment is staged."
+    "disposition": "offstage",
+    "rationale": "After being released, the man returns to his own home offstage. The canonical player remains at the Kulshedra’s shore; his departed body and transferred drink do not remain here, and his home is not moved beside the monster."
   },
   {
     "id": "description:gjarperBurrFund:5",
@@ -4657,30 +4656,11 @@ export default Object.freeze([
       "none": [],
       "observationId": null
     },
-    "objects": [
-      {
-        "key": "actor:serpent-man",
-        "asset": "human",
-        "label": "Man",
-        "zone": "near",
-        "attributes": {},
-        "count": 1,
-        "persistence": "scene"
-      },
-      {
-        "key": "serpent-home",
-        "asset": "house",
-        "label": "Home",
-        "zone": "front",
-        "attributes": {},
-        "count": 1,
-        "persistence": "place"
-      }
-    ],
+    "objects": [],
     "states": [],
     "relations": [],
-    "disposition": "physical",
-    "rationale": "The visible beat establishes Man, Home; only the represented moment is staged."
+    "disposition": "offstage",
+    "rationale": "This is the departed man’s safe outcome at home. It neither moves the player to that home nor places the home beside the Kulshedra."
   },
   {
     "id": "description:gjizarUdha:0",

@@ -142,17 +142,23 @@ function gpuSurface(canvas) {
   const gpu=scratch(1,1),gl=gpu?.getContext('webgl',{alpha:false,antialias:true,preserveDrawingBuffer:true})
   if(!gl) { surfaceCache.set(canvas,null);return null }
   const program=gl.createProgram()
-  gl.attachShader(program,shader(gl,gl.VERTEX_SHADER,`attribute vec3 position; attribute vec3 color; uniform vec3 eye,right,up,forward; uniform vec4 lens; varying vec3 pigment; varying float depth; void main(){ vec3 p=position-eye; depth=dot(p,forward); gl_Position=vec4(dot(p,right)*lens.x/lens.y,dot(p,up)*lens.x,lens.z*depth+lens.w,depth); pigment=color; }`))
-  gl.attachShader(program,shader(gl,gl.FRAGMENT_SHADER,`precision mediump float; varying vec3 pigment; varying float depth; uniform vec3 fog; uniform float fogDensity; void main(){ float amount=clamp(1.0-exp(-depth*fogDensity),0.0,0.75); gl_FragColor=vec4(mix(pigment,fog,amount),1.0); }`))
+  gl.attachShader(program,shader(gl,gl.VERTEX_SHADER,`attribute vec3 position; attribute vec3 color; uniform vec3 eye,right,up,forward; uniform vec4 lens; varying vec3 pigment; varying vec3 viewOffset; void main(){ vec3 p=position-eye; float depth=dot(p,forward); gl_Position=vec4(dot(p,right)*lens.x/lens.y,dot(p,up)*lens.x,lens.z*depth+lens.w,depth); pigment=color; viewOffset=p; }`))
+  gl.attachShader(program,shader(gl,gl.FRAGMENT_SHADER,`precision mediump float; varying vec3 pigment; varying vec3 viewOffset; uniform vec3 fog; uniform float fogDensity; void main(){ float amount=clamp(1.0-exp(-length(viewOffset)*fogDensity),0.0,0.75); gl_FragColor=vec4(mix(pigment,fog,amount),1.0); }`))
   gl.linkProgram(program)
   if(!gl.getProgramParameter(program,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program))
   const result={canvas:gpu,gl,program,buffer:gl.createBuffer(), uniforms:Object.fromEntries(['eye','right','up','forward','lens','fog','fogDensity'].map((n)=>[n,gl.getUniformLocation(program,n)])), position:gl.getAttribLocation(program,'position'),color:gl.getAttribLocation(program,'color')}
   surfaceCache.set(canvas,result);return result
 }
-function lighting(scene) {
-  const env=scene.environment || {}, phase=env.light || env.phase || env.time || env.timeOfDay, night=['night','natë','midnight','dark'].includes(phase), dark=env.setting==='indoor', rain=['rain','rainy','storm','stormy'].includes(env.weather)
-  return { sky:rgb(env.underwater?'#527e82':env.unlocated?'#a5aaa5':night?'#202a3c':dark?'#64655d':rain?'#96a7ae':['dawn','golden-dawn','dusk'].includes(phase)?'#c5b798':env.skyColor==='red'?'#c7a38f':'#adcad3'), ground:rgb(env.unlocated?'#777e76':env.underwater?'#6e8276':env.season==='winter'?'#bdc7bc':dark?'#847a64':'#87967a'), strength:night?.46:dark?.76:1, fog:env.underwater?.08:env.weather==='fog'?.035:rain?.009:.0025, light:norm([-.6,1,-.8]) }
+export function worldNodeEnvironmentVisuals(scene) {
+  const env=scene.environment || {}, phase=env.light || env.phase || env.time || env.timeOfDay, indoor=env.setting==='indoor', weather=env.weather
+  const rainy=['rain','rainy','storm','stormy','hail'].includes(weather), overcast=rainy || ['cloud','cloudy','overcast','fog'].includes(weather)
+  const phases={night:['#202a3c',.46],natë:['#202a3c',.46],midnight:['#202a3c',.35],dark:['#10151b',.14],black:['#050606',0],dim:['#414952',.35],dawn:['#c5b798',.82],'golden-dawn':['#c5b798',.82],'cold-dawn':['#91a5b6',.72],dusk:['#b3a58b',.65],bright:['#d5e6e7',1.1],flash:['#f7f3dc',1.25]}
+  const phaseVisual=phases[phase], strength=phaseVisual?.[1] ?? (indoor?.76:1), hex=(value)=>typeof value==='string'&&/^#[\da-f]{6}$/i.test(value)
+  const sky=rgb(hex(env.skyColor)?env.skyColor:env.underwater?'#527e82':phaseVisual?.[0] || (env.unlocated?'#a5aaa5':indoor?'#64655d':overcast?'#96a7ae':env.skyColor==='red'?'#c7a38f':'#adcad3'))
+  const ground=rgb(hex(env.groundColor)?env.groundColor:env.unlocated?'#777e76':env.underwater?'#6e8276':env.season==='winter'?'#bdc7bc':indoor?'#847a64':'#87967a').map((n)=>n*strength)
+  return { sky,ground,strength,fog:env.underwater?.08:weather==='fog'?.035:rainy?.009:.0025,light:norm([-.6,1,-.8]),blackout:phase==='black',precipitation:['rain','rainy','storm','stormy','snow','hail'].includes(weather)?(['rainy','storm','stormy'].includes(weather)?'rain':weather):null }
 }
+const lighting=worldNodeEnvironmentVisuals
 function selected(face, options) { return face.objectId === options.selectedElementId || face.claimIds.includes(options.selectedDescriptionId || options.selectedClaimId) || face.descriptionIds.includes(options.selectedDescriptionId) }
 function faceColor(face,light,options) {
   const bright=(.62+.38*Math.abs(dot(face.normal,light.light)))*light.strength
@@ -161,19 +167,23 @@ function faceColor(face,light,options) {
 }
 function allFaces(scene,geometry, camera) {
   const eye=scene.camera?.eye || camera.eye,r=1400,level=Number.isFinite(scene.environment?.groundHeight)?scene.environment.groundHeight:-.045
-  const holes=(scene.objects || []).filter((o)=>['well','pit','moat'].includes(o.asset)).map((o)=>{const scale=Array.isArray(o.scale)?o.scale:[o.scale||1,o.scale||1,o.scale||1],radius=(o.asset==='well'?(o.attributes?.width || 2.5)*.42:o.asset==='pit'?1.5:7);return {x:o.position[0],z:o.position[2],rx:radius*scale[0],rz:radius*scale[2]}})
+  // Wells and pits open below grade. The moat's raised bank/channel assembly
+  // retains its central island and surrounding land rather than cutting a sky hole.
+  const holes=(scene.objects || []).filter((o)=>['well','pit'].includes(o.asset)).map((o)=>{const scale=Array.isArray(o.scale)?o.scale:[o.scale||1,o.scale||1,o.scale||1],radius=o.asset==='well'?(o.attributes?.width || 2.5)*.42:1.5;return {x:o.position[0],z:o.position[2],rx:radius*scale[0],rz:radius*scale[2]}})
   const xs=[eye[0]-r,eye[0]+r,...holes.flatMap((h)=>[h.x-h.rx,h.x+h.rx])].sort((a,b)=>a-b),zs=[eye[2]-r,eye[2]+r,...holes.flatMap((h)=>[h.z-h.rz,h.z+h.rz])].sort((a,b)=>a-b),ground=[]
   for(let x=0;x<xs.length-1;x++)for(let z=0;z<zs.length-1;z++) {
     const midX=(xs[x]+xs[x+1])/2,midZ=(zs[z]+zs[z+1])/2
     if(holes.some((h)=>Math.abs(midX-h.x)<h.rx&&Math.abs(midZ-h.z)<h.rz))continue
     ground.push({vertices:[[xs[x],level,zs[z]],[xs[x],level,zs[z+1]],[xs[x+1],level,zs[z+1]],[xs[x+1],level,zs[z]]],normal:[0,1,0],color:lighting(scene).ground,claimIds:[],descriptionIds:[],stage:true})
   }
-  const weather=scene.environment?.weather, weatherFaces=[]
-  if (['rain','storm','snow'].includes(weather) && scene.environment?.setting!=='indoor' && !scene.environment?.underwater) {
+  const weather=lighting(scene).precipitation, weatherFaces=[]
+  if (weather && scene.environment?.setting!=='indoor' && !scene.environment?.underwater) {
     const claimIds=(scene.states || []).filter((s)=>s.key==='environment'&&s.property==='weather').map((s)=>s.claimId).filter(Boolean)
     for(let i=0;i<110;i++) {
-      const random=(seed)=>{const n=Math.sin((i+seed)*127.1)*43758.5453;return n-Math.floor(n)},x=eye[0]+(random(1)-.5)*24,z=eye[2]+(random(7)-.5)*24,y=eye[1]-1+random(13)*8, snow=weather==='snow',w=snow?.025:.007,h=snow?.035:.17
-      weatherFaces.push({vertices:[[x-w,y-h,z],[x+w,y+h,z],[x+w,y-h,z+.008]],normal:[0,1,0],color:rgb(snow?'#e5e9df':'#a8bec5'),objectId:'environment:weather',partId:`precipitation:${i}`,claimIds,descriptionIds:claimIds})
+      const random=(seed)=>{const n=Math.sin((i+seed)*127.1)*43758.5453;return n-Math.floor(n)},x=eye[0]+(random(1)-.5)*24,z=eye[2]+(random(7)-.5)*24,y=eye[1]-1+random(13)*8, snow=weather==='snow',hail=weather==='hail',w=hail?.055:snow?.025:.007,h=hail?.055:snow?.035:.17
+      const metadata={normal:[0,1,0],color:rgb(hail?'#eef3f3':snow?'#e5e9df':'#a8bec5'),objectId:'environment:weather',partId:`${weather}:${i}`,claimIds,descriptionIds:claimIds}
+      weatherFaces.push({...metadata,vertices:[[x-w,y-h,z],[x+w,y+h,z],[x+w,y-h,z+.008]]})
+      if(hail)weatherFaces.push({...metadata,vertices:[[x,y-h,z-w],[x,y+h,z+w],[x,y-h,z+w]]})
     }
   }
   return [...ground,...geometry.faces,...weatherFaces]
@@ -188,12 +198,16 @@ function drawGPU(surface, scene, geometry, camera, width, height, options, readb
   const near=camera.near || .04,far=camera.far || 3000
   gl.uniform4f(u.lens,1/Math.tan((camera.fov || 70)*Math.PI/360),width/height,(far+near)/(far-near),-2*far*near/(far-near))
   gl.uniform3fv(u.fog,light.sky);gl.uniform1f(u.fogDensity,light.fog)
-  const key=[geometry,options.selectedElementId,options.selectedDescriptionId,options.selectedClaimId,JSON.stringify(scene.environment)]
+  // Clip every surface in double precision before handing it to WebGL.
+  // Triangles straddling the eye can otherwise paint over nearer geometry:
+  // this affects both kilometre-wide ground and a ship deck under the viewer.
+  const key=[geometry,options.selectedElementId,options.selectedDescriptionId,options.selectedClaimId,JSON.stringify(scene.environment),...camera.eye,...forward,...up,camera.fov,camera.near,camera.far,width,height]
   if(!surface.meshKey || !key.every((v,i)=>v===surface.meshKey[i])) {
     const data=[]
     for(const face of allFaces(scene,geometry,camera)) {
       const color=face.stage?face.color:faceColor(face,light,options)
-      for(let i=1;i<face.vertices.length-1;i++) for(const v of [face.vertices[0],face.vertices[i],face.vertices[i+1]]) data.push(...v,...color)
+      const vertices=clipWorldNodeFace(face.vertices,camera,width,height)
+      for(let i=1;i<vertices.length-1;i++) for(const v of [vertices[0],vertices[i],vertices[i+1]]) data.push(...v,...color)
     }
     gl.bindBuffer(gl.ARRAY_BUFFER,surface.buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW)
     surface.vertices=data.length/6;surface.meshKey=key
@@ -204,29 +218,55 @@ function drawGPU(surface, scene, geometry, camera, width, height, options, readb
   if(readback) {const pixels=new Uint8Array(width*height*4);gl.readPixels(0,0,width,height,gl.RGBA,gl.UNSIGNED_BYTE,pixels);return pixels}
   return surface.canvas
 }
-function clipFace(vertices,camera) {
-  const {forward}=basis(camera), near=camera.near || .04,result=[]
-  for(let i=0;i<vertices.length;i++) {
-    const a=vertices[i],b=vertices[(i+1)%vertices.length],da=dot(sub(a,camera.eye),forward)-near,db=dot(sub(b,camera.eye),forward)-near
-    if(da>=0) result.push(a)
-    if((da>=0)!==(db>=0)) result.push(add(a,mul(sub(b,a),da/(da-db))))
+export function clipWorldNodeFace(vertices,camera,width,height) {
+  const {forward,right,up}=basis(camera),near=camera.near || .04,far=camera.far || 3000,tan=Math.tan((camera.fov || 70)*Math.PI/360)
+  const planes=[(p)=>dot(p,forward)-near,(p)=>far-dot(p,forward)]
+  if(width&&height)planes.push((p)=>dot(p,forward)*tan*width/height+dot(p,right),(p)=>dot(p,forward)*tan*width/height-dot(p,right),(p)=>dot(p,forward)*tan+dot(p,up),(p)=>dot(p,forward)*tan-dot(p,up))
+  let polygon=vertices
+  for(const plane of planes) {
+    const result=[]
+    for(let i=0;i<polygon.length;i++) {
+      const a=polygon[i],b=polygon[(i+1)%polygon.length],da=plane(sub(a,camera.eye)),db=plane(sub(b,camera.eye))
+      if(da>=0)result.push(a)
+      if((da>=0)!==(db>=0))result.push(add(a,mul(sub(b,a),da/(da-db))))
+    }
+    polygon=result
   }
-  return result
+  return polygon
 }
 function projectedFaces(geometry,camera,width,height) {
   const result=[]
   for(const face of geometry.faces) {
-    const polygon=clipFace(face.vertices,camera).map((v)=>projectWorldNodePoint(v,{...camera,near:(camera.near || .04)*.999},width,height)).filter(Boolean)
+    const polygon=clipWorldNodeFace(face.vertices,camera,width,height).map((v)=>projectWorldNodePoint(v,{...camera,near:(camera.near || .04)*.999,far:(camera.far || 3000)*1.001},width,height)).filter(Boolean)
     if(polygon.length<3 || polygon.every((p)=>p.x<0) || polygon.every((p)=>p.x>width) || polygon.every((p)=>p.y<0) || polygon.every((p)=>p.y>height)) continue
     result.push({...face,polygon,depth:polygon.reduce((s,p)=>s+p.depth,0)/polygon.length})
   }
   return result
 }
+// The CPU path uses the same perspective depth rule as WebGL. A painter's
+// average-face sort lets a large floor paint over small nearby actors and props.
+export function rasterizeWorldNodeScene(scene,camera,width,height,options={}) {
+  const geometry=compileWorldNodeGeometry(scene),light=lighting(scene),data=new Uint8ClampedArray(width*height*4),depths=new Float64Array(width*height).fill(Infinity)
+  for(let pixel=0;pixel<width*height;pixel++){for(let c=0;c<3;c++)data[pixel*4+c]=Math.round(light.sky[c]*255);data[pixel*4+3]=255}
+  const f=height/(2*Math.tan((camera.fov || 70)*Math.PI/360)),rayX=Array.from({length:width},(_,x)=>((x+.5-width/2)/f)**2),rayY=Array.from({length:height},(_,y)=>((y+.5-height/2)/f)**2)
+  for(const face of projectedFaces({faces:allFaces(scene,geometry,camera)},camera,width,height)) {
+    const color=face.stage?face.color:faceColor(face,light,options),points=face.polygon
+    for(let i=1;i<points.length-1;i++) {
+      const triangle=[points[0],points[i],points[i+1]],minX=Math.max(0,Math.floor(Math.min(...triangle.map((p)=>p.x)))),maxX=Math.min(width-1,Math.ceil(Math.max(...triangle.map((p)=>p.x)))),minY=Math.max(0,Math.floor(Math.min(...triangle.map((p)=>p.y)))),maxY=Math.min(height-1,Math.ceil(Math.max(...triangle.map((p)=>p.y))))
+      for(let y=minY;y<=maxY;y++)for(let x=minX;x<=maxX;x++) {
+        const depth=triangleDepth({x:x+.5,y:y+.5},...triangle),pixel=y*width+x
+        if(depth==null||depth>depths[pixel])continue
+        depths[pixel]=depth
+        const fog=Math.min(.75,1-Math.exp(-depth*Math.sqrt(1+rayX[x]+rayY[y])*light.fog))
+        for(let c=0;c<3;c++)data[pixel*4+c]=Math.round(clamp(color[c]*(1-fog)+light.sky[c]*fog,0,1)*255)
+      }
+    }
+  }
+  return {data,width,height}
+}
 function drawFallback(ctx,scene,geometry,camera,width,height,options) {
-  const light=lighting(scene), sky=light.sky.map((n)=>Math.round(n*255)), gradient=ctx.createLinearGradient(0,0,0,height)
-  gradient.addColorStop(0,`rgb(${sky.join(',')})`);gradient.addColorStop(1,'#d9dac8');ctx.fillStyle=gradient;ctx.fillRect(0,0,width,height)
-  const faces=projectedFaces({faces:allFaces(scene,geometry,camera)},camera,width,height).sort((a,b)=>b.depth-a.depth)
-  for(const face of faces) {const color=(face.stage?face.color:faceColor(face,light,options)).map((n)=>Math.round(clamp(n,0,1)*255));ctx.beginPath();face.polygon.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=`rgb(${color.join(',')})`;ctx.fill()}
+  const rendered=rasterizeWorldNodeScene(scene,camera,width,height,options),image=ctx.createImageData(width,height)
+  image.data.set(rendered.data);ctx.putImageData(image,0,0)
 }
 function unknown(ctx,width,height,scene) {
   ctx.fillStyle='#202c31';ctx.fillRect(0,0,width,height);ctx.textAlign='center';ctx.fillStyle='#e1ded1';ctx.font='600 18px system-ui';ctx.fillText('Uncharted destination',width/2,height/2-15)
@@ -237,14 +277,14 @@ export function drawWorldNodeScene(canvas,scene,options={}) {
   const {width,height,ratio}=dimensions(canvas,options),ctx=canvas.getContext('2d'),camera=options.camera || nodeSceneCamera(scene)
   ctx.setTransform(ratio,0,0,ratio,0,0)
   if(!camera) {unknown(ctx,width,height,scene);return []}
-  if(scene.environment?.eyesClosed) {ctx.fillStyle='#111512';ctx.fillRect(0,0,width,height);return []}
+  if(scene.environment?.eyesClosed || lighting(scene).blackout) {ctx.fillStyle='#050606';ctx.fillRect(0,0,width,height);return []}
   const geometry=compileWorldNodeGeometry(scene),surface=gpuSurface(canvas)
   if(surface) ctx.drawImage(drawGPU(surface,scene,geometry,camera,canvas.width,canvas.height,options),0,0,width,height)
-  else drawFallback(ctx,scene,geometry,camera,width,height,options)
-  const hits=projectedFaces(geometry,camera,width,height)
+  else {const pixels=scratch(canvas.width,canvas.height);if(pixels){drawFallback(pixels.getContext('2d'),scene,geometry,camera,canvas.width,canvas.height,options);ctx.drawImage(pixels,0,0,width,height)}else drawFallback(ctx,scene,geometry,camera,width,height,options)}
+  const hits=projectedFaces({faces:allFaces(scene,geometry,camera)},camera,width,height)
   if(options.labels) {
     const labeled=new Set();ctx.font='12px system-ui';ctx.textAlign='center'
-    for(const object of scene.objects || []) {if(labeled.has(object.id))continue;labeled.add(object.id);const p=projectWorldNodePoint(add(object.position,[0,2,0]),camera,width,height);if(!p || p.x<0 || p.x>width || p.y<0 || p.y>height)continue;ctx.fillStyle='#24352ddd';ctx.fillRect(p.x-ctx.measureText(object.label || object.asset).width/2-6,p.y-16,ctx.measureText(object.label || object.asset).width+12,20);ctx.fillStyle='#f3eddb';ctx.fillText(object.label || object.asset,p.x,p.y-2)}
+    for(const object of scene.objects || []) {if(labeled.has(object.id))continue;labeled.add(object.id);const p=projectWorldNodePoint(add(object.position,[0,2,0]),camera,width,height);if(!p || p.x<0 || p.x>width || p.y<0 || p.y>height)continue;const surface=nearestWorldNodeSurface(hits,p.x,p.y);if(surface&&surface.objectId!==object.id&&surface.depth<p.depth)continue;ctx.fillStyle='#24352ddd';ctx.fillRect(p.x-ctx.measureText(object.label || object.asset).width/2-6,p.y-16,ctx.measureText(object.label || object.asset).width+12,20);ctx.fillStyle='#f3eddb';ctx.fillText(object.label || object.asset,p.x,p.y-2)}
   }
   return hits
 }
@@ -254,11 +294,12 @@ function triangleDepth(p,a,b,c) {
   const u=((b.y-c.y)*(p.x-c.x)+(c.x-b.x)*(p.y-c.y))/denom,v=((c.y-a.y)*(p.x-c.x)+(a.x-c.x)*(p.y-c.y))/denom,w=1-u-v
   return u>=0&&v>=0&&w>=0 ? 1/(u/a.depth+v/b.depth+w/c.depth) : null
 }
-export function hitTestWorldNodeScene(hits,x,y) {
+function nearestWorldNodeSurface(hits,x,y) {
   let nearest=null,depth=Infinity
   for(const hit of hits || []) {const points=hit.polygon || [];for(let i=1;i<points.length-1;i++){const at=triangleDepth({x,y},points[0],points[i],points[i+1]);if(at!=null&&at<depth){nearest=hit;depth=at}}}
   return nearest ? {...nearest,depth,x,y} : null
 }
+export function hitTestWorldNodeScene(hits,x,y) {const surface=nearestWorldNodeSurface(hits,x,y);return surface?.stage?null:surface}
 export const WORLD_NODE_CUBE_FACES = Object.freeze([
   {forward:[1,0,0],up:[0,1,0]}, {forward:[-1,0,0],up:[0,1,0]},
   {forward:[0,1,0],up:[0,0,1]}, {forward:[0,-1,0],up:[0,0,-1]},
@@ -278,7 +319,7 @@ export function renderWorldNodePanorama(canvas,scene,options={}) {
   const {width,height}=dimensions(canvas,{...options,width:options.width || 1024,height:options.height || 512,pixelRatio:1}),ctx=canvas.getContext('2d'),camera=options.camera || nodeSceneCamera(scene)
   ctx.setTransform(1,0,0,1,0,0)
   if(!camera){unknown(ctx,width,height,scene);return {projection:'equirectangular',charted:false,width,height}}
-  if(scene.environment?.eyesClosed){ctx.fillStyle='#111512';ctx.fillRect(0,0,width,height);return {projection:'equirectangular',charted:!scene.environment.unlocated,width,height,eye:[...scene.camera.eye],horizontalDegrees:360,verticalDegrees:180,eyesClosed:true}}
+  if(scene.environment?.eyesClosed || lighting(scene).blackout){ctx.fillStyle='#050606';ctx.fillRect(0,0,width,height);return {projection:'equirectangular',charted:!scene.environment.unlocated,width,height,eye:[...scene.camera.eye],horizontalDegrees:360,verticalDegrees:180,eyesClosed:!!scene.environment.eyesClosed,blackout:lighting(scene).blackout}}
   const geometry=compileWorldNodeGeometry(scene),surface=gpuSurface(canvas),size=Math.max(64,Math.ceil(width/4)),faces=[]
   // Panorama always uses the canonical eye, including when the UI was orbiting.
   const eye=[...scene.camera.eye]

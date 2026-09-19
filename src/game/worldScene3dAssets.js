@@ -38,24 +38,26 @@ const c = (a, fallback) => a.color || fallback
 
 function building(a = {}, style = 'house') {
   const w = finite(a.width, style === 'palace' ? 12 : 8), d = finite(a.depth, 7), h = finite(a.height, style === 'palace' ? 6 : 4)
-  const wall = c(a, style === 'palace' ? '#d5c5a6' : '#bcb29c'), timber = P.wood, cutaway = a.cutaway === true
+  const wall = c(a, style === 'palace' ? '#d5c5a6' : '#bcb29c'), timber = P.wood, cutaway = a.cutaway === true && a.interior !== true
   const p = [box('floor', [0, .1, 0], [w, .2, d], '#8e8069'), box('back-wall', [0, h / 2, d / 2], [w, h, .35], wall),
     box('left-wall', [-w / 2, h / 2, 0], [.35, h, d], wall), box('right-wall', [w / 2, h / 2, 0], [.35, h, d], wall)]
   if (!cutaway) {
-    p.push(box('front-left', [-(w + 1.7) / 4, h / 2, -d / 2], [(w - 1.7) / 2, h, .35], wall), box('front-right', [(w + 1.7) / 4, h / 2, -d / 2], [(w - 1.7) / 2, h, .35], wall),
-      box('door-lintel', [0, (h + 2.4) / 2, -d / 2], [1.7, h - 2.4, .35], wall), roof('pitched-roof', [0, h + 1.1, 0], [w + .75, 2.2, d + .8], a.roofColor || '#875345'),
+    const opening=a.windowOpening||{width:1.7,bottom:0,height:2.4},ow=opening.width,top=opening.bottom+opening.height
+    if(opening.bottom>0)p.push(box('window-sill-wall',[0,opening.bottom/2,-d/2],[ow,opening.bottom,.35],wall))
+    p.push(box('front-left', [-(w + ow) / 4, h / 2, -d / 2], [(w - ow) / 2, h, .35], wall), box('front-right', [(w + ow) / 4, h / 2, -d / 2], [(w - ow) / 2, h, .35], wall),
+      box('door-lintel', [0, (h + top) / 2, -d / 2], [ow, Math.max(.05,h-top), .35], wall), roof('pitched-roof', [0, h + 1.1, 0], [w + .75, 2.2, d + .8], a.roofColor || '#875345'),
       box('roof-ridge', [0, h + 2.2, 0], [.16, .16, d + .95], '#68463a'), box('chimney', [w * .27, h + 1.5, d * .2], [.65, 2.1, .65], '#8e877b'))
-    for (const x of [-w * .31, w * .31]) p.push(...moved(windowAsset({}), [x, 2.35, -d / 2 - .2], 1, `window:${x}:`))
+    for (const x of (a.windowOpening?[]:[-w * .31, w * .31])) p.push(...moved(windowAsset({}), [x, 2.35, -d / 2 - .2], 1, `window:${x}:`))
   } else {
     p.push(box('back-roof-beam', [0, h - .2, d / 2 - .2], [w, .25, .25], timber), box('left-roof-beam', [-w / 2 + .2, h - .2, 0], [.25, .25, d], timber), box('right-roof-beam', [w / 2 - .2, h - .2, 0], [.25, .25, d], timber))
     for (const x of [-w * .25, w * .25]) p.push(...moved(windowAsset({}), [x, 2.3, d / 2 - .21], 1, `inside-window:${x}:`))
   }
-  p.push(...moved(doorAsset({ open: a.open !== false, color: timber }), [0, 0, -d / 2], 1, 'entrance:'))
+  if(!a.windowOpening&&!a.sourceDoor)p.push(...moved(doorAsset({ open: a.open !== false, color: timber }), [0, 0, -d / 2], 1, 'entrance:'))
   if (style === 'palace') {
     for (const x of [-w * .36, w * .36]) p.push(cylinder(`column:${x}`, [x, h / 2, -d / 2 - .8], [.65, h, .65], '#e4dcc6'), box(`capital:${x}`, [x, h, -d / 2 - .8], [.95, .3, .95], '#e4dcc6'))
     p.push(...moved(stairsAsset({}), [0, -.05, -d / 2 - 1.3], 1.5, 'steps:'))
   }
-  return p
+  return p.filter((part)=>!(a.sourceWallParts||[]).includes(part.id))
 }
 function doorAsset(a = {}) {
   const p = [box('frame-left', [-.87, 1.23, 0], [.16, 2.46, .24], P.wood), box('frame-right', [.87, 1.23, 0], [.16, 2.46, .24], P.wood), box('frame-top', [0, 2.46, 0], [1.9, .16, .24], P.wood)]
@@ -65,10 +67,18 @@ function doorAsset(a = {}) {
   for (let i = 0; i < 5; i++) if (!open) p.push(box(`plank:${i}`, [-.62 + i * .31, 1.2, -.041], [.018, 2.3, .015], '#503928'))
   return p
 }
-function windowAsset(a = {}) { return [box('glass', [0, 0, 0], [1.2, 1.3, .08], a.lit ? '#e0b36b' : '#3f5861'), ...[-.65, .65].map((x) => box(`jamb:${x}`, [x, 0, -.06], [.13, 1.5, .15], P.wood)), ...[-.7, 0, .7].map((y) => box(`crossbar:${y}`, [0, y, -.07], [1.4, .12, .16], P.wood)), box('mullion', [0, 0, -.08], [.09, 1.4, .14], P.wood)] }
+function windowAsset(a = {}) { return [...(a.viewThrough?[]:[box('glass', [0, 0, 0], [1.2, 1.3, .08], a.lit ? '#e0b36b' : '#3f5861')]), ...[-.65, .65].map((x) => box(`jamb:${x}`, [x, 0, -.06], [.13, 1.5, .15], P.wood)), ...[-.7, 0, .7].map((y) => box(`crossbar:${y}`, [0, y, -.07], [1.4, .12, .16], P.wood)), box('mullion', [0, 0, -.08], [.09, 1.4, .14], P.wood)] }
 function stairsAsset() { return [0, 1, 2, 3].map((i) => box(`step:${i}`, [0, .15 + i * .15, .45 - i * .3], [2.5, .3 + i * .3, .6], P.stone)) }
 function tower(a = {}) {
-  const height = finite(a.height, 9), p = [cylinder('round-wall', [0, height / 2, 0], [4, height, 4], c(a, P.stone)), tube('parapet', [0, height + .28, 0], [4.35, .65, 4.35], P.stone)]
+  const height = finite(a.height, 9)
+  if (a.interior === true) {
+    // A refuge is inhabitable masonry, not a solid cylinder around the eye.
+    const radius=finite(a.width,14)/2, p=[cylinder('tower-floor',[0,.06,0],[radius*2,.12,radius*2],P.darkStone),cylinder('tower-ceiling',[0,height,0],[radius*2,.25,radius*2],P.darkStone)]
+    for(let i=0;i<24;i++){ const angle=i*Math.PI/12; if(i===12)continue; p.push(box(`tower-inner-wall:${i}`,[Math.sin(angle)*radius,height/2,Math.cos(angle)*radius],[radius*.27,height,.45],c(a,P.stone),[0,angle,0])) }
+    p.push(box('tower-door-lintel',[0,(height+2.5)/2,-radius],[1.9,height-2.5,.45],P.stone),...moved(doorAsset({open:a.open!==false}),[0,0,-radius],1,'tower-door:'))
+    return p
+  }
+  const p = [cylinder('tower-top-deck',[0,height-.06,0],[3.7,.12,3.7],P.darkStone),tube('round-wall', [0, height / 2, 0], [4, height, 4], c(a, P.stone),.78), tube('parapet', [0, height + .28, 0], [4.35, .65, 4.35], P.stone)]
   for (let i = 0; i < 8; i++) { const angle = i * Math.PI / 4; p.push(box(`merlon:${i}`, [Math.sin(angle) * 1.9, height + 1, Math.cos(angle) * 1.9], [.8, 1, .8], P.stone)) }
   for (let i = 0; i < 3; i++) p.push(box(`arrow-slit:${i}`, [0, 2 + i * 2.2, -2.02], [.22, .9, .04], P.dark))
   p.push(...moved(doorAsset({ open: a.open }), [0, 0, -2.05], .8, 'tower-door:'))
@@ -120,6 +130,8 @@ function tree(a = {}) {
 }
 function forest(a = {}) { return Array.from({ length: clamp(Math.round(finite(a.count, 7)), 1, 15) }, (_, i) => moved(tree({ ...a, variant: i % 3 === 0 ? 'pine' : a.variant, height: 5.5 + scatter(i) * 3 }), [(scatter(i, 2) - .5) * 16, 0, (scatter(i, 4) - .5) * 12], 1, `tree:${i}:`)).flat() }
 function water(a = {}, variant = 'river') {
+  if(a.variant==='contained-surface')return [cylinder('water-surface',[0,0,0],[finite(a.width,.54),.015,finite(a.length,a.width||.54)],c(a,P.water))]
+  if(a.variant==='moat-channel')return [tube('water-channel',[0,0,0],[finite(a.width,13.5),.025,finite(a.length,13.5)],c(a,P.water),finite(a.innerRatio,.7))]
   const w = finite(a.width, variant === 'sea' ? 35 : variant === 'lake' ? 18 : 7), length = finite(a.length, variant === 'river' ? 24 : w), p = [box('water-surface', [0, .025, 0], [w, .035, length], c(a, '#6496a2'))]
   for (let i = 0; i < 11; i++) p.push(box(`ripple:${i}`, [(scatter(i, 2) - .5) * w * .9, .05, (scatter(i, 5) - .5) * length * .9], [.8 + scatter(i) * 1.6, .012, .06], '#a4c5c5', [0, (scatter(i, 4) - .5) * .25, 0]))
   if (variant === 'river' || variant === 'spring') for (const side of [-1, 1]) for (let i = 0; i < 6; i++) p.push(ball(`bank-stone:${side}:${i}`, [side * (w / 2 + .2), .2, -length / 2 + (i + .5) * length / 6], [1.3, .6, 1], P.stone))
@@ -142,13 +154,13 @@ function cave(a = {}) {
   return [ball('left-rock', [-3, 2.3, 0], [4.1, 5.5, 4], P.darkStone), ball('right-rock', [3, 2, 0], [4.1, 5.1, 4], '#71766e'), ball('arch-rock', [0, 4.7, 0], [7.8, 3.2, 4.3], '#898b7d'), box('receding-dark', [0, 2.2, 1.8], [4.2, 4.4, .2], '#202829'), box('cave-floor', [0, .04, .5], [5, .08, 5], '#65685d'), ...moved(rockAsset({}), [-3.8, 0, -1.6], 1.4, 'fallen-rock:')] }
 function rockAsset(a = {}) { return [ball('faceted-stone', [0, .42, 0], [1.3, .85, 1.05], c(a, P.stone)), ball('stone-shoulder', [.35, .25, .2], [.7, .5, .7], c(a, P.stone))] }
 function human(a = {}) {
-  const skin = a.skinColor || P.skin, cloth = a.clothingColor || c(a, '#84736c'), p = [], sitting = a.pose === 'sitting', child = a.variant === 'child', skirt = a.skirt || a.variant === 'woman'
+  const skin = a.skinColor || P.skin, cloth = a.clothingColor || c(a, '#84736c'), p = [], sitting = ['sitting','riding'].includes(a.pose), child = a.variant === 'child', skirt = a.skirt || a.variant === 'woman'
   const hip = sitting ? .66 : .88, shoulder = sitting ? 1.18 : 1.43, head = sitting ? 1.43 : 1.68
   p.push(box('clothed-torso', [0, (hip + shoulder) / 2, 0], [.46, shoulder - hip, .28], cloth), ball('shoulders', [0, shoulder - .09, 0], [.56, .24, .29], cloth), cylinder('neck', [0, head - .21, 0], [.14, .18, .14], skin), ball('head', [0, head, -.012], [.31, .38, .3], skin), ball('hair', [0, head + .08, .045], [.33, .27, .29], a.hairColor || '#493b32'), box('nose', [0, head, -.176], [.055, .065, .065], skin))
   for (const side of [-1, 1]) {
     if (a.eyes !== 1 || side === -1) p.push(ball(`eye:${side}`, [a.eyes === 1 ? 0 : side * .067, head + .035, -.16], [a.eyes === 1 ? .055 : .025, a.blinded || a.pose === 'sleeping' ? .006 : .025, .015], a.blinded ? '#743c38' : '#25292a'))
-    const knee = sitting && a.knees !== false ? [side * .14, .5, -.44] : [side * .14, .46, 0]
-    p.push(rod(`upper-leg:${side}`, [side * .14, hip, 0], knee, .1, '#56515a'), rod(`lower-leg:${side}`, knee, [side * .14, .13, sitting ? -.5 : 0], .075, '#5e5450'), box(`shoe:${side}`, [side * .14, .085, sitting ? -.55 : -.06], [.2, .14, .34], '#3c3430'))
+    const knee = a.pose==='riding' ? [side*.34,.5,-.16] : sitting && a.knees !== false ? [side * .14, .5, -.44] : [side * .14, .46, 0]
+    p.push(rod(`upper-leg:${side}`, [side * .14, hip, 0], knee, .1, '#56515a'), rod(`lower-leg:${side}`, knee, [side * (a.pose==='riding'?.4:.14), .13, a.pose==='riding'?-.07:sitting ? -.5 : 0], .075, '#5e5450'), box(`shoe:${side}`, [side * (a.pose==='riding'?.4:.14), .085, a.pose==='riding'?-.15:sitting ? -.55 : -.06], [.2, .14, .34], '#3c3430'))
     const elbow = [side * .37, shoulder - .28, -.05], hand = [side * .34, shoulder - .57, a.heldItem ? -.26 : -.04]
     p.push(rod(`upper-arm:${side}`, [side * .25, shoulder - .05, 0], elbow, .078, cloth), rod(`forearm:${side}`, elbow, hand, .06, cloth), ball(`hand:${side}`, hand, [.115, .15, .12], skin))
   }
@@ -193,7 +205,7 @@ function dragon(a = {}) { const p = moved(quadruped({ color: a.color || '#53695b
 function tableAsset(a = {}) { const w = finite(a.width, 2.4), d = finite(a.depth, 1.3), h = finite(a.height, .85); return [box('tabletop', [0, h, 0], [w, .13, d], c(a, '#956e46')), ...[-1, 1].flatMap((x) => [-1, 1].map((z) => box(`leg:${x}:${z}`, [x * (w / 2 - .15), h / 2, z * (d / 2 - .15)], [.13, h, .13], P.wood)))] }
 function chairAsset(a = {}) { return [box('seat', [0, .48, 0], [.52, .1, .52], c(a, P.wood)), box('back', [0, .89, .23], [.52, .75, .07], P.wood), ...[-1, 1].flatMap((x) => [-1, 1].map((z) => box(`leg:${x}:${z}`, [x * .2, .23, z * .2], [.07, .46, .07], P.wood)))] }
 function bedAsset(a = {}) { return [box('frame', [0, .42, 0], [1.7, .22, 2.5], P.wood), box('mattress', [0, .64, 0], [1.56, .28, 2.32], '#cfbca0'), box('blanket', [0, .8, .35], [1.61, .1, 1.7], c(a, '#706f79')), ball('pillow', [0, .85, -.8], [1.12, .18, .53], P.white), box('headboard', [0, .85, -1.25], [1.75, 1.3, .13], P.wood), ...[-1, 1].flatMap((x) => [-1, 1].map((z) => box(`foot:${x}:${z}`, [x * .72, .19, z * 1.08], [.12, .38, .12], P.wood)))] }
-function fireAsset(a = {}) { const p = []; for (let i = 0; i < 8; i++) { const t = i * Math.PI / 4; p.push(ball(`hearth-stone:${i}`, [Math.cos(t) * .65, .12, Math.sin(t) * .65], [.42, .28, .34], P.darkStone)) } p.push(cylinder('log-a', [0, .2, 0], [.23, 1.25, .23], '#684734', [Math.PI / 2, 0, .3]), cylinder('log-b', [0, .26, 0], [.2, 1.25, .2], '#684734', [Math.PI / 2, .7, -.2])); if (a.burning !== false) for (let i = 0; i < 4; i++) p.push(cone(`flame:${i}`, [(scatter(i) - .5) * .5, .58 + i * .06, (scatter(i, 4) - .5) * .4], [.36, .75 + scatter(i, 3) * .5, .34], i % 2 ? '#ffd177' : '#df793b', [0, 0, (scatter(i, 2) - .5) * .3])); return p }
+function fireAsset(a = {}) { if(a.variant==='breath')return Array.from({length:4},(_,i)=>cone(`breath-flame:${i}`,[(scatter(i)-.5)*.3,0,-.3-i*.45],[.35+i*.12,.7+i*.2,.35+i*.12],i%2?'#ffd177':'#df793b',[Math.PI/2,0,0])); const p = [cylinder('ember-bed',[0,.25,0],[1.15,.06,1.15],'#634b38')]; for (let i = 0; i < 8; i++) { const t = i * Math.PI / 4; p.push(ball(`hearth-stone:${i}`, [Math.cos(t) * .65, .12, Math.sin(t) * .65], [.42, .28, .34], P.darkStone)) } p.push(cylinder('log-a', [0, .2, 0], [.23, 1.25, .23], '#684734', [Math.PI / 2, 0, .3]), cylinder('log-b', [0, .26, 0], [.2, 1.25, .2], '#684734', [Math.PI / 2, .7, -.2])); if (a.burning !== false) for (let i = 0; i < 4; i++) p.push(cone(`flame:${i}`, [(scatter(i) - .5) * .5, .58 + i * .06, (scatter(i, 4) - .5) * .4], [.36, .75 + scatter(i, 3) * .5, .34], i % 2 ? '#ffd177' : '#df793b', [0, 0, (scatter(i, 2) - .5) * .3])); return p }
 function fenceAsset(a = {}) { const length = finite(a.length, 7), p = []; for (let i = 0; i < 7; i++) p.push(box(`post:${i}`, [-length / 2 + i * length / 6, .65, 0], [.13, 1.3, .13], P.wood)); for (const y of [.35, .92]) p.push(box(`rail:${y}`, [0, y, 0], [length, .12, .11], c(a, '#977652'))); return p }
 function fieldAsset(a = {}) { const p = [box('earth', [0, -.04, 0], [12, .08, 9], '#857354')]; for (let row = 0; row < 6; row++) { p.push(box(`furrow:${row}`, [0, 0, -3.5 + row * 1.35], [11.5, .04, .13], '#625841')); for (let i = 0; i < 8; i++) p.push(cylinder(`stem:${row}:${i}`, [-5 + i * 1.4, .3, -3.5 + row * 1.35], [.04, .6, .04], a.dry ? '#b5a365' : '#80995a'), cone(`ear:${row}:${i}`, [-5 + i * 1.4, .68, -3.5 + row * 1.35], [.15, .25, .15], a.dry ? '#cbbb78' : '#9baf6c')) } return p }
 function flowerAsset(a = {}) { const p = [rod('stem', [0, 0, 0], [0, .6, 0], .015, '#64875a'), ball('leaf', [.12, .25, 0], [.25, .055, .09], '#64875a')]; for (let i = 0; i < 5; i++) { const t = i * Math.PI * .4; p.push(ball(`petal:${i}`, [Math.cos(t) * .11, .64, Math.sin(t) * .11], [.18, .075, .18], c(a, '#c78982'))) } p.push(ball('heart', [0, .67, 0], [.1, .06, .1], '#d8b353')); return p }
@@ -220,9 +232,9 @@ const recipes = {
   table: tableAsset, chair: chairAsset, bed: bedAsset, fire: fireAsset, hearth: fireAsset, fence: fenceAsset, field: fieldAsset, flower: flowerAsset,
   garden: (a) => [box('garden-earth', [0, -.05, 0], [9, .1, 7], '#74694f'), ...Array.from({ length: 18 }, (_, i) => moved(flowerAsset({ color: ['#b47f82', '#d7bc67', '#abbcca'][i % 3] }), [(scatter(i, 2) - .5) * 8, 0, (scatter(i, 7) - .5) * 6], 1, `flower:${i}:`)).flat()],
   grave: graveAsset, tomb: (a) => [...graveAsset(a), box('stone-slab', [0, .35, .35], [1.5, .25, 2.4], P.stone)],
-  wall: (a) => [box('masonry', [0, 1.5, 0], [a.length || 7, 3, .6], c(a, P.stone)), ...Array.from({ length: 5 }, (_, i) => box(`course:${i}`, [0, .4 + i * .55, -.305], [a.length || 7, .025, .02], P.darkStone))],
+  wall: (a) => [box('masonry', [0, (a.height||3)/2, 0], [a.length || 7, a.height||3, a.depth||.6], c(a, P.stone)), ...Array.from({ length: 5 }, (_, i) => box(`course:${i}`, [0, (a.height||3)*(.13+i*.18), -(a.depth||.6)/2-.005], [a.length || 7, .025, .02], P.darkStone))],
   road: (a) => [box('roadbed', [0, -.01, 0], [a.width || 4, .06, a.length || 18], c(a, '#b19c76')), ...Array.from({ length: 12 }, (_, i) => ball(`roadstone:${i}`, [(scatter(i, 3) - .5) * 3.5, .035, (scatter(i, 9) - .5) * 16], [.18, .07, .25], '#928b74'))],
-  boat: boatAsset, ship: (a) => moved(boatAsset({ ...a, sail: true }), [0, 0, 0], 3),
+  boat: boatAsset, ship: (a) => [...moved(boatAsset({ ...a, sail: true }).filter((p)=>p.id!=='rowing-seat'), [0, 0, 0], 3),box('ship-deck',[0,2.65,0],[5.2,.2,11],P.wood)],
   plate: (a) => [cylinder('dish', [0, .035, 0], [.7, .045, .7], c(a, '#d2c2a1')), tube('rim', [0, .07, 0], [.73, .07, .73], c(a, '#d2c2a1'), .88)], cup: cupAsset, bottle: bottleAsset,
   bread: (a) => [ball('loaf', [0, .14, 0], [.7, .28, .44], c(a, '#bb9259')), ...[-.18, 0, .18].map((x) => box(`score:${x}`, [x, .27, -.01], [.025, .012, .22], '#d9b77c', [0, .25, 0]))],
   cloth: (a) => [box('folded-cloth', [0, .07, 0], [1.1, .14, .75], c(a, '#a38580')), ...[-.3, -.1, .1, .3].map((z) => box(`weave:${z}`, [0, .148, z], [1.06, .008, .025], '#c5ae95'))],
@@ -236,8 +248,8 @@ const recipes = {
   lamp: lampAsset, candle: (a) => [cylinder('wax', [0, .3, 0], [.16, .6, .16], '#e3d5ad'), cylinder('saucer', [0, .035, 0], [.42, .06, .42], '#9e8358'), cone('flame', [0, .72, 0], [.09, .2, .09], a.burning === false ? '#6b594a' : '#ffca72')],
   book: (a) => [box('pages', [0, .1, 0], [.66, .14, .86], '#d8cbb0'), box('cover-top', [0, .19, 0], [.71, .035, .91], c(a, '#7a4e46')), box('cover-bottom', [0, .02, 0], [.71, .035, .91], c(a, '#7a4e46')), box('spine', [-.34, .1, 0], [.04, .2, .9], c(a, '#7a4e46'))],
   ...Object.fromEntries(['sword', 'key', 'axe', 'hammer', 'scissors'].map((kind) => [kind, (a) => toolAsset(kind, a)])),
-  cauldron: (a) => [ball('iron-pot', [0, .4, 0], [.9, .75, .9], c(a, '#505857')), tube('open-rim', [0, .71, 0], [.77, .1, .77], '#454d4c', .88), cylinder('contents', [0, .745, 0], [.66, .018, .66], '#8c7c50'), ...[-1, 1].map((s) => ring(`handle:${s}`, [s * .47, .55, 0], [.2, .23, .07], P.metal, [Math.PI / 2, 0, 0]))],
-  nest: (a) => [tube('twigs', [0, .14, 0], [.8, .28, .7], '#8c714e', .74), ...Array.from({length:clamp(Math.round(finite(a.eggs,0)),0,6)},(_,i) => ball(`egg:${i}`, [(i-(a.eggs-1)/2)*.2, .18, 0], [.17, .23, .16], '#e5dcc2'))],
+  cauldron: (a) => [cylinder('pot-bottom',[0,.065,0],[.55,.13,.55],c(a,'#505857')),...[[.18,.69],[.37,.9],[.56,.87]].map(([y,d],i)=>tube(`iron-pot:${i}`,[0,y,0],[d,.24,d],c(a,'#505857'),.86)), tube('open-rim', [0, .71, 0], [.77, .1, .77], '#454d4c', .88), cylinder('contents', [0, .65, 0], [.66, .018, .66], a.contents==='milk'?'#f3eee3':'#353d38'), ...[-1, 1].map((s) => ring(`handle:${s}`, [s * .47, .55, 0], [.2, .23, .07], P.metal, [Math.PI / 2, 0, 0]))],
+  nest: (a) => [cylinder('woven-bowl-floor',[0,.055,0],[.66,.11,.57],'#8c714e'),tube('twigs', [0, .14, 0], [.8, .28, .7], '#8c714e', .74), ...Array.from({length:clamp(Math.round(finite(a.eggs,0)),0,6)},(_,i) => ball(`egg:${i}`, [(i-(a.eggs-1)/2)*.2, .18, 0], [.17, .23, .16], '#e5dcc2'))],
   cradle: () => [box('bed-base', [0, .35, 0], [.72, .1, 1.15], P.wood), box('bedding', [0, .45, 0], [.6, .15, 1.05], '#d0c5ac'), ...[-1, 1].map((s) => box(`side:${s}`, [s * .36, .6, 0], [.07, .45, 1.17], P.wood)), ...[-1, 1].map((s) => part(`rocker:${s}`, 'wedge', [0, .11, s * .4], [1, .2, .11], P.wood, [0, 0, Math.PI]))],
   cart: () => [box('cart-floor', [0, .8, 0], [1.6, .15, 2.2], P.wood), ...[-1, 1].map((s) => box(`side:${s}`, [s * .79, 1.17, 0], [.13, .72, 2.2], '#9b774e')), ...[-1, 1].map((s) => ring(`wheel:${s}`, [s * 1, .5, .15], [1, .14, 1], '#584535', [0, 0, Math.PI / 2])), rod('axle', [-1.05, .5, .15], [1.05, .5, .15], .08, P.wood), rod('left-shaft', [-.65, .7, -.9], [-.65, .65, -3], .055, P.wood), rod('right-shaft', [.65, .7, -.9], [.65, .65, -3], .055, P.wood)],
   loom: () => [box('left-upright', [-.75, 1, 0], [.15, 2, .15], P.wood), box('right-upright', [.75, 1, 0], [.15, 2, .15], P.wood), box('cross-top', [0, 1.9, 0], [1.65, .15, .15], P.wood), box('cross-bottom', [0, .25, 0], [1.65, .15, .15], P.wood), ...Array.from({ length: 13 }, (_, i) => rod(`warp:${i}`, [-.65 + i * .108, .3, 0], [-.65 + i * .108, 1.85, 0], .008, '#d7c8a4')), box('woven-cloth', [0, .72, -.018], [1.3, .8, .026], '#9e6e61')],
@@ -293,10 +305,10 @@ recipes.dough = () => [ball('dough', [0,.15,0],[.6,.3,.5],'#d1bf95'),ball('flour
 recipes.rod = (a) => [cylinder('wooden-rod',[0,.8,0],[.06,1.6,.06],c(a,P.wood))]
 recipes.vine = () => [...Array.from({length:8},(_,i)=>rod(`stem:${i}`,[Math.sin(i)*.2,i*.25,0],[Math.sin(i+1)*.2,(i+1)*.25,0],.018,'#64764e')), ...Array.from({length:6},(_,i)=>ball(`leaf:${i}`,[i%2?.2:-.2,.25+i*.27,0],[.33,.07,.17],'#587447'))]
 recipes.feather = () => [rod('quill',[0,0,0],[0,.65,0],.01,'#bfbca4'),...Array.from({length:7},(_,i)=>ball(`vane:${i}`,[0,.12+i*.07,0],[.18*Math.sin((i+1)*Math.PI/9),.13,.025],'#c5c0a7'))]
-recipes.milk = (a) => a.variant==='wall-trickle' ? [rod('milk-streak',[0,.035,0],[0,finite(a.height,.9),0],finite(a.width,.08)/2,c(a,'#f3eee3')),ball('milk-drop',[0,.08,-.012],[finite(a.width,.08)*1.3,.12,finite(a.length,.025)],c(a,'#f3eee3')),ball('small-base-stain',[0,.008,-.025],[.18,.016,.13],c(a,'#f3eee3'))] : [...cupAsset({color:'#aa9272'}),cylinder('milk-surface',[0,.39,0],[.23,.012,.23],c(a,'#e9e1c9'))]
+recipes.milk = (a) => a.variant==='contained-surface' ? [cylinder('milk-surface',[0,.006,0],[finite(a.width,.64),.012,finite(a.depth,.64)],c(a,'#f3eee3'))] : a.variant==='wall-trickle' ? [rod('milk-streak',[0,.035,0],[0,finite(a.height,.9),0],finite(a.width,.08)/2,c(a,'#f3eee3')),ball('milk-drop',[0,.08,-.012],[finite(a.width,.08)*1.3,.12,finite(a.length,.025)],c(a,'#f3eee3')),ball('small-base-stain',[0,.008,-.025],[.18,.016,.13],c(a,'#f3eee3'))] : [...cupAsset({color:'#aa9272'}),cylinder('milk-surface',[0,.39,0],[.23,.012,.23],c(a,'#e9e1c9'))]
 recipes.moth = (a) => [ball('body',[0,.1,0],[.07,.12,.3],c(a,'#9b947d')),...[-1,1].map((side)=>ball(`wing:${side}`,[side*.16,.11,0],[.35,.025,.32],c(a,'#b1a992'))),...[-1,1].map((side)=>rod(`antenna:${side}`,[0,.1,-.1],[side*.08,.18,-.24],.006,'#7e7966'))]
 recipes.pit = (a) => [tube('earth-rim',[0,.08,0],[3.3,.16,3.3],'#756b54',.87),tube('shaft',[0,-1,0],[3,2,3],'#625b4b',.92),cylinder('dark-depth',[0,-.04,0],[2.65,.02,2.65],'#282d29')]
-recipes.moat = () => [tube('excavated-bank',[0,-.08,0],[14,.3,14],'#756b54',.65),tube('water-channel',[0,-.04,0],[13.5,.025,13.5],'#567f83',.7)]
+recipes.moat = (a) => [tube('outer-bank',[0,.12,0],[14,.25,14],'#756b54',13.5/14),tube('inner-bank',[0,.12,0],[9.45,.25,9.45],'#756b54',9/9.45),...(!a.sourceWater?[tube('water-channel',[0,.055,0],[13.5,.025,13.5],'#567f83',.7)]:[])]
 recipes.weapon = () => [cylinder('wooden-haft',[0,.6,0],[.07,1.2,.07],P.wood),box('wrapped-grip',[0,.16,0],[.095,.3,.09],'#67594a'),cone('metal-point',[0,1.4,0],[.19,.45,.07],P.metal)]
 recipes.scythe = () => [rod('handle',[0,0,0],[.05,1.6,0],.04,P.wood),rod('handgrip',[0,.8,0],[.25,.8,0],.03,P.wood),...Array.from({length:5},(_,i)=>box(`curved-blade:${i}`,[.13+i*.17,1.55-i*i*.023,0],[.24,.11-i*.014,.025],P.metal,[0,0,-i*.19]))]
 recipes.club = () => [cylinder('shaft',[0,.38,0],[.1,.75,.1],P.wood),ball('heavy-head',[0,.91,0],[.25,.55,.24],'#75513a')]
@@ -373,6 +385,7 @@ recipes.gate = (a) => [...archAsset(a),...(a.open===false || a.closed ? [...Arra
 
 recipes.leather = (a) => {const parts=[ball('hide-center',[0,.025,0],[1.3,.05,1.6],c(a,'#a28766')),...[-1,1].flatMap((x)=>[-1,1].map((z)=>ball(`hide-lobe:${x}:${z}`,[x*.57,.023,z*.55],[.5,.045,.5],c(a,'#a28766'))))];return a.hanging?parts.map((p)=>({...p,position:[p.position[0],1+p.position[2],p.position[1]],rotation:[Math.PI/2,0,0]})):parts}
 
+recipes.scarecrow = () => [rod('upright-stake',[0,0,0],[0,1.8,0],.055,P.wood),rod('cross-stick',[-.65,1.3,0],[.65,1.3,0],.045,P.wood),box('rag-tunic',[0,1.08,0],[.5,.64,.17],'#9d8e71'),ball('straw-head',[0,1.64,0],[.35,.39,.3],'#c2b07b'),...[-1,1].flatMap((side)=>[rod(`rag-sleeve:${side}`,[side*.2,1.3,0],[side*.6,1.24,0],.09,'#9d8e71'),...Array.from({length:4},(_,i)=>rod(`straw:${side}:${i}`,[side*.2,.79,0],[side*(.23+i*.04),.53-i*.015,0],.008,'#c2b07b'))])]
 recipes.hand = (a) => {
   const skin=a.skinColor || P.skin,bent=a.bent || a.twisted,parts=[rod('forearm',[0,0,.12],[0,.2,0],.045,skin),ball('palm',[0,.28,0],[.16,.2,.07],skin)]
   for(let finger=0;finger<4;finger++) {
@@ -390,6 +403,7 @@ function modelState(parts, asset, a) {
   let result=parts
   if (LYING_ASSETS.has(asset) && (a.dead || ['dead','lying','sleeping'].includes(a.pose))) result=asset==='snake' ? placeOnGround(result.map((p)=>({...p,position:[p.position[0],p.position[1]*.6,p.position[2]],size:[p.size[0],p.size[1]*(p.id.startsWith('eye:')?.12:.6),p.size[2]]}))) : placeOnGround(result.map((p)=>{const match=asset==='dragon'&&p.id.match(/^head:(\d+):/),fan=match?(Number(match[1])-(finite(a.heads,1)-1)/2)*1.3:0;return {...p,position:[-p.position[1],p.position[0]-fan,p.position[2]+fan],rotation:[p.rotation[0],p.rotation[1],p.rotation[2]+Math.PI/2]}}))
   if (a.size === 'small') result=moved(result,[0,0,0],.6)
+  if (a.pose === 'head-down' && LYING_ASSETS.has(asset)) result=result.map((p)=>/^(head|muzzle|neck|eye:|ear:)/.test(p.id)?{...p,position:[p.position[0],p.position[1]*.43,p.position[2]],rotation:[p.rotation[0]-.75,p.rotation[1],p.rotation[2]]}:p)
   if (a.pose === 'bending') result=result.map((p)=>p.position[1]>.9?{...p,position:[p.position[0],.9+(p.position[1]-.9)*.65,p.position[2]-(p.position[1]-.9)*.7],rotation:[p.rotation[0]-.5,p.rotation[1],p.rotation[2]]}:p)
   if (a.pose === 'eating') result=result.map((p)=>p.id.startsWith('hand:')||p.id.startsWith('forearm:')?{...p,position:[p.position[0]*.35,p.position[1]+.5,p.position[2]-.2],rotation:[p.rotation[0]-.7,p.rotation[1],p.rotation[2]]}:p)
   if (a.size === 'large') result=moved(result,[0,0,0],1.5)
@@ -439,6 +453,8 @@ function modelState(parts, asset, a) {
   if (a.tears && ['human','person','woman','man','giant','child','horse'].includes(asset)) result.push(...[-1,1].map((side)=>ball(`tear:${side}`,[side*(asset==='horse'?.26:.066),asset==='horse'?1.95:1.64,asset==='horse'?-1.38:-.166],[.018,.07,.018],'#8fa7a6')))
   if (a.mark && ['rock','stone'].includes(asset)) { const ink=a.markColor || '#625b48'; if(a.mark==='horse') result.push(ball('horse-mark-body',[0,.48,-.51],[.32,.12,.008],ink),rod('horse-mark-neck',[.1,.48,-.515],[.15,.65,-.515],.018,ink),...[-1,1].map((side)=>rod(`horse-mark-leg:${side}`,[side*.11,.44,-.515],[side*.12,.28,-.515],.012,ink))); else if(a.mark==='zojz') result.push(rod('zojz-mark-vertical',[0,.3,-.52],[0,.64,-.52],.012,ink),rod('zojz-mark-horizontal',[-.17,.48,-.52],[.17,.48,-.52],.012,ink)) }
   if (a.broken && ['bridge','fence','wall','door','cart','tower','house'].includes(asset)) result=result.filter((p,i)=>i%5!==2).map((p,i)=>i%7===0?{...p,rotation:[p.rotation[0],p.rotation[1],p.rotation[2]+.23]}:p)
+  if(a.wrapped&&['rope','vine','chain'].includes(asset)) result=Array.from({length:20},(_,i)=>{const t=i*Math.PI/10,u=(i+1)*Math.PI/10;return rod(`wrapped-strand:${i}`,[Math.sin(t)*(a.wrapWidth||.8)/2,0,Math.cos(t)*(a.wrapDepth||.7)/2],[Math.sin(u)*(a.wrapWidth||.8)/2,0,Math.cos(u)*(a.wrapDepth||.7)/2],.024,asset==='chain'?P.metal:'#8c7956')})
+  if(asset==='tree'&&Array.isArray(a.supportBranch))result.push(rod('supporting-branch',[0,Math.min(4,a.supportBranch[1]*.6),0],a.supportBranch,.2,P.bark),rod('standing-perch',[a.supportBranch[0]-.7,a.supportBranch[1]-.12,a.supportBranch[2]],[a.supportBranch[0]+.7,a.supportBranch[1]-.12,a.supportBranch[2]],.12,P.bark))
   return result
 }
 
@@ -457,7 +473,7 @@ export function buildAssetParts(asset, attributes = {}) {
   if (normalized.large) normalized.size = 'large'
   if (normalized.wound) normalized.wounded = true
   if (normalized.ice) normalized.frozen = true
-  if (normalized.interior) normalized.cutaway = true
+  if (normalized.interior) normalized.cutaway = false
   if (normalized.pose === 'seated') normalized.pose = 'sitting'
   if (normalized.surface === 'wet') normalized.wet = true
   if (normalized.surface === 'dry') normalized.wet = false
@@ -486,8 +502,8 @@ export const assetBounds = worldScene3dAssetBounds
 
 // Attributes which do not have a faithful static visual treatment are reported
 // explicitly. Source inclusion is not evidence that a state was rendered.
-const GEOMETRIC_ATTRIBUTES = new Set(['held','large','bent','twisted','wound','ice','wounds','material','clothingMaterial','clothingStyle','face','young','fire','headless','inscription','lice','eyesClosed','breath','portrait','fallen','condition','dew','withered','scar','locked','color','clothingColor','hairColor','skinColor','hatColor','headscarfColor','roofColor','width','height','depth','length','cutaway','interior','open','closed','covered','eggs','dry','water','waterLevel','variant','count','snow','bare','season','pose','dead','skirt','hat','beard','heldItem','heldAttributes','sail','empty','burning','eyes','blinded','knees','eyeStar','mark','marking','wings','legs','heads','horns','hornMaterial','motifs','hornColor','markColor','drink','contents','frozen','hanging','wounded','cut','tears','headwear','hair','age','gender','size','scale','reflection','brightness','glowing','intensity','motion','wet','broken','surface'])
-const NONVISUAL_ATTRIBUTES = new Set(['owner','relationship','hunger','temperature','amount','sourceColor','exposed','interpretation','countExact','headCountExact','blocksEntrance','currency','value','narrativeDomain'])
+const GEOMETRIC_ATTRIBUTES = new Set(['sourceWater','innerRatio','sourceWallParts','sourceDoor','windowOpening','viewThrough','encloseViewer','supportBranch','wrapped','wrapWidth','wrapDepth','held','large','bent','twisted','wound','ice','wounds','material','clothingMaterial','clothingStyle','face','young','fire','headless','inscription','lice','eyesClosed','breath','portrait','fallen','condition','dew','withered','scar','locked','color','clothingColor','hairColor','skinColor','hatColor','headscarfColor','roofColor','width','height','depth','length','cutaway','interior','open','closed','covered','eggs','dry','water','waterLevel','variant','count','snow','bare','season','pose','dead','skirt','hat','beard','heldItem','heldAttributes','sail','empty','burning','eyes','blinded','knees','eyeStar','mark','marking','wings','legs','heads','horns','hornMaterial','motifs','hornColor','markColor','drink','contents','frozen','hanging','wounded','cut','tears','headwear','hair','age','gender','size','scale','reflection','brightness','glowing','intensity','motion','wet','broken','surface'])
+const NONVISUAL_ATTRIBUTES = new Set(['componentPartId','owner','relationship','hunger','temperature','amount','sourceColor','exposed','interpretation','countExact','headCountExact','blocksEntrance','currency','value','narrativeDomain'])
 export function worldScene3dAssetAttributeReview(asset, attributes = {}) {
   if (!WORLD_SCENE_3D_ASSETS[asset]) throw new Error(`Unknown world 3D asset: ${String(asset)}`)
   const rendered=[],metadataOnly=[],unsupported=[]

@@ -5,6 +5,10 @@ import { isUnchartedStoryNode } from '../src/game/departureContexts.js'
 import assert from 'node:assert/strict'
 import { runWorldNodeSceneAssertions } from './lib/world-node-scenes.test.mjs'
 import { runWorldNodeRendererAssertions } from './lib/world-node-renderer.test.mjs'
+import { runWorldNodeSpatialAssertions } from './lib/world-node-spatial.test.mjs'
+import { runWorldSceneSourceSemanticsAssertions } from './lib/world-scene-source-semantics.test.mjs'
+import { runWorldShipSceneAssertions } from './lib/world-ship-scenes.test.mjs'
+import { runWorldCoastRescueSceneAssertions } from './lib/world-coast-rescue-scenes.test.mjs'
 import { worldScene3dInventorySources } from '../src/game/worldScene3dInventory.js'
 import { runWorldSceneSurveyAssertions } from './lib/world-scene-survey.test.mjs'
 import { runWorldSceneInventoryAssertions } from './lib/world-scene-inventory.test.mjs'
@@ -43,6 +47,10 @@ import {
 
 const nodeChecks = runWorldNodeSceneAssertions()
 const nodeRendererChecks = runWorldNodeRendererAssertions()
+const nodeSpatialChecks = runWorldNodeSpatialAssertions()
+const nodeSemanticChecks = runWorldSceneSourceSemanticsAssertions()
+const nodeShipChecks = runWorldShipSceneAssertions()
+const nodeCoastRescueChecks = runWorldCoastRescueSceneAssertions()
 const model = buildWorldScene3d()
 assert.equal(model.version, WORLD_SCENE_3D_VERSION)
 assert.deepEqual(validateWorldScene3d(model), [], 'production 3D world model is inconsistent')
@@ -531,3 +539,7 @@ rejectsMutation('generated narration loses opening/transition provenance', first
 console.log(`✓ 3D world: ${Object.keys(PLACE_NODES).length} places, ${model.descriptions.length} exact source descriptions, ${model.routes.length} routes; ${mutationCount + inventoryChecks.probes + profileChecks.corruptions} corruptions rejected; ${surveyChecks.surveyed} world elements + ${surveyChecks.references} unlocated references rendered`)
 
 console.log(`✓ Node scene renders: ${nodeChecks.nodes} baseline views, ${nodeChecks.witnessViews} exact source witnesses, ${nodeChecks.reciprocalLinks} reciprocal links, ${nodeChecks.corruptions} rejected corruptions; ${nodeRendererChecks.assets} composed mesh assets with full-sphere projection`)
+console.log(`✓ Node physical clearance: ${nodeSpatialChecks.views} baseline/source views across ${nodeSpatialChecks.places} physical places, ${nodeSpatialChecks.actorSamples} actor body/head samples; ${nodeSpatialChecks.corruptions} solid-obstruction probes rejected`)
+console.log(`✓ Source-grounded scene semantics: ${JSON.stringify(nodeSemanticChecks)}`)
+console.log(`✓ Uncharted ship scenes: ${JSON.stringify(nodeShipChecks)}`)
+console.log(`✓ Shore and rescue sightlines: ${JSON.stringify(nodeCoastRescueChecks)}`)

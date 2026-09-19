@@ -408,9 +408,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:handa",
+        "kind": "beside",
+        "target": "tomorr-mountain"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Field of the Ladies, Handa; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Field of the Ladies, Handa; the camera remains at the canonical place. Handa travels toward the mountain and cave by its exterior; the solid mountain is not an inhabitable volume."
   },
   {
     "id": "description:binoshetKopshtiZanave:2",
@@ -452,9 +458,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:handa",
+        "kind": "beside",
+        "target": "tomorr-mountain"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "The maidens speak to Handa. The Beauty and her cave are the reported destination, not present people in the field."
+    "rationale": "The maidens speak to Handa. The Beauty and her cave are the reported destination, not present people in the field. Handa travels toward the mountain and cave by its exterior; the solid mountain is not an inhabitable volume."
   },
   {
     "id": "description:binoshetKopshtiZanave:3",
@@ -484,9 +496,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:handa",
+        "kind": "beside",
+        "target": "tomorr-mountain"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "Handa begins the visible departure; his desire does not materialize the distant Beauty."
+    "rationale": "Handa begins the visible departure; his desire does not materialize the distant Beauty. Handa travels toward the mountain and cave by its exterior; the solid mountain is not an inhabitable volume."
   },
   {
     "id": "description:binoshetKopshtiZanave:4",
@@ -3013,7 +3031,8 @@ export default Object.freeze([
         "label": "Prison chamber",
         "zone": "around",
         "attributes": {
-          "cutaway": true
+          "cutaway": true,
+          "interior": true
         },
         "count": 1,
         "countExact": true,
@@ -3028,7 +3047,13 @@ export default Object.freeze([
         "value": "dark"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
     "rationale": "The prison remains dark; nine years is duration, not a rendered count."
   },
@@ -3069,7 +3094,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "osmani-brothers",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
     "rationale": "The Albanian establishes the embodied player in shackles with his brothers but gives no exact number. Eleven visible brothers are a representative group, not an asserted source quantity."
   },
@@ -3099,7 +3130,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:krajl",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "mixed",
     "rationale": "The Krajl enters and asks about a past palace fire; no burning palace is placed inside prison."
   },
@@ -3158,7 +3195,8 @@ export default Object.freeze([
         "label": "Prison chamber",
         "zone": "around",
         "attributes": {
-          "cutaway": true
+          "cutaway": true,
+          "interior": true
         },
         "count": 1,
         "countExact": true,
@@ -3189,9 +3227,25 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "actor:krajl",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "osmani-brothers",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "The king sentences the embodied player and brothers; six years is the sentence duration."
+    "rationale": "The king sentences the embodied player and brothers; six years is the sentence duration. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls."
   },
   {
     "id": "description:osmaniVdekur:1",
@@ -3269,9 +3323,20 @@ export default Object.freeze([
         "value": "night"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "osmani-brothers",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "krajl-daughter",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The brothers wail and the daughter opens the door at midnight."
+    "rationale": "The brothers wail and the daughter opens the door at midnight. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls."
   },
   {
     "id": "description:osmaniProvat:0",
@@ -3310,9 +3375,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:guard",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "actor:krajl",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "A present guard brings the feigning player before the king."
+    "rationale": "A present guard brings the feigning player before the king. Participants share the established prison interior with the embodied viewer. Participants share the established prison interior with the embodied viewer."
   },
   {
     "id": "description:osmaniProvat:1",
@@ -3336,7 +3412,8 @@ export default Object.freeze([
         "count": 9,
         "countExact": true,
         "persistence": "scene",
-        "role": "participant"
+        "role": "participant",
+        "scale": 0.3
       },
       {
         "key": "ordeal-fires",
@@ -3351,9 +3428,25 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "ordeal-serpents",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "ordeal-fires",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "ordeal-serpents",
+        "kind": "on",
+        "target": "viewer"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Nine ordeal serpents, Two ordeal fires; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Nine ordeal serpents, Two ordeal fires; the camera remains at the canonical place. The ordeal objects remain within the established prison interior; their unmeasured spacing is illustrative. The exact nine serpents lie on the embodied viewpoint; no duplicate player body is introduced. Serpent lengths are illustrative at body scale; the source fixes nine, not their measurement."
   },
   {
     "id": "description:osmaniProvat:2",
@@ -3392,9 +3485,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "ordeal-nails",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "ordeal-blood",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "Twenty nails and actual blood are visible; the camera does not duplicate the player."
+    "rationale": "Twenty nails and actual blood are visible; the camera does not duplicate the player. The ordeal objects remain within the established prison interior; their unmeasured spacing is illustrative."
   },
   {
     "id": "description:osmaniVallja:0",
@@ -3418,7 +3522,8 @@ export default Object.freeze([
         "count": 9,
         "countExact": true,
         "persistence": "scene",
-        "role": "participant"
+        "role": "participant",
+        "scale": 0.3
       },
       {
         "key": "ordeal-fires",
@@ -3444,9 +3549,30 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "ordeal-serpents",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "ordeal-fires",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "ordeal-nails",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "ordeal-serpents",
+        "kind": "on",
+        "target": "viewer"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Nine ordeal serpents, Two ordeal fires, Twenty ordeal nails; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Nine ordeal serpents, Two ordeal fires, Twenty ordeal nails; the camera remains at the canonical place. The ordeal objects remain within the established prison interior; their unmeasured spacing is illustrative. The serpents remain on the player from the preceding test. Serpent lengths are illustrative at body scale; the source fixes nine, not their measurement."
   },
   {
     "id": "description:osmaniVallja:1",
@@ -3476,9 +3602,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "dancing-maidens",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "dancing-maidens",
+        "kind": "around",
+        "target": "viewer"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Thirty dancing maidens; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Thirty dancing maidens; the camera remains at the canonical place. Participants share the established prison interior with the embodied viewer. The exact thirty dancers surround the viewer; their ring radius is illustrative."
   },
   {
     "id": "description:osmaniVallja:2",
@@ -3508,9 +3645,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "krajl-daughter",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes The Krajl’s daughter; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes The Krajl’s daughter; the camera remains at the canonical place. Participants share the established prison interior with the embodied viewer."
   },
   {
     "id": "description:osmaniShpata:0",
@@ -3873,9 +4016,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:krajl",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "The addressed king observes the failed deception."
+    "rationale": "The addressed king observes the failed deception. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls."
   },
   {
     "id": "description:osmaniZbuluar:2",
@@ -3907,9 +4056,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "dancing-maidens",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Thirty observing maidens; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Thirty observing maidens; the camera remains at the canonical place. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls."
   },
   {
     "id": "description:osmaniZbuluar:3",
@@ -3950,9 +4105,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:guard",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "actor:krajl",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The guard brings the king, who sees the player alive."
+    "rationale": "The guard brings the king, who sees the player alive. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls."
   },
   {
     "id": "description:osmaniZbuluar:4",
@@ -3991,9 +4157,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:guard",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "actor:krajl",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The guard brings the king, who sees the player alive."
+    "rationale": "The guard brings the king, who sees the player alive. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls."
   },
   {
     "id": "description:osmaniZbuluar:5",
@@ -4014,7 +4191,8 @@ export default Object.freeze([
         "label": "Prison chamber",
         "zone": "around",
         "attributes": {
-          "cutaway": true
+          "cutaway": true,
+          "interior": true
         },
         "count": 1,
         "countExact": true,
@@ -4045,9 +4223,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "osmani-brothers",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Prison chamber, Prison shackles, Osmani’s brothers; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Prison chamber, Prison shackles, Osmani’s brothers; the camera remains at the canonical place. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls."
   },
   {
     "id": "description:osmaniLiri:0",
@@ -4193,9 +4382,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:krajl",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The Krajl captures the escaping player."
+    "rationale": "The Krajl captures the escaping player. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls."
   },
   {
     "id": "description:osmaniRob:1",
@@ -4216,7 +4411,8 @@ export default Object.freeze([
         "label": "Prison chamber",
         "zone": "around",
         "attributes": {
-          "cutaway": true
+          "cutaway": true,
+          "interior": true
         },
         "count": 1,
         "countExact": true,
@@ -4225,7 +4421,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
     "rationale": "This visible moment establishes Prison chamber; the camera remains at the canonical place."
   },
@@ -4248,7 +4450,8 @@ export default Object.freeze([
         "label": "Prison chamber",
         "zone": "around",
         "attributes": {
-          "cutaway": true
+          "cutaway": true,
+          "interior": true
         },
         "count": 1,
         "countExact": true,
@@ -4268,9 +4471,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "osmani-cell"
+      },
+      {
+        "subject": "osmani-brothers",
+        "kind": "inside",
+        "target": "osmani-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Prison chamber, Osmani’s brothers; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Prison chamber, Osmani’s brothers; the camera remains at the canonical place. The explicitly imprisoned brothers and their present interlocutors occupy the same established cell, not the far side of its walls."
   },
   {
     "id": "description:haliliDeka:0",
@@ -8542,7 +8756,9 @@ export default Object.freeze([
         "asset": "interior",
         "label": "Interior of Jutbina’s tower oda",
         "zone": "around",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -8550,7 +8766,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "jutbina-oda"
+      }
+    ],
     "disposition": "physical",
     "rationale": "This visible moment establishes Interior of Jutbina’s tower oda; the camera remains at the canonical place."
   },
@@ -8572,7 +8794,9 @@ export default Object.freeze([
         "asset": "interior",
         "label": "Interior of Jutbina’s tower oda",
         "zone": "around",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -8604,7 +8828,23 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "jutbina-oda"
+      },
+      {
+        "subject": "oda-men",
+        "kind": "inside",
+        "target": "jutbina-oda"
+      },
+      {
+        "subject": "oda-hearth",
+        "kind": "inside",
+        "target": "jutbina-oda"
+      }
+    ],
     "disposition": "physical",
     "rationale": "This visible moment establishes Interior of Jutbina’s tower oda, Men gathered in the oda, Oda hearth; the camera remains at the canonical place."
   },
@@ -8650,7 +8890,13 @@ export default Object.freeze([
         "value": "absent"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "oda-elders",
+        "kind": "inside",
+        "target": "jutbina-oda"
+      }
+    ],
     "disposition": "physical",
     "rationale": "Only elders remain inside; the men described outside are not duplicated indoors."
   },
@@ -10733,9 +10979,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "behuri-thirty-guards",
+        "kind": "beside",
+        "target": "behuri-spring"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "Thirty guards is exact; the unspecified number of daughters is represented by a sample."
+    "rationale": "Thirty guards is exact; the unspecified number of daughters is represented by a sample. The thirty guards accompany the daughters at the spring, outside the distant tower; group spacing is illustrative."
   },
   {
     "id": "description:behuriBurimi:1",
@@ -10875,9 +11127,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "behuri-thirty-guards",
+        "kind": "beside",
+        "target": "behuri-spring"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The forced capture is an immediate visible consequence, not a freely offered companion."
+    "rationale": "The forced capture is an immediate visible consequence, not a freely offered companion. The thirty guards accompany the daughters at the spring, outside the distant tower; group spacing is illustrative."
   },
   {
     "id": "description:behuriBurimi:4",
@@ -12261,9 +12519,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "behuri-men",
+        "kind": "in-front-of",
+        "target": "behuri-rocks"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Spring among the rocks, Rocks around the spring, Men rising behind the stones; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Spring among the rocks, Rocks around the spring, Men rising behind the stones; the camera remains at the canonical place. After rising from behind the rocks, the men advance into the foreground to seize the viewer; they do not remain hidden behind the distant tower."
   },
   {
     "id": "description:behuriBurimHumbur:1",
@@ -12291,9 +12555,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "behuri-men",
+        "kind": "in-front-of",
+        "target": "behuri-rocks"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The ignored warning is past knowledge; the captors are present."
+    "rationale": "The ignored warning is past knowledge; the captors are present. After rising from behind the rocks, the men advance into the foreground to seize the viewer; they do not remain hidden behind the distant tower."
   },
   {
     "id": "description:behuriKullaHumbur:0",
@@ -13495,13 +13765,14 @@ export default Object.freeze([
         "count": 1,
         "countExact": true,
         "persistence": "place",
-        "role": "setting"
+        "role": "setting",
+        "rotationY": 3.141592653589793
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Sari Salltëk, Kulshedra’s cave; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Sari Salltëk, Kulshedra’s cave; the camera remains at the canonical place. The cave mouth faces the approaching observer; the source describes the arrival and killing at its entrance."
   },
   {
     "id": "description:sari1:2",
@@ -13525,13 +13796,14 @@ export default Object.freeze([
         "count": 1,
         "countExact": true,
         "persistence": "place",
-        "role": "setting"
+        "role": "setting",
+        "rotationY": 3.141592653589793
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Whistling cave entrance; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Whistling cave entrance; the camera remains at the canonical place. The cave mouth faces the approaching observer; the source describes the arrival and killing at its entrance."
   },
   {
     "id": "description:sari1:3",
@@ -13594,9 +13866,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:sari-kulshedra",
+        "kind": "at-entrance",
+        "target": "sari-cave"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Sari Salltëk, Dead Kulshedra, Wooden sword; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Sari Salltëk, Dead Kulshedra, Wooden sword; the camera remains at the canonical place. The physical remains occupy open ground at the established cave approach, with illustrative separation from the solid entrance; the source does not put the viewer inside."
   },
   {
     "id": "description:sari1:4",
@@ -13659,9 +13937,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "kulshedra-seven-heads",
+        "kind": "in-front-of",
+        "target": "sari-cave"
+      },
+      {
+        "subject": "actor:sari-kulshedra",
+        "kind": "at-entrance",
+        "target": "sari-cave"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Sari Salltëk, Seven severed Kulshedra heads, Headless dead Kulshedra; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Sari Salltëk, Seven severed Kulshedra heads, Headless dead Kulshedra; the camera remains at the canonical place. The physical remains occupy open ground at the established cave approach, with illustrative separation from the solid entrance; the source does not put the viewer inside. The physical remains occupy open ground at the established cave approach, with illustrative separation from the solid entrance; the source does not put the viewer inside."
   },
   {
     "id": "description:sari1:5",
@@ -13916,9 +14205,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "kulshedra-seven-heads",
+        "kind": "in-front-of",
+        "target": "sari-cave"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes False claimant, Seven severed Kulshedra heads; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes False claimant, Seven severed Kulshedra heads; the camera remains at the canonical place. The physical remains occupy open ground at the established cave approach, with illustrative separation from the solid entrance; the source does not put the viewer inside."
   },
   {
     "id": "description:sari2:2",
@@ -14159,9 +14454,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "kulshedra-seven-heads",
+        "kind": "in-front-of",
+        "target": "sari-cave"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Seven tongues kept as proof, Seven severed Kulshedra heads; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Seven tongues kept as proof, Seven severed Kulshedra heads; the camera remains at the canonical place. The physical remains occupy open ground at the established cave approach, with illustrative separation from the solid entrance; the source does not put the viewer inside."
   },
   {
     "id": "description:sariFund:1",
@@ -14203,9 +14504,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "kulshedra-seven-heads",
+        "kind": "in-front-of",
+        "target": "sari-cave"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Seven tongues kept as proof, Seven severed Kulshedra heads; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Seven tongues kept as proof, Seven severed Kulshedra heads; the camera remains at the canonical place. The physical remains occupy open ground at the established cave approach, with illustrative separation from the solid entrance; the source does not put the viewer inside."
   },
   {
     "id": "description:sariFund:2",
@@ -15325,9 +15632,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:beauty",
+        "kind": "beside",
+        "target": "rival-mountain"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes The other mountain, The Beauty, Four eagles; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes The other mountain, The Beauty, Four eagles; the camera remains at the canonical place. Beauty stays with the personified mountain on open ground beside it; the prose does not place her inside rock."
   },
   {
     "id": "description:shpirag1:3",
@@ -15376,9 +15689,15 @@ export default Object.freeze([
         "value": "night"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:beauty",
+        "kind": "beside",
+        "target": "rival-mountain"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes The other mountain, The Beauty; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes The other mountain, The Beauty; the camera remains at the canonical place. Beauty stays with the personified mountain on open ground beside it; the prose does not place her inside rock."
   },
   {
     "id": "description:shpirag1:4",
@@ -15427,9 +15746,15 @@ export default Object.freeze([
         "value": "dawn"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:beauty",
+        "kind": "beside",
+        "target": "rival-mountain"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes The other mountain, The Beauty; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes The other mountain, The Beauty; the camera remains at the canonical place. Beauty stays with the personified mountain on open ground beside it; the prose does not place her inside rock."
   },
   {
     "id": "description:shpirag1:5",
@@ -15516,9 +15841,15 @@ export default Object.freeze([
         "value": "dawn"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:beauty",
+        "kind": "beside",
+        "target": "rival-mountain"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes The other mountain, The Beauty; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes The other mountain, The Beauty; the camera remains at the canonical place. Beauty stays with the personified mountain on open ground beside it; the prose does not place her inside rock."
   },
   {
     "id": "description:tsRast:1",
@@ -17631,9 +17962,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:shurdhi",
+        "kind": "inside",
+        "target": "shurdhi-cloud"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Shurdhi in the cloud, Cloud carrying Shurdhi; the camera remains at the canonical place."
+    "rationale": "Shurdhi is explicitly in the cloud above the mountain, so the figure is placed within that same cloud rather than separately in open sky."
   },
   {
     "id": "description:maliStuhi:3",
@@ -17815,9 +18152,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:tomor",
+        "kind": "above",
+        "target": "summit-mist"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The elder is Tomor, preserving one identity and his white beard."
+    "rationale": "The elder is high above the mist; this relation preserves the exact vertical description while later lines identify him as Tomor."
   },
   {
     "id": "description:majaEagle:2",
@@ -18695,8 +19038,10 @@ export default Object.freeze([
         "key": "katallan-door-stone",
         "asset": "rock",
         "label": "Huge stone blocking the cave entrance",
-        "zone": "front",
-        "attributes": {},
+        "zone": "back",
+        "attributes": {
+          "blocksEntrance": true
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -18709,9 +19054,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "katallan-door-stone",
+        "kind": "at-entrance",
+        "target": "katallan-cave"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The boulder is compared to a house in size, not an actual house at the cave mouth."
+    "rationale": "The player examines the same immovable entrance-blocking boulder established at katallan1:2. The touch does not move it into the middle of the cave or clear the doorway."
   },
   {
     "id": "description:katallanGur:1",
@@ -18730,8 +19081,10 @@ export default Object.freeze([
         "key": "katallan-door-stone",
         "asset": "rock",
         "label": "Huge stone blocking the cave entrance",
-        "zone": "front",
-        "attributes": {},
+        "zone": "back",
+        "attributes": {
+          "blocksEntrance": true
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -18744,9 +19097,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "katallan-door-stone",
+        "kind": "at-entrance",
+        "target": "katallan-cave"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "Only the giant can move this actual boulder; no successful movement happens yet."
+    "rationale": "The player examines the same immovable entrance-blocking boulder established at katallan1:2. The touch does not move it into the middle of the cave or clear the doorway."
   },
   {
     "id": "description:katallanZjarr:0",
@@ -18971,7 +19330,7 @@ export default Object.freeze([
         "key": "katallan-doorway",
         "asset": "door",
         "label": "Cave doorway",
-        "zone": "front",
+        "zone": "back",
         "attributes": {},
         "count": 1,
         "countExact": true,
@@ -18979,7 +19338,13 @@ export default Object.freeze([
         "role": "setting"
       }
     ],
-    "states": [],
+    "states": [
+      {
+        "key": "katallan-door-stone",
+        "property": "blocksEntrance",
+        "value": false
+      }
+    ],
     "relations": [
       {
         "subject": "actor:katallan",
@@ -18990,10 +19355,15 @@ export default Object.freeze([
         "subject": "actor:katallan",
         "kind": "at-entrance",
         "target": "katallan-cave"
+      },
+      {
+        "subject": "katallan-doorway",
+        "kind": "at-entrance",
+        "target": "katallan-cave"
       }
     ],
     "disposition": "physical",
-    "rationale": "The blinded Katallan remains at the cave doorway feeling with his hands; the established entrance is behind the interior viewpoint."
+    "rationale": "The blinded giant stands at the cave opening feeling with his hands. The doorway and giant share that entrance; the escape opening is no longer filled by the earlier blocking stone."
   },
   {
     "id": "description:katallanVerbim:1",
@@ -19789,9 +20159,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:shurdhi",
+        "kind": "inside",
+        "target": "shurdhi-cloud"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Shurdhi in the cloud, Black cloud over the mountain; the camera remains at the canonical place."
+    "rationale": "Shurdhi is explicitly in the cloud above the mountain, so the figure is placed within that same cloud rather than separately in open sky."
   },
   {
     "id": "description:shurdhi1:1",
@@ -20646,11 +21022,14 @@ export default Object.freeze([
         "asset": "interior",
         "label": "Dark cell",
         "zone": "around",
-        "attributes": {},
+        "attributes": {
+          "cutaway": true
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
-        "role": "setting"
+        "role": "setting",
+        "rotationY": -0.780373080066636
       }
     ],
     "states": [
@@ -20660,9 +21039,15 @@ export default Object.freeze([
         "value": "dark"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:halili",
+        "kind": "inside",
+        "target": "halil-dark-cell"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This visible moment establishes Halil, Dark cell; the camera remains at the canonical place."
+    "rationale": "This visible moment establishes Halil, Dark cell; the camera remains at the canonical place. Only Halil is imprisoned; an illustrative open-side cell view reveals him without asserting that the player is inside. The already declared cutaway opening faces the canonical observer; its back wall does not hide the source-established captive and rescuers."
   },
   {
     "id": "description:mujo4:1",
@@ -20725,7 +21110,23 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:halili",
+        "kind": "holds",
+        "target": "jutbina-lute"
+      },
+      {
+        "subject": "actor:mujo",
+        "kind": "outside",
+        "target": "halil-dark-cell"
+      },
+      {
+        "subject": "rescuing-agas",
+        "kind": "outside",
+        "target": "halil-dark-cell"
+      }
+    ],
     "disposition": "physical",
     "rationale": "Mujo hears the song and arrives; the final visible state preserves the rescue company."
   },

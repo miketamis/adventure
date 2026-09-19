@@ -244,13 +244,18 @@ export default Object.freeze([
           "age": "child"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.55,
+          0,
+          -2.2
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The consequence depicts departure from the high tower with the boy; it does not create a second Argjiro."
+    "rationale": "The consequence depicts departure from the high tower with the boy; it does not create a second Argjiro. The surviving child and milk-giving rock are visibly beside one another outside the tower wall; local offsets are illustrative and do not alter the canonical castle position."
   },
   {
     "id": "description:argjiroFund:1",
@@ -272,7 +277,12 @@ export default Object.freeze([
         "zone": "near",
         "attributes": {},
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "offset": [
+          -0.75,
+          0,
+          -2.2
+        ]
       },
       {
         "key": "argjiro-boy",
@@ -283,13 +293,18 @@ export default Object.freeze([
           "age": "child"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.55,
+          0,
+          -2.2
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The living child remains by the rock after the player’s death."
+    "rationale": "The living child remains by the rock after the player’s death. The surviving child and milk-giving rock are visibly beside one another outside the tower wall; local offsets are illustrative and do not alter the canonical castle position."
   },
   {
     "id": "description:argjiroFund:2",
@@ -311,7 +326,12 @@ export default Object.freeze([
         "zone": "near",
         "attributes": {},
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "offset": [
+          -0.75,
+          0,
+          -2.2
+        ]
       },
       {
         "key": "argjiro-boy",
@@ -322,24 +342,39 @@ export default Object.freeze([
           "age": "child"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.55,
+          0,
+          -2.2
+        ]
       },
       {
         "key": "argjiro-milk",
-        "asset": "water",
+        "asset": "milk",
         "label": "White milk emerging from stone",
         "zone": "near",
         "attributes": {
-          "color": "white"
+          "variant": "wall-trickle",
+          "color": "#f3eee3",
+          "width": 0.12,
+          "height": 0.8,
+          "length": 0.035
         },
         "count": 1,
         "persistence": "scene"
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "argjiro-milk",
+        "kind": "emitted-by",
+        "target": "argjiro-rock"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Milk-giving rock, Argjiro’s little boy, White milk emerging from stone; only the represented moment is staged."
+    "rationale": "A small milk flow emerges from the rock and sustains the living boy. The milk remains attached to its rock source rather than becoming a landscape-sized water surface. The surviving child and milk-giving rock are visibly beside one another outside the tower wall; local offsets are illustrative and do not alter the canonical castle position."
   },
   {
     "id": "description:argjiroFund:3",
@@ -394,9 +429,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "argjiro-enemy",
+        "kind": "in-front-of",
+        "target": "argjiro-castle"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Argjiro’s besieged castle, Capturing enemy; only the represented moment is staged."
+    "rationale": "The visible beat establishes Argjiro’s besieged castle, Capturing enemy; only the represented moment is staged. The arriving captor approaches the castle through open ground rather than occupying its masonry; the exact approach spacing is illustrative."
   },
   {
     "id": "description:argjiroRob:1",
@@ -433,9 +474,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "argjiro-enemy",
+        "kind": "in-front-of",
+        "target": "argjiro-castle"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Argjiro’s besieged castle, Capturing enemy; only the represented moment is staged."
+    "rationale": "The visible beat establishes Argjiro’s besieged castle, Capturing enemy; only the represented moment is staged. The arriving captor approaches the castle through open ground rather than occupying its masonry; the exact approach spacing is illustrative."
   },
   {
     "id": "description:argjiroRob:2",
@@ -1831,9 +1878,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-brothers",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Rozafa castle, Builder brothers, Castle wall; only the represented moment is staged."
+    "rationale": "The visible beat establishes Rozafa castle, Builder brothers, Castle wall; only the represented moment is staged. The brothers work or stand beside the wall; only Rozafa’s later explicit walling permits bodily embedding."
   },
   {
     "id": "description:kalaMjegull:4",
@@ -1943,9 +1996,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-brothers",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The builder brothers remain at the actual wall during their work or pause."
+    "rationale": "The builder brothers remain at the actual wall during their work or pause. The brothers work or stand beside the wall; only Rozafa’s later explicit walling permits bodily embedding."
   },
   {
     "id": "description:kalaMjegull:7",
@@ -1983,9 +2042,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-brothers",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The builder brothers remain at the actual wall during their work or pause."
+    "rationale": "The builder brothers remain at the actual wall during their work or pause. The brothers work or stand beside the wall; only Rozafa’s later explicit walling permits bodily embedding."
   },
   {
     "id": "description:kalaMjegull:8",
@@ -2023,9 +2088,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-brothers",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The builder brothers remain at the actual wall during their work or pause."
+    "rationale": "The builder brothers remain at the actual wall during their work or pause. The brothers work or stand beside the wall; only Rozafa’s later explicit walling permits bodily embedding."
   },
   {
     "id": "description:kalaMjegull:9",
@@ -2063,9 +2134,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-brothers",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The builder brothers remain at the actual wall during their work or pause."
+    "rationale": "The builder brothers remain at the actual wall during their work or pause. The brothers work or stand beside the wall; only Rozafa’s later explicit walling permits bodily embedding."
   },
   {
     "id": "description:kalaMjegull:10",
@@ -2113,9 +2190,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-elder",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "The old man is the visible speaker; his account of nightly collapse is not simultaneous with every daytime wall state."
+    "rationale": "The old man is the visible speaker; his account of nightly collapse is not simultaneous with every daytime wall state. The speaker stands in the builders’ open work area beside the wall."
   },
   {
     "id": "description:kalaMjegull:12",
@@ -2145,9 +2228,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-elder",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "The old man is the visible speaker; his account of nightly collapse is not simultaneous with every daytime wall state."
+    "rationale": "The old man is the visible speaker; his account of nightly collapse is not simultaneous with every daytime wall state. The speaker stands in the builders’ open work area beside the wall."
   },
   {
     "id": "description:kalaMjegull:13",
@@ -2196,9 +2285,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-elder",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "The old man is the visible speaker; his account of nightly collapse is not simultaneous with every daytime wall state."
+    "rationale": "The old man is the visible speaker; his account of nightly collapse is not simultaneous with every daytime wall state. The speaker stands in the builders’ open work area beside the wall."
   },
   {
     "id": "description:kalaPlak:0",
@@ -2807,9 +2902,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:rozafa",
+        "kind": "in-front-of",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Rozafa castle, Rozafa, Bread brought by Rozafa; only the represented moment is staged."
+    "rationale": "The visible beat establishes Rozafa castle, Rozafa, Bread brought by Rozafa; only the represented moment is staged. At this arrival and discussion, Rozafa remains beside the builders outside the masonry; her later sacrifice is not yet enacted."
   },
   {
     "id": "description:kalaNgjitje:1",
@@ -2856,9 +2957,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-brothers",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      },
+      {
+        "subject": "actor:rozafa",
+        "kind": "in-front-of",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "The brothers speak before the sacrifice; their demand does not yet place Rozafa inside the wall."
+    "rationale": "The brothers speak before the sacrifice; their demand does not yet place Rozafa inside the wall. The brothers work or stand beside the wall; only Rozafa’s later explicit walling permits bodily embedding. At this arrival and discussion, Rozafa remains beside the builders outside the masonry; her later sacrifice is not yet enacted."
   },
   {
     "id": "description:kalaNgjitje:2",
@@ -2897,9 +3009,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:rozafa",
+        "kind": "in-front-of",
+        "target": "rozafa-wall"
+      },
+      {
+        "subject": "rozafa-child",
+        "kind": "near",
+        "target": "actor:rozafa"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Rozafa, Rozafa’s small child; only the represented moment is staged."
+    "rationale": "The visible beat establishes Rozafa, Rozafa’s small child; only the represented moment is staged. At this arrival and discussion, Rozafa remains beside the builders outside the masonry; her later sacrifice is not yet enacted. The small child is staged with the mother in open ground, with illustrative separation."
   },
   {
     "id": "description:kalaLutje:0",
@@ -3543,9 +3666,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-brothers",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The player departs while the brothers and enclosed Rozafa remain at the wall."
+    "rationale": "The player departs while the brothers and enclosed Rozafa remain at the wall. The brothers work or stand beside the wall; only Rozafa’s later explicit walling permits bodily embedding."
   },
   {
     "id": "description:kalaFundTurp:1",
@@ -3601,9 +3730,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "rozafa-brothers",
+        "kind": "beside",
+        "target": "rozafa-wall"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The player departs while the brothers and enclosed Rozafa remain at the wall."
+    "rationale": "The player departs while the brothers and enclosed Rozafa remain at the wall. The brothers work or stand beside the wall; only Rozafa’s later explicit walling permits bodily embedding."
   },
   {
     "id": "description:kalaFundTurp:2",
@@ -3904,17 +4039,22 @@ export default Object.freeze([
         "key": "home-people",
         "asset": "human",
         "label": "Grateful villagers",
-        "zone": "front",
+        "zone": "near",
         "attributes": {},
         "count": 4,
         "persistence": "scene",
-        "countExact": false
+        "countExact": false,
+        "offset": [
+          0,
+          0,
+          -2
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The people are present and call out their blessing."
+    "rationale": "The people are present and call out their blessing. The people address the returned viewer in the open village foreground rather than speaking through a house facade. Their unmeasured foreground spacing clears the actual houses while retaining the returned viewer’s canonical place."
   },
   {
     "id": "description:udhaKthimit:0",

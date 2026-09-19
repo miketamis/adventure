@@ -1205,7 +1205,9 @@ export default Object.freeze([
         "asset": "mill",
         "label": "Mill in Maro’s tale",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -1224,9 +1226,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Mill in Maro’s tale, Sack of grain. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "Maro enters the mill carrying the grain sack; the mill interior encloses the embodied viewpoint."
   },
   {
     "id": "description:maroMulli1:2",
@@ -1253,12 +1261,36 @@ export default Object.freeze([
         "countExact": true,
         "persistence": "place",
         "role": "setting"
+      },
+      {
+        "key": "maro-night-mill",
+        "asset": "mill",
+        "label": "Interior of Maro’s mill",
+        "zone": "around",
+        "attributes": {
+          "interior": true
+        },
+        "count": 1,
+        "countExact": true,
+        "persistence": "place",
+        "role": "setting"
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      },
+      {
+        "subject": "maro-mill-door",
+        "kind": "part-of",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The door is open and no person is inside."
+    "rationale": "The open door and explicitly empty interior establish the same mill enclosure after arrival; no unseen night-spirit bodies are invented."
   },
   {
     "id": "description:maroMulli1:3",
@@ -1293,7 +1325,9 @@ export default Object.freeze([
         "asset": "wall",
         "label": "Wall beside the miller’s lamp",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "componentPartId": "back-wall"
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -1301,9 +1335,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-mill-wall",
+        "kind": "part-of",
+        "target": "maro-night-mill"
+      },
+      {
+        "subject": "maro-mill-lamp",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Miller’s lamp, Wall beside the miller’s lamp. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "This immediate scene establishes Miller’s lamp, Wall beside the miller’s lamp. The embodied player is the viewpoint, not a second visible body. The mentioned wall is a panel of this same mill, not a free-standing slab across its occupants. The chosen back panel is an illustrative side; the text does not name a compass side."
   },
   {
     "id": "description:maroMulli1:4",
@@ -1338,7 +1383,9 @@ export default Object.freeze([
         "asset": "wall",
         "label": "Wall carrying lamplight shadows",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "componentPartId": "back-wall"
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -1346,9 +1393,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-mill-wall",
+        "kind": "part-of",
+        "target": "maro-night-mill"
+      },
+      {
+        "subject": "maro-mill-lamp",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Miller’s lamp, Wall carrying lamplight shadows. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "This immediate scene establishes Miller’s lamp, Wall carrying lamplight shadows. The embodied player is the viewpoint, not a second visible body. The mentioned wall is a panel of this same mill, not a free-standing slab across its occupants. The chosen back panel is an illustrative side; the text does not name a compass side."
   },
   {
     "id": "description:maroMulli1:5",
@@ -1405,10 +1463,15 @@ export default Object.freeze([
         "subject": "maro-mill-water",
         "kind": "under",
         "target": "maro-millstone"
+      },
+      {
+        "subject": "maro-millstone",
+        "kind": "inside",
+        "target": "maro-night-mill"
       }
     ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Mill in Maro’s tale, Maro’s millstone, Water running beneath the millstone. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "This immediate scene establishes Mill in Maro’s tale, Maro’s millstone, Water running beneath the millstone. The embodied player is the viewpoint, not a second visible body. The working grinding stone belongs within the same entered mill, while the source-stated water remains beneath it. Its unmeasured indoor position is illustrative."
   },
   {
     "id": "description:maroMulli1:6",
@@ -1512,9 +1575,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-millstone",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Maro’s millstone, Sack of grain. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "This immediate scene establishes Maro’s millstone, Sack of grain. The embodied player is the viewpoint, not a second visible body. The working grinding stone belongs within the same entered mill, while the source-stated water remains beneath it. Its unmeasured indoor position is illustrative."
   },
   {
     "id": "description:maroMulli1:9",
@@ -1614,10 +1683,15 @@ export default Object.freeze([
         "subject": "maro-grain-sack",
         "kind": "near",
         "target": "maro-millstone"
+      },
+      {
+        "subject": "maro-millstone",
+        "kind": "inside",
+        "target": "maro-night-mill"
       }
     ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Sack of grain, Maro’s millstone. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "This immediate scene establishes Sack of grain, Maro’s millstone. The embodied player is the viewpoint, not a second visible body. The working grinding stone belongs within the same entered mill, while the source-stated water remains beneath it. Its unmeasured indoor position is illustrative."
   },
   {
     "id": "description:maroXhindet1:0",
@@ -1925,7 +1999,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-night-spirits",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
     "rationale": "This later source explicitly gives the spirits visible open mouths, establishing their forms at this beat."
   },
@@ -1966,9 +2046,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-giving-spirit",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "A single spirit is now explicitly witnessed giving actual gold."
+    "rationale": "A single spirit is now explicitly witnessed giving actual gold. The spirit giving the gift participates in the same indoor mill encounter, rather than standing beyond the mill wall."
   },
   {
     "id": "description:maroLitani1:6",
@@ -1996,7 +2082,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-night-spirits",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "mixed",
     "rationale": "The present spirits ask to continue the story of the distaff."
   },
@@ -2073,7 +2165,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-night-spirits",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
     "rationale": "This immediate scene establishes Night-spirits around Maro, Gold received from the spirits. The embodied player is the viewpoint, not a second visible body."
   },
@@ -2127,7 +2225,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-night-spirits",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "mixed",
     "rationale": "The spirits request the next part of the narrated clothing process."
   },
@@ -2320,10 +2424,15 @@ export default Object.freeze([
         "subject": "maro-flour",
         "kind": "beside",
         "target": "maro-millstone"
+      },
+      {
+        "subject": "maro-millstone",
+        "kind": "inside",
+        "target": "maro-night-mill"
       }
     ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Maro’s finished flour, Maro’s millstone. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "This immediate scene establishes Maro’s finished flour, Maro’s millstone. The embodied player is the viewpoint, not a second visible body. The working grinding stone belongs within the same entered mill, while the source-stated water remains beneath it. Its unmeasured indoor position is illustrative."
   },
   {
     "id": "description:maroLitani3:6",
@@ -2405,7 +2514,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-night-spirits",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
     "rationale": "The spirits seize the embodied player’s hand; no independent hand or duplicate player is invented."
   },
@@ -2478,7 +2593,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-night-spirits",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "mixed",
     "rationale": "The present spirits request the flax story and explain the taboo."
   },
@@ -2508,7 +2629,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-night-spirits",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "mixed",
     "rationale": "The present spirits request the flax story and explain the taboo."
   },
@@ -2878,7 +3005,7 @@ export default Object.freeze([
         "key": "mill-return-men",
         "asset": "human",
         "label": "Mill people bringing Lilo home",
-        "zone": "front",
+        "zone": "near",
         "attributes": {},
         "count": 3,
         "countExact": false,
@@ -2898,10 +3025,15 @@ export default Object.freeze([
         "subject": "actor:lilo",
         "kind": "on",
         "target": "lilo-return-horse"
+      },
+      {
+        "subject": "mill-return-men",
+        "kind": "beside",
+        "target": "lilo-return-horse"
       }
     ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Lilo, Horse carrying Lilo, Mill people bringing Lilo home. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "This immediate scene establishes Lilo, Horse carrying Lilo, Mill people bringing Lilo home. The embodied player is the viewpoint, not a second visible body. The arriving mill workers remain alongside the horse that carries Lilo, in the visible homecoming group."
   },
   {
     "id": "description:maroLiloKthim:3",
@@ -4094,9 +4226,25 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "maro-han-interior"
+      },
+      {
+        "subject": "maro-inn-maidens",
+        "kind": "inside",
+        "target": "maro-han-interior"
+      },
+      {
+        "subject": "han-lights",
+        "kind": "inside",
+        "target": "maro-han-interior"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Interior of the crossroads han, Young women at the celebration, Lights inside the celebration. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "The celebration takes place inside the han: the embodied viewer, young women and lights occupy that room."
   },
   {
     "id": "description:maroHani:4",
@@ -4467,7 +4615,9 @@ export default Object.freeze([
         "asset": "house",
         "label": "Poor house at the village edge",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -4475,9 +4625,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "maro-poor-house"
+      },
+      {
+        "subject": "maro-prince-men",
+        "kind": "outside",
+        "target": "maro-poor-house"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This alternative flight is on foot; no carriage is assumed."
+    "rationale": "This alternative flight is on foot; no carriage is assumed. The player has entered the identified house while the followers remain outside on the road. Their architectural occlusion from this indoor viewpoint is intentional; entering does not bring the pursuers inside."
   },
   {
     "id": "description:maroIkja:3",
@@ -5294,7 +5455,9 @@ export default Object.freeze([
         "asset": "mill",
         "label": "Mill in Maro’s tale",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "interior": false
+        },
         "count": 1,
         "countExact": true,
         "persistence": "place",
@@ -5319,9 +5482,15 @@ export default Object.freeze([
         "value": "night"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "outside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "This immediate scene establishes Mill in Maro’s tale, Dark road to the mill. The embodied player is the viewpoint, not a second visible body."
+    "rationale": "This immediate scene establishes Mill in Maro’s tale, Dark road to the mill. The embodied player is the viewpoint, not a second visible body. The player has left the mill; the earlier indoor viewpoint no longer applies to the departing scene."
   },
   {
     "id": "description:maroNataHumbur:1",
@@ -5556,7 +5725,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "maro-night-spirits",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      }
+    ],
     "disposition": "physical",
     "rationale": "The spirits seize the embodied player; the cursed player is not duplicated as an NPC."
   },
@@ -5627,7 +5802,23 @@ export default Object.freeze([
         "value": "day"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "mill-return-men",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      },
+      {
+        "subject": "maro-return-horse",
+        "kind": "inside",
+        "target": "maro-night-mill"
+      },
+      {
+        "subject": "viewer",
+        "kind": "on",
+        "target": "maro-return-horse"
+      }
+    ],
     "disposition": "physical",
     "rationale": "This immediate scene establishes Mill people lifting Maro, Horse carrying the injured viewpoint. The embodied player is the viewpoint, not a second visible body."
   },

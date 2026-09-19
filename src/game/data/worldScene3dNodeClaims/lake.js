@@ -389,7 +389,7 @@ export default Object.freeze([
         "key": "actor:nereida",
         "asset": "human",
         "label": "Departing Nereida",
-        "zone": "far",
+        "zone": "back",
         "attributes": {
           "gender": "woman",
           "pose": "walking"
@@ -399,9 +399,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:nereida",
+        "kind": "near",
+        "target": "prespa-forest"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Nereida’s forest, Departing Nereida; only the represented moment is staged."
+    "rationale": "The visible beat establishes Nereida’s forest, Departing Nereida; only the represented moment is staged. The departing fairy remains on the forest side of the observer rather than being hidden behind the town in the opposite direction."
   },
   {
     "id": "description:prespaLiri:2",
@@ -437,9 +443,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "prespa-people",
+        "kind": "beside",
+        "target": "prespa-town"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Town beside the forest, Living townspeople; only the represented moment is staged."
+    "rationale": "The visible beat establishes Town beside the forest, Living townspeople; only the represented moment is staged. Living townspeople are visible beside the settlement, clear of its enclosing house walls."
   },
   {
     "id": "description:prespaFund:0",
@@ -479,9 +491,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:nereida",
+        "kind": "inside",
+        "target": "prespa-town"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The wedding occurs in the town after the chosen journey; both town and Nereida are present."
+    "rationale": "The wedding occurs in the town after the chosen journey; both town and Nereida are present. The arrival and marriage take place in the settlement’s open street space rather than inside a house wall."
   },
   {
     "id": "description:prespaFund:1",
@@ -510,7 +528,10 @@ export default Object.freeze([
         "asset": "lake",
         "label": "Floodwater over the town",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "width": 100,
+          "length": 100
+        },
         "count": 1,
         "persistence": "scene"
       }
@@ -520,6 +541,11 @@ export default Object.freeze([
         "key": "environment",
         "property": "weather",
         "value": "rain"
+      },
+      {
+        "key": "environment",
+        "property": "underwater",
+        "value": true
       }
     ],
     "relations": [
@@ -530,7 +556,7 @@ export default Object.freeze([
       }
     ],
     "disposition": "physical",
-    "rationale": "Water floods the actual town; rain is rendered as current weather."
+    "rationale": "Water floods the actual town; rain is rendered as current weather. The whole town is engulfed, including this town-level viewpoint: the water surface extends over the observer and the surroundings use underwater visibility. The extent is illustrative, not a claimed lake measurement."
   },
   {
     "id": "description:prespaFund:2",
@@ -550,15 +576,24 @@ export default Object.freeze([
         "asset": "lake",
         "label": "Lake formed over the drowned town",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "width": 100,
+          "length": 100
+        },
         "count": 1,
         "persistence": "scene"
       }
     ],
-    "states": [],
+    "states": [
+      {
+        "key": "environment",
+        "property": "underwater",
+        "value": true
+      }
+    ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The terminal scene is the lake over the drowned town; the dead are not shown as standing townspeople."
+    "rationale": "The terminal scene is the lake over the drowned town; the dead are not shown as standing townspeople. The whole town is engulfed, including this town-level viewpoint: the water surface extends over the observer and the surroundings use underwater visibility. The extent is illustrative, not a claimed lake measurement."
   },
   {
     "id": "description:prespaFund:3",
@@ -578,15 +613,24 @@ export default Object.freeze([
         "asset": "lake",
         "label": "Lake formed over the drowned town",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "width": 100,
+          "length": 100
+        },
         "count": 1,
         "persistence": "scene"
       }
     ],
-    "states": [],
+    "states": [
+      {
+        "key": "environment",
+        "property": "underwater",
+        "value": true
+      }
+    ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The terminal scene is the lake over the drowned town; the dead are not shown as standing townspeople."
+    "rationale": "The terminal scene is the lake over the drowned town; the dead are not shown as standing townspeople. The whole town is engulfed, including this town-level viewpoint: the water surface extends over the observer and the surroundings use underwater visibility. The extent is illustrative, not a claimed lake measurement."
   },
   {
     "id": "description:aliPashaLiqen:0",
@@ -846,7 +890,7 @@ export default Object.freeze([
         "key": "ali-enemies",
         "asset": "human",
         "label": "Approaching enemies",
-        "zone": "front",
+        "zone": "near",
         "attributes": {
           "pose": "walking"
         },
@@ -858,7 +902,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Lake around the castle, Approaching enemies; only the represented moment is staged."
+    "rationale": "The visible beat establishes Lake around the castle, Approaching enemies; only the represented moment is staged. The arriving enemies reach the player on open ground by the lake, on the observer’s side of the fortress wall."
   },
   {
     "id": "description:aliPashaVdes:2",
@@ -950,9 +994,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "ali-king",
+        "kind": "in-front-of",
+        "target": "ali-fortress"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Killing king; only the represented moment is staged."
+    "rationale": "The visible beat establishes Killing king; only the represented moment is staged. The killing follows leaving the fortress; the king occupies its open approach, not a rampart."
   },
   {
     "id": "description:flocka1:0",

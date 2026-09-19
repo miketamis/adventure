@@ -10,6 +10,7 @@ import './worldNode3d.css'
 const directions = ['Forward', 'Right', 'Behind', 'Left']
 const sourceAddress = (description) => description.source?.path || description.id
 const conditionText = (conditions) => JSON.stringify(conditions, null, 2)
+const emptySettingExplanation = 'This case establishes no nearby visible objects. Compare its environmental conditions and nonvisual narration alongside the view.'
 const download = (blob, filename) => {
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
@@ -78,7 +79,7 @@ function renderManifest(scene) {
   return {
     version: scene.version, nodeId: scene.nodeId, label: scene.label, location: scene.location, mode: scene.mode,
     camera: scene.camera, localOnly: scene.localOnly, viewpoint: scene.viewpoint, viewer: scene.viewer, narrativeDomain: scene.narrativeDomain, representativeDescriptionId: scene.representativeDescriptionId, environment: scene.environment, coverage: scene.coverage,
-    limitations: scene.limitations, objects: scene.objects.map((object) => ({ ...object, visualTreatment: worldScene3dAssetAttributeReview(object.asset, object.attributes || {}) })),
+    limitations: [...scene.limitations, ...(!scene.objects.length ? [emptySettingExplanation] : [])], objects: scene.objects.map((object) => ({ ...object, visualTreatment: worldScene3dAssetAttributeReview(object.asset, object.attributes || {}) })),
     descriptions: scene.descriptions, provenance: scene.provenance, states: scene.states, relations: scene.relations,
   }
 }
@@ -286,7 +287,7 @@ export default function WorldNode3dView({ state }) {
     </div>
     <div className="worldnode-comparison">
       <div className="worldnode-visual">
-        <canvas className={projection === 'panorama' ? 'is-panorama' : ''} ref={canvasRef} data-testid="world-node-canvas" tabIndex={0} role="img" aria-label="360-degree 3D scene from the story node. Arrow keys look around; drag to look; click an object to inspect its sources."
+        <canvas className={projection === 'panorama' ? 'is-panorama' : ''} ref={canvasRef} data-testid="world-node-canvas" tabIndex={0} role="img" aria-label={projection === 'panorama' ? 'Full 360-degree panorama from the story node. Use the modeled object selector to inspect sources.' : '360-degree 3D scene from the story node. Arrow keys look around; drag to look; click an object to inspect its sources.'}
           onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={() => { dragRef.current = null }}
           onKeyDown={(event) => {
             if (projection === 'panorama') return
@@ -296,6 +297,7 @@ export default function WorldNode3dView({ state }) {
           }} />
         <p className="worldnode-camera-note">{projection === 'panorama' ? `A full 360° × 180° panorama ${scene.location.kind === 'charted' ? 'at the canonical scene position' : 'in an unlocated local frame'}. Use the object selector to trace sources.`
           : `${viewMode === 'first-person' ? (scene.location.kind === 'charted' ? 'The eye stays at the canonical scene position.' : 'The eye stays in an unlocated local frame; no world coordinates are asserted.') : 'External inspection changes the camera, not the objects.'} Drag through 360° · click to trace an object`}</p>
+        {!scene.objects.length && <p className="worldnode-camera-note" data-testid="world-node-empty-setting">{emptySettingExplanation}</p>}
         <label className="worldnode-object-picker">Inspect a modeled object<select aria-label="Node scene object" value={selectedElementId || ''} onChange={(event) => setSelectedElementId(event.target.value || null)}>
           <option value="">Select an object</option>{scene.objects.map((object) => <option key={object.id} value={object.id}>{object.label || object.id}</option>)}
         </select></label>

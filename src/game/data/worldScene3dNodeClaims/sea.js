@@ -2666,13 +2666,18 @@ export default Object.freeze([
         "zone": "around",
         "attributes": {},
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "offset": [
+          -35,
+          0,
+          -8
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Coastal village, Sea surrounding the coast; only the represented moment is staged."
+    "rationale": "The visible beat establishes Coastal village, Sea surrounding the coast; only the represented moment is staged. The sea adjoins the coastal settlement on its seaward side; the tower and observer retain dry land. Shore distance is illustrative."
   },
   {
     "id": "description:bregu:1",
@@ -2696,7 +2701,12 @@ export default Object.freeze([
         "zone": "around",
         "attributes": {},
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "offset": [
+          -35,
+          0,
+          -8
+        ]
       },
       {
         "key": "fishermen",
@@ -2720,9 +2730,20 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "fishermen",
+        "kind": "beside",
+        "target": "coastal-sea"
+      },
+      {
+        "subject": "fishermen",
+        "kind": "holds",
+        "target": "coast-fish"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Sea surrounding the coast, Fishermen, Caught fish; only the represented moment is staged."
+    "rationale": "The visible beat establishes Sea surrounding the coast, Fishermen, Caught fish; only the represented moment is staged. The men remain at the water’s edge, separate from the hero’s tower-house. The sea adjoins the coastal settlement on its seaward side; the tower and observer retain dry land. Shore distance is illustrative."
   },
   {
     "id": "description:bregu:2",
@@ -2746,7 +2767,12 @@ export default Object.freeze([
         "zone": "around",
         "attributes": {},
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "offset": [
+          -35,
+          0,
+          -8
+        ]
       }
     ],
     "states": [
@@ -2763,7 +2789,7 @@ export default Object.freeze([
     ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The still sea is black; the fishermen stay indoors and are absent from the shore."
+    "rationale": "The still sea is black; the fishermen stay indoors and are absent from the shore. The sea adjoins the coastal settlement on its seaward side; the tower and observer retain dry land. Shore distance is illustrative."
   },
   {
     "id": "description:bregu:3",
@@ -2787,7 +2813,12 @@ export default Object.freeze([
         "zone": "around",
         "attributes": {},
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "offset": [
+          -35,
+          0,
+          -8
+        ]
       },
       {
         "key": "fishermen",
@@ -2809,9 +2840,15 @@ export default Object.freeze([
         "value": "dawn"
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "fishermen",
+        "kind": "beside",
+        "target": "coastal-sea"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "Fishermen depart across dawn-gold water."
+    "rationale": "Fishermen depart across dawn-gold water. The men remain at the water’s edge, separate from the hero’s tower-house. The sea adjoins the coastal settlement on its seaward side; the tower and observer retain dry land. Shore distance is illustrative."
   },
   {
     "id": "description:bregu:4",
@@ -2835,7 +2872,12 @@ export default Object.freeze([
         "zone": "around",
         "attributes": {},
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "offset": [
+          -35,
+          0,
+          -8
+        ]
       }
     ],
     "states": [
@@ -2847,7 +2889,7 @@ export default Object.freeze([
     ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The sky over the sea turns red and gold at dusk."
+    "rationale": "The sky over the sea turns red and gold at dusk. The sea adjoins the coastal settlement on its seaward side; the tower and observer retain dry land. Shore distance is illustrative."
   },
   {
     "id": "description:bregu:5",
@@ -2869,15 +2911,18 @@ export default Object.freeze([
         "asset": "tower",
         "label": "Gjergj Elez Alia’s tower-house",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "rotationY": -2.790264473347043
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Gjergj Elez Alia’s tower-house; only the represented moment is staged."
+    "rationale": "The visible beat establishes Gjergj Elez Alia’s tower-house; only the represented moment is staged. The tower doorway faces the village observer; this illustrative yaw permits the described interior encounter through the real aperture."
   },
   {
     "id": "description:bregu:6",
@@ -2899,9 +2944,12 @@ export default Object.freeze([
         "asset": "tower",
         "label": "Gjergj Elez Alia’s tower-house",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "rotationY": -2.790264473347043
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -2913,7 +2961,12 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
@@ -2925,7 +2978,7 @@ export default Object.freeze([
       }
     ],
     "disposition": "physical",
-    "rationale": "The wounded hero lies inside the tower."
+    "rationale": "The wounded hero lies inside the actual hollow tower-house. The observer stays at the village shore; the room is not solid masonry. The tower doorway faces the village observer; this illustrative yaw permits the described interior encounter through the real aperture. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:bregu:7",
@@ -2952,7 +3005,12 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       },
       {
         "key": "actor:alia-sister",
@@ -2965,7 +3023,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "alia-water",
@@ -2978,9 +3041,25 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:gjergj-elez-alia",
+        "kind": "inside",
+        "target": "alia-tower"
+      },
+      {
+        "subject": "actor:alia-sister",
+        "kind": "inside",
+        "target": "alia-tower"
+      },
+      {
+        "subject": "actor:alia-sister",
+        "kind": "holds",
+        "target": "alia-water"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Gjergj Elez Alia, The hero’s sister, Water offered to the hero; only the represented moment is staged."
+    "rationale": "The sister offers water to the same wounded hero inside his established tower-house; the cup stays in her hand rather than on the village ground. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:bregu:8",
@@ -3008,7 +3087,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       }
     ],
     "states": [
@@ -3020,7 +3104,7 @@ export default Object.freeze([
     ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "Blood stains the sister’s hair; it is not her ordinary hair color."
+    "rationale": "Blood stains the sister’s hair; it is not her ordinary hair color. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:bregu:9",
@@ -3049,9 +3133,15 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "fishermen",
+        "kind": "beside",
+        "target": "coastal-sea"
+      }
+    ],
     "disposition": "mixed",
-    "rationale": "The men report the tribute has ended; gold, goats and tribute victims are not present here."
+    "rationale": "The men report the tribute has ended; gold, goats and tribute victims are not present here. The men remain at the water’s edge, separate from the hero’s tower-house."
   },
   {
     "id": "description:bregu:10",
@@ -3075,16 +3165,24 @@ export default Object.freeze([
         "zone": "around",
         "attributes": {},
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "offset": [
+          -35,
+          0,
+          -8
+        ]
       },
       {
         "key": "alia-tower",
         "asset": "tower",
         "label": "Gjergj Elez Alia’s tower-house",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "rotationY": -2.790264473347043
       }
     ],
     "states": [
@@ -3096,7 +3194,7 @@ export default Object.freeze([
     ],
     "relations": [],
     "disposition": "physical",
-    "rationale": "Rain falls over the sea and tower."
+    "rationale": "Rain falls over the sea and tower. The sea adjoins the coastal settlement on its seaward side; the tower and observer retain dry land. Shore distance is illustrative. The tower doorway faces the village observer; this illustrative yaw permits the described interior encounter through the real aperture."
   },
   {
     "id": "description:bregu:11",
@@ -3152,7 +3250,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3164,13 +3267,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart."
+    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozMotra:1",
@@ -3196,7 +3304,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3208,13 +3321,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart."
+    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozMotra:2",
@@ -3234,9 +3352,12 @@ export default Object.freeze([
         "asset": "tower",
         "label": "Gjergj Elez Alia’s tower-house",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "rotationY": -2.790264473347043
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3248,13 +3369,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The same wounded hero remains in the tower after nine years."
+    "rationale": "The same wounded hero remains in the tower after nine years. The tower doorway faces the village observer; this illustrative yaw permits the described interior encounter through the real aperture. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozMotra:3",
@@ -3280,7 +3406,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3292,13 +3423,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart."
+    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozMotra:4",
@@ -3324,7 +3460,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3336,13 +3477,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart."
+    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozMotra:5",
@@ -3368,7 +3514,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3380,13 +3531,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart."
+    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozMotra:6",
@@ -3412,7 +3568,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3424,13 +3585,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart."
+    "rationale": "The sister speaks beside the bedridden hero. Her years of care and their emotional bond do not add past meals or a literal shared heart. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozTribut:0",
@@ -3456,13 +3622,18 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The sister is the present speaker."
+    "rationale": "The sister is the present speaker. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozTribut:1",
@@ -3560,7 +3731,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3572,13 +3748,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The sister weeps over the wounded hero, with tears reaching his face."
+    "rationale": "The sister weeps over the wounded hero, with tears reaching his face. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozZgjedh:1",
@@ -3604,7 +3785,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3616,13 +3802,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The sister weeps over the wounded hero, with tears reaching his face."
+    "rationale": "The sister weeps over the wounded hero, with tears reaching his face. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozZgjedh:2",
@@ -3647,13 +3838,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The hero’s nine wounds are visible; wanting to fight does not yet enact the battle."
+    "rationale": "The hero’s nine wounds are visible; wanting to fight does not yet enact the battle. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozZgjedh:3",
@@ -3678,13 +3874,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The hero’s nine wounds are visible; wanting to fight does not yet enact the battle."
+    "rationale": "The hero’s nine wounds are visible; wanting to fight does not yet enact the battle. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozZgjedh:4",
@@ -3740,7 +3941,12 @@ export default Object.freeze([
           "hairColor": "#762f2e"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       },
       {
         "key": "actor:gjergj-elez-alia",
@@ -3752,13 +3958,18 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The sister weeps over the wounded hero, with tears reaching his face."
+    "rationale": "The sister weeps over the wounded hero, with tears reaching his face. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozZgjedh:6",
@@ -3785,7 +3996,12 @@ export default Object.freeze([
           "held": "sword"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       },
       {
         "key": "alia-sword",
@@ -3800,7 +4016,7 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "mixed",
-    "rationale": "The hero takes his own sword and invites the player before departure."
+    "rationale": "The hero takes his own sword and invites the player before departure. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozLufte:0",
@@ -4245,15 +4461,18 @@ export default Object.freeze([
         "asset": "tower",
         "label": "Gjergj Elez Alia’s tower-house",
         "zone": "front",
-        "attributes": {},
+        "attributes": {
+          "interior": true
+        },
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "rotationY": -2.790264473347043
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The player returns to the tower; the hero and sister are reunited there before their final embrace."
+    "rationale": "The player returns to the tower; the hero and sister are reunited there before their final embrace. The tower doorway faces the village observer; this illustrative yaw permits the described interior encounter through the real aperture."
   },
   {
     "id": "description:balozFitore:1",
@@ -4278,7 +4497,12 @@ export default Object.freeze([
           "wounds": 9
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -1.8630199334792223,
+          0,
+          -6.096229975469441
+        ]
       },
       {
         "key": "actor:alia-sister",
@@ -4290,13 +4514,18 @@ export default Object.freeze([
           "gender": "woman"
         },
         "count": 1,
-        "persistence": "scene"
+        "persistence": "scene",
+        "offset": [
+          -2.520261451511601,
+          0,
+          -5.855328362825503
+        ]
       }
     ],
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The hero embraces his sister and both die; the final state belongs to those two siblings, not the player."
+    "rationale": "The hero embraces his sister and both die; the final state belongs to those two siblings, not the player. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative. The siblings occupy the shared doorway-side interior where the visible tending and speech can be perceived; unmeasured local spacing is illustrative."
   },
   {
     "id": "description:balozFitore:2",
@@ -4422,13 +4651,29 @@ export default Object.freeze([
         "zone": "around",
         "attributes": {},
         "count": 1,
-        "persistence": "place"
+        "persistence": "place",
+        "offset": [
+          -35,
+          0,
+          -8
+        ]
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "actor:baloz",
+        "kind": "beside",
+        "target": "coastal-sea"
+      },
+      {
+        "subject": "tribute-maiden",
+        "kind": "near",
+        "target": "actor:baloz"
+      }
+    ],
     "disposition": "physical",
-    "rationale": "The visible beat establishes Baloz sea-monster, Taken maiden, Sea surrounding the coast; only the represented moment is staged."
+    "rationale": "The visible beat establishes Baloz sea-monster, Taken maiden, Sea surrounding the coast; only the represented moment is staged. The sea adjoins the coastal settlement on its seaward side; the tower and observer retain dry land. Shore distance is illustrative. The monster emerges at the water’s edge and takes the nearby maiden there; the unrelated tower cannot relocate the encounter behind its walls."
   },
   {
     "id": "description:bregFle:2",
@@ -5562,10 +5807,41 @@ export default Object.freeze([
     },
     "objects": [
       {
-        "key": "coastal-tower",
+        "key": "alia-tower",
         "asset": "tower",
-        "label": "Tower-house revealed by observation",
+        "label": "Gjergj Elez Alia’s tower-house",
         "zone": "front",
+        "attributes": {
+          "interior": true
+        },
+        "count": 1,
+        "persistence": "place",
+        "rotationY": -2.790264473347043
+      }
+    ],
+    "states": [],
+    "relations": [],
+    "disposition": "physical",
+    "rationale": "Looking reveals the same tower-house already established at this shore, not a second building beside the fishermen. The tower doorway faces the village observer; this illustrative yaw permits the described interior encounter through the real aperture."
+  },
+  {
+    "id": "description:balozKoke:4",
+    "nodeId": "balozKoke",
+    "lineIndex": 4,
+    "placeId": "balozLufte",
+    "text": "rruga mbrapa kthehet në kullë.",
+    "conditions": {
+      "all": [],
+      "negate": false,
+      "none": [],
+      "observationId": null
+    },
+    "objects": [
+      {
+        "key": "alia-return-road",
+        "asset": "road",
+        "label": "Road back to the tower",
+        "zone": "back",
         "attributes": {},
         "count": 1,
         "persistence": "place"
@@ -5574,7 +5850,6 @@ export default Object.freeze([
     "states": [],
     "relations": [],
     "disposition": "physical",
-    "rationale": "The completed observation reveals the local tower; only its declared observation branch depicts it."
-  },
-{"id":"description:balozKoke:4","nodeId":"balozKoke","lineIndex":4,"placeId":"balozLufte","text":"rruga mbrapa kthehet në kullë.","conditions":{"all":[],"negate":false,"none":[],"observationId":null},"objects":[{"key":"alia-return-road","asset":"road","label":"Road back to the tower","zone":"back","attributes":{},"count":1,"persistence":"place"}],"states":[],"relations":[],"disposition":"physical","rationale":"The ordinary return road leads back toward the existing tower."}
+    "rationale": "The ordinary return road leads back toward the existing tower."
+  }
 ])

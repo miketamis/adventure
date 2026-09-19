@@ -578,7 +578,8 @@ export default Object.freeze([
         "label": "Sun’s guest-room",
         "zone": "center",
         "attributes": {
-          "cutaway": true
+          "cutaway": true,
+          "interior": true
         },
         "count": 1,
         "persistence": "place"
@@ -594,7 +595,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "sun-oda"
+      }
+    ],
     "disposition": "physical",
     "rationale": "The viewpoint enters the guest-room after leaving the garden."
   },
@@ -617,7 +624,8 @@ export default Object.freeze([
         "label": "Sun’s guest-room",
         "zone": "center",
         "attributes": {
-          "cutaway": true
+          "cutaway": true,
+          "interior": true
         },
         "count": 1,
         "persistence": "place"
@@ -636,7 +644,18 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "viewer",
+        "kind": "inside",
+        "target": "sun-oda"
+      },
+      {
+        "subject": "actor:sun-human",
+        "kind": "inside",
+        "target": "sun-oda"
+      }
+    ],
     "disposition": "physical",
     "rationale": "The visible beat establishes Sun’s guest-room, Seated Sun with a face of fire; only the represented moment is staged."
   },
@@ -737,7 +756,13 @@ export default Object.freeze([
       }
     ],
     "states": [],
-    "relations": [],
+    "relations": [
+      {
+        "subject": "sun-oda-door",
+        "kind": "part-of",
+        "target": "sun-oda"
+      }
+    ],
     "disposition": "physical",
     "rationale": "The visible beat establishes Door beside the guest-room, Sun’s guest-room; only the represented moment is staged."
   },

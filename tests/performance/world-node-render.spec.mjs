@@ -62,6 +62,10 @@ test('node scenes place a navigable physical render beside every source and keep
   await expect(canvas).toHaveClass('is-panorama')
   await expect(page.locator('.worldnode-camera-note')).toContainText('360° × 180°')
 
+  await picker.selectOption('binoshetShpata')
+  await expect(page.getByTestId('world-node-empty-setting')).toContainText('no nearby visible objects')
+  await expect(page.getByRole('combobox', { name: 'Node scene object', exact: true }).locator('option')).toHaveCount(1)
+
   await picker.selectOption('maroPrincesha')
   await expect(page.locator('.worldnode-mode')).toContainText('Unlocated local 360°')
   await expect(page.locator('.worldnode-mode')).toContainText('Representative authored condition')
